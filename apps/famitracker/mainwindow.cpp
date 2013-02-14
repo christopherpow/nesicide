@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include "FamiTracker.h"
+
 #include <QFileInfo>
 #include <QUrl>
 
@@ -10,7 +12,9 @@ MainWindow::MainWindow(QWidget *parent) :
 {
    ui->setupUi(this);
    
-   m_pMainFrame = new CMainFrame();
+   theApp.InitInstance();
+   
+   m_pMainFrame = (CMainFrame*)theApp.m_pMainWnd;
    setCentralWidget(m_pMainFrame);
    
    QObject::connect(m_pMainFrame,SIGNAL(addToolBarWidget(QToolBar*)),this,SLOT(addToolBarWidget(QToolBar*)));
@@ -21,7 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
    delete ui;
-   delete m_pMainFrame;
+   theApp.ExitInstance();
 }
 
 void MainWindow::on_actionExit_triggered()

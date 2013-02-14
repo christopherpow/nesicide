@@ -94,6 +94,18 @@ CSoundGen::CSoundGen() :
 	m_bWaveChanged(false),
 	m_iMachineType(NTSC)
 {
+   pThread = new QThread();
+
+   QObject::connect(this,SIGNAL(postThreadMessage(unsigned int,unsigned int,unsigned int)),this,SLOT(recvThreadMessage(unsigned int,unsigned int,unsigned int)));
+   
+   moveToThread(pThread); 
+   
+   QTimer* timer = new QTimer();
+   connect(timer, SIGNAL(timeout()), this, SLOT(OnIdleSlot()));
+   timer->start();
+   
+   pThread->start();
+   
 	// DPCM sample interface
 	m_pSampleMem = new CSampleMem();
 
@@ -119,37 +131,6 @@ CSoundGen::~CSoundGen()
 		SAFE_RELEASE(m_pChannels[i]);
 		SAFE_RELEASE(m_pTrackerChannels[i]);
 	}
-}
-
-void CSoundGen::start(Priority p)
-{
-
-   // CP: From InitInstance
-   // Generate default vibrato table
-   GenerateVibratoTable(VIBRATO_NEW);
-
-	ResetSound();
-
-//	LoadMachineSettings(DEFAULT_MACHINE_TYPE, DEFAULT_MACHINE_TYPE == NTSC ? CAPU::FRAME_RATE_NTSC : CAPU::FRAME_RATE_PAL);
-
-   ResetAPU();
-
-   // Default tempo & speed
-   m_iSpeed = DEFAULT_SPEED;
-   m_iTempo = (DEFAULT_MACHINE_TYPE == NTSC) ? DEFAULT_TEMPO_NTSC : DEFAULT_TEMPO_PAL;
-
-   TRACE0("SoundGen: Created thread\n");
-
-//   SetThreadPriority(THREAD_PRIORITY_TIME_CRITICAL);
-
-   m_iDelayedStart = 0;
-   m_csFrameCounterLock.Lock();
-   m_iFrameCounter = 0;
-   m_csFrameCounterLock.Unlock();
-
-   SetupChannels();
-
-   QThread::start(p);
 }
 
 //
@@ -366,7 +347,7 @@ void CSoundGen::StartPlayer(int Mode)
 //	if (!m_hThread)
 //		return;
 
-//	PostThreadMessage(WM_USER_PLAY, Mode, 0);
+	PostThreadMessage(WM_USER_PLAY, Mode, 0);
 }
 
 void CSoundGen::StopPlayer()
@@ -374,7 +355,7 @@ void CSoundGen::StopPlayer()
 //	if (!m_pDocument || !m_hThread)
 //		return;
 
-//	PostThreadMessage(WM_USER_STOP, 0, 0);
+	PostThreadMessage(WM_USER_STOP, 0, 0);
 }
 
 void CSoundGen::ResetPlayer()
@@ -382,7 +363,7 @@ void CSoundGen::ResetPlayer()
 //	if (!m_hThread)
 //		return;
 
-//	PostThreadMessage(WM_USER_RESET, 0, 0);
+	PostThreadMessage(WM_USER_RESET, 0, 0);
 }
 
 void CSoundGen::LoadSettings()
@@ -390,7 +371,7 @@ void CSoundGen::LoadSettings()
 //	if (!m_hThread)
 //		return;
 
-//	PostThreadMessage(WM_USER_LOAD_SETTINGS, 0, 0);
+	PostThreadMessage(WM_USER_LOAD_SETTINGS, 0, 0);
 }
 
 void CSoundGen::SilentAll()
@@ -398,7 +379,7 @@ void CSoundGen::SilentAll()
 //	if (!m_hThread)
 //		return;
 
-//	PostThreadMessage(WM_USER_SILENT_ALL, 0, 0);
+	PostThreadMessage(WM_USER_SILENT_ALL, 0, 0);
 }
 
 void CSoundGen::WriteAPU(int Address, char Value)
@@ -406,18 +387,19 @@ void CSoundGen::WriteAPU(int Address, char Value)
 //	if (!m_hThread)
 //		return;
 
-//	// Direct APU interface
-//	PostThreadMessage(WM_USER_WRITE_APU, (WPARAM)Address, (LPARAM)Value);
+	// Direct APU interface
+	PostThreadMessage(WM_USER_WRITE_APU, (WPARAM)Address, (LPARAM)Value);
 }
+
 
 void CSoundGen::PreviewSample(CDSample *pSample, int Offset, int Pitch)
 {
 //	if (!m_hThread)
 //		return;
 
-//	// Preview a DPCM sample. If the name of sample is null,
-//	// the sample will be removed after played
-//	PostThreadMessage(WM_USER_PREVIEW_SAMPLE, (WPARAM)pSample, MAKELPARAM(Offset, Pitch));
+	// Preview a DPCM sample. If the name of sample is null,
+	// the sample will be removed after played
+	PostThreadMessage(WM_USER_PREVIEW_SAMPLE, (WPARAM)pSample, MAKELPARAM(Offset, Pitch));
 }
 
 //// Sound buffer handling /////////////////////////////////////////////////////////////////////////////////
@@ -529,8 +511,8 @@ bool CSoundGen::ResetSound()
 //	m_pAPU->SetChipLevel(SNDCHIP_VRC7, 0);//pSettings->ChipLevels.iLevelVRC7);
 //	m_pAPU->SetChipLevel(SNDCHIP_MMC5, 0);//pSettings->ChipLevels.iLevelMMC5);
 //	m_pAPU->SetChipLevel(SNDCHIP_FDS, 0);//pSettings->ChipLevels.iLevelFDS);
-//	m_pAPU->SetChipLevel(SNDCHIP_N163, pSettings->ChipLevels.iLevelN163);
-//	m_pAPU->SetChipLevel(SNDCHIP_S5B, pSettings->ChipLevels.iLevelS5B);
+////	m_pAPU->SetChipLevel(SNDCHIP_N163, pSettings->ChipLevels.iLevelN163);
+////	m_pAPU->SetChipLevel(SNDCHIP_S5B, pSettings->ChipLevels.iLevelS5B);
 
 //	// Update blip-buffer filtering
 //	m_pAPU->SetupMixer(pSettings->Sound.iBassFilter, pSettings->Sound.iTrebleFilter,  pSettings->Sound.iTrebleDamping, pSettings->Sound.iMixVolume);
@@ -538,8 +520,9 @@ bool CSoundGen::ResetSound()
 	return true;
 }
 
-//void CSoundGen::CloseSound()
-//{
+void CSoundGen::CloseSound()
+{
+   qDebug("CloseSound");
 //	// Called from player thread
 //	ASSERT(GetCurrentThreadId() == m_nThreadID);
 
@@ -555,20 +538,21 @@ bool CSoundGen::ResetSound()
 //		delete m_pDSound;
 //		m_pDSound = NULL;
 //	}
-//}
+}
 
-//void CSoundGen::ResetBuffer()
-//{
-//	// Called from player thread
+void CSoundGen::ResetBuffer()
+{
+//    Called from player thread
 //	ASSERT(GetCurrentThreadId() == m_nThreadID);
 
-//	m_iBufferPtr = 0;
+	m_iBufferPtr = 0;
 
+    qDebug("no DSound yet...");
 //	if (m_pDSoundChannel)
 //		m_pDSoundChannel->Clear();
 
-//	m_pAPU->Reset();
-//}
+	m_pAPU->Reset();
+}
 
 void CSoundGen::FlushBuffer(int16 *pBuffer, uint32 Size)
 {
@@ -811,9 +795,9 @@ void CSoundGen::HaltPlayer()
 //	// Called from player thread
 //	ASSERT(GetCurrentThreadId() == m_nThreadID);
 
-//	m_bPlaying = false;
-//	m_bPlayerHalted = false;
-//	MakeSilent();
+	m_bPlaying = false;
+	m_bPlayerHalted = false;
+	MakeSilent();
 }
 
 void CSoundGen::ResetAPU()
@@ -885,80 +869,80 @@ unsigned int CSoundGen::GetTempo() const
 	return !m_iSpeed ? 0 : (m_iTempo * 6) / m_iSpeed;
 }
 
-//void CSoundGen::RunFrame()
-//{
+void CSoundGen::RunFrame()
+{
 //	// Called from player thread
 //	ASSERT(GetCurrentThreadId() == m_nThreadID);
 
-//	int TicksPerSec = m_pDocument->GetFrameRate();
+	int TicksPerSec = m_pDocument->GetFrameRate();
 
-//	m_pTrackerView->PlayerCommand(CMD_TICK, 0);
+	m_pTrackerView->PlayerCommand(CMD_TICK, 0);
 
-//	if (m_bPlaying) {
+	if (m_bPlaying) {
 
-//		m_iPlayTime++;
-//		if (m_bRendering) {
-//			if (m_iRenderEndWhen == SONG_TIME_LIMIT) {
-//				if (m_iPlayTime >= (unsigned int)m_iRenderEndParam)
-//					m_bRequestRenderStop = true;
+		m_iPlayTime++;
+		if (m_bRendering) {
+			if (m_iRenderEndWhen == SONG_TIME_LIMIT) {
+				if (m_iPlayTime >= (unsigned int)m_iRenderEndParam)
+					m_bRequestRenderStop = true;
+			}
+			else if (m_iRenderEndWhen == SONG_LOOP_LIMIT) {
+				if (m_iRenderedFrames >= m_iRenderEndParam)
+					m_bRequestRenderStop = true;
+			}
+		}
+
+		// Calculate playtime
+		m_pTrackerView->PlayerCommand(CMD_TIME, (m_iPlayTime * 10) / TicksPerSec);
+
+		m_iStepRows = 0;
+
+		// Fetch next row
+		if (m_iTempoAccum <= 0) {
+			// Enable this to skip rows on high tempos
+//			while (m_iTempoAccum <= 0)  {
+				m_iTempoAccum += (60 * TicksPerSec);
+				m_iStepRows++;
 //			}
-//			else if (m_iRenderEndWhen == SONG_LOOP_LIMIT) {
-//				if (m_iRenderedFrames >= m_iRenderEndParam)
-//					m_bRequestRenderStop = true;
-//			}
-//		}
+			m_bUpdateRow = true;
+			m_pTrackerView->PlayerCommand(CMD_READ_ROW, 0);
+		}
+		else {
+			m_bUpdateRow = false;
+		}
+	}
+}
 
-//		// Calculate playtime
-//		m_pTrackerView->PlayerCommand(CMD_TIME, (m_iPlayTime * 10) / TicksPerSec);
+void CSoundGen::CheckControl()
+{
+	// This function takes care of jumping and skipping
 
-//		m_iStepRows = 0;
+	if (m_bPlaying) {
+		// If looping, halt when a jump or skip command are encountered
+		if (m_bPlayLooping) {
+			if (m_iJumpToPattern != -1 || m_iSkipToRow != -1)
+				m_pTrackerView->PlayerCommand(CMD_MOVE_TO_TOP, 0);
+			else
+				while (m_iStepRows--)
+					m_pTrackerView->PlayerCommand(CMD_STEP_DOWN, 1);
+		}
+		else {
+			// Jump
+			if (m_iJumpToPattern != -1)
+				m_pTrackerView->PlayerCommand(CMD_JUMP_TO, m_iJumpToPattern - 1);
+			// Skip
+			else if (m_iSkipToRow != -1)
+				m_pTrackerView->PlayerCommand(CMD_SKIP_TO, m_iSkipToRow);
+			// or just move on
+			else
+				while (m_iStepRows--)
+					m_pTrackerView->PlayerCommand(CMD_STEP_DOWN, 0);
+		}
 
-//		// Fetch next row
-//		if (m_iTempoAccum <= 0) {
-//			// Enable this to skip rows on high tempos
-////			while (m_iTempoAccum <= 0)  {
-//				m_iTempoAccum += (60 * TicksPerSec);
-//				m_iStepRows++;
-////			}
-//			m_bUpdateRow = true;
-//			m_pTrackerView->PlayerCommand(CMD_READ_ROW, 0);
-//		}
-//		else {
-//			m_bUpdateRow = false;
-//		}
-//	}
-//}
-
-//void CSoundGen::CheckControl()
-//{
-//	// This function takes care of jumping and skipping
-
-//	if (m_bPlaying) {
-//		// If looping, halt when a jump or skip command are encountered
-//		if (m_bPlayLooping) {
-//			if (m_iJumpToPattern != -1 || m_iSkipToRow != -1)
-//				m_pTrackerView->PlayerCommand(CMD_MOVE_TO_TOP, 0);
-//			else
-//				while (m_iStepRows--)
-//					m_pTrackerView->PlayerCommand(CMD_STEP_DOWN, 1);
-//		}
-//		else {
-//			// Jump
-//			if (m_iJumpToPattern != -1)
-//				m_pTrackerView->PlayerCommand(CMD_JUMP_TO, m_iJumpToPattern - 1);
-//			// Skip
-//			else if (m_iSkipToRow != -1)
-//				m_pTrackerView->PlayerCommand(CMD_SKIP_TO, m_iSkipToRow);
-//			// or just move on
-//			else
-//				while (m_iStepRows--)
-//					m_pTrackerView->PlayerCommand(CMD_STEP_DOWN, 0);
-//		}
-
-//		m_iJumpToPattern = -1;
-//		m_iSkipToRow = -1;
-//	}
-//}
+		m_iJumpToPattern = -1;
+		m_iSkipToRow = -1;
+	}
+}
 
 void CSoundGen::LoadMachineSettings(int Machine, int Rate)
 {
@@ -1291,21 +1275,22 @@ void CSoundGen::EvaluateGlobalEffects(stChanNote *NoteData, int EffColumns)
 //	return true;
 //}
 
-//void CSoundGen::StopRendering()
-//{
-//	if (!IsRendering())
-//		return;
+void CSoundGen::StopRendering()
+{
+	if (!IsRendering())
+		return;
 
-//	m_bPlaying = false;
-//	m_bPlayerHalted = false;
+	m_bPlaying = false;
+	m_bPlayerHalted = false;
 
-//	m_bRendering = false;
-//	m_pTrackerView->PlayerCommand(CMD_MOVE_TO_START, 0);
+	m_bRendering = false;
+	m_pTrackerView->PlayerCommand(CMD_MOVE_TO_START, 0);
+   qDebug("rendering to wav needs to be implemented...");
 //	m_wfWaveFile.CloseFile();
 
-//	MakeSilent();
-//	ResetBuffer();
-//}
+	MakeSilent();
+	ResetBuffer();
+}
 
 //void CSoundGen::GetRenderStat(int &Frame, int &Time, bool &Done, int &FramesToRender)
 //{
@@ -1399,73 +1384,74 @@ bool CSoundGen::WaitForStop() const
 // Overloaded functions
 //
 
-//BOOL CSoundGen::InitInstance()
-//{
-//	//
-//	// Setup the synth, called when thread is started
-//	//
-//	// Sound must be working before entering here!
-//	//
+BOOL CSoundGen::InitInstance()
+{
+   qDebug("CSoundGen::InitInstance");
+	//
+	// Setup the synth, called when thread is started
+	//
+	// Sound must be working before entering here!
+	//
 
-//	// Generate default vibrato table
-//	GenerateVibratoTable(VIBRATO_NEW);
+	// Generate default vibrato table
+	GenerateVibratoTable(VIBRATO_NEW);
 
-//	if (!ResetSound()) {
-//		return FALSE;
-//	}
+	if (!ResetSound()) {
+		return FALSE;
+	}
 
-////	LoadMachineSettings(DEFAULT_MACHINE_TYPE, DEFAULT_MACHINE_TYPE == NTSC ? CAPU::FRAME_RATE_NTSC : CAPU::FRAME_RATE_PAL);
+//	LoadMachineSettings(DEFAULT_MACHINE_TYPE, DEFAULT_MACHINE_TYPE == NTSC ? CAPU::FRAME_RATE_NTSC : CAPU::FRAME_RATE_PAL);
 
-//	ResetAPU();
+	ResetAPU();
 
-//	// Default tempo & speed
-//	m_iSpeed = DEFAULT_SPEED;
-//	m_iTempo = (DEFAULT_MACHINE_TYPE == NTSC) ? DEFAULT_TEMPO_NTSC : DEFAULT_TEMPO_PAL;
+	// Default tempo & speed
+	m_iSpeed = DEFAULT_SPEED;
+	m_iTempo = (DEFAULT_MACHINE_TYPE == NTSC) ? DEFAULT_TEMPO_NTSC : DEFAULT_TEMPO_PAL;
 
-//	TRACE0("SoundGen: Created thread\n");
+	TRACE0("SoundGen: Created thread\n");
 
 //	SetThreadPriority(THREAD_PRIORITY_TIME_CRITICAL);
 
-//	m_iDelayedStart = 0;
-//	m_csFrameCounterLock.Lock();
-//	m_iFrameCounter = 0;
-//	m_csFrameCounterLock.Unlock();
+	m_iDelayedStart = 0;
+	m_csFrameCounterLock.Lock();
+	m_iFrameCounter = 0;
+	m_csFrameCounterLock.Unlock();
 
-//	SetupChannels();
+	SetupChannels();
 
-//	return TRUE;
-//}
+   return TRUE;
+}
 
-//int CSoundGen::ExitInstance()
-//{
-//	// Shutdown the thread
+int CSoundGen::ExitInstance()
+{
+	// Shutdown the thread
 
-//	// Free allocated memory
-//	SAFE_RELEASE_ARRAY(m_iGraphBuffer);
-//	SAFE_RELEASE_ARRAY(m_pAccumBuffer);
+	// Free allocated memory
+	SAFE_RELEASE_ARRAY(m_iGraphBuffer);
+	SAFE_RELEASE_ARRAY(m_pAccumBuffer);
 
-//	// Make sure sound interface is shut down
-//	CloseSound();
+	// Make sure sound interface is shut down
+	CloseSound();
 
-//	TRACE0("SoundGen: Closing thread\n");
+	TRACE0("SoundGen: Closing thread\n");
 
-//	theApp.RemoveSoundGenerator();
+	theApp.RemoveSoundGenerator();
 
-//	return CWinThread::ExitInstance();
-//}
+	return CWinThread::ExitInstance();
+}
 
-//BOOL CSoundGen::OnIdle(LONG lCount)
-//{
-//	// Main loop handler
+BOOL CSoundGen::OnIdle(LONG lCount)
+{
+	// Main loop handler
 
-//	m_csFrameCounterLock.Lock();
-//	++m_iFrameCounter;
-//	m_csFrameCounterLock.Unlock();
+	m_csFrameCounterLock.Lock();
+	++m_iFrameCounter;
+   m_csFrameCounterLock.Unlock();
 
 //	SetEvent(m_hAliveCheck);
 
-//	// Access the document object
-//	m_csDocumentLock.Lock();
+	// Access the document object
+	m_csDocumentLock.Lock();
 
 //	if (!m_pDocument || !m_pDSoundChannel) {
 //		// Document is unloaded or no sound
@@ -1474,198 +1460,199 @@ bool CSoundGen::WaitForStop() const
 //		return FALSE;
 //	}
 
-//	if (m_pDocument->IsFileLoaded()) {
+	if (m_pDocument->IsFileLoaded()) {
 
-//		RunFrame();
+		RunFrame();
 
-//		int Channels = m_pDocument->GetChannelCount();//  m_pDocument->GetAvailableChannels();// GetChannelCount();
+		int Channels = m_pDocument->GetChannelCount();//  m_pDocument->GetAvailableChannels();// GetChannelCount();
 
-//		m_iSpeedSplitPoint = m_pDocument->GetSpeedSplitPoint();
+		m_iSpeedSplitPoint = m_pDocument->GetSpeedSplitPoint();
 
-//		// Read notes
-//		for (int i = 0; i < Channels; ++i) {
-//			int Channel = m_pDocument->GetChannelType(i);
+		// Read notes
+		for (int i = 0; i < Channels; ++i) {
+			int Channel = m_pDocument->GetChannelType(i);
 
-//			// TODO: clean up!
-//			if (m_pTrackerView->Arpeggiate[i] > 0) {
-//				m_pChannels[Channel]->Arpeggiate(m_pTrackerView->Arpeggiate[i]);
-//				m_pTrackerView->Arpeggiate[i] = 0;
-//			}
-//			// !!!
+			// TODO: clean up!
+			if (m_pTrackerView->Arpeggiate[i] > 0) {
+				m_pChannels[Channel]->Arpeggiate(m_pTrackerView->Arpeggiate[i]);
+				m_pTrackerView->Arpeggiate[i] = 0;
+			}
+			// !!!
 
-//			if (m_pTrackerChannels[Channel]->NewNoteData()) {
-//				stChanNote Note = m_pTrackerChannels[Channel]->GetNote();
-//				//PlayNote(Channel, &Note, m_pTrackerChannels[Channel]->GetColumnCount() + 1);
-//				PlayNote(Channel, &Note, m_pDocument->GetEffColumns(i) + 1);
-//			}
+			if (m_pTrackerChannels[Channel]->NewNoteData()) {
+				stChanNote Note = m_pTrackerChannels[Channel]->GetNote();
+				//PlayNote(Channel, &Note, m_pTrackerChannels[Channel]->GetColumnCount() + 1);
+				PlayNote(Channel, &Note, m_pDocument->GetEffColumns(i) + 1);
+			}
 
-//			// Pitch wheel
-//			int Pitch = m_pTrackerChannels[Channel]->GetPitch();
-//			m_pChannels[Channel]->SetPitch(Pitch);
+			// Pitch wheel
+			int Pitch = m_pTrackerChannels[Channel]->GetPitch();
+			m_pChannels[Channel]->SetPitch(Pitch);
 
-//			// Update volume meters
-//			m_pTrackerChannels[Channel]->SetVolumeMeter(m_pAPU->GetVol(Channel));
-//		}
+			// Update volume meters
+			m_pTrackerChannels[Channel]->SetVolumeMeter(m_pAPU->GetVol(Channel));
+		}
 
-//		int SelectedChan = m_pTrackerView->GetSelectedChannel();
+		int SelectedChan = m_pTrackerView->GetSelectedChannel();
 
-//		// Instrument sequence visualization
-//		if (m_pChannels[SelectedChan])
-//			m_pChannels[SelectedChan]->UpdateSequencePlayPos();
-//	}
+		// Instrument sequence visualization
+		if (m_pChannels[SelectedChan])
+			m_pChannels[SelectedChan]->UpdateSequencePlayPos();
+	}
 
 
-//	//
-//	// APU refresh cycle
-//	//
+	//
+	// APU refresh cycle
+	//
 
-//	if (m_bPlayerHalted) {
-//		for (int i = 0; i < CHANNELS; ++i) {
-//			if (m_pChannels[i] != NULL) {
-//				m_pChannels[i]->MakeSilent();
-//			}
-//		}
-//	}
+	if (m_bPlayerHalted) {
+		for (int i = 0; i < CHANNELS; ++i) {
+			if (m_pChannels[i] != NULL) {
+				m_pChannels[i]->MakeSilent();
+			}
+		}
+	}
 
-//	const int CHANNEL_DELAY = 250;
+	const int CHANNEL_DELAY = 250;
 
-//	m_iConsumedCycles = 0;
+	m_iConsumedCycles = 0;
 
-//	int FrameRate = m_pDocument->GetFrameRate();
+	int FrameRate = m_pDocument->GetFrameRate();
 
-//	// Update channels and channel registers
-//	for (int i = 0; i < CHANNELS; ++i) {
-//		if (m_pChannels[i] != NULL) {
-//			m_pChannels[i]->ProcessChannel();
-//			m_pChannels[i]->RefreshChannel();
-//			m_pAPU->Process();
-//			// Add some delay between each channel update
-//			if (FrameRate == CAPU::FRAME_RATE_NTSC || FrameRate == CAPU::FRAME_RATE_PAL)
-//				AddCycles(CHANNEL_DELAY);
-//		}
-//	}
+	// Update channels and channel registers
+	for (int i = 0; i < CHANNELS; ++i) {
+		if (m_pChannels[i] != NULL) {
+			m_pChannels[i]->ProcessChannel();
+			m_pChannels[i]->RefreshChannel();
+			m_pAPU->Process();
+			// Add some delay between each channel update
+			if (FrameRate == CAPU::FRAME_RATE_NTSC || FrameRate == CAPU::FRAME_RATE_PAL)
+				AddCycles(CHANNEL_DELAY);
+		}
+	}
 
-//	// Finish the audio frame
-//	m_pAPU->AddTime(m_iUpdateCycles - m_iConsumedCycles);
-//	m_pAPU->Process();
+	// Finish the audio frame
+	m_pAPU->AddTime(m_iUpdateCycles - m_iConsumedCycles);
+	m_pAPU->Process();
 
-//#ifdef LOGGING
-//	if (m_bPlaying)
-//		m_pAPU->Log();
-//#endif
+#ifdef LOGGING
+	if (m_bPlaying)
+		m_pAPU->Log();
+#endif
 
-//	// Update player
+	// Update player
 
-//	//if (m_bUpdateRow && !m_bPlayerHalted)
-//	if (m_bUpdateRow && !m_bPlayerHalted)
-//		CheckControl();
+	//if (m_bUpdateRow && !m_bPlayerHalted)
+	if (m_bUpdateRow && !m_bPlayerHalted)
+		CheckControl();
 
-//	if (m_bPlaying) {
-//		m_iTempoAccum -= m_iTempoDecrement;
-//	}
+	if (m_bPlaying) {
+		m_iTempoAccum -= m_iTempoDecrement;
+	}
 
-//	// Leave document object
-//	// TODO: move this object to above APU update?
-//	m_csDocumentLock.Unlock();
+	// Leave document object
+	// TODO: move this object to above APU update?
+	m_csDocumentLock.Unlock();
 
-//	if (m_bPlayerHalted && m_bUpdateRow)
-//		HaltPlayer();
+	if (m_bPlayerHalted && m_bUpdateRow)
+		HaltPlayer();
 
-//	// Rendering
-//	if (m_bRendering && m_bRequestRenderStop) {
-//		HaltPlayer();
-//		if (!m_iDelayedEnd)
-//			StopRendering();
-//		else
-//			--m_iDelayedEnd;
-//	}
+	// Rendering
+	if (m_bRendering && m_bRequestRenderStop) {
+		HaltPlayer();
+		if (!m_iDelayedEnd)
+			StopRendering();
+		else
+			--m_iDelayedEnd;
+	}
 
-//	if (m_iDelayedStart > 0) {
-//		--m_iDelayedStart;
-//		if (!m_iDelayedStart) {
-//			PostThreadMessage(WM_USER_PLAY, MODE_PLAY_START, 0);
-//		}
-//	}
+	if (m_iDelayedStart > 0) {
+		--m_iDelayedStart;
+		if (!m_iDelayedStart) {
+			PostThreadMessage(WM_USER_PLAY, MODE_PLAY_START, 0);
+		}
+	}
 
-//	// Check if a previewed sample should be removed
-//	if (m_pPreviewSample && PreviewDone()) {
-//		delete m_pPreviewSample;
-//		m_pPreviewSample = NULL;
-//	}
+	// Check if a previewed sample should be removed
+	if (m_pPreviewSample && PreviewDone()) {
+		delete m_pPreviewSample;
+		m_pPreviewSample = NULL;
+	}
 
-//	return TRUE;
-//}
+	return TRUE;
+}
 
 // End of overloaded functions
 
 //// Thread message handler
 
-//void CSoundGen::OnBeginPlayer(WPARAM wParam, LPARAM lParam)
-//{
-//	BeginPlayer(wParam);
-//}
+void CSoundGen::OnBeginPlayer(WPARAM wParam, LPARAM lParam)
+{
+	BeginPlayer(wParam);
+}
 
-//void CSoundGen::OnSilentAll(WPARAM wParam, LPARAM lParam)
-//{
-//	MakeSilent();
-//}
+void CSoundGen::OnSilentAll(WPARAM wParam, LPARAM lParam)
+{
+	MakeSilent();
+}
 
-//void CSoundGen::OnLoadSettings(WPARAM wParam, LPARAM lParam)
-//{
-//	if (!ResetSound()) {
-//		TRACE("SoundGen: Error when resetting sound settings\n");
-//	}
-//}
+void CSoundGen::OnLoadSettings(WPARAM wParam, LPARAM lParam)
+{
+	if (!ResetSound()) {
+		TRACE("SoundGen: Error when resetting sound settings\n");
+	}
+}
 
-//void CSoundGen::OnStopPlayer(WPARAM wParam, LPARAM lParam)
-//{
-//	HaltPlayer();
-//}
+void CSoundGen::OnStopPlayer(WPARAM wParam, LPARAM lParam)
+{
+	HaltPlayer();
+}
 
-//void CSoundGen::OnResetPlayer(WPARAM wParam, LPARAM lParam)
-//{
-//	if (m_bPlaying)
-//		BeginPlayer(m_iPlayMode);
-//}
+void CSoundGen::OnResetPlayer(WPARAM wParam, LPARAM lParam)
+{
+	if (m_bPlaying)
+		BeginPlayer(m_iPlayMode);
+}
 
-//void CSoundGen::OnStartRender(WPARAM wParam, LPARAM lParam)
-//{
-//	ResetBuffer();
-//	m_bRequestRenderStop = false;
-//	m_bRendering = true;
-//	m_iDelayedStart = 5;	// Wait 5 frames until player starts
-//	m_iDelayedEnd = 5;
-//}
+void CSoundGen::OnStartRender(WPARAM wParam, LPARAM lParam)
+{
+	ResetBuffer();
+	m_bRequestRenderStop = false;
+	m_bRendering = true;
+	m_iDelayedStart = 5;	// Wait 5 frames until player starts
+	m_iDelayedEnd = 5;
+}
 
-//void CSoundGen::OnStopRender(WPARAM wParam, LPARAM lParam)
-//{
-//	StopRendering();
-//}
+void CSoundGen::OnStopRender(WPARAM wParam, LPARAM lParam)
+{
+	StopRendering();
+}
 
-//void CSoundGen::OnPreviewSample(WPARAM wParam, LPARAM lParam)
-//{
-//	PlaySample((CDSample*)wParam, LOWORD(lParam), HIWORD(lParam));
-//}
+void CSoundGen::OnPreviewSample(WPARAM wParam, LPARAM lParam)
+{
+	PlaySample((CDSample*)wParam, LOWORD(lParam), HIWORD(lParam));
+}
 
-//void CSoundGen::OnWriteAPU(WPARAM wParam, LPARAM lParam)
-//{
-//	m_pAPU->Write((uint16)wParam, (uint8)lParam);
-//}
+void CSoundGen::OnWriteAPU(WPARAM wParam, LPARAM lParam)
+{
+	m_pAPU->Write((uint16)wParam, (uint8)lParam);
+}
 
-//void CSoundGen::OnCloseSound(WPARAM wParam, LPARAM lParam)
-//{
-//	CloseSound();
+void CSoundGen::OnCloseSound(WPARAM wParam, LPARAM lParam)
+{
+	CloseSound();
 
-//	// Notification
+	// Notification
+   qDebug("SetEvent???");
 //	if (wParam != NULL)
 //		((CEvent*)wParam)->SetEvent();
-//}
-///*
-//void CSoundGen::SetMeterDecayRate(int Rate)
-//{
+}
+/*
+void CSoundGen::SetMeterDecayRate(int Rate)
+{
 
-//}
-//*/
+}
+*/
 
 // FDS & N163
 
@@ -1680,4 +1667,54 @@ bool CSoundGen::HasWaveChanged()
 	bool bHasChanged = m_bWaveChanged;
 	m_bWaveChanged = false;
 	return bHasChanged;
+}
+
+void CSoundGen::recvThreadMessage(unsigned int m, unsigned int w, unsigned int l)
+{
+   qDebug("recvThreadMessage(%d,%d,%d)",m,w,l);
+   switch ( m )
+   {
+   case WM_USER_SILENT_ALL:
+      qDebug("OnSilentAll");
+      OnSilentAll(w,l);
+      break;
+   case WM_USER_LOAD_SETTINGS:
+      qDebug("OnLoadSettings");
+      OnLoadSettings(w,l);
+      break;
+   case WM_USER_PLAY:
+      qDebug("OnBeginPlayer");
+      OnBeginPlayer(w,l);
+      break;
+   case WM_USER_STOP:
+      qDebug("OnStopPlayer");
+      OnStopPlayer(w,l);
+      break;
+   case WM_USER_RESET:
+      qDebug("OnResetPlayer");
+      OnResetPlayer(w,l);
+      break;
+   case WM_USER_START_RENDER:
+      qDebug("OnStartRender");
+      OnStartRender(w,l);
+      break;
+   case WM_USER_STOP_RENDER:
+      qDebug("OnStopRender");
+      OnStopRender(w,l);
+      break;
+   case WM_USER_PREVIEW_SAMPLE:
+      qDebug("OnPreviewSample");
+      OnPreviewSample(w,l);
+      break;
+   case WM_USER_WRITE_APU:
+      qDebug("OnWriteAPU");
+      OnWriteAPU(w,l);
+      break;
+   case WM_USER_CLOSE_SOUND:
+      break;
+      qDebug("OnCloseSound");
+      OnCloseSound(w,l);
+   default:
+      qDebug("Unhandled thread message: %d",m);
+   }
 }

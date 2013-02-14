@@ -36,7 +36,7 @@ class CFrameEditor;
 class CFrameEditor : public CWnd
 {
    Q_OBJECT
-//	DECLARE_DYNAMIC(CFrameEditor)
+	DECLARE_DYNAMIC(CFrameEditor)
 public:
 	CFrameEditor(CMainFrame *pMainFrm);
 	virtual ~CFrameEditor();
@@ -91,7 +91,7 @@ private:
 //	HACCEL m_hAccel;
 
 protected:
-//	DECLARE_MESSAGE_MAP()
+	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnPaint();
 	afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);

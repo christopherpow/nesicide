@@ -37,12 +37,7 @@ public:
 public:
    CFrameEditor *GetFrameEditor() const;
    void setFileName(QString fileName);
-      
-   // CFrameWnd stuff
-   virtual CView* GetActiveView();
-   virtual CFamiTrackerDoc* GetDocument() { return m_pDocument; }
-   virtual CFamiTrackerDoc* GetActiveDocument() { return m_pDocument; }
-   
+         
    // Operations
    public:
    
@@ -100,6 +95,7 @@ private:
    CFamiTrackerView* m_pView;
    CMusicFamiTrackerInstrumentsModel *instrumentsModel;
    QString m_fileName;
+   bool initialized;
 
    CActionHandler* m_pActionHandler;
    int					m_iFrameEditorPos;

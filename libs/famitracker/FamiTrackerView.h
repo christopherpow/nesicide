@@ -24,6 +24,8 @@
 
 #include "cmusicfamitrackerinstrumentsmodel.h"
 
+#include "FamiTracker.h"
+
 // Paste modes
 enum {PASTE_MODE_NORMAL, PASTE_MODE_OVERWRITE, PASTE_MODE_MIX};
 
@@ -58,6 +60,13 @@ class CAction;
 class CFamiTrackerView : public CView
 {
    Q_OBJECT
+   // Qt stuff
+   protected:
+      void wheelEvent(QWheelEvent *event);
+      void mouseMoveEvent(QMouseEvent *event);
+      void mousePressEvent(QMouseEvent *event);
+      void mouseReleaseEvent(QMouseEvent *event);
+      void mouseDoubleClickEvent(QMouseEvent *event);   
 public:
 	CFamiTrackerView(QWidget* parent = 0);
    ~CFamiTrackerView();
@@ -76,19 +85,9 @@ public slots:
 public:
 	static CFamiTrackerView *GetView();
    
-   // CView stuff
-//   CFrameWnd* GetParentFrame() const { return m_pFrameWnd; }
-
 // Attributes
-public:
-   CFamiTrackerDoc* GetDocument() const
-   {
-      return (CFamiTrackerDoc*)GetParentFrame()->GetDocument();
-   }
-   CFamiTrackerDoc* GetActiveDocument() const
-   {
-      return GetDocument();
-   }
+public:   
+	CFamiTrackerDoc* GetDocument() const;
 
 //
 // View access functions
@@ -200,10 +199,6 @@ protected:
 // Private functions
 //
 private:
-   // CView stuff
-   CFrameWnd* m_pFrameWnd;
-   static CView* m_pView;
-
    // *******************************************************************
    // CMainFrame routines that don't make sense being in CMainFrame in Qt
    // *******************************************************************   
@@ -243,7 +238,7 @@ private:
 	
 	void	UpdateArpDisplay();
 	
-   // Other
+	// Other
 	bool	AddAction(CAction *pAction) const;
 
 	// Copy
@@ -336,22 +331,22 @@ public:
 //#endif
 
 //// Generated message map functions
-//protected:
-//	DECLARE_MESSAGE_MAP()
+protected:
+	DECLARE_MESSAGE_MAP()
 //	virtual void OnDraw(CDC* /*pDC*/);
 
 //protected:
 //	virtual void CalcWindowRect(LPRECT lpClientRect, UINT nAdjustType = adjustBorder);
-//	virtual void OnUpdate(CView* /*pSender*/, LPARAM /*lHint*/, CObject* /*pHint*/);
+	virtual void OnUpdate(CView* /*pSender*/, LPARAM /*lHint*/, CObject* /*pHint*/);
 
 public:
 //	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
-//	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
-//	afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
+	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+	afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg void OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags);
-//	afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
-//	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+	afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
+	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 
 	afx_msg void OnEditCopy();
 	afx_msg void OnEditCut();
@@ -385,9 +380,9 @@ public:
 	afx_msg void OnIncreaseStepSize();
 	afx_msg void OnDecreaseStepSize();
 
-//	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
+	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 	virtual void OnInitialUpdate();
-//	afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
+	afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
 	afx_msg void OnEditSelectall();
 	afx_msg void OnKillFocus(CWnd* pNewWnd);
 	afx_msg void OnSetFocus(CWnd* pOldWnd);
@@ -395,8 +390,8 @@ public:
 //	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 
 	afx_msg void OnTrackerPlayrow();
-//	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
-//	afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
+	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
+	afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnEditPastemix();
 //	afx_msg void OnUpdateEditPastemix(CCmdUI *pCmdUI);
 	afx_msg void OnTrackerToggleChannel();

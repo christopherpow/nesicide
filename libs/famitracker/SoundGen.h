@@ -21,6 +21,7 @@
 #pragma once
 
 #include <QThread>
+#include <QTimer>
 
 #include "cqtmfc.h"
 
@@ -38,16 +39,17 @@ const int TREMOLO_LENGTH = 256;
 const int NOTE_COUNT = 96;	// 96 available notes
 
 // Custom messages
-enum { M_SILENT_ALL = WM_USER + 1,
-	   M_LOAD_SETTINGS,
-	   M_PLAY,
-	   M_PLAY_LOOPING,
-	   M_STOP,
-	   M_RESET,
-	   M_START_RENDER,
-	   M_PREVIEW_SAMPLE,
-	   M_WRITE_APU,
-	   M_CLOSE_SOUND};
+enum { WM_USER_SILENT_ALL = WM_USER + 1,
+	   WM_USER_LOAD_SETTINGS,
+	   WM_USER_PLAY,
+	   WM_USER_STOP,
+	   WM_USER_RESET,
+	   WM_USER_START_RENDER,
+	   WM_USER_STOP_RENDER,
+	   WM_USER_PREVIEW_SAMPLE,
+	   WM_USER_WRITE_APU,
+	   WM_USER_CLOSE_SOUND
+};
 
 // Player modes
 enum {MODE_PLAY,			// Play from top of pattern
@@ -66,16 +68,22 @@ struct stDPCMState {
 };
 
 class CChannelHandler;
+class CFamiTrackerView;
 class CAPU;
 class CDSound;
 class CDSoundChannel;
 class CSampleWindow;
-class CFamiTrackerView;
 
 // CSoundGen
 
-class CSoundGen : public QThread, ICallback // CPTODO : public CWinThread, ICallback
+class CSoundGen : public CWinThread, ICallback
 {
+   Q_OBJECT
+   // Qt stuff
+   QThread* pThread;
+public slots:
+   void OnIdleSlot() { OnIdle(0); }
+   void recvThreadMessage(unsigned int m,unsigned int w,unsigned int l);
 public:
 	CSoundGen();
 	virtual ~CSoundGen();
@@ -84,9 +92,6 @@ public:
 	// Public functions
 	//
 public:
-   // Qt stuff
-   void start(Priority p = InheritPriority);
-
 	// One time initialization
 	void		AssignDocument(CFamiTrackerDoc *pDoc);
 	void		AssignView(CFamiTrackerView *pView);
@@ -140,7 +145,7 @@ public:
 
 	// Rendering
 //	bool		 RenderToFile(char *File, int SongEndType, int SongEndParam);
-//	void		 StopRendering();
+	void		 StopRendering();
 //	void		 GetRenderStat(int &Frame, int &Time, bool &Done);
 	bool		 IsRendering();
 	void		 CheckRenderStop();
@@ -181,8 +186,8 @@ private:
 
 	// Player
 	void	 	PlayNote(int Channel, stChanNote *NoteData, int EffColumns);
-//	void		RunFrame();
-//	void		CheckControl();
+	void		RunFrame();
+	void		CheckControl();
 	void		ResetBuffer();
 	void		BeginPlayer(int Mode);
 	void		HaltPlayer();
@@ -291,7 +296,21 @@ private:
 
 	// Overloaded functions
 public:
-//	virtual BOOL InitInstance();
-//	virtual int	 ExitInstance();
-//	virtual BOOL OnIdle(LONG lCount);
+	virtual BOOL InitInstance();
+	virtual int	 ExitInstance();
+	virtual BOOL OnIdle(LONG lCount);
+   
+   // Implementation
+public:
+	DECLARE_MESSAGE_MAP()
+	afx_msg void OnSilentAll(WPARAM wParam, LPARAM lParam);
+	afx_msg void OnLoadSettings(WPARAM wParam, LPARAM lParam);
+	afx_msg void OnBeginPlayer(WPARAM wParam, LPARAM lParam);
+	afx_msg void OnStopPlayer(WPARAM wParam, LPARAM lParam);
+	afx_msg void OnResetPlayer(WPARAM wParam, LPARAM lParam);
+	afx_msg void OnStartRender(WPARAM wParam, LPARAM lParam);
+	afx_msg void OnStopRender(WPARAM wParam, LPARAM lParam);
+	afx_msg void OnPreviewSample(WPARAM wParam, LPARAM lParam);
+	afx_msg void OnWriteAPU(WPARAM wParam, LPARAM lParam);
+	afx_msg void OnCloseSound(WPARAM wParam, LPARAM lParam);
 };

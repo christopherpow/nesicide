@@ -78,7 +78,7 @@ HEADERS += \
     PatternEditor.h \
     PatternData.h \
     PatternCompiler.h \
-    MainFrame.h \
+    MainFrame.h \ 
     Instrument.h \
     Graphics.h \
     FrameEditor.h \

@@ -683,7 +683,7 @@ void CFrameEditor::OnSize(UINT nType, int cx, int cy)
 
 void CFrameEditor::timerEvent(QTimerEvent *event)
 {
-   int mfcId = mfcToQtTimer.value(event->timerId());
+   UINT_PTR mfcId = mfcTimerId(event->timerId());
    OnTimer(mfcId);
 }
 
@@ -794,11 +794,11 @@ void CFrameEditor::mouseMoveEvent(QMouseEvent *event)
 void CFrameEditor::mouseReleaseEvent(QMouseEvent *event)
 {
    CPoint point(event->pos());
-   if ( event->buttons() == Qt::LeftButton )
+   if ( event->button() == Qt::LeftButton )
    {
       OnLButtonUp(0,point);
    }
-   else if ( event->buttons() == Qt::RightButton )
+   else if ( event->button() == Qt::RightButton )
    {
       OnRButtonUp(0,point);
    }
@@ -808,7 +808,7 @@ void CFrameEditor::mouseReleaseEvent(QMouseEvent *event)
 void CFrameEditor::mouseDoubleClickEvent(QMouseEvent *event)
 {
    CPoint point(event->pos());
-   if ( event->buttons() == Qt::LeftButton )
+   if ( event->button() == Qt::LeftButton )
    {
       OnLButtonDblClk(0,point);
       repaint();

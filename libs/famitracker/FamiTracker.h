@@ -71,6 +71,7 @@ class CMutex;
 
 class CFamiTrackerApp : public CWinApp
 {
+   Q_OBJECT
 public:
 	// Constructor
 	CFamiTrackerApp();
@@ -85,7 +86,7 @@ public:
 //	int				GetCPUUsage() const;
 //	bool			IsThemeActive() const;
 //	void			CheckSynth();
-//	void			RemoveSoundGenerator();
+	void			RemoveSoundGenerator();
 
 	// Tracker player functions
 	void			RegisterKeyState(int Channel, int Note);
@@ -144,24 +145,27 @@ private:
 
 	// Overrides
 public:
-//	virtual BOOL InitInstance();
-//	virtual int ExitInstance();	
+	virtual BOOL InitInstance();
+	virtual int ExitInstance();	
 
-//	// Implementation
-//	DECLARE_MESSAGE_MAP()
+	// Implementation
+	DECLARE_MESSAGE_MAP()
 //public:
 //	afx_msg void OnAppAbout();
-//	afx_msg void OnTrackerTogglePlay();
-//	afx_msg void OnTrackerPlay();
-//	afx_msg void OnTrackerPlayStart();
-//	afx_msg void OnTrackerPlayCursor();
-//	afx_msg void OnTrackerPlaypattern();
+	afx_msg void OnTrackerTogglePlay();
+	afx_msg void OnTrackerPlay();
+	afx_msg void OnTrackerPlayStart();
+	afx_msg void OnTrackerPlayCursor();
+	afx_msg void OnTrackerPlaypattern();
 	afx_msg void OnTrackerStop();
 //	afx_msg void OnFileOpen();
 //	virtual BOOL PreTranslateMessage(MSG* pMsg);
 };
 
 extern CFamiTrackerApp theApp;
+
+CWinApp* AfxGetApp();
+CFrameWnd* AfxGetMainWnd();
 
 //// Global helper functions
 //CString LoadDefaultFilter(LPCTSTR Name, LPCTSTR Ext);

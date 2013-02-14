@@ -7,11 +7,11 @@
 ** the Free Software Foundation; either version 2 of the License, or
 ** (at your option) any later version.
 **
-** This program is distributed in the hope that it will be useful,
+** This program is distributed in the hope that it will be useful, 
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
-** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-** Library General Public License for more details.  To obtain a
-** copy of the GNU Library General Public License, write to the Free
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+** Library General Public License for more details.  To obtain a 
+** copy of the GNU Library General Public License, write to the Free 
 ** Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 **
 ** Any permitted reproduction of these routines, in whole or in part,
@@ -42,12 +42,12 @@ const unsigned int DEFAULT_SPEED_SPLIT_POINT = 32;
 const unsigned int OLD_SPEED_SPLIT_POINT	 = 21;
 
 // Columns
-enum {C_NOTE,
-	  C_INSTRUMENT1, C_INSTRUMENT2,
-	  C_VOLUME,
+enum {C_NOTE, 
+	  C_INSTRUMENT1, C_INSTRUMENT2, 
+	  C_VOLUME, 
 	  C_EFF_NUM, C_EFF_PARAM1, C_EFF_PARAM2,
-	  C_EFF2_NUM, C_EFF2_PARAM1, C_EFF2_PARAM2,
-	  C_EFF3_NUM, C_EFF3_PARAM1, C_EFF3_PARAM2,
+	  C_EFF2_NUM, C_EFF2_PARAM1, C_EFF2_PARAM2, 
+	  C_EFF3_NUM, C_EFF3_PARAM1, C_EFF3_PARAM2, 
 	  C_EFF4_NUM, C_EFF4_PARAM1, C_EFF4_PARAM2
 };
 
@@ -71,7 +71,7 @@ enum {
 	CHANGED_HEADER,			// Redraw header (???)
 	CHANGED_ERASE,			// Also make sure background is erased
 	CHANGED_CLEAR_SEL,		// Clear selection
-
+	
 	UPDATE_ENTIRE,			// Redraw entire document
 	UPDATE_FAST,			// Fast document drawing
 	UPDATE_EDIT,			// When document changed
@@ -135,9 +135,10 @@ class CFamiTrackerDoc : public QObject, public CDocument
    Q_OBJECT
 public:
 	CFamiTrackerDoc(QObject* parent = NULL);
-   ~CFamiTrackerDoc();
+	DECLARE_DYNCREATE(CFamiTrackerDoc)
 
 	int m_iVersion;
+public:
 	static const int CLASS_VERSION = 3;
 	const int GetVersion() const { return m_iVersion; };
 
@@ -167,7 +168,6 @@ public:
 	CFamiTrackerDoc *LoadImportFile(LPCTSTR lpszPathName);
 	bool ImportInstruments(CFamiTrackerDoc *pImported, int *pInstTable);
 	bool ImportTrack(int Track, CFamiTrackerDoc *pImported, int *pInstTable);
-	bool ImportFile(QString lpszPathName, bool bIncludeInstruments);
 
 	//
 	// Interface functions (not related to document data)
@@ -203,7 +203,7 @@ public:
 	unsigned int	GetSongTempo(int Track)		const { return m_pTunes[Track]->GetSongTempo(); };
 
 	unsigned int	GetEffColumns(int Track, unsigned int Channel) const;
-	unsigned int	GetEffColumns(unsigned int Channel) const;
+	unsigned int	GetEffColumns(unsigned int Channel) const; 
 	void			SetEffColumns(unsigned int Channel, unsigned int Columns);
 
 	unsigned int 	GetPatternAtFrame(int Track, unsigned int Frame, unsigned int Channel) const;
@@ -290,6 +290,7 @@ public:
 
 	// Track management functions
 	void			SelectTrack(unsigned int Track);
+//	void			SelectTrackFast(unsigned int Track);	//	TODO: should be removed
 	unsigned int	GetTrackCount() const;
 	unsigned int	GetSelectedTrack() const;
 	char			*GetTrackTitle(unsigned int Track) const;
@@ -521,19 +522,43 @@ private:
 
 // Operations
 public:
-   // MFC stuff from CDocument
+
+// Overrides
+	public:
+	virtual BOOL OnNewDocument();
 	virtual BOOL OnSaveDocument(LPCTSTR lpszPathName);
-    virtual BOOL OnOpenDocument(LPCTSTR lpszPathName);
+	virtual BOOL OnOpenDocument(LPCTSTR lpszPathName);
 	virtual void OnCloseDocument();
 	virtual void DeleteContents();
 	virtual void SetModifiedFlag(BOOL bModified = 1);
+//	virtual void Serialize(CArchive& ar);
+
+   // MFC stuff from CDocument
    virtual void UpdateAllViews(void* ptr,long hint = 0) { emit updateViews(hint); }
    virtual CString GetTitle() { return m_docTitle; }
    virtual void SetTitle(CString title ) { m_docTitle = title; }
 
-   // HACK
-   static CFamiTrackerDoc* _this;
+   // HACKS
    CString m_docTitle;
+   static CFamiTrackerDoc* _this;
+   
+// Implementation
+public:
+	virtual ~CFamiTrackerDoc();
+#ifdef _DEBUG
+	virtual void AssertValid() const;
+	virtual void Dump(CDumpContext& dc) const;
+#endif
+
+// Generated message map functions
+protected:
+	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg void OnFileSaveAs();
+	afx_msg void OnFileSave();
+	afx_msg void OnEditRemoveUnusedInstruments();
+	afx_msg void OnEditRemoveUnusedPatterns();
+	afx_msg void OnEditClearPatterns();
    
    // CP: Moved here because it makes sense...
    int  GetChannelColumns(int Channel) const;  

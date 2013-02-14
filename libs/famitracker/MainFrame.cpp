@@ -33,10 +33,11 @@ void ScaleMouse(CPoint &pt)
 }
 
 CMainFrame::CMainFrame(QWidget *parent) :
-   CFrameWnd(parent),
+   CFrameWnd(),
    ui(new Ui::CMainFrame),
    m_iInstrument(0),
-   m_iTrack(0)
+   m_iTrack(0),
+   initialized(false)
 {
    int idx;
    int col;
@@ -48,23 +49,7 @@ CMainFrame::CMainFrame(QWidget *parent) :
 
 	m_iFrameEditorPos = FRAME_EDIT_POS_TOP;
          
-   m_pDocument = new CFamiTrackerDoc();
-   m_pDocument->SetTitle("Untitled");
-   
-   m_pView = new CFamiTrackerView(this);
-   
-   // Create frame editor
-	m_pFrameEditor = new CFrameEditor(this);
-
-   ui->songFrames->layout()->addWidget(m_pFrameEditor);
-   
-   ui->songPatterns->layout()->addWidget(m_pView->GetPatternView());
-
-   m_pFrameEditor->setFocusPolicy(Qt::StrongFocus);
-   m_pFrameEditor->setFocusProxy(m_pView->GetPatternView());
    m_pActionHandler = new CActionHandler();
-
-   m_pView->OnInitialUpdate();
 
    actionHandler actionHandlers[] = 
    {
@@ -137,9 +122,7 @@ CMainFrame::CMainFrame(QWidget *parent) :
 #endif
 
    ui->songInstruments->setStyleSheet("QListView { background: #000000; color: #ffffff; }");
-   
-   // Connect buried signals.
-   QObject::connect(m_pDocument,SIGNAL(setModified(bool)),this,SIGNAL(editor_modificationChanged(bool)));
+   qDebug("CMainFrame!");
 }
 
 CMainFrame::~CMainFrame()
@@ -154,16 +137,40 @@ CMainFrame::~CMainFrame()
    delete toolBar;
 }
 
-CView* CMainFrame::GetActiveView()
-{
-   return m_pView;
-}
-
 void CMainFrame::showEvent(QShowEvent *)
 {
-   theApp.GetSoundGenerator()->start();
-
    emit addToolBarWidget(toolBar);
+
+   if ( !initialized )
+   {
+      // Perform initialization that couldn't yet be done in the constructor due to MFC crap.
+      m_pDocument = (CFamiTrackerDoc*)GetActiveDocument();
+      m_pDocument->SetTitle("Untitled");
+      
+      m_pView = (CFamiTrackerView*)GetActiveView();
+      
+      // Create frame editor
+      m_pFrameEditor = new CFrameEditor(this);
+   
+      ui->songFrames->layout()->addWidget(m_pFrameEditor);
+      
+      ui->songPatterns->layout()->addWidget(m_pView->GetPatternView());
+   
+      m_pFrameEditor->setFocusPolicy(Qt::StrongFocus);
+      m_pFrameEditor->setFocusProxy(m_pView->GetPatternView());
+      m_pView->setFocusPolicy(Qt::StrongFocus);
+      m_pView->GetPatternView()->setFocusProxy(m_pView);
+      
+      QObject::connect(m_pDocument,SIGNAL(updateViews(long)),m_pFrameEditor,SLOT(updateViews(long)));
+      
+      m_pView->OnInitialUpdate();
+      
+      // Connect buried signals.
+      QObject::connect(m_pDocument,SIGNAL(setModified(bool)),this,SIGNAL(editor_modificationChanged(bool)));
+      
+      initialized = true;
+   }
+   m_pView->setFocus();
 }
 
 void CMainFrame::hideEvent(QHideEvent *)
@@ -266,6 +273,7 @@ void CMainFrame::trackerAction_moduleProperties()
 void CMainFrame::trackerAction_play()
 {
    qDebug("play");
+   theApp.OnTrackerPlay();
 }
 
 void CMainFrame::trackerAction_playLoop()
@@ -326,13 +334,13 @@ void CMainFrame::on_frameDec_clicked()
 
 void CMainFrame::on_speed_valueChanged(int arg1)
 {
-   CFamiTrackerDoc* pDoc = GetDocument();
+   CFamiTrackerDoc* pDoc = (CFamiTrackerDoc*)GetActiveDocument();
    pDoc->SetSongSpeed(arg1);
 }
 
 void CMainFrame::on_tempo_valueChanged(int arg1)
 {
-   CFamiTrackerDoc* pDoc = GetDocument();
+   CFamiTrackerDoc* pDoc = (CFamiTrackerDoc*)GetActiveDocument();
    pDoc->SetSongTempo(arg1);
 }
 
@@ -348,7 +356,7 @@ void CMainFrame::on_numFrames_valueChanged(int NewFrames)
 
 void CMainFrame::on_songs_currentIndexChanged(int index)
 {
-   CFamiTrackerDoc* pDoc = GetDocument();
+   CFamiTrackerDoc* pDoc = (CFamiTrackerDoc*)GetActiveDocument();
    if ( index >= 0 )
    {
       pDoc->SelectTrack(index);
@@ -364,19 +372,19 @@ void CMainFrame::on_songs_currentIndexChanged(int index)
 
 void CMainFrame::on_title_textEdited(const QString &arg1)
 {
-   CFamiTrackerDoc* pDoc = GetDocument();
+   CFamiTrackerDoc* pDoc = (CFamiTrackerDoc*)GetActiveDocument();
    pDoc->SetSongName(arg1.toAscii().data());
 }
 
 void CMainFrame::on_author_textEdited(const QString &arg1)
 {
-   CFamiTrackerDoc* pDoc = GetDocument();
+   CFamiTrackerDoc* pDoc = (CFamiTrackerDoc*)GetActiveDocument();
    pDoc->SetSongArtist(arg1.toAscii().data());
 }
 
 void CMainFrame::on_copyright_textEdited(const QString &arg1)
 {
-   CFamiTrackerDoc* pDoc = GetDocument();
+   CFamiTrackerDoc* pDoc = (CFamiTrackerDoc*)GetActiveDocument();
    pDoc->SetSongCopyright(arg1.toAscii().data());
 }
 
@@ -384,7 +392,7 @@ void CMainFrame::setFileName(QString fileName)
 {
    m_fileName = fileName;
 
-   GetDocument()->OnOpenDocument((TCHAR*)fileName.toAscii().constData());
+   GetActiveDocument()->OnOpenDocument((TCHAR*)fileName.toAscii().constData());
 }
 
 void CMainFrame::SetRowCount(int Count)

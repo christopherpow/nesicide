@@ -216,9 +216,6 @@ int ConvertKeyToDec(int Key)
 	return -1;
 }
 
-// Qt UI redirects
-CView* CFamiTrackerView::m_pView = NULL;
-
 // CFamiTrackerView construction/destruction
 
 CFamiTrackerView::CFamiTrackerView(QWidget* parent) : 
@@ -256,9 +253,6 @@ CFamiTrackerView::CFamiTrackerView(QWidget* parent) :
    int col;
    int idx;
 
-   m_pView = this;
-   m_pFrameWnd = (CFrameWnd*)parent;
-   
    memset(m_bMuteChannels, 0, sizeof(bool) * MAX_CHANNELS);
 	memset(m_iActiveNotes, 0, sizeof(int) * MAX_CHANNELS);
 	memset(m_cKeyList, 0, sizeof(char) * 256);
@@ -270,11 +264,16 @@ CFamiTrackerView::CFamiTrackerView(QWidget* parent) :
 	if (pSoundGen)
 		pSoundGen->AssignView(this);
    
-   m_pPatternView = new CPatternView(parent);
+   m_pPatternView = new CPatternView();
    m_pPatternView->installEventFilter(this);
    
    qDebug("Put SetupColors here for now...");
-   SetupColors();
+   
+   m_pPatternView->ApplyColorScheme();
+
+	// Setup pattern view
+	m_pPatternView->InitView(m_iClipBoard);
+   qDebug("CFamiTrackerView!");
 }
 
 CFamiTrackerView::~CFamiTrackerView()
@@ -295,6 +294,31 @@ bool CFamiTrackerView::eventFilter(QObject *object, QEvent *event)
       if ( event->type() == QEvent::KeyRelease )
       {
          keyReleaseEvent(dynamic_cast<QKeyEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::MouseMove )
+      {
+         mouseMoveEvent(dynamic_cast<QMouseEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::MouseButtonPress )
+      {
+         mousePressEvent(dynamic_cast<QMouseEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::MouseButtonRelease )
+      {
+         mouseReleaseEvent(dynamic_cast<QMouseEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::MouseButtonDblClick )
+      {
+         mouseDoubleClickEvent(dynamic_cast<QMouseEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::Wheel )
+      {
+         wheelEvent(dynamic_cast<QWheelEvent*>(event));
          return true;
       }
    }
@@ -330,11 +354,11 @@ bool CFamiTrackerView::eventFilter(QObject *object, QEvent *event)
 //	CView::Dump(dc);
 //}
 
-//CFamiTrackerDoc* CFamiTrackerView::GetDocument() const // non-debug version is inline
-//{
+CFamiTrackerDoc* CFamiTrackerView::GetDocument() const // non-debug version is inline
+{
 //	ASSERT(m_pDocument->IsKindOf(RUNTIME_CLASS(CFamiTrackerDoc)));
-//	return (CFamiTrackerDoc*)m_pDocument;
-//}
+	return (CFamiTrackerDoc*)m_pDocument;
+}
 
 //#endif //_DEBUG
 
@@ -345,12 +369,11 @@ bool CFamiTrackerView::eventFilter(QObject *object, QEvent *event)
 
 CFamiTrackerView *CFamiTrackerView::GetView()
 {
-   return (CFamiTrackerView*)m_pView;
-//	CFrameWnd *pFrame = (CFrameWnd*)(AfxGetApp()->m_pMainWnd);
-//	CView *pView = pFrame->GetActiveView();
+	CFrameWnd *pFrame = (CFrameWnd*)(AfxGetApp()->m_pMainWnd);
+	CView *pView = pFrame->GetActiveView();
 
-//	if (!pView)
-//		return NULL;
+	if (!pView)
+		return NULL;
 
 //	// Fail if view is of wrong kind
 //	// (this could occur with splitter windows, or additional
@@ -358,8 +381,7 @@ CFamiTrackerView *CFamiTrackerView::GetView()
 //	if (!pView->IsKindOf(RUNTIME_CLASS(CFamiTrackerView)))
 //		return NULL;
 
-//	return (CFamiTrackerView*)pView;
-   return (CFamiTrackerView*)m_pView;
+	return (CFamiTrackerView*)pView;
 }
 
 // CFamiTrackerView message handlers
@@ -467,46 +489,46 @@ LRESULT CFamiTrackerView::OnUpdateMsg(WPARAM wParam, LPARAM lParam)
 //	CView::CalcWindowRect(lpClientRect, nAdjustType);
 //}
 
-//// Scroll
+// Scroll
 
-//void CFamiTrackerView::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
-//{
-//	CFamiTrackerDoc* pDoc = GetDocument();
-//	ASSERT_VALID(pDoc);
+void CFamiTrackerView::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
+{
+	CFamiTrackerDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
 
-//	m_pPatternView->OnVScroll(nSBCode, nPos);
-//	UpdateEditor(UPDATE_CURSOR);
+	m_pPatternView->OnVScroll(nSBCode, nPos);
+	UpdateEditor(UPDATE_CURSOR);
 
-//	CView::OnVScroll(nSBCode, nPos, pScrollBar);
-//}
+	CView::OnVScroll(nSBCode, nPos, pScrollBar);
+}
 
-//void CFamiTrackerView::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
-//{
-//	CFamiTrackerDoc* pDoc = GetDocument();
-//	ASSERT_VALID(pDoc);
+void CFamiTrackerView::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
+{
+	CFamiTrackerDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
 
-//	m_pPatternView->OnHScroll(nSBCode, nPos);
-//	UpdateEditor(UPDATE_CURSOR);
+	m_pPatternView->OnHScroll(nSBCode, nPos);
+	UpdateEditor(UPDATE_CURSOR);
 
-//	CView::OnHScroll(nSBCode, nPos, pScrollBar);
-//}
+	CView::OnHScroll(nSBCode, nPos, pScrollBar);
+}
 
 // Mouse
 
-//void CFamiTrackerView::OnRButtonUp(UINT nFlags, CPoint point)
-//{
-//	// Popup menu
-//	CRect WinRect;
+void CFamiTrackerView::OnRButtonUp(UINT nFlags, CPoint point)
+{
+	// Popup menu
+	CRect WinRect;
 //	CMenu *pPopupMenu, PopupMenuBar;
-//	int Item = 0;
+	int Item = 0;
 	
-//	if (m_pPatternView->CancelDragging()) {
-//		UpdateEditor(CHANGED_PATTERN);
-//		CView::OnRButtonUp(nFlags, point);
-//		return;
-//	}
+	if (m_pPatternView->CancelDragging()) {
+		UpdateEditor(CHANGED_PATTERN);
+		CView::OnRButtonUp(nFlags, point);
+		return;
+	}
 
-//	m_pPatternView->OnMouseRDown(point);
+	m_pPatternView->OnMouseRDown(point);
 
 //	GetWindowRect(WinRect);
 
@@ -526,107 +548,107 @@ LRESULT CFamiTrackerView::OnUpdateMsg(WPARAM wParam, LPARAM lParam)
 //		pPopupMenu->TrackPopupMenu(TPM_RIGHTBUTTON, point.x + WinRect.left, point.y + WinRect.top, GetParentFrame());
 //	}
 	
-//	CView::OnRButtonUp(nFlags, point);
-//}
+	CView::OnRButtonUp(nFlags, point);
+}
 
-//void CFamiTrackerView::OnLButtonDown(UINT nFlags, CPoint point)
-//{
-//	SetTimer(TMR_SCROLL, 10, NULL);
+void CFamiTrackerView::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	SetTimer(TMR_SCROLL, 10, NULL);
 
-//	m_pPatternView->OnMouseDown(point);
-//	SetCapture();	// Capture mouse 
-//	UpdateEditor(CHANGED_PATTERN);
-//	CView::OnLButtonDown(nFlags, point);
-//}
+	m_pPatternView->OnMouseDown(point);
+	SetCapture();	// Capture mouse 
+	UpdateEditor(CHANGED_PATTERN);
+	CView::OnLButtonDown(nFlags, point);
+}
 
-//void CFamiTrackerView::OnLButtonUp(UINT nFlags, CPoint point)
-//{
-//	KillTimer(TMR_SCROLL);
+void CFamiTrackerView::OnLButtonUp(UINT nFlags, CPoint point)
+{
+	KillTimer(TMR_SCROLL);
 
-//	m_pPatternView->OnMouseUp(point);
-//	ReleaseCapture();
-//	UpdateEditor(CHANGED_PATTERN);
+   m_pPatternView->OnMouseUp(point);
+	ReleaseCapture();
+	UpdateEditor(CHANGED_PATTERN);
 
-//	/*
-//	if (m_bControlPressed && !m_pPatternView->IsSelecting()) {
-//		m_pPatternView->JumpToRow(m_pPatternView->GetRow());
-//		theApp.GetSoundGenerator()->StartPlayer(MODE_PLAY_CURSOR);
-//	}
-//	*/
+	/*
+	if (m_bControlPressed && !m_pPatternView->IsSelecting()) {
+		m_pPatternView->JumpToRow(m_pPatternView->GetRow());
+		theApp.GetSoundGenerator()->StartPlayer(MODE_PLAY_CURSOR);
+	}
+	*/
 
-//	CView::OnLButtonUp(nFlags, point);
-//}
+	CView::OnLButtonUp(nFlags, point);
+}
 
-//void CFamiTrackerView::OnLButtonDblClk(UINT nFlags, CPoint point)
-//{
-//	m_pPatternView->OnMouseDblClk(point);
-//	UpdateEditor(UPDATE_CURSOR);
-//	CView::OnLButtonDblClk(nFlags, point);
-//}
+void CFamiTrackerView::OnLButtonDblClk(UINT nFlags, CPoint point)
+{
+	m_pPatternView->OnMouseDblClk(point);
+	UpdateEditor(UPDATE_CURSOR);
+	CView::OnLButtonDblClk(nFlags, point);
+}
 
-//void CFamiTrackerView::OnMouseMove(UINT nFlags, CPoint point)
-//{
+void CFamiTrackerView::OnMouseMove(UINT nFlags, CPoint point)
+{
 //	static CPoint last_point;
-//	CFamiTrackerDoc* pDoc = GetDocument();
-//	ASSERT_VALID(pDoc);
+	CFamiTrackerDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
 
 //	if (point == last_point)
 //		return;
 //	last_point = point;
 
-//	if (!(nFlags & MK_LBUTTON)) {
-//		if (m_pPatternView->OnMouseHover(nFlags, point))
-//			UpdateEditor(UPDATE_CURSOR);
-//	}
-//	else if (nFlags & MK_LBUTTON) {
-//		m_pPatternView->OnMouseMove(nFlags, point);
-//		UpdateEditor(UPDATE_CURSOR);
-//	}
+	if (!(nFlags & MK_LBUTTON)) {
+		if (m_pPatternView->OnMouseHover(nFlags, point))
+			UpdateEditor(UPDATE_CURSOR);
+	}
+	else if (nFlags & MK_LBUTTON) {
+		m_pPatternView->OnMouseMove(nFlags, point);
+		UpdateEditor(UPDATE_CURSOR);
+	}
 	
-//	CView::OnMouseMove(nFlags, point);
-//}
+	CView::OnMouseMove(nFlags, point);
+}
 
-//BOOL CFamiTrackerView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
-//{
-//	CPatternAction *pAction = NULL;
+BOOL CFamiTrackerView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
+{
+	CPatternAction *pAction = NULL;
 
-//	if (m_bControlPressed && m_bShiftPressed) {
-//		if (zDelta < 0)
-//			m_pPatternView->NextFrame();
-//		else
-//			m_pPatternView->PreviousFrame();
-//	}
-//	if (m_bControlPressed) {
-//		if (zDelta > 0) {
-//			pAction = new CPatternAction(CPatternAction::ACT_TRANSPOSE);
-//			pAction->SetTranspose(TRANSPOSE_INC_NOTES);
-//		}
-//		else {
-//			pAction = new CPatternAction(CPatternAction::ACT_TRANSPOSE);
-//			pAction->SetTranspose(TRANSPOSE_DEC_NOTES);
-//		}
-//	}
-//	else if (m_bShiftPressed) {
-//		if (zDelta > 0) {
-//			pAction = new CPatternAction(CPatternAction::ACT_SCROLL_VALUES);
-//			pAction->SetScroll(1);
-//		}
-//		else {
-//			pAction = new CPatternAction(CPatternAction::ACT_SCROLL_VALUES);
-//			pAction->SetScroll(-1);
-//		}
-//	}
-//	else
-//		m_pPatternView->OnMouseScroll(zDelta);
+	if (m_bControlPressed && m_bShiftPressed) {
+		if (zDelta < 0)
+			m_pPatternView->NextFrame();
+		else
+			m_pPatternView->PreviousFrame();
+	}
+	if (m_bControlPressed) {
+		if (zDelta > 0) {
+			pAction = new CPatternAction(CPatternAction::ACT_TRANSPOSE);
+			pAction->SetTranspose(TRANSPOSE_INC_NOTES);
+		}
+		else {
+			pAction = new CPatternAction(CPatternAction::ACT_TRANSPOSE);
+			pAction->SetTranspose(TRANSPOSE_DEC_NOTES);
+		}
+	}
+	else if (m_bShiftPressed) {
+		if (zDelta > 0) {
+			pAction = new CPatternAction(CPatternAction::ACT_SCROLL_VALUES);
+			pAction->SetScroll(1);
+		}
+		else {
+			pAction = new CPatternAction(CPatternAction::ACT_SCROLL_VALUES);
+			pAction->SetScroll(-1);
+		}
+	}
+	else
+		m_pPatternView->OnMouseScroll(zDelta);
 
-//	if (pAction != NULL) {
-//		AddAction(pAction);
-//	}
-//	else
-//		UpdateEditor(CHANGED_PATTERN);
+	if (pAction != NULL) {
+		AddAction(pAction);
+	}
+	else
+		UpdateEditor(CHANGED_PATTERN);
 	
-//	return CView::OnMouseWheel(nFlags, zDelta, pt);
-//}
+	return CView::OnMouseWheel(nFlags, zDelta, pt);
+}
 
 //// End of mouse
 
@@ -1076,109 +1098,112 @@ void CFamiTrackerView::OnInitialUpdate()
 	CView::OnInitialUpdate();
 	*/
    
-   QObject::connect(pDoc,SIGNAL(updateViews(long)),this,SLOT(updateViews(long)));  
+   QObject::connect(pDoc,SIGNAL(updateViews(long)),this,SLOT(updateViews(long)));
+   QObject::connect(pDoc,SIGNAL(updateViews(long)),m_pPatternView,SLOT(updateViews(long)));
 }
 
-//void CFamiTrackerView::OnUpdate(CView* /*pSender*/, LPARAM lHint, CObject* /*pHint*/)
-//{
-//	// Called when the document has changed
-//	static DWORD LastUpdate;
+void CFamiTrackerView::OnUpdate(CView* /*pSender*/, LPARAM lHint, CObject* /*pHint*/)
+{
+	// Called when the document has changed
+	static DWORD LastUpdate;
 
-//	CMainFrame *pMainFrm = reinterpret_cast<CMainFrame*>(GetParentFrame());
+	CMainFrame *pMainFrm = reinterpret_cast<CMainFrame*>(GetParentFrame());
 
-//	switch (lHint) {
-//		// Pattern data has changed
-//		case CHANGED_PATTERN:
-//			m_pPatternView->Modified();	 // Pattern has changed, set modified flag
-//			m_pPatternView->Invalidate(false);
-////			if (m_pPatternView->FullErase())
-////				RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_ERASE);
-////			else
-//			RedrawWindow(m_pPatternView->GetActiveRect(), NULL, RDW_INVALIDATE);
-//			DrawFrameWindow();
-//			break;
-//		// Frame count or data has changed
-//		case CHANGED_FRAMES:
-//			DrawFrameWindow();
-//			break;
-//		// A new track is selected
-//		case CHANGED_TRACK:
-//			if (theApp.IsPlaying())
-//				theApp.ResetPlayer();
-//			m_pPatternView->Reset();
-//			m_pPatternView->Invalidate(false);
-//			pMainFrm->ResetUndo();
-//			Invalidate();
-//			RedrawWindow();
-//			pMainFrm->UpdateTrackBox();
-//			DrawFrameWindow();
-//			// Update setting boxes
-//			pMainFrm->UpdateControls();
-//			pMainFrm->ChangedTrack();
-//			break;
-//		// Track count or track order has changed
-//		case CHANGED_TRACKCOUNT:
-//			if (theApp.IsPlaying())
-//				theApp.OnTrackerStop();
-//				//theApp.ResetPlayer();
-//			pMainFrm->UpdateTrackBox();
-//			m_pPatternView->Invalidate(false);
-//			Invalidate();
-//			RedrawWindow();
-//			break;
-//		// Channel count changed, called when an expansion chip is selected
-//		case CHANGED_CHANNEL_COUNT:
-//			m_pPatternView->Reset();
-//			m_pPatternView->Modified();
-//			pMainFrm->ResetUndo();
-//			pMainFrm->ResizeFrameWindow();
-//			m_pPatternView->Invalidate(true);
-//			RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_ERASE);
-//			break;
-//		// Instrument list has changed
-//		case UPDATE_INSTRUMENTS:
-//			pMainFrm->UpdateInstrumentList();
-//			break;
-//		// Document is closing
-//		case CLOSE_DOCUMENT:
-//			pMainFrm->CloseInstrumentEditor();
-//			break;
-
-//			// TODO: Remove these 
-
-//		case CHANGED_ERASE:
-//			// Invalidate, erase and redraw entire area
-//			m_bUpdateBackground = true;
-//			m_pPatternView->Invalidate(true);
-//			RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_ERASE);
-//			break;
-
-//		case UPDATE_ENTIRE:
-//			// Invalidate and redraw entire area
-//			m_pPatternView->Modified();
-//			m_pPatternView->Invalidate(true);
-//			RedrawWindow(NULL, NULL, RDW_INVALIDATE);
-//			DrawFrameWindow();
-//			break;
-
-//		case UPDATE_HIGHLIGHT:
-//			m_pPatternView->SetHighlight(GetDocument()->GetFirstHighlight(), GetDocument()->GetSecondHighlight());
-//			UpdateEditor(UPDATE_ENTIRE);
-//			break;
-
-//		default:
-//			TRACE0("View: Unknown update hint (fix this)\n");
-//			// No hint specified, redraw everything
-//			m_pPatternView->Invalidate(true);
-////			m_pPatternView->AdjustCursorChannel();
+	switch (lHint) {
+		// Pattern data has changed
+		case CHANGED_PATTERN:
+			m_pPatternView->Modified();	 // Pattern has changed, set modified flag
+			m_pPatternView->Invalidate(false);
 //			if (m_pPatternView->FullErase())
 //				RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_ERASE);
 //			else
-//				RedrawWindow(m_pPatternView->GetActiveRect(), NULL, RDW_INVALIDATE);
-//			DrawFrameWindow();
-//			break;
-//	}
-//}
+			RedrawWindow(m_pPatternView->GetActiveRect(), NULL, RDW_INVALIDATE);
+			DrawFrameWindow();
+			break;
+		// Frame count or data has changed
+		case CHANGED_FRAMES:
+			DrawFrameWindow();
+			break;
+		// A new track is selected
+		case CHANGED_TRACK:
+			if (theApp.IsPlaying())
+				theApp.ResetPlayer();
+			m_pPatternView->Reset();
+			m_pPatternView->Invalidate(false);
+			pMainFrm->ResetUndo();
+			Invalidate();
+			RedrawWindow();
+			pMainFrm->UpdateTrackBox();
+			DrawFrameWindow();
+			// Update setting boxes
+			pMainFrm->UpdateControls();
+			pMainFrm->ChangedTrack();
+			break;
+		// Track count or track order has changed
+		case CHANGED_TRACKCOUNT:
+			if (theApp.IsPlaying())
+				theApp.OnTrackerStop();
+				//theApp.ResetPlayer();
+			pMainFrm->UpdateTrackBox();
+			m_pPatternView->Invalidate(false);
+			Invalidate();
+			RedrawWindow();
+			break;
+		// Channel count changed, called when an expansion chip is selected
+		case CHANGED_CHANNEL_COUNT:
+			m_pPatternView->Reset();
+			m_pPatternView->Modified();
+			pMainFrm->ResetUndo();
+         qDebug("ResizeFrameWindow");
+//			pMainFrm->ResizeFrameWindow();
+			m_pPatternView->Invalidate(true);
+			RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_ERASE);
+			break;
+		// Instrument list has changed
+		case UPDATE_INSTRUMENTS:
+			pMainFrm->UpdateInstrumentList();
+			break;
+		// Document is closing
+		case CLOSE_DOCUMENT:
+      qDebug("CloseInstrumentEditor");
+//			pMainFrm->CloseInstrumentEditor();
+			break;
+
+			// TODO: Remove these 
+
+		case CHANGED_ERASE:
+			// Invalidate, erase and redraw entire area
+			m_bUpdateBackground = true;
+			m_pPatternView->Invalidate(true);
+			RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_ERASE);
+			break;
+
+		case UPDATE_ENTIRE:
+			// Invalidate and redraw entire area
+			m_pPatternView->Modified();
+			m_pPatternView->Invalidate(true);
+			RedrawWindow(NULL, NULL, RDW_INVALIDATE);
+			DrawFrameWindow();
+			break;
+
+		case UPDATE_HIGHLIGHT:
+			m_pPatternView->SetHighlight(GetDocument()->GetFirstHighlight(), GetDocument()->GetSecondHighlight());
+			UpdateEditor(UPDATE_ENTIRE);
+			break;
+
+		default:
+			TRACE0("View: Unknown update hint (fix this)\n");
+			// No hint specified, redraw everything
+			m_pPatternView->Invalidate(true);
+//			m_pPatternView->AdjustCursorChannel();
+			if (m_pPatternView->FullErase())
+				RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_ERASE);
+			else
+				RedrawWindow(m_pPatternView->GetActiveRect(), NULL, RDW_INVALIDATE);
+			DrawFrameWindow();
+			break;
+	}
+}
 
 // GUI elements updates
 
@@ -2013,8 +2038,8 @@ void CFamiTrackerView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	CFamiTrackerDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
 
-//	if (GetFocus() != this)
-//		return;
+	if (GetFocus() != this)
+		return;
 
 	if (nChar >= VK_NUMPAD0 && nChar <= VK_NUMPAD9) {
 		// Switch instrument
@@ -3244,7 +3269,161 @@ bool CFamiTrackerView::AddAction(CAction *pAction) const
 void CFamiTrackerView::updateViews(long hint)
 {
    qDebug("CFamiTrackerView::updateViews(%d)",hint);
+   OnUpdate(0,hint,0);
    m_pPatternView->repaint();
+}
+
+void CFamiTrackerView::wheelEvent(QWheelEvent *event)
+{
+   CPoint point(event->pos());
+   unsigned int flags = 0;
+   if ( event->modifiers()&Qt::ControlModifier )
+   {
+      flags |= MK_CONTROL;
+   }
+   if ( event->modifiers()&Qt::ShiftModifier )
+   {
+      flags |= MK_SHIFT;
+   }
+   if ( event->buttons()&Qt::LeftButton )
+   {
+      flags |= MK_LBUTTON;
+   }
+   if ( event->buttons()&Qt::MiddleButton )
+   {
+      flags |= MK_MBUTTON;
+   }
+   if ( event->buttons()&Qt::RightButton )
+   {
+      flags |= MK_RBUTTON;            
+   }
+   OnMouseWheel(flags,event->delta(),point);
+   m_pPatternView->repaint();
+}
+
+void CFamiTrackerView::mouseMoveEvent(QMouseEvent *event)
+{
+   CPoint point(event->pos());
+   unsigned int flags = 0;
+   if ( event->modifiers()&Qt::ControlModifier )
+   {
+      flags |= MK_CONTROL;
+   }
+   if ( event->modifiers()&Qt::ShiftModifier )
+   {
+      flags |= MK_SHIFT;
+   }
+   if ( event->buttons()&Qt::LeftButton )
+   {
+      flags |= MK_LBUTTON;
+   }
+   if ( event->buttons()&Qt::MiddleButton )
+   {
+      flags |= MK_MBUTTON;
+   }
+   if ( event->buttons()&Qt::RightButton )
+   {
+      flags |= MK_RBUTTON;            
+   }
+   OnMouseMove(flags,point);
+   m_pPatternView->repaint();
+}
+
+void CFamiTrackerView::mousePressEvent(QMouseEvent *event)
+{
+   CPoint point(event->pos());
+   unsigned int flags = 0;
+   if ( event->modifiers()&Qt::ControlModifier )
+   {
+      flags |= MK_CONTROL;
+   }
+   if ( event->modifiers()&Qt::ShiftModifier )
+   {
+      flags |= MK_SHIFT;
+   }
+   if ( event->buttons()&Qt::LeftButton )
+   {
+      flags |= MK_LBUTTON;
+   }
+   if ( event->buttons()&Qt::MiddleButton )
+   {
+      flags |= MK_MBUTTON;
+   }
+   if ( event->buttons()&Qt::RightButton )
+   {
+      flags |= MK_RBUTTON;            
+   }
+   if ( event->button() == Qt::LeftButton )
+   {
+      OnLButtonDown(flags,point);
+      m_pPatternView->repaint();
+   }
+}
+
+void CFamiTrackerView::mouseReleaseEvent(QMouseEvent *event)
+{
+   CPoint point(event->pos());
+   unsigned int flags = 0;
+   if ( event->modifiers()&Qt::ControlModifier )
+   {
+      flags |= MK_CONTROL;
+   }
+   if ( event->modifiers()&Qt::ShiftModifier )
+   {
+      flags |= MK_SHIFT;
+   }
+   if ( event->buttons()&Qt::LeftButton )
+   {
+      flags |= MK_LBUTTON;
+   }
+   if ( event->buttons()&Qt::MiddleButton )
+   {
+      flags |= MK_MBUTTON;
+   }
+   if ( event->buttons()&Qt::RightButton )
+   {
+      flags |= MK_RBUTTON;            
+   }
+   if ( event->button() == Qt::LeftButton )
+   {
+      OnLButtonUp(flags,point);
+   }
+   if ( event->button() == Qt::RightButton )
+   {
+      OnRButtonUp(flags,point);
+      m_pPatternView->repaint();
+   }
+}
+
+void CFamiTrackerView::mouseDoubleClickEvent(QMouseEvent *event)
+{
+   CPoint point(event->pos());
+   unsigned int flags = 0;
+   if ( event->modifiers()&Qt::ControlModifier )
+   {
+      flags |= MK_CONTROL;
+   }
+   if ( event->modifiers()&Qt::ShiftModifier )
+   {
+      flags |= MK_SHIFT;
+   }
+   if ( event->buttons()&Qt::LeftButton )
+   {
+      flags |= MK_LBUTTON;
+   }
+   if ( event->buttons()&Qt::MiddleButton )
+   {
+      flags |= MK_MBUTTON;
+   }
+   if ( event->buttons()&Qt::RightButton )
+   {
+      flags |= MK_RBUTTON;            
+   }
+   if ( event->button() == Qt::LeftButton )
+   {
+      OnLButtonDblClk(flags,point);
+      m_pPatternView->repaint();
+   }
 }
 
 void CFamiTrackerView::keyPressEvent(QKeyEvent *event)
@@ -3268,15 +3447,18 @@ void CFamiTrackerView::keyReleaseEvent(QKeyEvent *event)
 void CFamiTrackerView::focusInEvent(QFocusEvent *)
 {
    OnSetFocus(NULL);
+   m_pPatternView->repaint();
 }
 
 void CFamiTrackerView::focusOutEvent(QFocusEvent *)
 {
    OnKillFocus(NULL);
+   m_pPatternView->repaint();
 }
 
 void CFamiTrackerView::timerEvent(QTimerEvent *event)
 {
-   int mfcId = mfcToQtTimer.value(event->timerId());
+   int mfcId = mfcTimerId(event->timerId());
    OnTimer(mfcId);
+   m_pPatternView->repaint();
 }

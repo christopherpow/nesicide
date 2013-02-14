@@ -736,15 +736,81 @@ void CComboBox::SetCurSel(int sel)
    setCurrentIndex(sel);
 }
 
-QMap<int,int> CWnd::mfcToQtTimer;
-
-UINT CWnd::SetTimer(void* id, UINT interval, void*)
+UINT CWnd::SetTimer(UINT id, UINT interval, void*)
 {
    int qtId = startTimer(interval);
-   mfcToQtTimer.insert(qtId,(int)id);
-   return startTimer(interval);
+   mfcToQtTimer.insert((int)id,qtId);
+   qtToMfcTimer.insert(qtId,(int)id);
+   return (UINT)id;
 }
 
-void CWnd::KillTimer(void*, UINT id)
+void CWnd::KillTimer(UINT id)
+{
+   killTimer(mfcToQtTimer.value((int)id));
+   qtToMfcTimer.remove(mfcToQtTimer.value((int)id));
+   mfcToQtTimer.remove((int)id);
+}
+
+CWinThread::CWinThread()
+{
+   InitInstance();
+}
+
+CWinThread::~CWinThread()
+{
+}
+
+BOOL CWinThread::CreateThread(
+   DWORD dwCreateFlags,
+   UINT nStackSize,
+   LPSECURITY_ATTRIBUTES lpSecurityAttrs 
+)
+{
+   qDebug("CreateThread");
+   start(QThread::InheritPriority);
+   return TRUE;
+}
+
+BOOL CWinThread::PostThreadMessage(
+   UINT message ,
+   WPARAM wParam,
+   LPARAM lParam 
+      )
+{
+   emit postThreadMessage(message,wParam,lParam); 
+}
+
+CDocTemplate::CDocTemplate(UINT f,CDocument* pDoc,CFrameWnd* pFrameWnd,CView* pView)
+{
+   m_pDoc = pDoc;
+   m_pFrameWnd = pFrameWnd;
+   m_pView = pView;
+   
+   m_pDoc->OnNewDocument();
+   
+   // Create linkages...
+   m_pDoc->privateSetDocTemplate(this);
+   m_pDoc->privateAddView(m_pView);
+   m_pView->privateSetDocument(m_pDoc);
+   m_pView->privateSetParentFrame(m_pFrameWnd);
+   m_pFrameWnd->privateSetActiveView(m_pView);
+   m_pFrameWnd->privateSetActiveDocument(m_pDoc);
+}
+
+CSingleDocTemplate::CSingleDocTemplate(UINT f,CDocument* pDoc,CFrameWnd* pFrameWnd,CView* pView)
+   : CDocTemplate(f,pDoc,pFrameWnd,pView)
+{
+}
+
+CDocument* CSingleDocTemplate::OpenDocumentFile(
+   LPCTSTR lpszPathName,
+   BOOL bMakeVisible 
+)
+{
+   m_pDoc->OnNewDocument();
+   return m_pDoc;
+}
+
+BOOL CWinApp::InitInstance()
 {
 }
