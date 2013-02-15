@@ -30,6 +30,13 @@
                 p = NULL;       \
         }       \
 
+// workaround to force ignore ms_abi errors, not needed as long as we don't link with other mfc implementations
+#if !Q_WS_WIN
+#if !__has_attribute(ms_abi)
+#define ms_abi
+#endif
+#endif
+
 #include <windows.h>
 
 #ifdef UNICODE
