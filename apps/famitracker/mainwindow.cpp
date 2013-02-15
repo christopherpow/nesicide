@@ -7,8 +7,8 @@
 #include <QUrl>
 
 MainWindow::MainWindow(QWidget *parent) :
-      QMainWindow(parent),
-      ui(new Ui::MainWindow)
+   QMainWindow(parent),
+   ui(new Ui::MainWindow)
 {
    ui->setupUi(this);
    
@@ -25,14 +25,14 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+   // TODO: Handle unsaved documents or other pre-close stuffs
+   theApp.ExitInstance();
+
    delete ui;
 }
 
 void MainWindow::on_actionExit_triggered()
 {
-   // TODO: Handle unsaved documents or other pre-close stuffs
-   theApp.ExitInstance();
-
    // Closing the main window kills the app
    close();
 }

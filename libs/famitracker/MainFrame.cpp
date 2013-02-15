@@ -37,6 +37,7 @@ CMainFrame::CMainFrame(QWidget *parent) :
    ui(new Ui::CMainFrame),
    m_iInstrument(0),
    m_iTrack(0),
+   m_pFrameEditor(0),
    initialized(false)
 {
    int idx;
@@ -145,6 +146,7 @@ void CMainFrame::focusInEvent(QFocusEvent *)
 void CMainFrame::showEvent(QShowEvent *)
 {
    emit addToolBarWidget(toolBar);
+   toolBar->setVisible(true);
 
    if ( !initialized )
    {
@@ -181,6 +183,12 @@ void CMainFrame::showEvent(QShowEvent *)
 void CMainFrame::hideEvent(QHideEvent *)
 {
    emit removeToolBarWidget(toolBar);
+}
+
+void CMainFrame::resizeEvent(QResizeEvent *)
+{
+   if ( m_pFrameEditor )
+      ResizeFrameWindow();
 }
 
 void CMainFrame::trackerAction_triggered()
@@ -690,3 +698,68 @@ void CMainFrame::OnModuleMoveframeup()
 	AddAction(new CFrameAction(CFrameAction::ACT_MOVE_UP));
 }
 
+
+void CMainFrame::ResizeFrameWindow()
+{
+	// Called when the number of channels has changed
+	ASSERT(m_pFrameEditor != NULL);
+
+	CFamiTrackerDoc *pDocument = (CFamiTrackerDoc*)GetActiveDocument();
+
+	if (pDocument != NULL) {
+
+		int Channels = pDocument->GetAvailableChannels();
+		int Chip = pDocument->GetExpansionChip();
+		int Height(0), Width(0);
+
+		// Located to the right
+		if (m_iFrameEditorPos == FRAME_EDIT_POS_TOP) {
+			// Frame editor window
+			Height = 161;
+			Width = CFrameEditor::FIXED_WIDTH + CFrameEditor::FRAME_ITEM_WIDTH * Channels;
+
+			m_pFrameEditor->MoveWindow(SX(12), SY(12), SX(Width), SY(Height));
+
+//			// Move frame controls
+//			m_wndFrameControls.MoveWindow(SX(10), SY(Height) + SY(21), SX(150), SY(26));
+		}
+		// Located to the left
+		else {
+//			// Frame editor window
+//			CRect rect;
+//			m_wndVerticalControlBar.GetClientRect(&rect);
+
+//			Height = rect.Height() - HEADER_HEIGHT - 2;
+//			Width = CFrameEditor::FIXED_WIDTH + CFrameEditor::FRAME_ITEM_WIDTH * Channels;
+
+//			m_pFrameEditor->MoveWindow(SX(2), SY(HEADER_HEIGHT + 1), SX(Width), SY(Height));
+
+//			// Move frame controls
+//			m_wndFrameControls.MoveWindow(SX(4), SY(10), SX(150), SY(26));
+		}
+
+//		// Vertical control bar
+//		m_wndVerticalControlBar.m_sizeDefault.cx = SX(54) + SX(CFrameEditor::FRAME_ITEM_WIDTH * Channels);
+//		m_wndVerticalControlBar.CalcFixedLayout(TRUE, FALSE);
+//		RecalcLayout();
+	}
+
+//	CRect ChildRect, ParentRect, FrameEditorRect, FrameBarRect;
+
+//	m_wndControlBar.GetClientRect(&ParentRect);
+//	m_pFrameEditor->GetClientRect(&FrameEditorRect);
+
+//	int DialogStartPos;
+
+//	if (m_iFrameEditorPos == FRAME_EDIT_POS_TOP)
+//		DialogStartPos = FrameEditorRect.right + 32;
+//	else
+//		DialogStartPos = 0;
+
+//	m_wndDialogBar.MoveWindow(DialogStartPos, 2, ParentRect.Width() - DialogStartPos, ParentRect.Height() - 4);
+//	m_wndDialogBar.GetWindowRect(&ChildRect);
+//	m_wndDialogBar.GetDlgItem(IDC_INSTRUMENTS)->MoveWindow(SX(288), SY(10), ChildRect.Width() - SX(296), SY(158));
+//	m_wndDialogBar.GetDlgItem(IDC_INSTNAME)->MoveWindow(SX(478), SY(175), ChildRect.Width() - SX(486), SY(22));
+
+	m_pFrameEditor->RedrawWindow();
+}

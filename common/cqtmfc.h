@@ -66,6 +66,9 @@
 #if !defined(TRACE)
 #define TRACE(x) { QString str; str.sprintf("TRACE0: %s(%d): %s",__FILE__,__LINE__, (x)); qDebug(str.toAscii().constData()); }
 #endif
+#if !defined(ATLTRACE2)
+#define ATLTRACE2(a,b,str,...)
+#endif
 
 #define POSITION int
 
@@ -715,6 +718,7 @@ public:
    void ReleaseCapture() { /* DON'T DO THIS releaseMouse(); */ }
    UINT_PTR mfcTimerId(int qtTimerId) { return qtToMfcTimer.value(qtTimerId); }
    CFrameWnd* GetParentFrame( ) const { return m_pFrameWnd; }
+   void MoveWindow(int x,int y,int cx, int cy) { setFixedWidth(cx); }
    
    // These methods are only to be used in CDocTemplate initialization...
    void privateSetParentFrame(CFrameWnd* pFrameWnd) { m_pFrameWnd = pFrameWnd; }

@@ -92,7 +92,7 @@ protected:
 };
 
 // Settings collection
-class CSettings
+class CSettings : public CObject
 {
 public:
 	CSettings();

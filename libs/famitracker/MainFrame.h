@@ -84,6 +84,7 @@ protected:
    void focusInEvent(QFocusEvent *);
    void showEvent(QShowEvent *);
    void hideEvent(QHideEvent *);
+   void resizeEvent(QResizeEvent *);
 
 private:
    // Qt stuff

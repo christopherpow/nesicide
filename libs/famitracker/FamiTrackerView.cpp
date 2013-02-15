@@ -1155,8 +1155,7 @@ void CFamiTrackerView::OnUpdate(CView* /*pSender*/, LPARAM lHint, CObject* /*pHi
 			m_pPatternView->Reset();
 			m_pPatternView->Modified();
 			pMainFrm->ResetUndo();
-         qDebug("ResizeFrameWindow");
-//			pMainFrm->ResizeFrameWindow();
+			pMainFrm->ResizeFrameWindow();
 			m_pPatternView->Invalidate(true);
 			RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_ERASE);
 			break;

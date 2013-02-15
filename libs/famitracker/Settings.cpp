@@ -26,8 +26,9 @@
  */
 
 #include <QSettings>
-
+#include "FamiTracker.h"
 #include "FamiTrackerDoc.h"
+#include "FamiTrackerView.h"
 #include "Settings.h"
 #include "ColorScheme.h"
 
@@ -48,7 +49,7 @@ CSettings::CSettings() : m_iAddedSettings(0)
 
 	memset(m_pSettings, 0, sizeof(CSettingBase*) * MAX_SETTINGS);
 	SetupSettings();
-//	ATLTRACE2(atlTraceGeneral, 0, "Settings: Added %d settings\n", m_iAddedSettings);	// debug
+	ATLTRACE2(atlTraceGeneral, 0, "Settings: Added %d settings\n", m_iAddedSettings);	// debug
 }
 
 CSettings::~CSettings()

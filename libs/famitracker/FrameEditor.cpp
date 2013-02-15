@@ -693,6 +693,12 @@ void CFrameEditor::focusOutEvent(QFocusEvent *)
 
 void CFrameEditor::resizeEvent(QResizeEvent *event)
 {
+   int width = event->size().width();
+   int height = event->size().height();
+   if ( ui->verticalScrollBar->isVisible() )
+      width -= ui->verticalScrollBar->width();
+   if ( ui->horizontalScrollBar->isVisible() )
+      height -= ui->horizontalScrollBar->height();
    OnSize(0,event->size().width(),event->size().height());
 }
 

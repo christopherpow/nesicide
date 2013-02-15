@@ -83,6 +83,8 @@ void CPatternView::resizeEvent(QResizeEvent *event)
    // CP: counteract unnecessary math in SetWindowSize...
    int width = event->size().width() + 3;
    int height = event->size().height() + 4;
+   if ( ui->horizontalScrollBar->isVisible() )
+      height -= ui->horizontalScrollBar->height();
    SetWindowSize(width,height);
 }
 
