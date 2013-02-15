@@ -18,28 +18,15 @@ CString::CString()
    _qstr.clear();
 }
 
-CString::CString(char* str)
+CString::CString(LPCTSTR str)
 {
-   _qstr.clear();
-   _qstr = str;
-}
-
-CString::CString(const char* str)
-{
-   _qstr.clear();
-   _qstr = str;
-}
-
-CString::CString(TCHAR* str)
-{
+#ifdef UNICODE
    _qstr.clear();
    _qstr = QString::fromWCharArray(str);
-}
-
-CString::CString(const TCHAR* str)
-{
+#else
    _qstr.clear();
-   _qstr = QString::fromWCharArray(str);
+   _qstr = str;
+#endif
 }
 
 CString::CString(QString str)
@@ -59,24 +46,6 @@ CString::~CString()
    _qstr.clear();
 }
 
-void CString::Format(const char* fmt, ...)
-{
-   va_list argptr;
-   va_start(argptr,fmt);
-   FormatV(fmt,argptr);
-   va_end(argptr);
-}
-
-void CString::FormatV(const char* fmt, va_list ap)
-{
-   // CPTODO: UN-HACK!!!
-   char local[2048];
-   vsprintf(local,fmt,ap);
-   _qstr.clear();
-   _qstr = local;
-//   _qstr.vsprintf(fmt,ap);
-}
-
 void CString::Format(LPCTSTR fmt, ...)
 {
    va_list argptr;
@@ -88,28 +57,18 @@ void CString::Format(LPCTSTR fmt, ...)
 void CString::FormatV(LPCTSTR fmt, va_list ap)
 {
    // CPTODO: UN-HACK!!!
+   TCHAR local[2048];
+#if UNICODE
    WCHAR local[2048];
    wvsprintf(local,fmt,ap);
    _qstr.clear();
    _qstr = QString::fromWCharArray(local);
 //   _qstr.vsprintf((const char*)fmt,ap);
-}
-
-void CString::AppendFormat(const char* fmt, ...)
-{
-   va_list argptr;
-   va_start(argptr,fmt);
-   AppendFormatV(fmt,argptr);
-   va_end(argptr);
-}
-
-void CString::AppendFormatV(const char* fmt, va_list ap)
-{
-   // CPTODO: UN-HACK!!!
-   char local[2048];
+#else
    vsprintf(local,fmt,ap);
-   _qstr += local;
-//   _qstr.vsprintf(fmt,ap);
+   _qstr.clear();
+   _qstr = QString(local);
+#endif
 }
 
 void CString::AppendFormat(LPCTSTR fmt, ...)
@@ -123,35 +82,56 @@ void CString::AppendFormat(LPCTSTR fmt, ...)
 void CString::AppendFormatV(LPCTSTR fmt, va_list ap)
 {
    // CPTODO: UN-HACK!!!
-   WCHAR local[2048];
+   TCHAR local[2048];
+#ifdef UNICODE
    wvsprintf(local,fmt,ap);
    _qstr += QString::fromWCharArray(local);
+#else
+   vsprintf(local,fmt,ap);
+   _qstr += QString(local);
+#endif
 //   _qstr.vsprintf((const char*)fmt,ap);
 }
 
-CString& CString::operator=(const char* str)
+CString& CString::operator=(LPTSTR str)
 {
    _qstr.clear();
-   _qstr = str;
-   return *this;
-}
-
-CString& CString::operator+=(const char* str)
-{
-   _qstr.append(str);
-   return *this;
-}
-
-CString& CString::operator=(TCHAR* str)
-{
-   _qstr.clear();
+#ifdef UNICODE
    _qstr = QString::fromWCharArray(str);
+#else
+   _qstr = QString(str);
+#endif
    return *this;
 }
 
-CString& CString::operator+=(TCHAR* str)
+CString& CString::operator+=(LPTSTR str)
 {
+#ifdef UNICODE
    _qstr.append(QString::fromWCharArray(str));
+#else
+   _qstr.append(QString(str));
+#endif
+   return *this;
+}
+
+CString& CString::operator=(LPCTSTR str)
+{
+   _qstr.clear();
+#ifdef UNICODE
+   _qstr = QString::fromWCharArray(str);
+#else
+   _qstr = QString(str);
+#endif
+   return *this;
+}
+
+CString& CString::operator+=(LPCTSTR str)
+{
+#ifdef UNICODE
+   _qstr.append(QString::fromWCharArray(str));
+#else
+   _qstr.append(QString(str));
+#endif
    return *this;
 }
 
@@ -186,14 +166,9 @@ bool CString::operator==(const CString& str) const
    return _qstr == str._qstr;
 }
 
-CString::operator const char*() const
+CString::operator const LPTSTR() const
 {
-   return _qstr.toAscii().constData();
-}
-
-CString::operator const TCHAR*() const
-{
-   return (TCHAR*)_qstr.toAscii().constData();
+   return (LPTSTR)_qstr.toLatin1().constData();
 }
 
 CString::operator const QString&() const
@@ -206,14 +181,14 @@ void CString::Empty()
    _qstr.clear(); 
 }
 
-const char* CString::GetString() const
+LPCTSTR CString::GetString() const
 {
    return _qstr.toAscii().constData();
 }
 
 LPTSTR CString::GetBuffer() const
 {
-   return (TCHAR*)_qstr.unicode();
+   return (LPTSTR)_qstr.unicode();
 }
 
 CString CString::Left( int nCount ) const
@@ -233,7 +208,11 @@ int CString::GetLength() const
 
 int CString::CompareNoCase( LPCTSTR lpsz ) const
 {
+#ifdef UNICODE
    return _qstr.compare(QString::fromWCharArray(lpsz),Qt::CaseInsensitive);
+#else
+   return _qstr.compare(QString(lpsz),Qt::CaseInsensitive);
+#endif
 }
 
 TCHAR CString::GetAt( int nIndex ) const
@@ -601,8 +580,12 @@ int CDC::DrawText(
 )
 {
    QRect rect(lpRect->left,lpRect->top,lpRect->right-lpRect->left,lpRect->bottom-lpRect->top);
+#if UNICODE
    QString qstr = QString::fromWCharArray(str.GetBuffer());
-   _qpainter->drawText(rect,qstr.toAscii().constData());
+#else
+   QString qstr(str.GetBuffer());
+#endif
+   _qpainter->drawText(rect,qstr.toLatin1().constData());
    
 }
 void CDC::FillSolidRect(
@@ -698,7 +681,11 @@ BOOL CDC::TextOut(
 )
 {
    QRect rect;
+#if UNICODE
    QString qstr = QString::fromWCharArray(lpszString);
+#else
+   QString qstr(lpszString);
+#endif
    QFontMetrics fontMetrics((QFont)*_font);
    rect.setTopLeft(QPoint(x,y));
    rect.setBottomRight(QPoint(x+fontMetrics.size(Qt::TextSingleLine,qstr.left(nCount)).width()+10,y+fontMetrics.height()));
@@ -718,7 +705,12 @@ BOOL CDC::TextOut(
    rect.setBottomRight(QPoint(x+fontMetrics.size(Qt::TextSingleLine,str.GetString()).width()+10,y+fontMetrics.height()));
    rect.translate(-QPoint(_windowOrg.x,_windowOrg.y));
    _qpainter->setPen(QPen(_textColor));
+#ifdef UNICODE
    _qpainter->drawText(rect,QString::fromWCharArray(str.GetBuffer()));
+#else
+   QString qstr(str.GetBuffer());
+   _qpainter->drawText(rect,qstr);
+#endif
 }
 
 void CComboBox::ResetContent()
@@ -741,7 +733,7 @@ QMap<int,int> CWnd::mfcToQtTimer;
 UINT CWnd::SetTimer(void* id, UINT interval, void*)
 {
    int qtId = startTimer(interval);
-   mfcToQtTimer.insert(qtId,(int)id);
+   mfcToQtTimer.insert(qtId,(uintptr_t)id);
    return startTimer(interval);
 }
 
