@@ -68,11 +68,11 @@ mac {
    C64_CXXFLAGS = -I$$TOP/libs/c64 -I$$TOP/libs/c64/emulator -I$$TOP/libs/c64/common
    FAMITRACKER_CXXFLAGS = -I$$TOP/libs/famitracker
 
-   SDL_CXXFLAGS = -I/Library/Frameworks/SDL.framework/Headers
-   SDL_LIBS = -framework SDL
+   SDL_CXXFLAGS = -I $$TOP/deps/osx/SDL.framework/Headers
+   SDL_LIBS = -F $$TOP/deps/osx -framework SDL
 
-   LUA_CXXFLAGS = -F.. -framework Lua
-   LUA_LIBS = -F ~/Library/Frameworks -framework Lua
+   LUA_CXXFLAGS = -I $$TOP/deps/osx/Lua.framework/Headers
+   LUA_LIBS = -F $$TOP/deps/osx -framework Lua
 
    NES_LIBS = -L$$TOP/libs/nes/$${LIB_BUILD_TYPE_DIR} -lnes-emulator
    C64_LIBS = -L$$TOP/libs/c64/$${LIB_BUILD_TYPE_DIR} -lc64-emulator

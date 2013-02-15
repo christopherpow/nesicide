@@ -46,12 +46,12 @@ mac {
    }
    FAMITRACKER_CXXFLAGS = -I$$TOP/libs/famitracker
 
-   SDL_CXXFLAGS = -I/Library/Frameworks/SDL.framework/Headers
-   SDL_LIBS = -framework SDL
+   SDL_CXXFLAGS = -I$$TOP/deps/osx/SDL.framework/Headers
+   SDL_LIBS = -F$$TOP/deps/osx -framework SDL
 
    FAMITRACKER_LIBS = -L$$TOP/libs/famitracker/$${LIB_BUILD_TYPE_DIR} -lfamitracker
 
-   ICON = mac/resources/nesicide.icns
+   #ICON = mac/resources/nesicide.icns
 
    QMAKE_POST_LINK += mkdir -p $${DESTDIR}/$${TARGET}.app/Contents/Frameworks $$escape_expand(\n\t)
 
