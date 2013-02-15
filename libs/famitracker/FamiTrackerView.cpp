@@ -370,6 +370,8 @@ CFamiTrackerDoc* CFamiTrackerView::GetDocument() const // non-debug version is i
 CFamiTrackerView *CFamiTrackerView::GetView()
 {
 	CFrameWnd *pFrame = (CFrameWnd*)(AfxGetApp()->m_pMainWnd);
+   
+   if ( !pFrame ) return NULL;
 	CView *pView = pFrame->GetActiveView();
 
 	if (!pView)
@@ -1433,7 +1435,6 @@ int CFamiTrackerView::PlayerCommand(char Command, int Value)
 	if (bDoUpdate) {
 		if (m_bHasFocus) {
 			// Direct update
-         qDebug("PostMessage");
 //			PostMessage(MSG_UPDATE);
 		}
 		else {
@@ -1881,7 +1882,6 @@ void CFamiTrackerView::FeedNote(int Channel, stChanNote *NoteData)
 	CTrackerChannel *pChannel = pDoc->GetChannel(Channel);
 
 	pChannel->SetNote(*NoteData);
-   qDebug("theApp.GetMIDI");
 //	theApp.GetMIDI()->WriteNote(Channel, NoteData->Note, NoteData->Octave, NoteData->Vol);
 }
 
@@ -3269,7 +3269,6 @@ bool CFamiTrackerView::AddAction(CAction *pAction) const
 
 void CFamiTrackerView::updateViews(long hint)
 {
-   qDebug("CFamiTrackerView::updateViews(%d)",hint);
    OnUpdate(0,hint,0);
    m_pPatternView->repaint();
 }

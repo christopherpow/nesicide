@@ -137,6 +137,12 @@ CMainFrame::~CMainFrame()
    delete toolBar;
 }
 
+void CMainFrame::focusInEvent(QFocusEvent *)
+{
+   m_pView->GetPatternView()->SetFocus(true);
+   m_pFrameEditor->SetFocus();
+}
+
 void CMainFrame::showEvent(QShowEvent *)
 {
    emit addToolBarWidget(toolBar);
@@ -170,7 +176,7 @@ void CMainFrame::showEvent(QShowEvent *)
       
       initialized = true;
    }
-   m_pView->setFocus();
+   setFocus();
 }
 
 void CMainFrame::hideEvent(QHideEvent *)

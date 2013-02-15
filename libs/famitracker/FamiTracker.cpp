@@ -74,7 +74,10 @@ void CFamiTrackerApp::SilentEverything()
 
 void CFamiTrackerApp::RegisterKeyState(int Channel, int Note)
 {
-   qDebug("::RegisterKeyState");
+   CFamiTrackerView *pView = CFamiTrackerView::GetView();
+
+	if (pView)
+		pView->RegisterKeyState(Channel, Note);
 }
 
 // CFamiTrackerApp message handlers

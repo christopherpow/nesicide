@@ -81,6 +81,7 @@ public:
 	void	SetFrameCount(int Count);
    
 protected:
+   void focusInEvent(QFocusEvent *);
    void showEvent(QShowEvent *);
    void hideEvent(QHideEvent *);
 

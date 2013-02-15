@@ -279,15 +279,14 @@ void CFrameEditor::OnPaint()
 	m_dcBack.SelectObject(pOldBmp);
 	m_dcBack.SelectObject(pOldFont);
 
-   qDebug("FrameEditor:ScrollBar stuff...");
-//	if (FrameCount == 1)
-//		SetScrollRange(SB_VERT, 0, 1);
-//	else
-//		SetScrollRange(SB_VERT, 0, FrameCount - 1);
+	if (FrameCount == 1)
+		SetScrollRange(SB_VERT, 0, 1);
+	else
+		SetScrollRange(SB_VERT, 0, FrameCount - 1);
 	
-//	SetScrollPos(SB_VERT, ActiveFrame);
-//	SetScrollRange(SB_HORZ, 0, TotalChannelCount - 1);
-//	SetScrollPos(SB_HORZ, ActiveChannel);
+	SetScrollPos(SB_VERT, ActiveFrame);
+	SetScrollRange(SB_HORZ, 0, TotalChannelCount - 1);
+	SetScrollPos(SB_HORZ, ActiveChannel);
 }
 
 void CFrameEditor::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
@@ -817,7 +816,42 @@ void CFrameEditor::mouseDoubleClickEvent(QMouseEvent *event)
 
 void CFrameEditor::updateViews(long hint)
 {
-   qDebug("CFrameEditor::updateViews(%d)",hint);
    repaint();
 }
 
+void CFrameEditor::SetScrollRange(
+   int nBar,
+   int nMinPos,
+   int nMaxPos,
+   BOOL bRedraw 
+)
+{
+   switch ( nBar )
+   {
+   case SB_HORZ:
+      ui->horizontalScrollBar->setMinimum(nMinPos);
+      ui->horizontalScrollBar->setMaximum(nMaxPos);
+      break;
+   case SB_VERT:
+      ui->verticalScrollBar->setMinimum(nMinPos);
+      ui->verticalScrollBar->setMaximum(nMaxPos);
+      break;
+   }
+}
+
+int CFrameEditor::SetScrollPos(
+   int nBar,
+   int nPos,
+   BOOL bRedraw
+)
+{
+   switch ( nBar )
+   {
+   case SB_HORZ:
+      ui->horizontalScrollBar->setValue(nPos);
+      break;
+   case SB_VERT:
+      ui->verticalScrollBar->setValue(nPos);
+      break;
+   }
+}

@@ -123,6 +123,19 @@ public slots:
 private slots:
    void on_verticalScrollBar_actionTriggered(int action);
    void on_horizontalScrollBar_actionTriggered(int action);
+public: 
+   // Reimplements of CWnd functionality that unfortunately can't easily be moved there...
+   void SetScrollRange(
+      int nBar,
+      int nMinPos,
+      int nMaxPos,
+      BOOL bRedraw = TRUE 
+   );
+   int SetScrollPos(
+      int nBar,
+      int nPos,
+      BOOL bRedraw = TRUE 
+   );
 };
 
 
