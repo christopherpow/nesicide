@@ -1397,7 +1397,6 @@ bool CSoundGen::WaitForStop() const
 
 BOOL CSoundGen::InitInstance()
 {
-   qDebug("CSoundGen::InitInstance");
 	//
 	// Setup the synth, called when thread is started
 	//

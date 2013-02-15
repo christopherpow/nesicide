@@ -597,29 +597,28 @@ void CMainFrame::SetSongInfo(char *Name, char *Artist, char *Copyright)
 
 void CMainFrame::UpdateTrackBox()
 {
-   qDebug("UpdateTrackBox");
-//	// Fill the track box with all songs
-//	CComboBox		*pTrackBox	= (CComboBox*)ui->songs;
-////	CComboBox		*pTrackBox	= (CComboBox*)m_wndDialogBar.GetDlgItem(IDC_SUBTUNE);
-//	CFamiTrackerDoc	*pDoc		= (CFamiTrackerDoc*)GetActiveDocument();
-//	CString			Text;
+	// Fill the track box with all songs
+	CComboBox		*pTrackBox	= (CComboBox*)ui->songs;
+//	CComboBox		*pTrackBox	= (CComboBox*)m_wndDialogBar.GetDlgItem(IDC_SUBTUNE);
+	CFamiTrackerDoc	*pDoc		= (CFamiTrackerDoc*)GetActiveDocument();
+	CString			Text;
 
-//	ASSERT(pTrackBox != NULL);
-//	ASSERT(pDoc != NULL);
+	ASSERT(pTrackBox != NULL);
+	ASSERT(pDoc != NULL);
 
-//	pTrackBox->ResetContent();
+	pTrackBox->ResetContent();
 
-//	int Count = pDoc->GetTrackCount();
+	int Count = pDoc->GetTrackCount();
 
-//	for (int i = 0; i < Count; ++i) {
-//		Text.Format(_T("#%i %s"), i + 1, pDoc->GetTrackTitle(i));
-//		pTrackBox->AddString(Text);
-//	}
+	for (int i = 0; i < Count; ++i) {
+		Text.Format(_T("#%i %s"), i + 1, pDoc->GetTrackTitle(i));
+		pTrackBox->AddString(Text);
+	}
 
-//	if (m_iTrack >= Count)
-//		m_iTrack = Count - 1;
+	if (m_iTrack >= Count)
+		m_iTrack = Count - 1;
 
-//	pTrackBox->SetCurSel(m_iTrack);
+	pTrackBox->SetCurSel(m_iTrack);
 }
 
 void CMainFrame::ChangedTrack()

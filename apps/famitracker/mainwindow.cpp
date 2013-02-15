@@ -26,12 +26,12 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
    delete ui;
-   theApp.ExitInstance();
 }
 
 void MainWindow::on_actionExit_triggered()
 {
    // TODO: Handle unsaved documents or other pre-close stuffs
+   theApp.ExitInstance();
 
    // Closing the main window kills the app
    close();

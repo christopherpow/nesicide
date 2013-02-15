@@ -2038,8 +2038,9 @@ void CFamiTrackerView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	CFamiTrackerDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
 
-	if (GetFocus() != this)
-		return;
+   qDebug("CWnd::GetFocus not quite right yet...");
+//	if (GetFocus() != this)
+//		return;
 
 	if (nChar >= VK_NUMPAD0 && nChar <= VK_NUMPAD9) {
 		// Switch instrument

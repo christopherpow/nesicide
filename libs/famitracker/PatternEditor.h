@@ -113,8 +113,6 @@ class CPatternView : public QWidget // Pull in Qt stuff
 protected:
    void paintEvent(QPaintEvent *event);
    void resizeEvent(QResizeEvent *event);
-   void keyPressEvent(QKeyEvent *event) { event->ignore(); }
-   void keyReleaseEvent(QKeyEvent *event) { event->ignore(); }
    
 private:
    Ui::CPatternView *ui;
