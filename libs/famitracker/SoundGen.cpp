@@ -1680,7 +1680,6 @@ bool CSoundGen::HasWaveChanged()
 
 void CSoundGen::recvThreadMessage(unsigned int m, unsigned int w, unsigned int l)
 {
-   qDebug("recvThreadMessage(%d,%d,%d)",m,w,l);
    switch ( m )
    {
    case WM_USER_SILENT_ALL:

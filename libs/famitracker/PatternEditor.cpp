@@ -155,8 +155,8 @@ void CPatternView::paintEvent(QPaintEvent *event)
    // Qt attach to the MFC HLE.
    m_pBackDC->attach(this);
 
-   m_bUpdated = true;
-   m_bForceFullRedraw = true;
+//   m_bUpdated = true;
+//   m_bForceFullRedraw = true;
    
    CreateBackground(m_pBackDC,true);
    
