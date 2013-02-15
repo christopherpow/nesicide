@@ -136,7 +136,7 @@ void CFrameEditor::OnPaint()
 //	// Get window size
 //	CRect WinRect;
 //	GetClientRect(&WinRect);
-   CRect WinRect(x(),y(),x()+width(),y()+width());
+   CRect WinRect(x(),y(),x()+width()-ui->verticalScrollBar->width(),y()+height()-ui->horizontalScrollBar->height());
 
 	if (!m_pDocument || !m_pView)  {
 		dc.FillSolidRect(WinRect, 0);
@@ -149,10 +149,8 @@ void CFrameEditor::OnPaint()
 	else if (theApp.GetSoundGenerator()->IsRendering())
 		return;
 
-//	unsigned int Width = WinRect.Width();
-//	unsigned int Height = WinRect.Height();
-   unsigned int Width = width();
-   unsigned int Height = height();
+	unsigned int Width = WinRect.Width();
+	unsigned int Height = WinRect.Height();
    
 
 	// Check if width has changed, delete objects then
@@ -660,8 +658,8 @@ void CFrameEditor::OnSize(UINT nType, int cx, int cy)
 
 	// Get number of rows visible
 	m_iFramesVisible = (cy - TOP_OFFSET) / ROW_HEIGHT;
-   qDebug("OnSize %d,%d",cx,cy);
-	// Delete the back buffer
+
+   // Delete the back buffer
 //	m_bmpBack.DeleteObject();
 //	m_dcBack.DeleteDC();
 }
@@ -695,11 +693,9 @@ void CFrameEditor::resizeEvent(QResizeEvent *event)
 {
    int width = event->size().width();
    int height = event->size().height();
-   if ( ui->verticalScrollBar->isVisible() )
-      width -= ui->verticalScrollBar->width();
-   if ( ui->horizontalScrollBar->isVisible() )
-      height -= ui->horizontalScrollBar->height();
-   OnSize(0,event->size().width(),event->size().height());
+   OnSize(0,width,height);
+   
+   setFixedSize(width,height);
 }
 
 void CFrameEditor::on_verticalScrollBar_actionTriggered(int arg1)
