@@ -270,8 +270,6 @@ CFamiTrackerDoc::CFamiTrackerDoc(QObject* parent)
    
    qDebug("SetTitle hack...");
    SetTitle("Untitled");
-   
-   qDebug("CFamiTrackerDoc!");
 }
 
 CFamiTrackerDoc::~CFamiTrackerDoc()

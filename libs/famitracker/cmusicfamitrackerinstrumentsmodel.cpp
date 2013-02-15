@@ -24,7 +24,7 @@ void CMusicFamiTrackerInstrumentsModel::setDocument(CFamiTrackerDoc* pDoc)
 
 QVariant CMusicFamiTrackerInstrumentsModel::data(const QModelIndex& index, int role) const
 {
-   CInstrument* pInst = (CInstrument*)m_pDocument->GetInstrument((int)index.internalPointer());
+   CInstrument* pInst = (CInstrument*)m_pDocument->GetInstrument((uintptr_t)index.internalPointer());
    if (!index.isValid())
    {
       return QVariant();
@@ -78,7 +78,7 @@ QVariant CMusicFamiTrackerInstrumentsModel::data(const QModelIndex& index, int r
          return QVariant();
       }
       
-      sprintf(modelStringBuffer,"%02X - %s",(int)index.internalPointer(),pInst->GetName());
+      sprintf(modelStringBuffer,"%02X - %s",(uintptr_t)index.internalPointer(),pInst->GetName());
 
       return QVariant(modelStringBuffer);
    }   

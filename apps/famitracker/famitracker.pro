@@ -10,6 +10,16 @@ TOP = ../..
 
 TARGET = "famitracker"
 
+win32 {
+	DEPENDENCYPATH = $$TOP/deps/Windows
+}
+mac {
+	DEPENDENCYPATH = $$TOP/deps/osx
+}
+#unix:mac {
+#	DEPENDENCYPATH = $$TOP/deps/linux
+#}
+
 TEMPLATE = app
 
 # set platform specific cxxflags and libs
@@ -46,12 +56,12 @@ mac {
    }
    FAMITRACKER_CXXFLAGS = -I$$TOP/libs/famitracker
 
-   SDL_CXXFLAGS = -I/Library/Frameworks/SDL.framework/Headers
-   SDL_LIBS = -framework SDL
+   SDL_CXXFLAGS = -I$$TOP/deps/osx/SDL.framework/Headers
+   SDL_LIBS = -F$$TOP/deps/osx -framework SDL
 
    FAMITRACKER_LIBS = -L$$TOP/libs/famitracker/$${LIB_BUILD_TYPE_DIR} -lfamitracker
 
-   ICON = mac/resources/nesicide.icns
+   #ICON = mac/resources/nesicide.icns
 
    QMAKE_POST_LINK += mkdir -p $${DESTDIR}/$${TARGET}.app/Contents/Frameworks $$escape_expand(\n\t)
 
@@ -96,6 +106,11 @@ QMAKE_CXXFLAGS += -DIDE \
 LIBS += $$FAMITRACKER_LIBS \
         $$SDL_LIBS \
         $$SCINTILLA_LIBS
+
+unix:mac {
+	QMAKE_CFLAGS += -I $$DEPENDENCYPATH/wine/include
+	QMAKE_CXXFLAGS += -I $$DEPENDENCYPATH/wine/include
+}
 
 INCLUDEPATH += \
    $$TOP/common

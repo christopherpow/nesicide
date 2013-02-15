@@ -273,7 +273,6 @@ CFamiTrackerView::CFamiTrackerView(QWidget* parent) :
 
 	// Setup pattern view
 	m_pPatternView->InitView(m_iClipBoard);
-   qDebug("CFamiTrackerView!");
 }
 
 CFamiTrackerView::~CFamiTrackerView()

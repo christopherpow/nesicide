@@ -122,7 +122,6 @@ CMainFrame::CMainFrame(QWidget *parent) :
 #endif
 
    ui->songInstruments->setStyleSheet("QListView { background: #000000; color: #ffffff; }");
-   qDebug("CMainFrame!");
 }
 
 CMainFrame::~CMainFrame()

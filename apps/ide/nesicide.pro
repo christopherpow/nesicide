@@ -6,9 +6,21 @@ QT += network \
    webkit \
    xml
 
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
 TOP = ../..
 
 TARGET = "nesicide"
+
+win32 {
+	DEPENDENCYPATH = $$TOP/deps/Windows
+}
+mac {
+	DEPENDENCYPATH = $$TOP/deps/osx
+}
+#unix:mac {
+#	DEPENDENCYPATH = $$TOP/deps/linux
+#}
 
 # Remove crap we don't need!
 CONFIG -= exceptions
@@ -28,19 +40,19 @@ CONFIG(release, debug|release) {
 
 win32 {
 
-   SDL_CXXFLAGS = -I$$TOP/deps/Windows/SDL
-   SDL_LIBS =  -L$$TOP/deps/Windows/SDL/ -lsdl
+   SDL_CXXFLAGS = -I$$DEPENDENCYPATH/SDL
+   SDL_LIBS =  -L$$DEPENDENCYPATH/SDL/ -lsdl
 
-   SCINTILLA_CXXFLAGS = -I$$TOP/deps/Windows/Qscintilla
+   SCINTILLA_CXXFLAGS = -I$$DEPENDENCYPATH/Qscintilla
 
    CONFIG(release, debug|release) {
-      SCINTILLA_LIBS = -L$$TOP/deps/Windows/Qscintilla/release -lqscintilla2
+      SCINTILLA_LIBS = -L$$DEPENDENCYPATH/Qscintilla/release -lqscintilla2
    } else {
-      SCINTILLA_LIBS = -L$$TOP/deps/Windows/Qscintilla/debug -lqscintilla2
+      SCINTILLA_LIBS = -L$$DEPENDENCYPATH/Qscintilla/debug -lqscintilla2
    }
 
-   LUA_CXXFLAGS = -I$$TOP/deps/Windows/Lua
-   LUA_LIBS = $$TOP/deps/Windows/Lua/liblua.a
+   LUA_CXXFLAGS = -I$$DEPENDENCYPATH/Lua
+   LUA_LIBS = $$DEPENDENCYPATH/Lua/liblua.a
 
    NES_CXXFLAGS = -I$$TOP/libs/nes -I$$TOP/libs/nes/emulator -I$$TOP/libs/nes/common
    C64_CXXFLAGS = -I$$TOP/libs/c64 -I$$TOP/libs/c64/emulator -I$$TOP/libs/c64/common
@@ -68,11 +80,11 @@ mac {
    C64_CXXFLAGS = -I$$TOP/libs/c64 -I$$TOP/libs/c64/emulator -I$$TOP/libs/c64/common
    FAMITRACKER_CXXFLAGS = -I$$TOP/libs/famitracker
 
-   SDL_CXXFLAGS = -I/Library/Frameworks/SDL.framework/Headers
-   SDL_LIBS = -framework SDL
+   SDL_CXXFLAGS = -I $$DEPENDENCYPATH/SDL.framework/Headers
+   SDL_LIBS = -F $$DEPENDENCYPATH -framework SDL
 
-   LUA_CXXFLAGS = -F.. -framework Lua
-   LUA_LIBS = -F ~/Library/Frameworks -framework Lua
+   LUA_CXXFLAGS = -I $$DEPENDENCYPATH/Lua.framework/Headers
+   LUA_LIBS = -F $$DEPENDENCYPATH -framework Lua
 
    NES_LIBS = -L$$TOP/libs/nes/$${LIB_BUILD_TYPE_DIR} -lnes-emulator
    C64_LIBS = -L$$TOP/libs/c64/$${LIB_BUILD_TYPE_DIR} -lc64-emulator
@@ -166,6 +178,11 @@ unix:!mac {
 
    target.path = $$BINDIR
    INSTALLS += target
+}
+
+unix:mac {
+	QMAKE_CFLAGS += -I $$DEPENDENCYPATH/wine/include
+	QMAKE_CXXFLAGS += -I $$DEPENDENCYPATH/wine/include
 }
 
 QMAKE_CXXFLAGS += -DIDE \

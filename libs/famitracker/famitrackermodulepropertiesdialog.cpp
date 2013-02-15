@@ -24,7 +24,11 @@ FamiTrackerModulePropertiesDialog::FamiTrackerModulePropertiesDialog(CFamiTracke
    CChannelMap* pChannelMap = theApp.GetChannelMap();
    for ( idx = 0; idx < pChannelMap->GetChipCount(); idx++ )
    {
+#ifdef UNICODE
       ui->expansionSound->addItem(QString::fromWCharArray(pChannelMap->GetChipName(idx)));
+#else
+      ui->expansionSound->addItem(QString(pChannelMap->GetChipName(idx)));
+#endif
       ui->expansionSound->setItemData(idx,pChannelMap->GetChipIdent(idx));
    }
 

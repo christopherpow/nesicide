@@ -14,6 +14,17 @@ DEFINES += FAMITRACKER_LIBRARY
 INCLUDEPATH += \
    $$TOP/common
 
+win32 {
+	DEPENDENCYPATH = $$TOP/deps/Windows
+}
+mac {
+	DEPENDENCYPATH = $$TOP/deps/osx
+}
+#unix:mac {
+#	DEPENDENCYPATH = $$TOP/deps/linux
+#}
+
+
 SOURCES += \
     TrackerChannel.cpp \
     SoundGen.cpp \
@@ -154,6 +165,11 @@ unix:!symbian {
         target.path = /usr/lib
     }
     INSTALLS += target
+}
+
+unix:mac {
+	QMAKE_CFLAGS += -I $$DEPENDENCYPATH/wine/include
+	QMAKE_CXXFLAGS += -I $$DEPENDENCYPATH/wine/include
 }
 
 OTHER_FILES += \

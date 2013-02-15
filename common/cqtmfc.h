@@ -39,24 +39,14 @@
                 p = NULL;       \
         }       \
 
-// MFC "replacements" (so I don't have to change FamiTracker code I don't want to change...)
-typedef unsigned char BYTE;
-typedef unsigned short WORD;
-typedef long unsigned int DWORD;
-typedef long LONG;
-typedef unsigned long ULONG;
-typedef DWORD COLORREF;
-typedef wchar_t WCHAR;
-typedef WCHAR TCHAR;
-typedef const TCHAR *LPCTSTR;
-typedef TCHAR *LPTSTR;
-typedef int WINBOOL;
-typedef WINBOOL BOOL;
-typedef unsigned int UINT;
-typedef unsigned int *PUINT;
-typedef unsigned long long ULONGLONG;
-typedef unsigned short USHORT;
-typedef USHORT COLOR16;
+// workaround to force ignore ms_abi errors, not needed as long as we don't link with other mfc implementations
+#if !Q_WS_WIN
+#if !__has_attribute(ms_abi)
+#define ms_abi
+#endif
+#endif
+
+#include <windows.h>
 
 #ifdef UNICODE
 #define _T(x) L##x
@@ -66,11 +56,6 @@ typedef USHORT COLOR16;
 #define TRACE0(x) { QString str; str.sprintf("TRACE0: %s(%d): %s",__FILE__,__LINE__, (x)); qDebug(str.toAscii().constData()); }
 #define TRACE(x) { QString str; str.sprintf("TRACE0: %s(%d): %s",__FILE__,__LINE__, (x)); qDebug(str.toAscii().constData()); }
 
-#define RGB(r,g,b) ((COLORREF)((BYTE)(r)|((BYTE)(g) << 8)|((BYTE)(b) << 16)))
-
-#include <QMutex>
-#include <QString>
-#include <QFile>
 
 class CSemaphore
 {
@@ -83,34 +68,27 @@ class CString
 public:
    CString();
    CString(const CString& ref);
-   CString(char* str);
-   CString(const char* str);
-   CString(TCHAR* str);
-   CString(const TCHAR* str);
+   CString(LPCTSTR str);
    CString(QString str);
    virtual ~CString();
 
-   void AppendFormat(const char* fmt, ...);
-   void AppendFormatV(const char* fmt, va_list ap);
    void AppendFormat(LPCTSTR fmt, ...);
    void AppendFormatV(LPCTSTR fmt, va_list ap);
-   void Format(const char* fmt, ...);
-   void FormatV(const char* fmt, va_list ap);
    void Format(LPCTSTR fmt, ...);
    void FormatV(LPCTSTR fmt, va_list ap);
 
-   CString& operator=(const char* str);
-   CString& operator+=(const char* str);
-   CString& operator=(TCHAR* str);
-   CString& operator+=(TCHAR* str);
+   CString& operator=(LPTSTR str);
+   CString& operator+=(LPTSTR str);
+   CString& operator=(LPCTSTR str);
+   CString& operator+=(LPCTSTR str);
    CString& operator=(QString str);
    CString& operator+=(QString str);
    CString& operator=(CString str);
    CString& operator+=(CString str);
    bool operator==(const CString& str) const;
-   operator const char*() const;
+   //operator const char*() const;
    operator const QString&() const;
-   operator const TCHAR*() const;
+   operator const LPTSTR() const;
 
    void Empty();
    const char* GetString() const;
@@ -176,59 +154,6 @@ public:
 private:
    QFile _qfile;
 };
-
-#if _WIN32
-#include <windows.h>
-#else
-typedef struct tagPOINT
-{
-   LONG x;
-   LONG y;
-} POINT, *LPPOINT;
-
-typedef struct tagSIZE
-{
-   LONG cx;
-   LONG cy;
-} SIZE, *LPSIZE;
-
-typedef struct tagRECT
-{
-   LONG left, top, right, bottom;
-} RECT, *LPRECT;
-
-typedef const RECT* LPCRECT;
-
-typedef struct tagLOGBRUSH
-{
-   UINT lbStyle;
-   COLORREF lbColor;
-   LONG * lbHatch;
-} LOGBRUSH;
-
-static const unsigned LF_FACESIZE = 32;
-typedef struct tagLOGFONT
-{
-   LONG lfHeight;
-   LONG lfWeight;
-   BYTE lfItalic;
-   TCHAR lfFaceName[LF_FACESIZE];
-} LOGFONT;
-
-typedef struct _TRIVERTEX
-{
-   LONG x;
-   LONG y;
-   COLOR16 Red;
-   COLOR16 Green;
-   COLOR16 Blue;
-   COLOR16 Alpha;
-} TRIVERTEX;
-
-#define GetRValue(rgb) (((rgb)>> 0)&0xff)
-#define GetGValue(rgb) (((rgb)>> 8)&0xff)
-#define GetBValue(rgb) (((rgb)>>16)&0xff)
-#endif
 
 class CPoint : public tagPOINT
 {
@@ -908,8 +833,8 @@ protected:
 
 #define afx_msg 
 
-#define max(a,b) (((a) > (b)) ? (a) : (b))
-#define min(a,b) (((a) > (b)) ? (b) : (a))
+//#define max(a,b) (((a) > (b)) ? (a) : (b))
+//#define min(a,b) (((a) > (b)) ? (b) : (a))
 
 #ifdef QT_NO_DEBUG
 #define ASSERT(y)
