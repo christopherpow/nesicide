@@ -77,6 +77,8 @@ public:
    CAction *GetLastAction() const;
    void	ResetUndo();
 
+   void	SetSpeed(int Speed);
+	void	SetTempo(int Tempo);
    void	SetRowCount(int Count);
 	void	SetFrameCount(int Count);
    
@@ -159,6 +161,8 @@ signals:
    void addToolBarWidget(QToolBar* toolBar);
    void removeToolBarWidget(QToolBar* toolBar);
    void editor_modificationChanged(bool m);
+private slots:
+   void on_frameChangeAll_clicked(bool checked);
 };
 
 // Global DPI functions

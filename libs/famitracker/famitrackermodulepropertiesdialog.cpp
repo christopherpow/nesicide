@@ -37,7 +37,7 @@ FamiTrackerModulePropertiesDialog::FamiTrackerModulePropertiesDialog(CFamiTracke
    QStringList songs;
    for ( idx = 0; idx < pDoc->GetTrackCount(); idx++ )
    {      
-      TrackTitle.Format(TRACK_FORMAT, idx, pDoc->GetTrackTitle(idx));
+      TrackTitle.Format(TRACK_FORMAT, idx+1, pDoc->GetTrackTitle(idx));
       songs.append(TrackTitle);
    }
    tracksModel->setStringList(songs);
@@ -82,7 +82,7 @@ void FamiTrackerModulePropertiesDialog::on_addSong_clicked()
 	// New track is always the last one
 	int NewTrack = m_pDocument->GetTrackCount() - 1;
 	
-   TrackTitle.Format(TRACK_FORMAT, NewTrack, "New song");
+   TrackTitle.Format(TRACK_FORMAT, NewTrack + 1, "New song");
    
    QStringList songs = tracksModel->stringList();
    songs.append(TrackTitle);
@@ -180,7 +180,7 @@ void FamiTrackerModulePropertiesDialog::on_importFile_clicked()
          QStringList songs;
          for ( idx = 0; idx < m_pDocument->GetTrackCount(); idx++ )
          {      
-            TrackTitle.Format(TRACK_FORMAT, idx, m_pDocument->GetTrackTitle(idx));
+            TrackTitle.Format(TRACK_FORMAT, idx + 1, m_pDocument->GetTrackTitle(idx));
             songs.append(TrackTitle);
          }
          tracksModel->setStringList(songs);         

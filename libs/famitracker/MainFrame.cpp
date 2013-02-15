@@ -218,19 +218,22 @@ void CMainFrame::trackerAction_saveDocument()
 void CMainFrame::trackerAction_editCut()
 {
    qDebug("editCut");
-   m_pView->OnEditCut();
+   CFamiTrackerView* pView = (CFamiTrackerView*)GetActiveView();
+   pView->OnEditCut();
 }
 
 void CMainFrame::trackerAction_editCopy()
 {
    qDebug("editCopy");
-   m_pView->OnEditCopy();
+   CFamiTrackerView* pView = (CFamiTrackerView*)GetActiveView();
+   pView->OnEditCopy();
 }
 
 void CMainFrame::trackerAction_editPaste()
 {
    qDebug("editPaste");
-   m_pView->OnEditPaste();   
+   CFamiTrackerView* pView = (CFamiTrackerView*)GetActiveView();
+   pView->OnEditPaste();   
 }
 
 void CMainFrame::trackerAction_about()
@@ -292,6 +295,7 @@ void CMainFrame::trackerAction_play()
 void CMainFrame::trackerAction_playLoop()
 {
    qDebug("playLoop");
+   theApp.OnTrackerPlaypattern();
 }
 
 void CMainFrame::trackerAction_stop()
@@ -303,7 +307,8 @@ void CMainFrame::trackerAction_stop()
 void CMainFrame::trackerAction_editMode()
 {
    qDebug("editMode");
-   m_pView->OnTrackerEdit();
+   CFamiTrackerView* pView = (CFamiTrackerView*)GetActiveView();
+   pView->OnTrackerEdit();
 }
 
 void CMainFrame::trackerAction_previousTrack()
@@ -330,32 +335,24 @@ void CMainFrame::trackerAction_createNSF()
 
 void CMainFrame::on_frameInc_clicked()
 {
-   qDebug("CheckRepeat?");
-	int Add = 1;//(CheckRepeat() ? 4 : 1);
-   CFrameAction *pAction = new CFrameAction(ui->frameChangeAll->isChecked() ? CFrameAction::ACT_CHANGE_PATTERN_ALL : CFrameAction::ACT_CHANGE_PATTERN);
-	pAction->SetPatternDelta(Add, ui->frameChangeAll->isChecked());
-	AddAction(pAction);
+   CFamiTrackerView* pView = (CFamiTrackerView*)GetActiveView();
+   pView->IncreaseCurrentPattern();
 }
 
 void CMainFrame::on_frameDec_clicked()
 {
-   qDebug("CheckRepeat?");
-	int Remove = 1;//(CheckRepeat() ? 4 : 1);
-   CFrameAction *pAction = new CFrameAction(ui->frameChangeAll->isChecked() ? CFrameAction::ACT_CHANGE_PATTERN_ALL : CFrameAction::ACT_CHANGE_PATTERN);
-	pAction->SetPatternDelta(Remove, ui->frameChangeAll->isChecked());
-	AddAction(pAction);
+   CFamiTrackerView* pView = (CFamiTrackerView*)GetActiveView();
+   pView->DecreaseCurrentPattern();
 }
 
 void CMainFrame::on_speed_valueChanged(int arg1)
 {
-   CFamiTrackerDoc* pDoc = (CFamiTrackerDoc*)GetActiveDocument();
-   pDoc->SetSongSpeed(arg1);
+	SetSpeed(arg1);
 }
 
 void CMainFrame::on_tempo_valueChanged(int arg1)
 {
-   CFamiTrackerDoc* pDoc = (CFamiTrackerDoc*)GetActiveDocument();
-   pDoc->SetSongTempo(arg1);
+   SetTempo(arg1);
 }
 
 void CMainFrame::on_numRows_valueChanged(int NewRows)
@@ -410,6 +407,30 @@ void CMainFrame::setFileName(QString fileName)
    
    instrumentsModel->setDocument((CFamiTrackerDoc*)GetActiveDocument());
    instrumentsModel->update();
+}
+
+void CMainFrame::SetTempo(int Tempo)
+{
+	CFamiTrackerDoc *pDoc = static_cast<CFamiTrackerDoc*>(GetActiveDocument());
+	int MinTempo = pDoc->GetSpeedSplitPoint();
+	LIMIT(Tempo, MAX_TEMPO, MinTempo);
+	pDoc->SetSongTempo(Tempo);
+	theApp.GetSoundGenerator()->ResetTempo();
+
+//	if (m_wndDialogBar.GetDlgItemInt(IDC_TEMPO) != Tempo)
+//		m_wndDialogBar.SetDlgItemInt(IDC_TEMPO, Tempo, FALSE);
+}
+
+void CMainFrame::SetSpeed(int Speed)
+{
+	CFamiTrackerDoc *pDoc = static_cast<CFamiTrackerDoc*>(GetActiveDocument());
+	int MaxSpeed = pDoc->GetSpeedSplitPoint() - 1;
+	LIMIT(Speed, MaxSpeed, MIN_SPEED);
+	pDoc->SetSongSpeed(Speed);
+	theApp.GetSoundGenerator()->ResetTempo();
+
+//	if (m_wndDialogBar.GetDlgItemInt(IDC_SPEED) != Speed)
+//		m_wndDialogBar.SetDlgItemInt(IDC_SPEED, Speed, FALSE);
 }
 
 void CMainFrame::SetRowCount(int Count)
@@ -762,4 +783,10 @@ void CMainFrame::ResizeFrameWindow()
 //	m_wndDialogBar.GetDlgItem(IDC_INSTNAME)->MoveWindow(SX(478), SY(175), ChildRect.Width() - SX(486), SY(22));
 
 	m_pFrameEditor->RedrawWindow();
+}
+
+void CMainFrame::on_frameChangeAll_clicked(bool checked)
+{
+   CFamiTrackerView* pView = (CFamiTrackerView*)GetActiveView();
+   pView->SetChangeAllPattern(checked);
 }
