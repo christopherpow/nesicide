@@ -43,6 +43,8 @@
 typedef unsigned char BYTE;
 typedef unsigned short WORD;
 typedef long unsigned int DWORD;
+typedef long LONG;
+typedef unsigned long ULONG;
 typedef DWORD COLORREF;
 typedef wchar_t WCHAR;
 typedef WCHAR TCHAR;
@@ -53,6 +55,8 @@ typedef WINBOOL BOOL;
 typedef unsigned int UINT;
 typedef unsigned int *PUINT;
 typedef unsigned long long ULONGLONG;
+typedef unsigned short USHORT;
+typedef USHORT COLOR16;
 
 #ifdef UNICODE
 #define _T(x) L##x
@@ -173,7 +177,58 @@ private:
    QFile _qfile;
 };
 
+#if _WIN32
 #include <windows.h>
+#else
+typedef struct tagPOINT
+{
+   LONG x;
+   LONG y;
+} POINT, *LPPOINT;
+
+typedef struct tagSIZE
+{
+   LONG cx;
+   LONG cy;
+} SIZE, *LPSIZE;
+
+typedef struct tagRECT
+{
+   LONG left, top, right, bottom;
+} RECT, *LPRECT;
+
+typedef const RECT* LPCRECT;
+
+typedef struct tagLOGBRUSH
+{
+   UINT lbStyle;
+   COLORREF lbColor;
+   LONG * lbHatch;
+} LOGBRUSH;
+
+static const unsigned LF_FACESIZE = 32;
+typedef struct tagLOGFONT
+{
+   LONG lfHeight;
+   LONG lfWeight;
+   BYTE lfItalic;
+   TCHAR lfFaceName[LF_FACESIZE];
+} LOGFONT;
+
+typedef struct _TRIVERTEX
+{
+   LONG x;
+   LONG y;
+   COLOR16 Red;
+   COLOR16 Green;
+   COLOR16 Blue;
+   COLOR16 Alpha;
+} TRIVERTEX;
+
+#define GetRValue(rgb) (((rgb)>> 0)&0xff)
+#define GetGValue(rgb) (((rgb)>> 8)&0xff)
+#define GetBValue(rgb) (((rgb)>>16)&0xff)
+#endif
 
 class CPoint : public tagPOINT
 {
@@ -194,8 +249,6 @@ public:
       y = _y;
    }
 
-//   int x;
-//   int y;
 };
 
 class CRect
