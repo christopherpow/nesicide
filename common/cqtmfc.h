@@ -24,6 +24,8 @@
 #include <QResizeEvent>
 #include <QObject>
 #include <QThread>
+#include <QFile>
+#include <QMutex>
 
 // get rid of MFC crap
 // Releasing pointers
@@ -40,7 +42,7 @@
         }       \
 
 // workaround to force ignore ms_abi errors, not needed as long as we don't link with other mfc implementations
-#if !Q_WS_WIN
+#if !defined(Q_WS_WIN) && !defined(Q_WS_WIN32)
 #if !__has_attribute(ms_abi)
 #define ms_abi
 #endif
