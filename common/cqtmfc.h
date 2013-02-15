@@ -27,7 +27,6 @@
 #include <QFile>
 #include <QMutex>
 
-// get rid of MFC crap
 // Releasing pointers
 #define SAFE_RELEASE(p) \
         if (p != NULL) { \
@@ -40,6 +39,12 @@
                 delete [] p;    \
                 p = NULL;       \
         }       \
+
+
+#if defined(Q_WS_WIN) || defined(Q_WS_WIN32)
+#define max(a,b) (((a) > (b)) ? (a) : (b))
+#define min(a,b) (((a) > (b)) ? (b) : (a))
+#endif
 
 // workaround to force ignore ms_abi errors, not needed as long as we don't link with other mfc implementations
 #if !defined(Q_WS_WIN) && !defined(Q_WS_WIN32)
@@ -55,15 +60,59 @@
 #else
 #define _T(x) x
 #endif 
+#if !defined(TRACE0)
 #define TRACE0(x) { QString str; str.sprintf("TRACE0: %s(%d): %s",__FILE__,__LINE__, (x)); qDebug(str.toAscii().constData()); }
+#endif
+#if !defined(TRACE)
 #define TRACE(x) { QString str; str.sprintf("TRACE0: %s(%d): %s",__FILE__,__LINE__, (x)); qDebug(str.toAscii().constData()); }
+#endif
 
+#define POSITION int
+
+#define DECLARE_DYNCREATE(x) 
+#define DECLARE_MESSAGE_MAP()
+#define DECLARE_DYNAMIC(x)
+
+#define IDR_MAINFRAME 0xDEADBEEF
+#define RUNTIME_CLASS(x) new x
+
+#define afx_msg 
+
+#ifdef QT_NO_DEBUG
+#define ASSERT(y)
+#define ASSERT_VALID(y)
+#else
+#define ASSERT(y) { if (!(y)) { QString str; str.sprintf("ASSERT: %s(%d)",__FILE__,__LINE__); qDebug(str.toAscii().constData()); } }
+#define ASSERT_VALID(y) { if (!(y)) { QString str; str.sprintf("ASSERT: %s(%d)",__FILE__,__LINE__); qDebug(str.toAscii().constData()); } }
+#endif
+
+size_t strlen(const TCHAR* str);
+
+class CObject
+{
+public:
+   CObject() {}
+   virtual ~CObject() {}
+   virtual void DeleteObject() {}
+};
+
+class CCriticalSection
+{
+public:
+   void Lock() {}
+   void Unlock() {}
+};
+
+class CMutex : public QMutex
+{
+public:
+   void Lock() { lock(); }
+   void Unlock() { unlock(); }
+};
 
 class CSemaphore
 {
 };
-
-size_t strlen(const TCHAR* str);
 
 class CString
 {
@@ -72,6 +121,7 @@ public:
    CString(const CString& ref);
    CString(LPCTSTR str);
    CString(QString str);
+   CString(const char* str);
    virtual ~CString();
 
    void AppendFormat(LPCTSTR fmt, ...);
@@ -79,6 +129,8 @@ public:
    void Format(LPCTSTR fmt, ...);
    void FormatV(LPCTSTR fmt, va_list ap);
 
+   CString& operator=(const char* str);
+   CString& operator+=(const char* str);
    CString& operator=(LPTSTR str);
    CString& operator+=(LPTSTR str);
    CString& operator=(LPCTSTR str);
@@ -93,7 +145,7 @@ public:
    operator const LPTSTR() const;
 
    void Empty();
-   const char* GetString() const;
+   LPCTSTR GetString() const;
    LPTSTR GetBuffer() const;
    CString Left( int nCount ) const;
    CString Right( int nCount ) const;
@@ -214,14 +266,6 @@ public:
    }
 private:
    RECT _rect;
-};
-
-class CObject
-{
-public:
-   CObject() {}
-   virtual ~CObject() {}
-   virtual void DeleteObject() {}
 };
 
 class CGdiObject : public CObject
@@ -641,22 +685,6 @@ class CScrollBar
 {
 };
 
-class CCriticalSection
-{
-public:
-   void Lock() {}
-   void Unlock() {}
-};
-
-class CMutex : public QMutex
-{
-public:
-   void Lock() { lock(); }
-   void Unlock() { unlock(); }
-};
-
-#define POSITION int
-
 class CFrameWnd;
 class CWnd : public QWidget
 {
@@ -790,13 +818,6 @@ public slots:
    void recvThreadMessage(unsigned int m,unsigned int w,unsigned int l) { qDebug("CWinThread::recvThreadMessage"); }
 };
 
-#define DECLARE_DYNCREATE(x) 
-#define DECLARE_MESSAGE_MAP()
-#define DECLARE_DYNAMIC(x)
-
-#define IDR_MAINFRAME 0xDEADBEEF
-#define RUNTIME_CLASS(x) new x
-
 class CDocTemplate
 {
 public:
@@ -832,18 +853,5 @@ public:
 protected:
    CDocTemplate* m_pDocTemplate;
 };
-
-#define afx_msg 
-
-//#define max(a,b) (((a) > (b)) ? (a) : (b))
-//#define min(a,b) (((a) > (b)) ? (b) : (a))
-
-#ifdef QT_NO_DEBUG
-#define ASSERT(y)
-#define ASSERT_VALID(y)
-#else
-#define ASSERT(y) { if (!(y)) { QString str; str.sprintf("ASSERT: %s(%d)",__FILE__,__LINE__); qDebug(str.toAscii().constData()); } }
-#define ASSERT_VALID(y) { if (!(y)) { QString str; str.sprintf("ASSERT: %s(%d)",__FILE__,__LINE__); qDebug(str.toAscii().constData()); } }
-#endif
 
 #endif // CQTMFC_H

@@ -180,7 +180,7 @@ void FamiTrackerModulePropertiesDialog::on_importFile_clicked()
          QStringList songs;
          for ( idx = 0; idx < m_pDocument->GetTrackCount(); idx++ )
          {      
-            TrackTitle.Format((char*)TRACK_FORMAT, idx, m_pDocument->GetTrackTitle(idx));
+            TrackTitle.Format(TRACK_FORMAT, idx, m_pDocument->GetTrackTitle(idx));
             songs.append(TrackTitle);
          }
          tracksModel->setStringList(songs);         

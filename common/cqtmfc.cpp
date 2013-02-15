@@ -41,6 +41,12 @@ CString::CString(const CString& ref)
    _qstr = ref._qstr;
 }
 
+CString::CString(const char* str)
+{
+   _qstr.clear();
+   _qstr = str;
+}
+
 CString::~CString()
 {
    _qstr.clear();
@@ -57,7 +63,6 @@ void CString::Format(LPCTSTR fmt, ...)
 void CString::FormatV(LPCTSTR fmt, va_list ap)
 {
    // CPTODO: UN-HACK!!!
-   TCHAR local[2048];
 #if UNICODE
    WCHAR local[2048];
    wvsprintf(local,fmt,ap);
@@ -91,6 +96,19 @@ void CString::AppendFormatV(LPCTSTR fmt, va_list ap)
    _qstr += QString(local);
 #endif
 //   _qstr.vsprintf((const char*)fmt,ap);
+}
+
+CString& CString::operator=(const char* str)
+{
+   _qstr.clear();
+   _qstr = QString(str);
+   return *this;
+}
+
+CString& CString::operator+=(const char* str)
+{
+   _qstr.append(QString(str));
+   return *this;
 }
 
 CString& CString::operator=(LPTSTR str)
@@ -183,7 +201,7 @@ void CString::Empty()
 
 LPCTSTR CString::GetString() const
 {
-   return _qstr.toAscii().constData();
+   return (LPCTSTR)_qstr.unicode();
 }
 
 LPTSTR CString::GetBuffer() const
@@ -231,7 +249,7 @@ CFile::CFile()
 CFile::CFile(CString& lpszFileName, int nOpenFlags)
 {
    QFile::OpenMode flags;
-   _qfile.setFileName((const char*)lpszFileName);
+   _qfile.setFileName(QString::fromWCharArray(lpszFileName.GetString()));
    if ( nOpenFlags&modeRead ) flags = QIODevice::ReadOnly;
    if ( nOpenFlags&modeWrite ) flags = QIODevice::WriteOnly;
    if ( nOpenFlags&modeCreate ) flags |= QIODevice::Truncate;
@@ -702,7 +720,7 @@ BOOL CDC::TextOut(
    QRect rect;
    QFontMetrics fontMetrics((QFont)*_font);
    rect.setTopLeft(QPoint(x,y));
-   rect.setBottomRight(QPoint(x+fontMetrics.size(Qt::TextSingleLine,str.GetString()).width()+10,y+fontMetrics.height()));
+   rect.setBottomRight(QPoint(x+fontMetrics.size(Qt::TextSingleLine,QString::fromWCharArray(str.GetString())).width()+10,y+fontMetrics.height()));
    rect.translate(-QPoint(_windowOrg.x,_windowOrg.y));
    _qpainter->setPen(QPen(_textColor));
 #ifdef UNICODE
@@ -720,7 +738,7 @@ void CComboBox::ResetContent()
 
 int CComboBox::AddString(CString& text)
 {
-   addItem(text.GetString());
+   addItem(QString::fromWCharArray(text.GetString()));
 }
 
 void CComboBox::SetCurSel(int sel)
