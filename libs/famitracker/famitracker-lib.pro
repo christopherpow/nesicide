@@ -15,13 +15,13 @@ INCLUDEPATH += \
    $$TOP/common
 
 win32 {
-DEPENDENCYPATH = $$TOP/deps/Windows
+	DEPENDENCYPATH = $$TOP/deps/Windows
 }
 mac {
-DEPENDENCYPATH = $$TOP/deps/osx
+	DEPENDENCYPATH = $$TOP/deps/osx
 }
 #unix:mac {
-#DEPENDENCYPATH = $$TOP/deps/linux
+#	DEPENDENCYPATH = $$TOP/deps/linux
 #}
 
 
@@ -170,7 +170,6 @@ unix:!symbian {
 unix:mac {
 	QMAKE_CFLAGS += -I $$DEPENDENCYPATH/wine/include
 	QMAKE_CXXFLAGS += -I $$DEPENDENCYPATH/wine/include
-	HEADERS += $$DEPENDENCYPATH/wine/include/windows.h
 }
 
 OTHER_FILES += \
