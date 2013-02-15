@@ -10,6 +10,16 @@ TOP = ../..
 
 TARGET = "famitracker"
 
+win32 {
+	DEPENDENCYPATH = $$TOP/deps/Windows
+}
+mac {
+	DEPENDENCYPATH = $$TOP/deps/osx
+}
+#unix:mac {
+#	DEPENDENCYPATH = $$TOP/deps/linux
+#}
+
 TEMPLATE = app
 
 # set platform specific cxxflags and libs
@@ -96,6 +106,11 @@ QMAKE_CXXFLAGS += -DIDE \
 LIBS += $$FAMITRACKER_LIBS \
         $$SDL_LIBS \
         $$SCINTILLA_LIBS
+
+unix:mac {
+	QMAKE_CFLAGS += -I $$DEPENDENCYPATH/wine/include
+	QMAKE_CXXFLAGS += -I $$DEPENDENCYPATH/wine/include
+}
 
 INCLUDEPATH += \
    $$TOP/common
