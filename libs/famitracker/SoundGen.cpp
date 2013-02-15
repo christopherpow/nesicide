@@ -101,8 +101,8 @@ CSoundGen::CSoundGen() :
    moveToThread(pThread); 
    
    QTimer* timer = new QTimer();
-   connect(timer, SIGNAL(timeout()), this, SLOT(OnIdleSlot()));
-   timer->start();
+   connect(timer, SIGNAL(timeout()), this, SLOT(onIdleSlot()));
+   timer->start(1);
    
    pThread->start();
    
@@ -131,6 +131,12 @@ CSoundGen::~CSoundGen()
 		SAFE_RELEASE(m_pChannels[i]);
 		SAFE_RELEASE(m_pTrackerChannels[i]);
 	}
+}
+
+void CSoundGen::onIdleSlot()
+{
+   OnIdle(0);
+   m_pDocument->UpdateAllViews(NULL);
 }
 
 //
@@ -229,12 +235,15 @@ void CSoundGen::AssignDocument(CFamiTrackerDoc *pDoc)
 //	// Called from main thread
 //	ASSERT(GetCurrentThreadId() == theApp.m_nThreadID);
 
-	// Will only work for the first document (as new documents are used to import files)
+   // Will only work for the first document (as new documents are used to import files)
 	if (m_pDocument != NULL)
 		return;
 
 	// Assigns a document to this object
 	m_pDocument = pDoc;
+
+   // CPTODO: this is a hack   
+   InitInstance();
 
 	// Setup all channels
 	for (int i = 0; i < CHANNELS; ++i) {
@@ -441,15 +450,15 @@ bool CSoundGen::ResetSound()
 	// Called from player thread
 //	ASSERT(GetCurrentThreadId() == m_nThreadID);
 
-//	CSettings *pSettings = theApp.GetSettings();
+	CSettings *pSettings = theApp.GetSettings();
 
-//	unsigned int SampleSize = pSettings->Sound.iSampleSize;
-//	unsigned int SampleRate = pSettings->Sound.iSampleRate;
-//	unsigned int BufferLen	= pSettings->Sound.iBufferLength;
+	unsigned int SampleSize = pSettings->Sound.iSampleSize;
+	unsigned int SampleRate = pSettings->Sound.iSampleRate;
+	unsigned int BufferLen	= pSettings->Sound.iBufferLength;
 
-//	m_iSampleSize = SampleSize;
-//	m_iAudioUnderruns = 0;
-//	m_iBufferPtr = 0;
+	m_iSampleSize = SampleSize;
+	m_iAudioUnderruns = 0;
+	m_iBufferPtr = 0;
 
 //	// Close the old sound channel
 //	if (m_pDSoundChannel) {
@@ -463,11 +472,11 @@ bool CSoundGen::ResetSound()
 //		return false;
 //	}
 
-//	int iBlocks = 2;	// default = 2
+	int iBlocks = 2;	// default = 2
 
-//	// Create more blocks if a bigger buffer than 100ms is used to enhance program response
-//	if (BufferLen > 100)
-//		iBlocks = (BufferLen / 66);
+	// Create more blocks if a bigger buffer than 100ms is used to enhance program response
+	if (BufferLen > 100)
+		iBlocks = (BufferLen / 66);
 
 //	// Create channel
 //	m_pDSoundChannel = m_pDSound->OpenChannel(SampleRate, SampleSize, 1, BufferLen, iBlocks);
@@ -478,44 +487,46 @@ bool CSoundGen::ResetSound()
 //		return false;
 //	}
 
-//	// Create a buffer
-//	m_iBufSizeBytes	  = m_pDSoundChannel->GetBlockSize();
-//	m_iBufSizeSamples = m_iBufSizeBytes / (SampleSize / 8);
+	// Create a buffer
+   qDebug("GetBlockSize");
+	m_iBufSizeBytes	  = 1024; //m_pDSoundChannel->GetBlockSize();
+	m_iBufSizeSamples = m_iBufSizeBytes / (SampleSize / 8);
 
-//	// Temp. audio buffer
-//	SAFE_RELEASE(m_pAccumBuffer);
-//	m_pAccumBuffer = new char[m_iBufSizeBytes];
+	// Temp. audio buffer
+	SAFE_RELEASE(m_pAccumBuffer);
+	m_pAccumBuffer = new char[m_iBufSizeBytes];
 
-//	// Out of memory
-//	if (!m_pAccumBuffer)
-//		return false;
+	// Out of memory
+	if (!m_pAccumBuffer)
+		return false;
 
-//	// Sample graph buffer
-//	SAFE_RELEASE(m_iGraphBuffer);
-//	m_iGraphBuffer = new int32[m_iBufSizeSamples];
+	// Sample graph buffer
+	SAFE_RELEASE(m_iGraphBuffer);
+	m_iGraphBuffer = new int32[m_iBufSizeSamples];
 
-//	// Out of memory
-//	if (!m_iGraphBuffer)
-//		return false;
+	// Out of memory
+	if (!m_iGraphBuffer)
+		return false;
 
-//	// Sample graph rate
+	// Sample graph rate
+   qDebug("SetSampleRate");
 //	if (m_pSampleWnd) {
 //		m_pSampleWnd->SetSampleRate(SampleRate);
 //	}
 
-//	if (!m_pAPU->SetupSound(SampleRate, 1, (m_iMachineType == NTSC) ? MACHINE_NTSC : MACHINE_PAL))
-//		return false;
+	if (!m_pAPU->SetupSound(SampleRate, 1, (m_iMachineType == NTSC) ? MACHINE_NTSC : MACHINE_PAL))
+		return false;
 
-//	m_pAPU->SetChipLevel(SNDCHIP_NONE, 0);//pSettings->ChipLevels.iLevel2A03);
-//	m_pAPU->SetChipLevel(SNDCHIP_VRC6, 0);//pSettings->ChipLevels.iLevelVRC6);
-//	m_pAPU->SetChipLevel(SNDCHIP_VRC7, 0);//pSettings->ChipLevels.iLevelVRC7);
-//	m_pAPU->SetChipLevel(SNDCHIP_MMC5, 0);//pSettings->ChipLevels.iLevelMMC5);
-//	m_pAPU->SetChipLevel(SNDCHIP_FDS, 0);//pSettings->ChipLevels.iLevelFDS);
-////	m_pAPU->SetChipLevel(SNDCHIP_N163, pSettings->ChipLevels.iLevelN163);
-////	m_pAPU->SetChipLevel(SNDCHIP_S5B, pSettings->ChipLevels.iLevelS5B);
+	m_pAPU->SetChipLevel(SNDCHIP_NONE, 0);//pSettings->ChipLevels.iLevel2A03);
+	m_pAPU->SetChipLevel(SNDCHIP_VRC6, 0);//pSettings->ChipLevels.iLevelVRC6);
+	m_pAPU->SetChipLevel(SNDCHIP_VRC7, 0);//pSettings->ChipLevels.iLevelVRC7);
+	m_pAPU->SetChipLevel(SNDCHIP_MMC5, 0);//pSettings->ChipLevels.iLevelMMC5);
+	m_pAPU->SetChipLevel(SNDCHIP_FDS, 0);//pSettings->ChipLevels.iLevelFDS);
+//	m_pAPU->SetChipLevel(SNDCHIP_N163, pSettings->ChipLevels.iLevelN163);
+//	m_pAPU->SetChipLevel(SNDCHIP_S5B, pSettings->ChipLevels.iLevelS5B);
 
-//	// Update blip-buffer filtering
-//	m_pAPU->SetupMixer(pSettings->Sound.iBassFilter, pSettings->Sound.iTrebleFilter,  pSettings->Sound.iTrebleDamping, pSettings->Sound.iMixVolume);
+	// Update blip-buffer filtering
+	m_pAPU->SetupMixer(pSettings->Sound.iBassFilter, pSettings->Sound.iTrebleFilter,  pSettings->Sound.iTrebleDamping, pSettings->Sound.iMixVolume);
 
 	return true;
 }
@@ -1443,7 +1454,6 @@ int CSoundGen::ExitInstance()
 BOOL CSoundGen::OnIdle(LONG lCount)
 {
 	// Main loop handler
-
 	m_csFrameCounterLock.Lock();
 	++m_iFrameCounter;
    m_csFrameCounterLock.Unlock();

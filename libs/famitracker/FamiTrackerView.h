@@ -61,12 +61,12 @@ class CFamiTrackerView : public CView
 {
    Q_OBJECT
    // Qt stuff
-   protected:
-      void wheelEvent(QWheelEvent *event);
-      void mouseMoveEvent(QMouseEvent *event);
-      void mousePressEvent(QMouseEvent *event);
-      void mouseReleaseEvent(QMouseEvent *event);
-      void mouseDoubleClickEvent(QMouseEvent *event);   
+protected:
+   void wheelEvent(QWheelEvent *event);
+   void mouseMoveEvent(QMouseEvent *event);
+   void mousePressEvent(QMouseEvent *event);
+   void mouseReleaseEvent(QMouseEvent *event);
+   void mouseDoubleClickEvent(QMouseEvent *event);   
 public:
 	CFamiTrackerView(QWidget* parent = 0);
    ~CFamiTrackerView();

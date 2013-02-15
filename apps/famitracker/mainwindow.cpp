@@ -12,6 +12,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
    ui->setupUi(this);
    
+   // CPTODO: this is a hack
    theApp.InitInstance();
    
    m_pMainFrame = (CMainFrame*)theApp.m_pMainWnd;

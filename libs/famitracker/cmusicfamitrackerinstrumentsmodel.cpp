@@ -7,13 +7,19 @@
 
 static char modelStringBuffer [ 256 ];
 
-CMusicFamiTrackerInstrumentsModel::CMusicFamiTrackerInstrumentsModel(CFamiTrackerDoc* pDoc,QObject*)
+CMusicFamiTrackerInstrumentsModel::CMusicFamiTrackerInstrumentsModel(QObject*)
+   : m_pDocument(NULL)
 {
-   m_pDocument = pDoc;
 }
 
 CMusicFamiTrackerInstrumentsModel::~CMusicFamiTrackerInstrumentsModel()
 {
+}
+
+void CMusicFamiTrackerInstrumentsModel::setDocument(CFamiTrackerDoc* pDoc)
+{
+   m_pDocument = pDoc;
+   emit layoutChanged();
 }
 
 QVariant CMusicFamiTrackerInstrumentsModel::data(const QModelIndex& index, int role) const
@@ -107,12 +113,15 @@ void CMusicFamiTrackerInstrumentsModel::update()
    int idx;
    int instrument = 0;
    m_instrumentMap.clear();
-   for ( idx = 0; idx < MAX_INSTRUMENTS; idx++ )
+   if ( m_pDocument )
    {
-      if ( m_pDocument->IsInstrumentUsed(idx) )
+      for ( idx = 0; idx < MAX_INSTRUMENTS; idx++ )
       {
-         m_instrumentMap.insert(instrument,idx);
-         instrument++;
+         if ( m_pDocument->IsInstrumentUsed(idx) )
+         {
+            m_instrumentMap.insert(instrument,idx);
+            instrument++;
+         }
       }
    }
    emit layoutChanged();

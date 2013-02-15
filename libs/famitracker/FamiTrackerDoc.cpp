@@ -428,7 +428,7 @@ void CFamiTrackerDoc::DeleteContents()
 	m_bForceBackup = false;
 	m_bBackupDone = true;	// No backup on new modules
 
-	UpdateAllViews(NULL, CLOSE_DOCUMENT);
+//	UpdateAllViews(NULL, CLOSE_DOCUMENT);
 
 	// Make sure player is stopped
 	theApp.OnTrackerStop();

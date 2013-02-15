@@ -1443,7 +1443,7 @@ int CFamiTrackerView::PlayerCommand(char Command, int Value)
 			m_csDrawLock.Unlock();
 		}
 	}
-
+   
 	return 0;
 }
 

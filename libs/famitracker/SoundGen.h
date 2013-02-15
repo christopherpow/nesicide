@@ -82,7 +82,7 @@ class CSoundGen : public CWinThread, ICallback
    // Qt stuff
    QThread* pThread;
 public slots:
-   void OnIdleSlot() { OnIdle(0); }
+   void onIdleSlot();
    void recvThreadMessage(unsigned int m,unsigned int w,unsigned int l);
 public:
 	CSoundGen();

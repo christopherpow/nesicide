@@ -107,8 +107,8 @@ CMainFrame::CMainFrame(QWidget *parent) :
    octaveComboBox->addItem("7");
    toolBar->addWidget(octaveComboBox);
 
-   instrumentsModel = new CMusicFamiTrackerInstrumentsModel(m_pDocument);
-
+   instrumentsModel = new CMusicFamiTrackerInstrumentsModel();
+   
    ui->songInstruments->setModel(instrumentsModel);
 
 #ifdef Q_WS_MAC
@@ -267,7 +267,7 @@ void CMainFrame::trackerAction_moduleProperties()
 //   ui->songs->clear();
 //   ui->songs->addItems(dlg.tracks());
    
-//   instrumentsModel->update();
+   instrumentsModel->update();
 }
 
 void CMainFrame::trackerAction_play()
@@ -284,6 +284,7 @@ void CMainFrame::trackerAction_playLoop()
 void CMainFrame::trackerAction_stop()
 {
    qDebug("stop");
+   theApp.OnTrackerStop();
 }
 
 void CMainFrame::trackerAction_editMode()
@@ -393,6 +394,9 @@ void CMainFrame::setFileName(QString fileName)
    m_fileName = fileName;
 
    GetActiveDocument()->OnOpenDocument((TCHAR*)fileName.toAscii().constData());
+   
+   instrumentsModel->setDocument((CFamiTrackerDoc*)GetActiveDocument());
+   instrumentsModel->update();
 }
 
 void CMainFrame::SetRowCount(int Count)

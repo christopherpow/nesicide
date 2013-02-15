@@ -155,11 +155,9 @@ void CPatternView::paintEvent(QPaintEvent *event)
    // Qt attach to the MFC HLE.
    m_pBackDC->attach(this);
 
-   qDebug("Force full all the time for now");
    m_bUpdated = true;
    m_bForceFullRedraw = true;
-   static int ctr = 0;
-   qDebug("%d CreateBackground here for now...",++ctr);
+   
    CreateBackground(m_pBackDC,true);
    
    DrawScreen(m_pBackDC,m_pView);

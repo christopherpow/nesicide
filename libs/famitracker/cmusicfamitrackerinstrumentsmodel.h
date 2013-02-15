@@ -9,7 +9,7 @@ class CMusicFamiTrackerInstrumentsModel : public QAbstractListModel
 {
    Q_OBJECT
 public:
-   CMusicFamiTrackerInstrumentsModel(CFamiTrackerDoc* pDoc,QObject* parent = 0);
+   CMusicFamiTrackerInstrumentsModel(QObject* parent = 0);
    virtual ~CMusicFamiTrackerInstrumentsModel();
    QVariant data(const QModelIndex& index, int role) const;
    Qt::ItemFlags flags(const QModelIndex& index) const;
@@ -17,6 +17,7 @@ public:
                      const QModelIndex& parent = QModelIndex()) const;
    int rowCount(const QModelIndex& parent = QModelIndex()) const;
 
+   void setDocument(CFamiTrackerDoc* pDoc);
 public slots:
    void update(void);
 
