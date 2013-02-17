@@ -262,8 +262,8 @@ void CSettingBool::Load()
    key = QString::fromWCharArray(m_pSection);
    key += "/";
    key += QString::fromWCharArray(m_pEntry);
-   qDebug("CSettingBool::Load");
-   qDebug(key.toAscii().constData());
+//   qDebug("CSettingBool::Load");
+//   qDebug(key.toAscii().constData());
    
    *(bool*)m_pVariable = settings.value(key,m_bDefaultValue).toInt();
    qDebug("%s default: %s",*(bool*)m_pVariable?"true":"false",m_bDefaultValue?"true":"false");
@@ -326,10 +326,12 @@ void CSettingString::Load()
    key = QString::fromWCharArray(m_pSection);
    key += "/";
    key += QString::fromWCharArray(m_pEntry);
-//   qDebug("CSettingString::Load");
-//   qDebug(key.toAscii().constData());
+   qDebug("CSettingString::Load");
+   qDebug(key.toAscii().constData());
    
-   m_pVariable = (TCHAR*)settings.value(key,m_pDefaultValue).toString().utf16();
+//   wcscpy((wchar_t*)m_pVariable,(wchar_t*)settings.value(key,QString::fromUtf16((const ushort*)m_pDefaultValue)).toString().utf16());
+   
+//   qDebug("%s",QString::fromWCharArray((const wchar_t*)m_pVariable).toAscii().constData());
 }
 
 void CSettingString::Save()
@@ -339,8 +341,8 @@ void CSettingString::Save()
    key = QString::fromWCharArray(m_pSection);
    key += "/";
    key += QString::fromWCharArray(m_pEntry);
-//   qDebug("CSettingString::Save");
-//   qDebug(key.toAscii().constData());
+   qDebug("CSettingString::Save");
+   qDebug(key.toAscii().constData());
    
    settings.setValue(key,QString::fromUtf16((ushort*)m_pVariable));
 }

@@ -10,6 +10,9 @@
     <height>313</height>
    </rect>
   </property>
+  <property name="mouseTracking">
+   <bool>true</bool>
+  </property>
   <property name="focusPolicy">
    <enum>Qt::StrongFocus</enum>
   </property>
@@ -25,6 +28,9 @@
    </property>
    <item row="0" column="0">
     <widget class="QFrame" name="frame_2">
+     <property name="mouseTracking">
+      <bool>true</bool>
+     </property>
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
      </property>

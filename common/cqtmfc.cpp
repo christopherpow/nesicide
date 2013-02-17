@@ -4,9 +4,14 @@
 
 #include <QLinearGradient>
 
-size_t strlen(const TCHAR* str)
+size_t strlen(const wchar_t* str)
 {
-   return strlen((const char*)str);
+   int len = 0;
+   if ( str )
+   {
+      while ( *(str+len) ) { ++len; }
+   }
+   return len;
 }
 
 /*

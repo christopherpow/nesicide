@@ -89,7 +89,7 @@
 #define ASSERT_VALID(y) { if (!(y)) { QString str; str.sprintf("ASSERT: %s(%d)",__FILE__,__LINE__); qDebug(str.toAscii().constData()); } }
 #endif
 
-size_t strlen(const TCHAR* str);
+size_t strlen(const wchar_t* str);
 
 class CObject
 {
