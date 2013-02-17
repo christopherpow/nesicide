@@ -262,10 +262,11 @@ void CSettingBool::Load()
    key = QString::fromWCharArray(m_pSection);
    key += "/";
    key += QString::fromWCharArray(m_pEntry);
-//   qDebug("CSettingBool::Load");
-//   qDebug(key.toAscii().constData());
+   qDebug("CSettingBool::Load");
+   qDebug(key.toAscii().constData());
    
-   *(bool*)m_pVariable = settings.value(key,m_bDefaultValue).toInt() == 1;
+   *(bool*)m_pVariable = settings.value(key,m_bDefaultValue).toInt();
+   qDebug("%s default: %s",*(bool*)m_pVariable?"true":"false",m_bDefaultValue?"true":"false");
 }
 
 void CSettingBool::Save()
@@ -278,6 +279,7 @@ void CSettingBool::Save()
 //   qDebug("CSettingBool::Save");
 //   qDebug(key.toAscii().constData());
    
+   qDebug("%s",*(bool*)m_pVariable?"true":"false");
    settings.setValue(key,*(bool*)m_pVariable);
 }
 

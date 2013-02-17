@@ -161,12 +161,10 @@ void CMainFrame::showEvent(QShowEvent *)
    
       ui->songFrames->layout()->addWidget(m_pFrameEditor);
       
-      ui->songPatterns->layout()->addWidget(m_pView->GetPatternView());
+      ui->songPatterns->layout()->addWidget(m_pView);
    
       m_pFrameEditor->setFocusPolicy(Qt::StrongFocus);
-      m_pFrameEditor->setFocusProxy(m_pView->GetPatternView());
       m_pView->setFocusPolicy(Qt::StrongFocus);
-      m_pView->GetPatternView()->setFocusProxy(m_pView);
       
       QObject::connect(m_pDocument,SIGNAL(updateViews(long)),m_pFrameEditor,SLOT(updateViews(long)));
       

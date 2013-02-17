@@ -756,9 +756,12 @@ UINT CWnd::SetTimer(UINT id, UINT interval, void*)
 
 void CWnd::KillTimer(UINT id)
 {
-   killTimer(mfcToQtTimer.value((int)id));
-   qtToMfcTimer.remove(mfcToQtTimer.value((int)id));
-   mfcToQtTimer.remove((int)id);
+   if ( mfcToQtTimer.contains((int)id) )
+   {
+      killTimer(mfcToQtTimer.value((int)id));
+      qtToMfcTimer.remove(mfcToQtTimer.value((int)id));
+      mfcToQtTimer.remove((int)id);
+   }
 }
 
 CWinThread::CWinThread()

@@ -37,6 +37,7 @@
 #include "cqtmfc.h"
 
 #include <QPainter>
+#include <QLayout>
 
 //#ifdef _DEBUG
 //#define new DEBUG_NEW
@@ -273,6 +274,10 @@ CFamiTrackerView::CFamiTrackerView(QWidget* parent) :
 
 	// Setup pattern view
 	m_pPatternView->InitView(m_iClipBoard);
+   
+   QGridLayout* grid = new QGridLayout(this); 
+   grid->setMargin(0);
+   grid->addWidget(m_pPatternView);
 }
 
 CFamiTrackerView::~CFamiTrackerView()
@@ -413,20 +418,20 @@ CFamiTrackerView *CFamiTrackerView::GetView()
 //	m_pPatternView->DrawScreen(pDC, this);
 //}
 
-//BOOL CFamiTrackerView::OnEraseBkgnd(CDC* pDC)
-//{
-//	CFamiTrackerDoc* pDoc = GetDocument();
-//	ASSERT_VALID(pDoc);
+BOOL CFamiTrackerView::OnEraseBkgnd(CDC* pDC)
+{
+	CFamiTrackerDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
 
-//	// Check document
-//	if (!pDoc->IsFileLoaded())
-//		return FALSE;
+	// Check document
+	if (!pDoc->IsFileLoaded())
+		return FALSE;
 
-//	// Called when the background should be erased
-//	m_pPatternView->CreateBackground(pDC, m_bUpdateBackground);
-//	m_bUpdateBackground = false;
-//	return FALSE;
-//}
+	// Called when the background should be erased
+	m_pPatternView->CreateBackground(pDC, m_bUpdateBackground);
+	m_bUpdateBackground = false;
+	return FALSE;
+}
 
 void CFamiTrackerView::SetupColors()
 {
@@ -3301,6 +3306,7 @@ void CFamiTrackerView::wheelEvent(QWheelEvent *event)
 
 void CFamiTrackerView::mouseMoveEvent(QMouseEvent *event)
 {
+   qDebug("CFamiTrackerView::mouseMoveEvent (%d,%d)",event->pos().x(),event->pos().y());
    CPoint point(event->pos());
    unsigned int flags = 0;
    if ( event->modifiers()&Qt::ControlModifier )

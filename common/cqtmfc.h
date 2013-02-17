@@ -694,7 +694,7 @@ class CWnd : public QWidget
 public:
    CWnd(QWidget* parent=0) : QWidget(parent), m_pFrameWnd(NULL) {}
 
-   void SetFocus(CWnd* p=0) { setFocus(); }
+   CWnd* SetFocus() { setFocus(); return (CWnd*)QApplication::focusWidget(); }
    void OnMouseMove(UINT,CPoint) {}
    void OnLButtonDblClk(UINT,CPoint) {}
    void OnLButtonDown(UINT,CPoint) {}
@@ -711,7 +711,7 @@ public:
    void OnVScroll(UINT,UINT,CScrollBar*) {}
    void OnHScroll(UINT,UINT,CScrollBar*) {}
    void OnUpdate(CWnd* p=0,UINT hint=0,CObject* o=0) { repaint(); }
-   void Invalidate(BOOL bErase = TRUE) {}
+   void Invalidate(BOOL bErase = TRUE) { /*update();*/ }
    void RedrawWindow(LPCRECT rect=0,CRgn* rgn=0,UINT f=0) { repaint(); }
    CWnd* GetFocus() { return (CWnd*)QApplication::focusWidget(); } 
    void SetCapture(CWnd* p=0) { /* DON'T DO THIS grabMouse(); */ }

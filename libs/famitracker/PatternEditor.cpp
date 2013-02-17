@@ -155,9 +155,6 @@ void CPatternView::paintEvent(QPaintEvent *event)
    // Qt attach to the MFC HLE.
    m_pBackDC->attach(this);
 
-//   m_bUpdated = true;
-//   m_bForceFullRedraw = true;
-   
    CreateBackground(m_pBackDC,true);
    
    DrawScreen(m_pBackDC,m_pView);
@@ -2109,6 +2106,7 @@ void CPatternView::MoveToRow(int Row)
 	if (theApp.IsPlaying() && m_bFollowMode)
 		return;
 
+   qDebug("%s",theApp.GetSettings()->General.bWrapFrames?"true":"false");
 	if (Row < 0) {
 		if (theApp.GetSettings()->General.bWrapFrames) {
 			MoveToFrame(m_iCurrentFrame - 1);
