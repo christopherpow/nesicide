@@ -141,6 +141,7 @@ void CMainFrame::focusInEvent(QFocusEvent *)
 {
    m_pView->GetPatternView()->SetFocus(true);
    m_pFrameEditor->SetFocus();
+   m_pView->GetPatternView()->setFocus();
 }
 
 void CMainFrame::showEvent(QShowEvent *)

@@ -443,7 +443,6 @@ void CSoundGen::PreviewSample(CDSample *pSample, int Offset, int Pitch)
 
 bool CSoundGen::ResetSound()
 {
-   qDebug("ResetSound NOT IMPL");
 	// Setup sound, return false if failed
 	//
 

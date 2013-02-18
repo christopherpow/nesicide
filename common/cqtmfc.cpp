@@ -31,13 +31,13 @@ DWORD WINAPI GetSysColor(
    switch ( nIndex )
    {
    case COLOR_3DFACE:
-      return 0x808080;
+      return 0xd0d0d0;
       break;
    case COLOR_BTNHIGHLIGHT:
-      return 0xc0c0c0;
+      return 0xb0b0b0;
       break;
    case COLOR_APPWORKSPACE:
-      return 0xa0a0a0;
+      return 0xe0e0e0;
       break;
    }
 }
@@ -50,9 +50,86 @@ int WINAPI GetSystemMetrics(
    switch ( nIndex )
    {
    case SM_CXVSCROLL:
-      return sb.width();
+      return sb.sizeHint().width();
       break;
    }
+}
+
+BOOL WINAPI OpenClipboard(
+  HWND hWndNewOwner
+)
+{
+   return TRUE;
+}
+
+BOOL WINAPI EmptyClipboard(void)
+{
+   QApplication::clipboard()->clear();
+   return TRUE;
+}
+
+BOOL WINAPI CloseClipboard(void)
+{
+   return TRUE;
+}
+
+HANDLE WINAPI SetClipboardData(
+  UINT uFormat,
+  HANDLE hMem
+)
+{
+   QMimeData mimeData;
+   mimeData.setData("application/x-qt-windows-mime;value=\"FamiTracker\"",QByteArray((const char*)(((const unsigned int*)hMem)+1),::GlobalSize(hMem)));
+   QApplication::clipboard()->setMimeData(&mimeData);
+   return hMem;
+}
+
+BOOL WINAPI IsClipboardFormatAvailable(
+  UINT format
+)
+{
+   foreach ( QString fmt, QApplication::clipboard()->mimeData()->formats())
+      qDebug("format: ..%s..",fmt.toAscii().constData() );
+   qDebug("HAS FORMAT: %d",QApplication::clipboard()->mimeData()->hasFormat("application/x-qt-windows-mime;value=\"FamiTracker\""));
+   return QApplication::clipboard()->mimeData()->hasFormat("application/x-qt-windows-mime;value=\"FamiTracker\"");
+}
+
+HANDLE WINAPI GetClipboardData(
+  UINT uFormat
+)
+{
+   return QApplication::clipboard()->mimeData()->data("application/x-qt-windows-mime;value=\"FamiTracker\"").data();
+}
+
+HGLOBAL WINAPI GlobalAlloc(
+  UINT uFlags,
+  SIZE_T dwBytes
+)
+{
+   unsigned int* ptr = (unsigned int*)malloc(dwBytes+sizeof(unsigned int));
+   *ptr = dwBytes;
+   return ptr;
+}
+
+LPVOID WINAPI GlobalLock(
+  HGLOBAL hMem
+)
+{
+   return ((unsigned int*)hMem)+1;
+}
+
+BOOL WINAPI GlobalUnlock(
+  HGLOBAL hMem
+)
+{
+   return TRUE;
+}
+
+SIZE_T WINAPI GlobalSize(
+  HGLOBAL hMem
+)
+{
+   return (size_t)*(unsigned int*)hMem;
 }
 
 /*
@@ -584,6 +661,7 @@ BOOL CFont::CreateFont(
    _qfont.setUnderline(bUnderline);
    _qfont.setStrikeOut(cStrikeOut);
    _qfont.setBold(nWeight>=FW_BOLD);
+   return TRUE;
 }
 
 BOOL CFont::CreateFontIndirect(
@@ -594,6 +672,7 @@ BOOL CFont::CreateFontIndirect(
    _qfont.setPointSize(lpLogFont->lfHeight);
    _qfont.setItalic(lpLogFont->lfItalic);
    _qfont.setBold(lpLogFont->lfWeight>=FW_BOLD);
+   return TRUE;
 }
 
 /*
@@ -621,6 +700,7 @@ BOOL CDC::BitBlt(
    DWORD dwRop 
 )
 {
+   return TRUE;
 }
 void CDC::Draw3dRect( int x, int y, int cx, int cy, COLORREF clrTopLeft, COLORREF clrBottomRight )
 {
@@ -650,6 +730,7 @@ int CDC::DrawText(
    QString qstr(str.GetBuffer());
 #endif
    _qpainter->drawText(rect,qstr.toLatin1().constData());
+   return strlen(str.GetBuffer());
    
 }
 void CDC::FillSolidRect(
@@ -702,6 +783,7 @@ BOOL CDC::GradientFill(
    
       _qpainter->fillRect(rect,brush);
    }
+   return TRUE;
 }
 BOOL CDC::LineTo( 
    int x, 
@@ -711,6 +793,7 @@ BOOL CDC::LineTo(
    _qpainter->drawLine(_lineOrg.x,_lineOrg.y,x,y);
    _lineOrg.x = x;
    _lineOrg.y = y;
+   return TRUE;
 }
 BOOL CDC::Polygon(
    LPPOINT lpPoints,
@@ -728,14 +811,17 @@ BOOL CDC::Polygon(
    path.addPolygon(poly);
    _qpainter->fillPath(path,(QBrush)*_brush);
    _qpainter->drawPath(path);
+   return TRUE;
 }
 int CDC::SelectObject(
    CRgn* pRgn 
 )
 {
+   return TRUE;
 }
 COLORREF CDC::SetPixel( int x, int y, COLORREF crColor )
 {
+   return TRUE;
 }
 BOOL CDC::TextOut(
    int x,
@@ -756,6 +842,7 @@ BOOL CDC::TextOut(
    rect.translate(-QPoint(_windowOrg.x,_windowOrg.y));
    _qpainter->setPen(QPen(_textColor));
    _qpainter->drawText(rect,qstr.left(nCount).toAscii().constData());
+   return TRUE;
 }
 BOOL CDC::TextOut(
    int x,
@@ -775,6 +862,7 @@ BOOL CDC::TextOut(
    QString qstr(str.GetBuffer());
    _qpainter->drawText(rect,qstr);
 #endif
+   return TRUE;
 }
 
 void CComboBox::ResetContent()
@@ -827,7 +915,6 @@ BOOL CWinThread::CreateThread(
    LPSECURITY_ATTRIBUTES lpSecurityAttrs 
 )
 {
-   qDebug("CreateThread");
    start(QThread::InheritPriority);
    return TRUE;
 }
