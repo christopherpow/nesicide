@@ -101,7 +101,7 @@ static bool CheckRepeat()
 	}
 
 	LastTime = CurrentTime;
-
+   qDebug("CheckRepeat");
 	return RepeatCounter == REPEAT_DELAY;
 }
 

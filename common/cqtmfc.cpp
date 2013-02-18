@@ -24,6 +24,11 @@ int MulDiv(
    return intermediate/nDenominator;
 }
 
+DWORD WINAPI GetTickCount(void)
+{
+   return 0;
+}
+
 DWORD WINAPI GetSysColor(
   int nIndex
 )

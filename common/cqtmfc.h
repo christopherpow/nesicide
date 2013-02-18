@@ -103,6 +103,7 @@ int MulDiv(
   int nNumerator,
   int nDenominator
 );
+DWORD WINAPI GetTickCount(void);
 DWORD WINAPI GetSysColor(
   int nIndex
 );
