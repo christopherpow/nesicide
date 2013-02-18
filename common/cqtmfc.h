@@ -61,10 +61,10 @@
 #define _T(x) x
 #endif 
 #if !defined(TRACE0)
-#define TRACE0(x) { QString str; str.sprintf("TRACE0: %s(%d): %s",__FILE__,__LINE__, (x)); qDebug(str.toAscii().constData()); }
+#define TRACE0(x) { QString str; str.sprintf("TRACE0: %s(%d): %s",__FILE__,__LINE__, (x)); qDebug(str.toLatin1().constData()); }
 #endif
 #if !defined(TRACE)
-#define TRACE(x) { QString str; str.sprintf("TRACE0: %s(%d): %s",__FILE__,__LINE__, (x)); qDebug(str.toAscii().constData()); }
+#define TRACE(x) { QString str; str.sprintf("TRACE0: %s(%d): %s",__FILE__,__LINE__, (x)); qDebug(str.toLatin1().constData()); }
 #endif
 #if !defined(ATLTRACE2)
 #define ATLTRACE2(a,b,str,...)
@@ -85,8 +85,8 @@
 #define ASSERT(y)
 #define ASSERT_VALID(y)
 #else
-#define ASSERT(y) { if (!(y)) { QString str; str.sprintf("ASSERT: %s(%d)",__FILE__,__LINE__); qDebug(str.toAscii().constData()); } }
-#define ASSERT_VALID(y) { if (!(y)) { QString str; str.sprintf("ASSERT: %s(%d)",__FILE__,__LINE__); qDebug(str.toAscii().constData()); } }
+#define ASSERT(y) { if (!(y)) { QString str; str.sprintf("ASSERT: %s(%d)",__FILE__,__LINE__); qDebug(str.toLatin1().constData()); } }
+#define ASSERT_VALID(y) { if (!(y)) { QString str; str.sprintf("ASSERT: %s(%d)",__FILE__,__LINE__); qDebug(str.toLatin1().constData()); } }
 #endif
 
 size_t strlen(const wchar_t* str);
@@ -122,9 +122,9 @@ class CString
 public:
    CString();
    CString(const CString& ref);
-   CString(LPCTSTR str);
    CString(QString str);
-   CString(const char* str);
+   CString(LPCSTR str);
+   CString(LPCWSTR str);
    virtual ~CString();
 
    void AppendFormat(LPCTSTR fmt, ...);
@@ -132,12 +132,14 @@ public:
    void Format(LPCTSTR fmt, ...);
    void FormatV(LPCTSTR fmt, va_list ap);
 
-   CString& operator=(const char* str);
-   CString& operator+=(const char* str);
-   CString& operator=(LPTSTR str);
-   CString& operator+=(LPTSTR str);
-   CString& operator=(LPCTSTR str);
-   CString& operator+=(LPCTSTR str);
+   CString& operator=(LPSTR str);
+   CString& operator+=(LPSTR str);
+   CString& operator=(LPWSTR str);
+   CString& operator+=(LPWSTR str);
+   CString& operator=(LPCSTR str);
+   CString& operator+=(LPCSTR str);
+   CString& operator=(LPCWSTR str);
+   CString& operator+=(LPCWSTR str);
    CString& operator=(QString str);
    CString& operator+=(QString str);
    CString& operator=(CString str);
@@ -149,7 +151,7 @@ public:
 
    void Empty();
    LPCTSTR GetString() const;
-   LPTSTR GetBuffer() const;
+   LPCTSTR GetBuffer() const;
    CString Left( int nCount ) const;
    CString Right( int nCount ) const;
    int GetLength() const;

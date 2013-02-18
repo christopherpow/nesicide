@@ -168,8 +168,8 @@ unix:!symbian {
 }
 
 unix:mac {
-	QMAKE_CFLAGS += -I $$DEPENDENCYPATH/wine/include
-	QMAKE_CXXFLAGS += -I $$DEPENDENCYPATH/wine/include
+	QMAKE_CFLAGS += -I $$DEPENDENCYPATH/wine/include -DWINE_UNICODE_NATIVE
+	QMAKE_CXXFLAGS += -I $$DEPENDENCYPATH/wine/include -DWINE_UNICODE_NATIVE
 }
 
 OTHER_FILES += \

@@ -231,9 +231,9 @@ void CSettings::StoreSetting(CString Section, CString Name, int Value) const
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    QString key;
-   key = QString::fromWCharArray(Section.GetBuffer());
+   key = Section.GetBuffer();
    key += "/";
-   key += QString::fromWCharArray(Name.GetBuffer());
+   key += Name.GetBuffer();
 //   qDebug("StoreSetting");
 //   qDebug(key.toAscii().constData());
    
@@ -244,9 +244,9 @@ int CSettings::LoadSetting(CString Section, CString Name, int Default) const
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    QString key;
-   key = QString::fromWCharArray(Section.GetBuffer());
+   key = Section.GetBuffer();
    key += "/";
-   key += QString::fromWCharArray(Name.GetBuffer());
+   key += Name.GetBuffer();
 //   qDebug("LoadSetting");
 //   qDebug(key.toAscii().constData());
    
@@ -259,9 +259,9 @@ void CSettingBool::Load()
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    QString key;
-   key = QString::fromWCharArray(m_pSection);
+   key = m_pSection;
    key += "/";
-   key += QString::fromWCharArray(m_pEntry);
+   key += m_pEntry;
 //   qDebug("CSettingBool::Load");
 //   qDebug(key.toAscii().constData());
    
@@ -272,9 +272,9 @@ void CSettingBool::Save()
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    QString key;
-   key = QString::fromWCharArray(m_pSection);
+   key = m_pSection;
    key += "/";
-   key += QString::fromWCharArray(m_pEntry);
+   key += m_pEntry;
 //   qDebug("CSettingBool::Save");
 //   qDebug(key.toAscii().constData());
    
@@ -290,9 +290,9 @@ void CSettingInt::Load()
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    QString key;
-   key = QString::fromWCharArray(m_pSection);
+   key = m_pSection;
    key += "/";
-   key += QString::fromWCharArray(m_pEntry);
+   key += m_pEntry;
 //   qDebug("CSettingInt::Load");
 //   qDebug(key.toAscii().constData());
    
@@ -303,9 +303,9 @@ void CSettingInt::Save()
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    QString key;
-   key = QString::fromWCharArray(m_pSection);
+   key = m_pSection;
    key += "/";
-   key += QString::fromWCharArray(m_pEntry);
+   key += m_pEntry;
 //   qDebug("CSettingInt::Save");
 //   qDebug(key.toAscii().constData());
    
@@ -321,9 +321,9 @@ void CSettingString::Load()
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    QString key;
-   key = QString::fromWCharArray(m_pSection);
+   key = m_pSection;
    key += "/";
-   key += QString::fromWCharArray(m_pEntry);
+   key += m_pEntry;
 //   qDebug("CSettingString::Load");
 //   qDebug(key.toAscii().constData());
    
@@ -334,13 +334,13 @@ void CSettingString::Save()
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    QString key;
-   key = QString::fromWCharArray(m_pSection);
+   key = m_pSection;
    key += "/";
-   key += QString::fromWCharArray(m_pEntry);
+   key += m_pEntry;
 //   qDebug("CSettingString::Save");
 //   qDebug(key.toAscii().constData());
    
-   settings.setValue(key,QString::fromWCharArray((*(CString*)m_pVariable).GetBuffer()));
+   settings.setValue(key,(*(CString*)m_pVariable).GetBuffer());
 }
 
 void CSettingString::Default()
