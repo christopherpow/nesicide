@@ -88,10 +88,12 @@ BOOL WINAPI IsClipboardFormatAvailable(
   UINT format
 )
 {
-   foreach ( QString fmt, QApplication::clipboard()->mimeData()->formats())
-      qDebug("format: ..%s..",fmt.toAscii().constData() );
-   qDebug("HAS FORMAT: %d",QApplication::clipboard()->mimeData()->hasFormat("application/x-qt-windows-mime;value=\"FamiTracker\""));
-   return QApplication::clipboard()->mimeData()->hasFormat("application/x-qt-windows-mime;value=\"FamiTracker\"");
+   QStringList formats = QApplication::clipboard()->mimeData()->formats();
+   
+   if ( !formats.at(0).compare("application/x-qt-windows-mime;value=\"FamiTracker\"") )
+      return TRUE;
+   return FALSE;
+//   return QApplication::clipboard()->mimeData()->hasFormat(formats.at(0));
 }
 
 HANDLE WINAPI GetClipboardData(
