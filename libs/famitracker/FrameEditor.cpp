@@ -151,7 +151,6 @@ void CFrameEditor::OnPaint()
 
 	unsigned int Width = WinRect.Width();
 	unsigned int Height = WinRect.Height();
-   
 
 	// Check if width has changed, delete objects then
 //	if (m_bmpBack.m_hObject != NULL) {
@@ -261,7 +260,7 @@ void CFrameEditor::OnPaint()
 					m_dcBack.SetTextColor(DIM(CurrentColor, 70));
 
 				Text.Format(_T("%02X"), m_pDocument->GetPatternAtFrame(Frame, Chan));
-            m_dcBack.DrawText(Text, CRect(SX(30 + j * FRAME_ITEM_WIDTH), SY(i * ROW_HEIGHT + 3), SX(28 + j * FRAME_ITEM_WIDTH + FRAME_ITEM_WIDTH), SY(i * ROW_HEIGHT + 3 + 20)), DT_LEFT | DT_TOP | DT_NOCLIP);
+				m_dcBack.DrawText(Text, CRect(SX(30 + j * FRAME_ITEM_WIDTH), SY(i * ROW_HEIGHT + 3), SX(28 + j * FRAME_ITEM_WIDTH + FRAME_ITEM_WIDTH), SY(i * ROW_HEIGHT + 3 + 20)), DT_LEFT | DT_TOP | DT_NOCLIP);
 			}
 
 			Frame++;
@@ -443,7 +442,6 @@ void CFrameEditor::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 
 void CFrameEditor::OnTimer(UINT_PTR nIDEvent)
 {
-   qDebug("CFrameEditor::OnTimer(%d)",(int)nIDEvent);
 	if (m_bInputEnable) {
 		m_bCursor = !m_bCursor;
 		Invalidate();
@@ -507,9 +505,8 @@ void CFrameEditor::OnMouseMove(UINT nFlags, CPoint point)
 	ScaleMouse(point);
 	int LastHighlightLine = m_iHiglightLine;
 	m_iHiglightLine = (point.y - TOP_OFFSET) / ROW_HEIGHT;
-   qDebug("RedrawWindow");
-//	if (LastHighlightLine != m_iHiglightLine)
-//		RedrawWindow();
+	if (LastHighlightLine != m_iHiglightLine)
+		RedrawWindow();
 	CWnd::OnMouseMove(nFlags, point);
 }
 
@@ -664,19 +661,19 @@ void CFrameEditor::OnSize(UINT nType, int cx, int cy)
 //	m_dcBack.DeleteDC();
 }
 
-//BOOL CFrameEditor::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
-//{
-//	if (zDelta > 0) {
-//		// Up
-//		m_pView->SelectPrevFrame();
-//	}
-//	else {
-//		// Down
-//		m_pView->SelectNextFrame();
-//	}
+BOOL CFrameEditor::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
+{
+	if (zDelta > 0) {
+		// Up
+		m_pView->SelectPrevFrame();
+	}
+	else {
+		// Down
+		m_pView->SelectNextFrame();
+	}
 
-//	return CWnd::OnMouseWheel(nFlags, zDelta, pt);
-//}
+	return CWnd::OnMouseWheel(nFlags, zDelta, pt);
+}
 
 void CFrameEditor::timerEvent(QTimerEvent *event)
 {
@@ -785,23 +782,62 @@ void CFrameEditor::paintEvent(QPaintEvent *event)
 void CFrameEditor::mouseMoveEvent(QMouseEvent *event)
 {
    CPoint point(event->pos());
-   if ( event->buttons() == Qt::LeftButton )
+   unsigned int flags = 0;
+   if ( event->modifiers()&Qt::ControlModifier )
    {
-      OnMouseMove(0,point);
-      repaint();
+      flags |= MK_CONTROL;
    }
+   if ( event->modifiers()&Qt::ShiftModifier )
+   {
+      flags |= MK_SHIFT;
+   }
+   if ( event->buttons()&Qt::LeftButton )
+   {
+      flags |= MK_LBUTTON;
+   }
+   if ( event->buttons()&Qt::MiddleButton )
+   {
+      flags |= MK_MBUTTON;
+   }
+   if ( event->buttons()&Qt::RightButton )
+   {
+      flags |= MK_RBUTTON;            
+   }
+   OnMouseMove(flags,point);
+   repaint();
 }
 
 void CFrameEditor::mouseReleaseEvent(QMouseEvent *event)
 {
    CPoint point(event->pos());
+   unsigned int flags = 0;
+   if ( event->modifiers()&Qt::ControlModifier )
+   {
+      flags |= MK_CONTROL;
+   }
+   if ( event->modifiers()&Qt::ShiftModifier )
+   {
+      flags |= MK_SHIFT;
+   }
+   if ( event->buttons()&Qt::LeftButton )
+   {
+      flags |= MK_LBUTTON;
+   }
+   if ( event->buttons()&Qt::MiddleButton )
+   {
+      flags |= MK_MBUTTON;
+   }
+   if ( event->buttons()&Qt::RightButton )
+   {
+      flags |= MK_RBUTTON;            
+   }
    if ( event->button() == Qt::LeftButton )
    {
-      OnLButtonUp(0,point);
+      OnLButtonUp(flags,point);
    }
    else if ( event->button() == Qt::RightButton )
    {
-      OnRButtonUp(0,point);
+      OnRButtonUp(flags,point);
    }
    repaint();
 }
@@ -811,9 +847,58 @@ void CFrameEditor::mouseDoubleClickEvent(QMouseEvent *event)
    CPoint point(event->pos());
    if ( event->button() == Qt::LeftButton )
    {
-      OnLButtonDblClk(0,point);
+      unsigned int flags = 0;
+      if ( event->modifiers()&Qt::ControlModifier )
+      {
+         flags |= MK_CONTROL;
+      }
+      if ( event->modifiers()&Qt::ShiftModifier )
+      {
+         flags |= MK_SHIFT;
+      }
+      if ( event->buttons()&Qt::LeftButton )
+      {
+         flags |= MK_LBUTTON;
+      }
+      if ( event->buttons()&Qt::MiddleButton )
+      {
+         flags |= MK_MBUTTON;
+      }
+      if ( event->buttons()&Qt::RightButton )
+      {
+         flags |= MK_RBUTTON;            
+      }
+      OnLButtonDblClk(flags,point);
       repaint();
    }
+}
+
+void CFrameEditor::wheelEvent(QWheelEvent* event)
+{
+   CPoint point(event->pos());
+   unsigned int flags = 0;
+   if ( event->modifiers()&Qt::ControlModifier )
+   {
+      flags |= MK_CONTROL;
+   }
+   if ( event->modifiers()&Qt::ShiftModifier )
+   {
+      flags |= MK_SHIFT;
+   }
+   if ( event->buttons()&Qt::LeftButton )
+   {
+      flags |= MK_LBUTTON;
+   }
+   if ( event->buttons()&Qt::MiddleButton )
+   {
+      flags |= MK_MBUTTON;
+   }
+   if ( event->buttons()&Qt::RightButton )
+   {
+      flags |= MK_RBUTTON;            
+   }
+   OnMouseWheel(flags,event->delta(),point);
+   repaint();
 }
 
 void CFrameEditor::updateViews(long hint)

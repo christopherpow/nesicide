@@ -337,13 +337,13 @@ void CSettingString::Save()
    key = QString::fromWCharArray(m_pSection);
    key += "/";
    key += QString::fromWCharArray(m_pEntry);
-   qDebug("CSettingString::Save");
-   qDebug(key.toAscii().constData());
+//   qDebug("CSettingString::Save");
+//   qDebug(key.toAscii().constData());
    
    settings.setValue(key,QString::fromWCharArray((*(CString*)m_pVariable).GetBuffer()));
 }
 
 void CSettingString::Default()
 {
-	m_pVariable = (TCHAR*)m_pDefaultValue;
+	(*(CString*)m_pVariable) = (TCHAR*)m_pDefaultValue;
 }
