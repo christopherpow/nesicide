@@ -32,6 +32,7 @@
 #include <QByteArray>
 #include <QGridLayout>
 #include <QMimeData>
+#include <QSharedMemory>
 
 // Releasing pointers
 #define SAFE_RELEASE(p) \

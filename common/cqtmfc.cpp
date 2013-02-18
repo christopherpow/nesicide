@@ -79,7 +79,8 @@ HANDLE WINAPI SetClipboardData(
 )
 {
    QMimeData mimeData;
-   mimeData.setData("application/x-qt-windows-mime;value=\"FamiTracker\"",QByteArray((const char*)(((const unsigned int*)hMem)+1),::GlobalSize(hMem)));
+   QSharedMemory* pMem = (QSharedMemory*)hMem;
+   mimeData.setData("application/x-qt-windows-mime;value=\"FamiTracker\"",QByteArray((const char*)pMem,::GlobalSize(hMem)));
    QApplication::clipboard()->setMimeData(&mimeData);
    return hMem;
 }
@@ -108,30 +109,37 @@ HGLOBAL WINAPI GlobalAlloc(
   SIZE_T dwBytes
 )
 {
-   unsigned int* ptr = (unsigned int*)malloc(dwBytes+sizeof(unsigned int));
-   *ptr = dwBytes;
-   return ptr;
+   QSharedMemory* pMem = new QSharedMemory("FamiTracker");
+   pMem->create(dwBytes);
+   return pMem;
 }
 
 LPVOID WINAPI GlobalLock(
   HGLOBAL hMem
 )
 {
-   return ((unsigned int*)hMem)+1;
+   QSharedMemory* pMem = (QSharedMemory*)hMem;
+   
+   pMem->lock();
+   return pMem->data();
 }
 
 BOOL WINAPI GlobalUnlock(
   HGLOBAL hMem
 )
 {
-   return TRUE;
+   QSharedMemory* pMem = (QSharedMemory*)hMem;
+   
+   return pMem->unlock();;
 }
 
 SIZE_T WINAPI GlobalSize(
   HGLOBAL hMem
 )
 {
-   return (size_t)*(unsigned int*)hMem;
+   QSharedMemory* pMem = (QSharedMemory*)hMem;
+   
+   return pMem->size();
 }
 
 /*
