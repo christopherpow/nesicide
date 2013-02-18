@@ -14,6 +14,47 @@ size_t strlen(const wchar_t* str)
    return len;
 }
 
+int MulDiv(
+  int nNumber,
+  int nNumerator,
+  int nDenominator
+)
+{
+   long long intermediate = nNumber*nNumerator;
+   return intermediate/nDenominator;
+}
+
+DWORD WINAPI GetSysColor(
+  int nIndex
+)
+{
+   switch ( nIndex )
+   {
+   case COLOR_3DFACE:
+      return 0x808080;
+      break;
+   case COLOR_BTNHIGHLIGHT:
+      return 0xc0c0c0;
+      break;
+   case COLOR_APPWORKSPACE:
+      return 0xa0a0a0;
+      break;
+   }
+}
+
+int WINAPI GetSystemMetrics(
+  int nIndex
+)
+{
+   QScrollBar sb(Qt::Vertical);
+   switch ( nIndex )
+   {
+   case SM_CXVSCROLL:
+      return sb.width();
+      break;
+   }
+}
+
 /*
  *  Class CString
  */

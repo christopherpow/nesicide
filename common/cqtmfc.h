@@ -13,6 +13,7 @@
 #include <QRegion>
 #include <QFrame>
 #include <QComboBox>
+#include <QScrollBar>
 #include <QEvent>
 #include <QList>
 #include <QMap>
@@ -76,6 +77,8 @@
 #define DECLARE_MESSAGE_MAP()
 #define DECLARE_DYNAMIC(x)
 
+#define WINAPI
+
 #define IDR_MAINFRAME 0xDEADBEEF
 #define RUNTIME_CLASS(x) new x
 
@@ -90,6 +93,18 @@
 #endif
 
 size_t strlen(const wchar_t* str);
+
+int MulDiv(
+  int nNumber,
+  int nNumerator,
+  int nDenominator
+);
+DWORD WINAPI GetSysColor(
+  int nIndex
+);
+int WINAPI GetSystemMetrics(
+  int nIndex
+);
 
 class CObject
 {
