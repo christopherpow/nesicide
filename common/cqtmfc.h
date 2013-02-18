@@ -694,7 +694,6 @@ class CWnd : public QWidget
 public:
    CWnd(QWidget* parent=0) : QWidget(parent), m_pFrameWnd(NULL) {}
 
-   CWnd* SetFocus() { setFocus(); return (CWnd*)QApplication::focusWidget(); }
    void OnMouseMove(UINT,CPoint) {}
    void OnLButtonDblClk(UINT,CPoint) {}
    void OnLButtonDown(UINT,CPoint) {}
@@ -713,7 +712,8 @@ public:
    void OnUpdate(CWnd* p=0,UINT hint=0,CObject* o=0) { repaint(); }
    void Invalidate(BOOL bErase = TRUE) { /*update();*/ }
    void RedrawWindow(LPCRECT rect=0,CRgn* rgn=0,UINT f=0) { repaint(); }
-   CWnd* GetFocus() { return (CWnd*)QApplication::focusWidget(); } 
+   CWnd* SetFocus() { CWnd* pWnd = focusWnd; setFocus(); return pWnd; }
+   CWnd* GetFocus() { return focusWnd; } 
    void SetCapture(CWnd* p=0) { /* DON'T DO THIS grabMouse(); */ }
    void ReleaseCapture() { /* DON'T DO THIS releaseMouse(); */ }
    UINT_PTR mfcTimerId(int qtTimerId) { return qtToMfcTimer.value(qtTimerId); }
@@ -726,6 +726,7 @@ protected:
    QMap<UINT_PTR,int> mfcToQtTimer;
    QMap<int,UINT_PTR> qtToMfcTimer;
    CFrameWnd* m_pFrameWnd;
+   static CWnd* focusWnd;
 };
 
 class CView;

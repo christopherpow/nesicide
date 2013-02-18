@@ -751,6 +751,8 @@ void CComboBox::SetCurSel(int sel)
    setCurrentIndex(sel);
 }
 
+CWnd* CWnd::focusWnd = NULL;
+
 UINT CWnd::SetTimer(UINT id, UINT interval, void*)
 {
    int qtId = startTimer(interval);

@@ -113,10 +113,6 @@ class CPatternView : public QWidget // Pull in Qt stuff
 protected:
    void paintEvent(QPaintEvent *event);
    void resizeEvent(QResizeEvent *event);
-//   void mouseMoveEvent(QMouseEvent *event) { qDebug("PatternEditor::mouseMoveEvent"); event->ignore(); }
-//   void mousePressEvent(QMouseEvent *event) { event->ignore(); }
-//   void mouseReleaseEvent(QMouseEvent *event) { event->ignore(); }
-//   void mouseDoubleClickEvent(QMouseEvent *event) { event->ignore(); }
    
 private:
    Ui::CPatternView *ui;

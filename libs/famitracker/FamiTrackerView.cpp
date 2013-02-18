@@ -3306,7 +3306,6 @@ void CFamiTrackerView::wheelEvent(QWheelEvent *event)
 
 void CFamiTrackerView::mouseMoveEvent(QMouseEvent *event)
 {
-   qDebug("CFamiTrackerView::mouseMoveEvent (%d,%d)",event->pos().x(),event->pos().y());
    CPoint point(event->pos());
    unsigned int flags = 0;
    if ( event->modifiers()&Qt::ControlModifier )

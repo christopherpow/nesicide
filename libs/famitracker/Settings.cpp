@@ -265,8 +265,7 @@ void CSettingBool::Load()
 //   qDebug("CSettingBool::Load");
 //   qDebug(key.toAscii().constData());
    
-   *(bool*)m_pVariable = settings.value(key,m_bDefaultValue).toInt();
-   qDebug("%s default: %s",*(bool*)m_pVariable?"true":"false",m_bDefaultValue?"true":"false");
+   *(bool*)m_pVariable = settings.value(key,QVariant(m_bDefaultValue)).toBool();
 }
 
 void CSettingBool::Save()
@@ -279,8 +278,7 @@ void CSettingBool::Save()
 //   qDebug("CSettingBool::Save");
 //   qDebug(key.toAscii().constData());
    
-   qDebug("%s",*(bool*)m_pVariable?"true":"false");
-   settings.setValue(key,*(bool*)m_pVariable);
+   settings.setValue(key,QVariant(*(bool*)m_pVariable));
 }
 
 void CSettingBool::Default()
@@ -298,7 +296,7 @@ void CSettingInt::Load()
 //   qDebug("CSettingInt::Load");
 //   qDebug(key.toAscii().constData());
    
-   *(int*)m_pVariable = settings.value(key,m_iDefaultValue).toInt();
+   *(int*)m_pVariable = settings.value(key,QVariant(m_iDefaultValue)).toInt();
 }
 
 void CSettingInt::Save()
@@ -311,7 +309,7 @@ void CSettingInt::Save()
 //   qDebug("CSettingInt::Save");
 //   qDebug(key.toAscii().constData());
    
-   settings.setValue(key,*(int*)m_pVariable);
+   settings.setValue(key,QVariant(*(int*)m_pVariable));
 }
 
 void CSettingInt::Default()
@@ -326,12 +324,10 @@ void CSettingString::Load()
    key = QString::fromWCharArray(m_pSection);
    key += "/";
    key += QString::fromWCharArray(m_pEntry);
-   qDebug("CSettingString::Load");
-   qDebug(key.toAscii().constData());
+//   qDebug("CSettingString::Load");
+//   qDebug(key.toAscii().constData());
    
-//   wcscpy((wchar_t*)m_pVariable,(wchar_t*)settings.value(key,QString::fromUtf16((const ushort*)m_pDefaultValue)).toString().utf16());
-   
-//   qDebug("%s",QString::fromWCharArray((const wchar_t*)m_pVariable).toAscii().constData());
+   (*(CString*)m_pVariable) = settings.value(key,QString::fromUtf16((const ushort*)m_pDefaultValue)).toString();
 }
 
 void CSettingString::Save()
@@ -344,7 +340,7 @@ void CSettingString::Save()
    qDebug("CSettingString::Save");
    qDebug(key.toAscii().constData());
    
-   settings.setValue(key,QString::fromUtf16((ushort*)m_pVariable));
+   settings.setValue(key,QString::fromWCharArray((*(CString*)m_pVariable).GetBuffer()));
 }
 
 void CSettingString::Default()
