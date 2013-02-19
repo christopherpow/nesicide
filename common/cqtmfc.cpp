@@ -671,7 +671,7 @@ BOOL CFont::CreateFont(
    LPCTSTR lpszFacename 
 )
 {
-   _qfont.setFamily((char*)lpszFacename);
+   _qfont.setFamily(QString::fromWCharArray(lpszFacename));
    _qfont.setPointSize(nHeight);
    _qfont.setItalic(bItalic);
    _qfont.setUnderline(bUnderline);
@@ -684,7 +684,7 @@ BOOL CFont::CreateFontIndirect(
    const LOGFONT* lpLogFont 
 )
 {
-   _qfont.setFamily((char*)lpLogFont->lfFaceName);
+   _qfont.setFamily(QString::fromWCharArray(lpLogFont->lfFaceName));
    _qfont.setPointSize(lpLogFont->lfHeight);
    _qfont.setItalic(lpLogFont->lfItalic);
    _qfont.setBold(lpLogFont->lfWeight>=FW_BOLD);
@@ -746,6 +746,7 @@ int CDC::DrawText(
    QString qstr(str.GetBuffer());
 #endif
    _qpainter->setPen(QPen(_textColor));
+   _qpainter->setFont((QFont)*_font);
    _qpainter->drawText(rect,qstr.toLatin1().constData());
    return strlen(str.GetBuffer());
    
@@ -858,6 +859,7 @@ BOOL CDC::TextOut(
    rect.setBottomRight(QPoint(x+fontMetrics.size(Qt::TextSingleLine,qstr.left(nCount)).width()+10,y+fontMetrics.height()));
    rect.translate(-QPoint(_windowOrg.x,_windowOrg.y));
    _qpainter->setPen(QPen(_textColor));
+   _qpainter->setFont((QFont)*_font);
    _qpainter->drawText(rect,qstr.left(nCount).toAscii().constData());
    return TRUE;
 }
@@ -873,6 +875,7 @@ BOOL CDC::TextOut(
    rect.setBottomRight(QPoint(x+fontMetrics.size(Qt::TextSingleLine,QString::fromWCharArray(str.GetString())).width()+10,y+fontMetrics.height()));
    rect.translate(-QPoint(_windowOrg.x,_windowOrg.y));
    _qpainter->setPen(QPen(_textColor));
+   _qpainter->setFont((QFont)*_font);
 #ifdef UNICODE
    _qpainter->drawText(rect,QString::fromWCharArray(str.GetBuffer()));
 #else
