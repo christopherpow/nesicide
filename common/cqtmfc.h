@@ -2,6 +2,7 @@
 #define CQTMFC_H
 
 #include <QApplication>
+#include <QAction>
 #include <QObject>
 #include <QWidget>
 #include <QPainter>
@@ -13,6 +14,7 @@
 #include <QRegion>
 #include <QFrame>
 #include <QComboBox>
+#include <QClipboard>
 #include <QScrollBar>
 #include <QEvent>
 #include <QList>
@@ -27,6 +29,12 @@
 #include <QThread>
 #include <QFile>
 #include <QMutex>
+#include <QByteArray>
+#include <QGridLayout>
+#include <QMimeData>
+#include <QElapsedTimer>
+#include <QSharedMemory>
+#include <QSettings>
 
 // Releasing pointers
 #define SAFE_RELEASE(p) \
@@ -77,8 +85,6 @@
 #define DECLARE_MESSAGE_MAP()
 #define DECLARE_DYNAMIC(x)
 
-#define WINAPI
-
 #define IDR_MAINFRAME 0xDEADBEEF
 #define RUNTIME_CLASS(x) new x
 
@@ -99,12 +105,42 @@ int MulDiv(
   int nNumerator,
   int nDenominator
 );
+DWORD WINAPI GetTickCount(void);
 DWORD WINAPI GetSysColor(
   int nIndex
 );
 int WINAPI GetSystemMetrics(
   int nIndex
 );
+BOOL WINAPI IsClipboardFormatAvailable(
+  UINT format
+);
+BOOL WINAPI OpenClipboard(
+  HWND hWndNewOwner = 0
+);
+BOOL WINAPI EmptyClipboard(void);
+BOOL WINAPI CloseClipboard(void);
+HANDLE WINAPI SetClipboardData(
+  UINT uFormat,
+  HANDLE hMem
+);
+HANDLE WINAPI GetClipboardData(
+  UINT uFormat
+);
+HGLOBAL WINAPI GlobalAlloc(
+  UINT uFlags,
+  SIZE_T dwBytes
+);
+LPVOID WINAPI GlobalLock(
+  HGLOBAL hMem
+);
+BOOL WINAPI GlobalUnlock(
+  HGLOBAL hMem
+);
+SIZE_T WINAPI GlobalSize(
+  HGLOBAL hMem
+);
+
 
 class CObject
 {
@@ -175,6 +211,15 @@ public:
    
 private:
    QString _qstr;
+};
+
+class CStringArray
+{
+public:
+   CString GetAt(int idx) { return _qlist.at(idx); }
+   void SetAt(int idx, CString str) { _qlist.replace(idx,str); }
+private:
+   QList<CString> _qlist;
 };
 
 class CEdit

@@ -24,6 +24,12 @@ int MulDiv(
    return intermediate/nDenominator;
 }
 
+static QElapsedTimer tickTimer;
+DWORD WINAPI GetTickCount(void)
+{
+   return tickTimer.elapsed();
+}
+
 DWORD WINAPI GetSysColor(
   int nIndex
 )
@@ -31,13 +37,13 @@ DWORD WINAPI GetSysColor(
    switch ( nIndex )
    {
    case COLOR_3DFACE:
-      return 0x808080;
+      return 0xd0d0d0;
       break;
    case COLOR_BTNHIGHLIGHT:
-      return 0xc0c0c0;
+      return 0xb0b0b0;
       break;
    case COLOR_APPWORKSPACE:
-      return 0xa0a0a0;
+      return 0xe0e0e0;
       break;
    }
 }
@@ -50,9 +56,96 @@ int WINAPI GetSystemMetrics(
    switch ( nIndex )
    {
    case SM_CXVSCROLL:
-      return sb.width();
+      return sb.sizeHint().width();
       break;
    }
+}
+
+BOOL WINAPI OpenClipboard(
+  HWND hWndNewOwner
+)
+{
+   return TRUE;
+}
+
+BOOL WINAPI EmptyClipboard(void)
+{
+   QApplication::clipboard()->clear();
+   return TRUE;
+}
+
+BOOL WINAPI CloseClipboard(void)
+{
+   return TRUE;
+}
+
+HANDLE WINAPI SetClipboardData(
+  UINT uFormat,
+  HANDLE hMem
+)
+{
+   QMimeData mimeData;
+   QSharedMemory* pMem = (QSharedMemory*)hMem;
+   mimeData.setData("application/x-qt-windows-mime;value=\"FamiTracker\"",QByteArray((const char*)pMem,::GlobalSize(hMem)));
+   QApplication::clipboard()->setMimeData(&mimeData);
+   return hMem;
+}
+
+BOOL WINAPI IsClipboardFormatAvailable(
+  UINT format
+)
+{
+   QStringList formats = QApplication::clipboard()->mimeData()->formats();
+   
+   if ( !formats.at(0).compare("application/x-qt-windows-mime;value=\"FamiTracker\"") )
+      return TRUE;
+   return FALSE;
+//   return QApplication::clipboard()->mimeData()->hasFormat(formats.at(0));
+}
+
+HANDLE WINAPI GetClipboardData(
+  UINT uFormat
+)
+{
+   return QApplication::clipboard()->mimeData()->data("application/x-qt-windows-mime;value=\"FamiTracker\"").data();
+}
+
+HGLOBAL WINAPI GlobalAlloc(
+  UINT uFlags,
+  SIZE_T dwBytes
+)
+{
+   QSharedMemory* pMem = new QSharedMemory("FamiTracker");
+   pMem->create(dwBytes);
+   return pMem;
+}
+
+LPVOID WINAPI GlobalLock(
+  HGLOBAL hMem
+)
+{
+   QSharedMemory* pMem = (QSharedMemory*)hMem;
+   
+   pMem->lock();
+   return pMem->data();
+}
+
+BOOL WINAPI GlobalUnlock(
+  HGLOBAL hMem
+)
+{
+   QSharedMemory* pMem = (QSharedMemory*)hMem;
+   
+   return pMem->unlock();;
+}
+
+SIZE_T WINAPI GlobalSize(
+  HGLOBAL hMem
+)
+{
+   QSharedMemory* pMem = (QSharedMemory*)hMem;
+   
+   return pMem->size();
 }
 
 /*
@@ -565,22 +658,24 @@ BOOL CFont::CreateFont(
    LPCTSTR lpszFacename 
 )
 {
-   _qfont.setFamily((char*)lpszFacename);
+   _qfont.setFamily(QString::fromWCharArray(lpszFacename));
    _qfont.setPointSize(nHeight);
    _qfont.setItalic(bItalic);
    _qfont.setUnderline(bUnderline);
    _qfont.setStrikeOut(cStrikeOut);
    _qfont.setBold(nWeight>=FW_BOLD);
+   return TRUE;
 }
 
 BOOL CFont::CreateFontIndirect(
    const LOGFONT* lpLogFont 
 )
 {
-   _qfont.setFamily((char*)lpLogFont->lfFaceName);
+   _qfont.setFamily(QString::fromWCharArray(lpLogFont->lfFaceName));
    _qfont.setPointSize(lpLogFont->lfHeight);
    _qfont.setItalic(lpLogFont->lfItalic);
    _qfont.setBold(lpLogFont->lfWeight>=FW_BOLD);
+   return TRUE;
 }
 
 /*
@@ -608,6 +703,7 @@ BOOL CDC::BitBlt(
    DWORD dwRop 
 )
 {
+   return TRUE;
 }
 void CDC::Draw3dRect( int x, int y, int cx, int cy, COLORREF clrTopLeft, COLORREF clrBottomRight )
 {
@@ -636,7 +732,10 @@ int CDC::DrawText(
 #else
    QString qstr(str.GetBuffer());
 #endif
+   _qpainter->setPen(QPen(_textColor));
+   _qpainter->setFont((QFont)*_font);
    _qpainter->drawText(rect,qstr.toLatin1().constData());
+   return strlen(str.GetBuffer());
    
 }
 void CDC::FillSolidRect(
@@ -689,6 +788,7 @@ BOOL CDC::GradientFill(
    
       _qpainter->fillRect(rect,brush);
    }
+   return TRUE;
 }
 BOOL CDC::LineTo( 
    int x, 
@@ -698,6 +798,7 @@ BOOL CDC::LineTo(
    _qpainter->drawLine(_lineOrg.x,_lineOrg.y,x,y);
    _lineOrg.x = x;
    _lineOrg.y = y;
+   return TRUE;
 }
 BOOL CDC::Polygon(
    LPPOINT lpPoints,
@@ -715,14 +816,17 @@ BOOL CDC::Polygon(
    path.addPolygon(poly);
    _qpainter->fillPath(path,(QBrush)*_brush);
    _qpainter->drawPath(path);
+   return TRUE;
 }
 int CDC::SelectObject(
    CRgn* pRgn 
 )
 {
+   return TRUE;
 }
 COLORREF CDC::SetPixel( int x, int y, COLORREF crColor )
 {
+   return TRUE;
 }
 BOOL CDC::TextOut(
    int x,
@@ -742,7 +846,9 @@ BOOL CDC::TextOut(
    rect.setBottomRight(QPoint(x+fontMetrics.size(Qt::TextSingleLine,qstr.left(nCount)).width()+10,y+fontMetrics.height()));
    rect.translate(-QPoint(_windowOrg.x,_windowOrg.y));
    _qpainter->setPen(QPen(_textColor));
+   _qpainter->setFont((QFont)*_font);
    _qpainter->drawText(rect,qstr.left(nCount).toAscii().constData());
+   return TRUE;
 }
 BOOL CDC::TextOut(
    int x,
@@ -756,7 +862,14 @@ BOOL CDC::TextOut(
    rect.setBottomRight(QPoint(x+fontMetrics.size(Qt::TextSingleLine,str.GetString()).width()+10,y+fontMetrics.height()));
    rect.translate(-QPoint(_windowOrg.x,_windowOrg.y));
    _qpainter->setPen(QPen(_textColor));
-   _qpainter->drawText(rect,str);
+   _qpainter->setFont((QFont)*_font);
+#ifdef UNICODE
+   _qpainter->drawText(rect,QString::fromWCharArray(str.GetBuffer()));
+#else
+   QString qstr(str.GetBuffer());
+   _qpainter->drawText(rect,qstr);
+#endif
+   return TRUE;
 }
 
 void CComboBox::ResetContent()
@@ -809,7 +922,6 @@ BOOL CWinThread::CreateThread(
    LPSECURITY_ATTRIBUTES lpSecurityAttrs 
 )
 {
-   qDebug("CreateThread");
    start(QThread::InheritPriority);
    return TRUE;
 }

@@ -18,8 +18,10 @@
 ** must bear this legend.
 */
 
+#include "stdafx.h"
 #include "FamiTrackerDoc.h"
 #include "Instrument.h"
+#include "DocumentFile.h"
 
 const int CInstrumentS5B::SEQUENCE_TYPES[] = {SEQ_VOLUME, SEQ_ARPEGGIO, SEQ_PITCH, SEQ_HIPITCH, SEQ_DUTYCYCLE};
 

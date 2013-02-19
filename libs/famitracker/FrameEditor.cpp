@@ -18,6 +18,7 @@
 ** must bear this legend.
 */
 
+#include "stdafx.h"
 #include <cmath>
 #include "FamiTracker.h"
 #include "FamiTrackerDoc.h"
@@ -689,7 +690,7 @@ void CFrameEditor::focusOutEvent(QFocusEvent *)
 void CFrameEditor::resizeEvent(QResizeEvent *event)
 {
    int width = event->size().width();
-   int height = event->size().height();
+   int height = event->size().height()-ui->horizontalScrollBar->height();
    OnSize(0,width,height);
    
    setFixedSize(width,height);

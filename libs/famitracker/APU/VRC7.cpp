@@ -18,8 +18,8 @@
 ** must bear this legend.
 */
 
-#include "cqtmfc.h"
-#include <string.h>
+#include "../stdafx.h"
+#include <memory>
 #include "apu.h"
 #include "VRC7.h"
 

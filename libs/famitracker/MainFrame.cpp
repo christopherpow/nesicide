@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "MainFrame.h"
 #include "ui_MainFrame.h"
 #include "FamiTracker.h"
@@ -8,8 +9,6 @@
 #include <QFrame>
 #include <QLayout>
 #include <QAction>
-
-#include "cqtmfc.h"
 
 // DPI variables
 static const int DEFAULT_DPI = 96;
@@ -141,6 +140,7 @@ void CMainFrame::focusInEvent(QFocusEvent *)
 {
    m_pView->GetPatternView()->SetFocus(true);
    m_pFrameEditor->SetFocus();
+   m_pView->GetPatternView()->setFocus();
 }
 
 void CMainFrame::showEvent(QShowEvent *)

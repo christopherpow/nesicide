@@ -18,13 +18,10 @@
 ** must bear this legend.
 */
 
-/*
-   This file takes care of module to NSF data translation.
-*/
-
 #include <map>
 #include <vector>
-
+#include "stdafx.h"
+#include "FamiTracker.h"
 #include "FamiTrackerDoc.h"
 #include "PatternCompiler.h"
 #include "Compiler.h"

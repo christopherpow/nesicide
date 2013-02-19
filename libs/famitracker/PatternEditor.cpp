@@ -22,6 +22,9 @@
 // This is the pattern editor. This class is not derived from any MFC class.
 //
 
+// TODO rename CPatternView to CPatternEditor
+
+#include "stdafx.h"
 #include "FamiTracker.h"
 #include "FamiTrackerDoc.h"
 #include "FamiTrackerView.h"

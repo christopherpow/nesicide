@@ -18,11 +18,9 @@
 ** must bear this legend.
 */
 
-#include "cqtmfc.h"
+#include "stdafx.h"
 #include "Sequence.h"
-#include "Common.h"
-
-#include <string.h>
+#include "DocumentFile.h"
 
 CSequence::CSequence()
 {

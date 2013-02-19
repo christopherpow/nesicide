@@ -78,6 +78,7 @@ protected:
    void focusInEvent(QFocusEvent *);
    void focusOutEvent(QFocusEvent *);
    void timerEvent(QTimerEvent *event);
+   QGridLayout* grid;
    
 public slots:
    void updateViews(long hint);

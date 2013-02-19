@@ -36,9 +36,10 @@
 // TODO:
 //
 
-#include "cqtmfc.h"
 #include <vector>
+#include "../stdafx.h"
 #include <cstdio>
+#include <memory>
 #include <cmath>
 #include "apu.h"
 

@@ -18,8 +18,7 @@
 ** must bear this legend.
 */
 
-#include <string.h>
-
+#include "stdafx.h"
 #include "FamiTrackerDoc.h"
 #include "PatternData.h"
 

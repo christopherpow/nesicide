@@ -18,7 +18,7 @@
 ** must bear this legend.
 */
 
-//#include "stdafx.h"
+#include "stdafx.h"
 #include <cmath>
 //#include "FontDrawer.h"
 #include "FamiTracker.h"
@@ -37,14 +37,13 @@
 #include "cqtmfc.h"
 
 #include <QPainter>
-#include <QLayout>
 
 //#ifdef _DEBUG
 //#define new DEBUG_NEW
 //#endif
 
 // Clipboard ID
-const TCHAR CFamiTrackerView::CLIPBOARD_ID[] = _T("FamiTracker");
+const TCHAR CFamiTrackerView::CLIPBOARD_ID[] = _T("application/x-qt-windows-mime;value=\"FamiTracker\"");
 
 // Effect texts
 const TCHAR *EFFECT_TEXTS[] = {
@@ -102,7 +101,7 @@ static bool CheckRepeat()
 	}
 
 	LastTime = CurrentTime;
-
+   qDebug("CheckRepeat");
 	return RepeatCounter == REPEAT_DELAY;
 }
 
@@ -261,7 +260,7 @@ CFamiTrackerView::CFamiTrackerView(QWidget* parent) :
 
 	// Register this object to the sound generator
 	CSoundGen *pSoundGen = theApp.GetSoundGenerator();
-
+   
 	if (pSoundGen)
 		pSoundGen->AssignView(this);
    
@@ -275,7 +274,7 @@ CFamiTrackerView::CFamiTrackerView(QWidget* parent) :
 	// Setup pattern view
 	m_pPatternView->InitView(m_iClipBoard);
    
-   QGridLayout* grid = new QGridLayout(this); 
+   grid = new QGridLayout(this); 
    grid->setMargin(0);
    grid->addWidget(m_pPatternView);
 }
@@ -284,6 +283,8 @@ CFamiTrackerView::~CFamiTrackerView()
 {
 	// Release allocated objects
 	SAFE_RELEASE(m_pPatternView);
+   
+   delete grid;
 }
 
 bool CFamiTrackerView::eventFilter(QObject *object, QEvent *event)
@@ -772,6 +773,8 @@ void CFamiTrackerView::OnTimer(UINT nIDEvent)
 // Menu commands
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+static stClipData *pClipData = NULL;
+
 void CFamiTrackerView::OnEditCopy()
 {
    qDebug("OnEditCopy");
@@ -780,37 +783,37 @@ void CFamiTrackerView::OnEditCopy()
 //		return;
 //	}
 
-//	::EmptyClipboard();
+	::EmptyClipboard();
 
-//	HGLOBAL hMem = ::GlobalAlloc(GMEM_MOVEABLE, sizeof(stClipData));
+	HGLOBAL hMem = ::GlobalAlloc(GMEM_MOVEABLE, sizeof(stClipData));
 
-//	if (hMem == NULL) {
+	if (hMem == NULL) {
 //		AfxMessageBox(IDS_CLIPBOARD_COPY_ERROR);
-//		::CloseClipboard();
-//		return;
-//	}
+		::CloseClipboard();
+		return;
+	}
 
-//	stClipData *pClipData = (stClipData*)::GlobalLock(hMem);
+	stClipData *pClipData = (stClipData*)::GlobalLock(hMem);
 
-//	if (pClipData == NULL) {
+	if (pClipData == NULL) {
 //		AfxMessageBox(IDS_CLIPBOARD_COPY_ERROR);
-//		::CloseClipboard();
-//		return;
-//	}
+		::CloseClipboard();
+		return;
+	}
 
-//	m_pPatternView->Copy(pClipData);
+	m_pPatternView->Copy(pClipData);
 
-//	::GlobalUnlock(hMem);
+	::GlobalUnlock(hMem);
 
-//	// Set clipboard for internal data, hMem may not be used after this point
-//	::SetClipboardData(m_iClipBoard, hMem);
+	// Set clipboard for internal data, hMem may not be used after this point
+   ::SetClipboardData(m_iClipBoard, hMem);
 
-//	::CloseClipboard();
+	::CloseClipboard();
 
-//	// Copy volume values
-//	if (m_bShiftPressed) {
-//		CopyVolumeColumn();
-//	}
+	// Copy volume values
+	if (m_bShiftPressed) {
+		CopyVolumeColumn();
+	}
 }
 
 void CFamiTrackerView::OnEditCut()
@@ -827,36 +830,41 @@ void CFamiTrackerView::OnEditPaste()
 //		return;
 //	}
 
-//	if (!::IsClipboardFormatAvailable(m_iClipBoard)) {
+	if (!::IsClipboardFormatAvailable(m_iClipBoard)) {
 //		AfxMessageBox(IDS_CLIPBOARD_NOT_AVALIABLE);
-//		return;
-//	}
+      qDebug("1 NOT PASTING!!!");
+		return;
+	}
 
-//	HGLOBAL hMem = ::GetClipboardData(m_iClipBoard);
+	HGLOBAL hMem = ::GetClipboardData(m_iClipBoard);
 
-//	if (hMem == NULL) {
+	if (hMem == NULL) {
 //		AfxMessageBox(IDS_CLIPBOARD_PASTE_ERROR);
-//		::CloseClipboard();
-//		return;
-//	}
+		::CloseClipboard();
+      qDebug("2 NOT PASTING!!!");
+		return;
+	}
 
+   stClipData *pClipData = (stClipData*)hMem;
 //	stClipData *pClipData = (stClipData*)::GlobalLock(hMem);
 
-//	if (pClipData == NULL) {
+	if (pClipData == NULL) {
 //		AfxMessageBox(IDS_CLIPBOARD_PASTE_ERROR);
-//		::CloseClipboard();
-//		return;
-//	}
+		::CloseClipboard();
+      qDebug("3 NOT PASTING!!!");
+		return;
+	}
 
-//	CPatternAction *pAction = new CPatternAction(CPatternAction::ACT_EDIT_PASTE);
-//	pAction->SetPaste(pClipData, m_iPasteMode);
-//	AddAction(pAction);
+   qDebug("PASTING!!!");
+	CPatternAction *pAction = new CPatternAction(CPatternAction::ACT_EDIT_PASTE);
+	pAction->SetPaste(pClipData, m_iPasteMode);
+	AddAction(pAction);
 
 //	::GlobalUnlock(hMem);
 
-//	::CloseClipboard();
+	::CloseClipboard();
 
-//	UpdateEditor(CHANGED_PATTERN);
+	UpdateEditor(CHANGED_PATTERN);
 }
 
 void CFamiTrackerView::OnEditDelete()
@@ -3434,7 +3442,25 @@ void CFamiTrackerView::keyPressEvent(QKeyEvent *event)
    UINT nChar = event->nativeVirtualKey();
    UINT nRepCnt = event->count();
 
-   OnKeyDown(nChar,nRepCnt,0);
+   if ( (event->modifiers() == Qt::ControlModifier) &&
+        (event->key() == Qt::Key_C) )
+   {
+      OnEditCopy();
+   }
+   else if ( (event->modifiers() == Qt::ControlModifier) &&
+             (event->key() == Qt::Key_X) )
+   {
+      OnEditCut();
+   }
+   else if ( (event->modifiers() == Qt::ControlModifier) &&
+             (event->key() == Qt::Key_V) )
+   {
+      OnEditPaste();
+   }
+   else
+   {
+      OnKeyDown(nChar,nRepCnt,0);
+   }
    m_pPatternView->repaint();
 }
 

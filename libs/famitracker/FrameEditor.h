@@ -56,6 +56,7 @@ protected:
    void keyPressEvent(QKeyEvent *event);
    void resizeEvent(QResizeEvent *event);
    void timerEvent(QTimerEvent *event);
+   void focusInEvent(QFocusEvent *event) { event->ignore(); }
    void focusOutEvent(QFocusEvent *);
    
 private:

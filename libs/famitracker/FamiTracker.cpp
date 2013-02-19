@@ -19,6 +19,7 @@
 */
 
 
+#include "stdafx.h"
 //#include "Exception.h"
 #include "FamiTracker.h"
 #include "FamiTrackerDoc.h"

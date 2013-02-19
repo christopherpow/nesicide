@@ -18,10 +18,13 @@
 ** must bear this legend.
 */
 
+#include <vector>
+#include "stdafx.h"
 #include "FamiTrackerDoc.h"
 #include "Instrument.h"
 #include "Compiler.h"
-\
+#include "DocumentFile.h"
+
 /*
  * class CInstrumentVRC7
  *

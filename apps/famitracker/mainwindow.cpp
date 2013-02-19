@@ -17,7 +17,7 @@ MainWindow::MainWindow(QWidget *parent) :
    
    m_pMainFrame = (CMainFrame*)theApp.m_pMainWnd;
    setCentralWidget(m_pMainFrame);
-   
+
    QObject::connect(m_pMainFrame,SIGNAL(addToolBarWidget(QToolBar*)),this,SLOT(addToolBarWidget(QToolBar*)));
    QObject::connect(m_pMainFrame,SIGNAL(removeToolBarWidget(QToolBar*)),this,SLOT(removeToolBarWidget(QToolBar*)));
    QObject::connect(m_pMainFrame,SIGNAL(editor_modificationChanged(bool)),this,SLOT(editor_modificationChanged(bool)));
