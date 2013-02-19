@@ -32,6 +32,7 @@
 #include <QByteArray>
 #include <QGridLayout>
 #include <QMimeData>
+#include <QElapsedTimer>
 #include <QSharedMemory>
 
 // Releasing pointers

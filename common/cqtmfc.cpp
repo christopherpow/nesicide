@@ -24,9 +24,10 @@ int MulDiv(
    return intermediate/nDenominator;
 }
 
+static QElapsedTimer tickTimer;
 DWORD WINAPI GetTickCount(void)
 {
-   return 0;
+   return tickTimer.elapsed();
 }
 
 DWORD WINAPI GetSysColor(
