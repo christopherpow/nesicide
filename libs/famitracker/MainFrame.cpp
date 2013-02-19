@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "MainFrame.h"
 #include "ui_MainFrame.h"
 #include "FamiTracker.h"
@@ -8,8 +9,6 @@
 #include <QFrame>
 #include <QLayout>
 #include <QAction>
-
-#include "cqtmfc.h"
 
 // DPI variables
 static const int DEFAULT_DPI = 96;

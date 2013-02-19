@@ -19,9 +19,12 @@
 */
 
 #include <vector>
+#include "stdafx.h"
+#include "FamiTracker.h"
 #include "FamiTrackerDoc.h"
 #include "Instrument.h"
 #include "Compiler.h"
+#include "DocumentFile.h"
 
 // 2A03 instruments
 

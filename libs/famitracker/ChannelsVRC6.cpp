@@ -20,6 +20,7 @@
 
 // This file handles playing of VRC6 channels
 
+#include "stdafx.h"
 #include "FamiTracker.h"
 #include "FamiTrackerDoc.h"
 #include "ChannelHandler.h"

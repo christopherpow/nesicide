@@ -34,6 +34,7 @@
 #include <QMimeData>
 #include <QElapsedTimer>
 #include <QSharedMemory>
+#include <QSettings>
 
 // Releasing pointers
 #define SAFE_RELEASE(p) \
@@ -208,6 +209,15 @@ public:
    
 private:
    QString _qstr;
+};
+
+class CStringArray
+{
+public:
+   CString GetAt(int idx) { return _qlist.at(idx); }
+   void SetAt(int idx, CString str) { _qlist.replace(idx,str); }
+private:
+   QList<CString> _qlist;
 };
 
 class CEdit

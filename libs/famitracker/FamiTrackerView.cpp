@@ -18,7 +18,7 @@
 ** must bear this legend.
 */
 
-//#include "stdafx.h"
+#include "stdafx.h"
 #include <cmath>
 //#include "FontDrawer.h"
 #include "FamiTracker.h"

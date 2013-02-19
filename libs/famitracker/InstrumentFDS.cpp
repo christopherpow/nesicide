@@ -18,11 +18,13 @@
 ** must bear this legend.
 */
 
+#include <map>
 #include <vector>
-#include "Instrument.h"
+#include "stdafx.h"
 #include "FamiTrackerDoc.h"
+#include "Instrument.h"
 #include "Compiler.h"
-#include "Common.h"
+#include "DocumentFile.h"
 
 const char TEST_WAVE[] = {
 	00, 01, 12, 22, 32, 36, 39, 39, 42, 47, 47, 50, 48, 51, 54, 58,

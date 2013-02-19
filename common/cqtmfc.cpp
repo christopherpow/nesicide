@@ -745,6 +745,7 @@ int CDC::DrawText(
 #else
    QString qstr(str.GetBuffer());
 #endif
+   _qpainter->setPen(QPen(_textColor));
    _qpainter->drawText(rect,qstr.toLatin1().constData());
    return strlen(str.GetBuffer());
    

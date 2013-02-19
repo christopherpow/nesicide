@@ -18,10 +18,9 @@
 ** must bear this legend.
 */
 
-// This code comes from nintendulator
-
+#include "../stdafx.h"
 #include <cmath>
-#include <string.h>
+#include <memory>
 #include "apu.h"
 #include "fds.h"
 #include "FDSSound.h"

@@ -1,4 +1,5 @@
 #include <cmath>
+#include <memory>
 #include <string.h>
 #include "apu.h"
 

@@ -20,6 +20,7 @@
 
 // Some graphics helpers
 
+#include "stdafx.h"
 #include "Graphics.h"
 
 #define GRADIENT_FILL_RECT_H 0x00

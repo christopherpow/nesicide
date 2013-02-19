@@ -29,6 +29,7 @@
 
 */
 
+#include "stdafx.h"
 #include "FamiTracker.h"
 #include "FamiTrackerDoc.h"
 #include "SoundGen.h"

@@ -18,6 +18,7 @@
 ** must bear this legend.
 */
 
+#include "stdafx.h"
 #include "DocumentFile.h"
 
 //

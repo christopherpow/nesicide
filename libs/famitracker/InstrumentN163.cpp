@@ -19,7 +19,10 @@
 */
 
 #include <vector>
+#include "stdafx.h"
+#include "FamiTracker.h"
 #include "FamiTrackerDoc.h"
+#include "DocumentFile.h"
 #include "Instrument.h"
 #include "Compiler.h"
 

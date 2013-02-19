@@ -50,8 +50,8 @@
 
 */
 
-#include <stdlib.h>
-#include <string.h>
+#include "../stdafx.h"
+#include <memory>
 #include <cmath>
 #include "mixer.h"
 #include "apu.h"
