@@ -28,6 +28,7 @@
 #include "FamiTrackerDoc.h"
 #include "FamiTrackerView.h"
 #include "MainFrame.h"
+#include "DirectSound.h"
 #include "apu/apu.h"
 
 #include "ChannelHandler.h"
@@ -79,8 +80,8 @@ const double CSoundGen::OLD_VIBRATO_DEPTH[] = {
 CSoundGen::CSoundGen() :
 	m_pAPU(NULL),
 	m_pSampleMem(NULL),
-//	m_pDSound(NULL),
-//	m_pDSoundChannel(NULL),
+	m_pDSound(NULL),
+	m_pDSoundChannel(NULL),
 	m_pAccumBuffer(NULL),
 	m_iGraphBuffer(NULL),
 	m_pDocument(NULL),
@@ -414,33 +415,33 @@ void CSoundGen::PreviewSample(CDSample *pSample, int Offset, int Pitch)
 
 //// Sound buffer handling /////////////////////////////////////////////////////////////////////////////////
 
-//bool CSoundGen::InitializeSound(HWND hWnd, HANDLE hAliveCheck, HANDLE hNotification)
-//{
-//	// Initialize sound, this is only called once!
-//	// Start with NTSC by default
+bool CSoundGen::InitializeSound(HWND hWnd, HANDLE hAliveCheck, HANDLE hNotification)
+{
+	// Initialize sound, this is only called once!
+	// Start with NTSC by default
 
-//	// Called from main thread
+	// Called from main thread
 //	ASSERT(GetCurrentThread() == theApp.m_hThread);
-//	ASSERT(m_pDSound == NULL);
+	ASSERT(m_pDSound == NULL);
 
 //	m_hWnd = hWnd;
 //	m_hAliveCheck = hAliveCheck;
 //	m_hNotificationEvent = hNotification;
 
-//	// Create DirectSound object
-//	m_pDSound = new CDSound();
+	// Create DirectSound object
+	m_pDSound = new CDSound();
 
-//	// Out of memory
-//	if (!m_pDSound)
-//		return false;
+	// Out of memory
+	if (!m_pDSound)
+		return false;
 
 //	m_pDSound->EnumerateDevices();
 
-//	// Start thread when audio is done
+	// Start thread when audio is done
 //	ResumeThread();
 
-//	return true;
-//}
+	return true;
+}
 
 bool CSoundGen::ResetSound()
 {
@@ -460,17 +461,17 @@ bool CSoundGen::ResetSound()
 	m_iAudioUnderruns = 0;
 	m_iBufferPtr = 0;
 
-//	// Close the old sound channel
-//	if (m_pDSoundChannel) {
-//		m_pDSound->CloseChannel(m_pDSoundChannel);
-//		m_pDSoundChannel = NULL;
-//	}
+	// Close the old sound channel
+	if (m_pDSoundChannel) {
+		m_pDSound->CloseChannel(m_pDSoundChannel);
+		m_pDSoundChannel = NULL;
+	}
 
-//	// Reinitialize direct sound
-//	if (!m_pDSound->Init(m_hWnd, m_hNotificationEvent, theApp.GetSettings()->Sound.iDevice)) {
+	// Reinitialize direct sound
+   if (!m_pDSound->Init(0,0,0)) {//m_hWnd, m_hNotificationEvent, theApp.GetSettings()->Sound.iDevice)) {
 //		AfxMessageBox(_T("Direct sound error!"));
-//		return false;
-//	}
+		return false;
+	}
 
 	int iBlocks = 2;	// default = 2
 
@@ -478,18 +479,17 @@ bool CSoundGen::ResetSound()
 	if (BufferLen > 100)
 		iBlocks = (BufferLen / 66);
 
-//	// Create channel
-//	m_pDSoundChannel = m_pDSound->OpenChannel(SampleRate, SampleSize, 1, BufferLen, iBlocks);
+	// Create channel
+	m_pDSoundChannel = m_pDSound->OpenChannel(SampleRate, SampleSize, 1, BufferLen, iBlocks);
 
-//	// Channel failed
-//	if (m_pDSoundChannel == NULL) {
+	// Channel failed
+	if (m_pDSoundChannel == NULL) {
 //		AfxMessageBox(_T("Direct sound error: Could not create buffer!"));
-//		return false;
-//	}
+		return false;
+	}
 
 	// Create a buffer
-   qDebug("GetBlockSize");
-	m_iBufSizeBytes	  = 1024; //m_pDSoundChannel->GetBlockSize();
+	m_iBufSizeBytes	  = m_pDSoundChannel->GetBlockSize();
 	m_iBufSizeSamples = m_iBufSizeBytes / (SampleSize / 8);
 
 	// Temp. audio buffer
@@ -533,22 +533,21 @@ bool CSoundGen::ResetSound()
 
 void CSoundGen::CloseSound()
 {
-   qDebug("CloseSound");
 //	// Called from player thread
 //	ASSERT(GetCurrentThreadId() == m_nThreadID);
 
-//	// Kill DirectSound
-//	if (m_pDSoundChannel) {
-//		m_pDSoundChannel->Stop();
-//		m_pDSound->CloseChannel(m_pDSoundChannel);
-//		m_pDSoundChannel = NULL;
-//	}
+	// Kill DirectSound
+	if (m_pDSoundChannel) {
+		m_pDSoundChannel->Stop();
+		m_pDSound->CloseChannel(m_pDSoundChannel);
+		m_pDSoundChannel = NULL;
+	}
 
-//	if (m_pDSound) {
-//		m_pDSound->Close();
-//		delete m_pDSound;
-//		m_pDSound = NULL;
-//	}
+	if (m_pDSound) {
+		m_pDSound->Close();
+		delete m_pDSound;
+		m_pDSound = NULL;
+	}
 }
 
 void CSoundGen::ResetBuffer()
@@ -558,81 +557,80 @@ void CSoundGen::ResetBuffer()
 
 	m_iBufferPtr = 0;
 
-    qDebug("no DSound yet...");
-//	if (m_pDSoundChannel)
-//		m_pDSoundChannel->Clear();
+	if (m_pDSoundChannel)
+		m_pDSoundChannel->Clear();
 
 	m_pAPU->Reset();
 }
 
 void CSoundGen::FlushBuffer(int16 *pBuffer, uint32 Size)
 {
-//	// Called when the APU audio buffer is full and
-//	// ready for playing
+	// Called when the APU audio buffer is full and
+	// ready for playing
 
 //	// May only be called from sound player thread
 //	ASSERT(GetCurrentThreadId() == m_nThreadID);
 
-//	const int SAMPLE_MAX = 32767;
-//	const int SAMPLE_MIN = -32768;
+	const int SAMPLE_MAX = 32767;
+	const int SAMPLE_MIN = -32768;
 
-//	if (!m_pDSoundChannel)
-//		return;
+	if (!m_pDSoundChannel)
+		return;
 
-//	BOOL bLocked = m_csDocumentLock.Unlock();
+	BOOL bLocked = m_csDocumentLock.Unlock();
 
-//	for (uint32 i = 0; i < Size; ++i) {
+	for (uint32 i = 0; i < Size; ++i) {
 
-//		int32 Sample = pBuffer[i];
+		int32 Sample = pBuffer[i];
 
-//		// 1000 Hz test tone
-//#ifdef AUDIO_TEST
-//		static double sine_phase = 0;
-//		Sample = int32(sin(sine_phase) * 10000.0);
+		// 1000 Hz test tone
+#ifdef AUDIO_TEST
+		static double sine_phase = 0;
+		Sample = int32(sin(sine_phase) * 10000.0);
 
-//		static double freq = 1000;
-//		// Sweep
-//		//freq+=0.1;
-//		if (freq > 20000)
-//			freq = 20;
+		static double freq = 1000;
+		// Sweep
+		//freq+=0.1;
+		if (freq > 20000)
+			freq = 20;
 
-//		sine_phase += freq / (double(m_pDSoundChannel->GetSampleRate()) / 6.283184);
-//		if (sine_phase > 6.283184)
-//			sine_phase -= 6.283184;
-//#endif
+		sine_phase += freq / (double(m_pDSoundChannel->GetSampleRate()) / 6.283184);
+		if (sine_phase > 6.283184)
+			sine_phase -= 6.283184;
+#endif
 
-//		// Limit
-//		if (Sample > SAMPLE_MAX)
-//			Sample = SAMPLE_MAX;
-//		if (Sample < SAMPLE_MIN)
-//			Sample = SAMPLE_MIN;
+		// Limit
+		if (Sample > SAMPLE_MAX)
+			Sample = SAMPLE_MAX;
+		if (Sample < SAMPLE_MIN)
+			Sample = SAMPLE_MIN;
 
-//		ASSERT(m_iBufferPtr < m_iBufSizeSamples);
+		ASSERT(m_iBufferPtr < m_iBufSizeSamples);
 
-//		// Sample scope
-//		m_iGraphBuffer[m_iBufferPtr] = Sample;
+		// Sample scope
+		m_iGraphBuffer[m_iBufferPtr] = Sample;
 
-//		// Convert sample and store in temp buffer
-//		//if (m_iBufferPtr < m_iBufSizeBytes)
-//		if (m_iSampleSize == 8)
-//			((int8*)m_pAccumBuffer)[m_iBufferPtr] = (uint8)(Sample >> 8) ^ 0x80;
-//		else
-//			((int16*)m_pAccumBuffer)[m_iBufferPtr] = (int16)Sample;
+		// Convert sample and store in temp buffer
+		//if (m_iBufferPtr < m_iBufSizeBytes)
+		if (m_iSampleSize == 8)
+			((int8*)m_pAccumBuffer)[m_iBufferPtr] = (uint8)(Sample >> 8) ^ 0x80;
+		else
+			((int16*)m_pAccumBuffer)[m_iBufferPtr] = (int16)Sample;
 
-//		++m_iBufferPtr;
+		++m_iBufferPtr;
 
-//		// If buffer is filled, throw it to direct sound
-//		if (m_iBufferPtr >= m_iBufSizeSamples) {
+		// If buffer is filled, throw it to direct sound
+		if (m_iBufferPtr >= m_iBufSizeSamples) {
 
-//			if (m_bRendering) {
+			if (m_bRendering) {
 //				// Output to file
 //				m_wfWaveFile.WriteWave((char*)m_pAccumBuffer, m_iBufSizeBytes);
 //				m_iBufferPtr = 0;
-//			}
-//			else {
-//				// Output to direct sound
-//				DWORD dwEvent;
-//				bool bUnderrun = false;
+			}
+			else {
+				// Output to direct sound
+				DWORD dwEvent;
+				bool bUnderrun = false;
 
 //				// Wait for a buffer event
 //				while ((dwEvent = m_pDSoundChannel->WaitForDirectSoundEvent()) != BUFFER_IN_SYNC) {
@@ -661,8 +659,8 @@ void CSoundGen::FlushBuffer(int16 *pBuffer, uint32 Size)
 //					}
 //				}
 
-//				// Write audio to buffer
-//				m_pDSoundChannel->WriteSoundBuffer(m_pAccumBuffer, m_iBufSizeBytes);
+				// Write audio to buffer
+				m_pDSoundChannel->WriteSoundBuffer(m_pAccumBuffer, m_iBufSizeBytes);
 
 //				// Draw graph
 //				m_csSampleWndLock.Lock();
@@ -672,14 +670,14 @@ void CSoundGen::FlushBuffer(int16 *pBuffer, uint32 Size)
 
 //				m_csSampleWndLock.Unlock();
 
-//				// Reset buffer position
-//				m_iBufferPtr = 0;
-//			}
-//		}
-//	}
+				// Reset buffer position
+				m_iBufferPtr = 0;
+			}
+		}
+	}
 
-//	if (bLocked)
-//		m_csDocumentLock.Lock();
+	if (bLocked)
+		m_csDocumentLock.Lock();
 }
 
 //unsigned int CSoundGen::GetUnderruns()
@@ -758,9 +756,8 @@ void CSoundGen::BeginPlayer(int Mode)
 //	// Called from player thread
 //	ASSERT(GetCurrentThreadId() == m_nThreadID);
 
-   qDebug("No DSound yet...");
-//	if (!m_pDSoundChannel || !m_pDocument || !m_pDocument->IsFileLoaded())
-//		return;
+	if (!m_pDSoundChannel || !m_pDocument || !m_pDocument->IsFileLoaded())
+		return;
 
 	switch (Mode) {
 		// Play from top of pattern
@@ -1462,12 +1459,12 @@ BOOL CSoundGen::OnIdle(LONG lCount)
 	// Access the document object
 	m_csDocumentLock.Lock();
 
-//	if (!m_pDocument || !m_pDSoundChannel) {
-//		// Document is unloaded or no sound
-//		m_csDocumentLock.Unlock();
-//		// Wait for kill signal
-//		return FALSE;
-//	}
+	if (!m_pDocument || !m_pDSoundChannel) {
+		// Document is unloaded or no sound
+		m_csDocumentLock.Unlock();
+		// Wait for kill signal
+		return FALSE;
+	}
 
 	if (m_pDocument->IsFileLoaded()) {
 

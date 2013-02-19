@@ -24,6 +24,41 @@ mac {
 #	DEPENDENCYPATH = $$TOP/deps/linux
 #}
 
+win32 {
+
+   SDL_CXXFLAGS = -I$$TOP/deps/Windows/SDL
+   SDL_LIBS =  -L$$TOP/deps/Windows/SDL/ -lsdl
+}
+
+mac {
+   SDL_CXXFLAGS = -I$$TOP/deps/osx/SDL.framework/Headers
+   SDL_LIBS = -F$$TOP/deps/osx -framework SDL
+}
+
+unix:!mac {
+    isEmpty (SDL_CXXFLAGS) {
+       SDL_CXXFLAGS = $$system(sdl-config --cflags)
+    }
+
+    isEmpty (SDL_LIBS) {
+            SDL_LIBS = $$system(sdl-config --libs)
+    }
+
+   PREFIX = $$(PREFIX)
+   isEmpty (PREFIX) {
+      PREFIX = /usr/local
+   }
+
+   isEmpty (BINDIR) {
+                BINDIR=$$PREFIX/bin
+   }
+
+   target.path = $$BINDIR
+   INSTALLS += target
+}
+
+QMAKE_CXXFLAGS += $$SDL_CXXFLAGS
+LIBS += $$SDL_LIBS
 
 SOURCES += \
     TrackerChannel.cpp \
@@ -79,7 +114,8 @@ SOURCES += \
     FFT/Fft.cpp \
     ../../common/cqtmfc.cpp \
     FamiTrackerView.cpp \
-    FamiTracker.cpp
+    FamiTracker.cpp \
+    DirectSound.cpp
 
 HEADERS += \
     TrackerChannel.h \
@@ -147,7 +183,8 @@ HEADERS += \
     ../../common/cqtmfc.h \
     FamiTrackerView.h \
     FamiTracker.h \
-    stdafx.h
+    stdafx.h \
+    DirectSound.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN

@@ -690,7 +690,8 @@ void CFrameEditor::focusOutEvent(QFocusEvent *)
 void CFrameEditor::resizeEvent(QResizeEvent *event)
 {
    int width = event->size().width();
-   int height = event->size().height()-ui->horizontalScrollBar->height();
+   int height = event->size().height();
+
    OnSize(0,width,height);
    
    setFixedSize(width,height);

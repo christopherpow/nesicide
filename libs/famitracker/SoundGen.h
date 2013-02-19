@@ -104,9 +104,9 @@ public:
 	void		LoadMachineSettings(int Machine, int Rate);
 
 	// Sound
-//	bool		InitializeSound(HWND hWnd, HANDLE hAliveCheck, HANDLE hNotification);
+	bool		InitializeSound(HWND hWnd, HANDLE hAliveCheck, HANDLE hNotification);
 	void		FlushBuffer(int16 *Buffer, uint32 Size);
-//	CDSound		*GetSoundInterface() const { return m_pDSound; };
+	CDSound		*GetSoundInterface() const { return m_pDSound; };
 
 	// Synchronization
 	void		LockDocument();
@@ -213,8 +213,8 @@ private:
 	CFamiTrackerView	*m_pTrackerView;
 
 	// Sound
-//	CDSound				*m_pDSound;
-//	CDSoundChannel		*m_pDSoundChannel;
+	CDSound				*m_pDSound;
+	CDSoundChannel		*m_pDSoundChannel;
 //	CSampleWindow		*m_pSampleWnd;
 	CAPU				*m_pAPU;
 	CSampleMem			*m_pSampleMem;

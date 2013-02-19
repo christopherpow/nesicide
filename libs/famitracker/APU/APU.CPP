@@ -258,7 +258,7 @@ void CAPU::EndFrame()
 		(*iter)->EndFrame();
 	}
 
-	int SamplesAvail = m_pMixer->FinishBuffer(m_iFrameCycles);
+   int SamplesAvail = m_pMixer->FinishBuffer(m_iFrameCycles);
 	int ReadSamples	= m_pMixer->ReadBuffer(SamplesAvail, m_pSoundBuffer, m_bStereoEnabled);
 	m_pParent->FlushBuffer(m_pSoundBuffer, ReadSamples);
 
@@ -403,7 +403,7 @@ void CAPU::Write(uint16 Address, uint8 Value)
 	// Data was written to an APU register
 	//
 
-	Process();
+   Process();
 
 	if (Address == 0x4015) {
 		Write4015(Value);

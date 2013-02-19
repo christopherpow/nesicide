@@ -153,8 +153,8 @@ public:
 class CCriticalSection
 {
 public:
-   void Lock() {}
-   void Unlock() {}
+   BOOL Lock() { return TRUE; }
+   BOOL Unlock() { return TRUE; }
 };
 
 class CMutex : public QMutex
