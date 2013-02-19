@@ -69,7 +69,7 @@ SOURCES += \
     PatternData.cpp \
     PatternCompiler.cpp \
     PatternAction.cpp \
-    MainFrame.cpp \
+    MainFrm.cpp \
     InstrumentVRC7.cpp \
     InstrumentVRC6.cpp \
     InstrumentS5B.cpp \
@@ -125,7 +125,7 @@ HEADERS += \
     PatternEditor.h \
     PatternData.h \
     PatternCompiler.h \
-    MainFrame.h \ 
+    MainFrm.h \ 
     Instrument.h \
     Graphics.h \
     FrameEditor.h \
@@ -184,7 +184,8 @@ HEADERS += \
     FamiTrackerView.h \
     FamiTracker.h \
     stdafx.h \
-    DirectSound.h
+    DirectSound.h \
+    resource.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN
@@ -218,7 +219,7 @@ FORMS += \
     FrameEditor.ui \
     famitrackermodulepropertiesdialog.ui \
     famitrackermoduleimportdialog.ui \
-    MainFrame.ui
+    MainFrm.ui
 
 RESOURCES += \
     $$TOP/common/resource.qrc

@@ -61,6 +61,8 @@ static unsigned int   m_iSoundProducer = 0;
 static unsigned int   m_iSoundConsumer = 0;
 static unsigned int   m_iSoundBufferSize = 0;
 
+QSemaphore ftmAudioSemaphore(0);
+
 extern "C" void SDL_GetMoreData(void* /*userdata*/, uint8_t* stream, int32_t len)
 {
 #if 0
@@ -78,6 +80,7 @@ extern "C" void SDL_GetMoreData(void* /*userdata*/, uint8_t* stream, int32_t len
       memcpy(stream,m_pSoundBuffer,len);
    m_iSoundConsumer += len;
    m_iSoundConsumer %= m_iSoundBufferSize;
+   ftmAudioSemaphore.release();
 }
 
 bool CDSound::Init(HWND hWnd, HANDLE hNotification, int Device)
@@ -277,6 +280,8 @@ CDSoundChannel *CDSound::OpenChannel(int SampleRate, int SampleSize, int Channel
    // SDL...
    pChannel->Play();
    
+   SDL_PauseAudio(0);
+   
 	return pChannel;
 }
 
@@ -316,7 +321,7 @@ CDSoundChannel::~CDSoundChannel()
 
 void CDSoundChannel::Play() 
 {
-   SDL_PauseAudio(0);
+   ftmAudioSemaphore.release();
    m_bPaused = false;
 //	// Begin playback of buffer
 //	m_lpDirectSoundBuffer->Play(NULL, NULL, DSBPLAY_LOOPING);
@@ -324,16 +329,14 @@ void CDSoundChannel::Play()
 
 void CDSoundChannel::Stop()
 {
-   SDL_PauseAudio(1);
    m_bPaused = true;
 //	// Stop playback
 //	m_lpDirectSoundBuffer->Stop();
-//	Reset();
+	Reset();
 }
 
 void CDSoundChannel::Pause() 
 {
-   SDL_PauseAudio(1);
    m_bPaused = true;
 //	// Pause playback of buffer, doesn't reset cursors
 //	m_lpDirectSoundBuffer->Stop();
@@ -389,7 +392,8 @@ void CDSoundChannel::WriteSoundBuffer(void *Buffer, unsigned int Samples)
    memcpy(m_pSoundBuffer+m_iSoundProducer,Buffer,Samples);
    m_iSoundProducer += Samples;
    m_iSoundProducer %= m_iSoundBufferSize;
-	// Fill sound buffer
+
+   // Fill sound buffer
 	//
 	// Buffer	- Pointer to a buffer with samples
 	// Samples	- Number of samples, in bytes
@@ -421,15 +425,18 @@ void CDSoundChannel::WriteSoundBuffer(void *Buffer, unsigned int Samples)
 //	AdvanceWritePointer();
 }
 
-//void CDSoundChannel::Reset()
-//{
+void CDSoundChannel::Reset()
+{
 //	// Reset playback from the beginning of the buffer
 //	m_iCurrentWriteBlock = 0;
 //	m_lpDirectSoundBuffer->SetCurrentPosition(0);
-//}
+}
 
-//int CDSoundChannel::WaitForDirectSoundEvent() const
-//{
+int CDSoundChannel::WaitForDirectSoundEvent() const
+{
+//   ftmAudioSemaphore.acquire();
+//   ftmAudioSemaphore.release();
+   return BUFFER_IN_SYNC;
 //	// Wait for a DirectSound event
 //	if (!IsPlaying())
 //		Play();
@@ -444,7 +451,7 @@ void CDSoundChannel::WriteSoundBuffer(void *Buffer, unsigned int Samples)
 
 //	// Error
 //	return 0;
-//}
+}
 
 //int CDSoundChannel::GetPlayBlock() const
 //{

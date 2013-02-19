@@ -43,7 +43,7 @@
 #include "FamiTracker.h"
 #include "FamiTrackerDoc.h"
 #include "TrackerChannel.h"
-#include "MainFrame.h"
+#include "MainFrm.h"
 #include "DocumentFile.h"
 #include "Settings.h"
 #include "SoundGen.h"

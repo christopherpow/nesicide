@@ -27,8 +27,8 @@
 #undef main
 #include <SDL.h>
 
-//// Return values from WaitForDirectSoundEvent()
-//enum {CUSTOM_EVENT = 1, BUFFER_IN_SYNC, BUFFER_OUT_OF_SYNC};
+// Return values from WaitForDirectSoundEvent()
+enum {CUSTOM_EVENT = 1, BUFFER_IN_SYNC, BUFFER_OUT_OF_SYNC};
 
 // DirectSound channel
 class CDSoundChannel 
@@ -43,13 +43,13 @@ public:
 	void Stop();
 	void Pause();
 	void Clear();
-//	void Reset();
+	void Reset();
 	void WriteSoundBuffer(void *Buffer, unsigned int Samples);
 	bool IsPlaying() const;
 //	void ResetWritePointer();
 //	void AdvanceWritePointer();
 
-//	int  WaitForDirectSoundEvent() const;
+	int  WaitForDirectSoundEvent() const;
 
 	int GetBlockSize() const	{ return m_iBlockSize; };
 	int GetBlockSamples() const	{ return m_iBlockSize >> ((m_iSampleSize >> 3) - 1); };

@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 
-#include "MainFrame.h"
+#include "MainFrm.h"
 
 namespace Ui {
     class MainWindow;

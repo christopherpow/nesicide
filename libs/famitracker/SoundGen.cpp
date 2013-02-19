@@ -27,7 +27,7 @@
 #include "FamiTracker.h"
 #include "FamiTrackerDoc.h"
 #include "FamiTrackerView.h"
-#include "MainFrame.h"
+#include "MainFrm.h"
 #include "DirectSound.h"
 #include "apu/apu.h"
 
@@ -104,7 +104,7 @@ CSoundGen::CSoundGen() :
    
    QTimer* timer = new QTimer();
    connect(timer, SIGNAL(timeout()), this, SLOT(onIdleSlot()));
-   timer->start(1);
+   timer->start();
    
    pThread->start();
    
@@ -632,8 +632,8 @@ void CSoundGen::FlushBuffer(int16 *pBuffer, uint32 Size)
 				DWORD dwEvent;
 				bool bUnderrun = false;
 
-//				// Wait for a buffer event
-//				while ((dwEvent = m_pDSoundChannel->WaitForDirectSoundEvent()) != BUFFER_IN_SYNC) {
+				// Wait for a buffer event
+				while ((dwEvent = m_pDSoundChannel->WaitForDirectSoundEvent()) != BUFFER_IN_SYNC) {
 //					switch (dwEvent) {
 //						case CUSTOM_EVENT:
 //							// Custom event, quit this function
@@ -657,7 +657,7 @@ void CSoundGen::FlushBuffer(int16 *pBuffer, uint32 Size)
 //							bUnderrun = true;
 //							break;
 //					}
-//				}
+				}
 
 				// Write audio to buffer
 				m_pDSoundChannel->WriteSoundBuffer(m_pAccumBuffer, m_iBufSizeBytes);

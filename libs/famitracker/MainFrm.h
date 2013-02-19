@@ -156,6 +156,7 @@ public slots:
    void trackerAction_nextTrack();
    void trackerAction_settings();
    void trackerAction_createNSF();
+   void updateViews(long hint);
    
 signals:
    void addToolBarWidget(QToolBar* toolBar);

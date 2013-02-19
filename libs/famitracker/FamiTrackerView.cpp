@@ -24,7 +24,7 @@
 #include "FamiTracker.h"
 #include "FamiTrackerDoc.h"
 #include "FamiTrackerView.h"
-#include "MainFrame.h"
+#include "MainFrm.h"
 //#include "MIDI.h"
 //#include "InstrumentEditDlg.h"
 //#include "SpeedDlg.h"
@@ -3281,7 +3281,7 @@ bool CFamiTrackerView::AddAction(CAction *pAction) const
 void CFamiTrackerView::updateViews(long hint)
 {
    OnUpdate(0,hint,0);
-   m_pPatternView->repaint();
+   m_pPatternView->update();
 }
 
 void CFamiTrackerView::wheelEvent(QWheelEvent *event)
@@ -3309,7 +3309,7 @@ void CFamiTrackerView::wheelEvent(QWheelEvent *event)
       flags |= MK_RBUTTON;            
    }
    OnMouseWheel(flags,event->delta(),point);
-   m_pPatternView->repaint();
+   m_pPatternView->update();
 }
 
 void CFamiTrackerView::mouseMoveEvent(QMouseEvent *event)
@@ -3337,7 +3337,7 @@ void CFamiTrackerView::mouseMoveEvent(QMouseEvent *event)
       flags |= MK_RBUTTON;            
    }
    OnMouseMove(flags,point);
-   m_pPatternView->repaint();
+   m_pPatternView->update();
 }
 
 void CFamiTrackerView::mousePressEvent(QMouseEvent *event)
@@ -3367,7 +3367,7 @@ void CFamiTrackerView::mousePressEvent(QMouseEvent *event)
    if ( event->button() == Qt::LeftButton )
    {
       OnLButtonDown(flags,point);
-      m_pPatternView->repaint();
+      m_pPatternView->update();
    }
 }
 
@@ -3402,7 +3402,7 @@ void CFamiTrackerView::mouseReleaseEvent(QMouseEvent *event)
    if ( event->button() == Qt::RightButton )
    {
       OnRButtonUp(flags,point);
-      m_pPatternView->repaint();
+      m_pPatternView->update();
    }
 }
 
@@ -3433,7 +3433,7 @@ void CFamiTrackerView::mouseDoubleClickEvent(QMouseEvent *event)
    if ( event->button() == Qt::LeftButton )
    {
       OnLButtonDblClk(flags,point);
-      m_pPatternView->repaint();
+      m_pPatternView->update();
    }
 }
 
@@ -3461,7 +3461,7 @@ void CFamiTrackerView::keyPressEvent(QKeyEvent *event)
    {
       OnKeyDown(nChar,nRepCnt,0);
    }
-   m_pPatternView->repaint();
+   m_pPatternView->update();
 }
 
 void CFamiTrackerView::keyReleaseEvent(QKeyEvent *event)
@@ -3470,24 +3470,24 @@ void CFamiTrackerView::keyReleaseEvent(QKeyEvent *event)
    UINT nRepCnt = event->count();
    
    OnKeyUp(nChar,nRepCnt,0);
-   m_pPatternView->repaint();
+   m_pPatternView->update();
 }
 
 void CFamiTrackerView::focusInEvent(QFocusEvent *)
 {
    OnSetFocus(NULL);
-   m_pPatternView->repaint();
+   m_pPatternView->update();
 }
 
 void CFamiTrackerView::focusOutEvent(QFocusEvent *)
 {
    OnKillFocus(NULL);
-   m_pPatternView->repaint();
+   m_pPatternView->update();
 }
 
 void CFamiTrackerView::timerEvent(QTimerEvent *event)
 {
    int mfcId = mfcTimerId(event->timerId());
    OnTimer(mfcId);
-   m_pPatternView->repaint();
+   m_pPatternView->update();
 }

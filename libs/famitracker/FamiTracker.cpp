@@ -24,7 +24,7 @@
 #include "FamiTracker.h"
 #include "FamiTrackerDoc.h"
 #include "FamiTrackerView.h"
-#include "MainFrame.h"
+#include "MainFrm.h"
 //#include "AboutDlg.h"
 #include "TrackerChannel.h"
 //#include "MIDI.h"
