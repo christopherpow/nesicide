@@ -24,7 +24,6 @@ mac {
 #	DEPENDENCYPATH = $$TOP/deps/linux
 #}
 
-
 SOURCES += \
     TrackerChannel.cpp \
     SoundGen.cpp \
@@ -146,8 +145,7 @@ HEADERS += \
     FFT/Complex.h \
     ../../common/cqtmfc.h \
     FamiTrackerView.h \
-    FamiTracker.h \
-    stdafx.h
+    FamiTracker.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN
@@ -157,6 +155,10 @@ symbian {
     addFiles.sources = famitracker.dll
     addFiles.path = !:/sys/bin
     DEPLOYMENT += addFiles
+}
+
+win32 {
+    HEADERS += stdafx.h
 }
 
 unix:!symbian {
@@ -169,8 +171,16 @@ unix:!symbian {
 }
 
 unix:mac {
-	QMAKE_CFLAGS += -I $$DEPENDENCYPATH/wine/include -DWINE_UNICODE_NATIVE
-	QMAKE_CXXFLAGS += -I $$DEPENDENCYPATH/wine/include -DWINE_UNICODE_NATIVE
+	# windows.h and co.
+	NIX_CFLAGS = -I $$DEPENDENCYPATH/wine/include -DWINE_UNICODE_NATIVE
+
+	# stdafx.h
+	NIX_CFLAGS += -I $$DEPENDENCYPATH
+	NIX_CFLAGS += -I $$DEPENDENCYPATH/stdafxhack
+    #HEADERS += $$DEPENDENCYPATH/stdafx.h
+
+	QMAKE_CFLAGS   += $$NIX_CFLAGS
+	QMAKE_CXXFLAGS += $$NIX_CFLAGS
 }
 
 OTHER_FILES += \
