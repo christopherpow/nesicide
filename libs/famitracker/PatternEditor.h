@@ -26,7 +26,6 @@
 
 enum {TRANSPOSE_DEC_NOTES, TRANSPOSE_INC_NOTES, TRANSPOSE_DEC_OCTAVES, TRANSPOSE_INC_OCTAVES};
 
-#include "FamiTrackerDoc.h"
 #include "cqtmfc.h"
 
 // Graphical layout of pattern editor

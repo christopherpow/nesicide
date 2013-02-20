@@ -23,7 +23,7 @@
 #include "FamiTracker.h"
 #include "FamiTrackerDoc.h"
 #include "FamiTrackerView.h"
-#include "MainFrame.h"
+#include "MainFrm.h"
 //#include "Accelerator.h"
 #include "ui_FrameEditor.h"
 #include "FrameEditor.h"
@@ -690,7 +690,8 @@ void CFrameEditor::focusOutEvent(QFocusEvent *)
 void CFrameEditor::resizeEvent(QResizeEvent *event)
 {
    int width = event->size().width();
-   int height = event->size().height()-ui->horizontalScrollBar->height();
+   int height = event->size().height();
+
    OnSize(0,width,height);
    
    setFixedSize(width,height);
@@ -725,7 +726,7 @@ void CFrameEditor::on_verticalScrollBar_actionTriggered(int arg1)
    }
 
    OnVScroll(arg1,ui->verticalScrollBar->sliderPosition(),0);
-   repaint();
+   update();
 }
 
 void CFrameEditor::on_horizontalScrollBar_actionTriggered(int arg1)
@@ -757,7 +758,7 @@ void CFrameEditor::on_horizontalScrollBar_actionTriggered(int arg1)
    }
    
    OnHScroll(arg1,ui->horizontalScrollBar->sliderPosition(),0);
-   repaint();
+   update();
 }
 
 void CFrameEditor::keyPressEvent(QKeyEvent *event)
@@ -766,7 +767,7 @@ void CFrameEditor::keyPressEvent(QKeyEvent *event)
    UINT nRepCnt = event->count();
 
    OnKeyDown(nChar,nRepCnt,0);
-   repaint();
+   update();
 }
 
 void CFrameEditor::paintEvent(QPaintEvent *event)
@@ -805,7 +806,7 @@ void CFrameEditor::mouseMoveEvent(QMouseEvent *event)
       flags |= MK_RBUTTON;            
    }
    OnMouseMove(flags,point);
-   repaint();
+   update();
 }
 
 void CFrameEditor::mouseReleaseEvent(QMouseEvent *event)
@@ -840,7 +841,7 @@ void CFrameEditor::mouseReleaseEvent(QMouseEvent *event)
    {
       OnRButtonUp(flags,point);
    }
-   repaint();
+   update();
 }
 
 void CFrameEditor::mouseDoubleClickEvent(QMouseEvent *event)
@@ -870,7 +871,7 @@ void CFrameEditor::mouseDoubleClickEvent(QMouseEvent *event)
          flags |= MK_RBUTTON;            
       }
       OnLButtonDblClk(flags,point);
-      repaint();
+      update();
    }
 }
 
@@ -899,12 +900,12 @@ void CFrameEditor::wheelEvent(QWheelEvent* event)
       flags |= MK_RBUTTON;            
    }
    OnMouseWheel(flags,event->delta(),point);
-   repaint();
+   update();
 }
 
 void CFrameEditor::updateViews(long hint)
 {
-   repaint();
+   update();
 }
 
 void CFrameEditor::SetScrollRange(

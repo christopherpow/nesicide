@@ -32,7 +32,7 @@
 #include "ui_PatternEditor.h"
 #include "TrackerChannel.h"
 #include "Settings.h"
-#include "MainFrame.h"
+#include "MainFrm.h"
 #include "ColorScheme.h"
 #include "Graphics.h"
 
@@ -118,7 +118,7 @@ void CPatternView::on_verticalScrollBar_actionTriggered(int arg1)
    }
 
    OnVScroll(arg1,ui->verticalScrollBar->sliderPosition());
-   repaint();
+   update();
 }
 
 void CPatternView::on_horizontalScrollBar_actionTriggered(int arg1)
@@ -150,7 +150,7 @@ void CPatternView::on_horizontalScrollBar_actionTriggered(int arg1)
    }
    
    OnHScroll(arg1,ui->horizontalScrollBar->sliderPosition());
-   repaint();
+   update();
 }
 
 void CPatternView::paintEvent(QPaintEvent *event)
@@ -168,7 +168,7 @@ void CPatternView::paintEvent(QPaintEvent *event)
 
 void CPatternView::updateViews(long hint)
 {
-   repaint();
+   update();
 }
 
 CPatternView::CPatternView() :
@@ -2109,7 +2109,6 @@ void CPatternView::MoveToRow(int Row)
 	if (theApp.IsPlaying() && m_bFollowMode)
 		return;
 
-   qDebug("%s",theApp.GetSettings()->General.bWrapFrames?"true":"false");
 	if (Row < 0) {
 		if (theApp.GetSettings()->General.bWrapFrames) {
 			MoveToFrame(m_iCurrentFrame - 1);
@@ -2473,6 +2472,7 @@ void CPatternView::OnMouseUp(CPoint point)
 			m_cpCursorPos.m_iRow = PointPos.m_iRow;
 			return;
 		}
+
 		if (m_bDragging) {
 			m_bDragging = false;
 			m_bDragStart = false;

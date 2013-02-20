@@ -20,8 +20,6 @@
 
 #pragma once
 
-#include "cqtmfc.h"
-
 //
 // Change MAX_LEVELS in the class CActionHandler if you want more undo levels
 //

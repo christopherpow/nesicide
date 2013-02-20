@@ -1,6 +1,6 @@
 #include "stdafx.h"
-#include "MainFrame.h"
-#include "ui_MainFrame.h"
+#include "MainFrm.h"
+#include "ui_MainFrm.h"
 #include "FamiTracker.h"
 #include "FamiTrackerView.h"
 
@@ -167,6 +167,7 @@ void CMainFrame::showEvent(QShowEvent *)
       m_pView->setFocusPolicy(Qt::StrongFocus);
       
       QObject::connect(m_pDocument,SIGNAL(updateViews(long)),m_pFrameEditor,SLOT(updateViews(long)));
+      QObject::connect(m_pDocument,SIGNAL(updateViews(long)),this,SLOT(updateViews(long)));
       
       m_pView->OnInitialUpdate();
       
@@ -187,6 +188,17 @@ void CMainFrame::resizeEvent(QResizeEvent *)
 {
    if ( m_pFrameEditor )
       ResizeFrameWindow();
+}
+
+void CMainFrame::updateViews(long hint)
+{
+   ui->tempo->setValue(m_pDocument->GetSongTempo());
+   ui->speed->setValue(m_pDocument->GetSongSpeed());
+   ui->title->setText(m_pDocument->GetSongName());
+   ui->author->setText(m_pDocument->GetSongArtist());
+   ui->copyright->setText(m_pDocument->GetSongCopyright());
+   ui->numFrames->setValue(m_pDocument->GetFrameCount());
+   ui->numRows->setValue(m_pDocument->GetPatternLength());
 }
 
 void CMainFrame::trackerAction_triggered()

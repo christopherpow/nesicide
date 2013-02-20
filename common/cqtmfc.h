@@ -35,6 +35,8 @@
 #include <QElapsedTimer>
 #include <QSharedMemory>
 #include <QSettings>
+#include <QMutex>
+#include <QSemaphore>
 
 // Releasing pointers
 #define SAFE_RELEASE(p) \
@@ -153,8 +155,8 @@ public:
 class CCriticalSection
 {
 public:
-   void Lock() {}
-   void Unlock() {}
+   BOOL Lock() { return TRUE; }
+   BOOL Unlock() { return TRUE; }
 };
 
 class CMutex : public QMutex
@@ -774,9 +776,9 @@ public:
    void OnKillFocus(CWnd*) {}
    void OnVScroll(UINT,UINT,CScrollBar*) {}
    void OnHScroll(UINT,UINT,CScrollBar*) {}
-   void OnUpdate(CWnd* p=0,UINT hint=0,CObject* o=0) { repaint(); }
+   void OnUpdate(CWnd* p=0,UINT hint=0,CObject* o=0) { update(); }
    void Invalidate(BOOL bErase = TRUE) { /*update();*/ }
-   void RedrawWindow(LPCRECT rect=0,CRgn* rgn=0,UINT f=0) { repaint(); }
+   void RedrawWindow(LPCRECT rect=0,CRgn* rgn=0,UINT f=0) { update(); }
    CWnd* SetFocus() { CWnd* pWnd = focusWnd; setFocus(); return pWnd; }
    CWnd* GetFocus() { return focusWnd; } 
    void SetCapture(CWnd* p=0) { /* DON'T DO THIS grabMouse(); */ }

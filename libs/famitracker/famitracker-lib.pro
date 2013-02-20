@@ -24,6 +24,42 @@ mac {
 #	DEPENDENCYPATH = $$TOP/deps/linux
 #}
 
+win32 {
+
+   SDL_CXXFLAGS = -I$$DEPENDENCYPATH/Windows/SDL
+   SDL_LIBS =  -L$$DEPENDENCYPATH/deps/Windows/SDL/ -lsdl
+}
+
+mac {
+   SDL_CXXFLAGS = -I$$DEPENDENCYPATH/SDL.framework/Headers
+   SDL_LIBS = -F$$DEPENDENCYPATH -framework SDL
+}
+
+unix:!mac {
+    isEmpty (SDL_CXXFLAGS) {
+       SDL_CXXFLAGS = $$system(sdl-config --cflags)
+    }
+
+    isEmpty (SDL_LIBS) {
+            SDL_LIBS = $$system(sdl-config --libs)
+    }
+
+   PREFIX = $$(PREFIX)
+   isEmpty (PREFIX) {
+      PREFIX = /usr/local
+   }
+
+   isEmpty (BINDIR) {
+                BINDIR=$$PREFIX/bin
+   }
+
+   target.path = $$BINDIR
+   INSTALLS += target
+}
+
+QMAKE_CXXFLAGS += $$SDL_CXXFLAGS
+LIBS += $$SDL_LIBS
+
 SOURCES += \
     TrackerChannel.cpp \
     SoundGen.cpp \
@@ -33,7 +69,7 @@ SOURCES += \
     PatternData.cpp \
     PatternCompiler.cpp \
     PatternAction.cpp \
-    MainFrame.cpp \
+    MainFrm.cpp \
     InstrumentVRC7.cpp \
     InstrumentVRC6.cpp \
     InstrumentS5B.cpp \
@@ -41,7 +77,7 @@ SOURCES += \
     InstrumentFDS.cpp \
     Instrument2A03.cpp \
     Instrument.cpp \
-    Graphics.cpp \
+    Graphics.cpp \ 
     FrameEditor.cpp \
     FrameAction.cpp \
     famitrackermodulepropertiesdialog.cpp \
@@ -78,7 +114,8 @@ SOURCES += \
     FFT/Fft.cpp \
     ../../common/cqtmfc.cpp \
     FamiTrackerView.cpp \
-    FamiTracker.cpp
+    FamiTracker.cpp \
+    DirectSound.cpp
 
 HEADERS += \
     TrackerChannel.h \
@@ -88,7 +125,7 @@ HEADERS += \
     PatternEditor.h \
     PatternData.h \
     PatternCompiler.h \
-    MainFrame.h \ 
+    MainFrm.h \ 
     Instrument.h \
     Graphics.h \
     FrameEditor.h \
@@ -145,7 +182,10 @@ HEADERS += \
     FFT/Complex.h \
     ../../common/cqtmfc.h \
     FamiTrackerView.h \
-    FamiTracker.h
+    FamiTracker.h \
+    stdafx.h \
+    DirectSound.h \
+    resource.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN
@@ -191,7 +231,7 @@ FORMS += \
     FrameEditor.ui \
     famitrackermodulepropertiesdialog.ui \
     famitrackermoduleimportdialog.ui \
-    MainFrame.ui
+    MainFrm.ui
 
 RESOURCES += \
     $$TOP/common/resource.qrc

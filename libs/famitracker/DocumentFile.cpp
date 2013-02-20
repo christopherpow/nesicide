@@ -7,11 +7,11 @@
 ** the Free Software Foundation; either version 2 of the License, or
 ** (at your option) any later version.
 **
-** This program is distributed in the hope that it will be useful,
+** This program is distributed in the hope that it will be useful, 
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
-** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-** Library General Public License for more details.  To obtain a
-** copy of the GNU Library General Public License, write to the Free
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+** Library General Public License for more details.  To obtain a 
+** copy of the GNU Library General Public License, write to the Free 
 ** Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 **
 ** Any permitted reproduction of these routines, in whole or in part,
@@ -39,7 +39,7 @@ const unsigned int CDocumentFile::BLOCK_SIZE = 0x10000;
 
 // CDocumentFile
 
-CDocumentFile::CDocumentFile() :
+CDocumentFile::CDocumentFile() : 
 	m_pBlockData(NULL),
 	m_cBlockID(new char[16])
 {
@@ -208,7 +208,7 @@ bool CDocumentFile::ReadBlock()
 	int BytesRead;
 
 	m_iBlockPointer = 0;
-
+	
 	memset(m_cBlockID, 0, 16);
 
 	BytesRead = Read(m_cBlockID, 16);

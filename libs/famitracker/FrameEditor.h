@@ -22,7 +22,7 @@
 
 #include "cqtmfc.h"
 
-#include "MainFrame.h"
+#include "MainFrm.h"
 
 class CFamiTrackerDoc;
 class CFamiTrackerView;

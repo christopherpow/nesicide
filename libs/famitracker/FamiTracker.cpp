@@ -24,7 +24,7 @@
 #include "FamiTracker.h"
 #include "FamiTrackerDoc.h"
 #include "FamiTrackerView.h"
-#include "MainFrame.h"
+#include "MainFrm.h"
 //#include "AboutDlg.h"
 #include "TrackerChannel.h"
 //#include "MIDI.h"
@@ -296,15 +296,15 @@ BOOL CFamiTrackerApp::InitInstance()
 		return FALSE;
 	}
 
-//	// Initialize the sound interface, also resumes the thread
-//	if (!m_pSoundGenerator->InitializeSound(m_pMainWnd->m_hWnd, m_hAliveCheck, m_hNotificationEvent)) {
-//		// If failed, restore and save default settings
-//		m_pSettings->DefaultSettings();
-//		m_pSettings->SaveSettings();
-//		// Quit program
+	// Initialize the sound interface, also resumes the thread
+	if (!m_pSoundGenerator->InitializeSound(0,0,0)) {//m_pMainWnd->m_hWnd, m_hAliveCheck, m_hNotificationEvent)) {
+		// If failed, restore and save default settings
+		m_pSettings->DefaultSettings();
+		m_pSettings->SaveSettings();
+		// Quit program
 //		AfxMessageBox(IDS_START_ERROR, MB_ICONERROR);
-//		return FALSE;
-//	}
+		return FALSE;
+	}
 
 //	// Initialize midi unit
 //	m_pMIDI->Init();
