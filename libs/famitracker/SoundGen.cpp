@@ -473,7 +473,7 @@ bool CSoundGen::ResetSound()
 		return false;
 	}
 
-	int iBlocks = 2;	// default = 2
+	int iBlocks = 1;	// default = 2
 
 	// Create more blocks if a bigger buffer than 100ms is used to enhance program response
 	if (BufferLen > 100)
