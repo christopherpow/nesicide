@@ -222,6 +222,7 @@ CDSoundChannel *CDSound::OpenChannel(int SampleRate, int SampleSize, int Channel
    if ( m_pSoundBuffer )
       delete m_pSoundBuffer;
    m_pSoundBuffer = new unsigned char[SoundBufferSize];
+   memset(m_pSoundBuffer,0,SoundBufferSize);
    m_iSoundProducer = 0;
    m_iSoundConsumer = 0;
    m_iSoundBufferSize = SoundBufferSize;
