@@ -31,6 +31,11 @@ CONFIG(release, debug|release) {
    LIB_BUILD_TYPE_DIR = debug
 }
 
+FAMITRACKER_SEARCH_PATH_LINK_FLAGS = \
+    -L$$TOP/libs/famitracker/$${LIB_BUILD_TYPE_DIR} \
+    -L$$TOP/libs/famitracker/
+FAMITRACKER_LIBS = $$FAMITRACKER_SEARCH_PATH_LINK_FLAGS -lfamitracker
+
 win32 {
 
    SDL_CXXFLAGS = -I$$TOP/deps/Windows/SDL
@@ -39,8 +44,6 @@ win32 {
    FAMITRACKER_CXXFLAGS = -I$$TOP/libs/famitracker
 
    QMAKE_LFLAGS += -static-libgcc
-
-   FAMITRACKER_LIBS = -L$$TOP/libs/famitracker/$${LIB_BUILD_TYPE_DIR} -lfamitracker
 }
 
 mac {
@@ -56,25 +59,34 @@ mac {
    }
    FAMITRACKER_CXXFLAGS = -I$$TOP/libs/famitracker
 
-   SDL_CXXFLAGS = -I$$TOP/deps/osx/SDL.framework/Headers
-   SDL_LIBS = -F$$TOP/deps/osx -framework SDL
-
-   FAMITRACKER_LIBS = -L$$TOP/libs/famitracker/$${LIB_BUILD_TYPE_DIR} -lfamitracker
+   SDL_CXXFLAGS = -I$$DEPENDENCYPATH/SDL.framework/Headers
+   SDL_LIBS = -F$$DEPENDENCYPATH -framework SDL
 
    #ICON = mac/resources/nesicide.icns
 
    QMAKE_POST_LINK += mkdir -p $${DESTDIR}/$${TARGET}.app/Contents/Frameworks $$escape_expand(\n\t)
 
+   # copy lib from debug/release or base
    QMAKE_POST_LINK += cp $$TOP/libs/famitracker/$${LIB_BUILD_TYPE_DIR}/libfamitracker.1.0.0.dylib \
-      $${DESTDIR}/$${TARGET}.app/Contents/Frameworks/libfamitracker.1.dylib $$escape_expand(\n\t)
+      $${DESTDIR}/$${TARGET}.app/Contents/Frameworks/libfamitracker.1.dylib || true $$escape_expand(\n\t)
+   QMAKE_POST_LINK += cp $$TOP/libs/famitracker/libfamitracker.1.0.0.dylib \
+      $${DESTDIR}/$${TARGET}.app/Contents/Frameworks/libfamitracker.1.dylib || true $$escape_expand(\n\t)
+
    QMAKE_POST_LINK += install_name_tool -change libfamitracker.1.dylib \
       @executable_path/../Frameworks/libfamitracker.1.dylib \
-      $${DESTDIR}/$${TARGET}.app/Contents/MacOS/nesicide $$escape_expand(\n\t)
+      $${DESTDIR}/$${TARGET}.app/Contents/MacOS/famitracker $$escape_expand(\n\t)
+	
+   # SDL
+   QMAKE_POST_LINK += cp -r $$DEPENDENCYPATH/SDL.framework \
+      $${DESTDIR}/$${TARGET}.app/Contents/Frameworks/ $$escape_expand(\n\t)
+   QMAKE_POST_LINK += install_name_tool -add_rpath @loader_path/../Frameworks $${DESTDIR}/$${TARGET}.app/Contents/MacOS/famitracker $$escape_expand(\n\t)
+   #QMAKE_POST_LINK += install_name_tool -change SDL \
+   #   @executable_path/../Frameworks/SDL.framework/SDL \
+   #   $${DESTDIR}/$${TARGET}.app/Contents/MacOS/famitracker $$escape_expand(\n\t)
 }
 
 unix:!mac {
    FAMITRACKER_CXXFLAGS = -I$$TOP/libs/famitracker
-   FAMITRACKER_LIBS = -L$$TOP/libs/famitracker -lfamitracker
 
     # if the user didnt set cxxflags and libs then use defaults
     ###########################################################
