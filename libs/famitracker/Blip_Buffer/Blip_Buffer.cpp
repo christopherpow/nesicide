@@ -1,8 +1,6 @@
 
 // Blip_Buffer 0.4.0. http://www.slack.net/~ant/
 
-#include "../stdafx.h"
-
 #include "Blip_Buffer.h"
 
 #include <assert.h>
@@ -40,14 +38,12 @@ Blip_Buffer::Blip_Buffer()
 	// assumptions code makes about implementation-defined features
 	#ifndef NDEBUG
 		// right shift of negative value preserves sign
-		long i = LONG_MIN;
-		assert( (i >> 1) == LONG_MIN / 2 );
-		i = LONG_MIN;
-		assert( (i >> 31) == -1 );
+		int i = INT_MIN;
+		assert( (i >> 1) == INT_MIN / 2 );
 		
 		// casting to smaller signed type truncates bits and extends sign
-		i = (SHRT_MAX + 1) * 5;
-		assert( (short) i == SHRT_MIN );
+		long l = (SHRT_MAX + 1) * 5;
+		assert( (short) l == SHRT_MIN );
 	#endif
 }
 
@@ -226,9 +222,7 @@ void blip_eq_t::generate( float* out, int count ) const
 	// apply (half of) hamming window
 	double to_fraction = pi / (count - 1);
 	for ( int i = count; i--; )
-		out [i] *= 0.53836f - 0.46164f * cosf( float(i * to_fraction) );
-		//out [i] *= 1.0f;
-		//out [i] *= 0.5f * (1.0f - cosf( float(i * to_fraction) ));
+		out [i] *= 0.54 - 0.46 * cos( i * to_fraction );
 }
 
 void Blip_Synth_::adjust_impulse()
@@ -246,7 +240,7 @@ void Blip_Synth_::adjust_impulse()
 		}
 		if ( p == p2 )
 			error /= 2; // phase = 0.5 impulse uses same half for both sides
-		impulses [size - blip_res + p] += (short)error;
+		impulses [size - blip_res + p] += error;
 		//printf( "error: %ld\n", error );
 	}
 	
