@@ -58,6 +58,7 @@ protected:
    void timerEvent(QTimerEvent *event);
    void focusInEvent(QFocusEvent *event) { event->ignore(); }
    void focusOutEvent(QFocusEvent *);
+   void leaveEvent(QEvent *);
    
 private:
    Ui::CFrameEditor *ui;
@@ -100,7 +101,7 @@ public:
 	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
-//	afx_msg void OnNcMouseMove(UINT nHitTest, CPoint point);
+	afx_msg void OnNcMouseMove(UINT nHitTest, CPoint point);
 	afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
 	afx_msg void OnKillFocus(CWnd* pNewWnd);
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);

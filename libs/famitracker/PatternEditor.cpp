@@ -153,6 +153,11 @@ void CPatternView::on_horizontalScrollBar_actionTriggered(int arg1)
    update();
 }
 
+void CPatternView::leaveEvent(QEvent *)
+{
+   OnMouseNcMove();
+}
+
 void CPatternView::paintEvent(QPaintEvent *event)
 {
    // Qt attach to the MFC HLE.
