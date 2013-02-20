@@ -21,6 +21,8 @@
 #ifndef _APU_H_
 #define _APU_H_
 
+#include <QObject>
+
 //#define LOGGING
 
 #include "../common.h"
@@ -51,7 +53,8 @@ class CS5B;
 
 class CExternal;
 
-class CAPU {
+class CAPU : public QObject {
+   Q_OBJECT
 public:
 	CAPU(ICallback *pCallback, CSampleMem *pSampleMem);
 	~CAPU();

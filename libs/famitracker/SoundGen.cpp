@@ -100,12 +100,10 @@ CSoundGen::CSoundGen() :
 
    QObject::connect(this,SIGNAL(postThreadMessage(unsigned int,unsigned int,unsigned int)),this,SLOT(recvThreadMessage(unsigned int,unsigned int,unsigned int)));
    
-   moveToThread(pThread); 
-   
    QTimer* timer = new QTimer();
    connect(timer, SIGNAL(timeout()), this, SLOT(onIdleSlot()));
    timer->start();
-   
+      
    pThread->start();
    
 	// DPCM sample interface
@@ -113,6 +111,8 @@ CSoundGen::CSoundGen() :
 
 	// Create APU
 	m_pAPU = new CAPU(this, m_pSampleMem);
+   
+   m_pAPU->moveToThread(pThread); 
 
 //	m_pSoundSemaphore = new CSemaphore(0, 1);
 

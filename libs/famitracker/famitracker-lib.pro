@@ -77,7 +77,7 @@ SOURCES += \
     InstrumentFDS.cpp \
     Instrument2A03.cpp \
     Instrument.cpp \
-    Graphics.cpp \
+    Graphics.cpp \ 
     FrameEditor.cpp \
     FrameAction.cpp \
     famitrackermodulepropertiesdialog.cpp \

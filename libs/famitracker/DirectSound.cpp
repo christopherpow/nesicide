@@ -215,7 +215,7 @@ CDSoundChannel *CDSound::OpenChannel(int SampleRate, int SampleSize, int Channel
    sdlAudioSpec.freq = SampleRate;
 
    // Set up audio sample rate for video mode...
-   sdlAudioSpec.samples = SoundBufferSize/(SampleSize>>3);
+   sdlAudioSpec.samples = SoundBufferSize/(SampleSize>>3)/Blocks;
 
    SDL_OpenAudio ( &sdlAudioSpec, NULL );
 
@@ -434,8 +434,7 @@ void CDSoundChannel::Reset()
 
 int CDSoundChannel::WaitForDirectSoundEvent() const
 {
-//   ftmAudioSemaphore.acquire();
-//   ftmAudioSemaphore.release();
+   ftmAudioSemaphore.acquire();
    return BUFFER_IN_SYNC;
 //	// Wait for a DirectSound event
 //	if (!IsPlaying())
