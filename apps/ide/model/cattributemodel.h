@@ -3,6 +3,8 @@
 
 #include "model/csubmodel.h"
 
+#include <stdint.h>
+
 class CDesignerEditorBase;
 
 class CAttributeModel : public CSubModel
