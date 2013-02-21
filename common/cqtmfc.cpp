@@ -278,6 +278,21 @@ CString& CString::operator+=(LPCSTR str)
    return *this;
 }
 
+CString& CString::operator=(LPWSTR str)
+{
+   _qstr.clear();
+   _qstr = QString::fromWCharArray(str);
+   UpdateScratch();
+   return *this;
+}
+
+CString& CString::operator+=(LPWSTR str)
+{
+   _qstr.append(QString::fromWCharArray(str));
+   UpdateScratch();
+   return *this;
+}
+
 CString& CString::operator=(LPCWSTR str)
 {
    _qstr.clear();
@@ -894,7 +909,7 @@ BOOL CDC::TextOut(
    QRect rect;
    QFontMetrics fontMetrics((QFont)*_font);
    rect.setTopLeft(QPoint(x,y));
-   rect.setBottomRight(QPoint(x+fontMetrics.size(Qt::TextSingleLine,str.GetString()).width()+10,y+fontMetrics.height()));
+   rect.setBottomRight(QPoint(x+fontMetrics.size(Qt::TextSingleLine,QString::fromWCharArray(str.GetString())).width()+10,y+fontMetrics.height()));
    rect.translate(-QPoint(_windowOrg.x,_windowOrg.y));
    _qpainter->setPen(QPen(_textColor));
    _qpainter->setFont((QFont)*_font);

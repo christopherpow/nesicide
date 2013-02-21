@@ -112,6 +112,7 @@ class CPatternView : public QWidget // Pull in Qt stuff
 protected:
    void paintEvent(QPaintEvent *event);
    void resizeEvent(QResizeEvent *event);
+   void leaveEvent(QEvent *); // CP: hack for non-client mouse move
    
 private:
    Ui::CPatternView *ui;

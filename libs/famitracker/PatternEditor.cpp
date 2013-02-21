@@ -153,6 +153,11 @@ void CPatternView::on_horizontalScrollBar_actionTriggered(int arg1)
    update();
 }
 
+void CPatternView::leaveEvent(QEvent *)
+{
+   OnMouseNcMove();
+}
+
 void CPatternView::paintEvent(QPaintEvent *event)
 {
    // Qt attach to the MFC HLE.
@@ -391,7 +396,7 @@ void CPatternView::ApplyColorScheme()
 	const CSettings *pSettings = theApp.GetSettings();
 
 	LOGFONT LogFont;
-    LPCTSTR	FontName = "Verdana";//pSettings->General.strFont; //BFIXME
+    LPCTSTR	FontName = pSettings->General.strFont;
     LPCTSTR	HeaderFace = DEFAULT_HEADER_FONT;
 
 	COLORREF ColBackground = pSettings->Appearance.iColBackground;

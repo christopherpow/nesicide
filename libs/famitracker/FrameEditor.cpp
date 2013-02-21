@@ -511,12 +511,12 @@ void CFrameEditor::OnMouseMove(UINT nFlags, CPoint point)
 	CWnd::OnMouseMove(nFlags, point);
 }
 
-//void CFrameEditor::OnNcMouseMove(UINT nHitTest, CPoint point)
-//{
-//	m_iHiglightLine = -1;
-//	RedrawWindow();
-//	CWnd::OnNcMouseMove(nHitTest, point);
-//}
+void CFrameEditor::OnNcMouseMove(UINT nHitTest, CPoint point)
+{
+	m_iHiglightLine = -1;
+	RedrawWindow();
+	CWnd::OnNcMouseMove(nHitTest, point);
+}
 
 void CFrameEditor::OnLButtonDblClk(UINT nFlags, CPoint point)
 {
@@ -680,6 +680,11 @@ void CFrameEditor::timerEvent(QTimerEvent *event)
 {
    UINT_PTR mfcId = mfcTimerId(event->timerId());
    OnTimer(mfcId);
+}
+
+void CFrameEditor::leaveEvent(QEvent *)
+{
+   OnNcMouseMove(0,CPoint());
 }
 
 void CFrameEditor::focusOutEvent(QFocusEvent *)

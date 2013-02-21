@@ -10,6 +10,8 @@ MainWindow::MainWindow(QWidget *parent) :
    QMainWindow(parent),
    ui(new Ui::MainWindow)
 {
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
+   
    ui->setupUi(this);
    
    // CPTODO: this is a hack
@@ -21,6 +23,9 @@ MainWindow::MainWindow(QWidget *parent) :
    QObject::connect(m_pMainFrame,SIGNAL(addToolBarWidget(QToolBar*)),this,SLOT(addToolBarWidget(QToolBar*)));
    QObject::connect(m_pMainFrame,SIGNAL(removeToolBarWidget(QToolBar*)),this,SLOT(removeToolBarWidget(QToolBar*)));
    QObject::connect(m_pMainFrame,SIGNAL(editor_modificationChanged(bool)),this,SLOT(editor_modificationChanged(bool)));
+
+   restoreGeometry(settings.value("FamiTrackerWindowGeometry").toByteArray());
+   restoreState(settings.value("FamiTrackerWindowState").toByteArray());
 }
 
 MainWindow::~MainWindow()
@@ -33,6 +38,11 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_actionExit_triggered()
 {
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
+   
+   settings.setValue("FamiTrackerWindowGeometry",saveGeometry());
+   settings.setValue("FamiTrackerWindowState",saveState());
+   
    // Closing the main window kills the app
    close();
 }
@@ -91,5 +101,13 @@ void MainWindow::dropEvent(QDropEvent *event)
          }
       }
    }
+}
+
+void MainWindow::closeEvent(QCloseEvent *)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
+   
+   settings.setValue("FamiTrackerWindowGeometry",saveGeometry());
+   settings.setValue("FamiTrackerWindowState",saveState());
 }
 

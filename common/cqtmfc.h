@@ -762,6 +762,7 @@ public:
    CWnd(QWidget* parent=0) : QWidget(parent), m_pFrameWnd(NULL) {}
 
    void OnMouseMove(UINT,CPoint) {}
+   void OnNcMouseMove(UINT nHitTest, CPoint point) {}
    void OnLButtonDblClk(UINT,CPoint) {}
    void OnLButtonDown(UINT,CPoint) {}
    void OnLButtonUp(UINT,CPoint) {}

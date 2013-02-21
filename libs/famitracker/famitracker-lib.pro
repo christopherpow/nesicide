@@ -27,7 +27,7 @@ mac {
 win32 {
 
    SDL_CXXFLAGS = -I$$DEPENDENCYPATH/SDL
-   SDL_LIBS =  -L$$DEPENDENCYPATH/SDL -lsdl
+   SDL_LIBS =  -L$$DEPENDENCYPATH/SDL/ -lsdl
 }
 
 mac {
