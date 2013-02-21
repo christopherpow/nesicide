@@ -909,16 +909,11 @@ BOOL CDC::TextOut(
    QRect rect;
    QFontMetrics fontMetrics((QFont)*_font);
    rect.setTopLeft(QPoint(x,y));
-   rect.setBottomRight(QPoint(x+fontMetrics.size(Qt::TextSingleLine,QString::fromWCharArray(str.GetString())).width()+10,y+fontMetrics.height()));
+   rect.setBottomRight(QPoint(x+fontMetrics.size(Qt::TextSingleLine,(const QString&)str).width()+10,y+fontMetrics.height()));
    rect.translate(-QPoint(_windowOrg.x,_windowOrg.y));
    _qpainter->setPen(QPen(_textColor));
    _qpainter->setFont((QFont)*_font);
-#ifdef UNICODE
-   _qpainter->drawText(rect,QString::fromWCharArray(str.GetBuffer()));
-#else
-   QString qstr(str.GetBuffer());
-   _qpainter->drawText(rect,qstr);
-#endif
+   _qpainter->drawText(rect,(const QString&)str);
    return TRUE;
 }
 

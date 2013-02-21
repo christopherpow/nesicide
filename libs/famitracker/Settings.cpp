@@ -231,9 +231,9 @@ void CSettings::StoreSetting(CString Section, CString Name, int Value) const
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    QString key;
-   key = QString::fromWCharArray(Section.GetBuffer());
+   key = (const QString&)Section;
    key += "/";
-   key += QString::fromWCharArray(Name.GetBuffer());
+   key += (const QString&)Name;
 //   qDebug("StoreSetting");
 //   qDebug(key.toAscii().constData());
    
@@ -244,9 +244,9 @@ int CSettings::LoadSetting(CString Section, CString Name, int Default) const
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    QString key;
-   key = QString::fromWCharArray(Section.GetBuffer());
+   key = (const QString&)Section;
    key += "/";
-   key += QString::fromWCharArray(Name.GetBuffer());
+   key += (const QString&)Name;
 //   qDebug("LoadSetting");
 //   qDebug(key.toAscii().constData());
    
@@ -259,9 +259,15 @@ void CSettingBool::Load()
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    QString key;
+#ifdef UNICODE
    key = QString::fromWCharArray(m_pSection);
    key += "/";
    key += QString::fromWCharArray(m_pEntry);
+#else
+   key = QString(m_pSection);
+   key += "/";
+   key += QString(m_pEntry);
+#endif
 //   qDebug("CSettingBool::Load");
 //   qDebug(key.toAscii().constData());
    
@@ -272,9 +278,15 @@ void CSettingBool::Save()
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    QString key;
+#ifdef UNICODE
    key = QString::fromWCharArray(m_pSection);
    key += "/";
    key += QString::fromWCharArray(m_pEntry);
+#else
+   key = QString(m_pSection);
+   key += "/";
+   key += QString(m_pEntry);
+#endif
 //   qDebug("CSettingBool::Save");
 //   qDebug(key.toAscii().constData());
    
@@ -290,9 +302,15 @@ void CSettingInt::Load()
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    QString key;
+#ifdef UNICODE
    key = QString::fromWCharArray(m_pSection);
    key += "/";
    key += QString::fromWCharArray(m_pEntry);
+#else
+   key = QString(m_pSection);
+   key += "/";
+   key += QString(m_pEntry);
+#endif
 //   qDebug("CSettingInt::Load");
 //   qDebug(key.toAscii().constData());
    
@@ -303,9 +321,15 @@ void CSettingInt::Save()
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    QString key;
+#ifdef UNICODE
    key = QString::fromWCharArray(m_pSection);
    key += "/";
    key += QString::fromWCharArray(m_pEntry);
+#else
+   key = QString(m_pSection);
+   key += "/";
+   key += QString(m_pEntry);
+#endif
 //   qDebug("CSettingInt::Save");
 //   qDebug(key.toAscii().constData());
    
@@ -321,9 +345,15 @@ void CSettingString::Load()
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    QString key;
+#ifdef UNICODE
    key = QString::fromWCharArray(m_pSection);
    key += "/";
    key += QString::fromWCharArray(m_pEntry);
+#else
+   key = QString(m_pSection);
+   key += "/";
+   key += QString(m_pEntry);
+#endif
 //   qDebug("CSettingString::Load");
 //   qDebug(key.toAscii().constData());
    
@@ -334,13 +364,19 @@ void CSettingString::Save()
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    QString key;
+#ifdef UNICODE
    key = QString::fromWCharArray(m_pSection);
    key += "/";
    key += QString::fromWCharArray(m_pEntry);
+#else
+   key = QString(m_pSection);
+   key += "/";
+   key += QString(m_pEntry);
+#endif
 //   qDebug("CSettingString::Save");
 //   qDebug(key.toAscii().constData());
    
-   settings.setValue(key,QString::fromWCharArray((*(CString*)m_pVariable).GetBuffer()));
+   settings.setValue(key,(const QString&)((*(CString*)m_pVariable)));
 }
 
 void CSettingString::Default()
