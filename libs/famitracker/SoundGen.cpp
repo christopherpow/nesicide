@@ -104,7 +104,7 @@ CSoundGen::CSoundGen() :
    connect(timer, SIGNAL(timeout()), this, SLOT(onIdleSlot()));
    timer->start();
       
-   pThread->start();
+   pThread->start(QThread::TimeCriticalPriority);
    
 	// DPCM sample interface
 	m_pSampleMem = new CSampleMem();
