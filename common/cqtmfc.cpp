@@ -785,8 +785,7 @@ int CDC::DrawText(
    _qpainter->setPen(QPen(_textColor));
    _qpainter->setFont((QFont)*_font);
    _qpainter->drawText(rect,qstr.toLatin1().constData());
-   return strlen(str.GetBuffer());
-   
+   return strlen(str.GetBuffer());   
 }
 void CDC::FillSolidRect(
    LPCRECT lpRect,
@@ -885,19 +884,18 @@ BOOL CDC::TextOut(
    int nCount 
 )
 {
-   QRect rect;
 #if UNICODE
    QString qstr = QString::fromWCharArray(lpszString);
 #else
    QString qstr(lpszString);
 #endif
    QFontMetrics fontMetrics((QFont)*_font);
-   rect.setTopLeft(QPoint(x,y));
-   rect.setBottomRight(QPoint(x+fontMetrics.size(Qt::TextSingleLine,qstr.left(nCount)).width()+10,y+fontMetrics.height()));
-   rect.translate(-QPoint(_windowOrg.x,_windowOrg.y));
    _qpainter->setPen(QPen(_textColor));
    _qpainter->setFont((QFont)*_font);
-   _qpainter->drawText(rect,qstr.left(nCount).toAscii().constData());
+   x += -_windowOrg.x;
+   y += -_windowOrg.y;
+   y += fontMetrics.height()-1;
+   _qpainter->drawText(x,y,qstr.left(nCount));
    return TRUE;
 }
 BOOL CDC::TextOut(
@@ -906,18 +904,17 @@ BOOL CDC::TextOut(
       const CString& str 
 )
 {
-   QRect rect;
    QFontMetrics fontMetrics((QFont)*_font);
-   rect.setTopLeft(QPoint(x,y));
-   rect.setBottomRight(QPoint(x+fontMetrics.size(Qt::TextSingleLine,QString::fromWCharArray(str.GetString())).width()+10,y+fontMetrics.height()));
-   rect.translate(-QPoint(_windowOrg.x,_windowOrg.y));
    _qpainter->setPen(QPen(_textColor));
    _qpainter->setFont((QFont)*_font);
+   x += -_windowOrg.x;
+   y += -_windowOrg.y;
+   y += fontMetrics.height()-1;
 #ifdef UNICODE
-   _qpainter->drawText(rect,QString::fromWCharArray(str.GetBuffer()));
+   _qpainter->drawText(x,y,QString::fromWCharArray(str.GetBuffer()));
 #else
    QString qstr(str.GetBuffer());
-   _qpainter->drawText(rect,qstr);
+   _qpainter->drawText(x,y,qstr);
 #endif
    return TRUE;
 }
