@@ -910,12 +910,7 @@ BOOL CDC::TextOut(
    x += -_windowOrg.x;
    y += -_windowOrg.y;
    y += fontMetrics.height()-1;
-#ifdef UNICODE
-   _qpainter->drawText(x,y,QString::fromWCharArray(str.GetBuffer()));
-#else
-   QString qstr(str.GetBuffer());
-   _qpainter->drawText(x,y,qstr);
-#endif
+   _qpainter->drawText(rect,(const QString&)str);
    return TRUE;
 }
 
