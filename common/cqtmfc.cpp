@@ -910,7 +910,7 @@ BOOL CDC::TextOut(
    x += -_windowOrg.x;
    y += -_windowOrg.y;
    y += fontMetrics.height()-1;
-   _qpainter->drawText(rect,(const QString&)str);
+   _qpainter->drawText(x,y,(const QString&)str);
    return TRUE;
 }
 
