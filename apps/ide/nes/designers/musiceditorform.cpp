@@ -9,11 +9,9 @@ MusicEditorForm::MusicEditorForm(QString fileName,QByteArray musicData,IProjectT
    
    m_fileName = fileName;
    
-   m_pMainFrame = new CMainFrame();
-   
+   m_pMainFrame = (CMainFrame*)theApp.m_pMainWnd;
+
    m_pMainFrame->setFileName(fileName);
-   
-   m_pDocument = CFamiTrackerDoc::GetDoc();
 
    ui->stackedWidget->addWidget(m_pMainFrame);
    ui->stackedWidget->setCurrentWidget(m_pMainFrame);
@@ -26,7 +24,6 @@ MusicEditorForm::MusicEditorForm(QString fileName,QByteArray musicData,IProjectT
 MusicEditorForm::~MusicEditorForm()
 {
    delete ui;
-   delete m_pMainFrame;
 }
 
 void MusicEditorForm::editor_modificationChanged(bool m)
@@ -39,8 +36,10 @@ void MusicEditorForm::editor_modificationChanged(bool m)
 void MusicEditorForm::onSave()
 {
    CDesignerEditorBase::onSave();
+   
+   CFamiTrackerDoc* pDoc = (CFamiTrackerDoc*)m_pMainFrame->GetActiveDocument();
 
-   m_pDocument->OnSaveDocument((TCHAR*)m_fileName.toAscii().constData()); 
+   pDoc->OnSaveDocument((TCHAR*)m_fileName.toAscii().constData()); 
    
    setModified(false);
 }

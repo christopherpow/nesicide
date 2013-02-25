@@ -26,7 +26,6 @@ public:
 private:
    Ui::MusicEditorForm *ui;
    CMainFrame* m_pMainFrame;
-   CFamiTrackerDoc* m_pDocument;
    QString m_fileName;
 
 private slots:

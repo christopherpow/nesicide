@@ -26,6 +26,8 @@
 #include <QMessageBox>
 #include <QSettings>
 
+#include "FamiTracker.h"
+
 OutputPaneDockWidget* output = NULL;
 ProjectBrowserDockWidget* m_pProjectBrowser = NULL;
 
@@ -336,6 +338,9 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
 
    // Start timer for doing background stuff.
    m_periodicTimer = startTimer(5000);
+   
+   // CPTODO: this is a hack - init FamiTracker app level stuff
+   theApp.InitInstance();
 }
 
 MainWindow::~MainWindow()
@@ -371,6 +376,9 @@ MainWindow::~MainWindow()
    delete m_pSourceNavigator;
    delete m_pSymbolInspector;
    delete m_pSearch;
+   
+   // TODO: Handle unsaved documents or other pre-close stuffs
+   theApp.ExitInstance();
 }
 
 void MainWindow::applicationActivationChanged(bool activated)

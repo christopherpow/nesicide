@@ -63,7 +63,7 @@ static unsigned int   m_iSoundBufferSize = 0;
 
 QSemaphore ftmAudioSemaphore(0);
 
-extern "C" void SDL_GetMoreData(void* /*userdata*/, uint8_t* stream, int32_t len)
+extern "C" void SDL_FamiTracker(void* /*userdata*/, uint8_t* stream, int32_t len)
 {
 #if 0
    LARGE_INTEGER t;
@@ -76,6 +76,7 @@ extern "C" void SDL_GetMoreData(void* /*userdata*/, uint8_t* stream, int32_t len
    to = t;
    qDebug(str.toAscii().constData());
 #endif
+   
    if ( m_pSoundBuffer )
       memcpy(stream,m_pSoundBuffer,len);
    m_iSoundConsumer += len;
@@ -208,7 +209,7 @@ CDSoundChannel *CDSound::OpenChannel(int SampleRate, int SampleSize, int Channel
 	int SoundBufferSize = CalculateBufferLength(BufferLength, SampleRate, SampleSize, Channels);
 	int BlockSize = SoundBufferSize / Blocks;
 
-   sdlAudioSpec.callback = SDL_GetMoreData;
+   sdlAudioSpec.callback = SDL_FamiTracker;
    sdlAudioSpec.userdata = NULL;
    sdlAudioSpec.channels = Channels;
    sdlAudioSpec.format = AUDIO_S16SYS;
