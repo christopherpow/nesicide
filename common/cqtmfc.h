@@ -884,7 +884,7 @@ public:
       LPARAM lParam 
          );
    virtual BOOL InitInstance() { return FALSE; }
-   virtual BOOL ExitInstance() {}
+   virtual BOOL ExitInstance() { return FALSE; }
 signals:
    void postThreadMessage(unsigned int m,unsigned int w,unsigned int l);
 public slots:
@@ -917,7 +917,7 @@ public:
 class CWinApp : public CWinThread
 {
 public:
-   CWinApp() : m_pDocTemplate(NULL), m_pMainWnd(NULL) {}
+   CWinApp() : m_pMainWnd(NULL), m_pDocTemplate(NULL) {}
    void AddDocTemplate(CDocTemplate* pDocTemplate) { m_pDocTemplate = pDocTemplate; }
    CDocTemplate* GetDocTemplate() const { return m_pDocTemplate; }
    virtual BOOL InitInstance();
