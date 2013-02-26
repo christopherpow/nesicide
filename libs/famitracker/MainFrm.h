@@ -25,6 +25,8 @@ typedef void (CMainFrame::*actionHandler)();
 
 enum FRAME_EDIT_POS { FRAME_EDIT_POS_TOP, FRAME_EDIT_POS_LEFT };
 
+class CSampleWindow;
+
 class CMainFrame : public CFrameWnd
 {
    Q_OBJECT
@@ -87,6 +89,8 @@ protected:
    void showEvent(QShowEvent *);
    void hideEvent(QHideEvent *);
    void resizeEvent(QResizeEvent *);
+   
+   bool CreateSampleWindow();
 
 private:
    // Qt stuff
@@ -97,6 +101,7 @@ private:
    QMap<QAction*,actionHandler> trackerActions;
    CFamiTrackerDoc* m_pDocument;
    CFamiTrackerView* m_pView;
+   CSampleWindow		*m_pSampleWindow;
    CMusicFamiTrackerInstrumentsModel *instrumentsModel;
    QString m_fileName;
    bool initialized;

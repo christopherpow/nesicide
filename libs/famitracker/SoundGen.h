@@ -84,6 +84,8 @@ class CSoundGen : public CWinThread, ICallback
 public slots:
    void onIdleSlot();
    void recvThreadMessage(unsigned int m,unsigned int w,unsigned int l);
+signals:
+   void DrawSamples(int *Samples, int Count);
 public:
 	CSoundGen();
 	virtual ~CSoundGen();
@@ -96,7 +98,7 @@ public:
 	void		AssignDocument(CFamiTrackerDoc *pDoc);
 	void		AssignView(CFamiTrackerView *pView);
 	void		RemoveDocument();
-//	void		SetSampleWindow(CSampleWindow *pWnd);
+	void		SetSampleWindow(CSampleWindow *pWnd);
 
 	// Multiple times initialization
 	void		RegisterChannels(int Chip, CFamiTrackerDoc *pDoc);
@@ -215,7 +217,7 @@ private:
 	// Sound
 	CDSound				*m_pDSound;
 	CDSoundChannel		*m_pDSoundChannel;
-//	CSampleWindow		*m_pSampleWnd;
+	CSampleWindow		*m_pSampleWnd;
 	CAPU				*m_pAPU;
 	CSampleMem			*m_pSampleMem;
 

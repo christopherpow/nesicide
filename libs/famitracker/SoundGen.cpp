@@ -27,6 +27,7 @@
 #include "FamiTracker.h"
 #include "FamiTrackerDoc.h"
 #include "FamiTrackerView.h"
+#include "SampleWindow.h"
 #include "MainFrm.h"
 #include "DirectSound.h"
 #include "apu/apu.h"
@@ -89,7 +90,7 @@ CSoundGen::CSoundGen() :
 	m_bRendering(false),
 	m_bPlaying(false),
 	m_pPreviewSample(NULL),
-//	m_pSampleWnd(NULL),
+	m_pSampleWnd(NULL),
 	m_iSpeed(0),
 	m_iTempo(0),
 	m_bPlayerHalted(false),
@@ -292,12 +293,13 @@ void CSoundGen::RemoveDocument()
 //	m_csDocumentLock.Unlock();
 }
 
-//void CSoundGen::SetSampleWindow(CSampleWindow *pWnd)
-//{
-//	m_csSampleWndLock.Lock();
-//	m_pSampleWnd = pWnd;
-//	m_csSampleWndLock.Unlock();
-//}
+void CSoundGen::SetSampleWindow(CSampleWindow *pWnd)
+{
+	m_csSampleWndLock.Lock();
+	m_pSampleWnd = pWnd;
+	m_csSampleWndLock.Unlock();
+   QObject::connect(this,SIGNAL(DrawSamples(int*,int)),pWnd,SLOT(DrawSamples(int*,int)),Qt::QueuedConnection);
+}
 
 void CSoundGen::RegisterChannels(int Chip, CFamiTrackerDoc *pDoc)
 {
@@ -510,9 +512,9 @@ bool CSoundGen::ResetSound()
 
 	// Sample graph rate
    qDebug("SetSampleRate");
-//	if (m_pSampleWnd) {
-//		m_pSampleWnd->SetSampleRate(SampleRate);
-//	}
+	if (m_pSampleWnd) {
+		m_pSampleWnd->SetSampleRate(SampleRate);
+	}
 
 	if (!m_pAPU->SetupSound(SampleRate, 1, (m_iMachineType == NTSC) ? MACHINE_NTSC : MACHINE_PAL))
 		return false;
@@ -663,12 +665,13 @@ void CSoundGen::FlushBuffer(int16 *pBuffer, uint32 Size)
 				m_pDSoundChannel->WriteSoundBuffer(m_pAccumBuffer, m_iBufSizeBytes);
 
 //				// Draw graph
-//				m_csSampleWndLock.Lock();
+				m_csSampleWndLock.Lock();
 
-//				if (m_pSampleWnd)
+				if (m_pSampleWnd)
+               emit DrawSamples((int*)m_iGraphBuffer, m_iBufSizeSamples);
 //					m_pSampleWnd->DrawSamples((int*)m_iGraphBuffer, m_iBufSizeSamples);
 
-//				m_csSampleWndLock.Unlock();
+				m_csSampleWndLock.Unlock();
 
 				// Reset buffer position
 				m_iBufferPtr = 0;

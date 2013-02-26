@@ -86,6 +86,7 @@
 #define DECLARE_DYNCREATE(x) 
 #define DECLARE_MESSAGE_MAP()
 #define DECLARE_DYNAMIC(x)
+#define IMPLEMENT_DYNAMIC(x,y)
 
 #define IDR_MAINFRAME 0xDEADBEEF
 #define RUNTIME_CLASS(x) new x
@@ -142,7 +143,6 @@ BOOL WINAPI GlobalUnlock(
 SIZE_T WINAPI GlobalSize(
   HGLOBAL hMem
 );
-
 
 class CObject
 {
@@ -525,6 +525,8 @@ public:
       _qpainter = NULL;
    }
    
+   QPainter* painter() { return _qpainter; }
+   
    virtual ~CDC();
    BOOL BitBlt(
       int x,
@@ -790,6 +792,8 @@ public:
    UINT_PTR mfcTimerId(int qtTimerId) { return qtToMfcTimer.value(qtTimerId); }
    CFrameWnd* GetParentFrame( ) const { return m_pFrameWnd; }
    void MoveWindow(int x,int y,int cx, int cy) { setFixedWidth(cx); }
+   CDC* GetDC() { CDC* pDC = new CDC(); pDC->attach(this); return pDC; }
+   void ReleaseDC(CDC* pDC) { pDC->detach(); delete pDC; }
    
    // These methods are only to be used in CDocTemplate initialization...
    void privateSetParentFrame(CFrameWnd* pFrameWnd) { m_pFrameWnd = pFrameWnd; }
@@ -929,5 +933,21 @@ public:
 protected:
    CDocTemplate* m_pDocTemplate;
 };
+
+int StretchDIBits(
+  CDC& dc,
+  int XDest,
+  int YDest,
+  int nDestWidth,
+  int nDestHeight,
+  int XSrc,
+  int YSrc,
+  int nSrcWidth,
+  int nSrcHeight,
+  const VOID *lpBits,
+  const BITMAPINFO *lpBitsInfo,
+  UINT iUsage,
+  DWORD dwRop
+);
 
 #endif // CQTMFC_H

@@ -38,7 +38,7 @@
 
 const TCHAR CFrameEditor::DEFAULT_FONT[] = _T("System");
 
-//IMPLEMENT_DYNAMIC(CFrameEditor, CWnd)
+IMPLEMENT_DYNAMIC(CFrameEditor, CWnd)
 
 CFrameEditor::CFrameEditor(CMainFrame *pMainFrm):
    CWnd(pMainFrm),

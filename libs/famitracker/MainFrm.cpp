@@ -3,6 +3,7 @@
 #include "ui_MainFrm.h"
 #include "FamiTracker.h"
 #include "FamiTrackerView.h"
+#include "SampleWindow.h"
 
 #include "famitrackermodulepropertiesdialog.h"
 
@@ -50,6 +51,11 @@ CMainFrame::CMainFrame(QWidget *parent) :
 	m_iFrameEditorPos = FRAME_EDIT_POS_TOP;
          
    m_pActionHandler = new CActionHandler();
+
+   if (!CreateSampleWindow()) {
+		TRACE0("Failed to create sample window\n");
+//		return -1;      // fail to create
+	}
 
    actionHandler actionHandlers[] = 
    {
@@ -793,6 +799,30 @@ void CMainFrame::ResizeFrameWindow()
 //	m_wndDialogBar.GetDlgItem(IDC_INSTNAME)->MoveWindow(SX(478), SY(175), ChildRect.Width() - SX(486), SY(22));
 
 	m_pFrameEditor->RedrawWindow();
+}
+
+bool CMainFrame::CreateSampleWindow()
+{
+	const int POS_X = 137;
+	const int POS_Y = 113;
+
+//	CRect rect(SX(POS_X), SY(POS_Y), SX(POS_X) + CSampleWindow::WIN_WIDTH, SY(POS_Y) + CSampleWindow::WIN_HEIGHT);
+
+	// Create the sample graph window
+	m_pSampleWindow = new CSampleWindow();
+
+//	if (!m_pSampleWindow->CreateEx(WS_EX_CLIENTEDGE, NULL, _T("Samples"), WS_CHILD | WS_VISIBLE, rect, (CWnd*)&m_wndDialogBar, 0))
+//		return false;
+
+	// Assign this to the sound generator
+	CSoundGen *pSoundGen = theApp.GetSoundGenerator();
+	
+	if (pSoundGen)
+		pSoundGen->SetSampleWindow(m_pSampleWindow);
+   
+   ui->sampleWindow->layout()->addWidget(m_pSampleWindow);
+
+	return true;
 }
 
 void CMainFrame::on_frameChangeAll_clicked(bool checked)

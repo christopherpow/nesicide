@@ -755,6 +755,28 @@ BOOL CDC::BitBlt(
 {
    return TRUE;
 }
+
+int StretchDIBits(
+  CDC& dc,
+  int XDest,
+  int YDest,
+  int nDestWidth,
+  int nDestHeight,
+  int XSrc,
+  int YSrc,
+  int nSrcWidth,
+  int nSrcHeight,
+  const VOID *lpBits,
+  const BITMAPINFO *lpBitsInfo,
+  UINT iUsage,
+  DWORD dwRop
+)
+{
+   QImage image((const uchar*)lpBits,nSrcWidth,nSrcHeight,QImage::Format_RGB32);
+   image = image.scaled(nDestWidth,nDestHeight);
+   dc.painter()->drawImage(XDest,YDest,image);
+}
+
 void CDC::Draw3dRect( int x, int y, int cx, int cy, COLORREF clrTopLeft, COLORREF clrBottomRight )
 {
    QPen tlc(QColor(GetRValue(clrTopLeft),GetGValue(clrTopLeft),GetBValue(clrTopLeft)));
