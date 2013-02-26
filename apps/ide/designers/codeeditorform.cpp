@@ -49,46 +49,8 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
 
    m_fileName = fileName;
    m_searchText = "";
-   m_language = Language_Default;
-
-   foreach ( QString ext, EnvironmentSettingsDialog::highlightAsC().split(" ") )
-   {
-      if ( m_fileName.endsWith(ext,Qt::CaseInsensitive) )
-      {
-         m_language = Language_C;
-      }
-   }
-   if ( m_language == Language_Default )
-   {
-      foreach ( QString ext, EnvironmentSettingsDialog::highlightAsASM().split(" ") )
-      {
-         if ( m_fileName.endsWith(ext,Qt::CaseInsensitive) )
-         {
-            m_language = Language_Assembly;
-         }
-      }
-   }
-
-   if ( m_language == Language_C )
-   {
-      m_lexer = new QsciLexerCC65(m_scintilla);
-
-      m_scintilla->setLexer(m_lexer);
-   }
-   else if ( m_language == Language_Assembly )
-   {
-      m_lexer = new QsciLexerCA65(m_scintilla);
-
-      m_scintilla->setLexer(m_lexer);
-   }
-   else
-   {
-      m_lexer = new QsciLexerDefault(m_scintilla);
-
-      m_scintilla->setLexer(m_lexer);
-   }
-
-   m_lexer->readSettings(settings,"CodeEditor");
+   
+   applyEnvironmentSettingsToTab();
 
    m_scintilla->installEventFilter(this);
    m_scintilla->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -97,23 +59,15 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    // Use a timer to do periodic checks for tooltips since mouse tracking doesn't seem to work.
    m_toolTipTimer = startTimer(50);
 
-   m_scintilla->setEolMode((QsciScintilla::EolMode)EnvironmentSettingsDialog::eolMode());
-
-   m_scintilla->setMarginsBackgroundColor(EnvironmentSettingsDialog::marginBackgroundColor());
-   m_scintilla->setMarginsForegroundColor(EnvironmentSettingsDialog::marginForegroundColor());
-   m_scintilla->setMarginsFont(m_lexer->font(QsciLexerCA65::CA65_Default));
-
    m_scintilla->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-   m_scintilla->setMarginWidth(3,0);
-   m_scintilla->setMarginMarkerMask(3,0);
    m_scintilla->setMarginWidth(4,0);
    m_scintilla->setMarginMarkerMask(4,0);
 
-   m_scintilla->setMarginWidth(2,5);
-   m_scintilla->setMarginType(2,QsciScintilla::SymbolMargin);
-   m_scintilla->setMarginSensitivity(2,true);
-   m_scintilla->setMarginMarkerMask(2,0x00000FF0);
-
+   m_scintilla->setMarginWidth(3,5);
+   m_scintilla->setMarginType(3,QsciScintilla::SymbolMargin);
+   m_scintilla->setMarginSensitivity(3,true);
+   m_scintilla->setMarginMarkerMask(3,0x00000FF0);
+   
    m_scintilla->setMarginWidth(Margin_Decorations,22);
    m_scintilla->setMarginMarkerMask(Margin_Decorations,0x0000000F);
    m_scintilla->setMarginType(Margin_Decorations,QsciScintilla::SymbolMargin);
@@ -142,20 +96,7 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    m_scintilla->setMarkerForegroundColor(QColor(255,255,0),Marker_Error);
    m_scintilla->setMarkerBackgroundColor(QColor(255,0,0),Marker_Error);
    m_scintilla->markerDefine(QsciScintilla::Background,Marker_Highlight);
-   if ( EnvironmentSettingsDialog::highlightBarEnabled() )
-   {
-      m_scintilla->setMarkerBackgroundColor(EnvironmentSettingsDialog::highlightBarColor(),Marker_Highlight);
-   }
-   else
-   {
-      // Set the highlight bar color to background to hide it =]
-      m_scintilla->setMarkerBackgroundColor(m_lexer->defaultPaper(),Marker_Highlight);
-   }
-
-   m_scintilla->setAutoIndent( EnvironmentSettingsDialog::autoIndent() );
-   m_scintilla->setTabWidth( EnvironmentSettingsDialog::spacesPerTab() );
-   m_scintilla->setIndentationsUseTabs( !EnvironmentSettingsDialog::replaceTabs() );
-
+   
    m_scintilla->setAnnotationDisplay ( QsciScintilla::AnnotationBoxed );
 
    // Connect signals from Scintilla to update the UI.
@@ -1421,6 +1362,35 @@ void CodeEditorForm::applyProjectPropertiesToTab()
 
 void CodeEditorForm::applyEnvironmentSettingsToTab()
 {
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+   
+   if ( EnvironmentSettingsDialog::foldSource() )
+   {
+      m_scintilla->setMarginType(Margin_Folding,QsciScintilla::SymbolMargin);
+      m_scintilla->setMarginSensitivity(Margin_Folding,true);
+      m_scintilla->setFolding(QsciScintilla::BoxedTreeFoldStyle,Margin_Folding);
+   }
+   else
+   {
+      m_scintilla->setMarginWidth(Margin_Folding,0);
+      m_scintilla->setFolding(QsciScintilla::NoFoldStyle,Margin_Folding);
+   }
+
+   m_scintilla->setEolMode((QsciScintilla::EolMode)EnvironmentSettingsDialog::eolMode());
+
+   m_scintilla->setMarginsBackgroundColor(EnvironmentSettingsDialog::marginBackgroundColor());
+   m_scintilla->setMarginsForegroundColor(EnvironmentSettingsDialog::marginForegroundColor());
+   
+   if ( EnvironmentSettingsDialog::highlightBarEnabled() )
+   {
+      m_scintilla->setMarkerBackgroundColor(EnvironmentSettingsDialog::highlightBarColor(),Marker_Highlight);
+   }
+   else
+   {
+      // Set the highlight bar color to background to hide it =]
+      m_scintilla->setMarkerBackgroundColor(m_lexer->defaultPaper(),Marker_Highlight);
+   }
+
    m_language = Language_Default;
    m_scintilla->setLexer(NULL);
    delete m_lexer;
@@ -1461,6 +1431,10 @@ void CodeEditorForm::applyEnvironmentSettingsToTab()
 
       m_scintilla->setLexer(m_lexer);
    }
+
+   m_lexer->readSettings(settings,"CodeEditor");
+   
+   m_scintilla->setMarginsFont(m_lexer->font(QsciLexerCA65::CA65_Default));
 
    restyleText();
    annotateText();

@@ -30,6 +30,10 @@ public:
    virtual QString description(int style) const;
    virtual void styleText(int start,int end);
 
+   const char *blockEnd(int *style = 0) const;
+   const char *blockStart(int *style = 0) const;
+   const char *blockStartKeyword(int *style = 0) const;
+   
    virtual bool eolFill(int /*style*/) const { return true; }
 
    virtual QColor defaultColor() const;

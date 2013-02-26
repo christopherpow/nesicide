@@ -116,7 +116,7 @@ NESEmulatorThread::NESEmulatorThread(QObject*)
    // Set up audio sample rate for video mode...
    sdlAudioSpec.samples = APU_SAMPLES;
 
-   SDL_OpenAudio ( &sdlAudioSpec, NULL );
+//   SDL_OpenAudio ( &sdlAudioSpec, NULL );
 
    nesClearAudioSamplesAvailable();
 

@@ -48,6 +48,7 @@ public:
    static bool replaceTabs() { return m_tabReplacementEnabled; }
    static int spacesPerTab() { return m_spacesForTabs; }
    static bool annotateSource() { return m_annotateSource; }
+   static bool foldSource() { return m_foldSource; }
    static QString sourceExtensionsForC() { return m_cSourceExtensions; }
    static QString sourceExtensionsForAssembly() { return m_asmSourceExtensions; }
    static QString headerExtensions() { return m_headerExtensions; }
@@ -100,6 +101,7 @@ private:
    static bool m_tabReplacementEnabled;
    static int m_spacesForTabs;
    static bool m_annotateSource;
+   static bool m_foldSource;
    static QString m_cSourceExtensions;
    static QString m_asmSourceExtensions;
    static QString m_headerExtensions;

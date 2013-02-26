@@ -31,6 +31,7 @@ bool EnvironmentSettingsDialog::m_autoIndentEnabled;
 bool EnvironmentSettingsDialog::m_tabReplacementEnabled;
 int EnvironmentSettingsDialog::m_spacesForTabs;
 bool EnvironmentSettingsDialog::m_annotateSource;
+bool EnvironmentSettingsDialog::m_foldSource;
 QString EnvironmentSettingsDialog::m_cSourceExtensions;
 QString EnvironmentSettingsDialog::m_asmSourceExtensions;
 QString EnvironmentSettingsDialog::m_headerExtensions;
@@ -141,6 +142,8 @@ EnvironmentSettingsDialog::EnvironmentSettingsDialog(QWidget* parent) :
    ui->spacesForTab->setValue(m_spacesForTabs);
 
    ui->annotate->setChecked(m_annotateSource);
+   
+   ui->fold->setChecked(m_foldSource);
 
    ui->showSymbolTips->setChecked(m_showSymbolTips);
    ui->showOpcodeTips->setChecked(m_showOpcodeTips);
@@ -233,6 +236,7 @@ void EnvironmentSettingsDialog::readSettings()
    m_tabReplacementEnabled = settings.value("tabReplacement",QVariant(true)).toBool();
    m_spacesForTabs = settings.value("spacesPerTab",QVariant(3)).toInt();
    m_annotateSource = settings.value("annotateSource",QVariant(true)).toBool();
+   m_foldSource = settings.value("foldSource",QVariant(true)).toBool();
    m_cSourceExtensions = settings.value("SourceExtensionsC",QVariant(sourceExtensionListC)).toString();
    m_asmSourceExtensions = settings.value("SourceExtensionsAsm",QVariant(sourceExtensionListAsm)).toString();
    m_headerExtensions = settings.value("HeaderExtensions",QVariant(headerExtensionList)).toString();
@@ -289,6 +293,7 @@ void EnvironmentSettingsDialog::writeSettings()
    m_tabReplacementEnabled = ui->replaceTabs->isChecked();
    m_spacesForTabs = ui->spacesForTab->value();
    m_annotateSource = ui->annotate->isChecked();
+   m_foldSource = ui->fold->isChecked();
    m_cSourceExtensions = ui->sourceExtensionsC->text();
    m_asmSourceExtensions = ui->sourceExtensionsAsm->text();
    m_headerExtensions = ui->headerExtensions->text();
@@ -329,6 +334,7 @@ void EnvironmentSettingsDialog::writeSettings()
    settings.setValue("tabReplacement",m_tabReplacementEnabled);
    settings.setValue("spacesPerTab",m_spacesForTabs);
    settings.setValue("annotateSource",m_annotateSource);
+   settings.setValue("foldSource",m_foldSource);
 
    settings.setValue("SourceExtensionsC",m_cSourceExtensions);
    settings.setValue("SourceExtensionsAsm",m_asmSourceExtensions);

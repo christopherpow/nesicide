@@ -17,7 +17,8 @@
 enum
 {
    Margin_Decorations = 0,
-   Margin_LineNumbers
+   Margin_LineNumbers,
+   Margin_Folding
 };
 
 enum

@@ -340,7 +340,7 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    m_periodicTimer = startTimer(5000);
    
    // CPTODO: this is a hack - init FamiTracker app level stuff
-   theApp.InitInstance();
+//   theApp.InitInstance();
 }
 
 MainWindow::~MainWindow()
@@ -3037,9 +3037,12 @@ void MainWindow::on_actionEnvironment_Settings_triggered()
 {
    EnvironmentSettingsDialog dlg;
 
-   dlg.exec();
+   int result = dlg.exec();
 
-   emit applyEnvironmentSettings();
+   if ( result == QDialog::Accepted )
+   {
+      emit applyEnvironmentSettings();
+   }
 }
 
 void MainWindow::updateFromEmulatorPrefs(bool initial)

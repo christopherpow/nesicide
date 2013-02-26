@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>639</width>
-    <height>437</height>
+    <height>504</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -195,21 +195,21 @@
           <attribute name="title">
            <string>General</string>
           </attribute>
-          <layout class="QGridLayout" name="gridLayout_11">
+          <layout class="QGridLayout" name="gridLayout_20">
            <item row="0" column="0">
             <widget class="QGroupBox" name="groupBox_7">
              <property name="title">
               <string>Tips</string>
              </property>
-             <layout class="QVBoxLayout" name="verticalLayout">
-              <item>
+             <layout class="QGridLayout" name="gridLayout_11">
+              <item row="0" column="0">
                <widget class="QCheckBox" name="showSymbolTips">
                 <property name="text">
                  <string>Symbols</string>
                 </property>
                </widget>
               </item>
-              <item>
+              <item row="0" column="1">
                <widget class="QCheckBox" name="showOpcodeTips">
                 <property name="text">
                  <string>Opcodes</string>
@@ -218,19 +218,6 @@
               </item>
              </layout>
             </widget>
-           </item>
-           <item row="3" column="0">
-            <spacer name="verticalSpacer_4">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>40</height>
-              </size>
-             </property>
-            </spacer>
            </item>
            <item row="1" column="0">
             <widget class="QGroupBox" name="groupBox_10">
@@ -250,10 +237,41 @@
            </item>
            <item row="2" column="0">
             <widget class="QGroupBox" name="groupBox_13">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
              <property name="title">
               <string>Syntax Highlighting File Extensions</string>
              </property>
-             <layout class="QFormLayout" name="formLayout_5">
+             <layout class="QGridLayout" name="gridLayout_18">
+              <item row="0" column="0" colspan="2">
+               <widget class="QLabel" name="label_17">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>File extensions in these lists should each be preceded by a period and separated by spaces.  These values are used by the Code Editor to determine what syntax highlighting rules to apply to a file.</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+                </property>
+                <property name="wordWrap">
+                 <bool>true</bool>
+                </property>
+                <property name="indent">
+                 <number>0</number>
+                </property>
+                <property name="textInteractionFlags">
+                 <set>Qt::NoTextInteraction</set>
+                </property>
+               </widget>
+              </item>
               <item row="1" column="0">
                <widget class="QLabel" name="label_14">
                 <property name="text">
@@ -261,12 +279,8 @@
                 </property>
                </widget>
               </item>
-              <item row="3" column="0">
-               <widget class="QLabel" name="label_15">
-                <property name="text">
-                 <string/>
-                </property>
-               </widget>
+              <item row="1" column="1">
+               <widget class="QLineEdit" name="highlightAsC"/>
               </item>
               <item row="2" column="0">
                <widget class="QLabel" name="label_16">
@@ -275,19 +289,22 @@
                 </property>
                </widget>
               </item>
-              <item row="1" column="1">
-               <widget class="QLineEdit" name="highlightAsC"/>
-              </item>
               <item row="2" column="1">
                <widget class="QLineEdit" name="highlightAsASM"/>
               </item>
-              <item row="0" column="0" colspan="2">
-               <widget class="QLabel" name="label_17">
+             </layout>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QGroupBox" name="groupBox_14">
+             <property name="title">
+              <string>Folding</string>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_19">
+              <item row="0" column="0">
+               <widget class="QCheckBox" name="fold">
                 <property name="text">
-                 <string>File extensions in these lists should each be preceded by a period and separated by spaces.  These values are used by the Code Editor to determine what syntax highlighting rules to apply to a file.</string>
-                </property>
-                <property name="wordWrap">
-                 <bool>true</bool>
+                 <string>Enabled</string>
                 </property>
                </widget>
               </item>

@@ -271,6 +271,35 @@ QString QsciLexerCA65::description(int style) const
    }
 }
 
+// Return the list of keywords that can start a block.
+const char *QsciLexerCA65::blockStartKeyword(int *style) const
+{
+    if (style)
+        *style = CA65_Keyword;
+
+    return ".proc";
+}
+
+
+// Return the list of characters that can start a block.
+const char *QsciLexerCA65::blockStart(int *style) const
+{
+    if (style)
+        *style = CA65_Keyword;
+
+    return ".proc";
+}
+
+
+// Return the list of characters that can end a block.
+const char *QsciLexerCA65::blockEnd(int *style) const
+{
+    if (style)
+        *style = CA65_Keyword;
+
+    return ".endproc";
+}
+
 void QsciLexerCA65::styleText(int start, int end)
 {
    QByteArray   chars;
