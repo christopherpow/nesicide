@@ -340,7 +340,7 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    m_periodicTimer = startTimer(5000);
    
    // CPTODO: this is a hack - init FamiTracker app level stuff
-//   theApp.InitInstance();
+   theApp.InitInstance();
 }
 
 MainWindow::~MainWindow()

@@ -26,7 +26,9 @@ static char resolutionBuffer [ 2048 ];
 
 CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeViewItem* link,QWidget* parent) :
    CDesignerEditorBase(link,parent),
-   ui(new Ui::CodeEditorForm)
+   ui(new Ui::CodeEditorForm),
+   m_lexer(NULL),
+   m_scintilla(NULL)
 {
    QDockWidget* codeBrowser = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Assembly Browser"));
    QDockWidget* breakpoints = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Breakpoints"));
@@ -1393,7 +1395,10 @@ void CodeEditorForm::applyEnvironmentSettingsToTab()
 
    m_language = Language_Default;
    m_scintilla->setLexer(NULL);
-   delete m_lexer;
+   if ( m_lexer )
+   {
+      delete m_lexer;
+   }
 
    foreach ( QString ext, EnvironmentSettingsDialog::highlightAsC().split(" ") )
    {

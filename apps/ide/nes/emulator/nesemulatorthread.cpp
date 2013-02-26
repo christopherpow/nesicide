@@ -29,6 +29,8 @@
 #include "breakpointwatcherthread.h"
 #include "main.h"
 
+#include "DirectSound.h"
+
 #undef main
 #include <SDL.h>
 
@@ -42,7 +44,7 @@ SDL_AudioSpec sdlAudioSpec;
 // Hook function endpoints.
 static void breakpointHook ( void )
 {
-   SDL_PauseAudio(1);
+//   SDL_PauseAudio(1);
 
    // Tell the world.
    NESEmulatorThread* emulator = dynamic_cast<NESEmulatorThread*>(CObjectRegistry::getObject("Emulator"));
@@ -50,7 +52,7 @@ static void breakpointHook ( void )
 
    // Put my thread to sleep.
    nesBreakpointSemaphore.acquire();
-   SDL_PauseAudio(0);
+//   SDL_PauseAudio(0);
 }
 
 void NESEmulatorThread::_breakpointHook()
@@ -63,7 +65,7 @@ static void audioHook ( void )
    nesAudioSemaphore.acquire();
 }
 
-extern "C" void SDL_GetMoreData(void* /*userdata*/, uint8_t* stream, int32_t len)
+extern "C" void SDL_Emulator(void* /*userdata*/, uint8_t* stream, int32_t len)
 {
 #if 0
    LARGE_INTEGER t;
@@ -78,7 +80,7 @@ extern "C" void SDL_GetMoreData(void* /*userdata*/, uint8_t* stream, int32_t len
 #endif
    if ( nesGetAudioSamplesAvailable() >= (len>>1) )
    {
-      memcpy(stream,nesGetAudioSamples(len>>1),len);
+      SDL_MixAudio(stream,nesGetAudioSamples(len>>1),len,SDL_MIX_MAXVOLUME);
    }
    else
    {
@@ -105,25 +107,26 @@ NESEmulatorThread::NESEmulatorThread(QObject*)
    nesSetBreakpointHook(breakpointHook);
    nesSetAudioHook(audioHook);
 
-   SDL_Init ( SDL_INIT_AUDIO );
+//   SDL_Init ( SDL_INIT_AUDIO );
 
-   sdlAudioSpec.callback = SDL_GetMoreData;
-   sdlAudioSpec.userdata = NULL;
-   sdlAudioSpec.channels = 1;
-   sdlAudioSpec.format = AUDIO_S16SYS;
-   sdlAudioSpec.freq = SDL_SAMPLE_RATE;
+//   sdlAudioSpec.callback = SDL_GetMoreData;
+//   sdlAudioSpec.userdata = NULL;
+//   sdlAudioSpec.channels = 1;
+//   sdlAudioSpec.format = AUDIO_S16SYS;
+//   sdlAudioSpec.freq = SDL_SAMPLE_RATE;
 
-   // Set up audio sample rate for video mode...
-   sdlAudioSpec.samples = APU_SAMPLES;
+//   // Set up audio sample rate for video mode...
+//   sdlAudioSpec.samples = APU_SAMPLES;
 
 //   SDL_OpenAudio ( &sdlAudioSpec, NULL );
+   sdlHooks.append(SDL_Emulator);
 
    nesClearAudioSamplesAvailable();
 
    BreakpointWatcherThread* breakpointWatcher = dynamic_cast<BreakpointWatcherThread*>(CObjectRegistry::getObject("Breakpoint Watcher"));
    QObject::connect(this,SIGNAL(breakpoint()),breakpointWatcher,SLOT(breakpoint()));
 
-   SDL_PauseAudio ( 0 );
+//   SDL_PauseAudio ( 0 );
 }
 
 NESEmulatorThread::~NESEmulatorThread()
@@ -158,25 +161,6 @@ void NESEmulatorThread::kill()
 
 void NESEmulatorThread::adjustAudio(int32_t bufferDepth)
 {
-   SDL_AudioSpec obtained;
-
-   SDL_PauseAudio ( 1 );
-
-   SDL_CloseAudio ();
-
-   sdlAudioSpec.callback = SDL_GetMoreData;
-   sdlAudioSpec.userdata = NULL;
-   sdlAudioSpec.channels = 1;
-   sdlAudioSpec.format = AUDIO_S16SYS;
-   sdlAudioSpec.freq = SDL_SAMPLE_RATE;
-
-   // Set up audio sample rate for video mode...
-   sdlAudioSpec.samples = bufferDepth;
-
-   SDL_OpenAudio ( &sdlAudioSpec, NULL );
-
-   SDL_PauseAudio ( 0 );
-
    nesClearAudioSamplesAvailable();
 }
 

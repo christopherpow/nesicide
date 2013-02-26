@@ -84,6 +84,11 @@ public:
    bool m_bPaused;
 };
 
+
+typedef void (*SDL_Callback)(void* userdata,uint8_t* stream,int32_t len);
+
+extern QList<SDL_Callback> sdlHooks;
+
 // DirectSound
 class CDSound 
 {
