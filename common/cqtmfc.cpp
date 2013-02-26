@@ -783,7 +783,7 @@ int CDC::DrawText(
    QString qstr(str.GetBuffer());
 #endif
    _qpainter->setPen(QPen(_textColor));
-   _qpainter->setFont((QFont)*_font);
+//   _qpainter->setFont((QFont)*_font);
    _qpainter->drawText(rect,qstr.toLatin1().constData());
    return strlen(str.GetBuffer());   
 }
@@ -891,7 +891,7 @@ BOOL CDC::TextOut(
 #endif
    QFontMetrics fontMetrics((QFont)*_font);
    _qpainter->setPen(QPen(_textColor));
-   _qpainter->setFont((QFont)*_font);
+//   _qpainter->setFont((QFont)*_font);
    x += -_windowOrg.x;
    y += -_windowOrg.y;
    y += fontMetrics.height()-1;
@@ -906,7 +906,7 @@ BOOL CDC::TextOut(
 {
    QFontMetrics fontMetrics((QFont)*_font);
    _qpainter->setPen(QPen(_textColor));
-   _qpainter->setFont((QFont)*_font);
+//   _qpainter->setFont((QFont)*_font);
    x += -_windowOrg.x;
    y += -_windowOrg.y;
    y += fontMetrics.height()-1;

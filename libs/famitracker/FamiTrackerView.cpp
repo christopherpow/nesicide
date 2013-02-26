@@ -595,13 +595,13 @@ void CFamiTrackerView::OnLButtonDblClk(UINT nFlags, CPoint point)
 
 void CFamiTrackerView::OnMouseMove(UINT nFlags, CPoint point)
 {
-//	static CPoint last_point;
+	static CPoint last_point;
 	CFamiTrackerDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
 
-//	if (point == last_point)
-//		return;
-//	last_point = point;
+	if (point == last_point)
+		return;
+	last_point = point;
 
 	if (!(nFlags & MK_LBUTTON)) {
 		if (m_pPatternView->OnMouseHover(nFlags, point))
@@ -3337,7 +3337,6 @@ void CFamiTrackerView::mouseMoveEvent(QMouseEvent *event)
       flags |= MK_RBUTTON;            
    }
    OnMouseMove(flags,point);
-   m_pPatternView->update();
 }
 
 void CFamiTrackerView::mousePressEvent(QMouseEvent *event)

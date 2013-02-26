@@ -297,7 +297,10 @@ public:
       x = _x;
       y = _y;
    }
-
+   bool operator==(CPoint p)
+   {
+      return ((p.x == x) && (p.y == y));
+   }
 };
 
 class CRect
