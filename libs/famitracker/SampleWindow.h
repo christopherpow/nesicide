@@ -50,7 +50,7 @@ protected:
    void paintEvent(QPaintEvent *);
    void mousePressEvent(QMouseEvent *event);
    void mouseDoubleClickEvent(QMouseEvent *event);
-   QSize sizeHint() const { return QSize(145,36); } // Not sure why the size is protected...but...
+   QSize sizeHint() const { return QSize(141,36); } // Not sure why the size is protected...but...
    
 //   DECLARE_DYNAMIC(CSampleWindow)
 public:
