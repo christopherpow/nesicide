@@ -308,13 +308,13 @@
            </sizepolicy>
           </property>
           <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
+           <enum>QFrame::StyledPanel</enum>
           </property>
           <property name="frameShadow">
-           <enum>QFrame::Plain</enum>
+           <enum>QFrame::Sunken</enum>
           </property>
           <property name="lineWidth">
-           <number>0</number>
+           <number>2</number>
           </property>
           <layout class="QGridLayout" name="gridLayout_5">
            <property name="margin">
