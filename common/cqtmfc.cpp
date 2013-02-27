@@ -225,6 +225,20 @@ void CString::FormatV(LPCTSTR fmt, va_list ap)
    UpdateScratch();
 }
 
+CString& CString::Append(LPCSTR str)
+{
+   _qstr.append(QString(str));
+   UpdateScratch();
+   return *this;
+}
+
+CString& CString::Append(LPWSTR str)
+{
+   _qstr.append(QString::fromWCharArray(str));
+   UpdateScratch();
+   return *this;
+}
+
 void CString::AppendFormat(LPCTSTR fmt, ...)
 {
    va_list argptr;
@@ -968,6 +982,19 @@ void CWnd::KillTimer(UINT id)
       killTimer(mfcToQtTimer.value((int)id));
       qtToMfcTimer.remove(mfcToQtTimer.value((int)id));
       mfcToQtTimer.remove((int)id);
+   }
+}
+
+void CWnd::ShowWindow(int code)
+{
+   switch ( code )
+   {
+   case SW_SHOW:
+      setVisible(true);
+      break;
+   case SW_HIDE:
+      setVisible(false);
+      break;
    }
 }
 

@@ -182,6 +182,8 @@ public:
 
    void UpdateScratch();
 
+   CString& Append(LPCSTR str);
+   CString& Append(LPWSTR str);
    void AppendFormat(LPCTSTR fmt, ...);
    void AppendFormatV(LPCTSTR fmt, va_list ap);
    void Format(LPCTSTR fmt, ...);
@@ -794,6 +796,9 @@ public:
    void MoveWindow(int x,int y,int cx, int cy) { setFixedWidth(cx); }
    CDC* GetDC() { CDC* pDC = new CDC(); pDC->attach(this); return pDC; }
    void ReleaseDC(CDC* pDC) { pDC->detach(); delete pDC; }
+   void ShowWindow(int code);
+   virtual BOOL DestroyWindow( ) { return TRUE; }
+   void UpdateWindow( ) { repaint(); }
    
    // These methods are only to be used in CDocTemplate initialization...
    void privateSetParentFrame(CFrameWnd* pFrameWnd) { m_pFrameWnd = pFrameWnd; }
@@ -864,6 +869,18 @@ public:
 
 protected:
    CDocument* m_pDocument;
+};
+
+class CDataExchange
+{
+};
+
+class CMenu
+{
+};
+
+class CDialog : public CWnd
+{
 };
 
 class CComboBox : public QComboBox
