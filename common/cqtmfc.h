@@ -37,6 +37,8 @@
 #include <QSettings>
 #include <QMutex>
 #include <QSemaphore>
+#include <QListWidget>
+#include <QDialog>
 
 // Releasing pointers
 #define SAFE_RELEASE(p) \
@@ -91,7 +93,15 @@
 #define IDR_MAINFRAME 0xDEADBEEF
 #define RUNTIME_CLASS(x) new x
 
-#define afx_msg 
+#define IDD_INSTRUMENT              100000
+#define IDD_INSTRUMENT_INTERNAL     100001
+#define IDD_INSTRUMENT_DPCM         100002
+#define IDD_INSTRUMENT_VRC7         100003
+#define IDD_INSTRUMENT_FDS          100004
+#define IDD_INSTRUMENT_FDS_ENVELOPE 100005
+#define IDD_INSTRUMENT_N163_WAVE    100006
+
+#define afx_msg
 
 #ifdef QT_NO_DEBUG
 #define ASSERT(y)
@@ -294,6 +304,11 @@ public:
       x = point.x();
       y = point.y();
    }
+   CPoint(int _x, int _y)
+   {
+      x = _x;
+      y = _y;
+   }
    void SetPoint(int _x, int _y)
    {
       x = _x;
@@ -305,7 +320,7 @@ public:
    }
 };
 
-class CRect
+class CRect : public tagRECT
 {
 public:
    CRect( ); 
@@ -329,18 +344,26 @@ public:
       POINT topLeft, 
       POINT bottomRight  
    );
-   int Width() const { return _rect.right-_rect.left; }
-   int Height() const { return _rect.bottom-_rect.top; }
+   int Width() const { return right-left; }
+   int Height() const { return bottom-top; }
+   void MoveToXY(
+      int x,
+      int y 
+   );
+   void MoveToY(
+         int y
+   );
+   void MoveToXY(
+      POINT point 
+   );   
    operator LPRECT() const
    {
-      return (RECT*)&_rect;
+      return (RECT*)this;
    }
    operator LPCRECT() const
    {
-      return (const RECT*)&_rect;
+      return (const RECT*)this;
    }
-private:
-   RECT _rect;
 };
 
 class CGdiObject : public CObject
@@ -379,6 +402,11 @@ public:
       const DWORD* lpStyle = NULL 
    );
    virtual ~CPen() {}
+   BOOL CreatePen(
+      int nPenStyle,
+      int nWidth,
+      COLORREF crColor 
+   );
    operator QPen() const
    {
       return _qpen;
@@ -762,17 +790,48 @@ class CScrollBar
 {
 };
 
+class CDataExchange
+{
+};
+
 class CFrameWnd;
 class CWnd : public QWidget
 {
+   Q_OBJECT
 public:
-   CWnd(QWidget* parent=0) : QWidget(parent), m_pFrameWnd(NULL) {}
+   CWnd(QWidget* parent=0);
+   virtual ~CWnd();
 
+   virtual BOOL CreateEx(
+      DWORD dwExStyle,
+      LPCTSTR lpszClassName,
+      LPCTSTR lpszWindowName,
+      DWORD dwStyle,
+      const RECT& rect,
+      CWnd* pParentWnd,
+      UINT nID,
+      LPVOID lpParam = NULL
+   );
+   void SetScrollRange(
+      int nBar,
+      int nMinPos,
+      int nMaxPos,
+      BOOL bRedraw = TRUE 
+   );
+   int SetScrollPos(
+      int nBar,
+      int nPos,
+      BOOL bRedraw = TRUE 
+   );
+   virtual afx_msg int OnCreate(
+      LPCREATESTRUCT lpCreateStruct 
+   );
    void OnMouseMove(UINT,CPoint) {}
    void OnNcMouseMove(UINT nHitTest, CPoint point) {}
    void OnLButtonDblClk(UINT,CPoint) {}
    void OnLButtonDown(UINT,CPoint) {}
    void OnLButtonUp(UINT,CPoint) {}
+   void OnRButtonDown(UINT,CPoint) {}
    void OnRButtonUp(UINT,CPoint) {}
    BOOL OnMouseWheel(UINT,UINT,CPoint) { return TRUE; }
    void OnSize(UINT nType, int cx, int cy) {}
@@ -799,6 +858,16 @@ public:
    void ShowWindow(int code);
    virtual BOOL DestroyWindow( ) { return TRUE; }
    void UpdateWindow( ) { repaint(); }
+   virtual void DoDataExchange(
+      CDataExchange* pDX 
+   ) {}   
+   CWnd* GetParent() { return (CWnd*)m_pFrameWnd; }
+   void GetWindowRect(
+      LPRECT lpRect 
+   ) const;
+   void GetClientRect(
+      LPRECT lpRect 
+   ) const;
    
    // These methods are only to be used in CDocTemplate initialization...
    void privateSetParentFrame(CFrameWnd* pFrameWnd) { m_pFrameWnd = pFrameWnd; }
@@ -807,6 +876,8 @@ protected:
    QMap<int,UINT_PTR> qtToMfcTimer;
    CFrameWnd* m_pFrameWnd;
    static CWnd* focusWnd;
+   QScrollBar* verticalScrollBar;
+   QScrollBar* horizontalScrollBar;
 };
 
 class CView;
@@ -871,15 +942,22 @@ protected:
    CDocument* m_pDocument;
 };
 
-class CDataExchange
-{
-};
-
 class CMenu
 {
 };
 
-class CDialog : public CWnd
+class CDialog : public CWnd, public QDialog
+{
+public:
+   CDialog(int dlgID,CWnd* parent) : CWnd(parent) {}
+   BOOL OnInitDialog() { return TRUE; }
+};
+
+class CTabCtrl : public QTabWidget, public CWnd
+{   
+};
+
+class CListCtrl : public QListWidget
 {
 };
 

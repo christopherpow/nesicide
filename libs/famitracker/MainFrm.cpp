@@ -165,6 +165,13 @@ void CMainFrame::showEvent(QShowEvent *)
       // Create frame editor
       m_pFrameEditor = new CFrameEditor(this);
    
+      CRect rect(SX(12), SY(10), SX(162), SY(173));
+   
+//      if (!m_pFrameEditor->CreateEx(WS_EX_STATICEDGE, NULL, "", WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_HSCROLL, rect, (CWnd*)&m_wndControlBar, 0)) {
+      if (!m_pFrameEditor->CreateEx(WS_EX_STATICEDGE, NULL, _T(""), WS_CHILD | WS_VISIBLE | WS_VSCROLL | WS_HSCROLL, rect, (CWnd*)NULL, 0)) {
+         TRACE0("Failed to create pattern window\n");
+      }
+
       ui->songFrames->layout()->addWidget(m_pFrameEditor);
       
       ui->songPatterns->layout()->addWidget(m_pView);
@@ -806,13 +813,14 @@ bool CMainFrame::CreateSampleWindow()
 	const int POS_X = 137;
 	const int POS_Y = 113;
 
-//	CRect rect(SX(POS_X), SY(POS_Y), SX(POS_X) + CSampleWindow::WIN_WIDTH, SY(POS_Y) + CSampleWindow::WIN_HEIGHT);
+	CRect rect(SX(POS_X), SY(POS_Y), SX(POS_X) + CSampleWindow::WIN_WIDTH, SY(POS_Y) + CSampleWindow::WIN_HEIGHT);
 
 	// Create the sample graph window
 	m_pSampleWindow = new CSampleWindow();
 
-//	if (!m_pSampleWindow->CreateEx(WS_EX_CLIENTEDGE, NULL, _T("Samples"), WS_CHILD | WS_VISIBLE, rect, (CWnd*)&m_wndDialogBar, 0))
-//		return false;
+//   if (!m_pSampleWindow->CreateEx(WS_EX_CLIENTEDGE, NULL, _T("Samples"), WS_CHILD | WS_VISIBLE, rect, (CWnd*)&m_wndDialogBar, 0))
+   if (!m_pSampleWindow->CreateEx(WS_EX_CLIENTEDGE, NULL, _T("Samples"), WS_CHILD | WS_VISIBLE, rect, (CWnd*)NULL, 0))
+		return false;
 
 	// Assign this to the sound generator
 	CSoundGen *pSoundGen = theApp.GetSoundGenerator();

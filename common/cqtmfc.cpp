@@ -493,10 +493,10 @@ void CFile::Close()
 
 CRect::CRect( )
 {
-   _rect.top = 0;
-   _rect.bottom = 0;
-   _rect.left = 0;
-   _rect.right = 0;
+   top = 0;
+   bottom = 0;
+   left = 0;
+   right = 0;
 }
 
 CRect::CRect( 
@@ -506,30 +506,30 @@ CRect::CRect(
    int b  
 )
 {
-   _rect.top = t;
-   _rect.bottom = b;
-   _rect.left = l;
-   _rect.right = r;
+   top = t;
+   bottom = b;
+   left = l;
+   right = r;
 }
 
 CRect::CRect( 
    const RECT& srcRect  
 )
 {
-   _rect.top = srcRect.top;
-   _rect.bottom = srcRect.bottom;
-   _rect.left = srcRect.left;
-   _rect.right = srcRect.right;
+   top = srcRect.top;
+   bottom = srcRect.bottom;
+   left = srcRect.left;
+   right = srcRect.right;
 }
 
 CRect::CRect( 
    LPCRECT lpSrcRect  
 )
 {
-   _rect.top = lpSrcRect->top;
-   _rect.bottom = lpSrcRect->bottom;
-   _rect.left = lpSrcRect->left;
-   _rect.right = lpSrcRect->right;
+   top = lpSrcRect->top;
+   bottom = lpSrcRect->bottom;
+   left = lpSrcRect->left;
+   right = lpSrcRect->right;
 }
 
 CRect::CRect( 
@@ -537,10 +537,10 @@ CRect::CRect(
    SIZE size  
 )
 {
-   _rect.top = point.y;
-   _rect.bottom = point.y+size.cy;
-   _rect.left = point.x;
-   _rect.right = point.x+size.cx;
+   top = point.y;
+   bottom = point.y+size.cy;
+   left = point.x;
+   right = point.x+size.cx;
 }
 
 CRect::CRect( 
@@ -548,10 +548,39 @@ CRect::CRect(
    POINT bottomRight  
 )
 {
-   _rect.top = topLeft.y;
-   _rect.bottom = bottomRight.y;
-   _rect.left = topLeft.x;
-   _rect.right = bottomRight.x;
+   top = topLeft.y;
+   bottom = bottomRight.y;
+   left = topLeft.x;
+   right = bottomRight.x;
+}
+
+void CRect::MoveToXY(
+   int x,
+   int y 
+)
+{
+   bottom = y + Height();
+   top = y;
+   right = x + Width();
+   left = x;
+}
+
+void CRect::MoveToY(
+      int y
+)
+{
+   bottom = y + Height();
+   top = y;
+}
+
+void CRect::MoveToXY(
+   POINT point 
+)
+{
+   bottom = point.y + Height();
+   top = point.y;
+   right = point.x + Width();
+   left = point.x;
 }
 
 /*
@@ -642,6 +671,42 @@ CPen::CPen(
       qDebug("PS_INSIDEFRAME not supported");
       break;
    }
+}
+
+BOOL CPen::CreatePen(
+   int nPenStyle,
+   int nWidth,
+   COLORREF crColor 
+)
+{
+   QColor color(GetRValue(crColor),GetGValue(crColor),GetBValue(crColor));
+   _qpen.setWidth(nWidth);
+   _qpen.setColor(color);
+   switch ( nPenStyle )
+   {   
+   case PS_SOLID:      
+      _qpen.setStyle(Qt::SolidLine);
+      break;
+   case PS_DASH:
+      _qpen.setStyle(Qt::DashLine);
+      break;
+   case PS_DOT:
+      _qpen.setStyle(Qt::DotLine);
+      break;
+   case PS_DASHDOT:
+      _qpen.setStyle(Qt::DashDotLine);
+      break;
+   case PS_DASHDOTDOT:
+      _qpen.setStyle(Qt::DashDotDotLine);
+      break;
+   case PS_NULL:
+      _qpen.setStyle(Qt::NoPen);
+      break;
+   case PS_INSIDEFRAME:
+      qDebug("PS_INSIDEFRAME not supported");
+      break;
+   }
+   return TRUE;
 }
 
 CBrush::CBrush( )
@@ -930,7 +995,7 @@ BOOL CDC::TextOut(
 //   _qpainter->setFont((QFont)*_font);
    x += -_windowOrg.x;
    y += -_windowOrg.y;
-   y += fontMetrics.height()-1;
+   y += fontMetrics.ascent();
    _qpainter->drawText(x,y,qstr.left(nCount));
    return TRUE;
 }
@@ -945,7 +1010,7 @@ BOOL CDC::TextOut(
 //   _qpainter->setFont((QFont)*_font);
    x += -_windowOrg.x;
    y += -_windowOrg.y;
-   y += fontMetrics.height()-1;
+   y += fontMetrics.ascent();
    _qpainter->drawText(x,y,(const QString&)str);
    return TRUE;
 }
@@ -967,6 +1032,96 @@ void CComboBox::SetCurSel(int sel)
 
 CWnd* CWnd::focusWnd = NULL;
 
+CWnd::CWnd(QWidget *parent) 
+   : QWidget(parent), 
+     m_pFrameWnd(NULL),
+     verticalScrollBar(NULL),
+     horizontalScrollBar(NULL)
+{
+}
+
+CWnd::~CWnd()
+{
+   delete verticalScrollBar;
+   delete horizontalScrollBar;
+}
+
+BOOL CWnd::CreateEx(
+   DWORD dwExStyle,
+   LPCTSTR lpszClassName,
+   LPCTSTR lpszWindowName,
+   DWORD dwStyle,
+   const RECT& rect,
+   CWnd* pParentWnd,
+   UINT nID,
+   LPVOID lpParam
+)
+{
+   CREATESTRUCT createStruct;
+   
+   createStruct.style = dwStyle;
+   createStruct.x = rect.left;
+   createStruct.y = rect.top;
+   createStruct.cx = rect.right-rect.left;
+   createStruct.cy = rect.bottom-rect.top;
+   OnCreate(&createStruct);
+   return TRUE;
+}
+
+int CWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
+{
+   QGridLayout* grid = dynamic_cast<QGridLayout*>(layout());
+   
+   if ( lpCreateStruct->style&WS_VSCROLL )
+   {
+      verticalScrollBar = new QScrollBar(Qt::Vertical);
+      grid->addWidget(verticalScrollBar,0,1);
+   }
+   if ( lpCreateStruct->style&WS_HSCROLL )
+   {
+      horizontalScrollBar = new QScrollBar(Qt::Horizontal);
+      grid->addWidget(horizontalScrollBar,1,0);   
+   }
+   return 0;
+}
+
+void CWnd::SetScrollRange(
+   int nBar,
+   int nMinPos,
+   int nMaxPos,
+   BOOL bRedraw 
+)
+{
+   switch ( nBar )
+   {
+   case SB_HORZ:
+      horizontalScrollBar->setMinimum(nMinPos);
+      horizontalScrollBar->setMaximum(nMaxPos);
+      break;
+   case SB_VERT:
+      verticalScrollBar->setMinimum(nMinPos);
+      verticalScrollBar->setMaximum(nMaxPos);
+      break;
+   }
+}
+
+int CWnd::SetScrollPos(
+   int nBar,
+   int nPos,
+   BOOL bRedraw
+)
+{
+   switch ( nBar )
+   {
+   case SB_HORZ:
+      horizontalScrollBar->setValue(nPos);
+      break;
+   case SB_VERT:
+      verticalScrollBar->setValue(nPos);
+      break;
+   }
+}
+
 UINT CWnd::SetTimer(UINT id, UINT interval, void*)
 {
    int qtId = startTimer(interval);
@@ -983,6 +1138,26 @@ void CWnd::KillTimer(UINT id)
       qtToMfcTimer.remove(mfcToQtTimer.value((int)id));
       mfcToQtTimer.remove((int)id);
    }
+}
+
+void CWnd::GetWindowRect(
+   LPRECT lpRect 
+) const
+{
+   lpRect->left = rect().left();
+   lpRect->right = rect().right();
+   lpRect->top = rect().top();
+   lpRect->bottom = rect().bottom();
+}
+
+void CWnd::GetClientRect(
+   LPRECT lpRect 
+) const
+{
+   lpRect->left = rect().left();
+   lpRect->right = rect().right();
+   lpRect->top = rect().top();
+   lpRect->bottom = rect().bottom();
 }
 
 void CWnd::ShowWindow(int code)

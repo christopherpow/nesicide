@@ -53,8 +53,6 @@ CFrameEditor::CFrameEditor(CMainFrame *pMainFrm):
    ui->setupUi(this);
    
 	memset(m_iCopiedValues, 0, MAX_CHANNELS * sizeof(int));
-   
-   CreateGdiObjects();
 }
 
 CFrameEditor::~CFrameEditor()
@@ -97,17 +95,22 @@ void CFrameEditor::AssignDocument(CFamiTrackerDoc *pDoc, CFamiTrackerView *pView
 
 // CFrameEditor message handlers
 
-//int CFrameEditor::OnCreate(LPCREATESTRUCT lpCreateStruct)
-//{
-//	if (CWnd::OnCreate(lpCreateStruct) == -1)
-//		return -1;
+int CFrameEditor::OnCreate(LPCREATESTRUCT lpCreateStruct)
+{
+   qDebug("OnCreate!!!");
+   
+	if (CWnd::OnCreate(lpCreateStruct) == -1)
+		return -1;
 
+   QObject::connect(verticalScrollBar,SIGNAL(actionTriggered(int)),this,SLOT(verticalScrollBar_actionTriggered(int)));
+   QObject::connect(horizontalScrollBar,SIGNAL(actionTriggered(int)),this,SLOT(horizontalScrollBar_actionTriggered(int)));
+   
 //	m_hAccel = LoadAccelerators(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDR_FRAMEWND));
 
-//	CreateGdiObjects();
+	CreateGdiObjects();
 
-//	return 0;
-//}
+	return 0;
+}
 
 void CFrameEditor::CreateGdiObjects()
 {
@@ -137,7 +140,7 @@ void CFrameEditor::OnPaint()
 //	// Get window size
 //	CRect WinRect;
 //	GetClientRect(&WinRect);
-   CRect WinRect(x(),y(),x()+width()-ui->verticalScrollBar->width(),y()+height()-ui->horizontalScrollBar->height());
+   CRect WinRect(x(),y(),x()+width()-verticalScrollBar->width(),y()+height()-horizontalScrollBar->height());
 
 	if (!m_pDocument || !m_pView)  {
 		dc.FillSolidRect(WinRect, 0);
@@ -702,7 +705,7 @@ void CFrameEditor::resizeEvent(QResizeEvent *event)
    setFixedSize(width,height);
 }
 
-void CFrameEditor::on_verticalScrollBar_actionTriggered(int arg1)
+void CFrameEditor::verticalScrollBar_actionTriggered(int arg1)
 {
    // CP: these values don't match Qt apparently...
    switch ( arg1 )
@@ -730,11 +733,11 @@ void CFrameEditor::on_verticalScrollBar_actionTriggered(int arg1)
       break;
    }
 
-   OnVScroll(arg1,ui->verticalScrollBar->sliderPosition(),0);
+   OnVScroll(arg1,verticalScrollBar->sliderPosition(),0);
    update();
 }
 
-void CFrameEditor::on_horizontalScrollBar_actionTriggered(int arg1)
+void CFrameEditor::horizontalScrollBar_actionTriggered(int arg1)
 {
    // CP: these values don't match Qt apparently...
    switch ( arg1 )
@@ -762,7 +765,7 @@ void CFrameEditor::on_horizontalScrollBar_actionTriggered(int arg1)
       break;
    }
    
-   OnHScroll(arg1,ui->horizontalScrollBar->sliderPosition(),0);
+   OnHScroll(arg1,horizontalScrollBar->sliderPosition(),0);
    update();
 }
 
@@ -911,41 +914,4 @@ void CFrameEditor::wheelEvent(QWheelEvent* event)
 void CFrameEditor::updateViews(long hint)
 {
    update();
-}
-
-void CFrameEditor::SetScrollRange(
-   int nBar,
-   int nMinPos,
-   int nMaxPos,
-   BOOL bRedraw 
-)
-{
-   switch ( nBar )
-   {
-   case SB_HORZ:
-      ui->horizontalScrollBar->setMinimum(nMinPos);
-      ui->horizontalScrollBar->setMaximum(nMaxPos);
-      break;
-   case SB_VERT:
-      ui->verticalScrollBar->setMinimum(nMinPos);
-      ui->verticalScrollBar->setMaximum(nMaxPos);
-      break;
-   }
-}
-
-int CFrameEditor::SetScrollPos(
-   int nBar,
-   int nPos,
-   BOOL bRedraw
-)
-{
-   switch ( nBar )
-   {
-   case SB_HORZ:
-      ui->horizontalScrollBar->setValue(nPos);
-      break;
-   case SB_VERT:
-      ui->verticalScrollBar->setValue(nPos);
-      break;
-   }
 }
