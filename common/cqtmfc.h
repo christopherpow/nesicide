@@ -39,6 +39,7 @@
 #include <QSemaphore>
 #include <QListWidget>
 #include <QDialog>
+#include <QMenu>
 
 // Releasing pointers
 #define SAFE_RELEASE(p) \
@@ -356,6 +357,22 @@ public:
    void MoveToXY(
       POINT point 
    );   
+   void DeflateRect( 
+      int x, 
+      int y  
+   );
+   void DeflateRect( 
+      SIZE size  
+   );
+   void DeflateRect( 
+      LPCRECT lpRect  
+   );
+   void DeflateRect( 
+      int l, 
+      int t, 
+      int r, 
+      int b  
+   );
    operator LPRECT() const
    {
       return (RECT*)this;
@@ -558,6 +575,11 @@ public:
    QPainter* painter() { return _qpainter; }
    
    virtual ~CDC();
+   BOOL DrawEdge(
+      LPRECT lpRect,
+      UINT nEdge,
+      UINT nFlags 
+   );
    BOOL BitBlt(
       int x,
       int y,
@@ -568,11 +590,24 @@ public:
       int ySrc,
       DWORD dwRop 
    );
+   COLORREF GetPixel(
+      int x,
+      int y 
+   ) const;
+   COLORREF GetPixel(
+      POINT point 
+   ) const;
    void Draw3dRect( LPCRECT lpRect, COLORREF clrTopLeft, COLORREF clrBottomRight )
    {
       Draw3dRect(lpRect->left,lpRect->top,lpRect->right-lpRect->left,lpRect->bottom-lpRect->top,clrTopLeft,clrBottomRight);
    }
    void Draw3dRect( int x, int y, int cx, int cy, COLORREF clrTopLeft, COLORREF clrBottomRight );
+   virtual int DrawText(
+      LPCTSTR lpszString,
+      int nCount,
+      LPRECT lpRect,
+      UINT nFormat 
+   );
    int DrawText(
       const CString& str,
       LPRECT lpRect,
@@ -786,8 +821,37 @@ public:
    CPaintDC(QWidget* parent) : CDC(parent) {}
 };
 
-class CScrollBar
+class CWnd;
+class CScrollBar : public QScrollBar
 {
+public:
+   CScrollBar() {}
+   CScrollBar(Qt::Orientation o) : QScrollBar(o) {}
+   BOOL SetScrollInfo(
+      LPSCROLLINFO lpScrollInfo,
+      BOOL bRedraw = TRUE 
+   );
+   virtual BOOL Create(
+      DWORD dwStyle,
+      const RECT& rect,
+      CWnd* pParentWnd,
+      UINT nID 
+   );
+   int SetScrollPos(
+      int nPos,
+      BOOL bRedraw = TRUE 
+   );
+   void SetScrollRange(
+      int nMinPos,
+      int nMaxPos,
+      BOOL bRedraw = TRUE 
+   );
+   void ShowScrollBar(
+      BOOL bShow = TRUE 
+   );
+   BOOL EnableScrollBar(
+      UINT nArrowFlags = ESB_ENABLE_BOTH 
+   );
 };
 
 class CDataExchange
@@ -811,6 +875,17 @@ public:
       CWnd* pParentWnd,
       UINT nID,
       LPVOID lpParam = NULL
+   );
+   virtual BOOL PreTranslateMessage(
+      MSG* pMsg 
+   ) {}
+   virtual CScrollBar* GetScrollBarCtrl(
+      int nBar 
+   ) const;
+   BOOL SetScrollInfo(
+      int nBar,
+      LPSCROLLINFO lpScrollInfo,
+      BOOL bRedraw = TRUE 
    );
    void SetScrollRange(
       int nBar,
@@ -858,6 +933,11 @@ public:
    void ShowWindow(int code);
    virtual BOOL DestroyWindow( ) { return TRUE; }
    void UpdateWindow( ) { repaint(); }
+   BOOL PostMessage(
+      UINT message,
+      WPARAM wParam = 0,
+      LPARAM lParam = 0 
+   );
    virtual void DoDataExchange(
       CDataExchange* pDX 
    ) {}   
@@ -876,8 +956,8 @@ protected:
    QMap<int,UINT_PTR> qtToMfcTimer;
    CFrameWnd* m_pFrameWnd;
    static CWnd* focusWnd;
-   QScrollBar* verticalScrollBar;
-   QScrollBar* horizontalScrollBar;
+   CScrollBar* verticalScrollBar;
+   CScrollBar* horizontalScrollBar;
 };
 
 class CView;
@@ -942,11 +1022,31 @@ protected:
    CDocument* m_pDocument;
 };
 
-class CMenu
+class CMenu : public QMenu
 {
+public:
+   BOOL CreatePopupMenu() { return TRUE; }
+   BOOL AppendMenu(
+      UINT nFlags,
+      UINT_PTR nIDNewItem = 0,
+      LPCTSTR lpszNewItem = NULL 
+   );
+   UINT CheckMenuItem(
+      UINT nIDCheckItem,
+      UINT nCheck 
+   );
+   BOOL TrackPopupMenu(
+      UINT nFlags,
+      int x,
+      int y,
+      CWnd* pWnd,
+      LPCRECT lpRect = 0
+   );
+private:
+   QMap<UINT_PTR,QAction*> mfcToQtMenu;
 };
 
-class CDialog : public CWnd, public QDialog
+class CDialog : public CWnd
 {
 public:
    CDialog(int dlgID,CWnd* parent) : CWnd(parent) {}

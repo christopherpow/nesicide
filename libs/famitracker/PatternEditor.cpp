@@ -89,70 +89,6 @@ void CPatternView::resizeEvent(QResizeEvent *event)
    SetWindowSize(width,height);
 }
 
-void CPatternView::on_verticalScrollBar_actionTriggered(int arg1)
-{
-   // CP: these values don't match Qt apparently...
-   switch ( arg1 )
-   {
-   case QAbstractSlider::SliderSingleStepAdd: 
-      arg1 = SB_LINEDOWN;
-      break;
-   case QAbstractSlider::SliderSingleStepSub: 
-      arg1 = SB_LINEUP;
-      break;
-   case QAbstractSlider::SliderPageStepAdd: 
-      arg1 = SB_PAGEDOWN;
-      break;
-   case QAbstractSlider::SliderPageStepSub: 
-      arg1 = SB_PAGEUP;
-      break;
-   case QAbstractSlider::SliderToMinimum:
-      arg1 = SB_TOP;
-      break;
-   case QAbstractSlider::SliderToMaximum:
-      arg1 = SB_BOTTOM;
-      break;
-   case QAbstractSlider::SliderMove:
-      arg1 = SB_THUMBTRACK;
-      break;
-   }
-
-   OnVScroll(arg1,ui->verticalScrollBar->sliderPosition());
-   update();
-}
-
-void CPatternView::on_horizontalScrollBar_actionTriggered(int arg1)
-{
-   // CP: these values don't match Qt apparently...
-   switch ( arg1 )
-   {
-   case QAbstractSlider::SliderSingleStepAdd: 
-      arg1 = SB_LINEDOWN;
-      break;
-   case QAbstractSlider::SliderSingleStepSub: 
-      arg1 = SB_LINEUP;
-      break;
-   case QAbstractSlider::SliderPageStepAdd: 
-      arg1 = SB_PAGEDOWN;
-      break;
-   case QAbstractSlider::SliderPageStepSub: 
-      arg1 = SB_PAGEUP;
-      break;
-   case QAbstractSlider::SliderToMinimum:
-      arg1 = SB_TOP;
-      break;
-   case QAbstractSlider::SliderToMaximum:
-      arg1 = SB_BOTTOM;
-      break;
-   case QAbstractSlider::SliderMove:
-      arg1 = SB_THUMBTRACK;
-      break;
-   }
-   
-   OnHScroll(arg1,ui->horizontalScrollBar->sliderPosition());
-   update();
-}
-
 void CPatternView::leaveEvent(QEvent *)
 {
    OnMouseNcMove();
@@ -460,6 +396,10 @@ void CPatternView::SetDocument(CFamiTrackerDoc *pDoc, CFamiTrackerView *pView)
 	m_pDocument = pDoc;
 	m_pView = pView;
 
+   QGridLayout* grid = dynamic_cast<QGridLayout*>(layout());
+   grid->addWidget(pView->GetScrollBarCtrl(SB_HORZ),1,0);
+   grid->addWidget(pView->GetScrollBarCtrl(SB_VERT),0,1);
+   
 	// Reset variables
 	
 	m_cpCursorPos = CCursorPos();
@@ -955,26 +895,23 @@ void CPatternView::EraseBackground(CDC *pDC)
 
 void CPatternView::UpdateVerticalScroll()
 {
-       // Vertical scroll bar
-//     SCROLLINFO si;
-
-//     si.cbSize = sizeof(SCROLLINFO);
-//     si.fMask = SIF_PAGE | SIF_POS | SIF_RANGE;
-//     si.nMin = 0;
-//     si.nMax = m_iPatternLength + theApp.GetSettings()->General.iPageStepSize - 2;
-//     si.nPos = m_iDrawCursorRow;
-//     si.nPage = theApp.GetSettings()->General.iPageStepSize;
-
-   ui->verticalScrollBar->setMinimum(0);
-   ui->verticalScrollBar->setMaximum(m_iPatternLength + theApp.GetSettings()->General.iPageStepSize - 2 - 3);
-   ui->verticalScrollBar->setValue(m_iDrawCursorRow);
-   ui->verticalScrollBar->setPageStep(theApp.GetSettings()->General.iPageStepSize);//	m_pView->SetScrollInfo(SB_VERT, &si);
+   // Vertical scroll bar
+   SCROLLINFO si;
+   
+   si.cbSize = sizeof(SCROLLINFO);
+   si.fMask = SIF_PAGE | SIF_POS | SIF_RANGE;
+   si.nMin = 0;
+   si.nMax = m_iPatternLength + theApp.GetSettings()->General.iPageStepSize - 2 - 3;
+   si.nPos = m_iDrawCursorRow;
+   si.nPage = theApp.GetSettings()->General.iPageStepSize;
+   
+   m_pView->SetScrollInfo(SB_VERT, &si);
 }
 
 void CPatternView::UpdateHorizontalScroll()
 {
 	// Horizontal scroll bar
-//	SCROLLINFO si;
+	SCROLLINFO si;
 
 	int ColumnCount = 0, CurrentColumn = 0;
 	int Channels = m_pDocument->GetAvailableChannels();
@@ -986,18 +923,14 @@ void CPatternView::UpdateHorizontalScroll()
 		ColumnCount += GetChannelColumns(i);
 	}
 
-//     si.cbSize = sizeof(SCROLLINFO);
-//     si.fMask = SIF_PAGE | SIF_POS | SIF_RANGE;
-//     si.nMin = 0;
-//     si.nMax = ColumnCount + COLUMNS - 2;
-//     si.nPos = CurrentColumn;
-//     si.nPage = COLUMNS;
+   si.cbSize = sizeof(SCROLLINFO);
+   si.fMask = SIF_PAGE | SIF_POS | SIF_RANGE;
+   si.nMin = 0;
+   si.nMax = ColumnCount + COLUMNS - 2 - 6;
+   si.nPos = CurrentColumn;
+   si.nPage = COLUMNS;
 
-   ui->horizontalScrollBar->setMinimum(0);
-   ui->horizontalScrollBar->setMaximum(ColumnCount + COLUMNS - 2 - 6);
-   ui->horizontalScrollBar->setValue(CurrentColumn);
-   ui->horizontalScrollBar->setPageStep(COLUMNS);
-//	m_pView->SetScrollInfo(SB_HORZ, &si);
+   m_pView->SetScrollInfo(SB_HORZ, &si);
 }
 
 void CPatternView::DrawRowArea(CDC *pDC)

@@ -169,6 +169,7 @@ signals:
    void editor_modificationChanged(bool m);
 private slots:
    void on_frameChangeAll_clicked(bool checked);
+   void on_songInstruments_doubleClicked(const QModelIndex &index);
 };
 
 // Global DPI functions

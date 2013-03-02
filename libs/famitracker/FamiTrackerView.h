@@ -67,11 +67,6 @@ protected:
    void mousePressEvent(QMouseEvent *event);
    void mouseReleaseEvent(QMouseEvent *event);
    void mouseDoubleClickEvent(QMouseEvent *event);   
-public:
-	CFamiTrackerView(QWidget* parent = 0);
-   ~CFamiTrackerView();
-
-protected:   
    bool eventFilter(QObject *object, QEvent *event);
    void keyPressEvent(QKeyEvent *event);
    void keyReleaseEvent(QKeyEvent *event);
@@ -82,7 +77,13 @@ protected:
    
 public slots:
    void updateViews(long hint);
+   void verticalScrollBar_actionTriggered(int action);
+   void horizontalScrollBar_actionTriggered(int action);
    
+public:
+	CFamiTrackerView(QWidget* parent = 0);
+   ~CFamiTrackerView();
+
 public:
 	static CFamiTrackerView *GetView();
    

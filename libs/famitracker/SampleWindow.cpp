@@ -54,7 +54,7 @@ CSampleWindow::CSampleWindow() :
 
 CSampleWindow::~CSampleWindow()
 {
-	for (int i = 0; i < 4; ++i) {
+	for (int i = 0; i < STATE_COUNT; ++i) {
 		SAFE_RELEASE(m_pStates[i]);
 	}
 }

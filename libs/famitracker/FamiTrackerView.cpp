@@ -1069,7 +1069,12 @@ void CFamiTrackerView::OnInitialUpdate()
    TRACE0(pDoc->GetTitle().GetString());
 	TRACE0("\n");
 
-	// Setup order window
+   horizontalScrollBar = new CScrollBar(Qt::Horizontal);
+   verticalScrollBar = new CScrollBar(Qt::Vertical);
+   QObject::connect(horizontalScrollBar,SIGNAL(actionTriggered(int)),this,SLOT(horizontalScrollBar_actionTriggered(int)));
+   QObject::connect(verticalScrollBar,SIGNAL(actionTriggered(int)),this,SLOT(verticalScrollBar_actionTriggered(int)));
+
+   // Setup order window
 	pMainFrame->GetFrameEditor()->AssignDocument(pDoc, this);
 
 	// Notify the pattern view about new document & view
@@ -3489,4 +3494,68 @@ void CFamiTrackerView::timerEvent(QTimerEvent *event)
    int mfcId = mfcTimerId(event->timerId());
    OnTimer(mfcId);
    m_pPatternView->update();
+}
+
+void CFamiTrackerView::verticalScrollBar_actionTriggered(int arg1)
+{
+   // CP: these values don't match Qt apparently...
+   switch ( arg1 )
+   {
+   case QAbstractSlider::SliderSingleStepAdd: 
+      arg1 = SB_LINEDOWN;
+      break;
+   case QAbstractSlider::SliderSingleStepSub: 
+      arg1 = SB_LINEUP;
+      break;
+   case QAbstractSlider::SliderPageStepAdd: 
+      arg1 = SB_PAGEDOWN;
+      break;
+   case QAbstractSlider::SliderPageStepSub: 
+      arg1 = SB_PAGEUP;
+      break;
+   case QAbstractSlider::SliderToMinimum:
+      arg1 = SB_TOP;
+      break;
+   case QAbstractSlider::SliderToMaximum:
+      arg1 = SB_BOTTOM;
+      break;
+   case QAbstractSlider::SliderMove:
+      arg1 = SB_THUMBTRACK;
+      break;
+   }
+
+   OnVScroll(arg1,verticalScrollBar->sliderPosition(),verticalScrollBar);
+   update();
+}
+
+void CFamiTrackerView::horizontalScrollBar_actionTriggered(int arg1)
+{
+   // CP: these values don't match Qt apparently...
+   switch ( arg1 )
+   {
+   case QAbstractSlider::SliderSingleStepAdd: 
+      arg1 = SB_LINEDOWN;
+      break;
+   case QAbstractSlider::SliderSingleStepSub: 
+      arg1 = SB_LINEUP;
+      break;
+   case QAbstractSlider::SliderPageStepAdd: 
+      arg1 = SB_PAGEDOWN;
+      break;
+   case QAbstractSlider::SliderPageStepSub: 
+      arg1 = SB_PAGEUP;
+      break;
+   case QAbstractSlider::SliderToMinimum:
+      arg1 = SB_TOP;
+      break;
+   case QAbstractSlider::SliderToMaximum:
+      arg1 = SB_BOTTOM;
+      break;
+   case QAbstractSlider::SliderMove:
+      arg1 = SB_THUMBTRACK;
+      break;
+   }
+   
+   OnHScroll(arg1,horizontalScrollBar->sliderPosition(),horizontalScrollBar);
+   update();
 }

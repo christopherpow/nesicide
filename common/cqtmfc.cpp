@@ -583,6 +583,50 @@ void CRect::MoveToXY(
    left = point.x;
 }
 
+void CRect::DeflateRect( 
+   int x, 
+   int y  
+)
+{
+   left += x;
+   right -= x;
+   top += y;
+   bottom -= y;
+}
+
+void CRect::DeflateRect( 
+   SIZE size  
+)
+{
+   left += size.cx;
+   right -= size.cx;
+   top += size.cy;
+   bottom -= size.cy;
+}
+
+void CRect::DeflateRect( 
+   LPCRECT lpRect  
+)
+{
+   left += lpRect->left;
+   right -= lpRect->right;
+   top += lpRect->top;
+   bottom -= lpRect->bottom;
+}
+
+void CRect::DeflateRect( 
+   int l, 
+   int t, 
+   int r, 
+   int b  
+)
+{
+   left += l;
+   right -= r;
+   top += t;
+   bottom -= b;
+}
+
 /*
  *  CDC object classes
  */
@@ -821,6 +865,25 @@ CDC::~CDC()
    }
 }
 
+COLORREF CDC::GetPixel(
+   int x,
+   int y 
+) const
+{
+   qDebug("GetPixel not supported yet.");
+   COLORREF ref = 0xbadf00d;
+   return ref;
+}
+
+COLORREF CDC::GetPixel(
+   POINT point 
+) const
+{
+   qDebug("GetPixel not supported yet.");
+   COLORREF ref = 0xbadf00d;
+   return ref;
+}
+
 BOOL CDC::BitBlt(
    int x,
    int y,
@@ -856,6 +919,17 @@ int StretchDIBits(
    dc.painter()->drawImage(XDest,YDest,image);
 }
 
+BOOL CDC::DrawEdge(
+   LPRECT lpRect,
+   UINT nEdge,
+   UINT nFlags 
+)
+{
+   QRect rect(lpRect->left,lpRect->top,lpRect->right-lpRect->left,lpRect->bottom-lpRect->top);
+   _qpainter->drawRect(rect);
+   qDebug("CDC::DrawEdge not implemented!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+}
+
 void CDC::Draw3dRect( int x, int y, int cx, int cy, COLORREF clrTopLeft, COLORREF clrBottomRight )
 {
    QPen tlc(QColor(GetRValue(clrTopLeft),GetGValue(clrTopLeft),GetBValue(clrTopLeft)));
@@ -888,6 +962,25 @@ int CDC::DrawText(
    _qpainter->drawText(rect,qstr.toLatin1().constData());
    return strlen(str.GetBuffer());   
 }
+int CDC::DrawText(
+   LPCTSTR lpszString,
+   int nCount,
+   LPRECT lpRect,
+   UINT nFormat 
+)
+{
+   QRect rect(lpRect->left,lpRect->top,lpRect->right-lpRect->left,lpRect->bottom-lpRect->top);
+#if UNICODE
+   QString qstr = QString::fromWCharArray(lpszString);
+#else
+   QString qstr(lpszString);
+#endif
+   _qpainter->setPen(QPen(_textColor));
+//   _qpainter->setFont((QFont)*_font);
+   _qpainter->drawText(rect,qstr.left(nCount).toLatin1().constData());
+   return 0; // CP: should be text height  
+}
+
 void CDC::FillSolidRect(
    LPCRECT lpRect,
    COLORREF clr 
@@ -1030,6 +1123,64 @@ void CComboBox::SetCurSel(int sel)
    setCurrentIndex(sel);
 }
 
+BOOL CScrollBar::SetScrollInfo(
+   LPSCROLLINFO lpScrollInfo,
+   BOOL bRedraw 
+)
+{
+   if ( lpScrollInfo->fMask&SIF_RANGE )
+   {
+      setMinimum(lpScrollInfo->nMin);
+      setMaximum(lpScrollInfo->nMax);
+   }
+   if ( lpScrollInfo->fMask&SIF_POS )
+   {
+      setValue(lpScrollInfo->nPos);
+   }
+   if ( lpScrollInfo->fMask&SIF_TRACKPOS )
+   {
+      setValue(lpScrollInfo->nTrackPos);
+   }
+   if ( lpScrollInfo->fMask&SIF_PAGE )
+   {
+      setPageStep(lpScrollInfo->nPage);
+   }
+}
+
+int CScrollBar::SetScrollPos(
+   int nPos,
+   BOOL bRedraw 
+)
+{
+   int pos = value();
+   setValue(nPos);
+   return pos;
+}
+
+void CScrollBar::SetScrollRange(
+   int nMinPos,
+   int nMaxPos,
+   BOOL bRedraw
+)
+{
+   setMinimum(nMinPos);
+   setMaximum(nMaxPos);
+}   
+
+void CScrollBar::ShowScrollBar(
+   BOOL bShow
+)
+{
+   setVisible(bShow);
+}   
+
+BOOL CScrollBar::EnableScrollBar(
+   UINT nArrowFlags
+)
+{
+   setEnabled(nArrowFlags==ESB_ENABLE_BOTH?true:false);
+}
+
 CWnd* CWnd::focusWnd = NULL;
 
 CWnd::CWnd(QWidget *parent) 
@@ -1042,8 +1193,10 @@ CWnd::CWnd(QWidget *parent)
 
 CWnd::~CWnd()
 {
-   delete verticalScrollBar;
-   delete horizontalScrollBar;
+   if ( verticalScrollBar )
+      delete verticalScrollBar;
+   if ( horizontalScrollBar )
+      delete horizontalScrollBar;
 }
 
 BOOL CWnd::CreateEx(
@@ -1064,6 +1217,9 @@ BOOL CWnd::CreateEx(
    createStruct.y = rect.top;
    createStruct.cx = rect.right-rect.left;
    createStruct.cy = rect.bottom-rect.top;
+   // For widgets that aren't added to a layout...
+   setParent(pParentWnd);
+   setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
    OnCreate(&createStruct);
    return TRUE;
 }
@@ -1074,15 +1230,121 @@ int CWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
    
    if ( lpCreateStruct->style&WS_VSCROLL )
    {
-      verticalScrollBar = new QScrollBar(Qt::Vertical);
+      verticalScrollBar = new CScrollBar(Qt::Vertical);
       grid->addWidget(verticalScrollBar,0,1);
    }
    if ( lpCreateStruct->style&WS_HSCROLL )
    {
-      horizontalScrollBar = new QScrollBar(Qt::Horizontal);
+      horizontalScrollBar = new CScrollBar(Qt::Horizontal);
       grid->addWidget(horizontalScrollBar,1,0);   
    }
    return 0;
+}
+
+BOOL CWnd::PostMessage(
+   UINT message,
+   WPARAM wParam,
+   LPARAM lParam 
+)
+{
+   qDebug("CWnd::PostMessage");
+}
+
+BOOL CScrollBar::Create(
+   DWORD dwStyle,
+   const RECT& rect,
+   CWnd* pParentWnd,
+   UINT nID 
+)
+{
+   if ( dwStyle&SBS_VERT )
+   {
+      setOrientation(Qt::Vertical);
+   }
+   if ( dwStyle&SBS_HORZ )
+   {
+      setOrientation(Qt::Horizontal);
+   }
+   setParent(pParentWnd);
+   setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
+}
+
+CScrollBar* CWnd::GetScrollBarCtrl(
+   int nBar 
+) const
+{
+   switch ( nBar )
+   {
+   case SB_VERT:
+      return verticalScrollBar;
+      break;
+   case SB_HORZ:
+      return horizontalScrollBar;
+      break;
+   }
+}
+
+BOOL CWnd::SetScrollInfo(
+   int nBar,
+   LPSCROLLINFO lpScrollInfo,
+   BOOL bRedraw
+)
+{
+   if ( ((nBar==SB_VERT) && (!verticalScrollBar)) ||
+        ((nBar==SB_HORZ) && (!horizontalScrollBar)) )
+   {
+      return FALSE;
+   }
+   if ( lpScrollInfo->fMask&SIF_RANGE )
+   {
+      switch ( nBar )
+      {
+      case SB_HORZ:
+         horizontalScrollBar->setMinimum(lpScrollInfo->nMin);
+         horizontalScrollBar->setMaximum(lpScrollInfo->nMax);
+         break;
+      case SB_VERT:
+         verticalScrollBar->setMinimum(lpScrollInfo->nMin);
+         verticalScrollBar->setMaximum(lpScrollInfo->nMax);
+         break;
+      }
+   }
+   if ( lpScrollInfo->fMask&SIF_POS )
+   {
+      switch ( nBar )
+      {
+      case SB_HORZ:
+         horizontalScrollBar->setValue(lpScrollInfo->nPos);
+         break;
+      case SB_VERT:
+         verticalScrollBar->setValue(lpScrollInfo->nPos);
+         break;
+      }
+   }
+   if ( lpScrollInfo->fMask&SIF_TRACKPOS )
+   {
+      switch ( nBar )
+      {
+      case SB_HORZ:
+         horizontalScrollBar->setValue(lpScrollInfo->nTrackPos);
+         break;
+      case SB_VERT:
+         verticalScrollBar->setValue(lpScrollInfo->nTrackPos);
+         break;
+      }
+   }
+   if ( lpScrollInfo->fMask&SIF_PAGE )
+   {
+      switch ( nBar )
+      {
+      case SB_HORZ:
+         horizontalScrollBar->setPageStep(lpScrollInfo->nPage);
+         break;
+      case SB_VERT:
+         verticalScrollBar->setPageStep(lpScrollInfo->nPage);
+         break;
+      }
+   }
 }
 
 void CWnd::SetScrollRange(
@@ -1234,4 +1496,40 @@ CDocument* CSingleDocTemplate::OpenDocumentFile(
 
 BOOL CWinApp::InitInstance()
 {
+}
+
+BOOL CMenu::AppendMenu(
+   UINT nFlags,
+   UINT_PTR nIDNewItem,
+   LPCTSTR lpszNewItem
+)
+{
+   if ( nFlags == MF_STRING )
+   {
+      QAction* action = addAction(QString::fromWCharArray(lpszNewItem)); // CP: Add slots later
+      mfcToQtMenu.insert(nIDNewItem,action);
+   }
+}
+
+UINT CMenu::CheckMenuItem(
+   UINT nIDCheckItem,
+   UINT nCheck 
+)
+{
+   QAction* action = mfcToQtMenu.value(nIDCheckItem);
+   if ( action )
+   {
+      action->setChecked(nCheck);
+   }
+}
+
+BOOL CMenu::TrackPopupMenu(
+   UINT nFlags,
+   int x,
+   int y,
+   CWnd* pWnd,
+   LPCRECT lpRect
+)
+{
+   popup(QPoint(x,y));
 }

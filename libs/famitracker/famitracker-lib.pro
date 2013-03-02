@@ -118,7 +118,12 @@ SOURCES += \
     DirectSound.cpp \
     SWSpectrum.cpp \
     SWSampleScope.cpp \
-    SampleWindow.cpp
+    SampleWindow.cpp \
+    GraphEditor.cpp \
+    instrumenteditdialog.cpp \
+    SequenceEditor.cpp \
+    SizeEditor.cpp \
+    SequenceSetting.cpp
 
 HEADERS += \
     TrackerChannel.h \
@@ -191,7 +196,12 @@ HEADERS += \
     resource.h \
     SWSpectrum.h \
     SWSampleScope.h \
-    SampleWindow.h
+    SampleWindow.h \
+    GraphEditor.h \
+    instrumenteditdialog.h \
+    SequenceEditor.h \
+    SizeEditor.h \
+    SequenceSetting.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN
@@ -237,7 +247,8 @@ FORMS += \
     FrameEditor.ui \
     famitrackermodulepropertiesdialog.ui \
     famitrackermoduleimportdialog.ui \
-    MainFrm.ui
+    MainFrm.ui \
+    instrumenteditdialog.ui
 
 RESOURCES += \
     $$TOP/common/resource.qrc

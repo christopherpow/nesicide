@@ -6,6 +6,7 @@
 #include "SampleWindow.h"
 
 #include "famitrackermodulepropertiesdialog.h"
+#include "instrumenteditdialog.h"
 
 #include <QFrame>
 #include <QLayout>
@@ -837,4 +838,10 @@ void CMainFrame::on_frameChangeAll_clicked(bool checked)
 {
    CFamiTrackerView* pView = (CFamiTrackerView*)GetActiveView();
    pView->SetChangeAllPattern(checked);
+}
+
+void CMainFrame::on_songInstruments_doubleClicked(const QModelIndex &index)
+{
+   CInstrumentEditDialog dlg((CFamiTrackerDoc*)GetActiveDocument());
+   dlg.exec();
 }

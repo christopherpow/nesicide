@@ -119,9 +119,6 @@ private:
    
 public slots:
    void updateViews(long hint);
-private slots:
-   void on_verticalScrollBar_actionTriggered(int action);
-   void on_horizontalScrollBar_actionTriggered(int action);
 
 public:
 	static const unsigned int ROW_PLAY_COLOR = 0x400050;
