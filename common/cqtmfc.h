@@ -925,7 +925,6 @@ public:
    CWnd* GetFocus() { return focusWnd; } 
    void SetCapture(CWnd* p=0) { /* DON'T DO THIS grabMouse(); */ }
    void ReleaseCapture() { /* DON'T DO THIS releaseMouse(); */ }
-   UINT_PTR mfcTimerId(int qtTimerId) { return qtToMfcTimer.value(qtTimerId); }
    CFrameWnd* GetParentFrame( ) const { return m_pFrameWnd; }
    void MoveWindow(int x,int y,int cx, int cy) { setFixedWidth(cx); }
    CDC* GetDC() { CDC* pDC = new CDC(); pDC->attach(this); return pDC; }
@@ -933,7 +932,7 @@ public:
    void ShowWindow(int code);
    virtual BOOL DestroyWindow( ) { return TRUE; }
    void UpdateWindow( ) { repaint(); }
-   BOOL PostMessage(
+   virtual BOOL PostMessage(
       UINT message,
       WPARAM wParam = 0,
       LPARAM lParam = 0 
@@ -949,6 +948,8 @@ public:
       LPRECT lpRect 
    ) const;
    
+   // This method only for Qt glue
+   UINT_PTR mfcTimerId(int qtTimerId) { return qtToMfcTimer.value(qtTimerId); }
    // These methods are only to be used in CDocTemplate initialization...
    void privateSetParentFrame(CFrameWnd* pFrameWnd) { m_pFrameWnd = pFrameWnd; }
 protected:

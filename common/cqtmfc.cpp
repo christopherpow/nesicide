@@ -1193,9 +1193,9 @@ CWnd::CWnd(QWidget *parent)
 
 CWnd::~CWnd()
 {
-   if ( verticalScrollBar )
+   if ( verticalScrollBar && !verticalScrollBar->parent())
       delete verticalScrollBar;
-   if ( horizontalScrollBar )
+   if ( horizontalScrollBar && !horizontalScrollBar->parent() )
       delete horizontalScrollBar;
 }
 
@@ -1386,6 +1386,12 @@ int CWnd::SetScrollPos(
 
 UINT CWnd::SetTimer(UINT id, UINT interval, void*)
 {
+   if ( mfcToQtTimer.contains((int)id) )
+   {
+      killTimer(mfcToQtTimer.value((int)id));
+      qtToMfcTimer.remove(mfcToQtTimer.value((int)id));
+      mfcToQtTimer.remove((int)id);
+   }
    int qtId = startTimer(interval);
    mfcToQtTimer.insert((int)id,qtId);
    qtToMfcTimer.insert(qtId,(int)id);

@@ -62,6 +62,7 @@ class CFamiTrackerView : public CView
    Q_OBJECT
    // Qt stuff
 protected:
+   BOOL PostMessage(UINT message, WPARAM wParam = 0, LPARAM lParam = 0);
    void wheelEvent(QWheelEvent *event);
    void mouseMoveEvent(QMouseEvent *event);
    void mousePressEvent(QMouseEvent *event);

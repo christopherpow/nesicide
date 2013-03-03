@@ -178,6 +178,21 @@ static bool CheckRepeat()
 //	ON_MESSAGE(MSG_UPDATE, OnUpdateMsg)
 //END_MESSAGE_MAP()
 
+BOOL CFamiTrackerView::PostMessage(
+   UINT message,
+   WPARAM wParam,
+   LPARAM lParam
+)
+{
+   switch ( message )
+   {
+   case MSG_UPDATE:
+      OnUpdateMsg(wParam,lParam);
+      break;
+   }
+   return TRUE;
+}
+
 // Convert keys 0-F to numbers, -1 = invalid key
 int ConvertKeyToHex(int Key) {
 
@@ -1451,7 +1466,7 @@ int CFamiTrackerView::PlayerCommand(char Command, int Value)
 	if (bDoUpdate) {
 		if (m_bHasFocus) {
 			// Direct update
-//			PostMessage(MSG_UPDATE);
+			PostMessage(MSG_UPDATE);
 		}
 		else {
 			// Delayed update
