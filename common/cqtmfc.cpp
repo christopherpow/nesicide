@@ -1123,6 +1123,60 @@ void CComboBox::SetCurSel(int sel)
    setCurrentIndex(sel);
 }
 
+int CListCtrl::InsertColumn(
+   int nCol,
+   LPCTSTR lpszColumnHeading,
+   int nFormat,
+   int nWidth,
+   int nSubItem
+)
+{
+   insertColumn(nCol);
+   QTableWidgetItem twi;
+   twi.setText(QString::fromWCharArray(lpszColumnHeading));
+   setHorizontalHeaderItem(nCol,&twi);
+}
+
+int CListCtrl::InsertItem(
+   int nItem,
+   LPCTSTR lpszItem,
+   int nImage 
+)
+{
+   QTableWidgetItem twi;
+   twi.setText(QString::fromWCharArray(lpszItem));
+   insertRow(nItem);
+   setItem(nItem,3,&twi);
+}
+
+BOOL CListCtrl::SetCheck(
+   int nItem,
+   BOOL fCheck
+)
+{
+   qDebug("CListCtrl::SetCheck!");
+}
+
+BOOL CListCtrl::SetItemText(
+   int nItem,
+   int nSubItem,
+   LPCTSTR lpszText 
+)
+{
+   QTableWidgetItem twi;
+   twi.setText(QString::fromWCharArray(lpszText));
+   setItem(nItem,nSubItem,&twi);
+}
+
+BOOL SetItemState(
+   int nItem,
+   UINT nState,
+   UINT nMask 
+)
+{
+   qDebug("CListCtrl::SetItemState!");
+}
+
 BOOL CScrollBar::SetScrollInfo(
    LPSCROLLINFO lpScrollInfo,
    BOOL bRedraw 
@@ -1248,6 +1302,55 @@ BOOL CWnd::PostMessage(
 )
 {
    qDebug("CWnd::PostMessage");
+   return FALSE;
+}
+
+CWnd* CWnd::GetDlgItem(
+   int nID 
+) const
+{
+   qDebug("CWnd::GetDlgItem");
+   return NULL;
+}
+
+void CWnd::SetDlgItemInt(
+   int nID,
+   UINT nValue,
+   BOOL bSigned
+)
+{
+   CWnd* pWnd = GetDlgItem(nID);
+   qDebug("SetDlgItemInt");
+}
+
+UINT CWnd::GetDlgItemInt(
+   int nID,
+   BOOL* lpTrans,
+   BOOL bSigned
+) const
+{
+   CWnd* pWnd = GetDlgItem(nID);
+   qDebug("GetDlgItemInt");
+   return 0;
+}
+
+int CWnd::GetDlgItemText(
+   int nID,
+   CString& rString 
+) const
+{
+   CWnd* pWnd = GetDlgItem(nID);
+   qDebug("GetDlgItemText");
+   return 0;
+}
+
+void CWnd::SetDlgItemText(
+   int nID,
+   LPCTSTR lpszString 
+)
+{
+   CWnd* pWnd = GetDlgItem(nID);
+   qDebug("SetDlgItemText");
 }
 
 BOOL CScrollBar::Create(

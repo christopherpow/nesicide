@@ -40,6 +40,7 @@
 #include <QListWidget>
 #include <QDialog>
 #include <QMenu>
+#include <QTableWidget>
 
 // Releasing pointers
 #define SAFE_RELEASE(p) \
@@ -91,16 +92,7 @@
 #define DECLARE_DYNAMIC(x)
 #define IMPLEMENT_DYNAMIC(x,y)
 
-#define IDR_MAINFRAME 0xDEADBEEF
 #define RUNTIME_CLASS(x) new x
-
-#define IDD_INSTRUMENT              100000
-#define IDD_INSTRUMENT_INTERNAL     100001
-#define IDD_INSTRUMENT_DPCM         100002
-#define IDD_INSTRUMENT_VRC7         100003
-#define IDD_INSTRUMENT_FDS          100004
-#define IDD_INSTRUMENT_FDS_ENVELOPE 100005
-#define IDD_INSTRUMENT_N163_WAVE    100006
 
 #define afx_msg
 
@@ -878,7 +870,7 @@ public:
    );
    virtual BOOL PreTranslateMessage(
       MSG* pMsg 
-   ) {}
+   ) { return FALSE; }
    virtual CScrollBar* GetScrollBarCtrl(
       int nBar 
    ) const;
@@ -947,6 +939,27 @@ public:
    void GetClientRect(
       LPRECT lpRect 
    ) const;
+   CWnd* GetDlgItem(
+      int nID 
+   ) const;
+   void SetDlgItemInt(
+      int nID,
+      UINT nValue,
+      BOOL bSigned = TRUE 
+   );
+   UINT GetDlgItemInt(
+      int nID,
+      BOOL* lpTrans = NULL,
+      BOOL bSigned = TRUE 
+   ) const;
+   int GetDlgItemText(
+      int nID,
+      CString& rString 
+   ) const;
+   void SetDlgItemText(
+      int nID,
+      LPCTSTR lpszString 
+   );
    
    // This method only for Qt glue
    UINT_PTR mfcTimerId(int qtTimerId) { return qtToMfcTimer.value(qtTimerId); }
@@ -1058,8 +1071,38 @@ class CTabCtrl : public QTabWidget, public CWnd
 {   
 };
 
-class CListCtrl : public QListWidget
+#define LVCFMT_LEFT 100
+
+class CListCtrl : public QTableWidget // CP: Must use QTableWidget because of multiple columns
 {
+public:
+   BOOL DeleteAllItems( ) { clear(); }
+   int InsertColumn(
+      int nCol,
+      LPCTSTR lpszColumnHeading,
+      int nFormat = LVCFMT_LEFT,
+      int nWidth = -1,
+      int nSubItem = -1 
+   );
+   int InsertItem(
+      int nItem,
+      LPCTSTR lpszItem,
+      int nImage 
+   );
+   BOOL SetCheck(
+      int nItem,
+      BOOL fCheck = TRUE 
+   );
+   BOOL SetItemText(
+      int nItem,
+      int nSubItem,
+      LPCTSTR lpszText 
+   );
+   BOOL SetItemState(
+      int nItem,
+      UINT nState,
+      UINT nMask 
+   );
 };
 
 class CComboBox : public QComboBox

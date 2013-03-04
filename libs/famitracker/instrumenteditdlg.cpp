@@ -1,12 +1,12 @@
-#include "instrumenteditdialog.h"
-#include "ui_instrumenteditdialog.h"
+#include "instrumenteditdlg.h"
+#include "ui_instrumenteditdlg.h"
 
 #include "SequenceEditor.h"
 #include "MainFrm.h"
 
-CInstrumentEditDialog::CInstrumentEditDialog(CFamiTrackerDoc* pDoc,QDialog *parent) :
+CInstrumentEditDlg::CInstrumentEditDlg(CFamiTrackerDoc* pDoc,QDialog *parent) :
    QDialog(parent),
-   ui(new Ui::CInstrumentEditDialog)
+   ui(new Ui::CInstrumentEditDlg)
 {
    ui->setupUi(this);
    
@@ -22,7 +22,7 @@ CInstrumentEditDialog::CInstrumentEditDialog(CFamiTrackerDoc* pDoc,QDialog *pare
    m_pSequenceEditor->ShowWindow(SW_SHOW);
 }
 
-CInstrumentEditDialog::~CInstrumentEditDialog()
+CInstrumentEditDlg::~CInstrumentEditDlg()
 {
    delete ui;
 }

@@ -84,3 +84,4 @@
 //#define new DEBUG_NEW
 
 #include "cqtmfc.h"
+#include "resource.h"
