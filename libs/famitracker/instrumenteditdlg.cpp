@@ -1,28 +1,18 @@
 #include "instrumenteditdlg.h"
-#include "ui_instrumenteditdlg.h"
 
-#include "SequenceEditor.h"
+#include "InstrumentEditor2A03.h"
 #include "MainFrm.h"
 
-CInstrumentEditDlg::CInstrumentEditDlg(CFamiTrackerDoc* pDoc,QDialog *parent) :
-   QDialog(parent),
-   ui(new Ui::CInstrumentEditDlg)
+CInstrumentEditDlg::CInstrumentEditDlg(CFamiTrackerDoc* pDoc,CWnd *parent) :
+   CDialog(0,parent)
 {
-   ui->setupUi(this);
-   
-   CRect rect(SX(190 - 2 - 40) + 40, SY(30) - 2, SX(CSequenceEditor::SEQUENCE_EDIT_WIDTH - 190) + 190, SY(CSequenceEditor::SEQUENCE_EDIT_HEIGHT-42)+42);
+   m_pDoc = pDoc;
 
    // CP: TEST
-   CSequenceEditor* m_pSequenceEditor = new CSequenceEditor(pDoc);
-	m_pSequenceEditor->CreateEditor((CWnd*)this, rect);
-
-   CSequence* m_pSequence = pDoc->GetSequence(0, SEQ_VOLUME);
-	m_pSequenceEditor->SelectSequence(m_pSequence, SEQ_VOLUME, INST_2A03);
-   
-   m_pSequenceEditor->ShowWindow(SW_SHOW);
+   CInstrumentEditor2A03* pInst = new CInstrumentEditor2A03(this);
+   pInst->SelectInstrument(0);
 }
 
 CInstrumentEditDlg::~CInstrumentEditDlg()
 {
-   delete ui;
 }

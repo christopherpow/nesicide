@@ -124,7 +124,8 @@ SOURCES += \
     SequenceEditor.cpp \
     SizeEditor.cpp \
     SequenceSetting.cpp \
-    InstrumentEditor2A03.cpp
+    InstrumentEditor2A03.cpp \
+    InstrumentEditPanel.cpp
 
 HEADERS += \
     TrackerChannel.h \
@@ -203,7 +204,8 @@ HEADERS += \
     SequenceEditor.h \
     SizeEditor.h \
     SequenceSetting.h \
-    InstrumentEditor2A03.h
+    InstrumentEditor2A03.h \
+    InstrumentEditPanel.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN
@@ -249,8 +251,7 @@ FORMS += \
     FrameEditor.ui \
     famitrackermodulepropertiesdialog.ui \
     famitrackermoduleimportdialog.ui \
-    MainFrm.ui \ 
-    instrumenteditdlg.ui
+    MainFrm.ui  
 
 RESOURCES += \
     $$TOP/common/resource.qrc

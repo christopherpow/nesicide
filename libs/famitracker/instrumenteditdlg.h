@@ -1,23 +1,20 @@
 #ifndef INSTRUMENTEDITDIALOG_H
 #define INSTRUMENTEDITDIALOG_H
 
-#include <QDialog>
 #include "FamiTrackerDoc.h"
 
-namespace Ui {
-class CInstrumentEditDlg;
-}
-
-class CInstrumentEditDlg : public QDialog
+class CInstrumentEditDlg : public CDialog
 {
    Q_OBJECT
    
 public:
-   explicit CInstrumentEditDlg(CFamiTrackerDoc* pDoc,QDialog *parent = 0);
+   explicit CInstrumentEditDlg(CFamiTrackerDoc* pDoc,CWnd *parent = 0);
    ~CInstrumentEditDlg();
    
+   CFamiTrackerDoc* GetDocument() { return m_pDoc; }
+   
 private:
-   Ui::CInstrumentEditDlg *ui;
+   CFamiTrackerDoc* m_pDoc;
 };
 
 #endif // INSTRUMENTEDITDIALOG_H

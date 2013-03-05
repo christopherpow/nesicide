@@ -3,6 +3,7 @@
 #include <stdarg.h>
 
 #include <QLinearGradient>
+#include <QHeaderView>
 
 size_t strlen(const wchar_t* str)
 {
@@ -1123,6 +1124,12 @@ void CComboBox::SetCurSel(int sel)
    setCurrentIndex(sel);
 }
 
+CListCtrl::CListCtrl()
+{
+   setFont(QFont("MS Shell Dlg",8));
+   verticalHeader()->hide();
+}
+
 int CListCtrl::InsertColumn(
    int nCol,
    LPCTSTR lpszColumnHeading,
@@ -1132,9 +1139,14 @@ int CListCtrl::InsertColumn(
 )
 {
    insertColumn(nCol);
-   QTableWidgetItem twi;
-   twi.setText(QString::fromWCharArray(lpszColumnHeading));
-   setHorizontalHeaderItem(nCol,&twi);
+   QTableWidgetItem* twi = new QTableWidgetItem;
+#if UNICODE
+   twi->setText(QString::fromWCharArray(lpszColumnHeading));
+#else
+   twi->setText(lpszColumnHeading);
+#endif
+   setColumnWidth(nCol,nWidth);
+   setHorizontalHeaderItem(nCol,twi);
 }
 
 int CListCtrl::InsertItem(
@@ -1143,10 +1155,23 @@ int CListCtrl::InsertItem(
    int nImage 
 )
 {
-   QTableWidgetItem twi;
-   twi.setText(QString::fromWCharArray(lpszItem));
+   QTableWidgetItem* twi = new QTableWidgetItem;
+#if UNICODE
+   twi->setText(QString::fromWCharArray(lpszItem));
+#else
+   twi->setText(lpszItem);
+#endif
    insertRow(nItem);
-   setItem(nItem,3,&twi);
+   setItem(nItem,0,twi);
+   resizeRowToContents(nItem);
+   resizeColumnsToContents();
+}
+
+int CListCtrl::SetSelectionMark(
+   int iIndex 
+)
+{
+   selectRow(iIndex);
 }
 
 BOOL CListCtrl::SetCheck(
@@ -1154,6 +1179,11 @@ BOOL CListCtrl::SetCheck(
    BOOL fCheck
 )
 {
+   QTableWidgetItem* twi = item(nItem,0);
+   if ( !twi )
+      twi = new QTableWidgetItem;
+   twi->setCheckState(fCheck?Qt::Checked:Qt::Unchecked);
+   setItem(nItem,0,twi);
    qDebug("CListCtrl::SetCheck!");
 }
 
@@ -1163,18 +1193,32 @@ BOOL CListCtrl::SetItemText(
    LPCTSTR lpszText 
 )
 {
-   QTableWidgetItem twi;
-   twi.setText(QString::fromWCharArray(lpszText));
-   setItem(nItem,nSubItem,&twi);
+   QTableWidgetItem* twi = item(nItem,nSubItem);
+   if ( !twi )
+      twi = new QTableWidgetItem;
+#if UNICODE
+   twi->setText(QString::fromWCharArray(lpszText));
+#else
+   twi->setText(lpszText);
+#endif
+   setItem(nItem,nSubItem,twi);
 }
 
-BOOL SetItemState(
+BOOL CListCtrl::SetItemState(
    int nItem,
    UINT nState,
    UINT nMask 
 )
 {
-   qDebug("CListCtrl::SetItemState!");
+   nState &= nMask;
+   if ( nState&LVIS_SELECTED )
+   {
+      selectRow(nItem);
+   }
+   if ( nState&LVIS_FOCUSED )
+   {
+      selectRow(nItem);
+   }
 }
 
 BOOL CScrollBar::SetScrollInfo(
@@ -1236,10 +1280,12 @@ BOOL CScrollBar::EnableScrollBar(
 }
 
 CWnd* CWnd::focusWnd = NULL;
+QMap<int,QWidget*> CWnd::mfcToQtWidget;
 
 CWnd::CWnd(QWidget *parent) 
    : QWidget(parent), 
      m_pFrameWnd(NULL),
+     m_pParentWnd((CWnd*)parent),
      verticalScrollBar(NULL),
      horizontalScrollBar(NULL)
 {
@@ -1247,10 +1293,12 @@ CWnd::CWnd(QWidget *parent)
 
 CWnd::~CWnd()
 {
-   if ( verticalScrollBar && !verticalScrollBar->parent())
+   if ( verticalScrollBar )
       delete verticalScrollBar;
-   if ( horizontalScrollBar && !horizontalScrollBar->parent() )
+   if ( horizontalScrollBar )
       delete horizontalScrollBar;
+   verticalScrollBar = NULL;
+   horizontalScrollBar = NULL;
 }
 
 BOOL CWnd::CreateEx(
@@ -1272,6 +1320,7 @@ BOOL CWnd::CreateEx(
    createStruct.cx = rect.right-rect.left;
    createStruct.cy = rect.bottom-rect.top;
    // For widgets that aren't added to a layout...
+   m_pParentWnd = pParentWnd;
    setParent(pParentWnd);
    setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
    OnCreate(&createStruct);
@@ -1310,7 +1359,7 @@ CWnd* CWnd::GetDlgItem(
 ) const
 {
    qDebug("CWnd::GetDlgItem");
-   return NULL;
+   return (CWnd*)mfcToQtWidget.value(nID);
 }
 
 void CWnd::SetDlgItemInt(
@@ -1319,8 +1368,10 @@ void CWnd::SetDlgItemInt(
    BOOL bSigned
 )
 {
-   CWnd* pWnd = GetDlgItem(nID);
+   UIElement* pUIE = dynamic_cast<UIElement*>(GetDlgItem(nID));
    qDebug("SetDlgItemInt");
+   if ( pUIE )
+      pUIE->SetDlgItemInt(nID,nValue,bSigned);
 }
 
 UINT CWnd::GetDlgItemInt(
@@ -1329,19 +1380,12 @@ UINT CWnd::GetDlgItemInt(
    BOOL bSigned
 ) const
 {
-   CWnd* pWnd = GetDlgItem(nID);
+   UIElement* pUIE = dynamic_cast<UIElement*>(GetDlgItem(nID));
    qDebug("GetDlgItemInt");
-   return 0;
-}
-
-int CWnd::GetDlgItemText(
-   int nID,
-   CString& rString 
-) const
-{
-   CWnd* pWnd = GetDlgItem(nID);
-   qDebug("GetDlgItemText");
-   return 0;
+   if ( pUIE )
+      return pUIE->GetDlgItemInt(nID,lpTrans,bSigned);
+   else
+      return 0;
 }
 
 void CWnd::SetDlgItemText(
@@ -1349,8 +1393,49 @@ void CWnd::SetDlgItemText(
    LPCTSTR lpszString 
 )
 {
-   CWnd* pWnd = GetDlgItem(nID);
+   UIElement* pUIE = dynamic_cast<UIElement*>(GetDlgItem(nID));
    qDebug("SetDlgItemText");
+   if ( pUIE )
+      pUIE->SetDlgItemText(nID,lpszString);
+}
+
+int CWnd::GetDlgItemText(
+   int nID,
+   CString& rString 
+) const
+{
+   UIElement* pUIE = dynamic_cast<UIElement*>(GetDlgItem(nID));
+   qDebug("GetDlgItemText");
+   if ( pUIE )
+      return pUIE->GetDlgItemText(nID,rString);
+   else
+      return 0;
+}
+
+CView::~CView()
+{
+   if ( verticalScrollBar )
+      delete verticalScrollBar;
+   if ( horizontalScrollBar )
+      delete horizontalScrollBar;
+   verticalScrollBar = NULL;
+   horizontalScrollBar = NULL;
+}
+
+void CDialog::MapDialogRect( 
+   LPRECT lpRect  
+) const
+{
+   QFontMetrics myFontMetrics(font());
+   QFontMetrics sysFontMetrics(QFont("MS Shell Dlg",8));
+ 
+   int baseunitX = sysFontMetrics.averageCharWidth()+1;
+   int baseunitY = sysFontMetrics.height();
+   
+   lpRect->left   = MulDiv(lpRect->left,   baseunitX, 4);
+   lpRect->right  = MulDiv(lpRect->right,  baseunitX, 4);
+   lpRect->top    = MulDiv(lpRect->top,    baseunitY, 8);
+   lpRect->bottom = MulDiv(lpRect->bottom, baseunitY, 8);
 }
 
 BOOL CScrollBar::Create(
@@ -1607,6 +1692,15 @@ BOOL CWinApp::InitInstance()
 {
 }
 
+void CSpinButtonCtrl::SetRange(
+   short nLower,
+   short nUpper 
+)
+{
+   setRange(nLower,nUpper);
+}
+
+
 BOOL CMenu::AppendMenu(
    UINT nFlags,
    UINT_PTR nIDNewItem,
@@ -1641,4 +1735,63 @@ BOOL CMenu::TrackPopupMenu(
 )
 {
    popup(QPoint(x,y));
+}
+
+UINT CMenu::EnableMenuItem(
+   UINT nIDEnableItem,
+   UINT nEnable 
+)
+{
+   QAction* action = mfcToQtMenu.value(nIDEnableItem);
+   if ( action )
+   {
+      bool enabled = action->isEnabled();
+      action->setEnabled(nEnable);
+      return enabled;
+   }
+   return -1;
+}
+
+BOOL CMenu::DestroyMenu( )
+{
+   return TRUE;
+}
+
+void CEdit::SetDlgItemInt(
+   int nID,
+   UINT nValue,
+   BOOL bSigned 
+)
+{
+   setText(QString::number(nValue));
+}
+
+UINT CEdit::GetDlgItemInt(
+   int nID,
+   BOOL* lpTrans,
+   BOOL bSigned
+) const
+{
+   return text().toInt();
+}
+
+void CEdit::SetDlgItemText(
+   int nID,
+   LPCTSTR lpszString 
+)
+{
+#if UNICODE
+   setText(QString::fromWCharArray(lpszString));
+#else
+   setText(lpszString);
+#endif
+}
+
+int CEdit::GetDlgItemText(
+   int nID,
+   CString& rString 
+) const
+{
+   rString = text();
+   return text().length();
 }

@@ -299,6 +299,12 @@ CFamiTrackerView::~CFamiTrackerView()
 	// Release allocated objects
 	SAFE_RELEASE(m_pPatternView);
    
+   if ( horizontalScrollBar )
+      delete horizontalScrollBar;
+   if ( verticalScrollBar )
+      delete verticalScrollBar;
+   horizontalScrollBar = NULL;
+   verticalScrollBar = NULL;
    delete grid;
 }
 

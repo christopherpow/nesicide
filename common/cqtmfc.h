@@ -41,6 +41,11 @@
 #include <QDialog>
 #include <QMenu>
 #include <QTableWidget>
+#include <QSpinBox>
+#include <QPushButton>
+#include <QLabel>
+#include <QLineEdit>
+#include <QGroupBox>
 
 // Releasing pointers
 #define SAFE_RELEASE(p) \
@@ -218,9 +223,15 @@ public:
    int CompareNoCase( LPCTSTR lpsz ) const;
    TCHAR GetAt( int nIndex ) const;
    
-private:
+protected:
    QString _qstr;
    QByteArray _qstrn;
+};
+
+class CStringA : public CString
+{
+public:
+   CStringA(CString str) { qDebug("WHAT TO DO WITH CSTRINGA??!"); }
 };
 
 class CStringArray
@@ -230,10 +241,6 @@ public:
    void SetAt(int idx, CString str) { _qlist.replace(idx,str); }
 private:
    QList<CString> _qlist;
-};
-
-class CEdit
-{
 };
 
 class CFileException
@@ -313,6 +320,25 @@ public:
    }
 };
 
+class CSize : public tagSIZE
+{
+public:
+   CSize( ) { cx = 0; cy = 0; } 
+   CSize( 
+      int initCX, 
+      int initCY  
+   ) { cx = initCX; cy = initCY; }
+   CSize( 
+      SIZE initSize  
+   ) { cx = initSize.cx; cy = initSize.cy; }
+   CSize( 
+      POINT initPt  
+   ) { cx = initPt.x; cy = initPt.y; }
+   CSize( 
+      DWORD dwSize  
+   ) { cx = dwSize&0xFFFF; cy = (dwSize>>16); }
+};
+
 class CRect : public tagRECT
 {
 public:
@@ -372,6 +398,10 @@ public:
    operator LPCRECT() const
    {
       return (const RECT*)this;
+   }
+   operator QRect() const
+   {
+      return QRect(left,top,right-left,bottom-top);
    }
 };
 
@@ -850,8 +880,31 @@ class CDataExchange
 {
 };
 
+class UIElement
+{
+public:
+   virtual void SetDlgItemInt(
+      int nID,
+      UINT nValue,
+      BOOL bSigned = TRUE 
+   ) {}
+   virtual UINT GetDlgItemInt(
+      int nID,
+      BOOL* lpTrans = NULL,
+      BOOL bSigned = TRUE 
+   ) const { return 0; }
+   virtual void SetDlgItemText(
+      int nID,
+      LPCTSTR lpszString 
+   ) {}
+   virtual int GetDlgItemText(
+      int nID,
+      CString& rString 
+   ) const { return 0; }
+};
+
 class CFrameWnd;
-class CWnd : public QWidget
+class CWnd : public QWidget, public UIElement
 {
    Q_OBJECT
 public:
@@ -922,7 +975,6 @@ public:
    CDC* GetDC() { CDC* pDC = new CDC(); pDC->attach(this); return pDC; }
    void ReleaseDC(CDC* pDC) { pDC->detach(); delete pDC; }
    void ShowWindow(int code);
-   virtual BOOL DestroyWindow( ) { return TRUE; }
    void UpdateWindow( ) { repaint(); }
    virtual BOOL PostMessage(
       UINT message,
@@ -932,7 +984,7 @@ public:
    virtual void DoDataExchange(
       CDataExchange* pDX 
    ) {}   
-   CWnd* GetParent() { return (CWnd*)m_pFrameWnd; }
+   CWnd* GetParent() { return (CWnd*)m_pParentWnd; }
    void GetWindowRect(
       LPRECT lpRect 
    ) const;
@@ -952,14 +1004,16 @@ public:
       BOOL* lpTrans = NULL,
       BOOL bSigned = TRUE 
    ) const;
-   int GetDlgItemText(
-      int nID,
-      CString& rString 
-   ) const;
    void SetDlgItemText(
       int nID,
       LPCTSTR lpszString 
    );
+   int GetDlgItemText(
+      int nID,
+      CString& rString 
+   ) const;
+   virtual BOOL DestroyWindow( ) { close(); return TRUE; }
+   
    
    // This method only for Qt glue
    UINT_PTR mfcTimerId(int qtTimerId) { return qtToMfcTimer.value(qtTimerId); }
@@ -968,7 +1022,9 @@ public:
 protected:
    QMap<UINT_PTR,int> mfcToQtTimer;
    QMap<int,UINT_PTR> qtToMfcTimer;
+   static QMap<int,QWidget*> mfcToQtWidget;
    CFrameWnd* m_pFrameWnd;
+   CWnd* m_pParentWnd;
    static CWnd* focusWnd;
    CScrollBar* verticalScrollBar;
    CScrollBar* horizontalScrollBar;
@@ -1023,6 +1079,7 @@ class CView : public CWnd
 {
 public:
    CView(QWidget* parent) : CWnd(parent), m_pDocument(NULL) {}
+   virtual ~CView();
    virtual void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {}
    virtual void OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags) {}  
    virtual void OnSysKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {}
@@ -1049,6 +1106,10 @@ public:
       UINT nIDCheckItem,
       UINT nCheck 
    );
+   UINT EnableMenuItem(
+      UINT nIDEnableItem,
+      UINT nEnable 
+   );
    BOOL TrackPopupMenu(
       UINT nFlags,
       int x,
@@ -1056,6 +1117,7 @@ public:
       CWnd* pWnd,
       LPCRECT lpRect = 0
    );
+   BOOL DestroyMenu( );
 private:
    QMap<UINT_PTR,QAction*> mfcToQtMenu;
 };
@@ -1064,18 +1126,92 @@ class CDialog : public CWnd
 {
 public:
    CDialog(int dlgID,CWnd* parent) : CWnd(parent) {}
-   BOOL OnInitDialog() { return TRUE; }
+   virtual BOOL OnInitDialog() { return TRUE; }
+   int DoModal() { show(); qDebug("CDialog::DoModal doesn't return right thing yet but it's just for testing anyway..."); return 0; }
+   void MapDialogRect( 
+      LPRECT lpRect  
+   ) const;
 };
 
-class CTabCtrl : public QTabWidget, public CWnd
+class CEdit : public QLineEdit, public UIElement
+{
+   void SetDlgItemInt(
+      int nID,
+      UINT nValue,
+      BOOL bSigned = TRUE 
+   );
+   UINT GetDlgItemInt(
+      int nID,
+      BOOL* lpTrans = NULL,
+      BOOL bSigned = TRUE 
+   ) const;
+   void SetDlgItemText(
+      int nID,
+      LPCTSTR lpszString 
+   );
+   int GetDlgItemText(
+      int nID,
+      CString& rString 
+   ) const;
+};
+
+class CButton : public QPushButton
+{
+};
+
+class CSpinButtonCtrl : public QSpinBox
+{
+public:
+   void SetRange(
+      short nLower,
+      short nUpper 
+   );   
+};
+
+class CComboBox : public QComboBox
+{
+public:
+   void ResetContent();
+   int AddString(CString& text);
+   void SetCurSel(int sel);
+};
+
+class CStatic : public QLabel
+{
+};
+
+class CGroupBox : public QGroupBox
+{
+};
+
+class CTabCtrl : public QTabWidget
 {   
 };
 
 #define LVCFMT_LEFT 100
 
+#define LVIS_SELECTED 1
+#define LVIS_FOCUSED  2
+
+// CP: No idea...need to find these in the windows headers.
+#define LVIF_STATE 100 
+#define LVNI_SELECTED 200
+
+typedef struct tagNMLISTVIEW {
+  NMHDR  hdr;
+  int    iItem;
+  int    iSubItem;
+  UINT   uNewState;
+  UINT   uOldState;
+  UINT   uChanged;
+  POINT  ptAction;
+  LPARAM lParam;
+} NMLISTVIEW, *LPNMLISTVIEW;
+
 class CListCtrl : public QTableWidget // CP: Must use QTableWidget because of multiple columns
 {
 public:
+   CListCtrl();
    BOOL DeleteAllItems( ) { clear(); }
    int InsertColumn(
       int nCol,
@@ -1088,6 +1224,9 @@ public:
       int nItem,
       LPCTSTR lpszItem,
       int nImage 
+   );
+   int SetSelectionMark(
+      int iIndex 
    );
    BOOL SetCheck(
       int nItem,
@@ -1103,14 +1242,6 @@ public:
       UINT nState,
       UINT nMask 
    );
-};
-
-class CComboBox : public QComboBox
-{
-public:
-   void ResetContent();
-   int AddString(CString& text);
-   void SetCurSel(int sel);
 };
 
 class CWinThread : public QThread

@@ -840,8 +840,19 @@ void CMainFrame::on_frameChangeAll_clicked(bool checked)
    pView->SetChangeAllPattern(checked);
 }
 
+#include "instrumenteditdlg.h"
 void CMainFrame::on_songInstruments_doubleClicked(const QModelIndex &index)
 {
-   CInstrumentEditDlg dlg((CFamiTrackerDoc*)GetActiveDocument());
+   QDialog dlg;
+   QGridLayout grid;
+
+   CInstrumentEditDlg* d = new CInstrumentEditDlg((CFamiTrackerDoc*)GetActiveDocument(),this);   
+   grid.addWidget(d);
+   dlg.setLayout(&grid);   
+//   IDD_INSTRUMENT DIALOGEX 0, 0, 389, 242
+   CRect rect(0,0,389,242);
+   d->MapDialogRect(&rect);
+   dlg.setFixedSize(rect.Width(),rect.Height());
+   d->DoModal();
    dlg.exec();
 }
