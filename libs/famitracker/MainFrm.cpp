@@ -6,7 +6,6 @@
 #include "SampleWindow.h"
 
 #include "famitrackermodulepropertiesdialog.h"
-#include "instrumenteditdlg.h"
 
 #include <QFrame>
 #include <QLayout>
@@ -840,13 +839,13 @@ void CMainFrame::on_frameChangeAll_clicked(bool checked)
    pView->SetChangeAllPattern(checked);
 }
 
-#include "instrumenteditdlg.h"
+#include "InstrumentEditDlg.h"
 void CMainFrame::on_songInstruments_doubleClicked(const QModelIndex &index)
 {
    QDialog dlg;
    QGridLayout grid;
 
-   CInstrumentEditDlg* d = new CInstrumentEditDlg((CFamiTrackerDoc*)GetActiveDocument(),this);   
+   CInstrumentEditDlg* d = new CInstrumentEditDlg(this);   
    grid.addWidget(d);
    dlg.setLayout(&grid);   
 //   IDD_INSTRUMENT DIALOGEX 0, 0, 389, 242
@@ -854,5 +853,6 @@ void CMainFrame::on_songInstruments_doubleClicked(const QModelIndex &index)
    d->MapDialogRect(&rect);
    dlg.setFixedSize(rect.Width(),rect.Height());
    d->DoModal();
+   d->SetCurrentInstrument(0);
    dlg.exec();
 }

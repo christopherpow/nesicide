@@ -1,4 +1,5 @@
 #include "cqtmfc.h"
+#include "resource.h"
 
 #include <stdarg.h>
 
@@ -13,6 +14,12 @@ size_t strlen(const wchar_t* str)
       while ( *(str+len) ) { ++len; }
    }
    return len;
+}
+
+int _tstoi(TCHAR* str)
+{
+   QString tmp = QString::fromWCharArray(str);
+   return tmp.toInt();
 }
 
 int MulDiv(
@@ -428,10 +435,17 @@ CFile::CFile()
 {
 }
 
-CFile::CFile(CString& lpszFileName, int nOpenFlags)
+CFile::CFile(
+   LPCTSTR lpszFileName,
+   UINT nOpenFlags 
+)
 {
    QFile::OpenMode flags;
-   _qfile.setFileName(CString(lpszFileName.GetString()));
+#if UNICODE
+   _qfile.setFileName(QString::fromWCharArray(lpszFileName));
+#else
+   _qfile.setFileName(lpszFileName);
+#endif
    if ( nOpenFlags&modeRead ) flags = QIODevice::ReadOnly;
    if ( nOpenFlags&modeWrite ) flags = QIODevice::WriteOnly;
    if ( nOpenFlags&modeCreate ) flags |= QIODevice::Truncate;
@@ -852,6 +866,48 @@ BOOL CFont::CreateFontIndirect(
    return TRUE;
 }
 
+BOOL CBitmap::LoadBitmap(
+   UINT nIDResource 
+)
+{
+//   IDB_SAMPLEBG            BITMAP                  "res\\SampleBg.bmp"
+//   IDB_KEY_BLACK           BITMAP                  "res\\key_black_unpressed.bmp"
+//   IDB_KEY_BLACK_MARK      BITMAP                  "res\\key_black_pressed.bmp"
+//   IDB_KEY_WHITE           BITMAP                  "res\\key_white_unpressed.bmp"
+//   IDB_KEY_WHITE_MARK      BITMAP                  "res\\key_white_pressed.bmp"
+//   IDB_INSTRUMENT_TOOLS    BITMAP                  "res\\toolbar1.bmp"
+//   IDB_TOOLBAR_256         BITMAP                  "res\\Toolbar-d5.bmp"
+//   IDB_TOOLBAR_INST_256    BITMAP                  "res\\inst_toolbar.bmp"
+   qDebug("HARDCODED RESOURCE LOOKUP...FIX WITH HYARION'S RC PARSER");
+   switch ( nIDResource )
+   {
+   case IDB_SAMPLEBG:
+      _qbitmap.load(":/resources/SampleBg.bmp");
+      break;
+   case IDB_KEY_BLACK:
+      _qbitmap.load(":/resources/key_black_unpressed.bmp");
+      break;
+   case IDB_KEY_BLACK_MARK:
+      _qbitmap.load(":/resources/key_black_pressed.bmp");
+      break;
+   case IDB_KEY_WHITE:
+      _qbitmap.load(":/resources/key_white_unpressed.bmp");
+      break;
+   case IDB_KEY_WHITE_MARK:
+      _qbitmap.load(":/resources/key_white_pressed.bmp");
+      break;
+   case IDB_INSTRUMENT_TOOLS:
+      _qbitmap.load(":/resources/toolbar1.bmp");
+      break;
+   case IDB_TOOLBAR_256:
+      _qbitmap.load(":/resources/Toolbar-d5.bmp");
+      break;
+   case IDB_TOOLBAR_INST_256:
+      _qbitmap.load(":/resources/inst_toolbar.bmp");
+      break;
+   }
+}
+
 /*
  *  Class CDC
  */
@@ -864,6 +920,26 @@ CDC::~CDC()
       delete _qpainter;
       _qpainter = NULL;
    }
+}
+
+HGDIOBJ CDC::SelectObject(
+   HGDIOBJ obj
+)
+{
+   CGdiObject* pObj = (CGdiObject*)obj;
+   CPen* pPen = dynamic_cast<CPen*>(pObj);
+   if ( pPen )
+      return SelectObject(pPen);
+   CBrush* pBrush = dynamic_cast<CBrush*>(pObj);
+   if ( pBrush )
+      return SelectObject(pBrush);
+   CFont* pFont = dynamic_cast<CFont*>(pObj);
+   if ( pFont )
+      return SelectObject(pFont);
+   CBitmap* pBitmap = dynamic_cast<CBitmap*>(pObj);
+   if ( pBitmap )
+      return SelectObject(pBitmap);
+   return NULL;
 }
 
 COLORREF CDC::GetPixel(
@@ -1114,9 +1190,16 @@ void CComboBox::ResetContent()
    clear();
 }
 
-int CComboBox::AddString(CString& text)
+
+int CComboBox::AddString(
+   LPCTSTR lpszString 
+)
 {
-   addItem(text);
+#if UNICODE
+   addItem(QString::fromWCharArray(lpszString));
+#else
+   addItem(lpszString);
+#endif
 }
 
 void CComboBox::SetCurSel(int sel)
@@ -1126,8 +1209,31 @@ void CComboBox::SetCurSel(int sel)
 
 CListCtrl::CListCtrl()
 {
-   setFont(QFont("MS Shell Dlg",8));
+   QTableWidget::setFont(QFont("MS Shell Dlg",8));
    verticalHeader()->hide();
+}
+
+int CListCtrl::GetSelectionMark( )
+{
+   return selectionModel()->currentIndex().row();
+}
+
+int CListCtrl::GetItemText(
+   int nItem,
+   int nSubItem,
+   LPTSTR lpszText,
+   int nLen 
+) const
+{
+   QTableWidgetItem* twi = item(nItem,nSubItem);
+   if ( twi )
+   {
+#if UNICODE
+      wcscpy(lpszText,(wchar_t*)twi->text().unicode());
+#else
+      strcpy(lpszText,twi->text().toAscii().constData());
+#endif
+   }
 }
 
 int CListCtrl::InsertColumn(
@@ -1147,6 +1253,23 @@ int CListCtrl::InsertColumn(
 #endif
    setColumnWidth(nCol,nWidth);
    setHorizontalHeaderItem(nCol,twi);
+}
+
+int CListCtrl::InsertItem(
+   int nItem,
+   LPCTSTR lpszItem
+)
+{
+   QTableWidgetItem* twi = new QTableWidgetItem;
+#if UNICODE
+   twi->setText(QString::fromWCharArray(lpszItem));
+#else
+   twi->setText(lpszItem);
+#endif
+   insertRow(nItem);
+   setItem(nItem,0,twi);
+   resizeRowToContents(nItem);
+   resizeColumnsToContents();
 }
 
 int CListCtrl::InsertItem(
@@ -1185,6 +1308,19 @@ BOOL CListCtrl::SetCheck(
    twi->setCheckState(fCheck?Qt::Checked:Qt::Unchecked);
    setItem(nItem,0,twi);
    qDebug("CListCtrl::SetCheck!");
+}
+
+BOOL CListCtrl::SetItemText(
+   int nItem,
+   int nSubItem,
+   char* lpszText 
+)
+{
+   QTableWidgetItem* twi = item(nItem,nSubItem);
+   if ( !twi )
+      twi = new QTableWidgetItem;
+   twi->setText(lpszText);
+   setItem(nItem,nSubItem,twi);
 }
 
 BOOL CListCtrl::SetItemText(
@@ -1280,11 +1416,10 @@ BOOL CScrollBar::EnableScrollBar(
 }
 
 CWnd* CWnd::focusWnd = NULL;
-QMap<int,QWidget*> CWnd::mfcToQtWidget;
+CFrameWnd* CWnd::m_pFrameWnd = NULL;
 
 CWnd::CWnd(QWidget *parent) 
    : QWidget(parent), 
-     m_pFrameWnd(NULL),
      m_pParentWnd((CWnd*)parent),
      verticalScrollBar(NULL),
      horizontalScrollBar(NULL)
@@ -1299,6 +1434,11 @@ CWnd::~CWnd()
       delete horizontalScrollBar;
    verticalScrollBar = NULL;
    horizontalScrollBar = NULL;
+}
+
+BOOL CWnd::IsWindowVisible( ) const
+{
+   return isVisible();
 }
 
 BOOL CWnd::CreateEx(
@@ -1412,6 +1552,17 @@ int CWnd::GetDlgItemText(
       return 0;
 }
 
+void CWnd::CheckDlgButton( 
+   int nIDButton, 
+   UINT nCheck  
+)
+{
+   UIElement* pUIE = dynamic_cast<UIElement*>(GetDlgItem(nIDButton));
+   qDebug("CheckDlgButton");
+   if ( pUIE )
+      pUIE->CheckDlgButton(nIDButton,nCheck);
+}
+
 CView::~CView()
 {
    if ( verticalScrollBar )
@@ -1426,7 +1577,6 @@ void CDialog::MapDialogRect(
    LPRECT lpRect  
 ) const
 {
-   QFontMetrics myFontMetrics(font());
    QFontMetrics sysFontMetrics(QFont("MS Shell Dlg",8));
  
    int baseunitX = sysFontMetrics.averageCharWidth()+1;
@@ -1757,6 +1907,40 @@ BOOL CMenu::DestroyMenu( )
    return TRUE;
 }
 
+LONG CTabCtrl::InsertItem(
+  int nItem,
+  LPCTSTR lpszItem 
+)
+{
+   QTabWidget::blockSignals(true); // Don't cause TcnSelchange yet...
+#if UNICODE
+   tabBar()->insertTab(nItem,QString::fromWCharArray(lpszItem));
+#else
+   tabBar()->insertTab(nItem,lpszItem);
+#endif
+   QTabWidget::blockSignals(false);
+   return nItem;
+}
+
+int CTabCtrl::SetCurSel(
+  int nItem 
+)
+{
+   int oldSel = currentIndex();
+   setCurrentIndex(nItem);
+   return oldSel;
+}
+
+int CTabCtrl::GetCurSel() const
+{
+   return currentIndex();
+}
+
+BOOL CTabCtrl::DeleteAllItems( )
+{
+   clear();
+}
+
 void CEdit::SetDlgItemInt(
    int nID,
    UINT nValue,
@@ -1794,4 +1978,103 @@ int CEdit::GetDlgItemText(
 {
    rString = text();
    return text().length();
+}
+
+void CButton::SetDlgItemInt(
+   int nID,
+   UINT nValue,
+   BOOL bSigned 
+)
+{
+   setText(QString::number(nValue));
+}
+
+UINT CButton::GetDlgItemInt(
+   int nID,
+   BOOL* lpTrans,
+   BOOL bSigned
+) const
+{
+   return text().toInt();
+}
+
+void CButton::SetDlgItemText(
+   int nID,
+   LPCTSTR lpszString 
+)
+{
+#if UNICODE
+   setText(QString::fromWCharArray(lpszString));
+#else
+   setText(lpszString);
+#endif
+}
+
+int CButton::GetDlgItemText(
+   int nID,
+   CString& rString 
+) const
+{
+   rString = text();
+   return text().length();
+}
+
+void CButton::CheckDlgButton( 
+   int nIDButton, 
+   UINT nCheck  
+)
+{
+   setChecked(nCheck);
+}
+
+CFileDialog::CFileDialog(
+   BOOL bOpenFileDialog,
+   LPCTSTR lpszDefExt,
+   LPCTSTR lpszFileName,
+   DWORD dwFlags,
+   LPCTSTR lpszFilter,
+   CWnd* pParentWnd,
+   DWORD dwSize
+)
+{
+   setParent(pParentWnd);
+#if UNICODE
+   setDefaultSuffix(QString::fromWCharArray(lpszDefExt));
+   selectFile(QString::fromWCharArray(lpszFileName));
+   setFilter(QString::fromWCharArray(lpszFilter));
+#else
+   setDefaultSuffix(lpszDefExt);
+   selectFile(lpszFileName);
+   setFilter(lpszFilter);
+#endif
+   qDebug("CFileDialog::CFileDialog...need dwFlags impl");
+   switch ( dwFlags )
+   {
+   case OFN_HIDEREADONLY:
+      break;
+   case OFN_OVERWRITEPROMPT:
+      break;
+   }
+}
+
+CString CFileDialog::GetFileExt( ) const
+{
+   QStringList files = selectedFiles();
+   if ( files.count() == 1 )
+   {
+      QString file = files.at(0);
+      QFileInfo fileInfo(file);
+      return CString(fileInfo.suffix());
+   }
+   return CString();
+}
+
+CString CFileDialog::GetPathName( ) const
+{
+   QStringList files = selectedFiles();
+   if ( files.count() == 1 )
+   {
+      return CString(files.at(0));
+   }
+   return CString();
 }

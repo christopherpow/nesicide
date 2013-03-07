@@ -46,6 +46,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QGroupBox>
+#include <QFileDialog>
 
 // Releasing pointers
 #define SAFE_RELEASE(p) \
@@ -110,6 +111,8 @@
 #endif
 
 size_t strlen(const wchar_t* str);
+
+int _tstoi(TCHAR* str);
 
 int MulDiv(
   int nNumber,
@@ -268,7 +271,10 @@ public:
       shareDenyWrite = 0x08
    };
    CFile();
-   CFile(CString& lpszFileName, int nOpenFlags);
+   CFile(
+      LPCTSTR lpszFileName,
+      UINT nOpenFlags 
+   );
    virtual ~CFile();
 
    virtual void Write(
@@ -410,19 +416,11 @@ class CGdiObject : public CObject
 public:
    CGdiObject() {}
    virtual ~CGdiObject() {}
+   operator HGDIOBJ() const
+   {
+      return (void*)this;
+   }
 };
-
-// Pen styles [MFC value doesn't matter]
-//enum 
-//{
-//   PS_SOLID,
-//   PS_DASH,
-//   PS_DOT,
-//   PS_DASHDOT,
-//   PS_DASHDOTDOT,   
-//   PS_NULL,
-//   PS_INSIDEFRAME
-//};
 
 class CPen : public CGdiObject
 {
@@ -450,6 +448,10 @@ public:
    {
       return _qpen;
    }
+   operator HPEN() const
+   {
+      return (HPEN)this;
+   }
 
 private:
    QPen _qpen;
@@ -460,9 +462,16 @@ class CBitmap : public CGdiObject
 public:
    CBitmap() {}
    virtual ~CBitmap() {}
+   BOOL LoadBitmap(
+      UINT nIDResource 
+   );
    operator QBitmap() const
    {
       return _qbitmap;
+   }
+   operator HBITMAP() const
+   {
+      return (HBITMAP)this;
    }
 private:
    QBitmap _qbitmap;
@@ -487,6 +496,10 @@ public:
    {
       return _qbrush;
    }
+   operator HBRUSH() const
+   {
+      return (HBRUSH)this;
+   }
 private:
    QBrush _qbrush;
 };
@@ -496,10 +509,6 @@ class CFont : public CGdiObject
 public:
    CFont() {}
    virtual ~CFont() {}
-   operator QFont() const
-   {
-      return _qfont;
-   }
    BOOL CreateFont(
       int nHeight,
       int nWidth,
@@ -519,6 +528,14 @@ public:
    BOOL CreateFontIndirect(
       const LOGFONT* lpLogFont 
    );
+   operator QFont() const
+   {
+      return _qfont;
+   }
+   operator HFONT() const
+   {
+      return (HFONT)this;
+   }
 private:
    QFont _qfont;
 };
@@ -532,11 +549,15 @@ public:
    {
       return _qregion;
    }
+   operator HRGN() const
+   {
+      return (HRGN)this;
+   }
 private:
    QRegion _qregion;
 };
 
-class CDC
+class CDC : public CObject
 {
 public:
    CDC()
@@ -701,7 +722,11 @@ public:
       LPPOINT lpPoints,
       int nCount 
    );   
-
+   
+   HGDIOBJ SelectObject(
+      HGDIOBJ obj
+   );
+   
    CPen* SelectObject(
       CPen* pPen 
    )
@@ -723,6 +748,7 @@ public:
          _qpainter->setBrush((QBrush)(*_brush));
       return temp;
    }
+   
    virtual CFont* SelectObject(
       CFont* pFont 
    )
@@ -901,6 +927,10 @@ public:
       int nID,
       CString& rString 
    ) const { return 0; }
+   virtual void CheckDlgButton( 
+      int nIDButton, 
+      UINT nCheck  
+   ) {}
 };
 
 class CFrameWnd;
@@ -911,6 +941,7 @@ public:
    CWnd(QWidget* parent=0);
    virtual ~CWnd();
 
+   BOOL IsWindowVisible( ) const;
    virtual BOOL CreateEx(
       DWORD dwExStyle,
       LPCTSTR lpszClassName,
@@ -948,6 +979,10 @@ public:
    );
    void OnMouseMove(UINT,CPoint) {}
    void OnNcMouseMove(UINT nHitTest, CPoint point) {}
+   void OnNcLButtonUp(
+      UINT nHitTest,
+      CPoint point 
+   ) {}   
    void OnLButtonDblClk(UINT,CPoint) {}
    void OnLButtonDown(UINT,CPoint) {}
    void OnLButtonUp(UINT,CPoint) {}
@@ -971,11 +1006,15 @@ public:
    void SetCapture(CWnd* p=0) { /* DON'T DO THIS grabMouse(); */ }
    void ReleaseCapture() { /* DON'T DO THIS releaseMouse(); */ }
    CFrameWnd* GetParentFrame( ) const { return m_pFrameWnd; }
-   void MoveWindow(int x,int y,int cx, int cy) { setFixedWidth(cx); }
+   void MoveWindow(
+      LPCRECT lpRect,
+         BOOL bRepaint = TRUE 
+   ) { setGeometry(lpRect->left,lpRect->top,lpRect->right-lpRect->left,lpRect->bottom-lpRect->top); }
+   void MoveWindow(int x,int y,int cx, int cy) { setGeometry(x,y,cx,cy); }
    CDC* GetDC() { CDC* pDC = new CDC(); pDC->attach(this); return pDC; }
    void ReleaseDC(CDC* pDC) { pDC->detach(); delete pDC; }
    void ShowWindow(int code);
-   void UpdateWindow( ) { repaint(); }
+   void UpdateWindow( ) { update(); }
    virtual BOOL PostMessage(
       UINT message,
       WPARAM wParam = 0,
@@ -984,7 +1023,7 @@ public:
    virtual void DoDataExchange(
       CDataExchange* pDX 
    ) {}   
-   CWnd* GetParent() { return (CWnd*)m_pParentWnd; }
+   CWnd* GetParent() { return m_pParentWnd?(CWnd*)m_pParentWnd:(CWnd*)m_pFrameWnd; }
    void GetWindowRect(
       LPRECT lpRect 
    ) const;
@@ -1012,8 +1051,12 @@ public:
       int nID,
       CString& rString 
    ) const;
+   void CheckDlgButton( 
+      int nIDButton, 
+      UINT nCheck  
+   );
    virtual BOOL DestroyWindow( ) { close(); return TRUE; }
-   
+   virtual void PostNcDestroy( ) {}  
    
    // This method only for Qt glue
    UINT_PTR mfcTimerId(int qtTimerId) { return qtToMfcTimer.value(qtTimerId); }
@@ -1022,8 +1065,8 @@ public:
 protected:
    QMap<UINT_PTR,int> mfcToQtTimer;
    QMap<int,UINT_PTR> qtToMfcTimer;
-   static QMap<int,QWidget*> mfcToQtWidget;
-   CFrameWnd* m_pFrameWnd;
+   QMap<int,QWidget*> mfcToQtWidget;
+   static CFrameWnd* m_pFrameWnd;
    CWnd* m_pParentWnd;
    static CWnd* focusWnd;
    CScrollBar* verticalScrollBar;
@@ -1126,11 +1169,32 @@ class CDialog : public CWnd
 {
 public:
    CDialog(int dlgID,CWnd* parent) : CWnd(parent) {}
+   virtual BOOL Create(
+      UINT nIDTemplate,
+      CWnd* pParentWnd = NULL 
+   ) { setParent(pParentWnd); m_pParentWnd = pParentWnd; return TRUE; }
    virtual BOOL OnInitDialog() { return TRUE; }
    int DoModal() { show(); qDebug("CDialog::DoModal doesn't return right thing yet but it's just for testing anyway..."); return 0; }
    void MapDialogRect( 
       LPRECT lpRect  
    ) const;
+};
+
+class CFileDialog : public QFileDialog
+{
+public:
+   explicit CFileDialog(
+      BOOL bOpenFileDialog,
+      LPCTSTR lpszDefExt = NULL,
+      LPCTSTR lpszFileName = NULL,
+      DWORD dwFlags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
+      LPCTSTR lpszFilter = NULL,
+      CWnd* pParentWnd = NULL,
+      DWORD dwSize = 0
+   );
+   virtual void OnFileNameChange( ) {};
+   CString GetFileExt( ) const;
+   CString GetPathName( ) const;
 };
 
 class CEdit : public QLineEdit, public UIElement
@@ -1155,8 +1219,30 @@ class CEdit : public QLineEdit, public UIElement
    ) const;
 };
 
-class CButton : public QPushButton
+class CButton : public QPushButton, public UIElement
 {
+   void SetDlgItemInt(
+      int nID,
+      UINT nValue,
+      BOOL bSigned = TRUE 
+   );
+   UINT GetDlgItemInt(
+      int nID,
+      BOOL* lpTrans = NULL,
+      BOOL bSigned = TRUE 
+   ) const;
+   void SetDlgItemText(
+      int nID,
+      LPCTSTR lpszString 
+   );
+   int GetDlgItemText(
+      int nID,
+      CString& rString 
+   ) const;
+   void CheckDlgButton( 
+      int nIDButton, 
+      UINT nCheck  
+   );
 };
 
 class CSpinButtonCtrl : public QSpinBox
@@ -1172,7 +1258,9 @@ class CComboBox : public QComboBox
 {
 public:
    void ResetContent();
-   int AddString(CString& text);
+   int AddString(
+      LPCTSTR lpszString 
+   );
    void SetCurSel(int sel);
 };
 
@@ -1186,6 +1274,16 @@ class CGroupBox : public QGroupBox
 
 class CTabCtrl : public QTabWidget
 {   
+public:
+   LONG InsertItem(
+     int nItem,
+     LPCTSTR lpszItem 
+   );
+   BOOL DeleteAllItems( );
+   int SetCurSel(
+     int nItem 
+   );
+   int GetCurSel( ) const;
 };
 
 #define LVCFMT_LEFT 100
@@ -1212,7 +1310,7 @@ class CListCtrl : public QTableWidget // CP: Must use QTableWidget because of mu
 {
 public:
    CListCtrl();
-   BOOL DeleteAllItems( ) { clear(); }
+   BOOL DeleteAllItems( ) { clear(); return TRUE; }
    int InsertColumn(
       int nCol,
       LPCTSTR lpszColumnHeading,
@@ -1220,10 +1318,21 @@ public:
       int nWidth = -1,
       int nSubItem = -1 
    );
+   int GetSelectionMark( );
+   int GetItemText(
+      int nItem,
+      int nSubItem,
+      LPTSTR lpszText,
+      int nLen 
+   ) const;
    int InsertItem(
       int nItem,
       LPCTSTR lpszItem,
       int nImage 
+   );
+   int InsertItem(
+      int nItem,
+      LPCTSTR lpszItem 
    );
    int SetSelectionMark(
       int iIndex 
@@ -1236,6 +1345,11 @@ public:
       int nItem,
       int nSubItem,
       LPCTSTR lpszText 
+   );
+   BOOL SetItemText(
+      int nItem,
+      int nSubItem,
+      char* lpszText 
    );
    BOOL SetItemState(
       int nItem,

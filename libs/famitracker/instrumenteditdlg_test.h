@@ -3,13 +3,13 @@
 
 #include "FamiTrackerDoc.h"
 
-class CInstrumentEditDlg : public CDialog
+class CInstrumentEditDlg_test : public CDialog
 {
    Q_OBJECT
    
 public:
-   explicit CInstrumentEditDlg(CFamiTrackerDoc* pDoc,CWnd *parent = 0);
-   ~CInstrumentEditDlg();
+   explicit CInstrumentEditDlg_test(CFamiTrackerDoc* pDoc,CWnd *parent = 0);
+   ~CInstrumentEditDlg_test();
    
    CFamiTrackerDoc* GetDocument() { return m_pDoc; }
    

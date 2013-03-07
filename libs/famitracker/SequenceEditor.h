@@ -21,6 +21,7 @@
 #pragma once
 
 #include "cqtmfc.h"
+#include "FamiTrackerDoc.h"
 
 enum {WM_SIZE_CHANGE = WM_USER, WM_CURSOR_CHANGE, WM_SEQUENCE_CHANGED};
 

@@ -120,12 +120,14 @@ SOURCES += \
     SWSampleScope.cpp \
     SampleWindow.cpp \
     GraphEditor.cpp \
-    instrumenteditdlg.cpp \
     SequenceEditor.cpp \
     SizeEditor.cpp \
     SequenceSetting.cpp \
     InstrumentEditor2A03.cpp \
-    InstrumentEditPanel.cpp
+    instrumenteditdlg_test.cpp \
+    InstrumentEditPanel.cpp \
+    InstrumentEditDlg.cpp \
+    InstrumentEditorDPCM.cpp
 
 HEADERS += \
     TrackerChannel.h \
@@ -200,12 +202,14 @@ HEADERS += \
     SWSampleScope.h \
     SampleWindow.h \
     GraphEditor.h \
-    instrumenteditdlg.h \
+    instrumenteditdlg_test.h \
     SequenceEditor.h \
     SizeEditor.h \
     SequenceSetting.h \
     InstrumentEditor2A03.h \
-    InstrumentEditPanel.h
+    InstrumentEditPanel.h \
+    InstrumentEditDlg.h \
+    InstrumentEditorDPCM.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN
