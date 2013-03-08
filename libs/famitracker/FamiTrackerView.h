@@ -82,7 +82,7 @@ public slots:
    void horizontalScrollBar_actionTriggered(int action);
    
 public:
-	CFamiTrackerView(QWidget* parent = 0);
+	CFamiTrackerView(CWnd* parent = 0);
    ~CFamiTrackerView();
 
 public:

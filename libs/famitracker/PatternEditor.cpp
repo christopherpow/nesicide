@@ -96,7 +96,7 @@ void CPatternView::leaveEvent(QEvent *)
 
 void CPatternView::paintEvent(QPaintEvent *event)
 {
-   // Qt attach to the MFC HLE.
+   // Qt attach to the MFC HLE.  This object is already QWidget type.
    m_pBackDC->attach(this);
 
    CreateBackground(m_pBackDC,true);
@@ -397,8 +397,8 @@ void CPatternView::SetDocument(CFamiTrackerDoc *pDoc, CFamiTrackerView *pView)
 	m_pView = pView;
 
    QGridLayout* grid = dynamic_cast<QGridLayout*>(layout());
-   grid->addWidget(pView->GetScrollBarCtrl(SB_HORZ),1,0);
-   grid->addWidget(pView->GetScrollBarCtrl(SB_VERT),0,1);
+   grid->addWidget(pView->GetScrollBarCtrl(SB_HORZ)->toQWidget(),1,0);
+   grid->addWidget(pView->GetScrollBarCtrl(SB_VERT)->toQWidget(),0,1);
    
 	// Reset variables
 	

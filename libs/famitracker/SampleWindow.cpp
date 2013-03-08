@@ -129,7 +129,7 @@ void CSampleWindow::OnLButtonDblClk(UINT nFlags, CPoint point)
 
 void CSampleWindow::OnPaint()
 {
-	CDC dc(this); // device context for painting
+	CDC dc(this->toQWidget()); // device context for painting
 	m_pStates[m_iCurrentState]->Draw(&dc, true);
 }
 
@@ -180,7 +180,7 @@ void CSampleWindow::paintEvent(QPaintEvent *)
 {
 //   OnPaint();
    CDC dc;
-   dc.attach(this);
+   dc.attach(toQWidget());
    m_pStates[m_iCurrentState]->Draw(&dc, false);
    dc.detach();
 }

@@ -234,7 +234,7 @@ protected:
 class CStringA : public CString
 {
 public:
-   CStringA(CString str) { qDebug("WHAT TO DO WITH CSTRINGA??!"); }
+   CStringA(CString str) { qDebug("WHAT TO DO WITH CSTRINGA??"); }
 };
 
 class CStringArray
@@ -869,44 +869,11 @@ public:
    CPaintDC(QWidget* parent) : CDC(parent) {}
 };
 
-class CWnd;
-class CScrollBar : public QScrollBar
-{
-public:
-   CScrollBar() {}
-   CScrollBar(Qt::Orientation o) : QScrollBar(o) {}
-   BOOL SetScrollInfo(
-      LPSCROLLINFO lpScrollInfo,
-      BOOL bRedraw = TRUE 
-   );
-   virtual BOOL Create(
-      DWORD dwStyle,
-      const RECT& rect,
-      CWnd* pParentWnd,
-      UINT nID 
-   );
-   int SetScrollPos(
-      int nPos,
-      BOOL bRedraw = TRUE 
-   );
-   void SetScrollRange(
-      int nMinPos,
-      int nMaxPos,
-      BOOL bRedraw = TRUE 
-   );
-   void ShowScrollBar(
-      BOOL bShow = TRUE 
-   );
-   BOOL EnableScrollBar(
-      UINT nArrowFlags = ESB_ENABLE_BOTH 
-   );
-};
-
 class CDataExchange
 {
 };
 
-class UIElement
+class QtUIElement
 {
 public:
    virtual void SetDlgItemInt(
@@ -934,11 +901,14 @@ public:
 };
 
 class CFrameWnd;
-class CWnd : public QWidget, public UIElement
+class CScrollBar;
+
+class CWnd : public QObject, public QtUIElement
 {
    Q_OBJECT
+   // MFC interfaces
 public:
-   CWnd(QWidget* parent=0);
+   CWnd(CWnd* parent=0);
    virtual ~CWnd();
 
    BOOL IsWindowVisible( ) const;
@@ -998,10 +968,10 @@ public:
    void OnKillFocus(CWnd*) {}
    void OnVScroll(UINT,UINT,CScrollBar*) {}
    void OnHScroll(UINT,UINT,CScrollBar*) {}
-   void OnUpdate(CWnd* p=0,UINT hint=0,CObject* o=0) { update(); }
+   void OnUpdate(CWnd* p=0,UINT hint=0,CObject* o=0) { _qt->update(); }
    void Invalidate(BOOL bErase = TRUE) { /*update();*/ }
-   void RedrawWindow(LPCRECT rect=0,CRgn* rgn=0,UINT f=0) { update(); }
-   CWnd* SetFocus() { CWnd* pWnd = focusWnd; setFocus(); return pWnd; }
+   void RedrawWindow(LPCRECT rect=0,CRgn* rgn=0,UINT f=0) { _qt->update(); }
+   CWnd* SetFocus() { CWnd* pWnd = focusWnd; _qt->setFocus(); return pWnd; }
    CWnd* GetFocus() { return focusWnd; } 
    void SetCapture(CWnd* p=0) { /* DON'T DO THIS grabMouse(); */ }
    void ReleaseCapture() { /* DON'T DO THIS releaseMouse(); */ }
@@ -1009,12 +979,12 @@ public:
    void MoveWindow(
       LPCRECT lpRect,
          BOOL bRepaint = TRUE 
-   ) { setGeometry(lpRect->left,lpRect->top,lpRect->right-lpRect->left,lpRect->bottom-lpRect->top); }
-   void MoveWindow(int x,int y,int cx, int cy) { setGeometry(x,y,cx,cy); }
-   CDC* GetDC() { CDC* pDC = new CDC(); pDC->attach(this); return pDC; }
+   ) { _qt->setGeometry(lpRect->left,lpRect->top,lpRect->right-lpRect->left,lpRect->bottom-lpRect->top); }
+   void MoveWindow(int x,int y,int cx, int cy) { _qt->setGeometry(x,y,cx,cy); }
+   CDC* GetDC() { CDC* pDC = new CDC(); pDC->attach(toQWidget()); return pDC; }
    void ReleaseDC(CDC* pDC) { pDC->detach(); delete pDC; }
    void ShowWindow(int code);
-   void UpdateWindow( ) { update(); }
+   void UpdateWindow( ) { _qt->update(); }
    virtual BOOL PostMessage(
       UINT message,
       WPARAM wParam = 0,
@@ -1024,6 +994,7 @@ public:
       CDataExchange* pDX 
    ) {}   
    CWnd* GetParent() { return m_pParentWnd?(CWnd*)m_pParentWnd:(CWnd*)m_pFrameWnd; }
+   void SetParent(CWnd* parent) { m_pParentWnd = parent; }
    void GetWindowRect(
       LPRECT lpRect 
    ) const;
@@ -1055,31 +1026,56 @@ public:
       int nIDButton, 
       UINT nCheck  
    );
-   virtual BOOL DestroyWindow( ) { close(); return TRUE; }
+   virtual BOOL DestroyWindow( ) { _qt->close(); return TRUE; }
    virtual void PostNcDestroy( ) {}  
    
    // This method only for Qt glue
    UINT_PTR mfcTimerId(int qtTimerId) { return qtToMfcTimer.value(qtTimerId); }
    // These methods are only to be used in CDocTemplate initialization...
    void privateSetParentFrame(CFrameWnd* pFrameWnd) { m_pFrameWnd = pFrameWnd; }
+   
+   // MFC-to-Qt conversions
 protected:
    QMap<UINT_PTR,int> mfcToQtTimer;
    QMap<int,UINT_PTR> qtToMfcTimer;
-   QMap<int,QWidget*> mfcToQtWidget;
+   QMap<int,CWnd*> mfcToQtWidget;
    static CFrameWnd* m_pFrameWnd;
    CWnd* m_pParentWnd;
    static CWnd* focusWnd;
-   CScrollBar* verticalScrollBar;
-   CScrollBar* horizontalScrollBar;
+   CScrollBar* mfcVerticalScrollBar;
+   CScrollBar* mfcHorizontalScrollBar;
+
+   // Qt interfaces
+public:
+   void setParent(QWidget *parent) { _qt->setParent(parent); }
+   void setParent(QWidget *parent, Qt::WindowFlags f) { _qt->setParent(parent,f); }   
+   void setGeometry(const QRect & rect) { _qt->setGeometry(rect); }
+   void setGeometry(int x, int y, int w, int h) { _qt->setGeometry(x,y,w,h); }
+   void setContentsMargins(int left, int top, int right, int bottom) { _qt->setContentsMargins(left,top,right,bottom); }
+   void setContentsMargins(const QMargins &margins) { _qt->setContentsMargins(margins); }
+   void setFocusPolicy(Qt::FocusPolicy policy) { _qt->setFocusPolicy(policy); }
+   void setFixedSize(int w, int h) { _qt->setFixedSize(w,h); }
+   virtual void setVisible(bool visible) { _qt->setVisible(visible); }
+   QRect rect() const { return _qt->rect(); }
+   virtual QWidget* toQWidget() { qDebug("CWnd::operator QWidget()"); return _qt; }
+public slots:
+   void update() { _qt->update(); }
+   void setFocus() { _qt->setFocus(); }
+   void setFocus(Qt::FocusReason reason) { _qt->setFocus(reason); }
+protected:
+   QWidget* _qt;
 };
 
 class CView;
 class CDocument;
 class CFrameWnd : public CWnd
 {
+   // Qt interfaces
+   
+   // MFC interfaces
 public:
-   CFrameWnd() : CWnd(), m_pView(NULL), m_pDocument(NULL) {}
-   virtual ~CFrameWnd() {}
+   CFrameWnd(CWnd* parent = 0);
+   virtual ~CFrameWnd();
    virtual void SetMessageText(LPCTSTR fmt,...) { qDebug("SetMessageText"); }
    CView* GetActiveView( ) const { return m_pView; } // Only one view for SDI
    virtual CDocument* GetActiveDocument( ) { return m_pDocument; }   
@@ -1121,7 +1117,7 @@ protected:
 class CView : public CWnd
 {
 public:
-   CView(QWidget* parent) : CWnd(parent), m_pDocument(NULL) {}
+   CView(CWnd* parent);
    virtual ~CView();
    virtual void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {}
    virtual void OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags) {}  
@@ -1167,21 +1163,36 @@ private:
 
 class CDialog : public CWnd
 {
+   // Qt interfaces
 public:
-   CDialog(int dlgID,CWnd* parent) : CWnd(parent) {}
+   operator QDialog*() { return dynamic_cast<QDialog*>(_qt); }
+   
+   // MFC interfaces
+public:
+   CDialog(int dlgID,CWnd* parent);
+   virtual ~CDialog();
    virtual BOOL Create(
       UINT nIDTemplate,
       CWnd* pParentWnd = NULL 
-   ) { setParent(pParentWnd); m_pParentWnd = pParentWnd; return TRUE; }
+         ) { _qt->setParent(pParentWnd->toQWidget()); SetParent(pParentWnd); return TRUE; }
    virtual BOOL OnInitDialog() { return TRUE; }
-   int DoModal() { show(); qDebug("CDialog::DoModal doesn't return right thing yet but it's just for testing anyway..."); return 0; }
+   int DoModal() { _qt->show(); qDebug("CDialog::DoModal doesn't return right thing yet but it's just for testing anyway..."); return 0; }
    void MapDialogRect( 
       LPRECT lpRect  
    ) const;
 };
 
-class CFileDialog : public QFileDialog
+class CFileDialog : public CWnd
 {
+   // Qt interfaces
+public:
+   void setDefaultSuffix(const QString & suffix) { dynamic_cast<QFileDialog*>(_qt)->setDefaultSuffix(suffix); }
+   void selectFile(const QString & filename) { dynamic_cast<QFileDialog*>(_qt)->selectFile(filename); }
+   void setFilter(const QString& filter) { dynamic_cast<QFileDialog*>(_qt)->setFilter(filter); }
+   QStringList selectedFiles() const { return dynamic_cast<QFileDialog*>(_qt)->selectedFiles(); }
+   operator QFileDialog*() { return dynamic_cast<QFileDialog*>(_qt); }
+   
+   // MFC interfaces
 public:
    explicit CFileDialog(
       BOOL bOpenFileDialog,
@@ -1192,13 +1203,70 @@ public:
       CWnd* pParentWnd = NULL,
       DWORD dwSize = 0
    );
+   virtual ~CFileDialog();
    virtual void OnFileNameChange( ) {};
    CString GetFileExt( ) const;
    CString GetPathName( ) const;
 };
 
-class CEdit : public QLineEdit, public UIElement
+class CScrollBar : public CWnd
 {
+   Q_OBJECT
+   // Qt interfaces
+public:
+   int sliderPosition() const { return dynamic_cast<QScrollBar*>(_qt)->sliderPosition(); }
+   void setMinimum(int minimum) { dynamic_cast<QScrollBar*>(_qt)->setMinimum(minimum); }
+   void setMaximum(int maximum) { dynamic_cast<QScrollBar*>(_qt)->setMaximum(maximum); }
+   void setValue(int value) { dynamic_cast<QScrollBar*>(_qt)->setValue(value); }
+   void setPageStep(int pageStep) { dynamic_cast<QScrollBar*>(_qt)->setPageStep(pageStep); }
+   operator QScrollBar*() { return dynamic_cast<QScrollBar*>(_qt); }
+signals:
+   
+   // MFC interfaces
+public:
+   CScrollBar(CWnd* parent = 0);
+   CScrollBar(Qt::Orientation o,CWnd* parent = 0);
+   virtual ~CScrollBar();
+   BOOL SetScrollInfo(
+      LPSCROLLINFO lpScrollInfo,
+      BOOL bRedraw = TRUE 
+   );
+   virtual BOOL Create(
+      DWORD dwStyle,
+      const RECT& rect,
+      CWnd* pParentWnd,
+      UINT nID 
+   );
+   int SetScrollPos(
+      int nPos,
+      BOOL bRedraw = TRUE 
+   );
+   void SetScrollRange(
+      int nMinPos,
+      int nMaxPos,
+      BOOL bRedraw = TRUE 
+   );
+   void ShowScrollBar(
+      BOOL bShow = TRUE 
+   );
+   BOOL EnableScrollBar(
+      UINT nArrowFlags = ESB_ENABLE_BOTH 
+   );
+};
+
+class CEdit : public CWnd
+{
+   Q_OBJECT
+   // Qt interfaces
+public:
+   operator QLineEdit*() { return dynamic_cast<QLineEdit*>(_qt); }
+signals:
+   void textChanged(QString);
+   
+   // MFC interfaces
+public:
+   CEdit(CWnd* parent = 0);
+   virtual ~CEdit();
    void SetDlgItemInt(
       int nID,
       UINT nValue,
@@ -1219,8 +1287,22 @@ class CEdit : public QLineEdit, public UIElement
    ) const;
 };
 
-class CButton : public QPushButton, public UIElement
+class CButton : public CWnd
 {
+   Q_OBJECT
+   // Qt interfaces
+public:
+   operator QPushButton*() { return dynamic_cast<QPushButton*>(_qt); }
+   void setText(const QString & text) { dynamic_cast<QPushButton*>(_qt)->setText(text); }
+   void setDefault(bool def) { dynamic_cast<QPushButton*>(_qt)->setDefault(def); }
+   void setCheckable(bool checkable) { dynamic_cast<QPushButton*>(_qt)->setCheckable(checkable); }
+signals:
+   void clicked();
+
+   // MFC interfaces
+public:
+   CButton(CWnd* parent = 0);
+   virtual ~CButton();
    void SetDlgItemInt(
       int nID,
       UINT nValue,
@@ -1245,18 +1327,37 @@ class CButton : public QPushButton, public UIElement
    );
 };
 
-class CSpinButtonCtrl : public QSpinBox
+class CSpinButtonCtrl : public CWnd
 {
+   Q_OBJECT
+   // Qt interfaces
 public:
+   operator QSpinBox*() { return dynamic_cast<QSpinBox*>(_qt); }   
+signals:
+   void valueChanged(int);
+   
+   // MFC interfaces
+public:
+   CSpinButtonCtrl(CWnd* parent = 0);
+   virtual ~CSpinButtonCtrl();
    void SetRange(
       short nLower,
       short nUpper 
    );   
 };
 
-class CComboBox : public QComboBox
+class CComboBox : public CWnd
 {
+   Q_OBJECT
+   // Qt interfaces
 public:
+   operator QComboBox*() { return dynamic_cast<QComboBox*>(_qt); }   
+signals:
+   
+   // MFC interfaces
+public:
+   CComboBox(CWnd* parent = 0);
+   virtual ~CComboBox();
    void ResetContent();
    int AddString(
       LPCTSTR lpszString 
@@ -1264,17 +1365,52 @@ public:
    void SetCurSel(int sel);
 };
 
-class CStatic : public QLabel
+class CStatic : public CWnd
 {
-};
-
-class CGroupBox : public QGroupBox
-{
-};
-
-class CTabCtrl : public QTabWidget
-{   
+   // Qt interfaces
 public:
+   operator QLabel*() { return dynamic_cast<QLabel*>(_qt); }   
+   void setText(const QString & text) { dynamic_cast<QLabel*>(_qt)->setText(text); }
+
+   // MFC interfaces
+public:
+   CStatic(CWnd* parent = 0);
+   virtual ~CStatic();
+};
+
+class CGroupBox : public CWnd
+{
+   // Qt interfaces
+public:
+   operator QGroupBox*() { return dynamic_cast<QGroupBox*>(_qt); }   
+   void setTitle(const QString & title) { dynamic_cast<QGroupBox*>(_qt)->setTitle(title); }
+
+   // MFC interfaces
+public:
+   CGroupBox(CWnd* parent = 0);
+   virtual ~CGroupBox();
+};
+
+class QTabWidget_exposed : public QTabWidget
+{
+public:
+   QTabWidget_exposed(QWidget* parent = 0) : QTabWidget(parent) {}
+   QTabBar* tabBar() const { return QTabWidget::tabBar(); }
+};
+
+class CTabCtrl : public CWnd
+{  
+   Q_OBJECT
+   // Qt interfaces
+public:
+   operator QTabWidget_exposed*() { return dynamic_cast<QTabWidget_exposed*>(_qt); }      
+signals:
+   void currentChanged(int);
+   
+   // MFC interfaces
+public:
+   CTabCtrl(CWnd* parent = 0);
+   virtual ~CTabCtrl();
    LONG InsertItem(
      int nItem,
      LPCTSTR lpszItem 
@@ -1306,11 +1442,25 @@ typedef struct tagNMLISTVIEW {
   LPARAM lParam;
 } NMLISTVIEW, *LPNMLISTVIEW;
 
-class CListCtrl : public QTableWidget // CP: Must use QTableWidget because of multiple columns
+class CListCtrl : public CWnd
 {
+   Q_OBJECT
+   // Qt interfaces
 public:
-   CListCtrl();
-   BOOL DeleteAllItems( ) { clear(); return TRUE; }
+   operator QTableWidget*() { return dynamic_cast<QTableWidget*>(_qt); }   
+   void setSelectionMode(QAbstractItemView::SelectionMode mode) { dynamic_cast<QTableWidget*>(_qt)->setSelectionMode(mode); }
+   void setSelectionBehavior(QAbstractItemView::SelectionBehavior behavior) { dynamic_cast<QTableWidget*>(_qt)->setSelectionBehavior(behavior); }
+   QScrollBar* verticalScrollBar() const { return dynamic_cast<QTableWidget*>(_qt)->verticalScrollBar(); }
+   QScrollBar* horizontalScrollBar() const { return dynamic_cast<QTableWidget*>(_qt)->horizontalScrollBar(); }
+   QModelIndex currentIndex () const { return dynamic_cast<QTableWidget*>(_qt)->currentIndex(); }
+signals:
+   void itemSelectionChanged();
+   
+   // MFC interfaces
+public:
+   CListCtrl(CWnd* parent = 0);
+   virtual ~CListCtrl();
+   BOOL DeleteAllItems( );
    int InsertColumn(
       int nCol,
       LPCTSTR lpszColumnHeading,

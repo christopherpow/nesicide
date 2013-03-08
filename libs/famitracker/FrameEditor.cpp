@@ -50,7 +50,7 @@ CFrameEditor::CFrameEditor(CMainFrame *pMainFrm):
 	m_pDocument(NULL),
 	m_pView(NULL)
 {
-   ui->setupUi(this);
+   ui->setupUi(this->toQWidget());
    
 	memset(m_iCopiedValues, 0, MAX_CHANNELS * sizeof(int));
 }
@@ -102,8 +102,8 @@ int CFrameEditor::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CWnd::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
-   QObject::connect(verticalScrollBar,SIGNAL(actionTriggered(int)),this,SLOT(verticalScrollBar_actionTriggered(int)));
-   QObject::connect(horizontalScrollBar,SIGNAL(actionTriggered(int)),this,SLOT(horizontalScrollBar_actionTriggered(int)));
+   QObject::connect(mfcVerticalScrollBar,SIGNAL(actionTriggered(int)),this,SLOT(verticalScrollBar_actionTriggered(int)));
+   QObject::connect(mfcHorizontalScrollBar,SIGNAL(actionTriggered(int)),this,SLOT(horizontalScrollBar_actionTriggered(int)));
    
 //	m_hAccel = LoadAccelerators(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDR_FRAMEWND));
 
@@ -120,7 +120,7 @@ void CFrameEditor::CreateGdiObjects()
 
 void CFrameEditor::OnPaint()
 {
-	CPaintDC dc(this); // device context for painting
+	CPaintDC dc(this->toQWidget()); // device context for painting
 
 	// Do not call CWnd::OnPaint() for painting messages
 
@@ -137,10 +137,9 @@ void CFrameEditor::OnPaint()
 
 	LPCTSTR ROW_FORMAT = bHexRows ? _T("%02X") : _T("%02i");
 
-//	// Get window size
-//	CRect WinRect;
-//	GetClientRect(&WinRect);
-   CRect WinRect(x(),y(),x()+width()-verticalScrollBar->width(),y()+height()-horizontalScrollBar->height());
+	// Get window size
+	CRect WinRect;
+	GetClientRect(&WinRect);
 
 	if (!m_pDocument || !m_pView)  {
 		dc.FillSolidRect(WinRect, 0);
@@ -733,7 +732,7 @@ void CFrameEditor::verticalScrollBar_actionTriggered(int arg1)
       break;
    }
 
-   OnVScroll(arg1,verticalScrollBar->sliderPosition(),0);
+   OnVScroll(arg1,mfcVerticalScrollBar->sliderPosition(),0);
    update();
 }
 
@@ -765,7 +764,7 @@ void CFrameEditor::horizontalScrollBar_actionTriggered(int arg1)
       break;
    }
    
-   OnHScroll(arg1,horizontalScrollBar->sliderPosition(),0);
+   OnHScroll(arg1,mfcHorizontalScrollBar->sliderPosition(),0);
    update();
 }
 
@@ -781,7 +780,7 @@ void CFrameEditor::keyPressEvent(QKeyEvent *event)
 void CFrameEditor::paintEvent(QPaintEvent *event)
 {
    // Qt attach to the MFC HLE.
-   m_dcBack.attach(this);
+   m_dcBack.attach(toQWidget());
 
    OnPaint();
    

@@ -60,9 +60,9 @@ CSizeEditor::~CSizeEditor()
 
 void CSizeEditor::OnPaint()
 {
-	CPaintDC dc(this);
+	CPaintDC dc(toQWidget());
 
-   dc.attach(this);
+   dc.attach(toQWidget());
    
 	CFont Font, *pOldFont;
 

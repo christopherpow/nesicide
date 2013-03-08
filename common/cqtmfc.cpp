@@ -870,6 +870,7 @@ BOOL CBitmap::LoadBitmap(
    UINT nIDResource 
 )
 {
+   BOOL result = FALSE;
 //   IDB_SAMPLEBG            BITMAP                  "res\\SampleBg.bmp"
 //   IDB_KEY_BLACK           BITMAP                  "res\\key_black_unpressed.bmp"
 //   IDB_KEY_BLACK_MARK      BITMAP                  "res\\key_black_pressed.bmp"
@@ -883,29 +884,38 @@ BOOL CBitmap::LoadBitmap(
    {
    case IDB_SAMPLEBG:
       _qbitmap.load(":/resources/SampleBg.bmp");
+      result = TRUE;
       break;
    case IDB_KEY_BLACK:
       _qbitmap.load(":/resources/key_black_unpressed.bmp");
+      result = TRUE;
       break;
    case IDB_KEY_BLACK_MARK:
       _qbitmap.load(":/resources/key_black_pressed.bmp");
+      result = TRUE;
       break;
    case IDB_KEY_WHITE:
       _qbitmap.load(":/resources/key_white_unpressed.bmp");
+      result = TRUE;
       break;
    case IDB_KEY_WHITE_MARK:
       _qbitmap.load(":/resources/key_white_pressed.bmp");
+      result = TRUE;
       break;
    case IDB_INSTRUMENT_TOOLS:
       _qbitmap.load(":/resources/toolbar1.bmp");
+      result = TRUE;
       break;
    case IDB_TOOLBAR_256:
       _qbitmap.load(":/resources/Toolbar-d5.bmp");
+      result = TRUE;
       break;
    case IDB_TOOLBAR_INST_256:
       _qbitmap.load(":/resources/inst_toolbar.bmp");
+      result = TRUE;
       break;
    }
+   return result;
 }
 
 /*
@@ -994,6 +1004,7 @@ int StretchDIBits(
    QImage image((const uchar*)lpBits,nSrcWidth,nSrcHeight,QImage::Format_RGB32);
    image = image.scaled(nDestWidth,nDestHeight);
    dc.painter()->drawImage(XDest,YDest,image);
+   return 0;
 }
 
 BOOL CDC::DrawEdge(
@@ -1005,6 +1016,7 @@ BOOL CDC::DrawEdge(
    QRect rect(lpRect->left,lpRect->top,lpRect->right-lpRect->left,lpRect->bottom-lpRect->top);
    _qpainter->drawRect(rect);
    qDebug("CDC::DrawEdge not implemented!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+   return TRUE;
 }
 
 void CDC::Draw3dRect( int x, int y, int cx, int cy, COLORREF clrTopLeft, COLORREF clrBottomRight )
@@ -1091,7 +1103,7 @@ BOOL CDC::GradientFill(
 {
    QRect rect;
    GRADIENT_RECT* grect = (GRADIENT_RECT*)pMesh;
-   int el;
+   ULONG el;
    
    for ( el = 0; el < nMeshElements; el++ )
    {
@@ -1169,6 +1181,7 @@ BOOL CDC::TextOut(
    _qpainter->drawText(x,y,qstr.left(nCount));
    return TRUE;
 }
+
 BOOL CDC::TextOut(
    int x,
       int y,
@@ -1185,37 +1198,67 @@ BOOL CDC::TextOut(
    return TRUE;
 }
 
-void CComboBox::ResetContent()
+CComboBox::CComboBox(CWnd *parent)
+   : CWnd(parent)
 {
-   clear();
+   if ( parent )
+      _qt = new QComboBox(parent->toQWidget());
+   else
+      _qt = new QComboBox;
 }
 
+CComboBox::~CComboBox()
+{
+   if ( _qt )
+      delete _qt;
+   _qt = NULL;
+}
+
+void CComboBox::ResetContent()
+{
+   dynamic_cast<QComboBox*>(_qt)->clear();
+}
 
 int CComboBox::AddString(
    LPCTSTR lpszString 
 )
 {
 #if UNICODE
-   addItem(QString::fromWCharArray(lpszString));
+   dynamic_cast<QComboBox*>(_qt)->addItem(QString::fromWCharArray(lpszString));
 #else
-   addItem(lpszString);
+   dynamic_cast<QComboBox*>(_qt)->addItem(lpszString);
 #endif
+   return dynamic_cast<QComboBox*>(_qt)->count()-1;
 }
 
 void CComboBox::SetCurSel(int sel)
 {
-   setCurrentIndex(sel);
+   dynamic_cast<QComboBox*>(_qt)->setCurrentIndex(sel);
 }
 
-CListCtrl::CListCtrl()
+CListCtrl::CListCtrl(CWnd* parent)
+   : CWnd(parent)
 {
-   QTableWidget::setFont(QFont("MS Shell Dlg",8));
-   verticalHeader()->hide();
+   if ( parent )
+      _qt = new QTableWidget(parent->toQWidget());
+   else
+      _qt = new QTableWidget;
+   _qt->setFont(QFont("MS Shell Dlg",8));
+   dynamic_cast<QTableWidget*>(_qt)->horizontalHeader()->setStretchLastSection(true);
+   dynamic_cast<QTableWidget*>(_qt)->verticalHeader()->hide();
+   QObject::connect(_qt,SIGNAL(itemSelectionChanged()),this,SIGNAL(itemSelectionChanged()));
+}
+
+CListCtrl::~CListCtrl()
+{
+   if ( _qt )
+      delete _qt;
+   _qt = NULL;
 }
 
 int CListCtrl::GetSelectionMark( )
 {
-   return selectionModel()->currentIndex().row();
+   return dynamic_cast<QTableWidget*>(_qt)->selectionModel()->currentIndex().row();
 }
 
 int CListCtrl::GetItemText(
@@ -1225,15 +1268,19 @@ int CListCtrl::GetItemText(
    int nLen 
 ) const
 {
-   QTableWidgetItem* twi = item(nItem,nSubItem);
+   QTableWidgetItem* twi = dynamic_cast<QTableWidget*>(_qt)->item(nItem,nSubItem);
+   int length = 0;
    if ( twi )
    {
 #if UNICODE
       wcscpy(lpszText,(wchar_t*)twi->text().unicode());
+      length = wcslen(lpszText);
 #else
       strcpy(lpszText,twi->text().toAscii().constData());
+      length = strlen(lpszText);
 #endif
    }
+   return length;
 }
 
 int CListCtrl::InsertColumn(
@@ -1244,15 +1291,16 @@ int CListCtrl::InsertColumn(
    int nSubItem
 )
 {
-   insertColumn(nCol);
+   dynamic_cast<QTableWidget*>(_qt)->insertColumn(nCol);
    QTableWidgetItem* twi = new QTableWidgetItem;
 #if UNICODE
    twi->setText(QString::fromWCharArray(lpszColumnHeading));
 #else
    twi->setText(lpszColumnHeading);
 #endif
-   setColumnWidth(nCol,nWidth);
-   setHorizontalHeaderItem(nCol,twi);
+   dynamic_cast<QTableWidget*>(_qt)->setColumnWidth(nCol,nWidth);
+   dynamic_cast<QTableWidget*>(_qt)->setHorizontalHeaderItem(nCol,twi);
+   return dynamic_cast<QTableWidget*>(_qt)->model()->columnCount()-1;
 }
 
 int CListCtrl::InsertItem(
@@ -1266,10 +1314,11 @@ int CListCtrl::InsertItem(
 #else
    twi->setText(lpszItem);
 #endif
-   insertRow(nItem);
-   setItem(nItem,0,twi);
-   resizeRowToContents(nItem);
-   resizeColumnsToContents();
+   dynamic_cast<QTableWidget*>(_qt)->insertRow(nItem);
+   dynamic_cast<QTableWidget*>(_qt)->setItem(nItem,0,twi);
+   dynamic_cast<QTableWidget*>(_qt)->resizeRowToContents(nItem);
+   dynamic_cast<QTableWidget*>(_qt)->resizeColumnsToContents();
+   return dynamic_cast<QTableWidget*>(_qt)->model()->rowCount()-1;
 }
 
 int CListCtrl::InsertItem(
@@ -1284,17 +1333,20 @@ int CListCtrl::InsertItem(
 #else
    twi->setText(lpszItem);
 #endif
-   insertRow(nItem);
-   setItem(nItem,0,twi);
-   resizeRowToContents(nItem);
-   resizeColumnsToContents();
+   dynamic_cast<QTableWidget*>(_qt)->insertRow(nItem);
+   dynamic_cast<QTableWidget*>(_qt)->setItem(nItem,0,twi);
+   dynamic_cast<QTableWidget*>(_qt)->resizeRowToContents(nItem);
+   dynamic_cast<QTableWidget*>(_qt)->resizeColumnsToContents();
+   return dynamic_cast<QTableWidget*>(_qt)->model()->rowCount()-1;
 }
 
 int CListCtrl::SetSelectionMark(
    int iIndex 
 )
 {
-   selectRow(iIndex);
+   int selection = dynamic_cast<QTableWidget*>(_qt)->selectionModel()->currentIndex().row();
+   dynamic_cast<QTableWidget*>(_qt)->selectRow(iIndex);
+   return selection;
 }
 
 BOOL CListCtrl::SetCheck(
@@ -1302,12 +1354,12 @@ BOOL CListCtrl::SetCheck(
    BOOL fCheck
 )
 {
-   QTableWidgetItem* twi = item(nItem,0);
+   QTableWidgetItem* twi = dynamic_cast<QTableWidget*>(_qt)->item(nItem,0);
    if ( !twi )
       twi = new QTableWidgetItem;
    twi->setCheckState(fCheck?Qt::Checked:Qt::Unchecked);
-   setItem(nItem,0,twi);
-   qDebug("CListCtrl::SetCheck!");
+   dynamic_cast<QTableWidget*>(_qt)->setItem(nItem,0,twi);
+   return TRUE;
 }
 
 BOOL CListCtrl::SetItemText(
@@ -1316,11 +1368,12 @@ BOOL CListCtrl::SetItemText(
    char* lpszText 
 )
 {
-   QTableWidgetItem* twi = item(nItem,nSubItem);
+   QTableWidgetItem* twi = dynamic_cast<QTableWidget*>(_qt)->item(nItem,nSubItem);
    if ( !twi )
       twi = new QTableWidgetItem;
    twi->setText(lpszText);
-   setItem(nItem,nSubItem,twi);
+   dynamic_cast<QTableWidget*>(_qt)->setItem(nItem,nSubItem,twi);
+   return TRUE;
 }
 
 BOOL CListCtrl::SetItemText(
@@ -1329,7 +1382,7 @@ BOOL CListCtrl::SetItemText(
    LPCTSTR lpszText 
 )
 {
-   QTableWidgetItem* twi = item(nItem,nSubItem);
+   QTableWidgetItem* twi = dynamic_cast<QTableWidget*>(_qt)->item(nItem,nSubItem);
    if ( !twi )
       twi = new QTableWidgetItem;
 #if UNICODE
@@ -1337,7 +1390,8 @@ BOOL CListCtrl::SetItemText(
 #else
    twi->setText(lpszText);
 #endif
-   setItem(nItem,nSubItem,twi);
+   dynamic_cast<QTableWidget*>(_qt)->setItem(nItem,nSubItem,twi);
+   return TRUE;
 }
 
 BOOL CListCtrl::SetItemState(
@@ -1349,12 +1403,61 @@ BOOL CListCtrl::SetItemState(
    nState &= nMask;
    if ( nState&LVIS_SELECTED )
    {
-      selectRow(nItem);
+      dynamic_cast<QTableWidget*>(_qt)->selectRow(nItem);
    }
    if ( nState&LVIS_FOCUSED )
    {
-      selectRow(nItem);
+      dynamic_cast<QTableWidget*>(_qt)->selectRow(nItem);
    }
+   return TRUE;
+}
+
+BOOL CListCtrl::DeleteAllItems()
+{
+   dynamic_cast<QTableWidget*>(_qt)->clear(); 
+   return TRUE;
+}
+
+CScrollBar::CScrollBar(CWnd *parent)
+   : CWnd(parent)
+{
+   if ( parent )
+      _qt = new QScrollBar(parent->toQWidget());
+   else
+      _qt = new QScrollBar;
+}
+
+CScrollBar::CScrollBar(Qt::Orientation orient,CWnd *parent)
+{
+   _qt = new QScrollBar(parent->toQWidget());
+   dynamic_cast<QScrollBar*>(_qt)->setOrientation(orient);
+}
+
+CScrollBar::~CScrollBar()
+{
+   if ( _qt )
+      delete _qt;
+   _qt = NULL;
+}
+
+BOOL CScrollBar::Create(
+   DWORD dwStyle,
+   const RECT& rect,
+   CWnd* pParentWnd,
+   UINT nID 
+)
+{
+   if ( dwStyle&SBS_VERT )
+   {
+      dynamic_cast<QScrollBar*>(_qt)->setOrientation(Qt::Vertical);
+   }
+   if ( dwStyle&SBS_HORZ )
+   {
+      dynamic_cast<QScrollBar*>(_qt)->setOrientation(Qt::Horizontal);
+   }
+   dynamic_cast<QScrollBar*>(_qt)->setParent(pParentWnd->toQWidget());
+   dynamic_cast<QScrollBar*>(_qt)->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
+   return TRUE;
 }
 
 BOOL CScrollBar::SetScrollInfo(
@@ -1364,21 +1467,22 @@ BOOL CScrollBar::SetScrollInfo(
 {
    if ( lpScrollInfo->fMask&SIF_RANGE )
    {
-      setMinimum(lpScrollInfo->nMin);
-      setMaximum(lpScrollInfo->nMax);
+      dynamic_cast<QScrollBar*>(_qt)->setMinimum(lpScrollInfo->nMin);
+      dynamic_cast<QScrollBar*>(_qt)->setMaximum(lpScrollInfo->nMax);
    }
    if ( lpScrollInfo->fMask&SIF_POS )
    {
-      setValue(lpScrollInfo->nPos);
+      dynamic_cast<QScrollBar*>(_qt)->setValue(lpScrollInfo->nPos);
    }
    if ( lpScrollInfo->fMask&SIF_TRACKPOS )
    {
-      setValue(lpScrollInfo->nTrackPos);
+      dynamic_cast<QScrollBar*>(_qt)->setValue(lpScrollInfo->nTrackPos);
    }
    if ( lpScrollInfo->fMask&SIF_PAGE )
    {
-      setPageStep(lpScrollInfo->nPage);
+      dynamic_cast<QScrollBar*>(_qt)->setPageStep(lpScrollInfo->nPage);
    }
+   return TRUE;
 }
 
 int CScrollBar::SetScrollPos(
@@ -1386,8 +1490,8 @@ int CScrollBar::SetScrollPos(
    BOOL bRedraw 
 )
 {
-   int pos = value();
-   setValue(nPos);
+   int pos = dynamic_cast<QScrollBar*>(_qt)->value();
+   dynamic_cast<QScrollBar*>(_qt)->setValue(nPos);
    return pos;
 }
 
@@ -1397,48 +1501,55 @@ void CScrollBar::SetScrollRange(
    BOOL bRedraw
 )
 {
-   setMinimum(nMinPos);
-   setMaximum(nMaxPos);
+   dynamic_cast<QScrollBar*>(_qt)->setMinimum(nMinPos);
+   dynamic_cast<QScrollBar*>(_qt)->setMaximum(nMaxPos);
 }   
 
 void CScrollBar::ShowScrollBar(
    BOOL bShow
 )
 {
-   setVisible(bShow);
+   dynamic_cast<QScrollBar*>(_qt)->setVisible(bShow);
 }   
 
 BOOL CScrollBar::EnableScrollBar(
    UINT nArrowFlags
 )
 {
-   setEnabled(nArrowFlags==ESB_ENABLE_BOTH?true:false);
+   dynamic_cast<QScrollBar*>(_qt)->setEnabled(nArrowFlags==ESB_ENABLE_BOTH?true:false);
+   return 1;
 }
 
 CWnd* CWnd::focusWnd = NULL;
 CFrameWnd* CWnd::m_pFrameWnd = NULL;
 
-CWnd::CWnd(QWidget *parent) 
-   : QWidget(parent), 
-     m_pParentWnd((CWnd*)parent),
-     verticalScrollBar(NULL),
-     horizontalScrollBar(NULL)
+CWnd::CWnd(CWnd *parent) 
+   : m_pParentWnd(parent),
+     mfcVerticalScrollBar(NULL),
+     mfcHorizontalScrollBar(NULL)
 {
+   if ( parent )
+      _qt = new QWidget(parent->toQWidget());
+   else
+      _qt = new QWidget;
 }
 
 CWnd::~CWnd()
 {
-   if ( verticalScrollBar )
-      delete verticalScrollBar;
-   if ( horizontalScrollBar )
-      delete horizontalScrollBar;
-   verticalScrollBar = NULL;
-   horizontalScrollBar = NULL;
+   if ( mfcVerticalScrollBar )
+      delete mfcVerticalScrollBar;
+   if ( mfcHorizontalScrollBar )
+      delete mfcHorizontalScrollBar;
+   mfcVerticalScrollBar = NULL;
+   mfcHorizontalScrollBar = NULL;
+   if ( _qt )
+      delete _qt;
+   _qt = NULL;
 }
 
 BOOL CWnd::IsWindowVisible( ) const
 {
-   return isVisible();
+   return _qt->isVisible();
 }
 
 BOOL CWnd::CreateEx(
@@ -1461,25 +1572,28 @@ BOOL CWnd::CreateEx(
    createStruct.cy = rect.bottom-rect.top;
    // For widgets that aren't added to a layout...
    m_pParentWnd = pParentWnd;
-   setParent(pParentWnd);
-   setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
+   if ( pParentWnd )
+      _qt->setParent(pParentWnd->toQWidget());
+   else
+      _qt->setParent(NULL);
+   _qt->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
    OnCreate(&createStruct);
    return TRUE;
 }
 
 int CWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
-   QGridLayout* grid = dynamic_cast<QGridLayout*>(layout());
+   QGridLayout* grid = dynamic_cast<QGridLayout*>(_qt->layout());
    
    if ( lpCreateStruct->style&WS_VSCROLL )
    {
-      verticalScrollBar = new CScrollBar(Qt::Vertical);
-      grid->addWidget(verticalScrollBar,0,1);
+      mfcVerticalScrollBar = new CScrollBar(Qt::Vertical);
+      grid->addWidget(mfcVerticalScrollBar->toQWidget(),0,1);
    }
    if ( lpCreateStruct->style&WS_HSCROLL )
    {
-      horizontalScrollBar = new CScrollBar(Qt::Horizontal);
-      grid->addWidget(horizontalScrollBar,1,0);   
+      mfcHorizontalScrollBar = new CScrollBar(Qt::Horizontal);
+      grid->addWidget(mfcHorizontalScrollBar->toQWidget(),1,0);   
    }
    return 0;
 }
@@ -1498,8 +1612,7 @@ CWnd* CWnd::GetDlgItem(
    int nID 
 ) const
 {
-   qDebug("CWnd::GetDlgItem");
-   return (CWnd*)mfcToQtWidget.value(nID);
+   return mfcToQtWidget.value(nID);
 }
 
 void CWnd::SetDlgItemInt(
@@ -1508,7 +1621,7 @@ void CWnd::SetDlgItemInt(
    BOOL bSigned
 )
 {
-   UIElement* pUIE = dynamic_cast<UIElement*>(GetDlgItem(nID));
+   QtUIElement* pUIE = dynamic_cast<QtUIElement*>(GetDlgItem(nID));
    qDebug("SetDlgItemInt");
    if ( pUIE )
       pUIE->SetDlgItemInt(nID,nValue,bSigned);
@@ -1520,7 +1633,7 @@ UINT CWnd::GetDlgItemInt(
    BOOL bSigned
 ) const
 {
-   UIElement* pUIE = dynamic_cast<UIElement*>(GetDlgItem(nID));
+   QtUIElement* pUIE = dynamic_cast<QtUIElement*>(GetDlgItem(nID));
    qDebug("GetDlgItemInt");
    if ( pUIE )
       return pUIE->GetDlgItemInt(nID,lpTrans,bSigned);
@@ -1533,7 +1646,7 @@ void CWnd::SetDlgItemText(
    LPCTSTR lpszString 
 )
 {
-   UIElement* pUIE = dynamic_cast<UIElement*>(GetDlgItem(nID));
+   QtUIElement* pUIE = dynamic_cast<QtUIElement*>(GetDlgItem(nID));
    qDebug("SetDlgItemText");
    if ( pUIE )
       pUIE->SetDlgItemText(nID,lpszString);
@@ -1544,7 +1657,7 @@ int CWnd::GetDlgItemText(
    CString& rString 
 ) const
 {
-   UIElement* pUIE = dynamic_cast<UIElement*>(GetDlgItem(nID));
+   QtUIElement* pUIE = dynamic_cast<QtUIElement*>(GetDlgItem(nID));
    qDebug("GetDlgItemText");
    if ( pUIE )
       return pUIE->GetDlgItemText(nID,rString);
@@ -1557,54 +1670,10 @@ void CWnd::CheckDlgButton(
    UINT nCheck  
 )
 {
-   UIElement* pUIE = dynamic_cast<UIElement*>(GetDlgItem(nIDButton));
+   QtUIElement* pUIE = dynamic_cast<QtUIElement*>(GetDlgItem(nIDButton));
    qDebug("CheckDlgButton");
    if ( pUIE )
       pUIE->CheckDlgButton(nIDButton,nCheck);
-}
-
-CView::~CView()
-{
-   if ( verticalScrollBar )
-      delete verticalScrollBar;
-   if ( horizontalScrollBar )
-      delete horizontalScrollBar;
-   verticalScrollBar = NULL;
-   horizontalScrollBar = NULL;
-}
-
-void CDialog::MapDialogRect( 
-   LPRECT lpRect  
-) const
-{
-   QFontMetrics sysFontMetrics(QFont("MS Shell Dlg",8));
- 
-   int baseunitX = sysFontMetrics.averageCharWidth()+1;
-   int baseunitY = sysFontMetrics.height();
-   
-   lpRect->left   = MulDiv(lpRect->left,   baseunitX, 4);
-   lpRect->right  = MulDiv(lpRect->right,  baseunitX, 4);
-   lpRect->top    = MulDiv(lpRect->top,    baseunitY, 8);
-   lpRect->bottom = MulDiv(lpRect->bottom, baseunitY, 8);
-}
-
-BOOL CScrollBar::Create(
-   DWORD dwStyle,
-   const RECT& rect,
-   CWnd* pParentWnd,
-   UINT nID 
-)
-{
-   if ( dwStyle&SBS_VERT )
-   {
-      setOrientation(Qt::Vertical);
-   }
-   if ( dwStyle&SBS_HORZ )
-   {
-      setOrientation(Qt::Horizontal);
-   }
-   setParent(pParentWnd);
-   setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
 }
 
 CScrollBar* CWnd::GetScrollBarCtrl(
@@ -1614,10 +1683,10 @@ CScrollBar* CWnd::GetScrollBarCtrl(
    switch ( nBar )
    {
    case SB_VERT:
-      return verticalScrollBar;
+      return mfcVerticalScrollBar;
       break;
    case SB_HORZ:
-      return horizontalScrollBar;
+      return mfcHorizontalScrollBar;
       break;
    }
 }
@@ -1628,8 +1697,8 @@ BOOL CWnd::SetScrollInfo(
    BOOL bRedraw
 )
 {
-   if ( ((nBar==SB_VERT) && (!verticalScrollBar)) ||
-        ((nBar==SB_HORZ) && (!horizontalScrollBar)) )
+   if ( ((nBar==SB_VERT) && (!mfcVerticalScrollBar)) ||
+        ((nBar==SB_HORZ) && (!mfcHorizontalScrollBar)) )
    {
       return FALSE;
    }
@@ -1638,12 +1707,12 @@ BOOL CWnd::SetScrollInfo(
       switch ( nBar )
       {
       case SB_HORZ:
-         horizontalScrollBar->setMinimum(lpScrollInfo->nMin);
-         horizontalScrollBar->setMaximum(lpScrollInfo->nMax);
+         mfcHorizontalScrollBar->setMinimum(lpScrollInfo->nMin);
+         mfcHorizontalScrollBar->setMaximum(lpScrollInfo->nMax);
          break;
       case SB_VERT:
-         verticalScrollBar->setMinimum(lpScrollInfo->nMin);
-         verticalScrollBar->setMaximum(lpScrollInfo->nMax);
+         mfcVerticalScrollBar->setMinimum(lpScrollInfo->nMin);
+         mfcVerticalScrollBar->setMaximum(lpScrollInfo->nMax);
          break;
       }
    }
@@ -1652,10 +1721,10 @@ BOOL CWnd::SetScrollInfo(
       switch ( nBar )
       {
       case SB_HORZ:
-         horizontalScrollBar->setValue(lpScrollInfo->nPos);
+         mfcHorizontalScrollBar->setValue(lpScrollInfo->nPos);
          break;
       case SB_VERT:
-         verticalScrollBar->setValue(lpScrollInfo->nPos);
+         mfcVerticalScrollBar->setValue(lpScrollInfo->nPos);
          break;
       }
    }
@@ -1664,10 +1733,10 @@ BOOL CWnd::SetScrollInfo(
       switch ( nBar )
       {
       case SB_HORZ:
-         horizontalScrollBar->setValue(lpScrollInfo->nTrackPos);
+         mfcHorizontalScrollBar->setValue(lpScrollInfo->nTrackPos);
          break;
       case SB_VERT:
-         verticalScrollBar->setValue(lpScrollInfo->nTrackPos);
+         mfcVerticalScrollBar->setValue(lpScrollInfo->nTrackPos);
          break;
       }
    }
@@ -1676,10 +1745,10 @@ BOOL CWnd::SetScrollInfo(
       switch ( nBar )
       {
       case SB_HORZ:
-         horizontalScrollBar->setPageStep(lpScrollInfo->nPage);
+         mfcHorizontalScrollBar->setPageStep(lpScrollInfo->nPage);
          break;
       case SB_VERT:
-         verticalScrollBar->setPageStep(lpScrollInfo->nPage);
+         mfcVerticalScrollBar->setPageStep(lpScrollInfo->nPage);
          break;
       }
    }
@@ -1695,12 +1764,12 @@ void CWnd::SetScrollRange(
    switch ( nBar )
    {
    case SB_HORZ:
-      horizontalScrollBar->setMinimum(nMinPos);
-      horizontalScrollBar->setMaximum(nMaxPos);
+      mfcHorizontalScrollBar->setMinimum(nMinPos);
+      mfcHorizontalScrollBar->setMaximum(nMaxPos);
       break;
    case SB_VERT:
-      verticalScrollBar->setMinimum(nMinPos);
-      verticalScrollBar->setMaximum(nMaxPos);
+      mfcVerticalScrollBar->setMinimum(nMinPos);
+      mfcVerticalScrollBar->setMaximum(nMaxPos);
       break;
    }
 }
@@ -1711,15 +1780,17 @@ int CWnd::SetScrollPos(
    BOOL bRedraw
 )
 {
+   int pos = mfcHorizontalScrollBar->sliderPosition();
    switch ( nBar )
    {
    case SB_HORZ:
-      horizontalScrollBar->setValue(nPos);
+      mfcHorizontalScrollBar->setValue(nPos);
       break;
    case SB_VERT:
-      verticalScrollBar->setValue(nPos);
+      mfcVerticalScrollBar->setValue(nPos);
       break;
    }
+   return pos;
 }
 
 UINT CWnd::SetTimer(UINT id, UINT interval, void*)
@@ -1779,6 +1850,53 @@ void CWnd::ShowWindow(int code)
    }
 }
 
+CFrameWnd::CFrameWnd(CWnd *parent)
+   : CWnd(parent),
+     m_pView(NULL),
+     m_pDocument(NULL)     
+{
+}
+
+CFrameWnd::~CFrameWnd()
+{
+}
+
+CView::CView(CWnd* parent) 
+   : CWnd(parent), 
+     m_pDocument(NULL) 
+{
+}
+
+CView::~CView()
+{
+}
+
+CDialog::CDialog(int dlgID, CWnd *parent)
+   : CWnd(parent)
+{
+//   _qt = new QDialog(parent->toQWidget());
+}
+
+CDialog::~CDialog()
+{
+//   delete _qt;
+}
+
+void CDialog::MapDialogRect( 
+   LPRECT lpRect  
+) const
+{
+   QFontMetrics sysFontMetrics(QFont("MS Shell Dlg",8));
+ 
+   int baseunitX = sysFontMetrics.averageCharWidth()+1;
+   int baseunitY = sysFontMetrics.height();
+   
+   lpRect->left   = MulDiv(lpRect->left,   baseunitX, 4);
+   lpRect->right  = MulDiv(lpRect->right,  baseunitX, 4);
+   lpRect->top    = MulDiv(lpRect->top,    baseunitY, 8);
+   lpRect->bottom = MulDiv(lpRect->bottom, baseunitY, 8);
+}
+
 CWinThread::CWinThread()
 {
    InitInstance();
@@ -1805,6 +1923,7 @@ BOOL CWinThread::PostThreadMessage(
       )
 {
    emit postThreadMessage(message,wParam,lParam); 
+   return TRUE;
 }
 
 CDocTemplate::CDocTemplate(UINT f,CDocument* pDoc,CFrameWnd* pFrameWnd,CView* pView)
@@ -1840,16 +1959,8 @@ CDocument* CSingleDocTemplate::OpenDocumentFile(
 
 BOOL CWinApp::InitInstance()
 {
+   return TRUE;
 }
-
-void CSpinButtonCtrl::SetRange(
-   short nLower,
-   short nUpper 
-)
-{
-   setRange(nLower,nUpper);
-}
-
 
 BOOL CMenu::AppendMenu(
    UINT nFlags,
@@ -1862,6 +1973,7 @@ BOOL CMenu::AppendMenu(
       QAction* action = addAction(QString::fromWCharArray(lpszNewItem)); // CP: Add slots later
       mfcToQtMenu.insert(nIDNewItem,action);
    }
+   return TRUE;
 }
 
 UINT CMenu::CheckMenuItem(
@@ -1870,10 +1982,13 @@ UINT CMenu::CheckMenuItem(
 )
 {
    QAction* action = mfcToQtMenu.value(nIDCheckItem);
+   UINT prevState = (UINT)-1;
    if ( action )
    {
+      prevState = action->isChecked();
       action->setChecked(nCheck);
    }
+   return prevState;
 }
 
 BOOL CMenu::TrackPopupMenu(
@@ -1885,6 +2000,7 @@ BOOL CMenu::TrackPopupMenu(
 )
 {
    popup(QPoint(x,y));
+   return TRUE; // CP: No way really to return selected item...
 }
 
 UINT CMenu::EnableMenuItem(
@@ -1907,18 +2023,30 @@ BOOL CMenu::DestroyMenu( )
    return TRUE;
 }
 
+CTabCtrl::CTabCtrl(CWnd* parent)
+   : CWnd(parent)
+{
+   _qt = new QTabWidget_exposed(parent->toQWidget());
+   QObject::connect(_qt,SIGNAL(currentChanged(int)),this,SIGNAL(currentChanged(int)));
+}
+
+CTabCtrl::~CTabCtrl()
+{
+   delete _qt;
+}
+
 LONG CTabCtrl::InsertItem(
   int nItem,
   LPCTSTR lpszItem 
 )
 {
-   QTabWidget::blockSignals(true); // Don't cause TcnSelchange yet...
+   dynamic_cast<QTabWidget_exposed*>(_qt)->blockSignals(true); // Don't cause TcnSelchange yet...
 #if UNICODE
-   tabBar()->insertTab(nItem,QString::fromWCharArray(lpszItem));
+   dynamic_cast<QTabWidget_exposed*>(_qt)->tabBar()->insertTab(nItem,QString::fromWCharArray(lpszItem));
 #else
-   tabBar()->insertTab(nItem,lpszItem);
+   dynamic_cast<QTabWidget_exposed*>(_qt)->tabBar()->insertTab(nItem,lpszItem);
 #endif
-   QTabWidget::blockSignals(false);
+   dynamic_cast<QTabWidget_exposed*>(_qt)->blockSignals(false);
    return nItem;
 }
 
@@ -1926,19 +2054,31 @@ int CTabCtrl::SetCurSel(
   int nItem 
 )
 {
-   int oldSel = currentIndex();
-   setCurrentIndex(nItem);
+   int oldSel = dynamic_cast<QTabWidget_exposed*>(_qt)->currentIndex();
+   dynamic_cast<QTabWidget_exposed*>(_qt)->setCurrentIndex(nItem);
    return oldSel;
 }
 
 int CTabCtrl::GetCurSel() const
 {
-   return currentIndex();
+   return dynamic_cast<QTabWidget_exposed*>(_qt)->currentIndex();
 }
 
 BOOL CTabCtrl::DeleteAllItems( )
 {
-   clear();
+   dynamic_cast<QTabWidget_exposed*>(_qt)->clear();
+}
+
+CEdit::CEdit(CWnd* parent)
+   : CWnd(parent)
+{
+   _qt = new QLineEdit(parent->toQWidget());
+   QObject::connect(_qt,SIGNAL(textChanged(QString)),this,SIGNAL(textChanged(QString)));
+}
+
+CEdit::~CEdit()
+{
+   delete _qt;
 }
 
 void CEdit::SetDlgItemInt(
@@ -1947,7 +2087,7 @@ void CEdit::SetDlgItemInt(
    BOOL bSigned 
 )
 {
-   setText(QString::number(nValue));
+   dynamic_cast<QLineEdit*>(_qt)->setText(QString::number(nValue));
 }
 
 UINT CEdit::GetDlgItemInt(
@@ -1956,7 +2096,7 @@ UINT CEdit::GetDlgItemInt(
    BOOL bSigned
 ) const
 {
-   return text().toInt();
+   return dynamic_cast<QLineEdit*>(_qt)->text().toInt();
 }
 
 void CEdit::SetDlgItemText(
@@ -1965,9 +2105,9 @@ void CEdit::SetDlgItemText(
 )
 {
 #if UNICODE
-   setText(QString::fromWCharArray(lpszString));
+   dynamic_cast<QLineEdit*>(_qt)->setText(QString::fromWCharArray(lpszString));
 #else
-   setText(lpszString);
+   dynamic_cast<QLineEdit*>(_qt)->setText(lpszString);
 #endif
 }
 
@@ -1976,8 +2116,20 @@ int CEdit::GetDlgItemText(
    CString& rString 
 ) const
 {
-   rString = text();
-   return text().length();
+   rString = dynamic_cast<QLineEdit*>(_qt)->text();
+   return dynamic_cast<QLineEdit*>(_qt)->text().length();
+}
+
+CButton::CButton(CWnd* parent)
+   : CWnd(parent)
+{
+   _qt = new QPushButton(parent->toQWidget());
+   QObject::connect(_qt,SIGNAL(clicked()),this,SIGNAL(clicked()));
+}
+
+CButton::~CButton()
+{
+   delete _qt;
 }
 
 void CButton::SetDlgItemInt(
@@ -1986,7 +2138,7 @@ void CButton::SetDlgItemInt(
    BOOL bSigned 
 )
 {
-   setText(QString::number(nValue));
+   dynamic_cast<QPushButton*>(_qt)->setText(QString::number(nValue));
 }
 
 UINT CButton::GetDlgItemInt(
@@ -1995,7 +2147,7 @@ UINT CButton::GetDlgItemInt(
    BOOL bSigned
 ) const
 {
-   return text().toInt();
+   return dynamic_cast<QPushButton*>(_qt)->text().toInt();
 }
 
 void CButton::SetDlgItemText(
@@ -2004,9 +2156,9 @@ void CButton::SetDlgItemText(
 )
 {
 #if UNICODE
-   setText(QString::fromWCharArray(lpszString));
+   dynamic_cast<QPushButton*>(_qt)->setText(QString::fromWCharArray(lpszString));
 #else
-   setText(lpszString);
+   dynamic_cast<QPushButton*>(_qt)->setText(lpszString);
 #endif
 }
 
@@ -2015,8 +2167,8 @@ int CButton::GetDlgItemText(
    CString& rString 
 ) const
 {
-   rString = text();
-   return text().length();
+   rString = dynamic_cast<QPushButton*>(_qt)->text();
+   return dynamic_cast<QPushButton*>(_qt)->text().length();
 }
 
 void CButton::CheckDlgButton( 
@@ -2024,7 +2176,49 @@ void CButton::CheckDlgButton(
    UINT nCheck  
 )
 {
-   setChecked(nCheck);
+   dynamic_cast<QPushButton*>(_qt)->setChecked(nCheck);
+}
+
+CSpinButtonCtrl::CSpinButtonCtrl(CWnd* parent)
+   : CWnd(parent)
+{
+   _qt = new QSpinBox(parent->toQWidget());
+   QObject::connect(_qt,SIGNAL(valueChanged(int)),this,SIGNAL(valueChanged(int)));
+}
+
+CSpinButtonCtrl::~CSpinButtonCtrl()
+{
+   delete _qt;
+}
+
+void CSpinButtonCtrl::SetRange(
+   short nLower,
+   short nUpper 
+)
+{
+   dynamic_cast<QSpinBox*>(_qt)->setRange(nLower,nUpper);
+}
+
+CStatic::CStatic(CWnd *parent)
+   : CWnd(parent)
+{
+   _qt = new QLabel(parent->toQWidget());
+}
+
+CStatic::~CStatic()
+{
+   delete _qt;
+}
+
+CGroupBox::CGroupBox(CWnd *parent)
+   : CWnd(parent)
+{
+   _qt = new QGroupBox(parent->toQWidget());
+}
+
+CGroupBox::~CGroupBox()
+{
+   delete _qt;
 }
 
 CFileDialog::CFileDialog(
@@ -2037,7 +2231,7 @@ CFileDialog::CFileDialog(
    DWORD dwSize
 )
 {
-   setParent(pParentWnd);
+   _qt = new QFileDialog(pParentWnd->toQWidget());
 #if UNICODE
    setDefaultSuffix(QString::fromWCharArray(lpszDefExt));
    selectFile(QString::fromWCharArray(lpszFileName));
@@ -2055,6 +2249,11 @@ CFileDialog::CFileDialog(
    case OFN_OVERWRITEPROMPT:
       break;
    }
+}
+
+CFileDialog::~CFileDialog()
+{
+   delete _qt;
 }
 
 CString CFileDialog::GetFileExt( ) const

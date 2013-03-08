@@ -85,38 +85,33 @@ IMPLEMENT_DYNAMIC(CInstrumentEditorDPCM, CInstrumentEditPanel)
 CInstrumentEditorDPCM::CInstrumentEditorDPCM(CWnd* pParent) : CInstrumentEditPanel(CInstrumentEditorDPCM::IDD, pParent)
 {
 //   COMBOBOX        IDC_OCTAVE,138,30,42,53,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-   CComboBox* mfc1 = new CComboBox;
-   mfc1->setParent(this);
+   CComboBox* mfc1 = new CComboBox(this);
    CRect r1(CPoint(138,30),CSize(42,53));
    MapDialogRect(&r1);
    mfc1->setGeometry(r1);
    mfcToQtWidget.insert(IDC_OCTAVE,mfc1);
 //   LTEXT           "Octave",IDC_STATIC,138,19,30,10
-   CStatic* mfc2 = new CStatic;
-   mfc2->setParent(this);
+   CStatic* mfc2 = new CStatic(this);
    mfc2->setText("Octave");
    CRect r2(CPoint(138,19),CSize(30,10));
    MapDialogRect(&r2);
    mfc2->setGeometry(r2);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //   COMBOBOX        IDC_SAMPLES,15,148,117,125,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
-   CComboBox* mfc3 = new CComboBox;
-   mfc3->setParent(this);
+   CComboBox* mfc3 = new CComboBox(this);
    CRect r3(CPoint(15,148),CSize(117,125));
    MapDialogRect(&r3);
    mfc3->setGeometry(r3);
    mfcToQtWidget.insert(IDC_SAMPLES,mfc3);
 //   PUSHBUTTON      "Unload",IDC_UNLOAD,312,35,47,14
-   CButton* mfc4 = new CButton;
-   mfc4->setParent(this);
+   CButton* mfc4 = new CButton(this);
    mfc4->setText("Unload");
    CRect r4(CPoint(312,35),CSize(47,14));
    MapDialogRect(&r4);
    mfc4->setGeometry(r4);
    mfcToQtWidget.insert(IDC_UNLOAD,mfc4);
 //   DEFPUSHBUTTON   "Load",IDC_LOAD,312,19,47,14
-   CButton* mfc5 = new CButton;
-   mfc5->setParent(this);
+   CButton* mfc5 = new CButton(this);
    mfc5->setText("Load");
    mfc5->setDefault(true);
    CRect r5(CPoint(312,19),CSize(47,14));
@@ -124,32 +119,28 @@ CInstrumentEditorDPCM::CInstrumentEditorDPCM(CWnd* pParent) : CInstrumentEditPan
    mfc5->setGeometry(r5);
    mfcToQtWidget.insert(IDC_LOAD,mfc5);
 //   PUSHBUTTON      "Save",IDC_SAVE,312,51,47,14
-   CButton* mfc6 = new CButton;
-   mfc6->setParent(this);
+   CButton* mfc6 = new CButton(this);
    mfc6->setText("Save");
    CRect r6(CPoint(312,51),CSize(47,14));
    MapDialogRect(&r6);
    mfc6->setGeometry(r6);
    mfcToQtWidget.insert(IDC_SAVE,mfc6);
 //   PUSHBUTTON      "Import",IDC_IMPORT,312,67,47,14
-   CButton* mfc7 = new CButton;
-   mfc7->setParent(this);
+   CButton* mfc7 = new CButton(this);
    mfc7->setText("Import");
    CRect r7(CPoint(312,67),CSize(47,14));
    MapDialogRect(&r7);
    mfc7->setGeometry(r7);
    mfcToQtWidget.insert(IDC_IMPORT,mfc7);
 //   LTEXT           "Space used 16 / 16 kb",IDC_SPACE,198,151,166,9
-   CStatic* mfc8 = new CStatic;
-   mfc8->setParent(this);
+   CStatic* mfc8 = new CStatic(this);
    mfc8->setText("Space used 16 / 16 kb");
    CRect r8(CPoint(198,151),CSize(166,9));
    MapDialogRect(&r8);
    mfc8->setGeometry(r8);
    mfcToQtWidget.insert(IDC_SPACE,mfc8);
 //   GROUPBOX        "Loaded samples",IDC_STATIC,192,7,173,160
-   CGroupBox* mfc9 = new CGroupBox;
-   mfc9->setParent(this);
+   CGroupBox* mfc9 = new CGroupBox(this);
    mfc9->setTitle("Loaded samples");
    CRect r9(CPoint(192,7),CSize(173,160));
    MapDialogRect(&r9);
@@ -157,8 +148,7 @@ CInstrumentEditorDPCM::CInstrumentEditorDPCM(CWnd* pParent) : CInstrumentEditPan
    mfc9->setContentsMargins(0,0,0,0);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //   GROUPBOX        "Assigned samples",IDC_STATIC,7,7,179,160
-   CGroupBox* mfc10 = new CGroupBox;
-   mfc10->setParent(this);
+   CGroupBox* mfc10 = new CGroupBox(this);
    mfc10->setTitle("Assigned samples");
    CRect r10(CPoint(7,7),CSize(179,160));
    MapDialogRect(&r10);
@@ -166,23 +156,20 @@ CInstrumentEditorDPCM::CInstrumentEditorDPCM(CWnd* pParent) : CInstrumentEditPan
    mfc10->setContentsMargins(0,0,0,0);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //   COMBOBOX        IDC_PITCH,138,58,42,53,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-   CComboBox* mfc11 = new CComboBox;
-   mfc11->setParent(this);
+   CComboBox* mfc11 = new CComboBox(this);
    CRect r11(CPoint(138,58),CSize(42,53));
    MapDialogRect(&r11);
    mfc11->setGeometry(r11);
    mfcToQtWidget.insert(IDC_PITCH,mfc11);
 //   LTEXT           "Pitch",IDC_STATIC,138,48,30,8
-   CStatic* mfc12 = new CStatic;
-   mfc12->setParent(this);
+   CStatic* mfc12 = new CStatic(this);
    mfc12->setText("Pitch");
    CRect r12(CPoint(138,48),CSize(30,8));
    MapDialogRect(&r12);
    mfc12->setGeometry(r12);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //   CONTROL         "",IDC_TABLE,"SysListView32",LVS_REPORT | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,15,19,117,125
-   CListCtrl* mfc13 = new CListCtrl;
-   mfc13->setParent(this);
+   CListCtrl* mfc13 = new CListCtrl(this);
 //   mfc13->setSelectionMode(QAbstractItemView::SingleSelection);
 //   mfc13->setSelectionBehavior(QAbstractItemView::SelectRows);
 //   mfc13->verticalScrollBar()->hide();
@@ -192,8 +179,7 @@ CInstrumentEditorDPCM::CInstrumentEditorDPCM(CWnd* pParent) : CInstrumentEditPan
    mfc13->setGeometry(r13);
    mfcToQtWidget.insert(IDC_TABLE,mfc13);
 //   CONTROL         "",IDC_SAMPLE_LIST,"SysListView32",LVS_REPORT | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,198,19,108,125
-   CListCtrl* mfc14 = new CListCtrl;
-   mfc14->setParent(this);
+   CListCtrl* mfc14 = new CListCtrl(this);
 //   mfc14->setSelectionMode(QAbstractItemView::SingleSelection);
 //   mfc14->setSelectionBehavior(QAbstractItemView::SelectRows);
 //   mfc14->verticalScrollBar()->hide();
@@ -203,8 +189,7 @@ CInstrumentEditorDPCM::CInstrumentEditorDPCM(CWnd* pParent) : CInstrumentEditPan
    mfc14->setGeometry(r14);
    mfcToQtWidget.insert(IDC_SAMPLE_LIST,mfc14);
 //   CONTROL         "Loop",IDC_LOOP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,138,75,42,9
-   CButton* mfc15 = new CButton;
-   mfc15->setParent(this);
+   CButton* mfc15 = new CButton(this);
    mfc15->setText("Loop");
    mfc15->setCheckable(true);
    CRect r15(CPoint(138,75),CSize(42,9));
@@ -212,47 +197,41 @@ CInstrumentEditorDPCM::CInstrumentEditorDPCM(CWnd* pParent) : CInstrumentEditPan
    mfc15->setGeometry(r15);
    mfcToQtWidget.insert(IDC_LOOP,mfc15);
 //   PUSHBUTTON      "<-",IDC_ADD,138,130,42,14
-   CButton* mfc16 = new CButton;
-   mfc16->setParent(this);
+   CButton* mfc16 = new CButton(this);
    mfc16->setText("<-");
    CRect r16(CPoint(138,130),CSize(42,14));
    MapDialogRect(&r16);
    mfc16->setGeometry(r16);
    mfcToQtWidget.insert(IDC_ADD,mfc16);
 //   PUSHBUTTON      "->",IDC_REMOVE,138,146,42,14
-   CButton* mfc17 = new CButton;
-   mfc17->setParent(this);
+   CButton* mfc17 = new CButton(this);
    mfc17->setText("->");
    CRect r17(CPoint(138,146),CSize(42,14));
    MapDialogRect(&r17);
    mfc17->setGeometry(r17);
    mfcToQtWidget.insert(IDC_REMOVE,mfc17);
 //   EDITTEXT        IDC_LOOP_POINT,138,106,42,13,ES_AUTOHSCROLL | NOT WS_VISIBLE
-   CEdit* mfc18 = new CEdit;
-   mfc18->setParent(this);
+   CEdit* mfc18 = new CEdit(this);
    CRect r18(CPoint(138,106),CSize(42,13));
    MapDialogRect(&r18);
    mfc18->setGeometry(r18);   
    mfcToQtWidget.insert(IDC_LOOP_POINT,mfc18);
 //   PUSHBUTTON      "Edit",IDC_EDIT,312,83,47,14
-   CButton* mfc19 = new CButton;
-   mfc19->setParent(this);
+   CButton* mfc19 = new CButton(this);
    mfc19->setText("Edit");
    CRect r19(CPoint(312,83),CSize(47,14));
    MapDialogRect(&r19);
    mfc19->setGeometry(r19);
    mfcToQtWidget.insert(IDC_EDIT,mfc19);
 //   PUSHBUTTON      "Preview",IDC_PREVIEW,312,99,47,14
-   CButton* mfc20 = new CButton;
-   mfc20->setParent(this);
+   CButton* mfc20 = new CButton(this);
    mfc20->setText("Preview");
    CRect r20(CPoint(312,99),CSize(47,14));
    MapDialogRect(&r20);
    mfc20->setGeometry(r20);
    mfcToQtWidget.insert(IDC_PREVIEW,mfc20);
 //   LTEXT           "Loop offset",IDC_STATIC,138,94,42,10,NOT WS_VISIBLE
-   CStatic* mfc21 = new CStatic;
-   mfc21->setParent(this);
+   CStatic* mfc21 = new CStatic(this);
    mfc21->setText("Loop offset");
    CRect r21(CPoint(138,94),CSize(42,10));
    MapDialogRect(&r21);

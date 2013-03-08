@@ -109,9 +109,9 @@ BOOL CSequenceEditor::CreateEditor(CWnd *pParentWnd, const RECT &rect)
 
 void CSequenceEditor::OnPaint()
 {
-	CPaintDC dc(this); // device context for painting
+	CPaintDC dc(toQWidget()); // device context for painting
    
-   dc.attach(this);
+   dc.attach(toQWidget());
 
 	CRect rect;
 	GetClientRect(rect);

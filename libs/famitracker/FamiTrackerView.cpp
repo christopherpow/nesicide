@@ -233,7 +233,7 @@ int ConvertKeyToDec(int Key)
 
 // CFamiTrackerView construction/destruction
 
-CFamiTrackerView::CFamiTrackerView(QWidget* parent) : 
+CFamiTrackerView::CFamiTrackerView(CWnd* parent) : 
    CView(parent),
 	m_iMoveKeyStepping(1),
 	m_iInsertKeyStepping(1),
@@ -289,7 +289,7 @@ CFamiTrackerView::CFamiTrackerView(QWidget* parent) :
 	// Setup pattern view
 	m_pPatternView->InitView(m_iClipBoard);
    
-   grid = new QGridLayout(this); 
+   grid = new QGridLayout(this->toQWidget()); 
    grid->setMargin(0);
    grid->addWidget(m_pPatternView);
 }
@@ -299,12 +299,12 @@ CFamiTrackerView::~CFamiTrackerView()
 	// Release allocated objects
 	SAFE_RELEASE(m_pPatternView);
    
-   if ( horizontalScrollBar )
-      delete horizontalScrollBar;
-   if ( verticalScrollBar )
-      delete verticalScrollBar;
-   horizontalScrollBar = NULL;
-   verticalScrollBar = NULL;
+   if ( mfcHorizontalScrollBar )
+      delete mfcHorizontalScrollBar;
+   if ( mfcVerticalScrollBar )
+      delete mfcVerticalScrollBar;
+   mfcHorizontalScrollBar = NULL;
+   mfcVerticalScrollBar = NULL;
    delete grid;
 }
 
@@ -1090,10 +1090,10 @@ void CFamiTrackerView::OnInitialUpdate()
    TRACE0(pDoc->GetTitle().GetString());
 	TRACE0("\n");
 
-   horizontalScrollBar = new CScrollBar(Qt::Horizontal);
-   verticalScrollBar = new CScrollBar(Qt::Vertical);
-   QObject::connect(horizontalScrollBar,SIGNAL(actionTriggered(int)),this,SLOT(horizontalScrollBar_actionTriggered(int)));
-   QObject::connect(verticalScrollBar,SIGNAL(actionTriggered(int)),this,SLOT(verticalScrollBar_actionTriggered(int)));
+   mfcHorizontalScrollBar = new CScrollBar(Qt::Horizontal);
+   mfcVerticalScrollBar = new CScrollBar(Qt::Vertical);
+   QObject::connect(mfcHorizontalScrollBar,SIGNAL(actionTriggered(int)),this,SLOT(horizontalScrollBar_actionTriggered(int)));
+   QObject::connect(mfcVerticalScrollBar,SIGNAL(actionTriggered(int)),this,SLOT(verticalScrollBar_actionTriggered(int)));
 
    // Setup order window
 	pMainFrame->GetFrameEditor()->AssignDocument(pDoc, this);
@@ -3545,7 +3545,7 @@ void CFamiTrackerView::verticalScrollBar_actionTriggered(int arg1)
       break;
    }
 
-   OnVScroll(arg1,verticalScrollBar->sliderPosition(),verticalScrollBar);
+   OnVScroll(arg1,mfcVerticalScrollBar->sliderPosition(),mfcVerticalScrollBar);
    update();
 }
 
@@ -3577,6 +3577,6 @@ void CFamiTrackerView::horizontalScrollBar_actionTriggered(int arg1)
       break;
    }
    
-   OnHScroll(arg1,horizontalScrollBar->sliderPosition(),horizontalScrollBar);
+   OnHScroll(arg1,mfcHorizontalScrollBar->sliderPosition(),mfcHorizontalScrollBar);
    update();
 }

@@ -128,6 +128,8 @@ public:
 	afx_msg void OnModuleMoveframeup();
    
 public slots:
+   void songInstruments_doubleClicked(const QModelIndex &index);
+   void on_frameChangeAll_clicked(bool checked);
    void on_frameInc_clicked();   
    void on_frameDec_clicked();
    void on_speed_valueChanged(int arg1);
@@ -167,9 +169,6 @@ signals:
    void addToolBarWidget(QToolBar* toolBar);
    void removeToolBarWidget(QToolBar* toolBar);
    void editor_modificationChanged(bool m);
-private slots:
-   void on_frameChangeAll_clicked(bool checked);
-   void on_songInstruments_doubleClicked(const QModelIndex &index);
 };
 
 // Global DPI functions

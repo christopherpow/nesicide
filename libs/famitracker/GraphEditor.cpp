@@ -148,7 +148,7 @@ void CGraphEditor::OnTimer(UINT nIDEvent)
 
 void CGraphEditor::OnPaint()
 {
-	CPaintDC dc(this);
+	CPaintDC dc(this->toQWidget());
 }
 
 void CGraphEditor::PaintBuffer(CDC *pBackDC, CDC *pFrontDC)
@@ -533,11 +533,11 @@ void CGraphEditor::OnKillFocus(CWnd* pNewWnd)
 
 void CBarGraphEditor::OnPaint()
 {
-	CPaintDC dc(this);
+	CPaintDC dc(toQWidget());
 
 	CDC *pDC = m_pBackDC;
 
-   pDC->attach(this);
+   pDC->attach(toQWidget());
    
 	if (!pDC)
 		return;
@@ -804,11 +804,11 @@ void CArpeggioGraphEditor::DrawRange(CDC *pDC, int Max, int Min)
 
 void CArpeggioGraphEditor::OnPaint()
 {
-	CPaintDC dc(this);
+	CPaintDC dc(toQWidget());
 
 	CDC *pDC = m_pBackDC;
 
-   pDC->attach(this);
+   pDC->attach(toQWidget());
    
 	if (!pDC)
 		return;
@@ -993,11 +993,11 @@ BOOL CArpeggioGraphEditor::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 
 void CPitchGraphEditor::OnPaint()
 {
-	CPaintDC dc(this);
+	CPaintDC dc(toQWidget());
 
 	CDC *pDC = m_pBackDC;
 
-   pDC->attach(this);
+   pDC->attach(toQWidget());
    
 	if (!pDC)
 		return;
@@ -1084,11 +1084,11 @@ void CPitchGraphEditor::ModifyItem(CPoint point, bool Redraw)
 
 void CNoiseEditor::OnPaint()
 {
-	CPaintDC dc(this);
+	CPaintDC dc(toQWidget());
 	
 	CDC *pDC = m_pBackDC;
 
-   pDC->attach(this);
+   pDC->attach(toQWidget());
    
 	if (!pDC)
 		return;

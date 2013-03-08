@@ -57,8 +57,7 @@ CInstrumentEditor2A03::CInstrumentEditor2A03(CWnd* pParent)
 //   EDITTEXT        IDC_SEQUENCE_STRING,126,149,232,13,ES_AUTOHSCROLL
    
 //   GROUPBOX        "Sequence editor",IDC_STATIC,120,7,245,158
-   CGroupBox* mfc5 = new CGroupBox;
-   mfc5->setParent(this);
+   CGroupBox* mfc5 = new CGroupBox(this);
    mfc5->setTitle("Sequence editor");
    CRect r5(CPoint(120,7),CSize(245,158));
    MapDialogRect(&r5);
@@ -66,8 +65,7 @@ CInstrumentEditor2A03::CInstrumentEditor2A03(CWnd* pParent)
    mfc5->setContentsMargins(0,0,0,0);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //   GROUPBOX        "Instrument settings",IDC_STATIC,7,7,107,158,0,WS_EX_TRANSPARENT
-   CGroupBox* mfc6 = new CGroupBox;
-   mfc6->setParent(this);
+   CGroupBox* mfc6 = new CGroupBox(this);
    mfc6->setTitle("Instrument settings");
    CRect r6(CPoint(7,7),CSize(107,158));
    MapDialogRect(&r6);
@@ -75,8 +73,7 @@ CInstrumentEditor2A03::CInstrumentEditor2A03(CWnd* pParent)
    mfc6->setContentsMargins(0,0,0,0);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //   CONTROL         "",IDC_INSTSETTINGS,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,12,18,96,109,WS_EX_TRANSPARENT
-   CListCtrl* mfc1 = new CListCtrl;
-   mfc1->setParent(this);
+   CListCtrl* mfc1 = new CListCtrl(this);
    mfc1->setSelectionMode(QAbstractItemView::SingleSelection);
    mfc1->setSelectionBehavior(QAbstractItemView::SelectRows);
    mfc1->verticalScrollBar()->hide();
@@ -87,24 +84,21 @@ CInstrumentEditor2A03::CInstrumentEditor2A03(CWnd* pParent)
    mfcToQtWidget.insert(IDC_INSTSETTINGS,mfc1);
    QObject::connect(mfc1,SIGNAL(itemSelectionChanged()),this,SLOT(instSettings_itemSelectionChanged()));
 //   CONTROL         "Sequence #",IDC_STATIC,"Static",SS_LEFTNOWORDWRAP | SS_CENTERIMAGE | WS_GROUP,12,149,53,10,WS_EX_TRANSPARENT
-   CStatic* mfc2 = new CStatic;
-   mfc2->setParent(this);
+   CStatic* mfc2 = new CStatic(this);
    mfc2->setText("Sequence #");
    CRect r2(CPoint(12,149),CSize(53,10));
    MapDialogRect(&r2);
    mfc2->setGeometry(r2);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //   EDITTEXT        IDC_SEQ_INDEX,69,147,39,12,ES_AUTOHSCROLL | ES_NUMBER
-   CEdit* mfc3 = new CEdit;
-   mfc3->setParent(this);
+   CEdit* mfc3 = new CEdit(this);
    CRect r3(CPoint(69,147),CSize(39,12));
    MapDialogRect(&r3);
    mfc3->setGeometry(r3);   
    mfcToQtWidget.insert(IDC_SEQ_INDEX,mfc3);
    QObject::connect(mfc3,SIGNAL(textChanged(QString)),this,SLOT(seqIndex_textChanged(QString)));
 //   CONTROL         "",IDC_SEQUENCE_SPIN,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,66,153,11,9
-   CSpinButtonCtrl* mfc4 = new CSpinButtonCtrl;
-   mfc4->setParent(this);
+   CSpinButtonCtrl* mfc4 = new CSpinButtonCtrl(this);
    // CP: Note, we fake a MFC "spin-box" separate control by placing it over it's "buddy" and connecting signals appropriately
    // to mimic the buddy relationship.
    CRect r4(CPoint(97,147),CSize(11,12));
@@ -113,8 +107,7 @@ CInstrumentEditor2A03::CInstrumentEditor2A03(CWnd* pParent)
    mfcToQtWidget.insert(IDC_SEQUENCE_SPIN,mfc4);
    QObject::connect(mfc4,SIGNAL(valueChanged(int)),this,SLOT(sequenceSpin_valueChanged(int)));
 //   PUSHBUTTON      "Select next empty slot",IDC_FREE_SEQ,12,129,96,15
-   CButton* mfc7 = new CButton;
-   mfc7->setParent(this);
+   CButton* mfc7 = new CButton(this);
    mfc7->setText("Select next empty slot");
    CRect r7(CPoint(12,129),CSize(96,15));
    MapDialogRect(&r7);
@@ -122,8 +115,7 @@ CInstrumentEditor2A03::CInstrumentEditor2A03(CWnd* pParent)
    mfcToQtWidget.insert(IDC_FREE_SEQ,mfc7);
    QObject::connect(mfc7,SIGNAL(clicked()),this,SLOT(freeSeq_clicked()));
 //   EDITTEXT        IDC_SEQUENCE_STRING,126,149,232,13,ES_AUTOHSCROLL
-   CEdit* mfc8 = new CEdit;
-   mfc8->setParent(this);
+   CEdit* mfc8 = new CEdit(this);
    CRect r8(CPoint(126,149),CSize(232,13));
    MapDialogRect(&r8);
    mfc8->setGeometry(r8);   

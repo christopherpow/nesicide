@@ -18,7 +18,7 @@ MainWindow::MainWindow(QWidget *parent) :
    theApp.InitInstance();
    
    m_pMainFrame = (CMainFrame*)theApp.m_pMainWnd;
-   setCentralWidget(m_pMainFrame);
+   setCentralWidget(m_pMainFrame->toQWidget());
 
    QObject::connect(m_pMainFrame,SIGNAL(addToolBarWidget(QToolBar*)),this,SLOT(addToolBarWidget(QToolBar*)));
    QObject::connect(m_pMainFrame,SIGNAL(removeToolBarWidget(QToolBar*)),this,SLOT(removeToolBarWidget(QToolBar*)));

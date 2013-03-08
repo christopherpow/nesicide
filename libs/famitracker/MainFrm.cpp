@@ -43,7 +43,7 @@ CMainFrame::CMainFrame(QWidget *parent) :
    int idx;
    int col;
    
-   ui->setupUi(this);
+   ui->setupUi(toQWidget());
    
    _dpiX = DEFAULT_DPI;
 	_dpiY = DEFAULT_DPI;
@@ -128,6 +128,8 @@ CMainFrame::CMainFrame(QWidget *parent) :
 #endif
 
    ui->songInstruments->setStyleSheet("QListView { background: #000000; color: #ffffff; }");
+   
+   QObject::connect(ui->songInstruments,SIGNAL(doubleClicked(QModelIndex)),this,SLOT(songInstruments_doubleClicked(QModelIndex)));
 }
 
 CMainFrame::~CMainFrame()
@@ -172,9 +174,9 @@ void CMainFrame::showEvent(QShowEvent *)
          TRACE0("Failed to create pattern window\n");
       }
 
-      ui->songFrames->layout()->addWidget(m_pFrameEditor);
+      ui->songFrames->layout()->addWidget(m_pFrameEditor->toQWidget());
       
-      ui->songPatterns->layout()->addWidget(m_pView);
+      ui->songPatterns->layout()->addWidget(m_pView->toQWidget());
    
       m_pFrameEditor->setFocusPolicy(Qt::StrongFocus);
       m_pView->setFocusPolicy(Qt::StrongFocus);
@@ -828,7 +830,7 @@ bool CMainFrame::CreateSampleWindow()
 	if (pSoundGen)
 		pSoundGen->SetSampleWindow(m_pSampleWindow);
    
-   ui->sampleWindow->layout()->addWidget(m_pSampleWindow);
+   ui->sampleWindow->layout()->addWidget(m_pSampleWindow->toQWidget());
 
 	return true;
 }
@@ -840,13 +842,13 @@ void CMainFrame::on_frameChangeAll_clicked(bool checked)
 }
 
 #include "InstrumentEditDlg.h"
-void CMainFrame::on_songInstruments_doubleClicked(const QModelIndex &index)
+void CMainFrame::songInstruments_doubleClicked(const QModelIndex &index)
 {
    QDialog dlg;
    QGridLayout grid;
 
-   CInstrumentEditDlg* d = new CInstrumentEditDlg(this);   
-   grid.addWidget(d);
+   CInstrumentEditDlg* d = new CInstrumentEditDlg((CWnd*)this);   
+   grid.addWidget(d->toQWidget());
    dlg.setLayout(&grid);   
 //   IDD_INSTRUMENT DIALOGEX 0, 0, 389, 242
    CRect rect(0,0,389,242);

@@ -55,8 +55,7 @@ CInstrumentEditDlg::CInstrumentEditDlg(CWnd* pParent /*=NULL*/)
 //   CONTROL         "",IDC_KEYBOARD,"Static",SS_OWNERDRAW | SS_REALSIZEIMAGE | SS_SUNKEN,7,198,375,37
 
    //   CONTROL         "",IDC_INST_TAB,"SysTabControl32",0x0,7,7,375,185
-   CTabCtrl* mfc1 = new CTabCtrl;
-   mfc1->setParent(this);
+   CTabCtrl* mfc1 = new CTabCtrl(this);
    CRect r1(CPoint(7,7),CSize(375,185));
    MapDialogRect(&r1);
    mfc1->setGeometry(r1);
@@ -123,7 +122,7 @@ void CInstrumentEditDlg::InsertPane(CInstrumentEditPanel *pPanel, bool Show)
 	CRect Rect, ParentRect;
    CTabCtrl *pTabControl = (CTabCtrl*)(GetDlgItem(IDC_INST_TAB));
 
-	pTabControl->GetWindowRect(&ParentRect);
+//	pTabControl->GetWindowRect(&ParentRect);
 	pTabControl->InsertItem(m_iPanels, pPanel->GetTitle());
 
 	pPanel->Create(pPanel->GetIDD(), this);
@@ -243,10 +242,10 @@ void CInstrumentEditDlg::OnTcnSelchangeInstTab(NMHDR *pNMHDR, LRESULT *pResult)
 
 void CInstrumentEditDlg::OnPaint()
 {
-	CPaintDC dc(this); // device context for painting
+   CPaintDC dc(toQWidget()); // device context for painting
 	// Do not call CDialog::OnPaint() for painting messages
 
-   dc.attach(this);
+   dc.attach(toQWidget());
    
 	const int WHITE_KEY_W	= 10;
 	const int BLACK_KEY_W	= 8;
