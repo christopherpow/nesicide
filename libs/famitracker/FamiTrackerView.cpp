@@ -798,18 +798,17 @@ static stClipData *pClipData = NULL;
 
 void CFamiTrackerView::OnEditCopy()
 {
-   qDebug("OnEditCopy");
-//	if (!OpenClipboard()) {
-//		AfxMessageBox(IDS_CLIPBOARD_OPEN_ERROR);
-//		return;
-//	}
+	if (!OpenClipboard()) {
+		AfxMessageBox(IDS_CLIPBOARD_OPEN_ERROR);
+		return;
+	}
 
 	::EmptyClipboard();
 
 	HGLOBAL hMem = ::GlobalAlloc(GMEM_MOVEABLE, sizeof(stClipData));
 
 	if (hMem == NULL) {
-//		AfxMessageBox(IDS_CLIPBOARD_COPY_ERROR);
+		AfxMessageBox(IDS_CLIPBOARD_COPY_ERROR);
 		::CloseClipboard();
 		return;
 	}
@@ -817,7 +816,7 @@ void CFamiTrackerView::OnEditCopy()
 	stClipData *pClipData = (stClipData*)::GlobalLock(hMem);
 
 	if (pClipData == NULL) {
-//		AfxMessageBox(IDS_CLIPBOARD_COPY_ERROR);
+		AfxMessageBox(IDS_CLIPBOARD_COPY_ERROR);
 		::CloseClipboard();
 		return;
 	}
@@ -845,43 +844,37 @@ void CFamiTrackerView::OnEditCut()
 
 void CFamiTrackerView::OnEditPaste()
 {
-   qDebug("OnEditPaste");
-//	if (!OpenClipboard()) {
-//		AfxMessageBox(IDS_CLIPBOARD_OPEN_ERROR);
-//		return;
-//	}
+	if (!OpenClipboard()) {
+		AfxMessageBox(IDS_CLIPBOARD_OPEN_ERROR);
+		return;
+	}
 
 	if (!::IsClipboardFormatAvailable(m_iClipBoard)) {
-//		AfxMessageBox(IDS_CLIPBOARD_NOT_AVALIABLE);
-      qDebug("1 NOT PASTING!!!");
+		AfxMessageBox(IDS_CLIPBOARD_NOT_AVALIABLE);
 		return;
 	}
 
 	HGLOBAL hMem = ::GetClipboardData(m_iClipBoard);
 
 	if (hMem == NULL) {
-//		AfxMessageBox(IDS_CLIPBOARD_PASTE_ERROR);
+		AfxMessageBox(IDS_CLIPBOARD_PASTE_ERROR);
 		::CloseClipboard();
-      qDebug("2 NOT PASTING!!!");
 		return;
 	}
 
-   stClipData *pClipData = (stClipData*)hMem;
-//	stClipData *pClipData = (stClipData*)::GlobalLock(hMem);
+	stClipData *pClipData = (stClipData*)::GlobalLock(hMem);
 
 	if (pClipData == NULL) {
-//		AfxMessageBox(IDS_CLIPBOARD_PASTE_ERROR);
+		AfxMessageBox(IDS_CLIPBOARD_PASTE_ERROR);
 		::CloseClipboard();
-      qDebug("3 NOT PASTING!!!");
 		return;
 	}
 
-   qDebug("PASTING!!!");
 	CPatternAction *pAction = new CPatternAction(CPatternAction::ACT_EDIT_PASTE);
 	pAction->SetPaste(pClipData, m_iPasteMode);
 	AddAction(pAction);
 
-//	::GlobalUnlock(hMem);
+	::GlobalUnlock(hMem);
 
 	::CloseClipboard();
 

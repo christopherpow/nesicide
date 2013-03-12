@@ -122,7 +122,7 @@ void CInstrumentEditDlg::InsertPane(CInstrumentEditPanel *pPanel, bool Show)
 	CRect Rect, ParentRect;
    CTabCtrl *pTabControl = (CTabCtrl*)(GetDlgItem(IDC_INST_TAB));
 
-//	pTabControl->GetWindowRect(&ParentRect);
+	pTabControl->GetWindowRect(&ParentRect);
 	pTabControl->InsertItem(m_iPanels, pPanel->GetTitle());
 
 	pPanel->Create(pPanel->GetIDD(), this);
@@ -175,7 +175,6 @@ void CInstrumentEditDlg::SetCurrentInstrument(int Index)
 		ShowWindow(SW_HIDE);
 
 		ClearPanels();
-      qDebug("Not all instrument panels implemented...");
       
 		switch (InstType) {
 			case INST_2A03: {
@@ -183,27 +182,31 @@ void CInstrumentEditDlg::SetCurrentInstrument(int Index)
 					int Type = CFamiTrackerDoc::GetDoc()->GetChannelType(Channel);
 					bool bShowDPCM = (Type == CHANID_DPCM) || (((CInstrument2A03*)pInst)->AssignedSamples());
                InsertPane(new CInstrumentEditor2A03(), !bShowDPCM);
-               qDebug("DPCM pane!");
-//					InsertPane(new CInstrumentEditorDPCM(), bShowDPCM);
+					InsertPane(new CInstrumentEditorDPCM(), bShowDPCM);
 				}
 				break;
-//			case INST_VRC6:
+			case INST_VRC6:
+         qDebug("InstrumentEditorVRC6");
 //				InsertPane(new CInstrumentEditorVRC6(), true);
-//				break;
-//			case INST_VRC7:
+				break;
+			case INST_VRC7:
+         qDebug("InstrumentEditorVRC7");
 //				InsertPane(new CInstrumentEditorVRC7(), true);
-//				break;
-//			case INST_FDS:
+				break;
+			case INST_FDS:
+         qDebug("InstrumentEditorFDS");
 //				InsertPane(new CInstrumentEditorFDS(), true);
 //				InsertPane(new CInstrumentEditorFDSEnvelope(), false);
-//				break;
-//			case INST_N163:
+				break;
+			case INST_N163:
+         qDebug("InstrumentEditorN163");
 //				InsertPane(new CInstrumentEditorN163(), true);
 //				InsertPane(new CInstrumentEditorN163Wave(), false);
-//				break;
-//			case INST_S5B:
+				break;
+			case INST_S5B:
+         qDebug("InstrumentEditorS5B");
 //				InsertPane(new CInstrumentEditorS5B(), true);
-//				break;
+				break;
 		}
 
 		m_iSelectedInstType = InstType;

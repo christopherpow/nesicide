@@ -292,7 +292,7 @@ BOOL CFamiTrackerApp::InitInstance()
 		m_pSettings->DefaultSettings();
 		m_pSettings->SaveSettings();
 		// Show message and quit
-//		AfxMessageBox(IDS_SOUNDGEN_ERROR, MB_ICONERROR);
+		AfxMessageBox(IDS_SOUNDGEN_ERROR, MB_ICONERROR);
 		return FALSE;
 	}
 
@@ -302,7 +302,7 @@ BOOL CFamiTrackerApp::InitInstance()
 		m_pSettings->DefaultSettings();
 		m_pSettings->SaveSettings();
 		// Quit program
-//		AfxMessageBox(IDS_START_ERROR, MB_ICONERROR);
+		AfxMessageBox(IDS_START_ERROR, MB_ICONERROR);
 		return FALSE;
 	}
 

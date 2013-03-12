@@ -20,15 +20,38 @@
 
 #pragma once
 
+#include "stdafx.h"
+#include "FamiTrackerDoc.h"
+#include "InstrumentEditPanel.h"
+
 class CFamiTrackerView;
 
 // CInstrumentDPCM dialog
 
 class CInstrumentEditorDPCM : public CInstrumentEditPanel
 {
+   Q_OBJECT
+   // Qt interfaces
+public slots:
+   void load_clicked();
+   void unload_clicked();
+   void sampleList_itemSelectionChanged();
+   void import_clicked();
+   void octave_currentIndexChanged(int index);
+   void pitch_currentIndexChanged();
+   void table_itemSelectionChanged();
+   void samples_currentIndexChanged(int index);
+   void save_clicked();
+   void loop_clicked();
+   void add_clicked();
+   void remove_clicked();
+   void loopPoint_textChanged(QString str);
+   void edit_clicked();
+   void preview_clicked();
+   
+public:
 	DECLARE_DYNAMIC(CInstrumentEditorDPCM)
 
-public:
 	CInstrumentEditorDPCM(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CInstrumentEditorDPCM();
 	virtual int GetIDD() const { return IDD; };
@@ -49,7 +72,7 @@ protected:
 	void BuildKeyList();
 	void BuildSampleList();
 	void UpdateKey(int Index);
-	bool LoadSample(CString &FilePath, CString &FileName);
+	bool LoadSample(CString FilePath, CString FileName);
 	bool InsertSample(CDSample *pNewSample);
 
 	CDSample *GetSelectedSample();
@@ -66,26 +89,26 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	virtual BOOL OnInitDialog();
-//	afx_msg void OnBnClickedLoad();
-//	afx_msg void OnBnClickedUnload();
-//	afx_msg void OnNMClickSampleList(NMHDR *pNMHDR, LRESULT *pResult);
-//	afx_msg void OnBnClickedImport();
-//	afx_msg void OnCbnSelchangeOctave();
-//	afx_msg void OnCbnSelchangePitch();
-//	afx_msg void OnLvnItemchangedTable(NMHDR *pNMHDR, LRESULT *pResult);
-//	afx_msg void OnNMClickTable(NMHDR *pNMHDR, LRESULT *pResult);
-//	afx_msg void OnCbnSelchangeSamples();
-//	afx_msg void OnBnClickedSave();
-//	afx_msg void OnBnClickedLoop();
+	afx_msg void OnBnClickedLoad();
+	afx_msg void OnBnClickedUnload();
+	afx_msg void OnNMClickSampleList(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnBnClickedImport();
+	afx_msg void OnCbnSelchangeOctave();
+	afx_msg void OnCbnSelchangePitch();
+	afx_msg void OnLvnItemchangedTable(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnNMClickTable(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnCbnSelchangeSamples();
+	afx_msg void OnBnClickedSave();
+	afx_msg void OnBnClickedLoop();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
-//	afx_msg void OnBnClickedSawhack();
-//	afx_msg void OnBnClickedAdd();
-//	afx_msg void OnBnClickedRemove();
-//	afx_msg void OnEnChangeLoopPoint();
-//	afx_msg void OnBnClickedEdit();
-//	afx_msg void OnNMDblclkSampleList(NMHDR *pNMHDR, LRESULT *pResult);
-//	afx_msg void OnBnClickedPreview();
-//	afx_msg void OnNMRClickSampleList(NMHDR *pNMHDR, LRESULT *pResult);
-//	afx_msg void OnNMRClickTable(NMHDR *pNMHDR, LRESULT *pResult);
-//	afx_msg void OnNMDblclkTable(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnBnClickedSawhack();
+	afx_msg void OnBnClickedAdd();
+	afx_msg void OnBnClickedRemove();
+	afx_msg void OnEnChangeLoopPoint();
+	afx_msg void OnBnClickedEdit();
+	afx_msg void OnNMDblclkSampleList(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnBnClickedPreview();
+	afx_msg void OnNMRClickSampleList(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnNMRClickTable(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnNMDblclkTable(NMHDR *pNMHDR, LRESULT *pResult);
 };

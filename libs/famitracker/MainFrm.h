@@ -32,7 +32,7 @@ class CMainFrame : public CFrameWnd
    Q_OBJECT
 
 public:
-   CMainFrame(QWidget* parent = 0);
+   CMainFrame(CWnd* parent = 0);
    ~CMainFrame();
    
    // Attributes

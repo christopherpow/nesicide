@@ -41,8 +41,7 @@ CSampleEditorDlg::CSampleEditorDlg(CWnd* pParent /*=NULL*/, CDSample *pSample)
 	m_pSoundGen = theApp.GetSoundGenerator();
    
 //   DEFPUSHBUTTON   "OK",IDOK,372,234,50,14
-   CButton* mfc1 = new CButton;
-   mfc1->setParent(this);
+   CButton* mfc1 = new CButton(this);
    mfc1->setText("OK");
    mfc1->setDefault(true);
    CRect r1(CPoint(372,234),CSize(50,14));
@@ -50,57 +49,74 @@ CSampleEditorDlg::CSampleEditorDlg(CWnd* pParent /*=NULL*/, CDSample *pSample)
    mfc1->setGeometry(r1);
    mfcToQtWidget.insert(IDOK,mfc1);
 //   PUSHBUTTON      "Cancel",IDCANCEL,424,234,50,14
-   CButton* mfc2 = new CButton;
-   mfc2->setParent(this);
+   CButton* mfc2 = new CButton(this);
    mfc2->setText("Cancel");
    CRect r2(CPoint(424,234),CSize(50,14));
    MapDialogRect(&r2);
    mfc2->setGeometry(r2);
    mfcToQtWidget.insert(IDCANCEL,mfc2);
 //   CONTROL         "",IDC_SAMPLE,"Static",SS_WHITERECT | SS_NOTIFY | SS_SUNKEN,7,7,467,204
+   CStatic *mfc3 = new CStatic(this);
+   mfc3->setText("");
+   CRect r3(7,7,467,204);
+   MapDialogRect(&r3);
+   mfc3->setGeometry(r3);
+   mfcToQtWidget.insert(IDC_SAMPLE,mfc3);
 //   PUSHBUTTON      "Play",IDC_PLAY,67,234,50,14
-   CButton* mfc4 = new CButton;
-   mfc4->setParent(this);
+   CButton* mfc4 = new CButton(this);
    mfc4->setText("Play");
    CRect r4(CPoint(67,234),CSize(50,14));
    MapDialogRect(&r4);
    mfc4->setGeometry(r4);
    mfcToQtWidget.insert(IDC_PLAY,mfc4);
 //   LTEXT           "Offset: 0, Pos: 0",IDC_POS,7,217,79,11,SS_SUNKEN
+   CStatic* mfc5 = new CStatic(this);
+   mfc5->setText("Offset: 0, Pos: 0");
+   CRect r5(7,217,79,11);
+   MapDialogRect(&r5);
+   mfc5->setGeometry(r5);
+   mfcToQtWidget.insert(IDC_POS,mfc5);
 //   PUSHBUTTON      "Delete",IDC_DELETE,239,234,50,14
-   CButton* mfc6 = new CButton;
-   mfc6->setParent(this);
+   CButton* mfc6 = new CButton(this);
    mfc6->setText("Delete");
    CRect r6(CPoint(239,234),CSize(50,14));
    MapDialogRect(&r6);
    mfc6->setGeometry(r6);
    mfcToQtWidget.insert(IDC_DELETE,mfc6);
 //   CONTROL         "",IDC_PITCH,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,143,236,79,12
+   CSliderCtrl* mfc7 = new CSliderCtrl(this);
+   CRect r7(143,236,79,12);
+   MapDialogRect(&r7);
+   mfc7->setGeometry(r7);
+   mfcToQtWidget.insert(IDC_PITCH,mfc7);
 //   PUSHBUTTON      "Tilt",IDC_TILT,292,234,50,14
-   CButton* mfc8 = new CButton;
-   mfc8->setParent(this);
+   CButton* mfc8 = new CButton(this);
    mfc8->setText("Tilt");
    CRect r8(CPoint(292,234),CSize(50,14));
    MapDialogRect(&r8);
    mfc8->setGeometry(r8);
    mfcToQtWidget.insert(IDC_TILT,mfc8);
 //   LTEXT           "0 bytes",IDC_INFO,88,217,87,11,SS_SUNKEN
-   CStatic* mfc9 = new CStatic;
-   mfc9->setParent(this);
+   CStatic* mfc9 = new CStatic(this);
    mfc9->setText("0 bytes");
    CRect r9(CPoint(88,217),CSize(87,11));
    MapDialogRect(&r9);
    mfc9->setGeometry(r9);
    mfcToQtWidget.insert(IDC_INFO,mfc9);
 //   LTEXT           "Pitch",IDC_STATIC_PITCH,123,237,19,11
-   CStatic* mfc10 = new CStatic;
-   mfc10->setParent(this);
+   CStatic* mfc10 = new CStatic(this);
    mfc10->setText("Pitch");
    CRect r10(CPoint(123,237),CSize(19,11));
    MapDialogRect(&r10);
    mfc10->setGeometry(r10);
    mfcToQtWidget.insert(IDC_STATIC_PITCH,mfc10);
 //   CONTROL         "Start from 64",IDC_DELTASTART,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,238,57,10
+   CButton* mfc11 = new CButton(this);
+   mfc11->setText("Start from 64");
+   CRect r11(CPoint(7,238),CSize(57,10));
+   MapDialogRect(&r11);
+   mfc11->setGeometry(r11);
+   mfcToQtWidget.insert(IDC_DELTASTART,mfc11);
 
    // CP: This belongs somewhere else...
    OnInitDialog();   
@@ -361,16 +377,16 @@ void CSampleEditorDlg::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 
 IMPLEMENT_DYNAMIC(CSampleView, CStatic)
 
-BEGIN_MESSAGE_MAP(CSampleView, CStatic)
-	ON_WM_PAINT()
-	ON_WM_ERASEBKGND()
-	ON_WM_MOUSEMOVE()
-	ON_WM_LBUTTONDOWN()
-	ON_WM_LBUTTONUP()
-	ON_WM_SIZE()
-END_MESSAGE_MAP()
+//BEGIN_MESSAGE_MAP(CSampleView, CStatic)
+//	ON_WM_PAINT()
+//	ON_WM_ERASEBKGND()
+//	ON_WM_MOUSEMOVE()
+//	ON_WM_LBUTTONDOWN()
+//	ON_WM_LBUTTONUP()
+//	ON_WM_SIZE()
+//END_MESSAGE_MAP()
 
-CScrollBar m_sbScrollBar;
+CScrollBar* m_sbScrollBar;
 
 CSampleView::CSampleView() : 
 	m_iSelStart(-1), 
@@ -383,6 +399,8 @@ CSampleView::CSampleView() :
 	m_pDashedPen = new CPen(PS_DASH, 1, (COLORREF)0x00);
 	m_pGrayDashedPen = new CPen(PS_DASHDOT, 1, (COLORREF)0xF0F0F0);
 	m_pDarkGrayDashedPen = new CPen(PS_DASHDOT, 1, (COLORREF)0xE0E0E0);
+   
+   m_sbScrollBar = new CScrollBar;
 }
 
 CSampleView::~CSampleView()
@@ -402,15 +420,15 @@ void CSampleView::OnPaint()
 	CPaintDC dc(this); // device context for painting
 
 	// Create scroll bar
-	if (m_sbScrollBar.m_hWnd == NULL) {
+	if (m_sbScrollBar->m_hWnd == NULL) {
 		CRect rect;
 		GetClientRect(&rect);
-		m_sbScrollBar.Create(SBS_HORZ | SBS_BOTTOMALIGN | WS_CHILD | WS_VISIBLE, rect, this, 1);
-		m_sbScrollBar.EnableWindow(0);
+		m_sbScrollBar->Create(SBS_HORZ | SBS_BOTTOMALIGN | WS_CHILD | WS_VISIBLE, rect, this, 1);
+		m_sbScrollBar->EnableWindow(0);
 	}
 
 	CRect sbRect;
-	m_sbScrollBar.GetClientRect(&sbRect);
+	m_sbScrollBar->GetClientRect(&sbRect);
 	ScrollBarHeight = sbRect.bottom - sbRect.top;
 
 	GetClientRect(&m_clientRect);
@@ -421,14 +439,17 @@ void CSampleView::OnPaint()
 	int MaxX = m_clientRect.right - 2;
 	int x, y;
 
-	if (m_dcCopy.m_hDC != NULL)
-		m_dcCopy.DeleteDC();
+   qDebug("DeleteDC");
+//	if (m_dcCopy.m_hDC != NULL)
+//		m_dcCopy.DeleteDC();
 
-	if (m_bmpCopy.m_hObject != NULL)
-		m_bmpCopy.DeleteObject();
+   qDebug("DeleteObject");
+//	if (m_bmpCopy.m_hObject != NULL)
+//		m_bmpCopy.DeleteObject();
 
-	m_bmpCopy.CreateCompatibleBitmap(&dc, m_clientRect.Width(), m_clientRect.Height());
-	m_dcCopy.CreateCompatibleDC(&dc);
+   qDebug("CreateCompatibleBitmap");
+//	m_bmpCopy.CreateCompatibleBitmap(&dc, m_clientRect.Width(), m_clientRect.Height());
+//	m_dcCopy.CreateCompatibleDC(&dc);
 	m_dcCopy.SelectObject(&m_bmpCopy);
 	m_dcCopy.FillSolidRect(m_clientRect, 0xFFFFFF);
 	m_dcCopy.SetViewportOrg(1, 1);
@@ -687,15 +708,15 @@ void CSampleView::OnSize(UINT nType, int cx, int cy)
 {
 	CStatic::OnSize(nType, cx, cy);
 
-	if (m_sbScrollBar.m_hWnd != NULL) {
+	if (m_sbScrollBar->m_hWnd != NULL) {
 		CRect clientRect, scrollRect;
 		GetClientRect(&clientRect);
-		m_sbScrollBar.GetClientRect(&scrollRect);
+		m_sbScrollBar->GetClientRect(&scrollRect);
 		scrollRect.right = clientRect.right;
 		int height = scrollRect.Height();
 		scrollRect.top = clientRect.bottom - height;
 		scrollRect.bottom = scrollRect.top + height;
-		m_sbScrollBar.MoveWindow(&scrollRect);
+		m_sbScrollBar->MoveWindow(&scrollRect);
 	}
 }
 

@@ -32,8 +32,8 @@ void ScaleMouse(CPoint &pt)
 	pt.y = MulDiv(pt.y, DEFAULT_DPI, _dpiY);
 }
 
-CMainFrame::CMainFrame(QWidget *parent) :
-   CFrameWnd(),
+CMainFrame::CMainFrame(CWnd *parent) :
+   CFrameWnd(parent),
    ui(new Ui::CMainFrame),
    m_iInstrument(0),
    m_iTrack(0),
@@ -130,6 +130,10 @@ CMainFrame::CMainFrame(QWidget *parent) :
    ui->songInstruments->setStyleSheet("QListView { background: #000000; color: #ffffff; }");
    
    QObject::connect(ui->songInstruments,SIGNAL(doubleClicked(QModelIndex)),this,SLOT(songInstruments_doubleClicked(QModelIndex)));
+   
+   CComboBox* mfc1 = new CComboBox;
+   ui->songsGroupBox->layout()->addWidget(mfc1->toQWidget());
+   mfcToQtWidget.insert(IDC_SUBTUNE,mfc1);
 }
 
 CMainFrame::~CMainFrame()
@@ -428,7 +432,7 @@ void CMainFrame::setFileName(QString fileName)
 {
    m_fileName = fileName;
 
-   GetActiveDocument()->OnOpenDocument((TCHAR*)fileName.toAscii().constData());
+   GetActiveDocument()->OnOpenDocument((TCHAR*)fileName.unicode());
    
    instrumentsModel->setDocument((CFamiTrackerDoc*)GetActiveDocument());
    instrumentsModel->update();
@@ -657,8 +661,8 @@ void CMainFrame::SetSongInfo(char *Name, char *Artist, char *Copyright)
 void CMainFrame::UpdateTrackBox()
 {
 	// Fill the track box with all songs
-	CComboBox		*pTrackBox	= (CComboBox*)ui->songs;
-//	CComboBox		*pTrackBox	= (CComboBox*)m_wndDialogBar.GetDlgItem(IDC_SUBTUNE);
+//   CComboBox		*pTrackBox	= (CComboBox*)m_wndDialogBar.GetDlgItem(IDC_SUBTUNE);
+   CComboBox		*pTrackBox	= (CComboBox*)GetDlgItem(IDC_SUBTUNE);
 	CFamiTrackerDoc	*pDoc		= (CFamiTrackerDoc*)GetActiveDocument();
 	CString			Text;
 
@@ -697,8 +701,8 @@ void CMainFrame::SetStatusText(LPCTSTR Text,...)
 void CMainFrame::OnNextSong()
 {
 	CFamiTrackerDoc *pDoc = (CFamiTrackerDoc*)GetActiveDocument();
-//	CComboBox *pTrackBox = (CComboBox*)m_wndDialogBar.GetDlgItem(IDC_SUBTUNE);
-   CComboBox *pTrackBox = (CComboBox*)ui->songs;
+//   CComboBox		*pTrackBox	= (CComboBox*)m_wndDialogBar.GetDlgItem(IDC_SUBTUNE);
+   CComboBox		*pTrackBox	= (CComboBox*)GetDlgItem(IDC_SUBTUNE);
 	
 	if (m_iTrack < (signed)pDoc->GetTrackCount() - 1)
 		pDoc->SelectTrack(m_iTrack + 1);
@@ -707,8 +711,8 @@ void CMainFrame::OnNextSong()
 void CMainFrame::OnPrevSong()
 {
 	CFamiTrackerDoc *pDoc = (CFamiTrackerDoc*)GetActiveDocument();
-   //	CComboBox *pTrackBox = (CComboBox*)m_wndDialogBar.GetDlgItem(IDC_SUBTUNE);
-      CComboBox *pTrackBox = (CComboBox*)ui->songs;
+//   CComboBox		*pTrackBox	= (CComboBox*)m_wndDialogBar.GetDlgItem(IDC_SUBTUNE);
+   CComboBox		*pTrackBox	= (CComboBox*)GetDlgItem(IDC_SUBTUNE);
 
 	if (m_iTrack > 0)
 		pDoc->SelectTrack(m_iTrack - 1);
@@ -847,14 +851,13 @@ void CMainFrame::songInstruments_doubleClicked(const QModelIndex &index)
    QDialog dlg;
    QGridLayout grid;
 
-   CInstrumentEditDlg* d = new CInstrumentEditDlg((CWnd*)this);   
+   CInstrumentEditDlg* d = new CInstrumentEditDlg;   
    grid.addWidget(d->toQWidget());
    dlg.setLayout(&grid);   
 //   IDD_INSTRUMENT DIALOGEX 0, 0, 389, 242
    CRect rect(0,0,389,242);
    d->MapDialogRect(&rect);
    dlg.setFixedSize(rect.Width(),rect.Height());
-   d->DoModal();
-   d->SetCurrentInstrument(0);
+   d->SetCurrentInstrument(index.row());
    dlg.exec();
 }

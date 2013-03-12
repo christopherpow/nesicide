@@ -3,6 +3,8 @@
 
 #include "FamiTracker.h"
 
+#include "cqtmfc_famitracker.h"
+
 #include <QFileInfo>
 #include <QUrl>
 
@@ -13,8 +15,9 @@ MainWindow::MainWindow(QWidget *parent) :
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
    
    ui->setupUi(this);
-   
-   // CPTODO: this is a hack
+
+   // Initialize the app...
+   qtMfcInit();
    theApp.InitInstance();
    
    m_pMainFrame = (CMainFrame*)theApp.m_pMainWnd;

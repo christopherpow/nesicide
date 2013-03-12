@@ -127,7 +127,13 @@ SOURCES += \
     instrumenteditdlg_test.cpp \
     InstrumentEditPanel.cpp \
     InstrumentEditDlg.cpp \
-    InstrumentEditorDPCM.cpp
+    InstrumentEditorDPCM.cpp \
+    SampleEditorDlg.cpp \
+    PCMImport.cpp \
+    resampler/sinc.cpp \
+    resampler/resample.inl \
+    resampler/resample.cpp \
+    cqtmfc_famitracker.cpp
 
 HEADERS += \
     TrackerChannel.h \
@@ -209,7 +215,12 @@ HEADERS += \
     InstrumentEditor2A03.h \
     InstrumentEditPanel.h \
     InstrumentEditDlg.h \
-    InstrumentEditorDPCM.h
+    InstrumentEditorDPCM.h \
+    SampleEditorDlg.h \
+    PCMImport.h \
+    resampler/sinc.hpp \
+    resampler/resample.hpp \
+    cqtmfc_famitracker.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN

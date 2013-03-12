@@ -1,6 +1,8 @@
 #include "famitrackermoduleimportdialog.h"
 #include "ui_famitrackermoduleimportdialog.h"
 
+#include "stdafx.h"
+
 static LPCTSTR TRACK_FORMAT = _T("#%02i %s");
 
 FamiTrackerModuleImportDialog::FamiTrackerModuleImportDialog(CFamiTrackerDoc* pDoc,QWidget *parent) :
@@ -28,8 +30,7 @@ FamiTrackerModuleImportDialog::~FamiTrackerModuleImportDialog()
 void FamiTrackerModuleImportDialog::on_buttonBox_accepted()
 {
    if (!(importInstruments() && importTracks()))
-//		AfxMessageBox(IDS_IMPORT_FAILED, MB_ICONERROR);
-  // CPTODO: intentional until I reimplement AfxMessageBox...
+		AfxMessageBox(IDS_IMPORT_FAILED, MB_ICONERROR);
    return;
 }
 

@@ -471,7 +471,7 @@ bool CSoundGen::ResetSound()
 
 	// Reinitialize direct sound
    if (!m_pDSound->Init(0,0,0)) {//m_hWnd, m_hNotificationEvent, theApp.GetSettings()->Sound.iDevice)) {
-//		AfxMessageBox(_T("Direct sound error!"));
+		AfxMessageBox(_T("Direct sound error!"));
 		return false;
 	}
 
@@ -486,7 +486,7 @@ bool CSoundGen::ResetSound()
 
 	// Channel failed
 	if (m_pDSoundChannel == NULL) {
-//		AfxMessageBox(_T("Direct sound error: Could not create buffer!"));
+		AfxMessageBox(_T("Direct sound error: Could not create buffer!"));
 		return false;
 	}
 

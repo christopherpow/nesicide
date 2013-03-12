@@ -863,7 +863,7 @@ BOOL CFamiTrackerDoc::SaveDocument(LPCTSTR lpszPathName) const
 	ULONGLONG FileSize;
    
 	if (GetExpansionChip() & SNDCHIP_S5B) {
-//		AfxMessageBox(_T("Saving Sunsoft modules is not yet supported"));
+		AfxMessageBox(_T("Saving Sunsoft modules is not yet supported"));
 		return FALSE;
 	}
 
@@ -877,9 +877,9 @@ BOOL CFamiTrackerDoc::SaveDocument(LPCTSTR lpszPathName) const
 		TCHAR szCause[255];
 		CString strFormatted;
 		ex.GetErrorMessage(szCause, 255);
-//		strFormatted.LoadString(IDS_SAVE_ERROR_REASON);
+		strFormatted.LoadString(IDS_SAVE_ERROR_REASON);
 //		strFormatted += szCause;
-//		AfxMessageBox(strFormatted, MB_OK | MB_ICONERROR);
+		AfxMessageBox(strFormatted, MB_OK | MB_ICONERROR);
 		return FALSE;
 	}
 
@@ -891,8 +891,8 @@ BOOL CFamiTrackerDoc::SaveDocument(LPCTSTR lpszPathName) const
 //		DeleteFile(TempFile);
 		// Display error
 		CString	ErrorMsg;
-//		ErrorMsg.LoadString(IDS_SAVE_ERROR);
-//		AfxMessageBox(ErrorMsg, MB_OK | MB_ICONERROR);
+		ErrorMsg.LoadString(IDS_SAVE_ERROR);
+		AfxMessageBox(ErrorMsg, MB_OK | MB_ICONERROR);
 		return FALSE;
 	}
 
@@ -1465,12 +1465,12 @@ BOOL CFamiTrackerDoc::OpenDocument(LPCTSTR lpszPathName)
 	// Open file
 	if (!OpenFile.Open(lpszPathName, CFile::modeRead | CFile::shareDenyWrite, &ex)) {
 //		TCHAR   szCause[255];
-//		CString strFormatted;
+		CString strFormatted;
 //		ex.GetErrorMessage(szCause, 255);
-//		strFormatted = _T("Could not open file.\n\n");
+		strFormatted = _T("Could not open file.\n\n");
 //		strFormatted += szCause;
-//		AfxMessageBox(strFormatted);
-//		OnNewDocument();
+		AfxMessageBox(strFormatted);
+		OnNewDocument();
 		return FALSE;
 	}
 
@@ -1483,7 +1483,7 @@ BOOL CFamiTrackerDoc::OpenDocument(LPCTSTR lpszPathName)
 
 	// Read header ID and version
 	if (!OpenFile.CheckValidity()) {
-//		AfxMessageBox(IDS_FILE_VALID_ERROR, MB_ICONERROR);
+		AfxMessageBox(IDS_FILE_VALID_ERROR, MB_ICONERROR);
 		return FALSE;
 	}
 
@@ -1492,7 +1492,7 @@ BOOL CFamiTrackerDoc::OpenDocument(LPCTSTR lpszPathName)
 	if (iVersion < 0x0200) {
 		// Older file version
 		if (iVersion < CDocumentFile::COMPATIBLE_VER) {
-//			AfxMessageBox(IDS_FILE_VERSION_ERROR, MB_ICONERROR);
+			AfxMessageBox(IDS_FILE_VERSION_ERROR, MB_ICONERROR);
 			return FALSE;
 		}
 
@@ -1726,14 +1726,14 @@ BOOL CFamiTrackerDoc::OpenDocumentNew(CDocumentFile &DocumentFile)
 
 	// From version 2.0, all files should be compatible (though individual blocks may not)
 	if (m_iFileVersion < 0x0200) {
-//		AfxMessageBox(IDS_FILE_VERSION_ERROR, MB_ICONERROR);
+		AfxMessageBox(IDS_FILE_VERSION_ERROR, MB_ICONERROR);
 		DocumentFile.Close();
 		return FALSE;
 	}
 
 	// File version is too new
 	if (m_iFileVersion > CDocumentFile::FILE_VER) {
-//		AfxMessageBox(IDS_FILE_VERSION_TOO_NEW, MB_ICONERROR);
+		AfxMessageBox(IDS_FILE_VERSION_TOO_NEW, MB_ICONERROR);
 		DocumentFile.Close();
 		return false;
 	}
@@ -1801,7 +1801,7 @@ BOOL CFamiTrackerDoc::OpenDocumentNew(CDocumentFile &DocumentFile)
 	DocumentFile.Close();
 
 	if (ErrorFlag) {
-//		AfxMessageBox(IDS_FILE_LOAD_ERROR, MB_ICONERROR);
+		AfxMessageBox(IDS_FILE_LOAD_ERROR, MB_ICONERROR);
 		DeleteContents();
 		return FALSE;
 	}
@@ -2572,7 +2572,7 @@ bool CFamiTrackerDoc::ImportInstruments(CFamiTrackerDoc *pImported, int *pInstTa
 	// Check instrument count
 	if (GetInstrumentCount() + pImported->GetInstrumentCount() >= MAX_INSTRUMENTS) {
 		// Out of instrument slots
-//		AfxMessageBox(IDS_IMPORT_INSTRUMENT_COUNT, MB_ICONERROR);
+		AfxMessageBox(IDS_IMPORT_INSTRUMENT_COUNT, MB_ICONERROR);
 		return false;
 	}
 
@@ -2629,7 +2629,7 @@ bool CFamiTrackerDoc::ImportInstruments(CFamiTrackerDoc *pImported, int *pInstTa
 
 	if (bOutOfSampleSpace) {
 		// Out of sample space
-//		AfxMessageBox(IDS_IMPORT_SAMPLE_SLOTS, MB_ICONEXCLAMATION);
+		AfxMessageBox(IDS_IMPORT_SAMPLE_SLOTS, MB_ICONEXCLAMATION);
 		return false;
 	}
 
@@ -4136,7 +4136,7 @@ int CFamiTrackerDoc::LoadInstrument(CString FileName)
 	int Slot = FindFreeInstrumentSlot();
 
 	if (Slot == -1) {
-//		AfxMessageBox(IDS_INST_LIMIT, MB_ICONERROR);
+		AfxMessageBox(IDS_INST_LIMIT, MB_ICONERROR);
 		return -1;
 	}
 
@@ -4154,7 +4154,7 @@ int CFamiTrackerDoc::LoadInstrument(CString FileName)
 	Text[strlen(INST_HEADER)] = 0;
 
 	if (strcmp(Text, INST_HEADER) != 0) {
-//		AfxMessageBox(IDS_INSTRUMENT_FILE_FAIL, MB_ICONERROR);
+		AfxMessageBox(IDS_INSTRUMENT_FILE_FAIL, MB_ICONERROR);
 		InstrumentFile.Close();
 		return -1;
 	}
@@ -4171,7 +4171,7 @@ int CFamiTrackerDoc::LoadInstrument(CString FileName)
 	int iCurrentVer = iInstMaj * 10 + iInstMin;
 
 	if (iInstVer > iCurrentVer) {
-//		AfxMessageBox(IDS_INST_VERSION_UNSUPPORTED, MB_OK);
+		AfxMessageBox(IDS_INST_VERSION_UNSUPPORTED, MB_OK);
 		InstrumentFile.Close();
 		return -1;
 	}
@@ -4194,7 +4194,7 @@ int CFamiTrackerDoc::LoadInstrument(CString FileName)
 
 	if (NameLen >= 256) {
 		theApp.GetSoundGenerator()->UnlockDocument();
-//		AfxMessageBox(_T("Could not load instrument. File might be broken!"), MB_OK);
+		AfxMessageBox(_T("Could not load instrument. File might be broken!"), MB_OK);
 		m_pInstruments[Slot] = NULL;
 		SAFE_RELEASE(pInstrument);
 		return -1;
@@ -4207,7 +4207,7 @@ int CFamiTrackerDoc::LoadInstrument(CString FileName)
 
 	if (!pInstrument->LoadFile(&InstrumentFile, iInstVer, this)) {
 		theApp.GetSoundGenerator()->UnlockDocument();
-//		AfxMessageBox(_T("Could not load instrument. File might be broken!"), MB_OK);
+		AfxMessageBox(_T("Could not load instrument. File might be broken!"), MB_OK);
 		m_pInstruments[Slot] = NULL;
 		SAFE_RELEASE(pInstrument);
 		return -1;

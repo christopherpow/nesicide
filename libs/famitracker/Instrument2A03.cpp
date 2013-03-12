@@ -353,13 +353,13 @@ bool CInstrument2A03::LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc
 					}
 				}
 				else {
-//					AfxMessageBox(IDS_OUT_OF_SAMPLEMEM, MB_ICONERROR);
+					AfxMessageBox(IDS_OUT_OF_SAMPLEMEM, MB_ICONERROR);
 					SAFE_RELEASE_ARRAY(SampleData);
 					return false;
 				}
 			}
 			else {
-//				AfxMessageBox(IDS_OUT_OF_SLOTS, MB_ICONERROR);
+				AfxMessageBox(IDS_OUT_OF_SLOTS, MB_ICONERROR);
 				SAFE_RELEASE_ARRAY(SampleData);
 				return false;
 			}

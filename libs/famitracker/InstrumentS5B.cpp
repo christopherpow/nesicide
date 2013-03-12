@@ -77,7 +77,7 @@ bool CInstrumentS5B::Load(CDocumentFile *pDocFile)
 
 void CInstrumentS5B::SaveFile(CFile *pFile, CFamiTrackerDoc *pDoc)
 {
-//	AfxMessageBox(_T("Saving 5B instruments is not yet supported"));
+	AfxMessageBox(_T("Saving 5B instruments is not yet supported"));
 }
 
 bool CInstrumentS5B::LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc)

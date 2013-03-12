@@ -5,6 +5,65 @@
 
 #include <QLinearGradient>
 #include <QHeaderView>
+#include <QMessageBox>
+
+int AfxMessageBox(
+   LPCTSTR lpszText,
+   UINT nType,
+   UINT nIDHelp 
+)
+{
+#if UNICODE
+   QString text = QString::fromWCharArray(lpszText);
+#else
+   QString text = lpszText;
+#endif
+   switch ( nType )
+   {
+   case MB_ICONERROR:
+      QMessageBox::critical(0,"Error!",text);
+      break;
+   case MB_ICONEXCLAMATION:
+      QMessageBox::warning(0,"Warning",text);
+      break;
+   case MB_ICONQUESTION:
+      QMessageBox::question(0,"Did you mean?",text);
+      break;
+   default:
+      QMessageBox::information(0,"Information...",text);
+      break;
+   }
+   return QMessageBox::Ok;
+}
+
+int AFXAPI AfxMessageBox(
+   UINT nIDPrompt,
+   UINT nType,
+   UINT nIDHelp
+)
+{
+#if UNICODE
+   QString text = QString::fromWCharArray(qtMfcStringResource(nIDPrompt));
+#else
+   QString text = qtMfcStringResource(nIDPrompt);
+#endif
+   switch ( nType )
+   {
+   case MB_ICONERROR:
+      QMessageBox::critical(0,"Error!",text);
+      break;
+   case MB_ICONEXCLAMATION:
+      QMessageBox::warning(0,"Warning",text);
+      break;
+   case MB_ICONQUESTION:
+      QMessageBox::question(0,"Did you mean?",text);
+      break;
+   default:
+      QMessageBox::information(0,"Information...",text);
+      break;
+   }
+   return QMessageBox::Ok;
+}
 
 size_t strlen(const wchar_t* str)
 {
@@ -54,6 +113,7 @@ DWORD WINAPI GetSysColor(
       return 0xe0e0e0;
       break;
    }
+   return 0xffffff;
 }
 
 int WINAPI GetSystemMetrics(
@@ -67,10 +127,11 @@ int WINAPI GetSystemMetrics(
       return sb.sizeHint().width();
       break;
    }
+   return 0;
 }
 
 BOOL WINAPI OpenClipboard(
-  HWND hWndNewOwner
+//  HWND hWndNewOwner
 )
 {
    return TRUE;
@@ -188,7 +249,7 @@ CString::CString(QString str)
    UpdateScratch();
 }
 
-CString::CString(const CString& ref)
+CString::CString(const CString &ref)
 {
    _qstr.clear();
    _qstr = ref._qstr;
@@ -202,10 +263,26 @@ CString::~CString()
    _qstr.clear();
 }
 
+BOOL CString::LoadString( UINT nID )
+{
+   _qstr.clear();
+   _qstr.append(qtMfcStringResource(nID));
+   return TRUE;   
+}
+
 void CString::UpdateScratch()
 {
     _qstrn = QByteArray(_qstr.toLatin1());
     _qstrn.data();
+}
+
+void CString::Format( UINT nFormatID, ... )
+{
+   CString fmt = qtMfcStringResource(nFormatID);
+   va_list argptr;
+   va_start(argptr,nFormatID);
+   FormatV(fmt,argptr);
+   va_end(argptr);
 }
 
 void CString::Format(LPCTSTR fmt, ...)
@@ -270,82 +347,21 @@ void CString::AppendFormatV(LPCTSTR fmt, va_list ap)
    UpdateScratch();
 }
 
-CString& CString::operator=(LPSTR str)
+void CString::Truncate(int length)
 {
-   _qstr.clear();
-   _qstr = QString(str);
-   UpdateScratch();
-   return *this;
+   _qstr.truncate(length);
 }
 
-CString& CString::operator+=(LPSTR str)
+int CString::ReverseFind( TCHAR ch ) const
 {
-   _qstr.append(QString(str));
-   UpdateScratch();
-   return *this;
+#if UNICODE
+   return _qstr.lastIndexOf(QString::fromWCharArray(&ch));
+#else
+   return _qstr.lastIndexOf(QString(ch));
+#endif
 }
 
-CString& CString::operator=(LPCSTR str)
-{
-   _qstr.clear();
-   _qstr = QString(str);
-   UpdateScratch();
-   return *this;
-}
-
-CString& CString::operator+=(LPCSTR str)
-{
-   _qstr.append(QString(str));
-   UpdateScratch();
-   return *this;
-}
-
-CString& CString::operator=(LPWSTR str)
-{
-   _qstr.clear();
-   _qstr = QString::fromWCharArray(str);
-   UpdateScratch();
-   return *this;
-}
-
-CString& CString::operator+=(LPWSTR str)
-{
-   _qstr.append(QString::fromWCharArray(str));
-   UpdateScratch();
-   return *this;
-}
-
-CString& CString::operator=(LPCWSTR str)
-{
-   _qstr.clear();
-   _qstr = QString::fromWCharArray(str);
-   UpdateScratch();
-   return *this;
-}
-
-CString& CString::operator+=(LPCWSTR str)
-{
-   _qstr.append(QString::fromWCharArray(str));
-   UpdateScratch();
-   return *this;
-}
-
-CString& CString::operator=(QString str)
-{
-   _qstr.clear();
-   _qstr = str;
-   UpdateScratch();
-   return *this;
-}
-
-CString& CString::operator+=(QString str)
-{
-   _qstr.append(str);
-   UpdateScratch();
-   return *this;
-}
-
-CString& CString::operator=(CString str)
+const CString& CString::operator=(const CString& str)
 {
    _qstr.clear();
    _qstr = str._qstr;
@@ -353,16 +369,86 @@ CString& CString::operator=(CString str)
    return *this;
 }
 
-CString& CString::operator+=(CString str)
+const CString& CString::operator+=(const CString& str)
 {
    _qstr.append(str._qstr);
    UpdateScratch();
    return *this;
 }
 
-bool CString::operator==(const CString& str) const
+const CString& CString::operator=(LPSTR str)
 {
-   return _qstr == str._qstr;
+   _qstr.clear();
+   _qstr = QString(str);
+   UpdateScratch();
+   return *this;
+}
+
+const CString& CString::operator+=(LPSTR str)
+{
+   _qstr.append(QString(str));
+   UpdateScratch();
+   return *this;
+}
+
+const CString& CString::operator=(LPCSTR str)
+{
+   _qstr.clear();
+   _qstr = QString(str);
+   UpdateScratch();
+   return *this;
+}
+
+const CString& CString::operator+=(LPCSTR str)
+{
+   _qstr.append(QString(str));
+   UpdateScratch();
+   return *this;
+}
+
+const CString& CString::operator=(LPWSTR str)
+{
+   _qstr.clear();
+   _qstr = QString::fromWCharArray(str);
+   UpdateScratch();
+   return *this;
+}
+
+const CString& CString::operator+=(LPWSTR str)
+{
+   _qstr.append(QString::fromWCharArray(str));
+   UpdateScratch();
+   return *this;
+}
+
+const CString& CString::operator=(LPCWSTR str)
+{
+   _qstr.clear();
+   _qstr = QString::fromWCharArray(str);
+   UpdateScratch();
+   return *this;
+}
+
+const CString& CString::operator+=(LPCWSTR str)
+{
+   _qstr.append(QString::fromWCharArray(str));
+   UpdateScratch();
+   return *this;
+}
+
+const CString& CString::operator=(QString str)
+{
+   _qstr.clear();
+   _qstr = str;
+   UpdateScratch();
+   return *this;
+}
+
+const CString& CString::operator+=(QString str)
+{
+   _qstr.append(str);
+   UpdateScratch();
+   return *this;
 }
 
 CString::operator LPCTSTR() const
@@ -458,6 +544,24 @@ CFile::~CFile()
       _qfile.close();
 }
 
+BOOL CFile::Open(
+   LPCTSTR lpszFileName,
+   UINT nOpenFlags,
+   CFileException* pError
+)
+{
+   QFile::OpenMode flags;
+#if UNICODE
+   _qfile.setFileName(QString::fromWCharArray(lpszFileName));
+#else
+   _qfile.setFileName(lpszFileName);
+#endif
+   if ( nOpenFlags&modeRead ) flags = QIODevice::ReadOnly;
+   if ( nOpenFlags&modeWrite ) flags = QIODevice::WriteOnly;
+   if ( nOpenFlags&modeCreate ) flags |= QIODevice::Truncate;
+   return _qfile.open(flags);
+}
+
 void CFile::Write(
    const void* lpBuf,
    UINT nCount
@@ -478,18 +582,34 @@ UINT CFile::Read(
       return 0;
 }
 
-BOOL CFile::Open(
-   LPCTSTR lpszFileName,
-   UINT nOpenFlags,
-   CFileException* pError
+ULONGLONG CFile::Seek(
+   LONGLONG lOff,
+   UINT nFrom 
 )
 {
-   QFile::OpenMode flags;
-   _qfile.setFileName((char*)lpszFileName);
-   if ( nOpenFlags&modeRead ) flags = QIODevice::ReadOnly;
-   if ( nOpenFlags&modeWrite ) flags = QIODevice::WriteOnly;
-   if ( nOpenFlags&modeCreate ) flags |= QIODevice::Truncate;
-   return _qfile.open(flags);
+   if ( _qfile.isOpen() )
+   {
+      switch ( nFrom )
+      {
+      case begin:
+         return _qfile.seek(lOff);
+         break;
+      case current:
+         return _qfile.seek(_qfile.pos()+lOff);
+         break;
+      case end:
+         return _qfile.seek(_qfile.size()+lOff);
+         break;
+      }
+      return 0;
+   }
+   else
+      return 0;
+}
+
+ULONGLONG CFile::GetPosition( ) const
+{
+   return _qfile.pos();
 }
 
 ULONGLONG CFile::GetLength( ) const
@@ -640,6 +760,50 @@ void CRect::DeflateRect(
    right -= r;
    top += t;
    bottom -= b;
+}
+
+void CRect::InflateRect( 
+   int x, 
+   int y  
+)
+{
+   left -= x;
+   right += x;
+   top -= y;
+   bottom += y;
+}
+
+void CRect::InflateRect( 
+   SIZE size  
+)
+{
+   left -= size.cx;
+   right += size.cx;
+   top -= size.cy;
+   bottom += size.cy;
+}
+
+void CRect::InflateRect( 
+   LPCRECT lpRect  
+)
+{
+   left -= lpRect->left;
+   right += lpRect->right;
+   top -= lpRect->top;
+   bottom += lpRect->bottom;
+}
+
+void CRect::InflateRect( 
+   int l, 
+   int t, 
+   int r, 
+   int b  
+)
+{
+   left -= l;
+   right += r;
+   top -= t;
+   bottom += b;
 }
 
 /*
@@ -982,6 +1146,13 @@ BOOL CDC::BitBlt(
    DWORD dwRop 
 )
 {
+   CBitmap temp;
+   CBitmap* pSrcBitmap = pSrcDC->SelectObject(&temp);
+   pSrcDC->SelectObject(pSrcBitmap);
+   if ( pSrcBitmap )
+   {
+      
+   }
    return TRUE;
 }
 
@@ -1205,18 +1376,25 @@ CComboBox::CComboBox(CWnd *parent)
       _qt = new QComboBox(parent->toQWidget());
    else
       _qt = new QComboBox;
+
+   // Downcast to save having to do it all over the place...
+   _qtd = dynamic_cast<QComboBox*>(_qt);
+   
+   // Pass-through signals
+   QObject::connect(_qtd,SIGNAL(currentIndexChanged(int)),this,SIGNAL(currentIndexChanged(int)));
 }
 
 CComboBox::~CComboBox()
 {
-   if ( _qt )
-      delete _qt;
+   if ( _qtd )
+      delete _qtd;
+   _qtd = NULL;
    _qt = NULL;
 }
 
 void CComboBox::ResetContent()
 {
-   dynamic_cast<QComboBox*>(_qt)->clear();
+   _qtd->clear();
 }
 
 int CComboBox::AddString(
@@ -1224,16 +1402,75 @@ int CComboBox::AddString(
 )
 {
 #if UNICODE
-   dynamic_cast<QComboBox*>(_qt)->addItem(QString::fromWCharArray(lpszString));
+   _qtd->addItem(QString::fromWCharArray(lpszString));
 #else
-   dynamic_cast<QComboBox*>(_qt)->addItem(lpszString);
+   _qtd->addItem(lpszString);
 #endif
-   return dynamic_cast<QComboBox*>(_qt)->count()-1;
+   return _qtd->count()-1;
 }
 
 void CComboBox::SetCurSel(int sel)
 {
-   dynamic_cast<QComboBox*>(_qt)->setCurrentIndex(sel);
+   _qtd->setCurrentIndex(sel);
+}
+
+int CComboBox::GetCurSel( ) const
+{
+   return _qtd->currentIndex();
+}
+
+int CComboBox::GetLBText(
+   int nIndex,
+   LPTSTR lpszText 
+) const
+{
+   QString lbText = _qtd->itemText(nIndex);
+   int length = CB_ERR;
+#if UNICODE
+   wcscpy(lpszText,(wchar_t*)lbText.unicode());
+   length = wcslen(lpszText);
+#else
+   strcpy(lpszText,lbText.toAscii().constData());
+   length = strlen(lpszText);
+#endif
+   return length;
+}
+
+int CComboBox::GetLBText(
+   int nIndex,
+   char* lpszText 
+) const
+{
+   QString lbText = _qtd->itemText(nIndex);
+   int length = CB_ERR;
+   strcpy(lpszText,lbText.toAscii().constData());
+   length = strlen(lpszText);
+   return length;
+}
+
+void CComboBox::GetLBText(
+   int nIndex,
+   CString& rString 
+) const
+{
+   rString = _qtd->itemText(nIndex);
+}
+
+int CComboBox::SelectString(
+   int nStartAfter,
+   LPCTSTR lpszString 
+)
+{
+   int index = -1;
+#if UNICODE
+   QString string = QString::fromWCharArray(lpszString);
+#else
+   QString string = lpszString;
+#endif
+   do
+   {
+      index = _qtd->findText(string);
+   } while ( (index != -1) && (index >= nStartAfter) );
 }
 
 CListCtrl::CListCtrl(CWnd* parent)
@@ -1243,22 +1480,80 @@ CListCtrl::CListCtrl(CWnd* parent)
       _qt = new QTableWidget(parent->toQWidget());
    else
       _qt = new QTableWidget;
-   _qt->setFont(QFont("MS Shell Dlg",8));
-   dynamic_cast<QTableWidget*>(_qt)->horizontalHeader()->setStretchLastSection(true);
-   dynamic_cast<QTableWidget*>(_qt)->verticalHeader()->hide();
-   QObject::connect(_qt,SIGNAL(itemSelectionChanged()),this,SIGNAL(itemSelectionChanged()));
+   
+   // Downcast to save having to do it all over the place...
+   _qtd = dynamic_cast<QTableWidget*>(_qt);
+   
+   _qtd->setFont(QFont("MS Shell Dlg",8));
+   _qtd->horizontalHeader()->setStretchLastSection(true);
+   _qtd->verticalHeader()->hide();
+   
+   // Pass-through signals
+   QObject::connect(_qtd,SIGNAL(itemSelectionChanged()),this,SIGNAL(itemSelectionChanged()));
 }
 
 CListCtrl::~CListCtrl()
 {
-   if ( _qt )
-      delete _qt;
+   if ( _qtd )
+      delete _qtd;
+   _qtd = NULL;
    _qt = NULL;
+}
+
+UINT CListCtrl::GetSelectedCount( ) const
+{
+   return _qtd->selectedItems().count();
 }
 
 int CListCtrl::GetSelectionMark( )
 {
-   return dynamic_cast<QTableWidget*>(_qt)->selectionModel()->currentIndex().row();
+   if ( _qtd->selectedItems().count() )
+      return _qtd->selectedItems().at(0)->row();
+   return -1;
+}
+
+int CListCtrl::GetNextItem(
+   int nItem,
+   int nFlags 
+) const
+{
+   QList<QTableWidgetItem*> items = _qtd->selectedItems();
+   int item;
+   int nextItemRow = -1;
+   
+   switch ( nFlags )
+   {
+   case LVNI_SELECTED:
+      for ( item = 0; item < items.count(); item++ )
+      {
+         if ( items.at(item)->row() == nItem )
+         {
+            if ( item < (items.count()-1) )
+            {
+               nextItemRow = items.at(item+1)->row();
+            }
+         }
+      }
+      break;
+   default:
+      qDebug("CListCtrl::GetNextItem called with unsupported nFlags");
+      break;
+   }
+   return nextItemRow;
+}
+
+CString CListCtrl::GetItemText(
+   int nItem,
+   int nSubItem 
+) const
+{
+   QTableWidgetItem* twi = _qtd->item(nItem,nSubItem);
+   CString str;
+   if ( twi )
+   {
+      str = twi->text();
+   }
+   return str;
 }
 
 int CListCtrl::GetItemText(
@@ -1268,7 +1563,7 @@ int CListCtrl::GetItemText(
    int nLen 
 ) const
 {
-   QTableWidgetItem* twi = dynamic_cast<QTableWidget*>(_qt)->item(nItem,nSubItem);
+   QTableWidgetItem* twi = _qtd->item(nItem,nSubItem);
    int length = 0;
    if ( twi )
    {
@@ -1283,6 +1578,23 @@ int CListCtrl::GetItemText(
    return length;
 }
 
+int CListCtrl::GetItemText(
+   int nItem,
+   int nSubItem,
+   char* lpszText,
+   int nLen 
+) const
+{
+   QTableWidgetItem* twi = _qtd->item(nItem,nSubItem);
+   int length = 0;
+   if ( twi )
+   {
+      strcpy(lpszText,twi->text().toAscii().constData());
+      length = strlen(lpszText);
+   }
+   return length;
+}
+
 int CListCtrl::InsertColumn(
    int nCol,
    LPCTSTR lpszColumnHeading,
@@ -1291,16 +1603,16 @@ int CListCtrl::InsertColumn(
    int nSubItem
 )
 {
-   dynamic_cast<QTableWidget*>(_qt)->insertColumn(nCol);
+   _qtd->insertColumn(nCol);
    QTableWidgetItem* twi = new QTableWidgetItem;
 #if UNICODE
    twi->setText(QString::fromWCharArray(lpszColumnHeading));
 #else
    twi->setText(lpszColumnHeading);
 #endif
-   dynamic_cast<QTableWidget*>(_qt)->setColumnWidth(nCol,nWidth);
-   dynamic_cast<QTableWidget*>(_qt)->setHorizontalHeaderItem(nCol,twi);
-   return dynamic_cast<QTableWidget*>(_qt)->model()->columnCount()-1;
+   _qtd->setColumnWidth(nCol,nWidth);
+   _qtd->setHorizontalHeaderItem(nCol,twi);
+   return _qtd->columnCount()-1;
 }
 
 int CListCtrl::InsertItem(
@@ -1314,11 +1626,11 @@ int CListCtrl::InsertItem(
 #else
    twi->setText(lpszItem);
 #endif
-   dynamic_cast<QTableWidget*>(_qt)->insertRow(nItem);
-   dynamic_cast<QTableWidget*>(_qt)->setItem(nItem,0,twi);
-   dynamic_cast<QTableWidget*>(_qt)->resizeRowToContents(nItem);
-   dynamic_cast<QTableWidget*>(_qt)->resizeColumnsToContents();
-   return dynamic_cast<QTableWidget*>(_qt)->model()->rowCount()-1;
+   _qtd->insertRow(nItem);
+   _qtd->setItem(nItem,0,twi);
+   _qtd->resizeRowToContents(nItem);
+   _qtd->resizeColumnsToContents();
+   return _qtd->rowCount()-1;
 }
 
 int CListCtrl::InsertItem(
@@ -1333,19 +1645,19 @@ int CListCtrl::InsertItem(
 #else
    twi->setText(lpszItem);
 #endif
-   dynamic_cast<QTableWidget*>(_qt)->insertRow(nItem);
-   dynamic_cast<QTableWidget*>(_qt)->setItem(nItem,0,twi);
-   dynamic_cast<QTableWidget*>(_qt)->resizeRowToContents(nItem);
-   dynamic_cast<QTableWidget*>(_qt)->resizeColumnsToContents();
-   return dynamic_cast<QTableWidget*>(_qt)->model()->rowCount()-1;
+   _qtd->insertRow(nItem);
+   _qtd->setItem(nItem,0,twi);
+   _qtd->resizeRowToContents(nItem);
+   _qtd->resizeColumnsToContents();
+   return _qtd->rowCount()-1;
 }
 
 int CListCtrl::SetSelectionMark(
    int iIndex 
 )
 {
-   int selection = dynamic_cast<QTableWidget*>(_qt)->selectionModel()->currentIndex().row();
-   dynamic_cast<QTableWidget*>(_qt)->selectRow(iIndex);
+   int selection = _qtd->selectionModel()->currentIndex().row();
+   _qtd->selectRow(iIndex);
    return selection;
 }
 
@@ -1354,11 +1666,11 @@ BOOL CListCtrl::SetCheck(
    BOOL fCheck
 )
 {
-   QTableWidgetItem* twi = dynamic_cast<QTableWidget*>(_qt)->item(nItem,0);
+   QTableWidgetItem* twi = _qtd->item(nItem,0);
    if ( !twi )
       twi = new QTableWidgetItem;
    twi->setCheckState(fCheck?Qt::Checked:Qt::Unchecked);
-   dynamic_cast<QTableWidget*>(_qt)->setItem(nItem,0,twi);
+   _qtd->setItem(nItem,0,twi);
    return TRUE;
 }
 
@@ -1368,11 +1680,11 @@ BOOL CListCtrl::SetItemText(
    char* lpszText 
 )
 {
-   QTableWidgetItem* twi = dynamic_cast<QTableWidget*>(_qt)->item(nItem,nSubItem);
+   QTableWidgetItem* twi = _qtd->item(nItem,nSubItem);
    if ( !twi )
       twi = new QTableWidgetItem;
    twi->setText(lpszText);
-   dynamic_cast<QTableWidget*>(_qt)->setItem(nItem,nSubItem,twi);
+   _qtd->setItem(nItem,nSubItem,twi);
    return TRUE;
 }
 
@@ -1382,7 +1694,7 @@ BOOL CListCtrl::SetItemText(
    LPCTSTR lpszText 
 )
 {
-   QTableWidgetItem* twi = dynamic_cast<QTableWidget*>(_qt)->item(nItem,nSubItem);
+   QTableWidgetItem* twi = _qtd->item(nItem,nSubItem);
    if ( !twi )
       twi = new QTableWidgetItem;
 #if UNICODE
@@ -1390,7 +1702,7 @@ BOOL CListCtrl::SetItemText(
 #else
    twi->setText(lpszText);
 #endif
-   dynamic_cast<QTableWidget*>(_qt)->setItem(nItem,nSubItem,twi);
+   _qtd->setItem(nItem,nSubItem,twi);
    return TRUE;
 }
 
@@ -1403,19 +1715,24 @@ BOOL CListCtrl::SetItemState(
    nState &= nMask;
    if ( nState&LVIS_SELECTED )
    {
-      dynamic_cast<QTableWidget*>(_qt)->selectRow(nItem);
+      _qtd->selectRow(nItem);
    }
    if ( nState&LVIS_FOCUSED )
    {
-      dynamic_cast<QTableWidget*>(_qt)->selectRow(nItem);
+      _qtd->selectRow(nItem);
    }
    return TRUE;
 }
 
 BOOL CListCtrl::DeleteAllItems()
 {
-   dynamic_cast<QTableWidget*>(_qt)->clear(); 
+   _qtd->clear(); 
    return TRUE;
+}
+
+int CListCtrl::GetItemCount( ) const
+{
+   return _qtd->rowCount();
 }
 
 CScrollBar::CScrollBar(CWnd *parent)
@@ -1425,18 +1742,34 @@ CScrollBar::CScrollBar(CWnd *parent)
       _qt = new QScrollBar(parent->toQWidget());
    else
       _qt = new QScrollBar;
+   
+   // Downcast to save having to do it all over the place...
+   _qtd = dynamic_cast<QScrollBar*>(_qt);
+   
+   // Pass-through signals
+   QObject::connect(_qtd,SIGNAL(actionTriggered(int)),this,SIGNAL(actionTriggered(int)));
 }
 
 CScrollBar::CScrollBar(Qt::Orientation orient,CWnd *parent)
+   : CWnd(parent)
 {
-   _qt = new QScrollBar(parent->toQWidget());
-   dynamic_cast<QScrollBar*>(_qt)->setOrientation(orient);
+   if ( parent )
+      _qt = new QScrollBar(parent->toQWidget());
+   else
+      _qt = new QScrollBar;
+   
+   // Downcast to save having to do it all over the place...
+   _qtd = dynamic_cast<QScrollBar*>(_qt);
+   
+   _qtd->setOrientation(orient);
+   QObject::connect(_qtd,SIGNAL(actionTriggered(int)),this,SIGNAL(actionTriggered(int)));
 }
 
 CScrollBar::~CScrollBar()
 {
-   if ( _qt )
-      delete _qt;
+   if ( _qtd )
+      delete _qtd;
+   _qtd = NULL;
    _qt = NULL;
 }
 
@@ -1449,14 +1782,15 @@ BOOL CScrollBar::Create(
 {
    if ( dwStyle&SBS_VERT )
    {
-      dynamic_cast<QScrollBar*>(_qt)->setOrientation(Qt::Vertical);
+      _qtd->setOrientation(Qt::Vertical);
    }
    if ( dwStyle&SBS_HORZ )
    {
-      dynamic_cast<QScrollBar*>(_qt)->setOrientation(Qt::Horizontal);
+      _qtd->setOrientation(Qt::Horizontal);
    }
-   dynamic_cast<QScrollBar*>(_qt)->setParent(pParentWnd->toQWidget());
-   dynamic_cast<QScrollBar*>(_qt)->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
+   _qtd->setParent(pParentWnd->toQWidget());
+   _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
+   m_hWnd = (HWND)_qt;
    return TRUE;
 }
 
@@ -1467,20 +1801,20 @@ BOOL CScrollBar::SetScrollInfo(
 {
    if ( lpScrollInfo->fMask&SIF_RANGE )
    {
-      dynamic_cast<QScrollBar*>(_qt)->setMinimum(lpScrollInfo->nMin);
-      dynamic_cast<QScrollBar*>(_qt)->setMaximum(lpScrollInfo->nMax);
+      _qtd->setMinimum(lpScrollInfo->nMin);
+      _qtd->setMaximum(lpScrollInfo->nMax);
    }
    if ( lpScrollInfo->fMask&SIF_POS )
    {
-      dynamic_cast<QScrollBar*>(_qt)->setValue(lpScrollInfo->nPos);
+      _qtd->setValue(lpScrollInfo->nPos);
    }
    if ( lpScrollInfo->fMask&SIF_TRACKPOS )
    {
-      dynamic_cast<QScrollBar*>(_qt)->setValue(lpScrollInfo->nTrackPos);
+      _qtd->setValue(lpScrollInfo->nTrackPos);
    }
    if ( lpScrollInfo->fMask&SIF_PAGE )
    {
-      dynamic_cast<QScrollBar*>(_qt)->setPageStep(lpScrollInfo->nPage);
+      _qtd->setPageStep(lpScrollInfo->nPage);
    }
    return TRUE;
 }
@@ -1490,8 +1824,8 @@ int CScrollBar::SetScrollPos(
    BOOL bRedraw 
 )
 {
-   int pos = dynamic_cast<QScrollBar*>(_qt)->value();
-   dynamic_cast<QScrollBar*>(_qt)->setValue(nPos);
+   int pos = _qtd->value();
+   _qtd->setValue(nPos);
    return pos;
 }
 
@@ -1501,22 +1835,22 @@ void CScrollBar::SetScrollRange(
    BOOL bRedraw
 )
 {
-   dynamic_cast<QScrollBar*>(_qt)->setMinimum(nMinPos);
-   dynamic_cast<QScrollBar*>(_qt)->setMaximum(nMaxPos);
+   _qtd->setMinimum(nMinPos);
+   _qtd->setMaximum(nMaxPos);
 }   
 
 void CScrollBar::ShowScrollBar(
    BOOL bShow
 )
 {
-   dynamic_cast<QScrollBar*>(_qt)->setVisible(bShow);
+   _qtd->setVisible(bShow);
 }   
 
 BOOL CScrollBar::EnableScrollBar(
    UINT nArrowFlags
 )
 {
-   dynamic_cast<QScrollBar*>(_qt)->setEnabled(nArrowFlags==ESB_ENABLE_BOTH?true:false);
+   _qtd->setEnabled(nArrowFlags==ESB_ENABLE_BOTH?true:false);
    return 1;
 }
 
@@ -1526,12 +1860,18 @@ CFrameWnd* CWnd::m_pFrameWnd = NULL;
 CWnd::CWnd(CWnd *parent) 
    : m_pParentWnd(parent),
      mfcVerticalScrollBar(NULL),
-     mfcHorizontalScrollBar(NULL)
+     mfcHorizontalScrollBar(NULL),
+     m_hWnd(NULL)
 {
    if ( parent )
+   {
       _qt = new QWidget(parent->toQWidget());
+   }
    else
+   {
       _qt = new QWidget;
+   }
+   _qt->installEventFilter(this);
 }
 
 CWnd::~CWnd()
@@ -1547,9 +1887,80 @@ CWnd::~CWnd()
    _qt = NULL;
 }
 
+bool CWnd::eventFilter(QObject *object, QEvent *event)
+{
+   if ( event->type() == QEvent::Show )
+   {
+      showEvent(dynamic_cast<QShowEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::Paint )
+   {
+      paintEvent(dynamic_cast<QPaintEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::FocusIn )
+   {
+      focusInEvent(dynamic_cast<QFocusEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::FocusOut )
+   {
+      focusOutEvent(dynamic_cast<QFocusEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::MouseButtonPress )
+   {
+      mousePressEvent(dynamic_cast<QMouseEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::MouseButtonRelease )
+   {
+      mouseReleaseEvent(dynamic_cast<QMouseEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::MouseButtonDblClick )
+   {
+      mouseDoubleClickEvent(dynamic_cast<QMouseEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::MouseMove )
+   {
+      mouseMoveEvent(dynamic_cast<QMouseEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::Wheel )
+   {
+      wheelEvent(dynamic_cast<QWheelEvent*>(event));
+   }
+   if ( event->type() == QEvent::Resize )
+   {
+      resizeEvent(dynamic_cast<QResizeEvent*>(event));
+   }
+   if ( event->type() == QEvent::KeyPress )
+   {
+      keyPressEvent(dynamic_cast<QKeyEvent*>(event));
+   }
+   if ( event->type() == QEvent::KeyRelease )
+   {
+      keyReleaseEvent(dynamic_cast<QKeyEvent*>(event));
+   }   
+   
+   return false;
+}
+
 BOOL CWnd::IsWindowVisible( ) const
 {
    return _qt->isVisible();
+}
+
+BOOL CWnd::EnableWindow(
+   BOOL bEnable
+)
+{
+   BOOL state = _qt->isEnabled();
+   _qt->setEnabled(bEnable);
+   return state;
 }
 
 BOOL CWnd::CreateEx(
@@ -1576,7 +1987,9 @@ BOOL CWnd::CreateEx(
       _qt->setParent(pParentWnd->toQWidget());
    else
       _qt->setParent(NULL);
+   _qt->setFixedSize(rect.right-rect.left,rect.bottom-rect.top);
    _qt->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
+   m_hWnd = (HWND)_qt;
    OnCreate(&createStruct);
    return TRUE;
 }
@@ -1622,7 +2035,6 @@ void CWnd::SetDlgItemInt(
 )
 {
    QtUIElement* pUIE = dynamic_cast<QtUIElement*>(GetDlgItem(nID));
-   qDebug("SetDlgItemInt");
    if ( pUIE )
       pUIE->SetDlgItemInt(nID,nValue,bSigned);
 }
@@ -1634,7 +2046,6 @@ UINT CWnd::GetDlgItemInt(
 ) const
 {
    QtUIElement* pUIE = dynamic_cast<QtUIElement*>(GetDlgItem(nID));
-   qDebug("GetDlgItemInt");
    if ( pUIE )
       return pUIE->GetDlgItemInt(nID,lpTrans,bSigned);
    else
@@ -1647,7 +2058,6 @@ void CWnd::SetDlgItemText(
 )
 {
    QtUIElement* pUIE = dynamic_cast<QtUIElement*>(GetDlgItem(nID));
-   qDebug("SetDlgItemText");
    if ( pUIE )
       pUIE->SetDlgItemText(nID,lpszString);
 }
@@ -1658,7 +2068,6 @@ int CWnd::GetDlgItemText(
 ) const
 {
    QtUIElement* pUIE = dynamic_cast<QtUIElement*>(GetDlgItem(nID));
-   qDebug("GetDlgItemText");
    if ( pUIE )
       return pUIE->GetDlgItemText(nID,rString);
    else
@@ -1671,9 +2080,39 @@ void CWnd::CheckDlgButton(
 )
 {
    QtUIElement* pUIE = dynamic_cast<QtUIElement*>(GetDlgItem(nIDButton));
-   qDebug("CheckDlgButton");
    if ( pUIE )
       pUIE->CheckDlgButton(nIDButton,nCheck);
+}
+
+UINT CWnd::IsDlgButtonChecked(
+   int nIDButton
+) const
+{
+   QtUIElement* pUIE = dynamic_cast<QtUIElement*>(GetDlgItem(nIDButton));
+   if ( pUIE )
+      return pUIE->IsDlgButtonChecked(nIDButton);
+   else
+      return 0;
+}
+
+BOOL CWnd::SubclassDlgItem(
+   UINT nID,
+   CWnd* pParent 
+)
+{
+   QtUIElement* pUIE = dynamic_cast<QtUIElement*>(GetDlgItem(nID));
+   if ( pUIE )
+   {
+      CWnd* pWndSrc = dynamic_cast<CWnd*>(pUIE);
+      
+      setGeometry(pWndSrc->toQWidget()->geometry());
+      setParent(pParent->toQWidget());
+      mfcToQtWidget.remove(nID);
+      delete pWndSrc;
+      mfcToQtWidget.insert(nID,this);      
+      return TRUE;
+   }
+   return FALSE;
 }
 
 CScrollBar* CWnd::GetScrollBarCtrl(
@@ -1689,6 +2128,7 @@ CScrollBar* CWnd::GetScrollBarCtrl(
       return mfcHorizontalScrollBar;
       break;
    }
+   return NULL;
 }
 
 BOOL CWnd::SetScrollInfo(
@@ -1752,6 +2192,7 @@ BOOL CWnd::SetScrollInfo(
          break;
       }
    }
+   return TRUE;
 }
 
 void CWnd::SetScrollRange(
@@ -1817,6 +2258,24 @@ void CWnd::KillTimer(UINT id)
    }
 }
 
+void CWnd::GetWindowText(
+   CString& rString 
+) const
+{
+   rString = _qt->windowTitle();
+}
+
+void CWnd::SetWindowText(
+   LPCTSTR lpszString 
+)
+{
+#if UNICODE
+   _qt->setWindowTitle(QString::fromWCharArray(lpszString));
+#else
+   _qt->setWindowTitle(lpszString);
+#endif
+}
+
 void CWnd::GetWindowRect(
    LPRECT lpRect 
 ) const
@@ -1874,12 +2333,19 @@ CView::~CView()
 CDialog::CDialog(int dlgID, CWnd *parent)
    : CWnd(parent)
 {
-//   _qt = new QDialog(parent->toQWidget());
 }
 
 CDialog::~CDialog()
 {
-//   delete _qt;
+}
+
+CCommonDialog::CCommonDialog(CWnd *pParentWnd)
+ : CDialog(0,pParentWnd)
+{
+}
+
+CCommonDialog::~CCommonDialog()
+{
 }
 
 void CDialog::MapDialogRect( 
@@ -1926,6 +2392,29 @@ BOOL CWinThread::PostThreadMessage(
    return TRUE;
 }
 
+POSITION CDocument::GetFirstViewPosition() const 
+{ 
+   POSITION pos = NULL;
+   if ( m_pViews.count() )
+   {
+      pos = new int; 
+      (*pos) = 0; 
+   }
+   return pos; 
+}
+
+CView* CDocument::GetNextView(POSITION pos) const 
+{ 
+   if ( !pos ) return NULL; // Choker for end-of-list
+   CView* pView = m_pViews.at((*pos)++); 
+   if ( (*pos) >= m_pViews.count() ) 
+   { 
+      delete pos; 
+      pos = 0; 
+   } 
+   return pView; 
+}
+
 CDocTemplate::CDocTemplate(UINT f,CDocument* pDoc,CFrameWnd* pFrameWnd,CView* pView)
 {
    m_pDoc = pDoc;
@@ -1962,18 +2451,146 @@ BOOL CWinApp::InitInstance()
    return TRUE;
 }
 
+HCURSOR CWinApp::LoadStandardCursor( 
+   LPCTSTR lpszCursorName  
+) const
+{
+   qDebug("LoadStandardCursor needs work...");
+   qDebug(QString::fromWCharArray(lpszCursorName).toAscii().constData());
+//   setCursor()
+}
+
+CMenu::CMenu()
+   : _qtd(NULL)
+{
+}
+
+BOOL CMenu::LoadMenu(
+   UINT nIDResource 
+)
+{
+   if ( _qtd )
+      delete _qtd;
+   _qtd = qtMfcMenuResource(nIDResource).toQMenu();
+   return TRUE;
+}
+
+CMenu* CMenu::GetSubMenu(
+   int nPos 
+) const
+{
+   qDebug("CMenu::GetSubMenu() not supported yet.");
+   return NULL;
+}
+
+BOOL CMenu::CreatePopupMenu()
+{
+   if ( _qtd )
+      delete _qtd;
+   _qtd = new QMenu;
+   return TRUE;
+}
+
+BOOL CMenu::AppendMenu(
+   UINT nFlags,
+   UINT_PTR nIDNewItem,
+   char* lpszNewItem
+)
+{
+   if ( nFlags&MF_POPUP )
+   {
+      _qtd->addMenu(qtMfcMenuResource(nIDNewItem).toQMenu());
+   }
+   if ( nFlags&MF_MENUBARBREAK )
+   {
+      _qtd->addSeparator();
+   }
+   if ( nFlags&MF_STRING )
+   {
+      QAction* action = _qtd->addAction(lpszNewItem); // CP: Add slots later
+      if ( nFlags&MF_CHECKED )
+      {
+         action->setCheckable(true);
+         action->setChecked(true);         
+      }
+      if ( nFlags&MF_ENABLED )
+      {
+         action->setEnabled(true);
+      }
+      if ( (nFlags&MF_DISABLED) ||
+           (nFlags&MF_GRAYED) )
+      {
+         action->setDisabled(true);
+      }
+      mfcToQtMenu.insert(nIDNewItem,action);
+      qtToMfcMenu.insert(action,nIDNewItem);
+   }
+   return TRUE;
+}
+
 BOOL CMenu::AppendMenu(
    UINT nFlags,
    UINT_PTR nIDNewItem,
    LPCTSTR lpszNewItem
 )
 {
-   if ( nFlags == MF_STRING )
+   if ( nFlags&MF_POPUP )
    {
-      QAction* action = addAction(QString::fromWCharArray(lpszNewItem)); // CP: Add slots later
+      _qtd->addMenu(qtMfcMenuResource(nIDNewItem).toQMenu());
+   }
+   if ( nFlags&MF_MENUBARBREAK )
+   {
+      _qtd->addSeparator();
+   }
+   if ( nFlags&MF_STRING )
+   {
+#if UNICODE
+      QAction* action = _qtd->addAction(QString::fromWCharArray(lpszNewItem)); // CP: Add slots later
+#else
+      QAction* action = _qtd->addAction(lpszNewItem); // CP: Add slots later
+#endif
+      if ( nFlags&MF_CHECKED )
+      {
+         action->setCheckable(true);
+         action->setChecked(true);         
+      }
+      if ( nFlags&MF_ENABLED )
+      {
+         action->setEnabled(true);
+      }
+      if ( (nFlags&MF_DISABLED) ||
+           (nFlags&MF_GRAYED) )
+      {
+         action->setDisabled(true);
+      }
       mfcToQtMenu.insert(nIDNewItem,action);
+      qtToMfcMenu.insert(action,nIDNewItem);
    }
    return TRUE;
+}
+
+BOOL CMenu::SetDefaultItem(
+   UINT uItem,
+   BOOL fByPos
+)
+{
+   QAction* action;
+   BOOL result = FALSE;
+   
+   if ( fByPos )
+   {
+      action = _qtd->actions().at(uItem);
+   }
+   else
+   {
+      action = mfcToQtMenu.value(uItem);
+   }
+   if ( action )
+   {
+      _qtd->setDefaultAction(action);
+      result = TRUE;
+   }
+   return result;
 }
 
 UINT CMenu::CheckMenuItem(
@@ -1999,8 +2616,18 @@ BOOL CMenu::TrackPopupMenu(
    LPCRECT lpRect
 )
 {
-   popup(QPoint(x,y));
-   return TRUE; // CP: No way really to return selected item...
+   QAction* action = _qtd->exec(QPoint(x,y));
+   int result = 0;
+   if ( action && (nFlags&TPM_RETURNCMD) )
+   {
+      result = qtToMfcMenu.value(action);
+   }
+   else if ( action )
+   {
+      result = 1;
+   }
+      
+   return result;
 }
 
 UINT CMenu::EnableMenuItem(
@@ -2020,19 +2647,32 @@ UINT CMenu::EnableMenuItem(
 
 BOOL CMenu::DestroyMenu( )
 {
+   if ( _qtd )
+      delete _qtd;
    return TRUE;
 }
 
 CTabCtrl::CTabCtrl(CWnd* parent)
    : CWnd(parent)
 {
-   _qt = new QTabWidget_exposed(parent->toQWidget());
-   QObject::connect(_qt,SIGNAL(currentChanged(int)),this,SIGNAL(currentChanged(int)));
+   if ( parent )
+      _qt = new QTabWidget_exposed(parent->toQWidget());
+   else
+      _qt = new QTabWidget_exposed;
+
+   // Downcast to save having to do it all over the place...
+   _qtd = dynamic_cast<QTabWidget_exposed*>(_qt);
+   
+   // Pass-through signals
+   QObject::connect(_qtd,SIGNAL(currentChanged(int)),this,SIGNAL(currentChanged(int)));
 }
 
 CTabCtrl::~CTabCtrl()
 {
-   delete _qt;
+   if ( _qtd )
+      delete _qtd;
+   _qtd = NULL;
+   _qt = NULL;
 }
 
 LONG CTabCtrl::InsertItem(
@@ -2040,13 +2680,13 @@ LONG CTabCtrl::InsertItem(
   LPCTSTR lpszItem 
 )
 {
-   dynamic_cast<QTabWidget_exposed*>(_qt)->blockSignals(true); // Don't cause TcnSelchange yet...
+   _qtd->blockSignals(true); // Don't cause TcnSelchange yet...
 #if UNICODE
-   dynamic_cast<QTabWidget_exposed*>(_qt)->tabBar()->insertTab(nItem,QString::fromWCharArray(lpszItem));
+   _qtd->tabBar()->insertTab(nItem,QString::fromWCharArray(lpszItem));
 #else
-   dynamic_cast<QTabWidget_exposed*>(_qt)->tabBar()->insertTab(nItem,lpszItem);
+   _qtd->tabBar()->insertTab(nItem,lpszItem);
 #endif
-   dynamic_cast<QTabWidget_exposed*>(_qt)->blockSignals(false);
+   _qtd->blockSignals(false);
    return nItem;
 }
 
@@ -2054,31 +2694,43 @@ int CTabCtrl::SetCurSel(
   int nItem 
 )
 {
-   int oldSel = dynamic_cast<QTabWidget_exposed*>(_qt)->currentIndex();
-   dynamic_cast<QTabWidget_exposed*>(_qt)->setCurrentIndex(nItem);
+   int oldSel = _qtd->currentIndex();
+   _qtd->setCurrentIndex(nItem);
    return oldSel;
 }
 
 int CTabCtrl::GetCurSel() const
 {
-   return dynamic_cast<QTabWidget_exposed*>(_qt)->currentIndex();
+   return _qtd->currentIndex();
 }
 
 BOOL CTabCtrl::DeleteAllItems( )
 {
-   dynamic_cast<QTabWidget_exposed*>(_qt)->clear();
+   _qtd->clear();
+   return TRUE;
 }
 
 CEdit::CEdit(CWnd* parent)
    : CWnd(parent)
 {
-   _qt = new QLineEdit(parent->toQWidget());
-   QObject::connect(_qt,SIGNAL(textChanged(QString)),this,SIGNAL(textChanged(QString)));
+   if ( parent )
+      _qt = new QLineEdit(parent->toQWidget());
+   else
+      _qt = new QLineEdit;
+
+   // Downcast to save having to do it all over the place...
+   _qtd = dynamic_cast<QLineEdit*>(_qt);
+   
+   // Pass-through signals
+   QObject::connect(_qtd,SIGNAL(textChanged(QString)),this,SIGNAL(textChanged(QString)));
 }
 
 CEdit::~CEdit()
 {
-   delete _qt;
+   if ( _qtd )
+      delete _qtd;
+   _qtd = NULL;
+   _qt = NULL;
 }
 
 void CEdit::SetDlgItemInt(
@@ -2087,7 +2739,7 @@ void CEdit::SetDlgItemInt(
    BOOL bSigned 
 )
 {
-   dynamic_cast<QLineEdit*>(_qt)->setText(QString::number(nValue));
+   _qtd->setText(QString::number(nValue));
 }
 
 UINT CEdit::GetDlgItemInt(
@@ -2096,7 +2748,7 @@ UINT CEdit::GetDlgItemInt(
    BOOL bSigned
 ) const
 {
-   return dynamic_cast<QLineEdit*>(_qt)->text().toInt();
+   return _qtd->text().toInt();
 }
 
 void CEdit::SetDlgItemText(
@@ -2105,9 +2757,9 @@ void CEdit::SetDlgItemText(
 )
 {
 #if UNICODE
-   dynamic_cast<QLineEdit*>(_qt)->setText(QString::fromWCharArray(lpszString));
+   _qtd->setText(QString::fromWCharArray(lpszString));
 #else
-   dynamic_cast<QLineEdit*>(_qt)->setText(lpszString);
+   _qtd->setText(lpszString);
 #endif
 }
 
@@ -2116,20 +2768,31 @@ int CEdit::GetDlgItemText(
    CString& rString 
 ) const
 {
-   rString = dynamic_cast<QLineEdit*>(_qt)->text();
-   return dynamic_cast<QLineEdit*>(_qt)->text().length();
+   rString = _qtd->text();
+   return _qtd->text().length();
 }
 
 CButton::CButton(CWnd* parent)
    : CWnd(parent)
 {
-   _qt = new QPushButton(parent->toQWidget());
-   QObject::connect(_qt,SIGNAL(clicked()),this,SIGNAL(clicked()));
+   if ( parent )
+      _qt = new QPushButton(parent->toQWidget());
+   else
+      _qt = new QPushButton;
+   
+   // Downcast to save having to do it all over the place...
+   _qtd = dynamic_cast<QPushButton*>(_qt);
+   
+   // Pass-through signals
+   QObject::connect(_qtd,SIGNAL(clicked()),this,SIGNAL(clicked()));
 }
 
 CButton::~CButton()
 {
-   delete _qt;
+   if ( _qtd )
+      delete _qtd;
+   _qtd = NULL;
+   _qt = NULL;
 }
 
 void CButton::SetDlgItemInt(
@@ -2138,7 +2801,7 @@ void CButton::SetDlgItemInt(
    BOOL bSigned 
 )
 {
-   dynamic_cast<QPushButton*>(_qt)->setText(QString::number(nValue));
+   _qtd->setText(QString::number(nValue));
 }
 
 UINT CButton::GetDlgItemInt(
@@ -2147,7 +2810,7 @@ UINT CButton::GetDlgItemInt(
    BOOL bSigned
 ) const
 {
-   return dynamic_cast<QPushButton*>(_qt)->text().toInt();
+   return _qtd->text().toInt();
 }
 
 void CButton::SetDlgItemText(
@@ -2156,9 +2819,9 @@ void CButton::SetDlgItemText(
 )
 {
 #if UNICODE
-   dynamic_cast<QPushButton*>(_qt)->setText(QString::fromWCharArray(lpszString));
+   _qtd->setText(QString::fromWCharArray(lpszString));
 #else
-   dynamic_cast<QPushButton*>(_qt)->setText(lpszString);
+   _qtd->setText(lpszString);
 #endif
 }
 
@@ -2167,8 +2830,8 @@ int CButton::GetDlgItemText(
    CString& rString 
 ) const
 {
-   rString = dynamic_cast<QPushButton*>(_qt)->text();
-   return dynamic_cast<QPushButton*>(_qt)->text().length();
+   rString = _qtd->text();
+   return _qtd->text().length();
 }
 
 void CButton::CheckDlgButton( 
@@ -2176,19 +2839,37 @@ void CButton::CheckDlgButton(
    UINT nCheck  
 )
 {
-   dynamic_cast<QPushButton*>(_qt)->setChecked(nCheck);
+   _qtd->setChecked(nCheck);
+}
+
+UINT CButton::IsDlgButtonChecked( 
+   int nIDButton 
+) const
+{
+   return _qtd->isChecked();
 }
 
 CSpinButtonCtrl::CSpinButtonCtrl(CWnd* parent)
    : CWnd(parent)
 {
-   _qt = new QSpinBox(parent->toQWidget());
-   QObject::connect(_qt,SIGNAL(valueChanged(int)),this,SIGNAL(valueChanged(int)));
+   if ( parent )
+      _qt = new QSpinBox(parent->toQWidget());
+   else
+      _qt = new QSpinBox;
+   
+   // Downcast to save having to do it all over the place...
+   _qtd = dynamic_cast<QSpinBox*>(_qt);
+   
+   // Pass-through signals
+   QObject::connect(_qtd,SIGNAL(valueChanged(int)),this,SIGNAL(valueChanged(int)));
 }
 
 CSpinButtonCtrl::~CSpinButtonCtrl()
 {
-   delete _qt;
+   if ( _qtd )
+      delete _qtd;
+   _qtd = NULL;
+   _qt = NULL;
 }
 
 void CSpinButtonCtrl::SetRange(
@@ -2196,29 +2877,100 @@ void CSpinButtonCtrl::SetRange(
    short nUpper 
 )
 {
-   dynamic_cast<QSpinBox*>(_qt)->setRange(nLower,nUpper);
+   _qtd->setRange(nLower,nUpper);
+}
+
+CSliderCtrl::CSliderCtrl(CWnd* parent)
+   : CWnd(parent)
+{
+   if ( parent )
+      _qt = new QSlider(parent->toQWidget());
+   else
+      _qt = new QSlider;
+   
+   // Downcast to save having to do it all over the place...
+   _qtd = dynamic_cast<QSlider*>(_qt);
+   
+   // Pass-through signals
+}
+
+CSliderCtrl::~CSliderCtrl()
+{
+   if ( _qtd )
+      delete _qtd;
+   _qtd = NULL;
+   _qt = NULL;
+}
+
+void CSliderCtrl::SetRange(
+   short nLower,
+   short nUpper 
+)
+{
+   _qtd->setRange(nLower,nUpper);
+}
+
+void CSliderCtrl::SetPos(
+   int nPos 
+)
+{
+   _qtd->setValue(nPos);
+}
+
+int CSliderCtrl::GetPos( ) const
+{
+   return _qtd->value();
+}
+
+void CSliderCtrl::SetTicFreq(
+   int nFreq 
+)
+{
+   _qtd->setTickInterval(nFreq);
 }
 
 CStatic::CStatic(CWnd *parent)
    : CWnd(parent)
 {
-   _qt = new QLabel(parent->toQWidget());
+   if ( parent )
+      _qt = new QLabel(parent->toQWidget());
+   else
+      _qt = new QLabel;
+   
+   // Downcast to save having to do it all over the place...
+   _qtd = dynamic_cast<QLabel*>(_qt);
+   
+   // Pass-through signals
 }
 
 CStatic::~CStatic()
 {
-   delete _qt;
+   if ( _qtd )
+      delete _qtd;
+   _qtd = NULL;
+   _qt = NULL;
 }
 
 CGroupBox::CGroupBox(CWnd *parent)
    : CWnd(parent)
 {
-   _qt = new QGroupBox(parent->toQWidget());
+   if ( parent )
+      _qt = new QGroupBox(parent->toQWidget());
+   else
+      _qt = new QGroupBox;
+   
+   // Downcast to save having to do it all over the place...
+   _qtd = dynamic_cast<QGroupBox*>(_qt);
+   
+   // Pass-through signals
 }
 
 CGroupBox::~CGroupBox()
 {
-   delete _qt;
+   if ( _qtd )
+      delete _qtd;
+   _qtd = NULL;
+   _qt = NULL;
 }
 
 CFileDialog::CFileDialog(
@@ -2230,16 +2982,57 @@ CFileDialog::CFileDialog(
    CWnd* pParentWnd,
    DWORD dwSize
 )
+   : CCommonDialog(pParentWnd)
 {
-   _qt = new QFileDialog(pParentWnd->toQWidget());
+   int seg;
+   
+   if ( pParentWnd )
+      _qt = new QFileDialog(pParentWnd->toQWidget());
+   else
+      _qt = new QFileDialog;
+   
+   // Downcast to save having to do it all over the place...
+   _qtd = dynamic_cast<QFileDialog*>(_qt);
+   
+   // Pass-through signals
+   
+   _qtd->hide();
+   
 #if UNICODE
-   setDefaultSuffix(QString::fromWCharArray(lpszDefExt));
-   selectFile(QString::fromWCharArray(lpszFileName));
-   setFilter(QString::fromWCharArray(lpszFilter));
+   qDebug(QString::fromWCharArray(lpszFilter).toAscii().constData());
+   QStringList filtersList = QString::fromWCharArray(lpszFilter).split("|");
 #else
-   setDefaultSuffix(lpszDefExt);
-   selectFile(lpszFileName);
-   setFilter(lpszFilter);
+   QStringList filtersList = QString(lpszFilter).split("|");
+#endif
+   
+   QString filters;
+   
+   // Take out odd-numbered splits between ||;s and convert |'s to ;;'s.
+   for ( seg = filtersList.count()-1; seg >= 0; seg -= 2 )
+   {
+      filtersList.removeAt(seg);
+   }
+   for ( seg = 0; seg < filtersList.count(); seg++ )
+   {
+      if ( !filtersList.at(seg).compare("all files",Qt::CaseInsensitive) )
+      {
+         filtersList.replace(seg,"All files (*.*)");
+      }
+   }
+   filters = filtersList.join(";;");
+   if ( filters.endsWith(";;") )
+   {
+      filters = filters.left(filters.length()-2);
+   }
+   
+#if UNICODE
+   _qtd->setDefaultSuffix(QString::fromWCharArray(lpszDefExt));
+   _qtd->selectFile(QString::fromWCharArray(lpszFileName));
+   _qtd->setFilter(filters);
+#else
+   _qtd->setDefaultSuffix(lpszDefExt);
+   _qtd->selectFile(lpszFileName);
+   _qtd->setFilter(filters);
 #endif
    qDebug("CFileDialog::CFileDialog...need dwFlags impl");
    switch ( dwFlags )
@@ -2248,12 +3041,62 @@ CFileDialog::CFileDialog(
       break;
    case OFN_OVERWRITEPROMPT:
       break;
+   case OFN_ALLOWMULTISELECT:
+      _qtd->setFileMode(QFileDialog::ExistingFiles);
+      break;
+   }
+   if ( bOpenFileDialog )
+   {
+      _qtd->setAcceptMode(QFileDialog::AcceptOpen);
+   }
+   else
+   {
+      _qtd->setAcceptMode(QFileDialog::AcceptSave);
    }
 }
 
 CFileDialog::~CFileDialog()
 {
-   delete _qt;
+   if ( _qtd )
+      delete _qtd;
+   _qtd = NULL;
+   _qt = NULL;
+}
+
+INT_PTR CDialog::DoModal()
+{ 
+   INT_PTR result = _qtd->exec();
+   if ( result == QDialog::Accepted )
+      return 1;
+   else
+      return 0;
+}
+
+POSITION CFileDialog::GetStartPosition( ) const
+{
+   QStringList files = _qtd->selectedFiles();
+   POSITION pos = NULL;
+   if ( files.count() )
+   {
+      pos = new int; 
+      (*pos) = 0; 
+   }
+   return pos; 
+}
+
+CString CFileDialog::GetNextPathName(
+   POSITION& pos 
+) const
+{
+   if ( !pos ) return CString(); // Choker for end-of-list
+   QStringList files = _qtd->selectedFiles();
+   CString file = files.at((*pos)++); 
+   if ( (*pos) >= files.count() ) 
+   { 
+      delete pos; 
+      pos = 0; 
+   } 
+   return file; 
 }
 
 CString CFileDialog::GetFileExt( ) const
@@ -2268,6 +3111,18 @@ CString CFileDialog::GetFileExt( ) const
    return CString();
 }
 
+CString CFileDialog::GetFileName( ) const
+{
+   QStringList files = selectedFiles();
+   if ( files.count() == 1 )
+   {
+      QString file = files.at(0);
+      QFileInfo fileInfo(file);
+      return CString(fileInfo.fileName());
+   }
+   return CString();
+}
+
 CString CFileDialog::GetPathName( ) const
 {
    QStringList files = selectedFiles();
@@ -2276,4 +3131,18 @@ CString CFileDialog::GetPathName( ) const
       return CString(files.at(0));
    }
    return CString();
+}
+
+QMap<int,CString> qtMfcStringResources;
+
+CString qtMfcStringResource(int id)
+{
+   return qtMfcStringResources.value(id);
+}
+
+QMap<int,CMenu> qtMfcMenuResources;
+
+CMenu qtMfcMenuResource(int id)
+{
+   return qtMfcMenuResources.value(id);
 }
