@@ -11,6 +11,8 @@ TOP = ../..
 
 DEFINES += FAMITRACKER_LIBRARY
 
+#DEFINES -= UNICODE
+
 INCLUDEPATH += \
    $$TOP/common
 
@@ -124,7 +126,6 @@ SOURCES += \
     SizeEditor.cpp \
     SequenceSetting.cpp \
     InstrumentEditor2A03.cpp \
-    instrumenteditdlg_test.cpp \
     InstrumentEditPanel.cpp \
     InstrumentEditDlg.cpp \
     InstrumentEditorDPCM.cpp \
@@ -208,7 +209,6 @@ HEADERS += \
     SWSampleScope.h \
     SampleWindow.h \
     GraphEditor.h \
-    instrumenteditdlg_test.h \
     SequenceEditor.h \
     SizeEditor.h \
     SequenceSetting.h \

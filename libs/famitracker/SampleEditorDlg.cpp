@@ -111,7 +111,7 @@ CSampleEditorDlg::CSampleEditorDlg(CWnd* pParent /*=NULL*/, CDSample *pSample)
    mfc10->setGeometry(r10);
    mfcToQtWidget.insert(IDC_STATIC_PITCH,mfc10);
 //   CONTROL         "Start from 64",IDC_DELTASTART,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,238,57,10
-   CButton* mfc11 = new CButton(this);
+   CCheckBox* mfc11 = new CCheckBox(this);
    mfc11->setText("Start from 64");
    CRect r11(CPoint(7,238),CSize(57,10));
    MapDialogRect(&r11);
@@ -418,7 +418,9 @@ void CSampleView::OnPaint()
 	int ScrollBarHeight = 0;
 
 	CPaintDC dc(this); // device context for painting
-
+   qDebug("CSampleView::OnPaint");
+   dc.attach(this);
+   
 	// Create scroll bar
 	if (m_sbScrollBar->m_hWnd == NULL) {
 		CRect rect;
@@ -504,6 +506,8 @@ void CSampleView::OnPaint()
 	m_dcCopy.SelectObject(oldPen);
 
 	dc.BitBlt(0, 0, m_clientRect.Width(), m_clientRect.Height(), &m_dcCopy, 0, 0, SRCCOPY);
+   
+   dc.detach();
 }
 
 BOOL CSampleView::OnEraseBkgnd(CDC* pDC)

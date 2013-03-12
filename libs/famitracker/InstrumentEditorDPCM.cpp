@@ -84,13 +84,17 @@ void CDMCFileSoundDialog::OnFileNameChange()
 IMPLEMENT_DYNAMIC(CInstrumentEditorDPCM, CInstrumentEditPanel)
 CInstrumentEditorDPCM::CInstrumentEditorDPCM(CWnd* pParent) : CInstrumentEditPanel(CInstrumentEditorDPCM::IDD, pParent)
 {
+//   IDD_INSTRUMENT_DPCM DIALOGEX 0, 0, 372, 174
+   CRect rect(0,0,372,174);
+   MapDialogRect(&rect);
+   setFixedSize(rect.Width(),rect.Height());
+   
 //   GROUPBOX        "Loaded samples",IDC_STATIC,192,7,173,160
    CGroupBox* mfc9 = new CGroupBox(this);
    mfc9->setTitle("Loaded samples");
    CRect r9(CPoint(192,7),CSize(173,160));
    MapDialogRect(&r9);
    mfc9->setGeometry(r9);
-   mfc9->setContentsMargins(0,0,0,0);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //   GROUPBOX        "Assigned samples",IDC_STATIC,7,7,179,160
    CGroupBox* mfc10 = new CGroupBox(this);
@@ -98,7 +102,6 @@ CInstrumentEditorDPCM::CInstrumentEditorDPCM(CWnd* pParent) : CInstrumentEditPan
    CRect r10(CPoint(7,7),CSize(179,160));
    MapDialogRect(&r10);
    mfc10->setGeometry(r10);
-   mfc10->setContentsMargins(0,0,0,0);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //   COMBOBOX        IDC_OCTAVE,138,30,42,53,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
    CComboBox* mfc1 = new CComboBox(this);
@@ -198,9 +201,8 @@ CInstrumentEditorDPCM::CInstrumentEditorDPCM(CWnd* pParent) : CInstrumentEditPan
    mfcToQtWidget.insert(IDC_SAMPLE_LIST,mfc14);
    QObject::connect(mfc14,SIGNAL(itemSelectionChanged()),this,SLOT(sampleList_itemSelectionChanged()));
 //   CONTROL         "Loop",IDC_LOOP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,138,75,42,9
-   CButton* mfc15 = new CButton(this);
+   CCheckBox* mfc15 = new CCheckBox(this);
    mfc15->setText("Loop");
-   mfc15->setCheckable(true);
    CRect r15(CPoint(138,75),CSize(42,9));
    MapDialogRect(&r15);
    mfc15->setGeometry(r15);
@@ -482,9 +484,8 @@ void CInstrumentEditorDPCM::BuildSampleList()
 		}
 	}
 
-   qDebug("SetDlgItemText");
-//	Text.Format(IDS_DPCM_SPACE_FORMAT, Size / 0x400, (MAX_SAMPLE_SPACE - Size) / 0x400, MAX_SAMPLE_SPACE / 0x400);
-//	SetDlgItemText(IDC_SPACE, Text);
+	Text.Format(IDS_DPCM_SPACE_FORMAT, Size / 0x400, (MAX_SAMPLE_SPACE - Size) / 0x400, MAX_SAMPLE_SPACE / 0x400);
+	SetDlgItemText(IDC_SPACE, Text);
 }
 
 // When saved in NSF, the samples has to be aligned at even 6-bits addresses

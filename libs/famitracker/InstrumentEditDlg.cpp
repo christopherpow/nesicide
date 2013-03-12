@@ -51,16 +51,24 @@ CInstrumentEditDlg::CInstrumentEditDlg(CWnd* pParent /*=NULL*/)
 	m_bOpened(false),
 	m_iInstrument(-1)
 {
+//   IDD_INSTRUMENT DIALOGEX 0, 0, 389, 242
+   CRect rect(0,0,389,242);
+   MapDialogRect(&rect);
+   setFixedSize(rect.Width(),rect.Height());
+   
 //   CONTROL         "",IDC_INST_TAB,"SysTabControl32",0x0,7,7,375,185
-//   CONTROL         "",IDC_KEYBOARD,"Static",SS_OWNERDRAW | SS_REALSIZEIMAGE | SS_SUNKEN,7,198,375,37
-
-   //   CONTROL         "",IDC_INST_TAB,"SysTabControl32",0x0,7,7,375,185
    CTabCtrl* mfc1 = new CTabCtrl(this);
    CRect r1(CPoint(7,7),CSize(375,185));
    MapDialogRect(&r1);
    mfc1->setGeometry(r1);
    mfcToQtWidget.insert(IDC_INST_TAB,mfc1);
    QObject::connect(mfc1,SIGNAL(currentChanged(int)),this,SLOT(instTab_currentChanged(int)));
+//   CONTROL         "",IDC_KEYBOARD,"Static",SS_OWNERDRAW | SS_REALSIZEIMAGE | SS_SUNKEN,7,198,375,37
+   CStatic* mfc2 = new CStatic(this);
+   CRect r2(CPoint(7,198),CSize(375,37));
+   MapDialogRect(&r2);
+   mfc2->setGeometry(r2);
+   mfcToQtWidget.insert(IDC_KEYBOARD,mfc2);   
    
    // CP: This belongs somewhere else...
    OnInitDialog();
@@ -120,7 +128,7 @@ BOOL CInstrumentEditDlg::OnInitDialog()
 void CInstrumentEditDlg::InsertPane(CInstrumentEditPanel *pPanel, bool Show)
 {
 	CRect Rect, ParentRect;
-   CTabCtrl *pTabControl = (CTabCtrl*)(GetDlgItem(IDC_INST_TAB));
+	CTabCtrl *pTabControl = static_cast<CTabCtrl*>(GetDlgItem(IDC_INST_TAB));
 
 	pTabControl->GetWindowRect(&ParentRect);
 	pTabControl->InsertItem(m_iPanels, pPanel->GetTitle());
@@ -144,7 +152,7 @@ void CInstrumentEditDlg::InsertPane(CInstrumentEditPanel *pPanel, bool Show)
 
 void CInstrumentEditDlg::ClearPanels()
 {
-	((CTabCtrl*)GetDlgItem(IDC_INST_TAB))->DeleteAllItems();
+	static_cast<CTabCtrl*>(GetDlgItem(IDC_INST_TAB))->DeleteAllItems();
 
 	for (int i = 0; i < PANEL_COUNT; i++) {
 		if (m_pPanels[i] != NULL) {

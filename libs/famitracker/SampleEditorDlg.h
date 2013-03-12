@@ -20,9 +20,15 @@
 
 #pragma once
 
+#include "cqtmfc.h"
+
 // CSampleView control
 
 class CSampleView : public CStatic {
+   // Qt interfaces
+protected:
+   void paintEvent(QPaintEvent*) { OnPaint(); }
+   
 	DECLARE_DYNAMIC(CSampleView)
 protected:
 	DECLARE_MESSAGE_MAP()

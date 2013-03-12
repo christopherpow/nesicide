@@ -848,16 +848,8 @@ void CMainFrame::on_frameChangeAll_clicked(bool checked)
 #include "InstrumentEditDlg.h"
 void CMainFrame::songInstruments_doubleClicked(const QModelIndex &index)
 {
-   QDialog dlg;
-   QGridLayout grid;
-
-   CInstrumentEditDlg* d = new CInstrumentEditDlg;   
-   grid.addWidget(d->toQWidget());
-   dlg.setLayout(&grid);   
-//   IDD_INSTRUMENT DIALOGEX 0, 0, 389, 242
-   CRect rect(0,0,389,242);
-   d->MapDialogRect(&rect);
-   dlg.setFixedSize(rect.Width(),rect.Height());
+   CInstrumentEditDlg* d = new CInstrumentEditDlg(this);   
    d->SetCurrentInstrument(index.row());
-   dlg.exec();
+   d->DoModal();
+   delete d;
 }

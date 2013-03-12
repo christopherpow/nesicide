@@ -221,6 +221,15 @@ SIZE_T WINAPI GlobalSize(
  *  Class CString
  */
 
+bool operator==(const CString& s1, const LPCTSTR s2)
+{
+#if UNICODE
+   return (!wcscmp(s1.GetString(),s2));
+#else
+   return (!strcmp(s1.GetString(),s2));
+#endif
+}
+
 CString::CString()
 {
    _qstr.clear();
@@ -266,7 +275,7 @@ CString::~CString()
 BOOL CString::LoadString( UINT nID )
 {
    _qstr.clear();
-   _qstr.append(qtMfcStringResource(nID));
+   _qstr.append(QString::fromWCharArray(qtMfcStringResource(nID).GetString()));
    return TRUE;   
 }
 
@@ -336,7 +345,7 @@ void CString::AppendFormatV(LPCTSTR fmt, va_list ap)
 {
    // CPTODO: UN-HACK!!!
    TCHAR local[2048];
-#ifdef UNICODE
+#if UNICODE
    wvsprintf(local,fmt,ap);
    _qstr += QString::fromWCharArray(local);
 #else
@@ -468,7 +477,7 @@ void CString::Empty()
 
 LPCTSTR CString::GetString() const
 {
-#ifdef UNICODE
+#if UNICODE
    return (LPCWSTR)_qstr.unicode();
 #else
    return _qstrn.constData();
@@ -477,7 +486,7 @@ LPCTSTR CString::GetString() const
 
 LPCTSTR CString::GetBuffer() const
 {
-#ifdef UNICODE
+#if UNICODE
    return (LPWSTR)_qstr.unicode();
 #else
    return _qstrn.constData();
@@ -501,7 +510,7 @@ int CString::GetLength() const
 
 int CString::CompareNoCase( LPCTSTR lpsz ) const
 {
-#ifdef UNICODE
+#if UNICODE
    return _qstr.compare(QString::fromWCharArray(lpsz),Qt::CaseInsensitive);
 #else
    return _qstr.compare(QString(lpsz),Qt::CaseInsensitive);
@@ -1001,7 +1010,7 @@ BOOL CFont::CreateFont(
    LPCTSTR lpszFacename 
 )
 {
-#ifdef UNICODE
+#if UNICODE
    _qfont.setFamily(QString::fromWCharArray(lpszFacename));
 #else
    _qfont.setFamily(lpszFacename);
@@ -1019,7 +1028,7 @@ BOOL CFont::CreateFontIndirect(
    const LOGFONT* lpLogFont 
 )
 {
-#ifdef UNICODE
+#if UNICODE
    _qfont.setFamily(QString::fromWCharArray(lpLogFont->lfFaceName));
 #else
    _qfont.setFamily(lpLogFont->lfFaceName);
@@ -1436,6 +1445,7 @@ int CComboBox::GetLBText(
    return length;
 }
 
+#if UNICODE
 int CComboBox::GetLBText(
    int nIndex,
    char* lpszText 
@@ -1447,6 +1457,7 @@ int CComboBox::GetLBText(
    length = strlen(lpszText);
    return length;
 }
+#endif
 
 void CComboBox::GetLBText(
    int nIndex,
@@ -1578,6 +1589,7 @@ int CListCtrl::GetItemText(
    return length;
 }
 
+#if UNICODE
 int CListCtrl::GetItemText(
    int nItem,
    int nSubItem,
@@ -1594,6 +1606,7 @@ int CListCtrl::GetItemText(
    }
    return length;
 }
+#endif
 
 int CListCtrl::InsertColumn(
    int nCol,
@@ -1666,11 +1679,19 @@ BOOL CListCtrl::SetCheck(
    BOOL fCheck
 )
 {
-   QTableWidgetItem* twi = _qtd->item(nItem,0);
+   QTableWidgetItem* twi = _qtd->item(nItem,0);  
+   bool add = false;
    if ( !twi )
+   {
+      add = true;
       twi = new QTableWidgetItem;
+   }
+   
    twi->setCheckState(fCheck?Qt::Checked:Qt::Unchecked);
-   _qtd->setItem(nItem,0,twi);
+
+   if ( add )
+      _qtd->setItem(nItem,0,twi);
+
    return TRUE;
 }
 
@@ -1681,10 +1702,18 @@ BOOL CListCtrl::SetItemText(
 )
 {
    QTableWidgetItem* twi = _qtd->item(nItem,nSubItem);
+   bool add = false;
    if ( !twi )
+   {
+      add = true;
       twi = new QTableWidgetItem;
+   }
+   
    twi->setText(lpszText);
-   _qtd->setItem(nItem,nSubItem,twi);
+   
+   if ( add )
+      _qtd->setItem(nItem,nSubItem,twi);
+   
    return TRUE;
 }
 
@@ -1695,14 +1724,22 @@ BOOL CListCtrl::SetItemText(
 )
 {
    QTableWidgetItem* twi = _qtd->item(nItem,nSubItem);
+   bool add = false;
    if ( !twi )
+   {
+      add = true;
       twi = new QTableWidgetItem;
+   }
+   
 #if UNICODE
    twi->setText(QString::fromWCharArray(lpszText));
 #else
    twi->setText(lpszText);
 #endif
-   _qtd->setItem(nItem,nSubItem,twi);
+   
+   if ( add )
+      _qtd->setItem(nItem,nSubItem,twi);
+   
    return TRUE;
 }
 
@@ -1726,7 +1763,7 @@ BOOL CListCtrl::SetItemState(
 
 BOOL CListCtrl::DeleteAllItems()
 {
-   _qtd->clear(); 
+   _qtd->clearContents();
    return TRUE;
 }
 
@@ -1871,6 +1908,7 @@ CWnd::CWnd(CWnd *parent)
    {
       _qt = new QWidget;
    }
+      
    _qt->installEventFilter(this);
 }
 
@@ -2009,6 +2047,17 @@ int CWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
       grid->addWidget(mfcHorizontalScrollBar->toQWidget(),1,0);   
    }
    return 0;
+}
+
+void CWnd::MoveWindow(int x, int y, int cx, int cy)
+{
+   MoveWindow(CRect(CPoint(x,y),CSize(cx,cy)));   
+}
+
+void CWnd::MoveWindow(LPCRECT lpRect, BOOL bRepaint)
+{
+//   _qt->setGeometry(lpRect->left,lpRect->top,lpRect->right-lpRect->left,lpRect->bottom-lpRect->top);
+   _qt->move(lpRect->left,lpRect->top);
 }
 
 BOOL CWnd::PostMessage(
@@ -2333,19 +2382,20 @@ CView::~CView()
 CDialog::CDialog(int dlgID, CWnd *parent)
    : CWnd(parent)
 {
+   if ( parent )
+      _qt = new QDialog(parent);
+   else
+      _qt = new QDialog;
+   
+   _qtd = dynamic_cast<QDialog*>(_qt);
 }
 
 CDialog::~CDialog()
 {
-}
-
-CCommonDialog::CCommonDialog(CWnd *pParentWnd)
- : CDialog(0,pParentWnd)
-{
-}
-
-CCommonDialog::~CCommonDialog()
-{
+   if ( _qtd )
+      delete _qtd;
+   _qtd = NULL;
+   _qt = NULL;
 }
 
 void CDialog::MapDialogRect( 
@@ -2361,6 +2411,24 @@ void CDialog::MapDialogRect(
    lpRect->right  = MulDiv(lpRect->right,  baseunitX, 4);
    lpRect->top    = MulDiv(lpRect->top,    baseunitY, 8);
    lpRect->bottom = MulDiv(lpRect->bottom, baseunitY, 8);
+}
+
+INT_PTR CDialog::DoModal()
+{ 
+   INT_PTR result = _qtd->exec();
+   if ( result == QDialog::Accepted )
+      return 1;
+   else
+      return 0;
+}
+
+CCommonDialog::CCommonDialog(CWnd *pParentWnd)
+ : CDialog(0,pParentWnd)
+{
+}
+
+CCommonDialog::~CCommonDialog()
+{
 }
 
 CWinThread::CWinThread()
@@ -2456,7 +2524,6 @@ HCURSOR CWinApp::LoadStandardCursor(
 ) const
 {
    qDebug("LoadStandardCursor needs work...");
-   qDebug(QString::fromWCharArray(lpszCursorName).toAscii().constData());
 //   setCursor()
 }
 
@@ -2849,6 +2916,83 @@ UINT CButton::IsDlgButtonChecked(
    return _qtd->isChecked();
 }
 
+CCheckBox::CCheckBox(CWnd* parent)
+   : CWnd(parent)
+{
+   if ( parent )
+      _qt = new QCheckBox(parent->toQWidget());
+   else
+      _qt = new QCheckBox;
+   
+   // Downcast to save having to do it all over the place...
+   _qtd = dynamic_cast<QCheckBox*>(_qt);
+   
+   // Pass-through signals
+   QObject::connect(_qtd,SIGNAL(clicked()),this,SIGNAL(clicked()));
+}
+
+CCheckBox::~CCheckBox()
+{
+   if ( _qtd )
+      delete _qtd;
+   _qtd = NULL;
+   _qt = NULL;
+}
+
+void CCheckBox::SetDlgItemInt(
+   int nID,
+   UINT nValue,
+   BOOL bSigned 
+)
+{
+   _qtd->setText(QString::number(nValue));
+}
+
+UINT CCheckBox::GetDlgItemInt(
+   int nID,
+   BOOL* lpTrans,
+   BOOL bSigned
+) const
+{
+   return _qtd->text().toInt();
+}
+
+void CCheckBox::SetDlgItemText(
+   int nID,
+   LPCTSTR lpszString 
+)
+{
+#if UNICODE
+   _qtd->setText(QString::fromWCharArray(lpszString));
+#else
+   _qtd->setText(lpszString);
+#endif
+}
+
+int CCheckBox::GetDlgItemText(
+   int nID,
+   CString& rString 
+) const
+{
+   rString = _qtd->text();
+   return _qtd->text().length();
+}
+
+void CCheckBox::CheckDlgButton( 
+   int nIDButton, 
+   UINT nCheck  
+)
+{
+   _qtd->setChecked(nCheck);
+}
+
+UINT CCheckBox::IsDlgButtonChecked( 
+   int nIDButton 
+) const
+{
+   return _qtd->isChecked();
+}
+
 CSpinButtonCtrl::CSpinButtonCtrl(CWnd* parent)
    : CWnd(parent)
 {
@@ -2891,7 +3035,11 @@ CSliderCtrl::CSliderCtrl(CWnd* parent)
    // Downcast to save having to do it all over the place...
    _qtd = dynamic_cast<QSlider*>(_qt);
    
+   // Not sure if there's vertical sliders in MFC...
+   _qtd->setOrientation(Qt::Horizontal);
+   
    // Pass-through signals
+   QObject::connect(_qtd,SIGNAL(valueChanged(int)),this,SIGNAL(valueChanged(int)));
 }
 
 CSliderCtrl::~CSliderCtrl()
@@ -2951,6 +3099,45 @@ CStatic::~CStatic()
    _qt = NULL;
 }
 
+void CStatic::SetDlgItemInt(
+   int nID,
+   UINT nValue,
+   BOOL bSigned 
+)
+{
+   _qtd->setText(QString::number(nValue));
+}
+
+UINT CStatic::GetDlgItemInt(
+   int nID,
+   BOOL* lpTrans,
+   BOOL bSigned
+) const
+{
+   return _qtd->text().toInt();
+}
+
+void CStatic::SetDlgItemText(
+   int nID,
+   LPCTSTR lpszString 
+)
+{
+#if UNICODE
+   _qtd->setText(QString::fromWCharArray(lpszString));
+#else
+   _qtd->setText(lpszString);
+#endif
+}
+
+int CStatic::GetDlgItemText(
+   int nID,
+   CString& rString 
+) const
+{
+   rString = _qtd->text();
+   return _qtd->text().length();
+}
+
 CGroupBox::CGroupBox(CWnd *parent)
    : CWnd(parent)
 {
@@ -2962,6 +3149,8 @@ CGroupBox::CGroupBox(CWnd *parent)
    // Downcast to save having to do it all over the place...
    _qtd = dynamic_cast<QGroupBox*>(_qt);
    
+   _qtd->setContentsMargins(0,0,0,0);
+   
    // Pass-through signals
 }
 
@@ -2971,6 +3160,45 @@ CGroupBox::~CGroupBox()
       delete _qtd;
    _qtd = NULL;
    _qt = NULL;
+}
+
+void CGroupBox::SetDlgItemInt(
+   int nID,
+   UINT nValue,
+   BOOL bSigned 
+)
+{
+   _qtd->setTitle(QString::number(nValue));
+}
+
+UINT CGroupBox::GetDlgItemInt(
+   int nID,
+   BOOL* lpTrans,
+   BOOL bSigned
+) const
+{
+   return _qtd->title().toInt();
+}
+
+void CGroupBox::SetDlgItemText(
+   int nID,
+   LPCTSTR lpszString 
+)
+{
+#if UNICODE
+   _qtd->setTitle(QString::fromWCharArray(lpszString));
+#else
+   _qtd->setTitle(lpszString);
+#endif
+}
+
+int CGroupBox::GetDlgItemText(
+   int nID,
+   CString& rString 
+) const
+{
+   rString = _qtd->title();
+   return _qtd->title().length();
 }
 
 CFileDialog::CFileDialog(
@@ -3063,7 +3291,7 @@ CFileDialog::~CFileDialog()
    _qt = NULL;
 }
 
-INT_PTR CDialog::DoModal()
+INT_PTR CFileDialog::DoModal()
 { 
    INT_PTR result = _qtd->exec();
    if ( result == QDialog::Accepted )

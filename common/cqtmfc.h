@@ -45,6 +45,7 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QLineEdit>
+#include <QCheckBox>
 #include <QGroupBox>
 #include <QFileDialog>
 
@@ -76,7 +77,7 @@
 
 #include <windows.h>
 
-#ifdef UNICODE
+#if UNICODE
 #define _T(x) L##x
 #else
 #define _T(x) x
@@ -194,6 +195,9 @@ class CSemaphore
 {
 };
 
+class CString;
+bool operator==(const CString& s1, const LPCTSTR s2);
+
 class CString
 {
 public:
@@ -210,10 +214,10 @@ public:
 
    CString& Append(LPCSTR str);
    CString& Append(LPWSTR str);
-   void AppendFormat(LPCTSTR fmt, ...);
+   void AppendFormat(LPCTSTR fmt, ...) __attribute__((sentinel(0)));
    void AppendFormatV(LPCTSTR fmt, va_list ap);
-   void Format( UINT nFormatID, ... );
-   void Format(LPCTSTR fmt, ...);
+   void Format( UINT nFormatID, ... ) __attribute__((sentinel(0)));
+   void Format(LPCTSTR fmt, ...) __attribute__((sentinel(0)));
    void FormatV(LPCTSTR fmt, va_list ap);
    void Truncate(int length);
    int ReverseFind( TCHAR ch ) const;
@@ -1050,8 +1054,8 @@ public:
    void MoveWindow(
       LPCRECT lpRect,
          BOOL bRepaint = TRUE 
-   ) { _qt->setGeometry(lpRect->left,lpRect->top,lpRect->right-lpRect->left,lpRect->bottom-lpRect->top); }
-   void MoveWindow(int x,int y,int cx, int cy) { _qt->setGeometry(x,y,cx,cy); }
+   );
+   void MoveWindow(int x,int y,int cx, int cy);
    CDC* GetDC() { CDC* pDC = new CDC(); pDC->attach(toQWidget()); return pDC; }
    void ReleaseDC(CDC* pDC) { pDC->detach(); delete pDC; }
    void ShowWindow(int code);
@@ -1273,12 +1277,16 @@ private:
 
 class CDialog : public CWnd
 {
+   // Qt interfaces
+public:
+   QDialog* _qtd;
+   
    // MFC interfaces
 public:
    CDialog(int dlgID,CWnd* parent);
    virtual ~CDialog();
-   virtual void OnOK( ) { qDebug("Accept/reject not hooked yet..."); close(); }
-   virtual void OnCancel( ) { qDebug("Accept/reject not hooked yet..."); close(); }
+   virtual void OnOK( ) { _qtd->accept(); }
+   virtual void OnCancel( ) { _qtd->reject(); }
    virtual BOOL Create(
       UINT nIDTemplate,
       CWnd* pParentWnd = NULL 
@@ -1326,6 +1334,7 @@ public:
       DWORD dwSize = 0
    );
    virtual ~CFileDialog();
+   INT_PTR DoModal();
    virtual void OnFileNameChange( ) {};
    CString GetFileExt( ) const;
    CString GetFileName( ) const;
@@ -1467,11 +1476,55 @@ public:
    ) const;
 };
 
+class CCheckBox : public CWnd
+{
+   Q_OBJECT
+   // Qt interfaces
+public:
+   void setText(const QString & text) { _qtd->setText(text); }
+   void setCheckable(bool checkable) { _qtd->setCheckable(checkable); }
+protected:
+   QCheckBox* _qtd;
+signals:
+   void clicked();
+
+   // MFC interfaces
+public:
+   CCheckBox(CWnd* parent = 0);
+   virtual ~CCheckBox();
+   void SetDlgItemInt(
+      int nID,
+      UINT nValue,
+      BOOL bSigned = TRUE 
+   );
+   UINT GetDlgItemInt(
+      int nID,
+      BOOL* lpTrans = NULL,
+      BOOL bSigned = TRUE 
+   ) const;
+   void SetDlgItemText(
+      int nID,
+      LPCTSTR lpszString 
+   );
+   int GetDlgItemText(
+      int nID,
+      CString& rString 
+   ) const;
+   void CheckDlgButton( 
+      int nIDButton, 
+      UINT nCheck  
+   );
+   UINT IsDlgButtonChecked( 
+      int nIDButton
+   ) const;
+};
+
 class CSliderCtrl : public CWnd
 {
    Q_OBJECT
    // Qt interfaces
 public:
+   void setOrientation(Qt::Orientation orient) { _qtd->setOrientation(orient); }
 protected:
    QSlider* _qtd;
 signals:
@@ -1538,10 +1591,12 @@ public:
       int nIndex,
       LPTSTR lpszText 
    ) const;
+#if UNICODE
    int GetLBText(
       int nIndex,
       char* lpszText 
    ) const;
+#endif
    void GetLBText(
       int nIndex,
       CString& rString 
@@ -1564,6 +1619,24 @@ protected:
 public:
    CStatic(CWnd* parent = 0);
    virtual ~CStatic();
+   void SetDlgItemInt(
+      int nID,
+      UINT nValue,
+      BOOL bSigned = TRUE 
+   );
+   UINT GetDlgItemInt(
+      int nID,
+      BOOL* lpTrans = NULL,
+      BOOL bSigned = TRUE 
+   ) const;
+   void SetDlgItemText(
+      int nID,
+      LPCTSTR lpszString 
+   );
+   int GetDlgItemText(
+      int nID,
+      CString& rString 
+   ) const;
 };
 
 class CGroupBox : public CWnd
@@ -1578,6 +1651,24 @@ protected:
 public:
    CGroupBox(CWnd* parent = 0);
    virtual ~CGroupBox();
+   void SetDlgItemInt(
+      int nID,
+      UINT nValue,
+      BOOL bSigned = TRUE 
+   );
+   UINT GetDlgItemInt(
+      int nID,
+      BOOL* lpTrans = NULL,
+      BOOL bSigned = TRUE 
+   ) const;
+   void SetDlgItemText(
+      int nID,
+      LPCTSTR lpszString 
+   );
+   int GetDlgItemText(
+      int nID,
+      CString& rString 
+   ) const;
 };
 
 class QTabWidget_exposed : public QTabWidget
@@ -1687,12 +1778,14 @@ public:
       int nItem,
       int nSubItem 
    ) const;
+#if UNICODE
    int GetItemText(
       int nItem,
       int nSubItem,
       char* lpszText,
       int nLen 
    ) const;
+#endif
    int InsertItem(
       int nItem,
       LPCTSTR lpszItem,

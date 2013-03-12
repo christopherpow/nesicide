@@ -185,6 +185,104 @@ CPCMImport::CPCMImport(CWnd* pParent /*=NULL*/)
 	: CDialog(CPCMImport::IDD, pParent),
 	m_psinc(new jarh::sinc(512, 32)) // sinc object. TODO: parametrise
 {
+//   GROUPBOX        "Quality: 0",IDC_QUALITY_FRM,7,7,136,36
+   CGroupBox* mfc1 = new CGroupBox(this);
+   mfc1->setTitle("Quality: 0");
+   CRect r1(CPoint(7,7),CSize(136,36));
+   MapDialogRect(&r1);
+   mfc1->setGeometry(r1);
+   mfcToQtWidget.insert(IDC_QUALITY_FRM,mfc1);
+//   LTEXT           "Low",IDC_STATIC,15,21,15,10
+   CStatic* mfc2 = new CStatic(this);
+   mfc2->setText("Low");
+   CRect r2(CPoint(15,21),CSize(15,10));
+   MapDialogRect(&r2);
+   mfc2->setGeometry(r2);
+//   CONTROL         "",IDC_QUALITY,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,30,19,90,15
+   CSliderCtrl* mfc3 = new CSliderCtrl(this);
+   CRect r3(CPoint(30,19),CSize(90,15));
+   MapDialogRect(&r3);
+   mfc3->setGeometry(r3);
+   mfcToQtWidget.insert(IDC_QUALITY,mfc3);
+   QObject::connect(mfc3,SIGNAL(valueChanged(int)),this,SLOT(quality_valueChanged(int)));
+//   LTEXT           "High",IDC_STATIC,123,21,16,10
+   CStatic* mfc4 = new CStatic(this);
+   mfc4->setText("High");
+   CRect r4(CPoint(123,21),CSize(16,10));
+   MapDialogRect(&r4);
+   mfc4->setGeometry(r4);
+//   GROUPBOX        "Gain: +0dB",IDC_VOLUME_FRM,7,47,136,35
+   CGroupBox* mfc5 = new CGroupBox(this);
+   mfc5->setTitle("Gain: +0dB");
+   CRect r5(CPoint(7,47),CSize(136,35));
+   MapDialogRect(&r5);
+   mfc5->setGeometry(r5);
+   mfcToQtWidget.insert(IDC_VOLUME_FRM,mfc5);
+//   LTEXT           "Low",IDC_STATIC,15,61,15,10
+   CStatic* mfc6 = new CStatic(this);
+   mfc6->setText("Low");
+   CRect r6(CPoint(15,61),CSize(15,10));
+   MapDialogRect(&r6);
+   mfc6->setGeometry(r6);
+//   CONTROL         "",IDC_VOLUME,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,30,59,90,15
+   CSliderCtrl* mfc7 = new CSliderCtrl(this);
+   CRect r7(CPoint(30,59),CSize(90,15));
+   MapDialogRect(&r7);
+   mfc7->setGeometry(r7);
+   mfcToQtWidget.insert(IDC_VOLUME,mfc7);
+   QObject::connect(mfc7,SIGNAL(valueChanged(int)),this,SLOT(volume_valueChanged(int)));
+//   LTEXT           "High",IDC_STATIC,123,61,16,10
+   CStatic* mfc8 = new CStatic(this);
+   mfc8->setText("High");
+   CRect r8(CPoint(123,61),CSize(16,10));
+   MapDialogRect(&r8);
+   mfc8->setGeometry(r8);
+//   GROUPBOX        "File info",IDC_STATIC,7,86,136,40
+   CGroupBox* mfc9 = new CGroupBox(this);
+   mfc9->setTitle("File info");
+   CRect r9(CPoint(7,86),CSize(136,40));
+   MapDialogRect(&r9);
+   mfc9->setGeometry(r9);
+//   LTEXT           "Static",IDC_SAMPLE_RATE,15,99,118,8
+   CStatic* mfc10 = new CStatic(this);
+   CRect r10(CPoint(15,99),CSize(118,8));
+   MapDialogRect(&r10);
+   mfc10->setGeometry(r10);
+   mfcToQtWidget.insert(IDC_SAMPLE_RATE,mfc10);
+//   LTEXT           "Static",IDC_RESAMPLING,15,111,118,8
+   CStatic* mfc11 = new CStatic(this);
+   CRect r11(CPoint(15,111),CSize(118,8));
+   MapDialogRect(&r11);
+   mfc11->setGeometry(r11);
+   mfcToQtWidget.insert(IDC_RESAMPLING,mfc11);
+//   PUSHBUTTON      "Preview",IDC_PREVIEW,154,7,50,14
+   CButton* mfc12 = new CButton(this);
+   mfc12->setText("Preview");
+   CRect r12(CPoint(154,7),CSize(50,14));
+   MapDialogRect(&r12);
+   mfc12->setGeometry(r12);
+   mfcToQtWidget.insert(IDC_PREVIEW,mfc12);
+   QObject::connect(mfc12,SIGNAL(clicked()),this,SLOT(preview_clicked()));
+//   DEFPUSHBUTTON   "OK",IDOK,154,24,50,14
+   CButton* mfc13 = new CButton(this);
+   mfc13->setText("OK");
+   mfc13->setDefault(true);
+   CRect r13(CPoint(154,24),CSize(50,14));
+   MapDialogRect(&r13);
+   mfc13->setGeometry(r13);
+   mfcToQtWidget.insert(IDOK,mfc13);
+   QObject::connect(mfc13,SIGNAL(clicked()),this,SLOT(ok_clicked()));
+//   PUSHBUTTON      "Cancel",IDCANCEL,154,41,50,14
+   CButton* mfc14 = new CButton(this);
+   mfc14->setText("Cancel");
+   CRect r14(CPoint(154,41),CSize(50,14));
+   MapDialogRect(&r14);
+   mfc14->setGeometry(r14);
+   mfcToQtWidget.insert(IDCANCEL,mfc14);
+   QObject::connect(mfc14,SIGNAL(clicked()),this,SLOT(cancel_clicked()));
+
+   // this is hacky...
+   OnInitDialog();   
 }
 
 CPCMImport::~CPCMImport()
@@ -197,6 +295,30 @@ void CPCMImport::DoDataExchange(CDataExchange* pDX)
 	CDialog::DoDataExchange(pDX);
 }
 
+void CPCMImport::preview_clicked()
+{
+   OnBnClickedPreview();
+}
+
+void CPCMImport::ok_clicked()
+{
+   OnBnClickedOk();
+}
+
+void CPCMImport::cancel_clicked()
+{
+   OnBnClickedCancel();
+}
+
+void CPCMImport::quality_valueChanged(int value)
+{
+   OnHScroll(SB_HORZ,value,dynamic_cast<CScrollBar*>(GetDlgItem(IDC_QUALITY)));
+}
+
+void CPCMImport::volume_valueChanged(int value)
+{
+   OnHScroll(SB_HORZ,value,dynamic_cast<CScrollBar*>(GetDlgItem(IDC_VOLUME)));
+}
 
 //BEGIN_MESSAGE_MAP(CPCMImport, CDialog)
 //	ON_WM_HSCROLL()
@@ -211,7 +333,7 @@ CDSample *CPCMImport::ShowDialog()
 
 	CFileSoundDialog OpenFileDialog(TRUE, 0, 0, OFN_HIDEREADONLY, _T("Wave files (*.wav)|*.wav|All files (*.*)|*.*||"));
 
-	OpenFileDialog.m_pOFN->lpstrInitialDir = theApp.GetSettings()->GetPath(PATH_WAV);
+//	OpenFileDialog.m_pOFN->lpstrInitialDir = theApp.GetSettings()->GetPath(PATH_WAV);
 
 	if (OpenFileDialog.DoModal() == IDCANCEL)
 		return NULL;
@@ -264,7 +386,7 @@ BOOL CPCMImport::OnInitDialog()
 	UpdateFileInfo();
 
 	CString WinTitle;
-	WinTitle.Format(_T("PCM Import - [%s]"), m_strFileName);
+   WinTitle.Format(_T("PCM Import - [%s]"), m_strFileName.GetString());
 	SetWindowText(WinTitle);
 
 	return TRUE;  // return TRUE unless you set the focus to a control

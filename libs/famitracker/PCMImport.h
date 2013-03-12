@@ -20,12 +20,27 @@
 
 #pragma once
 
+#include "cqtmfc.h"
+#include "resource.h"
+
+#include "FamiTrackerDoc.h"
+
 namespace jarh {
 	class sinc;
 }
 
 class CPCMImport : public CDialog
 {
+   Q_OBJECT
+   // Qt interfaces
+public slots:
+   void ok_clicked();
+   void cancel_clicked();
+   void preview_clicked();
+   void quality_valueChanged(int value);
+   void volume_valueChanged(int value);
+   
+public:
 	DECLARE_DYNAMIC(CPCMImport)
 
 public:

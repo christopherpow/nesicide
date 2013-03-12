@@ -46,15 +46,10 @@ CInstrumentEditor2A03::CInstrumentEditor2A03(CWnd* pParent)
 	m_pSequenceEditor(NULL),
 	m_iSelectedSetting(0)
 {
-// CP: Move this stuff once hyarion's RC file parser is done.
-//   CONTROL         "",IDC_INSTSETTINGS,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,12,18,96,109,WS_EX_TRANSPARENT
-//   CONTROL         "Sequence #",IDC_STATIC,"Static",SS_LEFTNOWORDWRAP | SS_CENTERIMAGE | WS_GROUP,12,149,53,10,WS_EX_TRANSPARENT
-//   EDITTEXT        IDC_SEQ_INDEX,69,147,39,12,ES_AUTOHSCROLL | ES_NUMBER
-//   CONTROL         "",IDC_SEQUENCE_SPIN,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,66,153,11,9
-//   GROUPBOX        "Sequence editor",IDC_STATIC,120,7,245,158
-//   GROUPBOX        "Instrument settings",IDC_STATIC,7,7,107,158,0,WS_EX_TRANSPARENT
-//   PUSHBUTTON      "Select next empty slot",IDC_FREE_SEQ,12,129,96,15
-//   EDITTEXT        IDC_SEQUENCE_STRING,126,149,232,13,ES_AUTOHSCROLL
+//   IDD_INSTRUMENT_INTERNAL DIALOGEX 0, 0, 372, 172
+   CRect rect(0,0,372,172);
+   MapDialogRect(&rect);
+   setFixedSize(rect.Width(),rect.Height());
    
 //   GROUPBOX        "Sequence editor",IDC_STATIC,120,7,245,158
    CGroupBox* mfc5 = new CGroupBox(this);
@@ -62,7 +57,6 @@ CInstrumentEditor2A03::CInstrumentEditor2A03(CWnd* pParent)
    CRect r5(CPoint(120,7),CSize(245,158));
    MapDialogRect(&r5);
    mfc5->setGeometry(r5);
-   mfc5->setContentsMargins(0,0,0,0);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //   GROUPBOX        "Instrument settings",IDC_STATIC,7,7,107,158,0,WS_EX_TRANSPARENT
    CGroupBox* mfc6 = new CGroupBox(this);
@@ -70,7 +64,6 @@ CInstrumentEditor2A03::CInstrumentEditor2A03(CWnd* pParent)
    CRect r6(CPoint(7,7),CSize(107,158));
    MapDialogRect(&r6);
    mfc6->setGeometry(r6);
-   mfc6->setContentsMargins(0,0,0,0);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //   CONTROL         "",IDC_INSTSETTINGS,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,12,18,96,109,WS_EX_TRANSPARENT
    CListCtrl* mfc1 = new CListCtrl(this);
