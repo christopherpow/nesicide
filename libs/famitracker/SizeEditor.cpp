@@ -60,9 +60,7 @@ CSizeEditor::~CSizeEditor()
 
 void CSizeEditor::OnPaint()
 {
-	CPaintDC dc(toQWidget());
-
-   dc.attach(toQWidget());
+	CPaintDC dc(this);
    
 	CFont Font, *pOldFont;
 
@@ -116,8 +114,6 @@ void CSizeEditor::OnPaint()
 	dc.TextOut(rect.right - 14, 1 + ((m_iButtonPressed == 2) ? 1 : 0), _T("+"));
 
 	dc.SelectObject(pOldFont);
-   
-   dc.detach();
 }
 
 BOOL CSizeEditor::OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message)

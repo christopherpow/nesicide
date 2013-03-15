@@ -27,7 +27,11 @@
 class CSampleView : public CStatic {
    // Qt interfaces
 protected:
-   void paintEvent(QPaintEvent*) { OnPaint(); }
+   void paintEvent(QPaintEvent*);
+   void mouseMoveEvent(QMouseEvent *event);
+   void mousePressEvent(QMouseEvent *event);
+   void mouseReleaseEvent(QMouseEvent *event);
+   void resizeEvent(QResizeEvent *event);
    
 	DECLARE_DYNAMIC(CSampleView)
 protected:
@@ -82,7 +86,10 @@ public:
 class CSampleEditorDlg : public CDialog
 {
 	DECLARE_DYNAMIC(CSampleEditorDlg)
-
+   // Qt interfaces
+protected:
+   void resizeEvent(QResizeEvent *event);
+   
 public:
 	CSampleEditorDlg(CWnd* pParent = NULL, CDSample *pSample = NULL);   // standard constructor
 	virtual ~CSampleEditorDlg();

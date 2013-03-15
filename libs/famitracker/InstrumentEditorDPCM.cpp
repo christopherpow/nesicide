@@ -189,6 +189,8 @@ CInstrumentEditorDPCM::CInstrumentEditorDPCM(CWnd* pParent) : CInstrumentEditPan
    mfc13->setGeometry(r13);
    mfcToQtWidget.insert(IDC_TABLE,mfc13);
    QObject::connect(mfc13,SIGNAL(itemSelectionChanged()),this,SLOT(table_itemSelectionChanged()));
+   QObject::connect(mfc13,SIGNAL(cellClicked(int,int)),this,SLOT(table_cellClicked(int,int)));
+   QObject::connect(mfc13,SIGNAL(cellDoubleClicked(int,int)),this,SLOT(table_cellDoubleClicked(int,int)));
 //   CONTROL         "",IDC_SAMPLE_LIST,"SysListView32",LVS_REPORT | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,198,19,108,125
    CListCtrl* mfc14 = new CListCtrl(this);
    mfc14->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -200,6 +202,8 @@ CInstrumentEditorDPCM::CInstrumentEditorDPCM(CWnd* pParent) : CInstrumentEditPan
    mfc14->setGeometry(r14);
    mfcToQtWidget.insert(IDC_SAMPLE_LIST,mfc14);
    QObject::connect(mfc14,SIGNAL(itemSelectionChanged()),this,SLOT(sampleList_itemSelectionChanged()));
+   QObject::connect(mfc14,SIGNAL(cellClicked(int,int)),this,SLOT(sampleList_cellClicked(int,int)));
+   QObject::connect(mfc14,SIGNAL(cellDoubleClicked(int,int)),this,SLOT(sampleList_cellDoubleClicked(int,int)));
 //   CONTROL         "Loop",IDC_LOOP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,138,75,42,9
    CCheckBox* mfc15 = new CCheckBox(this);
    mfc15->setText("Loop");
@@ -254,9 +258,6 @@ CInstrumentEditorDPCM::CInstrumentEditorDPCM(CWnd* pParent) : CInstrumentEditPan
    MapDialogRect(&r21);
    mfc21->setGeometry(r21);
    // IDC_STATIC do not get added to MFC-to-Qt map.
-   
-   // CP: This belongs somewhere else...
-   OnInitDialog(); 
 }
 
 CInstrumentEditorDPCM::~CInstrumentEditorDPCM()
@@ -305,6 +306,20 @@ void CInstrumentEditorDPCM::sampleList_itemSelectionChanged()
 {
 }
 
+void CInstrumentEditorDPCM::sampleList_cellClicked(int row, int column)
+{
+   NMHDR nmhdr;
+   LRESULT result;
+   OnNMClickSampleList(&nmhdr,&result);
+}
+
+void CInstrumentEditorDPCM::sampleList_cellDoubleClicked(int row, int column)
+{
+   NMHDR nmhdr;
+   LRESULT result;
+   OnNMDblclkSampleList(&nmhdr,&result);
+}
+
 void CInstrumentEditorDPCM::import_clicked()
 {
    OnBnClickedImport();
@@ -312,18 +327,35 @@ void CInstrumentEditorDPCM::import_clicked()
 
 void CInstrumentEditorDPCM::octave_currentIndexChanged(int index)
 {
+   OnCbnSelchangeOctave();
 }
 
-void CInstrumentEditorDPCM::pitch_currentIndexChanged()
+void CInstrumentEditorDPCM::pitch_currentIndexChanged(int index)
 {
+   OnCbnSelchangePitch();
 }
 
 void CInstrumentEditorDPCM::table_itemSelectionChanged()
 {
 }
 
+void CInstrumentEditorDPCM::table_cellClicked(int row, int column)
+{
+   NMHDR nmhdr;
+   LRESULT result;
+   OnNMClickTable(&nmhdr,&result);
+}
+
+void CInstrumentEditorDPCM::table_cellDoubleClicked(int row, int column)
+{
+   NMHDR nmhdr;
+   LRESULT result;
+   OnNMDblclkTable(&nmhdr,&result);
+}
+
 void CInstrumentEditorDPCM::samples_currentIndexChanged(int index)
 {
+   OnCbnSelchangeSamples();
 }
 
 void CInstrumentEditorDPCM::save_clicked()
@@ -348,6 +380,7 @@ void CInstrumentEditorDPCM::remove_clicked()
 
 void CInstrumentEditorDPCM::loopPoint_textChanged(QString str)
 {
+   OnEnChangeLoopPoint();
 }
 
 void CInstrumentEditorDPCM::edit_clicked()
@@ -370,7 +403,7 @@ BOOL CInstrumentEditorDPCM::OnInitDialog()
 	CString Text;
 
 	m_iOctave = 3;
-	m_iSelectedKey = 0;
+	m_iSelectedKey = -1;
 
 	pPitch	= reinterpret_cast<CComboBox*>(GetDlgItem(IDC_PITCH));
 	pOctave = reinterpret_cast<CComboBox*>(GetDlgItem(IDC_OCTAVE));

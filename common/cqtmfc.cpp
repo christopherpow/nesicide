@@ -1095,11 +1095,70 @@ BOOL CBitmap::LoadBitmap(
  *  Class CDC
  */
 
+CDC::CDC()
+{
+   _qwidget = NULL;
+   _qpainter = NULL;
+   _pen = NULL;
+   _brush = NULL;
+   _font = NULL;
+   _bitmap = NULL;
+   _rgn = NULL;   
+   _gdiobject = NULL;
+   _object = NULL;
+   _lineOrg.x = 0;
+   _lineOrg.y = 0;
+   _bkColor = QColor(0,0,0);
+   _bkMode = 0;
+   _textColor = QColor(0,0,0);
+   _windowOrg.x = 0;
+   _windowOrg.y = 0;
+}
+
+CDC::CDC(CWnd* parent)
+{
+   _qwidget = parent->toQWidget();
+   _qpainter = NULL;
+   _pen = NULL;
+   _brush = NULL;
+   _font = NULL;
+   _bitmap = NULL;
+   _rgn = NULL;   
+   _gdiobject = NULL;
+   _object = NULL;
+   _lineOrg.x = 0;
+   _lineOrg.y = 0;
+   _bkColor = QColor(0,0,0);
+   _bkMode = 0;
+   _textColor = QColor(0,0,0);
+   _windowOrg.x = 0;
+   _windowOrg.y = 0;
+   
+   attach();
+}
+
 CDC::~CDC()
 {
+   detach();
+}
+
+void CDC::attach()
+{
+   _qpainter = new QPainter(_qwidget);
+}
+
+void CDC::attach(QWidget* parent)
+{
+   _qwidget = parent;
+   _qpainter = new QPainter(_qwidget);
+}
+
+void CDC::detach()
+{   
    if ( _qpainter )
    {
-      _qpainter->end();
+      if ( _qpainter->isActive() )
+         _qpainter->end();
       delete _qpainter;
       _qpainter = NULL;
    }
@@ -1381,6 +1440,9 @@ BOOL CDC::TextOut(
 CComboBox::CComboBox(CWnd *parent)
    : CWnd(parent)
 {
+   if ( _qt )
+      delete _qt;
+   
    if ( parent )
       _qt = new QComboBox(parent->toQWidget());
    else
@@ -1410,11 +1472,14 @@ int CComboBox::AddString(
    LPCTSTR lpszString 
 )
 {
+   _qtd->blockSignals(true); // Don't cause CbnSelchange yet...
 #if UNICODE
    _qtd->addItem(QString::fromWCharArray(lpszString));
 #else
    _qtd->addItem(lpszString);
 #endif
+   _qtd->blockSignals(false); // Don't cause CbnSelchange yet...
+   
    return _qtd->count()-1;
 }
 
@@ -1487,6 +1552,9 @@ int CComboBox::SelectString(
 CListCtrl::CListCtrl(CWnd* parent)
    : CWnd(parent)
 {
+   if ( _qt )
+      delete _qt;
+   
    if ( parent )
       _qt = new QTableWidget(parent->toQWidget());
    else
@@ -1494,13 +1562,15 @@ CListCtrl::CListCtrl(CWnd* parent)
    
    // Downcast to save having to do it all over the place...
    _qtd = dynamic_cast<QTableWidget*>(_qt);
-   
+      
    _qtd->setFont(QFont("MS Shell Dlg",8));
    _qtd->horizontalHeader()->setStretchLastSection(true);
    _qtd->verticalHeader()->hide();
    
    // Pass-through signals
    QObject::connect(_qtd,SIGNAL(itemSelectionChanged()),this,SIGNAL(itemSelectionChanged()));
+   QObject::connect(_qtd,SIGNAL(cellClicked(int,int)),this,SIGNAL(cellClicked(int,int)));
+   QObject::connect(_qtd,SIGNAL(cellDoubleClicked(int,int)),this,SIGNAL(cellDoubleClicked(int,int)));
 }
 
 CListCtrl::~CListCtrl()
@@ -1775,6 +1845,9 @@ int CListCtrl::GetItemCount( ) const
 CScrollBar::CScrollBar(CWnd *parent)
    : CWnd(parent)
 {
+   if ( _qt )
+      delete _qt;
+   
    if ( parent )
       _qt = new QScrollBar(parent->toQWidget());
    else
@@ -1782,7 +1855,7 @@ CScrollBar::CScrollBar(CWnd *parent)
    
    // Downcast to save having to do it all over the place...
    _qtd = dynamic_cast<QScrollBar*>(_qt);
-   
+      
    // Pass-through signals
    QObject::connect(_qtd,SIGNAL(actionTriggered(int)),this,SIGNAL(actionTriggered(int)));
 }
@@ -1790,6 +1863,9 @@ CScrollBar::CScrollBar(CWnd *parent)
 CScrollBar::CScrollBar(Qt::Orientation orient,CWnd *parent)
    : CWnd(parent)
 {
+   if ( _qt )
+      delete _qt;
+   
    if ( parent )
       _qt = new QScrollBar(parent->toQWidget());
    else
@@ -1925,11 +2001,27 @@ CWnd::~CWnd()
    _qt = NULL;
 }
 
+void CWnd::subclassWidget(int nID,CWnd* widget)
+{
+   mfcToQtWidget.remove(nID);
+   mfcToQtWidget.insert(nID,widget);
+}
+
 bool CWnd::eventFilter(QObject *object, QEvent *event)
 {
    if ( event->type() == QEvent::Show )
    {
       showEvent(dynamic_cast<QShowEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::Hide )
+   {
+      hideEvent(dynamic_cast<QHideEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::Move )
+   {
+      moveEvent(dynamic_cast<QMoveEvent*>(event));
       return true;
    }
    if ( event->type() == QEvent::Paint )
@@ -1970,20 +2062,24 @@ bool CWnd::eventFilter(QObject *object, QEvent *event)
    if ( event->type() == QEvent::Wheel )
    {
       wheelEvent(dynamic_cast<QWheelEvent*>(event));
+      return true;
    }
    if ( event->type() == QEvent::Resize )
    {
       resizeEvent(dynamic_cast<QResizeEvent*>(event));
+      return true;
    }
    if ( event->type() == QEvent::KeyPress )
    {
       keyPressEvent(dynamic_cast<QKeyEvent*>(event));
+      return true;
    }
    if ( event->type() == QEvent::KeyRelease )
    {
       keyReleaseEvent(dynamic_cast<QKeyEvent*>(event));
-   }   
-   
+      return true;
+   }
+   qDebug("eventFilter: unhandled %d object %s", event->type(), object->objectName().toAscii().constData());
    return false;
 }
 
@@ -2149,16 +2245,16 @@ BOOL CWnd::SubclassDlgItem(
    CWnd* pParent 
 )
 {
-   QtUIElement* pUIE = dynamic_cast<QtUIElement*>(GetDlgItem(nID));
-   if ( pUIE )
+   CWnd* pWndSrc = pParent->GetDlgItem(nID);
+
+   if ( pWndSrc )
    {
-      CWnd* pWndSrc = dynamic_cast<CWnd*>(pUIE);
-      
-      setGeometry(pWndSrc->toQWidget()->geometry());
+      SetParent(pParent);
       setParent(pParent->toQWidget());
-      mfcToQtWidget.remove(nID);
+      setGeometry(pWndSrc->geometry());
+      pParent->subclassWidget(nID,this);
+      pWndSrc->setVisible(false);
       delete pWndSrc;
-      mfcToQtWidget.insert(nID,this);      
       return TRUE;
    }
    return FALSE;
@@ -2350,9 +2446,11 @@ void CWnd::ShowWindow(int code)
    switch ( code )
    {
    case SW_SHOW:
+      foreach ( CWnd* pWnd, mfcToQtWidget ) pWnd->blockSignals(false);
       setVisible(true);
       break;
    case SW_HIDE:
+      foreach ( CWnd* pWnd, mfcToQtWidget ) pWnd->blockSignals(true);
       setVisible(false);
       break;
    }
@@ -2382,20 +2480,62 @@ CView::~CView()
 CDialog::CDialog(int dlgID, CWnd *parent)
    : CWnd(parent)
 {
+   if ( _qt )
+      delete _qt;
+   
    if ( parent )
       _qt = new QDialog(parent);
    else
       _qt = new QDialog;
    
    _qtd = dynamic_cast<QDialog*>(_qt);
+   _inited = false;
+   
+   // Pass-through signals
 }
 
 CDialog::~CDialog()
 {
-   if ( _qtd )
-      delete _qtd;
-   _qtd = NULL;
-   _qt = NULL;
+   if ( _qt )
+   {
+      if ( _qtd )
+         delete _qtd;
+      _qtd = NULL;
+      _qt = NULL;
+   }
+}
+
+BOOL CDialog::Create(
+   UINT nIDTemplate,
+   CWnd* pParentWnd
+)
+{ 
+   if ( pParentWnd )
+      _qt->setParent(pParentWnd->toQWidget()); 
+   else
+      _qt->setParent(NULL);
+   if ( pParentWnd == m_pFrameWnd )
+      _qt->setParent(NULL);
+   SetParent(pParentWnd); 
+   foreach ( CWnd* pWnd, mfcToQtWidget ) pWnd->blockSignals(true);
+   BOOL result = OnInitDialog(); 
+   _inited = true;
+   return result;
+}
+
+void CDialog::ShowWindow(int code)
+{
+   switch ( code )
+   {
+   case SW_SHOW:
+      foreach ( CWnd* pWnd, mfcToQtWidget ) pWnd->blockSignals(false);
+      _qtd->setVisible(true);
+      break;
+   case SW_HIDE:
+      foreach ( CWnd* pWnd, mfcToQtWidget ) pWnd->blockSignals(true);
+      _qtd->setVisible(false);
+      break;
+   }
 }
 
 void CDialog::MapDialogRect( 
@@ -2415,6 +2555,10 @@ void CDialog::MapDialogRect(
 
 INT_PTR CDialog::DoModal()
 { 
+   if ( !_inited )
+      OnInitDialog();
+   _inited = true;
+   
    INT_PTR result = _qtd->exec();
    if ( result == QDialog::Accepted )
       return 1;
@@ -2722,13 +2866,16 @@ BOOL CMenu::DestroyMenu( )
 CTabCtrl::CTabCtrl(CWnd* parent)
    : CWnd(parent)
 {
+   if ( _qt )
+      delete _qt;
+   
    if ( parent )
-      _qt = new QTabWidget_exposed(parent->toQWidget());
+      _qt = new QTabBar(parent->toQWidget());
    else
-      _qt = new QTabWidget_exposed;
+      _qt = new QTabBar;
 
    // Downcast to save having to do it all over the place...
-   _qtd = dynamic_cast<QTabWidget_exposed*>(_qt);
+   _qtd = dynamic_cast<QTabBar*>(_qt);
    
    // Pass-through signals
    QObject::connect(_qtd,SIGNAL(currentChanged(int)),this,SIGNAL(currentChanged(int)));
@@ -2749,9 +2896,9 @@ LONG CTabCtrl::InsertItem(
 {
    _qtd->blockSignals(true); // Don't cause TcnSelchange yet...
 #if UNICODE
-   _qtd->tabBar()->insertTab(nItem,QString::fromWCharArray(lpszItem));
+   _qtd->insertTab(nItem,QString::fromWCharArray(lpszItem));
 #else
-   _qtd->tabBar()->insertTab(nItem,lpszItem);
+   _qtd->insertTab(nItem,lpszItem);
 #endif
    _qtd->blockSignals(false);
    return nItem;
@@ -2773,13 +2920,18 @@ int CTabCtrl::GetCurSel() const
 
 BOOL CTabCtrl::DeleteAllItems( )
 {
-   _qtd->clear();
+   int tab;
+   for ( tab = _qtd->count()-1; tab >= 0; tab-- )
+      _qtd->removeTab(tab);
    return TRUE;
 }
 
 CEdit::CEdit(CWnd* parent)
    : CWnd(parent)
 {
+   if ( _qt )
+      delete _qt;
+   
    if ( parent )
       _qt = new QLineEdit(parent->toQWidget());
    else
@@ -2787,7 +2939,7 @@ CEdit::CEdit(CWnd* parent)
 
    // Downcast to save having to do it all over the place...
    _qtd = dynamic_cast<QLineEdit*>(_qt);
-   
+      
    // Pass-through signals
    QObject::connect(_qtd,SIGNAL(textChanged(QString)),this,SIGNAL(textChanged(QString)));
 }
@@ -2842,6 +2994,9 @@ int CEdit::GetDlgItemText(
 CButton::CButton(CWnd* parent)
    : CWnd(parent)
 {
+   if ( _qt )
+      delete _qt;
+   
    if ( parent )
       _qt = new QPushButton(parent->toQWidget());
    else
@@ -2919,6 +3074,9 @@ UINT CButton::IsDlgButtonChecked(
 CCheckBox::CCheckBox(CWnd* parent)
    : CWnd(parent)
 {
+   if ( _qt )
+      delete _qt;
+   
    if ( parent )
       _qt = new QCheckBox(parent->toQWidget());
    else
@@ -2996,6 +3154,9 @@ UINT CCheckBox::IsDlgButtonChecked(
 CSpinButtonCtrl::CSpinButtonCtrl(CWnd* parent)
    : CWnd(parent)
 {
+   if ( _qt )
+      delete _qt;
+   
    if ( parent )
       _qt = new QSpinBox(parent->toQWidget());
    else
@@ -3027,6 +3188,9 @@ void CSpinButtonCtrl::SetRange(
 CSliderCtrl::CSliderCtrl(CWnd* parent)
    : CWnd(parent)
 {
+   if ( _qt )
+      delete _qt;
+   
    if ( parent )
       _qt = new QSlider(parent->toQWidget());
    else
@@ -3037,6 +3201,7 @@ CSliderCtrl::CSliderCtrl(CWnd* parent)
    
    // Not sure if there's vertical sliders in MFC...
    _qtd->setOrientation(Qt::Horizontal);
+   _qtd->setTickPosition(QSlider::TicksBelow);
    
    // Pass-through signals
    QObject::connect(_qtd,SIGNAL(valueChanged(int)),this,SIGNAL(valueChanged(int)));
@@ -3080,6 +3245,9 @@ void CSliderCtrl::SetTicFreq(
 CStatic::CStatic(CWnd *parent)
    : CWnd(parent)
 {
+   if ( _qt )
+      delete _qt;
+   
    if ( parent )
       _qt = new QLabel(parent->toQWidget());
    else
@@ -3141,6 +3309,9 @@ int CStatic::GetDlgItemText(
 CGroupBox::CGroupBox(CWnd *parent)
    : CWnd(parent)
 {
+   if ( _qt )
+      delete _qt;
+   
    if ( parent )
       _qt = new QGroupBox(parent->toQWidget());
    else
@@ -3213,6 +3384,9 @@ CFileDialog::CFileDialog(
    : CCommonDialog(pParentWnd)
 {
    int seg;
+   
+   if ( _qt )
+      delete _qt;
    
    if ( pParentWnd )
       _qt = new QFileDialog(pParentWnd->toQWidget());

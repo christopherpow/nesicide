@@ -148,7 +148,7 @@ void CGraphEditor::OnTimer(UINT nIDEvent)
 
 void CGraphEditor::OnPaint()
 {
-	CPaintDC dc(this->toQWidget());
+	CPaintDC dc(this);
 }
 
 void CGraphEditor::PaintBuffer(CDC *pBackDC, CDC *pFrontDC)
@@ -533,11 +533,9 @@ void CGraphEditor::OnKillFocus(CWnd* pNewWnd)
 
 void CBarGraphEditor::OnPaint()
 {
-	CPaintDC dc(toQWidget());
+	CPaintDC dc(this);
 
 	CDC *pDC = m_pBackDC;
-
-   pDC->attach(toQWidget());
    
 	if (!pDC)
 		return;
@@ -576,8 +574,6 @@ void CBarGraphEditor::OnPaint()
 	DrawLine(pDC);
 
 	PaintBuffer(m_pBackDC, &dc);
-   
-   pDC->detach();   
 }
 
 void CBarGraphEditor::HighlightItem(CPoint point)
@@ -804,11 +800,9 @@ void CArpeggioGraphEditor::DrawRange(CDC *pDC, int Max, int Min)
 
 void CArpeggioGraphEditor::OnPaint()
 {
-	CPaintDC dc(toQWidget());
-
+	CPaintDC dc(this);
+   
 	CDC *pDC = m_pBackDC;
-
-   pDC->attach(toQWidget());
    
 	if (!pDC)
 		return;
@@ -993,11 +987,9 @@ BOOL CArpeggioGraphEditor::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 
 void CPitchGraphEditor::OnPaint()
 {
-	CPaintDC dc(toQWidget());
+	CPaintDC dc(this);
 
 	CDC *pDC = m_pBackDC;
-
-   pDC->attach(toQWidget());
    
 	if (!pDC)
 		return;
@@ -1042,8 +1034,6 @@ void CPitchGraphEditor::OnPaint()
 	DrawLine(pDC);
 
 	PaintBuffer(m_pBackDC, &dc);
-   
-   pDC->detach();
 }
 
 int CPitchGraphEditor::GetItemHeight()
@@ -1084,11 +1074,9 @@ void CPitchGraphEditor::ModifyItem(CPoint point, bool Redraw)
 
 void CNoiseEditor::OnPaint()
 {
-	CPaintDC dc(toQWidget());
+	CPaintDC dc(this);
 	
 	CDC *pDC = m_pBackDC;
-
-   pDC->attach(toQWidget());
    
 	if (!pDC)
 		return;
@@ -1164,8 +1152,6 @@ void CNoiseEditor::OnPaint()
 	DrawLine(pDC);
 
 	PaintBuffer(m_pBackDC, &dc);
-   
-   pDC->detach();
 }
 
 void CNoiseEditor::ModifyItem(CPoint point, bool Redraw)
@@ -1230,10 +1216,28 @@ void CNoiseEditor::ModifyReleased()
 	m_iLastIndex = -1;
 }
 
+void CGraphEditor::paintEvent(QPaintEvent *)
+{
+   m_pBackDC->attach(this->toQWidget());
+   
+   OnPaint();
+   
+   m_pBackDC->detach();
+}
+
 void CGraphEditor::timerEvent(QTimerEvent *event)
 {
    int mfcId = mfcTimerId(event->timerId());
    OnTimer(mfcId);
+}
+
+void CBarGraphEditor::paintEvent(QPaintEvent *)
+{
+   m_pBackDC->attach(this->toQWidget());
+   
+   OnPaint();
+   
+   m_pBackDC->detach();
 }
 
 void CBarGraphEditor::mouseMoveEvent(QMouseEvent *event)
@@ -1329,6 +1333,15 @@ void CBarGraphEditor::mouseReleaseEvent(QMouseEvent *event)
    {
       OnRButtonUp(flags,point);
    }
+}
+
+void CArpeggioGraphEditor::paintEvent(QPaintEvent *)
+{
+   m_pBackDC->attach(this->toQWidget());
+   
+   OnPaint();
+   
+   m_pBackDC->detach();
 }
 
 void CArpeggioGraphEditor::mouseMoveEvent(QMouseEvent *event)
@@ -1484,6 +1497,15 @@ void CArpeggioGraphEditor::verticalScrollBar_actionTriggered(int arg1)
    OnVScroll(arg1,m_pScrollBar->sliderPosition(),m_pScrollBar);
 }
 
+void CPitchGraphEditor::paintEvent(QPaintEvent *)
+{
+   m_pBackDC->attach(this->toQWidget());
+   
+   OnPaint();
+   
+   m_pBackDC->detach();
+}
+
 void CPitchGraphEditor::mouseMoveEvent(QMouseEvent *event)
 {
    CPoint point(event->pos());
@@ -1577,6 +1599,15 @@ void CPitchGraphEditor::mouseReleaseEvent(QMouseEvent *event)
    {
       OnRButtonUp(flags,point);
    }
+}
+
+void CNoiseEditor::paintEvent(QPaintEvent *)
+{
+   m_pBackDC->attach(this->toQWidget());
+   
+   OnPaint();
+   
+   m_pBackDC->detach();
 }
 
 void CNoiseEditor::mouseMoveEvent(QMouseEvent *event)

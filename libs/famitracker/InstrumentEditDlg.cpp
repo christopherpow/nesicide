@@ -69,18 +69,13 @@ CInstrumentEditDlg::CInstrumentEditDlg(CWnd* pParent /*=NULL*/)
    MapDialogRect(&r2);
    mfc2->setGeometry(r2);
    mfcToQtWidget.insert(IDC_KEYBOARD,mfc2);   
-   
-   // CP: This belongs somewhere else...
-   OnInitDialog();
 }
 
 void CInstrumentEditDlg::instTab_currentChanged(int arg1)
 {
-   CListCtrl *pList = (CListCtrl*) GetDlgItem(IDC_INSTSETTINGS);
-   NMHDR nm;
+   NMHDR nmhdr;
    LRESULT result;
-   
-   OnTcnSelchangeInstTab(&nm /*unused*/,&result);
+   OnTcnSelchangeInstTab(&nmhdr,&result);
 }
 
 CInstrumentEditDlg::~CInstrumentEditDlg()
@@ -253,10 +248,8 @@ void CInstrumentEditDlg::OnTcnSelchangeInstTab(NMHDR *pNMHDR, LRESULT *pResult)
 
 void CInstrumentEditDlg::OnPaint()
 {
-   CPaintDC dc(toQWidget()); // device context for painting
+   CPaintDC dc(this); // device context for painting
 	// Do not call CDialog::OnPaint() for painting messages
-
-   dc.attach(toQWidget());
    
 	const int WHITE_KEY_W	= 10;
 	const int BLACK_KEY_W	= 8;
@@ -330,8 +323,6 @@ void CInstrumentEditDlg::OnPaint()
 	dc.BitBlt(SX(KEYBOARD_LEFT - 6) + 6, SY(KEYBOARD_TOP - 12) + 12, KEYBOARD_WIDTH, KEYBOARD_HEIGHT, &BackDC, 0, 0, SRCCOPY);
 
 	BackDC.SelectObject(OldBmp);
-   
-   dc.detach();
 }
 
 void CInstrumentEditDlg::ChangeNoteState(int Note)

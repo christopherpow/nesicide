@@ -56,7 +56,7 @@ CFrameEditor::CFrameEditor(CMainFrame *pMainFrm):
 }
 
 CFrameEditor::~CFrameEditor()
-{
+{   
 }
 
 //BEGIN_MESSAGE_MAP(CFrameEditor, CWnd)
@@ -120,7 +120,7 @@ void CFrameEditor::CreateGdiObjects()
 
 void CFrameEditor::OnPaint()
 {
-	CPaintDC dc(this->toQWidget()); // device context for painting
+	CPaintDC dc(this); // device context for painting
 
 	// Do not call CWnd::OnPaint() for painting messages
 
@@ -780,7 +780,7 @@ void CFrameEditor::keyPressEvent(QKeyEvent *event)
 void CFrameEditor::paintEvent(QPaintEvent *event)
 {
    // Qt attach to the MFC HLE.
-   m_dcBack.attach(toQWidget());
+   m_dcBack.attach(this->toQWidget());
 
    OnPaint();
    

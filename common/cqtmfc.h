@@ -609,67 +609,20 @@ private:
    QRegion _qregion;
 };
 
+class CWnd;
+
 class CDC : public CObject
 {
 public:
-   CDC()
-   {
-      _qwidget = NULL;
-      _qpainter = NULL;
-      _pen = NULL;
-      _brush = NULL;
-      _font = NULL;
-      _bitmap = NULL;
-      _rgn = NULL;   
-      _gdiobject = NULL;
-      _object = NULL;
-      _lineOrg.x = 0;
-      _lineOrg.y = 0;
-      _bkColor = QColor(0,0,0);
-      _bkMode = 0;
-      _textColor = QColor(0,0,0);
-      _windowOrg.x = 0;
-      _windowOrg.y = 0;
-   }
-   CDC(QWidget* parent)
-   {
-      _qwidget = parent;
-      _qpainter = NULL;
-      _pen = NULL;
-      _brush = NULL;
-      _font = NULL;
-      _bitmap = NULL;
-      _rgn = NULL;   
-      _gdiobject = NULL;
-      _object = NULL;
-      _lineOrg.x = 0;
-      _lineOrg.y = 0;
-      _bkColor = QColor(0,0,0);
-      _bkMode = 0;
-      _textColor = QColor(0,0,0);
-      _windowOrg.x = 0;
-      _windowOrg.y = 0;
-   }
+   CDC();
+   CDC(CWnd* parent);
+   virtual ~CDC();
 
-   void attach()
-   {
-      _qpainter = new QPainter(_qwidget);
-   }
-   
-   void attach(QWidget* widget)
-   {
-      _qpainter = new QPainter(widget);
-   }
-   
-   void detach()
-   {
-      delete _qpainter;
-      _qpainter = NULL;
-   }
-   
+   void attach();
+   void attach(QWidget* parent);
+   void detach();
    QPainter* painter() { return _qpainter; }
    
-   virtual ~CDC();
    BOOL DrawEdge(
       LPRECT lpRect,
       UINT nEdge,
@@ -935,7 +888,7 @@ private:
 class CPaintDC : public CDC
 {
 public:
-   CPaintDC(QWidget* parent) : CDC(parent) {}
+   CPaintDC(CWnd* parent) : CDC(parent) {}
 };
 
 class CDataExchange
@@ -1056,7 +1009,7 @@ public:
          BOOL bRepaint = TRUE 
    );
    void MoveWindow(int x,int y,int cx, int cy);
-   CDC* GetDC() { CDC* pDC = new CDC(); pDC->attach(toQWidget()); return pDC; }
+   CDC* GetDC() { CDC* pDC = new CDC(this); pDC->attach(); return pDC; }
    void ReleaseDC(CDC* pDC) { pDC->detach(); delete pDC; }
    void ShowWindow(int code);
    void UpdateWindow( ) { _qt->update(); }
@@ -1135,9 +1088,10 @@ protected:
 
    // Qt interfaces
 public:
+   void subclassWidget(int nID,CWnd* widget);
    void setParent(QWidget *parent) { _qt->setParent(parent); }
    void setParent(QWidget *parent, Qt::WindowFlags f) { _qt->setParent(parent,f); }   
-   void setGeometry(const QRect & rect) { _qt->setGeometry(rect); }
+   void setGeometry(const QRect & rect) { _qt->setSizePolicy(QSizePolicy::Ignored,QSizePolicy::Ignored); _qt->setGeometry(rect); }
    void setGeometry(int x, int y, int w, int h) { _qt->setGeometry(x,y,w,h); }
    void setContentsMargins(int left, int top, int right, int bottom) { _qt->setContentsMargins(left,top,right,bottom); }
    void setContentsMargins(const QMargins &margins) { _qt->setContentsMargins(margins); }
@@ -1150,7 +1104,7 @@ public slots:
    void update() { _qt->update(); }
    void setFocus() { _qt->setFocus(); }
    void setFocus(Qt::FocusReason reason) { _qt->setFocus(reason); }
-   bool eventFilter(QObject *object, QEvent *event);
+   bool eventFilter(QObject *object, QEvent *_event);
 protected:
    QWidget* _qt;
 public:
@@ -1280,6 +1234,8 @@ class CDialog : public CWnd
    // Qt interfaces
 public:
    QDialog* _qtd;
+   bool _inited;
+protected:
    
    // MFC interfaces
 public:
@@ -1287,10 +1243,11 @@ public:
    virtual ~CDialog();
    virtual void OnOK( ) { _qtd->accept(); }
    virtual void OnCancel( ) { _qtd->reject(); }
+   void ShowWindow(int code);
    virtual BOOL Create(
       UINT nIDTemplate,
       CWnd* pParentWnd = NULL 
-         ) { _qt->setParent(pParentWnd->toQWidget()); SetParent(pParentWnd); return TRUE; }
+         );
    virtual BOOL OnInitDialog() { return TRUE; }
    virtual INT_PTR DoModal();
    void MapDialogRect( 
@@ -1671,20 +1628,13 @@ public:
    ) const;
 };
 
-class QTabWidget_exposed : public QTabWidget
-{
-public:
-   QTabWidget_exposed(QWidget* parent = 0) : QTabWidget(parent) {}
-   QTabBar* tabBar() const { return QTabWidget::tabBar(); }
-};
-
 class CTabCtrl : public CWnd
 {  
    Q_OBJECT
    // Qt interfaces
 public:
 protected:
-   QTabWidget_exposed* _qtd;
+   QTabBar* _qtd;
 signals:
    void currentChanged(int);
    
@@ -1721,7 +1671,7 @@ typedef struct tagNMLISTVIEW {
   UINT   uChanged;
   POINT  ptAction;
   LPARAM lParam;
-} NMLISTVIEW, *LPNMLISTVIEW;
+} NMLISTVIEW, *LPNMLISTVIEW, NM_LISTVIEW;
 
 typedef struct tagNMITEMACTIVATE {
   NMHDR  hdr;
@@ -1749,6 +1699,8 @@ protected:
    QTableWidget* _qtd;
 signals:
    void itemSelectionChanged();
+   void cellClicked(int row, int column);
+   void cellDoubleClicked(int row, int column);
    
    // MFC interfaces
 public:

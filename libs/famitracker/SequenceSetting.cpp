@@ -68,8 +68,7 @@ void CSequenceSetting::Setup(CFont *pFont)
 
 void CSequenceSetting::OnPaint()
 {
-	CPaintDC dc(this->toQWidget());
-   dc.attach(this->toQWidget());
+	CPaintDC dc(this);
 	bool bDraw(false);
 
 	CRect rect;
@@ -99,8 +98,6 @@ void CSequenceSetting::OnPaint()
 	else {
 		dc.FillSolidRect(rect, 0xFFFFFF);
 	}
-   
-   dc.detach();
 }
 
 void CSequenceSetting::OnLButtonDown(UINT nFlags, CPoint point)

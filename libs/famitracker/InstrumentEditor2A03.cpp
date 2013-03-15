@@ -113,9 +113,6 @@ CInstrumentEditor2A03::CInstrumentEditor2A03(CWnd* pParent)
    MapDialogRect(&r8);
    mfc8->setGeometry(r8);   
    mfcToQtWidget.insert(IDC_SEQUENCE_STRING,mfc8);
-   
-   // CP: This belongs somewhere else...
-   OnInitDialog(); 
 }
 
 CInstrumentEditor2A03::~CInstrumentEditor2A03()

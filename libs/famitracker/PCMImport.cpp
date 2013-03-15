@@ -280,9 +280,6 @@ CPCMImport::CPCMImport(CWnd* pParent /*=NULL*/)
    mfc14->setGeometry(r14);
    mfcToQtWidget.insert(IDCANCEL,mfc14);
    QObject::connect(mfc14,SIGNAL(clicked()),this,SLOT(cancel_clicked()));
-
-   // this is hacky...
-   OnInitDialog();   
 }
 
 CPCMImport::~CPCMImport()

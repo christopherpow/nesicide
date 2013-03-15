@@ -129,6 +129,7 @@ CMainFrame::CMainFrame(CWnd *parent) :
 
    ui->songInstruments->setStyleSheet("QListView { background: #000000; color: #ffffff; }");
    
+   QObject::connect(ui->songInstruments,SIGNAL(activated(QModelIndex)),this,SLOT(songInstruments_activated(QModelIndex)));
    QObject::connect(ui->songInstruments,SIGNAL(doubleClicked(QModelIndex)),this,SLOT(songInstruments_doubleClicked(QModelIndex)));
    
    CComboBox* mfc1 = new CComboBox;
@@ -623,9 +624,8 @@ void CMainFrame::SelectInstrument(int Index)
 
 int CMainFrame::GetSelectedInstrument() const
 {
-   qDebug("GetSelectedInstrument");
 	// Returns selected instrument
-//	return m_iInstrument;
+	return m_iInstrument;
 }
 
 void CMainFrame::DisplayOctave()
@@ -839,17 +839,79 @@ bool CMainFrame::CreateSampleWindow()
 	return true;
 }
 
+int CMainFrame::GetInstrumentIndex(int ListIndex) const
+{
+	// Convert instrument list index to instrument slot index
+	int Instrument = 0;
+   qDebug("GetInstrumentIndex not implemented yet, instrument=0");
+//	TCHAR Text[256];
+//	m_pInstrumentList->GetItemText(ListIndex, 0, Text, 256);
+//	_stscanf(Text, _T("%X"), &Instrument);
+	return Instrument;
+}
+
+void CMainFrame::OpenInstrumentSettings()
+{
+	CFamiTrackerDoc	*pDoc = (CFamiTrackerDoc*)GetActiveDocument();
+	CFamiTrackerView *pView	= (CFamiTrackerView*)GetActiveView();
+
+	if (pDoc->IsInstrumentUsed(pView->GetInstrument())) {
+      if (m_wndInstEdit.IsOpened() == false) {
+			m_wndInstEdit.Create(IDD_INSTRUMENT, this);
+			m_wndInstEdit.SetCurrentInstrument(pView->GetInstrument());
+			m_wndInstEdit.ShowWindow(SW_SHOW);
+		}
+		else
+			m_wndInstEdit.SetCurrentInstrument(pView->GetInstrument());
+		m_wndInstEdit.UpdateWindow();
+	}
+}
+
+void CMainFrame::OnChangedInstruments(NMHDR* pNMHDR, LRESULT* pResult)
+{
+	// Change selected instrument
+	CFamiTrackerDoc *pDoc = static_cast<CFamiTrackerDoc*>(GetActiveDocument());
+
+	NM_LISTVIEW* pNMListView = (NM_LISTVIEW*)pNMHDR;
+
+	if (!(pNMListView->uNewState & LVIS_SELECTED))
+		return;
+
+	int SelIndex = pNMListView->iItem; 
+
+	if (SelIndex == -1)
+		return;
+
+	// Find selected instrument
+	int Instrument = GetInstrumentIndex(SelIndex);
+	SelectInstrument(Instrument);
+}
+
+void CMainFrame::OnDblClkInstruments(NMHDR *pNotifyStruct, LRESULT *result)
+{
+	OpenInstrumentSettings();
+}
+
 void CMainFrame::on_frameChangeAll_clicked(bool checked)
 {
    CFamiTrackerView* pView = (CFamiTrackerView*)GetActiveView();
    pView->SetChangeAllPattern(checked);
 }
 
-#include "InstrumentEditDlg.h"
+void CMainFrame::songInstruments_activated(const QModelIndex &index)
+{
+   
+   NM_LISTVIEW nmlv;
+   LRESULT result;
+   
+   nmlv.uNewState = LVIS_SELECTED;
+   nmlv.iItem = index.row();
+   OnChangedInstruments((NMHDR*)&nmlv,&result);
+}
+
 void CMainFrame::songInstruments_doubleClicked(const QModelIndex &index)
 {
-   CInstrumentEditDlg* d = new CInstrumentEditDlg(this);   
-   d->SetCurrentInstrument(index.row());
-   d->DoModal();
-   delete d;
+   NMHDR nmhdr;
+   LRESULT result;
+   OnDblClkInstruments(&nmhdr,&result);
 }

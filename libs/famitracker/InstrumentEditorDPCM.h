@@ -36,10 +36,14 @@ public slots:
    void load_clicked();
    void unload_clicked();
    void sampleList_itemSelectionChanged();
+   void sampleList_cellClicked(int row, int column);
+   void sampleList_cellDoubleClicked(int row, int column);
    void import_clicked();
    void octave_currentIndexChanged(int index);
-   void pitch_currentIndexChanged();
+   void pitch_currentIndexChanged(int index);
    void table_itemSelectionChanged();
+   void table_cellClicked(int row, int column);
+   void table_cellDoubleClicked(int row, int column);
    void samples_currentIndexChanged(int index);
    void save_clicked();
    void loop_clicked();

@@ -30,6 +30,7 @@ class CGraphEditor : public CWnd
 {
    // Qt stuff
    void timerEvent(QTimerEvent *event);
+   void paintEvent(QPaintEvent *);
 public:
 	CGraphEditor(CSequence *pSequence);
 	virtual ~CGraphEditor();
@@ -96,7 +97,7 @@ class CBarGraphEditor : public CGraphEditor
 {
    // Qt stuff
 protected:
-   void paintEvent(QPaintEvent *) { OnPaint(); }
+   void paintEvent(QPaintEvent *);
    void mouseMoveEvent(QMouseEvent *event);
    void mousePressEvent(QMouseEvent *event);
    void mouseReleaseEvent(QMouseEvent *event);
@@ -116,7 +117,7 @@ class CArpeggioGraphEditor : public CGraphEditor
    Q_OBJECT
    // Qt stuff
 protected:
-   void paintEvent(QPaintEvent *) { OnPaint(); }
+   void paintEvent(QPaintEvent *);
    void mouseMoveEvent(QMouseEvent *event);
    void mousePressEvent(QMouseEvent *event);
    void mouseReleaseEvent(QMouseEvent *event);
@@ -156,7 +157,7 @@ class CPitchGraphEditor : public CGraphEditor
 {
    // Qt stuff
 protected:
-   void paintEvent(QPaintEvent *) { OnPaint(); }
+   void paintEvent(QPaintEvent *);
    void mouseMoveEvent(QMouseEvent *event);
    void mousePressEvent(QMouseEvent *event);
    void mouseReleaseEvent(QMouseEvent *event);
@@ -174,7 +175,7 @@ class CNoiseEditor : public CGraphEditor
 {
    // Qt stuff
 protected:
-   void paintEvent(QPaintEvent *) { OnPaint(); }
+   void paintEvent(QPaintEvent *);
    void mouseMoveEvent(QMouseEvent *event);
    void mousePressEvent(QMouseEvent *event);
    void mouseReleaseEvent(QMouseEvent *event);

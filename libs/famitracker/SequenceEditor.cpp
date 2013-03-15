@@ -109,10 +109,8 @@ BOOL CSequenceEditor::CreateEditor(CWnd *pParentWnd, const RECT &rect)
 
 void CSequenceEditor::OnPaint()
 {
-	CPaintDC dc(toQWidget()); // device context for painting
+	CPaintDC dc(this); // device context for painting
    
-   dc.attach(toQWidget());
-
 	CRect rect;
 	GetClientRect(rect);
 
@@ -127,8 +125,6 @@ void CSequenceEditor::OnPaint()
 	LengthStr.Format(_T("%i ms  "), (1000 * m_pSizeEditor->GetValue()) / m_pDocument->GetFrameRate());
 
 	dc.TextOut(120, rect.bottom - 19, LengthStr);
-   
-   dc.detach();
 }
 
 BOOL CSequenceEditor::PreTranslateMessage(MSG* pMsg)

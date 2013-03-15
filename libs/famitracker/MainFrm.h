@@ -11,6 +11,7 @@
 #include "FrameEditor.h"
 #include "PatternEditor.h"
 #include "Action.h"
+#include "InstrumentEditDlg.h"
 
 #include "cmusicfamitrackerinstrumentsmodel.h"
 
@@ -91,6 +92,8 @@ protected:
    void resizeEvent(QResizeEvent *);
    
    bool CreateSampleWindow();
+   void	OpenInstrumentSettings();
+   int		GetInstrumentIndex(int ListIndex) const;
 
 private:
    // Qt stuff
@@ -105,6 +108,7 @@ private:
    CMusicFamiTrackerInstrumentsModel *instrumentsModel;
    QString m_fileName;
    bool initialized;
+   CInstrumentEditDlg	m_wndInstEdit;
 
    CActionHandler* m_pActionHandler;
    int					m_iFrameEditorPos;
@@ -126,9 +130,12 @@ public:
 //	afx_msg void OnModuleModuleproperties();
 	afx_msg void OnModuleMoveframedown();
 	afx_msg void OnModuleMoveframeup();
+   afx_msg void OnDblClkInstruments(NMHDR *pNMHDR, LRESULT *result);
+   afx_msg void OnChangedInstruments(NMHDR* pNMHDR, LRESULT* pResult);
    
 public slots:
    void songInstruments_doubleClicked(const QModelIndex &index);
+   void songInstruments_activated(const QModelIndex& index);
    void on_frameChangeAll_clicked(bool checked);
    void on_frameInc_clicked();   
    void on_frameDec_clicked();
