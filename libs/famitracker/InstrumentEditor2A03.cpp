@@ -47,7 +47,7 @@ CInstrumentEditor2A03::CInstrumentEditor2A03(CWnd* pParent)
 	m_iSelectedSetting(0)
 {
 //   IDD_INSTRUMENT_INTERNAL DIALOGEX 0, 0, 372, 172
-   CRect rect(0,0,372,172);
+   CRect rect(CPoint(0,0),CSize(372,172));
    MapDialogRect(&rect);
    setFixedSize(rect.Width(),rect.Height());
    

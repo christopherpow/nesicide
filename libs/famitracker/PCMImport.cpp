@@ -185,6 +185,11 @@ CPCMImport::CPCMImport(CWnd* pParent /*=NULL*/)
 	: CDialog(CPCMImport::IDD, pParent),
 	m_psinc(new jarh::sinc(512, 32)) // sinc object. TODO: parametrise
 {
+//   IDD_PCMIMPORT DIALOGEX 0, 0, 211, 134
+   CRect rect(CPoint(0,0),CSize(211,134));
+   MapDialogRect(&rect);
+   setFixedSize(rect.Width(),rect.Height());
+   
 //   GROUPBOX        "Quality: 0",IDC_QUALITY_FRM,7,7,136,36
    CGroupBox* mfc1 = new CGroupBox(this);
    mfc1->setTitle("Quality: 0");

@@ -85,7 +85,7 @@ IMPLEMENT_DYNAMIC(CInstrumentEditorDPCM, CInstrumentEditPanel)
 CInstrumentEditorDPCM::CInstrumentEditorDPCM(CWnd* pParent) : CInstrumentEditPanel(CInstrumentEditorDPCM::IDD, pParent)
 {
 //   IDD_INSTRUMENT_DPCM DIALOGEX 0, 0, 372, 174
-   CRect rect(0,0,372,174);
+   CRect rect(CPoint(0,0),CSize(372,174));
    MapDialogRect(&rect);
    setFixedSize(rect.Width(),rect.Height());
    

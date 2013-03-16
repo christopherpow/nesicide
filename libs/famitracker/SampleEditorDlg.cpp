@@ -40,6 +40,11 @@ CSampleEditorDlg::CSampleEditorDlg(CWnd* pParent /*=NULL*/, CDSample *pSample)
 	m_pOriginalSample = pSample;
 	m_pSoundGen = theApp.GetSoundGenerator();
    
+//   IDD_SAMPLE_EDITOR DIALOGEX 0, 0, 481, 255
+   CRect rect(CPoint(0,0),CSize(481,255));
+   MapDialogRect(&rect);
+   setFixedSize(rect.Width(),rect.Height());
+   
 //   DEFPUSHBUTTON   "OK",IDOK,372,234,50,14
    CButton* mfc1 = new CButton(this);
    mfc1->setText("OK");
@@ -48,6 +53,7 @@ CSampleEditorDlg::CSampleEditorDlg(CWnd* pParent /*=NULL*/, CDSample *pSample)
    MapDialogRect(&r1);
    mfc1->setGeometry(r1);
    mfcToQtWidget.insert(IDOK,mfc1);
+   QObject::connect(mfc1,SIGNAL(clicked()),this,SLOT(ok_clicked()));
 //   PUSHBUTTON      "Cancel",IDCANCEL,424,234,50,14
    CButton* mfc2 = new CButton(this);
    mfc2->setText("Cancel");
@@ -55,10 +61,10 @@ CSampleEditorDlg::CSampleEditorDlg(CWnd* pParent /*=NULL*/, CDSample *pSample)
    MapDialogRect(&r2);
    mfc2->setGeometry(r2);
    mfcToQtWidget.insert(IDCANCEL,mfc2);
+   QObject::connect(mfc2,SIGNAL(clicked()),this,SLOT(cancel_clicked()));
 //   CONTROL         "",IDC_SAMPLE,"Static",SS_WHITERECT | SS_NOTIFY | SS_SUNKEN,7,7,467,204
    CStatic *mfc3 = new CStatic(this);
-   mfc3->setText("");
-   CRect r3(7,7,467,204);
+   CRect r3(CPoint(7,7),CSize(467,204));
    MapDialogRect(&r3);
    mfc3->setGeometry(r3);
    mfcToQtWidget.insert(IDC_SAMPLE,mfc3);
@@ -69,10 +75,11 @@ CSampleEditorDlg::CSampleEditorDlg(CWnd* pParent /*=NULL*/, CDSample *pSample)
    MapDialogRect(&r4);
    mfc4->setGeometry(r4);
    mfcToQtWidget.insert(IDC_PLAY,mfc4);
+   QObject::connect(mfc4,SIGNAL(clicked()),this,SLOT(play_clicked()));
 //   LTEXT           "Offset: 0, Pos: 0",IDC_POS,7,217,79,11,SS_SUNKEN
    CStatic* mfc5 = new CStatic(this);
    mfc5->setText("Offset: 0, Pos: 0");
-   CRect r5(7,217,79,11);
+   CRect r5(CPoint(7,217),CSize(79,11));
    MapDialogRect(&r5);
    mfc5->setGeometry(r5);
    mfcToQtWidget.insert(IDC_POS,mfc5);
@@ -83,12 +90,14 @@ CSampleEditorDlg::CSampleEditorDlg(CWnd* pParent /*=NULL*/, CDSample *pSample)
    MapDialogRect(&r6);
    mfc6->setGeometry(r6);
    mfcToQtWidget.insert(IDC_DELETE,mfc6);
+   QObject::connect(mfc6,SIGNAL(clicked()),this,SLOT(delete_clicked()));
 //   CONTROL         "",IDC_PITCH,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,143,236,79,12
    CSliderCtrl* mfc7 = new CSliderCtrl(this);
-   CRect r7(143,236,79,12);
+   CRect r7(CPoint(143,236),CSize(79,12));
    MapDialogRect(&r7);
    mfc7->setGeometry(r7);
    mfcToQtWidget.insert(IDC_PITCH,mfc7);
+   QObject::connect(mfc7,SIGNAL(valueChanged(int)),this,SLOT(pitch_valueChanged(int)));
 //   PUSHBUTTON      "Tilt",IDC_TILT,292,234,50,14
    CButton* mfc8 = new CButton(this);
    mfc8->setText("Tilt");
@@ -96,6 +105,7 @@ CSampleEditorDlg::CSampleEditorDlg(CWnd* pParent /*=NULL*/, CDSample *pSample)
    MapDialogRect(&r8);
    mfc8->setGeometry(r8);
    mfcToQtWidget.insert(IDC_TILT,mfc8);
+   QObject::connect(mfc8,SIGNAL(clicked()),this,SLOT(tilt_clicked()));
 //   LTEXT           "0 bytes",IDC_INFO,88,217,87,11,SS_SUNKEN
    CStatic* mfc9 = new CStatic(this);
    mfc9->setText("0 bytes");
@@ -117,6 +127,7 @@ CSampleEditorDlg::CSampleEditorDlg(CWnd* pParent /*=NULL*/, CDSample *pSample)
    MapDialogRect(&r11);
    mfc11->setGeometry(r11);
    mfcToQtWidget.insert(IDC_DELTASTART,mfc11);
+   QObject::connect(mfc11,SIGNAL(clicked()),this,SLOT(deltaStart_clicked()));
 }
 
 CSampleEditorDlg::~CSampleEditorDlg()
@@ -147,7 +158,7 @@ BOOL CSampleEditorDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
-	m_pSampleView = new CSampleView();
+   m_pSampleView = new CSampleView();
 	m_pSampleView->SubclassDlgItem(IDC_SAMPLE, this);
 	m_pSampleView->CalculateSample(m_pSample, IsDlgButtonChecked(IDC_DELTASTART) ? 64 : 0);
 	m_pSampleView->UpdateInfo();
@@ -392,10 +403,12 @@ CSampleView::CSampleView() :
 	m_pSamples(NULL),
 	m_bClicked(false)
 {
-	m_pSolidPen = new CPen(PS_SOLID, 1, (COLORREF)0);
+   m_pSolidPen = new CPen(PS_SOLID, 1, (COLORREF)0);
 	m_pDashedPen = new CPen(PS_DASH, 1, (COLORREF)0x00);
 	m_pGrayDashedPen = new CPen(PS_DASHDOT, 1, (COLORREF)0xF0F0F0);
 	m_pDarkGrayDashedPen = new CPen(PS_DASHDOT, 1, (COLORREF)0xE0E0E0);
+   
+   _qt->installEventFilter(this);
    
    m_sbScrollBar = new CScrollBar;
 }
@@ -410,13 +423,94 @@ CSampleView::~CSampleView()
 	SAFE_RELEASE(m_pDarkGrayDashedPen);
 }
 
+bool CSampleView::eventFilter(QObject *object, QEvent *event)
+{
+   if ( event->type() == QEvent::Show )
+   {
+      showEvent(dynamic_cast<QShowEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::ShowToParent )
+   {
+      showEvent(dynamic_cast<QShowEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::Hide )
+   {
+      hideEvent(dynamic_cast<QHideEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::Move )
+   {
+      moveEvent(dynamic_cast<QMoveEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::Paint )
+   {
+      paintEvent(dynamic_cast<QPaintEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::FocusIn )
+   {
+      focusInEvent(dynamic_cast<QFocusEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::FocusOut )
+   {
+      focusOutEvent(dynamic_cast<QFocusEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::MouseButtonPress )
+   {
+      mousePressEvent(dynamic_cast<QMouseEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::MouseButtonRelease )
+   {
+      mouseReleaseEvent(dynamic_cast<QMouseEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::MouseButtonDblClick )
+   {
+      mouseDoubleClickEvent(dynamic_cast<QMouseEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::MouseMove )
+   {
+      mouseMoveEvent(dynamic_cast<QMouseEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::Wheel )
+   {
+      wheelEvent(dynamic_cast<QWheelEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::Resize )
+   {
+      resizeEvent(dynamic_cast<QResizeEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::KeyPress )
+   {
+      keyPressEvent(dynamic_cast<QKeyEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::KeyRelease )
+   {
+      keyReleaseEvent(dynamic_cast<QKeyEvent*>(event));
+      return true;
+   }
+   qDebug("eventFilter: unhandled %d object %s", event->type(), object->objectName().toAscii().constData());
+   return false;
+}
+
 void CSampleView::OnPaint()
 {
 	int ScrollBarHeight = 0;
 
 	CPaintDC dc(this); // device context for painting
-   
-	// Create scroll bar
+
+   // Create scroll bar
 	if (m_sbScrollBar->m_hWnd == NULL) {
 		CRect rect;
 		GetClientRect(&rect);
@@ -829,6 +923,42 @@ void CSampleView::mouseReleaseEvent(QMouseEvent *event)
 void CSampleView::resizeEvent(QResizeEvent *event)
 {
    OnSize(0,event->size().width(),event->size().height());
+}
+
+void CSampleEditorDlg::timerEvent(QTimerEvent *event)
+{
+   int mfcId = mfcTimerId(event->timerId());
+   OnTimer(mfcId);
+}
+
+void CSampleEditorDlg::ok_clicked()
+{
+   OnOK();
+}
+
+void CSampleEditorDlg::cancel_clicked()
+{
+   OnCancel();
+}
+
+void CSampleEditorDlg::play_clicked()
+{
+   OnBnClickedPlay();
+}
+
+void CSampleEditorDlg::delete_clicked()
+{
+   OnBnClickedDelete();
+}
+
+void CSampleEditorDlg::deltaStart_clicked()
+{
+   OnBnClickedDeltastart();
+}
+
+void CSampleEditorDlg::tilt_clicked()
+{
+   OnBnClickedTilt();
 }
 
 void CSampleEditorDlg::resizeEvent(QResizeEvent *event)

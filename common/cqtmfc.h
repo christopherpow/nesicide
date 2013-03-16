@@ -1093,6 +1093,7 @@ public:
    void setParent(QWidget *parent, Qt::WindowFlags f) { _qt->setParent(parent,f); }   
    void setGeometry(const QRect & rect) { _qt->setSizePolicy(QSizePolicy::Ignored,QSizePolicy::Ignored); _qt->setGeometry(rect); }
    void setGeometry(int x, int y, int w, int h) { _qt->setGeometry(x,y,w,h); }
+   const QRect &	geometry () const { return _qt->geometry(); }
    void setContentsMargins(int left, int top, int right, int bottom) { _qt->setContentsMargins(left,top,right,bottom); }
    void setContentsMargins(const QMargins &margins) { _qt->setContentsMargins(margins); }
    void setFocusPolicy(Qt::FocusPolicy policy) { _qt->setFocusPolicy(policy); }
@@ -1104,7 +1105,7 @@ public slots:
    void update() { _qt->update(); }
    void setFocus() { _qt->setFocus(); }
    void setFocus(Qt::FocusReason reason) { _qt->setFocus(reason); }
-   bool eventFilter(QObject *object, QEvent *_event);
+   bool eventFilter(QObject *object, QEvent *event);
 protected:
    QWidget* _qt;
 public:

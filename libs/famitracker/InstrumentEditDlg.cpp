@@ -52,7 +52,7 @@ CInstrumentEditDlg::CInstrumentEditDlg(CWnd* pParent /*=NULL*/)
 	m_iInstrument(-1)
 {
 //   IDD_INSTRUMENT DIALOGEX 0, 0, 389, 242
-   CRect rect(0,0,389,242);
+   CRect rect(CPoint(0,0),CSize(389,242));
    MapDialogRect(&rect);
    setFixedSize(rect.Width(),rect.Height());
    

@@ -306,11 +306,22 @@ void CString::FormatV(LPCTSTR fmt, va_list ap)
 {
    // CPTODO: UN-HACK!!!
    TCHAR local[2048];
+   int c, d, n;
 #if UNICODE
-   wvsprintf(local,fmt,ap);
+   n = vswprintf(local,fmt,ap);
+   // CPTODO: UN-HACK!!!  [This 'converts' a wchar_t string to a char string...
+   for ( c = n-1; c >= 0; c-- )
+   {
+      if ( !(*(local+c)) )
+      {
+         for ( d = c; d < n; d++ )
+         {
+            *(local+d) = *(local+d+1);
+         }
+      }
+   }
    _qstr.clear();
    _qstr = QString::fromWCharArray(local);
-//   _qstr.vsprintf((const char*)fmt,ap);
 #else
    vsprintf(local,fmt,ap);
    _qstr.clear();
@@ -1566,6 +1577,7 @@ CListCtrl::CListCtrl(CWnd* parent)
    _qtd->setFont(QFont("MS Shell Dlg",8));
    _qtd->horizontalHeader()->setStretchLastSection(true);
    _qtd->verticalHeader()->hide();
+   _qtd->setEditTriggers(QAbstractItemView::NoEditTriggers);
    
    // Pass-through signals
    QObject::connect(_qtd,SIGNAL(itemSelectionChanged()),this,SIGNAL(itemSelectionChanged()));
@@ -1778,6 +1790,7 @@ BOOL CListCtrl::SetItemText(
       add = true;
       twi = new QTableWidgetItem;
    }
+
    
    twi->setText(lpszText);
    
@@ -1893,16 +1906,39 @@ BOOL CScrollBar::Create(
    UINT nID 
 )
 {
+   QRect myRect(QPoint(rect.left,rect.top),QPoint(rect.right,rect.bottom));
+   qDebug("%x %x %x", SBS_VERT, SBS_HORZ,dwStyle);
    if ( dwStyle&SBS_VERT )
    {
       _qtd->setOrientation(Qt::Vertical);
    }
-   if ( dwStyle&SBS_HORZ )
+   else
    {
+      // CP: SBS_VERT is 1.  SBS_HORZ is 0.
       _qtd->setOrientation(Qt::Horizontal);
    }
    _qtd->setParent(pParentWnd->toQWidget());
-   _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
+   if ( dwStyle&SBS_BOTTOMALIGN )
+   {
+      myRect.setTop(myRect.bottom() - _qtd->sizeHint().height());
+   }
+   else if ( dwStyle&SBS_TOPALIGN )
+   {
+      myRect.setBottom(myRect.top() + _qtd->sizeHint().height());
+   }
+   else if ( dwStyle&SBS_RIGHTALIGN )
+   {
+      myRect.setLeft(myRect.right() - _qtd->sizeHint().width());
+   }
+   else if ( dwStyle&SBS_LEFTALIGN )
+   {
+      myRect.setRight(myRect.left() + _qtd->sizeHint().height());
+   }
+   _qtd->setGeometry(myRect);
+   if ( dwStyle&WS_VISIBLE )
+   {
+      _qtd->setVisible(true);
+   }
    m_hWnd = (HWND)_qt;
    return TRUE;
 }
@@ -2010,6 +2046,11 @@ void CWnd::subclassWidget(int nID,CWnd* widget)
 bool CWnd::eventFilter(QObject *object, QEvent *event)
 {
    if ( event->type() == QEvent::Show )
+   {
+      showEvent(dynamic_cast<QShowEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::ShowToParent )
    {
       showEvent(dynamic_cast<QShowEvent*>(event));
       return true;
@@ -2250,10 +2291,10 @@ BOOL CWnd::SubclassDlgItem(
    if ( pWndSrc )
    {
       SetParent(pParent);
-      setParent(pParent->toQWidget());
+      setParent((QDialog*)(pParent->toQWidget()));
       setGeometry(pWndSrc->geometry());
       pParent->subclassWidget(nID,this);
-      pWndSrc->setVisible(false);
+      pWndSrc->setParent(NULL);
       delete pWndSrc;
       return TRUE;
    }
@@ -2490,6 +2531,8 @@ CDialog::CDialog(int dlgID, CWnd *parent)
    
    _qtd = dynamic_cast<QDialog*>(_qt);
    _inited = false;
+   
+   _qt->installEventFilter(this);
    
    // Pass-through signals
 }

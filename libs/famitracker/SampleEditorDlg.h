@@ -21,10 +21,15 @@
 #pragma once
 
 #include "cqtmfc.h"
+#include "resource.h"
+
+#include "FamiTrackerTypes.h"
+#include "SoundGen.h"
 
 // CSampleView control
 
 class CSampleView : public CStatic {
+   Q_OBJECT
    // Qt interfaces
 protected:
    void paintEvent(QPaintEvent*);
@@ -32,7 +37,11 @@ protected:
    void mousePressEvent(QMouseEvent *event);
    void mouseReleaseEvent(QMouseEvent *event);
    void resizeEvent(QResizeEvent *event);
+public slots:
+   bool eventFilter(QObject *object, QEvent *event);
    
+public:
+   // MFC interfaces   
 	DECLARE_DYNAMIC(CSampleView)
 protected:
 	DECLARE_MESSAGE_MAP()
@@ -85,11 +94,22 @@ public:
 
 class CSampleEditorDlg : public CDialog
 {
+   Q_OBJECT
+
 	DECLARE_DYNAMIC(CSampleEditorDlg)
    // Qt interfaces
 protected:
    void resizeEvent(QResizeEvent *event);
-   
+   void timerEvent(QTimerEvent *event);
+public slots:
+   void ok_clicked();
+   void cancel_clicked();
+   void play_clicked();
+   void delete_clicked();
+   void deltaStart_clicked();
+   void tilt_clicked();
+
+   // MFC interfaces
 public:
 	CSampleEditorDlg(CWnd* pParent = NULL, CDSample *pSample = NULL);   // standard constructor
 	virtual ~CSampleEditorDlg();
