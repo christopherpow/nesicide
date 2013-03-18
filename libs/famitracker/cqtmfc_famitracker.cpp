@@ -477,8 +477,34 @@ void qtMfcInitStringResources()
 //   END
 }
 
+void qtMfcInitBitmapResources()
+{
+   /////////////////////////////////////////////////////////////////////////////
+   //
+   // Bitmap
+   //
+   
+//   IDB_SAMPLEBG            BITMAP                  "res\\SampleBg.bmp"
+   qtMfcBitmapResources.insert(IDB_SAMPLEBG,CBitmap(":/resources/SampleBg.bmp"));
+//   IDB_KEY_BLACK           BITMAP                  "res\\key_black_unpressed.bmp"
+   qtMfcBitmapResources.insert(IDB_KEY_BLACK,CBitmap(":/resources/key_black_unpressed.bmp"));
+//   IDB_KEY_BLACK_MARK      BITMAP                  "res\\key_black_pressed.bmp"
+   qtMfcBitmapResources.insert(IDB_KEY_BLACK_MARK,CBitmap(":/resources/key_black_pressed.bmp"));
+//   IDB_KEY_WHITE           BITMAP                  "res\\key_white_unpressed.bmp"
+   qtMfcBitmapResources.insert(IDB_KEY_WHITE,CBitmap(":/resources/key_white_unpressed.bmp"));
+//   IDB_KEY_WHITE_MARK      BITMAP                  "res\\key_white_pressed.bmp"
+   qtMfcBitmapResources.insert(IDB_KEY_WHITE_MARK,CBitmap(":/resources/key_white_pressed.bmp"));
+//   IDB_INSTRUMENT_TOOLS    BITMAP                  "res\\toolbar1.bmp"
+   qtMfcBitmapResources.insert(IDB_INSTRUMENT_TOOLS,CBitmap(":/resources/toolbar1.bmp"));
+//   IDB_TOOLBAR_256         BITMAP                  "res\\Toolbar-d5.bmp"
+   qtMfcBitmapResources.insert(IDB_TOOLBAR_256,CBitmap(":/resources/Toolbar-d5.bmp"));
+//   IDB_TOOLBAR_INST_256    BITMAP                  "res\\inst_toolbar.bmp"
+   qtMfcBitmapResources.insert(IDB_TOOLBAR_INST_256,CBitmap(":/resources/inst_toolbar.bmp"));
+}
+
 void qtMfcInit()
 {
    qtMfcInitStringResources();
    qtMfcInitMenuResources();
+   qtMfcInitBitmapResources();
 }

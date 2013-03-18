@@ -511,6 +511,7 @@ class CBitmap : public CGdiObject
 {
    // Qt interfaces
 public:
+   CBitmap(QString resource);
    QPixmap* toQPixmap() { return _qpixmap; }
    
    // MFC interfaces
@@ -539,6 +540,7 @@ public:
    }
 private:
    QPixmap* _qpixmap;
+   bool     _owned;
 };
 
 class CBrush : public CGdiObject
@@ -636,6 +638,7 @@ public:
    void flush();
    QPainter* painter() { return _qpainter; }
    QPixmap* pixmap() { return _qpixmap; }
+   QSize pixmapSize() { return _bitmapSize; }
    QWidget* widget() { return _qwidget; }
    QPixmap* bitmap() { return _bitmap?_bitmap->toQPixmap():NULL; }
    
@@ -750,66 +753,27 @@ public:
    HGDIOBJ SelectObject(
       HGDIOBJ obj
    );
-   
    CPen* SelectObject(
       CPen* pPen 
-   )
-   {
-      CPen* temp = _pen;
-      _pen = pPen;
-      if ( _pen )
-         _qpainter->setPen((QPen)(*_pen));
-      return temp;
-   }
-
+   );
    CBrush* SelectObject(
       CBrush* pBrush 
-   )
-   {
-      CBrush* temp = _brush;
-      _brush = pBrush;
-      if ( _brush )      
-         _qpainter->setBrush((QBrush)(*_brush));
-      return temp;
-   }
-   
+   );
    virtual CFont* SelectObject(
       CFont* pFont 
-   )
-   {
-      CFont* temp = _font;
-      _font = pFont;
-      if ( _font )
-         _qpainter->setFont((QFont)(*_font));
-      return temp;
-   }
+   );
    CBitmap* SelectObject(
       CBitmap* pBitmap 
-   )
-   {
-      CBitmap* temp = _bitmap;
-      _bitmap = pBitmap;
-      return temp;
-   }   
+   );
    int SelectObject(
       CRgn* pRgn 
    );
    CGdiObject* SelectObject(
       CGdiObject* pObject
-   )
-   {
-      CGdiObject* temp = _gdiobject;
-      _gdiobject = pObject;
-      return temp;
-   }   
+   );
    CObject* SelectObject(
       CObject* pObject
-   )
-   {
-      CObject* temp = _object;
-      _object = pObject;
-      return temp;
-   }   
+   );
    COLORREF SetBkColor( 
       COLORREF crColor  
    )
@@ -898,6 +862,7 @@ private:
    CBrush*     _brush;
    CFont*      _font;
    CBitmap*    _bitmap;
+   QSize       _bitmapSize;
    CRgn*       _rgn;   
    CGdiObject* _gdiobject;
    CObject*    _object;
@@ -1881,5 +1846,7 @@ int StretchDIBits(
 CString qtMfcStringResource(int id);
 
 CMenu qtMfcMenuResource(int id);
+
+CBitmap qtMfcBitmapResource(int id);
 
 #endif // CQTMFC_H

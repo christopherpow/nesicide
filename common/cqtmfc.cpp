@@ -1053,12 +1053,20 @@ BOOL CFont::CreateFontIndirect(
 
 CBitmap::CBitmap()
 {
-   _qpixmap = new QPixmap;
+   _qpixmap = new QPixmap(1,1);
+   _owned = true;
+}
+
+CBitmap::CBitmap(QString resource)
+{
+   _qpixmap = new QPixmap(resource);
+   _owned = false;
 }
 
 CBitmap::~CBitmap()
 {
-   delete _qpixmap;
+   if ( _owned )
+      delete _qpixmap;
 }
 
 BOOL CBitmap::CreateCompatibleBitmap(
@@ -1067,8 +1075,10 @@ BOOL CBitmap::CreateCompatibleBitmap(
    int nHeight 
 )
 {
-   delete _qpixmap;
+   if ( _owned )
+      delete _qpixmap;
    _qpixmap = new QPixmap(nWidth,nHeight);
+   _owned = true;
    return TRUE;
 }
 
@@ -1079,8 +1089,10 @@ CSize CBitmap::SetBitmapDimension(
 {
    CSize origSize;
    origSize = _qpixmap->size();
-   delete _qpixmap;
+   if ( _owned )
+      delete _qpixmap;
    _qpixmap = new QPixmap(nWidth,nHeight);
+   _owned = true;
    return origSize;
 }
 
@@ -1089,50 +1101,11 @@ BOOL CBitmap::LoadBitmap(
 )
 {
    BOOL result = FALSE;
-//   IDB_SAMPLEBG            BITMAP                  "res\\SampleBg.bmp"
-//   IDB_KEY_BLACK           BITMAP                  "res\\key_black_unpressed.bmp"
-//   IDB_KEY_BLACK_MARK      BITMAP                  "res\\key_black_pressed.bmp"
-//   IDB_KEY_WHITE           BITMAP                  "res\\key_white_unpressed.bmp"
-//   IDB_KEY_WHITE_MARK      BITMAP                  "res\\key_white_pressed.bmp"
-//   IDB_INSTRUMENT_TOOLS    BITMAP                  "res\\toolbar1.bmp"
-//   IDB_TOOLBAR_256         BITMAP                  "res\\Toolbar-d5.bmp"
-//   IDB_TOOLBAR_INST_256    BITMAP                  "res\\inst_toolbar.bmp"
-   qDebug("HARDCODED RESOURCE LOOKUP...FIX WITH HYARION'S RC PARSER");
-   switch ( nIDResource )
-   {
-   case IDB_SAMPLEBG:
-      _qpixmap->load(":/resources/SampleBg.bmp");
-      result = TRUE;
-      break;
-   case IDB_KEY_BLACK:
-      _qpixmap->load(":/resources/key_black_unpressed.bmp");
-      result = TRUE;
-      break;
-   case IDB_KEY_BLACK_MARK:
-      _qpixmap->load(":/resources/key_black_pressed.bmp");
-      result = TRUE;
-      break;
-   case IDB_KEY_WHITE:
-      _qpixmap->load(":/resources/key_white_unpressed.bmp");
-      result = TRUE;
-      break;
-   case IDB_KEY_WHITE_MARK:
-      _qpixmap->load(":/resources/key_white_pressed.bmp");
-      result = TRUE;
-      break;
-   case IDB_INSTRUMENT_TOOLS:
-      _qpixmap->load(":/resources/toolbar1.bmp");
-      result = TRUE;
-      break;
-   case IDB_TOOLBAR_256:
-      _qpixmap->load(":/resources/Toolbar-d5.bmp");
-      result = TRUE;
-      break;
-   case IDB_TOOLBAR_INST_256:
-      _qpixmap->load(":/resources/inst_toolbar.bmp");
-      result = TRUE;
-      break;
-   }
+   if ( _owned )
+      delete _qpixmap;
+   _qpixmap = qtMfcBitmapResource(nIDResource).toQPixmap();
+   _owned = false;
+   result = TRUE;
    return result;
 }
 
@@ -1150,6 +1123,7 @@ CDC::CDC()
    _brush = NULL;
    _font = NULL;
    _bitmap = NULL;
+   _bitmapSize = QSize(-1,-1);
    _rgn = NULL;   
    _gdiobject = NULL;
    _object = NULL;
@@ -1173,6 +1147,7 @@ CDC::CDC(CWnd* parent)
    _brush = NULL;
    _font = NULL;
    _bitmap = NULL;
+   _bitmapSize = QSize(-1,-1);
    _rgn = NULL;   
    _gdiobject = NULL;
    _object = NULL;
@@ -1200,6 +1175,7 @@ void CDC::flush()
    {
       QPainter p;
       p.begin(_qwidget);
+      p.setBackgroundMode(Qt::TransparentMode);
       p.drawPixmap(0,0,*_qpixmap);
       p.end();
    }   
@@ -1207,8 +1183,9 @@ void CDC::flush()
 
 void CDC::attach()
 {
-   _qpixmap = new QPixmap(1000,1000);
+   _qpixmap = new QPixmap(1,1);
    _qpainter = new QPainter(_qpixmap);
+   _qpainter->setBackgroundMode(Qt::TransparentMode);
    m_hDC = (HDC)_qpixmap;
    attached = true;
 }
@@ -1217,7 +1194,9 @@ void CDC::attach(QWidget* parent)
 {
    _qwidget = parent;
    _qpixmap = new QPixmap(_qwidget->size());
+   _qpixmap->fill(_qwidget,0,0); // CP: hack to initialize pixmap with widget's background color.
    _qpainter = new QPainter(_qpixmap);
+   _qpainter->setBackgroundMode(Qt::TransparentMode);
    m_hDC = (HDC)_qpixmap;
    attached = true;
 }
@@ -1267,6 +1246,75 @@ HGDIOBJ CDC::SelectObject(
    return NULL;
 }
 
+CPen* CDC::SelectObject(
+   CPen* pPen 
+)
+{
+   CPen* temp = _pen;
+   _pen = pPen;
+   if ( _pen )
+      _qpainter->setPen((QPen)(*_pen));
+   return temp;
+}
+
+CBrush* CDC::SelectObject(
+   CBrush* pBrush 
+)
+{
+   CBrush* temp = _brush;
+   _brush = pBrush;
+   if ( _brush )      
+      _qpainter->setBrush((QBrush)(*_brush));
+   return temp;
+}
+
+CFont* CDC::SelectObject(
+   CFont* pFont 
+)
+{
+   CFont* temp = _font;
+   _font = pFont;
+   if ( _font )
+      _qpainter->setFont((QFont)(*_font));
+   return temp;
+}
+
+CBitmap* CDC::SelectObject(
+   CBitmap* pBitmap 
+)
+{
+   CBitmap* temp = _bitmap;
+   _bitmap = pBitmap;
+   if ( _bitmap )
+   {
+      _qpainter->drawPixmap(0,0,*_bitmap->toQPixmap());
+      _bitmapSize = _bitmap->toQPixmap()->size();
+   }
+   else
+   {
+      _bitmapSize = QSize(-1,-1);
+   }
+   return temp;
+}   
+
+CGdiObject* CDC::SelectObject(
+   CGdiObject* pObject
+)
+{
+   CGdiObject* temp = _gdiobject;
+   _gdiobject = pObject;
+   return temp;
+}   
+
+CObject* CDC::SelectObject(
+   CObject* pObject
+)
+{
+   CObject* temp = _object;
+   _object = pObject;
+   return temp;
+}   
+
 COLORREF CDC::GetPixel(
    int x,
    int y 
@@ -1297,15 +1345,11 @@ BOOL CDC::BitBlt(
    DWORD dwRop 
 )
 {
-//   if ( pSrcDC->bitmap() )
-//   {
-//      _qpainter->drawPixmap(x,y,nWidth,nHeight,*pSrcDC->bitmap(),xSrc,ySrc,nWidth,nHeight);
-//   }
-//   else
-   {
-      _qpainter->drawPixmap(x,y,nWidth,nHeight,*pSrcDC->pixmap(),xSrc,ySrc,nWidth,nHeight);
-   }
-   flush();
+   QPixmap* pixmap = pSrcDC->pixmap();
+   if ( pixmap && (pSrcDC->pixmapSize().width() >= 0) )
+      _qpainter->drawPixmap(x,y,pSrcDC->pixmapSize().width(),pSrcDC->pixmapSize().height(),*pixmap,xSrc,ySrc,pSrcDC->pixmapSize().width(),pSrcDC->pixmapSize().height());
+   else
+      _qpainter->drawPixmap(x,y,nWidth,nHeight,*pixmap,xSrc,ySrc,nWidth,nHeight);
    return TRUE;
 }
 
@@ -1409,6 +1453,7 @@ void CDC::FillSolidRect(
    QColor color(GetRValue(clr),GetGValue(clr),GetBValue(clr));
    _qpainter->fillRect(rect,color);
 }
+
 void CDC::FillSolidRect(
    int x,
    int y,
@@ -1422,6 +1467,7 @@ void CDC::FillSolidRect(
    QColor color(GetRValue(clr),GetGValue(clr),GetBValue(clr));
    _qpainter->fillRect(rect,color);
 }
+
 BOOL CDC::GradientFill( 
    TRIVERTEX* pVertices, 
    ULONG nVertices, 
@@ -1451,6 +1497,7 @@ BOOL CDC::GradientFill(
    }
    return TRUE;
 }
+
 BOOL CDC::LineTo( 
    int x, 
    int y  
@@ -1461,6 +1508,7 @@ BOOL CDC::LineTo(
    _lineOrg.y = y;
    return TRUE;
 }
+
 BOOL CDC::Polygon(
    LPPOINT lpPoints,
    int nCount 
@@ -1479,16 +1527,19 @@ BOOL CDC::Polygon(
    _qpainter->drawPath(path);
    return TRUE;
 }
+
 int CDC::SelectObject(
    CRgn* pRgn 
 )
 {
    return TRUE;
 }
+
 COLORREF CDC::SetPixel( int x, int y, COLORREF crColor )
 {
    return TRUE;
 }
+
 BOOL CDC::TextOut(
    int x,
    int y,
@@ -1951,6 +2002,7 @@ CScrollBar::CScrollBar(CWnd *parent)
    
    // Downcast to save having to do it all over the place...
    _qtd = dynamic_cast<QScrollBar*>(_qt);
+   _qtd->setOrientation(Qt::Vertical);
       
    // Pass-through signals
    QObject::connect(_qtd,SIGNAL(actionTriggered(int)),this,SIGNAL(actionTriggered(int)));
@@ -1968,9 +2020,10 @@ CScrollBar::CScrollBar(Qt::Orientation orient,CWnd *parent)
       _qt = new QScrollBar;
    
    // Downcast to save having to do it all over the place...
-   _qtd = dynamic_cast<QScrollBar*>(_qt);
-   
+   _qtd = dynamic_cast<QScrollBar*>(_qt);   
    _qtd->setOrientation(orient);
+   
+   // Pass-through signals
    QObject::connect(_qtd,SIGNAL(actionTriggered(int)),this,SIGNAL(actionTriggered(int)));
 }
 
@@ -1990,32 +2043,31 @@ BOOL CScrollBar::Create(
 )
 {
    QRect myRect(QPoint(rect.left,rect.top),QPoint(rect.right,rect.bottom));
-   qDebug("%x %x %x", SBS_VERT, SBS_HORZ,dwStyle);
+   _qtd->setParent(pParentWnd->toQWidget());
    if ( dwStyle&SBS_VERT )
    {
       _qtd->setOrientation(Qt::Vertical);
+      if ( dwStyle&SBS_RIGHTALIGN )
+      {
+         myRect.setLeft(myRect.right() - _qtd->sizeHint().width());
+      }
+      else if ( dwStyle&SBS_LEFTALIGN )
+      {
+         myRect.setRight(myRect.left() + _qtd->sizeHint().height());
+      }
    }
    else
    {
       // CP: SBS_VERT is 1.  SBS_HORZ is 0.
       _qtd->setOrientation(Qt::Horizontal);
-   }
-   _qtd->setParent(pParentWnd->toQWidget());
-   if ( dwStyle&SBS_BOTTOMALIGN )
-   {
-      myRect.setTop(myRect.bottom() - _qtd->sizeHint().height());
-   }
-   else if ( dwStyle&SBS_TOPALIGN )
-   {
-      myRect.setBottom(myRect.top() + _qtd->sizeHint().height());
-   }
-   else if ( dwStyle&SBS_RIGHTALIGN )
-   {
-      myRect.setLeft(myRect.right() - _qtd->sizeHint().width());
-   }
-   else if ( dwStyle&SBS_LEFTALIGN )
-   {
-      myRect.setRight(myRect.left() + _qtd->sizeHint().height());
+      if ( dwStyle&SBS_BOTTOMALIGN )
+      {
+         myRect.setTop(myRect.bottom() - _qtd->sizeHint().height());
+      }
+      else if ( dwStyle&SBS_TOPALIGN )
+      {
+         myRect.setBottom(myRect.top() + _qtd->sizeHint().height());
+      }
    }
    _qtd->setGeometry(myRect);
    if ( dwStyle&WS_VISIBLE )
@@ -2104,6 +2156,7 @@ CWnd::CWnd(CWnd *parent)
       _qt = new QWidget;
    }
       
+   _qt->setMouseTracking(true);
    _qt->installEventFilter(this);
 }
 
@@ -3674,3 +3727,11 @@ CMenu qtMfcMenuResource(int id)
 {
    return qtMfcMenuResources.value(id);
 }
+
+QMap<int,CBitmap> qtMfcBitmapResources;
+
+CBitmap qtMfcBitmapResource(int id)
+{
+   return qtMfcBitmapResources.value(id);
+}
+

@@ -7,6 +7,8 @@ extern QMap<int,CString> qtMfcStringResources;
 
 extern QMap<int,CMenu> qtMfcMenuResources;
 
+extern QMap<int,CBitmap> qtMfcBitmapResources;
+
 void qtMfcInit();
 
 // Define resources here that are "hidden under the hood" of MFC...

@@ -248,9 +248,9 @@ void CInstrumentEditDlg::OnTcnSelchangeInstTab(NMHDR *pNMHDR, LRESULT *pResult)
 
 void CInstrumentEditDlg::OnPaint()
 {
-   CPaintDC dc(this); // device context for painting
+	CPaintDC dc(this); // device context for painting
 	// Do not call CDialog::OnPaint() for painting messages
-   
+
 	const int WHITE_KEY_W	= 10;
 	const int BLACK_KEY_W	= 8;
 
@@ -298,7 +298,7 @@ void CInstrumentEditDlg::OnPaint()
 			BackDC.BitBlt(i * WHITE_KEY_W + Pos, 0, 100, 100, &WhiteKey, 0, 0, SRCCOPY);
 		}
 
-		for (int i = 0; i < 2; i++) {
+      for (int i = 0; i < 2; i++) {
 			if ((Note == BLACK_1[i]) && (Octave == j) && m_iActiveKey != -1)
 				BlackKey.SelectObject(BlackKeyMarkBmp);
 			else
@@ -315,7 +315,7 @@ void CInstrumentEditDlg::OnPaint()
 
 			BackDC.BitBlt((i + 3) * WHITE_KEY_W + WHITE_KEY_W / 2 + 1 + Pos, 0, 100, 100, &BlackKey, 0, 0, SRCCOPY);
 		}
-	}
+   }
 
 	WhiteKey.SelectObject(OldWhite);
 	BlackKey.SelectObject(OldBlack);
