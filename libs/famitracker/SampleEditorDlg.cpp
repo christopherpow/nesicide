@@ -540,7 +540,7 @@ void CSampleView::OnPaint()
 
    qDebug("CreateCompatibleBitmap");
 //	m_bmpCopy.CreateCompatibleBitmap(&dc, m_clientRect.Width(), m_clientRect.Height());
-//	m_dcCopy.CreateCompatibleDC(&dc);
+	m_dcCopy.CreateCompatibleDC(&dc);
 	m_dcCopy.SelectObject(&m_bmpCopy);
 	m_dcCopy.FillSolidRect(m_clientRect, 0xFFFFFF);
 	m_dcCopy.SetViewportOrg(1, 1);
@@ -823,11 +823,7 @@ void CSampleEditorDlg::CopySample(CDSample *pTarget)
 
 void CSampleView::paintEvent(QPaintEvent *)
 {
-   m_dcCopy.attach(this->toQWidget());
-   
    OnPaint();
-   
-   m_dcCopy.detach();
 }
 
 void CSampleView::mouseMoveEvent(QMouseEvent *event)

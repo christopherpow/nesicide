@@ -262,8 +262,8 @@ void CInstrumentEditDlg::OnPaint()
 
 	CBitmap Bmp, *OldBmp;
 
-//	Bmp.CreateCompatibleBitmap(&dc, 800, 800);
-//	BackDC.CreateCompatibleDC(&dc);
+	Bmp.CreateCompatibleBitmap(&dc, 800, 800);
+	BackDC.CreateCompatibleDC(&dc);
 	OldBmp = BackDC.SelectObject(&Bmp);
 
 	WhiteKeyBmp.LoadBitmap(IDB_KEY_WHITE);
@@ -271,8 +271,8 @@ void CInstrumentEditDlg::OnPaint()
 	WhiteKeyMarkBmp.LoadBitmap(IDB_KEY_WHITE_MARK);
 	BlackKeyMarkBmp.LoadBitmap(IDB_KEY_BLACK_MARK);
 
-//	WhiteKey.CreateCompatibleDC(&dc);
-//	BlackKey.CreateCompatibleDC(&dc);
+	WhiteKey.CreateCompatibleDC(&dc);
+	BlackKey.CreateCompatibleDC(&dc);
 
 	OldWhite = WhiteKey.SelectObject(&WhiteKeyBmp);
 	OldBlack = BlackKey.SelectObject(&BlackKeyBmp);

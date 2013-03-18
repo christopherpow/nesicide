@@ -6,6 +6,7 @@
 #include <QLinearGradient>
 #include <QHeaderView>
 #include <QMessageBox>
+#include <QPixmap>
 
 int AfxMessageBox(
    LPCTSTR lpszText,
@@ -1000,8 +1001,8 @@ CBrush::CBrush(
    CBitmap* pBitmap 
 )
 {
-   QBitmap bitmap = (QBitmap)*pBitmap;
-   _qbrush.setTextureImage(bitmap.toImage());
+   QPixmap pixmap = (QPixmap)*pBitmap->toQPixmap();
+   _qbrush.setTextureImage(pixmap.toImage());
 }
 
 BOOL CFont::CreateFont(
@@ -1050,6 +1051,40 @@ BOOL CFont::CreateFontIndirect(
    return TRUE;
 }
 
+CBitmap::CBitmap()
+{
+   _qpixmap = new QPixmap;
+}
+
+CBitmap::~CBitmap()
+{
+   delete _qpixmap;
+}
+
+BOOL CBitmap::CreateCompatibleBitmap(
+   CDC* pDC,
+   int nWidth,
+   int nHeight 
+)
+{
+   delete _qpixmap;
+   _qpixmap = new QPixmap(nWidth,nHeight);
+//   _qpixmap = pDC->pixmap();
+   return TRUE;
+}
+
+CSize CBitmap::SetBitmapDimension(
+   int nWidth,
+   int nHeight 
+)
+{
+   CSize origSize;
+   origSize = _qpixmap->size();
+   delete _qpixmap;
+   _qpixmap = new QPixmap(nWidth,nHeight);
+   return origSize;
+}
+
 BOOL CBitmap::LoadBitmap(
    UINT nIDResource 
 )
@@ -1067,35 +1102,35 @@ BOOL CBitmap::LoadBitmap(
    switch ( nIDResource )
    {
    case IDB_SAMPLEBG:
-      _qbitmap.load(":/resources/SampleBg.bmp");
+      _qpixmap->load(":/resources/SampleBg.bmp");
       result = TRUE;
       break;
    case IDB_KEY_BLACK:
-      _qbitmap.load(":/resources/key_black_unpressed.bmp");
+      _qpixmap->load(":/resources/key_black_unpressed.bmp");
       result = TRUE;
       break;
    case IDB_KEY_BLACK_MARK:
-      _qbitmap.load(":/resources/key_black_pressed.bmp");
+      _qpixmap->load(":/resources/key_black_pressed.bmp");
       result = TRUE;
       break;
    case IDB_KEY_WHITE:
-      _qbitmap.load(":/resources/key_white_unpressed.bmp");
+      _qpixmap->load(":/resources/key_white_unpressed.bmp");
       result = TRUE;
       break;
    case IDB_KEY_WHITE_MARK:
-      _qbitmap.load(":/resources/key_white_pressed.bmp");
+      _qpixmap->load(":/resources/key_white_pressed.bmp");
       result = TRUE;
       break;
    case IDB_INSTRUMENT_TOOLS:
-      _qbitmap.load(":/resources/toolbar1.bmp");
+      _qpixmap->load(":/resources/toolbar1.bmp");
       result = TRUE;
       break;
    case IDB_TOOLBAR_256:
-      _qbitmap.load(":/resources/Toolbar-d5.bmp");
+      _qpixmap->load(":/resources/Toolbar-d5.bmp");
       result = TRUE;
       break;
    case IDB_TOOLBAR_INST_256:
-      _qbitmap.load(":/resources/inst_toolbar.bmp");
+      _qpixmap->load(":/resources/inst_toolbar.bmp");
       result = TRUE;
       break;
    }
@@ -1108,8 +1143,10 @@ BOOL CBitmap::LoadBitmap(
 
 CDC::CDC()
 {
+   m_hDC = NULL;
    _qwidget = NULL;
    _qpainter = NULL;
+   _qpixmap = NULL;
    _pen = NULL;
    _brush = NULL;
    _font = NULL;
@@ -1124,12 +1161,15 @@ CDC::CDC()
    _textColor = QColor(0,0,0);
    _windowOrg.x = 0;
    _windowOrg.y = 0;
+   attached = false;
 }
 
 CDC::CDC(CWnd* parent)
 {
+   m_hDC = (HDC)parent->toQWidget();
    _qwidget = parent->toQWidget();
    _qpainter = NULL;
+   _qpixmap = NULL;
    _pen = NULL;
    _brush = NULL;
    _font = NULL;
@@ -1144,35 +1184,68 @@ CDC::CDC(CWnd* parent)
    _textColor = QColor(0,0,0);
    _windowOrg.x = 0;
    _windowOrg.y = 0;
+   attached = false;
    
-   attach();
+   attach(parent->toQWidget());
 }
 
 CDC::~CDC()
 {
+   flush();
    detach();
+}
+
+void CDC::flush()
+{
+   if ( _qwidget )
+   {
+      QPainter p;
+      p.begin(_qwidget);
+      p.drawPixmap(0,0,*_qpixmap);
+      p.end();
+   }   
 }
 
 void CDC::attach()
 {
-   _qpainter = new QPainter(_qwidget);
+   _qpixmap = new QPixmap(1000,1000);
+   _qpainter = new QPainter(_qpixmap);
+   m_hDC = (HDC)_qpixmap;
+   attached = true;
 }
 
 void CDC::attach(QWidget* parent)
 {
    _qwidget = parent;
-   _qpainter = new QPainter(_qwidget);
+   _qpixmap = new QPixmap(_qwidget->size());
+   _qpainter = new QPainter(_qpixmap);
+   m_hDC = (HDC)_qpixmap;
+   attached = true;
 }
 
 void CDC::detach()
 {   
-   if ( _qpainter )
+   if ( attached )
    {
-      if ( _qpainter->isActive() )
-         _qpainter->end();
-      delete _qpainter;
-      _qpainter = NULL;
+      if ( _qpainter )
+      {
+         if ( _qpainter->isActive() )
+            _qpainter->end();
+         delete _qpainter;
+         _qpainter = NULL;
+      }
+      delete _qpixmap;
    }
+   attached = false;
+}
+
+BOOL CDC::CreateCompatibleDC(
+   CDC* pDC 
+)
+{
+   if ( pDC->widget() )
+      attach(pDC->widget());
+   return TRUE;
 }
 
 HGDIOBJ CDC::SelectObject(
@@ -1225,13 +1298,8 @@ BOOL CDC::BitBlt(
    DWORD dwRop 
 )
 {
-   CBitmap temp;
-   CBitmap* pSrcBitmap = pSrcDC->SelectObject(&temp);
-   pSrcDC->SelectObject(pSrcBitmap);
-   if ( pSrcBitmap )
-   {
-      
-   }
+   _qpainter->drawPixmap(x,y,nWidth,nHeight,*pSrcDC->pixmap(),xSrc,ySrc,nWidth,nHeight);
+   flush();
    return TRUE;
 }
 
@@ -1254,6 +1322,7 @@ int StretchDIBits(
    QImage image((const uchar*)lpBits,nSrcWidth,nSrcHeight,QImage::Format_RGB32);
    image = image.scaled(nDestWidth,nDestHeight);
    dc.painter()->drawImage(XDest,YDest,image);
+   dc.flush();
    return 0;
 }
 
@@ -1273,7 +1342,7 @@ void CDC::Draw3dRect( int x, int y, int cx, int cy, COLORREF clrTopLeft, COLORRE
 {
    QPen tlc(QColor(GetRValue(clrTopLeft),GetGValue(clrTopLeft),GetBValue(clrTopLeft)));
    QPen brc(QColor(GetRValue(clrBottomRight),GetGValue(clrBottomRight),GetBValue(clrBottomRight)));
-   QPen orig = _qpainter->pen();
+   QPen origPen = _qpainter->pen();
    x -= _windowOrg.x;
    y -= _windowOrg.y;
    _qpainter->setPen(tlc);
@@ -1282,7 +1351,7 @@ void CDC::Draw3dRect( int x, int y, int cx, int cy, COLORREF clrTopLeft, COLORRE
    _qpainter->setPen(brc);
    _qpainter->drawLine(x+cx-1,y+cy-1,x,y+cy-1);
    _qpainter->drawLine(x+cx-1,y+cy-1,x+cx-1,y);
-   _qpainter->setPen(orig);
+   _qpainter->setPen(origPen);
 }
 int CDC::DrawText(
    const CString& str,
@@ -1296,10 +1365,12 @@ int CDC::DrawText(
 #else
    QString qstr(str.GetBuffer());
 #endif
+   QPen origPen = _qpainter->pen();
    _qpainter->setPen(QPen(_textColor));
 //   _qpainter->setFont((QFont)*_font);
    _qpainter->drawText(rect,qstr.toLatin1().constData());
    return strlen(str.GetBuffer());   
+   _qpainter->setPen(origPen);
 }
 int CDC::DrawText(
    LPCTSTR lpszString,
@@ -1314,9 +1385,11 @@ int CDC::DrawText(
 #else
    QString qstr(lpszString);
 #endif
+   QPen origPen = _qpainter->pen();
    _qpainter->setPen(QPen(_textColor));
 //   _qpainter->setFont((QFont)*_font);
    _qpainter->drawText(rect,qstr.left(nCount).toLatin1().constData());
+   _qpainter->setPen(origPen);
    return 0; // CP: should be text height  
 }
 
@@ -1423,12 +1496,14 @@ BOOL CDC::TextOut(
    QString qstr(lpszString);
 #endif
    QFontMetrics fontMetrics((QFont)*_font);
+   QPen origPen = _qpainter->pen();
    _qpainter->setPen(QPen(_textColor));
 //   _qpainter->setFont((QFont)*_font);
    x += -_windowOrg.x;
    y += -_windowOrg.y;
    y += fontMetrics.ascent();
    _qpainter->drawText(x,y,qstr.left(nCount));
+   _qpainter->setPen(origPen);
    return TRUE;
 }
 
@@ -1439,12 +1514,14 @@ BOOL CDC::TextOut(
 )
 {
    QFontMetrics fontMetrics((QFont)*_font);
+   QPen origPen = _qpainter->pen();
    _qpainter->setPen(QPen(_textColor));
 //   _qpainter->setFont((QFont)*_font);
    x += -_windowOrg.x;
    y += -_windowOrg.y;
    y += fontMetrics.ascent();
    _qpainter->drawText(x,y,(const QString&)str);
+   _qpainter->setPen(origPen);
    return TRUE;
 }
 

@@ -9,7 +9,8 @@
 #include <QDebug>
 #include <QPen>
 #include <QBrush>
-#include <QBitmap>
+#include <QSize>
+#include <QPixmap>
 #include <QFont>
 #include <QRegion>
 #include <QFrame>
@@ -374,6 +375,7 @@ public:
    CSize( 
       DWORD dwSize  
    ) { cx = dwSize&0xFFFF; cy = (dwSize>>16); }
+   CSize(QSize qSize) { cx = qSize.width(); cy = qSize.height(); }
 };
 
 class CRect : public tagRECT
@@ -504,29 +506,39 @@ private:
    QPen _qpen;
 };
 
+class CDC;
 class CBitmap : public CGdiObject
 {
    // Qt interfaces
 public:
-   QBitmap* toQBitmap() { return &_qbitmap; }
+   QPixmap* toQPixmap() { return _qpixmap; }
    
    // MFC interfaces
 public:
-   CBitmap() {}
-   virtual ~CBitmap() {}
+   CBitmap();
+   virtual ~CBitmap();
    BOOL LoadBitmap(
       UINT nIDResource 
    );
-   operator QBitmap() const
+   BOOL CreateCompatibleBitmap(
+      CDC* pDC,
+      int nWidth,
+      int nHeight 
+   );
+   CSize SetBitmapDimension(
+      int nWidth,
+      int nHeight 
+   );
+   operator QPixmap() const
    {
-      return _qbitmap;
+      return *_qpixmap;
    }
    operator HBITMAP() const
    {
       return (HBITMAP)this;
    }
 private:
-   QBitmap _qbitmap;
+   QPixmap* _qpixmap;
 };
 
 class CBrush : public CGdiObject
@@ -621,8 +633,14 @@ public:
    void attach();
    void attach(QWidget* parent);
    void detach();
+   void flush();
    QPainter* painter() { return _qpainter; }
+   QPixmap* pixmap() { return _qpixmap; }
+   QWidget* widget() { return _qwidget; }
    
+   BOOL CreateCompatibleDC(
+      CDC* pDC 
+   );
    BOOL DrawEdge(
       LPRECT lpRect,
       UINT nEdge,
@@ -866,9 +884,14 @@ public:
          const CString& str 
    );
    
+public:
+   HDC         m_hDC;
+   
 private:
    CDC(CDC& orig);
+   bool attached;
    QWidget*    _qwidget;
+   QPixmap*    _qpixmap;
    QPainter*   _qpainter;
    CPen*       _pen;
    CBrush*     _brush;

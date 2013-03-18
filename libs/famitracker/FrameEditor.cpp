@@ -165,11 +165,11 @@ void CFrameEditor::OnPaint()
 //	}
 
 	// Allocate object
-//	if (m_dcBack.m_hDC == NULL) {
-//		m_bmpBack.CreateCompatibleBitmap(&dc, Width, Height);
-//		m_bmpBack.SetBitmapDimension(Width, Height);
-//		m_dcBack.CreateCompatibleDC(&dc);
-//	}
+	if (m_dcBack.m_hDC == NULL) {
+		m_bmpBack.CreateCompatibleBitmap(&dc, Width, Height);
+		m_bmpBack.SetBitmapDimension(Width, Height);
+		m_dcBack.CreateCompatibleDC(&dc);
+	}
 
 	CBitmap *pOldBmp = m_dcBack.SelectObject(&m_bmpBack);
 	CFont *pOldFont = m_dcBack.SelectObject(&m_Font);

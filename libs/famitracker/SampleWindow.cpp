@@ -37,19 +37,6 @@ IMPLEMENT_DYNAMIC(CSampleWindow, CWnd)
 CSampleWindow::CSampleWindow() :
 	m_iCurrentState(0)
 {
-   // From CreateEx
-   m_pStates[0] = new CSWSampleScope(false);
-	m_pStates[1] = new CSWSampleScope(true);
-	m_pStates[2] = new CSWSpectrum();
-//	m_pStates[3] = new CSWLogo();
-	
-	// This is saved
-	m_iCurrentState = theApp.GetSettings()->SampleWinState;
-
-	for (int i = 0; i < STATE_COUNT; ++i) {
-		m_pStates[i]->Activate();
-	}
-	
 }
 
 CSampleWindow::~CSampleWindow()
@@ -98,22 +85,22 @@ void CSampleWindow::DrawSamples(int *Samples, int Count)
 //	}
 }
 
-//BOOL CSampleWindow::CreateEx(DWORD dwExStyle, LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, const RECT& rect, CWnd* pParentWnd, UINT nID, CCreateContext* pContext)
-//{
-//	m_pStates[0] = new CSWSampleScope(false);
-//	m_pStates[1] = new CSWSampleScope(true);
-//	m_pStates[2] = new CSWSpectrum();
+BOOL CSampleWindow::CreateEx(DWORD dwExStyle, LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, const RECT& rect, CWnd* pParentWnd, UINT nID, LPVOID lpParam)
+{
+	m_pStates[0] = new CSWSampleScope(false);
+	m_pStates[1] = new CSWSampleScope(true);
+	m_pStates[2] = new CSWSpectrum();
 //	m_pStates[3] = new CSWLogo();
 	
-//	// This is saved
-//	m_iCurrentState = theApp.GetSettings()->SampleWinState;
+	// This is saved
+	m_iCurrentState = theApp.GetSettings()->SampleWinState;
 
-//	for (int i = 0; i < STATE_COUNT; ++i) {
-//		m_pStates[i]->Activate();
-//	}
+	for (int i = 0; i < STATE_COUNT; ++i) {
+		m_pStates[i]->Activate();
+	}
 	
-//	return CWnd::CreateEx(dwExStyle, lpszClassName, lpszWindowName, dwStyle, rect, pParentWnd, nID, pContext);
-//}
+	return CWnd::CreateEx(dwExStyle, lpszClassName, lpszWindowName, dwStyle, rect, pParentWnd, nID, lpParam);
+}
 
 void CSampleWindow::OnLButtonDown(UINT nFlags, CPoint point)
 {
@@ -178,11 +165,10 @@ void CSampleWindow::OnRButtonUp(UINT nFlags, CPoint point)
 
 void CSampleWindow::paintEvent(QPaintEvent *)
 {
-//   OnPaint();
-   CDC dc;
-   dc.attach(toQWidget());
+// CP: OnPaint passes true insteaad of false.  Not sure why it matters.
+//   OnPaint(); 
+   CDC dc(this);
    m_pStates[m_iCurrentState]->Draw(&dc, false);
-   dc.detach();
 }
 
 void CSampleWindow::mousePressEvent(QMouseEvent *event)

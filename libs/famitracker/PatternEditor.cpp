@@ -97,14 +97,14 @@ void CPatternView::leaveEvent(QEvent *)
 void CPatternView::paintEvent(QPaintEvent *event)
 {
    // Qt attach to the MFC HLE.  This object is already QWidget type.
-   m_pBackDC->attach(this);
+   CDC dc;
+   dc.attach(this);
 
-   CreateBackground(m_pBackDC,true);
+   CreateBackground(&dc,true);
    
-   DrawScreen(m_pBackDC,m_pView);
-   
-   // Qt detach from the MFC HLE
-   m_pBackDC->detach();
+   DrawScreen(&dc,m_pView);
+
+   // dc will auto-detach on destruction
 }
 
 void CPatternView::updateViews(long hint)
@@ -305,7 +305,7 @@ int CPatternView::GetChannelColumns(int Channel) const
 
 bool CPatternView::InitView(UINT ClipBoard)
 {
-//	m_pBackDC = NULL;
+	m_pBackDC = NULL;
 
 	m_iClipBoard = ClipBoard;
 	m_bShiftPressed = false;
@@ -826,16 +826,16 @@ void CPatternView::CreateBackground(CDC *pDC, bool bForce)
 		AdjustCursor();
 
 		// Allocate backbuffer
-//		SAFE_RELEASE(m_pBackBmp);
-//		SAFE_RELEASE(m_pBackDC);
+		SAFE_RELEASE(m_pBackBmp);
+		SAFE_RELEASE(m_pBackDC);
 
-//		m_pBackBmp = new CBitmap;
-//		m_pBackDC = new CDC;
+		m_pBackBmp = new CBitmap;
+		m_pBackDC = new CDC;
 
 		// Setup dc
-//		m_pBackBmp->CreateCompatibleBitmap(pDC, m_iPatternWidth + ROW_COL_WIDTH, m_iWinHeight);
-//		m_pBackDC->CreateCompatibleDC(pDC);
-//		m_pBackDC->SelectObject(m_pBackBmp);
+		m_pBackBmp->CreateCompatibleBitmap(pDC, m_iPatternWidth + ROW_COL_WIDTH, m_iWinHeight);
+		m_pBackDC->CreateCompatibleDC(pDC);
+		m_pBackDC->SelectObject(m_pBackBmp);
 
 		EraseBackground(m_pBackDC);
 		Invalidate(false);

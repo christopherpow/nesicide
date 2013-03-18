@@ -114,10 +114,8 @@ BOOL CGraphEditor::CreateEx(DWORD dwExStyle, LPCTSTR lpszClassName, LPCTSTR lpsz
 
 	m_pBackDC = new CDC();
 	m_pBitmap = new CBitmap();
-   qDebug("CreateCompatibleDC");
-//	m_pBackDC->CreateCompatibleDC(pDC);
-   qDebug("CreateCompatibleBitmap");
-//	m_pBitmap->CreateCompatibleBitmap(pDC, m_ClientRect.Width(), m_ClientRect.Height());
+	m_pBackDC->CreateCompatibleDC(pDC);
+	m_pBitmap->CreateCompatibleBitmap(pDC, m_ClientRect.Width(), m_ClientRect.Height());
 	m_pBackDC->SelectObject(m_pBitmap);
 
 	ReleaseDC(pDC);
@@ -1218,11 +1216,7 @@ void CNoiseEditor::ModifyReleased()
 
 void CGraphEditor::paintEvent(QPaintEvent *)
 {
-   m_pBackDC->attach(this->toQWidget());
-   
    OnPaint();
-   
-   m_pBackDC->detach();
 }
 
 void CGraphEditor::timerEvent(QTimerEvent *event)
@@ -1233,11 +1227,7 @@ void CGraphEditor::timerEvent(QTimerEvent *event)
 
 void CBarGraphEditor::paintEvent(QPaintEvent *)
 {
-   m_pBackDC->attach(this->toQWidget());
-   
    OnPaint();
-   
-   m_pBackDC->detach();
 }
 
 void CBarGraphEditor::mouseMoveEvent(QMouseEvent *event)
@@ -1337,11 +1327,7 @@ void CBarGraphEditor::mouseReleaseEvent(QMouseEvent *event)
 
 void CArpeggioGraphEditor::paintEvent(QPaintEvent *)
 {
-   m_pBackDC->attach(this->toQWidget());
-   
    OnPaint();
-   
-   m_pBackDC->detach();
 }
 
 void CArpeggioGraphEditor::mouseMoveEvent(QMouseEvent *event)
@@ -1499,11 +1485,7 @@ void CArpeggioGraphEditor::verticalScrollBar_actionTriggered(int arg1)
 
 void CPitchGraphEditor::paintEvent(QPaintEvent *)
 {
-   m_pBackDC->attach(this->toQWidget());
-   
    OnPaint();
-   
-   m_pBackDC->detach();
 }
 
 void CPitchGraphEditor::mouseMoveEvent(QMouseEvent *event)
@@ -1603,11 +1585,7 @@ void CPitchGraphEditor::mouseReleaseEvent(QMouseEvent *event)
 
 void CNoiseEditor::paintEvent(QPaintEvent *)
 {
-   m_pBackDC->attach(this->toQWidget());
-   
    OnPaint();
-   
-   m_pBackDC->detach();
 }
 
 void CNoiseEditor::mouseMoveEvent(QMouseEvent *event)
