@@ -637,6 +637,7 @@ public:
    QPainter* painter() { return _qpainter; }
    QPixmap* pixmap() { return _qpixmap; }
    QWidget* widget() { return _qwidget; }
+   QPixmap* bitmap() { return _bitmap?_bitmap->toQPixmap():NULL; }
    
    BOOL CreateCompatibleDC(
       CDC* pDC 
@@ -1032,8 +1033,8 @@ public:
          BOOL bRepaint = TRUE 
    );
    void MoveWindow(int x,int y,int cx, int cy);
-   CDC* GetDC() { CDC* pDC = new CDC(this); pDC->attach(); return pDC; }
-   void ReleaseDC(CDC* pDC) { pDC->detach(); delete pDC; }
+   CDC* GetDC() { CDC* pDC = new CDC(this); return pDC; }
+   void ReleaseDC(CDC* pDC) { delete pDC; }
    void ShowWindow(int code);
    void UpdateWindow( ) { _qt->update(); }
    virtual BOOL PostMessage(

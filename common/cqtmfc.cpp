@@ -1069,7 +1069,6 @@ BOOL CBitmap::CreateCompatibleBitmap(
 {
    delete _qpixmap;
    _qpixmap = new QPixmap(nWidth,nHeight);
-//   _qpixmap = pDC->pixmap();
    return TRUE;
 }
 
@@ -1197,7 +1196,7 @@ CDC::~CDC()
 
 void CDC::flush()
 {
-   if ( _qwidget )
+   if ( _qwidget && _qpixmap->paintingActive() )
    {
       QPainter p;
       p.begin(_qwidget);
@@ -1298,7 +1297,14 @@ BOOL CDC::BitBlt(
    DWORD dwRop 
 )
 {
-   _qpainter->drawPixmap(x,y,nWidth,nHeight,*pSrcDC->pixmap(),xSrc,ySrc,nWidth,nHeight);
+//   if ( pSrcDC->bitmap() )
+//   {
+//      _qpainter->drawPixmap(x,y,nWidth,nHeight,*pSrcDC->bitmap(),xSrc,ySrc,nWidth,nHeight);
+//   }
+//   else
+   {
+      _qpainter->drawPixmap(x,y,nWidth,nHeight,*pSrcDC->pixmap(),xSrc,ySrc,nWidth,nHeight);
+   }
    flush();
    return TRUE;
 }

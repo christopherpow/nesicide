@@ -779,13 +779,7 @@ void CFrameEditor::keyPressEvent(QKeyEvent *event)
 
 void CFrameEditor::paintEvent(QPaintEvent *event)
 {
-   // Qt attach to the MFC HLE.
-   m_dcBack.attach(this->toQWidget());
-
    OnPaint();
-   
-   // Qt detach from the MFC HLE
-   m_dcBack.detach();
 }
 
 void CFrameEditor::mouseMoveEvent(QMouseEvent *event)
