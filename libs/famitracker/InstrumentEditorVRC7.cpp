@@ -209,27 +209,166 @@ CInstrumentEditorVRC7::CInstrumentEditorVRC7(CWnd* pParent /*=NULL*/)
    mfcToQtWidget.insert(IDC_M_RR,mfc22);
    QObject::connect(mfc22,SIGNAL(valueChanged(int)),this,SLOT(m_rr_valueChanged(int)));
 //       GROUPBOX        "Carrier settings",IDC_STATIC,166,42,152,123
+   CGroupBox* mfc23 = new CGroupBox(this);
+   mfc23->setTitle("Carrier settings");
+   CRect r23(CPoint(166,42),CSize(152,123));
+   MapDialogRect(&r23);
+   mfc23->setGeometry(r23);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       CONTROL         "Amplitude modulation",IDC_C_AM,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,171,54,84,10
+   CCheckBox* mfc24 = new CCheckBox(this);
+   mfc24->setText("Amplitude modulation");
+   CRect r24(CPoint(171,54),CSize(84,10));
+   MapDialogRect(&r24);
+   mfc24->setGeometry(r24);
+   mfcToQtWidget.insert(IDC_C_AM,mfc24);
+   QObject::connect(mfc24,SIGNAL(clicked()),this,SLOT(c_am_clicked()));
 //       CONTROL         "Vibrato",IDC_C_VIB,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,263,54,39,10
+   CCheckBox* mfc25 = new CCheckBox(this);
+   mfc25->setText("Vibrato");
+   CRect r25(CPoint(263,54),CSize(39,10));
+   MapDialogRect(&r25);
+   mfc25->setGeometry(r25);
+   mfcToQtWidget.insert(IDC_C_VIB,mfc25);
+   QObject::connect(mfc25,SIGNAL(clicked()),this,SLOT(c_vib_clicked()));
 //       CONTROL         "Sustained",IDC_C_EG,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,171,70,47,10
+   CCheckBox* mfc26 = new CCheckBox(this);
+   mfc26->setText("Sustained");
+   CRect r26(CPoint(171,70),CSize(47,10));
+   MapDialogRect(&r26);
+   mfc26->setGeometry(r26);
+   mfcToQtWidget.insert(IDC_C_EG,mfc26);
+   QObject::connect(mfc26,SIGNAL(clicked()),this,SLOT(c_eg_clicked()));
 //       CONTROL         "RATE key scale",IDC_C_KSR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,247,70,65,10
+   CCheckBox* mfc27 = new CCheckBox(this);
+   mfc27->setText("RATE key scale");
+   CRect r27(CPoint(247,70),CSize(65,10));
+   MapDialogRect(&r27);
+   mfc27->setGeometry(r27);
+   mfcToQtWidget.insert(IDC_C_KSR,mfc27);
+   QObject::connect(mfc27,SIGNAL(clicked()),this,SLOT(c_ksr_clicked()));
 //       CONTROL         "Wave rectification",IDC_C_DM,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,171,86,74,10
+   CCheckBox* mfc28 = new CCheckBox(this);
+   mfc28->setText("Wave rectification");
+   CRect r28(CPoint(171,86),CSize(74,10));
+   MapDialogRect(&r28);
+   mfc28->setGeometry(r28);
+   mfcToQtWidget.insert(IDC_C_DM,mfc28);
+   QObject::connect(mfc28,SIGNAL(clicked()),this,SLOT(c_dm_clicked()));
 //       LTEXT           "Level",IDC_STATIC,249,87,18,8
+   CStatic* mfc29 = new CStatic(this);
+   mfc29->setText("Level");
+   CRect r29(CPoint(249,87),CSize(18,8));
+   MapDialogRect(&r29);
+   mfc29->setGeometry(r29);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       CONTROL         "",IDC_C_KSL,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,270,86,40,11
+   CSliderCtrl* mfc30 = new CSliderCtrl(this);
+   CRect r30(CPoint(270,86),CSize(40,11));
+   MapDialogRect(&r30);
+   mfc30->setGeometry(r30);
+   mfcToQtWidget.insert(IDC_C_KSL,mfc30);
+   QObject::connect(mfc30,SIGNAL(valueChanged(int)),this,SLOT(c_ksl_valueChanged(int)));
 //       LTEXT           "Mult. factor",IDC_STATIC,171,108,38,8
+   CStatic* mfc31 = new CStatic(this);
+   mfc31->setText("Mult. factor");
+   CRect r31(CPoint(171,108),CSize(38,8));
+   MapDialogRect(&r31);
+   mfc31->setGeometry(r31);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       CONTROL         "",IDC_C_MUL,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,208,107,106,11
+   CSliderCtrl* mfc32 = new CSliderCtrl(this);
+   CRect r32(CPoint(208,107),CSize(106,11));
+   MapDialogRect(&r32);
+   mfc32->setGeometry(r32);
+   mfcToQtWidget.insert(IDC_C_MUL,mfc32);
+   QObject::connect(mfc32,SIGNAL(valueChanged(int)),this,SLOT(c_mul_valueChanged(int)));
 //       LTEXT           "Attack",IDC_STATIC,171,127,22,8
+   CStatic* mfc33 = new CStatic(this);
+   mfc33->setText("Attack");
+   CRect r33(CPoint(171,127),CSize(22,8));
+   MapDialogRect(&r33);
+   mfc33->setGeometry(r33);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       CONTROL         "",IDC_C_AR,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,199,126,42,11
+   CSliderCtrl* mfc34 = new CSliderCtrl(this);
+   CRect r34(CPoint(199,126),CSize(42,11));
+   MapDialogRect(&r34);
+   mfc34->setGeometry(r34);
+   mfcToQtWidget.insert(IDC_C_AR,mfc34);
+   QObject::connect(mfc34,SIGNAL(valueChanged(int)),this,SLOT(c_ar_valueChanged(int)));
 //       LTEXT           "Decay",IDC_STATIC,247,127,21,8
+   CStatic* mfc35 = new CStatic(this);
+   mfc35->setText("Decay");
+   CRect r35(CPoint(247,127),CSize(21,8));
+   MapDialogRect(&r35);
+   mfc35->setGeometry(r35);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       CONTROL         "",IDC_C_DR,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,271,126,43,11
+   CSliderCtrl* mfc36 = new CSliderCtrl(this);
+   CRect r36(CPoint(271,126),CSize(43,11));
+   MapDialogRect(&r36);
+   mfc36->setGeometry(r36);
+   mfcToQtWidget.insert(IDC_C_DR,mfc36);
+   QObject::connect(mfc36,SIGNAL(valueChanged(int)),this,SLOT(c_dr_valueChanged(int)));
 //       LTEXT           "Sustain",IDC_STATIC,171,144,24,8
+   CStatic* mfc37 = new CStatic(this);
+   mfc37->setText("Sustain");
+   CRect r37(CPoint(171,144),CSize(24,8));
+   MapDialogRect(&r37);
+   mfc37->setGeometry(r37);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       CONTROL         "",IDC_C_SL,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,199,143,42,11
+   CSliderCtrl* mfc38 = new CSliderCtrl(this);
+   CRect r38(CPoint(199,143),CSize(42,11));
+   MapDialogRect(&r38);
+   mfc38->setGeometry(r38);
+   mfcToQtWidget.insert(IDC_C_SL,mfc38);
+   QObject::connect(mfc38,SIGNAL(valueChanged(int)),this,SLOT(c_sl_valueChanged(int)));
 //       LTEXT           "Release",IDC_STATIC,245,144,26,8
+   CStatic* mfc39 = new CStatic(this);
+   mfc39->setText("Release");
+   CRect r39(CPoint(245,144),CSize(26,8));
+   MapDialogRect(&r39);
+   mfc39->setGeometry(r39);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       CONTROL         "",IDC_C_RR,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,271,143,43,11
+   CSliderCtrl* mfc40 = new CSliderCtrl(this);
+   CRect r40(CPoint(271,143),CSize(43,11));
+   MapDialogRect(&r40);
+   mfc40->setGeometry(r40);
+   mfcToQtWidget.insert(IDC_C_RR,mfc40);
+   QObject::connect(mfc40,SIGNAL(valueChanged(int)),this,SLOT(c_rr_valueChanged(int)));
 //       CTEXT           "Modulator\nlevel",IDC_STATIC,322,42,36,17
+   CStatic* mfc41 = new CStatic(this);
+   mfc41->setText("Modulator\nlevel");
+   CRect r41(CPoint(322,42),CSize(36,17));
+   MapDialogRect(&r41);
+   mfc41->setGeometry(r41);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       CONTROL         "",IDC_TL,"msctls_trackbar32",TBS_VERT | TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,329,59,16,53
+   CSliderCtrl* mfc42 = new CSliderCtrl(this);
+   mfc42->setOrientation(Qt::Vertical);
+   CRect r42(CPoint(329,59),CSize(16,53));
+   MapDialogRect(&r42);
+   mfc42->setGeometry(r42);
+   mfcToQtWidget.insert(IDC_TL,mfc42);
+   QObject::connect(mfc42,SIGNAL(valueChanged(int)),this,SLOT(tl_valueChanged(int)));
 //       CTEXT           "Feedback",IDC_STATIC,322,112,36,9
+   CStatic* mfc43 = new CStatic(this);
+   mfc43->setText("Feedback");
+   CRect r43(CPoint(322,112),CSize(36,9));
+   MapDialogRect(&r43);
+   mfc43->setGeometry(r43);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       CONTROL         "",IDC_FB,"msctls_trackbar32",TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP,325,124,25,41
+   CSliderCtrl* mfc44 = new CSliderCtrl(this);
+   mfc44->setOrientation(Qt::Vertical);
+   CRect r44(CPoint(325,124),CSize(25,41));
+   MapDialogRect(&r44);
+   mfc44->setGeometry(r44);
+   mfcToQtWidget.insert(IDC_FB,mfc44);
+   QObject::connect(mfc44,SIGNAL(valueChanged(int)),this,SLOT(fb_valueChanged(int)));
 }
 
 CInstrumentEditorVRC7::~CInstrumentEditorVRC7()
