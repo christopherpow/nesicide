@@ -2602,19 +2602,19 @@ void CWnd::GetWindowRect(
    LPRECT lpRect 
 ) const
 {
-   lpRect->left = rect().left();
-   lpRect->right = rect().right();
-   lpRect->top = rect().top();
-   lpRect->bottom = rect().bottom();
+   lpRect->left = geometry().left();
+   lpRect->right = geometry().right();
+   lpRect->top = geometry().top();
+   lpRect->bottom = geometry().bottom();
 }
 
 void CWnd::GetClientRect(
    LPRECT lpRect 
 ) const
 {
-   lpRect->left = rect().left();
+   lpRect->left = 0;
    lpRect->right = rect().right();
-   lpRect->top = rect().top();
+   lpRect->top = 0;
    lpRect->bottom = rect().bottom();
 }
 
