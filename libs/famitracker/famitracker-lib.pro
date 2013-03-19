@@ -134,7 +134,9 @@ SOURCES += \
     resampler/sinc.cpp \
     resampler/resample.inl \
     resampler/resample.cpp \
-    cqtmfc_famitracker.cpp
+    cqtmfc_famitracker.cpp \
+    InstrumentEditorVRC7.cpp \
+    InstrumentEditorVRC6.cpp
 
 HEADERS += \
     TrackerChannel.h \
@@ -220,7 +222,9 @@ HEADERS += \
     PCMImport.h \
     resampler/sinc.hpp \
     resampler/resample.hpp \
-    cqtmfc_famitracker.h
+    cqtmfc_famitracker.h \
+    InstrumentEditorVRC7.h \
+    InstrumentEditorVRC6.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN

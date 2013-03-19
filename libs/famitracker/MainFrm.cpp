@@ -129,7 +129,7 @@ CMainFrame::CMainFrame(CWnd *parent) :
 
    ui->songInstruments->setStyleSheet("QListView { background: #000000; color: #ffffff; }");
    
-   QObject::connect(ui->songInstruments,SIGNAL(activated(QModelIndex)),this,SLOT(songInstruments_activated(QModelIndex)));
+   QObject::connect(ui->songInstruments->selectionModel(),SIGNAL(currentChanged(QModelIndex,QModelIndex)),this,SLOT(songInstruments_currentChanged(QModelIndex,QModelIndex)));
    QObject::connect(ui->songInstruments,SIGNAL(doubleClicked(QModelIndex)),this,SLOT(songInstruments_doubleClicked(QModelIndex)));
    
    CComboBox* mfc1 = new CComboBox;
@@ -590,7 +590,7 @@ void CMainFrame::SelectInstrument(int Index)
 //	}
 
 //	int LastInst = m_iInstrument;
-//	m_iInstrument = Index;
+	m_iInstrument = Index;
 
 //	if (pDoc->IsInstrumentUsed(Index)) {
 //		// Select instrument in list
@@ -898,9 +898,8 @@ void CMainFrame::on_frameChangeAll_clicked(bool checked)
    pView->SetChangeAllPattern(checked);
 }
 
-void CMainFrame::songInstruments_activated(const QModelIndex &index)
+void CMainFrame::songInstruments_currentChanged(const QModelIndex &index,const QModelIndex &)
 {
-   
    NM_LISTVIEW nmlv;
    LRESULT result;
    

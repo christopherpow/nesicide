@@ -42,6 +42,51 @@ IMPLEMENT_DYNAMIC(CInstrumentEditorVRC7, CInstrumentEditPanel)
 CInstrumentEditorVRC7::CInstrumentEditorVRC7(CWnd* pParent /*=NULL*/)
 	: CInstrumentEditPanel(CInstrumentEditorVRC7::IDD, pParent)
 {
+//   IDD_INSTRUMENT_VRC7 DIALOGEX 0, 0, 372, 172
+//       GROUPBOX        "Patch",IDC_STATIC,7,7,310,30
+//       COMBOBOX        IDC_PATCH,15,18,295,128,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+//       PUSHBUTTON      "Copy",IDC_COPY,322,7,43,14
+//       PUSHBUTTON      "Paste",IDC_PASTE,322,23,43,14
+//       GROUPBOX        "Modulator settings",IDC_STATIC,7,42,153,123
+//       CONTROL         "Amplitude modulation",IDC_M_AM,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,54,84,10,WS_EX_TRANSPARENT
+//       CONTROL         "Vibrato",IDC_M_VIB,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,104,54,39,10,WS_EX_TRANSPARENT
+//       CONTROL         "Sustained",IDC_M_EG,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,70,47,10,WS_EX_TRANSPARENT
+//       CONTROL         "RATE key scale",IDC_M_KSR2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,89,70,65,10,WS_EX_TRANSPARENT
+//       CONTROL         "Wave rectification",IDC_M_DM,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,86,74,10,WS_EX_TRANSPARENT
+//       LTEXT           "Level",IDC_STATIC,91,87,18,8
+//       CONTROL         "",IDC_M_KSL,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,112,86,44,11,WS_EX_TRANSPARENT
+//       LTEXT           "Mult. factor",IDC_STATIC,14,108,38,8
+//       CONTROL         "",IDC_M_MUL,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,51,107,105,11,WS_EX_TRANSPARENT
+//       LTEXT           "Attack",IDC_STATIC,14,127,22,8
+//       CONTROL         "",IDC_M_AR,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,40,126,42,11
+//       LTEXT           "Decay",IDC_STATIC,87,127,21,8
+//       CONTROL         "",IDC_M_DR,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,114,126,42,11
+//       LTEXT           "Sustain",IDC_STATIC,14,144,24,8
+//       CONTROL         "",IDC_M_SL,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,39,143,42,11
+//       LTEXT           "Release",IDC_STATIC,85,144,26,8
+//       CONTROL         "",IDC_M_RR,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,114,143,42,11
+//       GROUPBOX        "Carrier settings",IDC_STATIC,166,42,152,123
+//       CONTROL         "Amplitude modulation",IDC_C_AM,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,171,54,84,10
+//       CONTROL         "Vibrato",IDC_C_VIB,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,263,54,39,10
+//       CONTROL         "Sustained",IDC_C_EG,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,171,70,47,10
+//       CONTROL         "RATE key scale",IDC_C_KSR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,247,70,65,10
+//       CONTROL         "Wave rectification",IDC_C_DM,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,171,86,74,10
+//       LTEXT           "Level",IDC_STATIC,249,87,18,8
+//       CONTROL         "",IDC_C_KSL,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,270,86,40,11
+//       LTEXT           "Mult. factor",IDC_STATIC,171,108,38,8
+//       CONTROL         "",IDC_C_MUL,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,208,107,106,11
+//       LTEXT           "Attack",IDC_STATIC,171,127,22,8
+//       CONTROL         "",IDC_C_AR,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,199,126,42,11
+//       LTEXT           "Decay",IDC_STATIC,247,127,21,8
+//       CONTROL         "",IDC_C_DR,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,271,126,43,11
+//       LTEXT           "Sustain",IDC_STATIC,171,144,24,8
+//       CONTROL         "",IDC_C_SL,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,199,143,42,11
+//       LTEXT           "Release",IDC_STATIC,245,144,26,8
+//       CONTROL         "",IDC_C_RR,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,271,143,43,11
+//       CTEXT           "Modulator\nlevel",IDC_STATIC,322,42,36,17
+//       CONTROL         "",IDC_TL,"msctls_trackbar32",TBS_VERT | TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,329,59,16,53
+//       CTEXT           "Feedback",IDC_STATIC,322,112,36,9
+//       CONTROL         "",IDC_FB,"msctls_trackbar32",TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP,325,124,25,41
 }
 
 CInstrumentEditorVRC7::~CInstrumentEditorVRC7()
@@ -54,24 +99,24 @@ void CInstrumentEditorVRC7::DoDataExchange(CDataExchange* pDX)
 }
 
 
-BEGIN_MESSAGE_MAP(CInstrumentEditorVRC7, CInstrumentEditPanel)
-	ON_CBN_SELCHANGE(IDC_PATCH, OnCbnSelchangePatch)
-	ON_BN_CLICKED(IDC_M_AM, &CInstrumentEditorVRC7::OnBnClickedCheckbox)
-	ON_BN_CLICKED(IDC_M_VIB, &CInstrumentEditorVRC7::OnBnClickedCheckbox)
-	ON_BN_CLICKED(IDC_M_EG, &CInstrumentEditorVRC7::OnBnClickedCheckbox)
-	ON_BN_CLICKED(IDC_M_KSR2, &CInstrumentEditorVRC7::OnBnClickedCheckbox)
-	ON_BN_CLICKED(IDC_M_DM, &CInstrumentEditorVRC7::OnBnClickedCheckbox)
-	ON_BN_CLICKED(IDC_C_AM, &CInstrumentEditorVRC7::OnBnClickedCheckbox)
-	ON_BN_CLICKED(IDC_C_VIB, &CInstrumentEditorVRC7::OnBnClickedCheckbox)
-	ON_BN_CLICKED(IDC_C_EG, &CInstrumentEditorVRC7::OnBnClickedCheckbox)
-	ON_BN_CLICKED(IDC_C_KSR, &CInstrumentEditorVRC7::OnBnClickedCheckbox)
-	ON_BN_CLICKED(IDC_C_DM, &CInstrumentEditorVRC7::OnBnClickedCheckbox)
-	ON_WM_VSCROLL()
-	ON_WM_HSCROLL()
-	ON_WM_CONTEXTMENU()
-	ON_COMMAND(IDC_COPY, &CInstrumentEditorVRC7::OnCopy)
-	ON_COMMAND(IDC_PASTE, &CInstrumentEditorVRC7::OnPaste)
-END_MESSAGE_MAP()
+//BEGIN_MESSAGE_MAP(CInstrumentEditorVRC7, CInstrumentEditPanel)
+//	ON_CBN_SELCHANGE(IDC_PATCH, OnCbnSelchangePatch)
+//	ON_BN_CLICKED(IDC_M_AM, &CInstrumentEditorVRC7::OnBnClickedCheckbox)
+//	ON_BN_CLICKED(IDC_M_VIB, &CInstrumentEditorVRC7::OnBnClickedCheckbox)
+//	ON_BN_CLICKED(IDC_M_EG, &CInstrumentEditorVRC7::OnBnClickedCheckbox)
+//	ON_BN_CLICKED(IDC_M_KSR2, &CInstrumentEditorVRC7::OnBnClickedCheckbox)
+//	ON_BN_CLICKED(IDC_M_DM, &CInstrumentEditorVRC7::OnBnClickedCheckbox)
+//	ON_BN_CLICKED(IDC_C_AM, &CInstrumentEditorVRC7::OnBnClickedCheckbox)
+//	ON_BN_CLICKED(IDC_C_VIB, &CInstrumentEditorVRC7::OnBnClickedCheckbox)
+//	ON_BN_CLICKED(IDC_C_EG, &CInstrumentEditorVRC7::OnBnClickedCheckbox)
+//	ON_BN_CLICKED(IDC_C_KSR, &CInstrumentEditorVRC7::OnBnClickedCheckbox)
+//	ON_BN_CLICKED(IDC_C_DM, &CInstrumentEditorVRC7::OnBnClickedCheckbox)
+//	ON_WM_VSCROLL()
+//	ON_WM_HSCROLL()
+//	ON_WM_CONTEXTMENU()
+//	ON_COMMAND(IDC_COPY, &CInstrumentEditorVRC7::OnCopy)
+//	ON_COMMAND(IDC_PASTE, &CInstrumentEditorVRC7::OnPaste)
+//END_MESSAGE_MAP()
 
 
 // CInstrumentSettingsVRC7 message handlers
@@ -426,7 +471,9 @@ void CInstrumentEditorVRC7::OnCopy()
 
 void CInstrumentEditorVRC7::OnPaste()
 {
-	// Copy from clipboard
+   qDebug("CInstrumentEditorVRC7::OnPaste not implemented...");
+#if 0
+   // Copy from clipboard
 	if (!OpenClipboard())
 		return;
 
@@ -453,4 +500,5 @@ void CInstrumentEditorVRC7::OnPaste()
 	}
 
 	LoadCustomPatch();
+#endif
 }

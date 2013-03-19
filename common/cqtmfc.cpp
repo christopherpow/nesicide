@@ -2053,7 +2053,7 @@ BOOL CScrollBar::Create(
       }
       else if ( dwStyle&SBS_LEFTALIGN )
       {
-         myRect.setRight(myRect.left() + _qtd->sizeHint().height());
+         myRect.setRight(myRect.left() + _qtd->sizeHint().width());
       }
    }
    else
@@ -3400,6 +3400,14 @@ void CSliderCtrl::SetRange(
 )
 {
    _qtd->setRange(nLower,nUpper);
+}
+
+void CSliderCtrl::SetRangeMax(
+   int nMax,
+   BOOL bRedraw
+)
+{
+   _qtd->setMaximum(nMax);
 }
 
 void CSliderCtrl::SetPos(

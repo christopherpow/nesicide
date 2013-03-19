@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "FamiTrackerDoc.h"
+
 // List control states
 #define LCTRL_CHECKBOX_STATE		0x3000
 #define LCTRL_CHECKBOX_CHECKED		0x2000

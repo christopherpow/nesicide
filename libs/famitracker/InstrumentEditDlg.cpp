@@ -189,12 +189,10 @@ void CInstrumentEditDlg::SetCurrentInstrument(int Index)
 				}
 				break;
 			case INST_VRC6:
-         qDebug("InstrumentEditorVRC6");
-//				InsertPane(new CInstrumentEditorVRC6(), true);
+				InsertPane(new CInstrumentEditorVRC6(), true);
 				break;
 			case INST_VRC7:
-         qDebug("InstrumentEditorVRC7");
-//				InsertPane(new CInstrumentEditorVRC7(), true);
+				InsertPane(new CInstrumentEditorVRC7(), true);
 				break;
 			case INST_FDS:
          qDebug("InstrumentEditorFDS");

@@ -135,7 +135,7 @@ public:
    
 public slots:
    void songInstruments_doubleClicked(const QModelIndex &index);
-   void songInstruments_activated(const QModelIndex& index);
+   void songInstruments_currentChanged(const QModelIndex& index,const QModelIndex&);
    void on_frameChangeAll_clicked(bool checked);
    void on_frameInc_clicked();   
    void on_frameDec_clicked();

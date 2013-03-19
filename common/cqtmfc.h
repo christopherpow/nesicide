@@ -104,6 +104,8 @@
 
 #define afx_msg
 
+#define strcpy_s(d,l,s) wcsncpy(d,s,l)
+
 #ifdef QT_NO_DEBUG
 #define ASSERT(y)
 #define ASSERT_VALID(y)
@@ -970,6 +972,14 @@ public:
       UINT nHitTest,
       CPoint point 
    ) {}   
+   BOOL OnEraseBkgnd(
+      CDC* pDC 
+   ) { return TRUE; }
+   HBRUSH OnCtlColor(
+      CDC* pDC,
+      CWnd* pWnd,
+      UINT nCtlColor 
+   ) { return (HBRUSH)NULL; }
    void OnLButtonDblClk(UINT,CPoint) {}
    void OnLButtonDown(UINT,CPoint) {}
    void OnLButtonUp(UINT,CPoint) {}
@@ -1484,6 +1494,10 @@ public:
    void SetRange(
       short nLower,
       short nUpper 
+   );   
+   void SetRangeMax(
+      int nMax,
+      BOOL bRedraw = FALSE 
    );   
    void SetPos(
       int nPos 
