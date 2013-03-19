@@ -349,6 +349,7 @@ CInstrumentEditorVRC7::CInstrumentEditorVRC7(CWnd* pParent /*=NULL*/)
 //       CONTROL         "",IDC_TL,"msctls_trackbar32",TBS_VERT | TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,329,59,16,53
    CSliderCtrl* mfc42 = new CSliderCtrl(this);
    mfc42->setOrientation(Qt::Vertical);
+   mfc42->setInvertedAppearance(true);
    CRect r42(CPoint(329,59),CSize(16,53));
    MapDialogRect(&r42);
    mfc42->setGeometry(r42);
@@ -364,6 +365,7 @@ CInstrumentEditorVRC7::CInstrumentEditorVRC7(CWnd* pParent /*=NULL*/)
 //       CONTROL         "",IDC_FB,"msctls_trackbar32",TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP,325,124,25,41
    CSliderCtrl* mfc44 = new CSliderCtrl(this);
    mfc44->setOrientation(Qt::Vertical);
+   mfc44->setInvertedAppearance(true);
    CRect r44(CPoint(325,124),CSize(25,41));
    MapDialogRect(&r44);
    mfc44->setGeometry(r44);
@@ -400,6 +402,140 @@ void CInstrumentEditorVRC7::DoDataExchange(CDataExchange* pDX)
 //	ON_COMMAND(IDC_PASTE, &CInstrumentEditorVRC7::OnPaste)
 //END_MESSAGE_MAP()
 
+void CInstrumentEditorVRC7::patch_currentIndexChanged(int index)
+{
+   OnCbnSelchangePatch();
+}
+
+void CInstrumentEditorVRC7::copy_clicked()
+{
+   OnCopy();
+}
+
+void CInstrumentEditorVRC7::paste_clicked()
+{
+   OnPaste();
+}
+
+void CInstrumentEditorVRC7::m_am_clicked()
+{
+   OnBnClickedCheckbox();
+}
+
+void CInstrumentEditorVRC7::m_vib_clicked()
+{
+   OnBnClickedCheckbox();
+}
+
+void CInstrumentEditorVRC7::m_eq_clicked()
+{
+   OnBnClickedCheckbox();
+}
+
+void CInstrumentEditorVRC7::m_ksr2_clicked()
+{
+   OnBnClickedCheckbox();
+}
+
+void CInstrumentEditorVRC7::m_dm_clicked()
+{
+   OnBnClickedCheckbox();
+}
+
+void CInstrumentEditorVRC7::m_ksl_valueChanged(int val)
+{
+   OnHScroll(SB_HORZ,val,dynamic_cast<CScrollBar*>(GetDlgItem(IDC_M_KSL)));
+}
+
+void CInstrumentEditorVRC7::m_mul_valueChanged(int val)
+{
+   OnHScroll(SB_HORZ,val,dynamic_cast<CScrollBar*>(GetDlgItem(IDC_M_MUL)));
+}
+
+void CInstrumentEditorVRC7::m_ar_valueChanged(int val)
+{
+   OnHScroll(SB_HORZ,val,dynamic_cast<CScrollBar*>(GetDlgItem(IDC_M_AR)));
+}
+
+void CInstrumentEditorVRC7::m_dr_valueChanged(int val)
+{
+   OnHScroll(SB_HORZ,val,dynamic_cast<CScrollBar*>(GetDlgItem(IDC_M_DR)));
+}
+
+void CInstrumentEditorVRC7::m_sl_valueChanged(int val)
+{
+   OnHScroll(SB_HORZ,val,dynamic_cast<CScrollBar*>(GetDlgItem(IDC_M_SL)));
+}
+
+void CInstrumentEditorVRC7::m_rr_valueChanged(int val)
+{
+   OnHScroll(SB_HORZ,val,dynamic_cast<CScrollBar*>(GetDlgItem(IDC_M_RR)));
+}
+
+void CInstrumentEditorVRC7::c_am_clicked()
+{
+   OnBnClickedCheckbox();
+}
+
+void CInstrumentEditorVRC7::c_vib_clicked()
+{
+   OnBnClickedCheckbox();
+}
+
+void CInstrumentEditorVRC7::c_eq_clicked()
+{
+   OnBnClickedCheckbox();
+}
+
+void CInstrumentEditorVRC7::c_ksr_clicked()
+{
+   OnBnClickedCheckbox();
+}
+
+void CInstrumentEditorVRC7::c_dm_clicked()
+{
+   OnBnClickedCheckbox();
+}
+
+void CInstrumentEditorVRC7::c_ksl_valueChanged(int val)
+{
+   OnHScroll(SB_HORZ,val,dynamic_cast<CScrollBar*>(GetDlgItem(IDC_C_KSL)));
+}
+
+void CInstrumentEditorVRC7::c_mul_valueChanged(int val)
+{
+   OnHScroll(SB_HORZ,val,dynamic_cast<CScrollBar*>(GetDlgItem(IDC_C_MUL)));
+}
+
+void CInstrumentEditorVRC7::c_ar_valueChanged(int val)
+{
+   OnHScroll(SB_HORZ,val,dynamic_cast<CScrollBar*>(GetDlgItem(IDC_C_AR)));
+}
+
+void CInstrumentEditorVRC7::c_dr_valueChanged(int val)
+{
+   OnHScroll(SB_HORZ,val,dynamic_cast<CScrollBar*>(GetDlgItem(IDC_C_DR)));
+}
+
+void CInstrumentEditorVRC7::c_sl_valueChanged(int val)
+{
+   OnHScroll(SB_HORZ,val,dynamic_cast<CScrollBar*>(GetDlgItem(IDC_C_SL)));
+}
+
+void CInstrumentEditorVRC7::c_rr_valueChanged(int val)
+{
+   OnHScroll(SB_HORZ,val,dynamic_cast<CScrollBar*>(GetDlgItem(IDC_C_RR)));
+}
+
+void CInstrumentEditorVRC7::tl_valueChanged(int val)
+{
+   OnVScroll(SB_HORZ,val,dynamic_cast<CScrollBar*>(GetDlgItem(IDC_TL)));
+}
+
+void CInstrumentEditorVRC7::fb_valueChanged(int val)
+{
+   OnVScroll(SB_HORZ,val,dynamic_cast<CScrollBar*>(GetDlgItem(IDC_FB)));
+}
 
 // CInstrumentSettingsVRC7 message handlers
 

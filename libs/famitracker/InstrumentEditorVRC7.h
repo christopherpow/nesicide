@@ -20,10 +20,44 @@
 
 #pragma once
 
+#include "stdafx.h"
+#include "FamiTrackerDoc.h"
+#include "InstrumentEditPanel.h"
+
 class CInstrumentEditorVRC7 : public CInstrumentEditPanel
 {
-	DECLARE_DYNAMIC(CInstrumentEditorVRC7)
-
+   Q_OBJECT
+   DECLARE_DYNAMIC(CInstrumentEditorVRC7)
+   // Qt stuff
+public slots:
+   void patch_currentIndexChanged(int index);
+   void copy_clicked();
+   void paste_clicked();
+   void m_am_clicked();
+   void m_vib_clicked();
+   void m_eq_clicked();
+   void m_ksr2_clicked();
+   void m_dm_clicked();
+   void m_ksl_valueChanged(int val);
+   void m_mul_valueChanged(int val);
+   void m_ar_valueChanged(int val);
+   void m_dr_valueChanged(int val);
+   void m_sl_valueChanged(int val);
+   void m_rr_valueChanged(int val);
+   void c_am_clicked();
+   void c_vib_clicked();
+   void c_eq_clicked();
+   void c_ksr_clicked();
+   void c_dm_clicked();
+   void c_ksl_valueChanged(int val);
+   void c_mul_valueChanged(int val);
+   void c_ar_valueChanged(int val);
+   void c_dr_valueChanged(int val);
+   void c_sl_valueChanged(int val);
+   void c_rr_valueChanged(int val);
+   void tl_valueChanged(int val);
+   void fb_valueChanged(int val);
+   
 public:
 	CInstrumentEditorVRC7(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CInstrumentEditorVRC7();

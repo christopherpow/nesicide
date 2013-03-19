@@ -1489,6 +1489,7 @@ class CSliderCtrl : public CWnd
    // Qt interfaces
 public:
    void setOrientation(Qt::Orientation orient) { _qtd->setOrientation(orient); }
+   void setInvertedAppearance(bool inverted) { _qtd->setInvertedAppearance(inverted); }
 protected:
    QSlider* _qtd;
 signals:

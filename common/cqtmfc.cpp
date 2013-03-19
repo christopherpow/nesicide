@@ -1855,8 +1855,10 @@ int CListCtrl::InsertItem(
 #else
    twi->setText(lpszItem);
 #endif
+   _qtd->blockSignals(true);
    _qtd->insertRow(nItem);
    _qtd->setItem(nItem,0,twi);
+   _qtd->blockSignals(false);
    _qtd->resizeRowToContents(nItem);
    _qtd->resizeColumnsToContents();
    return _qtd->rowCount()-1;
@@ -1874,8 +1876,10 @@ int CListCtrl::InsertItem(
 #else
    twi->setText(lpszItem);
 #endif
+   _qtd->blockSignals(true);
    _qtd->insertRow(nItem);
    _qtd->setItem(nItem,0,twi);
+   _qtd->blockSignals(false);
    _qtd->resizeRowToContents(nItem);
    _qtd->resizeColumnsToContents();
    return _qtd->rowCount()-1;
@@ -3142,7 +3146,9 @@ void CEdit::SetDlgItemInt(
    BOOL bSigned 
 )
 {
+   _qtd->blockSignals(true);
    _qtd->setText(QString::number(nValue));
+   _qtd->blockSignals(false);
 }
 
 UINT CEdit::GetDlgItemInt(
@@ -3159,11 +3165,13 @@ void CEdit::SetDlgItemText(
    LPCTSTR lpszString 
 )
 {
+   _qtd->blockSignals(true);
 #if UNICODE
    _qtd->setText(QString::fromWCharArray(lpszString));
 #else
    _qtd->setText(lpszString);
 #endif
+   _qtd->blockSignals(false);
 }
 
 int CEdit::GetDlgItemText(
@@ -3245,7 +3253,9 @@ void CButton::CheckDlgButton(
    UINT nCheck  
 )
 {
+   _qtd->blockSignals(true);
    _qtd->setChecked(nCheck);
+   _qtd->blockSignals(false);
 }
 
 UINT CButton::IsDlgButtonChecked( 
@@ -3325,7 +3335,9 @@ void CCheckBox::CheckDlgButton(
    UINT nCheck  
 )
 {
+   _qtd->blockSignals(true);
    _qtd->setChecked(nCheck);
+   _qtd->blockSignals(false);
 }
 
 UINT CCheckBox::IsDlgButtonChecked( 
@@ -3419,7 +3431,9 @@ void CSliderCtrl::SetPos(
    int nPos 
 )
 {
+   _qtd->blockSignals(true);
    _qtd->setValue(nPos);
+   _qtd->blockSignals(false);
 }
 
 int CSliderCtrl::GetPos( ) const
