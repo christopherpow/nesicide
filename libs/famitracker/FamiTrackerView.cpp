@@ -282,13 +282,6 @@ CFamiTrackerView::CFamiTrackerView(CWnd* parent) :
    m_pPatternView = new CPatternView();
    m_pPatternView->installEventFilter(this);
    
-   qDebug("Put SetupColors here for now...");
-   
-   m_pPatternView->ApplyColorScheme();
-
-	// Setup pattern view
-	m_pPatternView->InitView(m_iClipBoard);
-   
    grid = new QGridLayout(this->toQWidget()); 
    grid->setMargin(0);
    grid->addWidget(m_pPatternView);
@@ -351,20 +344,20 @@ bool CFamiTrackerView::eventFilter(QObject *object, QEvent *event)
    return false;
 }
 
-//BOOL CFamiTrackerView::PreCreateWindow(CREATESTRUCT& cs)
-//{
-//	m_iClipBoard = RegisterClipboardFormat(CLIPBOARD_ID);
+BOOL CFamiTrackerView::PreCreateWindow(CREATESTRUCT& cs)
+{
+	m_iClipBoard = RegisterClipboardFormat(CLIPBOARD_ID);
 
-//	if (m_iClipBoard == 0)
-//		AfxMessageBox(IDS_CLIPBOARD_ERROR, MB_ICONERROR);
+	if (m_iClipBoard == 0)
+		AfxMessageBox(IDS_CLIPBOARD_ERROR, MB_ICONERROR);
 
-//	m_pPatternView->ApplyColorScheme();
+	m_pPatternView->ApplyColorScheme();
 
-//	// Setup pattern view
-//	m_pPatternView->InitView(m_iClipBoard);
+	// Setup pattern view
+	m_pPatternView->InitView(m_iClipBoard);
 
-//	return CView::PreCreateWindow(cs);
-//}
+	return CView::PreCreateWindow(cs);
+}
 
 
 //// CFamiTrackerView diagnostics
@@ -742,17 +735,16 @@ void CFamiTrackerView::OnTimer(UINT nIDEvent)
 			else {
 				if (pDoc->IsFileLoaded()) {
 					// TODO: Change this to use the ordinary drawing routines
-//					CDC *pDC = this->GetDC();
-//					if (pDC && pDC->m_hDC) {
-						m_pPatternView->DrawMeters(NULL);
-//						ReleaseDC(pDC);
-//					}
+					CDC *pDC = this->GetDC();
+					if (pDC && pDC->m_hDC) {
+						m_pPatternView->DrawMeters(pDC);
+						ReleaseDC(pDC);
+					}
 				}
 			}
 
-         qDebug("ChangeNoteState");
-//			if (LastNoteState != m_iKeyboardNote)
-//				pMainFrm->ChangeNoteState(m_iKeyboardNote);
+			if (LastNoteState != m_iKeyboardNote)
+				pMainFrm->ChangeNoteState(m_iKeyboardNote);
 
 			LastNoteState = m_iKeyboardNote;
 
@@ -776,19 +768,19 @@ void CFamiTrackerView::OnTimer(UINT nIDEvent)
 	CView::OnTimer(nIDEvent);
 }
 
-//int CFamiTrackerView::OnCreate(LPCREATESTRUCT lpCreateStruct)
-//{
-//	if (CView::OnCreate(lpCreateStruct) == -1)
-//		return -1;
+int CFamiTrackerView::OnCreate(LPCREATESTRUCT lpCreateStruct)
+{
+	if (CView::OnCreate(lpCreateStruct) == -1)
+		return -1;
 
-//	// Install a timer for screen updates, 20ms
-//	SetTimer(TMR_UPDATE, 20, NULL);
+	// Install a timer for screen updates, 20ms
+	SetTimer(TMR_UPDATE, 20, NULL);
 
-//	// Install a timer for scrolling, 30ms
-////	SetTimer(TMR_SCROLL, 30, NULL);
+	// Install a timer for scrolling, 30ms
+//	SetTimer(TMR_SCROLL, 30, NULL);
 
-//	return 0;
-//}
+	return 0;
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Menu commands

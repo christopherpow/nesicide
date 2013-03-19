@@ -43,28 +43,171 @@ CInstrumentEditorVRC7::CInstrumentEditorVRC7(CWnd* pParent /*=NULL*/)
 	: CInstrumentEditPanel(CInstrumentEditorVRC7::IDD, pParent)
 {
 //   IDD_INSTRUMENT_VRC7 DIALOGEX 0, 0, 372, 172
+   CRect rect(CPoint(0,0),CSize(372,172));
+   MapDialogRect(&rect);
+   setFixedSize(rect.Width(),rect.Height());
+   
 //       GROUPBOX        "Patch",IDC_STATIC,7,7,310,30
+   CGroupBox* mfc1 = new CGroupBox(this);
+   mfc1->setTitle("Patch");
+   CRect r1(CPoint(7,7),CSize(310,30));
+   MapDialogRect(&r1);
+   mfc1->setGeometry(r1);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       COMBOBOX        IDC_PATCH,15,18,295,128,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+   CComboBox* mfc2 = new CComboBox(this);
+   CRect r2(CPoint(15,18),CSize(295,12)); // COMBOBOX resource vertical extent includes drop-down height
+   MapDialogRect(&r2);
+   mfc2->setGeometry(r2);
+   mfcToQtWidget.insert(IDC_PATCH,mfc2);
+   QObject::connect(mfc2,SIGNAL(currentIndexChanged(int)),this,SLOT(patch_currentIndexChanged(int)));
 //       PUSHBUTTON      "Copy",IDC_COPY,322,7,43,14
+   CButton* mfc3 = new CButton(this);
+   mfc3->setText("Copy");
+   CRect r3(CPoint(322,7),CSize(43,14));
+   MapDialogRect(&r3);
+   mfc3->setGeometry(r3);
+   mfcToQtWidget.insert(IDC_COPY,mfc3);
+   QObject::connect(mfc3,SIGNAL(clicked()),this,SLOT(copy_clicked()));
 //       PUSHBUTTON      "Paste",IDC_PASTE,322,23,43,14
+   CButton* mfc4 = new CButton(this);
+   mfc4->setText("Paste");
+   CRect r4(CPoint(322,23),CSize(43,14));
+   MapDialogRect(&r4);
+   mfc4->setGeometry(r4);
+   mfcToQtWidget.insert(IDC_PASTE,mfc4);
+   QObject::connect(mfc4,SIGNAL(clicked()),this,SLOT(paste_clicked()));
 //       GROUPBOX        "Modulator settings",IDC_STATIC,7,42,153,123
+   CGroupBox* mfc5 = new CGroupBox(this);
+   mfc5->setTitle("Modulator settings");
+   CRect r5(CPoint(7,42),CSize(153,123));
+   MapDialogRect(&r5);
+   mfc5->setGeometry(r5);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       CONTROL         "Amplitude modulation",IDC_M_AM,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,54,84,10,WS_EX_TRANSPARENT
+   CCheckBox* mfc6 = new CCheckBox(this);
+   mfc6->setText("Amplitude modulation");
+   CRect r6(CPoint(14,54),CSize(84,10));
+   MapDialogRect(&r6);
+   mfc6->setGeometry(r6);
+   mfcToQtWidget.insert(IDC_M_AM,mfc6);
+   QObject::connect(mfc6,SIGNAL(clicked()),this,SLOT(m_am_clicked()));
 //       CONTROL         "Vibrato",IDC_M_VIB,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,104,54,39,10,WS_EX_TRANSPARENT
+   CCheckBox* mfc7 = new CCheckBox(this);
+   mfc7->setText("Vibrato");
+   CRect r7(CPoint(104,54),CSize(39,10));
+   MapDialogRect(&r7);
+   mfc7->setGeometry(r7);
+   mfcToQtWidget.insert(IDC_M_VIB,mfc7);
+   QObject::connect(mfc7,SIGNAL(clicked()),this,SLOT(m_vib_clicked()));
 //       CONTROL         "Sustained",IDC_M_EG,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,70,47,10,WS_EX_TRANSPARENT
+   CCheckBox* mfc8 = new CCheckBox(this);
+   mfc8->setText("Sustained");
+   CRect r8(CPoint(14,70),CSize(47,10));
+   MapDialogRect(&r8);
+   mfc8->setGeometry(r8);
+   mfcToQtWidget.insert(IDC_M_EG,mfc8);
+   QObject::connect(mfc8,SIGNAL(clicked()),this,SLOT(m_eg_clicked()));
 //       CONTROL         "RATE key scale",IDC_M_KSR2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,89,70,65,10,WS_EX_TRANSPARENT
+   CCheckBox* mfc9 = new CCheckBox(this);
+   mfc9->setText("RATE key scale");
+   CRect r9(CPoint(89,70),CSize(65,10));
+   MapDialogRect(&r9);
+   mfc9->setGeometry(r9);
+   mfcToQtWidget.insert(IDC_M_KSR2,mfc9);
+   QObject::connect(mfc9,SIGNAL(clicked()),this,SLOT(m_ksr2_clicked()));
 //       CONTROL         "Wave rectification",IDC_M_DM,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,86,74,10,WS_EX_TRANSPARENT
+   CCheckBox* mfc10 = new CCheckBox(this);
+   mfc10->setText("Wave rectification");
+   CRect r10(CPoint(14,86),CSize(74,10));
+   MapDialogRect(&r10);
+   mfc10->setGeometry(r10);
+   mfcToQtWidget.insert(IDC_M_DM,mfc10);
+   QObject::connect(mfc10,SIGNAL(clicked()),this,SLOT(m_dm_clicked()));
 //       LTEXT           "Level",IDC_STATIC,91,87,18,8
+   CStatic* mfc11 = new CStatic(this);
+   mfc11->setText("Level");
+   CRect r11(CPoint(91,87),CSize(18,8));
+   MapDialogRect(&r11);
+   mfc11->setGeometry(r11);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       CONTROL         "",IDC_M_KSL,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,112,86,44,11,WS_EX_TRANSPARENT
+   CSliderCtrl* mfc12 = new CSliderCtrl(this);
+   CRect r12(CPoint(112,86),CSize(44,11));
+   MapDialogRect(&r12);
+   mfc12->setGeometry(r12);
+   mfcToQtWidget.insert(IDC_M_KSL,mfc12);
+   QObject::connect(mfc12,SIGNAL(valueChanged(int)),this,SLOT(m_ksl_valueChanged(int)));
 //       LTEXT           "Mult. factor",IDC_STATIC,14,108,38,8
+   CStatic* mfc13 = new CStatic(this);
+   mfc13->setText("Mult. factor");
+   CRect r13(CPoint(14,108),CSize(38,8));
+   MapDialogRect(&r13);
+   mfc13->setGeometry(r13);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       CONTROL         "",IDC_M_MUL,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,51,107,105,11,WS_EX_TRANSPARENT
+   CSliderCtrl* mfc14 = new CSliderCtrl(this);
+   CRect r14(CPoint(51,107),CSize(105,11));
+   MapDialogRect(&r14);
+   mfc14->setGeometry(r14);
+   mfcToQtWidget.insert(IDC_M_MUL,mfc14);
+   QObject::connect(mfc14,SIGNAL(valueChanged(int)),this,SLOT(m_mul_valueChanged(int)));
 //       LTEXT           "Attack",IDC_STATIC,14,127,22,8
+   CStatic* mfc15 = new CStatic(this);
+   mfc15->setText("Attack");
+   CRect r15(CPoint(14,127),CSize(22,8));
+   MapDialogRect(&r15);
+   mfc15->setGeometry(r15);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       CONTROL         "",IDC_M_AR,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,40,126,42,11
+   CSliderCtrl* mfc16 = new CSliderCtrl(this);
+   CRect r16(CPoint(40,126),CSize(42,11));
+   MapDialogRect(&r16);
+   mfc16->setGeometry(r16);
+   mfcToQtWidget.insert(IDC_M_AR,mfc16);
+   QObject::connect(mfc16,SIGNAL(valueChanged(int)),this,SLOT(m_ar_valueChanged(int)));
 //       LTEXT           "Decay",IDC_STATIC,87,127,21,8
+   CStatic* mfc17 = new CStatic(this);
+   mfc17->setText("Decay");
+   CRect r17(CPoint(87,127),CSize(21,8));
+   MapDialogRect(&r17);
+   mfc17->setGeometry(r17);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       CONTROL         "",IDC_M_DR,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,114,126,42,11
+   CSliderCtrl* mfc18 = new CSliderCtrl(this);
+   CRect r18(CPoint(114,126),CSize(42,11));
+   MapDialogRect(&r18);
+   mfc18->setGeometry(r18);
+   mfcToQtWidget.insert(IDC_M_DR,mfc18);
+   QObject::connect(mfc18,SIGNAL(valueChanged(int)),this,SLOT(m_dr_valueChanged(int)));
 //       LTEXT           "Sustain",IDC_STATIC,14,144,24,8
+   CStatic* mfc19 = new CStatic(this);
+   mfc19->setText("Sustain");
+   CRect r19(CPoint(14,144),CSize(24,8));
+   MapDialogRect(&r19);
+   mfc19->setGeometry(r19);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       CONTROL         "",IDC_M_SL,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,39,143,42,11
+   CSliderCtrl* mfc20 = new CSliderCtrl(this);
+   CRect r20(CPoint(39,143),CSize(42,11));
+   MapDialogRect(&r20);
+   mfc20->setGeometry(r20);
+   mfcToQtWidget.insert(IDC_M_SL,mfc20);
+   QObject::connect(mfc20,SIGNAL(valueChanged(int)),this,SLOT(m_sl_valueChanged(int)));
 //       LTEXT           "Release",IDC_STATIC,85,144,26,8
+   CStatic* mfc21 = new CStatic(this);
+   mfc21->setText("Release");
+   CRect r21(CPoint(85,144),CSize(26,8));
+   MapDialogRect(&r21);
+   mfc21->setGeometry(r21);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       CONTROL         "",IDC_M_RR,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,114,143,42,11
+   CSliderCtrl* mfc22 = new CSliderCtrl(this);
+   CRect r22(CPoint(114,143),CSize(42,11));
+   MapDialogRect(&r22);
+   mfc22->setGeometry(r22);
+   mfcToQtWidget.insert(IDC_M_RR,mfc22);
+   QObject::connect(mfc22,SIGNAL(valueChanged(int)),this,SLOT(m_rr_valueChanged(int)));
 //       GROUPBOX        "Carrier settings",IDC_STATIC,166,42,152,123
 //       CONTROL         "Amplitude modulation",IDC_C_AM,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,171,54,84,10
 //       CONTROL         "Vibrato",IDC_C_VIB,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,263,54,39,10

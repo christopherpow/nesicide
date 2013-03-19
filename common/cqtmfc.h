@@ -180,6 +180,10 @@ public:
    virtual void DeleteObject() {}
 };
 
+class CCmdTarget : public CObject
+{
+};
+
 class CCriticalSection
 {
 public:
@@ -283,7 +287,7 @@ public:
    }
 };
 
-class CFile
+class CFile : public CCmdTarget
 {
 public:
    enum
@@ -919,7 +923,7 @@ public:
 class CFrameWnd;
 class CScrollBar;
 
-class CWnd : public QWidget, public QtUIElement
+class CWnd : public QWidget, public CCmdTarget, public QtUIElement
 {
    Q_OBJECT
    // MFC interfaces
@@ -931,6 +935,9 @@ public:
    BOOL EnableWindow(
       BOOL bEnable = TRUE 
    );
+   virtual BOOL PreCreateWindow(
+      CREATESTRUCT& cs 
+   ) { return TRUE; }
    virtual BOOL CreateEx(
       DWORD dwExStyle,
       LPCTSTR lpszClassName,
@@ -1135,7 +1142,7 @@ protected:
 };
 
 class CDocTemplate;
-class CDocument
+class CDocument : public CCmdTarget
 {
 public:
    CDocument() : m_pDocTemplate(NULL) {}
@@ -1177,7 +1184,7 @@ protected:
    CDocument* m_pDocument;
 };
 
-class CMenu
+class CMenu : public CCmdTarget
 {
    // Qt interfaces
 public:
@@ -1776,7 +1783,7 @@ public:
    int GetItemCount( ) const;
 };
 
-class CWinThread : public QThread
+class CWinThread : public QThread, public CCmdTarget
 {
    Q_OBJECT
 public:
@@ -1800,7 +1807,7 @@ public slots:
    void recvThreadMessage(unsigned int m,unsigned int w,unsigned int l) { qDebug("CWinThread::recvThreadMessage"); }
 };
 
-class CDocTemplate
+class CDocTemplate : public CCmdTarget
 {
 public:
    CDocTemplate(UINT f,CDocument* pDoc,CFrameWnd* pFrameWnd,CView* pView);

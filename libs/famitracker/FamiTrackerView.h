@@ -323,7 +323,7 @@ public:
 
 //// Overrides
 //public:
-//	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
+	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 
 //// Implementation
 //public:
@@ -390,7 +390,7 @@ public:
 	afx_msg void OnKillFocus(CWnd* pNewWnd);
 	afx_msg void OnSetFocus(CWnd* pOldWnd);
 	afx_msg void OnTimer(UINT nIDEvent);
-//	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 
 	afx_msg void OnTrackerPlayrow();
 	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);

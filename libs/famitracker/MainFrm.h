@@ -84,7 +84,7 @@ public:
 	void	SetTempo(int Tempo);
    void	SetRowCount(int Count);
 	void	SetFrameCount(int Count);
-   
+
 protected:
    void focusInEvent(QFocusEvent *);
    void showEvent(QShowEvent *);

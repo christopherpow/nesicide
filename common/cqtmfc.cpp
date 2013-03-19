@@ -2156,7 +2156,6 @@ CWnd::CWnd(CWnd *parent)
       _qt = new QWidget;
    }
       
-   _qt->setMouseTracking(true);
    _qt->installEventFilter(this);
 }
 
@@ -2301,6 +2300,7 @@ BOOL CWnd::CreateEx(
    _qt->setFixedSize(rect.right-rect.left,rect.bottom-rect.top);
    _qt->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
    m_hWnd = (HWND)_qt;
+   PreCreateWindow(createStruct);
    OnCreate(&createStruct);
    return TRUE;
 }
@@ -2826,6 +2826,11 @@ CDocTemplate::CDocTemplate(UINT f,CDocument* pDoc,CFrameWnd* pFrameWnd,CView* pV
 CSingleDocTemplate::CSingleDocTemplate(UINT f,CDocument* pDoc,CFrameWnd* pFrameWnd,CView* pView)
    : CDocTemplate(f,pDoc,pFrameWnd,pView)
 {
+   CREATESTRUCT cs;
+   if ( pView->PreCreateWindow(cs) )
+   {
+      pView->OnCreate(&cs);
+   }
 }
 
 CDocument* CSingleDocTemplate::OpenDocumentFile(

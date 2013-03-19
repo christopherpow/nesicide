@@ -850,6 +850,11 @@ int CMainFrame::GetInstrumentIndex(int ListIndex) const
 	return Instrument;
 }
 
+void CMainFrame::ChangeNoteState(int Note)
+{
+	m_wndInstEdit.ChangeNoteState(Note);
+}
+
 void CMainFrame::OpenInstrumentSettings()
 {
 	CFamiTrackerDoc	*pDoc = (CFamiTrackerDoc*)GetActiveDocument();
