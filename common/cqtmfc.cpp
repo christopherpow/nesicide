@@ -1171,7 +1171,7 @@ CDC::~CDC()
 
 void CDC::flush()
 {
-   if ( _qwidget && _qpixmap->paintingActive() )
+   if ( _qwidget )
    {
       QPainter p;
       p.begin(_qwidget);
@@ -1185,7 +1185,7 @@ void CDC::attach()
 {
    _qpixmap = new QPixmap(1,1);
    _qpainter = new QPainter(_qpixmap);
-   _qpainter->setBackgroundMode(Qt::TransparentMode);
+//   _qpainter->setBackgroundMode(Qt::TransparentMode);
    m_hDC = (HDC)_qpixmap;
    attached = true;
 }
@@ -2255,7 +2255,7 @@ bool CWnd::eventFilter(QObject *object, QEvent *event)
       keyReleaseEvent(dynamic_cast<QKeyEvent*>(event));
       return true;
    }
-   qDebug("eventFilter: unhandled %d object %s", event->type(), object->objectName().toAscii().constData());
+//   qDebug("eventFilter: unhandled %d object %s", event->type(), object->objectName().toAscii().constData());
    return false;
 }
 
@@ -3054,12 +3054,12 @@ CTabCtrl::CTabCtrl(CWnd* parent)
       delete _qt;
    
    if ( parent )
-      _qt = new QTabBar(parent->toQWidget());
+      _qt = new QTabWidget(parent->toQWidget());
    else
-      _qt = new QTabBar;
+      _qt = new QTabWidget;
 
    // Downcast to save having to do it all over the place...
-   _qtd = dynamic_cast<QTabBar*>(_qt);
+   _qtd = dynamic_cast<QTabWidget*>(_qt);
    
    // Pass-through signals
    QObject::connect(_qtd,SIGNAL(currentChanged(int)),this,SIGNAL(currentChanged(int)));
@@ -3080,9 +3080,9 @@ LONG CTabCtrl::InsertItem(
 {
    _qtd->blockSignals(true); // Don't cause TcnSelchange yet...
 #if UNICODE
-   _qtd->insertTab(nItem,QString::fromWCharArray(lpszItem));
+   _qtd->insertTab(nItem,new QWidget(),QString::fromWCharArray(lpszItem));
 #else
-   _qtd->insertTab(nItem,lpszItem);
+   _qtd->insertTab(nItem,new QWidget(),lpszItem);
 #endif
    _qtd->blockSignals(false);
    return nItem;

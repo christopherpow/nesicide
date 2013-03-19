@@ -1645,7 +1645,7 @@ class CTabCtrl : public CWnd
    // Qt interfaces
 public:
 protected:
-   QTabBar* _qtd;
+   QTabWidget* _qtd;
 signals:
    void currentChanged(int);
    

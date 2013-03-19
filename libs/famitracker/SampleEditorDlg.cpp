@@ -500,7 +500,7 @@ bool CSampleView::eventFilter(QObject *object, QEvent *event)
       keyReleaseEvent(dynamic_cast<QKeyEvent*>(event));
       return true;
    }
-   qDebug("eventFilter: unhandled %d object %s", event->type(), object->objectName().toAscii().constData());
+//   qDebug("eventFilter: unhandled %d object %s", event->type(), object->objectName().toAscii().constData());
    return false;
 }
 

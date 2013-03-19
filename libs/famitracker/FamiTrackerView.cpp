@@ -3499,7 +3499,6 @@ void CFamiTrackerView::timerEvent(QTimerEvent *event)
 {
    int mfcId = mfcTimerId(event->timerId());
    OnTimer(mfcId);
-   m_pPatternView->update();
 }
 
 void CFamiTrackerView::verticalScrollBar_actionTriggered(int arg1)
