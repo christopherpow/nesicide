@@ -932,7 +932,7 @@ public:
    virtual ~CWnd();
 
    BOOL IsWindowVisible( ) const;
-   BOOL EnableWindow(
+   virtual BOOL EnableWindow(
       BOOL bEnable = TRUE 
    );
    virtual BOOL PreCreateWindow(
@@ -1109,6 +1109,7 @@ public:
    void setFocusPolicy(Qt::FocusPolicy policy) { _qt->setFocusPolicy(policy); }
    void setFixedSize(int w, int h) { _qt->setFixedSize(w,h); }
    virtual void setVisible(bool visible) { _qt->setVisible(visible); }
+   virtual void setEnabled(bool enabled) { _qt->setEnabled(enabled); }
    QRect rect() const { return _qt->rect(); }
    virtual QWidget* toQWidget() { return _qt; }
 public slots:
@@ -1366,13 +1367,17 @@ protected:
    Qt::Orientation _orient;
 };
 
+class CSpinButtonCtrl; // CP: for buddy...
 class CEdit : public CWnd
 {
    Q_OBJECT
    // Qt interfaces
 public:
+   void setBuddy(CSpinButtonCtrl* buddy) { _buddy = buddy; }
+   void setText(QString text) { _qtd->setText(text); }
 protected:
    QLineEdit* _qtd;
+   CSpinButtonCtrl* _buddy;
 signals:
    void textChanged(QString);
    
@@ -1380,6 +1385,7 @@ signals:
 public:
    CEdit(CWnd* parent = 0);
    virtual ~CEdit();
+   BOOL EnableWindow(BOOL bEnable);
    void SetDlgItemInt(
       int nID,
       UINT nValue,
@@ -1525,8 +1531,10 @@ class CSpinButtonCtrl : public CWnd
    Q_OBJECT
    // Qt interfaces
 public:
+   void setBuddy(CEdit* buddy) { _buddy = buddy; }
 protected:
    QSpinBox* _qtd;
+   CEdit* _buddy;
 signals:
    void valueChanged(int);
    

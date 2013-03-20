@@ -35,11 +35,6 @@ class CSequenceEditor : public CWnd
 {
 	DECLARE_DYNAMIC(CSequenceEditor)
    // Qt stuff
-   BOOL PostMessage(
-      UINT message,
-      WPARAM wParam = 0,
-      LPARAM lParam = 0
-   );
 protected:
    void paintEvent(QPaintEvent *) { OnPaint(); }
       

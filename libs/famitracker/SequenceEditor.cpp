@@ -58,21 +58,6 @@ CSequenceEditor::~CSequenceEditor()
 //	ON_WM_LBUTTONDOWN()
 //END_MESSAGE_MAP()
 
-BOOL CSequenceEditor::PostMessage(
-   UINT message,
-   WPARAM wParam,
-   LPARAM lParam
-)
-{
-   MSG msg;
-   msg.message = message;
-   msg.wParam = wParam;
-   msg.lParam = lParam;
-   
-   BOOL handled = PreTranslateMessage(&msg);
-   return handled;
-}
-
 BOOL CSequenceEditor::CreateEditor(CWnd *pParentWnd, const RECT &rect)
 {
 	CRect menuRect;

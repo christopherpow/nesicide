@@ -2340,11 +2340,16 @@ void CWnd::MoveWindow(LPCRECT lpRect, BOOL bRepaint)
 BOOL CWnd::PostMessage(
    UINT message,
    WPARAM wParam,
-   LPARAM lParam 
+   LPARAM lParam
 )
 {
-   qDebug("CWnd::PostMessage");
-   return FALSE;
+   MSG msg;
+   msg.message = message;
+   msg.wParam = wParam;
+   msg.lParam = lParam;
+   
+   BOOL handled = PreTranslateMessage(&msg);
+   return handled;
 }
 
 CWnd* CWnd::GetDlgItem(
@@ -3140,6 +3145,16 @@ CEdit::~CEdit()
    _qt = NULL;
 }
 
+BOOL CEdit::EnableWindow(
+   BOOL bEnable
+)
+{
+   BOOL state = _qtd->isEnabled();
+   _qtd->setEnabled(bEnable);
+   if ( _buddy )
+      _buddy->setEnabled(bEnable);
+   return state;
+}
 void CEdit::SetDlgItemInt(
    int nID,
    UINT nValue,
@@ -3348,7 +3363,8 @@ UINT CCheckBox::IsDlgButtonChecked(
 }
 
 CSpinButtonCtrl::CSpinButtonCtrl(CWnd* parent)
-   : CWnd(parent)
+   : CWnd(parent),
+     _buddy(NULL)
 {
    if ( _qt )
       delete _qt;
@@ -3381,6 +3397,8 @@ int CSpinButtonCtrl::SetPos(
    _qtd->blockSignals(true);
    _qtd->setValue(nPos);
    _qtd->blockSignals(false);
+   if ( _buddy )
+      _buddy->setText(QString::number(nPos));
    return pos;
 }
 
@@ -3392,6 +3410,8 @@ int CSpinButtonCtrl::SetPos32(
    _qtd->blockSignals(true);
    _qtd->setValue(nPos);
    _qtd->blockSignals(false);
+   if ( _buddy )
+      _buddy->setText(QString::number(nPos));
    return pos;
 }
 
@@ -3401,6 +3421,8 @@ void CSpinButtonCtrl::SetRange(
 )
 {
    _qtd->setRange(nLower,nUpper);
+   if ( _buddy )
+      _buddy->setText(QString::number(nLower));
 }
 
 CSliderCtrl::CSliderCtrl(CWnd* parent)

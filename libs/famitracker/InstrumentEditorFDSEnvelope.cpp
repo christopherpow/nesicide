@@ -36,6 +36,37 @@ CInstrumentEditorFDSEnvelope::CInstrumentEditorFDSEnvelope(CWnd* pParent) : CSeq
 	m_pSequenceEditor(NULL),
 	m_iSelectedType(0)
 {
+//   IDD_INSTRUMENT_FDS_ENVELOPE DIALOGEX 0, 0, 372, 172
+   CRect rect(CPoint(0,0),CSize(372,172));
+   MapDialogRect(&rect);
+   setFixedSize(rect.Width(),rect.Height());   
+
+//       EDITTEXT        IDC_SEQUENCE_STRING,75,151,290,14,ES_AUTOHSCROLL
+   CEdit* mfc1 = new CEdit(this);
+   CRect r1(CPoint(75,151),CSize(290,14));
+   MapDialogRect(&r1);
+   mfc1->setGeometry(r1);   
+   mfcToQtWidget.insert(IDC_SEQUENCE_STRING,mfc1);
+//       COMBOBOX        IDC_TYPE,8,151,63,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+   CComboBox* mfc2 = new CComboBox(this);
+   CRect r2(CPoint(8,151),CSize(63,12)); // COMBOBOX resource vertical extent includes drop-down height
+   MapDialogRect(&r2);
+   mfc2->setGeometry(r2);
+   mfcToQtWidget.insert(IDC_TYPE,mfc2);
+//   IDD_INSTRUMENT_FDS_ENVELOPE DLGINIT
+//   BEGIN
+//       IDC_TYPE, 0x403, 7, 0
+//   0x6f56, 0x756c, 0x656d, "\000" 
+//       IDC_TYPE, 0x403, 9, 0
+//   0x7241, 0x6570, 0x6767, 0x6f69, "\000" 
+//       IDC_TYPE, 0x403, 6, 0
+//   0x6950, 0x6374, 0x0068, 
+//       0
+//   END
+   mfc2->AddString(_T("Volume"));
+   mfc2->AddString(_T("Arpeggio"));
+   mfc2->AddString(_T("Pitch"));
+   QObject::connect(mfc2,SIGNAL(currentIndexChanged(int)),this,SLOT(type_currentIndexChanged(int)));
 }
 
 CInstrumentEditorFDSEnvelope::~CInstrumentEditorFDSEnvelope()
@@ -56,9 +87,14 @@ void CInstrumentEditorFDSEnvelope::SelectInstrument(int Instrument)
 }
 
 
-BEGIN_MESSAGE_MAP(CInstrumentEditorFDSEnvelope, CInstrumentEditPanel)
-	ON_CBN_SELCHANGE(IDC_TYPE, &CInstrumentEditorFDSEnvelope::OnCbnSelchangeType)
-END_MESSAGE_MAP()
+//BEGIN_MESSAGE_MAP(CInstrumentEditorFDSEnvelope, CInstrumentEditPanel)
+//	ON_CBN_SELCHANGE(IDC_TYPE, &CInstrumentEditorFDSEnvelope::OnCbnSelchangeType)
+//END_MESSAGE_MAP()
+
+void CInstrumentEditorFDSEnvelope::type_currentIndexChanged(int index)
+{
+   OnCbnSelchangeType();
+}
 
 // CInstrumentEditorFDSEnvelope message handlers
 

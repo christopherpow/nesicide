@@ -87,6 +87,8 @@ CInstrumentEditor2A03::CInstrumentEditor2A03(CWnd* pParent)
 //   CONTROL         "",IDC_SEQUENCE_SPIN,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,66,153,11,9
    CEdit* mfc3 = new CEdit(this);
    CSpinButtonCtrl* mfc4 = new CSpinButtonCtrl(this);
+   mfc3->setBuddy(mfc4);
+   mfc4->setBuddy(mfc3);
    // CP: Note, we fake a MFC "spin-box" separate control by placing it over it's "buddy" and connecting signals appropriately
    // to mimic the buddy relationship.
    CRect r3(CPoint(69,147),CSize(39,12));
@@ -158,6 +160,7 @@ void CInstrumentEditor2A03::sequenceSpin_valueChanged(int val)
 {
    // Update the "buddy"
    SetDlgItemInt(IDC_SEQ_INDEX,val);
+   OnEnChangeSeqIndex();
 }
 
 void CInstrumentEditor2A03::seqIndex_textChanged(QString)

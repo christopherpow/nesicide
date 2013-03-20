@@ -139,7 +139,8 @@ SOURCES += \
     InstrumentEditorFDS.cpp \
     InstrumentN163.cpp \
     WaveEditor.cpp \
-    ModSequenceEditor.cpp
+    ModSequenceEditor.cpp \
+    InstrumentEditorFDSEnvelope.cpp
 
 HEADERS += \
     TrackerChannel.h \
@@ -230,7 +231,8 @@ HEADERS += \
     InstrumentEditorVRC6.h \
     InstrumentEditorFDS.h \
     WaveEditor.h \
-    ModSequenceEditor.h
+    ModSequenceEditor.h \
+    InstrumentEditorFDSEnvelope.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN

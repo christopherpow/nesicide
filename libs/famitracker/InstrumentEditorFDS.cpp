@@ -89,6 +89,8 @@ CInstrumentEditorFDS::CInstrumentEditorFDS(CWnd* pParent) : CInstrumentEditPanel
 //       CONTROL         "",IDC_MOD_RATE_SPIN,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS,344,25,11,14
    CEdit* mfc6 = new CEdit(this);
    CSpinButtonCtrl* mfc7 = new CSpinButtonCtrl(this);
+   mfc6->setBuddy(mfc7);
+   mfc7->setBuddy(mfc6);
    // CP: Note, we fake a MFC "spin-box" separate control by placing it over it's "buddy" and connecting signals appropriately
    // to mimic the buddy relationship.
    CRect r6(CPoint(318,22),CSize(37,14));
@@ -112,6 +114,8 @@ CInstrumentEditorFDS::CInstrumentEditorFDS(CWnd* pParent) : CInstrumentEditPanel
 //       CONTROL         "",IDC_MOD_DEPTH_SPIN,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,344,43,11,14
    CEdit* mfc9 = new CEdit(this);
    CSpinButtonCtrl* mfc10 = new CSpinButtonCtrl(this);
+   mfc9->setBuddy(mfc10);
+   mfc10->setBuddy(mfc9);
    // CP: Note, we fake a MFC "spin-box" separate control by placing it over it's "buddy" and connecting signals appropriately
    // to mimic the buddy relationship.
    CRect r9(CPoint(318,43),CSize(37,14));
@@ -135,6 +139,8 @@ CInstrumentEditorFDS::CInstrumentEditorFDS(CWnd* pParent) : CInstrumentEditPanel
 //       CONTROL         "",IDC_MOD_DELAY_SPIN,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,344,63,11,14
    CEdit* mfc12 = new CEdit(this);
    CSpinButtonCtrl* mfc13 = new CSpinButtonCtrl(this);
+   mfc12->setBuddy(mfc13);
+   mfc13->setBuddy(mfc12);
    // CP: Note, we fake a MFC "spin-box" separate control by placing it over it's "buddy" and connecting signals appropriately
    // to mimic the buddy relationship.
    CRect r12(CPoint(318,65),CSize(37,14));
@@ -608,26 +614,38 @@ void CInstrumentEditorFDS::presetSawtooth_clicked()
 
 void CInstrumentEditorFDS::modRate_textChanged(QString text)
 {
+   OnModRateChange();
 }
 
 void CInstrumentEditorFDS::modRateSpin_valueChanged(int val)
 {
+   // Update the "buddy"
+   SetDlgItemInt(IDC_MOD_RATE,val);
+   OnModRateChange();
 }
 
 void CInstrumentEditorFDS::modDepth_textChanged(QString text)
 {
+   OnModDepthChange();
 }
 
 void CInstrumentEditorFDS::modDepthSpin_valueChanged(int val)
 {
+   // Update the "buddy"
+   SetDlgItemInt(IDC_MOD_DEPTH,val);
+   OnModDepthChange();
 }
 
 void CInstrumentEditorFDS::modDelay_textChanged(QString text)
 {
+   OnModDelayChange();
 }
 
 void CInstrumentEditorFDS::modDelaySpin_valueChanged(int val)
 {
+   // Update the "buddy"
+   SetDlgItemInt(IDC_MOD_DELAY,val);
+   OnModDelayChange();
 }
 
 void CInstrumentEditorFDS::modPresetFlat_clicked()

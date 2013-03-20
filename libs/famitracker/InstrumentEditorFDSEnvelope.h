@@ -20,11 +20,20 @@
 
 #pragma once
 
+#include "stdafx.h"
+#include "FamiTrackerDoc.h"
+#include "InstrumentEditPanel.h"
+#include "SequenceEditor.h"
+
 // CInstrumentEditorFDSEnvelope dialog
 
 class CInstrumentEditorFDSEnvelope : public CSequenceInstrumentEditPanel
 {
-	DECLARE_DYNAMIC(CInstrumentEditorFDSEnvelope)
+   Q_OBJECT
+   DECLARE_DYNAMIC(CInstrumentEditorFDSEnvelope)
+   // Qt stuff
+public slots:
+   void type_currentIndexChanged(int index);
 
 public:
 	CInstrumentEditorFDSEnvelope(CWnd* pParent = NULL);   // standard constructor
