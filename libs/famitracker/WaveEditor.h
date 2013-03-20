@@ -20,10 +20,19 @@
 
 #pragma once
 
+#include "cqtmfc.h"
+
 enum {WM_USER_WAVE_CHANGED = WM_USER};
 
 class CWaveEditor : public CWnd
 {
+   // Qt interfaces
+protected:
+   void mouseMoveEvent(QMouseEvent *event);
+   void mousePressEvent(QMouseEvent *event);
+   void mouseReleaseEvent(QMouseEvent *event);
+   void paintEvent(QPaintEvent *);
+   
 public:
 	CWaveEditor(int sx, int sy, int lx, int ly);
 	virtual ~CWaveEditor();

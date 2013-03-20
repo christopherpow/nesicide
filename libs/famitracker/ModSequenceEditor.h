@@ -20,8 +20,16 @@
 
 #pragma once
 
+#include "cqtmfc.h"
+
 class CModSequenceEditor : public CWnd
 {
+   // Qt interfaces
+protected:
+   void mouseMoveEvent(QMouseEvent *event);
+   void mousePressEvent(QMouseEvent *event);
+   void paintEvent(QPaintEvent *);
+   
 public:
 	CModSequenceEditor();
 	virtual ~CModSequenceEditor();

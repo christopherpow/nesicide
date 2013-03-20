@@ -84,18 +84,18 @@ CInstrumentEditor2A03::CInstrumentEditor2A03(CWnd* pParent)
    mfc2->setGeometry(r2);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //   EDITTEXT        IDC_SEQ_INDEX,69,147,39,12,ES_AUTOHSCROLL | ES_NUMBER
-   CEdit* mfc3 = new CEdit(this);
-   CRect r3(CPoint(69,147),CSize(39,12));
-   MapDialogRect(&r3);
-   mfc3->setGeometry(r3);   
-   mfcToQtWidget.insert(IDC_SEQ_INDEX,mfc3);
-   QObject::connect(mfc3,SIGNAL(textChanged(QString)),this,SLOT(seqIndex_textChanged(QString)));
 //   CONTROL         "",IDC_SEQUENCE_SPIN,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,66,153,11,9
+   CEdit* mfc3 = new CEdit(this);
    CSpinButtonCtrl* mfc4 = new CSpinButtonCtrl(this);
    // CP: Note, we fake a MFC "spin-box" separate control by placing it over it's "buddy" and connecting signals appropriately
    // to mimic the buddy relationship.
-   CRect r4(CPoint(97,147),CSize(11,12));
+   CRect r3(CPoint(69,147),CSize(39,12));
+   CRect r4(CPoint(r3.right-11,r3.top),CSize(11,12));
+   MapDialogRect(&r3);
    MapDialogRect(&r4);
+   mfc3->setGeometry(r3);   
+   mfcToQtWidget.insert(IDC_SEQ_INDEX,mfc3);
+   QObject::connect(mfc3,SIGNAL(textChanged(QString)),this,SLOT(seqIndex_textChanged(QString)));
    mfc4->setGeometry(r4);
    mfcToQtWidget.insert(IDC_SEQUENCE_SPIN,mfc4);
    QObject::connect(mfc4,SIGNAL(valueChanged(int)),this,SLOT(sequenceSpin_valueChanged(int)));

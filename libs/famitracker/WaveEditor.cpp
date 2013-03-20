@@ -42,17 +42,17 @@ bool CWaveEditorN163::m_bLineMode = false;
 
 IMPLEMENT_DYNAMIC(CWaveEditor, CWnd)
 
-BEGIN_MESSAGE_MAP(CWaveEditor, CWnd)
-	ON_WM_PAINT()
-	ON_WM_MOUSEMOVE()
-	ON_WM_LBUTTONDOWN()
-	ON_WM_RBUTTONDOWN()
-	ON_WM_LBUTTONUP()
-	ON_WM_RBUTTONUP()
-	ON_WM_MBUTTONUP()
-	ON_WM_CONTEXTMENU()
-	ON_WM_MBUTTONDOWN()
-END_MESSAGE_MAP()
+//BEGIN_MESSAGE_MAP(CWaveEditor, CWnd)
+//	ON_WM_PAINT()
+//	ON_WM_MOUSEMOVE()
+//	ON_WM_LBUTTONDOWN()
+//	ON_WM_RBUTTONDOWN()
+//	ON_WM_LBUTTONUP()
+//	ON_WM_RBUTTONUP()
+//	ON_WM_MBUTTONUP()
+//	ON_WM_CONTEXTMENU()
+//	ON_WM_MBUTTONDOWN()
+//END_MESSAGE_MAP()
 
 CWaveEditor::CWaveEditor(int sx, int sy, int lx, int ly) 
  : m_iSX(sx), m_iSY(sy), m_iLX(lx), m_iLY(ly)
@@ -379,4 +379,107 @@ void CWaveEditorN163::SetLength(int Length)
 	m_iLX = Length;
 	m_iSX = 320 / Length;
 	WaveChanged();
+}
+
+void CWaveEditor::paintEvent(QPaintEvent *)
+{
+   OnPaint();
+}
+
+void CWaveEditor::mouseMoveEvent(QMouseEvent *event)
+{
+   CPoint point(event->pos());
+   unsigned int flags = 0;
+   if ( event->modifiers()&Qt::ControlModifier )
+   {
+      flags |= MK_CONTROL;
+   }
+   if ( event->modifiers()&Qt::ShiftModifier )
+   {
+      flags |= MK_SHIFT;
+   }
+   if ( event->buttons()&Qt::LeftButton )
+   {
+      flags |= MK_LBUTTON;
+   }
+   if ( event->buttons()&Qt::MiddleButton )
+   {
+      flags |= MK_MBUTTON;
+   }
+   if ( event->buttons()&Qt::RightButton )
+   {
+      flags |= MK_RBUTTON;            
+   }
+   OnMouseMove(flags,point);
+   update();
+}
+
+void CWaveEditor::mousePressEvent(QMouseEvent *event)
+{
+   CPoint point(event->pos());
+   unsigned int flags = 0;
+   if ( event->modifiers()&Qt::ControlModifier )
+   {
+      flags |= MK_CONTROL;
+   }
+   if ( event->modifiers()&Qt::ShiftModifier )
+   {
+      flags |= MK_SHIFT;
+   }
+   if ( event->buttons()&Qt::LeftButton )
+   {
+      flags |= MK_LBUTTON;
+   }
+   if ( event->buttons()&Qt::MiddleButton )
+   {
+      flags |= MK_MBUTTON;
+   }
+   if ( event->buttons()&Qt::RightButton )
+   {
+      flags |= MK_RBUTTON;            
+   }
+   if ( event->button() == Qt::LeftButton )
+   {
+      OnLButtonDown(flags,point);
+   }
+   else if ( event->button() == Qt::MiddleButton )
+   {
+      OnMButtonDown(flags,point);
+   }
+   update();
+}
+
+void CWaveEditor::mouseReleaseEvent(QMouseEvent *event)
+{
+   CPoint point(event->pos());
+   unsigned int flags = 0;
+   if ( event->modifiers()&Qt::ControlModifier )
+   {
+      flags |= MK_CONTROL;
+   }
+   if ( event->modifiers()&Qt::ShiftModifier )
+   {
+      flags |= MK_SHIFT;
+   }
+   if ( event->buttons()&Qt::LeftButton )
+   {
+      flags |= MK_LBUTTON;
+   }
+   if ( event->buttons()&Qt::MiddleButton )
+   {
+      flags |= MK_MBUTTON;
+   }
+   if ( event->buttons()&Qt::RightButton )
+   {
+      flags |= MK_RBUTTON;            
+   }
+   if ( event->button() == Qt::LeftButton )
+   {
+      OnLButtonUp(flags,point);
+   }
+   else if ( event->button() == Qt::MiddleButton )
+   {
+      OnMButtonUp(flags,point);
+   }
+   update();
 }

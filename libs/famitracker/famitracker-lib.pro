@@ -75,7 +75,6 @@ SOURCES += \
     InstrumentVRC7.cpp \
     InstrumentVRC6.cpp \
     InstrumentS5B.cpp \
-    InstrumentN163.cpp \
     InstrumentFDS.cpp \
     Instrument2A03.cpp \
     Instrument.cpp \
@@ -136,7 +135,11 @@ SOURCES += \
     resampler/resample.cpp \
     cqtmfc_famitracker.cpp \
     InstrumentEditorVRC7.cpp \
-    InstrumentEditorVRC6.cpp
+    InstrumentEditorVRC6.cpp \
+    InstrumentEditorFDS.cpp \
+    InstrumentN163.cpp \
+    WaveEditor.cpp \
+    ModSequenceEditor.cpp
 
 HEADERS += \
     TrackerChannel.h \
@@ -224,7 +227,10 @@ HEADERS += \
     resampler/resample.hpp \
     cqtmfc_famitracker.h \
     InstrumentEditorVRC7.h \
-    InstrumentEditorVRC6.h
+    InstrumentEditorVRC6.h \
+    InstrumentEditorFDS.h \
+    WaveEditor.h \
+    ModSequenceEditor.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN

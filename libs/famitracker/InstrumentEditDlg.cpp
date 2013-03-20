@@ -196,7 +196,7 @@ void CInstrumentEditDlg::SetCurrentInstrument(int Index)
 				break;
 			case INST_FDS:
          qDebug("InstrumentEditorFDS");
-//				InsertPane(new CInstrumentEditorFDS(), true);
+				InsertPane(new CInstrumentEditorFDS(), true);
 //				InsertPane(new CInstrumentEditorFDSEnvelope(), false);
 				break;
 			case INST_N163:

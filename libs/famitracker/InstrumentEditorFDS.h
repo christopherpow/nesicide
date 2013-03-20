@@ -20,6 +20,10 @@
 
 #pragma once
 
+#include "stdafx.h"
+#include "FamiTrackerDoc.h"
+#include "InstrumentEditPanel.h"
+
 #include "WaveEditor.h"
 #include "ModSequenceEditor.h"
 
@@ -27,7 +31,27 @@
 
 class CInstrumentEditorFDS : public CInstrumentEditPanel
 {
-	DECLARE_DYNAMIC(CInstrumentEditorFDS)
+   Q_OBJECT
+   DECLARE_DYNAMIC(CInstrumentEditorFDS)
+   // Qt stuff
+public slots:
+   void presetSine_clicked();
+   void presetTriangle_clicked();
+   void presetSawtooth_clicked();
+   void modRate_textChanged(QString text);
+   void modRateSpin_valueChanged(int val);
+   void modDepth_textChanged(QString text);
+   void modDepthSpin_valueChanged(int val);
+   void modDelay_textChanged(QString text);
+   void modDelaySpin_valueChanged(int val);
+   void modPresetFlat_clicked();
+   void modPresetSine_clicked();
+   void copyWave_clicked();
+   void pasteWave_clicked();
+   void copyTable_clicked();
+   void pasteTable_clicked();
+   void presetPulse50_clicked();
+   void presetPulse25_clicked();
 
 public:
 	CInstrumentEditorFDS(CWnd* pParent = NULL);   // standard constructor

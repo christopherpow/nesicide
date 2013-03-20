@@ -3373,6 +3373,28 @@ CSpinButtonCtrl::~CSpinButtonCtrl()
    _qt = NULL;
 }
 
+int CSpinButtonCtrl::SetPos(
+   int nPos 
+)
+{
+   int pos = _qtd->value();
+   _qtd->blockSignals(true);
+   _qtd->setValue(nPos);
+   _qtd->blockSignals(false);
+   return pos;
+}
+
+int CSpinButtonCtrl::SetPos32(
+   int nPos 
+)
+{
+   int pos = _qtd->value();
+   _qtd->blockSignals(true);
+   _qtd->setValue(nPos);
+   _qtd->blockSignals(false);
+   return pos;
+}
+
 void CSpinButtonCtrl::SetRange(
    short nLower,
    short nUpper 

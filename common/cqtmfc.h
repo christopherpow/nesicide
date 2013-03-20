@@ -990,6 +990,10 @@ public:
    void OnLButtonDblClk(UINT,CPoint) {}
    void OnLButtonDown(UINT,CPoint) {}
    void OnLButtonUp(UINT,CPoint) {}
+   void OnMButtonDblClk(UINT,CPoint) {}
+   void OnMButtonDown(UINT,CPoint) {}
+   void OnMButtonUp(UINT,CPoint) {}
+   void OnRButtonDblClk(UINT,CPoint) {}
    void OnRButtonDown(UINT,CPoint) {}
    void OnRButtonUp(UINT,CPoint) {}
    BOOL OnMouseWheel(UINT,UINT,CPoint) { return TRUE; }
@@ -1530,6 +1534,12 @@ signals:
 public:
    CSpinButtonCtrl(CWnd* parent = 0);
    virtual ~CSpinButtonCtrl();
+   int SetPos(
+      int nPos 
+   );
+   int SetPos32(
+      int nPos 
+   );
    void SetRange(
       short nLower,
       short nUpper 
