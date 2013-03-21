@@ -20,14 +20,35 @@
 
 #pragma once
 
+#include "stdafx.h"
+#include "FamiTrackerDoc.h"
+#include "InstrumentEditPanel.h"
+
 #include "WaveEditor.h"
 
 // CInstrumentEditorN163Wave dialog
 
 class CInstrumentEditorN163Wave : public CInstrumentEditPanel
 {
-	DECLARE_DYNAMIC(CInstrumentEditorN163Wave)
-
+   Q_OBJECT
+   DECLARE_DYNAMIC(CInstrumentEditorN163Wave)
+   // Qt stuff
+public slots:
+   void presetSine_clicked();
+   void presetTriangle_clicked();
+   void presetSawtooth_clicked();
+   void presetPulse50_clicked();
+   void presetPulse25_clicked();
+   void copy_clicked();
+   void paste_clicked();
+   void index_textChanged(QString text);
+   void indexSpin_valueChanged(int val);
+   void waves_textChanged(QString text);
+   void wavesSpin_valueChanged(int val);
+   void waveSize_currentIndexChanged(int index);
+   void wavePos_editTextChanged(QString text);
+   void wavePos_currentIndexChanged(int index);
+   
 public:
 	CInstrumentEditorN163Wave(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CInstrumentEditorN163Wave();

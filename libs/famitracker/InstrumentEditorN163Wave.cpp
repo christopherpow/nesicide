@@ -41,6 +41,173 @@ CInstrumentEditorN163Wave::CInstrumentEditorN163Wave(CWnd* pParent) : CInstrumen
 	m_pWaveEditor(NULL), 
 	m_pInstrument(NULL)
 {
+//   IDD_INSTRUMENT_N163_WAVE DIALOGEX 0, 0, 372, 172
+   CRect rect(CPoint(0,0),CSize(372,172));
+   MapDialogRect(&rect);
+   setFixedSize(rect.Width(),rect.Height());
+   
+// CP: Put all GROUPBOX items first so their child elements can be created.
+//       GROUPBOX        "Wave editor",IDC_STATIC,7,7,228,116
+   CGroupBox* mfc1 = new CGroupBox(this);
+   mfc1->setTitle("Wave editor");
+   CRect r1(CPoint(7,7),CSize(228,116));
+   MapDialogRect(&r1);
+   mfc1->setGeometry(r1);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
+//       GROUPBOX        "Wave #",IDC_STATIC,244,7,121,35
+   CGroupBox* mfc21 = new CGroupBox(this);
+   mfc21->setTitle("Wave #");
+   CRect r21(CPoint(244,7),CSize(121,35));
+   MapDialogRect(&r21);
+   mfc21->setGeometry(r21);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
+//       GROUPBOX        "MML string",IDC_STATIC,7,132,358,33
+   CGroupBox* mfc7 = new CGroupBox(this);
+   mfc7->setTitle("MML string");
+   CRect r7(CPoint(7,132),CSize(358,33));
+   MapDialogRect(&r7);
+   mfc7->setGeometry(r7);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
+//       GROUPBOX        "Wave RAM settings",IDC_STATIC,244,45,121,52
+   CGroupBox* mfc16 = new CGroupBox(this);
+   mfc16->setTitle("Wave RAM settings");
+   CRect r16(CPoint(244,45),CSize(121,52));
+   MapDialogRect(&r16);
+   mfc16->setGeometry(r16);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
+//       PUSHBUTTON      "Sine",IDC_PRESET_SINE,14,101,41,12
+   CButton* mfc2 = new CButton(this);
+   mfc2->setText("Sine");
+   CRect r2(CPoint(14,104),CSize(41,14));
+   MapDialogRect(&r2);
+   mfc2->setGeometry(r2);
+   mfcToQtWidget.insert(IDC_PRESET_SINE,mfc2);
+   QObject::connect(mfc2,SIGNAL(clicked()),this,SLOT(presetSine_clicked()));
+//       PUSHBUTTON      "Triangle",IDC_PRESET_TRIANGLE,57,101,41,12
+   CButton* mfc3 = new CButton(this);
+   mfc3->setText("Triangle");
+   CRect r3(CPoint(57,104),CSize(41,14));
+   MapDialogRect(&r3);
+   mfc3->setGeometry(r3);
+   mfcToQtWidget.insert(IDC_PRESET_TRIANGLE,mfc3);
+   QObject::connect(mfc3,SIGNAL(clicked()),this,SLOT(presetTriangle_clicked()));
+//       PUSHBUTTON      "Sawtooth",IDC_PRESET_SAWTOOTH,100,101,41,12
+   CButton* mfc4 = new CButton(this);
+   mfc4->setText("Sawtooth");
+   CRect r4(CPoint(100,104),CSize(41,14));
+   MapDialogRect(&r4);
+   mfc4->setGeometry(r4);
+   mfcToQtWidget.insert(IDC_PRESET_SAWTOOTH,mfc4);
+   QObject::connect(mfc4,SIGNAL(clicked()),this,SLOT(presetSawtooth_clicked()));
+//       PUSHBUTTON      "50% pulse",IDC_PRESET_PULSE_50,143,101,41,12
+   CButton* mfc5 = new CButton(this);
+   mfc5->setText("50% pulse");
+   CRect r5(CPoint(143,104),CSize(41,14));
+   MapDialogRect(&r5);
+   mfc5->setGeometry(r5);
+   mfcToQtWidget.insert(IDC_PRESET_PULSE_50,mfc5);
+   QObject::connect(mfc5,SIGNAL(clicked()),this,SLOT(presetPulse50_clicked()));
+//       PUSHBUTTON      "25% pulse",IDC_PRESET_PULSE_25,186,101,41,12
+   CButton* mfc6 = new CButton(this);
+   mfc6->setText("25% pulse");
+   CRect r6(CPoint(186,104),CSize(41,14));
+   MapDialogRect(&r6);
+   mfc6->setGeometry(r6);
+   mfcToQtWidget.insert(IDC_PRESET_PULSE_25,mfc6);
+   QObject::connect(mfc6,SIGNAL(clicked()),this,SLOT(presetPulse25_clicked()));
+//       EDITTEXT        IDC_MML,16,145,342,14,ES_AUTOHSCROLL
+   CEdit* mfc8 = new CEdit(this);
+   CRect r8(CPoint(16,145),CSize(342,14));
+   MapDialogRect(&r8);
+   mfc8->setGeometry(r8);   
+   mfcToQtWidget.insert(IDC_MML,mfc8);
+//       PUSHBUTTON      "Copy wave",IDC_COPY_WAVE,240,90,52,14
+   CButton* mfc9 = new CButton(this);
+   mfc9->setText("Copy wave");
+   CRect r9(CPoint(249,105),CSize(50,14));
+   MapDialogRect(&r9);
+   mfc9->setGeometry(r9);
+   mfcToQtWidget.insert(IDC_COPY,mfc9);
+   QObject::connect(mfc9,SIGNAL(clicked()),this,SLOT(copy_clicked()));
+//       PUSHBUTTON      "Paste wave",IDC_PASTE_WAVE,240,104,52,14
+   CButton* mfc10 = new CButton(this);
+   mfc10->setText("Paste wave");
+   CRect r10(CPoint(308,105),CSize(50,14));
+   MapDialogRect(&r10);
+   mfc10->setGeometry(r10);
+   mfcToQtWidget.insert(IDC_PASTE,mfc10);
+   QObject::connect(mfc10,SIGNAL(clicked()),this,SLOT(paste_clicked()));
+//       EDITTEXT        IDC_INDEX,253,20,39,12,ES_AUTOHSCROLL | ES_READONLY
+//       CONTROL         "",IDC_INDEX_SPIN,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,281,26,11,14
+   CEdit* mfc11 = new CEdit(this);
+   CSpinButtonCtrl* mfc12 = new CSpinButtonCtrl(this);
+   mfc11->setBuddy(mfc12);
+   mfc12->setBuddy(mfc11);
+   // CP: Note, we fake a MFC "spin-box" separate control by placing it over it's "buddy" and connecting signals appropriately
+   // to mimic the buddy relationship.
+   CRect r11(CPoint(253,20),CSize(39,12));
+   CRect r12(CPoint(r11.right-11,r11.top),CSize(11,12));
+   MapDialogRect(&r11);
+   MapDialogRect(&r12);
+   mfc11->setGeometry(r11);   
+   mfcToQtWidget.insert(IDC_INDEX,mfc11);
+   QObject::connect(mfc11,SIGNAL(textChanged(QString)),this,SLOT(index_textChanged(QString)));
+   mfc12->setGeometry(r12);
+   mfcToQtWidget.insert(IDC_INDEX_SPIN,mfc12);
+   QObject::connect(mfc12,SIGNAL(valueChanged(int)),this,SLOT(indexSpin_valueChanged(int)));
+//       LTEXT           "of",IDC_STATIC,300,22,8,8
+   CStatic* mfc13 = new CStatic(this);
+   mfc13->setText("of");
+   CRect r13(CPoint(300,22),CSize(8,8));
+   MapDialogRect(&r13);
+   mfc13->setGeometry(r13);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
+//       EDITTEXT        IDC_WAVES,316,20,37,12,ES_AUTOHSCROLL | ES_READONLY
+//       CONTROL         "",IDC_WAVES_SPIN,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,342,19,11,14
+   CEdit* mfc14 = new CEdit(this);
+   CSpinButtonCtrl* mfc15 = new CSpinButtonCtrl(this);
+   mfc14->setBuddy(mfc15);
+   mfc15->setBuddy(mfc14);
+   // CP: Note, we fake a MFC "spin-box" separate control by placing it over it's "buddy" and connecting signals appropriately
+   // to mimic the buddy relationship.
+   CRect r14(CPoint(316,20),CSize(37,12));
+   CRect r15(CPoint(r14.right-11,r14.top),CSize(11,12));
+   MapDialogRect(&r14);
+   MapDialogRect(&r15);
+   mfc14->setGeometry(r14);   
+   mfcToQtWidget.insert(IDC_WAVES,mfc14);
+   QObject::connect(mfc14,SIGNAL(textChanged(QString)),this,SLOT(waves_textChanged(QString)));
+   mfc15->setGeometry(r15);
+   mfcToQtWidget.insert(IDC_WAVES_SPIN,mfc15);
+   QObject::connect(mfc15,SIGNAL(valueChanged(int)),this,SLOT(wavesSpin_valueChanged(int)));
+//       LTEXT           "Wave size",IDC_STATIC,253,59,34,8
+   CStatic* mfc17 = new CStatic(this);
+   mfc17->setText("Wave size");
+   CRect r17(CPoint(253,59),CSize(34,8));
+   MapDialogRect(&r17);
+   mfc17->setGeometry(r17);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
+//       COMBOBOX        IDC_WAVE_SIZE,305,57,48,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+   CComboBox* mfc18 = new CComboBox(this);
+   CRect r18(CPoint(305,57),CSize(48,12)); // COMBOBOX resource vertical extent includes drop-down height
+   MapDialogRect(&r18);
+   mfc18->setGeometry(r18);
+   mfcToQtWidget.insert(IDC_WAVE_SIZE,mfc18);
+   QObject::connect(mfc18,SIGNAL(currentIndexChanged(int)),this,SLOT(waveSize_currentIndexChanged(int)));
+//       LTEXT           "Wave position",IDC_STATIC,253,78,46,8
+   CStatic* mfc19 = new CStatic(this);
+   mfc19->setText("Wave position");
+   CRect r19(CPoint(253,78),CSize(46,8));
+   MapDialogRect(&r19);
+   mfc19->setGeometry(r19);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
+//       COMBOBOX        IDC_WAVE_POS,305,75,48,30,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
+   CComboBox* mfc20 = new CComboBox(this);
+   CRect r20(CPoint(305,75),CSize(48,12)); // COMBOBOX resource vertical extent includes drop-down height
+   MapDialogRect(&r20);
+   mfc20->setGeometry(r20);
+   mfcToQtWidget.insert(IDC_WAVE_POS,mfc20);
+   QObject::connect(mfc20,SIGNAL(currentIndexChanged(int)),this,SLOT(wavePos_currentIndexChanged(int)));
 }
 
 CInstrumentEditorN163Wave::~CInstrumentEditorN163Wave()
@@ -98,22 +265,92 @@ void CInstrumentEditorN163Wave::SelectInstrument(int Instrument)
 	m_iWaveIndex = 0;
 }
 
-BEGIN_MESSAGE_MAP(CInstrumentEditorN163Wave, CInstrumentEditPanel)
-	ON_COMMAND(IDC_PRESET_SINE, OnPresetSine)
-	ON_COMMAND(IDC_PRESET_TRIANGLE, OnPresetTriangle)
-	ON_COMMAND(IDC_PRESET_SAWTOOTH, OnPresetSawtooth)
-	ON_COMMAND(IDC_PRESET_PULSE_50, OnPresetPulse50)
-	ON_COMMAND(IDC_PRESET_PULSE_25, OnPresetPulse25)
-	ON_MESSAGE(WM_USER_WAVE_CHANGED, OnWaveChanged)
-	ON_BN_CLICKED(IDC_COPY, OnBnClickedCopy)
-	ON_BN_CLICKED(IDC_PASTE, OnBnClickedPaste)
-	ON_CBN_SELCHANGE(IDC_WAVE_SIZE, OnWaveSizeChange)
-	ON_CBN_EDITCHANGE(IDC_WAVE_POS, OnWavePosChange)
-	ON_CBN_SELCHANGE(IDC_WAVE_POS, OnWavePosSelChange)
-//	ON_BN_CLICKED(IDC_POSITION, OnPositionClicked)
-	ON_EN_CHANGE(IDC_WAVES, OnWavesChange)
-	ON_EN_CHANGE(IDC_INDEX, OnIndexChange)
-END_MESSAGE_MAP()
+//BEGIN_MESSAGE_MAP(CInstrumentEditorN163Wave, CInstrumentEditPanel)
+//	ON_COMMAND(IDC_PRESET_SINE, OnPresetSine)
+//	ON_COMMAND(IDC_PRESET_TRIANGLE, OnPresetTriangle)
+//	ON_COMMAND(IDC_PRESET_SAWTOOTH, OnPresetSawtooth)
+//	ON_COMMAND(IDC_PRESET_PULSE_50, OnPresetPulse50)
+//	ON_COMMAND(IDC_PRESET_PULSE_25, OnPresetPulse25)
+//	ON_MESSAGE(WM_USER_WAVE_CHANGED, OnWaveChanged)
+//	ON_BN_CLICKED(IDC_COPY, OnBnClickedCopy)
+//	ON_BN_CLICKED(IDC_PASTE, OnBnClickedPaste)
+//	ON_CBN_SELCHANGE(IDC_WAVE_SIZE, OnWaveSizeChange)
+//	ON_CBN_EDITCHANGE(IDC_WAVE_POS, OnWavePosChange)
+//	ON_CBN_SELCHANGE(IDC_WAVE_POS, OnWavePosSelChange)
+////	ON_BN_CLICKED(IDC_POSITION, OnPositionClicked)
+//	ON_EN_CHANGE(IDC_WAVES, OnWavesChange)
+//	ON_EN_CHANGE(IDC_INDEX, OnIndexChange)
+//END_MESSAGE_MAP()
+
+void CInstrumentEditorN163Wave::presetSine_clicked()
+{
+   OnPresetSine();
+}
+
+void CInstrumentEditorN163Wave::presetTriangle_clicked()
+{
+   OnPresetTriangle();
+}
+
+void CInstrumentEditorN163Wave::presetSawtooth_clicked()
+{
+   OnPresetSawtooth();
+}
+
+void CInstrumentEditorN163Wave::presetPulse50_clicked()
+{
+   OnPresetPulse50();
+}
+
+void CInstrumentEditorN163Wave::presetPulse25_clicked()
+{
+   OnPresetPulse25();
+}
+
+void CInstrumentEditorN163Wave::copy_clicked()
+{
+   OnBnClickedCopy();
+}
+
+void CInstrumentEditorN163Wave::paste_clicked()
+{
+   OnBnClickedPaste();
+}
+
+void CInstrumentEditorN163Wave::index_textChanged(QString text)
+{
+   OnIndexChange();
+}
+
+void CInstrumentEditorN163Wave::indexSpin_valueChanged(int val)
+{
+   OnIndexChange();
+}
+
+void CInstrumentEditorN163Wave::waves_textChanged(QString text)
+{
+   OnWavesChange();
+}
+
+void CInstrumentEditorN163Wave::wavesSpin_valueChanged(int val)
+{
+   OnWavesChange();
+}
+
+void CInstrumentEditorN163Wave::waveSize_currentIndexChanged(int index)
+{
+   OnWaveSizeChange();
+}
+
+void CInstrumentEditorN163Wave::wavePos_editTextChanged(QString text)
+{
+   OnWavePosChange();
+}
+
+void CInstrumentEditorN163Wave::wavePos_currentIndexChanged(int index)
+{
+   OnWavePosSelChange();
+}
 
 // CInstrumentEditorN163Wave message handlers
 
@@ -256,33 +493,34 @@ void CInstrumentEditorN163Wave::OnBnClickedPaste()
 
 void CInstrumentEditorN163Wave::ParseString(LPTSTR pString)
 {
-	string str(pString);
+   qDebug("********************************************** STRING FUNCTIONS!!!!!!");
+//	string str(pString);
 
-	// Convert to register values
-	istringstream values(str);
-	istream_iterator<int> begin(values);
-	istream_iterator<int> end;
-	int i;
+//	// Convert to register values
+//	istringstream values(str);
+//	istream_iterator<int> begin(values);
+//	istream_iterator<int> end;
+//	int i;
 
-	for (i = 0; (i < CInstrumentN163::MAX_WAVE_SIZE) && (begin != end); ++i) {
-		int value = *begin++;
-		if (value >= 0 && value <= 15)
-			m_pInstrument->SetSample(m_iWaveIndex, i, value);
-	}
+//	for (i = 0; (i < CInstrumentN163::MAX_WAVE_SIZE) && (begin != end); ++i) {
+//		int value = *begin++;
+//		if (value >= 0 && value <= 15)
+//			m_pInstrument->SetSample(m_iWaveIndex, i, value);
+//	}
 
-	int size = i & 0xFC;
-	if (size < 4)
-		size = 4;
-	m_pInstrument->SetWaveSize(size);
+//	int size = i & 0xFC;
+//	if (size < 4)
+//		size = 4;
+//	m_pInstrument->SetWaveSize(size);
 
-	CString SizeStr;
-	SizeStr.Format(_T("%i"), size);
-	((CComboBox*)GetDlgItem(IDC_WAVE_SIZE))->SelectString(0, SizeStr);
+//	CString SizeStr;
+//	SizeStr.Format(_T("%i"), size);
+//	((CComboBox*)GetDlgItem(IDC_WAVE_SIZE))->SelectString(0, SizeStr);
 
-	FillPosBox(size);
+//	FillPosBox(size);
 
-	m_pWaveEditor->SetLength(size);
-	m_pWaveEditor->WaveChanged();
+//	m_pWaveEditor->SetLength(size);
+//	m_pWaveEditor->WaveChanged();
 }
 
 LRESULT CInstrumentEditorN163Wave::OnWaveChanged(WPARAM wParam, LPARAM lParam)
@@ -334,7 +572,7 @@ void CInstrumentEditorN163Wave::OnWavePosSelChange()
 	CComboBox *pPosBox = (CComboBox*)GetDlgItem(IDC_WAVE_POS);
 	pPosBox->GetLBText(pPosBox->GetCurSel(), str);
 
-	int pos = _ttoi(str);
+   int pos = _ttoi(str);
 
 	if (pos > 255)
 		pos = 255;

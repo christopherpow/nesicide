@@ -1646,7 +1646,7 @@ int CComboBox::GetLBText(
    QString lbText = _qtd->itemText(nIndex);
    int length = CB_ERR;
 #if UNICODE
-   wcscpy(lpszText,(wchar_t*)lbText.unicode());
+   wcscpy(lpszText,(LPWSTR)lbText.unicode());
    length = wcslen(lpszText);
 #else
    strcpy(lpszText,lbText.toAscii().constData());
@@ -1682,16 +1682,71 @@ int CComboBox::SelectString(
    LPCTSTR lpszString 
 )
 {
+   int item;
    int index = -1;
 #if UNICODE
    QString string = QString::fromWCharArray(lpszString);
 #else
    QString string = lpszString;
 #endif
-   do
+   for ( item = nStartAfter; item < _qtd->count(); item++ )
    {
-      index = _qtd->findText(string);
-   } while ( (index != -1) && (index >= nStartAfter) );
+      if ( _qtd->itemText(item) == string )
+      {
+         _qtd->setCurrentIndex(item);
+         index = item;
+         break;
+      }
+   }
+   return index;
+}
+
+void CComboBox::SetDlgItemInt(
+   int nID,
+   UINT nValue,
+   BOOL bSigned 
+)
+{
+   qDebug("CComboBox::SetDlgItemInt not supported");
+}
+
+UINT CComboBox::GetDlgItemInt(
+   int nID,
+   BOOL* lpTrans,
+   BOOL bSigned
+) const
+{
+   return _qtd->currentText().toInt();
+}
+
+void CComboBox::SetDlgItemText(
+   int nID,
+   LPCTSTR lpszString 
+)
+{
+   qDebug("CComboBox::SetDlgItemText not supported");
+}
+
+int CComboBox::GetDlgItemText(
+   int nID,
+   CString& rString 
+) const
+{
+   rString = _qtd->currentText();
+}
+
+int CComboBox::GetDlgItemText(
+   int nID,
+   LPTSTR lpStr,
+   int nMaxCount 
+) const
+{
+#if UNICODE
+   wcsncpy(lpStr,(LPWSTR)_qtd->currentText().unicode(),nMaxCount);
+#else
+   strncpy(lpStr,_qtd->currentText(),nMaxCount);
+#endif   
+   return _qtd->currentText().length();
 }
 
 CListCtrl::CListCtrl(CWnd* parent)
@@ -1795,7 +1850,7 @@ int CListCtrl::GetItemText(
    if ( twi )
    {
 #if UNICODE
-      wcscpy(lpszText,(wchar_t*)twi->text().unicode());
+      wcscpy(lpszText,(LPWSTR)twi->text().unicode());
       length = wcslen(lpszText);
 #else
       strcpy(lpszText,twi->text().toAscii().constData());
@@ -2401,6 +2456,19 @@ int CWnd::GetDlgItemText(
    QtUIElement* pUIE = dynamic_cast<QtUIElement*>(GetDlgItem(nID));
    if ( pUIE )
       return pUIE->GetDlgItemText(nID,rString);
+   else
+      return 0;
+}
+
+int CWnd::GetDlgItemText(
+   int nID,
+   LPTSTR lpStr,
+   int nMaxCount 
+) const
+{
+   QtUIElement* pUIE = dynamic_cast<QtUIElement*>(GetDlgItem(nID));
+   if ( pUIE )
+      return pUIE->GetDlgItemText(nID,lpStr,nMaxCount);
    else
       return 0;
 }
@@ -3198,6 +3266,20 @@ int CEdit::GetDlgItemText(
    return _qtd->text().length();
 }
 
+int CEdit::GetDlgItemText(
+   int nID,
+   LPTSTR lpStr,
+   int nMaxCount 
+) const
+{
+#if UNICODE
+   wcsncpy(lpStr,(LPWSTR)_qtd->text().unicode(),nMaxCount);
+#else
+   strncpy(lpStr,_qtd->text(),nMaxCount);
+#endif   
+   return _qtd->text().length();
+}
+
 CButton::CButton(CWnd* parent)
    : CWnd(parent)
 {
@@ -3260,6 +3342,20 @@ int CButton::GetDlgItemText(
 ) const
 {
    rString = _qtd->text();
+   return _qtd->text().length();
+}
+
+int CButton::GetDlgItemText(
+   int nID,
+   LPTSTR lpStr,
+   int nMaxCount 
+) const
+{
+#if UNICODE
+   wcsncpy(lpStr,(LPWSTR)_qtd->text().unicode(),nMaxCount);
+#else
+   strncpy(lpStr,_qtd->text(),nMaxCount);
+#endif   
    return _qtd->text().length();
 }
 
@@ -3345,6 +3441,20 @@ int CCheckBox::GetDlgItemText(
    return _qtd->text().length();
 }
 
+int CCheckBox::GetDlgItemText(
+   int nID,
+   LPTSTR lpStr,
+   int nMaxCount 
+) const
+{
+#if UNICODE
+   wcsncpy(lpStr,(LPWSTR)_qtd->text().unicode(),nMaxCount);
+#else
+   strncpy(lpStr,_qtd->text(),nMaxCount);
+#endif   
+   return _qtd->text().length();
+}
+
 void CCheckBox::CheckDlgButton( 
    int nIDButton, 
    UINT nCheck  
@@ -3402,17 +3512,9 @@ int CSpinButtonCtrl::SetPos(
    return pos;
 }
 
-int CSpinButtonCtrl::SetPos32(
-   int nPos 
-)
+int CSpinButtonCtrl::GetPos( ) const
 {
-   int pos = _qtd->value();
-   _qtd->blockSignals(true);
-   _qtd->setValue(nPos);
-   _qtd->blockSignals(false);
-   if ( _buddy )
-      _buddy->setText(QString::number(nPos));
-   return pos;
+   return _qtd->value();
 }
 
 void CSpinButtonCtrl::SetRange(
@@ -3556,6 +3658,20 @@ int CStatic::GetDlgItemText(
    return _qtd->text().length();
 }
 
+int CStatic::GetDlgItemText(
+   int nID,
+   LPTSTR lpStr,
+   int nMaxCount 
+) const
+{
+#if UNICODE
+   wcsncpy(lpStr,(LPWSTR)_qtd->text().unicode(),nMaxCount);
+#else
+   strncpy(lpStr,_qtd->text(),nMaxCount);
+#endif   
+   return _qtd->text().length();
+}
+
 CGroupBox::CGroupBox(CWnd *parent)
    : CWnd(parent)
 {
@@ -3619,6 +3735,20 @@ int CGroupBox::GetDlgItemText(
 ) const
 {
    rString = _qtd->title();
+   return _qtd->title().length();
+}
+
+int CGroupBox::GetDlgItemText(
+   int nID,
+   LPTSTR lpStr,
+   int nMaxCount 
+) const
+{
+#if UNICODE
+   wcsncpy(lpStr,(LPWSTR)_qtd->title().unicode(),nMaxCount);
+#else
+   strncpy(lpStr,_qtd->title(),nMaxCount);
+#endif   
    return _qtd->title().length();
 }
 

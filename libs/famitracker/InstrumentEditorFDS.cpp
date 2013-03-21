@@ -47,12 +47,20 @@ CInstrumentEditorFDS::CInstrumentEditorFDS(CWnd* pParent) : CInstrumentEditPanel
    MapDialogRect(&rect);
    setFixedSize(rect.Width(),rect.Height());
    
+// CP: Put all GROUPBOX items first so their child elements can be created.
 //       GROUPBOX        "Wave editor",IDC_STATIC,7,7,228,111
    CGroupBox* mfc1 = new CGroupBox(this);
    mfc1->setTitle("Wave editor");
    CRect r1(CPoint(7,7),CSize(228,111));
    MapDialogRect(&r1);
    mfc1->setGeometry(r1);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
+//       GROUPBOX        "Frequency modulation",IDC_STATIC,240,7,124,79
+   CGroupBox* mfc16 = new CGroupBox(this);
+   mfc16->setTitle("Frequency modulation");
+   CRect r16(CPoint(240,7),CSize(124,79));
+   MapDialogRect(&r16);
+   mfc16->setGeometry(r16);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //       PUSHBUTTON      "Sine",IDC_PRESET_SINE,14,101,41,12
    CButton* mfc2 = new CButton(this);
@@ -169,13 +177,6 @@ CInstrumentEditorFDS::CInstrumentEditorFDS(CWnd* pParent) : CInstrumentEditPanel
    mfc15->setGeometry(r15);
    mfcToQtWidget.insert(IDC_MOD_PRESET_SINE,mfc15);
    QObject::connect(mfc15,SIGNAL(clicked()),this,SLOT(modPresetSine_clicked()));
-//       GROUPBOX        "Frequency modulation",IDC_STATIC,240,7,124,79
-   CGroupBox* mfc16 = new CGroupBox(this);
-   mfc16->setTitle("Frequency modulation");
-   CRect r16(CPoint(240,7),CSize(124,79));
-   MapDialogRect(&r16);
-   mfc16->setGeometry(r16);
-   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       PUSHBUTTON      "Copy wave",IDC_COPY_WAVE,240,90,52,14
    CButton* mfc17 = new CButton(this);
    mfc17->setText("Copy wave");

@@ -46,6 +46,75 @@ CInstrumentEditorN163::CInstrumentEditorN163(CWnd* pParent /*=NULL*/)
 	m_pSequenceEditor(NULL),
 	m_iSelectedSetting(0)
 {
+//   IDD_INSTRUMENT_INTERNAL DIALOGEX 0, 0, 372, 172
+   CRect rect(CPoint(0,0),CSize(372,172));
+   MapDialogRect(&rect);
+   setFixedSize(rect.Width(),rect.Height());
+   
+//   GROUPBOX        "Sequence editor",IDC_STATIC,120,7,245,158
+   CGroupBox* mfc5 = new CGroupBox(this);
+   mfc5->setTitle("Sequence editor");
+   CRect r5(CPoint(120,7),CSize(245,158));
+   MapDialogRect(&r5);
+   mfc5->setGeometry(r5);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
+//   GROUPBOX        "Instrument settings",IDC_STATIC,7,7,107,158,0,WS_EX_TRANSPARENT
+   CGroupBox* mfc6 = new CGroupBox(this);
+   mfc6->setTitle("Instrument settings");
+   CRect r6(CPoint(7,7),CSize(107,158));
+   MapDialogRect(&r6);
+   mfc6->setGeometry(r6);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
+//   CONTROL         "",IDC_INSTSETTINGS,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,12,18,96,109,WS_EX_TRANSPARENT
+   CListCtrl* mfc1 = new CListCtrl(this);
+   mfc1->setSelectionMode(QAbstractItemView::SingleSelection);
+   mfc1->setSelectionBehavior(QAbstractItemView::SelectRows);
+   mfc1->verticalScrollBar()->hide();
+   mfc1->horizontalScrollBar()->hide();
+   CRect r1(CPoint(12,18),CSize(96,109));
+   MapDialogRect(&r1);
+   mfc1->setGeometry(r1);
+   mfcToQtWidget.insert(IDC_INSTSETTINGS,mfc1);
+   QObject::connect(mfc1,SIGNAL(itemSelectionChanged()),this,SLOT(instSettings_itemSelectionChanged()));
+//   CONTROL         "Sequence #",IDC_STATIC,"Static",SS_LEFTNOWORDWRAP | SS_CENTERIMAGE | WS_GROUP,12,149,53,10,WS_EX_TRANSPARENT
+   CStatic* mfc2 = new CStatic(this);
+   mfc2->setText("Sequence #");
+   CRect r2(CPoint(12,149),CSize(53,10));
+   MapDialogRect(&r2);
+   mfc2->setGeometry(r2);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
+//   EDITTEXT        IDC_SEQ_INDEX,69,147,39,12,ES_AUTOHSCROLL | ES_NUMBER
+//   CONTROL         "",IDC_SEQUENCE_SPIN,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,66,153,11,9
+   CEdit* mfc3 = new CEdit(this);
+   CSpinButtonCtrl* mfc4 = new CSpinButtonCtrl(this);
+   mfc3->setBuddy(mfc4);
+   mfc4->setBuddy(mfc3);
+   // CP: Note, we fake a MFC "spin-box" separate control by placing it over it's "buddy" and connecting signals appropriately
+   // to mimic the buddy relationship.
+   CRect r3(CPoint(69,147),CSize(39,12));
+   CRect r4(CPoint(r3.right-11,r3.top),CSize(11,12));
+   MapDialogRect(&r3);
+   MapDialogRect(&r4);
+   mfc3->setGeometry(r3);   
+   mfcToQtWidget.insert(IDC_SEQ_INDEX,mfc3);
+   QObject::connect(mfc3,SIGNAL(textChanged(QString)),this,SLOT(seqIndex_textChanged(QString)));
+   mfc4->setGeometry(r4);
+   mfcToQtWidget.insert(IDC_SEQUENCE_SPIN,mfc4);
+   QObject::connect(mfc4,SIGNAL(valueChanged(int)),this,SLOT(sequenceSpin_valueChanged(int)));
+//   PUSHBUTTON      "Select next empty slot",IDC_FREE_SEQ,12,129,96,15
+   CButton* mfc7 = new CButton(this);
+   mfc7->setText("Select next empty slot");
+   CRect r7(CPoint(12,129),CSize(96,15));
+   MapDialogRect(&r7);
+   mfc7->setGeometry(r7);
+   mfcToQtWidget.insert(IDC_FREE_SEQ,mfc7);
+   QObject::connect(mfc7,SIGNAL(clicked()),this,SLOT(freeSeq_clicked()));
+//   EDITTEXT        IDC_SEQUENCE_STRING,126,149,232,13,ES_AUTOHSCROLL
+   CEdit* mfc8 = new CEdit(this);
+   CRect r8(CPoint(126,149),CSize(232,13));
+   MapDialogRect(&r8);
+   mfc8->setGeometry(r8);   
+   mfcToQtWidget.insert(IDC_SEQUENCE_STRING,mfc8);
 }
 
 CInstrumentEditorN163::~CInstrumentEditorN163()
@@ -115,13 +184,44 @@ void CInstrumentEditorN163::SetSequenceString(CString Sequence, bool Changed)
 	}
 }
 
-BEGIN_MESSAGE_MAP(CInstrumentEditorN163, CSequenceInstrumentEditPanel)
-	ON_NOTIFY(LVN_ITEMCHANGED, IDC_INSTSETTINGS, OnLvnItemchangedInstsettings)	
-	ON_EN_CHANGE(IDC_SEQ_INDEX, OnEnChangeSeqIndex)
-	ON_BN_CLICKED(IDC_FREE_SEQ, OnBnClickedFreeSeq)
-	ON_COMMAND(ID_CLONE_SEQUENCE, OnCloneSequence)
-END_MESSAGE_MAP()
+//BEGIN_MESSAGE_MAP(CInstrumentEditorN163, CSequenceInstrumentEditPanel)
+//	ON_NOTIFY(LVN_ITEMCHANGED, IDC_INSTSETTINGS, OnLvnItemchangedInstsettings)	
+//	ON_EN_CHANGE(IDC_SEQ_INDEX, OnEnChangeSeqIndex)
+//	ON_BN_CLICKED(IDC_FREE_SEQ, OnBnClickedFreeSeq)
+//	ON_COMMAND(ID_CLONE_SEQUENCE, OnCloneSequence)
+//END_MESSAGE_MAP()
 
+void CInstrumentEditorN163::instSettings_itemSelectionChanged()
+{
+   CListCtrl *pList = (CListCtrl*) GetDlgItem(IDC_INSTSETTINGS);
+   NMLISTVIEW nmlv;
+   LRESULT result;
+   
+   nmlv.uChanged = LVIF_STATE;
+   nmlv.iItem = pList->currentIndex().row();
+   nmlv.iSubItem = pList->currentIndex().column();
+   nmlv.uNewState = LCTRL_CHECKBOX_STATE|LVNI_SELECTED;
+   nmlv.uOldState = 0;
+   
+   OnLvnItemchangedInstsettings((NMHDR*)&nmlv,&result);
+}
+
+void CInstrumentEditorN163::freeSeq_clicked()
+{
+   OnBnClickedFreeSeq();
+}
+
+void CInstrumentEditorN163::sequenceSpin_valueChanged(int val)
+{
+   // Update the "buddy"
+   SetDlgItemInt(IDC_SEQ_INDEX,val);
+   OnEnChangeSeqIndex();
+}
+
+void CInstrumentEditorN163::seqIndex_textChanged(QString)
+{
+   OnEnChangeSeqIndex();
+}
 
 // CInstrumentEditorN163 message handlers
 
@@ -135,7 +235,8 @@ BOOL CInstrumentEditorN163::OnInitDialog()
 	pList->InsertColumn(0, _T(""), LVCFMT_LEFT, 26);
 	pList->InsertColumn(1, _T("#"), LVCFMT_LEFT, 30);
 	pList->InsertColumn(2, _T("Effect name"), LVCFMT_LEFT, 84);
-	pList->SendMessage(LVM_SETEXTENDEDLISTVIEWSTYLE, 0, LVS_EX_FULLROWSELECT | LVS_EX_CHECKBOXES);
+   qDebug("CListCtrl::SendMessage");
+//	pList->SendMessage(LVM_SETEXTENDEDLISTVIEWSTYLE, 0, LVS_EX_FULLROWSELECT | LVS_EX_CHECKBOXES);
 	
 	for (int i = 0; i < CInstrumentN163::SEQUENCE_COUNT; ++i) {
 		pList->InsertItem(i, _T(""), 0);

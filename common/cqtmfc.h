@@ -105,7 +105,11 @@
 #define afx_msg
 
 #define strcpy_s(d,l,s) wcsncpy(d,s,l)
-
+#if UNICODE
+#define _ttoi _wtoi
+#else
+#define _ttoi atoi
+#endif
 #ifdef QT_NO_DEBUG
 #define ASSERT(y)
 #define ASSERT_VALID(y)
@@ -221,10 +225,10 @@ public:
 
    CString& Append(LPCSTR str);
    CString& Append(LPWSTR str);
-   void AppendFormat(LPCTSTR fmt, ...) __attribute__((sentinel(0)));
+   void AppendFormat(LPCTSTR fmt, ...);
    void AppendFormatV(LPCTSTR fmt, va_list ap);
-   void Format( UINT nFormatID, ... ) __attribute__((sentinel(0)));
-   void Format(LPCTSTR fmt, ...) __attribute__((sentinel(0)));
+   void Format( UINT nFormatID, ... );
+   void Format(LPCTSTR fmt, ...);
    void FormatV(LPCTSTR fmt, va_list ap);
    void Truncate(int length);
    int ReverseFind( TCHAR ch ) const;
@@ -911,6 +915,11 @@ public:
       int nID,
       CString& rString 
    ) const { return 0; }
+   virtual int GetDlgItemText(
+      int nID,
+      LPTSTR lpStr,
+      int nMaxCount 
+   ) const { return 0; }
    virtual void CheckDlgButton( 
       int nIDButton, 
       UINT nCheck  
@@ -1065,6 +1074,11 @@ public:
    int GetDlgItemText(
       int nID,
       CString& rString 
+   ) const;
+   int GetDlgItemText(
+      int nID,
+      LPTSTR lpStr,
+      int nMaxCount 
    ) const;
    void CheckDlgButton( 
       int nIDButton, 
@@ -1404,6 +1418,11 @@ public:
       int nID,
       CString& rString 
    ) const;
+   int GetDlgItemText(
+      int nID,
+      LPTSTR lpStr,
+      int nMaxCount 
+   ) const;
 };
 
 class CButton : public CWnd
@@ -1440,6 +1459,11 @@ public:
    int GetDlgItemText(
       int nID,
       CString& rString 
+   ) const;
+   int GetDlgItemText(
+      int nID,
+      LPTSTR lpStr,
+      int nMaxCount 
    ) const;
    void CheckDlgButton( 
       int nIDButton, 
@@ -1483,6 +1507,11 @@ public:
    int GetDlgItemText(
       int nID,
       CString& rString 
+   ) const;
+   int GetDlgItemText(
+      int nID,
+      LPTSTR lpStr,
+      int nMaxCount 
    ) const;
    void CheckDlgButton( 
       int nIDButton, 
@@ -1545,9 +1574,7 @@ public:
    int SetPos(
       int nPos 
    );
-   int SetPos32(
-      int nPos 
-   );
+   int GetPos( ) const; 
    void SetRange(
       short nLower,
       short nUpper 
@@ -1592,6 +1619,29 @@ public:
       int nStartAfter,
       LPCTSTR lpszString 
    );
+   void SetDlgItemInt(
+      int nID,
+      UINT nValue,
+      BOOL bSigned = TRUE 
+   );
+   UINT GetDlgItemInt(
+      int nID,
+      BOOL* lpTrans = NULL,
+      BOOL bSigned = TRUE 
+   ) const;
+   void SetDlgItemText(
+      int nID,
+      LPCTSTR lpszString 
+   );
+   int GetDlgItemText(
+      int nID,
+      CString& rString 
+   ) const;
+   int GetDlgItemText(
+      int nID,
+      LPTSTR lpStr,
+      int nMaxCount 
+   ) const;
 };
 
 class CStatic : public CWnd
@@ -1624,6 +1674,11 @@ public:
       int nID,
       CString& rString 
    ) const;
+   int GetDlgItemText(
+      int nID,
+      LPTSTR lpStr,
+      int nMaxCount 
+   ) const;
 };
 
 class CGroupBox : public CWnd
@@ -1655,6 +1710,11 @@ public:
    int GetDlgItemText(
       int nID,
       CString& rString 
+   ) const;
+   int GetDlgItemText(
+      int nID,
+      LPTSTR lpStr,
+      int nMaxCount 
    ) const;
 };
 

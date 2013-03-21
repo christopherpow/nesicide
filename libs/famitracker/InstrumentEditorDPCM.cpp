@@ -652,7 +652,7 @@ void CInstrumentEditorDPCM::OnNMClickSampleList(NMHDR *pNMHDR, LRESULT *pResult)
 	TCHAR ItemName[256];
 	m_pSampleListCtrl->GetItemText(Index, 0, ItemName, 256);
 	//sscanf(ItemName, "%i", &m_iSelectedSample);
-	m_iSelectedSample = _tstoi(ItemName);
+	m_iSelectedSample = _ttoi(ItemName);
 
 	*pResult = 0;
 }

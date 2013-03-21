@@ -847,8 +847,7 @@ int CMainFrame::GetInstrumentIndex(int ListIndex) const
 //	TCHAR Text[256];
 //	m_pInstrumentList->GetItemText(ListIndex, 0, Text, 256);
 //	_stscanf(Text, _T("%X"), &Instrument);
-   return 1;
-//	return Instrument;
+	return Instrument;
 }
 
 void CMainFrame::ChangeNoteState(int Note)
