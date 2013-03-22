@@ -73,7 +73,7 @@
    </widget>
    <addaction name="menuFile"/>
   </widget>
-  <widget class="QStatusBar" name="statusBar"/>
+  <widget class="QStatusBar" name="appStatusBar"/>
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>

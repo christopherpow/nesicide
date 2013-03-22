@@ -309,6 +309,7 @@ void CSampleEditorDlg::OnTimer(UINT_PTR nIDEvent)
 		}
 		case 1: {
 			// Start cursor
+      qDebug("SampleEditorDlg::OnTimer");
 			if (m_pSoundGen->PreviewDone()) {
 				static bool bDraw = false;
 				if (!bDraw)
@@ -507,6 +508,7 @@ bool CSampleView::eventFilter(QObject *object, QEvent *event)
 void CSampleView::OnPaint()
 {
 	int ScrollBarHeight = 0;
+   qDebug("SampleEditorDlg::OnPaint");
 
 	CPaintDC dc(this); // device context for painting
 

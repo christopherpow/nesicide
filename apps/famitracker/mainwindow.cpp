@@ -25,6 +25,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
    QObject::connect(m_pMainFrame,SIGNAL(addToolBarWidget(QToolBar*)),this,SLOT(addToolBarWidget(QToolBar*)));
    QObject::connect(m_pMainFrame,SIGNAL(removeToolBarWidget(QToolBar*)),this,SLOT(removeToolBarWidget(QToolBar*)));
+   QObject::connect(m_pMainFrame,SIGNAL(addStatusBarWidget(QWidget*)),this,SLOT(addStatusBarWidget(QWidget*)));
+   QObject::connect(m_pMainFrame,SIGNAL(removeStatusBarWidget(QWidget*)),this,SLOT(removeStatusBarWidget(QWidget*)));
    QObject::connect(m_pMainFrame,SIGNAL(editor_modificationChanged(bool)),this,SLOT(editor_modificationChanged(bool)));
 
    restoreGeometry(settings.value("FamiTrackerWindowGeometry").toByteArray());
@@ -58,6 +60,19 @@ void MainWindow::addToolBarWidget(QToolBar* toolBar)
 void MainWindow::removeToolBarWidget(QToolBar* toolBar)
 {
    removeToolBar(toolBar);
+}
+
+void MainWindow::addStatusBarWidget(QWidget *widget)
+{
+   ui->appStatusBar->addWidget(widget,100);
+   widget->show();
+}
+
+void MainWindow::removeStatusBarWidget(QWidget *widget)
+{
+   // For some reason on creation the widget isn't there but it's being removed?
+   ui->appStatusBar->addWidget(widget,100);
+   ui->appStatusBar->removeWidget(widget);
 }
 
 void MainWindow::editor_modificationChanged(bool m)

@@ -710,8 +710,7 @@ void CFamiTrackerView::OnTimer(UINT nIDEvent)
 		case TMR_UPDATE: {
 			int TicksPerSec = pDoc->GetFrameRate();
 
-         qDebug("SetIndicatorTime");
-//			pMainFrm->SetIndicatorTime(m_iPlayTime / 600, (m_iPlayTime / 10) % 60, m_iPlayTime % 10);
+			pMainFrm->SetIndicatorTime(m_iPlayTime / 600, (m_iPlayTime / 10) % 60, m_iPlayTime % 10);
 
 			// DPCM info
 			CSoundGen *pSoundGen = theApp.GetSoundGenerator();

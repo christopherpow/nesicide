@@ -7,6 +7,7 @@
 #include <QHeaderView>
 #include <QMessageBox>
 #include <QPixmap>
+#include <QMainWindow>
 
 int AfxMessageBox(
    LPCTSTR lpszText,
@@ -1028,7 +1029,7 @@ BOOL CFont::CreateFont(
    _qfont.setFamily(lpszFacename);
 #endif
 
-   _qfont.setPointSize(nHeight);
+   _qfont.setPointSize(abs(nHeight)*.75);
    _qfont.setItalic(bItalic);
    _qfont.setUnderline(bUnderline);
    _qfont.setStrikeOut(cStrikeOut);
@@ -1045,7 +1046,7 @@ BOOL CFont::CreateFontIndirect(
 #else
    _qfont.setFamily(lpLogFont->lfFaceName);
 #endif
-   _qfont.setPointSize(lpLogFont->lfHeight);
+   _qfont.setPointSize(abs(lpLogFont->lfHeight)*.75);
    _qfont.setItalic(lpLogFont->lfItalic);
    _qfont.setBold(lpLogFont->lfWeight>=FW_BOLD);
    return TRUE;
@@ -1135,6 +1136,7 @@ CDC::CDC()
    _windowOrg.x = 0;
    _windowOrg.y = 0;
    attached = false;
+   _doFlush = false;
 }
 
 CDC::CDC(CWnd* parent)
@@ -1159,6 +1161,7 @@ CDC::CDC(CWnd* parent)
    _windowOrg.x = 0;
    _windowOrg.y = 0;
    attached = false;
+   _doFlush = false;
    
    attach(parent->toQWidget());
 }
@@ -1171,11 +1174,10 @@ CDC::~CDC()
 
 void CDC::flush()
 {
-   if ( _qwidget )
+   if ( _qwidget && _doFlush )
    {
       QPainter p;
       p.begin(_qwidget);
-      p.setBackgroundMode(Qt::TransparentMode);
       p.drawPixmap(0,0,*_qpixmap);
       p.end();
    }   
@@ -1185,7 +1187,6 @@ void CDC::attach()
 {
    _qpixmap = new QPixmap(1,1);
    _qpainter = new QPainter(_qpixmap);
-//   _qpainter->setBackgroundMode(Qt::TransparentMode);
    m_hDC = (HDC)_qpixmap;
    attached = true;
 }
@@ -1196,9 +1197,9 @@ void CDC::attach(QWidget* parent)
    _qpixmap = new QPixmap(_qwidget->size());
    _qpixmap->fill(_qwidget,0,0); // CP: hack to initialize pixmap with widget's background color.
    _qpainter = new QPainter(_qpixmap);
-   _qpainter->setBackgroundMode(Qt::TransparentMode);
    m_hDC = (HDC)_qpixmap;
    attached = true;
+   _doFlush = true;
 }
 
 void CDC::detach()
@@ -1223,6 +1224,8 @@ BOOL CDC::CreateCompatibleDC(
 {
    if ( pDC->widget() )
       attach(pDC->widget());
+   else
+      attach();
    return TRUE;
 }
 
@@ -1346,8 +1349,10 @@ BOOL CDC::BitBlt(
 )
 {
    QPixmap* pixmap = pSrcDC->pixmap();
-   if ( pixmap && (pSrcDC->pixmapSize().width() >= 0) )
-      _qpainter->drawPixmap(x,y,pSrcDC->pixmapSize().width(),pSrcDC->pixmapSize().height(),*pixmap,xSrc,ySrc,pSrcDC->pixmapSize().width(),pSrcDC->pixmapSize().height());
+   QSize pixmapSize = pSrcDC->pixmapSize();
+   pixmapSize = pixmapSize.boundedTo(QSize(nWidth,nHeight));
+   if ( pixmap && (pixmapSize.width() >= 0) )
+      _qpainter->drawPixmap(x,y,pixmapSize.width(),pixmapSize.height(),*pixmap,xSrc,ySrc,pixmapSize.width(),pixmapSize.height());
    else
       _qpainter->drawPixmap(x,y,nWidth,nHeight,*pixmap,xSrc,ySrc,nWidth,nHeight);
    return TRUE;
@@ -3913,6 +3918,78 @@ CString CFileDialog::GetPathName( ) const
       return CString(files.at(0));
    }
    return CString();
+}
+
+CStatusBar::CStatusBar(CWnd* parent)
+{
+   if ( _qt )
+      delete _qt;
+   
+   if ( parent )
+      _qt = new QStatusBar(parent->toQWidget());
+   else
+      _qt = new QStatusBar;
+
+   // Downcast to save having to do it all over the place...
+   _qtd = dynamic_cast<QStatusBar*>(_qt);
+}
+
+CStatusBar::~CStatusBar()
+{
+   if ( _qtd )
+      delete _qtd;
+   _qtd = NULL;
+   _qt = NULL;
+}
+
+BOOL CStatusBar::Create(
+   CWnd* pParentWnd,
+   DWORD dwStyle,
+   UINT nID
+)
+{
+   QObject::connect(this,SIGNAL(addStatusBarWidget(QWidget*)),pParentWnd,SIGNAL(addStatusBarWidget(QWidget*)));
+   return TRUE;
+}
+
+BOOL CStatusBar::SetIndicators(
+   const UINT* lpIDArray,
+   int nIDCount 
+)
+{
+   int pane;
+   
+   for ( pane = 0; pane < nIDCount; pane++ )
+   {
+      CStatic* newPane = new CStatic;
+      _panes.insert(pane,newPane);
+      _qtd->addWidget(newPane->toQWidget());
+      CString lpszText = qtMfcStringResource(lpIDArray[pane]);
+#if UNICODE
+      newPane->setText(QString::fromWCharArray(lpszText));      
+#else
+      newPane->setText(lpszText);
+#endif
+   }
+}
+
+BOOL CStatusBar::SetPaneText(
+   int nIndex,
+   LPCTSTR lpszNewText,
+   BOOL bUpdate 
+)
+{
+   CStatic* pane = _panes.value(nIndex);
+   if ( pane )
+   {
+#if UNICODE
+      pane->setText(QString::fromWCharArray(lpszNewText));      
+#else
+      pane->setText(lpszNewText);
+#endif
+      return TRUE;
+   }
+   return FALSE;
 }
 
 QMap<int,CString> qtMfcStringResources;

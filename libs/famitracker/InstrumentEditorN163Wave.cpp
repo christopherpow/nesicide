@@ -324,6 +324,8 @@ void CInstrumentEditorN163Wave::index_textChanged(QString text)
 
 void CInstrumentEditorN163Wave::indexSpin_valueChanged(int val)
 {
+   // Update the "buddy"
+   SetDlgItemInt(IDC_INDEX,val);
    OnIndexChange();
 }
 
@@ -334,6 +336,8 @@ void CInstrumentEditorN163Wave::waves_textChanged(QString text)
 
 void CInstrumentEditorN163Wave::wavesSpin_valueChanged(int val)
 {
+   // Update the "buddy"
+   SetDlgItemInt(IDC_WAVES,val);
    OnWavesChange();
 }
 

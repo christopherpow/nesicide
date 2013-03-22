@@ -29,6 +29,8 @@ private:
 
 private slots:
     void on_actionExit_triggered();
+    void addStatusBarWidget(QWidget* widget);
+    void removeStatusBarWidget(QWidget* widget);
     void addToolBarWidget(QToolBar* toolBar);
     void removeToolBarWidget(QToolBar* toolBar);
     void editor_modificationChanged(bool m);

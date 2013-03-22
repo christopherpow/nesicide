@@ -23,6 +23,7 @@ class CMainFrame;
 
 class CMainFrame;
 typedef void (CMainFrame::*actionHandler)();
+typedef void (CMainFrame::*uiUpdateHandler)(CCmdUI*);
 
 enum FRAME_EDIT_POS { FRAME_EDIT_POS_TOP, FRAME_EDIT_POS_LEFT };
 
@@ -86,6 +87,7 @@ public:
 	void	SetFrameCount(int Count);
 
 protected:
+   bool event(QEvent *event);
    void focusInEvent(QFocusEvent *);
    void showEvent(QShowEvent *);
    void hideEvent(QHideEvent *);
@@ -102,6 +104,7 @@ private:
    QLabel* octaveLabel;
    QComboBox* octaveComboBox;
    QMap<QAction*,actionHandler> trackerActions;
+   QMap<int,uiUpdateHandler> uiUpdateFuncs;
    CFamiTrackerDoc* m_pDocument;
    CFamiTrackerView* m_pView;
    CSampleWindow		*m_pSampleWindow;
@@ -109,6 +112,7 @@ private:
    QString m_fileName;
    bool initialized;
    CInstrumentEditDlg	m_wndInstEdit;
+   CStatusBar			m_wndStatusBar;
 
    CActionHandler* m_pActionHandler;
    int					m_iFrameEditorPos;
@@ -132,6 +136,12 @@ public:
 	afx_msg void OnModuleMoveframeup();
    afx_msg void OnDblClkInstruments(NMHDR *pNMHDR, LRESULT *result);
    afx_msg void OnChangedInstruments(NMHDR* pNMHDR, LRESULT* pResult);
+   afx_msg void OnUpdateSBTempo(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateSBPosition(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateSBInstrument(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateSBOctave(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateSBFrequency(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateSBChip(CCmdUI *pCmdUI);
    
 public slots:
    void songInstruments_doubleClicked(const QModelIndex &index);
@@ -173,6 +183,8 @@ public slots:
    void updateViews(long hint);
    
 signals:
+   void addStatusBarWidget(QWidget* widget);
+   void removeStatusBarWidget(QWidget* widget);
    void addToolBarWidget(QToolBar* toolBar);
    void removeToolBarWidget(QToolBar* toolBar);
    void editor_modificationChanged(bool m);

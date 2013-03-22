@@ -11,6 +11,20 @@
 #include <QLayout>
 #include <QAction>
 
+static UINT indicators[] =
+{
+	ID_SEPARATOR,           // status line indicator
+	ID_INDICATOR_CHIP,
+	ID_INDICATOR_INSTRUMENT, 
+	ID_INDICATOR_OCTAVE,
+	ID_INDICATOR_RATE,
+	ID_INDICATOR_TEMPO,
+	ID_INDICATOR_TIME,
+	ID_INDICATOR_CAPS,
+	ID_INDICATOR_NUM,
+	ID_INDICATOR_SCRL,
+};
+
 // DPI variables
 static const int DEFAULT_DPI = 96;
 static int _dpiX, _dpiY;
@@ -52,6 +66,11 @@ CMainFrame::CMainFrame(CWnd *parent) :
          
    m_pActionHandler = new CActionHandler();
 
+   if (!m_wndStatusBar.Create(this) || !m_wndStatusBar.SetIndicators(indicators, sizeof(indicators) / sizeof(UINT))) {
+		TRACE0("Failed to create status bar\n");
+//		return -1;      // fail to create
+	}
+
    if (!CreateSampleWindow()) {
 		TRACE0("Failed to create sample window\n");
 //		return -1;      // fail to create
@@ -81,6 +100,11 @@ CMainFrame::CMainFrame(CWnd *parent) :
       &CMainFrame::trackerAction_nextTrack,
       &CMainFrame::trackerAction_settings,
       &CMainFrame::trackerAction_createNSF
+   };
+   
+   uiUpdateHandler uiUpdateHandlers[] = 
+   {
+      &CMainFrame::OnUpdateSBChip
    };
    
    QImage toolBarImage(":/resources/Toolbar-d5.bmp");
@@ -149,6 +173,17 @@ CMainFrame::~CMainFrame()
    delete toolBar;
 }
 
+bool CMainFrame::event(QEvent *event)
+{
+   qDebug("CMainFrame::event:%d",event->type());
+   if ( event->type() == QEvent::Paint )
+   {
+      paintEvent(dynamic_cast<QPaintEvent*>(event));
+      return true;
+   }
+   return false;
+}
+
 void CMainFrame::focusInEvent(QFocusEvent *)
 {
    m_pView->GetPatternView()->SetFocus(true);
@@ -160,7 +195,12 @@ void CMainFrame::showEvent(QShowEvent *)
 {
    emit addToolBarWidget(toolBar);
    toolBar->setVisible(true);
-
+   
+   foreach ( CStatic* pane, m_wndStatusBar.panes() )
+   {
+      emit addStatusBarWidget(pane->toQWidget());
+   }
+      
    if ( !initialized )
    {
       // Perform initialization that couldn't yet be done in the constructor due to MFC crap.
@@ -196,12 +236,18 @@ void CMainFrame::showEvent(QShowEvent *)
       
       initialized = true;
    }
+   
    setFocus();
 }
 
 void CMainFrame::hideEvent(QHideEvent *)
 {
    emit removeToolBarWidget(toolBar);
+   
+   foreach ( CStatic* pane, m_wndStatusBar.panes() )
+   {
+      emit removeStatusBarWidget(pane->toQWidget());
+   }
 }
 
 void CMainFrame::resizeEvent(QResizeEvent *)
@@ -209,6 +255,20 @@ void CMainFrame::resizeEvent(QResizeEvent *)
    if ( m_pFrameEditor )
       ResizeFrameWindow();
 }
+
+//void CMainFrame::onIdleSlot()
+//{   
+//   CWnd* pWnd;
+//   CMenu* pMenu;
+//   CCmdUI cmdUI;
+   
+//   pWnd = GetDlgItem(ID_INDICATOR_CHIP);
+   
+//   cmdUI.m_nID = ID_INDICATOR_CHIP;
+//   cmdUI.m_nIndex = -1;
+//   cmdUI.m_pOther = pWnd;
+////   OnUpdateSBChip(&cmdUI);
+//}
 
 void CMainFrame::updateViews(long hint)
 {
@@ -855,6 +915,20 @@ void CMainFrame::ChangeNoteState(int Note)
 	m_wndInstEdit.ChangeNoteState(Note);
 }
 
+void CMainFrame::SetIndicatorTime(int Min, int Sec, int MSec)
+{
+	static int LMin, LSec, LMSec;
+
+	if (Min != LMin || Sec != LSec || MSec != LMSec) {
+		LMin = Min;
+		LSec = Sec;
+		LMSec = MSec;
+		CString String;
+		String.Format(_T("%02i:%02i:%01i0"), Min, Sec, MSec);
+		m_wndStatusBar.SetPaneText(6, String);
+	}
+}
+
 void CMainFrame::OpenInstrumentSettings()
 {
 	CFamiTrackerDoc	*pDoc = (CFamiTrackerDoc*)GetActiveDocument();
@@ -895,6 +969,91 @@ void CMainFrame::OnChangedInstruments(NMHDR* pNMHDR, LRESULT* pResult)
 void CMainFrame::OnDblClkInstruments(NMHDR *pNotifyStruct, LRESULT *result)
 {
 	OpenInstrumentSettings();
+}
+
+void CMainFrame::OnUpdateSBInstrument(CCmdUI *pCmdUI)
+{
+	CString String;
+	int Instrument = ((CFamiTrackerView*)GetActiveView())->GetInstrument();
+	String.Format(_T("Instrument: %02X"), Instrument);
+	pCmdUI->Enable(); 
+	pCmdUI->SetText(String);
+}
+
+void CMainFrame::OnUpdateSBOctave(CCmdUI *pCmdUI)
+{
+	CString String;
+	int Octave = ((CFamiTrackerView*)GetActiveView())->GetOctave();
+	String.Format(_T("Octave: %i"), Octave);
+	pCmdUI->Enable(); 
+	pCmdUI->SetText(String);
+}
+
+void CMainFrame::OnUpdateSBFrequency(CCmdUI *pCmdUI)
+{
+	CFamiTrackerDoc *pDoc = ((CFamiTrackerDoc*)GetActiveDocument());
+	int Machine = pDoc->GetMachine();
+	int EngineSpeed = pDoc->GetEngineSpeed();
+	CString String;
+
+	if (EngineSpeed == 0)
+		EngineSpeed = (Machine == NTSC ? CAPU::FRAME_RATE_NTSC : CAPU::FRAME_RATE_PAL);
+
+	String.Format(_T("%i Hz"), EngineSpeed);
+
+	pCmdUI->Enable(); 
+	pCmdUI->SetText(String);
+}
+
+void CMainFrame::OnUpdateSBTempo(CCmdUI *pCmdUI)
+{
+   qDebug("OnUpdateSBTempo");
+//	CString String;
+//	CSoundGen *pSoundGen = theApp.GetSoundGenerator();
+//	if (pSoundGen) {
+//		int Highlight = m_wndOctaveBar.GetDlgItemInt(IDC_HIGHLIGHT1);
+//		if (Highlight == 0)
+//			Highlight = 4;
+//		int BPM = (pSoundGen->GetTempo() * 4) / Highlight;
+//		String.Format(_T("%i BPM"), BPM);
+//		pCmdUI->Enable(); 
+//		pCmdUI->SetText(String);
+//	}
+}
+
+void CMainFrame::OnUpdateSBChip(CCmdUI *pCmdUI)
+{
+	CString String;
+	
+	CFamiTrackerDoc *pDoc = ((CFamiTrackerDoc*)GetActiveDocument());
+	int Chip = pDoc->GetExpansionChip();
+
+	switch (Chip) {
+		case SNDCHIP_NONE:
+			String = _T("No expansion chip");
+			break;
+		case SNDCHIP_VRC6:
+			String = _T("Konami VRC6");
+			break;
+		case SNDCHIP_MMC5:
+			String = _T("Nintendo MMC5");
+			break;
+		case SNDCHIP_FDS:
+			String = _T("Nintendo FDS");
+			break;
+		case SNDCHIP_VRC7:
+			String = _T("Konami VRC7");
+			break;
+		case SNDCHIP_N163:
+			String = _T("Namco 163");
+			break;
+		case SNDCHIP_S5B:
+			String = _T("Sunsoft 5B");
+			break;
+	}
+
+	pCmdUI->Enable(); 
+	pCmdUI->SetText(String);
 }
 
 void CMainFrame::on_frameChangeAll_clicked(bool checked)

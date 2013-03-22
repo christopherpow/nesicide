@@ -1586,7 +1586,6 @@ void CPatternView::DrawMeters(CDC *pDC)
 
 	// DPCM
 	if (m_DPCMState.SamplePos != LastSamplePos || m_DPCMState.DeltaCntr != LastDeltaPos) {
-      qDebug("DPCM GetMenu stuff...");
 //		if (theApp.GetMainWnd()->GetMenu()->GetMenuState(ID_TRACKER_DPCM, MF_BYCOMMAND) == MF_CHECKED) 
       {
 			CString Text;		   
