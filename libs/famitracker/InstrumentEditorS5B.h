@@ -20,9 +20,22 @@
 
 #pragma once
 
+#include "stdafx.h"
+#include "FamiTrackerDoc.h"
+#include "InstrumentEditPanel.h"
+
+#include "SequenceEditor.h"
+
 class CInstrumentEditorS5B : public CSequenceInstrumentEditPanel
 {
-	DECLARE_DYNAMIC(CInstrumentEditorS5B)
+   Q_OBJECT
+   DECLARE_DYNAMIC(CInstrumentEditorS5B)
+   // Qt stuff
+public slots:
+   void instSettings_itemSelectionChanged();
+   void freeSeq_clicked();
+   void seqIndex_textChanged(QString);
+   void sequenceSpin_valueChanged(int val);
 
 public:
 	CInstrumentEditorS5B(CWnd* pParent = NULL);   // standard constructor

@@ -3992,6 +3992,58 @@ BOOL CStatusBar::SetPaneText(
    return FALSE;
 }
 
+CMutex::CMutex(
+   BOOL bInitiallyOwn,
+   LPCTSTR lpszName,
+   LPSECURITY_ATTRIBUTES lpsaAttribute
+)
+{
+   _qtd = new QMutex;
+   if ( bInitiallyOwn )
+      _qtd->lock();
+}
+
+CMutex::~CMutex()
+{
+   delete _qtd;
+}
+
+BOOL CMutex::Lock(
+   DWORD dwTimeout 
+)
+{
+   return _qtd->tryLock(dwTimeout);
+}
+
+BOOL CMutex::Unlock( )
+{
+   _qtd->unlock();
+   return TRUE;
+}
+
+CCriticalSection::CCriticalSection()
+{
+   _qtd = new QMutex;
+}
+
+CCriticalSection::~CCriticalSection()
+{
+   delete _qtd;
+}
+
+BOOL CCriticalSection::Lock(
+   DWORD dwTimeout 
+)
+{
+   return _qtd->tryLock(dwTimeout);
+}
+
+BOOL CCriticalSection::Unlock( )
+{
+   _qtd->unlock();
+   return TRUE;
+}
+
 QMap<int,CString> qtMfcStringResources;
 
 CString qtMfcStringResource(int id)

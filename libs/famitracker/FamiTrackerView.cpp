@@ -280,11 +280,21 @@ CFamiTrackerView::CFamiTrackerView(CWnd* parent) :
 		pSoundGen->AssignView(this);
    
    m_pPatternView = new CPatternView();
-   m_pPatternView->installEventFilter(this);
+   
+   mfcHorizontalScrollBar = new CScrollBar(Qt::Horizontal);
+   mfcVerticalScrollBar = new CScrollBar(Qt::Vertical);
+   QObject::connect(mfcHorizontalScrollBar,SIGNAL(actionTriggered(int)),this,SLOT(horizontalScrollBar_actionTriggered(int)));
+   QObject::connect(mfcVerticalScrollBar,SIGNAL(actionTriggered(int)),this,SLOT(verticalScrollBar_actionTriggered(int)));
    
    grid = new QGridLayout(this->toQWidget()); 
-   grid->setMargin(0);
    grid->addWidget(m_pPatternView);
+   grid->setContentsMargins(0,0,0,0);
+   grid->setHorizontalSpacing(0);
+   grid->setVerticalSpacing(0);
+   grid->addWidget(GetScrollBarCtrl(SB_HORZ)->toQWidget(),1,0);
+   grid->addWidget(GetScrollBarCtrl(SB_VERT)->toQWidget(),0,1);
+
+   m_pPatternView->installEventFilter(this);
 }
 
 CFamiTrackerView::~CFamiTrackerView()
@@ -339,6 +349,11 @@ bool CFamiTrackerView::eventFilter(QObject *object, QEvent *event)
       {
          wheelEvent(dynamic_cast<QWheelEvent*>(event));
          return true;
+      }
+      if ( event->type() == QEvent::Paint )
+      {
+         paintEvent(dynamic_cast<QPaintEvent*>(event));
+//         return true;
       }
    }
    return false;
@@ -411,27 +426,27 @@ CFamiTrackerView *CFamiTrackerView::GetView()
 // Tracker drawing routines
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//void CFamiTrackerView::OnDraw(CDC* pDC)
-//{
-//	CFamiTrackerDoc* pDoc = GetDocument();
-//	ASSERT_VALID(pDoc);
+void CFamiTrackerView::OnDraw(CDC* pDC)
+{
+	CFamiTrackerDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
 
-//	// Check document
-//	if (!pDoc->IsFileLoaded()) {
-//		LPCTSTR str = _T("No module loaded.");
-//		pDC->FillSolidRect(0, 0, m_iWindowWidth, m_iWindowHeight, 0x000000);
-//		pDC->SetTextColor(0xFFFFFF);
-//		CRect textRect(0, 0, m_iWindowWidth, m_iWindowHeight);
-//		pDC->DrawText(str, _tcslen(str), &textRect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-//		return;
-//	}
+	// Check document
+	if (!pDoc->IsFileLoaded()) {
+		LPCTSTR str = _T("No module loaded.");
+		pDC->FillSolidRect(0, 0, m_iWindowWidth, m_iWindowHeight, 0x000000);
+		pDC->SetTextColor(0xFFFFFF);
+		CRect textRect(0, 0, m_iWindowWidth, m_iWindowHeight);
+		pDC->DrawText(str, _tcslen(str), &textRect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+		return;
+	}
 
-//	// Don't draw when rendering to wave file
-//	if (theApp.GetSoundGenerator()->IsRendering())
-//		return;
+	// Don't draw when rendering to wave file
+	if (theApp.GetSoundGenerator()->IsRendering())
+		return;
 
-//	m_pPatternView->DrawScreen(pDC, this);
-//}
+   m_pPatternView->DrawScreen(pDC, this);
+}
 
 BOOL CFamiTrackerView::OnEraseBkgnd(CDC* pDC)
 {
@@ -1074,11 +1089,6 @@ void CFamiTrackerView::OnInitialUpdate()
    TRACE0(pDoc->GetTitle().GetString());
 	TRACE0("\n");
 
-   mfcHorizontalScrollBar = new CScrollBar(Qt::Horizontal);
-   mfcVerticalScrollBar = new CScrollBar(Qt::Vertical);
-   QObject::connect(mfcHorizontalScrollBar,SIGNAL(actionTriggered(int)),this,SLOT(horizontalScrollBar_actionTriggered(int)));
-   QObject::connect(mfcVerticalScrollBar,SIGNAL(actionTriggered(int)),this,SLOT(verticalScrollBar_actionTriggered(int)));
-
    // Setup order window
 	pMainFrame->GetFrameEditor()->AssignDocument(pDoc, this);
 
@@ -1417,7 +1427,7 @@ int CFamiTrackerView::PlayerCommand(char Command, int Value)
 			}
 
 #ifdef _DEBUG
-			patternEditorText.AppendFormat("%i ", ticks);
+			patternEditorText.AppendFormat(_T("%i "), ticks);
 			ticks = 0;
 #endif
 

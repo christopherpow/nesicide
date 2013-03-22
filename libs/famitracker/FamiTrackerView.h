@@ -336,7 +336,7 @@ public:
 //// Generated message map functions
 protected:
 	DECLARE_MESSAGE_MAP()
-//	virtual void OnDraw(CDC* /*pDC*/);
+	virtual void OnDraw(CDC* /*pDC*/);
 
 //protected:
 //	virtual void CalcWindowRect(LPRECT lpClientRect, UINT nAdjustType = adjustBorder);

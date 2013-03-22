@@ -142,7 +142,8 @@ SOURCES += \
     ModSequenceEditor.cpp \
     InstrumentEditorFDSEnvelope.cpp \
     InstrumentEditorN163Wave.cpp \
-    InstrumentEditorN163.cpp
+    InstrumentEditorN163.cpp \
+    InstrumentEditorS5B.cpp
 
 HEADERS += \
     TrackerChannel.h \
@@ -236,7 +237,8 @@ HEADERS += \
     ModSequenceEditor.h \
     InstrumentEditorFDSEnvelope.h \
     InstrumentEditorN163Wave.h \
-    InstrumentEditorN163.h
+    InstrumentEditorN163.h \
+    InstrumentEditorS5B.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN
@@ -278,7 +280,6 @@ OTHER_FILES += \
     famitracker-lib.pro
 
 FORMS += \
-    PatternEditor.ui \
     FrameEditor.ui \
     famitrackermodulepropertiesdialog.ui \
     famitrackermoduleimportdialog.ui \

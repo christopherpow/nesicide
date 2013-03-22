@@ -29,7 +29,6 @@
 #include "FamiTrackerDoc.h"
 #include "FamiTrackerView.h"
 #include "PatternEditor.h"
-#include "ui_PatternEditor.h"
 #include "TrackerChannel.h"
 #include "Settings.h"
 #include "MainFrm.h"
@@ -114,7 +113,6 @@ void CPatternView::updateViews(long hint)
 
 CPatternView::CPatternView() :
    QWidget(),
-   ui(new Ui::CPatternView),
 	m_pBackDC(NULL),
 	m_pBackBmp(NULL),
 	m_pDocument(NULL),
@@ -125,8 +123,6 @@ CPatternView::CPatternView() :
 	m_iBuffers(0),
 	m_bForcePlayRowUpdate(false)
 {
-   ui->setupUi(this);
-   
    m_iPatternFontSize = ROW_HEIGHT;
    m_iRowHeight = m_iPatternFontSize;
    m_pBackDC = new CDC();
@@ -136,7 +132,6 @@ CPatternView::CPatternView() :
 
 CPatternView::~CPatternView()
 {
-   delete ui;
    delete m_pBackDC;
 }
 
@@ -396,10 +391,6 @@ void CPatternView::SetDocument(CFamiTrackerDoc *pDoc, CFamiTrackerView *pView)
 	m_pDocument = pDoc;
 	m_pView = pView;
 
-   QGridLayout* grid = dynamic_cast<QGridLayout*>(layout());
-   grid->addWidget(pView->GetScrollBarCtrl(SB_HORZ)->toQWidget(),1,0);
-   grid->addWidget(pView->GetScrollBarCtrl(SB_VERT)->toQWidget(),0,1);
-   
 	// Reset variables
 	
 	m_cpCursorPos = CCursorPos();

@@ -87,7 +87,6 @@ public:
 	void	SetFrameCount(int Count);
 
 protected:
-   bool event(QEvent *event);
    void focusInEvent(QFocusEvent *);
    void showEvent(QShowEvent *);
    void hideEvent(QHideEvent *);
@@ -100,6 +99,7 @@ protected:
 private:
    // Qt stuff
    Ui::CMainFrame *ui;
+   QTimer* idleTimer;
    QToolBar* toolBar;
    QLabel* octaveLabel;
    QComboBox* octaveComboBox;
@@ -144,6 +144,7 @@ public:
 	afx_msg void OnUpdateSBChip(CCmdUI *pCmdUI);
    
 public slots:
+   void idleProcessing();
    void songInstruments_doubleClicked(const QModelIndex &index);
    void songInstruments_currentChanged(const QModelIndex& index,const QModelIndex&);
    void on_frameChangeAll_clicked(bool checked);

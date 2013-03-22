@@ -51,6 +51,9 @@
 #include <QGroupBox>
 #include <QFileDialog>
 
+#ifndef QT_NO_DEBUG
+//#define _DEBUG
+#endif
 
 // Define resources here that are "hidden under the hood" of MFC...
 enum
@@ -224,8 +227,10 @@ enum
 #define strcpy_s(d,l,s) wcsncpy(d,s,l)
 #if UNICODE
 #define _ttoi _wtoi
+#define _tcslen wcslen
 #else
 #define _ttoi atoi
+#define _tcslen strlen
 #endif
 #ifdef QT_NO_DEBUG
 #define ASSERT(y)
@@ -293,6 +298,10 @@ SIZE_T WINAPI GlobalSize(
   HGLOBAL hMem
 );
 
+class CDumpContext
+{
+};
+
 class CObject
 {
 public:
@@ -305,21 +314,50 @@ class CCmdTarget : public CObject
 {
 };
 
-class CCriticalSection
+class CSyncObject
 {
 public:
-   BOOL Lock() { return TRUE; }
-   BOOL Unlock() { return TRUE; }
+   virtual BOOL Lock(
+      DWORD dwTimeout = INFINITE 
+   ) { return TRUE; }
+   virtual BOOL Unlock( ) = 0; 
+   virtual BOOL Unlock(
+      LONG lCount,
+      LPLONG lpPrevCount = NULL 
+   ) { return TRUE; }
 };
 
-class CMutex : public QMutex
+class CCriticalSection : public CSyncObject
 {
 public:
-   void Lock() { lock(); }
-   void Unlock() { unlock(); }
+   CCriticalSection();
+   virtual ~CCriticalSection();
+   BOOL Lock(
+      DWORD dwTimeout = INFINITE 
+   );
+   BOOL Unlock( ); 
+protected:
+   QMutex* _qtd;
 };
 
-class CSemaphore
+class CMutex : public CSyncObject
+{
+public:
+   CMutex(
+      BOOL bInitiallyOwn = FALSE,
+      LPCTSTR lpszName = NULL,
+      LPSECURITY_ATTRIBUTES lpsaAttribute = NULL 
+   );
+   virtual ~CMutex();
+   BOOL Lock(
+      DWORD dwTimeout = INFINITE 
+   );
+   BOOL Unlock( ); 
+protected:
+   QMutex* _qtd;
+};
+
+class CSemaphore : public CSyncObject
 {
 };
 
@@ -394,7 +432,7 @@ private:
    QList<CString> _qlist;
 };
 
-class CFileException
+class CException
 {
 public:
    virtual BOOL GetErrorMessage(
@@ -406,6 +444,10 @@ public:
       lpszError[0] = 0;
       return false;
    }
+};
+
+class CFileException : public CException
+{
 };
 
 class CFile : public CCmdTarget
@@ -1285,6 +1327,8 @@ class CDocument : public CCmdTarget
 {
 public:
    CDocument() : m_pDocTemplate(NULL) {}
+   void AssertValid() const {}
+   void Dump(CDumpContext& dc) const {}
    virtual BOOL OnNewDocument() { DeleteContents(); return TRUE; }
    virtual BOOL OnSaveDocument(LPCTSTR lpszPathName) { return TRUE; }
    virtual BOOL OnOpenDocument(LPCTSTR lpszPathName) { return TRUE; }

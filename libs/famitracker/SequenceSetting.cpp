@@ -93,7 +93,7 @@ void CSequenceSetting::OnPaint()
 		LPCTSTR MODES[] = {_T("Absolute"), _T("Fixed"), _T("Relative")};
 
 		rect.top += 2;
-		dc.DrawText(MODES[mode], wcslen(MODES[mode]), rect, DT_CENTER);
+		dc.DrawText(MODES[mode], _tcslen(MODES[mode]), rect, DT_CENTER);
 	}
 	else {
 		dc.FillSolidRect(rect, 0xFFFFFF);

@@ -159,6 +159,9 @@ CMainFrame::CMainFrame(CWnd *parent) :
    CComboBox* mfc1 = new CComboBox;
    ui->songsGroupBox->layout()->addWidget(mfc1->toQWidget());
    mfcToQtWidget.insert(IDC_SUBTUNE,mfc1);
+   
+   idleTimer = new QTimer;
+   QObject::connect(idleTimer,SIGNAL(timeout()),this,SLOT(idleProcessing()));
 }
 
 CMainFrame::~CMainFrame()
@@ -171,17 +174,6 @@ CMainFrame::~CMainFrame()
    delete octaveLabel;
    delete octaveComboBox;
    delete toolBar;
-}
-
-bool CMainFrame::event(QEvent *event)
-{
-   qDebug("CMainFrame::event:%d",event->type());
-   if ( event->type() == QEvent::Paint )
-   {
-      paintEvent(dynamic_cast<QPaintEvent*>(event));
-      return true;
-   }
-   return false;
 }
 
 void CMainFrame::focusInEvent(QFocusEvent *)
@@ -237,11 +229,15 @@ void CMainFrame::showEvent(QShowEvent *)
       initialized = true;
    }
    
+   idleTimer->start();
+   
    setFocus();
 }
 
 void CMainFrame::hideEvent(QHideEvent *)
 {
+   idleTimer->stop();
+   
    emit removeToolBarWidget(toolBar);
    
    foreach ( CStatic* pane, m_wndStatusBar.panes() )
@@ -256,19 +252,19 @@ void CMainFrame::resizeEvent(QResizeEvent *)
       ResizeFrameWindow();
 }
 
-//void CMainFrame::onIdleSlot()
-//{   
-//   CWnd* pWnd;
-//   CMenu* pMenu;
-//   CCmdUI cmdUI;
+void CMainFrame::idleProcessing()
+{   
+   CWnd* pWnd;
+   CMenu* pMenu;
+   CCmdUI cmdUI;
    
-//   pWnd = GetDlgItem(ID_INDICATOR_CHIP);
+   pWnd = GetDlgItem(ID_INDICATOR_CHIP);
    
-//   cmdUI.m_nID = ID_INDICATOR_CHIP;
-//   cmdUI.m_nIndex = -1;
-//   cmdUI.m_pOther = pWnd;
-////   OnUpdateSBChip(&cmdUI);
-//}
+   cmdUI.m_nID = ID_INDICATOR_CHIP;
+   cmdUI.m_nIndex = -1;
+   cmdUI.m_pOther = pWnd;
+//   OnUpdateSBChip(&cmdUI);
+}
 
 void CMainFrame::updateViews(long hint)
 {

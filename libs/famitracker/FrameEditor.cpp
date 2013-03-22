@@ -97,8 +97,6 @@ void CFrameEditor::AssignDocument(CFamiTrackerDoc *pDoc, CFamiTrackerView *pView
 
 int CFrameEditor::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
-   qDebug("OnCreate!!!");
-   
 	if (CWnd::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
