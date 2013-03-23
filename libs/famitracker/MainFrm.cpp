@@ -5,8 +5,7 @@
 #include "FamiTrackerView.h"
 #include "SampleWindow.h"
 #include "ChannelsDlg.h"
-
-#include "famitrackermodulepropertiesdialog.h"
+#include "ModulePropertiesDlg.h"
 
 #include <QFrame>
 #include <QLayout>
@@ -361,19 +360,7 @@ void CMainFrame::trackerAction_duplicateFrame()
 void CMainFrame::trackerAction_moduleProperties()
 {
    qDebug("moduleProperties");
-   FamiTrackerModulePropertiesDialog dlg(m_pDocument);
-
-   dlg.exec();
-   
-   // The song list may have changed, rebuild it from the model.
-   qDebug("NOW FIGURE OUT WHAT TO DO WITH THE ACTION...");
-//   ui->songs->clear();
-//   ui->songs->addItems(dlg.tracks());
-   
-   instrumentsModel->update();
-   
-   // CP HACK for now
-   OnModuleChannels();
+   OnModuleModuleproperties();
 }
 
 void CMainFrame::trackerAction_play()
@@ -754,6 +741,11 @@ void CMainFrame::ChangedTrack()
 //	pTrackBox->SetCurSel(m_iTrack);
 }
 
+int CMainFrame::GetSelectedTrack() const
+{
+	return m_iTrack;
+}
+
 void CMainFrame::SetStatusText(LPCTSTR Text,...)
 {
 }
@@ -776,6 +768,14 @@ void CMainFrame::OnPrevSong()
 
 	if (m_iTrack > 0)
 		pDoc->SelectTrack(m_iTrack - 1);
+}
+
+
+void CMainFrame::OnModuleModuleproperties()
+{
+	// Display module properties dialog
+	CModulePropertiesDlg propertiesDlg;
+	propertiesDlg.DoModal();
 }
 
 void CMainFrame::OnModuleChannels()

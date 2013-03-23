@@ -2018,6 +2018,9 @@ public:
       int nItem,
       BOOL fCheck = TRUE 
    );
+   BOOL GetCheck(
+      int nItem 
+   ) const;
    BOOL SetItemText(
       int nItem,
       int nSubItem,
@@ -2192,7 +2195,7 @@ public:
    HCURSOR LoadStandardCursor( 
       LPCTSTR lpszCursorName  
    ) const;
-   
+   virtual CWnd * GetMainWnd( ) { return m_pMainWnd; }
 public:
    CFrameWnd* m_pMainWnd;
    

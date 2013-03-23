@@ -20,11 +20,30 @@
 
 #pragma once
 
+#include "cqtmfc.h"
+#include "resource.h"
+
+#include "FamiTrackerDoc.h"
 
 // CModulePropertiesDlg dialog
 
 class CModulePropertiesDlg : public CDialog
 {
+   Q_OBJECT
+   // Qt interfaces
+public slots:
+   void songList_itemSelectionChanged();
+   void songAdd_clicked();
+   void songRemove_clicked();
+   void songUp_clicked();
+   void songDown_clicked();
+   void songImport_clicked();
+   void songName_textChanged(QString text);
+   void expansion_currentIndexChanged(int index);
+   void ok_clicked();
+   void cancel_clicked();
+   void channels_valueChanged(int value);
+public:
 	DECLARE_DYNAMIC(CModulePropertiesDlg)
 
 private:

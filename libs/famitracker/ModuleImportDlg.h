@@ -20,12 +20,22 @@
 
 #pragma once
 
+#include "cqtmfc.h"
+#include "resource.h"
+
 #include "FamiTrackerDoc.h"
 
 // CModuleImportDlg dialog
 
 class CModuleImportDlg : public CDialog
 {
+   Q_OBJECT
+   // Qt interfaces
+public slots:
+   void ok_clicked();
+   void cancel_clicked();
+   
+public:
 	DECLARE_DYNAMIC(CModuleImportDlg)
 
 public:

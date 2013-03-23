@@ -2019,6 +2019,18 @@ BOOL CListCtrl::SetCheck(
    return TRUE;
 }
 
+BOOL CListCtrl::GetCheck(
+   int nItem 
+) const
+{
+   QTableWidgetItem* twi = _qtd->item(nItem,0);  
+   if ( !twi )
+   {
+      return twi->checkState()==Qt::Checked;
+   }
+   return FALSE;
+}
+
 BOOL CListCtrl::SetItemText(
    int nItem,
    int nSubItem,

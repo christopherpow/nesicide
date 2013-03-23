@@ -81,8 +81,6 @@ SOURCES += \
     Graphics.cpp \ 
     FrameEditor.cpp \
     FrameAction.cpp \
-    famitrackermodulepropertiesdialog.cpp \
-    famitrackermoduleimportdialog.cpp \
     FamiTrackerDoc.cpp \
     DocumentFile.cpp \
     cmusicfamitrackerinstrumentsmodel.cpp \
@@ -144,7 +142,9 @@ SOURCES += \
     InstrumentEditorN163Wave.cpp \
     InstrumentEditorN163.cpp \
     InstrumentEditorS5B.cpp \
-    ChannelsDlg.cpp
+    ChannelsDlg.cpp \
+    ModulePropertiesDlg.cpp \
+    ModuleImportDlg.cpp
 
 HEADERS += \
     TrackerChannel.h \
@@ -159,8 +159,6 @@ HEADERS += \
     Graphics.h \
     FrameEditor.h \
     FamiTrackerTypes.h \
-    famitrackermodulepropertiesdialog.h \
-    famitrackermoduleimportdialog.h \
     FamiTrackerDoc.h \
     Driver.h \
     DocumentFile.h \
@@ -240,7 +238,9 @@ HEADERS += \
     InstrumentEditorN163Wave.h \
     InstrumentEditorN163.h \
     InstrumentEditorS5B.h \
-    ChannelsDlg.h
+    ChannelsDlg.h \
+    ModulePropertiesDlg.h \
+    ModuleImportDlg.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN
@@ -283,8 +283,6 @@ OTHER_FILES += \
 
 FORMS += \
     FrameEditor.ui \
-    famitrackermodulepropertiesdialog.ui \
-    famitrackermoduleimportdialog.ui \
     MainFrm.ui  
 
 RESOURCES += \
