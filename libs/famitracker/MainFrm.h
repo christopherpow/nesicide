@@ -125,6 +125,7 @@ private:
    CFrameEditor		*m_pFrameEditor;
    
 public:
+   afx_msg void OnModuleChannels();
    afx_msg void OnModuleInsertFrame();
 	afx_msg void OnModuleRemoveFrame();
 	afx_msg void OnModuleDuplicateFrame();

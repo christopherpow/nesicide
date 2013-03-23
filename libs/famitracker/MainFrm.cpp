@@ -4,6 +4,7 @@
 #include "FamiTracker.h"
 #include "FamiTrackerView.h"
 #include "SampleWindow.h"
+#include "ChannelsDlg.h"
 
 #include "famitrackermodulepropertiesdialog.h"
 
@@ -370,6 +371,9 @@ void CMainFrame::trackerAction_moduleProperties()
 //   ui->songs->addItems(dlg.tracks());
    
    instrumentsModel->update();
+   
+   // CP HACK for now
+   OnModuleChannels();
 }
 
 void CMainFrame::trackerAction_play()
@@ -772,6 +776,12 @@ void CMainFrame::OnPrevSong()
 
 	if (m_iTrack > 0)
 		pDoc->SelectTrack(m_iTrack - 1);
+}
+
+void CMainFrame::OnModuleChannels()
+{
+	CChannelsDlg channelsDlg;
+	channelsDlg.DoModal();
 }
 
 void CMainFrame::OnModuleInsertFrame()

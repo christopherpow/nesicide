@@ -106,7 +106,7 @@ DWORD WINAPI GetSysColor(
    switch ( nIndex )
    {
    case COLOR_3DFACE:
-      return 0xd0d0d0;
+      return 0xf0f0f0;
       break;
    case COLOR_BTNHIGHLIGHT:
       return 0xb0b0b0;
@@ -122,11 +122,13 @@ int WINAPI GetSystemMetrics(
   int nIndex
 )
 {
-   QScrollBar sb(Qt::Vertical);
+   static QScrollBar* sb = NULL;
+   if ( !sb )
+      sb = new QScrollBar(Qt::Vertical);
    switch ( nIndex )
    {
    case SM_CXVSCROLL:
-      return sb.sizeHint().width();
+      return sb->sizeHint().width();
       break;
    }
    return 0;
@@ -469,6 +471,48 @@ const CString& CString::operator=(QString str)
 const CString& CString::operator+=(QString str)
 {
    _qstr.append(str);
+   UpdateScratch();
+   return *this;
+}
+
+const CString& CString::operator+(const CString& str)
+{
+   _qstr += str._qstr;
+   UpdateScratch();
+   return *this;
+}
+
+const CString& CString::operator+(LPSTR str)
+{
+   _qstr += QString(str);
+   UpdateScratch();
+   return *this;
+}
+
+const CString& CString::operator+(LPWSTR str)
+{
+   _qstr += QString::fromWCharArray(str);
+   UpdateScratch();
+   return *this;
+}
+
+const CString& CString::operator+(LPCSTR str)
+{
+   _qstr += QString(str);
+   UpdateScratch();
+   return *this;
+}
+
+const CString& CString::operator+(LPCWSTR str)
+{
+   _qstr += QString::fromWCharArray(str);
+   UpdateScratch();
+   return *this;
+}
+
+const CString& CString::operator+(QString str)
+{
+   _qstr += str;
    UpdateScratch();
    return *this;
 }
@@ -2048,9 +2092,301 @@ BOOL CListCtrl::DeleteAllItems()
    return TRUE;
 }
 
+BOOL CListCtrl::DeleteItem(
+   int nItem 
+)
+{
+   if ( nItem < _qtd->rowCount() )
+   {
+      _qtd->removeRow(nItem);
+      return TRUE;
+   }
+   return FALSE;
+}
+
 int CListCtrl::GetItemCount( ) const
 {
    return _qtd->rowCount();
+}
+
+DWORD_PTR CListCtrl::GetItemData( 
+   int nItem  
+) const
+{
+   QTableWidgetItem* twi = _qtd->item(nItem,0);
+   if ( twi )
+   {
+      return twi->data(Qt::UserRole).toInt();
+   }
+}
+
+BOOL CListCtrl::SetItemData(
+   int nItem,
+      DWORD_PTR dwData 
+)
+{
+   QTableWidgetItem* twi = _qtd->item(nItem,0);
+   if ( twi )
+   {
+      twi->setData(Qt::UserRole,QVariant((int)dwData));
+      return TRUE; 
+   }
+   return TRUE;
+}
+
+BOOL CListCtrl::EnsureVisible(
+   int nItem,
+   BOOL bPartialOK 
+)
+{
+   QTableWidgetItem* twi = _qtd->item(nItem,0);
+   if ( twi )
+   {
+      _qtd->scrollToItem(twi);
+      return TRUE;
+   }
+   return FALSE;
+}
+
+CTreeCtrl::CTreeCtrl(CWnd* parent)
+   : CWnd(parent)
+{
+   if ( _qt )
+      delete _qt;
+   
+   if ( parent )
+      _qt = new QTreeWidget(parent->toQWidget());
+   else
+      _qt = new QTreeWidget;
+   
+   // Downcast to save having to do it all over the place...
+   _qtd = dynamic_cast<QTreeWidget*>(_qt);
+      
+   _qtd->setFont(QFont("MS Shell Dlg",8));
+   _qtd->setEditTriggers(QAbstractItemView::NoEditTriggers);
+   _qtd->setHeaderHidden(true);
+   
+   // Pass-through signals
+   QObject::connect(_qtd,SIGNAL(itemSelectionChanged()),this,SIGNAL(itemSelectionChanged()));
+   QObject::connect(_qtd,SIGNAL(itemClicked(QTreeWidgetItem*,int)),this,SIGNAL(itemClicked(QTreeWidgetItem*,int)));
+   QObject::connect(_qtd,SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)),this,SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)));
+}
+
+CTreeCtrl::~CTreeCtrl()
+{
+   if ( _qtd )
+      delete _qtd;
+   _qtd = NULL;
+   _qt = NULL;
+}
+
+HTREEITEM CTreeCtrl::InsertItem(
+   LPCTSTR lpszItem,
+   HTREEITEM hParent,
+   HTREEITEM hInsertAfter 
+)
+{
+   QTreeWidgetItem* twi = new QTreeWidgetItem;
+   QTreeWidgetItem* parent = hParent;
+#if UNICODE
+   twi->setText(0,QString::fromWCharArray(lpszItem));
+#else
+   twi->setText(0,lpszItem);
+#endif
+   _qtd->blockSignals(true);
+   if ( hInsertAfter != TVI_LAST )
+   {
+      qDebug("CTreeCtrl::InsertItem !TVI_LAST not supported.");
+   }
+   if ( hParent == TVI_ROOT )
+   {      
+      _qtd->insertTopLevelItem(_qtd->topLevelItemCount(),twi);
+   }
+   else
+   {
+      parent->insertChild(parent->childCount(),twi);
+   }
+   _qtd->blockSignals(false);
+   return twi;
+}
+
+BOOL CTreeCtrl::SortChildren(
+   HTREEITEM hItem 
+)
+{
+   QTreeWidgetItem* twi = hItem;
+   if ( twi )
+   {
+      twi->sortChildren(0,Qt::AscendingOrder);
+      return TRUE;
+   }
+   return FALSE;
+}
+
+HTREEITEM CTreeCtrl::GetRootItem( ) const
+{
+   return _qtd->topLevelItem(0);
+}
+
+HTREEITEM CTreeCtrl::GetNextItem(
+   HTREEITEM hItem,
+   UINT nCode 
+) const
+{
+   QTreeWidgetItem* twi = hItem;
+   QTreeWidgetItem* parent;
+   if ( twi )
+   {
+      switch ( nCode )
+      {
+      case TVGN_CARET:
+      case TVGN_DROPHILITE:
+      case TVGN_FIRSTVISIBLE:
+      case TVGN_LASTVISIBLE:
+      case TVGN_NEXTVISIBLE:
+      case TVGN_PREVIOUSVISIBLE:
+         qDebug("CTreeCtrl::GetNextItem nCode(%d) not supported",nCode);
+         break;
+      case TVGN_CHILD:
+         return twi->child(0);
+         break;
+      case TVGN_NEXT:
+         return _qtd->itemBelow(twi);
+         break;
+      case TVGN_PARENT:
+         return twi->parent();
+         break;
+      case TVGN_PREVIOUS:
+         return _qtd->itemAbove(twi);
+         break;
+      case TVGN_ROOT:
+         do
+         {
+            parent = twi;
+            twi = twi->parent();
+         } while ( twi );
+         return parent;
+         break;
+      }
+   }
+   return NULL;
+}
+
+HTREEITEM CTreeCtrl::GetParentItem(
+   HTREEITEM hItem 
+) const
+{
+   QTreeWidgetItem* twi = hItem;
+   return twi->parent();
+}
+
+HTREEITEM CTreeCtrl::GetSelectedItem( ) const
+{
+   if ( _qtd->selectedItems().count() )
+      return _qtd->selectedItems().at(0);
+   else
+      return 0;
+}
+
+BOOL CTreeCtrl::ItemHasChildren(
+   HTREEITEM hItem 
+) const
+{
+   QTreeWidgetItem* twi = hItem;
+   if ( twi )
+   {
+      return twi->childCount()!=0;
+   }
+   return FALSE;
+}
+
+DWORD_PTR CTreeCtrl::GetItemData(
+   HTREEITEM hItem 
+) const
+{
+   QTreeWidgetItem* twi = hItem;
+   if ( twi )
+   {
+      return twi->data(0,Qt::UserRole).toInt();
+   }
+   return -1;
+}
+
+BOOL CTreeCtrl::SetItemData(
+   HTREEITEM hItem,
+   DWORD_PTR dwData 
+)
+{
+   QTreeWidgetItem* twi = hItem;
+   if ( twi )
+   {
+      twi->setData(0,Qt::UserRole,QVariant((int)dwData));
+      return TRUE;
+   }
+   return FALSE;
+}
+
+BOOL CTreeCtrl::DeleteItem(
+   HTREEITEM hItem 
+)
+{
+   QTreeWidgetItem* twi = hItem;
+   if ( twi )
+   {
+      QTreeWidgetItem* parent = twi->parent();
+      if ( parent )
+      {
+         parent->removeChild(twi);
+      }
+      else
+      {
+         _qtd->removeItemWidget(twi,0);
+      }
+      return TRUE;
+   }
+   return FALSE;
+}
+
+BOOL CTreeCtrl::Expand(
+   HTREEITEM hItem,
+   UINT nCode 
+)
+{
+   QTreeWidgetItem* twi = hItem;
+   if ( twi )
+   {
+      switch ( nCode )
+      {
+      case TVE_COLLAPSE:
+         _qtd->collapseItem(twi);
+         break;
+      case TVE_COLLAPSERESET:
+         _qtd->collapseItem(twi);
+         break;
+      case TVE_EXPAND:
+         _qtd->expandItem(twi);
+         break;
+      case TVE_TOGGLE:
+         if ( twi->isExpanded() )
+            _qtd->collapseItem(twi);
+         else
+            _qtd->expandItem(twi);
+         break;
+      }
+   }
+   return FALSE;
+}
+
+CString CTreeCtrl::GetItemText(
+   HTREEITEM hItem 
+) const
+{
+   QTreeWidgetItem* twi = hItem;
+   if ( twi )
+   {
+      return twi->text(0);
+   }
+   return CString();
 }
 
 CScrollBar::CScrollBar(CWnd *parent)
@@ -3971,6 +4307,7 @@ BOOL CStatusBar::SetIndicators(
       newPane->setText(lpszText);
 #endif
    }
+   return TRUE;
 }
 
 BOOL CStatusBar::SetPaneText(

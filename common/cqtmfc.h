@@ -43,6 +43,7 @@
 #include <QDialog>
 #include <QMenu>
 #include <QTableWidget>
+#include <QTreeWidget>
 #include <QSpinBox>
 #include <QPushButton>
 #include <QLabel>
@@ -213,7 +214,7 @@ enum
 #define ATLTRACE2(a,b,str,...)
 #endif
 
-#define POSITION int*
+typedef int* POSITION;
 
 #define DECLARE_DYNCREATE(x) 
 #define DECLARE_MESSAGE_MAP()
@@ -400,6 +401,12 @@ public:
    const CString& operator+=(LPCWSTR str);
    const CString& operator=(QString str);
    const CString& operator+=(QString str);
+   const CString& operator+(const CString& str);
+   const CString& operator+(LPSTR str);
+   const CString& operator+(LPWSTR str);
+   const CString& operator+(LPCSTR str);
+   const CString& operator+(LPCWSTR str);
+   const CString& operator+(QString str);
    operator const QString&() const;
    operator LPCTSTR() const;
 
@@ -1961,6 +1968,9 @@ public:
    CListCtrl(CWnd* parent = 0);
    virtual ~CListCtrl();
    BOOL DeleteAllItems( );
+   BOOL DeleteItem(
+      int nItem 
+   );
    int InsertColumn(
       int nCol,
       LPCTSTR lpszColumnHeading,
@@ -2024,6 +2034,105 @@ public:
       UINT nMask 
    );
    int GetItemCount( ) const;
+   DWORD_PTR GetItemData( 
+      int nItem  
+   ) const;
+   BOOL SetItemData(
+      int nItem,
+         DWORD_PTR dwData 
+   );
+   BOOL EnsureVisible(
+      int nItem,
+      BOOL bPartialOK 
+   );
+};
+
+typedef QTreeWidgetItem* HTREEITEM;
+
+#define TVI_ROOT (HTREEITEM)0
+#define TVI_LAST (HTREEITEM)0xffffffff
+
+enum
+{
+   TVGN_CARET,
+   TVGN_DROPHILITE,
+   TVGN_FIRSTVISIBLE,
+   TVGN_LASTVISIBLE,
+   TVGN_NEXTVISIBLE,
+   TVGN_PREVIOUSVISIBLE,
+   TVGN_CHILD,
+   TVGN_NEXT,
+   TVGN_PARENT,
+   TVGN_PREVIOUS,
+   TVGN_ROOT
+};
+
+enum
+{
+   TVE_COLLAPSE,
+   TVE_COLLAPSERESET,
+   TVE_EXPAND,
+   TVE_TOGGLE
+};
+
+class CTreeCtrl : public CWnd
+{
+   Q_OBJECT
+   // Qt interfaces
+public:
+   void setSelectionMode(QAbstractItemView::SelectionMode mode) { _qtd->setSelectionMode(mode); }
+   void setSelectionBehavior(QAbstractItemView::SelectionBehavior behavior) { _qtd->setSelectionBehavior(behavior); }
+   QScrollBar* verticalScrollBar() const { return _qtd->verticalScrollBar(); }
+   QScrollBar* horizontalScrollBar() const { return _qtd->horizontalScrollBar(); }
+   QModelIndex currentIndex () const { return _qtd->currentIndex(); }
+protected:
+   QTreeWidget* _qtd;
+signals:
+   void itemSelectionChanged();
+   void itemClicked(QTreeWidgetItem* item, int column);
+   void itemDoubleClicked(QTreeWidgetItem* item, int column);
+   
+   // MFC interfaces
+public:
+   CTreeCtrl(CWnd* parent = 0);
+   virtual ~CTreeCtrl();
+   HTREEITEM InsertItem(
+      LPCTSTR lpszItem,
+      HTREEITEM hParent = TVI_ROOT,
+      HTREEITEM hInsertAfter = TVI_LAST 
+   );
+   BOOL SortChildren(
+      HTREEITEM hItem 
+   );
+   HTREEITEM GetRootItem( ) const;
+   HTREEITEM GetNextItem(
+      HTREEITEM hItem,
+      UINT nCode 
+   ) const;
+   HTREEITEM GetSelectedItem( ) const;
+   BOOL ItemHasChildren(
+      HTREEITEM hItem 
+   ) const;
+   DWORD_PTR GetItemData(
+      HTREEITEM hItem 
+   ) const;
+   BOOL SetItemData(
+      HTREEITEM hItem,
+      DWORD_PTR dwData 
+   );   
+   CString GetItemText(
+      HTREEITEM hItem 
+   ) const;
+   BOOL DeleteItem(
+      HTREEITEM hItem 
+   );
+   BOOL Expand(
+      HTREEITEM hItem,
+      UINT nCode 
+   );
+   HTREEITEM GetParentItem(
+      HTREEITEM hItem 
+   ) const;
 };
 
 class CWinThread : public QThread, public CCmdTarget

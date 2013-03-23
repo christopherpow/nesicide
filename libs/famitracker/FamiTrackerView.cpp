@@ -287,6 +287,7 @@ CFamiTrackerView::CFamiTrackerView(CWnd* parent) :
    QObject::connect(mfcVerticalScrollBar,SIGNAL(actionTriggered(int)),this,SLOT(verticalScrollBar_actionTriggered(int)));
    
    grid = new QGridLayout(this->toQWidget()); 
+   m_pPatternView->setGeometry(grid->geometry());
    grid->addWidget(m_pPatternView);
    grid->setContentsMargins(0,0,0,0);
    grid->setHorizontalSpacing(0);
