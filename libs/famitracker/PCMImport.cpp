@@ -262,27 +262,24 @@ CPCMImport::CPCMImport(CWnd* pParent /*=NULL*/)
    mfcToQtWidget.insert(IDC_RESAMPLING,mfc11);
 //   PUSHBUTTON      "Preview",IDC_PREVIEW,154,7,50,14
    CButton* mfc12 = new CButton(this);
-   mfc12->setText("Preview");
    CRect r12(CPoint(154,7),CSize(50,14));
    MapDialogRect(&r12);
-   mfc12->setGeometry(r12);
+   mfc12->Create(_T("Preview"),0,r12,this,IDC_PREVIEW);
    mfcToQtWidget.insert(IDC_PREVIEW,mfc12);
    QObject::connect(mfc12,SIGNAL(clicked()),this,SLOT(preview_clicked()));
 //   DEFPUSHBUTTON   "OK",IDOK,154,24,50,14
    CButton* mfc13 = new CButton(this);
-   mfc13->setText("OK");
-   mfc13->setDefault(true);
    CRect r13(CPoint(154,24),CSize(50,14));
    MapDialogRect(&r13);
-   mfc13->setGeometry(r13);
+   mfc13->Create(_T("OK"),0,r13,this,IDOK);
+   mfc13->setDefault(true);
    mfcToQtWidget.insert(IDOK,mfc13);
    QObject::connect(mfc13,SIGNAL(clicked()),this,SLOT(ok_clicked()));
 //   PUSHBUTTON      "Cancel",IDCANCEL,154,41,50,14
    CButton* mfc14 = new CButton(this);
-   mfc14->setText("Cancel");
    CRect r14(CPoint(154,41),CSize(50,14));
    MapDialogRect(&r14);
-   mfc14->setGeometry(r14);
+   mfc14->Create(_T("Cancel"),0,r14,this,IDCANCEL);
    mfcToQtWidget.insert(IDCANCEL,mfc14);
    QObject::connect(mfc14,SIGNAL(clicked()),this,SLOT(cancel_clicked()));
 }

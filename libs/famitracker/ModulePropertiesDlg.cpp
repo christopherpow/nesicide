@@ -84,42 +84,37 @@ CModulePropertiesDlg::CModulePropertiesDlg(CWnd* pParent /*=NULL*/)
    QObject::connect(mfc2,SIGNAL(itemSelectionChanged()),this,SLOT(songList_itemSelectionChanged()));
 //       PUSHBUTTON      "Add",IDC_SONG_ADD,138,18,60,14
    CButton* mfc3 = new CButton(this);
-   mfc3->setText("Add");
    CRect r3(CPoint(138,18),CSize(60,14));
    MapDialogRect(&r3);
-   mfc3->setGeometry(r3);
+   mfc3->Create(_T("Add"),0,r3,this,IDC_SONG_ADD);
    mfcToQtWidget.insert(IDC_SONG_ADD,mfc3);
    QObject::connect(mfc3,SIGNAL(clicked()),this,SLOT(songAdd_clicked()));
 //       PUSHBUTTON      "Remove",IDC_SONG_REMOVE,138,35,60,14
    CButton* mfc4 = new CButton(this);
-   mfc4->setText("Remove");
    CRect r4(CPoint(138,35),CSize(60,14));
    MapDialogRect(&r4);
-   mfc4->setGeometry(r4);
+   mfc4->Create(_T("Remove"),0,r4,this,IDC_SONG_REMOVE);
    mfcToQtWidget.insert(IDC_SONG_REMOVE,mfc4);
    QObject::connect(mfc4,SIGNAL(clicked()),this,SLOT(songRemove_clicked()));
 //       PUSHBUTTON      "Move up",IDC_SONG_UP,138,52,60,14
    CButton* mfc5 = new CButton(this);
-   mfc5->setText("Move up");
    CRect r5(CPoint(138,52),CSize(60,14));
    MapDialogRect(&r5);
-   mfc5->setGeometry(r5);
+   mfc5->Create(_T("Move up"),0,r5,this,IDC_SONG_UP);
    mfcToQtWidget.insert(IDC_SONG_UP,mfc5);
    QObject::connect(mfc5,SIGNAL(clicked()),this,SLOT(songUp_clicked()));
 //       PUSHBUTTON      "Move down",IDC_SONG_DOWN,138,69,60,14
    CButton* mfc6 = new CButton(this);
-   mfc6->setText("Move down");
    CRect r6(CPoint(138,69),CSize(60,14));
    MapDialogRect(&r6);
-   mfc6->setGeometry(r6);
+   mfc6->Create(_T("Move down"),0,r6,this,IDC_SONG_DOWN);
    mfcToQtWidget.insert(IDC_SONG_DOWN,mfc6);
    QObject::connect(mfc6,SIGNAL(clicked()),this,SLOT(songDown_clicked()));
 //       PUSHBUTTON      "Import file",IDC_SONG_IMPORT,138,86,60,14
    CButton* mfc7 = new CButton(this);
-   mfc7->setText("Import file");
    CRect r7(CPoint(138,86),CSize(60,14));
    MapDialogRect(&r7);
-   mfc7->setGeometry(r7);
+   mfc7->Create(_T("Import file"),0,r7,this,IDC_SONG_IMPORT);
    mfcToQtWidget.insert(IDC_SONG_IMPORT,mfc7);
    QObject::connect(mfc7,SIGNAL(clicked()),this,SLOT(songImport_clicked()));
 //       LTEXT           " Title",IDC_STATIC,14,135,17,12,SS_CENTERIMAGE
@@ -165,19 +160,17 @@ CModulePropertiesDlg::CModulePropertiesDlg(CWnd* pParent /*=NULL*/)
    qDebug("horzline not implemented");
 //       DEFPUSHBUTTON   "OK",IDOK,95,238,53,14
    CButton* mfc15 = new CButton(this);
-   mfc15->setText("OK");
-   mfc15->setDefault(true);
    CRect r15(CPoint(95,238),CSize(53,14));
    MapDialogRect(&r15);
-   mfc15->setGeometry(r15);
+   mfc15->Create(_T("OK"),0,r15,this,IDOK);
+   mfc15->setDefault(true);
    mfcToQtWidget.insert(IDOK,mfc15);
    QObject::connect(mfc15,SIGNAL(clicked()),this,SLOT(ok_clicked()));
 //       PUSHBUTTON      "Cancel",IDCANCEL,153,238,53,14
    CButton* mfc16 = new CButton(this);
-   mfc16->setText("Cancel");
    CRect r16(CPoint(153,238),CSize(53,14));
    MapDialogRect(&r16);
-   mfc16->setGeometry(r16);
+   mfc16->Create(_T("Cancel"),0,r16,this,IDCANCEL);
    mfcToQtWidget.insert(IDCANCEL,mfc16);
    QObject::connect(mfc16,SIGNAL(clicked()),this,SLOT(cancel_clicked()));
 //       CONTROL         "",IDC_CHANNELS,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,147,173,51,13

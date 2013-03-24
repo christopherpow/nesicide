@@ -77,42 +77,37 @@ CInstrumentEditorN163Wave::CInstrumentEditorN163Wave(CWnd* pParent) : CInstrumen
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //       PUSHBUTTON      "Sine",IDC_PRESET_SINE,14,101,41,12
    CButton* mfc2 = new CButton(this);
-   mfc2->setText("Sine");
    CRect r2(CPoint(14,104),CSize(41,14));
    MapDialogRect(&r2);
-   mfc2->setGeometry(r2);
+   mfc2->Create(_T("Sine"),0,r2,this,IDC_PRESET_SINE);
    mfcToQtWidget.insert(IDC_PRESET_SINE,mfc2);
    QObject::connect(mfc2,SIGNAL(clicked()),this,SLOT(presetSine_clicked()));
 //       PUSHBUTTON      "Triangle",IDC_PRESET_TRIANGLE,57,101,41,12
    CButton* mfc3 = new CButton(this);
-   mfc3->setText("Triangle");
    CRect r3(CPoint(57,104),CSize(41,14));
    MapDialogRect(&r3);
-   mfc3->setGeometry(r3);
+   mfc3->Create(_T("Triangle"),0,r3,this,IDC_PRESET_TRIANGLE);
    mfcToQtWidget.insert(IDC_PRESET_TRIANGLE,mfc3);
    QObject::connect(mfc3,SIGNAL(clicked()),this,SLOT(presetTriangle_clicked()));
 //       PUSHBUTTON      "Sawtooth",IDC_PRESET_SAWTOOTH,100,101,41,12
    CButton* mfc4 = new CButton(this);
-   mfc4->setText("Sawtooth");
    CRect r4(CPoint(100,104),CSize(41,14));
    MapDialogRect(&r4);
-   mfc4->setGeometry(r4);
+   mfc4->Create(_T("Sawtooth"),0,r4,this,IDC_PRESET_SAWTOOTH);
    mfcToQtWidget.insert(IDC_PRESET_SAWTOOTH,mfc4);
    QObject::connect(mfc4,SIGNAL(clicked()),this,SLOT(presetSawtooth_clicked()));
 //       PUSHBUTTON      "50% pulse",IDC_PRESET_PULSE_50,143,101,41,12
    CButton* mfc5 = new CButton(this);
-   mfc5->setText("50% pulse");
    CRect r5(CPoint(143,104),CSize(41,14));
    MapDialogRect(&r5);
-   mfc5->setGeometry(r5);
+   mfc5->Create(_T("50% pulse"),0,r5,this,IDC_PRESET_PULSE_50);
    mfcToQtWidget.insert(IDC_PRESET_PULSE_50,mfc5);
    QObject::connect(mfc5,SIGNAL(clicked()),this,SLOT(presetPulse50_clicked()));
 //       PUSHBUTTON      "25% pulse",IDC_PRESET_PULSE_25,186,101,41,12
    CButton* mfc6 = new CButton(this);
-   mfc6->setText("25% pulse");
    CRect r6(CPoint(186,104),CSize(41,14));
    MapDialogRect(&r6);
-   mfc6->setGeometry(r6);
+   mfc6->Create(_T("25% pulse"),0,r6,this,IDC_PRESET_PULSE_25);
    mfcToQtWidget.insert(IDC_PRESET_PULSE_25,mfc6);
    QObject::connect(mfc6,SIGNAL(clicked()),this,SLOT(presetPulse25_clicked()));
 //       EDITTEXT        IDC_MML,16,145,342,14,ES_AUTOHSCROLL
@@ -123,18 +118,16 @@ CInstrumentEditorN163Wave::CInstrumentEditorN163Wave(CWnd* pParent) : CInstrumen
    mfcToQtWidget.insert(IDC_MML,mfc8);
 //       PUSHBUTTON      "Copy wave",IDC_COPY_WAVE,240,90,52,14
    CButton* mfc9 = new CButton(this);
-   mfc9->setText("Copy wave");
    CRect r9(CPoint(249,105),CSize(50,14));
    MapDialogRect(&r9);
-   mfc9->setGeometry(r9);
+   mfc9->Create(_T("Copy wave"),0,r9,this,IDC_COPY_WAVE);
    mfcToQtWidget.insert(IDC_COPY,mfc9);
    QObject::connect(mfc9,SIGNAL(clicked()),this,SLOT(copy_clicked()));
 //       PUSHBUTTON      "Paste wave",IDC_PASTE_WAVE,240,104,52,14
    CButton* mfc10 = new CButton(this);
-   mfc10->setText("Paste wave");
    CRect r10(CPoint(308,105),CSize(50,14));
    MapDialogRect(&r10);
-   mfc10->setGeometry(r10);
+   mfc10->Create(_T("Paste wave"),0,r10,this,IDC_PASTE_WAVE);
    mfcToQtWidget.insert(IDC_PASTE,mfc10);
    QObject::connect(mfc10,SIGNAL(clicked()),this,SLOT(paste_clicked()));
 //       EDITTEXT        IDC_INDEX,253,20,39,12,ES_AUTOHSCROLL | ES_READONLY

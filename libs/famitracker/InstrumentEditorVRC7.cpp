@@ -63,18 +63,16 @@ CInstrumentEditorVRC7::CInstrumentEditorVRC7(CWnd* pParent /*=NULL*/)
    QObject::connect(mfc2,SIGNAL(currentIndexChanged(int)),this,SLOT(patch_currentIndexChanged(int)));
 //       PUSHBUTTON      "Copy",IDC_COPY,322,7,43,14
    CButton* mfc3 = new CButton(this);
-   mfc3->setText("Copy");
    CRect r3(CPoint(322,7),CSize(43,14));
    MapDialogRect(&r3);
-   mfc3->setGeometry(r3);
+   mfc3->Create(_T("Copy"),0,r3,this,IDC_COPY);
    mfcToQtWidget.insert(IDC_COPY,mfc3);
    QObject::connect(mfc3,SIGNAL(clicked()),this,SLOT(copy_clicked()));
 //       PUSHBUTTON      "Paste",IDC_PASTE,322,23,43,14
    CButton* mfc4 = new CButton(this);
-   mfc4->setText("Paste");
    CRect r4(CPoint(322,23),CSize(43,14));
    MapDialogRect(&r4);
-   mfc4->setGeometry(r4);
+   mfc4->Create(_T("Paste"),0,r4,this,IDC_PASTE);
    mfcToQtWidget.insert(IDC_PASTE,mfc4);
    QObject::connect(mfc4,SIGNAL(clicked()),this,SLOT(paste_clicked()));
 //       GROUPBOX        "Modulator settings",IDC_STATIC,7,42,153,123
@@ -85,43 +83,38 @@ CInstrumentEditorVRC7::CInstrumentEditorVRC7(CWnd* pParent /*=NULL*/)
    mfc5->setGeometry(r5);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //       CONTROL         "Amplitude modulation",IDC_M_AM,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,54,84,10,WS_EX_TRANSPARENT
-   CCheckBox* mfc6 = new CCheckBox(this);
-   mfc6->setText("Amplitude modulation");
+   CButton* mfc6 = new CButton(this);
    CRect r6(CPoint(14,54),CSize(84,10));
    MapDialogRect(&r6);
-   mfc6->setGeometry(r6);
+   mfc6->Create(_T("Amplitude modulation"),BS_AUTOCHECKBOX,r6,this,IDC_M_AM);
    mfcToQtWidget.insert(IDC_M_AM,mfc6);
    QObject::connect(mfc6,SIGNAL(clicked()),this,SLOT(m_am_clicked()));
 //       CONTROL         "Vibrato",IDC_M_VIB,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,104,54,39,10,WS_EX_TRANSPARENT
-   CCheckBox* mfc7 = new CCheckBox(this);
-   mfc7->setText("Vibrato");
+   CButton* mfc7 = new CButton(this);
    CRect r7(CPoint(104,54),CSize(39,10));
    MapDialogRect(&r7);
-   mfc7->setGeometry(r7);
+   mfc7->Create(_T("Vibrato"),BS_AUTOCHECKBOX,r7,this,IDC_M_VIB);
    mfcToQtWidget.insert(IDC_M_VIB,mfc7);
    QObject::connect(mfc7,SIGNAL(clicked()),this,SLOT(m_vib_clicked()));
 //       CONTROL         "Sustained",IDC_M_EG,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,70,47,10,WS_EX_TRANSPARENT
-   CCheckBox* mfc8 = new CCheckBox(this);
-   mfc8->setText("Sustained");
+   CButton* mfc8 = new CButton(this);
    CRect r8(CPoint(14,70),CSize(47,10));
    MapDialogRect(&r8);
-   mfc8->setGeometry(r8);
+   mfc8->Create(_T("Sustained"),BS_AUTOCHECKBOX,r8,this,IDC_M_EG);
    mfcToQtWidget.insert(IDC_M_EG,mfc8);
    QObject::connect(mfc8,SIGNAL(clicked()),this,SLOT(m_eg_clicked()));
 //       CONTROL         "RATE key scale",IDC_M_KSR2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,89,70,65,10,WS_EX_TRANSPARENT
-   CCheckBox* mfc9 = new CCheckBox(this);
-   mfc9->setText("RATE key scale");
+   CButton* mfc9 = new CButton(this);
    CRect r9(CPoint(89,70),CSize(65,10));
    MapDialogRect(&r9);
-   mfc9->setGeometry(r9);
+   mfc9->Create(_T("RATE key scale"),BS_AUTOCHECKBOX,r9,this,IDC_M_KSR2);
    mfcToQtWidget.insert(IDC_M_KSR2,mfc9);
    QObject::connect(mfc9,SIGNAL(clicked()),this,SLOT(m_ksr2_clicked()));
 //       CONTROL         "Wave rectification",IDC_M_DM,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,86,74,10,WS_EX_TRANSPARENT
-   CCheckBox* mfc10 = new CCheckBox(this);
-   mfc10->setText("Wave rectification");
+   CButton* mfc10 = new CButton(this);
    CRect r10(CPoint(14,86),CSize(74,10));
    MapDialogRect(&r10);
-   mfc10->setGeometry(r10);
+   mfc10->Create(_T("Wave rectification"),BS_AUTOCHECKBOX,r10,this,IDC_M_DM);
    mfcToQtWidget.insert(IDC_M_DM,mfc10);
    QObject::connect(mfc10,SIGNAL(clicked()),this,SLOT(m_dm_clicked()));
 //       LTEXT           "Level",IDC_STATIC,91,87,18,8
@@ -216,43 +209,38 @@ CInstrumentEditorVRC7::CInstrumentEditorVRC7(CWnd* pParent /*=NULL*/)
    mfc23->setGeometry(r23);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //       CONTROL         "Amplitude modulation",IDC_C_AM,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,171,54,84,10
-   CCheckBox* mfc24 = new CCheckBox(this);
-   mfc24->setText("Amplitude modulation");
+   CButton* mfc24 = new CButton(this);
    CRect r24(CPoint(171,54),CSize(84,10));
    MapDialogRect(&r24);
-   mfc24->setGeometry(r24);
+   mfc24->Create(_T("Amplitude modulation"),BS_AUTOCHECKBOX,r24,this,IDC_C_AM);
    mfcToQtWidget.insert(IDC_C_AM,mfc24);
    QObject::connect(mfc24,SIGNAL(clicked()),this,SLOT(c_am_clicked()));
 //       CONTROL         "Vibrato",IDC_C_VIB,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,263,54,39,10
-   CCheckBox* mfc25 = new CCheckBox(this);
-   mfc25->setText("Vibrato");
+   CButton* mfc25 = new CButton(this);
    CRect r25(CPoint(263,54),CSize(39,10));
    MapDialogRect(&r25);
-   mfc25->setGeometry(r25);
+   mfc25->Create(_T("Vibrato"),BS_AUTOCHECKBOX,r25,this,IDC_C_VIB);
    mfcToQtWidget.insert(IDC_C_VIB,mfc25);
    QObject::connect(mfc25,SIGNAL(clicked()),this,SLOT(c_vib_clicked()));
 //       CONTROL         "Sustained",IDC_C_EG,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,171,70,47,10
-   CCheckBox* mfc26 = new CCheckBox(this);
-   mfc26->setText("Sustained");
+   CButton* mfc26 = new CButton(this);
    CRect r26(CPoint(171,70),CSize(47,10));
    MapDialogRect(&r26);
-   mfc26->setGeometry(r26);
+   mfc26->Create(_T("Sustained"),BS_AUTOCHECKBOX,r26,this,IDC_C_EG);
    mfcToQtWidget.insert(IDC_C_EG,mfc26);
    QObject::connect(mfc26,SIGNAL(clicked()),this,SLOT(c_eg_clicked()));
 //       CONTROL         "RATE key scale",IDC_C_KSR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,247,70,65,10
-   CCheckBox* mfc27 = new CCheckBox(this);
-   mfc27->setText("RATE key scale");
+   CButton* mfc27 = new CButton(this);
    CRect r27(CPoint(247,70),CSize(65,10));
    MapDialogRect(&r27);
-   mfc27->setGeometry(r27);
+   mfc27->Create(_T("RATE key scale"),BS_AUTOCHECKBOX,r27,this,IDC_C_KSR);
    mfcToQtWidget.insert(IDC_C_KSR,mfc27);
    QObject::connect(mfc27,SIGNAL(clicked()),this,SLOT(c_ksr_clicked()));
 //       CONTROL         "Wave rectification",IDC_C_DM,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,171,86,74,10
-   CCheckBox* mfc28 = new CCheckBox(this);
-   mfc28->setText("Wave rectification");
+   CButton* mfc28 = new CButton(this);
    CRect r28(CPoint(171,86),CSize(74,10));
    MapDialogRect(&r28);
-   mfc28->setGeometry(r28);
+   mfc28->Create(_T("Wave rectification"),BS_AUTOCHECKBOX,r28,this,IDC_C_DM);
    mfcToQtWidget.insert(IDC_C_DM,mfc28);
    QObject::connect(mfc28,SIGNAL(clicked()),this,SLOT(c_dm_clicked()));
 //       LTEXT           "Level",IDC_STATIC,249,87,18,8

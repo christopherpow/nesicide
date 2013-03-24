@@ -47,19 +47,17 @@ CSampleEditorDlg::CSampleEditorDlg(CWnd* pParent /*=NULL*/, CDSample *pSample)
    
 //   DEFPUSHBUTTON   "OK",IDOK,372,234,50,14
    CButton* mfc1 = new CButton(this);
-   mfc1->setText("OK");
-   mfc1->setDefault(true);
    CRect r1(CPoint(372,234),CSize(50,14));
    MapDialogRect(&r1);
-   mfc1->setGeometry(r1);
+   mfc1->Create(_T("OK"),0,r1,this,IDOK);
+   mfc1->setDefault(true);
    mfcToQtWidget.insert(IDOK,mfc1);
    QObject::connect(mfc1,SIGNAL(clicked()),this,SLOT(ok_clicked()));
 //   PUSHBUTTON      "Cancel",IDCANCEL,424,234,50,14
    CButton* mfc2 = new CButton(this);
-   mfc2->setText("Cancel");
    CRect r2(CPoint(424,234),CSize(50,14));
    MapDialogRect(&r2);
-   mfc2->setGeometry(r2);
+   mfc2->Create(_T("Cancel"),0,r2,this,IDCANCEL);
    mfcToQtWidget.insert(IDCANCEL,mfc2);
    QObject::connect(mfc2,SIGNAL(clicked()),this,SLOT(cancel_clicked()));
 //   CONTROL         "",IDC_SAMPLE,"Static",SS_WHITERECT | SS_NOTIFY | SS_SUNKEN,7,7,467,204
@@ -70,10 +68,9 @@ CSampleEditorDlg::CSampleEditorDlg(CWnd* pParent /*=NULL*/, CDSample *pSample)
    mfcToQtWidget.insert(IDC_SAMPLE,mfc3);
 //   PUSHBUTTON      "Play",IDC_PLAY,67,234,50,14
    CButton* mfc4 = new CButton(this);
-   mfc4->setText("Play");
    CRect r4(CPoint(67,234),CSize(50,14));
    MapDialogRect(&r4);
-   mfc4->setGeometry(r4);
+   mfc4->Create(_T("Play"),0,r4,this,IDC_PLAY);
    mfcToQtWidget.insert(IDC_PLAY,mfc4);
    QObject::connect(mfc4,SIGNAL(clicked()),this,SLOT(play_clicked()));
 //   LTEXT           "Offset: 0, Pos: 0",IDC_POS,7,217,79,11,SS_SUNKEN
@@ -85,10 +82,9 @@ CSampleEditorDlg::CSampleEditorDlg(CWnd* pParent /*=NULL*/, CDSample *pSample)
    mfcToQtWidget.insert(IDC_POS,mfc5);
 //   PUSHBUTTON      "Delete",IDC_DELETE,239,234,50,14
    CButton* mfc6 = new CButton(this);
-   mfc6->setText("Delete");
    CRect r6(CPoint(239,234),CSize(50,14));
    MapDialogRect(&r6);
-   mfc6->setGeometry(r6);
+   mfc6->Create(_T("Delete"),0,r6,this,IDC_DELETE);
    mfcToQtWidget.insert(IDC_DELETE,mfc6);
    QObject::connect(mfc6,SIGNAL(clicked()),this,SLOT(delete_clicked()));
 //   CONTROL         "",IDC_PITCH,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,143,236,79,12
@@ -100,10 +96,9 @@ CSampleEditorDlg::CSampleEditorDlg(CWnd* pParent /*=NULL*/, CDSample *pSample)
    QObject::connect(mfc7,SIGNAL(valueChanged(int)),this,SLOT(pitch_valueChanged(int)));
 //   PUSHBUTTON      "Tilt",IDC_TILT,292,234,50,14
    CButton* mfc8 = new CButton(this);
-   mfc8->setText("Tilt");
    CRect r8(CPoint(292,234),CSize(50,14));
    MapDialogRect(&r8);
-   mfc8->setGeometry(r8);
+   mfc8->Create(_T("Tilt"),0,r8,this,IDC_TILT);
    mfcToQtWidget.insert(IDC_TILT,mfc8);
    QObject::connect(mfc8,SIGNAL(clicked()),this,SLOT(tilt_clicked()));
 //   LTEXT           "0 bytes",IDC_INFO,88,217,87,11,SS_SUNKEN
@@ -121,11 +116,10 @@ CSampleEditorDlg::CSampleEditorDlg(CWnd* pParent /*=NULL*/, CDSample *pSample)
    mfc10->setGeometry(r10);
    mfcToQtWidget.insert(IDC_STATIC_PITCH,mfc10);
 //   CONTROL         "Start from 64",IDC_DELTASTART,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,238,57,10
-   CCheckBox* mfc11 = new CCheckBox(this);
-   mfc11->setText("Start from 64");
+   CButton* mfc11 = new CButton(this);
    CRect r11(CPoint(7,238),CSize(57,10));
    MapDialogRect(&r11);
-   mfc11->setGeometry(r11);
+   mfc11->Create(_T("Start from 64"),BS_AUTOCHECKBOX,r11,this,IDC_DELTASTART);
    mfcToQtWidget.insert(IDC_DELTASTART,mfc11);
    QObject::connect(mfc11,SIGNAL(clicked()),this,SLOT(deltaStart_clicked()));
 }

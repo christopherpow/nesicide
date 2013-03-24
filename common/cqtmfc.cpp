@@ -3629,9 +3629,7 @@ void CEdit::SetDlgItemInt(
    BOOL bSigned 
 )
 {
-   _qtd->blockSignals(true);
    _qtd->setText(QString::number(nValue));
-   _qtd->blockSignals(false);
 }
 
 UINT CEdit::GetDlgItemInt(
@@ -3648,13 +3646,11 @@ void CEdit::SetDlgItemText(
    LPCTSTR lpszString 
 )
 {
-   _qtd->blockSignals(true);
 #if UNICODE
    _qtd->setText(QString::fromWCharArray(lpszString));
 #else
    _qtd->setText(lpszString);
 #endif
-   _qtd->blockSignals(false);
 }
 
 int CEdit::GetDlgItemText(
@@ -3681,21 +3677,12 @@ int CEdit::GetDlgItemText(
 }
 
 CButton::CButton(CWnd* parent)
-   : CWnd(parent)
+   : CWnd(parent),
+     _qtd_push(NULL),
+     _qtd_radio(NULL),
+     _qtd_check(NULL),
+     _qtd(NULL)
 {
-   if ( _qt )
-      delete _qt;
-   
-   if ( parent )
-      _qt = new QPushButton(parent->toQWidget());
-   else
-      _qt = new QPushButton;
-   
-   // Downcast to save having to do it all over the place...
-   _qtd = dynamic_cast<QPushButton*>(_qt);
-   
-   // Pass-through signals
-   QObject::connect(_qtd,SIGNAL(clicked()),this,SIGNAL(clicked()));
 }
 
 CButton::~CButton()
@@ -3704,6 +3691,65 @@ CButton::~CButton()
       delete _qtd;
    _qtd = NULL;
    _qt = NULL;
+}
+
+BOOL CButton::Create(
+   LPCTSTR lpszCaption,
+   DWORD dwStyle,
+   const RECT& rect,
+   CWnd* pParentWnd,
+   UINT nID 
+)
+{
+   if ( _qt )
+      delete _qt;
+
+   _dwStyle = dwStyle;
+   
+   if ( dwStyle&BS_AUTOCHECKBOX )
+   {
+      _qt = new QCheckBox(pParentWnd->toQWidget());
+      
+      // Downcast to save having to do it all over the place...
+      _qtd_check = dynamic_cast<QCheckBox*>(_qt);
+   }
+   else if ( dwStyle&BS_AUTO3STATE )
+   {
+      _qt = new QCheckBox(pParentWnd->toQWidget());
+      
+      // Downcast to save having to do it all over the place...
+      _qtd_check = dynamic_cast<QCheckBox*>(_qt);
+      _qtd_check->setTristate(true);
+   }
+   else if ( dwStyle&BS_AUTORADIOBUTTON )
+   {
+      _qt = new QRadioButton(pParentWnd->toQWidget());
+      
+      // Downcast to save having to do it all over the place...
+      _qtd_radio = dynamic_cast<QRadioButton*>(_qt);
+   }
+   else
+   {
+      _qt = new QPushButton(pParentWnd->toQWidget());
+      
+      // Downcast to save having to do it all over the place...
+      _qtd_push = dynamic_cast<QPushButton*>(_qt);
+   }
+   
+   _qtd = dynamic_cast<QAbstractButton*>(_qt);
+   
+#if UNICODE
+   _qtd->setText(QString::fromWCharArray(lpszCaption));
+#else
+   _qtd->setText(lpszCaption);
+#endif
+   
+   _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
+   
+   // Pass-through signals
+   QObject::connect(_qtd,SIGNAL(clicked()),this,SIGNAL(clicked()));
+   
+   return TRUE;
 }
 
 void CButton::SetDlgItemInt(
@@ -3764,108 +3810,10 @@ void CButton::CheckDlgButton(
    UINT nCheck  
 )
 {
-   _qtd->blockSignals(true);
    _qtd->setChecked(nCheck);
-   _qtd->blockSignals(false);
 }
 
 UINT CButton::IsDlgButtonChecked( 
-   int nIDButton 
-) const
-{
-   return _qtd->isChecked();
-}
-
-CCheckBox::CCheckBox(CWnd* parent)
-   : CWnd(parent)
-{
-   if ( _qt )
-      delete _qt;
-   
-   if ( parent )
-      _qt = new QCheckBox(parent->toQWidget());
-   else
-      _qt = new QCheckBox;
-   
-   // Downcast to save having to do it all over the place...
-   _qtd = dynamic_cast<QCheckBox*>(_qt);
-   
-   // Pass-through signals
-   QObject::connect(_qtd,SIGNAL(clicked()),this,SIGNAL(clicked()));
-}
-
-CCheckBox::~CCheckBox()
-{
-   if ( _qtd )
-      delete _qtd;
-   _qtd = NULL;
-   _qt = NULL;
-}
-
-void CCheckBox::SetDlgItemInt(
-   int nID,
-   UINT nValue,
-   BOOL bSigned 
-)
-{
-   _qtd->setText(QString::number(nValue));
-}
-
-UINT CCheckBox::GetDlgItemInt(
-   int nID,
-   BOOL* lpTrans,
-   BOOL bSigned
-) const
-{
-   return _qtd->text().toInt();
-}
-
-void CCheckBox::SetDlgItemText(
-   int nID,
-   LPCTSTR lpszString 
-)
-{
-#if UNICODE
-   _qtd->setText(QString::fromWCharArray(lpszString));
-#else
-   _qtd->setText(lpszString);
-#endif
-}
-
-int CCheckBox::GetDlgItemText(
-   int nID,
-   CString& rString 
-) const
-{
-   rString = _qtd->text();
-   return _qtd->text().length();
-}
-
-int CCheckBox::GetDlgItemText(
-   int nID,
-   LPTSTR lpStr,
-   int nMaxCount 
-) const
-{
-#if UNICODE
-   wcsncpy(lpStr,(LPWSTR)_qtd->text().unicode(),nMaxCount);
-#else
-   strncpy(lpStr,_qtd->text(),nMaxCount);
-#endif   
-   return _qtd->text().length();
-}
-
-void CCheckBox::CheckDlgButton( 
-   int nIDButton, 
-   UINT nCheck  
-)
-{
-   _qtd->blockSignals(true);
-   _qtd->setChecked(nCheck);
-   _qtd->blockSignals(false);
-}
-
-UINT CCheckBox::IsDlgButtonChecked( 
    int nIDButton 
 ) const
 {

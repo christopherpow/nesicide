@@ -98,10 +98,9 @@ CInstrumentEditorVRC6::CInstrumentEditorVRC6(CWnd* pParent) : CSequenceInstrumen
    QObject::connect(mfc4,SIGNAL(valueChanged(int)),this,SLOT(sequenceSpin_valueChanged(int)));
 //   PUSHBUTTON      "Select next empty slot",IDC_FREE_SEQ,12,129,96,15
    CButton* mfc7 = new CButton(this);
-   mfc7->setText("Select next empty slot");
    CRect r7(CPoint(12,129),CSize(96,15));
    MapDialogRect(&r7);
-   mfc7->setGeometry(r7);
+   mfc7->Create(_T("Select next empty slot"),0,r7,this,IDC_FREE_SEQ);
    mfcToQtWidget.insert(IDC_FREE_SEQ,mfc7);
    QObject::connect(mfc7,SIGNAL(clicked()),this,SLOT(freeSeq_clicked()));
 //   EDITTEXT        IDC_SEQUENCE_STRING,126,149,232,13,ES_AUTOHSCROLL

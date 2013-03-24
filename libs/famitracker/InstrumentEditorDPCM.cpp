@@ -126,35 +126,31 @@ CInstrumentEditorDPCM::CInstrumentEditorDPCM(CWnd* pParent) : CInstrumentEditPan
    QObject::connect(mfc3,SIGNAL(currentIndexChanged(int)),this,SLOT(samples_currentIndexChanged(int)));
 //   PUSHBUTTON      "Unload",IDC_UNLOAD,312,35,47,14
    CButton* mfc4 = new CButton(this);
-   mfc4->setText("Unload");
    CRect r4(CPoint(312,35),CSize(47,14));
    MapDialogRect(&r4);
-   mfc4->setGeometry(r4);
+   mfc4->Create(_T("Unload"),0,r4,this,IDC_UNLOAD);
    mfcToQtWidget.insert(IDC_UNLOAD,mfc4);
    QObject::connect(mfc4,SIGNAL(clicked()),this,SLOT(unload_clicked()));
 //   DEFPUSHBUTTON   "Load",IDC_LOAD,312,19,47,14
    CButton* mfc5 = new CButton(this);
-   mfc5->setText("Load");
-   mfc5->setDefault(true);
    CRect r5(CPoint(312,19),CSize(47,14));
    MapDialogRect(&r5);
-   mfc5->setGeometry(r5);
+   mfc5->Create(_T("Unload"),0,r5,this,IDC_LOAD);
+   mfc5->setDefault(true);
    mfcToQtWidget.insert(IDC_LOAD,mfc5);
    QObject::connect(mfc5,SIGNAL(clicked()),this,SLOT(load_clicked()));
 //   PUSHBUTTON      "Save",IDC_SAVE,312,51,47,14
    CButton* mfc6 = new CButton(this);
-   mfc6->setText("Save");
    CRect r6(CPoint(312,51),CSize(47,14));
    MapDialogRect(&r6);
-   mfc6->setGeometry(r6);
+   mfc6->Create(_T("Save"),0,r6,this,IDC_SAVE);
    mfcToQtWidget.insert(IDC_SAVE,mfc6);
    QObject::connect(mfc6,SIGNAL(clicked()),this,SLOT(save_clicked()));
 //   PUSHBUTTON      "Import",IDC_IMPORT,312,67,47,14
    CButton* mfc7 = new CButton(this);
-   mfc7->setText("Import");
    CRect r7(CPoint(312,67),CSize(47,14));
    MapDialogRect(&r7);
-   mfc7->setGeometry(r7);
+   mfc7->Create(_T("Import"),0,r7,this,IDC_IMPORT);
    mfcToQtWidget.insert(IDC_IMPORT,mfc7);
    QObject::connect(mfc7,SIGNAL(clicked()),this,SLOT(import_clicked()));
 //   LTEXT           "Space used 16 / 16 kb",IDC_SPACE,198,151,166,9
@@ -205,27 +201,24 @@ CInstrumentEditorDPCM::CInstrumentEditorDPCM(CWnd* pParent) : CInstrumentEditPan
    QObject::connect(mfc14,SIGNAL(cellClicked(int,int)),this,SLOT(sampleList_cellClicked(int,int)));
    QObject::connect(mfc14,SIGNAL(cellDoubleClicked(int,int)),this,SLOT(sampleList_cellDoubleClicked(int,int)));
 //   CONTROL         "Loop",IDC_LOOP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,138,75,42,9
-   CCheckBox* mfc15 = new CCheckBox(this);
-   mfc15->setText("Loop");
+   CButton* mfc15 = new CButton(this);
    CRect r15(CPoint(138,75),CSize(42,9));
    MapDialogRect(&r15);
-   mfc15->setGeometry(r15);
+   mfc15->Create(_T("Loop"),BS_AUTOCHECKBOX,r15,this,IDC_LOOP);
    mfcToQtWidget.insert(IDC_LOOP,mfc15);
    QObject::connect(mfc15,SIGNAL(clicked()),this,SLOT(loop_clicked()));
 //   PUSHBUTTON      "<-",IDC_ADD,138,130,42,14
    CButton* mfc16 = new CButton(this);
-   mfc16->setText("<-");
    CRect r16(CPoint(138,130),CSize(42,14));
    MapDialogRect(&r16);
-   mfc16->setGeometry(r16);
+   mfc16->Create(_T("<-"),0,r16,this,IDC_ADD);
    mfcToQtWidget.insert(IDC_ADD,mfc16);
-   QObject::connect(mfc15,SIGNAL(clicked()),this,SLOT(add_clicked()));
+   QObject::connect(mfc16,SIGNAL(clicked()),this,SLOT(add_clicked()));
 //   PUSHBUTTON      "->",IDC_REMOVE,138,146,42,14
    CButton* mfc17 = new CButton(this);
-   mfc17->setText("->");
    CRect r17(CPoint(138,146),CSize(42,14));
    MapDialogRect(&r17);
-   mfc17->setGeometry(r17);
+   mfc17->Create(_T("->"),0,r17,this,IDC_REMOVE);
    mfcToQtWidget.insert(IDC_REMOVE,mfc17);
    QObject::connect(mfc15,SIGNAL(clicked()),this,SLOT(remove_clicked()));
 //   EDITTEXT        IDC_LOOP_POINT,138,106,42,13,ES_AUTOHSCROLL | NOT WS_VISIBLE
@@ -237,18 +230,16 @@ CInstrumentEditorDPCM::CInstrumentEditorDPCM(CWnd* pParent) : CInstrumentEditPan
    QObject::connect(mfc18,SIGNAL(textChanged(QString)),this,SLOT(loopPoint_textChanged(QString)));
 //   PUSHBUTTON      "Edit",IDC_EDIT,312,83,47,14
    CButton* mfc19 = new CButton(this);
-   mfc19->setText("Edit");
    CRect r19(CPoint(312,83),CSize(47,14));
    MapDialogRect(&r19);
-   mfc19->setGeometry(r19);
+   mfc19->Create(_T("Edit"),0,r19,this,IDC_EDIT);
    mfcToQtWidget.insert(IDC_EDIT,mfc19);
    QObject::connect(mfc19,SIGNAL(clicked()),this,SLOT(edit_clicked()));
 //   PUSHBUTTON      "Preview",IDC_PREVIEW,312,99,47,14
    CButton* mfc20 = new CButton(this);
-   mfc20->setText("Preview");
    CRect r20(CPoint(312,99),CSize(47,14));
    MapDialogRect(&r20);
-   mfc20->setGeometry(r20);
+   mfc20->Create(_T("Preview"),0,r20,this,IDC_PREVIEW);
    mfcToQtWidget.insert(IDC_PREVIEW,mfc20);
    QObject::connect(mfc20,SIGNAL(clicked()),this,SLOT(preview_clicked()));
 //   LTEXT           "Loop offset",IDC_STATIC,138,94,42,10,NOT WS_VISIBLE

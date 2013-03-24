@@ -38,19 +38,17 @@ CSpeedDlg::CSpeedDlg(CWnd* pParent /*=NULL*/)
    
 //       DEFPUSHBUTTON   "OK",IDOK,139,7,50,14
    CButton* mfc1 = new CButton(this);
-   mfc1->setText("OK");
-   mfc1->setDefault(true);
    CRect r1(CPoint(139,7),CSize(50,14));
    MapDialogRect(&r1);
-   mfc1->setGeometry(r1);
+   mfc1->Create(_T("OK"),0,r1,this,IDOK);
+   mfc1->setDefault(true);
    mfcToQtWidget.insert(IDOK,mfc1);
    QObject::connect(mfc1,SIGNAL(clicked()),this,SLOT(ok_clicked()));
 //       PUSHBUTTON      "Cancel",IDCANCEL,139,23,50,14
    CButton* mfc2 = new CButton(this);
-   mfc2->setText("Cancel");
    CRect r2(CPoint(139,23),CSize(50,14));
    MapDialogRect(&r2);
-   mfc2->setGeometry(r2);
+   mfc2->Create(_T("Cancel"),0,r2,this,IDCANCEL);
    mfcToQtWidget.insert(IDCANCEL,mfc2);
    QObject::connect(mfc2,SIGNAL(clicked()),this,SLOT(cancel_clicked()));
 //       CONTROL         "",IDC_SPEED_SLD,"msctls_trackbar32",WS_TABSTOP,7,7,101,16

@@ -82,35 +82,31 @@ CChannelsDlg::CChannelsDlg(CWnd* pParent /*=NULL*/)
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //       DEFPUSHBUTTON   "OK",IDOK,194,215,50,14
    CButton* mfc1 = new CButton(this);
-   mfc1->setText("OK");
-   mfc1->setDefault(true);
    CRect r1(CPoint(194,215),CSize(50,14));
    MapDialogRect(&r1);
-   mfc1->setGeometry(r1);
+   mfc1->Create(_T("OK"),0,r1,this,IDOK);
+   mfc1->setDefault(true);
    mfcToQtWidget.insert(IDOK,mfc1);
    QObject::connect(mfc1,SIGNAL(clicked()),this,SLOT(ok_clicked()));
 //       PUSHBUTTON      "Cancel",IDCANCEL,246,215,50,14
    CButton* mfc2 = new CButton(this);
-   mfc2->setText("Cancel");
    CRect r2(CPoint(246,215),CSize(50,14));
    MapDialogRect(&r2);
-   mfc2->setGeometry(r2);
+   mfc2->Create(_T("Cancel"),0,r2,this,IDCANCEL);
    mfcToQtWidget.insert(IDCANCEL,mfc2);
    QObject::connect(mfc2,SIGNAL(clicked()),this,SLOT(cancel_clicked()));
 //       PUSHBUTTON      "Move up",IDC_MOVE_UP,7,215,50,14
    CButton* mfc3 = new CButton(this);
-   mfc3->setText("Move up");
    CRect r3(CPoint(7,215),CSize(50,14));
    MapDialogRect(&r3);
-   mfc3->setGeometry(r3);
+   mfc3->Create(_T("Move up"),0,r3,this,IDC_MOVE_UP);
    mfcToQtWidget.insert(IDC_MOVE_UP,mfc3);
    QObject::connect(mfc3,SIGNAL(clicked()),this,SLOT(moveUp_clicked()));
 //       PUSHBUTTON      "Move down",IDC_MOVE_DOWN,62,215,50,14
    CButton* mfc4 = new CButton(this);
-   mfc4->setText("Move down");
    CRect r4(CPoint(62,215),CSize(50,14));
    MapDialogRect(&r4);
-   mfc4->setGeometry(r4);
+   mfc4->Create(_T("Move down"),0,r4,this,IDC_MOVE_DOWN);
    mfcToQtWidget.insert(IDC_MOVE_DOWN,mfc4);
    QObject::connect(mfc4,SIGNAL(clicked()),this,SLOT(moveDown_clicked()));
 //       CONTROL         "",IDC_ADDED_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOCOLUMNHEADER | WS_BORDER | WS_TABSTOP,159,17,129,181

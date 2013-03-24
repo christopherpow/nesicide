@@ -15,6 +15,8 @@
 #include <QFont>
 #include <QRegion>
 #include <QFrame>
+#include <QAbstractButton>
+#include <QRadioButton>
 #include <QComboBox>
 #include <QProgressBar>
 #include <QClipboard>
@@ -1607,10 +1609,14 @@ class CButton : public CWnd
    // Qt interfaces
 public:
    void setText(const QString & text) { _qtd->setText(text); }
-   void setDefault(bool def) { _qtd->setDefault(def); }
+   void setDefault(bool def) { _qtd_push->setDefault(def); }
    void setCheckable(bool checkable) { _qtd->setCheckable(checkable); }
 protected:
-   QPushButton* _qtd;
+   QAbstractButton* _qtd;
+   QPushButton* _qtd_push;
+   QRadioButton* _qtd_radio;
+   QCheckBox* _qtd_check;
+   DWORD _dwStyle;
 signals:
    void clicked();
 
@@ -1618,54 +1624,13 @@ signals:
 public:
    CButton(CWnd* parent = 0);
    virtual ~CButton();
-   void SetDlgItemInt(
-      int nID,
-      UINT nValue,
-      BOOL bSigned = TRUE 
+   virtual BOOL Create(
+      LPCTSTR lpszCaption,
+      DWORD dwStyle,
+      const RECT& rect,
+      CWnd* pParentWnd,
+      UINT nID 
    );
-   UINT GetDlgItemInt(
-      int nID,
-      BOOL* lpTrans = NULL,
-      BOOL bSigned = TRUE 
-   ) const;
-   void SetDlgItemText(
-      int nID,
-      LPCTSTR lpszString 
-   );
-   int GetDlgItemText(
-      int nID,
-      CString& rString 
-   ) const;
-   int GetDlgItemText(
-      int nID,
-      LPTSTR lpStr,
-      int nMaxCount 
-   ) const;
-   void CheckDlgButton( 
-      int nIDButton, 
-      UINT nCheck  
-   );
-   UINT IsDlgButtonChecked( 
-      int nIDButton
-   ) const;
-};
-
-class CCheckBox : public CWnd
-{
-   Q_OBJECT
-   // Qt interfaces
-public:
-   void setText(const QString & text) { _qtd->setText(text); }
-   void setCheckable(bool checkable) { _qtd->setCheckable(checkable); }
-protected:
-   QCheckBox* _qtd;
-signals:
-   void clicked();
-
-   // MFC interfaces
-public:
-   CCheckBox(CWnd* parent = 0);
-   virtual ~CCheckBox();
    void SetDlgItemInt(
       int nID,
       UINT nValue,
