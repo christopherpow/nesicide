@@ -442,6 +442,11 @@ void CInstrumentEditorVRC7::m_dm_clicked()
    OnBnClickedCheckbox();
 }
 
+void CInstrumentEditorVRC7::m_eg_clicked()
+{
+   OnBnClickedCheckbox();
+}
+
 void CInstrumentEditorVRC7::m_ksl_valueChanged(int val)
 {
    OnHScroll(SB_HORZ,val,dynamic_cast<CScrollBar*>(GetDlgItem(IDC_M_KSL)));
@@ -493,6 +498,11 @@ void CInstrumentEditorVRC7::c_ksr_clicked()
 }
 
 void CInstrumentEditorVRC7::c_dm_clicked()
+{
+   OnBnClickedCheckbox();
+}
+
+void CInstrumentEditorVRC7::c_eg_clicked()
 {
    OnBnClickedCheckbox();
 }

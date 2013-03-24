@@ -81,7 +81,7 @@ void CSWSampleScope::Draw(CDC *pDC, bool bMessage)
 	int GraphColor2		= DIM(theApp.m_pSettings->Appearance.iColPatternText, 50);
 	int GraphBgColor	= theApp.m_pSettings->Appearance.iColBackground;
 	*/
-   
+
 #ifdef _DEBUG
 	static int _peak = 0;
 	static int _min = 0;

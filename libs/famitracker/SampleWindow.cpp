@@ -27,7 +27,7 @@
 
 #include "SWSampleScope.h"
 #include "SWSpectrum.h"
-//#include "SWLogo.h"
+#include "SWLogo.h"
 
 // CSampleWindow
 
@@ -90,7 +90,7 @@ BOOL CSampleWindow::CreateEx(DWORD dwExStyle, LPCTSTR lpszClassName, LPCTSTR lps
 	m_pStates[0] = new CSWSampleScope(false);
 	m_pStates[1] = new CSWSampleScope(true);
 	m_pStates[2] = new CSWSpectrum();
-//	m_pStates[3] = new CSWLogo();
+	m_pStates[3] = new CSWLogo();
 	
 	// This is saved
 	m_iCurrentState = theApp.GetSettings()->SampleWinState;

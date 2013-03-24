@@ -1254,37 +1254,37 @@ void CSoundGen::EvaluateGlobalEffects(stChanNote *NoteData, int EffColumns)
 
 // File rendering functions
 
-//bool CSoundGen::RenderToFile(LPTSTR pFile, int SongEndType, int SongEndParam)
-//{
-//	// Called from player thread
-//	//ASSERT(GetCurrentThreadId() == m_nThreadID);
+bool CSoundGen::RenderToFile(LPTSTR pFile, int SongEndType, int SongEndParam)
+{
+	// Called from player thread
+	//ASSERT(GetCurrentThreadId() == m_nThreadID);
 
-//	CFamiTrackerDoc *pDoc = CFamiTrackerDoc::GetDoc();
+	CFamiTrackerDoc *pDoc = CFamiTrackerDoc::GetDoc();
 
-//	if (m_bPlaying)
-//		HaltPlayer();
+	if (m_bPlaying)
+		HaltPlayer();
 
-//	m_iRenderEndWhen = (RENDER_END)SongEndType;
-//	m_iRenderEndParam = SongEndParam;
-//	m_iRenderedFrames = 0;
+	m_iRenderEndWhen = (RENDER_END)SongEndType;
+	m_iRenderEndParam = SongEndParam;
+	m_iRenderedFrames = 0;
 
-//	if (m_iRenderEndWhen == SONG_TIME_LIMIT) {
-//		// This variable is stored in seconds, convert to frames
-//		m_iRenderEndParam *= pDoc->GetFrameRate();
-//	}
-//	else if (m_iRenderEndWhen == SONG_LOOP_LIMIT) {
-//		m_iRenderEndParam = pDoc->ScanActualLength(pDoc->GetSelectedTrack(), m_iRenderEndParam);
-//	}
+	if (m_iRenderEndWhen == SONG_TIME_LIMIT) {
+		// This variable is stored in seconds, convert to frames
+		m_iRenderEndParam *= pDoc->GetFrameRate();
+	}
+	else if (m_iRenderEndWhen == SONG_LOOP_LIMIT) {
+		m_iRenderEndParam = pDoc->ScanActualLength(pDoc->GetSelectedTrack(), m_iRenderEndParam);
+	}
 
-//	if (!m_wfWaveFile.OpenFile(pFile, theApp.GetSettings()->Sound.iSampleRate, theApp.GetSettings()->Sound.iSampleSize, 1)) {
-//		AfxMessageBox(IDS_FILE_OPEN_ERROR);
-//		return false;
-//	}
-//	else
-//		PostThreadMessage(WM_USER_START_RENDER, 0, 0);
+	if (!m_wfWaveFile.OpenFile(pFile, theApp.GetSettings()->Sound.iSampleRate, theApp.GetSettings()->Sound.iSampleSize, 1)) {
+		AfxMessageBox(IDS_FILE_OPEN_ERROR);
+		return false;
+	}
+	else
+		PostThreadMessage(WM_USER_START_RENDER, 0, 0);
 
-//	return true;
-//}
+	return true;
+}
 
 void CSoundGen::StopRendering()
 {
@@ -1303,13 +1303,13 @@ void CSoundGen::StopRendering()
 	ResetBuffer();
 }
 
-//void CSoundGen::GetRenderStat(int &Frame, int &Time, bool &Done, int &FramesToRender)
-//{
-//	Frame = m_iRenderedFrames;
-//	Time = m_iPlayTime / m_pTrackerView->GetDocument()->GetFrameRate();
-//	Done = m_bRendering;
-//	FramesToRender = m_iRenderEndParam;
-//}
+void CSoundGen::GetRenderStat(int &Frame, int &Time, bool &Done, int &FramesToRender)
+{
+	Frame = m_iRenderedFrames;
+	Time = m_iPlayTime / m_pTrackerView->GetDocument()->GetFrameRate();
+	Done = m_bRendering;
+	FramesToRender = m_iRenderEndParam;
+}
 
 bool CSoundGen::IsRendering()
 {

@@ -16,6 +16,7 @@
 #include <QRegion>
 #include <QFrame>
 #include <QComboBox>
+#include <QProgressBar>
 #include <QClipboard>
 #include <QScrollBar>
 #include <QEvent>
@@ -42,6 +43,7 @@
 #include <QListWidget>
 #include <QDialog>
 #include <QMenu>
+#include <QListWidget>
 #include <QTableWidget>
 #include <QTreeWidget>
 #include <QSpinBox>
@@ -412,7 +414,7 @@ public:
 
    void Empty();
    LPCTSTR GetString() const;
-   LPCTSTR GetBuffer() const;
+   LPTSTR GetBuffer() const;
    CString Left( int nCount ) const;
    CString Right( int nCount ) const;
    int GetLength() const;
@@ -1438,6 +1440,9 @@ protected:
 public:
    CDialog(int dlgID,CWnd* parent);
    virtual ~CDialog();
+   void EndDialog(
+      int nResult 
+   );
    virtual void OnOK( ) { _qtd->accept(); }
    virtual void OnCancel( ) { _qtd->reject(); }
    void ShowWindow(int code);
@@ -1724,6 +1729,30 @@ public:
    void SetTicFreq(
       int nFreq 
    );
+};
+
+class CProgressCtrl : public CWnd
+{
+   Q_OBJECT
+   // Qt interfaces
+public:
+   void setOrientation(Qt::Orientation orient) { _qtd->setOrientation(orient); }
+   void setInvertedAppearance(bool inverted) { _qtd->setInvertedAppearance(inverted); }
+protected:
+   QProgressBar* _qtd;
+      
+   // MFC interfaces
+public:
+   CProgressCtrl(CWnd* parent = 0);
+   virtual ~CProgressCtrl();
+   void SetRange(
+      short nLower,
+      short nUpper 
+   );   
+   void SetPos(
+      int nPos 
+   );
+   int GetPos( ) const;
 };
 
 class CSpinButtonCtrl : public CWnd
@@ -2048,6 +2077,37 @@ public:
       int nItem,
       BOOL bPartialOK 
    );
+};
+
+class CListBox : public CWnd
+{
+   Q_OBJECT
+   // Qt interfaces
+public:
+   void setSelectionMode(QAbstractItemView::SelectionMode mode) { _qtd->setSelectionMode(mode); }
+   void setSelectionBehavior(QAbstractItemView::SelectionBehavior behavior) { _qtd->setSelectionBehavior(behavior); }
+   QScrollBar* verticalScrollBar() const { return _qtd->verticalScrollBar(); }
+   QScrollBar* horizontalScrollBar() const { return _qtd->horizontalScrollBar(); }
+   QModelIndex currentIndex () const { return _qtd->currentIndex(); }
+protected:
+   QListWidget* _qtd;
+signals:
+   void itemSelectionChanged();
+   void itemClicked(QListWidgetItem* lwi);
+   void itemDoubleClicked(QListWidgetItem* lwi);
+   
+   // MFC interfaces
+public:
+   CListBox(CWnd* parent = 0);
+   virtual ~CListBox();
+};
+
+class CCheckListBox : public CListBox
+{   
+   // MFC interfaces
+public:
+   CCheckListBox(CWnd* parent = 0);
+   virtual ~CCheckListBox();
 };
 
 typedef QTreeWidgetItem* HTREEITEM;

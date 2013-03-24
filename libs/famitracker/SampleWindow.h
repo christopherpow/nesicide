@@ -63,7 +63,7 @@ public:
 	static const int WIN_HEIGHT = 40;
  	
 private:
-	static const int STATE_COUNT = 3; // CP: Removed FamiTracker logo for now.
+	static const int STATE_COUNT = 4;
 
 	void NextState();
 

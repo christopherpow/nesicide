@@ -38,6 +38,7 @@ public slots:
    void m_eq_clicked();
    void m_ksr2_clicked();
    void m_dm_clicked();
+   void m_eg_clicked();
    void m_ksl_valueChanged(int val);
    void m_mul_valueChanged(int val);
    void m_ar_valueChanged(int val);
@@ -49,6 +50,7 @@ public slots:
    void c_eq_clicked();
    void c_ksr_clicked();
    void c_dm_clicked();
+   void c_eg_clicked();
    void c_ksl_valueChanged(int val);
    void c_mul_valueChanged(int val);
    void c_ar_valueChanged(int val);

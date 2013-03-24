@@ -144,7 +144,11 @@ SOURCES += \
     InstrumentEditorS5B.cpp \
     ChannelsDlg.cpp \
     ModulePropertiesDlg.cpp \
-    ModuleImportDlg.cpp
+    ModuleImportDlg.cpp \
+    SpeedDlg.cpp \
+    SWLogo.cpp \
+    WavProgressDlg.cpp \
+    WaveFile.cpp
 
 HEADERS += \
     TrackerChannel.h \
@@ -240,7 +244,11 @@ HEADERS += \
     InstrumentEditorS5B.h \
     ChannelsDlg.h \
     ModulePropertiesDlg.h \
-    ModuleImportDlg.h
+    ModuleImportDlg.h \
+    SpeedDlg.h \
+    SWLogo.h \
+    WavProgressDlg.h \
+    WaveFile.h 
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN

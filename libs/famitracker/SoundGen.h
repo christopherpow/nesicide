@@ -33,6 +33,8 @@
 // This thread will take care of the NES sound generation
 //
 
+#include "WaveFile.h"
+
 const int VIBRATO_LENGTH = 256;
 const int TREMOLO_LENGTH = 256;
 
@@ -146,10 +148,10 @@ public:
 	stDPCMState	 GetDPCMState() const;
 
 	// Rendering
-//	bool		 RenderToFile(char *File, int SongEndType, int SongEndParam);
+	bool		 RenderToFile(LPTSTR pFile, int SongEndType, int SongEndParam);
 	void		 StopRendering();
-//	void		 GetRenderStat(int &Frame, int &Time, bool &Done);
-	bool		 IsRendering();
+	void		 GetRenderStat(int &Frame, int &Time, bool &Done, int &FramesToRender);
+	bool		 IsRendering();	
 	void		 CheckRenderStop();
 	void		 SongIsDone();
 	void		 FrameIsDone(int SkipFrames);
@@ -291,7 +293,7 @@ private:
 	bool				m_bRequestRenderStop;
 	bool				m_bPlayerHalted;
 
-//	CWaveFile			m_wfWaveFile;
+	CWaveFile			m_wfWaveFile;
 
 	// FDS & N163 waves
 	bool				m_bWaveChanged;

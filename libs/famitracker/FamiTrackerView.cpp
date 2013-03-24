@@ -26,8 +26,8 @@
 #include "FamiTrackerView.h"
 #include "MainFrm.h"
 //#include "MIDI.h"
-//#include "InstrumentEditDlg.h"
-//#include "SpeedDlg.h"
+#include "InstrumentEditDlg.h"
+#include "SpeedDlg.h"
 #include "SoundGen.h"
 #include "PatternEditor.h"
 #include "Settings.h"
@@ -925,23 +925,22 @@ void CFamiTrackerView::OnTrackerNtsc()
 
 void CFamiTrackerView::OnSpeedCustom()
 {
-   qDebug("OnSpeedCustom");
-//	CFamiTrackerDoc* pDoc = GetDocument();
-//	ASSERT_VALID(pDoc);
+	CFamiTrackerDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
 
-//	CSpeedDlg SpeedDlg;
+	CSpeedDlg SpeedDlg;
 
-//	int Machine = pDoc->GetMachine();
-//	int Speed = pDoc->GetEngineSpeed();
-//	if (Speed == 0)
-//		Speed = (Machine == NTSC) ? CAPU::FRAME_RATE_NTSC : CAPU::FRAME_RATE_PAL;
-//	Speed = SpeedDlg.GetSpeedFromDlg(Speed);
+	int Machine = pDoc->GetMachine();
+	int Speed = pDoc->GetEngineSpeed();
+	if (Speed == 0)
+		Speed = (Machine == NTSC) ? CAPU::FRAME_RATE_NTSC : CAPU::FRAME_RATE_PAL;
+	Speed = SpeedDlg.GetSpeedFromDlg(Speed);
 
-//	if (Speed == 0)
-//		return;
+	if (Speed == 0)
+		return;
 
-//	pDoc->SetEngineSpeed(Speed);
-//	theApp.GetSoundGenerator()->LoadMachineSettings(Machine, Speed);
+	pDoc->SetEngineSpeed(Speed);
+	theApp.GetSoundGenerator()->LoadMachineSettings(Machine, Speed);
 }
 
 void CFamiTrackerView::OnSpeedDefault()

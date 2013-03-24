@@ -541,7 +541,7 @@ LPCTSTR CString::GetString() const
 #endif
 }
 
-LPCTSTR CString::GetBuffer() const
+LPTSTR CString::GetBuffer() const
 {
 #if UNICODE
    return (LPWSTR)_qstr.unicode();
@@ -1796,6 +1796,46 @@ int CComboBox::GetDlgItemText(
    strncpy(lpStr,_qtd->currentText(),nMaxCount);
 #endif   
    return _qtd->currentText().length();
+}
+
+CListBox::CListBox(CWnd* parent)
+   : CWnd(parent)
+{
+   if ( _qt )
+      delete _qt;
+   
+   if ( parent )
+      _qt = new QListWidget(parent->toQWidget());
+   else
+      _qt = new QListWidget;
+   
+   // Downcast to save having to do it all over the place...
+   _qtd = dynamic_cast<QListWidget*>(_qt);
+      
+   _qtd->setFont(QFont("MS Shell Dlg",8));
+   _qtd->setEditTriggers(QAbstractItemView::NoEditTriggers);
+   
+   // Pass-through signals
+   QObject::connect(_qtd,SIGNAL(itemSelectionChanged()),this,SIGNAL(itemSelectionChanged()));
+   QObject::connect(_qtd,SIGNAL(itemClicked(QListWidgetItem*)),this,SIGNAL(itemClicked(QListWidgetItem*)));
+   QObject::connect(_qtd,SIGNAL(itemDoubleClicked(QListWidgetItem*)),this,SIGNAL(itemDoubleClicked(QListWidgetItem*)));
+}
+
+CListBox::~CListBox()
+{
+   if ( _qtd )
+      delete _qtd;
+   _qtd = NULL;
+   _qt = NULL;
+}
+
+CCheckListBox::CCheckListBox(CWnd* parent)
+   : CListBox(parent)
+{
+}
+
+CCheckListBox::~CCheckListBox()
+{
 }
 
 CListCtrl::CListCtrl(CWnd* parent)
@@ -3175,6 +3215,13 @@ INT_PTR CDialog::DoModal()
       return 0;
 }
 
+void CDialog::EndDialog(
+   int nResult 
+)
+{
+   _qtd->setResult(nResult);
+}
+
 CCommonDialog::CCommonDialog(CWnd *pParentWnd)
  : CDialog(0,pParentWnd)
 {
@@ -3897,6 +3944,7 @@ CSliderCtrl::CSliderCtrl(CWnd* parent)
    // Not sure if there's vertical sliders in MFC...
    _qtd->setOrientation(Qt::Horizontal);
    _qtd->setTickPosition(QSlider::TicksBelow);
+   _qtd->setTickInterval(1);
    
    // Pass-through signals
    QObject::connect(_qtd,SIGNAL(valueChanged(int)),this,SIGNAL(valueChanged(int)));
@@ -3945,6 +3993,56 @@ void CSliderCtrl::SetTicFreq(
 )
 {
    _qtd->setTickInterval(nFreq);
+}
+
+CProgressCtrl::CProgressCtrl(CWnd* parent)
+   : CWnd(parent)
+{
+   if ( _qt )
+      delete _qt;
+   
+   if ( parent )
+      _qt = new QProgressBar(parent->toQWidget());
+   else
+      _qt = new QProgressBar;
+   
+   // Downcast to save having to do it all over the place...
+   _qtd = dynamic_cast<QProgressBar*>(_qt);
+   
+   // Not sure if there's vertical sliders in MFC...
+   _qtd->setOrientation(Qt::Horizontal);
+   
+   // Pass-through signals
+}
+
+CProgressCtrl::~CProgressCtrl()
+{
+   if ( _qtd )
+      delete _qtd;
+   _qtd = NULL;
+   _qt = NULL;
+}
+
+void CProgressCtrl::SetRange(
+   short nLower,
+   short nUpper 
+)
+{
+   _qtd->setRange(nLower,nUpper);
+}
+
+void CProgressCtrl::SetPos(
+   int nPos 
+)
+{
+   _qtd->blockSignals(true);
+   _qtd->setValue(nPos);
+   _qtd->blockSignals(false);
+}
+
+int CProgressCtrl::GetPos( ) const
+{
+   return _qtd->value();
 }
 
 CStatic::CStatic(CWnd *parent)
