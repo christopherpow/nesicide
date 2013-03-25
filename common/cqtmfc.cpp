@@ -1367,9 +1367,9 @@ COLORREF CDC::GetPixel(
    int y 
 ) const
 {
-   qDebug("GetPixel not supported yet.");
    COLORREF ref = 0xbadf00d;
-   return ref;
+   QImage image = _qpixmap->toImage();
+   return (COLORREF)image.pixel(x,y);
 }
 
 COLORREF CDC::GetPixel(
@@ -2442,41 +2442,9 @@ CString CTreeCtrl::GetItemText(
 }
 
 CScrollBar::CScrollBar(CWnd *parent)
-   : CWnd(parent)
+   : CWnd(parent),
+     _orient(Qt::Vertical)
 {
-   if ( _qt )
-      delete _qt;
-   
-   if ( parent )
-      _qt = new QScrollBar(parent->toQWidget());
-   else
-      _qt = new QScrollBar;
-   
-   // Downcast to save having to do it all over the place...
-   _qtd = dynamic_cast<QScrollBar*>(_qt);
-   _qtd->setOrientation(Qt::Vertical);
-      
-   // Pass-through signals
-   QObject::connect(_qtd,SIGNAL(actionTriggered(int)),this,SIGNAL(actionTriggered(int)));
-}
-
-CScrollBar::CScrollBar(Qt::Orientation orient,CWnd *parent)
-   : CWnd(parent)
-{
-   if ( _qt )
-      delete _qt;
-   
-   if ( parent )
-      _qt = new QScrollBar(parent->toQWidget());
-   else
-      _qt = new QScrollBar;
-   
-   // Downcast to save having to do it all over the place...
-   _qtd = dynamic_cast<QScrollBar*>(_qt);   
-   _qtd->setOrientation(orient);
-   
-   // Pass-through signals
-   QObject::connect(_qtd,SIGNAL(actionTriggered(int)),this,SIGNAL(actionTriggered(int)));
 }
 
 CScrollBar::~CScrollBar()
@@ -2494,6 +2462,21 @@ BOOL CScrollBar::Create(
    UINT nID 
 )
 {
+   if ( _qt )
+      delete _qt;
+   
+   if ( pParentWnd )
+      _qt = new QScrollBar(pParentWnd->toQWidget());
+   else
+      _qt = new QScrollBar;
+   
+   // Downcast to save having to do it all over the place...
+   _qtd = dynamic_cast<QScrollBar*>(_qt);   
+   _qtd->setOrientation(_orient);
+   
+   // Pass-through signals
+   QObject::connect(_qtd,SIGNAL(actionTriggered(int)),this,SIGNAL(actionTriggered(int)));
+
    QRect myRect(QPoint(rect.left,rect.top),QPoint(rect.right,rect.bottom));
    _qtd->setParent(pParentWnd->toQWidget());
    if ( dwStyle&SBS_VERT )
@@ -2522,10 +2505,8 @@ BOOL CScrollBar::Create(
       }
    }
    _qtd->setGeometry(myRect);
-   if ( dwStyle&WS_VISIBLE )
-   {
-      _qtd->setVisible(true);
-   }
+   _qtd->setVisible(dwStyle&WS_VISIBLE);
+      
    m_hWnd = (HWND)_qt;
    return TRUE;
 }
@@ -2607,7 +2588,11 @@ CWnd::CWnd(CWnd *parent)
    {
       _qt = new QWidget;
    }
-      
+
+   myDC = new CDC(this);
+   myDC->doFlush(false);
+   
+   _qt->setMouseTracking(true);
    _qt->installEventFilter(this);
 }
 
@@ -2622,6 +2607,8 @@ CWnd::~CWnd()
    if ( _qt )
       delete _qt;
    _qt = NULL;
+   
+   delete myDC;
 }
 
 void CWnd::subclassWidget(int nID,CWnd* widget)
@@ -2761,14 +2748,19 @@ int CWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
    QGridLayout* grid = dynamic_cast<QGridLayout*>(_qt->layout());
    
+   CRect rect;
+   GetClientRect(&rect);
+   
    if ( lpCreateStruct->style&WS_VSCROLL )
    {
-      mfcVerticalScrollBar = new CScrollBar(Qt::Vertical);
+      mfcVerticalScrollBar = new CScrollBar(this);
+      mfcVerticalScrollBar->Create(SBS_VERT | SBS_LEFTALIGN | WS_CHILD | WS_VISIBLE, rect, this, 0);
       grid->addWidget(mfcVerticalScrollBar->toQWidget(),0,1);
    }
    if ( lpCreateStruct->style&WS_HSCROLL )
    {
-      mfcHorizontalScrollBar = new CScrollBar(Qt::Horizontal);
+      mfcHorizontalScrollBar = new CScrollBar(this);
+      mfcHorizontalScrollBar->Create(SBS_HORZ | SBS_BOTTOMALIGN | WS_CHILD | WS_VISIBLE, rect, this, 0);
       grid->addWidget(mfcHorizontalScrollBar->toQWidget(),1,0);   
    }
    return 0;
@@ -3013,13 +3005,15 @@ int CWnd::SetScrollPos(
    BOOL bRedraw
 )
 {
-   int pos = mfcHorizontalScrollBar->sliderPosition();
+   int pos;
    switch ( nBar )
    {
    case SB_HORZ:
+      pos = mfcHorizontalScrollBar->sliderPosition();
       mfcHorizontalScrollBar->setValue(nPos);
       break;
    case SB_VERT:
+      pos = mfcVerticalScrollBar->sliderPosition();
       mfcVerticalScrollBar->setValue(nPos);
       break;
    }
@@ -3127,20 +3121,6 @@ CView::~CView()
 CDialog::CDialog(int dlgID, CWnd *parent)
    : CWnd(parent)
 {
-   if ( _qt )
-      delete _qt;
-   
-   if ( parent )
-      _qt = new QDialog(parent);
-   else
-      _qt = new QDialog;
-   
-   _qtd = dynamic_cast<QDialog*>(_qt);
-   _inited = false;
-   
-   _qt->installEventFilter(this);
-   
-   // Pass-through signals
 }
 
 CDialog::~CDialog()
@@ -3159,6 +3139,21 @@ BOOL CDialog::Create(
    CWnd* pParentWnd
 )
 { 
+   if ( _qt )
+      delete _qt;
+   
+   if ( pParentWnd )
+      _qt = new QDialog(pParentWnd);
+   else
+      _qt = new QDialog;
+   
+   _qtd = dynamic_cast<QDialog*>(_qt);
+   _inited = false;
+   
+   _qt->installEventFilter(this);
+   
+   // Pass-through signals
+   
    if ( pParentWnd )
       _qt->setParent(pParentWnd->toQWidget()); 
    else
@@ -3590,19 +3585,6 @@ BOOL CTabCtrl::DeleteAllItems( )
 CEdit::CEdit(CWnd* parent)
    : CWnd(parent)
 {
-   if ( _qt )
-      delete _qt;
-   
-   if ( parent )
-      _qt = new QLineEdit(parent->toQWidget());
-   else
-      _qt = new QLineEdit;
-
-   // Downcast to save having to do it all over the place...
-   _qtd = dynamic_cast<QLineEdit*>(_qt);
-      
-   // Pass-through signals
-   QObject::connect(_qtd,SIGNAL(textChanged(QString)),this,SIGNAL(textChanged(QString)));
 }
 
 CEdit::~CEdit()
@@ -3611,6 +3593,33 @@ CEdit::~CEdit()
       delete _qtd;
    _qtd = NULL;
    _qt = NULL;
+}
+
+BOOL CEdit::Create(
+   DWORD dwStyle,
+   const RECT& rect,
+   CWnd* pParentWnd,
+   UINT nID 
+)
+{
+   if ( _qt )
+      delete _qt;
+   
+   if ( pParentWnd )
+      _qt = new QLineEdit(pParentWnd->toQWidget());
+   else
+      _qt = new QLineEdit;
+
+   // Downcast to save having to do it all over the place...
+   _qtd = dynamic_cast<QLineEdit*>(_qt);
+
+   _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
+   _qtd->setVisible(dwStyle&WS_VISIBLE);
+      
+   // Pass-through signals
+   QObject::connect(_qtd,SIGNAL(textChanged(QString)),this,SIGNAL(textChanged(QString)));
+   
+   return TRUE;
 }
 
 BOOL CEdit::EnableWindow(
@@ -3745,6 +3754,7 @@ BOOL CButton::Create(
 #endif
    
    _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
+   _qtd->setVisible(dwStyle&WS_VISIBLE);
    
    // Pass-through signals
    QObject::connect(_qtd,SIGNAL(clicked()),this,SIGNAL(clicked()));
@@ -3824,19 +3834,6 @@ CSpinButtonCtrl::CSpinButtonCtrl(CWnd* parent)
    : CWnd(parent),
      _buddy(NULL)
 {
-   if ( _qt )
-      delete _qt;
-   
-   if ( parent )
-      _qt = new QSpinBox(parent->toQWidget());
-   else
-      _qt = new QSpinBox;
-   
-   // Downcast to save having to do it all over the place...
-   _qtd = dynamic_cast<QSpinBox*>(_qt);
-   
-   // Pass-through signals
-   QObject::connect(_qtd,SIGNAL(valueChanged(int)),this,SIGNAL(valueChanged(int)));
 }
 
 CSpinButtonCtrl::~CSpinButtonCtrl()
@@ -3845,6 +3842,33 @@ CSpinButtonCtrl::~CSpinButtonCtrl()
       delete _qtd;
    _qtd = NULL;
    _qt = NULL;
+}
+
+BOOL CSpinButtonCtrl::Create(
+   DWORD dwStyle,
+   const RECT& rect,
+   CWnd* pParentWnd,
+   UINT nID 
+)
+{
+   if ( _qt )
+      delete _qt;
+   
+   if ( pParentWnd )
+      _qt = new QSpinBox(pParentWnd->toQWidget());
+   else
+      _qt = new QSpinBox;
+   
+   // Downcast to save having to do it all over the place...
+   _qtd = dynamic_cast<QSpinBox*>(_qt);
+   
+   _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
+   _qtd->setVisible(dwStyle&WS_VISIBLE);
+   
+   // Pass-through signals
+   QObject::connect(_qtd,SIGNAL(valueChanged(int)),this,SIGNAL(valueChanged(int)));
+   
+   return TRUE;
 }
 
 int CSpinButtonCtrl::SetPos(
@@ -3996,18 +4020,6 @@ int CProgressCtrl::GetPos( ) const
 CStatic::CStatic(CWnd *parent)
    : CWnd(parent)
 {
-   if ( _qt )
-      delete _qt;
-   
-   if ( parent )
-      _qt = new QLabel(parent->toQWidget());
-   else
-      _qt = new QLabel;
-   
-   // Downcast to save having to do it all over the place...
-   _qtd = dynamic_cast<QLabel*>(_qt);
-   
-   // Pass-through signals
 }
 
 CStatic::~CStatic()
@@ -4016,6 +4028,39 @@ CStatic::~CStatic()
       delete _qtd;
    _qtd = NULL;
    _qt = NULL;
+}
+
+BOOL CStatic::Create(
+   LPCTSTR lpszText,
+   DWORD dwStyle,
+   const RECT& rect,
+   CWnd* pParentWnd,
+   UINT nID
+)
+{
+   if ( _qt )
+      delete _qt;
+   
+   if ( pParentWnd )
+      _qt = new QLabel(pParentWnd->toQWidget());
+   else
+      _qt = new QLabel;
+   
+   // Downcast to save having to do it all over the place...
+   _qtd = dynamic_cast<QLabel*>(_qt);
+      
+   _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
+   _qtd->setVisible(dwStyle&WS_VISIBLE);
+   
+#if UNICODE
+   _qtd->setText(QString::fromWCharArray(lpszText));
+#else
+   _qtd->setText(lpszText);
+#endif
+   
+   // Pass-through signals
+   
+   return TRUE;
 }
 
 void CStatic::SetDlgItemInt(
@@ -4356,6 +4401,7 @@ BOOL CStatusBar::SetIndicators(
    for ( pane = 0; pane < nIDCount; pane++ )
    {
       CStatic* newPane = new CStatic;
+      newPane->Create(_T(""),WS_VISIBLE,CRect(CPoint(0,0),CSize(0,0)),this,IDC_STATIC);
       _panes.insert(pane,newPane);
       _qtd->addWidget(newPane->toQWidget());
       CString lpszText = qtMfcStringResource(lpIDArray[pane]);

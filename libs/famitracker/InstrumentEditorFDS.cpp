@@ -66,152 +66,149 @@ CInstrumentEditorFDS::CInstrumentEditorFDS(CWnd* pParent) : CInstrumentEditPanel
    CButton* mfc2 = new CButton(this);
    CRect r2(CPoint(14,101),CSize(41,12));
    MapDialogRect(&r2);
-   mfc2->Create(_T("Sine"),0,r2,this,IDC_PRESET_SINE);
+   mfc2->Create(_T("Sine"),WS_VISIBLE,r2,this,IDC_PRESET_SINE);
    mfcToQtWidget.insert(IDC_PRESET_SINE,mfc2);
    QObject::connect(mfc2,SIGNAL(clicked()),this,SLOT(presetSine_clicked()));
 //       PUSHBUTTON      "Triangle",IDC_PRESET_TRIANGLE,57,101,41,12
    CButton* mfc3 = new CButton(this);
    CRect r3(CPoint(57,101),CSize(41,12));
    MapDialogRect(&r3);
-   mfc3->Create(_T("Triangle"),0,r3,this,IDC_PRESET_TRIANGLE);
+   mfc3->Create(_T("Triangle"),WS_VISIBLE,r3,this,IDC_PRESET_TRIANGLE);
    mfcToQtWidget.insert(IDC_PRESET_TRIANGLE,mfc3);
    QObject::connect(mfc3,SIGNAL(clicked()),this,SLOT(presetTriangle_clicked()));
 //       PUSHBUTTON      "Sawtooth",IDC_PRESET_SAWTOOTH,100,101,41,12
    CButton* mfc4 = new CButton(this);
    CRect r4(CPoint(100,101),CSize(41,12));
    MapDialogRect(&r4);
-   mfc4->Create(_T("Sawtooth"),0,r4,this,IDC_PRESET_SAWTOOTH);
+   mfc4->Create(_T("Sawtooth"),WS_VISIBLE,r4,this,IDC_PRESET_SAWTOOTH);
    mfcToQtWidget.insert(IDC_PRESET_SAWTOOTH,mfc4);
    QObject::connect(mfc4,SIGNAL(clicked()),this,SLOT(presetSawtooth_clicked()));
 //       LTEXT           "Modulation rate",IDC_STATIC,246,24,51,8
    CStatic* mfc5 = new CStatic(this);
-   mfc5->setText("Modulation rate");
    CRect r5(CPoint(246,24),CSize(51,8));
    MapDialogRect(&r5);
-   mfc5->setGeometry(r5);
+   mfc5->Create(_T("Modulation rate"),WS_VISIBLE,r5,this,IDC_STATIC);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //       EDITTEXT        IDC_MOD_RATE,318,22,37,14,ES_AUTOHSCROLL | ES_NUMBER
 //       CONTROL         "",IDC_MOD_RATE_SPIN,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS,344,25,11,14
-   CEdit* mfc6 = new CEdit(this);
-   CSpinButtonCtrl* mfc7 = new CSpinButtonCtrl(this);
-   mfc6->setBuddy(mfc7);
-   mfc7->setBuddy(mfc6);
    // CP: Note, we fake a MFC "spin-box" separate control by placing it over it's "buddy" and connecting signals appropriately
    // to mimic the buddy relationship.
+   CEdit* mfc6 = new CEdit(this);
    CRect r6(CPoint(318,22),CSize(37,14));
-   CRect r7(CPoint(r6.right-11,r6.top),CSize(11,14));
    MapDialogRect(&r6);
+   CSpinButtonCtrl* mfc7 = new CSpinButtonCtrl(this);
+   CRect r7(CPoint(r6.right-11,r6.top),CSize(11,14));
    MapDialogRect(&r7);
-   mfc6->setGeometry(r6);   
+   mfc6->Create(ES_AUTOHSCROLL | ES_NUMBER | WS_VISIBLE,r6,this,IDC_MOD_RATE);
+   mfc6->setBuddy(mfc7);
    mfcToQtWidget.insert(IDC_MOD_RATE,mfc6);
    QObject::connect(mfc6,SIGNAL(textChanged(QString)),this,SLOT(modRate_textChanged(QString)));
-   mfc7->setGeometry(r7);
+   mfc7->Create(UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS | WS_VISIBLE,r7,this,IDC_MOD_RATE_SPIN);
+   mfc7->setBuddy(mfc6);
    mfcToQtWidget.insert(IDC_MOD_RATE_SPIN,mfc7);
    QObject::connect(mfc7,SIGNAL(valueChanged(int)),this,SLOT(modRateSpin_valueChanged(int)));
 //       LTEXT           "Modulation depth",IDC_STATIC,246,46,56,8
    CStatic* mfc8 = new CStatic(this);
-   mfc8->setText("Modulation depth");
    CRect r8(CPoint(246,46),CSize(56,8));
    MapDialogRect(&r8);
-   mfc8->setGeometry(r8);
+   mfc8->Create(_T("Modulation depth"),WS_VISIBLE,r8,this,IDC_STATIC);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //       EDITTEXT        IDC_MOD_DEPTH,318,43,37,14,ES_AUTOHSCROLL | ES_NUMBER
 //       CONTROL         "",IDC_MOD_DEPTH_SPIN,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,344,43,11,14
-   CEdit* mfc9 = new CEdit(this);
-   CSpinButtonCtrl* mfc10 = new CSpinButtonCtrl(this);
-   mfc9->setBuddy(mfc10);
-   mfc10->setBuddy(mfc9);
    // CP: Note, we fake a MFC "spin-box" separate control by placing it over it's "buddy" and connecting signals appropriately
    // to mimic the buddy relationship.
+   CEdit* mfc9 = new CEdit(this);
    CRect r9(CPoint(318,43),CSize(37,14));
-   CRect r10(CPoint(r9.right-11,r9.top),CSize(11,14));
    MapDialogRect(&r9);
+   CSpinButtonCtrl* mfc10 = new CSpinButtonCtrl(this);
+   CRect r10(CPoint(r9.right-11,r9.top),CSize(11,14));
    MapDialogRect(&r10);
-   mfc9->setGeometry(r9);   
+   mfc9->Create(ES_AUTOHSCROLL | ES_NUMBER | WS_VISIBLE,r9,this,IDC_MOD_DEPTH);
+   mfc9->setBuddy(mfc10);
    mfcToQtWidget.insert(IDC_MOD_DEPTH,mfc9);
    QObject::connect(mfc9,SIGNAL(textChanged(QString)),this,SLOT(modDepth_textChanged(QString)));
-   mfc10->setGeometry(r10);
+   mfc10->Create(UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r10,this,IDC_MOD_DEPTH_SPIN);
+   mfc10->setBuddy(mfc9);
    mfcToQtWidget.insert(IDC_MOD_DEPTH_SPIN,mfc10);
    QObject::connect(mfc10,SIGNAL(valueChanged(int)),this,SLOT(modDepthSpin_valueChanged(int)));
 //       LTEXT           "Modulation delay",IDC_STATIC,246,68,55,8
    CStatic* mfc11 = new CStatic(this);
-   mfc11->setText("Modulation delay");
    CRect r11(CPoint(246,68),CSize(55,8));
    MapDialogRect(&r11);
-   mfc11->setGeometry(r11);
+   mfc11->Create(_T("Modulation delay"),WS_VISIBLE,r11,this,IDC_STATIC);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //       EDITTEXT        IDC_MOD_DELAY,318,65,37,14,ES_AUTOHSCROLL | ES_NUMBER
 //       CONTROL         "",IDC_MOD_DELAY_SPIN,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,344,63,11,14
-   CEdit* mfc12 = new CEdit(this);
-   CSpinButtonCtrl* mfc13 = new CSpinButtonCtrl(this);
-   mfc12->setBuddy(mfc13);
-   mfc13->setBuddy(mfc12);
    // CP: Note, we fake a MFC "spin-box" separate control by placing it over it's "buddy" and connecting signals appropriately
    // to mimic the buddy relationship.
+   CEdit* mfc12 = new CEdit(this);
    CRect r12(CPoint(318,65),CSize(37,14));
-   CRect r13(CPoint(r12.right-11,r12.top),CSize(11,14));
    MapDialogRect(&r12);
+   CSpinButtonCtrl* mfc13 = new CSpinButtonCtrl(this);
+   CRect r13(CPoint(r12.right-11,r12.top),CSize(11,14));
    MapDialogRect(&r13);
-   mfc12->setGeometry(r12);   
+   mfc12->Create(ES_AUTOHSCROLL | ES_NUMBER | WS_VISIBLE,r12,this,IDC_MOD_DELAY);
+   mfc12->setBuddy(mfc13);
    mfcToQtWidget.insert(IDC_MOD_DELAY,mfc12);
    QObject::connect(mfc12,SIGNAL(textChanged(QString)),this,SLOT(modDelay_textChanged(QString)));
-   mfc13->setGeometry(r13);
+   mfc13->Create(UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r13,this,IDC_MOD_DELAY_SPIN);
+   mfc13->setBuddy(mfc12);
    mfcToQtWidget.insert(IDC_MOD_DELAY_SPIN,mfc13);
    QObject::connect(mfc13,SIGNAL(valueChanged(int)),this,SLOT(modDelaySpin_valueChanged(int)));
 //       PUSHBUTTON      "Flat",IDC_MOD_PRESET_FLAT,318,131,46,12
    CButton* mfc14 = new CButton(this);
    CRect r14(CPoint(318,131),CSize(46,12));
    MapDialogRect(&r14);
-   mfc14->Create(_T("Flat"),0,r14,this,IDC_MOD_PRESET_FLAT);
+   mfc14->Create(_T("Flat"),WS_VISIBLE,r14,this,IDC_MOD_PRESET_FLAT);
    mfcToQtWidget.insert(IDC_MOD_PRESET_FLAT,mfc14);
    QObject::connect(mfc14,SIGNAL(clicked()),this,SLOT(modPresetFlat_clicked()));
 //       PUSHBUTTON      "Sine",IDC_MOD_PRESET_SINE,318,148,46,12
    CButton* mfc15 = new CButton(this);
    CRect r15(CPoint(318,148),CSize(46,12));
    MapDialogRect(&r15);
-   mfc15->Create(_T("Sine"),0,r15,this,IDC_MOD_PRESET_SINE);
+   mfc15->Create(_T("Sine"),WS_VISIBLE,r15,this,IDC_MOD_PRESET_SINE);
    mfcToQtWidget.insert(IDC_MOD_PRESET_SINE,mfc15);
    QObject::connect(mfc15,SIGNAL(clicked()),this,SLOT(modPresetSine_clicked()));
 //       PUSHBUTTON      "Copy wave",IDC_COPY_WAVE,240,90,52,14
    CButton* mfc17 = new CButton(this);
    CRect r17(CPoint(240,90),CSize(52,14));
    MapDialogRect(&r17);
-   mfc17->Create(_T("Copy wave"),0,r17,this,IDC_COPY_WAVE);
+   mfc17->Create(_T("Copy wave"),WS_VISIBLE,r17,this,IDC_COPY_WAVE);
    mfcToQtWidget.insert(IDC_COPY_WAVE,mfc17);
    QObject::connect(mfc17,SIGNAL(clicked()),this,SLOT(copyWave_clicked()));
 //       PUSHBUTTON      "Paste wave",IDC_PASTE_WAVE,240,104,52,14
    CButton* mfc18 = new CButton(this);
    CRect r18(CPoint(240,104),CSize(52,14));
    MapDialogRect(&r18);
-   mfc18->Create(_T("Paste wave"),0,r18,this,IDC_PASTE_WAVE);
+   mfc18->Create(_T("Paste wave"),WS_VISIBLE,r18,this,IDC_PASTE_WAVE);
    mfcToQtWidget.insert(IDC_PASTE_WAVE,mfc18);
    QObject::connect(mfc18,SIGNAL(clicked()),this,SLOT(pasteWave_clicked()));
 //       PUSHBUTTON      "Copy table",IDC_COPY_TABLE,305,90,50,14
    CButton* mfc19 = new CButton(this);
    CRect r19(CPoint(305,90),CSize(50,14));
    MapDialogRect(&r19);
-   mfc19->Create(_T("Copy table"),0,r19,this,IDC_COPY_TABLE);
+   mfc19->Create(_T("Copy table"),WS_VISIBLE,r19,this,IDC_COPY_TABLE);
    mfcToQtWidget.insert(IDC_COPY_TABLE,mfc19);
    QObject::connect(mfc19,SIGNAL(clicked()),this,SLOT(copyTable_clicked()));
 //       PUSHBUTTON      "Paste table",IDC_PASTE_TABLE,305,104,50,14
    CButton* mfc20 = new CButton(this);
    CRect r20(CPoint(305,104),CSize(50,14));
    MapDialogRect(&r20);
-   mfc20->Create(_T("Paste table"),0,r20,this,IDC_PASTE_TABLE);
+   mfc20->Create(_T("Paste table"),WS_VISIBLE,r20,this,IDC_PASTE_TABLE);
    mfcToQtWidget.insert(IDC_PASTE_TABLE,mfc20);
    QObject::connect(mfc20,SIGNAL(clicked()),this,SLOT(pasteTable_clicked()));
 //       PUSHBUTTON      "50% pulse",IDC_PRESET_PULSE_50,143,101,41,12
    CButton* mfc21 = new CButton(this);
    CRect r21(CPoint(143,101),CSize(41,12));
    MapDialogRect(&r21);
-   mfc21->Create(_T("50% pulse"),0,r21,this,IDC_PRESET_PULSE_50);
+   mfc21->Create(_T("50% pulse"),WS_VISIBLE,r21,this,IDC_PRESET_PULSE_50);
    mfcToQtWidget.insert(IDC_PRESET_PULSE_50,mfc21);
    QObject::connect(mfc21,SIGNAL(clicked()),this,SLOT(presetPulse50_clicked()));
 //       PUSHBUTTON      "25% pulse",IDC_PRESET_PULSE_25,186,101,41,12
    CButton* mfc22 = new CButton(this);
    CRect r22(CPoint(186,101),CSize(41,12));
    MapDialogRect(&r22);
-   mfc22->Create(_T("25% pulse"),0,r22,this,IDC_PRESET_PULSE_25);
+   mfc22->Create(_T("25% pulse"),WS_VISIBLE,r22,this,IDC_PRESET_PULSE_25);
    mfcToQtWidget.insert(IDC_PRESET_PULSE_25,mfc22);
    QObject::connect(mfc22,SIGNAL(clicked()),this,SLOT(presetPulse25_clicked()));
 }

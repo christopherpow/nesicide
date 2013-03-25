@@ -75,39 +75,40 @@ CInstrumentEditorVRC6::CInstrumentEditorVRC6(CWnd* pParent) : CSequenceInstrumen
    QObject::connect(mfc1,SIGNAL(itemSelectionChanged()),this,SLOT(instSettings_itemSelectionChanged()));
 //   CONTROL         "Sequence #",IDC_STATIC,"Static",SS_LEFTNOWORDWRAP | SS_CENTERIMAGE | WS_GROUP,12,149,53,10,WS_EX_TRANSPARENT
    CStatic* mfc2 = new CStatic(this);
-   mfc2->setText("Sequence #");
    CRect r2(CPoint(12,149),CSize(53,10));
    MapDialogRect(&r2);
-   mfc2->setGeometry(r2);
+   mfc2->Create(_T("Sequence #"),SS_LEFTNOWORDWRAP | SS_CENTERIMAGE | WS_GROUP | WS_VISIBLE,r2,this,IDC_STATIC);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //   EDITTEXT        IDC_SEQ_INDEX,69,147,39,12,ES_AUTOHSCROLL | ES_NUMBER
+//   CONTROL         "",IDC_SEQUENCE_SPIN,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,66,153,11,9
+   // CP: Note, we fake a MFC "spin-box" separate control by placing it over it's "buddy" and connecting signals appropriately
+   // to mimic the buddy relationship.
    CEdit* mfc3 = new CEdit(this);
    CRect r3(CPoint(69,147),CSize(39,12));
    MapDialogRect(&r3);
-   mfc3->setGeometry(r3);   
+   CSpinButtonCtrl* mfc4 = new CSpinButtonCtrl(this);
+   CRect r4(CPoint(r3.right-11,r3.top),CSize(11,12));
+   MapDialogRect(&r4);
+   mfc3->Create(ES_AUTOHSCROLL | ES_NUMBER | WS_VISIBLE,r3,this,IDC_SEQ_INDEX);
+   mfc3->setBuddy(mfc4);
    mfcToQtWidget.insert(IDC_SEQ_INDEX,mfc3);
    QObject::connect(mfc3,SIGNAL(textChanged(QString)),this,SLOT(seqIndex_textChanged(QString)));
-//   CONTROL         "",IDC_SEQUENCE_SPIN,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,66,153,11,9
-   CSpinButtonCtrl* mfc4 = new CSpinButtonCtrl(this);
-   // CP: Note, we fake a MFC "spin-box" separate control by placing it over it's "buddy" and connecting signals appropriately
-   // to mimic the buddy relationship.
-   CRect r4(CPoint(97,147),CSize(11,12));
-   MapDialogRect(&r4);
-   mfc4->setGeometry(r4);
+   mfc4->Create(UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r4,this,IDC_SEQUENCE_SPIN);
+   mfc4->setBuddy(mfc3);
    mfcToQtWidget.insert(IDC_SEQUENCE_SPIN,mfc4);
-   QObject::connect(mfc4,SIGNAL(valueChanged(int)),this,SLOT(sequenceSpin_valueChanged(int)));
+   QObject::connect(mfc4,SIGNAL(valueChanged(int)),this,SLOT(sequenceSpin_valueChanged(int)));   
 //   PUSHBUTTON      "Select next empty slot",IDC_FREE_SEQ,12,129,96,15
    CButton* mfc7 = new CButton(this);
    CRect r7(CPoint(12,129),CSize(96,15));
    MapDialogRect(&r7);
-   mfc7->Create(_T("Select next empty slot"),0,r7,this,IDC_FREE_SEQ);
+   mfc7->Create(_T("Select next empty slot"),WS_VISIBLE,r7,this,IDC_FREE_SEQ);
    mfcToQtWidget.insert(IDC_FREE_SEQ,mfc7);
    QObject::connect(mfc7,SIGNAL(clicked()),this,SLOT(freeSeq_clicked()));
 //   EDITTEXT        IDC_SEQUENCE_STRING,126,149,232,13,ES_AUTOHSCROLL
    CEdit* mfc8 = new CEdit(this);
    CRect r8(CPoint(126,149),CSize(232,13));
    MapDialogRect(&r8);
-   mfc8->setGeometry(r8);   
+   mfc8->Create(ES_AUTOHSCROLL | WS_VISIBLE,r8,this,IDC_SEQUENCE_STRING);
    mfcToQtWidget.insert(IDC_SEQUENCE_STRING,mfc8);
 }
 

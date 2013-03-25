@@ -44,19 +44,17 @@ CCreateWaveDlg::CCreateWaveDlg(CWnd* pParent /*=NULL*/)
    
 //       DEFPUSHBUTTON   "Begin",IDC_BEGIN,37,152,52,14
    CButton* mfc1 = new CButton(this);
-   mfc1->setText("Begin");
-   mfc1->setDefault(true);
    CRect r1(CPoint(37,152),CSize(52,14));
    MapDialogRect(&r1);
-   mfc1->setGeometry(r1);
+   mfc1->Create(_T("Begin"),0,r1,this,IDC_BEGIN);
+   mfc1->setDefault(true);
    mfcToQtWidget.insert(IDC_BEGIN,mfc1);
    QObject::connect(mfc1,SIGNAL(clicked()),this,SLOT(begin_clicked()));
 //       PUSHBUTTON      "Cancel",IDCANCEL,92,152,52,14
    CButton* mfc2 = new CButton(this);
-   mfc2->setText("Cancel");
    CRect r2(CPoint(92,152),CSize(52,14));
    MapDialogRect(&r2);
-   mfc2->setGeometry(r2);
+   mfc2->Create(_T("Cancel"),0,r2,this,IDCANCEL);
    mfcToQtWidget.insert(IDCANCEL,mfc2);
    QObject::connect(mfc2,SIGNAL(clicked()),this,SLOT(cancel_clicked()));
 //       GROUPBOX        "Song length",IDC_STATIC,7,7,137,47
@@ -67,7 +65,19 @@ CCreateWaveDlg::CCreateWaveDlg(CWnd* pParent /*=NULL*/)
    mfc3->setGeometry(r3);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //       CONTROL         "Play the song",IDC_RADIO_LOOP,"Button",BS_AUTORADIOBUTTON,14,20,59,10
+   CButton* mfc4 = new CButton(this);
+   CRect r4(CPoint(14,20),CSize(59,10));
+   MapDialogRect(&r4);
+   mfc4->Create(_T("Play the song"),BS_AUTORADIOBUTTON,r4,this,IDC_RADIO_LOOP);
+   mfcToQtWidget.insert(IDC_RADIO_LOOP,mfc4);
+   QObject::connect(mfc4,SIGNAL(clicked()),this,SLOT(radioLoop_clicked()));
 //       CONTROL         "Play for",IDC_RADIO_TIME,"Button",BS_AUTORADIOBUTTON,14,38,41,10
+   CButton* mfc5 = new CButton(this);
+   CRect r5(CPoint(14,38),CSize(41,10));
+   MapDialogRect(&r5);
+   mfc5->Create(_T("Play for"),BS_AUTORADIOBUTTON,r5,this,IDC_RADIO_TIME);
+   mfcToQtWidget.insert(IDC_RADIO_TIME,mfc5);
+   QObject::connect(mfc5,SIGNAL(clicked()),this,SLOT(radioTime_clicked()));
 //       EDITTEXT        IDC_TIMES,73,19,36,12,ES_AUTOHSCROLL
 //       CONTROL         "",IDC_SPIN_LOOP,"msctls_updown32",UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,105,17,11,17
 //       LTEXT           "time(s)",IDC_STATIC,115,20,21,10,SS_CENTERIMAGE

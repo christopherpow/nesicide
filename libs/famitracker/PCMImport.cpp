@@ -199,10 +199,9 @@ CPCMImport::CPCMImport(CWnd* pParent /*=NULL*/)
    mfcToQtWidget.insert(IDC_QUALITY_FRM,mfc1);
 //   LTEXT           "Low",IDC_STATIC,15,21,15,10
    CStatic* mfc2 = new CStatic(this);
-   mfc2->setText("Low");
    CRect r2(CPoint(15,21),CSize(15,10));
    MapDialogRect(&r2);
-   mfc2->setGeometry(r2);
+   mfc2->Create(_T("Low"),WS_VISIBLE,r2,this,IDC_STATIC);
 //   CONTROL         "",IDC_QUALITY,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,30,19,90,15
    CSliderCtrl* mfc3 = new CSliderCtrl(this);
    CRect r3(CPoint(30,19),CSize(90,15));
@@ -212,10 +211,9 @@ CPCMImport::CPCMImport(CWnd* pParent /*=NULL*/)
    QObject::connect(mfc3,SIGNAL(valueChanged(int)),this,SLOT(quality_valueChanged(int)));
 //   LTEXT           "High",IDC_STATIC,123,21,16,10
    CStatic* mfc4 = new CStatic(this);
-   mfc4->setText("High");
    CRect r4(CPoint(123,21),CSize(16,10));
    MapDialogRect(&r4);
-   mfc4->setGeometry(r4);
+   mfc4->Create(_T("High"),WS_VISIBLE,r4,this,IDC_STATIC);
 //   GROUPBOX        "Gain: +0dB",IDC_VOLUME_FRM,7,47,136,35
    CGroupBox* mfc5 = new CGroupBox(this);
    mfc5->setTitle("Gain: +0dB");
@@ -225,10 +223,9 @@ CPCMImport::CPCMImport(CWnd* pParent /*=NULL*/)
    mfcToQtWidget.insert(IDC_VOLUME_FRM,mfc5);
 //   LTEXT           "Low",IDC_STATIC,15,61,15,10
    CStatic* mfc6 = new CStatic(this);
-   mfc6->setText("Low");
    CRect r6(CPoint(15,61),CSize(15,10));
    MapDialogRect(&r6);
-   mfc6->setGeometry(r6);
+   mfc6->Create(_T("Low"),WS_VISIBLE,r6,this,IDC_STATIC);
 //   CONTROL         "",IDC_VOLUME,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,30,59,90,15
    CSliderCtrl* mfc7 = new CSliderCtrl(this);
    CRect r7(CPoint(30,59),CSize(90,15));
@@ -238,10 +235,9 @@ CPCMImport::CPCMImport(CWnd* pParent /*=NULL*/)
    QObject::connect(mfc7,SIGNAL(valueChanged(int)),this,SLOT(volume_valueChanged(int)));
 //   LTEXT           "High",IDC_STATIC,123,61,16,10
    CStatic* mfc8 = new CStatic(this);
-   mfc8->setText("High");
    CRect r8(CPoint(123,61),CSize(16,10));
    MapDialogRect(&r8);
-   mfc8->setGeometry(r8);
+   mfc8->Create(_T("High"),WS_VISIBLE,r8,this,IDC_STATIC);
 //   GROUPBOX        "File info",IDC_STATIC,7,86,136,40
    CGroupBox* mfc9 = new CGroupBox(this);
    mfc9->setTitle("File info");
@@ -252,26 +248,26 @@ CPCMImport::CPCMImport(CWnd* pParent /*=NULL*/)
    CStatic* mfc10 = new CStatic(this);
    CRect r10(CPoint(15,99),CSize(118,8));
    MapDialogRect(&r10);
-   mfc10->setGeometry(r10);
+   mfc10->Create(_T(""),WS_VISIBLE,r10,this,IDC_SAMPLE_RATE);
    mfcToQtWidget.insert(IDC_SAMPLE_RATE,mfc10);
 //   LTEXT           "Static",IDC_RESAMPLING,15,111,118,8
    CStatic* mfc11 = new CStatic(this);
    CRect r11(CPoint(15,111),CSize(118,8));
    MapDialogRect(&r11);
-   mfc11->setGeometry(r11);
+   mfc11->Create(_T(""),WS_VISIBLE,r11,this,IDC_RESAMPLING);
    mfcToQtWidget.insert(IDC_RESAMPLING,mfc11);
 //   PUSHBUTTON      "Preview",IDC_PREVIEW,154,7,50,14
    CButton* mfc12 = new CButton(this);
    CRect r12(CPoint(154,7),CSize(50,14));
    MapDialogRect(&r12);
-   mfc12->Create(_T("Preview"),0,r12,this,IDC_PREVIEW);
+   mfc12->Create(_T("Preview"),WS_VISIBLE,r12,this,IDC_PREVIEW);
    mfcToQtWidget.insert(IDC_PREVIEW,mfc12);
    QObject::connect(mfc12,SIGNAL(clicked()),this,SLOT(preview_clicked()));
 //   DEFPUSHBUTTON   "OK",IDOK,154,24,50,14
    CButton* mfc13 = new CButton(this);
    CRect r13(CPoint(154,24),CSize(50,14));
    MapDialogRect(&r13);
-   mfc13->Create(_T("OK"),0,r13,this,IDOK);
+   mfc13->Create(_T("OK"),WS_VISIBLE,r13,this,IDOK);
    mfc13->setDefault(true);
    mfcToQtWidget.insert(IDOK,mfc13);
    QObject::connect(mfc13,SIGNAL(clicked()),this,SLOT(ok_clicked()));
@@ -279,7 +275,7 @@ CPCMImport::CPCMImport(CWnd* pParent /*=NULL*/)
    CButton* mfc14 = new CButton(this);
    CRect r14(CPoint(154,41),CSize(50,14));
    MapDialogRect(&r14);
-   mfc14->Create(_T("Cancel"),0,r14,this,IDCANCEL);
+   mfc14->Create(_T("Cancel"),WS_VISIBLE,r14,this,IDCANCEL);
    mfcToQtWidget.insert(IDCANCEL,mfc14);
    QObject::connect(mfc14,SIGNAL(clicked()),this,SLOT(cancel_clicked()));
 }

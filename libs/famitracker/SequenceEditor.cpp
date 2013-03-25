@@ -186,9 +186,8 @@ void CSequenceEditor::SequenceChangedMessage(bool Changed)
 		Text.AppendFormat(_T("%i "), m_pSequence->GetItem(i));
 	}
 
-   qDebug("dynamic_cast<CSequenceInstrumentEditPanel>..................");
-//	dynamic_cast<CSequenceInstrumentEditPanel*>(m_pParent)->SetSequenceString(Text, Changed);
-//	//((CSequenceInstrumentEditPanel*)m_pParent)->SetSequenceString(Text, Changed);
+	dynamic_cast<CSequenceInstrumentEditPanel*>(m_pParent)->SetSequenceString(Text, Changed);
+	//((CSequenceInstrumentEditPanel*)m_pParent)->SetSequenceString(Text, Changed);
 
 	// Set flag in document
 	if (Changed)

@@ -54,7 +54,7 @@ CModuleImportDlg::CModuleImportDlg(CFamiTrackerDoc *pDoc)
    CButton* mfc1 = new CButton(this);
    CRect r1(CPoint(51,188),CSize(50,14));
    MapDialogRect(&r1);
-   mfc1->Create(_T("OK"),0,r1,this,IDOK);
+   mfc1->Create(_T("OK"),WS_VISIBLE,r1,this,IDOK);
    mfc1->setDefault(true);
    mfcToQtWidget.insert(IDOK,mfc1);
    QObject::connect(mfc1,SIGNAL(clicked()),this,SLOT(ok_clicked()));
@@ -62,14 +62,14 @@ CModuleImportDlg::CModuleImportDlg(CFamiTrackerDoc *pDoc)
    CButton* mfc2 = new CButton(this);
    CRect r2(CPoint(104,188),CSize(50,14));
    MapDialogRect(&r2);
-   mfc2->Create(_T("Cancel"),0,r2,this,IDCANCEL);
+   mfc2->Create(_T("Cancel"),WS_VISIBLE,r2,this,IDCANCEL);
    mfcToQtWidget.insert(IDCANCEL,mfc2);
    QObject::connect(mfc2,SIGNAL(clicked()),this,SLOT(cancel_clicked()));
 //       CONTROL         "Include instruments",IDC_INSTRUMENTS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,161,116,10
    CButton* mfc4 = new CButton(this);
    CRect r4(CPoint(14,161),CSize(116,10));
    MapDialogRect(&r4);
-   mfc4->Create(_T("Include instruments"),BS_AUTOCHECKBOX,r4,this,IDC_INSTRUMENTS);
+   mfc4->Create(_T("Include instruments"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r4,this,IDC_INSTRUMENTS);
    mfcToQtWidget.insert(IDC_INSTRUMENTS,mfc4);
 //       CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,7,183,147,1
    qDebug("horzline not implemented");

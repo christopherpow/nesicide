@@ -64,6 +64,8 @@
 enum
 {
    __UNDER_THE_HOOD_START = 0x8000000,
+   
+   IDC_STATIC,
 
    AFX_IDW_STATUS_BAR,
    ID_SEPARATOR,
@@ -1200,8 +1202,8 @@ public:
          BOOL bRepaint = TRUE 
    );
    void MoveWindow(int x,int y,int cx, int cy);
-   CDC* GetDC() { CDC* pDC = new CDC(this); pDC->doFlush(false); return pDC; }
-   void ReleaseDC(CDC* pDC) { delete pDC; }
+   CDC* GetDC() { return myDC; /* CDC* pDC = new CDC(this); pDC->doFlush(false); return pDC; */ }
+   void ReleaseDC(CDC* pDC) { /* delete pDC; */ }
    void ShowWindow(int code);
    void UpdateWindow( ) { _qt->update(); }
    virtual BOOL PostMessage(
@@ -1281,6 +1283,7 @@ protected:
    static CWnd* focusWnd;
    CScrollBar* mfcVerticalScrollBar;
    CScrollBar* mfcHorizontalScrollBar;
+   CDC* myDC;
 
    // Qt interfaces
 public:
@@ -1519,13 +1522,13 @@ public:
    void setPageStep(int pageStep) { _qtd->setPageStep(pageStep); }
 protected:
    QScrollBar* _qtd;
+   Qt::Orientation _orient;
 signals:
    void actionTriggered(int action);
    
    // MFC interfaces
 public:
    CScrollBar(CWnd* parent = 0);
-   CScrollBar(Qt::Orientation o,CWnd* parent = 0);
    virtual ~CScrollBar();
    BOOL SetScrollInfo(
       LPSCROLLINFO lpScrollInfo,
@@ -1552,11 +1555,6 @@ public:
    BOOL EnableScrollBar(
       UINT nArrowFlags = ESB_ENABLE_BOTH 
    );
-   
-protected:
-   // Lazy init, permits creation of objects before paint device is available [ie. globals]
-   CWnd* _parent;
-   Qt::Orientation _orient;
 };
 
 class CSpinButtonCtrl; // CP: for buddy...
@@ -1577,6 +1575,12 @@ signals:
 public:
    CEdit(CWnd* parent = 0);
    virtual ~CEdit();
+   virtual BOOL Create(
+      DWORD dwStyle,
+      const RECT& rect,
+      CWnd* pParentWnd,
+      UINT nID 
+   );
    BOOL EnableWindow(BOOL bEnable);
    void SetDlgItemInt(
       int nID,
@@ -1720,6 +1724,15 @@ public:
    int GetPos( ) const;
 };
 
+enum
+{
+   UDS_SETBUDDYINT = 0x1,
+   UDS_ALIGNRIGHT = 0x2,
+   UDS_AUTOBUDDY = 0x4,
+   UDS_ARROWKEYS = 0x8,
+   UDS_NOTHOUSANDS = 0x10
+};
+
 class CSpinButtonCtrl : public CWnd
 {
    Q_OBJECT
@@ -1736,6 +1749,12 @@ signals:
 public:
    CSpinButtonCtrl(CWnd* parent = 0);
    virtual ~CSpinButtonCtrl();
+   virtual BOOL Create(
+      DWORD dwStyle,
+      const RECT& rect,
+      CWnd* pParentWnd,
+      UINT nID 
+   );
    int SetPos(
       int nPos 
    );
@@ -1821,6 +1840,13 @@ protected:
 public:
    CStatic(CWnd* parent = 0);
    virtual ~CStatic();
+   virtual BOOL Create(
+      LPCTSTR lpszText,
+      DWORD dwStyle,
+      const RECT& rect,
+      CWnd* pParentWnd,
+      UINT nID = 0xffff 
+   );
    void SetDlgItemInt(
       int nID,
       UINT nValue,
@@ -1846,6 +1872,7 @@ public:
    ) const;
 };
 
+// Qt hack for MFC BS_GROUPBOX style CButton override
 class CGroupBox : public CWnd
 {
    // Qt interfaces

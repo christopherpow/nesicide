@@ -281,8 +281,12 @@ CFamiTrackerView::CFamiTrackerView(CWnd* parent) :
    
    m_pPatternView = new CPatternView();
    
-   mfcHorizontalScrollBar = new CScrollBar(Qt::Horizontal);
-   mfcVerticalScrollBar = new CScrollBar(Qt::Vertical);
+   CRect rect;
+   GetClientRect(&rect);
+   mfcHorizontalScrollBar = new CScrollBar(this);
+   mfcHorizontalScrollBar->Create(SBS_HORZ | SBS_BOTTOMALIGN | WS_CHILD | WS_VISIBLE, rect, this, 0);
+   mfcVerticalScrollBar = new CScrollBar(this);
+   mfcVerticalScrollBar->Create(SBS_VERT | SBS_LEFTALIGN | WS_CHILD | WS_VISIBLE, rect, this, 0);
    QObject::connect(mfcHorizontalScrollBar,SIGNAL(actionTriggered(int)),this,SLOT(horizontalScrollBar_actionTriggered(int)));
    QObject::connect(mfcVerticalScrollBar,SIGNAL(actionTriggered(int)),this,SLOT(verticalScrollBar_actionTriggered(int)));
    

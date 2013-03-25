@@ -67,7 +67,7 @@ CInstrumentEditDlg::CInstrumentEditDlg(CWnd* pParent /*=NULL*/)
    CStatic* mfc2 = new CStatic(this);
    CRect r2(CPoint(7,198),CSize(375,37));
    MapDialogRect(&r2);
-   mfc2->setGeometry(r2);
+   mfc2->Create(_T(""),SS_OWNERDRAW | SS_REALSIZEIMAGE | SS_SUNKEN | WS_VISIBLE,r2,this,IDC_KEYBOARD);
    mfcToQtWidget.insert(IDC_KEYBOARD,mfc2);   
 }
 

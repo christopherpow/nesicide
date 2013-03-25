@@ -45,7 +45,7 @@ CInstrumentEditorFDSEnvelope::CInstrumentEditorFDSEnvelope(CWnd* pParent) : CSeq
    CEdit* mfc1 = new CEdit(this);
    CRect r1(CPoint(75,151),CSize(290,14));
    MapDialogRect(&r1);
-   mfc1->setGeometry(r1);   
+   mfc1->Create(ES_AUTOHSCROLL | WS_VISIBLE,r1,this,IDC_SEQUENCE_STRING);
    mfcToQtWidget.insert(IDC_SEQUENCE_STRING,mfc1);
 //       COMBOBOX        IDC_TYPE,8,151,63,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
    CComboBox* mfc2 = new CComboBox(this);
