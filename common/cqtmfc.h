@@ -321,6 +321,13 @@ class CCmdTarget : public CObject
 {
 };
 
+#define AFX_MSG_CALL 
+typedef struct
+{
+//   void( AFX_MSG_CALL CCmdTarget::* )( void ) 	pmf;
+//   CCmdTarget* 	pTarget;
+} AFX_CMDHANDLERINFO;
+
 class CSyncObject
 {
 public:
@@ -1121,6 +1128,25 @@ public:
    virtual BOOL PreCreateWindow(
       CREATESTRUCT& cs 
    ) { return TRUE; }
+   enum
+   {
+      reposDefault,
+      reposQuery,
+      reposExtra
+   };
+   void UpdateDialogControls(
+      CCmdTarget* pTarget,
+      BOOL bDisableIfNoHndler 
+   );
+   void RepositionBars(
+      UINT nIDFirst,
+      UINT nIDLast,
+      UINT nIDLeftOver,
+      UINT nFlag = reposDefault,
+      LPRECT lpRectParam = NULL,
+      LPCRECT lpRectClient = NULL,
+      BOOL bStretch = TRUE 
+   );
    virtual BOOL CreateEx(
       DWORD dwExStyle,
       LPCTSTR lpszClassName,
@@ -1170,6 +1196,18 @@ public:
       CWnd* pWnd,
       UINT nCtlColor 
    ) { return (HBRUSH)NULL; }
+   afx_msg void OnPaint( ) {}
+   virtual BOOL OnCmdMsg(
+      UINT nID,
+      int nCode,
+      void* pExtra,
+      AFX_CMDHANDLERINFO* pHandlerInfo 
+   ) { return FALSE; }
+   virtual BOOL OnNotify( 
+      WPARAM wParam, 
+      LPARAM lParam, 
+      LRESULT* pResult  
+   ) { return FALSE; }
    void OnLButtonDblClk(UINT,CPoint) {}
    void OnLButtonDown(UINT,CPoint) {}
    void OnLButtonUp(UINT,CPoint) {}
@@ -1202,8 +1240,8 @@ public:
          BOOL bRepaint = TRUE 
    );
    void MoveWindow(int x,int y,int cx, int cy);
-   CDC* GetDC() { return myDC; /* CDC* pDC = new CDC(this); pDC->doFlush(false); return pDC; */ }
-   void ReleaseDC(CDC* pDC) { /* delete pDC; */ }
+   CDC* GetDC();
+   void ReleaseDC(CDC* pDC);
    void ShowWindow(int code);
    void UpdateWindow( ) { _qt->update(); }
    virtual BOOL PostMessage(
@@ -1326,7 +1364,9 @@ public:
    virtual void SetMessageText(LPCTSTR fmt,...) { qDebug("SetMessageText"); }
    CView* GetActiveView( ) const { return m_pView; } // Only one view for SDI
    virtual CDocument* GetActiveDocument( ) { return m_pDocument; }   
-   
+   virtual void RecalcLayout(
+      BOOL bNotify = TRUE 
+   );   
    // These methods are only to be used in CDocTemplate initialization...
    virtual void privateSetActiveView(CView* pView) { m_pView = pView; }
    virtual void privateSetActiveDocument(CDocument* pDocument) { m_pDocument = pDocument; }
@@ -1611,16 +1651,11 @@ class CButton : public CWnd
 {
    Q_OBJECT
    // Qt interfaces
-public:
-   void setText(const QString & text) { _qtd->setText(text); }
-   void setDefault(bool def) { _qtd_push->setDefault(def); }
-   void setCheckable(bool checkable) { _qtd->setCheckable(checkable); }
 protected:
    QAbstractButton* _qtd;
    QPushButton* _qtd_push;
    QRadioButton* _qtd_radio;
    QCheckBox* _qtd_check;
-   DWORD _dwStyle;
 signals:
    void clicked();
 
@@ -1667,13 +1702,24 @@ public:
    ) const;
 };
 
+// From mingw/include/commctrl.h
+#define TBS_AUTOTICKS	1
+#define TBS_VERT	2
+#define TBS_HORZ	0
+#define TBS_TOP	4
+#define TBS_BOTTOM	0
+#define TBS_LEFT	4
+#define TBS_RIGHT	0
+#define TBS_BOTH	8
+#define TBS_NOTICKS	16
+#define TBS_ENABLESELRANGE	32
+#define TBS_FIXEDLENGTH	64
+#define TBS_NOTHUMB	128
+
 class CSliderCtrl : public CWnd
 {
    Q_OBJECT
    // Qt interfaces
-public:
-   void setOrientation(Qt::Orientation orient) { _qtd->setOrientation(orient); }
-   void setInvertedAppearance(bool inverted) { _qtd->setInvertedAppearance(inverted); }
 protected:
    QSlider* _qtd;
 signals:
@@ -1683,6 +1729,12 @@ signals:
 public:
    CSliderCtrl(CWnd* parent = 0);
    virtual ~CSliderCtrl();
+   virtual BOOL Create(
+      DWORD dwStyle,
+      const RECT& rect,
+      CWnd* pParentWnd,
+      UINT nID 
+   );
    void SetRange(
       short nLower,
       short nUpper 
@@ -1779,6 +1831,12 @@ signals:
 public:
    CComboBox(CWnd* parent = 0);
    virtual ~CComboBox();
+   virtual BOOL Create(
+      DWORD dwStyle,
+      const RECT& rect,
+      CWnd* pParentWnd,
+      UINT nID 
+   );
    void ResetContent();
    int AddString(
       LPCTSTR lpszString 
@@ -1875,16 +1933,24 @@ public:
 // Qt hack for MFC BS_GROUPBOX style CButton override
 class CGroupBox : public CWnd
 {
+   Q_OBJECT
    // Qt interfaces
-public:
-   void setTitle(const QString & title) { _qtd->setTitle(title); }
 protected:
    QGroupBox* _qtd;
+signals:
+   void clicked();
 
    // MFC interfaces
 public:
    CGroupBox(CWnd* parent = 0);
    virtual ~CGroupBox();
+   virtual BOOL Create(
+      LPCTSTR lpszCaption,
+      DWORD dwStyle,
+      const RECT& rect,
+      CWnd* pParentWnd,
+      UINT nID 
+   );
    void SetDlgItemInt(
       int nID,
       UINT nValue,
@@ -1944,6 +2010,28 @@ public:
 #define LVIF_STATE 100 
 #define LVNI_SELECTED 200
 
+#define LVS_ICON	0
+#define LVS_REPORT	1
+#define LVS_SMALLICON	2
+#define LVS_LIST	3
+#define LVS_TYPEMASK	3
+#define LVS_SINGLESEL	4
+#define LVS_SHOWSELALWAYS	8
+#define LVS_SORTASCENDING	16
+#define LVS_SORTDESCENDING	32
+#define LVS_SHAREIMAGELISTS	64
+#define LVS_NOLABELWRAP	128
+#define LVS_AUTOARRANGE	256
+#define LVS_EDITLABELS	512
+#define LVS_NOSCROLL	0x2000
+#define LVS_TYPESTYLEMASK	0xfc00
+#define LVS_ALIGNTOP	0
+#define LVS_ALIGNLEFT	0x800
+#define LVS_ALIGNMASK	0xc00
+#define LVS_OWNERDRAWFIXED	0x400
+#define LVS_NOCOLUMNHEADER	0x4000
+#define LVS_NOSORTHEADER	0x8000
+
 typedef struct tagNMLISTVIEW {
   NMHDR  hdr;
   int    iItem;
@@ -1988,6 +2076,12 @@ signals:
 public:
    CListCtrl(CWnd* parent = 0);
    virtual ~CListCtrl();
+   virtual BOOL Create(
+      DWORD dwStyle,
+      const RECT& rect,
+      CWnd* pParentWnd,
+      UINT nID 
+   );
    BOOL DeleteAllItems( );
    BOOL DeleteItem(
       int nItem 
@@ -2092,6 +2186,12 @@ signals:
 public:
    CListBox(CWnd* parent = 0);
    virtual ~CListBox();
+   virtual BOOL Create(
+      DWORD dwStyle,
+      const RECT& rect,
+      CWnd* pParentWnd,
+      UINT nID 
+   );
 };
 
 class CCheckListBox : public CListBox
@@ -2130,6 +2230,23 @@ enum
    TVE_TOGGLE
 };
 
+#define TVS_HASBUTTONS	1
+#define TVS_HASLINES	2
+#define TVS_LINESATROOT	4
+#define TVS_EDITLABELS	8
+#define TVS_DISABLEDRAGDROP	16
+#define TVS_SHOWSELALWAYS	32
+#define TVS_CHECKBOXES 256
+#define TVS_NOTOOLTIPS 128
+#define TVS_RTLREADING 64
+#define TVS_TRACKSELECT 512
+#define TVS_FULLROWSELECT 4096
+#define TVS_INFOTIP 2048
+#define TVS_NONEVENHEIGHT 16384
+#define TVS_NOSCROLL 8192
+#define TVS_SINGLEEXPAND 1024
+#define TVS_NOHSCROLL	0x8000
+
 class CTreeCtrl : public CWnd
 {
    Q_OBJECT
@@ -2151,6 +2268,12 @@ signals:
 public:
    CTreeCtrl(CWnd* parent = 0);
    virtual ~CTreeCtrl();
+   virtual BOOL Create(
+      DWORD dwStyle,
+      const RECT& rect,
+      CWnd* pParentWnd,
+      UINT nID 
+   );
    HTREEITEM InsertItem(
       LPCTSTR lpszItem,
       HTREEITEM hParent = TVI_ROOT,

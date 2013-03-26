@@ -1637,10 +1637,7 @@ CComboBox::CComboBox(CWnd *parent)
    if ( _qt )
       delete _qt;
    
-   if ( parent )
-      _qt = new QComboBox(parent->toQWidget());
-   else
-      _qt = new QComboBox;
+   _qt = new QComboBox(parent->toQWidget());
 
    // Downcast to save having to do it all over the place...
    _qtd = dynamic_cast<QComboBox*>(_qt);
@@ -1655,6 +1652,23 @@ CComboBox::~CComboBox()
       delete _qtd;
    _qtd = NULL;
    _qt = NULL;
+}
+
+BOOL CComboBox::Create(
+   DWORD dwStyle,
+   const RECT& rect,
+   CWnd* pParentWnd,
+   UINT nID 
+)
+{
+   _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,_qtd->sizeHint().height());
+   _qtd->setVisible(dwStyle&WS_VISIBLE);
+   
+   QFontMetrics fm(_qtd->font());
+   
+   _qtd->setMaxVisibleItems((rect.bottom-rect.top)/fm.height());
+   
+   return TRUE;
 }
 
 void CComboBox::ResetContent()
@@ -1804,10 +1818,7 @@ CListBox::CListBox(CWnd* parent)
    if ( _qt )
       delete _qt;
    
-   if ( parent )
-      _qt = new QListWidget(parent->toQWidget());
-   else
-      _qt = new QListWidget;
+   _qt = new QListWidget(parent->toQWidget());
    
    // Downcast to save having to do it all over the place...
    _qtd = dynamic_cast<QListWidget*>(_qt);
@@ -1829,6 +1840,19 @@ CListBox::~CListBox()
    _qt = NULL;
 }
 
+BOOL CListBox::Create(
+   DWORD dwStyle,
+   const RECT& rect,
+   CWnd* pParentWnd,
+   UINT nID 
+)
+{
+   _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
+   _qtd->setVisible(dwStyle&WS_VISIBLE);
+
+   return TRUE;
+}
+
 CCheckListBox::CCheckListBox(CWnd* parent)
    : CListBox(parent)
 {
@@ -1844,10 +1868,7 @@ CListCtrl::CListCtrl(CWnd* parent)
    if ( _qt )
       delete _qt;
    
-   if ( parent )
-      _qt = new QTableWidget(parent->toQWidget());
-   else
-      _qt = new QTableWidget;
+   _qt = new QTableWidget(parent->toQWidget());
    
    // Downcast to save having to do it all over the place...
    _qtd = dynamic_cast<QTableWidget*>(_qt);
@@ -1869,6 +1890,40 @@ CListCtrl::~CListCtrl()
       delete _qtd;
    _qtd = NULL;
    _qt = NULL;
+}
+
+BOOL CListCtrl::Create(
+   DWORD dwStyle,
+   const RECT& rect,
+   CWnd* pParentWnd,
+   UINT nID 
+)
+{
+   _qtd->verticalHeader()->setVisible(false);
+   _qtd->horizontalHeader()->setSortIndicatorShown(true);
+   if ( dwStyle&LVS_SINGLESEL )
+   {
+      _qtd->setSelectionMode(QAbstractItemView::SingleSelection);
+      _qtd->setSelectionBehavior(QAbstractItemView::SelectRows);
+   }
+//   if ( (dwStyle&LVS_SORTASCENDING)
+//        (dwStyle&LVS_SORTDESCENDING) )
+//   {
+//      _qtd->setSortingEnabled(true);
+//   }
+   if ( dwStyle&LVS_NOCOLUMNHEADER )
+   {
+      _qtd->horizontalHeader()->setVisible(false);
+   }
+   if ( dwStyle&LVS_NOSORTHEADER )
+   {
+      _qtd->horizontalHeader()->setSortIndicatorShown(false);
+   }
+   
+   _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
+   _qtd->setVisible(dwStyle&WS_VISIBLE);
+
+   return TRUE;
 }
 
 UINT CListCtrl::GetSelectedCount( ) const
@@ -2206,10 +2261,7 @@ CTreeCtrl::CTreeCtrl(CWnd* parent)
    if ( _qt )
       delete _qt;
    
-   if ( parent )
-      _qt = new QTreeWidget(parent->toQWidget());
-   else
-      _qt = new QTreeWidget;
+   _qt = new QTreeWidget(parent->toQWidget());
    
    // Downcast to save having to do it all over the place...
    _qtd = dynamic_cast<QTreeWidget*>(_qt);
@@ -2230,6 +2282,45 @@ CTreeCtrl::~CTreeCtrl()
       delete _qtd;
    _qtd = NULL;
    _qt = NULL;
+}
+
+BOOL CTreeCtrl::Create(
+   DWORD dwStyle,
+   const RECT& rect,
+   CWnd* pParentWnd,
+   UINT nID 
+)
+{
+#define TVS_HASBUTTONS	1
+#define TVS_HASLINES	2
+#define TVS_LINESATROOT	4
+#define TVS_EDITLABELS	8
+#define TVS_DISABLEDRAGDROP	16
+#define TVS_SHOWSELALWAYS	32
+#define TVS_CHECKBOXES 256
+#define TVS_NOTOOLTIPS 128
+#define TVS_RTLREADING 64
+#define TVS_TRACKSELECT 512
+#define TVS_FULLROWSELECT 4096
+#define TVS_INFOTIP 2048
+#define TVS_NONEVENHEIGHT 16384
+#define TVS_NOSCROLL 8192
+#define TVS_SINGLEEXPAND 1024
+#define TVS_NOHSCROLL	0x8000
+
+   if ( dwStyle&TVS_LINESATROOT )
+   {
+      _qtd->setRootIsDecorated(true);
+   }
+   if ( dwStyle&TVS_HASLINES )
+   {
+      _qtd->setLineWidth(1);
+   }
+   
+   _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
+   _qtd->setVisible(dwStyle&WS_VISIBLE);
+
+   return TRUE;
 }
 
 HTREEITEM CTreeCtrl::InsertItem(
@@ -2445,6 +2536,16 @@ CScrollBar::CScrollBar(CWnd *parent)
    : CWnd(parent),
      _orient(Qt::Vertical)
 {
+   if ( _qt )
+      delete _qt;
+   
+   _qt = new QScrollBar(parent->toQWidget());
+   
+   // Downcast to save having to do it all over the place...
+   _qtd = dynamic_cast<QScrollBar*>(_qt);   
+   
+   // Pass-through signals
+   QObject::connect(_qtd,SIGNAL(actionTriggered(int)),this,SIGNAL(actionTriggered(int)));
 }
 
 CScrollBar::~CScrollBar()
@@ -2462,20 +2563,7 @@ BOOL CScrollBar::Create(
    UINT nID 
 )
 {
-   if ( _qt )
-      delete _qt;
-   
-   if ( pParentWnd )
-      _qt = new QScrollBar(pParentWnd->toQWidget());
-   else
-      _qt = new QScrollBar;
-   
-   // Downcast to save having to do it all over the place...
-   _qtd = dynamic_cast<QScrollBar*>(_qt);   
    _qtd->setOrientation(_orient);
-   
-   // Pass-through signals
-   QObject::connect(_qtd,SIGNAL(actionTriggered(int)),this,SIGNAL(actionTriggered(int)));
 
    QRect myRect(QPoint(rect.left,rect.top),QPoint(rect.right,rect.bottom));
    _qtd->setParent(pParentWnd->toQWidget());
@@ -2581,13 +2669,9 @@ CWnd::CWnd(CWnd *parent)
      m_hWnd(NULL)
 {
    if ( parent )
-   {
       _qt = new QWidget(parent->toQWidget());
-   }
    else
-   {
       _qt = new QWidget;
-   }
 
    myDC = new CDC(this);
    myDC->doFlush(false);
@@ -2609,6 +2693,17 @@ CWnd::~CWnd()
    _qt = NULL;
    
    delete myDC;
+}
+
+CDC* CWnd::GetDC() 
+{ 
+   return myDC; 
+   /* CDC* pDC = new CDC(this); pDC->doFlush(false); return pDC; */ 
+}
+
+void CWnd::ReleaseDC(CDC* pDC) 
+{ 
+   /* delete pDC; */ 
 }
 
 void CWnd::subclassWidget(int nID,CWnd* widget)
@@ -2766,6 +2861,25 @@ int CWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
    return 0;
 }
 
+void CWnd::UpdateDialogControls(
+   CCmdTarget* pTarget,
+   BOOL bDisableIfNoHndler 
+)
+{
+}
+
+void CWnd::RepositionBars(
+   UINT nIDFirst,
+   UINT nIDLast,
+   UINT nIDLeftOver,
+   UINT nFlag,
+   LPRECT lpRectParam,
+   LPCRECT lpRectClient,
+   BOOL bStretch 
+)
+{
+}
+
 void CWnd::MoveWindow(int x, int y, int cx, int cy)
 {
    MoveWindow(CRect(CPoint(x,y),CSize(cx,cy)));   
@@ -2773,8 +2887,8 @@ void CWnd::MoveWindow(int x, int y, int cx, int cy)
 
 void CWnd::MoveWindow(LPCRECT lpRect, BOOL bRepaint)
 {
-//   _qt->setGeometry(lpRect->left,lpRect->top,lpRect->right-lpRect->left,lpRect->bottom-lpRect->top);
-   _qt->move(lpRect->left,lpRect->top);
+   _qt->setGeometry(lpRect->left,lpRect->top,lpRect->right-lpRect->left,lpRect->bottom-lpRect->top);
+//   _qt->move(lpRect->left,lpRect->top);
 }
 
 BOOL CWnd::PostMessage(
@@ -3108,6 +3222,12 @@ CFrameWnd::~CFrameWnd()
 {
 }
 
+void CFrameWnd::RecalcLayout(
+   BOOL bNotify
+)
+{
+}
+
 CView::CView(CWnd* parent) 
    : CWnd(parent), 
      m_pDocument(NULL) 
@@ -3121,6 +3241,20 @@ CView::~CView()
 CDialog::CDialog(int dlgID, CWnd *parent)
    : CWnd(parent)
 {
+   if ( _qt )
+      delete _qt;
+   
+   if ( parent )
+      _qt = new QDialog(parent);
+   else
+      _qt = new QDialog;
+   
+   _qtd = dynamic_cast<QDialog*>(_qt);
+   _inited = false;
+   
+   _qt->installEventFilter(this);
+   
+   // Pass-through signals
 }
 
 CDialog::~CDialog()
@@ -3139,21 +3273,6 @@ BOOL CDialog::Create(
    CWnd* pParentWnd
 )
 { 
-   if ( _qt )
-      delete _qt;
-   
-   if ( pParentWnd )
-      _qt = new QDialog(pParentWnd);
-   else
-      _qt = new QDialog;
-   
-   _qtd = dynamic_cast<QDialog*>(_qt);
-   _inited = false;
-   
-   _qt->installEventFilter(this);
-   
-   // Pass-through signals
-   
    if ( pParentWnd )
       _qt->setParent(pParentWnd->toQWidget()); 
    else
@@ -3174,6 +3293,7 @@ void CDialog::ShowWindow(int code)
    case SW_SHOW:
       foreach ( CWnd* pWnd, mfcToQtWidget ) pWnd->blockSignals(false);
       _qtd->setVisible(true);
+      _qtd->setFocus();
       break;
    case SW_HIDE:
       foreach ( CWnd* pWnd, mfcToQtWidget ) pWnd->blockSignals(true);
@@ -3525,10 +3645,7 @@ CTabCtrl::CTabCtrl(CWnd* parent)
    if ( _qt )
       delete _qt;
    
-   if ( parent )
-      _qt = new QTabWidget(parent->toQWidget());
-   else
-      _qt = new QTabWidget;
+   _qt = new QTabWidget(parent->toQWidget());
 
    // Downcast to save having to do it all over the place...
    _qtd = dynamic_cast<QTabWidget*>(_qt);
@@ -3585,6 +3702,16 @@ BOOL CTabCtrl::DeleteAllItems( )
 CEdit::CEdit(CWnd* parent)
    : CWnd(parent)
 {
+   if ( _qt )
+      delete _qt;
+   
+   _qt = new QLineEdit(parent->toQWidget());
+
+   // Downcast to save having to do it all over the place...
+   _qtd = dynamic_cast<QLineEdit*>(_qt);
+   
+   // Pass-through signals
+   QObject::connect(_qtd,SIGNAL(textChanged(QString)),this,SIGNAL(textChanged(QString)));
 }
 
 CEdit::~CEdit()
@@ -3602,22 +3729,8 @@ BOOL CEdit::Create(
    UINT nID 
 )
 {
-   if ( _qt )
-      delete _qt;
-   
-   if ( pParentWnd )
-      _qt = new QLineEdit(pParentWnd->toQWidget());
-   else
-      _qt = new QLineEdit;
-
-   // Downcast to save having to do it all over the place...
-   _qtd = dynamic_cast<QLineEdit*>(_qt);
-
    _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
    _qtd->setVisible(dwStyle&WS_VISIBLE);
-      
-   // Pass-through signals
-   QObject::connect(_qtd,SIGNAL(textChanged(QString)),this,SIGNAL(textChanged(QString)));
    
    return TRUE;
 }
@@ -3710,43 +3823,50 @@ BOOL CButton::Create(
    UINT nID 
 )
 {
+   DWORD buttonType = dwStyle&0x000F;
+   DWORD buttonStyle = dwStyle&0xFFF0;
+   
    if ( _qt )
       delete _qt;
 
-   _dwStyle = dwStyle;
-   
-   if ( dwStyle&BS_AUTOCHECKBOX )
+   if ( buttonType == BS_AUTOCHECKBOX )
    {
       _qt = new QCheckBox(pParentWnd->toQWidget());
       
       // Downcast to save having to do it all over the place...
       _qtd_check = dynamic_cast<QCheckBox*>(_qt);
+      _qtd_check->setCheckable(true);
    }
-   else if ( dwStyle&BS_AUTO3STATE )
+   else if ( buttonType == BS_AUTO3STATE )
    {
       _qt = new QCheckBox(pParentWnd->toQWidget());
       
       // Downcast to save having to do it all over the place...
       _qtd_check = dynamic_cast<QCheckBox*>(_qt);
+      _qtd_check->setCheckable(true);
       _qtd_check->setTristate(true);
    }
-   else if ( dwStyle&BS_AUTORADIOBUTTON )
+   else if ( buttonType == BS_AUTORADIOBUTTON )
    {
       _qt = new QRadioButton(pParentWnd->toQWidget());
       
       // Downcast to save having to do it all over the place...
       _qtd_radio = dynamic_cast<QRadioButton*>(_qt);
+      _qtd_radio->setCheckable(true);
    }
-   else
+   else if ( (buttonType == BS_PUSHBUTTON) || 
+             (buttonType == BS_DEFPUSHBUTTON) )
    {
       _qt = new QPushButton(pParentWnd->toQWidget());
       
       // Downcast to save having to do it all over the place...
       _qtd_push = dynamic_cast<QPushButton*>(_qt);
+      
+      _qtd_push->setDefault(buttonType==BS_DEFPUSHBUTTON);
    }
    
    _qtd = dynamic_cast<QAbstractButton*>(_qt);
-   
+
 #if UNICODE
    _qtd->setText(QString::fromWCharArray(lpszCaption));
 #else
@@ -3834,6 +3954,16 @@ CSpinButtonCtrl::CSpinButtonCtrl(CWnd* parent)
    : CWnd(parent),
      _buddy(NULL)
 {
+   if ( _qt )
+      delete _qt;
+   
+   _qt = new QSpinBox(parent->toQWidget());
+   
+   // Downcast to save having to do it all over the place...
+   _qtd = dynamic_cast<QSpinBox*>(_qt);
+   
+   // Pass-through signals
+   QObject::connect(_qtd,SIGNAL(valueChanged(int)),this,SIGNAL(valueChanged(int)));
 }
 
 CSpinButtonCtrl::~CSpinButtonCtrl()
@@ -3851,22 +3981,8 @@ BOOL CSpinButtonCtrl::Create(
    UINT nID 
 )
 {
-   if ( _qt )
-      delete _qt;
-   
-   if ( pParentWnd )
-      _qt = new QSpinBox(pParentWnd->toQWidget());
-   else
-      _qt = new QSpinBox;
-   
-   // Downcast to save having to do it all over the place...
-   _qtd = dynamic_cast<QSpinBox*>(_qt);
-   
    _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
    _qtd->setVisible(dwStyle&WS_VISIBLE);
-   
-   // Pass-through signals
-   QObject::connect(_qtd,SIGNAL(valueChanged(int)),this,SIGNAL(valueChanged(int)));
    
    return TRUE;
 }
@@ -3930,6 +4046,41 @@ CSliderCtrl::~CSliderCtrl()
    _qt = NULL;
 }
 
+BOOL CSliderCtrl::Create(
+   DWORD dwStyle,
+   const RECT& rect,
+   CWnd* pParentWnd,
+   UINT nID 
+)
+{
+   if ( dwStyle&TBS_NOTICKS )
+   {
+      _qtd->setTickPosition(QSlider::NoTicks);
+   }
+   else if ( dwStyle&TBS_BOTH )
+   {
+      _qtd->setTickPosition(QSlider::TicksBothSides);
+   }
+   else if ( dwStyle&TBS_LEFT )
+   {
+      _qtd->setTickPosition(QSlider::TicksLeft);
+   }
+   else
+   {
+      _qtd->setTickPosition(QSlider::TicksRight);
+   }
+   if ( dwStyle&TBS_VERT )
+   {
+      _qtd->setOrientation(Qt::Vertical);
+      _qtd->setInvertedAppearance(true);
+   }
+   
+   _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
+   _qtd->setVisible(dwStyle&WS_VISIBLE);
+
+   return TRUE;
+}
+
 void CSliderCtrl::SetRange(
    short nLower,
    short nUpper 
@@ -3973,10 +4124,7 @@ CProgressCtrl::CProgressCtrl(CWnd* parent)
    if ( _qt )
       delete _qt;
    
-   if ( parent )
-      _qt = new QProgressBar(parent->toQWidget());
-   else
-      _qt = new QProgressBar;
+   _qt = new QProgressBar(parent->toQWidget());
    
    // Downcast to save having to do it all over the place...
    _qtd = dynamic_cast<QProgressBar*>(_qt);
@@ -4020,6 +4168,13 @@ int CProgressCtrl::GetPos( ) const
 CStatic::CStatic(CWnd *parent)
    : CWnd(parent)
 {
+   if ( _qt )
+      delete _qt;
+   
+   _qt = new QLabel(parent->toQWidget());
+   
+   // Downcast to save having to do it all over the place...
+   _qtd = dynamic_cast<QLabel*>(_qt);      
 }
 
 CStatic::~CStatic()
@@ -4038,17 +4193,6 @@ BOOL CStatic::Create(
    UINT nID
 )
 {
-   if ( _qt )
-      delete _qt;
-   
-   if ( pParentWnd )
-      _qt = new QLabel(pParentWnd->toQWidget());
-   else
-      _qt = new QLabel;
-   
-   // Downcast to save having to do it all over the place...
-   _qtd = dynamic_cast<QLabel*>(_qt);
-      
    _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
    _qtd->setVisible(dwStyle&WS_VISIBLE);
    
@@ -4122,17 +4266,15 @@ CGroupBox::CGroupBox(CWnd *parent)
    if ( _qt )
       delete _qt;
    
-   if ( parent )
-      _qt = new QGroupBox(parent->toQWidget());
-   else
-      _qt = new QGroupBox;
+   _qt = new QGroupBox(parent->toQWidget());
    
    // Downcast to save having to do it all over the place...
    _qtd = dynamic_cast<QGroupBox*>(_qt);
    
    _qtd->setContentsMargins(0,0,0,0);
-   
+      
    // Pass-through signals
+   QObject::connect(_qtd,SIGNAL(clicked()),this,SIGNAL(clicked()));
 }
 
 CGroupBox::~CGroupBox()
@@ -4141,6 +4283,26 @@ CGroupBox::~CGroupBox()
       delete _qtd;
    _qtd = NULL;
    _qt = NULL;
+}
+
+BOOL CGroupBox::Create(
+   LPCTSTR lpszCaption,
+   DWORD dwStyle,
+   const RECT& rect,
+   CWnd* pParentWnd,
+   UINT nID 
+)
+{
+#if UNICODE
+   _qtd->setTitle(QString::fromWCharArray(lpszCaption));
+#else
+   _qtd->setTitle(lpszCaption);
+#endif
+   
+   _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
+   _qtd->setVisible(dwStyle&WS_VISIBLE);
+   
+   return TRUE;
 }
 
 void CGroupBox::SetDlgItemInt(
@@ -4387,6 +4549,7 @@ BOOL CStatusBar::Create(
    UINT nID
 )
 {
+   // Pass-through signals
    QObject::connect(this,SIGNAL(addStatusBarWidget(QWidget*)),pParentWnd,SIGNAL(addStatusBarWidget(QWidget*)));
    return TRUE;
 }
@@ -4400,7 +4563,7 @@ BOOL CStatusBar::SetIndicators(
    
    for ( pane = 0; pane < nIDCount; pane++ )
    {
-      CStatic* newPane = new CStatic;
+      CStatic* newPane = new CStatic(this);
       newPane->Create(_T(""),WS_VISIBLE,CRect(CPoint(0,0),CSize(0,0)),this,IDC_STATIC);
       _panes.insert(pane,newPane);
       _qtd->addWidget(newPane->toQWidget());

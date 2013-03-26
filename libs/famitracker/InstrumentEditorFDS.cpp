@@ -50,17 +50,15 @@ CInstrumentEditorFDS::CInstrumentEditorFDS(CWnd* pParent) : CInstrumentEditPanel
 // CP: Put all GROUPBOX items first so their child elements can be created.
 //       GROUPBOX        "Wave editor",IDC_STATIC,7,7,228,111
    CGroupBox* mfc1 = new CGroupBox(this);
-   mfc1->setTitle("Wave editor");
    CRect r1(CPoint(7,7),CSize(228,111));
    MapDialogRect(&r1);
-   mfc1->setGeometry(r1);
+   mfc1->Create(_T("Wave editor"),WS_VISIBLE,r1,this,IDC_STATIC);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //       GROUPBOX        "Frequency modulation",IDC_STATIC,240,7,124,79
    CGroupBox* mfc16 = new CGroupBox(this);
-   mfc16->setTitle("Frequency modulation");
    CRect r16(CPoint(240,7),CSize(124,79));
    MapDialogRect(&r16);
-   mfc16->setGeometry(r16);
+   mfc16->Create(_T("Frequency modulation"),WS_VISIBLE,r16,this,IDC_STATIC);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //       PUSHBUTTON      "Sine",IDC_PRESET_SINE,14,101,41,12
    CButton* mfc2 = new CButton(this);
@@ -94,10 +92,10 @@ CInstrumentEditorFDS::CInstrumentEditorFDS(CWnd* pParent) : CInstrumentEditPanel
    // CP: Note, we fake a MFC "spin-box" separate control by placing it over it's "buddy" and connecting signals appropriately
    // to mimic the buddy relationship.
    CEdit* mfc6 = new CEdit(this);
-   CRect r6(CPoint(318,22),CSize(37,14));
-   MapDialogRect(&r6);
    CSpinButtonCtrl* mfc7 = new CSpinButtonCtrl(this);
+   CRect r6(CPoint(318,22),CSize(37,14));
    CRect r7(CPoint(r6.right-11,r6.top),CSize(11,14));
+   MapDialogRect(&r6);
    MapDialogRect(&r7);
    mfc6->Create(ES_AUTOHSCROLL | ES_NUMBER | WS_VISIBLE,r6,this,IDC_MOD_RATE);
    mfc6->setBuddy(mfc7);
@@ -118,10 +116,10 @@ CInstrumentEditorFDS::CInstrumentEditorFDS(CWnd* pParent) : CInstrumentEditPanel
    // CP: Note, we fake a MFC "spin-box" separate control by placing it over it's "buddy" and connecting signals appropriately
    // to mimic the buddy relationship.
    CEdit* mfc9 = new CEdit(this);
-   CRect r9(CPoint(318,43),CSize(37,14));
-   MapDialogRect(&r9);
    CSpinButtonCtrl* mfc10 = new CSpinButtonCtrl(this);
+   CRect r9(CPoint(318,43),CSize(37,14));
    CRect r10(CPoint(r9.right-11,r9.top),CSize(11,14));
+   MapDialogRect(&r9);
    MapDialogRect(&r10);
    mfc9->Create(ES_AUTOHSCROLL | ES_NUMBER | WS_VISIBLE,r9,this,IDC_MOD_DEPTH);
    mfc9->setBuddy(mfc10);
@@ -142,10 +140,10 @@ CInstrumentEditorFDS::CInstrumentEditorFDS(CWnd* pParent) : CInstrumentEditPanel
    // CP: Note, we fake a MFC "spin-box" separate control by placing it over it's "buddy" and connecting signals appropriately
    // to mimic the buddy relationship.
    CEdit* mfc12 = new CEdit(this);
-   CRect r12(CPoint(318,65),CSize(37,14));
-   MapDialogRect(&r12);
    CSpinButtonCtrl* mfc13 = new CSpinButtonCtrl(this);
+   CRect r12(CPoint(318,65),CSize(37,14));
    CRect r13(CPoint(r12.right-11,r12.top),CSize(11,14));
+   MapDialogRect(&r12);
    MapDialogRect(&r13);
    mfc12->Create(ES_AUTOHSCROLL | ES_NUMBER | WS_VISIBLE,r12,this,IDC_MOD_DELAY);
    mfc12->setBuddy(mfc13);

@@ -6,6 +6,7 @@
 #include "SampleWindow.h"
 #include "ChannelsDlg.h"
 #include "ModulePropertiesDlg.h"
+#include "ControlPanelDlg.h"
 
 #include <QFrame>
 #include <QLayout>
@@ -155,8 +156,10 @@ CMainFrame::CMainFrame(CWnd *parent) :
    
    QObject::connect(ui->songInstruments->selectionModel(),SIGNAL(currentChanged(QModelIndex,QModelIndex)),this,SLOT(songInstruments_currentChanged(QModelIndex,QModelIndex)));
    QObject::connect(ui->songInstruments,SIGNAL(doubleClicked(QModelIndex)),this,SLOT(songInstruments_doubleClicked(QModelIndex)));
-   
-   CComboBox* mfc1 = new CComboBox;
+
+// CP: TEMPORARY   
+   CComboBox* mfc1 = new CComboBox(this);
+   mfc1->Create(CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,CRect(CPoint(0,0),CSize(0,0)),this,IDC_SUBTUNE);
    ui->songsGroupBox->layout()->addWidget(mfc1->toQWidget());
    mfcToQtWidget.insert(IDC_SUBTUNE,mfc1);
    
@@ -776,6 +779,12 @@ void CMainFrame::OnModuleModuleproperties()
 	// Display module properties dialog
 	CModulePropertiesDlg propertiesDlg;
 	propertiesDlg.DoModal();
+   
+   CChannelsDlg cDlg;
+   cDlg.DoModal();
+   
+   CControlPanelDlg cpDlg;
+   cpDlg.DoModal();
 }
 
 void CMainFrame::OnModuleChannels()

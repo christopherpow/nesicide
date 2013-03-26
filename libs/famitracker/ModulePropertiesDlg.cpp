@@ -45,41 +45,33 @@ CModulePropertiesDlg::CModulePropertiesDlg(CWnd* pParent /*=NULL*/)
 
 //       GROUPBOX        "Song editor",IDC_STATIC,7,7,199,147
    CGroupBox* mfc1 = new CGroupBox(this);
-   mfc1->setTitle("Song editor");
    CRect r1(CPoint(7,7),CSize(199,147));
    MapDialogRect(&r1);
-   mfc1->setGeometry(r1);
+   mfc1->Create(_T("Song editor"),WS_VISIBLE,r1,this,IDC_STATIC);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //       GROUPBOX        "Expansion sound",IDC_STATIC,7,162,127,30
    CGroupBox* mfc10 = new CGroupBox(this);
-   mfc10->setTitle("Expansion sound");
    CRect r10(CPoint(7,162),CSize(127,30));
    MapDialogRect(&r10);
-   mfc10->setGeometry(r10);
+   mfc10->Create(_T("Expansion sound"),WS_VISIBLE,r10,this,IDC_STATIC);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //       GROUPBOX        "Vibrato",IDC_STATIC,7,194,199,31
    CGroupBox* mfc12 = new CGroupBox(this);
-   mfc12->setTitle("Vibrato");
    CRect r12(CPoint(7,194),CSize(199,31));
    MapDialogRect(&r12);
-   mfc12->setGeometry(r12);
+   mfc12->Create(_T("Vibrato"),WS_VISIBLE,r12,this,IDC_STATIC);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //       GROUPBOX        "Channels: 0",IDC_CHANNELS_NR,141,162,65,30
    CGroupBox* mfc17 = new CGroupBox(this);
-   mfc17->setTitle("Channels: 0");
    CRect r17(CPoint(141,162),CSize(65,30));
    MapDialogRect(&r17);
-   mfc17->setGeometry(r17);
+   mfc17->Create(_T("Channels: 0"),WS_VISIBLE,r17,this,IDC_CHANNELS_NR);
    mfcToQtWidget.insert(IDC_CHANNELS_NR,mfc17);
 //       CONTROL         "",IDC_SONGLIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOCOLUMNHEADER | WS_BORDER | WS_TABSTOP,14,18,120,114
    CListCtrl* mfc2 = new CListCtrl(this);
-   mfc2->setSelectionMode(QAbstractItemView::SingleSelection);
-   mfc2->setSelectionBehavior(QAbstractItemView::SelectRows);
-//   mfc2->verticalScrollBar()->hide();
-//   mfc2->horizontalScrollBar()->hide();
    CRect r2(CPoint(14,18),CSize(120,114));
    MapDialogRect(&r2);
-   mfc2->setGeometry(r2);
+   mfc2->Create(LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOCOLUMNHEADER | WS_BORDER | WS_TABSTOP | WS_VISIBLE,r2,this,IDC_SONGLIST);
    mfcToQtWidget.insert(IDC_SONGLIST,mfc2);
    QObject::connect(mfc2,SIGNAL(itemSelectionChanged()),this,SLOT(songList_itemSelectionChanged()));
 //       PUSHBUTTON      "Add",IDC_SONG_ADD,138,18,60,14
@@ -133,16 +125,16 @@ CModulePropertiesDlg::CModulePropertiesDlg(CWnd* pParent /*=NULL*/)
    QObject::connect(mfc9,SIGNAL(textChanged(QString)),this,SLOT(songName_textChanged(QString)));
 //       COMBOBOX        IDC_EXPANSION,14,173,113,61,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
    CComboBox* mfc11 = new CComboBox(this);
-   CRect r11(CPoint(14,173),CSize(113,12)); // COMBOBOX resource vertical extent includes drop-down height
+   CRect r11(CPoint(14,173),CSize(113,61));
    MapDialogRect(&r11);
-   mfc11->setGeometry(r11);
+   mfc11->Create(CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r11,this,IDC_EXPANSION);
    mfcToQtWidget.insert(IDC_EXPANSION,mfc11);
    QObject::connect(mfc11,SIGNAL(currentIndexChanged(int)),this,SLOT(expansion_currentIndexChanged(int)));
 //       COMBOBOX        IDC_VIBRATO,14,204,184,61,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
    CComboBox* mfc13 = new CComboBox(this);
-   CRect r13(CPoint(14,204),CSize(184,12)); // COMBOBOX resource vertical extent includes drop-down height
+   CRect r13(CPoint(14,204),CSize(184,61));
    MapDialogRect(&r13);
-   mfc13->setGeometry(r13);
+   mfc13->Create(CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r13,this,IDC_VIBRATO);
    mfcToQtWidget.insert(IDC_VIBRATO,mfc13);
 //   IDD_PROPERTIES DLGINIT
 //   BEGIN
@@ -162,8 +154,7 @@ CModulePropertiesDlg::CModulePropertiesDlg(CWnd* pParent /*=NULL*/)
    CButton* mfc15 = new CButton(this);
    CRect r15(CPoint(95,238),CSize(53,14));
    MapDialogRect(&r15);
-   mfc15->Create(_T("OK"),WS_VISIBLE,r15,this,IDOK);
-   mfc15->setDefault(true);
+   mfc15->Create(_T("OK"),BS_DEFPUSHBUTTON | WS_VISIBLE,r15,this,IDOK);
    mfcToQtWidget.insert(IDOK,mfc15);
    QObject::connect(mfc15,SIGNAL(clicked()),this,SLOT(ok_clicked()));
 //       PUSHBUTTON      "Cancel",IDCANCEL,153,238,53,14

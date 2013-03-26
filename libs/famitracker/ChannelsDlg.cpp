@@ -68,24 +68,21 @@ CChannelsDlg::CChannelsDlg(CWnd* pParent /*=NULL*/)
 
 //       GROUPBOX        "Available channels",IDC_STATIC,7,7,138,197
    CGroupBox* mfc6 = new CGroupBox(this);
-   mfc6->setTitle("Available channels");
    CRect r6(CPoint(7,7),CSize(138,197));
    MapDialogRect(&r6);
-   mfc6->setGeometry(r6);
+   mfc6->Create(_T("Available channels"),WS_VISIBLE,r6,this,IDC_STATIC);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //       GROUPBOX        "Added channels",IDC_STATIC,151,7,145,197
    CGroupBox* mfc7 = new CGroupBox(this);
-   mfc7->setTitle("Added channels");
    CRect r7(CPoint(151,7),CSize(145,197));
    MapDialogRect(&r7);
-   mfc7->setGeometry(r7);
+   mfc7->Create(_T("Added channels"),WS_VISIBLE,r7,this,IDC_STATIC);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //       DEFPUSHBUTTON   "OK",IDOK,194,215,50,14
    CButton* mfc1 = new CButton(this);
    CRect r1(CPoint(194,215),CSize(50,14));
    MapDialogRect(&r1);
-   mfc1->Create(_T("OK"),WS_VISIBLE,r1,this,IDOK);
-   mfc1->setDefault(true);
+   mfc1->Create(_T("OK"),BS_DEFPUSHBUTTON | WS_VISIBLE,r1,this,IDOK);
    mfcToQtWidget.insert(IDOK,mfc1);
    QObject::connect(mfc1,SIGNAL(clicked()),this,SLOT(ok_clicked()));
 //       PUSHBUTTON      "Cancel",IDCANCEL,246,215,50,14
@@ -111,13 +108,9 @@ CChannelsDlg::CChannelsDlg(CWnd* pParent /*=NULL*/)
    QObject::connect(mfc4,SIGNAL(clicked()),this,SLOT(moveDown_clicked()));
 //       CONTROL         "",IDC_ADDED_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOCOLUMNHEADER | WS_BORDER | WS_TABSTOP,159,17,129,181
    CListCtrl* mfc5 = new CListCtrl(this);
-   mfc5->setSelectionMode(QAbstractItemView::SingleSelection);
-   mfc5->setSelectionBehavior(QAbstractItemView::SelectRows);
-//   mfc5->verticalScrollBar()->hide();
-//   mfc5->horizontalScrollBar()->hide();
    CRect r5(CPoint(159,17),CSize(129,181));
    MapDialogRect(&r5);
-   mfc5->setGeometry(r5);
+   mfc5->Create(LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOCOLUMNHEADER | WS_BORDER | WS_TABSTOP | WS_VISIBLE,r5,this,IDC_ADDED_LIST);
    mfcToQtWidget.insert(IDC_ADDED_LIST,mfc5);
    QObject::connect(mfc5,SIGNAL(cellDoubleClicked(int,int)),this,SLOT(addedList_cellDoubleClicked(int,int)));
 //       CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,7,209,289,1
@@ -126,7 +119,7 @@ CChannelsDlg::CChannelsDlg(CWnd* pParent /*=NULL*/)
    CTreeCtrl* mfc8 = new CTreeCtrl(this);
    CRect r8(CPoint(14,17),CSize(122,181));
    MapDialogRect(&r8);
-   mfc8->setGeometry(r8);
+   mfc8->Create(TVS_HASBUTTONS | TVS_HASLINES | TVS_LINESATROOT | WS_BORDER | WS_HSCROLL | WS_TABSTOP | WS_VISIBLE,r8,this,IDC_AVAILABLE_TREE);
    mfcToQtWidget.insert(IDC_AVAILABLE_TREE,mfc8);
    QObject::connect(mfc8,SIGNAL(itemClicked(QTreeWidgetItem*,int)),this,SLOT(availableTree_itemClicked(QTreeWidgetItem*,int)));
    QObject::connect(mfc8,SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)),this,SLOT(availableTree_itemDoubleClicked(QTreeWidgetItem*,int)));

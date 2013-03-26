@@ -53,27 +53,21 @@ CInstrumentEditorN163::CInstrumentEditorN163(CWnd* pParent /*=NULL*/)
    
 //   GROUPBOX        "Sequence editor",IDC_STATIC,120,7,245,158
    CGroupBox* mfc5 = new CGroupBox(this);
-   mfc5->setTitle("Sequence editor");
    CRect r5(CPoint(120,7),CSize(245,158));
    MapDialogRect(&r5);
-   mfc5->setGeometry(r5);
+   mfc5->Create(_T("Sequence editor"),WS_VISIBLE,r5,this,IDC_STATIC);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //   GROUPBOX        "Instrument settings",IDC_STATIC,7,7,107,158,0,WS_EX_TRANSPARENT
    CGroupBox* mfc6 = new CGroupBox(this);
-   mfc6->setTitle("Instrument settings");
    CRect r6(CPoint(7,7),CSize(107,158));
    MapDialogRect(&r6);
-   mfc6->setGeometry(r6);
+   mfc6->Create(_T("Instrument settings"),WS_VISIBLE,r6,this,IDC_STATIC);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //   CONTROL         "",IDC_INSTSETTINGS,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,12,18,96,109,WS_EX_TRANSPARENT
    CListCtrl* mfc1 = new CListCtrl(this);
-   mfc1->setSelectionMode(QAbstractItemView::SingleSelection);
-   mfc1->setSelectionBehavior(QAbstractItemView::SelectRows);
-   mfc1->verticalScrollBar()->hide();
-   mfc1->horizontalScrollBar()->hide();
    CRect r1(CPoint(12,18),CSize(96,109));
    MapDialogRect(&r1);
-   mfc1->setGeometry(r1);
+   mfc1->Create(LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP | WS_VISIBLE,r1,this,IDC_INSTSETTINGS);
    mfcToQtWidget.insert(IDC_INSTSETTINGS,mfc1);
    QObject::connect(mfc1,SIGNAL(itemSelectionChanged()),this,SLOT(instSettings_itemSelectionChanged()));
 //   CONTROL         "Sequence #",IDC_STATIC,"Static",SS_LEFTNOWORDWRAP | SS_CENTERIMAGE | WS_GROUP,12,149,53,10,WS_EX_TRANSPARENT
@@ -87,10 +81,10 @@ CInstrumentEditorN163::CInstrumentEditorN163(CWnd* pParent /*=NULL*/)
    // CP: Note, we fake a MFC "spin-box" separate control by placing it over it's "buddy" and connecting signals appropriately
    // to mimic the buddy relationship.
    CEdit* mfc3 = new CEdit(this);
-   CRect r3(CPoint(69,147),CSize(39,12));
-   MapDialogRect(&r3);
    CSpinButtonCtrl* mfc4 = new CSpinButtonCtrl(this);
+   CRect r3(CPoint(69,147),CSize(39,12));
    CRect r4(CPoint(r3.right-11,r3.top),CSize(11,12));
+   MapDialogRect(&r3);
    MapDialogRect(&r4);
    mfc3->Create(ES_AUTOHSCROLL | ES_NUMBER | WS_VISIBLE,r3,this,IDC_SEQ_INDEX);
    mfc3->setBuddy(mfc4);

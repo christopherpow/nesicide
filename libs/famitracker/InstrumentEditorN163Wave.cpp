@@ -49,31 +49,27 @@ CInstrumentEditorN163Wave::CInstrumentEditorN163Wave(CWnd* pParent) : CInstrumen
 // CP: Put all GROUPBOX items first so their child elements can be created.
 //       GROUPBOX        "Wave editor",IDC_STATIC,7,7,228,116
    CGroupBox* mfc1 = new CGroupBox(this);
-   mfc1->setTitle("Wave editor");
    CRect r1(CPoint(7,7),CSize(228,116));
    MapDialogRect(&r1);
-   mfc1->setGeometry(r1);
+   mfc1->Create(_T("Wave editor"),WS_VISIBLE,r1,this,IDC_STATIC);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //       GROUPBOX        "Wave #",IDC_STATIC,244,7,121,35
    CGroupBox* mfc21 = new CGroupBox(this);
-   mfc21->setTitle("Wave #");
    CRect r21(CPoint(244,7),CSize(121,35));
    MapDialogRect(&r21);
-   mfc21->setGeometry(r21);
+   mfc21->Create(_T("Wave #"),WS_VISIBLE,r21,this,IDC_STATIC);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //       GROUPBOX        "MML string",IDC_STATIC,7,132,358,33
    CGroupBox* mfc7 = new CGroupBox(this);
-   mfc7->setTitle("MML string");
    CRect r7(CPoint(7,132),CSize(358,33));
    MapDialogRect(&r7);
-   mfc7->setGeometry(r7);
+   mfc7->Create(_T("MML string"),WS_VISIBLE,r7,this,IDC_STATIC);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //       GROUPBOX        "Wave RAM settings",IDC_STATIC,244,45,121,52
    CGroupBox* mfc16 = new CGroupBox(this);
-   mfc16->setTitle("Wave RAM settings");
    CRect r16(CPoint(244,45),CSize(121,52));
    MapDialogRect(&r16);
-   mfc16->setGeometry(r16);
+   mfc16->Create(_T("Wave RAM settings"),WS_VISIBLE,r16,this,IDC_STATIC);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //       PUSHBUTTON      "Sine",IDC_PRESET_SINE,14,101,41,12
    CButton* mfc2 = new CButton(this);
@@ -135,10 +131,10 @@ CInstrumentEditorN163Wave::CInstrumentEditorN163Wave(CWnd* pParent) : CInstrumen
    // CP: Note, we fake a MFC "spin-box" separate control by placing it over it's "buddy" and connecting signals appropriately
    // to mimic the buddy relationship.
    CEdit* mfc11 = new CEdit(this);
-   CRect r11(CPoint(253,20),CSize(39,12));
-   MapDialogRect(&r11);
    CSpinButtonCtrl* mfc12 = new CSpinButtonCtrl(this);
+   CRect r11(CPoint(253,20),CSize(39,12));
    CRect r12(CPoint(r11.right-11,r11.top),CSize(11,12));
+   MapDialogRect(&r11);
    MapDialogRect(&r12);
    mfc11->Create(ES_AUTOHSCROLL | ES_READONLY | WS_VISIBLE,r11,this,IDC_INDEX);
    mfc11->setBuddy(mfc12);
@@ -159,10 +155,10 @@ CInstrumentEditorN163Wave::CInstrumentEditorN163Wave(CWnd* pParent) : CInstrumen
    // CP: Note, we fake a MFC "spin-box" separate control by placing it over it's "buddy" and connecting signals appropriately
    // to mimic the buddy relationship.
    CEdit* mfc14 = new CEdit(this);
-   CRect r14(CPoint(316,20),CSize(37,12));
-   MapDialogRect(&r14);
    CSpinButtonCtrl* mfc15 = new CSpinButtonCtrl(this);
+   CRect r14(CPoint(316,20),CSize(37,12));
    CRect r15(CPoint(r14.right-11,r14.top),CSize(11,12));
+   MapDialogRect(&r14);
    MapDialogRect(&r15);
    mfc14->Create(ES_AUTOHSCROLL | ES_READONLY | WS_VISIBLE,r14,this,IDC_WAVES);
    mfc14->setBuddy(mfc15);
@@ -180,9 +176,9 @@ CInstrumentEditorN163Wave::CInstrumentEditorN163Wave(CWnd* pParent) : CInstrumen
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //       COMBOBOX        IDC_WAVE_SIZE,305,57,48,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
    CComboBox* mfc18 = new CComboBox(this);
-   CRect r18(CPoint(305,57),CSize(48,12)); // COMBOBOX resource vertical extent includes drop-down height
+   CRect r18(CPoint(305,57),CSize(48,30));
    MapDialogRect(&r18);
-   mfc18->setGeometry(r18);
+   mfc18->Create(CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r18,this,IDC_WAVE_SIZE);
    mfcToQtWidget.insert(IDC_WAVE_SIZE,mfc18);
    QObject::connect(mfc18,SIGNAL(currentIndexChanged(int)),this,SLOT(waveSize_currentIndexChanged(int)));
 //       LTEXT           "Wave position",IDC_STATIC,253,78,46,8
@@ -193,9 +189,9 @@ CInstrumentEditorN163Wave::CInstrumentEditorN163Wave(CWnd* pParent) : CInstrumen
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //       COMBOBOX        IDC_WAVE_POS,305,75,48,30,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
    CComboBox* mfc20 = new CComboBox(this);
-   CRect r20(CPoint(305,75),CSize(48,12)); // COMBOBOX resource vertical extent includes drop-down height
+   CRect r20(CPoint(305,75),CSize(48,30));
    MapDialogRect(&r20);
-   mfc20->setGeometry(r20);
+   mfc20->Create(CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r20,this,IDC_WAVE_POS);
    mfcToQtWidget.insert(IDC_WAVE_POS,mfc20);
    QObject::connect(mfc20,SIGNAL(currentIndexChanged(int)),this,SLOT(wavePos_currentIndexChanged(int)));
 }

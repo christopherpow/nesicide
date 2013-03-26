@@ -192,10 +192,9 @@ CPCMImport::CPCMImport(CWnd* pParent /*=NULL*/)
    
 //   GROUPBOX        "Quality: 0",IDC_QUALITY_FRM,7,7,136,36
    CGroupBox* mfc1 = new CGroupBox(this);
-   mfc1->setTitle("Quality: 0");
    CRect r1(CPoint(7,7),CSize(136,36));
    MapDialogRect(&r1);
-   mfc1->setGeometry(r1);
+   mfc1->Create(_T("Quality: 0"),WS_VISIBLE,r1,this,IDC_QUALITY_FRM);
    mfcToQtWidget.insert(IDC_QUALITY_FRM,mfc1);
 //   LTEXT           "Low",IDC_STATIC,15,21,15,10
    CStatic* mfc2 = new CStatic(this);
@@ -216,10 +215,9 @@ CPCMImport::CPCMImport(CWnd* pParent /*=NULL*/)
    mfc4->Create(_T("High"),WS_VISIBLE,r4,this,IDC_STATIC);
 //   GROUPBOX        "Gain: +0dB",IDC_VOLUME_FRM,7,47,136,35
    CGroupBox* mfc5 = new CGroupBox(this);
-   mfc5->setTitle("Gain: +0dB");
    CRect r5(CPoint(7,47),CSize(136,35));
    MapDialogRect(&r5);
-   mfc5->setGeometry(r5);
+   mfc5->Create(_T("Gain: +0dB"),WS_VISIBLE,r5,this,IDC_VOLUME_FRM);
    mfcToQtWidget.insert(IDC_VOLUME_FRM,mfc5);
 //   LTEXT           "Low",IDC_STATIC,15,61,15,10
    CStatic* mfc6 = new CStatic(this);
@@ -240,10 +238,9 @@ CPCMImport::CPCMImport(CWnd* pParent /*=NULL*/)
    mfc8->Create(_T("High"),WS_VISIBLE,r8,this,IDC_STATIC);
 //   GROUPBOX        "File info",IDC_STATIC,7,86,136,40
    CGroupBox* mfc9 = new CGroupBox(this);
-   mfc9->setTitle("File info");
    CRect r9(CPoint(7,86),CSize(136,40));
    MapDialogRect(&r9);
-   mfc9->setGeometry(r9);
+   mfc9->Create(_T("File info"),WS_VISIBLE,r9,this,IDC_STATIC);
 //   LTEXT           "Static",IDC_SAMPLE_RATE,15,99,118,8
    CStatic* mfc10 = new CStatic(this);
    CRect r10(CPoint(15,99),CSize(118,8));
@@ -267,8 +264,7 @@ CPCMImport::CPCMImport(CWnd* pParent /*=NULL*/)
    CButton* mfc13 = new CButton(this);
    CRect r13(CPoint(154,24),CSize(50,14));
    MapDialogRect(&r13);
-   mfc13->Create(_T("OK"),WS_VISIBLE,r13,this,IDOK);
-   mfc13->setDefault(true);
+   mfc13->Create(_T("OK"),BS_DEFPUSHBUTTON | WS_VISIBLE,r13,this,IDOK);
    mfcToQtWidget.insert(IDOK,mfc13);
    QObject::connect(mfc13,SIGNAL(clicked()),this,SLOT(ok_clicked()));
 //   PUSHBUTTON      "Cancel",IDCANCEL,154,41,50,14

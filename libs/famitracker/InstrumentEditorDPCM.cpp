@@ -91,23 +91,21 @@ CInstrumentEditorDPCM::CInstrumentEditorDPCM(CWnd* pParent) : CInstrumentEditPan
    
 //   GROUPBOX        "Loaded samples",IDC_STATIC,192,7,173,160
    CGroupBox* mfc9 = new CGroupBox(this);
-   mfc9->setTitle("Loaded samples");
    CRect r9(CPoint(192,7),CSize(173,160));
    MapDialogRect(&r9);
-   mfc9->setGeometry(r9);
+   mfc9->Create(_T("Loaded samples"),WS_VISIBLE,r9,this,IDC_STATIC);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //   GROUPBOX        "Assigned samples",IDC_STATIC,7,7,179,160
    CGroupBox* mfc10 = new CGroupBox(this);
-   mfc10->setTitle("Assigned samples");
    CRect r10(CPoint(7,7),CSize(179,160));
    MapDialogRect(&r10);
-   mfc10->setGeometry(r10);
+   mfc10->Create(_T("Assigned samples"),WS_VISIBLE,r10,this,IDC_STATIC);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //   COMBOBOX        IDC_OCTAVE,138,30,42,53,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
    CComboBox* mfc1 = new CComboBox(this);
-   CRect r1(CPoint(138,30),CSize(42,12)); // COMBOBOX resource vertical extent includes drop-down height
+   CRect r1(CPoint(138,30),CSize(42,53));
    MapDialogRect(&r1);
-   mfc1->setGeometry(r1);
+   mfc1->Create(CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r1,this,IDC_OCTAVE);
    mfcToQtWidget.insert(IDC_OCTAVE,mfc1);
    QObject::connect(mfc1,SIGNAL(currentIndexChanged(int)),this,SLOT(octave_currentIndexChanged(int)));
 //   LTEXT           "Octave",IDC_STATIC,138,19,30,10
@@ -118,9 +116,9 @@ CInstrumentEditorDPCM::CInstrumentEditorDPCM(CWnd* pParent) : CInstrumentEditPan
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //   COMBOBOX        IDC_SAMPLES,15,148,117,125,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
    CComboBox* mfc3 = new CComboBox(this);
-   CRect r3(CPoint(15,148),CSize(117,12)); // COMBOBOX resource vertical extent includes drop-down height
+   CRect r3(CPoint(15,148),CSize(117,125));
    MapDialogRect(&r3);
-   mfc3->setGeometry(r3);
+   mfc3->Create(CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r3,this,IDC_SAMPLES);
    mfcToQtWidget.insert(IDC_SAMPLES,mfc3);
    QObject::connect(mfc3,SIGNAL(currentIndexChanged(int)),this,SLOT(samples_currentIndexChanged(int)));
 //   PUSHBUTTON      "Unload",IDC_UNLOAD,312,35,47,14
@@ -134,8 +132,7 @@ CInstrumentEditorDPCM::CInstrumentEditorDPCM(CWnd* pParent) : CInstrumentEditPan
    CButton* mfc5 = new CButton(this);
    CRect r5(CPoint(312,19),CSize(47,14));
    MapDialogRect(&r5);
-   mfc5->Create(_T("Unload"),WS_VISIBLE,r5,this,IDC_LOAD);
-   mfc5->setDefault(true);
+   mfc5->Create(_T("Load"),BS_DEFPUSHBUTTON | WS_VISIBLE,r5,this,IDC_LOAD);
    mfcToQtWidget.insert(IDC_LOAD,mfc5);
    QObject::connect(mfc5,SIGNAL(clicked()),this,SLOT(load_clicked()));
 //   PUSHBUTTON      "Save",IDC_SAVE,312,51,47,14
@@ -160,9 +157,9 @@ CInstrumentEditorDPCM::CInstrumentEditorDPCM(CWnd* pParent) : CInstrumentEditPan
    mfcToQtWidget.insert(IDC_SPACE,mfc8);
 //   COMBOBOX        IDC_PITCH,138,58,42,53,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
    CComboBox* mfc11 = new CComboBox(this);
-   CRect r11(CPoint(138,58),CSize(42,12)); // COMBOBOX resource vertical extent includes drop-down height
+   CRect r11(CPoint(138,58),CSize(42,53));
    MapDialogRect(&r11);
-   mfc11->setGeometry(r11);
+   mfc11->Create(CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r11,this,IDC_PITCH);
    mfcToQtWidget.insert(IDC_PITCH,mfc11);
    QObject::connect(mfc11,SIGNAL(currentIndexChanged(int)),this,SLOT(pitch_currentIndexChanged(int)));
 //   LTEXT           "Pitch",IDC_STATIC,138,48,30,8
@@ -173,26 +170,18 @@ CInstrumentEditorDPCM::CInstrumentEditorDPCM(CWnd* pParent) : CInstrumentEditPan
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //   CONTROL         "",IDC_TABLE,"SysListView32",LVS_REPORT | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,15,19,117,125
    CListCtrl* mfc13 = new CListCtrl(this);
-   mfc13->setSelectionMode(QAbstractItemView::SingleSelection);
-   mfc13->setSelectionBehavior(QAbstractItemView::SelectRows);
-//   mfc13->verticalScrollBar()->hide();
-//   mfc13->horizontalScrollBar()->hide();
    CRect r13(CPoint(15,19),CSize(117,125));
    MapDialogRect(&r13);
-   mfc13->setGeometry(r13);
+   mfc13->Create(LVS_REPORT | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP | WS_VISIBLE,r13,this,IDC_TABLE);
    mfcToQtWidget.insert(IDC_TABLE,mfc13);
    QObject::connect(mfc13,SIGNAL(itemSelectionChanged()),this,SLOT(table_itemSelectionChanged()));
    QObject::connect(mfc13,SIGNAL(cellClicked(int,int)),this,SLOT(table_cellClicked(int,int)));
    QObject::connect(mfc13,SIGNAL(cellDoubleClicked(int,int)),this,SLOT(table_cellDoubleClicked(int,int)));
 //   CONTROL         "",IDC_SAMPLE_LIST,"SysListView32",LVS_REPORT | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,198,19,108,125
    CListCtrl* mfc14 = new CListCtrl(this);
-   mfc14->setSelectionMode(QAbstractItemView::SingleSelection);
-   mfc14->setSelectionBehavior(QAbstractItemView::SelectRows);
-//   mfc14->verticalScrollBar()->hide();
-//   mfc14->horizontalScrollBar()->hide();
    CRect r14(CPoint(198,19),CSize(108,125));
    MapDialogRect(&r14);
-   mfc14->setGeometry(r14);
+   mfc14->Create(LVS_REPORT | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP | WS_VISIBLE,r14,this,IDC_SAMPLE_LIST);
    mfcToQtWidget.insert(IDC_SAMPLE_LIST,mfc14);
    QObject::connect(mfc14,SIGNAL(itemSelectionChanged()),this,SLOT(sampleList_itemSelectionChanged()));
    QObject::connect(mfc14,SIGNAL(cellClicked(int,int)),this,SLOT(sampleList_cellClicked(int,int)));

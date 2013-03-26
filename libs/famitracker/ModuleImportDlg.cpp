@@ -38,24 +38,21 @@ CModuleImportDlg::CModuleImportDlg(CFamiTrackerDoc *pDoc)
 
 //       GROUPBOX        "Tracks",IDC_STATIC,7,7,147,137
    CGroupBox* mfc3 = new CGroupBox(this);
-   mfc3->setTitle("Tracks");
    CRect r3(CPoint(7,7),CSize(147,137));
    MapDialogRect(&r3);
-   mfc3->setGeometry(r3);
+   mfc3->Create(_T("Tracks"),WS_VISIBLE,r3,this,IDC_STATIC);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //       GROUPBOX        "Options",IDC_STATIC,7,148,147,29
    CGroupBox* mfc6 = new CGroupBox(this);
-   mfc6->setTitle("Options");
    CRect r6(CPoint(7,148),CSize(147,29));
    MapDialogRect(&r6);
-   mfc6->setGeometry(r6);
+   mfc6->Create(_T("Options"),WS_VISIBLE,r6,this,IDC_STATIC);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //       DEFPUSHBUTTON   "OK",IDOK,51,188,50,14
    CButton* mfc1 = new CButton(this);
    CRect r1(CPoint(51,188),CSize(50,14));
    MapDialogRect(&r1);
-   mfc1->Create(_T("OK"),WS_VISIBLE,r1,this,IDOK);
-   mfc1->setDefault(true);
+   mfc1->Create(_T("OK"),BS_DEFPUSHBUTTON | WS_VISIBLE,r1,this,IDOK);
    mfcToQtWidget.insert(IDOK,mfc1);
    QObject::connect(mfc1,SIGNAL(clicked()),this,SLOT(ok_clicked()));
 //       PUSHBUTTON      "Cancel",IDCANCEL,104,188,50,14
@@ -75,13 +72,9 @@ CModuleImportDlg::CModuleImportDlg(CFamiTrackerDoc *pDoc)
    qDebug("horzline not implemented");
 //       CONTROL         "",IDC_TRACKS,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | LVS_NOCOLUMNHEADER | WS_BORDER | WS_TABSTOP,14,18,133,120
    CListCtrl* mfc7 = new CListCtrl(this);
-   mfc7->setSelectionMode(QAbstractItemView::SingleSelection);
-   mfc7->setSelectionBehavior(QAbstractItemView::SelectRows);
-//   mfc7->verticalScrollBar()->hide();
-//   mfc7->horizontalScrollBar()->hide();
    CRect r7(CPoint(14,18),CSize(133,120));
    MapDialogRect(&r7);
-   mfc7->setGeometry(r7);
+   mfc7->Create(LVS_REPORT | LVS_ALIGNLEFT | LVS_NOCOLUMNHEADER | WS_BORDER | WS_TABSTOP | WS_VISIBLE,r7,this,IDC_TRACKS);
    mfcToQtWidget.insert(IDC_TRACKS,mfc7);
 }
 

@@ -40,8 +40,7 @@ CSpeedDlg::CSpeedDlg(CWnd* pParent /*=NULL*/)
    CButton* mfc1 = new CButton(this);
    CRect r1(CPoint(139,7),CSize(50,14));
    MapDialogRect(&r1);
-   mfc1->Create(_T("OK"),WS_VISIBLE,r1,this,IDOK);
-   mfc1->setDefault(true);
+   mfc1->Create(_T("OK"),BS_DEFPUSHBUTTON | WS_VISIBLE,r1,this,IDOK);
    mfcToQtWidget.insert(IDOK,mfc1);
    QObject::connect(mfc1,SIGNAL(clicked()),this,SLOT(ok_clicked()));
 //       PUSHBUTTON      "Cancel",IDCANCEL,139,23,50,14

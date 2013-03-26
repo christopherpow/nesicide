@@ -49,16 +49,27 @@ CInstrumentEditorVRC7::CInstrumentEditorVRC7(CWnd* pParent /*=NULL*/)
    
 //       GROUPBOX        "Patch",IDC_STATIC,7,7,310,30
    CGroupBox* mfc1 = new CGroupBox(this);
-   mfc1->setTitle("Patch");
    CRect r1(CPoint(7,7),CSize(310,30));
    MapDialogRect(&r1);
-   mfc1->setGeometry(r1);
+   mfc1->Create(_T("Patch"),WS_VISIBLE,r1,this,IDC_STATIC);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
+//       GROUPBOX        "Modulator settings",IDC_STATIC,7,42,153,123
+   CGroupBox* mfc5 = new CGroupBox(this);
+   CRect r5(CPoint(7,42),CSize(153,123));
+   MapDialogRect(&r5);
+   mfc5->Create(_T("Modulator settings"),WS_VISIBLE,r5,this,IDC_STATIC);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
+//       GROUPBOX        "Carrier settings",IDC_STATIC,166,42,152,123
+   CGroupBox* mfc23 = new CGroupBox(this);
+   CRect r23(CPoint(166,42),CSize(152,123));
+   MapDialogRect(&r23);
+   mfc23->Create(_T("Carrier settings"),WS_VISIBLE,r23,this,IDC_STATIC);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //       COMBOBOX        IDC_PATCH,15,18,295,128,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
    CComboBox* mfc2 = new CComboBox(this);
-   CRect r2(CPoint(15,18),CSize(295,12)); // COMBOBOX resource vertical extent includes drop-down height
+   CRect r2(CPoint(15,18),CSize(295,128));
    MapDialogRect(&r2);
-   mfc2->setGeometry(r2);
+   mfc2->Create(CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r2,this,IDC_PATCH);
    mfcToQtWidget.insert(IDC_PATCH,mfc2);
    QObject::connect(mfc2,SIGNAL(currentIndexChanged(int)),this,SLOT(patch_currentIndexChanged(int)));
 //       PUSHBUTTON      "Copy",IDC_COPY,322,7,43,14
@@ -75,13 +86,6 @@ CInstrumentEditorVRC7::CInstrumentEditorVRC7(CWnd* pParent /*=NULL*/)
    mfc4->Create(_T("Paste"),WS_VISIBLE,r4,this,IDC_PASTE);
    mfcToQtWidget.insert(IDC_PASTE,mfc4);
    QObject::connect(mfc4,SIGNAL(clicked()),this,SLOT(paste_clicked()));
-//       GROUPBOX        "Modulator settings",IDC_STATIC,7,42,153,123
-   CGroupBox* mfc5 = new CGroupBox(this);
-   mfc5->setTitle("Modulator settings");
-   CRect r5(CPoint(7,42),CSize(153,123));
-   MapDialogRect(&r5);
-   mfc5->setGeometry(r5);
-   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       CONTROL         "Amplitude modulation",IDC_M_AM,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,54,84,10,WS_EX_TRANSPARENT
    CButton* mfc6 = new CButton(this);
    CRect r6(CPoint(14,54),CSize(84,10));
@@ -127,7 +131,7 @@ CInstrumentEditorVRC7::CInstrumentEditorVRC7(CWnd* pParent /*=NULL*/)
    CSliderCtrl* mfc12 = new CSliderCtrl(this);
    CRect r12(CPoint(112,86),CSize(44,11));
    MapDialogRect(&r12);
-   mfc12->setGeometry(r12);
+   mfc12->Create(TBS_AUTOTICKS | WS_TABSTOP | WS_VISIBLE,r12,this,IDC_M_KSL);
    mfcToQtWidget.insert(IDC_M_KSL,mfc12);
    QObject::connect(mfc12,SIGNAL(valueChanged(int)),this,SLOT(m_ksl_valueChanged(int)));
 //       LTEXT           "Mult. factor",IDC_STATIC,14,108,38,8
@@ -140,7 +144,7 @@ CInstrumentEditorVRC7::CInstrumentEditorVRC7(CWnd* pParent /*=NULL*/)
    CSliderCtrl* mfc14 = new CSliderCtrl(this);
    CRect r14(CPoint(51,107),CSize(105,11));
    MapDialogRect(&r14);
-   mfc14->setGeometry(r14);
+   mfc14->Create(TBS_AUTOTICKS | WS_TABSTOP | WS_VISIBLE,r14,this,IDC_M_MUL);
    mfcToQtWidget.insert(IDC_M_MUL,mfc14);
    QObject::connect(mfc14,SIGNAL(valueChanged(int)),this,SLOT(m_mul_valueChanged(int)));
 //       LTEXT           "Attack",IDC_STATIC,14,127,22,8
@@ -153,7 +157,7 @@ CInstrumentEditorVRC7::CInstrumentEditorVRC7(CWnd* pParent /*=NULL*/)
    CSliderCtrl* mfc16 = new CSliderCtrl(this);
    CRect r16(CPoint(40,126),CSize(42,11));
    MapDialogRect(&r16);
-   mfc16->setGeometry(r16);
+   mfc16->Create(TBS_AUTOTICKS | WS_TABSTOP | WS_VISIBLE,r16,this,IDC_M_AR);
    mfcToQtWidget.insert(IDC_M_AR,mfc16);
    QObject::connect(mfc16,SIGNAL(valueChanged(int)),this,SLOT(m_ar_valueChanged(int)));
 //       LTEXT           "Decay",IDC_STATIC,87,127,21,8
@@ -166,7 +170,7 @@ CInstrumentEditorVRC7::CInstrumentEditorVRC7(CWnd* pParent /*=NULL*/)
    CSliderCtrl* mfc18 = new CSliderCtrl(this);
    CRect r18(CPoint(114,126),CSize(42,11));
    MapDialogRect(&r18);
-   mfc18->setGeometry(r18);
+   mfc18->Create(TBS_AUTOTICKS | WS_TABSTOP | WS_VISIBLE,r18,this,IDC_M_DR);
    mfcToQtWidget.insert(IDC_M_DR,mfc18);
    QObject::connect(mfc18,SIGNAL(valueChanged(int)),this,SLOT(m_dr_valueChanged(int)));
 //       LTEXT           "Sustain",IDC_STATIC,14,144,24,8
@@ -179,7 +183,7 @@ CInstrumentEditorVRC7::CInstrumentEditorVRC7(CWnd* pParent /*=NULL*/)
    CSliderCtrl* mfc20 = new CSliderCtrl(this);
    CRect r20(CPoint(39,143),CSize(42,11));
    MapDialogRect(&r20);
-   mfc20->setGeometry(r20);
+   mfc20->Create(TBS_AUTOTICKS | WS_TABSTOP | WS_VISIBLE,r20,this,IDC_M_SL);
    mfcToQtWidget.insert(IDC_M_SL,mfc20);
    QObject::connect(mfc20,SIGNAL(valueChanged(int)),this,SLOT(m_sl_valueChanged(int)));
 //       LTEXT           "Release",IDC_STATIC,85,144,26,8
@@ -192,16 +196,9 @@ CInstrumentEditorVRC7::CInstrumentEditorVRC7(CWnd* pParent /*=NULL*/)
    CSliderCtrl* mfc22 = new CSliderCtrl(this);
    CRect r22(CPoint(114,143),CSize(42,11));
    MapDialogRect(&r22);
-   mfc22->setGeometry(r22);
+   mfc22->Create(TBS_AUTOTICKS | WS_TABSTOP | WS_VISIBLE,r22,this,IDC_M_RR);
    mfcToQtWidget.insert(IDC_M_RR,mfc22);
    QObject::connect(mfc22,SIGNAL(valueChanged(int)),this,SLOT(m_rr_valueChanged(int)));
-//       GROUPBOX        "Carrier settings",IDC_STATIC,166,42,152,123
-   CGroupBox* mfc23 = new CGroupBox(this);
-   mfc23->setTitle("Carrier settings");
-   CRect r23(CPoint(166,42),CSize(152,123));
-   MapDialogRect(&r23);
-   mfc23->setGeometry(r23);
-   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       CONTROL         "Amplitude modulation",IDC_C_AM,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,171,54,84,10
    CButton* mfc24 = new CButton(this);
    CRect r24(CPoint(171,54),CSize(84,10));
@@ -247,7 +244,7 @@ CInstrumentEditorVRC7::CInstrumentEditorVRC7(CWnd* pParent /*=NULL*/)
    CSliderCtrl* mfc30 = new CSliderCtrl(this);
    CRect r30(CPoint(270,86),CSize(40,11));
    MapDialogRect(&r30);
-   mfc30->setGeometry(r30);
+   mfc30->Create(TBS_AUTOTICKS | WS_TABSTOP | WS_VISIBLE,r30,this,IDC_C_KSL);
    mfcToQtWidget.insert(IDC_C_KSL,mfc30);
    QObject::connect(mfc30,SIGNAL(valueChanged(int)),this,SLOT(c_ksl_valueChanged(int)));
 //       LTEXT           "Mult. factor",IDC_STATIC,171,108,38,8
@@ -260,7 +257,7 @@ CInstrumentEditorVRC7::CInstrumentEditorVRC7(CWnd* pParent /*=NULL*/)
    CSliderCtrl* mfc32 = new CSliderCtrl(this);
    CRect r32(CPoint(208,107),CSize(106,11));
    MapDialogRect(&r32);
-   mfc32->setGeometry(r32);
+   mfc32->Create(TBS_AUTOTICKS | WS_TABSTOP | WS_VISIBLE,r32,this,IDC_C_MUL);
    mfcToQtWidget.insert(IDC_C_MUL,mfc32);
    QObject::connect(mfc32,SIGNAL(valueChanged(int)),this,SLOT(c_mul_valueChanged(int)));
 //       LTEXT           "Attack",IDC_STATIC,171,127,22,8
@@ -273,7 +270,7 @@ CInstrumentEditorVRC7::CInstrumentEditorVRC7(CWnd* pParent /*=NULL*/)
    CSliderCtrl* mfc34 = new CSliderCtrl(this);
    CRect r34(CPoint(199,126),CSize(42,11));
    MapDialogRect(&r34);
-   mfc34->setGeometry(r34);
+   mfc34->Create(TBS_AUTOTICKS | WS_TABSTOP | WS_VISIBLE,r34,this,IDC_C_AR);
    mfcToQtWidget.insert(IDC_C_AR,mfc34);
    QObject::connect(mfc34,SIGNAL(valueChanged(int)),this,SLOT(c_ar_valueChanged(int)));
 //       LTEXT           "Decay",IDC_STATIC,247,127,21,8
@@ -286,7 +283,7 @@ CInstrumentEditorVRC7::CInstrumentEditorVRC7(CWnd* pParent /*=NULL*/)
    CSliderCtrl* mfc36 = new CSliderCtrl(this);
    CRect r36(CPoint(271,126),CSize(43,11));
    MapDialogRect(&r36);
-   mfc36->setGeometry(r36);
+   mfc36->Create(TBS_AUTOTICKS | WS_TABSTOP | WS_VISIBLE,r36,this,IDC_C_DR);
    mfcToQtWidget.insert(IDC_C_DR,mfc36);
    QObject::connect(mfc36,SIGNAL(valueChanged(int)),this,SLOT(c_dr_valueChanged(int)));
 //       LTEXT           "Sustain",IDC_STATIC,171,144,24,8
@@ -299,7 +296,7 @@ CInstrumentEditorVRC7::CInstrumentEditorVRC7(CWnd* pParent /*=NULL*/)
    CSliderCtrl* mfc38 = new CSliderCtrl(this);
    CRect r38(CPoint(199,143),CSize(42,11));
    MapDialogRect(&r38);
-   mfc38->setGeometry(r38);
+   mfc38->Create(TBS_AUTOTICKS | WS_TABSTOP | WS_VISIBLE,r38,this,IDC_C_SL);
    mfcToQtWidget.insert(IDC_C_SL,mfc38);
    QObject::connect(mfc38,SIGNAL(valueChanged(int)),this,SLOT(c_sl_valueChanged(int)));
 //       LTEXT           "Release",IDC_STATIC,245,144,26,8
@@ -312,7 +309,7 @@ CInstrumentEditorVRC7::CInstrumentEditorVRC7(CWnd* pParent /*=NULL*/)
    CSliderCtrl* mfc40 = new CSliderCtrl(this);
    CRect r40(CPoint(271,143),CSize(43,11));
    MapDialogRect(&r40);
-   mfc40->setGeometry(r40);
+   mfc40->Create(TBS_AUTOTICKS | WS_TABSTOP | WS_VISIBLE,r40,this,IDC_C_RR);
    mfcToQtWidget.insert(IDC_C_RR,mfc40);
    QObject::connect(mfc40,SIGNAL(valueChanged(int)),this,SLOT(c_rr_valueChanged(int)));
 //       CTEXT           "Modulator\nlevel",IDC_STATIC,322,42,36,17
@@ -323,11 +320,9 @@ CInstrumentEditorVRC7::CInstrumentEditorVRC7(CWnd* pParent /*=NULL*/)
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //       CONTROL         "",IDC_TL,"msctls_trackbar32",TBS_VERT | TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,329,59,16,53
    CSliderCtrl* mfc42 = new CSliderCtrl(this);
-   mfc42->setOrientation(Qt::Vertical);
-   mfc42->setInvertedAppearance(true);
    CRect r42(CPoint(329,59),CSize(16,53));
    MapDialogRect(&r42);
-   mfc42->setGeometry(r42);
+   mfc42->Create(TBS_VERT | TBS_BOTH | TBS_NOTICKS | WS_TABSTOP | WS_VISIBLE,r42,this,IDC_TL);
    mfcToQtWidget.insert(IDC_TL,mfc42);
    QObject::connect(mfc42,SIGNAL(valueChanged(int)),this,SLOT(tl_valueChanged(int)));
 //       CTEXT           "Feedback",IDC_STATIC,322,112,36,9
@@ -338,11 +333,9 @@ CInstrumentEditorVRC7::CInstrumentEditorVRC7(CWnd* pParent /*=NULL*/)
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //       CONTROL         "",IDC_FB,"msctls_trackbar32",TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP,325,124,25,41
    CSliderCtrl* mfc44 = new CSliderCtrl(this);
-   mfc44->setOrientation(Qt::Vertical);
-   mfc44->setInvertedAppearance(true);
    CRect r44(CPoint(325,124),CSize(25,41));
    MapDialogRect(&r44);
-   mfc44->setGeometry(r44);
+   mfc44->Create(TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP | WS_VISIBLE,r44,this,IDC_FB);
    mfcToQtWidget.insert(IDC_FB,mfc44);
    QObject::connect(mfc44,SIGNAL(valueChanged(int)),this,SLOT(fb_valueChanged(int)));
 }

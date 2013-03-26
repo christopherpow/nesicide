@@ -148,7 +148,8 @@ SOURCES += \
     SpeedDlg.cpp \
     SWLogo.cpp \
     WavProgressDlg.cpp \
-    WaveFile.cpp
+    WaveFile.cpp \
+    ControlPanelDlg.cpp
 
 HEADERS += \
     TrackerChannel.h \
@@ -248,7 +249,8 @@ HEADERS += \
     SpeedDlg.h \
     SWLogo.h \
     WavProgressDlg.h \
-    WaveFile.h 
+    WaveFile.h \ 
+    ControlPanelDlg.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN

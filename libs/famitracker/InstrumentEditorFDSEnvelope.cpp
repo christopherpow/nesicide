@@ -49,9 +49,9 @@ CInstrumentEditorFDSEnvelope::CInstrumentEditorFDSEnvelope(CWnd* pParent) : CSeq
    mfcToQtWidget.insert(IDC_SEQUENCE_STRING,mfc1);
 //       COMBOBOX        IDC_TYPE,8,151,63,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
    CComboBox* mfc2 = new CComboBox(this);
-   CRect r2(CPoint(8,151),CSize(63,12)); // COMBOBOX resource vertical extent includes drop-down height
+   CRect r2(CPoint(8,151),CSize(63,30));
    MapDialogRect(&r2);
-   mfc2->setGeometry(r2);
+   mfc2->Create(CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r2,this,IDC_TYPE);
    mfcToQtWidget.insert(IDC_TYPE,mfc2);
 //   IDD_INSTRUMENT_FDS_ENVELOPE DLGINIT
 //   BEGIN
