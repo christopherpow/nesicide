@@ -154,8 +154,10 @@ void CFamiTrackerApp::RemoveSoundGenerator()
 	m_pSoundGenerator = NULL;
 }
 
-BOOL CFamiTrackerApp::InitInstance()
+BOOL CFamiTrackerApp::InitInstance(QMainWindow* parent)
 {
+   qtMainWindow = parent;
+   
 //	// InitCommonControls() is required on Windows XP if an application
 //	// manifest specifies use of ComCtl32.dll version 6 or later to enable
 //	// visual styles.  Otherwise, any window creation will fail.
@@ -376,6 +378,4 @@ int CFamiTrackerApp::ExitInstance()
 }
 
 CFamiTrackerApp theApp;
-
-CWinApp* AfxGetApp() { return &theApp; }
-CFrameWnd* AfxGetMainWnd() { return theApp.m_pMainWnd; }
+CWinApp* ptrToTheApp = &theApp;

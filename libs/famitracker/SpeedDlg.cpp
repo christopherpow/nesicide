@@ -31,38 +31,6 @@ IMPLEMENT_DYNAMIC(CSpeedDlg, CDialog)
 CSpeedDlg::CSpeedDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CSpeedDlg::IDD, pParent)
 {
-//   IDD_SPEED DIALOGEX 0, 0, 196, 44
-   CRect rect(CPoint(0,0),CSize(196,44));
-   MapDialogRect(&rect);
-   setFixedSize(rect.Width(),rect.Height());
-   
-//       DEFPUSHBUTTON   "OK",IDOK,139,7,50,14
-   CButton* mfc1 = new CButton(this);
-   CRect r1(CPoint(139,7),CSize(50,14));
-   MapDialogRect(&r1);
-   mfc1->Create(_T("OK"),BS_DEFPUSHBUTTON | WS_VISIBLE,r1,this,IDOK);
-   mfcToQtWidget.insert(IDOK,mfc1);
-   QObject::connect(mfc1,SIGNAL(clicked()),this,SLOT(ok_clicked()));
-//       PUSHBUTTON      "Cancel",IDCANCEL,139,23,50,14
-   CButton* mfc2 = new CButton(this);
-   CRect r2(CPoint(139,23),CSize(50,14));
-   MapDialogRect(&r2);
-   mfc2->Create(_T("Cancel"),WS_VISIBLE,r2,this,IDCANCEL);
-   mfcToQtWidget.insert(IDCANCEL,mfc2);
-   QObject::connect(mfc2,SIGNAL(clicked()),this,SLOT(cancel_clicked()));
-//       CONTROL         "",IDC_SPEED_SLD,"msctls_trackbar32",WS_TABSTOP,7,7,101,16
-   CSliderCtrl* mfc3 = new CSliderCtrl(this);
-   CRect r3(CPoint(7,7),CSize(101,16));
-   MapDialogRect(&r3);
-   mfc3->setGeometry(r3);
-   mfcToQtWidget.insert(IDC_SPEED_SLD,mfc3);
-   QObject::connect(mfc3,SIGNAL(valueChanged(int)),this,SLOT(speedSld_valueChanged(int)));
-//       LTEXT           "60 Hz",IDC_SPEED,112,11,26,12
-   CStatic* mfc4 = new CStatic(this);
-   CRect r4(CPoint(112,11),CSize(26,12));
-   MapDialogRect(&r4);
-   mfc4->Create(_T("60 Hz"),WS_VISIBLE,r4,this,IDC_SPEED);
-   mfcToQtWidget.insert(IDC_SPEED,mfc4);
 }
 
 CSpeedDlg::~CSpeedDlg()

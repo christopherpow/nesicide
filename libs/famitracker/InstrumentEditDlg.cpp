@@ -51,24 +51,6 @@ CInstrumentEditDlg::CInstrumentEditDlg(CWnd* pParent /*=NULL*/)
 	m_bOpened(false),
 	m_iInstrument(-1)
 {
-//   IDD_INSTRUMENT DIALOGEX 0, 0, 389, 242
-   CRect rect(CPoint(0,0),CSize(389,242));
-   MapDialogRect(&rect);
-   setFixedSize(rect.Width(),rect.Height());
-   
-//   CONTROL         "",IDC_INST_TAB,"SysTabControl32",0x0,7,7,375,185
-   CTabCtrl* mfc1 = new CTabCtrl(this);
-   CRect r1(CPoint(7,7),CSize(375,185));
-   MapDialogRect(&r1);
-   mfc1->setGeometry(r1);
-   mfcToQtWidget.insert(IDC_INST_TAB,mfc1);
-   QObject::connect(mfc1,SIGNAL(currentChanged(int)),this,SLOT(instTab_currentChanged(int)));
-//   CONTROL         "",IDC_KEYBOARD,"Static",SS_OWNERDRAW | SS_REALSIZEIMAGE | SS_SUNKEN,7,198,375,37
-   CStatic* mfc2 = new CStatic(this);
-   CRect r2(CPoint(7,198),CSize(375,37));
-   MapDialogRect(&r2);
-   mfc2->Create(_T(""),SS_OWNERDRAW | SS_REALSIZEIMAGE | SS_SUNKEN | WS_VISIBLE,r2,this,IDC_KEYBOARD);
-   mfcToQtWidget.insert(IDC_KEYBOARD,mfc2);   
 }
 
 void CInstrumentEditDlg::instTab_currentChanged(int arg1)

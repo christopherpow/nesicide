@@ -4,6 +4,7 @@
 #include "FamiTracker.h"
 
 #include "cqtmfc_famitracker.h"
+#include "MainFrm.h"
 
 #include <QFileInfo>
 #include <QUrl>
@@ -18,16 +19,15 @@ MainWindow::MainWindow(QWidget *parent) :
 
    // Initialize the app...
    qtMfcInit();
-   theApp.InitInstance();
+   theApp.InitInstance(this);
    
-   m_pMainFrame = (CMainFrame*)theApp.m_pMainWnd;
-   setCentralWidget(m_pMainFrame->toQWidget());
+   theApp.GetDocTemplate()->OpenDocumentFile(NULL);
+   
+   setCentralWidget(theApp.m_pMainWnd->toQWidget());
 
-   QObject::connect(m_pMainFrame,SIGNAL(addToolBarWidget(QToolBar*)),this,SLOT(addToolBarWidget(QToolBar*)));
-   QObject::connect(m_pMainFrame,SIGNAL(removeToolBarWidget(QToolBar*)),this,SLOT(removeToolBarWidget(QToolBar*)));
-   QObject::connect(m_pMainFrame,SIGNAL(addStatusBarWidget(QWidget*)),this,SLOT(addStatusBarWidget(QWidget*)));
-   QObject::connect(m_pMainFrame,SIGNAL(removeStatusBarWidget(QWidget*)),this,SLOT(removeStatusBarWidget(QWidget*)));
-   QObject::connect(m_pMainFrame,SIGNAL(editor_modificationChanged(bool)),this,SLOT(editor_modificationChanged(bool)));
+   QObject::connect(theApp.m_pMainWnd,SIGNAL(addToolBarWidget(QToolBar*)),this,SLOT(addToolBarWidget(QToolBar*)));
+   QObject::connect(theApp.m_pMainWnd,SIGNAL(removeToolBarWidget(QToolBar*)),this,SLOT(removeToolBarWidget(QToolBar*)));
+   QObject::connect(theApp.m_pMainWnd,SIGNAL(editor_modificationChanged(bool)),this,SLOT(editor_modificationChanged(bool)));
 
    restoreGeometry(settings.value("FamiTrackerWindowGeometry").toByteArray());
    restoreState(settings.value("FamiTrackerWindowState").toByteArray());
@@ -62,21 +62,13 @@ void MainWindow::removeToolBarWidget(QToolBar* toolBar)
    removeToolBar(toolBar);
 }
 
-void MainWindow::addStatusBarWidget(QWidget *widget)
-{
-   ui->appStatusBar->addWidget(widget,100);
-   widget->show();
-}
-
-void MainWindow::removeStatusBarWidget(QWidget *widget)
-{
-   // For some reason on creation the widget isn't there but it's being removed?
-   ui->appStatusBar->addWidget(widget,100);
-   ui->appStatusBar->removeWidget(widget);
-}
-
 void MainWindow::editor_modificationChanged(bool m)
 {
+}
+
+void MainWindow::resizeEvent(QResizeEvent *event)
+{
+   ((CMainFrame*)theApp.m_pMainWnd)->OnSize(0,event->size().width(),event->size().height());
 }
 
 void MainWindow::dragEnterEvent(QDragEnterEvent *event)
@@ -114,7 +106,8 @@ void MainWindow::dropEvent(QDropEvent *event)
 
          if ( !fileInfo.suffix().compare("ftm",Qt::CaseInsensitive) )
          {
-            m_pMainFrame->setFileName(fileName);
+            theApp.GetDocTemplate()->OpenDocumentFile((LPCTSTR)fileName.unicode());
+            
             event->acceptProposedAction();
          }
       }

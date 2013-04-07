@@ -84,156 +84,6 @@ void CDMCFileSoundDialog::OnFileNameChange()
 IMPLEMENT_DYNAMIC(CInstrumentEditorDPCM, CInstrumentEditPanel)
 CInstrumentEditorDPCM::CInstrumentEditorDPCM(CWnd* pParent) : CInstrumentEditPanel(CInstrumentEditorDPCM::IDD, pParent)
 {
-//   IDD_INSTRUMENT_DPCM DIALOGEX 0, 0, 372, 174
-   CRect rect(CPoint(0,0),CSize(372,174));
-   MapDialogRect(&rect);
-   setFixedSize(rect.Width(),rect.Height());
-   
-//   GROUPBOX        "Loaded samples",IDC_STATIC,192,7,173,160
-   CGroupBox* mfc9 = new CGroupBox(this);
-   CRect r9(CPoint(192,7),CSize(173,160));
-   MapDialogRect(&r9);
-   mfc9->Create(_T("Loaded samples"),WS_VISIBLE,r9,this,IDC_STATIC);
-   // IDC_STATIC do not get added to MFC-to-Qt map.
-//   GROUPBOX        "Assigned samples",IDC_STATIC,7,7,179,160
-   CGroupBox* mfc10 = new CGroupBox(this);
-   CRect r10(CPoint(7,7),CSize(179,160));
-   MapDialogRect(&r10);
-   mfc10->Create(_T("Assigned samples"),WS_VISIBLE,r10,this,IDC_STATIC);
-   // IDC_STATIC do not get added to MFC-to-Qt map.
-//   COMBOBOX        IDC_OCTAVE,138,30,42,53,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-   CComboBox* mfc1 = new CComboBox(this);
-   CRect r1(CPoint(138,30),CSize(42,53));
-   MapDialogRect(&r1);
-   mfc1->Create(CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r1,this,IDC_OCTAVE);
-   mfcToQtWidget.insert(IDC_OCTAVE,mfc1);
-   QObject::connect(mfc1,SIGNAL(currentIndexChanged(int)),this,SLOT(octave_currentIndexChanged(int)));
-//   LTEXT           "Octave",IDC_STATIC,138,19,30,10
-   CStatic* mfc2 = new CStatic(this);
-   CRect r2(CPoint(138,19),CSize(30,10));
-   MapDialogRect(&r2);
-   mfc2->Create(_T("Octave"),WS_VISIBLE,r2,this,IDC_STATIC);
-   // IDC_STATIC do not get added to MFC-to-Qt map.
-//   COMBOBOX        IDC_SAMPLES,15,148,117,125,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
-   CComboBox* mfc3 = new CComboBox(this);
-   CRect r3(CPoint(15,148),CSize(117,125));
-   MapDialogRect(&r3);
-   mfc3->Create(CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r3,this,IDC_SAMPLES);
-   mfcToQtWidget.insert(IDC_SAMPLES,mfc3);
-   QObject::connect(mfc3,SIGNAL(currentIndexChanged(int)),this,SLOT(samples_currentIndexChanged(int)));
-//   PUSHBUTTON      "Unload",IDC_UNLOAD,312,35,47,14
-   CButton* mfc4 = new CButton(this);
-   CRect r4(CPoint(312,35),CSize(47,14));
-   MapDialogRect(&r4);
-   mfc4->Create(_T("Unload"),WS_VISIBLE,r4,this,IDC_UNLOAD);
-   mfcToQtWidget.insert(IDC_UNLOAD,mfc4);
-   QObject::connect(mfc4,SIGNAL(clicked()),this,SLOT(unload_clicked()));
-//   DEFPUSHBUTTON   "Load",IDC_LOAD,312,19,47,14
-   CButton* mfc5 = new CButton(this);
-   CRect r5(CPoint(312,19),CSize(47,14));
-   MapDialogRect(&r5);
-   mfc5->Create(_T("Load"),BS_DEFPUSHBUTTON | WS_VISIBLE,r5,this,IDC_LOAD);
-   mfcToQtWidget.insert(IDC_LOAD,mfc5);
-   QObject::connect(mfc5,SIGNAL(clicked()),this,SLOT(load_clicked()));
-//   PUSHBUTTON      "Save",IDC_SAVE,312,51,47,14
-   CButton* mfc6 = new CButton(this);
-   CRect r6(CPoint(312,51),CSize(47,14));
-   MapDialogRect(&r6);
-   mfc6->Create(_T("Save"),WS_VISIBLE,r6,this,IDC_SAVE);
-   mfcToQtWidget.insert(IDC_SAVE,mfc6);
-   QObject::connect(mfc6,SIGNAL(clicked()),this,SLOT(save_clicked()));
-//   PUSHBUTTON      "Import",IDC_IMPORT,312,67,47,14
-   CButton* mfc7 = new CButton(this);
-   CRect r7(CPoint(312,67),CSize(47,14));
-   MapDialogRect(&r7);
-   mfc7->Create(_T("Import"),WS_VISIBLE,r7,this,IDC_IMPORT);
-   mfcToQtWidget.insert(IDC_IMPORT,mfc7);
-   QObject::connect(mfc7,SIGNAL(clicked()),this,SLOT(import_clicked()));
-//   LTEXT           "Space used 16 / 16 kb",IDC_SPACE,198,151,166,9
-   CStatic* mfc8 = new CStatic(this);
-   CRect r8(CPoint(198,151),CSize(166,9));
-   MapDialogRect(&r8);
-   mfc8->Create(_T("Space used 16 / 16 kb"),WS_VISIBLE,r8,this,IDC_SPACE);
-   mfcToQtWidget.insert(IDC_SPACE,mfc8);
-//   COMBOBOX        IDC_PITCH,138,58,42,53,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-   CComboBox* mfc11 = new CComboBox(this);
-   CRect r11(CPoint(138,58),CSize(42,53));
-   MapDialogRect(&r11);
-   mfc11->Create(CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r11,this,IDC_PITCH);
-   mfcToQtWidget.insert(IDC_PITCH,mfc11);
-   QObject::connect(mfc11,SIGNAL(currentIndexChanged(int)),this,SLOT(pitch_currentIndexChanged(int)));
-//   LTEXT           "Pitch",IDC_STATIC,138,48,30,8
-   CStatic* mfc12 = new CStatic(this);
-   CRect r12(CPoint(138,48),CSize(30,8));
-   MapDialogRect(&r12);
-   mfc12->Create(_T("Pitch"),WS_VISIBLE,r12,this,IDC_STATIC);
-   // IDC_STATIC do not get added to MFC-to-Qt map.
-//   CONTROL         "",IDC_TABLE,"SysListView32",LVS_REPORT | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,15,19,117,125
-   CListCtrl* mfc13 = new CListCtrl(this);
-   CRect r13(CPoint(15,19),CSize(117,125));
-   MapDialogRect(&r13);
-   mfc13->Create(LVS_REPORT | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP | WS_VISIBLE,r13,this,IDC_TABLE);
-   mfcToQtWidget.insert(IDC_TABLE,mfc13);
-   QObject::connect(mfc13,SIGNAL(itemSelectionChanged()),this,SLOT(table_itemSelectionChanged()));
-   QObject::connect(mfc13,SIGNAL(cellClicked(int,int)),this,SLOT(table_cellClicked(int,int)));
-   QObject::connect(mfc13,SIGNAL(cellDoubleClicked(int,int)),this,SLOT(table_cellDoubleClicked(int,int)));
-//   CONTROL         "",IDC_SAMPLE_LIST,"SysListView32",LVS_REPORT | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,198,19,108,125
-   CListCtrl* mfc14 = new CListCtrl(this);
-   CRect r14(CPoint(198,19),CSize(108,125));
-   MapDialogRect(&r14);
-   mfc14->Create(LVS_REPORT | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP | WS_VISIBLE,r14,this,IDC_SAMPLE_LIST);
-   mfcToQtWidget.insert(IDC_SAMPLE_LIST,mfc14);
-   QObject::connect(mfc14,SIGNAL(itemSelectionChanged()),this,SLOT(sampleList_itemSelectionChanged()));
-   QObject::connect(mfc14,SIGNAL(cellClicked(int,int)),this,SLOT(sampleList_cellClicked(int,int)));
-   QObject::connect(mfc14,SIGNAL(cellDoubleClicked(int,int)),this,SLOT(sampleList_cellDoubleClicked(int,int)));
-//   CONTROL         "Loop",IDC_LOOP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,138,75,42,9
-   CButton* mfc15 = new CButton(this);
-   CRect r15(CPoint(138,75),CSize(42,9));
-   MapDialogRect(&r15);
-   mfc15->Create(_T("Loop"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r15,this,IDC_LOOP);
-   mfcToQtWidget.insert(IDC_LOOP,mfc15);
-   QObject::connect(mfc15,SIGNAL(clicked()),this,SLOT(loop_clicked()));
-//   PUSHBUTTON      "<-",IDC_ADD,138,130,42,14
-   CButton* mfc16 = new CButton(this);
-   CRect r16(CPoint(138,130),CSize(42,14));
-   MapDialogRect(&r16);
-   mfc16->Create(_T("<-"),WS_VISIBLE,r16,this,IDC_ADD);
-   mfcToQtWidget.insert(IDC_ADD,mfc16);
-   QObject::connect(mfc16,SIGNAL(clicked()),this,SLOT(add_clicked()));
-//   PUSHBUTTON      "->",IDC_REMOVE,138,146,42,14
-   CButton* mfc17 = new CButton(this);
-   CRect r17(CPoint(138,146),CSize(42,14));
-   MapDialogRect(&r17);
-   mfc17->Create(_T("->"),WS_VISIBLE,r17,this,IDC_REMOVE);
-   mfcToQtWidget.insert(IDC_REMOVE,mfc17);
-   QObject::connect(mfc15,SIGNAL(clicked()),this,SLOT(remove_clicked()));
-//   EDITTEXT        IDC_LOOP_POINT,138,106,42,13,ES_AUTOHSCROLL | NOT WS_VISIBLE
-   CEdit* mfc18 = new CEdit(this);
-   CRect r18(CPoint(138,106),CSize(42,13));
-   MapDialogRect(&r18);
-   mfc18->Create(ES_AUTOHSCROLL,r18,this,IDC_LOOP_POINT);
-   mfcToQtWidget.insert(IDC_LOOP_POINT,mfc18);
-   QObject::connect(mfc18,SIGNAL(textChanged(QString)),this,SLOT(loopPoint_textChanged(QString)));
-//   PUSHBUTTON      "Edit",IDC_EDIT,312,83,47,14
-   CButton* mfc19 = new CButton(this);
-   CRect r19(CPoint(312,83),CSize(47,14));
-   MapDialogRect(&r19);
-   mfc19->Create(_T("Edit"),WS_VISIBLE,r19,this,IDC_EDIT);
-   mfcToQtWidget.insert(IDC_EDIT,mfc19);
-   QObject::connect(mfc19,SIGNAL(clicked()),this,SLOT(edit_clicked()));
-//   PUSHBUTTON      "Preview",IDC_PREVIEW,312,99,47,14
-   CButton* mfc20 = new CButton(this);
-   CRect r20(CPoint(312,99),CSize(47,14));
-   MapDialogRect(&r20);
-   mfc20->Create(_T("Preview"),WS_VISIBLE,r20,this,IDC_PREVIEW);
-   mfcToQtWidget.insert(IDC_PREVIEW,mfc20);
-   QObject::connect(mfc20,SIGNAL(clicked()),this,SLOT(preview_clicked()));
-//   LTEXT           "Loop offset",IDC_STATIC,138,94,42,10,NOT WS_VISIBLE
-   CStatic* mfc21 = new CStatic(this);
-   CRect r21(CPoint(138,94),CSize(42,10));
-   MapDialogRect(&r21);
-   mfc21->Create(_T("Loop offset"),0,r21,this,IDC_STATIC);
-   // IDC_STATIC do not get added to MFC-to-Qt map.
 }
 
 CInstrumentEditorDPCM::~CInstrumentEditorDPCM()
@@ -389,16 +239,14 @@ BOOL CInstrumentEditorDPCM::OnInitDialog()
 	m_pTableListCtrl->InsertColumn(0, _T("Key"), LVCFMT_LEFT, 30);
 	m_pTableListCtrl->InsertColumn(1, _T("Pitch"), LVCFMT_LEFT, 35);
 	m_pTableListCtrl->InsertColumn(2, _T("Sample"), LVCFMT_LEFT, 90);
-   qDebug("CListCtrl::SendMessage");
-//	m_pTableListCtrl->SendMessage(LVM_SETEXTENDEDLISTVIEWSTYLE, 0, LVS_EX_FULLROWSELECT);
+	m_pTableListCtrl->SendMessage(LVM_SETEXTENDEDLISTVIEWSTYLE, 0, LVS_EX_FULLROWSELECT);
 
 	m_pSampleListCtrl = reinterpret_cast<CListCtrl*>(GetDlgItem(IDC_SAMPLE_LIST));
 	m_pSampleListCtrl->DeleteAllItems();
 	m_pSampleListCtrl->InsertColumn(0, _T("#"), LVCFMT_LEFT, 22);
 	m_pSampleListCtrl->InsertColumn(1, _T("Name"), LVCFMT_LEFT, 88);
 	m_pSampleListCtrl->InsertColumn(2, _T("Size"), LVCFMT_LEFT, 39);
-   qDebug("CListCtrl::SendMessage");
-//	m_pSampleListCtrl->SendMessage(LVM_SETEXTENDEDLISTVIEWSTYLE, 0, LVS_EX_FULLROWSELECT);
+	m_pSampleListCtrl->SendMessage(LVM_SETEXTENDEDLISTVIEWSTYLE, 0, LVS_EX_FULLROWSELECT);
 
 //	m_pSampleListCtrl->OnFile
 

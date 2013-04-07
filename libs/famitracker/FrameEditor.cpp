@@ -25,7 +25,6 @@
 #include "FamiTrackerView.h"
 #include "MainFrm.h"
 //#include "Accelerator.h"
-#include "ui_FrameEditor.h"
 #include "FrameEditor.h"
 #include "PatternEditor.h"
 #include "SoundGen.h"
@@ -42,7 +41,6 @@ IMPLEMENT_DYNAMIC(CFrameEditor, CWnd)
 
 CFrameEditor::CFrameEditor(CMainFrame *pMainFrm):
    CWnd(pMainFrm),
-   ui(new Ui::CFrameEditor),
 	m_iFirstChannel(0),
 	m_iFramesVisible(0),
 	m_bInputEnable(false),
@@ -50,8 +48,6 @@ CFrameEditor::CFrameEditor(CMainFrame *pMainFrm):
 	m_pDocument(NULL),
 	m_pView(NULL)
 {
-   ui->setupUi(this->toQWidget());
-   
 	memset(m_iCopiedValues, 0, MAX_CHANNELS * sizeof(int));
 }
 
@@ -154,13 +150,13 @@ void CFrameEditor::OnPaint()
 	unsigned int Height = WinRect.Height();
 
 	// Check if width has changed, delete objects then
-//	if (m_bmpBack.m_hObject != NULL) {
-//		CSize size = m_bmpBack.GetBitmapDimension();
-//		if (size.cx != Width) {
-//			m_bmpBack.DeleteObject();
-//			m_dcBack.DeleteDC();
-//		}
-//	}
+	if (m_bmpBack.m_hObject != NULL) {
+		CSize size = m_bmpBack.GetBitmapDimension();
+		if (size.cx != Width) {
+			m_bmpBack.DeleteObject();
+			m_dcBack.DeleteDC();
+		}
+	}
 
 	// Allocate object
 	if (m_dcBack.m_hDC == NULL) {

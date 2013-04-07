@@ -83,7 +83,6 @@ SOURCES += \
     FrameAction.cpp \
     FamiTrackerDoc.cpp \
     DocumentFile.cpp \
-    cmusicfamitrackerinstrumentsmodel.cpp \
     ChannelsVRC7.cpp \
     ChannelsVRC6.cpp \
     ChannelsS5B.cpp \
@@ -149,7 +148,8 @@ SOURCES += \
     SWLogo.cpp \
     WavProgressDlg.cpp \
     WaveFile.cpp \
-    ControlPanelDlg.cpp
+    ControlPanelDlg.cpp \
+    CustomControls.cpp
 
 HEADERS += \
     TrackerChannel.h \
@@ -171,7 +171,6 @@ HEADERS += \
     Compiler.h \
     Common.h \
     ColorScheme.h \
-    cmusicfamitrackerinstrumentsmodel.h \
     Chunk.h \
     ChannelsVRC7.h \
     ChannelsVRC6.h \
@@ -250,7 +249,8 @@ HEADERS += \
     SWLogo.h \
     WavProgressDlg.h \
     WaveFile.h \ 
-    ControlPanelDlg.h
+    ControlPanelDlg.h \
+    CustomControls.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN
@@ -291,9 +291,7 @@ unix:mac {
 OTHER_FILES += \
     famitracker-lib.pro
 
-FORMS += \
-    FrameEditor.ui \
-    MainFrm.ui  
+FORMS +=
 
 RESOURCES += \
     $$TOP/common/resource.qrc

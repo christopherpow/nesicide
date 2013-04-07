@@ -2,6 +2,7 @@
 #define CQTMFC_H
 
 #include <QApplication>
+#include <QMainWindow>
 #include <QAction>
 #include <QObject>
 #include <QWidget>
@@ -23,7 +24,7 @@
 #include <QScrollBar>
 #include <QEvent>
 #include <QList>
-#include <QMap>
+#include <QHash>
 #include <QPaintEvent>
 #include <QMouseEvent>
 #include <QKeyEvent>
@@ -65,8 +66,12 @@ enum
 {
    __UNDER_THE_HOOD_START = 0x8000000,
    
+   WM_SIZEPARENT,
+   WM_INITIALUPDATE,
+   
    IDC_STATIC,
 
+   AFX_IDW_PANE_FIRST,
    AFX_IDW_STATUS_BAR,
    ID_SEPARATOR,
    
@@ -205,6 +210,15 @@ enum
 
 #include <windows.h>
 
+// special struct for WM_SIZEPARENT
+struct AFX_SIZEPARENTPARAMS
+{
+//    HDWP hDWP;       // handle for DeferWindowPos
+    RECT rect;       // parent client rectangle (trim as appropriate)
+    SIZE sizeTotal;  // total size on each side as layout proceeds
+    BOOL bStretch;   // should stretch to fill all space
+};
+
 #if UNICODE
 #define _T(x) L##x
 #else
@@ -220,6 +234,8 @@ enum
 #define ATLTRACE2(a,b,str,...)
 #endif
 
+TCHAR* A2T(char* str);
+
 typedef int* POSITION;
 
 #define DECLARE_DYNCREATE(x) 
@@ -229,15 +245,28 @@ typedef int* POSITION;
 
 #define RUNTIME_CLASS(x) new x
 
+#define AFX_MSG_CALL 
+typedef struct
+{
+//   void( AFX_MSG_CALL CCmdTarget::* )( void ) 	pmf;
+//   CCmdTarget* 	pTarget;
+} AFX_CMDHANDLERINFO;
+
 #define afx_msg
 
 #define strcpy_s(d,l,s) wcsncpy(d,s,l)
 #if UNICODE
 #define _ttoi _wtoi
+#define _tstoi _wtoi
 #define _tcslen wcslen
+#define _tcscmp wcscmp
+#define _stscanf wscanf
 #else
 #define _ttoi atoi
+#define _tstoi atoi
 #define _tcslen strlen
+#define _tcscmp strcmp
+#define _stscanf sscanf
 #endif
 #ifdef QT_NO_DEBUG
 #define ASSERT(y)
@@ -259,10 +288,6 @@ int AFXAPI AfxMessageBox(
    UINT nType = MB_OK,
    UINT nIDHelp = (UINT) -1 
 );
-
-size_t strlen(const wchar_t* str);
-
-int _tstoi(TCHAR* str);
 
 int MulDiv(
   int nNumber,
@@ -319,14 +344,16 @@ public:
 
 class CCmdTarget : public CObject
 {
+public:
+   CCmdTarget() {}
+   virtual ~CCmdTarget() {}
+   virtual BOOL OnCmdMsg(
+      UINT nID,
+      int nCode,
+      void* pExtra,
+      AFX_CMDHANDLERINFO* pHandlerInfo 
+   );
 };
-
-#define AFX_MSG_CALL 
-typedef struct
-{
-//   void( AFX_MSG_CALL CCmdTarget::* )( void ) 	pmf;
-//   CCmdTarget* 	pTarget;
-} AFX_CMDHANDLERINFO;
 
 class CSyncObject
 {
@@ -652,12 +679,13 @@ public:
 class CGdiObject : public CObject
 {
 public:
-   CGdiObject() {}
+   CGdiObject() : m_hObject((HGDIOBJ)this) {}
    virtual ~CGdiObject() {}
    operator HGDIOBJ() const
    {
-      return (void*)this;
+      return m_hObject;
    }
+   HGDIOBJ m_hObject;
 };
 
 class CPen : public CGdiObject
@@ -719,6 +747,7 @@ public:
       int nWidth,
       int nHeight 
    );
+   CSize GetBitmapDimension( ) const;
    operator QPixmap() const
    {
       return *_qpixmap;
@@ -835,6 +864,7 @@ public:
    BOOL CreateCompatibleDC(
       CDC* pDC 
    );
+   BOOL DeleteDC( );
    BOOL DrawEdge(
       LPRECT lpRect,
       UINT nEdge,
@@ -886,10 +916,7 @@ public:
    );
    int GetDeviceCaps(
       int nIndex 
-   ) const
-   {
-      return 0;
-   }
+   ) const;
    BOOL GradientFill( 
       TRIVERTEX* pVertices, 
       ULONG nVertices, 
@@ -1120,7 +1147,18 @@ class CWnd : public QWidget, public CCmdTarget, public QtUIElement
 public:
    CWnd(CWnd* parent=0);
    virtual ~CWnd();
-
+   virtual LRESULT SendMessage(
+      UINT message,
+      WPARAM wParam = 0,
+      LPARAM lParam = 0 
+   );
+   void SendMessageToDescendants(
+      UINT message,
+      WPARAM wParam = 0,
+      LPARAM lParam = 0,
+      BOOL bDeep = TRUE,
+      BOOL bOnlyPerm = FALSE 
+   );
    BOOL IsWindowVisible( ) const;
    virtual BOOL EnableWindow(
       BOOL bEnable = TRUE 
@@ -1313,22 +1351,23 @@ public:
    
    // MFC-to-Qt conversions
 protected:
-   QMap<UINT_PTR,int> mfcToQtTimer;
-   QMap<int,UINT_PTR> qtToMfcTimer;
-   QMap<int,CWnd*> mfcToQtWidget;
+   QHash<UINT_PTR,int> mfcToQtTimer;
+   QHash<int,UINT_PTR> qtToMfcTimer;
+   QHash<int,CWnd*> mfcToQtWidget;
    static CFrameWnd* m_pFrameWnd;
    CWnd* m_pParentWnd;
    static CWnd* focusWnd;
    CScrollBar* mfcVerticalScrollBar;
    CScrollBar* mfcHorizontalScrollBar;
-   CDC* myDC;
+   CDC* _myDC;
 
    // Qt interfaces
 public:
+   QHash<int,CWnd*>* mfcToQtWidgetMap() { return &mfcToQtWidget; }
    void subclassWidget(int nID,CWnd* widget);
    void setParent(QWidget *parent) { _qt->setParent(parent); }
    void setParent(QWidget *parent, Qt::WindowFlags f) { _qt->setParent(parent,f); }   
-   void setGeometry(const QRect & rect) { _qt->setSizePolicy(QSizePolicy::Ignored,QSizePolicy::Ignored); _qt->setGeometry(rect); }
+   void setGeometry(const QRect & rect) { _qt->setGeometry(rect); }
    void setGeometry(int x, int y, int w, int h) { _qt->setGeometry(x,y,w,h); }
    const QRect &	geometry () const { return _qt->geometry(); }
    void setContentsMargins(int left, int top, int right, int bottom) { _qt->setContentsMargins(left,top,right,bottom); }
@@ -1347,6 +1386,8 @@ public slots:
    bool eventFilter(QObject *object, QEvent *event);
 protected:
    QWidget* _qt;
+   QGridLayout* _grid;
+   QFrame* _frame;
 public:
    HWND m_hWnd;
 };
@@ -1361,6 +1402,17 @@ class CFrameWnd : public CWnd
 public:
    CFrameWnd(CWnd* parent = 0);
    virtual ~CFrameWnd();
+   void InitialUpdateFrame(
+      CDocument* pDoc,
+      BOOL bMakeVisible 
+   );
+   virtual BOOL OnCmdMsg(
+      UINT nID,
+      int nCode,
+      void* pExtra,
+      AFX_CMDHANDLERINFO* pHandlerInfo 
+   );
+   void OnSize(UINT nType, int cx, int cy);
    virtual void SetMessageText(LPCTSTR fmt,...) { qDebug("SetMessageText"); }
    CView* GetActiveView( ) const { return m_pView; } // Only one view for SDI
    virtual CDocument* GetActiveDocument( ) { return m_pDocument; }   
@@ -1374,6 +1426,8 @@ public:
 protected:
    CView* m_pView;
    CDocument* m_pDocument;
+   BOOL m_bInRecalcLayout;
+   CRect m_rectBorder;
 };
 
 class CDocTemplate;
@@ -1469,8 +1523,8 @@ public:
    BOOL DestroyMenu( );
 private:
    QMenu* _qtd;
-   QMap<UINT_PTR,QAction*> mfcToQtMenu;
-   QMap<QAction*,UINT_PTR> qtToMfcMenu;
+   QHash<UINT_PTR,QAction*> mfcToQtMenu;
+   QHash<QAction*,UINT_PTR> qtToMfcMenu;
 };
 
 class CDialog : public CWnd
@@ -1479,10 +1533,12 @@ class CDialog : public CWnd
 public:
    QDialog* _qtd;
    bool _inited;
+   UINT _id;
 protected:
    
    // MFC interfaces
 public:
+   CDialog( );
    CDialog(int dlgID,CWnd* parent);
    virtual ~CDialog();
    void EndDialog(
@@ -1620,6 +1676,20 @@ public:
       const RECT& rect,
       CWnd* pParentWnd,
       UINT nID 
+   );
+   LRESULT SendMessage(
+      UINT message,
+      WPARAM wParam = 0,
+      LPARAM lParam = 0 
+   );
+   void SetSel(
+      DWORD dwSelection,
+      BOOL bNoScroll = FALSE 
+   );
+   void SetSel(
+      int nStartChar,
+      int nEndChar,
+      BOOL bNoScroll = FALSE 
    );
    BOOL EnableWindow(BOOL bEnable);
    void SetDlgItemInt(
@@ -2001,6 +2071,9 @@ public:
    int GetCurSel( ) const;
 };
 
+#define LVM_FIRST 0x1000
+#define LVM_SETEXTENDEDLISTVIEWSTYLE (LVM_FIRST+54)
+
 #define LVCFMT_LEFT 100
 
 #define LVIS_SELECTED 1
@@ -2031,6 +2104,9 @@ public:
 #define LVS_OWNERDRAWFIXED	0x400
 #define LVS_NOCOLUMNHEADER	0x4000
 #define LVS_NOSORTHEADER	0x8000
+#define LVS_EX_CHECKBOXES 4
+#define LVS_EX_FULLROWSELECT 32
+#define LVS_EX_GRIDLINES 1
 
 typedef struct tagNMLISTVIEW {
   NMHDR  hdr;
@@ -2054,6 +2130,20 @@ typedef struct tagNMITEMACTIVATE {
   LPARAM lParam;
   UINT   uKeyFlags;
 } NMITEMACTIVATE, *LPNMITEMACTIVATE;
+
+#define LVFI_PARAM   1
+#define LVFI_STRING  2
+#define LVFI_PARTIAL 8
+#define LVFI_WRAP    32
+#define LVFI_NEARESTXY       64
+
+typedef struct tagLVFINDINFO {
+  UINT flags;
+  LPCTSTR psz;
+  LPARAM lParam;
+  POINT pt;
+  UINT vkDirection;
+} LVFINDINFO, FAR* LPFINDINFO;
 
 class CListCtrl : public CWnd
 {
@@ -2081,6 +2171,24 @@ public:
       const RECT& rect,
       CWnd* pParentWnd,
       UINT nID 
+   );
+   LRESULT SendMessage(
+      UINT message,
+      WPARAM wParam = 0,
+      LPARAM lParam = 0 
+   );
+   int FindItem(
+      LVFINDINFO* pFindInfo,
+      int nStart = -1 
+   ) const;
+   BOOL SetBkColor(
+      COLORREF cr 
+   );
+   BOOL SetTextBkColor(
+      COLORREF cr 
+   );
+   BOOL SetTextColor(
+      COLORREF cr 
    );
    BOOL DeleteAllItems( );
    BOOL DeleteItem(
@@ -2345,6 +2453,11 @@ public:
       LPCTSTR lpszPathName,
       BOOL bMakeVisible = TRUE 
    ) = 0;
+   virtual void InitialUpdateFrame(
+      CFrameWnd* pFrame,
+      CDocument* pDoc,
+      BOOL bMakeVisible = TRUE 
+   );
    CDocument* m_pDoc;
    CView*     m_pView;
    CFrameWnd* m_pFrameWnd;
@@ -2373,6 +2486,8 @@ public:
    virtual CWnd * GetMainWnd( ) { return m_pMainWnd; }
 public:
    CFrameWnd* m_pMainWnd;
+   // Qt interfaces
+   QMainWindow* qtMainWindow;   
    
 protected:
    CDocTemplate* m_pDocTemplate;
@@ -2380,18 +2495,57 @@ protected:
 
 class CControlBar : public CWnd
 {
+public:
+   virtual CSize CalcFixedLayout(
+      BOOL bStretch,
+      BOOL bHorz 
+   );
 };
 
-#define CBRS_BOTTOM 0x1234
+#define CBRS_TOP      0x0001 // Control bar is at the top of the frame window.
+#define CBRS_BOTTOM   0x0002 //  Control bar is at the bottom of the frame window.
+#define CBRS_NOALIGN  0x0000 //   Control bar is not repositioned when the parent is resized.
+#define CBRS_LEFT     0x0004 // Control bar is at the left of the frame window.
+#define CBRS_RIGHT    0x0008 //  Control bar is at the right of the frame window.
+#define CBRS_FLYBY    0x0010
+#define CBRS_TOOLTIPS 0x0020 
+
+class CDialogBar : public CControlBar
+{
+   Q_OBJECT
+   // Qt interfaces
+protected:
+   CDialog*     _mfcd;
+   UINT _nStyle;
+public:
+   CDialogBar();
+   ~CDialogBar();
+   virtual BOOL Create(
+      CWnd* pParentWnd,
+      UINT nIDTemplate,
+      UINT nStyle,
+      UINT nID 
+   );
+   LRESULT SendMessage(
+      UINT message,
+      WPARAM wParam = 0,
+      LPARAM lParam = 0 
+   );
+   virtual CSize CalcFixedLayout(
+      BOOL bStretch,
+      BOOL bHorz 
+   );
+public:
+   CSize m_sizeDefault;
+};
 
 class CStatusBar : public CControlBar
 {
    // Qt interfaces
-public:
-   QMap<int,CStatic*> panes() { return _panes; }
 protected:
    QStatusBar* _qtd;
-   QMap<int,CStatic*> _panes;
+   QHash<int,CStatic*> _panes;
+   UINT _dwStyle;
    
    // MFC interfaces
 public:
@@ -2401,6 +2555,11 @@ public:
       CWnd* pParentWnd,
       DWORD dwStyle = WS_CHILD | WS_VISIBLE | CBRS_BOTTOM,
       UINT nID = AFX_IDW_STATUS_BAR 
+   );
+   LRESULT SendMessage(
+      UINT message,
+      WPARAM wParam = 0,
+      LPARAM lParam = 0 
    );
    BOOL SetIndicators(
       const UINT* lpIDArray,
@@ -2451,6 +2610,9 @@ int StretchDIBits(
   UINT iUsage,
   DWORD dwRop
 );
+
+CWinApp* AfxGetApp();
+CFrameWnd* AfxGetMainWnd();
 
 CString qtMfcStringResource(int id);
 

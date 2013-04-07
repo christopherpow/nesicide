@@ -22,9 +22,9 @@
 
 #include "cqtmfc.h"
 
-#include "cmusicfamitrackerinstrumentsmodel.h"
-
 #include "FamiTracker.h"
+#include "FamiTrackerDoc.h"
+#include "PatternData.h"
 
 // Paste modes
 enum {PASTE_MODE_NORMAL, PASTE_MODE_OVERWRITE, PASTE_MODE_MIX};
@@ -63,6 +63,12 @@ class CFamiTrackerView : public CView
    // Qt stuff
 protected:
    BOOL PostMessage(UINT message, WPARAM wParam = 0, LPARAM lParam = 0);
+   LRESULT SendMessage(
+      UINT message,
+      WPARAM wParam = 0,
+      LPARAM lParam = 0 
+   );
+   void resizeEvent(QResizeEvent *event);
    void wheelEvent(QWheelEvent *event);
    void mouseMoveEvent(QMouseEvent *event);
    void mousePressEvent(QMouseEvent *event);
@@ -74,7 +80,6 @@ protected:
    void focusInEvent(QFocusEvent *);
    void focusOutEvent(QFocusEvent *);
    void timerEvent(QTimerEvent *event);
-   QGridLayout* grid;
    
 public slots:
    void updateViews(long hint);

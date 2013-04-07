@@ -33,14 +33,6 @@ IMPLEMENT_DYNAMIC(CWavProgressDlg, CDialog)
 CWavProgressDlg::CWavProgressDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CWavProgressDlg::IDD, pParent)
 {
-//   IDD_WAVE_PROGRESS DIALOGEX 0, 0, 220, 111
-//       PUSHBUTTON      "Cancel",IDC_CANCEL,84,90,50,14
-//       CONTROL         "",IDC_PROGRESS_BAR,"msctls_progress32",WS_BORDER,7,65,206,12
-//       CTEXT           "Progress",IDC_PROGRESS_LBL,7,37,206,11
-//       CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,7,83,206,1
-//       CTEXT           "File",IDC_PROGRESS_FILE,7,7,206,18,SS_CENTERIMAGE
-//       CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,7,29,206,1
-//       CTEXT           "Progress",IDC_TIME,7,49,206,11
 }
 
 CWavProgressDlg::~CWavProgressDlg()

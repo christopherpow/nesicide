@@ -29,10 +29,6 @@ class CFamiTrackerView;
 
 // CFrameEditor
 
-namespace Ui {
-class CFrameEditor;
-}
-
 class CFrameEditor : public CWnd
 {
    Q_OBJECT
@@ -61,7 +57,6 @@ protected:
    void leaveEvent(QEvent *);
    
 private:
-   Ui::CFrameEditor *ui;
 	void CreateGdiObjects();
 
 public:

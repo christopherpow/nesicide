@@ -3,8 +3,6 @@
 
 #include <QMainWindow>
 
-#include "MainFrm.h"
-
 namespace Ui {
     class MainWindow;
 }
@@ -22,15 +20,13 @@ protected:
    void dragMoveEvent(QDragMoveEvent *event);
    void dropEvent(QDropEvent *event);
    void closeEvent(QCloseEvent *);
+   void resizeEvent(QResizeEvent *event);
    
 private:
     Ui::MainWindow *ui;
-    CMainFrame* m_pMainFrame;
 
 private slots:
     void on_actionExit_triggered();
-    void addStatusBarWidget(QWidget* widget);
-    void removeStatusBarWidget(QWidget* widget);
     void addToolBarWidget(QToolBar* toolBar);
     void removeToolBarWidget(QToolBar* toolBar);
     void editor_modificationChanged(bool m);

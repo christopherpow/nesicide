@@ -145,7 +145,7 @@ private:
 
 	// Overrides
 public:
-	virtual BOOL InitInstance();
+	virtual BOOL InitInstance(QMainWindow* parent);
 	virtual int ExitInstance();	
 
 	// Implementation

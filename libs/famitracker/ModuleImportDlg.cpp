@@ -31,51 +31,6 @@ IMPLEMENT_DYNAMIC(CModuleImportDlg, CDialog)
 CModuleImportDlg::CModuleImportDlg(CFamiTrackerDoc *pDoc)
 	: CDialog(CModuleImportDlg::IDD, NULL), m_pImportedDoc(NULL), m_pDocument(pDoc)
 {
-//   IDD_IMPORT DIALOGEX 0, 0, 161, 209
-   CRect rect(CPoint(0,0),CSize(161,209));
-   MapDialogRect(&rect);
-   setFixedSize(rect.Width(),rect.Height());
-
-//       GROUPBOX        "Tracks",IDC_STATIC,7,7,147,137
-   CGroupBox* mfc3 = new CGroupBox(this);
-   CRect r3(CPoint(7,7),CSize(147,137));
-   MapDialogRect(&r3);
-   mfc3->Create(_T("Tracks"),WS_VISIBLE,r3,this,IDC_STATIC);
-   // IDC_STATIC do not get added to MFC-to-Qt map.
-//       GROUPBOX        "Options",IDC_STATIC,7,148,147,29
-   CGroupBox* mfc6 = new CGroupBox(this);
-   CRect r6(CPoint(7,148),CSize(147,29));
-   MapDialogRect(&r6);
-   mfc6->Create(_T("Options"),WS_VISIBLE,r6,this,IDC_STATIC);
-   // IDC_STATIC do not get added to MFC-to-Qt map.
-//       DEFPUSHBUTTON   "OK",IDOK,51,188,50,14
-   CButton* mfc1 = new CButton(this);
-   CRect r1(CPoint(51,188),CSize(50,14));
-   MapDialogRect(&r1);
-   mfc1->Create(_T("OK"),BS_DEFPUSHBUTTON | WS_VISIBLE,r1,this,IDOK);
-   mfcToQtWidget.insert(IDOK,mfc1);
-   QObject::connect(mfc1,SIGNAL(clicked()),this,SLOT(ok_clicked()));
-//       PUSHBUTTON      "Cancel",IDCANCEL,104,188,50,14
-   CButton* mfc2 = new CButton(this);
-   CRect r2(CPoint(104,188),CSize(50,14));
-   MapDialogRect(&r2);
-   mfc2->Create(_T("Cancel"),WS_VISIBLE,r2,this,IDCANCEL);
-   mfcToQtWidget.insert(IDCANCEL,mfc2);
-   QObject::connect(mfc2,SIGNAL(clicked()),this,SLOT(cancel_clicked()));
-//       CONTROL         "Include instruments",IDC_INSTRUMENTS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,161,116,10
-   CButton* mfc4 = new CButton(this);
-   CRect r4(CPoint(14,161),CSize(116,10));
-   MapDialogRect(&r4);
-   mfc4->Create(_T("Include instruments"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r4,this,IDC_INSTRUMENTS);
-   mfcToQtWidget.insert(IDC_INSTRUMENTS,mfc4);
-//       CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,7,183,147,1
-   qDebug("horzline not implemented");
-//       CONTROL         "",IDC_TRACKS,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | LVS_NOCOLUMNHEADER | WS_BORDER | WS_TABSTOP,14,18,133,120
-   CListCtrl* mfc7 = new CListCtrl(this);
-   CRect r7(CPoint(14,18),CSize(133,120));
-   MapDialogRect(&r7);
-   mfc7->Create(LVS_REPORT | LVS_ALIGNLEFT | LVS_NOCOLUMNHEADER | WS_BORDER | WS_TABSTOP | WS_VISIBLE,r7,this,IDC_TRACKS);
-   mfcToQtWidget.insert(IDC_TRACKS,mfc7);
 }
 
 CModuleImportDlg::~CModuleImportDlg()
@@ -113,8 +68,7 @@ BOOL CModuleImportDlg::OnInitDialog()
 	CListCtrl *pList = (CListCtrl*) GetDlgItem(IDC_TRACKS);
 
 	pList->InsertColumn(0, _T("Name"), LVCFMT_LEFT, 190);
-   qDebug("CListCtrl::SendMessage not implemented");
-//	pList->SendMessage(LVM_SETEXTENDEDLISTVIEWSTYLE, 0, LVS_EX_FULLROWSELECT | LVS_EX_CHECKBOXES);
+	pList->SendMessage(LVM_SETEXTENDEDLISTVIEWSTYLE, 0, LVS_EX_FULLROWSELECT | LVS_EX_CHECKBOXES);
 
 	int TrackCount = m_pImportedDoc->GetTrackCount();
 	

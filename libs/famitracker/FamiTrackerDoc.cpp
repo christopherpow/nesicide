@@ -627,8 +627,7 @@ void CFamiTrackerDoc::OnEditRemoveUnusedInstruments()
 //		return;
 
 	// Current instrument might disappear
-   qDebug("CloseInstrumentEditor");
-//	pMainFrame->CloseInstrumentEditor();
+	pMainFrame->CloseInstrumentEditor();
 
 	for (int i = 0; i < MAX_INSTRUMENTS; ++i) {
 		if (IsInstrumentUsed(i)) {

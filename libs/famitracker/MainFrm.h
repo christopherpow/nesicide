@@ -12,14 +12,8 @@
 #include "PatternEditor.h"
 #include "Action.h"
 #include "InstrumentEditDlg.h"
-
-#include "cmusicfamitrackerinstrumentsmodel.h"
-
-#include <QTableView>
-
-namespace Ui {
-class CMainFrame;
-}
+#include "ControlPanelDlg.h"
+#include "CustomControls.h"
 
 class CMainFrame;
 typedef void (CMainFrame::*actionHandler)();
@@ -40,7 +34,6 @@ public:
    // Attributes
 public:
    CFrameEditor *GetFrameEditor() const;
-   void setFileName(QString fileName);
          
    // Operations
    public:
@@ -90,15 +83,19 @@ protected:
    void focusInEvent(QFocusEvent *);
    void showEvent(QShowEvent *);
    void hideEvent(QHideEvent *);
-   void resizeEvent(QResizeEvent *);
+   void resizeEvent(QResizeEvent *event);
    
+   bool	CreateToolbars();
+   bool	CreateDialogPanels();
    bool CreateSampleWindow();
    void	OpenInstrumentSettings();
    int		GetInstrumentIndex(int ListIndex) const;
+   int		FindInstrument(int Index) const;
 
+   void	SetFrameEditorPosition(int Position);
+   
 private:
    // Qt stuff
-   Ui::CMainFrame *ui;
    QTimer* idleTimer;
    QToolBar* toolBar;
    QLabel* octaveLabel;
@@ -108,7 +105,6 @@ private:
    CFamiTrackerDoc* m_pDocument;
    CFamiTrackerView* m_pView;
    CSampleWindow		*m_pSampleWindow;
-   CMusicFamiTrackerInstrumentsModel *instrumentsModel;
    QString m_fileName;
    bool initialized;
    CInstrumentEditDlg	m_wndInstEdit;
@@ -123,8 +119,29 @@ private:
 	int		m_iTrack;					// Selected track
 
    CFrameEditor		*m_pFrameEditor;
+   CListCtrl			*m_pInstrumentList;
+//   CToolBar			m_wndToolBar;
+//	CReBar				m_wndToolBarReBar;
+   CDialogBar			m_wndControlBar;	// Parent to frame editor and settings/instrument editor
+	CDialogBar			m_wndVerticalControlBar;	// Parent to large frame editor
+//	CControlPanelDlg	m_wndFrameBar;
+	CControlPanelDlg	m_wndDialogBar;
+
+	CControlPanelDlg	m_wndFrameControls;		// Contains +, - and change all
    
+   CLockedEdit			*m_pLockedEditSpeed;
+	CLockedEdit			*m_pLockedEditTempo;
+	CLockedEdit			*m_pLockedEditLength;
+	CLockedEdit			*m_pLockedEditFrames;
+	CLockedEdit			*m_pLockedEditStep;
+
+	CBannerEdit			*m_pBannerEditName;
+	CBannerEdit			*m_pBannerEditArtist;
+	CBannerEdit			*m_pBannerEditCopyright;
+
 public:
+   afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+	afx_msg void OnSize(UINT nType, int cx, int cy);
    afx_msg void OnModuleChannels();
    afx_msg void OnModuleModuleproperties();
    afx_msg void OnModuleInsertFrame();
@@ -186,8 +203,6 @@ public slots:
    void updateViews(long hint);
    
 signals:
-   void addStatusBarWidget(QWidget* widget);
-   void removeStatusBarWidget(QWidget* widget);
    void addToolBarWidget(QToolBar* toolBar);
    void removeToolBarWidget(QToolBar* toolBar);
    void editor_modificationChanged(bool m);

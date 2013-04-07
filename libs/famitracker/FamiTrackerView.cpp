@@ -193,6 +193,22 @@ BOOL CFamiTrackerView::PostMessage(
    return TRUE;
 }
 
+LRESULT CFamiTrackerView::SendMessage(
+   UINT message,
+   WPARAM wParam,
+   LPARAM lParam 
+)
+{
+   switch ( message )
+   {
+   case WM_INITIALUPDATE:
+      OnInitialUpdate();
+      break;
+   }
+   return 0;
+}
+
+
 // Convert keys 0-F to numbers, -1 = invalid key
 int ConvertKeyToHex(int Key) {
 
@@ -281,24 +297,9 @@ CFamiTrackerView::CFamiTrackerView(CWnd* parent) :
    
    m_pPatternView = new CPatternView();
    
-   CRect rect;
-   GetClientRect(&rect);
-   mfcHorizontalScrollBar = new CScrollBar(this);
-   mfcHorizontalScrollBar->Create(SBS_HORZ | SBS_BOTTOMALIGN | WS_CHILD | WS_VISIBLE, rect, this, 0);
-   mfcVerticalScrollBar = new CScrollBar(this);
-   mfcVerticalScrollBar->Create(SBS_VERT | SBS_RIGHTALIGN | WS_CHILD | WS_VISIBLE, rect, this, 0);
    QObject::connect(mfcHorizontalScrollBar,SIGNAL(actionTriggered(int)),this,SLOT(horizontalScrollBar_actionTriggered(int)));
    QObject::connect(mfcVerticalScrollBar,SIGNAL(actionTriggered(int)),this,SLOT(verticalScrollBar_actionTriggered(int)));
    
-   grid = new QGridLayout(this->toQWidget()); 
-   m_pPatternView->setGeometry(grid->geometry());
-   grid->addWidget(m_pPatternView);
-   grid->setContentsMargins(0,0,0,0);
-   grid->setHorizontalSpacing(0);
-   grid->setVerticalSpacing(0);
-   grid->addWidget(GetScrollBarCtrl(SB_HORZ)->toQWidget(),1,0);
-   grid->addWidget(GetScrollBarCtrl(SB_VERT)->toQWidget(),0,1);
-
    m_pPatternView->installEventFilter(this);
 }
 
@@ -306,14 +307,6 @@ CFamiTrackerView::~CFamiTrackerView()
 {
 	// Release allocated objects
 	SAFE_RELEASE(m_pPatternView);
-   
-   if ( mfcHorizontalScrollBar )
-      delete mfcHorizontalScrollBar;
-   if ( mfcVerticalScrollBar )
-      delete mfcVerticalScrollBar;
-   mfcHorizontalScrollBar = NULL;
-   mfcVerticalScrollBar = NULL;
-   delete grid;
 }
 
 bool CFamiTrackerView::eventFilter(QObject *object, QEvent *event)
@@ -357,8 +350,7 @@ bool CFamiTrackerView::eventFilter(QObject *object, QEvent *event)
       }
       if ( event->type() == QEvent::Paint )
       {
-         paintEvent(dynamic_cast<QPaintEvent*>(event));
-//         return true;
+         return false;
       }
    }
    return false;
@@ -474,7 +466,6 @@ void CFamiTrackerView::SetupColors()
 	// Color scheme has changed
 	m_pPatternView->ApplyColorScheme();
 	m_bUpdateBackground = true;
-   qDebug("SetupColors");
 	m_pPatternView->Invalidate(true);
 	RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_ERASE);
 ////	m_pFrameBoxWnd->RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_ERASE);
@@ -1135,7 +1126,7 @@ void CFamiTrackerView::OnInitialUpdate()
 	// Call OnUpdate
 	CView::OnInitialUpdate();
 	*/
-   
+
    QObject::connect(pDoc,SIGNAL(updateViews(long)),this,SLOT(updateViews(long)));
    QObject::connect(pDoc,SIGNAL(updateViews(long)),m_pPatternView,SLOT(updateViews(long)));
 }
@@ -1202,8 +1193,7 @@ void CFamiTrackerView::OnUpdate(CView* /*pSender*/, LPARAM lHint, CObject* /*pHi
 			break;
 		// Document is closing
 		case CLOSE_DOCUMENT:
-      qDebug("CloseInstrumentEditor");
-//			pMainFrm->CloseInstrumentEditor();
+			pMainFrm->CloseInstrumentEditor();
 			break;
 
 			// TODO: Remove these 
@@ -3494,6 +3484,11 @@ void CFamiTrackerView::keyReleaseEvent(QKeyEvent *event)
    
    OnKeyUp(nChar,nRepCnt,0);
    m_pPatternView->update();
+}
+
+void CFamiTrackerView::resizeEvent(QResizeEvent *event)
+{
+   m_pPatternView->resize(event->size());
 }
 
 void CFamiTrackerView::focusInEvent(QFocusEvent *)

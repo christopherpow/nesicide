@@ -46,67 +46,6 @@ CInstrumentEditor2A03::CInstrumentEditor2A03(CWnd* pParent)
 	m_pSequenceEditor(NULL),
 	m_iSelectedSetting(0)
 {
-//   IDD_INSTRUMENT_INTERNAL DIALOGEX 0, 0, 372, 172
-   CRect rect(CPoint(0,0),CSize(372,172));
-   MapDialogRect(&rect);
-   setFixedSize(rect.Width(),rect.Height());
-   
-//   GROUPBOX        "Sequence editor",IDC_STATIC,120,7,245,158
-   CGroupBox* mfc5 = new CGroupBox(this);
-   CRect r5(CPoint(120,7),CSize(245,158));
-   MapDialogRect(&r5);
-   mfc5->Create(_T("Sequence editor"),WS_VISIBLE,r5,this,IDC_STATIC);
-   // IDC_STATIC do not get added to MFC-to-Qt map.
-//   GROUPBOX        "Instrument settings",IDC_STATIC,7,7,107,158,0,WS_EX_TRANSPARENT
-   CGroupBox* mfc6 = new CGroupBox(this);
-   CRect r6(CPoint(7,7),CSize(107,158));
-   MapDialogRect(&r6);
-   mfc6->Create(_T("Instrument settings"),WS_VISIBLE,r6,this,IDC_STATIC);
-   // IDC_STATIC do not get added to MFC-to-Qt map.
-//   CONTROL         "",IDC_INSTSETTINGS,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,12,18,96,109,WS_EX_TRANSPARENT
-   CListCtrl* mfc1 = new CListCtrl(this);
-   CRect r1(CPoint(12,18),CSize(96,109));
-   MapDialogRect(&r1);
-   mfc1->Create(LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP | WS_VISIBLE,r1,this,IDC_INSTSETTINGS);
-   mfcToQtWidget.insert(IDC_INSTSETTINGS,mfc1);
-   QObject::connect(mfc1,SIGNAL(itemSelectionChanged()),this,SLOT(instSettings_itemSelectionChanged()));
-//   CONTROL         "Sequence #",IDC_STATIC,"Static",SS_LEFTNOWORDWRAP | SS_CENTERIMAGE | WS_GROUP,12,149,53,10,WS_EX_TRANSPARENT
-   CStatic* mfc2 = new CStatic(this);
-   CRect r2(CPoint(12,149),CSize(53,10));
-   MapDialogRect(&r2);
-   mfc2->Create(_T("Sequence #"),SS_LEFTNOWORDWRAP | SS_CENTERIMAGE | WS_GROUP | WS_VISIBLE,r2,this,IDC_STATIC);
-   // IDC_STATIC do not get added to MFC-to-Qt map.
-//   EDITTEXT        IDC_SEQ_INDEX,69,147,39,12,ES_AUTOHSCROLL | ES_NUMBER
-//   CONTROL         "",IDC_SEQUENCE_SPIN,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,66,153,11,9
-   // CP: Note, we fake a MFC "spin-box" separate control by placing it over it's "buddy" and connecting signals appropriately
-   // to mimic the buddy relationship.
-   CEdit* mfc3 = new CEdit(this);
-   CSpinButtonCtrl* mfc4 = new CSpinButtonCtrl(this);
-   CRect r3(CPoint(69,147),CSize(39,12));
-   CRect r4(CPoint(r3.right-11,r3.top),CSize(11,12));
-   MapDialogRect(&r3);
-   MapDialogRect(&r4);
-   mfc3->Create(ES_AUTOHSCROLL | ES_NUMBER | WS_VISIBLE,r3,this,IDC_SEQ_INDEX);
-   mfc3->setBuddy(mfc4);
-   mfcToQtWidget.insert(IDC_SEQ_INDEX,mfc3);
-   QObject::connect(mfc3,SIGNAL(textChanged(QString)),this,SLOT(seqIndex_textChanged(QString)));
-   mfc4->Create(UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r4,this,IDC_SEQUENCE_SPIN);
-   mfc4->setBuddy(mfc3);
-   mfcToQtWidget.insert(IDC_SEQUENCE_SPIN,mfc4);
-   QObject::connect(mfc4,SIGNAL(valueChanged(int)),this,SLOT(sequenceSpin_valueChanged(int)));   
-//   PUSHBUTTON      "Select next empty slot",IDC_FREE_SEQ,12,129,96,15
-   CButton* mfc7 = new CButton(this);
-   CRect r7(CPoint(12,129),CSize(96,15));
-   MapDialogRect(&r7);
-   mfc7->Create(_T("Select next empty slot"),WS_VISIBLE,r7,this,IDC_FREE_SEQ);
-   mfcToQtWidget.insert(IDC_FREE_SEQ,mfc7);
-   QObject::connect(mfc7,SIGNAL(clicked()),this,SLOT(freeSeq_clicked()));
-//   EDITTEXT        IDC_SEQUENCE_STRING,126,149,232,13,ES_AUTOHSCROLL
-   CEdit* mfc8 = new CEdit(this);
-   CRect r8(CPoint(126,149),CSize(232,13));
-   MapDialogRect(&r8);
-   mfc8->Create(ES_AUTOHSCROLL | WS_VISIBLE,r8,this,IDC_SEQUENCE_STRING);
-   mfcToQtWidget.insert(IDC_SEQUENCE_STRING,mfc8);
 }
 
 CInstrumentEditor2A03::~CInstrumentEditor2A03()
@@ -173,8 +112,7 @@ BOOL CInstrumentEditor2A03::OnInitDialog()
 	pList->InsertColumn(0, _T(""), LVCFMT_LEFT, 26);
 	pList->InsertColumn(1, _T("#"), LVCFMT_LEFT, 30);
 	pList->InsertColumn(2, _T("Effect name"), LVCFMT_LEFT, 84);
-   qDebug("CListCtrl::SendMessage");
-//	pList->SendMessage(LVM_SETEXTENDEDLISTVIEWSTYLE, 0, LVS_EX_FULLROWSELECT | LVS_EX_CHECKBOXES);
+	pList->SendMessage(LVM_SETEXTENDEDLISTVIEWSTYLE, 0, LVS_EX_FULLROWSELECT | LVS_EX_CHECKBOXES);
 
 	for (int i = 0; i < CInstrument2A03::SEQUENCE_COUNT; ++i) {
 		pList->InsertItem(i, _T(""), 0);

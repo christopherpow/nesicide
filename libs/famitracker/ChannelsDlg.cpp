@@ -61,68 +61,6 @@ IMPLEMENT_DYNAMIC(CChannelsDlg, CDialog)
 CChannelsDlg::CChannelsDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CChannelsDlg::IDD, pParent)
 {
-//   IDD_CHANNELS DIALOGEX 0, 0, 303, 236
-   CRect rect(CPoint(0,0),CSize(303,236));
-   MapDialogRect(&rect);
-   setFixedSize(rect.Width(),rect.Height());
-
-//       GROUPBOX        "Available channels",IDC_STATIC,7,7,138,197
-   CGroupBox* mfc6 = new CGroupBox(this);
-   CRect r6(CPoint(7,7),CSize(138,197));
-   MapDialogRect(&r6);
-   mfc6->Create(_T("Available channels"),WS_VISIBLE,r6,this,IDC_STATIC);
-   // IDC_STATIC do not get added to MFC-to-Qt map.
-//       GROUPBOX        "Added channels",IDC_STATIC,151,7,145,197
-   CGroupBox* mfc7 = new CGroupBox(this);
-   CRect r7(CPoint(151,7),CSize(145,197));
-   MapDialogRect(&r7);
-   mfc7->Create(_T("Added channels"),WS_VISIBLE,r7,this,IDC_STATIC);
-   // IDC_STATIC do not get added to MFC-to-Qt map.
-//       DEFPUSHBUTTON   "OK",IDOK,194,215,50,14
-   CButton* mfc1 = new CButton(this);
-   CRect r1(CPoint(194,215),CSize(50,14));
-   MapDialogRect(&r1);
-   mfc1->Create(_T("OK"),BS_DEFPUSHBUTTON | WS_VISIBLE,r1,this,IDOK);
-   mfcToQtWidget.insert(IDOK,mfc1);
-   QObject::connect(mfc1,SIGNAL(clicked()),this,SLOT(ok_clicked()));
-//       PUSHBUTTON      "Cancel",IDCANCEL,246,215,50,14
-   CButton* mfc2 = new CButton(this);
-   CRect r2(CPoint(246,215),CSize(50,14));
-   MapDialogRect(&r2);
-   mfc2->Create(_T("Cancel"),WS_VISIBLE,r2,this,IDCANCEL);
-   mfcToQtWidget.insert(IDCANCEL,mfc2);
-   QObject::connect(mfc2,SIGNAL(clicked()),this,SLOT(cancel_clicked()));
-//       PUSHBUTTON      "Move up",IDC_MOVE_UP,7,215,50,14
-   CButton* mfc3 = new CButton(this);
-   CRect r3(CPoint(7,215),CSize(50,14));
-   MapDialogRect(&r3);
-   mfc3->Create(_T("Move up"),WS_VISIBLE,r3,this,IDC_MOVE_UP);
-   mfcToQtWidget.insert(IDC_MOVE_UP,mfc3);
-   QObject::connect(mfc3,SIGNAL(clicked()),this,SLOT(moveUp_clicked()));
-//       PUSHBUTTON      "Move down",IDC_MOVE_DOWN,62,215,50,14
-   CButton* mfc4 = new CButton(this);
-   CRect r4(CPoint(62,215),CSize(50,14));
-   MapDialogRect(&r4);
-   mfc4->Create(_T("Move down"),WS_VISIBLE,r4,this,IDC_MOVE_DOWN);
-   mfcToQtWidget.insert(IDC_MOVE_DOWN,mfc4);
-   QObject::connect(mfc4,SIGNAL(clicked()),this,SLOT(moveDown_clicked()));
-//       CONTROL         "",IDC_ADDED_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOCOLUMNHEADER | WS_BORDER | WS_TABSTOP,159,17,129,181
-   CListCtrl* mfc5 = new CListCtrl(this);
-   CRect r5(CPoint(159,17),CSize(129,181));
-   MapDialogRect(&r5);
-   mfc5->Create(LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOCOLUMNHEADER | WS_BORDER | WS_TABSTOP | WS_VISIBLE,r5,this,IDC_ADDED_LIST);
-   mfcToQtWidget.insert(IDC_ADDED_LIST,mfc5);
-   QObject::connect(mfc5,SIGNAL(cellDoubleClicked(int,int)),this,SLOT(addedList_cellDoubleClicked(int,int)));
-//       CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,7,209,289,1
-   qDebug("Static horz line...");
-//       CONTROL         "",IDC_AVAILABLE_TREE,"SysTreeView32",TVS_HASBUTTONS | TVS_HASLINES | TVS_LINESATROOT | WS_BORDER | WS_HSCROLL | WS_TABSTOP,14,17,122,181
-   CTreeCtrl* mfc8 = new CTreeCtrl(this);
-   CRect r8(CPoint(14,17),CSize(122,181));
-   MapDialogRect(&r8);
-   mfc8->Create(TVS_HASBUTTONS | TVS_HASLINES | TVS_LINESATROOT | WS_BORDER | WS_HSCROLL | WS_TABSTOP | WS_VISIBLE,r8,this,IDC_AVAILABLE_TREE);
-   mfcToQtWidget.insert(IDC_AVAILABLE_TREE,mfc8);
-   QObject::connect(mfc8,SIGNAL(itemClicked(QTreeWidgetItem*,int)),this,SLOT(availableTree_itemClicked(QTreeWidgetItem*,int)));
-   QObject::connect(mfc8,SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)),this,SLOT(availableTree_itemDoubleClicked(QTreeWidgetItem*,int)));
 }
 
 CChannelsDlg::~CChannelsDlg()

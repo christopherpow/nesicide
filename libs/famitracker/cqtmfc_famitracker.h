@@ -3,12 +3,14 @@
 
 #include "cqtmfc.h"
 
-extern QMap<int,CString> qtMfcStringResources;
+extern QHash<int,CString> qtMfcStringResources;
 
-extern QMap<int,CMenu> qtMfcMenuResources;
+extern QHash<int,CMenu> qtMfcMenuResources;
 
-extern QMap<int,CBitmap> qtMfcBitmapResources;
+extern QHash<int,CBitmap> qtMfcBitmapResources;
 
 void qtMfcInit();
+
+void qtMfcInitDialogResource(UINT dlgID,CDialog* parent);
 
 #endif // CQTMFC_FAMITRACKER_H
