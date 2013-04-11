@@ -2836,23 +2836,15 @@ CWnd::CWnd(CWnd *parent)
 {
    if ( parent )
    {
-//      _frame = new QFrame(parent->toQWidget());      
-//      _grid = new QGridLayout(_frame);
-//      _qt = new QWidget;
-//      _grid->addWidget(_qt,0,0);
-//      _qt = _frame;
       _qt = new QWidget(parent->toQWidget());
    }
    else
    {
-//      _frame = new QFrame;      
-//      _grid = new QGridLayout(_frame);
-//      _qt = new QWidget;
-//      _grid->addWidget(_qt,0,0);
-//      _qt = _frame;
       _qt = new QWidget;
    }
    _grid = new QGridLayout;
+   _grid->setContentsMargins(0,0,0,0);
+   _grid->setSpacing(0);
    _qt->setLayout(_grid);
 
    _myDC = new CDC(this);
@@ -2871,13 +2863,14 @@ CWnd::~CWnd()
    mfcVerticalScrollBar = NULL;
    mfcHorizontalScrollBar = NULL;
 
-//   delete _grid;
 //   delete _frame;
    delete _myDC;
 
    if ( _qt )
       delete _qt;
    _qt = NULL;   
+//   if ( _grid )
+//      delete _grid;
 }
 
 CDC* CWnd::GetDC() 
@@ -3047,12 +3040,6 @@ BOOL CWnd::CreateEx(
 //      _frame->setFrameShape(QFrame::StyledPanel);
 //      _frame->setLineWidth(1);
 //   }
-   if ( (createStruct.style&WS_VSCROLL) ||
-        (createStruct.style&WS_HSCROLL) )
-   {
-      _grid->setContentsMargins(0,0,0,0);
-      _grid->setSpacing(0);
-   }
    if ( createStruct.style&WS_VSCROLL )
    {
       mfcVerticalScrollBar = new CScrollBar(this);
@@ -3470,6 +3457,7 @@ CFrameWnd::CFrameWnd(CWnd *parent)
    QGridLayout* gridLayout = _grid;
    
    gridLayout->setSpacing(0);
+   gridLayout->setMargin(0);
    gridLayout->setContentsMargins(0, 0, 0, 0);
    gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
    cbrsBottom = new QVBoxLayout();

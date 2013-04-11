@@ -162,7 +162,6 @@ void CMainFrame::showEvent(QShowEvent *)
       
       m_pView->GetPatternView()->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::MinimumExpanding));
       m_pView->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::MinimumExpanding));
-//      realCentralWidget->addWidget(m_pView->toQWidget());
    
       m_pView->setFocusPolicy(Qt::StrongFocus);
       m_pFrameEditor->setFocusPolicy(Qt::StrongFocus);
