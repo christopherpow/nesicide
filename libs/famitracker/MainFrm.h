@@ -109,6 +109,7 @@ private:
    bool initialized;
    CInstrumentEditDlg	m_wndInstEdit;
    CStatusBar			m_wndStatusBar;
+   CToolBar			m_wndInstToolBar;
 
    CActionHandler* m_pActionHandler;
    int					m_iFrameEditorPos;
@@ -120,7 +121,7 @@ private:
 
    CFrameEditor		*m_pFrameEditor;
    CListCtrl			*m_pInstrumentList;
-//   CToolBar			m_wndToolBar;
+   CToolBar			m_wndToolBar;
 //	CReBar				m_wndToolBarReBar;
    CDialogBar			m_wndControlBar;	// Parent to frame editor and settings/instrument editor
 	CDialogBar			m_wndVerticalControlBar;	// Parent to large frame editor

@@ -73,6 +73,7 @@ enum
 
    AFX_IDW_PANE_FIRST,
    AFX_IDW_STATUS_BAR,
+   AFX_IDW_TOOLBAR,
    ID_SEPARATOR,
    
 //   STRINGTABLE 
@@ -1291,7 +1292,7 @@ public:
       CDataExchange* pDX 
    ) {}   
    CWnd* GetParent() { return m_pParentWnd?(CWnd*)m_pParentWnd:(CWnd*)m_pFrameWnd; }
-   void SetParent(CWnd* parent) { m_pParentWnd = parent; }
+   void SetParent(CWnd* parent) { m_pParentWnd = parent; _qt->setParent(parent->toQWidget()); }
    void GetWindowText(
       CString& rString 
    ) const;
@@ -1397,6 +1398,8 @@ class CDocument;
 class CFrameWnd : public CWnd
 {
    // Qt interfaces
+public:
+   void addControlBar(int area,QWidget* bar);
    
    // MFC interfaces
 public:
@@ -1425,6 +1428,11 @@ public:
    
 protected:
    CView* m_pView;
+   QHBoxLayout* cbrsLeft;
+   QHBoxLayout* cbrsRight;
+   QVBoxLayout* cbrsTop;
+   QVBoxLayout* cbrsBottom;
+   QGridLayout* realCentralWidget;
    CDocument* m_pDocument;
    BOOL m_bInRecalcLayout;
    CRect m_rectBorder;
@@ -2484,6 +2492,7 @@ public:
       LPCTSTR lpszCursorName  
    ) const;
    virtual CWnd * GetMainWnd( ) { return m_pMainWnd; }
+   afx_msg void OnFileNew( );
 public:
    CFrameWnd* m_pMainWnd;
    // Qt interfaces
@@ -2492,6 +2501,16 @@ public:
 protected:
    CDocTemplate* m_pDocTemplate;
 };
+
+#define CBRS_TOP      0x0001 // Control bar is at the top of the frame window.
+#define CBRS_ALIGN_TOP CBRS_TOP
+#define CBRS_BOTTOM   0x0002 //  Control bar is at the bottom of the frame window.
+#define CBRS_NOALIGN  0x0000 //   Control bar is not repositioned when the parent is resized.
+#define CBRS_LEFT     0x0004 // Control bar is at the left of the frame window.
+#define CBRS_RIGHT    0x0008 //  Control bar is at the right of the frame window.
+#define CBRS_FLYBY    0x0010
+#define CBRS_TOOLTIPS 0x0020 
+#define CBRS_SIZE_DYNAMIC 0x2000
 
 class CControlBar : public CWnd
 {
@@ -2502,13 +2521,59 @@ public:
    );
 };
 
-#define CBRS_TOP      0x0001 // Control bar is at the top of the frame window.
-#define CBRS_BOTTOM   0x0002 //  Control bar is at the bottom of the frame window.
-#define CBRS_NOALIGN  0x0000 //   Control bar is not repositioned when the parent is resized.
-#define CBRS_LEFT     0x0004 // Control bar is at the left of the frame window.
-#define CBRS_RIGHT    0x0008 //  Control bar is at the right of the frame window.
-#define CBRS_FLYBY    0x0010
-#define CBRS_TOOLTIPS 0x0020 
+#define TBSTYLE_BUTTON       0
+#define TBSTYLE_SEP  1
+#define TBSTYLE_CHECK        2
+#define TBSTYLE_GROUP        4
+#define TBSTYLE_CHECKGROUP   (TBSTYLE_GROUP|TBSTYLE_CHECK)
+#define TBSTYLE_DROPDOWN     8
+#define TBSTYLE_AUTOSIZE     16
+#define TBSTYLE_NOPREFIX     32
+#define TBSTYLE_TOOLTIPS     256
+#define TBSTYLE_WRAPABLE     512
+#define TBSTYLE_ALTDRAG      1024
+#define TBSTYLE_FLAT 2048
+#define TBSTYLE_LIST 4096
+#define TBSTYLE_CUSTOMERASE 8192
+#define TBSTYLE_REGISTERDROP 0x4000
+#define TBSTYLE_TRANSPARENT  0x8000
+#define TBSTYLE_EX_DRAWDDARROWS      0x00000001
+#define TBSTYLE_EX_MIXEDBUTTONS 8
+#define TBSTYLE_EX_HIDECLIPPEDBUTTONS 16
+#define TBSTYLE_EX_DOUBLEBUFFER      0x80
+
+class CToolBar : public CControlBar
+{
+   // Qt interfaces
+protected:
+   QToolBar* _qtd;
+   UINT _dwStyle;
+   
+   // MFC interfaces
+public:
+   CToolBar(CWnd* parent = 0);
+   virtual ~CToolBar();
+   virtual BOOL CreateEx(
+      CWnd* pParentWnd,
+      DWORD dwCtrlStyle = TBSTYLE_FLAT,
+      DWORD dwStyle = WS_CHILD | WS_VISIBLE | CBRS_ALIGN_TOP,
+      CRect rcBorders = CRect(
+      0,
+      0,
+      0,
+      0
+   ),
+      UINT nID = AFX_IDW_TOOLBAR
+   );
+   LRESULT SendMessage(
+      UINT message,
+      WPARAM wParam = 0,
+      LPARAM lParam = 0 
+   );
+   BOOL LoadToolBar(
+      UINT nIDResource 
+   );
+};
 
 class CDialogBar : public CControlBar
 {

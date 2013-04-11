@@ -66,11 +66,6 @@ void MainWindow::editor_modificationChanged(bool m)
 {
 }
 
-void MainWindow::resizeEvent(QResizeEvent *event)
-{
-   ((CMainFrame*)theApp.m_pMainWnd)->OnSize(0,event->size().width(),event->size().height());
-}
-
 void MainWindow::dragEnterEvent(QDragEnterEvent *event)
 {
    if ( event->mimeData()->hasUrls() )

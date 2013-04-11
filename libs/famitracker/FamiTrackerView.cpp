@@ -297,10 +297,9 @@ CFamiTrackerView::CFamiTrackerView(CWnd* parent) :
    
    m_pPatternView = new CPatternView();
    
-   QObject::connect(mfcHorizontalScrollBar,SIGNAL(actionTriggered(int)),this,SLOT(horizontalScrollBar_actionTriggered(int)));
-   QObject::connect(mfcVerticalScrollBar,SIGNAL(actionTriggered(int)),this,SLOT(verticalScrollBar_actionTriggered(int)));
-   
    m_pPatternView->installEventFilter(this);
+   m_pPatternView->setMouseTracking(true);
+   _grid->addWidget(m_pPatternView,0,0);
 }
 
 CFamiTrackerView::~CFamiTrackerView()
@@ -350,7 +349,8 @@ bool CFamiTrackerView::eventFilter(QObject *object, QEvent *event)
       }
       if ( event->type() == QEvent::Paint )
       {
-         return false;
+         viewPaintEvent(dynamic_cast<QPaintEvent*>(event));
+         return true;
       }
    }
    return false;
@@ -788,6 +788,9 @@ int CFamiTrackerView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	// Install a timer for scrolling, 30ms
 //	SetTimer(TMR_SCROLL, 30, NULL);
+   
+   QObject::connect(mfcHorizontalScrollBar,SIGNAL(actionTriggered(int)),this,SLOT(horizontalScrollBar_actionTriggered(int)));
+   QObject::connect(mfcVerticalScrollBar,SIGNAL(actionTriggered(int)),this,SLOT(verticalScrollBar_actionTriggered(int)));
 
 	return 0;
 }
@@ -3486,9 +3489,16 @@ void CFamiTrackerView::keyReleaseEvent(QKeyEvent *event)
    m_pPatternView->update();
 }
 
-void CFamiTrackerView::resizeEvent(QResizeEvent *event)
+void CFamiTrackerView::viewPaintEvent(QPaintEvent *event)
 {
-   m_pPatternView->resize(event->size());
+   // Qt attach to the MFC HLE.  This object is already QWidget type.
+   CDC dc;
+   dc.attach(m_pPatternView);
+
+   OnEraseBkgnd(&dc);
+   OnDraw(&dc);
+
+   // dc will auto-detach on destruction
 }
 
 void CFamiTrackerView::focusInEvent(QFocusEvent *)

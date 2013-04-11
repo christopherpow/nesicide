@@ -68,7 +68,7 @@ protected:
       WPARAM wParam = 0,
       LPARAM lParam = 0 
    );
-   void resizeEvent(QResizeEvent *event);
+   void viewPaintEvent(QPaintEvent *event);
    void wheelEvent(QWheelEvent *event);
    void mouseMoveEvent(QMouseEvent *event);
    void mousePressEvent(QMouseEvent *event);

@@ -159,6 +159,10 @@ void CMainFrame::showEvent(QShowEvent *)
       m_pView->setParent(toQWidget());
       m_pView->GetPatternView()->setVisible(true);
       m_pView->setVisible(true);
+      
+      m_pView->GetPatternView()->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::MinimumExpanding));
+      m_pView->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::MinimumExpanding));
+//      realCentralWidget->addWidget(m_pView->toQWidget());
    
       m_pView->setFocusPolicy(Qt::StrongFocus);
       m_pFrameEditor->setFocusPolicy(Qt::StrongFocus);
@@ -471,7 +475,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 //	UpdateMenus();
 
 	// Setup saved frame editor position
-	SetFrameEditorPosition(theApp.GetSettings()->FrameEditPos);
+   SetFrameEditorPosition(theApp.GetSettings()->FrameEditPos);
 
 #ifdef _DEBUG
 	m_strTitle.Append(" [DEBUG]");
@@ -910,7 +914,8 @@ void CMainFrame::ResizeFrameWindow()
 			m_wndFrameControls.MoveWindow(SX(10), SY(Height) + SY(21), SX(150), SY(26));
 		}
 		// Located to the left
-		else {
+		else 
+      {
 			// Frame editor window
 			CRect rect;
 			m_wndVerticalControlBar.GetClientRect(&rect);
@@ -954,12 +959,12 @@ bool CMainFrame::CreateToolbars()
 {
 //	REBARBANDINFO rbi1;
 
-//	// Add the toolbar
-//	if (!m_wndToolBar.CreateEx(this, TBSTYLE_FLAT | TBSTYLE_TRANSPARENT, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC) ||
-//		!m_wndToolBar.LoadToolBar(IDR_MAINFRAME))  {
-//		TRACE0("Failed to create toolbar\n");
-//		return false;      // fail to create
-//	}
+	// Add the toolbar
+	if (!m_wndToolBar.CreateEx(this, TBSTYLE_FLAT | TBSTYLE_TRANSPARENT, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC) ||
+		!m_wndToolBar.LoadToolBar(IDR_MAINFRAME))  {
+		TRACE0("Failed to create toolbar\n");
+		return false;      // fail to create
+	}
 
 //	m_wndToolBar.SetBarStyle(CBRS_ALIGN_TOP | CBRS_SIZE_DYNAMIC | CBRS_TOOLTIPS | CBRS_FLYBY);
 
@@ -1055,17 +1060,17 @@ bool CMainFrame::CreateDialogPanels()
 	m_wndDialogBar.ShowWindow(SW_SHOW);
 
 	// Subclass edit boxes
-	m_pLockedEditSpeed	= new CLockedEdit();
-	m_pLockedEditTempo	= new CLockedEdit();
-	m_pLockedEditLength = new CLockedEdit();
-	m_pLockedEditFrames = new CLockedEdit();
-	m_pLockedEditStep	= new CLockedEdit();
+//	m_pLockedEditSpeed	= new CLockedEdit();
+//	m_pLockedEditTempo	= new CLockedEdit();
+//	m_pLockedEditLength = new CLockedEdit();
+//	m_pLockedEditFrames = new CLockedEdit();
+//	m_pLockedEditStep	= new CLockedEdit();
 
-	m_pLockedEditSpeed->SubclassDlgItem(IDC_SPEED, &m_wndDialogBar);
-	m_pLockedEditTempo->SubclassDlgItem(IDC_TEMPO, &m_wndDialogBar);
-	m_pLockedEditLength->SubclassDlgItem(IDC_ROWS, &m_wndDialogBar);
-	m_pLockedEditFrames->SubclassDlgItem(IDC_FRAMES, &m_wndDialogBar);
-	m_pLockedEditStep->SubclassDlgItem(IDC_KEYSTEP, &m_wndDialogBar);
+//	m_pLockedEditSpeed->SubclassDlgItem(IDC_SPEED, &m_wndDialogBar);
+//	m_pLockedEditTempo->SubclassDlgItem(IDC_TEMPO, &m_wndDialogBar);
+//	m_pLockedEditLength->SubclassDlgItem(IDC_ROWS, &m_wndDialogBar);
+//	m_pLockedEditFrames->SubclassDlgItem(IDC_FRAMES, &m_wndDialogBar);
+//	m_pLockedEditStep->SubclassDlgItem(IDC_KEYSTEP, &m_wndDialogBar);
 
 	// Subclass and setup the instrument list
 	m_pInstrumentList = new CInstrumentList(this);
@@ -1088,13 +1093,13 @@ bool CMainFrame::CreateDialogPanels()
 	m_pInstrumentList->SendMessage(LVM_SETEXTENDEDLISTVIEWSTYLE, 0, LVS_EX_FULLROWSELECT);
 
 	// Title, author & copyright
-	m_pBannerEditName = new CBannerEdit(CString(_T("(title)")));
-	m_pBannerEditArtist = new CBannerEdit(CString(_T("(author)")));
-	m_pBannerEditCopyright = new CBannerEdit(CString(_T("(copyright)")));
+//	m_pBannerEditName = new CBannerEdit(CString(_T("(title)")));
+//	m_pBannerEditArtist = new CBannerEdit(CString(_T("(author)")));
+//	m_pBannerEditCopyright = new CBannerEdit(CString(_T("(copyright)")));
 
-	m_pBannerEditName->SubclassDlgItem(IDC_SONG_NAME, &m_wndDialogBar);
-	m_pBannerEditArtist->SubclassDlgItem(IDC_SONG_ARTIST, &m_wndDialogBar);
-	m_pBannerEditCopyright->SubclassDlgItem(IDC_SONG_COPYRIGHT, &m_wndDialogBar);
+//	m_pBannerEditName->SubclassDlgItem(IDC_SONG_NAME, &m_wndDialogBar);
+//	m_pBannerEditArtist->SubclassDlgItem(IDC_SONG_ARTIST, &m_wndDialogBar);
+//	m_pBannerEditCopyright->SubclassDlgItem(IDC_SONG_COPYRIGHT, &m_wndDialogBar);
 
 	// New instrument editor
 

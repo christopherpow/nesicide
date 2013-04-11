@@ -20,7 +20,6 @@ protected:
    void dragMoveEvent(QDragMoveEvent *event);
    void dropEvent(QDropEvent *event);
    void closeEvent(QCloseEvent *);
-   void resizeEvent(QResizeEvent *event);
    
 private:
     Ui::MainWindow *ui;

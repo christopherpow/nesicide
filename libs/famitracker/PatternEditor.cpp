@@ -95,15 +95,15 @@ void CPatternView::leaveEvent(QEvent *)
 
 void CPatternView::paintEvent(QPaintEvent *event)
 {
-   // Qt attach to the MFC HLE.  This object is already QWidget type.
-   CDC dc;
-   dc.attach(this);
+//   // Qt attach to the MFC HLE.  This object is already QWidget type.
+//   CDC dc;
+//   dc.attach(this);
 
-   CreateBackground(&dc,true);
+//   CreateBackground(&dc,true);
    
-   DrawScreen(&dc,m_pView);
+//   DrawScreen(&dc,m_pView);
 
-   // dc will auto-detach on destruction
+//   // dc will auto-detach on destruction
 }
 
 void CPatternView::updateViews(long hint)
@@ -853,8 +853,8 @@ void CPatternView::DrawUnbufferedArea(CDC *pDC)
 	//
 
 	if (m_iVisibleWidth < m_iWinWidth) {
-
-		int Width = m_iWinWidth - m_iVisibleWidth - ROW_COL_WIDTH - ((m_iPatternLength > 1) ? GetSystemMetrics(SM_CXVSCROLL) : 0) - 1;
+   //                                                            the commented out adjustment below is handled by the grid layout
+		int Width = m_iWinWidth - m_iVisibleWidth - ROW_COL_WIDTH /*- ((m_iPatternLength > 1) ? GetSystemMetrics(SM_CXVSCROLL) : 0)*/ - 1;
 
 		// Channel header background
 		GradientRectTriple(pDC, m_iVisibleWidth + ROW_COL_WIDTH, HEADER_CHAN_START, Width, HEADER_CHAN_HEIGHT, m_colHead1, m_colHead2, m_pView->GetEditMode() ? m_colHead4 : m_colHead3);

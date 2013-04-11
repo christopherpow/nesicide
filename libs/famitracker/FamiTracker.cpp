@@ -219,9 +219,6 @@ BOOL CFamiTrackerApp::InitInstance(QMainWindow* parent)
 
 	AddDocTemplate(pDocTemplate);
 
-   qDebug("Until we call OnFileNew...do this...");
-   m_pMainWnd = m_pDocTemplate->m_pFrameWnd;
-   
 //	// Determine windows version
 //    OSVERSIONINFO osvi;
 

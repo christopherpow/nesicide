@@ -10,6 +10,7 @@
 #include <QMainWindow>
 
 extern CWinApp* ptrToTheApp;
+
 CWinApp* AfxGetApp() { return ptrToTheApp; }
 CFrameWnd* AfxGetMainWnd() { return ptrToTheApp->m_pMainWnd; }
 
@@ -3041,7 +3042,6 @@ BOOL CWnd::CreateEx(
    PreCreateWindow(createStruct);
    _qt->setGeometry(createStruct.x,createStruct.y,createStruct.cx,createStruct.cy);
    _qt->setFixedSize(createStruct.cx,createStruct.cy);
-   OnCreate(&createStruct);
 //   if ( createStruct.dwExStyle&WS_EX_STATICEDGE )
 //   {
 //      _frame->setFrameShape(QFrame::StyledPanel);
@@ -3065,6 +3065,7 @@ BOOL CWnd::CreateEx(
       mfcHorizontalScrollBar->Create(SBS_HORZ | SBS_BOTTOMALIGN | WS_CHILD | WS_VISIBLE, rect, this, 0);
       _grid->addWidget(mfcHorizontalScrollBar->toQWidget(),1,0);
    }
+   OnCreate(&createStruct);
    return TRUE;
 }
 
@@ -3091,7 +3092,6 @@ void CWnd::RepositionBars(
 )
 {
    AFX_SIZEPARENTPARAMS layout;
-   CRect clientRect;
    CWnd* pWndExtra = GetDlgItem(nIDLeftOver);
    
    layout.bStretch = bStretch;
@@ -3463,10 +3463,81 @@ CFrameWnd::CFrameWnd(CWnd *parent)
      m_pDocument(NULL),
      m_bInRecalcLayout(FALSE)
 {
+   m_pFrameWnd = this;
+   ptrToTheApp->m_pMainWnd = this;
+   
+   QWidget* centralWidget = _qt;
+   QGridLayout* gridLayout = _grid;
+   
+   gridLayout->setSpacing(0);
+   gridLayout->setContentsMargins(0, 0, 0, 0);
+   gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
+   cbrsBottom = new QVBoxLayout();
+   cbrsBottom->setSpacing(0);
+   cbrsBottom->setContentsMargins(0,0,0,0);
+   cbrsBottom->setObjectName(QString::fromUtf8("cbrsBottom"));
+
+   gridLayout->addLayout(cbrsBottom, 2, 0, 1, 3);
+   gridLayout->setRowStretch(2,0);
+
+   realCentralWidget = new QGridLayout();
+   realCentralWidget->setSpacing(0);
+   realCentralWidget->setContentsMargins(0,0,0,0);
+   realCentralWidget->setObjectName(QString::fromUtf8("realCentralWidget"));
+
+   gridLayout->addLayout(realCentralWidget, 1, 1, 1, 1);
+
+   cbrsTop = new QVBoxLayout();
+   cbrsTop->setSpacing(0);
+   cbrsTop->setContentsMargins(0,0,0,0);
+   cbrsTop->setObjectName(QString::fromUtf8("cbrsTop"));
+
+   gridLayout->addLayout(cbrsTop, 0, 0, 1, 3);
+   gridLayout->setRowStretch(0,0);
+
+   cbrsLeft = new QHBoxLayout();
+   cbrsLeft->setSpacing(0);
+   cbrsLeft->setContentsMargins(0,0,0,0);
+   cbrsLeft->setObjectName(QString::fromUtf8("cbrsLeft"));
+
+   gridLayout->addLayout(cbrsLeft, 1, 0, 1, 1);
+   gridLayout->setColumnStretch(0,0);
+
+   cbrsRight = new QHBoxLayout();
+   cbrsRight->setSpacing(0);
+   cbrsRight->setContentsMargins(0,0,0,0);
+   cbrsRight->setObjectName(QString::fromUtf8("cbrsRight"));
+
+   gridLayout->addLayout(cbrsRight, 1, 2, 1, 1);
+   gridLayout->setColumnStretch(2,0);
+   
+   gridLayout->setRowStretch(1,1);
+   gridLayout->setColumnStretch(1,1);
+   
+   centralWidget->setLayout(gridLayout);
 }
 
 CFrameWnd::~CFrameWnd()
 {
+}
+
+void CFrameWnd::addControlBar(int area, QWidget *bar)
+{
+   switch ( area )
+   {
+   case CBRS_TOP:
+      cbrsTop->insertWidget(cbrsTop->count(),bar);
+      break;
+   case CBRS_LEFT:
+      cbrsLeft->insertWidget(cbrsLeft->count(),bar);
+      break;
+   case CBRS_BOTTOM:
+      cbrsBottom->insertWidget(cbrsBottom->count(),bar);
+      break;
+   case CBRS_RIGHT:
+      cbrsRight->insertWidget(cbrsRight->count(),bar);
+      break;
+   }
 }
 
 void CFrameWnd::InitialUpdateFrame(
@@ -3562,8 +3633,169 @@ CSize CControlBar::CalcFixedLayout(
    return CSize(0,0);
 }
 
+CToolBar::CToolBar(CWnd* parent)
+{
+}
+
+CToolBar::~CToolBar()
+{
+}
+
+BOOL CToolBar::CreateEx(
+   CWnd* pParentWnd,
+   DWORD dwCtrlStyle,
+   DWORD dwStyle,
+   CRect rcBorders,
+   UINT nID
+)
+{
+}
+
+LRESULT CToolBar::SendMessage(
+   UINT message,
+   WPARAM wParam,
+   LPARAM lParam 
+)
+{
+}
+
+BOOL CToolBar::LoadToolBar(
+   UINT nIDResource 
+)
+{
+}
+
+CStatusBar::CStatusBar(CWnd* parent)
+{
+   if ( _qt )
+      delete _qt;
+   
+   if ( parent )
+      _qt = new QStatusBar(parent->toQWidget());
+   else
+      _qt = new QStatusBar;
+
+   // Downcast to save having to do it all over the place...
+   _qtd = dynamic_cast<QStatusBar*>(_qt);
+}
+
+CStatusBar::~CStatusBar()
+{
+   if ( _qtd )
+      delete _qtd;
+   _qtd = NULL;
+   _qt = NULL;
+}
+
+BOOL CStatusBar::Create(
+   CWnd* pParentWnd,
+   DWORD dwStyle,
+   UINT nID
+)
+{
+   _dwStyle = dwStyle;
+   
+   pParentWnd->mfcToQtWidgetMap()->insert(nID,this);
+
+   ptrToTheApp->qtMainWindow->setStatusBar(_qtd);
+   
+   // Pass-through signals
+
+   return TRUE;
+}
+
+LRESULT CStatusBar::SendMessage(
+   UINT message,
+   WPARAM wParam,
+   LPARAM lParam 
+)
+{
+   AFX_SIZEPARENTPARAMS* pLayout = (AFX_SIZEPARENTPARAMS*)lParam;
+   QRect myRect;
+   switch ( message )
+   {
+   case WM_SIZEPARENT:
+      if ( _dwStyle&CBRS_TOP )
+      {            
+         pLayout->rect.top += _qtd->rect().height();
+         myRect.setHeight(_qtd->rect().height());
+         myRect.setWidth(pLayout->rect.right-pLayout->rect.left);
+         pLayout->sizeTotal.cx = pLayout->rect.right-pLayout->rect.left;
+         pLayout->sizeTotal.cy += _qtd->rect().height();
+      }
+      else if ( _dwStyle&CBRS_LEFT )
+      {
+         pLayout->rect.left += _qtd->rect().width();
+         myRect.setHeight(pLayout->rect.bottom-pLayout->rect.top);
+         myRect.setWidth(_qtd->rect().width());
+         pLayout->sizeTotal.cx += _qtd->rect().width();
+         pLayout->sizeTotal.cy = pLayout->rect.bottom-pLayout->rect.top;
+      }
+      else if ( _dwStyle&CBRS_BOTTOM )
+      {            
+         pLayout->rect.bottom -= _qtd->rect().height();
+         myRect.setHeight(_qtd->rect().height());
+         myRect.setWidth(pLayout->rect.right-pLayout->rect.left);
+         pLayout->sizeTotal.cx = pLayout->rect.right-pLayout->rect.left;
+         pLayout->sizeTotal.cy += _qtd->rect().height();
+      }
+      else if ( _dwStyle&CBRS_RIGHT )
+      {
+         pLayout->rect.right -= _qtd->rect().width();
+         myRect.setHeight(pLayout->rect.bottom-pLayout->rect.top);
+         myRect.setWidth(_qtd->rect().width());
+         pLayout->sizeTotal.cx += _qtd->rect().width();
+         pLayout->sizeTotal.cy = pLayout->rect.bottom-pLayout->rect.top;
+      }
+      break;
+   }
+}
+
+BOOL CStatusBar::SetIndicators(
+   const UINT* lpIDArray,
+   int nIDCount 
+)
+{
+   int pane;
+   
+   for ( pane = 0; pane < nIDCount; pane++ )
+   {
+      CStatic* newPane = new CStatic(this);
+      newPane->Create(_T(""),WS_VISIBLE,CRect(CPoint(0,0),CSize(0,0)),this,IDC_STATIC);
+      _panes.insert(pane,newPane);
+      _qtd->addWidget(newPane->toQWidget());
+      CString lpszText = qtMfcStringResource(lpIDArray[pane]);
+#if UNICODE
+      newPane->setText(QString::fromWCharArray(lpszText));      
+#else
+      newPane->setText(lpszText);
+#endif
+   }
+   return TRUE;
+}
+
+BOOL CStatusBar::SetPaneText(
+   int nIndex,
+   LPCTSTR lpszNewText,
+   BOOL bUpdate 
+)
+{
+   CStatic* pane = _panes.value(nIndex);
+   if ( pane )
+   {
+#if UNICODE
+      pane->setText(QString::fromWCharArray(lpszNewText));      
+#else
+      pane->setText(lpszNewText);
+#endif
+      return TRUE;
+   }
+   return FALSE;
+}
+
 CDialogBar::CDialogBar()
 {
+   _qt->installEventFilter(this);
 }
 
 CDialogBar::~CDialogBar()
@@ -3617,7 +3849,6 @@ LRESULT CDialogBar::SendMessage(
             pLayout->sizeTotal.cx += rect().width();
             pLayout->sizeTotal.cy = pLayout->rect.bottom-pLayout->rect.top;
          }
-         setFixedSize(myRect.width(),myRect.height());
       }
       break;
    }
@@ -3635,30 +3866,34 @@ BOOL CDialogBar::Create(
    _mfcd = new CDialog;
    _mfcd->Create(nIDTemplate,this);
 
-   _grid->addWidget(_mfcd->toQWidget(),0,0);   
-   
-   if ( pParentWnd )
-      _qt->setParent(pParentWnd->toQWidget()); 
-   else
-      _qt->setParent(NULL);
-   if ( pParentWnd == m_pFrameWnd )
-      _qt->setParent(NULL);
-   SetParent(pParentWnd);
+   _qt->setParent(pParentWnd->toQWidget()); 
    
    pParentWnd->mfcToQtWidgetMap()->insertMulti(nID,this);
    
-   QRect myRect = _mfcd->rect();
    if ( nStyle&CBRS_TOP )
    {
-      myRect.setWidth(pParentWnd->rect().width());
-      myRect.setHeight(_mfcd->rect().height());
+      _qt->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::Fixed));
+      _qt->setFixedHeight(_mfcd->rect().height());
+      m_pFrameWnd->addControlBar(CBRS_TOP,toQWidget());
    }
    else if ( nStyle&CBRS_LEFT )
    {
-      myRect.setWidth(_mfcd->rect().width());
-      myRect.setHeight(pParentWnd->rect().height());
+      _qt->setSizePolicy(QSizePolicy(QSizePolicy::Fixed,QSizePolicy::MinimumExpanding));
+      _qt->setFixedWidth(_mfcd->rect().width());
+      m_pFrameWnd->addControlBar(CBRS_LEFT,toQWidget());
    }
-   setFixedSize(myRect.width(),myRect.height());
+   else if ( nStyle&CBRS_BOTTOM )
+   {
+      _qt->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::Fixed));
+      _qt->setFixedHeight(_mfcd->rect().height());
+      m_pFrameWnd->addControlBar(CBRS_BOTTOM,toQWidget());
+   }
+   else if ( nStyle&CBRS_RIGHT )
+   {
+      _qt->setSizePolicy(QSizePolicy(QSizePolicy::Fixed,QSizePolicy::MinimumExpanding));
+      _qt->setFixedWidth(_mfcd->rect().width());
+      m_pFrameWnd->addControlBar(CBRS_RIGHT,toQWidget());
+   }
    setVisible(true);
    
    return TRUE;
@@ -3887,12 +4122,15 @@ void CDocTemplate::InitialUpdateFrame(CFrameWnd* pFrame, CDocument* pDoc,
 CSingleDocTemplate::CSingleDocTemplate(UINT f,CDocument* pDoc,CFrameWnd* pFrameWnd,CView* pView)
    : CDocTemplate(f,pDoc,pFrameWnd,pView)
 {
-   CREATESTRUCT cs;
-   cs.style = WS_VSCROLL|WS_HSCROLL|WS_VISIBLE;
-   if ( pView->PreCreateWindow(cs) )
-   {
-      pView->OnCreate(&cs);
-   }
+   CRect rect;
+   pFrameWnd->GetClientRect(&rect);
+   pView->CreateEx(0,NULL,_T(""),WS_VISIBLE|WS_VSCROLL|WS_HSCROLL,rect,pFrameWnd,0);
+//   CREATESTRUCT cs;
+//   cs.style = WS_VSCROLL|WS_HSCROLL|WS_VISIBLE;
+//   if ( pView->PreCreateWindow(cs) )
+//   {
+//      pView->OnCreate(&cs);
+//   }
 }
 
 CDocument* CSingleDocTemplate::OpenDocumentFile(
@@ -3915,6 +4153,10 @@ CDocument* CSingleDocTemplate::OpenDocumentFile(
 BOOL CWinApp::InitInstance()
 {
    return TRUE;
+}
+
+void CWinApp::OnFileNew()
+{
 }
 
 HCURSOR CWinApp::LoadStandardCursor( 
@@ -5035,134 +5277,6 @@ CString CFileDialog::GetPathName( ) const
       return CString(files.at(0));
    }
    return CString();
-}
-
-CStatusBar::CStatusBar(CWnd* parent)
-{
-   if ( _qt )
-      delete _qt;
-   
-   if ( parent )
-      _qt = new QStatusBar(parent->toQWidget());
-   else
-      _qt = new QStatusBar;
-
-   // Downcast to save having to do it all over the place...
-   _qtd = dynamic_cast<QStatusBar*>(_qt);
-}
-
-CStatusBar::~CStatusBar()
-{
-   if ( _qtd )
-      delete _qtd;
-   _qtd = NULL;
-   _qt = NULL;
-}
-
-BOOL CStatusBar::Create(
-   CWnd* pParentWnd,
-   DWORD dwStyle,
-   UINT nID
-)
-{
-   _dwStyle = dwStyle;
-   
-   pParentWnd->mfcToQtWidgetMap()->insert(nID,this);
-
-   ptrToTheApp->qtMainWindow->setStatusBar(_qtd);
-   
-   // Pass-through signals
-
-   return TRUE;
-}
-
-LRESULT CStatusBar::SendMessage(
-   UINT message,
-   WPARAM wParam,
-   LPARAM lParam 
-)
-{
-   AFX_SIZEPARENTPARAMS* pLayout = (AFX_SIZEPARENTPARAMS*)lParam;
-   QRect myRect;
-   switch ( message )
-   {
-   case WM_SIZEPARENT:
-      if ( _dwStyle&CBRS_TOP )
-      {            
-         pLayout->rect.top += _qtd->rect().height();
-         myRect.setHeight(_qtd->rect().height());
-         myRect.setWidth(pLayout->rect.right-pLayout->rect.left);
-         pLayout->sizeTotal.cx = pLayout->rect.right-pLayout->rect.left;
-         pLayout->sizeTotal.cy += _qtd->rect().height();
-      }
-      else if ( _dwStyle&CBRS_LEFT )
-      {
-         pLayout->rect.left += _qtd->rect().width();
-         myRect.setHeight(pLayout->rect.bottom-pLayout->rect.top);
-         myRect.setWidth(_qtd->rect().width());
-         pLayout->sizeTotal.cx += _qtd->rect().width();
-         pLayout->sizeTotal.cy = pLayout->rect.bottom-pLayout->rect.top;
-      }
-      else if ( _dwStyle&CBRS_BOTTOM )
-      {            
-         pLayout->rect.bottom -= _qtd->rect().height();
-         myRect.setHeight(_qtd->rect().height());
-         myRect.setWidth(pLayout->rect.right-pLayout->rect.left);
-         pLayout->sizeTotal.cx = pLayout->rect.right-pLayout->rect.left;
-         pLayout->sizeTotal.cy += _qtd->rect().height();
-      }
-      else if ( _dwStyle&CBRS_RIGHT )
-      {
-         pLayout->rect.right -= _qtd->rect().width();
-         myRect.setHeight(pLayout->rect.bottom-pLayout->rect.top);
-         myRect.setWidth(_qtd->rect().width());
-         pLayout->sizeTotal.cx += _qtd->rect().width();
-         pLayout->sizeTotal.cy = pLayout->rect.bottom-pLayout->rect.top;
-      }
-      break;
-   }
-}
-
-BOOL CStatusBar::SetIndicators(
-   const UINT* lpIDArray,
-   int nIDCount 
-)
-{
-   int pane;
-   
-   for ( pane = 0; pane < nIDCount; pane++ )
-   {
-      CStatic* newPane = new CStatic(this);
-      newPane->Create(_T(""),WS_VISIBLE,CRect(CPoint(0,0),CSize(0,0)),this,IDC_STATIC);
-      _panes.insert(pane,newPane);
-      _qtd->addWidget(newPane->toQWidget());
-      CString lpszText = qtMfcStringResource(lpIDArray[pane]);
-#if UNICODE
-      newPane->setText(QString::fromWCharArray(lpszText));      
-#else
-      newPane->setText(lpszText);
-#endif
-   }
-   return TRUE;
-}
-
-BOOL CStatusBar::SetPaneText(
-   int nIndex,
-   LPCTSTR lpszNewText,
-   BOOL bUpdate 
-)
-{
-   CStatic* pane = _panes.value(nIndex);
-   if ( pane )
-   {
-#if UNICODE
-      pane->setText(QString::fromWCharArray(lpszNewText));      
-#else
-      pane->setText(lpszNewText);
-#endif
-      return TRUE;
-   }
-   return FALSE;
 }
 
 CMutex::CMutex(
