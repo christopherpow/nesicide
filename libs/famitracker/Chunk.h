@@ -127,7 +127,7 @@ public:
 	CString			GetLabel() const;
 
 	unsigned int	CountData() const;
-//	void			AssignLabels(CMap<CString, LPCSTR, int, int> &labelMap);
+	void			AssignLabels(CMap<CString, LPCSTR, int, int> &labelMap);
 
 	void			SetBank(int Bank);
 	unsigned int	GetBank() const;

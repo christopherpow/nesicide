@@ -15,6 +15,7 @@ CWinApp* AfxGetApp() { return ptrToTheApp; }
 CFrameWnd* AfxGetMainWnd() { return ptrToTheApp->m_pMainWnd; }
 
 extern void qtMfcInitDialogResource(UINT dlgID,CDialog* parent);
+extern void qtMfcInitToolBarResource(UINT dlgID,CToolBar* parent);
 
 QHash<int,CString> qtMfcStringResources;
 
@@ -95,6 +96,66 @@ int AFXAPI AfxMessageBox(
    return QMessageBox::Ok;
 }
 
+DWORD WINAPI GetModuleFileName(
+   HMODULE hModule,
+   LPTSTR lpFilename,
+   DWORD nSize
+)
+{
+#if UNICODE
+   wcsncpy(lpFilename,(LPWSTR)QCoreApplication::applicationFilePath().unicode(),nSize);
+#else
+   strncpy(lpFilename,QCoreApplication::applicationFilePath().toAscii().constData(),nSize);
+#endif
+}
+
+BOOL PathRemoveFileSpec(
+   LPTSTR pszPath
+)
+{
+   int len;
+#if UNICODE
+   len = wcslen(pszPath);
+#else
+   len = strlen(pszPath);
+#endif
+   for ( ; len > 0; len-- )
+   {
+      if ( (pszPath[len] == '/') || 
+           (pszPath[len] == '\\') )
+      {
+         pszPath[len] = 0;
+      }
+   }
+}
+
+BOOL PathAppend(
+   LPTSTR pszPath,
+   LPCTSTR pszMore
+)
+{
+   int len;
+#if UNICODE
+   len = wcslen(pszPath);
+#else
+   len = strlen(pszPath);
+#endif
+   if ( (pszPath[len-1] == '/') || 
+        (pszPath[len-1] == '\\') )
+   {
+#if UNICODE
+      wcscat(pszPath,_T("/"));
+#else
+      strcat(pszPath,"/");
+#endif
+   }
+#if UNICODE
+   wcscat(pszPath,pszMore);
+#else
+   strcat(pszPath,pszMore);
+#endif
+}
+
 TCHAR* A2T(char* str)
 {
    char* dup = strdup(str);
@@ -103,6 +164,20 @@ TCHAR* A2T(char* str)
    for ( i = 0; i < strlen(dup); i++ )
    {
       ret[i] = (TCHAR)dup[i];
+   }
+   ret[i] = 0;
+   free(dup);
+   return ret;
+}
+
+char* T2A(TCHAR* str)
+{
+   TCHAR* dup = wcsdup(str);
+   char* ret = (char*)str;
+   int i;
+   for ( i = 0; i < wcslen(str); i++ )
+   {
+      ret[i] = (char)dup[i];
    }
    ret[i] = 0;
    free(dup);
@@ -256,12 +331,30 @@ SIZE_T WINAPI GlobalSize(
  *  Class CString
  */
 
-bool operator==(const CString& s1, const LPCTSTR s2)
+BOOL operator==(const CString& s1, const LPCTSTR s2)
 {
 #if UNICODE
-   return (!wcscmp(s1.GetString(),s2));
+   return (wcscmp(s1.GetString(),s2)==0);
 #else
-   return (!strcmp(s1.GetString(),s2));
+   return (strcmp(s1.GetString(),s2)==0);
+#endif
+}
+
+BOOL operator!=(const CString& s1, const LPCTSTR s2)
+{
+#if UNICODE
+   return (wcscmp(s1.GetString(),s2)!=0);
+#else
+   return (strcmp(s1.GetString(),s2)!=0);
+#endif
+}
+
+BOOL operator <( const CString& s1, const CString& s2 )
+{
+#if UNICODE
+   return (wcscmp(s1.GetString(),s2)<0);
+#else
+   return (strcmp(s1.GetString(),s2)<0);
 #endif
 }
 
@@ -279,7 +372,7 @@ CString::CString(LPCSTR str)
    UpdateScratch();
 }
 
-CString::CString(LPCWSTR str)
+CString::CString(LPCTSTR str)
 {
    _qstr.clear();
    _qstr = QString::fromWCharArray(str);
@@ -337,6 +430,17 @@ void CString::Format(LPCTSTR fmt, ...)
    va_end(argptr);
 }
 
+#if UNICODE
+void CString::Format(LPCSTR fmt, ...)
+{
+   LPCTSTR tfmt = A2T((char*)fmt);
+   va_list argptr;
+   va_start(argptr,fmt);
+   FormatV(tfmt,argptr);
+   va_end(argptr);
+}
+#endif
+
 void CString::FormatV(LPCTSTR fmt, va_list ap)
 {
    // CPTODO: UN-HACK!!!
@@ -387,6 +491,17 @@ void CString::AppendFormat(LPCTSTR fmt, ...)
    va_end(argptr);
 }
 
+#if UNICODE
+void CString::AppendFormat(LPCSTR fmt, ...)
+{
+   LPCTSTR tfmt = A2T((char*)fmt);
+   va_list argptr;
+   va_start(argptr,fmt);
+   AppendFormatV(tfmt,argptr);
+   va_end(argptr);
+}
+#endif
+
 void CString::AppendFormatV(LPCTSTR fmt, va_list ap)
 {
    // CPTODO: UN-HACK!!!
@@ -416,7 +531,16 @@ int CString::ReverseFind( TCHAR ch ) const
 #endif
 }
 
-const CString& CString::operator=(const CString& str)
+int CString::Compare( LPCTSTR lpsz ) const
+{
+#if UNICODE
+   return _qstr.compare(QString::fromWCharArray(lpsz));
+#else
+   return _qstr.compare(lpsz);
+#endif
+}
+
+CString& CString::operator=(const CString& str)
 {
    _qstr.clear();
    _qstr = str._qstr;
@@ -424,29 +548,15 @@ const CString& CString::operator=(const CString& str)
    return *this;
 }
 
-const CString& CString::operator+=(const CString& str)
-{
-   _qstr.append(str._qstr);
-   UpdateScratch();
-   return *this;
-}
+//CString& CString::operator=(LPSTR str)
+//{
+//   _qstr.clear();
+//   _qstr = QString(str);
+//   UpdateScratch();
+//   return *this;
+//}
 
-const CString& CString::operator=(LPSTR str)
-{
-   _qstr.clear();
-   _qstr = QString(str);
-   UpdateScratch();
-   return *this;
-}
-
-const CString& CString::operator+=(LPSTR str)
-{
-   _qstr.append(QString(str));
-   UpdateScratch();
-   return *this;
-}
-
-const CString& CString::operator=(LPCSTR str)
+CString& CString::operator=(LPCSTR str)
 {
    _qstr.clear();
    _qstr = QString(str);
@@ -454,14 +564,7 @@ const CString& CString::operator=(LPCSTR str)
    return *this;
 }
 
-const CString& CString::operator+=(LPCSTR str)
-{
-   _qstr.append(QString(str));
-   UpdateScratch();
-   return *this;
-}
-
-const CString& CString::operator=(LPWSTR str)
+CString& CString::operator=(LPCTSTR str)
 {
    _qstr.clear();
    _qstr = QString::fromWCharArray(str);
@@ -469,29 +572,23 @@ const CString& CString::operator=(LPWSTR str)
    return *this;
 }
 
-const CString& CString::operator+=(LPWSTR str)
-{
-   _qstr.append(QString::fromWCharArray(str));
-   UpdateScratch();
-   return *this;
-}
+//CString& CString::operator=(LPWSTR str)
+//{
+//   _qstr.clear();
+//   _qstr = QString::fromWCharArray(str);
+//   UpdateScratch();
+//   return *this;
+//}
 
-const CString& CString::operator=(LPCWSTR str)
-{
-   _qstr.clear();
-   _qstr = QString::fromWCharArray(str);
-   UpdateScratch();
-   return *this;
-}
+//CString& CString::operator=(LPCWSTR str)
+//{
+//   _qstr.clear();
+//   _qstr = QString::fromWCharArray(str);
+//   UpdateScratch();
+//   return *this;
+//}
 
-const CString& CString::operator+=(LPCWSTR str)
-{
-   _qstr.append(QString::fromWCharArray(str));
-   UpdateScratch();
-   return *this;
-}
-
-const CString& CString::operator=(QString str)
+CString& CString::operator=(QString str)
 {
    _qstr.clear();
    _qstr = str;
@@ -499,64 +596,130 @@ const CString& CString::operator=(QString str)
    return *this;
 }
 
-const CString& CString::operator+=(QString str)
+CString& CString::operator+=(const CString& str)
+{
+   _qstr.append(str._qstr);
+   UpdateScratch();
+   return *this;
+}
+
+//CString& CString::operator+=(LPSTR str)
+//{
+//   _qstr.append(QString(str));
+//   UpdateScratch();
+//   return *this;
+//}
+
+CString& CString::operator+=(LPCSTR str)
+{
+   _qstr.append(QString(str));
+   UpdateScratch();
+   return *this;
+}
+
+CString& CString::operator+=(LPCTSTR str)
+{
+   _qstr.append(QString::fromWCharArray(str));
+   UpdateScratch();
+   return *this;
+}
+
+//CString& CString::operator+=(LPWSTR str)
+//{
+//   _qstr.append(QString::fromWCharArray(str));
+//   UpdateScratch();
+//   return *this;
+//}
+
+//CString& CString::operator+=(LPCWSTR str)
+//{
+//   _qstr.append(QString::fromWCharArray(str));
+//   UpdateScratch();
+//   return *this;
+//}
+
+CString& CString::operator+=(QString str)
 {
    _qstr.append(str);
    UpdateScratch();
    return *this;
 }
 
-const CString& CString::operator+(const CString& str)
+CString& CString::operator+(const CString& str)
 {
    _qstr += str._qstr;
    UpdateScratch();
    return *this;
 }
 
-const CString& CString::operator+(LPSTR str)
+//CString& CString::operator+(LPSTR str)
+//{
+//   _qstr += QString(str);
+//   UpdateScratch();
+//   return *this;
+//}
+
+CString& CString::operator+(LPCSTR str)
 {
    _qstr += QString(str);
    UpdateScratch();
    return *this;
 }
 
-const CString& CString::operator+(LPWSTR str)
+CString& CString::operator+(LPTSTR str)
 {
    _qstr += QString::fromWCharArray(str);
    UpdateScratch();
    return *this;
 }
 
-const CString& CString::operator+(LPCSTR str)
-{
-   _qstr += QString(str);
-   UpdateScratch();
-   return *this;
-}
-
-const CString& CString::operator+(LPCWSTR str)
+CString& CString::operator+(LPCTSTR str)
 {
    _qstr += QString::fromWCharArray(str);
    UpdateScratch();
    return *this;
 }
 
-const CString& CString::operator+(QString str)
+//CString& CString::operator+(LPWSTR str)
+//{
+//   _qstr += QString::fromWCharArray(str);
+//   UpdateScratch();
+//   return *this;
+//}
+
+//CString& CString::operator+(LPCWSTR str)
+//{
+//   _qstr += QString::fromWCharArray(str);
+//   UpdateScratch();
+//   return *this;
+//}
+
+CString& CString::operator+(QString str)
 {
    _qstr += str;
    UpdateScratch();
    return *this;
 }
 
-CString::operator LPCTSTR() const
-{
-    return GetString();
-}
-
-CString::operator const QString&() const
+CString::operator QString() const
 {
    return _qstr;
 }
+
+CString::operator LPCTSTR() const
+{
+   return GetString();
+}
+
+CString::operator LPCSTR() const
+{
+   return _qstr.toAscii().constData();
+}
+
+//CString::operator const QString&() const
+//{
+//   return _qstr;
+//}
 
 void CString::Empty() 
 { 
@@ -566,7 +729,7 @@ void CString::Empty()
 LPCTSTR CString::GetString() const
 {
 #if UNICODE
-   return (LPCWSTR)_qstr.unicode();
+   return (LPCTSTR)_qstr.unicode();
 #else
    return _qstrn.constData();
 #endif
@@ -575,7 +738,7 @@ LPCTSTR CString::GetString() const
 LPTSTR CString::GetBuffer() const
 {
 #if UNICODE
-   return (LPWSTR)_qstr.unicode();
+   return (LPTSTR)_qstr.unicode();
 #else
    return _qstrn.constData();
 #endif
@@ -608,6 +771,57 @@ int CString::CompareNoCase( LPCTSTR lpsz ) const
 TCHAR CString::GetAt( int nIndex ) const
 {
    return _qstr.at(nIndex).toAscii();
+}
+
+CStringA::CStringA(CString str)
+{ 
+   _qstr = QString::fromWCharArray(str.GetString()).toAscii().constData(); 
+}
+
+CStringA::operator char*() const
+{
+   return _qstr.toAscii().data();
+}
+
+INT_PTR CStringArray::Add( LPCTSTR newElement )
+{
+   _qlist.append(CString(newElement));
+   return _qlist.count()-1;
+}
+
+void CStringArray::RemoveAll( )
+{
+   _qlist.clear();
+}
+
+CString CStringArray::GetAt(int idx) const
+{ 
+   return _qlist.at(idx); 
+}
+
+void CStringArray::SetAt(int idx, CString str)
+{ 
+   _qlist.replace(idx,str); 
+}
+
+INT_PTR CStringArray::GetCount( ) const 
+{ 
+   return _qlist.count(); 
+}
+
+CString CStringArray::operator []( INT_PTR nIndex )
+{
+   return GetAt(nIndex);
+}
+
+CString CStringArray::operator []( INT_PTR nIndex ) const
+{
+   return GetAt(nIndex);
+}
+
+BOOL CStringArray::IsEmpty( ) const
+{
+   return _qlist.isEmpty();
 }
 
 /*
@@ -1981,10 +2195,7 @@ BOOL CListCtrl::Create(
    {
       _qtd->horizontalHeader()->setSortIndicatorShown(false);
    }
-   if ( dwStyle&LVS_REPORT )
-   {
-      InsertColumn(0,_T(""));
-   }
+   _qtd->horizontalHeader()->setStretchLastSection(true);
    
    _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
    _qtd->setVisible(dwStyle&WS_VISIBLE);
@@ -2831,16 +3042,15 @@ CWnd::CWnd(CWnd *parent)
      mfcHorizontalScrollBar(NULL),
      m_hWnd(NULL),
      _grid(NULL),
-     _frame(NULL),
      _myDC(NULL)
 {
    if ( parent )
    {
-      _qt = new QWidget(parent->toQWidget());
+      _qt = new QFrame(parent->toQWidget());
    }
    else
    {
-      _qt = new QWidget;
+      _qt = new QFrame;
    }
    _grid = new QGridLayout;
    _grid->setContentsMargins(0,0,0,0);
@@ -2852,6 +3062,8 @@ CWnd::CWnd(CWnd *parent)
    
    _qt->setMouseTracking(true);
    _qt->installEventFilter(this);
+   
+   _qtd = dynamic_cast<QFrame*>(_qt);
 }
 
 CWnd::~CWnd()
@@ -2863,12 +3075,12 @@ CWnd::~CWnd()
    mfcVerticalScrollBar = NULL;
    mfcHorizontalScrollBar = NULL;
 
-//   delete _frame;
    delete _myDC;
 
    if ( _qt )
       delete _qt;
    _qt = NULL;   
+   _qtd = NULL;
 //   if ( _grid )
 //      delete _grid;
 }
@@ -3035,11 +3247,11 @@ BOOL CWnd::CreateEx(
    PreCreateWindow(createStruct);
    _qt->setGeometry(createStruct.x,createStruct.y,createStruct.cx,createStruct.cy);
    _qt->setFixedSize(createStruct.cx,createStruct.cy);
-//   if ( createStruct.dwExStyle&WS_EX_STATICEDGE )
-//   {
-//      _frame->setFrameShape(QFrame::StyledPanel);
-//      _frame->setLineWidth(1);
-//   }
+   if ( createStruct.dwExStyle&WS_EX_STATICEDGE )
+   {
+      _qtd->setFrameStyle(QFrame::Panel | QFrame::Raised);
+      _qtd->setLineWidth(2);
+   }
    if ( createStruct.style&WS_VSCROLL )
    {
       mfcVerticalScrollBar = new CScrollBar(this);
@@ -3457,7 +3669,6 @@ CFrameWnd::CFrameWnd(CWnd *parent)
    QGridLayout* gridLayout = _grid;
    
    gridLayout->setSpacing(0);
-   gridLayout->setMargin(0);
    gridLayout->setContentsMargins(0, 0, 0, 0);
    gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
    cbrsBottom = new QVBoxLayout();
@@ -3466,6 +3677,7 @@ CFrameWnd::CFrameWnd(CWnd *parent)
    cbrsBottom->setObjectName(QString::fromUtf8("cbrsBottom"));
 
    gridLayout->addLayout(cbrsBottom, 2, 0, 1, 3);
+   gridLayout->setRowMinimumHeight(2,0);
    gridLayout->setRowStretch(2,0);
 
    realCentralWidget = new QGridLayout();
@@ -3481,6 +3693,7 @@ CFrameWnd::CFrameWnd(CWnd *parent)
    cbrsTop->setObjectName(QString::fromUtf8("cbrsTop"));
 
    gridLayout->addLayout(cbrsTop, 0, 0, 1, 3);
+   gridLayout->setRowMinimumHeight(0,0);
    gridLayout->setRowStretch(0,0);
 
    cbrsLeft = new QHBoxLayout();
@@ -3489,6 +3702,7 @@ CFrameWnd::CFrameWnd(CWnd *parent)
    cbrsLeft->setObjectName(QString::fromUtf8("cbrsLeft"));
 
    gridLayout->addLayout(cbrsLeft, 1, 0, 1, 1);
+   gridLayout->setColumnMinimumWidth(0,0);
    gridLayout->setColumnStretch(0,0);
 
    cbrsRight = new QHBoxLayout();
@@ -3497,6 +3711,7 @@ CFrameWnd::CFrameWnd(CWnd *parent)
    cbrsRight->setObjectName(QString::fromUtf8("cbrsRight"));
 
    gridLayout->addLayout(cbrsRight, 1, 2, 1, 1);
+   gridLayout->setColumnMinimumWidth(2,0);
    gridLayout->setColumnStretch(2,0);
    
    gridLayout->setRowStretch(1,1);
@@ -3623,10 +3838,24 @@ CSize CControlBar::CalcFixedLayout(
 
 CToolBar::CToolBar(CWnd* parent)
 {
+   if ( _qt )
+      delete _qt;
+   
+   if ( parent )
+      _qt = new QToolBar(parent->toQWidget());
+   else
+      _qt = new QToolBar;
+
+   // Downcast to save having to do it all over the place...
+   _qtd = dynamic_cast<QToolBar*>(_qt);
 }
 
 CToolBar::~CToolBar()
 {
+   if ( _qtd )
+      delete _qtd;
+   _qtd = NULL;
+   _qt = NULL;
 }
 
 BOOL CToolBar::CreateEx(
@@ -3637,6 +3866,7 @@ BOOL CToolBar::CreateEx(
    UINT nID
 )
 {
+   _dwStyle = dwStyle;
 }
 
 LRESULT CToolBar::SendMessage(
@@ -3645,12 +3875,15 @@ LRESULT CToolBar::SendMessage(
    LPARAM lParam 
 )
 {
+   return 0;
 }
 
 BOOL CToolBar::LoadToolBar(
    UINT nIDResource 
 )
 {
+   qtMfcInitToolBarResource(nIDResource,this);
+   ptrToTheApp->qtMainWindow->addToolBar(_qtd);
 }
 
 CStatusBar::CStatusBar(CWnd* parent)
@@ -3698,45 +3931,7 @@ LRESULT CStatusBar::SendMessage(
    LPARAM lParam 
 )
 {
-   AFX_SIZEPARENTPARAMS* pLayout = (AFX_SIZEPARENTPARAMS*)lParam;
-   QRect myRect;
-   switch ( message )
-   {
-   case WM_SIZEPARENT:
-      if ( _dwStyle&CBRS_TOP )
-      {            
-         pLayout->rect.top += _qtd->rect().height();
-         myRect.setHeight(_qtd->rect().height());
-         myRect.setWidth(pLayout->rect.right-pLayout->rect.left);
-         pLayout->sizeTotal.cx = pLayout->rect.right-pLayout->rect.left;
-         pLayout->sizeTotal.cy += _qtd->rect().height();
-      }
-      else if ( _dwStyle&CBRS_LEFT )
-      {
-         pLayout->rect.left += _qtd->rect().width();
-         myRect.setHeight(pLayout->rect.bottom-pLayout->rect.top);
-         myRect.setWidth(_qtd->rect().width());
-         pLayout->sizeTotal.cx += _qtd->rect().width();
-         pLayout->sizeTotal.cy = pLayout->rect.bottom-pLayout->rect.top;
-      }
-      else if ( _dwStyle&CBRS_BOTTOM )
-      {            
-         pLayout->rect.bottom -= _qtd->rect().height();
-         myRect.setHeight(_qtd->rect().height());
-         myRect.setWidth(pLayout->rect.right-pLayout->rect.left);
-         pLayout->sizeTotal.cx = pLayout->rect.right-pLayout->rect.left;
-         pLayout->sizeTotal.cy += _qtd->rect().height();
-      }
-      else if ( _dwStyle&CBRS_RIGHT )
-      {
-         pLayout->rect.right -= _qtd->rect().width();
-         myRect.setHeight(pLayout->rect.bottom-pLayout->rect.top);
-         myRect.setWidth(_qtd->rect().width());
-         pLayout->sizeTotal.cx += _qtd->rect().width();
-         pLayout->sizeTotal.cy = pLayout->rect.bottom-pLayout->rect.top;
-      }
-      break;
-   }
+   return 0;
 }
 
 BOOL CStatusBar::SetIndicators(
@@ -3956,9 +4151,9 @@ BOOL CDialog::Create(
       _qt->setParent(pParentWnd->toQWidget()); 
    else
       _qt->setParent(NULL);
+   SetParent(pParentWnd); 
    if ( pParentWnd == m_pFrameWnd )
       _qt->setParent(NULL);
-   SetParent(pParentWnd); 
    
    foreach ( CWnd* pWnd, mfcToQtWidget ) pWnd->blockSignals(true);
    BOOL result = OnInitDialog(); 
@@ -4113,12 +4308,6 @@ CSingleDocTemplate::CSingleDocTemplate(UINT f,CDocument* pDoc,CFrameWnd* pFrameW
    CRect rect;
    pFrameWnd->GetClientRect(&rect);
    pView->CreateEx(0,NULL,_T(""),WS_VISIBLE|WS_VSCROLL|WS_HSCROLL,rect,pFrameWnd,0);
-//   CREATESTRUCT cs;
-//   cs.style = WS_VSCROLL|WS_HSCROLL|WS_VISIBLE;
-//   if ( pView->PreCreateWindow(cs) )
-//   {
-//      pView->OnCreate(&cs);
-//   }
 }
 
 CDocument* CSingleDocTemplate::OpenDocumentFile(
@@ -5317,4 +5506,25 @@ BOOL CCriticalSection::Unlock( )
 {
    _qtd->unlock();
    return TRUE;
+}
+
+BOOL CFileFind::FindFile(
+   LPCTSTR pstrName,
+   DWORD dwUnused 
+)
+{
+   BOOL found = FALSE;
+   return found;
+}
+
+BOOL CFileFind::FindNextFile( )
+{
+}
+
+CString CFileFind::GetFileName( ) const
+{
+}
+
+CString CFileFind::GetFilePath( ) const
+{
 }

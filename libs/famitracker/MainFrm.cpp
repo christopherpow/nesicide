@@ -6,6 +6,7 @@
 #include "ChannelsDlg.h"
 #include "ModulePropertiesDlg.h"
 #include "ControlPanelDlg.h"
+#include "ExportDialog.h"
 #include "Settings.h"
 
 #include <QFrame>
@@ -54,73 +55,14 @@ CMainFrame::CMainFrame(CWnd *parent) :
    m_pFrameEditor(0),
    initialized(false)
 {
-   int idx;
-   int col;
-
    CREATESTRUCT cs;
    OnCreate(&cs);
-
-   actionHandler actionHandlers[] = 
-   {
-      &CMainFrame::trackerAction_newDocument,
-      &CMainFrame::trackerAction_openDocument,
-      &CMainFrame::trackerAction_saveDocument,
-      &CMainFrame::trackerAction_editCut,
-      &CMainFrame::trackerAction_editCopy,
-      &CMainFrame::trackerAction_editPaste,
-      &CMainFrame::trackerAction_about,
-      &CMainFrame::trackerAction_help,
-      &CMainFrame::trackerAction_addFrame,
-      &CMainFrame::trackerAction_removeFrame,
-      &CMainFrame::trackerAction_moveFrameDown,
-      &CMainFrame::trackerAction_moveFrameUp,
-      &CMainFrame::trackerAction_duplicateFrame,
-      &CMainFrame::trackerAction_moduleProperties,
-      &CMainFrame::trackerAction_play,
-      &CMainFrame::trackerAction_playLoop,
-      &CMainFrame::trackerAction_stop,
-      &CMainFrame::trackerAction_editMode,
-      &CMainFrame::trackerAction_previousTrack,
-      &CMainFrame::trackerAction_nextTrack,
-      &CMainFrame::trackerAction_settings,
-      &CMainFrame::trackerAction_createNSF
-   };
    
    uiUpdateHandler uiUpdateHandlers[] = 
    {
       &CMainFrame::OnUpdateSBChip
    };
    
-   QImage toolBarImage(":/resources/Toolbar-d5.bmp");
-
-   toolBar = new QToolBar("Music Editor");
-   toolBar->setObjectName("musicEditorToolBar");
-
-   QAction* trackerAction;
-   for ( col = 0, idx = 0; col < toolBarImage.width(); col += 16, idx++ )
-   {
-      trackerAction = new QAction(this);
-      QPixmap trackerActionPixmap = QPixmap::fromImage(toolBarImage.copy(col,0,16,16)).scaled(22,22,Qt::IgnoreAspectRatio,Qt::SmoothTransformation);
-      trackerAction->setIcon(QIcon(trackerActionPixmap));
-      QObject::connect(trackerAction,SIGNAL(triggered()),this,SLOT(trackerAction_triggered()));
-      trackerActions.insert(trackerAction,actionHandlers[idx]);
-      toolBar->addAction(trackerAction);
-   }
-   
-   octaveLabel = new QLabel("Octave");
-   toolBar->addSeparator();
-   toolBar->addWidget(octaveLabel);
-   octaveComboBox = new QComboBox();
-   octaveComboBox->addItem("0");
-   octaveComboBox->addItem("1");
-   octaveComboBox->addItem("2");
-   octaveComboBox->addItem("3");
-   octaveComboBox->addItem("4");
-   octaveComboBox->addItem("5");
-   octaveComboBox->addItem("6");
-   octaveComboBox->addItem("7");
-   toolBar->addWidget(octaveComboBox);
-
    idleTimer = new QTimer;
    QObject::connect(idleTimer,SIGNAL(timeout()),this,SLOT(idleProcessing()));
 }
@@ -130,9 +72,6 @@ CMainFrame::~CMainFrame()
    SAFE_RELEASE(m_pFrameEditor);
    delete m_pView;
    delete m_pDocument;
-   delete octaveLabel;
-   delete octaveComboBox;
-   delete toolBar;
 }
 
 void CMainFrame::focusInEvent(QFocusEvent *)
@@ -143,10 +82,7 @@ void CMainFrame::focusInEvent(QFocusEvent *)
 }
 
 void CMainFrame::showEvent(QShowEvent *)
-{
-   emit addToolBarWidget(toolBar);
-   toolBar->setVisible(true);
-   
+{   
    if ( !initialized )
    {
       // Perform initialization that couldn't yet be done in the constructor due to MFC crap.
@@ -162,15 +98,21 @@ void CMainFrame::showEvent(QShowEvent *)
       
       m_pView->GetPatternView()->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::MinimumExpanding));
       m_pView->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::MinimumExpanding));
-   
+      
       m_pView->setFocusPolicy(Qt::StrongFocus);
       m_pFrameEditor->setFocusPolicy(Qt::StrongFocus);
+      
+//      realCentralWidget->addWidget(m_pView->toQWidget(),0,0,1,1);
+      realCentralWidget->setRowStretch(0,1);
+      realCentralWidget->setColumnStretch(0,1);
       
       QObject::connect(m_pDocument,SIGNAL(updateViews(long)),m_pFrameEditor,SLOT(updateViews(long)));
       QObject::connect(m_pDocument,SIGNAL(updateViews(long)),this,SLOT(updateViews(long)));
       
       // Connect buried signals.
       QObject::connect(m_pDocument,SIGNAL(setModified(bool)),this,SIGNAL(editor_modificationChanged(bool)));
+      
+      QObject::connect(&m_wndToolBar,SIGNAL(toolBarAction_triggered()),this,SLOT(toolBarAction_triggered()));
       
       initialized = true;
    }
@@ -183,8 +125,6 @@ void CMainFrame::showEvent(QShowEvent *)
 void CMainFrame::hideEvent(QHideEvent *)
 {
    idleTimer->stop();
-   
-   emit removeToolBarWidget(toolBar);
 }
 
 void CMainFrame::resizeEvent(QResizeEvent *event)
@@ -210,137 +150,164 @@ void CMainFrame::updateViews(long hint)
 {
 }
 
-void CMainFrame::trackerAction_triggered()
+void CMainFrame::toolBarAction_triggered()
 {
-   QMap<QAction*,actionHandler>::const_iterator action = trackerActions.find(dynamic_cast<QAction*>(sender()));
-   if ( action.value() )
+   QList<QObject*>* toolBarActions = m_wndToolBar.toolBarActions();
+   actionHandler actionHandlers[] =
    {
-      (this->*(action.value()))();
+      &CMainFrame::toolBarAction_newDocument,
+      &CMainFrame::toolBarAction_openDocument,
+      &CMainFrame::toolBarAction_saveDocument,
+      &CMainFrame::toolBarAction_editCut,
+      &CMainFrame::toolBarAction_editCopy,
+      &CMainFrame::toolBarAction_editPaste,
+      &CMainFrame::toolBarAction_about,
+      &CMainFrame::toolBarAction_help,
+      &CMainFrame::toolBarAction_addFrame,
+      &CMainFrame::toolBarAction_removeFrame,
+      &CMainFrame::toolBarAction_moveFrameDown,
+      &CMainFrame::toolBarAction_moveFrameUp,
+      &CMainFrame::toolBarAction_duplicateFrame,
+      &CMainFrame::toolBarAction_moduleProperties,
+      &CMainFrame::toolBarAction_play,
+      &CMainFrame::toolBarAction_playLoop,
+      &CMainFrame::toolBarAction_stop,
+      &CMainFrame::toolBarAction_editMode,
+      &CMainFrame::toolBarAction_previousTrack,
+      &CMainFrame::toolBarAction_nextTrack,
+      &CMainFrame::toolBarAction_settings,
+      &CMainFrame::toolBarAction_createNSF
+   };
+   int actionIndex = toolBarActions->indexOf(sender());
+   if ( actionIndex >= 0 )
+   {
+      (this->*((actionHandlers[actionIndex])))();
    }
 }
 
-void CMainFrame::trackerAction_newDocument()
+void CMainFrame::toolBarAction_newDocument()
 {
    qDebug("newDocument");
 }
 
-void CMainFrame::trackerAction_openDocument()
+void CMainFrame::toolBarAction_openDocument()
 {
    qDebug("openDocument");
 }
 
-void CMainFrame::trackerAction_saveDocument()
+void CMainFrame::toolBarAction_saveDocument()
 {
    qDebug("saveDocument");
 }
 
-void CMainFrame::trackerAction_editCut()
+void CMainFrame::toolBarAction_editCut()
 {
    qDebug("editCut");
    CFamiTrackerView* pView = (CFamiTrackerView*)GetActiveView();
    pView->OnEditCut();
 }
 
-void CMainFrame::trackerAction_editCopy()
+void CMainFrame::toolBarAction_editCopy()
 {
    qDebug("editCopy");
    CFamiTrackerView* pView = (CFamiTrackerView*)GetActiveView();
    pView->OnEditCopy();
 }
 
-void CMainFrame::trackerAction_editPaste()
+void CMainFrame::toolBarAction_editPaste()
 {
    qDebug("editPaste");
    CFamiTrackerView* pView = (CFamiTrackerView*)GetActiveView();
    pView->OnEditPaste();   
 }
 
-void CMainFrame::trackerAction_about()
+void CMainFrame::toolBarAction_about()
 {
    qDebug("about");
 }
 
-void CMainFrame::trackerAction_help()
+void CMainFrame::toolBarAction_help()
 {
    qDebug("help");
 }
 
-void CMainFrame::trackerAction_addFrame()
+void CMainFrame::toolBarAction_addFrame()
 {
    AddAction(new CFrameAction(CFrameAction::ACT_ADD));
 }
 
-void CMainFrame::trackerAction_removeFrame()
+void CMainFrame::toolBarAction_removeFrame()
 {
    AddAction(new CFrameAction(CFrameAction::ACT_REMOVE));
 }
 
-void CMainFrame::trackerAction_moveFrameDown()
+void CMainFrame::toolBarAction_moveFrameDown()
 {
    AddAction(new CFrameAction(CFrameAction::ACT_MOVE_DOWN));
 }
 
-void CMainFrame::trackerAction_moveFrameUp()
+void CMainFrame::toolBarAction_moveFrameUp()
 {
    AddAction(new CFrameAction(CFrameAction::ACT_MOVE_UP));
 }
 
-void CMainFrame::trackerAction_duplicateFrame()
+void CMainFrame::toolBarAction_duplicateFrame()
 {
    AddAction(new CFrameAction(CFrameAction::ACT_DUPLICATE));
 }
 
-void CMainFrame::trackerAction_moduleProperties()
+void CMainFrame::toolBarAction_moduleProperties()
 {
    qDebug("moduleProperties");
    OnModuleModuleproperties();
 }
 
-void CMainFrame::trackerAction_play()
+void CMainFrame::toolBarAction_play()
 {
    qDebug("play");
    theApp.OnTrackerPlay();
 }
 
-void CMainFrame::trackerAction_playLoop()
+void CMainFrame::toolBarAction_playLoop()
 {
    qDebug("playLoop");
    theApp.OnTrackerPlaypattern();
 }
 
-void CMainFrame::trackerAction_stop()
+void CMainFrame::toolBarAction_stop()
 {
    qDebug("stop");
    theApp.OnTrackerStop();
 }
 
-void CMainFrame::trackerAction_editMode()
+void CMainFrame::toolBarAction_editMode()
 {
    qDebug("editMode");
    CFamiTrackerView* pView = (CFamiTrackerView*)GetActiveView();
    pView->OnTrackerEdit();
 }
 
-void CMainFrame::trackerAction_previousTrack()
+void CMainFrame::toolBarAction_previousTrack()
 {
    qDebug("previousTrack");
    OnPrevSong();
 }
 
-void CMainFrame::trackerAction_nextTrack()
+void CMainFrame::toolBarAction_nextTrack()
 {
    qDebug("nextTrack");
    OnNextSong();
 }
 
-void CMainFrame::trackerAction_settings()
+void CMainFrame::toolBarAction_settings()
 {
    qDebug("settings");
 }
 
-void CMainFrame::trackerAction_createNSF()
+void CMainFrame::toolBarAction_createNSF()
 {
    qDebug("createNSF");
+   OnCreateNSF();
 }
 
 void CMainFrame::on_frameInc_clicked()
@@ -1313,6 +1280,12 @@ void CMainFrame::OnUpdateSBChip(CCmdUI *pCmdUI)
 
 	pCmdUI->Enable(); 
 	pCmdUI->SetText(String);
+}
+
+void CMainFrame::OnCreateNSF()
+{
+	CExportDialog ExportDialog(this);
+	ExportDialog.DoModal();
 }
 
 void CMainFrame::on_frameChangeAll_clicked(bool checked)

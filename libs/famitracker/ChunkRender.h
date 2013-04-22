@@ -51,7 +51,7 @@ private:
 	static const stChunkRenderFunc RENDER_FUNCTIONS[];
 
 private:
-	void DumpStrings(CString &preStr, CString &postStr, CStringArray &stringArray, CFile *pFile);
+	void DumpStrings(CString preStr, CString postStr, CStringArray stringArray, CFile *pFile);
 	void WriteFileString(CFile *pFile, CString str);
 	void PrintList(CChunk *pChunk, CString &str);
 	void StoreByteString(CChunk *pChunk, CString &str);

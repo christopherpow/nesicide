@@ -13,4 +13,6 @@ void qtMfcInit();
 
 void qtMfcInitDialogResource(UINT dlgID,CDialog* parent);
 
+void qtMfcInitToolBarResource(UINT dlgID,CToolBar* parent);
+
 #endif // CQTMFC_FAMITRACKER_H

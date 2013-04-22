@@ -231,9 +231,15 @@ void CSettings::StoreSetting(CString Section, CString Name, int Value) const
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    QString key;
-   key = (const QString&)Section;
+#ifdef UNICODE
+   key = QString::fromWCharArray(Section);
    key += "/";
-   key += (const QString&)Name;
+   key += QString::fromWCharArray(Name);
+#else
+   key = QString(Section);
+   key += "/";
+   key += QString(Name);
+#endif
 //   qDebug("StoreSetting");
 //   qDebug(key.toAscii().constData());
    
@@ -244,9 +250,15 @@ int CSettings::LoadSetting(CString Section, CString Name, int Default) const
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    QString key;
-   key = (const QString&)Section;
+#ifdef UNICODE
+   key = QString::fromWCharArray(Section);
    key += "/";
-   key += (const QString&)Name;
+   key += QString::fromWCharArray(Name);
+#else
+   key = QString(Section);
+   key += "/";
+   key += QString(Name);
+#endif
 //   qDebug("LoadSetting");
 //   qDebug(key.toAscii().constData());
    

@@ -1,6 +1,8 @@
 #include "cqtmfc.h"
 #include "cqtmfc_famitracker.h"
 
+#include <QToolBar>
+
 #include "stdafx.h"
 
 void qtMfcInitMenuResources()
@@ -120,6 +122,9 @@ void qtMfcInitStringResources()
    //
    // String Table
    //
+   
+// AFX resources
+   qtMfcStringResources.insert(AFX_IDS_ALLFILTER,"All files (*.*)");
    
 //   STRINGTABLE 
 //   BEGIN
@@ -1511,34 +1516,129 @@ void qtMfcInitDialogResource_IDD_OCTAVE(UINT dlgID,CDialog* parent)
 //   END
 }   
 
-//#include "dialog-file"
-void qtMfcInitDialogResource_IDD_EXPORT(UINT dlgID,CDialog* parent)
+#include "ExportDialog.h"
+void qtMfcInitDialogResource_IDD_EXPORT(UINT dlgID,CDialog* parent1)
 {
-//  dialog-type* parent = dynamic_cast<dialog-type*>(parent1);
+   CExportDialog* parent = dynamic_cast<CExportDialog*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
    
 //   IDD_EXPORT DIALOGEX 0, 0, 247, 283
+   CRect rect(CPoint(0,0),CSize(247,283));
+   parent->MapDialogRect(&rect);
+   parent->setFixedSize(rect.Width(),rect.Height());
 //   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 //   CAPTION "Export file"
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
 //   BEGIN
 //       DEFPUSHBUTTON   "&Export",IDC_EXPORT,187,7,53,14
+   CButton* mfc1 = new CButton(parent);
+   CRect r1(CPoint(187,7),CSize(53,14));
+   parent->MapDialogRect(&r1);
+   mfc1->Create(_T("Export"),BS_DEFPUSHBUTTON | WS_VISIBLE,r1,parent,IDC_EXPORT);
+   mfcToQtWidget->insert(IDOK,mfc1);
+   QObject::connect(mfc1,SIGNAL(clicked()),parent,SLOT(ok_clicked()));
 //       PUSHBUTTON      "&Close",IDC_CLOSE,187,23,53,14
+   CButton* mfc2 = new CButton(parent);
+   CRect r2(CPoint(187,23),CSize(53,14));
+   parent->MapDialogRect(&r2);
+   mfc2->Create(_T("Close"),WS_VISIBLE,r2,parent,IDC_CLOSE);
+   mfcToQtWidget->insert(IDC_CLOSE,mfc2);
+   QObject::connect(mfc2,SIGNAL(clicked()),parent,SLOT(close_clicked()));
 //       EDITTEXT        IDC_NAME,60,18,114,13,ES_AUTOHSCROLL
+   CEdit* mfc3 = new CEdit(parent);
+   CRect r3(CPoint(60,18),CSize(114,13));
+   parent->MapDialogRect(&r3);
+   mfc3->Create(ES_AUTOHSCROLL | WS_VISIBLE,r3,parent,IDC_NAME);
+   mfcToQtWidget->insert(IDC_NAME,mfc3);
 //       EDITTEXT        IDC_ARTIST,60,33,114,13,ES_AUTOHSCROLL
+   CEdit* mfc4 = new CEdit(parent);
+   CRect r4(CPoint(60,33),CSize(114,13));
+   parent->MapDialogRect(&r4);
+   mfc4->Create(ES_AUTOHSCROLL | WS_VISIBLE,r4,parent,IDC_ARTIST);
+   mfcToQtWidget->insert(IDC_ARTIST,mfc4);
 //       EDITTEXT        IDC_COPYRIGHT,60,49,114,13,ES_AUTOHSCROLL
+   CEdit* mfc5 = new CEdit(parent);
+   CRect r5(CPoint(60,49),CSize(114,13));
+   parent->MapDialogRect(&r5);
+   mfc5->Create(ES_AUTOHSCROLL | WS_VISIBLE,r5,parent,IDC_COPYRIGHT);
+   mfcToQtWidget->insert(IDC_COPYRIGHT,mfc5);
 //       CONTROL         "NTSC",IDC_NTSC,"Button",BS_AUTORADIOBUTTON,16,67,33,10
+   CButton* mfc6 = new CButton(parent);
+   CRect r6(CPoint(16,67),CSize(33,10));
+   parent->MapDialogRect(&r6);
+   mfc6->Create(_T("NTSC"),BS_AUTORADIOBUTTON | WS_VISIBLE,r6,parent,IDC_NTSC);
+   mfcToQtWidget->insert(IDC_NTSC,mfc6);
+   QObject::connect(mfc6,SIGNAL(clicked()),parent,SLOT(ntsc_clicked()));
 //       CONTROL         "PAL",IDC_PAL,"Button",BS_AUTORADIOBUTTON,54,67,28,10
+   CButton* mfc7 = new CButton(parent);
+   CRect r7(CPoint(54,67),CSize(28,10));
+   parent->MapDialogRect(&r7);
+   mfc7->Create(_T("PAL"),BS_AUTORADIOBUTTON | WS_VISIBLE,r7,parent,IDC_PAL);
+   mfcToQtWidget->insert(IDC_PAL,mfc7);
+   QObject::connect(mfc7,SIGNAL(clicked()),parent,SLOT(pal_clicked()));
 //       CONTROL         "Dual",IDC_DUAL,"Button",BS_AUTORADIOBUTTON,88,67,30,10
+   CButton* mfc8 = new CButton(parent);
+   CRect r8(CPoint(88,67),CSize(30,10));
+   parent->MapDialogRect(&r8);
+   mfc8->Create(_T("Dual"),BS_AUTORADIOBUTTON | WS_VISIBLE,r8,parent,IDC_DUAL);
+   mfcToQtWidget->insert(IDC_DUAL,mfc8);
+   QObject::connect(mfc8,SIGNAL(clicked()),parent,SLOT(dual_clicked()));
 //       COMBOBOX        IDC_TYPE,16,97,218,100,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+   CComboBox* mfc9 = new CComboBox(parent);
+   CRect r9(CPoint(16,97),CSize(218,100));
+   parent->MapDialogRect(&r9);
+   mfc9->Create(CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r9,parent,IDC_TYPE);
+   mfcToQtWidget->insert(IDC_TYPE,mfc9);
+   QObject::connect(mfc9,SIGNAL(currentIndexChanged(int)),parent,SLOT(type_currentIndexChanged(int)));
 //       GROUPBOX        "NSF file options",IDC_STATIC,7,7,173,75
+   CGroupBox* mfc10 = new CGroupBox(parent);
+   CRect r10(CPoint(7,7),CSize(173,75));
+   parent->MapDialogRect(&r10);
+   mfc10->Create(_T("NSF file options"),WS_VISIBLE,r10,parent,IDC_STATIC);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       LTEXT           "Name",IDC_STATIC,16,20,38,11
+   CStatic* mfc11 = new CStatic(parent);
+   CRect r11(CPoint(16,20),CSize(38,11));
+   parent->MapDialogRect(&r11);
+   mfc11->Create(_T("Name"),WS_VISIBLE,r11,parent,IDC_STATIC);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       LTEXT           "Artist",IDC_STATIC,16,35,38,11
+   CStatic* mfc12 = new CStatic(parent);
+   CRect r12(CPoint(16,35),CSize(38,11));
+   parent->MapDialogRect(&r12);
+   mfc12->Create(_T("Artist"),WS_VISIBLE,r12,parent,IDC_STATIC);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       LTEXT           "Copyright",IDC_STATIC,16,51,38,11
+   CStatic* mfc13 = new CStatic(parent);
+   CRect r13(CPoint(16,51),CSize(38,11));
+   parent->MapDialogRect(&r13);
+   mfc13->Create(_T("Copyright"),WS_VISIBLE,r13,parent,IDC_STATIC);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       GROUPBOX        "Progress",IDC_STATIC,7,120,233,156
+   CGroupBox* mfc14 = new CGroupBox(parent);
+   CRect r14(CPoint(7,120),CSize(233,156));
+   parent->MapDialogRect(&r14);
+   mfc14->Create(_T("Progress"),WS_VISIBLE,r14,parent,IDC_STATIC);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       EDITTEXT        IDC_OUTPUT,16,132,218,139,ES_MULTILINE | ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER | WS_VSCROLL
+   CEdit* mfc15 = new CEdit(parent);
+   CRect r15(CPoint(16,132),CSize(218,139));
+   parent->MapDialogRect(&r15);
+   mfc15->Create(ES_MULTILINE | ES_AUTOHSCROLL | ES_READONLY | WS_VSCROLL | WS_VISIBLE,r5,parent,IDC_COPYRIGHT);
+   mfcToQtWidget->insert(IDC_OUTPUT,mfc15);
 //       GROUPBOX        "Type of file",IDC_STATIC,7,87,233,29
+   CGroupBox* mfc16 = new CGroupBox(parent);
+   CRect r16(CPoint(7,87),CSize(233,29));
+   parent->MapDialogRect(&r16);
+   mfc16->Create(_T("Type of file"),WS_VISIBLE,r16,parent,IDC_STATIC);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       PUSHBUTTON      "&Play",IDC_PLAY,187,68,53,14,NOT WS_VISIBLE
+   CButton* mfc17 = new CButton(parent);
+   CRect r17(CPoint(187,68),CSize(53,14));
+   parent->MapDialogRect(&r17);
+   mfc17->Create(_T("&Play"),0,r17,parent,IDC_PLAY);
+   mfcToQtWidget->insert(IDC_PLAY,mfc17);
+   QObject::connect(mfc17,SIGNAL(clicked()),parent,SLOT(play_clicked()));
 //   END
 }   
 
@@ -2697,6 +2797,101 @@ void qtMfcInitDialogResource(UINT dlgID,CDialog* parent)
       qFatal("dialog resource not implemented...");
    }
 }   
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Toolbar
+//
+
+void qtMfcInitToolBarResource_IDR_MAINFRAME(UINT dlgID,CToolBar* parent)
+{
+   QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
+
+   QImage toolBarImage(":/resources/Toolbar-d5.bmp");
+   QToolBar* toolBar = dynamic_cast<QToolBar*>(parent->toQWidget());
+   QAction* toolBarAction;
+   int col;
+   int idx;
+   int sep;
+   int seps[] = { 2, 5, 7, 12, 13, 17, 19, 20, 21 };
+                
+   for ( sep = 0, col = 0, idx = 0; col < toolBarImage.width(); col += 16, idx++ )
+   {
+      toolBarAction = new QAction(parent);
+      QPixmap toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(col,0,16,15)).scaled(22,22,Qt::IgnoreAspectRatio,Qt::SmoothTransformation);
+      toolBarAction->setIcon(QIcon(toolBarActionPixmap));
+      QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SIGNAL(toolBarAction_triggered()));
+      parent->toolBarActions()->append(toolBarAction);
+      toolBar->addAction(toolBarAction);
+      if ( idx == seps[sep] )
+      {
+         toolBar->addSeparator();
+         sep++;
+      }
+   }
+
+//IDR_MAINFRAME TOOLBAR 16, 15
+//BEGIN
+//    BUTTON      ID_FILE_NEW
+//    BUTTON      ID_FILE_OPEN
+//    BUTTON      ID_FILE_SAVE
+//    SEPARATOR
+//    BUTTON      ID_EDIT_CUT
+//    BUTTON      ID_EDIT_COPY
+//    BUTTON      ID_EDIT_PASTE
+//    SEPARATOR
+//    BUTTON      ID_APP_ABOUT
+//    BUTTON      ID_CONTEXT_HELP
+//    SEPARATOR
+//    BUTTON      ID_MODULE_INSERTFRAME
+//    BUTTON      ID_MODULE_REMOVEFRAME
+//    BUTTON      ID_MODULE_MOVEFRAMEDOWN
+//    BUTTON      ID_MODULE_MOVEFRAMEUP
+//    BUTTON      ID_MODULE_DUPLICATEFRAME
+//    SEPARATOR
+//    BUTTON      ID_MODULE_MODULEPROPERTIES
+//    SEPARATOR
+//    BUTTON      ID_TRACKER_PLAY
+//    BUTTON      ID_TRACKER_PLAYPATTERN
+//    BUTTON      ID_TRACKER_STOP
+//    BUTTON      ID_TRACKER_EDIT
+//    SEPARATOR
+//    BUTTON      ID_PREV_SONG
+//    BUTTON      ID_NEXT_SONG
+//    SEPARATOR
+//    BUTTON      ID_FILE_GENERALSETTINGS
+//    SEPARATOR
+//    BUTTON      ID_FILE_CREATE_NSF
+//END
+}
+
+void qtMfcInitToolBarResource_IDR_INSTRUMENT_TOOLBAR(UINT dlgID,CToolBar* parent)
+{
+//IDR_INSTRUMENT_TOOLBAR TOOLBAR 16, 15
+//BEGIN
+//    BUTTON      ID_INSTRUMENT_NEW
+//    BUTTON      ID_INSTRUMENT_REMOVE
+//    BUTTON      ID_INSTRUMENT_CLONE
+//    SEPARATOR
+//    BUTTON      ID_INSTRUMENT_LOAD
+//    BUTTON      ID_INSTRUMENT_SAVE
+//    SEPARATOR
+//    BUTTON      ID_INSTRUMENT_EDIT
+//END
+}
+
+void qtMfcInitToolBarResource(UINT dlgID,CToolBar* parent)
+{
+   switch ( dlgID )
+   {
+   case IDR_MAINFRAME:
+      qtMfcInitToolBarResource_IDR_MAINFRAME(dlgID,parent);
+      break;
+   case IDR_INSTRUMENT_TOOLBAR:
+      qtMfcInitToolBarResource_IDR_INSTRUMENT_TOOLBAR(dlgID,parent);
+      break;
+   }
+}
 
 void qtMfcInit()
 {

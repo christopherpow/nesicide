@@ -130,7 +130,7 @@ public:
 // I'll try to organize this class, things are quite messy right now!
 //
 
-class CFamiTrackerDoc : public QObject, public CDocument
+class CFamiTrackerDoc : public QObject, public CDocument, public CFamiTrackerDocInterface
 {
    Q_OBJECT
 public:

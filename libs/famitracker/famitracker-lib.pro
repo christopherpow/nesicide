@@ -149,7 +149,14 @@ SOURCES += \
     WavProgressDlg.cpp \
     WaveFile.cpp \
     ControlPanelDlg.cpp \
-    CustomControls.cpp
+    CustomControls.cpp \
+    ExportDialog.cpp \
+    CustomExporters.cpp \
+    CustomExporter.cpp \
+    CustomExporter_C_Interface.cpp \
+    Compiler.cpp \
+    Chunk.cpp \
+    ChunkRender.cpp
 
 HEADERS += \
     TrackerChannel.h \
@@ -250,7 +257,12 @@ HEADERS += \
     WavProgressDlg.h \
     WaveFile.h \ 
     ControlPanelDlg.h \
-    CustomControls.h
+    CustomControls.h \
+    ExportDialog.h \
+    CustomExporters.h \
+    CustomExporter.h \
+    CustomExporter_C_Interface.h \
+    ChunkRender.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN

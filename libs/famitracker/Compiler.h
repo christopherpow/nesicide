@@ -247,8 +247,8 @@ private:
 	unsigned int	m_iWaveTables;
 
 	// Optimization
-//	CMap<UINT, UINT, CChunk*, CChunk*>		 m_PatternMap;
-//	CMap<CString, LPCTSTR, CString, LPCTSTR> m_DuplicateMap;
+	CMap<UINT, UINT, CChunk*, CChunk*>		 m_PatternMap;
+	CMap<CString, LPCTSTR, CString, LPCTSTR> m_DuplicateMap;
 
 	// Debugging
 	CEdit			*m_pLogText;

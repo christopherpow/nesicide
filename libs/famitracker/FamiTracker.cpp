@@ -32,9 +32,20 @@
 //#include "Accelerator.h"
 #include "Settings.h"
 #include "ChannelMap.h"
-//#include "CustomExporters.h"
+#include "CustomExporters.h"
 
-CFamiTrackerApp::CFamiTrackerApp()
+CFamiTrackerApp::CFamiTrackerApp() :
+//   m_bThemeActive(false),
+//	m_pMIDI(NULL),
+//	m_pAccel(NULL),
+	m_pSettings(NULL),
+	m_pSoundGenerator(NULL),
+	m_pChannelMap(NULL),
+	m_customExporters(NULL)
+//	m_hAliveCheck(NULL),
+//	m_hNotificationEvent(NULL),
+//	m_hWndMapFile(NULL),
+//	m_pInstanceMutex(NULL)
 {
 }
 
@@ -154,6 +165,11 @@ void CFamiTrackerApp::RemoveSoundGenerator()
 	m_pSoundGenerator = NULL;
 }
 
+CCustomExporters* CFamiTrackerApp::GetCustomExporters(void) const
+{
+	return m_customExporters;
+}
+
 BOOL CFamiTrackerApp::InitInstance(QMainWindow* parent)
 {
    qtMainWindow = parent;
@@ -189,11 +205,11 @@ BOOL CFamiTrackerApp::InitInstance(QMainWindow* parent)
 //	//who: added by Derek Andrews <derek.george.andrews@gmail.com>
 //	//why: Load all custom exporter plugins on startup.
 	
-//	TCHAR pathToPlugins[MAX_PATH];
-//	GetModuleFileName(NULL, pathToPlugins, MAX_PATH);
-//	PathRemoveFileSpec(pathToPlugins);
-//	PathAppend(pathToPlugins, _T("\\Plugins"));
-//	m_customExporters = new CCustomExporters( pathToPlugins );
+	TCHAR pathToPlugins[MAX_PATH];
+	GetModuleFileName(NULL, pathToPlugins, MAX_PATH);
+	PathRemoveFileSpec(pathToPlugins);
+	PathAppend(pathToPlugins, _T("\\Plugins"));
+	m_customExporters = new CCustomExporters( pathToPlugins );
 
 //	// Load custom accelerator
 //	m_pAccel = new CAccelerator();
@@ -359,10 +375,10 @@ int CFamiTrackerApp::ExitInstance()
 		m_pSettings = NULL;
 	}
 
-//	if (m_customExporters) {
-//		delete m_customExporters;
-//		m_customExporters = NULL;
-//	}
+	if (m_customExporters) {
+		delete m_customExporters;
+		m_customExporters = NULL;
+	}
 
 	if (m_pChannelMap) {
 		delete m_pChannelMap;
@@ -372,6 +388,24 @@ int CFamiTrackerApp::ExitInstance()
 	TRACE0("App: ExitInstance done\n");
 
 	return CWinApp::ExitInstance();
+}
+
+// Various global helper functions
+
+CString LoadDefaultFilter(LPCTSTR Name, LPCTSTR Ext)
+{
+	// Loads a single filter string including the all files option
+	CString filter;
+	CString allFilter;
+	VERIFY(allFilter.LoadString(AFX_IDS_ALLFILTER));
+
+	filter = Name;
+	filter += _T(" (*");
+	filter += Ext;
+	filter += _T(")");
+	filter += allFilter;
+
+	return filter;
 }
 
 CFamiTrackerApp theApp;

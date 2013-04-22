@@ -12,6 +12,7 @@
 #include <QBrush>
 #include <QSize>
 #include <QStatusBar>
+#include <QToolBar>
 #include <QPixmap>
 #include <QFont>
 #include <QRegion>
@@ -65,6 +66,8 @@
 enum
 {
    __UNDER_THE_HOOD_START = 0x8000000,
+   
+   AFX_IDS_ALLFILTER,
    
    WM_SIZEPARENT,
    WM_INITIALUPDATE,
@@ -235,7 +238,10 @@ struct AFX_SIZEPARENTPARAMS
 #define ATLTRACE2(a,b,str,...)
 #endif
 
+#define VERIFY(x) x
+
 TCHAR* A2T(char* str);
+char* T2A(TCHAR* str);
 
 typedef int* POSITION;
 
@@ -255,7 +261,8 @@ typedef struct
 
 #define afx_msg
 
-#define strcpy_s(d,l,s) wcsncpy(d,s,l)
+#define strcpy_s(d,l,s) strncpy((char*)d,(const char*)s,l)
+#define vsprintf_s(b,n,f,v) vsprintf(b,f,v)
 #if UNICODE
 #define _ttoi _wtoi
 #define _tstoi _wtoi
@@ -288,6 +295,21 @@ int AFXAPI AfxMessageBox(
    UINT nIDPrompt,
    UINT nType = MB_OK,
    UINT nIDHelp = (UINT) -1 
+);
+
+DWORD WINAPI GetModuleFileName(
+   HMODULE hModule,
+   LPTSTR lpFilename,
+   DWORD nSize
+);
+
+BOOL PathRemoveFileSpec(
+   LPTSTR pszPath
+);
+
+BOOL PathAppend(
+   LPTSTR pszPath,
+   LPCTSTR pszMore
 );
 
 int MulDiv(
@@ -404,7 +426,9 @@ class CSemaphore : public CSyncObject
 };
 
 class CString;
-bool operator==(const CString& s1, const LPCTSTR s2);
+BOOL operator==(const CString& s1, const LPCTSTR s2);
+BOOL operator!=(const CString& s1, const LPCTSTR s2);
+BOOL operator <( const CString& s1, const CString& s2 );
 
 class CString
 {
@@ -413,7 +437,7 @@ public:
    CString(const CString& ref);
    CString(QString str);
    CString(LPCSTR str);
-   CString(LPCWSTR str);
+   CString(LPCTSTR str);
    virtual ~CString();
    
    BOOL LoadString( UINT nID );
@@ -422,35 +446,47 @@ public:
 
    CString& Append(LPCSTR str);
    CString& Append(LPWSTR str);
+#if UNICODE
+   void AppendFormat(LPCSTR fmt, ...);
+#endif
    void AppendFormat(LPCTSTR fmt, ...);
    void AppendFormatV(LPCTSTR fmt, va_list ap);
    void Format( UINT nFormatID, ... );
+#if UNICODE
+   void Format(LPCSTR fmt, ...);
+#endif
    void Format(LPCTSTR fmt, ...);
    void FormatV(LPCTSTR fmt, va_list ap);
    void Truncate(int length);
    int ReverseFind( TCHAR ch ) const;
+   int Compare( LPCTSTR lpsz ) const;
  
-   const CString& operator=(const CString& str);
-   const CString& operator+=(const CString& str);
-   const CString& operator=(LPSTR str);
-   const CString& operator+=(LPSTR str);
-   const CString& operator=(LPWSTR str);
-   const CString& operator+=(LPWSTR str);
-   const CString& operator=(LPCSTR str);
-   const CString& operator+=(LPCSTR str);
-   const CString& operator=(LPCWSTR str);
-   const CString& operator+=(LPCWSTR str);
-   const CString& operator=(QString str);
-   const CString& operator+=(QString str);
-   const CString& operator+(const CString& str);
-   const CString& operator+(LPSTR str);
-   const CString& operator+(LPWSTR str);
-   const CString& operator+(LPCSTR str);
-   const CString& operator+(LPCWSTR str);
-   const CString& operator+(QString str);
-   operator const QString&() const;
+   CString& operator=(const CString& str);
+//   CString& operator=(LPSTR str);
+//   CString& operator=(LPWSTR str);
+   CString& operator=(LPCSTR str);
+   CString& operator=(LPCTSTR str);
+//   CString& operator=(LPCWSTR str);
+   CString& operator=(QString str);
+   CString& operator+(const CString& str);
+//   CString& operator+(LPSTR str);
+//   CString& operator+(LPWSTR str);
+   CString& operator+(LPTSTR str);
+   CString& operator+(LPCSTR str);
+   CString& operator+(LPCTSTR str);
+//   CString& operator+(LPCWSTR str);
+   CString& operator+(QString str);
+   CString& operator+=(const CString& str);
+//   CString& operator+=(LPSTR str);
+//   CString& operator+=(LPWSTR str);
+   CString& operator+=(LPCSTR str);
+   CString& operator+=(LPCTSTR str);
+//   CString& operator+=(LPCWSTR str);
+   CString& operator+=(QString str);
+   operator QString() const;
    operator LPCTSTR() const;
-
+   operator LPCSTR() const;
+   
    void Empty();
    LPCTSTR GetString() const;
    LPTSTR GetBuffer() const;
@@ -468,14 +504,21 @@ protected:
 class CStringA : public CString
 {
 public:
-   CStringA(CString str) { qDebug("WHAT TO DO WITH CSTRINGA??"); }
+   CStringA(CString str);
+   operator char*() const;
 };
 
 class CStringArray
 {
 public:
-   CString GetAt(int idx) { return _qlist.at(idx); }
-   void SetAt(int idx, CString str) { _qlist.replace(idx,str); }
+   void RemoveAll( );
+   INT_PTR Add( LPCTSTR newElement );
+   CString GetAt(int idx) const;
+   void SetAt(int idx, CString str);
+   INT_PTR GetCount( ) const;
+   CString operator []( INT_PTR nIndex );  
+   CString operator []( INT_PTR nIndex ) const; 
+   BOOL IsEmpty( ) const;
 private:
    QList<CString> _qlist;
 };
@@ -1387,8 +1430,8 @@ public slots:
    bool eventFilter(QObject *object, QEvent *event);
 protected:
    QWidget* _qt;
+   QFrame* _qtd;
    QGridLayout* _grid;
-   QFrame* _frame;
 public:
    HWND m_hWnd;
 };
@@ -2544,10 +2587,16 @@ public:
 
 class CToolBar : public CControlBar
 {
+   Q_OBJECT
    // Qt interfaces
+public:
+   QList<QObject*>* toolBarActions() { return &_toolBarActions; } 
 protected:
    QToolBar* _qtd;
+   QList<QObject*> _toolBarActions;
    UINT _dwStyle;
+signals:
+   void toolBarAction_triggered();
    
    // MFC interfaces
 public:
@@ -2658,6 +2707,72 @@ public:
    CMenu* m_pMenu;
    CWnd* m_pOther;
    CMenu* m_pSubMenu;
+};
+
+template < class TYPE, class ARG_TYPE = const TYPE& > 
+class CArray : 
+   public CObject
+{
+public:
+   INT_PTR GetCount( ) const
+   {
+      return _qlist.count();
+   }
+   
+   TYPE& operator[]( 
+      INT_PTR nIndex  
+   ) 
+   {
+      return _qlist[nIndex];
+   }
+   
+   const TYPE& operator[]( 
+      INT_PTR nIndex  
+   ) const
+   {
+      return _qlist.at(nIndex);
+   }
+   
+   INT_PTR Add(
+      ARG_TYPE newElement 
+   )
+   {
+      _qlist.append(newElement);
+      return _qlist.count()-1;
+   }
+protected:
+   QList<TYPE> _qlist;
+};
+
+template< class KEY, class ARG_KEY, class VALUE, class ARG_VALUE >
+class CMap : 
+      public CObject
+{
+public:
+   VALUE& operator[](
+         ARG_KEY key 
+   )
+   {
+      return _qmap[key];
+   }
+
+protected:
+   QMap<KEY,VALUE> _qmap;
+};
+
+class CFileFind
+{
+public:
+   virtual BOOL FindFile(
+      LPCTSTR pstrName = NULL,
+      DWORD dwUnused = 0 
+   );
+   virtual BOOL FindNextFile( );
+   virtual CString GetFileName( ) const;
+   virtual CString GetFilePath( ) const;
+protected:
+   QDir _qdir;
+   QFileInfoList _qfiles;
 };
 
 int StretchDIBits(

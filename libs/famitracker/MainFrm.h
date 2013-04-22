@@ -97,10 +97,6 @@ protected:
 private:
    // Qt stuff
    QTimer* idleTimer;
-   QToolBar* toolBar;
-   QLabel* octaveLabel;
-   QComboBox* octaveComboBox;
-   QMap<QAction*,actionHandler> trackerActions;
    QMap<int,uiUpdateHandler> uiUpdateFuncs;
    CFamiTrackerDoc* m_pDocument;
    CFamiTrackerView* m_pView;
@@ -149,9 +145,8 @@ public:
 	afx_msg void OnModuleRemoveFrame();
 	afx_msg void OnModuleDuplicateFrame();
 	afx_msg void OnModuleDuplicateFramePatterns();
-//	afx_msg void OnModuleChannels();
 //	afx_msg void OnModuleComments();
-//	afx_msg void OnModuleModuleproperties();
+   afx_msg void OnCreateNSF();
 	afx_msg void OnModuleMoveframedown();
 	afx_msg void OnModuleMoveframeup();
    afx_msg void OnDblClkInstruments(NMHDR *pNMHDR, LRESULT *result);
@@ -178,29 +173,29 @@ public slots:
    void on_title_textEdited(const QString &arg1);   
    void on_author_textEdited(const QString &arg1);
    void on_copyright_textEdited(const QString &arg1);
-   void trackerAction_triggered();
-   void trackerAction_newDocument();
-   void trackerAction_openDocument();
-   void trackerAction_saveDocument();
-   void trackerAction_editCut();
-   void trackerAction_editCopy();
-   void trackerAction_editPaste();
-   void trackerAction_about();
-   void trackerAction_help();
-   void trackerAction_addFrame();
-   void trackerAction_removeFrame();
-   void trackerAction_moveFrameDown();
-   void trackerAction_moveFrameUp();
-   void trackerAction_duplicateFrame();
-   void trackerAction_moduleProperties();
-   void trackerAction_play();
-   void trackerAction_playLoop();
-   void trackerAction_stop();
-   void trackerAction_editMode();
-   void trackerAction_previousTrack();
-   void trackerAction_nextTrack();
-   void trackerAction_settings();
-   void trackerAction_createNSF();
+   void toolBarAction_triggered();
+   void toolBarAction_newDocument();
+   void toolBarAction_openDocument();
+   void toolBarAction_saveDocument();
+   void toolBarAction_editCut();
+   void toolBarAction_editCopy();
+   void toolBarAction_editPaste();
+   void toolBarAction_about();
+   void toolBarAction_help();
+   void toolBarAction_addFrame();
+   void toolBarAction_removeFrame();
+   void toolBarAction_moveFrameDown();
+   void toolBarAction_moveFrameUp();
+   void toolBarAction_duplicateFrame();
+   void toolBarAction_moduleProperties();
+   void toolBarAction_play();
+   void toolBarAction_playLoop();
+   void toolBarAction_stop();
+   void toolBarAction_editMode();
+   void toolBarAction_previousTrack();
+   void toolBarAction_nextTrack();
+   void toolBarAction_settings();
+   void toolBarAction_createNSF();
    void updateViews(long hint);
    
 signals:

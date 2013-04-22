@@ -102,7 +102,7 @@ public:
 	CSettings		*GetSettings() const { return m_pSettings; };
 	CChannelMap		*GetChannelMap() const { return m_pChannelMap; };
 	
-//	CCustomExporters *GetCustomExporters() const;
+	CCustomExporters *GetCustomExporters() const;
 
 	// Try to avoid these
 //	CDocument		*GetActiveDocument() const;
@@ -131,7 +131,7 @@ private:
 	CSettings		*m_pSettings;				// Program settings
 	CChannelMap		*m_pChannelMap;
 
-//	CCustomExporters *m_customExporters;
+	CCustomExporters *m_customExporters;
 
 //	// Single instance stuff
 //	CMutex			*m_pInstanceMutex;
@@ -168,4 +168,4 @@ CWinApp* AfxGetApp();
 CFrameWnd* AfxGetMainWnd();
 
 //// Global helper functions
-//CString LoadDefaultFilter(LPCTSTR Name, LPCTSTR Ext);
+CString LoadDefaultFilter(LPCTSTR Name, LPCTSTR Ext);

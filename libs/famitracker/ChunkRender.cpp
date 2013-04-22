@@ -92,7 +92,7 @@ void CChunkRenderText::StoreChunks(std::vector<CChunk*> &m_vChunks, CFile *pFile
 	// Actual DPCM samples are stored later
 }
 
-void CChunkRenderText::DumpStrings(CString &preStr, CString &postStr, CStringArray &stringArray, CFile *pFile)
+void CChunkRenderText::DumpStrings(CString preStr, CString postStr, CStringArray stringArray, CFile *pFile)
 {
 	WriteFileString(pFile, preStr);
 

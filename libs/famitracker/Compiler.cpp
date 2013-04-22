@@ -141,12 +141,13 @@ void CCompiler::Print(char *text, ...) const
 		buf[len + 1] = 0;
 	}
 
-	if (m_pLogText) {
-		int Len = m_pLogText->GetWindowTextLength();
-		m_pLogText->SetSel(Len, Len, 0);
-		m_pLogText->ReplaceSel(buf, 0);
-		m_pLogText->RedrawWindow();
-	}
+   qDebug("m_pLogText");
+//	if (m_pLogText) {
+//		int Len = m_pLogText->GetWindowTextLength();
+//		m_pLogText->SetSel(Len, Len, 0);
+//		m_pLogText->ReplaceSel(buf, 0);
+//		m_pLogText->RedrawWindow();
+//	}
 }
 
 void CCompiler::ClearLog() const
@@ -881,13 +882,13 @@ void CCompiler::AllocateData()
 	// Resolve label addresses
 	//
 
-	CMap<CString, LPCTSTR, int, int> labelMap;
+	CMap<CString, LPCSTR, int, int> labelMap;
 	int Offset = 0;
 
 	// Pass 1, collect labels
 
 	for (unsigned int i = 0; i < m_vChunks.size(); ++i) {
-		labelMap[m_vChunks[i]->GetLabel()] = Offset;
+      labelMap[m_vChunks[i]->GetLabel()] = Offset;
 		Offset += m_vChunks[i]->CountData();
 	}
 
@@ -909,7 +910,7 @@ void CCompiler::AllocateDataBankswitched()
 	// Resolve label addresses, with bankswitching enabled
 	//
 
-	CMap<CString, LPCTSTR, int, int> labelMap;
+	CMap<CString, LPCSTR, int, int> labelMap;
 	int Offset = 0;
 	int Bank = 3;
 
