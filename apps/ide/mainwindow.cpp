@@ -7,6 +7,8 @@
 
 #include "testsuiteexecutivedialog.h"
 
+#include "cqtmfc_famitracker.h"
+
 #include "main.h"
 
 #include "compilerthread.h"
@@ -339,8 +341,9 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    // Start timer for doing background stuff.
    m_periodicTimer = startTimer(5000);
    
-   // CPTODO: this is a hack - init FamiTracker app level stuff
-   theApp.InitInstance();
+   // Initialize the app...
+   qtMfcInit();
+   theApp.InitInstance(this);   
 }
 
 MainWindow::~MainWindow()

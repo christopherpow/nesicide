@@ -21,6 +21,7 @@
 #pragma once
 
 #include "cqtmfc.h"
+#include "resource.h"
 
 class CExportDialog;
 
@@ -30,6 +31,13 @@ typedef void (CExportDialog::*exportFunc_t)();
 
 class CExportDialog : public CDialog
 {
+   Q_OBJECT
+   // Qt interfaces
+public slots:
+   void close_clicked();
+   void export_clicked();
+   
+public:
 	DECLARE_DYNAMIC(CExportDialog)
 
 public:

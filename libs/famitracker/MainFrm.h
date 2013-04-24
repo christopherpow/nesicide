@@ -173,7 +173,7 @@ public slots:
    void on_title_textEdited(const QString &arg1);   
    void on_author_textEdited(const QString &arg1);
    void on_copyright_textEdited(const QString &arg1);
-   void toolBarAction_triggered();
+   void toolBarAction_triggered(int id);
    void toolBarAction_newDocument();
    void toolBarAction_openDocument();
    void toolBarAction_saveDocument();

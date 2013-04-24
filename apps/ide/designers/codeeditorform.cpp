@@ -41,6 +41,9 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
 
    ui->setupUi(this);
 
+   // Create the status-bar widget.
+   info = new QLabel(this);
+
    m_pBreakpoints = NULL;
 
    ui->gridLayout->setSpacing(0);
@@ -109,9 +112,6 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    QObject::connect(m_scintilla,SIGNAL(cursorPositionChanged(int,int)),this,SLOT(editor_cursorPositionChanged(int,int)));
 
    ui->gridLayout->addWidget(m_scintilla);
-
-   // Create the status-bar widget.
-   info = new QLabel(this);
 
    // Connect signals to the UI to have the UI update.
    QObject::connect ( codeBrowser,SIGNAL(breakpointsChanged()),this,SLOT(external_breakpointsChanged()) );

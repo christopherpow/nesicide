@@ -1,6 +1,8 @@
 #include "musiceditorform.h"
 #include "ui_musiceditorform.h"
 
+#include "cqtmfc_famitracker.h"
+
 MusicEditorForm::MusicEditorForm(QString fileName,QByteArray musicData,IProjectTreeViewItem* link,QWidget* parent) :
    CDesignerEditorBase(link,parent),
    ui(new Ui::MusicEditorForm)
@@ -9,10 +11,8 @@ MusicEditorForm::MusicEditorForm(QString fileName,QByteArray musicData,IProjectT
    
    m_fileName = fileName;
    
-   m_pMainFrame = (CMainFrame*)theApp.m_pMainWnd;
-
-   m_pMainFrame->setFileName(fileName);
-
+   theApp.GetDocTemplate()->OpenDocumentFile(NULL);
+   
    ui->stackedWidget->addWidget(m_pMainFrame);
    ui->stackedWidget->setCurrentWidget(m_pMainFrame);
    

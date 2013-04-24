@@ -112,7 +112,11 @@ void CMainFrame::showEvent(QShowEvent *)
       // Connect buried signals.
       QObject::connect(m_pDocument,SIGNAL(setModified(bool)),this,SIGNAL(editor_modificationChanged(bool)));
       
-      QObject::connect(&m_wndToolBar,SIGNAL(toolBarAction_triggered()),this,SLOT(toolBarAction_triggered()));
+      QObject::connect(&m_wndToolBar,SIGNAL(toolBarAction_triggered(int)),this,SLOT(toolBarAction_triggered(int)));
+      
+      // CP: If I don't do this here the pattern editor takes up the whole window at start until first resize.
+      //     Not sure why...yet.
+      RecalcLayout();
       
       initialized = true;
    }
@@ -150,9 +154,8 @@ void CMainFrame::updateViews(long hint)
 {
 }
 
-void CMainFrame::toolBarAction_triggered()
+void CMainFrame::toolBarAction_triggered(int id)
 {
-   QList<QObject*>* toolBarActions = m_wndToolBar.toolBarActions();
    actionHandler actionHandlers[] =
    {
       &CMainFrame::toolBarAction_newDocument,
@@ -178,10 +181,9 @@ void CMainFrame::toolBarAction_triggered()
       &CMainFrame::toolBarAction_settings,
       &CMainFrame::toolBarAction_createNSF
    };
-   int actionIndex = toolBarActions->indexOf(sender());
-   if ( actionIndex >= 0 )
+   if ( id >= 0 )
    {
-      (this->*((actionHandlers[actionIndex])))();
+      (this->*((actionHandlers[id])))();
    }
 }
 

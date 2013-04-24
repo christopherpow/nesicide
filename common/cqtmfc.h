@@ -1398,6 +1398,7 @@ protected:
    QHash<UINT_PTR,int> mfcToQtTimer;
    QHash<int,UINT_PTR> qtToMfcTimer;
    QHash<int,CWnd*> mfcToQtWidget;
+   QHash<int,QAction*> mfcToQtAction;
    static CFrameWnd* m_pFrameWnd;
    CWnd* m_pParentWnd;
    static CWnd* focusWnd;
@@ -1408,6 +1409,7 @@ protected:
    // Qt interfaces
 public:
    QHash<int,CWnd*>* mfcToQtWidgetMap() { return &mfcToQtWidget; }
+   QHash<int,QAction*>* mfcToQtActionMap() { return &mfcToQtAction; }
    void subclassWidget(int nID,CWnd* widget);
    void setParent(QWidget *parent) { _qt->setParent(parent); }
    void setParent(QWidget *parent, Qt::WindowFlags f) { _qt->setParent(parent,f); }   
@@ -2590,13 +2592,15 @@ class CToolBar : public CControlBar
    Q_OBJECT
    // Qt interfaces
 public:
-   QList<QObject*>* toolBarActions() { return &_toolBarActions; } 
+   QList<QObject*>* toolBarActions() { return &_toolBarActions; }
 protected:
    QToolBar* _qtd;
    QList<QObject*> _toolBarActions;
    UINT _dwStyle;
-signals:
+public slots:
    void toolBarAction_triggered();
+signals:
+   void toolBarAction_triggered(int id);
    
    // MFC interfaces
 public:
@@ -2658,7 +2662,7 @@ class CStatusBar : public CControlBar
    // Qt interfaces
 protected:
    QStatusBar* _qtd;
-   QHash<int,CStatic*> _panes;
+   QHash<int,QLabel*> _panes;
    UINT _dwStyle;
    
    // MFC interfaces

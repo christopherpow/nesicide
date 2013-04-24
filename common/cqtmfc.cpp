@@ -3306,10 +3306,13 @@ void CWnd::RepositionBars(
    foreach ( CWnd* pWnd, mfcToQtWidget )
    {
       if ( pWnd != pWndExtra )
+      {
          pWnd->SendMessage(WM_SIZEPARENT,0,(LPARAM)&layout);
+      }
    }
    // Hack to resize the view...
-   pWndExtra->MoveWindow(&layout.rect);
+   if ( pWndExtra )
+      pWndExtra->MoveWindow(&layout.rect);
 }
 
 void CWnd::MoveWindow(int x, int y, int cx, int cy)
@@ -3741,6 +3744,7 @@ void CFrameWnd::addControlBar(int area, QWidget *bar)
       cbrsRight->insertWidget(cbrsRight->count(),bar);
       break;
    }
+   RecalcLayout();
 }
 
 void CFrameWnd::InitialUpdateFrame(
@@ -3867,6 +3871,8 @@ BOOL CToolBar::CreateEx(
 )
 {
    _dwStyle = dwStyle;
+   
+   pParentWnd->mfcToQtWidgetMap()->insert(nID,this);
 }
 
 LRESULT CToolBar::SendMessage(
@@ -3884,6 +3890,11 @@ BOOL CToolBar::LoadToolBar(
 {
    qtMfcInitToolBarResource(nIDResource,this);
    ptrToTheApp->qtMainWindow->addToolBar(_qtd);
+}
+
+void CToolBar::toolBarAction_triggered()
+{
+   emit toolBarAction_triggered(_toolBarActions.indexOf(sender()));
 }
 
 CStatusBar::CStatusBar(CWnd* parent)
@@ -3943,10 +3954,9 @@ BOOL CStatusBar::SetIndicators(
    
    for ( pane = 0; pane < nIDCount; pane++ )
    {
-      CStatic* newPane = new CStatic(this);
-      newPane->Create(_T(""),WS_VISIBLE,CRect(CPoint(0,0),CSize(0,0)),this,IDC_STATIC);
+      QLabel* newPane = new QLabel;
       _panes.insert(pane,newPane);
-      _qtd->addWidget(newPane->toQWidget());
+      _qtd->addWidget(newPane);
       CString lpszText = qtMfcStringResource(lpIDArray[pane]);
 #if UNICODE
       newPane->setText(QString::fromWCharArray(lpszText));      
@@ -3963,7 +3973,7 @@ BOOL CStatusBar::SetPaneText(
    BOOL bUpdate 
 )
 {
-   CStatic* pane = _panes.value(nIndex);
+   QLabel* pane = _panes.value(nIndex);
    if ( pane )
    {
 #if UNICODE
