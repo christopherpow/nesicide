@@ -103,17 +103,16 @@ bool CInstrumentVRC7::LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc
 
 int CInstrumentVRC7::Compile(CChunk *pChunk, int Index)
 {
-   qDebug("Compile");
 	int Patch = GetPatch();
 
-//	pChunk->StoreByte(Patch << 4);	// Shift up by 4 to make room for volume
+	pChunk->StoreByte(Patch << 4);	// Shift up by 4 to make room for volume
 
-//	if (Patch == 0) {
-//		// Write custom patch settings
-//		for (int i = 0; i < 8; ++i) {
-//			pChunk->StoreByte(GetCustomReg(i));
-//		}
-//	}
+	if (Patch == 0) {
+		// Write custom patch settings
+		for (int i = 0; i < 8; ++i) {
+			pChunk->StoreByte(GetCustomReg(i));
+		}
+	}
 
 	return (Patch == 0) ? 9 : 1;
 }

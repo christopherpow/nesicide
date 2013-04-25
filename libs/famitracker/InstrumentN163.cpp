@@ -7,11 +7,11 @@
 ** the Free Software Foundation; either version 2 of the License, or
 ** (at your option) any later version.
 **
-** This program is distributed in the hope that it will be useful,
+** This program is distributed in the hope that it will be useful, 
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
-** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-** Library General Public License for more details.  To obtain a
-** copy of the GNU Library General Public License, write to the Free
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+** Library General Public License for more details.  To obtain a 
+** copy of the GNU Library General Public License, write to the Free 
 ** Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 **
 ** Any permitted reproduction of these routines, in whole or in part,
@@ -32,7 +32,7 @@ CInstrumentN163::CInstrumentN163()
 {
 	// Default wave
 	const char TRIANGLE_WAVE[] = {
-		0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+		0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 
 		15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0
 	};
 
@@ -127,7 +127,7 @@ bool CInstrumentN163::Load(CDocumentFile *pDocFile)
 	//pDocFile->GetBlockInt();
 	m_iWaveCount = pDocFile->GetBlockInt();
 	ASSERT_FILE_DATA(m_iWaveCount >= 1 && m_iWaveCount <= MAX_WAVE_COUNT);
-
+	
 	for (int i = 0; i < m_iWaveCount; ++i) {
 		for (int j = 0; j < m_iWaveSize; ++j) {
 			unsigned char WaveSample = pDocFile->GetBlockChar();
@@ -135,7 +135,7 @@ bool CInstrumentN163::Load(CDocumentFile *pDocFile)
 			m_iSamples[i][j] = WaveSample;
 		}
 	}
-
+	
 	return true;
 }
 
@@ -264,54 +264,53 @@ bool CInstrumentN163::LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc
 
 int CInstrumentN163::Compile(CChunk *pChunk, int Index)
 {
-   qDebug("Compile");
 	int ModSwitch = 0;
 	int StoredBytes = 0;
 
-//	CFamiTrackerDoc *pDoc = CFamiTrackerDoc::GetDoc();
+	CFamiTrackerDoc *pDoc = CFamiTrackerDoc::GetDoc();
 
-//	// Store wave info
-//	pChunk->StoreByte(m_iWaveSize >> 1);
-//	pChunk->StoreByte(/*m_bAutoWavePos ? 0xFF :*/ m_iWavePos);
-//	StoredBytes += 2;
+	// Store wave info
+	pChunk->StoreByte(m_iWaveSize >> 1);
+	pChunk->StoreByte(/*m_bAutoWavePos ? 0xFF :*/ m_iWavePos);
+	StoredBytes += 2;
 
-//	// Store reference to wave
-//	CString waveLabel;
-//	waveLabel.Format(CCompiler::LABEL_WAVES, Index);
-//	pChunk->StoreReference(waveLabel);
-//	StoredBytes += 2;
+	// Store reference to wave
+	CString waveLabel;
+	waveLabel.Format(CCompiler::LABEL_WAVES, Index);
+	pChunk->StoreReference(waveLabel);
+	StoredBytes += 2;
 
-//	// Store sequences
-//	for (int i = 0; i < SEQUENCE_COUNT; ++i) {
-//		ModSwitch = (ModSwitch >> 1) | (GetSeqEnable(i) && (pDoc->GetSequence(SNDCHIP_N163, GetSeqIndex(i), i)->GetItemCount() > 0) ? 0x10 : 0);
-//	}
+	// Store sequences
+	for (int i = 0; i < SEQUENCE_COUNT; ++i) {
+		ModSwitch = (ModSwitch >> 1) | (GetSeqEnable(i) && (pDoc->GetSequence(SNDCHIP_N163, GetSeqIndex(i), i)->GetItemCount() > 0) ? 0x10 : 0);
+	}
 
-//	pChunk->StoreByte(ModSwitch);
-//	StoredBytes++;
+	pChunk->StoreByte(ModSwitch);
+	StoredBytes++;
 
-//	for (int i = 0; i < SEQUENCE_COUNT; ++i) {
-//		if (GetSeqEnable(i) != 0 && (pDoc->GetSequence(SNDCHIP_N163, GetSeqIndex(i), i)->GetItemCount() != 0)) {
-//			CString str;
-//			str.Format(CCompiler::LABEL_SEQ_N163, GetSeqIndex(i) * SEQUENCE_COUNT + i);
-//			pChunk->StoreReference(str);
-//			StoredBytes += 2;
-//		}
-//	}
-
+	for (int i = 0; i < SEQUENCE_COUNT; ++i) {
+		if (GetSeqEnable(i) != 0 && (pDoc->GetSequence(SNDCHIP_N163, GetSeqIndex(i), i)->GetItemCount() != 0)) {
+			CString str;
+			str.Format(CCompiler::LABEL_SEQ_N163, GetSeqIndex(i) * SEQUENCE_COUNT + i);
+			pChunk->StoreReference(str);
+			StoredBytes += 2;
+		}
+	}
+	
 	return StoredBytes;
 }
 
 int CInstrumentN163::StoreWave(CChunk *pChunk) const
 {
 	// Number of waves
-////	pChunk->StoreByte(m_iWaveCount);
+//	pChunk->StoreByte(m_iWaveCount);
 
-//	// Pack samples
-//	for (int i = 0; i < m_iWaveCount; ++i) {
-//		for (int j = 0; j < m_iWaveSize; j += 2) {
-//			pChunk->StoreByte((m_iSamples[i][j + 1] << 4) | m_iSamples[i][j]);
-//		}
-//	}
+	// Pack samples
+	for (int i = 0; i < m_iWaveCount; ++i) {
+		for (int j = 0; j < m_iWaveSize; j += 2) {
+			pChunk->StoreByte((m_iSamples[i][j + 1] << 4) | m_iSamples[i][j]);
+		}
+	}
 
 	return m_iWaveCount * (m_iWaveSize >> 1);
 }

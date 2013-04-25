@@ -690,12 +690,12 @@ void CFrameEditor::focusOutEvent(QFocusEvent *)
 
 void CFrameEditor::resizeEvent(QResizeEvent *event)
 {
-   int width = event->size().width();
-   int height = event->size().height();
+   CRect rect;
+   GetClientRect(&rect);
+   width = rect.Width();
+   height = rect.Height();
 
    OnSize(0,width,height);
-   
-   setFixedSize(width,height);
 }
 
 void CFrameEditor::verticalScrollBar_actionTriggered(int arg1)

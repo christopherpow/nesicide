@@ -1630,7 +1630,7 @@ void qtMfcInitDialogResource_IDD_EXPORT(UINT dlgID,CDialog* parent1)
    CEdit* mfc15 = new CEdit(parent);
    CRect r15(CPoint(16,132),CSize(218,139));
    parent->MapDialogRect(&r15);
-   mfc15->Create(ES_MULTILINE | ES_AUTOHSCROLL | ES_READONLY | WS_VSCROLL | WS_VISIBLE,r5,parent,IDC_COPYRIGHT);
+   mfc15->Create(ES_MULTILINE | ES_AUTOHSCROLL | ES_READONLY | WS_VSCROLL | WS_VISIBLE,r15,parent,IDC_COPYRIGHT);
    mfcToQtWidget->insert(IDC_OUTPUT,mfc15);
 //       PUSHBUTTON      "&Play",IDC_PLAY,187,68,53,14,NOT WS_VISIBLE
    CButton* mfc17 = new CButton(parent);

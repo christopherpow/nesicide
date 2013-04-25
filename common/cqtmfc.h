@@ -53,7 +53,7 @@
 #include <QSpinBox>
 #include <QPushButton>
 #include <QLabel>
-#include <QLineEdit>
+#include <QPlainTextEdit>
 #include <QCheckBox>
 #include <QGroupBox>
 #include <QFileDialog>
@@ -1334,6 +1334,7 @@ public:
    virtual void DoDataExchange(
       CDataExchange* pDX 
    ) {}   
+   int GetWindowTextLength( ) const;
    CWnd* GetParent() { return m_pParentWnd?(CWnd*)m_pParentWnd:(CWnd*)m_pFrameWnd; }
    void SetParent(CWnd* parent) { m_pParentWnd = parent; _qt->setParent(parent->toQWidget()); }
    void GetWindowText(
@@ -1713,9 +1714,9 @@ class CEdit : public CWnd
    // Qt interfaces
 public:
    void setBuddy(CSpinButtonCtrl* buddy) { _buddy = buddy; }
-   void setText(QString text) { _qtd->setText(text); }
+   void setText(QString text) { _qtd->setPlainText(text); }
 protected:
-   QLineEdit* _qtd;
+   QPlainTextEdit* _qtd;
    CSpinButtonCtrl* _buddy;
 signals:
    void textChanged(QString);
@@ -1744,6 +1745,16 @@ public:
       int nEndChar,
       BOOL bNoScroll = FALSE 
    );
+   void ReplaceSel(
+      LPCTSTR lpszNewText,
+         BOOL bCanUndo = FALSE 
+   );
+#if UNICODE
+   void ReplaceSel(
+      LPCSTR lpszNewText,
+         BOOL bCanUndo = FALSE 
+   );
+#endif
    BOOL EnableWindow(BOOL bEnable);
    void SetDlgItemInt(
       int nID,

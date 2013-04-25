@@ -141,13 +141,12 @@ void CCompiler::Print(char *text, ...) const
 		buf[len + 1] = 0;
 	}
 
-   qDebug("m_pLogText");
-//	if (m_pLogText) {
-//		int Len = m_pLogText->GetWindowTextLength();
-//		m_pLogText->SetSel(Len, Len, 0);
-//		m_pLogText->ReplaceSel(buf, 0);
-//		m_pLogText->RedrawWindow();
-//	}
+	if (m_pLogText) {
+		int Len = m_pLogText->GetWindowTextLength();
+		m_pLogText->SetSel(Len, Len, 0);
+		m_pLogText->ReplaceSel(buf, 0);
+		m_pLogText->RedrawWindow();
+	}
 }
 
 void CCompiler::ClearLog() const

@@ -3085,6 +3085,11 @@ CWnd::~CWnd()
 //      delete _grid;
 }
 
+int CWnd::GetWindowTextLength( ) const
+{
+   return 0;
+}
+
 CDC* CWnd::GetDC() 
 { 
    return _myDC; 
@@ -3249,8 +3254,8 @@ BOOL CWnd::CreateEx(
    _qt->setFixedSize(createStruct.cx,createStruct.cy);
    if ( createStruct.dwExStyle&WS_EX_STATICEDGE )
    {
-      _qtd->setFrameStyle(QFrame::Panel | QFrame::Raised);
-      _qtd->setLineWidth(2);
+//      _qtd->setFrameStyle(QFrame::Panel | QFrame::Raised);
+//      _qtd->setLineWidth(2);
    }
    if ( createStruct.style&WS_VSCROLL )
    {
@@ -4224,6 +4229,7 @@ void CDialog::EndDialog(
 )
 {
    _qtd->setResult(nResult);
+   _qtd->close();
 }
 
 CCommonDialog::CCommonDialog(CWnd *pParentWnd)
@@ -4613,12 +4619,12 @@ CEdit::CEdit(CWnd* parent)
       delete _qt;
    
    if ( parent )
-      _qt = new QLineEdit(parent->toQWidget());
+      _qt = new QPlainTextEdit(parent->toQWidget());
    else
-      _qt = new QLineEdit;
+      _qt = new QPlainTextEdit;
    
    // Downcast to save having to do it all over the place...
-   _qtd = dynamic_cast<QLineEdit*>(_qt);
+   _qtd = dynamic_cast<QPlainTextEdit*>(_qt);
    
    // Pass-through signals
    QObject::connect(_qtd,SIGNAL(textChanged(QString)),this,SIGNAL(textChanged(QString)));
@@ -4640,6 +4646,16 @@ BOOL CEdit::Create(
 )
 {
    _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
+   if ( dwStyle&ES_MULTILINE )
+   {
+      _qtd->setMaximumBlockCount(0);
+   }
+   else
+   {
+      _qtd->setMaximumBlockCount(1);
+      _qtd->verticalScrollBar()->setVisible(false);
+   }
+   
    _qtd->setVisible(dwStyle&WS_VISIBLE);
    
    return TRUE;
@@ -4674,8 +4690,46 @@ void CEdit::SetSel(
    BOOL bNoScroll
 )
 {
-   _qtd->setSelection(nStartChar,nEndChar);
+   QTextCursor textCursor(_qtd->document());
+   if ( nEndChar < nStartChar )
+   {
+      int temp;
+      temp = nEndChar;
+      nEndChar = nStartChar;
+      nStartChar = temp;
+   }   
+   textCursor.setPosition(nStartChar);
+   textCursor.movePosition(QTextCursor::NextCharacter,QTextCursor::KeepAnchor,nEndChar-nStartChar);
+   _qtd->setTextCursor(textCursor);
 }
+
+void CEdit::ReplaceSel(
+   LPCTSTR lpszNewText,
+      BOOL bCanUndo
+)
+{
+   QTextCursor textCursor(_qtd->document());
+   textCursor.removeSelectedText();
+#if UNICODE
+   textCursor.insertText(QString::fromWCharArray(lpszNewText));
+#else
+   textCursor.insertText(lpszNewText);
+#endif
+   _qtd->setTextCursor(textCursor);
+}
+
+#if UNICODE
+void CEdit::ReplaceSel(
+   LPCSTR lpszNewText,
+      BOOL bCanUndo
+)
+{
+   QTextCursor textCursor(_qtd->document());
+   textCursor.removeSelectedText();
+   textCursor.insertText(lpszNewText);
+   _qtd->setTextCursor(textCursor);
+}
+#endif
 
 BOOL CEdit::EnableWindow(
    BOOL bEnable
@@ -4693,7 +4747,7 @@ void CEdit::SetDlgItemInt(
    BOOL bSigned 
 )
 {
-   _qtd->setText(QString::number(nValue));
+   _qtd->setPlainText(QString::number(nValue));
 }
 
 UINT CEdit::GetDlgItemInt(
@@ -4702,7 +4756,7 @@ UINT CEdit::GetDlgItemInt(
    BOOL bSigned
 ) const
 {
-   return _qtd->text().toInt();
+   return _qtd->toPlainText().toInt();
 }
 
 void CEdit::SetDlgItemText(
@@ -4711,9 +4765,9 @@ void CEdit::SetDlgItemText(
 )
 {
 #if UNICODE
-   _qtd->setText(QString::fromWCharArray(lpszString));
+   _qtd->setPlainText(QString::fromWCharArray(lpszString));
 #else
-   _qtd->setText(lpszString);
+   _qtd->setPlainText(lpszString);
 #endif
 }
 
@@ -4722,8 +4776,8 @@ int CEdit::GetDlgItemText(
    CString& rString 
 ) const
 {
-   rString = _qtd->text();
-   return _qtd->text().length();
+   rString = _qtd->toPlainText();
+   return _qtd->toPlainText().length();
 }
 
 int CEdit::GetDlgItemText(
@@ -4733,11 +4787,11 @@ int CEdit::GetDlgItemText(
 ) const
 {
 #if UNICODE
-   wcsncpy(lpStr,(LPWSTR)_qtd->text().unicode(),nMaxCount);
+   wcsncpy(lpStr,(LPWSTR)_qtd->toPlainText().unicode(),nMaxCount);
 #else
-   strncpy(lpStr,_qtd->text(),nMaxCount);
+   strncpy(lpStr,_qtd->toPlainText(),nMaxCount);
 #endif   
-   return _qtd->text().length();
+   return _qtd->toPlainText().length();
 }
 
 CButton::CButton(CWnd* parent)

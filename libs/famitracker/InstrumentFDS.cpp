@@ -7,11 +7,11 @@
 ** the Free Software Foundation; either version 2 of the License, or
 ** (at your option) any later version.
 **
-** This program is distributed in the hope that it will be useful,
+** This program is distributed in the hope that it will be useful, 
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
-** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-** Library General Public License for more details.  To obtain a
-** copy of the GNU Library General Public License, write to the Free
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+** Library General Public License for more details.  To obtain a 
+** copy of the GNU Library General Public License, write to the Free 
 ** Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 **
 ** Any permitted reproduction of these routines, in whole or in part,
@@ -37,7 +37,7 @@ const int FIXED_FDS_INST_SIZE = 1 + 16 + 4 + 1;
 
 CInstrumentFDS::CInstrumentFDS() : CInstrument()
 {
-	memcpy(m_iSamples, TEST_WAVE, WAVE_SIZE);
+	memcpy(m_iSamples, TEST_WAVE, WAVE_SIZE);	
 	memset(m_iModulation, 0, MOD_SIZE);
 
 	m_iModulationSpeed = 0;
@@ -232,7 +232,7 @@ bool CInstrumentFDS::Load(CDocumentFile *pDocFile)
 		LoadSequence(pDocFile, m_pVolume);
 		LoadSequence(pDocFile, m_pArpeggio);
 		//
-		// Note: Remove this line when files are unable to load
+		// Note: Remove this line when files are unable to load 
 		// (if a file contains FDS instruments but FDS is disabled)
 		// this was a problem in an earlier version.
 		//
@@ -320,46 +320,45 @@ bool CInstrumentFDS::LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc)
 
 int CInstrumentFDS::Compile(CChunk *pChunk, int Index)
 {
-   qDebug("Compile");
-//	CString str;
+	CString str;
 
-//	// Store wave
-////	int Table = pCompiler->AddWavetable(m_iSamples);
-////	int Table = 0;
-////	pChunk->StoreByte(Table);
+	// Store wave
+//	int Table = pCompiler->AddWavetable(m_iSamples);
+//	int Table = 0;
+//	pChunk->StoreByte(Table);
 
-//	// Store modulation table, two entries/byte
-//	for (int i = 0; i < 16; ++i) {
-//		char Data = GetModulation(i << 1) | (GetModulation((i << 1) + 1) << 3);
-//		pChunk->StoreByte(Data);
-//	}
+	// Store modulation table, two entries/byte
+	for (int i = 0; i < 16; ++i) {
+		char Data = GetModulation(i << 1) | (GetModulation((i << 1) + 1) << 3);
+		pChunk->StoreByte(Data);
+	}
+	
+	pChunk->StoreByte(GetModulationDelay());
+	pChunk->StoreByte(GetModulationDepth());
+	pChunk->StoreWord(GetModulationSpeed());
 
-//	pChunk->StoreByte(GetModulationDelay());
-//	pChunk->StoreByte(GetModulationDepth());
-//	pChunk->StoreWord(GetModulationSpeed());
+	// Store sequences
+	char Switch = (m_pVolume->GetItemCount() > 0 ? 1 : 0) | (m_pArpeggio->GetItemCount() > 0 ? 2 : 0) | (m_pPitch->GetItemCount() > 0 ? 4 : 0);
 
-//	// Store sequences
-//	char Switch = (m_pVolume->GetItemCount() > 0 ? 1 : 0) | (m_pArpeggio->GetItemCount() > 0 ? 2 : 0) | (m_pPitch->GetItemCount() > 0 ? 4 : 0);
+	pChunk->StoreByte(Switch);
 
-//	pChunk->StoreByte(Switch);
+	// Volume
+	if (Switch & 1) {
+		str.Format(CCompiler::LABEL_SEQ_FDS, Index * 5 + 0);
+		pChunk->StoreReference(str);
+	}
 
-//	// Volume
-//	if (Switch & 1) {
-//		str.Format(CCompiler::LABEL_SEQ_FDS, Index * 5 + 0);
-//		pChunk->StoreReference(str);
-//	}
-
-//	// Arpeggio
-//	if (Switch & 2) {
-//		str.Format(CCompiler::LABEL_SEQ_FDS, Index * 5 + 1);
-//		pChunk->StoreReference(str);
-//	}
-
-//	// Pitch
-//	if (Switch & 4) {
-//		str.Format(CCompiler::LABEL_SEQ_FDS, Index * 5 + 2);
-//		pChunk->StoreReference(str);
-//	}
+	// Arpeggio
+	if (Switch & 2) {
+		str.Format(CCompiler::LABEL_SEQ_FDS, Index * 5 + 1);
+		pChunk->StoreReference(str);
+	}
+	
+	// Pitch
+	if (Switch & 4) {
+		str.Format(CCompiler::LABEL_SEQ_FDS, Index * 5 + 2);
+		pChunk->StoreReference(str);
+	}
 
 	int size = FIXED_FDS_INST_SIZE;
 	size += (m_pVolume->GetItemCount() > 0 ? 2 : 0);
@@ -373,7 +372,7 @@ bool CInstrumentFDS::CanRelease() const
 	if (m_pVolume->GetItemCount() > 0) {
 		if (m_pVolume->GetReleasePoint() != -1)
 			return true;
-
+		
 	}
 	return false;
 }

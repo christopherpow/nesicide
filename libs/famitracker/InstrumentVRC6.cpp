@@ -7,11 +7,11 @@
 ** the Free Software Foundation; either version 2 of the License, or
 ** (at your option) any later version.
 **
-** This program is distributed in the hope that it will be useful,
+** This program is distributed in the hope that it will be useful, 
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
-** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-** Library General Public License for more details.  To obtain a
-** copy of the GNU Library General Public License, write to the Free
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+** Library General Public License for more details.  To obtain a 
+** copy of the GNU Library General Public License, write to the Free 
 ** Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 **
 ** Any permitted reproduction of these routines, in whole or in part,
@@ -39,7 +39,7 @@ CInstrumentVRC6::CInstrumentVRC6()
 	for (int i = 0; i < SEQUENCE_COUNT; i++) {
 		m_iSeqEnable[i] = 0;
 		m_iSeqIndex[i] = 0;
-	}
+	}	
 }
 
 CInstrument *CInstrumentVRC6::Clone() const
@@ -103,7 +103,7 @@ void CInstrumentVRC6::SaveFile(CFile *pFile, CFamiTrackerDoc *pDoc)
 			int LoopPoint = pSeq->GetLoopPoint();
 			int ReleasePoint = pSeq->GetReleasePoint();
 			int Setting	= pSeq->GetSetting();
-
+			
 			pFile->Write(&Enabled, sizeof(char));
 			pFile->Write(&ItemCount, sizeof(int));
 			pFile->Write(&LoopPoint, sizeof(int));
@@ -184,28 +184,27 @@ bool CInstrumentVRC6::LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc
 
 int CInstrumentVRC6::Compile(CChunk *pChunk, int Index)
 {
-   qDebug("Compile");
 	int ModSwitch = 0;
 	int StoredBytes = 0;
 
-//	CFamiTrackerDoc *pDoc = CFamiTrackerDoc::GetDoc();
+	CFamiTrackerDoc *pDoc = CFamiTrackerDoc::GetDoc();
 
-//	for (int i = 0; i < SEQUENCE_COUNT; ++i) {
-//		ModSwitch = (ModSwitch >> 1) | (GetSeqEnable(i) && (pDoc->GetSequence(SNDCHIP_VRC6, GetSeqIndex(i), i)->GetItemCount() > 0) ? 0x10 : 0);
-//	}
+	for (int i = 0; i < SEQUENCE_COUNT; ++i) {
+		ModSwitch = (ModSwitch >> 1) | (GetSeqEnable(i) && (pDoc->GetSequence(SNDCHIP_VRC6, GetSeqIndex(i), i)->GetItemCount() > 0) ? 0x10 : 0);
+	}
 
-//	pChunk->StoreByte(ModSwitch);
-//	StoredBytes++;
+	pChunk->StoreByte(ModSwitch);
+	StoredBytes++;
 
-//	for (int i = 0; i < SEQUENCE_COUNT; ++i) {
-//		if (GetSeqEnable(i) != 0 && (pDoc->GetSequence(SNDCHIP_VRC6, GetSeqIndex(i), i)->GetItemCount() != 0)) {
-//			CString str;
-//			str.Format(CCompiler::LABEL_SEQ_VRC6, GetSeqIndex(i) * SEQUENCE_COUNT + i);
-//			pChunk->StoreReference(str);
-//			StoredBytes += 2;
-//		}
-//	}
-
+	for (int i = 0; i < SEQUENCE_COUNT; ++i) {
+		if (GetSeqEnable(i) != 0 && (pDoc->GetSequence(SNDCHIP_VRC6, GetSeqIndex(i), i)->GetItemCount() != 0)) {
+			CString str;
+			str.Format(CCompiler::LABEL_SEQ_VRC6, GetSeqIndex(i) * SEQUENCE_COUNT + i);
+			pChunk->StoreReference(str);
+			StoredBytes += 2;
+		}
+	}
+	
 	return StoredBytes;
 }
 
@@ -232,7 +231,7 @@ int	CInstrumentVRC6::GetSeqIndex(int Index) const
 void CInstrumentVRC6::SetSeqEnable(int Index, int Value)
 {
 	if (m_iSeqEnable[Index] != Value)
-		InstrumentChanged();
+		InstrumentChanged();		
 	m_iSeqEnable[Index] = Value;
 }
 
