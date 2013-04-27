@@ -61,6 +61,7 @@ IMPLEMENT_DYNAMIC(CChannelsDlg, CDialog)
 CChannelsDlg::CChannelsDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CChannelsDlg::IDD, pParent)
 {
+
 }
 
 CChannelsDlg::~CChannelsDlg()

@@ -33,6 +33,7 @@ IMPLEMENT_DYNAMIC(CWavProgressDlg, CDialog)
 CWavProgressDlg::CWavProgressDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CWavProgressDlg::IDD, pParent)
 {
+
 }
 
 CWavProgressDlg::~CWavProgressDlg()
@@ -96,7 +97,7 @@ BOOL CWavProgressDlg::OnInitDialog()
 	FileStr.Format(_T("Saving to: %s"), m_sFile.GetString());
 	SetDlgItemText(IDC_PROGRESS_FILE, FileStr);
 
-   if (!m_pSoundGen->RenderToFile(m_sFile.GetBuffer(), m_iSongEndType, m_iSongEndParam))
+	if (!m_pSoundGen->RenderToFile(m_sFile.GetBuffer(), m_iSongEndType, m_iSongEndParam))
 		EndDialog(0);
 
 	m_dwStartTime = GetTickCount();

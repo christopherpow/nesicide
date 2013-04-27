@@ -156,7 +156,8 @@ SOURCES += \
     CustomExporter_C_Interface.cpp \
     Compiler.cpp \
     Chunk.cpp \
-    ChunkRender.cpp
+    ChunkRender.cpp \
+    CommentsDlg.cpp
 
 HEADERS += \
     TrackerChannel.h \
@@ -262,7 +263,8 @@ HEADERS += \
     CustomExporters.h \
     CustomExporter.h \
     CustomExporter_C_Interface.h \
-    ChunkRender.h
+    ChunkRender.h \
+    CommentsDlg.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN

@@ -145,7 +145,7 @@ public:
 	afx_msg void OnModuleRemoveFrame();
 	afx_msg void OnModuleDuplicateFrame();
 	afx_msg void OnModuleDuplicateFramePatterns();
-//	afx_msg void OnModuleComments();
+	afx_msg void OnModuleComments();
    afx_msg void OnCreateNSF();
 	afx_msg void OnModuleMoveframedown();
 	afx_msg void OnModuleMoveframeup();

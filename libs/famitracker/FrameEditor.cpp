@@ -692,10 +692,8 @@ void CFrameEditor::resizeEvent(QResizeEvent *event)
 {
    CRect rect;
    GetClientRect(&rect);
-   width = rect.Width();
-   height = rect.Height();
 
-   OnSize(0,width,height);
+   OnSize(0,rect.Width(),rect.Height());
 }
 
 void CFrameEditor::verticalScrollBar_actionTriggered(int arg1)

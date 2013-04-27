@@ -2235,7 +2235,8 @@ void qtMfcInitDialogResource_IDD_SAMPLE_EDITOR(UINT dlgID,CDialog* parent1)
 //   IDD_SAMPLE_EDITOR DIALOGEX 0, 0, 481, 255
    CRect rect(CPoint(0,0),CSize(481,255));
    parent->MapDialogRect(&rect);
-   parent->setFixedSize(rect.Width(),rect.Height());   
+   parent->setBaseSize(rect.Width(),rect.Height());
+   parent->setSizeIncrement(1,1);
 //   STYLE DS_SETFONT | DS_FIXEDSYS | WS_MAXIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 //   CAPTION "DPCM sample editor"
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
@@ -2271,7 +2272,7 @@ void qtMfcInitDialogResource_IDD_SAMPLE_EDITOR(UINT dlgID,CDialog* parent1)
    CStatic* mfc5 = new CStatic(parent);
    CRect r5(CPoint(7,217),CSize(79,11));
    parent->MapDialogRect(&r5);
-   mfc5->Create(_T("Offset: 0, Pos: 0"),WS_VISIBLE,r5,parent,IDC_POS);
+   mfc5->Create(_T("Offset: 0, Pos: 0"),SS_SUNKEN | WS_VISIBLE,r5,parent,IDC_POS);
    mfcToQtWidget->insert(IDC_POS,mfc5);
 //   PUSHBUTTON      "Delete",IDC_DELETE,239,234,50,14
    CButton* mfc6 = new CButton(parent);
@@ -2432,21 +2433,46 @@ void qtMfcInitDialogResource_IDD_CHANNELS(UINT dlgID,CDialog* parent1)
 //   END
 }
 
-//#include "dialog-file"
-void qtMfcInitDialogResource_IDD_COMMENTS(UINT dlgID,CDialog* parent)
+#include "CommentsDlg.h"
+void qtMfcInitDialogResource_IDD_COMMENTS(UINT dlgID,CDialog* parent1)
 {
-//  dialog-type* parent = dynamic_cast<dialog-type*>(parent1);
+   CCommentsDlg* parent = dynamic_cast<CCommentsDlg*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
    
 //   IDD_COMMENTS DIALOGEX 0, 0, 358, 230
+   CRect rect(CPoint(0,0),CSize(358,230));
+   parent->MapDialogRect(&rect);
+   parent->setFixedSize(rect.Width(),rect.Height());
 //   STYLE DS_SETFONT | DS_FIXEDSYS | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 //   CAPTION "Module message"
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
 //   BEGIN
 //       DEFPUSHBUTTON   "OK",IDC_OK,251,211,50,14
+   CButton* mfc1 = new CButton(parent);
+   CRect r1(CPoint(251,211),CSize(50,14));
+   parent->MapDialogRect(&r1);
+   mfc1->Create(_T("OK"),BS_DEFPUSHBUTTON | WS_VISIBLE,r1,parent,IDC_OK);
+   mfcToQtWidget->insert(IDC_OK,mfc1);
+   QObject::connect(mfc1,SIGNAL(clicked()),parent,SLOT(ok_clicked()));
 //       EDITTEXT        IDC_COMMENTS,0,0,358,206,ES_MULTILINE | ES_AUTOHSCROLL | ES_WANTRETURN | WS_VSCROLL
+   CEdit* mfc2 = new CEdit(parent);
+   CRect r2(CPoint(0,0),CSize(358,206));
+   parent->MapDialogRect(&r2);
+   mfc2->Create(ES_MULTILINE | ES_AUTOHSCROLL | ES_WANTRETURN | WS_VSCROLL | WS_VISIBLE,r2,parent,IDC_COMMENTS);
+   mfcToQtWidget->insert(IDC_COMMENTS,mfc2);
 //       CONTROL         "Show when loading file",IDC_SHOWONOPEN,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,215,89,10
+   CButton* mfc3 = new CButton(parent);
+   CRect r3(CPoint(5,215),CSize(89,10));
+   parent->MapDialogRect(&r3);
+   mfc3->Create(_T("Show when loading file"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r3,parent,IDC_SHOWONOPEN);
+   mfcToQtWidget->insert(IDC_SHOWONOPEN,mfc3);
 //       PUSHBUTTON      "Cancel",IDC_CANCEL,303,211,50,14
+   CButton* mfc4 = new CButton(parent);
+   CRect r4(CPoint(303,211),CSize(50,14));
+   parent->MapDialogRect(&r4);
+   mfc4->Create(_T("Cancel"),WS_VISIBLE,r4,parent,IDC_CANCEL);
+   mfcToQtWidget->insert(IDC_CANCEL,mfc4);
+   QObject::connect(mfc4,SIGNAL(clicked()),parent,SLOT(cancel_clicked()));
 //   END
 }   
 

@@ -2062,6 +2062,7 @@ int CCompiler::CountData() const
 CChunk *CCompiler::GetObjectByRef(CString label) const
 {
 	for (unsigned int i = 0; i < m_vChunks.size(); ++i) {
+      qDebug("comparing: '%s' with '%s'",QString::fromWCharArray(m_vChunks[i]->GetLabel().GetBuffer()).toAscii().constData(),QString::fromWCharArray(label.GetBuffer()).toAscii().constData());
 		if (!m_vChunks[i]->GetLabel().Compare(label))
 			return m_vChunks[i];
 	}

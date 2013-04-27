@@ -32,6 +32,7 @@ IMPLEMENT_DYNAMIC(CControlPanelDlg, CDialog)
 CControlPanelDlg::CControlPanelDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CControlPanelDlg::IDD, pParent)
 {
+
 }
 
 CControlPanelDlg::~CControlPanelDlg()

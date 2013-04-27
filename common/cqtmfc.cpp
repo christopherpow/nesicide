@@ -365,12 +365,14 @@ CString::CString()
    UpdateScratch();
 }
 
+#if UNICODE
 CString::CString(LPCSTR str)
 {
    _qstr.clear();
    _qstr = str;
    UpdateScratch();
 }
+#endif
 
 CString::CString(LPCTSTR str)
 {
@@ -548,14 +550,7 @@ CString& CString::operator=(const CString& str)
    return *this;
 }
 
-//CString& CString::operator=(LPSTR str)
-//{
-//   _qstr.clear();
-//   _qstr = QString(str);
-//   UpdateScratch();
-//   return *this;
-//}
-
+#if UNICODE
 CString& CString::operator=(LPCSTR str)
 {
    _qstr.clear();
@@ -563,6 +558,7 @@ CString& CString::operator=(LPCSTR str)
    UpdateScratch();
    return *this;
 }
+#endif
 
 CString& CString::operator=(LPCTSTR str)
 {
@@ -571,22 +567,6 @@ CString& CString::operator=(LPCTSTR str)
    UpdateScratch();
    return *this;
 }
-
-//CString& CString::operator=(LPWSTR str)
-//{
-//   _qstr.clear();
-//   _qstr = QString::fromWCharArray(str);
-//   UpdateScratch();
-//   return *this;
-//}
-
-//CString& CString::operator=(LPCWSTR str)
-//{
-//   _qstr.clear();
-//   _qstr = QString::fromWCharArray(str);
-//   UpdateScratch();
-//   return *this;
-//}
 
 CString& CString::operator=(QString str)
 {
@@ -603,19 +583,14 @@ CString& CString::operator+=(const CString& str)
    return *this;
 }
 
-//CString& CString::operator+=(LPSTR str)
-//{
-//   _qstr.append(QString(str));
-//   UpdateScratch();
-//   return *this;
-//}
-
+#if UNICODE
 CString& CString::operator+=(LPCSTR str)
 {
    _qstr.append(QString(str));
    UpdateScratch();
    return *this;
 }
+#endif
 
 CString& CString::operator+=(LPCTSTR str)
 {
@@ -623,20 +598,6 @@ CString& CString::operator+=(LPCTSTR str)
    UpdateScratch();
    return *this;
 }
-
-//CString& CString::operator+=(LPWSTR str)
-//{
-//   _qstr.append(QString::fromWCharArray(str));
-//   UpdateScratch();
-//   return *this;
-//}
-
-//CString& CString::operator+=(LPCWSTR str)
-//{
-//   _qstr.append(QString::fromWCharArray(str));
-//   UpdateScratch();
-//   return *this;
-//}
 
 CString& CString::operator+=(QString str)
 {
@@ -652,19 +613,14 @@ CString& CString::operator+(const CString& str)
    return *this;
 }
 
-//CString& CString::operator+(LPSTR str)
-//{
-//   _qstr += QString(str);
-//   UpdateScratch();
-//   return *this;
-//}
-
+#if UNICODE
 CString& CString::operator+(LPCSTR str)
 {
    _qstr += QString(str);
    UpdateScratch();
    return *this;
 }
+#endif
 
 CString& CString::operator+(LPTSTR str)
 {
@@ -679,20 +635,6 @@ CString& CString::operator+(LPCTSTR str)
    UpdateScratch();
    return *this;
 }
-
-//CString& CString::operator+(LPWSTR str)
-//{
-//   _qstr += QString::fromWCharArray(str);
-//   UpdateScratch();
-//   return *this;
-//}
-
-//CString& CString::operator+(LPCWSTR str)
-//{
-//   _qstr += QString::fromWCharArray(str);
-//   UpdateScratch();
-//   return *this;
-//}
 
 CString& CString::operator+(QString str)
 {
@@ -715,11 +657,6 @@ CString::operator LPCSTR() const
 {
    return _qstr.toAscii().constData();
 }
-
-//CString::operator const QString&() const
-//{
-//   return _qstr;
-//}
 
 void CString::Empty() 
 { 
@@ -1000,22 +937,34 @@ CRect::CRect(
    right = bottomRight.x;
 }
 
+void CRect::MoveToX(
+   int x
+)
+{
+   int width = Width();
+   right = x+width;
+   left = x;
+}
+
+void CRect::MoveToY(
+   int y
+)
+{
+   int height = Height();
+   bottom = y+height;
+   top = y;
+}
+
 void CRect::MoveToXY(
    int x,
    int y 
 )
 {
-   bottom = y + Height();
-   top = y;
-   right = x + Width();
+   int width = Width();
+   right = x+width;
    left = x;
-}
-
-void CRect::MoveToY(
-      int y
-)
-{
-   bottom = y + Height();
+   int height = Height();
+   bottom = y+height;
    top = y;
 }
 
@@ -1023,10 +972,12 @@ void CRect::MoveToXY(
    POINT point 
 )
 {
-   bottom = point.y + Height();
-   top = point.y;
-   right = point.x + Width();
+   int width = Width();
+   right = point.x+width;
    left = point.x;
+   int height = Height();
+   bottom = point.y+height;
+   top = point.y;
 }
 
 void CRect::DeflateRect( 
@@ -1910,6 +1861,8 @@ CComboBox::CComboBox(CWnd *parent)
    if ( _qt )
       delete _qt;
    
+   _grid = NULL;
+   
    _qt = new QComboBox(parent->toQWidget());
 
    // Downcast to save having to do it all over the place...
@@ -2091,6 +2044,8 @@ CListBox::CListBox(CWnd* parent)
    if ( _qt )
       delete _qt;
    
+   _grid = NULL;
+   
    _qt = new QListWidget(parent->toQWidget());
    
    // Downcast to save having to do it all over the place...
@@ -2140,6 +2095,8 @@ CListCtrl::CListCtrl(CWnd* parent)
 {
    if ( _qt )
       delete _qt;
+   
+   _grid = NULL;
    
    if ( parent )
       _qt = new QTableWidget(parent->toQWidget());
@@ -2623,6 +2580,8 @@ CTreeCtrl::CTreeCtrl(CWnd* parent)
    if ( _qt )
       delete _qt;
    
+   _grid = NULL;
+   
    _qt = new QTreeWidget(parent->toQWidget());
    
    // Downcast to save having to do it all over the place...
@@ -2900,6 +2859,8 @@ CScrollBar::CScrollBar(CWnd *parent)
 {
    if ( _qt )
       delete _qt;
+   
+   _grid = NULL;
    
    if ( parent )
       _qt = new QScrollBar(parent->toQWidget());
@@ -3250,12 +3211,23 @@ BOOL CWnd::CreateEx(
       _qt->setParent(NULL);
    m_hWnd = (HWND)_qt;
    PreCreateWindow(createStruct);
-   _qt->setGeometry(createStruct.x,createStruct.y,createStruct.cx,createStruct.cy);
-   _qt->setFixedSize(createStruct.cx,createStruct.cy);
+   _qtd->setLineWidth(0);
+   _qtd->setMidLineWidth(0);
    if ( createStruct.dwExStyle&WS_EX_STATICEDGE )
    {
-//      _qtd->setFrameStyle(QFrame::Panel | QFrame::Raised);
-//      _qtd->setLineWidth(2);
+      _qtd->setFrameShape(QFrame::StyledPanel);
+      _qtd->setFrameShadow(QFrame::Sunken);
+      _qtd->setLineWidth(1);
+      createStruct.cx += 2;
+      createStruct.cy += 2;
+   }
+   if ( createStruct.style&SS_SUNKEN )
+   {
+      _qtd->setFrameShape(QFrame::StyledPanel);
+      _qtd->setFrameShadow(QFrame::Sunken);
+      _qtd->setLineWidth(1);
+      createStruct.cx += 2;
+      createStruct.cy += 2;
    }
    if ( createStruct.style&WS_VSCROLL )
    {
@@ -3269,6 +3241,8 @@ BOOL CWnd::CreateEx(
       mfcHorizontalScrollBar->Create(SBS_HORZ | SBS_BOTTOMALIGN | WS_CHILD | WS_VISIBLE, rect, this, 0);
       _grid->addWidget(mfcHorizontalScrollBar->toQWidget(),1,0);
    }
+   _qt->setGeometry(createStruct.x,createStruct.y,createStruct.cx,createStruct.cy);
+   _qt->setFixedSize(createStruct.cx,createStruct.cy);
    OnCreate(&createStruct);
    return TRUE;
 }
@@ -3320,6 +3294,14 @@ void CWnd::RepositionBars(
       pWndExtra->MoveWindow(&layout.rect);
 }
 
+void CWnd::SetFont(
+   CFont* pFont,
+   BOOL bRedraw
+)
+{
+   _qt->setFont((QFont)*pFont);
+}
+
 void CWnd::MoveWindow(int x, int y, int cx, int cy)
 {
    MoveWindow(CRect(CPoint(x,y),CSize(cx,cy)));   
@@ -3327,8 +3309,8 @@ void CWnd::MoveWindow(int x, int y, int cx, int cy)
 
 void CWnd::MoveWindow(LPCRECT lpRect, BOOL bRepaint)
 {
-   setGeometry(lpRect->left,lpRect->top,lpRect->right-lpRect->left,lpRect->bottom-lpRect->top);
-   setFixedSize(lpRect->right-lpRect->left,lpRect->bottom-lpRect->top);
+   setGeometry(lpRect->left,lpRect->top,(lpRect->right-lpRect->left)+1,(lpRect->bottom-lpRect->top)+1);
+   setFixedSize((lpRect->right-lpRect->left)+1,(lpRect->bottom-lpRect->top)+1);
    if ( bRepaint )
       repaint();
 }
@@ -3647,6 +3629,7 @@ void CWnd::GetClientRect(
          lpRect->bottom -= GetSystemMetrics(SM_CYHSCROLL);
       }
    }
+   qDebug("frame width: %d",_qtd->frameWidth());
 }
 
 void CWnd::ShowWindow(int code)
@@ -4130,6 +4113,8 @@ CDialog::CDialog(int dlgID, CWnd *parent)
    if ( _qt )
       delete _qt;
    
+   _grid = NULL;
+   
    if ( parent )
       _qt = new QDialog(parent);
    else
@@ -4558,6 +4543,8 @@ CTabCtrl::CTabCtrl(CWnd* parent)
    if ( _qt )
       delete _qt;
    
+   _grid = NULL;
+   
    _qt = new QTabWidget(parent->toQWidget());
 
    // Downcast to save having to do it all over the place...
@@ -4613,21 +4600,10 @@ BOOL CTabCtrl::DeleteAllItems( )
 }
 
 CEdit::CEdit(CWnd* parent)
-   : CWnd(parent)
+   : CWnd(parent),
+     _qtd_ptedit(NULL),
+     _qtd_ledit(NULL)
 {
-   if ( _qt )
-      delete _qt;
-   
-   if ( parent )
-      _qt = new QPlainTextEdit(parent->toQWidget());
-   else
-      _qt = new QPlainTextEdit;
-   
-   // Downcast to save having to do it all over the place...
-   _qtd = dynamic_cast<QPlainTextEdit*>(_qt);
-   
-   // Pass-through signals
-   QObject::connect(_qtd,SIGNAL(textChanged(QString)),this,SIGNAL(textChanged(QString)));
 }
 
 CEdit::~CEdit()
@@ -4645,18 +4621,47 @@ BOOL CEdit::Create(
    UINT nID 
 )
 {
-   _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
+   _dwStyle = dwStyle;
+   
+   if ( _qt )
+      delete _qt;
+   
+   _grid = NULL;
+   
    if ( dwStyle&ES_MULTILINE )
    {
-      _qtd->setMaximumBlockCount(0);
+      if ( pParentWnd )
+         _qt = new QPlainTextEdit(pParentWnd->toQWidget());
+      else
+         _qt = new QPlainTextEdit;
+      
+      // Downcast to save having to do it all over the place...
+      _qtd_ptedit = dynamic_cast<QPlainTextEdit*>(_qt);
+      
+      // Pass-through signals
+      QObject::connect(_qtd_ptedit,SIGNAL(textChanged(QString)),this,SIGNAL(textChanged(QString)));
+   
+      _qtd_ptedit->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
+      
+      _qtd_ptedit->setVisible(dwStyle&WS_VISIBLE);
    }
    else
    {
-      _qtd->setMaximumBlockCount(1);
-      _qtd->verticalScrollBar()->setVisible(false);
-   }
+      if ( pParentWnd )
+         _qt = new QLineEdit(pParentWnd->toQWidget());
+      else
+         _qt = new QLineEdit;
+      
+      // Downcast to save having to do it all over the place...
+      _qtd_ledit = dynamic_cast<QLineEdit*>(_qt);
+      
+      // Pass-through signals
+      QObject::connect(_qtd_ledit,SIGNAL(textChanged(QString)),this,SIGNAL(textChanged(QString)));
    
-   _qtd->setVisible(dwStyle&WS_VISIBLE);
+      _qtd_ledit->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
+      
+      _qtd_ledit->setVisible(dwStyle&WS_VISIBLE);
+   }
    
    return TRUE;
 }
@@ -4667,11 +4672,23 @@ LRESULT CEdit::SendMessage(
    LPARAM lParam 
 )
 {
-   switch ( message )
+   if ( _dwStyle&ES_MULTILINE )
    {
-   case EM_SETREADONLY:
-      _qtd->setReadOnly(wParam);
-      break;
+      switch ( message )
+      {
+      case EM_SETREADONLY:
+         _qtd_ptedit->setReadOnly(wParam);
+         break;
+      }
+   }
+   else
+   {
+      switch ( message )
+      {
+      case EM_SETREADONLY:
+         _qtd_ledit->setReadOnly(wParam);
+         break;
+      }
    }
    return 0; // CP: not sure this matters...much
 }
@@ -4690,17 +4707,24 @@ void CEdit::SetSel(
    BOOL bNoScroll
 )
 {
-   QTextCursor textCursor(_qtd->document());
-   if ( nEndChar < nStartChar )
+   if ( _dwStyle&ES_MULTILINE )
    {
-      int temp;
-      temp = nEndChar;
-      nEndChar = nStartChar;
-      nStartChar = temp;
-   }   
-   textCursor.setPosition(nStartChar);
-   textCursor.movePosition(QTextCursor::NextCharacter,QTextCursor::KeepAnchor,nEndChar-nStartChar);
-   _qtd->setTextCursor(textCursor);
+      QTextCursor textCursor(_qtd_ptedit->document());
+      if ( nEndChar < nStartChar )
+      {
+         int temp;
+         temp = nEndChar;
+         nEndChar = nStartChar;
+         nStartChar = temp;
+      }   
+      textCursor.setPosition(nStartChar);
+      textCursor.movePosition(QTextCursor::NextCharacter,QTextCursor::KeepAnchor,nEndChar-nStartChar);
+      _qtd_ptedit->setTextCursor(textCursor);
+   }
+   else
+   {
+      _qtd_ledit->setSelection(nStartChar,nEndChar);
+   }
 }
 
 void CEdit::ReplaceSel(
@@ -4708,14 +4732,25 @@ void CEdit::ReplaceSel(
       BOOL bCanUndo
 )
 {
-   QTextCursor textCursor(_qtd->document());
-   textCursor.removeSelectedText();
+   if ( _dwStyle&ES_MULTILINE )
+   {
+      QTextCursor textCursor(_qtd_ptedit->document());
+      textCursor.removeSelectedText();
 #if UNICODE
-   textCursor.insertText(QString::fromWCharArray(lpszNewText));
+      textCursor.insertText(QString::fromWCharArray(lpszNewText));
 #else
-   textCursor.insertText(lpszNewText);
+      textCursor.insertText(lpszNewText);
 #endif
-   _qtd->setTextCursor(textCursor);
+      _qtd_ptedit->setTextCursor(textCursor);
+   }
+   else
+   {
+#if UNICODE
+      _qtd_ledit->insert(QString::fromWCharArray(lpszNewText));
+#else
+      _qtd_ledit->insert(lpszNewText);
+#endif
+   }
 }
 
 #if UNICODE
@@ -4724,10 +4759,17 @@ void CEdit::ReplaceSel(
       BOOL bCanUndo
 )
 {
-   QTextCursor textCursor(_qtd->document());
-   textCursor.removeSelectedText();
-   textCursor.insertText(lpszNewText);
-   _qtd->setTextCursor(textCursor);
+   if ( _dwStyle&ES_MULTILINE )
+   {
+      QTextCursor textCursor(_qtd_ptedit->document());
+      textCursor.removeSelectedText();
+      textCursor.insertText(lpszNewText);
+      _qtd_ptedit->setTextCursor(textCursor);
+   }
+   else
+   {
+      _qtd_ledit->insert(lpszNewText);
+   }
 }
 #endif
 
@@ -4735,11 +4777,22 @@ BOOL CEdit::EnableWindow(
    BOOL bEnable
 )
 {
-   BOOL state = _qtd->isEnabled();
-   _qtd->setEnabled(bEnable);
-   if ( _buddy )
-      _buddy->setEnabled(bEnable);
-   return state;
+   if ( _dwStyle&ES_MULTILINE )
+   {
+      BOOL state = _qtd_ptedit->isEnabled();
+      _qtd_ptedit->setEnabled(bEnable);
+      if ( _buddy )
+         _buddy->setEnabled(bEnable);
+      return state;
+   }
+   else
+   {
+      BOOL state = _qtd_ledit->isEnabled();
+      _qtd_ledit->setEnabled(bEnable);
+      if ( _buddy )
+         _buddy->setEnabled(bEnable);
+      return state;
+   }
 }
 void CEdit::SetDlgItemInt(
    int nID,
@@ -4747,7 +4800,14 @@ void CEdit::SetDlgItemInt(
    BOOL bSigned 
 )
 {
-   _qtd->setPlainText(QString::number(nValue));
+   if ( _dwStyle&ES_MULTILINE )
+   {
+      _qtd_ptedit->setPlainText(QString::number(nValue));
+   }
+   else
+   {
+      _qtd_ledit->setText(QString::number(nValue));
+   }
 }
 
 UINT CEdit::GetDlgItemInt(
@@ -4756,7 +4816,14 @@ UINT CEdit::GetDlgItemInt(
    BOOL bSigned
 ) const
 {
-   return _qtd->toPlainText().toInt();
+   if ( _dwStyle&ES_MULTILINE )
+   {
+      return _qtd_ptedit->toPlainText().toInt();
+   }
+   else
+   {
+      return _qtd_ledit->text().toInt();
+   }
 }
 
 void CEdit::SetDlgItemText(
@@ -4764,11 +4831,22 @@ void CEdit::SetDlgItemText(
    LPCTSTR lpszString 
 )
 {
+   if ( _dwStyle&ES_MULTILINE )
+   {
 #if UNICODE
-   _qtd->setPlainText(QString::fromWCharArray(lpszString));
+      _qtd_ptedit->setPlainText(QString::fromWCharArray(lpszString));
 #else
-   _qtd->setPlainText(lpszString);
-#endif
+      _qtd_ptedit->setPlainText(lpszString);
+#endif   
+   }
+   else
+   {
+#if UNICODE
+      _qtd_ledit->setText(QString::fromWCharArray(lpszString));
+#else
+      _qtd_ledit->setText(lpszString);
+#endif   
+   }   
 }
 
 int CEdit::GetDlgItemText(
@@ -4776,8 +4854,16 @@ int CEdit::GetDlgItemText(
    CString& rString 
 ) const
 {
-   rString = _qtd->toPlainText();
-   return _qtd->toPlainText().length();
+   if ( _dwStyle&ES_MULTILINE )
+   {
+      rString = _qtd_ptedit->toPlainText();
+      return _qtd_ptedit->toPlainText().length();
+   }
+   else
+   {
+      rString = _qtd_ledit->text();
+      return _qtd_ledit->text().length();
+   }
 }
 
 int CEdit::GetDlgItemText(
@@ -4786,12 +4872,24 @@ int CEdit::GetDlgItemText(
    int nMaxCount 
 ) const
 {
+   if ( _dwStyle&ES_MULTILINE )
+   {
 #if UNICODE
-   wcsncpy(lpStr,(LPWSTR)_qtd->toPlainText().unicode(),nMaxCount);
+      wcsncpy(lpStr,(LPWSTR)_qtd_ptedit->toPlainText().unicode(),nMaxCount);
 #else
-   strncpy(lpStr,_qtd->toPlainText(),nMaxCount);
+      strncpy(lpStr,_qtd_ptedit->toPlainText(),nMaxCount);
 #endif   
-   return _qtd->toPlainText().length();
+      return _qtd_ptedit->toPlainText().length();
+   }
+   else
+   {
+#if UNICODE
+      wcsncpy(lpStr,(LPWSTR)_qtd_ledit->text().unicode(),nMaxCount);
+#else
+      strncpy(lpStr,_qtd_ledit->text(),nMaxCount);
+#endif   
+      return _qtd_ledit->text().length();
+   }
 }
 
 CButton::CButton(CWnd* parent)
@@ -4825,6 +4923,8 @@ BOOL CButton::Create(
    if ( _qt )
       delete _qt;
 
+   _grid = NULL;
+   
    if ( buttonType == BS_AUTOCHECKBOX )
    {
       _qt = new QCheckBox(pParentWnd->toQWidget());
@@ -4950,16 +5050,6 @@ CSpinButtonCtrl::CSpinButtonCtrl(CWnd* parent)
    : CWnd(parent),
      _buddy(NULL)
 {
-   if ( _qt )
-      delete _qt;
-   
-   _qt = new QSpinBox(parent->toQWidget());
-   
-   // Downcast to save having to do it all over the place...
-   _qtd = dynamic_cast<QSpinBox*>(_qt);
-   
-   // Pass-through signals
-   QObject::connect(_qtd,SIGNAL(valueChanged(int)),this,SIGNAL(valueChanged(int)));
 }
 
 CSpinButtonCtrl::~CSpinButtonCtrl()
@@ -4977,7 +5067,21 @@ BOOL CSpinButtonCtrl::Create(
    UINT nID 
 )
 {
+   if ( _qt )
+      delete _qt;
+   
+   _grid = NULL;
+   
+   _qt = new QSpinBox(pParentWnd->toQWidget());
+   
+   // Downcast to save having to do it all over the place...
+   _qtd = dynamic_cast<QSpinBox*>(_qt);
+   
+   // Pass-through signals
+   QObject::connect(_qtd,SIGNAL(valueChanged(int)),this,SIGNAL(valueChanged(int)));
+
    _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
+   _qtd->setFrame(false);
    _qtd->setVisible(dwStyle&WS_VISIBLE);
    
    return TRUE;
@@ -5016,6 +5120,8 @@ CSliderCtrl::CSliderCtrl(CWnd* parent)
 {
    if ( _qt )
       delete _qt;
+   
+   _grid = NULL;
    
    if ( parent )
       _qt = new QSlider(parent->toQWidget());
@@ -5120,6 +5226,8 @@ CProgressCtrl::CProgressCtrl(CWnd* parent)
    if ( _qt )
       delete _qt;
    
+   _grid = NULL;
+   
    _qt = new QProgressBar(parent->toQWidget());
    
    // Downcast to save having to do it all over the place...
@@ -5166,6 +5274,8 @@ CStatic::CStatic(CWnd *parent)
 {
    if ( _qt )
       delete _qt;
+   
+   _grid = NULL;
    
    if ( parent )
       _qt = new QLabel(parent->toQWidget());
@@ -5264,6 +5374,8 @@ CGroupBox::CGroupBox(CWnd *parent)
 {
    if ( _qt )
       delete _qt;
+   
+   _grid = NULL;
    
    _qt = new QGroupBox(parent->toQWidget());
    

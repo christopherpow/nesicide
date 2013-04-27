@@ -4,6 +4,7 @@
 #include "FamiTrackerView.h"
 #include "SampleWindow.h"
 #include "ChannelsDlg.h"
+#include "CommentsDlg.h"
 #include "ModulePropertiesDlg.h"
 #include "ControlPanelDlg.h"
 #include "ExportDialog.h"
@@ -816,15 +817,24 @@ void CMainFrame::OnModuleModuleproperties()
 	// Display module properties dialog
 	CModulePropertiesDlg propertiesDlg;
 	propertiesDlg.DoModal();
+   
+   // CP: TEST
    NMHDR nmhdr;
    LRESULT result;
    OnDblClkInstruments(&nmhdr,&result);
+   OnModuleComments();
 }
 
 void CMainFrame::OnModuleChannels()
 {
 	CChannelsDlg channelsDlg;
 	channelsDlg.DoModal();
+}
+
+void CMainFrame::OnModuleComments()
+{
+	CCommentsDlg commentsDlg;
+	commentsDlg.DoModal();
 }
 
 void CMainFrame::OnModuleInsertFrame()

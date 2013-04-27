@@ -54,6 +54,7 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QPlainTextEdit>
+#include <QLineEdit>
 #include <QCheckBox>
 #include <QGroupBox>
 #include <QFileDialog>
@@ -436,7 +437,9 @@ public:
    CString();
    CString(const CString& ref);
    CString(QString str);
+#if UNICODE
    CString(LPCSTR str);
+#endif
    CString(LPCTSTR str);
    virtual ~CString();
    
@@ -462,26 +465,23 @@ public:
    int Compare( LPCTSTR lpsz ) const;
  
    CString& operator=(const CString& str);
-//   CString& operator=(LPSTR str);
-//   CString& operator=(LPWSTR str);
+#if UNICODE
    CString& operator=(LPCSTR str);
+#endif
    CString& operator=(LPCTSTR str);
-//   CString& operator=(LPCWSTR str);
    CString& operator=(QString str);
    CString& operator+(const CString& str);
-//   CString& operator+(LPSTR str);
-//   CString& operator+(LPWSTR str);
    CString& operator+(LPTSTR str);
+#if UNICODE
    CString& operator+(LPCSTR str);
+#endif
    CString& operator+(LPCTSTR str);
-//   CString& operator+(LPCWSTR str);
    CString& operator+(QString str);
    CString& operator+=(const CString& str);
-//   CString& operator+=(LPSTR str);
-//   CString& operator+=(LPWSTR str);
+#if UNICODE
    CString& operator+=(LPCSTR str);
+#endif
    CString& operator+=(LPCTSTR str);
-//   CString& operator+=(LPCWSTR str);
    CString& operator+=(QString str);
    operator QString() const;
    operator LPCTSTR() const;
@@ -664,12 +664,15 @@ public:
    );
    int Width() const { return right-left; }
    int Height() const { return bottom-top; }
+   void MoveToX( 
+      int x  
+   );
+   void MoveToY(
+      int y
+   );
    void MoveToXY(
       int x,
       int y 
-   );
-   void MoveToY(
-         int y
    );
    void MoveToXY(
       POINT point 
@@ -1317,6 +1320,10 @@ public:
    void SetCapture(CWnd* p=0) { /* DON'T DO THIS grabMouse(); */ }
    void ReleaseCapture() { /* DON'T DO THIS releaseMouse(); */ }
    CFrameWnd* GetParentFrame( ) const { return m_pFrameWnd; }
+   void SetFont(
+      CFont* pFont,
+      BOOL bRedraw = TRUE 
+   );
    void MoveWindow(
       LPCRECT lpRect,
          BOOL bRepaint = TRUE 
@@ -1714,10 +1721,12 @@ class CEdit : public CWnd
    // Qt interfaces
 public:
    void setBuddy(CSpinButtonCtrl* buddy) { _buddy = buddy; }
-   void setText(QString text) { _qtd->setPlainText(text); }
+   void setText(QString text) { if ( _dwStyle&ES_MULTILINE ) _qtd_ptedit->setPlainText(text); else _qtd_ledit->setText(text); }
 protected:
-   QPlainTextEdit* _qtd;
+   QPlainTextEdit* _qtd_ptedit;
+   QLineEdit*      _qtd_ledit;
    CSpinButtonCtrl* _buddy;
+   DWORD _dwStyle;
 signals:
    void textChanged(QString);
    
