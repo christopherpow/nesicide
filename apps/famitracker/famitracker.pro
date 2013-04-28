@@ -86,7 +86,7 @@ mac {
 }
 
 unix:!mac {
-   FAMITRACKER_CXXFLAGS = -I$$TOP/libs/famitracker
+   FAMITRACKER_CXXFLAGS = -I$$TOP/libs/famitracker -I/usr/include/wine/windows/
 
     # if the user didnt set cxxflags and libs then use defaults
     ###########################################################
@@ -122,6 +122,11 @@ LIBS += $$FAMITRACKER_LIBS \
 unix:mac {
 	QMAKE_CFLAGS += -I $$DEPENDENCYPATH/wine/include -DWINE_UNICODE_NATIVE
 	QMAKE_CXXFLAGS += -I $$DEPENDENCYPATH/wine/include -DWINE_UNICODE_NATIVE
+}
+
+unix:!mac {
+    QMAKE_CFLAGS += -DWINE_UNICODE_NATIVE
+    QMAKE_CXXFLAGS += -DWINE_UNICODE_NATIVE
 }
 
 INCLUDEPATH += \

@@ -11,6 +11,8 @@ QMAKEFLAGS += -config release # force makefile generation on osx
 endif
 endif
 
+all: default
+
 default: apps/nes-emulator/nes-emulator apps/ide/nesicide
 
 %/Makefile: %/*.pro

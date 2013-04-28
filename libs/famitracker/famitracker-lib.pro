@@ -40,6 +40,9 @@ unix:!mac {
        SDL_CXXFLAGS = $$system(sdl-config --cflags)
     }
 
+    SDL_CXXFLAGS += -I/usr/include/wine/windows/ -DUSE_WS_PREFIX -DWINE_UNICODE_NATIVE
+    SDL_CFLAGS += -I/usr/include/wine/windows/
+
     isEmpty (SDL_LIBS) {
             SDL_LIBS = $$system(sdl-config --libs)
     }
@@ -58,6 +61,7 @@ unix:!mac {
 }
 
 QMAKE_CXXFLAGS += $$SDL_CXXFLAGS
+QMAKE_CFLAGS += $$SDL_CFLAGS
 LIBS += $$SDL_LIBS
 
 SOURCES += \
