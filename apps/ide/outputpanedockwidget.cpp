@@ -9,6 +9,8 @@
 #include <QMenu>
 #include <QFileDialog>
 
+#undef select       //fixes "Include_winsock_h_before_stdlib_h_or_use_the_MSVCRT_library" problem
+
 OutputPaneDockWidget::OutputPaneDockWidget(QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::OutputPaneDockWidget)
