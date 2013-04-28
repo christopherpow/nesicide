@@ -2607,6 +2607,35 @@ public:
 #define TBSTYLE_EX_HIDECLIPPEDBUTTONS 16
 #define TBSTYLE_EX_DOUBLEBUFFER      0x80
 
+typedef struct {
+  UINT     cbSize;
+  UINT     fMask;
+  UINT     fStyle;
+  COLORREF clrFore;
+  COLORREF clrBack;
+  LPTSTR   lpText;
+  UINT     cch;
+  int      iImage;
+  HWND     hwndChild;
+  UINT     cxMinChild;
+  UINT     cyMinChild;
+  UINT     cx;
+  HBITMAP  hbmBack;
+  UINT     wID;
+#if (_WIN32_IE >= 0x0400)
+  UINT     cyChild;
+  UINT     cyMaxChild;
+  UINT     cyIntegral;
+  UINT     cxIdeal;
+  LPARAM   lParam;
+  UINT     cxHeader;
+#endif 
+#if (_WIN32_WINNT >= 0x0600)
+  RECT     rcChevronLocation;
+  UINT     uChevronState;
+#endif 
+} REBARBANDINFO, *LPREBARBANDINFO;
+
 class CToolBar : public CControlBar
 {
    Q_OBJECT

@@ -96,6 +96,7 @@ protected:
    void resizeEvent(QResizeEvent *event);
    
    bool	CreateToolbars();
+   bool	CreateInstrumentToolbar();
    bool	CreateDialogPanels();
    bool CreateSampleWindow();
    void	OpenInstrumentSettings();
@@ -112,9 +113,12 @@ private:
    CSampleWindow		*m_pSampleWindow;
    QString m_fileName;
    bool initialized;
+   
+   CWnd				m_wndInstToolBarWnd;
+	CToolBar			m_wndInstToolBar;
+   
    CInstrumentEditDlg	m_wndInstEdit;
    CStatusBar			m_wndStatusBar;
-   CToolBar			m_wndInstToolBar;
 
    CActionHandler* m_pActionHandler;
    int					m_iFrameEditorPos;
