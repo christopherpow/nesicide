@@ -10,9 +10,8 @@
 #include "ExportDialog.h"
 #include "Settings.h"
 
-#include <QFrame>
-#include <QLayout>
-#include <QAction>
+typedef void (CMainFrame::*actionHandler)();
+typedef void (CMainFrame::*uiUpdateHandler)(CCmdUI*);
 
 static UINT indicators[] =
 {
@@ -822,7 +821,6 @@ void CMainFrame::OnModuleModuleproperties()
    NMHDR nmhdr;
    LRESULT result;
    OnDblClkInstruments(&nmhdr,&result);
-   OnModuleComments();
 }
 
 void CMainFrame::OnModuleChannels()

@@ -3629,7 +3629,6 @@ void CWnd::GetClientRect(
          lpRect->bottom -= GetSystemMetrics(SM_CYHSCROLL);
       }
    }
-   qDebug("frame width: %d",_qtd->frameWidth());
 }
 
 void CWnd::ShowWindow(int code)

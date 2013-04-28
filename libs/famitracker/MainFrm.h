@@ -1,10 +1,24 @@
-#ifndef MAINFRAME_H
-#define MAINFRAME_H
+/*
+** FamiTracker - NES/Famicom sound tracker
+** Copyright (C) 2005-2012  Jonathan Liss
+**
+** This program is free software; you can redistribute it and/or modify
+** it under the terms of the GNU General Public License as published by
+** the Free Software Foundation; either version 2 of the License, or
+** (at your option) any later version.
+**
+** This program is distributed in the hope that it will be useful, 
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+** Library General Public License for more details.  To obtain a 
+** copy of the GNU Library General Public License, write to the Free 
+** Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+**
+** Any permitted reproduction of these routines, in whole or in part,
+** must bear this legend.
+*/
 
-#include <QFrame>
-#include <QToolBar>
-#include <QLabel>
-#include <QComboBox>
+#pragma once
 
 #include "FamiTrackerView.h"
 #include "FamiTrackerDoc.h"
@@ -14,10 +28,6 @@
 #include "InstrumentEditDlg.h"
 #include "ControlPanelDlg.h"
 #include "CustomControls.h"
-
-class CMainFrame;
-typedef void (CMainFrame::*actionHandler)();
-typedef void (CMainFrame::*uiUpdateHandler)(CCmdUI*);
 
 enum FRAME_EDIT_POS { FRAME_EDIT_POS_TOP, FRAME_EDIT_POS_LEFT };
 
@@ -97,7 +107,6 @@ protected:
 private:
    // Qt stuff
    QTimer* idleTimer;
-   QMap<int,uiUpdateHandler> uiUpdateFuncs;
    CFamiTrackerDoc* m_pDocument;
    CFamiTrackerView* m_pView;
    CSampleWindow		*m_pSampleWindow;
@@ -208,5 +217,3 @@ signals:
 int  SX(int pt);
 int  SY(int pt);
 void ScaleMouse(CPoint &pt);
-
-#endif // MAINFRAME_H
