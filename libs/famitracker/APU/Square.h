@@ -26,7 +26,7 @@
 #ifndef _SQUARE_H_
 #define _SQUARE_H_
 
-#include "channel.h"
+#include "Channel.h"
 
 class CSquare : public CChannel {
 public:

@@ -53,8 +53,8 @@
 #include "../stdafx.h"
 #include <memory>
 #include <cmath>
-#include "mixer.h"
-#include "apu.h"
+#include "Mixer.h"
+#include "APU.h"
 #include "emu2413.h"
 #include "emu2149.h"
 

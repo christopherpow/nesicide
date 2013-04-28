@@ -21,7 +21,7 @@
 #pragma once
 
 #include "SampleWindow.h"
-#include "fft\fft.h"
+#include "FFT/Fft.h"
 
 const int FFT_POINTS = 256;
 

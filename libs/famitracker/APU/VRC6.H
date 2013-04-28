@@ -21,8 +21,8 @@
 #ifndef _VRC6_H_
 #define _VRC6_H_
 
-#include "external.h"
-#include "channel.h"
+#include "External.h"
+#include "Channel.h"
 
 class CVRC6_Pulse : public CExChannel {
 public:

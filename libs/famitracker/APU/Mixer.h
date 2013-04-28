@@ -22,7 +22,7 @@
 #define _MIXER_H_
 
 #include "../common.h"
-#include "../Blip_Buffer/blip_buffer.h"
+#include "../Blip_Buffer/Blip_Buffer.h"
 
 enum CHAN_IDS {
 	CHANID_SQUARE1,

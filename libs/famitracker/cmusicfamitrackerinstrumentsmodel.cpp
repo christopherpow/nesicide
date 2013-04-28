@@ -4,6 +4,7 @@
 
 #include <QIcon>
 #include <QFont>
+#include <stdint.h>
 
 static char modelStringBuffer [ 256 ];
 

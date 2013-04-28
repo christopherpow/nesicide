@@ -123,8 +123,8 @@ mac {
 }
 
 unix:!mac {
-   NES_CXXFLAGS = -I $$TOP/libs/nes -I $$TOP/libs/nes/emulator -I $$TOP/libs/nes/common
-   C64_CXXFLAGS = -I $$TOP/libs/c64 -I $$TOP/libs/c64/emulator -I $$TOP/libs/c64/common
+   NES_CXXFLAGS = -I $$TOP/libs/nes -I $$TOP/libs/nes/emulator -I $$TOP/libs/nes/common -I/usr/include/wine/windows/
+   C64_CXXFLAGS = -I $$TOP/libs/c64 -I $$TOP/libs/c64/emulator -I $$TOP/libs/c64/common -I/usr/include/wine/windows/
    FAMITRACKER_CXXFLAGS = -I$$TOP/libs/famitracker
    NES_LIBS = -L$$TOP/libs/nes -lnes-emulator
    C64_LIBS = -L$$TOP/libs/c64 -lc64-emulator
