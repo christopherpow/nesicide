@@ -6,7 +6,7 @@
 //------------------------------------
 #include <memory>
 #include <string.h>
-#include "fft.h"
+#include "Fft.h"
 //#include "recorder.h"
 
 // log (1) = 0, log(2) = 1, log(3) = 2, log(4) = 2 ...

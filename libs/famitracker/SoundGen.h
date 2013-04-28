@@ -25,7 +25,7 @@
 
 #include "cqtmfc.h"
 
-#include "Common.h"
+#include "common.h"
 
 #include "FamiTrackerDoc.h"
 
