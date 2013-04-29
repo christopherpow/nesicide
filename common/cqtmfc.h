@@ -225,8 +225,12 @@ struct AFX_SIZEPARENTPARAMS
 };
 
 #if UNICODE
+typedef LPCWSTR LPCTSTR; 
+typedef wchar_t TCHAR;
 #define _T(x) L##x
 #else
+typedef LPCSTR LPCTSTR;
+typedef char TCHAR;
 #define _T(x) x
 #endif 
 #if !defined(TRACE0)
@@ -262,6 +266,11 @@ typedef struct
 
 #define afx_msg
 
+#if UNICODE
+#define _tcscpy_s(d,l,s) wcsncpy((char*)d,(const char*)s,l)
+#else
+#define _tcscpy_s(d,l,s) strncpy((char*)d,(const char*)s,l)
+#endif
 #define strcpy_s(d,l,s) strncpy((char*)d,(const char*)s,l)
 #define vsprintf_s(b,n,f,v) vsprintf(b,f,v)
 #if UNICODE
@@ -437,9 +446,6 @@ public:
    CString();
    CString(const CString& ref);
    CString(QString str);
-#if UNICODE
-   CString(LPCSTR str);
-#endif
    CString(LPCTSTR str);
    virtual ~CString();
    
@@ -449,15 +455,9 @@ public:
 
    CString& Append(LPCSTR str);
    CString& Append(LPWSTR str);
-#if UNICODE
-   void AppendFormat(LPCSTR fmt, ...);
-#endif
    void AppendFormat(LPCTSTR fmt, ...);
    void AppendFormatV(LPCTSTR fmt, va_list ap);
    void Format( UINT nFormatID, ... );
-#if UNICODE
-   void Format(LPCSTR fmt, ...);
-#endif
    void Format(LPCTSTR fmt, ...);
    void FormatV(LPCTSTR fmt, va_list ap);
    void Truncate(int length);
@@ -465,27 +465,18 @@ public:
    int Compare( LPCTSTR lpsz ) const;
  
    CString& operator=(const CString& str);
-#if UNICODE
-   CString& operator=(LPCSTR str);
-#endif
    CString& operator=(LPCTSTR str);
    CString& operator=(QString str);
    CString& operator+(const CString& str);
    CString& operator+(LPTSTR str);
-#if UNICODE
-   CString& operator+(LPCSTR str);
-#endif
    CString& operator+(LPCTSTR str);
    CString& operator+(QString str);
    CString& operator+=(const CString& str);
-#if UNICODE
-   CString& operator+=(LPCSTR str);
-#endif
    CString& operator+=(LPCTSTR str);
    CString& operator+=(QString str);
    operator QString() const;
-   operator LPCTSTR() const;
-   operator LPCSTR() const;
+   operator const TCHAR*() const;
+//   operator LPCSTR() const;
    
    void Empty();
    LPCTSTR GetString() const;
@@ -1541,6 +1532,7 @@ class CMenu : public CCmdTarget
    // Qt interfaces
 public:
    QMenu* toQMenu() { return _qtd; }
+   HMENU m_hMenu;
    
    // MFC interface
 public:
@@ -1556,11 +1548,6 @@ public:
       UINT nFlags,
       UINT_PTR nIDNewItem = 0,
       LPCTSTR lpszNewItem = NULL 
-   );
-   BOOL AppendMenu(
-      UINT nFlags,
-      UINT_PTR nIDNewItem = 0,
-      char* lpszNewItem = NULL 
    );
    BOOL SetDefaultItem(
       UINT uItem,
@@ -2778,14 +2765,19 @@ public:
    {
       return _qlist[nIndex];
    }
-   
    const TYPE& operator[]( 
       INT_PTR nIndex  
    ) const
    {
       return _qlist.at(nIndex);
    }
-   
+   void RemoveAll( )
+   {
+      _qlist.clear();
+   }
+   void FreeExtra( )
+   {
+   }
    INT_PTR Add(
       ARG_TYPE newElement 
    )
@@ -2823,6 +2815,10 @@ public:
    virtual BOOL FindNextFile( );
    virtual CString GetFileName( ) const;
    virtual CString GetFilePath( ) const;
+   virtual CString GetFileTitle( ) const;
+   BOOL IsDirectory( ) const;
+   BOOL IsHidden( ) const;
+   virtual BOOL IsDots( ) const;
 protected:
    QDir _qdir;
    QFileInfoList _qfiles;
@@ -2852,5 +2848,7 @@ CString qtMfcStringResource(int id);
 CMenu qtMfcMenuResource(int id);
 
 CBitmap qtMfcBitmapResource(int id);
+
+void openFile(QString fileName);
 
 #endif // CQTMFC_H

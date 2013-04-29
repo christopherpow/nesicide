@@ -104,7 +104,7 @@ BOOL CInstrumentEditPanel::PreTranslateMessage(MSG* pMsg)
 				default:	// Note keys
 					// Make sure the dialog is selected when previewing
 					GetClassName(pMsg->hwnd, ClassName, 256);
-					if (wcscmp(ClassName, _T("Edit"))) {
+					if (_tcscmp(ClassName, _T("Edit"))) {
 					//if (GetFocus() == this || GetFocus() == GetParent()) {
 					//if (!CDialog::PreTranslateMessage(pMsg)) {
 					

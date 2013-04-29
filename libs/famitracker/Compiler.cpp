@@ -881,7 +881,7 @@ void CCompiler::AllocateData()
 	// Resolve label addresses
 	//
 
-	CMap<CString, LPCSTR, int, int> labelMap;
+	CMap<CString, LPCTSTR, int, int> labelMap;
 	int Offset = 0;
 
 	// Pass 1, collect labels
@@ -909,7 +909,7 @@ void CCompiler::AllocateDataBankswitched()
 	// Resolve label addresses, with bankswitching enabled
 	//
 
-	CMap<CString, LPCSTR, int, int> labelMap;
+	CMap<CString, LPCTSTR, int, int> labelMap;
 	int Offset = 0;
 	int Bank = 3;
 
@@ -2062,7 +2062,7 @@ int CCompiler::CountData() const
 CChunk *CCompiler::GetObjectByRef(CString label) const
 {
 	for (unsigned int i = 0; i < m_vChunks.size(); ++i) {
-      qDebug("comparing: '%s' with '%s'",QString::fromWCharArray(m_vChunks[i]->GetLabel().GetBuffer()).toAscii().constData(),QString::fromWCharArray(label.GetBuffer()).toAscii().constData());
+      qDebug("comparing: '%s' with '%s'",QString::fromAscii(m_vChunks[i]->GetLabel().GetBuffer()).toAscii().constData(),QString::fromAscii(label.GetBuffer()).toAscii().constData());
 		if (!m_vChunks[i]->GetLabel().Compare(label))
 			return m_vChunks[i];
 	}

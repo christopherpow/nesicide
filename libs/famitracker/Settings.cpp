@@ -236,9 +236,9 @@ void CSettings::StoreSetting(CString Section, CString Name, int Value) const
    key += "/";
    key += QString::fromWCharArray(Name);
 #else
-   key = QString(Section);
+   key = QString::fromAscii(Section);
    key += "/";
-   key += QString(Name);
+   key += QString::fromAscii(Name);
 #endif
 //   qDebug("StoreSetting");
 //   qDebug(key.toAscii().constData());
@@ -255,9 +255,9 @@ int CSettings::LoadSetting(CString Section, CString Name, int Default) const
    key += "/";
    key += QString::fromWCharArray(Name);
 #else
-   key = QString(Section);
+   key = QString::fromAscii(Section);
    key += "/";
-   key += QString(Name);
+   key += QString::fromAscii(Name);
 #endif
 //   qDebug("LoadSetting");
 //   qDebug(key.toAscii().constData());

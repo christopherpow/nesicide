@@ -156,6 +156,7 @@ BOOL PathAppend(
 #endif
 }
 
+#if UNICODE
 TCHAR* A2T(char* str)
 {
    char* dup = strdup(str);
@@ -183,6 +184,17 @@ char* T2A(TCHAR* str)
    free(dup);
    return ret;
 }
+#else
+TCHAR* A2T(char* str)
+{
+   return str;
+}
+
+char* T2A(TCHAR* str)
+{
+   return str;
+}
+#endif
 
 int MulDiv(
   int nNumber,
@@ -365,19 +377,14 @@ CString::CString()
    UpdateScratch();
 }
 
-#if UNICODE
-CString::CString(LPCSTR str)
-{
-   _qstr.clear();
-   _qstr = str;
-   UpdateScratch();
-}
-#endif
-
 CString::CString(LPCTSTR str)
 {
    _qstr.clear();
+#if UNICODE
    _qstr = QString::fromWCharArray(str);
+#else
+   _qstr = QString::fromAscii(str);
+#endif
    UpdateScratch();
 }
 
@@ -405,7 +412,11 @@ CString::~CString()
 BOOL CString::LoadString( UINT nID )
 {
    _qstr.clear();
+#if UNICODE
    _qstr.append(QString::fromWCharArray(qtMfcStringResource(nID).GetString()));
+#else
+   _qstr.append(QString::fromAscii(qtMfcStringResource(nID).GetString()));
+#endif   
    return TRUE;   
 }
 
@@ -431,17 +442,6 @@ void CString::Format(LPCTSTR fmt, ...)
    FormatV(fmt,argptr);
    va_end(argptr);
 }
-
-#if UNICODE
-void CString::Format(LPCSTR fmt, ...)
-{
-   LPCTSTR tfmt = A2T((char*)fmt);
-   va_list argptr;
-   va_start(argptr,fmt);
-   FormatV(tfmt,argptr);
-   va_end(argptr);
-}
-#endif
 
 void CString::FormatV(LPCTSTR fmt, va_list ap)
 {
@@ -493,17 +493,6 @@ void CString::AppendFormat(LPCTSTR fmt, ...)
    va_end(argptr);
 }
 
-#if UNICODE
-void CString::AppendFormat(LPCSTR fmt, ...)
-{
-   LPCTSTR tfmt = A2T((char*)fmt);
-   va_list argptr;
-   va_start(argptr,fmt);
-   AppendFormatV(tfmt,argptr);
-   va_end(argptr);
-}
-#endif
-
 void CString::AppendFormatV(LPCTSTR fmt, va_list ap)
 {
    // CPTODO: UN-HACK!!!
@@ -550,20 +539,14 @@ CString& CString::operator=(const CString& str)
    return *this;
 }
 
-#if UNICODE
-CString& CString::operator=(LPCSTR str)
-{
-   _qstr.clear();
-   _qstr = QString(str);
-   UpdateScratch();
-   return *this;
-}
-#endif
-
 CString& CString::operator=(LPCTSTR str)
 {
    _qstr.clear();
+#if UNICODE
    _qstr = QString::fromWCharArray(str);
+#else
+   _qstr = QString::fromAscii(str);
+#endif
    UpdateScratch();
    return *this;
 }
@@ -583,18 +566,13 @@ CString& CString::operator+=(const CString& str)
    return *this;
 }
 
-#if UNICODE
-CString& CString::operator+=(LPCSTR str)
-{
-   _qstr.append(QString(str));
-   UpdateScratch();
-   return *this;
-}
-#endif
-
 CString& CString::operator+=(LPCTSTR str)
 {
+#if UNICODE
    _qstr.append(QString::fromWCharArray(str));
+#else
+   _qstr.append(QString::fromAscii(str));
+#endif
    UpdateScratch();
    return *this;
 }
@@ -613,25 +591,24 @@ CString& CString::operator+(const CString& str)
    return *this;
 }
 
-#if UNICODE
-CString& CString::operator+(LPCSTR str)
-{
-   _qstr += QString(str);
-   UpdateScratch();
-   return *this;
-}
-#endif
-
 CString& CString::operator+(LPTSTR str)
 {
+#if UNICODE
    _qstr += QString::fromWCharArray(str);
+#else
+   _qstr += QString::fromAscii(str);
+#endif
    UpdateScratch();
    return *this;
 }
 
 CString& CString::operator+(LPCTSTR str)
 {
+#if UNICODE
    _qstr += QString::fromWCharArray(str);
+#else
+   _qstr += QString::fromAscii(str);
+#endif
    UpdateScratch();
    return *this;
 }
@@ -648,14 +625,9 @@ CString::operator QString() const
    return _qstr;
 }
 
-CString::operator LPCTSTR() const
+CString::operator const TCHAR*() const
 {
    return GetString();
-}
-
-CString::operator LPCSTR() const
-{
-   return _qstr.toAscii().constData();
 }
 
 void CString::Empty() 
@@ -677,7 +649,7 @@ LPTSTR CString::GetBuffer() const
 #if UNICODE
    return (LPTSTR)_qstr.unicode();
 #else
-   return _qstrn.constData();
+   return (LPTSTR)_qstrn.data();
 #endif
 }
 
@@ -712,7 +684,7 @@ TCHAR CString::GetAt( int nIndex ) const
 
 CStringA::CStringA(CString str)
 { 
-   _qstr = QString::fromWCharArray(str.GetString()).toAscii().constData(); 
+   _qstr = str.GetString(); 
 }
 
 CStringA::operator char*() const
@@ -2033,7 +2005,7 @@ int CComboBox::GetDlgItemText(
 #if UNICODE
    wcsncpy(lpStr,(LPWSTR)_qtd->currentText().unicode(),nMaxCount);
 #else
-   strncpy(lpStr,_qtd->currentText(),nMaxCount);
+   strncpy(lpStr,_qtd->currentText().toAscii().constData(),nMaxCount);
 #endif   
    return _qtd->currentText().length();
 }
@@ -2472,7 +2444,7 @@ int CListCtrl::FindItem(
 #if UNICODE
    items = _qtd->findItems(QString::fromWCharArray(pFindInfo->psz),flags);
 #else
-   items = _qtd->findItems(psz,flags);
+   items = _qtd->findItems(pFindInfo->psz,flags);
 #endif
    if ( items.count() )
    {
@@ -4345,7 +4317,8 @@ HCURSOR CWinApp::LoadStandardCursor(
 }
 
 CMenu::CMenu()
-   : _qtd(NULL)
+   : _qtd(NULL),
+     m_hMenu(NULL)
 {
 }
 
@@ -4356,6 +4329,7 @@ BOOL CMenu::LoadMenu(
    if ( _qtd )
       delete _qtd;
    _qtd = qtMfcMenuResource(nIDResource).toQMenu();
+   m_hMenu = (HMENU)_qtd;
    return TRUE;
 }
 
@@ -4372,43 +4346,7 @@ BOOL CMenu::CreatePopupMenu()
    if ( _qtd )
       delete _qtd;
    _qtd = new QMenu;
-   return TRUE;
-}
-
-BOOL CMenu::AppendMenu(
-   UINT nFlags,
-   UINT_PTR nIDNewItem,
-   char* lpszNewItem
-)
-{
-   if ( nFlags&MF_POPUP )
-   {
-      _qtd->addMenu(qtMfcMenuResource(nIDNewItem).toQMenu());
-   }
-   if ( nFlags&MF_MENUBARBREAK )
-   {
-      _qtd->addSeparator();
-   }
-   if ( nFlags&MF_STRING )
-   {
-      QAction* action = _qtd->addAction(lpszNewItem); // CP: Add slots later
-      if ( nFlags&MF_CHECKED )
-      {
-         action->setCheckable(true);
-         action->setChecked(true);         
-      }
-      if ( nFlags&MF_ENABLED )
-      {
-         action->setEnabled(true);
-      }
-      if ( (nFlags&MF_DISABLED) ||
-           (nFlags&MF_GRAYED) )
-      {
-         action->setDisabled(true);
-      }
-      mfcToQtMenu.insert(nIDNewItem,action);
-      qtToMfcMenu.insert(action,nIDNewItem);
-   }
+   m_hMenu = (HMENU)_qtd;
    return TRUE;
 }
 
@@ -4876,7 +4814,7 @@ int CEdit::GetDlgItemText(
 #if UNICODE
       wcsncpy(lpStr,(LPWSTR)_qtd_ptedit->toPlainText().unicode(),nMaxCount);
 #else
-      strncpy(lpStr,_qtd_ptedit->toPlainText(),nMaxCount);
+      strncpy(lpStr,_qtd_ptedit->toPlainText().toAscii().constData(),nMaxCount);
 #endif   
       return _qtd_ptedit->toPlainText().length();
    }
@@ -4885,7 +4823,7 @@ int CEdit::GetDlgItemText(
 #if UNICODE
       wcsncpy(lpStr,(LPWSTR)_qtd_ledit->text().unicode(),nMaxCount);
 #else
-      strncpy(lpStr,_qtd_ledit->text(),nMaxCount);
+      strncpy(lpStr,_qtd_ledit->text().toAscii().constData(),nMaxCount);
 #endif   
       return _qtd_ledit->text().length();
    }
@@ -5025,7 +4963,7 @@ int CButton::GetDlgItemText(
 #if UNICODE
    wcsncpy(lpStr,(LPWSTR)_qtd->text().unicode(),nMaxCount);
 #else
-   strncpy(lpStr,_qtd->text(),nMaxCount);
+   strncpy(lpStr,_qtd->text().toAscii().constData(),nMaxCount);
 #endif   
    return _qtd->text().length();
 }
@@ -5363,7 +5301,7 @@ int CStatic::GetDlgItemText(
 #if UNICODE
    wcsncpy(lpStr,(LPWSTR)_qtd->text().unicode(),nMaxCount);
 #else
-   strncpy(lpStr,_qtd->text(),nMaxCount);
+   strncpy(lpStr,_qtd->text().toAscii().constData(),nMaxCount);
 #endif   
    return _qtd->text().length();
 }
@@ -5463,7 +5401,7 @@ int CGroupBox::GetDlgItemText(
 #if UNICODE
    wcsncpy(lpStr,(LPWSTR)_qtd->title().unicode(),nMaxCount);
 #else
-   strncpy(lpStr,_qtd->title(),nMaxCount);
+   strncpy(lpStr,_qtd->title().toAscii().constData(),nMaxCount);
 #endif   
    return _qtd->title().length();
 }
@@ -5702,4 +5640,30 @@ CString CFileFind::GetFileName( ) const
 
 CString CFileFind::GetFilePath( ) const
 {
+}
+
+CString CFileFind::GetFileTitle( ) const
+{
+}
+
+BOOL CFileFind::IsDirectory( ) const
+{
+}
+
+BOOL CFileFind::IsHidden( ) const
+{
+}
+
+BOOL CFileFind::IsDots( ) const
+{
+}
+
+void openFile(QString fileName)
+{
+   CString mfcFileName(fileName);
+#if UNICODE
+   ptrToTheApp->GetDocTemplate()->OpenDocumentFile((LPCTSTR)fileName.unicode());
+#else
+   ptrToTheApp->GetDocTemplate()->OpenDocumentFile(fileName.toAscii().constData());
+#endif            
 }

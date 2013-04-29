@@ -89,7 +89,7 @@ BOOL CGraphEditor::CreateEx(DWORD dwExStyle, LPCTSTR lpszClassName, LPCTSTR lpsz
 	m_pSmallFont = new CFont();
 
 	memset(&LogFont, 0, sizeof(LOGFONT));
-	wcscpy(LogFont.lfFaceName, /*32,*/ SMALL_FONT_FACE);
+	_tcscpy_s(LogFont.lfFaceName, 32, SMALL_FONT_FACE);
 	LogFont.lfHeight = -10;
 	LogFont.lfPitchAndFamily = VARIABLE_PITCH | FF_SWISS;
 	m_pSmallFont->CreateFontIndirect(&LogFont);

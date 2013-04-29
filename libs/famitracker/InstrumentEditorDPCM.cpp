@@ -816,7 +816,7 @@ void CInstrumentEditorDPCM::OnNMRClickTable(NMHDR *pNMHDR, LRESULT *pResult)
 	for (int i = 0; i < MAX_DSAMPLES; i++) {
 		pDSample = GetDocument()->GetDSample(i);
 		if (pDSample->SampleSize > 0) {
-			PopupMenu.AppendMenu(MF_STRING, i + 2, pDSample->Name);
+			PopupMenu.AppendMenu(MF_STRING, i + 2, A2T(pDSample->Name));
 		}
 	}
 

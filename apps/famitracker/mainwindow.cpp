@@ -101,8 +101,7 @@ void MainWindow::dropEvent(QDropEvent *event)
 
          if ( !fileInfo.suffix().compare("ftm",Qt::CaseInsensitive) )
          {
-            theApp.GetDocTemplate()->OpenDocumentFile((LPCTSTR)fileName.unicode());
-            
+            openFile(fileName);
             event->acceptProposedAction();
          }
       }

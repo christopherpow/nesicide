@@ -11,7 +11,7 @@ TOP = ../..
 
 DEFINES += FAMITRACKER_LIBRARY
 
-#DEFINES -= UNICODE
+DEFINES -= UNICODE
 
 INCLUDEPATH += \
    $$TOP/common
@@ -157,7 +157,8 @@ SOURCES += \
     Compiler.cpp \
     Chunk.cpp \
     ChunkRender.cpp \
-    CommentsDlg.cpp
+    CommentsDlg.cpp \
+    InstrumentFileTree.cpp
 
 HEADERS += \
     TrackerChannel.h \
@@ -264,7 +265,8 @@ HEADERS += \
     CustomExporter.h \
     CustomExporter_C_Interface.h \
     ChunkRender.h \
-    CommentsDlg.h
+    CommentsDlg.h \
+    InstrumentFileTree.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN
