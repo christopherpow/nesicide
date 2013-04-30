@@ -21,7 +21,7 @@
 #ifndef _N163_H_
 #define _N163_H_
 
-#include "external.h"
+#include "External.h"
 #include "Channel.h"
 
 class CMixer;

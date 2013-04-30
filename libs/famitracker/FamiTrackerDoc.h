@@ -24,7 +24,7 @@
 #include "cqtmfc.h"
 
 // Get access to some APU constants
-#include "apu/apu.h"
+#include "APU/APU.h"
 // Some pure virtual interfaces that expose non MFC functionality to exporter plugins
 #include "CustomExporterInterfaces.h"
 // Constants, types and enums

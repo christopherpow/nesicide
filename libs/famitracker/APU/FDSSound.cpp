@@ -1,7 +1,8 @@
 #include <cmath>
 #include <memory>
 #include <string.h>
-#include "apu.h"
+#include "APU.h"
+#include "FDSSound.h"
 
 // Code is from nezplug via nintendulator
 

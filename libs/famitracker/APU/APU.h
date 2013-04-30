@@ -26,7 +26,7 @@
 //#define LOGGING
 
 #include "../common.h"
-#include "mixer.h"
+#include "Mixer.h"
 
 const uint8 SNDCHIP_NONE  = 0;
 const uint8 SNDCHIP_VRC6  = 1;			// Konami VRCVI

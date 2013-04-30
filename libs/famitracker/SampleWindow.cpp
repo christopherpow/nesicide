@@ -21,7 +21,7 @@
 #include "stdafx.h"
 #include "FamiTracker.h"
 #include "SampleWindow.h"
-#include "fft\fft.h"
+#include "FFT/Fft.h"
 #include "resource.h"
 #include "Settings.h"
 

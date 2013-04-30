@@ -1,8 +1,8 @@
 #ifndef _S5B_H_
 #define _S5B_H_
 
-#include "external.h"
-#include "channel.h"
+#include "External.h"
+#include "Channel.h"
 
 class CS5B : public CExternal {
 public:

@@ -11,6 +11,8 @@ QMAKEFLAGS += -config release # force makefile generation on osx
 endif
 endif
 
+all: default
+
 default: apps/nes-emulator/nes-emulator apps/ide/nesicide
 
 %/Makefile: %/*.pro
@@ -38,14 +40,19 @@ clean:
 install:
 	install -d $(DESTDIR)$(PREFIX)/lib $(DESTDIR)$(PREFIX)/bin
 	install libs/c64/libc64-emulator.so.1.0.0 $(DESTDIR)$(PREFIX)/lib
-	ln -s libc64-emulator.so.1.0.0 $(DESTDIR)$(PREFIX)/lib/libc64-emulator.so.1.0
-	ln -s libc64-emulator.so.1.0.0 $(DESTDIR)$(PREFIX)/lib/libc64-emulator.so.1
-	ln -s libc64-emulator.so.1.0.0 $(DESTDIR)$(PREFIX)/lib/libc64-emulator.so
+	ln -f -s libc64-emulator.so.1.0.0 $(DESTDIR)$(PREFIX)/lib/libc64-emulator.so.1.0
+	ln -f -s libc64-emulator.so.1.0.0 $(DESTDIR)$(PREFIX)/lib/libc64-emulator.so.1
+	ln -f -s libc64-emulator.so.1.0.0 $(DESTDIR)$(PREFIX)/lib/libc64-emulator.so
 	install libs/nes/libnes-emulator.so.1.0.0 $(DESTDIR)$(PREFIX)/lib
-	ln -s libnes-emulator.so.1.0.0 $(DESTDIR)$(PREFIX)/lib/libnes-emulator.so.1.0
-	ln -s libnes-emulator.so.1.0.0 $(DESTDIR)$(PREFIX)/lib/libnes-emulator.so.1
-	ln -s libnes-emulator.so.1.0.0 $(DESTDIR)$(PREFIX)/lib/libnes-emulator.so
+	ln -f -s libnes-emulator.so.1.0.0 $(DESTDIR)$(PREFIX)/lib/libnes-emulator.so.1.0
+	ln -f -s libnes-emulator.so.1.0.0 $(DESTDIR)$(PREFIX)/lib/libnes-emulator.so.1
+	ln -f -s libnes-emulator.so.1.0.0 $(DESTDIR)$(PREFIX)/lib/libnes-emulator.so
+	install libs/famitracker/libfamitracker.so.1.0.0 $(DESTDIR)$(PREFIX)/lib
+	ln -f -s libfamitracker.so.1.0.0 $(DESTDIR)$(PREFIX)/lib/libfamitracker.so.1.0
+	ln -f -s libfamitracker.so.1.0.0 $(DESTDIR)$(PREFIX)/lib/libfamitracker.so.1
+	ln -f -s libfamitracker.so.1.0.0 $(DESTDIR)$(PREFIX)/lib/libfamitracker.so
 	install apps/nes-emulator/nes-emulator $(DESTDIR)$(PREFIX)/bin
 	install apps/ide/nesicide $(DESTDIR)$(PREFIX)/bin
+	ldconfig
 
 FORCE:

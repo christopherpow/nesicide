@@ -30,7 +30,7 @@
 #include "SampleWindow.h"
 #include "MainFrm.h"
 #include "DirectSound.h"
-#include "apu/apu.h"
+#include "APU/APU.h"
 
 #include "ChannelHandler.h"
 #include "Channels2A03.h"
