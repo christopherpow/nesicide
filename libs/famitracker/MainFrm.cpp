@@ -1036,6 +1036,7 @@ bool CMainFrame::CreateDialogPanels()
 	m_wndDialogBar.ShowWindow(SW_SHOW);
 
 	// Subclass edit boxes
+   qDebug("Subclassing...");
 //	m_pLockedEditSpeed	= new CLockedEdit();
 //	m_pLockedEditTempo	= new CLockedEdit();
 //	m_pLockedEditLength = new CLockedEdit();
@@ -1054,14 +1055,14 @@ bool CMainFrame::CreateDialogPanels()
 
 	SetupColors();
 
-//	m_pImageList = new CImageList();
-//	m_pImageList->Create(16, 16, ILC_COLOR32, 1, 1);
-//	m_pImageList->Add(theApp.LoadIcon(IDI_INST_2A03INV));
-//	m_pImageList->Add(theApp.LoadIcon(IDI_INST_VRC6INV));
-//	m_pImageList->Add(theApp.LoadIcon(IDI_INST_VRC7INV));
-//	m_pImageList->Add(theApp.LoadIcon(IDI_INST_FDS));
-//	m_pImageList->Add(theApp.LoadIcon(IDI_INST_N163));
-//	m_pImageList->Add(theApp.LoadIcon(IDI_INST_5B));
+	m_pImageList = new CImageList();
+	m_pImageList->Create(16, 16, ILC_COLOR32, 1, 1);
+	m_pImageList->Add(theApp.LoadIcon(IDI_INST_2A03INV));
+	m_pImageList->Add(theApp.LoadIcon(IDI_INST_VRC6INV));
+	m_pImageList->Add(theApp.LoadIcon(IDI_INST_VRC7INV));
+	m_pImageList->Add(theApp.LoadIcon(IDI_INST_FDS));
+	m_pImageList->Add(theApp.LoadIcon(IDI_INST_N163));
+	m_pImageList->Add(theApp.LoadIcon(IDI_INST_5B));
 
 //	m_pInstrumentList->SetImageList(m_pImageList, LVSIL_NORMAL);
 //	m_pInstrumentList->SetImageList(m_pImageList, LVSIL_SMALL);

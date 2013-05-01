@@ -1586,28 +1586,24 @@ void qtMfcInitDialogResource_IDD_EXPORT(UINT dlgID,CDialog* parent1)
    parent->MapDialogRect(&r6);
    mfc6->Create(_T("NTSC"),BS_AUTORADIOBUTTON | WS_VISIBLE,r6,parent,IDC_NTSC);
    mfcToQtWidget->insert(IDC_NTSC,mfc6);
-   QObject::connect(mfc6,SIGNAL(clicked()),parent,SLOT(ntsc_clicked()));
 //       CONTROL         "PAL",IDC_PAL,"Button",BS_AUTORADIOBUTTON,54,67,28,10
    CButton* mfc7 = new CButton(parent);
    CRect r7(CPoint(54,67),CSize(28,10));
    parent->MapDialogRect(&r7);
    mfc7->Create(_T("PAL"),BS_AUTORADIOBUTTON | WS_VISIBLE,r7,parent,IDC_PAL);
    mfcToQtWidget->insert(IDC_PAL,mfc7);
-   QObject::connect(mfc7,SIGNAL(clicked()),parent,SLOT(pal_clicked()));
 //       CONTROL         "Dual",IDC_DUAL,"Button",BS_AUTORADIOBUTTON,88,67,30,10
    CButton* mfc8 = new CButton(parent);
    CRect r8(CPoint(88,67),CSize(30,10));
    parent->MapDialogRect(&r8);
    mfc8->Create(_T("Dual"),BS_AUTORADIOBUTTON | WS_VISIBLE,r8,parent,IDC_DUAL);
    mfcToQtWidget->insert(IDC_DUAL,mfc8);
-   QObject::connect(mfc8,SIGNAL(clicked()),parent,SLOT(dual_clicked()));
 //       COMBOBOX        IDC_TYPE,16,97,218,100,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
    CComboBox* mfc9 = new CComboBox(parent);
    CRect r9(CPoint(16,97),CSize(218,100));
    parent->MapDialogRect(&r9);
    mfc9->Create(CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r9,parent,IDC_TYPE);
    mfcToQtWidget->insert(IDC_TYPE,mfc9);
-   QObject::connect(mfc9,SIGNAL(currentIndexChanged(int)),parent,SLOT(type_currentIndexChanged(int)));
 //       LTEXT           "Name",IDC_STATIC,16,20,38,11
    CStatic* mfc11 = new CStatic(parent);
    CRect r11(CPoint(16,20),CSize(38,11));

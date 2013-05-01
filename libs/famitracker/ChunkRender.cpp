@@ -109,13 +109,13 @@ void CChunkRenderText::StoreHeaderChunk(CChunk *pChunk, CFile *pFile)
 	int len = pChunk->GetLength();
 	int i = 0;
 
-	str.AppendFormat(_T("\t.word %s\n"), pChunk->GetDataRefName(i++));
-	str.AppendFormat(_T("\t.word %s\n"), pChunk->GetDataRefName(i++));
-	str.AppendFormat(_T("\t.word %s\n"), pChunk->GetDataRefName(i++));
-	str.AppendFormat(_T("\t.word %s\n"), pChunk->GetDataRefName(i++));
+	str.AppendFormat(_T("\t.word %s\n"), (LPCTSTR)pChunk->GetDataRefName(i++));
+	str.AppendFormat(_T("\t.word %s\n"), (LPCTSTR)pChunk->GetDataRefName(i++));
+	str.AppendFormat(_T("\t.word %s\n"), (LPCTSTR)pChunk->GetDataRefName(i++));
+	str.AppendFormat(_T("\t.word %s\n"), (LPCTSTR)pChunk->GetDataRefName(i++));
 	str.AppendFormat(_T("\t.byte %i ; flags\n"), pChunk->GetData(i++));
 	if (pChunk->GetDataType(i) == CHUNK_DATA_REFERENCE)
-		str.AppendFormat(_T("\t.word %s\n"), pChunk->GetDataRefName(i++));	// FDS waves
+		str.AppendFormat(_T("\t.word %s\n"), (LPCTSTR)pChunk->GetDataRefName(i++));	// FDS waves
 	str.AppendFormat(_T("\t.word %i ; NTSC speed\n"), pChunk->GetData(i++));
 	str.AppendFormat(_T("\t.word %i ; PAL speed\n"), pChunk->GetData(i++));
 	if (i < pChunk->GetLength())
@@ -129,10 +129,10 @@ void CChunkRenderText::StoreInstrumentListChunk(CChunk *pChunk, CFile *pFile)
 	CString str;
 
 	// Store instrument pointers
-	str.Format(_T("%s:\n"), pChunk->GetLabel());
+	str.Format(_T("%s:\n"), (LPCTSTR)pChunk->GetLabel());
 
 	for (int i = 0; i < pChunk->GetLength(); ++i) {
-		str.AppendFormat(_T("\t.word %s\n"), pChunk->GetDataRefName(i));
+		str.AppendFormat(_T("\t.word %s\n"), (LPCTSTR)pChunk->GetDataRefName(i));
 	}
 
 	m_instrumentListStrings.Add(str);
@@ -143,7 +143,7 @@ void CChunkRenderText::StoreInstrumentChunk(CChunk *pChunk, CFile *pFile)
 	CString str;
 	int len = pChunk->GetLength();
 
-	str.Format(_T("%s:\n\t.byte %i\n"), pChunk->GetLabel(), pChunk->GetData(0));
+	str.Format(_T("%s:\n\t.byte %i\n"), (LPCTSTR)pChunk->GetLabel(), pChunk->GetData(0));
 
 	for (int i = 1; i < len; ++i) {
 		switch (pChunk->GetDataType(i)) {
@@ -154,7 +154,7 @@ void CChunkRenderText::StoreInstrumentChunk(CChunk *pChunk, CFile *pFile)
 				str.AppendFormat(_T("\t.word $%04X\n"), pChunk->GetData(i));
 				break;
 			case CHUNK_DATA_REFERENCE:
-				str.AppendFormat(_T("\t.word %s\n"), pChunk->GetDataRefName(i));
+				str.AppendFormat(_T("\t.word %s\n"), (LPCTSTR)pChunk->GetDataRefName(i));
 				break;
 		}
 	}
@@ -168,7 +168,7 @@ void CChunkRenderText::StoreSequenceChunk(CChunk *pChunk, CFile *pFile)
 {
 	CString str;
 
-	str.Format(_T("%s:\n"), pChunk->GetLabel());
+	str.Format(_T("%s:\n"), (LPCTSTR)pChunk->GetLabel());
 	StoreByteString(pChunk, str);
 
 	m_sequenceStrings.Add(str);
@@ -179,7 +179,7 @@ void CChunkRenderText::StoreSampleListChunk(CChunk *pChunk, CFile *pFile)
 	CString str;
 
 	// Store sample list
-	str.Format(_T("%s:\n"), pChunk->GetLabel());
+	str.Format(_T("%s:\n"), (LPCTSTR)pChunk->GetLabel());
 
 	for (int i = 0; i < pChunk->GetLength(); i += 2) {
 		str.AppendFormat(_T("\t.byte %i, %i\n"), pChunk->GetData(i + 0), pChunk->GetData(i + 1));
@@ -194,7 +194,7 @@ void CChunkRenderText::StoreSamplePointersChunk(CChunk *pChunk, CFile *pFile)
 	int len = pChunk->GetLength();
 
 	// Store sample pointer
-	str.Format(_T("%s:\n"), pChunk->GetLabel());
+	str.Format(_T("%s:\n"), (LPCTSTR)pChunk->GetLabel());
 
 	if (len > 0) {
 		str.Append(_T("\t.byte "));
@@ -216,10 +216,10 @@ void CChunkRenderText::StoreSongListChunk(CChunk *pChunk, CFile *pFile)
 {
 	CString str;
 
-	str.Format(_T("%s: \n"), pChunk->GetLabel());
+	str.Format(_T("%s: \n"), (LPCTSTR)pChunk->GetLabel());
 
 	for (int i = 0; i < pChunk->GetLength(); ++i) {
-		str.AppendFormat(_T("\t.word %s\n"), pChunk->GetDataRefName(i));
+		str.AppendFormat(_T("\t.word %s\n"), (LPCTSTR)pChunk->GetDataRefName(i));
 	}
 
 	m_songListStrings.Add(str);
@@ -229,10 +229,10 @@ void CChunkRenderText::StoreSongChunk(CChunk *pChunk, CFile *pFile)
 {
 	CString str;
 
-	str.Format("%s: \n", pChunk->GetLabel());
+	str.Format("%s: \n", (LPCTSTR)pChunk->GetLabel());
 
 	for (int i = 0; i < pChunk->GetLength();) {
-		str.AppendFormat("\t.word %s\n", pChunk->GetDataRefName(i++));
+		str.AppendFormat("\t.word %s\n", (LPCTSTR)pChunk->GetDataRefName(i++));
 		str.AppendFormat("\t.byte %i\t; frame count\n", pChunk->GetData(i++));
 		str.AppendFormat("\t.byte %i\t; pattern length\n", pChunk->GetData(i++));
 		str.AppendFormat("\t.byte %i\t; speed\n", pChunk->GetData(i++));
@@ -250,10 +250,10 @@ void CChunkRenderText::StoreFrameListChunk(CChunk *pChunk, CFile *pFile)
 	CString str;
 
 	// Pointers to frames
-	str.Format("%s: \n", pChunk->GetLabel());
+	str.Format("%s: \n", (LPCTSTR)pChunk->GetLabel());
 
 	for (int i = 0; i < pChunk->GetLength(); ++i) {
-		str.AppendFormat("\t.word %s\n", pChunk->GetDataRefName(i));
+		str.AppendFormat("\t.word %s\n", (LPCTSTR)pChunk->GetDataRefName(i));
 	}
 
 	m_songDataStrings.Add(str);
@@ -265,11 +265,11 @@ void CChunkRenderText::StoreFrameChunk(CChunk *pChunk, CFile *pFile)
 	int len = pChunk->GetLength();
 
 	// Frame list
-	str.Format("%s:\n\t.word ", pChunk->GetLabel());
+	str.Format("%s:\n\t.word ", (LPCTSTR)pChunk->GetLabel());
 
 	for (int i = 0; i < len; ++i) {
 		if (pChunk->GetDataType(i) == CHUNK_DATA_REFERENCE)
-			str.AppendFormat("%s%s", pChunk->GetDataRefName(i), (i < len - 1) ? ", " : "");
+			str.AppendFormat("%s%s", (LPCTSTR)pChunk->GetDataRefName(i), (i < len - 1) ? ", " : "");
 		else
 			str.AppendFormat("$%02X%s", pChunk->GetData(i), (i < len - 1) ? ", " : "");
 	}
@@ -285,7 +285,7 @@ void CChunkRenderText::StorePatternChunk(CChunk *pChunk, CFile *pFile)
 	int len = pChunk->GetLength();
 
 	// Patterns
-	str.Format("%s: \n", pChunk->GetLabel());
+	str.Format("%s: \n", (LPCTSTR)pChunk->GetLabel());
 	str.Append("\t.byte ");
 
 	len = pChunk->GetStringLength(0);
@@ -311,7 +311,7 @@ void CChunkRenderText::StoreWavetableChunk(CChunk *pChunk, CFile *pFile)
 	int len = pChunk->GetLength();
 
 	// FDS waves
-	str.Format("%s: \n", pChunk->GetLabel());
+	str.Format("%s: \n", (LPCTSTR)pChunk->GetLabel());
 	str.Append("\t.byte ");
 
 	for (int i = 0; i < len; ++i) {
@@ -338,7 +338,7 @@ void CChunkRenderText::StoreWavesChunk(CChunk *pChunk, CFile *pFile)
 	int wave_len = 16;//(len - 1) / waves;
 
 	// Namco waves
-	str.Format("%s: \n", pChunk->GetLabel());
+	str.Format("%s: \n", (LPCTSTR)pChunk->GetLabel());
 //				str.AppendFormat("\t.byte %i\n", waves);
 	
 	str.Append("\t.byte ");

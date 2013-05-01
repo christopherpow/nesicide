@@ -2063,38 +2063,34 @@ CCheckListBox::~CCheckListBox()
 }
 
 CListCtrl::CListCtrl(CWnd* parent)
-   : CWnd(parent)
+   : CWnd(parent),
+     _qtd_table(NULL),
+     _qtd_list(NULL),
+     _dwStyle(0)
 {
-   if ( _qt )
-      delete _qt;
-   
-   _grid = NULL;
-   
-   if ( parent )
-      _qt = new QTableWidget(parent->toQWidget());
-   else
-      _qt = new QTableWidget;      
-   
-   // Downcast to save having to do it all over the place...
-   _qtd = dynamic_cast<QTableWidget*>(_qt);
-      
-   _qtd->setFont(QFont("MS Shell Dlg",8));
-   _qtd->horizontalHeader()->setStretchLastSection(true);
-   _qtd->verticalHeader()->hide();
-   _qtd->setEditTriggers(QAbstractItemView::NoEditTriggers);
-   
-   // Pass-through signals
-   QObject::connect(_qtd,SIGNAL(itemSelectionChanged()),this,SIGNAL(itemSelectionChanged()));
-   QObject::connect(_qtd,SIGNAL(cellClicked(int,int)),this,SIGNAL(cellClicked(int,int)));
-   QObject::connect(_qtd,SIGNAL(cellDoubleClicked(int,int)),this,SIGNAL(cellDoubleClicked(int,int)));
 }
 
 CListCtrl::~CListCtrl()
 {
-   if ( _qtd )
-      delete _qtd;
-   _qtd = NULL;
+   if ( _qtd_table )
+      delete _qtd_table;
+   _qtd_table = NULL;
+   if ( _qtd_list )
+      delete _qtd_list;
+   _qtd_list = NULL;
    _qt = NULL;
+}
+
+QModelIndex CListCtrl::currentIndex () const 
+{ 
+   if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
+   {
+      return _qtd_table->currentIndex(); 
+   }
+   else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
+   {
+      return _qtd_list->currentIndex(); 
+   }
 }
 
 BOOL CListCtrl::Create(
@@ -2104,30 +2100,90 @@ BOOL CListCtrl::Create(
    UINT nID 
 )
 {
-   _qtd->verticalHeader()->setVisible(false);
-   _qtd->horizontalHeader()->setSortIndicatorShown(true);
-   if ( dwStyle&LVS_SINGLESEL )
-   {
-      _qtd->setSelectionMode(QAbstractItemView::SingleSelection);
-      _qtd->setSelectionBehavior(QAbstractItemView::SelectRows);
-   }
-//   if ( (dwStyle&LVS_SORTASCENDING)
-//        (dwStyle&LVS_SORTDESCENDING) )
-//   {
-//      _qtd->setSortingEnabled(true);
-//   }
-   if ( dwStyle&LVS_NOCOLUMNHEADER )
-   {
-      _qtd->horizontalHeader()->setVisible(false);
-   }
-   if ( dwStyle&LVS_NOSORTHEADER )
-   {
-      _qtd->horizontalHeader()->setSortIndicatorShown(false);
-   }
-   _qtd->horizontalHeader()->setStretchLastSection(true);
+   _dwStyle = dwStyle;
    
-   _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
-   _qtd->setVisible(dwStyle&WS_VISIBLE);
+   if ( _qt )
+      delete _qt;
+   
+   _grid = NULL;
+   
+   if ( (dwStyle&LVS_TYPEMASK) == LVS_REPORT )
+   {
+      if ( pParentWnd )
+         _qt = new QTableWidget(pParentWnd->toQWidget());
+      else
+         _qt = new QTableWidget;      
+      
+      // Downcast to save having to do it all over the place...
+      _qtd_table = dynamic_cast<QTableWidget*>(_qt);
+         
+      _qtd_table->setFont(QFont("MS Shell Dlg",8));
+      _qtd_table->horizontalHeader()->setStretchLastSection(true);
+      _qtd_table->verticalHeader()->hide();
+      _qtd_table->setEditTriggers(QAbstractItemView::NoEditTriggers);
+      
+      // Pass-through signals
+      QObject::connect(_qtd_table,SIGNAL(itemSelectionChanged()),this,SIGNAL(itemSelectionChanged()));
+      QObject::connect(_qtd_table,SIGNAL(cellClicked(int,int)),this,SIGNAL(cellClicked(int,int)));
+      QObject::connect(_qtd_table,SIGNAL(cellDoubleClicked(int,int)),this,SIGNAL(cellDoubleClicked(int,int)));
+
+      _qtd_table->verticalHeader()->setVisible(false);
+      _qtd_table->horizontalHeader()->setSortIndicatorShown(true);
+      if ( dwStyle&LVS_SINGLESEL )
+      {
+         _qtd_table->setSelectionMode(QAbstractItemView::SingleSelection);
+         _qtd_table->setSelectionBehavior(QAbstractItemView::SelectRows);
+      }
+   //   if ( (dwStyle&LVS_SORTASCENDING)
+   //        (dwStyle&LVS_SORTDESCENDING) )
+   //   {
+   //      _qtd_table->setSortingEnabled(true);
+   //   }
+      if ( dwStyle&LVS_NOCOLUMNHEADER )
+      {
+         _qtd_table->horizontalHeader()->setVisible(false);
+      }
+      if ( dwStyle&LVS_NOSORTHEADER )
+      {
+         _qtd_table->horizontalHeader()->setSortIndicatorShown(false);
+      }
+      _qtd_table->horizontalHeader()->setStretchLastSection(true);
+      
+      _qtd_table->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
+      _qtd_table->setVisible(dwStyle&WS_VISIBLE);
+   }
+   else if ( (dwStyle&LVS_TYPEMASK) == LVS_LIST )
+   {
+      if ( pParentWnd )
+         _qt = new QListWidget(pParentWnd->toQWidget());
+      else
+         _qt = new QListWidget;      
+      
+      // Downcast to save having to do it all over the place...
+      _qtd_list = dynamic_cast<QListWidget*>(_qt);
+         
+      _qtd_list->setFont(QFont("MS Shell Dlg",8));
+      _qtd_list->setEditTriggers(QAbstractItemView::NoEditTriggers);
+      
+      // Pass-through signals
+      QObject::connect(_qtd_list,SIGNAL(itemSelectionChanged()),this,SIGNAL(itemSelectionChanged()));
+      QObject::connect(_qtd_list,SIGNAL(cellClicked(int,int)),this,SIGNAL(cellClicked(int,int)));
+      QObject::connect(_qtd_list,SIGNAL(cellDoubleClicked(int,int)),this,SIGNAL(cellDoubleClicked(int,int)));
+
+      if ( dwStyle&LVS_SINGLESEL )
+      {
+         _qtd_list->setSelectionMode(QAbstractItemView::SingleSelection);
+         _qtd_list->setSelectionBehavior(QAbstractItemView::SelectRows);
+      }
+   //   if ( (dwStyle&LVS_SORTASCENDING)
+   //        (dwStyle&LVS_SORTDESCENDING) )
+   //   {
+   //      _qtd_list->setSortingEnabled(true);
+   //   }
+      
+      _qtd_list->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
+      _qtd_list->setVisible(dwStyle&WS_VISIBLE);
+   }   
 
    return TRUE;
 }
@@ -2138,36 +2194,75 @@ LRESULT CListCtrl::SendMessage(
    LPARAM lParam 
 )
 {
-   switch ( message )
+   if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
    {
-   case LVM_SETEXTENDEDLISTVIEWSTYLE:
-      if ( !wParam )
+      switch ( message )
       {
-         switch ( lParam )
+      case LVM_SETEXTENDEDLISTVIEWSTYLE:
+         if ( !wParam )
          {
-         case LVS_EX_FULLROWSELECT:            
-            _qtd->setSelectionMode(QAbstractItemView::SingleSelection);
-            _qtd->setSelectionBehavior(QAbstractItemView::SelectRows);
-            break;
-         case LVS_EX_CHECKBOXES:
-            qDebug("LVS_EX_CHECKBOXES?");
-            break;
+            switch ( lParam )
+            {
+            case LVS_EX_FULLROWSELECT:            
+               _qtd_table->setSelectionMode(QAbstractItemView::SingleSelection);
+               _qtd_table->setSelectionBehavior(QAbstractItemView::SelectRows);
+               break;
+            case LVS_EX_CHECKBOXES:
+               qDebug("LVS_EX_CHECKBOXES?");
+               break;
+            }
          }
+         break;
       }
-      break;
+   }
+   else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
+   {
+      switch ( message )
+      {
+      case LVM_SETEXTENDEDLISTVIEWSTYLE:
+         if ( !wParam )
+         {
+            switch ( lParam )
+            {
+            case LVS_EX_FULLROWSELECT:            
+               _qtd_list->setSelectionMode(QAbstractItemView::SingleSelection);
+               _qtd_list->setSelectionBehavior(QAbstractItemView::SelectRows);
+               break;
+            case LVS_EX_CHECKBOXES:
+               qDebug("LVS_EX_CHECKBOXES?");
+               break;
+            }
+         }
+         break;
+      }
    }
    return 0; // CP: not sure this matters...much
 }
 
 UINT CListCtrl::GetSelectedCount( ) const
 {
-   return _qtd->selectedItems().count();
+   if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
+   {
+      return _qtd_table->selectedItems().count();
+   }
+   else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
+   {
+      return _qtd_list->selectedItems().count();
+   }
 }
 
 int CListCtrl::GetSelectionMark( )
 {
-   if ( _qtd->selectedItems().count() )
-      return _qtd->selectedItems().at(0)->row();
+   if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
+   {
+      if ( _qtd_table->selectedItems().count() )
+         return _qtd_table->selectedItems().at(0)->row();
+   }
+   else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
+   {
+      if ( _qtd_list->selectedItems().count() )
+         return _qtd_list->row(_qtd_list->selectedItems().at(0));
+   }
    return -1;
 }
 
@@ -2176,27 +2271,56 @@ int CListCtrl::GetNextItem(
    int nFlags 
 ) const
 {
-   QList<QTableWidgetItem*> items = _qtd->selectedItems();
+   QList<QTableWidgetItem*> twis;
+   QList<QListWidgetItem*> lwis;
    int item;
    int nextItemRow = -1;
-   
-   switch ( nFlags )
+
+   if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
    {
-   case LVNI_SELECTED:
-      for ( item = 0; item < items.count(); item++ )
+      twis = _qtd_table->selectedItems();
+      
+      switch ( nFlags )
       {
-         if ( items.at(item)->row() == nItem )
+      case LVNI_SELECTED:
+         for ( item = 0; item < twis.count(); item++ )
          {
-            if ( item < (items.count()-1) )
+            if ( twis.at(item)->row() == nItem )
             {
-               nextItemRow = items.at(item+1)->row();
+               if ( item < (twis.count()-1) )
+               {
+                  nextItemRow = twis.at(item+1)->row();
+               }
             }
          }
+         break;
+      default:
+         qDebug("CListCtrl::GetNextItem called with unsupported nFlags");
+         break;
       }
-      break;
-   default:
-      qDebug("CListCtrl::GetNextItem called with unsupported nFlags");
-      break;
+   }
+   else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
+   {
+      lwis = _qtd_list->selectedItems();
+      
+      switch ( nFlags )
+      {
+      case LVNI_SELECTED:
+         for ( item = 0; item < lwis.count(); item++ )
+         {
+            if ( _qtd_list->row(lwis.at(item)) == nItem )
+            {
+               if ( item < (lwis.count()-1) )
+               {
+                  nextItemRow = _qtd_list->row(lwis.at(item+1));
+               }
+            }
+         }
+         break;
+      default:
+         qDebug("CListCtrl::GetNextItem called with unsupported nFlags");
+         break;
+      }
    }
    return nextItemRow;
 }
@@ -2206,11 +2330,27 @@ CString CListCtrl::GetItemText(
    int nSubItem 
 ) const
 {
-   QTableWidgetItem* twi = _qtd->item(nItem,nSubItem);
+   QTableWidgetItem* twi;
+   QListWidgetItem* lwi;
    CString str;
-   if ( twi )
+
+   if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
    {
-      str = twi->text();
+      twi = _qtd_table->item(nItem,nSubItem);
+      
+      if ( twi )
+      {
+         str = twi->text();
+      }
+   }
+   else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
+   {
+      lwi = _qtd_list->item(nItem);
+      
+      if ( lwi )
+      {
+         str = lwi->text();
+      }
    }
    return str;
 }
@@ -2222,17 +2362,39 @@ int CListCtrl::GetItemText(
    int nLen 
 ) const
 {
-   QTableWidgetItem* twi = _qtd->item(nItem,nSubItem);
+   QTableWidgetItem* twi;
+   QListWidgetItem* lwi;
    int length = 0;
-   if ( twi )
+
+   if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
    {
+      twi = _qtd_table->item(nItem,nSubItem);
+      
+      if ( twi )
+      {
 #if UNICODE
-      wcscpy(lpszText,(LPWSTR)twi->text().unicode());
-      length = wcslen(lpszText);
+         wcscpy(lpszText,(LPWSTR)twi->text().unicode());
+         length = wcslen(lpszText);
 #else
-      strcpy(lpszText,twi->text().toAscii().constData());
-      length = strlen(lpszText);
+         strcpy(lpszText,twi->text().toAscii().constData());
+         length = strlen(lpszText);
 #endif
+      }
+   }
+   else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
+   {
+      lwi = _qtd_list->item(nItem);
+      
+      if ( lwi )
+      {
+#if UNICODE
+         wcscpy(lpszText,(LPWSTR)lwi->text().unicode());
+         length = wcslen(lpszText);
+#else
+         strcpy(lpszText,lwi->text().toAscii().constData());
+         length = strlen(lpszText);
+#endif
+      }
    }
    return length;
 }
@@ -2245,12 +2407,29 @@ int CListCtrl::GetItemText(
    int nLen 
 ) const
 {
-   QTableWidgetItem* twi = _qtd->item(nItem,nSubItem);
+   QTableWidgetItem* twi;
+   QListWidgetItem* lwi;
    int length = 0;
-   if ( twi )
+   
+   if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
    {
-      strcpy(lpszText,twi->text().toAscii().constData());
-      length = strlen(lpszText);
+      twi = _qtd_table->item(nItem,nSubItem);
+      
+      if ( twi )
+      {
+         strcpy(lpszText,twi->text().toAscii().constData());
+         length = strlen(lpszText);
+      }
+   }
+   else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
+   {
+      lwi = _qtd_list->item(nItem,nSubItem);
+      
+      if ( lwi )
+      {
+         strcpy(lpszText,lwi->text().toAscii().constData());
+         length = strlen(lpszText);
+      }
    }
    return length;
 }
@@ -2263,17 +2442,44 @@ int CListCtrl::InsertColumn(
    int nWidth,
    int nSubItem
 )
-{
-   _qtd->insertColumn(nCol);
-   QTableWidgetItem* twi = new QTableWidgetItem;
+{   
+   if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
+   {
+      _qtd_table->insertColumn(nCol);
+   }
+   else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
+   {
+//      _qtd_list->insertColumn(nCol);
+   }
+
+   if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
+   {
+      QTableWidgetItem* twi = new QTableWidgetItem;
+   
 #if UNICODE
-   twi->setText(QString::fromWCharArray(lpszColumnHeading));
+      twi->setText(QString::fromWCharArray(lpszColumnHeading));
 #else
-   twi->setText(lpszColumnHeading);
+      twi->setText(lpszColumnHeading);
 #endif
-   _qtd->setColumnWidth(nCol,nWidth);
-   _qtd->setHorizontalHeaderItem(nCol,twi);
-   return _qtd->columnCount()-1;
+      
+      _qtd_table->setColumnWidth(nCol,nWidth);
+      _qtd_table->setHorizontalHeaderItem(nCol,twi);
+      return _qtd_table->columnCount()-1;
+   }
+   else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
+   {
+//      QListWidgetItem* lwi = new QListWidgetItem;
+   
+//#if UNICODE
+//      lwi->setText(QString::fromWCharArray(lpszColumnHeading));
+//#else
+//      lwi->setText(lpszColumnHeading);
+//#endif
+      
+//      _qtd_list->setColumnWidth(nCol,nWidth);
+//      return _qtd_list->columnCount()-1;
+   }
+   return 0;
 }
 
 int CListCtrl::InsertItem(
@@ -2281,19 +2487,40 @@ int CListCtrl::InsertItem(
    LPCTSTR lpszItem
 )
 {
-   QTableWidgetItem* twi = new QTableWidgetItem;
+   if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
+   {
+      QTableWidgetItem* twi = new QTableWidgetItem;
+      
 #if UNICODE
-   twi->setText(QString::fromWCharArray(lpszItem));
+      twi->setText(QString::fromWCharArray(lpszItem));
 #else
-   twi->setText(lpszItem);
+      twi->setText(lpszItem);
 #endif
-   _qtd->blockSignals(true);
-   _qtd->insertRow(nItem);
-   _qtd->setItem(nItem,0,twi);
-   _qtd->blockSignals(false);
-   _qtd->resizeRowToContents(nItem);
-   _qtd->resizeColumnsToContents();
-   return _qtd->rowCount()-1;
+      
+      _qtd_table->blockSignals(true);
+      _qtd_table->insertRow(nItem);
+      _qtd_table->setItem(nItem,0,twi);
+      _qtd_table->blockSignals(false);
+      _qtd_table->resizeRowToContents(nItem);
+      _qtd_table->resizeColumnsToContents();
+      return _qtd_table->rowCount()-1;
+   }
+   else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
+   {
+      QListWidgetItem* lwi = new QListWidgetItem;
+      
+#if UNICODE
+      lwi->setText(QString::fromWCharArray(lpszItem));
+#else
+      lwi->setText(lpszItem);
+#endif
+      
+      _qtd_list->blockSignals(true);
+      _qtd_list->insertItem(nItem,lwi);
+      _qtd_list->blockSignals(false);
+      return _qtd_list->count()-1;
+   }
+   return 0;
 }
 
 int CListCtrl::InsertItem(
@@ -2302,27 +2529,57 @@ int CListCtrl::InsertItem(
    int nImage 
 )
 {
-   QTableWidgetItem* twi = new QTableWidgetItem;
+   if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
+   {
+      QTableWidgetItem* twi = new QTableWidgetItem;
+      
 #if UNICODE
-   twi->setText(QString::fromWCharArray(lpszItem));
+      twi->setText(QString::fromWCharArray(lpszItem));
 #else
-   twi->setText(lpszItem);
+      twi->setText(lpszItem);
 #endif
-   _qtd->blockSignals(true);
-   _qtd->insertRow(nItem);
-   _qtd->setItem(nItem,0,twi);
-   _qtd->blockSignals(false);
-   _qtd->resizeRowToContents(nItem);
-   _qtd->resizeColumnsToContents();
-   return _qtd->rowCount()-1;
+      
+      _qtd_table->blockSignals(true);
+      _qtd_table->insertRow(nItem);
+      _qtd_table->setItem(nItem,0,twi);
+      _qtd_table->blockSignals(false);
+      _qtd_table->resizeRowToContents(nItem);
+      _qtd_table->resizeColumnsToContents();
+      return _qtd_table->rowCount()-1;
+   }
+   else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
+   {
+      QListWidgetItem* lwi = new QListWidgetItem;
+      
+#if UNICODE
+      lwi->setText(QString::fromWCharArray(lpszItem));
+#else
+      lwi->setText(lpszItem);
+#endif
+      
+      _qtd_list->blockSignals(true);
+      _qtd_list->insertItem(nItem,lwi);
+      _qtd_list->blockSignals(false);
+      return _qtd_list->count()-1;
+   }
+   return 0;
 }
 
 int CListCtrl::SetSelectionMark(
    int iIndex 
 )
 {
-   int selection = _qtd->selectionModel()->currentIndex().row();
-   _qtd->selectRow(iIndex);
+   int selection;
+   if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
+   {
+      selection = _qtd_table->selectionModel()->currentIndex().row();
+      _qtd_table->selectRow(iIndex);
+   }
+   else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
+   {
+      selection = _qtd_list->selectionModel()->currentIndex().row();
+      _qtd_list->setCurrentRow(iIndex);
+   }
    return selection;
 }
 
@@ -2331,19 +2588,41 @@ BOOL CListCtrl::SetCheck(
    BOOL fCheck
 )
 {
-   QTableWidgetItem* twi = _qtd->item(nItem,0);  
+   QTableWidgetItem* twi;  
+   QListWidgetItem* lwi;  
    bool add = false;
-   if ( !twi )
+
+   if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
    {
-      add = true;
-      twi = new QTableWidgetItem;
+      twi = _qtd_table->item(nItem,0);
+      
+      if ( !twi )
+      {
+         add = true;
+         twi = new QTableWidgetItem;
+      }
+      
+      twi->setCheckState(fCheck?Qt::Checked:Qt::Unchecked);
+   
+      if ( add )
+         _qtd_table->setItem(nItem,0,twi);
+   }
+   else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
+   {
+      lwi = _qtd_list->item(nItem);
+      
+      if ( !twi )
+      {
+         add = true;
+         lwi = new QListWidgetItem;
+      }
+      
+      lwi->setCheckState(fCheck?Qt::Checked:Qt::Unchecked);
+   
+      if ( add )
+         _qtd_list->insertItem(nItem,lwi);
    }
    
-   twi->setCheckState(fCheck?Qt::Checked:Qt::Unchecked);
-
-   if ( add )
-      _qtd->setItem(nItem,0,twi);
-
    return TRUE;
 }
 
@@ -2351,10 +2630,26 @@ BOOL CListCtrl::GetCheck(
    int nItem 
 ) const
 {
-   QTableWidgetItem* twi = _qtd->item(nItem,0);  
-   if ( !twi )
+   QTableWidgetItem* twi;  
+   QListWidgetItem* lwi;  
+   
+   if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
    {
-      return twi->checkState()==Qt::Checked;
+      twi = _qtd_table->item(nItem,0);
+      
+      if ( !twi )
+      {
+         return twi->checkState()==Qt::Checked;
+      }
+   }
+   else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
+   {
+      lwi = _qtd_list->item(nItem);
+      
+      if ( !lwi )
+      {
+         return lwi->checkState()==Qt::Checked;
+      }
    }
    return FALSE;
 }
@@ -2365,20 +2660,41 @@ BOOL CListCtrl::SetItemText(
    char* lpszText 
 )
 {
-   QTableWidgetItem* twi = _qtd->item(nItem,nSubItem);
+   QTableWidgetItem* twi;
+   QListWidgetItem* lwi;
    bool add = false;
-   if ( !twi )
+   
+   if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
    {
-      add = true;
-      twi = new QTableWidgetItem;
+      twi = _qtd_table->item(nItem,nSubItem);
+      
+      if ( !twi )
+      {
+         add = true;
+         twi = new QTableWidgetItem;
+      }
+   
+      twi->setText(lpszText);
+      
+      if ( add )
+         _qtd_table->setItem(nItem,nSubItem,twi);
+   }
+   else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
+   {
+      lwi = _qtd_list->item(nItem);
+      
+      if ( !lwi )
+      {
+         add = true;
+         lwi = new QListWidgetItem;
+      }
+   
+      lwi->setText(lpszText);
+      
+      if ( add )
+         _qtd_list->insertItem(nItem,lwi);
    }
 
-   
-   twi->setText(lpszText);
-   
-   if ( add )
-      _qtd->setItem(nItem,nSubItem,twi);
-   
    return TRUE;
 }
 
@@ -2388,22 +2704,48 @@ BOOL CListCtrl::SetItemText(
    LPCTSTR lpszText 
 )
 {
-   QTableWidgetItem* twi = _qtd->item(nItem,nSubItem);
+   QTableWidgetItem* twi;
+   QListWidgetItem* lwi;
    bool add = false;
-   if ( !twi )
+   
+   if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
    {
-      add = true;
-      twi = new QTableWidgetItem;
-   }
-   
+      twi = _qtd_table->item(nItem,nSubItem);
+      
+      if ( !twi )
+      {
+         add = true;
+         twi = new QTableWidgetItem;
+      }
+      
 #if UNICODE
-   twi->setText(QString::fromWCharArray(lpszText));
+      twi->setText(QString::fromWCharArray(lpszText));
 #else
-   twi->setText(lpszText);
+      twi->setText(lpszText);
 #endif
-   
-   if ( add )
-      _qtd->setItem(nItem,nSubItem,twi);
+         
+      if ( add )
+         _qtd_table->setItem(nItem,nSubItem,twi);
+   }
+   else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
+   {
+      lwi = _qtd_list->item(nItem);
+      
+      if ( !lwi )
+      {
+         add = true;
+         lwi = new QListWidgetItem;
+      }
+      
+#if UNICODE
+      lwi->setText(QString::fromWCharArray(lpszText));
+#else
+      lwi->setText(lpszText);
+#endif
+         
+      if ( add )
+         _qtd_list->insertItem(nItem,lwi);
+   }
    
    return TRUE;
 }
@@ -2415,14 +2757,30 @@ BOOL CListCtrl::SetItemState(
 )
 {
    nState &= nMask;
-   if ( nState&LVIS_SELECTED )
+   
+   if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
    {
-      _qtd->selectRow(nItem);
+      if ( nState&LVIS_SELECTED )
+      {
+         _qtd_table->selectRow(nItem);
+      }
+      if ( nState&LVIS_FOCUSED )
+      {
+         _qtd_table->selectRow(nItem);
+      }
    }
-   if ( nState&LVIS_FOCUSED )
+   else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
    {
-      _qtd->selectRow(nItem);
+      if ( nState&LVIS_SELECTED )
+      {
+         _qtd_list->setCurrentRow(nItem);
+      }
+      if ( nState&LVIS_FOCUSED )
+      {
+         _qtd_list->setCurrentRow(nItem);
+      }
    }
+   
    return TRUE;
 }
 
@@ -2440,20 +2798,46 @@ int CListCtrl::FindItem(
    if ( pFindInfo->flags&LVFI_WRAP )
       flags |= Qt::MatchWrap;
    
-   QList<QTableWidgetItem*> items;
-#if UNICODE
-   items = _qtd->findItems(QString::fromWCharArray(pFindInfo->psz),flags);
-#else
-   items = _qtd->findItems(pFindInfo->psz,flags);
-#endif
-   if ( items.count() )
+   QList<QTableWidgetItem*> twis;
+   QList<QListWidgetItem*> lwis;
+   
+   if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
    {
-      foreach ( QTableWidgetItem* twi, items )
+#if UNICODE
+      twis = _qtd_table->findItems(QString::fromWCharArray(pFindInfo->psz),flags);
+#else
+      twis = _qtd_table->findItems(pFindInfo->psz,flags);
+#endif
+      
+      if ( twis.count() )
       {
-         if ( twi->row() > nStart )
+         foreach ( QTableWidgetItem* twi, twis )
          {
-            index = twi->row();
-            break;
+            if ( twi->row() > nStart )
+            {
+               index = twi->row();
+               break;
+            }
+         }
+      }
+   }
+   else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
+   {
+#if UNICODE
+      lwis = _qtd_list->findItems(QString::fromWCharArray(pFindInfo->psz),flags);
+#else
+      lwis = _qtd_list->findItems(pFindInfo->psz,flags);
+#endif
+      
+      if ( lwis.count() )
+      {
+         foreach ( QListWidgetItem* lwi, lwis )
+         {
+            if ( _qtd_list->row(lwi) > nStart )
+            {
+               index = _qtd_list->row(lwi);
+               break;
+            }
          }
       }
    }
@@ -2464,7 +2848,14 @@ BOOL CListCtrl::SetBkColor(
    COLORREF cr 
 )
 {
-   _qtd->setStyleSheet(_qtd->styleSheet()+"QTableWidget { background: #000000 }");
+   if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
+   {
+      _qtd_table->setStyleSheet(_qtd->styleSheet()+"QTableWidget { background: #000000 }");
+   }
+   else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
+   {
+      _qtd_list->setStyleSheet(_qtd->styleSheet()+"QListWidget { background: #000000 }");
+   }
    return TRUE;
 }
 
@@ -2472,7 +2863,14 @@ BOOL CListCtrl::SetTextBkColor(
    COLORREF cr 
 )
 {
-   _qtd->setStyleSheet(_qtd->styleSheet()+"QTableWidget { background: #000000 }");
+   if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
+   {
+      _qtd_table->setStyleSheet(_qtd->styleSheet()+"QTableWidget { background: #000000 }");
+   }
+   else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
+   {
+      _qtd_list->setStyleSheet(_qtd->styleSheet()+"QListWidget { background: #000000 }");
+   }
    return TRUE;
 }
 
@@ -2480,13 +2878,27 @@ BOOL CListCtrl::SetTextColor(
    COLORREF cr 
 )
 {
-   _qtd->setStyleSheet(_qtd->styleSheet()+"QTableWidget { color: #ffffff }");
+   if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
+   {
+      _qtd_table->setStyleSheet(_qtd->styleSheet()+"QTableWidget { color: #ffffff }");
+   }
+   else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
+   {
+      _qtd_list->setStyleSheet(_qtd->styleSheet()+"QListWidget { color: #ffffff }");
+   }
    return TRUE;
 }
 
 BOOL CListCtrl::DeleteAllItems()
 {
-   _qtd->clearContents();
+   if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
+   {
+      _qtd_table->clearContents();
+   }
+   else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
+   {
+      _qtd_list->clear();
+   }
    return TRUE;
 }
 
@@ -2494,27 +2906,62 @@ BOOL CListCtrl::DeleteItem(
    int nItem 
 )
 {
-   if ( nItem < _qtd->rowCount() )
+   if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
    {
-      _qtd->removeRow(nItem);
-      return TRUE;
+      if ( nItem < _qtd_list->count() )
+      {
+         _qtd_table->removeRow(nItem);
+         return TRUE;
+      }
+   }
+   else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
+   {
+      if ( nItem < _qtd_list->count() )
+      {
+         QListWidgetItem* lwi = _qtd_list->item(nItem);
+         _qtd_list->removeItemWidget(lwi);
+         return TRUE;
+      }
    }
    return FALSE;
 }
 
 int CListCtrl::GetItemCount( ) const
 {
-   return _qtd->rowCount();
+   if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
+   {
+      return _qtd_table->rowCount();
+   }
+   else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
+   {
+      return _qtd_list->count();
+   }
 }
 
 DWORD_PTR CListCtrl::GetItemData( 
    int nItem  
 ) const
 {
-   QTableWidgetItem* twi = _qtd->item(nItem,0);
-   if ( twi )
+   QTableWidgetItem* twi;
+   QListWidgetItem* lwi;
+   
+   if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
    {
-      return twi->data(Qt::UserRole).toInt();
+      twi = _qtd_table->item(nItem,0);
+      
+      if ( twi )
+      {
+         return twi->data(Qt::UserRole).toInt();
+      }
+   }
+   else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
+   {
+      lwi = _qtd_list->item(nItem);
+      
+      if ( lwi )
+      {
+         return lwi->data(Qt::UserRole).toInt();
+      }
    }
 }
 
@@ -2523,11 +2970,28 @@ BOOL CListCtrl::SetItemData(
       DWORD_PTR dwData 
 )
 {
-   QTableWidgetItem* twi = _qtd->item(nItem,0);
-   if ( twi )
+   QTableWidgetItem* twi;
+   QListWidgetItem* lwi;
+   
+   if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
    {
-      twi->setData(Qt::UserRole,QVariant((int)dwData));
-      return TRUE; 
+      twi = _qtd_table->item(nItem,0);
+      
+      if ( twi )
+      {
+         twi->setData(Qt::UserRole,QVariant((int)dwData));
+         return TRUE; 
+      }
+   }
+   else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
+   {
+      lwi = _qtd_list->item(nItem);
+      
+      if ( lwi )
+      {
+         lwi->setData(Qt::UserRole,QVariant((int)dwData));
+         return TRUE; 
+      }
    }
    return TRUE;
 }
@@ -2537,11 +3001,28 @@ BOOL CListCtrl::EnsureVisible(
    BOOL bPartialOK 
 )
 {
-   QTableWidgetItem* twi = _qtd->item(nItem,0);
-   if ( twi )
+   QTableWidgetItem* twi;
+   QListWidgetItem* lwi;
+   
+   if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
    {
-      _qtd->scrollToItem(twi);
-      return TRUE;
+      twi = _qtd_table->item(nItem,0);
+      
+      if ( twi )
+      {
+         _qtd_table->scrollToItem(twi);
+         return TRUE;
+      }
+   }
+   else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
+   {
+      lwi = _qtd_list->item(nItem);
+      
+      if ( lwi )
+      {
+         _qtd_list->scrollToItem(lwi);
+         return TRUE;
+      }
    }
    return FALSE;
 }
@@ -3800,7 +4281,9 @@ CSize CControlBar::CalcFixedLayout(
 }
 
 CToolBar::CToolBar(CWnd* parent)
-{
+{   
+   _dwStyle = 0;
+   
    if ( _qt )
       delete _qt;
    
@@ -3858,6 +4341,8 @@ void CToolBar::toolBarAction_triggered()
 
 CStatusBar::CStatusBar(CWnd* parent)
 {
+   _dwStyle = 0;
+   
    if ( _qt )
       delete _qt;
    
@@ -4299,6 +4784,13 @@ CDocument* CSingleDocTemplate::OpenDocumentFile(
    return m_pDoc;
 }
 
+HICON CWinApp::LoadIcon(
+   UINT nIDResource 
+) const
+{
+   return (HICON)&qtMfcBitmapResource(nIDResource);
+}
+
 BOOL CWinApp::InitInstance()
 {
    return TRUE;
@@ -4539,7 +5031,8 @@ BOOL CTabCtrl::DeleteAllItems( )
 CEdit::CEdit(CWnd* parent)
    : CWnd(parent),
      _qtd_ptedit(NULL),
-     _qtd_ledit(NULL)
+     _qtd_ledit(NULL),
+     _dwStyle(0)
 {
 }
 
@@ -5418,6 +5911,8 @@ CFileDialog::CFileDialog(
    : CCommonDialog(pParentWnd)
 {
    int seg;
+
+   m_pOFN = new OPENFILENAME;
    
    if ( _qt )
       delete _qt;
@@ -5493,6 +5988,7 @@ CFileDialog::CFileDialog(
 
 CFileDialog::~CFileDialog()
 {
+   delete m_pOFN;
    if ( _qtd )
       delete _qtd;
    _qtd = NULL;
@@ -5656,6 +6152,47 @@ BOOL CFileFind::IsHidden( ) const
 
 BOOL CFileFind::IsDots( ) const
 {
+}
+
+CImageList::CImageList()
+{
+}
+
+BOOL CImageList::Create(
+   int cx,
+   int cy,
+   UINT nFlags,
+   int nInitial,
+   int nGrow 
+)
+{
+   // Nothing to do here really...
+}
+
+int CImageList::Add(
+   CBitmap* pbmImage,
+   CBitmap* pbmMask 
+)
+{
+   _images.append(pbmImage);
+   // Not sure what to do with mask yet.
+}
+
+int CImageList::Add(
+   CBitmap* pbmImage,
+   COLORREF crMask 
+)
+{
+   _images.append(pbmImage);
+   // Not sure what to do with mask yet.
+}
+
+int CImageList::Add(
+   HICON hIcon 
+)
+{
+   CBitmap* pBitmap = (CBitmap*)hIcon;
+   _images.append(pBitmap);
 }
 
 void openFile(QString fileName)

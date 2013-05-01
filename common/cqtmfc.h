@@ -477,7 +477,6 @@ public:
    CString& operator+=(QString str);
    operator QString() const;
    operator const TCHAR*() const;
-//   operator LPCSTR() const;
    
    void Empty();
    LPCTSTR GetString() const;
@@ -2211,13 +2210,11 @@ class CListCtrl : public CWnd
    Q_OBJECT
    // Qt interfaces
 public:
-   void setSelectionMode(QAbstractItemView::SelectionMode mode) { _qtd->setSelectionMode(mode); }
-   void setSelectionBehavior(QAbstractItemView::SelectionBehavior behavior) { _qtd->setSelectionBehavior(behavior); }
-   QScrollBar* verticalScrollBar() const { return _qtd->verticalScrollBar(); }
-   QScrollBar* horizontalScrollBar() const { return _qtd->horizontalScrollBar(); }
-   QModelIndex currentIndex () const { return _qtd->currentIndex(); }
+   QModelIndex currentIndex () const;
 protected:
-   QTableWidget* _qtd;
+   QTableWidget* _qtd_table;
+   QListWidget* _qtd_list;
+   DWORD _dwStyle;
 signals:
    void itemSelectionChanged();
    void cellClicked(int row, int column);
@@ -2540,6 +2537,9 @@ public:
    CWinApp() : m_pMainWnd(NULL), m_pDocTemplate(NULL) {}
    void AddDocTemplate(CDocTemplate* pDocTemplate) { m_pDocTemplate = pDocTemplate; }
    CDocTemplate* GetDocTemplate() const { return m_pDocTemplate; }
+   HICON LoadIcon(
+      UINT nIDResource 
+   ) const;
    virtual BOOL InitInstance();
    HCURSOR LoadStandardCursor( 
       LPCTSTR lpszCursorName  
@@ -2823,6 +2823,40 @@ public:
 protected:
    QDir _qdir;
    QFileInfoList _qfiles;
+};
+
+#define ILC_COLOR 0
+#define ILC_COLOR4 4
+#define ILC_COLOR8 8
+#define ILC_COLOR16 16
+#define ILC_COLOR24 24
+#define ILC_COLOR32 32
+#define ILC_COLORDDB 254
+
+class CImageList : public CObject
+{
+public:
+   CImageList();
+   BOOL Create(
+      int cx,
+      int cy,
+      UINT nFlags,
+      int nInitial,
+      int nGrow 
+   );
+   int Add(
+      CBitmap* pbmImage,
+      CBitmap* pbmMask 
+   );
+   int Add(
+      CBitmap* pbmImage,
+      COLORREF crMask 
+   );
+   int Add(
+      HICON hIcon 
+   );
+protected:
+   QList<CBitmap*> _images;
 };
 
 int StretchDIBits(

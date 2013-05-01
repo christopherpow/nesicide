@@ -120,6 +120,14 @@ private:
    CInstrumentEditDlg	m_wndInstEdit;
    CStatusBar			m_wndStatusBar;
 
+   CBitmap				m_bmToolbar;			// main toolbar
+	CImageList			m_ilToolBar;
+
+	CBitmap				m_bmInstToolbar;		// instrument toolbar
+	CImageList			m_ilInstToolBar;
+
+	int					m_iInstrumentIcons[8];
+
    CActionHandler* m_pActionHandler;
    int					m_iFrameEditorPos;
       
@@ -130,6 +138,7 @@ private:
 
    CFrameEditor		*m_pFrameEditor;
    CListCtrl			*m_pInstrumentList;
+   CImageList			*m_pImageList;
    CToolBar			m_wndToolBar;
 //	CReBar				m_wndToolBarReBar;
    CDialogBar			m_wndControlBar;	// Parent to frame editor and settings/instrument editor
