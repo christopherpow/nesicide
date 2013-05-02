@@ -99,13 +99,12 @@ void CMainFrame::showEvent(QShowEvent *)
       m_pView->GetPatternView()->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::MinimumExpanding));
       m_pView->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::MinimumExpanding));
       
-      m_pView->setFocusPolicy(Qt::NoFocus);
+      m_pView->setFocusPolicy(Qt::StrongFocus);
+      m_pView->setFocusProxy(m_pView->GetPatternView());
       m_pView->GetPatternView()->setFocusPolicy(Qt::StrongFocus);
       m_pFrameEditor->setFocusPolicy(Qt::NoFocus);
       
-//      realCentralWidget->addWidget(m_pView->toQWidget(),0,0,1,1);
-      realCentralWidget->setRowStretch(0,1);
-      realCentralWidget->setColumnStretch(0,1);
+      realCentralWidget->setLayout(m_pView->toQWidget()->layout());
       
       QObject::connect(m_pDocument,SIGNAL(updateViews(long)),m_pFrameEditor,SLOT(updateViews(long)));
       QObject::connect(m_pDocument,SIGNAL(updateViews(long)),this,SLOT(updateViews(long)));

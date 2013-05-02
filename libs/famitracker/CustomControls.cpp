@@ -54,6 +54,87 @@ IMPLEMENT_DYNAMIC(CInstrumentList, CListCtrl)
 
 // TODO: expand this class
 
+bool CInstrumentList::eventFilter(QObject *object, QEvent *event)
+{
+   if ( event->type() == QEvent::Show )
+   {
+      showEvent(dynamic_cast<QShowEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::ShowToParent )
+   {
+      showEvent(dynamic_cast<QShowEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::Hide )
+   {
+      hideEvent(dynamic_cast<QHideEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::Move )
+   {
+      moveEvent(dynamic_cast<QMoveEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::Paint )
+   {
+      paintEvent(dynamic_cast<QPaintEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::FocusIn )
+   {
+      focusInEvent(dynamic_cast<QFocusEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::FocusOut )
+   {
+      focusOutEvent(dynamic_cast<QFocusEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::MouseButtonPress )
+   {
+      mousePressEvent(dynamic_cast<QMouseEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::MouseButtonRelease )
+   {
+      mouseReleaseEvent(dynamic_cast<QMouseEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::MouseButtonDblClick )
+   {
+      mouseDoubleClickEvent(dynamic_cast<QMouseEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::MouseMove )
+   {
+      mouseMoveEvent(dynamic_cast<QMouseEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::Wheel )
+   {
+      wheelEvent(dynamic_cast<QWheelEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::Resize )
+   {
+      resizeEvent(dynamic_cast<QResizeEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::KeyPress )
+   {
+      keyPressEvent(dynamic_cast<QKeyEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::KeyRelease )
+   {
+      keyReleaseEvent(dynamic_cast<QKeyEvent*>(event));
+      return true;
+   }
+//   qDebug("eventFilter: unhandled %d object %s", event->type(), object->objectName().toAscii().constData());
+   return false;
+}
+
 CInstrumentList::CInstrumentList(CMainFrame *pMainFrame) : m_pMainFrame(pMainFrame)
 {
    InsertColumn(0,_T(""));

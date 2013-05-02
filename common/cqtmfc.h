@@ -1418,6 +1418,7 @@ public:
    void setContentsMargins(int left, int top, int right, int bottom) { _qt->setContentsMargins(left,top,right,bottom); }
    void setContentsMargins(const QMargins &margins) { _qt->setContentsMargins(margins); }
    void setFocusPolicy(Qt::FocusPolicy policy) { _qt->setFocusPolicy(policy); }
+   void setFocusProxy(QWidget *widget) { _qt->setFocusProxy(widget); }
    void setFixedSize(int w, int h) { _qt->setFixedSize(w,h); }
    virtual void setVisible(bool visible) { _qt->setVisible(visible); }
    virtual void setEnabled(bool enabled) { _qt->setEnabled(enabled); }
@@ -1476,7 +1477,7 @@ protected:
    QHBoxLayout* cbrsRight;
    QVBoxLayout* cbrsTop;
    QVBoxLayout* cbrsBottom;
-   QGridLayout* realCentralWidget;
+   QWidget* realCentralWidget;
    CDocument* m_pDocument;
    BOOL m_bInRecalcLayout;
    CRect m_rectBorder;

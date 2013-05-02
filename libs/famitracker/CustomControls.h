@@ -27,6 +27,8 @@ class CMainFrame;
 // The instrument list
 class CInstrumentList : public CListCtrl {
    Q_OBJECT
+public slots:
+   bool eventFilter(QObject *object, QEvent *event);
 public:
 	DECLARE_DYNAMIC(CInstrumentList)
 protected:

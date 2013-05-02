@@ -4119,23 +4119,16 @@ CFrameWnd::CFrameWnd(CWnd *parent)
    cbrsBottom->setContentsMargins(0,0,0,0);
    cbrsBottom->setObjectName(QString::fromUtf8("cbrsBottom"));
 
-   gridLayout->addLayout(cbrsBottom, 2, 0, 1, 3);
+   gridLayout->addLayout(cbrsBottom, 2, 0, 1, -1);
    gridLayout->setRowMinimumHeight(2,0);
    gridLayout->setRowStretch(2,0);
-
-   realCentralWidget = new QGridLayout();
-   realCentralWidget->setSpacing(0);
-   realCentralWidget->setContentsMargins(0,0,0,0);
-   realCentralWidget->setObjectName(QString::fromUtf8("realCentralWidget"));
-
-   gridLayout->addLayout(realCentralWidget, 1, 1, 1, 1);
 
    cbrsTop = new QVBoxLayout();
    cbrsTop->setSpacing(0);
    cbrsTop->setContentsMargins(0,0,0,0);
    cbrsTop->setObjectName(QString::fromUtf8("cbrsTop"));
 
-   gridLayout->addLayout(cbrsTop, 0, 0, 1, 3);
+   gridLayout->addLayout(cbrsTop, 0, 0, 1, -1);
    gridLayout->setRowMinimumHeight(0,0);
    gridLayout->setRowStretch(0,0);
 
@@ -4157,6 +4150,13 @@ CFrameWnd::CFrameWnd(CWnd *parent)
    gridLayout->setColumnMinimumWidth(2,0);
    gridLayout->setColumnStretch(2,0);
    
+   realCentralWidget = new QWidget;
+//   realCentralWidget->setSpacing(0);
+//   realCentralWidget->setContentsMargins(0,0,0,0);
+   realCentralWidget->setObjectName(QString::fromUtf8("realCentralWidget"));
+
+   gridLayout->addWidget(realCentralWidget, 1, 1, 1, 1);
+
    gridLayout->setRowStretch(1,1);
    gridLayout->setColumnStretch(1,1);
    
