@@ -99,8 +99,9 @@ void CMainFrame::showEvent(QShowEvent *)
       m_pView->GetPatternView()->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::MinimumExpanding));
       m_pView->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::MinimumExpanding));
       
-      m_pView->setFocusPolicy(Qt::StrongFocus);
-      m_pFrameEditor->setFocusPolicy(Qt::StrongFocus);
+      m_pView->setFocusPolicy(Qt::NoFocus);
+      m_pView->GetPatternView()->setFocusPolicy(Qt::StrongFocus);
+      m_pFrameEditor->setFocusPolicy(Qt::NoFocus);
       
 //      realCentralWidget->addWidget(m_pView->toQWidget(),0,0,1,1);
       realCentralWidget->setRowStretch(0,1);
