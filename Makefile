@@ -24,10 +24,13 @@ libs/nes/libnes-emulator.so.1.0.0: libs/nes/Makefile FORCE
 libs/c64/libc64-emulator.so.1.0.0: libs/c64/Makefile FORCE
 	$(MAKE) -C libs/c64
 
+libs/famitracker/libfamitracker.so.1.0.0: libs/famitracker/Makefile FORCE
+	$(MAKE) -C libs/famitracker
+
 apps/nes-emulator/nes-emulator: apps/nes-emulator/Makefile libs/nes/libnes-emulator.so.1.0.0 FORCE
 	$(MAKE) -C apps/nes-emulator
 
-apps/ide/nesicide: apps/ide/Makefile libs/nes/libnes-emulator.so.1.0.0 libs/c64/libc64-emulator.so.1.0.0 FORCE
+apps/ide/nesicide: apps/ide/Makefile libs/nes/libnes-emulator.so.1.0.0 libs/c64/libc64-emulator.so.1.0.0 libs/famitracker/libfamitracker.so.1.0.0 FORCE
 	$(MAKE) -C apps/ide
 
 clean:
