@@ -102,7 +102,7 @@ public slots:
 	afx_msg void OnKillFocus(CWnd* pNewWnd);
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
-//	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnFrameCopy();
 	afx_msg void OnFramePaste();

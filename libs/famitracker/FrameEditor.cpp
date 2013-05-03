@@ -448,21 +448,21 @@ void CFrameEditor::OnTimer(UINT_PTR nIDEvent)
 	CWnd::OnTimer(nIDEvent);
 }
 
-//BOOL CFrameEditor::PreTranslateMessage(MSG* pMsg)
-//{
-//	// Temporary fix, accelerated messages must be sent to the main window
-//	if (theApp.GetAccelerator()->Translate(theApp.m_pMainWnd->m_hWnd, pMsg)) {
-//		return TRUE;
-//	}
+BOOL CFrameEditor::PreTranslateMessage(MSG* pMsg)
+{
+	// Temporary fix, accelerated messages must be sent to the main window
+	if (theApp.GetAccelerator()->Translate(theApp.m_pMainWnd->m_hWnd, pMsg)) {
+		return TRUE;
+	}
 
-//	if (pMsg->message == WM_KEYDOWN) {
-//		OnKeyDown(pMsg->wParam, pMsg->lParam & 0xFFFF, pMsg->lParam & 0xFF0000);
-//		// Remove the beep
-//		pMsg->message = WM_NULL;
-//	}
+	if (pMsg->message == WM_KEYDOWN) {
+		OnKeyDown(pMsg->wParam, pMsg->lParam & 0xFFFF, pMsg->lParam & 0xFF0000);
+		// Remove the beep
+		pMsg->message = WM_NULL;
+	}
 
-//	return CWnd::PreTranslateMessage(pMsg);
-//}
+	return CWnd::PreTranslateMessage(pMsg);
+}
 
 void CFrameEditor::OnLButtonUp(UINT nFlags, CPoint point)
 {
