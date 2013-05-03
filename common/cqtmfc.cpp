@@ -344,6 +344,30 @@ SIZE_T WINAPI GlobalSize(
    return pMem->size();
 }
 
+HACCEL WINAPI CreateAcceleratorTable(
+  LPACCEL lpaccl,
+  int cEntries
+)
+{
+   qDebug("CreateAcceleratorTable");
+}
+
+int WINAPI TranslateAccelerator(
+  HWND hWnd,
+  HACCEL hAccTable,
+  LPMSG lpMsg
+)
+{
+   qDebug("TranslateAccelerator");
+}
+
+BOOL WINAPI DestroyAcceleratorTable(
+  HACCEL hAccel
+)
+{
+   qDebug("DestroyAcceleratorTable");
+}
+
 UINT WINAPI MapVirtualKey(
   UINT uCode,
   UINT uMapType

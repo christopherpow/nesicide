@@ -364,6 +364,21 @@ SIZE_T WINAPI GlobalSize(
   HGLOBAL hMem
 );
 
+HACCEL WINAPI CreateAcceleratorTable(
+  LPACCEL lpaccl,
+  int cEntries
+);
+
+int WINAPI TranslateAccelerator(
+  HWND hWnd,
+  HACCEL hAccTable,
+  LPMSG lpMsg
+);
+
+BOOL WINAPI DestroyAcceleratorTable(
+  HACCEL hAccel
+);
+
 #define MAPVK_VK_TO_VSC    0
 #define MAPVK_VSC_TO_VK    1
 #define MAPVK_VK_TO_CHAR   2
