@@ -4114,6 +4114,7 @@ CFrameWnd::CFrameWnd(CWnd *parent)
    gridLayout->setSpacing(0);
    gridLayout->setContentsMargins(0, 0, 0, 0);
    gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
+   
    cbrsBottom = new QVBoxLayout();
    cbrsBottom->setSpacing(0);
    cbrsBottom->setContentsMargins(0,0,0,0);
@@ -4775,6 +4776,7 @@ CDocument* CSingleDocTemplate::OpenDocumentFile(
    if ( lpszPathName )
    {
       m_pDoc->OnOpenDocument(lpszPathName);
+      m_pDoc->SetTitle(lpszPathName);
    }
    else
    {

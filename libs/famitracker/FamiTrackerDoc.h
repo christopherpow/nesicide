@@ -536,10 +536,8 @@ public:
    // MFC stuff from CDocument
    virtual void UpdateAllViews(void* ptr,long hint = 0) { emit updateViews(hint); }
    virtual CString GetTitle() { return m_docTitle; }
-   virtual void SetTitle(CString title ) { m_docTitle = title; }
 
    // HACKS
-   CString m_docTitle;
    static CFamiTrackerDoc* _this;
    
 // Implementation

@@ -268,9 +268,6 @@ CFamiTrackerDoc::CFamiTrackerDoc(QObject* parent)
 
 	if (pSoundGen)
 		pSoundGen->AssignDocument(this);
-   
-   qDebug("SetTitle hack...");
-   SetTitle("Untitled");
 }
 
 CFamiTrackerDoc::~CFamiTrackerDoc()
@@ -313,7 +310,8 @@ CFamiTrackerDoc::~CFamiTrackerDoc()
 
 CFamiTrackerDoc *CFamiTrackerDoc::GetDoc()
 {
-   return _this;
+	CFrameWnd *pFrame = (CFrameWnd*)(AfxGetApp()->m_pMainWnd);
+	return (CFamiTrackerDoc*)pFrame->GetActiveDocument();
 }
 
 //
@@ -354,13 +352,12 @@ BOOL CFamiTrackerDoc::OnOpenDocument(LPCTSTR lpszPathName)
 
 	// TODO move to CView::update
 
-   qDebug("// TODO move to CView::update");
-//	CMainFrame *pMainFrm = (CMainFrame*)theApp.GetMainWnd();
+	CMainFrame *pMainFrm = (CMainFrame*)theApp.GetMainWnd();
 
-//	if (pMainFrm != NULL) {
-//		pMainFrm->SetHighlightRow(m_iFirstHighlight);
-//		pMainFrm->SetSecondHighlightRow(m_iSecondHighlight);
-//	}
+	if (pMainFrm != NULL) {
+		pMainFrm->SetHighlightRow(m_iFirstHighlight);
+		pMainFrm->SetSecondHighlightRow(m_iSecondHighlight);
+	}
 
 //	SetupAutoSave();
 
@@ -427,7 +424,7 @@ void CFamiTrackerDoc::DeleteContents()
 	m_bForceBackup = false;
 	m_bBackupDone = true;	// No backup on new modules
 
-//	UpdateAllViews(NULL, CLOSE_DOCUMENT);
+	UpdateAllViews(NULL, CLOSE_DOCUMENT);
 
 	// Make sure player is stopped
 	theApp.OnTrackerStop();

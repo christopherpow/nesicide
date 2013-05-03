@@ -87,14 +87,11 @@ void CMainFrame::showEvent(QShowEvent *)
    {
       // Perform initialization that couldn't yet be done in the constructor due to MFC crap.
       m_pDocument = (CFamiTrackerDoc*)GetActiveDocument();
-      m_pDocument->SetTitle("Untitled");
       
       m_pView = (CFamiTrackerView*)GetActiveView();
       
       m_pView->GetPatternView()->setParent(m_pView->toQWidget());
-      m_pView->setParent(toQWidget());
-      m_pView->GetPatternView()->setVisible(true);
-      m_pView->setVisible(true);
+      m_pView->setVisible(false); // Hide the view otherwise it 'obscures' the real view.
       
       m_pView->GetPatternView()->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::MinimumExpanding));
       m_pView->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::MinimumExpanding));
@@ -654,6 +651,18 @@ int CMainFrame::GetSelectedInstrument() const
 {
 	// Returns selected instrument
 	return m_iInstrument;
+}
+
+void CMainFrame::SetHighlightRow(int Rows)
+{
+   qDebug("SetHighlightRow");
+//	m_wndOctaveBar.SetDlgItemInt(IDC_HIGHLIGHT1, Rows);
+}
+
+void CMainFrame::SetSecondHighlightRow(int Rows)
+{
+   qDebug("SetSecondHighlightRow");
+//	m_wndOctaveBar.SetDlgItemInt(IDC_HIGHLIGHT2, Rows);
 }
 
 void CMainFrame::DisplayOctave()

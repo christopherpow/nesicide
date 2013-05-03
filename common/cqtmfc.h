@@ -1500,6 +1500,7 @@ public:
    virtual POSITION GetFirstViewPosition() const; 
    virtual CView* GetNextView(POSITION pos) const;
    CDocTemplate* GetDocTemplate() const { return m_pDocTemplate; }
+   virtual void SetTitle(CString title ) { m_docTitle = title; }
 
    // These methods are only to be used in CDocTemplate initialization...
    virtual void privateSetDocTemplate(CDocTemplate* pDocTemplate) { m_pDocTemplate = pDocTemplate; }
@@ -1508,6 +1509,7 @@ public:
 protected:
    CDocTemplate* m_pDocTemplate;
    QList<CView*> m_pViews;
+   CString m_docTitle;
 };
 
 class CView : public CWnd
