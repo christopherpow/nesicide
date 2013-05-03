@@ -364,6 +364,16 @@ SIZE_T WINAPI GlobalSize(
   HGLOBAL hMem
 );
 
+#define MAPVK_VK_TO_VSC    0
+#define MAPVK_VSC_TO_VK    1
+#define MAPVK_VK_TO_CHAR   2
+#define MAPVK_VSC_TO_VK_EX 3
+
+UINT WINAPI MapVirtualKey(
+  UINT uCode,
+  UINT uMapType
+);
+
 class CDumpContext
 {
 };
@@ -483,6 +493,10 @@ public:
    LPTSTR GetBuffer() const;
    CString Left( int nCount ) const;
    CString Right( int nCount ) const;
+   CString Mid( int nFirst ) const;  
+   CString Mid( int nFirst, int nCount ) const;
+   CString MakeUpper( );
+   CString MakeLower( );
    int GetLength() const;
    int CompareNoCase( LPCTSTR lpsz ) const;
    TCHAR GetAt( int nIndex ) const;

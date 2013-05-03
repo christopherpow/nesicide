@@ -59,7 +59,7 @@ enum {
 //class CMIDI;
 class CSoundGen;
 class CSettings;
-//class CAccelerator;
+class CAccelerator;
 class CChannelMap;
 class CCustomExporters;
 
@@ -96,7 +96,7 @@ public:
 //	void			WaitUntilStopped() const;
 
 	// Get-functions
-//	CAccelerator	*GetAccelerator() const { return m_pAccel; };
+	CAccelerator	*GetAccelerator() const { return m_pAccel; };
 	CSoundGen		*GetSoundGenerator() const { return m_pSoundGenerator; };
 //	CMIDI			*GetMIDI() const { return m_pMIDI; };
 	CSettings		*GetSettings() const { return m_pSettings; };
@@ -126,7 +126,7 @@ public:
 private:
 	// Objects
 //	CMIDI			*m_pMIDI;
-//	CAccelerator	*m_pAccel;					// Keyboard accelerator
+	CAccelerator	*m_pAccel;					// Keyboard accelerator
 	CSoundGen		*m_pSoundGenerator;			// Sound synth & player
 	CSettings		*m_pSettings;				// Program settings
 	CChannelMap		*m_pChannelMap;

@@ -344,6 +344,24 @@ SIZE_T WINAPI GlobalSize(
    return pMem->size();
 }
 
+UINT WINAPI MapVirtualKey(
+  UINT uCode,
+  UINT uMapType
+)
+{
+   QKeySequence key(uCode);
+   switch ( uMapType )
+   {
+   case MAPVK_VK_TO_VSC:
+      qDebug("MapVirtualKey...not sure what to do here yet.");
+      return uCode;
+      break;
+   default:
+      qDebug("MapVirtualKey case %d not supported",uMapType);
+      break;
+   }
+}
+
 /*
  *  Class CString
  */
@@ -666,6 +684,26 @@ CString CString::Left( int nCount ) const
 CString CString::Right( int nCount ) const
 {
    return CString(_qstr.right(nCount));
+}
+
+CString CString::Mid( int nFirst ) const
+{
+   return CString(_qstr.mid(nFirst));
+}
+
+CString CString::Mid( int nFirst, int nCount ) const
+{
+   return CString(_qstr.mid(nFirst,nCount));
+}
+
+CString CString::MakeUpper( )
+{
+   return CString(_qstr.toUpper());
+}
+
+CString CString::MakeLower( )
+{
+   return CString(_qstr.toLower());
 }
 
 int CString::GetLength() const

@@ -86,7 +86,7 @@ private:
 	int m_iCopiedValues[MAX_CHANNELS];
 	int m_iFramesVisible;
 
-//	HACCEL m_hAccel;
+	HACCEL m_hAccel;
 
 protected:
 	DECLARE_MESSAGE_MAP()
