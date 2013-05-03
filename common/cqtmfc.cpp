@@ -281,7 +281,7 @@ HANDLE WINAPI SetClipboardData(
 )
 {
    QSharedMemory* pMem = (QSharedMemory*)hMem;
-   QByteArray value = QString::number((int)pMem,16).toAscii();
+   QByteArray value = QString::number((intptr_t)pMem,16).toAscii();
    gpClipboardMimeData->setData("application/x-qt-windows-mime;value=\"FamiTracker\"",value);
    QApplication::clipboard()->setMimeData(gpClipboardMimeData);
    return hMem;
