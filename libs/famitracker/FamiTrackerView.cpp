@@ -1028,42 +1028,41 @@ void CFamiTrackerView::OnEditPastemix()
 
 void CFamiTrackerView::CopyVolumeColumn()
 {
-   qDebug("CopyVolumeColumn");
-//	CString str;
+	CString str;
 
-//	m_pPatternView->GetVolumeColumn(str);
+	m_pPatternView->GetVolumeColumn(str);
 
-//	if (!OpenClipboard()) {
-//		AfxMessageBox(IDS_CLIPBOARD_OPEN_ERROR);
-//		return;
-//	}
+	if (!OpenClipboard()) {
+		AfxMessageBox(IDS_CLIPBOARD_OPEN_ERROR);
+		return;
+	}
 
-//	::EmptyClipboard();
+	::EmptyClipboard();
 
-//	HGLOBAL hMem = ::GlobalAlloc(GMEM_MOVEABLE, str.GetLength() + 1);
+	HGLOBAL hMem = ::GlobalAlloc(GMEM_MOVEABLE, str.GetLength() + 1);
 
-//	if (hMem == NULL) {
-//		AfxMessageBox(IDS_CLIPBOARD_COPY_ERROR);
-//		::CloseClipboard();
-//		return;
-//	}
+	if (hMem == NULL) {
+		AfxMessageBox(IDS_CLIPBOARD_COPY_ERROR);
+		::CloseClipboard();
+		return;
+	}
 
-//	char *pStr = (char*)::GlobalLock(hMem);
+	char *pStr = (char*)::GlobalLock(hMem);
 
-//	if (pStr == NULL) {
-//		AfxMessageBox(IDS_CLIPBOARD_COPY_ERROR);
-//		::CloseClipboard();
-//		return;
-//	}
+	if (pStr == NULL) {
+		AfxMessageBox(IDS_CLIPBOARD_COPY_ERROR);
+		::CloseClipboard();
+		return;
+	}
 
-//	strcpy_s(pStr, str.GetLength() + 1, (LPCSTR)str);
+	strcpy_s(pStr, str.GetLength() + 1, (LPCSTR)str);
 
-//	::GlobalUnlock(hMem);
+	::GlobalUnlock(hMem);
 
-//	// Set clipboard for internal data, hMem may not be used after this point
-//	::SetClipboardData(CF_TEXT, hMem);
+	// Set clipboard for internal data, hMem may not be used after this point
+	::SetClipboardData(CF_TEXT, hMem);
 
-//	::CloseClipboard();
+	::CloseClipboard();
 }
 
 

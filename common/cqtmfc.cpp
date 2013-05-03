@@ -252,10 +252,15 @@ int WINAPI GetSystemMetrics(
    return 0;
 }
 
+QMimeData* gpClipboardMimeData = NULL;
 BOOL WINAPI OpenClipboard(
 //  HWND hWndNewOwner
 )
 {
+   if ( !gpClipboardMimeData )
+   {
+      gpClipboardMimeData = new QMimeData;
+   }
    return TRUE;
 }
 
@@ -275,10 +280,10 @@ HANDLE WINAPI SetClipboardData(
   HANDLE hMem
 )
 {
-   QMimeData mimeData;
    QSharedMemory* pMem = (QSharedMemory*)hMem;
-   mimeData.setData("application/x-qt-windows-mime;value=\"FamiTracker\"",QByteArray((const char*)pMem,::GlobalSize(hMem)));
-   QApplication::clipboard()->setMimeData(&mimeData);
+   QByteArray value = QString::number((int)pMem,16).toAscii();
+   gpClipboardMimeData->setData("application/x-qt-windows-mime;value=\"FamiTracker\"",value);
+   QApplication::clipboard()->setMimeData(gpClipboardMimeData);
    return hMem;
 }
 
@@ -288,17 +293,17 @@ BOOL WINAPI IsClipboardFormatAvailable(
 {
    QStringList formats = QApplication::clipboard()->mimeData()->formats();
    
-   if ( !formats.at(0).compare("application/x-qt-windows-mime;value=\"FamiTracker\"") )
+   if ( formats.count() && formats.contains("application/x-qt-windows-mime;value=\"FamiTracker\"") )
       return TRUE;
    return FALSE;
-//   return QApplication::clipboard()->mimeData()->hasFormat(formats.at(0));
 }
 
 HANDLE WINAPI GetClipboardData(
   UINT uFormat
 )
 {
-   return QApplication::clipboard()->mimeData()->data("application/x-qt-windows-mime;value=\"FamiTracker\"").data();
+   QByteArray value = QApplication::clipboard()->mimeData()->data("application/x-qt-windows-mime;value=\"FamiTracker\"");
+   return (HANDLE)value.toInt(0,16);
 }
 
 HGLOBAL WINAPI GlobalAlloc(
@@ -327,7 +332,7 @@ BOOL WINAPI GlobalUnlock(
 {
    QSharedMemory* pMem = (QSharedMemory*)hMem;
    
-   return pMem->unlock();;
+   return pMem->unlock();
 }
 
 SIZE_T WINAPI GlobalSize(
