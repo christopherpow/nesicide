@@ -691,13 +691,23 @@ LPCTSTR CString::GetString() const
 #endif
 }
 
-LPTSTR CString::GetBuffer() const
+LPTSTR CString::GetBuffer( int nMinBufLength )
 {
+   _qstr.reserve(nMinBufLength+1); // Space for null-terminator.
 #if UNICODE
    return (LPTSTR)_qstr.unicode();
 #else
    return (LPTSTR)_qstrn.data();
 #endif
+}
+
+void CString::ReleaseBuffer( int nNewLength )
+{
+   if ( nNewLength >= 0 )
+   {
+      // Append null.
+      _qstr[nNewLength] = 0;
+   }
 }
 
 CString CString::Left( int nCount ) const
@@ -1723,15 +1733,15 @@ int CDC::DrawText(
 {
    QRect rect(lpRect->left,lpRect->top,lpRect->right-lpRect->left,lpRect->bottom-lpRect->top);
 #if UNICODE
-   QString qstr = QString::fromWCharArray(str.GetBuffer());
+   QString qstr = QString::fromWCharArray((LPCTSTR)str);
 #else
-   QString qstr(str.GetBuffer());
+   QString qstr = (LPCTSTR)str;
 #endif
    QPen origPen = _qpainter->pen();
    _qpainter->setPen(QPen(_textColor));
 //   _qpainter->setFont((QFont)*_font);
    _qpainter->drawText(rect,qstr.toLatin1().constData());
-   return _tcslen(str.GetBuffer());   
+   return _tcslen((LPCTSTR)str);   
    _qpainter->setPen(origPen);
 }
 int CDC::DrawText(
@@ -3835,6 +3845,13 @@ void CWnd::MoveWindow(LPCRECT lpRect, BOOL bRepaint)
       repaint();
 }
 
+void CWnd::DragAcceptFiles(
+   BOOL bAccept 
+)
+{
+   _qtd->setAcceptDrops(bAccept);
+}
+
 BOOL CWnd::PostMessage(
    UINT message,
    WPARAM wParam,
@@ -4262,6 +4279,24 @@ void CFrameWnd::InitialUpdateFrame(
 {
    // send initial update to all views (and other controls) in the frame
    SendMessageToDescendants(WM_INITIALUPDATE, 0, 0, TRUE, TRUE);
+}
+
+void CFrameWnd::SetMessageText(LPCTSTR fmt,...)
+{
+   CString message;
+   va_list args;
+   va_start(args,fmt);
+   message.FormatV(fmt,args);
+   va_end(args);
+   qDebug("SetMessageText: '%s'",(LPCTSTR)message);
+}
+
+void CFrameWnd::SetMessageText(
+   UINT nID 
+)
+{
+   CString message = qtMfcStringResource(nID);
+   SetMessageText(message);
 }
 
 BOOL CFrameWnd::OnCmdMsg(UINT nID, int nCode, void* pExtra,
@@ -4782,7 +4817,7 @@ BOOL CWinThread::PostThreadMessage(
 POSITION CDocument::GetFirstViewPosition() const 
 { 
    POSITION pos = NULL;
-   if ( m_pViews.count() )
+   if ( _views.count() )
    {
       pos = new int; 
       (*pos) = 0; 
@@ -4793,8 +4828,8 @@ POSITION CDocument::GetFirstViewPosition() const
 CView* CDocument::GetNextView(POSITION pos) const 
 { 
    if ( !pos ) return NULL; // Choker for end-of-list
-   CView* pView = m_pViews.at((*pos)++); 
-   if ( (*pos) >= m_pViews.count() ) 
+   CView* pView = _views.at((*pos)++); 
+   if ( (*pos) >= _views.count() ) 
    { 
       delete pos; 
       pos = 0; 
@@ -4827,6 +4862,37 @@ void CDocTemplate::InitialUpdateFrame(CFrameWnd* pFrame, CDocument* pDoc,
    pFrame->InitialUpdateFrame(pDoc, bMakeVisible);
 }
 
+BOOL CDocTemplate::GetDocString(
+   CString& rString,
+   enum DocStringIndex index 
+) const
+{
+   switch ( index )
+   {
+   case windowTitle:
+      break;
+      
+   case docName:
+      break;
+      
+   case fileNewName:
+      break;
+      
+   case filterName:
+      break;
+      
+   case filterExt:
+      break;
+      
+   case regFileTypeId:
+      break;
+      
+   case regFileTypeName:
+      break;
+   }
+}
+
+
 CSingleDocTemplate::CSingleDocTemplate(UINT f,CDocument* pDoc,CFrameWnd* pFrameWnd,CView* pView)
    : CDocTemplate(f,pDoc,pFrameWnd,pView)
 {
@@ -4853,6 +4919,105 @@ CDocument* CSingleDocTemplate::OpenDocumentFile(
    return m_pDoc;
 }
 
+CCommandLineInfo::CCommandLineInfo( )
+{
+   _args = QCoreApplication::arguments();
+}
+
+void CCommandLineInfo::ParseParam( 
+   const TCHAR* pszParam,  
+   BOOL bFlag, 
+   BOOL bLast
+)
+{
+   qDebug("CCommandLineInfo::ParseParam");
+}
+
+void CWinApp::ParseCommandLine(
+   CCommandLineInfo& rCmdInfo 
+)
+{
+   int arg;
+   QString localArg;
+   BOOL bLast = FALSE;
+   BOOL bFlag;
+   for ( arg = 0; arg < rCmdInfo._args.count(); arg++ )
+   {
+      if ( arg == rCmdInfo._args.count()-1 ) bLast = TRUE;
+      localArg = rCmdInfo._args.at(arg);
+      bFlag = FALSE;
+      if ( localArg.startsWith("//") ||
+           localArg.startsWith("-") )
+      {
+         localArg = localArg.right(localArg.length()-1);
+         bFlag = TRUE;
+      }
+      rCmdInfo.ParseParam(CString(localArg),bFlag,bLast);
+   }
+}
+
+BOOL CWinApp::ProcessShellCommand( 
+   CCommandLineInfo& rCmdInfo  
+)
+{
+   qDebug("ProcessShellCommand");
+}
+
+BOOL CWinApp::PreTranslateMessage(
+   MSG* pMsg 
+)
+{
+}
+
+POSITION CWinApp::GetFirstDocTemplatePosition( ) const
+{
+   POSITION pos = NULL;
+   if ( _docTemplates.count() )
+   {
+      pos = new int; 
+      (*pos) = 0; 
+   }
+   return pos; 
+}
+
+CDocTemplate* CWinApp::GetNextDocTemplate(
+   POSITION& pos 
+) const
+{
+   if ( !pos ) return NULL; // Choker for end-of-list
+   CDocTemplate* pDocTemplate = _docTemplates.at((*pos)++); 
+   if ( (*pos) >= _docTemplates.count() ) 
+   { 
+      delete pos; 
+      pos = 0; 
+   } 
+   return pDocTemplate; 
+}
+
+void CWinApp::AddDocTemplate(CDocTemplate* pDocTemplate) 
+{ 
+   _docTemplates.append(pDocTemplate);
+}
+
+CDocument* CWinApp::OpenDocumentFile(
+   LPCTSTR lpszFileName 
+)
+{
+   POSITION pos;
+   CDocTemplate* pDocTemplate = NULL;
+   
+   pos = GetFirstDocTemplatePosition();
+   if ( pos )
+   {
+      // SDI...only need to get/tell the first document template.
+      pDocTemplate = GetNextDocTemplate(pos);
+   }
+   if ( pDocTemplate )
+   {
+      pDocTemplate->OpenDocumentFile(lpszFileName);
+   }
+}
+
 HICON CWinApp::LoadIcon(
    UINT nIDResource 
 ) const
@@ -4866,6 +5031,11 @@ BOOL CWinApp::InitInstance()
 }
 
 void CWinApp::OnFileNew()
+{
+   OpenDocumentFile(NULL);
+}
+
+void CWinApp::OnFileOpen()
 {
 }
 
@@ -5981,7 +6151,7 @@ CFileDialog::CFileDialog(
 {
    int seg;
 
-   m_pOFN = new OPENFILENAME;
+   m_pOFN = &m_ofn;
    
    if ( _qt )
       delete _qt;
@@ -6057,7 +6227,6 @@ CFileDialog::CFileDialog(
 
 CFileDialog::~CFileDialog()
 {
-   delete m_pOFN;
    if ( _qtd )
       delete _qtd;
    _qtd = NULL;
@@ -6266,10 +6435,12 @@ int CImageList::Add(
 
 void openFile(QString fileName)
 {
-   CString mfcFileName(fileName);
-#if UNICODE
-   ptrToTheApp->GetDocTemplate()->OpenDocumentFile((LPCTSTR)fileName.unicode());
-#else
-   ptrToTheApp->GetDocTemplate()->OpenDocumentFile(fileName.toAscii().constData());
-#endif            
+   if ( fileName.isEmpty() )
+   {
+      ptrToTheApp->OpenDocumentFile(NULL);
+   }
+   else
+   {
+      ptrToTheApp->OpenDocumentFile(CString(fileName));
+   }
 }

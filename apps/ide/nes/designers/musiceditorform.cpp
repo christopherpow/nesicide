@@ -11,7 +11,7 @@ MusicEditorForm::MusicEditorForm(QString fileName,QByteArray musicData,IProjectT
    
    m_fileName = fileName;
    
-   theApp.GetDocTemplate()->OpenDocumentFile(NULL);
+   openFile("");
    
    ui->stackedWidget->addWidget(m_pMainFrame);
    ui->stackedWidget->setCurrentWidget(m_pMainFrame);

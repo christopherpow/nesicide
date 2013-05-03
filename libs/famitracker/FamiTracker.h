@@ -34,7 +34,7 @@
 //	#error include 'stdafx.h' before including this file for PCH
 //#endif
 
-//#include "resource.h"       // main symbols
+#include "resource.h"       // main symbols
 
 // Inter-process commands
 enum {
@@ -42,18 +42,18 @@ enum {
 	IPC_LOAD_PLAY
 };
 
-//// Custom command line reader
-//class CFTCommandLineInfo : public CCommandLineInfo
-//{
-//public:
-//	CFTCommandLineInfo();
-//	virtual void ParseParam(const TCHAR* pszParam, BOOL bFlag, BOOL bLast);
-//public:
-//	bool m_bLog;
-//	bool m_bExport;
-//	bool m_bPlay;
-//	CString m_strExportFile;
-//};
+// Custom command line reader
+class CFTCommandLineInfo : public CCommandLineInfo
+{
+public:
+	CFTCommandLineInfo();
+	virtual void ParseParam(const TCHAR* pszParam, BOOL bFlag, BOOL bLast);
+public:
+	bool m_bLog;
+	bool m_bExport;
+	bool m_bPlay;
+	CString m_strExportFile;
+};
 
 
 //class CMIDI;
@@ -75,17 +75,16 @@ class CFamiTrackerApp : public CWinApp
 public:
 	// Constructor
 	CFamiTrackerApp();
-   virtual ~CFamiTrackerApp();
 
 	//
 	// Public functions
 	//
 public:
-//	void			LoadSoundConfig();
+	void			LoadSoundConfig();
 	void			ReloadColorScheme(void);
-//	int				GetCPUUsage() const;
-//	bool			IsThemeActive() const;
-//	void			CheckSynth();
+	int				GetCPUUsage() const;
+	bool			IsThemeActive() const;
+	void			CheckSynth();
 	void			RemoveSoundGenerator();
 
 	// Tracker player functions
@@ -93,7 +92,7 @@ public:
 	bool			IsPlaying() const;
 	void			ResetPlayer();
 	void			SilentEverything();
-//	void			WaitUntilStopped() const;
+	void			WaitUntilStopped() const;
 
 	// Get-functions
 	CAccelerator	*GetAccelerator() const { return m_pAccel; };
@@ -113,14 +112,14 @@ public:
 //	//
 //private:
 //	void CheckAppThemed();
-//	void ShutDownSynth();
-//	bool CheckSingleInstance();
-//	void RegisterSingleInstance();
-//	void UnregisterSingleInstance();
+	void ShutDownSynth();
+	bool CheckSingleInstance();
+	void RegisterSingleInstance();
+	void UnregisterSingleInstance();
 //	void CheckNewVersion();
 
-//protected:
-//	BOOL DoPromptFileName(CString& fileName, CString& filePath, UINT nIDSTitle, DWORD lFlags, BOOL bOpenFileDialog, CDocTemplate* pTemplate);
+protected:
+	BOOL DoPromptFileName(CString& fileName, CString& filePath, UINT nIDSTitle, DWORD lFlags, BOOL bOpenFileDialog, CDocTemplate* pTemplate);
 
 	// Private variables and objects
 private:
@@ -133,15 +132,15 @@ private:
 
 	CCustomExporters *m_customExporters;
 
-//	// Single instance stuff
-//	CMutex			*m_pInstanceMutex;
-//	HANDLE			m_hWndMapFile;
+	// Single instance stuff
+	CMutex			*m_pInstanceMutex;
+	HANDLE			m_hWndMapFile;
 
-//	// Windows handles
-//	HANDLE			m_hAliveCheck;
-//	HANDLE			m_hNotificationEvent;
+	// Windows handles
+	HANDLE			m_hAliveCheck;
+	HANDLE			m_hNotificationEvent;
 
-//	bool			m_bThemeActive;
+	bool			m_bThemeActive;
 
 	// Overrides
 public:
@@ -151,15 +150,15 @@ public:
 	// Implementation
 	DECLARE_MESSAGE_MAP()
 //public:
-//	afx_msg void OnAppAbout();
+	afx_msg void OnAppAbout();
 	afx_msg void OnTrackerTogglePlay();
 	afx_msg void OnTrackerPlay();
 	afx_msg void OnTrackerPlayStart();
 	afx_msg void OnTrackerPlayCursor();
 	afx_msg void OnTrackerPlaypattern();
 	afx_msg void OnTrackerStop();
-//	afx_msg void OnFileOpen();
-//	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	afx_msg void OnFileOpen();
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 };
 
 extern CFamiTrackerApp theApp;

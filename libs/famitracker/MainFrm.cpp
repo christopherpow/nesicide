@@ -186,12 +186,12 @@ void CMainFrame::toolBarAction_triggered(int id)
 
 void CMainFrame::toolBarAction_newDocument()
 {
-   qDebug("newDocument");
+   ((CFamiTrackerApp*)AfxGetApp())->OnFileNew();
 }
 
 void CMainFrame::toolBarAction_openDocument()
 {
-   qDebug("openDocument");
+   ((CFamiTrackerApp*)AfxGetApp())->OnFileOpen();
 }
 
 void CMainFrame::toolBarAction_saveDocument()

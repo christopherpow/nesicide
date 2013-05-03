@@ -69,6 +69,7 @@ enum
    __UNDER_THE_HOOD_START = 0x8000000,
    
    AFX_IDS_ALLFILTER,
+   AFX_IDS_OPENFILE,
    
    WM_SIZEPARENT,
    WM_INITIALUPDATE,
@@ -245,6 +246,7 @@ typedef char TCHAR;
 #endif
 
 #define VERIFY(x) x
+#define ENSURE(x) x
 
 TCHAR* A2T(char* str);
 char* T2A(TCHAR* str);
@@ -279,12 +281,14 @@ typedef struct
 #define _tstoi _wtoi
 #define _tcslen wcslen
 #define _tcscmp wcscmp
+#define _tcsicmp wcsicmp
 #define _stscanf wscanf
 #else
 #define _ttoi atoi
 #define _tstoi atoi
 #define _tcslen strlen
 #define _tcscmp strcmp
+#define _tcsicmp stricmp
 #define _stscanf sscanf
 #endif
 #ifdef QT_NO_DEBUG
@@ -505,7 +509,8 @@ public:
    
    void Empty();
    LPCTSTR GetString() const;
-   LPTSTR GetBuffer() const;
+   LPTSTR GetBuffer( int nMinBufLength = 0 );
+   void ReleaseBuffer( int nNewLength = -1 );
    CString Left( int nCount ) const;
    CString Right( int nCount ) const;
    CString Mid( int nFirst ) const;  
@@ -1252,6 +1257,9 @@ public:
       LPCRECT lpRectClient = NULL,
       BOOL bStretch = TRUE 
    );
+   void DragAcceptFiles(
+      BOOL bAccept = TRUE 
+   );
    virtual BOOL CreateEx(
       DWORD dwExStyle,
       LPCTSTR lpszClassName,
@@ -1490,7 +1498,10 @@ public:
       AFX_CMDHANDLERINFO* pHandlerInfo 
    );
    void OnSize(UINT nType, int cx, int cy);
-   virtual void SetMessageText(LPCTSTR fmt,...) { qDebug("SetMessageText"); }
+   virtual void SetMessageText(LPCTSTR fmt,...);
+   void SetMessageText(
+      UINT nID 
+   );
    CView* GetActiveView( ) const { return m_pView; } // Only one view for SDI
    virtual CDocument* GetActiveDocument( ) { return m_pDocument; }   
    virtual void RecalcLayout(
@@ -1533,11 +1544,11 @@ public:
 
    // These methods are only to be used in CDocTemplate initialization...
    virtual void privateSetDocTemplate(CDocTemplate* pDocTemplate) { m_pDocTemplate = pDocTemplate; }
-   virtual void privateAddView(CView* pView) { m_pViews.append(pView); }
+   virtual void privateAddView(CView* pView) { _views.append(pView); }
    
 protected:
    CDocTemplate* m_pDocTemplate;
-   QList<CView*> m_pViews;
+   QList<CView*> _views;
    CString m_docTitle;
 };
 
@@ -1683,6 +1694,7 @@ public:
    CString GetNextPathName(
       POSITION& pos 
    ) const;
+   OPENFILENAME m_ofn;
    LPOPENFILENAME m_pOFN;
 };
 
@@ -2548,6 +2560,20 @@ public:
       CDocument* pDoc,
       BOOL bMakeVisible = TRUE 
    );
+   enum DocStringIndex
+   {
+      windowTitle,
+      docName,
+      fileNewName,
+      filterName,
+      filterExt,
+      regFileTypeId,
+      regFileTypeName      
+   };
+   virtual BOOL GetDocString(
+      CString& rString,
+      enum DocStringIndex index 
+   ) const;
    CDocument* m_pDoc;
    CView*     m_pView;
    CFrameWnd* m_pFrameWnd;
@@ -2563,12 +2589,60 @@ public:
    );
 };
 
+class CCommandLineInfo : public CObject
+{
+public:
+   CCommandLineInfo( );
+   virtual void ParseParam( 
+      const TCHAR* pszParam,  
+      BOOL bFlag, 
+      BOOL bLast
+   );
+   enum
+   {   
+      FileNew,
+      FileOpen,
+      FilePrint,
+      FilePrintTo,
+      FileDDE,
+      AppRegister,
+      AppUnregister,
+      RestartByRestartManager,
+      FileNothing = -1
+   }; 
+   BOOL m_bRunAutomated;
+   BOOL m_bRunEmbedded;
+   BOOL m_bShowSplash;
+   UINT m_nShellCommand;
+   CString m_strDriverName;
+   CString m_strFileName;
+   CString m_strPortName;
+   CString m_strPrinterName;
+   // Qt interface
+   QStringList _args;
+};
+
 class CWinApp : public CWinThread
 {
 public:
-   CWinApp() : m_pMainWnd(NULL), m_pDocTemplate(NULL) {}
-   void AddDocTemplate(CDocTemplate* pDocTemplate) { m_pDocTemplate = pDocTemplate; }
-   CDocTemplate* GetDocTemplate() const { return m_pDocTemplate; }
+   CWinApp() : m_pMainWnd(NULL) {}
+   void ParseCommandLine(
+      CCommandLineInfo& rCmdInfo 
+   );
+   BOOL ProcessShellCommand( 
+      CCommandLineInfo& rCmdInfo  
+   );
+   void AddDocTemplate(CDocTemplate* pDocTemplate);
+   POSITION GetFirstDocTemplatePosition( ) const;
+   CDocTemplate* GetNextDocTemplate(
+      POSITION& pos 
+   ) const;
+   virtual CDocument* OpenDocumentFile(
+      LPCTSTR lpszFileName 
+   );
+   virtual BOOL PreTranslateMessage(
+      MSG* pMsg 
+   );
    HICON LoadIcon(
       UINT nIDResource 
    ) const;
@@ -2578,13 +2652,14 @@ public:
    ) const;
    virtual CWnd * GetMainWnd( ) { return m_pMainWnd; }
    afx_msg void OnFileNew( );
+   afx_msg void OnFileOpen( );
 public:
    CFrameWnd* m_pMainWnd;
    // Qt interfaces
    QMainWindow* qtMainWindow;   
    
 protected:
-   CDocTemplate* m_pDocTemplate;
+   QList<CDocTemplate*> _docTemplates;
 };
 
 #define CBRS_TOP      0x0001 // Control bar is at the top of the frame window.

@@ -21,7 +21,7 @@ MainWindow::MainWindow(QWidget *parent) :
    qtMfcInit();
    theApp.InitInstance(this);
    
-   theApp.GetDocTemplate()->OpenDocumentFile(NULL);
+   openFile("");
    
    setCentralWidget(theApp.m_pMainWnd->toQWidget());
 
