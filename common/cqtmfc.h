@@ -58,6 +58,7 @@
 #include <QCheckBox>
 #include <QGroupBox>
 #include <QFileDialog>
+#include <QMenuBar>
 
 #ifndef QT_NO_DEBUG
 //#define _DEBUG
@@ -463,6 +464,12 @@ protected:
 
 class CSemaphore : public CSyncObject
 {
+};
+
+class CEvent : public CSyncObject
+{
+public:
+   BOOL SetEvent();
 };
 
 class CString;
@@ -1211,6 +1218,7 @@ public:
 
 class CFrameWnd;
 class CScrollBar;
+class CMenu;
 
 class CWnd : public QWidget, public CCmdTarget, public QtUIElement
 {
@@ -1219,6 +1227,7 @@ class CWnd : public QWidget, public CCmdTarget, public QtUIElement
 public:
    CWnd(CWnd* parent=0);
    virtual ~CWnd();
+   CMenu* GetMenu( ) const { return NULL; }
    virtual LRESULT SendMessage(
       UINT message,
       WPARAM wParam = 0,
@@ -1482,11 +1491,14 @@ class CFrameWnd : public CWnd
    // Qt interfaces
 public:
    void addControlBar(int area,QWidget* bar);
+protected:
+   QMenuBar* m_pMenuBar;
    
    // MFC interfaces
 public:
    CFrameWnd(CWnd* parent = 0);
    virtual ~CFrameWnd();
+   CMenu* GetMenu( ) const { return m_pMenu; }   
    void InitialUpdateFrame(
       CDocument* pDoc,
       BOOL bMakeVisible 
@@ -1512,6 +1524,7 @@ public:
    virtual void privateSetActiveDocument(CDocument* pDocument) { m_pDocument = pDocument; }
    
 protected:
+   CMenu* m_pMenu;
    CView* m_pView;
    QHBoxLayout* cbrsLeft;
    QHBoxLayout* cbrsRight;
@@ -1587,6 +1600,7 @@ public:
    CMenu* GetSubMenu(
       int nPos 
    ) const;
+   UINT GetMenuItemCount( ) const;
    BOOL AppendMenu(
       UINT nFlags,
       UINT_PTR nIDNewItem = 0,
@@ -1613,6 +1627,7 @@ public:
    );
    BOOL DestroyMenu( );
 private:
+   QList<CMenu*> _cmenu;
    QMenu* _qtd;
    QHash<UINT_PTR,QAction*> mfcToQtMenu;
    QHash<QAction*,UINT_PTR> qtToMfcMenu;
@@ -2278,6 +2293,9 @@ public:
       UINT message,
       WPARAM wParam = 0,
       LPARAM lParam = 0 
+   );
+   DWORD SetExtendedStyle(
+      DWORD dwNewStyle 
    );
    int FindItem(
       LVFINDINFO* pFindInfo,
@@ -2966,6 +2984,81 @@ protected:
    QList<CBitmap*> _images;
 };
 
+class CPropertySheet : public CWnd
+{
+public:
+   explicit CPropertySheet(
+      UINT nIDCaption,
+      CWnd* pParentWnd = NULL,
+      UINT iSelectPage = 0 
+   );
+   explicit CPropertySheet(
+      LPCTSTR pszCaption,
+      CWnd* pParentWnd = NULL,
+      UINT iSelectPage = 0 
+   );
+   CPropertySheet(
+      UINT nIDCaption,
+      CWnd* pParentWnd,
+      UINT iSelectPage,
+      HBITMAP hbmWatermark,
+      HPALETTE hpalWatermark = NULL,
+      HBITMAP hbmHeader = NULL 
+   );
+   CPropertySheet(
+      LPCTSTR pszCaption,
+      CWnd* pParentWnd,
+      UINT iSelectPage,
+      HBITMAP hbmWatermark,
+      HPALETTE hpalWatermark = NULL,
+      HBITMAP hbmHeader = NULL 
+   );
+};
+
+typedef struct {
+//  DWORD           dwSize;
+//  DWORD           dwFlags;
+//  HINSTANCE       hInstance;
+//  union {
+//    LPCSTR         pszTemplate;
+//    LPCDLGTEMPLATE pResource;
+//  };
+//  union {
+//    HICON  hIcon;
+//    LPCSTR pszIcon;
+//  };
+//  LPCSTR          pszTitle;
+//  DLGPROC         pfnDlgProc;
+//  LPARAM          lParam;
+//  LPFNPSPCALLBACK pfnCallback;
+//  UINT            *pcRefParent;
+//#if (_WIN32_IE >= 0x0500)
+//  LPCTSTR         pszHeaderTitle;
+//  LPCTSTR         pszHeaderSubTitle;
+//#endif 
+//#if (_WIN32_WINNT >= 0x0501)
+//  HANDLE          hActCtx;
+//#endif 
+} PROPSHEETPAGE, *LPPROPSHEETPAGE;
+
+class CPropertyPage : public CDialog
+{
+public:
+   explicit CPropertyPage( 
+      UINT nIDTemplate, 
+      UINT nIDCaption = 0, 
+      DWORD dwSize = sizeof(PROPSHEETPAGE) 
+   ); 
+   void SetModified(
+      BOOL bChanged = TRUE 
+   );
+   virtual BOOL OnApply( );
+};
+
+class CToolTipCtrl
+{
+};
+
 int StretchDIBits(
   CDC& dc,
   int XDest,
@@ -2987,9 +3080,9 @@ CFrameWnd* AfxGetMainWnd();
 
 CString qtMfcStringResource(int id);
 
-CMenu qtMfcMenuResource(int id);
-
 CBitmap qtMfcBitmapResource(int id);
+
+CMenu* qtMfcMenuResource(int id);
 
 void openFile(QString fileName);
 

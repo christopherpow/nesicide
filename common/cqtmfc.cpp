@@ -16,6 +16,7 @@ CFrameWnd* AfxGetMainWnd() { return ptrToTheApp->m_pMainWnd; }
 
 extern void qtMfcInitDialogResource(UINT dlgID,CDialog* parent);
 extern void qtMfcInitToolBarResource(UINT dlgID,CToolBar* parent);
+extern void qtMfcInitMenuResource(UINT menuID,CMenu* parent);
 
 QHash<int,CString> qtMfcStringResources;
 
@@ -24,18 +25,18 @@ CString qtMfcStringResource(int id)
    return qtMfcStringResources.value(id);
 }
 
-QHash<int,CMenu> qtMfcMenuResources;
-
-CMenu qtMfcMenuResource(int id)
-{
-   return qtMfcMenuResources.value(id);
-}
-
 QHash<int,CBitmap> qtMfcBitmapResources;
 
 CBitmap qtMfcBitmapResource(int id)
 {
    return qtMfcBitmapResources.value(id);
+}
+
+QHash<int,CMenu*> qtMfcMenuResources;
+
+CMenu* qtMfcMenuResource(int id)
+{
+   return qtMfcMenuResources.value(id);
 }
 
 int AfxMessageBox(
@@ -2316,6 +2317,32 @@ LRESULT CListCtrl::SendMessage(
    return 0; // CP: not sure this matters...much
 }
 
+DWORD CListCtrl::SetExtendedStyle(
+   DWORD dwNewStyle 
+)
+{
+   if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
+   {
+      if ( dwNewStyle&LVS_EX_FULLROWSELECT )
+      {
+         _qtd_table->setSelectionBehavior(QAbstractItemView::SelectRows);
+      }
+      if ( dwNewStyle&LVS_EX_GRIDLINES )
+      {
+         _qtd_table->setShowGrid(true);
+      }
+   }
+   else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
+   {
+      if ( dwNewStyle&LVS_EX_FULLROWSELECT )
+      {
+         _qtd_list->setSelectionBehavior(QAbstractItemView::SelectRows);
+      }
+   }
+
+   return 0; // CP: not sure this matters...much
+}
+
 UINT CListCtrl::GetSelectedCount( ) const
 {
    if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
@@ -3696,6 +3723,11 @@ bool CWnd::eventFilter(QObject *object, QEvent *event)
       keyReleaseEvent(dynamic_cast<QKeyEvent*>(event));
       return true;
    }
+   if ( event->type() == QEvent::ContextMenu )
+   {
+      contextMenuEvent(dynamic_cast<QContextMenuEvent*>(event));
+      return true;
+   }
 //   qDebug("eventFilter: unhandled %d object %s", event->type(), object->objectName().toAscii().constData());
    return false;
 }
@@ -4246,10 +4278,16 @@ CFrameWnd::CFrameWnd(CWnd *parent)
    gridLayout->setColumnStretch(1,1);
    
    centralWidget->setLayout(gridLayout);
+   
+   m_pMenuBar = new QMenuBar;
+//   m_pMenuBar->addMenu(qtMfcMenuResource(128).toQMenu());
+   ptrToTheApp->qtMainWindow->setMenuBar(m_pMenuBar);
 }
 
 CFrameWnd::~CFrameWnd()
 {
+   delete m_pMenuBar;
+   delete m_pMenu;
 }
 
 void CFrameWnd::addControlBar(int area, QWidget *bar)
@@ -5048,19 +5086,18 @@ HCURSOR CWinApp::LoadStandardCursor(
 }
 
 CMenu::CMenu()
-   : _qtd(NULL),
-     m_hMenu(NULL)
+   : m_hMenu(NULL)
 {
+   _qtd = new QMenu;
+   m_hMenu = (HMENU)_qtd;
 }
 
 BOOL CMenu::LoadMenu(
    UINT nIDResource 
 )
 {
-   if ( _qtd )
-      delete _qtd;
-   _qtd = qtMfcMenuResource(nIDResource).toQMenu();
-   m_hMenu = (HMENU)_qtd;
+   _cmenu.clear();
+   _cmenu.append(qtMfcMenuResource(nIDResource));
    return TRUE;
 }
 
@@ -5068,16 +5105,12 @@ CMenu* CMenu::GetSubMenu(
    int nPos 
 ) const
 {
-   qDebug("CMenu::GetSubMenu() not supported yet.");
-   return NULL;
+   return _cmenu.value(nPos);
 }
 
 BOOL CMenu::CreatePopupMenu()
 {
-   if ( _qtd )
-      delete _qtd;
-   _qtd = new QMenu;
-   m_hMenu = (HMENU)_qtd;
+   _cmenu.clear();
    return TRUE;
 }
 
@@ -5089,19 +5122,24 @@ BOOL CMenu::AppendMenu(
 {
    if ( nFlags&MF_POPUP )
    {
-      _qtd->addMenu(qtMfcMenuResource(nIDNewItem).toQMenu());
+      LoadMenu(nIDNewItem);
    }
-   if ( nFlags&MF_MENUBARBREAK )
+
+   if ( nFlags&MF_SEPARATOR )
    {
       _qtd->addSeparator();
    }
-   if ( nFlags&MF_STRING )
+   else
    {
 #if UNICODE
       QAction* action = _qtd->addAction(QString::fromWCharArray(lpszNewItem)); // CP: Add slots later
 #else
       QAction* action = _qtd->addAction(lpszNewItem); // CP: Add slots later
 #endif
+      if ( action->text().contains("\t") )
+      {
+         action->setShortcut(QKeySequence(action->text().split("\t").at(1)));
+      }
       if ( nFlags&MF_CHECKED )
       {
          action->setCheckable(true);
@@ -5119,7 +5157,13 @@ BOOL CMenu::AppendMenu(
       mfcToQtMenu.insert(nIDNewItem,action);
       qtToMfcMenu.insert(action,nIDNewItem);
    }
+   
    return TRUE;
+}
+
+UINT CMenu::GetMenuItemCount( ) const
+{
+   return _qtd->actions().count();
 }
 
 BOOL CMenu::SetDefaultItem(
@@ -5169,7 +5213,7 @@ BOOL CMenu::TrackPopupMenu(
    LPCRECT lpRect
 )
 {
-   QAction* action = _qtd->exec(QPoint(x,y));
+   QAction* action = _qtd->exec(QCursor::pos());
    int result = 0;
    if ( action && (nFlags&TPM_RETURNCMD) )
    {
@@ -6355,6 +6399,12 @@ BOOL CCriticalSection::Unlock( )
    return TRUE;
 }
 
+BOOL CEvent::SetEvent()
+{
+   qDebug("CEvent::SetEvent");
+}
+
+
 BOOL CFileFind::FindFile(
    LPCTSTR pstrName,
    DWORD dwUnused 
@@ -6431,6 +6481,65 @@ int CImageList::Add(
 {
    CBitmap* pBitmap = (CBitmap*)hIcon;
    _images.append(pBitmap);
+}
+
+CPropertySheet::CPropertySheet(
+   UINT nIDCaption,
+   CWnd* pParentWnd,
+   UINT iSelectPage
+)
+{
+}
+
+CPropertySheet::CPropertySheet(
+   LPCTSTR pszCaption,
+   CWnd* pParentWnd,
+   UINT iSelectPage 
+)
+{
+}
+
+CPropertySheet::CPropertySheet(
+   UINT nIDCaption,
+   CWnd* pParentWnd,
+   UINT iSelectPage,
+   HBITMAP hbmWatermark,
+   HPALETTE hpalWatermark,
+   HBITMAP hbmHeader 
+)
+{
+}
+
+CPropertySheet::CPropertySheet(
+   LPCTSTR pszCaption,
+   CWnd* pParentWnd,
+   UINT iSelectPage,
+   HBITMAP hbmWatermark,
+   HPALETTE hpalWatermark,
+   HBITMAP hbmHeader 
+)
+{
+}
+
+CPropertyPage::CPropertyPage( 
+   UINT nIDTemplate, 
+   UINT nIDCaption, 
+   DWORD dwSize 
+)
+{
+}
+
+void CPropertyPage::SetModified(
+   BOOL bChanged 
+)
+{
+   qDebug("CPropertyPage::SetModified");
+}
+
+BOOL CPropertyPage::OnApply( )
+{
+   qDebug("CPropertyPage::OnApply");
+   return TRUE;
 }
 
 void openFile(QString fileName)

@@ -13,6 +13,8 @@ DEFINES += FAMITRACKER_LIBRARY
 
 DEFINES -= UNICODE
 
+QMAKE_CXXFLAGS_WARN_ON += -Wno-reorder -Wno-unused
+
 INCLUDEPATH += \
    $$TOP/common
 
@@ -163,7 +165,11 @@ SOURCES += \
     ChunkRender.cpp \
     CommentsDlg.cpp \
     InstrumentFileTree.cpp \
-    Accelerator.cpp
+    Accelerator.cpp \
+    ConfigWindow.cpp \
+    ConfigSound.cpp \
+    ConfigShortcuts.cpp \
+    ConfigMIDI.cpp
 
 HEADERS += \
     TrackerChannel.h \
@@ -272,7 +278,11 @@ HEADERS += \
     ChunkRender.h \
     CommentsDlg.h \
     InstrumentFileTree.h \
-    Accelerator.h
+    Accelerator.h \
+    ConfigWindow.h \
+    ConfigSound.h \
+    ConfigShortcuts.h \
+    ConfigMIDI.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN

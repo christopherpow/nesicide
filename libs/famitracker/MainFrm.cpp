@@ -8,6 +8,7 @@
 #include "ModulePropertiesDlg.h"
 #include "ControlPanelDlg.h"
 #include "ExportDialog.h"
+#include "Accelerator.h"
 #include "Settings.h"
 
 typedef void (CMainFrame::*actionHandler)();
@@ -437,7 +438,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 //	m_iInstrumentIcons[INST_N163] = 4;
 //	m_iInstrumentIcons[INST_S5B] = 5;
 
-//	UpdateMenus();
+	UpdateMenus();
 
 	// Setup saved frame editor position
    SetFrameEditorPosition(theApp.GetSettings()->FrameEditPos);
@@ -463,6 +464,45 @@ void CMainFrame::OnSize(UINT nType, int cx, int cy)
 //	m_wndToolBarReBar.GetReBarCtrl().MinimizeBand(0);
 
 	ResizeFrameWindow();
+}
+
+void CMainFrame::UpdateMenus()
+{
+	// Write new shortcuts to menus
+	UpdateMenu(GetMenu());
+}
+
+void CMainFrame::UpdateMenu(CMenu *pMenu)
+{
+	CAccelerator *pAccel = theApp.GetAccelerator();
+
+   qDebug("CMainFrame::UpdateMenu");
+//	for (UINT i = 0; i < pMenu->GetMenuItemCount(); ++i) {
+//		UINT state = pMenu->GetMenuState(i, MF_BYPOSITION);
+//		if (state & MF_POPUP) {
+//			// Update sub menu
+//			UpdateMenu(pMenu->GetSubMenu(i));
+//		}
+//		else if ((state & MF_SEPARATOR) == 0) {
+//			// Change menu name
+//			CString shortcut;
+//			UINT id = pMenu->GetMenuItemID(i);
+
+//			if (pAccel->GetShortcutString(id, shortcut)) {
+//				CString string;
+//				pMenu->GetMenuString(i, string, MF_BYPOSITION);
+
+//				int tab = string.Find('\t');
+
+//				if (tab != -1) {
+//					string = string.Left(tab);
+//				}
+
+//				string += shortcut;
+//				pMenu->ModifyMenu(i, MF_BYPOSITION, id, string);
+//			}
+//		}
+//	}
 }
 
 void CMainFrame::SetupColors(void)

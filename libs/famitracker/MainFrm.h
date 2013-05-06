@@ -83,6 +83,8 @@ public:
    bool	AddAction(CAction *pAction);
    CAction *GetLastAction() const;
    void	ResetUndo();
+   
+   void	UpdateMenus();
 
    void	SetSpeed(int Speed);
 	void	SetTempo(int Tempo);
@@ -103,6 +105,7 @@ protected:
    int		GetInstrumentIndex(int ListIndex) const;
    int		FindInstrument(int Index) const;
 
+   void	UpdateMenu(CMenu *pMenu);
    void	SetFrameEditorPosition(int Position);
    
 private:

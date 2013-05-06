@@ -108,15 +108,15 @@ public:
 //	void			EnumerateDevices();
 //	void			ClearEnumeration();
 //	BOOL			EnumerateCallback(LPGUID lpGuid, LPCSTR lpcstrDescription, LPCSTR lpcstrModule, LPVOID lpContext);
-//	unsigned int	GetDeviceCount() const;
-//	char			*GetDeviceName(int iDevice) const;
+	unsigned int	GetDeviceCount() const;
+	char			*GetDeviceName(int iDevice) const;
 //	int				MatchDeviceID(char *Name) const;
 
-//public:
-//	static const unsigned int MAX_DEVICES = 256;
-//	static const unsigned int MAX_BLOCKS = 16;
-//	static const unsigned int MAX_SAMPLE_RATE = 96000;
-//	static const unsigned int MAX_BUFFER_LENGTH = 10000;
+public:
+	static const unsigned int MAX_DEVICES = 256;
+	static const unsigned int MAX_BLOCKS = 16;
+	static const unsigned int MAX_SAMPLE_RATE = 96000;
+	static const unsigned int MAX_BUFFER_LENGTH = 10000;
 
 //protected:
 //	static BOOL CALLBACK DSEnumCallback(LPGUID lpGuid, LPCTSTR lpcstrDescription, LPCTSTR lpcstrModule, LPVOID lpContext);
@@ -129,7 +129,7 @@ public:
 
 //	// For enumeration
 	unsigned int	m_iDevices;
-//	char			*m_pcDevice[MAX_DEVICES];
+	char			*m_pcDevice[MAX_DEVICES];
 //	GUID			*m_pGUIDs[MAX_DEVICES];
 };
 

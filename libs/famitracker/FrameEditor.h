@@ -55,6 +55,7 @@ protected:
    void focusInEvent(QFocusEvent *event) { event->ignore(); }
    void focusOutEvent(QFocusEvent *);
    void leaveEvent(QEvent *);
+   void contextMenuEvent(QContextMenuEvent *event);
    
 private:
 	void CreateGdiObjects();
@@ -113,7 +114,7 @@ public slots:
 	afx_msg void OnModuleMoveFrameDown();
 	afx_msg void OnModuleMoveFrameUp();
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
-//	afx_msg void OnContextMenu(CWnd* /*pWnd*/, CPoint /*point*/);
+	afx_msg void OnContextMenu(CWnd* /*pWnd*/, CPoint /*point*/);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
    

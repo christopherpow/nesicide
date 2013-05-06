@@ -214,17 +214,17 @@ BOOL CFamiTrackerApp::InitInstance(QMainWindow* parent)
 //	}
 
 	// The one and only window has been initialized, so show and update it
-	m_pMainWnd->ShowWindow(SW_SHOW);
-	m_pMainWnd->UpdateWindow();
+//	m_pMainWnd->ShowWindow(SW_SHOW);
+//	m_pMainWnd->UpdateWindow();
 	// call DragAcceptFiles only if there's a suffix
 	//  In an SDI app, this should occur after ProcessShellCommand
 	// Enable drag/drop open
 	m_pMainWnd->DragAcceptFiles();
 
-//	// This object is used to indicate if the sound synth thread locks up
-//	m_hAliveCheck = CreateEvent(NULL, TRUE, FALSE, NULL);
-//	// Used to awake the sound generator thread in case of lockup
-//	m_hNotificationEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+	// This object is used to indicate if the sound synth thread locks up
+	m_hAliveCheck = CreateEvent(NULL, TRUE, FALSE, NULL);
+	// Used to awake the sound generator thread in case of lockup
+	m_hNotificationEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
 	
 	// Start sound generator thread, initially suspended
 	if (!m_pSoundGenerator->CreateThread(CREATE_SUSPENDED)) {

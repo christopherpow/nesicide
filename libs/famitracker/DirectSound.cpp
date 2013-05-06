@@ -166,15 +166,15 @@ void CDSound::Close()
 //	DirectSoundEnumerate(DSEnumCallback, NULL);
 //}
 
-//unsigned int CDSound::GetDeviceCount() const
-//{
-//	return m_iDevices;
-//}
+unsigned int CDSound::GetDeviceCount() const
+{
+	return m_iDevices;
+}
 
-//char *CDSound::GetDeviceName(int iDevice) const
-//{
-//	return m_pcDevice[iDevice];
-//}
+char *CDSound::GetDeviceName(int iDevice) const
+{
+	return m_pcDevice[iDevice];
+}
 
 //int CDSound::MatchDeviceID(char *Name) const
 //{

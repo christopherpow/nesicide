@@ -219,6 +219,14 @@ void CInstrumentEditorDPCM::preview_clicked()
    OnBnClickedPreview();
 }
 
+void CInstrumentEditorDPCM::contextMenuEvent(QContextMenuEvent *event)
+{
+   NMHDR nmhdr;
+   LRESULT result;
+   OnNMRClickTable(&nmhdr,&result);
+   qDebug("contextMenuEvent...figure out which object it's for and invoke the right OnNMRClick method...");
+}
+
 // CInstrumentDPCM message handlers
 
 BOOL CInstrumentEditorDPCM::OnInitDialog()
@@ -532,7 +540,7 @@ void CInstrumentEditorDPCM::OnNMClickTable(NMHDR *pNMHDR, LRESULT *pResult)
 	pSampleBox			= static_cast<CComboBox*>(GetDlgItem(IDC_SAMPLES));
 	pPitchBox			= static_cast<CComboBox*>(GetDlgItem(IDC_PITCH));
 
-	Text.Format(_T("%02i - %s"), Sample, m_pTableListCtrl->GetItemText(m_pTableListCtrl->GetSelectionMark(), 2));
+	Text.Format(_T("%02i - %s"), Sample, (LPCTSTR)m_pTableListCtrl->GetItemText(m_pTableListCtrl->GetSelectionMark(), 2));
 
 	if (Sample != -1)
 		pSampleBox->SelectString(0, Text);

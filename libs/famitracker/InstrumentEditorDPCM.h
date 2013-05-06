@@ -32,6 +32,8 @@ class CInstrumentEditorDPCM : public CInstrumentEditPanel
 {
    Q_OBJECT
    // Qt interfaces
+protected:
+   void contextMenuEvent(QContextMenuEvent *event);
 public slots:
    void load_clicked();
    void unload_clicked();

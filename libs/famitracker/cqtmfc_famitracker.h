@@ -5,9 +5,9 @@
 
 extern QHash<int,CString> qtMfcStringResources;
 
-extern QHash<int,CMenu> qtMfcMenuResources;
-
 extern QHash<int,CBitmap> qtMfcBitmapResources;
+
+extern QHash<int,CMenu*> qtMfcMenuResources;
 
 void qtMfcInit();
 

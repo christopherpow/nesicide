@@ -211,9 +211,9 @@ bool CAccelerator::GetShortcutString(int id, CString &str) const
 			if (KeyName.GetLength() > 1)
 				KeyName = KeyName.Mid(0, 1).MakeUpper() + KeyName.Mid(1, KeyName.GetLength() - 1).MakeLower();
 			if (EntriesTable[i].mod > 0)
-				str.Format(_T("\t%s+%s"), MOD_NAMES[EntriesTable[i].mod], KeyName);
+				str.Format(_T("\t%s+%s"), MOD_NAMES[EntriesTable[i].mod], (LPCTSTR)KeyName);
 			else
-				str.Format(_T("\t%s"), KeyName);
+				str.Format(_T("\t%s"), (LPCTSTR)KeyName);
 			return true;
 		}
 	}

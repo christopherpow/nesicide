@@ -564,14 +564,14 @@ void CFrameEditor::OnRButtonUp(UINT nFlags, CPoint point)
 	CWnd::OnRButtonUp(nFlags, point);
 }
 
-//void CFrameEditor::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
-//{
-//	// Popup menu
-//	CMenu *pPopupMenu, PopupMenuBar;
-//	PopupMenuBar.LoadMenu(IDR_FRAME_POPUP);
-//	pPopupMenu = PopupMenuBar.GetSubMenu(0);
-//	pPopupMenu->TrackPopupMenu(TPM_RIGHTBUTTON, point.x, point.y, this);
-//}
+void CFrameEditor::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
+{
+	// Popup menu
+	CMenu *pPopupMenu, PopupMenuBar;
+	PopupMenuBar.LoadMenu(IDR_FRAME_POPUP);
+	pPopupMenu = PopupMenuBar.GetSubMenu(0);
+	pPopupMenu->TrackPopupMenu(TPM_RIGHTBUTTON, point.x, point.y, this);
+}
 
 void CFrameEditor::EnableInput()
 {
@@ -680,6 +680,11 @@ void CFrameEditor::timerEvent(QTimerEvent *event)
 void CFrameEditor::leaveEvent(QEvent *)
 {
    OnNcMouseMove(0,CPoint());
+}
+
+void CFrameEditor::contextMenuEvent(QContextMenuEvent *event)
+{
+   OnContextMenu(this,CPoint(event->pos()));
 }
 
 void CFrameEditor::focusOutEvent(QFocusEvent *)

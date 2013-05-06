@@ -511,7 +511,6 @@ bool CSoundGen::ResetSound()
 		return false;
 
 	// Sample graph rate
-   qDebug("SetSampleRate");
 	if (m_pSampleWnd) {
 		m_pSampleWnd->SetSampleRate(SampleRate);
 	}
@@ -1652,9 +1651,8 @@ void CSoundGen::OnCloseSound(WPARAM wParam, LPARAM lParam)
 	CloseSound();
 
 	// Notification
-   qDebug("SetEvent???");
-//	if (wParam != NULL)
-//		((CEvent*)wParam)->SetEvent();
+	if (wParam != NULL)
+		((CEvent*)wParam)->SetEvent();
 }
 /*
 void CSoundGen::SetMeterDecayRate(int Rate)
@@ -1683,45 +1681,35 @@ void CSoundGen::recvThreadMessage(unsigned int m, unsigned int w, unsigned int l
    switch ( m )
    {
    case WM_USER_SILENT_ALL:
-      qDebug("OnSilentAll");
       OnSilentAll(w,l);
       break;
    case WM_USER_LOAD_SETTINGS:
-      qDebug("OnLoadSettings");
       OnLoadSettings(w,l);
       break;
    case WM_USER_PLAY:
-      qDebug("OnBeginPlayer");
       OnBeginPlayer(w,l);
       break;
    case WM_USER_STOP:
-      qDebug("OnStopPlayer");
       OnStopPlayer(w,l);
       break;
    case WM_USER_RESET:
-      qDebug("OnResetPlayer");
       OnResetPlayer(w,l);
       break;
    case WM_USER_START_RENDER:
-      qDebug("OnStartRender");
       OnStartRender(w,l);
       break;
    case WM_USER_STOP_RENDER:
-      qDebug("OnStopRender");
       OnStopRender(w,l);
       break;
    case WM_USER_PREVIEW_SAMPLE:
-      qDebug("OnPreviewSample");
       OnPreviewSample(w,l);
       break;
    case WM_USER_WRITE_APU:
-      qDebug("OnWriteAPU");
       OnWriteAPU(w,l);
       break;
    case WM_USER_CLOSE_SOUND:
-      break;
-      qDebug("OnCloseSound");
       OnCloseSound(w,l);
+      break;
    default:
       qDebug("Unhandled thread message: %d",m);
    }
