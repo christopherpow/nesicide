@@ -219,26 +219,25 @@ void CSettings::SetPath(CString PathName, unsigned int PathType)
 {
 	ASSERT(PathType < PATH_COUNT);
 
-   qDebug("SetPath");
-//	// Remove file name if there is a
-//	if (PathName.Right(1) == _T("\\") || PathName.Find(_T('\\')) == -1)
-//		Paths[PathType] = PathName;
-//	else
-//		Paths[PathType] = PathName.Left(PathName.ReverseFind(_T('\\')));
+	// Remove file name if there is a
+	if (PathName.Right(1) == _T("\\") || PathName.Find(_T('\\')) == -1)
+		Paths[PathType] = PathName;
+	else
+		Paths[PathType] = PathName.Left(PathName.ReverseFind(_T('\\')));
 }
 
 void CSettings::StoreSetting(CString Section, CString Name, int Value) const
 {
-   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
    QString key;
 #ifdef UNICODE
-   key = QString::fromWCharArray(Section);
+   key = QString::fromWCharArray((LPCTSTR)Section);
    key += "/";
-   key += QString::fromWCharArray(Name);
+   key += QString::fromWCharArray((LPCTSTR)Name);
 #else
-   key = QString::fromAscii(Section);
+   key = QString::fromAscii((LPCTSTR)Section);
    key += "/";
-   key += QString::fromAscii(Name);
+   key += QString::fromAscii((LPCTSTR)Name);
 #endif
 //   qDebug("StoreSetting");
 //   qDebug(key.toAscii().constData());
@@ -248,16 +247,16 @@ void CSettings::StoreSetting(CString Section, CString Name, int Value) const
 
 int CSettings::LoadSetting(CString Section, CString Name, int Default) const
 {
-   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
    QString key;
 #ifdef UNICODE
-   key = QString::fromWCharArray(Section);
+   key = QString::fromWCharArray((LPCTSTR)Section);
    key += "/";
-   key += QString::fromWCharArray(Name);
+   key += QString::fromWCharArray((LPCTSTR)Name);
 #else
-   key = QString::fromAscii(Section);
+   key = QString::fromAscii((LPCTSTR)Section);
    key += "/";
-   key += QString::fromAscii(Name);
+   key += QString::fromAscii((LPCTSTR)Name);
 #endif
 //   qDebug("LoadSetting");
 //   qDebug(key.toAscii().constData());
@@ -269,7 +268,7 @@ int CSettings::LoadSetting(CString Section, CString Name, int Default) const
 
 void CSettingBool::Load()
 {
-   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
    QString key;
 #ifdef UNICODE
    key = QString::fromWCharArray(m_pSection);
@@ -288,7 +287,7 @@ void CSettingBool::Load()
 
 void CSettingBool::Save()
 {
-   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
    QString key;
 #ifdef UNICODE
    key = QString::fromWCharArray(m_pSection);
@@ -312,7 +311,7 @@ void CSettingBool::Default()
 
 void CSettingInt::Load()
 {
-   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
    QString key;
 #ifdef UNICODE
    key = QString::fromWCharArray(m_pSection);
@@ -331,7 +330,7 @@ void CSettingInt::Load()
 
 void CSettingInt::Save()
 {
-   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
    QString key;
 #ifdef UNICODE
    key = QString::fromWCharArray(m_pSection);
@@ -355,7 +354,7 @@ void CSettingInt::Default()
 
 void CSettingString::Load()
 {
-   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
    QString key;
 #ifdef UNICODE
    key = QString::fromWCharArray(m_pSection);
@@ -369,12 +368,16 @@ void CSettingString::Load()
 //   qDebug("CSettingString::Load");
 //   qDebug(key.toAscii().constData());
    
-   (*(CString*)m_pVariable) = settings.value(key,QString::fromUtf16((const ushort*)m_pDefaultValue)).toString();
+#ifdef UNICODE
+   (*(CString*)m_pVariable) = CString(settings.value(key,QString::fromWCharArray(m_pDefaultValue)).toString());
+#else
+   (*(CString*)m_pVariable) = CString(settings.value(key,QString::fromAscii(m_pDefaultValue)).toString());
+#endif
 }
 
 void CSettingString::Save()
 {
-   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
    QString key;
 #ifdef UNICODE
    key = QString::fromWCharArray(m_pSection);
@@ -388,10 +391,15 @@ void CSettingString::Save()
 //   qDebug("CSettingString::Save");
 //   qDebug(key.toAscii().constData());
    
-   settings.setValue(key,(const QString&)((*(CString*)m_pVariable)));
+#ifdef UNICODE
+   settings.setValue(key,QString::fromWCharArray(((CString*)m_pVariable)->GetBuffer()));
+#else
+   settings.setValue(key,QString::fromAscii(((CString*)m_pVariable)->GetBuffer()));
+#endif
 }
 
 void CSettingString::Default()
 {
-	(*(CString*)m_pVariable) = (TCHAR*)m_pDefaultValue;
+   CString* pString = (CString*)m_pVariable;
+   pString->Format("%s",m_pDefaultValue);
 }

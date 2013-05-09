@@ -5,7 +5,7 @@
 
 extern QHash<int,CString> qtMfcStringResources;
 
-extern QHash<int,CBitmap> qtMfcBitmapResources;
+extern QHash<int,CBitmap*> qtMfcBitmapResources;
 
 extern QHash<int,CMenu*> qtMfcMenuResources;
 

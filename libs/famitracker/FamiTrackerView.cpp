@@ -551,7 +551,7 @@ void CFamiTrackerView::OnRButtonUp(UINT nFlags, CPoint point)
 {
 	// Popup menu
 	CRect WinRect;
-//	CMenu *pPopupMenu, PopupMenuBar;
+	CMenu *pPopupMenu, PopupMenuBar;
 	int Item = 0;
 	
 	if (m_pPatternView->CancelDragging()) {
@@ -562,23 +562,23 @@ void CFamiTrackerView::OnRButtonUp(UINT nFlags, CPoint point)
 
 	m_pPatternView->OnMouseRDown(point);
 
-//	GetWindowRect(WinRect);
+	GetWindowRect(WinRect);
 
-//	if (point.y < HEADER_HEIGHT) {
-//		// Pattern header
-//		m_iMenuChannel = m_pPatternView->GetChannelAtPoint(point.x);
-//		PopupMenuBar.LoadMenu(IDR_PATTERN_HEADER_POPUP);
-//		pPopupMenu = PopupMenuBar.GetSubMenu(0);
-//		pPopupMenu->TrackPopupMenu(TPM_RIGHTBUTTON, point.x + WinRect.left, point.y + WinRect.top, this);
-//	}
-//	else {
-//		// Pattern area
-//		m_iMenuChannel = -1;
-//		PopupMenuBar.LoadMenu(IDR_PATTERN_POPUP);
-//		pPopupMenu = PopupMenuBar.GetSubMenu(0);
-//		// Send messages to parent in order to get the menu options working
-//		pPopupMenu->TrackPopupMenu(TPM_RIGHTBUTTON, point.x + WinRect.left, point.y + WinRect.top, GetParentFrame());
-//	}
+	if (point.y < HEADER_HEIGHT) {
+		// Pattern header
+		m_iMenuChannel = m_pPatternView->GetChannelAtPoint(point.x);
+		PopupMenuBar.LoadMenu(IDR_PATTERN_HEADER_POPUP);
+		pPopupMenu = PopupMenuBar.GetSubMenu(0);
+		pPopupMenu->TrackPopupMenu(TPM_RIGHTBUTTON, point.x + WinRect.left, point.y + WinRect.top, this);
+	}
+	else {
+		// Pattern area
+		m_iMenuChannel = -1;
+		PopupMenuBar.LoadMenu(IDR_PATTERN_POPUP);
+		pPopupMenu = PopupMenuBar.GetSubMenu(0);
+		// Send messages to parent in order to get the menu options working
+		pPopupMenu->TrackPopupMenu(TPM_RIGHTBUTTON, point.x + WinRect.left, point.y + WinRect.top, GetParentFrame());
+	}
 	
 	CView::OnRButtonUp(nFlags, point);
 }

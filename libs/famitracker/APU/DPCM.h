@@ -21,7 +21,7 @@
 #ifndef _DPCM_H_
 #define _DPCM_H_
 
-#include "Channel.h"
+#include "channel.h"
 
 class CDPCM : public CChannel {
 public:

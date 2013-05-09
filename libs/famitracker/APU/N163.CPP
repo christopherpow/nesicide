@@ -21,7 +21,7 @@
 #include <memory>
 #include "../common.h"
 #include "APU.h"
-#include "N163.H"
+#include "N163.h"
 
 /*
 

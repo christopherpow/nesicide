@@ -28,6 +28,7 @@
 #include "InstrumentEditDlg.h"
 #include "ControlPanelDlg.h"
 #include "CustomControls.h"
+#include "DialogReBar.h"
 
 enum FRAME_EDIT_POS { FRAME_EDIT_POS_TOP, FRAME_EDIT_POS_LEFT };
 
@@ -143,7 +144,8 @@ private:
    CListCtrl			*m_pInstrumentList;
    CImageList			*m_pImageList;
    CToolBar			m_wndToolBar;
-//	CReBar				m_wndToolBarReBar;
+	CReBar				m_wndToolBarReBar;
+   CDialogReBar		m_wndOctaveBar;
    CDialogBar			m_wndControlBar;	// Parent to frame editor and settings/instrument editor
 	CDialogBar			m_wndVerticalControlBar;	// Parent to large frame editor
 //	CControlPanelDlg	m_wndFrameBar;

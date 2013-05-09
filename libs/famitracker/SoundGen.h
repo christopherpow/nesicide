@@ -96,7 +96,8 @@ public:
 	// Public functions
 	//
 public:
-	// One time initialization
+
+	// One time initialization 
 	void		AssignDocument(CFamiTrackerDoc *pDoc);
 	void		AssignView(CFamiTrackerView *pView);
 	void		RemoveDocument();
@@ -232,9 +233,9 @@ private:
 
 private:
 	// Handles
-//	HANDLE				m_hNotificationEvent;
-//	HANDLE				m_hAliveCheck;
-//	HWND				m_hWnd;
+	HANDLE				m_hNotificationEvent;
+	HANDLE				m_hAliveCheck;
+	HWND				m_hWnd;
 
 // Sound variables (TODO: move sound to a new class?)
 private:
@@ -303,8 +304,8 @@ public:
 	virtual BOOL InitInstance();
 	virtual int	 ExitInstance();
 	virtual BOOL OnIdle(LONG lCount);
-   
-   // Implementation
+
+	// Implementation
 public:
 	DECLARE_MESSAGE_MAP()
 	afx_msg void OnSilentAll(WPARAM wParam, LPARAM lParam);
@@ -318,3 +319,5 @@ public:
 	afx_msg void OnWriteAPU(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnCloseSound(WPARAM wParam, LPARAM lParam);
 };
+
+

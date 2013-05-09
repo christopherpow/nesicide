@@ -18,9 +18,9 @@
 ** must bear this legend.
 */
 
-#include "APU.h"
-#include "MMC5.H"
-#include "Square.h"
+#include "apu.h"
+#include "MMC5.h"
+#include "square.h"
 
 // MMC5 external sound
 

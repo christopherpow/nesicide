@@ -169,7 +169,8 @@ SOURCES += \
     ConfigWindow.cpp \
     ConfigSound.cpp \
     ConfigShortcuts.cpp \
-    ConfigMIDI.cpp
+    ConfigMIDI.cpp \
+    DialogReBar.cpp
 
 HEADERS += \
     TrackerChannel.h \
@@ -282,7 +283,8 @@ HEADERS += \
     ConfigWindow.h \
     ConfigSound.h \
     ConfigShortcuts.h \
-    ConfigMIDI.h
+    ConfigMIDI.h \
+    DialogReBar.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN

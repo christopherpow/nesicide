@@ -573,23 +573,23 @@ int CFamiTrackerApp::GetCPUUsage() const
 void CFamiTrackerApp::ReloadColorScheme(void)
 {
    qDebug("ReloadColorScheme");
-//	// Main window
-//	CMainFrame *pMainFrm = dynamic_cast<CMainFrame*>(GetMainWnd());
+	// Main window
+	CMainFrame *pMainFrm = dynamic_cast<CMainFrame*>(GetMainWnd());
 
-//	if (pMainFrm != NULL)
-//		pMainFrm->SetupColors();
+	if (pMainFrm != NULL)
+		pMainFrm->SetupColors();
 
-//	// Notify all views	
-//	POSITION TemplatePos = GetFirstDocTemplatePosition();
-//	CDocTemplate *pDocTemplate = GetNextDocTemplate(TemplatePos);
-//	POSITION DocPos = pDocTemplate->GetFirstDocPosition();
+	// Notify all views	
+	POSITION TemplatePos = GetFirstDocTemplatePosition();
+	CDocTemplate *pDocTemplate = GetNextDocTemplate(TemplatePos);
+	POSITION DocPos = pDocTemplate->GetFirstDocPosition();
 
-//	while (CDocument* pDoc = pDocTemplate->GetNextDoc(DocPos)) {
-//		POSITION ViewPos = pDoc->GetFirstViewPosition();
-//		while (CView *pView = pDoc->GetNextView(ViewPos)) {
-//			static_cast<CFamiTrackerView*>(pView)->SetupColors();
-//		}
-//	}
+	while (CDocument* pDoc = pDocTemplate->GetNextDoc(DocPos)) {
+		POSITION ViewPos = pDoc->GetFirstViewPosition();
+		while (CView *pView = pDoc->GetNextView(ViewPos)) {
+			static_cast<CFamiTrackerView*>(pView)->SetupColors();
+		}
+	}
 }
 
 void CFamiTrackerApp::RegisterKeyState(int Channel, int Note)

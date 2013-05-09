@@ -21,8 +21,8 @@
 #include "../stdafx.h"
 #include <cmath>
 #include <memory>
-#include "APU.h"
-#include "FDS.H"
+#include "apu.h"
+#include "fds.h"
 #include "FDSSound.h"
 
 // FDS interface, actual FDS emulation is in FDSSound.cpp

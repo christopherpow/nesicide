@@ -21,8 +21,8 @@
 #ifndef _FDS_H_
 #define _FDS_H_
 
-#include "External.h"
-#include "Channel.h"
+#include "external.h"
+#include "channel.h"
 
 class CFDS : public CExternal, CExChannel {
 public:

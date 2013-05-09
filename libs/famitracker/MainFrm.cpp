@@ -12,7 +12,6 @@
 #include "Settings.h"
 
 typedef void (CMainFrame::*actionHandler)();
-typedef void (CMainFrame::*uiUpdateHandler)(CCmdUI*);
 
 static UINT indicators[] =
 {
@@ -58,11 +57,6 @@ CMainFrame::CMainFrame(CWnd *parent) :
 {
    CREATESTRUCT cs;
    OnCreate(&cs);
-   
-   uiUpdateHandler uiUpdateHandlers[] = 
-   {
-      &CMainFrame::OnUpdateSBChip
-   };
    
    idleTimer = new QTimer;
    QObject::connect(idleTimer,SIGNAL(timeout()),this,SLOT(idleProcessing()));
@@ -136,16 +130,15 @@ void CMainFrame::resizeEvent(QResizeEvent *event)
 
 void CMainFrame::idleProcessing()
 {   
-   CWnd* pWnd;
-   CMenu* pMenu;
    CCmdUI cmdUI;
-   
-   pWnd = GetDlgItem(ID_INDICATOR_CHIP);
    
    cmdUI.m_nID = ID_INDICATOR_CHIP;
    cmdUI.m_nIndex = -1;
-   cmdUI.m_pOther = pWnd;
-//   OnUpdateSBChip(&cmdUI);
+   cmdUI.m_pOther = m_wndStatusBar.GetDlgItem(ID_INDICATOR_CHIP);
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateSBChip(&cmdUI);
+   }
 }
 
 void CMainFrame::updateViews(long hint)
@@ -423,10 +416,9 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// Auto save
 //	SetTimer(TMR_AUTOSAVE, 1000, NULL);
 
-   qDebug("m_wndOctaveBar...");
-//	m_wndOctaveBar.CheckDlgButton(IDC_FOLLOW, TRUE);
-//	m_wndOctaveBar.SetDlgItemInt(IDC_HIGHLIGHT1, CFamiTrackerDoc::DEFAULT_FIRST_HIGHLIGHT, 0);
-//	m_wndOctaveBar.SetDlgItemInt(IDC_HIGHLIGHT2, CFamiTrackerDoc::DEFAULT_SECOND_HIGHLIGHT, 0);
+	m_wndOctaveBar.CheckDlgButton(IDC_FOLLOW, TRUE);
+	m_wndOctaveBar.SetDlgItemInt(IDC_HIGHLIGHT1, CFamiTrackerDoc::DEFAULT_FIRST_HIGHLIGHT, 0);
+	m_wndOctaveBar.SetDlgItemInt(IDC_HIGHLIGHT2, CFamiTrackerDoc::DEFAULT_SECOND_HIGHLIGHT, 0);
 
    qDebug("m_iInstrumentIcons...");
 //	// Icons for the instrument list
@@ -695,22 +687,19 @@ int CMainFrame::GetSelectedInstrument() const
 
 void CMainFrame::SetHighlightRow(int Rows)
 {
-   qDebug("SetHighlightRow");
-//	m_wndOctaveBar.SetDlgItemInt(IDC_HIGHLIGHT1, Rows);
+	m_wndOctaveBar.SetDlgItemInt(IDC_HIGHLIGHT1, Rows);
 }
 
 void CMainFrame::SetSecondHighlightRow(int Rows)
 {
-   qDebug("SetSecondHighlightRow");
-//	m_wndOctaveBar.SetDlgItemInt(IDC_HIGHLIGHT2, Rows);
+	m_wndOctaveBar.SetDlgItemInt(IDC_HIGHLIGHT2, Rows);
 }
 
 void CMainFrame::DisplayOctave()
 {
-   qDebug("DisplayOctave");
-//	CComboBox *pOctaveList = (CComboBox*)m_wndOctaveBar.GetDlgItem(IDC_OCTAVE);
-//	CFamiTrackerView *pView	= (CFamiTrackerView*)GetActiveView();
-//	pOctaveList->SetCurSel(pView->GetOctave());
+	CComboBox *pOctaveList = (CComboBox*)m_wndOctaveBar.GetDlgItem(IDC_OCTAVE);
+	CFamiTrackerView *pView	= (CFamiTrackerView*)GetActiveView();
+	pOctaveList->SetCurSel(pView->GetOctave());
 }
 
 void CMainFrame::CloseInstrumentEditor()
@@ -982,7 +971,7 @@ void CMainFrame::ResizeFrameWindow()
 
 bool CMainFrame::CreateToolbars()
 {
-//	REBARBANDINFO rbi1;
+	REBARBANDINFO rbi1;
 
 	// Add the toolbar
 	if (!m_wndToolBar.CreateEx(this, TBSTYLE_FLAT | TBSTYLE_TRANSPARENT, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC) ||
@@ -993,42 +982,42 @@ bool CMainFrame::CreateToolbars()
 
 //	m_wndToolBar.SetBarStyle(CBRS_ALIGN_TOP | CBRS_SIZE_DYNAMIC | CBRS_TOOLTIPS | CBRS_FLYBY);
 
-//	if (!m_wndOctaveBar.Create(this, (UINT)IDD_OCTAVE, CBRS_TOOLTIPS | CBRS_FLYBY, IDD_OCTAVE)) {
-//		TRACE0("Failed to create octave bar\n");
-//		return false;      // fail to create
-//	}
+	if (!m_wndOctaveBar.Create(this, (UINT)IDD_OCTAVE, CBRS_TOOLTIPS | CBRS_FLYBY, IDD_OCTAVE)) {
+		TRACE0("Failed to create octave bar\n");
+		return false;      // fail to create
+	}
+   
+	if (!m_wndToolBarReBar.Create(this)) {
+		TRACE0("Failed to create rebar\n");
+		return false;      // fail to create
+	}
 
-//	if (!m_wndToolBarReBar.Create(this)) {
-//		TRACE0("Failed to create rebar\n");
-//		return false;      // fail to create
-//	}
+	rbi1.cbSize		= sizeof(REBARBANDINFO);
+	rbi1.fMask		= RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_STYLE | RBBIM_SIZE;
+	rbi1.fStyle		= RBBS_NOGRIPPER;
+	rbi1.hwndChild	= m_wndToolBar;
+	rbi1.cxMinChild	= SX(554);
+	rbi1.cyMinChild	= SY(22);
+	rbi1.cx			= SX(496);
 
-//	rbi1.cbSize		= sizeof(REBARBANDINFO);
-//	rbi1.fMask		= RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_STYLE | RBBIM_SIZE;
-//	rbi1.fStyle		= RBBS_NOGRIPPER;
-//	rbi1.hwndChild	= m_wndToolBar;
-//	rbi1.cxMinChild	= SX(554);
-//	rbi1.cyMinChild	= SY(22);
-//	rbi1.cx			= SX(496);
+	if (!m_wndToolBarReBar.GetReBarCtrl().InsertBand(-1, &rbi1)) {
+		TRACE0("Failed to create rebar\n");
+		return false;      // fail to create
+	}
 
-//	if (!m_wndToolBarReBar.GetReBarCtrl().InsertBand(-1, &rbi1)) {
-//		TRACE0("Failed to create rebar\n");
-//		return false;      // fail to create
-//	}
+	rbi1.cbSize		= sizeof(REBARBANDINFO);
+	rbi1.fMask		= RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_STYLE | RBBIM_SIZE;
+	rbi1.fStyle		= RBBS_NOGRIPPER;
+	rbi1.hwndChild	= m_wndOctaveBar;
+	rbi1.cxMinChild	= SX(120);
+	rbi1.cyMinChild	= SY(22);
+	rbi1.cx			= SX(100);
 
-//	rbi1.cbSize		= sizeof(REBARBANDINFO);
-//	rbi1.fMask		= RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_STYLE | RBBIM_SIZE;
-//	rbi1.fStyle		= RBBS_NOGRIPPER;
-//	rbi1.hwndChild	= m_wndOctaveBar;
-//	rbi1.cxMinChild	= SX(120);
-//	rbi1.cyMinChild	= SY(22);
-//	rbi1.cx			= SX(100);
-
-//	if (!m_wndToolBarReBar.GetReBarCtrl().InsertBand(-1, &rbi1)) {
-//		TRACE0("Failed to create rebar\n");
-//		return false;      // fail to create
-//	}
-
+	if (!m_wndToolBarReBar.GetReBarCtrl().InsertBand(-1, &rbi1)) {
+		TRACE0("Failed to create rebar\n");
+		return false;      // fail to create
+	}
+   
 //	m_wndToolBarReBar.GetReBarCtrl().MinimizeBand(0);
 
 //	HBITMAP hbm = (HBITMAP)::LoadImage(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDB_TOOLBAR_256), IMAGE_BITMAP, 0,0, LR_CREATEDIBSECTION /*| LR_LOADMAP3DCOLORS*/);
@@ -1293,18 +1282,17 @@ void CMainFrame::OnUpdateSBFrequency(CCmdUI *pCmdUI)
 
 void CMainFrame::OnUpdateSBTempo(CCmdUI *pCmdUI)
 {
-   qDebug("OnUpdateSBTempo");
-//	CString String;
-//	CSoundGen *pSoundGen = theApp.GetSoundGenerator();
-//	if (pSoundGen) {
-//		int Highlight = m_wndOctaveBar.GetDlgItemInt(IDC_HIGHLIGHT1);
-//		if (Highlight == 0)
-//			Highlight = 4;
-//		int BPM = (pSoundGen->GetTempo() * 4) / Highlight;
-//		String.Format(_T("%i BPM"), BPM);
-//		pCmdUI->Enable(); 
-//		pCmdUI->SetText(String);
-//	}
+	CString String;
+	CSoundGen *pSoundGen = theApp.GetSoundGenerator();
+	if (pSoundGen) {
+		int Highlight = m_wndOctaveBar.GetDlgItemInt(IDC_HIGHLIGHT1);
+		if (Highlight == 0)
+			Highlight = 4;
+		int BPM = (pSoundGen->GetTempo() * 4) / Highlight;
+		String.Format(_T("%i BPM"), BPM);
+		pCmdUI->Enable(); 
+		pCmdUI->SetText(String);
+	}
 }
 
 void CMainFrame::OnUpdateSBChip(CCmdUI *pCmdUI)

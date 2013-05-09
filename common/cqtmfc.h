@@ -80,6 +80,8 @@ enum
    AFX_IDW_PANE_FIRST,
    AFX_IDW_STATUS_BAR,
    AFX_IDW_TOOLBAR,
+   AFX_IDW_REBAR,
+   
    ID_SEPARATOR,
    
 //   STRINGTABLE 
@@ -243,7 +245,7 @@ typedef char TCHAR;
 #define TRACE(x) { QString str; str.sprintf("TRACE0: %s(%d): %s",__FILE__,__LINE__, (x)); qDebug(str.toLatin1().constData()); }
 #endif
 #if !defined(ATLTRACE2)
-#define ATLTRACE2(a,b,str,...)
+#define ATLTRACE2(a,b,str,q...) qDebug(str,##q)
 #endif
 
 #define VERIFY(x) x
@@ -518,6 +520,10 @@ public:
    LPCTSTR GetString() const;
    LPTSTR GetBuffer( int nMinBufLength = 0 );
    void ReleaseBuffer( int nNewLength = -1 );
+   int Find( TCHAR ch ) const;   
+   int Find( LPCTSTR lpszSub ) const;
+   int Find( TCHAR ch, int nStart ) const;
+   int Find( LPCTSTR pstr, int nStart ) const;
    CString Left( int nCount ) const;
    CString Right( int nCount ) const;
    CString Mid( int nFirst ) const;  
@@ -1227,6 +1233,7 @@ class CWnd : public QWidget, public CCmdTarget, public QtUIElement
 public:
    CWnd(CWnd* parent=0);
    virtual ~CWnd();
+   operator HWND() { return m_hWnd; }
    CMenu* GetMenu( ) const { return NULL; }
    virtual LRESULT SendMessage(
       UINT message,
@@ -1282,6 +1289,15 @@ public:
    virtual BOOL PreTranslateMessage(
       MSG* pMsg 
    ) { return FALSE; }
+   void MapWindowPoints(
+      CWnd* pwndTo,
+      LPRECT lpRect 
+   ) const;
+   void MapWindowPoints(
+      CWnd* pwndTo,
+      LPPOINT lpPoint,
+      UINT nCount 
+   ) const;
    virtual CScrollBar* GetScrollBarCtrl(
       int nBar 
    ) const;
@@ -1965,14 +1981,15 @@ public:
    int GetPos( ) const;
 };
 
-enum
-{
-   UDS_SETBUDDYINT = 0x1,
-   UDS_ALIGNRIGHT = 0x2,
-   UDS_AUTOBUDDY = 0x4,
-   UDS_ARROWKEYS = 0x8,
-   UDS_NOTHOUSANDS = 0x10
-};
+#define UDS_WRAP     1
+#define UDS_SETBUDDYINT      2
+#define UDS_ALIGNRIGHT       4
+#define UDS_ALIGNLEFT        8
+#define UDS_AUTOBUDDY        16
+#define UDS_ARROWKEYS        32
+#define UDS_HORZ     64
+#define UDS_NOTHOUSANDS      128
+#define UDS_HOTTRACK 0x0100
 
 class CSpinButtonCtrl : public CWnd
 {
@@ -2552,6 +2569,10 @@ public:
       UINT nStackSize = 0,
       LPSECURITY_ATTRIBUTES lpSecurityAttrs = NULL 
    );
+   DWORD ResumeThread( );
+   BOOL SetThreadPriority(
+      int nPriority 
+   );
    BOOL PostThreadMessage(
       UINT message ,
       WPARAM wParam,
@@ -2559,6 +2580,9 @@ public:
          );
    virtual BOOL InitInstance() { return FALSE; }
    virtual BOOL ExitInstance() { return FALSE; }
+public:
+   HANDLE m_hThread;
+   DWORD m_nThreadID;
 signals:
    void postThreadMessage(unsigned int m,unsigned int w,unsigned int l);
 public slots:
@@ -2592,6 +2616,10 @@ public:
       CString& rString,
       enum DocStringIndex index 
    ) const;
+   virtual POSITION GetFirstDocPosition( ) const = 0;
+   virtual CDocument* GetNextDoc(
+      POSITION& rPos 
+   ) const = 0;
    CDocument* m_pDoc;
    CView*     m_pView;
    CFrameWnd* m_pFrameWnd;
@@ -2605,6 +2633,10 @@ public:
       LPCTSTR lpszPathName,
       BOOL bMakeVisible = TRUE 
    );
+   virtual POSITION GetFirstDocPosition( ) const;
+   virtual CDocument* GetNextDoc(
+      POSITION& rPos 
+   ) const;
 };
 
 class CCommandLineInfo : public CObject
@@ -2748,6 +2780,86 @@ typedef struct {
   UINT     uChevronState;
 #endif 
 } REBARBANDINFO, *LPREBARBANDINFO;
+
+#define RBS_TOOLTIPS 256
+#define RBS_VARHEIGHT 512
+#define RBS_BANDBORDERS 1024
+#define RBS_FIXEDORDER 2048
+#define RBS_REGISTERDROP 4096
+#define RBS_AUTOSIZE 8192
+#define RBS_VERTICALGRIPPER 16384
+#define RBS_DBLCLKTOGGLE  32768
+#define RBBS_BREAK   0x0001
+#define RBBS_FIXEDSIZE       0x0002
+#define RBBS_CHILDEDGE       0x0004
+#define RBBS_HIDDEN  0x0008
+#define RBBS_NOVERT  0x0010
+#define RBBS_FIXEDBMP        0x0020
+#define RBBS_VARIABLEHEIGHT  0x0040
+#define RBBS_GRIPPERALWAYS   0x0080
+#define RBBS_NOGRIPPER       0x0100
+#define RBBS_USECHEVRON      0x0200
+#define RBBS_HIDETITLE       0x0400
+#define RBBS_TOPALIGN        0x0800
+#define RBBIM_STYLE 1
+#define RBBIM_COLORS 2
+#define RBBIM_TEXT 4
+#define RBBIM_IMAGE 8
+#define RBBIM_CHILD 16
+#define RBBIM_CHILDSIZE 32
+#define RBBIM_SIZE 64
+#define RBBIM_BACKGROUND 128
+#define RBBIM_ID 256
+#define RBBIM_IDEALSIZE 512
+#define RBBIM_LPARAM 1024
+#define RBBIM_HEADERSIZE 2048
+
+class CReBar;
+
+class CReBarCtrl : public CWnd
+{
+   Q_OBJECT
+   // Qt interfaces
+public:
+   QList<QObject*>* toolBarActions() { return &_toolBarActions; }
+protected:
+   QToolBar* _qtoolbar;
+   QList<QObject*> _toolBarActions;
+   UINT _dwStyle;
+public slots:
+   void toolBarAction_triggered();
+signals:
+   void toolBarAction_triggered(int id);
+   
+   // MFC interfaces
+public:
+   virtual BOOL Create( 
+      DWORD dwStyle, 
+      const RECT& rect, 
+      CWnd* pParentWnd, 
+      UINT nID  
+   );
+   BOOL InsertBand( 
+      UINT uIndex, 
+      REBARBANDINFO* prbbi  
+   );
+};
+
+class CReBar : public CControlBar
+{
+public:
+   CReBar();
+   virtual ~CReBar();
+   virtual BOOL Create(
+      CWnd* pParentWnd,
+      DWORD dwCtrlStyle = RBS_BANDBORDERS,
+      DWORD dwStyle = WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_TOP,
+      UINT nID = AFX_IDW_REBAR 
+   );
+   CReBarCtrl& GetReBarCtrl() const { return *m_pReBarCtrl; }
+protected:
+   CReBarCtrl* m_pReBarCtrl;
+};
 
 class CToolBar : public CControlBar
 {
@@ -3078,9 +3190,15 @@ int StretchDIBits(
 CWinApp* AfxGetApp();
 CFrameWnd* AfxGetMainWnd();
 
+DWORD WINAPI GetCurrentThreadId(void);
+
+HGDIOBJ GetStockObject(
+   int fnObject
+);
+
 CString qtMfcStringResource(int id);
 
-CBitmap qtMfcBitmapResource(int id);
+CBitmap* qtMfcBitmapResource(int id);
 
 CMenu* qtMfcMenuResource(int id);
 

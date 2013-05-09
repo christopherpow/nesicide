@@ -186,6 +186,13 @@ void CSequenceInstrumentEditPanel::DoDataExchange(CDataExchange* pDX)
 //	ON_NOTIFY(NM_RCLICK, IDC_INSTSETTINGS, OnRClickInstSettings)
 //END_MESSAGE_MAP()
 
+void CSequenceInstrumentEditPanel::contextMenuEvent(QContextMenuEvent *event)
+{
+   NMHDR nmhdr;
+   LRESULT result;
+   OnRClickInstSettings(&nmhdr,&result);
+}
+
 void CSequenceInstrumentEditPanel::PreviewNote(unsigned char Key)
 {
 	// Skip if MML window has focus
@@ -208,34 +215,33 @@ void CSequenceInstrumentEditPanel::TranslateMML(CString String, CSequence *pSequ
 	pSequence->SetLoopPoint(-1);
 	pSequence->SetReleasePoint(-1);
 
-   qDebug("TranslateMML not working yet...");
-//	string str;
-//	str.assign(CStringA(String));
-//	istringstream values(str);
-//	istream_iterator<string> begin(values);
-//	istream_iterator<string> end;
+	string str;
+	str.assign(CStringA(String));
+	istringstream values(str);
+	istream_iterator<string> begin(values);
+	istream_iterator<string> end;
 
-//	while (begin != end && AddedItems < MAX_SEQUENCE_ITEMS) {
-//		string item = *begin++;
+	while (begin != end && AddedItems < MAX_SEQUENCE_ITEMS) {
+		string item = *begin++;
 
-//		if (item[0] == '|') {
-//			// Set loop point
-//			pSequence->SetLoopPoint(AddedItems);
-//		}
-//		else if (item[0] == '/') {
-//			// Set release point
-//			pSequence->SetReleasePoint(AddedItems);
-//		}
-//		else {
-//			// Convert to number
-//			int value = atoi(item.c_str());
-//			// Check for invalid chars
-//			if (!(value == 0 && item[0] != '0')) {
-//				LIMIT(value, Max, Min);
-//				pSequence->SetItem(AddedItems++, value);
-//			}
-//		}
-//	}
+		if (item[0] == '|') {
+			// Set loop point
+			pSequence->SetLoopPoint(AddedItems);
+		}
+		else if (item[0] == '/') {
+			// Set release point
+			pSequence->SetReleasePoint(AddedItems);
+		}
+		else {
+			// Convert to number
+			int value = atoi(item.c_str());
+			// Check for invalid chars
+			if (!(value == 0 && item[0] != '0')) {
+				LIMIT(value, Max, Min);
+				pSequence->SetItem(AddedItems++, value);
+			}
+		}
+	}
 
 	pSequence->SetItemCount(AddedItems);
 }

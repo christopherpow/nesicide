@@ -19,8 +19,8 @@
 */
 
 #include <memory>
-#include "APU.h"
-#include "Square.h"
+#include "apu.h"
+#include "square.h"
 
 // This is also shared with MMC5
 

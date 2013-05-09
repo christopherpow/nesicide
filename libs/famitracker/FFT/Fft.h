@@ -6,7 +6,7 @@
 //  (c) Reliable Software, 1996
 //------------------------------------
 
-#include "Complex.h"
+#include "complex.h"
 //#include "assert.h"
 
 class SampleIter;

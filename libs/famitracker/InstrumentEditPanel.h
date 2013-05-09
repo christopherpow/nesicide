@@ -69,7 +69,13 @@ public:
 // Adds some functions for sequences
 class CSequenceInstrumentEditPanel : public CInstrumentEditPanel 
 {
-	DECLARE_DYNAMIC(CSequenceInstrumentEditPanel)
+   Q_OBJECT
+   // Qt interfaces
+protected:
+   void contextMenuEvent(QContextMenuEvent *event);
+
+public:
+   DECLARE_DYNAMIC(CSequenceInstrumentEditPanel)
 
 public:
 	CSequenceInstrumentEditPanel(UINT nIDTemplate, CWnd* pParent);

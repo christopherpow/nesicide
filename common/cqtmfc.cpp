@@ -11,8 +11,35 @@
 
 extern CWinApp* ptrToTheApp;
 
-CWinApp* AfxGetApp() { return ptrToTheApp; }
-CFrameWnd* AfxGetMainWnd() { return ptrToTheApp->m_pMainWnd; }
+CWinApp* AfxGetApp() 
+{ 
+   return ptrToTheApp; 
+}
+
+CFrameWnd* AfxGetMainWnd() 
+{ 
+   return ptrToTheApp->m_pMainWnd; 
+}
+
+DWORD WINAPI GetCurrentThreadId(void)
+{
+   return (DWORD)QThread::currentThreadId();
+}
+
+CBrush nullBrush;
+
+HGDIOBJ GetStockObject(
+   int fnObject
+)
+{
+   switch ( fnObject )
+   {
+   case NULL_BRUSH:
+      return (HGDIOBJ)nullBrush;
+      break;
+   }
+   return (HGDIOBJ)NULL;
+}
 
 extern void qtMfcInitDialogResource(UINT dlgID,CDialog* parent);
 extern void qtMfcInitToolBarResource(UINT dlgID,CToolBar* parent);
@@ -25,9 +52,9 @@ CString qtMfcStringResource(int id)
    return qtMfcStringResources.value(id);
 }
 
-QHash<int,CBitmap> qtMfcBitmapResources;
+QHash<int,CBitmap*> qtMfcBitmapResources;
 
-CBitmap qtMfcBitmapResource(int id)
+CBitmap* qtMfcBitmapResource(int id)
 {
    return qtMfcBitmapResources.value(id);
 }
@@ -105,8 +132,10 @@ DWORD WINAPI GetModuleFileName(
 {
 #if UNICODE
    wcsncpy(lpFilename,(LPWSTR)QCoreApplication::applicationFilePath().unicode(),nSize);
+   return wcslen(lpFilename);
 #else
    strncpy(lpFilename,QCoreApplication::applicationFilePath().toAscii().constData(),nSize);
+   return strlen(lpFilename);
 #endif
 }
 
@@ -128,6 +157,7 @@ BOOL PathRemoveFileSpec(
          pszPath[len] = 0;
       }
    }
+   return TRUE;
 }
 
 BOOL PathAppend(
@@ -155,6 +185,7 @@ BOOL PathAppend(
 #else
    strcat(pszPath,pszMore);
 #endif
+   return TRUE;
 }
 
 #if UNICODE
@@ -709,6 +740,42 @@ void CString::ReleaseBuffer( int nNewLength )
       // Append null.
       _qstr[nNewLength] = 0;
    }
+}
+
+int CString::Find( TCHAR ch ) const
+{
+#if UNICODE
+   return _qstr.indexOf(ch);
+#else
+   return _qstr.indexOf(ch);
+#endif
+}
+
+int CString::Find( LPCTSTR lpszSub ) const
+{
+#if UNICODE
+   return _qstr.indexOf(QString::fromWCharArray(lpszSub));
+#else
+   return _qstr.indexOf(QString::fromAscii(lpszSub));
+#endif
+}
+
+int CString::Find( TCHAR ch, int nStart ) const
+{
+#if UNICODE
+   return _qstr.indexOf(ch,nStart);
+#else
+   return _qstr.indexOf(ch,nStart);
+#endif
+}
+
+int CString::Find( LPCTSTR pstr, int nStart ) const
+{
+#if UNICODE
+   return _qstr.indexOf(QString::fromWCharArray(pstr),nStart);
+#else
+   return _qstr.indexOf(QString::fromAscii(pstr),nStart);
+#endif
 }
 
 CString CString::Left( int nCount ) const
@@ -1399,7 +1466,7 @@ BOOL CBitmap::LoadBitmap(
    BOOL result = FALSE;
    if ( _owned )
       delete _qpixmap;
-   _qpixmap = qtMfcBitmapResource(nIDResource).toQPixmap();
+   _qpixmap = qtMfcBitmapResource(nIDResource)->toQPixmap();
    _owned = false;
    result = TRUE;
    return result;
@@ -2072,6 +2139,7 @@ int CComboBox::GetDlgItemText(
 ) const
 {
    rString = _qtd->currentText();
+   return _qtd->currentText().length();
 }
 
 int CComboBox::GetDlgItemText(
@@ -3478,7 +3546,6 @@ BOOL CScrollBar::Create(
    _qtd->setGeometry(myRect);
    _qtd->setVisible(dwStyle&WS_VISIBLE);
       
-   m_hWnd = (HWND)_qt;
    return TRUE;
 }
 
@@ -3549,6 +3616,7 @@ BOOL CCmdTarget::OnCmdMsg(
    AFX_CMDHANDLERINFO* pHandlerInfo 
 )
 {
+   return TRUE;
 }
 
 CWnd* CWnd::focusWnd = NULL;
@@ -3558,7 +3626,7 @@ CWnd::CWnd(CWnd *parent)
    : m_pParentWnd(parent),
      mfcVerticalScrollBar(NULL),
      mfcHorizontalScrollBar(NULL),
-     m_hWnd(NULL),
+     m_hWnd((HWND)this),
      _grid(NULL),
      _myDC(NULL)
 {
@@ -3771,7 +3839,6 @@ BOOL CWnd::CreateEx(
       _qt->setParent(pParentWnd->toQWidget());
    else
       _qt->setParent(NULL);
-   m_hWnd = (HWND)_qt;
    PreCreateWindow(createStruct);
    _qtd->setLineWidth(0);
    _qtd->setMidLineWidth(0);
@@ -4004,6 +4071,21 @@ BOOL CWnd::SubclassDlgItem(
       return TRUE;
    }
    return FALSE;
+}
+
+void CWnd::MapWindowPoints(
+   CWnd* pwndTo,
+   LPRECT lpRect 
+) const
+{
+}
+
+void CWnd::MapWindowPoints(
+   CWnd* pwndTo,
+   LPPOINT lpPoint,
+   UINT nCount 
+) const
+{
 }
 
 CScrollBar* CWnd::GetScrollBarCtrl(
@@ -4421,6 +4503,68 @@ CSize CControlBar::CalcFixedLayout(
    return CSize(0,0);
 }
 
+BOOL CReBarCtrl::Create( 
+   DWORD dwStyle, 
+   const RECT& rect, 
+   CWnd* pParentWnd, 
+   UINT nID  
+)
+{
+   _dwStyle = dwStyle;
+   
+   if ( _qt )
+      delete _qt;
+   
+   if ( pParentWnd )
+      _qt = new QToolBar(pParentWnd->toQWidget());
+   else
+      _qt = new QToolBar;
+
+   // Downcast to save having to do it all over the place...
+   _qtoolbar = dynamic_cast<QToolBar*>(_qt);
+
+   ptrToTheApp->qtMainWindow->addToolBar(_qtoolbar);
+}
+
+BOOL CReBarCtrl::InsertBand( 
+   UINT uIndex, 
+   REBARBANDINFO* prbbi  
+)
+{
+   CWnd* pWnd = (CWnd*)prbbi->hwndChild;
+   pWnd->toQWidget()->setMinimumSize(prbbi->cxMinChild,prbbi->cyMinChild);
+   _qtoolbar->addSeparator();
+   _qtoolbar->addWidget(pWnd->toQWidget());
+   return TRUE;
+}
+
+void CReBarCtrl::toolBarAction_triggered()
+{
+   emit toolBarAction_triggered(_toolBarActions.indexOf(sender()));
+}
+
+CReBar::CReBar()
+{   
+   m_pReBarCtrl = new CReBarCtrl;
+}
+
+CReBar::~CReBar()
+{
+   delete m_pReBarCtrl;
+}
+
+BOOL CReBar::Create(
+   CWnd* pParentWnd,
+   DWORD dwCtrlStyle,
+   DWORD dwStyle,
+   UINT nID
+)
+{
+   CRect rect;
+   pParentWnd->GetClientRect(&rect);
+   m_pReBarCtrl->Create(dwStyle,rect,pParentWnd,nID);
+}
+
 CToolBar::CToolBar(CWnd* parent)
 {   
    _dwStyle = 0;
@@ -4456,6 +4600,8 @@ BOOL CToolBar::CreateEx(
    _dwStyle = dwStyle;
    
    pParentWnd->mfcToQtWidgetMap()->insert(nID,this);
+   
+   return TRUE;
 }
 
 LRESULT CToolBar::SendMessage(
@@ -4472,7 +4618,7 @@ BOOL CToolBar::LoadToolBar(
 )
 {
    qtMfcInitToolBarResource(nIDResource,this);
-   ptrToTheApp->qtMainWindow->addToolBar(_qtd);
+   return TRUE;
 }
 
 void CToolBar::toolBarAction_triggered()
@@ -4573,6 +4719,8 @@ BOOL CStatusBar::SetPaneText(
 
 CDialogBar::CDialogBar()
 {
+   _mfcd = new CDialog;
+   
    _qt->installEventFilter(this);
 }
 
@@ -4641,36 +4789,52 @@ BOOL CDialogBar::Create(
 { 
    _nStyle = nStyle;
    
-   _mfcd = new CDialog;
    _mfcd->Create(nIDTemplate,this);
-
+      
    _qt->setParent(pParentWnd->toQWidget()); 
    
-   pParentWnd->mfcToQtWidgetMap()->insertMulti(nID,this);
+   // This is a container.
+   foreach ( UINT key, _mfcd->mfcToQtWidgetMap()->keys() )
+   {
+      mfcToQtWidget.insert(key,_mfcd->mfcToQtWidgetMap()->value(key));
+   }
    
    if ( nStyle&CBRS_TOP )
    {
+      pParentWnd->mfcToQtWidgetMap()->insertMulti(nID,this);
+      
       _qt->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::Fixed));
       _qt->setFixedHeight(_mfcd->rect().height());
       m_pFrameWnd->addControlBar(CBRS_TOP,toQWidget());
    }
    else if ( nStyle&CBRS_LEFT )
    {
+      pParentWnd->mfcToQtWidgetMap()->insertMulti(nID,this);
+      
       _qt->setSizePolicy(QSizePolicy(QSizePolicy::Fixed,QSizePolicy::MinimumExpanding));
       _qt->setFixedWidth(_mfcd->rect().width());
       m_pFrameWnd->addControlBar(CBRS_LEFT,toQWidget());
    }
    else if ( nStyle&CBRS_BOTTOM )
    {
+      pParentWnd->mfcToQtWidgetMap()->insertMulti(nID,this);
+      
       _qt->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::Fixed));
       _qt->setFixedHeight(_mfcd->rect().height());
       m_pFrameWnd->addControlBar(CBRS_BOTTOM,toQWidget());
    }
    else if ( nStyle&CBRS_RIGHT )
    {
+      pParentWnd->mfcToQtWidgetMap()->insertMulti(nID,this);
+      
       _qt->setSizePolicy(QSizePolicy(QSizePolicy::Fixed,QSizePolicy::MinimumExpanding));
       _qt->setFixedWidth(_mfcd->rect().width());
       m_pFrameWnd->addControlBar(CBRS_RIGHT,toQWidget());
+   }
+   else
+   {
+      _qt->setSizePolicy(QSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed));
+      _qt->setFixedSize(_mfcd->rect().width(),_mfcd->rect().height());
    }
    setVisible(true);
    
@@ -4825,6 +4989,9 @@ CCommonDialog::~CCommonDialog()
 
 CWinThread::CWinThread()
 {
+   m_hThread = (HANDLE)this;
+   m_nThreadID = (DWORD)QThread::currentThreadId();
+   
    InitInstance();
 }
 
@@ -4838,8 +5005,45 @@ BOOL CWinThread::CreateThread(
    LPSECURITY_ATTRIBUTES lpSecurityAttrs 
 )
 {
-   start(QThread::InheritPriority);
    return TRUE;
+}
+
+DWORD CWinThread::ResumeThread( )
+{
+   start(QThread::InheritPriority);
+   return 0;
+}
+
+BOOL CWinThread::SetThreadPriority(
+   int nPriority 
+)
+{
+   QThread::Priority priority = QThread::currentThread()->priority();
+   switch ( nPriority )
+   {
+   case THREAD_PRIORITY_TIME_CRITICAL:
+      priority = QThread::TimeCriticalPriority;
+      break;
+   case THREAD_PRIORITY_HIGHEST:
+      priority = QThread::HighestPriority;
+      break;
+   case THREAD_PRIORITY_ABOVE_NORMAL:
+      priority = QThread::HighPriority;
+      break;
+   case THREAD_PRIORITY_NORMAL:
+      priority = QThread::NormalPriority;
+      break;
+   case THREAD_PRIORITY_BELOW_NORMAL:
+      priority = QThread::LowPriority;
+      break;
+   case THREAD_PRIORITY_LOWEST:
+      priority = QThread::LowestPriority;
+      break;
+   case THREAD_PRIORITY_IDLE:
+      priority = QThread::IdlePriority;
+      break;
+   }
+   setPriority(priority);
 }
 
 BOOL CWinThread::PostThreadMessage(
@@ -4939,6 +5143,28 @@ CSingleDocTemplate::CSingleDocTemplate(UINT f,CDocument* pDoc,CFrameWnd* pFrameW
    pView->CreateEx(0,NULL,_T(""),WS_VISIBLE|WS_VSCROLL|WS_HSCROLL,rect,pFrameWnd,0);
 }
 
+POSITION CSingleDocTemplate::GetFirstDocPosition( ) const
+{
+   POSITION pos = NULL;
+
+   pos = new int; 
+   (*pos) = 0; 
+   
+   return pos; 
+}
+
+CDocument* CSingleDocTemplate::GetNextDoc(
+   POSITION& rPos 
+) const
+{
+   if ( !rPos ) return NULL; // Choker for end-of-list
+   CDocument* pDoc = m_pDoc; 
+
+   delete rPos; 
+   
+   return pDoc; 
+}
+
 CDocument* CSingleDocTemplate::OpenDocumentFile(
    LPCTSTR lpszPathName,
    BOOL bMakeVisible 
@@ -4999,12 +5225,14 @@ BOOL CWinApp::ProcessShellCommand(
 )
 {
    qDebug("ProcessShellCommand");
+   return TRUE;
 }
 
 BOOL CWinApp::PreTranslateMessage(
    MSG* pMsg 
 )
 {
+   return TRUE;
 }
 
 POSITION CWinApp::GetFirstDocTemplatePosition( ) const
@@ -5043,6 +5271,7 @@ CDocument* CWinApp::OpenDocumentFile(
 {
    POSITION pos;
    CDocTemplate* pDocTemplate = NULL;
+   CDocument* pDoc = NULL;
    
    pos = GetFirstDocTemplatePosition();
    if ( pos )
@@ -5052,15 +5281,16 @@ CDocument* CWinApp::OpenDocumentFile(
    }
    if ( pDocTemplate )
    {
-      pDocTemplate->OpenDocumentFile(lpszFileName);
+      pDoc = pDocTemplate->OpenDocumentFile(lpszFileName);
    }
+   return pDoc;
 }
 
 HICON CWinApp::LoadIcon(
    UINT nIDResource 
 ) const
 {
-   return (HICON)&qtMfcBitmapResource(nIDResource);
+   return (HICON)qtMfcBitmapResource(nIDResource);
 }
 
 BOOL CWinApp::InitInstance()
@@ -5200,6 +5430,7 @@ UINT CMenu::CheckMenuItem(
    if ( action )
    {
       prevState = action->isChecked();
+      action->setCheckable(true);
       action->setChecked(nCheck);
    }
    return prevState;

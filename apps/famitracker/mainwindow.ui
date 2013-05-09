@@ -10,6 +10,9 @@
     <height>584</height>
    </rect>
   </property>
+  <property name="contextMenuPolicy">
+   <enum>Qt::NoContextMenu</enum>
+  </property>
   <property name="windowTitle">
    <string>FamiTracker - [Untitled]</string>
   </property>

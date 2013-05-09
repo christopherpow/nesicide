@@ -145,26 +145,25 @@ void CInstrumentList::OnContextMenu(CWnd* pWnd, CPoint point)
 	int Instrument(0);
 	TCHAR Text[256];
 
-   qDebug("CInstrumentList::OnContextMenu");
-//	if (GetSelectionMark() != -1) {
-//		// Select the instrument
-//		GetItemText(GetSelectionMark(), 0, Text, 256);
-//		_stscanf(Text, _T("%X"), &Instrument);
-//		CFamiTrackerDoc::GetDoc()->GetInstrumentName(Instrument, Text);
-//		CFamiTrackerView::GetView()->SetInstrument(Instrument);
-//		// TODO: fix??
-//		//m_wndDialogBar.GetDlgItem(IDC_INSTNAME)->SetWindowText(Text);
-//	}
+	if (GetSelectionMark() != -1) {
+		// Select the instrument
+		GetItemText(GetSelectionMark(), 0, Text, 256);
+		_stscanf(Text, _T("%X"), &Instrument);
+		CFamiTrackerDoc::GetDoc()->GetInstrumentName(Instrument, Text);
+		CFamiTrackerView::GetView()->SetInstrument(Instrument);
+		// TODO: fix??
+		//m_wndDialogBar.GetDlgItem(IDC_INSTNAME)->SetWindowText(Text);
+	}
 
-//	// Display the popup menu
-//	CMenu *pPopupMenu, PopupMenuBar;
-//	PopupMenuBar.LoadMenu(IDR_INSTRUMENT_POPUP);
-//	pPopupMenu = PopupMenuBar.GetSubMenu(0);
-//	// Route the menu messages to mainframe
-//	pPopupMenu->TrackPopupMenu(TPM_LEFTBUTTON, point.x, point.y, m_pMainFrame);
+	// Display the popup menu
+	CMenu *pPopupMenu, PopupMenuBar;
+	PopupMenuBar.LoadMenu(IDR_INSTRUMENT_POPUP);
+	pPopupMenu = PopupMenuBar.GetSubMenu(0);
+	// Route the menu messages to mainframe
+	pPopupMenu->TrackPopupMenu(TPM_LEFTBUTTON, point.x, point.y, m_pMainFrame);
 
-//	// Return focus to pattern editor
-//	m_pMainFrame->GetActiveView()->SetFocus();
+	// Return focus to pattern editor
+	m_pMainFrame->GetActiveView()->SetFocus();
 }
 
 ///

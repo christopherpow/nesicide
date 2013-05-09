@@ -41,19 +41,19 @@
 #include <cstdio>
 #include <memory>
 #include <cmath>
-#include "APU.h"
+#include "apu.h"
 
-#include "Square.h"
-#include "Triangle.h"
-#include "Noise.h"
-#include "DPCM.h"
+#include "square.h"
+#include "triangle.h"
+#include "noise.h"
+#include "dpcm.h"
 
-#include "VRC6.H"
-#include "MMC5.H"
-#include "FDS.H"
-#include "N163.H"
-#include "VRC7.h"
-#include "S5B.h"
+#include "vrc6.h"
+#include "mmc5.h"
+#include "fds.h"
+#include "n163.h"
+#include "vrc7.h"
+#include "s5b.h"
 
 
 const int	 CAPU::SEQUENCER_PERIOD		= 7458;

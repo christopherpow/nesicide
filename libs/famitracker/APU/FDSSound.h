@@ -1,10 +1,6 @@
 #ifndef _FDSSOUND_H_
 #define _FDSSOUND_H_
 
-#ifndef WIN32
-#define __fastcall
-#endif
-
 void __fastcall FDSSoundReset(void);
 uint8 __fastcall FDSSoundRead(uint16 address);
 void __fastcall FDSSoundWrite(uint16 address, uint8 value);

@@ -49,6 +49,7 @@ public slots:
 protected:
    void paintEvent(QPaintEvent *);
    void mousePressEvent(QMouseEvent *event);
+   void mouseReleaseEvent(QMouseEvent *event);
    void mouseDoubleClickEvent(QMouseEvent *event);
    QSize sizeHint() const { return QSize(141,36); } // Not sure why the size is protected...but...
    

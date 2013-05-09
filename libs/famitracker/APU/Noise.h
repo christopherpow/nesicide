@@ -26,7 +26,7 @@
 #ifndef _NOISE_H_
 #define _NOISE_H_
 
-#include "Channel.h"
+#include "channel.h"
 
 class CNoise : public CChannel {
 public:

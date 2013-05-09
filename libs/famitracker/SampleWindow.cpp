@@ -122,45 +122,44 @@ void CSampleWindow::OnPaint()
 
 void CSampleWindow::OnRButtonUp(UINT nFlags, CPoint point)
 {
-   qDebug("CSampleWindow::OnRButtonUp");
-//	CMenu PopupMenuBar;
-//	PopupMenuBar.LoadMenu(IDR_SAMPLE_WND_POPUP);
+	CMenu PopupMenuBar;
+	PopupMenuBar.LoadMenu(IDR_SAMPLE_WND_POPUP);
 
-//	CMenu *pPopupMenu = PopupMenuBar.GetSubMenu(0);
+	CMenu *pPopupMenu = PopupMenuBar.GetSubMenu(0);
 
-//	CPoint menuPoint;
-//	CRect rect;
+	CPoint menuPoint;
+	CRect rect;
 
-//	GetWindowRect(rect);
+	GetWindowRect(rect);
 
-//	menuPoint.x = rect.left + point.x;
-//	menuPoint.y = rect.top + point.y;
+	menuPoint.x = rect.left + point.x;
+	menuPoint.y = rect.top + point.y;
 
-//	UINT menuIds[] = {ID_POPUP_SAMPLEGRAPH1, ID_POPUP_SAMPLEGRAPH2, ID_POPUP_SPECTRUMANALYZER, ID_POPUP_NOTHING};
+	UINT menuIds[] = {ID_POPUP_SAMPLEGRAPH1, ID_POPUP_SAMPLEGRAPH2, ID_POPUP_SPECTRUMANALYZER, ID_POPUP_NOTHING};
 
-//	pPopupMenu->CheckMenuItem(menuIds[m_iCurrentState], MF_BYCOMMAND | MF_CHECKED);
+	pPopupMenu->CheckMenuItem(menuIds[m_iCurrentState], MF_BYCOMMAND | MF_CHECKED);
 
-//	UINT Result = pPopupMenu->TrackPopupMenu(TPM_RETURNCMD, menuPoint.x, menuPoint.y, this);
+	UINT Result = pPopupMenu->TrackPopupMenu(TPM_RETURNCMD, menuPoint.x, menuPoint.y, this);
 
-//	switch (Result) {
-//		case ID_POPUP_SAMPLEGRAPH1:
-//			m_iCurrentState = 0;
-//			break;
-//		case ID_POPUP_SAMPLEGRAPH2:
-//			m_iCurrentState = 1;
-//			break;
-//		case ID_POPUP_SPECTRUMANALYZER:
-//			m_iCurrentState = 2;
-//			break;
-//		case ID_POPUP_NOTHING:
-//			m_iCurrentState = 3;
-//			break;
-//	}
+	switch (Result) {
+		case ID_POPUP_SAMPLEGRAPH1:
+			m_iCurrentState = 0;
+			break;
+		case ID_POPUP_SAMPLEGRAPH2:
+			m_iCurrentState = 1;
+			break;
+		case ID_POPUP_SPECTRUMANALYZER:
+			m_iCurrentState = 2;
+			break;
+		case ID_POPUP_NOTHING:
+			m_iCurrentState = 3;
+			break;
+	}
 
-//	Invalidate();
-//	theApp.GetSettings()->SampleWinState = m_iCurrentState;
+	Invalidate();
+	theApp.GetSettings()->SampleWinState = m_iCurrentState;
 
-//	CWnd::OnRButtonUp(nFlags, point);
+	CWnd::OnRButtonUp(nFlags, point);
 }
 
 void CSampleWindow::paintEvent(QPaintEvent *)
@@ -198,6 +197,36 @@ void CSampleWindow::mousePressEvent(QMouseEvent *event)
    if ( event->button() == Qt::LeftButton )
    {
       OnLButtonDown(flags,point);
+   }
+}
+
+void CSampleWindow::mouseReleaseEvent(QMouseEvent *event)
+{
+   CPoint point(event->pos());
+   unsigned int flags = 0;
+   if ( event->modifiers()&Qt::ControlModifier )
+   {
+      flags |= MK_CONTROL;
+   }
+   if ( event->modifiers()&Qt::ShiftModifier )
+   {
+      flags |= MK_SHIFT;
+   }
+   if ( event->buttons()&Qt::LeftButton )
+   {
+      flags |= MK_LBUTTON;
+   }
+   if ( event->buttons()&Qt::MiddleButton )
+   {
+      flags |= MK_MBUTTON;
+   }
+   if ( event->buttons()&Qt::RightButton )
+   {
+      flags |= MK_RBUTTON;            
+   }
+   if ( event->button() == Qt::RightButton )
+   {
+      OnRButtonUp(flags,point);
    }
 }
 

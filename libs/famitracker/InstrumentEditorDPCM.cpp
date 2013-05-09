@@ -223,8 +223,15 @@ void CInstrumentEditorDPCM::contextMenuEvent(QContextMenuEvent *event)
 {
    NMHDR nmhdr;
    LRESULT result;
-   OnNMRClickTable(&nmhdr,&result);
-   qDebug("contextMenuEvent...figure out which object it's for and invoke the right OnNMRClick method...");
+
+   if ( GetDlgItem(IDC_TABLE)->toQWidget()->geometry().contains(event->pos()) )
+   {
+      OnNMRClickTable(&nmhdr,&result);
+   }
+   else if ( GetDlgItem(IDC_SAMPLE_LIST)->toQWidget()->geometry().contains(event->pos()) )
+   {
+      OnNMRClickSampleList(&nmhdr,&result);
+   }
 }
 
 // CInstrumentDPCM message handlers

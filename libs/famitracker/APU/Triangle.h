@@ -26,7 +26,7 @@
 #ifndef _TRIANGLE_H_
 #define _TRIANGLE_H_
 
-#include "Channel.h"
+#include "channel.h"
 
 class CTriangle : public CChannel {
 public:

@@ -73,6 +73,11 @@ void CInstrumentEditorVRC7::DoDataExchange(CDataExchange* pDX)
 //	ON_COMMAND(IDC_PASTE, &CInstrumentEditorVRC7::OnPaste)
 //END_MESSAGE_MAP()
 
+void CInstrumentEditorVRC7::contextMenuEvent(QContextMenuEvent *event)
+{
+   OnContextMenu(this,event->globalPos());
+}
+
 void CInstrumentEditorVRC7::patch_currentIndexChanged(int index)
 {
    OnCbnSelchangePatch();
