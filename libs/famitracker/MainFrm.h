@@ -118,9 +118,6 @@ private:
    QString m_fileName;
    bool initialized;
    
-   CWnd				m_wndInstToolBarWnd;
-	CToolBar			m_wndInstToolBar;
-   
    CInstrumentEditDlg	m_wndInstEdit;
    CStatusBar			m_wndStatusBar;
 
@@ -150,6 +147,9 @@ private:
 	CDialogBar			m_wndVerticalControlBar;	// Parent to large frame editor
 //	CControlPanelDlg	m_wndFrameBar;
 	CControlPanelDlg	m_wndDialogBar;
+   CWnd				m_wndInstToolBarWnd;
+	CToolBar			m_wndInstToolBar;
+	CReBarCtrl			m_wndInstToolReBar;
 
 	CControlPanelDlg	m_wndFrameControls;		// Contains +, - and change all
    

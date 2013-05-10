@@ -3671,6 +3671,13 @@ CWnd::~CWnd()
 //      delete _grid;
 }
 
+void CWnd::SetOwner(
+   CWnd* pOwnerWnd 
+)
+{
+   _qt->setParent(pOwnerWnd->toQWidget());
+}
+
 int CWnd::GetWindowTextLength( ) const
 {
    return 0;
@@ -4523,7 +4530,10 @@ BOOL CReBarCtrl::Create(
    // Downcast to save having to do it all over the place...
    _qtoolbar = dynamic_cast<QToolBar*>(_qt);
 
-   ptrToTheApp->qtMainWindow->addToolBar(_qtoolbar);
+   _qtoolbar->setMovable(false);
+   CRect clientRect;
+   pParentWnd->GetClientRect(&clientRect);
+   _qtoolbar->setGeometry(clientRect.left,clientRect.top,clientRect.right-clientRect.left,clientRect.bottom-clientRect.top);
 }
 
 BOOL CReBarCtrl::InsertBand( 
@@ -4532,8 +4542,7 @@ BOOL CReBarCtrl::InsertBand(
 )
 {
    CWnd* pWnd = (CWnd*)prbbi->hwndChild;
-   pWnd->toQWidget()->setMinimumSize(prbbi->cxMinChild,prbbi->cyMinChild);
-   _qtoolbar->addSeparator();
+   pWnd->setGeometry(geometry());
    _qtoolbar->addWidget(pWnd->toQWidget());
    return TRUE;
 }
@@ -4563,6 +4572,8 @@ BOOL CReBar::Create(
    CRect rect;
    pParentWnd->GetClientRect(&rect);
    m_pReBarCtrl->Create(dwStyle,rect,pParentWnd,nID);
+   
+   ptrToTheApp->qtMainWindow->addToolBar(dynamic_cast<QToolBar*>(m_pReBarCtrl->toQWidget()));
 }
 
 CToolBar::CToolBar(CWnd* parent)
@@ -4579,6 +4590,8 @@ CToolBar::CToolBar(CWnd* parent)
 
    // Downcast to save having to do it all over the place...
    _qtd = dynamic_cast<QToolBar*>(_qt);
+   
+   _qtd->setMovable(false);
 }
 
 CToolBar::~CToolBar()
@@ -4790,7 +4803,7 @@ BOOL CDialogBar::Create(
    _nStyle = nStyle;
    
    _mfcd->Create(nIDTemplate,this);
-      
+   
    _qt->setParent(pParentWnd->toQWidget()); 
    
    // This is a container.

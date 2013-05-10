@@ -1234,6 +1234,9 @@ public:
    CWnd(CWnd* parent=0);
    virtual ~CWnd();
    operator HWND() { return m_hWnd; }
+   void SetOwner(
+      CWnd* pOwnerWnd 
+   );
    CMenu* GetMenu( ) const { return NULL; }
    virtual LRESULT SendMessage(
       UINT message,

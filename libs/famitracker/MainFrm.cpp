@@ -389,11 +389,10 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (!CreateDialogPanels())
 		return -1;
 
-   qDebug("CreateInstrumentToolbars...");
-//	if (!CreateInstrumentToolbar()) {
-//		TRACE0("Failed to create instrument toolbar\n");
-//		return -1;      // fail to create
-//	}
+	if (!CreateInstrumentToolbar()) {
+		TRACE0("Failed to create instrument toolbar\n");
+		return -1;      // fail to create
+	}
 
 	/*
 	// TODO: Delete these three lines if you don't want the toolbar to be dockable
@@ -1158,6 +1157,53 @@ bool CMainFrame::CreateSampleWindow()
 	
 	if (pSoundGen)
 		pSoundGen->SetSampleWindow(m_pSampleWindow);
+
+	return true;
+}
+
+bool CMainFrame::CreateInstrumentToolbar()
+{
+	// Setup the instrument toolbar
+	REBARBANDINFO rbi;
+
+	if (!m_wndInstToolBarWnd.CreateEx(0, NULL, _T(""), WS_CHILD | WS_VISIBLE, CRect(SX(288), SY(173), SX(472), SY(199)), (CWnd*)&m_wndDialogBar, 0))
+		return false;
+
+	if (!m_wndInstToolReBar.Create(WS_CHILD | WS_VISIBLE, CRect(0, 0, 0, 0), &m_wndInstToolBarWnd, AFX_IDW_REBAR))
+		return false;
+
+	if (!m_wndInstToolBar.CreateEx(&m_wndInstToolReBar, TBSTYLE_FLAT | TBSTYLE_TRANSPARENT, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC) || !m_wndInstToolBar.LoadToolBar(IDR_INSTRUMENT_TOOLBAR))
+		return false;
+
+//	m_wndInstToolBar.GetToolBarCtrl().SetExtendedStyle(TBSTYLE_EX_DRAWDDARROWS);
+
+	// Set 24-bit icons
+//	HBITMAP hbm = (HBITMAP)::LoadImage(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDB_TOOLBAR_INST_256), IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION);
+//	m_bmInstToolbar.Attach(hbm);
+//	m_ilInstToolBar.Create(16, 16, ILC_COLOR24 | ILC_MASK, 4, 4);
+//	m_ilInstToolBar.Add(&m_bmInstToolbar, RGB(255, 0, 255));
+//	m_wndInstToolBar.GetToolBarCtrl().SetImageList(&m_ilInstToolBar);
+
+	rbi.cbSize		= sizeof(REBARBANDINFO);
+	rbi.fMask		= RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_STYLE | RBBIM_TEXT;
+	rbi.fStyle		= RBBS_NOGRIPPER;
+	rbi.cxMinChild	= SX(300);
+	rbi.cyMinChild	= SY(30);
+	rbi.lpText		= "";
+	rbi.cch			= 7;
+	rbi.cx			= SX(300);
+	rbi.hwndChild	= m_wndInstToolBar;
+
+	m_wndInstToolReBar.InsertBand(-1, &rbi);
+
+	// Route messages to this window
+	m_wndInstToolBar.SetOwner(this);
+
+	// Turn add new instrument button into a drop-down list
+   qDebug("CToolBar::SetButtonStyle");
+//	m_wndInstToolBar.SetButtonStyle(0, TBBS_DROPDOWN);
+	// Turn load instrument button into a drop-down list
+//	m_wndInstToolBar.SetButtonStyle(4, TBBS_DROPDOWN);
 
 	return true;
 }

@@ -3185,10 +3185,11 @@ void qtMfcInitToolBarResource_IDR_MAINFRAME(UINT dlgID,CToolBar* parent)
    QAction* toolBarAction;
 
 //IDR_MAINFRAME TOOLBAR 16, 15
+   toolBar->setIconSize(QSize(16,15));
 //BEGIN
 //    BUTTON      ID_FILE_NEW
    toolBarAction = new QAction(parent);
-   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(0,0,16,15)).scaled(22,22,Qt::IgnoreAspectRatio,Qt::SmoothTransformation);
+   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(0,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
    parent->toolBarActions()->append(toolBarAction);
@@ -3196,7 +3197,7 @@ void qtMfcInitToolBarResource_IDR_MAINFRAME(UINT dlgID,CToolBar* parent)
    mfcToQtAction->insert(ID_FILE_NEW,toolBarAction);
 //    BUTTON      ID_FILE_OPEN
    toolBarAction = new QAction(parent);
-   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(16,0,16,15)).scaled(22,22,Qt::IgnoreAspectRatio,Qt::SmoothTransformation);
+   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(16,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
    parent->toolBarActions()->append(toolBarAction);
@@ -3204,7 +3205,7 @@ void qtMfcInitToolBarResource_IDR_MAINFRAME(UINT dlgID,CToolBar* parent)
    mfcToQtAction->insert(ID_FILE_OPEN,toolBarAction);
 //    BUTTON      ID_FILE_SAVE
    toolBarAction = new QAction(parent);
-   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(32,0,16,15)).scaled(22,22,Qt::IgnoreAspectRatio,Qt::SmoothTransformation);
+   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(32,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
    parent->toolBarActions()->append(toolBarAction);
@@ -3214,7 +3215,7 @@ void qtMfcInitToolBarResource_IDR_MAINFRAME(UINT dlgID,CToolBar* parent)
    toolBar->addSeparator();
 //    BUTTON      ID_EDIT_CUT
    toolBarAction = new QAction(parent);
-   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(48,0,16,15)).scaled(22,22,Qt::IgnoreAspectRatio,Qt::SmoothTransformation);
+   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(48,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
    parent->toolBarActions()->append(toolBarAction);
@@ -3222,7 +3223,7 @@ void qtMfcInitToolBarResource_IDR_MAINFRAME(UINT dlgID,CToolBar* parent)
    mfcToQtAction->insert(ID_EDIT_CUT,toolBarAction);
 //    BUTTON      ID_EDIT_COPY
    toolBarAction = new QAction(parent);
-   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(64,0,16,15)).scaled(22,22,Qt::IgnoreAspectRatio,Qt::SmoothTransformation);
+   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(64,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
    parent->toolBarActions()->append(toolBarAction);
@@ -3230,7 +3231,7 @@ void qtMfcInitToolBarResource_IDR_MAINFRAME(UINT dlgID,CToolBar* parent)
    mfcToQtAction->insert(ID_EDIT_COPY,toolBarAction);
 //    BUTTON      ID_EDIT_PASTE
    toolBarAction = new QAction(parent);
-   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(80,0,16,15)).scaled(22,22,Qt::IgnoreAspectRatio,Qt::SmoothTransformation);
+   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(80,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
    parent->toolBarActions()->append(toolBarAction);
@@ -3240,7 +3241,7 @@ void qtMfcInitToolBarResource_IDR_MAINFRAME(UINT dlgID,CToolBar* parent)
    toolBar->addSeparator();
 //    BUTTON      ID_APP_ABOUT
    toolBarAction = new QAction(parent);
-   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(96,0,16,15)).scaled(22,22,Qt::IgnoreAspectRatio,Qt::SmoothTransformation);
+   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(96,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
    parent->toolBarActions()->append(toolBarAction);
@@ -3248,7 +3249,7 @@ void qtMfcInitToolBarResource_IDR_MAINFRAME(UINT dlgID,CToolBar* parent)
    mfcToQtAction->insert(ID_APP_ABOUT,toolBarAction);
 //    BUTTON      ID_CONTEXT_HELP
    toolBarAction = new QAction(parent);
-   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(112,0,16,15)).scaled(22,22,Qt::IgnoreAspectRatio,Qt::SmoothTransformation);
+   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(112,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
    parent->toolBarActions()->append(toolBarAction);
@@ -3258,7 +3259,7 @@ void qtMfcInitToolBarResource_IDR_MAINFRAME(UINT dlgID,CToolBar* parent)
    toolBar->addSeparator();
 //    BUTTON      ID_MODULE_INSERTFRAME
    toolBarAction = new QAction(parent);
-   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(128,0,16,15)).scaled(22,22,Qt::IgnoreAspectRatio,Qt::SmoothTransformation);
+   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(128,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
    parent->toolBarActions()->append(toolBarAction);
@@ -3266,7 +3267,7 @@ void qtMfcInitToolBarResource_IDR_MAINFRAME(UINT dlgID,CToolBar* parent)
    mfcToQtAction->insert(ID_MODULE_INSERTFRAME,toolBarAction);
 //    BUTTON      ID_MODULE_REMOVEFRAME
    toolBarAction = new QAction(parent);
-   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(144,0,16,15)).scaled(22,22,Qt::IgnoreAspectRatio,Qt::SmoothTransformation);
+   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(144,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
    parent->toolBarActions()->append(toolBarAction);
@@ -3274,7 +3275,7 @@ void qtMfcInitToolBarResource_IDR_MAINFRAME(UINT dlgID,CToolBar* parent)
    mfcToQtAction->insert(ID_MODULE_REMOVEFRAME,toolBarAction);
 //    BUTTON      ID_MODULE_MOVEFRAMEDOWN
    toolBarAction = new QAction(parent);
-   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(160,0,16,15)).scaled(22,22,Qt::IgnoreAspectRatio,Qt::SmoothTransformation);
+   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(160,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
    parent->toolBarActions()->append(toolBarAction);
@@ -3282,7 +3283,7 @@ void qtMfcInitToolBarResource_IDR_MAINFRAME(UINT dlgID,CToolBar* parent)
    mfcToQtAction->insert(ID_MODULE_MOVEFRAMEDOWN,toolBarAction);
 //    BUTTON      ID_MODULE_MOVEFRAMEUP
    toolBarAction = new QAction(parent);
-   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(176,0,16,15)).scaled(22,22,Qt::IgnoreAspectRatio,Qt::SmoothTransformation);
+   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(176,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
    parent->toolBarActions()->append(toolBarAction);
@@ -3290,7 +3291,7 @@ void qtMfcInitToolBarResource_IDR_MAINFRAME(UINT dlgID,CToolBar* parent)
    mfcToQtAction->insert(ID_MODULE_MOVEFRAMEUP,toolBarAction);
 //    BUTTON      ID_MODULE_DUPLICATEFRAME
    toolBarAction = new QAction(parent);
-   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(192,0,16,15)).scaled(22,22,Qt::IgnoreAspectRatio,Qt::SmoothTransformation);
+   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(192,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
    parent->toolBarActions()->append(toolBarAction);
@@ -3300,7 +3301,7 @@ void qtMfcInitToolBarResource_IDR_MAINFRAME(UINT dlgID,CToolBar* parent)
    toolBar->addSeparator();
 //    BUTTON      ID_MODULE_MODULEPROPERTIES
    toolBarAction = new QAction(parent);
-   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(208,0,16,15)).scaled(22,22,Qt::IgnoreAspectRatio,Qt::SmoothTransformation);
+   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(208,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
    parent->toolBarActions()->append(toolBarAction);
@@ -3310,7 +3311,7 @@ void qtMfcInitToolBarResource_IDR_MAINFRAME(UINT dlgID,CToolBar* parent)
    toolBar->addSeparator();
 //    BUTTON      ID_TRACKER_PLAY
    toolBarAction = new QAction(parent);
-   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(224,0,16,15)).scaled(22,22,Qt::IgnoreAspectRatio,Qt::SmoothTransformation);
+   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(224,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
    parent->toolBarActions()->append(toolBarAction);
@@ -3318,7 +3319,7 @@ void qtMfcInitToolBarResource_IDR_MAINFRAME(UINT dlgID,CToolBar* parent)
    mfcToQtAction->insert(ID_TRACKER_PLAY,toolBarAction);
 //    BUTTON      ID_TRACKER_PLAYPATTERN
    toolBarAction = new QAction(parent);
-   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(240,0,16,15)).scaled(22,22,Qt::IgnoreAspectRatio,Qt::SmoothTransformation);
+   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(240,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
    parent->toolBarActions()->append(toolBarAction);
@@ -3326,7 +3327,7 @@ void qtMfcInitToolBarResource_IDR_MAINFRAME(UINT dlgID,CToolBar* parent)
    mfcToQtAction->insert(ID_TRACKER_PLAYPATTERN,toolBarAction);
 //    BUTTON      ID_TRACKER_STOP
    toolBarAction = new QAction(parent);
-   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(256,0,16,15)).scaled(22,22,Qt::IgnoreAspectRatio,Qt::SmoothTransformation);
+   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(256,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
    parent->toolBarActions()->append(toolBarAction);
@@ -3334,7 +3335,7 @@ void qtMfcInitToolBarResource_IDR_MAINFRAME(UINT dlgID,CToolBar* parent)
    mfcToQtAction->insert(ID_TRACKER_STOP,toolBarAction);
 //    BUTTON      ID_TRACKER_EDIT
    toolBarAction = new QAction(parent);
-   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(272,0,16,15)).scaled(22,22,Qt::IgnoreAspectRatio,Qt::SmoothTransformation);
+   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(272,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
    parent->toolBarActions()->append(toolBarAction);
@@ -3344,7 +3345,7 @@ void qtMfcInitToolBarResource_IDR_MAINFRAME(UINT dlgID,CToolBar* parent)
    toolBar->addSeparator();
 //    BUTTON      ID_PREV_SONG
    toolBarAction = new QAction(parent);
-   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(288,0,16,15)).scaled(22,22,Qt::IgnoreAspectRatio,Qt::SmoothTransformation);
+   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(288,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
    parent->toolBarActions()->append(toolBarAction);
@@ -3352,7 +3353,7 @@ void qtMfcInitToolBarResource_IDR_MAINFRAME(UINT dlgID,CToolBar* parent)
    mfcToQtAction->insert(ID_PREV_SONG,toolBarAction);
 //    BUTTON      ID_NEXT_SONG
    toolBarAction = new QAction(parent);
-   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(304,0,16,15)).scaled(22,22,Qt::IgnoreAspectRatio,Qt::SmoothTransformation);
+   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(304,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
    parent->toolBarActions()->append(toolBarAction);
@@ -3362,7 +3363,7 @@ void qtMfcInitToolBarResource_IDR_MAINFRAME(UINT dlgID,CToolBar* parent)
    toolBar->addSeparator();
 //    BUTTON      ID_FILE_GENERALSETTINGS
    toolBarAction = new QAction(parent);
-   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(320,0,16,15)).scaled(22,22,Qt::IgnoreAspectRatio,Qt::SmoothTransformation);
+   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(320,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
    parent->toolBarActions()->append(toolBarAction);
@@ -3372,7 +3373,7 @@ void qtMfcInitToolBarResource_IDR_MAINFRAME(UINT dlgID,CToolBar* parent)
    toolBar->addSeparator();
 //    BUTTON      ID_FILE_CREATE_NSF
    toolBarAction = new QAction(parent);
-   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(336,0,16,15)).scaled(22,22,Qt::IgnoreAspectRatio,Qt::SmoothTransformation);
+   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(336,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
    parent->toolBarActions()->append(toolBarAction);
@@ -3394,7 +3395,7 @@ void qtMfcInitToolBarResource_IDR_INSTRUMENT_TOOLBAR(UINT dlgID,CToolBar* parent
 //BEGIN
 //    BUTTON      ID_INSTRUMENT_NEW
    toolBarAction = new QAction(parent);
-   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(0,0,16,15)).scaled(22,22,Qt::IgnoreAspectRatio,Qt::SmoothTransformation);
+   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(0,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
    parent->toolBarActions()->append(toolBarAction);
@@ -3402,7 +3403,7 @@ void qtMfcInitToolBarResource_IDR_INSTRUMENT_TOOLBAR(UINT dlgID,CToolBar* parent
    mfcToQtAction->insert(ID_INSTRUMENT_NEW,toolBarAction);
 //    BUTTON      ID_INSTRUMENT_REMOVE
    toolBarAction = new QAction(parent);
-   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(16,0,16,15)).scaled(22,22,Qt::IgnoreAspectRatio,Qt::SmoothTransformation);
+   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(16,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
    parent->toolBarActions()->append(toolBarAction);
@@ -3410,7 +3411,7 @@ void qtMfcInitToolBarResource_IDR_INSTRUMENT_TOOLBAR(UINT dlgID,CToolBar* parent
    mfcToQtAction->insert(ID_INSTRUMENT_REMOVE,toolBarAction);
 //    BUTTON      ID_INSTRUMENT_CLONE
    toolBarAction = new QAction(parent);
-   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(32,0,16,15)).scaled(22,22,Qt::IgnoreAspectRatio,Qt::SmoothTransformation);
+   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(32,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
    parent->toolBarActions()->append(toolBarAction);
@@ -3420,7 +3421,7 @@ void qtMfcInitToolBarResource_IDR_INSTRUMENT_TOOLBAR(UINT dlgID,CToolBar* parent
    toolBar->addSeparator();
 //    BUTTON      ID_INSTRUMENT_LOAD
    toolBarAction = new QAction(parent);
-   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(48,0,16,15)).scaled(22,22,Qt::IgnoreAspectRatio,Qt::SmoothTransformation);
+   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(48,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
    parent->toolBarActions()->append(toolBarAction);
@@ -3428,7 +3429,7 @@ void qtMfcInitToolBarResource_IDR_INSTRUMENT_TOOLBAR(UINT dlgID,CToolBar* parent
    mfcToQtAction->insert(ID_INSTRUMENT_LOAD,toolBarAction);
 //    BUTTON      ID_INSTRUMENT_SAVE
    toolBarAction = new QAction(parent);
-   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(64,0,16,15)).scaled(22,22,Qt::IgnoreAspectRatio,Qt::SmoothTransformation);
+   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(64,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
    parent->toolBarActions()->append(toolBarAction);
@@ -3438,7 +3439,7 @@ void qtMfcInitToolBarResource_IDR_INSTRUMENT_TOOLBAR(UINT dlgID,CToolBar* parent
    toolBar->addSeparator();
 //    BUTTON      ID_INSTRUMENT_EDIT
    toolBarAction = new QAction(parent);
-   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(80,0,16,15)).scaled(22,22,Qt::IgnoreAspectRatio,Qt::SmoothTransformation);
+   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(80,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
    parent->toolBarActions()->append(toolBarAction);
