@@ -24,7 +24,7 @@
 #include "FamiTrackerDoc.h"
 #include "FamiTrackerView.h"
 #include "MainFrm.h"
-//#include "Accelerator.h"
+#include "Accelerator.h"
 #include "FrameEditor.h"
 #include "PatternEditor.h"
 #include "SoundGen.h"
@@ -99,6 +99,7 @@ int CFrameEditor::OnCreate(LPCREATESTRUCT lpCreateStruct)
    QObject::connect(mfcVerticalScrollBar,SIGNAL(actionTriggered(int)),this,SLOT(verticalScrollBar_actionTriggered(int)));
    QObject::connect(mfcHorizontalScrollBar,SIGNAL(actionTriggered(int)),this,SLOT(horizontalScrollBar_actionTriggered(int)));
    
+   qDebug("LoadAccelerators..");
 //	m_hAccel = LoadAccelerators(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDR_FRAMEWND));
 
 	CreateGdiObjects();
@@ -340,8 +341,7 @@ void CFrameEditor::OnKillFocus(CWnd* pNewWnd)
 	m_bInputEnable = false;
 	Invalidate();
 	RedrawWindow();
-   qDebug("theApp.GetAccelerator");
-//	theApp.GetAccelerator()->SetAccelerator(NULL);
+	theApp.GetAccelerator()->SetAccelerator(NULL);
 }
 
 void CFrameEditor::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
@@ -582,8 +582,7 @@ void CFrameEditor::EnableInput()
 	m_iCursorPos = 0;
 	m_iNewPattern = m_pDocument->GetPatternAtFrame(m_pView->GetSelectedFrame(), m_pView->GetSelectedChannel());
 
-   qDebug("theApp.GetAccelerator");
-//	theApp.GetAccelerator()->SetAccelerator(m_hAccel);
+	theApp.GetAccelerator()->SetAccelerator(m_hAccel);
 
 	SetTimer(0, 500, NULL);	// Cursor timer
 

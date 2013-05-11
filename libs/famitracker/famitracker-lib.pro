@@ -162,7 +162,8 @@ SOURCES += \
     Chunk.cpp \
     ChunkRender.cpp \
     CommentsDlg.cpp \
-    InstrumentFileTree.cpp
+    InstrumentFileTree.cpp \
+    Accelerator.cpp
 
 HEADERS += \
     TrackerChannel.h \
@@ -270,7 +271,8 @@ HEADERS += \
     CustomExporter_C_Interface.h \
     ChunkRender.h \
     CommentsDlg.h \
-    InstrumentFileTree.h
+    InstrumentFileTree.h \
+    Accelerator.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN

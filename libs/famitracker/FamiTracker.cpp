@@ -29,7 +29,7 @@
 #include "TrackerChannel.h"
 //#include "MIDI.h"
 #include "SoundGen.h"
-//#include "Accelerator.h"
+#include "Accelerator.h"
 #include "Settings.h"
 #include "ChannelMap.h"
 #include "CustomExporters.h"
@@ -211,10 +211,10 @@ BOOL CFamiTrackerApp::InitInstance(QMainWindow* parent)
 	PathAppend(pathToPlugins, _T("\\Plugins"));
 	m_customExporters = new CCustomExporters( pathToPlugins );
 
-//	// Load custom accelerator
-//	m_pAccel = new CAccelerator();
-//	m_pAccel->LoadShortcuts(m_pSettings);
-//	m_pAccel->Setup();
+	// Load custom accelerator
+	m_pAccel = new CAccelerator();
+	m_pAccel->LoadShortcuts(m_pSettings);
+	m_pAccel->Setup();
 
 //	// Create the MIDI interface
 //	m_pMIDI = new CMIDI();
