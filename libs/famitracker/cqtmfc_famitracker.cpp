@@ -3390,8 +3390,9 @@ void qtMfcInitToolBarResource_IDR_INSTRUMENT_TOOLBAR(UINT dlgID,CToolBar* parent
    QToolBar* toolBar = dynamic_cast<QToolBar*>(parent->toQWidget());
    QPixmap toolBarActionPixmap;
    QAction* toolBarAction;
-
+   
 //IDR_INSTRUMENT_TOOLBAR TOOLBAR 16, 15
+   toolBar->setIconSize(QSize(16,15));
 //BEGIN
 //    BUTTON      ID_INSTRUMENT_NEW
    toolBarAction = new QAction(parent);

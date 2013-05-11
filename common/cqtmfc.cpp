@@ -3675,7 +3675,6 @@ void CWnd::SetOwner(
    CWnd* pOwnerWnd 
 )
 {
-   _qt->setParent(pOwnerWnd->toQWidget());
 }
 
 int CWnd::GetWindowTextLength( ) const
@@ -4528,12 +4527,12 @@ BOOL CReBarCtrl::Create(
       _qt = new QToolBar;
 
    // Downcast to save having to do it all over the place...
-   _qtoolbar = dynamic_cast<QToolBar*>(_qt);
-
-   _qtoolbar->setMovable(false);
+   _qtd = dynamic_cast<QToolBar*>(_qt);
+   
+   _qtd->setMovable(false);
    CRect clientRect;
    pParentWnd->GetClientRect(&clientRect);
-   _qtoolbar->setGeometry(clientRect.left,clientRect.top,clientRect.right-clientRect.left,clientRect.bottom-clientRect.top);
+   _qtd->setGeometry(clientRect.left,clientRect.top,clientRect.right-clientRect.left,clientRect.bottom-clientRect.top);
 }
 
 BOOL CReBarCtrl::InsertBand( 
@@ -4542,8 +4541,7 @@ BOOL CReBarCtrl::InsertBand(
 )
 {
    CWnd* pWnd = (CWnd*)prbbi->hwndChild;
-   pWnd->setGeometry(geometry());
-   _qtoolbar->addWidget(pWnd->toQWidget());
+   _qtd->addWidget(pWnd->toQWidget());
    return TRUE;
 }
 
@@ -4611,6 +4609,12 @@ BOOL CToolBar::CreateEx(
 )
 {
    _dwStyle = dwStyle;
+
+   m_pParentWnd = pParentWnd;
+   if ( pParentWnd )
+      _qt->setParent(pParentWnd->toQWidget());
+   else
+      _qt->setParent(NULL);
    
    pParentWnd->mfcToQtWidgetMap()->insert(nID,this);
    

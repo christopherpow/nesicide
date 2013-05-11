@@ -2826,7 +2826,7 @@ class CReBarCtrl : public CWnd
 public:
    QList<QObject*>* toolBarActions() { return &_toolBarActions; }
 protected:
-   QToolBar* _qtoolbar;
+   QToolBar* _qtd;
    QList<QObject*> _toolBarActions;
    UINT _dwStyle;
 public slots:
