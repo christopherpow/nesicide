@@ -4541,7 +4541,17 @@ BOOL CReBarCtrl::InsertBand(
 )
 {
    CWnd* pWnd = (CWnd*)prbbi->hwndChild;
-   _qtd->addWidget(pWnd->toQWidget());
+   if ( dynamic_cast<QToolBar*>(pWnd->toQWidget()) )
+   {
+      QToolBar* toolBar = dynamic_cast<QToolBar*>(pWnd->toQWidget());
+      _qtd->addActions(toolBar->actions());
+      _qtd->setIconSize(toolBar->iconSize());
+      pWnd->toQWidget()->setVisible(false);
+   }
+   else
+   {
+      _qtd->addWidget(pWnd->toQWidget());
+   }
    return TRUE;
 }
 
