@@ -32,7 +32,7 @@ using namespace std;
 
 static unsigned char default_inst[(16+3)*16] = 
 {
-#include "apu/vrc7tone.h" 
+#include "APU/vrc7tone.h"
 };
 
 // CInstrumentSettingsVRC7 dialog
