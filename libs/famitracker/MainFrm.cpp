@@ -10,6 +10,7 @@
 #include "ExportDialog.h"
 #include "Accelerator.h"
 #include "Settings.h"
+#include "InstrumentFileTree.h"
 
 typedef void (CMainFrame::*actionHandler)();
 
@@ -26,6 +27,13 @@ static UINT indicators[] =
 	ID_INDICATOR_NUM,
 	ID_INDICATOR_SCRL,
 };
+
+// Timers
+enum {TMR_WELCOME, TMR_SOUND_CHECK, TMR_AUTOSAVE};
+
+// File filters (move to string table)
+LPCTSTR FTI_FILTER_NAME = _T("FamiTracker Instrument (*.fti)");
+LPCTSTR FTI_FILTER_EXT = _T(".fti");
 
 // DPI variables
 static const int DEFAULT_DPI = 96;
@@ -53,6 +61,7 @@ CMainFrame::CMainFrame(CWnd *parent) :
    m_iInstrument(0),
    m_iTrack(0),
    m_pFrameEditor(0),
+   m_pInstrumentFileTree(NULL),
    initialized(false)
 {
    CREATESTRUCT cs;
@@ -64,7 +73,20 @@ CMainFrame::CMainFrame(CWnd *parent) :
 
 CMainFrame::~CMainFrame()
 {
-   SAFE_RELEASE(m_pFrameEditor);
+   SAFE_RELEASE(m_pImageList);
+	SAFE_RELEASE(m_pLockedEditSpeed);
+	SAFE_RELEASE(m_pLockedEditTempo);
+	SAFE_RELEASE(m_pLockedEditLength);
+	SAFE_RELEASE(m_pLockedEditFrames);
+	SAFE_RELEASE(m_pLockedEditStep);
+	SAFE_RELEASE(m_pBannerEditName);
+	SAFE_RELEASE(m_pBannerEditArtist);
+	SAFE_RELEASE(m_pBannerEditCopyright);
+	SAFE_RELEASE(m_pFrameEditor);
+	SAFE_RELEASE(m_pInstrumentList);
+	SAFE_RELEASE(m_pSampleWindow);
+	SAFE_RELEASE(m_pActionHandler);
+	SAFE_RELEASE(m_pInstrumentFileTree);
    delete m_pView;
    delete m_pDocument;
 }
@@ -105,6 +127,7 @@ void CMainFrame::showEvent(QShowEvent *)
       QObject::connect(m_pDocument,SIGNAL(setModified(bool)),this,SIGNAL(editor_modificationChanged(bool)));
       
       QObject::connect(&m_wndToolBar,SIGNAL(toolBarAction_triggered(int)),this,SLOT(toolBarAction_triggered(int)));
+      QObject::connect(&m_wndInstToolBar,SIGNAL(toolBarAction_triggered(int)),this,SLOT(instToolBarAction_triggered(int)));
       
       // CP: If I don't do this here the pattern editor takes up the whole window at start until first resize.
       //     Not sure why...yet.
@@ -301,6 +324,52 @@ void CMainFrame::toolBarAction_createNSF()
 {
    qDebug("createNSF");
    OnCreateNSF();
+}
+
+void CMainFrame::instToolBarAction_triggered(int id)
+{
+   actionHandler actionHandlers[] =
+   {
+      &CMainFrame::instToolBarAction_new,
+      &CMainFrame::instToolBarAction_remove,
+      &CMainFrame::instToolBarAction_clone,
+      &CMainFrame::instToolBarAction_load,
+      &CMainFrame::instToolBarAction_save,
+      &CMainFrame::instToolBarAction_edit,
+   };
+   if ( id >= 0 )
+   {
+      (this->*((actionHandlers[id])))();
+   }
+}
+
+void CMainFrame::instToolBarAction_new()
+{
+}
+
+void CMainFrame::instToolBarAction_remove()
+{
+   OnRemoveInstrument();
+}
+
+void CMainFrame::instToolBarAction_clone()
+{
+   OnCloneInstrument();
+}
+
+void CMainFrame::instToolBarAction_load()
+{
+   OnLoadInstrument();
+}
+
+void CMainFrame::instToolBarAction_save()
+{
+   OnSaveInstrument();
+}
+
+void CMainFrame::instToolBarAction_edit()
+{
+   OnEditInstrument();
 }
 
 void CMainFrame::on_frameInc_clicked()
@@ -1016,7 +1085,7 @@ bool CMainFrame::CreateToolbars()
 		TRACE0("Failed to create rebar\n");
 		return false;      // fail to create
 	}
-   
+      
 //	m_wndToolBarReBar.GetReBarCtrl().MinimizeBand(0);
 
 //	HBITMAP hbm = (HBITMAP)::LoadImage(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDB_TOOLBAR_256), IMAGE_BITMAP, 0,0, LR_CREATEDIBSECTION /*| LR_LOADMAP3DCOLORS*/);
@@ -1087,8 +1156,9 @@ bool CMainFrame::CreateDialogPanels()
 //	m_pLockedEditStep->SubclassDlgItem(IDC_KEYSTEP, &m_wndDialogBar);
 
 	// Subclass and setup the instrument list
-	m_pInstrumentList = new CInstrumentList(this);
-	m_pInstrumentList->SubclassDlgItem(IDC_INSTRUMENTS, &m_wndDialogBar);
+//	m_pInstrumentList = new CInstrumentList(this);
+//	m_pInstrumentList->SubclassDlgItem(IDC_INSTRUMENTS, &m_wndDialogBar);
+   m_pInstrumentList = (CListCtrl*)m_wndDialogBar.GetDlgItem(IDC_INSTRUMENTS);
 
 	SetupColors();
 
@@ -1206,6 +1276,18 @@ bool CMainFrame::CreateInstrumentToolbar()
 //	m_wndInstToolBar.SetButtonStyle(4, TBBS_DROPDOWN);
 
 	return true;
+}
+
+void CMainFrame::RemoveInstrument(int Index) 
+{
+	// Remove instrument from instrument list
+	ASSERT(Index != -1);
+
+	if (m_wndInstEdit.IsOpened()) {
+		m_wndInstEdit.DestroyWindow();
+	}
+
+	m_pInstrumentList->DeleteItem(FindInstrument(Index));
 }
 
 int CMainFrame::FindInstrument(int Index) const
@@ -1380,6 +1462,175 @@ void CMainFrame::OnCreateNSF()
 {
 	CExportDialog ExportDialog(this);
 	ExportDialog.DoModal();
+}
+
+void CMainFrame::OnRemoveInstrument()
+{
+	CFamiTrackerDoc *pDoc = (CFamiTrackerDoc*)GetActiveDocument();
+
+	// No instruments in list
+	if (m_pInstrumentList->GetItemCount() == 0)
+		return;
+
+	int Instrument = m_iInstrument;
+	int SelIndex = m_pInstrumentList->GetSelectionMark();
+
+	ASSERT(pDoc->IsInstrumentUsed(Instrument));
+
+	// Remove from document
+	pDoc->RemoveInstrument(Instrument);
+
+	// Remove from list
+	RemoveInstrument(Instrument);
+
+	int Count = m_pInstrumentList->GetItemCount();
+
+	// Select a new instrument
+	if (Count == 0) {
+		SelectInstrument(0);
+	}
+	else if (Count == SelIndex) {
+		SelectInstrument(GetInstrumentIndex(SelIndex - 1));
+	}
+	else {
+		SelectInstrument(GetInstrumentIndex(SelIndex));
+	}
+}
+
+void CMainFrame::OnCloneInstrument() 
+{
+	CFamiTrackerDoc *pDoc = (CFamiTrackerDoc*)GetActiveDocument();
+	
+	// No instruments in list
+	if (m_pInstrumentList->GetItemCount() == 0)
+		return;
+
+	int Slot = pDoc->CloneInstrument(m_iInstrument);
+
+	if (Slot == -1) {
+		AfxMessageBox(IDS_INST_LIMIT, MB_ICONERROR);
+		return;
+	}
+
+	AddInstrument(Slot);
+	SelectInstrument(Slot);
+}
+
+void CMainFrame::OnDeepCloneInstrument()
+{
+	CFamiTrackerDoc *pDoc = (CFamiTrackerDoc*)GetActiveDocument();
+	
+	// No instruments in list
+	if (m_pInstrumentList->GetItemCount() == 0)
+		return;
+
+	int Slot = pDoc->DeepCloneInstrument(m_iInstrument);
+
+	if (Slot == -1) {
+		AfxMessageBox(IDS_INST_LIMIT, MB_ICONERROR);
+		return;
+	}
+
+	AddInstrument(Slot);
+	SelectInstrument(Slot);
+}
+
+void CMainFrame::OnEditInstrument()
+{
+	OpenInstrumentSettings();
+}
+
+void CMainFrame::OnLoadInstrument()
+{
+	// Loads an instrument from a file
+
+	CString filter;
+	CString allFilter;
+	VERIFY(allFilter.LoadString(AFX_IDS_ALLFILTER));
+
+	filter = FTI_FILTER_NAME;
+	filter += _T("|*");
+	filter += FTI_FILTER_EXT;
+	filter += _T("|");
+	filter += allFilter;
+	filter += _T("|*.*||");
+
+	CFamiTrackerDoc *pDoc = (CFamiTrackerDoc*)GetActiveDocument();
+	CFamiTrackerView *pView = (CFamiTrackerView*)GetActiveView();
+	CFileDialog FileDialog(TRUE, _T("fti"), 0, OFN_HIDEREADONLY | OFN_ALLOWMULTISELECT, filter);
+
+	FileDialog.m_pOFN->lpstrInitialDir = theApp.GetSettings()->GetPath(PATH_FTI);
+
+	if (FileDialog.DoModal() == IDCANCEL)
+		return;
+
+	POSITION pos (FileDialog.GetStartPosition());
+
+	// Load multiple files
+	while(pos) {
+		CString csFileName(FileDialog.GetNextPathName(pos));
+		int Index = pDoc->LoadInstrument(csFileName);
+		if (Index == -1)
+			return;
+		AddInstrument(Index);
+	}
+
+	theApp.GetSettings()->SetPath(FileDialog.GetPathName(), PATH_FTI);
+}
+
+void CMainFrame::OnSaveInstrument()
+{
+	// Saves instrument to a file
+
+	CFamiTrackerDoc *pDoc = (CFamiTrackerDoc*)GetActiveDocument();
+	CFamiTrackerView *pView = (CFamiTrackerView*)GetActiveView();
+
+	char Name[256];
+	CString String;
+
+	int Index = GetSelectedInstrument();
+
+	if (Index == -1)
+		return;
+
+	if (!pDoc->IsInstrumentUsed(Index))
+		return;
+
+	pDoc->GetInstrumentName(Index, Name);
+
+	// Remove bad characters
+	char *ptr = Name;
+
+	while (*ptr != 0) {
+		if (*ptr == '/')
+			*ptr = ' ';
+		ptr++;
+	}
+
+	CString filter;
+	CString allFilter;
+	VERIFY(allFilter.LoadString(AFX_IDS_ALLFILTER));
+
+	filter = FTI_FILTER_NAME;
+	filter += _T("|*");
+	filter += FTI_FILTER_EXT;
+	filter += _T("|");
+	filter += allFilter;
+	filter += _T("|*.*||");
+
+	CFileDialog FileDialog(FALSE, _T("fti"), Name, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, filter);
+
+	FileDialog.m_pOFN->lpstrInitialDir = theApp.GetSettings()->GetPath(PATH_FTI);
+
+	if (FileDialog.DoModal() == IDCANCEL)
+		return;
+
+	pDoc->SaveInstrument(pView->GetInstrument(), FileDialog.GetPathName());
+
+	theApp.GetSettings()->SetPath(FileDialog.GetPathName(), PATH_FTI);
+
+	if (m_pInstrumentFileTree)
+		m_pInstrumentFileTree->Changed();
 }
 
 void CMainFrame::on_frameChangeAll_clicked(bool checked)

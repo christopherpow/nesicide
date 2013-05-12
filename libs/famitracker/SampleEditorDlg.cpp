@@ -441,13 +441,11 @@ void CSampleView::OnPaint()
 	int MaxX = m_clientRect.right - 2;
 	int x, y;
 
-   qDebug("DeleteDC");
-//	if (m_dcCopy.m_hDC != NULL)
-//		m_dcCopy.DeleteDC();
+	if (m_dcCopy.m_hDC != NULL)
+		m_dcCopy.DeleteDC();
 
-   qDebug("DeleteObject");
-//	if (m_bmpCopy.m_hObject != NULL)
-//		m_bmpCopy.DeleteObject();
+	if (m_bmpCopy.m_hObject != NULL)
+		m_bmpCopy.DeleteObject();
 
 	m_bmpCopy.CreateCompatibleBitmap(&dc, m_clientRect.Width(), m_clientRect.Height());
 	m_dcCopy.CreateCompatibleDC(&dc);

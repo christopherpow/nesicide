@@ -24,6 +24,9 @@ CDialogReBar::~CDialogReBar()
 //	ON_WM_CTLCOLOR()
 //END_MESSAGE_MAP()
 
+void CDialogReBar::follow_clicked()
+{
+}
 
 // COctaveDlgBar message handlers
 

@@ -1669,13 +1669,13 @@ void qtMfcInitDialogResource_IDD_PROPERTIES(CDialog* parent1)
 //       IDC_VIBRATO, 0x403, 27, 0
 //   0x654e, 0x2077, 0x7473, 0x6c79, 0x2065, 0x6228, 0x6e65, 0x2064, 0x7075, 
 //   0x2620, 0x6420, 0x776f, 0x296e, "\000" 
+   mfc13->AddString(_T("Old style (bend up)"));
 //       IDC_VIBRATO, 0x403, 20, 0
 //   0x6c4f, 0x2064, 0x7473, 0x6c79, 0x2065, 0x6228, 0x6e65, 0x2064, 0x7075, 
 //   0x0029, 
+   mfc13->AddString(_T("New style (bend up & down)"));
 //       0
 //   END
-   mfc13->AddString(_T("Old style (bend up)"));
-   mfc13->AddString(_T("New style (bend up & down)"));
 //       CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,7,231,199,1
    qDebug("horzline not implemented");
 //       DEFPUSHBUTTON   "OK",IDOK,95,238,53,14
@@ -1783,15 +1783,16 @@ void qtMfcInitDialogResource_IDD_CONFIG_SHORTCUTS(CDialog* parent)
 //   END
 }   
 
-void qtMfcInitDialogResource_IDD_OCTAVE(CDialog* parent1)
+void qtMfcInitDialogResource_IDD_OCTAVE(CDialog* parent)
 {
-   CDialog* parent = dynamic_cast<CDialog*>(parent1);
+//   CDialog* parent = dynamic_cast<CDialog*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
    
 //   IDD_OCTAVE DIALOGEX 0, 0, 300, 12
    CRect rect(CPoint(0,0),CSize(300,12));
    parent->MapDialogRect(&rect);
    parent->setFixedSize(rect.Width(),rect.Height());
+
 //   STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD | WS_SYSMENU
 //   EXSTYLE WS_EX_TRANSPARENT
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
@@ -1802,6 +1803,35 @@ void qtMfcInitDialogResource_IDD_OCTAVE(CDialog* parent1)
    parent->MapDialogRect(&r1);
    mfc1->Create(CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r1,parent,IDC_OCTAVE);
    mfcToQtWidget->insert(IDC_OCTAVE,mfc1);
+   QObject::connect(mfc1,SIGNAL(currentIndexChanged(int)),parent,SLOT(octave_currentIndexChanged(int)));
+//   IDD_OCTAVE DLGINIT
+//   BEGIN
+//       IDC_OCTAVE, 0x403, 2, 0
+//   0x0030, 
+   mfc1->AddString(_T("0"));
+//       IDC_OCTAVE, 0x403, 2, 0
+//   0x0031, 
+   mfc1->AddString(_T("1"));
+//       IDC_OCTAVE, 0x403, 2, 0
+//   0x0032, 
+   mfc1->AddString(_T("2"));
+//       IDC_OCTAVE, 0x403, 2, 0
+//   0x0033, 
+   mfc1->AddString(_T("3"));
+//       IDC_OCTAVE, 0x403, 2, 0
+//   0x0034, 
+   mfc1->AddString(_T("4"));
+//       IDC_OCTAVE, 0x403, 2, 0
+//   0x0035, 
+   mfc1->AddString(_T("5"));
+//       IDC_OCTAVE, 0x403, 2, 0
+//   0x0036, 
+   mfc1->AddString(_T("6"));
+//       IDC_OCTAVE, 0x403, 2, 0
+//   0x0037, 
+   mfc1->AddString(_T("7"));
+//       0
+//   END
 //       CONTROL         "Octave",IDC_STATIC,"Static",SS_LEFTNOWORDWRAP | WS_GROUP,6,2,24,8
    CStatic *mfc2 = new CStatic(parent);
    CRect r2(CPoint(6,2),CSize(24,8));
@@ -1813,7 +1843,7 @@ void qtMfcInitDialogResource_IDD_OCTAVE(CDialog* parent1)
    CRect r3(CPoint(72,0),CSize(52,13));
    parent->MapDialogRect(&r3);
    mfc3->Create(_T("Follow-mode"),BS_AUTOCHECKBOX | BS_PUSHLIKE | WS_TABSTOP | WS_VISIBLE,r3,parent,IDC_FOLLOW);
-   mfcToQtWidget->insert(IDOK,mfc3);
+   mfcToQtWidget->insert(IDC_FOLLOW,mfc3);
    QObject::connect(mfc3,SIGNAL(clicked()),parent,SLOT(follow_clicked()));
 //       CONTROL         "Row highlight",IDC_STATIC,"Static",SS_LEFTNOWORDWRAP | WS_GROUP,129,2,44,8
    CStatic *mfc4 = new CStatic(parent);
@@ -2692,15 +2722,15 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_FDS_ENVELOPE(CDialog* parent1)
 //   BEGIN
 //       IDC_TYPE, 0x403, 7, 0
 //   0x6f56, 0x756c, 0x656d, "\000" 
+   mfc2->AddString(_T("Volume"));
 //       IDC_TYPE, 0x403, 9, 0
 //   0x7241, 0x6570, 0x6767, 0x6f69, "\000" 
+   mfc2->AddString(_T("Arpeggio"));
 //       IDC_TYPE, 0x403, 6, 0
 //   0x6950, 0x6374, 0x0068, 
 //       0
-//   END
-   mfc2->AddString(_T("Volume"));
-   mfc2->AddString(_T("Arpeggio"));
    mfc2->AddString(_T("Pitch"));
+//   END
    QObject::connect(mfc2,SIGNAL(currentIndexChanged(int)),parent,SLOT(type_currentIndexChanged(int)));
 //   END
 }   

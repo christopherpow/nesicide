@@ -33,6 +33,7 @@
 enum FRAME_EDIT_POS { FRAME_EDIT_POS_TOP, FRAME_EDIT_POS_LEFT };
 
 class CSampleWindow;
+class CInstrumentFileTree;
 
 class CMainFrame : public CFrameWnd
 {
@@ -131,6 +132,8 @@ private:
 
    CActionHandler* m_pActionHandler;
    int					m_iFrameEditorPos;
+   
+   CInstrumentFileTree	*m_pInstrumentFileTree;
       
 private:
 	// State variables (to be used)
@@ -184,6 +187,14 @@ public:
 	afx_msg void OnUpdateSBOctave(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateSBFrequency(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateSBChip(CCmdUI *pCmdUI);
+   afx_msg void OnLoadInstrument();
+	afx_msg void OnSaveInstrument();
+	afx_msg void OnEditInstrument();
+	afx_msg void OnAddInstrument();
+	afx_msg void OnRemoveInstrument();
+	afx_msg void OnCloneInstrument();
+	afx_msg void OnDeepCloneInstrument();
+   
    
 public slots:
    void idleProcessing();
@@ -223,6 +234,13 @@ public slots:
    void toolBarAction_nextTrack();
    void toolBarAction_settings();
    void toolBarAction_createNSF();
+   void instToolBarAction_triggered(int id);
+   void instToolBarAction_new();
+   void instToolBarAction_remove();
+   void instToolBarAction_clone();
+   void instToolBarAction_load();
+   void instToolBarAction_save();
+   void instToolBarAction_edit();
    void updateViews(long hint);
    
 signals:

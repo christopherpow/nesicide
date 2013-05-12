@@ -1489,6 +1489,7 @@ public:
    virtual void setEnabled(bool enabled) { _qt->setEnabled(enabled); }
    QRect rect() const { return _qt->rect(); }
    virtual QWidget* toQWidget() { return _qt; }
+   virtual void setQWidget(QWidget* qt) { _qt = qt; }
 public slots:
    void update() { _qt->update(); }
    void repaint() { _qt->repaint(); }

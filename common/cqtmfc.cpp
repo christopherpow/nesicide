@@ -2004,6 +2004,8 @@ BOOL CComboBox::Create(
    UINT nID 
 )
 {
+   m_hWnd = (HWND)this;
+
    _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,_qtd->sizeHint().height());
    _qtd->setVisible(dwStyle&WS_VISIBLE);
    
@@ -2193,6 +2195,8 @@ BOOL CListBox::Create(
    UINT nID 
 )
 {
+   m_hWnd = (HWND)this;
+
    _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
    _qtd->setVisible(dwStyle&WS_VISIBLE);
 
@@ -2246,6 +2250,7 @@ BOOL CListCtrl::Create(
    UINT nID 
 )
 {
+   m_hWnd = (HWND)this;
    _dwStyle = dwStyle;
    
    if ( _qt )
@@ -2316,6 +2321,8 @@ BOOL CListCtrl::Create(
       QObject::connect(_qtd_list,SIGNAL(cellClicked(int,int)),this,SIGNAL(cellClicked(int,int)));
       QObject::connect(_qtd_list,SIGNAL(cellDoubleClicked(int,int)),this,SIGNAL(cellDoubleClicked(int,int)));
 
+      _qtd_list->setFlow(QListView::TopToBottom);
+      _qtd_list->setWrapping(true);
       if ( dwStyle&LVS_SINGLESEL )
       {
          _qtd_list->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -3091,7 +3098,7 @@ BOOL CListCtrl::DeleteItem(
       if ( nItem < _qtd_list->count() )
       {
          QListWidgetItem* lwi = _qtd_list->item(nItem);
-         _qtd_list->removeItemWidget(lwi);
+         _qtd_list->takeItem(nItem);
          return TRUE;
       }
    }
@@ -3237,22 +3244,7 @@ BOOL CTreeCtrl::Create(
    UINT nID 
 )
 {
-#define TVS_HASBUTTONS	1
-#define TVS_HASLINES	2
-#define TVS_LINESATROOT	4
-#define TVS_EDITLABELS	8
-#define TVS_DISABLEDRAGDROP	16
-#define TVS_SHOWSELALWAYS	32
-#define TVS_CHECKBOXES 256
-#define TVS_NOTOOLTIPS 128
-#define TVS_RTLREADING 64
-#define TVS_TRACKSELECT 512
-#define TVS_FULLROWSELECT 4096
-#define TVS_INFOTIP 2048
-#define TVS_NONEVENHEIGHT 16384
-#define TVS_NOSCROLL 8192
-#define TVS_SINGLEEXPAND 1024
-#define TVS_NOHSCROLL	0x8000
+   m_hWnd = (HWND)this;
 
    if ( dwStyle&TVS_LINESATROOT )
    {
@@ -3514,6 +3506,8 @@ BOOL CScrollBar::Create(
    UINT nID 
 )
 {
+   m_hWnd = (HWND)this;
+
    _qtd->setOrientation(_orient);
 
    QRect myRect(QPoint(rect.left,rect.top),QPoint(rect.right,rect.bottom));
@@ -3626,7 +3620,7 @@ CWnd::CWnd(CWnd *parent)
    : m_pParentWnd(parent),
      mfcVerticalScrollBar(NULL),
      mfcHorizontalScrollBar(NULL),
-     m_hWnd((HWND)this),
+     m_hWnd((HWND)NULL),
      _grid(NULL),
      _myDC(NULL)
 {
@@ -3832,6 +3826,8 @@ BOOL CWnd::CreateEx(
 )
 {
    CREATESTRUCT createStruct;
+
+   m_hWnd = (HWND)this;
    
    createStruct.dwExStyle = dwExStyle;
    createStruct.style = dwStyle;
@@ -4515,9 +4511,10 @@ BOOL CReBarCtrl::Create(
    CWnd* pParentWnd, 
    UINT nID  
 )
-{
+{   
+   m_hWnd = (HWND)this;
    _dwStyle = dwStyle;
-   
+
    if ( _qt )
       delete _qt;
    
@@ -4541,6 +4538,10 @@ BOOL CReBarCtrl::InsertBand(
 )
 {
    CWnd* pWnd = (CWnd*)prbbi->hwndChild;
+   if ( _qtd->actions().count() )
+   {
+      _qtd->addSeparator();
+   }
    if ( dynamic_cast<QToolBar*>(pWnd->toQWidget()) )
    {
       QToolBar* toolBar = dynamic_cast<QToolBar*>(pWnd->toQWidget());
@@ -4577,6 +4578,8 @@ BOOL CReBar::Create(
    UINT nID
 )
 {
+   m_hWnd = (HWND)this;
+   
    CRect rect;
    pParentWnd->GetClientRect(&rect);
    m_pReBarCtrl->Create(dwStyle,rect,pParentWnd,nID);
@@ -4618,6 +4621,7 @@ BOOL CToolBar::CreateEx(
    UINT nID
 )
 {
+   m_hWnd = (HWND)this;
    _dwStyle = dwStyle;
 
    m_pParentWnd = pParentWnd;
@@ -4683,6 +4687,7 @@ BOOL CStatusBar::Create(
    UINT nID
 )
 {
+   m_hWnd = (HWND)this;
    _dwStyle = dwStyle;
    
    pParentWnd->mfcToQtWidgetMap()->insert(nID,this);
@@ -4747,6 +4752,7 @@ BOOL CStatusBar::SetPaneText(
 CDialogBar::CDialogBar()
 {
    _mfcd = new CDialog;
+   _mfcd->setGeometry(0,0,100,100);
    
    _qt->installEventFilter(this);
 }
@@ -4802,6 +4808,11 @@ LRESULT CDialogBar::SendMessage(
             pLayout->sizeTotal.cx += rect().width();
             pLayout->sizeTotal.cy = pLayout->rect.bottom-pLayout->rect.top;
          }
+         else
+         {
+            myRect.setHeight(rect().height());
+            myRect.setWidth(rect().width());
+         }
       }
       break;
    }
@@ -4814,6 +4825,7 @@ BOOL CDialogBar::Create(
    UINT nID 
 )
 { 
+   m_hWnd = (HWND)this;
    _nStyle = nStyle;
    
    _mfcd->Create(nIDTemplate,this);
@@ -4826,34 +4838,28 @@ BOOL CDialogBar::Create(
       mfcToQtWidget.insert(key,_mfcd->mfcToQtWidgetMap()->value(key));
    }
    
+   pParentWnd->mfcToQtWidgetMap()->insertMulti(nID,this);
+   
    if ( nStyle&CBRS_TOP )
    {
-      pParentWnd->mfcToQtWidgetMap()->insertMulti(nID,this);
-      
       _qt->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::Fixed));
       _qt->setFixedHeight(_mfcd->rect().height());
       m_pFrameWnd->addControlBar(CBRS_TOP,toQWidget());
    }
    else if ( nStyle&CBRS_LEFT )
    {
-      pParentWnd->mfcToQtWidgetMap()->insertMulti(nID,this);
-      
       _qt->setSizePolicy(QSizePolicy(QSizePolicy::Fixed,QSizePolicy::MinimumExpanding));
       _qt->setFixedWidth(_mfcd->rect().width());
       m_pFrameWnd->addControlBar(CBRS_LEFT,toQWidget());
    }
    else if ( nStyle&CBRS_BOTTOM )
    {
-      pParentWnd->mfcToQtWidgetMap()->insertMulti(nID,this);
-      
       _qt->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::Fixed));
       _qt->setFixedHeight(_mfcd->rect().height());
       m_pFrameWnd->addControlBar(CBRS_BOTTOM,toQWidget());
    }
    else if ( nStyle&CBRS_RIGHT )
    {
-      pParentWnd->mfcToQtWidgetMap()->insertMulti(nID,this);
-      
       _qt->setSizePolicy(QSizePolicy(QSizePolicy::Fixed,QSizePolicy::MinimumExpanding));
       _qt->setFixedWidth(_mfcd->rect().width());
       m_pFrameWnd->addControlBar(CBRS_RIGHT,toQWidget());
@@ -4863,7 +4869,8 @@ BOOL CDialogBar::Create(
       _qt->setSizePolicy(QSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed));
       _qt->setFixedSize(_mfcd->rect().width(),_mfcd->rect().height());
    }
-   setVisible(true);
+   ShowWindow(SW_SHOW);
+//   setVisible(true);
    
    return TRUE;
 }
@@ -4933,6 +4940,8 @@ BOOL CDialog::Create(
    CWnd* pParentWnd
 )
 { 
+   m_hWnd = (HWND)this;
+
    qtMfcInitDialogResource(nIDTemplate,this);
    
    if ( pParentWnd )
@@ -5592,6 +5601,7 @@ BOOL CEdit::Create(
    UINT nID 
 )
 {
+   m_hWnd = (HWND)this;
    _dwStyle = dwStyle;
    
    if ( _qt )
@@ -5888,6 +5898,8 @@ BOOL CButton::Create(
    UINT nID 
 )
 {
+   m_hWnd = (HWND)this;
+
    DWORD buttonType = dwStyle&0x000F;
    DWORD buttonStyle = dwStyle&0xFFF0;
    
@@ -6038,6 +6050,8 @@ BOOL CSpinButtonCtrl::Create(
    UINT nID 
 )
 {
+   m_hWnd = (HWND)this;
+
    if ( _qt )
       delete _qt;
    
@@ -6126,6 +6140,8 @@ BOOL CSliderCtrl::Create(
    UINT nID 
 )
 {
+   m_hWnd = (HWND)this;
+
    if ( dwStyle&TBS_NOTICKS )
    {
       _qtd->setTickPosition(QSlider::NoTicks);
@@ -6273,6 +6289,8 @@ BOOL CStatic::Create(
    UINT nID
 )
 {
+   m_hWnd = (HWND)this;
+
    _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
    _qtd->setVisible(dwStyle&WS_VISIBLE);
    
@@ -6375,6 +6393,8 @@ BOOL CGroupBox::Create(
    UINT nID 
 )
 {
+   m_hWnd = (HWND)this;
+
 #if UNICODE
    _qtd->setTitle(QString::fromWCharArray(lpszCaption));
 #else
