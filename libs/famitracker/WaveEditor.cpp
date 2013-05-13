@@ -26,7 +26,7 @@
 #include "FamiTrackerDoc.h"
 #include "Instrument.h"
 #include "WaveEditor.h"
-#include "Resource.h"
+#include "resource.h"
 #include "Graphics.h"
 #include "SoundGen.h"
 

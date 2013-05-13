@@ -19,7 +19,7 @@
 */
 
 #include <windows.h>
-#include "wavefile.h"
+#include "WaveFile.h"
 
 #include "cqtmfc.h"
 
