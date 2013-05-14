@@ -124,10 +124,35 @@ void CMainFrame::showEvent(QShowEvent *)
       QObject::connect(m_pDocument,SIGNAL(updateViews(long)),this,SLOT(updateViews(long)));
       
       // Connect buried signals.
-      QObject::connect(m_pDocument,SIGNAL(setModified(bool)),this,SIGNAL(editor_modificationChanged(bool)));
-      
+      qDebug("START CONNECTING BURIED SIGNALS NOW...");
+      QObject::connect(m_pDocument,SIGNAL(setModified(bool)),this,SIGNAL(editor_modificationChanged(bool)));      
       QObject::connect(&m_wndToolBar,SIGNAL(toolBarAction_triggered(int)),this,SLOT(toolBarAction_triggered(int)));
       QObject::connect(&m_wndInstToolBar,SIGNAL(toolBarAction_triggered(int)),this,SLOT(instToolBarAction_triggered(int)));
+      QObject::connect(m_wndOctaveBar.GetDlgItem(IDC_OCTAVE)->toQWidget(),SIGNAL(currentIndexChanged(int)),this,SLOT(octave_currentIndexChanged(int)));
+      QObject::connect(m_wndOctaveBar.GetDlgItem(IDC_FOLLOW)->toQWidget(),SIGNAL(clicked()),this,SLOT(follow_clicked()));
+      QObject::connect(m_wndOctaveBar.GetDlgItem(IDC_HIGHLIGHT1)->toQWidget(),SIGNAL(textChanged(QString)),this,SLOT(highlight1_textChanged(QString)));
+      QObject::connect(m_wndOctaveBar.GetDlgItem(IDC_HIGHLIGHTSPIN1)->toQWidget(),SIGNAL(valueChanged(int)),this,SLOT(highlightspin1_valueChanged(int)));
+      QObject::connect(m_wndOctaveBar.GetDlgItem(IDC_HIGHLIGHT2)->toQWidget(),SIGNAL(textChanged(QString)),this,SLOT(highlight2_textChanged(QString)));
+      QObject::connect(m_wndOctaveBar.GetDlgItem(IDC_HIGHLIGHTSPIN2)->toQWidget(),SIGNAL(valueChanged(int)),this,SLOT(highlightspin2_valueChanged(int)));
+      QObject::connect(m_wndDialogBar.GetDlgItem(IDC_INSTRUMENTS)->toQWidget(),SIGNAL(doubleClicked(QModelIndex)),this,SLOT(instruments_doubleClicked(QModelIndex)));
+      QObject::connect(m_wndDialogBar.GetDlgItem(IDC_INSTRUMENTS)->toQWidget(),SIGNAL(currentChanged(QModelIndex,QModelIndex)),this,SLOT(instruments_currentChanged(QModelIndex,QModelIndex)));
+      QObject::connect(m_wndDialogBar.GetDlgItem(IDC_SPEED)->toQWidget(),SIGNAL(textChanged(QString)),this,SLOT(speed_textChanged(QString)));
+      QObject::connect(m_wndDialogBar.GetDlgItem(IDC_SPEED_SPIN)->toQWidget(),SIGNAL(valueChanged(int)),this,SLOT(speedSpin_valueChanged(int)));
+      QObject::connect(m_wndDialogBar.GetDlgItem(IDC_TEMPO)->toQWidget(),SIGNAL(textChanged(QString)),this,SLOT(tempo_textChanged(QString)));
+      QObject::connect(m_wndDialogBar.GetDlgItem(IDC_TEMPO_SPIN)->toQWidget(),SIGNAL(valueChanged(int)),this,SLOT(tempoSpin_valueChanged(int)));
+      QObject::connect(m_wndDialogBar.GetDlgItem(IDC_ROWS)->toQWidget(),SIGNAL(textChanged(QString)),this,SLOT(rows_textChanged(QString)));
+      QObject::connect(m_wndDialogBar.GetDlgItem(IDC_ROWS_SPIN)->toQWidget(),SIGNAL(valueChanged(int)),this,SLOT(rowsSpin_valueChanged(int)));
+      QObject::connect(m_wndDialogBar.GetDlgItem(IDC_FRAMES)->toQWidget(),SIGNAL(textChanged(QString)),this,SLOT(frames_textChanged(QString)));
+      QObject::connect(m_wndDialogBar.GetDlgItem(IDC_FRAME_SPIN)->toQWidget(),SIGNAL(valueChanged(int)),this,SLOT(framesSpin_valueChanged(int)));
+      QObject::connect(m_wndDialogBar.GetDlgItem(IDC_SUBTUNE)->toQWidget(),SIGNAL(currentIndexChanged(int)),this,SLOT(subtune_currentIndexChanged(int)));
+      QObject::connect(m_wndDialogBar.GetDlgItem(IDC_SONG_NAME)->toQWidget(),SIGNAL(textEdited(QString)),this,SLOT(songName_textEdited(QString)));
+      QObject::connect(m_wndDialogBar.GetDlgItem(IDC_SONG_ARTIST)->toQWidget(),SIGNAL(textEdited(QString)),this,SLOT(songArtist_textEdited(QString)));
+      QObject::connect(m_wndDialogBar.GetDlgItem(IDC_SONG_COPYRIGHT)->toQWidget(),SIGNAL(textEdited(QString)),this,SLOT(songCopyright_textEdited(QString)));
+//      void frameChangeAll_clicked(bool checked);
+//      void frameInc_clicked();   
+//      void frameDec_clicked();
+      qDebug("DONE CONNECTING BURIED SIGNALS NOW...");
+      
       
       // CP: If I don't do this here the pattern editor takes up the whole window at start until first resize.
       //     Not sure why...yet.
@@ -155,12 +180,68 @@ void CMainFrame::idleProcessing()
 {   
    CCmdUI cmdUI;
    
-   cmdUI.m_nID = ID_INDICATOR_CHIP;
    cmdUI.m_nIndex = -1;
-   cmdUI.m_pOther = m_wndStatusBar.GetDlgItem(ID_INDICATOR_CHIP);
+   
+   cmdUI.m_nID = ID_INDICATOR_CHIP;
+   cmdUI.m_pOther = m_wndStatusBar.GetDlgItem(cmdUI.m_nID);
    if ( cmdUI.m_pOther )
    {
       OnUpdateSBChip(&cmdUI);
+   }
+   cmdUI.m_nID = ID_INDICATOR_OCTAVE;
+   cmdUI.m_pOther = m_wndStatusBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateSBOctave(&cmdUI);
+   }
+   cmdUI.m_nID = ID_INDICATOR_INSTRUMENT;
+   cmdUI.m_pOther = m_wndStatusBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateSBInstrument(&cmdUI);
+   }
+   cmdUI.m_nID = ID_INDICATOR_RATE;
+   cmdUI.m_pOther = m_wndStatusBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateSBFrequency(&cmdUI);
+   }
+   cmdUI.m_nID = ID_INDICATOR_TEMPO;
+   cmdUI.m_pOther = m_wndStatusBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateSBTempo(&cmdUI);
+   }
+   cmdUI.m_nID = IDC_HIGHLIGHT1;
+   cmdUI.m_pOther = m_wndOctaveBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateHighlight(&cmdUI);
+   }
+   cmdUI.m_nID = IDC_HIGHLIGHTSPIN1;
+   cmdUI.m_pOther = m_wndOctaveBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateHighlight(&cmdUI);
+   }
+   cmdUI.m_nID = IDC_HIGHLIGHT2;
+   cmdUI.m_pOther = m_wndOctaveBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateHighlight(&cmdUI);
+   }
+   cmdUI.m_nID = IDC_HIGHLIGHTSPIN2;
+   cmdUI.m_pOther = m_wndOctaveBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateHighlight(&cmdUI);
+   }
+   
+   cmdUI.m_nID = IDC_SPEED;
+   cmdUI.m_pOther = m_wndDialogBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateSpeedEdit(&cmdUI);
    }
 }
 
@@ -372,39 +453,82 @@ void CMainFrame::instToolBarAction_edit()
    OnEditInstrument();
 }
 
-void CMainFrame::on_frameInc_clicked()
+void CMainFrame::frameInc_clicked()
 {
    CFamiTrackerView* pView = (CFamiTrackerView*)GetActiveView();
    pView->IncreaseCurrentPattern();
 }
 
-void CMainFrame::on_frameDec_clicked()
+void CMainFrame::frameDec_clicked()
 {
    CFamiTrackerView* pView = (CFamiTrackerView*)GetActiveView();
    pView->DecreaseCurrentPattern();
 }
 
-void CMainFrame::on_speed_valueChanged(int arg1)
+void CMainFrame::frameChangeAll_clicked(bool checked)
 {
-	SetSpeed(arg1);
+   CFamiTrackerView* pView = (CFamiTrackerView*)GetActiveView();
+   pView->SetChangeAllPattern(checked);
 }
 
-void CMainFrame::on_tempo_valueChanged(int arg1)
+void CMainFrame::instruments_currentChanged(const QModelIndex &index,const QModelIndex &)
 {
-   SetTempo(arg1);
+   NM_LISTVIEW nmlv;
+   LRESULT result;
+   
+   nmlv.uNewState = LVIS_SELECTED;
+   nmlv.iItem = index.row();
+   OnChangedInstruments((NMHDR*)&nmlv,&result);
 }
 
-void CMainFrame::on_numRows_valueChanged(int NewRows)
+void CMainFrame::instruments_doubleClicked(const QModelIndex &index)
 {
-   SetRowCount(NewRows);
+   NMHDR nmhdr;
+   LRESULT result;
+   OnDblClkInstruments(&nmhdr,&result);
 }
 
-void CMainFrame::on_numFrames_valueChanged(int NewFrames)
+void CMainFrame::speedSpin_valueChanged(int arg1)
 {
-   SetFrameCount(NewFrames);
+   NMUPDOWN nmud;
+   LRESULT result;
+
+   nmud.iPos = arg1;
+   nmud.iDelta = arg1-CFamiTrackerDoc::GetDoc()->GetSongSpeed();
+   OnDeltaposSpeedSpin((NMHDR*)&nmud,&result);
 }
 
-void CMainFrame::on_songs_currentIndexChanged(int index)
+void CMainFrame::tempoSpin_valueChanged(int arg1)
+{
+   NMUPDOWN nmud;
+   LRESULT result;
+
+   nmud.iPos = arg1;
+   nmud.iDelta = arg1-CFamiTrackerDoc::GetDoc()->GetSongTempo();
+   OnDeltaposTempoSpin((NMHDR*)&nmud,&result);
+}
+
+void CMainFrame::rowsSpin_valueChanged(int arg1)
+{
+   NMUPDOWN nmud;
+   LRESULT result;
+
+   nmud.iPos = arg1;
+   nmud.iDelta = arg1-CFamiTrackerDoc::GetDoc()->GetPatternLength();
+   OnDeltaposRowsSpin((NMHDR*)&nmud,&result);
+}
+
+void CMainFrame::framesSpin_valueChanged(int arg1)
+{
+   NMUPDOWN nmud;
+   LRESULT result;
+
+   nmud.iPos = arg1;
+   nmud.iDelta = arg1-CFamiTrackerDoc::GetDoc()->GetFrameCount();
+   OnDeltaposFrameSpin((NMHDR*)&nmud,&result);
+}
+
+void CMainFrame::subtune_currentIndexChanged(int index)
 {
    CFamiTrackerDoc* pDoc = (CFamiTrackerDoc*)GetActiveDocument();
    if ( index >= 0 )
@@ -413,22 +537,49 @@ void CMainFrame::on_songs_currentIndexChanged(int index)
    }
 }
 
-void CMainFrame::on_title_textEdited(const QString &arg1)
+void CMainFrame::songName_textEdited(const QString &arg1)
 {
    CFamiTrackerDoc* pDoc = (CFamiTrackerDoc*)GetActiveDocument();
    pDoc->SetSongName(arg1.toAscii().data());
 }
 
-void CMainFrame::on_author_textEdited(const QString &arg1)
+void CMainFrame::songArtist_textEdited(const QString &arg1)
 {
    CFamiTrackerDoc* pDoc = (CFamiTrackerDoc*)GetActiveDocument();
    pDoc->SetSongArtist(arg1.toAscii().data());
 }
 
-void CMainFrame::on_copyright_textEdited(const QString &arg1)
+void CMainFrame::songCopyright_textEdited(const QString &arg1)
 {
    CFamiTrackerDoc* pDoc = (CFamiTrackerDoc*)GetActiveDocument();
    pDoc->SetSongCopyright(arg1.toAscii().data());
+}
+
+void CMainFrame::follow_clicked()
+{
+   OnClickedFollow();
+}
+
+void CMainFrame::octave_currentIndexChanged(int)
+{
+   OnCbnSelchangeOctave();
+}
+
+void CMainFrame::highlight1_textChanged(QString)
+{
+   
+}
+
+void CMainFrame::highlightspin1_valueChanged(int)
+{
+}
+
+void CMainFrame::highlight2_textChanged(QString)
+{
+}
+
+void CMainFrame::highlightspin2_valueChanged(int)
+{
 }
 
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
@@ -488,15 +639,14 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_wndOctaveBar.SetDlgItemInt(IDC_HIGHLIGHT1, CFamiTrackerDoc::DEFAULT_FIRST_HIGHLIGHT, 0);
 	m_wndOctaveBar.SetDlgItemInt(IDC_HIGHLIGHT2, CFamiTrackerDoc::DEFAULT_SECOND_HIGHLIGHT, 0);
 
-   qDebug("m_iInstrumentIcons...");
-//	// Icons for the instrument list
-//	m_iInstrumentIcons[INST_2A03] = 0;
-//	m_iInstrumentIcons[INST_VRC6] = 1;
-//	m_iInstrumentIcons[INST_VRC7] = 2;
-//	m_iInstrumentIcons[INST_FDS] = 3;
-//	//m_iInstrumentIcons[INST_MMC5] = 0;
-//	m_iInstrumentIcons[INST_N163] = 4;
-//	m_iInstrumentIcons[INST_S5B] = 5;
+	// Icons for the instrument list
+	m_iInstrumentIcons[INST_2A03] = 0;
+	m_iInstrumentIcons[INST_VRC6] = 1;
+	m_iInstrumentIcons[INST_VRC7] = 2;
+	m_iInstrumentIcons[INST_FDS] = 3;
+	//m_iInstrumentIcons[INST_MMC5] = 0;
+	m_iInstrumentIcons[INST_N163] = 4;
+	m_iInstrumentIcons[INST_S5B] = 5;
 
 	UpdateMenus();
 
@@ -729,8 +879,7 @@ void CMainFrame::SelectInstrument(int Index)
 			// Set instrument name (this will trigger the name change routine)
 			char Text[256];
 			pDoc->GetInstrumentName(Index, Text);
-         qDebug("SetWindowText not yet impl.");
-//			m_wndDialogBar.GetDlgItem(IDC_INSTNAME)->SetWindowText(Text);
+			m_wndDialogBar.GetDlgItem(IDC_INSTNAME)->SetWindowText(Text);
 
 			// Update instrument editor
 			if (m_wndInstEdit.IsOpened())
@@ -800,8 +949,7 @@ void CMainFrame::AddInstrument(int Index)
 	// Name is of type index - name
 	CString Text;
 	Text.Format(_T("%02X - %s"), Index, A2T(Name));
-   qDebug("m_iInstrumentIcons...");
-	m_pInstrumentList->InsertItem(Index, Text/*, m_iInstrumentIcons[Type]*/);
+	m_pInstrumentList->InsertItem(Index, Text, m_iInstrumentIcons[Type]);
 }
 
 void CMainFrame::UpdateInstrumentList()
@@ -1142,13 +1290,13 @@ bool CMainFrame::CreateDialogPanels()
 	m_wndDialogBar.ShowWindow(SW_SHOW);
 
 	// Subclass edit boxes
-   qDebug("Subclassing...");
-//	m_pLockedEditSpeed	= new CLockedEdit();
-//	m_pLockedEditTempo	= new CLockedEdit();
-//	m_pLockedEditLength = new CLockedEdit();
-//	m_pLockedEditFrames = new CLockedEdit();
-//	m_pLockedEditStep	= new CLockedEdit();
+	m_pLockedEditSpeed	= new CLockedEdit();
+	m_pLockedEditTempo	= new CLockedEdit();
+	m_pLockedEditLength = new CLockedEdit();
+	m_pLockedEditFrames = new CLockedEdit();
+	m_pLockedEditStep	= new CLockedEdit();
 
+   qDebug("Subclassing...");
 //	m_pLockedEditSpeed->SubclassDlgItem(IDC_SPEED, &m_wndDialogBar);
 //	m_pLockedEditTempo->SubclassDlgItem(IDC_TEMPO, &m_wndDialogBar);
 //	m_pLockedEditLength->SubclassDlgItem(IDC_ROWS, &m_wndDialogBar);
@@ -1171,8 +1319,8 @@ bool CMainFrame::CreateDialogPanels()
 	m_pImageList->Add(theApp.LoadIcon(IDI_INST_N163));
 	m_pImageList->Add(theApp.LoadIcon(IDI_INST_5B));
 
-//	m_pInstrumentList->SetImageList(m_pImageList, LVSIL_NORMAL);
-//	m_pInstrumentList->SetImageList(m_pImageList, LVSIL_SMALL);
+	m_pInstrumentList->SetImageList(m_pImageList, LVSIL_NORMAL);
+	m_pInstrumentList->SetImageList(m_pImageList, LVSIL_SMALL);
 
 	m_pInstrumentList->SendMessage(LVM_SETEXTENDEDLISTVIEWSTYLE, 0, LVS_EX_FULLROWSELECT);
 
@@ -1633,25 +1781,123 @@ void CMainFrame::OnSaveInstrument()
 		m_pInstrumentFileTree->Changed();
 }
 
-void CMainFrame::on_frameChangeAll_clicked(bool checked)
+
+void CMainFrame::OnClickedFollow()
 {
-   CFamiTrackerView* pView = (CFamiTrackerView*)GetActiveView();
-   pView->SetChangeAllPattern(checked);
+	CFamiTrackerView *pView	= (CFamiTrackerView*)GetActiveView();
+	pView->SetFollowMode(m_wndOctaveBar.IsDlgButtonChecked(IDC_FOLLOW) != 0);
+	pView->SetFocus();
 }
 
-void CMainFrame::songInstruments_currentChanged(const QModelIndex &index,const QModelIndex &)
+void CMainFrame::OnToggleFollow()
 {
-   NM_LISTVIEW nmlv;
-   LRESULT result;
-   
-   nmlv.uNewState = LVIS_SELECTED;
-   nmlv.iItem = index.row();
-   OnChangedInstruments((NMHDR*)&nmlv,&result);
+	CFamiTrackerView *pView	= (CFamiTrackerView*)GetActiveView();
+	m_wndOctaveBar.CheckDlgButton(IDC_FOLLOW, !m_wndOctaveBar.IsDlgButtonChecked(IDC_FOLLOW));
+	pView->SetFollowMode(m_wndOctaveBar.IsDlgButtonChecked(IDC_FOLLOW) != 0);
+	pView->SetFocus();
 }
 
-void CMainFrame::songInstruments_doubleClicked(const QModelIndex &index)
+void CMainFrame::OnCbnSelchangeOctave()
 {
-   NMHDR nmhdr;
-   LRESULT result;
-   OnDblClkInstruments(&nmhdr,&result);
+	CComboBox *TrackBox		= (CComboBox*)m_wndOctaveBar.GetDlgItem(IDC_OCTAVE);
+	CFamiTrackerView *pView	= (CFamiTrackerView*)GetActiveView();
+	unsigned int Octave		= TrackBox->GetCurSel();
+
+	if (pView->GetOctave() != Octave)
+		pView->SetOctave(Octave);
+}
+
+void CMainFrame::OnDeltaposSpeedSpin(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	int NewSpeed = CFamiTrackerDoc::GetDoc()->GetSongSpeed() - ((NMUPDOWN*)pNMHDR)->iDelta;
+	SetSpeed(NewSpeed);
+}
+
+void CMainFrame::OnDeltaposTempoSpin(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	int NewTempo = CFamiTrackerDoc::GetDoc()->GetSongTempo() - ((NMUPDOWN*)pNMHDR)->iDelta;
+	SetTempo(NewTempo);
+}
+
+void CMainFrame::OnDeltaposRowsSpin(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	int NewRows = CFamiTrackerDoc::GetDoc()->GetPatternLength() - ((NMUPDOWN*)pNMHDR)->iDelta;
+	SetRowCount(NewRows);
+}
+
+void CMainFrame::OnDeltaposFrameSpin(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	int NewFrames = CFamiTrackerDoc::GetDoc()->GetFrameCount() - ((NMUPDOWN*)pNMHDR)->iDelta;
+	SetFrameCount(NewFrames);
+}
+
+void CMainFrame::OnUpdateSpeedEdit(CCmdUI *pCmdUI)
+{
+//	if (!m_pLockedEditSpeed->IsEditable()) {
+		if (m_pLockedEditSpeed->Update())
+			SetSpeed(m_pLockedEditSpeed->GetValue());
+		else {
+			CString Text;
+			Text.Format(_T("%i"), ((CFamiTrackerDoc*)GetActiveDocument())->GetSongSpeed());
+			pCmdUI->SetText(Text);
+		}
+//	}	
+}
+
+void CMainFrame::OnUpdateTempoEdit(CCmdUI *pCmdUI)
+{
+//	if (!m_pLockedEditTempo->IsEditable()) {
+		if (m_pLockedEditTempo->Update())
+			SetTempo(m_pLockedEditTempo->GetValue());
+		else {
+			CString Text;
+			Text.Format(_T("%i"), ((CFamiTrackerDoc*)GetActiveDocument())->GetSongTempo());
+			pCmdUI->SetText(Text);
+		}
+//	}
+}
+
+void CMainFrame::OnUpdateRowsEdit(CCmdUI *pCmdUI)
+{
+	CString Text;
+
+//	if (!m_pLockedEditLength->IsEditable()) {
+		if (m_pLockedEditLength->Update())
+			SetRowCount(m_pLockedEditLength->GetValue());
+		else {
+			Text.Format(_T("%i"), ((CFamiTrackerDoc*)GetActiveDocument())->GetPatternLength());
+			pCmdUI->SetText(Text);
+		}
+//	}
+}
+
+void CMainFrame::OnUpdateFramesEdit(CCmdUI *pCmdUI)
+{
+//	if (!m_pLockedEditFrames->IsEditable()) {
+		if (m_pLockedEditFrames->Update())
+			SetFrameCount(m_pLockedEditFrames->GetValue());
+		else {
+			CString Text;
+			Text.Format(_T("%i"), ((CFamiTrackerDoc*)GetActiveDocument())->GetFrameCount());
+			pCmdUI->SetText(Text);
+		}
+//	}	
+}
+
+void CMainFrame::OnUpdateHighlight(CCmdUI *pCmdUI)
+{
+	static int LastHighlight1, LastHighlight2;
+	int Highlight1, Highlight2;
+	Highlight1 = m_wndOctaveBar.GetDlgItemInt(IDC_HIGHLIGHT1);
+	Highlight2 = m_wndOctaveBar.GetDlgItemInt(IDC_HIGHLIGHT2);
+	if (Highlight1 != LastHighlight1 || Highlight2 != LastHighlight2) {
+
+		CFamiTrackerDoc *pDoc = (CFamiTrackerDoc*)GetActiveDocument();
+
+		pDoc->SetHighlight(Highlight1, Highlight2);
+		pDoc->UpdateAllViews(NULL, UPDATE_HIGHLIGHT);
+
+		LastHighlight1 = Highlight1;
+		LastHighlight2 = Highlight2;
+	}
 }

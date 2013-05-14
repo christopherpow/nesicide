@@ -2216,6 +2216,7 @@ CListCtrl::CListCtrl(CWnd* parent)
    : CWnd(parent),
      _qtd_table(NULL),
      _qtd_list(NULL),
+     m_pImageList(NULL),
      _dwStyle(0)
 {
 }
@@ -2339,6 +2340,16 @@ BOOL CListCtrl::Create(
    }   
 
    return TRUE;
+}
+
+CImageList* CListCtrl::SetImageList(
+   CImageList* pImageList,
+   int nImageListType 
+)
+{
+   CImageList* oldList = m_pImageList;
+   m_pImageList = pImageList;
+   return oldList;
 }
 
 LRESULT CListCtrl::SendMessage(
@@ -3097,8 +3108,8 @@ BOOL CListCtrl::DeleteItem(
    {
       if ( nItem < _qtd_list->count() )
       {
-         QListWidgetItem* lwi = _qtd_list->item(nItem);
-         _qtd_list->takeItem(nItem);
+         QListWidgetItem* lwi = _qtd_list->takeItem(nItem);
+         delete lwi;
          return TRUE;
       }
    }
@@ -4246,11 +4257,11 @@ void CWnd::SetWindowText(
    LPCTSTR lpszString 
 )
 {
-#if UNICODE
-   _qt->setWindowTitle(QString::fromWCharArray(lpszString));
-#else
-   _qt->setWindowTitle(lpszString);
-#endif
+//#if UNICODE
+//   _qt->setWindowTitle(QString::fromWCharArray(lpszString));
+//#else
+//   _qt->setWindowTitle(lpszString);
+//#endif
 }
 
 void CWnd::GetWindowRect(
@@ -4717,15 +4728,19 @@ BOOL CStatusBar::SetIndicators(
    
    for ( pane = 0; pane < nIDCount; pane++ )
    {
-      QLabel* newPane = new QLabel;
+      CStatic* newPane = new CStatic;
       _panes.insert(pane,newPane);
-      _qtd->addWidget(newPane);
+      _qtd->addPermanentWidget(newPane->toQWidget());
       CString lpszText = qtMfcStringResource(lpIDArray[pane]);
 #if UNICODE
-      newPane->setText(QString::fromWCharArray(lpszText));      
+      ((QLabel*)newPane->toQWidget())->setText(QString::fromWCharArray(lpszText));
 #else
-      newPane->setText(lpszText);
+      ((QLabel*)newPane->toQWidget())->setText(QString::fromAscii(lpszText));
 #endif
+      if ( lpIDArray[pane] != ID_SEPARATOR )
+      {
+         mfcToQtWidget.insert(lpIDArray[pane],newPane);
+      }
    }
    return TRUE;
 }
@@ -4736,13 +4751,13 @@ BOOL CStatusBar::SetPaneText(
    BOOL bUpdate 
 )
 {
-   QLabel* pane = _panes.value(nIndex);
+   CStatic* pane = _panes.value(nIndex);
    if ( pane )
    {
 #if UNICODE
-      pane->setText(QString::fromWCharArray(lpszNewText));      
+      ((QLabel*)pane->toQWidget())->setText(QString::fromWCharArray(lpszNewText));
 #else
-      pane->setText(lpszNewText);
+      ((QLabel*)pane->toQWidget())->setText(QString::fromAscii(lpszNewText));
 #endif
       return TRUE;
    }
@@ -4973,6 +4988,17 @@ INT_PTR CDialog::DoModal()
       return 1;
    else
       return 0;
+}
+
+void CDialog::SetWindowText(
+   LPCTSTR lpszString 
+)
+{
+#if UNICODE
+   _qt->setWindowTitle(QString::fromWCharArray(lpszString));
+#else
+   _qt->setWindowTitle(lpszString);
+#endif
 }
 
 void CDialog::ShowWindow(int code)

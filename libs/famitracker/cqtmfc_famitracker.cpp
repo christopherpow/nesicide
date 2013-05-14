@@ -1793,6 +1793,9 @@ void qtMfcInitDialogResource_IDD_OCTAVE(CDialog* parent)
    parent->MapDialogRect(&rect);
    parent->setFixedSize(rect.Width(),rect.Height());
 
+   // THIS DIALOG IS NOT DIRECTLY ACCESSIBLE SO SIGNALS/SLOTS
+   // WILL BE CONNECTED BY THE OWNING WINDOW.
+   
 //   STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD | WS_SYSMENU
 //   EXSTYLE WS_EX_TRANSPARENT
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
@@ -1803,7 +1806,6 @@ void qtMfcInitDialogResource_IDD_OCTAVE(CDialog* parent)
    parent->MapDialogRect(&r1);
    mfc1->Create(CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r1,parent,IDC_OCTAVE);
    mfcToQtWidget->insert(IDC_OCTAVE,mfc1);
-   QObject::connect(mfc1,SIGNAL(currentIndexChanged(int)),parent,SLOT(octave_currentIndexChanged(int)));
 //   IDD_OCTAVE DLGINIT
 //   BEGIN
 //       IDC_OCTAVE, 0x403, 2, 0
@@ -1844,7 +1846,6 @@ void qtMfcInitDialogResource_IDD_OCTAVE(CDialog* parent)
    parent->MapDialogRect(&r3);
    mfc3->Create(_T("Follow-mode"),BS_AUTOCHECKBOX | BS_PUSHLIKE | WS_TABSTOP | WS_VISIBLE,r3,parent,IDC_FOLLOW);
    mfcToQtWidget->insert(IDC_FOLLOW,mfc3);
-   QObject::connect(mfc3,SIGNAL(clicked()),parent,SLOT(follow_clicked()));
 //       CONTROL         "Row highlight",IDC_STATIC,"Static",SS_LEFTNOWORDWRAP | WS_GROUP,129,2,44,8
    CStatic *mfc4 = new CStatic(parent);
    CRect r4(CPoint(129,2),CSize(44,8));
@@ -1864,11 +1865,9 @@ void qtMfcInitDialogResource_IDD_OCTAVE(CDialog* parent)
    mfc5->Create(ES_AUTOHSCROLL | ES_NUMBER | WS_VISIBLE,r5,parent,IDC_HIGHLIGHT1);
    mfc5->setBuddy(mfc6);
    mfcToQtWidget->insert(IDC_HIGHLIGHT1,mfc5);
-   QObject::connect(mfc5,SIGNAL(textChanged(QString)),parent,SLOT(highlight1_textChanged(QString)));
    mfc6->Create(UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_HOTTRACK | WS_VISIBLE,r6,parent,IDC_HIGHLIGHTSPIN1);
    mfc6->setBuddy(mfc5);
    mfcToQtWidget->insert(IDC_HIGHLIGHTSPIN1,mfc6);
-   QObject::connect(mfc6,SIGNAL(valueChanged(int)),parent,SLOT(highlight1_valueChanged(int)));
 //       CONTROL         "2nd highlight",IDC_STATIC,"Static",SS_LEFTNOWORDWRAP | WS_GROUP,211,2,42,8
    CStatic *mfc7 = new CStatic(parent);
    CRect r7(CPoint(211,2),CSize(42,8));
@@ -1888,11 +1887,9 @@ void qtMfcInitDialogResource_IDD_OCTAVE(CDialog* parent)
    mfc8->Create(ES_AUTOHSCROLL | ES_NUMBER | WS_VISIBLE,r8,parent,IDC_HIGHLIGHT2);
    mfc8->setBuddy(mfc9);
    mfcToQtWidget->insert(IDC_HIGHLIGHT2,mfc8);
-   QObject::connect(mfc8,SIGNAL(textChanged(QString)),parent,SLOT(highlight2_textChanged(QString)));
    mfc9->Create(UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_HOTTRACK | WS_VISIBLE,r9,parent,IDC_HIGHLIGHTSPIN2);
    mfc9->setBuddy(mfc8);
    mfcToQtWidget->insert(IDC_HIGHLIGHTSPIN2,mfc9);
-   QObject::connect(mfc9,SIGNAL(valueChanged(int)),parent,SLOT(highlight2_valueChanged(int)));
 //   END
 }   
 

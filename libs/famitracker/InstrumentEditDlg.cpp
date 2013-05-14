@@ -151,9 +151,8 @@ void CInstrumentEditDlg::SetCurrentInstrument(int Index)
 
 	// Dialog title
 	m_pDocument->GetInstrumentName(Index, Name);	
-   qDebug("SetWindowText not done yet");
-//   Title.Format(IDS_INST_EDITOR_TITLE, Index, Name, CHIP_NAMES[InstType]);
-//	SetWindowText(Title);
+   Title.Format(IDS_INST_EDITOR_TITLE, Index, Name, CHIP_NAMES[InstType]);
+	SetWindowText(Title);
 
 	if (InstType != m_iSelectedInstType) {
 

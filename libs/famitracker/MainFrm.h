@@ -194,23 +194,22 @@ public:
 	afx_msg void OnRemoveInstrument();
 	afx_msg void OnCloneInstrument();
 	afx_msg void OnDeepCloneInstrument();
-   
+   afx_msg void OnClickedFollow();
+	afx_msg void OnToggleFollow();   
+   afx_msg void OnCbnSelchangeOctave();
+   afx_msg void OnDeltaposTempoSpin(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnDeltaposSpeedSpin(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnDeltaposRowsSpin(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnDeltaposFrameSpin(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnDeltaposKeyStepSpin(NMHDR *pNMHDR, LRESULT *pResult);
+   afx_msg void OnUpdateSpeedEdit(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateTempoEdit(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateRowsEdit(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateFramesEdit(CCmdUI *pCmdUI);
+   afx_msg void OnUpdateHighlight(CCmdUI *pCmdUI);
    
 public slots:
    void idleProcessing();
-   void songInstruments_doubleClicked(const QModelIndex &index);
-   void songInstruments_currentChanged(const QModelIndex& index,const QModelIndex&);
-   void on_frameChangeAll_clicked(bool checked);
-   void on_frameInc_clicked();   
-   void on_frameDec_clicked();
-   void on_speed_valueChanged(int arg1);
-   void on_tempo_valueChanged(int arg1);
-   void on_numRows_valueChanged(int NewRows);
-   void on_numFrames_valueChanged(int NewFrames);
-   void on_songs_currentIndexChanged(int index);
-   void on_title_textEdited(const QString &arg1);   
-   void on_author_textEdited(const QString &arg1);
-   void on_copyright_textEdited(const QString &arg1);
    void toolBarAction_triggered(int id);
    void toolBarAction_newDocument();
    void toolBarAction_openDocument();
@@ -242,6 +241,25 @@ public slots:
    void instToolBarAction_save();
    void instToolBarAction_edit();
    void updateViews(long hint);
+   void instruments_doubleClicked(const QModelIndex &index);
+   void instruments_currentChanged(const QModelIndex& index,const QModelIndex&);
+   void frameChangeAll_clicked(bool checked);
+   void frameInc_clicked();   
+   void frameDec_clicked();
+   void speedSpin_valueChanged(int arg1);
+   void tempoSpin_valueChanged(int arg1);
+   void rowsSpin_valueChanged(int arg1);
+   void framesSpin_valueChanged(int arg1);
+   void subtune_currentIndexChanged(int index);
+   void songName_textEdited(const QString &arg1);   
+   void songArtist_textEdited(const QString &arg1);
+   void songCopyright_textEdited(const QString &arg1);
+   void octave_currentIndexChanged(int);
+   void follow_clicked();
+   void highlight1_textChanged(QString);
+   void highlightspin1_valueChanged(int);
+   void highlight2_textChanged(QString);
+   void highlightspin2_valueChanged(int);
    
 signals:
    void addToolBarWidget(QToolBar* toolBar);

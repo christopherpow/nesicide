@@ -27,12 +27,6 @@
 
 class CDialogReBar : public CDialogBar
 {
-   Q_OBJECT
-   // Qt interfaces
-public slots:
-   void follow_clicked();
-   
-public:
 	DECLARE_DYNAMIC(CDialogReBar)
 
 public:

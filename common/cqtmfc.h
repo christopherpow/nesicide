@@ -1673,6 +1673,9 @@ public:
    virtual void OnOK( ) { _qtd->accept(); }
    virtual void OnCancel( ) { _qtd->reject(); }
    void ShowWindow(int code);
+   void SetWindowText(
+      LPCTSTR lpszString 
+   );
    virtual BOOL Create(
       UINT nIDTemplate,
       CWnd* pParentWnd = NULL 
@@ -1779,6 +1782,12 @@ public:
       UINT nArrowFlags = ESB_ENABLE_BOTH 
    );
 };
+
+typedef struct _NM_UPDOWN {
+  NMHDR hdr;
+  int   iPos;
+  int   iDelta;
+} NMUPDOWN, *LPNMUPDOWN;
 
 class CSpinButtonCtrl; // CP: for buddy...
 class CEdit : public CWnd
@@ -2285,6 +2294,12 @@ typedef struct tagLVFINDINFO {
   UINT vkDirection;
 } LVFINDINFO, FAR* LPFINDINFO;
 
+#define LVSIL_NORMAL 0
+#define LVSIL_SMALL  1
+#define LVSIL_STATE  2
+
+class CImageList;
+
 class CListCtrl : public CWnd
 {
    Q_OBJECT
@@ -2309,6 +2324,10 @@ public:
       const RECT& rect,
       CWnd* pParentWnd,
       UINT nID 
+   );
+   CImageList* SetImageList(
+      CImageList* pImageList,
+      int nImageListType 
    );
    LRESULT SendMessage(
       UINT message,
@@ -2412,6 +2431,8 @@ public:
       int nItem,
       BOOL bPartialOK 
    );
+protected:
+   CImageList* m_pImageList;
 };
 
 class CListBox : public CWnd
@@ -2940,7 +2961,7 @@ class CStatusBar : public CControlBar
    // Qt interfaces
 protected:
    QStatusBar* _qtd;
-   QHash<int,QLabel*> _panes;
+   QHash<int,CStatic*> _panes;
    UINT _dwStyle;
    
    // MFC interfaces
