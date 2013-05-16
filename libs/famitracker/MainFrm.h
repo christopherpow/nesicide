@@ -187,6 +187,25 @@ public:
 	afx_msg void OnUpdateSBOctave(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateSBFrequency(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateSBChip(CCmdUI *pCmdUI);
+   afx_msg void OnUpdateInsertFrame(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateRemoveFrame(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateDuplicateFrame(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateModuleMoveframedown(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateModuleMoveframeup(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateInstrumentNew(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateInstrumentRemove(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateInstrumentClone(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateInstrumentDeepClone(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateInstrumentEdit(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateInstrumentLoad(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateInstrumentSave(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateNextSong(CCmdUI *pCmdUI);
+	afx_msg void OnUpdatePrevSong(CCmdUI *pCmdUI);
+   afx_msg void OnUpdateSpeedEdit(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateTempoEdit(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateRowsEdit(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateFramesEdit(CCmdUI *pCmdUI);
+   afx_msg void OnUpdateHighlight(CCmdUI *pCmdUI);
    afx_msg void OnLoadInstrument();
 	afx_msg void OnSaveInstrument();
 	afx_msg void OnEditInstrument();
@@ -202,11 +221,9 @@ public:
 	afx_msg void OnDeltaposRowsSpin(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnDeltaposFrameSpin(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnDeltaposKeyStepSpin(NMHDR *pNMHDR, LRESULT *pResult);
-   afx_msg void OnUpdateSpeedEdit(CCmdUI *pCmdUI);
-	afx_msg void OnUpdateTempoEdit(CCmdUI *pCmdUI);
-	afx_msg void OnUpdateRowsEdit(CCmdUI *pCmdUI);
-	afx_msg void OnUpdateFramesEdit(CCmdUI *pCmdUI);
-   afx_msg void OnUpdateHighlight(CCmdUI *pCmdUI);
+   afx_msg void OnChangeAll();
+	afx_msg void OnBnClickedIncFrame();
+	afx_msg void OnBnClickedDecFrame();
    
 public slots:
    void idleProcessing();
@@ -243,7 +260,7 @@ public slots:
    void updateViews(long hint);
    void instruments_doubleClicked(const QModelIndex &index);
    void instruments_currentChanged(const QModelIndex& index,const QModelIndex&);
-   void frameChangeAll_clicked(bool checked);
+   void frameChangeAll_clicked();
    void frameInc_clicked();   
    void frameDec_clicked();
    void speedSpin_valueChanged(int arg1);

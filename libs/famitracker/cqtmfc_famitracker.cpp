@@ -780,11 +780,9 @@ void qtMfcInitDialogResource_IDD_MAINFRAME(CDialog* parent1)
    mfc3->Create(ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER | WS_VISIBLE,r3,parent,IDC_SPEED);
    mfc3->setBuddy(mfc4);
    mfcToQtWidget->insert(IDC_SPEED,mfc3);
-   QObject::connect(mfc3,SIGNAL(textChanged(QString)),parent,SLOT(speed_textChanged(QString)));
    mfc4->Create(UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r4,parent,IDC_SPEED_SPIN);
    mfc4->setBuddy(mfc3);
    mfcToQtWidget->insert(IDC_SPEED_SPIN,mfc4);
-   QObject::connect(mfc4,SIGNAL(valueChanged(int)),parent,SLOT(speedSpin_valueChanged(int)));   
 //       LTEXT           "Tempo",IDC_STATIC,13,31,29,10
    CStatic* mfc5 = new CStatic(parent);
    CRect r5(CPoint(13,31),CSize(29,10));
@@ -804,11 +802,9 @@ void qtMfcInitDialogResource_IDD_MAINFRAME(CDialog* parent1)
    mfc6->Create(ES_AUTOHSCROLL | ES_READONLY | WS_VISIBLE,r6,parent,IDC_TEMPO);
    mfc6->setBuddy(mfc7);
    mfcToQtWidget->insert(IDC_TEMPO,mfc6);
-   QObject::connect(mfc6,SIGNAL(textChanged(QString)),parent,SLOT(tempo_textChanged(QString)));
    mfc7->Create(UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r7,parent,IDC_TEMPO_SPIN);
    mfc7->setBuddy(mfc6);
    mfcToQtWidget->insert(IDC_TEMPO_SPIN,mfc7);
-   QObject::connect(mfc7,SIGNAL(valueChanged(int)),parent,SLOT(tempoSpin_valueChanged(int)));   
 //       LTEXT           "Rows",IDC_STATIC,13,45,29,10
    CStatic* mfc8 = new CStatic(parent);
    CRect r8(CPoint(13,45),CSize(29,10));
@@ -828,11 +824,9 @@ void qtMfcInitDialogResource_IDD_MAINFRAME(CDialog* parent1)
    mfc9->Create(ES_AUTOHSCROLL | ES_READONLY | ES_WANTRETURN | WS_VISIBLE,r9,parent,IDC_ROWS);
    mfc9->setBuddy(mfc10);
    mfcToQtWidget->insert(IDC_ROWS,mfc9);
-   QObject::connect(mfc9,SIGNAL(textChanged(QString)),parent,SLOT(rows_textChanged(QString)));
    mfc10->Create(UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r10,parent,IDC_ROWS_SPIN);
    mfc10->setBuddy(mfc9);
    mfcToQtWidget->insert(IDC_ROWS_SPIN,mfc10);
-   QObject::connect(mfc10,SIGNAL(valueChanged(int)),parent,SLOT(rowsSpin_valueChanged(int)));   
 //       LTEXT           "Frames",IDC_STATIC,13,59,29,10
    CStatic* mfc11 = new CStatic(parent);
    CRect r11(CPoint(13,59),CSize(29,10));
@@ -852,11 +846,9 @@ void qtMfcInitDialogResource_IDD_MAINFRAME(CDialog* parent1)
    mfc12->Create(ES_AUTOHSCROLL | ES_READONLY | WS_VISIBLE,r12,parent,IDC_FRAMES);
    mfc12->setBuddy(mfc13);
    mfcToQtWidget->insert(IDC_FRAMES,mfc12);
-   QObject::connect(mfc12,SIGNAL(textChanged(QString)),parent,SLOT(frames_textChanged(QString)));
    mfc13->Create(UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r13,parent,IDC_FRAME_SPIN);
    mfc13->setBuddy(mfc12);
    mfcToQtWidget->insert(IDC_FRAME_SPIN,mfc13);
-   QObject::connect(mfc13,SIGNAL(valueChanged(int)),parent,SLOT(framesSpin_valueChanged(int)));   
 //       LTEXT           "Step",IDC_STATIC,13,91,29,10,0,WS_EX_TRANSPARENT
    CStatic* mfc15 = new CStatic(parent);
    CRect r15(CPoint(13,91),CSize(29,10));
@@ -876,61 +868,51 @@ void qtMfcInitDialogResource_IDD_MAINFRAME(CDialog* parent1)
    mfc16->Create(ES_AUTOHSCROLL | ES_READONLY | WS_VISIBLE,r16,parent,IDC_KEYSTEP);
    mfc16->setBuddy(mfc17);
    mfcToQtWidget->insert(IDC_KEYSTEP,mfc16);
-   QObject::connect(mfc16,SIGNAL(textChanged(QString)),parent,SLOT(keyStep_textChanged(QString)));
    mfc17->Create(UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r17,parent,IDC_KEYSTEP_SPIN);
    mfc17->setBuddy(mfc16);
    mfcToQtWidget->insert(IDC_KEYSTEP_SPIN,mfc17);
-   QObject::connect(mfc17,SIGNAL(valueChanged(int)),parent,SLOT(keyStepSpin_valueChanged(int)));   
 //       CONTROL         "Key repetition",IDC_KEYREPEAT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,105,68,9,WS_EX_TRANSPARENT
    CButton* mfc18 = new CButton(parent);
    CRect r18(CPoint(13,105),CSize(68,9));
    parent->MapDialogRect(&r18);
    mfc18->Create(_T("Key repetition"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r18,parent,IDC_KEYREPEAT);
    mfcToQtWidget->insert(IDC_KEYREPEAT,mfc18);
-   QObject::connect(mfc18,SIGNAL(clicked()),parent,SLOT(keyRepeat_clicked()));
 //       EDITTEXT        IDC_SONG_NAME,97,18,83,12,ES_AUTOHSCROLL
    CEdit* mfc20 = new CEdit(parent);
    CRect r20(CPoint(97,18),CSize(83,12));
    parent->MapDialogRect(&r20);
    mfc20->Create(ES_AUTOHSCROLL | WS_VISIBLE,r20,parent,IDC_SONG_NAME);
    mfcToQtWidget->insert(IDC_SONG_NAME,mfc20);
-   QObject::connect(mfc20,SIGNAL(textChanged(QString)),parent,SLOT(songName_textChanged(QString)));
 //       EDITTEXT        IDC_SONG_ARTIST,97,33,83,12,ES_AUTOHSCROLL
    CEdit* mfc21 = new CEdit(parent);
    CRect r21(CPoint(97,33),CSize(83,12));
    parent->MapDialogRect(&r21);
    mfc21->Create(ES_AUTOHSCROLL | WS_VISIBLE,r21,parent,IDC_SONG_ARTIST);
    mfcToQtWidget->insert(IDC_SONG_ARTIST,mfc21);
-   QObject::connect(mfc21,SIGNAL(textChanged(QString)),parent,SLOT(songArtist_textChanged(QString)));
 //       EDITTEXT        IDC_SONG_COPYRIGHT,97,49,83,12,ES_AUTOHSCROLL
    CEdit* mfc22 = new CEdit(parent);
    CRect r22(CPoint(97,49),CSize(83,12));
    parent->MapDialogRect(&r22);
    mfc22->Create(ES_AUTOHSCROLL | WS_VISIBLE,r22,parent,IDC_SONG_COPYRIGHT);
    mfcToQtWidget->insert(IDC_SONG_COPYRIGHT,mfc22);
-   QObject::connect(mfc22,SIGNAL(textChanged(QString)),parent,SLOT(songCopyright_textChanged(QString)));
 //       COMBOBOX        IDC_SUBTUNE,97,104,84,85,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
    CComboBox* mfc24 = new CComboBox(parent);
    CRect r24(CPoint(97,104),CSize(84,85));
    parent->MapDialogRect(&r24);
    mfc24->Create(CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r24,parent,IDC_SUBTUNE);
    mfcToQtWidget->insert(IDC_SUBTUNE,mfc24);
-   QObject::connect(mfc24,SIGNAL(currentIndexChanged(int)),parent,SLOT(subtune_currentIndexChanged(int)));
 //       CONTROL         "",IDC_INSTRUMENTS,"SysListView32",LVS_LIST | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOCOLUMNHEADER | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,193,5,202,103
    CListCtrl* mfc25 = new CListCtrl(parent);
    CRect r25(CPoint(193,5),CSize(202,103));
    parent->MapDialogRect(&r25);
    mfc25->Create(LVS_LIST | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOCOLUMNHEADER | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP | WS_VISIBLE,r25,parent,IDC_INSTRUMENTS);
    mfcToQtWidget->insert(IDC_INSTRUMENTS,mfc25);
-   QObject::connect(mfc25,SIGNAL(cellClicked(int,int)),parent,SLOT(instruments_cellClicked(int,int)));
-   QObject::connect(mfc25,SIGNAL(cellDoubleClicked(int,int)),parent,SLOT(instruments_cellDoubleClicked(int,int)));
 //       EDITTEXT        IDC_INSTNAME,324,109,71,12,ES_AUTOHSCROLL
    CEdit* mfc26 = new CEdit(parent);
    CRect r26(CPoint(324,109),CSize(71,12));
    parent->MapDialogRect(&r26);
    mfc26->Create(ES_AUTOHSCROLL | WS_VISIBLE,r26,parent,IDC_INSTNAME);
    mfcToQtWidget->insert(IDC_INSTNAME,mfc26);
-   QObject::connect(mfc26,SIGNAL(textChanged(QString)),parent,SLOT(instName_textChanged(QString)));
 //   END
 }
 
@@ -2581,21 +2563,18 @@ void qtMfcInitDialogResource_IDD_FRAMECONTROLS(CDialog* parent1)
    parent->MapDialogRect(&r1);
    mfc1->Create(_T("+"),WS_VISIBLE,r1,parent,IDC_FRAME_INC);
    mfcToQtWidget->insert(IDC_FRAME_INC,mfc1);
-   QObject::connect(mfc1,SIGNAL(clicked()),parent,SLOT(frameInc_clicked()));
 //       PUSHBUTTON      "-",IDC_FRAME_DEC,23,0,17,12
    CButton* mfc2 = new CButton(parent);
    CRect r2(CPoint(23,0),CSize(17,12));
    parent->MapDialogRect(&r2);
    mfc2->Create(_T("-"),WS_VISIBLE,r2,parent,IDC_FRAME_DEC);
    mfcToQtWidget->insert(IDC_FRAME_DEC,mfc2);
-   QObject::connect(mfc2,SIGNAL(clicked()),parent,SLOT(frameDec_clicked()));
 //       CONTROL         "Change all",IDC_CHANGE_ALL,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,51,2,56,10
    CButton* mfc3 = new CButton(parent);
    CRect r3(CPoint(51,2),CSize(56,10));
    parent->MapDialogRect(&r3);
    mfc3->Create(_T("Change all"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r3,parent,IDC_CHANGE_ALL);
    mfcToQtWidget->insert(IDC_CHANGE_ALL,mfc3);
-   QObject::connect(mfc3,SIGNAL(clicked()),parent,SLOT(changeAll_clicked()));
 //   END
 }   
 
@@ -3210,7 +3189,7 @@ void qtMfcInitToolBarResource_IDR_MAINFRAME(UINT dlgID,CToolBar* parent)
    QToolBar* toolBar = dynamic_cast<QToolBar*>(parent->toQWidget());
    QPixmap toolBarActionPixmap;
    QAction* toolBarAction;
-
+   
 //IDR_MAINFRAME TOOLBAR 16, 15
    toolBar->setIconSize(QSize(16,15));
 //BEGIN

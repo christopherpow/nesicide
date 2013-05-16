@@ -1440,6 +1440,22 @@ BOOL CBitmap::CreateCompatibleBitmap(
    return TRUE;
 }
 
+BOOL CBitmap::CreateBitmap(
+   int nWidth,
+   int nHeight,
+   UINT nPlanes,
+   UINT nBitcount,
+   const void* lpBits 
+)
+{
+   if ( _owned )
+      delete _qpixmap;
+   _qpixmap = new QPixmap(nWidth,nHeight);
+   _qpixmap->loadFromData((const uchar*)lpBits,nWidth*nHeight*sizeof(short int));
+   _owned = true;
+   return TRUE;
+}
+
 CSize CBitmap::SetBitmapDimension(
    int nWidth,
    int nHeight 
@@ -2319,8 +2335,6 @@ BOOL CListCtrl::Create(
       
       // Pass-through signals
       QObject::connect(_qtd_list,SIGNAL(itemSelectionChanged()),this,SIGNAL(itemSelectionChanged()));
-      QObject::connect(_qtd_list,SIGNAL(cellClicked(int,int)),this,SIGNAL(cellClicked(int,int)));
-      QObject::connect(_qtd_list,SIGNAL(cellDoubleClicked(int,int)),this,SIGNAL(cellDoubleClicked(int,int)));
 
       _qtd_list->setFlow(QListView::TopToBottom);
       _qtd_list->setWrapping(true);
@@ -4541,6 +4555,7 @@ BOOL CReBarCtrl::Create(
    CRect clientRect;
    pParentWnd->GetClientRect(&clientRect);
    _qtd->setGeometry(clientRect.left,clientRect.top,clientRect.right-clientRect.left,clientRect.bottom-clientRect.top);
+   return TRUE;
 }
 
 BOOL CReBarCtrl::InsertBand( 
@@ -4596,6 +4611,7 @@ BOOL CReBar::Create(
    m_pReBarCtrl->Create(dwStyle,rect,pParentWnd,nID);
    
    ptrToTheApp->qtMainWindow->addToolBar(dynamic_cast<QToolBar*>(m_pReBarCtrl->toQWidget()));
+   return TRUE;
 }
 
 CToolBar::CToolBar(CWnd* parent)
@@ -5987,6 +6003,14 @@ BOOL CButton::Create(
    return TRUE;
 }
 
+HBITMAP CButton::SetBitmap(
+   HBITMAP hBitmap 
+)
+{
+   CBitmap* pBitmap = (CBitmap*)hBitmap;
+   _qtd->setIcon(QIcon(*pBitmap->toQPixmap()));
+}
+
 void CButton::SetDlgItemInt(
    int nID,
    UINT nValue,
@@ -6053,6 +6077,59 @@ UINT CButton::IsDlgButtonChecked(
 ) const
 {
    return _qtd->isChecked();
+}
+
+
+CBitmapButton::CBitmapButton(CWnd* parent)
+   : CButton(parent),
+     _qtd(NULL)
+{
+}
+
+CBitmapButton::~CBitmapButton()
+{
+   if ( _qtd )
+      delete _qtd;
+   _qtd = NULL;
+   _qt = NULL;
+}
+
+BOOL CBitmapButton::Create(
+   LPCTSTR lpszCaption,
+   DWORD dwStyle,
+   const RECT& rect,
+   CWnd* pParentWnd,
+   UINT nID 
+)
+{
+   m_hWnd = (HWND)this;
+
+   DWORD buttonType = dwStyle&0x000F;
+   DWORD buttonStyle = dwStyle&0xFFF0;
+   
+   if ( _qt )
+      delete _qt;
+
+   _grid = NULL;
+   
+   _qt = new QToolButton(pParentWnd->toQWidget());
+   
+   // Downcast to save having to do it all over the place...
+   _qtd = dynamic_cast<QToolButton*>(_qt);
+
+#if UNICODE
+   _qtd->setText(QString::fromWCharArray(lpszCaption));
+#else
+   _qtd->setText(lpszCaption);
+#endif
+   
+   _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
+   _qtd->setVisible(dwStyle&WS_VISIBLE);
+   
+   // Pass-through signals
+   QObject::connect(_qtd,SIGNAL(clicked()),this,SIGNAL(clicked()));
+   
+   return TRUE;
 }
 
 CSpinButtonCtrl::CSpinButtonCtrl(CWnd* parent)

@@ -59,6 +59,7 @@
 #include <QGroupBox>
 #include <QFileDialog>
 #include <QMenuBar>
+#include <QToolButton>
 
 #ifndef QT_NO_DEBUG
 //#define _DEBUG
@@ -822,6 +823,13 @@ public:
    virtual ~CBitmap();
    BOOL LoadBitmap(
       UINT nIDResource 
+   );
+   BOOL CreateBitmap(
+      int nWidth,
+      int nHeight,
+      UINT nPlanes,
+      UINT nBitcount,
+      const void* lpBits 
    );
    BOOL CreateCompatibleBitmap(
       CDC* pDC,
@@ -1888,6 +1896,9 @@ public:
       CWnd* pParentWnd,
       UINT nID 
    );
+   HBITMAP SetBitmap(
+      HBITMAP hBitmap 
+   );
    void SetDlgItemInt(
       int nID,
       UINT nValue,
@@ -1918,6 +1929,28 @@ public:
    UINT IsDlgButtonChecked( 
       int nIDButton
    ) const;
+};
+
+class CBitmapButton : public CButton
+{
+   Q_OBJECT
+   // Qt interfaces
+protected:
+   QToolButton* _qtd;
+signals:
+   void clicked();
+
+   // MFC interfaces
+public:
+   CBitmapButton(CWnd* parent = 0);
+   virtual ~CBitmapButton();
+   virtual BOOL Create(
+      LPCTSTR lpszCaption,
+      DWORD dwStyle,
+      const RECT& rect,
+      CWnd* pParentWnd,
+      UINT nID 
+   );
 };
 
 // From mingw/include/commctrl.h

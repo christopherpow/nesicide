@@ -148,9 +148,9 @@ void CMainFrame::showEvent(QShowEvent *)
       QObject::connect(m_wndDialogBar.GetDlgItem(IDC_SONG_NAME)->toQWidget(),SIGNAL(textEdited(QString)),this,SLOT(songName_textEdited(QString)));
       QObject::connect(m_wndDialogBar.GetDlgItem(IDC_SONG_ARTIST)->toQWidget(),SIGNAL(textEdited(QString)),this,SLOT(songArtist_textEdited(QString)));
       QObject::connect(m_wndDialogBar.GetDlgItem(IDC_SONG_COPYRIGHT)->toQWidget(),SIGNAL(textEdited(QString)),this,SLOT(songCopyright_textEdited(QString)));
-//      void frameChangeAll_clicked(bool checked);
-//      void frameInc_clicked();   
-//      void frameDec_clicked();
+      QObject::connect(m_wndFrameControls.GetDlgItem(IDC_FRAME_INC)->toQWidget(),SIGNAL(clicked()),this,SLOT(frameInc_clicked()));
+      QObject::connect(m_wndFrameControls.GetDlgItem(IDC_FRAME_DEC)->toQWidget(),SIGNAL(clicked()),this,SLOT(frameDec_clicked()));
+      QObject::connect(m_wndFrameControls.GetDlgItem(IDC_CHANGE_ALL)->toQWidget(),SIGNAL(clicked()),this,SLOT(frameChangeAll_clicked()));
       qDebug("DONE CONNECTING BURIED SIGNALS NOW...");
       
       
@@ -180,8 +180,164 @@ void CMainFrame::idleProcessing()
 {   
    CCmdUI cmdUI;
    
-   cmdUI.m_nIndex = -1;
+   // Update toolbar button states.
+   cmdUI.m_nID = ID_FILE_NEW;
+   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+   }
+   cmdUI.m_nID = ID_FILE_OPEN;
+   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+   }
+   cmdUI.m_nID = ID_FILE_SAVE;
+   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+   }
+   cmdUI.m_nID = ID_EDIT_CUT;
+   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+   }
+   cmdUI.m_nID = ID_EDIT_COPY;
+   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+   }
+   cmdUI.m_nID = ID_EDIT_PASTE;
+   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+   }
+   cmdUI.m_nID = ID_APP_ABOUT;
+   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+   }
+   cmdUI.m_nID = ID_CONTEXT_HELP;
+   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+   }
+   cmdUI.m_nID = ID_MODULE_INSERTFRAME;
+   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateInsertFrame(&cmdUI);
+   }
+   cmdUI.m_nID = ID_MODULE_REMOVEFRAME;
+   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateRemoveFrame(&cmdUI);
+   }
+   cmdUI.m_nID = ID_MODULE_MOVEFRAMEDOWN;
+   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateModuleMoveframedown(&cmdUI);
+   }
+   cmdUI.m_nID = ID_MODULE_MOVEFRAMEUP;
+   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateModuleMoveframeup(&cmdUI);
+   }
+   cmdUI.m_nID = ID_MODULE_DUPLICATEFRAME;
+   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateDuplicateFrame(&cmdUI);
+   }
+   cmdUI.m_nID = ID_MODULE_MODULEPROPERTIES;
+   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+   }
+   cmdUI.m_nID = ID_TRACKER_PLAY;
+   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+   }
+   cmdUI.m_nID = ID_TRACKER_PLAYPATTERN;
+   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+   }
+   cmdUI.m_nID = ID_TRACKER_STOP;
+   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+   }
+   cmdUI.m_nID = ID_TRACKER_EDIT;
+   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+   }
+   cmdUI.m_nID = ID_PREV_SONG;
+   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdatePrevSong(&cmdUI);
+   }
+   cmdUI.m_nID = ID_NEXT_SONG;
+   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateNextSong(&cmdUI);
+   }
+   cmdUI.m_nID = ID_FILE_GENERALSETTINGS;
+   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+   }
+   cmdUI.m_nID = ID_FILE_CREATE_NSF;
+   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+   }
    
+   // Update instrument toolbar button states.
+   cmdUI.m_nID = ID_INSTRUMENT_NEW;
+   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateInstrumentNew(&cmdUI);
+   }
+   cmdUI.m_nID = ID_INSTRUMENT_REMOVE;
+   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateInstrumentRemove(&cmdUI);
+   }
+   cmdUI.m_nID = ID_INSTRUMENT_CLONE;
+   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateInstrumentClone(&cmdUI);
+   }
+   cmdUI.m_nID = ID_INSTRUMENT_LOAD;
+   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateInstrumentLoad(&cmdUI);
+   }
+   cmdUI.m_nID = ID_INSTRUMENT_SAVE;
+   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateInstrumentSave(&cmdUI);
+   }
+   cmdUI.m_nID = ID_INSTRUMENT_EDIT;
+   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateInstrumentEdit(&cmdUI);
+   }
+   
+   // Update status bar panes.
    cmdUI.m_nID = ID_INDICATOR_CHIP;
    cmdUI.m_pOther = m_wndStatusBar.GetDlgItem(cmdUI.m_nID);
    if ( cmdUI.m_pOther )
@@ -455,20 +611,17 @@ void CMainFrame::instToolBarAction_edit()
 
 void CMainFrame::frameInc_clicked()
 {
-   CFamiTrackerView* pView = (CFamiTrackerView*)GetActiveView();
-   pView->IncreaseCurrentPattern();
+   OnBnClickedIncFrame();
 }
 
 void CMainFrame::frameDec_clicked()
 {
-   CFamiTrackerView* pView = (CFamiTrackerView*)GetActiveView();
-   pView->DecreaseCurrentPattern();
+   OnBnClickedDecFrame();
 }
 
-void CMainFrame::frameChangeAll_clicked(bool checked)
+void CMainFrame::frameChangeAll_clicked()
 {
-   CFamiTrackerView* pView = (CFamiTrackerView*)GetActiveView();
-   pView->SetChangeAllPattern(checked);
+   OnChangeAll();
 }
 
 void CMainFrame::instruments_currentChanged(const QModelIndex &index,const QModelIndex &)
@@ -1900,4 +2053,124 @@ void CMainFrame::OnUpdateHighlight(CCmdUI *pCmdUI)
 		LastHighlight1 = Highlight1;
 		LastHighlight2 = Highlight2;
 	}
+}
+
+void CMainFrame::OnUpdateInsertFrame(CCmdUI *pCmdUI)
+{
+	CFamiTrackerDoc* pDoc = (CFamiTrackerDoc*)GetActiveDocument();
+
+	if (!pDoc->IsFileLoaded())
+		return;
+
+	pCmdUI->Enable(pDoc->GetFrameCount() < MAX_FRAMES);
+}
+
+void CMainFrame::OnUpdateRemoveFrame(CCmdUI *pCmdUI)
+{
+	CFamiTrackerDoc* pDoc = (CFamiTrackerDoc*)GetActiveDocument();
+
+	if (!pDoc->IsFileLoaded())
+		return;
+
+	pCmdUI->Enable(pDoc->GetFrameCount() > 1);
+}
+
+void CMainFrame::OnUpdateDuplicateFrame(CCmdUI *pCmdUI)
+{
+	CFamiTrackerDoc* pDoc = (CFamiTrackerDoc*)GetActiveDocument();
+
+	if (!pDoc->IsFileLoaded())
+		return;
+
+	pCmdUI->Enable(pDoc->GetFrameCount() < MAX_FRAMES);
+}
+
+void CMainFrame::OnUpdateModuleMoveframedown(CCmdUI *pCmdUI)
+{
+	CFamiTrackerDoc* pDoc = (CFamiTrackerDoc*)GetActiveDocument();
+	CFamiTrackerView *pView = (CFamiTrackerView*)GetActiveView();
+
+	if (!pDoc->IsFileLoaded())
+		return;
+
+	pCmdUI->Enable(!(pView->GetSelectedFrame() == (pDoc->GetFrameCount() - 1)));
+}
+
+void CMainFrame::OnUpdateModuleMoveframeup(CCmdUI *pCmdUI)
+{
+	CFamiTrackerView *pView = (CFamiTrackerView*)GetActiveView();
+	pCmdUI->Enable(pView->GetSelectedFrame() > 0);
+}
+
+void CMainFrame::OnUpdateInstrumentNew(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(m_pInstrumentList->GetItemCount() < MAX_INSTRUMENTS);
+}
+
+void CMainFrame::OnUpdateInstrumentRemove(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(m_pInstrumentList->GetItemCount() > 0);
+}
+
+void CMainFrame::OnUpdateInstrumentClone(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(m_pInstrumentList->GetItemCount() > 0 && m_pInstrumentList->GetItemCount() < MAX_INSTRUMENTS);
+}
+
+void CMainFrame::OnUpdateInstrumentDeepClone(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(m_pInstrumentList->GetItemCount() > 0 && m_pInstrumentList->GetItemCount() < MAX_INSTRUMENTS);
+}
+
+void CMainFrame::OnUpdateInstrumentLoad(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(m_pInstrumentList->GetItemCount() < MAX_INSTRUMENTS);
+}
+
+void CMainFrame::OnUpdateInstrumentSave(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(m_pInstrumentList->GetItemCount() > 0);
+}
+
+void CMainFrame::OnUpdateInstrumentEdit(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(m_pInstrumentList->GetItemCount() > 0);
+}
+
+void CMainFrame::OnUpdateNextSong(CCmdUI *pCmdUI)
+{
+	CFamiTrackerDoc *pDoc = (CFamiTrackerDoc*)GetActiveDocument();
+	if (GetSelectedTrack() < (signed)(pDoc->GetTrackCount() - 1))
+		pCmdUI->Enable(TRUE);
+	else
+		pCmdUI->Enable(FALSE);
+}
+
+void CMainFrame::OnUpdatePrevSong(CCmdUI *pCmdUI)
+{
+	if (GetSelectedTrack() > 0)
+		pCmdUI->Enable(TRUE);
+	else
+		pCmdUI->Enable(FALSE);
+}
+
+void CMainFrame::OnBnClickedIncFrame()
+{
+	CFamiTrackerView *pView = static_cast<CFamiTrackerView*>(GetActiveView());
+	pView->IncreaseCurrentPattern();
+	pView->SetFocus();
+}
+
+void CMainFrame::OnBnClickedDecFrame()
+{
+	CFamiTrackerView *pView = static_cast<CFamiTrackerView*>(GetActiveView());
+	pView->DecreaseCurrentPattern();
+	pView->SetFocus();
+}
+
+void CMainFrame::OnChangeAll()
+{	
+	CFamiTrackerView *pView = static_cast<CFamiTrackerView*>(GetActiveView());
+	bool Enabled = m_wndFrameControls.IsDlgButtonChecked(IDC_CHANGE_ALL) != 0;
+	pView->SetChangeAllPattern(Enabled);
 }
