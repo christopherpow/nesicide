@@ -951,6 +951,7 @@ void qtMfcInitDialogResource_IDD_SPEED(CDialog* parent1)
    parent->setFixedSize(rect.Width(),rect.Height());
 //   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 //   CAPTION "Custom speed"
+   parent->SetWindowText("Custom speed");
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
 //   BEGIN
 //       DEFPUSHBUTTON   "OK",IDOK,139,7,50,14
@@ -995,6 +996,7 @@ void qtMfcInitDialogResource_IDD_PCMIMPORT(CDialog* parent1)
    parent->setFixedSize(rect.Width(),rect.Height());   
 //   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 //   CAPTION "PCM import"
+   parent->SetWindowText("PCM import");
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
 //   BEGIN
 //   GROUPBOX        "Quality: 0",IDC_QUALITY_FRM,7,7,136,36
@@ -1346,6 +1348,7 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT(CDialog* parent1)
    parent->setFixedSize(rect.Width(),rect.Height());   
 //   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 //   CAPTION "Instrument editor"
+   parent->SetWindowText("Instrument editor");
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
 //   BEGIN
 //   CONTROL         "",IDC_INST_TAB,"SysTabControl32",0x0,7,7,375,185
@@ -1376,6 +1379,7 @@ void qtMfcInitDialogResource_IDD_CONFIG_APPEARANCE(CDialog* parent1)
    parent->setFixedSize(rect.Width(),rect.Height());   
 //   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 //   CAPTION "Appearance"
+   parent->SetWindowText("Appearance");
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
 //   BEGIN
 //       GROUPBOX        "Color schemes",IDC_STATIC,7,7,149,39
@@ -1551,6 +1555,7 @@ void qtMfcInitDialogResource_IDD_PROPERTIES(CDialog* parent1)
    parent->setFixedSize(rect.Width(),rect.Height());
 //   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 //   CAPTION "Module properties"
+   parent->SetWindowText("Module properties");
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
 //   BEGIN
 //       GROUPBOX        "Song editor",IDC_STATIC,7,7,199,147
@@ -1887,6 +1892,7 @@ void qtMfcInitDialogResource_IDD_EXPORT(CDialog* parent1)
    parent->setFixedSize(rect.Width(),rect.Height());
 //   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 //   CAPTION "Export file"
+   parent->SetWindowText("Export file");
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
 //   BEGIN
 //       GROUPBOX        "NSF file options",IDC_STATIC,7,7,173,75
@@ -2591,6 +2597,7 @@ void qtMfcInitDialogResource_IDD_SAMPLE_EDITOR(CDialog* parent1)
    parent->setSizeIncrement(1,1);
 //   STYLE DS_SETFONT | DS_FIXEDSYS | WS_MAXIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 //   CAPTION "DPCM sample editor"
+   parent->SetWindowText("DPCM sample editor");
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
 //   BEGIN
 //   DEFPUSHBUTTON   "OK",IDOK,372,234,50,14
@@ -2723,6 +2730,7 @@ void qtMfcInitDialogResource_IDD_CHANNELS(CDialog* parent1)
    parent->setFixedSize(rect.Width(),rect.Height());
 //   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 //   CAPTION "Channels"
+   parent->SetWindowText("Channels");
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
 //   BEGIN
 //       GROUPBOX        "Available channels",IDC_STATIC,7,7,138,197
@@ -2797,6 +2805,7 @@ void qtMfcInitDialogResource_IDD_COMMENTS(CDialog* parent1)
    parent->setFixedSize(rect.Width(),rect.Height());
 //   STYLE DS_SETFONT | DS_FIXEDSYS | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 //   CAPTION "Module message"
+   parent->SetWindowText("Module message");
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
 //   BEGIN
 //       DEFPUSHBUTTON   "OK",IDC_OK,251,211,50,14
@@ -3035,6 +3044,7 @@ void qtMfcInitDialogResource_IDD_IMPORT(CDialog* parent1)
    parent->setFixedSize(rect.Width(),rect.Height());
 //   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 //   CAPTION "Import options"
+   parent->SetWindowText("Import options");
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
 //   BEGIN
 //       GROUPBOX        "Tracks",IDC_STATIC,7,7,147,137

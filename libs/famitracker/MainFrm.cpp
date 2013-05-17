@@ -1120,9 +1120,9 @@ void CMainFrame::UpdateInstrumentList()
 
 void CMainFrame::SetSongInfo(char *Name, char *Artist, char *Copyright)
 {
-//	m_wndDialogBar.SetDlgItemText(IDC_SONG_NAME, Name);
-//	m_wndDialogBar.SetDlgItemText(IDC_SONG_ARTIST, Artist);
-//	m_wndDialogBar.SetDlgItemText(IDC_SONG_COPYRIGHT, Copyright);
+	m_wndDialogBar.SetDlgItemText(IDC_SONG_NAME, Name);
+	m_wndDialogBar.SetDlgItemText(IDC_SONG_ARTIST, Artist);
+	m_wndDialogBar.SetDlgItemText(IDC_SONG_COPYRIGHT, Copyright);
 }
 
 void CMainFrame::UpdateTrackBox()
@@ -1223,11 +1223,6 @@ void CMainFrame::OnModuleModuleproperties()
 	// Display module properties dialog
 	CModulePropertiesDlg propertiesDlg;
 	propertiesDlg.DoModal();
-   
-   // CP: TEST
-   NMHDR nmhdr;
-   LRESULT result;
-   OnDblClkInstruments(&nmhdr,&result);
 }
 
 void CMainFrame::OnModuleChannels()
