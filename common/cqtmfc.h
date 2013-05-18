@@ -1797,21 +1797,18 @@ typedef struct _NM_UPDOWN {
   int   iDelta;
 } NMUPDOWN, *LPNMUPDOWN;
 
-class CSpinButtonCtrl; // CP: for buddy...
 class CEdit : public CWnd
 {
    Q_OBJECT
    // Qt interfaces
 public:
-   void setBuddy(CSpinButtonCtrl* buddy) { _buddy = buddy; }
    void setText(QString text) { if ( _dwStyle&ES_MULTILINE ) _qtd_ptedit->setPlainText(text); else _qtd_ledit->setText(text); }
 protected:
    QPlainTextEdit* _qtd_ptedit;
    QLineEdit*      _qtd_ledit;
-   CSpinButtonCtrl* _buddy;
    DWORD _dwStyle;
 signals:
-   void textChanged(QString);
+   void textChanged(QString str);
    
    // MFC interfaces
 public:
@@ -2041,13 +2038,13 @@ class CSpinButtonCtrl : public CWnd
 {
    Q_OBJECT
    // Qt interfaces
-public:
-   void setBuddy(CEdit* buddy) { _buddy = buddy; }
 protected:
    QSpinBox* _qtd;
-   CEdit* _buddy;
+   int _oldValue;
+public slots:
+   void control_edited();
 signals:
-   void valueChanged(int);
+   void valueChanged(int oldValue, int newValue);
    
    // MFC interfaces
 public:
@@ -2067,6 +2064,29 @@ public:
       short nLower,
       short nUpper 
    );   
+   void SetDlgItemInt(
+      int nID,
+      UINT nValue,
+      BOOL bSigned = TRUE 
+   );
+   UINT GetDlgItemInt(
+      int nID,
+      BOOL* lpTrans = NULL,
+      BOOL bSigned = TRUE 
+   ) const;
+   void SetDlgItemText(
+      int nID,
+      LPCTSTR lpszString 
+   );
+   int GetDlgItemText(
+      int nID,
+      CString& rString 
+   ) const;
+   int GetDlgItemText(
+      int nID,
+      LPTSTR lpStr,
+      int nMaxCount 
+   ) const;
 };
 
 class CComboBox : public CWnd

@@ -130,20 +130,14 @@ void CMainFrame::showEvent(QShowEvent *)
       QObject::connect(&m_wndInstToolBar,SIGNAL(toolBarAction_triggered(int)),this,SLOT(instToolBarAction_triggered(int)));
       QObject::connect(m_wndOctaveBar.GetDlgItem(IDC_OCTAVE)->toQWidget(),SIGNAL(currentIndexChanged(int)),this,SLOT(octave_currentIndexChanged(int)));
       QObject::connect(m_wndOctaveBar.GetDlgItem(IDC_FOLLOW)->toQWidget(),SIGNAL(clicked()),this,SLOT(follow_clicked()));
-      QObject::connect(m_wndOctaveBar.GetDlgItem(IDC_HIGHLIGHT1)->toQWidget(),SIGNAL(textChanged(QString)),this,SLOT(highlight1_textChanged(QString)));
-      QObject::connect(m_wndOctaveBar.GetDlgItem(IDC_HIGHLIGHTSPIN1)->toQWidget(),SIGNAL(valueChanged(int)),this,SLOT(highlightspin1_valueChanged(int)));
-      QObject::connect(m_wndOctaveBar.GetDlgItem(IDC_HIGHLIGHT2)->toQWidget(),SIGNAL(textChanged(QString)),this,SLOT(highlight2_textChanged(QString)));
-      QObject::connect(m_wndOctaveBar.GetDlgItem(IDC_HIGHLIGHTSPIN2)->toQWidget(),SIGNAL(valueChanged(int)),this,SLOT(highlightspin2_valueChanged(int)));
+      QObject::connect(m_wndOctaveBar.GetDlgItem(IDC_HIGHLIGHTSPIN1),SIGNAL(valueChanged(int,int)),this,SLOT(highlightspin1_valueChanged(int,int)));
+      QObject::connect(m_wndOctaveBar.GetDlgItem(IDC_HIGHLIGHTSPIN2),SIGNAL(valueChanged(int,int)),this,SLOT(highlightspin2_valueChanged(int,int)));
       QObject::connect(m_wndDialogBar.GetDlgItem(IDC_INSTRUMENTS)->toQWidget(),SIGNAL(doubleClicked(QModelIndex)),this,SLOT(instruments_doubleClicked(QModelIndex)));
       QObject::connect(m_wndDialogBar.GetDlgItem(IDC_INSTRUMENTS)->toQWidget(),SIGNAL(currentChanged(QModelIndex,QModelIndex)),this,SLOT(instruments_currentChanged(QModelIndex,QModelIndex)));
-      QObject::connect(m_wndDialogBar.GetDlgItem(IDC_SPEED)->toQWidget(),SIGNAL(textChanged(QString)),this,SLOT(speed_textChanged(QString)));
-      QObject::connect(m_wndDialogBar.GetDlgItem(IDC_SPEED_SPIN)->toQWidget(),SIGNAL(valueChanged(int)),this,SLOT(speedSpin_valueChanged(int)));
-      QObject::connect(m_wndDialogBar.GetDlgItem(IDC_TEMPO)->toQWidget(),SIGNAL(textChanged(QString)),this,SLOT(tempo_textChanged(QString)));
-      QObject::connect(m_wndDialogBar.GetDlgItem(IDC_TEMPO_SPIN)->toQWidget(),SIGNAL(valueChanged(int)),this,SLOT(tempoSpin_valueChanged(int)));
-      QObject::connect(m_wndDialogBar.GetDlgItem(IDC_ROWS)->toQWidget(),SIGNAL(textChanged(QString)),this,SLOT(rows_textChanged(QString)));
-      QObject::connect(m_wndDialogBar.GetDlgItem(IDC_ROWS_SPIN)->toQWidget(),SIGNAL(valueChanged(int)),this,SLOT(rowsSpin_valueChanged(int)));
-      QObject::connect(m_wndDialogBar.GetDlgItem(IDC_FRAMES)->toQWidget(),SIGNAL(textChanged(QString)),this,SLOT(frames_textChanged(QString)));
-      QObject::connect(m_wndDialogBar.GetDlgItem(IDC_FRAME_SPIN)->toQWidget(),SIGNAL(valueChanged(int)),this,SLOT(framesSpin_valueChanged(int)));
+      QObject::connect(m_wndDialogBar.GetDlgItem(IDC_SPEED_SPIN),SIGNAL(valueChanged(int,int)),this,SLOT(speedSpin_valueChanged(int,int)));
+      QObject::connect(m_wndDialogBar.GetDlgItem(IDC_TEMPO_SPIN),SIGNAL(valueChanged(int,int)),this,SLOT(tempoSpin_valueChanged(int,int)));
+      QObject::connect(m_wndDialogBar.GetDlgItem(IDC_ROWS_SPIN),SIGNAL(valueChanged(int,int)),this,SLOT(rowsSpin_valueChanged(int,int)));
+      QObject::connect(m_wndDialogBar.GetDlgItem(IDC_FRAME_SPIN),SIGNAL(valueChanged(int,int)),this,SLOT(framesSpin_valueChanged(int,int)));
       QObject::connect(m_wndDialogBar.GetDlgItem(IDC_SUBTUNE)->toQWidget(),SIGNAL(currentIndexChanged(int)),this,SLOT(subtune_currentIndexChanged(int)));
       QObject::connect(m_wndDialogBar.GetDlgItem(IDC_SONG_NAME)->toQWidget(),SIGNAL(textEdited(QString)),this,SLOT(songName_textEdited(QString)));
       QObject::connect(m_wndDialogBar.GetDlgItem(IDC_SONG_ARTIST)->toQWidget(),SIGNAL(textEdited(QString)),this,SLOT(songArtist_textEdited(QString)));
@@ -641,46 +635,6 @@ void CMainFrame::instruments_doubleClicked(const QModelIndex &index)
    OnDblClkInstruments(&nmhdr,&result);
 }
 
-void CMainFrame::speedSpin_valueChanged(int arg1)
-{
-   NMUPDOWN nmud;
-   LRESULT result;
-
-   nmud.iPos = arg1;
-   nmud.iDelta = arg1-CFamiTrackerDoc::GetDoc()->GetSongSpeed();
-   OnDeltaposSpeedSpin((NMHDR*)&nmud,&result);
-}
-
-void CMainFrame::tempoSpin_valueChanged(int arg1)
-{
-   NMUPDOWN nmud;
-   LRESULT result;
-
-   nmud.iPos = arg1;
-   nmud.iDelta = arg1-CFamiTrackerDoc::GetDoc()->GetSongTempo();
-   OnDeltaposTempoSpin((NMHDR*)&nmud,&result);
-}
-
-void CMainFrame::rowsSpin_valueChanged(int arg1)
-{
-   NMUPDOWN nmud;
-   LRESULT result;
-
-   nmud.iPos = arg1;
-   nmud.iDelta = arg1-CFamiTrackerDoc::GetDoc()->GetPatternLength();
-   OnDeltaposRowsSpin((NMHDR*)&nmud,&result);
-}
-
-void CMainFrame::framesSpin_valueChanged(int arg1)
-{
-   NMUPDOWN nmud;
-   LRESULT result;
-
-   nmud.iPos = arg1;
-   nmud.iDelta = arg1-CFamiTrackerDoc::GetDoc()->GetFrameCount();
-   OnDeltaposFrameSpin((NMHDR*)&nmud,&result);
-}
-
 void CMainFrame::subtune_currentIndexChanged(int index)
 {
    CFamiTrackerDoc* pDoc = (CFamiTrackerDoc*)GetActiveDocument();
@@ -718,21 +672,52 @@ void CMainFrame::octave_currentIndexChanged(int)
    OnCbnSelchangeOctave();
 }
 
-void CMainFrame::highlight1_textChanged(QString)
-{
-   
-}
-
-void CMainFrame::highlightspin1_valueChanged(int)
+void CMainFrame::highlightspin1_valueChanged(int arg1, int arg2)
 {
 }
 
-void CMainFrame::highlight2_textChanged(QString)
+void CMainFrame::highlightspin2_valueChanged(int arg1, int arg2)
 {
 }
 
-void CMainFrame::highlightspin2_valueChanged(int)
+void CMainFrame::speedSpin_valueChanged(int arg1, int arg2)
 {
+   NMUPDOWN nmud;
+   LRESULT result;
+
+   nmud.iPos = arg2;
+   nmud.iDelta = arg1-arg2;
+   OnDeltaposSpeedSpin((NMHDR*)&nmud,&result);
+}
+
+void CMainFrame::tempoSpin_valueChanged(int arg1, int arg2)
+{
+   NMUPDOWN nmud;
+   LRESULT result;
+
+   nmud.iPos = arg2;
+   nmud.iDelta = arg1-arg2;
+   OnDeltaposTempoSpin((NMHDR*)&nmud,&result);
+}
+
+void CMainFrame::rowsSpin_valueChanged(int arg1, int arg2)
+{
+   NMUPDOWN nmud;
+   LRESULT result;
+
+   nmud.iPos = arg2;
+   nmud.iDelta = arg1-arg2;
+   OnDeltaposRowsSpin((NMHDR*)&nmud,&result);
+}
+
+void CMainFrame::framesSpin_valueChanged(int arg1, int arg2)
+{
+   NMUPDOWN nmud;
+   LRESULT result;
+
+   nmud.iPos = arg2;
+   nmud.iDelta = arg1-arg2;
+   OnDeltaposFrameSpin((NMHDR*)&nmud,&result);
 }
 
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)

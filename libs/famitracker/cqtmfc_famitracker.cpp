@@ -769,19 +769,13 @@ void qtMfcInitDialogResource_IDD_MAINFRAME(CDialog* parent1)
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //       EDITTEXT        IDC_SPEED,43,15,38,12,ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER
 //       CONTROL         "",IDC_SPEED_SPIN,"msctls_updown32",UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,81,15,11,13
-   // CP: Note, we fake a MFC "spin-box" separate control by placing it over it's "buddy" and connecting signals appropriately
-   // to mimic the buddy relationship.
-   CEdit* mfc3 = new CEdit(parent);
+   // CP: Note, we fake a MFC "spin-box" separate control by double-booking a QSpinBox-derived CSpinButtonControl
+   // as both the CSpinButtonCtrl control and it's buddy CEdit.
    CSpinButtonCtrl* mfc4 = new CSpinButtonCtrl(parent);
-   CRect r3(CPoint(43,15),CSize(38,12));
-   CRect r4(CPoint(r3.right-11,r3.top),CSize(11,12));
-   parent->MapDialogRect(&r3);
+   CRect r4(CPoint(43,15),CSize(38,12));
    parent->MapDialogRect(&r4);
-   mfc3->Create(ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER | WS_VISIBLE,r3,parent,IDC_SPEED);
-   mfc3->setBuddy(mfc4);
-   mfcToQtWidget->insert(IDC_SPEED,mfc3);
-   mfc4->Create(UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r4,parent,IDC_SPEED_SPIN);
-   mfc4->setBuddy(mfc3);
+   mfc4->Create(ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r4,parent,IDC_SPEED_SPIN);
+   mfcToQtWidget->insert(IDC_SPEED,mfc4);
    mfcToQtWidget->insert(IDC_SPEED_SPIN,mfc4);
 //       LTEXT           "Tempo",IDC_STATIC,13,31,29,10
    CStatic* mfc5 = new CStatic(parent);
@@ -791,19 +785,13 @@ void qtMfcInitDialogResource_IDD_MAINFRAME(CDialog* parent1)
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //       EDITTEXT        IDC_TEMPO,43,29,38,12,ES_AUTOHSCROLL | ES_READONLY
 //       CONTROL         "",IDC_TEMPO_SPIN,"msctls_updown32",UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,81,28,11,13
-   // CP: Note, we fake a MFC "spin-box" separate control by placing it over it's "buddy" and connecting signals appropriately
-   // to mimic the buddy relationship.
-   CEdit* mfc6 = new CEdit(parent);
+   // CP: Note, we fake a MFC "spin-box" separate control by double-booking a QSpinBox-derived CSpinButtonControl
+   // as both the CSpinButtonCtrl control and it's buddy CEdit.
    CSpinButtonCtrl* mfc7 = new CSpinButtonCtrl(parent);
-   CRect r6(CPoint(43,29),CSize(38,12));
-   CRect r7(CPoint(r6.right-11,r6.top),CSize(11,12));
-   parent->MapDialogRect(&r6);
+   CRect r7(CPoint(43,29),CSize(38,12));
    parent->MapDialogRect(&r7);
-   mfc6->Create(ES_AUTOHSCROLL | ES_READONLY | WS_VISIBLE,r6,parent,IDC_TEMPO);
-   mfc6->setBuddy(mfc7);
-   mfcToQtWidget->insert(IDC_TEMPO,mfc6);
-   mfc7->Create(UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r7,parent,IDC_TEMPO_SPIN);
-   mfc7->setBuddy(mfc6);
+   mfc7->Create(ES_AUTOHSCROLL | ES_READONLY | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r7,parent,IDC_TEMPO_SPIN);
+   mfcToQtWidget->insert(IDC_TEMPO,mfc7);
    mfcToQtWidget->insert(IDC_TEMPO_SPIN,mfc7);
 //       LTEXT           "Rows",IDC_STATIC,13,45,29,10
    CStatic* mfc8 = new CStatic(parent);
@@ -813,19 +801,13 @@ void qtMfcInitDialogResource_IDD_MAINFRAME(CDialog* parent1)
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //       EDITTEXT        IDC_ROWS,43,43,38,12,ES_AUTOHSCROLL | ES_READONLY | ES_WANTRETURN
 //       CONTROL         "",IDC_ROWS_SPIN,"msctls_updown32",UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,81,43,11,13
-   // CP: Note, we fake a MFC "spin-box" separate control by placing it over it's "buddy" and connecting signals appropriately
-   // to mimic the buddy relationship.
-   CEdit* mfc9 = new CEdit(parent);
+   // CP: Note, we fake a MFC "spin-box" separate control by double-booking a QSpinBox-derived CSpinButtonControl
+   // as both the CSpinButtonCtrl control and it's buddy CEdit.
    CSpinButtonCtrl* mfc10 = new CSpinButtonCtrl(parent);
-   CRect r9(CPoint(43,43),CSize(38,12));
-   CRect r10(CPoint(r9.right-11,r9.top),CSize(11,12));
-   parent->MapDialogRect(&r9);
+   CRect r10(CPoint(43,43),CSize(38,12));
    parent->MapDialogRect(&r10);
-   mfc9->Create(ES_AUTOHSCROLL | ES_READONLY | ES_WANTRETURN | WS_VISIBLE,r9,parent,IDC_ROWS);
-   mfc9->setBuddy(mfc10);
-   mfcToQtWidget->insert(IDC_ROWS,mfc9);
-   mfc10->Create(UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r10,parent,IDC_ROWS_SPIN);
-   mfc10->setBuddy(mfc9);
+   mfc10->Create(ES_AUTOHSCROLL | ES_READONLY | ES_WANTRETURN | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r10,parent,IDC_ROWS_SPIN);
+   mfcToQtWidget->insert(IDC_ROWS,mfc10);
    mfcToQtWidget->insert(IDC_ROWS_SPIN,mfc10);
 //       LTEXT           "Frames",IDC_STATIC,13,59,29,10
    CStatic* mfc11 = new CStatic(parent);
@@ -835,19 +817,13 @@ void qtMfcInitDialogResource_IDD_MAINFRAME(CDialog* parent1)
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //       EDITTEXT        IDC_FRAMES,43,57,38,12,ES_AUTOHSCROLL | ES_READONLY
 //       CONTROL         "",IDC_FRAME_SPIN,"msctls_updown32",UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,81,58,11,13
-   // CP: Note, we fake a MFC "spin-box" separate control by placing it over it's "buddy" and connecting signals appropriately
-   // to mimic the buddy relationship.
-   CEdit* mfc12 = new CEdit(parent);
+   // CP: Note, we fake a MFC "spin-box" separate control by double-booking a QSpinBox-derived CSpinButtonControl
+   // as both the CSpinButtonCtrl control and it's buddy CEdit.
    CSpinButtonCtrl* mfc13 = new CSpinButtonCtrl(parent);
-   CRect r12(CPoint(43,57),CSize(38,12));
-   CRect r13(CPoint(r12.right-11,r12.top),CSize(11,12));
-   parent->MapDialogRect(&r12);
+   CRect r13(CPoint(43,57),CSize(38,12));
    parent->MapDialogRect(&r13);
-   mfc12->Create(ES_AUTOHSCROLL | ES_READONLY | WS_VISIBLE,r12,parent,IDC_FRAMES);
-   mfc12->setBuddy(mfc13);
-   mfcToQtWidget->insert(IDC_FRAMES,mfc12);
-   mfc13->Create(UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r13,parent,IDC_FRAME_SPIN);
-   mfc13->setBuddy(mfc12);
+   mfc13->Create(ES_AUTOHSCROLL | ES_READONLY | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r13,parent,IDC_FRAME_SPIN);
+   mfcToQtWidget->insert(IDC_FRAMES,mfc13);
    mfcToQtWidget->insert(IDC_FRAME_SPIN,mfc13);
 //       LTEXT           "Step",IDC_STATIC,13,91,29,10,0,WS_EX_TRANSPARENT
    CStatic* mfc15 = new CStatic(parent);
@@ -857,19 +833,13 @@ void qtMfcInitDialogResource_IDD_MAINFRAME(CDialog* parent1)
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //       EDITTEXT        IDC_KEYSTEP,43,90,38,12,ES_AUTOHSCROLL | ES_READONLY
 //       CONTROL         "",IDC_KEYSTEP_SPIN,"msctls_updown32",UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,81,88,11,13
-   // CP: Note, we fake a MFC "spin-box" separate control by placing it over it's "buddy" and connecting signals appropriately
-   // to mimic the buddy relationship.
-   CEdit* mfc16 = new CEdit(parent);
+   // CP: Note, we fake a MFC "spin-box" separate control by double-booking a QSpinBox-derived CSpinButtonControl
+   // as both the CSpinButtonCtrl control and it's buddy CEdit.
    CSpinButtonCtrl* mfc17 = new CSpinButtonCtrl(parent);
-   CRect r16(CPoint(43,90),CSize(38,12));
-   CRect r17(CPoint(r16.right-11,r16.top),CSize(11,12));
-   parent->MapDialogRect(&r16);
+   CRect r17(CPoint(43,90),CSize(38,12));
    parent->MapDialogRect(&r17);
-   mfc16->Create(ES_AUTOHSCROLL | ES_READONLY | WS_VISIBLE,r16,parent,IDC_KEYSTEP);
-   mfc16->setBuddy(mfc17);
-   mfcToQtWidget->insert(IDC_KEYSTEP,mfc16);
-   mfc17->Create(UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r17,parent,IDC_KEYSTEP_SPIN);
-   mfc17->setBuddy(mfc16);
+   mfc17->Create(ES_AUTOHSCROLL | ES_READONLY | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r17,parent,IDC_KEYSTEP_SPIN);
+   mfcToQtWidget->insert(IDC_KEYSTEP,mfc17);
    mfcToQtWidget->insert(IDC_KEYSTEP_SPIN,mfc17);
 //       CONTROL         "Key repetition",IDC_KEYREPEAT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,105,68,9,WS_EX_TRANSPARENT
    CButton* mfc18 = new CButton(parent);
@@ -1143,22 +1113,15 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_INTERNAL(CDialog* parent1)
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //   EDITTEXT        IDC_SEQ_INDEX,69,147,39,12,ES_AUTOHSCROLL | ES_NUMBER
 //   CONTROL         "",IDC_SEQUENCE_SPIN,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,66,153,11,9
-   // CP: Note, we fake a MFC "spin-box" separate control by placing it over it's "buddy" and connecting signals appropriately
-   // to mimic the buddy relationship.
-   CEdit* mfc3 = new CEdit(parent);
+   // CP: Note, we fake a MFC "spin-box" separate control by double-booking a QSpinBox-derived CSpinButtonControl
+   // as both the CSpinButtonCtrl control and it's buddy CEdit.
    CSpinButtonCtrl* mfc4 = new CSpinButtonCtrl(parent);
-   CRect r3(CPoint(69,147),CSize(39,12));
-   CRect r4(CPoint(r3.right-11,r3.top),CSize(11,12));
-   parent->MapDialogRect(&r3);
+   CRect r4(CPoint(69,147),CSize(39,12));
    parent->MapDialogRect(&r4);
-   mfc3->Create(ES_AUTOHSCROLL | ES_NUMBER | WS_VISIBLE,r3,parent,IDC_SEQ_INDEX);
-   mfc3->setBuddy(mfc4);
-   mfcToQtWidget->insert(IDC_SEQ_INDEX,mfc3);
-   QObject::connect(mfc3,SIGNAL(textChanged(QString)),parent,SLOT(seqIndex_textChanged(QString)));
-   mfc4->Create(UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r4,parent,IDC_SEQUENCE_SPIN);
-   mfc4->setBuddy(mfc3);
+   mfc4->Create(ES_AUTOHSCROLL | ES_NUMBER | UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r4,parent,IDC_SEQUENCE_SPIN);
+   mfcToQtWidget->insert(IDC_SEQ_INDEX,mfc4);
    mfcToQtWidget->insert(IDC_SEQUENCE_SPIN,mfc4);
-   QObject::connect(mfc4,SIGNAL(valueChanged(int)),parent,SLOT(sequenceSpin_valueChanged(int)));   
+   QObject::connect(mfc4,SIGNAL(valueChanged(int,int)),parent,SLOT(sequenceSpin_valueChanged(int,int)));   
 //   PUSHBUTTON      "Select next empty slot",IDC_FREE_SEQ,12,129,96,15
    CButton* mfc7 = new CButton(parent);
    CRect r7(CPoint(12,129),CSize(96,15));
@@ -1841,19 +1804,13 @@ void qtMfcInitDialogResource_IDD_OCTAVE(CDialog* parent)
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //       EDITTEXT        IDC_HIGHLIGHT1,177,0,27,12,ES_AUTOHSCROLL | ES_NUMBER
 //       CONTROL         "",IDC_HIGHLIGHTSPIN1,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_HOTTRACK,197,3,11,6
-   // CP: Note, we fake a MFC "spin-box" separate control by placing it over it's "buddy" and connecting signals appropriately
-   // to mimic the buddy relationship.
-   CEdit* mfc5 = new CEdit(parent);
+   // CP: Note, we fake a MFC "spin-box" separate control by double-booking a QSpinBox-derived CSpinButtonControl
+   // as both the CSpinButtonCtrl control and it's buddy CEdit.
    CSpinButtonCtrl* mfc6 = new CSpinButtonCtrl(parent);
-   CRect r5(CPoint(177,0),CSize(27,12));
-   CRect r6(CPoint(r5.right-11,r5.top),CSize(11,12));
-   parent->MapDialogRect(&r5);
+   CRect r6(CPoint(177,0),CSize(27,12));
    parent->MapDialogRect(&r6);
-   mfc5->Create(ES_AUTOHSCROLL | ES_NUMBER | WS_VISIBLE,r5,parent,IDC_HIGHLIGHT1);
-   mfc5->setBuddy(mfc6);
-   mfcToQtWidget->insert(IDC_HIGHLIGHT1,mfc5);
-   mfc6->Create(UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_HOTTRACK | WS_VISIBLE,r6,parent,IDC_HIGHLIGHTSPIN1);
-   mfc6->setBuddy(mfc5);
+   mfc6->Create(ES_AUTOHSCROLL | ES_NUMBER | UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_HOTTRACK | WS_VISIBLE,r6,parent,IDC_HIGHLIGHTSPIN1);
+   mfcToQtWidget->insert(IDC_HIGHLIGHT1,mfc6);
    mfcToQtWidget->insert(IDC_HIGHLIGHTSPIN1,mfc6);
 //       CONTROL         "2nd highlight",IDC_STATIC,"Static",SS_LEFTNOWORDWRAP | WS_GROUP,211,2,42,8
    CStatic *mfc7 = new CStatic(parent);
@@ -1863,19 +1820,13 @@ void qtMfcInitDialogResource_IDD_OCTAVE(CDialog* parent)
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //       EDITTEXT        IDC_HIGHLIGHT2,259,0,27,12,ES_AUTOHSCROLL | ES_NUMBER
 //       CONTROL         "",IDC_HIGHLIGHTSPIN2,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_HOTTRACK,281,3,11,6
-   // CP: Note, we fake a MFC "spin-box" separate control by placing it over it's "buddy" and connecting signals appropriately
-   // to mimic the buddy relationship.
-   CEdit* mfc8 = new CEdit(parent);
+   // CP: Note, we fake a MFC "spin-box" separate control by double-booking a QSpinBox-derived CSpinButtonControl
+   // as both the CSpinButtonCtrl control and it's buddy CEdit.
    CSpinButtonCtrl* mfc9 = new CSpinButtonCtrl(parent);
-   CRect r8(CPoint(259,0),CSize(27,12));
-   CRect r9(CPoint(r8.right-11,r8.top),CSize(11,12));
-   parent->MapDialogRect(&r8);
+   CRect r9(CPoint(259,0),CSize(27,12));
    parent->MapDialogRect(&r9);
-   mfc8->Create(ES_AUTOHSCROLL | ES_NUMBER | WS_VISIBLE,r8,parent,IDC_HIGHLIGHT2);
-   mfc8->setBuddy(mfc9);
-   mfcToQtWidget->insert(IDC_HIGHLIGHT2,mfc8);
-   mfc9->Create(UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_HOTTRACK | WS_VISIBLE,r9,parent,IDC_HIGHLIGHTSPIN2);
-   mfc9->setBuddy(mfc8);
+   mfc9->Create(ES_AUTOHSCROLL | ES_NUMBER | UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_HOTTRACK | WS_VISIBLE,r9,parent,IDC_HIGHLIGHTSPIN2);
+   mfcToQtWidget->insert(IDC_HIGHLIGHT2,mfc9);
    mfcToQtWidget->insert(IDC_HIGHLIGHTSPIN2,mfc9);
 //   END
 }   
@@ -2428,22 +2379,15 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_FDS(CDialog* parent1)
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //       EDITTEXT        IDC_MOD_RATE,318,22,37,14,ES_AUTOHSCROLL | ES_NUMBER
 //       CONTROL         "",IDC_MOD_RATE_SPIN,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS,344,25,11,14
-   // CP: Note, we fake a MFC "spin-box" separate control by placing it over it's "buddy" and connecting signals appropriately
-   // to mimic the buddy relationship.
-   CEdit* mfc6 = new CEdit(parent);
+   // CP: Note, we fake a MFC "spin-box" separate control by double-booking a QSpinBox-derived CSpinButtonControl
+   // as both the CSpinButtonCtrl control and it's buddy CEdit.
    CSpinButtonCtrl* mfc7 = new CSpinButtonCtrl(parent);
-   CRect r6(CPoint(318,22),CSize(37,14));
-   CRect r7(CPoint(r6.right-11,r6.top),CSize(11,14));
-   parent->MapDialogRect(&r6);
+   CRect r7(CPoint(318,22),CSize(37,14));
    parent->MapDialogRect(&r7);
-   mfc6->Create(ES_AUTOHSCROLL | ES_NUMBER | WS_VISIBLE,r6,parent,IDC_MOD_RATE);
-   mfc6->setBuddy(mfc7);
-   mfcToQtWidget->insert(IDC_MOD_RATE,mfc6);
-   QObject::connect(mfc6,SIGNAL(textChanged(QString)),parent,SLOT(modRate_textChanged(QString)));
-   mfc7->Create(UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS | WS_VISIBLE,r7,parent,IDC_MOD_RATE_SPIN);
-   mfc7->setBuddy(mfc6);
+   mfc7->Create(ES_AUTOHSCROLL | ES_NUMBER | UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS | WS_VISIBLE,r7,parent,IDC_MOD_RATE_SPIN);
+   mfcToQtWidget->insert(IDC_MOD_RATE,mfc7);
    mfcToQtWidget->insert(IDC_MOD_RATE_SPIN,mfc7);
-   QObject::connect(mfc7,SIGNAL(valueChanged(int)),parent,SLOT(modRateSpin_valueChanged(int)));
+   QObject::connect(mfc7,SIGNAL(valueChanged(int,int)),parent,SLOT(modRateSpin_valueChanged(int,int)));
 //       LTEXT           "Modulation depth",IDC_STATIC,246,46,56,8
    CStatic* mfc8 = new CStatic(parent);
    CRect r8(CPoint(246,46),CSize(56,8));
@@ -2452,22 +2396,15 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_FDS(CDialog* parent1)
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //       EDITTEXT        IDC_MOD_DEPTH,318,43,37,14,ES_AUTOHSCROLL | ES_NUMBER
 //       CONTROL         "",IDC_MOD_DEPTH_SPIN,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,344,43,11,14
-   // CP: Note, we fake a MFC "spin-box" separate control by placing it over it's "buddy" and connecting signals appropriately
-   // to mimic the buddy relationship.
-   CEdit* mfc9 = new CEdit(parent);
+   // CP: Note, we fake a MFC "spin-box" separate control by double-booking a QSpinBox-derived CSpinButtonControl
+   // as both the CSpinButtonCtrl control and it's buddy CEdit.
    CSpinButtonCtrl* mfc10 = new CSpinButtonCtrl(parent);
-   CRect r9(CPoint(318,43),CSize(37,14));
-   CRect r10(CPoint(r9.right-11,r9.top),CSize(11,14));
-   parent->MapDialogRect(&r9);
+   CRect r10(CPoint(318,43),CSize(37,14));
    parent->MapDialogRect(&r10);
-   mfc9->Create(ES_AUTOHSCROLL | ES_NUMBER | WS_VISIBLE,r9,parent,IDC_MOD_DEPTH);
-   mfc9->setBuddy(mfc10);
-   mfcToQtWidget->insert(IDC_MOD_DEPTH,mfc9);
-   QObject::connect(mfc9,SIGNAL(textChanged(QString)),parent,SLOT(modDepth_textChanged(QString)));
-   mfc10->Create(UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r10,parent,IDC_MOD_DEPTH_SPIN);
-   mfc10->setBuddy(mfc9);
+   mfc10->Create(ES_AUTOHSCROLL | ES_NUMBER | UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r10,parent,IDC_MOD_DEPTH_SPIN);
+   mfcToQtWidget->insert(IDC_MOD_DEPTH,mfc10);
    mfcToQtWidget->insert(IDC_MOD_DEPTH_SPIN,mfc10);
-   QObject::connect(mfc10,SIGNAL(valueChanged(int)),parent,SLOT(modDepthSpin_valueChanged(int)));
+   QObject::connect(mfc10,SIGNAL(valueChanged(int,int)),parent,SLOT(modDepthSpin_valueChanged(int,int)));
 //       LTEXT           "Modulation delay",IDC_STATIC,246,68,55,8
    CStatic* mfc11 = new CStatic(parent);
    CRect r11(CPoint(246,68),CSize(55,8));
@@ -2476,22 +2413,15 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_FDS(CDialog* parent1)
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //       EDITTEXT        IDC_MOD_DELAY,318,65,37,14,ES_AUTOHSCROLL | ES_NUMBER
 //       CONTROL         "",IDC_MOD_DELAY_SPIN,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,344,63,11,14
-   // CP: Note, we fake a MFC "spin-box" separate control by placing it over it's "buddy" and connecting signals appropriately
-   // to mimic the buddy relationship.
-   CEdit* mfc12 = new CEdit(parent);
+   // CP: Note, we fake a MFC "spin-box" separate control by double-booking a QSpinBox-derived CSpinButtonControl
+   // as both the CSpinButtonCtrl control and it's buddy CEdit.
    CSpinButtonCtrl* mfc13 = new CSpinButtonCtrl(parent);
-   CRect r12(CPoint(318,65),CSize(37,14));
-   CRect r13(CPoint(r12.right-11,r12.top),CSize(11,14));
-   parent->MapDialogRect(&r12);
+   CRect r13(CPoint(318,65),CSize(37,14));
    parent->MapDialogRect(&r13);
-   mfc12->Create(ES_AUTOHSCROLL | ES_NUMBER | WS_VISIBLE,r12,parent,IDC_MOD_DELAY);
-   mfc12->setBuddy(mfc13);
-   mfcToQtWidget->insert(IDC_MOD_DELAY,mfc12);
-   QObject::connect(mfc12,SIGNAL(textChanged(QString)),parent,SLOT(modDelay_textChanged(QString)));
-   mfc13->Create(UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r13,parent,IDC_MOD_DELAY_SPIN);
-   mfc13->setBuddy(mfc12);
+   mfc13->Create(ES_AUTOHSCROLL | ES_NUMBER | UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r13,parent,IDC_MOD_DELAY_SPIN);
+   mfcToQtWidget->insert(IDC_MOD_DELAY,mfc13);
    mfcToQtWidget->insert(IDC_MOD_DELAY_SPIN,mfc13);
-   QObject::connect(mfc13,SIGNAL(valueChanged(int)),parent,SLOT(modDelaySpin_valueChanged(int)));
+   QObject::connect(mfc13,SIGNAL(valueChanged(int,int)),parent,SLOT(modDelaySpin_valueChanged(int,int)));
 //       PUSHBUTTON      "Flat",IDC_MOD_PRESET_FLAT,318,131,46,12
    CButton* mfc14 = new CButton(parent);
    CRect r14(CPoint(318,131),CSize(46,12));
@@ -2963,22 +2893,15 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_N163_WAVE(CDialog* parent1)
    QObject::connect(mfc10,SIGNAL(clicked()),parent,SLOT(paste_clicked()));
 //       EDITTEXT        IDC_INDEX,253,20,39,12,ES_AUTOHSCROLL | ES_READONLY
 //       CONTROL         "",IDC_INDEX_SPIN,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,281,26,11,14
-   // CP: Note, we fake a MFC "spin-box" separate control by placing it over it's "buddy" and connecting signals appropriately
-   // to mimic the buddy relationship.
-   CEdit* mfc11 = new CEdit(parent);
+   // CP: Note, we fake a MFC "spin-box" separate control by double-booking a QSpinBox-derived CSpinButtonControl
+   // as both the CSpinButtonCtrl control and it's buddy CEdit.
    CSpinButtonCtrl* mfc12 = new CSpinButtonCtrl(parent);
-   CRect r11(CPoint(253,20),CSize(39,12));
-   CRect r12(CPoint(r11.right-11,r11.top),CSize(11,12));
-   parent->MapDialogRect(&r11);
+   CRect r12(CPoint(253,20),CSize(39,12));
    parent->MapDialogRect(&r12);
-   mfc11->Create(ES_AUTOHSCROLL | ES_READONLY | WS_VISIBLE,r11,parent,IDC_INDEX);
-   mfc11->setBuddy(mfc12);
-   mfcToQtWidget->insert(IDC_INDEX,mfc11);
-   QObject::connect(mfc11,SIGNAL(textChanged(QString)),parent,SLOT(index_textChanged(QString)));
-   mfc12->Create(UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r12,parent,IDC_INDEX_SPIN);
-   mfc12->setBuddy(mfc11);
+   mfc12->Create(ES_AUTOHSCROLL | ES_READONLY | UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r12,parent,IDC_INDEX_SPIN);
+   mfcToQtWidget->insert(IDC_INDEX,mfc12);
    mfcToQtWidget->insert(IDC_INDEX_SPIN,mfc12);
-   QObject::connect(mfc12,SIGNAL(valueChanged(int)),parent,SLOT(indexSpin_valueChanged(int)));
+   QObject::connect(mfc12,SIGNAL(valueChanged(int,int)),parent,SLOT(indexSpin_valueChanged(int,int)));
 //       LTEXT           "of",IDC_STATIC,300,22,8,8
    CStatic* mfc13 = new CStatic(parent);
    CRect r13(CPoint(300,22),CSize(8,8));
@@ -2987,22 +2910,15 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_N163_WAVE(CDialog* parent1)
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //       EDITTEXT        IDC_WAVES,316,20,37,12,ES_AUTOHSCROLL | ES_READONLY
 //       CONTROL         "",IDC_WAVES_SPIN,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,342,19,11,14
-   // CP: Note, we fake a MFC "spin-box" separate control by placing it over it's "buddy" and connecting signals appropriately
-   // to mimic the buddy relationship.
-   CEdit* mfc14 = new CEdit(parent);
+   // CP: Note, we fake a MFC "spin-box" separate control by double-booking a QSpinBox-derived CSpinButtonControl
+   // as both the CSpinButtonCtrl control and it's buddy CEdit.
    CSpinButtonCtrl* mfc15 = new CSpinButtonCtrl(parent);
-   CRect r14(CPoint(316,20),CSize(37,12));
-   CRect r15(CPoint(r14.right-11,r14.top),CSize(11,12));
-   parent->MapDialogRect(&r14);
+   CRect r15(CPoint(316,20),CSize(37,12));
    parent->MapDialogRect(&r15);
-   mfc14->Create(ES_AUTOHSCROLL | ES_READONLY | WS_VISIBLE,r14,parent,IDC_WAVES);
-   mfc14->setBuddy(mfc15);
-   mfcToQtWidget->insert(IDC_WAVES,mfc14);
-   QObject::connect(mfc14,SIGNAL(textChanged(QString)),parent,SLOT(waves_textChanged(QString)));
-   mfc15->Create(UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r15,parent,IDC_WAVES_SPIN);
-   mfc15->setBuddy(mfc14);
+   mfc15->Create(ES_AUTOHSCROLL | ES_READONLY | UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r15,parent,IDC_WAVES_SPIN);
+   mfcToQtWidget->insert(IDC_WAVES,mfc15);
    mfcToQtWidget->insert(IDC_WAVES_SPIN,mfc15);
-   QObject::connect(mfc15,SIGNAL(valueChanged(int)),parent,SLOT(wavesSpin_valueChanged(int)));
+   QObject::connect(mfc15,SIGNAL(valueChanged(int,int)),parent,SLOT(wavesSpin_valueChanged(int,int)));
 //       LTEXT           "Wave size",IDC_STATIC,253,59,34,8
    CStatic* mfc17 = new CStatic(parent);
    CRect r17(CPoint(253,59),CSize(34,8));

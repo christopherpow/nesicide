@@ -263,20 +263,18 @@ public slots:
    void frameChangeAll_clicked();
    void frameInc_clicked();   
    void frameDec_clicked();
-   void speedSpin_valueChanged(int arg1);
-   void tempoSpin_valueChanged(int arg1);
-   void rowsSpin_valueChanged(int arg1);
-   void framesSpin_valueChanged(int arg1);
    void subtune_currentIndexChanged(int index);
    void songName_textEdited(const QString &arg1);   
    void songArtist_textEdited(const QString &arg1);
    void songCopyright_textEdited(const QString &arg1);
    void octave_currentIndexChanged(int);
    void follow_clicked();
-   void highlight1_textChanged(QString);
-   void highlightspin1_valueChanged(int);
-   void highlight2_textChanged(QString);
-   void highlightspin2_valueChanged(int);
+   void highlightspin1_valueChanged(int arg1, int arg2);
+   void highlightspin2_valueChanged(int arg1, int arg2);
+   void speedSpin_valueChanged(int arg1, int arg2);
+   void tempoSpin_valueChanged(int arg1, int arg2);
+   void rowsSpin_valueChanged(int arg1, int arg2);
+   void framesSpin_valueChanged(int arg1, int arg2);
    
 signals:
    void addToolBarWidget(QToolBar* toolBar);

@@ -3054,11 +3054,11 @@ BOOL CListCtrl::SetBkColor(
 {
    if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
    {
-      _qtd_table->setStyleSheet(_qtd->styleSheet()+"QTableWidget { background: #000000 }");
+      _qtd_table->setStyleSheet(_qtd_table->styleSheet()+"QTableWidget { background: #000000 }");
    }
    else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
    {
-      _qtd_list->setStyleSheet(_qtd->styleSheet()+"QListWidget { background: #000000 }");
+      _qtd_list->setStyleSheet(_qtd_list->styleSheet()+"QListWidget { background: #000000 }");
    }
    return TRUE;
 }
@@ -3069,11 +3069,11 @@ BOOL CListCtrl::SetTextBkColor(
 {
    if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
    {
-      _qtd_table->setStyleSheet(_qtd->styleSheet()+"QTableWidget { background: #000000 }");
+      _qtd_table->setStyleSheet(_qtd_table->styleSheet()+"QTableWidget { background: #000000 }");
    }
    else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
    {
-      _qtd_list->setStyleSheet(_qtd->styleSheet()+"QListWidget { background: #000000 }");
+      _qtd_list->setStyleSheet(_qtd_list->styleSheet()+"QListWidget { background: #000000 }");
    }
    return TRUE;
 }
@@ -3084,11 +3084,11 @@ BOOL CListCtrl::SetTextColor(
 {
    if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
    {
-      _qtd_table->setStyleSheet(_qtd->styleSheet()+"QTableWidget { color: #ffffff }");
+      _qtd_table->setStyleSheet(_qtd_table->styleSheet()+"QTableWidget { color: #ffffff }");
    }
    else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
    {
-      _qtd_list->setStyleSheet(_qtd->styleSheet()+"QListWidget { color: #ffffff }");
+      _qtd_list->setStyleSheet(_qtd_list->styleSheet()+"QListWidget { color: #ffffff }");
    }
    return TRUE;
 }
@@ -5804,19 +5804,16 @@ BOOL CEdit::EnableWindow(
    {
       BOOL state = _qtd_ptedit->isEnabled();
       _qtd_ptedit->setEnabled(bEnable);
-      if ( _buddy )
-         _buddy->setEnabled(bEnable);
       return state;
    }
    else
    {
       BOOL state = _qtd_ledit->isEnabled();
       _qtd_ledit->setEnabled(bEnable);
-      if ( _buddy )
-         _buddy->setEnabled(bEnable);
       return state;
    }
 }
+
 void CEdit::SetDlgItemInt(
    int nID,
    UINT nValue,
@@ -6134,7 +6131,7 @@ BOOL CBitmapButton::Create(
 
 CSpinButtonCtrl::CSpinButtonCtrl(CWnd* parent)
    : CWnd(parent),
-     _buddy(NULL)
+     _oldValue(0)
 {
 }
 
@@ -6166,13 +6163,20 @@ BOOL CSpinButtonCtrl::Create(
    _qtd = dynamic_cast<QSpinBox*>(_qt);
    
    // Pass-through signals
-   QObject::connect(_qtd,SIGNAL(valueChanged(int)),this,SIGNAL(valueChanged(int)));
+   QObject::connect(_qtd,SIGNAL(valueChanged(int)),this,SLOT(control_edited()));
+   QObject::connect(_qtd,SIGNAL(editingFinished()),this,SLOT(control_edited()));
 
    _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
    _qtd->setFrame(false);
    _qtd->setVisible(dwStyle&WS_VISIBLE);
    
    return TRUE;
+}
+
+void CSpinButtonCtrl::control_edited()
+{
+   emit valueChanged(_oldValue,_qtd->value());
+   _oldValue = _qtd->value();
 }
 
 int CSpinButtonCtrl::SetPos(
@@ -6183,8 +6187,6 @@ int CSpinButtonCtrl::SetPos(
    _qtd->blockSignals(true);
    _qtd->setValue(nPos);
    _qtd->blockSignals(false);
-   if ( _buddy )
-      _buddy->setText(QString::number(nPos));
    return pos;
 }
 
@@ -6199,8 +6201,61 @@ void CSpinButtonCtrl::SetRange(
 )
 {
    _qtd->setRange(nLower,nUpper);
-   if ( _buddy )
-      _buddy->setText(QString::number(nLower));
+}
+
+void CSpinButtonCtrl::SetDlgItemInt(
+   int nID,
+   UINT nValue,
+   BOOL bSigned 
+)
+{
+   _qtd->setValue(nValue);
+}
+
+UINT CSpinButtonCtrl::GetDlgItemInt(
+   int nID,
+   BOOL* lpTrans,
+   BOOL bSigned
+) const
+{
+   return _qtd->value();
+}
+
+void CSpinButtonCtrl::SetDlgItemText(
+   int nID,
+   LPCTSTR lpszString 
+)
+{
+   QString val;
+#if UNICODE
+   val = QString::fromWCharArray(lpszString);
+#else
+   val = QString::fromAscii(lpszString);
+#endif
+   _qtd->setValue(val.toInt());
+}
+
+int CSpinButtonCtrl::GetDlgItemText(
+   int nID,
+   CString& rString 
+) const
+{
+   rString = _qtd->text();
+   return _qtd->text().length();
+}
+
+int CSpinButtonCtrl::GetDlgItemText(
+   int nID,
+   LPTSTR lpStr,
+   int nMaxCount 
+) const
+{
+#if UNICODE
+   wcsncpy(lpStr,(LPWSTR)_qtd->text().unicode(),nMaxCount);
+#else
+   strncpy(lpStr,_qtd->text().toAscii().constData(),nMaxCount);
+#endif   
+   return _qtd->text().length();
 }
 
 CSliderCtrl::CSliderCtrl(CWnd* parent)
