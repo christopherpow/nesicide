@@ -63,7 +63,7 @@ const double CSoundGen::OLD_VIBRATO_DEPTH[] = {
 	1.0, 1.0, 2.0, 3.0, 4.0, 7.0, 8.0, 15.0, 16.0, 31.0, 32.0, 63.0, 64.0, 127.0, 128.0, 255.0
 };
 
-//IMPLEMENT_DYNCREATE(CSoundGen, CWinThread)
+IMPLEMENT_DYNCREATE(CSoundGen, CWinThread)
 
 //BEGIN_MESSAGE_MAP(CSoundGen, CWinThread)
 //	ON_THREAD_MESSAGE(WM_USER_SILENT_ALL, OnSilentAll)

@@ -21,13 +21,14 @@
 #pragma once
 
 #include "cqtmfc.h"
-
-#include "MainFrm.h"
+#include "FamiTrackerTypes.h"
 
 class CFamiTrackerDoc;
 class CFamiTrackerView;
 
 // CFrameEditor
+
+class CMainFrame;
 
 class CFrameEditor : public CWnd
 {
@@ -92,7 +93,6 @@ private:
 protected:
 	DECLARE_MESSAGE_MAP()
 public:
-public slots:
 	afx_msg void OnPaint();
 	afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
@@ -118,6 +118,7 @@ public slots:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
    
+public slots:
    void updateViews(long hint);
    void verticalScrollBar_actionTriggered(int action);
    void horizontalScrollBar_actionTriggered(int action);

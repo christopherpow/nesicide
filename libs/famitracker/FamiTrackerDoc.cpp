@@ -209,7 +209,7 @@ void CDSample::Allocate(int iSize, char *pData)
 // CFamiTrackerDoc
 //
 
-//IMPLEMENT_DYNCREATE(CFamiTrackerDoc, CDocument)
+IMPLEMENT_DYNCREATE(CFamiTrackerDoc, CDocument)
 
 //BEGIN_MESSAGE_MAP(CFamiTrackerDoc, CDocument)
 //	ON_COMMAND(ID_FILE_SAVE_AS, OnFileSaveAs)

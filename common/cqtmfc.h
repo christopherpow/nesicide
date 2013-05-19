@@ -258,6 +258,7 @@ char* T2A(TCHAR* str);
 typedef int* POSITION;
 
 #define DECLARE_DYNCREATE(x) 
+#define IMPLEMENT_DYNCREATE(x,y)
 #define DECLARE_MESSAGE_MAP()
 #define DECLARE_DYNAMIC(x)
 #define IMPLEMENT_DYNAMIC(x,y)
@@ -425,14 +426,18 @@ public:
 class CSyncObject
 {
 public:
+   CSyncObject() : m_hObject(this) {}
+   virtual ~CSyncObject() {}
    virtual BOOL Lock(
       DWORD dwTimeout = INFINITE 
    ) { return TRUE; }
-   virtual BOOL Unlock( ) = 0; 
+   virtual BOOL Unlock( )
+   { return TRUE; }
    virtual BOOL Unlock(
       LONG lCount,
       LPLONG lpPrevCount = NULL 
    ) { return TRUE; }
+   HANDLE m_hObject;
 };
 
 class CCriticalSection : public CSyncObject
@@ -472,6 +477,12 @@ class CSemaphore : public CSyncObject
 class CEvent : public CSyncObject
 {
 public:
+   CEvent(
+      BOOL bInitiallyOwn = FALSE,
+      BOOL bManualReset = FALSE,
+      LPCTSTR lpszName = NULL,
+      LPSECURITY_ATTRIBUTES lpsaAttribute = NULL 
+   );
    BOOL SetEvent();
 };
 
@@ -1331,6 +1342,7 @@ public:
    virtual afx_msg int OnCreate(
       LPCREATESTRUCT lpCreateStruct 
    );
+   void OnDestroy( );
    void OnMouseMove(UINT,CPoint) {}
    void OnNcMouseMove(UINT nHitTest, CPoint point) {}
    void OnNcLButtonUp(
@@ -1410,6 +1422,10 @@ public:
    void SetParent(CWnd* parent) { m_pParentWnd = parent; _qt->setParent(parent->toQWidget()); }
    void GetWindowText(
       CString& rString 
+   ) const;
+   int GetWindowText(
+      LPTSTR lpszStringBuf,
+      int nMaxCount 
    ) const;
    void SetWindowText(
       LPCTSTR lpszString 
@@ -1512,6 +1528,9 @@ public:
    HWND m_hWnd;
 };
 
+#define AFX_DATA 
+static AFX_DATA const CRect rectDefault;
+
 class CView;
 class CDocument;
 class CFrameWnd : public CWnd
@@ -1527,6 +1546,10 @@ public:
    CFrameWnd(CWnd* parent = 0);
    virtual ~CFrameWnd();
    CMenu* GetMenu( ) const { return m_pMenu; }   
+   virtual void GetMessageString(
+      UINT nID,
+      CString& rMessage 
+   ) const;
    void InitialUpdateFrame(
       CDocument* pDoc,
       BOOL bMakeVisible 
@@ -2807,6 +2830,10 @@ public:
       BOOL bStretch,
       BOOL bHorz 
    );
+   void SetBarStyle(
+      DWORD dwStyle 
+   );
+   virtual BOOL IsVisible() const;
 };
 
 #define TBSTYLE_BUTTON       0
@@ -2921,6 +2948,9 @@ public:
       UINT uIndex, 
       REBARBANDINFO* prbbi  
    );
+   void MinimizeBand(
+      UINT uBand 
+   );
 };
 
 class CReBar : public CControlBar
@@ -2938,6 +2968,15 @@ public:
 protected:
    CReBarCtrl* m_pReBarCtrl;
 };
+
+#define TBBS_BUTTON     1 //  Standard pushbutton (default)
+#define TBBS_SEPARATOR  2 //  Separator
+#define TBBS_CHECKBOX   3 //  Auto check-box button
+#define TBBS_GROUP      4 //  Marks the start of a group of buttons
+#define TBBS_CHECKGROUP 5 //  Marks the start of a group of check-box buttons
+#define TBBS_DROPDOWN   6 //  Creates a drop-down list button
+#define TBBS_AUTOSIZE   7 //  The button's width will be calculated based on the text of the button, not on the size of the image
+#define TBBS_NOPREFIX   8 //  The button text will not have an accelerator prefix associated with it
 
 class CToolBar : public CControlBar
 {
@@ -2977,6 +3016,10 @@ public:
    );
    BOOL LoadToolBar(
       UINT nIDResource 
+   );
+   void SetButtonStyle(
+      int nIndex,
+      UINT nStyle 
    );
 };
 
@@ -3246,6 +3289,10 @@ public:
 };
 
 class CToolTipCtrl
+{
+};
+
+class CCreateContext
 {
 };
 

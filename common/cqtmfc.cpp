@@ -3908,6 +3908,10 @@ int CWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
    return 0;
 }
 
+void CWnd::OnDestroy( )
+{
+}
+
 void CWnd::UpdateDialogControls(
    CCmdTarget* pTarget,
    BOOL bDisableIfNoHndler 
@@ -4267,15 +4271,18 @@ void CWnd::GetWindowText(
    rString = _qt->windowTitle();
 }
 
+int CWnd::GetWindowText(
+   LPTSTR lpszStringBuf,
+   int nMaxCount 
+) const
+{
+   qDebug("CWnd::GetWindowText");
+}
+
 void CWnd::SetWindowText(
    LPCTSTR lpszString 
 )
 {
-//#if UNICODE
-//   _qt->setWindowTitle(QString::fromWCharArray(lpszString));
-//#else
-//   _qt->setWindowTitle(lpszString);
-//#endif
 }
 
 void CWnd::GetWindowRect(
@@ -4419,6 +4426,14 @@ void CFrameWnd::addControlBar(int area, QWidget *bar)
    RecalcLayout();
 }
 
+void CFrameWnd::GetMessageString(
+   UINT nID,
+   CString& rMessage 
+) const
+{
+   rMessage = qtMfcStringResource(nID);
+}
+
 void CFrameWnd::InitialUpdateFrame(
    CDocument* pDoc,
    BOOL bMakeVisible 
@@ -4530,6 +4545,18 @@ CSize CControlBar::CalcFixedLayout(
    return CSize(0,0);
 }
 
+void CControlBar::SetBarStyle(
+   DWORD dwStyle 
+)
+{
+   qDebug("CControlBar::SetBarStyle");
+}
+
+BOOL CControlBar::IsVisible() const
+{
+   return _qtd->isVisible();
+}
+
 BOOL CReBarCtrl::Create( 
    DWORD dwStyle, 
    const RECT& rect, 
@@ -4580,6 +4607,13 @@ BOOL CReBarCtrl::InsertBand(
       _qtd->addWidget(pWnd->toQWidget());
    }
    return TRUE;
+}
+
+void CReBarCtrl::MinimizeBand(
+   UINT uBand 
+)
+{
+   qDebug("CReBarCtrl::MinimizeBand");
 }
 
 void CReBarCtrl::toolBarAction_triggered()
@@ -4677,6 +4711,14 @@ BOOL CToolBar::LoadToolBar(
 {
    qtMfcInitToolBarResource(nIDResource,this);
    return TRUE;
+}
+
+void CToolBar::SetButtonStyle(
+   int nIndex,
+   UINT nStyle 
+)
+{
+   qDebug("CToolBar::SetButtonStyle");
 }
 
 void CToolBar::toolBarAction_triggered()
@@ -6833,6 +6875,15 @@ BOOL CCriticalSection::Unlock( )
 {
    _qtd->unlock();
    return TRUE;
+}
+
+CEvent::CEvent(
+   BOOL bInitiallyOwn,
+   BOOL bManualReset,
+   LPCTSTR lpszName,
+   LPSECURITY_ATTRIBUTES lpsaAttribute 
+)
+{
 }
 
 BOOL CEvent::SetEvent()
