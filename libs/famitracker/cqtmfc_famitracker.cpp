@@ -723,6 +723,35 @@ void qtMfcInitBitmapResources()
    qtMfcBitmapResources.insert(IDB_TOOLBAR_INST_256,new CBitmap(":/resources/inst_toolbar.bmp"));
 }
 
+void qtInitIconResources()
+{
+   /////////////////////////////////////////////////////////////////////////////
+   //
+   // Bitmap
+   //
+   
+   // Icon with lowest ID value placed first to ensure application icon
+   // remains consistent on all systems.
+//   IDR_MAINFRAME           ICON                    "res\\FamiTracker-Exe.ico"
+   qtIconResources.insert(IDR_MAINFRAME,new QIcon(":/resources/FamiTracker-Exe.ico"));
+//   IDI_INST_2A03INV        ICON                    "res\\Inst_2A03inv.ico"
+   qtIconResources.insert(IDI_INST_2A03INV,new QIcon(":/resources/Inst_2A03inv.ico"));
+//   IDI_INST_VRC6INV        ICON                    "res\\ico00001.ico"
+   qtIconResources.insert(IDI_INST_VRC6INV,new QIcon(":/resources/ico00001.ico"));
+//   IDI_INST_VRC7INV        ICON                    "res\\ico00003.ico"
+   qtIconResources.insert(IDI_INST_VRC7INV,new QIcon(":/resources/ico00003.ico"));
+//   IDR_FamiTrackerTYPE     ICON                    "res\\Famitracker-Document.ico"
+   qtIconResources.insert(IDR_FamiTrackerTYPE,new QIcon(":/resources/Famitracker-Document.ico"));
+//   IDI_INST_N163           ICON                    "res\\ico00004.ico"
+   qtIconResources.insert(IDI_INST_N163,new QIcon(":/resources/ico00004.ico"));
+//   IDI_INST_FDS            ICON                    "res\\icon2.ico"
+   qtIconResources.insert(IDI_INST_FDS,new QIcon(":/resources/icon2.ico"));
+//   IDI_INST_5B             ICON                    "res\\ico00005.ico"
+   qtIconResources.insert(IDI_INST_5B,new QIcon(":/resources/ico00005.ico"));
+//   IDI_INST_2A07           ICON                    "res\\icon1.ico"
+   qtIconResources.insert(IDI_INST_2A07,new QIcon(":/resources/icon1.ico"));
+}
+
 #include "ControlPanelDlg.h"
 void qtMfcInitDialogResource_IDD_MAINFRAME(CDialog* parent1)
 {
@@ -3398,5 +3427,6 @@ void qtMfcInit()
 {
    qtMfcInitStringResources();
    qtMfcInitBitmapResources();
+   qtInitIconResources();
    qtMfcInitMenuResources();
 }

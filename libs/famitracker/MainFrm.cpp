@@ -738,13 +738,11 @@ void CMainFrame::toolBarAction_editMode()
 
 void CMainFrame::toolBarAction_previousTrack()
 {
-   qDebug("previousTrack");
    OnPrevSong();
 }
 
 void CMainFrame::toolBarAction_nextTrack()
 {
-   qDebug("nextTrack");
    OnNextSong();
 }
 
@@ -755,7 +753,6 @@ void CMainFrame::toolBarAction_settings()
 
 void CMainFrame::toolBarAction_createNSF()
 {
-   qDebug("createNSF");
    OnCreateNSF();
 }
 
@@ -778,6 +775,9 @@ void CMainFrame::instToolBarAction_triggered(int id)
 
 void CMainFrame::instToolBarAction_new()
 {
+   NMHDR nmhdr;
+   LRESULT result;
+   OnNewInstrumentMenu(&nmhdr,&result);
 }
 
 void CMainFrame::instToolBarAction_remove()
@@ -839,29 +839,22 @@ void CMainFrame::instruments_doubleClicked(const QModelIndex &index)
 
 void CMainFrame::subtune_currentIndexChanged(int index)
 {
-   CFamiTrackerDoc* pDoc = (CFamiTrackerDoc*)GetActiveDocument();
-   if ( index >= 0 )
-   {
-      pDoc->SelectTrack(index);
-   }
+   OnCbnSelchangeSong();
 }
 
 void CMainFrame::songName_textEdited(const QString &arg1)
 {
-   CFamiTrackerDoc* pDoc = (CFamiTrackerDoc*)GetActiveDocument();
-   pDoc->SetSongName(arg1.toAscii().data());
+   OnEnSongNameChange();
 }
 
 void CMainFrame::songArtist_textEdited(const QString &arg1)
 {
-   CFamiTrackerDoc* pDoc = (CFamiTrackerDoc*)GetActiveDocument();
-   pDoc->SetSongArtist(arg1.toAscii().data());
+   OnEnSongArtistChange();
 }
 
 void CMainFrame::songCopyright_textEdited(const QString &arg1)
 {
-   CFamiTrackerDoc* pDoc = (CFamiTrackerDoc*)GetActiveDocument();
-   pDoc->SetSongCopyright(arg1.toAscii().data());
+   OnEnSongCopyrightChange();
 }
 
 void CMainFrame::follow_clicked()

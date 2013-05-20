@@ -59,6 +59,13 @@ CBitmap* qtMfcBitmapResource(int id)
    return qtMfcBitmapResources.value(id);
 }
 
+QHash<int,QIcon*> qtIconResources;
+
+QIcon* qtIconResource(int id)
+{
+   return qtIconResources.value(id);
+}
+
 QHash<int,CMenu*> qtMfcMenuResources;
 
 CMenu* qtMfcMenuResource(int id)
@@ -2034,7 +2041,9 @@ BOOL CComboBox::Create(
 
 void CComboBox::ResetContent()
 {
+   _qtd->blockSignals(true);
    _qtd->clear();
+   _qtd->blockSignals(false);
 }
 
 int CComboBox::AddString(
@@ -2742,6 +2751,7 @@ int CListCtrl::InsertItem(
 #else
       twi->setText(lpszItem);
 #endif
+      twi->setIcon(*(QIcon*)m_pImageList->ExtractIcon(nImage));
       
       _qtd_table->blockSignals(true);
       _qtd_table->insertRow(nItem);
@@ -2760,6 +2770,7 @@ int CListCtrl::InsertItem(
 #else
       lwi->setText(lpszItem);
 #endif
+      lwi->setIcon(*(QIcon*)m_pImageList->ExtractIcon(nImage));
       
       _qtd_list->blockSignals(true);
       _qtd_list->insertItem(nItem,lwi);
@@ -3097,11 +3108,15 @@ BOOL CListCtrl::DeleteAllItems()
 {
    if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
    {
+      _qtd_table->blockSignals(true);
       _qtd_table->clearContents();
+      _qtd_table->blockSignals(false);
    }
    else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
    {
+      _qtd_list->blockSignals(true);
       _qtd_list->clear();
+      _qtd_list->blockSignals(false);
    }
    return TRUE;
 }
@@ -5410,7 +5425,7 @@ HICON CWinApp::LoadIcon(
    UINT nIDResource 
 ) const
 {
-   return (HICON)qtMfcBitmapResource(nIDResource);
+   return (HICON)qtIconResource(nIDResource);
 }
 
 BOOL CWinApp::InitInstance()
@@ -5657,8 +5672,10 @@ int CTabCtrl::GetCurSel() const
 BOOL CTabCtrl::DeleteAllItems( )
 {
    int tab;
+   _qtd->blockSignals(true);
    for ( tab = _qtd->count()-1; tab >= 0; tab-- )
       _qtd->removeTab(tab);
+   _qtd->blockSignals(false);
    return TRUE;
 }
 
@@ -6968,6 +6985,13 @@ int CImageList::Add(
 {
    CBitmap* pBitmap = (CBitmap*)hIcon;
    _images.append(pBitmap);
+}
+
+HICON CImageList::ExtractIcon(
+   int nImage
+)
+{
+   return (HICON)_images.at(nImage);
 }
 
 CPropertySheet::CPropertySheet(

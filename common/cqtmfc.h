@@ -300,8 +300,8 @@ typedef struct
 #define ASSERT(y)
 #define ASSERT_VALID(y)
 #else
-#define ASSERT(y) { if (!(y)) { QString str; str.sprintf("ASSERT: %s(%d)",__FILE__,__LINE__); qDebug(str.toLatin1().constData()); } }
-#define ASSERT_VALID(y) { if (!(y)) { QString str; str.sprintf("ASSERT: %s(%d)",__FILE__,__LINE__); qDebug(str.toLatin1().constData()); } }
+#define ASSERT(y) { if (!(y)) { QString str; str.sprintf("ASSERT: %s(%d)",__FILE__,__LINE__); qFatal(str.toLatin1().constData()); } }
+#define ASSERT_VALID(y) { if (!(y)) { QString str; str.sprintf("ASSERT: %s(%d)",__FILE__,__LINE__); qFatal(str.toLatin1().constData()); } }
 #endif
 
 #define AFXAPI
@@ -3213,6 +3213,9 @@ public:
    int Add(
       HICON hIcon 
    );
+   HICON ExtractIcon(
+      int nImage 
+   );
 protected:
    QList<CBitmap*> _images;
 };
@@ -3324,6 +3327,8 @@ HGDIOBJ GetStockObject(
 CString qtMfcStringResource(int id);
 
 CBitmap* qtMfcBitmapResource(int id);
+
+QIcon* qtIconResource(int id);
 
 CMenu* qtMfcMenuResource(int id);
 
