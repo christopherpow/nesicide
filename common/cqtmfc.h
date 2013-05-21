@@ -220,6 +220,7 @@ enum
 #endif
 
 #include <windows.h>
+#include <prsht.h>
 
 // special struct for WM_SIZEPARENT
 struct AFX_SIZEPARENTPARAMS
@@ -266,6 +267,7 @@ typedef int* POSITION;
 #define RUNTIME_CLASS(x) new x
 
 #define AFX_MSG_CALL 
+
 typedef struct
 {
 //   void( AFX_MSG_CALL CCmdTarget::* )( void ) 	pmf;
@@ -3250,32 +3252,6 @@ public:
       HBITMAP hbmHeader = NULL 
    );
 };
-
-typedef struct {
-//  DWORD           dwSize;
-//  DWORD           dwFlags;
-//  HINSTANCE       hInstance;
-//  union {
-//    LPCSTR         pszTemplate;
-//    LPCDLGTEMPLATE pResource;
-//  };
-//  union {
-//    HICON  hIcon;
-//    LPCSTR pszIcon;
-//  };
-//  LPCSTR          pszTitle;
-//  DLGPROC         pfnDlgProc;
-//  LPARAM          lParam;
-//  LPFNPSPCALLBACK pfnCallback;
-//  UINT            *pcRefParent;
-//#if (_WIN32_IE >= 0x0500)
-//  LPCTSTR         pszHeaderTitle;
-//  LPCTSTR         pszHeaderSubTitle;
-//#endif 
-//#if (_WIN32_WINNT >= 0x0501)
-//  HANDLE          hActCtx;
-//#endif 
-} PROPSHEETPAGE, *LPPROPSHEETPAGE;
 
 class CPropertyPage : public CDialog
 {

@@ -362,7 +362,7 @@ public slots:
    void instToolBarAction_edit();
    void updateViews(long hint);
    void instruments_doubleClicked(const QModelIndex &index);
-   void instruments_currentChanged(const QModelIndex& index,const QModelIndex&);
+   void instruments_currentRowChanged(int row);
    void frameChangeAll_clicked();
    void frameInc_clicked();   
    void frameDec_clicked();

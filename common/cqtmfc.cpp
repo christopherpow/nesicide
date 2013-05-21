@@ -2751,7 +2751,10 @@ int CListCtrl::InsertItem(
 #else
       twi->setText(lpszItem);
 #endif
-      twi->setIcon(*(QIcon*)m_pImageList->ExtractIcon(nImage));
+      if ( m_pImageList )
+      {
+         twi->setIcon(*(QIcon*)m_pImageList->ExtractIcon(nImage));
+      }
       
       _qtd_table->blockSignals(true);
       _qtd_table->insertRow(nItem);
@@ -2770,8 +2773,10 @@ int CListCtrl::InsertItem(
 #else
       lwi->setText(lpszItem);
 #endif
-      lwi->setIcon(*(QIcon*)m_pImageList->ExtractIcon(nImage));
-      
+      if ( m_pImageList )
+      {
+         lwi->setIcon(*(QIcon*)m_pImageList->ExtractIcon(nImage));
+      }      
       _qtd_list->blockSignals(true);
       _qtd_list->insertItem(nItem,lwi);
       _qtd_list->blockSignals(false);
@@ -4412,7 +4417,7 @@ CFrameWnd::CFrameWnd(CWnd *parent)
    
    m_pMenuBar = new QMenuBar;
 //   m_pMenuBar->addMenu(qtMfcMenuResource(128).toQMenu());
-   ptrToTheApp->qtMainWindow->setMenuBar(m_pMenuBar);
+//   ptrToTheApp->qtMainWindow->setMenuBar(m_pMenuBar);
 }
 
 CFrameWnd::~CFrameWnd()
@@ -4776,7 +4781,7 @@ BOOL CStatusBar::Create(
    
    pParentWnd->mfcToQtWidgetMap()->insert(nID,this);
 
-   ptrToTheApp->qtMainWindow->setStatusBar(_qtd);
+//   ptrToTheApp->qtMainWindow->setStatusBar(_qtd);
    
    // Pass-through signals
 

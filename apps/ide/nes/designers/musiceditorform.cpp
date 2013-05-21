@@ -1,7 +1,7 @@
 #include "musiceditorform.h"
 #include "ui_musiceditorform.h"
 
-#include "cqtmfc_famitracker.h"
+#include "cqtmfc.h"
 
 MusicEditorForm::MusicEditorForm(QString fileName,QByteArray musicData,IProjectTreeViewItem* link,QWidget* parent) :
    CDesignerEditorBase(link,parent),
@@ -11,14 +11,14 @@ MusicEditorForm::MusicEditorForm(QString fileName,QByteArray musicData,IProjectT
    
    m_fileName = fileName;
    
-   openFile("");
+   openFile(m_fileName);
    
-   ui->stackedWidget->addWidget(m_pMainFrame);
-   ui->stackedWidget->setCurrentWidget(m_pMainFrame);
+   ui->stackedWidget->addWidget(AfxGetApp()->m_pMainWnd->toQWidget());
+   ui->stackedWidget->setCurrentWidget(AfxGetApp()->m_pMainWnd->toQWidget());
    
-   QObject::connect(m_pMainFrame,SIGNAL(addToolBarWidget(QToolBar*)),this,SIGNAL(addToolBarWidget(QToolBar*)));
-   QObject::connect(m_pMainFrame,SIGNAL(removeToolBarWidget(QToolBar*)),this,SIGNAL(removeToolBarWidget(QToolBar*)));
-   QObject::connect(m_pMainFrame,SIGNAL(editor_modificationChanged(bool)),this,SLOT(editor_modificationChanged(bool)));
+   QObject::connect(AfxGetApp()->m_pMainWnd,SIGNAL(addToolBarWidget(QToolBar*)),this,SIGNAL(addToolBarWidget(QToolBar*)));
+   QObject::connect(AfxGetApp()->m_pMainWnd,SIGNAL(removeToolBarWidget(QToolBar*)),this,SIGNAL(removeToolBarWidget(QToolBar*)));
+   QObject::connect(AfxGetApp()->m_pMainWnd,SIGNAL(editor_modificationChanged(bool)),this,SLOT(editor_modificationChanged(bool)));
 }
 
 MusicEditorForm::~MusicEditorForm()
@@ -37,7 +37,7 @@ void MusicEditorForm::onSave()
 {
    CDesignerEditorBase::onSave();
    
-   CFamiTrackerDoc* pDoc = (CFamiTrackerDoc*)m_pMainFrame->GetActiveDocument();
+   CFamiTrackerDoc* pDoc = (CFamiTrackerDoc*)AfxGetApp()->m_pMainWnd->GetActiveDocument();
 
    pDoc->OnSaveDocument((TCHAR*)m_fileName.toAscii().constData()); 
    

@@ -430,7 +430,7 @@ bool CSoundGen::InitializeSound(HWND hWnd, HANDLE hAliveCheck, HANDLE hNotificat
 	// Start with NTSC by default
 
 	// Called from main thread
-	ASSERT(GetCurrentThread() == theApp.m_hThread);
+//	ASSERT(GetCurrentThread() == theApp.m_hThread);
 	ASSERT(m_pDSound == NULL);
 
 	m_hWnd = hWnd;

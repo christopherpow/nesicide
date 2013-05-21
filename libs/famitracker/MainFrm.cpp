@@ -335,7 +335,7 @@ void CMainFrame::showEvent(QShowEvent *)
       QObject::connect(m_wndOctaveBar.GetDlgItem(IDC_HIGHLIGHTSPIN1),SIGNAL(valueChanged(int,int)),this,SLOT(highlightspin1_valueChanged(int,int)));
       QObject::connect(m_wndOctaveBar.GetDlgItem(IDC_HIGHLIGHTSPIN2),SIGNAL(valueChanged(int,int)),this,SLOT(highlightspin2_valueChanged(int,int)));
       QObject::connect(m_wndDialogBar.GetDlgItem(IDC_INSTRUMENTS)->toQWidget(),SIGNAL(doubleClicked(QModelIndex)),this,SLOT(instruments_doubleClicked(QModelIndex)));
-      QObject::connect(m_wndDialogBar.GetDlgItem(IDC_INSTRUMENTS)->toQWidget(),SIGNAL(currentChanged(QModelIndex,QModelIndex)),this,SLOT(instruments_currentChanged(QModelIndex,QModelIndex)));
+      QObject::connect(m_wndDialogBar.GetDlgItem(IDC_INSTRUMENTS)->toQWidget(),SIGNAL(currentRowChanged(int)),this,SLOT(instruments_currentRowChanged(int)));
       QObject::connect(m_wndDialogBar.GetDlgItem(IDC_SPEED_SPIN),SIGNAL(valueChanged(int,int)),this,SLOT(speedSpin_valueChanged(int,int)));
       QObject::connect(m_wndDialogBar.GetDlgItem(IDC_TEMPO_SPIN),SIGNAL(valueChanged(int,int)),this,SLOT(tempoSpin_valueChanged(int,int)));
       QObject::connect(m_wndDialogBar.GetDlgItem(IDC_ROWS_SPIN),SIGNAL(valueChanged(int,int)),this,SLOT(rowsSpin_valueChanged(int,int)));
@@ -820,13 +820,13 @@ void CMainFrame::frameChangeAll_clicked()
    OnChangeAll();
 }
 
-void CMainFrame::instruments_currentChanged(const QModelIndex &index,const QModelIndex &)
+void CMainFrame::instruments_currentRowChanged(int row)
 {
    NM_LISTVIEW nmlv;
    LRESULT result;
    
    nmlv.uNewState = LVIS_SELECTED;
-   nmlv.iItem = index.row();
+   nmlv.iItem = row;
    OnChangedInstruments((NMHDR*)&nmlv,&result);
 }
 

@@ -776,6 +776,7 @@ void CFrameEditor::keyPressEvent(QKeyEvent *event)
 void CFrameEditor::paintEvent(QPaintEvent *event)
 {
    OnPaint();
+   
 }
 
 void CFrameEditor::mouseMoveEvent(QMouseEvent *event)
