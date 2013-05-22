@@ -20,7 +20,7 @@
 
 #include "stdafx.h"
 #include "FamiTracker.h"
-#include "accelerator.h"
+#include "Accelerator.h"
 #include "Settings.h"
 
 /*

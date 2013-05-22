@@ -21,7 +21,7 @@
 #include <map>
 #include <vector>
 #include "stdafx.h"
-#include "chunk.h"
+#include "Chunk.h"
 
 /**
  * CChunk - Stores NSF data

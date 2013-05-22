@@ -21,6 +21,10 @@
 
 #pragma once
 
+#if !Q_WS_WIN && !Q_WS_WIN32
+#define __cdecl
+#endif
+
 #include "FamiTrackerTypes.h"
 #include "PatternData.h"
 

@@ -298,7 +298,7 @@ void CModulePropertiesDlg::OnEnChangeSongname()
 
 	pName->GetWindowText(Text);
 
-	Title.Format(TRACK_FORMAT, m_iSelectedSong + 1, Text);
+	Title.Format(TRACK_FORMAT, m_iSelectedSong + 1, (LPCTSTR)Text);
 
 	m_pSongList->SetItemText(m_iSelectedSong, 0, Title);
 	m_pDocument->SetTrackTitle(m_iSelectedSong, Text.GetBuffer());

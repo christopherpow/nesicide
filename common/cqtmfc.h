@@ -222,6 +222,10 @@ enum
 #include <windows.h>
 #include <prsht.h>
 
+#define stricmp strcasecmp
+
+#define _MAX_PATH 256
+
 // special struct for WM_SIZEPARENT
 struct AFX_SIZEPARENTPARAMS
 {
@@ -3293,8 +3297,6 @@ int StretchDIBits(
 
 CWinApp* AfxGetApp();
 CFrameWnd* AfxGetMainWnd();
-
-DWORD WINAPI GetCurrentThreadId(void);
 
 HGDIOBJ GetStockObject(
    int fnObject

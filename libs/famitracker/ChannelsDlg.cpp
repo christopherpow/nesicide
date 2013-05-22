@@ -6,7 +6,7 @@
 #include "FamiTrackerDoc.h"
 #include "TrackerChannel.h"
 #include "ChannelsDlg.h"
-#include "apu/apu.h"
+#include "APU/APU.h"
 
 // Used to handle channels in a future version. Not finished.
 

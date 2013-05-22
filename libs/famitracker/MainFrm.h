@@ -22,7 +22,7 @@
 
 #include "cqtmfc.h"
 
-#include "Famitrackerdoc.h"
+#include "FamiTrackerDoc.h"
 #include "PatternEditor.h"
 #include "Action.h"
 #include "FrameEditor.h"

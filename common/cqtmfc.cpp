@@ -21,11 +21,6 @@ CFrameWnd* AfxGetMainWnd()
    return ptrToTheApp->m_pMainWnd; 
 }
 
-DWORD WINAPI GetCurrentThreadId(void)
-{
-   return (DWORD)QThread::currentThreadId();
-}
-
 CBrush nullBrush;
 
 HGDIOBJ GetStockObject(

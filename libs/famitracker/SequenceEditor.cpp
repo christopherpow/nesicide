@@ -133,7 +133,7 @@ BOOL CSequenceEditor::PreTranslateMessage(MSG* pMsg)
 			GetClientRect(rect);
 			// Arpeggio
 			if (m_iSelectedSetting == SEQ_ARPEGGIO && m_pSequence->GetSetting() == 1) {
-				Text.Format(_T("{%i, %s}  "), pMsg->wParam, ((CArpeggioGraphEditor*)m_pGraphEditor)->GetNoteString(pMsg->lParam));
+				Text.Format(_T("{%i, %s}  "), pMsg->wParam, (LPCTSTR)((CArpeggioGraphEditor*)m_pGraphEditor)->GetNoteString(pMsg->lParam));
 			}
 			else
 				Text.Format(_T("{%i, %i}  "), pMsg->wParam, pMsg->lParam);
