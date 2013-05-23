@@ -134,6 +134,16 @@ HCURSOR WINAPI SetCursor(
    return (HCURSOR)0;
 }
 
+BOOL WINAPI GetWindowRect(
+   HWND hWnd,
+   LPRECT lpRect
+)
+{
+   CWnd* pWnd = (CWnd*)hWnd;
+   pWnd->GetWindowRect(lpRect);
+   return TRUE;
+}
+
 #if !defined(Q_WS_WIN) && !defined(Q_WS_WIN32)
 HMODULE WINAPI LoadLibrary(
    LPCTSTR lpFileName
@@ -250,6 +260,7 @@ BOOL PathRemoveFileSpec(
            (pszPath[len] == '\\') )
       {
          pszPath[len] = 0;
+         break;
       }
    }
    return TRUE;
