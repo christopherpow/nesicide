@@ -144,6 +144,13 @@ BOOL WINAPI GetWindowRect(
    return TRUE;
 }
 
+UINT WINAPI RegisterClipboardFormat(
+   LPCTSTR lpszFormat
+)
+{
+   return 0xC000; // From MS info for RegisterClipboardFormat...we don't really need it.
+}
+
 #if !defined(Q_WS_WIN) && !defined(Q_WS_WIN32)
 HMODULE WINAPI LoadLibrary(
    LPCTSTR lpFileName

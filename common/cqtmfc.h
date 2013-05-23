@@ -336,6 +336,10 @@ BOOL WINAPI GetWindowRect(
    LPRECT lpRect
 );
 
+UINT WINAPI RegisterClipboardFormat(
+   LPCTSTR lpszFormat
+);
+
 #if !defined(Q_WS_WIN) && !defined(Q_WS_WIN32)
 HMODULE WINAPI LoadLibrary(
    LPCTSTR lpFileName
