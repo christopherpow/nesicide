@@ -103,17 +103,18 @@ BOOL CInstrumentEditPanel::PreTranslateMessage(MSG* pMsg)
 					return TRUE;
 				default:	// Note keys
 					// Make sure the dialog is selected when previewing
-					GetClassName(pMsg->hwnd, ClassName, 256);
-					if (_tcscmp(ClassName, _T("Edit"))) {
-					//if (GetFocus() == this || GetFocus() == GetParent()) {
-					//if (!CDialog::PreTranslateMessage(pMsg)) {
+            qDebug("GetClassName not used for now...");
+//					GetClassName(pMsg->hwnd, ClassName, 256);
+//					if (_tcscmp(ClassName, _T("Edit"))) {
+//					//if (GetFocus() == this || GetFocus() == GetParent()) {
+//					//if (!CDialog::PreTranslateMessage(pMsg)) {
 					
-					//if (DYNAMIC_DOWNCAST(CEdit, GetFocus()) == NULL) {
-						// Remove repeated keys
-						if ((pMsg->lParam & (1 << 30)) == 0)
-							PreviewNote((unsigned char)pMsg->wParam);
-						return TRUE;
-					}
+//					//if (DYNAMIC_DOWNCAST(CEdit, GetFocus()) == NULL) {
+//						// Remove repeated keys
+//						if ((pMsg->lParam & (1 << 30)) == 0)
+//							PreviewNote((unsigned char)pMsg->wParam);
+//						return TRUE;
+//					}
 					
 			}
 			break;
