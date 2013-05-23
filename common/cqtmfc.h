@@ -344,6 +344,17 @@ DWORD WINAPI GetFileAttributes(
    LPCTSTR lpFileName
 );
 
+LONG WINAPI GetWindowLong(
+   HWND hWnd,
+   int nIndex
+);
+
+int WINAPI GetKeyNameText(
+   LONG lParam,
+   LPTSTR lpString,
+   int cchSize
+);
+
 #if !defined(Q_WS_WIN) && !defined(Q_WS_WIN32)
 HMODULE WINAPI LoadLibrary(
    LPCTSTR lpFileName

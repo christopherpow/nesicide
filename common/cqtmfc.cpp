@@ -168,6 +168,25 @@ DWORD WINAPI GetFileAttributes(
    return attribs;
 }
 
+LONG WINAPI GetWindowLong(
+   HWND hWnd,
+   int nIndex
+)
+{
+   qDebug("GetWindowLong...");
+   return 0;
+}
+
+int WINAPI GetKeyNameText(
+   LONG lParam,
+   LPTSTR lpString,
+   int cchSize
+)
+{
+   qDebug("GetKeyNameText...");
+   return 0;
+}
+
 #if !defined(Q_WS_WIN) && !defined(Q_WS_WIN32)
 HMODULE WINAPI LoadLibrary(
    LPCTSTR lpFileName
