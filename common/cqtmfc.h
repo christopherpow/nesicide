@@ -224,7 +224,9 @@ enum
 
 #define stricmp strcasecmp
 
+#if !defined(Q_WS_WIN) && !defined(Q_WS_WIN32)
 #define _MAX_PATH 256
+#endif
 
 // special struct for WM_SIZEPARENT
 struct AFX_SIZEPARENTPARAMS
