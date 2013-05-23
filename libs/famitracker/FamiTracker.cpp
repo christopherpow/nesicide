@@ -532,19 +532,20 @@ void CFamiTrackerApp::CheckSynth()
 		LastTime = GetTickCount();
 
 	// Wait for signals from the player thread
-	if (WaitForSingleObject(m_hAliveCheck, 0) == WAIT_OBJECT_0) {	// return immediately
-		if ((GetTickCount() - LastTime) > 1000) {
-			((CMainFrame*) GetMainWnd())->SetMessageText(AFX_IDS_IDLEMESSAGE);
-		}
-		LastTime = GetTickCount();
-	}
-	else {
-		// Timeout after 1 s
-		if ((GetTickCount() - LastTime) > 1000) {
-			// Display message
-			((CMainFrame*) GetMainWnd())->SetMessageText(IDS_SOUND_FAIL);
-		}
-	}
+   qDebug("WaitForSingleObject??");
+//	if (WaitForSingleObject(m_hAliveCheck, 0) == WAIT_OBJECT_0) {	// return immediately
+//		if ((GetTickCount() - LastTime) > 1000) {
+//			((CMainFrame*) GetMainWnd())->SetMessageText(AFX_IDS_IDLEMESSAGE);
+//		}
+//		LastTime = GetTickCount();
+//	}
+//	else {
+//		// Timeout after 1 s
+//		if ((GetTickCount() - LastTime) > 1000) {
+//			// Display message
+//			((CMainFrame*) GetMainWnd())->SetMessageText(IDS_SOUND_FAIL);
+//		}
+//	}
 
 	ResetEvent(m_hAliveCheck);
 }
