@@ -134,11 +134,23 @@ HCURSOR WINAPI SetCursor(
    return (HCURSOR)0;
 }
 
+#if !defined(Q_WS_WIN) && !defined(Q_WS_WIN32)
 HMODULE WINAPI LoadLibrary(
    LPCTSTR lpFileName
 )
 {
-   return (HMODULE)NULL;
+   QLibrary* pLib = new QLibrary;
+#if UNICODE
+   pLib->setFileName(QString::fromWCharArray(lpFileName));   
+#else
+   pLib->setFileName(QString::fromAscii(lpFileName));   
+#endif
+   if ( !pLib->load() )
+   {
+      delete pLib;
+      pLib = NULL;
+   }
+   return (HMODULE)pLib;
 }
 
 FARPROC WINAPI GetProcAddress(
@@ -146,15 +158,22 @@ FARPROC WINAPI GetProcAddress(
    LPCSTR lpProcName
 )
 {
-   return (FARPROC)NULL;
+   QLibrary* pLib = (QLibrary*)hModule;
+#if UNICODE
+   return (FARPROC)pLib->resolve(QString::fromWCharArray(lpProcName).toAscii().constData());
+#else
+   return (FARPROC)pLib->resolve(QString::fromAscii(lpProcName).toAscii().constData());
+#endif
 }
 
 BOOL WINAPI FreeLibrary(
    HMODULE hModule
 )
 {
-   return TRUE;
+   QLibrary* pLib = (QLibrary*)hModule;   
+   return pLib->unload();
 }
+#endif
 
 HANDLE WINAPI CreateEvent(
    LPSECURITY_ATTRIBUTES lpEventAttributes,

@@ -60,6 +60,7 @@
 #include <QFileDialog>
 #include <QMenuBar>
 #include <QToolButton>
+#include <QLibrary>
 
 #ifndef QT_NO_DEBUG
 //#define _DEBUG
@@ -330,6 +331,7 @@ HCURSOR WINAPI SetCursor(
    HCURSOR hCursor
 );
 
+#if !defined(Q_WS_WIN) && !defined(Q_WS_WIN32)
 HMODULE WINAPI LoadLibrary(
    LPCTSTR lpFileName
 );
@@ -342,6 +344,7 @@ FARPROC WINAPI GetProcAddress(
 BOOL WINAPI FreeLibrary(
    HMODULE hModule
 );
+#endif
 
 HANDLE WINAPI CreateEvent(
    LPSECURITY_ATTRIBUTES lpEventAttributes,
