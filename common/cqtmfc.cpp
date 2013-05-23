@@ -134,6 +134,13 @@ HCURSOR WINAPI SetCursor(
    return (HCURSOR)0;
 }
 
+HMODULE WINAPI LoadLibrary(
+   LPCTSTR lpFileName
+)
+{
+   return (HMODULE)NULL;
+}
+
 FARPROC WINAPI GetProcAddress(
    HMODULE hModule,
    LPCSTR lpProcName
@@ -146,6 +153,50 @@ BOOL WINAPI FreeLibrary(
    HMODULE hModule
 )
 {
+   return TRUE;
+}
+
+HANDLE WINAPI CreateEvent(
+   LPSECURITY_ATTRIBUTES lpEventAttributes,
+   BOOL bManualReset,
+   BOOL bInitialState,
+   LPCTSTR lpName
+)
+{
+   return (HANDLE)new CEvent(bInitialState,bManualReset,lpName,lpEventAttributes);
+}
+
+BOOL WINAPI SetEvent(
+   HANDLE hEvent
+)
+{
+   CEvent* pEvent = (CEvent*)hEvent;
+   return pEvent->SetEvent();
+}
+
+BOOL WINAPI ResetEvent(
+   HANDLE hEvent
+)
+{
+   CEvent* pEvent = (CEvent*)hEvent;
+   return pEvent->ResetEvent();
+}
+
+BOOL WINAPI PulseEvent(
+   HANDLE hEvent
+)
+{
+   CEvent* pEvent = (CEvent*)hEvent;
+   return pEvent->PulseEvent();   
+}
+
+BOOL WINAPI GetCursorPos(
+   LPPOINT lpPoint
+)
+{
+   QPoint pos = QCursor::pos();
+   lpPoint->x = pos.x();
+   lpPoint->y = pos.y();
    return TRUE;
 }
 
@@ -6926,11 +6977,21 @@ CEvent::CEvent(
 {
 }
 
-BOOL CEvent::SetEvent()
+CEvent::~CEvent()
 {
-   qDebug("CEvent::SetEvent");
 }
 
+BOOL CEvent::SetEvent()
+{
+}
+
+BOOL CEvent::ResetEvent()
+{
+}
+
+BOOL CEvent::PulseEvent()
+{
+}
 
 BOOL CFileFind::FindFile(
    LPCTSTR pstrName,

@@ -330,6 +330,10 @@ HCURSOR WINAPI SetCursor(
    HCURSOR hCursor
 );
 
+HMODULE WINAPI LoadLibrary(
+   LPCTSTR lpFileName
+);
+
 FARPROC WINAPI GetProcAddress(
    HMODULE hModule,
    LPCSTR lpProcName
@@ -337,6 +341,29 @@ FARPROC WINAPI GetProcAddress(
 
 BOOL WINAPI FreeLibrary(
    HMODULE hModule
+);
+
+HANDLE WINAPI CreateEvent(
+   LPSECURITY_ATTRIBUTES lpEventAttributes,
+   BOOL bManualReset,
+   BOOL bInitialState,
+   LPCTSTR lpName
+);
+
+BOOL WINAPI SetEvent(
+   HANDLE hEvent
+);
+
+BOOL WINAPI ResetEvent(
+   HANDLE hEvent
+);
+
+BOOL WINAPI PulseEvent(
+   HANDLE hEvent
+);
+
+BOOL WINAPI GetCursorPos(
+   LPPOINT lpPoint
 );
 
 DWORD WINAPI GetModuleFileName(
@@ -505,7 +532,10 @@ public:
       LPCTSTR lpszName = NULL,
       LPSECURITY_ATTRIBUTES lpsaAttribute = NULL 
    );
+   virtual ~CEvent();
    BOOL SetEvent();
+   BOOL ResetEvent();
+   BOOL PulseEvent();
 };
 
 class CString;
