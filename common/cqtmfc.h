@@ -319,10 +319,24 @@ int AfxMessageBox(
    UINT nType = MB_OK,
    UINT nIDHelp = 0 
 );
+
 int AFXAPI AfxMessageBox(
    UINT nIDPrompt,
    UINT nType = MB_OK,
    UINT nIDHelp = (UINT) -1 
+);
+
+HCURSOR WINAPI SetCursor(
+   HCURSOR hCursor
+);
+
+FARPROC WINAPI GetProcAddress(
+   HMODULE hModule,
+   LPCSTR lpProcName
+);
+
+BOOL WINAPI FreeLibrary(
+   HMODULE hModule
 );
 
 DWORD WINAPI GetModuleFileName(

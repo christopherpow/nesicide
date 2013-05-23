@@ -126,6 +126,29 @@ int AFXAPI AfxMessageBox(
    return QMessageBox::Ok;
 }
 
+
+HCURSOR WINAPI SetCursor(
+   HCURSOR hCursor
+)
+{
+   return (HCURSOR)0;
+}
+
+FARPROC WINAPI GetProcAddress(
+   HMODULE hModule,
+   LPCSTR lpProcName
+)
+{
+   return (FARPROC)NULL;
+}
+
+BOOL WINAPI FreeLibrary(
+   HMODULE hModule
+)
+{
+   return TRUE;
+}
+
 DWORD WINAPI GetModuleFileName(
    HMODULE hModule,
    LPTSTR lpFilename,
