@@ -34,7 +34,7 @@ public slots:
    void instSettings_itemSelectionChanged();
    void freeSeq_clicked();
    void seqIndex_textChanged(QString);
-   void sequenceSpin_valueChanged(int val);
+   void sequenceSpin_valueChanged(int oldVal,int newVal);
    
 public:
 	CInstrumentEditor2A03(CWnd* pParent = NULL);   // standard constructor

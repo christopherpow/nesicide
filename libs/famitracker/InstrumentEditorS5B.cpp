@@ -137,10 +137,10 @@ void CInstrumentEditorS5B::freeSeq_clicked()
    OnBnClickedFreeSeq();
 }
 
-void CInstrumentEditorS5B::sequenceSpin_valueChanged(int val)
+void CInstrumentEditorS5B::sequenceSpin_valueChanged(int oldVal,int newVal)
 {
    // Update the "buddy"
-   SetDlgItemInt(IDC_SEQ_INDEX,val);
+   SetDlgItemInt(IDC_SEQ_INDEX,newVal);
    OnEnChangeSeqIndex();
 }
 

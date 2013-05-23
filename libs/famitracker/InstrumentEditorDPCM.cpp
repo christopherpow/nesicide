@@ -31,26 +31,17 @@
 
 const TCHAR *CInstrumentEditorDPCM::KEY_NAMES[] = {_T("C"), _T("C#"), _T("D"), _T("D#"), _T("E"), _T("F"), _T("F#"), _T("G"), _T("G#"), _T("A"), _T("A#"), _T("B")};
 
-// Derive a new class from CFileDialog with implemented preview of DMC files
-
-class CDMCFileSoundDialog : public CFileDialog
-{
-public:
-	CDMCFileSoundDialog(BOOL bOpenFileDialog, LPCTSTR lpszDefExt = NULL, LPCTSTR lpszFileName = NULL, DWORD dwFlags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, LPCTSTR lpszFilter = NULL, CWnd* pParentWnd = NULL, DWORD dwSize = 0);
-	virtual ~CDMCFileSoundDialog();
-
-	static const int DEFAULT_PREVIEW_PITCH = 15;
-
-protected:
-	virtual void OnFileNameChange();
-	CString m_strLastFile;
-};
-
 //	CFileSoundDialog
 
 CDMCFileSoundDialog::CDMCFileSoundDialog(BOOL bOpenFileDialog, LPCTSTR lpszDefExt, LPCTSTR lpszFileName, DWORD dwFlags, LPCTSTR lpszFilter, CWnd* pParentWnd, DWORD dwSize) 
 	: CFileDialog(bOpenFileDialog, lpszDefExt, lpszFileName, dwFlags, lpszFilter, pParentWnd, dwSize)
 {
+   QObject::connect(_qtd,SIGNAL(fileSelected(QString)),this,SLOT(fileSelected(QString)));
+}
+
+void CDMCFileSoundDialog::fileSelected(QString file)
+{
+   OnFileNameChange();
 }
 
 CDMCFileSoundDialog::~CDMCFileSoundDialog()

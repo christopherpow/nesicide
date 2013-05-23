@@ -8,6 +8,7 @@
 #include <QMessageBox>
 #include <QPixmap>
 #include <QMainWindow>
+#include <QFileInfo>
 
 extern CWinApp* ptrToTheApp;
 
@@ -149,6 +150,22 @@ UINT WINAPI RegisterClipboardFormat(
 )
 {
    return 0xC000; // From MS info for RegisterClipboardFormat...we don't really need it.
+}
+
+DWORD WINAPI GetFileAttributes(
+   LPCTSTR lpFileName
+)
+{
+   QFileInfo fileInfo;
+   DWORD attribs = 0;
+#if UNICODE
+   fileInfo.setFile(QString::fromWCharArray(lpFileName));
+#else
+   fileInfo.setFile(QString::fromAscii(lpFileName));
+#endif
+   attribs |= (fileInfo.isDir()?FILE_ATTRIBUTE_DIRECTORY:0);
+   attribs |= (fileInfo.isHidden()?FILE_ATTRIBUTE_HIDDEN:0);
+   return attribs;
 }
 
 #if !defined(Q_WS_WIN) && !defined(Q_WS_WIN32)

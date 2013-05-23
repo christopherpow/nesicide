@@ -118,3 +118,23 @@ public:
 	afx_msg void OnNMRClickTable(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnNMDblclkTable(NMHDR *pNMHDR, LRESULT *pResult);
 };
+
+// Derive a new class from CFileDialog with implemented preview of DMC files
+
+class CDMCFileSoundDialog : public CFileDialog
+{
+   Q_OBJECT
+   // Qt interfaces
+public slots:
+   void fileSelected(QString file);
+public:
+	CDMCFileSoundDialog(BOOL bOpenFileDialog, LPCTSTR lpszDefExt = NULL, LPCTSTR lpszFileName = NULL, DWORD dwFlags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, LPCTSTR lpszFilter = NULL, CWnd* pParentWnd = NULL, DWORD dwSize = 0);
+	virtual ~CDMCFileSoundDialog();
+
+	static const int DEFAULT_PREVIEW_PITCH = 15;
+
+protected:
+	virtual void OnFileNameChange();
+	CString m_strLastFile;
+};
+

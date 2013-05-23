@@ -2605,7 +2605,6 @@ void qtMfcInitDialogResource_IDD_SAMPLE_EDITOR(CDialog* parent1)
    parent->MapDialogRect(&r7);
    mfc7->setGeometry(r7);
    mfcToQtWidget->insert(IDC_PITCH,mfc7);
-   QObject::connect(mfc7,SIGNAL(valueChanged(int)),parent,SLOT(pitch_valueChanged(int)));
 //   PUSHBUTTON      "Tilt",IDC_TILT,292,234,50,14
    CButton* mfc8 = new CButton(parent);
    CRect r8(CPoint(292,234),CSize(50,14));
