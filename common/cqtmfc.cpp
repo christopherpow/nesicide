@@ -173,8 +173,14 @@ LONG WINAPI GetWindowLong(
    int nIndex
 )
 {
-   qDebug("GetWindowLong...");
-   return 0;
+   CWnd* pWnd = (CWnd*)hWnd;
+   LONG ret = 0;
+   switch ( nIndex )
+   {
+   case GWL_STYLE:
+      ret = pWnd->GetStyle();
+   }
+   return ret;
 }
 
 int WINAPI GetKeyNameText(
@@ -5922,6 +5928,20 @@ LRESULT CEdit::SendMessage(
    return 0; // CP: not sure this matters...much
 }
 
+DWORD CEdit::GetStyle() const
+{
+   LONG ret = 0;
+   if ( _dwStyle&ES_MULTILINE )
+   {
+      ret |= _qtd_ptedit->isReadOnly()?ES_READONLY:0;
+   }
+   else
+   {
+      ret |= _qtd_ledit->isReadOnly()?ES_READONLY:0;
+   }
+   return ret;
+}
+
 void CEdit::SetSel(
    DWORD dwSelection,
    BOOL bNoScroll
@@ -7194,6 +7214,10 @@ CPropertyPage::CPropertyPage(
    UINT nIDCaption, 
    DWORD dwSize 
 )
+{
+}
+
+CPropertyPage::~CPropertyPage()
 {
 }
 

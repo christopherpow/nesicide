@@ -68,22 +68,27 @@ void MainWindow::editor_modificationChanged(bool m)
 
 void MainWindow::dragEnterEvent(QDragEnterEvent *event)
 {
+qDebug("dragEnter");
    if ( event->mimeData()->hasUrls() )
    {
       event->acceptProposedAction();
+qDebug("dragEnter: ACCEPT");
    }
 }
 
 void MainWindow::dragMoveEvent(QDragMoveEvent *event)
 {
+qDebug("dragMove");
    if ( event->mimeData()->hasUrls() )
    {
       event->acceptProposedAction();
+qDebug("dragMove: ACCEPT");
    }
 }
 
 void MainWindow::dropEvent(QDropEvent *event)
 {
+qDebug("dropEvent");
    QList<QUrl> fileUrls;
    QString     fileName;
    QFileInfo   fileInfo;
@@ -103,6 +108,7 @@ void MainWindow::dropEvent(QDropEvent *event)
          {
             openFile(fileName);
             event->acceptProposedAction();
+qDebug("dropEvent: ACCEPT");
          }
       }
    }

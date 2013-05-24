@@ -1359,106 +1359,106 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT(CDialog* parent1)
 //   END
 }   
 
-#include "ConfigAppearance.h"
+//#include "ConfigAppearance.h"
 void qtMfcInitDialogResource_IDD_CONFIG_APPEARANCE(CDialog* parent1)
 {
-   CConfigAppearance* parent = dynamic_cast<CConfigAppearance*>(parent1);
-   QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
-   
-//   IDD_CONFIG_APPEARANCE DIALOGEX 0, 0, 280, 167
-   CRect rect(CPoint(0,0),CSize(280,167));
-   parent->MapDialogRect(&rect);
-   parent->setFixedSize(rect.Width(),rect.Height());   
-//   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-//   CAPTION "Appearance"
-   parent->SetWindowText("Appearance");
-//   FONT 8, "MS Shell Dlg", 400, 0, 0x1
-//   BEGIN
-//       GROUPBOX        "Color schemes",IDC_STATIC,7,7,149,39
-   CGroupBox* mfc1 = new CGroupBox(parent);
-   CRect r1(CPoint(7,7),CSize(149,39));
-   parent->MapDialogRect(&r1);
-   mfc1->Create(_T("Color schemes"),WS_VISIBLE,r1,parent,IDC_STATIC);
-   // IDC_STATIC do not get added to MFC-to-Qt map.
-//       COMBOBOX        IDC_SCHEME,15,22,135,126,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
-   CComboBox* mfc2 = new CComboBox(parent);
-   CRect r2(CPoint(15,22),CSize(135,126));
-   parent->MapDialogRect(&r2);
-   mfc2->Create(CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r2,parent,IDC_SCHEME);
-   mfcToQtWidget->insert(IDC_SCHEME,mfc2);
-   QObject::connect(mfc2,SIGNAL(currentIndexChanged(int)),parent,SLOT(scheme_currentIndexChanged(int)));
-//       GROUPBOX        "Colors",IDC_STATIC,7,54,149,62
-   CGroupBox* mfc3 = new CGroupBox(parent);
-   CRect r3(CPoint(7,54),CSize(149,62));
-   parent->MapDialogRect(&r3);
-   mfc3->Create(_T("Colors"),WS_VISIBLE,r3,parent,IDC_STATIC);
-   // IDC_STATIC do not get added to MFC-to-Qt map.
-//       LTEXT           "Item",IDC_STATIC,15,68,16,8
-   CStatic* mfc4 = new CStatic(parent);
-   CRect r4(CPoint(15,68),CSize(16,8));
-   parent->MapDialogRect(&r4);
-   mfc4->Create(_T("Item"),WS_VISIBLE,r4,parent,IDC_STATIC);
-   // IDC_STATIC do not get added to MFC-to-Qt map.
-//       COMBOBOX        IDC_COL_ITEM,35,66,115,172,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-   CComboBox* mfc5 = new CComboBox(parent);
-   CRect r5(CPoint(35,66),CSize(115,172));
-   parent->MapDialogRect(&r5);
-   mfc5->Create(CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r5,parent,IDC_COL_ITEM);
-   mfcToQtWidget->insert(IDC_COL_ITEM,mfc5);
-   QObject::connect(mfc5,SIGNAL(currentIndexChanged(int)),parent,SLOT(colItem_currentIndexChanged(int)));
-//       CONTROL         "",IDC_COL_PREVIEW,"Static",SS_OWNERDRAW,15,84,69,15
-   CStatic* mfc6 = new CStatic(parent);
-   CRect r6(CPoint(15,84),CSize(69,15));
-   parent->MapDialogRect(&r6);
-   mfc6->Create(_T(""),SS_OWNERDRAW | WS_VISIBLE,r6,parent,IDC_COL_PREVIEW);
-   mfcToQtWidget->insert(IDC_COL_PREVIEW,mfc6);   
-//       PUSHBUTTON      "Pick color",IDC_PICK_COL,96,84,54,15
-   CButton* mfc7 = new CButton(parent);
-   CRect r7(CPoint(96,84),CSize(54,15));
-   parent->MapDialogRect(&r7);
-   mfc7->Create(_T("Pick color"),WS_VISIBLE,r7,parent,IDC_PICK_COL);
-   mfcToQtWidget->insert(IDC_PICK_COL,mfc7);
-   QObject::connect(mfc7,SIGNAL(clicked()),parent,SLOT(pickCol_clicked()));
-//       CONTROL         "Pattern colors",IDC_PATTERNCOLORS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,102,113,9
-   CButton* mfc8 = new CButton(parent);
-   CRect r8(CPoint(15,102),CSize(113,9));
-   parent->MapDialogRect(&r8);
-   mfc8->Create(_T("Pattern colors"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r8,parent,IDC_PATTERNCOLORS);
-   mfcToQtWidget->insert(IDC_PATTERNCOLORS,mfc8);
-   QObject::connect(mfc8,SIGNAL(clicked()),parent,SLOT(patternColors_clicked()));
-//       GROUPBOX        "Pattern font and size",IDC_STATIC,7,123,149,37
-   CGroupBox* mfc9 = new CGroupBox(parent);
-   CRect r9(CPoint(7,123),CSize(149,37));
-   parent->MapDialogRect(&r9);
-   mfc9->Create(_T("Pattern font and size"),WS_VISIBLE,r9,parent,IDC_STATIC);
-   // IDC_STATIC do not get added to MFC-to-Qt map.
-//       COMBOBOX        IDC_FONT,15,139,102,93,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
-   CComboBox* mfc10 = new CComboBox(parent);
-   CRect r10(CPoint(15,139),CSize(102,93));
-   parent->MapDialogRect(&r10);
-   mfc10->Create(CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r10,parent,IDC_FONT);
-   mfcToQtWidget->insert(IDC_FONT,mfc10);
-   QObject::connect(mfc10,SIGNAL(currentIndexChanged(int)),parent,SLOT(font_currentIndexChanged(int)));
-//       COMBOBOX        IDC_FONT_SIZE,122,139,28,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-   CComboBox* mfc11 = new CComboBox(parent);
-   CRect r11(CPoint(122,139),CSize(28,30));
-   parent->MapDialogRect(&r11);
-   mfc11->Create(CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r11,parent,IDC_FONT_SIZE);
-   mfcToQtWidget->insert(IDC_FONT_SIZE,mfc11);
-   QObject::connect(mfc11,SIGNAL(currentIndexChanged(int)),parent,SLOT(font_size_currentIndexChanged(int)));
-//       GROUPBOX        "Preview",IDC_STATIC,166,7,107,153
-   CGroupBox* mfc12 = new CGroupBox(parent);
-   CRect r12(CPoint(166,7),CSize(107,153));
-   parent->MapDialogRect(&r12);
-   mfc12->Create(_T("Preview"),WS_VISIBLE,r12,parent,IDC_STATIC);
-   // IDC_STATIC do not get added to MFC-to-Qt map.
-//       CONTROL         "",IDC_PREVIEW,"Static",SS_OWNERDRAW,176,18,90,125
-   CStatic* mfc13 = new CStatic(parent);
-   CRect r13(CPoint(176,18),CSize(90,125));
-   parent->MapDialogRect(&r13);
-   mfc13->Create(_T(""),SS_OWNERDRAW | WS_VISIBLE,r13,parent,IDC_PREVIEW);
-   mfcToQtWidget->insert(IDC_PREVIEW,mfc13);   
-//   END
+//   CConfigAppearance* parent = dynamic_cast<CConfigAppearance*>(parent1);
+//   QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
+//   
+////   IDD_CONFIG_APPEARANCE DIALOGEX 0, 0, 280, 167
+//   CRect rect(CPoint(0,0),CSize(280,167));
+//   parent->MapDialogRect(&rect);
+//   parent->setFixedSize(rect.Width(),rect.Height());   
+////   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+////   CAPTION "Appearance"
+//   parent->SetWindowText("Appearance");
+////   FONT 8, "MS Shell Dlg", 400, 0, 0x1
+////   BEGIN
+////       GROUPBOX        "Color schemes",IDC_STATIC,7,7,149,39
+//   CGroupBox* mfc1 = new CGroupBox(parent);
+//   CRect r1(CPoint(7,7),CSize(149,39));
+//   parent->MapDialogRect(&r1);
+//   mfc1->Create(_T("Color schemes"),WS_VISIBLE,r1,parent,IDC_STATIC);
+//   // IDC_STATIC do not get added to MFC-to-Qt map.
+////       COMBOBOX        IDC_SCHEME,15,22,135,126,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+//   CComboBox* mfc2 = new CComboBox(parent);
+//   CRect r2(CPoint(15,22),CSize(135,126));
+//   parent->MapDialogRect(&r2);
+//   mfc2->Create(CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r2,parent,IDC_SCHEME);
+//   mfcToQtWidget->insert(IDC_SCHEME,mfc2);
+//   QObject::connect(mfc2,SIGNAL(currentIndexChanged(int)),parent,SLOT(scheme_currentIndexChanged(int)));
+////       GROUPBOX        "Colors",IDC_STATIC,7,54,149,62
+//   CGroupBox* mfc3 = new CGroupBox(parent);
+//   CRect r3(CPoint(7,54),CSize(149,62));
+//   parent->MapDialogRect(&r3);
+//   mfc3->Create(_T("Colors"),WS_VISIBLE,r3,parent,IDC_STATIC);
+//   // IDC_STATIC do not get added to MFC-to-Qt map.
+////       LTEXT           "Item",IDC_STATIC,15,68,16,8
+//   CStatic* mfc4 = new CStatic(parent);
+//   CRect r4(CPoint(15,68),CSize(16,8));
+//   parent->MapDialogRect(&r4);
+//   mfc4->Create(_T("Item"),WS_VISIBLE,r4,parent,IDC_STATIC);
+//   // IDC_STATIC do not get added to MFC-to-Qt map.
+////       COMBOBOX        IDC_COL_ITEM,35,66,115,172,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+//   CComboBox* mfc5 = new CComboBox(parent);
+//   CRect r5(CPoint(35,66),CSize(115,172));
+//   parent->MapDialogRect(&r5);
+//   mfc5->Create(CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r5,parent,IDC_COL_ITEM);
+//   mfcToQtWidget->insert(IDC_COL_ITEM,mfc5);
+//   QObject::connect(mfc5,SIGNAL(currentIndexChanged(int)),parent,SLOT(colItem_currentIndexChanged(int)));
+////       CONTROL         "",IDC_COL_PREVIEW,"Static",SS_OWNERDRAW,15,84,69,15
+//   CStatic* mfc6 = new CStatic(parent);
+//   CRect r6(CPoint(15,84),CSize(69,15));
+//   parent->MapDialogRect(&r6);
+//   mfc6->Create(_T(""),SS_OWNERDRAW | WS_VISIBLE,r6,parent,IDC_COL_PREVIEW);
+//   mfcToQtWidget->insert(IDC_COL_PREVIEW,mfc6);   
+////       PUSHBUTTON      "Pick color",IDC_PICK_COL,96,84,54,15
+//   CButton* mfc7 = new CButton(parent);
+//   CRect r7(CPoint(96,84),CSize(54,15));
+//   parent->MapDialogRect(&r7);
+//   mfc7->Create(_T("Pick color"),WS_VISIBLE,r7,parent,IDC_PICK_COL);
+//   mfcToQtWidget->insert(IDC_PICK_COL,mfc7);
+//   QObject::connect(mfc7,SIGNAL(clicked()),parent,SLOT(pickCol_clicked()));
+////       CONTROL         "Pattern colors",IDC_PATTERNCOLORS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,102,113,9
+//   CButton* mfc8 = new CButton(parent);
+//   CRect r8(CPoint(15,102),CSize(113,9));
+//   parent->MapDialogRect(&r8);
+//   mfc8->Create(_T("Pattern colors"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r8,parent,IDC_PATTERNCOLORS);
+//   mfcToQtWidget->insert(IDC_PATTERNCOLORS,mfc8);
+//   QObject::connect(mfc8,SIGNAL(clicked()),parent,SLOT(patternColors_clicked()));
+////       GROUPBOX        "Pattern font and size",IDC_STATIC,7,123,149,37
+//   CGroupBox* mfc9 = new CGroupBox(parent);
+//   CRect r9(CPoint(7,123),CSize(149,37));
+//   parent->MapDialogRect(&r9);
+//   mfc9->Create(_T("Pattern font and size"),WS_VISIBLE,r9,parent,IDC_STATIC);
+//   // IDC_STATIC do not get added to MFC-to-Qt map.
+////       COMBOBOX        IDC_FONT,15,139,102,93,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+//   CComboBox* mfc10 = new CComboBox(parent);
+//   CRect r10(CPoint(15,139),CSize(102,93));
+//   parent->MapDialogRect(&r10);
+//   mfc10->Create(CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r10,parent,IDC_FONT);
+//   mfcToQtWidget->insert(IDC_FONT,mfc10);
+//   QObject::connect(mfc10,SIGNAL(currentIndexChanged(int)),parent,SLOT(font_currentIndexChanged(int)));
+////       COMBOBOX        IDC_FONT_SIZE,122,139,28,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+//   CComboBox* mfc11 = new CComboBox(parent);
+//   CRect r11(CPoint(122,139),CSize(28,30));
+//   parent->MapDialogRect(&r11);
+//   mfc11->Create(CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r11,parent,IDC_FONT_SIZE);
+//   mfcToQtWidget->insert(IDC_FONT_SIZE,mfc11);
+//   QObject::connect(mfc11,SIGNAL(currentIndexChanged(int)),parent,SLOT(font_size_currentIndexChanged(int)));
+////       GROUPBOX        "Preview",IDC_STATIC,166,7,107,153
+//   CGroupBox* mfc12 = new CGroupBox(parent);
+//   CRect r12(CPoint(166,7),CSize(107,153));
+//   parent->MapDialogRect(&r12);
+//   mfc12->Create(_T("Preview"),WS_VISIBLE,r12,parent,IDC_STATIC);
+//   // IDC_STATIC do not get added to MFC-to-Qt map.
+////       CONTROL         "",IDC_PREVIEW,"Static",SS_OWNERDRAW,176,18,90,125
+//   CStatic* mfc13 = new CStatic(parent);
+//   CRect r13(CPoint(176,18),CSize(90,125));
+//   parent->MapDialogRect(&r13);
+//   mfc13->Create(_T(""),SS_OWNERDRAW | WS_VISIBLE,r13,parent,IDC_PREVIEW);
+//   mfcToQtWidget->insert(IDC_PREVIEW,mfc13);   
+////   END
 }
 
 //#include "dialog-file"

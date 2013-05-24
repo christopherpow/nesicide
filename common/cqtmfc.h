@@ -1332,6 +1332,7 @@ public:
    CWnd(CWnd* parent=0);
    virtual ~CWnd();
    operator HWND() { return m_hWnd; }
+   DWORD GetStyle() const { return 0; }
    void SetOwner(
       CWnd* pOwnerWnd 
    );
@@ -1922,6 +1923,7 @@ public:
       CWnd* pParentWnd,
       UINT nID 
    );
+   DWORD GetStyle() const;
    LRESULT SendMessage(
       UINT message,
       WPARAM wParam = 0,
@@ -3338,6 +3340,7 @@ public:
       UINT nIDCaption = 0, 
       DWORD dwSize = sizeof(PROPSHEETPAGE) 
    ); 
+   virtual ~CPropertyPage();
    void SetModified(
       BOOL bChanged = TRUE 
    );
