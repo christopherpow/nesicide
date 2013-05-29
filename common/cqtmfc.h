@@ -58,9 +58,11 @@
 #include <QCheckBox>
 #include <QGroupBox>
 #include <QFileDialog>
+#include <QColorDialog>
 #include <QMenuBar>
 #include <QToolButton>
 #include <QLibrary>
+#include <QToolTip>
 
 #ifndef QT_NO_DEBUG
 //#define _DEBUG
@@ -959,6 +961,9 @@ public:
       CBitmap* pBitmap 
    );
    virtual ~CBrush() {}
+   BOOL CreateSolidBrush(
+      COLORREF crColor 
+   );
    operator QBrush() const
    {
       return _qbrush;
@@ -1070,6 +1075,15 @@ public:
    COLORREF GetPixel(
       POINT point 
    ) const;
+   BOOL Rectangle(
+      int x1,
+      int y1,
+      int x2,
+      int y2 
+   );
+   BOOL Rectangle(
+      LPCRECT lpRect 
+   );
    void Draw3dRect( LPCRECT lpRect, COLORREF clrTopLeft, COLORREF clrBottomRight )
    {
       Draw3dRect(lpRect->left,lpRect->top,lpRect->right-lpRect->left,lpRect->bottom-lpRect->top,clrTopLeft,clrBottomRight);
@@ -1337,6 +1351,9 @@ public:
       CWnd* pOwnerWnd 
    );
    CMenu* GetMenu( ) const { return NULL; }
+   BOOL EnableToolTips(
+      BOOL bEnable = TRUE
+   );
    virtual LRESULT SendMessage(
       UINT message,
       WPARAM wParam = 0,
@@ -1516,6 +1533,7 @@ public:
    void GetClientRect(
       LPRECT lpRect 
    ) const;
+   int GetDlgCtrlID( ) const { return _id; }
    CWnd* GetDlgItem(
       int nID 
    ) const;
@@ -1573,6 +1591,7 @@ protected:
    CScrollBar* mfcVerticalScrollBar;
    CScrollBar* mfcHorizontalScrollBar;
    CDC* _myDC;
+   UINT _id;
 
    // Qt interfaces
 public:
@@ -1670,6 +1689,10 @@ protected:
 class CDocTemplate;
 class CDocument : public CCmdTarget
 {
+//   Q_OBJECT
+//   // Qt interfaces
+//signals:
+//   void documentTitleChanged(QString title);
 public:
    CDocument() : m_pDocTemplate(NULL) {}
    void AssertValid() const {}
@@ -1684,8 +1707,8 @@ public:
    virtual POSITION GetFirstViewPosition() const; 
    virtual CView* GetNextView(POSITION pos) const;
    CDocTemplate* GetDocTemplate() const { return m_pDocTemplate; }
-   virtual void SetTitle(CString title ) { m_docTitle = title; }
-
+   virtual void SetTitle(CString title );
+   
    // These methods are only to be used in CDocTemplate initialization...
    virtual void privateSetDocTemplate(CDocTemplate* pDocTemplate) { m_pDocTemplate = pDocTemplate; }
    virtual void privateAddView(CView* pView) { _views.append(pView); }
@@ -1770,7 +1793,6 @@ class CDialog : public CWnd
 public:
    QDialog* _qtd;
    bool _inited;
-   UINT _id;
 protected:
    
    // MFC interfaces
@@ -1847,6 +1869,26 @@ public:
    LPOPENFILENAME m_pOFN;
 };
 
+class CColorDialog : public CCommonDialog
+{
+   // Qt interfaces
+public:
+protected:
+   QColorDialog* _qtd;
+   
+   // MFC interfaces
+public:
+   CColorDialog(
+      COLORREF clrInit = 0,
+      DWORD dwFlags = 0,
+      CWnd* pParentWnd = NULL 
+   );
+   virtual ~CColorDialog();
+   INT_PTR DoModal();
+   COLORREF GetColor( ) const;
+   CHOOSECOLOR m_cc;
+};
+
 class CScrollBar : public CWnd
 {
    Q_OBJECT
@@ -1908,7 +1950,7 @@ public:
    void setText(QString text) { if ( _dwStyle&ES_MULTILINE ) _qtd_ptedit->setPlainText(text); else _qtd_ledit->setText(text); }
 protected:
    QPlainTextEdit* _qtd_ptedit;
-   QLineEdit*      _qtd_ledit;
+   QLineEdit* _qtd_ledit;
    DWORD _dwStyle;
 signals:
    void textChanged(QString str);
@@ -2138,12 +2180,20 @@ public:
 #define UDS_NOTHOUSANDS      128
 #define UDS_HOTTRACK 0x0100
 
+class QSpinBox_MFC : public QSpinBox
+{
+public:
+   QSpinBox_MFC(QWidget* parent = 0) : QSpinBox(parent) {}
+   virtual ~QSpinBox_MFC() {}
+   QLineEdit* lineEdit() const { return QSpinBox::lineEdit(); }
+};
+
 class CSpinButtonCtrl : public CWnd
 {
    Q_OBJECT
    // Qt interfaces
 protected:
-   QSpinBox* _qtd;
+   QSpinBox_MFC* _qtd;
    int _oldValue;
 public slots:
    void control_edited();
@@ -3166,6 +3216,44 @@ public:
    );   
 };
 
+#if UNICODE
+#define LPSTR_TEXTCALLBACKW  ((LPWSTR)-1)
+#define LPSTR_TEXTCALLBACK LPSTR_TEXTCALLBACKW
+#else
+#define LPSTR_TEXTCALLBACKA  ((LPSTR)-1)
+#define LPSTR_TEXTCALLBACK LPSTR_TEXTCALLBACKA
+#endif
+
+ class CToolTipCtrl : public CWnd
+{
+   // Qt interfaces
+protected:
+   QToolTip* _qtd;
+   QList<CWnd*> _tippers;
+   // MFC interfaces
+public:
+   CToolTipCtrl( );
+   virtual BOOL Create(
+      CWnd* pParentWnd,
+         DWORD dwStyle = 0 
+   );
+   void Activate( 
+      BOOL bActivate  
+   );
+   BOOL AddTool(
+      CWnd* pWnd,
+      UINT nIDText,
+      LPCRECT lpRectTool = NULL,
+      UINT_PTR nIDTool = 0 
+   );
+   BOOL AddTool(
+      CWnd* pWnd,
+      LPCTSTR lpszText = LPSTR_TEXTCALLBACK,
+      LPCRECT lpRectTool = NULL,
+      UINT_PTR nIDTool = 0 
+   );
+};
+
 class CCmdUI
 {
 public:
@@ -3301,39 +3389,9 @@ protected:
    QList<CBitmap*> _images;
 };
 
-class CPropertySheet : public CWnd
-{
-public:
-   explicit CPropertySheet(
-      UINT nIDCaption,
-      CWnd* pParentWnd = NULL,
-      UINT iSelectPage = 0 
-   );
-   explicit CPropertySheet(
-      LPCTSTR pszCaption,
-      CWnd* pParentWnd = NULL,
-      UINT iSelectPage = 0 
-   );
-   CPropertySheet(
-      UINT nIDCaption,
-      CWnd* pParentWnd,
-      UINT iSelectPage,
-      HBITMAP hbmWatermark,
-      HPALETTE hpalWatermark = NULL,
-      HBITMAP hbmHeader = NULL 
-   );
-   CPropertySheet(
-      LPCTSTR pszCaption,
-      CWnd* pParentWnd,
-      UINT iSelectPage,
-      HBITMAP hbmWatermark,
-      HPALETTE hpalWatermark = NULL,
-      HBITMAP hbmHeader = NULL 
-   );
-};
-
 class CPropertyPage : public CDialog
 {
+   // MFC interfaces
 public:
    explicit CPropertyPage( 
       UINT nIDTemplate, 
@@ -3345,10 +3403,46 @@ public:
       BOOL bChanged = TRUE 
    );
    virtual BOOL OnApply( );
+   virtual BOOL OnSetActive( );
 };
 
-class CToolTipCtrl
+class CPropertySheet : public CWnd
 {
+   // Qt interfaces
+public:
+   QDialog* _qtd;
+   QTabWidget* _qtabwidget;
+public:
+   explicit CPropertySheet(
+      UINT nIDCaption,
+      CWnd* pParentWnd = NULL,
+      UINT iSelectPage = 0 
+   );
+   explicit CPropertySheet(
+      LPCTSTR pszCaption,
+      CWnd* pParentWnd = NULL,
+      UINT iSelectPage = 0 
+   );
+   CPropertySheet(
+      UINT nIDCaption,
+      CWnd* pParentWnd,
+      UINT iSelectPage,
+      HBITMAP hbmWatermark,
+      HPALETTE hpalWatermark = NULL,
+      HBITMAP hbmHeader = NULL 
+   );
+   CPropertySheet(
+      LPCTSTR pszCaption,
+      CWnd* pParentWnd,
+      UINT iSelectPage,
+      HBITMAP hbmWatermark,
+      HPALETTE hpalWatermark = NULL,
+      HBITMAP hbmHeader = NULL 
+   );   
+   void AddPage(
+      CPropertyPage *pPage 
+   );
+   virtual INT_PTR DoModal( );
 };
 
 class CCreateContext
@@ -3376,6 +3470,14 @@ CFrameWnd* AfxGetMainWnd();
 
 HGDIOBJ GetStockObject(
    int fnObject
+);
+
+int EnumFontFamiliesEx(
+   HDC hdc,
+   LPLOGFONT lpLogfont,
+   FONTENUMPROC lpEnumFontFamExProc,
+   LPARAM lParam,
+   DWORD dwFlags
 );
 
 CString qtMfcStringResource(int id);

@@ -1518,6 +1518,15 @@ CBrush::CBrush(
    _qbrush.setTextureImage(pixmap.toImage());
 }
 
+BOOL CBrush::CreateSolidBrush(
+   COLORREF crColor 
+)
+{
+   QColor color(GetRValue(crColor),GetGValue(crColor),GetBValue(crColor));
+   _qbrush.setColor(color);
+   return TRUE;
+}
+
 BOOL CFont::CreateFont(
    int nHeight,
    int nWidth,
@@ -1888,9 +1897,7 @@ COLORREF CDC::GetPixel(
    POINT point 
 ) const
 {
-   qDebug("GetPixel not supported yet.");
-   COLORREF ref = 0xbadf00d;
-   return ref;
+   return GetPixel(point.x,point.y);
 }
 
 BOOL CDC::BitBlt(
@@ -1947,6 +1954,24 @@ BOOL CDC::DrawEdge(
    _qpainter->drawRect(rect);
    qDebug("CDC::DrawEdge not implemented!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
    return TRUE;
+}
+
+BOOL CDC::Rectangle(
+   int x1,
+   int y1,
+   int x2,
+   int y2 
+)
+{
+   QRect rect(x1,y1,x2-x1,y2-y1);
+   _qpainter->drawRect(rect);
+}
+
+BOOL CDC::Rectangle(
+   LPCRECT lpRect 
+)
+{
+   Rectangle(lpRect->left,lpRect->top,lpRect->right,lpRect->bottom);
 }
 
 void CDC::Draw3dRect( int x, int y, int cx, int cy, COLORREF clrTopLeft, COLORREF clrBottomRight )
@@ -2176,6 +2201,7 @@ BOOL CComboBox::Create(
 )
 {
    m_hWnd = (HWND)this;
+   _id = nID;
 
    _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,_qtd->sizeHint().height());
    _qtd->setVisible(dwStyle&WS_VISIBLE);
@@ -2369,6 +2395,7 @@ BOOL CListBox::Create(
 )
 {
    m_hWnd = (HWND)this;
+   _id = nID;
 
    _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
    _qtd->setVisible(dwStyle&WS_VISIBLE);
@@ -2425,6 +2452,8 @@ BOOL CListCtrl::Create(
 )
 {
    m_hWnd = (HWND)this;
+   _id = nID;
+
    _dwStyle = dwStyle;
    
    if ( _qt )
@@ -3438,6 +3467,7 @@ BOOL CTreeCtrl::Create(
 )
 {
    m_hWnd = (HWND)this;
+   _id = nID;
 
    if ( dwStyle&TVS_LINESATROOT )
    {
@@ -3700,6 +3730,7 @@ BOOL CScrollBar::Create(
 )
 {
    m_hWnd = (HWND)this;
+   _id = nID;
 
    _qtd->setOrientation(_orient);
 
@@ -3835,6 +3866,7 @@ CWnd::CWnd(CWnd *parent)
    
    _qt->setMouseTracking(true);
    _qt->installEventFilter(this);
+   _qt->setFont(QFont("MS Shell Dlg",8));
    
    _qtd = dynamic_cast<QFrame*>(_qt);
 }
@@ -3862,6 +3894,13 @@ void CWnd::SetOwner(
    CWnd* pOwnerWnd 
 )
 {
+}
+
+BOOL CWnd::EnableToolTips(
+   BOOL bEnable
+)
+{
+   // nothing to do here...
 }
 
 int CWnd::GetWindowTextLength( ) const
@@ -4021,6 +4060,7 @@ BOOL CWnd::CreateEx(
    CREATESTRUCT createStruct;
 
    m_hWnd = (HWND)this;
+   _id = nID;
    
    createStruct.dwExStyle = dwExStyle;
    createStruct.style = dwStyle;
@@ -4733,6 +4773,8 @@ BOOL CReBarCtrl::Create(
 )
 {   
    m_hWnd = (HWND)this;
+   _id = nID;
+
    _dwStyle = dwStyle;
 
    if ( _qt )
@@ -4807,6 +4849,7 @@ BOOL CReBar::Create(
 )
 {
    m_hWnd = (HWND)this;
+   _id = nID;
    
    CRect rect;
    pParentWnd->GetClientRect(&rect);
@@ -4851,6 +4894,8 @@ BOOL CToolBar::CreateEx(
 )
 {
    m_hWnd = (HWND)this;
+   _id = nID;
+
    _dwStyle = dwStyle;
 
    m_pParentWnd = pParentWnd;
@@ -4925,6 +4970,8 @@ BOOL CStatusBar::Create(
 )
 {
    m_hWnd = (HWND)this;
+   _id = nID;
+
    _dwStyle = dwStyle;
    
    pParentWnd->mfcToQtWidgetMap()->insert(nID,this);
@@ -5067,6 +5114,8 @@ BOOL CDialogBar::Create(
 )
 { 
    m_hWnd = (HWND)this;
+   _id = nID;
+
    _nStyle = nStyle;
    
    _mfcd->Create(nIDTemplate,this);
@@ -5182,6 +5231,7 @@ BOOL CDialog::Create(
 )
 { 
    m_hWnd = (HWND)this;
+   _id = nIDTemplate;
 
    qtMfcInitDialogResource(nIDTemplate,this);
    
@@ -5342,6 +5392,16 @@ BOOL CWinThread::PostThreadMessage(
 {
    emit postThreadMessage(message,wParam,lParam); 
    return TRUE;
+}
+
+void CDocument::SetTitle(CString title )
+{
+   m_docTitle = title;
+//#if UNICODE
+//   emit documentTitleChanged(QString::fromWCharArray((LPCTSTR)title));
+//#else
+//   emit documentTitleChanged(QString::fromAscii((LPCTSTR)title));
+//#endif
 }
 
 POSITION CDocument::GetFirstViewPosition() const 
@@ -5856,6 +5916,8 @@ BOOL CEdit::Create(
 )
 {
    m_hWnd = (HWND)this;
+   _id = nID;
+   
    _dwStyle = dwStyle;
    
    if ( _qt )
@@ -6164,6 +6226,7 @@ BOOL CButton::Create(
 )
 {
    m_hWnd = (HWND)this;
+   _id = nID;
 
    DWORD buttonType = dwStyle&0x000F;
    DWORD buttonStyle = dwStyle&0xFFF0;
@@ -6326,6 +6389,7 @@ BOOL CBitmapButton::Create(
 )
 {
    m_hWnd = (HWND)this;
+   _id = nID;
 
    DWORD buttonType = dwStyle&0x000F;
    DWORD buttonStyle = dwStyle&0xFFF0;
@@ -6377,16 +6441,17 @@ BOOL CSpinButtonCtrl::Create(
 )
 {
    m_hWnd = (HWND)this;
+   _id = nID;
 
    if ( _qt )
       delete _qt;
    
    _grid = NULL;
    
-   _qt = new QSpinBox(pParentWnd->toQWidget());
+   _qt = new QSpinBox_MFC(pParentWnd->toQWidget());
    
    // Downcast to save having to do it all over the place...
-   _qtd = dynamic_cast<QSpinBox*>(_qt);
+   _qtd = dynamic_cast<QSpinBox_MFC*>(_qt);
    
    // Pass-through signals
    QObject::connect(_qtd,SIGNAL(valueChanged(int)),this,SLOT(control_edited()));
@@ -6525,6 +6590,7 @@ BOOL CSliderCtrl::Create(
 )
 {
    m_hWnd = (HWND)this;
+   _id = nID;
 
    if ( dwStyle&TBS_NOTICKS )
    {
@@ -6674,6 +6740,7 @@ BOOL CStatic::Create(
 )
 {
    m_hWnd = (HWND)this;
+   _id = nID;
 
    _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
    _qtd->setVisible(dwStyle&WS_VISIBLE);
@@ -6778,6 +6845,7 @@ BOOL CGroupBox::Create(
 )
 {
    m_hWnd = (HWND)this;
+   _id = nID;
 
 #if UNICODE
    _qtd->setTitle(QString::fromWCharArray(lpszCaption));
@@ -7009,6 +7077,56 @@ CString CFileDialog::GetPathName( ) const
    return CString();
 }
 
+CColorDialog::CColorDialog(
+   COLORREF clrInit,
+   DWORD dwFlags,
+   CWnd* pParentWnd 
+)
+   : CCommonDialog(pParentWnd)
+{
+   QColor color(GetRValue(clrInit),GetGValue(clrInit),GetBValue(clrInit));
+   
+   if ( _qt )
+      delete _qt;
+   
+   if ( pParentWnd )
+      _qt = new QColorDialog(pParentWnd->toQWidget());
+   else
+      _qt = new QColorDialog;
+   
+   // Downcast to save having to do it all over the place...
+   _qtd = dynamic_cast<QColorDialog*>(_qt);
+   
+   // Pass-through signals
+   
+   _qtd->hide();
+   _qtd->setCurrentColor(color);
+}
+
+CColorDialog::~CColorDialog()
+{
+   if ( _qtd )
+      delete _qtd;
+   _qtd = NULL;
+   _qt = NULL;
+}
+
+INT_PTR CColorDialog::DoModal()
+{ 
+   INT_PTR result = _qtd->exec();
+   if ( result == QDialog::Accepted )
+      return 1;
+   else
+      return 0;
+}
+
+COLORREF CColorDialog::GetColor( ) const
+{
+   COLORREF ret = 0xbadf00d;
+   qDebug("GetColor not done yet...");
+   return ret;
+}
+
 CMutex::CMutex(
    BOOL bInitiallyOwn,
    LPCTSTR lpszName,
@@ -7177,6 +7295,18 @@ CPropertySheet::CPropertySheet(
    UINT iSelectPage
 )
 {
+   if ( _qt )
+      delete _qt;
+   
+   _qt = new QDialog;
+   
+   _qtd = dynamic_cast<QDialog*>(_qt);
+   
+   _grid = new QGridLayout(_qtd);
+   _qtabwidget = new QTabWidget;
+   _grid->addWidget(_qtabwidget);
+   
+   // Pass-through signals
 }
 
 CPropertySheet::CPropertySheet(
@@ -7185,6 +7315,18 @@ CPropertySheet::CPropertySheet(
    UINT iSelectPage 
 )
 {
+   if ( _qt )
+      delete _qt;
+   
+   _qt = new QDialog;
+   
+   _qtd = dynamic_cast<QDialog*>(_qt);
+   
+   _grid = new QGridLayout(_qtd);
+   _qtabwidget = new QTabWidget;
+   _grid->addWidget(_qtabwidget);
+   
+   // Pass-through signals
 }
 
 CPropertySheet::CPropertySheet(
@@ -7196,6 +7338,18 @@ CPropertySheet::CPropertySheet(
    HBITMAP hbmHeader 
 )
 {
+   if ( _qt )
+      delete _qt;
+   
+   _qt = new QDialog;
+   
+   _qtd = dynamic_cast<QDialog*>(_qt);
+   
+   _grid = new QGridLayout(_qtd);
+   _qtabwidget = new QTabWidget;
+   _grid->addWidget(_qtabwidget);
+   
+   // Pass-through signals
 }
 
 CPropertySheet::CPropertySheet(
@@ -7207,6 +7361,38 @@ CPropertySheet::CPropertySheet(
    HBITMAP hbmHeader 
 )
 {
+   if ( _qt )
+      delete _qt;
+   
+   _qt = new QDialog;
+   
+   _qtd = dynamic_cast<QDialog*>(_qt);
+   
+   _grid = new QGridLayout(_qtd);
+   _qtabwidget = new QTabWidget;
+   _grid->addWidget(_qtabwidget);
+   
+   // Pass-through signals
+}
+
+void CPropertySheet::AddPage(
+   CPropertyPage *pPage 
+)
+{
+   qtMfcInitDialogResource(pPage->GetDlgCtrlID(),pPage);
+   
+   _qtabwidget->addTab(pPage->toQWidget(),"hi");
+   
+   pPage->OnInitDialog();
+}
+
+INT_PTR CPropertySheet::DoModal( )
+{
+   INT_PTR result = _qtd->exec();
+   if ( result == QDialog::Accepted )
+      return 1;
+   else
+      return 0;
 }
 
 CPropertyPage::CPropertyPage( 
@@ -7215,6 +7401,22 @@ CPropertyPage::CPropertyPage(
    DWORD dwSize 
 )
 {
+   m_hWnd = (HWND)this;
+   _id = nIDTemplate;
+   
+   if ( _qt )
+      delete _qt;
+   
+   _grid = NULL;
+   
+   _qt = new QDialog;
+   
+   _qtd = dynamic_cast<QDialog*>(_qt);
+   _inited = false;
+   
+   _qt->installEventFilter(this);
+   
+   // Pass-through signals
 }
 
 CPropertyPage::~CPropertyPage()
@@ -7232,6 +7434,65 @@ BOOL CPropertyPage::OnApply( )
 {
    qDebug("CPropertyPage::OnApply");
    return TRUE;
+}
+
+BOOL CPropertyPage::OnSetActive( )
+{
+   qDebug("CPropertyPage::OnSetActive");
+   return TRUE;
+}
+
+CToolTipCtrl::CToolTipCtrl( )
+{
+   // nothing to do here...
+}
+
+BOOL CToolTipCtrl::Create(
+   CWnd* pParentWnd,
+      DWORD dwStyle
+)
+{
+   // nothing to do here...
+}
+
+void CToolTipCtrl::Activate( 
+   BOOL bActivate  
+)
+{
+   // nothing to do here...
+}
+
+BOOL CToolTipCtrl::AddTool(
+   CWnd* pWnd,
+   UINT nIDText,
+   LPCRECT lpRectTool,
+   UINT_PTR nIDTool 
+)
+{
+   _tippers.append(pWnd);
+   pWnd->toQWidget()->setToolTip(qtMfcStringResource(nIDText));
+}
+
+BOOL CToolTipCtrl::AddTool(
+   CWnd* pWnd,
+   LPCTSTR lpszText,
+   LPCRECT lpRectTool,
+   UINT_PTR nIDTool
+)
+{
+   _tippers.append(pWnd);
+   pWnd->toQWidget()->setToolTip(lpszText);
+}
+
+int EnumFontFamiliesEx(
+   HDC hdc,
+   LPLOGFONT lpLogfont,
+   FONTENUMPROC lpEnumFontFamExProc,
+   LPARAM lParam,
+   DWORD dwFlags
+)
+{
+   qDebug("EnumFontFamiliesEx");
 }
 
 void openFile(QString fileName)

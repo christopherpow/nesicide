@@ -360,6 +360,8 @@ public slots:
    void instToolBarAction_load();
    void instToolBarAction_save();
    void instToolBarAction_edit();
+   void documentTitleChanged(QString title);
+   void setModified(bool modified);
    void updateViews(long hint);
    void instruments_doubleClicked(const QModelIndex &index);
    void instruments_currentRowChanged(int row);

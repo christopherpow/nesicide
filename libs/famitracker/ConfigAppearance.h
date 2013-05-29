@@ -35,13 +35,25 @@ enum E_COLOR_ITEMS {
 	COLOR_ITEM_COUNT
 };
 
+#include "cqtmfc.h"
+#include "resource.h"
+
 #include "ColorScheme.h"
 
 // CConfigAppearance dialog
 
 class CConfigAppearance : public CPropertyPage
 {
-	DECLARE_DYNAMIC(CConfigAppearance)
+   Q_OBJECT
+   // Qt interfaces
+public slots:
+   void pickCol_clicked();
+   void patternColors_clicked();
+protected:
+   void paintEvent(QPaintEvent*);
+   
+public:
+   DECLARE_DYNAMIC(CConfigAppearance)
 
 public:
 	CConfigAppearance();

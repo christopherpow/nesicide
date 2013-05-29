@@ -193,19 +193,20 @@ BOOL CConfigGeneral::OnInitDialog()
 
 	EnableToolTips(TRUE);
 
-	m_wndToolTip.Create(this, TTS_ALWAYSTIP);
-	m_wndToolTip.Activate(TRUE);
+   qDebug("FINISH SUPPORT FOR TOOLTIPS...");
+//	m_wndToolTip.Create(this, TTS_ALWAYSTIP);
+//	m_wndToolTip.Activate(TRUE);
 
-	CWnd *pWndChild = GetWindow(GW_CHILD);
-	CString strToolTip;
+//	CWnd *pWndChild = GetWindow(GW_CHILD);
+//	CString strToolTip;
 
-	while (pWndChild) {
-		int nID = pWndChild->GetDlgCtrlID();
-		if (strToolTip.LoadString(nID)) {
-			m_wndToolTip.AddTool(pWndChild, strToolTip);
-		}
-		pWndChild = pWndChild->GetWindow(GW_HWNDNEXT);
-	}
+//	while (pWndChild) {
+//		int nID = pWndChild->GetDlgCtrlID();
+//		if (strToolTip.LoadString(nID)) {
+//			m_wndToolTip.AddTool(pWndChild, strToolTip);
+//		}
+//		pWndChild = pWndChild->GetWindow(GW_HWNDNEXT);
+//	}
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
@@ -283,40 +284,41 @@ void CConfigGeneral::OnCbnSelendokPagelength()
 
 BOOL CConfigGeneral::PreTranslateMessage(MSG* pMsg)
 {
-	if (pMsg->message == WM_KEYDOWN) {
-		char Text[64];
-		int id = GetFocus()->GetDlgCtrlID();
-		int key = pMsg->wParam;
+   qDebug("CConfigGeneral::PreTranslateMessage");
+//	if (pMsg->message == WM_KEYDOWN) {
+//		char Text[64];
+//		int id = GetFocus()->GetDlgCtrlID();
+//		int key = pMsg->wParam;
 
-		if (key == 27)		// ESC
-			key = 0;
+//		if (key == 27)		// ESC
+//			key = 0;
 
-		switch (id) {
-			case IDC_KEY_NOTE_CUT:
-				m_iKeyNoteCut = key;
-				break;
-			case IDC_KEY_NOTE_RELEASE:
-				m_iKeyNoteRelease = key;
-				break;
-			case IDC_KEY_CLEAR:
-				m_iKeyClear = key;
-				break;
-			case IDC_KEY_REPEAT:
-				m_iKeyRepeat = key;
-				break;
-			default:
-				return CPropertyPage::PreTranslateMessage(pMsg);
-		}
+//		switch (id) {
+//			case IDC_KEY_NOTE_CUT:
+//				m_iKeyNoteCut = key;
+//				break;
+//			case IDC_KEY_NOTE_RELEASE:
+//				m_iKeyNoteRelease = key;
+//				break;
+//			case IDC_KEY_CLEAR:
+//				m_iKeyClear = key;
+//				break;
+//			case IDC_KEY_REPEAT:
+//				m_iKeyRepeat = key;
+//				break;
+//			default:
+//				return CPropertyPage::PreTranslateMessage(pMsg);
+//		}
 
-		GetKeyNameText(key ? pMsg->lParam : 0, Text, 64);
-		SetDlgItemText(id, Text);
+//		GetKeyNameText(key ? pMsg->lParam : 0, Text, 64);
+//		SetDlgItemText(id, Text);
 
-		SetModified();
+//		SetModified();
 
-		return TRUE;
-	}
+//		return TRUE;
+//	}
 
-	m_wndToolTip.RelayEvent(pMsg);
+//	m_wndToolTip.RelayEvent(pMsg);
 
 	return CPropertyPage::PreTranslateMessage(pMsg);
 }

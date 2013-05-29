@@ -328,6 +328,8 @@ void CMainFrame::showEvent(QShowEvent *)
       // Connect buried signals.
       qDebug("START CONNECTING BURIED SIGNALS NOW...");
       QObject::connect(m_pDocument,SIGNAL(setModified(bool)),this,SIGNAL(editor_modificationChanged(bool)));      
+      QObject::connect(m_pDocument,SIGNAL(setModified(bool)),this,SLOT(setModified(bool)));
+      QObject::connect(m_pDocument,SIGNAL(documentTitleChanged(QString)),this,SLOT(documentTitleChanged(QString)));
       QObject::connect(&m_wndToolBar,SIGNAL(toolBarAction_triggered(int)),this,SLOT(toolBarAction_triggered(int)));
       QObject::connect(&m_wndInstToolBar,SIGNAL(toolBarAction_triggered(int)),this,SLOT(instToolBarAction_triggered(int)));
       QObject::connect(m_wndOctaveBar.GetDlgItem(IDC_OCTAVE)->toQWidget(),SIGNAL(currentIndexChanged(int)),this,SLOT(octave_currentIndexChanged(int)));
@@ -601,6 +603,15 @@ void CMainFrame::updateViews(long hint)
 {
 }
 
+void CMainFrame::setModified(bool modified)
+{
+}
+
+void CMainFrame::documentTitleChanged(QString title)
+{
+   AfxGetApp()->qtMainWindow->setWindowTitle(title);
+}
+
 void CMainFrame::toolBarAction_triggered(int id)
 {
    actionHandler actionHandlers[] =
@@ -748,7 +759,7 @@ void CMainFrame::toolBarAction_nextTrack()
 
 void CMainFrame::toolBarAction_settings()
 {
-   qDebug("settings");
+   OnFileGeneralsettings();
 }
 
 void CMainFrame::toolBarAction_createNSF()
@@ -2290,17 +2301,17 @@ void CMainFrame::OnUpdateFramesEdit(CCmdUI *pCmdUI)
 
 void CMainFrame::OnFileGeneralsettings()
 {
-   qDebug("Missing support for config...");
-//	CString Title;
-//	GetMessageString(IDS_CONFIG_WINDOW, Title);
-//	CConfigWindow ConfigWindow(Title, this, 0);
+	CString Title;
+	GetMessageString(IDS_CONFIG_WINDOW, Title);
+	CConfigWindow ConfigWindow(Title, this, 0);
 
 //	CConfigGeneral		TabGeneral;
-//	CConfigAppearance	TabAppearance;
+	CConfigAppearance	TabAppearance;
+   qDebug("NO MIDI SUPPORT YET...");
 //	CConfigMIDI			TabMIDI;
 //	CConfigSound		TabSound;
 //	CConfigShortcuts	TabShortcuts;
-//	//CConfigLevels		TabLevels;
+	//CConfigLevels		TabLevels;
 
 //	ConfigWindow.m_psh.dwFlags	&= ~PSH_HASHELP;
 //	TabGeneral.m_psp.dwFlags	&= ~PSP_HASHELP;
@@ -2311,13 +2322,13 @@ void CMainFrame::OnFileGeneralsettings()
 //	//TabLevels.m_psp.dwFlags		&= ~PSP_HASHELP;
 	
 //	ConfigWindow.AddPage(&TabGeneral);
-//	ConfigWindow.AddPage(&TabAppearance);
+	ConfigWindow.AddPage(&TabAppearance);
 //	ConfigWindow.AddPage(&TabMIDI);
 //	ConfigWindow.AddPage(&TabSound);
 //	ConfigWindow.AddPage(&TabShortcuts);
-//	//ConfigWindow.AddPage(&TabLevels);
+	//ConfigWindow.AddPage(&TabLevels);
 
-//	ConfigWindow.DoModal();
+	ConfigWindow.DoModal();
 }
 
 void CMainFrame::SetSongInfo(char *Name, char *Artist, char *Copyright)

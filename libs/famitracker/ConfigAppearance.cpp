@@ -90,6 +90,20 @@ void CConfigAppearance::DoDataExchange(CDataExchange* pDX)
 //	ON_BN_CLICKED(IDC_PATTERNCOLORS, &CConfigAppearance::OnBnClickedPatterncolors)
 //END_MESSAGE_MAP()
 
+void CConfigAppearance::paintEvent(QPaintEvent *)
+{
+   OnPaint();
+}
+
+void CConfigAppearance::pickCol_clicked()
+{
+   OnBnClickedPickCol();
+}
+
+void CConfigAppearance::patternColors_clicked()
+{
+   OnBnClickedPatterncolors();
+}
 
 // CConfigAppearance message handlers
 
