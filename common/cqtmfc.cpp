@@ -9,6 +9,7 @@
 #include <QPixmap>
 #include <QMainWindow>
 #include <QFileInfo>
+#include <QFontDatabase>
 
 extern CWinApp* ptrToTheApp;
 
@@ -7492,7 +7493,17 @@ int EnumFontFamiliesEx(
    DWORD dwFlags
 )
 {
-   qDebug("EnumFontFamiliesEx");
+   QFontDatabase database;
+   ENUMLOGFONTEX elfe;
+   NEWTEXTMETRICEX ntme;
+   
+   foreach ( QString family, database.families() )
+   {
+      memset(&ntme,0,sizeof(ntme));
+      memset(&elfe,0,sizeof(ntme));
+      strcpy((char*)elfe.elfFullName,family.toAscii().constData());
+      lpEnumFontFamExProc((LOGFONT*)&elfe,NULL,0,lParam);
+   }
 }
 
 void openFile(QString fileName)

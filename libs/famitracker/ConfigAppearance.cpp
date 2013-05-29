@@ -105,6 +105,26 @@ void CConfigAppearance::patternColors_clicked()
    OnBnClickedPatterncolors();
 }
 
+void CConfigAppearance::scheme_currentIndexChanged(int)
+{
+   OnCbnSelchangeScheme();
+}
+
+void CConfigAppearance::colItem_currentIndexChanged(int)
+{
+   OnCbnSelchangeColItem();
+}
+
+void CConfigAppearance::font_currentIndexChanged(int)
+{
+   OnCbnSelchangeFont();
+}
+
+void CConfigAppearance::fontSize_currentIndexChanged(int)
+{
+   OnCbnSelchangeFontSize();
+}
+
 // CConfigAppearance message handlers
 
 void CConfigAppearance::OnPaint()

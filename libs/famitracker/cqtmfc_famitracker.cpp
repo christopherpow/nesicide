@@ -1445,7 +1445,7 @@ void qtMfcInitDialogResource_IDD_CONFIG_APPEARANCE(CDialog* parent1)
    parent->MapDialogRect(&r11);
    mfc11->Create(CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r11,parent,IDC_FONT_SIZE);
    mfcToQtWidget->insert(IDC_FONT_SIZE,mfc11);
-   QObject::connect(mfc11,SIGNAL(currentIndexChanged(int)),parent,SLOT(font_size_currentIndexChanged(int)));
+   QObject::connect(mfc11,SIGNAL(currentIndexChanged(int)),parent,SLOT(fontSize_currentIndexChanged(int)));
 //       GROUPBOX        "Preview",IDC_STATIC,166,7,107,153
    CGroupBox* mfc12 = new CGroupBox(parent);
    CRect r12(CPoint(166,7),CSize(107,153));

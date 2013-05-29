@@ -49,6 +49,10 @@ class CConfigAppearance : public CPropertyPage
 public slots:
    void pickCol_clicked();
    void patternColors_clicked();
+   void scheme_currentIndexChanged(int);
+   void colItem_currentIndexChanged(int);
+   void font_currentIndexChanged(int);
+   void fontSize_currentIndexChanged(int);
 protected:
    void paintEvent(QPaintEvent*);
    
