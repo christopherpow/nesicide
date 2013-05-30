@@ -1889,9 +1889,10 @@ COLORREF CDC::GetPixel(
    int y 
 ) const
 {
-   COLORREF ref = 0xbadf00d;
    QImage image = _qpixmap->toImage();
-   return (COLORREF)image.pixel(x,y);
+   QColor col = image.pixel(x,y);
+   COLORREF ret = RGB(col.red(),col.green(),col.blue());
+   return ret;
 }
 
 COLORREF CDC::GetPixel(
@@ -5418,12 +5419,15 @@ POSITION CDocument::GetFirstViewPosition() const
 
 CView* CDocument::GetNextView(POSITION pos) const 
 { 
-   if ( !pos ) return NULL; // Choker for end-of-list
+   if ( (*pos) == -1 ) 
+   {
+      delete pos;
+      return NULL; // Choker for end-of-list
+   }
    CView* pView = _views.at((*pos)++); 
    if ( (*pos) >= _views.count() ) 
    { 
-      delete pos; 
-      pos = 0; 
+      (*pos) = -1; 
    } 
    return pView; 
 }
@@ -5506,10 +5510,14 @@ CDocument* CSingleDocTemplate::GetNextDoc(
    POSITION& rPos 
 ) const
 {
-   if ( !rPos ) return NULL; // Choker for end-of-list
+   if ( *rPos == -1 ) 
+   {
+      delete rPos;
+      return NULL; // Choker for end-of-list
+   }
    CDocument* pDoc = m_pDoc; 
 
-   delete rPos; 
+   (*rPos) = -1;
    
    return pDoc; 
 }
@@ -5599,12 +5607,15 @@ CDocTemplate* CWinApp::GetNextDocTemplate(
    POSITION& pos 
 ) const
 {
-   if ( !pos ) return NULL; // Choker for end-of-list
+   if ( (*pos) == -1 ) 
+   {
+      delete pos;
+      return NULL; // Choker for end-of-list
+   }
    CDocTemplate* pDocTemplate = _docTemplates.at((*pos)++); 
    if ( (*pos) >= _docTemplates.count() ) 
    { 
-      delete pos; 
-      pos = 0; 
+      (*pos) = -1; 
    } 
    return pDocTemplate; 
 }
@@ -7033,13 +7044,16 @@ CString CFileDialog::GetNextPathName(
    POSITION& pos 
 ) const
 {
-   if ( !pos ) return CString(); // Choker for end-of-list
+   if ( (*pos) == -1 ) 
+   {
+      delete pos;
+      return CString(); // Choker for end-of-list
+   }
    QStringList files = _qtd->selectedFiles();
    CString file = files.at((*pos)++); 
    if ( (*pos) >= files.count() ) 
    { 
-      delete pos; 
-      pos = 0; 
+      (*pos) = -1;
    } 
    return file; 
 }
@@ -7085,7 +7099,7 @@ CColorDialog::CColorDialog(
 )
    : CCommonDialog(pParentWnd)
 {
-   QColor color(GetRValue(clrInit),GetGValue(clrInit),GetBValue(clrInit));
+   _color = clrInit;
    
    if ( _qt )
       delete _qt;
@@ -7101,7 +7115,6 @@ CColorDialog::CColorDialog(
    // Pass-through signals
    
    _qtd->hide();
-   _qtd->setCurrentColor(color);
 }
 
 CColorDialog::~CColorDialog()
@@ -7114,7 +7127,15 @@ CColorDialog::~CColorDialog()
 
 INT_PTR CColorDialog::DoModal()
 { 
-   INT_PTR result = _qtd->exec();
+   QColor color(GetRValue(_color),GetGValue(_color),GetBValue(_color));
+   INT_PTR result;
+   _qtd->setCurrentColor(color);
+   if ( m_cc.Flags&CC_RGBINIT )
+   {
+      color.setRgb(GetRValue(m_cc.rgbResult),GetGValue(m_cc.rgbResult),GetBValue(m_cc.rgbResult));
+      _qtd->setCurrentColor(color);
+   }
+   result = _qtd->exec();
    if ( result == QDialog::Accepted )
       return 1;
    else
@@ -7123,8 +7144,8 @@ INT_PTR CColorDialog::DoModal()
 
 COLORREF CColorDialog::GetColor( ) const
 {
-   COLORREF ret = 0xbadf00d;
-   qDebug("GetColor not done yet...");
+   QColor col = _qtd->selectedColor();
+   COLORREF ret = RGB(col.red(),col.green(),col.blue());
    return ret;
 }
 
@@ -7296,18 +7317,7 @@ CPropertySheet::CPropertySheet(
    UINT iSelectPage
 )
 {
-   if ( _qt )
-      delete _qt;
-   
-   _qt = new QDialog;
-   
-   _qtd = dynamic_cast<QDialog*>(_qt);
-   
-   _grid = new QGridLayout(_qtd);
-   _qtabwidget = new QTabWidget;
-   _grid->addWidget(_qtabwidget);
-   
-   // Pass-through signals
+   _commonConstruct(pParentWnd);
 }
 
 CPropertySheet::CPropertySheet(
@@ -7316,18 +7326,7 @@ CPropertySheet::CPropertySheet(
    UINT iSelectPage 
 )
 {
-   if ( _qt )
-      delete _qt;
-   
-   _qt = new QDialog;
-   
-   _qtd = dynamic_cast<QDialog*>(_qt);
-   
-   _grid = new QGridLayout(_qtd);
-   _qtabwidget = new QTabWidget;
-   _grid->addWidget(_qtabwidget);
-   
-   // Pass-through signals
+   _commonConstruct(pParentWnd);
 }
 
 CPropertySheet::CPropertySheet(
@@ -7339,18 +7338,7 @@ CPropertySheet::CPropertySheet(
    HBITMAP hbmHeader 
 )
 {
-   if ( _qt )
-      delete _qt;
-   
-   _qt = new QDialog;
-   
-   _qtd = dynamic_cast<QDialog*>(_qt);
-   
-   _grid = new QGridLayout(_qtd);
-   _qtabwidget = new QTabWidget;
-   _grid->addWidget(_qtabwidget);
-   
-   // Pass-through signals
+   _commonConstruct(pParentWnd);
 }
 
 CPropertySheet::CPropertySheet(
@@ -7362,6 +7350,11 @@ CPropertySheet::CPropertySheet(
    HBITMAP hbmHeader 
 )
 {
+   _commonConstruct(pParentWnd);
+}
+
+void CPropertySheet::_commonConstruct(CWnd* parent)
+{
    if ( _qt )
       delete _qt;
    
@@ -7371,9 +7364,42 @@ CPropertySheet::CPropertySheet(
    
    _grid = new QGridLayout(_qtd);
    _qtabwidget = new QTabWidget;
-   _grid->addWidget(_qtabwidget);
+   QObject::connect(_qtabwidget,SIGNAL(currentChanged(int)),this,SLOT(tabWidget_currentChanged(int)));
+   _grid->addWidget(_qtabwidget,0,0,1,1);
+   _qbuttons = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel|QDialogButtonBox::Apply,Qt::Horizontal);
+   QObject::connect(_qbuttons->button(QDialogButtonBox::Ok),SIGNAL(clicked()),this,SLOT(ok_clicked()));
+   QObject::connect(_qbuttons->button(QDialogButtonBox::Cancel),SIGNAL(clicked()),this,SLOT(cancel_clicked()));
+   QObject::connect(_qbuttons->button(QDialogButtonBox::Apply),SIGNAL(clicked()),this,SLOT(apply_clicked()));
+   _grid->addWidget(_qbuttons,1,0,1,1);
    
    // Pass-through signals
+}
+
+void CPropertySheet::tabWidget_currentChanged(int idx)
+{
+   if ( (idx >= 0) && (idx < _qtabwidget->count()) )
+   {
+      _pages.at(idx)->OnSetActive();
+   }
+}
+
+void CPropertySheet::ok_clicked()
+{
+   _qtd->accept();
+}
+
+void CPropertySheet::cancel_clicked()
+{
+   _qtd->reject();
+}
+
+void CPropertySheet::apply_clicked()
+{
+   int idx = _qtabwidget->currentIndex();
+   if ( (idx >= 0) && (idx < _qtabwidget->count()) )
+   {
+      _pages.at(idx)->OnApply();
+   }
 }
 
 void CPropertySheet::AddPage(
@@ -7382,7 +7408,10 @@ void CPropertySheet::AddPage(
 {
    qtMfcInitDialogResource(pPage->GetDlgCtrlID(),pPage);
    
+   _qtabwidget->blockSignals(true);
    _qtabwidget->addTab(pPage->toQWidget(),"hi");
+   _qtabwidget->blockSignals(false);
+   _pages.append(pPage);
    
    pPage->OnInitDialog();
 }

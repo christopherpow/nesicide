@@ -2,6 +2,7 @@
 #define CQTMFC_H
 
 #include <QApplication>
+#include <QDialogButtonBox>
 #include <QMainWindow>
 #include <QAction>
 #include <QObject>
@@ -1875,6 +1876,7 @@ class CColorDialog : public CCommonDialog
 public:
 protected:
    QColorDialog* _qtd;
+   COLORREF _color;
    
    // MFC interfaces
 public:
@@ -3408,11 +3410,20 @@ public:
 
 class CPropertySheet : public CWnd
 {
+   Q_OBJECT
    // Qt interfaces
 public:
    QDialog* _qtd;
    QTabWidget* _qtabwidget;
+   QDialogButtonBox* _qbuttons;
+   QList<CPropertyPage*> _pages;
+public slots:
+   void tabWidget_currentChanged(int idx);
+   void ok_clicked();
+   void cancel_clicked();
+   void apply_clicked();
 public:
+   void _commonConstruct(CWnd* parent);
    explicit CPropertySheet(
       UINT nIDCaption,
       CWnd* pParentWnd = NULL,

@@ -573,7 +573,6 @@ int CFamiTrackerApp::GetCPUUsage() const
 
 void CFamiTrackerApp::ReloadColorScheme(void)
 {
-   qDebug("ReloadColorScheme");
 	// Main window
 	CMainFrame *pMainFrm = dynamic_cast<CMainFrame*>(GetMainWnd());
 
