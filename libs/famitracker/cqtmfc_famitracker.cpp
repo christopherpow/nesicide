@@ -1490,15 +1490,16 @@ void qtMfcInitDialogResource_IDD_MIDIIMPORT(CDialog* parent)
 //   END
 }  
 
-//#include "dialog-file"
-void qtMfcInitDialogResource_IDD_CONFIG_GENERAL(CDialog* parent)
+#include "ConfigGeneral.h"
+void qtMfcInitDialogResource_IDD_CONFIG_GENERAL(CDialog* parent1)
 {
-//  dialog-type* parent = dynamic_cast<dialog-type*>(parent1);
+   CConfigGeneral* parent = dynamic_cast<CConfigGeneral*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
    
 //   IDD_CONFIG_GENERAL DIALOGEX 0, 0, 280, 167
 //   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 //   CAPTION "General"
+   parent->SetWindowText("General");
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
 //   BEGIN
 //       GROUPBOX        "General settings",IDC_STATIC,7,7,125,153

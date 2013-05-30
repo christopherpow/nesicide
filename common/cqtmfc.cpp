@@ -7409,7 +7409,13 @@ void CPropertySheet::AddPage(
    qtMfcInitDialogResource(pPage->GetDlgCtrlID(),pPage);
    
    _qtabwidget->blockSignals(true);
-   _qtabwidget->addTab(pPage->toQWidget(),"hi");
+   CString windowText;
+   pPage->GetWindowText(windowText);
+#if UNICODE
+   _qtabwidget->addTab(pPage->toQWidget(),QString::fromWCharArray((LPCTSTR)windowText));
+#else
+   _qtabwidget->addTab(pPage->toQWidget(),QString::fromAscii((LPCTSTR)windowText));
+#endif
    _qtabwidget->blockSignals(false);
    _pages.append(pPage);
    

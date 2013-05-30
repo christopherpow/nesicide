@@ -2305,7 +2305,7 @@ void CMainFrame::OnFileGeneralsettings()
 	GetMessageString(IDS_CONFIG_WINDOW, Title);
 	CConfigWindow ConfigWindow(Title, this, 0);
 
-//	CConfigGeneral		TabGeneral;
+	CConfigGeneral		TabGeneral;
 	CConfigAppearance	TabAppearance;
    qDebug("NO MIDI SUPPORT YET...");
 //	CConfigMIDI			TabMIDI;
@@ -2321,7 +2321,7 @@ void CMainFrame::OnFileGeneralsettings()
 //	TabShortcuts.m_psp.dwFlags	&= ~PSP_HASHELP;
 //	//TabLevels.m_psp.dwFlags		&= ~PSP_HASHELP;
 	
-//	ConfigWindow.AddPage(&TabGeneral);
+	ConfigWindow.AddPage(&TabGeneral);
 	ConfigWindow.AddPage(&TabAppearance);
 //	ConfigWindow.AddPage(&TabMIDI);
 //	ConfigWindow.AddPage(&TabSound);
