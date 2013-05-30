@@ -20,11 +20,34 @@
 
 #pragma once
 
+#include "cqtmfc.h"
+#include "resource.h"
 
 // CConfigGeneral dialog
 
 class CConfigGeneral : public CPropertyPage
 {
+   Q_OBJECT
+   // Qt interfaces
+public slots: 
+   void wrapCursor_clicked();
+   void wrapFrames_clicked();
+   void freeCursor_clicked();
+   void wavePreview_clicked();
+   void keyRepeat_clicked();
+   void hexRow_clicked();
+   void framePreview_clicked();
+   void noDpcmReset_clicked();
+   void noStepMove_clicked();
+   void pullUpDelete_clicked();
+   void backups_clicked();
+   void singleInstance_clicked();
+   void style1_clicked();
+   void style2_clicked();
+   void style3_clicked();
+   void pageLength_currentIndexChanged(int);
+   
+public:
 	DECLARE_DYNAMIC(CConfigGeneral)
 
 public:

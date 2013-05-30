@@ -3417,13 +3417,14 @@ public:
    QTabWidget* _qtabwidget;
    QDialogButtonBox* _qbuttons;
    QList<CPropertyPage*> _pages;
+   UINT _selectedPage;
 public slots:
    void tabWidget_currentChanged(int idx);
    void ok_clicked();
    void cancel_clicked();
    void apply_clicked();
 public:
-   void _commonConstruct(CWnd* parent);
+   void _commonConstruct(CWnd* parent,UINT selectedPage);
    explicit CPropertySheet(
       UINT nIDCaption,
       CWnd* pParentWnd = NULL,

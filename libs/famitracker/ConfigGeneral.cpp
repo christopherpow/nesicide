@@ -62,6 +62,85 @@ void CConfigGeneral::DoDataExchange(CDataExchange* pDX)
 //	ON_BN_CLICKED(IDC_OPT_SINGLEINSTANCE, OnBnClickedOptSingleInstance)
 //END_MESSAGE_MAP()
 
+void CConfigGeneral::wrapCursor_clicked()
+{
+   OnBnClickedOptWrapcursor();
+}
+
+void CConfigGeneral::wrapFrames_clicked()
+{
+   OnBnClickedOptWrapFrames();
+}
+
+void CConfigGeneral::freeCursor_clicked()
+{
+   OnBnClickedOptFreecursor();
+}
+
+void CConfigGeneral::wavePreview_clicked()
+{
+   OnBnClickedOptWavepreview();
+}
+
+void CConfigGeneral::keyRepeat_clicked()
+{
+   OnBnClickedOptKeyrepeat();
+}
+
+void CConfigGeneral::hexRow_clicked()
+{
+   OnBnClickedOptHexadecimal();
+}
+
+void CConfigGeneral::framePreview_clicked()
+{
+   OnBnClickedOptFramepreview();
+}
+
+void CConfigGeneral::noDpcmReset_clicked()
+{
+   OnBnClickedOptNodpcmreset();
+}
+
+void CConfigGeneral::noStepMove_clicked()
+{
+   OnBnClickedOptNostepmove();
+}
+
+void CConfigGeneral::pullUpDelete_clicked()
+{
+   OnBnClickedOptPullupdelete();
+}
+
+void CConfigGeneral::backups_clicked()
+{
+   OnBnClickedOptBackups();
+}
+
+void CConfigGeneral::singleInstance_clicked()
+{
+   OnBnClickedOptSingleInstance();
+}
+
+void CConfigGeneral::style1_clicked()
+{
+   OnBnClickedStyle1();
+}
+
+void CConfigGeneral::style2_clicked()
+{
+   OnBnClickedStyle2();
+}
+
+void CConfigGeneral::style3_clicked()
+{
+   OnBnClickedStyle3();
+}
+
+void CConfigGeneral::pageLength_currentIndexChanged(int)
+{
+   OnCbnSelendokPagelength();
+}
 
 // CConfigGeneral message handlers
 

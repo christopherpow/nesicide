@@ -2316,7 +2316,7 @@ void CComboBox::SetDlgItemInt(
    BOOL bSigned 
 )
 {
-   qDebug("CComboBox::SetDlgItemInt not supported");
+   _qtd->setEditText(QString::number(nValue));
 }
 
 UINT CComboBox::GetDlgItemInt(
@@ -2333,7 +2333,11 @@ void CComboBox::SetDlgItemText(
    LPCTSTR lpszString 
 )
 {
-   qDebug("CComboBox::SetDlgItemText not supported");
+#if UNICODE
+   _qtd->setEditText(QString::fromWCharArray(lpszString));
+#else
+   _qtd->setEditText(QString::fromAscii(lpszString));
+#endif
 }
 
 int CComboBox::GetDlgItemText(
@@ -7317,7 +7321,7 @@ CPropertySheet::CPropertySheet(
    UINT iSelectPage
 )
 {
-   _commonConstruct(pParentWnd);
+   _commonConstruct(pParentWnd,iSelectPage);
 }
 
 CPropertySheet::CPropertySheet(
@@ -7326,7 +7330,7 @@ CPropertySheet::CPropertySheet(
    UINT iSelectPage 
 )
 {
-   _commonConstruct(pParentWnd);
+   _commonConstruct(pParentWnd,iSelectPage);
 }
 
 CPropertySheet::CPropertySheet(
@@ -7338,7 +7342,7 @@ CPropertySheet::CPropertySheet(
    HBITMAP hbmHeader 
 )
 {
-   _commonConstruct(pParentWnd);
+   _commonConstruct(pParentWnd,iSelectPage);
 }
 
 CPropertySheet::CPropertySheet(
@@ -7350,10 +7354,10 @@ CPropertySheet::CPropertySheet(
    HBITMAP hbmHeader 
 )
 {
-   _commonConstruct(pParentWnd);
+   _commonConstruct(pParentWnd,iSelectPage);
 }
 
-void CPropertySheet::_commonConstruct(CWnd* parent)
+void CPropertySheet::_commonConstruct(CWnd* parent,UINT selectedPage)
 {
    if ( _qt )
       delete _qt;
@@ -7361,6 +7365,8 @@ void CPropertySheet::_commonConstruct(CWnd* parent)
    _qt = new QDialog;
    
    _qtd = dynamic_cast<QDialog*>(_qt);
+   
+   _selectedPage = selectedPage;
    
    _grid = new QGridLayout(_qtd);
    _qtabwidget = new QTabWidget;
@@ -7424,7 +7430,10 @@ void CPropertySheet::AddPage(
 
 INT_PTR CPropertySheet::DoModal( )
 {
-   INT_PTR result = _qtd->exec();
+   INT_PTR result;
+   _qtabwidget->setCurrentIndex(_selectedPage);
+   _pages.at(_selectedPage)->OnSetActive();
+   result = _qtd->exec();
    if ( result == QDialog::Accepted )
       return 1;
    else
