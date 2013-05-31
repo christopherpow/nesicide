@@ -1643,6 +1643,22 @@ void qtMfcInitDialogResource_IDD_CONFIG_GENERAL(CDialog* parent1)
    mfc20->Create(CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r20,parent,IDC_PAGELENGTH);
    mfcToQtWidget->insert(IDC_PAGELENGTH,mfc20);
    QObject::connect(mfc20,SIGNAL(currentIndexChanged(int)),parent,SLOT(pageLength_currentIndexChanged(int)));
+//   IDD_CONFIG_GENERAL DLGINIT
+//   BEGIN
+//       IDC_PAGELENGTH, 0x403, 2, 0
+//   0x0032, 
+   mfc20->AddString(_T("2"));
+//       IDC_PAGELENGTH, 0x403, 2, 0
+//   0x0034, 
+   mfc20->AddString(_T("4"));
+//       IDC_PAGELENGTH, 0x403, 2, 0
+//   0x0038, 
+   mfc20->AddString(_T("8"));
+//       IDC_PAGELENGTH, 0x403, 3, 0
+//   0x3631, "\000" 
+   mfc20->AddString(_T("16"));
+//       0
+//   END
 //       GROUPBOX        "Keys",IDC_STATIC,138,89,135,71
    CGroupBox* mfc21 = new CGroupBox(parent);
    CRect r21(CPoint(138,89),CSize(135,71));

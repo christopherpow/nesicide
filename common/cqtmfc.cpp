@@ -652,6 +652,7 @@ BOOL CString::LoadString( UINT nID )
 #else
    _qstr.append(QString::fromAscii(qtMfcStringResource(nID).GetString()));
 #endif   
+   UpdateScratch();
    return TRUE;   
 }
 
@@ -746,6 +747,7 @@ void CString::AppendFormatV(LPCTSTR fmt, va_list ap)
 void CString::Truncate(int length)
 {
    _qstr.truncate(length);
+   UpdateScratch();
 }
 
 int CString::ReverseFind( TCHAR ch ) const
@@ -868,6 +870,7 @@ CString::operator const TCHAR*() const
 void CString::Empty() 
 { 
    _qstr.clear(); 
+   UpdateScratch();
 }
 
 LPCTSTR CString::GetString() const
@@ -882,6 +885,7 @@ LPCTSTR CString::GetString() const
 LPTSTR CString::GetBuffer( int nMinBufLength )
 {
    _qstr.reserve(nMinBufLength+1); // Space for null-terminator.
+   UpdateScratch();
 #if UNICODE
    return (LPTSTR)_qstr.unicode();
 #else
@@ -3251,13 +3255,15 @@ BOOL CListCtrl::SetBkColor(
    COLORREF cr 
 )
 {
+   QString color;
+   color.sprintf("#%02X%02X%02X",GetRValue(cr),GetGValue(cr),GetBValue(cr));
    if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
    {
-      _qtd_table->setStyleSheet(_qtd_table->styleSheet()+"QTableWidget { background: #000000 }");
+      _qtd_table->setStyleSheet(_qtd_table->styleSheet()+"QTableWidget { background: "+color+" }");
    }
    else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
    {
-      _qtd_list->setStyleSheet(_qtd_list->styleSheet()+"QListWidget { background: #000000 }");
+      _qtd_list->setStyleSheet(_qtd_list->styleSheet()+"QListWidget { background: "+color+" }");
    }
    return TRUE;
 }
@@ -3266,13 +3272,15 @@ BOOL CListCtrl::SetTextBkColor(
    COLORREF cr 
 )
 {
+   QString color;
+   color.sprintf("#%02X%02X%02X",GetRValue(cr),GetGValue(cr),GetBValue(cr));
    if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
    {
-      _qtd_table->setStyleSheet(_qtd_table->styleSheet()+"QTableWidget { background: #000000 }");
+      _qtd_table->setStyleSheet(_qtd_table->styleSheet()+"QTableWidget { background: "+color+" }");
    }
    else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
    {
-      _qtd_list->setStyleSheet(_qtd_list->styleSheet()+"QListWidget { background: #000000 }");
+      _qtd_list->setStyleSheet(_qtd_list->styleSheet()+"QListWidget { background: "+color+" }");
    }
    return TRUE;
 }
@@ -3281,13 +3289,15 @@ BOOL CListCtrl::SetTextColor(
    COLORREF cr 
 )
 {
+   QString color;
+   color.sprintf("#%02X%02X%02X",GetRValue(cr),GetGValue(cr),GetBValue(cr));
    if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
    {
-      _qtd_table->setStyleSheet(_qtd_table->styleSheet()+"QTableWidget { color: #ffffff }");
+      _qtd_table->setStyleSheet(_qtd_table->styleSheet()+"QTableWidget { color: "+color+" }");
    }
    else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
    {
-      _qtd_list->setStyleSheet(_qtd_list->styleSheet()+"QListWidget { color: #ffffff }");
+      _qtd_list->setStyleSheet(_qtd_list->styleSheet()+"QListWidget { color: "+color+" }");
    }
    return TRUE;
 }
@@ -7391,6 +7401,8 @@ void CPropertySheet::tabWidget_currentChanged(int idx)
 
 void CPropertySheet::ok_clicked()
 {
+   // Apply changes and exit dialog.
+   apply_clicked();
    _qtd->accept();
 }
 
@@ -7401,8 +7413,10 @@ void CPropertySheet::cancel_clicked()
 
 void CPropertySheet::apply_clicked()
 {
-   int idx = _qtabwidget->currentIndex();
-   if ( (idx >= 0) && (idx < _qtabwidget->count()) )
+   int idx;
+   
+   // Apply changes from all tabs.
+   for ( idx = 0; idx < _qtabwidget->count(); idx++ )
    {
       _pages.at(idx)->OnApply();
    }
