@@ -225,6 +225,24 @@ void CInstrumentEditorDPCM::contextMenuEvent(QContextMenuEvent *event)
    }
 }
 
+void CInstrumentEditorDPCM::keyPressEvent(QKeyEvent *event)
+{
+   MSG msg;
+   msg.hwnd = (HWND)this;
+   msg.message = WM_KEYDOWN;
+   msg.wParam = event->key();
+   PreTranslateMessage(&msg);
+}
+
+void CInstrumentEditorDPCM::keyReleaseEvent(QKeyEvent *event)
+{
+   MSG msg;
+   msg.hwnd = (HWND)this;
+   msg.message = WM_KEYUP;
+   msg.wParam = event->key();
+   PreTranslateMessage(&msg);
+}
+
 // CInstrumentDPCM message handlers
 
 BOOL CInstrumentEditorDPCM::OnInitDialog()

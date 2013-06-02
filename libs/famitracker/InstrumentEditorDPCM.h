@@ -54,6 +54,9 @@ public slots:
    void loopPoint_textChanged(QString str);
    void edit_clicked();
    void preview_clicked();
+protected:
+   void keyPressEvent(QKeyEvent *event);
+   void keyReleaseEvent(QKeyEvent *event);
    
 public:
 	DECLARE_DYNAMIC(CInstrumentEditorDPCM)

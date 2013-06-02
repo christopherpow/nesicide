@@ -190,8 +190,15 @@ int WINAPI GetKeyNameText(
    int cchSize
 )
 {
-   qDebug("GetKeyNameText...");
-   return 0;
+   QKeySequence key((lParam>>16));
+   QString keyString = key.toString();
+#if UNICODE
+   wcsncpy(lpString,keyString.unicode(),cchSize);
+   return wcslen(lpString);
+#else
+   strncpy(lpString,keyString.toAscii().constData(),cchSize);
+   return strlen(lpString);
+#endif
 }
 
 #if !defined(Q_WS_WIN) && !defined(Q_WS_WIN32)
@@ -532,12 +539,16 @@ SIZE_T WINAPI GlobalSize(
    return pMem->size();
 }
 
+ACCEL* _acceleratorTbl = NULL;
+
 HACCEL WINAPI CreateAcceleratorTable(
   LPACCEL lpaccl,
   int cEntries
 )
 {
-   qDebug("CreateAcceleratorTable");
+   _acceleratorTbl = new ACCEL[cEntries];
+   memcpy(_acceleratorTbl,lpaccl,cEntries*sizeof(ACCEL));
+   return (HACCEL)_acceleratorTbl;
 }
 
 int WINAPI TranslateAccelerator(
@@ -553,7 +564,8 @@ BOOL WINAPI DestroyAcceleratorTable(
   HACCEL hAccel
 )
 {
-   qDebug("DestroyAcceleratorTable");
+   delete [] _acceleratorTbl;
+   return TRUE;
 }
 
 UINT WINAPI MapVirtualKey(
@@ -561,17 +573,24 @@ UINT WINAPI MapVirtualKey(
   UINT uMapType
 )
 {
-   QKeySequence key(uCode);
    switch ( uMapType )
    {
    case MAPVK_VK_TO_VSC:
-      qDebug("MapVirtualKey...not sure what to do here yet.");
+      qDebug("MapVirtualKey...not sure what to do here yet uCode=%x, uMapType=%d.",uCode,uMapType);
+      switch ( uCode )
+      {
+      case VK_DIVIDE:
+         return Qt::Key_Slash;
+         break;
+      }
+
       return uCode;
       break;
    default:
       qDebug("MapVirtualKey case %d not supported",uMapType);
       break;
    }
+   return 0;
 }
 
 /*
@@ -1971,13 +1990,14 @@ BOOL CDC::Rectangle(
 {
    QRect rect(x1,y1,x2-x1,y2-y1);
    _qpainter->drawRect(rect);
+   return TRUE;
 }
 
 BOOL CDC::Rectangle(
    LPCRECT lpRect 
 )
 {
-   Rectangle(lpRect->left,lpRect->top,lpRect->right,lpRect->bottom);
+   return Rectangle(lpRect->left,lpRect->top,lpRect->right,lpRect->bottom);
 }
 
 void CDC::Draw3dRect( int x, int y, int cx, int cy, COLORREF clrTopLeft, COLORREF clrBottomRight )
@@ -3917,6 +3937,7 @@ BOOL CWnd::EnableToolTips(
 )
 {
    // nothing to do here...
+   return TRUE;
 }
 
 int CWnd::GetWindowTextLength( ) const
@@ -4500,7 +4521,7 @@ int CWnd::GetWindowText(
    int nMaxCount 
 ) const
 {
-   qDebug("CWnd::GetWindowText");
+   return 0;
 }
 
 void CWnd::SetWindowText(
@@ -4674,7 +4695,11 @@ void CFrameWnd::SetMessageText(LPCTSTR fmt,...)
    va_start(args,fmt);
    message.FormatV(fmt,args);
    va_end(args);
-   qDebug("SetMessageText: '%s'",(LPCTSTR)message);
+#if UNICODE
+   ptrToTheApp->qtMainWindow->statusBar()->showMessage(QString::fromWCharArray(message));
+#else
+   ptrToTheApp->qtMainWindow->statusBar()->showMessage(QString::fromAscii(message));
+#endif
 }
 
 void CFrameWnd::SetMessageText(
@@ -4992,7 +5017,7 @@ BOOL CStatusBar::Create(
    
    pParentWnd->mfcToQtWidgetMap()->insert(nID,this);
 
-//   ptrToTheApp->qtMainWindow->setStatusBar(_qtd);
+   ptrToTheApp->qtMainWindow->setStatusBar(_qtd);
    
    // Pass-through signals
 
@@ -5275,6 +5300,8 @@ INT_PTR CDialog::DoModal()
    }
    _inited = true;
    
+   SetFocus();
+   
    INT_PTR result = _qtd->exec();
    if ( result == QDialog::Accepted )
       return 1;
@@ -5398,6 +5425,7 @@ BOOL CWinThread::SetThreadPriority(
       break;
    }
    setPriority(priority);
+   return TRUE;
 }
 
 BOOL CWinThread::PostThreadMessage(
@@ -5965,7 +5993,7 @@ BOOL CEdit::Create(
       QObject::connect(_qtd_ptedit,SIGNAL(textChanged(QString)),this,SIGNAL(textChanged(QString)));
    
       _qtd_ptedit->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
-      
+      _qtd_ptedit->setReadOnly(dwStyle&ES_READONLY);
       _qtd_ptedit->setVisible(dwStyle&WS_VISIBLE);
    }
    else
@@ -5982,7 +6010,7 @@ BOOL CEdit::Create(
       QObject::connect(_qtd_ledit,SIGNAL(textChanged(QString)),this,SIGNAL(textChanged(QString)));
    
       _qtd_ledit->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
-      
+      _qtd_ledit->setReadOnly(dwStyle&ES_READONLY);
       _qtd_ledit->setVisible(dwStyle&WS_VISIBLE);
    }
    
@@ -7245,36 +7273,73 @@ BOOL CFileFind::FindFile(
    DWORD dwUnused 
 )
 {
-   BOOL found = FALSE;
-   return found;
+   QFileInfo fileInfo;
+   QString path;
+   QString filter;
+   QString full;
+   if ( pstrName )
+   {
+#if UNICODE
+      full = QString::fromWCharArray(pstrName);
+#else
+      full = QString::fromAscii(pstrName);
+#endif
+      fileInfo.setFile(full);
+      path = fileInfo.path();
+      filter = fileInfo.fileName();
+      _qdir.setPath(path);
+   }
+   else
+   {
+      _qdir = QDir::homePath();
+      filter = "*.*";
+   }
+   _qfiles = _qdir.entryInfoList(QStringList(filter));
+   _idx = 0;
+   if ( _qfiles.count() )
+      return TRUE;
+   return FALSE;
 }
 
 BOOL CFileFind::FindNextFile( )
 {
+   BOOL ret = TRUE;
+   if ( _idx == _qfiles.count()-1 ) // need to return false for last file.
+   {
+      ret = FALSE;
+   }
+   _idx++;
+   return ret;
 }
 
 CString CFileFind::GetFileName( ) const
 {
+   return CString(_qfiles.at(_idx-1).fileName());
 }
 
 CString CFileFind::GetFilePath( ) const
 {
+   return CString(_qfiles.at(_idx-1).filePath());
 }
 
 CString CFileFind::GetFileTitle( ) const
 {
+   return CString(_qfiles.at(_idx-1).completeBaseName());
 }
 
 BOOL CFileFind::IsDirectory( ) const
 {
+   return _qfiles.at(_idx-1).isDir();
 }
 
 BOOL CFileFind::IsHidden( ) const
 {
+   return _qfiles.at(_idx-1).isHidden();
 }
 
 BOOL CFileFind::IsDots( ) const
 {
+   return _qfiles.at(_idx-1).fileName().startsWith("..");
 }
 
 CImageList::CImageList()
@@ -7290,6 +7355,7 @@ BOOL CImageList::Create(
 )
 {
    // Nothing to do here really...
+   return TRUE;
 }
 
 int CImageList::Add(
@@ -7447,6 +7513,7 @@ INT_PTR CPropertySheet::DoModal( )
    INT_PTR result;
    _qtabwidget->setCurrentIndex(_selectedPage);
    _pages.at(_selectedPage)->OnSetActive();
+   SetFocus();
    result = _qtd->exec();
    if ( result == QDialog::Accepted )
       return 1;
@@ -7542,6 +7609,14 @@ BOOL CToolTipCtrl::AddTool(
    _tippers.append(pWnd);
    pWnd->toQWidget()->setToolTip(lpszText);
 }
+
+void CToolTipCtrl::RelayEvent(
+   LPMSG lpMsg 
+)
+{
+   // nothing to do here...
+}
+
 
 int EnumFontFamiliesEx(
    HDC hdc,

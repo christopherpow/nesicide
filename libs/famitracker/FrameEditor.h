@@ -33,17 +33,11 @@ class CMainFrame;
 class CFrameEditor : public CWnd
 {
    Q_OBJECT
-	DECLARE_DYNAMIC(CFrameEditor)
-public:
-	CFrameEditor(CMainFrame *pMainFrm);
-	virtual ~CFrameEditor();
-
-	void AssignDocument(CFamiTrackerDoc *pDoc, CFamiTrackerView *pView);
-	void EnableInput();
-	bool InputEnabled() const;
-
-//	bool Translate(HWND hWnd, MSG *pMsg) const;
-
+   // Qt interfaces
+public slots:
+   void updateViews(long hint);
+   void verticalScrollBar_actionTriggered(int action);
+   void horizontalScrollBar_actionTriggered(int action);
 protected:
    void paintEvent(QPaintEvent *event);
    void mouseMoveEvent(QMouseEvent *event);
@@ -56,8 +50,20 @@ protected:
    void focusInEvent(QFocusEvent *event) { event->ignore(); }
    void focusOutEvent(QFocusEvent *);
    void leaveEvent(QEvent *);
-   void contextMenuEvent(QContextMenuEvent *event);
-   
+   void contextMenuEvent(QContextMenuEvent *event);   
+
+public:   
+	DECLARE_DYNAMIC(CFrameEditor)
+public:
+	CFrameEditor(CMainFrame *pMainFrm);
+	virtual ~CFrameEditor();
+
+	void AssignDocument(CFamiTrackerDoc *pDoc, CFamiTrackerView *pView);
+	void EnableInput();
+	bool InputEnabled() const;
+
+//	bool Translate(HWND hWnd, MSG *pMsg) const;
+
 private:
 	void CreateGdiObjects();
 
@@ -117,11 +123,6 @@ public:
 	afx_msg void OnContextMenu(CWnd* /*pWnd*/, CPoint /*point*/);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
-   
-public slots:
-   void updateViews(long hint);
-   void verticalScrollBar_actionTriggered(int action);
-   void horizontalScrollBar_actionTriggered(int action);
 };
 
 

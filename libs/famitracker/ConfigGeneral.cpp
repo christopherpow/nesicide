@@ -142,6 +142,15 @@ void CConfigGeneral::pageLength_currentIndexChanged(int)
    OnCbnSelendokPagelength();
 }
 
+void CConfigGeneral::keyPressEvent(QKeyEvent *event)
+{
+   MSG msg;
+   msg.hwnd = (HWND)this;
+   msg.message = WM_KEYDOWN;
+   msg.wParam = event->key();
+   PreTranslateMessage(&msg);
+}
+
 // CConfigGeneral message handlers
 
 BOOL CConfigGeneral::OnSetActive()
@@ -363,41 +372,40 @@ void CConfigGeneral::OnCbnSelendokPagelength()
 
 BOOL CConfigGeneral::PreTranslateMessage(MSG* pMsg)
 {
-   qDebug("CConfigGeneral::PreTranslateMessage");
-//	if (pMsg->message == WM_KEYDOWN) {
-//		char Text[64];
-//		int id = GetFocus()->GetDlgCtrlID();
-//		int key = pMsg->wParam;
+	if (pMsg->message == WM_KEYDOWN) {
+		char Text[64];
+		int id = GetFocus()->GetDlgCtrlID();
+		int key = pMsg->wParam;
 
-//		if (key == 27)		// ESC
-//			key = 0;
+		if (key == 27)		// ESC
+			key = 0;
 
-//		switch (id) {
-//			case IDC_KEY_NOTE_CUT:
-//				m_iKeyNoteCut = key;
-//				break;
-//			case IDC_KEY_NOTE_RELEASE:
-//				m_iKeyNoteRelease = key;
-//				break;
-//			case IDC_KEY_CLEAR:
-//				m_iKeyClear = key;
-//				break;
-//			case IDC_KEY_REPEAT:
-//				m_iKeyRepeat = key;
-//				break;
-//			default:
-//				return CPropertyPage::PreTranslateMessage(pMsg);
-//		}
+		switch (id) {
+			case IDC_KEY_NOTE_CUT:
+				m_iKeyNoteCut = key;
+				break;
+			case IDC_KEY_NOTE_RELEASE:
+				m_iKeyNoteRelease = key;
+				break;
+			case IDC_KEY_CLEAR:
+				m_iKeyClear = key;
+				break;
+			case IDC_KEY_REPEAT:
+				m_iKeyRepeat = key;
+				break;
+			default:
+				return CPropertyPage::PreTranslateMessage(pMsg);
+		}
 
-//		GetKeyNameText(key ? pMsg->lParam : 0, Text, 64);
-//		SetDlgItemText(id, Text);
+		GetKeyNameText(key ? pMsg->lParam : 0, Text, 64);
+		SetDlgItemText(id, Text);
 
-//		SetModified();
+		SetModified();
 
-//		return TRUE;
-//	}
+		return TRUE;
+	}
 
-//	m_wndToolTip.RelayEvent(pMsg);
+	m_wndToolTip.RelayEvent(pMsg);
 
 	return CPropertyPage::PreTranslateMessage(pMsg);
 }

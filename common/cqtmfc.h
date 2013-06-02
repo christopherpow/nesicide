@@ -270,9 +270,12 @@ typedef int* POSITION;
 
 #define DECLARE_DYNCREATE(x) 
 #define IMPLEMENT_DYNCREATE(x,y)
-#define DECLARE_MESSAGE_MAP()
 #define DECLARE_DYNAMIC(x)
 #define IMPLEMENT_DYNAMIC(x,y)
+#define DECLARE_MESSAGE_MAP() QHash<int,void*> _messageMap;
+   
+#define BEGIN_MESSAGE_MAP(dc,bc)
+#define END_MESSAGE_MAP() 
 
 #define RUNTIME_CLASS(x) new x
 
@@ -451,6 +454,8 @@ BOOL WINAPI GlobalUnlock(
 SIZE_T WINAPI GlobalSize(
   HGLOBAL hMem
 );
+
+extern ACCEL* _acceleratorTbl;
 
 HACCEL WINAPI CreateAcceleratorTable(
   LPACCEL lpaccl,
@@ -3254,6 +3259,9 @@ public:
       LPCRECT lpRectTool = NULL,
       UINT_PTR nIDTool = 0 
    );
+   void RelayEvent(
+      LPMSG lpMsg 
+   );
 };
 
 class CCmdUI
@@ -3352,6 +3360,7 @@ public:
 protected:
    QDir _qdir;
    QFileInfoList _qfiles;
+   int _idx;
 };
 
 #define ILC_COLOR 0

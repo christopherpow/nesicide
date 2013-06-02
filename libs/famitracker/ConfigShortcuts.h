@@ -20,10 +20,24 @@
 
 #pragma once
 
+#include "cqtmfc.h"
+#include "resource.h"
+
 // CConfigShortcuts dialog
 
 class CConfigShortcuts : public CPropertyPage
 {
+   Q_OBJECT
+   // Qt interfaces
+public slots:
+   void clear_clicked();
+   void default_clicked();
+   void shortcuts_cellClicked(int,int);
+protected:
+   void keyPressEvent(QKeyEvent *event);
+   void keyReleaseEvent(QKeyEvent *event);
+   
+public:
 	DECLARE_DYNAMIC(CConfigShortcuts)
 
 public:

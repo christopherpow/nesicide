@@ -374,6 +374,12 @@ void CMainFrame::resizeEvent(QResizeEvent *event)
    OnSize(0,event->size().width(),event->size().height());
 }
 
+void CMainFrame::timerEvent(QTimerEvent *event)
+{
+   int mfcId = mfcTimerId(event->timerId());
+   OnTimer(mfcId);
+}
+
 void CMainFrame::idleProcessing()
 {   
    CCmdUI cmdUI;
@@ -2310,7 +2316,7 @@ void CMainFrame::OnFileGeneralsettings()
    qDebug("NO MIDI SUPPORT YET...");
 //	CConfigMIDI			TabMIDI;
 //	CConfigSound		TabSound;
-//	CConfigShortcuts	TabShortcuts;
+	CConfigShortcuts	TabShortcuts;
 	//CConfigLevels		TabLevels;
 
 //	ConfigWindow.m_psh.dwFlags	&= ~PSH_HASHELP;
@@ -2325,7 +2331,7 @@ void CMainFrame::OnFileGeneralsettings()
 	ConfigWindow.AddPage(&TabAppearance);
 //	ConfigWindow.AddPage(&TabMIDI);
 //	ConfigWindow.AddPage(&TabSound);
-//	ConfigWindow.AddPage(&TabShortcuts);
+	ConfigWindow.AddPage(&TabShortcuts);
 	//ConfigWindow.AddPage(&TabLevels);
 
 	ConfigWindow.DoModal();

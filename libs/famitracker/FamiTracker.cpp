@@ -532,7 +532,6 @@ void CFamiTrackerApp::CheckSynth()
 		LastTime = GetTickCount();
 
 	// Wait for signals from the player thread
-   qDebug("WaitForSingleObject??");
 //	if (WaitForSingleObject(m_hAliveCheck, 0) == WAIT_OBJECT_0) {	// return immediately
 //		if ((GetTickCount() - LastTime) > 1000) {
 //			((CMainFrame*) GetMainWnd())->SetMessageText(AFX_IDS_IDLEMESSAGE);

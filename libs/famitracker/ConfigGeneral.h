@@ -46,6 +46,8 @@ public slots:
    void style2_clicked();
    void style3_clicked();
    void pageLength_currentIndexChanged(int);
+protected:
+   void keyPressEvent(QKeyEvent *event);
    
 public:
 	DECLARE_DYNAMIC(CConfigGeneral)

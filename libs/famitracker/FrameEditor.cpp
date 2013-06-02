@@ -766,6 +766,12 @@ void CFrameEditor::horizontalScrollBar_actionTriggered(int arg1)
 
 void CFrameEditor::keyPressEvent(QKeyEvent *event)
 {
+   MSG msg;
+   msg.hwnd = (HWND)this;
+   msg.message = WM_KEYDOWN;
+   msg.wParam = event->key();
+   PreTranslateMessage(&msg);
+
    UINT nChar = event->nativeVirtualKey();
    UINT nRepCnt = event->count();
 

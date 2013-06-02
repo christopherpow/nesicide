@@ -1923,22 +1923,54 @@ void qtMfcInitDialogResource_IDD_CONFIG_SOUND(CDialog* parent)
 //   END
 }   
 
-//#include "dialog-file"
-void qtMfcInitDialogResource_IDD_CONFIG_SHORTCUTS(CDialog* parent)
+#include "ConfigShortcuts.h"
+void qtMfcInitDialogResource_IDD_CONFIG_SHORTCUTS(CDialog* parent1)
 {
-//  dialog-type* parent = dynamic_cast<dialog-type*>(parent1);
+   CConfigShortcuts* parent = dynamic_cast<CConfigShortcuts*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
    
 //   IDD_CONFIG_SHORTCUTS DIALOGEX 0, 0, 280, 167
+   CRect rect(CPoint(0,0),CSize(280,167));
+   parent->MapDialogRect(&rect);
+   parent->setFixedSize(rect.Width(),rect.Height());   
 //   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 //   CAPTION "Shortcuts"
+   parent->SetWindowText("Shortcuts");
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
 //   BEGIN
 //       CONTROL         "",IDC_SHORTCUTS,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,7,266,136
+   CListCtrl* mfc1 = new CListCtrl(parent);
+   CRect r1(CPoint(7,7),CSize(266,136));
+   parent->MapDialogRect(&r1);
+   mfc1->Create(LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP | WS_VISIBLE,r1,parent,IDC_SHORTCUTS);
+   mfcToQtWidget->insert(IDC_SHORTCUTS,mfc1);
+   QObject::connect(mfc1,SIGNAL(cellClicked(int,int)),parent,SLOT(shortcuts_cellClicked(int,int)));
 //       LTEXT           "Keys:",IDC_STATIC,7,149,23,12
+   CStatic* mfc2 = new CStatic(parent);
+   CRect r2(CPoint(7,149),CSize(23,12));
+   parent->MapDialogRect(&r2);
+   mfc2->Create(_T("Keys:"),WS_VISIBLE,r2,parent,IDC_STATIC);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       EDITTEXT        IDC_KEY,36,147,144,14,ES_AUTOHSCROLL | ES_READONLY
+   CEdit* mfc3 = new CEdit(parent);
+   CRect r3(CPoint(36,147),CSize(144,14));
+   parent->MapDialogRect(&r3);
+   mfc3->Create(ES_AUTOHSCROLL | ES_READONLY | WS_VISIBLE,r3,parent,IDC_KEY);
+   mfcToQtWidget->insert(IDC_KEY,mfc3);
 //       PUSHBUTTON      "Clear",IDC_CLEAR,186,147,36,14
+   CButton* mfc4 = new CButton(parent);
+   CRect r4(CPoint(186,147),CSize(36,14));
+   parent->MapDialogRect(&r4);
+   mfc4->Create(_T("Clear"),WS_VISIBLE,r4,parent,IDC_CLEAR);
+   mfcToQtWidget->insert(IDC_CLEAR,mfc4);
+   QObject::connect(mfc4,SIGNAL(clicked()),parent,SLOT(clear_clicked()));
 //       PUSHBUTTON      "Default",IDC_DEFAULT,228,147,45,14
+   CButton* mfc5 = new CButton(parent);
+   CRect r5(CPoint(228,147),CSize(45,14));
+   parent->MapDialogRect(&r5);
+   mfc5->Create(_T("Default"),WS_VISIBLE,r5,parent,IDC_DEFAULT);
+   mfcToQtWidget->insert(IDC_DEFAULT,mfc5);
+   QObject::connect(mfc5,SIGNAL(clicked()),parent,SLOT(default_clicked()));
 //   END
 }   
 

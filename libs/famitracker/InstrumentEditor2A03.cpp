@@ -309,12 +309,11 @@ BOOL CInstrumentEditor2A03::PreTranslateMessage(MSG* pMsg)
 
 	switch (pMsg->message) {
 		case WM_KEYDOWN:
-      qDebug("GetClassName not used for now...");
-//			GetClassName(pMsg->hwnd, ClassName, 256);
-//			if (strcmp(ClassName, "Edit")) {
-//				PreviewNote((unsigned char)pMsg->wParam);
-//				return TRUE;
-//			}
+			GetClassName(pMsg->hwnd, ClassName, 256);
+			if (strcmp(ClassName, "Edit")) {
+				PreviewNote((unsigned char)pMsg->wParam);
+				return TRUE;
+			}
 			break;
 		case WM_KEYUP:
 			PreviewRelease((unsigned char)pMsg->wParam);
