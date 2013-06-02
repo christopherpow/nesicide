@@ -1009,6 +1009,7 @@ TCHAR CString::GetAt( int nIndex ) const
 CStringA::CStringA(CString str)
 { 
    _qstr = str.GetString(); 
+   UpdateScratch();
 }
 
 CStringA::operator char*() const
