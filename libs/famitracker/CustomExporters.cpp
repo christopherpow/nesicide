@@ -41,8 +41,13 @@ void CCustomExporters::FindCustomExporters( CString PluginPath )
 {
 	CFileFind finder;
 
-	CString path = PluginPath + _T("\\*.dll");
-	BOOL bWorking = finder.FindFile( path );
+	CString path;
+   BOOL bWorking;
+
+#if defined(Q_WS_WIN) || defined(Q_WS_WIN32)
+   // Windows
+   path = PluginPath + _T("\\*.dll");
+	bWorking = finder.FindFile( path );
 	while (bWorking)
 	{
 		bWorking = finder.FindNextFile();
@@ -58,4 +63,60 @@ void CCustomExporters::FindCustomExporters( CString PluginPath )
 
 		//AfxMessageBox(finder.GetFileName());
 	}
+#elif defined(Q_WS_MAC)
+   // Mac OSX
+   path = PluginPath + _T("\\*.dylib");
+	bWorking = finder.FindFile( path );
+	while (bWorking)
+	{
+		bWorking = finder.FindNextFile();
+		CString fileName = finder.GetFileName();
+		CString filePath = finder.GetFilePath();
+		
+		CCustomExporter customExporter;
+
+		if( customExporter.load( filePath ) )
+		{
+			m_customExporters.Add( customExporter );
+		}
+
+		//AfxMessageBox(finder.GetFileName());
+	}
+   path = PluginPath + _T("\\*.bundle");
+	bWorking = finder.FindFile( path );
+	while (bWorking)
+	{
+		bWorking = finder.FindNextFile();
+		CString fileName = finder.GetFileName();
+		CString filePath = finder.GetFilePath();
+		
+		CCustomExporter customExporter;
+
+		if( customExporter.load( filePath ) )
+		{
+			m_customExporters.Add( customExporter );
+		}
+
+		//AfxMessageBox(finder.GetFileName());
+	}
+#else
+   // Linux
+   path = PluginPath + _T("\\*.so");
+	bWorking = finder.FindFile( path );
+	while (bWorking)
+	{
+		bWorking = finder.FindNextFile();
+		CString fileName = finder.GetFileName();
+		CString filePath = finder.GetFilePath();
+		
+		CCustomExporter customExporter;
+
+		if( customExporter.load( filePath ) )
+		{
+			m_customExporters.Add( customExporter );
+		}
+
+		//AfxMessageBox(finder.GetFileName());
+	}
+#endif
 }

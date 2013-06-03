@@ -1338,6 +1338,17 @@ public:
    virtual UINT IsDlgButtonChecked( 
       int nIDButton
    ) const { return 0; }
+   virtual void SetWindowText(
+      LPCTSTR lpszString 
+   ) {}
+   virtual int GetWindowTextLength( ) const { return 0; }
+   virtual void GetWindowText(
+      CString& rString 
+   ) const {}
+   virtual int GetWindowText(
+      LPTSTR lpszStringBuf,
+      int nMaxCount 
+   ) const { return 0; }
 };
 
 class CFrameWnd;
@@ -1972,6 +1983,17 @@ public:
       CWnd* pParentWnd,
       UINT nID 
    );
+   int GetWindowTextLength( ) const;
+   void GetWindowText(
+      CString& rString 
+   ) const;
+   int GetWindowText(
+      LPTSTR lpszStringBuf,
+      int nMaxCount 
+   ) const;
+   void SetWindowText(
+      LPCTSTR lpszString 
+   );
    DWORD GetStyle() const;
    LRESULT SendMessage(
       UINT message,
@@ -2269,6 +2291,9 @@ public:
       const RECT& rect,
       CWnd* pParentWnd,
       UINT nID 
+   );
+   void SetWindowText(
+      LPCTSTR lpszString 
    );
    void ResetContent();
    int AddString(
@@ -3211,6 +3236,9 @@ public:
       UINT message,
       WPARAM wParam = 0,
       LPARAM lParam = 0 
+   );
+   void SetWindowText(
+      LPCTSTR lpszString 
    );
    BOOL SetIndicators(
       const UINT* lpIDArray,

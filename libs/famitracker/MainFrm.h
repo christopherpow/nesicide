@@ -373,6 +373,7 @@ public slots:
    void songName_textEdited(const QString &arg1);   
    void songArtist_textEdited(const QString &arg1);
    void songCopyright_textEdited(const QString &arg1);
+   void instName_textEdited(const QString &arg1);
    void octave_currentIndexChanged(int);
    void follow_clicked();
    void highlightspin1_valueChanged(int arg1, int arg2);

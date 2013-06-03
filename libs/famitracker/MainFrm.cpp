@@ -349,6 +349,7 @@ void CMainFrame::showEvent(QShowEvent *)
       QObject::connect(m_wndFrameControls.GetDlgItem(IDC_FRAME_INC)->toQWidget(),SIGNAL(clicked()),this,SLOT(frameInc_clicked()));
       QObject::connect(m_wndFrameControls.GetDlgItem(IDC_FRAME_DEC)->toQWidget(),SIGNAL(clicked()),this,SLOT(frameDec_clicked()));
       QObject::connect(m_wndFrameControls.GetDlgItem(IDC_CHANGE_ALL)->toQWidget(),SIGNAL(clicked()),this,SLOT(frameChangeAll_clicked()));
+      QObject::connect(m_wndDialogBar.GetDlgItem(IDC_INSTNAME)->toQWidget(),SIGNAL(textEdited(QString)),this,SLOT(instName_textEdited(QString)));
       qDebug("DONE CONNECTING BURIED SIGNALS NOW...");
       
       
@@ -872,6 +873,11 @@ void CMainFrame::songArtist_textEdited(const QString &arg1)
 void CMainFrame::songCopyright_textEdited(const QString &arg1)
 {
    OnEnSongCopyrightChange();
+}
+
+void CMainFrame::instName_textEdited(const QString &arg1)
+{
+   OnInstNameChange();
 }
 
 void CMainFrame::follow_clicked()

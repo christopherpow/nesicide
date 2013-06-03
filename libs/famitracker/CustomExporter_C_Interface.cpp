@@ -1,3 +1,4 @@
+#include "CustomExporterInterfaces.h"
 #include "CustomExporter_C_Interface.h"
 
 CFamiTrackerDocInterface* _doc = NULL;

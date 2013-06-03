@@ -1759,7 +1759,7 @@ void CFamiTrackerView::SetInstrument(int Instrument)
 	if (Instrument == MAX_INSTRUMENTS)
 		return;
 
-	pMainFrm->SelectInstrument(Instrument);
+   pMainFrm->SelectInstrument(Instrument);
 	m_iLastInstrument = GetInstrument(); // Gets actual selected instrument //  Instrument;
 }
 

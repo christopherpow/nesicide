@@ -2240,6 +2240,17 @@ BOOL CComboBox::Create(
    return TRUE;
 }
 
+void CComboBox::SetWindowText(
+   LPCTSTR lpszString 
+)
+{
+#if UNICODE
+   _qtd->lineEdit()->setText(QString::fromWCharArray(lpszString));
+#else
+   _qtd->lineEdit()->setText(lpszString);
+#endif
+}
+
 void CComboBox::ResetContent()
 {
    _qtd->blockSignals(true);
@@ -3941,11 +3952,6 @@ BOOL CWnd::EnableToolTips(
    return TRUE;
 }
 
-int CWnd::GetWindowTextLength( ) const
-{
-   return 0;
-}
-
 CDC* CWnd::GetDC() 
 { 
    return _myDC; 
@@ -4510,6 +4516,11 @@ void CWnd::KillTimer(UINT id)
    }
 }
 
+int CWnd::GetWindowTextLength( ) const
+{
+   return _qt->windowTitle().length();
+}
+
 void CWnd::GetWindowText(
    CString& rString 
 ) const
@@ -4522,7 +4533,13 @@ int CWnd::GetWindowText(
    int nMaxCount 
 ) const
 {
-   return 0;
+#if UNICODE
+   wcsncpy(lpszStringBuf,(LPTSTR)_qt->windowTitle().unicode(),nMaxCount);
+   return wcslen(lpszStringBuf);
+#else
+   strncpy(lpszStringBuf,(LPTSTR)_qt->windowTitle().toAscii().constData(),nMaxCount);
+   return strlen(lpszStringBuf);
+#endif
 }
 
 void CWnd::SetWindowText(
@@ -5032,6 +5049,17 @@ LRESULT CStatusBar::SendMessage(
 )
 {
    return 0;
+}
+
+void CStatusBar::SetWindowText(
+   LPCTSTR lpszString 
+)
+{
+#if UNICODE
+   _qtd->showMessage(QString::fromWCharArray(lpszString));
+#else
+   _qtd->showMessage(lpszString);
+#endif
 }
 
 BOOL CStatusBar::SetIndicators(
@@ -6043,6 +6071,81 @@ LRESULT CEdit::SendMessage(
       }
    }
    return 0; // CP: not sure this matters...much
+}
+
+int CEdit::GetWindowTextLength( ) const
+{
+   if ( _dwStyle&ES_MULTILINE )
+   {
+      return _qtd_ptedit->toPlainText().length();
+   }
+   else
+   {
+      return _qtd_ledit->text().length();
+   }
+}
+
+void CEdit::GetWindowText(
+   CString& rString 
+) const
+{
+   if ( _dwStyle&ES_MULTILINE )
+   {
+      rString = _qtd_ptedit->toPlainText();
+   }
+   else
+   {
+      rString = _qtd_ledit->text();
+   }
+}
+
+int CEdit::GetWindowText(
+   LPTSTR lpszStringBuf,
+   int nMaxCount 
+) const
+{
+   if ( _dwStyle&ES_MULTILINE )
+   {
+#if UNICODE
+      wcsncpy(lpszStringBuf,(LPTSTR)_qtd_ptedit->toPlainText().unicode(),nMaxCount);
+      return wcslen(lpszStringBuf);
+#else
+      strncpy(lpszStringBuf,(LPTSTR)_qtd_ptedit->toPlainText().toAscii().constData(),nMaxCount);
+      return strlen(lpszStringBuf);
+#endif
+   }
+   else
+   {
+#if UNICODE
+      wcsncpy(lpszStringBuf,(LPTSTR)_qtd_ledit->text().unicode(),nMaxCount);
+      return wcslen(lpszStringBuf);
+#else
+      strncpy(lpszStringBuf,(LPTSTR)_qtd_ledit->text().toAscii().constData(),nMaxCount);
+      return strlen(lpszStringBuf);
+#endif
+   }
+}
+
+void CEdit::SetWindowText(
+   LPCTSTR lpszString 
+)
+{
+   if ( _dwStyle&ES_MULTILINE )
+   {
+#if UNICODE
+   _qtd_ptedit->setPlainText(QString::fromWCharArray(lpszString));
+#else
+   _qtd_ptedit->setPlainText(lpszString);
+#endif
+   }
+   else
+   {
+#if UNICODE
+   _qtd_ledit->setText(QString::fromWCharArray(lpszString));
+#else
+   _qtd_ledit->setText(lpszString);
+#endif
+   }
 }
 
 DWORD CEdit::GetStyle() const
