@@ -903,7 +903,8 @@ LPCTSTR CString::GetString() const
 
 LPTSTR CString::GetBuffer( int nMinBufLength )
 {
-   _qstr.reserve(nMinBufLength+1); // Space for null-terminator.
+   if ( nMinBufLength > _qstr.length() )
+      _qstr.reserve(nMinBufLength+1); // Space for null-terminator.
    UpdateScratch();
 #if UNICODE
    return (LPTSTR)_qstr.unicode();
@@ -2275,7 +2276,9 @@ int CComboBox::AddString(
 
 void CComboBox::SetCurSel(int sel)
 {
+   _qtd->blockSignals(true);
    _qtd->setCurrentIndex(sel);
+   _qtd->blockSignals(false);
 }
 
 int CComboBox::GetCurSel( ) const
