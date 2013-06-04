@@ -6203,7 +6203,7 @@ void CEdit::ReplaceSel(
 {
    if ( _dwStyle&ES_MULTILINE )
    {
-      QTextCursor textCursor(_qtd_ptedit->document());
+      QTextCursor textCursor = _qtd_ptedit->textCursor();
       textCursor.removeSelectedText();
 #if UNICODE
       textCursor.insertText(QString::fromWCharArray(lpszNewText));
