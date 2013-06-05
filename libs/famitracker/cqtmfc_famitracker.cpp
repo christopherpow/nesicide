@@ -339,7 +339,7 @@ void qtMfcInitStringResources()
    //
    
 // AFX resources
-   qtMfcStringResources.insert(AFX_IDS_ALLFILTER,"All files (*.*)");
+   qtMfcStringResources.insert(AFX_IDS_ALLFILTER,"All files|");
    qtMfcStringResources.insert(AFX_IDS_OPENFILE,"Open");
    
 //   STRINGTABLE 

@@ -1858,6 +1858,7 @@ public:
    void selectFile(const QString & filename) { _qtd->selectFile(filename); }
    void setFilter(const QString& filter) { _qtd->setFilter(filter); }
    QStringList selectedFiles() const { return _qtd->selectedFiles(); }
+   void translateFilters(LPCTSTR lpszFilter);
 protected:
    QFileDialog* _qtd;
    

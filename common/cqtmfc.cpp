@@ -5548,9 +5548,11 @@ BOOL CDocTemplate::GetDocString(
       break;
       
    case filterName:
+      rString = "FamiTracker files|";
       break;
       
    case filterExt:
+      rString = ".ftm|";
       break;
       
    case regFileTypeId:
@@ -5584,14 +5586,13 @@ CDocument* CSingleDocTemplate::GetNextDoc(
    POSITION& rPos 
 ) const
 {
-   if ( *rPos == -1 ) 
+   if ( !rPos ) 
    {
-      delete rPos;
       return NULL; // Choker for end-of-list
    }
    CDocument* pDoc = m_pDoc; 
-
-   (*rPos) = -1;
+   delete rPos;
+   rPos = NULL;
    
    return pDoc; 
 }
@@ -5681,15 +5682,15 @@ CDocTemplate* CWinApp::GetNextDocTemplate(
    POSITION& pos 
 ) const
 {
-   if ( (*pos) == -1 ) 
+   if ( !pos ) 
    {
-      delete pos;
       return NULL; // Choker for end-of-list
    }
    CDocTemplate* pDocTemplate = _docTemplates.at((*pos)++); 
    if ( (*pos) >= _docTemplates.count() ) 
    { 
-      (*pos) = -1; 
+      delete pos;
+      pos = NULL;
    } 
    return pDocTemplate; 
 }
@@ -5959,7 +5960,9 @@ int CTabCtrl::SetCurSel(
 )
 {
    int oldSel = _qtd->currentIndex();
+   _qtd->blockSignals(true);
    _qtd->setCurrentIndex(nItem);
+   _qtd->blockSignals(false);
    return oldSel;
 }
 
@@ -7084,9 +7087,10 @@ CFileDialog::CFileDialog(
 )
    : CCommonDialog(pParentWnd)
 {
-   int seg;
-
+   m_hWnd = (HWND)this;
+   
    m_pOFN = &m_ofn;
+   memset(m_pOFN,0,sizeof(OPENFILENAME));
    
    if ( _qt )
       delete _qt;
@@ -7104,41 +7108,15 @@ CFileDialog::CFileDialog(
    _qtd->hide();
    
 #if UNICODE
-   qDebug(QString::fromWCharArray(lpszFilter).toAscii().constData());
-   QStringList filtersList = QString::fromWCharArray(lpszFilter).split("|");
-#else
-   QStringList filtersList = QString(lpszFilter).split("|");
-#endif
-   
-   QString filters;
-   
-   // Take out odd-numbered splits between ||;s and convert |'s to ;;'s.
-   for ( seg = filtersList.count()-1; seg >= 0; seg -= 2 )
-   {
-      filtersList.removeAt(seg);
-   }
-   for ( seg = 0; seg < filtersList.count(); seg++ )
-   {
-      if ( !filtersList.at(seg).compare("all files",Qt::CaseInsensitive) )
-      {
-         filtersList.replace(seg,"All files (*.*)");
-      }
-   }
-   filters = filtersList.join(";;");
-   if ( filters.endsWith(";;") )
-   {
-      filters = filters.left(filters.length()-2);
-   }
-   
-#if UNICODE
    _qtd->setDefaultSuffix(QString::fromWCharArray(lpszDefExt));
    _qtd->selectFile(QString::fromWCharArray(lpszFileName));
-   _qtd->setFilter(filters);
 #else
    _qtd->setDefaultSuffix(lpszDefExt);
    _qtd->selectFile(lpszFileName);
-   _qtd->setFilter(filters);
 #endif
+   
+   translateFilters(lpszFilter);
+   
    qDebug("CFileDialog::CFileDialog...need dwFlags impl");
    switch ( dwFlags )
    {
@@ -7168,13 +7146,96 @@ CFileDialog::~CFileDialog()
    _qt = NULL;
 }
 
+void CFileDialog::translateFilters(LPCTSTR lpszFilter)
+{
+   int seg;
+
+   if ( lpszFilter )
+   {
+#if UNICODE
+      QStringList filtersList = QString::fromWCharArray(lpszFilter).split(QRegExp("(\||\(|\))"),QString::SkipEmptyParts);
+#else
+      QStringList filtersList = QString::fromAscii(lpszFilter).split(QRegExp("[|()]"),QString::SkipEmptyParts);
+#endif
+      QString filters;
+      
+      // Take out extra filter patterns, 'empty' strings, and convert |'s to ;;'s.
+      for ( seg = filtersList.count()-2; seg > 0; seg-- )
+      {
+         if ( filtersList.at(seg) == filtersList.at(seg+1) )
+         {
+            filtersList.removeAt(seg+1);
+         }
+         if ( filtersList.at(seg).startsWith(" ") )
+         {
+            filtersList.removeAt(seg);
+         }
+      }
+      // Add all files filter pattern if it's not there
+      for ( seg = 0; seg < filtersList.count(); seg++ )
+      {
+         if ( !filtersList.at(seg).compare("all files",Qt::CaseInsensitive) )
+         {
+            if ( seg == filtersList.count()-1 )
+            {
+               filtersList.insert(seg+1,"*.*");
+            }
+         }
+      }
+      // Add ()'s back to filter pattern parts
+      for ( seg = 1; seg < filtersList.count(); seg += 2 )
+      {
+         filtersList[seg].prepend("(");
+         filtersList[seg].append(")");
+      }
+      // Join each two-part filter string together
+      for ( seg = filtersList.count()-2; seg >= 0; seg -= 2 )
+      {
+         QString b = filtersList.takeAt(seg+1);
+         QString a = filtersList.takeAt(seg);
+         filtersList.append(a+" "+b);
+      }
+      // Join everything
+      filters = filtersList.join(";;");
+      if ( filters.endsWith(";;") )
+      {
+         filters = filters.left(filters.length()-2);
+      }
+      
+      _qtd->setFilter(filters);
+   }
+}
+
 INT_PTR CFileDialog::DoModal()
 { 
-   INT_PTR result = _qtd->exec();
+   INT_PTR result;
+   
+   SetWindowText(m_ofn.lpstrTitle);
+#if UNICODE
+   if ( m_ofn.lpstrInitialDir )
+      _qtd->setDirectory(QString::fromWCharArray((LPCTSTR)m_ofn.lpstrInitialDir));
+#else
+   if ( m_ofn.lpstrInitialDir )
+      _qtd->setDirectory(QString::fromAscii((LPCTSTR)m_ofn.lpstrInitialDir));
+#endif
+
+   translateFilters(m_ofn.lpstrFilter);
+   
+   result = _qtd->exec();
    if ( result == QDialog::Accepted )
+   {
+      qDebug("NEED TO CHANGE THIS TO RETURN THE PATH AND SELECTED FILE(S) SEPARATED BY SPACE FOR MULTI-SELECT");
+#if UNICODE
+      wcscpy(m_ofn.lpstrFile,_qtd->selectedFiles().at(0).unicode());
+#else
+      strcpy(m_ofn.lpstrFile,_qtd->selectedFiles().at(0).toAscii().constData());
+#endif
       return 1;
+   }
    else
+   {
       return 0;
+   }
 }
 
 POSITION CFileDialog::GetStartPosition( ) const
