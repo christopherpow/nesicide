@@ -904,10 +904,10 @@ LPCTSTR CString::GetString() const
 LPTSTR CString::GetBuffer( int nMinBufLength )
 {
    if ( nMinBufLength > _qstr.length() )
-      _qstr.reserve(nMinBufLength+1); // Space for null-terminator.
+      _qstr.resize(nMinBufLength+1); // Space for null-terminator.
    UpdateScratch();
 #if UNICODE
-   return (LPTSTR)_qstr.unicode();
+   return (LPTSTR)_qstrn.unicode();
 #else
    return (LPTSTR)_qstrn.data();
 #endif
@@ -918,7 +918,7 @@ void CString::ReleaseBuffer( int nNewLength )
    if ( nNewLength >= 0 )
    {
       // Append null.
-      _qstr[nNewLength] = 0;
+      _qstrn[nNewLength] = 0;
    }
 }
 
@@ -7224,7 +7224,6 @@ INT_PTR CFileDialog::DoModal()
    result = _qtd->exec();
    if ( result == QDialog::Accepted )
    {
-      qDebug("NEED TO CHANGE THIS TO RETURN THE PATH AND SELECTED FILE(S) SEPARATED BY SPACE FOR MULTI-SELECT");
 #if UNICODE
       wcscpy(m_ofn.lpstrFile,_qtd->selectedFiles().at(0).unicode());
 #else
@@ -7254,16 +7253,16 @@ CString CFileDialog::GetNextPathName(
    POSITION& pos 
 ) const
 {
-   if ( (*pos) == -1 ) 
+   if ( !pos ) 
    {
-      delete pos;
       return CString(); // Choker for end-of-list
    }
    QStringList files = _qtd->selectedFiles();
    CString file = files.at((*pos)++); 
    if ( (*pos) >= files.count() ) 
    { 
-      (*pos) = -1;
+      delete pos;
+      pos = NULL;
    } 
    return file; 
 }
