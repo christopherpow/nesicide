@@ -2720,7 +2720,7 @@ int CListCtrl::GetNextItem(
       case LVNI_SELECTED:
          for ( item = 0; item < twis.count(); item++ )
          {
-            if ( twis.at(item)->row() == nItem )
+            if ( (nItem == -1) || (twis.at(item)->row() == nItem) )
             {
                if ( item < (twis.count()-1) )
                {
@@ -2743,7 +2743,7 @@ int CListCtrl::GetNextItem(
       case LVNI_SELECTED:
          for ( item = 0; item < lwis.count(); item++ )
          {
-            if ( _qtd_list->row(lwis.at(item)) == nItem )
+            if ( (nItem == -1) || (_qtd_list->row(lwis.at(item)) == nItem) )
             {
                if ( item < (lwis.count()-1) )
                {
@@ -7118,15 +7118,9 @@ CFileDialog::CFileDialog(
    translateFilters(lpszFilter);
    
    qDebug("CFileDialog::CFileDialog...need dwFlags impl");
-   switch ( dwFlags )
+   if ( dwFlags&OFN_ALLOWMULTISELECT )
    {
-   case OFN_HIDEREADONLY:
-      break;
-   case OFN_OVERWRITEPROMPT:
-      break;
-   case OFN_ALLOWMULTISELECT:
       _qtd->setFileMode(QFileDialog::ExistingFiles);
-      break;
    }
    if ( bOpenFileDialog )
    {
@@ -7224,11 +7218,14 @@ INT_PTR CFileDialog::DoModal()
    result = _qtd->exec();
    if ( result == QDialog::Accepted )
    {
+      if ( m_ofn.lpstrFile )
+      {
 #if UNICODE
-      wcscpy(m_ofn.lpstrFile,_qtd->selectedFiles().at(0).unicode());
+         wcscpy(m_ofn.lpstrFile,_qtd->selectedFiles().at(0).unicode());
 #else
-      strcpy(m_ofn.lpstrFile,_qtd->selectedFiles().at(0).toAscii().constData());
+         strcpy(m_ofn.lpstrFile,_qtd->selectedFiles().at(0).toAscii().constData());
 #endif
+      }
       return 1;
    }
    else
