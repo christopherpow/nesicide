@@ -417,10 +417,10 @@ DWORD WINAPI GetSysColor(
       return 0xf0f0f0;
       break;
    case COLOR_BTNHIGHLIGHT:
-      return 0xb0b0b0;
+      return 0xffffff;
       break;
    case COLOR_APPWORKSPACE:
-      return 0xe0e0e0;
+      return 0xababab;
       break;
    }
    return 0xffffff;
@@ -4850,6 +4850,12 @@ BOOL CReBarCtrl::Create(
    // Downcast to save having to do it all over the place...
    _qtd = dynamic_cast<QToolBar*>(_qt);
    
+   _qtd->setStyleSheet("QToolBar {"
+                          "background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
+                          "stop: 0 #f0f0f0, stop: .4 #ffffff, stop: 1 #ababab);"
+                          "border-color: #3f3f3f;"
+                       "}");
+   
    _qtd->setMovable(false);
    CRect clientRect;
    pParentWnd->GetClientRect(&clientRect);
@@ -5472,12 +5478,25 @@ BOOL CWinThread::PostThreadMessage(
 
 void CDocument::SetTitle(CString title )
 {
+   CString appName;
+   QString windowTitle;
+   QFileInfo fileInfo;
+   
    m_docTitle = title;
-//#if UNICODE
-//   emit documentTitleChanged(QString::fromWCharArray((LPCTSTR)title));
-//#else
-//   emit documentTitleChanged(QString::fromAscii((LPCTSTR)title));
-//#endif
+   
+#if UNICODE
+   windowTitle = QString::fromWCharArray((LPCTSTR)title);
+   fileInfo.setFile(windowTitle);
+   m_pDocTemplate->GetDocString(appName,CDocTemplate::windowTitle);
+   windowTitle = fileInfo.fileName() + QString::fromWCharArray((LPCTSTR)appName);
+   ptrToTheApp->qtMainWindow->setWindowTitle(windowTitle);
+#else
+   windowTitle = QString::fromAscii((LPCTSTR)title);
+   fileInfo.setFile(windowTitle);
+   m_pDocTemplate->GetDocString(appName,CDocTemplate::windowTitle);
+   windowTitle = fileInfo.fileName() + QString::fromAscii((LPCTSTR)appName);
+   ptrToTheApp->qtMainWindow->setWindowTitle(windowTitle);
+#endif
 }
 
 POSITION CDocument::GetFirstViewPosition() const 
@@ -5539,12 +5558,14 @@ BOOL CDocTemplate::GetDocString(
    switch ( index )
    {
    case windowTitle:
+      rString = " - FamiTracker";
       break;
       
    case docName:
       break;
       
    case fileNewName:
+      rString = "Untitled";
       break;
       
    case filterName:
@@ -5610,6 +5631,9 @@ CDocument* CSingleDocTemplate::OpenDocumentFile(
    else
    {
       m_pDoc->OnNewDocument();
+      CString title;
+      GetDocString(title,CDocTemplate::fileNewName);
+      m_pDoc->SetTitle(title);
    }
    InitialUpdateFrame(m_pFrameWnd,m_pDoc);
    return m_pDoc;
@@ -7121,6 +7145,23 @@ CFileDialog::CFileDialog(
    if ( dwFlags&OFN_ALLOWMULTISELECT )
    {
       _qtd->setFileMode(QFileDialog::ExistingFiles);
+   }
+   if ( dwFlags&OFN_OVERWRITEPROMPT )
+   {
+      _qtd->setConfirmOverwrite(true);
+   }
+   if ( dwFlags&OFN_HIDEREADONLY )
+   {
+      _qtd->setOption(QFileDialog::ReadOnly,false);
+   }
+   if ( dwFlags&OFN_FILEMUSTEXIST )
+   {
+   }
+   if ( dwFlags&OFN_PATHMUSTEXIST )
+   {
+   }
+   if ( dwFlags&OFN_EXPLORER )
+   {
    }
    if ( bOpenFileDialog )
    {

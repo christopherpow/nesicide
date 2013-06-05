@@ -1706,10 +1706,6 @@ protected:
 class CDocTemplate;
 class CDocument : public CCmdTarget
 {
-//   Q_OBJECT
-//   // Qt interfaces
-//signals:
-//   void documentTitleChanged(QString title);
 public:
    CDocument() : m_pDocTemplate(NULL) {}
    void AssertValid() const {}
