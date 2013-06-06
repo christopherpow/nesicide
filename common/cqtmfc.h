@@ -10,6 +10,7 @@
 #include <QPainter>
 #include <QDebug>
 #include <QPen>
+#include <QBitmap>
 #include <QBrush>
 #include <QSize>
 #include <QStatusBar>
@@ -1750,13 +1751,24 @@ protected:
    CDocument* m_pDocument;
 };
 
-class CMenu : public CCmdTarget
+class CMenu : public QObject, public CCmdTarget
 {
+   Q_OBJECT
    // Qt interfaces
 public:
    QMenu* toQMenu() { return _qtd; }
    HMENU m_hMenu;
-   
+   QList<QObject*>* menuActions() { return &_menuActions; }
+protected:
+   QList<QObject*> _menuActions;
+   QHash<int,QAction*> mfcToQtAction;   
+public:
+   QHash<int,QAction*>* mfcToQtActionMap() { return &mfcToQtAction; }
+public slots:
+   void menuAction_triggered();
+signals:
+   void menuAction_triggered(int id);
+      
    // MFC interface
 public:
    CMenu();

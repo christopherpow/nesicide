@@ -687,6 +687,27 @@ void CFrameEditor::contextMenuEvent(QContextMenuEvent *event)
    OnContextMenu(this,CPoint(event->pos()));
 }
 
+void CFrameEditor::menuAction_triggered(int id)
+{
+   typedef void (CFrameEditor::*actionHandler)();
+   actionHandler actionHandlers[] =
+   {
+      &CFrameEditor::OnModuleInsertFrame,
+      &CFrameEditor::OnModuleRemoveFrame,
+      &CFrameEditor::OnModuleDuplicateFrame,
+      &CFrameEditor::OnModuleDuplicateFramePatterns,
+      &CFrameEditor::OnModuleMoveFrameUp,
+      &CFrameEditor::OnModuleMoveFrameDown,
+      NULL, // CPTODO?
+      &CFrameEditor::OnFrameCopy,
+      &CFrameEditor::OnFramePaste
+   };
+   if ( id >= 0 )
+   {
+      (this->*((actionHandlers[id])))();
+   }
+}
+
 void CFrameEditor::focusOutEvent(QFocusEvent *)
 {
    OnKillFocus(NULL);
@@ -782,7 +803,6 @@ void CFrameEditor::keyPressEvent(QKeyEvent *event)
 void CFrameEditor::paintEvent(QPaintEvent *event)
 {
    OnPaint();
-   
 }
 
 void CFrameEditor::mouseMoveEvent(QMouseEvent *event)

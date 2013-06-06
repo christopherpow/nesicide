@@ -1,8 +1,6 @@
 #include "cqtmfc.h"
 #include "cqtmfc_famitracker.h"
 
-#include <QToolBar>
-
 #include "stdafx.h"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -186,33 +184,73 @@ void qtMfcInitMenuResource_IDR_PATTERN_POPUP(CMenu* parent)
    
 void qtMfcInitMenuResource_IDR_FRAME_POPUP(CMenu* parent)
 {
+   QHash<int,QAction*>* mfcToQtAction = parent->mfcToQtActionMap();
+   QMenu* menu = dynamic_cast<QMenu*>(parent->toQMenu());
+   QAction* menuAction;
+      
 //   IDR_FRAME_POPUP MENU 
 //   BEGIN
 //       POPUP "Frame"
    parent->CreatePopupMenu();
 //       BEGIN
 //           MENUITEM "&Insert frame\tIns",          ID_MODULE_INSERTFRAME
-   parent->AppendMenu(MF_STRING,ID_MODULE_INSERTFRAME,"&Insert frame\tIns");
+   menuAction = new QAction("&Insert frame\tIns",menu);
+   QObject::connect(menuAction,SIGNAL(triggered()),parent,SLOT(menuAction_triggered()));
+   parent->menuActions()->append(menuAction);
+   menu->addAction(menuAction); 
+   mfcToQtAction->insert(ID_MODULE_INSERTFRAME,menuAction);
 //           MENUITEM "&Remove frame\tDel",          ID_MODULE_REMOVEFRAME
-   parent->AppendMenu(MF_STRING,ID_MODULE_REMOVEFRAME,"&Remove frame\tDel");
+   menuAction = new QAction("&Remove frame\tDel",menu);
+   QObject::connect(menuAction,SIGNAL(triggered()),parent,SLOT(menuAction_triggered()));
+   parent->menuActions()->append(menuAction);
+   menu->addAction(menuAction); 
+   mfcToQtAction->insert(ID_MODULE_REMOVEFRAME,menuAction);
 //           MENUITEM "&Duplicate frame",            ID_MODULE_DUPLICATEFRAME
-   parent->AppendMenu(MF_STRING,ID_MODULE_DUPLICATEFRAME,"&Duplicate frame");
+   menuAction = new QAction("&Duplicate frame",menu);
+   QObject::connect(menuAction,SIGNAL(triggered()),parent,SLOT(menuAction_triggered()));
+   parent->menuActions()->append(menuAction);
+   menu->addAction(menuAction); 
+   mfcToQtAction->insert(ID_MODULE_DUPLICATEFRAME,menuAction);
 //           MENUITEM "Duplicate patterns",          ID_MODULE_DUPLICATEFRAMEPATTERNS
-   parent->AppendMenu(MF_STRING,ID_MODULE_DUPLICATEFRAMEPATTERNS,"Duplicate patterns");
+   menuAction = new QAction("Duplicate patterns",menu);
+   QObject::connect(menuAction,SIGNAL(triggered()),parent,SLOT(menuAction_triggered()));
+   parent->menuActions()->append(menuAction);
+   menu->addAction(menuAction); 
+   mfcToQtAction->insert(ID_MODULE_DUPLICATEFRAMEPATTERNS,menuAction);
 //           MENUITEM SEPARATOR
-   parent->AppendMenu(MF_SEPARATOR);
+   menu->addSeparator(); 
 //           MENUITEM "Move &up",                    ID_MODULE_MOVEFRAMEUP
-   parent->AppendMenu(MF_STRING,ID_MODULE_MOVEFRAMEUP,"Move &up");
+   menuAction = new QAction("Move &up",menu);
+   QObject::connect(menuAction,SIGNAL(triggered()),parent,SLOT(menuAction_triggered()));
+   parent->menuActions()->append(menuAction);
+   menu->addAction(menuAction); 
+   mfcToQtAction->insert(ID_MODULE_MOVEFRAMEUP,menuAction);
 //           MENUITEM "Move d&own",                  ID_MODULE_MOVEFRAMEDOWN
-   parent->AppendMenu(MF_STRING,ID_MODULE_MOVEFRAMEDOWN,"Move d&own");
+   menuAction = new QAction("Move d&own",menu);
+   QObject::connect(menuAction,SIGNAL(triggered()),parent,SLOT(menuAction_triggered()));
+   parent->menuActions()->append(menuAction);
+   menu->addAction(menuAction); 
+   mfcToQtAction->insert(ID_MODULE_MOVEFRAMEDOWN,menuAction);
 //           MENUITEM SEPARATOR
-   parent->AppendMenu(MF_SEPARATOR);
+   menu->addSeparator(); 
 //           MENUITEM "Cu&t\tCtrl+X",                ID_FRAME_CUT
-   parent->AppendMenu(MF_STRING,ID_FRAME_CUT,"Cu&t\tCtrl+X");
+   menuAction = new QAction("Cu&t\tCtrl+X",menu);
+   QObject::connect(menuAction,SIGNAL(triggered()),parent,SLOT(menuAction_triggered()));
+   parent->menuActions()->append(menuAction);
+   menu->addAction(menuAction); 
+   mfcToQtAction->insert(ID_FRAME_CUT,menuAction);
 //           MENUITEM "&Copy\tCtrl+C",               ID_FRAME_COPY
-   parent->AppendMenu(MF_STRING,ID_FRAME_COPY,"&Copy\tCtrl+C");
+   menuAction = new QAction("&Copy\tCtrl+C",menu);
+   QObject::connect(menuAction,SIGNAL(triggered()),parent,SLOT(menuAction_triggered()));
+   parent->menuActions()->append(menuAction);
+   menu->addAction(menuAction); 
+   mfcToQtAction->insert(ID_FRAME_COPY,menuAction);
 //           MENUITEM "&Paste\tCtrl+V",              ID_FRAME_PASTE
-   parent->AppendMenu(MF_STRING,ID_FRAME_PASTE,"&Paste\tCtrl+V");
+   menuAction = new QAction("&Paste\tCtrl+V",menu);
+   QObject::connect(menuAction,SIGNAL(triggered()),parent,SLOT(menuAction_triggered()));
+   parent->menuActions()->append(menuAction);
+   menu->addAction(menuAction); 
+   mfcToQtAction->insert(ID_FRAME_PASTE,menuAction);
 //       END
 //   END
 }

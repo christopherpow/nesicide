@@ -5781,6 +5781,11 @@ CMenu::CMenu()
    m_hMenu = (HMENU)_qtd;
 }
 
+void CMenu::menuAction_triggered()
+{
+   emit menuAction_triggered(_menuActions.indexOf(sender()));
+}
+
 BOOL CMenu::LoadMenu(
    UINT nIDResource 
 )
@@ -5903,6 +5908,10 @@ BOOL CMenu::TrackPopupMenu(
    LPCRECT lpRect
 )
 {
+   if ( !(nFlags&TPM_RETURNCMD) )
+   {
+      QObject::connect(this,SIGNAL(menuAction_triggered(int)),pWnd,SLOT(menuAction_triggered(int)));
+   }
    QAction* action = _qtd->exec(QCursor::pos());
    int result = 0;
    if ( action && (nFlags&TPM_RETURNCMD) )
@@ -5913,7 +5922,10 @@ BOOL CMenu::TrackPopupMenu(
    {
       result = 1;
    }
-      
+   if ( !(nFlags&TPM_RETURNCMD) )
+   {
+      QObject::disconnect(this,SIGNAL(menuAction_triggered(int)),pWnd,SLOT(menuAction_triggered(int)));
+   }  
    return result;
 }
 

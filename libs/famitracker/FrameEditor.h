@@ -38,6 +38,7 @@ public slots:
    void updateViews(long hint);
    void verticalScrollBar_actionTriggered(int action);
    void horizontalScrollBar_actionTriggered(int action);
+   void menuAction_triggered(int id);
 protected:
    void paintEvent(QPaintEvent *event);
    void mouseMoveEvent(QMouseEvent *event);

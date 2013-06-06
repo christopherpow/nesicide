@@ -47,7 +47,6 @@
 #include "CommentsDlg.h"
 #include "InstrumentFileTree.h"
 
-typedef void (CMainFrame::*actionHandler)();
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -329,7 +328,6 @@ void CMainFrame::showEvent(QShowEvent *)
       qDebug("START CONNECTING BURIED SIGNALS NOW...");
       QObject::connect(m_pDocument,SIGNAL(setModified(bool)),this,SIGNAL(editor_modificationChanged(bool)));      
       QObject::connect(m_pDocument,SIGNAL(setModified(bool)),this,SLOT(setModified(bool)));
-      QObject::connect(m_pDocument,SIGNAL(documentTitleChanged(QString)),this,SLOT(documentTitleChanged(QString)));
       QObject::connect(&m_wndToolBar,SIGNAL(toolBarAction_triggered(int)),this,SLOT(toolBarAction_triggered(int)));
       QObject::connect(&m_wndInstToolBar,SIGNAL(toolBarAction_triggered(int)),this,SLOT(instToolBarAction_triggered(int)));
       QObject::connect(m_wndOctaveBar.GetDlgItem(IDC_OCTAVE)->toQWidget(),SIGNAL(currentIndexChanged(int)),this,SLOT(octave_currentIndexChanged(int)));
@@ -614,13 +612,9 @@ void CMainFrame::setModified(bool modified)
 {
 }
 
-void CMainFrame::documentTitleChanged(QString title)
-{
-   AfxGetApp()->qtMainWindow->setWindowTitle(title);
-}
-
 void CMainFrame::toolBarAction_triggered(int id)
 {
+   typedef void (CMainFrame::*actionHandler)();
    actionHandler actionHandlers[] =
    {
       &CMainFrame::toolBarAction_newDocument,
@@ -776,6 +770,7 @@ void CMainFrame::toolBarAction_createNSF()
 
 void CMainFrame::instToolBarAction_triggered(int id)
 {
+   typedef void (CMainFrame::*actionHandler)();
    actionHandler actionHandlers[] =
    {
       &CMainFrame::instToolBarAction_new,
@@ -793,9 +788,7 @@ void CMainFrame::instToolBarAction_triggered(int id)
 
 void CMainFrame::instToolBarAction_new()
 {
-   NMHDR nmhdr;
-   LRESULT result;
-   OnNewInstrumentMenu(&nmhdr,&result);
+   OnAddInstrument();
 }
 
 void CMainFrame::instToolBarAction_remove()
