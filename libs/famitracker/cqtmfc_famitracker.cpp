@@ -191,7 +191,6 @@ void qtMfcInitMenuResource_IDR_FRAME_POPUP(CMenu* parent)
 //   IDR_FRAME_POPUP MENU 
 //   BEGIN
 //       POPUP "Frame"
-   parent->CreatePopupMenu();
 //       BEGIN
 //           MENUITEM "&Insert frame\tIns",          ID_MODULE_INSERTFRAME
    menuAction = new QAction("&Insert frame\tIns",menu);
@@ -257,71 +256,140 @@ void qtMfcInitMenuResource_IDR_FRAME_POPUP(CMenu* parent)
 
 void qtMfcInitMenuResource_IDR_INSTRUMENT_POPUP(CMenu* parent)
 {
+   QHash<int,QAction*>* mfcToQtAction = parent->mfcToQtActionMap();
+   QMenu* menu = dynamic_cast<QMenu*>(parent->toQMenu());
+   QAction* menuAction;
+      
 //   IDR_INSTRUMENT_POPUP MENU 
 //   BEGIN
 //       POPUP "Instrument"
-   parent->CreatePopupMenu();
 //       BEGIN
 //           MENUITEM "Add",                         ID_INSTRUMENT_NEW
-   parent->AppendMenu(MF_STRING,ID_INSTRUMENT_NEW,"Add");
+   menuAction = new QAction("Add",menu);
+   QObject::connect(menuAction,SIGNAL(triggered()),parent,SLOT(menuAction_triggered()));
+   parent->menuActions()->append(menuAction);
+   menu->addAction(menuAction); 
+   mfcToQtAction->insert(ID_INSTRUMENT_NEW,menuAction);
 //           MENUITEM "Remove",                      ID_INSTRUMENT_REMOVE
-   parent->AppendMenu(MF_STRING,ID_INSTRUMENT_REMOVE,"Remove");
+   menuAction = new QAction("Remove",menu);
+   QObject::connect(menuAction,SIGNAL(triggered()),parent,SLOT(menuAction_triggered()));
+   parent->menuActions()->append(menuAction);
+   menu->addAction(menuAction); 
+   mfcToQtAction->insert(ID_INSTRUMENT_REMOVE,menuAction);
 //           MENUITEM SEPARATOR
-   parent->AppendMenu(MF_SEPARATOR);
+   menu->addSeparator(); 
 //           MENUITEM "Clone instrument",            ID_INSTRUMENT_CLONE
-   parent->AppendMenu(MF_STRING,ID_INSTRUMENT_CLONE,"Clone instrument");
+   menuAction = new QAction("Clone instrument",menu);
+   QObject::connect(menuAction,SIGNAL(triggered()),parent,SLOT(menuAction_triggered()));
+   parent->menuActions()->append(menuAction);
+   menu->addAction(menuAction); 
+   mfcToQtAction->insert(ID_INSTRUMENT_CLONE,menuAction);
 //           MENUITEM "Deep clone instrument",       ID_INSTRUMENT_DEEPCLONE
-   parent->AppendMenu(MF_STRING,ID_INSTRUMENT_DEEPCLONE,"Deep clone instrument");
+   menuAction = new QAction("Deep clone instrument",menu);
+   QObject::connect(menuAction,SIGNAL(triggered()),parent,SLOT(menuAction_triggered()));
+   parent->menuActions()->append(menuAction);
+   menu->addAction(menuAction); 
+   mfcToQtAction->insert(ID_INSTRUMENT_DEEPCLONE,menuAction);
 //           MENUITEM SEPARATOR
-   parent->AppendMenu(MF_SEPARATOR);
+   menu->addSeparator(); 
 //           MENUITEM "Edit",                        ID_INSTRUMENT_EDIT
-   parent->AppendMenu(MF_STRING,ID_INSTRUMENT_EDIT,"Edit");
+   menuAction = new QAction("Edit",menu);
+   QObject::connect(menuAction,SIGNAL(triggered()),parent,SLOT(menuAction_triggered()));
+   parent->menuActions()->append(menuAction);
+   menu->addAction(menuAction); 
+   mfcToQtAction->insert(ID_INSTRUMENT_EDIT,menuAction);
 //       END
 //   END
 }
 
 void qtMfcInitMenuResource_IDR_SAMPLES_POPUP(CMenu* parent)
 {
+   QHash<int,QAction*>* mfcToQtAction = parent->mfcToQtActionMap();
+   QMenu* menu = dynamic_cast<QMenu*>(parent->toQMenu());
+   QAction* menuAction;
+      
 //   IDR_SAMPLES_POPUP MENU 
 //   BEGIN
 //       POPUP "Popup"
-   parent->CreatePopupMenu();
 //       BEGIN
 //           MENUITEM "Preview",                     IDC_PREVIEW
-   parent->AppendMenu(MF_STRING,IDC_PREVIEW,"Preview");
+   menuAction = new QAction("Preview",menu);
+   QObject::connect(menuAction,SIGNAL(triggered()),parent,SLOT(menuAction_triggered()));
+   parent->menuActions()->append(menuAction);
+   menu->addAction(menuAction); 
+   mfcToQtAction->insert(IDC_PREVIEW,menuAction);
 //           MENUITEM SEPARATOR
-   parent->AppendMenu(MF_SEPARATOR);
+   menu->addSeparator();
 //           MENUITEM "Edit",                        IDC_EDIT
-   parent->AppendMenu(MF_STRING,IDC_EDIT,"Edit");
+   menuAction = new QAction("Edit",menu);
+   QObject::connect(menuAction,SIGNAL(triggered()),parent,SLOT(menuAction_triggered()));
+   parent->menuActions()->append(menuAction);
+   menu->addAction(menuAction); 
+   mfcToQtAction->insert(IDC_EDIT,menuAction);
 //           MENUITEM SEPARATOR
-   parent->AppendMenu(MF_SEPARATOR);
+   menu->addSeparator();
 //           MENUITEM "Unload",                      IDC_UNLOAD
-   parent->AppendMenu(MF_STRING,IDC_UNLOAD,"Unload");
+   menuAction = new QAction("Unload",menu);
+   QObject::connect(menuAction,SIGNAL(triggered()),parent,SLOT(menuAction_triggered()));
+   parent->menuActions()->append(menuAction);
+   menu->addAction(menuAction); 
+   mfcToQtAction->insert(IDC_UNLOAD,menuAction);
 //           MENUITEM "Save",                        IDC_SAVE
-   parent->AppendMenu(MF_STRING,IDC_SAVE,"Save");
+   menuAction = new QAction("Save",menu);
+   QObject::connect(menuAction,SIGNAL(triggered()),parent,SLOT(menuAction_triggered()));
+   parent->menuActions()->append(menuAction);
+   menu->addAction(menuAction); 
+   mfcToQtAction->insert(IDC_SAVE,menuAction);
 //           MENUITEM "Load",                        IDC_LOAD
-   parent->AppendMenu(MF_STRING,IDC_LOAD,"Load");
+   menuAction = new QAction("Load",menu);
+   QObject::connect(menuAction,SIGNAL(triggered()),parent,SLOT(menuAction_triggered()));
+   parent->menuActions()->append(menuAction);
+   menu->addAction(menuAction); 
+   mfcToQtAction->insert(IDC_LOAD,menuAction);
 //           MENUITEM "Import",                      IDC_IMPORT
-   parent->AppendMenu(MF_STRING,IDC_IMPORT,"Import");
+   menuAction = new QAction("Import",menu);
+   QObject::connect(menuAction,SIGNAL(triggered()),parent,SLOT(menuAction_triggered()));
+   parent->menuActions()->append(menuAction);
+   menu->addAction(menuAction); 
+   mfcToQtAction->insert(IDC_IMPORT,menuAction);
 //       END
 //   END
 }
 
 void qtMfcInitMenuResource_IDR_SAMPLE_WND_POPUP(CMenu* parent)
 {
+   QHash<int,QAction*>* mfcToQtAction = parent->mfcToQtActionMap();
+   QMenu* menu = dynamic_cast<QMenu*>(parent->toQMenu());
+   QAction* menuAction;
+      
 //   IDR_SAMPLE_WND_POPUP MENU 
 //   BEGIN
 //       POPUP "Popup"
-   parent->CreatePopupMenu();
 //       BEGIN
 //           MENUITEM "Sample graph 1",              ID_POPUP_SAMPLEGRAPH1
-   parent->AppendMenu(MF_STRING,ID_POPUP_SAMPLEGRAPH1,"Sample graph 1");
+   menuAction = new QAction("Sample graph 1",menu);
+   QObject::connect(menuAction,SIGNAL(triggered()),parent,SLOT(menuAction_triggered()));
+   parent->menuActions()->append(menuAction);
+   menu->addAction(menuAction); 
+   mfcToQtAction->insert(ID_POPUP_SAMPLEGRAPH1,menuAction);
 //           MENUITEM "Sample graph 2",              ID_POPUP_SAMPLEGRAPH2
-   parent->AppendMenu(MF_STRING,ID_POPUP_SAMPLEGRAPH2,"Sample graph 2");
+   menuAction = new QAction("Sample graph 2",menu);
+   QObject::connect(menuAction,SIGNAL(triggered()),parent,SLOT(menuAction_triggered()));
+   parent->menuActions()->append(menuAction);
+   menu->addAction(menuAction); 
+   mfcToQtAction->insert(ID_POPUP_SAMPLEGRAPH2,menuAction);
 //           MENUITEM "Spectrum analyzer",           ID_POPUP_SPECTRUMANALYZER
-   parent->AppendMenu(MF_STRING,ID_POPUP_SPECTRUMANALYZER,"Spectrum analyzer");
+   menuAction = new QAction("Spectrum analyzer",menu);
+   QObject::connect(menuAction,SIGNAL(triggered()),parent,SLOT(menuAction_triggered()));
+   parent->menuActions()->append(menuAction);
+   menu->addAction(menuAction); 
+   mfcToQtAction->insert(ID_POPUP_SPECTRUMANALYZER,menuAction);
 //           MENUITEM "Nothing",                     ID_POPUP_NOTHING
-   parent->AppendMenu(MF_STRING,ID_POPUP_NOTHING,"Nothing");
+   menuAction = new QAction("Nothing",menu);
+   QObject::connect(menuAction,SIGNAL(triggered()),parent,SLOT(menuAction_triggered()));
+   parent->menuActions()->append(menuAction);
+   menu->addAction(menuAction); 
+   mfcToQtAction->insert(ID_POPUP_NOTHING,menuAction);
 //       END
 //   END
 }

@@ -54,6 +54,7 @@ public slots:
    void loopPoint_textChanged(QString str);
    void edit_clicked();
    void preview_clicked();
+   void menuAction_triggered(int id);
 protected:
    void keyPressEvent(QKeyEvent *event);
    void keyReleaseEvent(QKeyEvent *event);

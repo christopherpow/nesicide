@@ -243,6 +243,24 @@ void CInstrumentEditorDPCM::keyReleaseEvent(QKeyEvent *event)
    PreTranslateMessage(&msg);
 }
 
+void CInstrumentEditorDPCM::menuAction_triggered(int id)
+{
+   typedef void (CInstrumentEditorDPCM::*actionHandler)();
+   actionHandler actionHandlers[] =
+   {
+      &CInstrumentEditorDPCM::OnBnClickedPreview,
+      &CInstrumentEditorDPCM::OnBnClickedEdit,
+      &CInstrumentEditorDPCM::OnBnClickedUnload,
+      &CInstrumentEditorDPCM::OnBnClickedSave,
+      &CInstrumentEditorDPCM::OnBnClickedLoad,
+      &CInstrumentEditorDPCM::OnBnClickedImport
+   };
+   if ( id >= 0 )
+   {
+      (this->*((actionHandlers[id])))();
+   }
+}
+
 // CInstrumentDPCM message handlers
 
 BOOL CInstrumentEditorDPCM::OnInitDialog()
