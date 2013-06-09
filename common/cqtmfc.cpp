@@ -63,13 +63,6 @@ QIcon* qtIconResource(int id)
    return qtIconResources.value(id);
 }
 
-QHash<int,CMenu*> qtMfcMenuResources;
-
-CMenu* qtMfcMenuResource(int id)
-{
-   return qtMfcMenuResources.value(id);
-}
-
 int AfxMessageBox(
    LPCTSTR lpszText,
    UINT nType,
@@ -5778,20 +5771,70 @@ CMenu::CMenu()
    : m_hMenu(NULL)
 {
    _qtd = new QMenu;
-   m_hMenu = (HMENU)_qtd;
+   _cmenu = new QList<CMenu*>;
+   m_hMenu = (HMENU)this;
+}
+
+CMenu::~CMenu()
+{
+   delete _qtd;
+   foreach ( CMenu* menu, *_cmenu )
+   {
+      delete menu;
+   }
+   _cmenu->clear();
+   delete _cmenu;
 }
 
 void CMenu::menuAction_triggered()
 {
-   emit menuAction_triggered(_menuActions.indexOf(sender()));
+   emit menuAction_triggered(qtToMfcMenu.value((QAction*)sender()));
+}
+
+void CMenu::addSubMenu(CMenu* menu)
+{
+   _cmenu->append(menu);
+}
+
+QAction* CMenu::findMenuItem(UINT id)
+{
+   int subMenu;
+   foreach ( CMenu* menu, *_cmenu )
+   {
+      if ( menu->mfcToQtMenuMap()->contains(id) )
+      {
+         return menu->mfcToQtMenuMap()->value(id);
+      }
+   }
+   if ( mfcToQtMenuMap()->contains(id) )
+   {
+      return mfcToQtMenuMap()->value(id);
+   }
+   return NULL;
+}
+
+UINT CMenu::findMenuID(QAction* action)
+{
+   int subMenu;
+   foreach ( CMenu* menu, *_cmenu )
+   {
+      if ( menu->qtToMfcMenuMap()->contains(action) )
+      {
+         return menu->qtToMfcMenuMap()->value(action);
+      }
+   }
+   if ( qtToMfcMenuMap()->contains(action) )
+   {
+      return qtToMfcMenuMap()->value(action);
+   }
+   return 0;
 }
 
 BOOL CMenu::LoadMenu(
    UINT nIDResource 
 )
 {
-   _cmenu.clear();
-   _cmenu.append(qtMfcMenuResource(nIDResource));
+   qtMfcInitMenuResource(nIDResource,this);
    return TRUE;
 }
 
@@ -5799,12 +5842,12 @@ CMenu* CMenu::GetSubMenu(
    int nPos 
 ) const
 {
-   return _cmenu.value(nPos);
+   return _cmenu->value(nPos);
 }
 
 BOOL CMenu::CreatePopupMenu()
 {
-   _cmenu.clear();
+   _cmenu->clear();
    return TRUE;
 }
 
@@ -5889,7 +5932,7 @@ UINT CMenu::CheckMenuItem(
    UINT nCheck 
 )
 {
-   QAction* action = mfcToQtMenu.value(nIDCheckItem);
+   QAction* action = findMenuItem(nIDCheckItem);
    UINT prevState = (UINT)-1;
    if ( action )
    {
@@ -5916,7 +5959,7 @@ BOOL CMenu::TrackPopupMenu(
    int result = 0;
    if ( action && (nFlags&TPM_RETURNCMD) )
    {
-      result = qtToMfcMenu.value(action);
+      result = findMenuID(action);
    }
    else if ( action )
    {

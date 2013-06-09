@@ -3581,3 +3581,84 @@ void CFamiTrackerView::horizontalScrollBar_actionTriggered(int arg1)
    OnHScroll(arg1,mfcHorizontalScrollBar->sliderPosition(),mfcHorizontalScrollBar);
    update();
 }
+
+void CFamiTrackerView::menuAction_triggered(int id)
+{
+   typedef void (CFamiTrackerView::*actionHandler)();
+   QHash<UINT_PTR,actionHandler> actionHandlers;
+   //	ON_COMMAND(ID_EDIT_CUT, OnEditCut)
+   actionHandlers.insert(ID_EDIT_CUT,&CFamiTrackerView::OnEditCut);
+   //	ON_COMMAND(ID_EDIT_DELETE, OnEditDelete)	
+   actionHandlers.insert(ID_EDIT_DELETE,&CFamiTrackerView::OnEditDelete);
+   //	ON_COMMAND(ID_EDIT_SELECTALL, OnEditSelectall)
+   actionHandlers.insert(ID_EDIT_SELECTALL,&CFamiTrackerView::OnEditSelectall);
+   //	ON_COMMAND(ID_EDIT_PASTEOVERWRITE, OnEditPasteoverwrite)
+   actionHandlers.insert(ID_EDIT_PASTEOVERWRITE,&CFamiTrackerView::OnEditPasteoverwrite);
+   //	ON_COMMAND(ID_EDIT_INSTRUMENTMASK, OnEditInstrumentMask)
+   actionHandlers.insert(ID_EDIT_INSTRUMENTMASK,&CFamiTrackerView::OnEditInstrumentMask);
+   //	ON_COMMAND(ID_EDIT_INTERPOLATE, OnEditInterpolate)
+   actionHandlers.insert(ID_EDIT_INTERPOLATE,&CFamiTrackerView::OnEditInterpolate);
+   //	ON_COMMAND(ID_EDIT_REVERSE, OnEditReverse)
+   actionHandlers.insert(ID_EDIT_REVERSE,&CFamiTrackerView::OnEditReverse);
+   //	ON_COMMAND(ID_EDIT_REPLACEINSTRUMENT, OnEditReplaceInstrument)
+   actionHandlers.insert(ID_EDIT_REPLACEINSTRUMENT,&CFamiTrackerView::OnEditReplaceInstrument);
+   //	ON_COMMAND(ID_EDIT_PASTEMIX, OnEditPastemix)
+   actionHandlers.insert(ID_EDIT_PASTEMIX,&CFamiTrackerView::OnEditPastemix);
+   //	ON_COMMAND(ID_TRANSPOSE_DECREASENOTE, OnTransposeDecreasenote)
+   actionHandlers.insert(ID_TRANSPOSE_DECREASENOTE,&CFamiTrackerView::OnTransposeDecreasenote);
+   //	ON_COMMAND(ID_TRANSPOSE_DECREASEOCTAVE, OnTransposeDecreaseoctave)
+   actionHandlers.insert(ID_TRANSPOSE_DECREASEOCTAVE,&CFamiTrackerView::OnTransposeDecreaseoctave);
+   //	ON_COMMAND(ID_TRANSPOSE_INCREASENOTE, OnTransposeIncreasenote)
+   actionHandlers.insert(ID_TRANSPOSE_INCREASENOTE,&CFamiTrackerView::OnTransposeIncreasenote);
+   //	ON_COMMAND(ID_TRANSPOSE_INCREASEOCTAVE, OnTransposeIncreaseoctave)
+   actionHandlers.insert(ID_TRANSPOSE_INCREASEOCTAVE,&CFamiTrackerView::OnTransposeIncreaseoctave);
+   //	ON_COMMAND(ID_TRACKER_PLAYROW, OnTrackerPlayrow)
+   actionHandlers.insert(ID_TRACKER_PLAYROW,&CFamiTrackerView::OnTrackerPlayrow);
+   //	ON_COMMAND(ID_TRACKER_EDIT, OnTrackerEdit)
+   actionHandlers.insert(ID_TRACKER_EDIT,&CFamiTrackerView::OnTrackerEdit);
+   //	ON_COMMAND(ID_TRACKER_PAL, OnTrackerPal)
+   actionHandlers.insert(ID_TRACKER_PAL,&CFamiTrackerView::OnTrackerPal);
+   //	ON_COMMAND(ID_TRACKER_NTSC, OnTrackerNtsc)
+   actionHandlers.insert(ID_TRACKER_NTSC,&CFamiTrackerView::OnTrackerNtsc);
+   //	ON_COMMAND(ID_SPEED_CUSTOM, OnSpeedCustom)
+   actionHandlers.insert(ID_SPEED_CUSTOM,&CFamiTrackerView::OnSpeedCustom);
+   //	ON_COMMAND(ID_SPEED_DEFAULT, OnSpeedDefault)
+   actionHandlers.insert(ID_SPEED_DEFAULT,&CFamiTrackerView::OnSpeedDefault);
+   //	ON_COMMAND(ID_TRACKER_TOGGLECHANNEL, OnTrackerToggleChannel)
+   actionHandlers.insert(ID_TRACKER_TOGGLECHANNEL,&CFamiTrackerView::OnTrackerToggleChannel);
+   //	ON_COMMAND(ID_TRACKER_SOLOCHANNEL, OnTrackerSoloChannel)
+   actionHandlers.insert(ID_TRACKER_SOLOCHANNEL,&CFamiTrackerView::OnTrackerSoloChannel);
+   //	ON_COMMAND(ID_CMD_OCTAVE_NEXT, OnNextOctave)
+   actionHandlers.insert(ID_CMD_OCTAVE_NEXT,&CFamiTrackerView::OnNextOctave);
+   //	ON_COMMAND(ID_CMD_OCTAVE_PREVIOUS, OnPreviousOctave)
+   actionHandlers.insert(ID_CMD_OCTAVE_PREVIOUS,&CFamiTrackerView::OnPreviousOctave);
+   //	ON_COMMAND(ID_CMD_PASTE_OVERWRITE, OnPasteOverwrite)
+   actionHandlers.insert(ID_CMD_PASTE_OVERWRITE,&CFamiTrackerView::OnPasteOverwrite);
+   //	ON_COMMAND(ID_CMD_PASTE_MIXED, OnPasteMixed)	
+   actionHandlers.insert(ID_CMD_PASTE_MIXED,&CFamiTrackerView::OnPasteMixed);
+   //	ON_COMMAND(ID_CMD_INCREASESTEPSIZE, OnIncreaseStepSize)
+   actionHandlers.insert(ID_CMD_INCREASESTEPSIZE,&CFamiTrackerView::OnIncreaseStepSize);
+   //	ON_COMMAND(ID_CMD_DECREASESTEPSIZE, OnDecreaseStepSize)
+   actionHandlers.insert(ID_CMD_DECREASESTEPSIZE,&CFamiTrackerView::OnDecreaseStepSize);
+   //	ON_COMMAND(ID_CMD_STEP_UP, OnOneStepUp)
+   actionHandlers.insert(ID_CMD_STEP_UP,&CFamiTrackerView::OnOneStepUp);
+   //	ON_COMMAND(ID_CMD_STEP_DOWN, OnOneStepDown)	
+   actionHandlers.insert(ID_CMD_STEP_DOWN,&CFamiTrackerView::OnOneStepDown);
+   //	ON_COMMAND(ID_POPUP_TOGGLECHANNEL, OnTrackerToggleChannel)
+   actionHandlers.insert(ID_POPUP_TOGGLECHANNEL,&CFamiTrackerView::OnTrackerToggleChannel);
+   //	ON_COMMAND(ID_POPUP_SOLOCHANNEL, OnTrackerSoloChannel)
+   actionHandlers.insert(ID_POPUP_SOLOCHANNEL,&CFamiTrackerView::OnTrackerSoloChannel);
+   //	ON_COMMAND(ID_POPUP_UNMUTEALLCHANNELS, OnTrackerUnmuteAllChannels)
+   actionHandlers.insert(ID_POPUP_UNMUTEALLCHANNELS,&CFamiTrackerView::OnTrackerUnmuteAllChannels);
+   //	ON_COMMAND(ID_BLOCK_START, OnBlockStart)	
+   actionHandlers.insert(ID_BLOCK_START,&CFamiTrackerView::OnBlockStart);
+   //	ON_COMMAND(ID_BLOCK_END, OnBlockEnd)
+   actionHandlers.insert(ID_BLOCK_END,&CFamiTrackerView::OnBlockEnd);
+   //	ON_COMMAND(ID_POPUP_PICKUPROW, OnPickupRow)
+   actionHandlers.insert(ID_POPUP_PICKUPROW,&CFamiTrackerView::OnPickupRow);
+   
+   if ( actionHandlers.contains(id) )
+   {
+      (this->*((actionHandlers[id])))();
+   }   
+}

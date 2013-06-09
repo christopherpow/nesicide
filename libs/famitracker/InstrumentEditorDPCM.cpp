@@ -246,16 +246,21 @@ void CInstrumentEditorDPCM::keyReleaseEvent(QKeyEvent *event)
 void CInstrumentEditorDPCM::menuAction_triggered(int id)
 {
    typedef void (CInstrumentEditorDPCM::*actionHandler)();
-   actionHandler actionHandlers[] =
-   {
-      &CInstrumentEditorDPCM::OnBnClickedPreview,
-      &CInstrumentEditorDPCM::OnBnClickedEdit,
-      &CInstrumentEditorDPCM::OnBnClickedUnload,
-      &CInstrumentEditorDPCM::OnBnClickedSave,
-      &CInstrumentEditorDPCM::OnBnClickedLoad,
-      &CInstrumentEditorDPCM::OnBnClickedImport
-   };
-   if ( id >= 0 )
+   QHash<UINT_PTR,actionHandler> actionHandlers;
+   //	ON_BN_CLICKED(IDC_LOAD, OnBnClickedLoad)
+   actionHandlers.insert(IDC_LOAD,&CInstrumentEditorDPCM::OnBnClickedLoad);
+   //	ON_BN_CLICKED(IDC_UNLOAD, OnBnClickedUnload)
+   actionHandlers.insert(IDC_UNLOAD,&CInstrumentEditorDPCM::OnBnClickedUnload);
+   //	ON_BN_CLICKED(IDC_IMPORT, OnBnClickedImport)
+   actionHandlers.insert(IDC_IMPORT,&CInstrumentEditorDPCM::OnBnClickedImport);
+   //	ON_BN_CLICKED(IDC_SAVE, OnBnClickedSave)
+   actionHandlers.insert(IDC_SAVE,&CInstrumentEditorDPCM::OnBnClickedSave);
+   //	ON_BN_CLICKED(IDC_EDIT, &CInstrumentEditorDPCM::OnBnClickedEdit)
+   actionHandlers.insert(IDC_EDIT,&CInstrumentEditorDPCM::OnBnClickedEdit);
+   //	ON_BN_CLICKED(IDC_PREVIEW, &CInstrumentEditorDPCM::OnBnClickedPreview)
+   actionHandlers.insert(IDC_PREVIEW,&CInstrumentEditorDPCM::OnBnClickedPreview);
+   
+   if ( actionHandlers.contains(id) )
    {
       (this->*((actionHandlers[id])))();
    }

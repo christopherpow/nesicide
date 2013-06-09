@@ -85,6 +85,7 @@ public slots:
    void updateViews(long hint);
    void verticalScrollBar_actionTriggered(int action);
    void horizontalScrollBar_actionTriggered(int action);
+   void menuAction_triggered(int id);
    
 public:
 	CFamiTrackerView(CWnd* parent = 0);

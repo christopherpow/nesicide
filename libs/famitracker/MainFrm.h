@@ -381,6 +381,7 @@ public slots:
    void tempoSpin_valueChanged(int arg1, int arg2);
    void rowsSpin_valueChanged(int arg1, int arg2);
    void framesSpin_valueChanged(int arg1, int arg2);
+   void menuAction_triggered(int id);
    
 signals:
    void addToolBarWidget(QToolBar* toolBar);

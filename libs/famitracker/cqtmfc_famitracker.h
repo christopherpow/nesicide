@@ -9,8 +9,6 @@ extern QHash<int,CBitmap*> qtMfcBitmapResources;
 
 extern QHash<int,QIcon*> qtIconResources;
 
-extern QHash<int,CMenu*> qtMfcMenuResources;
-
 void qtMfcInit();
 
 void qtMfcInitDialogResource(UINT dlgID,CDialog* parent);

@@ -1757,13 +1757,13 @@ class CMenu : public QObject, public CCmdTarget
    // Qt interfaces
 public:
    QMenu* toQMenu() { return _qtd; }
+   void addSubMenu(CMenu* menu);
+   QAction* findMenuItem(UINT id);
+   UINT findMenuID(QAction* action);
    HMENU m_hMenu;
-   QList<QObject*>* menuActions() { return &_menuActions; }
-protected:
-   QList<QObject*> _menuActions;
-   QHash<int,QAction*> mfcToQtAction;   
 public:
-   QHash<int,QAction*>* mfcToQtActionMap() { return &mfcToQtAction; }
+   QHash<UINT_PTR,QAction*>* mfcToQtMenuMap() { return &mfcToQtMenu; }
+   QHash<QAction*,UINT_PTR>* qtToMfcMenuMap() { return &qtToMfcMenu; }
 public slots:
    void menuAction_triggered();
 signals:
@@ -1772,6 +1772,7 @@ signals:
    // MFC interface
 public:
    CMenu();
+   virtual ~CMenu();
    BOOL CreatePopupMenu();
    BOOL LoadMenu(
       UINT nIDResource 
@@ -1806,8 +1807,8 @@ public:
    );
    BOOL DestroyMenu( );
 private:
-   QList<CMenu*> _cmenu;
    QMenu* _qtd;
+   QList<CMenu*>* _cmenu;
    QHash<UINT_PTR,QAction*> mfcToQtMenu;
    QHash<QAction*,UINT_PTR> qtToMfcMenu;
 };
@@ -3543,8 +3544,6 @@ CString qtMfcStringResource(int id);
 CBitmap* qtMfcBitmapResource(int id);
 
 QIcon* qtIconResource(int id);
-
-CMenu* qtMfcMenuResource(int id);
 
 void openFile(QString fileName);
 

@@ -690,19 +690,25 @@ void CFrameEditor::contextMenuEvent(QContextMenuEvent *event)
 void CFrameEditor::menuAction_triggered(int id)
 {
    typedef void (CFrameEditor::*actionHandler)();
-   actionHandler actionHandlers[] =
-   {
-      &CFrameEditor::OnModuleInsertFrame,
-      &CFrameEditor::OnModuleRemoveFrame,
-      &CFrameEditor::OnModuleDuplicateFrame,
-      &CFrameEditor::OnModuleDuplicateFramePatterns,
-      &CFrameEditor::OnModuleMoveFrameUp,
-      &CFrameEditor::OnModuleMoveFrameDown,
-      NULL, // CPTODO?
-      &CFrameEditor::OnFrameCopy,
-      &CFrameEditor::OnFramePaste
-   };
-   if ( id >= 0 )
+   QHash<UINT_PTR,actionHandler> actionHandlers;
+   //	ON_COMMAND(ID_FRAME_COPY, OnFrameCopy)
+   actionHandlers.insert(ID_FRAME_COPY, &CFrameEditor::OnFrameCopy);
+   //	ON_COMMAND(ID_FRAME_PASTE, OnFramePaste)
+   actionHandlers.insert(ID_FRAME_PASTE, &CFrameEditor::OnFramePaste);
+   //	ON_COMMAND(ID_MODULE_INSERTFRAME, OnModuleInsertFrame)
+   actionHandlers.insert(ID_MODULE_INSERTFRAME, &CFrameEditor::OnModuleInsertFrame);
+   //	ON_COMMAND(ID_MODULE_REMOVEFRAME, OnModuleRemoveFrame)
+   actionHandlers.insert(ID_MODULE_REMOVEFRAME, &CFrameEditor::OnModuleRemoveFrame);
+   //	ON_COMMAND(ID_MODULE_DUPLICATEFRAME, OnModuleDuplicateFrame)
+   actionHandlers.insert(ID_MODULE_DUPLICATEFRAME, &CFrameEditor::OnModuleDuplicateFrame);
+   //	ON_COMMAND(ID_MODULE_DUPLICATEFRAMEPATTERNS, OnModuleDuplicateFramePatterns)
+   actionHandlers.insert(ID_MODULE_DUPLICATEFRAMEPATTERNS, &CFrameEditor::OnModuleDuplicateFramePatterns);
+   //	ON_COMMAND(ID_MODULE_MOVEFRAMEDOWN, OnModuleMoveFrameDown)
+   actionHandlers.insert(ID_MODULE_MOVEFRAMEDOWN, &CFrameEditor::OnModuleMoveFrameDown);
+   //	ON_COMMAND(ID_MODULE_MOVEFRAMEUP, OnModuleMoveFrameUp)
+   actionHandlers.insert(ID_MODULE_MOVEFRAMEUP, &CFrameEditor::OnModuleMoveFrameUp);
+   
+   if ( actionHandlers.contains(id) )
    {
       (this->*((actionHandlers[id])))();
    }
