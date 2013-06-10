@@ -4655,8 +4655,16 @@ CFrameWnd::CFrameWnd(CWnd *parent)
    centralWidget->setLayout(gridLayout);
    
    m_pMenuBar = new QMenuBar;
-//   m_pMenuBar->addMenu(qtMfcMenuResource(128).toQMenu());
-//   ptrToTheApp->qtMainWindow->setMenuBar(m_pMenuBar);
+   m_pMenu = new CMenu;
+   m_pMenu->LoadMenu(128);
+   m_pMenuBar->addMenu(m_pMenu->GetSubMenu(0)->toQMenu());
+   m_pMenuBar->addMenu(m_pMenu->GetSubMenu(1)->toQMenu());
+   m_pMenuBar->addMenu(m_pMenu->GetSubMenu(2)->toQMenu());
+   m_pMenuBar->addMenu(m_pMenu->GetSubMenu(3)->toQMenu());
+   m_pMenuBar->addMenu(m_pMenu->GetSubMenu(4)->toQMenu());
+   m_pMenuBar->addMenu(m_pMenu->GetSubMenu(5)->toQMenu());
+   m_pMenuBar->addMenu(m_pMenu->GetSubMenu(6)->toQMenu());
+   ptrToTheApp->qtMainWindow->setMenuBar(m_pMenuBar);
 }
 
 CFrameWnd::~CFrameWnd()

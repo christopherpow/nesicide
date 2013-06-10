@@ -72,6 +72,8 @@ class CMutex;
 class CFamiTrackerApp : public CWinApp
 {
    Q_OBJECT
+public slots:
+   void menuAction_triggered(int id);
 public:
 	// Constructor
 	CFamiTrackerApp();

@@ -323,6 +323,13 @@ void CMainFrame::showEvent(QShowEvent *)
       
       QObject::connect(m_pDocument,SIGNAL(updateViews(long)),m_pFrameEditor,SLOT(updateViews(long)));
       QObject::connect(m_pDocument,SIGNAL(updateViews(long)),this,SLOT(updateViews(long)));
+      QObject::connect(m_pMenu->GetSubMenu(0),SIGNAL(menuAction_triggered(int)),this,SLOT(menuAction_triggered(int)));
+      QObject::connect(m_pMenu->GetSubMenu(1),SIGNAL(menuAction_triggered(int)),this,SLOT(menuAction_triggered(int)));
+      QObject::connect(m_pMenu->GetSubMenu(2),SIGNAL(menuAction_triggered(int)),this,SLOT(menuAction_triggered(int)));
+      QObject::connect(m_pMenu->GetSubMenu(3),SIGNAL(menuAction_triggered(int)),this,SLOT(menuAction_triggered(int)));
+      QObject::connect(m_pMenu->GetSubMenu(4),SIGNAL(menuAction_triggered(int)),this,SLOT(menuAction_triggered(int)));
+      QObject::connect(m_pMenu->GetSubMenu(5),SIGNAL(menuAction_triggered(int)),this,SLOT(menuAction_triggered(int)));
+      QObject::connect(m_pMenu->GetSubMenu(6),SIGNAL(menuAction_triggered(int)),this,SLOT(menuAction_triggered(int)));
       
       // Connect buried signals.
       qDebug("START CONNECTING BURIED SIGNALS NOW...");
@@ -935,6 +942,14 @@ void CMainFrame::menuAction_triggered(int id)
 {
    typedef void (CMainFrame::*actionHandler)();
    QHash<UINT_PTR,actionHandler> actionHandlers;
+   //	ON_COMMAND(ID_FILE_GENERALSETTINGS, OnFileGeneralsettings)
+   actionHandlers.insert(ID_FILE_GENERALSETTINGS,&CMainFrame::OnFileGeneralsettings);
+   //	ON_COMMAND(ID_FILE_IMPORTMIDI, OnFileImportmidi)
+   actionHandlers.insert(ID_FILE_IMPORTMIDI,&CMainFrame::OnFileImportmidi);
+   //	ON_COMMAND(ID_FILE_CREATE_NSF, OnCreateNSF)
+   actionHandlers.insert(ID_FILE_CREATE_NSF,&CMainFrame::OnCreateNSF);
+   //	ON_COMMAND(ID_FILE_CREATEWAV, OnCreateWAV)
+   actionHandlers.insert(ID_FILE_CREATEWAV,&CMainFrame::OnCreateWAV);
    //	ON_COMMAND(ID_EDIT_UNDO, OnEditUndo)
    actionHandlers.insert(ID_EDIT_UNDO,&CMainFrame::OnEditUndo);
    //	ON_COMMAND(ID_EDIT_REDO, OnEditRedo)
@@ -943,158 +958,124 @@ void CMainFrame::menuAction_triggered(int id)
    actionHandlers.insert(ID_EDIT_COPY,&CMainFrame::OnEditCopy);
    //	ON_COMMAND(ID_EDIT_PASTE, OnEditPaste)
    actionHandlers.insert(ID_EDIT_PASTE,&CMainFrame::OnEditPaste);
+   //	ON_COMMAND(ID_EDIT_ENABLEMIDI, OnEditEnableMIDI)
+   actionHandlers.insert(ID_EDIT_ENABLEMIDI,&CMainFrame::OnEditEnableMIDI);
    //	ON_COMMAND(ID_EDIT_EXPANDPATTERNS, OnEditExpandpatterns)
    actionHandlers.insert(ID_EDIT_EXPANDPATTERNS,&CMainFrame::OnEditExpandpatterns);
    //	ON_COMMAND(ID_EDIT_SHRINKPATTERNS, OnEditShrinkpatterns)
    actionHandlers.insert(ID_EDIT_SHRINKPATTERNS,&CMainFrame::OnEditShrinkpatterns);
-//   POPUP "Popup"
-//   BEGIN
-//       MENUITEM "Cu&t",                        ID_EDIT_CUT
-//       MENUITEM "&Delete",                     ID_POPUP_DELETE
-//       MENUITEM "Select &All",                 ID_EDIT_SELECTALL
-//       MENUITEM SEPARATOR
-//       POPUP "Transpose"
-//       BEGIN
-//           MENUITEM "Increase Note",               ID_TRANSPOSE_INCREASENOTE
-//           MENUITEM "Decrease Note",               ID_TRANSPOSE_DECREASENOTE
-//           MENUITEM "Increase Octave",             ID_TRANSPOSE_INCREASEOCTAVE
-//           MENUITEM "Decrease Octave",             ID_TRANSPOSE_DECREASEOCTAVE
-//       END
-//       MENUITEM "&Interpolate",                ID_EDIT_INTERPOLATE
-//       MENUITEM "&Reverse",                    ID_EDIT_REVERSE
-//       MENUITEM "Pick up row",                 ID_POPUP_PICKUPROW
-//       MENUITEM "R&eplace instrument",         ID_EDIT_REPLACEINSTRUMENT
-//       MENUITEM "&Toggle channel",             ID_POPUP_TOGGLECHANNEL
-//       MENUITEM "&Solo channel",               ID_POPUP_SOLOCHANNEL
-   //	ON_COMMAND(ID_FILE_GENERALSETTINGS, OnFileGeneralsettings)
-   //	ON_COMMAND(ID_FILE_IMPORTMIDI, OnFileImportmidi)
-   //	ON_COMMAND(ID_FILE_CREATE_NSF, OnCreateNSF)
-   //	ON_COMMAND(ID_FILE_CREATEWAV, OnCreateWAV)
-   //	ON_COMMAND(ID_EDIT_ENABLEMIDI, OnEditEnableMIDI)
    //	ON_COMMAND(ID_INSTRUMENT_NEW, OnAddInstrument)
+   actionHandlers.insert(ID_INSTRUMENT_NEW,&CMainFrame::OnAddInstrument);
    //	ON_COMMAND(ID_INSTRUMENT_REMOVE, OnRemoveInstrument)
+   actionHandlers.insert(ID_INSTRUMENT_REMOVE,&CMainFrame::OnRemoveInstrument);
    //	ON_COMMAND(ID_INSTRUMENT_CLONE, OnCloneInstrument)
+   actionHandlers.insert(ID_INSTRUMENT_CLONE,&CMainFrame::OnCloneInstrument);
    //	ON_COMMAND(ID_INSTRUMENT_DEEPCLONE, OnDeepCloneInstrument)
+   actionHandlers.insert(ID_INSTRUMENT_DEEPCLONE,&CMainFrame::OnDeepCloneInstrument);
    //	ON_COMMAND(ID_INSTRUMENT_SAVE, OnSaveInstrument)
+   actionHandlers.insert(ID_INSTRUMENT_SAVE,&CMainFrame::OnSaveInstrument);
    //	ON_COMMAND(ID_INSTRUMENT_LOAD, OnLoadInstrument)
+   actionHandlers.insert(ID_INSTRUMENT_LOAD,&CMainFrame::OnLoadInstrument);
    //	ON_COMMAND(ID_INSTRUMENT_EDIT, OnEditInstrument)
+   actionHandlers.insert(ID_INSTRUMENT_EDIT,&CMainFrame::OnEditInstrument);
    //	ON_COMMAND(ID_INSTRUMENT_ADD_2A03, OnAddInstrument2A03)
+   actionHandlers.insert(ID_INSTRUMENT_ADD_2A03,&CMainFrame::OnAddInstrument2A03);
    //	ON_COMMAND(ID_INSTRUMENT_ADD_VRC6, OnAddInstrumentVRC6)
+   actionHandlers.insert(ID_INSTRUMENT_ADD_VRC6,&CMainFrame::OnAddInstrumentVRC6);
    //	ON_COMMAND(ID_INSTRUMENT_ADD_VRC7, OnAddInstrumentVRC7)
+   actionHandlers.insert(ID_INSTRUMENT_ADD_VRC7,&CMainFrame::OnAddInstrumentVRC7);
    //	ON_COMMAND(ID_INSTRUMENT_ADD_FDS, OnAddInstrumentFDS)
+   actionHandlers.insert(ID_INSTRUMENT_ADD_FDS,&CMainFrame::OnAddInstrumentFDS);
    //	ON_COMMAND(ID_INSTRUMENT_ADD_MMC5, OnAddInstrumentMMC5)
+   actionHandlers.insert(ID_INSTRUMENT_ADD_MMC5,&CMainFrame::OnAddInstrumentMMC5);
    //	ON_COMMAND(ID_INSTRUMENT_ADD_N163, OnAddInstrumentN163)
+   actionHandlers.insert(ID_INSTRUMENT_ADD_N163,&CMainFrame::OnAddInstrumentN163);
    //	ON_COMMAND(ID_INSTRUMENT_ADD_S5B, OnAddInstrumentS5B)
+   actionHandlers.insert(ID_INSTRUMENT_ADD_S5B,&CMainFrame::OnAddInstrumentS5B);
    //	ON_COMMAND(ID_MODULE_MODULEPROPERTIES, OnModuleModuleproperties)
+   actionHandlers.insert(ID_MODULE_MODULEPROPERTIES,&CMainFrame::OnModuleModuleproperties);
    //	ON_COMMAND(ID_MODULE_CHANNELS, OnModuleChannels)
+   actionHandlers.insert(ID_MODULE_CHANNELS,&CMainFrame::OnModuleChannels);
    //	ON_COMMAND(ID_MODULE_COMMENTS, OnModuleComments)
+   actionHandlers.insert(ID_MODULE_COMMENTS,&CMainFrame::OnModuleComments);
    //	ON_COMMAND(ID_MODULE_INSERTFRAME, OnModuleInsertFrame)
+   actionHandlers.insert(ID_MODULE_INSERTFRAME,&CMainFrame::OnModuleInsertFrame);
    //	ON_COMMAND(ID_MODULE_REMOVEFRAME, OnModuleRemoveFrame)
+   actionHandlers.insert(ID_MODULE_REMOVEFRAME,&CMainFrame::OnModuleRemoveFrame);
    //	ON_COMMAND(ID_MODULE_DUPLICATEFRAME, OnModuleDuplicateFrame)
+   actionHandlers.insert(ID_MODULE_DUPLICATEFRAME,&CMainFrame::OnModuleDuplicateFrame);
    //	ON_COMMAND(ID_MODULE_DUPLICATEFRAMEPATTERNS, OnModuleDuplicateFramePatterns)
+   actionHandlers.insert(ID_MODULE_DUPLICATEFRAMEPATTERNS,&CMainFrame::OnModuleDuplicateFramePatterns);
    //	ON_COMMAND(ID_MODULE_MOVEFRAMEDOWN, OnModuleMoveframedown)
+   actionHandlers.insert(ID_MODULE_MOVEFRAMEDOWN,&CMainFrame::OnModuleMoveframedown);
    //	ON_COMMAND(ID_MODULE_MOVEFRAMEUP, OnModuleMoveframeup)
+   actionHandlers.insert(ID_MODULE_MOVEFRAMEUP,&CMainFrame::OnModuleMoveframeup);
    //	ON_COMMAND(ID_TRACKER_KILLSOUND, OnTrackerKillsound)
+   actionHandlers.insert(ID_TRACKER_KILLSOUND,&CMainFrame::OnTrackerKillsound);
    //	ON_COMMAND(ID_TRACKER_SWITCHTOTRACKINSTRUMENT, OnTrackerSwitchToInstrument)
+   actionHandlers.insert(ID_TRACKER_SWITCHTOTRACKINSTRUMENT,&CMainFrame::OnTrackerSwitchToInstrument);
    //	ON_COMMAND(ID_TRACKER_DPCM, OnTrackerDPCM)
+   actionHandlers.insert(ID_TRACKER_DPCM,&CMainFrame::OnTrackerDPCM);
    //	ON_COMMAND(ID_VIEW_CONTROLPANEL, OnViewControlpanel)
-   //	ON_COMMAND(ID_HELP, CFrameWnd::OnHelp)
-   //	ON_COMMAND(ID_HELP_FINDER, CFrameWnd::OnHelpFinder)
+   actionHandlers.insert(ID_VIEW_CONTROLPANEL,&CMainFrame::OnViewControlpanel);
+//   //	ON_COMMAND(ID_HELP, CFrameWnd::OnHelp)
+//   actionHandlers.insert(ID_HELP,CFrameWnd::OnHelp);
+//   //	ON_COMMAND(ID_HELP_FINDER, CFrameWnd::OnHelpFinder)
+//   actionHandlers.insert(ID_HELP_FINDER,CFrameWnd::OnHelpFinder);
    //	ON_COMMAND(ID_HELP_PERFORMANCE, OnHelpPerformance)
+   actionHandlers.insert(ID_HELP_PERFORMANCE,&CMainFrame::OnHelpPerformance);
    //	ON_COMMAND(ID_HELP_EFFECTTABLE, &CMainFrame::OnHelpEffecttable)
-   //	ON_COMMAND(ID_DEFAULT_HELP, CFrameWnd::OnHelpFinder)
-   //	ON_COMMAND(ID_CONTEXT_HELP, CFrameWnd::OnContextHelp)
+   actionHandlers.insert(ID_HELP_EFFECTTABLE,&CMainFrame::OnHelpEffecttable);
+//   //	ON_COMMAND(ID_DEFAULT_HELP, CFrameWnd::OnHelpFinder)
+//   actionHandlers.insert(ID_DEFAULT_HELP,CFrameWnd::OnHelpFinder);
+//   //	ON_COMMAND(ID_CONTEXT_HELP, CFrameWnd::OnContextHelp)
+//   actionHandlers.insert(ID_CONTEXT_HELP,CFrameWnd::OnContextHelp);
    
    //	ON_COMMAND(ID_FRAMEEDITOR_TOP, OnFrameeditorTop)
+   actionHandlers.insert(ID_FRAMEEDITOR_TOP,&CMainFrame::OnFrameeditorTop);
    //	ON_COMMAND(ID_FRAMEEDITOR_LEFT, OnFrameeditorLeft)
+   actionHandlers.insert(ID_FRAMEEDITOR_LEFT,&CMainFrame::OnFrameeditorLeft);
    
    //	ON_COMMAND(ID_NEXT_FRAME, OnNextFrame)
+   actionHandlers.insert(ID_NEXT_FRAME,&CMainFrame::OnNextFrame);
    //	ON_COMMAND(ID_PREV_FRAME, OnPrevFrame)
+   actionHandlers.insert(ID_PREV_FRAME,&CMainFrame::OnPrevFrame);
    //	ON_COMMAND(IDC_KEYREPEAT, OnKeyRepeat)
+   actionHandlers.insert(IDC_KEYREPEAT,&CMainFrame::OnKeyRepeat);
    //	ON_COMMAND(IDC_CHANGE_ALL, OnChangeAll)
+   actionHandlers.insert(IDC_CHANGE_ALL,&CMainFrame::OnChangeAll);
    //	ON_COMMAND(ID_NEXT_SONG, OnNextSong)
+   actionHandlers.insert(ID_NEXT_SONG,&CMainFrame::OnNextSong);
    //	ON_COMMAND(ID_PREV_SONG, OnPrevSong)
+   actionHandlers.insert(ID_PREV_SONG,&CMainFrame::OnPrevSong);
    //	ON_COMMAND(IDC_FOLLOW_TOGGLE, OnToggleFollow)
+   actionHandlers.insert(IDC_FOLLOW_TOGGLE,&CMainFrame::OnToggleFollow);
    //	ON_COMMAND(ID_FOCUS_PATTERN_EDITOR, OnSelectPatternEditor)
+   actionHandlers.insert(ID_FOCUS_PATTERN_EDITOR,&CMainFrame::OnSelectPatternEditor);
    //	ON_COMMAND(ID_FOCUS_FRAME_EDITOR, OnSelectFrameEditor)
+   actionHandlers.insert(ID_FOCUS_FRAME_EDITOR,&CMainFrame::OnSelectFrameEditor);
    //	ON_COMMAND(ID_CMD_NEXT_INSTRUMENT, OnNextInstrument)
+   actionHandlers.insert(ID_CMD_NEXT_INSTRUMENT,&CMainFrame::OnNextInstrument);
    //	ON_COMMAND(ID_CMD_PREV_INSTRUMENT, OnPrevInstrument)
+   actionHandlers.insert(ID_CMD_PREV_INSTRUMENT,&CMainFrame::OnPrevInstrument);
    //	ON_COMMAND(ID_TOGGLE_SPEED, OnToggleSpeed)
+   actionHandlers.insert(ID_TOGGLE_SPEED,&CMainFrame::OnToggleSpeed);
    
    //	ON_COMMAND(ID_DECAY_FAST, OnDecayFast)
+   actionHandlers.insert(ID_DECAY_FAST,&CMainFrame::OnDecayFast);
    //	ON_COMMAND(ID_DECAY_SLOW, OnDecaySlow)
-   
-   //	ON_BN_CLICKED(IDC_FRAME_INC, OnBnClickedIncFrame)
-   //	ON_BN_CLICKED(IDC_FRAME_DEC, OnBnClickedDecFrame)
-   //	ON_BN_CLICKED(IDC_FOLLOW, OnClickedFollow)
-   
-   //	ON_NOTIFY(NM_CLICK, IDC_INSTRUMENTS, OnClickInstruments)
-   //	ON_NOTIFY(LVN_ITEMCHANGED, IDC_INSTRUMENTS, OnChangedInstruments)
-   //	ON_NOTIFY(NM_DBLCLK, IDC_INSTRUMENTS, OnDblClkInstruments)
-   //	ON_NOTIFY(UDN_DELTAPOS, IDC_SPEED_SPIN, OnDeltaposSpeedSpin)
-   //	ON_NOTIFY(UDN_DELTAPOS, IDC_TEMPO_SPIN, OnDeltaposTempoSpin)
-   //	ON_NOTIFY(UDN_DELTAPOS, IDC_ROWS_SPIN, OnDeltaposRowsSpin)
-   //	ON_NOTIFY(UDN_DELTAPOS, IDC_FRAME_SPIN, OnDeltaposFrameSpin)
-   //	ON_NOTIFY(UDN_DELTAPOS, IDC_KEYSTEP_SPIN, OnDeltaposKeyStepSpin)
-   
-   //	ON_EN_CHANGE(IDC_INSTNAME, OnInstNameChange)
-   //	ON_EN_CHANGE(IDC_KEYSTEP, OnEnKeyStepChange)
-   //	ON_EN_CHANGE(IDC_SONG_NAME, OnEnSongNameChange)
-   //	ON_EN_CHANGE(IDC_SONG_ARTIST, OnEnSongArtistChange)
-   //	ON_EN_CHANGE(IDC_SONG_COPYRIGHT, OnEnSongCopyrightChange)
-      
-   //	ON_EN_SETFOCUS(IDC_KEYREPEAT, OnRemoveFocus)
-   
-   //	ON_UPDATE_COMMAND_UI(ID_EDIT_UNDO, OnUpdateEditUndo)
-   //	ON_UPDATE_COMMAND_UI(ID_EDIT_REDO, OnUpdateEditRedo)
-   //	ON_UPDATE_COMMAND_UI(ID_EDIT_COPY, OnUpdateEditCopy)
-   //	ON_UPDATE_COMMAND_UI(ID_EDIT_PASTE, OnUpdateEditPaste)
-   //	ON_UPDATE_COMMAND_UI(ID_EDIT_ENABLEMIDI, OnUpdateEditEnablemidi)
-   //	ON_UPDATE_COMMAND_UI(ID_MODULE_INSERTFRAME, OnUpdateInsertFrame)
-   //	ON_UPDATE_COMMAND_UI(ID_MODULE_REMOVEFRAME, OnUpdateRemoveFrame)
-   //	ON_UPDATE_COMMAND_UI(ID_MODULE_DUPLICATEFRAME, OnUpdateDuplicateFrame)
-   //	ON_UPDATE_COMMAND_UI(ID_MODULE_MOVEFRAMEDOWN, OnUpdateModuleMoveframedown)
-   //	ON_UPDATE_COMMAND_UI(ID_MODULE_MOVEFRAMEUP, OnUpdateModuleMoveframeup)
-   //	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_NEW, OnUpdateInstrumentNew)
-   //	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_REMOVE, OnUpdateInstrumentRemove)
-   //	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_CLONE, OnUpdateInstrumentClone)
-   //	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_DEEPCLONE, OnUpdateInstrumentDeepClone)
-   //	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_EDIT, OnUpdateInstrumentEdit)
-   //	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_LOAD, OnUpdateInstrumentLoad)
-   //	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_SAVE, OnUpdateInstrumentSave)
-   //	ON_UPDATE_COMMAND_UI(ID_INDICATOR_INSTRUMENT, OnUpdateSBInstrument)
-   //	ON_UPDATE_COMMAND_UI(ID_INDICATOR_OCTAVE, OnUpdateSBOctave)
-   //	ON_UPDATE_COMMAND_UI(ID_INDICATOR_RATE, OnUpdateSBFrequency)
-   //	ON_UPDATE_COMMAND_UI(ID_INDICATOR_TEMPO, OnUpdateSBTempo)
-   //	ON_UPDATE_COMMAND_UI(ID_INDICATOR_CHIP, OnUpdateSBChip)
-   //	ON_UPDATE_COMMAND_UI(IDC_KEYSTEP, OnUpdateKeyStepEdit)
-   //	ON_UPDATE_COMMAND_UI(IDC_KEYREPEAT, OnUpdateKeyRepeat)
-   //	ON_UPDATE_COMMAND_UI(IDC_SPEED, OnUpdateSpeedEdit)
-   //	ON_UPDATE_COMMAND_UI(IDC_TEMPO, OnUpdateTempoEdit)
-   //	ON_UPDATE_COMMAND_UI(IDC_ROWS, OnUpdateRowsEdit)
-   //	ON_UPDATE_COMMAND_UI(IDC_FRAMES, OnUpdateFramesEdit)
-   //	ON_UPDATE_COMMAND_UI(ID_NEXT_SONG, OnUpdateNextSong)
-   //	ON_UPDATE_COMMAND_UI(ID_PREV_SONG, OnUpdatePrevSong)
-   //	ON_UPDATE_COMMAND_UI(ID_TRACKER_SWITCHTOTRACKINSTRUMENT, OnUpdateTrackerSwitchToInstrument)
-   //	ON_UPDATE_COMMAND_UI(ID_VIEW_CONTROLPANEL, OnUpdateViewControlpanel)
-   //	ON_UPDATE_COMMAND_UI(IDC_HIGHLIGHT1, OnUpdateHighlight)
-   //	ON_UPDATE_COMMAND_UI(IDC_HIGHLIGHT2, OnUpdateHighlight)
-   //	ON_UPDATE_COMMAND_UI(ID_EDIT_EXPANDPATTERNS, OnUpdateSelectionEnabled)
-   //	ON_UPDATE_COMMAND_UI(ID_EDIT_SHRINKPATTERNS, OnUpdateSelectionEnabled)
-   
-   //	ON_UPDATE_COMMAND_UI(ID_FRAMEEDITOR_TOP, OnUpdateFrameeditorTop)
-   //	ON_UPDATE_COMMAND_UI(ID_FRAMEEDITOR_LEFT, OnUpdateFrameeditorLeft)
-   
-   //	ON_CBN_SELCHANGE(IDC_SUBTUNE, OnCbnSelchangeSong)
-   //	ON_CBN_SELCHANGE(IDC_OCTAVE, OnCbnSelchangeOctave)
+   actionHandlers.insert(ID_DECAY_SLOW,&CMainFrame::OnDecaySlow);
+
+   // Pass to view class first.
+   m_pView->menuAction_triggered(id);
    
    if ( actionHandlers.contains(id) )
    {
       (this->*((actionHandlers[id])))();
    }
-   
-   // Pass menu action on to view class incase view class has handler for it.
-   m_pView->menuAction_triggered(id);
+
+   // Pass to app next.
+   ((CFamiTrackerApp*)AfxGetApp())->menuAction_triggered(id);
 }
 
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)

@@ -10,137 +10,579 @@
    
 void qtMfcInitMenuResource_IDR_MAINFRAME(CMenu* parent)
 {
+   QAction* menuAction;
+      
 //IDR_MAINFRAME MENU
 //BEGIN
+   CMenu* subMenu;
+   QMenu* qtMenu;
+   QMenu* qtSubMenu;
+   QHash<UINT_PTR,QAction*>* mfcToQtMenu;
+   QHash<QAction*,UINT_PTR>* qtToMfcMenu;
 //    POPUP "&File"
+   subMenu = new CMenu;
+   qtMenu = dynamic_cast<QMenu*>(subMenu->toQMenu());
+   mfcToQtMenu = subMenu->mfcToQtMenuMap();
+   qtToMfcMenu = subMenu->qtToMfcMenuMap();
+   parent->addSubMenu(subMenu);
+   qtMenu->setTitle("&File");
 //    BEGIN
 //        MENUITEM "&New\tCtrl+N",                ID_FILE_NEW
+   menuAction = new QAction("&New\tCtrl+N",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_FILE_NEW,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_FILE_NEW);
 //        MENUITEM "&Open...\tCtrl+O",            ID_FILE_OPEN
+   menuAction = new QAction("&Open...\tCtrl+O",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_FILE_OPEN,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_FILE_OPEN);
 //        MENUITEM "&Save\tCtrl+S",               ID_FILE_SAVE
+   menuAction = new QAction("&Save\tCtrl+S",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_FILE_SAVE,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_FILE_SAVE);
 //        MENUITEM "Save &As...",                 ID_FILE_SAVE_AS
+   menuAction = new QAction("Save &As...",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_FILE_SAVE_AS,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_FILE_SAVE_AS);
 //        MENUITEM SEPARATOR
+   qtMenu->addSeparator();
 //        MENUITEM "&Create NSF...\tCtrl+E",      ID_FILE_CREATE_NSF
+   menuAction = new QAction("&Create NSF...\tCtrl+E",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_FILE_CREATE_NSF,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_FILE_CREATE_NSF);
 //        MENUITEM "Create WAV...",               ID_FILE_CREATEWAV
+   menuAction = new QAction("Create WAV...",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_FILE_CREATEWAV,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_FILE_CREATEWAV);
 //        MENUITEM "Import MIDI...",              ID_FILE_IMPORTMIDI
+   menuAction = new QAction("Import MIDI...",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_FILE_IMPORTMIDI,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_FILE_IMPORTMIDI);
 //        MENUITEM SEPARATOR
+   qtMenu->addSeparator();
 //        MENUITEM "&Configuration",              ID_FILE_GENERALSETTINGS
+   menuAction = new QAction("&Configuration",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_FILE_GENERALSETTINGS,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_FILE_GENERALSETTINGS);
 //        MENUITEM SEPARATOR
+   qtMenu->addSeparator();
 //        MENUITEM "Recent File",                 ID_FILE_MRU_FILE1
+   menuAction = new QAction("Recent File",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_FILE_MRU_FILE1,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_FILE_MRU_FILE1);
 //        MENUITEM SEPARATOR
+   qtMenu->addSeparator();
 //        MENUITEM "E&xit\tAlt+F4",               ID_APP_EXIT
+   menuAction = new QAction("E&xit\tAlt+F4",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_APP_EXIT,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_APP_EXIT);
 //    END
 //    POPUP "&Edit"
+   subMenu = new CMenu;
+   qtMenu = dynamic_cast<QMenu*>(subMenu->toQMenu());
+   mfcToQtMenu = subMenu->mfcToQtMenuMap();
+   qtToMfcMenu = subMenu->qtToMfcMenuMap();
+   parent->addSubMenu(subMenu);
+   qtMenu->setTitle("&Edit");
 //    BEGIN
 //        MENUITEM "&Undo\tCtrl+Z",               ID_EDIT_UNDO
+   menuAction = new QAction("&Undo\tCtrl+Z",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_EDIT_UNDO,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_EDIT_UNDO);
 //        MENUITEM "&Redo\tCtrl+Y",               ID_EDIT_REDO
+   menuAction = new QAction("&Redo\tCtrl+Y",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_EDIT_REDO,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_EDIT_REDO);
 //        MENUITEM SEPARATOR
+   qtMenu->addSeparator();
 //        MENUITEM "Cu&t\tCtrl+X",                ID_EDIT_CUT
+   menuAction = new QAction("Cu&t\tCtrl+X",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_EDIT_CUT,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_EDIT_CUT);
 //        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
+   menuAction = new QAction("&Copy\tCtrl+C",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_EDIT_COPY,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_EDIT_COPY);
 //        MENUITEM "&Paste\tCtrl+V",              ID_EDIT_PASTE
+   menuAction = new QAction("&Paste\tCtrl+V",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_EDIT_PASTE,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_EDIT_PASTE);
 //        MENUITEM "&Delete\tDel",                ID_EDIT_DELETE
+   menuAction = new QAction("&Delete\tDel",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_EDIT_DELETE,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_EDIT_DELETE);
 //        MENUITEM SEPARATOR
+   qtMenu->addSeparator();
 //        MENUITEM "Select &All\tCtrl+A",         ID_EDIT_SELECTALL
+   menuAction = new QAction("Select &All\tCtrl+A",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_EDIT_SELECTALL,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_EDIT_SELECTALL);
 //        MENUITEM SEPARATOR
+   qtMenu->addSeparator();
 //        POPUP "Transpose"
+   qtSubMenu = qtMenu->addMenu("Transpose");
 //        BEGIN
 //            MENUITEM "Decrease Note\tCtrl+F1",      ID_TRANSPOSE_DECREASENOTE
+   menuAction = new QAction("Decrease Note\tCtrl+F1",qtSubMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtSubMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_TRANSPOSE_DECREASENOTE,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_TRANSPOSE_DECREASENOTE);
 //            MENUITEM "Increase Note\tCtrl+F2",      ID_TRANSPOSE_INCREASENOTE
+   menuAction = new QAction("Increase Note\tCtrl+F2",qtSubMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtSubMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_TRANSPOSE_INCREASENOTE,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_TRANSPOSE_INCREASENOTE);
 //            MENUITEM "Decrease Octave\tCtrl+F3",    ID_TRANSPOSE_DECREASEOCTAVE
+   menuAction = new QAction("Decrease Octave\tCtrl\tCtrl+F3",qtSubMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtSubMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_TRANSPOSE_DECREASEOCTAVE,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_TRANSPOSE_DECREASEOCTAVE);
 //            MENUITEM "Increase Octave\tCtrl+F4",    ID_TRANSPOSE_INCREASEOCTAVE
+   menuAction = new QAction("Increase Octave\tCtrl+F4",qtSubMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtSubMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_TRANSPOSE_INCREASEOCTAVE,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_TRANSPOSE_INCREASEOCTAVE);
 //        END
 //        MENUITEM "Interpolate\tCtrl+G",         ID_EDIT_INTERPOLATE
+   menuAction = new QAction("Interpolate\tCtrl+G",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_EDIT_INTERPOLATE,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_EDIT_INTERPOLATE);
 //        MENUITEM "&Reverse\tCtrl+R",            ID_EDIT_REVERSE
+   menuAction = new QAction("&Reverse\tCtrl+R",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_EDIT_REVERSE,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_EDIT_REVERSE);
 //        MENUITEM "R&eplace instrument\tAlt+S",  ID_EDIT_REPLACEINSTRUMENT
+   menuAction = new QAction("R&eplace instrument\tAlt+S",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_EDIT_REPLACEINSTRUMENT,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_EDIT_REPLACEINSTRUMENT);
 //        MENUITEM SEPARATOR
+   qtMenu->addSeparator();
 //        MENUITEM "Expand pattern",              ID_EDIT_EXPANDPATTERNS
+   menuAction = new QAction("Expand pattern",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_EDIT_EXPANDPATTERNS,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_EDIT_EXPANDPATTERNS);
 //        MENUITEM "Shrink pattern",              ID_EDIT_SHRINKPATTERNS
+   menuAction = new QAction("Shrink pattern",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_EDIT_SHRINKPATTERNS,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_EDIT_SHRINKPATTERNS);
 //        MENUITEM SEPARATOR
+   qtMenu->addSeparator();
 //        MENUITEM "Clear patterns",              ID_EDIT_CLEARPATTERNS
+   menuAction = new QAction("Clear patterns",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_EDIT_CLEARPATTERNS,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_EDIT_CLEARPATTERNS);
 //        POPUP "Clean up"
+   qtSubMenu = qtMenu->addMenu("Clean up");
 //        BEGIN
 //            MENUITEM "Remove unused instruments",   ID_CLEANUP_REMOVEUNUSEDINSTRUMENTS
+   menuAction = new QAction("Remove unused instruments",qtSubMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtSubMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_CLEANUP_REMOVEUNUSEDINSTRUMENTS,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_CLEANUP_REMOVEUNUSEDINSTRUMENTS);
 //            MENUITEM "Remove unused patterns",      ID_CLEANUP_REMOVEUNUSEDPATTERNS
+   menuAction = new QAction("Remove unused patterns",qtSubMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtSubMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_CLEANUP_REMOVEUNUSEDPATTERNS,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_CLEANUP_REMOVEUNUSEDPATTERNS);
 //        END
 //        MENUITEM SEPARATOR
+   qtMenu->addSeparator();
 //        MENUITEM "Instrument Mask\tAlt+T",      ID_EDIT_INSTRUMENTMASK
+   menuAction = new QAction("Instrument Mask\tAlt+T",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_EDIT_INSTRUMENTMASK,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_EDIT_INSTRUMENTMASK);
 //        MENUITEM SEPARATOR
+   qtMenu->addSeparator();
 //        MENUITEM "Paste and Overwrite",         ID_EDIT_PASTEOVERWRITE
+   menuAction = new QAction("Paste and Overwrite",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_EDIT_PASTEOVERWRITE,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_EDIT_PASTEOVERWRITE);
 //        MENUITEM "Paste and Mix",               ID_EDIT_PASTEMIX
+   menuAction = new QAction("Paste and Mix",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_EDIT_PASTEMIX,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_EDIT_PASTEMIX);
 //        MENUITEM SEPARATOR
+   qtMenu->addSeparator();
 //        MENUITEM "Enable MIDI",                 ID_EDIT_ENABLEMIDI
+   menuAction = new QAction("Enable MIDI",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_EDIT_ENABLEMIDI,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_EDIT_ENABLEMIDI);
 //    END
 //    POPUP "&Module"
+   subMenu = new CMenu;
+   qtMenu = dynamic_cast<QMenu*>(subMenu->toQMenu());
+   mfcToQtMenu = subMenu->mfcToQtMenuMap();
+   qtToMfcMenu = subMenu->qtToMfcMenuMap();
+   parent->addSubMenu(subMenu);
+   qtMenu->setTitle("&Module");
 //    BEGIN
 //        MENUITEM "Insert frame",                ID_MODULE_INSERTFRAME
+   menuAction = new QAction("Insert frame",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_MODULE_INSERTFRAME,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_MODULE_INSERTFRAME);
 //        MENUITEM "Remove frame",                ID_MODULE_REMOVEFRAME
+   menuAction = new QAction("Remove frame",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_MODULE_REMOVEFRAME,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_MODULE_REMOVEFRAME);
 //        MENUITEM "&Duplicate frame",            ID_MODULE_DUPLICATEFRAME
+   menuAction = new QAction("&Duplicate frame",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_MODULE_DUPLICATEFRAME,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_MODULE_DUPLICATEFRAME);
 //        MENUITEM "Duplicate patterns",          ID_MODULE_DUPLICATEFRAMEPATTERNS
+   menuAction = new QAction("Duplicate patterns",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_MODULE_DUPLICATEFRAMEPATTERNS,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_MODULE_DUPLICATEFRAMEPATTERNS);
 //        MENUITEM SEPARATOR
+   qtMenu->addSeparator();
 //        MENUITEM "Move Frame Up",               ID_MODULE_MOVEFRAMEUP
+   menuAction = new QAction("Move Frame Up",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_MODULE_MOVEFRAMEUP,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_MODULE_MOVEFRAMEUP);
 //        MENUITEM "Move Frame Down",             ID_MODULE_MOVEFRAMEDOWN
+   menuAction = new QAction("Move Frame Down",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_MODULE_MOVEFRAMEDOWN,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_MODULE_MOVEFRAMEDOWN);
 //        MENUITEM SEPARATOR
+   qtMenu->addSeparator();
 //        MENUITEM "Comments",                    ID_MODULE_COMMENTS
+   menuAction = new QAction("Comments",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_MODULE_COMMENTS,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_MODULE_COMMENTS);
 //        MENUITEM "Module Properties\tCtrl+P",   ID_MODULE_MODULEPROPERTIES
+   menuAction = new QAction("Module Properties\tCtrl+P",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_MODULE_MODULEPROPERTIES,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_MODULE_MODULEPROPERTIES);
 //        MENUITEM "Channels",                    ID_MODULE_CHANNELS
+   menuAction = new QAction("Channels",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_MODULE_CHANNELS,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_MODULE_CHANNELS);
 //    END
 //    POPUP "&Instrument"
+   subMenu = new CMenu;
+   qtMenu = dynamic_cast<QMenu*>(subMenu->toQMenu());
+   mfcToQtMenu = subMenu->mfcToQtMenuMap();
+   qtToMfcMenu = subMenu->qtToMfcMenuMap();
+   parent->addSubMenu(subMenu);
+   qtMenu->setTitle("&Instrument");
 //    BEGIN
 //        MENUITEM "New instrument",              ID_INSTRUMENT_NEW
+   menuAction = new QAction("New instrument",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_INSTRUMENT_NEW,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_INSTRUMENT_NEW);
 //        MENUITEM "Remove instrument",           ID_INSTRUMENT_REMOVE
+   menuAction = new QAction("Remove instrument",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_INSTRUMENT_REMOVE,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_INSTRUMENT_REMOVE);
 //        MENUITEM "Clone instrument",            ID_INSTRUMENT_CLONE
+   menuAction = new QAction("Clone instrument",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_INSTRUMENT_CLONE,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_INSTRUMENT_CLONE);
 //        MENUITEM "Deep clone instrument",       ID_INSTRUMENT_DEEPCLONE
+   menuAction = new QAction("Deep clone instrument",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_INSTRUMENT_DEEPCLONE,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_INSTRUMENT_DEEPCLONE);
 //        MENUITEM SEPARATOR
+   qtMenu->addSeparator();
 //        MENUITEM "Load from file...",           ID_INSTRUMENT_LOAD
+   menuAction = new QAction("Load to file...",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_INSTRUMENT_LOAD,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_INSTRUMENT_LOAD);
 //        MENUITEM "Save to file...",             ID_INSTRUMENT_SAVE
+   menuAction = new QAction("Save to file...",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_INSTRUMENT_SAVE,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_INSTRUMENT_SAVE);
 //        MENUITEM SEPARATOR
+   qtMenu->addSeparator();
 //        MENUITEM "Edit\tCtrl+I",                ID_INSTRUMENT_EDIT
+   menuAction = new QAction("Edit\tCtrl+I",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_INSTRUMENT_EDIT,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_INSTRUMENT_EDIT);
 //    END
 //    POPUP "T&racker"
+   subMenu = new CMenu;
+   qtMenu = dynamic_cast<QMenu*>(subMenu->toQMenu());
+   mfcToQtMenu = subMenu->mfcToQtMenuMap();
+   qtToMfcMenu = subMenu->qtToMfcMenuMap();
+   parent->addSubMenu(subMenu);
+   qtMenu->setTitle("T&racker");
 //    BEGIN
 //        MENUITEM "&Play\tReturn",               ID_TRACKER_PLAY
+   menuAction = new QAction("&Play\tReturn",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_TRACKER_PLAY,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_TRACKER_PLAY);
 //        MENUITEM "P&lay Pattern\tShift+Return", ID_TRACKER_PLAYPATTERN
+   menuAction = new QAction("P&lay Pattern\tShift+Return",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_TRACKER_PLAYPATTERN,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_TRACKER_PLAYPATTERN);
 //        MENUITEM "Play from start",             ID_TRACKER_PLAY_START
+   menuAction = new QAction("Play from start",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_TRACKER_PLAY_START,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_TRACKER_PLAY_START);
 //        MENUITEM "Play from cursor",            ID_TRACKER_PLAY_CURSOR
+   menuAction = new QAction("Play from cursor",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_TRACKER_PLAY_CURSOR,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_TRACKER_PLAY_CURSOR);
 //        MENUITEM "&Stop\tReturn",               ID_TRACKER_STOP
+   menuAction = new QAction("&Stop\tReturn",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_TRACKER_STOP,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_TRACKER_STOP);
 //        MENUITEM "&Edit\tSpace",                ID_TRACKER_EDIT
+   menuAction = new QAction("&Edit\tSpace",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_TRACKER_EDIT,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_TRACKER_EDIT);
 //        MENUITEM SEPARATOR
+   qtMenu->addSeparator();
 //        MENUITEM "Toggle channel\tAlt+F9",      ID_TRACKER_TOGGLECHANNEL
+   menuAction = new QAction("Toggle channel\tAlt+F9",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_TRACKER_TOGGLECHANNEL,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_TRACKER_TOGGLECHANNEL);
 //        MENUITEM "Solo channel\tAlt+F10",       ID_TRACKER_SOLOCHANNEL
+   menuAction = new QAction("Solo channel\tAlt+F10",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_TRACKER_SOLOCHANNEL,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_TRACKER_SOLOCHANNEL);
 //        MENUITEM SEPARATOR
+   qtMenu->addSeparator();
 //        MENUITEM "Switch to track instrument",  ID_TRACKER_SWITCHTOTRACKINSTRUMENT
+   menuAction = new QAction("Switch to track instrument",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_TRACKER_SWITCHTOTRACKINSTRUMENT,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_TRACKER_SWITCHTOTRACKINSTRUMENT);
 //        MENUITEM "&Display DPCM state",         ID_TRACKER_DPCM
+   menuAction = new QAction("&Display DPCM state",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_TRACKER_DPCM,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_TRACKER_DPCM);
 //        MENUITEM SEPARATOR
+   qtMenu->addSeparator();
 //        MENUITEM "&Kill Sound\tF12",            ID_TRACKER_KILLSOUND
+   menuAction = new QAction("&Kill Sound\tF12",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_TRACKER_KILLSOUND,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_TRACKER_KILLSOUND);
 //        MENUITEM SEPARATOR
+   qtMenu->addSeparator();
 //        MENUITEM "NTSC",                        ID_TRACKER_NTSC
+   menuAction = new QAction("NTSC",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_TRACKER_NTSC,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_TRACKER_NTSC);
 //        MENUITEM "PAL",                         ID_TRACKER_PAL
+   menuAction = new QAction("PAL",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_TRACKER_PAL,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_TRACKER_PAL);
 //        POPUP "Engine Speed"
+   qtSubMenu = qtMenu->addMenu("Engine Speed");
 //        BEGIN
 //            MENUITEM "Default",                     ID_SPEED_DEFAULT
+   menuAction = new QAction("Default",qtSubMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtSubMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_SPEED_DEFAULT,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_SPEED_DEFAULT);
 //            MENUITEM SEPARATOR
+   qtMenu->addSeparator();
 //            MENUITEM "Custom",                      ID_SPEED_CUSTOM
+   menuAction = new QAction("Custom",qtSubMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtSubMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_SPEED_CUSTOM,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_SPEED_CUSTOM);
 //        END
 //    END
 //    POPUP "&View"
+   subMenu = new CMenu;
+   qtMenu = dynamic_cast<QMenu*>(subMenu->toQMenu());
+   mfcToQtMenu = subMenu->mfcToQtMenuMap();
+   qtToMfcMenu = subMenu->qtToMfcMenuMap();
+   parent->addSubMenu(subMenu);
+   qtMenu->setTitle("&View");
 //    BEGIN
 //        MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
+   menuAction = new QAction("&Toolbar",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_VIEW_TOOLBAR,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_VIEW_TOOLBAR);
 //        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
+   menuAction = new QAction("&Status Bar",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_VIEW_STATUS_BAR,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_VIEW_STATUS_BAR);
 //        MENUITEM "Control panel",               ID_VIEW_CONTROLPANEL
+   menuAction = new QAction("Control panel",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_VIEW_CONTROLPANEL,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_VIEW_CONTROLPANEL);
 //        MENUITEM SEPARATOR
+   qtMenu->addSeparator();
 //        POPUP "Frame editor position"
+   qtSubMenu = qtMenu->addMenu("Frame editor position");
 //        BEGIN
 //            MENUITEM "Top",                         ID_FRAMEEDITOR_TOP, CHECKED
+   menuAction = new QAction("Top",qtSubMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtSubMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_FRAMEEDITOR_TOP,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_FRAMEEDITOR_TOP);
 //            MENUITEM "Left",                        ID_FRAMEEDITOR_LEFT
+   menuAction = new QAction("Left",qtSubMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtSubMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_FRAMEEDITOR_LEFT,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_FRAMEEDITOR_LEFT);
 //        END
 //    END
 //    POPUP "&Help"
+   subMenu = new CMenu;
+   qtMenu = dynamic_cast<QMenu*>(subMenu->toQMenu());
+   mfcToQtMenu = subMenu->mfcToQtMenuMap();
+   qtToMfcMenu = subMenu->qtToMfcMenuMap();
+   parent->addSubMenu(subMenu);
+   qtMenu->setTitle("&Help");
 //    BEGIN
 //        MENUITEM "&Help Topics\tF1",            ID_HELP_FINDER
+   menuAction = new QAction("&Help Topics\tF1",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_HELP_FINDER,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_HELP_FINDER);
 //        MENUITEM "Effect table",                ID_HELP_EFFECTTABLE
+   menuAction = new QAction("Effect table",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_HELP_EFFECTTABLE,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_HELP_EFFECTTABLE);
 //        MENUITEM SEPARATOR
+   qtMenu->addSeparator();
 //        MENUITEM "Performance",                 ID_HELP_PERFORMANCE
+   menuAction = new QAction("Performance",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_HELP_PERFORMANCE,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_HELP_PERFORMANCE);
 //        MENUITEM SEPARATOR
+   qtMenu->addSeparator();
 //        MENUITEM "&About FamiTracker...",       ID_APP_ABOUT
+   menuAction = new QAction("&About FamiTracker...",qtMenu);
+   QObject::connect(menuAction,SIGNAL(triggered()),subMenu,SLOT(menuAction_triggered()));
+   qtMenu->addAction(menuAction); 
+   mfcToQtMenu->insert(ID_APP_ABOUT,menuAction);
+   qtToMfcMenu->insert(menuAction,ID_APP_ABOUT);
 //    END
 //END
 }
@@ -156,6 +598,7 @@ void qtMfcInitMenuResource_IDR_PATTERN_POPUP(CMenu* parent)
    QHash<QAction*,UINT_PTR>* qtToMfcMenu = subMenu->qtToMfcMenuMap();
 //       POPUP "Popup"
    parent->addSubMenu(subMenu);
+   qtMenu->setTitle("Popup");
 //       BEGIN
 //           MENUITEM "&Undo",                       ID_EDIT_UNDO
    menuAction = new QAction("&Undo",qtMenu);
@@ -303,6 +746,7 @@ void qtMfcInitMenuResource_IDR_FRAME_POPUP(CMenu* parent)
    QHash<QAction*,UINT_PTR>* qtToMfcMenu = subMenu->qtToMfcMenuMap();
 //       POPUP "Frame"
    parent->addSubMenu(subMenu);
+   qtMenu->setTitle("Frame");
 //       BEGIN
 //           MENUITEM "&Insert frame\tIns",          ID_MODULE_INSERTFRAME
    menuAction = new QAction("&Insert frame\tIns",qtMenu);
@@ -378,6 +822,7 @@ void qtMfcInitMenuResource_IDR_INSTRUMENT_POPUP(CMenu* parent)
    QHash<QAction*,UINT_PTR>* qtToMfcMenu = subMenu->qtToMfcMenuMap();
 //       POPUP "Instrument"
    parent->addSubMenu(subMenu);
+   qtMenu->setTitle("Instrument");
 //       BEGIN
 //           MENUITEM "Add",                         ID_INSTRUMENT_NEW
    menuAction = new QAction("Add",qtMenu);
@@ -429,6 +874,7 @@ void qtMfcInitMenuResource_IDR_SAMPLES_POPUP(CMenu* parent)
    QHash<QAction*,UINT_PTR>* qtToMfcMenu = subMenu->qtToMfcMenuMap();
 //       POPUP "Popup"
    parent->addSubMenu(subMenu);
+   qtMenu->setTitle("Popup");
 //       BEGIN
 //           MENUITEM "Preview",                     IDC_PREVIEW
    menuAction = new QAction("Preview",qtMenu);
@@ -486,6 +932,7 @@ void qtMfcInitMenuResource_IDR_SAMPLE_WND_POPUP(CMenu* parent)
    QHash<QAction*,UINT_PTR>* qtToMfcMenu = subMenu->qtToMfcMenuMap();
 //       POPUP "Popup"
    parent->addSubMenu(subMenu);
+   qtMenu->setTitle("Popup");
 //       BEGIN
 //           MENUITEM "Sample graph 1",              ID_POPUP_SAMPLEGRAPH1
    menuAction = new QAction("Sample graph 1",qtMenu);
@@ -527,6 +974,7 @@ void qtMfcInitMenuResource_IDR_PATTERN_HEADER_POPUP(CMenu* parent)
    QHash<QAction*,UINT_PTR>* qtToMfcMenu = subMenu->qtToMfcMenuMap();
 //       POPUP "Popup"
    parent->addSubMenu(subMenu);
+   qtMenu->setTitle("Popup");
 //       BEGIN
 //           MENUITEM "&Toggle channel\tAlt+F9",     ID_POPUP_TOGGLECHANNEL
    menuAction = new QAction("&Toggle channel\tAlt+F9",qtMenu);
