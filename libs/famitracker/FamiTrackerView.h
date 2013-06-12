@@ -86,6 +86,7 @@ public slots:
    void verticalScrollBar_actionTriggered(int action);
    void horizontalScrollBar_actionTriggered(int action);
    void menuAction_triggered(int id);
+   void menuAboutToShow(CMenu* menu);
    
 public:
 	CFamiTrackerView(CWnd* parent = 0);
@@ -374,17 +375,17 @@ public:
 	afx_msg void OnTransposeIncreasenote();
 	afx_msg void OnTransposeIncreaseoctave();
 
-//	afx_msg void OnUpdateEditCopy(CCmdUI *pCmdUI);
-//	afx_msg void OnUpdateEditCut(CCmdUI *pCmdUI);
-//	afx_msg void OnUpdateEditPaste(CCmdUI *pCmdUI);
-//	afx_msg void OnUpdateEditDelete(CCmdUI *pCmdUI);
-//	afx_msg void OnUpdateTrackerEdit(CCmdUI *pCmdUI);
-//	afx_msg void OnUpdateTrackerPal(CCmdUI *pCmdUI);
-//	afx_msg void OnUpdateTrackerNtsc(CCmdUI *pCmdUI);
-//	afx_msg void OnUpdateSpeedDefault(CCmdUI *pCmdUI);
-//	afx_msg void OnUpdateSpeedCustom(CCmdUI *pCmdUI);
-//	afx_msg void OnUpdateEditPasteoverwrite(CCmdUI *pCmdUI);
-//	afx_msg void OnUpdateEditInstrumentMask(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateEditCopy(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateEditCut(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateEditPaste(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateEditDelete(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateTrackerEdit(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateTrackerPal(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateTrackerNtsc(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateSpeedDefault(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateSpeedCustom(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateEditPasteoverwrite(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateEditInstrumentMask(CCmdUI *pCmdUI);
 
 	afx_msg void OnIncreaseStepSize();
 	afx_msg void OnDecreaseStepSize();
@@ -402,7 +403,7 @@ public:
 	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 	afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnEditPastemix();
-//	afx_msg void OnUpdateEditPastemix(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateEditPastemix(CCmdUI *pCmdUI);
 	afx_msg void OnTrackerToggleChannel();
 	afx_msg void OnTrackerSoloChannel();
 	afx_msg void OnTrackerUnmuteAllChannels();

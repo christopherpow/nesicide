@@ -1236,74 +1236,74 @@ void CFamiTrackerView::OnUpdate(CView* /*pSender*/, LPARAM lHint, CObject* /*pHi
 
 // GUI elements updates
 
-//void CFamiTrackerView::OnUpdateEditInstrumentMask(CCmdUI *pCmdUI)
-//{
-//	pCmdUI->SetCheck(m_bMaskInstrument ? 1 : 0);
-//}
+void CFamiTrackerView::OnUpdateEditInstrumentMask(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(m_bMaskInstrument ? 1 : 0);
+}
 
-//void CFamiTrackerView::OnUpdateEditCopy(CCmdUI *pCmdUI)
-//{
-//	pCmdUI->Enable(!m_pPatternView->IsSelecting() ? 0 : 1);
-//}
+void CFamiTrackerView::OnUpdateEditCopy(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(!m_pPatternView->IsSelecting() ? 0 : 1);
+}
 
-//void CFamiTrackerView::OnUpdateEditCut(CCmdUI *pCmdUI)
-//{
-//	pCmdUI->Enable(!m_pPatternView->IsSelecting() ? 0 : 1);
-//}
+void CFamiTrackerView::OnUpdateEditCut(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(!m_pPatternView->IsSelecting() ? 0 : 1);
+}
 
-//void CFamiTrackerView::OnUpdateEditPaste(CCmdUI *pCmdUI)
-//{
-//	pCmdUI->Enable(IsClipboardFormatAvailable(m_iClipBoard) ? 1 : 0);
-//}
+void CFamiTrackerView::OnUpdateEditPaste(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(IsClipboardFormatAvailable(m_iClipBoard) ? 1 : 0);
+}
 
-//void CFamiTrackerView::OnUpdateEditDelete(CCmdUI *pCmdUI)
-//{
-//	pCmdUI->Enable(!m_pPatternView->IsSelecting() ? 0 : 1);
-//}
+void CFamiTrackerView::OnUpdateEditDelete(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(!m_pPatternView->IsSelecting() ? 0 : 1);
+}
 
-//void CFamiTrackerView::OnUpdateTrackerEdit(CCmdUI *pCmdUI)
-//{
-//	pCmdUI->SetCheck(m_bEditEnable ? 1 : 0);
-//}
+void CFamiTrackerView::OnUpdateTrackerEdit(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(m_bEditEnable ? 1 : 0);
+}
 
-//void CFamiTrackerView::OnUpdateTrackerPal(CCmdUI *pCmdUI)
-//{
-//	CFamiTrackerDoc* pDoc = GetDocument();
-//	ASSERT_VALID(pDoc);
-//	pCmdUI->SetCheck(pDoc->GetMachine() == PAL);
-//	pCmdUI->Enable(pDoc->GetExpansionChip() == SNDCHIP_NONE);
-//}
+void CFamiTrackerView::OnUpdateTrackerPal(CCmdUI *pCmdUI)
+{
+	CFamiTrackerDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+	pCmdUI->SetCheck(pDoc->GetMachine() == PAL);
+	pCmdUI->Enable(pDoc->GetExpansionChip() == SNDCHIP_NONE);
+}
 
-//void CFamiTrackerView::OnUpdateTrackerNtsc(CCmdUI *pCmdUI)
-//{
-//	CFamiTrackerDoc* pDoc = GetDocument();
-//	ASSERT_VALID(pDoc);
-//	pCmdUI->SetCheck(pDoc->GetMachine() == NTSC);
-//}
+void CFamiTrackerView::OnUpdateTrackerNtsc(CCmdUI *pCmdUI)
+{
+	CFamiTrackerDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+	pCmdUI->SetCheck(pDoc->GetMachine() == NTSC);
+}
 
-//void CFamiTrackerView::OnUpdateSpeedDefault(CCmdUI *pCmdUI)
-//{
-//	CFamiTrackerDoc* pDoc = GetDocument();
-//	ASSERT_VALID(pDoc);
-//	pCmdUI->SetCheck(pDoc->GetEngineSpeed() == 0);
-//}
+void CFamiTrackerView::OnUpdateSpeedDefault(CCmdUI *pCmdUI)
+{
+	CFamiTrackerDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+	pCmdUI->SetCheck(pDoc->GetEngineSpeed() == 0);
+}
 
-//void CFamiTrackerView::OnUpdateSpeedCustom(CCmdUI *pCmdUI)
-//{
-//	CFamiTrackerDoc* pDoc = GetDocument();
-//	ASSERT_VALID(pDoc);	
-//	pCmdUI->SetCheck(pDoc->GetEngineSpeed() != 0);
-//}
+void CFamiTrackerView::OnUpdateSpeedCustom(CCmdUI *pCmdUI)
+{
+	CFamiTrackerDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);	
+	pCmdUI->SetCheck(pDoc->GetEngineSpeed() != 0);
+}
 
-//void CFamiTrackerView::OnUpdateEditPasteoverwrite(CCmdUI *pCmdUI)
-//{
-//	pCmdUI->SetCheck(m_iPasteMode == PASTE_MODE_OVERWRITE);
-//}
+void CFamiTrackerView::OnUpdateEditPasteoverwrite(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(m_iPasteMode == PASTE_MODE_OVERWRITE);
+}
 
-//void CFamiTrackerView::OnUpdateEditPastemix(CCmdUI *pCmdUI)
-//{
-//	pCmdUI->SetCheck(m_iPasteMode == PASTE_MODE_MIX);
-//}
+void CFamiTrackerView::OnUpdateEditPastemix(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(m_iPasteMode == PASTE_MODE_MIX);
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Tracker playing routines
@@ -3580,6 +3580,42 @@ void CFamiTrackerView::horizontalScrollBar_actionTriggered(int arg1)
    
    OnHScroll(arg1,mfcHorizontalScrollBar->sliderPosition(),mfcHorizontalScrollBar);
    update();
+}
+
+void CFamiTrackerView::menuAboutToShow(CMenu* menu)
+{
+   CCmdUI cmdUI;
+   cmdUI.m_pMenu = menu;
+   //	ON_UPDATE_COMMAND_UI(ID_EDIT_CUT, OnUpdateEditCut)
+   cmdUI.m_nID = ID_EDIT_CUT;
+   OnUpdateEditCut(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(ID_EDIT_DELETE, OnUpdateEditDelete)
+   cmdUI.m_nID = ID_EDIT_DELETE;
+   OnUpdateEditDelete(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(ID_EDIT_INSTRUMENTMASK, OnUpdateEditInstrumentMask)
+   cmdUI.m_nID = ID_EDIT_INSTRUMENTMASK;
+   OnUpdateEditInstrumentMask(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(ID_EDIT_PASTEOVERWRITE, OnUpdateEditPasteoverwrite)
+   cmdUI.m_nID = ID_EDIT_PASTEOVERWRITE;
+   OnUpdateEditPasteoverwrite(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(ID_EDIT_PASTEMIX, OnUpdateEditPastemix)
+   cmdUI.m_nID = ID_EDIT_PASTEMIX;
+   OnUpdateEditPastemix(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(ID_TRACKER_EDIT, OnUpdateTrackerEdit)
+   cmdUI.m_nID = ID_TRACKER_EDIT;
+   OnUpdateTrackerEdit(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(ID_TRACKER_PAL, OnUpdateTrackerPal)
+   cmdUI.m_nID = ID_TRACKER_PAL;
+   OnUpdateTrackerPal(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(ID_TRACKER_NTSC, OnUpdateTrackerNtsc)
+   cmdUI.m_nID = ID_TRACKER_NTSC;
+   OnUpdateTrackerNtsc(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(ID_SPEED_DEFAULT, OnUpdateSpeedDefault)
+   cmdUI.m_nID = ID_SPEED_DEFAULT;
+   OnUpdateSpeedDefault(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(ID_SPEED_CUSTOM, OnUpdateSpeedCustom)
+   cmdUI.m_nID = ID_SPEED_CUSTOM;
+   OnUpdateSpeedCustom(&cmdUI);
 }
 
 void CFamiTrackerView::menuAction_triggered(int id)

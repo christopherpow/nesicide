@@ -330,6 +330,13 @@ void CMainFrame::showEvent(QShowEvent *)
       QObject::connect(m_pMenu->GetSubMenu(4),SIGNAL(menuAction_triggered(int)),this,SLOT(menuAction_triggered(int)));
       QObject::connect(m_pMenu->GetSubMenu(5),SIGNAL(menuAction_triggered(int)),this,SLOT(menuAction_triggered(int)));
       QObject::connect(m_pMenu->GetSubMenu(6),SIGNAL(menuAction_triggered(int)),this,SLOT(menuAction_triggered(int)));
+      QObject::connect(m_pMenu->GetSubMenu(0),SIGNAL(menuAboutToShow(CMenu*)),this,SLOT(menuAboutToShow(CMenu*)));
+      QObject::connect(m_pMenu->GetSubMenu(1),SIGNAL(menuAboutToShow(CMenu*)),this,SLOT(menuAboutToShow(CMenu*)));
+      QObject::connect(m_pMenu->GetSubMenu(2),SIGNAL(menuAboutToShow(CMenu*)),this,SLOT(menuAboutToShow(CMenu*)));
+      QObject::connect(m_pMenu->GetSubMenu(3),SIGNAL(menuAboutToShow(CMenu*)),this,SLOT(menuAboutToShow(CMenu*)));
+      QObject::connect(m_pMenu->GetSubMenu(4),SIGNAL(menuAboutToShow(CMenu*)),this,SLOT(menuAboutToShow(CMenu*)));
+      QObject::connect(m_pMenu->GetSubMenu(5),SIGNAL(menuAboutToShow(CMenu*)),this,SLOT(menuAboutToShow(CMenu*)));
+      QObject::connect(m_pMenu->GetSubMenu(6),SIGNAL(menuAboutToShow(CMenu*)),this,SLOT(menuAboutToShow(CMenu*)));
       
       // Connect buried signals.
       qDebug("START CONNECTING BURIED SIGNALS NOW...");
@@ -390,225 +397,337 @@ void CMainFrame::idleProcessing()
 {   
    CCmdUI cmdUI;
    
-   // Update toolbar button states.
-   cmdUI.m_nID = ID_FILE_NEW;
-   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
-   if ( cmdUI.m_pOther )
-   {
-   }
-   cmdUI.m_nID = ID_FILE_OPEN;
-   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
-   if ( cmdUI.m_pOther )
-   {
-   }
-   cmdUI.m_nID = ID_FILE_SAVE;
-   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
-   if ( cmdUI.m_pOther )
-   {
-   }
-   cmdUI.m_nID = ID_EDIT_CUT;
-   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
-   if ( cmdUI.m_pOther )
-   {
-   }
-   cmdUI.m_nID = ID_EDIT_COPY;
-   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
-   if ( cmdUI.m_pOther )
-   {
-   }
-   cmdUI.m_nID = ID_EDIT_PASTE;
-   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
-   if ( cmdUI.m_pOther )
-   {
-   }
-   cmdUI.m_nID = ID_APP_ABOUT;
-   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
-   if ( cmdUI.m_pOther )
-   {
-   }
-   cmdUI.m_nID = ID_CONTEXT_HELP;
-   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
-   if ( cmdUI.m_pOther )
-   {
-   }
-   cmdUI.m_nID = ID_MODULE_INSERTFRAME;
-   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
-   if ( cmdUI.m_pOther )
-   {
-      OnUpdateInsertFrame(&cmdUI);
-   }
-   cmdUI.m_nID = ID_MODULE_REMOVEFRAME;
-   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
-   if ( cmdUI.m_pOther )
-   {
-      OnUpdateRemoveFrame(&cmdUI);
-   }
-   cmdUI.m_nID = ID_MODULE_MOVEFRAMEDOWN;
-   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
-   if ( cmdUI.m_pOther )
-   {
-      OnUpdateModuleMoveframedown(&cmdUI);
-   }
-   cmdUI.m_nID = ID_MODULE_MOVEFRAMEUP;
-   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
-   if ( cmdUI.m_pOther )
-   {
-      OnUpdateModuleMoveframeup(&cmdUI);
-   }
-   cmdUI.m_nID = ID_MODULE_DUPLICATEFRAME;
-   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
-   if ( cmdUI.m_pOther )
-   {
-      OnUpdateDuplicateFrame(&cmdUI);
-   }
-   cmdUI.m_nID = ID_MODULE_MODULEPROPERTIES;
-   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
-   if ( cmdUI.m_pOther )
-   {
-   }
-   cmdUI.m_nID = ID_TRACKER_PLAY;
-   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
-   if ( cmdUI.m_pOther )
-   {
-   }
-   cmdUI.m_nID = ID_TRACKER_PLAYPATTERN;
-   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
-   if ( cmdUI.m_pOther )
-   {
-   }
-   cmdUI.m_nID = ID_TRACKER_STOP;
-   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
-   if ( cmdUI.m_pOther )
-   {
-   }
-   cmdUI.m_nID = ID_TRACKER_EDIT;
-   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
-   if ( cmdUI.m_pOther )
-   {
-   }
-   cmdUI.m_nID = ID_PREV_SONG;
-   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
-   if ( cmdUI.m_pOther )
-   {
-      OnUpdatePrevSong(&cmdUI);
-   }
-   cmdUI.m_nID = ID_NEXT_SONG;
-   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
-   if ( cmdUI.m_pOther )
-   {
-      OnUpdateNextSong(&cmdUI);
-   }
-   cmdUI.m_nID = ID_FILE_GENERALSETTINGS;
-   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
-   if ( cmdUI.m_pOther )
-   {
-   }
-   cmdUI.m_nID = ID_FILE_CREATE_NSF;
-   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
-   if ( cmdUI.m_pOther )
-   {
-   }
-   
-   // Update instrument toolbar button states.
-   cmdUI.m_nID = ID_INSTRUMENT_NEW;
-   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
-   if ( cmdUI.m_pOther )
-   {
-      OnUpdateInstrumentNew(&cmdUI);
-   }
-   cmdUI.m_nID = ID_INSTRUMENT_REMOVE;
-   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
-   if ( cmdUI.m_pOther )
-   {
-      OnUpdateInstrumentRemove(&cmdUI);
-   }
-   cmdUI.m_nID = ID_INSTRUMENT_CLONE;
-   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
-   if ( cmdUI.m_pOther )
-   {
-      OnUpdateInstrumentClone(&cmdUI);
-   }
-   cmdUI.m_nID = ID_INSTRUMENT_LOAD;
-   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
-   if ( cmdUI.m_pOther )
-   {
-      OnUpdateInstrumentLoad(&cmdUI);
-   }
-   cmdUI.m_nID = ID_INSTRUMENT_SAVE;
-   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
-   if ( cmdUI.m_pOther )
-   {
-      OnUpdateInstrumentSave(&cmdUI);
-   }
-   cmdUI.m_nID = ID_INSTRUMENT_EDIT;
-   cmdUI.m_pOther = m_wndToolBar.GetDlgItem(cmdUI.m_nID);
-   if ( cmdUI.m_pOther )
-   {
-      OnUpdateInstrumentEdit(&cmdUI);
-   }
-   
-   // Update status bar panes.
-   cmdUI.m_nID = ID_INDICATOR_CHIP;
-   cmdUI.m_pOther = m_wndStatusBar.GetDlgItem(cmdUI.m_nID);
-   if ( cmdUI.m_pOther )
-   {
-      OnUpdateSBChip(&cmdUI);
-   }
-   cmdUI.m_nID = ID_INDICATOR_OCTAVE;
-   cmdUI.m_pOther = m_wndStatusBar.GetDlgItem(cmdUI.m_nID);
-   if ( cmdUI.m_pOther )
-   {
-      OnUpdateSBOctave(&cmdUI);
-   }
+   //	ON_UPDATE_COMMAND_UI(ID_EDIT_UNDO, OnUpdateEditUndo)
+   //	ON_UPDATE_COMMAND_UI(ID_EDIT_REDO, OnUpdateEditRedo)
+   //	ON_UPDATE_COMMAND_UI(ID_EDIT_COPY, OnUpdateEditCopy)
+   //	ON_UPDATE_COMMAND_UI(ID_EDIT_PASTE, OnUpdateEditPaste)
+   //	ON_UPDATE_COMMAND_UI(ID_EDIT_ENABLEMIDI, OnUpdateEditEnablemidi)
+   //	ON_UPDATE_COMMAND_UI(ID_MODULE_INSERTFRAME, OnUpdateInsertFrame)
+   //	ON_UPDATE_COMMAND_UI(ID_MODULE_REMOVEFRAME, OnUpdateRemoveFrame)
+   //	ON_UPDATE_COMMAND_UI(ID_MODULE_DUPLICATEFRAME, OnUpdateDuplicateFrame)
+   //	ON_UPDATE_COMMAND_UI(ID_MODULE_MOVEFRAMEDOWN, OnUpdateModuleMoveframedown)
+   //	ON_UPDATE_COMMAND_UI(ID_MODULE_MOVEFRAMEUP, OnUpdateModuleMoveframeup)
+   //	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_NEW, OnUpdateInstrumentNew)
+   //	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_REMOVE, OnUpdateInstrumentRemove)
+   //	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_CLONE, OnUpdateInstrumentClone)
+   //	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_DEEPCLONE, OnUpdateInstrumentDeepClone)
+   //	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_EDIT, OnUpdateInstrumentEdit)
+   //	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_LOAD, OnUpdateInstrumentLoad)
+   //	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_SAVE, OnUpdateInstrumentSave)
+   //	ON_UPDATE_COMMAND_UI(ID_INDICATOR_INSTRUMENT, OnUpdateSBInstrument)
    cmdUI.m_nID = ID_INDICATOR_INSTRUMENT;
-   cmdUI.m_pOther = m_wndStatusBar.GetDlgItem(cmdUI.m_nID);
+   cmdUI.m_pOther = &m_wndStatusBar;
    if ( cmdUI.m_pOther )
    {
       OnUpdateSBInstrument(&cmdUI);
    }
+   //	ON_UPDATE_COMMAND_UI(ID_INDICATOR_OCTAVE, OnUpdateSBOctave)
+   cmdUI.m_nID = ID_INDICATOR_OCTAVE;
+   cmdUI.m_pOther = &m_wndStatusBar;
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateSBOctave(&cmdUI);
+   }
+   //	ON_UPDATE_COMMAND_UI(ID_INDICATOR_RATE, OnUpdateSBFrequency)
    cmdUI.m_nID = ID_INDICATOR_RATE;
-   cmdUI.m_pOther = m_wndStatusBar.GetDlgItem(cmdUI.m_nID);
+   cmdUI.m_pOther = &m_wndStatusBar;
    if ( cmdUI.m_pOther )
    {
       OnUpdateSBFrequency(&cmdUI);
    }
+   //	ON_UPDATE_COMMAND_UI(ID_INDICATOR_TEMPO, OnUpdateSBTempo)
    cmdUI.m_nID = ID_INDICATOR_TEMPO;
-   cmdUI.m_pOther = m_wndStatusBar.GetDlgItem(cmdUI.m_nID);
+   cmdUI.m_pOther = &m_wndStatusBar;
    if ( cmdUI.m_pOther )
    {
       OnUpdateSBTempo(&cmdUI);
    }
-   cmdUI.m_nID = IDC_HIGHLIGHT1;
-   cmdUI.m_pOther = m_wndOctaveBar.GetDlgItem(cmdUI.m_nID);
+   //	ON_UPDATE_COMMAND_UI(ID_INDICATOR_CHIP, OnUpdateSBChip)
+   cmdUI.m_nID = ID_INDICATOR_CHIP;
+   cmdUI.m_pOther = &m_wndStatusBar;
    if ( cmdUI.m_pOther )
    {
-      OnUpdateHighlight(&cmdUI);
+      OnUpdateSBChip(&cmdUI);
    }
-   cmdUI.m_nID = IDC_HIGHLIGHTSPIN1;
-   cmdUI.m_pOther = m_wndOctaveBar.GetDlgItem(cmdUI.m_nID);
+   //	ON_UPDATE_COMMAND_UI(IDC_KEYSTEP, OnUpdateKeyStepEdit)
+   cmdUI.m_nID = IDC_KEYSTEP;
+   cmdUI.m_pOther = m_wndDialogBar.GetDlgItem(cmdUI.m_nID);
    if ( cmdUI.m_pOther )
    {
-      OnUpdateHighlight(&cmdUI);
+      OnUpdateKeyStepEdit(&cmdUI);
    }
-   cmdUI.m_nID = IDC_HIGHLIGHT2;
-   cmdUI.m_pOther = m_wndOctaveBar.GetDlgItem(cmdUI.m_nID);
+   cmdUI.m_nID = IDC_KEYSTEP_SPIN;
+   cmdUI.m_pOther = m_wndDialogBar.GetDlgItem(cmdUI.m_nID);
    if ( cmdUI.m_pOther )
    {
-      OnUpdateHighlight(&cmdUI);
+      OnUpdateKeyStepEdit(&cmdUI);
    }
-   cmdUI.m_nID = IDC_HIGHLIGHTSPIN2;
-   cmdUI.m_pOther = m_wndOctaveBar.GetDlgItem(cmdUI.m_nID);
+   //	ON_UPDATE_COMMAND_UI(IDC_KEYREPEAT, OnUpdateKeyRepeat)
+   cmdUI.m_nID = IDC_KEYREPEAT;
+   cmdUI.m_pOther = m_wndDialogBar.GetDlgItem(cmdUI.m_nID);
    if ( cmdUI.m_pOther )
    {
-      OnUpdateHighlight(&cmdUI);
+      OnUpdateKeyRepeat(&cmdUI);
    }
-   
+   //	ON_UPDATE_COMMAND_UI(IDC_SPEED, OnUpdateSpeedEdit)
    cmdUI.m_nID = IDC_SPEED;
    cmdUI.m_pOther = m_wndDialogBar.GetDlgItem(cmdUI.m_nID);
    if ( cmdUI.m_pOther )
    {
       OnUpdateSpeedEdit(&cmdUI);
    }
+   cmdUI.m_nID = IDC_SPEED_SPIN;
+   cmdUI.m_pOther = m_wndDialogBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateSpeedEdit(&cmdUI);
+   }
+   //	ON_UPDATE_COMMAND_UI(IDC_TEMPO, OnUpdateTempoEdit)
+   cmdUI.m_nID = IDC_TEMPO;
+   cmdUI.m_pOther = m_wndDialogBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateTempoEdit(&cmdUI);
+   }
+   cmdUI.m_nID = IDC_TEMPO_SPIN;
+   cmdUI.m_pOther = m_wndDialogBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateTempoEdit(&cmdUI);
+   }
+   //	ON_UPDATE_COMMAND_UI(IDC_ROWS, OnUpdateRowsEdit)
+   cmdUI.m_nID = IDC_ROWS;
+   cmdUI.m_pOther = m_wndDialogBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateRowsEdit(&cmdUI);
+   }
+   cmdUI.m_nID = IDC_ROWS_SPIN;
+   cmdUI.m_pOther = m_wndDialogBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateRowsEdit(&cmdUI);
+   }
+   //	ON_UPDATE_COMMAND_UI(IDC_FRAMES, OnUpdateFramesEdit)
+   cmdUI.m_nID = IDC_FRAMES;
+   cmdUI.m_pOther = m_wndDialogBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateFramesEdit(&cmdUI);
+   }
+   cmdUI.m_nID = IDC_FRAME_SPIN;
+   cmdUI.m_pOther = m_wndOctaveBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateFramesEdit(&cmdUI);
+   }
+   //	ON_UPDATE_COMMAND_UI(ID_NEXT_SONG, OnUpdateNextSong)
+   //	ON_UPDATE_COMMAND_UI(ID_PREV_SONG, OnUpdatePrevSong)
+   //	ON_UPDATE_COMMAND_UI(ID_TRACKER_SWITCHTOTRACKINSTRUMENT, OnUpdateTrackerSwitchToInstrument)
+   //	ON_UPDATE_COMMAND_UI(ID_VIEW_CONTROLPANEL, OnUpdateViewControlpanel)
+   //	ON_UPDATE_COMMAND_UI(IDC_HIGHLIGHT1, OnUpdateHighlight)
+   cmdUI.m_nID = IDC_HIGHLIGHT1;
+   cmdUI.m_pOther = m_wndDialogBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateHighlight(&cmdUI);
+   }
+   //	ON_UPDATE_COMMAND_UI(IDC_HIGHLIGHT2, OnUpdateHighlight)
+   cmdUI.m_nID = IDC_HIGHLIGHT2;
+   cmdUI.m_pOther = m_wndDialogBar.GetDlgItem(cmdUI.m_nID);
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateHighlight(&cmdUI);
+   }
+   //	ON_UPDATE_COMMAND_UI(ID_EDIT_EXPANDPATTERNS, OnUpdateSelectionEnabled)
+   //	ON_UPDATE_COMMAND_UI(ID_EDIT_SHRINKPATTERNS, OnUpdateSelectionEnabled)
+   
+   //	ON_UPDATE_COMMAND_UI(ID_FRAMEEDITOR_TOP, OnUpdateFrameeditorTop)
+   //	ON_UPDATE_COMMAND_UI(ID_FRAMEEDITOR_LEFT, OnUpdateFrameeditorLeft)
+   
+      cmdUI.m_nID = IDC_HIGHLIGHTSPIN1;
+      cmdUI.m_pOther = m_wndOctaveBar.GetDlgItem(cmdUI.m_nID);
+      if ( cmdUI.m_pOther )
+      {
+         OnUpdateHighlight(&cmdUI);
+      }
+      cmdUI.m_nID = IDC_HIGHLIGHTSPIN2;
+      cmdUI.m_pOther = m_wndOctaveBar.GetDlgItem(cmdUI.m_nID);
+      if ( cmdUI.m_pOther )
+      {
+         OnUpdateHighlight(&cmdUI);
+      }
+   
+//   // Update toolbar button states.
+//   cmdUI.m_nID = ID_FILE_NEW;
+//   cmdUI.m_pOther = &m_wndToolBar;
+//   if ( cmdUI.m_pOther )
+//   {
+//   }
+//   cmdUI.m_nID = ID_FILE_OPEN;
+//   cmdUI.m_pOther = &m_wndToolBar;
+//   if ( cmdUI.m_pOther )
+//   {
+//   }
+//   cmdUI.m_nID = ID_FILE_SAVE;
+//   cmdUI.m_pOther = &m_wndToolBar;
+//   if ( cmdUI.m_pOther )
+//   {
+//   }
+//   cmdUI.m_nID = ID_EDIT_CUT;
+//   cmdUI.m_pOther = &m_wndToolBar;
+//   if ( cmdUI.m_pOther )
+//   {
+//   }
+//   cmdUI.m_nID = ID_EDIT_COPY;
+//   cmdUI.m_pOther = &m_wndToolBar;
+//   if ( cmdUI.m_pOther )
+//   {
+//   }
+//   cmdUI.m_nID = ID_EDIT_PASTE;
+//   cmdUI.m_pOther = &m_wndToolBar;
+//   if ( cmdUI.m_pOther )
+//   {
+//   }
+//   cmdUI.m_nID = ID_APP_ABOUT;
+//   cmdUI.m_pOther = &m_wndToolBar;
+//   if ( cmdUI.m_pOther )
+//   {
+//   }
+//   cmdUI.m_nID = ID_CONTEXT_HELP;
+//   cmdUI.m_pOther = &m_wndToolBar;
+//   if ( cmdUI.m_pOther )
+//   {
+//   }
+//   cmdUI.m_nID = ID_MODULE_INSERTFRAME;
+//   cmdUI.m_pOther = &m_wndToolBar;
+//   if ( cmdUI.m_pOther )
+//   {
+//      OnUpdateInsertFrame(&cmdUI);
+//   }
+//   cmdUI.m_nID = ID_MODULE_REMOVEFRAME;
+//   cmdUI.m_pOther = &m_wndToolBar;
+//   if ( cmdUI.m_pOther )
+//   {
+//      OnUpdateRemoveFrame(&cmdUI);
+//   }
+//   cmdUI.m_nID = ID_MODULE_MOVEFRAMEDOWN;
+//   cmdUI.m_pOther = &m_wndToolBar;
+//   if ( cmdUI.m_pOther )
+//   {
+//      OnUpdateModuleMoveframedown(&cmdUI);
+//   }
+//   cmdUI.m_nID = ID_MODULE_MOVEFRAMEUP;
+//   cmdUI.m_pOther = &m_wndToolBar;
+//   if ( cmdUI.m_pOther )
+//   {
+//      OnUpdateModuleMoveframeup(&cmdUI);
+//   }
+//   cmdUI.m_nID = ID_MODULE_DUPLICATEFRAME;
+//   cmdUI.m_pOther = &m_wndToolBar;
+//   if ( cmdUI.m_pOther )
+//   {
+//      OnUpdateDuplicateFrame(&cmdUI);
+//   }
+//   cmdUI.m_nID = ID_MODULE_MODULEPROPERTIES;
+//   cmdUI.m_pOther = &m_wndToolBar;
+//   if ( cmdUI.m_pOther )
+//   {
+//   }
+//   cmdUI.m_nID = ID_TRACKER_PLAY;
+//   cmdUI.m_pOther = &m_wndToolBar;
+//   if ( cmdUI.m_pOther )
+//   {
+//   }
+//   cmdUI.m_nID = ID_TRACKER_PLAYPATTERN;
+//   cmdUI.m_pOther = &m_wndToolBar;
+//   if ( cmdUI.m_pOther )
+//   {
+//   }
+//   cmdUI.m_nID = ID_TRACKER_STOP;
+//   cmdUI.m_pOther = &m_wndToolBar;
+//   if ( cmdUI.m_pOther )
+//   {
+//   }
+//   cmdUI.m_nID = ID_TRACKER_EDIT;
+//   cmdUI.m_pOther = &m_wndToolBar;
+//   if ( cmdUI.m_pOther )
+//   {
+//   }
+//   cmdUI.m_nID = ID_PREV_SONG;
+//   cmdUI.m_pOther = &m_wndToolBar;
+//   if ( cmdUI.m_pOther )
+//   {
+//      OnUpdatePrevSong(&cmdUI);
+//   }
+//   cmdUI.m_nID = ID_NEXT_SONG;
+//   cmdUI.m_pOther = &m_wndToolBar;
+//   if ( cmdUI.m_pOther )
+//   {
+//      OnUpdateNextSong(&cmdUI);
+//   }
+//   cmdUI.m_nID = ID_FILE_GENERALSETTINGS;
+//   cmdUI.m_pOther = &m_wndToolBar;
+//   if ( cmdUI.m_pOther )
+//   {
+//   }
+//   cmdUI.m_nID = ID_FILE_CREATE_NSF;
+//   cmdUI.m_pOther = &m_wndToolBar;
+//   if ( cmdUI.m_pOther )
+//   {
+//   }
+   
+//   // Update instrument toolbar button states.
+//   cmdUI.m_nID = ID_INSTRUMENT_NEW;
+//   cmdUI.m_pOther = &m_wndToolBar;
+//   if ( cmdUI.m_pOther )
+//   {
+//      OnUpdateInstrumentNew(&cmdUI);
+//   }
+//   cmdUI.m_nID = ID_INSTRUMENT_REMOVE;
+//   cmdUI.m_pOther = &m_wndToolBar;
+//   if ( cmdUI.m_pOther )
+//   {
+//      OnUpdateInstrumentRemove(&cmdUI);
+//   }
+//   cmdUI.m_nID = ID_INSTRUMENT_CLONE;
+//   cmdUI.m_pOther = &m_wndToolBar;
+//   if ( cmdUI.m_pOther )
+//   {
+//      OnUpdateInstrumentClone(&cmdUI);
+//   }
+//   cmdUI.m_nID = ID_INSTRUMENT_LOAD;
+//   cmdUI.m_pOther = &m_wndToolBar;
+//   if ( cmdUI.m_pOther )
+//   {
+//      OnUpdateInstrumentLoad(&cmdUI);
+//   }
+//   cmdUI.m_nID = ID_INSTRUMENT_SAVE;
+//   cmdUI.m_pOther = &m_wndToolBar;
+//   if ( cmdUI.m_pOther )
+//   {
+//      OnUpdateInstrumentSave(&cmdUI);
+//   }
+//   cmdUI.m_nID = ID_INSTRUMENT_EDIT;
+//   cmdUI.m_pOther = &m_wndToolBar;
+//   if ( cmdUI.m_pOther )
+//   {
+//      OnUpdateInstrumentEdit(&cmdUI);
+//   }
+   
+//   cmdUI.m_nID = IDC_HIGHLIGHT1;
+//   cmdUI.m_pOther = m_wndOctaveBar.GetDlgItem(cmdUI.m_nID);
+//   if ( cmdUI.m_pOther )
+//   {
+//      OnUpdateHighlight(&cmdUI);
+//   }
+   
+//   cmdUI.m_nID = IDC_SPEED;
+//   cmdUI.m_pOther = m_wndDialogBar.GetDlgItem(cmdUI.m_nID);
+//   if ( cmdUI.m_pOther )
+//   {
+//      OnUpdateSpeedEdit(&cmdUI);
+//   }
 }
 
 void CMainFrame::updateViews(long hint)
@@ -936,6 +1055,134 @@ void CMainFrame::framesSpin_valueChanged(int arg1, int arg2)
    nmud.iPos = arg2;
    nmud.iDelta = arg1-arg2;
    OnDeltaposFrameSpin((NMHDR*)&nmud,&result);
+}
+
+void CMainFrame::menuAboutToShow(CMenu* menu)
+{
+   CCmdUI cmdUI;
+   cmdUI.m_pMenu = menu;
+
+   // Pass to view class first.
+   m_pView->menuAboutToShow(menu);
+   
+   //	ON_UPDATE_COMMAND_UI(ID_EDIT_UNDO, OnUpdateEditUndo)
+   cmdUI.m_nID = ID_EDIT_UNDO;
+   OnUpdateEditUndo(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(ID_EDIT_REDO, OnUpdateEditRedo)
+   cmdUI.m_nID = ID_EDIT_REDO;
+   OnUpdateEditRedo(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(ID_EDIT_COPY, OnUpdateEditCopy)
+   cmdUI.m_nID = ID_EDIT_COPY;
+   OnUpdateEditCopy(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(ID_EDIT_PASTE, OnUpdateEditPaste)
+   cmdUI.m_nID = ID_EDIT_PASTE;
+   OnUpdateEditPaste(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(ID_EDIT_ENABLEMIDI, OnUpdateEditEnablemidi)
+   cmdUI.m_nID = ID_EDIT_ENABLEMIDI;
+   OnUpdateEditEnablemidi(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(ID_MODULE_INSERTFRAME, OnUpdateInsertFrame)
+   cmdUI.m_nID = ID_MODULE_INSERTFRAME;
+   OnUpdateInsertFrame(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(ID_MODULE_REMOVEFRAME, OnUpdateRemoveFrame)
+   cmdUI.m_nID = ID_MODULE_REMOVEFRAME;
+   OnUpdateRemoveFrame(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(ID_MODULE_DUPLICATEFRAME, OnUpdateDuplicateFrame)
+   cmdUI.m_nID = ID_MODULE_DUPLICATEFRAME;
+   OnUpdateDuplicateFrame(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(ID_MODULE_MOVEFRAMEDOWN, OnUpdateModuleMoveframedown)
+   cmdUI.m_nID = ID_MODULE_MOVEFRAMEDOWN;
+   OnUpdateModuleMoveframedown(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(ID_MODULE_MOVEFRAMEUP, OnUpdateModuleMoveframeup)
+   cmdUI.m_nID = ID_MODULE_MOVEFRAMEUP;
+   OnUpdateModuleMoveframeup(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_NEW, OnUpdateInstrumentNew)
+   cmdUI.m_nID = ID_INSTRUMENT_NEW;
+   OnUpdateInstrumentNew(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_REMOVE, OnUpdateInstrumentRemove)
+   cmdUI.m_nID = ID_INSTRUMENT_REMOVE;
+   OnUpdateInstrumentRemove(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_CLONE, OnUpdateInstrumentClone)
+   cmdUI.m_nID = ID_INSTRUMENT_CLONE;
+   OnUpdateInstrumentClone(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_DEEPCLONE, OnUpdateInstrumentDeepClone)
+   cmdUI.m_nID = ID_INSTRUMENT_DEEPCLONE;
+   OnUpdateInstrumentDeepClone(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_EDIT, OnUpdateInstrumentEdit)
+   cmdUI.m_nID = ID_INSTRUMENT_EDIT;
+   OnUpdateInstrumentEdit(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_LOAD, OnUpdateInstrumentLoad)
+   cmdUI.m_nID = ID_INSTRUMENT_LOAD;
+   OnUpdateInstrumentLoad(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_SAVE, OnUpdateInstrumentSave)
+   cmdUI.m_nID = ID_INSTRUMENT_SAVE;
+   OnUpdateInstrumentSave(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(ID_INDICATOR_INSTRUMENT, OnUpdateSBInstrument)
+   cmdUI.m_nID = ID_INDICATOR_INSTRUMENT;
+   OnUpdateSBInstrument(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(ID_INDICATOR_OCTAVE, OnUpdateSBOctave)
+   cmdUI.m_nID = ID_INDICATOR_OCTAVE;
+   OnUpdateSBOctave(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(ID_INDICATOR_RATE, OnUpdateSBFrequency)
+   cmdUI.m_nID = ID_INDICATOR_RATE;
+   OnUpdateSBFrequency(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(ID_INDICATOR_TEMPO, OnUpdateSBTempo)
+   cmdUI.m_nID = ID_INDICATOR_TEMPO;
+   OnUpdateSBTempo(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(ID_INDICATOR_CHIP, OnUpdateSBChip)
+   cmdUI.m_nID = ID_INDICATOR_CHIP;
+   OnUpdateSBChip(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(IDC_KEYSTEP, OnUpdateKeyStepEdit)
+   cmdUI.m_nID = IDC_KEYSTEP;
+   OnUpdateKeyStepEdit(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(IDC_KEYREPEAT, OnUpdateKeyRepeat)
+   cmdUI.m_nID = IDC_KEYREPEAT;
+   OnUpdateKeyRepeat(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(IDC_SPEED, OnUpdateSpeedEdit)
+   cmdUI.m_nID = IDC_SPEED;
+   OnUpdateSpeedEdit(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(IDC_TEMPO, OnUpdateTempoEdit)
+   cmdUI.m_nID = IDC_TEMPO;
+   OnUpdateTempoEdit(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(IDC_ROWS, OnUpdateRowsEdit)
+   cmdUI.m_nID = IDC_ROWS;
+   OnUpdateRowsEdit(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(IDC_FRAMES, OnUpdateFramesEdit)
+   cmdUI.m_nID = IDC_FRAMES;
+   OnUpdateFramesEdit(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(ID_NEXT_SONG, OnUpdateNextSong)
+   cmdUI.m_nID = ID_NEXT_SONG;
+   OnUpdateNextSong(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(ID_PREV_SONG, OnUpdatePrevSong)
+   cmdUI.m_nID = ID_PREV_SONG;
+   OnUpdatePrevSong(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(ID_TRACKER_SWITCHTOTRACKINSTRUMENT, OnUpdateTrackerSwitchToInstrument)
+   cmdUI.m_nID = ID_TRACKER_SWITCHTOTRACKINSTRUMENT;
+   OnUpdateTrackerSwitchToInstrument(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(ID_VIEW_CONTROLPANEL, OnUpdateViewControlpanel)
+   cmdUI.m_nID = ID_VIEW_CONTROLPANEL;
+   OnUpdateViewControlpanel(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(IDC_HIGHLIGHT1, OnUpdateHighlight)
+   cmdUI.m_nID = IDC_HIGHLIGHT1;
+   OnUpdateHighlight(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(IDC_HIGHLIGHT2, OnUpdateHighlight)
+   cmdUI.m_nID = IDC_HIGHLIGHT2;
+   OnUpdateHighlight(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(ID_EDIT_EXPANDPATTERNS, OnUpdateSelectionEnabled)
+   cmdUI.m_nID = ID_EDIT_EXPANDPATTERNS;
+   OnUpdateSelectionEnabled(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(ID_EDIT_SHRINKPATTERNS, OnUpdateSelectionEnabled)
+   cmdUI.m_nID = ID_EDIT_SHRINKPATTERNS;
+   OnUpdateSelectionEnabled(&cmdUI);
+   
+   //	ON_UPDATE_COMMAND_UI(ID_FRAMEEDITOR_TOP, OnUpdateFrameeditorTop)
+   cmdUI.m_nID = ID_FRAMEEDITOR_TOP;
+   OnUpdateFrameeditorTop(&cmdUI);
+   //	ON_UPDATE_COMMAND_UI(ID_FRAMEEDITOR_LEFT, OnUpdateFrameeditorLeft)
+   cmdUI.m_nID = ID_FRAMEEDITOR_LEFT;
+   OnUpdateFrameeditorLeft(&cmdUI);
+   
+   // Pass to app next.
+   ((CFamiTrackerApp*)AfxGetApp())->menuAboutToShow(menu);
 }
 
 void CMainFrame::menuAction_triggered(int id)
@@ -3146,7 +3393,6 @@ void CMainFrame::UpdateMenus()
 
 void CMainFrame::UpdateMenu(CMenu *pMenu)
 {
-   qDebug("CMainFrame::UpdateMenu");
 //	CAccelerator *pAccel = theApp.GetAccelerator();
 
 //	for (UINT i = 0; i < pMenu->GetMenuItemCount(); ++i) {

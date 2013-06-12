@@ -5556,6 +5556,7 @@ BOOL CDocTemplate::GetDocString(
    enum DocStringIndex index 
 ) const
 {
+   BOOL ret = TRUE;
    switch ( index )
    {
    case windowTitle:
@@ -5582,7 +5583,12 @@ BOOL CDocTemplate::GetDocString(
       
    case regFileTypeName:
       break;
+      
+   default:
+      ret = FALSE;
+      break;
    }
+   return ret;
 }
 
 
@@ -5799,6 +5805,11 @@ void CMenu::menuAction_triggered()
    emit menuAction_triggered(qtToMfcMenu.value((QAction*)sender()));
 }
 
+void CMenu::menuAboutToShow()
+{
+   emit menuAboutToShow(this);
+}
+
 void CMenu::addSubMenu(CMenu* menu)
 {
    _cmenu->append(menu);
@@ -5962,6 +5973,7 @@ BOOL CMenu::TrackPopupMenu(
    if ( !(nFlags&TPM_RETURNCMD) )
    {
       QObject::connect(this,SIGNAL(menuAction_triggered(int)),pWnd,SLOT(menuAction_triggered(int)));
+      QObject::connect(this,SIGNAL(menuAboutToShow(CMenu*)),pWnd,SLOT(menuAboutToShow(CMenu*)));
    }
    QAction* action = _qtd->exec(QCursor::pos());
    int result = 0;
@@ -5976,6 +5988,7 @@ BOOL CMenu::TrackPopupMenu(
    if ( !(nFlags&TPM_RETURNCMD) )
    {
       QObject::disconnect(this,SIGNAL(menuAction_triggered(int)),pWnd,SLOT(menuAction_triggered(int)));
+      QObject::disconnect(this,SIGNAL(menuAboutToShow(CMenu*)),pWnd,SLOT(menuAboutToShow(CMenu*)));
    }  
    return result;
 }
@@ -7847,6 +7860,7 @@ BOOL CToolTipCtrl::Create(
 )
 {
    // nothing to do here...
+   return TRUE;
 }
 
 void CToolTipCtrl::Activate( 
@@ -7865,6 +7879,7 @@ BOOL CToolTipCtrl::AddTool(
 {
    _tippers.append(pWnd);
    pWnd->toQWidget()->setToolTip(qtMfcStringResource(nIDText));
+   return TRUE;
 }
 
 BOOL CToolTipCtrl::AddTool(
@@ -7876,6 +7891,7 @@ BOOL CToolTipCtrl::AddTool(
 {
    _tippers.append(pWnd);
    pWnd->toQWidget()->setToolTip(lpszText);
+   return TRUE;
 }
 
 void CToolTipCtrl::RelayEvent(
@@ -7885,6 +7901,88 @@ void CToolTipCtrl::RelayEvent(
    // nothing to do here...
 }
 
+CCmdUI::CCmdUI()
+   : m_pMenu(NULL),
+     m_pSubMenu(NULL),
+     m_pOther(NULL),
+     m_nID(0),
+     m_nIndex(0)
+{
+}
+
+void CCmdUI::ContinueRouting( ) 
+{
+}
+
+void CCmdUI::Enable(
+   BOOL bOn
+) 
+{ 
+   if ( m_pOther )
+   {
+      m_pOther->EnableWindow(bOn); 
+   }
+   else if ( m_pMenu )
+   {
+      m_pMenu->EnableMenuItem(m_nID,bOn);
+   }
+   else if ( m_pSubMenu )
+   {
+      m_pSubMenu->EnableMenuItem(m_nID,bOn);
+   }
+}
+
+void CCmdUI::SetCheck(
+   int nCheck
+) 
+{ 
+   if ( m_pOther )
+   {
+      m_pOther->CheckDlgButton(m_nID,nCheck);
+   }
+   else if ( m_pMenu )
+   {
+      m_pMenu->CheckMenuItem(m_nID,nCheck); 
+   }
+   else if ( m_pSubMenu )
+   {
+      m_pSubMenu->CheckMenuItem(m_nID,nCheck); 
+   }
+}
+
+void CCmdUI::SetRadio(
+   BOOL bOn
+) 
+{ 
+   if ( m_pOther )
+   {
+      m_pOther->CheckDlgButton(m_nID,bOn);
+   }
+   else if ( m_pMenu )
+   {
+      m_pMenu->CheckMenuItem(m_nID,bOn); 
+   }
+   else if ( m_pSubMenu )
+   {
+      m_pSubMenu->CheckMenuItem(m_nID,bOn); 
+   }
+}
+
+void CCmdUI::SetText(
+   LPCTSTR lpszText 
+) 
+{ 
+   if ( m_pOther )
+   {
+      m_pOther->SetDlgItemText(m_nID,lpszText); 
+   }
+   else if ( m_pMenu )
+   {
+   }
+   else if ( m_pSubMenu )
+   {
+   }
+}
 
 int EnumFontFamiliesEx(
    HDC hdc,
@@ -7897,14 +7995,17 @@ int EnumFontFamiliesEx(
    QFontDatabase database;
    ENUMLOGFONTEX elfe;
    NEWTEXTMETRICEX ntme;
+   int ret = 0;
    
    foreach ( QString family, database.families() )
    {
       memset(&ntme,0,sizeof(ntme));
       memset(&elfe,0,sizeof(ntme));
       strcpy((char*)elfe.elfFullName,family.toAscii().constData());
-      lpEnumFontFamExProc((LOGFONT*)&elfe,NULL,0,lParam);
+      ret = lpEnumFontFamExProc((LOGFONT*)&elfe,NULL,0,lParam);
+      if ( !ret ) break;
    }
+   return ret;
 }
 
 void openFile(QString fileName)

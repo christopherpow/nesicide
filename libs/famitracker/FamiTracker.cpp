@@ -66,6 +66,10 @@ const DWORD	SHARED_MEM_SIZE			= 256;
 //#endif
 //END_MESSAGE_MAP()
 
+void CFamiTrackerApp::menuAboutToShow(CMenu* menu)
+{
+}
+
 void CFamiTrackerApp::menuAction_triggered(int id)
 {
    typedef void (CFamiTrackerApp::*actionHandler)();

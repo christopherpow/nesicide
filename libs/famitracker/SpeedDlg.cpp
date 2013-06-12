@@ -60,7 +60,7 @@ void CSpeedDlg::cancel_clicked()
 
 void CSpeedDlg::speedSld_valueChanged(int value)
 {
-   OnHScroll(SB_HORZ,value,dynamic_cast<CScrollBar*>(GetDlgItem(IDC_SPEED_SLD)));
+   OnHScroll(SB_HORZ,value,(CScrollBar*)GetDlgItem(IDC_SPEED_SLD));
 }
 
 // CSpeedDlg message handlers

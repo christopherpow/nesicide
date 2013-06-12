@@ -22,6 +22,7 @@ void qtMfcInitMenuResource_IDR_MAINFRAME(CMenu* parent)
 //    POPUP "&File"
    subMenu = new CMenu;
    qtMenu = dynamic_cast<QMenu*>(subMenu->toQMenu());
+   QObject::connect(qtMenu,SIGNAL(aboutToShow()),subMenu,SLOT(menuAboutToShow()));
    mfcToQtMenu = subMenu->mfcToQtMenuMap();
    qtToMfcMenu = subMenu->qtToMfcMenuMap();
    parent->addSubMenu(subMenu);
@@ -99,6 +100,7 @@ void qtMfcInitMenuResource_IDR_MAINFRAME(CMenu* parent)
 //    POPUP "&Edit"
    subMenu = new CMenu;
    qtMenu = dynamic_cast<QMenu*>(subMenu->toQMenu());
+   QObject::connect(qtMenu,SIGNAL(aboutToShow()),subMenu,SLOT(menuAboutToShow()));
    mfcToQtMenu = subMenu->mfcToQtMenuMap();
    qtToMfcMenu = subMenu->qtToMfcMenuMap();
    parent->addSubMenu(subMenu);
@@ -270,6 +272,7 @@ void qtMfcInitMenuResource_IDR_MAINFRAME(CMenu* parent)
 //    POPUP "&Module"
    subMenu = new CMenu;
    qtMenu = dynamic_cast<QMenu*>(subMenu->toQMenu());
+   QObject::connect(qtMenu,SIGNAL(aboutToShow()),subMenu,SLOT(menuAboutToShow()));
    mfcToQtMenu = subMenu->mfcToQtMenuMap();
    qtToMfcMenu = subMenu->qtToMfcMenuMap();
    parent->addSubMenu(subMenu);
@@ -337,6 +340,7 @@ void qtMfcInitMenuResource_IDR_MAINFRAME(CMenu* parent)
 //    POPUP "&Instrument"
    subMenu = new CMenu;
    qtMenu = dynamic_cast<QMenu*>(subMenu->toQMenu());
+   QObject::connect(qtMenu,SIGNAL(aboutToShow()),subMenu,SLOT(menuAboutToShow()));
    mfcToQtMenu = subMenu->mfcToQtMenuMap();
    qtToMfcMenu = subMenu->qtToMfcMenuMap();
    parent->addSubMenu(subMenu);
@@ -392,6 +396,7 @@ void qtMfcInitMenuResource_IDR_MAINFRAME(CMenu* parent)
 //    POPUP "T&racker"
    subMenu = new CMenu;
    qtMenu = dynamic_cast<QMenu*>(subMenu->toQMenu());
+   QObject::connect(qtMenu,SIGNAL(aboutToShow()),subMenu,SLOT(menuAboutToShow()));
    mfcToQtMenu = subMenu->mfcToQtMenuMap();
    qtToMfcMenu = subMenu->qtToMfcMenuMap();
    parent->addSubMenu(subMenu);
@@ -505,6 +510,7 @@ void qtMfcInitMenuResource_IDR_MAINFRAME(CMenu* parent)
 //    POPUP "&View"
    subMenu = new CMenu;
    qtMenu = dynamic_cast<QMenu*>(subMenu->toQMenu());
+   QObject::connect(qtMenu,SIGNAL(aboutToShow()),subMenu,SLOT(menuAboutToShow()));
    mfcToQtMenu = subMenu->mfcToQtMenuMap();
    qtToMfcMenu = subMenu->qtToMfcMenuMap();
    parent->addSubMenu(subMenu);
@@ -550,6 +556,7 @@ void qtMfcInitMenuResource_IDR_MAINFRAME(CMenu* parent)
 //    POPUP "&Help"
    subMenu = new CMenu;
    qtMenu = dynamic_cast<QMenu*>(subMenu->toQMenu());
+   QObject::connect(qtMenu,SIGNAL(aboutToShow()),subMenu,SLOT(menuAboutToShow()));
    mfcToQtMenu = subMenu->mfcToQtMenuMap();
    qtToMfcMenu = subMenu->qtToMfcMenuMap();
    parent->addSubMenu(subMenu);
@@ -594,6 +601,7 @@ void qtMfcInitMenuResource_IDR_PATTERN_POPUP(CMenu* parent)
 //   BEGIN
    CMenu* subMenu = new CMenu;
    QMenu* qtMenu = dynamic_cast<QMenu*>(subMenu->toQMenu());
+   QObject::connect(qtMenu,SIGNAL(aboutToShow()),subMenu,SLOT(menuAboutToShow()));
    QHash<UINT_PTR,QAction*>* mfcToQtMenu = subMenu->mfcToQtMenuMap();
    QHash<QAction*,UINT_PTR>* qtToMfcMenu = subMenu->qtToMfcMenuMap();
 //       POPUP "Popup"
@@ -742,6 +750,7 @@ void qtMfcInitMenuResource_IDR_FRAME_POPUP(CMenu* parent)
 //   BEGIN
    CMenu* subMenu = new CMenu;
    QMenu* qtMenu = dynamic_cast<QMenu*>(subMenu->toQMenu());
+   QObject::connect(qtMenu,SIGNAL(aboutToShow()),subMenu,SLOT(menuAboutToShow()));
    QHash<UINT_PTR,QAction*>* mfcToQtMenu = subMenu->mfcToQtMenuMap();
    QHash<QAction*,UINT_PTR>* qtToMfcMenu = subMenu->qtToMfcMenuMap();
 //       POPUP "Frame"
@@ -818,6 +827,7 @@ void qtMfcInitMenuResource_IDR_INSTRUMENT_POPUP(CMenu* parent)
 //   BEGIN
    CMenu* subMenu = new CMenu;
    QMenu* qtMenu = dynamic_cast<QMenu*>(subMenu->toQMenu());
+   QObject::connect(qtMenu,SIGNAL(aboutToShow()),subMenu,SLOT(menuAboutToShow()));
    QHash<UINT_PTR,QAction*>* mfcToQtMenu = subMenu->mfcToQtMenuMap();
    QHash<QAction*,UINT_PTR>* qtToMfcMenu = subMenu->qtToMfcMenuMap();
 //       POPUP "Instrument"
@@ -870,6 +880,7 @@ void qtMfcInitMenuResource_IDR_SAMPLES_POPUP(CMenu* parent)
 //   BEGIN
    CMenu* subMenu = new CMenu;
    QMenu* qtMenu = dynamic_cast<QMenu*>(subMenu->toQMenu());
+   QObject::connect(qtMenu,SIGNAL(aboutToShow()),subMenu,SLOT(menuAboutToShow()));
    QHash<UINT_PTR,QAction*>* mfcToQtMenu = subMenu->mfcToQtMenuMap();
    QHash<QAction*,UINT_PTR>* qtToMfcMenu = subMenu->qtToMfcMenuMap();
 //       POPUP "Popup"
@@ -928,6 +939,7 @@ void qtMfcInitMenuResource_IDR_SAMPLE_WND_POPUP(CMenu* parent)
 //   BEGIN
    CMenu* subMenu = new CMenu;
    QMenu* qtMenu = dynamic_cast<QMenu*>(subMenu->toQMenu());
+   QObject::connect(qtMenu,SIGNAL(aboutToShow()),subMenu,SLOT(menuAboutToShow()));
    QHash<UINT_PTR,QAction*>* mfcToQtMenu = subMenu->mfcToQtMenuMap();
    QHash<QAction*,UINT_PTR>* qtToMfcMenu = subMenu->qtToMfcMenuMap();
 //       POPUP "Popup"
@@ -970,6 +982,7 @@ void qtMfcInitMenuResource_IDR_PATTERN_HEADER_POPUP(CMenu* parent)
 //   BEGIN
    CMenu* subMenu = new CMenu;
    QMenu* qtMenu = dynamic_cast<QMenu*>(subMenu->toQMenu());
+   QObject::connect(qtMenu,SIGNAL(aboutToShow()),subMenu,SLOT(menuAboutToShow()));
    QHash<UINT_PTR,QAction*>* mfcToQtMenu = subMenu->mfcToQtMenuMap();
    QHash<QAction*,UINT_PTR>* qtToMfcMenu = subMenu->qtToMfcMenuMap();
 //       POPUP "Popup"

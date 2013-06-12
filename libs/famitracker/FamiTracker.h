@@ -74,6 +74,7 @@ class CFamiTrackerApp : public CWinApp
    Q_OBJECT
 public slots:
    void menuAction_triggered(int id);
+   void menuAboutToShow(CMenu* menu);
 public:
 	// Constructor
 	CFamiTrackerApp();

@@ -1766,8 +1766,10 @@ public:
    QHash<QAction*,UINT_PTR>* qtToMfcMenuMap() { return &qtToMfcMenu; }
 public slots:
    void menuAction_triggered();
+   void menuAboutToShow();
 signals:
    void menuAction_triggered(int id);
+   void menuAboutToShow(CMenu* menu);
       
    // MFC interface
 public:
@@ -3305,19 +3307,20 @@ public:
 class CCmdUI
 {
 public:
-   void ContinueRouting( ) {}
+   CCmdUI();
+   void ContinueRouting( );
    virtual void Enable(
       BOOL bOn = TRUE 
-   ) { m_pOther->EnableWindow(bOn); }
+   );
    virtual void SetCheck(
       int nCheck = 1 
-   ) { m_pMenu->CheckMenuItem(m_nID,nCheck); }
+   );
    virtual void SetRadio(
       BOOL bOn = TRUE 
-   ) { m_pOther->CheckDlgButton(m_nID,bOn); }
+   );
    virtual void SetText(
       LPCTSTR lpszText 
-   ) { m_pOther->SetDlgItemText(m_nID,lpszText); }
+   );
    UINT m_nID;
    UINT m_nIndex;
    CMenu* m_pMenu;
