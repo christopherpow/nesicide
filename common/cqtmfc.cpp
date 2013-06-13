@@ -6719,10 +6719,10 @@ BOOL CSpinButtonCtrl::Create(
    
    // Pass-through signals
    QObject::connect(_qtd,SIGNAL(valueChanged(int)),this,SLOT(control_edited()));
-   QObject::connect(_qtd,SIGNAL(editingFinished()),this,SLOT(control_edited()));
 
    _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
    _qtd->setFrame(false);
+   _qtd->setMaximum(65536);
    _qtd->setVisible(dwStyle&WS_VISIBLE);
    
    return TRUE;
@@ -6741,6 +6741,7 @@ int CSpinButtonCtrl::SetPos(
    int pos = _qtd->value();
    _qtd->blockSignals(true);
    _qtd->setValue(nPos);
+   _oldValue = _qtd->value();
    _qtd->blockSignals(false);
    return pos;
 }
@@ -6755,7 +6756,9 @@ void CSpinButtonCtrl::SetRange(
    short nUpper 
 )
 {
+   _qtd->blockSignals(true);
    _qtd->setRange(nLower,nUpper);
+   _qtd->blockSignals(false);
 }
 
 void CSpinButtonCtrl::SetDlgItemInt(
@@ -6764,7 +6767,10 @@ void CSpinButtonCtrl::SetDlgItemInt(
    BOOL bSigned 
 )
 {
+   _qtd->blockSignals(true);
    _qtd->setValue(nValue);
+   _oldValue = _qtd->value();
+   _qtd->blockSignals(false);
 }
 
 UINT CSpinButtonCtrl::GetDlgItemInt(
@@ -6782,12 +6788,15 @@ void CSpinButtonCtrl::SetDlgItemText(
 )
 {
    QString val;
+   _qtd->blockSignals(true);
 #if UNICODE
    val = QString::fromWCharArray(lpszString);
 #else
    val = QString::fromAscii(lpszString);
 #endif
    _qtd->setValue(val.toInt());
+   _oldValue = _qtd->value();
+   _qtd->blockSignals(false);
 }
 
 int CSpinButtonCtrl::GetDlgItemText(
@@ -6889,7 +6898,9 @@ void CSliderCtrl::SetRange(
    short nUpper 
 )
 {
+   _qtd->blockSignals(true);
    _qtd->setRange(nLower,nUpper);
+   _qtd->blockSignals(false);
 }
 
 void CSliderCtrl::SetRangeMax(
@@ -6897,7 +6908,9 @@ void CSliderCtrl::SetRangeMax(
    BOOL bRedraw
 )
 {
+   _qtd->blockSignals(true);
    _qtd->setMaximum(nMax);
+   _qtd->blockSignals(false);
 }
 
 void CSliderCtrl::SetPos(
@@ -6919,6 +6932,67 @@ void CSliderCtrl::SetTicFreq(
 )
 {
    _qtd->setTickInterval(nFreq);
+}
+
+void CSliderCtrl::SetDlgItemInt(
+   int nID,
+   UINT nValue,
+   BOOL bSigned 
+)
+{
+   _qtd->blockSignals(true);
+   _qtd->setValue(nValue);
+   _qtd->blockSignals(false);
+}
+
+UINT CSliderCtrl::GetDlgItemInt(
+   int nID,
+   BOOL* lpTrans,
+   BOOL bSigned
+) const
+{
+   return _qtd->value();
+}
+
+void CSliderCtrl::SetDlgItemText(
+   int nID,
+   LPCTSTR lpszString 
+)
+{
+   QString val;
+   _qtd->blockSignals(true);
+#if UNICODE
+   val = QString::fromWCharArray(lpszString);
+#else
+   val = QString::fromAscii(lpszString);
+#endif
+   _qtd->setValue(val.toInt());
+   _qtd->blockSignals(false);
+}
+
+int CSliderCtrl::GetDlgItemText(
+   int nID,
+   CString& rString 
+) const
+{
+   QString value = QString::number(_qtd->value());
+   rString = value;
+   return value.length();
+}
+
+int CSliderCtrl::GetDlgItemText(
+   int nID,
+   LPTSTR lpStr,
+   int nMaxCount 
+) const
+{
+   QString value = QString::number(_qtd->value());
+#if UNICODE
+   wcsncpy(lpStr,value.unicode(),nMaxCount);
+#else
+   strncpy(lpStr,value.toAscii().constData(),nMaxCount);
+#endif   
+   return value.length();
 }
 
 CProgressCtrl::CProgressCtrl(CWnd* parent)
@@ -6953,7 +7027,9 @@ void CProgressCtrl::SetRange(
    short nUpper 
 )
 {
+   _qtd->blockSignals(true);
    _qtd->setRange(nLower,nUpper);
+   _qtd->blockSignals(false);
 }
 
 void CProgressCtrl::SetPos(

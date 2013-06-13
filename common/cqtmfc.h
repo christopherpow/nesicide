@@ -2185,6 +2185,29 @@ public:
    void SetTicFreq(
       int nFreq 
    );
+   void SetDlgItemInt(
+      int nID,
+      UINT nValue,
+      BOOL bSigned = TRUE 
+   );
+   UINT GetDlgItemInt(
+      int nID,
+      BOOL* lpTrans = NULL,
+      BOOL bSigned = TRUE 
+   ) const;
+   void SetDlgItemText(
+      int nID,
+      LPCTSTR lpszString 
+   );
+   int GetDlgItemText(
+      int nID,
+      CString& rString 
+   ) const;
+   int GetDlgItemText(
+      int nID,
+      LPTSTR lpStr,
+      int nMaxCount 
+   ) const;
 };
 
 class CProgressCtrl : public CWnd

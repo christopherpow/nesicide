@@ -354,6 +354,7 @@ void CMainFrame::showEvent(QShowEvent *)
       QObject::connect(m_wndDialogBar.GetDlgItem(IDC_TEMPO_SPIN),SIGNAL(valueChanged(int,int)),this,SLOT(tempoSpin_valueChanged(int,int)));
       QObject::connect(m_wndDialogBar.GetDlgItem(IDC_ROWS_SPIN),SIGNAL(valueChanged(int,int)),this,SLOT(rowsSpin_valueChanged(int,int)));
       QObject::connect(m_wndDialogBar.GetDlgItem(IDC_FRAME_SPIN),SIGNAL(valueChanged(int,int)),this,SLOT(framesSpin_valueChanged(int,int)));
+      QObject::connect(m_wndDialogBar.GetDlgItem(IDC_KEYSTEP_SPIN),SIGNAL(valueChanged(int,int)),this,SLOT(keyStepSpin_valueChanged(int,int)));
       QObject::connect(m_wndDialogBar.GetDlgItem(IDC_SUBTUNE)->toQWidget(),SIGNAL(currentIndexChanged(int)),this,SLOT(subtune_currentIndexChanged(int)));
       QObject::connect(m_wndDialogBar.GetDlgItem(IDC_SONG_NAME)->toQWidget(),SIGNAL(textEdited(QString)),this,SLOT(songName_textEdited(QString)));
       QObject::connect(m_wndDialogBar.GetDlgItem(IDC_SONG_ARTIST)->toQWidget(),SIGNAL(textEdited(QString)),this,SLOT(songArtist_textEdited(QString)));
@@ -1055,6 +1056,16 @@ void CMainFrame::framesSpin_valueChanged(int arg1, int arg2)
    nmud.iPos = arg2;
    nmud.iDelta = arg1-arg2;
    OnDeltaposFrameSpin((NMHDR*)&nmud,&result);
+}
+
+void CMainFrame::keyStepSpin_valueChanged(int arg1, int arg2)
+{
+   NMUPDOWN nmud;
+   LRESULT result;
+
+   nmud.iPos = arg2;
+   nmud.iDelta = arg1-arg2;
+   OnDeltaposKeyStepSpin((NMHDR*)&nmud,&result);
 }
 
 void CMainFrame::menuAboutToShow(CMenu* menu)
