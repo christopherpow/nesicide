@@ -5000,7 +5000,21 @@ void CToolBar::SetButtonStyle(
    UINT nStyle 
 )
 {
-   qDebug("CToolBar::SetButtonStyle");
+   QAction* cur;
+   QComboBox* cb;
+   switch ( nStyle )
+   {
+   case TBBS_DROPDOWN:
+      cur = _qtd->actions().at(nIndex);
+      cb = new QComboBox;
+      cb->addItem(cur->icon(),"");
+      _qtd->removeAction(cur);
+      _qtd->addWidget(cb);
+      break;
+   default:
+      qDebug("CToolBar::SetButtonStyle %d not implemented");      
+      break;
+   }
 }
 
 void CToolBar::toolBarAction_triggered()
@@ -6740,8 +6754,8 @@ int CSpinButtonCtrl::SetPos(
 {
    int pos = _qtd->value();
    _qtd->blockSignals(true);
-   _qtd->setValue(nPos);
    _oldValue = _qtd->value();
+   _qtd->setValue(nPos);
    _qtd->blockSignals(false);
    return pos;
 }
@@ -6756,8 +6770,17 @@ void CSpinButtonCtrl::SetRange(
    short nUpper 
 )
 {
+   int val = _qtd->value();
    _qtd->blockSignals(true);
    _qtd->setRange(nLower,nUpper);
+   if ( val < nLower )
+   {
+      SetPos(nLower);
+   }
+   if ( val > nUpper )
+   {
+      SetPos(nUpper);
+   }
    _qtd->blockSignals(false);
 }
 
@@ -6768,8 +6791,8 @@ void CSpinButtonCtrl::SetDlgItemInt(
 )
 {
    _qtd->blockSignals(true);
-   _qtd->setValue(nValue);
    _oldValue = _qtd->value();
+   _qtd->setValue(nValue);
    _qtd->blockSignals(false);
 }
 
@@ -6794,8 +6817,8 @@ void CSpinButtonCtrl::SetDlgItemText(
 #else
    val = QString::fromAscii(lpszString);
 #endif
-   _qtd->setValue(val.toInt());
    _oldValue = _qtd->value();
+   _qtd->setValue(val.toInt());
    _qtd->blockSignals(false);
 }
 

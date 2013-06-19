@@ -1,0 +1,82 @@
+﻿<VSTemplate Version="3.0.0" Type="Item" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
+	<TemplateData>
+		<Name Package="{39c9c826-8ef8-4079-8c95-428f5b1c323f}" ID="3072"/>
+		<Description Package="{39c9c826-8ef8-4079-8c95-428f5b1c323f}" ID="3073"/>
+		<Icon Package="{39c9c826-8ef8-4079-8c95-428f5b1c323f}" ID="4538"/>
+        <TemplateID>Microsoft.Web.VisualBasic.StyleSheet</TemplateID>
+        <ProjectType>Web</ProjectType>
+        <ProjectSubType>VisualBasic</ProjectSubType>
+        <RequiredFrameworkVersion>2.0</RequiredFrameworkVersion>
+        <DefaultName>StyleSheet.css</DefaultName>
+    </TemplateData>
+	<TemplateContent>
+		<ProjectItem>StyleSheet.css</ProjectItem>
+	</TemplateContent>
+</VSTemplate>
+.text
+{
+	font-family: verdana;
+	font-size: 9pt;
+}
+.topic
+{
+	font-family: verdana;
+	font-size: 16pt;
+	font-weight: bold;
+	color: #606060;
+}
+.text
+{
+	font-family: verdana;
+	font-size: 9pt;
+	font-weight: normal;
+	color: black;
+}
+.heading
+{
+	font-family: verdana;
+	font-size: 12pt;
+	font-weight: bold;
+	color: black;
+}
+.bold
+{
+	font-family: verdana;
+	font-size: 9pt;
+	font-weight: bold;
+	color: black;
+}
+.table
+{
+	FONT-SIZE: 9pt; 
+	table-layout: fixed; 
+	width: 100%; 
+	font-family: Arial; 
+	border-collapse: collapse; 
+	background-color: #FCFCFC;
+}
+.gray
+{
+	font-family: verdana;
+	font-size: 9pt;
+	font-weight: bold;
+	font-style: normal;
+	color: #606060;
+}
+.footer
+{
+    font-family: Verdana;
+    font-size: 8pt;
+    font-style: italic;
+    font-weight: normal;
+}
+.effect
+{
+	font-family: Verdana;
+	font-size: 8pt;
+	font-weight: bold;
+}
+.settingsTableOption
+{
+    width: 200px;
+}

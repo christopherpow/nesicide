@@ -1,0 +1,226 @@
+<HTML>
+<HEAD>
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" Content="Microsoft Visual Studio 8.0">
+    <link href="style.css" rel="stylesheet" type="text/css" />
+</HEAD>
+<BODY bgcolor="#ffffff">
+     
+    <span class="topic">Effect list</span><hr />
+     
+     <p class="text"><b>General effects</b></p>
+     
+	<table cellpadding="3" cellspacing="0" border="1" bgcolor="#FCFCFC" class="table">
+        <tr class="text">
+            <td width="50px">
+                <b>Effect</b></td>
+            <td>
+                <b>Description</b></td>
+        </tr>
+		<tr>
+			<td class="effect">
+			    0xy</td>
+			<td>
+				Arpeggio, <b>x</b> = second note, <b>y</b> = third note
+			</td>
+		</tr>
+		<tr>
+			<td class="effect">
+			    1xx</td>
+			<td>
+				Pitch slide up, <b>xx</b> = speed (<b>00</b> to disable)</td>
+		</tr>
+		<tr>
+			<td class="effect">
+			    2xx</td>
+			<td>
+				Pitch slide down, <b>xx</b> = speed (<b>00</b> to disable)</td>
+		</tr>
+		<tr>
+			<td class="effect">
+			    3xx</td>
+			<td>
+				Automatic portamento, slides to new notes 
+				<b>xx</b> = speed (<b>00</b> to disable)</td>
+		</tr>
+		<tr>
+			<td class="effect">
+			    4xy</td>
+			<td>
+                Vibrato effect, <b>x</b> = speed (<b>0</b>
+                to disable), <b>y</b> = depth</td>
+		</tr>
+		<tr>
+			<td class="effect">
+			    7xy</td>
+			<td>
+                Tremolo effect, <b>x</b> = speed (<b>0</b>
+                to disable), <b>y</b> = depth</td>
+		</tr>
+		<tr>
+			<td class="effect">
+			    Axy</td>
+			<td>
+				Volume slide, <b>A0x</b> = slide down, <b>Ax0</b> = slide up</td>
+		</tr>
+		<tr>
+			<td class="effect">
+			    Bxx</td>
+			<td>
+                Jump to frame <b>xx</b></td>
+		</tr>
+		<tr>
+			<td class="effect">
+			    Cxx</td>
+			<td>
+				Halt, stopping the song (<b>xx</b> doesn't do anything)</td>
+		</tr>
+		<tr>
+			<td class="effect">
+			    Dxx</td>
+			<td>
+                Skip to next frame and start at row <b>xx</b></td>
+		</tr>
+		<tr>
+			<td class="effect">
+			    Exx</td>
+			<td>
+				Volume setting. <em>Obsolete, use the volume colum instead.</em></td>
+		</tr>
+		<tr>
+			<td class="effect">
+			    Fxx</td>
+			<td>
+				Speed/tempo, sets the speed when <b>xx</b> is between <b>01 - 1F</b>,
+				and tempo when <b>xx</b> is between <b>20 - FF</b></td>
+		</tr>
+		<tr>
+			<td class="effect">
+			    Gxx</td>
+			<td>
+				Note delay, delay before the current row is triggered, <b>xx</b> = frames to wait</td>
+		</tr>
+		<tr>
+			<td class="effect">
+			    Hxy</td>
+			<td>
+				Hardware sweep up, triggers a hardware sweep up 
+				(only available on 2A03 squares) 
+				<b>x</b> = period (<b>0 - 7</b>), 
+				<b>y</b> = shift (<b>1 - 7</b>)</td>
+		</tr>
+		<tr>
+			<td class="effect">
+			    Ixy</td>
+			<td>
+				Hardware sweep down, triggers a hardware sweep down 
+				(only avaliable on 2A03 squares)
+                <b>x</b> = period (<b>0 - 7</b>), 
+                <b>y</b> = shift (<b>1 - 7</b>)</td>
+		</tr>
+		<tr>
+			<td class="effect">
+			    Pxx</td>
+			<td>
+				Fine pitch, fine pitch offset setting, <b>xx</b> = offset (<b>80</b>
+                is default)</td>
+		</tr>
+		<tr>
+			<td class="effect">
+			    Qxy</td>
+			<td>
+				Note slide up, <b>x</b> = speed, <b>y</b> = number of notes</td>
+		</tr>
+		<tr>
+			<td class="effect">
+			    Rxy</td>
+			<td>
+				Note slide down, <b>x</b> = speed, <b>y</b> = number of notes</td>
+		</tr>
+		<tr>
+			<td class="effect">
+			    Sxx</td>
+			<td>
+				Delayed note cut. Cuts note after xx number of frames.</td>
+		</tr>
+		<tr>
+			<td class="effect">
+			    Vxx</td>
+			<td>
+				Square duty / noise mode, sets the square duty and noise mode setting, 
+				<b>xx</b> = <b>00 - 03</b> for square and <b>00 - 01</b> for noise. 
+				<b>xx</b> = <b>00 - 07</b> for VRC6.</td>
+		</tr>
+	</table>		
+
+    <p class="text"><b>DPCM effects</b></p>
+        
+	<table cellpadding="3" cellspacing="0" border="1" bgcolor="#FCFCFC" class="table">
+        <tr class="text">
+            <td width="50px">
+                <b>Effect</b></td>
+            <td>
+                <b>Description</b></td>
+        </tr>
+		<tr>
+			<td class="effect">
+				W0x</td>
+			<td>
+				DPCM pitch (0 - F)</td>
+		</tr>
+		<tr>
+			<td class="effect">
+				Xxx</td>
+			<td>
+				DPCM retrigger, <b>xx</b> = length in frames between retrigger.</td>
+		</tr>
+		<tr>
+			<td class="effect">
+				Yxx</td>
+			<td>
+				DPCM sample offset, each step adds 64 bytes</td>
+		</tr>
+		<tr>
+			<td class="effect">
+				Zxx</td>
+			<td>
+				DPCM delta counter, changes the delta counter directly (through a write to $4011), 
+				affects volume of noise and triangle. <b>xx</b> is between <b>00 - 80</b></td>
+		</tr>
+	</table>
+    
+    <p class="text"><b>FDS effects</b></p>
+        
+	<table cellpadding="3" cellspacing="0" border="1" bgcolor="#FCFCFC" class="table">
+        <tr class="text">
+            <td width="50px">
+                <b>Effect</b></td>
+            <td>
+                <b>Description</b></td>
+        </tr>
+		<tr>
+			<td class="effect">
+				Hxx</td>
+			<td>
+				Modulation depth (<b>0 - 3F</b>)</td>
+		</tr>
+		<tr>
+			<td class="effect">
+				Ixx</td>
+			<td>
+				Modulation speed, high part (<b>00 - 0F</b>)</td>
+		</tr>
+		<tr>
+			<td class="effect">
+				Jxx</td>
+			<td>
+				Modulation speed, low part (<b>00 - FF</b>)</td>
+		</tr>
+	</table>
+
+    <br />		
+    <hr />
+    <span class="footer">Back to <a href="interface.htm">interface</a> &middot; <a href="main_index.htm">main index</a></span>
+		
+	</BODY>
+</HTML>

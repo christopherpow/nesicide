@@ -1,0 +1,72 @@
+<HTML>
+<HEAD>
+<META NAME="GENERATOR" Content="Microsoft Visual Studio 8.0">
+<TITLE></TITLE>
+    <link href="style.css" rel="stylesheet" type="text/css" />
+</HEAD>
+<BODY>
+
+    <span class="topic">Sound configuration</strong><hr /></span>
+    
+    <p class="text">
+        This panel is used to configure the audio settings.</p>
+
+    <table cellpadding="3" cellspacing="0" id="TABLE1" border="1" class="table">
+        <tr>
+            <td class="settingsTableOption">
+                <b>Setting</b></td>
+            <td>
+                <b>Description</b></td>
+        </tr>    
+        <tr>
+            <td class="settingsTableOption">
+                Device</td>
+            <td>
+                The DirectSound device used for audio output.</td>
+        </tr>
+        <tr>
+            <td class="settingsTableOption">
+                Sample rate</td>
+            <td>
+                Audio sample rate, should be set to the native setting of your sound card.<sup>1</sup></td>
+        </tr>
+        <tr>
+            <td class="settingsTableOption">
+                Sample size</td>
+            <td>
+                Audio sample size, use 16 unless you are using a really old sound card.</td>
+        </tr>
+        <tr>
+            <td class="settingsTableOption">
+                Buffer length</td>
+            <td>
+                Audio buffer length. Keep as short as possible for lowest delay. (Default: 40 ms)</td>
+        </tr>
+        <tr>
+            <td class="settingsTableOption">
+                Bass filtering</td>
+            <td>
+                Blip-buffer bass filtering, default: 20 Hz.</td>
+        </tr>
+        <tr>
+            <td class="settingsTableOption">
+                Treble filtering</td>
+            <td>
+                Blip-buffer treble filtering, default: 12kHz, -24 dB.</td>
+        </tr>
+        <tr>
+            <td class="settingsTableOption">
+                Volume</td>
+            <td>
+                Sound volume level.</td>
+        </tr>
+    </table>
+
+    <p class="text">
+        1. This program is using band-limited synthesis, a higher sample rate is not necessary for high audio quality.</p>
+        
+    <hr />
+    <span class="footer">Back to <a href="configuration.htm">configuration</a> &middot; <a href="interface.htm">interface</a> &middot; <a href="main_index.htm">main index</a></span>
+
+</BODY>
+</HTML>

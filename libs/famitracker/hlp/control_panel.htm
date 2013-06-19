@@ -1,0 +1,87 @@
+<HTML>
+<HEAD>
+<META NAME="GENERATOR" Content="Microsoft Visual Studio 8.0">
+<TITLE></TITLE>
+<link href="style.css" rel="stylesheet" type="text/css" />
+</HEAD>
+<BODY>
+ 
+    <span class="topic">Control panel</span><hr />
+    
+    <p class="text">The main window control panel</p>
+
+    <img id="IMG1" src="img/toolbar2.png" /><br />
+    
+    <p class="bold">Frame editor</p>
+    
+    <p class="text">
+        The first part is the frame editor (also known as order editor).
+        A frame is a set of patterns for all channels, where each
+        channel is represented by a number that represents the selected pattern slot. There
+        are 128 available pattern slots for each channel, and the patterns aren't shared across
+        the channels. 128 frames can be used.<br /></p>
+    
+    <p class="text">
+        To change pattern, press <b>"+" </b>- or <b>"-"</b> buttons or <b>"+"</b> &amp; 
+        <b>"-"</b> keys in
+        the pattern editor. If <b>"change all"</b> is checked, all channels will change 
+        instead of just the selected one. To move
+        between frames in the pattern editor, use Ctrl+Right and Ctrl+Left. It&#39;s 
+        possible to double-click the window to enter edit mode, you can then enter 
+        values manually.<br /></p>
+    
+    <h2 class="bold">Song settings &amp; edit settings</h2>
+    
+    <p class="text">
+        Song settings is default play speed &amp; tempo, number
+        of rows and frames in the song. Double-click any box to enter a value manually.</p>
+        
+    <p class="text">
+        Speed and tempo can also be changed by using pattern command <b>Fxx</b>. The real BPM
+        tempo is calculated by using the formula</p>
+    
+    <p class="text"><i>
+        BPM = (6 * Tempo) / Speed</i></p>
+        
+    <p class="text">
+        which means that the tempo box is correct at speed of 6.</p>
+        
+    <p class="text">
+        <b>Note:</b> 
+        The speed & tempo split-point is currently set to 32, but files created in older versions of the tracker 
+        will have this point set to 20. This was changed to give a access to a larger speed range since the speed 
+        command sometimes is more useful than the tempo command. 
+        
+        It is possible to toggle this split-point with the command <i>Ctrl+Shift+S</i> 
+        if you wish to change it in the current module.</p>
+        
+    <p class="text">
+        The time base for the song is 60 or
+        50 updates per second (when using default NTSC/PAL settings), and this is used to 
+        calculate the average tempo of the song. This means that some rows may play 
+        slightly longer or shorter than others, 
+        and this might be noticable. To avoid this, leave the 
+        tempo setting at 150 (125 for PAL!) and use only the speed setting to change BPM 
+        to ensure that all rows get the same duration.</p>
+        
+    <p class="text">
+        The step setting changes the step behaviour when moving the cursor in the 
+        pattern editor. Key repetition enables key repeat behaviour.</p>
+        
+    <p class="bold">
+        Song information &amp; instrument list</p>
+        
+    <p class="text">
+        Song information text fields are for <b>name</b>, <b>artist</b> and <b>copyright</b>. These strings are stored
+        in NSFs (and also available in the NSF export dialog). The song
+        list selects a song in multi-song files. 
+        The big list to the right is the instrument box, and
+        the small toolbar is used to create,
+        delete, open, save and edit settings for instrument and the text box is to name 
+        instruments.</p>
+    
+    <hr />
+    <span class="footer">Back to <a href="interface.htm">interface</a> &middot; <a href="main_index.htm">main index</a></span>
+    
+</BODY>
+</HTML>

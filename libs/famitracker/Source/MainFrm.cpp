@@ -401,20 +401,96 @@ void CMainFrame::idleProcessing()
    //	ON_UPDATE_COMMAND_UI(ID_EDIT_UNDO, OnUpdateEditUndo)
    //	ON_UPDATE_COMMAND_UI(ID_EDIT_REDO, OnUpdateEditRedo)
    //	ON_UPDATE_COMMAND_UI(ID_EDIT_COPY, OnUpdateEditCopy)
+   cmdUI.m_nID = ID_EDIT_COPY;
+   cmdUI.m_pOther = &m_wndToolBar;
+   if ( cmdUI.m_pOther )
+   {
+   }
    //	ON_UPDATE_COMMAND_UI(ID_EDIT_PASTE, OnUpdateEditPaste)
+   cmdUI.m_nID = ID_EDIT_PASTE;
+   cmdUI.m_pOther = &m_wndToolBar;
+   if ( cmdUI.m_pOther )
+   {
+   }
    //	ON_UPDATE_COMMAND_UI(ID_EDIT_ENABLEMIDI, OnUpdateEditEnablemidi)
    //	ON_UPDATE_COMMAND_UI(ID_MODULE_INSERTFRAME, OnUpdateInsertFrame)
+   cmdUI.m_nID = ID_MODULE_INSERTFRAME;
+   cmdUI.m_pOther = &m_wndToolBar;
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateInsertFrame(&cmdUI);
+   }
    //	ON_UPDATE_COMMAND_UI(ID_MODULE_REMOVEFRAME, OnUpdateRemoveFrame)
+   cmdUI.m_nID = ID_MODULE_REMOVEFRAME;
+   cmdUI.m_pOther = &m_wndToolBar;
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateRemoveFrame(&cmdUI);
+   }
    //	ON_UPDATE_COMMAND_UI(ID_MODULE_DUPLICATEFRAME, OnUpdateDuplicateFrame)
+   cmdUI.m_nID = ID_MODULE_DUPLICATEFRAME;
+   cmdUI.m_pOther = &m_wndToolBar;
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateDuplicateFrame(&cmdUI);
+   }
    //	ON_UPDATE_COMMAND_UI(ID_MODULE_MOVEFRAMEDOWN, OnUpdateModuleMoveframedown)
+   cmdUI.m_nID = ID_MODULE_MOVEFRAMEDOWN;
+   cmdUI.m_pOther = &m_wndToolBar;
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateModuleMoveframedown(&cmdUI);
+   }
    //	ON_UPDATE_COMMAND_UI(ID_MODULE_MOVEFRAMEUP, OnUpdateModuleMoveframeup)
+   cmdUI.m_nID = ID_MODULE_MOVEFRAMEUP;
+   cmdUI.m_pOther = &m_wndToolBar;
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateModuleMoveframeup(&cmdUI);
+   }
    //	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_NEW, OnUpdateInstrumentNew)
+   cmdUI.m_nID = ID_INSTRUMENT_NEW;
+   cmdUI.m_pOther = &m_wndToolBar;
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateInstrumentNew(&cmdUI);
+   }
    //	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_REMOVE, OnUpdateInstrumentRemove)
+   cmdUI.m_nID = ID_INSTRUMENT_REMOVE;
+   cmdUI.m_pOther = &m_wndToolBar;
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateInstrumentRemove(&cmdUI);
+   }
    //	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_CLONE, OnUpdateInstrumentClone)
+   cmdUI.m_nID = ID_INSTRUMENT_CLONE;
+   cmdUI.m_pOther = &m_wndToolBar;
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateInstrumentClone(&cmdUI);
+   }
    //	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_DEEPCLONE, OnUpdateInstrumentDeepClone)
    //	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_EDIT, OnUpdateInstrumentEdit)
+   cmdUI.m_nID = ID_INSTRUMENT_EDIT;
+   cmdUI.m_pOther = &m_wndToolBar;
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateInstrumentEdit(&cmdUI);
+   }
    //	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_LOAD, OnUpdateInstrumentLoad)
+   cmdUI.m_nID = ID_INSTRUMENT_LOAD;
+   cmdUI.m_pOther = &m_wndToolBar;
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateInstrumentLoad(&cmdUI);
+   }
    //	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_SAVE, OnUpdateInstrumentSave)
+   cmdUI.m_nID = ID_INSTRUMENT_SAVE;
+   cmdUI.m_pOther = &m_wndToolBar;
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateInstrumentSave(&cmdUI);
+   }
    //	ON_UPDATE_COMMAND_UI(ID_INDICATOR_INSTRUMENT, OnUpdateSBInstrument)
    cmdUI.m_nID = ID_INDICATOR_INSTRUMENT;
    cmdUI.m_pOther = &m_wndStatusBar;
@@ -452,12 +528,6 @@ void CMainFrame::idleProcessing()
    }
    //	ON_UPDATE_COMMAND_UI(IDC_KEYSTEP, OnUpdateKeyStepEdit)
    cmdUI.m_nID = IDC_KEYSTEP;
-   cmdUI.m_pOther = m_wndDialogBar.GetDlgItem(cmdUI.m_nID);
-   if ( cmdUI.m_pOther )
-   {
-      OnUpdateKeyStepEdit(&cmdUI);
-   }
-   cmdUI.m_nID = IDC_KEYSTEP_SPIN;
    cmdUI.m_pOther = m_wndDialogBar.GetDlgItem(cmdUI.m_nID);
    if ( cmdUI.m_pOther )
    {
@@ -523,19 +593,31 @@ void CMainFrame::idleProcessing()
       OnUpdateFramesEdit(&cmdUI);
    }
    //	ON_UPDATE_COMMAND_UI(ID_NEXT_SONG, OnUpdateNextSong)
+   cmdUI.m_nID = ID_NEXT_SONG;
+   cmdUI.m_pOther = &m_wndToolBar;
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdateNextSong(&cmdUI);
+   }
    //	ON_UPDATE_COMMAND_UI(ID_PREV_SONG, OnUpdatePrevSong)
+   cmdUI.m_nID = ID_PREV_SONG;
+   cmdUI.m_pOther = &m_wndToolBar;
+   if ( cmdUI.m_pOther )
+   {
+      OnUpdatePrevSong(&cmdUI);
+   }
    //	ON_UPDATE_COMMAND_UI(ID_TRACKER_SWITCHTOTRACKINSTRUMENT, OnUpdateTrackerSwitchToInstrument)
    //	ON_UPDATE_COMMAND_UI(ID_VIEW_CONTROLPANEL, OnUpdateViewControlpanel)
    //	ON_UPDATE_COMMAND_UI(IDC_HIGHLIGHT1, OnUpdateHighlight)
    cmdUI.m_nID = IDC_HIGHLIGHT1;
-   cmdUI.m_pOther = m_wndDialogBar.GetDlgItem(cmdUI.m_nID);
+   cmdUI.m_pOther = m_wndOctaveBar.GetDlgItem(cmdUI.m_nID);
    if ( cmdUI.m_pOther )
    {
       OnUpdateHighlight(&cmdUI);
    }
    //	ON_UPDATE_COMMAND_UI(IDC_HIGHLIGHT2, OnUpdateHighlight)
    cmdUI.m_nID = IDC_HIGHLIGHT2;
-   cmdUI.m_pOther = m_wndDialogBar.GetDlgItem(cmdUI.m_nID);
+   cmdUI.m_pOther = m_wndOctaveBar.GetDlgItem(cmdUI.m_nID);
    if ( cmdUI.m_pOther )
    {
       OnUpdateHighlight(&cmdUI);
@@ -545,190 +627,6 @@ void CMainFrame::idleProcessing()
    
    //	ON_UPDATE_COMMAND_UI(ID_FRAMEEDITOR_TOP, OnUpdateFrameeditorTop)
    //	ON_UPDATE_COMMAND_UI(ID_FRAMEEDITOR_LEFT, OnUpdateFrameeditorLeft)
-   
-      cmdUI.m_nID = IDC_HIGHLIGHTSPIN1;
-      cmdUI.m_pOther = m_wndOctaveBar.GetDlgItem(cmdUI.m_nID);
-      if ( cmdUI.m_pOther )
-      {
-         OnUpdateHighlight(&cmdUI);
-      }
-      cmdUI.m_nID = IDC_HIGHLIGHTSPIN2;
-      cmdUI.m_pOther = m_wndOctaveBar.GetDlgItem(cmdUI.m_nID);
-      if ( cmdUI.m_pOther )
-      {
-         OnUpdateHighlight(&cmdUI);
-      }
-   
-//   // Update toolbar button states.
-//   cmdUI.m_nID = ID_FILE_NEW;
-//   cmdUI.m_pOther = &m_wndToolBar;
-//   if ( cmdUI.m_pOther )
-//   {
-//   }
-//   cmdUI.m_nID = ID_FILE_OPEN;
-//   cmdUI.m_pOther = &m_wndToolBar;
-//   if ( cmdUI.m_pOther )
-//   {
-//   }
-//   cmdUI.m_nID = ID_FILE_SAVE;
-//   cmdUI.m_pOther = &m_wndToolBar;
-//   if ( cmdUI.m_pOther )
-//   {
-//   }
-//   cmdUI.m_nID = ID_EDIT_CUT;
-//   cmdUI.m_pOther = &m_wndToolBar;
-//   if ( cmdUI.m_pOther )
-//   {
-//   }
-//   cmdUI.m_nID = ID_EDIT_COPY;
-//   cmdUI.m_pOther = &m_wndToolBar;
-//   if ( cmdUI.m_pOther )
-//   {
-//   }
-//   cmdUI.m_nID = ID_EDIT_PASTE;
-//   cmdUI.m_pOther = &m_wndToolBar;
-//   if ( cmdUI.m_pOther )
-//   {
-//   }
-//   cmdUI.m_nID = ID_APP_ABOUT;
-//   cmdUI.m_pOther = &m_wndToolBar;
-//   if ( cmdUI.m_pOther )
-//   {
-//   }
-//   cmdUI.m_nID = ID_CONTEXT_HELP;
-//   cmdUI.m_pOther = &m_wndToolBar;
-//   if ( cmdUI.m_pOther )
-//   {
-//   }
-//   cmdUI.m_nID = ID_MODULE_INSERTFRAME;
-//   cmdUI.m_pOther = &m_wndToolBar;
-//   if ( cmdUI.m_pOther )
-//   {
-//      OnUpdateInsertFrame(&cmdUI);
-//   }
-//   cmdUI.m_nID = ID_MODULE_REMOVEFRAME;
-//   cmdUI.m_pOther = &m_wndToolBar;
-//   if ( cmdUI.m_pOther )
-//   {
-//      OnUpdateRemoveFrame(&cmdUI);
-//   }
-//   cmdUI.m_nID = ID_MODULE_MOVEFRAMEDOWN;
-//   cmdUI.m_pOther = &m_wndToolBar;
-//   if ( cmdUI.m_pOther )
-//   {
-//      OnUpdateModuleMoveframedown(&cmdUI);
-//   }
-//   cmdUI.m_nID = ID_MODULE_MOVEFRAMEUP;
-//   cmdUI.m_pOther = &m_wndToolBar;
-//   if ( cmdUI.m_pOther )
-//   {
-//      OnUpdateModuleMoveframeup(&cmdUI);
-//   }
-//   cmdUI.m_nID = ID_MODULE_DUPLICATEFRAME;
-//   cmdUI.m_pOther = &m_wndToolBar;
-//   if ( cmdUI.m_pOther )
-//   {
-//      OnUpdateDuplicateFrame(&cmdUI);
-//   }
-//   cmdUI.m_nID = ID_MODULE_MODULEPROPERTIES;
-//   cmdUI.m_pOther = &m_wndToolBar;
-//   if ( cmdUI.m_pOther )
-//   {
-//   }
-//   cmdUI.m_nID = ID_TRACKER_PLAY;
-//   cmdUI.m_pOther = &m_wndToolBar;
-//   if ( cmdUI.m_pOther )
-//   {
-//   }
-//   cmdUI.m_nID = ID_TRACKER_PLAYPATTERN;
-//   cmdUI.m_pOther = &m_wndToolBar;
-//   if ( cmdUI.m_pOther )
-//   {
-//   }
-//   cmdUI.m_nID = ID_TRACKER_STOP;
-//   cmdUI.m_pOther = &m_wndToolBar;
-//   if ( cmdUI.m_pOther )
-//   {
-//   }
-//   cmdUI.m_nID = ID_TRACKER_EDIT;
-//   cmdUI.m_pOther = &m_wndToolBar;
-//   if ( cmdUI.m_pOther )
-//   {
-//   }
-//   cmdUI.m_nID = ID_PREV_SONG;
-//   cmdUI.m_pOther = &m_wndToolBar;
-//   if ( cmdUI.m_pOther )
-//   {
-//      OnUpdatePrevSong(&cmdUI);
-//   }
-//   cmdUI.m_nID = ID_NEXT_SONG;
-//   cmdUI.m_pOther = &m_wndToolBar;
-//   if ( cmdUI.m_pOther )
-//   {
-//      OnUpdateNextSong(&cmdUI);
-//   }
-//   cmdUI.m_nID = ID_FILE_GENERALSETTINGS;
-//   cmdUI.m_pOther = &m_wndToolBar;
-//   if ( cmdUI.m_pOther )
-//   {
-//   }
-//   cmdUI.m_nID = ID_FILE_CREATE_NSF;
-//   cmdUI.m_pOther = &m_wndToolBar;
-//   if ( cmdUI.m_pOther )
-//   {
-//   }
-   
-//   // Update instrument toolbar button states.
-//   cmdUI.m_nID = ID_INSTRUMENT_NEW;
-//   cmdUI.m_pOther = &m_wndToolBar;
-//   if ( cmdUI.m_pOther )
-//   {
-//      OnUpdateInstrumentNew(&cmdUI);
-//   }
-//   cmdUI.m_nID = ID_INSTRUMENT_REMOVE;
-//   cmdUI.m_pOther = &m_wndToolBar;
-//   if ( cmdUI.m_pOther )
-//   {
-//      OnUpdateInstrumentRemove(&cmdUI);
-//   }
-//   cmdUI.m_nID = ID_INSTRUMENT_CLONE;
-//   cmdUI.m_pOther = &m_wndToolBar;
-//   if ( cmdUI.m_pOther )
-//   {
-//      OnUpdateInstrumentClone(&cmdUI);
-//   }
-//   cmdUI.m_nID = ID_INSTRUMENT_LOAD;
-//   cmdUI.m_pOther = &m_wndToolBar;
-//   if ( cmdUI.m_pOther )
-//   {
-//      OnUpdateInstrumentLoad(&cmdUI);
-//   }
-//   cmdUI.m_nID = ID_INSTRUMENT_SAVE;
-//   cmdUI.m_pOther = &m_wndToolBar;
-//   if ( cmdUI.m_pOther )
-//   {
-//      OnUpdateInstrumentSave(&cmdUI);
-//   }
-//   cmdUI.m_nID = ID_INSTRUMENT_EDIT;
-//   cmdUI.m_pOther = &m_wndToolBar;
-//   if ( cmdUI.m_pOther )
-//   {
-//      OnUpdateInstrumentEdit(&cmdUI);
-//   }
-   
-//   cmdUI.m_nID = IDC_HIGHLIGHT1;
-//   cmdUI.m_pOther = m_wndOctaveBar.GetDlgItem(cmdUI.m_nID);
-//   if ( cmdUI.m_pOther )
-//   {
-//      OnUpdateHighlight(&cmdUI);
-//   }
-   
-//   cmdUI.m_nID = IDC_SPEED;
-//   cmdUI.m_pOther = m_wndDialogBar.GetDlgItem(cmdUI.m_nID);
-//   if ( cmdUI.m_pOther )
-//   {
-//      OnUpdateSpeedEdit(&cmdUI);
-//   }
 }
 
 void CMainFrame::updateViews(long hint)
@@ -1142,9 +1040,9 @@ void CMainFrame::menuAboutToShow(CMenu* menu)
    //	ON_UPDATE_COMMAND_UI(ID_INDICATOR_CHIP, OnUpdateSBChip)
    cmdUI.m_nID = ID_INDICATOR_CHIP;
    OnUpdateSBChip(&cmdUI);
-   //	ON_UPDATE_COMMAND_UI(IDC_KEYSTEP, OnUpdateKeyStepEdit)
-   cmdUI.m_nID = IDC_KEYSTEP;
-   OnUpdateKeyStepEdit(&cmdUI);
+//   //	ON_UPDATE_COMMAND_UI(IDC_KEYSTEP, OnUpdateKeyStepEdit)
+//   cmdUI.m_nID = IDC_KEYSTEP;
+//   OnUpdateKeyStepEdit(&cmdUI);
    //	ON_UPDATE_COMMAND_UI(IDC_KEYREPEAT, OnUpdateKeyRepeat)
    cmdUI.m_nID = IDC_KEYREPEAT;
    OnUpdateKeyRepeat(&cmdUI);
@@ -1537,8 +1435,8 @@ bool CMainFrame::CreateDialogPanels()
 
 	// Subclass and setup the instrument list
 	m_pInstrumentList = new CInstrumentList(this);
-//	m_pInstrumentList->SubclassDlgItem(IDC_INSTRUMENTS, &m_wndDialogBar);
-   m_pInstrumentList = (CListCtrl*)m_wndDialogBar.GetDlgItem(IDC_INSTRUMENTS);
+	m_pInstrumentList->SubclassDlgItem(IDC_INSTRUMENTS, &m_wndDialogBar);
+//   m_pInstrumentList = (CListCtrl*)m_wndDialogBar.GetDlgItem(IDC_INSTRUMENTS);
 
 	SetupColors();
 

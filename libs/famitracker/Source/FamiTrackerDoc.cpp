@@ -374,13 +374,13 @@ BOOL CFamiTrackerDoc::OnSaveDocument(LPCTSTR lpszPathName)
 	if (!m_bFileLoaded)
 		return FALSE;
 
-//	// File backup, now performed on save instead of open
-//	if ((m_bForceBackup || theApp.GetSettings()->General.bBackups) && !m_bBackupDone) {
-//		CString BakName;
-//		BakName.Format(_T("%s.bak"), lpszPathName);
-//		CopyFile(lpszPathName, BakName.GetBuffer(), FALSE);
-//		m_bBackupDone = true;
-//	}
+	// File backup, now performed on save instead of open
+	if ((m_bForceBackup || theApp.GetSettings()->General.bBackups) && !m_bBackupDone) {
+		CString BakName;
+		BakName.Format(_T("%s.bak"), lpszPathName);
+		CopyFile(lpszPathName, BakName.GetBuffer(), FALSE);
+		m_bBackupDone = true;
+	}
 
 	// TODO these should be updated from mainframe instead
 	/*

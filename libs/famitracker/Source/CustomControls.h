@@ -27,8 +27,6 @@ class CMainFrame;
 // The instrument list
 class CInstrumentList : public CListCtrl {
    Q_OBJECT
-public slots:
-//   bool eventFilter(QObject *object, QEvent *event);
 public:
 	DECLARE_DYNAMIC(CInstrumentList)
 protected:
@@ -58,7 +56,6 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	CLockedEdit() : m_bUpdate(false) {
-      _qt->installEventFilter(this);
 	};
 	bool IsEditable() const;
 	bool Update();
@@ -92,7 +89,6 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	CBannerEdit(CString txt) : CEdit(), m_strText(txt) {
-      _qt->installEventFilter(this);
    };
 protected:
 	CString m_strText;

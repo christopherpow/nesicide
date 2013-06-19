@@ -1,7 +1,7 @@
 #include <QtGui/QApplication>
 #include "mainwindow.h"
 
-#include "FamiTracker.h"
+#include "Source/FamiTracker.h"
 
 int main(int argc, char *argv[])
 {
