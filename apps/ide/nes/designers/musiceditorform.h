@@ -4,7 +4,7 @@
 #include "cdesignereditorbase.h"
 #include "cdesignercommon.h"
 
-#include "MainFrm.h"
+#include "Source/MainFrm.h"
 
 #include <QWidget>
 #include <QToolBar>

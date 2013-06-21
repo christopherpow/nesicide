@@ -7,7 +7,7 @@
 
 #include "testsuiteexecutivedialog.h"
 
-#include "cqtmfc_famitracker.h"
+#include "Source/cqtmfc_famitracker.h"
 
 #include "main.h"
 
@@ -28,7 +28,7 @@
 #include <QMessageBox>
 #include <QSettings>
 
-#include "FamiTracker.h"
+#include "Source/FamiTracker.h"
 
 OutputPaneDockWidget* output = NULL;
 ProjectBrowserDockWidget* m_pProjectBrowser = NULL;

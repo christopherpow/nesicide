@@ -5829,7 +5829,7 @@ void CMenu::addSubMenu(CMenu* menu)
    _cmenu->append(menu);
 }
 
-QAction* CMenu::findMenuItem(UINT id)
+QAction* CMenu::findMenuItem(UINT id) const
 {
    int subMenu;
    foreach ( CMenu* menu, *_cmenu )
@@ -5839,14 +5839,14 @@ QAction* CMenu::findMenuItem(UINT id)
          return menu->mfcToQtMenuMap()->value(id);
       }
    }
-   if ( mfcToQtMenuMap()->contains(id) )
+   if ( mfcToQtMenu.contains(id) )
    {
-      return mfcToQtMenuMap()->value(id);
+      return mfcToQtMenu.value(id);
    }
    return NULL;
 }
 
-UINT CMenu::findMenuID(QAction* action)
+UINT CMenu::findMenuID(QAction* action) const
 {
    int subMenu;
    foreach ( CMenu* menu, *_cmenu )
@@ -5856,9 +5856,9 @@ UINT CMenu::findMenuID(QAction* action)
          return menu->qtToMfcMenuMap()->value(action);
       }
    }
-   if ( qtToMfcMenuMap()->contains(action) )
+   if ( qtToMfcMenu.contains(action) )
    {
-      return qtToMfcMenuMap()->value(action);
+      return qtToMfcMenu.value(action);
    }
    return 0;
 }
@@ -5869,6 +5869,22 @@ BOOL CMenu::LoadMenu(
 {
    qtMfcInitMenuResource(nIDResource,this);
    return TRUE;
+}
+
+BOOL CMenu::RemoveMenu(
+   UINT nPosition,
+   UINT nFlags 
+)
+{
+   switch ( nFlags&MF_BYPOSITION )
+   {
+   case MF_BYPOSITION:
+      _qtd->removeAction(_qtd->actions().at(nPosition));
+      break;
+   default:
+      _qtd->removeAction(findMenuItem(nPosition));
+      break;
+   }
 }
 
 CMenu* CMenu::GetSubMenu(
@@ -5936,6 +5952,148 @@ UINT CMenu::GetMenuItemCount( ) const
    return _qtd->actions().count();
 }
 
+UINT CMenu::GetMenuItemID(
+   int nPos 
+) const
+{
+   return findMenuID(_qtd->actions().at(nPos));
+}
+
+UINT CMenu::GetMenuState(
+   UINT nID,
+   UINT nFlags 
+) const
+{
+   QAction* action;
+   UINT state = 0;
+   
+   switch ( nFlags&MF_BYPOSITION )
+   {
+   case MF_BYPOSITION:
+      action = _qtd->actions().at(nID);
+      break;
+   default:
+      action = findMenuItem(nID);
+      break;
+   }
+   if ( action )
+   {
+      if ( action->menu() )
+      {
+         state |= MF_POPUP;
+      }
+      if ( action->isSeparator() )
+      {
+         state |= MF_SEPARATOR;
+      }
+      if ( action->isChecked() )
+      {
+         state |= MF_CHECKED;
+      }
+      if ( !action->isEnabled() )
+      {
+         state |= MF_DISABLED;
+      }
+      if ( action == _qtd->defaultAction() )
+      {
+         state |= MF_DEFAULT;
+      }
+   }
+   return state;
+}
+
+int CMenu::GetMenuString(
+   UINT nIDItem,
+   LPTSTR lpString,
+   int nMaxCount,
+   UINT nFlags 
+) const
+{
+   QAction* action;
+   int len = 0;
+   
+   switch ( nFlags&MF_BYPOSITION )
+   {
+   case MF_BYPOSITION:
+      action = _qtd->actions().at(nIDItem);
+      break;
+   default:
+      action = findMenuItem(nIDItem);
+      break;
+   }
+   if ( action )
+   {
+#if UNICODE
+      wcsncpy(lpString,(LPTSTR)action->text().unicode(),nMaxCount);
+      len = wcslen(lpString);
+#else
+      strncpy(lpString,(LPTSTR)action->text().toAscii().constData(),nMaxCount);
+      len = strlen(lpString);
+#endif      
+   }
+   return len;
+}
+
+int CMenu::GetMenuString(
+   UINT nIDItem,
+   CString& rString,
+   UINT nFlags 
+) const
+{
+   QAction* action;
+   int len = 0;
+   
+   switch ( nFlags&MF_BYPOSITION )
+   {
+   case MF_BYPOSITION:
+      action = _qtd->actions().at(nIDItem);
+      break;
+   default:
+      action = findMenuItem(nIDItem);
+      break;
+   }
+   if ( action )
+   {
+      rString = action->text();
+      len = action->text().length();
+   }
+   return len;
+}
+
+BOOL CMenu::ModifyMenu(
+   UINT nPosition,
+   UINT nFlags,
+   UINT_PTR nIDNewItem,
+   LPCTSTR lpszNewItem 
+)
+{
+   QAction* action;
+   int len = 0;
+   
+   switch ( nFlags&MF_BYPOSITION )
+   {
+   case MF_BYPOSITION:
+      action = _qtd->actions().at(nIDNewItem);
+      break;
+   default:
+      action = findMenuItem(nIDNewItem);
+      break;
+   }
+   if ( action )
+   {
+      if ( lpszNewItem )
+      {
+#if UNICODE
+         action->setText(QString::fromWCharArray(lpszNewItem));
+#else
+         action->setText(QString::fromAscii(lpszNewItem));
+#endif
+      }
+      return TRUE;
+   }
+   return FALSE;
+}
+
 BOOL CMenu::SetDefaultItem(
    UINT uItem,
    BOOL fByPos
@@ -5950,7 +6108,7 @@ BOOL CMenu::SetDefaultItem(
    }
    else
    {
-      action = mfcToQtMenu.value(uItem);
+      action = findMenuItem(uItem);
    }
    if ( action )
    {
@@ -6012,7 +6170,7 @@ UINT CMenu::EnableMenuItem(
    UINT nEnable 
 )
 {
-   QAction* action = mfcToQtMenu.value(nIDEnableItem);
+   QAction* action = findMenuItem(nIDEnableItem);
    if ( action )
    {
       bool enabled = action->isEnabled();
@@ -6573,6 +6731,7 @@ HBITMAP CButton::SetBitmap(
 {
    CBitmap* pBitmap = (CBitmap*)hBitmap;
    _qtd->setIcon(QIcon(*pBitmap->toQPixmap()));
+   return (HBITMAP)0;
 }
 
 void CButton::SetDlgItemInt(
@@ -6726,10 +6885,12 @@ BOOL CSpinButtonCtrl::Create(
    
    _grid = NULL;
    
-   _qt = new QSpinBox_MFC(pParentWnd->toQWidget());
+//   _qt = new QSpinBox_MFC(pParentWnd->toQWidget());
+   _qt = new QSpinBox(pParentWnd->toQWidget());
    
    // Downcast to save having to do it all over the place...
-   _qtd = dynamic_cast<QSpinBox_MFC*>(_qt);
+//   _qtd = dynamic_cast<QSpinBox_MFC*>(_qt);
+   _qtd = dynamic_cast<QSpinBox*>(_qt);
    
    // Pass-through signals
    QObject::connect(_qtd,SIGNAL(valueChanged(int)),this,SLOT(control_edited()));
@@ -8011,6 +8172,34 @@ CCmdUI::CCmdUI()
 
 void CCmdUI::ContinueRouting( ) 
 {
+}
+
+BOOL CCmdUI::DoUpdate(CCmdTarget* pTarget, BOOL bDisableIfNoHndler)
+{
+	if (m_nID == 0 || LOWORD(m_nID) == 0xFFFF)
+		return TRUE;     // ignore invalid IDs
+
+	ENSURE_VALID(pTarget);
+
+	m_bEnableChanged = FALSE;
+	BOOL bResult = pTarget->OnCmdMsg(m_nID, CN_UPDATE_COMMAND_UI, this, NULL);
+	if (!bResult)
+		ASSERT(!m_bEnableChanged); // not routed
+
+	if (bDisableIfNoHndler && !m_bEnableChanged)
+	{
+		AFX_CMDHANDLERINFO info;
+		info.pTarget = NULL;
+		BOOL bHandler = pTarget->OnCmdMsg(m_nID, CN_COMMAND, this, &info);
+
+#ifdef _DEBUG
+		if (!bHandler)
+			TRACE(traceCmdRouting, 1, "No handler for command ID 0x%04X, disabling it.\n", m_nID);
+#endif
+		// Enable or Disable based on whether there is a handler there
+		Enable(bHandler);
+	}
+	return bResult;
 }
 
 void CCmdUI::Enable(

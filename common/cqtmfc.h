@@ -282,10 +282,11 @@ typedef int* POSITION;
 
 #define AFX_MSG_CALL 
 
+class CCmdTarget;
 typedef struct
 {
 //   void( AFX_MSG_CALL CCmdTarget::* )( void ) 	pmf;
-//   CCmdTarget* 	pTarget;
+   CCmdTarget* 	pTarget;
 } AFX_CMDHANDLERINFO;
 
 #define afx_msg
@@ -319,6 +320,8 @@ typedef struct
 #define ASSERT(y) { if (!(y)) { QString str; str.sprintf("ASSERT: %s(%d)",__FILE__,__LINE__); qFatal(str.toLatin1().constData()); } }
 #define ASSERT_VALID(y) { if (!(y)) { QString str; str.sprintf("ASSERT: %s(%d)",__FILE__,__LINE__); qFatal(str.toLatin1().constData()); } }
 #endif
+
+#define ENSURE_VALID(x)
 
 #define AFXAPI
 
@@ -1758,8 +1761,8 @@ class CMenu : public QObject, public CCmdTarget
 public:
    QMenu* toQMenu() { return _qtd; }
    void addSubMenu(CMenu* menu);
-   QAction* findMenuItem(UINT id);
-   UINT findMenuID(QAction* action);
+   QAction* findMenuItem(UINT id) const;
+   UINT findMenuID(QAction* action) const;
    HMENU m_hMenu;
 public:
    QHash<UINT_PTR,QAction*>* mfcToQtMenuMap() { return &mfcToQtMenu; }
@@ -1779,10 +1782,38 @@ public:
    BOOL LoadMenu(
       UINT nIDResource 
    );
+   BOOL RemoveMenu(
+      UINT nPosition,
+      UINT nFlags 
+   );
    CMenu* GetSubMenu(
       int nPos 
    ) const;
    UINT GetMenuItemCount( ) const;
+   UINT GetMenuItemID(
+      int nPos 
+   ) const;
+   UINT GetMenuState(
+      UINT nID,
+      UINT nFlags 
+   ) const;
+   int GetMenuString(
+      UINT nIDItem,
+      LPTSTR lpString,
+      int nMaxCount,
+      UINT nFlags 
+   ) const;
+   int GetMenuString(
+      UINT nIDItem,
+      CString& rString,
+      UINT nFlags 
+   ) const;
+   BOOL ModifyMenu(
+      UINT nPosition,
+      UINT nFlags,
+      UINT_PTR nIDNewItem = 0,
+      LPCTSTR lpszNewItem = NULL 
+   );
    BOOL AppendMenu(
       UINT nFlags,
       UINT_PTR nIDNewItem = 0,
@@ -2244,20 +2275,21 @@ public:
 #define UDS_NOTHOUSANDS      128
 #define UDS_HOTTRACK 0x0100
 
-class QSpinBox_MFC : public QSpinBox
-{
-public:
-   QSpinBox_MFC(QWidget* parent = 0) : QSpinBox(parent) {}
-   virtual ~QSpinBox_MFC() {}
-   QLineEdit* lineEdit() const { return QSpinBox::lineEdit(); }
-};
+//class QSpinBox_MFC : public QSpinBox
+//{
+//public:
+//   QSpinBox_MFC(QWidget* parent = 0) : QSpinBox(parent) {}
+//   virtual ~QSpinBox_MFC() {}
+//   QLineEdit* lineEdit() const { return QSpinBox::lineEdit(); }
+//};
 
 class CSpinButtonCtrl : public CWnd
 {
    Q_OBJECT
    // Qt interfaces
 protected:
-   QSpinBox_MFC* _qtd;
+//   QSpinBox_MFC* _qtd;
+   QSpinBox* _qtd;
    int _oldValue;
 public slots:
    void control_edited();
@@ -3327,11 +3359,15 @@ public:
    );
 };
 
+#define CN_COMMAND 0x10101
+#define CN_UPDATE_COMMAND_UI 0x10102
+ 
 class CCmdUI
 {
 public:
    CCmdUI();
    void ContinueRouting( );
+   BOOL DoUpdate(CCmdTarget* pTarget, BOOL bDisableIfNoHndler);
    virtual void Enable(
       BOOL bOn = TRUE 
    );
@@ -3349,6 +3385,8 @@ public:
    CMenu* m_pMenu;
    CWnd* m_pOther;
    CMenu* m_pSubMenu;
+   BOOL m_bContinueRouting;
+   BOOL m_bEnableChanged;
 };
 
 template < class TYPE, class ARG_TYPE = const TYPE& > 

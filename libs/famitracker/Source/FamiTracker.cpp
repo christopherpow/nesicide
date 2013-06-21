@@ -302,9 +302,8 @@ BOOL CFamiTrackerApp::InitInstance(QMainWindow* parent)
 
 #ifndef _DEBUG
 	// WIP
-   qDebug("GetMenu to remove WIP menus");
-//	m_pMainWnd->GetMenu()->GetSubMenu(2)->RemoveMenu(ID_MODULE_CHANNELS, MF_BYCOMMAND);
-//	m_pMainWnd->GetMenu()->GetSubMenu(2)->RemoveMenu(ID_MODULE_COMMENTS, MF_BYCOMMAND);
+	m_pMainWnd->GetMenu()->GetSubMenu(2)->RemoveMenu(ID_MODULE_CHANNELS, MF_BYCOMMAND);
+	m_pMainWnd->GetMenu()->GetSubMenu(2)->RemoveMenu(ID_MODULE_COMMENTS, MF_BYCOMMAND);
 #endif
 
 	return TRUE;

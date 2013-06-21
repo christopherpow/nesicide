@@ -3302,34 +3302,34 @@ void CMainFrame::UpdateMenus()
 
 void CMainFrame::UpdateMenu(CMenu *pMenu)
 {
-//	CAccelerator *pAccel = theApp.GetAccelerator();
+	CAccelerator *pAccel = theApp.GetAccelerator();
 
-//	for (UINT i = 0; i < pMenu->GetMenuItemCount(); ++i) {
-//		UINT state = pMenu->GetMenuState(i, MF_BYPOSITION);
-//		if (state & MF_POPUP) {
-//			// Update sub menu
-//			UpdateMenu(pMenu->GetSubMenu(i));
-//		}
-//		else if ((state & MF_SEPARATOR) == 0) {
-//			// Change menu name
-//			CString shortcut;
-//			UINT id = pMenu->GetMenuItemID(i);
+	for (UINT i = 0; i < pMenu->GetMenuItemCount(); ++i) {
+		UINT state = pMenu->GetMenuState(i, MF_BYPOSITION);
+		if (state & MF_POPUP) {
+			// Update sub menu
+			UpdateMenu(pMenu->GetSubMenu(i));
+		}
+		else if ((state & MF_SEPARATOR) == 0) {
+			// Change menu name
+			CString shortcut;
+			UINT id = pMenu->GetMenuItemID(i);
 
-//			if (pAccel->GetShortcutString(id, shortcut)) {
-//				CString string;
-//				pMenu->GetMenuString(i, string, MF_BYPOSITION);
+			if (pAccel->GetShortcutString(id, shortcut)) {
+				CString string;
+				pMenu->GetMenuString(i, string, MF_BYPOSITION);
 
-//				int tab = string.Find('\t');
+				int tab = string.Find('\t');
 
-//				if (tab != -1) {
-//					string = string.Left(tab);
-//				}
+				if (tab != -1) {
+					string = string.Left(tab);
+				}
 
-//				string += shortcut;
-//				pMenu->ModifyMenu(i, MF_BYPOSITION, id, string);
-//			}
-//		}
-//	}
+				string += shortcut;
+				pMenu->ModifyMenu(i, MF_BYPOSITION, id, string);
+			}
+		}
+	}
 }
 
 void CMainFrame::OnEditCopy()

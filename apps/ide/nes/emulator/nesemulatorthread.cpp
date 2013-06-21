@@ -29,7 +29,7 @@
 #include "breakpointwatcherthread.h"
 #include "main.h"
 
-#include "DirectSound.h"
+#include "Source/DirectSound.h"
 
 #undef main
 #include <SDL.h>
