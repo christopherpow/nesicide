@@ -34,11 +34,12 @@ class CInstrumentEditDlg : public CDialog
 
    // Qt stuff
 protected:
-   void paintEvent(QPaintEvent *) { OnPaint(); }
+   void paintEvent(QPaintEvent *);
    void mouseMoveEvent(QMouseEvent *event);
    void mousePressEvent(QMouseEvent *event);
    void mouseReleaseEvent(QMouseEvent *event);
    void mouseDoubleClickEvent(QMouseEvent *event);
+   void closeEvent(QCloseEvent *);
    
 public slots:
    void instTab_currentChanged(int arg1);

@@ -10,6 +10,7 @@
 #include <QMainWindow>
 #include <QFileInfo>
 #include <QFontDatabase>
+#include <QShortcut>
 
 extern CWinApp* ptrToTheApp;
 
@@ -2238,11 +2239,23 @@ void CComboBox::SetWindowText(
    LPCTSTR lpszString 
 )
 {
+   QLineEdit* edit = _qtd->lineEdit();
+   if ( edit )
+   {
 #if UNICODE
-   _qtd->lineEdit()->setText(QString::fromWCharArray(lpszString));
+      edit->setText(QString::fromWCharArray(lpszString));
 #else
-   _qtd->lineEdit()->setText(lpszString);
+      edit->setText(QString::fromAscii(lpszString));
 #endif
+   }
+   else
+   {
+#if UNICODE
+      _qtd->setCurrentIndex(_qtd->findText(QString::fromWCharArray(lpszString)));
+#else
+      _qtd->setCurrentIndex(_qtd->findText(QString::fromAscii(lpszString)));
+#endif
+   }
 }
 
 void CComboBox::ResetContent()
@@ -3988,6 +4001,11 @@ void CWnd::subclassWidget(int nID,CWnd* widget)
 
 bool CWnd::eventFilter(QObject *object, QEvent *event)
 {
+   if ( event->type() == QEvent::Close )
+   {
+      closeEvent(dynamic_cast<QCloseEvent*>(event));
+      return true;
+   }
    if ( event->type() == QEvent::Show )
    {
       showEvent(dynamic_cast<QShowEvent*>(event));
@@ -6088,6 +6106,11 @@ BOOL CMenu::ModifyMenu(
 #else
          action->setText(QString::fromAscii(lpszNewItem));
 #endif
+         if ( action->text().contains("\t") )
+         {
+            QString shortcutKey = action->text().split("\t").at(1);
+            action->setShortcut(QKeySequence(shortcutKey));
+         }
       }
       return TRUE;
    }

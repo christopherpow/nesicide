@@ -41,10 +41,8 @@ public slots:
    void presetPulse25_clicked();
    void copy_clicked();
    void paste_clicked();
-   void index_textChanged(QString text);
-   void indexSpin_valueChanged(int val);
-   void waves_textChanged(QString text);
-   void wavesSpin_valueChanged(int val);
+   void indexSpin_valueChanged(int arg1,int arg2);
+   void wavesSpin_valueChanged(int arg1,int arg2);
    void waveSize_currentIndexChanged(int index);
    void wavePos_editTextChanged(QString text);
    void wavePos_currentIndexChanged(int index);

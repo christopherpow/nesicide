@@ -150,27 +150,13 @@ void CInstrumentEditorN163Wave::paste_clicked()
    OnBnClickedPaste();
 }
 
-void CInstrumentEditorN163Wave::index_textChanged(QString text)
+void CInstrumentEditorN163Wave::indexSpin_valueChanged(int arg1,int arg2)
 {
    OnIndexChange();
 }
 
-void CInstrumentEditorN163Wave::indexSpin_valueChanged(int val)
+void CInstrumentEditorN163Wave::wavesSpin_valueChanged(int arg1,int arg2)
 {
-   // Update the "buddy"
-   SetDlgItemInt(IDC_INDEX,val);
-   OnIndexChange();
-}
-
-void CInstrumentEditorN163Wave::waves_textChanged(QString text)
-{
-   OnWavesChange();
-}
-
-void CInstrumentEditorN163Wave::wavesSpin_valueChanged(int val)
-{
-   // Update the "buddy"
-   SetDlgItemInt(IDC_WAVES,val);
    OnWavesChange();
 }
 

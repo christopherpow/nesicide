@@ -500,6 +500,16 @@ void CInstrumentEditDlg::PostNcDestroy()
 	CDialog::PostNcDestroy();
 }
 
+void CInstrumentEditDlg::closeEvent(QCloseEvent *)
+{
+   DestroyWindow();
+}
+
+void CInstrumentEditDlg::paintEvent(QPaintEvent *)
+{
+   OnPaint();
+}
+
 void CInstrumentEditDlg::mouseMoveEvent(QMouseEvent *event)
 {
    CPoint point(event->pos());

@@ -33,7 +33,6 @@ class CInstrumentEditor2A03 : public CSequenceInstrumentEditPanel
 public slots:
    void instSettings_itemSelectionChanged();
    void freeSeq_clicked();
-   void seqIndex_textChanged(QString);
    void sequenceSpin_valueChanged(int oldVal,int newVal);
    
 public:

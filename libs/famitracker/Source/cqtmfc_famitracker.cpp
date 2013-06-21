@@ -1037,6 +1037,20 @@ void qtMfcInitMenuResource(UINT menuID,CMenu* parent)
       qtMfcInitMenuResource_IDR_PATTERN_HEADER_POPUP(parent);
       break;
    }
+   // Fixup shortcuts
+   int menu = 0;
+   CMenu* subMenu;
+   while ( subMenu = parent->GetSubMenu(menu) )
+   {
+      foreach ( QAction* action, subMenu->toQMenu()->actions() )
+      {
+         if ( action->text().contains("\t") )
+         {
+            action->setShortcut(QKeySequence(action->text().split("\t").at(1)));
+         }
+      }
+      menu++;
+   }
 }
 
 void qtMfcInitStringResources()

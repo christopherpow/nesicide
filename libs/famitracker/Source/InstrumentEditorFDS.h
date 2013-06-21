@@ -38,12 +38,9 @@ public slots:
    void presetSine_clicked();
    void presetTriangle_clicked();
    void presetSawtooth_clicked();
-   void modRate_textChanged(QString text);
-   void modRateSpin_valueChanged(int val);
-   void modDepth_textChanged(QString text);
-   void modDepthSpin_valueChanged(int val);
-   void modDelay_textChanged(QString text);
-   void modDelaySpin_valueChanged(int val);
+   void modRateSpin_valueChanged(int arg1,int arg2);
+   void modDepthSpin_valueChanged(int arg1,int arg2);
+   void modDelaySpin_valueChanged(int arg1,int arg2);
    void modPresetFlat_clicked();
    void modPresetSine_clicked();
    void copyWave_clicked();

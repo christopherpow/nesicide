@@ -430,39 +430,18 @@ void CInstrumentEditorFDS::presetSawtooth_clicked()
    OnPresetSawtooth();
 }
 
-void CInstrumentEditorFDS::modRate_textChanged(QString text)
+void CInstrumentEditorFDS::modRateSpin_valueChanged(int arg1,int arg2)
 {
    OnModRateChange();
 }
 
-void CInstrumentEditorFDS::modRateSpin_valueChanged(int val)
-{
-   // Update the "buddy"
-   SetDlgItemInt(IDC_MOD_RATE,val);
-   OnModRateChange();
-}
-
-void CInstrumentEditorFDS::modDepth_textChanged(QString text)
+void CInstrumentEditorFDS::modDepthSpin_valueChanged(int arg1,int arg2)
 {
    OnModDepthChange();
 }
 
-void CInstrumentEditorFDS::modDepthSpin_valueChanged(int val)
+void CInstrumentEditorFDS::modDelaySpin_valueChanged(int arg1,int arg2)
 {
-   // Update the "buddy"
-   SetDlgItemInt(IDC_MOD_DEPTH,val);
-   OnModDepthChange();
-}
-
-void CInstrumentEditorFDS::modDelay_textChanged(QString text)
-{
-   OnModDelayChange();
-}
-
-void CInstrumentEditorFDS::modDelaySpin_valueChanged(int val)
-{
-   // Update the "buddy"
-   SetDlgItemInt(IDC_MOD_DELAY,val);
    OnModDelayChange();
 }
 

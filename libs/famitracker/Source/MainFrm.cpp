@@ -1435,8 +1435,8 @@ bool CMainFrame::CreateDialogPanels()
 
 	// Subclass and setup the instrument list
 	m_pInstrumentList = new CInstrumentList(this);
-	m_pInstrumentList->SubclassDlgItem(IDC_INSTRUMENTS, &m_wndDialogBar);
-//   m_pInstrumentList = (CListCtrl*)m_wndDialogBar.GetDlgItem(IDC_INSTRUMENTS);
+//	m_pInstrumentList->SubclassDlgItem(IDC_INSTRUMENTS, &m_wndDialogBar);
+   m_pInstrumentList = (CListCtrl*)m_wndDialogBar.GetDlgItem(IDC_INSTRUMENTS);
 
 	SetupColors();
 

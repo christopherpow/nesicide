@@ -144,13 +144,6 @@ void CInstrumentEditorN163::freeSeq_clicked()
 
 void CInstrumentEditorN163::sequenceSpin_valueChanged(int oldVal,int newVal)
 {
-   // Update the "buddy"
-   SetDlgItemInt(IDC_SEQ_INDEX,newVal);
-   OnEnChangeSeqIndex();
-}
-
-void CInstrumentEditorN163::seqIndex_textChanged(QString)
-{
    OnEnChangeSeqIndex();
 }
 

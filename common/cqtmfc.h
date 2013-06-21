@@ -3034,6 +3034,7 @@ public:
    virtual CWnd * GetMainWnd( ) { return m_pMainWnd; }
    afx_msg void OnFileNew( );
    afx_msg void OnFileOpen( );
+   BOOL ExitInstance() { delete m_pMainWnd; }
 public:
    CFrameWnd* m_pMainWnd;
    // Qt interfaces

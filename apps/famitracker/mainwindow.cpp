@@ -28,7 +28,7 @@ MainWindow::MainWindow(QWidget *parent) :
    QObject::connect(theApp.m_pMainWnd,SIGNAL(addToolBarWidget(QToolBar*)),this,SLOT(addToolBarWidget(QToolBar*)));
    QObject::connect(theApp.m_pMainWnd,SIGNAL(removeToolBarWidget(QToolBar*)),this,SLOT(removeToolBarWidget(QToolBar*)));
    QObject::connect(theApp.m_pMainWnd,SIGNAL(editor_modificationChanged(bool)),this,SLOT(editor_modificationChanged(bool)));
-
+   
    restoreGeometry(settings.value("FamiTrackerWindowGeometry").toByteArray());
    restoreState(settings.value("FamiTrackerWindowState").toByteArray());
 }
