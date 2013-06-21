@@ -5353,7 +5353,9 @@ BOOL CDialog::Create(
       _qt->setParent(NULL);
    SetParent(pParentWnd); 
    if ( pParentWnd == m_pFrameWnd )
-      _qt->setParent(NULL);
+   {
+      _qtd->setWindowFlags(_qtd->windowFlags()|Qt::Dialog);
+   }
    
    foreach ( CWnd* pWnd, mfcToQtWidget ) pWnd->blockSignals(true);
    BOOL result = OnInitDialog(); 

@@ -68,21 +68,17 @@ void MainWindow::editor_modificationChanged(bool m)
 
 void MainWindow::dragEnterEvent(QDragEnterEvent *event)
 {
-qDebug("dragEnter");
    if ( event->mimeData()->hasUrls() )
    {
       event->acceptProposedAction();
-qDebug("dragEnter: ACCEPT");
    }
 }
 
 void MainWindow::dragMoveEvent(QDragMoveEvent *event)
 {
-qDebug("dragMove");
    if ( event->mimeData()->hasUrls() )
    {
       event->acceptProposedAction();
-qDebug("dragMove: ACCEPT");
    }
 }
 
@@ -108,13 +104,12 @@ qDebug("dropEvent");
          {
             openFile(fileName);
             event->acceptProposedAction();
-qDebug("dropEvent: ACCEPT");
          }
       }
    }
 }
 
-void MainWindow::closeEvent(QCloseEvent *)
+void MainWindow::closeEvent(QCloseEvent *event)
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
    
