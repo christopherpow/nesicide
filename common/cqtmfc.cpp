@@ -10,7 +10,6 @@
 #include <QMainWindow>
 #include <QFileInfo>
 #include <QFontDatabase>
-#include <QShortcut>
 
 extern CWinApp* ptrToTheApp;
 
@@ -6110,8 +6109,7 @@ BOOL CMenu::ModifyMenu(
 #endif
          if ( action->text().contains("\t") )
          {
-            QString shortcutKey = action->text().split("\t").at(1);
-            action->setShortcut(QKeySequence(shortcutKey));
+            action->setShortcut(QKeySequence(action->text().split("\t").at(1)));
          }
       }
       return TRUE;

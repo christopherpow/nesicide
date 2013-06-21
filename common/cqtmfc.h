@@ -4,6 +4,7 @@
 #include <QApplication>
 #include <QDialogButtonBox>
 #include <QMainWindow>
+#include <QShortcut>
 #include <QAction>
 #include <QObject>
 #include <QWidget>
@@ -3034,7 +3035,7 @@ public:
    virtual CWnd * GetMainWnd( ) { return m_pMainWnd; }
    afx_msg void OnFileNew( );
    afx_msg void OnFileOpen( );
-   BOOL ExitInstance() { delete m_pMainWnd; }
+   BOOL ExitInstance() { return TRUE; }
 public:
    CFrameWnd* m_pMainWnd;
    // Qt interfaces

@@ -547,20 +547,8 @@ void CMainFrame::idleProcessing()
    {
       OnUpdateSpeedEdit(&cmdUI);
    }
-   cmdUI.m_nID = IDC_SPEED_SPIN;
-   cmdUI.m_pOther = m_wndDialogBar.GetDlgItem(cmdUI.m_nID);
-   if ( cmdUI.m_pOther )
-   {
-      OnUpdateSpeedEdit(&cmdUI);
-   }
    //	ON_UPDATE_COMMAND_UI(IDC_TEMPO, OnUpdateTempoEdit)
    cmdUI.m_nID = IDC_TEMPO;
-   cmdUI.m_pOther = m_wndDialogBar.GetDlgItem(cmdUI.m_nID);
-   if ( cmdUI.m_pOther )
-   {
-      OnUpdateTempoEdit(&cmdUI);
-   }
-   cmdUI.m_nID = IDC_TEMPO_SPIN;
    cmdUI.m_pOther = m_wndDialogBar.GetDlgItem(cmdUI.m_nID);
    if ( cmdUI.m_pOther )
    {
@@ -573,21 +561,9 @@ void CMainFrame::idleProcessing()
    {
       OnUpdateRowsEdit(&cmdUI);
    }
-   cmdUI.m_nID = IDC_ROWS_SPIN;
-   cmdUI.m_pOther = m_wndDialogBar.GetDlgItem(cmdUI.m_nID);
-   if ( cmdUI.m_pOther )
-   {
-      OnUpdateRowsEdit(&cmdUI);
-   }
    //	ON_UPDATE_COMMAND_UI(IDC_FRAMES, OnUpdateFramesEdit)
    cmdUI.m_nID = IDC_FRAMES;
    cmdUI.m_pOther = m_wndDialogBar.GetDlgItem(cmdUI.m_nID);
-   if ( cmdUI.m_pOther )
-   {
-      OnUpdateFramesEdit(&cmdUI);
-   }
-   cmdUI.m_nID = IDC_FRAME_SPIN;
-   cmdUI.m_pOther = m_wndOctaveBar.GetDlgItem(cmdUI.m_nID);
    if ( cmdUI.m_pOther )
    {
       OnUpdateFramesEdit(&cmdUI);
@@ -958,12 +934,7 @@ void CMainFrame::framesSpin_valueChanged(int arg1, int arg2)
 
 void CMainFrame::keyStepSpin_valueChanged(int arg1, int arg2)
 {
-   NMUPDOWN nmud;
-   LRESULT result;
-
-   nmud.iPos = arg2;
-   nmud.iDelta = arg1-arg2;
-   OnDeltaposKeyStepSpin((NMHDR*)&nmud,&result);
+   OnEnKeyStepChange();
 }
 
 void CMainFrame::menuAboutToShow(CMenu* menu)
@@ -1040,9 +1011,6 @@ void CMainFrame::menuAboutToShow(CMenu* menu)
    //	ON_UPDATE_COMMAND_UI(ID_INDICATOR_CHIP, OnUpdateSBChip)
    cmdUI.m_nID = ID_INDICATOR_CHIP;
    OnUpdateSBChip(&cmdUI);
-//   //	ON_UPDATE_COMMAND_UI(IDC_KEYSTEP, OnUpdateKeyStepEdit)
-//   cmdUI.m_nID = IDC_KEYSTEP;
-//   OnUpdateKeyStepEdit(&cmdUI);
    //	ON_UPDATE_COMMAND_UI(IDC_KEYREPEAT, OnUpdateKeyRepeat)
    cmdUI.m_nID = IDC_KEYREPEAT;
    OnUpdateKeyRepeat(&cmdUI);
@@ -2556,7 +2524,7 @@ void CMainFrame::OnUpdateKeyStepEdit(CCmdUI *pCmdUI)
 
 void CMainFrame::OnUpdateSpeedEdit(CCmdUI *pCmdUI)
 {
-	if (!m_pLockedEditSpeed->IsEditable()) {
+//	if (!m_pLockedEditSpeed->IsEditable()) {
 		if (m_pLockedEditSpeed->Update())
 			SetSpeed(m_pLockedEditSpeed->GetValue());
 		else {
@@ -2564,12 +2532,12 @@ void CMainFrame::OnUpdateSpeedEdit(CCmdUI *pCmdUI)
 			Text.Format(_T("%i"), ((CFamiTrackerDoc*)GetActiveDocument())->GetSongSpeed());
 			pCmdUI->SetText(Text);
 		}
-	}	
+//	}	
 }
 
 void CMainFrame::OnUpdateTempoEdit(CCmdUI *pCmdUI)
 {
-	if (!m_pLockedEditTempo->IsEditable()) {
+//	if (!m_pLockedEditTempo->IsEditable()) {
 		if (m_pLockedEditTempo->Update())
 			SetTempo(m_pLockedEditTempo->GetValue());
 		else {
@@ -2577,26 +2545,26 @@ void CMainFrame::OnUpdateTempoEdit(CCmdUI *pCmdUI)
 			Text.Format(_T("%i"), ((CFamiTrackerDoc*)GetActiveDocument())->GetSongTempo());
 			pCmdUI->SetText(Text);
 		}
-	}
+//	}
 }
 
 void CMainFrame::OnUpdateRowsEdit(CCmdUI *pCmdUI)
 {
 	CString Text;
 
-	if (!m_pLockedEditLength->IsEditable()) {
+//	if (!m_pLockedEditLength->IsEditable()) {
 		if (m_pLockedEditLength->Update())
 			SetRowCount(m_pLockedEditLength->GetValue());
 		else {
 			Text.Format(_T("%i"), ((CFamiTrackerDoc*)GetActiveDocument())->GetPatternLength());
 			pCmdUI->SetText(Text);
 		}
-	}
+//	}
 }
 
 void CMainFrame::OnUpdateFramesEdit(CCmdUI *pCmdUI)
 {
-	if (!m_pLockedEditFrames->IsEditable()) {
+//	if (!m_pLockedEditFrames->IsEditable()) {
 		if (m_pLockedEditFrames->Update())
 			SetFrameCount(m_pLockedEditFrames->GetValue());
 		else {
@@ -2604,7 +2572,7 @@ void CMainFrame::OnUpdateFramesEdit(CCmdUI *pCmdUI)
 			Text.Format(_T("%i"), ((CFamiTrackerDoc*)GetActiveDocument())->GetFrameCount());
 			pCmdUI->SetText(Text);
 		}
-	}	
+//	}	
 }
 
 void CMainFrame::OnFileGeneralsettings()
