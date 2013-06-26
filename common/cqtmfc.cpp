@@ -5968,6 +5968,10 @@ BOOL CMenu::AppendMenu(
 
 UINT CMenu::GetMenuItemCount( ) const
 {
+   if ( _cmenu->count() )
+   {
+      return _cmenu->count();
+   }
    return _qtd->actions().count();
 }
 
@@ -5985,11 +5989,19 @@ UINT CMenu::GetMenuState(
 {
    QAction* action;
    UINT state = 0;
-   
+
    switch ( nFlags&MF_BYPOSITION )
    {
    case MF_BYPOSITION:
-      action = _qtd->actions().at(nID);
+      if ( _cmenu->count() )
+      {
+         state |= MF_POPUP;
+         return state;
+      }  
+      else
+      {
+         action = _qtd->actions().at(nID);
+      }
       break;
    default:
       action = findMenuItem(nID);
@@ -6092,7 +6104,7 @@ BOOL CMenu::ModifyMenu(
    switch ( nFlags&MF_BYPOSITION )
    {
    case MF_BYPOSITION:
-      action = _qtd->actions().at(nIDNewItem);
+      action = _qtd->actions().at(nPosition);
       break;
    default:
       action = findMenuItem(nIDNewItem);
