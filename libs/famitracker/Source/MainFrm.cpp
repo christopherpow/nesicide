@@ -2733,13 +2733,12 @@ void CMainFrame::OnTrackerSwitchToInstrument()
 
 void CMainFrame::OnTrackerDPCM()
 {
-   qDebug("CMainFrame::OnTrackerDPCM");
-//	CMenu *pMenu = GetMenu();
+	CMenu *pMenu = GetMenu();
 
-//	if (pMenu->GetMenuState(ID_TRACKER_DPCM, MF_BYCOMMAND) == MF_CHECKED)
-//		pMenu->CheckMenuItem(ID_TRACKER_DPCM, MF_UNCHECKED);
-//	else
-//		pMenu->CheckMenuItem(ID_TRACKER_DPCM, MF_CHECKED);
+	if (pMenu->GetMenuState(ID_TRACKER_DPCM, MF_BYCOMMAND) == MF_CHECKED)
+		pMenu->CheckMenuItem(ID_TRACKER_DPCM, MF_UNCHECKED);
+	else
+		pMenu->CheckMenuItem(ID_TRACKER_DPCM, MF_CHECKED);
 }
 
 void CMainFrame::OnUpdateTrackerSwitchToInstrument(CCmdUI *pCmdUI)

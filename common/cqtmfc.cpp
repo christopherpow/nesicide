@@ -4613,6 +4613,8 @@ CFrameWnd::CFrameWnd(CWnd *parent)
      m_pDocument(NULL),
      m_bInRecalcLayout(FALSE)
 {
+   int idx;
+   
    m_pFrameWnd = this;
    ptrToTheApp->m_pMainWnd = this;
    
@@ -4674,13 +4676,10 @@ CFrameWnd::CFrameWnd(CWnd *parent)
    m_pMenuBar = new QMenuBar;
    m_pMenu = new CMenu;
    m_pMenu->LoadMenu(128);
-   m_pMenuBar->addMenu(m_pMenu->GetSubMenu(0)->toQMenu());
-   m_pMenuBar->addMenu(m_pMenu->GetSubMenu(1)->toQMenu());
-   m_pMenuBar->addMenu(m_pMenu->GetSubMenu(2)->toQMenu());
-   m_pMenuBar->addMenu(m_pMenu->GetSubMenu(3)->toQMenu());
-   m_pMenuBar->addMenu(m_pMenu->GetSubMenu(4)->toQMenu());
-   m_pMenuBar->addMenu(m_pMenu->GetSubMenu(5)->toQMenu());
-   m_pMenuBar->addMenu(m_pMenu->GetSubMenu(6)->toQMenu());
+   for ( idx = 0; idx < m_pMenu->GetMenuItemCount(); idx++ )
+   {
+      m_pMenuBar->addMenu(m_pMenu->GetSubMenu(idx)->toQMenu());
+   }
    ptrToTheApp->qtMainWindow->setMenuBar(m_pMenuBar);
 }
 
@@ -5843,11 +5842,6 @@ void CMenu::menuAboutToShow()
    emit menuAboutToShow(this);
 }
 
-void CMenu::addSubMenu(CMenu* menu)
-{
-   _cmenu->append(menu);
-}
-
 QAction* CMenu::findMenuItem(UINT id) const
 {
    int subMenu;
@@ -5925,12 +5919,20 @@ BOOL CMenu::AppendMenu(
    LPCTSTR lpszNewItem
 )
 {
+   CMenu* pMenu = (CMenu*)nIDNewItem; // For MF_POPUP
    if ( nFlags&MF_POPUP )
    {
-      LoadMenu(nIDNewItem);
-   }
+      _cmenu->append(pMenu);
+      _qtd->addMenu(pMenu->toQMenu());
 
-   if ( nFlags&MF_SEPARATOR )
+#if UNICODE
+      pMenu->toQMenu()->setTitle(QString::fromWCharArray(lpszNewItem));
+#else
+      pMenu->toQMenu()->setTitle(QString::fromAscii(lpszNewItem));
+#endif
+      QObject::connect(pMenu,SIGNAL(menuAction_triggered(int)),this,SIGNAL(menuAction_triggered(int)));
+   }
+   else if ( nFlags&MF_SEPARATOR )
    {
       _qtd->addSeparator();
    }
@@ -5959,6 +5961,7 @@ BOOL CMenu::AppendMenu(
       {
          action->setDisabled(true);
       }
+      QObject::connect(action,SIGNAL(triggered()),this,SLOT(menuAction_triggered()));
       mfcToQtMenu.insert(nIDNewItem,action);
       qtToMfcMenu.insert(action,nIDNewItem);
    }

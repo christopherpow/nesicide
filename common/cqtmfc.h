@@ -1761,13 +1761,17 @@ class CMenu : public QObject, public CCmdTarget
    // Qt interfaces
 public:
    QMenu* toQMenu() { return _qtd; }
-   void addSubMenu(CMenu* menu);
    QAction* findMenuItem(UINT id) const;
    UINT findMenuID(QAction* action) const;
    HMENU m_hMenu;
 public:
    QHash<UINT_PTR,QAction*>* mfcToQtMenuMap() { return &mfcToQtMenu; }
    QHash<QAction*,UINT_PTR>* qtToMfcMenuMap() { return &qtToMfcMenu; }
+protected:
+   QMenu* _qtd;
+   QList<CMenu*>* _cmenu;
+   QHash<UINT_PTR,QAction*> mfcToQtMenu;
+   QHash<QAction*,UINT_PTR> qtToMfcMenu;
 public slots:
    void menuAction_triggered();
    void menuAboutToShow();
@@ -1840,11 +1844,6 @@ public:
       LPCRECT lpRect = 0
    );
    BOOL DestroyMenu( );
-private:
-   QMenu* _qtd;
-   QList<CMenu*>* _cmenu;
-   QHash<UINT_PTR,QAction*> mfcToQtMenu;
-   QHash<QAction*,UINT_PTR> qtToMfcMenu;
 };
 
 class CDialog : public CWnd
