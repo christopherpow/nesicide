@@ -5817,7 +5817,7 @@ CMenu::CMenu()
    : m_hMenu(NULL)
 {
    _qtd = new QMenu;
-   _cmenu = new QList<CMenu*>;
+   _cmenu = new QHash<int,CMenu*>;
    m_hMenu = (HMENU)this;
 }
 
@@ -5910,6 +5910,9 @@ CMenu* CMenu::GetSubMenu(
 BOOL CMenu::CreatePopupMenu()
 {
    _cmenu->clear();
+   _qtd->clear();
+   mfcToQtMenu.clear();
+   qtToMfcMenu.clear();
    return TRUE;
 }
 
@@ -5922,7 +5925,7 @@ BOOL CMenu::AppendMenu(
    CMenu* pMenu = (CMenu*)nIDNewItem; // For MF_POPUP
    if ( nFlags&MF_POPUP )
    {
-      _cmenu->append(pMenu);
+      _cmenu->insert(_qtd->actions().count(),pMenu);
       _qtd->addMenu(pMenu->toQMenu());
 
 #if UNICODE
@@ -5971,10 +5974,6 @@ BOOL CMenu::AppendMenu(
 
 UINT CMenu::GetMenuItemCount( ) const
 {
-   if ( _cmenu->count() )
-   {
-      return _cmenu->count();
-   }
    return _qtd->actions().count();
 }
 
@@ -5996,7 +5995,7 @@ UINT CMenu::GetMenuState(
    switch ( nFlags&MF_BYPOSITION )
    {
    case MF_BYPOSITION:
-      if ( _cmenu->count() )
+      if ( _cmenu->value(nID) )
       {
          state |= MF_POPUP;
          return state;

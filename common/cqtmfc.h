@@ -1769,7 +1769,7 @@ public:
    QHash<QAction*,UINT_PTR>* qtToMfcMenuMap() { return &qtToMfcMenu; }
 protected:
    QMenu* _qtd;
-   QList<CMenu*>* _cmenu;
+   QHash<int,CMenu*>* _cmenu;
    QHash<UINT_PTR,QAction*> mfcToQtMenu;
    QHash<QAction*,UINT_PTR> qtToMfcMenu;
 public slots:
