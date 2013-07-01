@@ -279,6 +279,40 @@ BOOL WINAPI GetCursorPos(
    return TRUE;
 }
 
+BOOL WINAPI CopyFile(
+   LPCTSTR lpExistingFileName,
+   LPCTSTR lpNewFileName,
+   BOOL bFailIfExists
+)
+{
+#if UNICODE
+   QFile src(QString::fromWCharArray(lpExistingFileName));
+   QFile dst(QString::fromWCharArray(lpNewFileName));
+#else
+   QFile src(QString::fromAscii(lpExistingFileName));
+   QFile dst(QString::fromAscii(lpNewFileName));
+#endif
+   
+   if ( bFailIfExists && dst.exists() )
+   {
+      return FALSE;
+   }
+   if ( src.open(QIODevice::ReadOnly) )
+   {
+      if ( dst.open(QIODevice::WriteOnly|QIODevice::Truncate))
+      {
+         dst.write(src.readAll());
+         dst.close();
+      }
+      src.close();
+   }
+   else
+   {
+      return FALSE;
+   }
+   return TRUE;
+}
+
 DWORD WINAPI GetModuleFileName(
    HMODULE hModule,
    LPTSTR lpFilename,

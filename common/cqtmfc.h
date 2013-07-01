@@ -71,6 +71,12 @@
 //#define _DEBUG
 #endif
 
+// Qt::Key_ mappings to VK_
+#define VK_F1 Qt::Key_F1
+#define VK_F2 Qt::Key_F2
+#define VK_F3 Qt::Key_F3
+#define VK_F4 Qt::Key_F4
+
 // Define resources here that are "hidden under the hood" of MFC...
 enum
 {
@@ -408,6 +414,12 @@ DWORD WINAPI GetModuleFileName(
    HMODULE hModule,
    LPTSTR lpFilename,
    DWORD nSize
+);
+
+BOOL WINAPI CopyFile(
+   LPCTSTR lpExistingFileName,
+   LPCTSTR lpNewFileName,
+   BOOL bFailIfExists
 );
 
 BOOL PathRemoveFileSpec(
