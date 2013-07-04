@@ -10,6 +10,7 @@
 #include <QMainWindow>
 #include <QFileInfo>
 #include <QFontDatabase>
+#include <QMenuBar>
 
 extern CWinApp* ptrToTheApp;
 
@@ -4707,19 +4708,16 @@ CFrameWnd::CFrameWnd(CWnd *parent)
    
    centralWidget->setLayout(gridLayout);
    
-   m_pMenuBar = new QMenuBar;
    m_pMenu = new CMenu;
    m_pMenu->LoadMenu(128);
    for ( idx = 0; idx < m_pMenu->GetMenuItemCount(); idx++ )
    {
-      m_pMenuBar->addMenu(m_pMenu->GetSubMenu(idx)->toQMenu());
+      ptrToTheApp->qtMainWindow->menuBar()->addMenu(m_pMenu->GetSubMenu(idx)->toQMenu());
    }
-   ptrToTheApp->qtMainWindow->setMenuBar(m_pMenuBar);
 }
 
 CFrameWnd::~CFrameWnd()
 {
-   delete m_pMenuBar;
    delete m_pMenu;
 }
 
@@ -4992,8 +4990,8 @@ CToolBar::CToolBar(CWnd* parent)
 
    // Downcast to save having to do it all over the place...
    _qtd = dynamic_cast<QToolBar*>(_qt);
-   
-   _qtd->setMovable(false);
+
+   _qtd->setMovable(true);
 }
 
 CToolBar::~CToolBar()
@@ -5075,25 +5073,10 @@ void CToolBar::toolBarAction_triggered()
 CStatusBar::CStatusBar(CWnd* parent)
 {
    _dwStyle = 0;
-   
-   if ( _qt )
-      delete _qt;
-   
-   if ( parent )
-      _qt = new QStatusBar(parent->toQWidget());
-   else
-      _qt = new QStatusBar;
-
-   // Downcast to save having to do it all over the place...
-   _qtd = dynamic_cast<QStatusBar*>(_qt);
 }
 
 CStatusBar::~CStatusBar()
 {
-   if ( _qtd )
-      delete _qtd;
-   _qtd = NULL;
-   _qt = NULL;
 }
 
 BOOL CStatusBar::Create(
@@ -5109,8 +5092,6 @@ BOOL CStatusBar::Create(
    
    pParentWnd->mfcToQtWidgetMap()->insert(nID,this);
 
-   ptrToTheApp->qtMainWindow->setStatusBar(_qtd);
-   
    // Pass-through signals
 
    return TRUE;
@@ -5130,9 +5111,9 @@ void CStatusBar::SetWindowText(
 )
 {
 #if UNICODE
-   _qtd->showMessage(QString::fromWCharArray(lpszString));
+   ptrToTheApp->qtMainWindow->statusBar()->showMessage(QString::fromWCharArray(lpszString));
 #else
-   _qtd->showMessage(lpszString);
+   ptrToTheApp->qtMainWindow->statusBar()->showMessage(lpszString);
 #endif
 }
 
@@ -5147,7 +5128,6 @@ BOOL CStatusBar::SetIndicators(
    {
       CStatic* newPane = new CStatic;
       _panes.insert(pane,newPane);
-      _qtd->addPermanentWidget(newPane->toQWidget());
       CString lpszText = qtMfcStringResource(lpIDArray[pane]);
 #if UNICODE
       ((QLabel*)newPane->toQWidget())->setText(QString::fromWCharArray(lpszText));
@@ -5158,6 +5138,7 @@ BOOL CStatusBar::SetIndicators(
       {
          mfcToQtWidget.insert(lpIDArray[pane],newPane);
       }
+      ptrToTheApp->qtMainWindow->statusBar()->addPermanentWidget(newPane->toQWidget());
    }
    return TRUE;
 }

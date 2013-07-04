@@ -18,8 +18,8 @@ MainWindow::MainWindow(QWidget *parent) :
    ui->setupUi(this);
 
    // Initialize the app...
-   qtMfcInit();
-   theApp.InitInstance(this);
+   qtMfcInit(this);
+   theApp.InitInstance();
    
    openFile("");
    

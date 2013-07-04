@@ -9,7 +9,7 @@ extern QHash<int,CBitmap*> qtMfcBitmapResources;
 
 extern QHash<int,QIcon*> qtIconResources;
 
-void qtMfcInit();
+void qtMfcInit(QMainWindow* parent);
 
 void qtMfcInitDialogResource(UINT dlgID,CDialog* parent);
 

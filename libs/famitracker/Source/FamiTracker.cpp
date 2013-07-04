@@ -130,11 +130,8 @@ CWinApp* ptrToTheApp = &theApp;
 
 // CFamiTrackerApp initialization
 
-BOOL CFamiTrackerApp::InitInstance(QMainWindow* parent)
+BOOL CFamiTrackerApp::InitInstance()
 {
-   // Hook Qt to this MFC app...
-   qtMainWindow = parent;
-   
 //   // InitCommonControls() is required on Windows XP if an application
 //	// manifest specifies use of ComCtl32.dll version 6 or later to enable
 //	// visual styles.  Otherwise, any window creation will fail.

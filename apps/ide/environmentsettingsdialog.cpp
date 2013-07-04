@@ -86,7 +86,14 @@ EnvironmentSettingsDialog::EnvironmentSettingsDialog(QWidget* parent) :
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
 
    ui->settingsLocation->setText(QString("Currently reading settings from: ")+settings.fileName());
-
+   
+   QFileInfo toolchainInfo(qgetenv("CC65_HOME"));
+   if ( toolchainInfo.exists() &&
+        toolchainInfo.isDir() )
+   {
+     ui->toolchainLocation->setText(qgetenv("CC65_HOME"));
+   }
+   
    m_scintilla = new QsciScintilla();
    m_defaultLexer = new QsciLexerDefault();
    m_cc65Lexer = new QsciLexerCC65();

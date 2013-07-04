@@ -359,10 +359,11 @@ void CMainFrame::showEvent(QShowEvent *)
       QObject::connect(m_wndDialogBar.GetDlgItem(IDC_SONG_NAME)->toQWidget(),SIGNAL(textEdited(QString)),this,SLOT(songName_textEdited(QString)));
       QObject::connect(m_wndDialogBar.GetDlgItem(IDC_SONG_ARTIST)->toQWidget(),SIGNAL(textEdited(QString)),this,SLOT(songArtist_textEdited(QString)));
       QObject::connect(m_wndDialogBar.GetDlgItem(IDC_SONG_COPYRIGHT)->toQWidget(),SIGNAL(textEdited(QString)),this,SLOT(songCopyright_textEdited(QString)));
+      QObject::connect(m_wndDialogBar.GetDlgItem(IDC_INSTNAME)->toQWidget(),SIGNAL(textEdited(QString)),this,SLOT(instName_textEdited(QString)));
+      QObject::connect(m_wndDialogBar.GetDlgItem(IDC_KEYREPEAT)->toQWidget(),SIGNAL(clicked()),this,SLOT(keyRepeat_clicked()));
       QObject::connect(m_wndFrameControls.GetDlgItem(IDC_FRAME_INC)->toQWidget(),SIGNAL(clicked()),this,SLOT(frameInc_clicked()));
       QObject::connect(m_wndFrameControls.GetDlgItem(IDC_FRAME_DEC)->toQWidget(),SIGNAL(clicked()),this,SLOT(frameDec_clicked()));
       QObject::connect(m_wndFrameControls.GetDlgItem(IDC_CHANGE_ALL)->toQWidget(),SIGNAL(clicked()),this,SLOT(frameChangeAll_clicked()));
-      QObject::connect(m_wndDialogBar.GetDlgItem(IDC_INSTNAME)->toQWidget(),SIGNAL(textEdited(QString)),this,SLOT(instName_textEdited(QString)));
       qDebug("DONE CONNECTING BURIED SIGNALS NOW...");
       
       
@@ -935,6 +936,11 @@ void CMainFrame::framesSpin_valueChanged(int arg1, int arg2)
 void CMainFrame::keyStepSpin_valueChanged(int arg1, int arg2)
 {
    OnEnKeyStepChange();
+}
+
+void CMainFrame::keyRepeat_clicked()
+{
+   OnKeyRepeat();
 }
 
 void CMainFrame::menuAboutToShow(CMenu* menu)

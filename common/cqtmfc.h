@@ -62,7 +62,6 @@
 #include <QGroupBox>
 #include <QFileDialog>
 #include <QColorDialog>
-#include <QMenuBar>
 #include <QToolButton>
 #include <QLibrary>
 #include <QToolTip>
@@ -70,12 +69,6 @@
 #ifndef QT_NO_DEBUG
 //#define _DEBUG
 #endif
-
-// Qt::Key_ mappings to VK_
-#define VK_F1 Qt::Key_F1
-#define VK_F2 Qt::Key_F2
-#define VK_F3 Qt::Key_F3
-#define VK_F4 Qt::Key_F4
 
 // Define resources here that are "hidden under the hood" of MFC...
 enum
@@ -1671,8 +1664,6 @@ class CFrameWnd : public CWnd
    // Qt interfaces
 public:
    void addControlBar(int area,QWidget* bar);
-protected:
-   QMenuBar* m_pMenuBar;
    
    // MFC interfaces
 public:
@@ -3299,7 +3290,6 @@ class CStatusBar : public CControlBar
 {
    // Qt interfaces
 protected:
-   QStatusBar* _qtd;
    QHash<int,CStatic*> _panes;
    UINT _dwStyle;
    

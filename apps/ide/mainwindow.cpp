@@ -42,7 +42,43 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
       QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, QCoreApplication::applicationDirPath());
       QSettings::setPath(QSettings::IniFormat, QSettings::SystemScope, QCoreApplication::applicationDirPath());
    }
-   if ( !QCoreApplication::applicationDirPath().contains("apps/ide") )
+   
+#if defined(Q_WS_WIN) || defined(Q_WS_WIN32)
+   if ( QCoreApplication::applicationDirPath().contains("apps/ide") )
+   {
+      // Developer build?  Set environment assuming deps/ is at top level.
+      QString envvar = qgetenv("PATH");
+      QString envdat;
+      QDir dir;
+      dir.setPath("../../deps/Windows");
+      envdat = dir.absolutePath();
+      envdat += "/GnuWin32/bin;";
+      dir.setPath("../../deps");
+      envdat += dir.absolutePath();
+      envdat += "/cc65-snapshot-2.13.9.20120412/bin;";
+      qputenv("PATH",QString(envdat+envvar).toAscii());
+
+      envdat = dir.absolutePath();
+      envdat += "/cc65-snapshot-2.13.9.20120412";
+      qputenv("CC65_HOME",envdat.toAscii());
+
+      envdat = dir.absolutePath();
+      envdat += "/cc65-snapshot-2.13.9.20120412/lib";
+      qputenv("LD65_LIB",envdat.toAscii());
+
+      envdat = dir.absolutePath();
+      envdat += "/cc65-snapshot-2.13.9.20120412/lib";
+      qputenv("LD65_OBJ",envdat.toAscii());
+
+      envdat = dir.absolutePath();
+      envdat += "/cc65-snapshot-2.13.9.20120412/asminc";
+      qputenv("CC65_ASMINC",envdat.toAscii());
+
+      envdat = dir.absolutePath();
+      envdat += "/cc65-snapshot-2.13.9.20120412/asminc";
+      qputenv("CC65_INC",envdat.toAscii());
+   }
+   else
    {
       // Set environment.
       QString envvar = qgetenv("PATH");
@@ -50,31 +86,31 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
       envdat = QCoreApplication::applicationDirPath();
       envdat += "/GnuWin32/bin;";
       envdat += QCoreApplication::applicationDirPath();
-      envdat += "/cc65-snapshot/bin;";
+      envdat += "/cc65-snapshot-2.13.9.20120412/bin;";
       qputenv("PATH",QString(envdat+envvar).toAscii());
 
       envdat = QCoreApplication::applicationDirPath();
-      envdat += "/cc65-snapshot";
+      envdat += "/cc65-snapshot-2.13.9.20120412";
       qputenv("CC65_HOME",envdat.toAscii());
 
       envdat = QCoreApplication::applicationDirPath();
-      envdat += "/cc65-snapshot/lib";
+      envdat += "/cc65-snapshot-2.13.9.20120412/lib";
       qputenv("LD65_LIB",envdat.toAscii());
 
       envdat = QCoreApplication::applicationDirPath();
-      envdat += "/cc65-snapshot/lib";
+      envdat += "/cc65-snapshot-2.13.9.20120412/lib";
       qputenv("LD65_OBJ",envdat.toAscii());
 
       envdat = QCoreApplication::applicationDirPath();
-      envdat += "/cc65-snapshot/asminc";
+      envdat += "/cc65-snapshot-2.13.9.20120412/asminc";
       qputenv("CC65_ASMINC",envdat.toAscii());
 
       envdat = QCoreApplication::applicationDirPath();
-      envdat += "/cc65-snapshot/asminc";
+      envdat += "/cc65-snapshot-2.13.9.20120412/asminc";
       qputenv("CC65_INC",envdat.toAscii());
-
    }
-
+#endif
+   
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
 
    // Initialize Environment settings.
@@ -342,8 +378,8 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    m_periodicTimer = startTimer(5000);
    
    // Initialize the app...
-   qtMfcInit();
-   theApp.InitInstance(this);   
+   qtMfcInit(this);
+   theApp.InitInstance();   
 }
 
 MainWindow::~MainWindow()
@@ -1531,7 +1567,7 @@ void MainWindow::markProjectDirty(bool dirty)
 void MainWindow::addStatusBarWidget(QWidget *widget)
 {
 //   expandableStatusBar->addWidget(widget,100);
-   appStatusBar->addWidget(widget,100);
+   appStatusBar->addWidget(widget);
    widget->show();
 }
 
@@ -1540,7 +1576,7 @@ void MainWindow::removeStatusBarWidget(QWidget *widget)
    // For some reason on creation the widget isn't there but it's being removed?
 //   expandableStatusBar->addWidget(widget,100);
 //   expandableStatusBar->removeWidget(widget);
-   appStatusBar->addWidget(widget,100);
+   appStatusBar->addWidget(widget);
    appStatusBar->removeWidget(widget);
 }
 

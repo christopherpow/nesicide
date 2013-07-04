@@ -4050,8 +4050,12 @@ void qtMfcInitToolBarResource(UINT dlgID,CToolBar* parent)
    }
 }
 
-void qtMfcInit()
+extern CWinApp* ptrToTheApp;
+void qtMfcInit(QMainWindow* parent)
 {
+   // Hook Qt to this MFC app...
+   ptrToTheApp->qtMainWindow = parent;
+   
    qtMfcInitStringResources();
    qtMfcInitBitmapResources();
    qtInitIconResources();
