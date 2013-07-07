@@ -355,6 +355,7 @@ public slots:
    void toolBarAction_settings();
    void toolBarAction_createNSF();
    void instToolBarAction_triggered(int id);
+   void instToolBarAction_menu_aboutToShow(int id);
    void instToolBarAction_new();
    void instToolBarAction_remove();
    void instToolBarAction_clone();

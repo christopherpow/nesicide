@@ -4945,7 +4945,7 @@ void CReBarCtrl::MinimizeBand(
 
 void CReBarCtrl::toolBarAction_triggered()
 {
-   emit toolBarAction_triggered(_toolBarActions.indexOf(sender()));
+   emit toolBarAction_triggered(_qtd->actions().indexOf(qobject_cast<QAction*>(sender())));
 }
 
 CReBar::CReBar()
@@ -4991,7 +4991,7 @@ CToolBar::CToolBar(CWnd* parent)
    // Downcast to save having to do it all over the place...
    _qtd = dynamic_cast<QToolBar*>(_qt);
 
-   _qtd->setMovable(true);
+   _qtd->setMovable(false);
 }
 
 CToolBar::~CToolBar()
@@ -5049,15 +5049,14 @@ void CToolBar::SetButtonStyle(
 )
 {
    QAction* cur;
-   QComboBox* cb;
+   QMenu* menu;
    switch ( nStyle )
    {
    case TBBS_DROPDOWN:
       cur = _qtd->actions().at(nIndex);
-      cb = new QComboBox;
-      cb->addItem(cur->icon(),"");
-      _qtd->removeAction(cur);
-      _qtd->addWidget(cb);
+      menu = new QMenu;
+      cur->setMenu(menu);
+      QObject::connect(menu,SIGNAL(aboutToShow()),this,SLOT(menu_aboutToShow()));
       break;
    default:
       qDebug("CToolBar::SetButtonStyle %d not implemented");      
@@ -5067,7 +5066,25 @@ void CToolBar::SetButtonStyle(
 
 void CToolBar::toolBarAction_triggered()
 {
-   emit toolBarAction_triggered(_toolBarActions.indexOf(sender()));
+   emit toolBarAction_triggered(_qtd->actions().indexOf(qobject_cast<QAction*>(sender())));
+}
+
+void CToolBar::menu_aboutToShow()
+{
+   QList<QAction*> actions = _qtd->actions();
+   QAction* origin = NULL;
+   foreach ( QAction* action, actions )
+   {
+      if ( action->menu() == qobject_cast<QMenu*>(sender()) )
+      {
+         origin = action;
+      }
+   }
+
+   if ( origin )
+   {
+      emit toolBarAction_menu_aboutToShow(actions.indexOf(origin));
+   }
 }
 
 CStatusBar::CStatusBar(CWnd* parent)
@@ -6349,7 +6366,7 @@ BOOL CEdit::Create(
       _qtd_ptedit = dynamic_cast<QPlainTextEdit*>(_qt);
       
       // Pass-through signals
-      QObject::connect(_qtd_ptedit,SIGNAL(textChanged(QString)),this,SIGNAL(textChanged(QString)));
+      QObject::connect(_qtd_ptedit,SIGNAL(textChanged()),this,SIGNAL(textChanged()));
    
       _qtd_ptedit->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
       _qtd_ptedit->setReadOnly(dwStyle&ES_READONLY);

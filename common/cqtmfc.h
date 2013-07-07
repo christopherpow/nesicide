@@ -2017,6 +2017,7 @@ protected:
    QLineEdit* _qtd_ledit;
    DWORD _dwStyle;
 signals:
+   void textChanged();
    void textChanged(QString str);
    
    // MFC interfaces
@@ -3159,11 +3160,8 @@ class CReBarCtrl : public CWnd
 {
    Q_OBJECT
    // Qt interfaces
-public:
-   QList<QObject*>* toolBarActions() { return &_toolBarActions; }
 protected:
    QToolBar* _qtd;
-   QList<QObject*> _toolBarActions;
    UINT _dwStyle;
 public slots:
    void toolBarAction_triggered();
@@ -3224,8 +3222,10 @@ protected:
    UINT _dwStyle;
 public slots:
    void toolBarAction_triggered();
+   void menu_aboutToShow();
 signals:
    void toolBarAction_triggered(int id);
+   void toolBarAction_menu_aboutToShow(int id);
    
    // MFC interfaces
 public:

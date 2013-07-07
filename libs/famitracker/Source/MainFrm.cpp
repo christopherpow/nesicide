@@ -344,6 +344,7 @@ void CMainFrame::showEvent(QShowEvent *)
       QObject::connect(m_pDocument,SIGNAL(setModified(bool)),this,SLOT(setModified(bool)));
       QObject::connect(&m_wndToolBar,SIGNAL(toolBarAction_triggered(int)),this,SLOT(toolBarAction_triggered(int)));
       QObject::connect(&m_wndInstToolBar,SIGNAL(toolBarAction_triggered(int)),this,SLOT(instToolBarAction_triggered(int)));
+      QObject::connect(&m_wndInstToolBar,SIGNAL(toolBarAction_menu_aboutToShow(int)),this,SLOT(instToolBarAction_menu_aboutToShow(int)));
       QObject::connect(m_wndOctaveBar.GetDlgItem(IDC_OCTAVE)->toQWidget(),SIGNAL(currentIndexChanged(int)),this,SLOT(octave_currentIndexChanged(int)));
       QObject::connect(m_wndOctaveBar.GetDlgItem(IDC_FOLLOW)->toQWidget(),SIGNAL(clicked()),this,SLOT(follow_clicked()));
       QObject::connect(m_wndOctaveBar.GetDlgItem(IDC_HIGHLIGHTSPIN1),SIGNAL(valueChanged(int,int)),this,SLOT(highlightspin1_valueChanged(int,int)));
@@ -622,24 +623,32 @@ void CMainFrame::toolBarAction_triggered(int id)
       &CMainFrame::toolBarAction_newDocument,
       &CMainFrame::toolBarAction_openDocument,
       &CMainFrame::toolBarAction_saveDocument,
+      NULL, // separator
       &CMainFrame::toolBarAction_editCut,
       &CMainFrame::toolBarAction_editCopy,
       &CMainFrame::toolBarAction_editPaste,
+      NULL, // separator
       &CMainFrame::toolBarAction_about,
       &CMainFrame::toolBarAction_help,
+      NULL, // separator
       &CMainFrame::toolBarAction_addFrame,
       &CMainFrame::toolBarAction_removeFrame,
       &CMainFrame::toolBarAction_moveFrameDown,
       &CMainFrame::toolBarAction_moveFrameUp,
       &CMainFrame::toolBarAction_duplicateFrame,
+      NULL, // separator
       &CMainFrame::toolBarAction_moduleProperties,
+      NULL, // separator
       &CMainFrame::toolBarAction_play,
       &CMainFrame::toolBarAction_playLoop,
       &CMainFrame::toolBarAction_stop,
       &CMainFrame::toolBarAction_editMode,
+      NULL, // separator
       &CMainFrame::toolBarAction_previousTrack,
       &CMainFrame::toolBarAction_nextTrack,
+      NULL, // separator
       &CMainFrame::toolBarAction_settings,
+      NULL, // separator
       &CMainFrame::toolBarAction_createNSF
    };
    if ( id >= 0 )
@@ -778,8 +787,10 @@ void CMainFrame::instToolBarAction_triggered(int id)
       &CMainFrame::instToolBarAction_new,
       &CMainFrame::instToolBarAction_remove,
       &CMainFrame::instToolBarAction_clone,
+      NULL, // separator
       &CMainFrame::instToolBarAction_load,
       &CMainFrame::instToolBarAction_save,
+      NULL, // separator
       &CMainFrame::instToolBarAction_edit,
    };
    if ( id >= 0 )
@@ -816,6 +827,23 @@ void CMainFrame::instToolBarAction_save()
 void CMainFrame::instToolBarAction_edit()
 {
    OnEditInstrument();
+}
+
+void CMainFrame::instToolBarAction_menu_aboutToShow(int id)
+{
+   NMHDR nmhdr;
+   LRESULT result;
+   
+   nmhdr.hwndFrom = (HWND)this;
+   switch ( id )
+   {
+   case 0:
+      OnNewInstrumentMenu(&nmhdr,&result);
+      break;
+   case 4:
+      OnLoadInstrumentMenu(&nmhdr,&result);
+      break;
+   }
 }
 
 void CMainFrame::frameInc_clicked()
