@@ -316,34 +316,33 @@ void CInstrumentEditorN163Wave::OnBnClickedPaste()
 
 void CInstrumentEditorN163Wave::ParseString(LPTSTR pString)
 {
-   qDebug("********************************************** STRING FUNCTIONS!!!!!!");
-//	string str(pString);
+	string str(pString);
 
-//	// Convert to register values
-//	istringstream values(str);
-//	istream_iterator<int> begin(values);
-//	istream_iterator<int> end;
-//	int i;
+	// Convert to register values
+	istringstream values(str);
+	istream_iterator<int> begin(values);
+	istream_iterator<int> end;
+	int i;
 
-//	for (i = 0; (i < CInstrumentN163::MAX_WAVE_SIZE) && (begin != end); ++i) {
-//		int value = *begin++;
-//		if (value >= 0 && value <= 15)
-//			m_pInstrument->SetSample(m_iWaveIndex, i, value);
-//	}
+	for (i = 0; (i < CInstrumentN163::MAX_WAVE_SIZE) && (begin != end); ++i) {
+		int value = *begin++;
+		if (value >= 0 && value <= 15)
+			m_pInstrument->SetSample(m_iWaveIndex, i, value);
+	}
 
-//	int size = i & 0xFC;
-//	if (size < 4)
-//		size = 4;
-//	m_pInstrument->SetWaveSize(size);
+	int size = i & 0xFC;
+	if (size < 4)
+		size = 4;
+	m_pInstrument->SetWaveSize(size);
 
-//	CString SizeStr;
-//	SizeStr.Format(_T("%i"), size);
-//	((CComboBox*)GetDlgItem(IDC_WAVE_SIZE))->SelectString(0, SizeStr);
+	CString SizeStr;
+	SizeStr.Format(_T("%i"), size);
+	((CComboBox*)GetDlgItem(IDC_WAVE_SIZE))->SelectString(0, SizeStr);
 
-//	FillPosBox(size);
+	FillPosBox(size);
 
-//	m_pWaveEditor->SetLength(size);
-//	m_pWaveEditor->WaveChanged();
+	m_pWaveEditor->SetLength(size);
+	m_pWaveEditor->WaveChanged();
 }
 
 LRESULT CInstrumentEditorN163Wave::OnWaveChanged(WPARAM wParam, LPARAM lParam)

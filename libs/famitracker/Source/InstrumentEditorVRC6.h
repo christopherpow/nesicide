@@ -34,6 +34,7 @@ public slots:
    void instSettings_itemSelectionChanged();
    void freeSeq_clicked();
    void sequenceSpin_valueChanged(int oldVal,int newVal);
+   void menuAction_triggered(int id);
    
 public:
 	CInstrumentEditorVRC6(CWnd* pParent = NULL);   // standard constructor

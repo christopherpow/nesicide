@@ -122,6 +122,19 @@ void CInstrumentEditorN163::SetSequenceString(CString Sequence, bool Changed)
 //	ON_COMMAND(ID_CLONE_SEQUENCE, OnCloneSequence)
 //END_MESSAGE_MAP()
 
+void CInstrumentEditorN163::menuAction_triggered(int id)
+{
+   typedef void (CInstrumentEditorN163::*actionHandler)();
+   QHash<UINT_PTR,actionHandler> actionHandlers;
+   //	ON_COMMAND(ID_FRAME_COPY, OnFrameCopy)
+   actionHandlers.insert(ID_CLONE_SEQUENCE, &CInstrumentEditorN163::OnCloneSequence);
+   
+   if ( actionHandlers.contains(id) )
+   {
+      (this->*((actionHandlers[id])))();
+   }
+}
+
 void CInstrumentEditorN163::instSettings_itemSelectionChanged()
 {
    CListCtrl *pList = (CListCtrl*) GetDlgItem(IDC_INSTSETTINGS);

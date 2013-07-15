@@ -301,21 +301,20 @@ void CInstrumentEditorFDS::OnBnClickedPasteWave()
 		return;
 	}
    
-   qDebug("string stuff not found/implemented yet");
-//	string str(lptstrCopy);
-//	GlobalUnlock(hMem);
-//	CloseClipboard();
+	string str(lptstrCopy);
+	GlobalUnlock(hMem);
+	CloseClipboard();
 
-//	// Convert to register values
-//	istringstream values(str);
-//	istream_iterator<int> begin(values);
-//	istream_iterator<int> end;
+	// Convert to register values
+	istringstream values(str);
+	istream_iterator<int> begin(values);
+	istream_iterator<int> end;
 
-//	for (int i = 0; (i < 64) && (begin != end); ++i) {
-//		int value = *begin++;
-//		if (value >= 0 && value <= 63)
-//			m_pInstrument->SetSample(i, value);
-//	}
+	for (int i = 0; (i < 64) && (begin != end); ++i) {
+		int value = *begin++;
+		if (value >= 0 && value <= 63)
+			m_pInstrument->SetSample(i, value);
+	}
 
 	m_pWaveEditor->RedrawWindow();
 	theApp.GetSoundGenerator()->WaveChanged();
@@ -364,21 +363,20 @@ void CInstrumentEditorFDS::OnBnClickedPasteTable()
 		return;
 	}
 
-   qDebug("string stuff not found/implemented yet");
-//	string str(lptstrCopy);
-//	GlobalUnlock(hMem);
-//	CloseClipboard();
+	string str(lptstrCopy);
+	GlobalUnlock(hMem);
+	CloseClipboard();
 
-//	// Convert to register values
-//	istringstream values(str);
-//	istream_iterator<int> begin(values);
-//	istream_iterator<int> end;
+	// Convert to register values
+	istringstream values(str);
+	istream_iterator<int> begin(values);
+	istream_iterator<int> end;
 
-//	for (int i = 0; (i < 32) && (begin != end); ++i) {
-//		int value = *begin++;
-//		if (value >= 0 && value <= 7)
-//			m_pInstrument->SetModulation(i, value);
-//	}
+	for (int i = 0; (i < 32) && (begin != end); ++i) {
+		int value = *begin++;
+		if (value >= 0 && value <= 7)
+			m_pInstrument->SetModulation(i, value);
+	}
 
 	m_pModSequenceEditor->RedrawWindow();
 	theApp.GetSoundGenerator()->WaveChanged();

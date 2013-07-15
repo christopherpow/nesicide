@@ -16,6 +16,10 @@
   <property name="windowTitle">
    <string>FamiTracker</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="../../common/resource.qrc">
+    <normaloff>:/resources/appicon.png</normaloff>:/resources/appicon.png</iconset>
+  </property>
   <property name="animated">
    <bool>false</bool>
   </property>
@@ -51,6 +55,8 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="../../common/resource.qrc"/>
+ </resources>
  <connections/>
 </ui>

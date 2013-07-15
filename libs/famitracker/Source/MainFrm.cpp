@@ -681,16 +681,12 @@ void CMainFrame::toolBarAction_editCut()
 
 void CMainFrame::toolBarAction_editCopy()
 {
-   qDebug("editCopy");
-   CFamiTrackerView* pView = (CFamiTrackerView*)GetActiveView();
-   pView->OnEditCopy();
+   OnEditCopy();
 }
 
 void CMainFrame::toolBarAction_editPaste()
 {
-   qDebug("editPaste");
-   CFamiTrackerView* pView = (CFamiTrackerView*)GetActiveView();
-   pView->OnEditPaste();   
+   OnEditPaste();   
 }
 
 void CMainFrame::toolBarAction_about()

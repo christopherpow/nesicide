@@ -11,6 +11,7 @@
 #include <QFileInfo>
 #include <QFontDatabase>
 #include <QMenuBar>
+#include <QUuid>
 
 extern CWinApp* ptrToTheApp;
 
@@ -480,10 +481,7 @@ BOOL WINAPI OpenClipboard(
 //  HWND hWndNewOwner
 )
 {
-   if ( !gpClipboardMimeData )
-   {
-      gpClipboardMimeData = new QMimeData;
-   }
+   gpClipboardMimeData = new QMimeData;
    return TRUE;
 }
 
@@ -534,7 +532,8 @@ HGLOBAL WINAPI GlobalAlloc(
   SIZE_T dwBytes
 )
 {
-   QSharedMemory* pMem = new QSharedMemory("FamiTracker");
+   QUuid uuid = QUuid::createUuid();
+   QSharedMemory* pMem = new QSharedMemory(uuid.toString());
    pMem->create(dwBytes);
    return pMem;
 }
@@ -544,9 +543,11 @@ LPVOID WINAPI GlobalLock(
 )
 {
    QSharedMemory* pMem = (QSharedMemory*)hMem;
+   void* pData;   
    
    pMem->lock();
-   return pMem->data();
+   pData = pMem->data();
+   return pData;
 }
 
 BOOL WINAPI GlobalUnlock(
@@ -554,7 +555,6 @@ BOOL WINAPI GlobalUnlock(
 )
 {
    QSharedMemory* pMem = (QSharedMemory*)hMem;
-   
    return pMem->unlock();
 }
 
@@ -563,7 +563,6 @@ SIZE_T WINAPI GlobalSize(
 )
 {
    QSharedMemory* pMem = (QSharedMemory*)hMem;
-   
    return pMem->size();
 }
 
@@ -3981,6 +3980,21 @@ CWnd::~CWnd()
 //      delete _grid;
 }
 
+CWnd* CWnd::SetFocus()
+{ 
+   CWnd* pWnd = focusWnd; 
+   focusWnd->OnKillFocus(this); 
+   focusWnd = this; 
+   _qt->setFocus();
+   OnSetFocus(pWnd); 
+   return pWnd; 
+}
+
+CWnd* CWnd::GetFocus()
+{
+   return focusWnd;
+}
+
 void CWnd::SetOwner(
    CWnd* pOwnerWnd 
 )
@@ -5050,11 +5064,17 @@ void CToolBar::SetButtonStyle(
 {
    QAction* cur;
    QMenu* menu;
+   QToolButton* ptb;
+   QList<QAction*> actions;
    switch ( nStyle )
    {
    case TBBS_DROPDOWN:
-      cur = _qtd->actions().at(nIndex);
+      actions = _qtd->actions();
+      cur = actions.at(nIndex);
       menu = new QMenu;
+      ptb = dynamic_cast<QToolButton*>(_qtd->widgetForAction(cur));
+      ptb->setMenu(menu);
+      ptb->setPopupMode(QToolButton::MenuButtonPopup);
       cur->setMenu(menu);
       QObject::connect(menu,SIGNAL(aboutToShow()),this,SLOT(menu_aboutToShow()));
       break;
@@ -5855,7 +5875,9 @@ CMenu::CMenu()
 
 CMenu::~CMenu()
 {
-   delete _qtd;
+   if ( _qtd )
+      delete _qtd;
+   _qtd = NULL;
    foreach ( CMenu* menu, *_cmenu )
    {
       delete menu;
@@ -6253,6 +6275,7 @@ BOOL CMenu::DestroyMenu( )
 {
    if ( _qtd )
       delete _qtd;
+   _qtd = NULL;
    return TRUE;
 }
 

@@ -67,6 +67,19 @@ void CInstrumentEditor2A03::DoDataExchange(CDataExchange* pDX)
 ////	ON_WM_KEYDOWN()
 //END_MESSAGE_MAP()
 
+void CInstrumentEditor2A03::menuAction_triggered(int id)
+{
+   typedef void (CInstrumentEditor2A03::*actionHandler)();
+   QHash<UINT_PTR,actionHandler> actionHandlers;
+   //	ON_COMMAND(ID_FRAME_COPY, OnFrameCopy)
+   actionHandlers.insert(ID_CLONE_SEQUENCE, &CInstrumentEditor2A03::OnCloneSequence);
+   
+   if ( actionHandlers.contains(id) )
+   {
+      (this->*((actionHandlers[id])))();
+   }
+}
+
 void CInstrumentEditor2A03::instSettings_itemSelectionChanged()
 {
    CListCtrl *pList = (CListCtrl*) GetDlgItem(IDC_INSTSETTINGS);

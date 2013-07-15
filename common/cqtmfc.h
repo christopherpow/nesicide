@@ -292,12 +292,12 @@ typedef struct
 #define afx_msg
 
 #if UNICODE
-#define _tcscpy_s(d,l,s) wcsncpy((char*)d,(const char*)s,l)
+#define _tcscpy_s(d,l,s) wcsncpy((char*)(d),(const char*)(s),(l))
 #else
-#define _tcscpy_s(d,l,s) strncpy((char*)d,(const char*)s,l)
+#define _tcscpy_s(d,l,s) strncpy((char*)(d),(const char*)(s),(l))
 #endif
-#define strcpy_s(d,l,s) strncpy((char*)d,(const char*)s,l)
-#define vsprintf_s(b,n,f,v) vsprintf(b,f,v)
+#define strcpy_s(d,l,s) strncpy((char*)(d),(const char*)(s),(l))
+#define vsprintf_s(b,n,f,v) vsprintf((b),(f),(v))
 #if UNICODE
 #define _ttoi _wtoi
 #define _tstoi _wtoi
@@ -305,6 +305,7 @@ typedef struct
 #define _tcscmp wcscmp
 #define _tcsicmp wcsicmp
 #define _stscanf wscanf
+#define _stscanf_s wscanf
 #else
 #define _ttoi atoi
 #define _tstoi atoi
@@ -312,6 +313,7 @@ typedef struct
 #define _tcscmp strcmp
 #define _tcsicmp stricmp
 #define _stscanf sscanf
+#define _stscanf_s sscanf
 #endif
 #ifdef QT_NO_DEBUG
 #define ASSERT(y)
@@ -1515,8 +1517,8 @@ public:
    void OnUpdate(CWnd* p=0,UINT hint=0,CObject* o=0) { _qt->update(); }
    void Invalidate(BOOL bErase = TRUE) { /*update();*/ }
    void RedrawWindow(LPCRECT rect=0,CRgn* rgn=0,UINT f=0) { _qt->update(); }
-   CWnd* SetFocus() { CWnd* pWnd = focusWnd; _qt->setFocus(); return pWnd; }
-   CWnd* GetFocus() { return focusWnd; } 
+   CWnd* SetFocus();
+   CWnd* GetFocus();
    void SetCapture(CWnd* p=0) { /* DON'T DO THIS grabMouse(); */ }
    void ReleaseCapture() { /* DON'T DO THIS releaseMouse(); */ }
    CFrameWnd* GetParentFrame( ) const { return m_pFrameWnd; }
@@ -1611,7 +1613,6 @@ protected:
    QHash<UINT_PTR,int> mfcToQtTimer;
    QHash<int,UINT_PTR> qtToMfcTimer;
    QHash<int,CWnd*> mfcToQtWidget;
-   QHash<int,QAction*> mfcToQtAction;
    static CFrameWnd* m_pFrameWnd;
    CWnd* m_pParentWnd;
    static CWnd* focusWnd;
@@ -1623,7 +1624,6 @@ protected:
    // Qt interfaces
 public:
    QHash<int,CWnd*>* mfcToQtWidgetMap() { return &mfcToQtWidget; }
-   QHash<int,QAction*>* mfcToQtActionMap() { return &mfcToQtAction; }
    void subclassWidget(int nID,CWnd* widget);
    void setParent(QWidget *parent) { _qt->setParent(parent); }
    void setParent(QWidget *parent, Qt::WindowFlags f) { _qt->setParent(parent,f); }   

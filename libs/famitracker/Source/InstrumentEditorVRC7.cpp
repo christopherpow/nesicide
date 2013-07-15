@@ -575,8 +575,6 @@ void CInstrumentEditorVRC7::OnCopy()
 
 void CInstrumentEditorVRC7::OnPaste()
 {
-   qDebug("CInstrumentEditorVRC7::OnPaste not implemented...");
-#if 0
    // Copy from clipboard
 	if (!OpenClipboard())
 		return;
@@ -604,5 +602,4 @@ void CInstrumentEditorVRC7::OnPaste()
 	}
 
 	LoadCustomPatch();
-#endif
 }
