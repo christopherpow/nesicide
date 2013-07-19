@@ -6950,7 +6950,7 @@ BOOL CBitmapButton::Create(
 
 CSpinButtonCtrl::CSpinButtonCtrl(CWnd* parent)
    : CWnd(parent),
-     _oldValue(0)
+     _oldValue(-1)
 {
 }
 
@@ -6985,20 +6985,21 @@ BOOL CSpinButtonCtrl::Create(
    _qtd = dynamic_cast<QSpinBox*>(_qt);
    
    // Pass-through signals
-   QObject::connect(_qtd,SIGNAL(valueChanged(int)),this,SLOT(control_edited()));
+   QObject::connect(_qtd,SIGNAL(valueChanged(int)),this,SLOT(control_edited(int)));
 
    _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
-   _qtd->setFrame(false);
    _qtd->setMaximum(65536);
+   _qtd->setWrapping(false);
    _qtd->setVisible(dwStyle&WS_VISIBLE);
    
    return TRUE;
 }
 
-void CSpinButtonCtrl::control_edited()
+void CSpinButtonCtrl::control_edited(int value)
 {
-   emit valueChanged(_oldValue,_qtd->value());
-   _oldValue = _qtd->value();
+   if ( (_oldValue >= 0) && (_oldValue != value) )
+      emit valueChanged(_oldValue,value);
+   _oldValue = value;
 }
 
 int CSpinButtonCtrl::SetPos(
@@ -7044,9 +7045,10 @@ void CSpinButtonCtrl::SetDlgItemInt(
 )
 {
    _qtd->blockSignals(true);
-   _oldValue = _qtd->value();
    _qtd->setValue(nValue);
+   _oldValue = nValue;
    _qtd->blockSignals(false);
+   emit valueChanged(_oldValue,nValue);
 }
 
 UINT CSpinButtonCtrl::GetDlgItemInt(
@@ -7070,9 +7072,10 @@ void CSpinButtonCtrl::SetDlgItemText(
 #else
    val = QString::fromAscii(lpszString);
 #endif
-   _oldValue = _qtd->value();
    _qtd->setValue(val.toInt());
+   _oldValue = val.toInt();
    _qtd->blockSignals(false);
+   emit valueChanged(_oldValue,val.toInt());
 }
 
 int CSpinButtonCtrl::GetDlgItemText(

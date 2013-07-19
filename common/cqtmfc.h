@@ -2296,7 +2296,7 @@ protected:
    QSpinBox* _qtd;
    int _oldValue;
 public slots:
-   void control_edited();
+   void control_edited(int value);
 signals:
    void valueChanged(int oldValue, int newValue);
    
