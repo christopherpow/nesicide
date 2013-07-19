@@ -22,7 +22,7 @@
 #include "FamiTracker.h"
 #include "FamiTrackerDoc.h"
 #include "MainFrm.h"
-#include "CommentsDlg.h"
+#include "Source\CommentsDlg.h"
 
 // CCommentsDlg dialog
 
