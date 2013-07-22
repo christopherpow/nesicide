@@ -7043,10 +7043,8 @@ void CSpinButtonCtrl::SetDlgItemInt(
    BOOL bSigned 
 )
 {
-//   _qtd->blockSignals(true);
    _oldValue = nValue;
    _qtd->setValue(nValue);
-//   _qtd->blockSignals(false);
 }
 
 UINT CSpinButtonCtrl::GetDlgItemInt(
@@ -7064,7 +7062,6 @@ void CSpinButtonCtrl::SetDlgItemText(
 )
 {
    QString val;
-//   _qtd->blockSignals(true);
 #if UNICODE
    val = QString::fromWCharArray(lpszString);
 #else
@@ -7072,7 +7069,6 @@ void CSpinButtonCtrl::SetDlgItemText(
 #endif
    _oldValue = val.toInt();
    _qtd->setValue(val.toInt());
-//   _qtd->blockSignals(false);
 }
 
 int CSpinButtonCtrl::GetDlgItemText(
@@ -7216,9 +7212,7 @@ void CSliderCtrl::SetDlgItemInt(
    BOOL bSigned 
 )
 {
-//   _qtd->blockSignals(true);
    _qtd->setValue(nValue);
-//   _qtd->blockSignals(false);
 }
 
 UINT CSliderCtrl::GetDlgItemInt(
@@ -7236,14 +7230,12 @@ void CSliderCtrl::SetDlgItemText(
 )
 {
    QString val;
-//   _qtd->blockSignals(true);
 #if UNICODE
    val = QString::fromWCharArray(lpszString);
 #else
    val = QString::fromAscii(lpszString);
 #endif
    _qtd->setValue(val.toInt());
-//   _qtd->blockSignals(false);
 }
 
 int CSliderCtrl::GetDlgItemText(
