@@ -6950,7 +6950,7 @@ BOOL CBitmapButton::Create(
 
 CSpinButtonCtrl::CSpinButtonCtrl(CWnd* parent)
    : CWnd(parent),
-     _oldValue(-1)
+     _oldValue(0)
 {
 }
 
@@ -6988,8 +6988,8 @@ BOOL CSpinButtonCtrl::Create(
    QObject::connect(_qtd,SIGNAL(valueChanged(int)),this,SLOT(control_edited(int)));
 
    _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
+   _qtd->setFrame(false);
    _qtd->setMaximum(65536);
-   _qtd->setWrapping(false);
    _qtd->setVisible(dwStyle&WS_VISIBLE);
    
    return TRUE;
@@ -6997,8 +6997,7 @@ BOOL CSpinButtonCtrl::Create(
 
 void CSpinButtonCtrl::control_edited(int value)
 {
-   if ( (_oldValue >= 0) && (_oldValue != value) )
-      emit valueChanged(_oldValue,value);
+   emit valueChanged(_oldValue,value);
    _oldValue = value;
 }
 
@@ -7008,7 +7007,7 @@ int CSpinButtonCtrl::SetPos(
 {
    int pos = _qtd->value();
    _qtd->blockSignals(true);
-   _oldValue = _qtd->value();
+   _oldValue = nPos;
    _qtd->setValue(nPos);
    _qtd->blockSignals(false);
    return pos;
@@ -7044,11 +7043,10 @@ void CSpinButtonCtrl::SetDlgItemInt(
    BOOL bSigned 
 )
 {
-   _qtd->blockSignals(true);
-   _qtd->setValue(nValue);
+//   _qtd->blockSignals(true);
    _oldValue = nValue;
-   _qtd->blockSignals(false);
-   emit valueChanged(_oldValue,nValue);
+   _qtd->setValue(nValue);
+//   _qtd->blockSignals(false);
 }
 
 UINT CSpinButtonCtrl::GetDlgItemInt(
@@ -7066,16 +7064,15 @@ void CSpinButtonCtrl::SetDlgItemText(
 )
 {
    QString val;
-   _qtd->blockSignals(true);
+//   _qtd->blockSignals(true);
 #if UNICODE
    val = QString::fromWCharArray(lpszString);
 #else
    val = QString::fromAscii(lpszString);
 #endif
-   _qtd->setValue(val.toInt());
    _oldValue = val.toInt();
-   _qtd->blockSignals(false);
-   emit valueChanged(_oldValue,val.toInt());
+   _qtd->setValue(val.toInt());
+//   _qtd->blockSignals(false);
 }
 
 int CSpinButtonCtrl::GetDlgItemText(
@@ -7219,9 +7216,9 @@ void CSliderCtrl::SetDlgItemInt(
    BOOL bSigned 
 )
 {
-   _qtd->blockSignals(true);
+//   _qtd->blockSignals(true);
    _qtd->setValue(nValue);
-   _qtd->blockSignals(false);
+//   _qtd->blockSignals(false);
 }
 
 UINT CSliderCtrl::GetDlgItemInt(
@@ -7239,14 +7236,14 @@ void CSliderCtrl::SetDlgItemText(
 )
 {
    QString val;
-   _qtd->blockSignals(true);
+//   _qtd->blockSignals(true);
 #if UNICODE
    val = QString::fromWCharArray(lpszString);
 #else
    val = QString::fromAscii(lpszString);
 #endif
    _qtd->setValue(val.toInt());
-   _qtd->blockSignals(false);
+//   _qtd->blockSignals(false);
 }
 
 int CSliderCtrl::GetDlgItemText(
