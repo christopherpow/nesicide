@@ -305,7 +305,6 @@ void CSoundGen::SetSampleWindow(CSampleWindow *pWnd)
 	m_csSampleWndLock.Lock();
 	m_pSampleWnd = pWnd;
 	m_csSampleWndLock.Unlock();
-   QObject::connect(this,SIGNAL(DrawSamples(int*,int)),pWnd,SLOT(DrawSamples(int*,int)),Qt::QueuedConnection);
 }
 
 void CSoundGen::RegisterChannels(int Chip, CFamiTrackerDoc *pDoc)
@@ -674,8 +673,7 @@ void CSoundGen::FlushBuffer(int16 *pBuffer, uint32 Size)
 				m_csSampleWndLock.Lock();
 
 				if (m_pSampleWnd)
-               emit DrawSamples((int*)m_iGraphBuffer, m_iBufSizeSamples);
-//					m_pSampleWnd->DrawSamples((int*)m_iGraphBuffer, m_iBufSizeSamples);
+					m_pSampleWnd->DrawSamples((int*)m_iGraphBuffer, m_iBufSizeSamples);
 
 				m_csSampleWndLock.Unlock();
 

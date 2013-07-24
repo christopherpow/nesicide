@@ -1600,7 +1600,7 @@ public:
       UINT nID,
       CWnd* pParent 
    );
-   virtual BOOL DestroyWindow( ) { _qt->close(); return TRUE; }
+   virtual BOOL DestroyWindow( );
    virtual void PostNcDestroy( ) {}  
    
    // This method only for Qt glue

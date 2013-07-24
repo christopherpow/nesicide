@@ -68,21 +68,20 @@ void CSampleWindow::NextState()
 
 void CSampleWindow::SetSampleRate(int SampleRate)
 {
-//	if (m_hWnd) {
+	if (m_hWnd) {
 		m_pStates[m_iCurrentState]->SetSampleRate(SampleRate);
-//	}
+	}
 }
 
 void CSampleWindow::DrawSamples(int *Samples, int Count)
 {
-//	if (m_hWnd) {
-//		CDC *pDC = GetDC();
+	if (m_hWnd) {
+		CDC *pDC = GetDC();
 		m_pStates[m_iCurrentState]->SetSampleData(Samples, Count);
-      update();
-//		m_pStates[m_iCurrentState]->Draw(&dc, false);
-//		ReleaseDC(pDC);
+		m_pStates[m_iCurrentState]->Draw(pDC, false);
+		ReleaseDC(pDC);
 		//delete [] Samples;
-//	}
+	}
 }
 
 BOOL CSampleWindow::CreateEx(DWORD dwExStyle, LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, const RECT& rect, CWnd* pParentWnd, UINT nID, LPVOID lpParam)

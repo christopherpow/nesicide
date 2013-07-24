@@ -86,8 +86,6 @@ class CSoundGen : public CWinThread, ICallback
 public slots:
    void onIdleSlot();
    void recvThreadMessage(unsigned int m,unsigned int w,unsigned int l);
-signals:
-   void DrawSamples(int *Samples, int Count);
 public:
 	CSoundGen();
 	virtual ~CSoundGen();

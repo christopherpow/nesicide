@@ -136,6 +136,8 @@ CMainFrame::CMainFrame(CWnd *parent) :
 
 CMainFrame::~CMainFrame()
 {
+   idleTimer->stop();
+   delete idleTimer;
 	SAFE_RELEASE(m_pImageList);
 	SAFE_RELEASE(m_pLockedEditSpeed);
 	SAFE_RELEASE(m_pLockedEditTempo);
@@ -366,7 +368,6 @@ void CMainFrame::showEvent(QShowEvent *)
       QObject::connect(m_wndFrameControls.GetDlgItem(IDC_FRAME_DEC)->toQWidget(),SIGNAL(clicked()),this,SLOT(frameDec_clicked()));
       QObject::connect(m_wndFrameControls.GetDlgItem(IDC_CHANGE_ALL)->toQWidget(),SIGNAL(clicked()),this,SLOT(frameChangeAll_clicked()));
       qDebug("DONE CONNECTING BURIED SIGNALS NOW...");
-      
       
       // CP: If I don't do this here the pattern editor takes up the whole window at start until first resize.
       //     Not sure why...yet.

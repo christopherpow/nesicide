@@ -4016,6 +4016,7 @@ CDC* CWnd::GetDC()
 
 void CWnd::ReleaseDC(CDC* pDC) 
 { 
+   update();
 }
 
 LRESULT CWnd::SendMessage(
@@ -4141,6 +4142,13 @@ bool CWnd::eventFilter(QObject *object, QEvent *event)
 BOOL CWnd::IsWindowVisible( ) const
 {
    return _qt->isVisible();
+}
+
+BOOL CWnd::DestroyWindow() 
+{ 
+   QList<QWidget *> widgets = _qt->findChildren<QWidget *>();
+   foreach ( QWidget* widget, widgets ) widget->deleteLater();
+   _qt->close(); return TRUE; 
 }
 
 BOOL CWnd::EnableWindow(
@@ -5322,7 +5330,6 @@ BOOL CDialogBar::Create(
       _qt->setFixedSize(_mfcd->rect().width(),_mfcd->rect().height());
    }
    ShowWindow(SW_SHOW);
-//   setVisible(true);
    
    return TRUE;
 }
