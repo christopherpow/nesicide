@@ -251,6 +251,7 @@ typedef LPCSTR LPCTSTR;
 typedef char TCHAR;
 #define _T(x) x
 #endif 
+#if !defined(QT_NO_DEBUG)
 #if !defined(TRACE0)
 #define TRACE0(x) { QString str; str.sprintf("TRACE0: %s(%d): %s",__FILE__,__LINE__, (x)); qDebug(str.toLatin1().constData()); }
 #endif
@@ -260,7 +261,7 @@ typedef char TCHAR;
 #if !defined(ATLTRACE2)
 #define ATLTRACE2(a,b,str,q...) qDebug(str,##q)
 #endif
-
+#endif
 #define VERIFY(x) x
 #define ENSURE(x) x
 
@@ -1647,6 +1648,7 @@ public slots:
    void setFocus(Qt::FocusReason reason) { _qt->setFocus(reason); }
    bool eventFilter(QObject *object, QEvent *event);
 protected:
+   void focusInEvent(QFocusEvent *event);
    QWidget* _qt;
    QFrame* _qtd;
    QGridLayout* _grid;

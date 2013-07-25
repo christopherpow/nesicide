@@ -185,7 +185,521 @@ int WINAPI GetKeyNameText(
    int cchSize
 )
 {
-   QKeySequence key((lParam>>16));
+   switch ( (lParam>>16)&0xFF )
+   {
+      // Mappable
+//   case VK_ABNT_C1:		// 0xC1	Abnt C1
+//      break;
+//   case VK_ABNT_C2:		// 0xC2	Abnt C2
+//      break;
+   case VK_ADD:		// 0x6B	Numpad +
+      lParam = Qt::KeypadModifier|Qt::Key_Plus;
+      break;
+   case VK_ATTN:		// 0xF6	Attn
+      break;
+   case VK_BACK:		// 0x08	Backspace
+      lParam = Qt::Key_Backspace;
+      break;
+   case VK_CANCEL:		// 0x03	Break
+      lParam = Qt::Key_Cancel;
+      break;
+   case VK_CLEAR:		// 0x0C	Clear
+      lParam = Qt::Key_Clear;
+      break;
+   case VK_CRSEL:		// 0xF7	Cr Sel
+      break;
+   case VK_DECIMAL:		// 0x6E	Numpad .
+      lParam = Qt::KeypadModifier|Qt::Key_Period;
+      break;
+   case VK_DIVIDE:		// 0x6F	Numpad /
+      lParam = Qt::KeypadModifier|Qt::Key_division;
+      break;
+   case VK_EREOF:		// 0xF9	Er Eof
+      break;
+   case VK_ESCAPE:		// 0x1B	Esc
+      lParam = Qt::Key_Escape;
+      break;
+   case VK_EXECUTE:		// 0x2B	Execute
+      lParam = Qt::Key_Execute;
+      break;
+   case VK_EXSEL:		// 0xF8	Ex Sel
+      break;
+//   case VK_ICO_CLEAR:		// 0xE6	IcoClr
+//      break;
+//   case VK_ICO_HELP:		// 0xE3	IcoHlp
+//      break;
+   case '0':    // 0x30 ('0')  0
+      lParam = Qt::Key_0;
+      break;
+   case '1':		// 0x31 ('1')	1
+      lParam = Qt::Key_1;
+      break;
+   case '2':		// 0x32 ('2')	2
+      lParam = Qt::Key_2;
+      break;
+   case '3':		// 0x33 ('3')	3
+      lParam = Qt::Key_3;
+      break;
+   case '4':		// 0x34 ('4')	4
+      lParam = Qt::Key_4;
+      break;
+   case '5':		// 0x35 ('5')	5
+      lParam = Qt::Key_5;
+      break;
+   case '6':		// 0x36 ('6')	6
+      lParam = Qt::Key_6;
+      break;
+   case '7':		// 0x37 ('7')	7
+      lParam = Qt::Key_7;
+      break;
+   case '8':		// 0x38 ('8')	8
+      lParam = Qt::Key_8;
+      break;
+   case '9':		// 0x39 ('9')	9
+      lParam = Qt::Key_9;
+      break;
+   case 'A':		// 0x41 ('A')	A
+      lParam = Qt::Key_A;
+      break;
+   case 'B':		// 0x42 ('B')	B
+      lParam = Qt::Key_B;
+      break;
+   case 'C':		// 0x43 ('C')	C
+      lParam = Qt::Key_C;
+      break;
+   case 'D':		// 0x44 ('D')	D
+      lParam = Qt::Key_D;
+      break;
+   case 'E':		// 0x45 ('E')	E
+      lParam = Qt::Key_E;
+      break;
+   case 'F':		// 0x46 ('F')	F
+      lParam = Qt::Key_F;
+      break;
+   case 'G':		// 0x47 ('G')	G
+      lParam = Qt::Key_G;
+      break;
+   case 'H':		// 0x48 ('H')	H
+      lParam = Qt::Key_H;
+      break;
+   case 'I':		// 0x49 ('I')	I
+      lParam = Qt::Key_I;
+      break;
+   case 'J':		// 0x4A ('J')	J
+      lParam = Qt::Key_J;
+      break;
+   case 'K':		// 0x4B ('K')	K
+      lParam = Qt::Key_K;
+      break;
+   case 'L':		// 0x4C ('L')	L
+      lParam = Qt::Key_L;
+      break;
+   case 'M':		// 0x4D ('M')	M
+      lParam = Qt::Key_M;
+      break;
+   case 'N':		// 0x4E ('N')	N
+      lParam = Qt::Key_N;
+      break;
+   case 'O':		// 0x4F ('O')	O
+      lParam = Qt::Key_O;
+      break;
+   case 'P':		// 0x50 ('P')	P
+      lParam = Qt::Key_P;
+      break;
+   case 'Q':		// 0x51 ('Q')	Q
+      lParam = Qt::Key_Q;
+      break;
+   case 'R':		// 0x52 ('R')	R
+      lParam = Qt::Key_R;
+      break;
+   case 'S':		// 0x53 ('S')	S
+      lParam = Qt::Key_S;
+      break;
+   case 'T':		// 0x54 ('T')	T
+      lParam = Qt::Key_T;
+      break;
+   case 'U':		// 0x55 ('U')	U
+      lParam = Qt::Key_U;
+      break;
+   case 'V':		// 0x56 ('V')	V
+      lParam = Qt::Key_V;
+      break;
+   case 'W':		// 0x57 ('W')	W
+      lParam = Qt::Key_W;
+      break;
+   case 'X':		// 0x58 ('X')	X
+      lParam = Qt::Key_X;
+      break;
+   case 'Y':		// 0x59 ('Y')	Y
+      lParam = Qt::Key_Y;
+      break;
+   case 'Z':		// 0x5A ('Z')	Z
+      lParam = Qt::Key_Z;
+      break;
+   case VK_MULTIPLY:		// 0x6A	Numpad *
+      lParam = Qt::KeypadModifier|Qt::Key_multiply;
+      break;
+   case VK_NONAME:		// 0xFC	NoName
+      break;
+   case VK_NUMPAD0:     // 0x60	Numpad 0
+      lParam = Qt::KeypadModifier|Qt::Key_0;
+      break;
+   case VK_NUMPAD1:		// 0x61	Numpad 1
+      lParam = Qt::KeypadModifier|Qt::Key_1;
+      break;
+   case VK_NUMPAD2:		// 0x62	Numpad 2
+      lParam = Qt::KeypadModifier|Qt::Key_2;
+      break;
+   case VK_NUMPAD3:		// 0x63	Numpad 3
+      lParam = Qt::KeypadModifier|Qt::Key_3;
+      break;
+   case VK_NUMPAD4:		// 0x64	Numpad 4
+      lParam = Qt::KeypadModifier|Qt::Key_4;
+      break;
+   case VK_NUMPAD5:		// 0x65	Numpad 5
+      lParam = Qt::KeypadModifier|Qt::Key_5;
+      break;
+   case VK_NUMPAD6:		// 0x66	Numpad 6
+      lParam = Qt::KeypadModifier|Qt::Key_6;
+      break;
+   case VK_NUMPAD7:		// 0x67	Numpad 7
+      lParam = Qt::KeypadModifier|Qt::Key_7;
+      break;
+   case VK_NUMPAD8:		// 0x68	Numpad 8
+      lParam = Qt::KeypadModifier|Qt::Key_8;
+      break;
+   case VK_NUMPAD9:		// 0x69	Numpad 9
+      lParam = Qt::KeypadModifier|Qt::Key_9;
+      break;
+   case VK_OEM_1:		// 0xBA	OEM_1 (: ;)
+      lParam = Qt::Key_Colon;
+      break;
+//   case VK_OEM_102:		// 0xE2	OEM_102 (> <)
+//      lParam = Qt::Key_Greater;
+//      break;
+   case VK_OEM_2:		// 0xBF	OEM_2 (? /)
+      lParam = Qt::Key_Question;
+      break;
+   case VK_OEM_3:		// 0xC0	OEM_3 (~ `)
+      qDebug("Tilde???");
+      break;
+   case VK_OEM_4:		// 0xDB	OEM_4 ({ [)
+      lParam = Qt::Key_BraceLeft;
+      break;
+   case VK_OEM_5:		// 0xDC	OEM_5 (| \)
+      lParam = Qt::Key_Backslash;
+      break;
+   case VK_OEM_6:		// 0xDD	OEM_6 (} ])
+      lParam = Qt::Key_BraceRight;
+      break;
+   case VK_OEM_7:		// 0xDE	OEM_7 (" ')
+      lParam = Qt::Key_QuoteDbl;
+      break;
+   case VK_OEM_8:		// 0xDF	OEM_8 (§ !)
+      lParam = Qt::Key_Exclam;
+      break;
+//   case VK_OEM_ATTN:		// 0xF0	Oem Attn
+//      break;
+//   case VK_OEM_AUTO:		// 0xF3	Auto
+//      break;
+//   case VK_OEM_AX:		// 0xE1	Ax
+//      break;
+//   case VK_OEM_BACKTAB:		// 0xF5	Back Tab
+//      break;
+   case VK_OEM_CLEAR:		// 0xFE	OemClr
+      break;
+//   case VK_OEM_COMMA:		// 0xBC	OEM_COMMA (< ,)
+//      lParam = Qt::Key_Comma;
+//      break;
+//   case VK_OEM_COPY:		// 0xF2	Copy
+//      lParam = Qt::Key_Copy;
+//      break;
+//   case VK_OEM_CUSEL:		// 0xEF	Cu Sel
+//      lParam = Qt::Key_Cut;
+//      break;
+//   case VK_OEM_ENLW:		// 0xF4	Enlw
+//      break;
+//   case VK_OEM_FINISH:		// 0xF1	Finish
+//      break;
+//   case VK_OEM_FJ_LOYA:		// 0x95	Loya
+//      break;
+//   case VK_OEM_FJ_MASSHOU:		// 0x93	Mashu
+//      break;
+//   case VK_OEM_FJ_ROYA:		// 0x96	Roya
+//      break;
+//   case VK_OEM_FJ_TOUROKU:		// 0x94	Touroku
+//      break;
+//   case VK_OEM_JUMP:		// 0xEA	Jump
+//      break;
+//   case VK_OEM_MINUS:		// 0xBD	OEM_MINUS (_ -)
+//      lParam = Qt::Key_Minus;
+//      break;
+//   case VK_OEM_PA1:		// 0xEB	OemPa1
+//      break;
+//   case VK_OEM_PA2:		// 0xEC	OemPa2
+//      break;
+//   case VK_OEM_PA3:		// 0xED	OemPa3
+//      break;
+//   case VK_OEM_PERIOD:		// 0xBE	OEM_PERIOD (> .)
+//      lParam = Qt::Key_Period;
+//      break;
+//   case VK_OEM_PLUS:		// 0xBB	OEM_PLUS (+ =)
+//      lParam = Qt::Key_Plus;
+//      break;
+//   case VK_OEM_RESET:		// 0xE9	Reset
+//      break;
+//   case VK_OEM_WSCTRL:		// 0xEE	WsCtrl
+//      break;
+   case VK_PA1:		// 0xFD	Pa1
+      break;
+//   case VK_PACKET:		// 0xE7	Packet
+//      break;
+   case VK_PLAY:		// 0xFA	Play
+      lParam = Qt::Key_Play;
+      break;
+   case VK_PROCESSKEY:		// 0xE5	Process
+      break;
+   case VK_RETURN:		// 0x0D	Enter
+      lParam = Qt::Key_Return;
+      break;
+   case VK_SELECT:		// 0x29	Select
+      lParam = Qt::Key_Select;
+      break;
+   case VK_SEPARATOR:		// 0x6C	Separator
+      break;
+   case VK_SPACE:		// 0x20	Space
+      lParam = Qt::Key_Space;
+      break;
+   case VK_SUBTRACT:		// 0x6D	Num -
+      lParam = Qt::Key_Minus;
+      break;
+   case VK_TAB:		// 0x09	Tab
+      lParam = Qt::Key_Tab;
+      break;
+   case VK_ZOOM:		// 0xFB	Zoom
+      lParam = Qt::Key_Zoom;
+      break;
+      // Non-mappable
+//   case VK__none_:		// 0xFF	no VK mapping
+//      break;
+   case VK_ACCEPT:		// 0x1E	Accept
+      break;
+   case VK_APPS:		// 0x5D	Context Menu
+      break;
+//   case VK_BROWSER_BACK:		// 0xA6	Browser Back
+//      break;
+//   case VK_BROWSER_FAVORITES:		// 0xAB	Browser Favorites
+//      break;
+//   case VK_BROWSER_FORWARD:		// 0xA7	Browser Forward
+//      break;
+//   case VK_BROWSER_HOME:		// 0xAC	Browser Home
+//      break;
+//   case VK_BROWSER_REFRESH:		// 0xA8	Browser Refresh
+//      break;
+//   case VK_BROWSER_SEARCH:		// 0xAA	Browser Search
+//      break;
+//   case VK_BROWSER_STOP:		// 0xA9	Browser Stop
+//      break;
+   case VK_CAPITAL:		// 0x14	Caps Lock
+      lParam = Qt::Key_CapsLock;
+      break;
+   case VK_CONVERT:		// 0x1C	Convert
+      break;
+   case VK_DELETE:		// 0x2E	Delete
+      lParam = Qt::Key_Delete;
+      break;
+   case VK_DOWN:		// 0x28	Arrow Down
+      lParam = Qt::Key_Down;
+      break;
+   case VK_END:		// 0x23	End
+      lParam = Qt::Key_End;
+      break;
+   case VK_F1:		// 0x70	F1
+      lParam = Qt::Key_F1;
+      break;
+   case VK_F10:		// 0x79	F10
+      lParam = Qt::Key_F10;
+      break;
+   case VK_F11:		// 0x7A	F11
+      lParam = Qt::Key_F11;
+      break;
+   case VK_F12:		// 0x7B	F12
+      lParam = Qt::Key_F12;
+      break;
+   case VK_F13:		// 0x7C	F13
+      lParam = Qt::Key_F13;
+      break;
+   case VK_F14:		// 0x7D	F14
+      lParam = Qt::Key_F14;
+      break;
+   case VK_F15:		// 0x7E	F15
+      lParam = Qt::Key_F15;
+      break;
+   case VK_F16:		// 0x7F	F16
+      lParam = Qt::Key_F16;
+      break;
+   case VK_F17:		// 0x80	F17
+      lParam = Qt::Key_F17;
+      break;
+   case VK_F18:		// 0x81	F18
+      lParam = Qt::Key_F18;
+      break;
+   case VK_F19:		// 0x82	F19
+      lParam = Qt::Key_F19;
+      break;
+   case VK_F2:		// 0x71	F2
+      lParam = Qt::Key_F2;
+      break;
+   case VK_F20:		// 0x83	F20
+      lParam = Qt::Key_F20;
+      break;
+   case VK_F21:		// 0x84	F21
+      lParam = Qt::Key_F21;
+      break;
+   case VK_F22:		// 0x85	F22
+      lParam = Qt::Key_F22;
+      break;
+   case VK_F23:		// 0x86	F23
+      lParam = Qt::Key_F23;
+      break;
+   case VK_F24:		// 0x87	F24
+      lParam = Qt::Key_F24;
+      break;
+   case VK_F3:		// 0x72	F3
+      lParam = Qt::Key_F3;
+      break;
+   case VK_F4:		// 0x73	F4
+      lParam = Qt::Key_F4;
+      break;
+   case VK_F5:		// 0x74	F5
+      lParam = Qt::Key_F5;
+      break;
+   case VK_F6:		// 0x75	F6
+      lParam = Qt::Key_F6;
+      break;
+   case VK_F7:		// 0x76	F7
+      lParam = Qt::Key_F7;
+      break;
+   case VK_F8:		// 0x77	F8
+      lParam = Qt::Key_F8;
+      break;
+   case VK_F9:		// 0x78	F9
+      lParam = Qt::Key_F9;
+      break;
+   case VK_FINAL:		// 0x18	Final
+      break;
+   case VK_HELP:		// 0x2F	Help
+      lParam = Qt::Key_Help;
+      break;
+   case VK_HOME:		// 0x24	Home
+      lParam = Qt::Key_Home;
+      break;
+//   case VK_ICO_00:		// 0xE4	Ico00 *
+//      break;
+   case VK_INSERT:		// 0x2D	Insert
+      lParam = Qt::Key_Insert;
+      break;
+   case VK_JUNJA:		// 0x17	Junja
+      break;
+   case VK_KANA:		// 0x15	Kana
+      break;
+   case VK_KANJI:		// 0x19	Kanji
+      break;
+//   case VK_LAUNCH_APP1:		// 0xB6	App1
+//      break;
+//   case VK_LAUNCH_APP2:		// 0xB7	App2
+//      break;
+//   case VK_LAUNCH_MAIL:		// 0xB4	Mail
+//      break;
+//   case VK_LAUNCH_MEDIA_SELECT:		// 0xB5	Media
+//      break;
+   case VK_LBUTTON:		// 0x01	Left Button **
+      break;
+   case VK_LCONTROL:		// 0xA2	Left Ctrl
+      break;
+   case VK_LEFT:		// 0x25	Arrow Left
+      break;
+   case VK_LMENU:		// 0xA4	Left Alt
+      break;
+   case VK_LSHIFT:		// 0xA0	Left Shift
+      break;
+   case VK_LWIN:		// 0x5B	Left Win
+      break;
+   case VK_MBUTTON:		// 0x04	Middle Button **
+      break;
+//   case VK_MEDIA_NEXT_TRACK:		// 0xB0	Next Track
+//      break;
+//   case VK_MEDIA_PLAY_PAUSE:		// 0xB3	Play / Pause
+//      break;
+//   case VK_MEDIA_PREV_TRACK:		// 0xB1	Previous Track
+//      break;
+//   case VK_MEDIA_STOP:		// 0xB2	Stop
+//      break;
+   case VK_MODECHANGE:		// 0x1F	Mode Change
+      break;
+   case VK_NEXT:		// 0x22	Page Down
+      lParam = Qt::Key_PageDown;
+      break;
+   case VK_NONCONVERT:		// 0x1D	Non Convert
+      break;
+   case VK_NUMLOCK:		// 0x90	Num Lock
+      lParam = Qt::Key_NumLock;
+      break;
+//   case VK_OEM_FJ_JISHO:		// 0x92	Jisho
+//      break;
+   case VK_PAUSE:		// 0x13	Pause
+      lParam = Qt::Key_Pause;
+      break;
+   case VK_PRINT:		// 0x2A	Print
+      lParam = Qt::Key_Print;
+      break;
+   case VK_PRIOR:		// 0x21	Page Up
+      lParam = Qt::Key_PageUp;
+      break;
+   case VK_RBUTTON:		// 0x02	Right Button **
+      break;
+   case VK_RCONTROL:		// 0xA3	Right Ctrl
+      lParam = Qt::Key_Control;
+      break;
+   case VK_RIGHT:		// 0x27	Arrow Right
+      lParam = Qt::Key_Right;
+      break;
+   case VK_RMENU:		// 0xA5	Right Alt
+      lParam = Qt::Key_Alt;
+      break;
+   case VK_RSHIFT:		// 0xA1	Right Shift
+      lParam = Qt::Key_Shift;
+      break;
+   case VK_RWIN:		// 0x5C	Right Win
+      break;
+   case VK_SCROLL:		// 0x91	Scrol Lock
+      lParam = Qt::Key_ScrollLock;
+      break;
+   case VK_SLEEP:		// 0x5F	Sleep
+      lParam = Qt::Key_Sleep;
+      break;
+   case VK_SNAPSHOT:		// 0x2C	Print Screen
+      lParam = Qt::Key_Print;
+      break;
+   case VK_UP:		// 0x26	Arrow Up
+      lParam = Qt::Key_Up;
+      break;
+//   case VK_VOLUME_DOWN:		// 0xAE	Volume Down
+//      lParam = Qt::Key_VolumeDown;
+//      break;
+//   case VK_VOLUME_MUTE:		// 0xAD	Volume Mute
+//      lParam = Qt::Key_VolumeMute;
+//      break;
+//   case VK_VOLUME_UP:		// 0xAF	Volume Up
+//      lParam = Qt::Key_VolumeUp;
+//      break;
+//   case VK_XBUTTON1:		// 0x05	X Button 1 **
+//      break;
+//   case VK_XBUTTON2:		// 0x06	X Button 2 **
+//      break;
+   }
+
+   QKeySequence key((lParam));
    QString keyString = key.toString();
 #if UNICODE
    wcsncpy(lpString,keyString.unicode(),cchSize);
@@ -3982,6 +4496,7 @@ CWnd::~CWnd()
 
 CWnd* CWnd::SetFocus()
 { 
+   qDebug("SetFocus: old=%x, new=%x",focusWnd,this);
    CWnd* pWnd = focusWnd; 
    focusWnd->OnKillFocus(this); 
    focusWnd = this; 
@@ -4046,6 +4561,12 @@ void CWnd::subclassWidget(int nID,CWnd* widget)
 {
    mfcToQtWidget.remove(nID);
    mfcToQtWidget.insert(nID,widget);
+}
+
+void CWnd::focusInEvent(QFocusEvent *event)
+{
+   qDebug("focusInEvent");
+   SetFocus();
 }
 
 bool CWnd::eventFilter(QObject *object, QEvent *event)
