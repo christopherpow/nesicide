@@ -261,6 +261,16 @@ typedef char TCHAR;
 #if !defined(ATLTRACE2)
 #define ATLTRACE2(a,b,str,q...) qDebug(str,##q)
 #endif
+#else
+#if !defined(TRACE0)
+#define TRACE0(x)
+#endif
+#if !defined(TRACE)
+#define TRACE(x)
+#endif
+#if !defined(ATLTRACE2)
+#define ATLTRACE2(a,b,str,q...)
+#endif
 #endif
 #define VERIFY(x) x
 #define ENSURE(x) x

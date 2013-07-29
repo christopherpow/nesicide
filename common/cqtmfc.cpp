@@ -185,6 +185,7 @@ int WINAPI GetKeyNameText(
    int cchSize
 )
 {
+   LONG modParam = 0;
    switch ( (lParam>>16)&0xFF )
    {
       // Mappable
@@ -193,7 +194,8 @@ int WINAPI GetKeyNameText(
 //   case VK_ABNT_C2:		// 0xC2	Abnt C2
 //      break;
    case VK_ADD:		// 0x6B	Numpad +
-      lParam = Qt::KeypadModifier|Qt::Key_Plus;
+      modParam = Qt::KeypadModifier;
+      lParam = Qt::Key_Plus;
       break;
    case VK_ATTN:		// 0xF6	Attn
       break;
@@ -209,10 +211,12 @@ int WINAPI GetKeyNameText(
    case VK_CRSEL:		// 0xF7	Cr Sel
       break;
    case VK_DECIMAL:		// 0x6E	Numpad .
-      lParam = Qt::KeypadModifier|Qt::Key_Period;
+      modParam = Qt::KeypadModifier;
+      lParam = Qt::Key_Period;
       break;
    case VK_DIVIDE:		// 0x6F	Numpad /
-      lParam = Qt::KeypadModifier|Qt::Key_division;
+      modParam = Qt::KeypadModifier;
+      lParam = Qt::Key_division;
       break;
    case VK_EREOF:		// 0xF9	Er Eof
       break;
@@ -337,7 +341,8 @@ int WINAPI GetKeyNameText(
       lParam = Qt::Key_Z;
       break;
    case VK_MULTIPLY:		// 0x6A	Numpad *
-      lParam = Qt::KeypadModifier|Qt::Key_multiply;
+      modParam = Qt::KeypadModifier;
+      lParam = Qt::Key_multiply;
       break;
    case VK_NONAME:		// 0xFC	NoName
       break;
@@ -471,6 +476,7 @@ int WINAPI GetKeyNameText(
       lParam = Qt::Key_Space;
       break;
    case VK_SUBTRACT:		// 0x6D	Num -
+      modParam = Qt::KeypadModifier;
       lParam = Qt::Key_Minus;
       break;
    case VK_TAB:		// 0x09	Tab
@@ -699,7 +705,7 @@ int WINAPI GetKeyNameText(
 //      break;
    }
 
-   QKeySequence key((lParam));
+   QKeySequence key(modParam+lParam);
    QString keyString = key.toString();
 #if UNICODE
    wcsncpy(lpString,keyString.unicode(),cchSize);
