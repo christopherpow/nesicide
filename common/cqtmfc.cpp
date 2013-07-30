@@ -7522,7 +7522,6 @@ BOOL CSpinButtonCtrl::Create(
    QObject::connect(_qtd,SIGNAL(valueChanged(int)),this,SLOT(control_edited(int)));
 
    _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
-   _qtd->setFrame(false);
    _qtd->setMaximum(65536);
    _qtd->setVisible(dwStyle&WS_VISIBLE);
    
