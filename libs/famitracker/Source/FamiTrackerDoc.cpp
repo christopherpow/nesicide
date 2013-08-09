@@ -244,8 +244,8 @@ static int GetChipFromInstrument(int Type)
 
 // CFamiTrackerDoc construction/destruction
 
-CFamiTrackerDoc::CFamiTrackerDoc(QObject* parent)
-	: QObject(parent),m_iVersion(CLASS_VERSION), m_bFileLoaded(false), m_bFileLoadFailed(false), m_iRegisteredChannels(0), m_iNamcoChannels(DEFAULT_NAMCO_CHANS)
+CFamiTrackerDoc::CFamiTrackerDoc()
+	: m_iVersion(CLASS_VERSION), m_bFileLoaded(false), m_bFileLoadFailed(false), m_iRegisteredChannels(0), m_iNamcoChannels(DEFAULT_NAMCO_CHANS)
 {
    // Initialize object
    _this = this;
@@ -504,16 +504,16 @@ void CFamiTrackerDoc::SetModifiedFlag(BOOL bModified)
 		m_iAutoSaveCounter = 10;
 		*/
 
-//	// Add a star (*) for unsaved documents
-//	CFrameWnd *pFrameWnd = (CFrameWnd*)AfxGetMainWnd();
+	// Add a star (*) for unsaved documents
+	CFrameWnd *pFrameWnd = (CFrameWnd*)AfxGetMainWnd();
 
-//	if (pFrameWnd != NULL && pFrameWnd->GetActiveDocument() == this && bModified != IsModified()) {
-//		CString title = GetTitle();
-//		if (bModified)
-//			title.Append(_T("*"));
-//		pFrameWnd->UpdateFrameTitleForDocument(title);
-//	}
-
+	if (pFrameWnd != NULL && pFrameWnd->GetActiveDocument() == this && bModified != IsModified()) {
+		CString title = GetTitle();
+		if (bModified)
+			title.Append(_T("*"));
+		pFrameWnd->UpdateFrameTitleForDocument(title);
+	}
+   
 	CDocument::SetModifiedFlag(bModified);
 }
 
@@ -547,25 +547,23 @@ void CFamiTrackerDoc::CreateEmpty()
 
 void CFamiTrackerDoc::OnFileSave()
 {
-   qDebug("OnFileSave");
-//	if (GetPathName().GetLength() == 0)
-//		OnFileSaveAs();
-//	else
-//		CDocument::OnFileSave();
+	if (GetPathName().GetLength() == 0)
+		OnFileSaveAs();
+	else
+		CDocument::OnFileSave();
 }
 
 void CFamiTrackerDoc::OnFileSaveAs()
 {
-   qDebug("OnFileSaveAs");
 	// Overloaded in order to save the ftm-path
-//	CString newName = GetPathName();
+	CString newName = GetPathName();
 
-//	if (!AfxGetApp()->DoPromptFileName(newName, AFX_IDS_SAVEFILE, OFN_HIDEREADONLY | OFN_PATHMUSTEXIST, FALSE, GetDocTemplate()))
-//		return;
+	if (!AfxGetApp()->DoPromptFileName(newName, AFX_IDS_SAVEFILE, OFN_HIDEREADONLY | OFN_PATHMUSTEXIST, FALSE, GetDocTemplate()))
+		return;
 
-//	theApp.GetSettings()->SetPath(newName, PATH_FTM);
+	theApp.GetSettings()->SetPath(newName, PATH_FTM);
 	
-//	DoSave(newName);
+	DoSave(newName);
 }
 
 void CFamiTrackerDoc::OnEditClearPatterns()

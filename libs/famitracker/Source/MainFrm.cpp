@@ -369,16 +369,12 @@ void CMainFrame::showEvent(QShowEvent *)
       QObject::connect(m_wndFrameControls.GetDlgItem(IDC_CHANGE_ALL)->toQWidget(),SIGNAL(clicked()),this,SLOT(frameChangeAll_clicked()));
       qDebug("DONE CONNECTING BURIED SIGNALS NOW...");
       
-      // CP: If I don't do this here the pattern editor takes up the whole window at start until first resize.
-      //     Not sure why...yet.
-      RecalcLayout();
-      
       initialized = true;
    }
    
    idleTimer->start();
 
-   setFocus();
+   SetFocus();
 }
 
 void CMainFrame::hideEvent(QHideEvent *)
@@ -671,6 +667,7 @@ void CMainFrame::toolBarAction_openDocument()
 void CMainFrame::toolBarAction_saveDocument()
 {
    qDebug("saveDocument");
+   m_pDocument->OnFileSave();
 }
 
 void CMainFrame::toolBarAction_editCut()

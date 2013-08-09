@@ -757,6 +757,10 @@ void qtMfcInitStringResources()
 // AFX resources
    qtMfcStringResources.insert(AFX_IDS_ALLFILTER,"All files|");
    qtMfcStringResources.insert(AFX_IDS_OPENFILE,"Open");
+   qtMfcStringResources.insert(AFX_IDS_SAVEFILE,"Save As");
+   qtMfcStringResources.insert(AFX_IDS_SAVEFILECOPY,"Save As");
+   qtMfcStringResources.insert(AFX_IDS_UNTITLED,"Untitled");
+   qtMfcStringResources.insert(AFX_IDP_ASK_TO_SAVE,"Save changes to %s?");
    
 //   STRINGTABLE 
 //   BEGIN

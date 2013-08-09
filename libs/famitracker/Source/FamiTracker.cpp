@@ -181,19 +181,19 @@ BOOL CFamiTrackerApp::InitInstance()
 	// Create sound generator
 	m_pSoundGenerator = new CSoundGen();
 
-	// Create channel map
+   // Create channel map
 	m_pChannelMap = new CChannelMap();
 
 	// Register the application's document templates.  Document templates
 	//  serve as the connection between documents, frame windows and views
 	CSingleDocTemplate* pDocTemplate;
-	
-	pDocTemplate = new CSingleDocTemplate(IDR_MAINFRAME, RUNTIME_CLASS(CFamiTrackerDoc), RUNTIME_CLASS(CMainFrame), RUNTIME_CLASS(CFamiTrackerView));
+
+   pDocTemplate = new CSingleDocTemplate(IDR_MAINFRAME, RUNTIME_CLASS(CFamiTrackerDoc), RUNTIME_CLASS(CMainFrame), RUNTIME_CLASS(CFamiTrackerView));
 
 	if (!pDocTemplate)
 		return FALSE;
 
-	AddDocTemplate(pDocTemplate);
+   AddDocTemplate(pDocTemplate);
 
 //	// Determine windows version
 //    OSVERSIONINFO osvi;
@@ -294,7 +294,7 @@ BOOL CFamiTrackerApp::InitInstance()
 	// Initialization is done
 	TRACE0("App: InitInstance done\n");
 
-	// Save the main window handle
+   // Save the main window handle
 	RegisterSingleInstance();
 
 #ifndef _DEBUG

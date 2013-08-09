@@ -112,6 +112,8 @@ qDebug("dropEvent");
 void MainWindow::closeEvent(QCloseEvent *event)
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
+ 
+   AfxGetMainWnd()->OnClose();
    
    settings.setValue("FamiTrackerWindowGeometry",saveGeometry());
    settings.setValue("FamiTrackerWindowState",saveState());

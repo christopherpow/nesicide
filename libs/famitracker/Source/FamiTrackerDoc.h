@@ -130,11 +130,10 @@ public:
 // I'll try to organize this class, things are quite messy right now!
 //
 
-class CFamiTrackerDoc : public QObject, public CDocument, public CFamiTrackerDocInterface
+class CFamiTrackerDoc : public CDocument, public CFamiTrackerDocInterface
 {
-   Q_OBJECT
 public:
-	CFamiTrackerDoc(QObject* parent = NULL);
+	CFamiTrackerDoc();
 	DECLARE_DYNCREATE(CFamiTrackerDoc)
 
 	int m_iVersion;
@@ -533,10 +532,6 @@ public:
 	virtual void SetModifiedFlag(BOOL bModified = 1);
 //	virtual void Serialize(CArchive& ar);
 
-   // MFC stuff from CDocument
-   virtual void UpdateAllViews(void* ptr,long hint = 0) { emit updateViews(hint); }
-   virtual CString GetTitle() { return m_docTitle; }
-
    // HACKS
    static CFamiTrackerDoc* _this;
    
@@ -560,8 +555,4 @@ public:
    
    // CP: Moved here because it makes sense...
    int  GetChannelColumns(int Channel) const;  
-
-signals:
-   void setModified(bool f);
-   void updateViews(long hint);
 };
