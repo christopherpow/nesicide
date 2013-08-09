@@ -4937,7 +4937,11 @@ BOOL CWnd::DestroyWindow()
    QList<QWidget *> widgets = _qt->findChildren<QWidget *>();
    foreach ( QWidget* widget, widgets ) widget->deleteLater();
    _qt->close(); 
-   if ( focusWnd == this ) focusWnd = NULL;
+   if ( focusWnd == this )
+   {
+      focusWnd = NULL;
+      m_pFrameWnd->SetFocus();
+   }
    return TRUE; 
 }
 
