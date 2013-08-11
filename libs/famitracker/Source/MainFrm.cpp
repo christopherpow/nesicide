@@ -325,6 +325,8 @@ void CMainFrame::showEvent(QShowEvent *)
       
       QObject::connect(m_pDocument,SIGNAL(updateViews(long)),m_pFrameEditor,SLOT(updateViews(long)));
       QObject::connect(m_pDocument,SIGNAL(updateViews(long)),this,SLOT(updateViews(long)));
+      QObject::connect(m_pDocument,SIGNAL(documentSaved()),this,SIGNAL(documentSaved()));
+      QObject::connect(m_pDocument,SIGNAL(documentClosed()),this,SIGNAL(documentClosed()));
       QObject::connect(m_pMenu->GetSubMenu(0),SIGNAL(menuAction_triggered(int)),this,SLOT(menuAction_triggered(int)));
       QObject::connect(m_pMenu->GetSubMenu(1),SIGNAL(menuAction_triggered(int)),this,SLOT(menuAction_triggered(int)));
       QObject::connect(m_pMenu->GetSubMenu(2),SIGNAL(menuAction_triggered(int)),this,SLOT(menuAction_triggered(int)));

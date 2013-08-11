@@ -1737,19 +1737,21 @@ class CDocument : public QObject, public CCmdTarget
 signals:
    void setModified(bool f);
    void updateViews(long hint);
+   void documentSaved();
+   void documentClosed();
    
 public:
    CDocument() : m_pDocTemplate(NULL), m_bModified(FALSE) {}
    void AssertValid() const {}
    void Dump(CDumpContext& dc) const {}
    virtual BOOL OnNewDocument() { DeleteContents(); return TRUE; }
-   virtual BOOL OnSaveDocument(LPCTSTR lpszPathName) { return TRUE; }
+   virtual BOOL OnSaveDocument(LPCTSTR lpszPathName) { emit documentSaved(); return TRUE; }
    virtual BOOL OnOpenDocument(LPCTSTR lpszPathName) { return TRUE; }
    virtual BOOL SaveModified();
    virtual BOOL CanCloseFrame(
       CFrameWnd* pFrame 
    );
-   virtual void OnCloseDocument() {}
+   virtual void OnCloseDocument() { emit documentClosed(); delete this; }
    virtual void DeleteContents() {}
    virtual BOOL IsModified( ) { return m_bModified; }
    virtual void SetModifiedFlag(BOOL bModified = 1) { m_bModified = bModified; emit setModified(bModified); }
