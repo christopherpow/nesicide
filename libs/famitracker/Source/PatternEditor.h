@@ -109,6 +109,7 @@ protected:
    void paintEvent(QPaintEvent *event);
    void resizeEvent(QResizeEvent *event);
    void leaveEvent(QEvent *); // CP: hack for non-client mouse move
+   void focusInEvent(QFocusEvent *);
    
 public slots:
    void updateViews(long hint);

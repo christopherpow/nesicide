@@ -93,6 +93,11 @@ void CPatternView::leaveEvent(QEvent *)
    OnMouseNcMove();
 }
 
+void CPatternView::focusInEvent(QFocusEvent *)
+{
+   m_pView->SetFocus();
+}
+
 void CPatternView::paintEvent(QPaintEvent *event)
 {
 //   // Qt attach to the MFC HLE.  This object is already QWidget type.
