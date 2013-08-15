@@ -29,6 +29,8 @@ private slots:
     void addToolBarWidget(QToolBar* toolBar);
     void removeToolBarWidget(QToolBar* toolBar);
     void editor_modificationChanged(bool m);
+    void documentSaved();
+    void documentClosed();
 };
 
 #endif // MAINWINDOW_H

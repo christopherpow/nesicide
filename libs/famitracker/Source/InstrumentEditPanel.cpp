@@ -111,9 +111,9 @@ BOOL CInstrumentEditPanel::PreTranslateMessage(MSG* pMsg)
 					
 //					//if (DYNAMIC_DOWNCAST(CEdit, GetFocus()) == NULL) {
 //						// Remove repeated keys
-//						if ((pMsg->lParam & (1 << 30)) == 0)
-//							PreviewNote((unsigned char)pMsg->wParam);
-//						return TRUE;
+						if ((pMsg->lParam & (1 << 30)) == 0)
+							PreviewNote((unsigned char)pMsg->wParam);
+						return TRUE;
 //					}
 					
 			}

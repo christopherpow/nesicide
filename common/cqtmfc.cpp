@@ -15,16 +15,6 @@
 
 extern CWinApp* ptrToTheApp;
 
-CWinApp* AfxGetApp() 
-{ 
-   return ptrToTheApp; 
-}
-
-CFrameWnd* AfxGetMainWnd() 
-{ 
-   return ptrToTheApp->m_pMainWnd; 
-}
-
 CBrush nullBrush;
 
 HGDIOBJ GetStockObject(
@@ -65,33 +55,206 @@ QIcon* qtIconResource(int id)
    return qtIconResources.value(id);
 }
 
+CWinApp* AfxGetApp() 
+{ 
+   return ptrToTheApp; 
+}
+
+CFrameWnd* AfxGetMainWnd() 
+{ 
+   return ptrToTheApp->m_pMainWnd; 
+}
+
+AFX_STATIC void AFXAPI _AfxAppendFilterSuffix(CString& filter, OPENFILENAME& ofn,
+	CDocTemplate* pTemplate, CString* pstrDefaultExt)
+{
+	ENSURE_VALID(pTemplate);
+	ASSERT_KINDOF(CDocTemplate, pTemplate);
+
+	CString strFilterExt, strFilterName;
+	if (pTemplate->GetDocString(strFilterExt, CDocTemplate::filterExt) &&
+		!strFilterExt.IsEmpty() &&
+		pTemplate->GetDocString(strFilterName, CDocTemplate::filterName) &&
+		!strFilterName.IsEmpty())
+	{
+		if (pstrDefaultExt != NULL)
+			pstrDefaultExt->Empty();
+
+		// add to filter
+		filter += strFilterName;
+		ASSERT(!filter.IsEmpty());  // must have a file type name
+		filter += (TCHAR)'\0';  // next string please
+
+		int iStart = 0;
+		do
+		{
+			CString strExtension = strFilterExt.Tokenize( _T( ";" ), iStart );
+
+			if (iStart != -1)
+			{
+				// a file based document template - add to filter list
+
+				// If you hit the following ASSERT, your document template 
+				// string is formatted incorrectly.  The section of your 
+				// document template string that specifies the allowable file
+				// extensions should be formatted as follows:
+				//    .<ext1>;.<ext2>;.<ext3>
+				// Extensions may contain wildcards (e.g. '?', '*'), but must
+				// begin with a '.' and be separated from one another by a ';'.
+				// Example:
+				//    .jpg;.jpeg
+				ASSERT(strExtension[0] == '.');
+				if ((pstrDefaultExt != NULL) && pstrDefaultExt->IsEmpty())
+				{
+					// set the default extension
+					*pstrDefaultExt = strExtension.Mid( 1 );  // skip the '.'
+					ofn.lpstrDefExt = const_cast< LPTSTR >((LPCTSTR)(*pstrDefaultExt));
+					ofn.nFilterIndex = ofn.nMaxCustFilter + 1;  // 1 based number
+				}
+
+				filter += (TCHAR)'*';
+				filter += strExtension;
+				filter += (TCHAR)';';  // Always append a ';'.  The last ';' will get replaced with a '\0' later.
+			}
+		} while (iStart != -1);
+
+		filter.SetAt( filter.GetLength()-1, '\0' );;  // Replace the last ';' with a '\0'
+		ofn.nMaxCustFilter++;
+	}
+}
+
 int AfxMessageBox(
    LPCTSTR lpszText,
    UINT nType,
    UINT nIDHelp 
 )
 {
+   QString button1;
+   QString button2;
+   QString button3;
+   int buttons = nType&0xF;
+   int icon = nType&0xF0;
+   int ret;
 #if UNICODE
    QString text = QString::fromWCharArray(lpszText);
 #else
-   QString text = lpszText;
+   QString text = QString::fromAscii(lpszText);
 #endif
-   switch ( nType )
+   
+   if ( buttons == MB_ABORTRETRYIGNORE )
+   {
+      button1 = "Abort";
+      button2 = "Retry";
+      button3 = "Ignore";
+   }
+   else if ( buttons == MB_CANCELTRYCONTINUE )
+   {
+      button1 = "Cancel";
+      button2 = "Try Again";
+      button3 = "Continue";
+   }
+   else if ( buttons == MB_OKCANCEL )
+   {
+      button1 = "OK";
+      button2 = "Cancel";
+   }
+   else if ( buttons == MB_RETRYCANCEL )
+   {
+      button1 = "Retry";
+      button2 = "Cancel";
+   }
+   else if ( buttons == MB_YESNO )
+   {
+      button1 = "Yes";
+      button2 = "No";
+   }
+   else if ( buttons == MB_YESNOCANCEL )
+   {
+      button1 = "Yes";
+      button2 = "No";
+      button3 = "Cancel";
+   }
+   else
+   {
+      button1 = "OK";
+   }
+   
+   switch ( icon )
    {
    case MB_ICONERROR:
-      QMessageBox::critical(0,"Error!",text);
+      ret = QMessageBox::critical(0,"FamiTracker",text,button1,button2,button3);
       break;
    case MB_ICONEXCLAMATION:
-      QMessageBox::warning(0,"Warning",text);
+      ret = QMessageBox::warning(0,"FamiTracker",text,button1,button2,button3);
       break;
    case MB_ICONQUESTION:
-      QMessageBox::question(0,"Did you mean?",text);
+      ret = QMessageBox::question(0,"FamiTracker",text,button1,button2,button3);
       break;
    default:
-      QMessageBox::information(0,"Information...",text);
+      ret = QMessageBox::information(0,"FamiTracker",text,button1,button2,button3);
       break;
    }
-   return QMessageBox::Ok;
+   switch ( ret )
+   {
+   case 0:
+      // First button.
+      if ( button1 == "Abort" )
+      {
+         ret = IDABORT;
+      }
+      else if ( button1 == "Cancel" )
+      {
+         ret = IDCANCEL;
+      }
+      else if ( button1 == "OK" )
+      {
+         ret = IDOK;
+      }
+      else if ( button1 == "Retry" )
+      {
+         ret = IDRETRY;
+      }
+      else if ( button1 == "Yes" )
+      {
+         ret = IDYES;
+      }
+      break;
+   case 1:
+      // Second button.
+      if ( button2 == "Retry" )
+      {
+         ret = IDRETRY;
+      }
+      else if ( button2 == "Try Again" )
+      {
+         ret = IDRETRY;
+      }
+      else if ( button2 == "Cancel" )
+      {
+         ret = IDCANCEL;
+      }
+      else if ( button2 == "No" )
+      {
+         ret = IDNO;
+      }
+      break;
+   case 2:
+      // Third button.
+      if ( button2 == "Continue" )
+      {
+         ret = IDCONTINUE;
+      }
+      else if ( button2 == "Ignore" )
+      {
+         ret = IDIGNORE;
+      }
+      else if ( button2 == "Cancel" )
+      {
+         ret = IDCANCEL;
+      }
+      break;
+   }
+   return ret;
 }
 
 int AFXAPI AfxMessageBox(
@@ -100,29 +263,38 @@ int AFXAPI AfxMessageBox(
    UINT nIDHelp
 )
 {
-#if UNICODE
-   QString text = QString::fromWCharArray(qtMfcStringResource(nIDPrompt));
-#else
-   QString text = qtMfcStringResource(nIDPrompt);
-#endif
-   switch ( nType )
-   {
-   case MB_ICONERROR:
-      QMessageBox::critical(0,"Error!",text);
-      break;
-   case MB_ICONEXCLAMATION:
-      QMessageBox::warning(0,"Warning",text);
-      break;
-   case MB_ICONQUESTION:
-      QMessageBox::question(0,"Did you mean?",text);
-      break;
-   default:
-      QMessageBox::information(0,"Information...",text);
-      break;
-   }
-   return QMessageBox::Ok;
+   CString prompt = qtMfcStringResource(nIDPrompt);
+   return AfxMessageBox(prompt,nType,nIDHelp);
 }
 
+void AfxFormatString1(
+   CString& rString,
+   UINT nIDS,
+   LPCTSTR lpsz1 
+)
+{
+   rString.Format(nIDS,lpsz1);
+}
+
+void AfxGetFileTitle(
+   LPCTSTR path,
+   LPTSTR file,
+   UINT max
+)
+{
+   QString str;
+#if UNICODE
+   str = QString::fromWCharArray(path);
+#else
+   str = QString::fromAscii(path);
+#endif
+   str = str.right(str.length()-str.lastIndexOf(QRegExp("[/\\\]")));
+#if UNICODE
+   wcsncpy(file,str.unicode(),max);
+#else
+   strncpy(file,str.toAscii().constData(),max);
+#endif   
+}
 
 HCURSOR WINAPI SetCursor(
    HCURSOR hCursor
@@ -1316,6 +1488,44 @@ void CString::Truncate(int length)
    UpdateScratch();
 }
 
+int CString::FindOneOf( LPCTSTR lpszCharSet ) const
+{
+#if UNICODE
+   return _qstr.indexOf(QString::fromWCharArray(lpszCharSet));
+#else
+   return _qstr.indexOf(QString::fromAscii(lpszCharSet));
+#endif
+}
+
+CString CString::Tokenize(
+   LPCTSTR pszTokens,
+   int& iStart
+) const
+{
+   CString token;
+   QString delim;
+   QString temp = _qstr.right(_qstr.length()-iStart);
+   
+#if UNICODE
+   delim = QString::fromWCharArray(pszTokens);
+#else
+   delim = QString::fromAscii(pszTokens);
+#endif
+   
+   QStringList tokens = temp.split(delim,QString::SkipEmptyParts);
+  
+   if ( tokens.count() )
+   {
+      token = tokens.at(0);
+      iStart += tokens.at(0).length();
+   }
+   else
+   {
+      iStart = -1;
+   }
+   return token;
+}
+
 int CString::ReverseFind( TCHAR ch ) const
 {
 #if UNICODE
@@ -1334,6 +1544,11 @@ int CString::Compare( LPCTSTR lpsz ) const
 #endif
 }
 
+BOOL CString::IsEmpty() const
+{
+   return _qstr.isEmpty();
+}
+
 CString& CString::operator=(const CString& str)
 {
    _qstr.clear();
@@ -1349,6 +1564,20 @@ CString& CString::operator=(LPCTSTR str)
    _qstr = QString::fromWCharArray(str);
 #else
    _qstr = QString::fromAscii(str);
+#endif
+   UpdateScratch();
+   return *this;
+}
+
+CString& CString::operator=(TCHAR c)
+{
+   _qstr.clear();
+#if UNICODE
+   TCHAR qc[2] = { c, 0 };
+   _qstr = QString::fromWCharArray(qc);
+#else
+   TCHAR qc[2] = { c, 0 };
+   _qstr = QString::fromAscii(qc);
 #endif
    UpdateScratch();
    return *this;
@@ -1380,6 +1609,19 @@ CString& CString::operator+=(LPCTSTR str)
    return *this;
 }
 
+CString& CString::operator+=(TCHAR c)
+{
+#if UNICODE
+   TCHAR qc[2] = { c, 0 };
+   _qstr.append(QString::fromWCharArray(qc));
+#else
+   TCHAR qc[2] = { c, 0 };
+   _qstr.append(QString::fromAscii(qc));
+#endif
+   UpdateScratch();
+   return *this;
+}
+
 CString& CString::operator+=(QString str)
 {
    _qstr.append(str);
@@ -1394,7 +1636,7 @@ CString& CString::operator+(const CString& str)
    return *this;
 }
 
-CString& CString::operator+(LPTSTR str)
+CString& CString::operator+(LPCTSTR str)
 {
 #if UNICODE
    _qstr += QString::fromWCharArray(str);
@@ -1405,12 +1647,14 @@ CString& CString::operator+(LPTSTR str)
    return *this;
 }
 
-CString& CString::operator+(LPCTSTR str)
+CString& CString::operator+(TCHAR c)
 {
 #if UNICODE
-   _qstr += QString::fromWCharArray(str);
+   TCHAR qc[2] = { c, 0 };
+   _qstr += QString::fromWCharArray(qc);
 #else
-   _qstr += QString::fromAscii(str);
+   TCHAR qc[2] = { c, 0 };
+   _qstr += QString::fromAscii(qc);
 #endif
    UpdateScratch();
    return *this;
@@ -1552,6 +1796,11 @@ int CString::CompareNoCase( LPCTSTR lpsz ) const
 TCHAR CString::GetAt( int nIndex ) const
 {
    return _qstr.at(nIndex).toAscii();
+}
+
+void CString::SetAt( int nIndex, TCHAR ch )
+{
+   _qstr[nIndex] = ch;
 }
 
 CStringA::CStringA(CString str)
@@ -1711,6 +1960,17 @@ ULONGLONG CFile::GetLength( ) const
       return _qfile.size();
    else
       return 0;
+}
+
+void PASCAL CFile::Remove(
+   LPCTSTR lpszFileName 
+)
+{
+#if UNICODE
+   QFile::remove(QString::fromWCharArray(lpszFileName));
+#else
+   QFile::remove(QString::fromAscii(lpszFileName));
+#endif
 }
 
 void CFile::Close()
@@ -4504,7 +4764,8 @@ CWnd* CWnd::SetFocus()
 { 
    qDebug("SetFocus: old=%x, new=%x",focusWnd,this);
    CWnd* pWnd = focusWnd; 
-   focusWnd->OnKillFocus(this); 
+   if ( focusWnd )
+      focusWnd->OnKillFocus(this); 
    focusWnd = this; 
    _qt->setFocus();
    OnSetFocus(pWnd); 
@@ -4675,7 +4936,13 @@ BOOL CWnd::DestroyWindow()
 { 
    QList<QWidget *> widgets = _qt->findChildren<QWidget *>();
    foreach ( QWidget* widget, widgets ) widget->deleteLater();
-   _qt->close(); return TRUE; 
+   _qt->close(); 
+   if ( focusWnd == this )
+   {
+      focusWnd = NULL;
+      m_pFrameWnd->SetFocus();
+   }
+   return TRUE; 
 }
 
 BOOL CWnd::EnableWindow(
@@ -5298,6 +5565,11 @@ void CFrameWnd::GetMessageString(
    rMessage = qtMfcStringResource(nID);
 }
 
+void CFrameWnd::UpdateFrameTitleForDocument(LPCTSTR title)
+{
+   m_pDocument->SetTitle(title);
+}
+
 void CFrameWnd::InitialUpdateFrame(
    CDocument* pDoc,
    BOOL bMakeVisible 
@@ -5393,6 +5665,22 @@ void CFrameWnd::RecalcLayout(
 //	else
 		RepositionBars(0, 0xffff, AFX_IDW_PANE_FIRST, reposExtra, &m_rectBorder);
 	m_bInRecalcLayout = FALSE;
+}
+
+void CFrameWnd::OnClose()
+{
+   // Note: only queries the active document
+	CDocument* pDocument = GetActiveDocument();
+	if (pDocument != NULL && !pDocument->CanCloseFrame(this))
+	{
+		// document can't close right now -- don't close it
+		return;
+	}
+	CWinApp* pApp = AfxGetApp();
+	if (pApp != NULL && pApp->m_pMainWnd == this)
+	{
+      pDocument->OnCloseDocument();
+   }
 }
 
 CView::CView(CWnd* parent) 
@@ -6101,7 +6389,14 @@ void CDocument::SetTitle(CString title )
    QString windowTitle;
    QFileInfo fileInfo;
    
-   m_docTitle = title;
+   if ( title.Right(1) == "*" )
+   {
+      m_strTitle = title.Left(title.GetLength()-1);
+   }
+   else
+   {
+      m_strTitle = title;
+   }
    
 #if UNICODE
    windowTitle = QString::fromWCharArray((LPCTSTR)title);
@@ -6116,6 +6411,16 @@ void CDocument::SetTitle(CString title )
    windowTitle = fileInfo.fileName() + QString::fromAscii((LPCTSTR)appName);
    ptrToTheApp->qtMainWindow->setWindowTitle(windowTitle);
 #endif
+}
+
+void CDocument::OnFileSave()
+{ 
+   DoFileSave();
+}
+
+void CDocument::OnFileSaveAs()
+{
+   DoSave(NULL);
 }
 
 POSITION CDocument::GetFirstViewPosition() const 
@@ -6142,6 +6447,188 @@ CView* CDocument::GetNextView(POSITION pos) const
       (*pos) = -1; 
    } 
    return pView; 
+}
+
+void CDocument::SetPathName( 
+   LPCTSTR lpszPathName, 
+   BOOL bAddToMRU 
+)
+{
+   m_strPathName = lpszPathName;
+}
+
+BOOL CDocument::CanCloseFrame(
+   CFrameWnd* pFrame 
+)
+{
+	return SaveModified();
+}
+
+BOOL CDocument::DoFileSave()
+{
+	DWORD dwAttrib = GetFileAttributes(m_strPathName);
+	if (dwAttrib & FILE_ATTRIBUTE_READONLY)
+	{
+		// we do not have read-write access or the file does not (now) exist
+		if (!DoSave(NULL))
+		{
+			return FALSE;
+		}
+	}
+	else
+	{
+		if (!DoSave(m_strPathName))
+		{
+			return FALSE;
+		}
+	}
+	return TRUE;
+}
+
+BOOL CDocument::DoSave(LPCTSTR lpszPathName, BOOL bReplace)
+	// Save the document data to a file
+	// lpszPathName = path name where to save document file
+	// if lpszPathName is NULL then the user will be prompted (SaveAs)
+	// note: lpszPathName can be different than 'm_strPathName'
+	// if 'bReplace' is TRUE will change file name if successful (SaveAs)
+	// if 'bReplace' is FALSE will not change path name (SaveCopyAs)
+{
+	CString newName = lpszPathName;
+
+	if (newName.IsEmpty())
+	{
+		CDocTemplate* pTemplate = GetDocTemplate();
+		ASSERT(pTemplate != NULL);
+
+		newName = m_strPathName;
+		if (bReplace && newName.IsEmpty())
+		{
+			newName = m_strTitle;
+			// check for dubious filename
+			int iBad = newName.FindOneOf(_T(":/\\"));
+			if (iBad != -1)
+				newName.ReleaseBuffer(iBad);
+
+//			if (AfxGetApp() && AfxGetApp()->GetDataRecoveryHandler())
+//			{
+//				// remove "[recovered]" from the title if it exists
+//				CString strNormalTitle = AfxGetApp()->GetDataRecoveryHandler()->GetNormalDocumentTitle(this);
+//				if (!strNormalTitle.IsEmpty())
+//					newName = strNormalTitle;
+//			}
+
+			// append the default suffix if there is one
+			CString strExt;
+			if (pTemplate->GetDocString(strExt, CDocTemplate::filterExt) && !strExt.IsEmpty())
+			{
+				ASSERT(strExt[0] == '.');
+				int iStart = 0;
+				newName += strExt.Tokenize(_T(";"), iStart);
+			}
+		}
+
+		if (!AfxGetApp()->DoPromptFileName(newName,
+		  bReplace ? AFX_IDS_SAVEFILE : AFX_IDS_SAVEFILECOPY,
+		  OFN_HIDEREADONLY | OFN_PATHMUSTEXIST, FALSE, pTemplate))
+			return FALSE;       // don't even attempt to save
+	}
+
+//	CWaitCursor wait;
+
+	if (!OnSaveDocument(newName))
+	{
+		if (lpszPathName == NULL)
+		{
+//			// be sure to delete the file
+//			TRY
+//			{
+				CFile::Remove(newName);
+//			}
+//			CATCH_ALL(e)
+//			{
+//				DELETE_EXCEPTION(e);
+//			}
+//			END_CATCH_ALL
+		}
+		return FALSE;
+	}
+
+	// reset the title and change the document name
+	if (bReplace)
+	{
+		SetPathName(newName);
+//		OnDocumentEvent(onAfterSaveDocument);
+	}
+
+	return TRUE;        // success
+}
+
+BOOL CDocument::SaveModified()
+{
+	if (!IsModified())
+		return TRUE;        // ok to continue
+
+//	CDataRecoveryHandler *pHandler = NULL;
+//	if (AfxGetApp())
+//	{
+//		// if close is triggered by the restart manager, the file
+//		// will be auto-saved and a prompt for save is not permitted.
+//		pHandler = AfxGetApp()->GetDataRecoveryHandler();
+//		if (pHandler != NULL)
+//		{
+//			if (pHandler->GetShutdownByRestartManager())
+//				return TRUE;
+//		}
+//	}
+
+	// get name/title of document
+	CString name;
+	if (m_strPathName.IsEmpty())
+	{
+		// get name based on caption
+		name = m_strTitle;
+
+//		if (pHandler != NULL)
+//		{
+//			// remove "[recovered]" from the title if it exists
+//			CString strNormalTitle = pHandler->GetNormalDocumentTitle(this);
+//			if (!strNormalTitle.IsEmpty())
+//				name = strNormalTitle;
+//		}
+
+		if (name.IsEmpty())
+			ENSURE(name.LoadString(AFX_IDS_UNTITLED));
+	}
+	else
+	{
+		// get name based on file title of path name
+		name = m_strPathName;
+		AfxGetFileTitle(m_strPathName, name.GetBuffer(_MAX_PATH), _MAX_PATH);
+		name.ReleaseBuffer();
+	}
+
+	CString prompt;
+	AfxFormatString1(prompt, AFX_IDP_ASK_TO_SAVE, name);
+	switch (AfxMessageBox(prompt, MB_YESNOCANCEL, AFX_IDP_ASK_TO_SAVE))
+	{
+	case IDCANCEL:
+		return FALSE;       // don't continue
+
+	case IDYES:
+		// If so, either Save or Update, as appropriate
+		if (!DoFileSave())
+			return FALSE;       // don't continue
+		break;
+
+	case IDNO:
+		// If not saving changes, revert the document
+		break;
+
+	default:
+		ASSERT(FALSE);
+		break;
+	}
+	return TRUE;    // keep going
 }
 
 CDocTemplate::CDocTemplate(UINT f,CDocument* pDoc,CFrameWnd* pFrameWnd,CView* pView)
@@ -6252,6 +6739,7 @@ CDocument* CSingleDocTemplate::OpenDocumentFile(
    {
       m_pDoc->OnOpenDocument(lpszPathName);
       m_pDoc->SetTitle(lpszPathName);
+      m_pDoc->SetPathName(lpszPathName);
    }
    else
    {
@@ -6276,6 +6764,59 @@ void CCommandLineInfo::ParseParam(
 )
 {
    qDebug("CCommandLineInfo::ParseParam");
+}
+
+BOOL CWinApp::DoPromptFileName(CString& fileName, UINT nIDSTitle, DWORD lFlags,
+	BOOL bOpenFileDialog, CDocTemplate* pTemplate)
+		// if pTemplate==NULL => all document templates
+{
+   CFileDialog dlgFile(bOpenFileDialog, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, 0);
+
+	CString title;
+	ENSURE(title.LoadString(nIDSTitle));
+
+	dlgFile.m_ofn.Flags |= lFlags;
+
+	CString strFilter;
+	CString strDefault;
+	if (pTemplate != NULL)
+	{
+		ASSERT_VALID(pTemplate);
+		_AfxAppendFilterSuffix(strFilter, dlgFile.m_ofn, pTemplate, &strDefault);
+	}
+	else
+	{
+		// do for all doc template
+      qDebug("Not really using CDocTemplate...");
+//		POSITION pos = m_templateList.GetHeadPosition();
+      POSITION pos = GetFirstDocTemplatePosition();
+		BOOL bFirst = TRUE;
+		while (pos != NULL)
+		{
+//			pTemplate = (CDocTemplate*)m_templateList.GetNext(pos);
+         pTemplate = GetNextDocTemplate(pos);
+			_AfxAppendFilterSuffix(strFilter, dlgFile.m_ofn, pTemplate,
+				bFirst ? &strDefault : NULL);
+			bFirst = FALSE;
+		}
+	}
+
+	// append the "*.*" all files filter
+	CString allFilter;
+	VERIFY(allFilter.LoadString(AFX_IDS_ALLFILTER));
+	strFilter += allFilter;
+	strFilter += (TCHAR)'\0';   // next string please
+	strFilter += _T("*.*");
+	strFilter += (TCHAR)'\0';   // last string
+	dlgFile.m_ofn.nMaxCustFilter++;
+
+	dlgFile.m_ofn.lpstrFilter = strFilter;
+	dlgFile.m_ofn.lpstrTitle = title;
+	dlgFile.m_ofn.lpstrFile = fileName.GetBuffer(_MAX_PATH);
+
+	INT_PTR nResult = dlgFile.DoModal();
+	fileName.ReleaseBuffer();
+	return nResult == IDOK;
 }
 
 void CWinApp::ParseCommandLine(
@@ -7522,7 +8063,6 @@ BOOL CSpinButtonCtrl::Create(
    QObject::connect(_qtd,SIGNAL(valueChanged(int)),this,SLOT(control_edited(int)));
 
    _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
-   _qtd->setFrame(false);
    _qtd->setMaximum(65536);
    _qtd->setVisible(dwStyle&WS_VISIBLE);
    
@@ -8810,11 +9350,7 @@ BOOL CCmdUI::DoUpdate(CCmdTarget* pTarget, BOOL bDisableIfNoHndler)
 		info.pTarget = NULL;
 		BOOL bHandler = pTarget->OnCmdMsg(m_nID, CN_COMMAND, this, &info);
 
-#ifdef _DEBUG
-		if (!bHandler)
-			TRACE(traceCmdRouting, 1, "No handler for command ID 0x%04X, disabling it.\n", m_nID);
-#endif
-		// Enable or Disable based on whether there is a handler there
+      // Enable or Disable based on whether there is a handler there
 		Enable(bHandler);
 	}
 	return bResult;

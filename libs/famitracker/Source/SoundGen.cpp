@@ -139,7 +139,8 @@ CSoundGen::~CSoundGen()
 void CSoundGen::onIdleSlot()
 {
    OnIdle(0);
-   m_pDocument->UpdateAllViews(NULL,UPDATE_ENTIRE);
+   if ( m_pDocument )
+      m_pDocument->UpdateAllViews(NULL,UPDATE_ENTIRE);
 }
 
 //

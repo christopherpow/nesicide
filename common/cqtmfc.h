@@ -77,6 +77,10 @@ enum
    
    AFX_IDS_ALLFILTER,
    AFX_IDS_OPENFILE,
+   AFX_IDS_SAVEFILE,
+   AFX_IDS_SAVEFILECOPY,
+   AFX_IDS_UNTITLED,
+   AFX_IDP_ASK_TO_SAVE,
    
    WM_SIZEPARENT,
    WM_INITIALUPDATE,
@@ -329,26 +333,14 @@ typedef struct
 #ifdef QT_NO_DEBUG
 #define ASSERT(y)
 #define ASSERT_VALID(y)
+#define ASSERT_KINDOF(y,z)
 #else
 #define ASSERT(y) { if (!(y)) { QString str; str.sprintf("ASSERT: %s(%d)",__FILE__,__LINE__); qFatal(str.toLatin1().constData()); } }
-#define ASSERT_VALID(y) { if (!(y)) { QString str; str.sprintf("ASSERT: %s(%d)",__FILE__,__LINE__); qFatal(str.toLatin1().constData()); } }
+#define ASSERT_VALID(y) { if (!(y)) { QString str; str.sprintf("ASSERT_VALID: %s(%d)",__FILE__,__LINE__); qFatal(str.toLatin1().constData()); } }
+#define ASSERT_KINDOF(y,z) { if ( !dynamic_cast<y*>(z) ) { QString str; str.sprintf("ASSERT_KINDOF: %s(%d)",__FILE__,__LINE__); qFatal(str.toLatin1().constData()); } } 
 #endif
 
 #define ENSURE_VALID(x)
-
-#define AFXAPI
-
-int AfxMessageBox(
-   LPCTSTR lpszText,
-   UINT nType = MB_OK,
-   UINT nIDHelp = 0 
-);
-
-int AFXAPI AfxMessageBox(
-   UINT nIDPrompt,
-   UINT nType = MB_OK,
-   UINT nIDHelp = (UINT) -1 
-);
 
 HCURSOR WINAPI SetCursor(
    HCURSOR hCursor
@@ -622,18 +614,26 @@ public:
    void Format(LPCTSTR fmt, ...);
    void FormatV(LPCTSTR fmt, va_list ap);
    void Truncate(int length);
+   int FindOneOf( LPCTSTR lpszCharSet ) const;
+   CString Tokenize(
+      LPCTSTR pszTokens,
+      int& iStart
+   ) const;   
    int ReverseFind( TCHAR ch ) const;
    int Compare( LPCTSTR lpsz ) const;
+   BOOL IsEmpty() const;
  
    CString& operator=(const CString& str);
    CString& operator=(LPCTSTR str);
+   CString& operator=(TCHAR c);
    CString& operator=(QString str);
    CString& operator+(const CString& str);
-   CString& operator+(LPTSTR str);
    CString& operator+(LPCTSTR str);
+   CString& operator+(TCHAR c);
    CString& operator+(QString str);
    CString& operator+=(const CString& str);
    CString& operator+=(LPCTSTR str);
+   CString& operator+=(TCHAR c);
    CString& operator+=(QString str);
    operator QString() const;
    operator const TCHAR*() const;
@@ -655,6 +655,7 @@ public:
    int GetLength() const;
    int CompareNoCase( LPCTSTR lpsz ) const;
    TCHAR GetAt( int nIndex ) const;
+   void SetAt( int nIndex, TCHAR ch );
    
 protected:
    QString _qstr;
@@ -742,6 +743,9 @@ public:
    virtual ULONGLONG Seek(
       LONGLONG lOff,
       UINT nFrom 
+   );
+   static void PASCAL Remove(
+      LPCTSTR lpszFileName 
    );
    virtual void Close();
 
@@ -1521,8 +1525,8 @@ public:
    void KillTimer(UINT id);
    void OnTimer(UINT timerId) {}
    void OnKeyDown(UINT,UINT,UINT) {}
-   void OnSetFocus(CWnd*) {}
-   void OnKillFocus(CWnd*) {}
+   virtual void OnSetFocus(CWnd*) {}
+   virtual void OnKillFocus(CWnd*) {}
    void OnVScroll(UINT,UINT,CScrollBar*) {}
    void OnHScroll(UINT,UINT,CScrollBar*) {}
    void OnUpdate(CWnd* p=0,UINT hint=0,CObject* o=0) { _qt->update(); }
@@ -1686,6 +1690,7 @@ public:
       UINT nID,
       CString& rMessage 
    ) const;
+   void UpdateFrameTitleForDocument(LPCTSTR title);
    void InitialUpdateFrame(
       CDocument* pDoc,
       BOOL bMakeVisible 
@@ -1706,6 +1711,8 @@ public:
    virtual void RecalcLayout(
       BOOL bNotify = TRUE 
    );   
+   void OnClose();
+   
    // These methods are only to be used in CDocTemplate initialization...
    virtual void privateSetActiveView(CView* pView) { m_pView = pView; }
    virtual void privateSetActiveDocument(CDocument* pDocument) { m_pDocument = pDocument; }
@@ -1724,24 +1731,46 @@ protected:
 };
 
 class CDocTemplate;
-class CDocument : public CCmdTarget
+class CDocument : public QObject, public CCmdTarget
 {
+   Q_OBJECT
+signals:
+   void setModified(bool f);
+   void updateViews(long hint);
+   void documentSaved();
+   void documentClosed();
+   
 public:
-   CDocument() : m_pDocTemplate(NULL) {}
+   CDocument() : m_pDocTemplate(NULL), m_bModified(FALSE) {}
    void AssertValid() const {}
    void Dump(CDumpContext& dc) const {}
    virtual BOOL OnNewDocument() { DeleteContents(); return TRUE; }
-   virtual BOOL OnSaveDocument(LPCTSTR lpszPathName) { return TRUE; }
+   virtual BOOL OnSaveDocument(LPCTSTR lpszPathName) { emit documentSaved(); return TRUE; }
    virtual BOOL OnOpenDocument(LPCTSTR lpszPathName) { return TRUE; }
-   virtual void OnCloseDocument() {}
+   virtual BOOL SaveModified();
+   virtual BOOL CanCloseFrame(
+      CFrameWnd* pFrame 
+   );
+   virtual void OnCloseDocument() { emit documentClosed(); delete this; }
    virtual void DeleteContents() {}
-   virtual void SetModifiedFlag(BOOL bModified = 1) {}
-   virtual void OnFileSave() {}
+   virtual BOOL IsModified( ) { return m_bModified; }
+   virtual void SetModifiedFlag(BOOL bModified = 1) { m_bModified = bModified; emit setModified(bModified); }
+   virtual void OnFileSave();
+   virtual void OnFileSaveAs();
    virtual POSITION GetFirstViewPosition() const; 
    virtual CView* GetNextView(POSITION pos) const;
    CDocTemplate* GetDocTemplate() const { return m_pDocTemplate; }
+   const CString& GetPathName( ) const { return m_strPathName; }
+   virtual void SetPathName( 
+      LPCTSTR lpszPathName, 
+      BOOL bAddToMRU = TRUE  
+   );
    virtual void SetTitle(CString title );
-   
+   BOOL DoFileSave();
+   BOOL DoSave(LPCTSTR lpszPathName, BOOL bReplace = TRUE);
+   virtual void UpdateAllViews(void* ptr,long hint = 0) { emit updateViews(hint); }
+   virtual CString GetTitle() { return m_strTitle; }
+  
    // These methods are only to be used in CDocTemplate initialization...
    virtual void privateSetDocTemplate(CDocTemplate* pDocTemplate) { m_pDocTemplate = pDocTemplate; }
    virtual void privateAddView(CView* pView) { _views.append(pView); }
@@ -1749,7 +1778,9 @@ public:
 protected:
    CDocTemplate* m_pDocTemplate;
    QList<CView*> _views;
-   CString m_docTitle;
+   CString m_strPathName;
+   CString m_strTitle;
+   BOOL m_bModified;
 };
 
 class CView : public CWnd
@@ -3023,6 +3054,8 @@ class CWinApp : public CWinThread
 {
 public:
    CWinApp() : m_pMainWnd(NULL) {}
+   BOOL DoPromptFileName(CString& fileName, UINT nIDSTitle, DWORD lFlags,
+      BOOL bOpenFileDialog, CDocTemplate* pTemplate);
    void ParseCommandLine(
       CCommandLineInfo& rCmdInfo 
    );
@@ -3605,6 +3638,37 @@ int StretchDIBits(
 
 CWinApp* AfxGetApp();
 CFrameWnd* AfxGetMainWnd();
+
+#define AFXAPI
+#define AFX_STATIC static
+
+#define MB_CANCELTRYCONTINUE 0x00000006L
+
+#define IDCONTINUE 11
+
+int AfxMessageBox(
+   LPCTSTR lpszText,
+   UINT nType = MB_OK,
+   UINT nIDHelp = 0 
+);
+
+int AFXAPI AfxMessageBox(
+   UINT nIDPrompt,
+   UINT nType = MB_OK,
+   UINT nIDHelp = (UINT) -1 
+);
+
+void AfxFormatString1(
+   CString& rString,
+   UINT nIDS,
+   LPCTSTR lpsz1 
+);
+
+void AfxGetFileTitle(
+   LPCTSTR path,
+   LPTSTR file,
+   UINT max
+);
 
 HGDIOBJ GetStockObject(
    int fnObject

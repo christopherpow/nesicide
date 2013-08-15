@@ -391,6 +391,8 @@ signals:
    void addToolBarWidget(QToolBar* toolBar);
    void removeToolBarWidget(QToolBar* toolBar);
    void editor_modificationChanged(bool m);
+   void documentSaved();
+   void documentClosed();
 };
 
 // Global DPI functions

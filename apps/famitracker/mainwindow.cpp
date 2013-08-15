@@ -28,6 +28,8 @@ MainWindow::MainWindow(QWidget *parent) :
    QObject::connect(theApp.m_pMainWnd,SIGNAL(addToolBarWidget(QToolBar*)),this,SLOT(addToolBarWidget(QToolBar*)));
    QObject::connect(theApp.m_pMainWnd,SIGNAL(removeToolBarWidget(QToolBar*)),this,SLOT(removeToolBarWidget(QToolBar*)));
    QObject::connect(theApp.m_pMainWnd,SIGNAL(editor_modificationChanged(bool)),this,SLOT(editor_modificationChanged(bool)));
+   QObject::connect(theApp.m_pMainWnd,SIGNAL(documentSaved()),this,SLOT(documentSaved()));
+   QObject::connect(theApp.m_pMainWnd,SIGNAL(documentClosed()),this,SLOT(documentClosed()));
    
    restoreGeometry(settings.value("FamiTrackerWindowGeometry").toByteArray());
    restoreState(settings.value("FamiTrackerWindowState").toByteArray());
@@ -64,6 +66,15 @@ void MainWindow::removeToolBarWidget(QToolBar* toolBar)
 
 void MainWindow::editor_modificationChanged(bool m)
 {
+}
+
+void MainWindow::documentSaved()
+{
+}
+
+void MainWindow::documentClosed()
+{
+   exit(0);
 }
 
 void MainWindow::dragEnterEvent(QDragEnterEvent *event)
@@ -112,8 +123,13 @@ qDebug("dropEvent");
 void MainWindow::closeEvent(QCloseEvent *event)
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
+ 
+   AfxGetMainWnd()->OnClose();
    
    settings.setValue("FamiTrackerWindowGeometry",saveGeometry());
    settings.setValue("FamiTrackerWindowState",saveState());
+   
+   // Ignore the close event.  "MFC" will close the document which will trigger app closure.
+   event->ignore();
 }
 

@@ -296,16 +296,14 @@ CMainFrame::~CMainFrame()
 
 void CMainFrame::focusInEvent(QFocusEvent *)
 {
-   m_pView->GetPatternView()->SetFocus(true);
-   m_pFrameEditor->SetFocus();
-   m_pView->GetPatternView()->setFocus();
+   m_pView->SetFocus();
 }
 
 void CMainFrame::showEvent(QShowEvent *)
 {   
    if ( !initialized )
    {
-      // Perform initialization that couldn't yet be done in the constructor due to MFC crap.
+      // Perform initialization that couldn't yet be done in the constructor due to being not-quite-MFC.
       m_pDocument = (CFamiTrackerDoc*)GetActiveDocument();
       
       m_pView = (CFamiTrackerView*)GetActiveView();
@@ -325,6 +323,8 @@ void CMainFrame::showEvent(QShowEvent *)
       
       QObject::connect(m_pDocument,SIGNAL(updateViews(long)),m_pFrameEditor,SLOT(updateViews(long)));
       QObject::connect(m_pDocument,SIGNAL(updateViews(long)),this,SLOT(updateViews(long)));
+      QObject::connect(m_pDocument,SIGNAL(documentSaved()),this,SIGNAL(documentSaved()));
+      QObject::connect(m_pDocument,SIGNAL(documentClosed()),this,SIGNAL(documentClosed()));
       QObject::connect(m_pMenu->GetSubMenu(0),SIGNAL(menuAction_triggered(int)),this,SLOT(menuAction_triggered(int)));
       QObject::connect(m_pMenu->GetSubMenu(1),SIGNAL(menuAction_triggered(int)),this,SLOT(menuAction_triggered(int)));
       QObject::connect(m_pMenu->GetSubMenu(2),SIGNAL(menuAction_triggered(int)),this,SLOT(menuAction_triggered(int)));
@@ -369,16 +369,12 @@ void CMainFrame::showEvent(QShowEvent *)
       QObject::connect(m_wndFrameControls.GetDlgItem(IDC_CHANGE_ALL)->toQWidget(),SIGNAL(clicked()),this,SLOT(frameChangeAll_clicked()));
       qDebug("DONE CONNECTING BURIED SIGNALS NOW...");
       
-      // CP: If I don't do this here the pattern editor takes up the whole window at start until first resize.
-      //     Not sure why...yet.
-      RecalcLayout();
-      
       initialized = true;
    }
    
    idleTimer->start();
 
-   setFocus();
+   SetFocus();
 }
 
 void CMainFrame::hideEvent(QHideEvent *)
@@ -671,6 +667,7 @@ void CMainFrame::toolBarAction_openDocument()
 void CMainFrame::toolBarAction_saveDocument()
 {
    qDebug("saveDocument");
+   m_pDocument->OnFileSave();
 }
 
 void CMainFrame::toolBarAction_editCut()
