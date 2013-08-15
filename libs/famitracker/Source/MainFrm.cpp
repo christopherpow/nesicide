@@ -303,7 +303,7 @@ void CMainFrame::showEvent(QShowEvent *)
 {   
    if ( !initialized )
    {
-      // Perform initialization that couldn't yet be done in the constructor due to MFC crap.
+      // Perform initialization that couldn't yet be done in the constructor due to being not-quite-MFC.
       m_pDocument = (CFamiTrackerDoc*)GetActiveDocument();
       
       m_pView = (CFamiTrackerView*)GetActiveView();
