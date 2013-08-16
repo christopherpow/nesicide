@@ -799,7 +799,11 @@ void CFrameEditor::keyPressEvent(QKeyEvent *event)
    msg.wParam = event->key();
    PreTranslateMessage(&msg);
 
+#if defined(Q_WS_WIN) || defined(Q_WS_WIN32)
    UINT nChar = event->nativeVirtualKey();
+#else
+   UINT nChar = event->key();
+#endif
    UINT nRepCnt = event->count();
 
    OnKeyDown(nChar,nRepCnt,0);

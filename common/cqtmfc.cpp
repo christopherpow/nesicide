@@ -4762,7 +4762,6 @@ CWnd::~CWnd()
 
 CWnd* CWnd::SetFocus()
 { 
-   qDebug("SetFocus: old=%x, new=%x",focusWnd,this);
    CWnd* pWnd = focusWnd; 
    if ( focusWnd )
       focusWnd->OnKillFocus(this); 
@@ -4832,7 +4831,6 @@ void CWnd::subclassWidget(int nID,CWnd* widget)
 
 void CWnd::focusInEvent(QFocusEvent *event)
 {
-   qDebug("focusInEvent");
    SetFocus();
 }
 

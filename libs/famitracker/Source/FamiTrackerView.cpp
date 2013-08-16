@@ -2065,9 +2065,8 @@ void CFamiTrackerView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	CFamiTrackerDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
 
-   qDebug("CWnd::GetFocus not quite right yet...");
-//	if (GetFocus() != this)
-//		return;
+	if (GetFocus() != this)
+		return;
 
 	if (nChar >= VK_NUMPAD0 && nChar <= VK_NUMPAD9) {
 		// Switch instrument
@@ -3454,8 +3453,13 @@ void CFamiTrackerView::mouseDoubleClickEvent(QMouseEvent *event)
 
 void CFamiTrackerView::keyPressEvent(QKeyEvent *event)
 {
+#if defined(Q_WS_WIN) || defined(Q_WS_WIN32)
    UINT nChar = event->nativeVirtualKey();
+#else
+   UINT nChar = event->key();
+#endif
    UINT nRepCnt = event->count();
+   qDebug("event->key(): %x",event->key());
 
    if ( (event->modifiers() == Qt::ControlModifier) &&
         (event->key() == Qt::Key_C) )
@@ -3481,7 +3485,7 @@ void CFamiTrackerView::keyPressEvent(QKeyEvent *event)
 
 void CFamiTrackerView::keyReleaseEvent(QKeyEvent *event)
 {
-   UINT nChar = event->nativeVirtualKey();
+   UINT nChar = event->key();
    UINT nRepCnt = event->count();
    
    OnKeyUp(nChar,nRepCnt,0);
