@@ -2230,7 +2230,7 @@ void CFamiTrackerView::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 
 	HandleKeyboardNote(nChar, false);
 
-	m_cKeyList[nChar] = 0;
+   m_cKeyList[nChar] = 0; 
 
 	CView::OnKeyUp(nChar, nRepCnt, nFlags);
 }
@@ -3453,13 +3453,9 @@ void CFamiTrackerView::mouseDoubleClickEvent(QMouseEvent *event)
 
 void CFamiTrackerView::keyPressEvent(QKeyEvent *event)
 {
-#if defined(Q_WS_WIN) || defined(Q_WS_WIN32)
-   UINT nChar = event->nativeVirtualKey();
-#else
    UINT nChar = event->key();
-#endif
    UINT nRepCnt = event->count();
-   qDebug("event->key(): %x",event->key());
+   nChar = qtToMfcKeycode(nChar);
 
    if ( (event->modifiers() == Qt::ControlModifier) &&
         (event->key() == Qt::Key_C) )
@@ -3487,7 +3483,8 @@ void CFamiTrackerView::keyReleaseEvent(QKeyEvent *event)
 {
    UINT nChar = event->key();
    UINT nRepCnt = event->count();
-   
+   nChar = qtToMfcKeycode(nChar);
+
    OnKeyUp(nChar,nRepCnt,0);
    m_pPatternView->update();
 }

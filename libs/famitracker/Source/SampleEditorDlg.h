@@ -101,6 +101,7 @@ class CSampleEditorDlg : public CDialog
 protected:
    void resizeEvent(QResizeEvent *event);
    void timerEvent(QTimerEvent *event);
+   void keyPressEvent(QKeyEvent *event);
 public slots:
    void ok_clicked();
    void cancel_clicked();

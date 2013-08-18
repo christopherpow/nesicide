@@ -110,11 +110,10 @@ void CInstrumentEditor2A03::sequenceSpin_valueChanged(int oldVal,int newVal)
 BOOL CInstrumentEditor2A03::OnInitDialog()
 {
 	CInstrumentEditPanel::OnInitDialog();
-      
+
 	// Instrument settings
 	CListCtrl *pList = (CListCtrl*) GetDlgItem(IDC_INSTSETTINGS);
-
-   pList->DeleteAllItems();
+	pList->DeleteAllItems();
 	pList->InsertColumn(0, _T(""), LVCFMT_LEFT, 26);
 	pList->InsertColumn(1, _T("#"), LVCFMT_LEFT, 30);
 	pList->InsertColumn(2, _T("Effect name"), LVCFMT_LEFT, 84);

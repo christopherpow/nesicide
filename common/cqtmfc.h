@@ -3690,4 +3690,6 @@ QIcon* qtIconResource(int id);
 
 void openFile(QString fileName);
 
+UINT qtToMfcKeycode(UINT qt);
+
 #endif // CQTMFC_H

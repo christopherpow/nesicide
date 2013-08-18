@@ -797,15 +797,15 @@ void CFrameEditor::keyPressEvent(QKeyEvent *event)
    msg.hwnd = (HWND)this;
    msg.message = WM_KEYDOWN;
    msg.wParam = event->key();
-   PreTranslateMessage(&msg);
+   if ( PreTranslateMessage(&msg) )
+   {
+      return;
+   }
 
-#if defined(Q_WS_WIN) || defined(Q_WS_WIN32)
-   UINT nChar = event->nativeVirtualKey();
-#else
    UINT nChar = event->key();
-#endif
    UINT nRepCnt = event->count();
-
+   nChar = qtToMfcKeycode(nChar);
+   
    OnKeyDown(nChar,nRepCnt,0);
    update();
 }

@@ -865,6 +865,15 @@ void CSampleEditorDlg::tilt_clicked()
    OnBnClickedTilt();
 }
 
+void CSampleEditorDlg::keyPressEvent(QKeyEvent *event)
+{
+   UINT nChar = event->key();
+   UINT nRepCnt = event->count();
+   nChar = qtToMfcKeycode(nChar);
+   
+   OnKeyDown(nChar,nRepCnt,0);
+}
+
 void CSampleEditorDlg::resizeEvent(QResizeEvent *event)
 {
    OnSize(0,event->size().width(),event->size().height());
