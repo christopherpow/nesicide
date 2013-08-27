@@ -37,9 +37,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-   // TODO: Handle unsaved documents or other pre-close stuffs
-   theApp.ExitInstance();
-
    delete ui;
 }
 
@@ -74,6 +71,9 @@ void MainWindow::documentSaved()
 
 void MainWindow::documentClosed()
 {
+   // TODO: Handle unsaved documents or other pre-close stuffs
+   theApp.ExitInstance();
+
    exit(0);
 }
 
