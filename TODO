@@ -13,8 +13,9 @@ RegisterClipboardFormat
 SetCursor
 (most of these are for supporting custom file exporters)
 
-**80%** 2. Finish implementing configuration dialogs.
+**60%** 2. Finish implementing configuration dialogs.
    a. Flesh out implementations of CPropertyPage, CPropertySheet.
+   b. Implement Audio settings.
 
 **DONE** 3. Finish implementation of CMenu.
    a. Finish support for sub-menus.
