@@ -166,3 +166,57 @@ void CSequenceSetting::OnMenuArpFixed()
 		m_pSequence->SetItem(i, Item);
 	}
 }
+
+
+void CSequenceSetting::mousePressEvent(QMouseEvent *event)
+{
+   CPoint point(event->pos());
+   unsigned int flags = 0;
+   if ( event->modifiers()&Qt::ControlModifier )
+   {
+      flags |= MK_CONTROL;
+   }
+   if ( event->modifiers()&Qt::ShiftModifier )
+   {
+      flags |= MK_SHIFT;
+   }
+   if ( event->buttons()&Qt::LeftButton )
+   {
+      flags |= MK_LBUTTON;
+   }
+   if ( event->buttons()&Qt::MiddleButton )
+   {
+      flags |= MK_MBUTTON;
+   }
+   if ( event->buttons()&Qt::RightButton )
+   {
+      flags |= MK_RBUTTON;            
+   }
+   if ( event->button() == Qt::LeftButton )
+   {
+      OnLButtonDown(flags,point);
+   }
+   update();
+}
+
+void CSequenceSetting::paintEvent(QPaintEvent *)
+{
+   OnPaint(); 
+}
+
+void CSequenceSetting::menuAction_triggered(int id)
+{
+   typedef void (CSequenceSetting::*actionHandler)();
+   QHash<UINT_PTR,actionHandler> actionHandlers;
+   //	ON_COMMAND(MENU_ARP_ABSOLUTE, OnMenuArpAbsolute)
+   actionHandlers.insert(MENU_ARP_ABSOLUTE, &CSequenceSetting::OnMenuArpAbsolute);
+   //	ON_COMMAND(MENU_ARP_RELATIVE, OnMenuArpRelative)
+   actionHandlers.insert(MENU_ARP_RELATIVE, &CSequenceSetting::OnMenuArpRelative);
+   //	ON_COMMAND(MENU_ARP_FIXED, OnMenuArpFixed)
+   actionHandlers.insert(MENU_ARP_FIXED, &CSequenceSetting::OnMenuArpFixed);
+   
+   if ( actionHandlers.contains(id) )
+   {
+      (this->*((actionHandlers[id])))();
+   }
+}

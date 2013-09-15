@@ -380,6 +380,8 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    // Initialize the app...
    qtMfcInit(this);
    theApp.InitInstance();   
+   
+   openFile("");
 }
 
 MainWindow::~MainWindow()
@@ -2156,10 +2158,9 @@ void MainWindow::closeEvent ( QCloseEvent* event )
    {
       event->ignore();
    }
-   else
-   {
-      QMainWindow::closeEvent(event);
-   }
+   
+   settings.setValue("FamiTrackerWindowGeometry",saveGeometry());
+   settings.setValue("FamiTrackerWindowState",saveState());
 }
 
 void MainWindow::timerEvent(QTimerEvent */*event*/)

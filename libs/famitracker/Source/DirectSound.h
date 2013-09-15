@@ -26,13 +26,17 @@
 //#include <dsound.h>
 #undef main
 #include <SDL.h>
+#include <QObject>
+
+#include "cqtmfc.h"
 
 // Return values from WaitForDirectSoundEvent()
 enum {CUSTOM_EVENT = 1, BUFFER_IN_SYNC, BUFFER_OUT_OF_SYNC};
 
 // DirectSound channel
-class CDSoundChannel 
+class CDSoundChannel : public QObject
 {
+   Q_OBJECT
 	friend class CDSound;
 
 public:

@@ -477,6 +477,11 @@ HACCEL WINAPI CreateAcceleratorTable(
   int cEntries
 );
 
+HACCEL WINAPI LoadAccelerators(
+   HINSTANCE hInstance,
+   LPCTSTR lpTableName
+);
+
 int WINAPI TranslateAccelerator(
   HWND hWnd,
   HACCEL hAccTable,
@@ -940,7 +945,7 @@ class CBitmap : public CGdiObject
    // Qt interfaces
 public:
    CBitmap(QString resource);
-   QPixmap* toQPixmap() { return _qpixmap; }
+   QPixmap* toQPixmap() { return _qpixmap; } 
    
    // MFC interfaces
 public:
@@ -1394,7 +1399,7 @@ public:
    void SetOwner(
       CWnd* pOwnerWnd 
    );
-   CMenu* GetMenu( ) const { return NULL; }
+   CMenu* GetMenu( ) const { return m_pMenu; }   
    BOOL EnableToolTips(
       BOOL bEnable = TRUE
    );
@@ -1633,6 +1638,7 @@ protected:
    static CWnd* focusWnd;
    CScrollBar* mfcVerticalScrollBar;
    CScrollBar* mfcHorizontalScrollBar;
+   CMenu* m_pMenu;
    CDC* _myDC;
    UINT _id;
 
@@ -1685,7 +1691,6 @@ public:
 public:
    CFrameWnd(CWnd* parent = 0);
    virtual ~CFrameWnd();
-   CMenu* GetMenu( ) const { return m_pMenu; }   
    virtual void GetMessageString(
       UINT nID,
       CString& rMessage 
@@ -1718,7 +1723,6 @@ public:
    virtual void privateSetActiveDocument(CDocument* pDocument) { m_pDocument = pDocument; }
    
 protected:
-   CMenu* m_pMenu;
    CView* m_pView;
    QHBoxLayout* cbrsLeft;
    QHBoxLayout* cbrsRight;
@@ -3669,6 +3673,8 @@ void AfxGetFileTitle(
    LPTSTR file,
    UINT max
 );
+
+HINSTANCE AFXAPI AfxGetInstanceHandle( );
 
 HGDIOBJ GetStockObject(
    int fnObject

@@ -95,7 +95,6 @@ void MainWindow::dragMoveEvent(QDragMoveEvent *event)
 
 void MainWindow::dropEvent(QDropEvent *event)
 {
-qDebug("dropEvent");
    QList<QUrl> fileUrls;
    QString     fileName;
    QFileInfo   fileInfo;

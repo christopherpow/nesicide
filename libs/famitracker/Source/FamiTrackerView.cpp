@@ -280,18 +280,14 @@ CFamiTrackerView::CFamiTrackerView(CWnd* parent) :
 	m_iFrameQueue(-1),
 	m_iKeyboardNote(-1)
 {
-   int width;
-   int col;
-   int idx;
-
-   memset(m_bMuteChannels, 0, sizeof(bool) * MAX_CHANNELS);
+	memset(m_bMuteChannels, 0, sizeof(bool) * MAX_CHANNELS);
 	memset(m_iActiveNotes, 0, sizeof(int) * MAX_CHANNELS);
 	memset(m_cKeyList, 0, sizeof(char) * 256);
 	memset(Arpeggiate, 0, sizeof(int) * MAX_CHANNELS);
 
 	// Register this object to the sound generator
 	CSoundGen *pSoundGen = theApp.GetSoundGenerator();
-   
+
 	if (pSoundGen)
 		pSoundGen->AssignView(this);
    
@@ -3296,7 +3292,7 @@ bool CFamiTrackerView::AddAction(CAction *pAction) const
 void CFamiTrackerView::updateViews(long hint)
 {
    OnUpdate(0,hint,0);
-   m_pPatternView->update();
+//   m_pPatternView->update();
 }
 
 void CFamiTrackerView::wheelEvent(QWheelEvent *event)

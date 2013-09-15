@@ -43,3 +43,12 @@ void MusicEditorForm::onSave()
    
    setModified(false);
 }
+
+void MusicEditorForm::onClose()
+{
+   AfxGetMainWnd()->OnClose();
+   
+   // TODO: Handle unsaved documents or other pre-close stuffs
+   AfxGetApp()->ExitInstance();
+}
+

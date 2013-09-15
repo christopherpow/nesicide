@@ -22,6 +22,7 @@ public:
    
    // ICenterWidgetItem Interface Implmentation
    virtual void onSave();
+   virtual void onClose();
 
 private:
    Ui::MusicEditorForm *ui;

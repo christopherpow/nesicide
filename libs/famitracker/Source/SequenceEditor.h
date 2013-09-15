@@ -36,7 +36,7 @@ class CSequenceEditor : public CWnd
 	DECLARE_DYNAMIC(CSequenceEditor)
    // Qt stuff
 protected:
-   void paintEvent(QPaintEvent *) { OnPaint(); }
+   void paintEvent(QPaintEvent *);
       
 public:
 	CSequenceEditor(CFamiTrackerDoc *pDoc);

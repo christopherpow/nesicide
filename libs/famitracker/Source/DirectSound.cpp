@@ -26,7 +26,7 @@
 #include <cstdio>
 #include "common.h"
 #include "DirectSound.h"
-//#include "resource.h"
+#include "resource.h"
 
 // The single CDSound object
 CDSound *CDSound::pThisObject = NULL;
@@ -212,7 +212,7 @@ CDSoundChannel *CDSound::OpenChannel(int SampleRate, int SampleSize, int Channel
  
 	CDSoundChannel *pChannel = new CDSoundChannel();
 
-//	HANDLE hBufferEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+	HANDLE hBufferEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
 
 	int SoundBufferSize = CalculateBufferLength(BufferLength, SampleRate, SampleSize, Channels);
 	int BlockSize = SoundBufferSize / Blocks;
@@ -220,12 +220,19 @@ CDSoundChannel *CDSound::OpenChannel(int SampleRate, int SampleSize, int Channel
    sdlAudioSpec.callback = SDL_FamiTracker;
    sdlAudioSpec.userdata = NULL;
    sdlAudioSpec.channels = Channels;
-   sdlAudioSpec.format = AUDIO_S16SYS;
+   if ( SampleSize == 8 )
+   {
+      sdlAudioSpec.format = AUDIO_S8;
+   }
+   else 
+   {
+      sdlAudioSpec.format = AUDIO_S16SYS;
+   }
    sdlAudioSpec.freq = SampleRate;
 
    // Set up audio sample rate for video mode...
-   sdlAudioSpec.samples = SoundBufferSize/(SampleSize>>3)/Blocks;
-
+   sdlAudioSpec.samples = (BlockSize/(SampleSize>>3));
+   qDebug("BufferSize: %d, BlockSize: %d, SampleSize: %d",SoundBufferSize,BlockSize,SampleSize);
    SDL_OpenAudio ( &sdlAudioSpec, NULL );
 
    if ( m_pSoundBuffer )

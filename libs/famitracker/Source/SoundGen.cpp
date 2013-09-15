@@ -102,7 +102,9 @@ CSoundGen::CSoundGen() :
    QObject::connect(this,SIGNAL(postThreadMessage(unsigned int,unsigned int,unsigned int)),this,SLOT(recvThreadMessage(unsigned int,unsigned int,unsigned int)));
    
    QTimer* timer = new QTimer();
+
    connect(timer, SIGNAL(timeout()), this, SLOT(onIdleSlot()));
+   
    timer->start();
       
    pThread->start();

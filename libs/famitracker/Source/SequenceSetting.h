@@ -20,9 +20,24 @@
 
 #pragma once
 
+#include "cqtmfc.h"
+
+class CSequence;
+
 class CSequenceSetting : public CWnd
 {
-	DECLARE_DYNAMIC(CSequenceSetting)
+   Q_OBJECT
+   // Qt interfaces
+public slots:
+   void menuAction_triggered(int id);
+
+public:
+   DECLARE_DYNAMIC(CSequenceSetting)
+   // Qt stuff
+protected:
+   void paintEvent(QPaintEvent *);
+   void mousePressEvent(QMouseEvent *event);
+   
 public:
    CSequenceSetting(CWnd *pParent);
 	virtual ~CSequenceSetting();

@@ -268,3 +268,8 @@ void CSequenceEditor::OnLButtonDown(UINT nFlags, CPoint point)
 	// Set focus to parent to allow keyboard note preview
 	GetParent()->SetFocus();
 }
+
+void CSequenceEditor::paintEvent(QPaintEvent *)
+{
+   OnPaint(); 
+}

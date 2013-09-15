@@ -296,6 +296,12 @@ void AfxGetFileTitle(
 #endif   
 }
 
+HINSTANCE AFXAPI AfxGetInstanceHandle( )
+{
+   // CP: not really needed...
+   return 0;
+}
+
 HCURSOR WINAPI SetCursor(
    HCURSOR hCursor
 )
@@ -1258,16 +1264,26 @@ SIZE_T WINAPI GlobalSize(
    return pMem->size();
 }
 
-ACCEL* _acceleratorTbl = NULL;
+QList<ACCEL*> _acceleratorTables;
 
 HACCEL WINAPI CreateAcceleratorTable(
   LPACCEL lpaccl,
   int cEntries
 )
 {
-   _acceleratorTbl = new ACCEL[cEntries];
-   memcpy(_acceleratorTbl,lpaccl,cEntries*sizeof(ACCEL));
-   return (HACCEL)_acceleratorTbl;
+   ACCEL* pTable = new ACCEL[cEntries+1];
+   memset(pTable,0,(cEntries+1)*sizeof(ACCEL));
+   memcpy(pTable,lpaccl,cEntries*sizeof(ACCEL));
+   _acceleratorTables.append(pTable);
+   return (HACCEL)pTable;
+}
+
+HACCEL WINAPI LoadAccelerators(
+   HINSTANCE hInstance,
+   LPCTSTR lpTableName
+)
+{
+   
 }
 
 int WINAPI TranslateAccelerator(
@@ -1276,14 +1292,24 @@ int WINAPI TranslateAccelerator(
   LPMSG lpMsg
 )
 {
-   qDebug("TranslateAccelerator");
+   ACCEL* pAccel = (ACCEL*)hAccTable;
+   while ( pAccel->cmd )
+   {
+      if ( lpMsg->wParam == pAccel->key )
+      {
+         CWnd* pWnd = (CWnd*)hWnd;
+         pWnd->SendMessage(WM_COMMAND,pAccel->cmd);
+         qDebug("Translating and sending %d message...");
+         break;
+      }
+   }
 }
 
 BOOL WINAPI DestroyAcceleratorTable(
   HACCEL hAccel
 )
 {
-   delete [] _acceleratorTbl;
+   _acceleratorTables.removeAll((ACCEL*)hAccel);
    return TRUE;
 }
 
@@ -2774,7 +2800,7 @@ int StretchDIBits(
    QImage image((const uchar*)lpBits,nSrcWidth,nSrcHeight,QImage::Format_RGB32);
    image = image.scaled(nDestWidth,nDestHeight);
    dc.painter()->drawImage(XDest,YDest,image);
-   dc.flush();
+//   dc.flush();
    return 0;
 }
 
@@ -5517,8 +5543,6 @@ CFrameWnd::CFrameWnd(CWnd *parent)
    gridLayout->setColumnStretch(2,0);
    
    realCentralWidget = new QWidget;
-//   realCentralWidget->setSpacing(0);
-//   realCentralWidget->setContentsMargins(0,0,0,0);
    realCentralWidget->setObjectName(QString::fromUtf8("realCentralWidget"));
 
    gridLayout->addWidget(realCentralWidget, 1, 1, 1, 1);

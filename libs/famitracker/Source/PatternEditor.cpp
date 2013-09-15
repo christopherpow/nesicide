@@ -29,6 +29,7 @@
 #include "FamiTrackerDoc.h"
 #include "FamiTrackerView.h"
 #include "PatternEditor.h"
+//#include "FontDrawer.h"
 #include "TrackerChannel.h"
 #include "Settings.h"
 #include "MainFrm.h"
@@ -98,19 +99,6 @@ void CPatternView::focusInEvent(QFocusEvent *)
    m_pView->SetFocus();
 }
 
-void CPatternView::paintEvent(QPaintEvent *event)
-{
-//   // Qt attach to the MFC HLE.  This object is already QWidget type.
-//   CDC dc;
-//   dc.attach(this);
-
-//   CreateBackground(&dc,true);
-   
-//   DrawScreen(&dc,m_pView);
-
-//   // dc will auto-detach on destruction
-}
-
 void CPatternView::updateViews(long hint)
 {
    update();
@@ -128,16 +116,14 @@ CPatternView::CPatternView() :
 	m_iBuffers(0),
 	m_bForcePlayRowUpdate(false)
 {
-   m_iPatternFontSize = ROW_HEIGHT;
-   m_iRowHeight = m_iPatternFontSize;
-   m_pBackDC = new CDC();
-   
-   m_bHasFocus = true;
+	m_iPatternFontSize = ROW_HEIGHT;
+	m_iRowHeight = m_iPatternFontSize;
 }
 
 CPatternView::~CPatternView()
 {
-   delete m_pBackDC;
+	SAFE_RELEASE(m_pBackDC);
+	SAFE_RELEASE(m_pBackBmp);
 }
 
 int CPatternView::GetRowAtPoint(int PointY) const
@@ -332,8 +318,8 @@ void CPatternView::ApplyColorScheme()
 	const CSettings *pSettings = theApp.GetSettings();
 
 	LOGFONT LogFont;
-    LPCTSTR	FontName = pSettings->General.strFont;
-    LPCTSTR	HeaderFace = DEFAULT_HEADER_FONT;
+	LPCTSTR	FontName = pSettings->General.strFont;
+	LPCTSTR	HeaderFace = DEFAULT_HEADER_FONT;
 
 	COLORREF ColBackground = pSettings->Appearance.iColBackground;
 
@@ -356,8 +342,8 @@ void CPatternView::ApplyColorScheme()
 	LogFont.lfPitchAndFamily = DEFAULT_PITCH | FF_DONTCARE;
 
 	// Remove old font
-//	if (m_fontPattern.m_hObject != NULL)
-//		m_fontPattern.DeleteObject();
+	if (m_fontPattern.m_hObject != NULL)
+		m_fontPattern.DeleteObject();
 
 	m_fontPattern.CreateFontIndirect(&LogFont);
 
@@ -370,12 +356,12 @@ void CPatternView::ApplyColorScheme()
 	LogFont.lfPitchAndFamily = VARIABLE_PITCH | FF_SWISS;
 
 	// Remove old font
-//	if (m_fontHeader.m_hObject != NULL)
-//		m_fontHeader.DeleteObject();
+	if (m_fontHeader.m_hObject != NULL)
+		m_fontHeader.DeleteObject();
 
 	m_fontHeader.CreateFontIndirect(&LogFont);
 
-//	if (m_fontCourierNew.m_hObject == NULL)
+	if (m_fontCourierNew.m_hObject == NULL)
 		m_fontCourierNew.CreateFont(16, 0, 0, 0, 0, FALSE, FALSE, FALSE, 0, 0, 0, DRAFT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, _T("Courier New"));
 
 	// Cache some colors
@@ -1582,8 +1568,7 @@ void CPatternView::DrawMeters(CDC *pDC)
 
 	// DPCM
 	if (m_DPCMState.SamplePos != LastSamplePos || m_DPCMState.DeltaCntr != LastDeltaPos) {
-//		if (theApp.GetMainWnd()->GetMenu()->GetMenuState(ID_TRACKER_DPCM, MF_BYCOMMAND) == MF_CHECKED) 
-      {
+		if (theApp.GetMainWnd()->GetMenu()->GetMenuState(ID_TRACKER_DPCM, MF_BYCOMMAND) == MF_CHECKED) {
 			CString Text;		   
 
 			pDC->SetBkMode(TRANSPARENT);
