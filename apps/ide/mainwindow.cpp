@@ -3520,3 +3520,14 @@ void MainWindow::on_actionDebugging_Mode_triggered()
    actionDebugging_Mode->setChecked(true);
    actionCoding_Mode->setChecked(false);
 }
+
+void MainWindow::on_actionExit_triggered()
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
+   
+   settings.setValue("FamiTrackerWindowGeometry",saveGeometry());
+   settings.setValue("FamiTrackerWindowState",saveState());
+   
+   // Closing the main window kills the app
+   close();
+}

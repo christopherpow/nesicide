@@ -222,6 +222,7 @@ signals:
    void clean();
 
 private slots:
+   void on_actionExit_triggered();
    void applicationActivationChanged(bool activated);
    void createTarget(QString target);
    void addStatusBarWidget(QWidget* widget);

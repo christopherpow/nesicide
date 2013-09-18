@@ -73,11 +73,23 @@ bool apuDMAEvent(BreakpointInfo* pBreakpoint,int data)
    return true;
 }
 
+bool apuDACEvent(BreakpointInfo* pBreakpoint,int data)
+{
+   if ( data == pBreakpoint->item1 )
+      return true;
+   return false;
+}
+
 static CBreakpointEventInfo* tblAPUEvents [] =
 {
    new CBreakpointEventInfo("IRQ", apuIRQEvent, 0, "Break if APU asserts IRQ", 10),
    new CBreakpointEventInfo("DMC channel DMA", apuDMAEvent, 0, "Break if APU DMC channel DMA occurs", 10),
    new CBreakpointEventInfo("Length Counter Clocked", apuLengthCounterClockedEvent, 0, "Break if APU sequencer clocks Length Counter", 10),
+   new CBreakpointEventInfo("Square 1 DAC value", apuDACEvent, 1, "Break if APU square 1 channel DAC equals %d",10,"DAC value"),
+   new CBreakpointEventInfo("Square 2 DAC value", apuDACEvent, 1, "Break if APU square 2 channel DAC equals %d",10,"DAC value"),
+   new CBreakpointEventInfo("Triangle DAC value", apuDACEvent, 1, "Break if APU triangle channel DAC equals %d",10,"DAC value"),
+   new CBreakpointEventInfo("Noise DAC value", apuDACEvent, 1, "Break if APU noise channel DAC equals %d",10,"DAC value"),
+   new CBreakpointEventInfo("DMC DAC value", apuDACEvent, 1, "Break if APU DMC channel DAC equals %d",10,"DAC value")
 };
 
 // APU Registers

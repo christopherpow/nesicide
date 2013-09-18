@@ -6,6 +6,8 @@
 #include "cregisterdata.h"
 #include "cbreakpointinfo.h"
 
+#include "cnes.h"
+
 #define NUM_APU_BUFS 32
 #define APU_BUFFER_SIZE (NUM_APU_BUFS*APU_SAMPLES)
 
@@ -107,9 +109,14 @@ public:
    // These routines set/get the channels' DAC value.
    inline void SETDAC ( uint8_t dac )
    {
+      uint8_t oldDac = m_dac;
       m_dacAverage[m_dacSamples] = dac;
       m_dac = dac;
       m_dacSamples++;
+      if ( dac != oldDac )
+      {
+         CNES::CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUEvent,dac,APU_EVENT_SQUARE1_DAC_VALUE+m_channel);
+      }
    }
    inline uint8_t GETDAC ( void )
    {
