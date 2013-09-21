@@ -25,6 +25,9 @@ public:
    virtual bool serializeContent(QFile& fileOut);
    virtual bool deserializeContent(QFile& fileIn);
 
+   QSemaphore* nesBreakpointSemaphore;
+   QSemaphore* nesAudioSemaphore;   
+   
 public slots:
    void breakpointsChanged (); // unused
    void primeEmulator ();

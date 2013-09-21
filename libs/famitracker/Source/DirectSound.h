@@ -88,8 +88,14 @@ public:
    bool m_bPaused;
 };
 
+typedef void (*SDL_Callback_Function)(void* userdata,uint8_t* stream,int32_t len);
 
-typedef void (*SDL_Callback)(void* userdata,uint8_t* stream,int32_t len);
+typedef struct _SDL_Callback
+{
+   SDL_Callback_Function _func;
+   void*                 _user;
+   bool                  _valid;
+} SDL_Callback;
 
 extern QList<SDL_Callback> sdlHooks;
 

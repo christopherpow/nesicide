@@ -67,6 +67,8 @@ QList<SDL_Callback> sdlHooks;
 
 extern "C" void SDL_FamiTracker(void* userdata, uint8_t* stream, int32_t len)
 {
+   if ( !stream )
+      return;
 #if 0
    LARGE_INTEGER t;
    static LARGE_INTEGER to;
@@ -86,7 +88,10 @@ extern "C" void SDL_FamiTracker(void* userdata, uint8_t* stream, int32_t len)
    
    foreach ( SDL_Callback cb, sdlHooks )
    {
-      cb(userdata,stream,len);
+      if ( cb._valid )
+      {
+         cb._func(cb._user,stream,len);
+      }
    }
    
    ftmAudioSemaphore.release();

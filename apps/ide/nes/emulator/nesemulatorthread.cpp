@@ -36,23 +36,17 @@
 
 #include "cnesicideproject.h"
 
-QSemaphore nesBreakpointSemaphore(0);
-QSemaphore nesAudioSemaphore(0);
-
 SDL_AudioSpec sdlAudioSpec;
 
 // Hook function endpoints.
 static void breakpointHook ( void )
 {
-//   SDL_PauseAudio(1);
-
    // Tell the world.
    NESEmulatorThread* emulator = dynamic_cast<NESEmulatorThread*>(CObjectRegistry::getObject("Emulator"));
    emulator->_breakpointHook();
 
    // Put my thread to sleep.
-   nesBreakpointSemaphore.acquire();
-//   SDL_PauseAudio(0);
+   emulator->nesBreakpointSemaphore->acquire();
 }
 
 void NESEmulatorThread::_breakpointHook()
@@ -62,11 +56,13 @@ void NESEmulatorThread::_breakpointHook()
 
 static void audioHook ( void )
 {
-   nesAudioSemaphore.acquire();
+   NESEmulatorThread* emulator = dynamic_cast<NESEmulatorThread*>(CObjectRegistry::getObject("Emulator"));
+   emulator->nesAudioSemaphore->acquire();
 }
 
-extern "C" void SDL_Emulator(void* /*userdata*/, uint8_t* stream, int32_t len)
+extern "C" void SDL_Emulator(void* userdata, uint8_t* stream, int32_t len)
 {
+   NESEmulatorThread* emulator = (NESEmulatorThread*)userdata;
 #if 0
    LARGE_INTEGER t;
    static LARGE_INTEGER to;
@@ -86,8 +82,11 @@ extern "C" void SDL_Emulator(void* /*userdata*/, uint8_t* stream, int32_t len)
    {
 //      qDebug("UNDERRUN");
    }
-   nesAudioSemaphore.release();
+   if ( emulator && emulator->nesAudioSemaphore )
+      emulator->nesAudioSemaphore->release();
 }
+
+SDL_Callback nesSDLCallback;
 
 NESEmulatorThread::NESEmulatorThread(QObject*)
 {
@@ -102,35 +101,34 @@ NESEmulatorThread::NESEmulatorThread(QObject*)
    m_isResetting = false;
    m_debugFrame = 0;
    m_pCartridge = NULL;
+   
+   nesBreakpointSemaphore = new QSemaphore(0);
+   nesAudioSemaphore = new QSemaphore(0);
 
    // Enable callbacks from the external emulator library.
    nesSetBreakpointHook(breakpointHook);
    nesSetAudioHook(audioHook);
 
-//   SDL_Init ( SDL_INIT_AUDIO );
-
-//   sdlAudioSpec.callback = SDL_GetMoreData;
-//   sdlAudioSpec.userdata = NULL;
-//   sdlAudioSpec.channels = 1;
-//   sdlAudioSpec.format = AUDIO_S16SYS;
-//   sdlAudioSpec.freq = SDL_SAMPLE_RATE;
-
-//   // Set up audio sample rate for video mode...
-//   sdlAudioSpec.samples = APU_SAMPLES;
-
-//   SDL_OpenAudio ( &sdlAudioSpec, NULL );
-   sdlHooks.append(SDL_Emulator);
+   nesSDLCallback._user = this;
+   nesSDLCallback._func = SDL_Emulator;
+   nesSDLCallback._valid = true;
+   sdlHooks.append(nesSDLCallback);
 
    nesClearAudioSamplesAvailable();
 
    BreakpointWatcherThread* breakpointWatcher = dynamic_cast<BreakpointWatcherThread*>(CObjectRegistry::getObject("Breakpoint Watcher"));
    QObject::connect(this,SIGNAL(breakpoint()),breakpointWatcher,SLOT(breakpoint()));
-
-//   SDL_PauseAudio ( 0 );
 }
 
 NESEmulatorThread::~NESEmulatorThread()
 {
+   nesSDLCallback._valid = false;
+   nesBreakpointSemaphore->release();
+   delete nesBreakpointSemaphore;
+   nesBreakpointSemaphore = NULL;
+   nesAudioSemaphore->release();
+   delete nesAudioSemaphore;
+   nesAudioSemaphore = NULL;
 }
 
 void NESEmulatorThread::kill()
@@ -144,18 +142,12 @@ void NESEmulatorThread::kill()
    m_showOnPause = false;
    m_isTerminating = true;
 
-   SDL_PauseAudio ( 1 );
-
-   SDL_CloseAudio ();
-
-   SDL_Quit();
-
    start();
-
+   
    while ( !isFinished() )
    {
-      nesBreakpointSemaphore.release();
-      nesAudioSemaphore.release();
+      nesBreakpointSemaphore->release();
+      nesAudioSemaphore->release();
    }
 }
 
@@ -193,9 +185,9 @@ void NESEmulatorThread::softResetEmulator()
    m_showOnPause = false;
 
    // If during the last run we were stopped at a breakpoint, clear it...
-   if ( !(nesBreakpointSemaphore.available()) )
+   if ( !(nesBreakpointSemaphore->available()) )
    {
-      nesBreakpointSemaphore.release();
+      nesBreakpointSemaphore->release();
    }
    start();
 }
@@ -213,9 +205,9 @@ void NESEmulatorThread::resetEmulator()
    m_showOnPause = false;
 
    // If during the last run we were stopped at a breakpoint, clear it...
-   if ( !(nesBreakpointSemaphore.available()) )
+   if ( !(nesBreakpointSemaphore->available()) )
    {
-      nesBreakpointSemaphore.release();
+      nesBreakpointSemaphore->release();
    }
    start();
 }
@@ -225,9 +217,9 @@ void NESEmulatorThread::startEmulation ()
    m_isStarting = true;
 
    // If during the last run we were stopped at a breakpoint, clear it...
-   if ( !(nesBreakpointSemaphore.available()) )
+   if ( !(nesBreakpointSemaphore->available()) )
    {
-      nesBreakpointSemaphore.release();
+      nesBreakpointSemaphore->release();
    }
    start();
 }
@@ -252,9 +244,9 @@ void NESEmulatorThread::stepCPUEmulation ()
       m_isPaused = false;
 
       // If during the last run we were stopped at a breakpoint, clear it...
-      if ( !(nesBreakpointSemaphore.available()) )
+      if ( !(nesBreakpointSemaphore->available()) )
       {
-         nesBreakpointSemaphore.release();
+         nesBreakpointSemaphore->release();
       }
       start();
    }
@@ -267,9 +259,9 @@ void NESEmulatorThread::stepCPUEmulation ()
       m_isStarting = true;
       m_isPaused = false;
 
-      if ( !(nesBreakpointSemaphore.available()) )
+      if ( !(nesBreakpointSemaphore->available()) )
       {
-         nesBreakpointSemaphore.release();
+         nesBreakpointSemaphore->release();
       }
       start();
    }
@@ -331,9 +323,9 @@ void NESEmulatorThread::stepOverCPUEmulation ()
       m_isPaused = false;
 
       // If during the last run we were stopped at a breakpoint, clear it...
-      if ( !(nesBreakpointSemaphore.available()) )
+      if ( !(nesBreakpointSemaphore->available()) )
       {
-         nesBreakpointSemaphore.release();
+         nesBreakpointSemaphore->release();
       }
       start();
    }
@@ -350,9 +342,9 @@ void NESEmulatorThread::stepOutCPUEmulation ()
    m_isPaused = false;
 
    // If during the last run we were stopped at a breakpoint, clear it...
-   if ( !(nesBreakpointSemaphore.available()) )
+   if ( !(nesBreakpointSemaphore->available()) )
    {
-      nesBreakpointSemaphore.release();
+      nesBreakpointSemaphore->release();
    }
    start();
 }
@@ -366,9 +358,9 @@ void NESEmulatorThread::stepPPUEmulation ()
    m_isStarting = true;
    m_isPaused = false;
 
-   if ( !(nesBreakpointSemaphore.available()) )
+   if ( !(nesBreakpointSemaphore->available()) )
    {
-      nesBreakpointSemaphore.release();
+      nesBreakpointSemaphore->release();
    }
    start();
 }
@@ -382,9 +374,9 @@ void NESEmulatorThread::advanceFrame ()
    m_isStarting = true;
    m_isPaused = false;
 
-   if ( !(nesBreakpointSemaphore.available()) )
+   if ( !(nesBreakpointSemaphore->available()) )
    {
-      nesBreakpointSemaphore.release();
+      nesBreakpointSemaphore->release();
    }
    start();
 }
@@ -581,7 +573,7 @@ void NESEmulatorThread::run ()
          nesEnableBreakpoints(true);
 
          // Make sure breakpoint semaphore is on the precipice...
-         nesBreakpointSemaphore.tryAcquire();
+         nesBreakpointSemaphore->tryAcquire();
 
          // Run emulator for one frame...
          if ( emulatorWidget )
