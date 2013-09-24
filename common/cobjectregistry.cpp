@@ -1,12 +1,12 @@
 #include "cobjectregistry.h"
 
-QHash<QString,CObjectRegistry::CObjectManager*> CObjectRegistry::objects;
+QHash<QString,QObject*> CObjectRegistry::objects;
 
 QObject* CObjectRegistry::getObject(const QString& name)
 {
    if ( objects.contains(name) )
    {
-      return objects[name]->object;
+      return objects[name];
    }
 
    return 0;
@@ -14,10 +14,7 @@ QObject* CObjectRegistry::getObject(const QString& name)
 
 void CObjectRegistry::addObject(const QString& name, QObject* object)
 {
-   CObjectManager* pObjectManager = new CObjectManager;
-   pObjectManager->object = object;
-
-   objects.insert ( name, pObjectManager );
+   objects.insert ( name, object );
 }
 
 void CObjectRegistry::removeObject(const QString &name)
