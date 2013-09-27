@@ -288,7 +288,7 @@ void AfxGetFileTitle(
 #else
    str = QString::fromAscii(path);
 #endif
-   str = str.right(str.length()-str.lastIndexOf(QRegExp("[/\\\]")));
+   str = str.right(str.length()-str.lastIndexOf(QRegExp("[/\\]")));
 #if UNICODE
    wcsncpy(file,str.unicode(),max);
 #else
@@ -578,7 +578,7 @@ int WINAPI GetKeyNameText(
    case VK_OEM_7:		// 0xDE	OEM_7 (" ')
       lParam = Qt::Key_QuoteDbl;
       break;
-   case VK_OEM_8:		// 0xDF	OEM_8 (§ !)
+   case VK_OEM_8:		// 0xDF	OEM_8 (ï¿½ !)
       lParam = Qt::Key_Exclam;
       break;
 //   case VK_OEM_ATTN:		// 0xF0	Oem Attn

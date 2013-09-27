@@ -1,6 +1,6 @@
 FamiTracker Qt BURN-DOWN LIST:
 
-1. Implement following APIs for OSX compatibility:
+**DONE** 1. Implement following APIs for OSX compatibility:
 FreeLibrary 
 GetClassName 
 GetCursorPos 
@@ -13,25 +13,26 @@ RegisterClipboardFormat
 SetCursor
 (most of these are for supporting custom file exporters)
 
-2. Finish implementing configuration dialogs.
+**60%** 2. Finish implementing configuration dialogs.
    a. Flesh out implementations of CPropertyPage, CPropertySheet.
+   b. Implement Audio settings.
 
-3. Finish implementation of CMenu.
+**DONE** 3. Finish implementation of CMenu.
    a. Finish support for sub-menus.
    b. Implement hooks to UI for triggers and updates.
 
-4. Finish implementation of accelerator keys.
+**80%** 4. Finish implementation of accelerator keys.
    a. Implement hooks to UI for triggers.
 
-5. Implement triggers for status bar updates.
+**DONE** 5. Implement triggers for status bar updates.
 
-6. Finish implementation of custom controls [instrument list!]
+**60%** 6. Finish implementation of custom controls [instrument list!]
 
 7. MIDI
    a. Find out how to do it OSX-ish or Linux-ish.
    b. Consider leaving MIDI a "Windows only feature" for now.
 
-8. FontDrawer.cpp?  DialogReBar.cpp?  Exception.cpp?
+**DONE** 8. FontDrawer.cpp?  DialogReBar.cpp?  Exception.cpp?
    a. Might not need these or at least not entirely.  Figure this out.
 
 9. Test, test, test...
