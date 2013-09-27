@@ -23,7 +23,7 @@ public:
     double  GetIntensity (int i) const
     { 
   //      Assert (i < _Points);
-        return _X[i].Mod()/_sqrtPoints; 
+        return fftarray[i].Mod()/_sqrtPoints; 
     }
 
     int     GetFrequency (int point) const
@@ -51,7 +51,7 @@ private:
 
     void PutAt ( int i, double val )
     {
-        _X [_aBitRev[i]] = Complex (val);
+        fftarray [_aBitRev[i]] = Complex (val);
     }
 
     int			_Points;
@@ -59,7 +59,7 @@ private:
     int			_logPoints;
     double		_sqrtPoints;
     int		   *_aBitRev;       // bit reverse vector
-    Complex	   *_X;             // in-place fft array
+    Complex	   *fftarray;             // in-place fft array
     Complex	  **_W;             // exponentials
     double     *_aTape;         // recording tape
 };
