@@ -1,7 +1,7 @@
 #ifndef _FDSSOUND_H_
 #define _FDSSOUND_H_
 
-#if !defined(Q_WS_WIN) && !defined(Q_WS_WIN32)
+#if !defined(Q_OS_WIN32)
 #define __fastcall
 #endif
 

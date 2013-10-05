@@ -14,15 +14,15 @@ MainWindow::MainWindow(QWidget *parent) :
    ui(new Ui::MainWindow)
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
-   
+
    ui->setupUi(this);
 
    // Initialize the app...
    qtMfcInit(this);
    theApp.InitInstance();
-   
+
    openFile("");
-   
+
    setCentralWidget(theApp.m_pMainWnd->toQWidget());
 
    QObject::connect(theApp.m_pMainWnd,SIGNAL(addToolBarWidget(QToolBar*)),this,SLOT(addToolBarWidget(QToolBar*)));
@@ -30,7 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
    QObject::connect(theApp.m_pMainWnd,SIGNAL(editor_modificationChanged(bool)),this,SLOT(editor_modificationChanged(bool)));
    QObject::connect(theApp.m_pMainWnd,SIGNAL(documentSaved()),this,SLOT(documentSaved()));
    QObject::connect(theApp.m_pMainWnd,SIGNAL(documentClosed()),this,SLOT(documentClosed()));
-   
+
    restoreGeometry(settings.value("FamiTrackerWindowGeometry").toByteArray());
    restoreState(settings.value("FamiTrackerWindowState").toByteArray());
 }
@@ -43,10 +43,10 @@ MainWindow::~MainWindow()
 void MainWindow::on_actionExit_triggered()
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
-   
+
    settings.setValue("FamiTrackerWindowGeometry",saveGeometry());
    settings.setValue("FamiTrackerWindowState",saveState());
-   
+
    // Closing the main window kills the app
    close();
 }
@@ -122,12 +122,12 @@ void MainWindow::dropEvent(QDropEvent *event)
 void MainWindow::closeEvent(QCloseEvent *event)
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
- 
+
    AfxGetMainWnd()->OnClose();
-   
+
    settings.setValue("FamiTrackerWindowGeometry",saveGeometry());
    settings.setValue("FamiTrackerWindowState",saveState());
-   
+
    // Ignore the close event.  "MFC" will close the document which will trigger app closure.
    event->ignore();
 }

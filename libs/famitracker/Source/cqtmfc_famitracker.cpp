@@ -7,11 +7,11 @@
 //
 // Menu
 //
-   
+
 void qtMfcInitMenuResource_IDR_MAINFRAME(CMenu* parent)
 {
    QAction* menuAction;
-      
+
 //IDR_MAINFRAME MENU
 //BEGIN
    CMenu* subMenuTree[2];
@@ -296,8 +296,8 @@ void qtMfcInitMenuResource_IDR_MAINFRAME(CMenu* parent)
 void qtMfcInitMenuResource_IDR_PATTERN_POPUP(CMenu* parent)
 {
    QAction* menuAction;
-      
-//   IDR_PATTERN_POPUP MENU 
+
+//   IDR_PATTERN_POPUP MENU
 //   BEGIN
    CMenu* subMenuTree[2];
    CMenu* subMenu;
@@ -368,12 +368,12 @@ void qtMfcInitMenuResource_IDR_PATTERN_POPUP(CMenu* parent)
 //       END
 //   END
 }
-   
+
 void qtMfcInitMenuResource_IDR_FRAME_POPUP(CMenu* parent)
 {
    QAction* menuAction;
-      
-//   IDR_FRAME_POPUP MENU 
+
+//   IDR_FRAME_POPUP MENU
 //   BEGIN
    CMenu* subMenuTree[2];
    CMenu* subMenu;
@@ -392,13 +392,13 @@ void qtMfcInitMenuResource_IDR_FRAME_POPUP(CMenu* parent)
 //           MENUITEM "Duplicate patterns",          ID_MODULE_DUPLICATEFRAMEPATTERNS
    subMenu->AppendMenu(MF_STRING,ID_MODULE_DUPLICATEFRAMEPATTERNS,"Duplicate patterns");
 //           MENUITEM SEPARATOR
-   subMenu->AppendMenu(MF_SEPARATOR); 
+   subMenu->AppendMenu(MF_SEPARATOR);
 //           MENUITEM "Move &up",                    ID_MODULE_MOVEFRAMEUP
    subMenu->AppendMenu(MF_STRING,ID_MODULE_MOVEFRAMEUP,"Move &up");
 //           MENUITEM "Move d&own",                  ID_MODULE_MOVEFRAMEDOWN
    subMenu->AppendMenu(MF_STRING,ID_MODULE_MOVEFRAMEDOWN,"Move d&own");
 //           MENUITEM SEPARATOR
-   subMenu->AppendMenu(MF_SEPARATOR); 
+   subMenu->AppendMenu(MF_SEPARATOR);
 //           MENUITEM "Cu&t\tCtrl+X",                ID_FRAME_CUT
    subMenu->AppendMenu(MF_STRING,ID_FRAME_CUT,"Cu&t\tCtrl+X");
 //           MENUITEM "&Copy\tCtrl+C",               ID_FRAME_COPY
@@ -412,8 +412,8 @@ void qtMfcInitMenuResource_IDR_FRAME_POPUP(CMenu* parent)
 void qtMfcInitMenuResource_IDR_INSTRUMENT_POPUP(CMenu* parent)
 {
    QAction* menuAction;
-      
-//   IDR_INSTRUMENT_POPUP MENU 
+
+//   IDR_INSTRUMENT_POPUP MENU
 //   BEGIN
    CMenu* subMenuTree[2];
    CMenu* subMenu;
@@ -428,13 +428,13 @@ void qtMfcInitMenuResource_IDR_INSTRUMENT_POPUP(CMenu* parent)
 //           MENUITEM "Remove",                      ID_INSTRUMENT_REMOVE
    subMenu->AppendMenu(MF_STRING,ID_INSTRUMENT_REMOVE,"Remove");
 //           MENUITEM SEPARATOR
-   subMenu->AppendMenu(MF_SEPARATOR); 
+   subMenu->AppendMenu(MF_SEPARATOR);
 //           MENUITEM "Clone instrument",            ID_INSTRUMENT_CLONE
    subMenu->AppendMenu(MF_STRING,ID_INSTRUMENT_CLONE,"Clone instrument");
 //           MENUITEM "Deep clone instrument",       ID_INSTRUMENT_DEEPCLONE
    subMenu->AppendMenu(MF_STRING,ID_INSTRUMENT_DEEPCLONE,"Deep clone instrument");
 //           MENUITEM SEPARATOR
-   subMenu->AppendMenu(MF_SEPARATOR); 
+   subMenu->AppendMenu(MF_SEPARATOR);
 //           MENUITEM "Edit",                        ID_INSTRUMENT_EDIT
    subMenu->AppendMenu(MF_STRING,ID_INSTRUMENT_EDIT,"Edit");
 //       END
@@ -444,8 +444,8 @@ void qtMfcInitMenuResource_IDR_INSTRUMENT_POPUP(CMenu* parent)
 void qtMfcInitMenuResource_IDR_SAMPLES_POPUP(CMenu* parent)
 {
    QAction* menuAction;
-      
-//   IDR_SAMPLES_POPUP MENU 
+
+//   IDR_SAMPLES_POPUP MENU
 //   BEGIN
    CMenu* subMenuTree[2];
    CMenu* subMenu;
@@ -478,8 +478,8 @@ void qtMfcInitMenuResource_IDR_SAMPLES_POPUP(CMenu* parent)
 void qtMfcInitMenuResource_IDR_SAMPLE_WND_POPUP(CMenu* parent)
 {
    QAction* menuAction;
-      
-//   IDR_SAMPLE_WND_POPUP MENU 
+
+//   IDR_SAMPLE_WND_POPUP MENU
 //   BEGIN
    CMenu* subMenuTree[2];
    CMenu* subMenu;
@@ -504,8 +504,8 @@ void qtMfcInitMenuResource_IDR_SAMPLE_WND_POPUP(CMenu* parent)
 void qtMfcInitMenuResource_IDR_PATTERN_HEADER_POPUP(CMenu* parent)
 {
    QAction* menuAction;
-      
-//   IDR_PATTERN_HEADER_POPUP MENU 
+
+//   IDR_PATTERN_HEADER_POPUP MENU
 //   BEGIN
    CMenu* subMenuTree[2];
    CMenu* subMenu;
@@ -573,7 +573,7 @@ void qtMfcInitStringResources()
    //
    // String Table
    //
-   
+
 // AFX resources
    qtMfcStringResources.insert(AFX_IDS_ALLFILTER,"All files|");
    qtMfcStringResources.insert(AFX_IDS_OPENFILE,"Open");
@@ -581,8 +581,8 @@ void qtMfcInitStringResources()
    qtMfcStringResources.insert(AFX_IDS_SAVEFILECOPY,"Save As");
    qtMfcStringResources.insert(AFX_IDS_UNTITLED,"Untitled");
    qtMfcStringResources.insert(AFX_IDP_ASK_TO_SAVE,"Save changes to %s?");
-   
-//   STRINGTABLE 
+
+//   STRINGTABLE
 //   BEGIN
    qtMfcStringResources.insert(IDR_MAINFRAME           , "FamiTracker\n\nFamiTracker\nFamiTracker files (*.ftm)\n.ftm\nFamiTracker.Module\nFamiTracker.Module");
    qtMfcStringResources.insert(IDS_CLIPBOARD_ERROR     , "Could not register clipboard format");
@@ -599,15 +599,15 @@ void qtMfcInitStringResources()
    qtMfcStringResources.insert(IDS_SAVE_ERROR_REASON   , "Could not save file: ");
    qtMfcStringResources.insert(IDS_START_ERROR         , "Program could not start properly, default settings has been restored. Please restart the program.");
 //   END
-   
-//   STRINGTABLE 
+
+//   STRINGTABLE
 //   BEGIN
    qtMfcStringResources.insert(AFX_IDS_APP_TITLE       , "FamiTracker");
    qtMfcStringResources.insert(AFX_IDS_IDLEMESSAGE     , "For Help, press F1");
    qtMfcStringResources.insert(AFX_IDS_HELPMODEMESSAGE, "Select an object on which to get Help");
 //   END
-   
-//   STRINGTABLE 
+
+//   STRINGTABLE
 //   BEGIN
    qtMfcStringResources.insert(ID_INDICATOR_EXT        , "EXT");
    qtMfcStringResources.insert(ID_INDICATOR_CAPS       , "CAP");
@@ -616,8 +616,8 @@ void qtMfcInitStringResources()
    qtMfcStringResources.insert(ID_INDICATOR_OVR        , "OVR");
    qtMfcStringResources.insert(ID_INDICATOR_REC        , "REC");
 //   END
-   
-//   STRINGTABLE 
+
+//   STRINGTABLE
 //   BEGIN
    qtMfcStringResources.insert(ID_FILE_NEW             , "Create a new document\nNew");
    qtMfcStringResources.insert(ID_FILE_OPEN            , "Open an existing document\nOpen");
@@ -625,8 +625,8 @@ void qtMfcInitStringResources()
    qtMfcStringResources.insert(ID_FILE_SAVE            , "Save the active document\nSave");
    qtMfcStringResources.insert(ID_FILE_SAVE_AS         , "Save the active document with a new name\nSave As");
 //   END
-   
-//   STRINGTABLE 
+
+//   STRINGTABLE
 //   BEGIN
    qtMfcStringResources.insert(ID_APP_ABOUT            , "Display program information, version number and copyright\nAbout");
    qtMfcStringResources.insert(ID_APP_EXIT             , "Quit the application; prompts to save documents\nExit");
@@ -636,8 +636,8 @@ void qtMfcInitStringResources()
    qtMfcStringResources.insert(ID_CONTEXT_HELP         , "Display help for clicked on buttons, menus and windows\nHelp");
    qtMfcStringResources.insert(ID_HELP                 , "Display help for current task or command\nHelp");
 //   END
-   
-//   STRINGTABLE 
+
+//   STRINGTABLE
 //   BEGIN
    qtMfcStringResources.insert(ID_FILE_MRU_FILE1       , "Open parent document");
    qtMfcStringResources.insert(ID_FILE_MRU_FILE2       , "Open parent document");
@@ -656,19 +656,19 @@ void qtMfcInitStringResources()
    qtMfcStringResources.insert(ID_FILE_MRU_FILE15      , "Open parent document");
    qtMfcStringResources.insert(ID_FILE_MRU_FILE16      , "Open parent document");
 //   END
-   
-//   STRINGTABLE 
+
+//   STRINGTABLE
 //   BEGIN
    qtMfcStringResources.insert(ID_NEXT_PANE            , "Switch to the next window pane\nNext Pane");
    qtMfcStringResources.insert(ID_PREV_PANE            , "Switch back to the previous window pane\nPrevious Pane");
 //   END
-   
-//   STRINGTABLE 
+
+//   STRINGTABLE
 //   BEGIN
    qtMfcStringResources.insert(ID_WINDOW_SPLIT         , "Split the active window into panes\nSplit");
 //   END
-   
-//   STRINGTABLE 
+
+//   STRINGTABLE
 //   BEGIN
    qtMfcStringResources.insert(ID_EDIT_CLEAR           , "Erase the selection\nErase");
    qtMfcStringResources.insert(ID_EDIT_CLEAR_ALL       , "Erase everything\nErase All");
@@ -682,14 +682,14 @@ void qtMfcInitStringResources()
    qtMfcStringResources.insert(ID_EDIT_UNDO            , "Undo the last action\nUndo");
    qtMfcStringResources.insert(ID_EDIT_REDO            , "Redo the previously undone action\nRedo");
 //   END
-   
-//   STRINGTABLE 
+
+//   STRINGTABLE
 //   BEGIN
    qtMfcStringResources.insert(ID_VIEW_TOOLBAR         , "Show or hide the toolbar\nToggle ToolBar");
    qtMfcStringResources.insert(ID_VIEW_STATUS_BAR      , "Show or hide the status bar\nToggle StatusBar");
 //   END
-   
-//   STRINGTABLE 
+
+//   STRINGTABLE
 //   BEGIN
    qtMfcStringResources.insert(AFX_IDS_SCSIZE          , "Change the window size");
    qtMfcStringResources.insert(AFX_IDS_SCMOVE          , "Change the window position");
@@ -699,14 +699,14 @@ void qtMfcInitStringResources()
    qtMfcStringResources.insert(AFX_IDS_SCPREVWINDOW    , "Switch to the previous document window");
    qtMfcStringResources.insert(AFX_IDS_SCCLOSE         , "Close the active window and prompts to save the documents");
 //   END
-   
-//   STRINGTABLE 
+
+//   STRINGTABLE
 //   BEGIN
    qtMfcStringResources.insert(AFX_IDS_SCRESTORE       , "Restore the window to normal size");
    qtMfcStringResources.insert(AFX_IDS_SCTASKLIST      , "Activate Task List");
 //   END
-   
-//   STRINGTABLE 
+
+//   STRINGTABLE
 //   BEGIN
    qtMfcStringResources.insert(ID_TRACKER_PLAY         , "Play module\nPlay");
    qtMfcStringResources.insert(ID_TRACKER_PLAYPATTERN  , "Play and loop current pattern\nPlay and loop");
@@ -714,8 +714,8 @@ void qtMfcInitStringResources()
    qtMfcStringResources.insert(ID_TRACKER_EDIT         , "Enable/disable edit mode\nToggle edit mode");
    qtMfcStringResources.insert(ID_TRACKER_KILLSOUND    , "Promptly stop all channels");
 //   END
-   
-//   STRINGTABLE 
+
+//   STRINGTABLE
 //   BEGIN
    qtMfcStringResources.insert(ID_EDIT_DELETE          , "Delete selection, or note if there is no selection.");
    qtMfcStringResources.insert(ID_EDIT_UNLOCKCURSOR    , "Makes it possible to edit without scrolling the view");
@@ -726,13 +726,13 @@ void qtMfcInitStringResources()
    qtMfcStringResources.insert(ID_HELP_PERFORMANCE     , "Application performance");
    qtMfcStringResources.insert(ID_EDIT_PASTEOVERWRITE  , "Pasted notes will overwrite existing notes");
 //   END
-   
-//   STRINGTABLE 
+
+//   STRINGTABLE
 //   BEGIN
    qtMfcStringResources.insert(ID_FILE_CREATE_NSF      , "Brings up the create NSF dialog\nCreate NSF");
 //   END
-   
-//   STRINGTABLE 
+
+//   STRINGTABLE
 //   BEGIN
    qtMfcStringResources.insert(ID_TRANSPOSE_INCREASENOTE, "Increase selected note/notes by one step");
    qtMfcStringResources.insert(ID_TRANSPOSE_DECREASENOTE, "Decrease selected note/notes by one step");
@@ -740,8 +740,8 @@ void qtMfcInitStringResources()
    qtMfcStringResources.insert(ID_TRANSPOSE_DECREASEOCTAVE, "Decrease selected octave/octaves by one step");
    qtMfcStringResources.insert(ID_EDIT_SELECTALL       , "Select pattern or all patterns\nSelect All");
 //   END
-   
-//   STRINGTABLE 
+
+//   STRINGTABLE
 //   BEGIN
    qtMfcStringResources.insert(ID_FILE_GENERALSETTINGS, "Opens FamiTracker settings\nSettings");
    qtMfcStringResources.insert(ID_EDIT_ENABLEMIDI      , "Temporarly enable / disable commands from the MIDI device");
@@ -750,26 +750,26 @@ void qtMfcInitStringResources()
    qtMfcStringResources.insert(ID_TRACKER_PLAYROW      , "Play a single row");
    qtMfcStringResources.insert(ID_FILE_IMPORTMIDI      , "Imports a MIDI file\nImport MIDI");
 //   END
-   
-//   STRINGTABLE 
+
+//   STRINGTABLE
 //   BEGIN
    qtMfcStringResources.insert(ID_CREATE_NSF           , "Export module to NSF");
 //   END
-   
-//   STRINGTABLE 
+
+//   STRINGTABLE
 //   BEGIN
    qtMfcStringResources.insert(ID_SPEED_DEFAULT        , "Chooses default playback rate corresponding to selected video standard");
    qtMfcStringResources.insert(ID_MODULE_MODULEPROPERTIES, "Opens the module properties window\nModule properties");
 //   END
-   
-//   STRINGTABLE 
+
+//   STRINGTABLE
 //   BEGIN
    qtMfcStringResources.insert(IDS_FILE_LOAD_ERROR     , "Couldn't load file properly. Make sure you have the latest version of FamiTracker.");
    qtMfcStringResources.insert(IDS_CONFIG_WINDOW       , "FamiTracker configuration");
    qtMfcStringResources.insert(IDS_WELCOME             , "Welcome to FamiTracker, press F1 for help");
 //   END
-   
-//   STRINGTABLE 
+
+//   STRINGTABLE
 //   BEGIN
    qtMfcStringResources.insert(ID_EDIT_PASTEMIX        , "Pasted notes will mix with existing notes");
    qtMfcStringResources.insert(ID_MODULE_MOVEFRAMEDOWN, "Move selected frame one step down\nMove frame down");
@@ -777,14 +777,14 @@ void qtMfcInitStringResources()
    qtMfcStringResources.insert(ID_MODULE_SAVEINSTRUMENT, "Save instrument to file\nSave instrument");
    qtMfcStringResources.insert(ID_MODULE_LOADINSTRUMENT, "Load instrument from file\nLoad instrument");
 //   END
-   
-//   STRINGTABLE 
+
+//   STRINGTABLE
 //   BEGIN
    qtMfcStringResources.insert(ID_MODULE_ADDINSTRUMENT, "Add a new instrument to the module\nAdd instrument");
    qtMfcStringResources.insert(ID_MODULE_REMOVEINSTRUMENT , "Remove instrument from module\nRemove instrument");
 //   END
-   
-//   STRINGTABLE 
+
+//   STRINGTABLE
 //   BEGIN
    qtMfcStringResources.insert(ID_NEXT_SONG            , "Switches to next song\nNext song");
    qtMfcStringResources.insert(ID_PREV_SONG            , "Switches to previous song\nPrevious song");
@@ -796,16 +796,16 @@ void qtMfcInitStringResources()
    qtMfcStringResources.insert(ID_EDIT_CLEARPATTERNS   , "Resets all patterns and frames");
    qtMfcStringResources.insert(ID_EDIT_INTERPOLATE     , "Interpolates a selection between two values\nInterpolate");
 //   END
-   
-//   STRINGTABLE 
+
+//   STRINGTABLE
 //   BEGIN
    qtMfcStringResources.insert(ID_TRACKER_SOLOCHANNEL  , "Mutes/unmutes all but the selected channel");
    qtMfcStringResources.insert(ID_TRACKER_TOGGLECHANNEL, "Mute/unmute selected channel");
    qtMfcStringResources.insert(ID_EDIT_GRADIENT        , "Interpolates a selection of values");
    qtMfcStringResources.insert(ID_MODULE_EDITINSTRUMENT, "Open instrument editor\nEdit instrument");
 //   END
-   
-//   STRINGTABLE 
+
+//   STRINGTABLE
 //   BEGIN
    qtMfcStringResources.insert(IDS_SOUNDGEN_ERROR      , "Couldn't start sound generator thread, default settings has been restored. Please restart the program.");
    qtMfcStringResources.insert(IDS_SOUNDGEN_CLOSE_ERR  , "Could not close sound generator thread!");
@@ -818,34 +818,34 @@ void qtMfcInitStringResources()
    qtMfcStringResources.insert(IDS_IMPORT_INSTRUMENT_COUNT, "Can't import file, out of instrument slots!");
    qtMfcStringResources.insert(IDS_IMPORT_SAMPLE_SLOTS, "Could not import all samples, out of sample slots!");
 //   END
-   
-//   STRINGTABLE 
+
+//   STRINGTABLE
 //   BEGIN
    qtMfcStringResources.insert(ID_MODULE_DUPLICATEFRAME, "Inserts a copy of current frame\nDuplicate frame");
 //   END
-   
-//   STRINGTABLE 
+
+//   STRINGTABLE
 //   BEGIN
    qtMfcStringResources.insert(ID_EDIT_REVERSE         , "Reverses a selection\nReverse");
    qtMfcStringResources.insert(ID_TRACKER_DPCM         , "Display information about the DPCM channel");
 //   END
-   
-//   STRINGTABLE 
+
+//   STRINGTABLE
 //   BEGIN
    qtMfcStringResources.insert(ID_INSTRUMENT_REMOVE    , "Remove instrument from module\nRemove instrument");
    qtMfcStringResources.insert(ID_INSTRUMENT_EDIT      , "Open instrument edtor\nEdit instrument");
    qtMfcStringResources.insert(ID_INSTRUMENT_CLONE     , "Create a copy of selected instrument\nClone instrument");
    qtMfcStringResources.insert(ID_EDIT_REPLACEINSTRUMENT, "Replaces all instruments in a selection with the selected instrument\nReplace instrument");
 //   END
-   
-//   STRINGTABLE 
+
+//   STRINGTABLE
 //   BEGIN
    qtMfcStringResources.insert(ID_CLEANUP_REMOVEUNUSEDPATTERNS, "Removes all unused patterns\nRemove unused patterns");
    qtMfcStringResources.insert(ID_HELP_EFFECTTABLE     , "Open help window with effect table");
    qtMfcStringResources.insert(ID_CLEANUP_REMOVEUNUSEDINSTRUMENTS, "Removes all unused instruments\nRemove unused instruments");
 //   END
-   
-//   STRINGTABLE 
+
+//   STRINGTABLE
 //   BEGIN
    qtMfcStringResources.insert(ID_MODULE_FRAME_INSERT  , "Insert a new frame on current location");
    qtMfcStringResources.insert(ID_MODULE_FRAME_REMOVE  , "Removes selected frame");
@@ -856,13 +856,13 @@ void qtMfcInitStringResources()
    qtMfcStringResources.insert(ID_INSTRUMENT_LOAD      , "Load instrument from file\nLoad instrument");
    qtMfcStringResources.insert(ID_INSTRUMENT_SAVE      , "Save instrument to file\nSave instrument");
 //   END
-   
-//   STRINGTABLE 
+
+//   STRINGTABLE
 //   BEGIN
    qtMfcStringResources.insert(IDS_SAVE_ERROR          , "Couldn't save file, check that it isn't write protected or shared with other applications and there are free disk space available.");
 //   END
-   
-//   STRINGTABLE 
+
+//   STRINGTABLE
 //   BEGIN
    qtMfcStringResources.insert(IDC_OPT_WRAPCURSOR      , "Wrap around the cursor when reaching top or bottom in the pattern editor.");
    qtMfcStringResources.insert(IDC_OPT_FREECURSOR      , "Unlocks the cursor from the center of the pattern editor");
@@ -874,15 +874,15 @@ void qtMfcInitStringResources()
    qtMfcStringResources.insert(IDC_OPT_NODPCMRESET     , "Prevents resetting the DPCM channel on note stop commands.");
    qtMfcStringResources.insert(IDC_OPT_NOSTEPMOVE      , "Ignore the pattern step setting when moving the cursor, only use it when inserting notes.");
 //   END
-   
-//   STRINGTABLE 
+
+//   STRINGTABLE
 //   BEGIN
    qtMfcStringResources.insert(IDC_OPT_PULLUPDELETE    , "Makes delete key pull up rows rather than only deleting the value.");
    qtMfcStringResources.insert(IDC_OPT_BACKUPS         , "Creates a backup copy of the existing file when saving a module.");
    qtMfcStringResources.insert(IDC_OPT_SINGLEINSTANCE  , "Only allow one single instance of the FamiTracker application.");
 //   END
-   
-//   STRINGTABLE 
+
+//   STRINGTABLE
 //   BEGIN
    qtMfcStringResources.insert(ID_MODULE_DUPLICATEFRAMEPATTERNS, "Inserts a copy of current frame including all patterns\nDuplicate patterns");
    qtMfcStringResources.insert(ID_EDIT_EXPANDPATTERNS  , "Expands selected pattern\nExpand pattern");
@@ -890,18 +890,18 @@ void qtMfcInitStringResources()
    qtMfcStringResources.insert(ID_FRAMEEDITOR_TOP      , "Moves the frame editor to the top of the window (default)\nTop");
    qtMfcStringResources.insert(ID_FRAMEEDITOR_LEFT     , "Moves the frame editor to the left of the window\nLeft");
 //   END
-   
-//   STRINGTABLE 
+
+//   STRINGTABLE
 //   BEGIN
    qtMfcStringResources.insert(ID_INSTRUMENT_DEEPCLONE, "Creates a copy of selected instrument including all sequences\nDeep clone instrument");
 //   END
-   
-//   STRINGTABLE 
+
+//   STRINGTABLE
 //   BEGIN
    qtMfcStringResources.insert(ID_TRACKER_PLAY_CURSOR  , "Play pattern from cursor");
 //   END
-   
-//   STRINGTABLE 
+
+//   STRINGTABLE
 //   BEGIN
    qtMfcStringResources.insert(IDS_CLEARPATTERN        , "Do you want to reset all patterns and frames? There is no undo for parent command.");
    qtMfcStringResources.insert(IDS_CLIPBOARD_COPY_ERROR, "An error occured while trying to copy data.");
@@ -915,8 +915,8 @@ void qtMfcInitStringResources()
    qtMfcStringResources.insert(IDS_MIDI_ERR_OUTPUT     , "MIDI Error: Could not open MIDI output device!");
    qtMfcStringResources.insert(IDS_NEW_SOUND_CONFIG    , "New sound configuration loaded");
 //   END
-   
-//   STRINGTABLE 
+
+//   STRINGTABLE
 //   BEGIN
    qtMfcStringResources.insert(IDS_REMOVE_INSTRUMENTS  , "Do you want to remove all unused instruments? There is no undo for parent action.");
    qtMfcStringResources.insert(IDS_REMOVE_PATTERNS     , "Do you want to remove all unused patterns? There is no undo for parent action.");
@@ -926,8 +926,8 @@ void qtMfcInitStringResources()
    qtMfcStringResources.insert(IDS_WELCOME_VER         , "Welcome to FamiTracker %i.%i.%i, press F1 for help");
    qtMfcStringResources.insert(IDS_INVALID_WAVEFILE    , "Cannot load parent sample!\nOnly uncompressed PCM is supported.");
 //   END
-   
-//   STRINGTABLE 
+
+//   STRINGTABLE
 //   BEGIN
    qtMfcStringResources.insert(ID_INDICATOR_CHIP       , "No expansion chip");
    qtMfcStringResources.insert(ID_INDICATOR_INSTRUMENT, "Instrument: 00");
@@ -944,7 +944,6 @@ void qtMfcInitBitmapResources()
    //
    // Bitmap
    //
-   
 //   IDB_SAMPLEBG            BITMAP                  "res\\SampleBg.bmp"
    qtMfcBitmapResources.insert(IDB_SAMPLEBG,new CBitmap(":/resources/SampleBg.bmp"));
 //   IDB_KEY_BLACK           BITMAP                  "res\\key_black_unpressed.bmp"
@@ -969,7 +968,7 @@ void qtInitIconResources()
    //
    // Bitmap
    //
-   
+
    // Icon with lowest ID value placed first to ensure application icon
    // remains consistent on all systems.
 //   IDR_MAINFRAME           ICON                    "res\\FamiTracker-Exe.ico"
@@ -997,7 +996,7 @@ void qtMfcInitDialogResource_IDD_MAINFRAME(CDialog* parent1)
 {
    CControlPanelDlg* parent = dynamic_cast<CControlPanelDlg*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
-   
+
 //   IDD_MAINFRAME DIALOGEX 0, 0, 413, 126
 //   STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
 //   EXSTYLE WS_EX_TRANSPARENT | WS_EX_CONTROLPARENT
@@ -1160,7 +1159,7 @@ void qtMfcInitDialogResource_IDD_PERFORMANCE(CDialog* parent)
 {
 //  dialog-type* parent = dynamic_cast<dialog-type*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
-   
+
 //   IDD_PERFORMANCE DIALOGEX 0, 0, 177, 95
 //   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 //   CAPTION "Performance"
@@ -1183,7 +1182,7 @@ void qtMfcInitDialogResource_IDD_SPEED(CDialog* parent1)
 {
    CSpeedDlg* parent = dynamic_cast<CSpeedDlg*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
-   
+
 //   IDD_SPEED DIALOGEX 0, 0, 196, 44
    CRect rect(CPoint(0,0),CSize(196,44));
    parent->MapDialogRect(&rect);
@@ -1220,7 +1219,7 @@ void qtMfcInitDialogResource_IDD_SPEED(CDialog* parent1)
    parent->MapDialogRect(&r4);
    mfc4->Create(_T("60 Hz"),WS_VISIBLE,r4,parent,IDC_SPEED);
    mfcToQtWidget->insert(IDC_SPEED,mfc4);
-//   END      
+//   END
 }
 
 #include "PCMImport.h"
@@ -1228,11 +1227,11 @@ void qtMfcInitDialogResource_IDD_PCMIMPORT(CDialog* parent1)
 {
    CPCMImport* parent = dynamic_cast<CPCMImport*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
-   
+
 //   IDD_PCMIMPORT DIALOGEX 0, 0, 211, 134
    CRect rect(CPoint(0,0),CSize(211,134));
    parent->MapDialogRect(&rect);
-   parent->setFixedSize(rect.Width(),rect.Height());   
+   parent->setFixedSize(rect.Width(),rect.Height());
 //   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 //   CAPTION "PCM import"
    parent->SetWindowText("PCM import");
@@ -1347,11 +1346,11 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_INTERNAL(CDialog* parent1)
    else
       qFatal("no parent for dialog?!");
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
-   
+
 //   IDD_INSTRUMENT_INTERNAL DIALOGEX 0, 0, 372, 172
    CRect rect(CPoint(0,0),CSize(372,172));
    parent->MapDialogRect(&rect);
-   parent->setFixedSize(rect.Width(),rect.Height());   
+   parent->setFixedSize(rect.Width(),rect.Height());
 //   STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
 //   BEGIN
@@ -1390,7 +1389,7 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_INTERNAL(CDialog* parent1)
    mfc4->Create(ES_AUTOHSCROLL | ES_NUMBER | UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r4,parent,IDC_SEQUENCE_SPIN);
    mfcToQtWidget->insert(IDC_SEQ_INDEX,mfc4);
    mfcToQtWidget->insert(IDC_SEQUENCE_SPIN,mfc4);
-   QObject::connect(mfc4,SIGNAL(valueChanged(int,int)),parent,SLOT(sequenceSpin_valueChanged(int,int)));   
+   QObject::connect(mfc4,SIGNAL(valueChanged(int,int)),parent,SLOT(sequenceSpin_valueChanged(int,int)));
 //   PUSHBUTTON      "Select next empty slot",IDC_FREE_SEQ,12,129,96,15
    CButton* mfc7 = new CButton(parent);
    CRect r7(CPoint(12,129),CSize(96,15));
@@ -1412,14 +1411,14 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_DPCM(CDialog* parent1)
 {
    CInstrumentEditorDPCM* parent = dynamic_cast<CInstrumentEditorDPCM*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
-   
+
 //   IDD_INSTRUMENT_DPCM DIALOGEX 0, 0, 372, 174
    CRect rect(CPoint(0,0),CSize(372,174));
    parent->MapDialogRect(&rect);
    parent->setFixedSize(rect.Width(),rect.Height());
 //   STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_SYSMENU
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
-//   BEGIN   
+//   BEGIN
 //   GROUPBOX        "Loaded samples",IDC_STATIC,192,7,173,160
    CGroupBox* mfc9 = new CGroupBox(parent);
    CRect r9(CPoint(192,7),CSize(173,160));
@@ -1566,18 +1565,18 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_DPCM(CDialog* parent1)
    mfc21->Create(_T("Loop offset"),0,r21,parent,IDC_STATIC);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //   END
-}   
+}
 
 #include "InstrumentEditDlg.h"
 void qtMfcInitDialogResource_IDD_INSTRUMENT(CDialog* parent1)
 {
    CInstrumentEditDlg* parent = dynamic_cast<CInstrumentEditDlg*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
-   
+
 //   IDD_INSTRUMENT DIALOGEX 0, 0, 389, 242
    CRect rect(CPoint(0,0),CSize(389,242));
    parent->MapDialogRect(&rect);
-   parent->setFixedSize(rect.Width(),rect.Height());   
+   parent->setFixedSize(rect.Width(),rect.Height());
 //   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 //   CAPTION "Instrument editor"
    parent->SetWindowText("Instrument editor");
@@ -1595,20 +1594,20 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT(CDialog* parent1)
    CRect r2(CPoint(7,198),CSize(375,37));
    parent->MapDialogRect(&r2);
    mfc2->Create(_T(""),SS_OWNERDRAW | SS_REALSIZEIMAGE | SS_SUNKEN | WS_VISIBLE,r2,parent,IDC_KEYBOARD);
-   mfcToQtWidget->insert(IDC_KEYBOARD,mfc2);   
+   mfcToQtWidget->insert(IDC_KEYBOARD,mfc2);
 //   END
-}   
+}
 
 #include "ConfigAppearance.h"
 void qtMfcInitDialogResource_IDD_CONFIG_APPEARANCE(CDialog* parent1)
 {
    CConfigAppearance* parent = dynamic_cast<CConfigAppearance*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
-   
+
 //   IDD_CONFIG_APPEARANCE DIALOGEX 0, 0, 280, 167
    CRect rect(CPoint(0,0),CSize(280,167));
    parent->MapDialogRect(&rect);
-   parent->setFixedSize(rect.Width(),rect.Height());   
+   parent->setFixedSize(rect.Width(),rect.Height());
 //   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 //   CAPTION "Appearance"
    parent->SetWindowText("Appearance");
@@ -1651,7 +1650,7 @@ void qtMfcInitDialogResource_IDD_CONFIG_APPEARANCE(CDialog* parent1)
    CRect r6(CPoint(15,84),CSize(69,15));
    parent->MapDialogRect(&r6);
    mfc6->Create(_T(""),SS_OWNERDRAW | WS_VISIBLE,r6,parent,IDC_COL_PREVIEW);
-   mfcToQtWidget->insert(IDC_COL_PREVIEW,mfc6);   
+   mfcToQtWidget->insert(IDC_COL_PREVIEW,mfc6);
 //       PUSHBUTTON      "Pick color",IDC_PICK_COL,96,84,54,15
    CButton* mfc7 = new CButton(parent);
    CRect r7(CPoint(96,84),CSize(54,15));
@@ -1697,7 +1696,7 @@ void qtMfcInitDialogResource_IDD_CONFIG_APPEARANCE(CDialog* parent1)
    CRect r13(CPoint(176,18),CSize(90,125));
    parent->MapDialogRect(&r13);
    mfc13->Create(_T(""),SS_OWNERDRAW | WS_VISIBLE,r13,parent,IDC_PREVIEW);
-   mfcToQtWidget->insert(IDC_PREVIEW,mfc13);   
+   mfcToQtWidget->insert(IDC_PREVIEW,mfc13);
 //   END
 }
 
@@ -1706,7 +1705,7 @@ void qtMfcInitDialogResource_IDD_MIDIIMPORT(CDialog* parent)
 {
 //  dialog-type* parent = dynamic_cast<dialog-type*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
-   
+
 //   IDD_MIDIIMPORT DIALOGEX 0, 0, 204, 137
 //   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 //   CAPTION "MIDI file import"
@@ -1728,18 +1727,18 @@ void qtMfcInitDialogResource_IDD_MIDIIMPORT(CDialog* parent)
 //       LTEXT           "Pattern length:",IDC_STATIC,12,118,56,10
 //       EDITTEXT        IDC_PATLEN,74,117,58,13,ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER
 //   END
-}  
+}
 
 #include "ConfigGeneral.h"
 void qtMfcInitDialogResource_IDD_CONFIG_GENERAL(CDialog* parent1)
 {
    CConfigGeneral* parent = dynamic_cast<CConfigGeneral*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
-   
+
 //   IDD_CONFIG_GENERAL DIALOGEX 0, 0, 280, 167
    CRect rect(CPoint(0,0),CSize(280,167));
    parent->MapDialogRect(&rect);
-   parent->setFixedSize(rect.Width(),rect.Height());   
+   parent->setFixedSize(rect.Width(),rect.Height());
 //   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 //   CAPTION "General"
    parent->SetWindowText("General");
@@ -1886,16 +1885,16 @@ void qtMfcInitDialogResource_IDD_CONFIG_GENERAL(CDialog* parent1)
 //   IDD_CONFIG_GENERAL DLGINIT
 //   BEGIN
 //       IDC_PAGELENGTH, 0x403, 2, 0
-//   0x0032, 
+//   0x0032,
    mfc20->AddString(_T("2"));
 //       IDC_PAGELENGTH, 0x403, 2, 0
-//   0x0034, 
+//   0x0034,
    mfc20->AddString(_T("4"));
 //       IDC_PAGELENGTH, 0x403, 2, 0
-//   0x0038, 
+//   0x0038,
    mfc20->AddString(_T("8"));
 //       IDC_PAGELENGTH, 0x403, 3, 0
-//   0x3631, "\000" 
+//   0x3631, "\000"
    mfc20->AddString(_T("16"));
 //       0
 //   END
@@ -1915,7 +1914,7 @@ void qtMfcInitDialogResource_IDD_CONFIG_GENERAL(CDialog* parent1)
    CEdit* mfc23 = new CEdit(parent);
    CRect r23(CPoint(204,99),CSize(60,13));
    parent->MapDialogRect(&r23);
-   mfc23->Create(ES_AUTOHSCROLL | ES_READONLY | WS_VISIBLE,r23,parent,IDC_KEY_NOTE_CUT); 
+   mfc23->Create(ES_AUTOHSCROLL | ES_READONLY | WS_VISIBLE,r23,parent,IDC_KEY_NOTE_CUT);
    mfcToQtWidget->insert(IDC_KEY_NOTE_CUT,mfc23);
 //       LTEXT           "Clear field",IDC_STATIC,144,115,50,11
    CStatic* mfc24 = new CStatic(parent);
@@ -1927,7 +1926,7 @@ void qtMfcInitDialogResource_IDD_CONFIG_GENERAL(CDialog* parent1)
    CEdit* mfc25 = new CEdit(parent);
    CRect r25(CPoint(204,114),CSize(60,13));
    parent->MapDialogRect(&r25);
-   mfc25->Create(ES_AUTOHSCROLL | ES_READONLY | WS_VISIBLE,r25,parent,IDC_KEY_CLEAR); 
+   mfc25->Create(ES_AUTOHSCROLL | ES_READONLY | WS_VISIBLE,r25,parent,IDC_KEY_CLEAR);
    mfcToQtWidget->insert(IDC_KEY_CLEAR,mfc25);
 //       LTEXT           "Repeat",IDC_STATIC,144,129,50,11
    CStatic* mfc26 = new CStatic(parent);
@@ -1939,7 +1938,7 @@ void qtMfcInitDialogResource_IDD_CONFIG_GENERAL(CDialog* parent1)
    CEdit* mfc27 = new CEdit(parent);
    CRect r27(CPoint(204,128),CSize(60,13));
    parent->MapDialogRect(&r27);
-   mfc27->Create(ES_AUTOHSCROLL | ES_READONLY | WS_VISIBLE,r27,parent,IDC_KEY_REPEAT); 
+   mfc27->Create(ES_AUTOHSCROLL | ES_READONLY | WS_VISIBLE,r27,parent,IDC_KEY_REPEAT);
    mfcToQtWidget->insert(IDC_KEY_REPEAT,mfc27);
 //       LTEXT           "Note release",IDC_STATIC,144,143,50,11
    CStatic* mfc28 = new CStatic(parent);
@@ -1951,17 +1950,17 @@ void qtMfcInitDialogResource_IDD_CONFIG_GENERAL(CDialog* parent1)
    CEdit* mfc29 = new CEdit(parent);
    CRect r29(CPoint(204,142),CSize(60,13));
    parent->MapDialogRect(&r29);
-   mfc29->Create(ES_AUTOHSCROLL | ES_READONLY | WS_VISIBLE,r29,parent,IDC_KEY_NOTE_RELEASE); 
+   mfc29->Create(ES_AUTOHSCROLL | ES_READONLY | WS_VISIBLE,r29,parent,IDC_KEY_NOTE_RELEASE);
    mfcToQtWidget->insert(IDC_KEY_NOTE_RELEASE,mfc29);
 //   END
-}   
+}
 
 #include "ModulePropertiesDlg.h"
 void qtMfcInitDialogResource_IDD_PROPERTIES(CDialog* parent1)
 {
    CModulePropertiesDlg* parent = dynamic_cast<CModulePropertiesDlg*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
-   
+
 //   IDD_PROPERTIES DIALOGEX 0, 0, 213, 259
    CRect rect(CPoint(0,0),CSize(213,259));
    parent->MapDialogRect(&rect);
@@ -2047,7 +2046,7 @@ void qtMfcInitDialogResource_IDD_PROPERTIES(CDialog* parent1)
    CEdit* mfc9 = new CEdit(parent);
    CRect r9(CPoint(34,135),CSize(100,12));
    parent->MapDialogRect(&r9);
-   mfc9->Create(ES_AUTOHSCROLL | WS_VISIBLE,r9,parent,IDC_SONGNAME); 
+   mfc9->Create(ES_AUTOHSCROLL | WS_VISIBLE,r9,parent,IDC_SONGNAME);
    mfcToQtWidget->insert(IDC_SONGNAME,mfc9);
    QObject::connect(mfc9,SIGNAL(textChanged(QString)),parent,SLOT(songName_textChanged(QString)));
 //       COMBOBOX        IDC_EXPANSION,14,173,113,61,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
@@ -2066,12 +2065,12 @@ void qtMfcInitDialogResource_IDD_PROPERTIES(CDialog* parent1)
 //   IDD_PROPERTIES DLGINIT
 //   BEGIN
 //       IDC_VIBRATO, 0x403, 27, 0
-//   0x654e, 0x2077, 0x7473, 0x6c79, 0x2065, 0x6228, 0x6e65, 0x2064, 0x7075, 
-//   0x2620, 0x6420, 0x776f, 0x296e, "\000" 
+//   0x654e, 0x2077, 0x7473, 0x6c79, 0x2065, 0x6228, 0x6e65, 0x2064, 0x7075,
+//   0x2620, 0x6420, 0x776f, 0x296e, "\000"
    mfc13->AddString(_T("Old style (bend up)"));
 //       IDC_VIBRATO, 0x403, 20, 0
-//   0x6c4f, 0x2064, 0x7473, 0x6c79, 0x2065, 0x6228, 0x6e65, 0x2064, 0x7075, 
-//   0x0029, 
+//   0x6c4f, 0x2064, 0x7473, 0x6c79, 0x2065, 0x6228, 0x6e65, 0x2064, 0x7075,
+//   0x0029,
    mfc13->AddString(_T("New style (bend up & down)"));
 //       0
 //   END
@@ -2099,14 +2098,14 @@ void qtMfcInitDialogResource_IDD_PROPERTIES(CDialog* parent1)
    mfcToQtWidget->insert(IDC_CHANNELS,mfc18);
    QObject::connect(mfc18,SIGNAL(valueChanged(int)),parent,SLOT(channels_valueChanged(int)));
 //   END
-}   
+}
 
 //#include "dialog-file"
 void qtMfcInitDialogResource_IDD_CONFIG_MIDI(CDialog* parent)
 {
 //  dialog-type* parent = dynamic_cast<dialog-type*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
-   
+
 //   IDD_CONFIG_MIDI DIALOGEX 0, 0, 280, 167
 //   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 //   CAPTION "MIDI"
@@ -2123,14 +2122,14 @@ void qtMfcInitDialogResource_IDD_CONFIG_MIDI(CDialog* parent)
 //       CONTROL         "Auto arpeggiate chords",IDC_ARPEGGIATE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,142,173,10
 //       GROUPBOX        "Options",IDC_STATIC,7,89,266,71
 //   END
-}   
+}
 
 //#include "dialog-file"
 void qtMfcInitDialogResource_IDD_CONFIG_SOUND(CDialog* parent)
 {
 //  dialog-type* parent = dynamic_cast<dialog-type*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
-   
+
 //   IDD_CONFIG_SOUND DIALOGEX 0, 0, 280, 167
 //   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 //   EXSTYLE WS_EX_CONTEXTHELP
@@ -2161,18 +2160,18 @@ void qtMfcInitDialogResource_IDD_CONFIG_SOUND(CDialog* parent)
 //       CONTROL         "",IDC_VOLUME,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,132,144,96,12
 //       CTEXT           "100 %",IDC_VOLUME_T,234,144,31,8
 //   END
-}   
+}
 
 #include "ConfigShortcuts.h"
 void qtMfcInitDialogResource_IDD_CONFIG_SHORTCUTS(CDialog* parent1)
 {
    CConfigShortcuts* parent = dynamic_cast<CConfigShortcuts*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
-   
+
 //   IDD_CONFIG_SHORTCUTS DIALOGEX 0, 0, 280, 167
    CRect rect(CPoint(0,0),CSize(280,167));
    parent->MapDialogRect(&rect);
-   parent->setFixedSize(rect.Width(),rect.Height());   
+   parent->setFixedSize(rect.Width(),rect.Height());
 //   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 //   CAPTION "Shortcuts"
    parent->SetWindowText("Shortcuts");
@@ -2212,13 +2211,13 @@ void qtMfcInitDialogResource_IDD_CONFIG_SHORTCUTS(CDialog* parent1)
    mfcToQtWidget->insert(IDC_DEFAULT,mfc5);
    QObject::connect(mfc5,SIGNAL(clicked()),parent,SLOT(default_clicked()));
 //   END
-}   
+}
 
 void qtMfcInitDialogResource_IDD_OCTAVE(CDialog* parent)
 {
 //   CDialog* parent = dynamic_cast<CDialog*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
-   
+
 //   IDD_OCTAVE DIALOGEX 0, 0, 300, 12
    CRect rect(CPoint(0,0),CSize(300,12));
    parent->MapDialogRect(&rect);
@@ -2226,7 +2225,7 @@ void qtMfcInitDialogResource_IDD_OCTAVE(CDialog* parent)
 
    // THIS DIALOG IS NOT DIRECTLY ACCESSIBLE SO SIGNALS/SLOTS
    // WILL BE CONNECTED BY THE OWNING WINDOW.
-   
+
 //   STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD | WS_SYSMENU
 //   EXSTYLE WS_EX_TRANSPARENT
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
@@ -2240,28 +2239,28 @@ void qtMfcInitDialogResource_IDD_OCTAVE(CDialog* parent)
 //   IDD_OCTAVE DLGINIT
 //   BEGIN
 //       IDC_OCTAVE, 0x403, 2, 0
-//   0x0030, 
+//   0x0030,
    mfc1->AddString(_T("0"));
 //       IDC_OCTAVE, 0x403, 2, 0
-//   0x0031, 
+//   0x0031,
    mfc1->AddString(_T("1"));
 //       IDC_OCTAVE, 0x403, 2, 0
-//   0x0032, 
+//   0x0032,
    mfc1->AddString(_T("2"));
 //       IDC_OCTAVE, 0x403, 2, 0
-//   0x0033, 
+//   0x0033,
    mfc1->AddString(_T("3"));
 //       IDC_OCTAVE, 0x403, 2, 0
-//   0x0034, 
+//   0x0034,
    mfc1->AddString(_T("4"));
 //       IDC_OCTAVE, 0x403, 2, 0
-//   0x0035, 
+//   0x0035,
    mfc1->AddString(_T("5"));
 //       IDC_OCTAVE, 0x403, 2, 0
-//   0x0036, 
+//   0x0036,
    mfc1->AddString(_T("6"));
 //       IDC_OCTAVE, 0x403, 2, 0
-//   0x0037, 
+//   0x0037,
    mfc1->AddString(_T("7"));
 //       0
 //   END
@@ -2310,14 +2309,14 @@ void qtMfcInitDialogResource_IDD_OCTAVE(CDialog* parent)
    mfcToQtWidget->insert(IDC_HIGHLIGHT2,mfc9);
    mfcToQtWidget->insert(IDC_HIGHLIGHTSPIN2,mfc9);
 //   END
-}   
+}
 
 #include "ExportDialog.h"
 void qtMfcInitDialogResource_IDD_EXPORT(CDialog* parent1)
 {
    CExportDialog* parent = dynamic_cast<CExportDialog*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
-   
+
 //   IDD_EXPORT DIALOGEX 0, 0, 247, 283
    CRect rect(CPoint(0,0),CSize(247,283));
    parent->MapDialogRect(&rect);
@@ -2433,21 +2432,21 @@ void qtMfcInitDialogResource_IDD_EXPORT(CDialog* parent1)
    mfcToQtWidget->insert(IDC_PLAY,mfc17);
    QObject::connect(mfc17,SIGNAL(clicked()),parent,SLOT(play_clicked()));
 //   END
-}   
+}
 
 #include "InstrumentEditorVRC7.h"
 void qtMfcInitDialogResource_IDD_INSTRUMENT_VRC7(CDialog* parent1)
 {
    CInstrumentEditorVRC7* parent = dynamic_cast<CInstrumentEditorVRC7*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
-   
+
 //   IDD_INSTRUMENT_VRC7 DIALOGEX 0, 0, 372, 172
    CRect rect(CPoint(0,0),CSize(372,172));
    parent->MapDialogRect(&rect);
    parent->setFixedSize(rect.Width(),rect.Height());
 //   STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
-//   BEGIN   
+//   BEGIN
 //       GROUPBOX        "Patch",IDC_STATIC,7,7,310,30
    CGroupBox* mfc1 = new CGroupBox(parent);
    CRect r1(CPoint(7,7),CSize(310,30));
@@ -2740,14 +2739,14 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_VRC7(CDialog* parent1)
    mfcToQtWidget->insert(IDC_FB,mfc44);
    QObject::connect(mfc44,SIGNAL(valueChanged(int)),parent,SLOT(fb_valueChanged(int)));
 //   END
-}   
+}
 
 //#include "dialog-file"
 void qtMfcInitDialogResource_IDD_CREATEWAV(CDialog* parent)
 {
 //  dialog-type* parent = dynamic_cast<dialog-type*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
-   
+
 //   IDD_CREATEWAV DIALOGEX 0, 0, 151, 173
 //   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 //   CAPTION "Create wave file"
@@ -2767,14 +2766,14 @@ void qtMfcInitDialogResource_IDD_CREATEWAV(CDialog* parent)
 //       GROUPBOX        "Channels",IDC_STATIC,7,60,137,87
 //       LISTBOX         IDC_CHANNELS,14,71,124,70,LBS_OWNERDRAWFIXED | LBS_HASSTRINGS | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
 //   END
-}   
+}
 
 //#include "dialog-file"
 void qtMfcInitDialogResource_IDD_WAVE_PROGRESS(CDialog* parent)
 {
 //  dialog-type* parent = dynamic_cast<dialog-type*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
-   
+
 //   IDD_WAVE_PROGRESS DIALOGEX 0, 0, 220, 111
 //   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 //   CAPTION "Creating WAV..."
@@ -2788,34 +2787,34 @@ void qtMfcInitDialogResource_IDD_WAVE_PROGRESS(CDialog* parent)
 //       CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,7,29,206,1
 //       CTEXT           "Progress",IDC_TIME,7,49,206,11
 //   END
-}   
+}
 
 void qtMfcInitDialogResource_IDD_MAINBAR(CDialog* parent1)
 {
    CDialog* parent = dynamic_cast<CDialog*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
-   
+
 //   IDD_MAINBAR DIALOGEX 0, 0, 111, 128
    CRect rect(CPoint(0,0),CSize(111,128));
    parent->MapDialogRect(&rect);
-   parent->setFixedSize(rect.Width(),rect.Height());   
+   parent->setFixedSize(rect.Width(),rect.Height());
 //   STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
 //   EXSTYLE WS_EX_TRANSPARENT | WS_EX_CONTROLPARENT
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
 //   BEGIN
 //   END
-}   
+}
 
 #include "InstrumentEditorFDS.h"
 void qtMfcInitDialogResource_IDD_INSTRUMENT_FDS(CDialog* parent1)
 {
    CInstrumentEditorFDS* parent = dynamic_cast<CInstrumentEditorFDS*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
-   
+
 //   IDD_INSTRUMENT_FDS DIALOGEX 0, 0, 372, 172
    CRect rect(CPoint(0,0),CSize(372,172));
    parent->MapDialogRect(&rect);
-   parent->setFixedSize(rect.Width(),rect.Height());   
+   parent->setFixedSize(rect.Width(),rect.Height());
 //   STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
 //   BEGIN
@@ -2960,17 +2959,17 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_FDS(CDialog* parent1)
    mfcToQtWidget->insert(IDC_PRESET_PULSE_25,mfc22);
    QObject::connect(mfc22,SIGNAL(clicked()),parent,SLOT(presetPulse25_clicked()));
 //   END
-}   
+}
 
 void qtMfcInitDialogResource_IDD_FRAMECONTROLS(CDialog* parent1)
 {
    CControlPanelDlg* parent = dynamic_cast<CControlPanelDlg*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
-   
+
 //   IDD_FRAMECONTROLS DIALOGEX 0, 0, 107, 12
    CRect rect(CPoint(0,0),CSize(107,12));
    parent->MapDialogRect(&rect);
-   parent->setFixedSize(rect.Width(),rect.Height());   
+   parent->setFixedSize(rect.Width(),rect.Height());
 //   STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD | WS_SYSMENU
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
 //   BEGIN
@@ -2993,14 +2992,14 @@ void qtMfcInitDialogResource_IDD_FRAMECONTROLS(CDialog* parent1)
    mfc3->Create(_T("Change all"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r3,parent,IDC_CHANGE_ALL);
    mfcToQtWidget->insert(IDC_CHANGE_ALL,mfc3);
 //   END
-}   
+}
 
 #include "SampleEditorDlg.h"
 void qtMfcInitDialogResource_IDD_SAMPLE_EDITOR(CDialog* parent1)
 {
    CSampleEditorDlg* parent = dynamic_cast<CSampleEditorDlg*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
-   
+
 //   IDD_SAMPLE_EDITOR DIALOGEX 0, 0, 481, 255
    CRect rect(CPoint(0,0),CSize(481,255));
    parent->MapDialogRect(&rect);
@@ -3084,18 +3083,18 @@ void qtMfcInitDialogResource_IDD_SAMPLE_EDITOR(CDialog* parent1)
    mfcToQtWidget->insert(IDC_DELTASTART,mfc11);
    QObject::connect(mfc11,SIGNAL(clicked()),parent,SLOT(deltaStart_clicked()));
 //   END
-}   
+}
 
 #include "InstrumentEditorFDSEnvelope.h"
 void qtMfcInitDialogResource_IDD_INSTRUMENT_FDS_ENVELOPE(CDialog* parent1)
 {
    CInstrumentEditorFDSEnvelope* parent = dynamic_cast<CInstrumentEditorFDSEnvelope*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
-   
+
 //   IDD_INSTRUMENT_FDS_ENVELOPE DIALOGEX 0, 0, 372, 172
    CRect rect(CPoint(0,0),CSize(372,172));
    parent->MapDialogRect(&rect);
-   parent->setFixedSize(rect.Width(),rect.Height());   
+   parent->setFixedSize(rect.Width(),rect.Height());
 //   STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
 //   BEGIN
@@ -3114,26 +3113,26 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_FDS_ENVELOPE(CDialog* parent1)
 //   IDD_INSTRUMENT_FDS_ENVELOPE DLGINIT
 //   BEGIN
 //       IDC_TYPE, 0x403, 7, 0
-//   0x6f56, 0x756c, 0x656d, "\000" 
+//   0x6f56, 0x756c, 0x656d, "\000"
    mfc2->AddString(_T("Volume"));
 //       IDC_TYPE, 0x403, 9, 0
-//   0x7241, 0x6570, 0x6767, 0x6f69, "\000" 
+//   0x7241, 0x6570, 0x6767, 0x6f69, "\000"
    mfc2->AddString(_T("Arpeggio"));
 //       IDC_TYPE, 0x403, 6, 0
-//   0x6950, 0x6374, 0x0068, 
+//   0x6950, 0x6374, 0x0068,
 //       0
    mfc2->AddString(_T("Pitch"));
 //   END
    QObject::connect(mfc2,SIGNAL(currentIndexChanged(int)),parent,SLOT(type_currentIndexChanged(int)));
 //   END
-}   
+}
 
 #include "ChannelsDlg.h"
 void qtMfcInitDialogResource_IDD_CHANNELS(CDialog* parent1)
 {
    CChannelsDlg* parent = dynamic_cast<CChannelsDlg*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
-   
+
 //   IDD_CHANNELS DIALOGEX 0, 0, 303, 236
    CRect rect(CPoint(0,0),CSize(303,236));
    parent->MapDialogRect(&rect);
@@ -3208,7 +3207,7 @@ void qtMfcInitDialogResource_IDD_COMMENTS(CDialog* parent1)
 {
    CCommentsDlg* parent = dynamic_cast<CCommentsDlg*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
-   
+
 //   IDD_COMMENTS DIALOGEX 0, 0, 358, 230
    CRect rect(CPoint(0,0),CSize(358,230));
    parent->MapDialogRect(&rect);
@@ -3245,14 +3244,14 @@ void qtMfcInitDialogResource_IDD_COMMENTS(CDialog* parent1)
    mfcToQtWidget->insert(IDC_CANCEL,mfc4);
    QObject::connect(mfc4,SIGNAL(clicked()),parent,SLOT(cancel_clicked()));
 //   END
-}   
+}
 
 //#include "dialog-file"
 void qtMfcInitDialogResource_IDD_CONFIG_LEVELS(CDialog* parent)
 {
 //  dialog-type* parent = dynamic_cast<dialog-type*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
-   
+
 //   IDD_CONFIG_LEVELS DIALOGEX 0, 0, 280, 167
 //   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 //   EXSTYLE WS_EX_CONTEXTHELP
@@ -3277,18 +3276,18 @@ void qtMfcInitDialogResource_IDD_CONFIG_LEVELS(CDialog* parent)
 //       CTEXT           "0 dB",IDC_LEVEL_FDS,238,126,22,8
 //       PUSHBUTTON      "Default",IDC_DEFAULT,228,147,45,14
 //   END
-}   
+}
 
 #include "InstrumentEditorN163Wave.h"
 void qtMfcInitDialogResource_IDD_INSTRUMENT_N163_WAVE(CDialog* parent1)
 {
    CInstrumentEditorN163Wave* parent = dynamic_cast<CInstrumentEditorN163Wave*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
-   
+
 //   IDD_INSTRUMENT_N163_WAVE DIALOGEX 0, 0, 372, 172
    CRect rect(CPoint(0,0),CSize(372,172));
    parent->MapDialogRect(&rect);
-   parent->setFixedSize(rect.Width(),rect.Height());   
+   parent->setFixedSize(rect.Width(),rect.Height());
 //   STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_SYSMENU
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
 //   BEGIN
@@ -3433,7 +3432,7 @@ void qtMfcInitDialogResource_IDD_IMPORT(CDialog* parent1)
 {
    CModuleImportDlg* parent = dynamic_cast<CModuleImportDlg*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
-   
+
 //   IDD_IMPORT DIALOGEX 0, 0, 161, 209
    CRect rect(CPoint(0,0),CSize(161,209));
    parent->MapDialogRect(&rect);
@@ -3580,7 +3579,7 @@ void qtMfcInitDialogResource(UINT dlgID,CDialog* parent)
    default:
       qFatal("dialog resource not implemented...");
    }
-}   
+}
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -3593,7 +3592,7 @@ void qtMfcInitToolBarResource_IDR_MAINFRAME(UINT dlgID,CToolBar* parent)
    QToolBar* toolBar = dynamic_cast<QToolBar*>(parent->toQWidget());
    QPixmap toolBarActionPixmap;
    QAction* toolBarAction;
-   
+
 //IDR_MAINFRAME TOOLBAR 16, 15
    toolBar->setIconSize(QSize(16,15));
 //BEGIN
@@ -3602,19 +3601,19 @@ void qtMfcInitToolBarResource_IDR_MAINFRAME(UINT dlgID,CToolBar* parent)
    toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(0,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
-   toolBar->addAction(toolBarAction); 
+   toolBar->addAction(toolBarAction);
 //    BUTTON      ID_FILE_OPEN
    toolBarAction = new QAction(parent);
    toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(16,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
-   toolBar->addAction(toolBarAction); 
+   toolBar->addAction(toolBarAction);
 //    BUTTON      ID_FILE_SAVE
    toolBarAction = new QAction(parent);
    toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(32,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
-   toolBar->addAction(toolBarAction); 
+   toolBar->addAction(toolBarAction);
 //    SEPARATOR
    toolBar->addSeparator();
 //    BUTTON      ID_EDIT_CUT
@@ -3622,19 +3621,19 @@ void qtMfcInitToolBarResource_IDR_MAINFRAME(UINT dlgID,CToolBar* parent)
    toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(48,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
-   toolBar->addAction(toolBarAction); 
+   toolBar->addAction(toolBarAction);
 //    BUTTON      ID_EDIT_COPY
    toolBarAction = new QAction(parent);
    toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(64,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
-   toolBar->addAction(toolBarAction); 
+   toolBar->addAction(toolBarAction);
 //    BUTTON      ID_EDIT_PASTE
    toolBarAction = new QAction(parent);
    toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(80,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
-   toolBar->addAction(toolBarAction); 
+   toolBar->addAction(toolBarAction);
 //    SEPARATOR
    toolBar->addSeparator();
 //    BUTTON      ID_APP_ABOUT
@@ -3642,13 +3641,13 @@ void qtMfcInitToolBarResource_IDR_MAINFRAME(UINT dlgID,CToolBar* parent)
    toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(96,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
-   toolBar->addAction(toolBarAction); 
+   toolBar->addAction(toolBarAction);
 //    BUTTON      ID_CONTEXT_HELP
    toolBarAction = new QAction(parent);
    toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(112,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
-   toolBar->addAction(toolBarAction); 
+   toolBar->addAction(toolBarAction);
 //    SEPARATOR
    toolBar->addSeparator();
 //    BUTTON      ID_MODULE_INSERTFRAME
@@ -3656,31 +3655,31 @@ void qtMfcInitToolBarResource_IDR_MAINFRAME(UINT dlgID,CToolBar* parent)
    toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(128,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
-   toolBar->addAction(toolBarAction); 
+   toolBar->addAction(toolBarAction);
 //    BUTTON      ID_MODULE_REMOVEFRAME
    toolBarAction = new QAction(parent);
    toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(144,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
-   toolBar->addAction(toolBarAction); 
+   toolBar->addAction(toolBarAction);
 //    BUTTON      ID_MODULE_MOVEFRAMEDOWN
    toolBarAction = new QAction(parent);
    toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(160,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
-   toolBar->addAction(toolBarAction); 
+   toolBar->addAction(toolBarAction);
 //    BUTTON      ID_MODULE_MOVEFRAMEUP
    toolBarAction = new QAction(parent);
    toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(176,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
-   toolBar->addAction(toolBarAction); 
+   toolBar->addAction(toolBarAction);
 //    BUTTON      ID_MODULE_DUPLICATEFRAME
    toolBarAction = new QAction(parent);
    toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(192,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
-   toolBar->addAction(toolBarAction); 
+   toolBar->addAction(toolBarAction);
 //    SEPARATOR
    toolBar->addSeparator();
 //    BUTTON      ID_MODULE_MODULEPROPERTIES
@@ -3688,7 +3687,7 @@ void qtMfcInitToolBarResource_IDR_MAINFRAME(UINT dlgID,CToolBar* parent)
    toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(208,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
-   toolBar->addAction(toolBarAction); 
+   toolBar->addAction(toolBarAction);
 //    SEPARATOR
    toolBar->addSeparator();
 //    BUTTON      ID_TRACKER_PLAY
@@ -3696,25 +3695,25 @@ void qtMfcInitToolBarResource_IDR_MAINFRAME(UINT dlgID,CToolBar* parent)
    toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(224,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
-   toolBar->addAction(toolBarAction); 
+   toolBar->addAction(toolBarAction);
 //    BUTTON      ID_TRACKER_PLAYPATTERN
    toolBarAction = new QAction(parent);
    toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(240,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
-   toolBar->addAction(toolBarAction); 
+   toolBar->addAction(toolBarAction);
 //    BUTTON      ID_TRACKER_STOP
    toolBarAction = new QAction(parent);
    toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(256,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
-   toolBar->addAction(toolBarAction); 
+   toolBar->addAction(toolBarAction);
 //    BUTTON      ID_TRACKER_EDIT
    toolBarAction = new QAction(parent);
    toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(272,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
-   toolBar->addAction(toolBarAction); 
+   toolBar->addAction(toolBarAction);
 //    SEPARATOR
    toolBar->addSeparator();
 //    BUTTON      ID_PREV_SONG
@@ -3722,13 +3721,13 @@ void qtMfcInitToolBarResource_IDR_MAINFRAME(UINT dlgID,CToolBar* parent)
    toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(288,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
-   toolBar->addAction(toolBarAction); 
+   toolBar->addAction(toolBarAction);
 //    BUTTON      ID_NEXT_SONG
    toolBarAction = new QAction(parent);
    toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(304,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
-   toolBar->addAction(toolBarAction); 
+   toolBar->addAction(toolBarAction);
 //    SEPARATOR
    toolBar->addSeparator();
 //    BUTTON      ID_FILE_GENERALSETTINGS
@@ -3736,7 +3735,7 @@ void qtMfcInitToolBarResource_IDR_MAINFRAME(UINT dlgID,CToolBar* parent)
    toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(320,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
-   toolBar->addAction(toolBarAction); 
+   toolBar->addAction(toolBarAction);
 //    SEPARATOR
    toolBar->addSeparator();
 //    BUTTON      ID_FILE_CREATE_NSF
@@ -3744,7 +3743,7 @@ void qtMfcInitToolBarResource_IDR_MAINFRAME(UINT dlgID,CToolBar* parent)
    toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(336,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
-   toolBar->addAction(toolBarAction); 
+   toolBar->addAction(toolBarAction);
 //END
 }
 
@@ -3754,7 +3753,7 @@ void qtMfcInitToolBarResource_IDR_INSTRUMENT_TOOLBAR(UINT dlgID,CToolBar* parent
    QToolBar* toolBar = dynamic_cast<QToolBar*>(parent->toQWidget());
    QPixmap toolBarActionPixmap;
    QAction* toolBarAction;
-   
+
 //IDR_INSTRUMENT_TOOLBAR TOOLBAR 16, 15
    toolBar->setIconSize(QSize(16,15));
 //BEGIN
@@ -3763,19 +3762,19 @@ void qtMfcInitToolBarResource_IDR_INSTRUMENT_TOOLBAR(UINT dlgID,CToolBar* parent
    toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(0,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
-   toolBar->addAction(toolBarAction); 
+   toolBar->addAction(toolBarAction);
 //    BUTTON      ID_INSTRUMENT_REMOVE
    toolBarAction = new QAction(parent);
    toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(16,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
-   toolBar->addAction(toolBarAction); 
+   toolBar->addAction(toolBarAction);
 //    BUTTON      ID_INSTRUMENT_CLONE
    toolBarAction = new QAction(parent);
    toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(32,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
-   toolBar->addAction(toolBarAction); 
+   toolBar->addAction(toolBarAction);
 //    SEPARATOR
    toolBar->addSeparator();
 //    BUTTON      ID_INSTRUMENT_LOAD
@@ -3783,13 +3782,13 @@ void qtMfcInitToolBarResource_IDR_INSTRUMENT_TOOLBAR(UINT dlgID,CToolBar* parent
    toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(48,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
-   toolBar->addAction(toolBarAction); 
+   toolBar->addAction(toolBarAction);
 //    BUTTON      ID_INSTRUMENT_SAVE
    toolBarAction = new QAction(parent);
    toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(64,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
-   toolBar->addAction(toolBarAction); 
+   toolBar->addAction(toolBarAction);
 //    SEPARATOR
    toolBar->addSeparator();
 //    BUTTON      ID_INSTRUMENT_EDIT
@@ -3797,7 +3796,7 @@ void qtMfcInitToolBarResource_IDR_INSTRUMENT_TOOLBAR(UINT dlgID,CToolBar* parent
    toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(80,0,16,15));
    toolBarAction->setIcon(QIcon(toolBarActionPixmap));
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
-   toolBar->addAction(toolBarAction); 
+   toolBar->addAction(toolBarAction);
 //END
 }
 
@@ -3819,7 +3818,7 @@ void qtMfcInit(QMainWindow* parent)
 {
    // Hook Qt to this MFC app...
    ptrToTheApp->qtMainWindow = parent;
-   
+
    qtMfcInitStringResources();
    qtMfcInitBitmapResources();
    qtInitIconResources();

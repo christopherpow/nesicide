@@ -7,6 +7,8 @@
 TARGET = famitracker
 TEMPLATE = lib
 
+QT += widgets
+
 TOP = ../..
 
 DEFINES += FAMITRACKER_LIBRARY
@@ -86,7 +88,7 @@ SOURCES += \
     Source/InstrumentFDS.cpp \
     Source/Instrument2A03.cpp \
     Source/Instrument.cpp \
-    Source/Graphics.cpp \ 
+    Source/Graphics.cpp \
     Source/FrameEditor.cpp \
     Source/FrameAction.cpp \
     Source/FamiTrackerDoc.cpp \
@@ -184,7 +186,7 @@ HEADERS += \
     Source/PatternEditor.h \
     Source/PatternData.h \
     Source/PatternCompiler.h \
-    Source/MainFrm.h \ 
+    Source/MainFrm.h \
     Source/Instrument.h \
     Source/Graphics.h \
     Source/FrameEditor.h \
@@ -273,7 +275,7 @@ HEADERS += \
     Source/SpeedDlg.h \
     Source/SWLogo.h \
     Source/WavProgressDlg.h \
-    Source/WaveFile.h \ 
+    Source/WaveFile.h \
     Source/ControlPanelDlg.h \
     Source/CustomControls.h \
     Source/ExportDialog.h \
@@ -295,7 +297,7 @@ HEADERS += \
 symbian {
     MMP_RULES += EXPORTUNFROZEN
     TARGET.UID3 = 0xEABB3021
-    TARGET.CAPABILITY = 
+    TARGET.CAPABILITY =
     TARGET.EPOCALLOWDLLDATA = 1
     addFiles.sources = famitracker.dll
     addFiles.path = !:/sys/bin

@@ -44,7 +44,7 @@ void CCustomExporters::FindCustomExporters( CString PluginPath )
 	CString path;
    BOOL bWorking;
 
-#if defined(Q_WS_WIN) || defined(Q_WS_WIN32)
+#if defined(Q_OS_WIN32)
    // Windows
    path = PluginPath + _T("\\*.dll");
 	bWorking = finder.FindFile( path );
@@ -53,7 +53,7 @@ void CCustomExporters::FindCustomExporters( CString PluginPath )
 		bWorking = finder.FindNextFile();
 		CString fileName = finder.GetFileName();
 		CString filePath = finder.GetFilePath();
-		
+
 		CCustomExporter customExporter;
 
 		if( customExporter.load( filePath ) )
@@ -63,7 +63,7 @@ void CCustomExporters::FindCustomExporters( CString PluginPath )
 
 		//AfxMessageBox(finder.GetFileName());
 	}
-#elif defined(Q_WS_MAC)
+#elif defined(Q_OS_MAC)
    // Mac OSX
    path = PluginPath + _T("\\*.dylib");
 	bWorking = finder.FindFile( path );
@@ -72,7 +72,7 @@ void CCustomExporters::FindCustomExporters( CString PluginPath )
 		bWorking = finder.FindNextFile();
 		CString fileName = finder.GetFileName();
 		CString filePath = finder.GetFilePath();
-		
+
 		CCustomExporter customExporter;
 
 		if( customExporter.load( filePath ) )
@@ -89,7 +89,7 @@ void CCustomExporters::FindCustomExporters( CString PluginPath )
 		bWorking = finder.FindNextFile();
 		CString fileName = finder.GetFileName();
 		CString filePath = finder.GetFilePath();
-		
+
 		CCustomExporter customExporter;
 
 		if( customExporter.load( filePath ) )
@@ -108,7 +108,7 @@ void CCustomExporters::FindCustomExporters( CString PluginPath )
 		bWorking = finder.FindNextFile();
 		CString fileName = finder.GetFileName();
 		CString filePath = finder.GetFilePath();
-		
+
 		CCustomExporter customExporter;
 
 		if( customExporter.load( filePath ) )

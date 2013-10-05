@@ -494,6 +494,7 @@ void NESEmulatorThread::run ()
       // Allow thread exit...
       if ( m_isTerminating )
       {
+         m_isTerminating = false;
          break;
       }
 

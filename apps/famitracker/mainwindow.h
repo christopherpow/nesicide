@@ -20,7 +20,7 @@ protected:
    void dragMoveEvent(QDragMoveEvent *event);
    void dropEvent(QDropEvent *event);
    void closeEvent(QCloseEvent *);
-   
+
 private:
     Ui::MainWindow *ui;
 

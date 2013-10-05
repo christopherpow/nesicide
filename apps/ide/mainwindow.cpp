@@ -34,8 +34,11 @@ OutputPaneDockWidget* output = NULL;
 ProjectBrowserDockWidget* m_pProjectBrowser = NULL;
 
 MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
-   QMainWindow(parent), m_pProjectModel(projectModel)
-{
+   QMainWindow(parent), 
+   m_pProjectModel(projectModel),
+   m_pNESEmulatorThread(NULL),
+   m_pC64EmulatorThread(NULL)
+{   
    if ( !((QCoreApplication::applicationDirPath().contains("Program Files")) ||
         (QCoreApplication::applicationDirPath().contains("apps/ide"))) ) // Developer builds
    {
@@ -418,6 +421,9 @@ MainWindow::~MainWindow()
    delete m_pSymbolInspector;
    delete m_pSearch;
    
+   m_pNESEmulatorThread->kill();
+   m_pNESEmulatorThread->wait();
+   
    // TODO: Handle unsaved documents or other pre-close stuffs
    theApp.ExitInstance();
 }
@@ -767,9 +773,12 @@ void MainWindow::createNesUi()
    toolToolbar->addAction(actionEmulation_Window);
    toolToolbar->addSeparator();
 
-   m_pNESEmulatorThread = new NESEmulatorThread();
+   if ( !m_pNESEmulatorThread )
+   {
+      m_pNESEmulatorThread = new NESEmulatorThread();
+   }
    CObjectRegistry::addObject("Emulator",m_pNESEmulatorThread);
-
+   
    QObject::connect(this,SIGNAL(startEmulation()),m_pNESEmulatorThread,SLOT(startEmulation()));
    QObject::connect(this,SIGNAL(pauseEmulation(bool)),m_pNESEmulatorThread,SLOT(pauseEmulation(bool)));
    QObject::connect(this,SIGNAL(primeEmulator()),m_pNESEmulatorThread,SLOT(primeEmulator()));
@@ -1087,11 +1096,11 @@ void MainWindow::destroyNesUi()
    CDockWidgetRegistry::removeWidget ( "Joypad Logger" );
 
    // Properly kill and destroy the thread we created above.
-   m_pNESEmulatorThread->kill();
-   m_pNESEmulatorThread->wait();
+//   m_pNESEmulatorThread->kill();
+//   m_pNESEmulatorThread->wait();
 
-   delete m_pNESEmulatorThread;
-   m_pNESEmulatorThread = NULL;
+//   delete m_pNESEmulatorThread;
+//   m_pNESEmulatorThread = NULL;
 
    CObjectRegistry::removeObject ( "Emulator" );
 

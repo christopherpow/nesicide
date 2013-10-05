@@ -7,11 +7,11 @@
 ** the Free Software Foundation; either version 2 of the License, or
 ** (at your option) any later version.
 **
-** This program is distributed in the hope that it will be useful, 
+** This program is distributed in the hope that it will be useful,
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
-** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-** Library General Public License for more details.  To obtain a 
-** copy of the GNU Library General Public License, write to the Free 
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+** Library General Public License for more details.  To obtain a
+** copy of the GNU Library General Public License, write to the Free
 ** Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 **
 ** Any permitted reproduction of these routines, in whole or in part,
@@ -67,7 +67,7 @@ void CSettings::SetupSettings()
 	// All settings are loaded on program start and saved when closing the program
 	//
 
-	// The SETTING macros takes four arguments: 
+	// The SETTING macros takes four arguments:
 	//
 	//  1. Registry section
 	//  2. Registry key name
@@ -119,7 +119,7 @@ void CSettings::SetupSettings()
 	SETTING_BOOL("MIDI", "Velocity control", false,	&Midi.bMidiVelocity);
 	SETTING_BOOL("MIDI", "Auto Arpeggio", false, &Midi.bMidiArpeggio);
 
-	// Appearance	
+	// Appearance
 	SETTING_INT("Appearance", "Background", DEFAULT_COLOR_SCHEME.BACKGROUND, &Appearance.iColBackground);
 	SETTING_INT("Appearance", "Background highlighted", DEFAULT_COLOR_SCHEME.BACKGROUND_HILITE, &Appearance.iColBackgroundHilite);
 	SETTING_INT("Appearance", "Background highlighted 2", DEFAULT_COLOR_SCHEME.BACKGROUND_HILITE2, &Appearance.iColBackgroundHilite2);
@@ -131,7 +131,7 @@ void CSettings::SetupSettings()
 	SETTING_INT("Appearance", "Pattern effect", DEFAULT_COLOR_SCHEME.TEXT_EFFECT, &Appearance.iColPatternEffect);
 	SETTING_INT("Appearance", "Selection", DEFAULT_COLOR_SCHEME.SELECTION, &Appearance.iColSelection);
 	SETTING_INT("Appearance", "Cursor", DEFAULT_COLOR_SCHEME.CURSOR, &Appearance.iColCursor);
-	
+
 	// Window position
 	SETTING_INT("Window position", "Left", 100, &WindowPos.iLeft);
 	SETTING_INT("Window position", "Top", 100, &WindowPos.iTop);
@@ -235,13 +235,13 @@ void CSettings::StoreSetting(CString Section, CString Name, int Value) const
    key += "/";
    key += QString::fromWCharArray((LPCTSTR)Name);
 #else
-   key = QString::fromAscii((LPCTSTR)Section);
+   key = QString::fromLatin1((LPCTSTR)Section);
    key += "/";
-   key += QString::fromAscii((LPCTSTR)Name);
+   key += QString::fromLatin1((LPCTSTR)Name);
 #endif
 //   qDebug("StoreSetting");
 //   qDebug(key.toAscii().constData());
-   
+
    settings.setValue(key,Value);
 }
 
@@ -254,13 +254,13 @@ int CSettings::LoadSetting(CString Section, CString Name, int Default) const
    key += "/";
    key += QString::fromWCharArray((LPCTSTR)Name);
 #else
-   key = QString::fromAscii((LPCTSTR)Section);
+   key = QString::fromLatin1((LPCTSTR)Section);
    key += "/";
-   key += QString::fromAscii((LPCTSTR)Name);
+   key += QString::fromLatin1((LPCTSTR)Name);
 #endif
 //   qDebug("LoadSetting");
 //   qDebug(key.toAscii().constData());
-   
+
    return settings.value(key,Default).toInt();
 }
 
@@ -281,7 +281,7 @@ void CSettingBool::Load()
 #endif
 //   qDebug("CSettingBool::Load");
 //   qDebug(key.toAscii().constData());
-   
+
    *(bool*)m_pVariable = settings.value(key,QVariant(m_bDefaultValue)).toBool();
 }
 
@@ -300,7 +300,7 @@ void CSettingBool::Save()
 #endif
 //   qDebug("CSettingBool::Save");
 //   qDebug(key.toAscii().constData());
-   
+
    settings.setValue(key,QVariant(*(bool*)m_pVariable));
 }
 
@@ -324,7 +324,7 @@ void CSettingInt::Load()
 #endif
 //   qDebug("CSettingInt::Load");
 //   qDebug(key.toAscii().constData());
-   
+
    *(int*)m_pVariable = settings.value(key,QVariant(m_iDefaultValue)).toInt();
 }
 
@@ -343,7 +343,7 @@ void CSettingInt::Save()
 #endif
 //   qDebug("CSettingInt::Save");
 //   qDebug(key.toAscii().constData());
-   
+
    settings.setValue(key,QVariant(*(int*)m_pVariable));
 }
 
@@ -367,11 +367,11 @@ void CSettingString::Load()
 #endif
 //   qDebug("CSettingString::Load");
 //   qDebug(key.toAscii().constData());
-   
+
 #ifdef UNICODE
    (*(CString*)m_pVariable) = CString(settings.value(key,QString::fromWCharArray(m_pDefaultValue)).toString());
 #else
-   (*(CString*)m_pVariable) = CString(settings.value(key,QString::fromAscii(m_pDefaultValue)).toString());
+   (*(CString*)m_pVariable) = CString(settings.value(key,QString::fromLatin1(m_pDefaultValue)).toString());
 #endif
 }
 
@@ -390,11 +390,11 @@ void CSettingString::Save()
 #endif
 //   qDebug("CSettingString::Save");
 //   qDebug(key.toAscii().constData());
-   
+
 #ifdef UNICODE
    settings.setValue(key,QString::fromWCharArray(((CString*)m_pVariable)->GetBuffer()));
 #else
-   settings.setValue(key,QString::fromAscii(((CString*)m_pVariable)->GetBuffer()));
+   settings.setValue(key,QString::fromLatin1(((CString*)m_pVariable)->GetBuffer()));
 #endif
 }
 
