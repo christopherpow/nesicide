@@ -7,7 +7,7 @@
 TARGET = famitracker
 TEMPLATE = lib
 
-QT += widgets
+QT += core gui # widgets
 
 TOP = ../..
 

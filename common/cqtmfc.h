@@ -221,7 +221,7 @@ enum
 
 // workaround to force ignore ms_abi errors, not needed as long as we don't link with other mfc implementations
 // also g++ doesn't have __has_attribute()
-#if !defined(Q_WS_WIN) && !defined(Q_WS_WIN32) && !defined(__GNUC__) && !defined(__GNUG__)
+#if !defined(Q_OS_WIN) && !defined(Q_OS_WIN32) && !defined(__GNUC__) && !defined(__GNUG__)
 #if !__has_attribute(ms_abi)
 #define ms_abi
 #endif
@@ -369,7 +369,7 @@ int WINAPI GetKeyNameText(
    int cchSize
 );
 
-#if !(defined(Q_OS_WIN32))
+#if !defined(Q_OS_WIN32)
 HMODULE WINAPI LoadLibrary(
    LPCTSTR lpFileName
 );
@@ -3648,7 +3648,7 @@ CFrameWnd* AfxGetMainWnd();
 #define AFXAPI
 #define AFX_STATIC static
 
-#if !(defined(Q_OS_WIN32))
+#if defined(Q_OS_WIN32)
 #define MB_CANCELTRYCONTINUE 0x00000006L
 #endif
 

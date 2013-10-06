@@ -235,9 +235,9 @@ void CSettings::StoreSetting(CString Section, CString Name, int Value) const
    key += "/";
    key += QString::fromWCharArray((LPCTSTR)Name);
 #else
-   key = QString::fromLatin1((LPCTSTR)Section);
+   key = QString::fromLocal8Bit((LPCTSTR)Section);
    key += "/";
-   key += QString::fromLatin1((LPCTSTR)Name);
+   key += QString::fromLocal8Bit((LPCTSTR)Name);
 #endif
 //   qDebug("StoreSetting");
 //   qDebug(key.toAscii().constData());
@@ -254,9 +254,9 @@ int CSettings::LoadSetting(CString Section, CString Name, int Default) const
    key += "/";
    key += QString::fromWCharArray((LPCTSTR)Name);
 #else
-   key = QString::fromLatin1((LPCTSTR)Section);
+   key = QString::fromLocal8Bit((LPCTSTR)Section);
    key += "/";
-   key += QString::fromLatin1((LPCTSTR)Name);
+   key += QString::fromLocal8Bit((LPCTSTR)Name);
 #endif
 //   qDebug("LoadSetting");
 //   qDebug(key.toAscii().constData());
@@ -371,7 +371,7 @@ void CSettingString::Load()
 #ifdef UNICODE
    (*(CString*)m_pVariable) = CString(settings.value(key,QString::fromWCharArray(m_pDefaultValue)).toString());
 #else
-   (*(CString*)m_pVariable) = CString(settings.value(key,QString::fromLatin1(m_pDefaultValue)).toString());
+   (*(CString*)m_pVariable) = CString(settings.value(key,QString::fromLocal8Bit(m_pDefaultValue)).toString());
 #endif
 }
 
@@ -394,7 +394,7 @@ void CSettingString::Save()
 #ifdef UNICODE
    settings.setValue(key,QString::fromWCharArray(((CString*)m_pVariable)->GetBuffer()));
 #else
-   settings.setValue(key,QString::fromLatin1(((CString*)m_pVariable)->GetBuffer()));
+   settings.setValue(key,QString::fromLocal8Bit(((CString*)m_pVariable)->GetBuffer()));
 #endif
 }
 
