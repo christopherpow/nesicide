@@ -6419,6 +6419,18 @@ BOOL CWinThread::PostThreadMessage(
    return TRUE;
 }
 
+CDocument::CDocument()
+ : m_pDocTemplate(NULL), m_bModified(FALSE)
+{
+   QObject::connect(this,SIGNAL(documentSaved()),ptrToTheApp->qtMainWindow,SLOT(documentSaved()));
+   QObject::connect(this,SIGNAL(documentClosed()),ptrToTheApp->qtMainWindow,SLOT(documentClosed()));
+}
+
+void CDocument::OnCloseDocument()
+{ 
+   emit documentClosed(); 
+}
+
 void CDocument::SetTitle(CString title )
 {
    CString appName;

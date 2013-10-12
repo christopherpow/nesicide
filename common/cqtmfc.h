@@ -1747,7 +1747,7 @@ signals:
    void documentClosed();
 
 public:
-   CDocument() : m_pDocTemplate(NULL), m_bModified(FALSE) {}
+   CDocument();
    void AssertValid() const {}
    void Dump(CDumpContext& dc) const {}
    virtual BOOL OnNewDocument() { DeleteContents(); return TRUE; }
@@ -1757,7 +1757,7 @@ public:
    virtual BOOL CanCloseFrame(
       CFrameWnd* pFrame
    );
-   virtual void OnCloseDocument() { emit documentClosed(); delete this; }
+   virtual void OnCloseDocument();
    virtual void DeleteContents() {}
    virtual BOOL IsModified( ) { return m_bModified; }
    virtual void SetModifiedFlag(BOOL bModified = 1) { m_bModified = bModified; emit setModified(bModified); }

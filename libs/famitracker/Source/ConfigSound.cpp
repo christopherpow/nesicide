@@ -7,11 +7,11 @@
 ** the Free Software Foundation; either version 2 of the License, or
 ** (at your option) any later version.
 **
-** This program is distributed in the hope that it will be useful, 
+** This program is distributed in the hope that it will be useful,
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
-** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-** Library General Public License for more details.  To obtain a 
-** copy of the GNU Library General Public License, write to the Free 
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+** Library General Public License for more details.  To obtain a
+** copy of the GNU Library General Public License, write to the Free
 ** Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 **
 ** Any permitted reproduction of these routines, in whole or in part,
@@ -50,6 +50,46 @@ void CConfigSound::DoDataExchange(CDataExchange* pDX)
 //	ON_CBN_SELCHANGE(IDC_SAMPLE_SIZE, OnCbnSelchangeSampleSize)
 //	ON_CBN_SELCHANGE(IDC_DEVICES, OnCbnSelchangeDevices)
 //END_MESSAGE_MAP()
+
+void CConfigSound::devices_currentIndexChanged(int value)
+{
+   OnCbnSelchangeDevices();
+}
+
+void CConfigSound::sampleRate_currentIndexChanged(int value)
+{
+   OnCbnSelchangeSampleRate();
+}
+
+void CConfigSound::sampleSize_currentIndexChanged(int value)
+{
+   OnCbnSelchangeSampleSize();
+}
+
+void CConfigSound::bufLength_valueChanged(int value)
+{
+   OnHScroll(SB_HORZ,value,dynamic_cast<CScrollBar*>(GetDlgItem(IDC_BUF_LENGTH)));
+}
+
+void CConfigSound::bassFreq_valueChanged(int value)
+{
+   OnHScroll(SB_HORZ,value,dynamic_cast<CScrollBar*>(GetDlgItem(IDC_BASS_FREQ)));
+}
+
+void CConfigSound::trebleFreq_valueChanged(int value)
+{
+   OnHScroll(SB_HORZ,value,dynamic_cast<CScrollBar*>(GetDlgItem(IDC_TREBLE_FREQ)));
+}
+
+void CConfigSound::trebleDamp_valueChanged(int value)
+{
+   OnHScroll(SB_HORZ,value,dynamic_cast<CScrollBar*>(GetDlgItem(IDC_TREBLE_DAMP)));
+}
+
+void CConfigSound::volume_valueChanged(int value)
+{
+   OnHScroll(SB_HORZ,value,dynamic_cast<CScrollBar*>(GetDlgItem(IDC_VOLUME)));
+}
 
 //int iDeviceIndex;
 
@@ -188,6 +228,9 @@ BOOL CConfigSound::OnApply()
 	theApp.GetSettings()->Sound.iDevice	= pDevices->GetCurSel();
 
 	theApp.LoadSoundConfig();
+   
+   // CP: Reset sound to re-sync SDL to new settings.
+   theApp.GetSoundGenerator()->ResetSound();
 
 	return CPropertyPage::OnApply();
 }

@@ -2124,41 +2124,193 @@ void qtMfcInitDialogResource_IDD_CONFIG_MIDI(CDialog* parent)
 //   END
 }
 
-//#include "dialog-file"
-void qtMfcInitDialogResource_IDD_CONFIG_SOUND(CDialog* parent)
+#include "ConfigSound.h"
+void qtMfcInitDialogResource_IDD_CONFIG_SOUND(CDialog* parent1)
 {
-//  dialog-type* parent = dynamic_cast<dialog-type*>(parent1);
+   CConfigSound* parent = dynamic_cast<CConfigSound*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
 
 //   IDD_CONFIG_SOUND DIALOGEX 0, 0, 280, 167
+   CRect rect(CPoint(0,0),CSize(280,167));
+   parent->MapDialogRect(&rect);
+   parent->setFixedSize(rect.Width(),rect.Height());
 //   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 //   EXSTYLE WS_EX_CONTEXTHELP
 //   CAPTION "Sound"
+   parent->SetWindowText("Sound");
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
 //   BEGIN
 //       GROUPBOX        "Device",IDC_STATIC,7,7,266,35
+   CGroupBox* mfc1 = new CGroupBox(parent);
+   CRect r1(CPoint(7,7),CSize(266,35));
+   parent->MapDialogRect(&r1);
+   mfc1->Create(_T("Device"),WS_VISIBLE,r1,parent,IDC_STATIC);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       COMBOBOX        IDC_DEVICES,13,20,253,12,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+   CComboBox* mfc2 = new CComboBox(parent);
+   CRect r2(CPoint(13,20),CSize(253,12));
+   parent->MapDialogRect(&r2);
+   mfc2->Create(CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r2,parent,IDC_DEVICES);
+   mfcToQtWidget->insert(IDC_DEVICES,mfc2);
+   QObject::connect(mfc2,SIGNAL(currentIndexChanged(int)),parent,SLOT(devices_currentIndexChanged(int)));
 //       GROUPBOX        "Sample rate",IDC_STATIC,7,48,113,33
+   CGroupBox* mfc3 = new CGroupBox(parent);
+   CRect r3(CPoint(7,48),CSize(113,33));
+   parent->MapDialogRect(&r3);
+   mfc3->Create(_T("Sample rate"),WS_VISIBLE,r3,parent,IDC_STATIC);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       COMBOBOX        IDC_SAMPLE_RATE,13,61,101,62,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+   CComboBox* mfc4 = new CComboBox(parent);
+   CRect r4(CPoint(13,61),CSize(101,62));
+   parent->MapDialogRect(&r4);
+   mfc4->Create(CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r4,parent,IDC_SAMPLE_RATE);
+   mfcToQtWidget->insert(IDC_SAMPLE_RATE,mfc4);
+   QObject::connect(mfc4,SIGNAL(currentIndexChanged(int)),parent,SLOT(sampleRate_currentIndexChanged(int)));
 //       GROUPBOX        "Sample size",IDC_STATIC,7,90,113,33
+   CGroupBox* mfc5 = new CGroupBox(parent);
+   CRect r5(CPoint(7,90),CSize(113,33));
+   parent->MapDialogRect(&r5);
+   mfc5->Create(_T("Sample size"),WS_VISIBLE,r5,parent,IDC_STATIC);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       COMBOBOX        IDC_SAMPLE_SIZE,13,102,101,62,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+   CComboBox* mfc6 = new CComboBox(parent);
+   CRect r6(CPoint(13,102),CSize(101,62));
+   parent->MapDialogRect(&r6);
+   mfc6->Create(CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r6,parent,IDC_SAMPLE_SIZE);
+   mfcToQtWidget->insert(IDC_SAMPLE_SIZE,mfc6);
+   QObject::connect(mfc6,SIGNAL(currentIndexChanged(int)),parent,SLOT(sampleSize_currentIndexChanged(int)));
+//   IDD_CONFIG_SOUND DLGINIT
+//   BEGIN
+//       IDC_SAMPLE_RATE, 0x403, 10, 0
+//   0x3131, 0x3020, 0x3532, 0x4820, 0x007a,
+   mfc4->AddString(_T("11 025 Hz"));
+//       IDC_SAMPLE_RATE, 0x403, 10, 0
+//   0x3232, 0x3020, 0x3035, 0x4820, 0x007a,
+   mfc4->AddString(_T("22 050 Hz"));
+//       IDC_SAMPLE_RATE, 0x403, 10, 0
+//   0x3434, 0x3120, 0x3030, 0x4820, 0x007a,
+   mfc4->AddString(_T("44 100 Hz"));
+//       IDC_SAMPLE_RATE, 0x403, 10, 0
+//   0x3834, 0x3020, 0x3030, 0x4820, 0x007a,
+   mfc4->AddString(_T("48 000 Hz"));
+//       IDC_SAMPLE_RATE, 0x403, 10, 0
+//   0x3639, 0x3020, 0x3030, 0x4820, 0x007a,
+   mfc4->AddString(_T("96 000 Hz"));
+//       IDC_SAMPLE_SIZE, 0x403, 7, 0
+//   0x3631, 0x6220, 0x7469, "\000"
+   mfc6->AddString(_T("16 bit"));
+//       IDC_SAMPLE_SIZE, 0x403, 6, 0
+//   0x2038, 0x6962, 0x0074,
+   mfc6->AddString(_T("8 bit"));
+//       0
+//   END
 //       GROUPBOX        "Buffer length",IDC_STATIC,7,129,113,31
+   CGroupBox* mfc7 = new CGroupBox(parent);
+   CRect r7(CPoint(7,129),CSize(113,31));
+   parent->MapDialogRect(&r7);
+   mfc7->Create(_T("Buffer length"),WS_VISIBLE,r7,parent,IDC_STATIC);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       CONTROL         "",IDC_BUF_LENGTH,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,13,141,69,12
+   CSliderCtrl* mfc8 = new CSliderCtrl(parent);
+   CRect r8(CPoint(13,141),CSize(69,12));
+   parent->MapDialogRect(&r8);
+   mfc8->Create(TBS_BOTH | TBS_NOTICKS | WS_TABSTOP | WS_VISIBLE,r8,parent,IDC_BUF_LENGTH);
+   mfcToQtWidget->insert(IDC_BUF_LENGTH,mfc8);
+   QObject::connect(mfc8,SIGNAL(valueChanged(int)),parent,SLOT(bufLength_valueChanged(int)));
 //       CTEXT           "20 ms",IDC_BUF_LEN,83,142,31,11
+   CStatic* mfc9 = new CStatic(parent);
+   CRect r9(CPoint(83,142),CSize(31,11));
+   parent->MapDialogRect(&r9);
+   mfc9->Create(_T("20 ms"),WS_VISIBLE,r9,parent,IDC_BUF_LEN);
+   mfcToQtWidget->insert(IDC_BUF_LEN,mfc9);
 //       GROUPBOX        "Bass filtering",IDC_STATIC,126,48,147,33
+   CGroupBox* mfc10 = new CGroupBox(parent);
+   CRect r10(CPoint(126,48),CSize(147,33));
+   parent->MapDialogRect(&r10);
+   mfc10->Create(_T("Bass filtering"),WS_VISIBLE,r10,parent,IDC_STATIC);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       LTEXT           "Frequency",IDC_STATIC,132,63,36,11
+   CStatic* mfc11 = new CStatic(parent);
+   CRect r11(CPoint(132,63),CSize(36,11));
+   parent->MapDialogRect(&r11);
+   mfc11->Create(_T("Frequency"),WS_VISIBLE,r11,parent,IDC_STATIC);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       CONTROL         "",IDC_BASS_FREQ,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,174,63,55,12
+   CSliderCtrl* mfc12 = new CSliderCtrl(parent);
+   CRect r12(CPoint(174,63),CSize(55,12));
+   parent->MapDialogRect(&r12);
+   mfc12->Create(TBS_BOTH | TBS_NOTICKS | WS_TABSTOP | WS_VISIBLE,r12,parent,IDC_BASS_FREQ);
+   mfcToQtWidget->insert(IDC_BASS_FREQ,mfc12);
+   QObject::connect(mfc12,SIGNAL(valueChanged(int)),parent,SLOT(bassFreq_valueChanged(int)));
 //       CTEXT           "16 Hz",IDC_BASS_FREQ_T,234,64,32,10
+   CStatic* mfc13 = new CStatic(parent);
+   CRect r13(CPoint(234,64),CSize(32,10));
+   parent->MapDialogRect(&r13);
+   mfc13->Create(_T("16 Hz"),WS_VISIBLE,r13,parent,IDC_BASS_FREQ_T);
+   mfcToQtWidget->insert(IDC_BASS_FREQ_T,mfc13);
 //       GROUPBOX        "Treble filtering",IDC_STATIC,126,86,147,43
+   CGroupBox* mfc14 = new CGroupBox(parent);
+   CRect r14(CPoint(126,86),CSize(147,43));
+   parent->MapDialogRect(&r14);
+   mfc14->Create(_T("Treble filtering"),WS_VISIBLE,r14,parent,IDC_STATIC);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       LTEXT           "Damping",IDC_STATIC,132,99,36,10
+   CStatic* mfc15 = new CStatic(parent);
+   CRect r15(CPoint(132,99),CSize(36,10));
+   parent->MapDialogRect(&r15);
+   mfc15->Create(_T("Damping"),WS_VISIBLE,r15,parent,IDC_STATIC);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       CONTROL         "",IDC_TREBLE_DAMP,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,174,99,55,12
+   CSliderCtrl* mfc16 = new CSliderCtrl(parent);
+   CRect r16(CPoint(174,99),CSize(55,12));
+   parent->MapDialogRect(&r16);
+   mfc16->Create(TBS_BOTH | TBS_NOTICKS | WS_TABSTOP | WS_VISIBLE,r16,parent,IDC_TREBLE_DAMP);
+   mfcToQtWidget->insert(IDC_TREBLE_DAMP,mfc16);
+   QObject::connect(mfc16,SIGNAL(valueChanged(int)),parent,SLOT(trebleDamp_valueChanged(int)));
 //       CTEXT           "-24 dB",IDC_TREBLE_DAMP_T,234,99,32,9
+   CStatic* mfc17 = new CStatic(parent);
+   CRect r17(CPoint(234,99),CSize(32,9));
+   parent->MapDialogRect(&r17);
+   mfc17->Create(_T("-24 dB"),WS_VISIBLE,r17,parent,IDC_TREBLE_DAMP_T);
+   mfcToQtWidget->insert(IDC_TREBLE_DAMP_T,mfc17);
 //       LTEXT           "Frequency",IDC_STATIC,132,112,36,10
+   CStatic* mfc18 = new CStatic(parent);
+   CRect r18(CPoint(132,112),CSize(36,10));
+   parent->MapDialogRect(&r18);
+   mfc18->Create(_T("Frequency"),WS_VISIBLE,r18,parent,IDC_STATIC);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       CONTROL         "",IDC_TREBLE_FREQ,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,174,112,55,12
+   CSliderCtrl* mfc19 = new CSliderCtrl(parent);
+   CRect r19(CPoint(174,112),CSize(55,12));
+   parent->MapDialogRect(&r19);
+   mfc19->Create(TBS_BOTH | TBS_NOTICKS | WS_TABSTOP | WS_VISIBLE,r19,parent,IDC_TREBLE_FREQ);
+   mfcToQtWidget->insert(IDC_TREBLE_FREQ,mfc19);
+   QObject::connect(mfc19,SIGNAL(valueChanged(int)),parent,SLOT(trebleFreq_valueChanged(int)));
 //       CTEXT           "12000 Hz",IDC_TREBLE_FREQ_T,234,110,32,11
+   CStatic* mfc20 = new CStatic(parent);
+   CRect r20(CPoint(234,110),CSize(32,11));
+   parent->MapDialogRect(&r20);
+   mfc20->Create(_T("12000 Hz"),WS_VISIBLE,r20,parent,IDC_TREBLE_FREQ_T);
+   mfcToQtWidget->insert(IDC_TREBLE_FREQ_T,mfc20);
 //       GROUPBOX        "Volume",IDC_STATIC,126,133,147,27
+   CGroupBox* mfc21 = new CGroupBox(parent);
+   CRect r21(CPoint(126,133),CSize(147,27));
+   parent->MapDialogRect(&r21);
+   mfc21->Create(_T("Volume"),WS_VISIBLE,r21,parent,IDC_STATIC);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       CONTROL         "",IDC_VOLUME,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,132,144,96,12
+   CSliderCtrl* mfc22 = new CSliderCtrl(parent);
+   CRect r22(CPoint(132,144),CSize(96,12));
+   parent->MapDialogRect(&r22);
+   mfc22->Create(TBS_BOTH | TBS_NOTICKS | WS_TABSTOP | WS_VISIBLE,r22,parent,IDC_VOLUME);
+   mfcToQtWidget->insert(IDC_VOLUME,mfc22);
+   QObject::connect(mfc22,SIGNAL(valueChanged(int)),parent,SLOT(volume_valueChanged(int)));
 //       CTEXT           "100 %",IDC_VOLUME_T,234,144,31,8
+   CStatic* mfc23 = new CStatic(parent);
+   CRect r23(CPoint(234,144),CSize(32,8));
+   parent->MapDialogRect(&r23);
+   mfc23->Create(_T("100 %"),WS_VISIBLE,r23,parent,IDC_VOLUME_T);
+   mfcToQtWidget->insert(IDC_VOLUME_T,mfc23);
 //   END
 }
 

@@ -184,7 +184,9 @@ private:
 	void		GeneratePeriodTables(int BaseFreq);
 
 	// Audio
+public: // CP: Need this to be public for SDL re-sync on settings change.
 	bool		ResetSound();
+private:
 	void		CloseSound();
 
 	// Player

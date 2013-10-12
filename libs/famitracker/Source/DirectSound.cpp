@@ -227,7 +227,7 @@ CDSoundChannel *CDSound::OpenChannel(int SampleRate, int SampleSize, int Channel
    sdlAudioSpec.channels = Channels;
    if ( SampleSize == 8 )
    {
-      sdlAudioSpec.format = AUDIO_S8;
+      sdlAudioSpec.format = AUDIO_U8;
    }
    else 
    {
@@ -237,7 +237,7 @@ CDSoundChannel *CDSound::OpenChannel(int SampleRate, int SampleSize, int Channel
 
    // Set up audio sample rate for video mode...
    sdlAudioSpec.samples = (BlockSize/(SampleSize>>3));
-   qDebug("BufferSize: %d, BlockSize: %d, SampleSize: %d",SoundBufferSize,BlockSize,SampleSize);
+   qDebug("---------------------------------BufferSize: %d, BlockSize: %d, SampleSize: %d",SoundBufferSize,BlockSize,SampleSize);
    SDL_OpenAudio ( &sdlAudioSpec, NULL );
 
    if ( m_pSoundBuffer )

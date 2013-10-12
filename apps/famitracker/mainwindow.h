@@ -25,7 +25,6 @@ private:
     Ui::MainWindow *ui;
 
 private slots:
-    void on_actionExit_triggered();
     void addToolBarWidget(QToolBar* toolBar);
     void removeToolBarWidget(QToolBar* toolBar);
     void editor_modificationChanged(bool m);
