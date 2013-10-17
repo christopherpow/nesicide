@@ -112,12 +112,10 @@ unix:!mac {
    INSTALLS += target
 }
 
-QMAKE_CXXFLAGS += -DIDE \
-                  $$FAMITRACKER_CXXFLAGS \
+QMAKE_CXXFLAGS += $$FAMITRACKER_CXXFLAGS \
                   $$SDL_CXXFLAGS
 LIBS += $$FAMITRACKER_LIBS \
-        $$SDL_LIBS \
-        $$SCINTILLA_LIBS
+        $$SDL_LIBS
 
 unix:mac {
 	QMAKE_CFLAGS += -I $$DEPENDENCYPATH/wine/include -DWINE_UNICODE_NATIVE

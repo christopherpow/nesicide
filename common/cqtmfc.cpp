@@ -5135,8 +5135,8 @@ void CWnd::MoveWindow(LPCRECT lpRect, BOOL bRepaint)
 {
    setGeometry(lpRect->left,lpRect->top,(lpRect->right-lpRect->left)+1,(lpRect->bottom-lpRect->top)+1);
    setFixedSize((lpRect->right-lpRect->left)+1,(lpRect->bottom-lpRect->top)+1);
-   if ( bRepaint )
-      repaint();
+//   if ( bRepaint )
+//      repaint();
 }
 
 void CWnd::DragAcceptFiles(
@@ -9415,6 +9415,8 @@ void CPropertySheet::_commonConstruct(CWnd* parent,UINT selectedPage)
    QObject::connect(_qbuttons->button(QDialogButtonBox::Cancel),SIGNAL(clicked()),this,SLOT(cancel_clicked()));
    QObject::connect(_qbuttons->button(QDialogButtonBox::Apply),SIGNAL(clicked()),this,SLOT(apply_clicked()));
    _grid->addWidget(_qbuttons,1,0,1,1);
+   
+   _qbuttons->button(QDialogButtonBox::Apply)->setEnabled(false);
 
    // Pass-through signals
 }
@@ -9450,6 +9452,11 @@ void CPropertySheet::apply_clicked()
    }
 }
 
+void CPropertySheet::pageModified()
+{
+   _qbuttons->button(QDialogButtonBox::Apply)->setEnabled(true);
+}
+
 void CPropertySheet::AddPage(
    CPropertyPage *pPage
 )
@@ -9468,6 +9475,8 @@ void CPropertySheet::AddPage(
    _pages.append(pPage);
 
    pPage->OnInitDialog();
+   
+   QObject::connect(pPage,SIGNAL(setModified()),this,SLOT(pageModified()));
 }
 
 INT_PTR CPropertySheet::DoModal( )
@@ -9516,18 +9525,16 @@ void CPropertyPage::SetModified(
    BOOL bChanged
 )
 {
-   qDebug("CPropertyPage::SetModified");
+   emit setModified();
 }
 
 BOOL CPropertyPage::OnApply( )
 {
-   qDebug("CPropertyPage::OnApply");
    return TRUE;
 }
 
 BOOL CPropertyPage::OnSetActive( )
 {
-   qDebug("CPropertyPage::OnSetActive");
    return TRUE;
 }
 

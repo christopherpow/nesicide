@@ -1539,7 +1539,7 @@ public:
    virtual void OnKillFocus(CWnd*) {}
    void OnVScroll(UINT,UINT,CScrollBar*) {}
    void OnHScroll(UINT,UINT,CScrollBar*) {}
-   void OnUpdate(CWnd* p=0,UINT hint=0,CObject* o=0) { _qt->update(); }
+   void OnUpdate(CWnd* p=0,UINT hint=0,CObject* o=0) { /*_qt->update();*/ }
    void Invalidate(BOOL bErase = TRUE) { /*update();*/ }
    void RedrawWindow(LPCRECT rect=0,CRgn* rgn=0,UINT f=0) { _qt->update(); }
    CWnd* SetFocus();
@@ -1668,7 +1668,7 @@ public:
    virtual void setQWidget(QWidget* qt) { _qt = qt; }
 public slots:
    void update() { _qt->update(); }
-   void repaint() { _qt->repaint(); }
+   void repaint() { _qt->update(); }
    void setFocus() { _qt->setFocus(); }
    void setFocus(Qt::FocusReason reason) { _qt->setFocus(reason); }
    bool eventFilter(QObject *object, QEvent *event);
@@ -3624,6 +3624,11 @@ protected:
 
 class CPropertyPage : public CDialog
 {
+   Q_OBJECT
+   // Qt interfaces
+signals:
+   void setModified();
+   
    // MFC interfaces
 public:
    explicit CPropertyPage(
@@ -3654,6 +3659,7 @@ public slots:
    void ok_clicked();
    void cancel_clicked();
    void apply_clicked();
+   void pageModified();
 public:
    void _commonConstruct(CWnd* parent,UINT selectedPage);
    explicit CPropertySheet(
