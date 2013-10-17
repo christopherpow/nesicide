@@ -239,7 +239,8 @@ void CFamiTrackerDoc::menuAction_triggered(int id)
       (this->*((actionHandlers[id])))();
    }
    
-   AfxGetMainWnd()->menuAction_triggered(id);
+   // Base class handler.
+   CDocument::menuAction_triggered(id);
 }
 
 //

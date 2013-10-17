@@ -5585,11 +5585,13 @@ CFrameWnd::~CFrameWnd()
 
 void CFrameWnd::menuAction_triggered(int id)
 {
+   // Pass up the chain.
    AfxGetApp()->menuAction_triggered(id);
 }
 
 void CFrameWnd::menuAboutToShow(CMenu* menu)
 {
+   // Pass up the chain.
    AfxGetApp()->menuAboutToShow(menu);
 }
 
@@ -5723,6 +5725,37 @@ void CFrameWnd::RecalcLayout(
 	m_bInRecalcLayout = FALSE;
 }
 
+void CFrameWnd::OnUpdateRecentFileList(CCmdUI *pCmdUI)
+{
+   CRecentFileList* pRecentFileList = AfxGetApp()->m_pRecentFileList;
+   CMenu* pMRU = GetMenu()->GetSubMenu(0);
+   CString mruPath;
+   CString mruString;
+   int mru;
+   
+   for ( mru = ID_FILE_MRU_FILE1; mru <= ID_FILE_MRU_FILE16; mru++ )
+   {
+      pMRU->RemoveMenu(mru,MF_BYCOMMAND);
+   }
+   
+   if ( pRecentFileList->GetSize() )
+   {
+      for ( mru = 0; mru < pRecentFileList->GetSize(); mru++ )
+      {
+         pRecentFileList->GetDisplayName(mruPath,mru,QDir::currentPath().toLatin1().constData(),QDir::currentPath().length());
+         mruString.Format("%d %s",mru+1,(LPCTSTR)mruPath);
+         pMRU->InsertMenu(ID_APP_EXIT,MF_STRING|MF_BYCOMMAND,ID_FILE_MRU_FILE1+mru,mruString);
+      }
+   }
+   else
+   {
+      pMRU->InsertMenu(ID_APP_EXIT,MF_STRING|MF_BYCOMMAND,ID_FILE_MRU_FILE1,"Recent File List");
+      pMRU->EnableMenuItem(ID_FILE_MRU_FILE1,false);
+   }
+   // CP: Not sure why separator disappears...
+   pMRU->InsertMenu(ID_APP_EXIT,MF_SEPARATOR|MF_BYCOMMAND);
+}
+
 void CFrameWnd::OnClose()
 {
    // Note: only queries the active document
@@ -5747,6 +5780,18 @@ CView::CView(CWnd* parent)
 
 CView::~CView()
 {
+}
+
+void CView::menuAction_triggered(int id)
+{
+   // Pass up the chain.
+   m_pDocument->menuAction_triggered(id);
+}
+
+void CView::menuAboutToShow(CMenu* menu)
+{
+   // Pass up the chain.
+   m_pDocument->menuAboutToShow(menu);
 }
 
 CSize CControlBar::CalcFixedLayout(
@@ -6452,11 +6497,13 @@ CDocument::CDocument()
 
 void CDocument::menuAction_triggered(int id)
 {
+   // Pass up the chain.
    AfxGetMainWnd()->menuAction_triggered(id);
 }
 
 void CDocument::menuAboutToShow(CMenu* menu)
 {
+   // Pass up the chain.
    AfxGetMainWnd()->menuAboutToShow(menu);
 }
 
@@ -6863,6 +6910,20 @@ CWinApp::~CWinApp()
    delete m_pRecentFileList;
 }
 
+void CWinApp::menuAction_triggered(int id)
+{
+   // Handle MRU.
+   if ( (id >= ID_FILE_MRU_FILE1) &&
+        (id <= ID_FILE_MRU_FILE16))
+   {
+      OnOpenRecentFile(id);
+   }
+}
+
+void CWinApp::menuAboutToShow(CMenu* menu)
+{
+}
+
 BOOL CWinApp::DoPromptFileName(CString& fileName, UINT nIDSTitle, DWORD lFlags,
 	BOOL bOpenFileDialog, CDocTemplate* pTemplate)
 		// if pTemplate==NULL => all document templates
@@ -7051,6 +7112,13 @@ void CWinApp::OnFileOpen()
 {
 }
 
+void CWinApp::OnOpenRecentFile(UINT nID)
+{
+   CString fileName;
+   m_pRecentFileList->GetDisplayName(fileName,nID-ID_FILE_MRU_FILE1,"",0);
+   OpenDocumentFile(fileName);
+}
+
 HCURSOR CWinApp::LoadStandardCursor(
    LPCTSTR lpszCursorName
 ) const
@@ -7190,9 +7258,9 @@ BOOL CMenu::AppendMenu(
    else
    {
 #if UNICODE
-      QAction* action = _qtd->addAction(QString::fromWCharArray(lpszNewItem)); // CP: Add slots later
+      QAction* action = _qtd->addAction(QString::fromWCharArray(lpszNewItem));
 #else
-      QAction* action = _qtd->addAction(lpszNewItem); // CP: Add slots later
+      QAction* action = _qtd->addAction(QString::fromLatin1(lpszNewItem));
 #endif
       if ( action->text().contains("\t") )
       {
@@ -7217,6 +7285,77 @@ BOOL CMenu::AppendMenu(
       qtToMfcMenu.insert(action,nIDNewItem);
    }
 
+   return TRUE;
+}
+
+BOOL CMenu::InsertMenu( 
+   UINT nPosition, 
+   UINT nFlags, 
+   UINT_PTR nIDNewItem, 
+   LPCTSTR lpszNewItem
+)
+{
+   CMenu* pMenu = (CMenu*)nIDNewItem; // For MF_POPUP
+   QAction* action;
+   switch ( nFlags&MF_BYPOSITION )
+   {
+   case MF_BYPOSITION:
+      action = _qtd->actions().at(nPosition);
+      break;
+   default:
+      action = findMenuItem(nPosition);
+      break;
+   }
+   if ( action )
+   {
+      if ( nFlags&MF_POPUP )
+      {
+         _cmenu->insert(_qtd->actions().indexOf(action),pMenu);
+         _qtd->insertMenu(action,pMenu->toQMenu());
+   
+#if UNICODE
+         pMenu->toQMenu()->setTitle(QString::fromWCharArray(lpszNewItem));
+#else
+         pMenu->toQMenu()->setTitle(QString::fromLatin1(lpszNewItem));
+#endif
+         QObject::connect(pMenu,SIGNAL(menuAction_triggered(int)),this,SIGNAL(menuAction_triggered(int)));
+      }
+      else if ( nFlags&MF_SEPARATOR )
+      {
+         _qtd->insertSeparator(action);
+      }
+      else
+      {
+#if UNICODE
+         QAction* newAction = new QAction(QString::fromWCharArray(lpszNewItem),NULL);
+#else
+         QAction* newAction = new QAction(QString::fromLatin1(lpszNewItem),NULL);
+#endif
+         _qtd->insertAction(action,newAction);
+         action = newAction;
+         if ( action->text().contains("\t") )
+         {
+            action->setShortcut(QKeySequence(action->text().split("\t").at(1)));
+         }
+         if ( nFlags&MF_CHECKED )
+         {
+            action->setCheckable(true);
+            action->setChecked(true);
+         }
+         if ( nFlags&MF_ENABLED )
+         {
+            action->setEnabled(true);
+         }
+         if ( (nFlags&MF_DISABLED) ||
+              (nFlags&MF_GRAYED) )
+         {
+            action->setDisabled(true);
+         }
+         QObject::connect(action,SIGNAL(triggered()),this,SLOT(menuAction_triggered()));
+         mfcToQtMenu.insert(nIDNewItem,action);
+         qtToMfcMenu.insert(action,nIDNewItem);
+      }
+   }
    return TRUE;
 }
 
@@ -7357,7 +7496,7 @@ BOOL CMenu::ModifyMenu(
       action = _qtd->actions().at(nPosition);
       break;
    default:
-      action = findMenuItem(nIDNewItem);
+      action = findMenuItem(nPosition);
       break;
    }
    if ( action )
@@ -9580,7 +9719,10 @@ CRecentFileList::CRecentFileList(
       
       if ( !settings.value(key).toString().isEmpty() )
       {
-         _recentFiles.append(settings.value(key).toString());
+         if ( !_recentFiles.contains(settings.value(key).toString()) )
+         {
+            _recentFiles.append(settings.value(key).toString());
+         }
       }
    }
 }
@@ -9604,6 +9746,7 @@ void CRecentFileList::Add(
    QString def;
    int n;
    
+   _recentFiles.removeAll(str);
    _recentFiles.prepend(str);
    if ( _recentFiles.count() > _nSize )
    {

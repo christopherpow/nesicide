@@ -74,8 +74,8 @@ class CFamiTrackerApp : public CWinApp
    Q_OBJECT
 public:
    void menuAction_triggered(int id);
-   void menuAboutToShow(CMenu* menu);
-	// Constructor
+
+   // Constructor
 	CFamiTrackerApp();
 
 	//

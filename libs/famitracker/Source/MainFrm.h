@@ -221,7 +221,6 @@ public:
 	afx_msg void OnEnKeyStepChange();
 	afx_msg void OnHelpPerformance();
 
-   afx_msg void OnUpdateRecentFileList(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateSBTempo(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateSBPosition(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateSBInstrument(CCmdUI *pCmdUI);

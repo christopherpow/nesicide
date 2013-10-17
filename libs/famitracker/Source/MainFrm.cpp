@@ -1087,8 +1087,8 @@ void CMainFrame::menuAboutToShow(CMenu* menu)
    cmdUI.m_nID = ID_FRAMEEDITOR_LEFT;
    OnUpdateFrameeditorLeft(&cmdUI);
 
-   // Pass to app next.
-   AfxGetApp()->menuAboutToShow(menu);
+   // Base class handlers.
+   CFrameWnd::menuAboutToShow(menu);
 }
 
 void CMainFrame::menuAction_triggered(int id)
@@ -1228,8 +1228,8 @@ void CMainFrame::menuAction_triggered(int id)
       (this->*((actionHandlers[id])))();
    }
 
-   // Pass to app next.
-   AfxGetApp()->menuAction_triggered(id);
+   // Base class handlers.
+   CFrameWnd::menuAction_triggered(id);
 }
 
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
@@ -2349,10 +2349,6 @@ void CMainFrame::OnHelpPerformance()
    qDebug("Performance dialog not implemented...");
 //	m_wndPerformanceDlg.Create(MAKEINTRESOURCE(IDD_PERFORMANCE), this);
 //	m_wndPerformanceDlg.ShowWindow(SW_SHOW);
-}
-
-void CMainFrame::OnUpdateRecentFileList(CCmdUI *pCmdUI)
-{
 }
 
 void CMainFrame::OnUpdateSBInstrument(CCmdUI *pCmdUI)

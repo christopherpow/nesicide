@@ -1686,6 +1686,7 @@ static AFX_DATA const CRect rectDefault;
 
 class CView;
 class CDocument;
+class CCmdUI;
 class CFrameWnd : public CWnd
 {
    // Qt interfaces
@@ -1724,6 +1725,7 @@ public:
       BOOL bNotify = TRUE
    );
    void OnClose();
+   afx_msg void OnUpdateRecentFileList(CCmdUI *pCmdUI);
 
    // These methods are only to be used in CDocTemplate initialization...
    virtual void privateSetActiveView(CView* pView) { m_pView = pView; }
@@ -1799,6 +1801,11 @@ protected:
 
 class CView : public CWnd
 {
+   // Qt interfaces
+public:
+   virtual void menuAction_triggered(int id);
+   virtual void menuAboutToShow(CMenu* menu);
+   
 public:
    CView(CWnd* parent);
    virtual ~CView();
@@ -1884,6 +1891,12 @@ public:
       UINT_PTR nIDNewItem = 0,
       LPCTSTR lpszNewItem = NULL
    );
+   BOOL InsertMenu( 
+      UINT nPosition, 
+      UINT nFlags, 
+      UINT_PTR nIDNewItem = 0, 
+      LPCTSTR lpszNewItem = NULL  
+   ); 
    BOOL SetDefaultItem(
       UINT uItem,
       BOOL fByPos = FALSE
@@ -3097,6 +3110,12 @@ protected:
 
 class CWinApp : public CWinThread
 {
+   // Qt interfaces
+public:
+   virtual void menuAction_triggered(int id);
+   virtual void menuAboutToShow(CMenu* menu);
+   QMainWindow* qtMainWindow;
+   
 public:
    CWinApp();
    virtual ~CWinApp();
@@ -3135,14 +3154,12 @@ public:
    virtual CWnd * GetMainWnd( ) { return m_pMainWnd; }
    afx_msg void OnFileNew( );
    afx_msg void OnFileOpen( );
+   afx_msg void OnOpenRecentFile( UINT nID );
    BOOL ExitInstance() { return TRUE; }
 public:
    CFrameWnd* m_pMainWnd;
    CRecentFileList* m_pRecentFileList;
    // Qt interfaces
-   QMainWindow* qtMainWindow;
-   virtual void menuAction_triggered(int id) {}
-   virtual void menuAboutToShow(CMenu* menu) {}
 
 protected:
    QList<CDocTemplate*> _docTemplates;

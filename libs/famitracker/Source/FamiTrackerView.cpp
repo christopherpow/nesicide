@@ -3613,8 +3613,9 @@ void CFamiTrackerView::menuAboutToShow(CMenu* menu)
    //	ON_UPDATE_COMMAND_UI(ID_SPEED_CUSTOM, OnUpdateSpeedCustom)
    cmdUI.m_nID = ID_SPEED_CUSTOM;
    OnUpdateSpeedCustom(&cmdUI);
-   
-   m_pDocument->menuAboutToShow(menu);
+
+   // Base class handler.   
+   CView::menuAboutToShow(menu);
 }
 
 void CFamiTrackerView::menuAction_triggered(int id)
@@ -3696,6 +3697,7 @@ void CFamiTrackerView::menuAction_triggered(int id)
    {
       (this->*((actionHandlers[id])))();
    }
-   
-   m_pDocument->menuAction_triggered(id);
+ 
+   // Base class handler.
+   CView::menuAction_triggered(id);
 }

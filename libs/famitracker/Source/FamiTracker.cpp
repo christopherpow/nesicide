@@ -66,10 +66,6 @@ const DWORD	SHARED_MEM_SIZE			= 256;
 //#endif
 //END_MESSAGE_MAP()
 
-void CFamiTrackerApp::menuAboutToShow(CMenu* menu)
-{
-}
-
 void CFamiTrackerApp::menuAction_triggered(int id)
 {
    typedef void (CFamiTrackerApp::*actionHandler)();
@@ -102,6 +98,9 @@ void CFamiTrackerApp::menuAction_triggered(int id)
    {
       (this->*((actionHandlers[id])))();
    }
+   
+   // Base class handlers.
+   CWinApp::menuAction_triggered(id);
 }
 
 // Include this for windows xp style in visual studio 2005 or later
