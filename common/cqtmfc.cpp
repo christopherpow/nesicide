@@ -5749,7 +5749,7 @@ void CFrameWnd::OnUpdateRecentFileList(CCmdUI *pCmdUI)
    }
    else
    {
-      pMRU->InsertMenu(ID_APP_EXIT,MF_STRING|MF_BYCOMMAND,ID_FILE_MRU_FILE1,"Recent File List");
+      pMRU->InsertMenu(ID_APP_EXIT,MF_STRING|MF_BYCOMMAND,ID_FILE_MRU_FILE1,"Recent File");
       pMRU->EnableMenuItem(ID_FILE_MRU_FILE1,false);
    }
    // CP: Not sure why separator disappears...
