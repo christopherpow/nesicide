@@ -47,6 +47,8 @@ protected:
    void hideEvent(QHideEvent *);
    void resizeEvent(QResizeEvent *event);
    void timerEvent(QTimerEvent *event);
+public:
+   void menuAction_triggered(int id);
 private:
    QTimer* idleTimer;
    CFamiTrackerDoc* m_pDocument;
@@ -219,6 +221,7 @@ public:
 	afx_msg void OnEnKeyStepChange();
 	afx_msg void OnHelpPerformance();
 
+   afx_msg void OnUpdateRecentFileList(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateSBTempo(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateSBPosition(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateSBInstrument(CCmdUI *pCmdUI);
@@ -384,7 +387,6 @@ public slots:
    void framesSpin_valueChanged(int arg1, int arg2);
    void keyStepSpin_valueChanged(int arg1, int arg2);
    void keyRepeat_clicked();
-   void menuAction_triggered(int id);
    void menuAboutToShow(CMenu* menu);
    
 signals:

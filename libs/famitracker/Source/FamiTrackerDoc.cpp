@@ -219,6 +219,29 @@ IMPLEMENT_DYNCREATE(CFamiTrackerDoc, CDocument)
 //	ON_COMMAND(ID_EDIT_CLEARPATTERNS, OnEditClearPatterns)
 //END_MESSAGE_MAP()
 
+void CFamiTrackerDoc::menuAction_triggered(int id)
+{
+   typedef void (CFamiTrackerDoc::*actionHandler)();
+   QHash<UINT_PTR,actionHandler> actionHandlers;
+   //	ON_COMMAND(ID_FILE_SAVE_AS, OnFileSaveAs)
+   actionHandlers.insert(ID_FILE_SAVE_AS,&CFamiTrackerDoc::OnFileSaveAs);
+   //	ON_COMMAND(ID_FILE_SAVE, OnFileSave)
+   actionHandlers.insert(ID_FILE_SAVE,&CFamiTrackerDoc::OnFileSave);
+   //	ON_COMMAND(ID_CLEANUP_REMOVEUNUSEDINSTRUMENTS, OnEditRemoveUnusedInstruments)
+   actionHandlers.insert(ID_CLEANUP_REMOVEUNUSEDINSTRUMENTS,&CFamiTrackerDoc::OnEditRemoveUnusedInstruments);
+   //	ON_COMMAND(ID_CLEANUP_REMOVEUNUSEDPATTERNS, OnEditRemoveUnusedPatterns)
+   actionHandlers.insert(ID_CLEANUP_REMOVEUNUSEDPATTERNS,&CFamiTrackerDoc::OnEditRemoveUnusedPatterns);
+   //	ON_COMMAND(ID_EDIT_CLEARPATTERNS, OnEditClearPatterns)
+   actionHandlers.insert(ID_EDIT_CLEARPATTERNS,&CFamiTrackerDoc::OnEditClearPatterns);
+   
+   if ( actionHandlers.contains(id) )
+   {
+      (this->*((actionHandlers[id])))();
+   }
+   
+   AfxGetMainWnd()->menuAction_triggered(id);
+}
+
 //
 // Convert an instrument type to sound chip
 //
@@ -551,6 +574,8 @@ void CFamiTrackerDoc::OnFileSave()
 		OnFileSaveAs();
 	else
 		CDocument::OnFileSave();
+   
+   AfxGetApp()->AddToRecentFileList(GetPathName());
 }
 
 void CFamiTrackerDoc::OnFileSaveAs()
@@ -570,8 +595,8 @@ void CFamiTrackerDoc::OnEditClearPatterns()
 {
 	CMainFrame *pMainFrame = (CMainFrame*)AfxGetMainWnd();
 
-//	if (AfxMessageBox(IDS_CLEARPATTERN, MB_OKCANCEL | MB_ICONWARNING) == IDCANCEL)
-//		return;
+	if (AfxMessageBox(IDS_CLEARPATTERN, MB_OKCANCEL | MB_ICONWARNING) == IDCANCEL)
+		return;
 
 	m_pSelectedTune->ClearEverything();
 	pMainFrame->ResetUndo();
@@ -588,8 +613,8 @@ void CFamiTrackerDoc::OnEditRemoveUnusedPatterns()
 	// All tracks and patterns are scanned
 	//
 
-//	if (AfxMessageBox(IDS_REMOVE_PATTERNS, MB_YESNO | MB_ICONINFORMATION) == IDNO)
-//		return;
+	if (AfxMessageBox(IDS_REMOVE_PATTERNS, MB_YESNO | MB_ICONINFORMATION) == IDNO)
+		return;
 
 	for (unsigned int i = 0; i <= m_iTracks; ++i) {
 		for (unsigned int c = 0; c < m_iChannelsAvailable; ++c) {
@@ -618,8 +643,8 @@ void CFamiTrackerDoc::OnEditRemoveUnusedInstruments()
 	// All tracks and patterns are scanned
 	//
 
-//	if (AfxMessageBox(IDS_REMOVE_INSTRUMENTS, MB_YESNO | MB_ICONINFORMATION) == IDNO)
-//		return;
+	if (AfxMessageBox(IDS_REMOVE_INSTRUMENTS, MB_YESNO | MB_ICONINFORMATION) == IDNO)
+		return;
 
 	// Current instrument might disappear
 	pMainFrame->CloseInstrumentEditor();
@@ -4099,10 +4124,10 @@ void CFamiTrackerDoc::SaveInstrument(unsigned int Instrument, CString FileName)
 
 	ASSERT(pInstrument != NULL);
 
-//	if (InstrumentFile.m_hFile == CFile::hFileNull) {
-//		AfxMessageBox(IDS_INVALID_INST_FILE, MB_ICONERROR);
-//		return;
-//	}
+	if (InstrumentFile.m_hFile == CFile::hFileNull) {
+		AfxMessageBox(IDS_INVALID_INST_FILE, MB_ICONERROR);
+		return;
+	}
 
 	// Write header
 	InstrumentFile.Write(INST_HEADER, (UINT)strlen(INST_HEADER));
@@ -4137,10 +4162,10 @@ int CFamiTrackerDoc::LoadInstrument(CString FileName)
 	// Open file
 	CFile InstrumentFile(FileName, CFile::modeRead);
 
-//	if (InstrumentFile.m_hFile == CFile::hFileNull) {
-//		AfxMessageBox(IDS_INVALID_INST_FILE, MB_ICONERROR);
-//		return -1;
-//	}
+	if (InstrumentFile.m_hFile == CFile::hFileNull) {
+		AfxMessageBox(IDS_INVALID_INST_FILE, MB_ICONERROR);
+		return -1;
+	}
 
 	// Signature
 	char Text[256];

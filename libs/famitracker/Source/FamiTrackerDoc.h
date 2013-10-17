@@ -132,6 +132,10 @@ public:
 
 class CFamiTrackerDoc : public CDocument, public CFamiTrackerDocInterface
 {
+   // Qt stuff
+public:
+   void menuAction_triggered(int id);
+   
 public:
 	CFamiTrackerDoc();
 	DECLARE_DYNCREATE(CFamiTrackerDoc)

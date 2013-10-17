@@ -1889,7 +1889,10 @@ BOOL CStringArray::IsEmpty( ) const
  *  Class CFile
  */
 
+HANDLE CFile::hFileNull = 0;
+
 CFile::CFile()
+   : m_hFile(hFileNull)
 {
 }
 
@@ -1897,6 +1900,7 @@ CFile::CFile(
    LPCTSTR lpszFileName,
    UINT nOpenFlags
 )
+   : m_hFile(hFileNull)
 {
    QFile::OpenMode flags;
 #if UNICODE
@@ -1908,6 +1912,10 @@ CFile::CFile(
    if ( nOpenFlags&modeWrite ) flags = QIODevice::WriteOnly;
    if ( nOpenFlags&modeCreate ) flags |= QIODevice::Truncate;
    _qfile.open(flags);
+   if ( _qfile.isOpen() )
+   {
+      m_hFile = (HANDLE)&_qfile;
+   }
 }
 
 CFile::~CFile()
@@ -1931,7 +1939,12 @@ BOOL CFile::Open(
    if ( nOpenFlags&modeRead ) flags = QIODevice::ReadOnly;
    if ( nOpenFlags&modeWrite ) flags = QIODevice::WriteOnly;
    if ( nOpenFlags&modeCreate ) flags |= QIODevice::Truncate;
-   return _qfile.open(flags);
+   BOOL ok = _qfile.open(flags);
+   if ( ok )
+   {
+      m_hFile = (HANDLE)&_qfile;
+   }
+   return ok;
 }
 
 void CFile::Write(
@@ -2007,6 +2020,7 @@ void CFile::Close()
 {
    if ( _qfile.isOpen() )
       _qfile.close();
+   m_hFile = hFileNull;
 }
 
 CRect::CRect( )
@@ -5569,6 +5583,16 @@ CFrameWnd::~CFrameWnd()
    delete m_pMenu;
 }
 
+void CFrameWnd::menuAction_triggered(int id)
+{
+   AfxGetApp()->menuAction_triggered(id);
+}
+
+void CFrameWnd::menuAboutToShow(CMenu* menu)
+{
+   AfxGetApp()->menuAboutToShow(menu);
+}
+
 void CFrameWnd::addControlBar(int area, QWidget *bar)
 {
    switch ( area )
@@ -6426,6 +6450,16 @@ CDocument::CDocument()
    QObject::connect(this,SIGNAL(documentClosed()),ptrToTheApp->qtMainWindow,SLOT(documentClosed()));
 }
 
+void CDocument::menuAction_triggered(int id)
+{
+   AfxGetMainWnd()->menuAction_triggered(id);
+}
+
+void CDocument::menuAboutToShow(CMenu* menu)
+{
+   AfxGetMainWnd()->menuAboutToShow(menu);
+}
+
 void CDocument::OnCloseDocument()
 { 
    emit documentClosed(); 
@@ -6503,6 +6537,11 @@ void CDocument::SetPathName(
 )
 {
    m_strPathName = lpszPathName;
+   
+   if ( bAddToMRU )
+   {
+      AfxGetApp()->AddToRecentFileList(lpszPathName);
+   }
 }
 
 BOOL CDocument::CanCloseFrame(
@@ -6814,6 +6853,16 @@ void CCommandLineInfo::ParseParam(
    qDebug("CCommandLineInfo::ParseParam");
 }
 
+CWinApp::CWinApp() 
+   : m_pMainWnd(NULL), m_pRecentFileList(NULL) 
+{
+}
+
+CWinApp::~CWinApp()
+{
+   delete m_pRecentFileList;
+}
+
 BOOL CWinApp::DoPromptFileName(CString& fileName, UINT nIDSTitle, DWORD lFlags,
 	BOOL bOpenFileDialog, CDocTemplate* pTemplate)
 		// if pTemplate==NULL => all document templates
@@ -6938,6 +6987,23 @@ void CWinApp::AddDocTemplate(CDocTemplate* pDocTemplate)
    _docTemplates.append(pDocTemplate);
 }
 
+void CWinApp::AddToRecentFileList( 
+   LPCTSTR lpszPathName  
+)
+{
+}
+
+void CWinApp::LoadStdProfileSettings( 
+   UINT nMaxMRU 
+)
+{
+   if ( m_pRecentFileList )
+   {
+      delete m_pRecentFileList;
+   }
+   m_pRecentFileList = new CRecentFileList(0,"Recent File List","File%d",nMaxMRU);
+}
+
 CDocument* CWinApp::OpenDocumentFile(
    LPCTSTR lpszFileName
 )
@@ -6955,6 +7021,11 @@ CDocument* CWinApp::OpenDocumentFile(
    if ( pDocTemplate )
    {
       pDoc = pDocTemplate->OpenDocumentFile(lpszFileName);
+      
+      if ( lpszFileName )
+      {
+         m_pRecentFileList->Add(lpszFileName);
+      }
    }
    return pDoc;
 }
@@ -9478,6 +9549,87 @@ void CCmdUI::SetText(
    else if ( m_pSubMenu )
    {
    }
+}
+
+CRecentFileList::CRecentFileList( 
+   UINT nStart, 
+   LPCTSTR lpszSection, 
+   LPCTSTR lpszEntryFormat, 
+   int nSize, 
+   int nMaxDispLen  
+)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
+   QString key;
+   int n;
+   
+#if UNICODE
+   _regSection = QString::fromWCharArray(lpszSection);
+   _regEntryFormat = QString::fromWCharArray(lpszEntryFormat);
+#else
+   _regSection = QString::fromLatin1(lpszSection);
+   _regEntryFormat = QString::fromLatin1(lpszEntryFormat);
+#endif
+
+   _nSize = nSize;
+
+   for ( n = 0; n < nSize; n++ )
+   {
+      key.sprintf(_regEntryFormat.toLatin1().constData(),n);
+      key.prepend(_regSection+"/");
+      
+      if ( !settings.value(key).toString().isEmpty() )
+      {
+         _recentFiles.append(settings.value(key).toString());
+      }
+   }
+}
+
+int CRecentFileList::GetSize() const
+{
+   return _recentFiles.count();
+}
+
+void CRecentFileList::Add( 
+   LPCTSTR lpszPathName  
+)
+{
+#if UNICODE
+   QString str = QString::fromWCharArray(lpszPathName);
+#else
+   QString str = QString::fromLatin1(lpszPathName);
+#endif
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
+   QString key;
+   QString def;
+   int n;
+   
+   _recentFiles.prepend(str);
+   if ( _recentFiles.count() > _nSize )
+   {
+      _recentFiles.removeLast();
+   }
+   
+   for ( n = 0; n < _recentFiles.count(); n++ )
+   {
+      key.sprintf(_regEntryFormat.toLatin1().constData(),n+1);
+      key.prepend(_regSection+"/");
+         
+      def.sprintf(_recentFiles.at(n).toLatin1().constData());
+      
+      settings.setValue(key,def);   
+   }
+}
+
+BOOL CRecentFileList::GetDisplayName( 
+   CString& strName, 
+   int nIndex, 
+   LPCTSTR lpszCurDir, 
+   int nCurDir, 
+   BOOL bAtLeastName 
+) const
+{
+   strName = _recentFiles.at(nIndex);
 }
 
 int EnumFontFamiliesEx(

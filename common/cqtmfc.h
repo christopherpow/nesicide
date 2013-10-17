@@ -719,6 +719,7 @@ public:
       modeWrite = 0x04,
       shareDenyWrite = 0x08
    };
+   static HANDLE hFileNull;
    enum
    {
       begin = 1,
@@ -756,6 +757,8 @@ public:
    );
    virtual void Close();
 
+public:
+   HANDLE m_hFile;
 private:
    QFile _qfile;
 };
@@ -1688,6 +1691,8 @@ class CFrameWnd : public CWnd
    // Qt interfaces
 public:
    void addControlBar(int area,QWidget* bar);
+   virtual void menuAction_triggered(int id);
+   virtual void menuAboutToShow(CMenu* menu);
 
    // MFC interfaces
 public:
@@ -1740,6 +1745,9 @@ class CDocTemplate;
 class CDocument : public QObject, public CCmdTarget
 {
    Q_OBJECT
+public:
+   virtual void menuAction_triggered(int id);
+   virtual void menuAboutToShow(CMenu* menu);
 signals:
    void setModified(bool f);
    void updateViews(long hint);
@@ -3056,10 +3064,42 @@ public:
    QStringList _args;
 };
 
+#define _AFX_MRU_COUNT 4
+#define AFX_ABBREV_FILENAME_LEN 30
+
+class CRecentFileList
+{
+public:
+   CRecentFileList( 
+      UINT nStart, 
+      LPCTSTR lpszSection, 
+      LPCTSTR lpszEntryFormat, 
+      int nSize, 
+      int nMaxDispLen = AFX_ABBREV_FILENAME_LEN  
+   );
+   int GetSize( ) const;
+   virtual void Add( 
+      LPCTSTR lpszPathName  
+   );
+   virtual BOOL GetDisplayName( 
+      CString& strName, 
+      int nIndex, 
+      LPCTSTR lpszCurDir, 
+      int nCurDir, 
+      BOOL bAtLeastName = TRUE 
+   ) const;
+protected:
+   QString _regSection;
+   QString _regEntryFormat;
+   int _nSize;
+   QStringList _recentFiles;
+};
+
 class CWinApp : public CWinThread
 {
 public:
-   CWinApp() : m_pMainWnd(NULL) {}
+   CWinApp();
+   virtual ~CWinApp();
    BOOL DoPromptFileName(CString& fileName, UINT nIDSTitle, DWORD lFlags,
       BOOL bOpenFileDialog, CDocTemplate* pTemplate);
    void ParseCommandLine(
@@ -3067,6 +3107,12 @@ public:
    );
    BOOL ProcessShellCommand(
       CCommandLineInfo& rCmdInfo
+   );
+   void LoadStdProfileSettings( 
+      UINT nMaxMRU = _AFX_MRU_COUNT  
+   );
+   virtual void AddToRecentFileList( 
+      LPCTSTR lpszPathName  
    );
    void AddDocTemplate(CDocTemplate* pDocTemplate);
    POSITION GetFirstDocTemplatePosition( ) const;
@@ -3092,8 +3138,11 @@ public:
    BOOL ExitInstance() { return TRUE; }
 public:
    CFrameWnd* m_pMainWnd;
+   CRecentFileList* m_pRecentFileList;
    // Qt interfaces
    QMainWindow* qtMainWindow;
+   virtual void menuAction_triggered(int id) {}
+   virtual void menuAboutToShow(CMenu* menu) {}
 
 protected:
    QList<CDocTemplate*> _docTemplates;

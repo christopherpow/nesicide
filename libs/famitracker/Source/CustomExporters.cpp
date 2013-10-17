@@ -39,16 +39,16 @@ CCustomExporter& CCustomExporters::GetCurrentExporter( void ) const
 
 void CCustomExporters::FindCustomExporters( CString PluginPath )
 {
-	CFileFind finder;
-
-	CString path;
+   CFileFind finder;
+   
+   CString path;
    BOOL bWorking;
 
 #if defined(Q_OS_WIN32)
    // Windows
    path = PluginPath + _T("\\*.dll");
-	bWorking = finder.FindFile( path );
-	while (bWorking)
+   bWorking = finder.FindFile( path );
+   while (bWorking)
 	{
 		bWorking = finder.FindNextFile();
 		CString fileName = finder.GetFileName();

@@ -325,20 +325,20 @@ void CMainFrame::showEvent(QShowEvent *)
       QObject::connect(m_pDocument,SIGNAL(updateViews(long)),this,SLOT(updateViews(long)));
       QObject::connect(m_pDocument,SIGNAL(documentSaved()),this,SIGNAL(documentSaved()));
       QObject::connect(m_pDocument,SIGNAL(documentClosed()),this,SIGNAL(documentClosed()));
-      QObject::connect(m_pMenu->GetSubMenu(0),SIGNAL(menuAction_triggered(int)),this,SLOT(menuAction_triggered(int)));
-      QObject::connect(m_pMenu->GetSubMenu(1),SIGNAL(menuAction_triggered(int)),this,SLOT(menuAction_triggered(int)));
-      QObject::connect(m_pMenu->GetSubMenu(2),SIGNAL(menuAction_triggered(int)),this,SLOT(menuAction_triggered(int)));
-      QObject::connect(m_pMenu->GetSubMenu(3),SIGNAL(menuAction_triggered(int)),this,SLOT(menuAction_triggered(int)));
-      QObject::connect(m_pMenu->GetSubMenu(4),SIGNAL(menuAction_triggered(int)),this,SLOT(menuAction_triggered(int)));
-      QObject::connect(m_pMenu->GetSubMenu(5),SIGNAL(menuAction_triggered(int)),this,SLOT(menuAction_triggered(int)));
-      QObject::connect(m_pMenu->GetSubMenu(6),SIGNAL(menuAction_triggered(int)),this,SLOT(menuAction_triggered(int)));
-      QObject::connect(m_pMenu->GetSubMenu(0),SIGNAL(menuAboutToShow(CMenu*)),this,SLOT(menuAboutToShow(CMenu*)));
-      QObject::connect(m_pMenu->GetSubMenu(1),SIGNAL(menuAboutToShow(CMenu*)),this,SLOT(menuAboutToShow(CMenu*)));
-      QObject::connect(m_pMenu->GetSubMenu(2),SIGNAL(menuAboutToShow(CMenu*)),this,SLOT(menuAboutToShow(CMenu*)));
-      QObject::connect(m_pMenu->GetSubMenu(3),SIGNAL(menuAboutToShow(CMenu*)),this,SLOT(menuAboutToShow(CMenu*)));
-      QObject::connect(m_pMenu->GetSubMenu(4),SIGNAL(menuAboutToShow(CMenu*)),this,SLOT(menuAboutToShow(CMenu*)));
-      QObject::connect(m_pMenu->GetSubMenu(5),SIGNAL(menuAboutToShow(CMenu*)),this,SLOT(menuAboutToShow(CMenu*)));
-      QObject::connect(m_pMenu->GetSubMenu(6),SIGNAL(menuAboutToShow(CMenu*)),this,SLOT(menuAboutToShow(CMenu*)));
+      QObject::connect(m_pMenu->GetSubMenu(0),SIGNAL(menuAction_triggered(int)),m_pView,SLOT(menuAction_triggered(int)));
+      QObject::connect(m_pMenu->GetSubMenu(1),SIGNAL(menuAction_triggered(int)),m_pView,SLOT(menuAction_triggered(int)));
+      QObject::connect(m_pMenu->GetSubMenu(2),SIGNAL(menuAction_triggered(int)),m_pView,SLOT(menuAction_triggered(int)));
+      QObject::connect(m_pMenu->GetSubMenu(3),SIGNAL(menuAction_triggered(int)),m_pView,SLOT(menuAction_triggered(int)));
+      QObject::connect(m_pMenu->GetSubMenu(4),SIGNAL(menuAction_triggered(int)),m_pView,SLOT(menuAction_triggered(int)));
+      QObject::connect(m_pMenu->GetSubMenu(5),SIGNAL(menuAction_triggered(int)),m_pView,SLOT(menuAction_triggered(int)));
+      QObject::connect(m_pMenu->GetSubMenu(6),SIGNAL(menuAction_triggered(int)),m_pView,SLOT(menuAction_triggered(int)));
+      QObject::connect(m_pMenu->GetSubMenu(0),SIGNAL(menuAboutToShow(CMenu*)),m_pView,SLOT(menuAboutToShow(CMenu*)));
+      QObject::connect(m_pMenu->GetSubMenu(1),SIGNAL(menuAboutToShow(CMenu*)),m_pView,SLOT(menuAboutToShow(CMenu*)));
+      QObject::connect(m_pMenu->GetSubMenu(2),SIGNAL(menuAboutToShow(CMenu*)),m_pView,SLOT(menuAboutToShow(CMenu*)));
+      QObject::connect(m_pMenu->GetSubMenu(3),SIGNAL(menuAboutToShow(CMenu*)),m_pView,SLOT(menuAboutToShow(CMenu*)));
+      QObject::connect(m_pMenu->GetSubMenu(4),SIGNAL(menuAboutToShow(CMenu*)),m_pView,SLOT(menuAboutToShow(CMenu*)));
+      QObject::connect(m_pMenu->GetSubMenu(5),SIGNAL(menuAboutToShow(CMenu*)),m_pView,SLOT(menuAboutToShow(CMenu*)));
+      QObject::connect(m_pMenu->GetSubMenu(6),SIGNAL(menuAboutToShow(CMenu*)),m_pView,SLOT(menuAboutToShow(CMenu*)));
 
       // Connect buried signals.
       qDebug("START CONNECTING BURIED SIGNALS NOW...");
@@ -970,9 +970,10 @@ void CMainFrame::menuAboutToShow(CMenu* menu)
    CCmdUI cmdUI;
    cmdUI.m_pMenu = menu;
 
-   // Pass to view class first.
-   m_pView->menuAboutToShow(menu);
-
+   // Handle MRU.
+   cmdUI.m_nID = ID_FILE_MRU_FILE1;
+   OnUpdateRecentFileList(&cmdUI);
+   
    //	ON_UPDATE_COMMAND_UI(ID_EDIT_UNDO, OnUpdateEditUndo)
    cmdUI.m_nID = ID_EDIT_UNDO;
    OnUpdateEditUndo(&cmdUI);
@@ -1087,7 +1088,7 @@ void CMainFrame::menuAboutToShow(CMenu* menu)
    OnUpdateFrameeditorLeft(&cmdUI);
 
    // Pass to app next.
-   ((CFamiTrackerApp*)AfxGetApp())->menuAboutToShow(menu);
+   AfxGetApp()->menuAboutToShow(menu);
 }
 
 void CMainFrame::menuAction_triggered(int id)
@@ -1222,16 +1223,13 @@ void CMainFrame::menuAction_triggered(int id)
    //	ON_COMMAND(ID_DECAY_SLOW, OnDecaySlow)
    actionHandlers.insert(ID_DECAY_SLOW,&CMainFrame::OnDecaySlow);
 
-   // Pass to view class first.
-   m_pView->menuAction_triggered(id);
-
    if ( actionHandlers.contains(id) )
    {
       (this->*((actionHandlers[id])))();
    }
 
    // Pass to app next.
-   ((CFamiTrackerApp*)AfxGetApp())->menuAction_triggered(id);
+   AfxGetApp()->menuAction_triggered(id);
 }
 
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
@@ -2351,6 +2349,10 @@ void CMainFrame::OnHelpPerformance()
    qDebug("Performance dialog not implemented...");
 //	m_wndPerformanceDlg.Create(MAKEINTRESOURCE(IDD_PERFORMANCE), this);
 //	m_wndPerformanceDlg.ShowWindow(SW_SHOW);
+}
+
+void CMainFrame::OnUpdateRecentFileList(CCmdUI *pCmdUI)
+{
 }
 
 void CMainFrame::OnUpdateSBInstrument(CCmdUI *pCmdUI)

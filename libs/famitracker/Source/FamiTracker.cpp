@@ -112,7 +112,7 @@ void CFamiTrackerApp::menuAction_triggered(int id)
 CFamiTrackerApp::CFamiTrackerApp() :
 //   m_bThemeActive(false),
 //	m_pMIDI(NULL),
-//	m_pAccel(NULL),
+	m_pAccel(NULL),
 	m_pSettings(NULL),
 	m_pSoundGenerator(NULL),
 	m_pChannelMap(NULL),
@@ -151,7 +151,7 @@ BOOL CFamiTrackerApp::InitInstance()
 //	// TODO: You should modify this string to be something appropriate
 //	// such as the name of your company or organization
 //	SetRegistryKey(_T(""));
-//	LoadStdProfileSettings(8);  // Load standard INI file options (including MRU)
+	LoadStdProfileSettings(8);  // Load standard INI file options (including MRU)
 
 	// Load program settings
 	m_pSettings = new CSettings();

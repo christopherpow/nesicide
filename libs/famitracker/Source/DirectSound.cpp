@@ -456,11 +456,11 @@ void CDSoundChannel::Reset()
 
 int CDSoundChannel::WaitForDirectSoundEvent() const
 {
-   ftmAudioSemaphore.acquire();
-   return BUFFER_IN_SYNC;
-//	// Wait for a DirectSound event
+	// Wait for a DirectSound event
 //	if (!IsPlaying())
 //		Play();
+   ftmAudioSemaphore.acquire();
+   return BUFFER_IN_SYNC;
 
 //	// Wait for events
 //	switch (WaitForMultipleObjects(2, m_hEventList, FALSE, INFINITE)) {
