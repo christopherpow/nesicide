@@ -795,7 +795,7 @@ void CFrameEditor::keyPressEvent(QKeyEvent *event)
    MSG msg;
    msg.hwnd = (HWND)this;
    msg.message = WM_KEYDOWN;
-   msg.wParam = event->key();
+   msg.wParam = qtToMfcKeycode(event->key());
    if ( PreTranslateMessage(&msg) )
    {
       return;

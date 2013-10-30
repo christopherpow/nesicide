@@ -86,6 +86,8 @@ class CSoundGen : public CWinThread, ICallback
 public slots:
    void onIdleSlot();
    void recvThreadMessage(unsigned int m,unsigned int w,unsigned int l);
+protected:
+	DECLARE_DYNCREATE(CSoundGen)
 public:
 	CSoundGen();
 	virtual ~CSoundGen();

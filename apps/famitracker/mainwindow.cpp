@@ -21,8 +21,6 @@ MainWindow::MainWindow(QWidget *parent) :
    qtMfcInit(this);
    theApp.InitInstance();
 
-   openFile("");
-
    setCentralWidget(theApp.m_pMainWnd->toQWidget());
 
    QObject::connect(theApp.m_pMainWnd,SIGNAL(addToolBarWidget(QToolBar*)),this,SLOT(addToolBarWidget(QToolBar*)));

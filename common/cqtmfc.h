@@ -80,6 +80,7 @@ enum
    AFX_IDS_SAVEFILECOPY,
    AFX_IDS_UNTITLED,
    AFX_IDP_ASK_TO_SAVE,
+   AFX_IDP_FAILED_TO_CREATE_DOC,
 
    WM_SIZEPARENT,
    WM_INITIALUPDATE,
@@ -245,6 +246,8 @@ struct AFX_SIZEPARENTPARAMS
     BOOL bStretch;   // should stretch to fill all space
 };
 
+#define ATL_MAKEINTRESOURCE(x) CString(QString::number(x))
+
 #if UNICODE
 typedef LPCWSTR LPCTSTR;
 typedef wchar_t TCHAR;
@@ -282,17 +285,6 @@ TCHAR* A2T(char* str);
 char* T2A(TCHAR* str);
 
 typedef int* POSITION;
-
-#define DECLARE_DYNCREATE(x)
-#define IMPLEMENT_DYNCREATE(x,y)
-#define DECLARE_DYNAMIC(x)
-#define IMPLEMENT_DYNAMIC(x,y)
-#define DECLARE_MESSAGE_MAP() QHash<int,void*> _messageMap;
-
-#define BEGIN_MESSAGE_MAP(dc,bc)
-#define END_MESSAGE_MAP()
-
-#define RUNTIME_CLASS(x) new x
 
 #define AFX_MSG_CALL
 
@@ -508,16 +500,98 @@ class CDumpContext
 {
 };
 
+class CFrameWnd;
+class CDocument;
+struct CRuntimeClass;
+class CDocTemplate;
+class CCreateContext
+{
+public:
+   CFrameWnd* m_pCurrentFrame;
+	CDocument* m_pCurrentDoc;
+	CRuntimeClass* m_pNewViewClass;
+	CDocTemplate* m_pNewDocTemplate;
+};
+
+class CObject;
+struct CRuntimeClass
+{
+   LPCSTR m_lpszClassName; // A null-terminated string containing the ASCII class name.
+   int m_nObjectSize; // The size of the object, in bytes. If the object has data members that point to allocated memory, the size of that memory is not included.
+   UINT m_wSchema; // The schema number ( –1 for nonserializable classes). See the IMPLEMENT_SERIAL macro for a description of the schema number.
+   CObject* ( * m_pfnCreateObject )( ); // A function pointer to the default constructor that creates an object of your class (valid only if the class supports dynamic creation; otherwise, returns NULL).
+   CRuntimeClass* ( PASCAL* m_pfn_GetBaseClass )( ); // If your application is dynamically linked to the AFXDLL version of MFC, a pointer to a function that returns the CRuntimeClass structure of the base class.
+   CRuntimeClass* m_pBaseClass;
+   CObject* CreateObject( );
+};
+
+#define RUNTIME_CLASS(class_name) (&class_name::class##class_name)
+
+#define DECLARE_DYNCREATE(class_name) \
+public: \
+   CRuntimeClass* GetRuntimeClass(); \
+   static CRuntimeClass class##class_name; \
+   static CObject* CreateObject();  
+
+#define IMPLEMENT_DYNCREATE(derived_class,base_class) \
+   CRuntimeClass derived_class::class##derived_class = \
+   { \
+   "derived_class", \
+   sizeof(derived_class), \
+   -1, \
+   &derived_class::CreateObject, \
+   NULL, \
+   RUNTIME_CLASS(base_class) \
+   }; \
+   \
+   CObject* derived_class::CreateObject() \
+   { \
+       return new derived_class; \
+   } \
+   \
+   CRuntimeClass* derived_class::GetRuntimeClass() \
+   { \
+      return &class##derived_class; \
+   }
+
+#define DECLARE_DYNAMIC(class_name) \
+public: \
+   CRuntimeClass* GetRuntimeClass(); \
+   static CRuntimeClass class##class_name;
+
+#define IMPLEMENT_DYNAMIC(derived_class,base_class) \
+   CRuntimeClass derived_class::class##derived_class = \
+   { \
+   "derived_class", \
+   sizeof(derived_class), \
+   -1, \
+   NULL, \
+   NULL, \
+   RUNTIME_CLASS(base_class) \
+   }; \
+   \
+   CRuntimeClass* derived_class::GetRuntimeClass() \
+   { \
+      return &class##derived_class; \
+   }
+
 class CObject
 {
 public:
+   DECLARE_DYNAMIC(CObject)
    CObject() {}
    virtual ~CObject() {}
    virtual void DeleteObject() {}
+   virtual CRuntimeClass* GetRuntimeClass( ) const;
+   BOOL IsKindOf( 
+      const CRuntimeClass* pClass  
+   ) const;
+   
 };
 
 class CCmdTarget : public CObject
 {
+   DECLARE_DYNCREATE(CCmdTarget)
 public:
    CCmdTarget() {}
    virtual ~CCmdTarget() {}
@@ -711,6 +785,7 @@ class CFileException : public CException
 
 class CFile : public CCmdTarget
 {
+   DECLARE_DYNAMIC(CFile)
 public:
    enum
    {
@@ -896,6 +971,11 @@ public:
       return QRect(left,top,right-left,bottom-top);
    }
 };
+
+#define AFX_DATA
+static AFX_DATA const CRect rectDefault;
+
+#define FWS_ADDTOTITLE 0x1
 
 class CGdiObject : public CObject
 {
@@ -1086,8 +1166,8 @@ public:
    void detach();
    void flush();
    void doFlush(bool doIt) { _doFlush = doIt; }
-   QPainter* painter() { return _qpainter; }
-   QPixmap* pixmap() { return _qpixmap; }
+   QPainter* painter() { return &_qpainter; }
+   QPixmap* pixmap() { return &_qpixmap; }
    QSize pixmapSize() { return _bitmapSize; }
    QWidget* widget() { return _qwidget; }
    QPixmap* bitmap() { return _bitmap?_bitmap->toQPixmap():NULL; }
@@ -1314,8 +1394,8 @@ private:
    bool attached;
    bool _doFlush;
    QWidget*    _qwidget;
-   QPixmap*    _qpixmap;
-   QPainter*   _qpainter;
+   QPixmap    _qpixmap;
+   QPainter   _qpainter;
    CPen*       _pen;
    CBrush*     _brush;
    CFont*      _font;
@@ -1396,6 +1476,7 @@ class CWnd : public QWidget, public CCmdTarget, public QtUIElement
 {
    Q_OBJECT
    // MFC interfaces
+   DECLARE_DYNAMIC(CWnd)
 public:
    CWnd(CWnd* parent=0);
    virtual ~CWnd();
@@ -1405,6 +1486,10 @@ public:
       CWnd* pOwnerWnd
    );
    CMenu* GetMenu( ) const { return m_pMenu; }
+   CWnd* GetDescendantWindow( 
+      int nID, 
+      BOOL bOnlyPerm = FALSE  
+   ) const;
    BOOL EnableToolTips(
       BOOL bEnable = TRUE
    );
@@ -1433,6 +1518,26 @@ public:
       reposQuery,
       reposExtra
    };
+   virtual BOOL Create( 
+      LPCTSTR lpszClassName, 
+      LPCTSTR lpszWindowName, 
+      DWORD dwStyle = WS_OVERLAPPEDWINDOW, 
+      const RECT& rect = rectDefault, 
+      CWnd* pParentWnd = NULL, 
+      LPCTSTR lpszMenuName = NULL, 
+      DWORD dwExStyle = 0, 
+      CCreateContext* pContext = NULL  
+   );
+   virtual BOOL CreateEx(
+      DWORD dwExStyle,
+      LPCTSTR lpszClassName,
+      LPCTSTR lpszWindowName,
+      DWORD dwStyle,
+      const RECT& rect,
+      CWnd* pParentWnd,
+      UINT nID,
+      LPVOID lpParam = NULL
+   );
    void UpdateDialogControls(
       CCmdTarget* pTarget,
       BOOL bDisableIfNoHndler
@@ -1449,19 +1554,9 @@ public:
    void DragAcceptFiles(
       BOOL bAccept = TRUE
    );
-   virtual BOOL CreateEx(
-      DWORD dwExStyle,
-      LPCTSTR lpszClassName,
-      LPCTSTR lpszWindowName,
-      DWORD dwStyle,
-      const RECT& rect,
-      CWnd* pParentWnd,
-      UINT nID,
-      LPVOID lpParam = NULL
-   );
    virtual BOOL PreTranslateMessage(
       MSG* pMsg
-   ) { return FALSE; }
+   );
    void MapWindowPoints(
       CWnd* pwndTo,
       LPRECT lpRect
@@ -1630,8 +1725,6 @@ public:
 
    // This method only for Qt glue
    UINT_PTR mfcTimerId(int qtTimerId) { return qtToMfcTimer.value(qtTimerId); }
-   // These methods are only to be used in CDocTemplate initialization...
-   void privateSetParentFrame(CFrameWnd* pFrameWnd) { m_pFrameWnd = pFrameWnd; }
 
    // MFC-to-Qt conversions
 protected:
@@ -1681,14 +1774,12 @@ public:
    HWND m_hWnd;
 };
 
-#define AFX_DATA
-static AFX_DATA const CRect rectDefault;
-
 class CView;
 class CDocument;
 class CCmdUI;
 class CFrameWnd : public CWnd
 {
+   DECLARE_DYNCREATE(CFrameWnd)
    // Qt interfaces
 public:
    void addControlBar(int area,QWidget* bar);
@@ -1699,6 +1790,18 @@ public:
 public:
    CFrameWnd(CWnd* parent = 0);
    virtual ~CFrameWnd();
+   virtual BOOL Create( 
+      LPCTSTR lpszClassName, 
+      LPCTSTR lpszWindowName, 
+      DWORD dwStyle = WS_OVERLAPPEDWINDOW, 
+      const RECT& rect = rectDefault, 
+      CWnd* pParentWnd = NULL, 
+      LPCTSTR lpszMenuName = NULL, 
+      DWORD dwExStyle = 0, 
+      CCreateContext* pContext = NULL  
+   );
+   BOOL LoadFrame(UINT nIDResource, DWORD dwDefaultStyle,
+      CWnd* pParentWnd, CCreateContext* pContext);
    virtual void GetMessageString(
       UINT nID,
       CString& rMessage
@@ -1719,7 +1822,8 @@ public:
    void SetMessageText(
       UINT nID
    );
-   CView* GetActiveView( ) const { return m_pView; } // Only one view for SDI
+   void SetActiveView(CView* pViewNew, BOOL bNotify) { m_pViewActive = pViewNew; }
+   CView* GetActiveView( ) const { return m_pViewActive; } // Only one view for SDI
    virtual CDocument* GetActiveDocument( ) { return m_pDocument; }
    virtual void RecalcLayout(
       BOOL bNotify = TRUE
@@ -1727,12 +1831,8 @@ public:
    void OnClose();
    afx_msg void OnUpdateRecentFileList(CCmdUI *pCmdUI);
 
-   // These methods are only to be used in CDocTemplate initialization...
-   virtual void privateSetActiveView(CView* pView) { m_pView = pView; }
-   virtual void privateSetActiveDocument(CDocument* pDocument) { m_pDocument = pDocument; }
-
 protected:
-   CView* m_pView;
+   CView* m_pViewActive;
    QHBoxLayout* cbrsLeft;
    QHBoxLayout* cbrsRight;
    QVBoxLayout* cbrsTop;
@@ -1741,12 +1841,14 @@ protected:
    CDocument* m_pDocument;
    BOOL m_bInRecalcLayout;
    CRect m_rectBorder;
+   CString m_strTitle;
 };
 
 class CDocTemplate;
 class CDocument : public QObject, public CCmdTarget
 {
    Q_OBJECT
+   DECLARE_DYNCREATE(CDocument)
 public:
    virtual void menuAction_triggered(int id);
    virtual void menuAboutToShow(CMenu* menu);
@@ -1786,13 +1888,14 @@ public:
    BOOL DoSave(LPCTSTR lpszPathName, BOOL bReplace = TRUE);
    virtual void UpdateAllViews(void* ptr,long hint = 0) { emit updateViews(hint); }
    virtual CString GetTitle() { return m_strTitle; }
+   void AddView( 
+      CView* pView  
+   );
 
-   // These methods are only to be used in CDocTemplate initialization...
-   virtual void privateSetDocTemplate(CDocTemplate* pDocTemplate) { m_pDocTemplate = pDocTemplate; }
-   virtual void privateAddView(CView* pView) { _views.append(pView); }
-
-protected:
    CDocTemplate* m_pDocTemplate;
+   BOOL m_bAutoDelete;
+   BOOL m_bEmbedded;
+protected:
    QList<CView*> _views;
    CString m_strPathName;
    CString m_strTitle;
@@ -1801,22 +1904,30 @@ protected:
 
 class CView : public CWnd
 {
+   DECLARE_DYNCREATE(CView)
    // Qt interfaces
 public:
    virtual void menuAction_triggered(int id);
    virtual void menuAboutToShow(CMenu* menu);
    
 public:
-   CView(CWnd* parent);
+   CView();
    virtual ~CView();
+   virtual BOOL Create( 
+      LPCTSTR lpszClassName, 
+      LPCTSTR lpszWindowName, 
+      DWORD dwStyle = WS_OVERLAPPEDWINDOW, 
+      const RECT& rect = rectDefault, 
+      CWnd* pParentWnd = NULL, 
+      LPCTSTR lpszMenuName = NULL, 
+      DWORD dwExStyle = 0, 
+      CCreateContext* pContext = NULL  
+   );
    virtual void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {}
    virtual void OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags) {}
    virtual void OnSysKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {}
    virtual void OnSysKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags) {}
    CDocument* GetDocument() const { return m_pDocument; }
-
-   // These methods are only to be used in CDocTemplate initialization...
-   void privateSetDocument(CDocument* pDocument) { m_pDocument = pDocument; }
 
 protected:
    CDocument* m_pDocument;
@@ -1825,6 +1936,7 @@ protected:
 class CMenu : public QObject, public CCmdTarget
 {
    Q_OBJECT
+   DECLARE_DYNAMIC(CMenu)
    // Qt interfaces
 public:
    QMenu* toQMenu() { return _qtd; }
@@ -1921,6 +2033,7 @@ public:
 
 class CDialog : public CWnd
 {
+   DECLARE_DYNAMIC(CDialog)
    // Qt interfaces
 public:
    QDialog* _qtd;
@@ -1954,6 +2067,7 @@ public:
 
 class CCommonDialog : public CDialog
 {
+   DECLARE_DYNAMIC(CCommonDialog)
    // Qt interfaces
 public:
 protected:
@@ -1967,6 +2081,7 @@ public:
 
 class CFileDialog : public CCommonDialog
 {
+   DECLARE_DYNAMIC(CFileDialog)
    // Qt interfaces
 public:
    void setDefaultSuffix(const QString & suffix) { _qtd->setDefaultSuffix(suffix); }
@@ -2004,6 +2119,7 @@ public:
 
 class CColorDialog : public CCommonDialog
 {
+   DECLARE_DYNAMIC(CColorDialog)
    // Qt interfaces
 public:
 protected:
@@ -2026,6 +2142,7 @@ public:
 class CScrollBar : public CWnd
 {
    Q_OBJECT
+   DECLARE_DYNAMIC(CScrollBar)
    // Qt interfaces
 public:
    int sliderPosition() const { return _qtd->sliderPosition(); }
@@ -2079,6 +2196,7 @@ typedef struct _NM_UPDOWN {
 class CEdit : public CWnd
 {
    Q_OBJECT
+   DECLARE_DYNAMIC(CEdit)
    // Qt interfaces
 public:
    void setText(QString text) { if ( _dwStyle&ES_MULTILINE ) _qtd_ptedit->setPlainText(text); else _qtd_ledit->setText(text); }
@@ -2165,6 +2283,7 @@ public:
 class CButton : public CWnd
 {
    Q_OBJECT
+   DECLARE_DYNAMIC(CButton)
    // Qt interfaces
 protected:
    QAbstractButton* _qtd;
@@ -2223,6 +2342,7 @@ public:
 class CBitmapButton : public CButton
 {
    Q_OBJECT
+   DECLARE_DYNAMIC(CBitmapButton)
    // Qt interfaces
 protected:
    QToolButton* _qtd;
@@ -2259,6 +2379,7 @@ public:
 class CSliderCtrl : public CWnd
 {
    Q_OBJECT
+   DECLARE_DYNAMIC(CSliderCtrl)
    // Qt interfaces
 protected:
    QSlider* _qtd;
@@ -2318,6 +2439,7 @@ public:
 class CProgressCtrl : public CWnd
 {
    Q_OBJECT
+   DECLARE_DYNAMIC(CProgressCtrl)
    // Qt interfaces
 public:
    void setOrientation(Qt::Orientation orient) { _qtd->setOrientation(orient); }
@@ -2349,17 +2471,10 @@ public:
 #define UDS_NOTHOUSANDS      128
 #define UDS_HOTTRACK 0x0100
 
-//class QSpinBox_MFC : public QSpinBox
-//{
-//public:
-//   QSpinBox_MFC(QWidget* parent = 0) : QSpinBox(parent) {}
-//   virtual ~QSpinBox_MFC() {}
-//   QLineEdit* lineEdit() const { return QSpinBox::lineEdit(); }
-//};
-
 class CSpinButtonCtrl : public CWnd
 {
    Q_OBJECT
+   DECLARE_DYNAMIC(CSpinButtonCtrl)
    // Qt interfaces
 protected:
 //   QSpinBox_MFC* _qtd;
@@ -2416,6 +2531,7 @@ public:
 class CComboBox : public CWnd
 {
    Q_OBJECT
+   DECLARE_DYNAMIC(CComboBox)
    // Qt interfaces
 public:
 protected:
@@ -2487,6 +2603,7 @@ public:
 
 class CStatic : public CWnd
 {
+   DECLARE_DYNAMIC(CStatic)
    // Qt interfaces
 public:
    void setText(const QString & text) { _qtd->setText(text); }
@@ -2533,6 +2650,7 @@ public:
 class CGroupBox : public CWnd
 {
    Q_OBJECT
+   DECLARE_DYNAMIC(CGroupBox)
    // Qt interfaces
 protected:
    QGroupBox* _qtd;
@@ -2578,6 +2696,7 @@ public:
 class CTabCtrl : public CWnd
 {
    Q_OBJECT
+   DECLARE_DYNAMIC(CTabCtrl)
    // Qt interfaces
 public:
 protected:
@@ -2683,6 +2802,7 @@ class CImageList;
 class CListCtrl : public CWnd
 {
    Q_OBJECT
+   DECLARE_DYNAMIC(CListCtrl)
    // Qt interfaces
 public:
    QModelIndex currentIndex () const;
@@ -2818,6 +2938,7 @@ protected:
 class CListBox : public CWnd
 {
    Q_OBJECT
+   DECLARE_DYNAMIC(CListBox)
    // Qt interfaces
 public:
    void setSelectionMode(QAbstractItemView::SelectionMode mode) { _qtd->setSelectionMode(mode); }
@@ -2846,6 +2967,7 @@ public:
 
 class CCheckListBox : public CListBox
 {
+   DECLARE_DYNAMIC(CCheckListBox)
    // MFC interfaces
 public:
    CCheckListBox(CWnd* parent = 0);
@@ -2900,6 +3022,7 @@ enum
 class CTreeCtrl : public CWnd
 {
    Q_OBJECT
+   DECLARE_DYNAMIC(CTreeCtrl)
    // Qt interfaces
 public:
    void setSelectionMode(QAbstractItemView::SelectionMode mode) { _qtd->setSelectionMode(mode); }
@@ -2966,6 +3089,7 @@ public:
 class CWinThread : public QThread, public CCmdTarget
 {
    Q_OBJECT
+   DECLARE_DYNCREATE(CWinThread)
 public:
    CWinThread();
    virtual ~CWinThread();
@@ -2988,16 +3112,23 @@ public:
 public:
    HANDLE m_hThread;
    DWORD m_nThreadID;
+   CFrameWnd* m_pMainWnd;
 signals:
    void postThreadMessage(unsigned int m,unsigned int w,unsigned int l);
 public slots:
    void recvThreadMessage(unsigned int m,unsigned int w,unsigned int l) { qDebug("CWinThread::recvThreadMessage"); }
 };
 
+#define DECLARE_MESSAGE_MAP() QHash<int,void*> _messageMap;
+
+#define BEGIN_MESSAGE_MAP(dc,bc)
+#define END_MESSAGE_MAP()
+
 class CDocTemplate : public CCmdTarget
 {
+   DECLARE_DYNAMIC(CDocTemplate)
 public:
-   CDocTemplate(UINT f,CDocument* pDoc,CFrameWnd* pFrameWnd,CView* pView);
+   CDocTemplate(UINT nIDResource,CRuntimeClass* pDocClass,CRuntimeClass* pFrameClass,CRuntimeClass* pViewClass);
    virtual CDocument* OpenDocumentFile(
       LPCTSTR lpszPathName,
       BOOL bMakeVisible = TRUE
@@ -3007,6 +3138,9 @@ public:
       CDocument* pDoc,
       BOOL bMakeVisible = TRUE
    );
+   virtual void SetDefaultTitle( 
+      CDocument* pDocument  
+   ) = 0;
    enum DocStringIndex
    {
       windowTitle,
@@ -3025,27 +3159,47 @@ public:
    virtual CDocument* GetNextDoc(
       POSITION& rPos
    ) const = 0;
-   CDocument* m_pDoc;
-   CView*     m_pView;
-   CFrameWnd* m_pFrameWnd;
+   CDocument* CreateNewDocument();
+   CFrameWnd* CreateNewFrame(CDocument* pDoc, CFrameWnd* pOther);
+   virtual void AddDocument(CDocument* pDoc);
+   virtual void RemoveDocument(CDocument* pDoc);
+protected:
+   UINT m_nIDResource;
+   CRuntimeClass* m_pDocClass;
+   CRuntimeClass* m_pViewClass;
+   CRuntimeClass* m_pFrameClass;
 };
 
 class CSingleDocTemplate : public CDocTemplate
 {
+   DECLARE_DYNAMIC(CSingleDocTemplate)
 public:
-   CSingleDocTemplate(UINT f,CDocument* pDoc,CFrameWnd* pFrameWnd,CView* pView);
+   CSingleDocTemplate(UINT f,CRuntimeClass* pDocClass,CRuntimeClass* pFrameClass,CRuntimeClass* pViewClass);
    virtual CDocument* OpenDocumentFile(
       LPCTSTR lpszPathName,
+      BOOL bMakeVisible = TRUE
+   );
+   virtual CDocument* OpenDocumentFile(
+      LPCTSTR lpszPathName,
+      BOOL bAddToMRU,
       BOOL bMakeVisible = TRUE
    );
    virtual POSITION GetFirstDocPosition( ) const;
    virtual CDocument* GetNextDoc(
       POSITION& rPos
    ) const;
+   virtual void SetDefaultTitle( 
+      CDocument* pDocument  
+   );
+   void AddDocument(CDocument* pDoc);
+   void RemoveDocument(CDocument* pDoc);
+protected:
+   CDocument* m_pOnlyDoc;
 };
 
 class CCommandLineInfo : public CObject
 {
+   DECLARE_DYNAMIC(CCommandLineInfo)
 public:
    CCommandLineInfo( );
    virtual void ParseParam(
@@ -3110,6 +3264,7 @@ protected:
 
 class CWinApp : public CWinThread
 {
+   DECLARE_DYNCREATE(CWinApp)
    // Qt interfaces
 public:
    virtual void menuAction_triggered(int id);
@@ -3157,7 +3312,6 @@ public:
    afx_msg void OnOpenRecentFile( UINT nID );
    BOOL ExitInstance() { return TRUE; }
 public:
-   CFrameWnd* m_pMainWnd;
    CRecentFileList* m_pRecentFileList;
    // Qt interfaces
 
@@ -3177,6 +3331,7 @@ protected:
 
 class CControlBar : public CWnd
 {
+   DECLARE_DYNAMIC(CControlBar)
 public:
    virtual CSize CalcFixedLayout(
       BOOL bStretch,
@@ -3276,6 +3431,7 @@ class CReBar;
 class CReBarCtrl : public CWnd
 {
    Q_OBJECT
+   DECLARE_DYNAMIC(CReBarCtrl)
    // Qt interfaces
 protected:
    QToolBar* _qtd;
@@ -3304,6 +3460,7 @@ public:
 
 class CReBar : public CControlBar
 {
+   DECLARE_DYNAMIC(CReBar)
 public:
    CReBar();
    virtual ~CReBar();
@@ -3330,6 +3487,7 @@ protected:
 class CToolBar : public CControlBar
 {
    Q_OBJECT
+   DECLARE_DYNAMIC(CToolBar)
    // Qt interfaces
 public:
    QList<QObject*>* toolBarActions() { return &_toolBarActions; }
@@ -3377,6 +3535,7 @@ public:
 class CDialogBar : public CControlBar
 {
    Q_OBJECT
+   DECLARE_DYNAMIC(CDialogBar)
    // Qt interfaces
 protected:
    CDialog*     _mfcd;
@@ -3405,6 +3564,7 @@ public:
 
 class CStatusBar : public CControlBar
 {
+   DECLARE_DYNAMIC(CStatusBar)
    // Qt interfaces
 protected:
    QHash<int,CStatic*> _panes;
@@ -3446,8 +3606,9 @@ public:
 #define LPSTR_TEXTCALLBACK LPSTR_TEXTCALLBACKA
 #endif
 
- class CToolTipCtrl : public CWnd
+class CToolTipCtrl : public CWnd
 {
+   DECLARE_DYNAMIC(CToolTipCtrl)
    // Qt interfaces
 protected:
    QToolTip* _qtd;
@@ -3595,6 +3756,7 @@ protected:
 
 class CImageList : public CObject
 {
+   DECLARE_DYNAMIC(CImageList)
 public:
    CImageList();
    BOOL Create(
@@ -3625,6 +3787,7 @@ protected:
 class CPropertyPage : public CDialog
 {
    Q_OBJECT
+   DECLARE_DYNAMIC(CPropertyPage)
    // Qt interfaces
 signals:
    void setModified();
@@ -3647,6 +3810,7 @@ public:
 class CPropertySheet : public CWnd
 {
    Q_OBJECT
+   DECLARE_DYNAMIC(CPropertySheet)
    // Qt interfaces
 public:
    QDialog* _qtd;
@@ -3694,10 +3858,6 @@ public:
    virtual INT_PTR DoModal( );
 };
 
-class CCreateContext
-{
-};
-
 int StretchDIBits(
   CDC& dc,
   int XDest,
@@ -3716,6 +3876,7 @@ int StretchDIBits(
 
 CWinApp* AfxGetApp();
 CFrameWnd* AfxGetMainWnd();
+CWinThread* AfxGetThread();
 
 #define AFXAPI
 #define AFX_STATIC static

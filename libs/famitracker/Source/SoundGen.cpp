@@ -99,8 +99,6 @@ CSoundGen::CSoundGen() :
 {
    pThread = new QThread();
 
-   QObject::connect(this,SIGNAL(postThreadMessage(unsigned int,unsigned int,unsigned int)),this,SLOT(recvThreadMessage(unsigned int,unsigned int,unsigned int)));
-   
    QTimer* timer = new QTimer();
 
    connect(timer, SIGNAL(timeout()), this, SLOT(onIdleSlot()));
@@ -247,9 +245,6 @@ void CSoundGen::AssignDocument(CFamiTrackerDoc *pDoc)
 
 	// Assigns a document to this object
 	m_pDocument = pDoc;
-
-   // CPTODO: this is a hack   
-   InitInstance();
 
 	// Setup all channels
 	for (int i = 0; i < CHANNELS; ++i) {
@@ -1404,6 +1399,8 @@ bool CSoundGen::WaitForStop() const
 
 BOOL CSoundGen::InitInstance()
 {
+   QObject::connect(this,SIGNAL(postThreadMessage(unsigned int,unsigned int,unsigned int)),this,SLOT(recvThreadMessage(unsigned int,unsigned int,unsigned int)));
+   
 	//
 	// Setup the synth, called when thread is started
 	//

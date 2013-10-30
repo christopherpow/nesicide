@@ -248,6 +248,9 @@ BOOL CFamiTrackerApp::InitInstance()
 //	}
 
 	// The one and only window has been initialized, so show and update it
+// CP: Showing the window here causes a blip of a not-yet-initialized window because Qt hasn't yet actually
+// "taken over" for MFC, so I'm hacking this out and letting the Qt subsystem show the window when it's done
+// "initializing" it.
 //	m_pMainWnd->ShowWindow(SW_SHOW);
 //	m_pMainWnd->UpdateWindow();
 	// call DragAcceptFiles only if there's a suffix

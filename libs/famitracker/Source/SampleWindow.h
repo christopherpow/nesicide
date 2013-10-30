@@ -53,7 +53,7 @@ protected:
    void mouseDoubleClickEvent(QMouseEvent *event);
    QSize sizeHint() const { return QSize(141,36); } // Not sure why the size is protected...but...
    
-//   DECLARE_DYNAMIC(CSampleWindow)
+   DECLARE_DYNAMIC(CSampleWindow)
 public:
 	CSampleWindow();
 	virtual ~CSampleWindow();

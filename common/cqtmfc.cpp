@@ -67,6 +67,12 @@ CFrameWnd* AfxGetMainWnd()
    return ptrToTheApp->m_pMainWnd;
 }
 
+CWinThread* AfxGetThread()
+{
+   // Just return main CWinThread for now...
+   return ptrToTheApp;
+}
+
 AFX_STATIC void AFXAPI _AfxAppendFilterSuffix(CString& filter, OPENFILENAME& ofn,
 	CDocTemplate* pTemplate, CString* pstrDefaultExt)
 {
@@ -1304,9 +1310,11 @@ int WINAPI TranslateAccelerator(
          CWnd* pWnd = (CWnd*)hWnd;
          pWnd->SendMessage(WM_COMMAND,pAccel->cmd);
          qDebug("Translating and sending %d message...");
-         break;
+         return 1;
       }
+      pAccel++;
    }
+   return 0;
 }
 
 BOOL WINAPI DestroyAcceleratorTable(
@@ -1340,6 +1348,48 @@ UINT WINAPI MapVirtualKey(
       break;
    }
    return 0;
+}
+
+//IMPLEMENT_DYNAMIC(CObject,NULL) <- CObject is base...treat it special.
+CRuntimeClass CObject::classCObject = 
+{
+"CObject",
+sizeof(CObject),
+-1,
+NULL,
+NULL,
+NULL
+};
+
+CRuntimeClass* CObject::GetRuntimeClass()
+{
+   return &classCObject;
+}
+
+CObject* CRuntimeClass::CreateObject()
+{
+   return m_pfnCreateObject();
+}
+
+BOOL CObject::IsKindOf( 
+   const CRuntimeClass* pClass  
+) const
+{
+   pClass = pClass->m_pBaseClass;
+   while ( pClass )
+   {
+      if ( pClass == GetRuntimeClass() )
+      {
+         return TRUE;
+      }
+      pClass = pClass->m_pBaseClass;
+   }
+   return FALSE;
+}
+
+CRuntimeClass* CObject::GetRuntimeClass() const
+{
+   return &classCObject;
 }
 
 /*
@@ -1890,6 +1940,8 @@ BOOL CStringArray::IsEmpty( ) const
  */
 
 HANDLE CFile::hFileNull = 0;
+
+IMPLEMENT_DYNAMIC(CFile,CCmdTarget)
 
 CFile::CFile()
    : m_hFile(hFileNull)
@@ -2537,8 +2589,6 @@ CDC::CDC()
 {
    m_hDC = NULL;
    _qwidget = NULL;
-   _qpainter = NULL;
-   _qpixmap = NULL;
    _pen = NULL;
    _brush = NULL;
    _font = NULL;
@@ -2562,8 +2612,6 @@ CDC::CDC(CWnd* parent)
 {
    m_hDC = (HDC)parent->toQWidget();
    _qwidget = parent->toQWidget();
-   _qpainter = NULL;
-   _qpixmap = NULL;
    _pen = NULL;
    _brush = NULL;
    _font = NULL;
@@ -2597,26 +2645,26 @@ void CDC::flush()
    {
       QPainter p;
       p.begin(_qwidget);
-      p.drawPixmap(0,0,*_qpixmap);
+      p.drawPixmap(0,0,_qpixmap);
       p.end();
    }
 }
 
 void CDC::attach()
 {
-   _qpixmap = new QPixmap(1,1);
-   _qpainter = new QPainter(_qpixmap);
-   m_hDC = (HDC)_qpixmap;
+   _qpixmap = QPixmap(1,1);
+   _qpainter.begin(&_qpixmap);
+   m_hDC = (HDC)&_qpixmap;
    attached = true;
 }
 
 void CDC::attach(QWidget* parent)
 {
    _qwidget = parent;
-   _qpixmap = new QPixmap(_qwidget->size());
-   _qpixmap->fill(_qwidget->palette().color(QPalette::Window)); // CP: hack to initialize pixmap with widget's background color.
-   _qpainter = new QPainter(_qpixmap);
-   m_hDC = (HDC)_qpixmap;
+   _qpixmap = QPixmap(_qwidget->size());
+   _qpixmap.fill(_qwidget->palette().color(QPalette::Window)); // CP: hack to initialize pixmap with widget's background color.
+   _qpainter.begin(&_qpixmap);
+   m_hDC = (HDC)&_qpixmap;
    attached = true;
    _doFlush = true;
 }
@@ -2625,14 +2673,8 @@ void CDC::detach()
 {
    if ( attached )
    {
-      if ( _qpainter )
-      {
-         if ( _qpainter->isActive() )
-            _qpainter->end();
-         delete _qpainter;
-         _qpainter = NULL;
-      }
-      delete _qpixmap;
+      if ( _qpainter.isActive() )
+         _qpainter.end();
    }
    attached = false;
 }
@@ -2682,7 +2724,7 @@ CPen* CDC::SelectObject(
    CPen* temp = _pen;
    _pen = pPen;
    if ( _pen )
-      _qpainter->setPen((QPen)(*_pen));
+      _qpainter.setPen((QPen)(*_pen));
    return temp;
 }
 
@@ -2693,7 +2735,7 @@ CBrush* CDC::SelectObject(
    CBrush* temp = _brush;
    _brush = pBrush;
    if ( _brush )
-      _qpainter->setBrush((QBrush)(*_brush));
+      _qpainter.setBrush((QBrush)(*_brush));
    return temp;
 }
 
@@ -2704,7 +2746,7 @@ CFont* CDC::SelectObject(
    CFont* temp = _font;
    _font = pFont;
    if ( _font )
-      _qpainter->setFont((QFont)(*_font));
+      _qpainter.setFont((QFont)(*_font));
    return temp;
 }
 
@@ -2716,7 +2758,7 @@ CBitmap* CDC::SelectObject(
    _bitmap = pBitmap;
    if ( _bitmap )
    {
-      _qpainter->drawPixmap(0,0,*_bitmap->toQPixmap());
+      _qpainter.drawPixmap(0,0,*_bitmap->toQPixmap());
       _bitmapSize = _bitmap->toQPixmap()->size();
    }
    else
@@ -2765,7 +2807,7 @@ COLORREF CDC::GetPixel(
    int y
 ) const
 {
-   QImage image = _qpixmap->toImage();
+   QImage image = _qpixmap.toImage();
    QColor col = image.pixel(x,y);
    COLORREF ret = RGB(col.red(),col.green(),col.blue());
    return ret;
@@ -2793,9 +2835,9 @@ BOOL CDC::BitBlt(
    QSize pixmapSize = pSrcDC->pixmapSize();
    pixmapSize = pixmapSize.boundedTo(QSize(nWidth,nHeight));
    if ( pixmap && (pixmapSize.width() >= 0) )
-      _qpainter->drawPixmap(x,y,pixmapSize.width(),pixmapSize.height(),*pixmap,xSrc,ySrc,pixmapSize.width(),pixmapSize.height());
+      _qpainter.drawPixmap(x,y,pixmapSize.width(),pixmapSize.height(),*pixmap,xSrc,ySrc,pixmapSize.width(),pixmapSize.height());
    else
-      _qpainter->drawPixmap(x,y,nWidth,nHeight,*pixmap,xSrc,ySrc,nWidth,nHeight);
+      _qpainter.drawPixmap(x,y,nWidth,nHeight,*pixmap,xSrc,ySrc,nWidth,nHeight);
    return TRUE;
 }
 
@@ -2829,7 +2871,7 @@ BOOL CDC::DrawEdge(
 )
 {
    QRect rect(lpRect->left,lpRect->top,lpRect->right-lpRect->left,lpRect->bottom-lpRect->top);
-   _qpainter->drawRect(rect);
+   _qpainter.drawRect(rect);
    qDebug("CDC::DrawEdge not implemented!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
    return TRUE;
 }
@@ -2842,7 +2884,7 @@ BOOL CDC::Rectangle(
 )
 {
    QRect rect(x1,y1,x2-x1,y2-y1);
-   _qpainter->drawRect(rect);
+   _qpainter.drawRect(rect);
    return TRUE;
 }
 
@@ -2857,16 +2899,16 @@ void CDC::Draw3dRect( int x, int y, int cx, int cy, COLORREF clrTopLeft, COLORRE
 {
    QPen tlc(QColor(GetRValue(clrTopLeft),GetGValue(clrTopLeft),GetBValue(clrTopLeft)));
    QPen brc(QColor(GetRValue(clrBottomRight),GetGValue(clrBottomRight),GetBValue(clrBottomRight)));
-   QPen origPen = _qpainter->pen();
+   QPen origPen = _qpainter.pen();
    x -= _windowOrg.x;
    y -= _windowOrg.y;
-   _qpainter->setPen(tlc);
-   _qpainter->drawLine(x,y,x+cx-1,y);
-   _qpainter->drawLine(x,y,x,y+cy-1);
-   _qpainter->setPen(brc);
-   _qpainter->drawLine(x+cx-1,y+cy-1,x,y+cy-1);
-   _qpainter->drawLine(x+cx-1,y+cy-1,x+cx-1,y);
-   _qpainter->setPen(origPen);
+   _qpainter.setPen(tlc);
+   _qpainter.drawLine(x,y,x+cx-1,y);
+   _qpainter.drawLine(x,y,x,y+cy-1);
+   _qpainter.setPen(brc);
+   _qpainter.drawLine(x+cx-1,y+cy-1,x,y+cy-1);
+   _qpainter.drawLine(x+cx-1,y+cy-1,x+cx-1,y);
+   _qpainter.setPen(origPen);
 }
 int CDC::DrawText(
    const CString& str,
@@ -2880,12 +2922,12 @@ int CDC::DrawText(
 #else
    QString qstr = (LPCTSTR)str;
 #endif
-   QPen origPen = _qpainter->pen();
-   _qpainter->setPen(QPen(_textColor));
-//   _qpainter->setFont((QFont)*_font);
-   _qpainter->drawText(rect,qstr.toLatin1().constData());
+   QPen origPen = _qpainter.pen();
+   _qpainter.setPen(QPen(_textColor));
+//   _qpainter.setFont((QFont)*_font);
+   _qpainter.drawText(rect,qstr.toLatin1().constData());
    return _tcslen((LPCTSTR)str);
-   _qpainter->setPen(origPen);
+   _qpainter.setPen(origPen);
 }
 int CDC::DrawText(
    LPCTSTR lpszString,
@@ -2900,11 +2942,11 @@ int CDC::DrawText(
 #else
    QString qstr(lpszString);
 #endif
-   QPen origPen = _qpainter->pen();
-   _qpainter->setPen(QPen(_textColor));
-//   _qpainter->setFont((QFont)*_font);
-   _qpainter->drawText(rect,qstr.left(nCount).toLatin1().constData());
-   _qpainter->setPen(origPen);
+   QPen origPen = _qpainter.pen();
+   _qpainter.setPen(QPen(_textColor));
+//   _qpainter.setFont((QFont)*_font);
+   _qpainter.drawText(rect,qstr.left(nCount).toLatin1().constData());
+   _qpainter.setPen(origPen);
    return 0; // CP: should be text height
 }
 
@@ -2916,7 +2958,7 @@ void CDC::FillSolidRect(
    QRect rect(lpRect->left,lpRect->top,lpRect->right-lpRect->left,lpRect->bottom-lpRect->top);
    rect.translate(-QPoint(_windowOrg.x,_windowOrg.y));
    QColor color(GetRValue(clr),GetGValue(clr),GetBValue(clr));
-   _qpainter->fillRect(rect,color);
+   _qpainter.fillRect(rect,color);
 }
 
 void CDC::FillSolidRect(
@@ -2930,7 +2972,7 @@ void CDC::FillSolidRect(
    QRect rect(x,y,cx,cy);
    rect.translate(-QPoint(_windowOrg.x,_windowOrg.y));
    QColor color(GetRValue(clr),GetGValue(clr),GetBValue(clr));
-   _qpainter->fillRect(rect,color);
+   _qpainter.fillRect(rect,color);
 }
 
 BOOL CDC::GradientFill(
@@ -2958,7 +3000,7 @@ BOOL CDC::GradientFill(
       gradient.setColorAt(1,QColor(pVertices[grect[el].LowerRight].Red>>8,pVertices[grect[el].LowerRight].Green>>8,pVertices[grect[el].LowerRight].Blue>>8,pVertices[grect[el].LowerRight].Alpha>>8));
       QBrush brush(gradient);
 
-      _qpainter->fillRect(rect,brush);
+      _qpainter.fillRect(rect,brush);
    }
    return TRUE;
 }
@@ -2968,7 +3010,7 @@ BOOL CDC::LineTo(
    int y
 )
 {
-   _qpainter->drawLine(_lineOrg.x,_lineOrg.y,x,y);
+   _qpainter.drawLine(_lineOrg.x,_lineOrg.y,x,y);
    _lineOrg.x = x;
    _lineOrg.y = y;
    return TRUE;
@@ -2988,8 +3030,8 @@ BOOL CDC::Polygon(
    }
    poly.append(QPoint(lpPoints[0].x,lpPoints[0].y));
    path.addPolygon(poly);
-   _qpainter->fillPath(path,(QBrush)*_brush);
-   _qpainter->drawPath(path);
+   _qpainter.fillPath(path,(QBrush)*_brush);
+   _qpainter.drawPath(path);
    return TRUE;
 }
 
@@ -3018,14 +3060,14 @@ BOOL CDC::TextOut(
    QString qstr(lpszString);
 #endif
    QFontMetrics fontMetrics((QFont)*_font);
-   QPen origPen = _qpainter->pen();
-   _qpainter->setPen(QPen(_textColor));
-//   _qpainter->setFont((QFont)*_font);
+   QPen origPen = _qpainter.pen();
+   _qpainter.setPen(QPen(_textColor));
+//   _qpainter.setFont((QFont)*_font);
    x += -_windowOrg.x;
    y += -_windowOrg.y;
    y += fontMetrics.ascent();
-   _qpainter->drawText(x,y,qstr.left(nCount));
-   _qpainter->setPen(origPen);
+   _qpainter.drawText(x,y,qstr.left(nCount));
+   _qpainter.setPen(origPen);
    return TRUE;
 }
 
@@ -3036,16 +3078,18 @@ BOOL CDC::TextOut(
 )
 {
    QFontMetrics fontMetrics((QFont)*_font);
-   QPen origPen = _qpainter->pen();
-   _qpainter->setPen(QPen(_textColor));
-//   _qpainter->setFont((QFont)*_font);
+   QPen origPen = _qpainter.pen();
+   _qpainter.setPen(QPen(_textColor));
+//   _qpainter.setFont((QFont)*_font);
    x += -_windowOrg.x;
    y += -_windowOrg.y;
    y += fontMetrics.ascent();
-   _qpainter->drawText(x,y,(const QString&)str);
-   _qpainter->setPen(origPen);
+   _qpainter.drawText(x,y,(const QString&)str);
+   _qpainter.setPen(origPen);
    return TRUE;
 }
+
+IMPLEMENT_DYNAMIC(CComboBox,CWnd)
 
 CComboBox::CComboBox(CWnd *parent)
    : CWnd(parent)
@@ -3267,6 +3311,8 @@ int CComboBox::GetDlgItemText(
    return _qtd->currentText().length();
 }
 
+IMPLEMENT_DYNAMIC(CListBox,CWnd)
+
 CListBox::CListBox(CWnd* parent)
    : CWnd(parent)
 {
@@ -3314,6 +3360,8 @@ BOOL CListBox::Create(
    return TRUE;
 }
 
+IMPLEMENT_DYNAMIC(CCheckListBox,CListBox)
+
 CCheckListBox::CCheckListBox(CWnd* parent)
    : CListBox(parent)
 {
@@ -3322,6 +3370,8 @@ CCheckListBox::CCheckListBox(CWnd* parent)
 CCheckListBox::~CCheckListBox()
 {
 }
+
+IMPLEMENT_DYNAMIC(CListCtrl,CWnd)
 
 CListCtrl::CListCtrl(CWnd* parent)
    : CWnd(parent),
@@ -4345,6 +4395,8 @@ BOOL CListCtrl::EnsureVisible(
    return FALSE;
 }
 
+IMPLEMENT_DYNAMIC(CTreeCtrl,CWnd)
+
 CTreeCtrl::CTreeCtrl(CWnd* parent)
    : CWnd(parent)
 {
@@ -4611,6 +4663,8 @@ CString CTreeCtrl::GetItemText(
    return CString();
 }
 
+IMPLEMENT_DYNAMIC(CScrollBar,CWnd)
+
 CScrollBar::CScrollBar(CWnd *parent)
    : CWnd(parent),
      _orient(Qt::Vertical)
@@ -4747,6 +4801,8 @@ BOOL CScrollBar::EnableScrollBar(
    return 1;
 }
 
+IMPLEMENT_DYNCREATE(CCmdTarget,CObject)
+
 BOOL CCmdTarget::OnCmdMsg(
    UINT nID,
    int nCode,
@@ -4759,6 +4815,8 @@ BOOL CCmdTarget::OnCmdMsg(
 
 CWnd* CWnd::focusWnd = NULL;
 CFrameWnd* CWnd::m_pFrameWnd = NULL;
+
+IMPLEMENT_DYNAMIC(CWnd,CCmdTarget)
 
 CWnd::CWnd(CWnd *parent)
    : m_pParentWnd(parent),
@@ -4821,6 +4879,23 @@ CWnd* CWnd::SetFocus()
    return pWnd;
 }
 
+BOOL CWnd::PreTranslateMessage(
+   MSG* pMsg
+)
+{
+   BOOL processed = FALSE;
+   switch ( pMsg->message )
+   {
+   case WM_NULL:
+      processed = TRUE;
+      break;
+   default:
+      processed = FALSE;
+      break;
+   }
+   return processed;
+}
+
 CWnd* CWnd::GetFocus()
 {
    return focusWnd;
@@ -4830,6 +4905,21 @@ void CWnd::SetOwner(
    CWnd* pOwnerWnd
 )
 {
+}
+
+CWnd* CWnd::GetDescendantWindow( 
+   int nID, 
+   BOOL bOnlyPerm 
+) const
+{
+   foreach ( CWnd* pWnd, mfcToQtWidget )
+   {
+      if ( pWnd->GetDlgCtrlID() == nID )
+      {
+         return pWnd;
+      }
+   }
+   return NULL;
 }
 
 BOOL CWnd::EnableToolTips(
@@ -5002,6 +5092,20 @@ BOOL CWnd::EnableWindow(
    return state;
 }
 
+BOOL CWnd::Create( 
+   LPCTSTR lpszClassName, 
+   LPCTSTR lpszWindowName, 
+   DWORD dwStyle, 
+   const RECT& rect, 
+   CWnd* pParentWnd, 
+   LPCTSTR lpszMenuName, 
+   DWORD dwExStyle, 
+   CCreateContext* pContext
+)
+{
+   return CreateEx(dwExStyle,lpszClassName,lpszWindowName,dwStyle,rect,pParentWnd,0,(LPVOID)pContext);
+}
+
 BOOL CWnd::CreateEx(
    DWORD dwExStyle,
    LPCTSTR lpszClassName,
@@ -5024,6 +5128,10 @@ BOOL CWnd::CreateEx(
    createStruct.y = rect.top;
    createStruct.cx = rect.right-rect.left;
    createStruct.cy = rect.bottom-rect.top;
+   createStruct.lpCreateParams = lpParam;
+   createStruct.lpszClass = lpszClassName;
+   createStruct.lpszName = lpszWindowName;
+   
    // For widgets that aren't added to a layout...
    m_pParentWnd = pParentWnd;
    if ( pParentWnd )
@@ -5062,7 +5170,7 @@ BOOL CWnd::CreateEx(
       _grid->addWidget(mfcHorizontalScrollBar->toQWidget(),1,0);
    }
    _qt->setGeometry(createStruct.x,createStruct.y,createStruct.cx,createStruct.cy);
-   _qt->setFixedSize(createStruct.cx,createStruct.cy);
+//   _qt->setFixedSize(createStruct.cx,createStruct.cy);
    OnCreate(&createStruct);
    return TRUE;
 }
@@ -5506,9 +5614,11 @@ void CWnd::ShowWindow(int code)
    }
 }
 
+IMPLEMENT_DYNCREATE(CFrameWnd,CWnd)
+
 CFrameWnd::CFrameWnd(CWnd *parent)
    : CWnd(parent),
-     m_pView(NULL),
+     m_pViewActive(NULL),
      m_pDocument(NULL),
      m_bInRecalcLayout(FALSE)
 {
@@ -5615,6 +5725,74 @@ void CFrameWnd::addControlBar(int area, QWidget *bar)
    RecalcLayout();
 }
 
+BOOL CFrameWnd::Create( 
+   LPCTSTR lpszClassName, 
+   LPCTSTR lpszWindowName, 
+   DWORD dwStyle, 
+   const RECT& rect, 
+   CWnd* pParentWnd, 
+   LPCTSTR lpszMenuName, 
+   DWORD dwExStyle, 
+   CCreateContext* pContext
+)
+{
+   if ( !CWnd::Create(lpszClassName,lpszWindowName,dwStyle,rect,pParentWnd,lpszMenuName,dwExStyle,pContext) )
+      return FALSE;
+   
+   // Set this frame's document.
+   m_pDocument = pContext->m_pCurrentDoc;
+   
+   // The view is actually created in CFrameWnd::CreateView but I'm being lazy...
+   m_pViewActive = (CView*)pContext->m_pNewViewClass->CreateObject();   
+   
+   // Set frame in hijacked context.
+   pContext->m_pCurrentFrame = this;
+   
+   // Create the view!
+   m_pViewActive->Create(lpszClassName,lpszWindowName,dwStyle|WS_VSCROLL|WS_HSCROLL,rect,pParentWnd,lpszMenuName,dwExStyle,pContext);
+
+   mfcToQtWidgetMap()->insert(AFX_IDW_PANE_FIRST,m_pViewActive);
+   
+   return TRUE;
+}
+
+BOOL CFrameWnd::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle,
+	CWnd* pParentWnd, CCreateContext* pContext)
+{
+//	// only do this once
+//	ASSERT_VALID_IDR(nIDResource);
+//	ASSERT(m_nIDHelp == 0 || m_nIDHelp == nIDResource);
+
+//	m_nIDHelp = nIDResource;    // ID for help context (+HID_BASE_RESOURCE)
+
+//	CString strFullString;
+//	if (strFullString.LoadString(nIDResource))
+//		AfxExtractSubString(m_strTitle, strFullString, 0);    // first sub-string
+   
+//	VERIFY(AfxDeferRegisterClass(AFX_WNDFRAMEORVIEW_REG));
+
+	// attempt to create the window
+	LPCTSTR lpszClass;// = GetIconWndClass(dwDefaultStyle, nIDResource);
+	CString strTitle = m_strTitle;
+	if (!Create(lpszClass, strTitle, dwDefaultStyle, rectDefault,
+	  pParentWnd, ATL_MAKEINTRESOURCE(nIDResource), 0L, pContext))
+	{
+		return FALSE;   // will self destruct on failure normally
+	}
+
+//	// save the default menu handle
+//	ASSERT(m_hWnd != NULL);
+//	m_hMenuDefault = m_dwMenuBarState == AFX_MBS_VISIBLE ? ::GetMenu(m_hWnd) : m_hMenu;
+
+//	// load accelerator resource
+//	LoadAccelTable(ATL_MAKEINTRESOURCE(nIDResource));
+
+	if (pContext == NULL)   // send initial update
+		SendMessageToDescendants(WM_INITIALUPDATE, 0, 0, TRUE, TRUE);
+
+	return TRUE;
+}
+
 void CFrameWnd::GetMessageString(
    UINT nID,
    CString& rMessage
@@ -5633,8 +5811,45 @@ void CFrameWnd::InitialUpdateFrame(
    BOOL bMakeVisible
 )
 {
-   // send initial update to all views (and other controls) in the frame
-   SendMessageToDescendants(WM_INITIALUPDATE, 0, 0, TRUE, TRUE);
+   // if the frame does not have an active view, set to first pane
+	CView* pView = NULL;
+	if (GetActiveView() == NULL)
+	{
+		CWnd* pWnd = GetDescendantWindow(AFX_IDW_PANE_FIRST, TRUE);
+		if (pWnd != NULL && pWnd->IsKindOf(RUNTIME_CLASS(CView)))
+		{
+			pView = (CView*)pWnd;
+			SetActiveView(pView, FALSE);
+		}
+	}
+
+	if (bMakeVisible)
+	{
+		// send initial update to all views (and other controls) in the frame
+		SendMessageToDescendants(WM_INITIALUPDATE, 0, 0, TRUE, TRUE);
+
+//		// give view a chance to save the focus (CFormView needs this)
+//		if (pView != NULL)
+//			pView->OnActivateFrame(WA_INACTIVE, this);
+
+//		// finally, activate the frame
+//		// (send the default show command unless the main desktop window)
+//		int nCmdShow = -1;      // default
+//		CWinApp* pApp = AfxGetApp();
+//		if (pApp != NULL && pApp->m_pMainWnd == this)
+//		{
+//			nCmdShow = pApp->m_nCmdShow; // use the parameter from WinMain
+//			pApp->m_nCmdShow = -1; // set to default after first time
+//		}
+//		ActivateFrame(nCmdShow);
+//		if (pView != NULL)
+//			pView->OnActivateView(TRUE, pView, pView);
+	}
+
+//	// update frame counts and frame title (may already have been visible)
+//	if (pDoc != NULL)
+//		pDoc->UpdateFrameCounts();
+//	OnUpdateFrameTitle(TRUE);
 }
 
 void CFrameWnd::SetMessageText(LPCTSTR fmt,...)
@@ -5772,9 +5987,10 @@ void CFrameWnd::OnClose()
    }
 }
 
-CView::CView(CWnd* parent)
-   : CWnd(parent),
-     m_pDocument(NULL)
+IMPLEMENT_DYNCREATE(CView,CWnd)
+
+CView::CView()
+   : m_pDocument(NULL)
 {
 }
 
@@ -5793,6 +6009,34 @@ void CView::menuAboutToShow(CMenu* menu)
    // Pass up the chain.
    m_pDocument->menuAboutToShow(menu);
 }
+
+BOOL CView::Create( 
+   LPCTSTR lpszClassName, 
+   LPCTSTR lpszWindowName, 
+   DWORD dwStyle, 
+   const RECT& rect, 
+   CWnd* pParentWnd, 
+   LPCTSTR lpszMenuName, 
+   DWORD dwExStyle, 
+   CCreateContext* pContext
+)
+{   
+   if ( !CWnd::Create(lpszClassName,lpszWindowName,dwStyle,rect,pParentWnd,lpszMenuName,dwExStyle,pContext) )
+      return FALSE;
+   
+   // Add document to view.
+   m_pDocument = pContext->m_pCurrentDoc;
+   
+   // Add view to document.
+   m_pDocument->AddView(this);
+   
+   // Set parent frame.
+   m_pFrameWnd = pContext->m_pCurrentFrame;
+
+   return TRUE;
+}
+
+IMPLEMENT_DYNAMIC(CControlBar,CWnd)
 
 CSize CControlBar::CalcFixedLayout(
    BOOL bStretch,
@@ -5813,6 +6057,8 @@ BOOL CControlBar::IsVisible() const
 {
    return _qtd->isVisible();
 }
+
+IMPLEMENT_DYNAMIC(CReBarCtrl,CWnd)
 
 BOOL CReBarCtrl::Create(
    DWORD dwStyle,
@@ -5887,6 +6133,8 @@ void CReBarCtrl::toolBarAction_triggered()
    emit toolBarAction_triggered(_qtd->actions().indexOf(qobject_cast<QAction*>(sender())));
 }
 
+IMPLEMENT_DYNAMIC(CReBar,CControlBar)
+
 CReBar::CReBar()
 {
    m_pReBarCtrl = new CReBarCtrl;
@@ -5914,6 +6162,8 @@ BOOL CReBar::Create(
    ptrToTheApp->qtMainWindow->addToolBar(dynamic_cast<QToolBar*>(m_pReBarCtrl->toQWidget()));
    return TRUE;
 }
+
+IMPLEMENT_DYNAMIC(CToolBar,CControlBar)
 
 CToolBar::CToolBar(CWnd* parent)
 {
@@ -6005,7 +6255,7 @@ void CToolBar::SetButtonStyle(
       QObject::connect(menu,SIGNAL(aboutToShow()),this,SLOT(menu_aboutToShow()));
       break;
    default:
-      qDebug("CToolBar::SetButtonStyle %d not implemented");
+      qDebug("CToolBar::SetButtonStyle %d not implemented",nStyle);
       break;
    }
 }
@@ -6032,6 +6282,8 @@ void CToolBar::menu_aboutToShow()
       emit toolBarAction_menu_aboutToShow(actions.indexOf(origin));
    }
 }
+
+IMPLEMENT_DYNAMIC(CStatusBar,CControlBar)
 
 CStatusBar::CStatusBar(CWnd* parent)
 {
@@ -6124,6 +6376,8 @@ BOOL CStatusBar::SetPaneText(
    }
    return FALSE;
 }
+
+IMPLEMENT_DYNAMIC(CDialogBar,CControlBar)
 
 CDialogBar::CDialogBar()
 {
@@ -6263,6 +6517,8 @@ CSize CDialogBar::CalcFixedLayout(
 	else
 		return m_sizeDefault;
 }
+
+IMPLEMENT_DYNAMIC(CDialog,CWnd)
 
 CDialog::CDialog()
 {
@@ -6409,6 +6665,8 @@ void CDialog::EndDialog(
    _qtd->close();
 }
 
+IMPLEMENT_DYNAMIC(CCommonDialog,CDialog)
+
 CCommonDialog::CCommonDialog(CWnd *pParentWnd)
  : CDialog(0,pParentWnd)
 {
@@ -6418,12 +6676,13 @@ CCommonDialog::~CCommonDialog()
 {
 }
 
+IMPLEMENT_DYNCREATE(CWinThread,CCmdTarget)
+
 CWinThread::CWinThread()
 {
    m_hThread = (HANDLE)this;
    m_nThreadID = (DWORD)QThread::currentThreadId();
-
-   InitInstance();
+   m_pMainWnd = NULL;
 }
 
 CWinThread::~CWinThread()
@@ -6436,11 +6695,19 @@ BOOL CWinThread::CreateThread(
    LPSECURITY_ATTRIBUTES lpSecurityAttrs
 )
 {
+   m_pMainWnd = AfxGetMainWnd();
+   
+   if ( !(dwCreateFlags&CREATE_SUSPENDED) )
+   {
+      ResumeThread();
+   }
+
    return TRUE;
 }
 
 DWORD CWinThread::ResumeThread( )
 {
+   InitInstance();
    start(QThread::InheritPriority);
    return 0;
 }
@@ -6488,8 +6755,10 @@ BOOL CWinThread::PostThreadMessage(
    return TRUE;
 }
 
+IMPLEMENT_DYNCREATE(CDocument,CCmdTarget)
+
 CDocument::CDocument()
- : m_pDocTemplate(NULL), m_bModified(FALSE)
+   : m_pDocTemplate(NULL), m_bModified(FALSE), m_bAutoDelete(TRUE)
 {
    QObject::connect(this,SIGNAL(documentSaved()),ptrToTheApp->qtMainWindow,SLOT(documentSaved()));
    QObject::connect(this,SIGNAL(documentClosed()),ptrToTheApp->qtMainWindow,SLOT(documentClosed()));
@@ -6510,6 +6779,13 @@ void CDocument::menuAboutToShow(CMenu* menu)
 void CDocument::OnCloseDocument()
 { 
    emit documentClosed(); 
+}
+
+void CDocument::AddView( 
+   CView* pView  
+)
+{
+   _views.append(pView);
 }
 
 void CDocument::SetTitle(CString title )
@@ -6765,22 +7041,14 @@ BOOL CDocument::SaveModified()
 	return TRUE;    // keep going
 }
 
-CDocTemplate::CDocTemplate(UINT f,CDocument* pDoc,CFrameWnd* pFrameWnd,CView* pView)
+IMPLEMENT_DYNAMIC(CDocTemplate,CCmdTarget)
+
+CDocTemplate::CDocTemplate(UINT nIDResource,CRuntimeClass* pDocClass,CRuntimeClass* pFrameClass,CRuntimeClass* pViewClass)
 {
-   m_pDoc = pDoc;
-   m_pFrameWnd = pFrameWnd;
-   m_pView = pView;
-
-   m_pDoc->OnNewDocument();
-
-   // Create linkages...
-   m_pDoc->privateSetDocTemplate(this);
-   m_pDoc->privateAddView(m_pView);
-   m_pView->privateSetDocument(m_pDoc);
-   m_pView->privateSetParentFrame(m_pFrameWnd);
-   m_pFrameWnd->privateSetActiveView(m_pView);
-   m_pFrameWnd->privateSetActiveDocument(m_pDoc);
-   m_pFrameWnd->mfcToQtWidgetMap()->insert(AFX_IDW_PANE_FIRST,m_pView);
+   m_nIDResource = nIDResource;
+   m_pDocClass = pDocClass;
+   m_pFrameClass = pFrameClass;
+   m_pViewClass = pViewClass;
 }
 
 void CDocTemplate::InitialUpdateFrame(CFrameWnd* pFrame, CDocument* pDoc,
@@ -6830,22 +7098,130 @@ BOOL CDocTemplate::GetDocString(
    return ret;
 }
 
-
-CSingleDocTemplate::CSingleDocTemplate(UINT f,CDocument* pDoc,CFrameWnd* pFrameWnd,CView* pView)
-   : CDocTemplate(f,pDoc,pFrameWnd,pView)
+void CDocTemplate::AddDocument(CDocument* pDoc)
 {
-   CRect rect;
-   pFrameWnd->GetClientRect(&rect);
-   pView->CreateEx(0,NULL,_T(""),WS_VISIBLE|WS_VSCROLL|WS_HSCROLL,rect,pFrameWnd,0);
+	ASSERT_VALID(pDoc);
+	ASSERT(pDoc->m_pDocTemplate == NULL);   // no template attached yet
+	pDoc->m_pDocTemplate = this;
+}
+
+void CDocTemplate::RemoveDocument(CDocument* pDoc)
+{
+	ASSERT_VALID(pDoc);
+	ASSERT(pDoc->m_pDocTemplate == this);   // must be attached to us
+	pDoc->m_pDocTemplate = NULL;
+}
+
+CDocument* CDocTemplate::CreateNewDocument()
+{
+	// default implementation constructs one from CRuntimeClass
+	if (m_pDocClass == NULL)
+	{
+//		TRACE(traceAppMsg, 0, "Error: you must override CDocTemplate::CreateNewDocument.\n");
+		ASSERT(FALSE);
+		return NULL;
+	}
+	CDocument* pDocument = (CDocument*)m_pDocClass->CreateObject();
+	if (pDocument == NULL)
+	{
+//		TRACE(traceAppMsg, 0, "Warning: Dynamic create of document type %hs failed.\n",
+//			m_pDocClass->m_lpszClassName);
+		return NULL;
+	}
+	ASSERT_KINDOF(CDocument, pDocument);
+	AddDocument(pDocument);
+	return pDocument;
+}
+
+CFrameWnd* CDocTemplate::CreateNewFrame(CDocument* pDoc, CFrameWnd* pOther)
+{
+	if (pDoc != NULL)
+		ASSERT_VALID(pDoc);
+	// create a frame wired to the specified document
+
+	ASSERT(m_nIDResource != 0); // must have a resource ID to load from
+	CCreateContext context;
+	context.m_pCurrentFrame = pOther;
+	context.m_pCurrentDoc = pDoc;
+	context.m_pNewViewClass = m_pViewClass;
+	context.m_pNewDocTemplate = this;
+
+	if (m_pFrameClass == NULL)
+	{
+//		TRACE(traceAppMsg, 0, "Error: you must override CDocTemplate::CreateNewFrame.\n");
+		ASSERT(FALSE);
+		return NULL;
+	}
+	CFrameWnd* pFrame = (CFrameWnd*)m_pFrameClass->CreateObject();
+	if (pFrame == NULL)
+	{
+//		TRACE(traceAppMsg, 0, "Warning: Dynamic create of frame %hs failed.\n",
+//			m_pFrameClass->m_lpszClassName);
+		return NULL;
+	}
+	ASSERT_KINDOF(CFrameWnd, pFrame);
+
+//	if (context.m_pNewViewClass == NULL)
+//		TRACE(traceAppMsg, 0, "Warning: creating frame with no default view.\n");
+
+	// create new from resource
+	if (!pFrame->LoadFrame(m_nIDResource,
+			WS_OVERLAPPEDWINDOW | FWS_ADDTOTITLE,   // default frame styles
+			NULL, &context))
+	{
+//		TRACE(traceAppMsg, 0, "Warning: CDocTemplate couldn't create a frame.\n");
+		// frame will be deleted in PostNcDestroy cleanup
+		return NULL;
+	}
+
+	// it worked !
+	return pFrame;
+}
+
+IMPLEMENT_DYNAMIC(CSingleDocTemplate,CDocTemplate)
+
+CSingleDocTemplate::CSingleDocTemplate(UINT f,CRuntimeClass* pDocClass,CRuntimeClass* pFrameClass,CRuntimeClass* pViewClass)
+   : CDocTemplate(f,pDocClass,pFrameClass,pViewClass)
+{
+   m_pOnlyDoc = NULL;
+}
+
+void CSingleDocTemplate::SetDefaultTitle( 
+   CDocument* pDocument  
+)
+{
+   CString title;
+   GetDocString(title,fileNewName);
+   pDocument->SetTitle(title);
+}
+
+void CSingleDocTemplate::AddDocument(CDocument* pDoc)
+{
+	ASSERT(m_pOnlyDoc == NULL);     // one at a time please
+	ASSERT_VALID(pDoc);
+
+	CDocTemplate::AddDocument(pDoc);
+	m_pOnlyDoc = pDoc;
+}
+
+void CSingleDocTemplate::RemoveDocument(CDocument* pDoc)
+{
+	ASSERT(m_pOnlyDoc == pDoc);     // must be this one
+	ASSERT_VALID(pDoc);
+
+	CDocTemplate::RemoveDocument(pDoc);
+	m_pOnlyDoc = NULL;
 }
 
 POSITION CSingleDocTemplate::GetFirstDocPosition( ) const
 {
    POSITION pos = NULL;
 
-   pos = new int;
-   (*pos) = 0;
-
+   if ( m_pOnlyDoc )
+   {
+      pos = new int;
+      (*pos) = 0;
+   }
    return pos;
 }
 
@@ -6857,34 +7233,149 @@ CDocument* CSingleDocTemplate::GetNextDoc(
    {
       return NULL; // Choker for end-of-list
    }
-   CDocument* pDoc = m_pDoc;
+   CDocument* pDoc = m_pOnlyDoc;
    delete rPos;
    rPos = NULL;
 
    return pDoc;
 }
 
+CDocument* CSingleDocTemplate::OpenDocumentFile(LPCTSTR lpszPathName, BOOL bMakeVisible)
+{
+	return OpenDocumentFile(lpszPathName, TRUE, bMakeVisible);
+}
+
 CDocument* CSingleDocTemplate::OpenDocumentFile(
    LPCTSTR lpszPathName,
+   BOOL bAddToMRU,
    BOOL bMakeVisible
 )
 {
-   if ( lpszPathName )
-   {
-      m_pDoc->OnOpenDocument(lpszPathName);
-      m_pDoc->SetTitle(lpszPathName);
-      m_pDoc->SetPathName(lpszPathName);
-   }
-   else
-   {
-      m_pDoc->OnNewDocument();
-      CString title;
-      GetDocString(title,CDocTemplate::fileNewName);
-      m_pDoc->SetTitle(title);
-   }
-   InitialUpdateFrame(m_pFrameWnd,m_pDoc);
-   return m_pDoc;
+   CDocument* pDocument = NULL;
+	CFrameWnd* pFrame = NULL;
+	BOOL bCreated = FALSE;      // => doc and frame created
+	BOOL bWasModified = FALSE;
+
+	if (m_pOnlyDoc != NULL)
+	{
+		// already have a document - reinit it
+		pDocument = m_pOnlyDoc;
+		if (!pDocument->SaveModified())
+		{
+			// set a flag to indicate that the document being opened should not
+			// be removed from the MRU list, if it was being opened from there
+//			g_bRemoveFromMRU = FALSE;
+			return NULL;        // leave the original one
+		}
+
+		pFrame = (CFrameWnd*)AfxGetMainWnd();
+		ASSERT(pFrame != NULL);
+		ASSERT_KINDOF(CFrameWnd, pFrame);
+		ASSERT_VALID(pFrame);
+	}
+	else
+	{
+		// create a new document
+		pDocument = CreateNewDocument();
+		ASSERT(pFrame == NULL);     // will be created below
+		bCreated = TRUE;
+	}
+
+	if (pDocument == NULL)
+	{
+		AfxMessageBox(AFX_IDP_FAILED_TO_CREATE_DOC);
+		return NULL;
+	}
+	ASSERT(pDocument == m_pOnlyDoc);
+
+	if (pFrame == NULL)
+	{
+		ASSERT(bCreated);
+
+		// create frame - set as main document frame
+		BOOL bAutoDelete = pDocument->m_bAutoDelete;
+		pDocument->m_bAutoDelete = FALSE;
+					// don't destroy if something goes wrong
+		pFrame = CreateNewFrame(pDocument, NULL);
+		pDocument->m_bAutoDelete = bAutoDelete;
+		if (pFrame == NULL)
+		{
+			AfxMessageBox(AFX_IDP_FAILED_TO_CREATE_DOC);
+			delete pDocument;       // explicit delete on error
+			return NULL;
+		}
+	}
+
+	if (lpszPathName == NULL)
+	{
+		// create a new document
+		SetDefaultTitle(pDocument);
+
+		// avoid creating temporary compound file when starting up invisible
+		if (!bMakeVisible)
+			pDocument->m_bEmbedded = TRUE;
+
+		if (!pDocument->OnNewDocument())
+		{
+			// user has been alerted to what failed in OnNewDocument
+//			TRACE(traceAppMsg, 0, "CDocument::OnNewDocument returned FALSE.\n");
+			if (bCreated)
+				pFrame->DestroyWindow();    // will destroy document
+			return NULL;
+		}
+	}
+	else
+	{
+//		CWaitCursor wait;
+
+		// open an existing document
+		bWasModified = pDocument->IsModified();
+		pDocument->SetModifiedFlag(FALSE);  // not dirty for open
+
+		if (!pDocument->OnOpenDocument(lpszPathName))
+		{
+			// user has been alerted to what failed in OnOpenDocument
+//			TRACE(traceAppMsg, 0, "CDocument::OnOpenDocument returned FALSE.\n");
+			if (bCreated)
+			{
+				pFrame->DestroyWindow();    // will destroy document
+			}
+			else if (!pDocument->IsModified())
+			{
+				// original document is untouched
+				pDocument->SetModifiedFlag(bWasModified);
+			}
+			else
+			{
+				// we corrupted the original document
+				SetDefaultTitle(pDocument);
+
+				if (!pDocument->OnNewDocument())
+				{
+//					TRACE(traceAppMsg, 0, "Error: OnNewDocument failed after trying "
+//						"to open a document - trying to continue.\n");
+					// assume we can continue
+				}
+			}
+			return NULL;        // open failed
+		}
+		pDocument->SetPathName(lpszPathName, bAddToMRU);
+//		pDocument->OnDocumentEvent(CDocument::onAfterOpenDocument);
+	}
+
+	CWinThread* pThread = AfxGetThread();
+	ASSERT(pThread);
+	if (bCreated && pThread->m_pMainWnd == NULL)
+	{
+		// set as main frame (InitialUpdateFrame will show the window)
+		pThread->m_pMainWnd = pFrame;
+	}
+	InitialUpdateFrame(pFrame, pDocument, bMakeVisible);
+   
+	return pDocument;
 }
+
+IMPLEMENT_DYNAMIC(CCommandLineInfo,CObject)
 
 CCommandLineInfo::CCommandLineInfo( )
 {
@@ -6900,8 +7391,10 @@ void CCommandLineInfo::ParseParam(
    qDebug("CCommandLineInfo::ParseParam");
 }
 
+IMPLEMENT_DYNCREATE(CWinApp,CWinThread)
+
 CWinApp::CWinApp() 
-   : m_pMainWnd(NULL), m_pRecentFileList(NULL) 
+   : m_pRecentFileList(NULL) 
 {
 }
 
@@ -7004,6 +7497,8 @@ BOOL CWinApp::ProcessShellCommand(
    CCommandLineInfo& rCmdInfo
 )
 {
+   // CP: Just do New file for now...
+   OpenDocumentFile(NULL);
    qDebug("ProcessShellCommand");
    return TRUE;
 }
@@ -7126,6 +7621,8 @@ HCURSOR CWinApp::LoadStandardCursor(
    qDebug("LoadStandardCursor needs work...");
 //   setCursor()
 }
+
+IMPLEMENT_DYNAMIC(CMenu,CCmdTarget)
 
 CMenu::CMenu()
    : m_hMenu(NULL)
@@ -7612,6 +8109,8 @@ BOOL CMenu::DestroyMenu( )
    return TRUE;
 }
 
+IMPLEMENT_DYNAMIC(CTabCtrl,CWnd)
+
 CTabCtrl::CTabCtrl(CWnd* parent)
    : CWnd(parent)
 {
@@ -7679,6 +8178,8 @@ BOOL CTabCtrl::DeleteAllItems( )
    _qtd->blockSignals(false);
    return TRUE;
 }
+
+IMPLEMENT_DYNAMIC(CEdit,CWnd)
 
 CEdit::CEdit(CWnd* parent)
    : CWnd(parent),
@@ -8063,6 +8564,8 @@ int CEdit::GetDlgItemText(
    }
 }
 
+IMPLEMENT_DYNAMIC(CButton,CWnd)
+
 CButton::CButton(CWnd* parent)
    : CWnd(parent),
      _qtd_push(NULL),
@@ -8230,6 +8733,7 @@ UINT CButton::IsDlgButtonChecked(
    return _qtd->isChecked();
 }
 
+IMPLEMENT_DYNAMIC(CBitmapButton,CButton)
 
 CBitmapButton::CBitmapButton(CWnd* parent)
    : CButton(parent),
@@ -8284,6 +8788,8 @@ BOOL CBitmapButton::Create(
 
    return TRUE;
 }
+
+IMPLEMENT_DYNAMIC(CSpinButtonCtrl,CWnd)
 
 CSpinButtonCtrl::CSpinButtonCtrl(CWnd* parent)
    : CWnd(parent),
@@ -8430,6 +8936,8 @@ int CSpinButtonCtrl::GetDlgItemText(
 #endif
    return _qtd->text().length();
 }
+
+IMPLEMENT_DYNAMIC(CSliderCtrl,CWnd)
 
 CSliderCtrl::CSliderCtrl(CWnd* parent)
    : CWnd(parent)
@@ -8601,6 +9109,8 @@ int CSliderCtrl::GetDlgItemText(
    return value.length();
 }
 
+IMPLEMENT_DYNAMIC(CProgressCtrl,CWnd)
+
 CProgressCtrl::CProgressCtrl(CWnd* parent)
    : CWnd(parent)
 {
@@ -8652,6 +9162,8 @@ int CProgressCtrl::GetPos( ) const
 {
    return _qtd->value();
 }
+
+IMPLEMENT_DYNAMIC(CStatic,CWnd)
 
 CStatic::CStatic(CWnd *parent)
    : CWnd(parent)
@@ -8757,6 +9269,8 @@ int CStatic::GetDlgItemText(
    return _qtd->text().length();
 }
 
+IMPLEMENT_DYNAMIC(CGroupBox,CWnd)
+
 CGroupBox::CGroupBox(CWnd *parent)
    : CWnd(parent)
 {
@@ -8860,6 +9374,8 @@ int CGroupBox::GetDlgItemText(
 #endif
    return _qtd->title().length();
 }
+
+IMPLEMENT_DYNAMIC(CFileDialog,CCommonDialog)
 
 CFileDialog::CFileDialog(
    BOOL bOpenFileDialog,
@@ -9094,6 +9610,8 @@ CString CFileDialog::GetPathName( ) const
    return CString();
 }
 
+IMPLEMENT_DYNAMIC(CColorDialog,CCommonDialog)
+
 CColorDialog::CColorDialog(
    COLORREF clrInit,
    DWORD dwFlags,
@@ -9303,6 +9821,8 @@ BOOL CFileFind::IsDots( ) const
    return _qfiles.at(_idx-1).fileName().startsWith("..");
 }
 
+IMPLEMENT_DYNAMIC(CImageList,CObject)
+
 CImageList::CImageList()
 {
 }
@@ -9351,6 +9871,8 @@ HICON CImageList::ExtractIcon(
 {
    return (HICON)_images.at(nImage);
 }
+
+IMPLEMENT_DYNAMIC(CPropertySheet,CWnd)
 
 CPropertySheet::CPropertySheet(
    UINT nIDCaption,
@@ -9492,6 +10014,8 @@ INT_PTR CPropertySheet::DoModal( )
       return 0;
 }
 
+IMPLEMENT_DYNAMIC(CPropertyPage,CDialog)
+
 CPropertyPage::CPropertyPage(
    UINT nIDTemplate,
    UINT nIDCaption,
@@ -9537,6 +10061,8 @@ BOOL CPropertyPage::OnSetActive( )
 {
    return TRUE;
 }
+
+IMPLEMENT_DYNAMIC(CToolTipCtrl,CWnd)
 
 CToolTipCtrl::CToolTipCtrl( )
 {

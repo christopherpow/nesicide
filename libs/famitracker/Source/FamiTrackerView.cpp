@@ -107,7 +107,7 @@ static bool CheckRepeat()
 
 // CFamiTrackerView
 
-//IMPLEMENT_DYNCREATE(CFamiTrackerView, CView)
+IMPLEMENT_DYNCREATE(CFamiTrackerView, CView)
 
 //BEGIN_MESSAGE_MAP(CFamiTrackerView, CView)
 //	ON_WM_CREATE()
@@ -249,8 +249,7 @@ int ConvertKeyToDec(int Key)
 
 // CFamiTrackerView construction/destruction
 
-CFamiTrackerView::CFamiTrackerView(CWnd* parent) : 
-   CView(parent),
+CFamiTrackerView::CFamiTrackerView() : 
 	m_iMoveKeyStepping(1),
 	m_iInsertKeyStepping(1),
 	m_bEditEnable(false),
@@ -383,7 +382,7 @@ BOOL CFamiTrackerView::PreCreateWindow(CREATESTRUCT& cs)
 
 CFamiTrackerDoc* CFamiTrackerView::GetDocument() const // non-debug version is inline
 {
-//	ASSERT(m_pDocument->IsKindOf(RUNTIME_CLASS(CFamiTrackerDoc)));
+	ASSERT(m_pDocument->IsKindOf(RUNTIME_CLASS(CFamiTrackerDoc)));
 	return (CFamiTrackerDoc*)m_pDocument;
 }
 
@@ -404,11 +403,11 @@ CFamiTrackerView *CFamiTrackerView::GetView()
 	if (!pView)
 		return NULL;
 
-//	// Fail if view is of wrong kind
-//	// (this could occur with splitter windows, or additional
-//	// views on a single document
-//	if (!pView->IsKindOf(RUNTIME_CLASS(CFamiTrackerView)))
-//		return NULL;
+	// Fail if view is of wrong kind
+	// (this could occur with splitter windows, or additional
+	// views on a single document
+	if (!pView->IsKindOf(RUNTIME_CLASS(CFamiTrackerView)))
+		return NULL;
 
 	return (CFamiTrackerView*)pView;
 }
@@ -3544,7 +3543,6 @@ void CFamiTrackerView::verticalScrollBar_actionTriggered(int arg1)
    }
 
    OnVScroll(arg1,mfcVerticalScrollBar->sliderPosition(),mfcVerticalScrollBar);
-   update();
 }
 
 void CFamiTrackerView::horizontalScrollBar_actionTriggered(int arg1)
@@ -3576,7 +3574,6 @@ void CFamiTrackerView::horizontalScrollBar_actionTriggered(int arg1)
    }
    
    OnHScroll(arg1,mfcHorizontalScrollBar->sliderPosition(),mfcHorizontalScrollBar);
-   update();
 }
 
 void CFamiTrackerView::menuAboutToShow(CMenu* menu)

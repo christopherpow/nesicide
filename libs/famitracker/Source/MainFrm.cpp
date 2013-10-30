@@ -102,8 +102,7 @@ IMPLEMENT_DYNCREATE(CMainFrame, CFrameWnd)
 
 // CMainFrame construction/destruction
 
-CMainFrame::CMainFrame(CWnd *parent) :
-   CFrameWnd(parent),
+CMainFrame::CMainFrame() :
 	m_pSampleWindow(NULL),
 	m_pFrameEditor(NULL),
 	m_pImageList(NULL),
@@ -122,9 +121,6 @@ CMainFrame::CMainFrame(CWnd *parent) :
 	m_pInstrumentFileTree(NULL),
    initialized(false)
 {
-   CREATESTRUCT cs;
-   OnCreate(&cs);
-
 	_dpiX = DEFAULT_DPI;
 	_dpiY = DEFAULT_DPI;
 
@@ -2314,17 +2310,16 @@ void CMainFrame::OnCreateWAV()
 
 BOOL CMainFrame::Create(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle , const RECT& rect , CWnd* pParentWnd , LPCTSTR lpszMenuName , DWORD dwExStyle , CCreateContext* pContext)
 {
-   qDebug("CMainFrame::Create");
-//	CSettings *pSettings = theApp.GetSettings();
-//	RECT newrect;
+	CSettings *pSettings = theApp.GetSettings();
+	RECT newrect;
 
-//	// Load stored position
-//	newrect.bottom	= pSettings->WindowPos.iBottom;
-//	newrect.left	= pSettings->WindowPos.iLeft;
-//	newrect.right	= pSettings->WindowPos.iRight;
-//	newrect.top		= pSettings->WindowPos.iTop;
+	// Load stored position
+	newrect.bottom	= pSettings->WindowPos.iBottom;
+	newrect.left	= pSettings->WindowPos.iLeft;
+	newrect.right	= pSettings->WindowPos.iRight;
+	newrect.top		= pSettings->WindowPos.iTop;
 
-//	return CFrameWnd::Create(lpszClassName, lpszWindowName, dwStyle, newrect, pParentWnd, lpszMenuName, dwExStyle, pContext);
+	return CFrameWnd::Create(lpszClassName, lpszWindowName, dwStyle, newrect, pParentWnd, lpszMenuName, dwExStyle, pContext);
 }
 
 void CMainFrame::OnNextFrame()

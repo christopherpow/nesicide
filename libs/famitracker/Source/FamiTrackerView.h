@@ -88,8 +88,9 @@ public slots:
    void menuAction_triggered(int id);
    void menuAboutToShow(CMenu* menu);
    
-public:
-	CFamiTrackerView(CWnd* parent = 0);
+protected: // create from serialization only
+	CFamiTrackerView();
+	DECLARE_DYNCREATE(CFamiTrackerView)
    ~CFamiTrackerView();
 
 public:

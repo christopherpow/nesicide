@@ -56,8 +56,9 @@ private:
    QString m_fileName;
    bool initialized;
 
-public:
-   CMainFrame(CWnd* parent = 0);
+protected: // create from serialization only
+	CMainFrame();
+	DECLARE_DYNCREATE(CMainFrame)
 
 // Attributes
 public:
