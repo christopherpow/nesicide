@@ -75,6 +75,11 @@ CMixer::CMixer()
 	m_fLevelVRC6 = 1.0f;
 	m_fLevelMMC5 = 1.0f;
 	m_fLevelFDS = 1.0f;
+   
+   m_iLowCut = 0;
+   m_iHighCut = 0;
+   m_iHighDamp = 0;
+   m_iOverallVol = 0;
 
 	m_bNamcoMixing = false;
 }

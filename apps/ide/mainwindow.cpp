@@ -383,8 +383,6 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    // Initialize the app...
    qtMfcInit(this);
    theApp.InitInstance();   
-   
-   openFile("");
 }
 
 MainWindow::~MainWindow()

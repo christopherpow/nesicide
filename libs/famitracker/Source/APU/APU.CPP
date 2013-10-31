@@ -354,7 +354,6 @@ bool CAPU::SetupSound(int SampleRate, int NrChannels, int Machine)
 	//
 	// Returns false if a buffer couldn't be allocated
 	//
-
 	uint32 BaseFreq = (Machine == MACHINE_NTSC) ? BASE_FREQ_NTSC : BASE_FREQ_PAL;
 	uint8 FrameRate = (Machine == MACHINE_NTSC) ? FRAME_RATE_NTSC : FRAME_RATE_PAL;
 

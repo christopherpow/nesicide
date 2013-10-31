@@ -18,12 +18,14 @@ DebuggerUpdateThread::~DebuggerUpdateThread()
 {
    pThread->terminate();
    pThread->wait();
+   _func = NULL;
    delete pThread;
 }
 
 void DebuggerUpdateThread::updateDebuggers()
 {
-   _func();
+   if ( _func )
+      _func();
 
    emit updateComplete();
 }

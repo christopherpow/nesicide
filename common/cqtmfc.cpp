@@ -6682,6 +6682,7 @@ CWinThread::CWinThread()
 {
    m_hThread = (HANDLE)this;
    m_nThreadID = (DWORD)QThread::currentThreadId();
+   
    m_pMainWnd = NULL;
 }
 
@@ -6696,7 +6697,7 @@ BOOL CWinThread::CreateThread(
 )
 {
    m_pMainWnd = AfxGetMainWnd();
-   
+
    if ( !(dwCreateFlags&CREATE_SUSPENDED) )
    {
       ResumeThread();
@@ -7287,7 +7288,6 @@ CDocument* CSingleDocTemplate::OpenDocumentFile(
 		return NULL;
 	}
 	ASSERT(pDocument == m_pOnlyDoc);
-
 	if (pFrame == NULL)
 	{
 		ASSERT(bCreated);
@@ -7499,7 +7499,6 @@ BOOL CWinApp::ProcessShellCommand(
 {
    // CP: Just do New file for now...
    OpenDocumentFile(NULL);
-   qDebug("ProcessShellCommand");
    return TRUE;
 }
 
@@ -7577,7 +7576,6 @@ CDocument* CWinApp::OpenDocumentFile(
    if ( pDocTemplate )
    {
       pDoc = pDocTemplate->OpenDocumentFile(lpszFileName);
-      
       if ( lpszFileName )
       {
          m_pRecentFileList->Add(lpszFileName);
