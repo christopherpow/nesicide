@@ -35,6 +35,7 @@ HGDIOBJ GetStockObject(
 extern void qtMfcInitDialogResource(UINT dlgID,CDialog* parent);
 extern void qtMfcInitToolBarResource(UINT dlgID,CToolBar* parent);
 extern void qtMfcInitMenuResource(UINT menuID,CMenu* parent);
+extern ACCEL* qtMfcAcceleratorResource(UINT id);
 
 QHash<int,CString> qtMfcStringResources;
 
@@ -1293,7 +1294,9 @@ HACCEL WINAPI LoadAccelerators(
    LPCTSTR lpTableName
 )
 {
-
+   UINT id = (UINT)lpTableName;
+   ACCEL* pTable = qtMfcAcceleratorResource(id);
+   return (HACCEL)pTable;
 }
 
 int WINAPI TranslateAccelerator(
@@ -1309,7 +1312,7 @@ int WINAPI TranslateAccelerator(
       {
          CWnd* pWnd = (CWnd*)hWnd;
          pWnd->SendMessage(WM_COMMAND,pAccel->cmd);
-         qDebug("Translating and sending %d message...");
+         qDebug("Translating and sending %d message...",pAccel->key);
          return 1;
       }
       pAccel++;
@@ -2926,9 +2929,10 @@ int CDC::DrawText(
    _qpainter.setPen(QPen(_textColor));
 //   _qpainter.setFont((QFont)*_font);
    _qpainter.drawText(rect,qstr.toLatin1().constData());
-   return _tcslen((LPCTSTR)str);
    _qpainter.setPen(origPen);
+   return 0; // CP: should be text height
 }
+
 int CDC::DrawText(
    LPCTSTR lpszString,
    int nCount,
@@ -3403,6 +3407,7 @@ QModelIndex CListCtrl::currentIndex () const
    {
       return _qtd_list->currentIndex();
    }
+   return QModelIndex();
 }
 
 BOOL CListCtrl::Create(
@@ -3600,6 +3605,7 @@ UINT CListCtrl::GetSelectedCount( ) const
    {
       return _qtd_list->selectedItems().count();
    }
+   return 0;
 }
 
 int CListCtrl::GetSelectionMark( )
@@ -3969,7 +3975,7 @@ BOOL CListCtrl::SetCheck(
    {
       lwi = _qtd_list->item(nItem);
 
-      if ( !twi )
+      if ( !lwi )
       {
          add = true;
          lwi = new QListWidgetItem;
@@ -4304,6 +4310,7 @@ int CListCtrl::GetItemCount( ) const
    {
       return _qtd_list->count();
    }
+   return 0;
 }
 
 DWORD_PTR CListCtrl::GetItemData(
@@ -4331,6 +4338,7 @@ DWORD_PTR CListCtrl::GetItemData(
          return lwi->data(Qt::UserRole).toInt();
       }
    }
+   return NULL;
 }
 
 BOOL CListCtrl::SetItemData(
@@ -7622,6 +7630,7 @@ HCURSOR CWinApp::LoadStandardCursor(
 {
    qDebug("LoadStandardCursor needs work...");
 //   setCursor()
+   return (HCURSOR)NULL;
 }
 
 IMPLEMENT_DYNAMIC(CMenu,CCmdTarget)
@@ -7713,6 +7722,7 @@ BOOL CMenu::RemoveMenu(
       _qtd->removeAction(findMenuItem(nPosition));
       break;
    }
+   return TRUE;
 }
 
 CMenu* CMenu::GetSubMenu(
@@ -9739,14 +9749,17 @@ CEvent::~CEvent()
 
 BOOL CEvent::SetEvent()
 {
+   return TRUE;
 }
 
 BOOL CEvent::ResetEvent()
 {
+   return TRUE;
 }
 
 BOOL CEvent::PulseEvent()
 {
+   return TRUE;
 }
 
 BOOL CFileFind::FindFile(
@@ -9846,7 +9859,9 @@ int CImageList::Add(
    CBitmap* pbmMask
 )
 {
+   int ret = _images.count();
    _images.append(pbmImage);
+   return ret;
    // Not sure what to do with mask yet.
 }
 
@@ -9855,7 +9870,9 @@ int CImageList::Add(
    COLORREF crMask
 )
 {
+   int ret = _images.count();
    _images.append(pbmImage);
+   return ret;
    // Not sure what to do with mask yet.
 }
 
@@ -9863,8 +9880,10 @@ int CImageList::Add(
    HICON hIcon
 )
 {
+   int ret = _images.count();
    CBitmap* pBitmap = (CBitmap*)hIcon;
    _images.append(pBitmap);
+   return ret;
 }
 
 HICON CImageList::ExtractIcon(
@@ -10307,7 +10326,12 @@ BOOL CRecentFileList::GetDisplayName(
    BOOL bAtLeastName 
 ) const
 {
-   strName = _recentFiles.at(nIndex);
+   if ( nIndex < _recentFiles.count() )
+   {
+      strName = _recentFiles.at(nIndex);
+      return TRUE;
+   }
+   return FALSE;
 }
 
 int EnumFontFamiliesEx(

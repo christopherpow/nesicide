@@ -553,8 +553,8 @@ void qtMfcInitMenuResource(UINT menuID,CMenu* parent)
    }
    // Fixup shortcuts
    int menu = 0;
-   CMenu* subMenu;
-   while ( subMenu = parent->GetSubMenu(menu) )
+   CMenu* subMenu = parent->GetSubMenu(menu);
+   while ( subMenu )
    {
       foreach ( QAction* action, subMenu->toQMenu()->actions() )
       {
@@ -564,6 +564,7 @@ void qtMfcInitMenuResource(UINT menuID,CMenu* parent)
          }
       }
       menu++;
+      subMenu = parent->GetSubMenu(menu);
    }
 }
 
@@ -937,6 +938,42 @@ void qtMfcInitStringResources()
    qtMfcStringResources.insert(ID_INDICATOR_TEMPO      , "000 BPM");
    qtMfcStringResources.insert(ID_INDICATOR_TIME       , "00:00:00 ");
 //   END
+}
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+//IDR_FRAMEWND ACCELERATORS
+ACCEL ACCEL_IDR_FRAMEWND[] = 
+{
+//BEGIN
+//    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+   { FVIRTKEY|FCONTROL|FNOINVERT, 'C', ID_EDIT_COPY },
+//    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL, NOINVERT
+   { FVIRTKEY|FCONTROL|FNOINVERT, 'V', ID_EDIT_PASTE },
+//    VK_DOWN,        ID_MODULE_MOVEFRAMEDOWN, VIRTKEY, CONTROL, NOINVERT
+   { FVIRTKEY|FCONTROL|FNOINVERT, VK_DOWN, ID_MODULE_MOVEFRAMEDOWN },
+//    VK_UP,          ID_MODULE_MOVEFRAMEUP,  VIRTKEY, CONTROL, NOINVERT
+   { FVIRTKEY|FCONTROL|FNOINVERT, VK_UP, ID_MODULE_MOVEFRAMEUP },
+//    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL, NOINVERT
+   { FVIRTKEY|FCONTROL|FNOINVERT, 'Z', ID_EDIT_UNDO },
+//    "Y",            ID_EDIT_REDO,           VIRTKEY, CONTROL, NOINVERT
+   { FVIRTKEY|FCONTROL|FNOINVERT, 'Y', ID_EDIT_REDO },
+//END
+   { 0, 0, 0 },
+};
+
+ACCEL* qtMfcAcceleratorResource(UINT id)
+{
+   switch ( id )
+   {
+   case IDR_FRAMEWND:
+      return ACCEL_IDR_FRAMEWND;
+      break;
+   }
+   return NULL;
 }
 
 void qtMfcInitBitmapResources()
