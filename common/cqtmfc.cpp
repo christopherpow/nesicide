@@ -4851,6 +4851,7 @@ CWnd::CWnd(CWnd *parent)
 
 CWnd::~CWnd()
 {
+   DestroyWindow();
    if ( mfcVerticalScrollBar )
       delete mfcVerticalScrollBar;
    if ( mfcHorizontalScrollBar )
@@ -5072,9 +5073,12 @@ BOOL CWnd::IsWindowVisible( ) const
 
 BOOL CWnd::DestroyWindow()
 {
-   QList<QWidget *> widgets = _qt->findChildren<QWidget *>();
-   foreach ( QWidget* widget, widgets ) widget->deleteLater();
-   _qt->close();
+   if ( _qt )
+   {
+      QList<QWidget *> widgets = _qt->findChildren<QWidget *>();
+      foreach ( QWidget* widget, widgets ) widget->deleteLater();
+      _qt->close();
+   }
    if ( focusWnd == this )
    {
       focusWnd = NULL;

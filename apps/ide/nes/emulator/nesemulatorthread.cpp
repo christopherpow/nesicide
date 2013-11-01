@@ -43,10 +43,12 @@ static void breakpointHook ( void )
 {
    // Tell the world.
    NESEmulatorThread* emulator = dynamic_cast<NESEmulatorThread*>(CObjectRegistry::getObject("Emulator"));
-   emulator->_breakpointHook();
+   if ( emulator )
+      emulator->_breakpointHook();
 
    // Put my thread to sleep.
-   emulator->nesBreakpointSemaphore->acquire();
+   if ( emulator )
+      emulator->nesBreakpointSemaphore->acquire();
 }
 
 void NESEmulatorThread::_breakpointHook()
