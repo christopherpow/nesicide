@@ -4,7 +4,7 @@
 #include <QMessageBox>
 
 CDesignerEditorBase::CDesignerEditorBase(IProjectTreeViewItem* link,QWidget *parent) :
-    QWidget(parent)
+    QMainWindow(parent)
 {
    QWidget* searchBar = CDockWidgetRegistry::getWidget("Search Bar");
    QWidget* search = CDockWidgetRegistry::getWidget("Search");

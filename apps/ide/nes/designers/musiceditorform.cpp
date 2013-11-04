@@ -3,6 +3,9 @@
 
 #include "cqtmfc.h"
 
+#include "Source/FamiTracker.h"
+#include "Source/cqtmfc_famitracker.h"
+
 MusicEditorForm::MusicEditorForm(QString fileName,QByteArray musicData,IProjectTreeViewItem* link,QWidget* parent) :
    CDesignerEditorBase(link,parent),
    ui(new Ui::MusicEditorForm)
@@ -11,10 +14,13 @@ MusicEditorForm::MusicEditorForm(QString fileName,QByteArray musicData,IProjectT
    
    m_fileName = fileName;
    
-   openFile(m_fileName);
+   // Initialize FamiTracker...
+   qtMfcInit(this);
+   AfxGetApp()->InitInstance();   
+
+   setCentralWidget(AfxGetMainWnd()->toQWidget());
    
-   ui->stackedWidget->addWidget(AfxGetApp()->m_pMainWnd->toQWidget());
-   ui->stackedWidget->setCurrentWidget(AfxGetApp()->m_pMainWnd->toQWidget());
+   openFile(m_fileName);
    
    QObject::connect(AfxGetApp()->m_pMainWnd,SIGNAL(addToolBarWidget(QToolBar*)),this,SIGNAL(addToolBarWidget(QToolBar*)));
    QObject::connect(AfxGetApp()->m_pMainWnd,SIGNAL(removeToolBarWidget(QToolBar*)),this,SIGNAL(removeToolBarWidget(QToolBar*)));
@@ -37,7 +43,7 @@ void MusicEditorForm::onSave()
 {
    CDesignerEditorBase::onSave();
    
-   CFamiTrackerDoc* pDoc = (CFamiTrackerDoc*)AfxGetApp()->m_pMainWnd->GetActiveDocument();
+   CFamiTrackerDoc* pDoc = (CFamiTrackerDoc*)AfxGetMainWnd()->GetActiveDocument();
 
    pDoc->OnSaveDocument((TCHAR*)m_fileName.toAscii().constData()); 
    
@@ -45,7 +51,7 @@ void MusicEditorForm::onSave()
 }
 
 void MusicEditorForm::onClose()
-{
+{   
    AfxGetMainWnd()->OnClose();
    
    // TODO: Handle unsaved documents or other pre-close stuffs

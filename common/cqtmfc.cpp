@@ -6172,6 +6172,7 @@ BOOL CReBar::Create(
    m_pReBarCtrl->Create(dwStyle,rect,pParentWnd,nID);
 
    ptrToTheApp->qtMainWindow->addToolBar(dynamic_cast<QToolBar*>(m_pReBarCtrl->toQWidget()));
+   
    return TRUE;
 }
 
@@ -6818,17 +6819,17 @@ void CDocument::SetTitle(CString title )
 
 #if UNICODE
    windowTitle = QString::fromWCharArray((LPCTSTR)title);
-   fileInfo.setFile(windowTitle);
-   m_pDocTemplate->GetDocString(appName,CDocTemplate::windowTitle);
-   windowTitle = fileInfo.fileName() + QString::fromWCharArray((LPCTSTR)appName);
-   ptrToTheApp->qtMainWindow->setWindowTitle(windowTitle);
 #else
    windowTitle = QString::fromLatin1((LPCTSTR)title);
+#endif
    fileInfo.setFile(windowTitle);
    m_pDocTemplate->GetDocString(appName,CDocTemplate::windowTitle);
+#if UNICODE
+   windowTitle = fileInfo.fileName() + QString::fromWCharArray((LPCTSTR)appName);
+#else
    windowTitle = fileInfo.fileName() + QString::fromLatin1((LPCTSTR)appName);
-   ptrToTheApp->qtMainWindow->setWindowTitle(windowTitle);
 #endif
+   ptrToTheApp->qtMainWindow->setWindowTitle(windowTitle);
 }
 
 void CDocument::OnFileSave()

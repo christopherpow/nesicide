@@ -40,6 +40,8 @@ AttributeTableEditorForm::AttributeTableEditorForm(QList<uint8_t> palette,IProje
       m_colors.at(idx)->setCurrentColor(QColor(nesGetPaletteRedComponent(m_palette.at(idx)),nesGetPaletteGreenComponent(m_palette.at(idx)),nesGetPaletteBlueComponent(m_palette.at(idx))));
       QObject::connect(m_colors.at(idx),SIGNAL(colorChanged(QColor)),this,SLOT(colorChanged(QColor)));
    }
+   
+   setCentralWidget(ui->window);
 }
 
 AttributeTableEditorForm::~AttributeTableEditorForm()

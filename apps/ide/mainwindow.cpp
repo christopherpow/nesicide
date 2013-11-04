@@ -7,8 +7,6 @@
 
 #include "testsuiteexecutivedialog.h"
 
-#include "Source/cqtmfc_famitracker.h"
-
 #include "main.h"
 
 #include "compilerthread.h"
@@ -27,8 +25,6 @@
 #include <QStringList>
 #include <QMessageBox>
 #include <QSettings>
-
-#include "Source/FamiTracker.h"
 
 OutputPaneDockWidget* output = NULL;
 ProjectBrowserDockWidget* m_pProjectBrowser = NULL;
@@ -66,11 +62,11 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
       qputenv("CC65_HOME",envdat.toAscii());
 
       envdat = dir.absolutePath();
-      envdat += "/cc65-snapshot-2.13.9.20120412/lib";
+      envdat += "/cc65-snapshot-2.13.9.20120412/libsrc";
       qputenv("LD65_LIB",envdat.toAscii());
 
       envdat = dir.absolutePath();
-      envdat += "/cc65-snapshot-2.13.9.20120412/lib";
+      envdat += "/cc65-snapshot-2.13.9.20120412/libsrc";
       qputenv("LD65_OBJ",envdat.toAscii());
 
       envdat = dir.absolutePath();
@@ -97,11 +93,11 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
       qputenv("CC65_HOME",envdat.toAscii());
 
       envdat = QCoreApplication::applicationDirPath();
-      envdat += "/cc65-snapshot-2.13.9.20120412/lib";
+      envdat += "/cc65-snapshot-2.13.9.20120412/libsrc";
       qputenv("LD65_LIB",envdat.toAscii());
 
       envdat = QCoreApplication::applicationDirPath();
-      envdat += "/cc65-snapshot-2.13.9.20120412/lib";
+      envdat += "/cc65-snapshot-2.13.9.20120412/libsrc";
       qputenv("LD65_OBJ",envdat.toAscii());
 
       envdat = QCoreApplication::applicationDirPath();
@@ -284,7 +280,7 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    // Load all plugins.
    pluginManager->doInitScript();
    pluginManager->loadPlugins();
-
+   
    // Set up UI in "Coding" mode.
    actionCoding_Mode->setChecked(true);
    if ( EnvironmentSettingsDialog::rememberWindowSettings() )
@@ -379,10 +375,6 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
 
    // Start timer for doing background stuff.
    m_periodicTimer = startTimer(5000);
-   
-   // Initialize the app...
-   qtMfcInit(this);
-   theApp.InitInstance();   
 }
 
 MainWindow::~MainWindow()
@@ -421,9 +413,6 @@ MainWindow::~MainWindow()
    
    m_pNESEmulatorThread->kill();
    m_pNESEmulatorThread->wait();
-   
-   // TODO: Handle unsaved documents or other pre-close stuffs
-   theApp.ExitInstance();
 }
 
 void MainWindow::applicationActivationChanged(bool activated)
@@ -3521,7 +3510,10 @@ void MainWindow::on_actionDebugging_Mode_triggered()
       }
 
       widget = CDockWidgetRegistry::getWidget("Emulator");
-      widget->show();
+      if ( widget )
+      {
+         widget->show();
+      }
    }
 
    actionDebugging_Mode->setChecked(true);
@@ -3530,11 +3522,6 @@ void MainWindow::on_actionDebugging_Mode_triggered()
 
 void MainWindow::on_actionExit_triggered()
 {
-   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
-   
-   settings.setValue("FamiTrackerWindowGeometry",saveGeometry());
-   settings.setValue("FamiTrackerWindowState",saveState());
-   
    // Closing the main window kills the app
    close();
 }

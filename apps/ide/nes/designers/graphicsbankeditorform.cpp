@@ -38,6 +38,7 @@ GraphicsBankEditorForm::GraphicsBankEditorForm(QList<IChrRomBankItem*> bankItems
    renderer = new PanZoomRenderer(256,128,2000,imgData,true,ui->frame);
    ui->frame->layout()->addWidget(renderer);
    ui->frame->update();
+   setCentralWidget(ui->window);
 
    QObject::connect(renderer,SIGNAL(repaintNeeded()),this,SLOT(renderData()));
 

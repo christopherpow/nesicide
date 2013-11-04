@@ -46,9 +46,10 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
 
    m_pBreakpoints = NULL;
 
-   ui->gridLayout->setSpacing(0);
-
    m_scintilla = new QsciScintilla();
+   
+   setCentralWidget(m_scintilla);
+   setWindowFlags(Qt::Widget);
 
    m_scintilla->setFrameShape(QFrame::NoFrame);
 
@@ -110,8 +111,6 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    QObject::connect(m_scintilla,SIGNAL(modificationChanged(bool)),this,SLOT(editor_modificationChanged(bool)));
    QObject::connect(m_scintilla,SIGNAL(copyAvailable(bool)),this,SLOT(editor_copyAvailable(bool)));
    QObject::connect(m_scintilla,SIGNAL(cursorPositionChanged(int,int)),this,SLOT(editor_cursorPositionChanged(int,int)));
-
-   ui->gridLayout->addWidget(m_scintilla);
 
    // Connect signals to the UI to have the UI update.
    QObject::connect ( codeBrowser,SIGNAL(breakpointsChanged()),this,SLOT(external_breakpointsChanged()) );

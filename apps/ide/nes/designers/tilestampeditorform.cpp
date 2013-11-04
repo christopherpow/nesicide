@@ -354,6 +354,8 @@ TileStampEditorForm::TileStampEditorForm(QByteArray data,QByteArray attr,QString
    QObject::connect(ui->ySize,SIGNAL(currentIndexChanged(int)),this,SLOT(ySize_currentIndexChanged(int)));
    QObject::connect(ui->attributeTable,SIGNAL(currentIndexChanged(int)),this,SLOT(attributeTable_currentIndexChanged(int)));
    QObject::connect(ui->grid,SIGNAL(toggled(bool)),this,SLOT(grid_toggled(bool)));
+   
+   setCentralWidget(ui->window);
 }
 
 TileStampEditorForm::~TileStampEditorForm()

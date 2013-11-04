@@ -1,14 +1,14 @@
 #ifndef CDESIGNEREDITORBASE_H
 #define CDESIGNEREDITORBASE_H
 
-#include <QWidget>
+#include <QMainWindow>
 #include <QUndoStack>
 #include <QToolBar>
 
 #include "icenterwidgetitem.h"
 #include "iprojecttreeviewitem.h"
 
-class CDesignerEditorBase : public QWidget, public ICenterWidgetItem
+class CDesignerEditorBase : public QMainWindow, public ICenterWidgetItem
 {
    Q_OBJECT
 public:

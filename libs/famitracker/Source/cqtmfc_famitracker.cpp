@@ -574,7 +574,8 @@ void qtMfcInitStringResources()
    //
    // String Table
    //
-
+   qtMfcStringResources.clear();
+   
 // AFX resources
    qtMfcStringResources.insert(AFX_IDS_ALLFILTER,"All files|");
    qtMfcStringResources.insert(AFX_IDS_OPENFILE,"Open");
@@ -982,6 +983,8 @@ void qtMfcInitBitmapResources()
    //
    // Bitmap
    //
+   qtMfcBitmapResources.clear();
+   
 //   IDB_SAMPLEBG            BITMAP                  "res\\SampleBg.bmp"
    qtMfcBitmapResources.insert(IDB_SAMPLEBG,new CBitmap(":/resources/SampleBg.bmp"));
 //   IDB_KEY_BLACK           BITMAP                  "res\\key_black_unpressed.bmp"
@@ -1006,6 +1009,7 @@ void qtInitIconResources()
    //
    // Bitmap
    //
+   qtIconResources.clear();
 
    // Icon with lowest ID value placed first to ensure application icon
    // remains consistent on all systems.

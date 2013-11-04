@@ -34,6 +34,7 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(bool usePPU,qint8* data,IProjectTreeVie
    renderer = new PanZoomRenderer(256,128,2000,imgData,true,ui->frame);
    ui->frame->layout()->addWidget(renderer);
    ui->frame->layout()->update();
+   setCentralWidget(ui->window);
 
    QObject::connect(renderer,SIGNAL(repaintNeeded()),this,SLOT(repaintNeeded()));
 

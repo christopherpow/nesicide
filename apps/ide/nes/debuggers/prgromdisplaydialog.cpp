@@ -87,8 +87,8 @@ PRGROMDisplayDialog::PRGROMDisplayDialog(uint8_t* bankData,IProjectTreeViewItem*
    maxLineNum.sprintf("%d",m_scintilla->lines());
 
    m_scintilla->setMarginWidth(Margin_LineNumbers,maxLineNum);
-
-   ui->gridLayout->addWidget(m_scintilla);
+   
+   setCentralWidget(m_scintilla);
 }
 
 PRGROMDisplayDialog::~PRGROMDisplayDialog()
