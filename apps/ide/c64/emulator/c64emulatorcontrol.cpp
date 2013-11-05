@@ -46,9 +46,7 @@ C64EmulatorControl::C64EmulatorControl(QWidget *parent) :
    ui->debugButton->setChecked(debugging);
 
    // Features not yet supported.
-   ui->stepOverButton->setEnabled(false);
    ui->stepOutButton->setEnabled(false);
-   ui->actionStep_Over->setEnabled(false);
    ui->actionStep_Out->setEnabled(false);
 }
 
@@ -75,12 +73,12 @@ void C64EmulatorControl::internalPlay()
    ui->playButton->setEnabled(false);
    ui->pauseButton->setEnabled(true);
    ui->stepCPUButton->setEnabled(false);
-//   ui->stepOverButton->setEnabled(debugging);
+   ui->stepOverButton->setEnabled(debugging);
 //   ui->stepOutButton->setEnabled(debugging);
    ui->actionRun->setEnabled(false);
    ui->actionPause->setEnabled(true);
    ui->actionStep_CPU->setEnabled(false);
-//   ui->actionStep_Over->setEnabled(debugging);
+   ui->actionStep_Over->setEnabled(debugging);
 //   ui->actionStep_Out->setEnabled(debugging);
 }
 
@@ -89,12 +87,12 @@ void C64EmulatorControl::internalPause()
    ui->playButton->setEnabled(true);
    ui->pauseButton->setEnabled(false);
    ui->stepCPUButton->setEnabled(debugging);
-//   ui->stepOverButton->setEnabled(debugging);
+   ui->stepOverButton->setEnabled(debugging);
 //   ui->stepOutButton->setEnabled(debugging);
    ui->actionRun->setEnabled(true);
    ui->actionPause->setEnabled(false);
    ui->actionStep_CPU->setEnabled(debugging);
-//   ui->actionStep_Over->setEnabled(debugging);
+   ui->actionStep_Over->setEnabled(debugging);
 //   ui->actionStep_Out->setEnabled(debugging);
 }
 
@@ -142,10 +140,10 @@ void C64EmulatorControl::on_debugButton_toggled(bool checked)
 {
    debugging = checked;
    ui->stepCPUButton->setEnabled(checked);
-//   ui->stepOverButton->setEnabled(checked);
+   ui->stepOverButton->setEnabled(checked);
 //   ui->stepOutButton->setEnabled(checked);
    ui->actionStep_CPU->setEnabled(checked);
-//   ui->actionStep_Over->setEnabled(checked);
+   ui->actionStep_Over->setEnabled(checked);
 //   ui->actionStep_Out->setEnabled(checked);
 
    if ( debugging )

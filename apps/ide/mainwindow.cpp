@@ -1,6 +1,9 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include "Source/FamiTracker.h"
+#include "Source/cqtmfc_famitracker.h"
+
 #include "cdockwidgetregistry.h"
 #include "cobjectregistry.h"
 #include "cpluginmanager.h"
@@ -294,6 +297,10 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
 
    widget->show();
 
+   // Initialize FamiTracker...
+   qtMfcInit(this);
+   AfxGetApp()->InitInstance();   
+   
    QStringList argv = QApplication::arguments();
 
    // Insert last project loaded into argument stream if one isn't specified.
@@ -413,6 +420,10 @@ MainWindow::~MainWindow()
    
    m_pNESEmulatorThread->kill();
    m_pNESEmulatorThread->wait();
+
+   // Close FamiTracker.
+   AfxGetMainWnd()->OnClose();   
+   AfxGetApp()->ExitInstance();
 }
 
 void MainWindow::applicationActivationChanged(bool activated)
@@ -461,7 +472,9 @@ void MainWindow::applicationActivationChanged(bool activated)
    }
    else
    {
-      if ( EmulatorPrefsDialog::getPauseOnTaskSwitch() )
+      // Only embedded emulators pause when task switching...
+      if ( nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) && 
+           EmulatorPrefsDialog::getPauseOnTaskSwitch() )
       {
          emit pauseEmulation(false);
       }
@@ -2388,7 +2401,6 @@ void MainWindow::on_actionOutput_Window_triggered()
 
 void MainWindow::on_actionCompile_Project_triggered()
 {
-   CompilerThread* compiler = dynamic_cast<CompilerThread*>(CObjectRegistry::getObject("Compiler"));
    int tab;
 
    output->showPane(OutputPaneDockWidget::Output_Build);
@@ -3268,8 +3280,6 @@ void MainWindow::on_actionE_xit_triggered()
 
 void MainWindow::on_actionClean_Project_triggered()
 {
-   CompilerThread* compiler = dynamic_cast<CompilerThread*>(CObjectRegistry::getObject("Compiler"));
-
    output->showPane(OutputPaneDockWidget::Output_Build);
 
    emit clean();

@@ -64,6 +64,7 @@ BreakpointDialog::BreakpointDialog(CBreakpointInfo* pBreakpoints,int bp, QWidget
    else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
    {
       ui->resolverWidget->setCurrentIndex(0);
+      ui->resolve->setChecked(false);
    }
 
    m_pRegister = NULL;
@@ -135,12 +136,14 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionTest );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataPure );
          ui->resolverWidget->setCurrentIndex(0);
+         ui->resolve->setChecked(false);
          break;
       case eBreakOnCPUState:
          ui->itemWidget->setCurrentIndex ( eBreakpointItemRegister );
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionTest );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataPick );
          ui->resolverWidget->setCurrentIndex(0);
+         ui->resolve->setChecked(false);
          ui->reg->clear();
          ui->bitfield->clear();
 
@@ -155,6 +158,7 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
          ui->resolverWidget->setCurrentIndex(0);
+         ui->resolve->setChecked(false);
          ui->event->clear();
          pBreakpointEventInfo = nesGetCpuBreakpointEventDatabase();
 
@@ -170,12 +174,14 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionTest );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataPure );
          ui->resolverWidget->setCurrentIndex(0);
+         ui->resolve->setChecked(false);
          break;
       case eBreakOnPPUState:
          ui->itemWidget->setCurrentIndex ( eBreakpointItemRegister );
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionTest );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataPick );
          ui->resolverWidget->setCurrentIndex(0);
+         ui->resolve->setChecked(false);
          ui->reg->clear();
          ui->bitfield->clear();
 
@@ -190,6 +196,7 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
          ui->resolverWidget->setCurrentIndex(0);
+         ui->resolve->setChecked(false);
          ui->event->clear();
          pBreakpointEventInfo = nesGetPpuBreakpointEventDatabase();
 
@@ -205,6 +212,7 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionTest );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataPick );
          ui->resolverWidget->setCurrentIndex(0);
+         ui->resolve->setChecked(false);
          ui->reg->clear();
          ui->bitfield->clear();
 
@@ -219,6 +227,7 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
          ui->resolverWidget->setCurrentIndex(0);
+         ui->resolve->setChecked(false);
          ui->event->clear();
          pBreakpointEventInfo = nesGetApuBreakpointEventDatabase();
 
@@ -234,6 +243,7 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionTest );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataPick );
          ui->resolverWidget->setCurrentIndex(0);
+         ui->resolve->setChecked(false);
          ui->reg->clear();
          ui->bitfield->clear();
 
@@ -250,6 +260,7 @@ void BreakpointDialog::on_type_currentIndexChanged(int index)
          ui->conditionWidget->setCurrentIndex ( eBreakpointConditionNone );
          ui->dataWidget->setCurrentIndex ( eBreakpointDataNone );
          ui->resolverWidget->setCurrentIndex(0);
+         ui->resolve->setChecked(false);
          ui->event->clear();
          pBreakpointEventInfo = nesGetCartridgeBreakpointEventDatabase();
 
@@ -515,7 +526,10 @@ void BreakpointDialog::DisplayBreakpoint ( int idx )
    ui->enabled->setChecked(pBreakpoint->enabled);
 
    // Turn resolver on so it populates if the absolute address is known.
-   if ( pBreakpoint->item1Absolute >= 0 )
+   // Only do this for NES platform until it is known whether it is needed
+   // for other platforms.
+   if ( (!nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive)) && 
+        (pBreakpoint->item1Absolute >= 0) )
    {
       ui->resolve->setChecked(true);
    }
@@ -679,24 +693,33 @@ void BreakpointDialog::on_addBreakpoint_clicked()
    }
    else
    {
-      // If the virtual address is in PRG-ROM space, convert it to physical for
-      // the absolute address.  Otherwise, the virtual *is* the physical address.
-      // CPTODO: This may need to be revisited for mappers that can put PRG-ROM in
-      // SRAM space.
-      if ( item1 >= MEM_32KB )
+      // NES
+      if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
       {
-         // If there's more than 16KB of PRG-ROM then the
-         // physical address is simply the offset into the PRG-ROM.
-         item1Absolute = (item1-MEM_32KB)%nesGetPRGROMSize();
-      }
-      else if ( item1 >= 0x6000 )
-      {
-         // CPTODO: For now assume identity mapped SRAM.
-         item1Absolute = (item1-0x6000);
+         // If the virtual address is in PRG-ROM space, convert it to physical for
+         // the absolute address.  Otherwise, the virtual *is* the physical address.
+         // CPTODO: This may need to be revisited for mappers that can put PRG-ROM in
+         // SRAM space.
+         if ( item1 >= MEM_32KB )
+         {
+            // If there's more than 16KB of PRG-ROM then the
+            // physical address is simply the offset into the PRG-ROM.
+            item1Absolute = (item1-MEM_32KB)%nesGetPRGROMSize();
+         }
+         else if ( item1 >= 0x6000 )
+         {
+            // CPTODO: For now assume identity mapped SRAM.
+            item1Absolute = (item1-0x6000);
+         }
+         else
+         {
+            // Virtual is physical if address is less than $8000.
+            item1Absolute = item1;
+         }         
       }
       else
       {
-         // Virtual is physical if address is less than $8000.
+         // Virtual is physical for now.  Might need to revisit.
          item1Absolute = item1;
       }
    }

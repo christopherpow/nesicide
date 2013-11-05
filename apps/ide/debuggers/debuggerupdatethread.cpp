@@ -16,9 +16,9 @@ DebuggerUpdateThread::DebuggerUpdateThread(void (*func)(),QObject */*parent*/) :
 
 DebuggerUpdateThread::~DebuggerUpdateThread()
 {
+   _func = NULL;
    pThread->terminate();
    pThread->wait();
-   _func = NULL;
    delete pThread;
 }
 

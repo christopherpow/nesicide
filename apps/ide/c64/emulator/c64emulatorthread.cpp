@@ -28,6 +28,7 @@
 
 #include "emulatorprefsdialog.h"
 #include "cobjectregistry.h"
+#include "breakpointwatcherthread.h"
 #include "main.h"
 
 static void breakpointHook ( void )
@@ -71,9 +72,12 @@ C64EmulatorThread::C64EmulatorThread(QObject*)
    QObject::connect(m_pViceApp,SIGNAL(error(QProcess::ProcessError)),this,SLOT(viceError(QProcess::ProcessError)));
    QObject::connect(m_pViceApp,SIGNAL(finished(int,QProcess::ExitStatus)),this,SLOT(viceFinished(int,QProcess::ExitStatus)));
    m_pViceApp->start(viceStartup);
-
+   
    // Enable breakpoint callbacks from the external emulator library.
    c64SetBreakpointHook(breakpointHook);
+   
+   BreakpointWatcherThread* breakpointWatcher = dynamic_cast<BreakpointWatcherThread*>(CObjectRegistry::getObject("Breakpoint Watcher"));
+   QObject::connect(this,SIGNAL(breakpoint()),breakpointWatcher,SLOT(breakpoint()));
 
    m_requestMutex = new QMutex();
 
@@ -111,8 +115,10 @@ void C64EmulatorThread::viceStarted()
    QObject::connect(m_pClient,SIGNAL(clientConnected()),this,SIGNAL(emulatorConnected()));
    QObject::connect(m_pClient,SIGNAL(clientDisconnected()),this,SIGNAL(emulatorDisconnected()));
 
-   qDebug("VICE started, starting thread.");
+   qDebug("VICE started, starting thread in 2sec.");
 
+   sleep(2);
+   
    // Start the thread.
    start();
 }
@@ -157,12 +163,12 @@ void C64EmulatorThread::viceError(QProcess::ProcessError error)
       viceStartup += QString::number(EmulatorPrefsDialog::getVICEMonitorPort());
 
       // Point to the kernal, BASIC, and character ROMs specified.
-      viceStartup += " -kernal ";
-      viceStartup += EmulatorPrefsDialog::getC64KernalROM();
-      viceStartup += " -basic ";
-      viceStartup += EmulatorPrefsDialog::getC64BasicROM();
-      viceStartup += " -chargen ";
-      viceStartup += EmulatorPrefsDialog::getC64CharROM();
+//      viceStartup += " -kernal ";
+//      viceStartup += EmulatorPrefsDialog::getC64KernalROM();
+//      viceStartup += " -basic ";
+//      viceStartup += EmulatorPrefsDialog::getC64BasicROM();
+//      viceStartup += " -chargen ";
+//      viceStartup += EmulatorPrefsDialog::getC64CharROM();
 
       // Get rid of some pesky behaviors.
       viceStartup += " +confirmexit ";
@@ -189,7 +195,6 @@ void C64EmulatorThread::viceFinished(int /*exitCode*/,QProcess::ExitStatus /*exi
 
    int result = QMessageBox::warning(0,"VICE exited!",str,"Exit","Fix","",1,-1);
 
-
    if ( result == 1 )
    {
       dlg.exec();
@@ -202,12 +207,12 @@ void C64EmulatorThread::viceFinished(int /*exitCode*/,QProcess::ExitStatus /*exi
       viceStartup += QString::number(EmulatorPrefsDialog::getVICEMonitorPort());
 
       // Point to the kernal, BASIC, and character ROMs specified.
-      viceStartup += " -kernal ";
-      viceStartup += EmulatorPrefsDialog::getC64KernalROM();
-      viceStartup += " -basic ";
-      viceStartup += EmulatorPrefsDialog::getC64BasicROM();
-      viceStartup += " -chargen ";
-      viceStartup += EmulatorPrefsDialog::getC64CharROM();
+//      viceStartup += " -kernal ";
+//      viceStartup += EmulatorPrefsDialog::getC64KernalROM();
+//      viceStartup += " -basic ";
+//      viceStartup += EmulatorPrefsDialog::getC64BasicROM();
+//      viceStartup += " -chargen ";
+//      viceStartup += EmulatorPrefsDialog::getC64CharROM();
 
       // Get rid of some pesky behaviors.
       viceStartup += " +confirmexit ";
@@ -247,6 +252,7 @@ void C64EmulatorThread::breakpointsChanged()
    // If the emulator is running, restart it after this interruption.
    if ( m_isRunning )
    {
+      qDebug("WAS PREVIOUSLY RUNNING...RESTARTING...!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
       addToRequestQueue("until $ffff",false);
    }
    runRequestQueue();
@@ -313,6 +319,7 @@ void C64EmulatorThread::resetEmulator()
 
 void C64EmulatorThread::startEmulation ()
 {
+   qDebug("STARTING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
    m_isRunning = true;
 
    lockRequestQueue();
@@ -335,23 +342,39 @@ void C64EmulatorThread::stepCPUEmulation ()
    absAddr = c64GetAbsoluteAddressFromAddress(addr);
    endAddr = CCC65Interface::getEndAddressFromAbsoluteAddress(addr,absAddr);
 
-#if 0
-// VICE doesn't give us what we need to step a full C language line yet.
    if ( endAddr != 0xFFFFFFFF )
    {
+      // Find the last opcode in the C-statement.
+      for ( ; endAddr > absAddr; endAddr-- )
+      {
+         if ( CCC65Interface::isAbsoluteAddressAnOpcode(endAddr) )
+         {
+            break;
+         }
+      }
+      
       c64SetGotoAddress(endAddr);
 
       lockRequestQueue();
       clearRequestQueue();
-      request = "break load $" + QString::number(endAddr,16);
-      addToRequestQueue(request,true);
+      if ( endAddr == absAddr )
+      {
+         addToRequestQueue("step",true);
+      }
+      else
+      {
+         request = "break exec $" + QString::number(endAddr,16);
+         addToRequestQueue(request,true);
+         addToRequestQueue("until $ffff",false); // using "exit" doesn't seem to work.
+         addToRequestQueue("step",true);
+      }
       addToRequestQueue("r",true);
 //      addToRequestQueue("io",true);
 //      addToRequestQueue("m $0 $cfff",true);
       runRequestQueue();
+      unlockRequestQueue();
    }
    else
-#endif
    {
       lockRequestQueue();
       clearRequestQueue();
@@ -419,8 +442,9 @@ void C64EmulatorThread::stepOverCPUEmulation ()
 
       lockRequestQueue();
       clearRequestQueue();
-      request = "until $" + QString::number(endAddr+1,16);
-      addToRequestQueue(request,false);
+      request = "break exec $" + QString::number(endAddr+1,16);
+      addToRequestQueue(request,true);
+      addToRequestQueue("until $ffff",false); // using "exit" doesn't seem to work.
       addToRequestQueue("r",true);
 //      addToRequestQueue("io",true);
 //      addToRequestQueue("m $0 $cfff",true);
@@ -447,6 +471,7 @@ void C64EmulatorThread::stepOutCPUEmulation ()
 
 void C64EmulatorThread::pauseEmulation (bool show)
 {
+   qDebug("PAUSED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
    m_isRunning = false;
    m_showOnPause = show;
 
@@ -521,6 +546,7 @@ void C64EmulatorThread::processTraps(QString traps)
             pBreakpoint->hit = false;
             if ( (pBreakpoint->item1 <= addr) && (pBreakpoint->item2 >= addr) )
             {
+               qDebug("HIT BREAKPOINT %d",bp);
                pBreakpoint->hit = true;
                hook = true;
             }
@@ -736,7 +762,9 @@ void C64EmulatorThread::processResponses(QStringList requests,QStringList respon
             }
          }
 
-         emit emulatorPaused(m_showOnPause);
+         emit emulatorPaused(true);
+         
+         m_isRunning = false;
       }
       else if ( requests.at(resp).startsWith("m "))
       {
@@ -892,9 +920,9 @@ void TcpClient::connected()
    if ( m_requests.count() )
    {
       // Kick off writing anything that's been queued.
-      qDebug(m_requests.at(0).toAscii().constData());
+//      qDebug(m_requests.at(0).toAscii().constData());
       pSocket->write(m_requests.at(0).toAscii());
-      qDebug("requests were pending");
+//      qDebug("requests were pending");
    }
    m_clientMutex->unlock();
    qDebug("SOCKET CONNECTED!");
@@ -926,7 +954,7 @@ void TcpClient::sendRequests(QStringList requests,QList<int> expectings)
         (pSocket->state() == QAbstractSocket::ConnectedState) )
    {
       // Kick off if nothing going on.
-      qDebug(m_requests.at(0).toAscii().constData());
+//      qDebug(m_requests.at(0).toAscii().constData());
       pSocket->write(m_requests.at(0).toAscii());
       m_requestSent.replace(0,true);
    }
@@ -974,7 +1002,7 @@ void TcpClient::readyRead()
       m_request++;
       if ( m_requests.at(m_request) != "END" )
       {
-         qDebug(m_requests.at(m_request).toAscii().constData());
+//         qDebug(m_requests.at(m_request).toAscii().constData());
          pSocket->write(m_requests.at(m_request).toAscii());
          m_requestSent.replace(m_request,true);
       }
@@ -1006,7 +1034,7 @@ void TcpClient::readyRead()
          // they'll be processed by the next bundle's arrival.
          if ( m_requests.count() )
          {
-            qDebug(m_requests.at(0).toAscii().constData());
+//            qDebug(m_requests.at(0).toAscii().constData());
             pSocket->write(m_requests.at(0).toAscii());
          }
       }

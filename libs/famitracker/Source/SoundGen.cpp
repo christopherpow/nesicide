@@ -99,11 +99,11 @@ CSoundGen::CSoundGen() :
 {
    pThread = new QThread();
 
-   QTimer* timer = new QTimer();
+   pTimer = new QTimer();
 
-   connect(timer, SIGNAL(timeout()), this, SLOT(onIdleSlot()));
+   connect(pTimer, SIGNAL(timeout()), this, SLOT(onIdleSlot()));
    
-   timer->start();
+   pTimer->start();
       
    pThread->start();
    
@@ -125,6 +125,13 @@ CSoundGen::CSoundGen() :
 
 CSoundGen::~CSoundGen()
 {
+   pTimer->stop();
+   
+   disconnect(pTimer, SIGNAL(timeout()), this, SLOT(onIdleSlot()));
+   
+   pThread->terminate();
+   pThread->wait();
+   
 	// Delete APU
 	SAFE_RELEASE(m_pAPU);
 	SAFE_RELEASE(m_pSampleMem);

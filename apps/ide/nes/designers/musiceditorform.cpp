@@ -3,9 +3,6 @@
 
 #include "cqtmfc.h"
 
-#include "Source/FamiTracker.h"
-#include "Source/cqtmfc_famitracker.h"
-
 MusicEditorForm::MusicEditorForm(QString fileName,QByteArray musicData,IProjectTreeViewItem* link,QWidget* parent) :
    CDesignerEditorBase(link,parent),
    ui(new Ui::MusicEditorForm)
@@ -14,10 +11,6 @@ MusicEditorForm::MusicEditorForm(QString fileName,QByteArray musicData,IProjectT
    
    m_fileName = fileName;
    
-   // Initialize FamiTracker...
-   qtMfcInit(this);
-   AfxGetApp()->InitInstance();   
-
    setCentralWidget(AfxGetMainWnd()->toQWidget());
    
    openFile(m_fileName);
@@ -52,9 +45,5 @@ void MusicEditorForm::onSave()
 
 void MusicEditorForm::onClose()
 {   
-   AfxGetMainWnd()->OnClose();
-   
-   // TODO: Handle unsaved documents or other pre-close stuffs
-   AfxGetApp()->ExitInstance();
 }
 

@@ -23,7 +23,7 @@ public:
    // ICenterWidgetItem Interface Implmentation
    virtual void onSave();
    virtual void onClose();
-
+   
 private:
    Ui::MusicEditorForm *ui;
    QString m_fileName;

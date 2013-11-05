@@ -3882,7 +3882,7 @@ CWinThread* AfxGetThread();
 #define AFX_STATIC static
 
 #if defined(Q_OS_WIN32)
-#define MB_CANCELTRYCONTINUE 0x00000006L
+#define MB_CANCELTRYCONTINUE 6
 #endif
 
 #define IDCONTINUE 11

@@ -31,6 +31,7 @@ QString QsciLexerBin::description(int style) const
          return "Default";
       break;
    }
+   return "";
 }
 
 void QsciLexerBin::styleText(int start, int end)
