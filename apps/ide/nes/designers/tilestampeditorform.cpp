@@ -2250,7 +2250,7 @@ void TileStampEditorForm::applyChangesToTab(QString uuid)
    CAttributeTable* pAttrTbl;
    QColor color;
    int idx;
-
+   
    // Set up the attribute table list.
    iter.reset(nesicideProject->getProject()->getProjectPrimitives()->getAttributeTables());
    idx = 0;

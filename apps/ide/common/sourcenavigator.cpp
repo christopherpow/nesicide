@@ -60,10 +60,11 @@ void SourceNavigator::updateFiles(bool doIt)
    ui->files->clear();
    ui->symbols->clear();
 
+   QStringList files = CCC65Interface::getSourceFiles();
+   ui->files->addItems(files);
+   
    if ( doIt )
    {
-      QStringList files = CCC65Interface::getSourceFiles();
-      ui->files->addItems(files);
       if ( files.count() )
       {
          updateSymbolsForFile(files.at(0));
@@ -71,11 +72,10 @@ void SourceNavigator::updateFiles(bool doIt)
    }
    else
    {
-      ui->files->clear();
       ui->symbols->clear();
    }
 
-   ui->files->setEnabled(doIt);
+   ui->files->setEnabled(files.count());
    ui->symbols->setEnabled(doIt);
 }
 

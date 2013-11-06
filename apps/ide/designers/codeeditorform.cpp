@@ -56,8 +56,6 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    m_fileName = fileName;
    m_searchText = "";
    
-   applyEnvironmentSettingsToTab();
-
    m_scintilla->installEventFilter(this);
    m_scintilla->setContextMenuPolicy(Qt::CustomContextMenu);
    QObject::connect(m_scintilla,SIGNAL(customContextMenuRequested(const QPoint&)),this,SLOT(customContextMenuRequested(const QPoint&)));
@@ -104,6 +102,8 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    m_scintilla->markerDefine(QsciScintilla::Background,Marker_Highlight);
    
    m_scintilla->setAnnotationDisplay ( QsciScintilla::AnnotationBoxed );
+
+   applyEnvironmentSettingsToTab();
 
    // Connect signals from Scintilla to update the UI.
    QObject::connect(m_scintilla,SIGNAL(marginClicked(int,int,Qt::KeyboardModifiers)),this,SLOT(editor_marginClicked(int,int,Qt::KeyboardModifiers)));

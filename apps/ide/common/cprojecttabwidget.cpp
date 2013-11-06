@@ -411,15 +411,7 @@ void CProjectTabWidget::snapToTab(QString item)
 
 void CProjectTabWidget::applyChanges(QString uuid)
 {
-   int tab;
-
-   for ( tab = 0; tab < count(); tab++ )
-   {
-      if ( widget(tab) != sender() )
-      {
-         emit applyChangesToTab(uuid);
-      }
-   }
+   emit applyChangesToTab(uuid);
 }
 
 void CProjectTabWidget::applyProjectProperties()

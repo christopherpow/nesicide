@@ -54,7 +54,7 @@ void MusicEditorForm::editor_modificationChanged(bool m)
 void MusicEditorForm::onSave()
 {
    CDesignerEditorBase::onSave();
-   
+
    CFamiTrackerDoc* pDoc = (CFamiTrackerDoc*)AfxGetMainWnd()->GetActiveDocument();
 
    pDoc->OnSaveDocument((TCHAR*)m_fileName.toAscii().constData()); 
@@ -64,5 +64,6 @@ void MusicEditorForm::onSave()
 
 void MusicEditorForm::onClose()
 {   
+   
 }
 
