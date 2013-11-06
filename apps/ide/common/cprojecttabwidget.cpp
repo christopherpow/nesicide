@@ -424,30 +424,15 @@ void CProjectTabWidget::applyChanges(QString uuid)
 
 void CProjectTabWidget::applyProjectProperties()
 {
-   int tab;
-
-   for ( tab = 0; tab < count(); tab++ )
-   {
-      emit applyProjectPropertiesToTab();
-   }
+   emit applyProjectPropertiesToTab();
 }
 
 void CProjectTabWidget::applyEnvironmentSettings()
 {
-   int tab;
-
-   for ( tab = 0; tab < count(); tab++ )
-   {
-      emit applyEnvironmentSettingsToTab();
-   }
+   emit applyEnvironmentSettingsToTab();
 }
 
 void CProjectTabWidget::checkOpenFiles(QDateTime lastActivationTime)
 {
-   int tab;
-
-   for ( tab = 0; tab < count(); tab++ )
-   {
-      emit checkOpenFile(lastActivationTime);
-   }
+   emit checkOpenFile(lastActivationTime);
 }

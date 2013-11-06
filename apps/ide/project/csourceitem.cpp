@@ -136,6 +136,9 @@ void CSourceItem::openItemEvent(CProjectTabWidget* tabWidget)
    }
    else
    {
+      // Load before displaying...
+      deserializeContent();
+      
       m_editor = new CodeEditorForm(path(),m_sourceCode,this);
       tabWidget->addTab(m_editor, path());
       tabWidget->setCurrentWidget(m_editor);

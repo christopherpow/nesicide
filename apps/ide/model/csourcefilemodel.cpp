@@ -126,12 +126,14 @@ void CSourceFileModel::setRelativePath(const QUuid &uuid, const QString &path)
 
 CDesignerEditorBase *CSourceFileModel::createEditorWidget(const QUuid &uuid) const
 {
-
    CSourceItem* file = ProjectSearcher::findItemByUuid<CSourceItem>(m_pProject, uuid);
    if (file == NULL)
       return NULL;
 
    // Source Item must know their editor widget due to current architecture.
+   // Load before displaying...
+   file->deserializeContent();
+   
    file->setEditor(new CodeEditorForm(file->caption(), file->sourceCode(), file));
    return file->editor();
 }
