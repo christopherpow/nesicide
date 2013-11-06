@@ -11,6 +11,9 @@ CMusicItem::CMusicItem(IProjectTreeViewItem* parent)
 
 CMusicItem::~CMusicItem()
 {
+   // This is a singleton so the instance will be deleted elsewhere.
+   // Prevent the base class from deleting anything.
+   m_editor = NULL;
 }
 
 QByteArray CMusicItem::musicData()
