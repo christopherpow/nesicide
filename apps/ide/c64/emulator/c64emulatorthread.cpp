@@ -252,7 +252,6 @@ void C64EmulatorThread::breakpointsChanged()
    // If the emulator is running, restart it after this interruption.
    if ( m_isRunning )
    {
-      qDebug("WAS PREVIOUSLY RUNNING...RESTARTING...!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
       addToRequestQueue("until $ffff",false);
    }
    runRequestQueue();
@@ -319,7 +318,6 @@ void C64EmulatorThread::resetEmulator()
 
 void C64EmulatorThread::startEmulation ()
 {
-   qDebug("STARTING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
    m_isRunning = true;
 
    lockRequestQueue();
@@ -471,7 +469,6 @@ void C64EmulatorThread::stepOutCPUEmulation ()
 
 void C64EmulatorThread::pauseEmulation (bool show)
 {
-   qDebug("PAUSED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
    m_isRunning = false;
    m_showOnPause = show;
 

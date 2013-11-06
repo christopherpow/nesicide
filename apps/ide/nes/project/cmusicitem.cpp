@@ -126,7 +126,14 @@ void CMusicItem::openItemEvent(CProjectTabWidget* tabWidget)
    }
    else
    {
-      m_editor = new MusicEditorForm(this->caption(),m_musicData,this);
+      MusicEditorForm* editor = MusicEditorForm::instance();
+
+      // Source Item must know their editor widget due to current architecture.
+      editor->setFileName(this->caption());
+      editor->setTreeLink(this);
+      openFile(this->caption());
+      
+      m_editor = editor;
       tabWidget->addTab(m_editor, this->caption());
       tabWidget->setCurrentWidget(m_editor);
    }

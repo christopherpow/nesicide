@@ -1,7 +1,22 @@
 #include "musiceditorform.h"
 #include "ui_musiceditorform.h"
 
+#include "Source/FamiTracker.h"
+#include "Source/cqtmfc_famitracker.h"
+
 #include "cqtmfc.h"
+
+MusicEditorForm* MusicEditorForm::_instance = NULL;
+
+MusicEditorForm* MusicEditorForm::instance()
+{
+   if ( !_instance )
+   {
+      _instance = new MusicEditorForm(QString(),QByteArray());
+   }
+
+   return _instance;
+}
 
 MusicEditorForm::MusicEditorForm(QString fileName,QByteArray musicData,IProjectTreeViewItem* link,QWidget* parent) :
    CDesignerEditorBase(link,parent),
@@ -9,11 +24,11 @@ MusicEditorForm::MusicEditorForm(QString fileName,QByteArray musicData,IProjectT
 {
    ui->setupUi(this);
    
-   m_fileName = fileName;
+   // Initialize FamiTracker...
+   qtMfcInit(this);
+   AfxGetApp()->InitInstance();   
    
    setCentralWidget(AfxGetMainWnd()->toQWidget());
-   
-   openFile(m_fileName);
    
    QObject::connect(AfxGetApp()->m_pMainWnd,SIGNAL(addToolBarWidget(QToolBar*)),this,SIGNAL(addToolBarWidget(QToolBar*)));
    QObject::connect(AfxGetApp()->m_pMainWnd,SIGNAL(removeToolBarWidget(QToolBar*)),this,SIGNAL(removeToolBarWidget(QToolBar*)));
@@ -22,6 +37,10 @@ MusicEditorForm::MusicEditorForm(QString fileName,QByteArray musicData,IProjectT
 
 MusicEditorForm::~MusicEditorForm()
 {
+   // Close FamiTracker.
+   AfxGetMainWnd()->OnClose();   
+   AfxGetApp()->ExitInstance();
+
    delete ui;
 }
 

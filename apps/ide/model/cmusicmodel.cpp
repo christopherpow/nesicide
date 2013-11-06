@@ -128,13 +128,16 @@ void CMusicModel::setRelativePath(const QUuid &uuid, const QString &path)
 
 CDesignerEditorBase *CMusicModel::createEditorWidget(const QUuid &uuid) const
 {
-
+   MusicEditorForm* editor = MusicEditorForm::instance();
    CMusicItem* file = ProjectSearcher::findItemByUuid<CMusicItem>(m_pProject, uuid);
    if (file == NULL)
       return NULL;
 
    // Source Item must know their editor widget due to current architecture.
-   file->setEditor(new MusicEditorForm(file->caption(), file->musicData(), file));
+   editor->setFileName(file->caption());
+   editor->setTreeLink(file);
+   openFile(file->caption());
+   file->setEditor(editor);
    return file->editor();
 }
 

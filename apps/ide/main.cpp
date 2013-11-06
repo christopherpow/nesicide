@@ -55,5 +55,7 @@ int main(int argc, char* argv[])
 
    int result = nesicideApplication.exec();
 
+   delete nesicideWindow;
+   
    return result;
 }

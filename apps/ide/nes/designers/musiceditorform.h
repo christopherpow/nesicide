@@ -17,16 +17,21 @@ class MusicEditorForm : public CDesignerEditorBase
 {
    Q_OBJECT
 public:
-   MusicEditorForm(QString fileName,QByteArray musicData,IProjectTreeViewItem* link = 0,QWidget* parent = 0);
-   ~MusicEditorForm();
+   // This takes place of the constructor and provides a singleton instance.
+   static MusicEditorForm* instance();
+   void setFileName(QString fileName) { m_fileName = fileName; }
+   void setTreeLink(IProjectTreeViewItem* link) { InitTabItem(link); }
+   virtual ~MusicEditorForm();
    
    // ICenterWidgetItem Interface Implmentation
    virtual void onSave();
    virtual void onClose();
    
 private:
+   MusicEditorForm(QString fileName,QByteArray musicData,IProjectTreeViewItem* link = 0,QWidget* parent = 0);
    Ui::MusicEditorForm *ui;
    QString m_fileName;
+   static MusicEditorForm* _instance;
 
 private slots:
    void updateTargetMachine(QString /*target*/) {}

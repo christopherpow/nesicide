@@ -42,6 +42,10 @@ CPPUDBG::CPPUDBG()
 
 CPPUDBG::~CPPUDBG()
 {
+   m_pCodeDataLoggerInspectorTV = NULL;
+   m_pCHRMEMInspectorTV = NULL;
+   m_pOAMInspectorTV = NULL;
+   m_pNameTableInspectorTV = NULL;
 }
 
 static QColor color [] =
@@ -66,6 +70,7 @@ void CPPUDBG::RENDERCODEDATALOGGER ( void )
    int8_t* pTV;
 
    pTV = (int8_t*)m_pCodeDataLoggerInspectorTV;
+   if ( !pTV ) return;
 
    // Show PPU memory...
    pLogger = nesGetPpuCodeDataLoggerDatabase();
@@ -134,6 +139,7 @@ void CPPUDBG::RENDERCHRMEM ( void )
    int8_t* pTV;
 
    pTV = (int8_t*)m_pCHRMEMInspectorTV;
+   if ( !pTV ) return;
 
    nesGetPpuSnapshot(&m_ppuState);
 
@@ -199,6 +205,7 @@ void CPPUDBG::RENDEROAM ( void )
    int8_t* pTV;
 
    pTV = (int8_t*)m_pOAMInspectorTV;
+   if ( !pTV ) return;
 
    nesGetPpuSnapshot(&m_ppuState);
 
@@ -312,6 +319,7 @@ void CPPUDBG::RENDERNAMETABLE ( void )
    int8_t* pTV;
 
    pTV = (int8_t*)m_pNameTableInspectorTV;
+   if ( !pTV ) return;
 
    nesGetPpuSnapshot(&m_ppuState);
 

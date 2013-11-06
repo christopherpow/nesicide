@@ -1,9 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include "Source/FamiTracker.h"
-#include "Source/cqtmfc_famitracker.h"
-
 #include "cdockwidgetregistry.h"
 #include "cobjectregistry.h"
 #include "cpluginmanager.h"
@@ -284,6 +281,9 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    pluginManager->doInitScript();
    pluginManager->loadPlugins();
    
+   // Instantiate music editor form single instance...
+   MusicEditorForm::instance();
+   
    // Set up UI in "Coding" mode.
    actionCoding_Mode->setChecked(true);
    if ( EnvironmentSettingsDialog::rememberWindowSettings() )
@@ -297,10 +297,6 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
 
    widget->show();
 
-   // Initialize FamiTracker...
-   qtMfcInit(this);
-   AfxGetApp()->InitInstance();   
-   
    QStringList argv = QApplication::arguments();
 
    // Insert last project loaded into argument stream if one isn't specified.
@@ -386,11 +382,15 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
 
 MainWindow::~MainWindow()
 {
+   qDebug("~MainWindow ENTERED");
    BreakpointWatcherThread* breakpointWatcher = dynamic_cast<BreakpointWatcherThread*>(CObjectRegistry::getObject("Breakpoint Watcher"));
    CompilerThread* compiler = dynamic_cast<CompilerThread*>(CObjectRegistry::getObject("Compiler"));
    SearcherThread* searcher = dynamic_cast<SearcherThread*>(CObjectRegistry::getObject("Searcher"));
 
    killTimer(m_periodicTimer);
+   
+   // Destroy music editor form single instance...
+   delete MusicEditorForm::instance();
 
    tabWidget->clear();
 
@@ -410,20 +410,10 @@ MainWindow::~MainWindow()
 
    delete nesicideProject;
    delete pluginManager;
-
-   delete m_pBreakpointInspector;
-   delete m_pExecutionInspector;
-   delete m_pAssemblyInspector;
-   delete m_pSourceNavigator;
-   delete m_pSymbolInspector;
-   delete m_pSearch;
    
    m_pNESEmulatorThread->kill();
    m_pNESEmulatorThread->wait();
-
-   // Close FamiTracker.
-   AfxGetMainWnd()->OnClose();   
-   AfxGetApp()->ExitInstance();
+   qDebug("~MainWindow EXITED");
 }
 
 void MainWindow::applicationActivationChanged(bool activated)

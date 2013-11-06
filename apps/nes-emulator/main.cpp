@@ -34,6 +34,8 @@ int main(int argc, char* argv[])
    nesicideWindow->show();
 
    int result = nesicideApplication.exec();
+   
+   delete nesicideWindow;
 
    return result;
 }
