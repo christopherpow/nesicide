@@ -71,8 +71,12 @@ int CNesicideProject::findSource ( char* objname, char** objdata, int* size )
 
 void CNesicideProject::initializeProject()
 {
+   QString cc65home = qgetenv("CC65_HOME");
+   QDir dir = m_projectOutputBasePath;
+   
    // Initialize this node's attributes
    m_projectPaletteEntries.clear();
+   m_sourceSearchPaths.clear();
 
    // Palette is target-dependent!
    if ( !m_projectTarget.compare("nes",Qt::CaseInsensitive) )
@@ -83,6 +87,11 @@ void CNesicideProject::initializeProject()
                                                nesGetPaletteGreenComponent(col),
                                                nesGetPaletteBlueComponent(col)));
       }
+      
+      // Add default expected source search paths that are target-dependent.
+      // Doing it here to prevent users with pre-existing projects from having
+      // to add the paths manually.
+      addSourceSearchPath(QDir::fromNativeSeparators(cc65home+"/libsrc/nes"));
    }
    else if ( !m_projectTarget.compare("c64",Qt::CaseInsensitive) )
    {
@@ -92,7 +101,19 @@ void CNesicideProject::initializeProject()
                                                c64GetPaletteGreenComponent(col),
                                                c64GetPaletteBlueComponent(col)));
       }
+      
+      // Add default expected source search paths that are target-dependent.
+      // Doing it here to prevent users with pre-existing projects from having
+      // to add the paths manually.
+      addSourceSearchPath(QDir::fromNativeSeparators(cc65home+"/libsrc/c64"));
    }
+   
+   // Add default expected source search paths that are target-independent.
+   // Doing it here to prevent users with pre-existing projects from having
+   // to add the paths manually.
+   addSourceSearchPath(QDir::fromNativeSeparators(cc65home+"/libsrc/common"));
+   addSourceSearchPath(QDir::fromNativeSeparators(cc65home+"/libsrc/conio"));
+   addSourceSearchPath(QDir::fromNativeSeparators(cc65home+"/libsrc/runtime"));
 
    // Notify the fact that the project data has been initialized properly
    m_projectFileName = "(unset)";
@@ -111,7 +132,6 @@ void CNesicideProject::initializeProject()
    m_makefileCustomRulesFile = "";
    m_linkerAdditionalOptions = "";
    m_linkerAdditionalDependencies = "";
-   m_sourceSearchPaths.clear();
 
    m_saveStateDoc.clear();
 
@@ -409,7 +429,7 @@ bool CNesicideProject::deserialize(QDomDocument& doc, QDomNode& /*node*/, QStrin
          m_makefileCustomRulesFile = propertiesElement.attribute("customrulesfile");
          m_linkerAdditionalOptions = propertiesElement.attribute("linkeradditionaloptions");
          m_linkerAdditionalDependencies = propertiesElement.attribute("linkeradditionaldependencies");
-         m_sourceSearchPaths = propertiesElement.attribute("sourcesearchpaths","").split(";",QString::SkipEmptyParts);
+         m_sourceSearchPaths.append(propertiesElement.attribute("sourcesearchpaths","").split(";",QString::SkipEmptyParts));
          m_projectOutputName = propertiesElement.attribute("outputname");
 
          // These are NES-specific parameters.
@@ -545,6 +565,11 @@ void CNesicideProject::addSourceSearchPath(QString value)
    {
       m_sourceSearchPaths.append(value);
    }
+}
+
+void CNesicideProject::removeSourceSearchPath(QString value)
+{
+   m_sourceSearchPaths.removeAll(value);
 }
 
 bool CNesicideProject::createProjectFromRom(QString fileName,bool silent)

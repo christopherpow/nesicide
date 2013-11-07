@@ -121,6 +121,7 @@ public:
    void setLinkerAdditionalOptions(QString value) { m_linkerAdditionalOptions = value; }
    void setLinkerAdditionalDependencies(QString value) { m_linkerAdditionalDependencies = value; }
    void addSourceSearchPath(QString value);
+   void removeSourceSearchPath(QString value);
    void setProjectPaletteEntries(QList<CPaletteEntry> *pProjectPaletteEntries);
    void setTileProperties(QList<PropertyItem> items) { m_tileProperties = items; }
 

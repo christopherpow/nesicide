@@ -140,7 +140,3 @@ CDesignerEditorBase *CMusicModel::createEditorWidget(const QUuid &uuid) const
    file->setEditor(editor);
    return file->editor();
 }
-
-
-
-

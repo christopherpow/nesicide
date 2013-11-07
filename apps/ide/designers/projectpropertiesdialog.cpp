@@ -9,6 +9,8 @@
 
 #include "nes_emulator_core.h"
 
+#include <QStringListModel>
+
 #include "main.h"
 
 const char hexStr[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
@@ -46,6 +48,10 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget* parent) :
    deserializeLinkerConfig();
    ui->customRuleFile->setText(nesicideProject->getMakefileCustomRulesFile());
    deserializeCustomRules();
+
+   ui->sourceSearchList->setModel(new QStringListModel(nesicideProject->getSourceSearchPaths()));
+   ui->addSearchPath->setEnabled(false);
+   ui->removeSearchPath->setEnabled(false);
 
    if ( ui->linkerConfigFile->text().isEmpty() )
    {
@@ -120,6 +126,7 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget* parent) :
    pageMap.insert("Compiler",ui->compiler);
    pageMap.insert("Assembler",ui->assembler);
    pageMap.insert("Linker",ui->linker);
+   pageMap.insert("Debugger",ui->debugger);
    pageMap.insert("Custom Rules",ui->customrules);
    pageMap.insert("Nintendo Entertainment System",ui->nesgraphicsbuilder);
    pageMap.insert("Graphics Builder",ui->nesgraphicsbuilder);
@@ -801,4 +808,29 @@ void ProjectPropertiesDialog::on_customRuleFileBrowse_clicked()
       ui->customRules->setText("");
    }
    deserializeCustomRules();
+}
+
+void ProjectPropertiesDialog::on_sourceSearchList_clicked(const QModelIndex &index)
+{
+   ui->removeSearchPath->setEnabled(true);
+}
+
+void ProjectPropertiesDialog::on_addSearchPath_clicked()
+{
+   nesicideProject->addSourceSearchPath(ui->sourceSearchPath->text());    
+   ((QStringListModel*)ui->sourceSearchList->model())->setStringList(nesicideProject->getSourceSearchPaths());
+}
+
+void ProjectPropertiesDialog::on_removeSearchPath_clicked()
+{
+   nesicideProject->removeSourceSearchPath(ui->sourceSearchList->currentIndex().data().toString());
+   ((QStringListModel*)ui->sourceSearchList->model())->setStringList(nesicideProject->getSourceSearchPaths());
+}
+
+void ProjectPropertiesDialog::on_sourceSearchPathBrowse_clicked()
+{
+   QString value = QFileDialog::getExistingDirectory(this,"Additional Source Search Path",QDir::currentPath());
+
+   ui->sourceSearchPath->setText(value);
+   ui->addSearchPath->setEnabled(!value.isEmpty());
 }

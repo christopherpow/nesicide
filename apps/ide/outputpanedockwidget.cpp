@@ -191,7 +191,14 @@ void OutputPaneDockWidget::compiler_cleanStarted()
 void OutputPaneDockWidget::compiler_cleanDone(bool ok)
 {
    buildResults->setText("Compile Results");
-   buildResults->setStyleSheet("QPushButton { background: #A0A0A0 }");
+   if ( ok )
+   {
+      buildResults->setStyleSheet("QPushButton { background: #80FF80 }");
+   }
+   else
+   {
+      buildResults->setStyleSheet("QPushButton { background: #FF8080 }");
+   }
 }
 
 void OutputPaneDockWidget::showGeneralPane()
