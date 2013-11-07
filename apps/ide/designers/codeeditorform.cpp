@@ -1281,7 +1281,10 @@ void CodeEditorForm::snapTo(QString item)
    else if ( item.startsWith("SourceNavigatorFile,") )
    {
       splits = item.split(QRegExp("[,]"));
-      if ( splits.at(1) == m_fileName )
+
+      QFileInfo fileInfo(m_fileName);
+      
+      if ( splits.at(1) == fileInfo.fileName() )
       {
          if ( splits.count() == 3 )
          {
