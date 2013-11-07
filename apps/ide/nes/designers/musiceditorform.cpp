@@ -25,6 +25,7 @@ MusicEditorForm::MusicEditorForm(QString fileName,QByteArray musicData,IProjectT
    ui->setupUi(this);
    
    // Initialize FamiTracker...
+   ideifyFamiTracker();
    qtMfcInit(this);
    AfxGetApp()->InitInstance();   
    
@@ -64,6 +65,21 @@ void MusicEditorForm::onSave()
 
 void MusicEditorForm::onClose()
 {   
-   
+   openFile("");
 }
 
+QMessageBox::StandardButton MusicEditorForm::onCloseQuery()
+{
+   QMessageBox::StandardButton doSave;
+   
+   doSave = CDesignerEditorBase::onCloseQuery();
+   if ( doSave == QMessageBox::No )
+   {
+      // Need to nix the MFC modified flag.
+      CFamiTrackerDoc* pDoc = (CFamiTrackerDoc*)AfxGetMainWnd()->GetActiveDocument();
+   
+      pDoc->SetModifiedFlag(FALSE);
+   }
+   
+   return doSave;
+}

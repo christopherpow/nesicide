@@ -134,9 +134,9 @@ CDesignerEditorBase *CMusicModel::createEditorWidget(const QUuid &uuid) const
       return NULL;
 
    // Source Item must know their editor widget due to current architecture.
+   openFile(file->caption());
    editor->setFileName(file->caption());
    editor->setTreeLink(file);
-   openFile(file->caption());
    file->setEditor(editor);
    return file->editor();
 }

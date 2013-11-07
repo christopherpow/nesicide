@@ -2106,13 +2106,17 @@ void MainWindow::on_tabWidget_tabCloseRequested(int index)
 
    if (projectItem)
    {
-      if (projectItem->onCloseQuery())
+      QMessageBox::StandardButton ret = projectItem->onCloseQuery();
+      if (ret == QMessageBox::Yes)
       {
          projectItem->onSave();
       }
 
-      tabWidget->removeTab(index);
-      projectItem->onClose();
+      if (ret != QMessageBox::Cancel)
+      {
+         tabWidget->removeTab(index);
+         projectItem->onClose();
+      }
    }
    else
    {
@@ -2588,7 +2592,8 @@ bool MainWindow::closeProject()
       if ( item )
       {
          tabWidget->setCurrentWidget(tabWidget->widget(idx));
-         if ( item->onCloseQuery() )
+         QMessageBox::StandardButton ret = item->onCloseQuery();
+         if ( ret == QMessageBox::Yes )
          {
             item->onSave();
          }

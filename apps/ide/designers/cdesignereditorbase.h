@@ -19,7 +19,7 @@ public:
    virtual void setModified(bool modified) { m_isModified = modified; emit editor_modified(modified); }
 
    // ICenterWidgetItem Interface Implmentation
-   virtual bool onCloseQuery();
+   virtual QMessageBox::StandardButton onCloseQuery();
    virtual void onClose();
    virtual void onSave();
    virtual QMenu& editorMenu();

@@ -20,19 +20,19 @@ CDesignerEditorBase::CDesignerEditorBase(IProjectTreeViewItem* link,QWidget *par
    setModified(false);
 }
 
-bool CDesignerEditorBase::onCloseQuery()
+QMessageBox::StandardButton CDesignerEditorBase::onCloseQuery()
 {
    if ( isModified() )
    {
-      return (QMessageBox::question(0, QString("Confirm Close"),
+      return QMessageBox::question(0, QString("Confirm Close"),
                                     QString("This file has unsaved changes that\n"
                                             "will be lost if closed without saving.\n"
                                             "Do you want to save it?"),
-                                    QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes);
+                                    QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel, QMessageBox::Yes);
    }
    else
    {
-      return false;
+      return QMessageBox::Yes;
    }
 }
 

@@ -3931,8 +3931,11 @@ CBitmap* qtMfcBitmapResource(int id);
 
 QIcon* qtIconResource(int id);
 
-void openFile(QString fileName);
+CDocument* openFile(QString fileName);
 
 UINT qtToMfcKeycode(UINT qt);
+
+extern bool ideifiedFamiTracker;
+void ideifyFamiTracker();
 
 #endif // CQTMFC_H

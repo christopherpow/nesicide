@@ -7033,7 +7033,14 @@ BOOL CDocument::SaveModified()
 
 	CString prompt;
 	AfxFormatString1(prompt, AFX_IDP_ASK_TO_SAVE, name);
-	switch (AfxMessageBox(prompt, MB_YESNOCANCEL, AFX_IDP_ASK_TO_SAVE))
+   
+   // CP: HACK to get rid of unsupportable 'cancel' option in IDEified FamiTracker
+   UINT nType = MB_YESNOCANCEL;
+   if ( ideifiedFamiTracker )
+   {
+      nType = MB_YESNO;
+   }
+	switch (AfxMessageBox(prompt, nType, AFX_IDP_ASK_TO_SAVE))
 	{
 	case IDCANCEL:
 		return FALSE;       // don't continue
@@ -10359,15 +10366,15 @@ int EnumFontFamiliesEx(
    return ret;
 }
 
-void openFile(QString fileName)
+CDocument* openFile(QString fileName)
 {
    if ( fileName.isEmpty() )
    {
-      ptrToTheApp->OpenDocumentFile(NULL);
+      return ptrToTheApp->OpenDocumentFile(NULL);
    }
    else
    {
-      ptrToTheApp->OpenDocumentFile(CString(fileName));
+      return ptrToTheApp->OpenDocumentFile(CString(fileName));
    }
 }
 
@@ -11263,4 +11270,11 @@ UINT qtToMfcKeycode(UINT qt)
       break;
    }
    return mfc;
+}
+
+bool ideifiedFamiTracker = false;
+
+void ideifyFamiTracker()
+{
+   ideifiedFamiTracker = true;
 }
