@@ -1128,6 +1128,13 @@ void CodeEditorForm::annotateText()
                   }
                }
             }
+            
+            // Short circuit to prevent crash...
+            if ( pAnnotationBuffer-annotationBuffer > 1536 )
+            {
+               pAnnotationBuffer += sprintf(pAnnotationBuffer,"\n...");
+               break;
+            }
          }
 
          (*pAnnotationBuffer) = 0;
