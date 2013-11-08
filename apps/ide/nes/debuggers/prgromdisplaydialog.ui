@@ -13,14 +13,6 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
-   <property name="margin">
-    <number>0</number>
-   </property>
-   <property name="spacing">
-    <number>0</number>
-   </property>
-  </layout>
  </widget>
  <resources/>
  <connections/>

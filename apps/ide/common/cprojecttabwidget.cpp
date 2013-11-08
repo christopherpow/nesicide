@@ -87,7 +87,6 @@ void CProjectTabWidget::tabBar_contextMenuEvent(QContextMenuEvent *event)
    }
    else if ( action && (action->text() == removeFromProjectText) )
    {
-
    }
 }
 
