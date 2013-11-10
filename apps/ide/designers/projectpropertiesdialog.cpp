@@ -121,6 +121,8 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget* parent) :
    tilePropertyListModel = new CPropertyListModel(false);
    tilePropertyListModel->setItems(nesicideProject->getTileProperties());
    ui->propertyTableView->setModel(tilePropertyListModel);
+   
+   QObject::connect(ui->sourceSearchList->selectionModel(),SIGNAL(selectionChanged(QItemSelection,QItemSelection)),this,SLOT(sourceSearchList_selectionChanged(QItemSelection,QItemSelection)));
 
    pageMap.insert("Project",ui->project);
    pageMap.insert("Compiler",ui->compiler);
@@ -810,9 +812,9 @@ void ProjectPropertiesDialog::on_customRuleFileBrowse_clicked()
    deserializeCustomRules();
 }
 
-void ProjectPropertiesDialog::on_sourceSearchList_clicked(const QModelIndex &index)
+void ProjectPropertiesDialog::sourceSearchList_selectionChanged(QItemSelection,QItemSelection)
 {
-   ui->removeSearchPath->setEnabled(true);
+   ui->removeSearchPath->setEnabled(ui->sourceSearchList->selectionModel()->hasSelection());
 }
 
 void ProjectPropertiesDialog::on_addSearchPath_clicked()
@@ -823,7 +825,11 @@ void ProjectPropertiesDialog::on_addSearchPath_clicked()
 
 void ProjectPropertiesDialog::on_removeSearchPath_clicked()
 {
-   nesicideProject->removeSourceSearchPath(ui->sourceSearchList->currentIndex().data().toString());
+   QModelIndexList selections = ui->sourceSearchList->selectionModel()->selectedRows();
+   foreach ( QModelIndex index, selections )
+   {      
+      nesicideProject->removeSourceSearchPath(index.data().toString());
+   }
    ((QStringListModel*)ui->sourceSearchList->model())->setStringList(nesicideProject->getSourceSearchPaths());
 }
 

@@ -48,25 +48,8 @@ C64EmulatorThread::C64EmulatorThread(QObject*)
    QDir dir(EmulatorPrefsDialog::getVICEExecutable());
    QString viceStartup;
 
-   viceStartup = dir.toNativeSeparators(dir.absoluteFilePath("x64sc"));
-   viceStartup += " -remotemonitor ";
-
-   viceStartup += " -remotemonitoraddress ip4://127.0.0.1:";
-   viceStartup += QString::number(EmulatorPrefsDialog::getVICEMonitorPort());
-
-   // Point to the kernal, BASIC, and character ROMs specified.
-//   viceStartup += " -kernal ";
-//   viceStartup += EmulatorPrefsDialog::getC64KernalROM();
-//   viceStartup += " -basic ";
-//   viceStartup += EmulatorPrefsDialog::getC64BasicROM();
-//   viceStartup += " -chargen ";
-//   viceStartup += EmulatorPrefsDialog::getC64CharROM();
-
-   // Get rid of some pesky behaviors.
-   viceStartup += " +confirmexit ";
-   viceStartup += " ";
-   viceStartup += EmulatorPrefsDialog::getVICEOptions();
-
+   viceStartup = EmulatorPrefsDialog::getViceInvocation();
+   
    m_pViceApp = new QProcess(this);
    QObject::connect(m_pViceApp,SIGNAL(started()),this,SLOT(viceStarted()));
    QObject::connect(m_pViceApp,SIGNAL(error(QProcess::ProcessError)),this,SLOT(viceError(QProcess::ProcessError)));
@@ -126,7 +109,6 @@ void C64EmulatorThread::viceStarted()
 void C64EmulatorThread::viceError(QProcess::ProcessError error)
 {
    EmulatorPrefsDialog dlg("c64");
-   QDir dir;
    QString viceStartup;
    int result;
 
@@ -155,26 +137,7 @@ void C64EmulatorThread::viceError(QProcess::ProcessError error)
          exit();
       }
 
-      dir.setPath(EmulatorPrefsDialog::getVICEExecutable());
-      viceStartup = dir.toNativeSeparators(dir.absoluteFilePath("x64sc"));
-      viceStartup += " -remotemonitor ";
-
-      viceStartup += " -remotemonitoraddress ip4://127.0.0.1:";
-      viceStartup += QString::number(EmulatorPrefsDialog::getVICEMonitorPort());
-
-      // Point to the kernal, BASIC, and character ROMs specified.
-//      viceStartup += " -kernal ";
-//      viceStartup += EmulatorPrefsDialog::getC64KernalROM();
-//      viceStartup += " -basic ";
-//      viceStartup += EmulatorPrefsDialog::getC64BasicROM();
-//      viceStartup += " -chargen ";
-//      viceStartup += EmulatorPrefsDialog::getC64CharROM();
-
-      // Get rid of some pesky behaviors.
-      viceStartup += " +confirmexit ";
-      viceStartup += " ";
-      viceStartup += EmulatorPrefsDialog::getVICEOptions();
-
+      viceStartup = EmulatorPrefsDialog::getViceInvocation();
       m_pViceApp->start(viceStartup);
       break;
    }
@@ -183,7 +146,6 @@ void C64EmulatorThread::viceError(QProcess::ProcessError error)
 void C64EmulatorThread::viceFinished(int /*exitCode*/,QProcess::ExitStatus /*exitStatus*/)
 {
    EmulatorPrefsDialog dlg("c64");
-   QDir dir;
    QString viceStartup;
    QString str = "The VICE Commodore 64 emulator, x64sc, has exited unexpectedly.\n"
                  "Debugging this project cannot continue.\n\n"
@@ -199,26 +161,7 @@ void C64EmulatorThread::viceFinished(int /*exitCode*/,QProcess::ExitStatus /*exi
    {
       dlg.exec();
 
-      dir.setPath(EmulatorPrefsDialog::getVICEExecutable());
-      viceStartup = dir.toNativeSeparators(dir.absoluteFilePath("x64sc"));
-      viceStartup += " -remotemonitor ";
-
-      viceStartup += " -remotemonitoraddress ip4://127.0.0.1:";
-      viceStartup += QString::number(EmulatorPrefsDialog::getVICEMonitorPort());
-
-      // Point to the kernal, BASIC, and character ROMs specified.
-//      viceStartup += " -kernal ";
-//      viceStartup += EmulatorPrefsDialog::getC64KernalROM();
-//      viceStartup += " -basic ";
-//      viceStartup += EmulatorPrefsDialog::getC64BasicROM();
-//      viceStartup += " -chargen ";
-//      viceStartup += EmulatorPrefsDialog::getC64CharROM();
-
-      // Get rid of some pesky behaviors.
-      viceStartup += " +confirmexit ";
-      viceStartup += " ";
-      viceStartup += EmulatorPrefsDialog::getVICEOptions();
-
+      viceStartup = EmulatorPrefsDialog::getViceInvocation();
       m_pViceApp->start(viceStartup);
    }
    else
@@ -361,14 +304,14 @@ void C64EmulatorThread::stepCPUEmulation ()
       }
       else
       {
-         request = "break exec $" + QString::number(endAddr,16);
+         request = "until $" + QString::number(endAddr,16);
          addToRequestQueue(request,true);
          addToRequestQueue("until $ffff",false); // using "exit" doesn't seem to work.
          addToRequestQueue("step",true);
       }
       addToRequestQueue("r",true);
-//      addToRequestQueue("io",true);
-//      addToRequestQueue("m $0 $cfff",true);
+      addToRequestQueue("io",true);
+      addToRequestQueue("m $0 $cfff",true);
       runRequestQueue();
       unlockRequestQueue();
    }
@@ -378,8 +321,8 @@ void C64EmulatorThread::stepCPUEmulation ()
       clearRequestQueue();
       addToRequestQueue("step",true);
       addToRequestQueue("r",true);
-//      addToRequestQueue("io",true);
-//      addToRequestQueue("m $0 $cfff",true);
+      addToRequestQueue("io",true);
+      addToRequestQueue("m $0 $cfff",true);
       runRequestQueue();
       unlockRequestQueue();
    }
@@ -440,12 +383,12 @@ void C64EmulatorThread::stepOverCPUEmulation ()
 
       lockRequestQueue();
       clearRequestQueue();
-      request = "break exec $" + QString::number(endAddr+1,16);
+      request = "until $" + QString::number(endAddr+1,16);
       addToRequestQueue(request,true);
       addToRequestQueue("until $ffff",false); // using "exit" doesn't seem to work.
       addToRequestQueue("r",true);
-//      addToRequestQueue("io",true);
-//      addToRequestQueue("m $0 $cfff",true);
+      addToRequestQueue("io",true);
+      addToRequestQueue("m $0 $cfff",true);
       runRequestQueue();
       unlockRequestQueue();
    }
@@ -461,8 +404,8 @@ void C64EmulatorThread::stepOutCPUEmulation ()
    clearRequestQueue();
    addToRequestQueue("next",true);
    addToRequestQueue("r",true);
-//   addToRequestQueue("io",true);
-//   addToRequestQueue("m $0 $cfff",true);
+   addToRequestQueue("io",true);
+   addToRequestQueue("m $0 $cfff",true);
    runRequestQueue();
    unlockRequestQueue();
 }
@@ -475,7 +418,7 @@ void C64EmulatorThread::pauseEmulation (bool show)
    lockRequestQueue();
    clearRequestQueue();
    addToRequestQueue("r",true);
-//   addToRequestQueue("io",true);
+   addToRequestQueue("io",true);
    addToRequestQueue("m $0 $cfff",true);
    runRequestQueue();
    unlockRequestQueue();
@@ -635,12 +578,8 @@ void C64EmulatorThread::processResponses(QStringList requests,QStringList respon
             bpText += bpIterator;
             addToRequestQueue(bpText,false);
          }
-         runRequestQueue();
-         unlockRequestQueue();
 
          // Add all enabled breakpoints...
-         lockRequestQueue();
-         clearRequestQueue();
          for ( bp = 0; bp < pBreakpoints->GetNumBreakpoints(); bp++ )
          {
             BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(bp);

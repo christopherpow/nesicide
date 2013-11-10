@@ -41,6 +41,7 @@ private:
    QMap<QString,QWidget*> pageMap;
 
 private slots:
+   void sourceSearchList_selectionChanged(QItemSelection,QItemSelection);
    void on_customRuleFileBrowse_clicked();
    void on_customRules_textChanged();
    void on_treeWidget_itemSelectionChanged();
@@ -65,7 +66,6 @@ private slots:
    void on_exportPalettePushButton_clicked();
    void on_resetPalettePushButton_clicked();
    void on_tableWidget_cellClicked(int row, int column);
-   void on_sourceSearchList_clicked(const QModelIndex &index);
    void on_addSearchPath_clicked();
    void on_removeSearchPath_clicked();
    void on_sourceSearchPathBrowse_clicked();

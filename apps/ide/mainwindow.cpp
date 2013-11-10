@@ -54,27 +54,23 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
       envdat += "/GnuWin32/bin;";
       dir.setPath("../../deps");
       envdat += dir.absolutePath();
-      envdat += "/cc65-snapshot-2.13.9.20120412/bin;";
+      envdat += "/cc65-master/bin;";
       qputenv("PATH",QString(envdat+envvar).toAscii());
 
       envdat = dir.absolutePath();
-      envdat += "/cc65-snapshot-2.13.9.20120412";
+      envdat += "/cc65-master";
       qputenv("CC65_HOME",envdat.toAscii());
 
       envdat = dir.absolutePath();
-      envdat += "/cc65-snapshot-2.13.9.20120412/libsrc";
+      envdat += "/cc65-master/lib";
       qputenv("LD65_LIB",envdat.toAscii());
 
       envdat = dir.absolutePath();
-      envdat += "/cc65-snapshot-2.13.9.20120412/libsrc";
-      qputenv("LD65_OBJ",envdat.toAscii());
+      envdat += "/cc65-master/asminc";
+      qputenv("CA65_INC",envdat.toAscii());
 
       envdat = dir.absolutePath();
-      envdat += "/cc65-snapshot-2.13.9.20120412/asminc";
-      qputenv("CC65_ASMINC",envdat.toAscii());
-
-      envdat = dir.absolutePath();
-      envdat += "/cc65-snapshot-2.13.9.20120412/asminc";
+      envdat += "/cc65-master/include";
       qputenv("CC65_INC",envdat.toAscii());
    }
    else
@@ -85,27 +81,23 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
       envdat = QCoreApplication::applicationDirPath();
       envdat += "/GnuWin32/bin;";
       envdat += QCoreApplication::applicationDirPath();
-      envdat += "/cc65-snapshot-2.13.9.20120412/bin;";
+      envdat += "/cc65-master/bin;";
       qputenv("PATH",QString(envdat+envvar).toAscii());
 
       envdat = QCoreApplication::applicationDirPath();
-      envdat += "/cc65-snapshot-2.13.9.20120412";
+      envdat += "/cc65-master";
       qputenv("CC65_HOME",envdat.toAscii());
 
       envdat = QCoreApplication::applicationDirPath();
-      envdat += "/cc65-snapshot-2.13.9.20120412/libsrc";
+      envdat += "/cc65-master/lib";
       qputenv("LD65_LIB",envdat.toAscii());
 
       envdat = QCoreApplication::applicationDirPath();
-      envdat += "/cc65-snapshot-2.13.9.20120412/libsrc";
-      qputenv("LD65_OBJ",envdat.toAscii());
+      envdat += "/cc65-master/asminc";
+      qputenv("CA65_INC",envdat.toAscii());
 
       envdat = QCoreApplication::applicationDirPath();
-      envdat += "/cc65-snapshot-2.13.9.20120412/asminc";
-      qputenv("CC65_ASMINC",envdat.toAscii());
-
-      envdat = QCoreApplication::applicationDirPath();
-      envdat += "/cc65-snapshot-2.13.9.20120412/asminc";
+      envdat += "/cc65-master/include";
       qputenv("CC65_INC",envdat.toAscii());
    }
 #endif

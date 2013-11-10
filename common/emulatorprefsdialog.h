@@ -67,6 +67,7 @@ public:
    static QString getC64KernalROM();
    static QString getC64BasicROM();
    static QString getC64CharROM();
+   static QString getViceInvocation();
 
    // Modifiers (only provided for settings that are also found in menus not just in this dialog)
    static void setTVStandard(int standard);
@@ -150,6 +151,7 @@ private:
 
    void updateUi();
    void updateDb();
+   void updateViceInvocation();
 
 private slots:
    void on_c64CharROMBrowse_clicked();
@@ -162,6 +164,9 @@ private slots:
    void on_controllerPortComboBox_currentIndexChanged(int index);
    void on_controllerTypeComboBox_currentIndexChanged(int index );
    void on_viceC64Browse_clicked();
+   void on_viceOptions_textChanged();
+   void on_viceC64MonitorIPAddress_textChanged(const QString &arg1);
+   void on_viceC64MonitorPort_textChanged(const QString &arg1);
 };
 
 #endif // EMULATORPREFSDIALOG_H

@@ -444,6 +444,8 @@ bool BreakpointDockWidget::serialize(QDomDocument& doc, QDomNode& node)
       breakpointElement.setAttribute("item1",pBreakpoint->item1);
       breakpointElement.setAttribute("item1absolute",pBreakpoint->item1Absolute);
       breakpointElement.setAttribute("item2",pBreakpoint->item2);
+      breakpointElement.setAttribute("itemMask",pBreakpoint->itemMask);
+      breakpointElement.setAttribute("itemMaskExclusive",pBreakpoint->itemMaskExclusive);
       breakpointElement.setAttribute("conditiontype",pBreakpoint->conditionType);
       breakpointElement.setAttribute("condition",pBreakpoint->condition);
       breakpointElement.setAttribute("datatype",pBreakpoint->dataType);
@@ -488,6 +490,8 @@ bool BreakpointDockWidget::deserialize(QDomDocument& /*doc*/, QDomNode& node, QS
                breakpoint.item1 = element.attribute("item1").toInt();
                breakpoint.item1Absolute = element.attribute("item1absolute").toInt();
                breakpoint.item2 = element.attribute("item2").toInt();
+               breakpoint.itemMask = element.attribute("itemMask").toInt();
+               breakpoint.itemMaskExclusive = element.attribute("itemMaskExclusive").toInt();
                breakpoint.conditionType = (eBreakpointConditionType)element.attribute("conditiontype").toInt();
                breakpoint.condition = element.attribute("condition").toInt();
                breakpoint.dataType = (eBreakpointDataType)element.attribute("datatype").toInt();

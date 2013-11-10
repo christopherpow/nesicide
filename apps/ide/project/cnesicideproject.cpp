@@ -111,9 +111,7 @@ void CNesicideProject::initializeProject()
    // Add default expected source search paths that are target-independent.
    // Doing it here to prevent users with pre-existing projects from having
    // to add the paths manually.
-   addSourceSearchPath(QDir::fromNativeSeparators(cc65home+"/libsrc/common"));
-   addSourceSearchPath(QDir::fromNativeSeparators(cc65home+"/libsrc/conio"));
-   addSourceSearchPath(QDir::fromNativeSeparators(cc65home+"/libsrc/runtime"));
+   addSourceSearchPath(QDir::fromNativeSeparators(cc65home+"/libsrc"));
 
    // Notify the fact that the project data has been initialized properly
    m_projectFileName = "(unset)";
@@ -430,6 +428,7 @@ bool CNesicideProject::deserialize(QDomDocument& doc, QDomNode& /*node*/, QStrin
          m_linkerAdditionalOptions = propertiesElement.attribute("linkeradditionaloptions");
          m_linkerAdditionalDependencies = propertiesElement.attribute("linkeradditionaldependencies");
          m_sourceSearchPaths.append(propertiesElement.attribute("sourcesearchpaths","").split(";",QString::SkipEmptyParts));
+         m_sourceSearchPaths.removeDuplicates();
          m_projectOutputName = propertiesElement.attribute("outputname");
 
          // These are NES-specific parameters.
@@ -561,10 +560,8 @@ QString CNesicideProject::caption() const
 
 void CNesicideProject::addSourceSearchPath(QString value)
 {
-   if ( !m_sourceSearchPaths.contains(value,Qt::CaseInsensitive) )
-   {
-      m_sourceSearchPaths.append(value);
-   }
+   m_sourceSearchPaths.append(value);
+   m_sourceSearchPaths.removeDuplicates();
 }
 
 void CNesicideProject::removeSourceSearchPath(QString value)

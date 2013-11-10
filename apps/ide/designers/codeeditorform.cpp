@@ -784,7 +784,7 @@ void CodeEditorForm::setBreakpoint(int line, int addr, int absAddr)
                                               absAddr,
                                               addr,
                                               0xFFFF,
-                                              false,
+                                              true,
                                               eBreakpointConditionNone,
                                               0,
                                               eBreakpointDataNone,

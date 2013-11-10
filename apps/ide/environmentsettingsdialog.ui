@@ -91,7 +91,7 @@
    <item row="1" column="1">
     <widget class="QStackedWidget" name="stackedWidget">
      <property name="currentIndex">
-      <number>4</number>
+      <number>5</number>
      </property>
      <widget class="QWidget" name="general">
       <layout class="QGridLayout" name="gridLayout_14">

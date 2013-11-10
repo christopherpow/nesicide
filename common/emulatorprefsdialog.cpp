@@ -108,6 +108,8 @@ EmulatorPrefsDialog::EmulatorPrefsDialog(QString target,QWidget* parent) :
    ui->c64KernalROM->setText(c64KernalROM);
    ui->c64BasicROM->setText(c64BasicROM);
    ui->c64CharROM->setText(c64CharROM);
+   
+   updateViceInvocation();
 
    if ( !target.compare("nes",Qt::CaseInsensitive) )
    {
@@ -682,6 +684,41 @@ void EmulatorPrefsDialog::updateDb()
    }
 }
 
+QString EmulatorPrefsDialog::getViceInvocation()
+{
+   QDir dir;
+   QString viceStartup;
+   
+   dir.setPath(EmulatorPrefsDialog::getVICEExecutable());
+   viceStartup = dir.toNativeSeparators(dir.absoluteFilePath("x64sc"));
+   viceStartup += " -remotemonitor ";
+
+   viceStartup += " -remotemonitoraddress ip4://127.0.0.1:";
+   viceStartup += QString::number(EmulatorPrefsDialog::getVICEMonitorPort());
+
+   // Point to the kernal, BASIC, and character ROMs specified.
+//      viceStartup += " -kernal ";
+//      viceStartup += EmulatorPrefsDialog::getC64KernalROM();
+//      viceStartup += " -basic ";
+//      viceStartup += EmulatorPrefsDialog::getC64BasicROM();
+//      viceStartup += " -chargen ";
+//      viceStartup += EmulatorPrefsDialog::getC64CharROM();
+
+   // Get rid of some pesky behaviors.
+   viceStartup += " +confirmexit ";
+   viceStartup += " ";
+   viceStartup += EmulatorPrefsDialog::getVICEOptions();
+
+   return viceStartup;
+}
+
+void EmulatorPrefsDialog::updateViceInvocation()
+{
+   QString viceStartup = getViceInvocation();
+   
+   ui->viceInvocation->setText(viceStartup);
+}
+
 void EmulatorPrefsDialog::on_controllerTypeComboBox_currentIndexChanged(int index)
 {
    int port = ui->controllerPortComboBox->currentIndex();
@@ -1131,6 +1168,7 @@ void EmulatorPrefsDialog::on_viceC64Browse_clicked()
    if ( !value.isEmpty() )
    {
       ui->viceC64Executable->setText(value);
+      updateViceInvocation();
    }
 }
 
@@ -1141,6 +1179,7 @@ void EmulatorPrefsDialog::on_c64KernalROMBrowse_clicked()
    if ( !value.isEmpty() )
    {
       ui->c64KernalROM->setText(value);
+      updateViceInvocation();
    }
 }
 
@@ -1151,6 +1190,7 @@ void EmulatorPrefsDialog::on_c64BasicROMBrowse_clicked()
    if ( !value.isEmpty() )
    {
       ui->c64BasicROM->setText(value);
+      updateViceInvocation();
    }
 }
 
@@ -1161,6 +1201,7 @@ void EmulatorPrefsDialog::on_c64CharROMBrowse_clicked()
    if ( !value.isEmpty() )
    {
       ui->c64CharROM->setText(value);
+      updateViceInvocation();
    }
 }
 
@@ -1177,4 +1218,19 @@ QString EmulatorPrefsDialog::getC64BasicROM()
 QString EmulatorPrefsDialog::getC64CharROM()
 {
    return c64CharROM;
+}
+
+void EmulatorPrefsDialog::on_viceOptions_textChanged()
+{
+   updateViceInvocation();    
+}
+
+void EmulatorPrefsDialog::on_viceC64MonitorIPAddress_textChanged(const QString &arg1)
+{
+   updateViceInvocation();    
+}
+
+void EmulatorPrefsDialog::on_viceC64MonitorPort_textChanged(const QString &arg1)
+{
+   updateViceInvocation();
 }
