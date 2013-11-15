@@ -44,10 +44,12 @@ void CModuleImportDlg::DoDataExchange(CDataExchange* pDX)
 }
 
 
-//BEGIN_MESSAGE_MAP(CModuleImportDlg, CDialog)
-//	ON_BN_CLICKED(IDOK, &CModuleImportDlg::OnBnClickedOk)
-//	ON_BN_CLICKED(IDCANCEL, &CModuleImportDlg::OnBnClickedCancel)
-//END_MESSAGE_MAP()
+BEGIN_MESSAGE_MAP(CModuleImportDlg, CDialog)
+//ON_BN_CLICKED(IDOK, &CModuleImportDlg::OnBnClickedOk)
+//ON_BN_CLICKED(IDCANCEL, &CModuleImportDlg::OnBnClickedCancel)
+   ON_BN_CLICKED(IDOK, OnBnClickedOk)
+   ON_BN_CLICKED(IDCANCEL, OnBnClickedCancel)
+END_MESSAGE_MAP()
 
 void CModuleImportDlg::ok_clicked()
 {

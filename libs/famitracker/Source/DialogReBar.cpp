@@ -18,11 +18,12 @@ CDialogReBar::~CDialogReBar()
 {
 }
 
-//BEGIN_MESSAGE_MAP(CDialogReBar, CDialogBar)
-//	ON_WM_ERASEBKGND()
-//	ON_WM_MOVE()
-//	ON_WM_CTLCOLOR()
-//END_MESSAGE_MAP()
+BEGIN_MESSAGE_MAP(CDialogReBar, CDialogBar)
+	ON_WM_ERASEBKGND()
+	ON_WM_MOVE()
+	ON_WM_CTLCOLOR()
+END_MESSAGE_MAP()
+
 
 // COctaveDlgBar message handlers
 

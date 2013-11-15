@@ -53,10 +53,10 @@ CSequenceEditor::~CSequenceEditor()
 	SAFE_RELEASE(m_pSetting);
 }
 
-//BEGIN_MESSAGE_MAP(CSequenceEditor, CWnd)
-//	ON_WM_PAINT()
-//	ON_WM_LBUTTONDOWN()
-//END_MESSAGE_MAP()
+BEGIN_MESSAGE_MAP(CSequenceEditor, CWnd)
+	ON_WM_PAINT()
+	ON_WM_LBUTTONDOWN()
+END_MESSAGE_MAP()
 
 BOOL CSequenceEditor::CreateEditor(CWnd *pParentWnd, const RECT &rect)
 {

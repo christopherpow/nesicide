@@ -176,7 +176,8 @@ SOURCES += \
     Source/ConfigMIDI.cpp \
     Source/DialogReBar.cpp \
     Source/ConfigGeneral.cpp \
-    Source/ConfigAppearance.cpp
+    Source/ConfigAppearance.cpp \
+    Source/CreateWaveDlg.cpp
 
 HEADERS += \
     Source/TrackerChannel.h \
@@ -239,6 +240,7 @@ HEADERS += \
     Source/FFT/Fft.h \
     Source/FFT/Complex.h \
     $$TOP/common/cqtmfc.h \
+    $$TOP/common/afxmsg_.h \
     Source/FamiTrackerView.h \
     Source/FamiTracker.h \
     Source/stdafx.h \
@@ -292,7 +294,8 @@ HEADERS += \
     Source/ConfigMIDI.h \
     Source/DialogReBar.h \
     Source/ConfigGeneral.h \
-    Source/ConfigAppearance.h
+    Source/ConfigAppearance.h \
+    Source/CreateWaveDlg.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN

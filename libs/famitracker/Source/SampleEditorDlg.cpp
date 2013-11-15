@@ -52,15 +52,19 @@ void CSampleEditorDlg::DoDataExchange(CDataExchange* pDX)
 	CDialog::DoDataExchange(pDX);
 }
 
-//BEGIN_MESSAGE_MAP(CSampleEditorDlg, CDialog)
-//	ON_WM_SIZE()
-//	ON_BN_CLICKED(IDC_PLAY, &CSampleEditorDlg::OnBnClickedPlay)
-//	ON_WM_TIMER()
-//	ON_BN_CLICKED(IDC_DELETE, &CSampleEditorDlg::OnBnClickedDelete)
-//	ON_BN_CLICKED(IDC_DELTASTART, &CSampleEditorDlg::OnBnClickedDeltastart)
-//	ON_WM_KEYDOWN()
-//	ON_BN_CLICKED(IDC_TILT, &CSampleEditorDlg::OnBnClickedTilt)
-//END_MESSAGE_MAP()
+BEGIN_MESSAGE_MAP(CSampleEditorDlg, CDialog)
+	ON_WM_SIZE()
+//ON_BN_CLICKED(IDC_PLAY, &CSampleEditorDlg::OnBnClickedPlay)
+   ON_BN_CLICKED(IDC_PLAY, OnBnClickedPlay)
+	ON_WM_TIMER()
+//ON_BN_CLICKED(IDC_DELETE, &CSampleEditorDlg::OnBnClickedDelete)
+//ON_BN_CLICKED(IDC_DELTASTART, &CSampleEditorDlg::OnBnClickedDeltastart)
+   ON_BN_CLICKED(IDC_DELETE, OnBnClickedDelete)
+   ON_BN_CLICKED(IDC_DELTASTART, OnBnClickedDeltastart)
+	ON_WM_KEYDOWN()
+//ON_BN_CLICKED(IDC_TILT, &CSampleEditorDlg::OnBnClickedTilt)
+   ON_BN_CLICKED(IDC_TILT, OnBnClickedTilt)
+END_MESSAGE_MAP()
 
 
 // CSampleEditorDlg message handlers
@@ -296,14 +300,14 @@ void CSampleEditorDlg::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 
 IMPLEMENT_DYNAMIC(CSampleView, CStatic)
 
-//BEGIN_MESSAGE_MAP(CSampleView, CStatic)
-//	ON_WM_PAINT()
-//	ON_WM_ERASEBKGND()
-//	ON_WM_MOUSEMOVE()
-//	ON_WM_LBUTTONDOWN()
-//	ON_WM_LBUTTONUP()
-//	ON_WM_SIZE()
-//END_MESSAGE_MAP()
+BEGIN_MESSAGE_MAP(CSampleView, CStatic)
+	ON_WM_PAINT()
+	ON_WM_ERASEBKGND()
+	ON_WM_MOUSEMOVE()
+	ON_WM_LBUTTONDOWN()
+	ON_WM_LBUTTONUP()
+	ON_WM_SIZE()
+END_MESSAGE_MAP()
 
 CScrollBar* m_sbScrollBar;
 

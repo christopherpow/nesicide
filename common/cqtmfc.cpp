@@ -3324,20 +3324,6 @@ CListBox::CListBox(CWnd* parent)
       delete _qt;
 
    _grid = NULL;
-
-   _qt = new QListWidget(parent->toQWidget());
-
-   // Downcast to save having to do it all over the place...
-   _qtd = dynamic_cast<QListWidget*>(_qt);
-
-   _qtd->setFont(QFont("MS Shell Dlg",8));
-   _qtd->setEditTriggers(QAbstractItemView::NoEditTriggers);
-   _qtd->setMouseTracking(true);
-
-   // Pass-through signals
-   QObject::connect(_qtd,SIGNAL(itemSelectionChanged()),this,SIGNAL(itemSelectionChanged()));
-   QObject::connect(_qtd,SIGNAL(itemClicked(QListWidgetItem*)),this,SIGNAL(itemClicked(QListWidgetItem*)));
-   QObject::connect(_qtd,SIGNAL(itemDoubleClicked(QListWidgetItem*)),this,SIGNAL(itemDoubleClicked(QListWidgetItem*)));
 }
 
 CListBox::~CListBox()
@@ -3358,10 +3344,49 @@ BOOL CListBox::Create(
    m_hWnd = (HWND)this;
    _id = nID;
 
+   if ( pParentWnd )
+      _qt = new QListWidget(pParentWnd->toQWidget());
+   else      
+      _qt = new QListWidget();
+
+   // Downcast to save having to do it all over the place...
+   _qtd = dynamic_cast<QListWidget*>(_qt);
+
+   _qtd->setFont(QFont("MS Shell Dlg",8));
+   _qtd->setEditTriggers(QAbstractItemView::NoEditTriggers);
+   _qtd->setMouseTracking(true);
+
+   // Pass-through signals
+   QObject::connect(_qtd,SIGNAL(itemSelectionChanged()),this,SIGNAL(itemSelectionChanged()));
+   QObject::connect(_qtd,SIGNAL(itemClicked(QListWidgetItem*)),this,SIGNAL(itemClicked(QListWidgetItem*)));
+   QObject::connect(_qtd,SIGNAL(itemDoubleClicked(QListWidgetItem*)),this,SIGNAL(itemDoubleClicked(QListWidgetItem*)));
+
    _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
    _qtd->setVisible(dwStyle&WS_VISIBLE);
 
    return TRUE;
+}
+
+int CListBox::GetCount( ) const
+{
+   return _qtd->count();
+}
+
+void CListBox::ResetContent( )
+{
+   _qtd->clear();
+}
+
+int CListBox::AddString( 
+   LPCTSTR lpszItem  
+)
+{
+#if UNICODE
+   _qtd->addItem(QString::fromWCharArray(lpszItem));
+#else
+   _qtd->addItem(QString::fromLatin1(lpszItem));
+#endif
+   return _qtd->count()-1;
 }
 
 IMPLEMENT_DYNAMIC(CCheckListBox,CListBox)
@@ -3373,6 +3398,53 @@ CCheckListBox::CCheckListBox(CWnd* parent)
 
 CCheckListBox::~CCheckListBox()
 {
+}
+
+int CCheckListBox::GetCheck(
+   int nIndex 
+)
+{
+   QListWidgetItem* lwi;
+
+   lwi = _qtd->item(nIndex);
+
+   if ( !lwi )
+   {
+      return lwi->checkState()==Qt::Checked?BST_CHECKED:BST_UNCHECKED;
+   }
+   return BST_INDETERMINATE;
+}
+
+void CCheckListBox::SetCheck(
+   int nIndex,
+   int nCheck 
+)
+{
+   QListWidgetItem* lwi;
+
+   lwi = _qtd->item(nIndex);
+
+   if ( !lwi )
+   {
+      lwi->setCheckState(nCheck==BST_CHECKED?Qt::Checked:Qt::Unchecked);
+   }
+}
+
+void CCheckListBox::SetCheckStyle( 
+   UINT nStyle  
+)
+{
+   switch ( nStyle )
+   {
+   case BS_CHECKBOX:
+      break;
+   case BS_AUTOCHECKBOX:
+      break;
+   case BS_AUTO3STATE:
+      break;
+   case BS_3STATE:
+      break;
+   }
 }
 
 IMPLEMENT_DYNAMIC(CListCtrl,CWnd)
@@ -4810,6 +4882,20 @@ BOOL CScrollBar::EnableScrollBar(
 }
 
 IMPLEMENT_DYNCREATE(CCmdTarget,CObject)
+
+// End-of-the-line entry for message maps.
+const AFX_MSGMAP* CCmdTarget::GetMessageMap() const 
+   { return GetThisMessageMap(); } 
+const AFX_MSGMAP* PASCAL CCmdTarget::GetThisMessageMap() 
+{ 
+   static const AFX_MSGMAP_ENTRY _messageEntries[] =  
+   {
+      {0, 0, 0, 0, AfxSig_end, (AFX_PMSG)0 } 
+	}; 
+   static const AFX_MSGMAP messageMap = 
+   { NULL, &_messageEntries[0] }; 
+   return &messageMap; 
+}
 
 BOOL CCmdTarget::OnCmdMsg(
    UINT nID,
@@ -10250,6 +10336,11 @@ void CCmdUI::SetText(
    else if ( m_pSubMenu )
    {
    }
+}
+
+BOOL CArchive::IsStoring( ) const
+{
+   return FALSE;
 }
 
 CRecentFileList::CRecentFileList( 

@@ -45,13 +45,13 @@ CSequenceSetting::~CSequenceSetting()
 {
 }
 
-//BEGIN_MESSAGE_MAP(CSequenceSetting, CWnd)
-//	ON_WM_PAINT()
-//	ON_WM_LBUTTONDOWN()
-//	ON_COMMAND(MENU_ARP_ABSOLUTE, OnMenuArpAbsolute)
-//	ON_COMMAND(MENU_ARP_RELATIVE, OnMenuArpRelative)
-//	ON_COMMAND(MENU_ARP_FIXED, OnMenuArpFixed)
-//END_MESSAGE_MAP()
+BEGIN_MESSAGE_MAP(CSequenceSetting, CWnd)
+	ON_WM_PAINT()
+	ON_WM_LBUTTONDOWN()
+	ON_COMMAND(MENU_ARP_ABSOLUTE, OnMenuArpAbsolute)
+	ON_COMMAND(MENU_ARP_RELATIVE, OnMenuArpRelative)
+	ON_COMMAND(MENU_ARP_FIXED, OnMenuArpFixed)
+END_MESSAGE_MAP()
 
 int mode = 0;
 

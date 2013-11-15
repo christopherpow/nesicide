@@ -2935,30 +2935,102 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_VRC7(CDialog* parent1)
 //   END
 }
 
-//#include "dialog-file"
-void qtMfcInitDialogResource_IDD_CREATEWAV(CDialog* parent)
+#include "CreateWaveDlg.h"
+void qtMfcInitDialogResource_IDD_CREATEWAV(CDialog* parent1)
 {
-//  dialog-type* parent = dynamic_cast<dialog-type*>(parent1);
+   CCreateWaveDlg* parent = dynamic_cast<CCreateWaveDlg*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
 
 //   IDD_CREATEWAV DIALOGEX 0, 0, 151, 173
+   CRect rect(CPoint(0,0),CSize(151,173));
+   parent->MapDialogRect(&rect);
+   parent->setFixedSize(rect.Width(),rect.Height());
+   
 //   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 //   CAPTION "Create wave file"
+   parent->SetWindowText("Create wave file");
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
 //   BEGIN
 //       DEFPUSHBUTTON   "Begin",IDC_BEGIN,37,152,52,14
+   CButton* mfc1 = new CButton(parent);
+   CRect r1(CPoint(37,152),CSize(52,14));
+   parent->MapDialogRect(&r1);
+   mfc1->Create(_T("Begin"),BS_DEFPUSHBUTTON | WS_VISIBLE,r1,parent,IDC_BEGIN);
+   mfcToQtWidget->insert(IDC_BEGIN,mfc1);
+   QObject::connect(mfc1,SIGNAL(clicked()),parent,SLOT(begin_clicked()));
 //       PUSHBUTTON      "Cancel",IDCANCEL,92,152,52,14
+   CButton* mfc2 = new CButton(parent);
+   CRect r2(CPoint(92,152),CSize(52,14));
+   parent->MapDialogRect(&r2);
+   mfc2->Create(_T("Cancel"),WS_VISIBLE,r2,parent,IDCANCEL);
+   mfcToQtWidget->insert(IDCANCEL,mfc2);
+   QObject::connect(mfc2,SIGNAL(clicked()),parent,SLOT(cancel_clicked()));
 //       GROUPBOX        "Song length",IDC_STATIC,7,7,137,47
+   CGroupBox* mfc3 = new CGroupBox(parent);
+   CRect r3(CPoint(7,7),CSize(137,47));
+   parent->MapDialogRect(&r3);
+   mfc3->Create(_T("Song length"),WS_VISIBLE,r3,parent,IDC_STATIC);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       CONTROL         "Play the song",IDC_RADIO_LOOP,"Button",BS_AUTORADIOBUTTON,14,20,59,10
+   CButton* mfc4 = new CButton(parent);
+   CRect r4(CPoint(14,20),CSize(59,10));
+   parent->MapDialogRect(&r4);
+   mfc4->Create(_T("Play the song"),BS_AUTORADIOBUTTON | WS_VISIBLE,r4,parent,IDC_RADIO_LOOP);
+   mfcToQtWidget->insert(IDC_RADIO_LOOP,mfc4);
+   QObject::connect(mfc4,SIGNAL(clicked()),parent,SLOT(radioLoop_clicked()));
 //       CONTROL         "Play for",IDC_RADIO_TIME,"Button",BS_AUTORADIOBUTTON,14,38,41,10
+   CButton* mfc5 = new CButton(parent);
+   CRect r5(CPoint(14,38),CSize(41,10));
+   parent->MapDialogRect(&r5);
+   mfc5->Create(_T("Play for"),BS_AUTORADIOBUTTON | WS_VISIBLE,r5,parent,IDC_RADIO_TIME);
+   mfcToQtWidget->insert(IDC_RADIO_TIME,mfc5);
+   QObject::connect(mfc5,SIGNAL(clicked()),parent,SLOT(radioTime_clicked()));
 //       EDITTEXT        IDC_TIMES,73,19,36,12,ES_AUTOHSCROLL
 //       CONTROL         "",IDC_SPIN_LOOP,"msctls_updown32",UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,105,17,11,17
+   // CP: Note, we fake a MFC "spin-box" separate control by double-booking a QSpinBox-derived CSpinButtonControl
+   // as both the CSpinButtonCtrl control and it's buddy CEdit.
+   CSpinButtonCtrl* mfc7 = new CSpinButtonCtrl(parent);
+   CRect r7(CPoint(73,19),CSize(36,12));
+   parent->MapDialogRect(&r7);
+   mfc7->Create(ES_AUTOHSCROLL | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r7,parent,IDC_SPIN_LOOP);
+   mfcToQtWidget->insert(IDC_TIMES,mfc7);
+   mfcToQtWidget->insert(IDC_SPIN_LOOP,mfc7);
+   QObject::connect(mfc7,SIGNAL(valueChanged(int,int)),parent,SLOT(spinLoop_valueChanged(int,int)));
 //       LTEXT           "time(s)",IDC_STATIC,115,20,21,10,SS_CENTERIMAGE
+   CStatic* mfc8 = new CStatic(parent);
+   CRect r8(CPoint(115,20),CSize(21,10));
+   parent->MapDialogRect(&r8);
+   mfc8->Create(_T("time(s)"),WS_VISIBLE,r8,parent,IDC_STATIC);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       EDITTEXT        IDC_SECONDS,53,37,44,12,ES_AUTOHSCROLL
 //       CONTROL         "",IDC_SPIN_TIME,"msctls_updown32",UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,93,36,11,14
+   // CP: Note, we fake a MFC "spin-box" separate control by double-booking a QSpinBox-derived CSpinButtonControl
+   // as both the CSpinButtonCtrl control and it's buddy CEdit.
+   CSpinButtonCtrl* mfc10 = new CSpinButtonCtrl(parent);
+   CRect r10(CPoint(53,37),CSize(44,12));
+   parent->MapDialogRect(&r10);
+   mfc10->Create(ES_AUTOHSCROLL | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r10,parent,IDC_SPIN_TIME);
+   mfcToQtWidget->insert(IDC_SECONDS,mfc10);
+   mfcToQtWidget->insert(IDC_SPIN_TIME,mfc10);
+   QObject::connect(mfc10,SIGNAL(valueChanged(int,int)),parent,SLOT(spinTime_valueChanged(int,int)));
 //       LTEXT           "mm:ss",IDC_STATIC,106,38,21,10,SS_CENTERIMAGE
+   CStatic* mfc11 = new CStatic(parent);
+   CRect r11(CPoint(106,38),CSize(21,10));
+   parent->MapDialogRect(&r11);
+   mfc11->Create(_T("mm:ss"),WS_VISIBLE,r11,parent,IDC_STATIC);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       GROUPBOX        "Channels",IDC_STATIC,7,60,137,87
+   CGroupBox* mfc12 = new CGroupBox(parent);
+   CRect r12(CPoint(7,60),CSize(137,87));
+   parent->MapDialogRect(&r12);
+   mfc12->Create(_T("Channels"),WS_VISIBLE,r12,parent,IDC_STATIC);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       LISTBOX         IDC_CHANNELS,14,71,124,70,LBS_OWNERDRAWFIXED | LBS_HASSTRINGS | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+   CListBox* mfc13 = new CListBox(parent);
+   CRect r13(CPoint(14,71),CSize(124,70));
+   parent->MapDialogRect(&r13);
+   mfc13->Create(LBS_OWNERDRAWFIXED | LBS_HASSTRINGS | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r13,parent,IDC_CHANNELS);
+   mfcToQtWidget->insert(IDC_CHANNELS,mfc13);
 //   END
 }
 

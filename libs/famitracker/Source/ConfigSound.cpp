@@ -7,11 +7,11 @@
 ** the Free Software Foundation; either version 2 of the License, or
 ** (at your option) any later version.
 **
-** This program is distributed in the hope that it will be useful,
+** This program is distributed in the hope that it will be useful, 
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
-** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-** Library General Public License for more details.  To obtain a
-** copy of the GNU Library General Public License, write to the Free
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+** Library General Public License for more details.  To obtain a 
+** copy of the GNU Library General Public License, write to the Free 
 ** Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 **
 ** Any permitted reproduction of these routines, in whole or in part,
@@ -44,12 +44,12 @@ void CConfigSound::DoDataExchange(CDataExchange* pDX)
 }
 
 
-//BEGIN_MESSAGE_MAP(CConfigSound, CPropertyPage)
-//	ON_WM_HSCROLL()
-//	ON_CBN_SELCHANGE(IDC_SAMPLE_RATE, OnCbnSelchangeSampleRate)
-//	ON_CBN_SELCHANGE(IDC_SAMPLE_SIZE, OnCbnSelchangeSampleSize)
-//	ON_CBN_SELCHANGE(IDC_DEVICES, OnCbnSelchangeDevices)
-//END_MESSAGE_MAP()
+BEGIN_MESSAGE_MAP(CConfigSound, CPropertyPage)
+	ON_WM_HSCROLL()
+	ON_CBN_SELCHANGE(IDC_SAMPLE_RATE, OnCbnSelchangeSampleRate)
+	ON_CBN_SELCHANGE(IDC_SAMPLE_SIZE, OnCbnSelchangeSampleSize)
+	ON_CBN_SELCHANGE(IDC_DEVICES, OnCbnSelchangeDevices)
+END_MESSAGE_MAP()
 
 void CConfigSound::devices_currentIndexChanged(int value)
 {

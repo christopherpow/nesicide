@@ -45,8 +45,8 @@ CConfigWindow::~CConfigWindow()
 }
 
 
-//BEGIN_MESSAGE_MAP(CConfigWindow, CPropertySheet)
-//END_MESSAGE_MAP()
+BEGIN_MESSAGE_MAP(CConfigWindow, CPropertySheet)
+END_MESSAGE_MAP()
 
 
 // CConfigWindow message handlers

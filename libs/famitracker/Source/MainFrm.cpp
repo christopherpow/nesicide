@@ -7,11 +7,11 @@
 ** the Free Software Foundation; either version 2 of the License, or
 ** (at your option) any later version.
 **
-** This program is distributed in the hope that it will be useful,
+** This program is distributed in the hope that it will be useful, 
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
-** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-** Library General Public License for more details.  To obtain a
-** copy of the GNU Library General Public License, write to the Free
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+** Library General Public License for more details.  To obtain a 
+** copy of the GNU Library General Public License, write to the Free 
 ** Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 **
 ** Any permitted reproduction of these routin, in whole or in part,
@@ -55,7 +55,7 @@ static UINT indicators[] =
 {
 	ID_SEPARATOR,           // status line indicator
 	ID_INDICATOR_CHIP,
-	ID_INDICATOR_INSTRUMENT,
+	ID_INDICATOR_INSTRUMENT, 
 	ID_INDICATOR_OCTAVE,
 	ID_INDICATOR_RATE,
 	ID_INDICATOR_TEMPO,
@@ -102,8 +102,8 @@ IMPLEMENT_DYNCREATE(CMainFrame, CFrameWnd)
 
 // CMainFrame construction/destruction
 
-CMainFrame::CMainFrame() :
-	m_pSampleWindow(NULL),
+CMainFrame::CMainFrame() : 
+	m_pSampleWindow(NULL), 
 	m_pFrameEditor(NULL),
 	m_pImageList(NULL),
 	m_pLockedEditSpeed(NULL),
@@ -152,53 +152,53 @@ CMainFrame::~CMainFrame()
    delete m_pDocument;
 }
 
-//BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
-//	ON_WM_CREATE()
-//	ON_WM_SIZE()
-//	ON_WM_TIMER()
-//	ON_WM_ERASEBKGND()
-//	ON_WM_SHOWWINDOW()
-//	ON_WM_DESTROY()
-//	ON_WM_COPYDATA()
-//	// Global help commands
-//	ON_COMMAND(ID_FILE_GENERALSETTINGS, OnFileGeneralsettings)
-//	ON_COMMAND(ID_FILE_IMPORTMIDI, OnFileImportmidi)
-//	ON_COMMAND(ID_FILE_CREATE_NSF, OnCreateNSF)
-//	ON_COMMAND(ID_FILE_CREATEWAV, OnCreateWAV)
-//	ON_COMMAND(ID_EDIT_UNDO, OnEditUndo)
-//	ON_COMMAND(ID_EDIT_REDO, OnEditRedo)
-//	ON_COMMAND(ID_EDIT_COPY, OnEditCopy)
-//	ON_COMMAND(ID_EDIT_PASTE, OnEditPaste)
-//	ON_COMMAND(ID_EDIT_ENABLEMIDI, OnEditEnableMIDI)
-//	ON_COMMAND(ID_EDIT_EXPANDPATTERNS, OnEditExpandpatterns)
-//	ON_COMMAND(ID_EDIT_SHRINKPATTERNS, OnEditShrinkpatterns)
-//	ON_COMMAND(ID_INSTRUMENT_NEW, OnAddInstrument)
-//	ON_COMMAND(ID_INSTRUMENT_REMOVE, OnRemoveInstrument)
-//	ON_COMMAND(ID_INSTRUMENT_CLONE, OnCloneInstrument)
-//	ON_COMMAND(ID_INSTRUMENT_DEEPCLONE, OnDeepCloneInstrument)
-//	ON_COMMAND(ID_INSTRUMENT_SAVE, OnSaveInstrument)
-//	ON_COMMAND(ID_INSTRUMENT_LOAD, OnLoadInstrument)
-//	ON_COMMAND(ID_INSTRUMENT_EDIT, OnEditInstrument)
-//	ON_COMMAND(ID_INSTRUMENT_ADD_2A03, OnAddInstrument2A03)
-//	ON_COMMAND(ID_INSTRUMENT_ADD_VRC6, OnAddInstrumentVRC6)
-//	ON_COMMAND(ID_INSTRUMENT_ADD_VRC7, OnAddInstrumentVRC7)
-//	ON_COMMAND(ID_INSTRUMENT_ADD_FDS, OnAddInstrumentFDS)
-//	ON_COMMAND(ID_INSTRUMENT_ADD_MMC5, OnAddInstrumentMMC5)
-//	ON_COMMAND(ID_INSTRUMENT_ADD_N163, OnAddInstrumentN163)
-//	ON_COMMAND(ID_INSTRUMENT_ADD_S5B, OnAddInstrumentS5B)
-//	ON_COMMAND(ID_MODULE_MODULEPROPERTIES, OnModuleModuleproperties)
-//	ON_COMMAND(ID_MODULE_CHANNELS, OnModuleChannels)
-//	ON_COMMAND(ID_MODULE_COMMENTS, OnModuleComments)
-//	ON_COMMAND(ID_MODULE_INSERTFRAME, OnModuleInsertFrame)
-//	ON_COMMAND(ID_MODULE_REMOVEFRAME, OnModuleRemoveFrame)
-//	ON_COMMAND(ID_MODULE_DUPLICATEFRAME, OnModuleDuplicateFrame)
-//	ON_COMMAND(ID_MODULE_DUPLICATEFRAMEPATTERNS, OnModuleDuplicateFramePatterns)
-//	ON_COMMAND(ID_MODULE_MOVEFRAMEDOWN, OnModuleMoveframedown)
-//	ON_COMMAND(ID_MODULE_MOVEFRAMEUP, OnModuleMoveframeup)
-//	ON_COMMAND(ID_TRACKER_KILLSOUND, OnTrackerKillsound)
-//	ON_COMMAND(ID_TRACKER_SWITCHTOTRACKINSTRUMENT, OnTrackerSwitchToInstrument)
-//	ON_COMMAND(ID_TRACKER_DPCM, OnTrackerDPCM)
-//	ON_COMMAND(ID_VIEW_CONTROLPANEL, OnViewControlpanel)
+BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
+	ON_WM_CREATE()
+	ON_WM_SIZE()
+	ON_WM_TIMER()
+	ON_WM_ERASEBKGND()
+	ON_WM_SHOWWINDOW()
+	ON_WM_DESTROY()
+	ON_WM_COPYDATA()
+	// Global help commands
+	ON_COMMAND(ID_FILE_GENERALSETTINGS, OnFileGeneralsettings)
+	ON_COMMAND(ID_FILE_IMPORTMIDI, OnFileImportmidi)
+	ON_COMMAND(ID_FILE_CREATE_NSF, OnCreateNSF)
+	ON_COMMAND(ID_FILE_CREATEWAV, OnCreateWAV)
+	ON_COMMAND(ID_EDIT_UNDO, OnEditUndo)
+	ON_COMMAND(ID_EDIT_REDO, OnEditRedo)
+	ON_COMMAND(ID_EDIT_COPY, OnEditCopy)
+	ON_COMMAND(ID_EDIT_PASTE, OnEditPaste)
+	ON_COMMAND(ID_EDIT_ENABLEMIDI, OnEditEnableMIDI)
+	ON_COMMAND(ID_EDIT_EXPANDPATTERNS, OnEditExpandpatterns)
+	ON_COMMAND(ID_EDIT_SHRINKPATTERNS, OnEditShrinkpatterns)
+	ON_COMMAND(ID_INSTRUMENT_NEW, OnAddInstrument)
+	ON_COMMAND(ID_INSTRUMENT_REMOVE, OnRemoveInstrument)
+	ON_COMMAND(ID_INSTRUMENT_CLONE, OnCloneInstrument)
+	ON_COMMAND(ID_INSTRUMENT_DEEPCLONE, OnDeepCloneInstrument)
+	ON_COMMAND(ID_INSTRUMENT_SAVE, OnSaveInstrument)
+	ON_COMMAND(ID_INSTRUMENT_LOAD, OnLoadInstrument)
+	ON_COMMAND(ID_INSTRUMENT_EDIT, OnEditInstrument)
+	ON_COMMAND(ID_INSTRUMENT_ADD_2A03, OnAddInstrument2A03)
+	ON_COMMAND(ID_INSTRUMENT_ADD_VRC6, OnAddInstrumentVRC6)
+	ON_COMMAND(ID_INSTRUMENT_ADD_VRC7, OnAddInstrumentVRC7)
+	ON_COMMAND(ID_INSTRUMENT_ADD_FDS, OnAddInstrumentFDS)
+	ON_COMMAND(ID_INSTRUMENT_ADD_MMC5, OnAddInstrumentMMC5)
+	ON_COMMAND(ID_INSTRUMENT_ADD_N163, OnAddInstrumentN163)
+	ON_COMMAND(ID_INSTRUMENT_ADD_S5B, OnAddInstrumentS5B)
+	ON_COMMAND(ID_MODULE_MODULEPROPERTIES, OnModuleModuleproperties)
+	ON_COMMAND(ID_MODULE_CHANNELS, OnModuleChannels)
+	ON_COMMAND(ID_MODULE_COMMENTS, OnModuleComments)
+	ON_COMMAND(ID_MODULE_INSERTFRAME, OnModuleInsertFrame)
+	ON_COMMAND(ID_MODULE_REMOVEFRAME, OnModuleRemoveFrame)
+	ON_COMMAND(ID_MODULE_DUPLICATEFRAME, OnModuleDuplicateFrame)
+	ON_COMMAND(ID_MODULE_DUPLICATEFRAMEPATTERNS, OnModuleDuplicateFramePatterns)
+	ON_COMMAND(ID_MODULE_MOVEFRAMEDOWN, OnModuleMoveframedown)
+	ON_COMMAND(ID_MODULE_MOVEFRAMEUP, OnModuleMoveframeup)
+	ON_COMMAND(ID_TRACKER_KILLSOUND, OnTrackerKillsound)
+	ON_COMMAND(ID_TRACKER_SWITCHTOTRACKINSTRUMENT, OnTrackerSwitchToInstrument)
+	ON_COMMAND(ID_TRACKER_DPCM, OnTrackerDPCM)
+	ON_COMMAND(ID_VIEW_CONTROLPANEL, OnViewControlpanel)
 //	ON_COMMAND(ID_HELP, CFrameWnd::OnHelp)
 //	ON_COMMAND(ID_HELP_FINDER, CFrameWnd::OnHelpFinder)
 //	ON_COMMAND(ID_HELP_PERFORMANCE, OnHelpPerformance)
@@ -206,89 +206,89 @@ CMainFrame::~CMainFrame()
 //	ON_COMMAND(ID_DEFAULT_HELP, CFrameWnd::OnHelpFinder)
 //	ON_COMMAND(ID_CONTEXT_HELP, CFrameWnd::OnContextHelp)
 
-//	ON_COMMAND(ID_FRAMEEDITOR_TOP, OnFrameeditorTop)
-//	ON_COMMAND(ID_FRAMEEDITOR_LEFT, OnFrameeditorLeft)
+	ON_COMMAND(ID_FRAMEEDITOR_TOP, OnFrameeditorTop)
+	ON_COMMAND(ID_FRAMEEDITOR_LEFT, OnFrameeditorLeft)
 
-//	ON_COMMAND(ID_NEXT_FRAME, OnNextFrame)
-//	ON_COMMAND(ID_PREV_FRAME, OnPrevFrame)
-//	ON_COMMAND(IDC_KEYREPEAT, OnKeyRepeat)
-//	ON_COMMAND(IDC_CHANGE_ALL, OnChangeAll)
-//	ON_COMMAND(ID_NEXT_SONG, OnNextSong)
-//	ON_COMMAND(ID_PREV_SONG, OnPrevSong)
-//	ON_COMMAND(IDC_FOLLOW_TOGGLE, OnToggleFollow)
-//	ON_COMMAND(ID_FOCUS_PATTERN_EDITOR, OnSelectPatternEditor)
-//	ON_COMMAND(ID_FOCUS_FRAME_EDITOR, OnSelectFrameEditor)
-//	ON_COMMAND(ID_CMD_NEXT_INSTRUMENT, OnNextInstrument)
-//	ON_COMMAND(ID_CMD_PREV_INSTRUMENT, OnPrevInstrument)
-//	ON_COMMAND(ID_TOGGLE_SPEED, OnToggleSpeed)
+	ON_COMMAND(ID_NEXT_FRAME, OnNextFrame)
+	ON_COMMAND(ID_PREV_FRAME, OnPrevFrame)
+	ON_COMMAND(IDC_KEYREPEAT, OnKeyRepeat)
+	ON_COMMAND(IDC_CHANGE_ALL, OnChangeAll)
+	ON_COMMAND(ID_NEXT_SONG, OnNextSong)
+	ON_COMMAND(ID_PREV_SONG, OnPrevSong)
+	ON_COMMAND(IDC_FOLLOW_TOGGLE, OnToggleFollow)
+	ON_COMMAND(ID_FOCUS_PATTERN_EDITOR, OnSelectPatternEditor)
+	ON_COMMAND(ID_FOCUS_FRAME_EDITOR, OnSelectFrameEditor)
+	ON_COMMAND(ID_CMD_NEXT_INSTRUMENT, OnNextInstrument)
+	ON_COMMAND(ID_CMD_PREV_INSTRUMENT, OnPrevInstrument)
+	ON_COMMAND(ID_TOGGLE_SPEED, OnToggleSpeed)
 
-//	ON_COMMAND(ID_DECAY_FAST, OnDecayFast)
-//	ON_COMMAND(ID_DECAY_SLOW, OnDecaySlow)
+   ON_COMMAND(ID_DECAY_FAST, OnDecayFast)
+	ON_COMMAND(ID_DECAY_SLOW, OnDecaySlow)
 
-//	ON_BN_CLICKED(IDC_FRAME_INC, OnBnClickedIncFrame)
-//	ON_BN_CLICKED(IDC_FRAME_DEC, OnBnClickedDecFrame)
-//	ON_BN_CLICKED(IDC_FOLLOW, OnClickedFollow)
+	ON_BN_CLICKED(IDC_FRAME_INC, OnBnClickedIncFrame)
+	ON_BN_CLICKED(IDC_FRAME_DEC, OnBnClickedDecFrame)
+	ON_BN_CLICKED(IDC_FOLLOW, OnClickedFollow)
 
-//	ON_NOTIFY(NM_CLICK, IDC_INSTRUMENTS, OnClickInstruments)
-//	ON_NOTIFY(LVN_ITEMCHANGED, IDC_INSTRUMENTS, OnChangedInstruments)
-//	ON_NOTIFY(NM_DBLCLK, IDC_INSTRUMENTS, OnDblClkInstruments)
-//	ON_NOTIFY(UDN_DELTAPOS, IDC_SPEED_SPIN, OnDeltaposSpeedSpin)
-//	ON_NOTIFY(UDN_DELTAPOS, IDC_TEMPO_SPIN, OnDeltaposTempoSpin)
-//	ON_NOTIFY(UDN_DELTAPOS, IDC_ROWS_SPIN, OnDeltaposRowsSpin)
-//	ON_NOTIFY(UDN_DELTAPOS, IDC_FRAME_SPIN, OnDeltaposFrameSpin)
-//	ON_NOTIFY(UDN_DELTAPOS, IDC_KEYSTEP_SPIN, OnDeltaposKeyStepSpin)
+	ON_NOTIFY(NM_CLICK, IDC_INSTRUMENTS, OnClickInstruments)
+	ON_NOTIFY(LVN_ITEMCHANGED, IDC_INSTRUMENTS, OnChangedInstruments)
+	ON_NOTIFY(NM_DBLCLK, IDC_INSTRUMENTS, OnDblClkInstruments)
+	ON_NOTIFY(UDN_DELTAPOS, IDC_SPEED_SPIN, OnDeltaposSpeedSpin)
+	ON_NOTIFY(UDN_DELTAPOS, IDC_TEMPO_SPIN, OnDeltaposTempoSpin)
+	ON_NOTIFY(UDN_DELTAPOS, IDC_ROWS_SPIN, OnDeltaposRowsSpin)
+	ON_NOTIFY(UDN_DELTAPOS, IDC_FRAME_SPIN, OnDeltaposFrameSpin)
+	ON_NOTIFY(UDN_DELTAPOS, IDC_KEYSTEP_SPIN, OnDeltaposKeyStepSpin)
 
-//	ON_EN_CHANGE(IDC_INSTNAME, OnInstNameChange)
-//	ON_EN_CHANGE(IDC_KEYSTEP, OnEnKeyStepChange)
-//	ON_EN_CHANGE(IDC_SONG_NAME, OnEnSongNameChange)
-//	ON_EN_CHANGE(IDC_SONG_ARTIST, OnEnSongArtistChange)
-//	ON_EN_CHANGE(IDC_SONG_COPYRIGHT, OnEnSongCopyrightChange)
+	ON_EN_CHANGE(IDC_INSTNAME, OnInstNameChange)
+	ON_EN_CHANGE(IDC_KEYSTEP, OnEnKeyStepChange)
+	ON_EN_CHANGE(IDC_SONG_NAME, OnEnSongNameChange)
+	ON_EN_CHANGE(IDC_SONG_ARTIST, OnEnSongArtistChange)
+	ON_EN_CHANGE(IDC_SONG_COPYRIGHT, OnEnSongCopyrightChange)
+	
+	ON_EN_SETFOCUS(IDC_KEYREPEAT, OnRemoveFocus)
 
-//	ON_EN_SETFOCUS(IDC_KEYREPEAT, OnRemoveFocus)
+	ON_UPDATE_COMMAND_UI(ID_EDIT_UNDO, OnUpdateEditUndo)
+	ON_UPDATE_COMMAND_UI(ID_EDIT_REDO, OnUpdateEditRedo)
+	ON_UPDATE_COMMAND_UI(ID_EDIT_COPY, OnUpdateEditCopy)
+	ON_UPDATE_COMMAND_UI(ID_EDIT_PASTE, OnUpdateEditPaste)
+	ON_UPDATE_COMMAND_UI(ID_EDIT_ENABLEMIDI, OnUpdateEditEnablemidi)
+	ON_UPDATE_COMMAND_UI(ID_MODULE_INSERTFRAME, OnUpdateInsertFrame)
+	ON_UPDATE_COMMAND_UI(ID_MODULE_REMOVEFRAME, OnUpdateRemoveFrame)
+	ON_UPDATE_COMMAND_UI(ID_MODULE_DUPLICATEFRAME, OnUpdateDuplicateFrame)
+	ON_UPDATE_COMMAND_UI(ID_MODULE_MOVEFRAMEDOWN, OnUpdateModuleMoveframedown)
+	ON_UPDATE_COMMAND_UI(ID_MODULE_MOVEFRAMEUP, OnUpdateModuleMoveframeup)
+	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_NEW, OnUpdateInstrumentNew)
+	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_REMOVE, OnUpdateInstrumentRemove)
+	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_CLONE, OnUpdateInstrumentClone)
+	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_DEEPCLONE, OnUpdateInstrumentDeepClone)
+	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_EDIT, OnUpdateInstrumentEdit)
+	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_LOAD, OnUpdateInstrumentLoad)
+	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_SAVE, OnUpdateInstrumentSave)
+	ON_UPDATE_COMMAND_UI(ID_INDICATOR_INSTRUMENT, OnUpdateSBInstrument)
+	ON_UPDATE_COMMAND_UI(ID_INDICATOR_OCTAVE, OnUpdateSBOctave)
+	ON_UPDATE_COMMAND_UI(ID_INDICATOR_RATE, OnUpdateSBFrequency)
+	ON_UPDATE_COMMAND_UI(ID_INDICATOR_TEMPO, OnUpdateSBTempo)
+	ON_UPDATE_COMMAND_UI(ID_INDICATOR_CHIP, OnUpdateSBChip)
+	ON_UPDATE_COMMAND_UI(IDC_KEYSTEP, OnUpdateKeyStepEdit)
+	ON_UPDATE_COMMAND_UI(IDC_KEYREPEAT, OnUpdateKeyRepeat)
+	ON_UPDATE_COMMAND_UI(IDC_SPEED, OnUpdateSpeedEdit)
+	ON_UPDATE_COMMAND_UI(IDC_TEMPO, OnUpdateTempoEdit)
+	ON_UPDATE_COMMAND_UI(IDC_ROWS, OnUpdateRowsEdit)
+	ON_UPDATE_COMMAND_UI(IDC_FRAMES, OnUpdateFramesEdit)
+	ON_UPDATE_COMMAND_UI(ID_NEXT_SONG, OnUpdateNextSong)
+	ON_UPDATE_COMMAND_UI(ID_PREV_SONG, OnUpdatePrevSong)
+	ON_UPDATE_COMMAND_UI(ID_TRACKER_SWITCHTOTRACKINSTRUMENT, OnUpdateTrackerSwitchToInstrument)
+	ON_UPDATE_COMMAND_UI(ID_VIEW_CONTROLPANEL, OnUpdateViewControlpanel)
+	ON_UPDATE_COMMAND_UI(IDC_HIGHLIGHT1, OnUpdateHighlight)
+	ON_UPDATE_COMMAND_UI(IDC_HIGHLIGHT2, OnUpdateHighlight)
+	ON_UPDATE_COMMAND_UI(ID_EDIT_EXPANDPATTERNS, OnUpdateSelectionEnabled)
+	ON_UPDATE_COMMAND_UI(ID_EDIT_SHRINKPATTERNS, OnUpdateSelectionEnabled)
 
-//	ON_UPDATE_COMMAND_UI(ID_EDIT_UNDO, OnUpdateEditUndo)
-//	ON_UPDATE_COMMAND_UI(ID_EDIT_REDO, OnUpdateEditRedo)
-//	ON_UPDATE_COMMAND_UI(ID_EDIT_COPY, OnUpdateEditCopy)
-//	ON_UPDATE_COMMAND_UI(ID_EDIT_PASTE, OnUpdateEditPaste)
-//	ON_UPDATE_COMMAND_UI(ID_EDIT_ENABLEMIDI, OnUpdateEditEnablemidi)
-//	ON_UPDATE_COMMAND_UI(ID_MODULE_INSERTFRAME, OnUpdateInsertFrame)
-//	ON_UPDATE_COMMAND_UI(ID_MODULE_REMOVEFRAME, OnUpdateRemoveFrame)
-//	ON_UPDATE_COMMAND_UI(ID_MODULE_DUPLICATEFRAME, OnUpdateDuplicateFrame)
-//	ON_UPDATE_COMMAND_UI(ID_MODULE_MOVEFRAMEDOWN, OnUpdateModuleMoveframedown)
-//	ON_UPDATE_COMMAND_UI(ID_MODULE_MOVEFRAMEUP, OnUpdateModuleMoveframeup)
-//	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_NEW, OnUpdateInstrumentNew)
-//	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_REMOVE, OnUpdateInstrumentRemove)
-//	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_CLONE, OnUpdateInstrumentClone)
-//	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_DEEPCLONE, OnUpdateInstrumentDeepClone)
-//	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_EDIT, OnUpdateInstrumentEdit)
-//	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_LOAD, OnUpdateInstrumentLoad)
-//	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_SAVE, OnUpdateInstrumentSave)
-//	ON_UPDATE_COMMAND_UI(ID_INDICATOR_INSTRUMENT, OnUpdateSBInstrument)
-//	ON_UPDATE_COMMAND_UI(ID_INDICATOR_OCTAVE, OnUpdateSBOctave)
-//	ON_UPDATE_COMMAND_UI(ID_INDICATOR_RATE, OnUpdateSBFrequency)
-//	ON_UPDATE_COMMAND_UI(ID_INDICATOR_TEMPO, OnUpdateSBTempo)
-//	ON_UPDATE_COMMAND_UI(ID_INDICATOR_CHIP, OnUpdateSBChip)
-//	ON_UPDATE_COMMAND_UI(IDC_KEYSTEP, OnUpdateKeyStepEdit)
-//	ON_UPDATE_COMMAND_UI(IDC_KEYREPEAT, OnUpdateKeyRepeat)
-//	ON_UPDATE_COMMAND_UI(IDC_SPEED, OnUpdateSpeedEdit)
-//	ON_UPDATE_COMMAND_UI(IDC_TEMPO, OnUpdateTempoEdit)
-//	ON_UPDATE_COMMAND_UI(IDC_ROWS, OnUpdateRowsEdit)
-//	ON_UPDATE_COMMAND_UI(IDC_FRAMES, OnUpdateFramesEdit)
-//	ON_UPDATE_COMMAND_UI(ID_NEXT_SONG, OnUpdateNextSong)
-//	ON_UPDATE_COMMAND_UI(ID_PREV_SONG, OnUpdatePrevSong)
-//	ON_UPDATE_COMMAND_UI(ID_TRACKER_SWITCHTOTRACKINSTRUMENT, OnUpdateTrackerSwitchToInstrument)
-//	ON_UPDATE_COMMAND_UI(ID_VIEW_CONTROLPANEL, OnUpdateViewControlpanel)
-//	ON_UPDATE_COMMAND_UI(IDC_HIGHLIGHT1, OnUpdateHighlight)
-//	ON_UPDATE_COMMAND_UI(IDC_HIGHLIGHT2, OnUpdateHighlight)
-//	ON_UPDATE_COMMAND_UI(ID_EDIT_EXPANDPATTERNS, OnUpdateSelectionEnabled)
-//	ON_UPDATE_COMMAND_UI(ID_EDIT_SHRINKPATTERNS, OnUpdateSelectionEnabled)
+	ON_UPDATE_COMMAND_UI(ID_FRAMEEDITOR_TOP, OnUpdateFrameeditorTop)
+	ON_UPDATE_COMMAND_UI(ID_FRAMEEDITOR_LEFT, OnUpdateFrameeditorLeft)
 
-//	ON_UPDATE_COMMAND_UI(ID_FRAMEEDITOR_TOP, OnUpdateFrameeditorTop)
-//	ON_UPDATE_COMMAND_UI(ID_FRAMEEDITOR_LEFT, OnUpdateFrameeditorLeft)
-
-//	ON_CBN_SELCHANGE(IDC_SUBTUNE, OnCbnSelchangeSong)
-//	ON_CBN_SELCHANGE(IDC_OCTAVE, OnCbnSelchangeOctave)
-//END_MESSAGE_MAP()
+	ON_CBN_SELCHANGE(IDC_SUBTUNE, OnCbnSelchangeSong)
+	ON_CBN_SELCHANGE(IDC_OCTAVE, OnCbnSelchangeOctave)
+END_MESSAGE_MAP()
 
 void CMainFrame::focusInEvent(QFocusEvent *)
 {
@@ -1266,7 +1266,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	EnableDocking(CBRS_ALIGN_ANY);
 	DockControlBar(&m_wndToolBar);
 	*/
-
+	
 	if (!CreateSampleWindow()) {
 		TRACE0("Failed to create sample window\n");
 		return -1;      // fail to create
@@ -1411,7 +1411,7 @@ bool CMainFrame::CreateDialogPanels()
 		TRACE0("Failed to create dialog bar\n");
 		return false;
 	}
-
+	
 	m_wndDialogBar.ShowWindow(SW_SHOW);
 
 	// Subclass edit boxes
@@ -1474,7 +1474,7 @@ bool CMainFrame::CreateDialogPanels()
 	if (!m_wndFrameBar.Create(this, IDD_FRAMEBAR, CBRS_LEFT | CBRS_TOOLTIPS | CBRS_FLYBY, IDD_FRAMEBAR)) {
 		TRACE0("Failed to create frame bar\n");
 	}
-
+	
 	m_wndFrameBar.ShowWindow(SW_SHOW);
 */
 
@@ -1496,7 +1496,7 @@ bool CMainFrame::CreateSampleWindow()
 
 	// Assign this to the sound generator
 	CSoundGen *pSoundGen = theApp.GetSoundGenerator();
-
+	
 	if (pSoundGen)
 		pSoundGen->SetSampleWindow(m_pSampleWindow);
 
@@ -1654,7 +1654,7 @@ void CMainFrame::SetRowCount(int Count)
 
 	if (!pDoc)
 		return;
-
+	
 	LIMIT(Count, MAX_PATTERN_LENGTH, 1);
 
 	if (Count != pDoc->GetPatternLength()) {
@@ -1752,9 +1752,9 @@ void CMainFrame::SetStatusText(LPCTSTR Text,...)
 {
 	char	Buf[512];
     va_list argp;
-
+    
 	va_start(argp, Text);
-
+    
 	if (!Text)
 		return;
 
@@ -1811,7 +1811,7 @@ void CMainFrame::AddInstrument(int Index)
 	m_pInstrumentList->InsertItem(Index, Text, m_iInstrumentIcons[Type]);
 }
 
-void CMainFrame::RemoveInstrument(int Index)
+void CMainFrame::RemoveInstrument(int Index) 
 {
 	// Remove instrument from instrument list
 	ASSERT(Index != -1);
@@ -1862,7 +1862,7 @@ void CMainFrame::UpdateInstrumentList()
 void CMainFrame::SelectInstrument(int Index)
 {
 	CFamiTrackerDoc *pDoc = static_cast<CFamiTrackerDoc*>(GetActiveDocument());
-
+	
 	int ListCount = m_pInstrumentList->GetItemCount();
 
 	// No instruments added
@@ -1973,7 +1973,7 @@ void CMainFrame::OnChangedInstruments(NMHDR* pNMHDR, LRESULT* pResult)
 	if (!(pNMListView->uNewState & LVIS_SELECTED))
 		return;
 
-	int SelIndex = pNMListView->iItem;
+	int SelIndex = pNMListView->iItem; 
 
 	if (SelIndex == -1)
 		return;
@@ -2091,10 +2091,10 @@ void CMainFrame::OnRemoveInstrument()
 	}
 }
 
-void CMainFrame::OnCloneInstrument()
+void CMainFrame::OnCloneInstrument() 
 {
 	CFamiTrackerDoc *pDoc = (CFamiTrackerDoc*)GetActiveDocument();
-
+	
 	// No instruments in list
 	if (m_pInstrumentList->GetItemCount() == 0)
 		return;
@@ -2113,7 +2113,7 @@ void CMainFrame::OnCloneInstrument()
 void CMainFrame::OnDeepCloneInstrument()
 {
 	CFamiTrackerDoc *pDoc = (CFamiTrackerDoc*)GetActiveDocument();
-
+	
 	// No instruments in list
 	if (m_pInstrumentList->GetItemCount() == 0)
 		return;
@@ -2303,9 +2303,8 @@ void CMainFrame::OnCreateNSF()
 
 void CMainFrame::OnCreateWAV()
 {
-   qDebug("CMainFrame::OnCreateWAV");
-//	CCreateWaveDlg WaveDialog;
-//	WaveDialog.ShowDialog();
+	CCreateWaveDlg WaveDialog;
+	WaveDialog.ShowDialog();
 }
 
 BOOL CMainFrame::Create(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle , const RECT& rect , CWnd* pParentWnd , LPCTSTR lpszMenuName , DWORD dwExStyle , CCreateContext* pContext)
@@ -2333,7 +2332,7 @@ void CMainFrame::OnPrevFrame()
 }
 
 void CMainFrame::OnChangeAll()
-{
+{	
 	CFamiTrackerView *pView = static_cast<CFamiTrackerView*>(GetActiveView());
 	bool Enabled = m_wndFrameControls.IsDlgButtonChecked(IDC_CHANGE_ALL) != 0;
 	pView->SetChangeAllPattern(Enabled);
@@ -2351,7 +2350,7 @@ void CMainFrame::OnUpdateSBInstrument(CCmdUI *pCmdUI)
 	CString String;
 	int Instrument = ((CFamiTrackerView*)GetActiveView())->GetInstrument();
 	String.Format(_T("Instrument: %02X"), Instrument);
-	pCmdUI->Enable();
+	pCmdUI->Enable(); 
 	pCmdUI->SetText(String);
 }
 
@@ -2360,7 +2359,7 @@ void CMainFrame::OnUpdateSBOctave(CCmdUI *pCmdUI)
 	CString String;
 	int Octave = ((CFamiTrackerView*)GetActiveView())->GetOctave();
 	String.Format(_T("Octave: %i"), Octave);
-	pCmdUI->Enable();
+	pCmdUI->Enable(); 
 	pCmdUI->SetText(String);
 }
 
@@ -2376,7 +2375,7 @@ void CMainFrame::OnUpdateSBFrequency(CCmdUI *pCmdUI)
 
 	String.Format(_T("%i Hz"), EngineSpeed);
 
-	pCmdUI->Enable();
+	pCmdUI->Enable(); 
 	pCmdUI->SetText(String);
 }
 
@@ -2390,7 +2389,7 @@ void CMainFrame::OnUpdateSBTempo(CCmdUI *pCmdUI)
 			Highlight = 4;
 		int BPM = (pSoundGen->GetTempo() * 4) / Highlight;
 		String.Format(_T("%i BPM"), BPM);
-		pCmdUI->Enable();
+		pCmdUI->Enable(); 
 		pCmdUI->SetText(String);
 	}
 }
@@ -2398,7 +2397,7 @@ void CMainFrame::OnUpdateSBTempo(CCmdUI *pCmdUI)
 void CMainFrame::OnUpdateSBChip(CCmdUI *pCmdUI)
 {
 	CString String;
-
+	
 	CFamiTrackerDoc *pDoc = ((CFamiTrackerDoc*)GetActiveDocument());
 	int Chip = pDoc->GetExpansionChip();
 
@@ -2426,7 +2425,7 @@ void CMainFrame::OnUpdateSBChip(CCmdUI *pCmdUI)
 			break;
 	}
 
-	pCmdUI->Enable();
+	pCmdUI->Enable(); 
 	pCmdUI->SetText(String);
 }
 
@@ -2846,7 +2845,7 @@ void CMainFrame::OnNextSong()
 {
 	CFamiTrackerDoc *pDoc = (CFamiTrackerDoc*)GetActiveDocument();
 	CComboBox *pTrackBox = (CComboBox*)m_wndDialogBar.GetDlgItem(IDC_SUBTUNE);
-
+	
 	if (m_iTrack < (signed)pDoc->GetTrackCount() - 1)
 		pDoc->SelectTrack(m_iTrack + 1);
 }
@@ -3025,7 +3024,7 @@ void CMainFrame::OnDestroy()
 	TRACE("FrameWnd: Destroying frame window\n");
 
 	CSoundGen *pSoundGen = theApp.GetSoundGenerator();
-
+	
 	// Clean up sound stuff
 	if (pSoundGen && pSoundGen->m_hThread != NULL) {
 		// Remove sample window from sound generator
@@ -3087,7 +3086,7 @@ void CMainFrame::OnNewInstrumentMenu( NMHDR * pNotifyStruct, LRESULT * result )
 
 	CFamiTrackerDoc *pDoc = (CFamiTrackerDoc*)GetActiveDocument();
 	CFamiTrackerView *pView = (CFamiTrackerView*)GetActiveView();
-
+	
 	int Chip = pDoc->GetExpansionChip();
 	int SelectedChip = pDoc->GetChannel(pView->GetSelectedChannel())->GetChip();	// where the cursor is located
 
@@ -3129,7 +3128,7 @@ void CMainFrame::OnNewInstrumentMenu( NMHDR * pNotifyStruct, LRESULT * result )
 			menu.SetDefaultItem(ID_INSTRUMENT_ADD_S5B);
 			break;
 	}
-
+	
 	menu.TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, rect.left, rect.bottom, this);
 }
 
@@ -3422,10 +3421,10 @@ void CMainFrame::OnToggleSpeed()
 {
 	CFamiTrackerDoc *pDoc = (CFamiTrackerDoc*)GetActiveDocument();
 	int Speed = pDoc->GetSpeedSplitPoint();
-
-	if (Speed == DEFAULT_SPEED_SPLIT_POINT)
+	
+	if (Speed == DEFAULT_SPEED_SPLIT_POINT) 
 		Speed = OLD_SPEED_SPLIT_POINT;
-	else
+	else 
 		Speed = DEFAULT_SPEED_SPLIT_POINT;
 
 	pDoc->SetSpeedSplitPoint(Speed);

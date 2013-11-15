@@ -40,7 +40,6 @@ const TCHAR CFrameEditor::DEFAULT_FONT[] = _T("System");
 IMPLEMENT_DYNAMIC(CFrameEditor, CWnd)
 
 CFrameEditor::CFrameEditor(CMainFrame *pMainFrm):
-   CWnd(pMainFrm),
 	m_iFirstChannel(0),
 	m_iFramesVisible(0),
 	m_bInputEnable(false),
@@ -52,34 +51,34 @@ CFrameEditor::CFrameEditor(CMainFrame *pMainFrm):
 }
 
 CFrameEditor::~CFrameEditor()
-{   
+{
 }
 
-//BEGIN_MESSAGE_MAP(CFrameEditor, CWnd)
-//	ON_WM_PAINT()
-//	ON_WM_VSCROLL()
-//	ON_WM_HSCROLL()
-//	ON_WM_LBUTTONUP()
-//	ON_WM_MOUSEMOVE()
-//	ON_WM_NCMOUSEMOVE()
-//	ON_WM_LBUTTONDBLCLK()
-//	ON_WM_KILLFOCUS()
-//	ON_WM_KEYDOWN()
-//	ON_WM_TIMER()
-//	ON_WM_RBUTTONUP()
-//	ON_COMMAND(ID_FRAME_COPY, OnFrameCopy)
-//	ON_COMMAND(ID_FRAME_PASTE, OnFramePaste)
-//	ON_COMMAND(ID_MODULE_INSERTFRAME, OnModuleInsertFrame)
-//	ON_COMMAND(ID_MODULE_REMOVEFRAME, OnModuleRemoveFrame)
-//	ON_COMMAND(ID_MODULE_DUPLICATEFRAME, OnModuleDuplicateFrame)
-//	ON_COMMAND(ID_MODULE_DUPLICATEFRAMEPATTERNS, OnModuleDuplicateFramePatterns)
-//	ON_COMMAND(ID_MODULE_MOVEFRAMEDOWN, OnModuleMoveFrameDown)
-//	ON_COMMAND(ID_MODULE_MOVEFRAMEUP, OnModuleMoveFrameUp)
-//	ON_WM_CREATE()
-//	ON_WM_CONTEXTMENU()
-//	ON_WM_SIZE()
-//	ON_WM_MOUSEWHEEL()
-//END_MESSAGE_MAP()
+BEGIN_MESSAGE_MAP(CFrameEditor, CWnd)
+	ON_WM_PAINT()
+	ON_WM_VSCROLL()
+	ON_WM_HSCROLL()
+	ON_WM_LBUTTONUP()
+	ON_WM_MOUSEMOVE()
+	ON_WM_NCMOUSEMOVE()
+	ON_WM_LBUTTONDBLCLK()
+	ON_WM_KILLFOCUS()
+	ON_WM_KEYDOWN()
+	ON_WM_TIMER()
+	ON_WM_RBUTTONUP()
+	ON_COMMAND(ID_FRAME_COPY, OnFrameCopy)
+	ON_COMMAND(ID_FRAME_PASTE, OnFramePaste)
+	ON_COMMAND(ID_MODULE_INSERTFRAME, OnModuleInsertFrame)
+	ON_COMMAND(ID_MODULE_REMOVEFRAME, OnModuleRemoveFrame)
+	ON_COMMAND(ID_MODULE_DUPLICATEFRAME, OnModuleDuplicateFrame)
+	ON_COMMAND(ID_MODULE_DUPLICATEFRAMEPATTERNS, OnModuleDuplicateFramePatterns)
+	ON_COMMAND(ID_MODULE_MOVEFRAMEDOWN, OnModuleMoveFrameDown)
+	ON_COMMAND(ID_MODULE_MOVEFRAMEUP, OnModuleMoveFrameUp)
+	ON_WM_CREATE()
+	ON_WM_CONTEXTMENU()
+	ON_WM_SIZE()
+	ON_WM_MOUSEWHEEL()
+END_MESSAGE_MAP()
 
 void CFrameEditor::AssignDocument(CFamiTrackerDoc *pDoc, CFamiTrackerView *pView)
 {

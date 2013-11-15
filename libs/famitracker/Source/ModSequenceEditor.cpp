@@ -29,11 +29,11 @@ int SIZE_X = 12;
 
 IMPLEMENT_DYNAMIC(CModSequenceEditor, CWnd)
 
-//BEGIN_MESSAGE_MAP(CModSequenceEditor, CWnd)
-//	ON_WM_PAINT()
-//	ON_WM_MOUSEMOVE()
-//	ON_WM_LBUTTONDOWN()
-//END_MESSAGE_MAP()
+BEGIN_MESSAGE_MAP(CModSequenceEditor, CWnd)
+	ON_WM_PAINT()
+	ON_WM_MOUSEMOVE()
+	ON_WM_LBUTTONDOWN()
+END_MESSAGE_MAP()
 
 
 CModSequenceEditor::CModSequenceEditor() : m_pInstrument(NULL)

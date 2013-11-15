@@ -111,11 +111,11 @@ void CInstrumentEditorS5B::SetSequenceString(CString Sequence, bool Changed)
 	}
 }
 
-//BEGIN_MESSAGE_MAP(CInstrumentEditorS5B, CInstrumentEditPanel)
-//	ON_NOTIFY(LVN_ITEMCHANGED, IDC_INSTSETTINGS, OnLvnItemchangedInstsettings)	
-//	ON_EN_CHANGE(IDC_SEQ_INDEX, OnEnChangeSeqIndex)
-//	ON_BN_CLICKED(IDC_FREE_SEQ, OnBnClickedFreeSeq)
-//END_MESSAGE_MAP()
+BEGIN_MESSAGE_MAP(CInstrumentEditorS5B, CInstrumentEditPanel)
+	ON_NOTIFY(LVN_ITEMCHANGED, IDC_INSTSETTINGS, OnLvnItemchangedInstsettings)	
+	ON_EN_CHANGE(IDC_SEQ_INDEX, OnEnChangeSeqIndex)
+	ON_BN_CLICKED(IDC_FREE_SEQ, OnBnClickedFreeSeq)
+END_MESSAGE_MAP()
 
 void CInstrumentEditorS5B::instSettings_itemSelectionChanged()
 {

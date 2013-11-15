@@ -56,9 +56,10 @@ void CInstrumentEditorFDSEnvelope::SelectInstrument(int Instrument)
 }
 
 
-//BEGIN_MESSAGE_MAP(CInstrumentEditorFDSEnvelope, CInstrumentEditPanel)
-//	ON_CBN_SELCHANGE(IDC_TYPE, &CInstrumentEditorFDSEnvelope::OnCbnSelchangeType)
-//END_MESSAGE_MAP()
+BEGIN_MESSAGE_MAP(CInstrumentEditorFDSEnvelope, CInstrumentEditPanel)
+//ON_CBN_SELCHANGE(IDC_TYPE, &CInstrumentEditorFDSEnvelope::OnCbnSelchangeType)
+   ON_CBN_SELCHANGE(IDC_TYPE, OnCbnSelchangeType)
+END_MESSAGE_MAP()
 
 void CInstrumentEditorFDSEnvelope::type_currentIndexChanged(int index)
 {

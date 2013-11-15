@@ -80,15 +80,17 @@ void CConfigAppearance::DoDataExchange(CDataExchange* pDX)
 }
 
 
-//BEGIN_MESSAGE_MAP(CConfigAppearance, CPropertyPage)
-//	ON_WM_PAINT()
-//	ON_CBN_SELCHANGE(IDC_FONT, OnCbnSelchangeFont)
-//	ON_BN_CLICKED(IDC_PICK_COL, OnBnClickedPickCol)
-//	ON_CBN_SELCHANGE(IDC_COL_ITEM, OnCbnSelchangeColItem)
-//	ON_CBN_SELCHANGE(IDC_SCHEME, OnCbnSelchangeScheme)
-//	ON_CBN_SELCHANGE(IDC_FONT_SIZE, &CConfigAppearance::OnCbnSelchangeFontSize)
-//	ON_BN_CLICKED(IDC_PATTERNCOLORS, &CConfigAppearance::OnBnClickedPatterncolors)
-//END_MESSAGE_MAP()
+BEGIN_MESSAGE_MAP(CConfigAppearance, CPropertyPage)
+	ON_WM_PAINT()
+	ON_CBN_SELCHANGE(IDC_FONT, OnCbnSelchangeFont)
+	ON_BN_CLICKED(IDC_PICK_COL, OnBnClickedPickCol)
+	ON_CBN_SELCHANGE(IDC_COL_ITEM, OnCbnSelchangeColItem)
+	ON_CBN_SELCHANGE(IDC_SCHEME, OnCbnSelchangeScheme)
+//ON_CBN_SELCHANGE(IDC_FONT_SIZE, &CConfigAppearance::OnCbnSelchangeFontSize)
+//ON_BN_CLICKED(IDC_PATTERNCOLORS, &CConfigAppearance::OnBnClickedPatterncolors)
+   ON_CBN_SELCHANGE(IDC_FONT_SIZE, OnCbnSelchangeFontSize)
+   ON_BN_CLICKED(IDC_PATTERNCOLORS, OnBnClickedPatterncolors)
+END_MESSAGE_MAP()
 
 void CConfigAppearance::paintEvent(QPaintEvent *)
 {

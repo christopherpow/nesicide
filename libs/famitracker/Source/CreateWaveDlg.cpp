@@ -37,55 +37,6 @@ IMPLEMENT_DYNAMIC(CCreateWaveDlg, CDialog)
 CCreateWaveDlg::CCreateWaveDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CCreateWaveDlg::IDD, pParent)
 {
-//   IDD_CREATEWAV DIALOGEX 0, 0, 151, 173
-   CRect rect(CPoint(0,0),CSize(151,173));
-   MapDialogRect(&rect);
-   setFixedSize(rect.Width(),rect.Height());
-   
-//       DEFPUSHBUTTON   "Begin",IDC_BEGIN,37,152,52,14
-   CButton* mfc1 = new CButton(this);
-   CRect r1(CPoint(37,152),CSize(52,14));
-   MapDialogRect(&r1);
-   mfc1->Create(_T("Begin"),0,r1,this,IDC_BEGIN);
-   mfc1->setDefault(true);
-   mfcToQtWidget.insert(IDC_BEGIN,mfc1);
-   QObject::connect(mfc1,SIGNAL(clicked()),this,SLOT(begin_clicked()));
-//       PUSHBUTTON      "Cancel",IDCANCEL,92,152,52,14
-   CButton* mfc2 = new CButton(this);
-   CRect r2(CPoint(92,152),CSize(52,14));
-   MapDialogRect(&r2);
-   mfc2->Create(_T("Cancel"),0,r2,this,IDCANCEL);
-   mfcToQtWidget.insert(IDCANCEL,mfc2);
-   QObject::connect(mfc2,SIGNAL(clicked()),this,SLOT(cancel_clicked()));
-//       GROUPBOX        "Song length",IDC_STATIC,7,7,137,47
-   CGroupBox* mfc3 = new CGroupBox(this);
-   mfc3->setTitle("Song length");
-   CRect r3(CPoint(7,7),CSize(137,47));
-   MapDialogRect(&r3);
-   mfc3->setGeometry(r3);
-   // IDC_STATIC do not get added to MFC-to-Qt map.
-//       CONTROL         "Play the song",IDC_RADIO_LOOP,"Button",BS_AUTORADIOBUTTON,14,20,59,10
-   CButton* mfc4 = new CButton(this);
-   CRect r4(CPoint(14,20),CSize(59,10));
-   MapDialogRect(&r4);
-   mfc4->Create(_T("Play the song"),BS_AUTORADIOBUTTON,r4,this,IDC_RADIO_LOOP);
-   mfcToQtWidget.insert(IDC_RADIO_LOOP,mfc4);
-   QObject::connect(mfc4,SIGNAL(clicked()),this,SLOT(radioLoop_clicked()));
-//       CONTROL         "Play for",IDC_RADIO_TIME,"Button",BS_AUTORADIOBUTTON,14,38,41,10
-   CButton* mfc5 = new CButton(this);
-   CRect r5(CPoint(14,38),CSize(41,10));
-   MapDialogRect(&r5);
-   mfc5->Create(_T("Play for"),BS_AUTORADIOBUTTON,r5,this,IDC_RADIO_TIME);
-   mfcToQtWidget.insert(IDC_RADIO_TIME,mfc5);
-   QObject::connect(mfc5,SIGNAL(clicked()),this,SLOT(radioTime_clicked()));
-//       EDITTEXT        IDC_TIMES,73,19,36,12,ES_AUTOHSCROLL
-//       CONTROL         "",IDC_SPIN_LOOP,"msctls_updown32",UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,105,17,11,17
-//       LTEXT           "time(s)",IDC_STATIC,115,20,21,10,SS_CENTERIMAGE
-//       EDITTEXT        IDC_SECONDS,53,37,44,12,ES_AUTOHSCROLL
-//       CONTROL         "",IDC_SPIN_TIME,"msctls_updown32",UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,93,36,11,14
-//       LTEXT           "mm:ss",IDC_STATIC,106,38,21,10,SS_CENTERIMAGE
-//       GROUPBOX        "Channels",IDC_STATIC,7,60,137,87
-//       LISTBOX         IDC_CHANNELS,14,71,124,70,LBS_OWNERDRAWFIXED | LBS_HASSTRINGS | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
 }
 
 CCreateWaveDlg::~CCreateWaveDlg()
@@ -98,11 +49,14 @@ void CCreateWaveDlg::DoDataExchange(CDataExchange* pDX)
 }
 
 
-//BEGIN_MESSAGE_MAP(CCreateWaveDlg, CDialog)
-//	ON_BN_CLICKED(IDC_BEGIN, &CCreateWaveDlg::OnBnClickedBegin)
-//	ON_NOTIFY(UDN_DELTAPOS, IDC_SPIN_LOOP, &CCreateWaveDlg::OnDeltaposSpinLoop)
-//	ON_NOTIFY(UDN_DELTAPOS, IDC_SPIN_TIME, &CCreateWaveDlg::OnDeltaposSpinTime)
-//END_MESSAGE_MAP()
+BEGIN_MESSAGE_MAP(CCreateWaveDlg, CDialog)
+//ON_BN_CLICKED(IDC_BEGIN, &CCreateWaveDlg::OnBnClickedBegin)
+//ON_NOTIFY(UDN_DELTAPOS, IDC_SPIN_LOOP, &CCreateWaveDlg::OnDeltaposSpinLoop)
+//ON_NOTIFY(UDN_DELTAPOS, IDC_SPIN_TIME, &CCreateWaveDlg::OnDeltaposSpinTime)
+	ON_BN_CLICKED(IDC_BEGIN, OnBnClickedBegin)
+	ON_NOTIFY(UDN_DELTAPOS, IDC_SPIN_LOOP, OnDeltaposSpinLoop)
+	ON_NOTIFY(UDN_DELTAPOS, IDC_SPIN_TIME, OnDeltaposSpinTime)
+END_MESSAGE_MAP()
 
 int CCreateWaveDlg::GetFrameLoopCount()
 {

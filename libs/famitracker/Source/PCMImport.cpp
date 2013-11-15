@@ -222,12 +222,13 @@ void CPCMImport::volume_valueChanged(int value)
    OnHScroll(SB_HORZ,value,dynamic_cast<CScrollBar*>(GetDlgItem(IDC_VOLUME)));
 }
 
-//BEGIN_MESSAGE_MAP(CPCMImport, CDialog)
-//	ON_WM_HSCROLL()
-//	ON_BN_CLICKED(IDCANCEL, OnBnClickedCancel)
-//	ON_BN_CLICKED(IDOK, OnBnClickedOk)
-//	ON_BN_CLICKED(IDC_PREVIEW, &CPCMImport::OnBnClickedPreview)
-//END_MESSAGE_MAP()
+BEGIN_MESSAGE_MAP(CPCMImport, CDialog)
+	ON_WM_HSCROLL()
+	ON_BN_CLICKED(IDCANCEL, OnBnClickedCancel)
+	ON_BN_CLICKED(IDOK, OnBnClickedOk)
+//ON_BN_CLICKED(IDC_PREVIEW, &CPCMImport::OnBnClickedPreview)
+   ON_BN_CLICKED(IDC_PREVIEW, OnBnClickedPreview)
+END_MESSAGE_MAP()
 
 CDSample *CPCMImport::ShowDialog()
 {

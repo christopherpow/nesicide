@@ -69,15 +69,15 @@ void CInstrumentEditDlg::DoDataExchange(CDataExchange* pDX)
 	CDialog::DoDataExchange(pDX);
 }
 
-//BEGIN_MESSAGE_MAP(CInstrumentEditDlg, CDialog)
-//	ON_NOTIFY(TCN_SELCHANGE, IDC_INST_TAB, OnTcnSelchangeInstTab)
-//	ON_WM_PAINT()
-//	ON_WM_LBUTTONDOWN()
-//	ON_WM_LBUTTONUP()
-//	ON_WM_MOUSEMOVE()
-//	ON_WM_LBUTTONDBLCLK()
-//	ON_WM_NCLBUTTONUP()
-//END_MESSAGE_MAP()
+BEGIN_MESSAGE_MAP(CInstrumentEditDlg, CDialog)
+	ON_NOTIFY(TCN_SELCHANGE, IDC_INST_TAB, OnTcnSelchangeInstTab)
+	ON_WM_PAINT()
+	ON_WM_LBUTTONDOWN()
+	ON_WM_LBUTTONUP()
+	ON_WM_MOUSEMOVE()
+	ON_WM_LBUTTONDBLCLK()
+	ON_WM_NCLBUTTONUP()
+END_MESSAGE_MAP()
 
 
 // CInstrumentEditDlg message handlers
@@ -151,7 +151,7 @@ void CInstrumentEditDlg::SetCurrentInstrument(int Index)
 
 	// Dialog title
 	m_pDocument->GetInstrumentName(Index, Name);	
-   Title.Format(IDS_INST_EDITOR_TITLE, Index, Name, CHIP_NAMES[InstType]);
+	Title.Format(IDS_INST_EDITOR_TITLE, Index, Name, CHIP_NAMES[InstType]);
 	SetWindowText(Title);
 
 	if (InstType != m_iSelectedInstType) {
@@ -159,13 +159,13 @@ void CInstrumentEditDlg::SetCurrentInstrument(int Index)
 		ShowWindow(SW_HIDE);
 
 		ClearPanels();
-      
+
 		switch (InstType) {
 			case INST_2A03: {
 					int Channel = CFamiTrackerView::GetView()->GetSelectedChannel();
 					int Type = CFamiTrackerDoc::GetDoc()->GetChannelType(Channel);
 					bool bShowDPCM = (Type == CHANID_DPCM) || (((CInstrument2A03*)pInst)->AssignedSamples());
-               InsertPane(new CInstrumentEditor2A03(), !bShowDPCM);
+					InsertPane(new CInstrumentEditor2A03(), !bShowDPCM);
 					InsertPane(new CInstrumentEditorDPCM(), bShowDPCM);
 				}
 				break;
@@ -207,7 +207,7 @@ void CInstrumentEditDlg::OnTcnSelchangeInstTab(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	CTabCtrl *pTabControl = (CTabCtrl*)GetDlgItem(IDC_INST_TAB);
 	int Selection = pTabControl->GetCurSel();
-   
+
 	for (int i = 0; i < PANEL_COUNT; i++) {
 		if (m_pPanels[i] != NULL) {
 			m_pPanels[i]->ShowWindow(SW_HIDE);
@@ -274,7 +274,7 @@ void CInstrumentEditDlg::OnPaint()
 			BackDC.BitBlt(i * WHITE_KEY_W + Pos, 0, 100, 100, &WhiteKey, 0, 0, SRCCOPY);
 		}
 
-      for (int i = 0; i < 2; i++) {
+		for (int i = 0; i < 2; i++) {
 			if ((Note == BLACK_1[i]) && (Octave == j) && m_iActiveKey != -1)
 				BlackKey.SelectObject(BlackKeyMarkBmp);
 			else
@@ -291,7 +291,7 @@ void CInstrumentEditDlg::OnPaint()
 
 			BackDC.BitBlt((i + 3) * WHITE_KEY_W + WHITE_KEY_W / 2 + 1 + Pos, 0, 100, 100, &BlackKey, 0, 0, SRCCOPY);
 		}
-   }
+	}
 
 	WhiteKey.SelectObject(OldWhite);
 	BlackKey.SelectObject(OldBlack);
@@ -307,7 +307,7 @@ void CInstrumentEditDlg::ChangeNoteState(int Note)
 
 	m_iActiveKey = Note;
 
-//	if (m_hWnd)
+	if (m_hWnd)
 		RedrawWindow(CRect(KEYBOARD_LEFT, KEYBOARD_TOP, 580, KEYBOARD_TOP + 100), 0, RDW_INVALIDATE);
 }
 

@@ -43,10 +43,10 @@ void CSpeedDlg::DoDataExchange(CDataExchange* pDX)
 }
 
 
-//BEGIN_MESSAGE_MAP(CSpeedDlg, CDialog)
-//	ON_WM_HSCROLL()
-//	ON_BN_CLICKED(IDCANCEL, OnBnClickedCancel)
-//END_MESSAGE_MAP()
+BEGIN_MESSAGE_MAP(CSpeedDlg, CDialog)
+	ON_WM_HSCROLL()
+	ON_BN_CLICKED(IDCANCEL, OnBnClickedCancel)
+END_MESSAGE_MAP()
 
 void CSpeedDlg::ok_clicked()
 {

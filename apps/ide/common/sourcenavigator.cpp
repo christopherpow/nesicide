@@ -118,6 +118,7 @@ void SourceNavigator::emulator_emulatorPaused(bool show)
          addr = c64GetCPURegister(CPU_PC);
          absAddr = c64GetAbsoluteAddressFromAddress(addr);
       }
+
       file = CCC65Interface::getSourceFileFromAbsoluteAddress(addr,absAddr);
       if ( !file.isEmpty() )
       {

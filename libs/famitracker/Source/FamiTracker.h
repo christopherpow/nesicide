@@ -151,7 +151,7 @@ public:
 
 	// Implementation
 	DECLARE_MESSAGE_MAP()
-//public:
+public:
 	afx_msg void OnAppAbout();
 	afx_msg void OnTrackerTogglePlay();
 	afx_msg void OnTrackerPlay();

@@ -136,7 +136,7 @@ class CFamiTrackerDoc : public CDocument, public CFamiTrackerDocInterface
 public:
    void menuAction_triggered(int id);
    
-public:
+protected: // create from serialization only
 	CFamiTrackerDoc();
 	DECLARE_DYNCREATE(CFamiTrackerDoc)
 
@@ -534,7 +534,7 @@ public:
 	virtual void OnCloseDocument();
 	virtual void DeleteContents();
 	virtual void SetModifiedFlag(BOOL bModified = 1);
-//	virtual void Serialize(CArchive& ar);
+	virtual void Serialize(CArchive& ar);
 
    // HACKS
    static CFamiTrackerDoc* _this;

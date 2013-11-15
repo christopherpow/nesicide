@@ -50,12 +50,12 @@ void CInstrumentEditPanel::DoDataExchange(CDataExchange* pDX)
 }
 
 
-//BEGIN_MESSAGE_MAP(CInstrumentEditPanel, CDialog)
-//	ON_WM_ERASEBKGND()
-//	ON_WM_CTLCOLOR()
-//	ON_WM_LBUTTONDOWN()
-//	ON_WM_SETFOCUS()
-//END_MESSAGE_MAP()
+BEGIN_MESSAGE_MAP(CInstrumentEditPanel, CDialog)
+	ON_WM_ERASEBKGND()
+	ON_WM_CTLCOLOR()
+	ON_WM_LBUTTONDOWN()
+	ON_WM_SETFOCUS()
+END_MESSAGE_MAP()
 
 //COLORREF m_iBGColor = 0xFF0000;
 
@@ -64,28 +64,28 @@ BOOL CInstrumentEditPanel::OnEraseBkgnd(CDC* pDC)
 	return FALSE;
 }
 
-//HBRUSH CInstrumentEditPanel::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
-//{
-//	HBRUSH hbr = CDialog::OnCtlColor(pDC, pWnd, nCtlColor);
+HBRUSH CInstrumentEditPanel::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
+{
+	HBRUSH hbr = CDialog::OnCtlColor(pDC, pWnd, nCtlColor);
 
-//	// TODO: Find a proper way to get the background color
-//	//m_iBGColor = GetPixel(pDC->m_hDC, 2, 2);
+	// TODO: Find a proper way to get the background color
+	//m_iBGColor = GetPixel(pDC->m_hDC, 2, 2);
 
-//	if (!theApp.IsThemeActive())
-//		return hbr;
+	if (!theApp.IsThemeActive())
+		return hbr;
 	
-//	switch (nCtlColor) {
-//		case CTLCOLOR_STATIC:
-////		case CTLCOLOR_DLG:
-//			pDC->SetBkMode(TRANSPARENT);
-//			// TODO: this might fail on some themes?
-//			//return NULL;
-//			return GetSysColorBrush(COLOR_3DHILIGHT);
-//			//return CreateSolidBrush(m_iBGColor);
-//	}
+	switch (nCtlColor) {
+		case CTLCOLOR_STATIC:
+//		case CTLCOLOR_DLG:
+			pDC->SetBkMode(TRANSPARENT);
+			// TODO: this might fail on some themes?
+			//return NULL;
+			return GetSysColorBrush(COLOR_3DHILIGHT);
+			//return CreateSolidBrush(m_iBGColor);
+	}
 
-//	return hbr;
-//}
+	return hbr;
+}
 
 BOOL CInstrumentEditPanel::PreTranslateMessage(MSG* pMsg)
 {
@@ -183,9 +183,9 @@ void CSequenceInstrumentEditPanel::DoDataExchange(CDataExchange* pDX)
 	CDialog::DoDataExchange(pDX);
 }
 
-//BEGIN_MESSAGE_MAP(CSequenceInstrumentEditPanel, CInstrumentEditPanel)
-//	ON_NOTIFY(NM_RCLICK, IDC_INSTSETTINGS, OnRClickInstSettings)
-//END_MESSAGE_MAP()
+BEGIN_MESSAGE_MAP(CSequenceInstrumentEditPanel, CInstrumentEditPanel)
+	ON_NOTIFY(NM_RCLICK, IDC_INSTSETTINGS, OnRClickInstSettings)
+END_MESSAGE_MAP()
 
 void CSequenceInstrumentEditPanel::mousePressEvent(QMouseEvent *event)
 {

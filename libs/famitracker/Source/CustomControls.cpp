@@ -48,9 +48,9 @@
 
 IMPLEMENT_DYNAMIC(CInstrumentList, CListCtrl)
 
-//BEGIN_MESSAGE_MAP(CInstrumentList, CListCtrl)
-//	ON_WM_CONTEXTMENU()
-//END_MESSAGE_MAP()
+BEGIN_MESSAGE_MAP(CInstrumentList, CListCtrl)
+	ON_WM_CONTEXTMENU()
+END_MESSAGE_MAP()
 
 // TODO: expand this class
 
@@ -96,11 +96,11 @@ const COLORREF CBannerEdit::BANNER_COLOR = 0x808080;
 
 IMPLEMENT_DYNAMIC(CBannerEdit, CEdit)
 
-//BEGIN_MESSAGE_MAP(CBannerEdit, CEdit)
-//	ON_WM_PAINT()
-//	ON_WM_SETFOCUS()
-//	ON_WM_KILLFOCUS()
-//END_MESSAGE_MAP()
+BEGIN_MESSAGE_MAP(CBannerEdit, CEdit)
+	ON_WM_PAINT()
+	ON_WM_SETFOCUS()
+	ON_WM_KILLFOCUS()
+END_MESSAGE_MAP()
 
 bool CBannerEdit::eventFilter(QObject *object, QEvent *event)
 {
@@ -250,11 +250,11 @@ void CBannerEdit::OnKillFocus(CWnd* pNewWnd)
 
 IMPLEMENT_DYNAMIC(CLockedEdit, CEdit)
 
-//BEGIN_MESSAGE_MAP(CLockedEdit, CEdit)
-//	ON_WM_LBUTTONDBLCLK()
-//	ON_WM_SETFOCUS()
-//	ON_WM_KILLFOCUS()
-//END_MESSAGE_MAP()
+BEGIN_MESSAGE_MAP(CLockedEdit, CEdit)
+	ON_WM_LBUTTONDBLCLK()
+	ON_WM_SETFOCUS()
+	ON_WM_KILLFOCUS()
+END_MESSAGE_MAP()
 
 bool CLockedEdit::eventFilter(QObject *object, QEvent *event)
 {

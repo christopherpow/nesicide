@@ -33,18 +33,18 @@
 
 IMPLEMENT_DYNAMIC(CGraphEditor, CWnd)
 
-//BEGIN_MESSAGE_MAP(CGraphEditor, CWnd)
-//	ON_WM_PAINT()
-//	ON_WM_ERASEBKGND()
-//	ON_WM_LBUTTONDOWN()
-//	ON_WM_LBUTTONUP()
-//	ON_WM_MOUSEMOVE()
-//	ON_WM_RBUTTONDOWN()
-//	ON_WM_RBUTTONUP()
-//	ON_WM_TIMER()
-//	ON_WM_SETFOCUS()
-//	ON_WM_KILLFOCUS()
-//END_MESSAGE_MAP()
+BEGIN_MESSAGE_MAP(CGraphEditor, CWnd)
+	ON_WM_PAINT()
+	ON_WM_ERASEBKGND()
+	ON_WM_LBUTTONDOWN()
+	ON_WM_LBUTTONUP()
+	ON_WM_MOUSEMOVE()
+	ON_WM_RBUTTONDOWN()
+	ON_WM_RBUTTONUP()
+	ON_WM_TIMER()
+	ON_WM_SETFOCUS()
+	ON_WM_KILLFOCUS()
+END_MESSAGE_MAP()
 
 
 CGraphEditor::CGraphEditor(CSequence *pSequence) : 
@@ -532,9 +532,9 @@ void CGraphEditor::OnKillFocus(CWnd* pNewWnd)
 void CBarGraphEditor::OnPaint()
 {
 	CPaintDC dc(this);
-
+	
 	CDC *pDC = m_pBackDC;
-   
+
 	if (!pDC)
 		return;
 
@@ -638,10 +638,10 @@ int CBarGraphEditor::GetItemHeight()
 
 IMPLEMENT_DYNAMIC(CArpeggioGraphEditor, CGraphEditor)
 
-//BEGIN_MESSAGE_MAP(CArpeggioGraphEditor, CGraphEditor)
-//	ON_WM_VSCROLL()
-//	ON_WM_MOUSEWHEEL()
-//END_MESSAGE_MAP()
+BEGIN_MESSAGE_MAP(CArpeggioGraphEditor, CGraphEditor)
+	ON_WM_VSCROLL()
+	ON_WM_MOUSEWHEEL()
+END_MESSAGE_MAP()
 
 CArpeggioGraphEditor::CArpeggioGraphEditor(CSequence *pSequence) : 
 	CGraphEditor(pSequence), 
@@ -799,9 +799,8 @@ void CArpeggioGraphEditor::DrawRange(CDC *pDC, int Max, int Min)
 void CArpeggioGraphEditor::OnPaint()
 {
 	CPaintDC dc(this);
-   
+
 	CDC *pDC = m_pBackDC;
-   
 	if (!pDC)
 		return;
 
@@ -988,7 +987,7 @@ void CPitchGraphEditor::OnPaint()
 	CPaintDC dc(this);
 
 	CDC *pDC = m_pBackDC;
-   
+
 	if (!pDC)
 		return;
 
@@ -1075,7 +1074,7 @@ void CNoiseEditor::OnPaint()
 	CPaintDC dc(this);
 	
 	CDC *pDC = m_pBackDC;
-   
+
 	if (!pDC)
 		return;
 

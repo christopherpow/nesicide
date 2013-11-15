@@ -59,13 +59,13 @@ void CInstrumentEditor2A03::DoDataExchange(CDataExchange* pDX)
 }
 
 
-//BEGIN_MESSAGE_MAP(CInstrumentEditor2A03, CSequenceInstrumentEditPanel)
-//	ON_NOTIFY(LVN_ITEMCHANGED, IDC_INSTSETTINGS, OnLvnItemchangedInstsettings)	
-//	ON_EN_CHANGE(IDC_SEQ_INDEX, OnEnChangeSeqIndex)
-//	ON_BN_CLICKED(IDC_FREE_SEQ, OnBnClickedFreeSeq)
-//	ON_COMMAND(ID_CLONE_SEQUENCE, OnCloneSequence)
-////	ON_WM_KEYDOWN()
-//END_MESSAGE_MAP()
+BEGIN_MESSAGE_MAP(CInstrumentEditor2A03, CSequenceInstrumentEditPanel)
+	ON_NOTIFY(LVN_ITEMCHANGED, IDC_INSTSETTINGS, OnLvnItemchangedInstsettings)	
+	ON_EN_CHANGE(IDC_SEQ_INDEX, OnEnChangeSeqIndex)
+	ON_BN_CLICKED(IDC_FREE_SEQ, OnBnClickedFreeSeq)
+	ON_COMMAND(ID_CLONE_SEQUENCE, OnCloneSequence)
+//	ON_WM_KEYDOWN()
+END_MESSAGE_MAP()
 
 void CInstrumentEditor2A03::menuAction_triggered(int id)
 {

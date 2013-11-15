@@ -85,9 +85,9 @@ void C64EmulatorThread::timerEvent(QTimerEvent */*event*/)
 void C64EmulatorThread::viceStarted()
 {
    // Close the pipes.
-//   m_pViceApp->closeReadChannel(QProcess::StandardError);
-//   m_pViceApp->closeReadChannel(QProcess::StandardOutput);
-//   m_pViceApp->closeWriteChannel();
+   m_pViceApp->closeReadChannel(QProcess::StandardError);
+   m_pViceApp->closeReadChannel(QProcess::StandardOutput);
+   m_pViceApp->closeWriteChannel();
 
    m_pClient = new TcpClient(EmulatorPrefsDialog::getVICEIPAddress(),EmulatorPrefsDialog::getVICEMonitorPort());
    m_pClient->moveToThread(this);
@@ -523,7 +523,7 @@ void C64EmulatorThread::processResponses(QStringList requests,QStringList respon
    int32_t a;
    int bp;
 
-#if 1
+#if 0
    for ( int resp = 0; resp < requests.count(); resp++ )
    {
       QString str;
@@ -857,7 +857,8 @@ void TcpClient::connected()
    {
       // Kick off writing anything that's been queued.
 //      qDebug(m_requests.at(0).toAscii().constData());
-      pSocket->write(m_requests.at(0).toAscii());
+      pSocket->write("> "+m_requests.at(0).toAscii());
+      debugTextLogger->write(m_requests.at(0));
 //      qDebug("requests were pending");
    }
    m_clientMutex->unlock();
@@ -892,6 +893,7 @@ void TcpClient::sendRequests(QStringList requests,QList<int> expectings)
       // Kick off if nothing going on.
 //      qDebug(m_requests.at(0).toAscii().constData());
       pSocket->write(m_requests.at(0).toAscii());
+      debugTextLogger->write("> "+m_requests.at(0));      
       m_requestSent.replace(0,true);
    }
    m_clientMutex->unlock();
@@ -908,6 +910,7 @@ void TcpClient::readyRead()
    bool expecting;
 
    receivedData = pSocket->readAll();
+   debugTextLogger->write("< "+receivedData);
    responseMessage.append(receivedData);
 
    emit traps(receivedData);
@@ -940,6 +943,7 @@ void TcpClient::readyRead()
       {
 //         qDebug(m_requests.at(m_request).toAscii().constData());
          pSocket->write(m_requests.at(m_request).toAscii());
+         debugTextLogger->write("> "+m_requests.at(0));
          m_requestSent.replace(m_request,true);
       }
       else
@@ -971,7 +975,7 @@ void TcpClient::readyRead()
          if ( m_requests.count() )
          {
 //            qDebug(m_requests.at(0).toAscii().constData());
-            pSocket->write(m_requests.at(0).toAscii());
+            pSocket->write("> "+m_requests.at(0).toAscii());
          }
       }
       m_clientMutex->unlock();

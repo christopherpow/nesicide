@@ -90,7 +90,7 @@ const char *FILE_BLOCK_SEQUENCES_S5B = "SEQUENCES_S5B";
 const char INST_HEADER[] = "FTI";
 const char INST_VERSION[] = "2.3";
 
-/*
+/* 
 	Instrument version history
 	 * 2.1 - Release points for sequences in 2A03 & VRC6
 	 * 2.2 - FDS volume sequences goes from 0-31 instead of 0-15
@@ -211,13 +211,13 @@ void CDSample::Allocate(int iSize, char *pData)
 
 IMPLEMENT_DYNCREATE(CFamiTrackerDoc, CDocument)
 
-//BEGIN_MESSAGE_MAP(CFamiTrackerDoc, CDocument)
-//	ON_COMMAND(ID_FILE_SAVE_AS, OnFileSaveAs)
-//	ON_COMMAND(ID_FILE_SAVE, OnFileSave)
-//	ON_COMMAND(ID_CLEANUP_REMOVEUNUSEDINSTRUMENTS, OnEditRemoveUnusedInstruments)
-//	ON_COMMAND(ID_CLEANUP_REMOVEUNUSEDPATTERNS, OnEditRemoveUnusedPatterns)
-//	ON_COMMAND(ID_EDIT_CLEARPATTERNS, OnEditClearPatterns)
-//END_MESSAGE_MAP()
+BEGIN_MESSAGE_MAP(CFamiTrackerDoc, CDocument)
+	ON_COMMAND(ID_FILE_SAVE_AS, OnFileSaveAs)
+	ON_COMMAND(ID_FILE_SAVE, OnFileSave)
+	ON_COMMAND(ID_CLEANUP_REMOVEUNUSEDINSTRUMENTS, OnEditRemoveUnusedInstruments)
+	ON_COMMAND(ID_CLEANUP_REMOVEUNUSEDPATTERNS, OnEditRemoveUnusedPatterns)
+	ON_COMMAND(ID_EDIT_CLEARPATTERNS, OnEditClearPatterns)
+END_MESSAGE_MAP()
 
 void CFamiTrackerDoc::menuAction_triggered(int id)
 {
@@ -268,7 +268,7 @@ static int GetChipFromInstrument(int Type)
 
 // CFamiTrackerDoc construction/destruction
 
-CFamiTrackerDoc::CFamiTrackerDoc()
+CFamiTrackerDoc::CFamiTrackerDoc() 
 	: m_iVersion(CLASS_VERSION), m_bFileLoaded(false), m_bFileLoadFailed(false), m_iRegisteredChannels(0), m_iNamcoChannels(DEFAULT_NAMCO_CHANS)
 {
    // Initialize object
@@ -423,7 +423,7 @@ BOOL CFamiTrackerDoc::OnSaveDocument(LPCTSTR lpszPathName)
 }
 
 void CFamiTrackerDoc::OnCloseDocument()
-{
+{	
 	// Document object is about to be deleted
 
 	// Remove itself from sound generator
@@ -454,7 +454,7 @@ void CFamiTrackerDoc::DeleteContents()
 	theApp.OnTrackerStop();
 	theApp.GetSoundGenerator()->WaitForStop();
 
-   // DPCM samples
+	// DPCM samples
 	for (int i = 0; i < MAX_DSAMPLES; ++i) {
 		if (m_DSamples[i].SampleSize != NULL) {
 			delete [] m_DSamples[i].SampleData;
@@ -537,7 +537,7 @@ void CFamiTrackerDoc::SetModifiedFlag(BOOL bModified)
 			title.Append(_T("*"));
 		pFrameWnd->UpdateFrameTitleForDocument(title);
 	}
-   
+
 	CDocument::SetModifiedFlag(bModified);
 }
 
@@ -717,17 +717,17 @@ void CFamiTrackerDoc::OnEditRemoveUnusedInstruments()
 
 // CFamiTrackerDoc serialization (never used)
 
-//void CFamiTrackerDoc::Serialize(CArchive& ar)
-//{
-//	if (ar.IsStoring())
-//	{
-//		// TODO: add storing code here
-//	}
-//	else
-//	{
-//		// TODO: add loading code here
-//	}
-//}
+void CFamiTrackerDoc::Serialize(CArchive& ar)
+{
+	if (ar.IsStoring())
+	{
+		// TODO: add storing code here
+	}
+	else
+	{
+		// TODO: add loading code here
+	}
+}
 
 
 // CFamiTrackerDoc diagnostics
@@ -881,7 +881,7 @@ BOOL CFamiTrackerDoc::SaveDocument(LPCTSTR lpszPathName) const
 	CFileException ex;
 	TCHAR TempPath[MAX_PATH], TempFile[MAX_PATH];
 	ULONGLONG FileSize;
-   
+
 	if (GetExpansionChip() & SNDCHIP_S5B) {
 		AfxMessageBox(_T("Saving Sunsoft modules is not yet supported"));
 		return FALSE;
@@ -1519,7 +1519,7 @@ BOOL CFamiTrackerDoc::OpenDocument(LPCTSTR lpszPathName)
 		if (!OpenDocumentOld(&OpenFile))
 			return FALSE;
 
-		// Create a backup of this file, since it's an old version
+		// Create a backup of this file, since it's an old version 
 		// and something might go wrong when converting
 		//bForceBackup = true;
 		m_bForceBackup = true;
@@ -4101,7 +4101,7 @@ void CFamiTrackerDoc::ApplyExpansionChip()
 bool CFamiTrackerDoc::ExpansionEnabled(int Chip) const
 {
 	// Returns true if a specified chip is enabled
-	return (GetExpansionChip() & Chip) == Chip;
+	return (GetExpansionChip() & Chip) == Chip; 
 }
 
 void CFamiTrackerDoc::SetNamcoChannels(int Channels)
@@ -4124,7 +4124,7 @@ void CFamiTrackerDoc::SaveInstrument(unsigned int Instrument, CString FileName)
 	CInstrument *pInstrument = GetInstrument(Instrument);
 
 	ASSERT(pInstrument != NULL);
-
+	
 	if (InstrumentFile.m_hFile == CFile::hFileNull) {
 		AfxMessageBox(IDS_INVALID_INST_FILE, MB_ICONERROR);
 		return;

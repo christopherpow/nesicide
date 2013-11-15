@@ -48,11 +48,12 @@ void CConfigShortcuts::DoDataExchange(CDataExchange* pDX)
 }
 
 
-//BEGIN_MESSAGE_MAP(CConfigShortcuts, CPropertyPage)
-//	ON_NOTIFY(NM_CLICK, IDC_SHORTCUTS, OnNMClickShortcuts)
-//	ON_BN_CLICKED(IDC_DEFAULT, OnBnClickedDefault)
-//	ON_BN_CLICKED(IDC_CLEAR, &CConfigShortcuts::OnBnClickedClear)
-//END_MESSAGE_MAP()
+BEGIN_MESSAGE_MAP(CConfigShortcuts, CPropertyPage)
+	ON_NOTIFY(NM_CLICK, IDC_SHORTCUTS, OnNMClickShortcuts)
+	ON_BN_CLICKED(IDC_DEFAULT, OnBnClickedDefault)
+//ON_BN_CLICKED(IDC_CLEAR, &CConfigShortcuts::OnBnClickedClear)
+   ON_BN_CLICKED(IDC_CLEAR, OnBnClickedClear)
+END_MESSAGE_MAP()
 
 void CConfigShortcuts::clear_clicked()
 {

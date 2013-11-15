@@ -43,15 +43,15 @@ void CConfigMIDI::DoDataExchange(CDataExchange* pDX)
 }
 
 
-//BEGIN_MESSAGE_MAP(CConfigMIDI, CPropertyPage)
-//	ON_CBN_SELCHANGE(IDC_INDEVICES, OnCbnSelchangeDevices)
-//	ON_BN_CLICKED(IDC_MASTER_SYNC, OnBnClickedMasterSync)
-//	ON_BN_CLICKED(IDC_KEY_RELEASE, OnBnClickedKeyRelease)
-//	ON_BN_CLICKED(IDC_CHANMAP, OnBnClickedChanmap)
-//	ON_BN_CLICKED(IDC_VELOCITY, OnBnClickedVelocity)
-//	ON_BN_CLICKED(IDC_ARPEGGIATE, OnBnClickedArpeggiate)
-//	ON_CBN_SELCHANGE(IDC_OUTDEVICES, OnCbnSelchangeOutdevices)
-//END_MESSAGE_MAP()
+BEGIN_MESSAGE_MAP(CConfigMIDI, CPropertyPage)
+	ON_CBN_SELCHANGE(IDC_INDEVICES, OnCbnSelchangeDevices)
+	ON_BN_CLICKED(IDC_MASTER_SYNC, OnBnClickedMasterSync)
+	ON_BN_CLICKED(IDC_KEY_RELEASE, OnBnClickedKeyRelease)
+	ON_BN_CLICKED(IDC_CHANMAP, OnBnClickedChanmap)
+	ON_BN_CLICKED(IDC_VELOCITY, OnBnClickedVelocity)
+	ON_BN_CLICKED(IDC_ARPEGGIATE, OnBnClickedArpeggiate)
+	ON_CBN_SELCHANGE(IDC_OUTDEVICES, OnCbnSelchangeOutdevices)
+END_MESSAGE_MAP()
 
 
 // CConfigMIDI message handlers

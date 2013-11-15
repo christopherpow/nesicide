@@ -49,22 +49,23 @@ const DWORD	SHARED_MEM_SIZE			= 256;
 
 // CFamiTrackerApp
 
-//BEGIN_MESSAGE_MAP(CFamiTrackerApp, CWinApp)
-//	ON_COMMAND(ID_APP_ABOUT, OnAppAbout)
-//	// Standard file based document commands
-//	ON_COMMAND(ID_FILE_NEW, CWinApp::OnFileNew)
-//	ON_COMMAND(ID_FILE_OPEN, OnFileOpen)
+BEGIN_MESSAGE_MAP(CFamiTrackerApp, CWinApp)
+	ON_COMMAND(ID_APP_ABOUT, OnAppAbout)
+	// Standard file based document commands
+//ON_COMMAND(ID_FILE_NEW, CWinApp::OnFileNew)
+   ON_COMMAND(ID_FILE_NEW, OnFileNew)
+	ON_COMMAND(ID_FILE_OPEN, OnFileOpen)
+	ON_COMMAND(ID_TRACKER_PLAY, OnTrackerPlay)
+	ON_COMMAND(ID_TRACKER_PLAY_START, OnTrackerPlayStart)
+	ON_COMMAND(ID_TRACKER_PLAY_CURSOR, OnTrackerPlayCursor)
 //	ON_COMMAND(ID_TRACKER_PLAY, OnTrackerPlay)
-//	ON_COMMAND(ID_TRACKER_PLAY_START, OnTrackerPlayStart)
-//	ON_COMMAND(ID_TRACKER_PLAY_CURSOR, OnTrackerPlayCursor)
-////	ON_COMMAND(ID_TRACKER_PLAY, OnTrackerPlay)
-//	ON_COMMAND(ID_TRACKER_STOP, OnTrackerStop)
-//	ON_COMMAND(ID_TRACKER_TOGGLE_PLAY, OnTrackerTogglePlay)
-//	ON_COMMAND(ID_TRACKER_PLAYPATTERN, OnTrackerPlaypattern)
-//#ifdef UPDATE_CHECK
-//	ON_COMMAND(ID_HELP_CHECKFORNEWVERSIONS, CheckNewVersion)
-//#endif
-//END_MESSAGE_MAP()
+	ON_COMMAND(ID_TRACKER_STOP, OnTrackerStop)
+	ON_COMMAND(ID_TRACKER_TOGGLE_PLAY, OnTrackerTogglePlay)
+	ON_COMMAND(ID_TRACKER_PLAYPATTERN, OnTrackerPlaypattern)
+#ifdef UPDATE_CHECK
+	ON_COMMAND(ID_HELP_CHECKFORNEWVERSIONS, CheckNewVersion)
+#endif
+END_MESSAGE_MAP()
 
 void CFamiTrackerApp::menuAction_triggered(int id)
 {

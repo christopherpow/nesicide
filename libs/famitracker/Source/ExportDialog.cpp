@@ -81,11 +81,12 @@ void CExportDialog::DoDataExchange(CDataExchange* pDX)
 }
 
 
-//BEGIN_MESSAGE_MAP(CExportDialog, CDialog)
-//	ON_BN_CLICKED(IDC_CLOSE, OnBnClickedClose)
-//	ON_BN_CLICKED(IDC_EXPORT, &CExportDialog::OnBnClickedExport)
-//	ON_BN_CLICKED(IDC_PLAY, OnBnClickedPlay)
-//END_MESSAGE_MAP()
+BEGIN_MESSAGE_MAP(CExportDialog, CDialog)
+	ON_BN_CLICKED(IDC_CLOSE, OnBnClickedClose)
+//ON_BN_CLICKED(IDC_EXPORT, &CExportDialog::OnBnClickedExport)
+   ON_BN_CLICKED(IDC_EXPORT, OnBnClickedExport)
+	ON_BN_CLICKED(IDC_PLAY, OnBnClickedPlay)
+END_MESSAGE_MAP()
 
 void CExportDialog::close_clicked()
 {
@@ -318,7 +319,7 @@ void CExportDialog::CreateCustom( CString name )
 
 	CString fileName( FileDialogCustom.GetPathName() );	
 	
-   if(theApp.GetCustomExporters()->GetCurrentExporter().Export( (CFamiTrackerDoc const*)CFamiTrackerDoc::GetDoc(), CStringA(fileName) ))
+	if(theApp.GetCustomExporters()->GetCurrentExporter().Export( (CFamiTrackerDoc const*)CFamiTrackerDoc::GetDoc(), CStringA(fileName) ))
 	{
 		AfxMessageBox(_T("Successfully exported!"));
 	}

@@ -110,12 +110,12 @@ void CInstrumentEditorVRC6::SetSequenceString(CString Sequence, bool Changed)
 	}
 }
 
-//BEGIN_MESSAGE_MAP(CInstrumentEditorVRC6, CSequenceInstrumentEditPanel)
-//	ON_NOTIFY(LVN_ITEMCHANGED, IDC_INSTSETTINGS, OnLvnItemchangedInstsettings)	
-//	ON_EN_CHANGE(IDC_SEQ_INDEX, OnEnChangeSeqIndex)
-//	ON_BN_CLICKED(IDC_FREE_SEQ, OnBnClickedFreeSeq)
-//	ON_COMMAND(ID_CLONE_SEQUENCE, OnCloneSequence)
-//END_MESSAGE_MAP()
+BEGIN_MESSAGE_MAP(CInstrumentEditorVRC6, CSequenceInstrumentEditPanel)
+	ON_NOTIFY(LVN_ITEMCHANGED, IDC_INSTSETTINGS, OnLvnItemchangedInstsettings)	
+	ON_EN_CHANGE(IDC_SEQ_INDEX, OnEnChangeSeqIndex)
+	ON_BN_CLICKED(IDC_FREE_SEQ, OnBnClickedFreeSeq)
+	ON_COMMAND(ID_CLONE_SEQUENCE, OnCloneSequence)
+END_MESSAGE_MAP()
 
 void CInstrumentEditorVRC6::menuAction_triggered(int id)
 {
