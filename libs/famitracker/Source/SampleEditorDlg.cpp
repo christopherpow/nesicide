@@ -323,8 +323,6 @@ CSampleView::CSampleView() :
 	m_pGrayDashedPen = new CPen(PS_DASHDOT, 1, (COLORREF)0xF0F0F0);
 	m_pDarkGrayDashedPen = new CPen(PS_DASHDOT, 1, (COLORREF)0xE0E0E0);
    
-   _qt->installEventFilter(this);
-   
    m_sbScrollBar = new CScrollBar;
 }
 

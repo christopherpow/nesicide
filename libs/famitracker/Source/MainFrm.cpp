@@ -1421,16 +1421,15 @@ bool CMainFrame::CreateDialogPanels()
 	m_pLockedEditFrames = new CLockedEdit();
 	m_pLockedEditStep	= new CLockedEdit();
 
-//	m_pLockedEditSpeed->SubclassDlgItem(IDC_SPEED, &m_wndDialogBar);
-//	m_pLockedEditTempo->SubclassDlgItem(IDC_TEMPO, &m_wndDialogBar);
-//	m_pLockedEditLength->SubclassDlgItem(IDC_ROWS, &m_wndDialogBar);
-//	m_pLockedEditFrames->SubclassDlgItem(IDC_FRAMES, &m_wndDialogBar);
-//	m_pLockedEditStep->SubclassDlgItem(IDC_KEYSTEP, &m_wndDialogBar);
+	m_pLockedEditSpeed->SubclassDlgItem(IDC_SPEED, &m_wndDialogBar);
+	m_pLockedEditTempo->SubclassDlgItem(IDC_TEMPO, &m_wndDialogBar);
+	m_pLockedEditLength->SubclassDlgItem(IDC_ROWS, &m_wndDialogBar);
+	m_pLockedEditFrames->SubclassDlgItem(IDC_FRAMES, &m_wndDialogBar);
+	m_pLockedEditStep->SubclassDlgItem(IDC_KEYSTEP, &m_wndDialogBar);
 
 	// Subclass and setup the instrument list
 	m_pInstrumentList = new CInstrumentList(this);
-//	m_pInstrumentList->SubclassDlgItem(IDC_INSTRUMENTS, &m_wndDialogBar);
-   m_pInstrumentList = (CListCtrl*)m_wndDialogBar.GetDlgItem(IDC_INSTRUMENTS);
+	m_pInstrumentList->SubclassDlgItem(IDC_INSTRUMENTS, &m_wndDialogBar);
 
 	SetupColors();
 
@@ -1453,9 +1452,9 @@ bool CMainFrame::CreateDialogPanels()
 	m_pBannerEditArtist = new CBannerEdit(CString(_T("(author)")));
 	m_pBannerEditCopyright = new CBannerEdit(CString(_T("(copyright)")));
 
-//	m_pBannerEditName->SubclassDlgItem(IDC_SONG_NAME, &m_wndDialogBar);
-//	m_pBannerEditArtist->SubclassDlgItem(IDC_SONG_ARTIST, &m_wndDialogBar);
-//	m_pBannerEditCopyright->SubclassDlgItem(IDC_SONG_COPYRIGHT, &m_wndDialogBar);
+	m_pBannerEditName->SubclassDlgItem(IDC_SONG_NAME, &m_wndDialogBar);
+	m_pBannerEditArtist->SubclassDlgItem(IDC_SONG_ARTIST, &m_wndDialogBar);
+	m_pBannerEditCopyright->SubclassDlgItem(IDC_SONG_COPYRIGHT, &m_wndDialogBar);
 
 	// New instrument editor
 
@@ -2548,7 +2547,7 @@ void CMainFrame::OnUpdateKeyStepEdit(CCmdUI *pCmdUI)
 
 void CMainFrame::OnUpdateSpeedEdit(CCmdUI *pCmdUI)
 {
-//	if (!m_pLockedEditSpeed->IsEditable()) {
+	if (!m_pLockedEditSpeed->IsEditable()) {
 		if (m_pLockedEditSpeed->Update())
 			SetSpeed(m_pLockedEditSpeed->GetValue());
 		else {
@@ -2556,12 +2555,12 @@ void CMainFrame::OnUpdateSpeedEdit(CCmdUI *pCmdUI)
 			Text.Format(_T("%i"), ((CFamiTrackerDoc*)GetActiveDocument())->GetSongSpeed());
 			pCmdUI->SetText(Text);
 		}
-//	}
+	}
 }
 
 void CMainFrame::OnUpdateTempoEdit(CCmdUI *pCmdUI)
 {
-//	if (!m_pLockedEditTempo->IsEditable()) {
+	if (!m_pLockedEditTempo->IsEditable()) {
 		if (m_pLockedEditTempo->Update())
 			SetTempo(m_pLockedEditTempo->GetValue());
 		else {
@@ -2569,26 +2568,26 @@ void CMainFrame::OnUpdateTempoEdit(CCmdUI *pCmdUI)
 			Text.Format(_T("%i"), ((CFamiTrackerDoc*)GetActiveDocument())->GetSongTempo());
 			pCmdUI->SetText(Text);
 		}
-//	}
+	}
 }
 
 void CMainFrame::OnUpdateRowsEdit(CCmdUI *pCmdUI)
 {
 	CString Text;
 
-//	if (!m_pLockedEditLength->IsEditable()) {
+	if (!m_pLockedEditLength->IsEditable()) {
 		if (m_pLockedEditLength->Update())
 			SetRowCount(m_pLockedEditLength->GetValue());
 		else {
 			Text.Format(_T("%i"), ((CFamiTrackerDoc*)GetActiveDocument())->GetPatternLength());
 			pCmdUI->SetText(Text);
 		}
-//	}
+	}
 }
 
 void CMainFrame::OnUpdateFramesEdit(CCmdUI *pCmdUI)
 {
-//	if (!m_pLockedEditFrames->IsEditable()) {
+	if (!m_pLockedEditFrames->IsEditable()) {
 		if (m_pLockedEditFrames->Update())
 			SetFrameCount(m_pLockedEditFrames->GetValue());
 		else {
@@ -2596,7 +2595,7 @@ void CMainFrame::OnUpdateFramesEdit(CCmdUI *pCmdUI)
 			Text.Format(_T("%i"), ((CFamiTrackerDoc*)GetActiveDocument())->GetFrameCount());
 			pCmdUI->SetText(Text);
 		}
-//	}
+	}
 }
 
 void CMainFrame::OnFileGeneralsettings()

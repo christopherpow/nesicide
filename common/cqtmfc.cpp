@@ -3122,6 +3122,12 @@ CComboBox::~CComboBox()
    _qt = NULL;
 }
 
+void CComboBox::subclassWidget(int nID,CWnd* widget)
+{
+   _qtd = dynamic_cast<QComboBox*>(widget->toQWidget());
+   _qt->installEventFilter(dynamic_cast<CComboBox*>(this));
+}
+
 BOOL CComboBox::Create(
    DWORD dwStyle,
    const RECT& rect,
@@ -3334,6 +3340,14 @@ CListBox::~CListBox()
    _qt = NULL;
 }
 
+void CListBox::subclassWidget(int nID,CWnd* widget)
+{
+   CRect rect;
+   widget->GetWindowRect(&rect);
+   Create(widget->GetStyle(),rect,widget->GetParent(),nID);
+   _qt->installEventFilter(dynamic_cast<CListBox*>(this));
+}
+
 BOOL CListBox::Create(
    DWORD dwStyle,
    const RECT& rect,
@@ -3400,6 +3414,14 @@ CCheckListBox::~CCheckListBox()
 {
 }
 
+void CCheckListBox::subclassWidget(int nID,CWnd* widget)
+{
+   CRect rect;
+   widget->GetWindowRect(&rect);
+   Create(widget->GetStyle(),rect,widget->GetParent(),nID);
+   _qt->installEventFilter(dynamic_cast<CCheckListBox*>(this));
+}
+
 int CCheckListBox::GetCheck(
    int nIndex 
 )
@@ -3408,7 +3430,7 @@ int CCheckListBox::GetCheck(
 
    lwi = _qtd->item(nIndex);
 
-   if ( !lwi )
+   if ( lwi )
    {
       return lwi->checkState()==Qt::Checked?BST_CHECKED:BST_UNCHECKED;
    }
@@ -3424,7 +3446,7 @@ void CCheckListBox::SetCheck(
 
    lwi = _qtd->item(nIndex);
 
-   if ( !lwi )
+   if ( lwi )
    {
       lwi->setCheckState(nCheck==BST_CHECKED?Qt::Checked:Qt::Unchecked);
    }
@@ -3453,8 +3475,7 @@ CListCtrl::CListCtrl(CWnd* parent)
    : CWnd(parent),
      _qtd_table(NULL),
      _qtd_list(NULL),
-     m_pImageList(NULL),
-     _dwStyle(0)
+     m_pImageList(NULL)
 {
 }
 
@@ -3467,6 +3488,14 @@ CListCtrl::~CListCtrl()
       delete _qtd_list;
    _qtd_list = NULL;
    _qt = NULL;
+}
+
+void CListCtrl::subclassWidget(int nID,CWnd* widget)
+{
+   CRect rect;
+   widget->GetWindowRect(&rect);
+   Create(widget->GetStyle(),rect,widget->GetParent(),nID);
+   _qt->installEventFilter(dynamic_cast<CListCtrl*>(this));
 }
 
 QModelIndex CListCtrl::currentIndex () const
@@ -4509,6 +4538,12 @@ CTreeCtrl::~CTreeCtrl()
    _qt = NULL;
 }
 
+void CTreeCtrl::subclassWidget(int nID,CWnd* widget)
+{
+   _qtd = dynamic_cast<QTreeWidget*>(widget->toQWidget());
+   _qt->installEventFilter(dynamic_cast<CTreeCtrl*>(this));
+}
+
 BOOL CTreeCtrl::Create(
    DWORD dwStyle,
    const RECT& rect,
@@ -4776,6 +4811,12 @@ CScrollBar::~CScrollBar()
    _qt = NULL;
 }
 
+void CScrollBar::subclassWidget(int nID,CWnd* widget)
+{
+   _qtd = dynamic_cast<QScrollBar*>(widget->toQWidget());
+   _qt->installEventFilter(dynamic_cast<CScrollBar*>(this));
+}
+
 BOOL CScrollBar::Create(
    DWORD dwStyle,
    const RECT& rect,
@@ -4904,7 +4945,22 @@ BOOL CCmdTarget::OnCmdMsg(
    AFX_CMDHANDLERINFO* pHandlerInfo
 )
 {
-   return TRUE;
+   const AFX_MSGMAP* pMsgMap = GetMessageMap();
+   
+   while ( pMsgMap )
+   {
+      const AFX_MSGMAP_ENTRY* pEntry = pMsgMap->lpEntries;
+      while ( pEntry )
+      {
+         if ( (pEntry->nCode == nCode) &&
+              (pEntry->nID == nID) )
+         {
+            qDebug("CCmdTarget::OnCmdMsg should handle nCode=%d nID=%d",nCode,nID);
+            return TRUE;
+         }
+      }
+   }
+   return FALSE;
 }
 
 CWnd* CWnd::focusWnd = NULL;
@@ -4918,7 +4974,8 @@ CWnd::CWnd(CWnd *parent)
      mfcHorizontalScrollBar(NULL),
      m_hWnd((HWND)NULL),
      _grid(NULL),
-     _myDC(NULL)
+     _myDC(NULL),
+     _dwStyle(0)
 {
    if ( parent )
    {
@@ -5081,11 +5138,11 @@ bool CWnd::eventFilter(QObject *object, QEvent *event)
       showEvent(dynamic_cast<QShowEvent*>(event));
       return true;
    }
-   if ( event->type() == QEvent::ShowToParent )
-   {
-      showEvent(dynamic_cast<QShowEvent*>(event));
-      return true;
-   }
+//   if ( event->type() == QEvent::ShowToParent )
+//   {
+//      showEvent(dynamic_cast<QShowEvent*>(event));
+//      return true;
+//   }
    if ( event->type() == QEvent::Hide )
    {
       hideEvent(dynamic_cast<QHideEvent*>(event));
@@ -5099,17 +5156,17 @@ bool CWnd::eventFilter(QObject *object, QEvent *event)
    if ( event->type() == QEvent::Paint )
    {
       paintEvent(dynamic_cast<QPaintEvent*>(event));
-      return true;
+      return false;
    }
    if ( event->type() == QEvent::FocusIn )
    {
       focusInEvent(dynamic_cast<QFocusEvent*>(event));
-      return true;
+      return false;
    }
    if ( event->type() == QEvent::FocusOut )
    {
       focusOutEvent(dynamic_cast<QFocusEvent*>(event));
-      return true;
+      return false;
    }
    if ( event->type() == QEvent::MouseButtonPress )
    {
@@ -5144,12 +5201,12 @@ bool CWnd::eventFilter(QObject *object, QEvent *event)
    if ( event->type() == QEvent::KeyPress )
    {
       keyPressEvent(dynamic_cast<QKeyEvent*>(event));
-      return true;
+      return false;
    }
    if ( event->type() == QEvent::KeyRelease )
    {
       keyReleaseEvent(dynamic_cast<QKeyEvent*>(event));
-      return true;
+      return false;
    }
    if ( event->type() == QEvent::ContextMenu )
    {
@@ -5268,7 +5325,6 @@ BOOL CWnd::CreateEx(
       _grid->addWidget(mfcHorizontalScrollBar->toQWidget(),1,0);
    }
    _qt->setGeometry(createStruct.x,createStruct.y,createStruct.cx,createStruct.cy);
-//   _qt->setFixedSize(createStruct.cx,createStruct.cy);
    OnCreate(&createStruct);
    return TRUE;
 }
@@ -5467,8 +5523,9 @@ BOOL CWnd::SubclassDlgItem(
       setParent(pParent->toQWidget());
       setGeometry(pWndSrc->geometry());
       pParent->subclassWidget(nID,this);
+      subclassWidget(nID,pWndSrc);
       pWndSrc->setParent(NULL);
-      delete pWndSrc;
+//      delete pWndSrc;
       return TRUE;
    }
    return FALSE;
@@ -6134,6 +6191,25 @@ BOOL CView::Create(
    return TRUE;
 }
 
+BOOL CView::OnCmdMsg(UINT nID, int nCode, void* pExtra,
+	AFX_CMDHANDLERINFO* pHandlerInfo)
+{
+	// first pump through pane
+	if (CWnd::OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
+		return TRUE;
+
+	// then pump through document
+	if (m_pDocument != NULL)
+	{
+		// special state for saving view before routing to document
+// CP: probably don't need this...
+//		CPushRoutingView push(this);
+		return m_pDocument->OnCmdMsg(nID, nCode, pExtra, pHandlerInfo);
+	}
+
+	return FALSE;
+}
+
 IMPLEMENT_DYNAMIC(CControlBar,CWnd)
 
 CSize CControlBar::CalcFixedLayout(
@@ -6157,6 +6233,12 @@ BOOL CControlBar::IsVisible() const
 }
 
 IMPLEMENT_DYNAMIC(CReBarCtrl,CWnd)
+
+void CReBarCtrl::subclassWidget(int nID,CWnd* widget)
+{
+   _qtd = dynamic_cast<QToolBar*>(widget->toQWidget());
+   _qt->installEventFilter(dynamic_cast<CReBarCtrl*>(this));
+}
 
 BOOL CReBarCtrl::Create(
    DWORD dwStyle,
@@ -6289,6 +6371,12 @@ CToolBar::~CToolBar()
       delete _qtd;
    _qtd = NULL;
    _qt = NULL;
+}
+
+void CToolBar::subclassWidget(int nID,CWnd* widget)
+{
+   _qtd = dynamic_cast<QToolBar*>(widget->toQWidget());
+   _qt->installEventFilter(dynamic_cast<CToolBar*>(this));
 }
 
 BOOL CToolBar::CreateEx(
@@ -6482,8 +6570,6 @@ CDialogBar::CDialogBar()
 {
    _mfcd = new CDialog;
    _mfcd->setGeometry(0,0,100,100);
-
-   _qt->installEventFilter(this);
 }
 
 CDialogBar::~CDialogBar()
@@ -6629,8 +6715,8 @@ CDialog::CDialog()
    _qtd = dynamic_cast<QDialog*>(_qt);
    _inited = false;
 
-   _qtd->installEventFilter(this);
    _qtd->setMouseTracking(true);
+   _qtd->installEventFilter(this);
 
    // Pass-through signals
 }
@@ -6652,8 +6738,8 @@ CDialog::CDialog(int dlgID, CWnd *parent)
    _inited = false;
    _id = dlgID;
 
-   _qtd->installEventFilter(this);
    _qtd->setMouseTracking(true);
+   _qtd->installEventFilter(this);
 
    // Pass-through signals
 }
@@ -6961,6 +7047,9 @@ void CDocument::SetPathName(
 {
    m_strPathName = lpszPathName;
    
+   QFileInfo fileInfo(lpszPathName);
+   SetTitle(fileInfo.fileName());
+   
    if ( bAddToMRU )
    {
       AfxGetApp()->AddToRecentFileList(lpszPathName);
@@ -7126,6 +7215,7 @@ BOOL CDocument::SaveModified()
    {
       nType = MB_YESNO;
    }
+   
 	switch (AfxMessageBox(prompt, nType, AFX_IDP_ASK_TO_SAVE))
 	{
 	case IDCANCEL:
@@ -8244,6 +8334,12 @@ CTabCtrl::~CTabCtrl()
    _qt = NULL;
 }
 
+void CTabCtrl::subclassWidget(int nID,CWnd* widget)
+{
+   _qtd = dynamic_cast<QTabWidget*>(widget->toQWidget());
+   _qt->installEventFilter(dynamic_cast<CTabCtrl*>(this));
+}
+
 LONG CTabCtrl::InsertItem(
   int nItem,
   LPCTSTR lpszItem
@@ -8290,8 +8386,7 @@ IMPLEMENT_DYNAMIC(CEdit,CWnd)
 CEdit::CEdit(CWnd* parent)
    : CWnd(parent),
      _qtd_ptedit(NULL),
-     _qtd_ledit(NULL),
-     _dwStyle(0)
+     _qtd_ledit(NULL)
 {
 }
 
@@ -8301,6 +8396,14 @@ CEdit::~CEdit()
       delete _qtd;
    _qtd = NULL;
    _qt = NULL;
+}
+
+void CEdit::subclassWidget(int nID,CWnd* widget)
+{
+   CRect rect;
+   widget->GetWindowRect(&rect);
+   Create(widget->GetStyle(),rect,widget->GetParent(),nID);
+   _qt->installEventFilter(dynamic_cast<CEdit*>(this));
 }
 
 BOOL CEdit::Create(
@@ -8689,6 +8792,29 @@ CButton::~CButton()
    _qt = NULL;
 }
 
+void CButton::subclassWidget(int nID,CWnd* widget)
+{
+   DWORD buttonType = _dwStyle&0x000F;
+   if ( buttonType == BS_AUTOCHECKBOX )
+   {
+      _qtd_check = dynamic_cast<QCheckBox*>(_qt);
+   }
+   else if ( buttonType == BS_AUTO3STATE )
+   {
+      _qtd_check = dynamic_cast<QCheckBox*>(_qt);
+   }
+   else if ( buttonType == BS_AUTORADIOBUTTON )
+   {
+      _qtd_radio = dynamic_cast<QRadioButton*>(_qt);
+   }
+   else if ( (buttonType == BS_PUSHBUTTON) ||
+             (buttonType == BS_DEFPUSHBUTTON) )
+   {
+      _qtd_push = dynamic_cast<QPushButton*>(_qt);
+   }
+   _qt->installEventFilter(dynamic_cast<CStatic*>(this));
+}
+
 BOOL CButton::Create(
    LPCTSTR lpszCaption,
    DWORD dwStyle,
@@ -8699,6 +8825,7 @@ BOOL CButton::Create(
 {
    m_hWnd = (HWND)this;
    _id = nID;
+   _dwStyle = dwStyle;
 
    DWORD buttonType = dwStyle&0x000F;
    DWORD buttonStyle = dwStyle&0xFFF0;
@@ -8855,6 +8982,11 @@ CBitmapButton::~CBitmapButton()
    _qt = NULL;
 }
 
+void CBitmapButton::subclassWidget(int nID,CWnd* widget)
+{
+   CButton::subclassWidget(nID,widget);
+}
+
 BOOL CBitmapButton::Create(
    LPCTSTR lpszCaption,
    DWORD dwStyle,
@@ -8911,6 +9043,12 @@ CSpinButtonCtrl::~CSpinButtonCtrl()
    _qt = NULL;
 }
 
+void CSpinButtonCtrl::subclassWidget(int nID,CWnd* widget)
+{
+   _qtd = dynamic_cast<QSpinBox*>(widget->toQWidget());
+   _qt->installEventFilter(dynamic_cast<CSpinButtonCtrl*>(this));
+}
+
 BOOL CSpinButtonCtrl::Create(
    DWORD dwStyle,
    const RECT& rect,
@@ -8926,11 +9064,9 @@ BOOL CSpinButtonCtrl::Create(
 
    _grid = NULL;
 
-//   _qt = new QSpinBox_MFC(pParentWnd->toQWidget());
    _qt = new QSpinBox(pParentWnd->toQWidget());
 
    // Downcast to save having to do it all over the place...
-//   _qtd = dynamic_cast<QSpinBox_MFC*>(_qt);
    _qtd = dynamic_cast<QSpinBox*>(_qt);
 
    // Pass-through signals
@@ -9077,6 +9213,12 @@ CSliderCtrl::~CSliderCtrl()
       delete _qtd;
    _qtd = NULL;
    _qt = NULL;
+}
+
+void CSliderCtrl::subclassWidget(int nID,CWnd* widget)
+{
+   _qtd = dynamic_cast<QSlider*>(widget->toQWidget());
+   _qt->installEventFilter(dynamic_cast<CSliderCtrl*>(this));
 }
 
 BOOL CSliderCtrl::Create(
@@ -9245,6 +9387,12 @@ CProgressCtrl::~CProgressCtrl()
    _qt = NULL;
 }
 
+void CProgressCtrl::subclassWidget(int nID,CWnd* widget)
+{
+   _qtd = dynamic_cast<QProgressBar*>(widget->toQWidget());
+   _qt->installEventFilter(dynamic_cast<CProgressCtrl*>(this));
+}
+
 void CProgressCtrl::SetRange(
    short nLower,
    short nUpper
@@ -9295,6 +9443,12 @@ CStatic::~CStatic()
       delete _qtd;
    _qtd = NULL;
    _qt = NULL;
+}
+
+void CStatic::subclassWidget(int nID,CWnd* widget)
+{
+   _qtd = dynamic_cast<QLabel*>(widget->toQWidget());
+   _qt->installEventFilter(dynamic_cast<CStatic*>(this));
 }
 
 BOOL CStatic::Create(
@@ -9403,6 +9557,12 @@ CGroupBox::~CGroupBox()
       delete _qtd;
    _qtd = NULL;
    _qt = NULL;
+}
+
+void CGroupBox::subclassWidget(int nID,CWnd* widget)
+{
+   _qtd = dynamic_cast<QGroupBox*>(widget->toQWidget());
+   _qt->installEventFilter(dynamic_cast<CGroupBox*>(this));
 }
 
 BOOL CGroupBox::Create(
@@ -10043,6 +10203,7 @@ void CPropertySheet::_commonConstruct(CWnd* parent,UINT selectedPage)
    _selectedPage = selectedPage;
 
    _qtd->setMouseTracking(true);
+   
    _grid = new QGridLayout(_qtd);
    _qtabwidget = new QTabWidget;
    QObject::connect(_qtabwidget,SIGNAL(currentChanged(int)),this,SLOT(tabWidget_currentChanged(int)));
@@ -10150,7 +10311,6 @@ CPropertyPage::CPropertyPage(
    _qtd = dynamic_cast<QDialog*>(_qt);
    _inited = false;
 
-   _qtd->installEventFilter(this);
    _qtd->setMouseTracking(true);
 
    // Pass-through signals
@@ -10182,6 +10342,12 @@ IMPLEMENT_DYNAMIC(CToolTipCtrl,CWnd)
 CToolTipCtrl::CToolTipCtrl( )
 {
    // nothing to do here...
+}
+
+void CToolTipCtrl::subclassWidget(int nID,CWnd* widget)
+{
+   _qtd = dynamic_cast<QToolTip*>(widget->toQWidget());
+   _qt->installEventFilter(dynamic_cast<CToolTipCtrl*>(this));
 }
 
 BOOL CToolTipCtrl::Create(

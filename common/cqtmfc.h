@@ -2438,15 +2438,6 @@ protected: \
 	static const AFX_MSGMAP* PASCAL GetThisMessageMap(); \
 	virtual const AFX_MSGMAP* GetMessageMap() const; \
 
-#if 0
-#define DECLARE_MESSAGE_MAP() \
-private: \
-  static const AFX_MSGMAP_ENTRY messageEntries_[]; \
-protected: \
-  static const AFX_MSGMAP messageMap; \
-  virtual const AFX_MSGMAP* GetMessageMap() const;
-#endif
-
 #define BEGIN_MESSAGE_MAP(theClass, baseClass) \
 	const AFX_MSGMAP* theClass::GetMessageMap() const \
 		{ return GetThisMessageMap(); } \
@@ -2456,26 +2447,6 @@ protected: \
 		typedef baseClass TheBaseClass;					   \
 		static const AFX_MSGMAP_ENTRY _messageEntries[] =  \
 		{
-
-#if 0
-#define BEGIN_MESSAGE_MAP(theClass, baseClass) \
-   const AFX_MSGMAP* theClass::GetMessageMap() const \
-   { return &theClass::messageMap; } \
-   const AFX_MSGMAP theClass::messageMap = \
-   { &(baseClass::messageMap), \
-   (AFX_MSGMAP_ENTRY*) &(theClass::messageEntries_) }; \
-   typedef theClass ThisClass;						   \
-   typedef baseClass TheBaseClass;					   \
-   const AFX_MSGMAP_ENTRY theClass::messageEntries_[] = \
-   { \
-   
-#endif
-   
-#if 0
-#define END_MESSAGE_MAP() \
-    { 0, 0, 0, 0, AfxSig_end, (AFX_PMSG)0 } \
-  };
-#endif
 
 #define END_MESSAGE_MAP() \
 		{0, 0, 0, 0, AfxSig_end, (AFX_PMSG)0 } \
@@ -3389,6 +3360,7 @@ public:
       LPTSTR lpszStringBuf,
       int nMaxCount
    ) const { return 0; }
+   virtual void subclassWidget(int nID,CWnd* widget) { return; }
 };
 
 class CFrameWnd;
@@ -3404,7 +3376,7 @@ public:
    CWnd(CWnd* parent=0);
    virtual ~CWnd();
    operator HWND() { return m_hWnd; }
-   DWORD GetStyle() const { return 0; }
+   DWORD GetStyle() const { return _dwStyle; }
    void SetOwner(
       CWnd* pOwnerWnd
    );
@@ -3662,11 +3634,12 @@ protected:
    CMenu* m_pMenu;
    CDC* _myDC;
    UINT _id;
+   DWORD _dwStyle;
 
    // Qt interfaces
 public:
    QHash<int,CWnd*>* mfcToQtWidgetMap() { return &mfcToQtWidget; }
-   void subclassWidget(int nID,CWnd* widget);
+   virtual void subclassWidget(int nID,CWnd* widget);
    void setParent(QWidget *parent) { _qt->setParent(parent); }
    void setParent(QWidget *parent, Qt::WindowFlags f) { _qt->setParent(parent,f); }
    void setGeometry(const QRect & rect) { _qt->setGeometry(rect); }
@@ -3681,14 +3654,13 @@ public:
    virtual void setEnabled(bool enabled) { _qt->setEnabled(enabled); }
    QRect rect() const { return _qt->rect(); }
    virtual QWidget* toQWidget() { return _qt; }
-   virtual void setQWidget(QWidget* qt) { _qt = qt; }
 public slots:
    void update() { _qt->update(); }
    void repaint() { _qt->update(); }
    void setFocus() { _qt->setFocus(); }
    void setFocus(Qt::FocusReason reason) { _qt->setFocus(reason); }
-   bool eventFilter(QObject *object, QEvent *event);
 protected:
+   bool eventFilter(QObject *object, QEvent *event);
    void focusInEvent(QFocusEvent *event);
    QWidget* _qt;
    QFrame* _qtd;
@@ -3845,6 +3817,12 @@ public:
       LPCTSTR lpszMenuName = NULL, 
       DWORD dwExStyle = 0, 
       CCreateContext* pContext = NULL  
+   );
+   virtual BOOL OnCmdMsg(
+      UINT nID,
+      int nCode,
+      void* pExtra,
+      AFX_CMDHANDLERINFO* pHandlerInfo
    );
    virtual void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {}
    virtual void OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags) {}
@@ -4068,6 +4046,7 @@ class CScrollBar : public CWnd
    DECLARE_DYNAMIC(CScrollBar)
    // Qt interfaces
 public:
+   virtual void subclassWidget(int nID,CWnd* widget);
    int sliderPosition() const { return _qtd->sliderPosition(); }
    void setMinimum(int minimum) { _qtd->setMinimum(minimum); }
    void setMaximum(int maximum) { _qtd->setMaximum(maximum); }
@@ -4122,11 +4101,10 @@ class CEdit : public CWnd
    DECLARE_DYNAMIC(CEdit)
    // Qt interfaces
 public:
-   void setText(QString text) { if ( _dwStyle&ES_MULTILINE ) _qtd_ptedit->setPlainText(text); else _qtd_ledit->setText(text); }
+   virtual void subclassWidget(int nID,CWnd* widget);
 protected:
    QPlainTextEdit* _qtd_ptedit;
    QLineEdit* _qtd_ledit;
-   DWORD _dwStyle;
 signals:
    void textChanged();
    void textChanged(QString str);
@@ -4208,6 +4186,9 @@ class CButton : public CWnd
    Q_OBJECT
    DECLARE_DYNAMIC(CButton)
    // Qt interfaces
+public:
+   virtual void subclassWidget(int nID,CWnd* widget);
+      
 protected:
    QAbstractButton* _qtd;
    QPushButton* _qtd_push;
@@ -4267,6 +4248,8 @@ class CBitmapButton : public CButton
    Q_OBJECT
    DECLARE_DYNAMIC(CBitmapButton)
    // Qt interfaces
+public:
+   virtual void subclassWidget(int nID,CWnd* widget);
 protected:
    QToolButton* _qtd;
 signals:
@@ -4290,6 +4273,8 @@ class CSliderCtrl : public CWnd
    Q_OBJECT
    DECLARE_DYNAMIC(CSliderCtrl)
    // Qt interfaces
+public:
+   virtual void subclassWidget(int nID,CWnd* widget);
 protected:
    QSlider* _qtd;
 signals:
@@ -4351,6 +4336,7 @@ class CProgressCtrl : public CWnd
    DECLARE_DYNAMIC(CProgressCtrl)
    // Qt interfaces
 public:
+   virtual void subclassWidget(int nID,CWnd* widget);
    void setOrientation(Qt::Orientation orient) { _qtd->setOrientation(orient); }
    void setInvertedAppearance(bool inverted) { _qtd->setInvertedAppearance(inverted); }
 protected:
@@ -4370,21 +4356,13 @@ public:
    int GetPos( ) const;
 };
 
-#define UDS_WRAP     1
-#define UDS_SETBUDDYINT      2
-#define UDS_ALIGNRIGHT       4
-#define UDS_ALIGNLEFT        8
-#define UDS_AUTOBUDDY        16
-#define UDS_ARROWKEYS        32
-#define UDS_HORZ     64
-#define UDS_NOTHOUSANDS      128
-#define UDS_HOTTRACK 0x0100
-
 class CSpinButtonCtrl : public CWnd
 {
    Q_OBJECT
    DECLARE_DYNAMIC(CSpinButtonCtrl)
    // Qt interfaces
+public:
+   virtual void subclassWidget(int nID,CWnd* widget);
 protected:
 //   QSpinBox_MFC* _qtd;
    QSpinBox* _qtd;
@@ -4443,6 +4421,7 @@ class CComboBox : public CWnd
    DECLARE_DYNAMIC(CComboBox)
    // Qt interfaces
 public:
+   virtual void subclassWidget(int nID,CWnd* widget);
 protected:
    QComboBox* _qtd;
 signals:
@@ -4515,6 +4494,7 @@ class CStatic : public CWnd
    DECLARE_DYNAMIC(CStatic)
    // Qt interfaces
 public:
+   virtual void subclassWidget(int nID,CWnd* widget);
    void setText(const QString & text) { _qtd->setText(text); }
 protected:
    QLabel* _qtd;
@@ -4561,6 +4541,8 @@ class CGroupBox : public CWnd
    Q_OBJECT
    DECLARE_DYNAMIC(CGroupBox)
    // Qt interfaces
+public:
+   virtual void subclassWidget(int nID,CWnd* widget);
 protected:
    QGroupBox* _qtd;
 signals:
@@ -4608,6 +4590,7 @@ class CTabCtrl : public CWnd
    DECLARE_DYNAMIC(CTabCtrl)
    // Qt interfaces
 public:
+   virtual void subclassWidget(int nID,CWnd* widget);
 protected:
    QTabWidget* _qtd;
 signals:
@@ -4659,10 +4642,6 @@ typedef struct tagLVFINDINFO {
   UINT vkDirection;
 } LVFINDINFO, FAR* LPFINDINFO;
 
-#define LVSIL_NORMAL 0
-#define LVSIL_SMALL  1
-#define LVSIL_STATE  2
-
 class CImageList;
 
 class CListCtrl : public CWnd
@@ -4671,11 +4650,11 @@ class CListCtrl : public CWnd
    DECLARE_DYNAMIC(CListCtrl)
    // Qt interfaces
 public:
+   virtual void subclassWidget(int nID,CWnd* widget);
    QModelIndex currentIndex () const;
 protected:
    QTableWidget* _qtd_table;
    QListWidget* _qtd_list;
-   DWORD _dwStyle;
 signals:
    void itemSelectionChanged();
    void cellClicked(int row, int column);
@@ -4807,6 +4786,7 @@ class CListBox : public CWnd
    DECLARE_DYNAMIC(CListBox)
    // Qt interfaces
 public:
+   virtual void subclassWidget(int nID,CWnd* widget);
    void setSelectionMode(QAbstractItemView::SelectionMode mode) { _qtd->setSelectionMode(mode); }
    void setSelectionBehavior(QAbstractItemView::SelectionBehavior behavior) { _qtd->setSelectionBehavior(behavior); }
    QScrollBar* verticalScrollBar() const { return _qtd->verticalScrollBar(); }
@@ -4839,6 +4819,9 @@ public:
 class CCheckListBox : public CListBox
 {
    DECLARE_DYNAMIC(CCheckListBox)
+   // Qt interfaces
+public:
+   virtual void subclassWidget(int nID,CWnd* widget);
    // MFC interfaces
 public:
    CCheckListBox(CWnd* parent = 0);
@@ -4863,6 +4846,7 @@ class CTreeCtrl : public CWnd
    DECLARE_DYNAMIC(CTreeCtrl)
    // Qt interfaces
 public:
+   virtual void subclassWidget(int nID,CWnd* widget);
    void setSelectionMode(QAbstractItemView::SelectionMode mode) { _qtd->setSelectionMode(mode); }
    void setSelectionBehavior(QAbstractItemView::SelectionBehavior behavior) { _qtd->setSelectionBehavior(behavior); }
    QScrollBar* verticalScrollBar() const { return _qtd->verticalScrollBar(); }
@@ -5176,27 +5160,6 @@ public:
    virtual BOOL IsVisible() const;
 };
 
-#define TBSTYLE_BUTTON       0
-#define TBSTYLE_SEP  1
-#define TBSTYLE_CHECK        2
-#define TBSTYLE_GROUP        4
-#define TBSTYLE_CHECKGROUP   (TBSTYLE_GROUP|TBSTYLE_CHECK)
-#define TBSTYLE_DROPDOWN     8
-#define TBSTYLE_AUTOSIZE     16
-#define TBSTYLE_NOPREFIX     32
-#define TBSTYLE_TOOLTIPS     256
-#define TBSTYLE_WRAPABLE     512
-#define TBSTYLE_ALTDRAG      1024
-#define TBSTYLE_FLAT 2048
-#define TBSTYLE_LIST 4096
-#define TBSTYLE_CUSTOMERASE 8192
-#define TBSTYLE_REGISTERDROP 0x4000
-#define TBSTYLE_TRANSPARENT  0x8000
-#define TBSTYLE_EX_DRAWDDARROWS      0x00000001
-#define TBSTYLE_EX_MIXEDBUTTONS 8
-#define TBSTYLE_EX_HIDECLIPPEDBUTTONS 16
-#define TBSTYLE_EX_DOUBLEBUFFER      0x80
-
 typedef struct {
   UINT     cbSize;
   UINT     fMask;
@@ -5226,39 +5189,6 @@ typedef struct {
 #endif
 } REBARBANDINFO, *LPREBARBANDINFO;
 
-#define RBS_TOOLTIPS 256
-#define RBS_VARHEIGHT 512
-#define RBS_BANDBORDERS 1024
-#define RBS_FIXEDORDER 2048
-#define RBS_REGISTERDROP 4096
-#define RBS_AUTOSIZE 8192
-#define RBS_VERTICALGRIPPER 16384
-#define RBS_DBLCLKTOGGLE  32768
-#define RBBS_BREAK   0x0001
-#define RBBS_FIXEDSIZE       0x0002
-#define RBBS_CHILDEDGE       0x0004
-#define RBBS_HIDDEN  0x0008
-#define RBBS_NOVERT  0x0010
-#define RBBS_FIXEDBMP        0x0020
-#define RBBS_VARIABLEHEIGHT  0x0040
-#define RBBS_GRIPPERALWAYS   0x0080
-#define RBBS_NOGRIPPER       0x0100
-#define RBBS_USECHEVRON      0x0200
-#define RBBS_HIDETITLE       0x0400
-#define RBBS_TOPALIGN        0x0800
-#define RBBIM_STYLE 1
-#define RBBIM_COLORS 2
-#define RBBIM_TEXT 4
-#define RBBIM_IMAGE 8
-#define RBBIM_CHILD 16
-#define RBBIM_CHILDSIZE 32
-#define RBBIM_SIZE 64
-#define RBBIM_BACKGROUND 128
-#define RBBIM_ID 256
-#define RBBIM_IDEALSIZE 512
-#define RBBIM_LPARAM 1024
-#define RBBIM_HEADERSIZE 2048
-
 class CReBar;
 
 class CReBarCtrl : public CWnd
@@ -5266,9 +5196,10 @@ class CReBarCtrl : public CWnd
    Q_OBJECT
    DECLARE_DYNAMIC(CReBarCtrl)
    // Qt interfaces
+public:
+   virtual void subclassWidget(int nID,CWnd* widget);
 protected:
    QToolBar* _qtd;
-   UINT _dwStyle;
 public slots:
    void toolBarAction_triggered();
 signals:
@@ -5323,11 +5254,11 @@ class CToolBar : public CControlBar
    DECLARE_DYNAMIC(CToolBar)
    // Qt interfaces
 public:
+   virtual void subclassWidget(int nID,CWnd* widget);
    QList<QObject*>* toolBarActions() { return &_toolBarActions; }
 protected:
    QToolBar* _qtd;
    QList<QObject*> _toolBarActions;
-   UINT _dwStyle;
 public slots:
    void toolBarAction_triggered();
    void menu_aboutToShow();
@@ -5401,7 +5332,6 @@ class CStatusBar : public CControlBar
    // Qt interfaces
 protected:
    QHash<int,CStatic*> _panes;
-   UINT _dwStyle;
 
    // MFC interfaces
 public:
@@ -5443,6 +5373,8 @@ class CToolTipCtrl : public CWnd
 {
    DECLARE_DYNAMIC(CToolTipCtrl)
    // Qt interfaces
+public:
+   virtual void subclassWidget(int nID, CWnd *widget);
 protected:
    QToolTip* _qtd;
    QList<CWnd*> _tippers;

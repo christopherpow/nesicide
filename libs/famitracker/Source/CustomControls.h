@@ -27,6 +27,8 @@ class CMainFrame;
 // The instrument list
 class CInstrumentList : public CListCtrl {
    Q_OBJECT
+protected:
+   void contextMenuEvent(QContextMenuEvent *event);
 public:
 	DECLARE_DYNAMIC(CInstrumentList)
 protected:
@@ -48,8 +50,6 @@ protected:
    void mouseDoubleClickEvent(QMouseEvent *event);
    void focusInEvent(QFocusEvent *);
    void focusOutEvent(QFocusEvent *);   
-public slots:
-   bool eventFilter(QObject *object, QEvent *event);
 public:
 	DECLARE_DYNAMIC(CLockedEdit)
 protected:
@@ -81,8 +81,6 @@ protected:
    void paintEvent(QPaintEvent *event);
    void focusInEvent(QFocusEvent *);
    void focusOutEvent(QFocusEvent *);   
-public slots:
-   bool eventFilter(QObject *object, QEvent *event);
 public:
 	DECLARE_DYNAMIC(CBannerEdit)
 protected:

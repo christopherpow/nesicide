@@ -47,8 +47,6 @@ protected:
    void hideEvent(QHideEvent *);
    void resizeEvent(QResizeEvent *event);
    void timerEvent(QTimerEvent *event);
-public:
-   void menuAction_triggered(int id);
 private:
    QTimer* idleTimer;
    CFamiTrackerDoc* m_pDocument;
@@ -388,6 +386,7 @@ public slots:
    void keyStepSpin_valueChanged(int arg1, int arg2);
    void keyRepeat_clicked();
    void menuAboutToShow(CMenu* menu);
+   void menuAction_triggered(int id);
    
 signals:
    void addToolBarWidget(QToolBar* toolBar);
