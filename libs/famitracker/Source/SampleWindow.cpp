@@ -163,8 +163,8 @@ void CSampleWindow::OnRButtonUp(UINT nFlags, CPoint point)
 
 void CSampleWindow::paintEvent(QPaintEvent *)
 {
-// CP: OnPaint passes true insteaad of false.  Not sure why it matters.
-//   OnPaint(); 
+// CP: OnPaint passes true insteaad of false, since the painting
+// is apparently done outside of OnPaint.  We'll cheat.
    CDC dc(this);
    m_pStates[m_iCurrentState]->Draw(&dc, false);
 }

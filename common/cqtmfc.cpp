@@ -3954,7 +3954,7 @@ int CListCtrl::InsertItem(
 #if UNICODE
       twi->setText(QString::fromWCharArray(lpszItem));
 #else
-      twi->setText(lpszItem);
+      twi->setText(QString::fromLatin1(lpszItem));
 #endif
 
       _qtd_table->blockSignals(true);
@@ -3972,7 +3972,7 @@ int CListCtrl::InsertItem(
 #if UNICODE
       lwi->setText(QString::fromWCharArray(lpszItem));
 #else
-      lwi->setText(lpszItem);
+      lwi->setText(QString::fromLatin1(lpszItem));
 #endif
 
       _qtd_list->blockSignals(true);
@@ -4104,7 +4104,7 @@ BOOL CListCtrl::GetCheck(
    {
       twi = _qtd_table->item(nItem,0);
 
-      if ( !twi )
+      if ( twi )
       {
          return twi->checkState()==Qt::Checked;
       }
@@ -4113,7 +4113,7 @@ BOOL CListCtrl::GetCheck(
    {
       lwi = _qtd_list->item(nItem);
 
-      if ( !lwi )
+      if ( lwi )
       {
          return lwi->checkState()==Qt::Checked;
       }
