@@ -8,6 +8,7 @@ Bugs/things to work on:
 5. Implement CEdit/CSpinButtonCtrl solution that ties in better with Qt widgets.
 6. Support non-numeric spin-controls for CreateWave dialog.
 7. Figure out why CreateWave dialog's subclassed CListBox isn't subclassing properly.
+8. Module importing doesn't work properly.
 
 **90%** 2. Finish implementing configuration dialogs.
 
