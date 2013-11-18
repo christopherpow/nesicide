@@ -1252,7 +1252,7 @@ void qtMfcInitDialogResource_IDD_SPEED(CDialog* parent1)
    CSliderCtrl* mfc3 = new CSliderCtrl(parent);
    CRect r3(CPoint(7,7),CSize(101,16));
    parent->MapDialogRect(&r3);
-   mfc3->setGeometry(r3);
+   mfc3->Create(WS_TABSTOP | WS_VISIBLE,r3,parent,IDC_SPEED_SLD);
    mfcToQtWidget->insert(IDC_SPEED_SLD,mfc3);
    QObject::connect(mfc3,SIGNAL(valueChanged(int)),parent,SLOT(speedSld_valueChanged(int)));
 //       LTEXT           "60 Hz",IDC_SPEED,112,11,26,12
@@ -1294,7 +1294,7 @@ void qtMfcInitDialogResource_IDD_PCMIMPORT(CDialog* parent1)
    CSliderCtrl* mfc3 = new CSliderCtrl(parent);
    CRect r3(CPoint(30,19),CSize(90,15));
    parent->MapDialogRect(&r3);
-   mfc3->setGeometry(r3);
+   mfc3->Create(TBS_AUTOTICKS | WS_TABSTOP | WS_VISIBLE,r3,parent,IDC_QUALITY);
    mfcToQtWidget->insert(IDC_QUALITY,mfc3);
    QObject::connect(mfc3,SIGNAL(valueChanged(int)),parent,SLOT(quality_valueChanged(int)));
 //   LTEXT           "High",IDC_STATIC,123,21,16,10
@@ -1317,7 +1317,7 @@ void qtMfcInitDialogResource_IDD_PCMIMPORT(CDialog* parent1)
    CSliderCtrl* mfc7 = new CSliderCtrl(parent);
    CRect r7(CPoint(30,59),CSize(90,15));
    parent->MapDialogRect(&r7);
-   mfc7->setGeometry(r7);
+   mfc7->Create(TBS_AUTOTICKS | WS_TABSTOP | WS_VISIBLE,r7,parent,IDC_VOLUME);
    mfcToQtWidget->insert(IDC_VOLUME,mfc7);
    QObject::connect(mfc7,SIGNAL(valueChanged(int)),parent,SLOT(volume_valueChanged(int)));
 //   LTEXT           "High",IDC_STATIC,123,61,16,10
@@ -1628,7 +1628,7 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT(CDialog* parent1)
    CTabCtrl* mfc1 = new CTabCtrl(parent);
    CRect r1(CPoint(7,7),CSize(375,185));
    parent->MapDialogRect(&r1);
-   mfc1->setGeometry(r1);
+   mfc1->Create(WS_VISIBLE,r1,parent,IDC_INST_TAB);
    mfcToQtWidget->insert(IDC_INST_TAB,mfc1);
    QObject::connect(mfc1,SIGNAL(currentChanged(int)),parent,SLOT(instTab_currentChanged(int)));
 //   CONTROL         "",IDC_KEYBOARD,"Static",SS_OWNERDRAW | SS_REALSIZEIMAGE | SS_SUNKEN,7,198,375,37
@@ -2136,7 +2136,7 @@ void qtMfcInitDialogResource_IDD_PROPERTIES(CDialog* parent1)
    CSliderCtrl* mfc18 = new CSliderCtrl(parent);
    CRect r18(CPoint(147,173),CSize(51,13));
    parent->MapDialogRect(&r18);
-   mfc18->setGeometry(r18);
+   mfc18->Create(TBS_AUTOTICKS | WS_TABSTOP | WS_VISIBLE,r18,parent,IDC_CHANNELS);
    mfcToQtWidget->insert(IDC_CHANNELS,mfc18);
    QObject::connect(mfc18,SIGNAL(valueChanged(int)),parent,SLOT(channels_valueChanged(int)));
 //   END
@@ -3320,7 +3320,7 @@ void qtMfcInitDialogResource_IDD_SAMPLE_EDITOR(CDialog* parent1)
    CSliderCtrl* mfc7 = new CSliderCtrl(parent);
    CRect r7(CPoint(143,236),CSize(79,12));
    parent->MapDialogRect(&r7);
-   mfc7->setGeometry(r7);
+   mfc7->Create(TBS_AUTOTICKS | WS_TABSTOP | WS_VISIBLE,r7,parent,IDC_PITCH);
    mfcToQtWidget->insert(IDC_PITCH,mfc7);
 //   PUSHBUTTON      "Tilt",IDC_TILT,292,234,50,14
    CButton* mfc8 = new CButton(parent);

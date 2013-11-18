@@ -4346,6 +4346,12 @@ protected:
 public:
    CProgressCtrl(CWnd* parent = 0);
    virtual ~CProgressCtrl();
+   virtual BOOL Create( 
+      DWORD dwStyle, 
+      const RECT& rect, 
+      CWnd* pParentWnd, 
+      UINT nID  
+   );
    void SetRange(
       short nLower,
       short nUpper
@@ -4600,6 +4606,12 @@ signals:
 public:
    CTabCtrl(CWnd* parent = 0);
    virtual ~CTabCtrl();
+   virtual BOOL Create( 
+     DWORD dwStyle, 
+     const RECT& rect, 
+     CWnd* pParentWnd, 
+     UINT nID  
+   );
    LONG InsertItem(
      int nItem,
      LPCTSTR lpszItem
@@ -5270,6 +5282,11 @@ signals:
 public:
    CToolBar(CWnd* parent = 0);
    virtual ~CToolBar();
+   virtual BOOL Create( 
+      CWnd* pParentWnd, 
+      DWORD dwStyle = WS_CHILD |   WS_VISIBLE | CBRS_TOP, 
+      UINT nID = AFX_IDW_TOOLBAR  
+   );
    virtual BOOL CreateEx(
       CWnd* pParentWnd,
       DWORD dwCtrlStyle = TBSTYLE_FLAT,

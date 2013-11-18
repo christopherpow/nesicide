@@ -3124,7 +3124,9 @@ CComboBox::~CComboBox()
 
 void CComboBox::subclassWidget(int nID,CWnd* widget)
 {
-   _qtd = dynamic_cast<QComboBox*>(widget->toQWidget());
+   CRect rect;
+   widget->GetWindowRect(&rect);
+   Create(widget->GetStyle(),rect,widget->GetParent(),nID);
    _qt->installEventFilter(dynamic_cast<CComboBox*>(this));
 }
 
@@ -4540,7 +4542,9 @@ CTreeCtrl::~CTreeCtrl()
 
 void CTreeCtrl::subclassWidget(int nID,CWnd* widget)
 {
-   _qtd = dynamic_cast<QTreeWidget*>(widget->toQWidget());
+   CRect rect;
+   widget->GetWindowRect(&rect);
+   Create(widget->GetStyle(),rect,widget->GetParent(),nID);
    _qt->installEventFilter(dynamic_cast<CTreeCtrl*>(this));
 }
 
@@ -4813,7 +4817,9 @@ CScrollBar::~CScrollBar()
 
 void CScrollBar::subclassWidget(int nID,CWnd* widget)
 {
-   _qtd = dynamic_cast<QScrollBar*>(widget->toQWidget());
+   CRect rect;
+   widget->GetWindowRect(&rect);
+   Create(widget->GetStyle(),rect,widget->GetParent(),nID);
    _qt->installEventFilter(dynamic_cast<CScrollBar*>(this));
 }
 
@@ -6236,7 +6242,9 @@ IMPLEMENT_DYNAMIC(CReBarCtrl,CWnd)
 
 void CReBarCtrl::subclassWidget(int nID,CWnd* widget)
 {
-   _qtd = dynamic_cast<QToolBar*>(widget->toQWidget());
+   CRect rect;
+   widget->GetWindowRect(&rect);
+   Create(widget->GetStyle(),rect,widget->GetParent(),nID);
    _qt->installEventFilter(dynamic_cast<CReBarCtrl*>(this));
 }
 
@@ -6375,8 +6383,17 @@ CToolBar::~CToolBar()
 
 void CToolBar::subclassWidget(int nID,CWnd* widget)
 {
-   _qtd = dynamic_cast<QToolBar*>(widget->toQWidget());
+   Create(widget->GetParent(),widget->GetStyle(),nID);
    _qt->installEventFilter(dynamic_cast<CToolBar*>(this));
+}
+
+BOOL CToolBar::Create( 
+   CWnd* pParentWnd, 
+   DWORD dwStyle, 
+   UINT nID
+)
+{
+   return CreateEx(pParentWnd,TBSTYLE_FLAT,dwStyle,CRect(0,0,0,0),nID);
 }
 
 BOOL CToolBar::CreateEx(
@@ -8310,20 +8327,6 @@ IMPLEMENT_DYNAMIC(CTabCtrl,CWnd)
 CTabCtrl::CTabCtrl(CWnd* parent)
    : CWnd(parent)
 {
-   if ( _qt )
-      delete _qt;
-
-   _grid = NULL;
-
-   _qt = new QTabWidget(parent->toQWidget());
-
-   // Downcast to save having to do it all over the place...
-   _qtd = dynamic_cast<QTabWidget*>(_qt);
-
-   _qtd->setMouseTracking(true);
-
-   // Pass-through signals
-   QObject::connect(_qtd,SIGNAL(currentChanged(int)),this,SIGNAL(currentChanged(int)));
 }
 
 CTabCtrl::~CTabCtrl()
@@ -8336,8 +8339,37 @@ CTabCtrl::~CTabCtrl()
 
 void CTabCtrl::subclassWidget(int nID,CWnd* widget)
 {
-   _qtd = dynamic_cast<QTabWidget*>(widget->toQWidget());
+   CRect rect;
+   widget->GetWindowRect(&rect);
+   Create(widget->GetStyle(),rect,widget->GetParent(),nID);
    _qt->installEventFilter(dynamic_cast<CTabCtrl*>(this));
+}
+
+BOOL CTabCtrl::Create( 
+  DWORD dwStyle, 
+  const RECT& rect, 
+  CWnd* pParentWnd, 
+  UINT nID  
+)
+{
+   if ( _qt )
+      delete _qt;
+
+   _grid = NULL;
+
+   if ( pParentWnd )
+      _qt = new QTabWidget(pParentWnd->toQWidget());
+   else
+      _qt = new QTabWidget();
+
+   // Downcast to save having to do it all over the place...
+   _qtd = dynamic_cast<QTabWidget*>(_qt);
+
+   _qtd->setMouseTracking(true);
+   _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
+
+   // Pass-through signals
+   QObject::connect(_qtd,SIGNAL(currentChanged(int)),this,SIGNAL(currentChanged(int)));
 }
 
 LONG CTabCtrl::InsertItem(
@@ -8794,25 +8826,12 @@ CButton::~CButton()
 
 void CButton::subclassWidget(int nID,CWnd* widget)
 {
-   DWORD buttonType = _dwStyle&0x000F;
-   if ( buttonType == BS_AUTOCHECKBOX )
-   {
-      _qtd_check = dynamic_cast<QCheckBox*>(_qt);
-   }
-   else if ( buttonType == BS_AUTO3STATE )
-   {
-      _qtd_check = dynamic_cast<QCheckBox*>(_qt);
-   }
-   else if ( buttonType == BS_AUTORADIOBUTTON )
-   {
-      _qtd_radio = dynamic_cast<QRadioButton*>(_qt);
-   }
-   else if ( (buttonType == BS_PUSHBUTTON) ||
-             (buttonType == BS_DEFPUSHBUTTON) )
-   {
-      _qtd_push = dynamic_cast<QPushButton*>(_qt);
-   }
-   _qt->installEventFilter(dynamic_cast<CStatic*>(this));
+   CRect rect;
+   widget->GetWindowRect(&rect);
+   CString text;
+   widget->GetWindowText(text);
+   Create(text,widget->GetStyle(),rect,widget->GetParent(),nID);
+   _qt->installEventFilter(dynamic_cast<CButton*>(this));
 }
 
 BOOL CButton::Create(
@@ -8984,7 +9003,12 @@ CBitmapButton::~CBitmapButton()
 
 void CBitmapButton::subclassWidget(int nID,CWnd* widget)
 {
-   CButton::subclassWidget(nID,widget);
+   CRect rect;
+   widget->GetWindowRect(&rect);
+   CString text;
+   widget->GetWindowText(text);
+   Create(text,widget->GetStyle(),rect,widget->GetParent(),nID);
+   _qt->installEventFilter(dynamic_cast<CBitmapButton*>(this));
 }
 
 BOOL CBitmapButton::Create(
@@ -9045,7 +9069,9 @@ CSpinButtonCtrl::~CSpinButtonCtrl()
 
 void CSpinButtonCtrl::subclassWidget(int nID,CWnd* widget)
 {
-   _qtd = dynamic_cast<QSpinBox*>(widget->toQWidget());
+   CRect rect;
+   widget->GetWindowRect(&rect);
+   Create(widget->GetStyle(),rect,widget->GetParent(),nID);
    _qt->installEventFilter(dynamic_cast<CSpinButtonCtrl*>(this));
 }
 
@@ -9217,7 +9243,9 @@ CSliderCtrl::~CSliderCtrl()
 
 void CSliderCtrl::subclassWidget(int nID,CWnd* widget)
 {
-   _qtd = dynamic_cast<QSlider*>(widget->toQWidget());
+   CRect rect;
+   widget->GetWindowRect(&rect);
+   Create(widget->GetStyle(),rect,widget->GetParent(),nID);
    _qt->installEventFilter(dynamic_cast<CSliderCtrl*>(this));
 }
 
@@ -9362,21 +9390,6 @@ IMPLEMENT_DYNAMIC(CProgressCtrl,CWnd)
 CProgressCtrl::CProgressCtrl(CWnd* parent)
    : CWnd(parent)
 {
-   if ( _qt )
-      delete _qt;
-
-   _grid = NULL;
-
-   _qt = new QProgressBar(parent->toQWidget());
-
-   // Downcast to save having to do it all over the place...
-   _qtd = dynamic_cast<QProgressBar*>(_qt);
-
-   // Not sure if there's vertical sliders in MFC...
-   _qtd->setOrientation(Qt::Horizontal);
-   _qtd->setMouseTracking(true);
-
-   // Pass-through signals
 }
 
 CProgressCtrl::~CProgressCtrl()
@@ -9389,8 +9402,37 @@ CProgressCtrl::~CProgressCtrl()
 
 void CProgressCtrl::subclassWidget(int nID,CWnd* widget)
 {
-   _qtd = dynamic_cast<QProgressBar*>(widget->toQWidget());
+   CRect rect;
+   widget->GetWindowRect(&rect);
+   Create(widget->GetStyle(),rect,widget->GetParent(),nID);
    _qt->installEventFilter(dynamic_cast<CProgressCtrl*>(this));
+}
+
+BOOL CProgressCtrl::Create( 
+   DWORD dwStyle, 
+   const RECT& rect, 
+   CWnd* pParentWnd, 
+   UINT nID  
+)
+{
+   if ( _qt )
+      delete _qt;
+
+   _grid = NULL;
+
+   if ( pParentWnd )
+      _qt = new QProgressBar(pParentWnd->toQWidget());
+   else
+      _qt = new QProgressBar();
+
+   // Downcast to save having to do it all over the place...
+   _qtd = dynamic_cast<QProgressBar*>(_qt);
+
+   // Not sure if there's vertical sliders in MFC...
+   _qtd->setOrientation(Qt::Horizontal);
+   _qtd->setMouseTracking(true);
+
+   // Pass-through signals
 }
 
 void CProgressCtrl::SetRange(
@@ -9435,6 +9477,7 @@ CStatic::CStatic(CWnd *parent)
    // Downcast to save having to do it all over the place...
    _qtd = dynamic_cast<QLabel*>(_qt);
    _qtd->setMouseTracking(true);
+   _qtd->installEventFilter(this);
 }
 
 CStatic::~CStatic()
@@ -9447,7 +9490,11 @@ CStatic::~CStatic()
 
 void CStatic::subclassWidget(int nID,CWnd* widget)
 {
-   _qtd = dynamic_cast<QLabel*>(widget->toQWidget());
+   CRect rect;
+   widget->GetWindowRect(&rect);
+   CString text;
+   widget->GetWindowText(text);
+   Create(text,widget->GetStyle(),rect,widget->GetParent(),nID);
    _qt->installEventFilter(dynamic_cast<CStatic*>(this));
 }
 
@@ -9561,7 +9608,11 @@ CGroupBox::~CGroupBox()
 
 void CGroupBox::subclassWidget(int nID,CWnd* widget)
 {
-   _qtd = dynamic_cast<QGroupBox*>(widget->toQWidget());
+   CRect rect;
+   widget->GetWindowRect(&rect);
+   CString text;
+   widget->GetWindowText(text);
+   Create(text,widget->GetStyle(),rect,widget->GetParent(),nID);
    _qt->installEventFilter(dynamic_cast<CGroupBox*>(this));
 }
 
@@ -10312,6 +10363,7 @@ CPropertyPage::CPropertyPage(
    _inited = false;
 
    _qtd->setMouseTracking(true);
+   _qtd->installEventFilter(this);
 
    // Pass-through signals
 }
@@ -10346,7 +10398,7 @@ CToolTipCtrl::CToolTipCtrl( )
 
 void CToolTipCtrl::subclassWidget(int nID,CWnd* widget)
 {
-   _qtd = dynamic_cast<QToolTip*>(widget->toQWidget());
+   Create(widget->GetParent(),widget->GetStyle());
    _qt->installEventFilter(dynamic_cast<CToolTipCtrl*>(this));
 }
 
