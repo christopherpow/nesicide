@@ -8,8 +8,9 @@ Bugs/things to work on:
 5. Implement CEdit/CSpinButtonCtrl solution that ties in better with Qt widgets.
 6. Support non-numeric spin-controls for CreateWave dialog.
 7. Figure out why CreateWave dialog's subclassed CListBox isn't subclassing properly.
-8. Module importing doesn't work properly.
+**DONE** 8. Module importing doesn't work properly.
 
+Features/things to get to DONE:
 **90%** 2. Finish implementing configuration dialogs.
 
 **80%** 4. Finish implementation of accelerator keys.
@@ -23,7 +24,7 @@ Bugs/things to work on:
 
 9. Test, test, test...
 
-10. Port 0.4.2 functionality.
+10. Port 0.4.3 functionality.
 
 NESICIDE TO-DO LIST:
 
