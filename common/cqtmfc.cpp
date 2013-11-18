@@ -6549,13 +6549,9 @@ BOOL CStatusBar::SetIndicators(
    for ( pane = 0; pane < nIDCount; pane++ )
    {
       CStatic* newPane = new CStatic;
+      newPane->Create(qtMfcStringResource(lpIDArray[pane]),WS_VISIBLE,CRect(0,0,0,0),NULL,lpIDArray[pane]);
       _panes.insert(pane,newPane);
-      CString lpszText = qtMfcStringResource(lpIDArray[pane]);
-#if UNICODE
-      ((QLabel*)newPane->toQWidget())->setText(QString::fromWCharArray(lpszText));
-#else
-      ((QLabel*)newPane->toQWidget())->setText(QString::fromLatin1(lpszText));
-#endif
+
       if ( lpIDArray[pane] != ID_SEPARATOR )
       {
          mfcToQtWidget.insert(lpIDArray[pane],newPane);
@@ -9467,20 +9463,6 @@ IMPLEMENT_DYNAMIC(CStatic,CWnd)
 CStatic::CStatic(CWnd *parent)
    : CWnd(parent)
 {
-   if ( _qt )
-      delete _qt;
-
-   _grid = NULL;
-
-   if ( parent )
-      _qt = new QLabel(parent->toQWidget());
-   else
-      _qt = new QLabel;
-
-   // Downcast to save having to do it all over the place...
-   _qtd = dynamic_cast<QLabel*>(_qt);
-   _qtd->setMouseTracking(true);
-   _qtd->installEventFilter(this);
 }
 
 CStatic::~CStatic()
@@ -9512,8 +9494,20 @@ BOOL CStatic::Create(
    m_hWnd = (HWND)this;
    _id = nID;
 
+   if ( _qt )
+      delete _qt;
+
+   _grid = NULL;
+
+   if ( pParentWnd )
+      _qt = new QLabel(pParentWnd->toQWidget());
+   else
+      _qt = new QLabel;
+
+   // Downcast to save having to do it all over the place...
+   _qtd = dynamic_cast<QLabel*>(_qt);
+   _qtd->setMouseTracking(true);
    _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
-   _qtd->setVisible(dwStyle&WS_VISIBLE);
 
 #if UNICODE
    _qtd->setText(QString::fromWCharArray(lpszText));
