@@ -4368,7 +4368,7 @@ BOOL CListCtrl::DeleteAllItems()
    if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
    {
       _qtd_table->blockSignals(true);
-      _qtd_table->clear();
+      _qtd_table->clearContents();
       for ( row = _qtd_table->rowCount(); row > 0; row-- )
          _qtd_table->removeRow(row-1);
       _qtd_table->blockSignals(false);
