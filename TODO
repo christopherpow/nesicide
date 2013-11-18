@@ -1,30 +1,20 @@
 FamiTracker Qt BURN-DOWN LIST:
 
-**DONE** 1. Implement following APIs for OSX compatibility:
-FreeLibrary 
-GetClassName 
-GetCursorPos 
-GetFileAttributes
-GetKeyNameText
-GetProcAddress 
-GetWindowLong 
-LoadLibrary
-RegisterClipboardFormat
-SetCursor
-(most of these are for supporting custom file exporters)
+Bugs/things to work on:
+1. FrameEditor accelerator keys need handling (PreTranslate...)
+2. MFC message map implement proper handlers.
+3. Paint event handling for subclassed widgets needs to support paint-over of standard widgets.
+4. TrackPopupMenu needs to hook into #2 so that pattern-editor menu actions go up the proper chain and get handled.
+5. Implement CEdit/CSpinButtonCtrl solution that ties in better with Qt widgets.
+6. Support non-numeric spin-controls for CreateWave dialog.
+7. Figure out why CreateWave dialog's subclassed CListBox isn't subclassing properly.
+**DONE** 8. Module importing doesn't work properly.
 
-**60%** 2. Finish implementing configuration dialogs.
-   a. Flesh out implementations of CPropertyPage, CPropertySheet.
-   b. Implement Audio settings.
-
-**DONE** 3. Finish implementation of CMenu.
-   a. Finish support for sub-menus.
-   b. Implement hooks to UI for triggers and updates.
+Features/things to get to DONE:
+**90%** 2. Finish implementing configuration dialogs.
 
 **80%** 4. Finish implementation of accelerator keys.
    a. Implement hooks to UI for triggers.
-
-**DONE** 5. Implement triggers for status bar updates.
 
 **60%** 6. Finish implementation of custom controls [instrument list!]
 
@@ -32,12 +22,9 @@ SetCursor
    a. Find out how to do it OSX-ish or Linux-ish.
    b. Consider leaving MIDI a "Windows only feature" for now.
 
-**DONE** 8. FontDrawer.cpp?  DialogReBar.cpp?  Exception.cpp?
-   a. Might not need these or at least not entirely.  Figure this out.
-
 9. Test, test, test...
 
-10. Port 0.4.2 functionality.
+10. Port 0.4.3 functionality.
 
 NESICIDE TO-DO LIST:
 
