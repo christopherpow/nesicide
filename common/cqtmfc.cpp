@@ -1523,7 +1523,7 @@ void CString::FormatV(LPCTSTR fmt, va_list ap)
 #else
    vsprintf(local,fmt,ap);
    _qstr.clear();
-   _qstr = QString(local);
+   _qstr = QString::fromLatin1(local);
 #endif
    UpdateScratch();
 }
@@ -1559,7 +1559,7 @@ void CString::AppendFormatV(LPCTSTR fmt, va_list ap)
    _qstr += QString::fromWCharArray(local);
 #else
    vsprintf(local,fmt,ap);
-   _qstr += QString(local);
+   _qstr += QString::fromLatin1(local);
 #endif
 //   _qstr.vsprintf((const char*)fmt,ap);
    UpdateScratch();
@@ -1614,7 +1614,7 @@ int CString::ReverseFind( TCHAR ch ) const
 #if UNICODE
    return _qstr.lastIndexOf(QString::fromWCharArray(&ch));
 #else
-   return _qstr.lastIndexOf(QString(ch));
+   return _qstr.lastIndexOf(ch);
 #endif
 }
 
@@ -1623,7 +1623,7 @@ int CString::Compare( LPCTSTR lpsz ) const
 #if UNICODE
    return _qstr.compare(QString::fromWCharArray(lpsz));
 #else
-   return _qstr.compare(lpsz);
+   return _qstr.compare(QString::fromLatin1(lpsz));
 #endif
 }
 
@@ -1872,7 +1872,7 @@ int CString::CompareNoCase( LPCTSTR lpsz ) const
 #if UNICODE
    return _qstr.compare(QString::fromWCharArray(lpsz),Qt::CaseInsensitive);
 #else
-   return _qstr.compare(QString(lpsz),Qt::CaseInsensitive);
+   return _qstr.compare(QString::fromLatin1(lpsz),Qt::CaseInsensitive);
 #endif
 }
 
@@ -1961,7 +1961,7 @@ CFile::CFile(
 #if UNICODE
    _qfile.setFileName(QString::fromWCharArray(lpszFileName));
 #else
-   _qfile.setFileName(lpszFileName);
+   _qfile.setFileName(QString::fromLatin1(lpszFileName));
 #endif
    if ( nOpenFlags&modeRead ) flags = QIODevice::ReadOnly;
    if ( nOpenFlags&modeWrite ) flags = QIODevice::WriteOnly;
@@ -1989,7 +1989,7 @@ BOOL CFile::Open(
 #if UNICODE
    _qfile.setFileName(QString::fromWCharArray(lpszFileName));
 #else
-   _qfile.setFileName(lpszFileName);
+   _qfile.setFileName(QString::fromLatin1(lpszFileName));
 #endif
    if ( nOpenFlags&modeRead ) flags = QIODevice::ReadOnly;
    if ( nOpenFlags&modeWrite ) flags = QIODevice::WriteOnly;
@@ -2479,7 +2479,7 @@ BOOL CFont::CreateFont(
 #if UNICODE
    _qfont.setFamily(QString::fromWCharArray(lpszFacename));
 #else
-   _qfont.setFamily(lpszFacename);
+   _qfont.setFamily(QString::fromLatin1(lpszFacename));
 #endif
 
    _qfont.setPointSize(abs(nHeight)*.75);
@@ -2497,7 +2497,7 @@ BOOL CFont::CreateFontIndirect(
 #if UNICODE
    _qfont.setFamily(QString::fromWCharArray(lpLogFont->lfFaceName));
 #else
-   _qfont.setFamily(lpLogFont->lfFaceName);
+   _qfont.setFamily(QString::fromLatin1(lpLogFont->lfFaceName));
 #endif
    _qfont.setPointSize(abs(lpLogFont->lfHeight)*.75);
    _qfont.setItalic(lpLogFont->lfItalic);
@@ -2923,7 +2923,7 @@ int CDC::DrawText(
 #if UNICODE
    QString qstr = QString::fromWCharArray((LPCTSTR)str);
 #else
-   QString qstr = (LPCTSTR)str;
+   QString qstr = QString::fromLatin1((LPCTSTR)str);
 #endif
    QPen origPen = _qpainter.pen();
    _qpainter.setPen(QPen(_textColor));
@@ -2944,7 +2944,7 @@ int CDC::DrawText(
 #if UNICODE
    QString qstr = QString::fromWCharArray(lpszString);
 #else
-   QString qstr(lpszString);
+   QString qstr = QString::fromLatin1(lpszString);
 #endif
    QPen origPen = _qpainter.pen();
    _qpainter.setPen(QPen(_textColor));
@@ -3061,7 +3061,7 @@ BOOL CDC::TextOut(
 #if UNICODE
    QString qstr = QString::fromWCharArray(lpszString);
 #else
-   QString qstr(lpszString);
+   QString qstr = QString::fromLatin1(lpszString);
 #endif
    QFontMetrics fontMetrics((QFont)*_font);
    QPen origPen = _qpainter.pen();
@@ -3188,7 +3188,7 @@ int CComboBox::AddString(
 #if UNICODE
    _qtd->addItem(QString::fromWCharArray(lpszString));
 #else
-   _qtd->addItem(lpszString);
+   _qtd->addItem(QString::fromLatin1(lpszString));
 #endif
    _qtd->blockSignals(false); // Don't cause CbnSelchange yet...
 
@@ -3256,7 +3256,7 @@ int CComboBox::SelectString(
 #if UNICODE
    QString string = QString::fromWCharArray(lpszString);
 #else
-   QString string = lpszString;
+   QString string = QString::fromLatin1(lpszString);
 #endif
    for ( item = nStartAfter; item < _qtd->count(); item++ )
    {
@@ -3919,7 +3919,7 @@ int CListCtrl::InsertColumn(
 #if UNICODE
       twi->setText(QString::fromWCharArray(lpszColumnHeading));
 #else
-      twi->setText(lpszColumnHeading);
+      twi->setText(QString::fromLatin1(lpszColumnHeading));
 #endif
 
       _qtd_table->setColumnWidth(nCol,nWidth);
@@ -3933,7 +3933,7 @@ int CListCtrl::InsertColumn(
 //#if UNICODE
 //      lwi->setText(QString::fromWCharArray(lpszColumnHeading));
 //#else
-//      lwi->setText(lpszColumnHeading);
+//      lwi->setText(QString::fromLatin1(lpszColumnHeading));
 //#endif
 
 //      _qtd_list->setColumnWidth(nCol,nWidth);
@@ -3996,7 +3996,7 @@ int CListCtrl::InsertItem(
 #if UNICODE
       twi->setText(QString::fromWCharArray(lpszItem));
 #else
-      twi->setText(lpszItem);
+      twi->setText(QString::fromLatin1(lpszItem));
 #endif
       if ( m_pImageList )
       {
@@ -4018,7 +4018,7 @@ int CListCtrl::InsertItem(
 #if UNICODE
       lwi->setText(QString::fromWCharArray(lpszItem));
 #else
-      lwi->setText(lpszItem);
+      lwi->setText(QString::fromLatin1(lpszItem));
 #endif
       if ( m_pImageList )
       {
@@ -4188,7 +4188,7 @@ BOOL CListCtrl::SetItemText(
 #if UNICODE
       twi->setText(QString::fromWCharArray(lpszText));
 #else
-      twi->setText(lpszText);
+      twi->setText(QString::fromLatin1(lpszText));
 #endif
 
       if ( add )
@@ -4207,7 +4207,7 @@ BOOL CListCtrl::SetItemText(
 #if UNICODE
       lwi->setText(QString::fromWCharArray(lpszText));
 #else
-      lwi->setText(lpszText);
+      lwi->setText(QString::fromLatin1(lpszText));
 #endif
 
       if ( add )
@@ -4273,7 +4273,7 @@ int CListCtrl::FindItem(
 #if UNICODE
       twis = _qtd_table->findItems(QString::fromWCharArray(pFindInfo->psz),flags);
 #else
-      twis = _qtd_table->findItems(pFindInfo->psz,flags);
+      twis = _qtd_table->findItems(QString::fromLatin1(pFindInfo->psz),flags);
 #endif
 
       if ( twis.count() )
@@ -4293,7 +4293,7 @@ int CListCtrl::FindItem(
 #if UNICODE
       lwis = _qtd_list->findItems(QString::fromWCharArray(pFindInfo->psz),flags);
 #else
-      lwis = _qtd_list->findItems(pFindInfo->psz,flags);
+      lwis = _qtd_list->findItems(QString::fromLatin1(pFindInfo->psz),flags);
 #endif
 
       if ( lwis.count() )
@@ -4364,10 +4364,13 @@ BOOL CListCtrl::SetTextColor(
 
 BOOL CListCtrl::DeleteAllItems()
 {
+   int row;
    if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
    {
       _qtd_table->blockSignals(true);
-      _qtd_table->clearContents();
+      _qtd_table->clear();
+      for ( row = _qtd_table->rowCount(); row > 0; row-- )
+         _qtd_table->removeRow(row-1);
       _qtd_table->blockSignals(false);
    }
    else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
@@ -4584,7 +4587,7 @@ HTREEITEM CTreeCtrl::InsertItem(
 #if UNICODE
    twi->setText(0,QString::fromWCharArray(lpszItem));
 #else
-   twi->setText(0,lpszItem);
+   twi->setText(0,QString::fromLatin1(lpszItem));
 #endif
    _qtd->blockSignals(true);
    if ( hInsertAfter != TVI_LAST )
@@ -6532,7 +6535,7 @@ void CStatusBar::SetWindowText(
 #if UNICODE
    ptrToTheApp->qtMainWindow->statusBar()->showMessage(QString::fromWCharArray(lpszString));
 #else
-   ptrToTheApp->qtMainWindow->statusBar()->showMessage(lpszString);
+   ptrToTheApp->qtMainWindow->statusBar()->showMessage(QString::fromLatin1(lpszString));
 #endif
 }
 
@@ -6824,7 +6827,7 @@ void CDialog::SetWindowText(
 #if UNICODE
    _qt->setWindowTitle(QString::fromWCharArray(lpszString));
 #else
-   _qt->setWindowTitle(lpszString);
+   _qt->setWindowTitle(QString::fromLatin1(lpszString));
 #endif
 }
 
@@ -8381,7 +8384,7 @@ LONG CTabCtrl::InsertItem(
 #if UNICODE
    _qtd->insertTab(nItem,new QWidget(),QString::fromWCharArray(lpszItem));
 #else
-   _qtd->insertTab(nItem,new QWidget(),lpszItem);
+   _qtd->insertTab(nItem,new QWidget(),QString::fromLatin1(lpszItem));
 #endif
    _qtd->blockSignals(false);
    return nItem;
@@ -8582,7 +8585,7 @@ void CEdit::SetWindowText(
 #if UNICODE
    _qtd_ptedit->setPlainText(QString::fromWCharArray(lpszString));
 #else
-   _qtd_ptedit->setPlainText(lpszString);
+   _qtd_ptedit->setPlainText(QString::fromLatin1(lpszString));
 #endif
    }
    else
@@ -8590,7 +8593,7 @@ void CEdit::SetWindowText(
 #if UNICODE
    _qtd_ledit->setText(QString::fromWCharArray(lpszString));
 #else
-   _qtd_ledit->setText(lpszString);
+   _qtd_ledit->setText(QString::fromLatin1(lpszString));
 #endif
    }
 }
@@ -8655,7 +8658,7 @@ void CEdit::ReplaceSel(
 #if UNICODE
       textCursor.insertText(QString::fromWCharArray(lpszNewText));
 #else
-      textCursor.insertText(lpszNewText);
+      textCursor.insertText(QString::fromLatin1(lpszNewText));
 #endif
       _qtd_ptedit->setTextCursor(textCursor);
    }
@@ -8664,7 +8667,7 @@ void CEdit::ReplaceSel(
 #if UNICODE
       _qtd_ledit->insert(QString::fromWCharArray(lpszNewText));
 #else
-      _qtd_ledit->insert(lpszNewText);
+      _qtd_ledit->insert(QString::fromLatin1(lpszNewText));
 #endif
    }
 }
@@ -8749,7 +8752,7 @@ void CEdit::SetDlgItemText(
 #if UNICODE
       _qtd_ptedit->setPlainText(QString::fromWCharArray(lpszString));
 #else
-      _qtd_ptedit->setPlainText(lpszString);
+      _qtd_ptedit->setPlainText(QString::fromLatin1(lpszString));
 #endif
    }
    else
@@ -8757,7 +8760,7 @@ void CEdit::SetDlgItemText(
 #if UNICODE
       _qtd_ledit->setText(QString::fromWCharArray(lpszString));
 #else
-      _qtd_ledit->setText(lpszString);
+      _qtd_ledit->setText(QString::fromLatin1(lpszString));
 #endif
    }
 }
@@ -8895,7 +8898,7 @@ BOOL CButton::Create(
 #if UNICODE
    _qtd->setText(QString::fromWCharArray(lpszCaption));
 #else
-   _qtd->setText(lpszCaption);
+   _qtd->setText(QString::fromLatin1(lpszCaption));
 #endif
 
    _qtd->setMouseTracking(true);
@@ -8943,7 +8946,7 @@ void CButton::SetDlgItemText(
 #if UNICODE
    _qtd->setText(QString::fromWCharArray(lpszString));
 #else
-   _qtd->setText(lpszString);
+   _qtd->setText(QString::fromLatin1(lpszString));
 #endif
 }
 
@@ -9038,7 +9041,7 @@ BOOL CBitmapButton::Create(
 #if UNICODE
    _qtd->setText(QString::fromWCharArray(lpszCaption));
 #else
-   _qtd->setText(lpszCaption);
+   _qtd->setText(QString::fromLatin1(lpszCaption));
 #endif
 
    _qtd->setMouseTracking(true);
@@ -9515,7 +9518,7 @@ BOOL CStatic::Create(
 #if UNICODE
    _qtd->setText(QString::fromWCharArray(lpszText));
 #else
-   _qtd->setText(lpszText);
+   _qtd->setText(QString::fromLatin1(lpszText));
 #endif
 
    // Pass-through signals
@@ -9549,7 +9552,7 @@ void CStatic::SetDlgItemText(
 #if UNICODE
    _qtd->setText(QString::fromWCharArray(lpszString));
 #else
-   _qtd->setText(lpszString);
+   _qtd->setText(QString::fromLatin1(lpszString));
 #endif
 }
 
@@ -9630,7 +9633,7 @@ BOOL CGroupBox::Create(
 #if UNICODE
    _qtd->setTitle(QString::fromWCharArray(lpszCaption));
 #else
-   _qtd->setTitle(lpszCaption);
+   _qtd->setTitle(QString::fromLatin1(lpszCaption));
 #endif
 
    _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
@@ -9665,7 +9668,7 @@ void CGroupBox::SetDlgItemText(
 #if UNICODE
    _qtd->setTitle(QString::fromWCharArray(lpszString));
 #else
-   _qtd->setTitle(lpszString);
+   _qtd->setTitle(QString::fromLatin1(lpszString));
 #endif
 }
 
@@ -9730,8 +9733,8 @@ CFileDialog::CFileDialog(
    _qtd->setDefaultSuffix(QString::fromWCharArray(lpszDefExt));
    _qtd->selectFile(QString::fromWCharArray(lpszFileName));
 #else
-   _qtd->setDefaultSuffix(lpszDefExt);
-   _qtd->selectFile(lpszFileName);
+   _qtd->setDefaultSuffix(QString::fromLatin1(lpszDefExt));
+   _qtd->selectFile(QString::fromLatin1(lpszFileName));
 #endif
 
    translateFilters(lpszFilter);
