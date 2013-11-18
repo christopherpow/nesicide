@@ -2977,14 +2977,12 @@ void qtMfcInitDialogResource_IDD_CREATEWAV(CDialog* parent1)
    parent->MapDialogRect(&r4);
    mfc4->Create(_T("Play the song"),BS_AUTORADIOBUTTON | WS_VISIBLE,r4,parent,IDC_RADIO_LOOP);
    mfcToQtWidget->insert(IDC_RADIO_LOOP,mfc4);
-   QObject::connect(mfc4,SIGNAL(clicked()),parent,SLOT(radioLoop_clicked()));
 //       CONTROL         "Play for",IDC_RADIO_TIME,"Button",BS_AUTORADIOBUTTON,14,38,41,10
    CButton* mfc5 = new CButton(parent);
    CRect r5(CPoint(14,38),CSize(41,10));
    parent->MapDialogRect(&r5);
    mfc5->Create(_T("Play for"),BS_AUTORADIOBUTTON | WS_VISIBLE,r5,parent,IDC_RADIO_TIME);
    mfcToQtWidget->insert(IDC_RADIO_TIME,mfc5);
-   QObject::connect(mfc5,SIGNAL(clicked()),parent,SLOT(radioTime_clicked()));
 //       EDITTEXT        IDC_TIMES,73,19,36,12,ES_AUTOHSCROLL
 //       CONTROL         "",IDC_SPIN_LOOP,"msctls_updown32",UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,105,17,11,17
    // CP: Note, we fake a MFC "spin-box" separate control by double-booking a QSpinBox-derived CSpinButtonControl

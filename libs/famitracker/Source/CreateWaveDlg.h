@@ -21,11 +21,21 @@
 #pragma once
 //#include "afxwin.h"
 
+#include "cqtmfc.h"
+#include "resource.h"
 
 // CCreateWaveDlg dialog
 
 class CCreateWaveDlg : public CDialog
 {
+   Q_OBJECT
+   // Qt interfaces
+public slots:
+   void begin_clicked();
+   void cancel_clicked();
+   void spinLoop_valueChanged(int arg1,int arg2);
+   void spinTime_valueChanged(int arg1,int arg2);
+public:
 	DECLARE_DYNAMIC(CCreateWaveDlg)
 
 public:

@@ -3379,7 +3379,6 @@ BOOL CListBox::Create(
    QObject::connect(_qtd,SIGNAL(itemDoubleClicked(QListWidgetItem*)),this,SIGNAL(itemDoubleClicked(QListWidgetItem*)));
 
    _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
-//   _qtd->setVisible(dwStyle&WS_VISIBLE);
 
    return TRUE;
 }
