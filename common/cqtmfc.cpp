@@ -3328,10 +3328,6 @@ IMPLEMENT_DYNAMIC(CListBox,CWnd)
 CListBox::CListBox(CWnd* parent)
    : CWnd(parent)
 {
-   if ( _qt )
-      delete _qt;
-
-   _grid = NULL;
 }
 
 CListBox::~CListBox()
@@ -3360,6 +3356,11 @@ BOOL CListBox::Create(
    m_hWnd = (HWND)this;
    _id = nID;
 
+   if ( _qt )
+      delete _qt;
+
+   _grid = NULL;
+
    if ( pParentWnd )
       _qt = new QListWidget(pParentWnd->toQWidget());
    else      
@@ -3378,7 +3379,7 @@ BOOL CListBox::Create(
    QObject::connect(_qtd,SIGNAL(itemDoubleClicked(QListWidgetItem*)),this,SIGNAL(itemDoubleClicked(QListWidgetItem*)));
 
    _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
-   _qtd->setVisible(dwStyle&WS_VISIBLE);
+//   _qtd->setVisible(dwStyle&WS_VISIBLE);
 
    return TRUE;
 }
