@@ -37,37 +37,36 @@ bool CWaveFile::OpenFile(LPTSTR Filename, int SampleRate, int SampleSize, int Ch
 	WaveFormat.wf.nAvgBytesPerSec = SampleRate * (SampleSize / 8) * Channels;
 	WaveFormat.wBitsPerSample	  = SampleSize;
 
-   qDebug("mmio stuff...");
-//	hmmioOut = mmioOpen(Filename, NULL, MMIO_ALLOCBUF | MMIO_READWRITE | MMIO_CREATE);
+	hmmioOut = mmioOpen(Filename, NULL, MMIO_ALLOCBUF | MMIO_READWRITE | MMIO_CREATE);
 
-//	ckOutRIFF.fccType = mmioFOURCC('W', 'A', 'V', 'E');
-//	ckOutRIFF.cksize  = 0;
+	ckOutRIFF.fccType = mmioFOURCC('W', 'A', 'V', 'E');
+	ckOutRIFF.cksize  = 0;
 
-//	nError = mmioCreateChunk(hmmioOut, &ckOutRIFF, MMIO_CREATERIFF);
+	nError = mmioCreateChunk(hmmioOut, &ckOutRIFF, MMIO_CREATERIFF);
 
-//	if (nError != MMSYSERR_NOERROR)
-//		return false;
+	if (nError != MMSYSERR_NOERROR)
+		return false;
 
-//	ckOut.ckid	 = mmioFOURCC('f', 'm', 't', ' ');     
-//	ckOut.cksize = sizeof(PCMWAVEFORMAT);
+	ckOut.ckid	 = mmioFOURCC('f', 'm', 't', ' ');     
+	ckOut.cksize = sizeof(PCMWAVEFORMAT);
 
-//	nError = mmioCreateChunk(hmmioOut, &ckOut, 0);
+	nError = mmioCreateChunk(hmmioOut, &ckOut, 0);
 
-//	if (nError != MMSYSERR_NOERROR)
-//		return false;
+	if (nError != MMSYSERR_NOERROR)
+		return false;
 
-//	mmioWrite(hmmioOut, (HPSTR)&WaveFormat, sizeof(PCMWAVEFORMAT));
-//	mmioAscend(hmmioOut, &ckOut, 0);
+	mmioWrite(hmmioOut, (HPSTR)&WaveFormat, sizeof(PCMWAVEFORMAT));
+	mmioAscend(hmmioOut, &ckOut, 0);
 
-//	ckOut.ckid	 = mmioFOURCC('d', 'a', 't', 'a');
-//	ckOut.cksize = 0;
+	ckOut.ckid	 = mmioFOURCC('d', 'a', 't', 'a');
+	ckOut.cksize = 0;
 
-//	nError = mmioCreateChunk(hmmioOut, &ckOut, 0);
+	nError = mmioCreateChunk(hmmioOut, &ckOut, 0);
 
-//	if (nError != MMSYSERR_NOERROR)
-//		return false;
+	if (nError != MMSYSERR_NOERROR)
+		return false;
 
-//	mmioGetInfo(hmmioOut, &mmioinfoOut, 0);	
+	mmioGetInfo(hmmioOut, &mmioinfoOut, 0);	
 
 	return true;
 }
@@ -77,17 +76,16 @@ void CWaveFile::CloseFile()
 	// Close the file
 	//
 
-   qDebug("mmio stuff...");
-//	mmioinfoOut.dwFlags |= MMIO_DIRTY;
-//	mmioSetInfo(hmmioOut, &mmioinfoOut, 0);
+	mmioinfoOut.dwFlags |= MMIO_DIRTY;
+	mmioSetInfo(hmmioOut, &mmioinfoOut, 0);
 
-//	mmioAscend(hmmioOut, &ckOut, 0);
-//	mmioAscend(hmmioOut, &ckOutRIFF, 0);
+	mmioAscend(hmmioOut, &ckOut, 0);
+	mmioAscend(hmmioOut, &ckOutRIFF, 0);
 
-//	mmioSeek(hmmioOut, 0, SEEK_SET); 
-//	mmioDescend(hmmioOut, &ckOutRIFF, NULL, 0);
+	mmioSeek(hmmioOut, 0, SEEK_SET); 
+	mmioDescend(hmmioOut, &ckOutRIFF, NULL, 0);
 
-//	mmioClose(hmmioOut, 0);
+	mmioClose(hmmioOut, 0);
 }
 
 void CWaveFile::WriteWave(char *Data, int Size)
@@ -95,17 +93,16 @@ void CWaveFile::WriteWave(char *Data, int Size)
 	// Save data to the file
 	//
 
-   qDebug("mmio stuff...");
-//	int cT;
+	int cT;
 	
-//	for (cT = 0; cT < Size; cT++) {
-//        if (mmioinfoOut.pchNext == mmioinfoOut.pchEndWrite) { 
-//			mmioinfoOut.dwFlags |= MMIO_DIRTY; 
-//			mmioAdvance(hmmioOut, &mmioinfoOut, MMIO_WRITE);
-//		}
+	for (cT = 0; cT < Size; cT++) {
+        if (mmioinfoOut.pchNext == mmioinfoOut.pchEndWrite) { 
+			mmioinfoOut.dwFlags |= MMIO_DIRTY; 
+			mmioAdvance(hmmioOut, &mmioinfoOut, MMIO_WRITE);
+		}
 
-//		*((BYTE*)mmioinfoOut.pchNext) = *((BYTE*)Data + cT); 
-//		mmioinfoOut.pchNext++;
-//	}
+		*((BYTE*)mmioinfoOut.pchNext) = *((BYTE*)Data + cT); 
+		mmioinfoOut.pchNext++;
+	}
 }
 

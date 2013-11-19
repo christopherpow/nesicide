@@ -20,11 +20,22 @@
 
 #pragma once
 
+#include "cqtmfc.h"
+#include "resource.h"
+
+#include "SoundGen.h"
 
 // CWavProgressDlg dialog
 
 class CWavProgressDlg : public CDialog
 {
+   Q_OBJECT
+   // Qt interfaces
+public slots:
+   void cancel_clicked();
+protected:
+   void timerEvent(QTimerEvent *event);
+public:
 	DECLARE_DYNAMIC(CWavProgressDlg)
 
 public:

@@ -5710,6 +5710,66 @@ int EnumFontFamiliesEx(
    DWORD dwFlags
 );
 
+HMMIO mmioOpen(
+  LPTSTR szFilename,
+  LPMMIOINFO lpmmioinfo,
+  DWORD dwOpenFlags
+);
+
+MMRESULT mmioCreateChunk(
+  HMMIO hmmio,
+  LPMMCKINFO lpck,
+  UINT wFlags
+);
+
+LONG mmioWrite(
+  HMMIO hmmio,
+  char _huge *pch,
+  LONG cch
+);
+
+MMRESULT mmioAscend(
+  HMMIO hmmio,
+  LPMMCKINFO lpck,
+  UINT wFlags
+);
+
+MMRESULT mmioDescend(
+  HMMIO hmmio, 
+  LPMMCKINFO lpck,
+  const MMCKINFO* lpckParent,
+  UINT wFlags
+);
+
+LONG mmioSeek(
+  HMMIO hmmio,
+  LONG lOffset,
+  int iOrigin
+);
+
+MMRESULT mmioAdvance(
+  HMMIO hmmio,
+  LPMMIOINFO lpmmioinfo,
+  UINT wFlags
+);
+
+MMRESULT mmioGetInfo(
+  HMMIO hmmio,
+  LPMMIOINFO lpmmioinfo,
+  UINT wFlags
+);
+
+MMRESULT mmioSetInfo(
+  HMMIO hmmio,
+  LPMMIOINFO lpmmioinfo,
+  UINT wFlags
+);
+
+MMRESULT mmioClose(
+  HMMIO hmmio,
+  UINT wFlags
+);
+
 CString qtMfcStringResource(int id);
 
 CBitmap* qtMfcBitmapResource(int id);

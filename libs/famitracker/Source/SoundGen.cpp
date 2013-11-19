@@ -635,9 +635,9 @@ void CSoundGen::FlushBuffer(int16 *pBuffer, uint32 Size)
 		if (m_iBufferPtr >= m_iBufSizeSamples) {
 
 			if (m_bRendering) {
-//				// Output to file
-//				m_wfWaveFile.WriteWave((char*)m_pAccumBuffer, m_iBufSizeBytes);
-//				m_iBufferPtr = 0;
+				// Output to file
+				m_wfWaveFile.WriteWave((char*)m_pAccumBuffer, m_iBufSizeBytes);
+				m_iBufferPtr = 0;
 			}
 			else {
 				// Output to direct sound
@@ -1305,8 +1305,7 @@ void CSoundGen::StopRendering()
 
 	m_bRendering = false;
 	m_pTrackerView->PlayerCommand(CMD_MOVE_TO_START, 0);
-   qDebug("rendering to wav needs to be implemented...");
-//	m_wfWaveFile.CloseFile();
+	m_wfWaveFile.CloseFile();
 
 	MakeSilent();
 	ResetBuffer();

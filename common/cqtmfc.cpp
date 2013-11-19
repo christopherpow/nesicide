@@ -2032,16 +2032,16 @@ ULONGLONG CFile::Seek(
       switch ( nFrom )
       {
       case begin:
-         return _qfile.seek(lOff);
+         _qfile.seek(lOff);
          break;
       case current:
-         return _qfile.seek(_qfile.pos()+lOff);
+         _qfile.seek(_qfile.pos()+lOff);
          break;
       case end:
-         return _qfile.seek(_qfile.size()+lOff);
+         _qfile.seek(_qfile.size()+lOff);
          break;
       }
-      return 0;
+      return _qfile.pos();
    }
    else
       return 0;
@@ -9430,6 +9430,7 @@ BOOL CProgressCtrl::Create(
    // Not sure if there's vertical sliders in MFC...
    _qtd->setOrientation(Qt::Horizontal);
    _qtd->setMouseTracking(true);
+   _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
 
    // Pass-through signals
 }
@@ -10670,6 +10671,293 @@ int EnumFontFamiliesEx(
       if ( !ret ) break;
    }
    return ret;
+}
+
+QHash<QFile*,LPMMIOINFO> mmioInfos;
+
+HMMIO mmioOpen(
+  LPTSTR szFilename,
+  LPMMIOINFO lpmmioinfo,
+  DWORD dwOpenFlags
+)
+{
+   QFile* pFile = new QFile;
+   QFile::OpenMode mode;
+   bool mmioinfoCreated = false;
+   
+#if UNICODE
+   pFile->setFileName(QString::fromWCharArray(szFilename));
+#else
+   pFile->setFileName(QString::fromLatin1(szFilename));
+#endif
+
+   if ( !lpmmioinfo )
+   {
+      lpmmioinfo = new MMIOINFO;
+      memset(lpmmioinfo,0,sizeof(MMIOINFO));
+      mmioinfoCreated = true;
+   }
+   lpmmioinfo->dwFlags = dwOpenFlags;
+   
+   if ( dwOpenFlags&MMIO_CREATE )
+   {
+      mode |= QIODevice::Truncate;
+   }
+   
+   if ( dwOpenFlags&MMIO_READWRITE )
+   {
+      mode |= QIODevice::ReadWrite;
+   }
+   
+   if ( dwOpenFlags&MMIO_ALLOCBUF )
+   {
+      lpmmioinfo->cchBuffer = MMIO_DEFAULTBUFFER;
+      lpmmioinfo->pchBuffer = new char[MMIO_DEFAULTBUFFER];
+      lpmmioinfo->pchNext = lpmmioinfo->pchBuffer;
+      lpmmioinfo->pchEndRead = lpmmioinfo->pchBuffer+MMIO_DEFAULTBUFFER;
+      lpmmioinfo->pchEndWrite = lpmmioinfo->pchBuffer+MMIO_DEFAULTBUFFER;
+   }
+
+   bool opened = pFile->open(mode);
+   if ( opened )
+   {
+      lpmmioinfo->hmmio = (HMMIO)pFile;
+      mmioInfos.insert(pFile,lpmmioinfo);
+      return (HMMIO)pFile;
+   }
+   delete pFile;
+   lpmmioinfo->wErrorRet = MMSYSERR_NODRIVER;
+   if ( mmioinfoCreated )
+   {
+      delete lpmmioinfo;
+   }
+   return NULL;
+}
+
+MMRESULT mmioCreateChunk(
+  HMMIO hmmio,
+  LPMMCKINFO lpck,
+  UINT wFlags
+)
+{
+   QFile* pFile = (QFile*)hmmio;
+   char* data = "RIFF";
+   
+   if ( pFile->isOpen() )
+   {
+      lpck->dwFlags = 0;
+      
+      switch ( wFlags )
+      {
+      case MMIO_CREATERIFF:
+         pFile->write(data,4);
+         pFile->write((const char*)&(lpck->cksize),4);
+         pFile->write((const char*)&(lpck->fccType),4);
+         lpck->dwFlags |= MMIO_CREATERIFF;
+         break;
+      case MMIO_CREATELIST:
+         break;
+      default:
+         pFile->write((const char*)&(lpck->ckid),4);
+         pFile->write((const char*)&(lpck->cksize),4);
+         break;
+      }
+      lpck->dwDataOffset = pFile->pos();
+      lpck->dwFlags |= MMIO_DIRTY;
+   
+      return MMSYSERR_NOERROR;
+   }
+   else
+   {
+      return MMSYSERR_INVALHANDLE;
+   }
+}
+
+LONG mmioWrite(
+  HMMIO hmmio,
+  char _huge *pch,
+  LONG cch
+)
+{
+   QFile* pFile = (QFile*)hmmio;
+   
+   if ( pFile && pFile->isOpen() )
+   {
+      pFile->write(pch,cch);
+   }
+   else
+   {
+      return MMSYSERR_INVALHANDLE;
+   }
+}
+
+MMRESULT mmioAscend(
+  HMMIO hmmio,
+  LPMMCKINFO lpck,
+  UINT wFlags
+)
+{
+   QFile* pFile = (QFile*)hmmio;
+   UINT chunkSize;
+   const char pad = 0;
+   
+   if ( pFile && pFile->isOpen() )
+   {
+      if ( lpck->dwFlags&MMIO_DIRTY )
+      {
+         chunkSize = pFile->pos()-lpck->dwDataOffset;
+         if ( chunkSize&1 )
+            pFile->write(&pad,1);
+         if ( lpck->dwFlags&MMIO_CREATERIFF )
+         {
+            pFile->seek(lpck->dwDataOffset-8);
+            pFile->write((const char*)&(chunkSize),4);         
+            pFile->seek(lpck->dwDataOffset+chunkSize+(chunkSize&1?1:0));
+         }
+         else
+         {
+            pFile->seek(lpck->dwDataOffset-4);
+            pFile->write((const char*)&(chunkSize),4);         
+            pFile->seek(lpck->dwDataOffset+chunkSize+(chunkSize&1?1:0));
+         }
+      }
+   }
+   else
+   {
+      return MMSYSERR_INVALHANDLE;
+   }
+}
+
+MMRESULT mmioDescend(
+  HMMIO hmmio, 
+  LPMMCKINFO lpck,
+  const MMCKINFO* lpckParent,
+  UINT wFlags
+)
+{
+   QFile* pFile = (QFile*)hmmio;
+   
+   if ( pFile && pFile->isOpen() )
+   {
+   }
+   else
+   {
+      return MMSYSERR_INVALHANDLE;
+   }
+}
+
+LONG mmioSeek(
+  HMMIO hmmio,
+  LONG lOffset,
+  int iOrigin
+)
+{
+   QFile* pFile = (QFile*)hmmio;
+
+   if ( pFile->isOpen() )
+   {
+      switch ( iOrigin )
+      {
+      case SEEK_SET:
+         pFile->seek(lOffset);
+         break;
+      case SEEK_CUR:
+         pFile->seek(pFile->pos()+lOffset);
+         break;
+      case SEEK_END:
+         pFile->seek(pFile->size()+lOffset);
+         break;
+      }
+      return pFile->pos();
+   }
+   else
+   {
+      return -1;            
+   }
+}
+
+MMRESULT mmioAdvance(
+  HMMIO hmmio,
+  LPMMIOINFO lpmmioinfo,
+  UINT wFlags
+)
+{
+   QFile* pFile = (QFile*)hmmio;
+   
+   if ( pFile && pFile->isOpen() )
+   {
+      switch ( wFlags )
+      {
+      case MMIO_READ:
+         pFile->read(lpmmioinfo->pchBuffer,lpmmioinfo->cchBuffer);
+         lpmmioinfo->pchNext = lpmmioinfo->pchBuffer;
+         break;
+      case MMIO_WRITE:
+         pFile->write(lpmmioinfo->pchBuffer,lpmmioinfo->cchBuffer);
+         lpmmioinfo->pchNext = lpmmioinfo->pchBuffer;
+         break;
+      }
+      lpmmioinfo->lBufOffset = 0;
+      lpmmioinfo->lDiskOffset = pFile->pos();
+   }
+   else
+   {
+      return MMSYSERR_INVALHANDLE;
+   }
+}
+
+MMRESULT mmioGetInfo(
+  HMMIO hmmio,
+  LPMMIOINFO lpmmioinfo,
+  UINT wFlags
+)
+{
+   QFile* pFile = (QFile*)hmmio;
+   
+   if ( pFile && pFile->isOpen() )
+   {
+      memcpy(lpmmioinfo,mmioInfos.value(pFile),sizeof(MMIOINFO));      
+   }
+   else
+   {
+      return MMSYSERR_INVALHANDLE;
+   }
+}
+
+MMRESULT mmioSetInfo(
+  HMMIO hmmio,
+  LPMMIOINFO lpmmioinfo,
+  UINT wFlags
+)
+{
+   QFile* pFile = (QFile*)hmmio;
+   
+   if ( pFile && pFile->isOpen() )
+   {
+      mmioInfos.remove(pFile);
+      mmioInfos.insert(pFile,lpmmioinfo);
+   }
+   else
+   {
+      return MMSYSERR_INVALHANDLE;
+   }
+}
+
+MMRESULT mmioClose(
+  HMMIO hmmio,
+  UINT wFlags
+)
+{
+   QFile* pFile = (QFile*)hmmio;
+
+   if ( pFile && pFile->isOpen() )
+   {
+      pFile->close();
+      mmioInfos.remove(pFile);
+      delete pFile;
+      return MMSYSERR_NOERROR;
+   }
+   return MMSYSERR_INVALHANDLE;
 }
 
 CDocument* openFile(QString fileName)

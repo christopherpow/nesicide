@@ -3032,24 +3032,63 @@ void qtMfcInitDialogResource_IDD_CREATEWAV(CDialog* parent1)
 //   END
 }
 
-//#include "dialog-file"
-void qtMfcInitDialogResource_IDD_WAVE_PROGRESS(CDialog* parent)
+#include "WavProgressDlg.h"
+void qtMfcInitDialogResource_IDD_WAVE_PROGRESS(CDialog* parent1)
 {
-//  dialog-type* parent = dynamic_cast<dialog-type*>(parent1);
+   CWavProgressDlg* parent = dynamic_cast<CWavProgressDlg*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
 
 //   IDD_WAVE_PROGRESS DIALOGEX 0, 0, 220, 111
+   CRect rect(CPoint(0,0),CSize(220,111));
+   parent->MapDialogRect(&rect);
+   parent->setFixedSize(rect.Width(),rect.Height());
 //   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 //   CAPTION "Creating WAV..."
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
 //   BEGIN
 //       PUSHBUTTON      "Cancel",IDC_CANCEL,84,90,50,14
+   CButton* mfc1 = new CButton(parent);
+   CRect r1(CPoint(84,90),CSize(50,14));
+   parent->MapDialogRect(&r1);
+   mfc1->Create(_T("Cancel"),WS_VISIBLE,r1,parent,IDC_CANCEL);
+   mfcToQtWidget->insert(IDC_CANCEL,mfc1);
+   QObject::connect(mfc1,SIGNAL(clicked()),parent,SLOT(cancel_clicked()));
 //       CONTROL         "",IDC_PROGRESS_BAR,"msctls_progress32",WS_BORDER,7,65,206,12
+   CProgressCtrl* mfc2 = new CProgressCtrl(parent);
+   CRect r2(CPoint(7,65),CSize(206,12));
+   parent->MapDialogRect(&r2);
+   mfc2->Create(WS_BORDER | WS_VISIBLE,r2,parent,IDC_PROGRESS_BAR);
+   mfcToQtWidget->insert(IDC_PROGRESS_BAR,mfc2);
 //       CTEXT           "Progress",IDC_PROGRESS_LBL,7,37,206,11
+   CStatic* mfc3 = new CStatic(parent);
+   CRect r3(CPoint(7,37),CSize(206,11));
+   parent->MapDialogRect(&r3);
+   mfc3->Create(_T("Progress"),WS_VISIBLE,r3,parent,IDC_PROGRESS_LBL);
+   mfcToQtWidget->insert(IDC_PROGRESS_LBL,mfc3);
 //       CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,7,83,206,1
+   CStatic* mfc4 = new CStatic(parent);
+   CRect r4(CPoint(7,83),CSize(206,1));
+   parent->MapDialogRect(&r4);
+   mfc4->Create(_T(""),SS_ETCHEDFRAME | WS_VISIBLE,r4,parent,IDC_STATIC);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       CTEXT           "File",IDC_PROGRESS_FILE,7,7,206,18,SS_CENTERIMAGE
+   CStatic* mfc5 = new CStatic(parent);
+   CRect r5(CPoint(7,7),CSize(206,18));
+   parent->MapDialogRect(&r5);
+   mfc5->Create(_T("File"),SS_CENTERIMAGE | WS_VISIBLE,r5,parent,IDC_PROGRESS_FILE);
+   mfcToQtWidget->insert(IDC_PROGRESS_FILE,mfc5);
 //       CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,7,29,206,1
+   CStatic* mfc6 = new CStatic(parent);
+   CRect r6(CPoint(7,29),CSize(206,1));
+   parent->MapDialogRect(&r6);
+   mfc6->Create(_T(""),SS_ETCHEDFRAME | WS_VISIBLE,r6,parent,IDC_STATIC);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
 //       CTEXT           "Progress",IDC_TIME,7,49,206,11
+   CStatic* mfc7 = new CStatic(parent);
+   CRect r7(CPoint(7,49),CSize(206,11));
+   parent->MapDialogRect(&r7);
+   mfc7->Create(_T("Progress"),WS_VISIBLE,r7,parent,IDC_TIME);
+   mfcToQtWidget->insert(IDC_TIME,mfc7);
 //   END
 }
 
