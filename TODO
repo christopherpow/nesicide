@@ -7,8 +7,9 @@ Bugs/things to work on:
 4. TrackPopupMenu needs to hook into #2 so that pattern-editor menu actions go up the proper chain and get handled.
 5. Implement CEdit/CSpinButtonCtrl solution that ties in better with Qt widgets.
 6. Support non-numeric spin-controls for CreateWave dialog.
-7. Figure out why CreateWave dialog's subclassed CListBox isn't subclassing properly.
+**DONE** 7. Figure out why CreateWave dialog's subclassed CListBox isn't subclassing properly.
 **DONE** 8. Module importing doesn't work properly.
+9. Frame Editor doesn't move properly between top/left sides and doesn't size appropriately on the left side for non-2A03 channel inclusions.
 
 Features/things to get to DONE:
 **90%** 2. Finish implementing configuration dialogs.
