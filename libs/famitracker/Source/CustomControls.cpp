@@ -212,11 +212,13 @@ void CLockedEdit::mouseDoubleClickEvent(QMouseEvent *event)
 
 void CLockedEdit::focusInEvent(QFocusEvent *)
 {
+   qDebug("OnSetFocus");
    OnSetFocus(GetFocus());
 }
 
 void CLockedEdit::focusOutEvent(QFocusEvent *)
 {
+   qDebug("OnKillFocus");
    OnKillFocus(NULL);
 }
 

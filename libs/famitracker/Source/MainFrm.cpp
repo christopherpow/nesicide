@@ -1260,7 +1260,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;      // fail to create
 	}
 
-	/*
+   /*
 	// TODO: Delete these three lines if you don't want the toolbar to be dockable
 	m_wndToolBar.EnableDocking(CBRS_ALIGN_ANY);
 	EnableDocking(CBRS_ALIGN_ANY);
@@ -1332,7 +1332,7 @@ bool CMainFrame::CreateToolbars()
 		return false;      // fail to create
 	}
 
-	rbi1.cbSize		= sizeof(REBARBANDINFO);
+   rbi1.cbSize		= sizeof(REBARBANDINFO);
 	rbi1.fMask		= RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_STYLE | RBBIM_SIZE;
 	rbi1.fStyle		= RBBS_NOGRIPPER;
 	rbi1.hwndChild	= m_wndToolBar;

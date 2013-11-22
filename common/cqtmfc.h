@@ -2805,8 +2805,9 @@ public:
       POINT topLeft,
       POINT bottomRight
    );
-   int Width() const { return right-left; }
-   int Height() const { return bottom-top; }
+   int Width() const { return (right-left)+1; }
+   int Height() const { return (bottom-top)+1; }
+   CSize Size() const { return CSize((right-left)+1,(bottom-top)+1); }
    void MoveToX(
       int x
    );
@@ -2862,7 +2863,7 @@ public:
    }
    operator QRect() const
    {
-      return QRect(left,top,right-left,bottom-top);
+      return QRect(left,top,(right-left)+1,(bottom-top)+1);
    }
 };
 
@@ -3367,6 +3368,11 @@ class CFrameWnd;
 class CScrollBar;
 class CMenu;
 
+enum 
+{
+   adjustBorder = 1
+};
+
 class CWnd : public QWidget, public CCmdTarget, public QtUIElement
 {
    Q_OBJECT
@@ -3461,6 +3467,10 @@ public:
       LPPOINT lpPoint,
       UINT nCount
    ) const;
+   virtual void CalcWindowRect(
+      LPRECT lpClientRect,
+      UINT nAdjustType = adjustBorder 
+   );
    virtual CScrollBar* GetScrollBarCtrl(
       int nBar
    ) const;
@@ -4190,10 +4200,10 @@ public:
    virtual void subclassWidget(int nID,CWnd* widget);
       
 protected:
-   QAbstractButton* _qtd;
    QPushButton* _qtd_push;
    QRadioButton* _qtd_radio;
    QCheckBox* _qtd_check;
+   QGroupBox* _qtd_groupbox;
 signals:
    void clicked();
 
@@ -4241,31 +4251,6 @@ public:
    UINT IsDlgButtonChecked(
       int nIDButton
    ) const;
-};
-
-class CBitmapButton : public CButton
-{
-   Q_OBJECT
-   DECLARE_DYNAMIC(CBitmapButton)
-   // Qt interfaces
-public:
-   virtual void subclassWidget(int nID,CWnd* widget);
-protected:
-   QToolButton* _qtd;
-signals:
-   void clicked();
-
-   // MFC interfaces
-public:
-   CBitmapButton(CWnd* parent = 0);
-   virtual ~CBitmapButton();
-   virtual BOOL Create(
-      LPCTSTR lpszCaption,
-      DWORD dwStyle,
-      const RECT& rect,
-      CWnd* pParentWnd,
-      UINT nID
-   );
 };
 
 class CSliderCtrl : public CWnd
@@ -4362,6 +4347,13 @@ public:
    int GetPos( ) const;
 };
 
+class QSpinBox_MFC : public QSpinBox
+{
+public:
+   QSpinBox_MFC(QWidget* parent=0) : QSpinBox(parent) {}
+   void setLineEdit(QLineEdit *edit) { QSpinBox::setLineEdit(edit); }
+};
+
 class CSpinButtonCtrl : public CWnd
 {
    Q_OBJECT
@@ -4370,8 +4362,7 @@ class CSpinButtonCtrl : public CWnd
 public:
    virtual void subclassWidget(int nID,CWnd* widget);
 protected:
-//   QSpinBox_MFC* _qtd;
-   QSpinBox* _qtd;
+   QSpinBox_MFC* _qtd;
    int _oldValue;
 public slots:
    void control_edited(int value);
@@ -4515,55 +4506,6 @@ public:
       const RECT& rect,
       CWnd* pParentWnd,
       UINT nID = 0xffff
-   );
-   void SetDlgItemInt(
-      int nID,
-      UINT nValue,
-      BOOL bSigned = TRUE
-   );
-   UINT GetDlgItemInt(
-      int nID,
-      BOOL* lpTrans = NULL,
-      BOOL bSigned = TRUE
-   ) const;
-   void SetDlgItemText(
-      int nID,
-      LPCTSTR lpszString
-   );
-   int GetDlgItemText(
-      int nID,
-      CString& rString
-   ) const;
-   int GetDlgItemText(
-      int nID,
-      LPTSTR lpStr,
-      int nMaxCount
-   ) const;
-};
-
-// Qt hack for MFC BS_GROUPBOX style CButton override
-class CGroupBox : public CWnd
-{
-   Q_OBJECT
-   DECLARE_DYNAMIC(CGroupBox)
-   // Qt interfaces
-public:
-   virtual void subclassWidget(int nID,CWnd* widget);
-protected:
-   QGroupBox* _qtd;
-signals:
-   void clicked();
-
-   // MFC interfaces
-public:
-   CGroupBox(CWnd* parent = 0);
-   virtual ~CGroupBox();
-   virtual BOOL Create(
-      LPCTSTR lpszCaption,
-      DWORD dwStyle,
-      const RECT& rect,
-      CWnd* pParentWnd,
-      UINT nID
    );
    void SetDlgItemInt(
       int nID,

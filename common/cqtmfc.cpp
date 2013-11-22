@@ -3140,7 +3140,7 @@ BOOL CComboBox::Create(
    m_hWnd = (HWND)this;
    _id = nID;
 
-   _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,_qtd->sizeHint().height());
+   _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,_qtd->sizeHint().height());
    _qtd->setVisible(dwStyle&WS_VISIBLE);
 
    QFontMetrics fm(_qtd->font());
@@ -3378,7 +3378,7 @@ BOOL CListBox::Create(
    QObject::connect(_qtd,SIGNAL(itemClicked(QListWidgetItem*)),this,SIGNAL(itemClicked(QListWidgetItem*)));
    QObject::connect(_qtd,SIGNAL(itemDoubleClicked(QListWidgetItem*)),this,SIGNAL(itemDoubleClicked(QListWidgetItem*)));
 
-   _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
+   _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
 
    return TRUE;
 }
@@ -3572,7 +3572,7 @@ BOOL CListCtrl::Create(
       }
       _qtd_table->horizontalHeader()->setStretchLastSection(true);
 
-      _qtd_table->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
+      _qtd_table->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
       _qtd_table->setVisible(dwStyle&WS_VISIBLE);
    }
    else if ( (dwStyle&LVS_TYPEMASK) == LVS_LIST )
@@ -3604,7 +3604,7 @@ BOOL CListCtrl::Create(
    //      _qtd_list->setSortingEnabled(true);
    //   }
 
-      _qtd_list->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
+      _qtd_list->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
       _qtd_list->setVisible(dwStyle&WS_VISIBLE);
    }
 
@@ -4570,7 +4570,7 @@ BOOL CTreeCtrl::Create(
       _qtd->setLineWidth(1);
    }
 
-   _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
+   _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
    _qtd->setVisible(dwStyle&WS_VISIBLE);
 
    return TRUE;
@@ -5384,9 +5384,19 @@ void CWnd::RepositionBars(
          pWnd->SendMessage(WM_SIZEPARENT,0,(LPARAM)&layout);
       }
    }
-   // Hack to resize the view...
-   if ( pWndExtra )
-      pWndExtra->MoveWindow(&layout.rect);
+
+   // Resize all windows...
+   foreach ( CWnd* pWnd, mfcToQtWidget )
+   {
+      if ( pWnd == pWndExtra )
+      {
+         pWndExtra->MoveWindow(&layout.rect);
+      }
+      else
+      {
+         // CP: Not sure how to resize dialogbars yet.
+      }
+   }
 }
 
 void CWnd::SetFont(
@@ -5407,7 +5417,7 @@ void CWnd::MoveWindow(LPCRECT lpRect, BOOL bRepaint)
    setGeometry(lpRect->left,lpRect->top,(lpRect->right-lpRect->left)+1,(lpRect->bottom-lpRect->top)+1);
    setFixedSize((lpRect->right-lpRect->left)+1,(lpRect->bottom-lpRect->top)+1);
 //   if ( bRepaint )
-//      repaint();
+      repaint();
 }
 
 void CWnd::DragAcceptFiles(
@@ -5552,6 +5562,13 @@ void CWnd::MapWindowPoints(
    LPPOINT lpPoint,
    UINT nCount
 ) const
+{
+}
+
+void CWnd::CalcWindowRect(
+   LPRECT lpClientRect,
+   UINT nAdjustType 
+)
 {
 }
 
@@ -5859,12 +5876,33 @@ CFrameWnd::~CFrameWnd()
 
 void CFrameWnd::menuAction_triggered(int id)
 {
+   // Cheaply handle messages.
+   CWnd* pWnd;
+   switch ( id )
+   {
+   case ID_VIEW_TOOLBAR:
+      pWnd = mfcToQtWidget.value(AFX_IDW_TOOLBAR);
+      break;
+   case ID_VIEW_STATUS_BAR:
+      pWnd = mfcToQtWidget.value(AFX_IDW_STATUS_BAR);
+      ptrToTheApp->qtMainWindow->statusBar()->setVisible(pWnd->IsWindowVisible()?false:true);
+      break;
+   }
+   
    // Pass up the chain.
    AfxGetApp()->menuAction_triggered(id);
 }
 
 void CFrameWnd::menuAboutToShow(CMenu* menu)
 {
+   // Cheaply handle messages.
+   CWnd* pWnd;
+
+   pWnd = mfcToQtWidget.value(AFX_IDW_TOOLBAR);
+   menu->CheckMenuItem(ID_VIEW_TOOLBAR,pWnd->IsWindowVisible());
+   pWnd = mfcToQtWidget.value(AFX_IDW_STATUS_BAR);
+   menu->CheckMenuItem(ID_VIEW_STATUS_BAR,pWnd->IsWindowVisible());
+   
    // Pass up the chain.
    AfxGetApp()->menuAboutToShow(menu);
 }
@@ -6284,7 +6322,7 @@ BOOL CReBarCtrl::Create(
    _qtd->setMovable(false);
    CRect clientRect;
    pParentWnd->GetClientRect(&clientRect);
-   _qtd->setGeometry(clientRect.left,clientRect.top,clientRect.right-clientRect.left,clientRect.bottom-clientRect.top);
+   _qtd->setGeometry(clientRect.left,clientRect.top,(clientRect.right-clientRect.left)+1,(clientRect.bottom-clientRect.top)+1);
    return TRUE;
 }
 
@@ -6585,7 +6623,8 @@ IMPLEMENT_DYNAMIC(CDialogBar,CControlBar)
 CDialogBar::CDialogBar()
 {
    _mfcd = new CDialog;
-   _mfcd->setGeometry(0,0,100,100);
+   // CP: If I don't do this the widget isn't visible...
+   _mfcd->setGeometry(0,0,10,10);
 }
 
 CDialogBar::~CDialogBar()
@@ -6601,7 +6640,7 @@ LRESULT CDialogBar::SendMessage(
 )
 {
    AFX_SIZEPARENTPARAMS* pLayout = (AFX_SIZEPARENTPARAMS*)lParam;
-   QRect myRect;
+
    switch ( message )
    {
    case WM_SIZEPARENT:
@@ -6609,40 +6648,27 @@ LRESULT CDialogBar::SendMessage(
       {
          if ( _nStyle&CBRS_TOP )
          {
-            pLayout->rect.top += rect().height();
-            myRect.setHeight(rect().height());
-            myRect.setWidth(pLayout->rect.right-pLayout->rect.left);
-            pLayout->sizeTotal.cx = pLayout->rect.right-pLayout->rect.left;
-            pLayout->sizeTotal.cy += rect().height();
+            pLayout->rect.top += m_sizeDefault.cy;
+            pLayout->sizeTotal.cx = (pLayout->rect.right-pLayout->rect.left)+1;
+            pLayout->sizeTotal.cy += m_sizeDefault.cy;
          }
          else if ( _nStyle&CBRS_LEFT )
          {
-            pLayout->rect.left += rect().width();
-            myRect.setHeight(pLayout->rect.bottom-pLayout->rect.top);
-            myRect.setWidth(rect().width());
-            pLayout->sizeTotal.cx += rect().width();
-            pLayout->sizeTotal.cy = pLayout->rect.bottom-pLayout->rect.top;
+            pLayout->rect.left += m_sizeDefault.cx;
+            pLayout->sizeTotal.cx += m_sizeDefault.cx;
+            pLayout->sizeTotal.cy = (pLayout->rect.bottom-pLayout->rect.top)+1;
          }
          else if ( _nStyle&CBRS_BOTTOM )
          {
-            pLayout->rect.bottom -= rect().height();
-            myRect.setHeight(rect().height());
-            myRect.setWidth(pLayout->rect.right-pLayout->rect.left);
-            pLayout->sizeTotal.cx = pLayout->rect.right-pLayout->rect.left;
-            pLayout->sizeTotal.cy += rect().height();
+            pLayout->rect.bottom -= m_sizeDefault.cy;
+            pLayout->sizeTotal.cx = (pLayout->rect.right-pLayout->rect.left)+1;
+            pLayout->sizeTotal.cy += m_sizeDefault.cy;
          }
          else if ( _nStyle&CBRS_RIGHT )
          {
-            pLayout->rect.right -= rect().width();
-            myRect.setHeight(pLayout->rect.bottom-pLayout->rect.top);
-            myRect.setWidth(rect().width());
-            pLayout->sizeTotal.cx += rect().width();
-            pLayout->sizeTotal.cy = pLayout->rect.bottom-pLayout->rect.top;
-         }
-         else
-         {
-            myRect.setHeight(rect().height());
-            myRect.setWidth(rect().width());
+            pLayout->rect.right -= m_sizeDefault.cx;
+            pLayout->sizeTotal.cx += m_sizeDefault.cx;
+            pLayout->sizeTotal.cy = (pLayout->rect.bottom-pLayout->rect.top)+1;
          }
       }
       break;
@@ -6702,6 +6728,11 @@ BOOL CDialogBar::Create(
       _qt->setSizePolicy(QSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed));
       _qt->setFixedSize(_mfcd->rect().width(),_mfcd->rect().height());
    }
+   
+   CRect rect;
+	GetWindowRect(&rect);
+   m_sizeDefault = CSize(_mfcd->rect().size());    // set fixed size
+   
    ShowWindow(SW_SHOW);
 
    return TRUE;
@@ -6713,8 +6744,8 @@ CSize CDialogBar::CalcFixedLayout(
 )
 {
    if (bStretch) // if not docked stretch to fit
-		return CSize(bHorz ? 32767 : m_sizeDefault.cx,
-			bHorz ? m_sizeDefault.cy : 32767);
+      return CSize(bHorz ? 32767 : m_sizeDefault.cx,
+                   bHorz ? m_sizeDefault.cy : 32767);
 	else
 		return m_sizeDefault;
 }
@@ -8365,7 +8396,7 @@ BOOL CTabCtrl::Create(
    _qtd = dynamic_cast<QTabWidget*>(_qt);
 
    _qtd->setMouseTracking(true);
-   _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
+   _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
 
    // Pass-through signals
    QObject::connect(_qtd,SIGNAL(currentChanged(int)),this,SIGNAL(currentChanged(int)));
@@ -8467,7 +8498,7 @@ BOOL CEdit::Create(
       // Pass-through signals
       QObject::connect(_qtd_ptedit,SIGNAL(textChanged()),this,SIGNAL(textChanged()));
 
-      _qtd_ptedit->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
+      _qtd_ptedit->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
       _qtd_ptedit->setReadOnly(dwStyle&ES_READONLY);
       _qtd_ptedit->setVisible(dwStyle&WS_VISIBLE);
    }
@@ -8484,7 +8515,7 @@ BOOL CEdit::Create(
       // Pass-through signals
       QObject::connect(_qtd_ledit,SIGNAL(textChanged(QString)),this,SIGNAL(textChanged(QString)));
 
-      _qtd_ledit->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
+      _qtd_ledit->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
       _qtd_ledit->setReadOnly(dwStyle&ES_READONLY);
       _qtd_ledit->setVisible(dwStyle&WS_VISIBLE);
    }
@@ -8811,16 +8842,12 @@ CButton::CButton(CWnd* parent)
      _qtd_push(NULL),
      _qtd_radio(NULL),
      _qtd_check(NULL),
-     _qtd(NULL)
+     _qtd_groupbox(NULL)
 {
 }
 
 CButton::~CButton()
 {
-   if ( _qtd )
-      delete _qtd;
-   _qtd = NULL;
-   _qt = NULL;
 }
 
 void CButton::subclassWidget(int nID,CWnd* widget)
@@ -8859,7 +8886,21 @@ BOOL CButton::Create(
 
       // Downcast to save having to do it all over the place...
       _qtd_check = dynamic_cast<QCheckBox*>(_qt);
+
+#if UNICODE
+      _qtd_check->setText(QString::fromWCharArray(lpszCaption));
+#else
+      _qtd_check->setText(QString::fromLatin1(lpszCaption));
+#endif
+
       _qtd_check->setCheckable(true);
+      
+      _qtd_check->setMouseTracking(true);
+      _qtd_check->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
+      _qtd_check->setVisible(dwStyle&WS_VISIBLE);
+   
+      // Pass-through signals
+      QObject::connect(_qtd_check,SIGNAL(clicked()),this,SIGNAL(clicked()));
    }
    else if ( buttonType == BS_AUTO3STATE )
    {
@@ -8867,8 +8908,22 @@ BOOL CButton::Create(
 
       // Downcast to save having to do it all over the place...
       _qtd_check = dynamic_cast<QCheckBox*>(_qt);
+
+#if UNICODE
+      _qtd_check->setText(QString::fromWCharArray(lpszCaption));
+#else
+      _qtd_check->setText(QString::fromLatin1(lpszCaption));
+#endif
+
       _qtd_check->setCheckable(true);
       _qtd_check->setTristate(true);
+      
+      _qtd_check->setMouseTracking(true);
+      _qtd_check->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
+      _qtd_check->setVisible(dwStyle&WS_VISIBLE);
+   
+      // Pass-through signals
+      QObject::connect(_qtd_check,SIGNAL(clicked()),this,SIGNAL(clicked()));
    }
    else if ( buttonType == BS_AUTORADIOBUTTON )
    {
@@ -8876,7 +8931,21 @@ BOOL CButton::Create(
 
       // Downcast to save having to do it all over the place...
       _qtd_radio = dynamic_cast<QRadioButton*>(_qt);
+
+#if UNICODE
+      _qtd_radio->setText(QString::fromWCharArray(lpszCaption));
+#else
+      _qtd_radio->setText(QString::fromLatin1(lpszCaption));
+#endif
+
       _qtd_radio->setCheckable(true);
+      
+      _qtd_radio->setMouseTracking(true);
+      _qtd_radio->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
+      _qtd_radio->setVisible(dwStyle&WS_VISIBLE);
+   
+      // Pass-through signals
+      QObject::connect(_qtd_radio,SIGNAL(clicked()),this,SIGNAL(clicked()));
    }
    else if ( (buttonType == BS_PUSHBUTTON) ||
              (buttonType == BS_DEFPUSHBUTTON) )
@@ -8886,23 +8955,43 @@ BOOL CButton::Create(
       // Downcast to save having to do it all over the place...
       _qtd_push = dynamic_cast<QPushButton*>(_qt);
 
-      _qtd_push->setDefault(buttonType==BS_DEFPUSHBUTTON);
-   }
-
-   _qtd = dynamic_cast<QAbstractButton*>(_qt);
-
 #if UNICODE
-   _qtd->setText(QString::fromWCharArray(lpszCaption));
+      _qtd_push->setText(QString::fromWCharArray(lpszCaption));
 #else
-   _qtd->setText(QString::fromLatin1(lpszCaption));
+      _qtd_push->setText(QString::fromLatin1(lpszCaption));
 #endif
 
-   _qtd->setMouseTracking(true);
-   _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
-   _qtd->setVisible(dwStyle&WS_VISIBLE);
+      _qtd_push->setDefault(buttonType==BS_DEFPUSHBUTTON);
+      
+      _qtd_push->setMouseTracking(true);
+      _qtd_push->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
+      _qtd_push->setVisible(dwStyle&WS_VISIBLE);
+   
+      // Pass-through signals
+      QObject::connect(_qtd_push,SIGNAL(clicked()),this,SIGNAL(clicked()));
+   }
+   else if ( buttonType == BS_GROUPBOX )
+   {
+      _qt = new QGroupBox(pParentWnd->toQWidget());
+   
+      // Downcast to save having to do it all over the place...
+      _qtd_groupbox = dynamic_cast<QGroupBox*>(_qt);
+   
+#if UNICODE
+      _qtd_groupbox->setTitle(QString::fromWCharArray(lpszCaption));
+#else
+      _qtd_groupbox->setTitle(QString::fromLatin1(lpszCaption));
+#endif
 
-   // Pass-through signals
-   QObject::connect(_qtd,SIGNAL(clicked()),this,SIGNAL(clicked()));
+      _qtd_groupbox->setContentsMargins(0,0,0,0);
+      
+      _qtd_groupbox->setMouseTracking(true);
+      _qtd_groupbox->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
+      _qtd_groupbox->setVisible(dwStyle&WS_VISIBLE);
+   
+      // Pass-through signals
+      QObject::connect(_qtd_groupbox,SIGNAL(clicked()),this,SIGNAL(clicked()));
+   }
 
    return TRUE;
 }
@@ -8912,7 +9001,27 @@ HBITMAP CButton::SetBitmap(
 )
 {
    CBitmap* pBitmap = (CBitmap*)hBitmap;
-   _qtd->setIcon(QIcon(*pBitmap->toQPixmap()));
+   DWORD buttonType = _dwStyle&0x000F;
+   DWORD buttonStyle = _dwStyle&0xFFF0;
+
+   if ( buttonType == BS_AUTOCHECKBOX )
+   {
+      _qtd_check->setIcon(QIcon(*pBitmap->toQPixmap()));
+   }
+   else if ( buttonType == BS_AUTO3STATE )
+   {
+      _qtd_check->setIcon(QIcon(*pBitmap->toQPixmap()));
+   }
+   else if ( buttonType == BS_AUTORADIOBUTTON )
+   {
+      _qtd_radio->setIcon(QIcon(*pBitmap->toQPixmap()));
+   }
+   else if ( (buttonType == BS_PUSHBUTTON) ||
+             (buttonType == BS_DEFPUSHBUTTON) )
+   {
+      _qtd_push->setIcon(QIcon(*pBitmap->toQPixmap()));
+   }
+   
    return (HBITMAP)0;
 }
 
@@ -8922,7 +9031,30 @@ void CButton::SetDlgItemInt(
    BOOL bSigned
 )
 {
-   _qtd->setText(QString::number(nValue));
+   DWORD buttonType = _dwStyle&0x000F;
+   DWORD buttonStyle = _dwStyle&0xFFF0;
+
+   if ( buttonType == BS_AUTOCHECKBOX )
+   {      
+      _qtd_check->setText(QString::number(nValue));
+   }
+   else if ( buttonType == BS_AUTO3STATE )
+   {
+      _qtd_check->setText(QString::number(nValue));
+   }
+   else if ( buttonType == BS_AUTORADIOBUTTON )
+   {
+      _qtd_radio->setText(QString::number(nValue));
+   }
+   else if ( (buttonType == BS_PUSHBUTTON) ||
+             (buttonType == BS_DEFPUSHBUTTON) )
+   {
+      _qtd_push->setText(QString::number(nValue));
+   }
+   else if ( buttonType == BS_GROUPBOX )
+   {
+      _qtd_groupbox->setTitle(QString::number(nValue));
+   }   
 }
 
 UINT CButton::GetDlgItemInt(
@@ -8931,7 +9063,30 @@ UINT CButton::GetDlgItemInt(
    BOOL bSigned
 ) const
 {
-   return _qtd->text().toInt();
+   DWORD buttonType = _dwStyle&0x000F;
+   DWORD buttonStyle = _dwStyle&0xFFF0;
+
+   if ( buttonType == BS_AUTOCHECKBOX )
+   {
+      return _qtd_check->text().toInt();
+   }
+   else if ( buttonType == BS_AUTO3STATE )
+   {
+      return _qtd_check->text().toInt();
+   }
+   else if ( buttonType == BS_AUTORADIOBUTTON )
+   {
+      return _qtd_radio->text().toInt();
+   }
+   else if ( (buttonType == BS_PUSHBUTTON) ||
+             (buttonType == BS_DEFPUSHBUTTON) )
+   {
+      return _qtd_push->text().toInt();
+   }
+   else if ( buttonType == BS_GROUPBOX )
+   {
+      return _qtd_groupbox->title().toInt();
+   }   
 }
 
 void CButton::SetDlgItemText(
@@ -8939,11 +9094,50 @@ void CButton::SetDlgItemText(
    LPCTSTR lpszString
 )
 {
+   DWORD buttonType = _dwStyle&0x000F;
+   DWORD buttonStyle = _dwStyle&0xFFF0;
+
+   if ( buttonType == BS_AUTOCHECKBOX )
+   {
 #if UNICODE
-   _qtd->setText(QString::fromWCharArray(lpszString));
+      _qtd_check->setText(QString::fromWCharArray(lpszString));
 #else
-   _qtd->setText(QString::fromLatin1(lpszString));
+      _qtd_check->setText(QString::fromLatin1(lpszString));
 #endif
+   }
+   else if ( buttonType == BS_AUTO3STATE )
+   {
+#if UNICODE
+      _qtd_check->setText(QString::fromWCharArray(lpszString));
+#else
+      _qtd_check->setText(QString::fromLatin1(lpszString));
+#endif
+   }
+   else if ( buttonType == BS_AUTORADIOBUTTON )
+   {
+#if UNICODE
+      _qtd_radio->setText(QString::fromWCharArray(lpszString));
+#else
+      _qtd_radio->setText(QString::fromLatin1(lpszString));
+#endif
+   }
+   else if ( (buttonType == BS_PUSHBUTTON) ||
+             (buttonType == BS_DEFPUSHBUTTON) )
+   {
+#if UNICODE
+      _qtd_push->setText(QString::fromWCharArray(lpszString));
+#else
+      _qtd_push->setText(QString::fromLatin1(lpszString));
+#endif
+   }
+   else if ( buttonType == BS_GROUPBOX )
+   {
+#if UNICODE
+      _qtd_groupbox->setTitle(QString::fromWCharArray(lpszString));
+#else
+      _qtd_groupbox->setTitle(QString::fromLatin1(lpszString));
+#endif
+   }   
 }
 
 int CButton::GetDlgItemText(
@@ -8951,8 +9145,35 @@ int CButton::GetDlgItemText(
    CString& rString
 ) const
 {
-   rString = _qtd->text();
-   return _qtd->text().length();
+   DWORD buttonType = _dwStyle&0x000F;
+   DWORD buttonStyle = _dwStyle&0xFFF0;
+
+   if ( buttonType == BS_AUTOCHECKBOX )
+   {
+      rString = _qtd_check->text();
+      return _qtd_check->text().length();
+   }
+   else if ( buttonType == BS_AUTO3STATE )
+   {
+      rString = _qtd_check->text();
+      return _qtd_check->text().length();
+   }
+   else if ( buttonType == BS_AUTORADIOBUTTON )
+   {
+      rString = _qtd_radio->text();
+      return _qtd_radio->text().length();
+   }
+   else if ( (buttonType == BS_PUSHBUTTON) ||
+             (buttonType == BS_DEFPUSHBUTTON) )
+   {
+      rString = _qtd_push->text();
+      return _qtd_push->text().length();
+   }
+   else if ( buttonType == BS_GROUPBOX )
+   {
+      rString = _qtd_groupbox->title();
+      return _qtd_groupbox->title().length();
+   }   
 }
 
 int CButton::GetDlgItemText(
@@ -8961,12 +9182,55 @@ int CButton::GetDlgItemText(
    int nMaxCount
 ) const
 {
+   DWORD buttonType = _dwStyle&0x000F;
+   DWORD buttonStyle = _dwStyle&0xFFF0;
+
+   if ( buttonType == BS_AUTOCHECKBOX )
+   {
 #if UNICODE
-   wcsncpy(lpStr,(LPWSTR)_qtd->text().unicode(),nMaxCount);
+      wcsncpy(lpStr,(LPWSTR)_qtd_check->text().unicode(),nMaxCount);
 #else
-   strncpy(lpStr,_qtd->text().toLatin1().constData(),nMaxCount);
+      strncpy(lpStr,_qtd_check->text().toLatin1().constData(),nMaxCount);
 #endif
-   return _qtd->text().length();
+      return _qtd_check->text().length();
+   }
+   else if ( buttonType == BS_AUTO3STATE )
+   {
+#if UNICODE
+      wcsncpy(lpStr,(LPWSTR)_qtd_check->text().unicode(),nMaxCount);
+#else
+      strncpy(lpStr,_qtd_check->text().toLatin1().constData(),nMaxCount);
+#endif
+      return _qtd_check->text().length();
+   }
+   else if ( buttonType == BS_AUTORADIOBUTTON )
+   {
+#if UNICODE
+      wcsncpy(lpStr,(LPWSTR)_qtd_radio->text().unicode(),nMaxCount);
+#else
+      strncpy(lpStr,_qtd_radio->text().toLatin1().constData(),nMaxCount);
+#endif
+      return _qtd_radio->text().length();
+   }
+   else if ( (buttonType == BS_PUSHBUTTON) ||
+             (buttonType == BS_DEFPUSHBUTTON) )
+   {
+#if UNICODE
+      wcsncpy(lpStr,(LPWSTR)_qtd_push->text().unicode(),nMaxCount);
+#else
+      strncpy(lpStr,_qtd_push->text().toLatin1().constData(),nMaxCount);
+#endif
+      return _qtd_push->text().length();
+   }
+   else if ( buttonType == BS_GROUPBOX )
+   {
+#if UNICODE
+      wcsncpy(lpStr,(LPWSTR)_qtd_groupbox->title().unicode(),nMaxCount);
+#else
+      strncpy(lpStr,_qtd_groupbox->title().toLatin1().constData(),nMaxCount);
+#endif
+      return _qtd_groupbox->title().length();
+   }   
 }
 
 void CButton::CheckDlgButton(
@@ -8974,80 +9238,60 @@ void CButton::CheckDlgButton(
    UINT nCheck
 )
 {
-   _qtd->setChecked(nCheck);
+   DWORD buttonType = _dwStyle&0x000F;
+   DWORD buttonStyle = _dwStyle&0xFFF0;
+
+   if ( buttonType == BS_AUTOCHECKBOX )
+   {      
+      _qtd_check->setChecked(nCheck);
+   }
+   else if ( buttonType == BS_AUTO3STATE )
+   {
+      _qtd_check->setChecked(nCheck);
+   }
+   else if ( buttonType == BS_AUTORADIOBUTTON )
+   {
+      _qtd_radio->setChecked(nCheck);
+   }
+   else if ( (buttonType == BS_PUSHBUTTON) ||
+             (buttonType == BS_DEFPUSHBUTTON) )
+   {
+      _qtd_push->setChecked(nCheck);
+   }
+   else if ( buttonType == BS_GROUPBOX )
+   {
+      _qtd_groupbox->setChecked(nCheck);
+   }   
 }
 
 UINT CButton::IsDlgButtonChecked(
    int nIDButton
 ) const
 {
-   return _qtd->isChecked();
-}
+   DWORD buttonType = _dwStyle&0x000F;
+   DWORD buttonStyle = _dwStyle&0xFFF0;
 
-IMPLEMENT_DYNAMIC(CBitmapButton,CButton)
-
-CBitmapButton::CBitmapButton(CWnd* parent)
-   : CButton(parent),
-     _qtd(NULL)
-{
-}
-
-CBitmapButton::~CBitmapButton()
-{
-   if ( _qtd )
-      delete _qtd;
-   _qtd = NULL;
-   _qt = NULL;
-}
-
-void CBitmapButton::subclassWidget(int nID,CWnd* widget)
-{
-   CRect rect;
-   widget->GetWindowRect(&rect);
-   CString text;
-   widget->GetWindowText(text);
-   Create(text,widget->GetStyle(),rect,widget->GetParent(),nID);
-   _qt->installEventFilter(dynamic_cast<CBitmapButton*>(this));
-}
-
-BOOL CBitmapButton::Create(
-   LPCTSTR lpszCaption,
-   DWORD dwStyle,
-   const RECT& rect,
-   CWnd* pParentWnd,
-   UINT nID
-)
-{
-   m_hWnd = (HWND)this;
-   _id = nID;
-
-   DWORD buttonType = dwStyle&0x000F;
-   DWORD buttonStyle = dwStyle&0xFFF0;
-
-   if ( _qt )
-      delete _qt;
-
-   _grid = NULL;
-
-   _qt = new QToolButton(pParentWnd->toQWidget());
-
-   // Downcast to save having to do it all over the place...
-   _qtd = dynamic_cast<QToolButton*>(_qt);
-
-#if UNICODE
-   _qtd->setText(QString::fromWCharArray(lpszCaption));
-#else
-   _qtd->setText(QString::fromLatin1(lpszCaption));
-#endif
-
-   _qtd->setMouseTracking(true);
-   _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
-   _qtd->setVisible(dwStyle&WS_VISIBLE);
-
-   // Pass-through signals
-   QObject::connect(_qtd,SIGNAL(clicked()),this,SIGNAL(clicked()));
-
-   return TRUE;
+   if ( buttonType == BS_AUTOCHECKBOX )
+   {
+      return _qtd_check->isChecked();
+   }
+   else if ( buttonType == BS_AUTO3STATE )
+   {
+      return _qtd_check->isChecked();
+   }
+   else if ( buttonType == BS_AUTORADIOBUTTON )
+   {
+      return _qtd_radio->isChecked();
+   }
+   else if ( (buttonType == BS_PUSHBUTTON) ||
+             (buttonType == BS_DEFPUSHBUTTON) )
+   {
+      return _qtd_push->isChecked();
+   }
+   else if ( buttonType == BS_GROUPBOX )
+   {
+      return _qtd_groupbox->isChecked();
+   }   
 }
 
 IMPLEMENT_DYNAMIC(CSpinButtonCtrl,CWnd)
@@ -9083,23 +9327,44 @@ BOOL CSpinButtonCtrl::Create(
 {
    m_hWnd = (HWND)this;
    _id = nID;
+   
+   _dwStyle = dwStyle;
 
    if ( _qt )
       delete _qt;
 
    _grid = NULL;
 
-   _qt = new QSpinBox(pParentWnd->toQWidget());
+   _qt = new QSpinBox_MFC(pParentWnd->toQWidget());
 
    // Downcast to save having to do it all over the place...
-   _qtd = dynamic_cast<QSpinBox*>(_qt);
+   _qtd = dynamic_cast<QSpinBox_MFC*>(_qt);
 
    // Pass-through signals
    QObject::connect(_qtd,SIGNAL(valueChanged(int)),this,SLOT(control_edited(int)));
 
    _qtd->setMouseTracking(true);
-   _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
+   _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
    _qtd->setMaximum(65536);
+   
+   // Figure out if we need to buddy-up.
+   if ( dwStyle&UDS_AUTOBUDDY )
+   {
+      // Check each corner.
+      foreach ( CWnd* pWnd, *(GetParent()->mfcToQtWidgetMap()) )
+      {
+         if ( geometry().intersects(pWnd->toQWidget()->geometry()) )
+         {
+            if ( dynamic_cast<CEdit*>(pWnd) )
+            {
+               QRect rect = pWnd->toQWidget()->geometry();
+               _qtd->setLineEdit(dynamic_cast<QLineEdit*>(pWnd->toQWidget()));
+               _qtd->setGeometry(rect);
+            }
+         }
+      }
+   }
+   
    _qtd->setVisible(dwStyle&WS_VISIBLE);
 
    return TRUE;
@@ -9280,7 +9545,7 @@ BOOL CSliderCtrl::Create(
       _qtd->setInvertedAppearance(true);
    }
 
-   _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
+   _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
    _qtd->setVisible(dwStyle&WS_VISIBLE);
 
    return TRUE;
@@ -9430,7 +9695,7 @@ BOOL CProgressCtrl::Create(
    // Not sure if there's vertical sliders in MFC...
    _qtd->setOrientation(Qt::Horizontal);
    _qtd->setMouseTracking(true);
-   _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
+   _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
 
    // Pass-through signals
 }
@@ -9508,7 +9773,7 @@ BOOL CStatic::Create(
    // Downcast to save having to do it all over the place...
    _qtd = dynamic_cast<QLabel*>(_qt);
    _qtd->setMouseTracking(true);
-   _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
+   _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
 
 #if UNICODE
    _qtd->setText(QString::fromWCharArray(lpszText));
@@ -9572,122 +9837,6 @@ int CStatic::GetDlgItemText(
    strncpy(lpStr,_qtd->text().toLatin1().constData(),nMaxCount);
 #endif
    return _qtd->text().length();
-}
-
-IMPLEMENT_DYNAMIC(CGroupBox,CWnd)
-
-CGroupBox::CGroupBox(CWnd *parent)
-   : CWnd(parent)
-{
-   if ( _qt )
-      delete _qt;
-
-   _grid = NULL;
-
-   _qt = new QGroupBox(parent->toQWidget());
-
-   // Downcast to save having to do it all over the place...
-   _qtd = dynamic_cast<QGroupBox*>(_qt);
-
-   _qtd->setContentsMargins(0,0,0,0);
-   _qtd->setMouseTracking(true);
-
-   // Pass-through signals
-   QObject::connect(_qtd,SIGNAL(clicked()),this,SIGNAL(clicked()));
-}
-
-CGroupBox::~CGroupBox()
-{
-   if ( _qtd )
-      delete _qtd;
-   _qtd = NULL;
-   _qt = NULL;
-}
-
-void CGroupBox::subclassWidget(int nID,CWnd* widget)
-{
-   CRect rect;
-   widget->GetWindowRect(&rect);
-   CString text;
-   widget->GetWindowText(text);
-   Create(text,widget->GetStyle(),rect,widget->GetParent(),nID);
-   _qt->installEventFilter(dynamic_cast<CGroupBox*>(this));
-}
-
-BOOL CGroupBox::Create(
-   LPCTSTR lpszCaption,
-   DWORD dwStyle,
-   const RECT& rect,
-   CWnd* pParentWnd,
-   UINT nID
-)
-{
-   m_hWnd = (HWND)this;
-   _id = nID;
-
-#if UNICODE
-   _qtd->setTitle(QString::fromWCharArray(lpszCaption));
-#else
-   _qtd->setTitle(QString::fromLatin1(lpszCaption));
-#endif
-
-   _qtd->setGeometry(rect.left,rect.top,rect.right-rect.left,rect.bottom-rect.top);
-   _qtd->setVisible(dwStyle&WS_VISIBLE);
-
-   return TRUE;
-}
-
-void CGroupBox::SetDlgItemInt(
-   int nID,
-   UINT nValue,
-   BOOL bSigned
-)
-{
-   _qtd->setTitle(QString::number(nValue));
-}
-
-UINT CGroupBox::GetDlgItemInt(
-   int nID,
-   BOOL* lpTrans,
-   BOOL bSigned
-) const
-{
-   return _qtd->title().toInt();
-}
-
-void CGroupBox::SetDlgItemText(
-   int nID,
-   LPCTSTR lpszString
-)
-{
-#if UNICODE
-   _qtd->setTitle(QString::fromWCharArray(lpszString));
-#else
-   _qtd->setTitle(QString::fromLatin1(lpszString));
-#endif
-}
-
-int CGroupBox::GetDlgItemText(
-   int nID,
-   CString& rString
-) const
-{
-   rString = _qtd->title();
-   return _qtd->title().length();
-}
-
-int CGroupBox::GetDlgItemText(
-   int nID,
-   LPTSTR lpStr,
-   int nMaxCount
-) const
-{
-#if UNICODE
-   wcsncpy(lpStr,(LPWSTR)_qtd->title().unicode(),nMaxCount);
-#else
-   strncpy(lpStr,_qtd->title().toLatin1().constData(),nMaxCount);
-#endif
-   return _qtd->title().length();
 }
 
 IMPLEMENT_DYNAMIC(CFileDialog,CCommonDialog)

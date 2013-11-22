@@ -491,30 +491,30 @@ LRESULT CFamiTrackerView::OnUpdateMsg(WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-//void CFamiTrackerView::CalcWindowRect(LPRECT lpClientRect, UINT nAdjustType)
-//{
-//	// Window size has changed
-//	m_iWindowWidth	= (lpClientRect->right - lpClientRect->left) - 17;
-//	m_iWindowHeight	= (lpClientRect->bottom - lpClientRect->top) - 17;
+void CFamiTrackerView::CalcWindowRect(LPRECT lpClientRect, UINT nAdjustType)
+{
+	// Window size has changed
+	m_iWindowWidth	= (lpClientRect->right - lpClientRect->left) - 17;
+	m_iWindowHeight	= (lpClientRect->bottom - lpClientRect->top) - 17;
 
-//	m_bUpdateBackground = true;
+	m_bUpdateBackground = true;
 
-//	int Width = lpClientRect->right - lpClientRect->left;
-//	int Height = lpClientRect->bottom - lpClientRect->top;
+	int Width = lpClientRect->right - lpClientRect->left;
+	int Height = lpClientRect->bottom - lpClientRect->top;
 
-//	CScrollBar *pVertScrollBar = GetScrollBarCtrl(SB_VERT);
-//	CScrollBar *pHorzScrollBar = GetScrollBarCtrl(SB_HORZ);
+	CScrollBar *pVertScrollBar = GetScrollBarCtrl(SB_VERT);
+	CScrollBar *pHorzScrollBar = GetScrollBarCtrl(SB_HORZ);
 
-//	if (pVertScrollBar && pVertScrollBar->IsWindowVisible())
-//		Width -= GetSystemMetrics(SM_CXVSCROLL);
+	if (pVertScrollBar && pVertScrollBar->IsWindowVisible())
+		Width -= GetSystemMetrics(SM_CXVSCROLL);
 
-//	if (pHorzScrollBar && pHorzScrollBar->IsWindowVisible())
-//		Height -= GetSystemMetrics(SM_CXHSCROLL);
+	if (pHorzScrollBar && pHorzScrollBar->IsWindowVisible())
+		Height -= GetSystemMetrics(SM_CXHSCROLL);
 
-//	m_pPatternView->SetWindowSize(Width, Height);
+	m_pPatternView->SetWindowSize(Width, Height);
 
-//	CView::CalcWindowRect(lpClientRect, nAdjustType);
-//}
+	CView::CalcWindowRect(lpClientRect, nAdjustType);
+}
 
 // Scroll
 
