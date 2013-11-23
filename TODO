@@ -5,7 +5,7 @@ Bugs/things to work on:
 2. MFC message map implement proper handlers.
 3. Paint event handling for subclassed widgets needs to support paint-over of standard widgets.
 4. TrackPopupMenu needs to hook into #2 so that pattern-editor menu actions go up the proper chain and get handled.
-5. Implement CEdit/CSpinButtonCtrl solution that ties in better with Qt widgets.
+**DONE** 5. Implement CEdit/CSpinButtonCtrl solution that ties in better with Qt widgets.
 6. Support non-numeric spin-controls for CreateWave dialog.
 **DONE** 7. Figure out why CreateWave dialog's subclassed CListBox isn't subclassing properly.
 **DONE** 8. Module importing doesn't work properly.
