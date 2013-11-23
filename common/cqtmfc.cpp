@@ -9580,7 +9580,7 @@ void CSpinButtonCtrl::SetDlgItemText(
 #endif
    _qtd->blockSignals(true);
    _oldValue = pos;
-   _qtd->setValue(val.toInt());
+   _qtd->lineEdit()->setText(val);
    _qtd->blockSignals(false);
 }
 

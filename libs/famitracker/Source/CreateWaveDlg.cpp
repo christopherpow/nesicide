@@ -70,10 +70,22 @@ void CCreateWaveDlg::cancel_clicked()
 
 void CCreateWaveDlg::spinLoop_valueChanged(int arg1,int arg2)
 {
+   NMUPDOWN nmud;
+   LRESULT result;
+
+   nmud.iPos = arg2;
+   nmud.iDelta = arg1-arg2;
+   OnDeltaposSpinLoop((NMHDR*)&nmud,&result);
 }
 
 void CCreateWaveDlg::spinTime_valueChanged(int arg1,int arg2)
 {
+   NMUPDOWN nmud;
+   LRESULT result;
+
+   nmud.iPos = arg2;
+   nmud.iDelta = arg1-arg2;
+   OnDeltaposSpinTime((NMHDR*)&nmud,&result);
 }
 
 int CCreateWaveDlg::GetFrameLoopCount()
