@@ -51,7 +51,7 @@ public slots:
    void loop_clicked();
    void add_clicked();
    void remove_clicked();
-   void loopPoint_textChanged(QString str);
+   void loopPoint_textEdited(QString str);
    void edit_clicked();
    void preview_clicked();
    void menuAction_triggered(int id);

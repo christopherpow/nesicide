@@ -3128,6 +3128,7 @@ void CComboBox::subclassWidget(int nID,CWnd* widget)
    widget->GetWindowRect(&rect);
    Create(widget->GetStyle(),rect,widget->GetParent(),nID);
    _qt->installEventFilter(dynamic_cast<CComboBox*>(this));
+   widget->setParent(NULL);
 }
 
 BOOL CComboBox::Create(
@@ -3344,6 +3345,7 @@ void CListBox::subclassWidget(int nID,CWnd* widget)
    widget->GetWindowRect(&rect);
    Create(widget->GetStyle(),rect,widget->GetParent(),nID);
    _qt->installEventFilter(dynamic_cast<CListBox*>(this));
+   widget->setParent(NULL);
 }
 
 BOOL CListBox::Create(
@@ -3422,6 +3424,7 @@ void CCheckListBox::subclassWidget(int nID,CWnd* widget)
    widget->GetWindowRect(&rect);
    Create(widget->GetStyle(),rect,widget->GetParent(),nID);
    _qt->installEventFilter(dynamic_cast<CCheckListBox*>(this));
+   widget->setParent(NULL);
 }
 
 int CCheckListBox::GetCheck(
@@ -3498,6 +3501,7 @@ void CListCtrl::subclassWidget(int nID,CWnd* widget)
    widget->GetWindowRect(&rect);
    Create(widget->GetStyle(),rect,widget->GetParent(),nID);
    _qt->installEventFilter(dynamic_cast<CListCtrl*>(this));
+   widget->setParent(NULL);
 }
 
 QModelIndex CListCtrl::currentIndex () const
@@ -4549,6 +4553,7 @@ void CTreeCtrl::subclassWidget(int nID,CWnd* widget)
    widget->GetWindowRect(&rect);
    Create(widget->GetStyle(),rect,widget->GetParent(),nID);
    _qt->installEventFilter(dynamic_cast<CTreeCtrl*>(this));
+   widget->setParent(NULL);
 }
 
 BOOL CTreeCtrl::Create(
@@ -4824,6 +4829,7 @@ void CScrollBar::subclassWidget(int nID,CWnd* widget)
    widget->GetWindowRect(&rect);
    Create(widget->GetStyle(),rect,widget->GetParent(),nID);
    _qt->installEventFilter(dynamic_cast<CScrollBar*>(this));
+   widget->setParent(NULL);
 }
 
 BOOL CScrollBar::Create(
@@ -4984,6 +4990,7 @@ CWnd::CWnd(CWnd *parent)
      m_hWnd((HWND)NULL),
      _grid(NULL),
      _myDC(NULL),
+     _mfcBuddy(NULL),
      _dwStyle(0)
 {
    if ( parent )
@@ -5457,7 +5464,9 @@ void CWnd::SetDlgItemInt(
 {
    QtUIElement* pUIE = dynamic_cast<QtUIElement*>(GetDlgItem(nID));
    if ( pUIE )
+   {
       pUIE->SetDlgItemInt(nID,nValue,bSigned);
+   }
 }
 
 UINT CWnd::GetDlgItemInt(
@@ -5468,9 +5477,13 @@ UINT CWnd::GetDlgItemInt(
 {
    QtUIElement* pUIE = dynamic_cast<QtUIElement*>(GetDlgItem(nID));
    if ( pUIE )
+   {
       return pUIE->GetDlgItemInt(nID,lpTrans,bSigned);
+   }
    else
+   {
       return 0;
+   }
 }
 
 void CWnd::SetDlgItemText(
@@ -5480,7 +5493,9 @@ void CWnd::SetDlgItemText(
 {
    QtUIElement* pUIE = dynamic_cast<QtUIElement*>(GetDlgItem(nID));
    if ( pUIE )
+   {
       pUIE->SetDlgItemText(nID,lpszString);
+   }
 }
 
 int CWnd::GetDlgItemText(
@@ -5490,9 +5505,13 @@ int CWnd::GetDlgItemText(
 {
    QtUIElement* pUIE = dynamic_cast<QtUIElement*>(GetDlgItem(nID));
    if ( pUIE )
+   {
       return pUIE->GetDlgItemText(nID,rString);
+   }
    else
+   {
       return 0;
+   }
 }
 
 int CWnd::GetDlgItemText(
@@ -5503,9 +5522,13 @@ int CWnd::GetDlgItemText(
 {
    QtUIElement* pUIE = dynamic_cast<QtUIElement*>(GetDlgItem(nID));
    if ( pUIE )
+   {
       return pUIE->GetDlgItemText(nID,lpStr,nMaxCount);
+   }
    else
+   {
       return 0;
+   }
 }
 
 void CWnd::CheckDlgButton(
@@ -5515,7 +5538,9 @@ void CWnd::CheckDlgButton(
 {
    QtUIElement* pUIE = dynamic_cast<QtUIElement*>(GetDlgItem(nIDButton));
    if ( pUIE )
+   {
       pUIE->CheckDlgButton(nIDButton,nCheck);
+   }
 }
 
 UINT CWnd::IsDlgButtonChecked(
@@ -5543,7 +5568,6 @@ BOOL CWnd::SubclassDlgItem(
       setGeometry(pWndSrc->geometry());
       pParent->subclassWidget(nID,this);
       subclassWidget(nID,pWndSrc);
-      pWndSrc->setParent(NULL);
 //      delete pWndSrc;
       return TRUE;
    }
@@ -6287,6 +6311,7 @@ void CReBarCtrl::subclassWidget(int nID,CWnd* widget)
    widget->GetWindowRect(&rect);
    Create(widget->GetStyle(),rect,widget->GetParent(),nID);
    _qt->installEventFilter(dynamic_cast<CReBarCtrl*>(this));
+   widget->setParent(NULL);
 }
 
 BOOL CReBarCtrl::Create(
@@ -6426,6 +6451,7 @@ void CToolBar::subclassWidget(int nID,CWnd* widget)
 {
    Create(widget->GetParent(),widget->GetStyle(),nID);
    _qt->installEventFilter(dynamic_cast<CToolBar*>(this));
+   widget->setParent(NULL);
 }
 
 BOOL CToolBar::Create( 
@@ -8373,6 +8399,7 @@ void CTabCtrl::subclassWidget(int nID,CWnd* widget)
    widget->GetWindowRect(&rect);
    Create(widget->GetStyle(),rect,widget->GetParent(),nID);
    _qt->installEventFilter(dynamic_cast<CTabCtrl*>(this));
+   widget->setParent(NULL);
 }
 
 BOOL CTabCtrl::Create( 
@@ -8465,7 +8492,21 @@ void CEdit::subclassWidget(int nID,CWnd* widget)
    CRect rect;
    widget->GetWindowRect(&rect);
    Create(widget->GetStyle(),rect,widget->GetParent(),nID);
+   setMfcBuddy(widget->mfcBuddy());
    _qt->installEventFilter(dynamic_cast<CEdit*>(this));
+   
+   // Check if this CEdit has been auto-buddied with a CSpinButtonCtrl and,
+   // if so, reparent it appropriately.
+   QSpinBox_MFC* spinBox = dynamic_cast<QSpinBox_MFC*>(widget->toQWidget()->parentWidget());
+   if ( spinBox )
+   {
+      spinBox->setLineEdit(dynamic_cast<QLineEdit*>(toQWidget()));
+      // Don't un-parent the original widget, it's inside a QSpinBox!
+   }
+   else
+   {
+      widget->setParent(NULL);
+   }
 }
 
 BOOL CEdit::Create(
@@ -8497,10 +8538,15 @@ BOOL CEdit::Create(
 
       // Pass-through signals
       QObject::connect(_qtd_ptedit,SIGNAL(textChanged()),this,SIGNAL(textChanged()));
-
+      
       _qtd_ptedit->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
       _qtd_ptedit->setReadOnly(dwStyle&ES_READONLY);
       _qtd_ptedit->setVisible(dwStyle&WS_VISIBLE);
+      
+      if ( dwStyle&ES_NUMBER )
+      {
+         _qtd_ptedit->setInputMethodHints(Qt::ImhFormattedNumbersOnly);
+      }
    }
    else
    {
@@ -8513,13 +8559,18 @@ BOOL CEdit::Create(
       _qtd_ledit = dynamic_cast<QLineEdit*>(_qt);
 
       // Pass-through signals
-      QObject::connect(_qtd_ledit,SIGNAL(textChanged(QString)),this,SIGNAL(textChanged(QString)));
+      QObject::connect(_qtd_ledit,SIGNAL(textEdited(QString)),this,SIGNAL(textEdited(QString)));
 
       _qtd_ledit->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
       _qtd_ledit->setReadOnly(dwStyle&ES_READONLY);
       _qtd_ledit->setVisible(dwStyle&WS_VISIBLE);
+      
+      if ( dwStyle&ES_NUMBER )
+      {
+         _qtd_ledit->setInputMethodHints(Qt::ImhFormattedNumbersOnly);
+      }
    }
-
+   
    return TRUE;
 }
 
@@ -8534,6 +8585,14 @@ LRESULT CEdit::SendMessage(
       switch ( message )
       {
       case EM_SETREADONLY:
+         if ( wParam )
+         {
+            _dwStyle |= ES_READONLY;
+         }
+         else
+         {
+            _dwStyle &= (~ES_READONLY);
+         }
          _qtd_ptedit->setReadOnly(wParam);
          break;
       }
@@ -8543,6 +8602,14 @@ LRESULT CEdit::SendMessage(
       switch ( message )
       {
       case EM_SETREADONLY:
+         if ( wParam )
+         {
+            _dwStyle |= ES_READONLY;
+         }
+         else
+         {
+            _dwStyle &= (~ES_READONLY);
+         }
          _qtd_ledit->setReadOnly(wParam);
          break;
       }
@@ -8609,19 +8676,33 @@ void CEdit::SetWindowText(
 {
    if ( _dwStyle&ES_MULTILINE )
    {
+      _qtd_ptedit->blockSignals(true);
 #if UNICODE
-   _qtd_ptedit->setPlainText(QString::fromWCharArray(lpszString));
+      _qtd_ptedit->setPlainText(QString::fromWCharArray(lpszString));
 #else
-   _qtd_ptedit->setPlainText(QString::fromLatin1(lpszString));
+      _qtd_ptedit->setPlainText(QString::fromLatin1(lpszString));
 #endif
+      _qtd_ptedit->blockSignals(true);
    }
    else
    {
+      // Check if this CEdit has been auto-buddied with a CSpinButtonCtrl and,
+      // if so, update it appropriately.
+      CSpinButtonCtrl* spinBox = dynamic_cast<CSpinButtonCtrl*>(mfcBuddy());
+      _qtd_ledit->blockSignals(true);
+      if ( spinBox )
+      {
+         spinBox->SetWindowText(lpszString);
+      }
+      else
+      {
 #if UNICODE
-   _qtd_ledit->setText(QString::fromWCharArray(lpszString));
+         _qtd_ledit->setText(QString::fromWCharArray(lpszString));
 #else
-   _qtd_ledit->setText(QString::fromLatin1(lpszString));
+         _qtd_ledit->setText(QString::fromLatin1(lpszString));
 #endif
+      }
+      _qtd_ledit->blockSignals(false);
    }
 }
 
@@ -8691,11 +8772,24 @@ void CEdit::ReplaceSel(
    }
    else
    {
+      // Check if this CEdit has been auto-buddied with a CSpinButtonCtrl and,
+      // if so, update it appropriately.
+      CSpinButtonCtrl* spinBox = dynamic_cast<CSpinButtonCtrl*>(mfcBuddy());
+      _qtd_ledit->blockSignals(true);
+      if ( spinBox )
+      {
+         // CP: FIXME
+         qFatal("NOT IMPLEMENTED");
+      }
+      else
+      {
 #if UNICODE
-      _qtd_ledit->insert(QString::fromWCharArray(lpszNewText));
+         _qtd_ledit->insert(QString::fromWCharArray(lpszNewText));
 #else
-      _qtd_ledit->insert(QString::fromLatin1(lpszNewText));
+         _qtd_ledit->insert(QString::fromLatin1(lpszNewText));
 #endif
+      }
+      _qtd_ledit->blockSignals(false);
    }
 }
 
@@ -8745,11 +8839,25 @@ void CEdit::SetDlgItemInt(
 {
    if ( _dwStyle&ES_MULTILINE )
    {
+      _qtd_ptedit->blockSignals(true);
       _qtd_ptedit->setPlainText(QString::number(nValue));
+      _qtd_ptedit->blockSignals(false);
    }
    else
    {
-      _qtd_ledit->setText(QString::number(nValue));
+      // Check if this CEdit has been auto-buddied with a CSpinButtonCtrl and,
+      // if so, update it appropriately.
+      CSpinButtonCtrl* spinBox = dynamic_cast<CSpinButtonCtrl*>(mfcBuddy());
+      _qtd_ledit->blockSignals(true);
+      if ( spinBox )
+      {
+         spinBox->SetDlgItemInt(nID,nValue,bSigned);
+      }
+      else
+      {
+         _qtd_ledit->setText(QString::number(nValue));
+      }
+      _qtd_ledit->blockSignals(false);
    }
 }
 
@@ -8776,19 +8884,33 @@ void CEdit::SetDlgItemText(
 {
    if ( _dwStyle&ES_MULTILINE )
    {
+      _qtd_ptedit->blockSignals(true);
 #if UNICODE
       _qtd_ptedit->setPlainText(QString::fromWCharArray(lpszString));
 #else
       _qtd_ptedit->setPlainText(QString::fromLatin1(lpszString));
 #endif
+      _qtd_ptedit->blockSignals(false);
    }
    else
    {
+      // Check if this CEdit has been auto-buddied with a CSpinButtonCtrl and,
+      // if so, update it appropriately.
+      CSpinButtonCtrl* spinBox = dynamic_cast<CSpinButtonCtrl*>(mfcBuddy());
+      _qtd_ledit->blockSignals(true);
+      if ( spinBox )
+      {
+         spinBox->SetDlgItemText(nID,lpszString);
+      }
+      else
+      {
 #if UNICODE
-      _qtd_ledit->setText(QString::fromWCharArray(lpszString));
+         _qtd_ledit->setText(QString::fromWCharArray(lpszString));
 #else
-      _qtd_ledit->setText(QString::fromLatin1(lpszString));
+         _qtd_ledit->setText(QString::fromLatin1(lpszString));
 #endif
+      }
+      _qtd_ledit->blockSignals(false);
    }
 }
 
@@ -8858,6 +8980,7 @@ void CButton::subclassWidget(int nID,CWnd* widget)
    widget->GetWindowText(text);
    Create(text,widget->GetStyle(),rect,widget->GetParent(),nID);
    _qt->installEventFilter(dynamic_cast<CButton*>(this));
+   widget->setParent(NULL);
 }
 
 BOOL CButton::Create(
@@ -9316,6 +9439,7 @@ void CSpinButtonCtrl::subclassWidget(int nID,CWnd* widget)
    widget->GetWindowRect(&rect);
    Create(widget->GetStyle(),rect,widget->GetParent(),nID);
    _qt->installEventFilter(dynamic_cast<CSpinButtonCtrl*>(this));
+   widget->setParent(NULL);
 }
 
 BOOL CSpinButtonCtrl::Create(
@@ -9342,10 +9466,12 @@ BOOL CSpinButtonCtrl::Create(
 
    // Pass-through signals
    QObject::connect(_qtd,SIGNAL(valueChanged(int)),this,SLOT(control_edited(int)));
+   QObject::connect(_qtd->lineEdit(),SIGNAL(textEdited(QString)),this,SLOT(control_edited(QString)));
 
    _qtd->setMouseTracking(true);
+   _qtd->setKeyboardTracking(false);
    _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
-   _qtd->setMaximum(65536);
+   _qtd->setRange(0,65536);
    
    // Figure out if we need to buddy-up.
    if ( dwStyle&UDS_AUTOBUDDY )
@@ -9357,6 +9483,8 @@ BOOL CSpinButtonCtrl::Create(
          {
             if ( dynamic_cast<CEdit*>(pWnd) )
             {
+               pWnd->setMfcBuddy(this);
+               
                QRect rect = pWnd->toQWidget()->geometry();
                _qtd->setLineEdit(dynamic_cast<QLineEdit*>(pWnd->toQWidget()));
                _qtd->setGeometry(rect);
@@ -9376,13 +9504,17 @@ void CSpinButtonCtrl::control_edited(int value)
    _oldValue = value;
 }
 
+void CSpinButtonCtrl::control_edited(QString value)
+{
+}
+
 int CSpinButtonCtrl::SetPos(
    int nPos
 )
 {
    int pos = _qtd->value();
    _qtd->blockSignals(true);
-   _oldValue = nPos;
+   _oldValue = pos;
    _qtd->setValue(nPos);
    _qtd->blockSignals(false);
    return pos;
@@ -9401,6 +9533,7 @@ void CSpinButtonCtrl::SetRange(
    int val = _qtd->value();
    _qtd->blockSignals(true);
    _qtd->setRange(nLower,nUpper);
+   _qtd->blockSignals(false);
    if ( val < nLower )
    {
       SetPos(nLower);
@@ -9409,7 +9542,6 @@ void CSpinButtonCtrl::SetRange(
    {
       SetPos(nUpper);
    }
-   _qtd->blockSignals(false);
 }
 
 void CSpinButtonCtrl::SetDlgItemInt(
@@ -9418,8 +9550,11 @@ void CSpinButtonCtrl::SetDlgItemInt(
    BOOL bSigned
 )
 {
-   _oldValue = nValue;
+   int pos = _qtd->value();
+   _qtd->blockSignals(true);
+   _oldValue = pos;
    _qtd->setValue(nValue);
+   _qtd->blockSignals(false);
 }
 
 UINT CSpinButtonCtrl::GetDlgItemInt(
@@ -9437,13 +9572,16 @@ void CSpinButtonCtrl::SetDlgItemText(
 )
 {
    QString val;
+   int pos = _qtd->value();
 #if UNICODE
    val = QString::fromWCharArray(lpszString);
 #else
    val = QString::fromLatin1(lpszString);
 #endif
-   _oldValue = val.toInt();
+   _qtd->blockSignals(true);
+   _oldValue = pos;
    _qtd->setValue(val.toInt());
+   _qtd->blockSignals(false);
 }
 
 int CSpinButtonCtrl::GetDlgItemText(
@@ -9511,6 +9649,7 @@ void CSliderCtrl::subclassWidget(int nID,CWnd* widget)
    widget->GetWindowRect(&rect);
    Create(widget->GetStyle(),rect,widget->GetParent(),nID);
    _qt->installEventFilter(dynamic_cast<CSliderCtrl*>(this));
+   widget->setParent(NULL);
 }
 
 BOOL CSliderCtrl::Create(
@@ -9670,6 +9809,7 @@ void CProgressCtrl::subclassWidget(int nID,CWnd* widget)
    widget->GetWindowRect(&rect);
    Create(widget->GetStyle(),rect,widget->GetParent(),nID);
    _qt->installEventFilter(dynamic_cast<CProgressCtrl*>(this));
+   widget->setParent(NULL);
 }
 
 BOOL CProgressCtrl::Create( 
@@ -9747,6 +9887,7 @@ void CStatic::subclassWidget(int nID,CWnd* widget)
    widget->GetWindowText(text);
    Create(text,widget->GetStyle(),rect,widget->GetParent(),nID);
    _qt->installEventFilter(dynamic_cast<CStatic*>(this));
+   widget->setParent(NULL);
 }
 
 BOOL CStatic::Create(
@@ -10547,6 +10688,7 @@ void CToolTipCtrl::subclassWidget(int nID,CWnd* widget)
 {
    Create(widget->GetParent(),widget->GetStyle());
    _qt->installEventFilter(dynamic_cast<CToolTipCtrl*>(this));
+   widget->setParent(NULL);
 }
 
 BOOL CToolTipCtrl::Create(

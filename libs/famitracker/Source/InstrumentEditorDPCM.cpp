@@ -202,7 +202,7 @@ void CInstrumentEditorDPCM::remove_clicked()
    OnBnClickedRemove();
 }
 
-void CInstrumentEditorDPCM::loopPoint_textChanged(QString str)
+void CInstrumentEditorDPCM::loopPoint_textEdited(QString str)
 {
    OnEnChangeLoopPoint();
 }

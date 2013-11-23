@@ -111,7 +111,7 @@ void CModulePropertiesDlg::songImport_clicked()
    OnBnClickedSongImport();
 }
 
-void CModulePropertiesDlg::songName_textChanged(QString text)
+void CModulePropertiesDlg::songName_textEdited(QString text)
 {
    OnEnChangeSongname();
 }

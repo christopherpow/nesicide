@@ -38,7 +38,7 @@ public slots:
    void songUp_clicked();
    void songDown_clicked();
    void songImport_clicked();
-   void songName_textChanged(QString text);
+   void songName_textEdited(QString text);
    void expansion_currentIndexChanged(int index);
    void ok_clicked();
    void cancel_clicked();

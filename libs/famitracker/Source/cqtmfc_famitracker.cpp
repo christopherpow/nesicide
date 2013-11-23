@@ -1609,7 +1609,7 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_DPCM(CDialog* parent1)
    parent->MapDialogRect(&r18);
    mfc18->Create(ES_AUTOHSCROLL,r18,parent,IDC_LOOP_POINT);
    mfcToQtWidget->insert(IDC_LOOP_POINT,mfc18);
-   QObject::connect(mfc18,SIGNAL(textChanged(QString)),parent,SLOT(loopPoint_textChanged(QString)));
+   QObject::connect(mfc18,SIGNAL(textEdited(QString)),parent,SLOT(loopPoint_textEdited(QString)));
 //   PUSHBUTTON      "Edit",IDC_EDIT,312,83,47,14
    CButton* mfc19 = new CButton(parent);
    CRect r19(CPoint(312,83),CSize(47,14));
@@ -2114,7 +2114,7 @@ void qtMfcInitDialogResource_IDD_PROPERTIES(CDialog* parent1)
    parent->MapDialogRect(&r9);
    mfc9->Create(ES_AUTOHSCROLL | WS_VISIBLE,r9,parent,IDC_SONGNAME);
    mfcToQtWidget->insert(IDC_SONGNAME,mfc9);
-   QObject::connect(mfc9,SIGNAL(textChanged(QString)),parent,SLOT(songName_textChanged(QString)));
+   QObject::connect(mfc9,SIGNAL(textEdited(QString)),parent,SLOT(songName_textEdited(QString)));
 //       COMBOBOX        IDC_EXPANSION,14,173,113,61,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
    CComboBox* mfc11 = new CComboBox(parent);
    CRect r11(CPoint(14,173),CSize(113,61));

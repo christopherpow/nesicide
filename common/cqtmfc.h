@@ -3630,12 +3630,15 @@ public:
 
    // This method only for Qt glue
    UINT_PTR mfcTimerId(int qtTimerId) { return qtToMfcTimer.value(qtTimerId); }
+   void setMfcBuddy(CWnd* buddy) { _mfcBuddy = buddy; }
+   CWnd* mfcBuddy() const { return _mfcBuddy; } 
 
    // MFC-to-Qt conversions
 protected:
    QHash<UINT_PTR,int> mfcToQtTimer;
    QHash<int,UINT_PTR> qtToMfcTimer;
    QHash<int,CWnd*> mfcToQtWidget;
+   CWnd* _mfcBuddy;
    static CFrameWnd* m_pFrameWnd;
    CWnd* m_pParentWnd;
    static CWnd* focusWnd;
@@ -4117,7 +4120,7 @@ protected:
    QLineEdit* _qtd_ledit;
 signals:
    void textChanged();
-   void textChanged(QString str);
+   void textEdited(QString str);
 
    // MFC interfaces
 public:
@@ -4352,6 +4355,7 @@ class QSpinBox_MFC : public QSpinBox
 public:
    QSpinBox_MFC(QWidget* parent=0) : QSpinBox(parent) {}
    void setLineEdit(QLineEdit *edit) { QSpinBox::setLineEdit(edit); }
+   QLineEdit* lineEdit() const { return QSpinBox::lineEdit(); }
 };
 
 class CSpinButtonCtrl : public CWnd
@@ -4366,6 +4370,7 @@ protected:
    int _oldValue;
 public slots:
    void control_edited(int value);
+   void control_edited(QString value);
 signals:
    void valueChanged(int oldValue, int newValue);
 
