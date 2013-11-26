@@ -167,7 +167,6 @@ void CSequenceSetting::OnMenuArpFixed()
 	}
 }
 
-
 void CSequenceSetting::mousePressEvent(QMouseEvent *event)
 {
    CPoint point(event->pos());

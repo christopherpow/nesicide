@@ -1,24 +1,4 @@
-﻿<VSTemplate Version="3.0.0" Type="Item" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
-	<TemplateData>
-		<Name Package="{39c9c826-8ef8-4079-8c95-428f5b1c323f}" ID="3072"/>
-		<Description Package="{39c9c826-8ef8-4079-8c95-428f5b1c323f}" ID="3073"/>
-		<Icon Package="{39c9c826-8ef8-4079-8c95-428f5b1c323f}" ID="4538"/>
-        <TemplateID>Microsoft.Web.VisualBasic.StyleSheet</TemplateID>
-        <ProjectType>Web</ProjectType>
-        <ProjectSubType>VisualBasic</ProjectSubType>
-        <RequiredFrameworkVersion>2.0</RequiredFrameworkVersion>
-        <DefaultName>StyleSheet.css</DefaultName>
-    </TemplateData>
-	<TemplateContent>
-		<ProjectItem>StyleSheet.css</ProjectItem>
-	</TemplateContent>
-</VSTemplate>
-.text
-{
-	font-family: verdana;
-	font-size: 9pt;
-}
-.topic
+﻿.topic
 {
 	font-family: verdana;
 	font-size: 16pt;
@@ -31,6 +11,15 @@
 	font-size: 9pt;
 	font-weight: normal;
 	color: black;
+}
+.listText
+{
+	font-family: verdana;
+	font-size: 9pt;
+	font-weight: normal;
+	color: black;
+	line-height: 150%;
+	margin-top: 10px;
 }
 .heading
 {

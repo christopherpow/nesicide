@@ -26,7 +26,14 @@ public:
 	virtual void ProcessChannel();
 	virtual void RefreshChannel();
 protected:
-	virtual void PlayChannelNote(stChanNote *NoteData, int EffColumns);
+	virtual void HandleNoteData(stChanNote *pNoteData, int EffColumns);
+	virtual void HandleCustomEffects(int EffNum, int EffParam);
+	virtual bool HandleInstrument(int Instrument, bool Trigger, bool NewInstrument);
+	virtual void HandleEmptyNote();
+	virtual void HandleHalt();
+	virtual void HandleRelease();
+	virtual void HandleNote(int Note, int Octave);
+
 	virtual void ClearRegisters();
 protected:
 	// FDS functions
@@ -47,4 +54,11 @@ protected:
 	char m_iModTable[32];
 	// Modulation
 	bool m_bResetMod;
+protected:
+	int m_iPostEffect;
+	int m_iPostEffectParam;
+
+	int m_iEffModDepth;
+	int m_iEffModSpeedHi;
+	int m_iEffModSpeedLo;
 };

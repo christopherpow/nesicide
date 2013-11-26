@@ -20,8 +20,6 @@
 
 #pragma once
 
-#include "SampleWindow.h"
-
 class CSWSampleScope : public CSampleWinState
 {
 public:

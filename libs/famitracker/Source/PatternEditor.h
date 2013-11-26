@@ -42,14 +42,42 @@ const int CHANNEL_WIDTH = 107;
 const int COLUMN_SPACING = 4;
 const int CHAR_WIDTH = 10;
 
+// Class used by clipboard
+class CPatternClipData
+{
+public:
+	CPatternClipData() : pPattern(NULL), Size(0) {
+		memset(&ClipInfo, 0, sizeof(ClipInfo));
+	}
+	CPatternClipData(int Channels, int Rows) {
+		memset(&ClipInfo, 0, sizeof(ClipInfo));
+		Size = Channels * Rows;
+		pPattern = new stChanNote[Size];
+	}
+	virtual ~CPatternClipData() {
+		SAFE_RELEASE_ARRAY(pPattern);
+	}
 
-// Structure used by clipboard, no pointers allowed here
-struct stClipData {
-	int	Channels;		// Number of channels copied
-	int Rows;			// Number of rows copied
-	int StartColumn;	// Start column in first channel
-	int EndColumn;		// End column in last channel
-	stChanNote Pattern[MAX_CHANNELS][MAX_PATTERN_LENGTH];
+	SIZE_T GetAllocSize() const;	// Get clip data size in bytes
+	void ToMem(HGLOBAL hMem);		// Copy structures to memory
+	void FromMem(HGLOBAL hMem);		// Copy structures from memory
+	
+	stChanNote *GetPattern(int Channel, int Row);
+
+public:
+	struct {
+		int Channels;			// Number of channels
+		int Rows;				// Number of rows
+		int StartColumn;		// Start column in first channel
+		int EndColumn;			// End column in last channel
+		struct {				// OLE drag and drop info
+			int ChanOffset;
+			int RowOffset;
+		} OleInfo;
+	} ClipInfo;
+
+	stChanNote *pPattern;		// Pattern data
+	int Size;					// Pattern data size, in rows * columns
 };
 
 // Row color cache
@@ -138,14 +166,13 @@ public:
 	void UpdateScreen(CDC *pDC);
 	void DrawHeader(CDC *pDC);
 	void DrawMeters(CDC *pDC);
-	void FastScrollDown(CDC *pDC);
+	void FastScroll(CDC *pDC, int Rows);
 
 	void SetDPCMState(stDPCMState State);
 
 	void SetFocus(bool bFocus);
 
 	void PaintEditor();
-	void EraseBackground(CDC *pDC);
 	CRect GetActiveRect() const;
 
 	// Cursor
@@ -203,12 +230,12 @@ public:
 	bool CancelDragging();
 
 	// Edit: Copy & paste, selection
-	void CopyEntire(stClipData *pClipData);
-	void Copy(stClipData *pClipData);
+	CPatternClipData *CopyEntire();
+	CPatternClipData *Copy();
 	void Cut();
-	void PasteEntire(stClipData *pClipData);
-	void Paste(stClipData *pClipData);
-	void PasteMix(stClipData *pClipData);
+	void PasteEntire(CPatternClipData *pClipData);
+	void Paste(CPatternClipData *pClipData);
+	void PasteMix(CPatternClipData *pClipData);
 	void DeleteSelectionRows(CSelection &selection);
 	void DeleteSelection(CSelection &selection);
 	void Delete();
@@ -230,10 +257,6 @@ public:
 	void Transpose(int Type);
 	void ScrollValues(int Type);
 
-	// Keys
-	void ShiftPressed(bool Pressed);
-	void ControlPressed(bool Pressed);
-
 	void SetHighlight(int Rows, int SecondRows);
 	void SetFollowMove(bool bEnable);
 
@@ -242,6 +265,7 @@ public:
 	int GetChannelAtPoint(int PointX) const;
 
 	// Scrolling
+	void AutoScroll(CPoint point, UINT nFlags);
 	bool ScrollTimer();
 	void OnVScroll(UINT nSBCode, UINT nPos);
 	void OnHScroll(UINT nSBCode, UINT nPos);
@@ -255,7 +279,7 @@ public:
 	CSelection GetSelection() const;
 	void SetSelection(CSelection &selection);
 
-	void DragPaste(stClipData *pClipData, CSelection *pDragTarget, bool bMix);
+	void DragPaste(CPatternClipData *pClipData, CSelection *pDragTarget, bool bMix);
 
 	void ExpandPattern();
 	void ShrinkPattern();
@@ -264,20 +288,29 @@ public:
 	void DrawLog(CDC *pDC);
 #endif
 
+	// OLE support
+	void BeginDrag(CPatternClipData *pClipData);
+	void EndDrag();
+	bool PerformDrop(CPatternClipData *pClipData, bool bCopy, bool bCopyMix);
+	void UpdateDrag(CPoint point);
+
 	// Private functions
 private:
 	int  GetRowAtPoint(int PointY) const;
 	int  GetColumnAtPoint(int PointX) const;
 	bool IsColumnSelected(int Column, int Channel) const;
 	int  GetSelectColumn(int Column) const;
+	int  GetRealStartColumn(int Column) const;
+	int  GetRealEndColumn(int Column) const;
 	bool IsSingleChannelSelection() const;
+	bool IsInSelection(CCursorPos &Point) const;
 
 	int GetChannelColumns(int Channel) const;
 
 	CCursorPos GetCursorAtPoint(CPoint point) const;
 
 	void ClearRow(CDC *pDC, int Line);
-	void DrawRowArea(CDC *pDC);
+	void DrawPatternArea(CDC *pDC);
 	void DrawRow(CDC *pDC, int Row, int Line, int Frame, bool bPreview);
 
 	void DrawCell(int PosX, int Column, int Channel, bool bInvert, stChanNote *pNoteData, CDC *pDC, RowColorInfo_t *pColorInfo);
@@ -288,11 +321,15 @@ private:
 	void UpdateVerticalScroll();
 	void UpdateHorizontalScroll();
 
+	void IncreaseEffectColumn(int Channel);
+	void DecreaseEffectColumn(int Channel);
+
 	// Head
 	void DrawChannelNames(CDC *pDC);
 	void DrawUnbufferedArea(CDC *pDC);
 
 	// Other
+	void DrawChannelStates(CDC *pDC);
 	void DrawRegisters(CDC *pDC);
 
 	// Selection routines
@@ -302,13 +339,16 @@ private:
 
 	// Other
 	int GetCurrentPatternLength(int Frame) const;
+	void CalcLayout();
+
+	// Keys
+	bool IsShiftPressed() const;
+	bool IsControlPressed() const;
 
 private:
 	static LPCTSTR DEFAULT_HEADER_FONT;
 	static const int DEFAULT_FONT_SIZE;
 	static const int DEFAULT_HEADER_FONT_SIZE;
-
-	static const int SELECT_THRESHOLD;
 
 	// Variables
 private:
@@ -320,6 +360,10 @@ private:
 	// Window
 	int m_iWinWidth, m_iWinHeight;		// Window height & width
 	int	m_iVisibleRows;					// Number of visible rows on screen
+	int m_iVisibleFullRows;				// Number of full visible rows on screen
+
+	int m_iPatternHeight;				// Full size of the allocated pattern area
+//	int	m_iPatternWidth;
 
 	// Edit cursor
 	CCursorPos m_cpCursorPos;			// Cursor position
@@ -349,6 +393,7 @@ private:
 	int m_iDrawFrame;
 	int m_iFirstChannel;
 	int m_iChannelsVisible;
+	int m_iWholeChannelsVisible;
 	int m_iHighlight;
 	int m_iHighlightSecond;
 	int m_iPatternWidth;
@@ -398,17 +443,28 @@ private:
 
 	CPoint m_ptSelStartPoint;
 
-	// Keys
-	bool m_bShiftPressed;
-	bool m_bControlPressed;
+	// Numbers of pixels until selection is initiated
+	int m_iDragThresholdX;
+	int m_iDragThresholdY;
+
+	// OLE support
+	int m_iDragChannels;
+	int m_iDragRows;
+	int m_iDragStartCol;
+	int m_iDragEndCol;
+
+	int m_iDragOffsetChannel;
+	int m_iDragOffsetRow;
 
 	// GDI objects
-	CDC		*m_pBackDC;
-	CBitmap *m_pBackBmp;
+	CDC		*m_pPatternDC;
+	CBitmap *m_pPatternBmp;
 	CBitmap	m_bmpCache, *m_pOldCacheBmp;
 	CFont	m_fontHeader;
 	CFont	m_fontPattern;
 	CFont	m_fontCourierNew;
+	CDC		*m_pHeaderDC;
+	CBitmap	*m_pHeaderBmp;
 
 	// Scrolling
 	CPoint	m_ptScrollMousePos;

@@ -25,10 +25,76 @@
 
 class CFamiTrackerDoc;
 class CFamiTrackerView;
+class CFrameEditor;
+
+struct stSelectInfo {
+	bool bSelecting;
+	int iRowStart;
+	int iRowEnd;
+};
+
+class CFrameClipData {
+public:
+	// Constructor/desctructor
+	CFrameClipData() : pFrames(NULL), iSize(0) {
+		memset(&ClipInfo, 0, sizeof(ClipInfo));
+	}
+
+	CFrameClipData(int Channels, int Frames) {
+		memset(&ClipInfo, 0, sizeof(ClipInfo));
+		Alloc(Channels * Frames);
+	}
+
+	virtual ~CFrameClipData() {
+		SAFE_RELEASE_ARRAY(pFrames);
+	}
+
+	void Alloc(int Size);
+
+	SIZE_T GetAllocSize() const;	// Get memory size in bytes
+	void ToMem(HGLOBAL hMem);		// Copy structures to memory
+	void FromMem(HGLOBAL hMem);		// Copy structures from memory
+
+	int *GetFrame(int Frame, int Channel);
+
+public:
+	// Clip info
+	struct {
+		int Channels;
+		int Rows;
+		int FirstChannel;
+		struct {
+			int SourceRowStart;
+			int SourceRowEnd;
+		} OleInfo;
+	} ClipInfo;
+	
+	// Clip data
+	int *pFrames;
+	int iSize;
+};
+
+class CFrameEditorDropTarget : public COleDropTarget
+{
+public:
+	void SetClipBoardFormat(UINT iClipBoard);
+	CFrameEditorDropTarget(CFrameEditor *pParent) : m_pParent(pParent), m_nDropEffect(DROPEFFECT_NONE) {};
+	DROPEFFECT OnDragEnter(CWnd* pWnd, COleDataObject* pDataObject, DWORD dwKeyState, CPoint point);
+	DROPEFFECT OnDragOver(CWnd* pWnd, COleDataObject* pDataObject, DWORD dwKeyState, CPoint point);
+	BOOL OnDrop(CWnd* pWnd, COleDataObject* pDataObject, DROPEFFECT dropEffect, CPoint point);
+	void OnDragLeave(CWnd* pWnd);
+	
+	bool IsDragging() const;
+	bool CopyToNewPatterns() const;
+
+private:
+	UINT m_iClipBoard;
+	int m_nDropEffect;
+	bool m_bCopyNewPatterns;
+	CFrameEditor *m_pParent;
+};
 
 // CFrameEditor
-
-class CMainFrame;
 
 class CFrameEditor : public CWnd
 {
@@ -53,7 +119,6 @@ protected:
    void leaveEvent(QEvent *);
    void contextMenuEvent(QContextMenuEvent *event);   
 
-public:   
 	DECLARE_DYNAMIC(CFrameEditor)
 public:
 	CFrameEditor(CMainFrame *pMainFrm);
@@ -63,19 +128,47 @@ public:
 	void EnableInput();
 	bool InputEnabled() const;
 
-//	bool Translate(HWND hWnd, MSG *pMsg) const;
+	bool Translate(HWND hWnd, MSG *pMsg) const;
+
+	bool IsCopyValid(COleDataObject* pDataObject);
+	void UpdateDrag(CPoint &point);
+	BOOL DropData(COleDataObject* pDataObject, DROPEFFECT dropEffect);
+	void PerformDragOperation(CFrameClipData *pClipData, int DragTarget, bool bDelete, bool bNewPatterns);
+
+	void Clear();
+
+	void Paste(CFrameClipData *pClipData);
+	void PasteNew(CFrameClipData *pClipData);
+
+	unsigned int CalcWidth(int Channels) const;
+
+	void GetSelectInfo(stSelectInfo &Info) const;
+	void SetSelectInfo(stSelectInfo &Info);
 
 private:
 	void CreateGdiObjects();
 
+	int GetRowFromPoint(CPoint &point, bool DropTarget) const;
+	int GetChannelFromPoint(CPoint &point) const;
+
+	void InitiateDrag();
+
+	void AutoScroll(CPoint point);
+
+
 public:
-	static const int FIXED_WIDTH = 51;			// The left-most column width
-	static const int FRAME_ITEM_WIDTH = 20;		// Channel width 
+	// Window layout
+	static const int ROW_COLUMN_WIDTH = 26;		// The left-most column width
+	static const int FRAME_ITEM_WIDTH = 20;		// Pattern item width 
 	static const int ROW_HEIGHT = 15;			// Height of rows
 	static const int TOP_OFFSET = 3;			// Top offset
 
+	static const int DEFAULT_HEIGHT	= 161;
+
 	static const TCHAR DEFAULT_FONT[];
 	
+	static const TCHAR CLIPBOARD_ID[];
+
 private:
 	// GDI objects
 	CFont	m_Font;
@@ -86,6 +179,8 @@ private:
 	CFamiTrackerDoc  *m_pDocument;
 	CFamiTrackerView *m_pView;
 
+	UINT m_iClipBoard;
+
 	int m_iHiglightLine;
 	int m_iFirstChannel;
 	int m_iCursorPos;
@@ -93,9 +188,31 @@ private:
 	bool m_bInputEnable;
 	bool m_bCursor;
 	int m_iCopiedValues[MAX_CHANNELS];
-	int m_iFramesVisible;
+	int m_iRowsVisible;
+	int m_iMiddleRow;
 
 	HACCEL m_hAccel;
+
+	// Select/drag
+	bool m_bSelecting;
+	bool m_bStartDrag;
+	bool m_bDeletedRows;
+	int m_iSelStartRow;
+	int m_iSelEndRow;
+	int m_iSelStartChan;
+	int m_iSelEndChan;
+	int m_iDragRow;
+
+	int m_iTopScrollArea;
+	int m_iBottomScrollArea;
+
+	CPoint m_ButtonPoint;
+
+	CFrameEditorDropTarget m_DropTarget;
+
+	// Numbers of pixels until selection is initiated
+	int m_iDragThresholdX;
+	int m_iDragThresholdY;
 
 protected:
 	DECLARE_MESSAGE_MAP()
@@ -103,17 +220,22 @@ public:
 	afx_msg void OnPaint();
 	afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
+	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg void OnNcMouseMove(UINT nHitTest, CPoint point);
 	afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
+	afx_msg void OnSetFocus(CWnd* pOldWnd);
 	afx_msg void OnKillFocus(CWnd* pNewWnd);
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
-	afx_msg void OnFrameCopy();
-	afx_msg void OnFramePaste();
+	afx_msg void OnEditCut();
+	afx_msg void OnEditCopy();
+	afx_msg void OnEditPaste();
+	afx_msg void OnEditPasteNewPatterns();
+	afx_msg void OnEditDelete();
 	afx_msg void OnModuleInsertFrame();
 	afx_msg void OnModuleRemoveFrame();
 	afx_msg void OnModuleDuplicateFrame();

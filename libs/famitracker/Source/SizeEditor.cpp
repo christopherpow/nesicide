@@ -45,6 +45,125 @@ BEGIN_MESSAGE_MAP(CSizeEditor, CWnd)
 	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
+void CSizeEditor::mouseMoveEvent(QMouseEvent *event)
+{
+   CPoint point(event->pos());
+   unsigned int flags = 0;
+   if ( event->modifiers()&Qt::ControlModifier )
+   {
+      flags |= MK_CONTROL;
+   }
+   if ( event->modifiers()&Qt::ShiftModifier )
+   {
+      flags |= MK_SHIFT;
+   }
+   if ( event->buttons()&Qt::LeftButton )
+   {
+      flags |= MK_LBUTTON;
+   }
+   if ( event->buttons()&Qt::MiddleButton )
+   {
+      flags |= MK_MBUTTON;
+   }
+   OnMouseMove(flags,point);
+}
+
+void CSizeEditor::mousePressEvent(QMouseEvent *event)
+{
+   CPoint point(event->pos());
+   unsigned int flags = 0;
+   if ( event->modifiers()&Qt::ControlModifier )
+   {
+      flags |= MK_CONTROL;
+   }
+   if ( event->modifiers()&Qt::ShiftModifier )
+   {
+      flags |= MK_SHIFT;
+   }
+   if ( event->buttons()&Qt::LeftButton )
+   {
+      flags |= MK_LBUTTON;
+   }
+   if ( event->buttons()&Qt::MiddleButton )
+   {
+      flags |= MK_MBUTTON;
+   }
+   if ( event->buttons()&Qt::RightButton )
+   {
+      flags |= MK_RBUTTON;            
+   }
+   if ( event->button() == Qt::LeftButton )
+   {
+      OnLButtonDown(flags,point);
+   }
+}
+
+void CSizeEditor::mouseReleaseEvent(QMouseEvent *event)
+{
+   CPoint point(event->pos());
+   unsigned int flags = 0;
+   if ( event->modifiers()&Qt::ControlModifier )
+   {
+      flags |= MK_CONTROL;
+   }
+   if ( event->modifiers()&Qt::ShiftModifier )
+   {
+      flags |= MK_SHIFT;
+   }
+   if ( event->buttons()&Qt::LeftButton )
+   {
+      flags |= MK_LBUTTON;
+   }
+   if ( event->buttons()&Qt::MiddleButton )
+   {
+      flags |= MK_MBUTTON;
+   }
+   if ( event->buttons()&Qt::RightButton )
+   {
+      flags |= MK_RBUTTON;            
+   }
+   if ( event->button() == Qt::LeftButton )
+   {
+      OnLButtonUp(flags,point);
+   }
+}
+
+void CSizeEditor::mouseDoubleClickEvent(QMouseEvent *event)
+{
+   CPoint point(event->pos());
+   unsigned int flags = 0;
+   if ( event->modifiers()&Qt::ControlModifier )
+   {
+      flags |= MK_CONTROL;
+   }
+   if ( event->modifiers()&Qt::ShiftModifier )
+   {
+      flags |= MK_SHIFT;
+   }
+   if ( event->buttons()&Qt::LeftButton )
+   {
+      flags |= MK_LBUTTON;
+   }
+   if ( event->buttons()&Qt::MiddleButton )
+   {
+      flags |= MK_MBUTTON;
+   }
+   if ( event->buttons()&Qt::RightButton )
+   {
+      flags |= MK_RBUTTON;            
+   }
+   if ( event->button() == Qt::LeftButton )
+   {
+      OnLButtonDblClk(flags,point);
+   }
+}
+
+void CSizeEditor::timerEvent(QTimerEvent *event)
+{
+   int mfcId = mfcTimerId(event->timerId());
+   OnTimer(mfcId);
+}
+
 CSizeEditor::CSizeEditor(CWnd *pParent) : 
 	CWnd(),
 	m_iValue(0),
@@ -61,7 +180,7 @@ CSizeEditor::~CSizeEditor()
 void CSizeEditor::OnPaint()
 {
 	CPaintDC dc(this);
-   
+
 	CFont Font, *pOldFont;
 
 	Font.CreateFont(-11, 0, 0, 0, FW_NORMAL, FALSE, FALSE, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH, _T("Tahoma"));
@@ -118,12 +237,11 @@ void CSizeEditor::OnPaint()
 
 BOOL CSizeEditor::OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message)
 {
-//	if (m_bSizeCursor) {
-      qDebug("SetCursor");
-//      SetCursor(AfxGetApp()->LoadStandardCursor(IDC_SIZENS));
-//		return TRUE;
-//	}
-//	return CWnd::OnSetCursor(pWnd, nHitTest, message);
+	if (m_bSizeCursor) {
+		SetCursor(AfxGetApp()->LoadStandardCursor(IDC_SIZENS));
+		return TRUE;
+	}
+	return CWnd::OnSetCursor(pWnd, nHitTest, message);
 }
 
 
@@ -242,124 +360,4 @@ void CSizeEditor::OnTimer(UINT_PTR nIDEvent)
 		IncreaseValue();
 
 	CWnd::OnTimer(nIDEvent);
-}
-
-
-void CSizeEditor::mouseMoveEvent(QMouseEvent *event)
-{
-   CPoint point(event->pos());
-   unsigned int flags = 0;
-   if ( event->modifiers()&Qt::ControlModifier )
-   {
-      flags |= MK_CONTROL;
-   }
-   if ( event->modifiers()&Qt::ShiftModifier )
-   {
-      flags |= MK_SHIFT;
-   }
-   if ( event->buttons()&Qt::LeftButton )
-   {
-      flags |= MK_LBUTTON;
-   }
-   if ( event->buttons()&Qt::MiddleButton )
-   {
-      flags |= MK_MBUTTON;
-   }
-   OnMouseMove(flags,point);
-}
-
-void CSizeEditor::mousePressEvent(QMouseEvent *event)
-{
-   CPoint point(event->pos());
-   unsigned int flags = 0;
-   if ( event->modifiers()&Qt::ControlModifier )
-   {
-      flags |= MK_CONTROL;
-   }
-   if ( event->modifiers()&Qt::ShiftModifier )
-   {
-      flags |= MK_SHIFT;
-   }
-   if ( event->buttons()&Qt::LeftButton )
-   {
-      flags |= MK_LBUTTON;
-   }
-   if ( event->buttons()&Qt::MiddleButton )
-   {
-      flags |= MK_MBUTTON;
-   }
-   if ( event->buttons()&Qt::RightButton )
-   {
-      flags |= MK_RBUTTON;            
-   }
-   if ( event->button() == Qt::LeftButton )
-   {
-      OnLButtonDown(flags,point);
-   }
-}
-
-void CSizeEditor::mouseReleaseEvent(QMouseEvent *event)
-{
-   CPoint point(event->pos());
-   unsigned int flags = 0;
-   if ( event->modifiers()&Qt::ControlModifier )
-   {
-      flags |= MK_CONTROL;
-   }
-   if ( event->modifiers()&Qt::ShiftModifier )
-   {
-      flags |= MK_SHIFT;
-   }
-   if ( event->buttons()&Qt::LeftButton )
-   {
-      flags |= MK_LBUTTON;
-   }
-   if ( event->buttons()&Qt::MiddleButton )
-   {
-      flags |= MK_MBUTTON;
-   }
-   if ( event->buttons()&Qt::RightButton )
-   {
-      flags |= MK_RBUTTON;            
-   }
-   if ( event->button() == Qt::LeftButton )
-   {
-      OnLButtonUp(flags,point);
-   }
-}
-
-void CSizeEditor::mouseDoubleClickEvent(QMouseEvent *event)
-{
-   CPoint point(event->pos());
-   unsigned int flags = 0;
-   if ( event->modifiers()&Qt::ControlModifier )
-   {
-      flags |= MK_CONTROL;
-   }
-   if ( event->modifiers()&Qt::ShiftModifier )
-   {
-      flags |= MK_SHIFT;
-   }
-   if ( event->buttons()&Qt::LeftButton )
-   {
-      flags |= MK_LBUTTON;
-   }
-   if ( event->buttons()&Qt::MiddleButton )
-   {
-      flags |= MK_MBUTTON;
-   }
-   if ( event->buttons()&Qt::RightButton )
-   {
-      flags |= MK_RBUTTON;            
-   }
-   if ( event->button() == Qt::LeftButton )
-   {
-      OnLButtonDblClk(flags,point);
-   }
-}
-
-void CSizeEditor::timerEvent(QTimerEvent *event)
-{
-   int mfcId = mfcTimerId(event->timerId());
-   OnTimer(mfcId);
 }

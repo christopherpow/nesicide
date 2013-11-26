@@ -29,11 +29,24 @@ public:
 	CChannelHandlerMMC5();
 	virtual void ProcessChannel();
 	virtual void ResetChannel();
+
 protected:
-	virtual void PlayChannelNote(stChanNote *NoteData, int EffColumns);
+	virtual void HandleNoteData(stChanNote *pNoteData, int EffColumns);
+	virtual void HandleCustomEffects(int EffNum, int EffParam);
+	virtual bool HandleInstrument(int Instrument, bool Trigger, bool NewInstrument);
+	virtual void HandleEmptyNote();
+	virtual void HandleHalt();
+	virtual void HandleRelease();
+	virtual void HandleNote(int Note, int Octave);
+
 protected:
 	static const int SEQUENCES = 5;
 	static const int SEQ_TYPES[];
+protected:
+	int m_iPostEffect;
+	int m_iPostEffectParam;
+	int m_iInitVolume;
+	bool m_bManualVolume;
 };
 
 // Square 1

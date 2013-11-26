@@ -30,6 +30,7 @@
 #include "InstrumentEditPanel.h"
 #include "InstrumentEditorFDS.h"
 #include "MainFrm.h"
+#include "SoundGen.h"
 
 using namespace std;
 
@@ -48,6 +49,9 @@ CInstrumentEditorFDS::~CInstrumentEditorFDS()
 {
 	SAFE_RELEASE(m_pModSequenceEditor);
 	SAFE_RELEASE(m_pWaveEditor);
+
+	if (m_pInstrument)
+		m_pInstrument->Release();
 }
 
 void CInstrumentEditorFDS::DoDataExchange(CDataExchange* pDX)
@@ -57,6 +61,9 @@ void CInstrumentEditorFDS::DoDataExchange(CDataExchange* pDX)
 
 void CInstrumentEditorFDS::SelectInstrument(int Instrument)
 {
+	if (m_pInstrument)
+		m_pInstrument->Release();
+
 	m_pInstrument = (CInstrumentFDS*)GetDocument()->GetInstrument(Instrument);
 
 	if (m_pWaveEditor)
@@ -99,6 +106,76 @@ BEGIN_MESSAGE_MAP(CInstrumentEditorFDS, CInstrumentEditPanel)
 //	ON_BN_CLICKED(IDC_ENABLE_FM, &CInstrumentEditorFDS::OnBnClickedEnableFm)
 	ON_MESSAGE(WM_USER + 1, OnModChanged)
 END_MESSAGE_MAP()
+
+void CInstrumentEditorFDS::presetSine_clicked()
+{
+   OnPresetSine();
+}
+
+void CInstrumentEditorFDS::presetTriangle_clicked()
+{
+   OnPresetTriangle();
+}
+
+void CInstrumentEditorFDS::presetSawtooth_clicked()
+{
+   OnPresetSawtooth();
+}
+
+void CInstrumentEditorFDS::modRateSpin_valueChanged(int arg1,int arg2)
+{
+   OnModRateChange();
+}
+
+void CInstrumentEditorFDS::modDepthSpin_valueChanged(int arg1,int arg2)
+{
+   OnModDepthChange();
+}
+
+void CInstrumentEditorFDS::modDelaySpin_valueChanged(int arg1,int arg2)
+{
+   OnModDelayChange();
+}
+
+void CInstrumentEditorFDS::modPresetFlat_clicked()
+{
+   OnModPresetFlat();
+}
+
+void CInstrumentEditorFDS::modPresetSine_clicked()
+{
+   OnModPresetSine();
+}
+
+void CInstrumentEditorFDS::copyWave_clicked()
+{
+   OnBnClickedCopyWave();
+}
+
+void CInstrumentEditorFDS::pasteWave_clicked()
+{
+   OnBnClickedPasteWave();
+}
+
+void CInstrumentEditorFDS::copyTable_clicked()
+{
+   OnBnClickedCopyTable();
+}
+
+void CInstrumentEditorFDS::pasteTable_clicked()
+{
+   OnBnClickedPasteTable();
+}
+
+void CInstrumentEditorFDS::presetPulse50_clicked()
+{
+   OnPresetPulse50();
+}
+
+void CInstrumentEditorFDS::presetPulse25_clicked()
+{
+   OnPresetPulse25();
+}
 
 // CInstrumentEditorFDS message handlers
 
@@ -305,7 +382,7 @@ void CInstrumentEditorFDS::OnBnClickedPasteWave()
 		CloseClipboard();
 		return;
 	}
-   
+
 	string str(lptstrCopy);
 	GlobalUnlock(hMem);
 	CloseClipboard();
@@ -416,74 +493,4 @@ LRESULT CInstrumentEditorFDS::OnModChanged(WPARAM wParam, LPARAM lParam)
 {
 	theApp.GetSoundGenerator()->WaveChanged();
 	return 0;
-}
-
-void CInstrumentEditorFDS::presetSine_clicked()
-{
-   OnPresetSine();
-}
-
-void CInstrumentEditorFDS::presetTriangle_clicked()
-{
-   OnPresetTriangle();
-}
-
-void CInstrumentEditorFDS::presetSawtooth_clicked()
-{
-   OnPresetSawtooth();
-}
-
-void CInstrumentEditorFDS::modRateSpin_valueChanged(int arg1,int arg2)
-{
-   OnModRateChange();
-}
-
-void CInstrumentEditorFDS::modDepthSpin_valueChanged(int arg1,int arg2)
-{
-   OnModDepthChange();
-}
-
-void CInstrumentEditorFDS::modDelaySpin_valueChanged(int arg1,int arg2)
-{
-   OnModDelayChange();
-}
-
-void CInstrumentEditorFDS::modPresetFlat_clicked()
-{
-   OnModPresetFlat();
-}
-
-void CInstrumentEditorFDS::modPresetSine_clicked()
-{
-   OnModPresetSine();
-}
-
-void CInstrumentEditorFDS::copyWave_clicked()
-{
-   OnBnClickedCopyWave();
-}
-
-void CInstrumentEditorFDS::pasteWave_clicked()
-{
-   OnBnClickedPasteWave();
-}
-
-void CInstrumentEditorFDS::copyTable_clicked()
-{
-   OnBnClickedCopyTable();
-}
-
-void CInstrumentEditorFDS::pasteTable_clicked()
-{
-   OnBnClickedPasteTable();
-}
-
-void CInstrumentEditorFDS::presetPulse50_clicked()
-{
-   OnPresetPulse50();
-}
-
-void CInstrumentEditorFDS::presetPulse25_clicked()
-{
-   OnPresetPulse25();
 }

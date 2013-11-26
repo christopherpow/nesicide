@@ -78,7 +78,7 @@ protected:
 	static const int KEYBOARD_WIDTH;
 	static const int KEYBOARD_HEIGHT;
 
-	static const TCHAR *CHIP_NAMES[];
+	static const char *CHIP_NAMES[];
 
 protected:
 	// Variables for keyboard

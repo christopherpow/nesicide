@@ -74,8 +74,5 @@ public:
 	afx_msg void OnBnClickedFreeSeq();
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	virtual BOOL DestroyWindow();
-//	afx_msg void OnRClickInstSettings(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnCloneSequence();
-//	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
-	virtual BOOL PreTranslateMessage(MSG* pMsg);
 };

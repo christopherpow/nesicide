@@ -58,11 +58,16 @@ BEGIN_MESSAGE_MAP(CSequenceEditor, CWnd)
 	ON_WM_LBUTTONDOWN()
 END_MESSAGE_MAP()
 
+void CSequenceEditor::paintEvent(QPaintEvent *)
+{
+   OnPaint(); 
+}
+
 BOOL CSequenceEditor::CreateEditor(CWnd *pParentWnd, const RECT &rect)
 {
 	CRect menuRect;
 
-	if (CWnd::CreateEx(WS_EX_CLIENTEDGE, NULL, _T(""), WS_CHILD | WS_VISIBLE, rect, pParentWnd, 0) == -1)
+	if (CWnd::CreateEx(WS_EX_STATICEDGE, NULL, _T(""), WS_CHILD | WS_VISIBLE, rect, pParentWnd, 0) == -1)
 		return -1;
 
 	m_pFont = new CFont();
@@ -95,7 +100,7 @@ BOOL CSequenceEditor::CreateEditor(CWnd *pParentWnd, const RECT &rect)
 void CSequenceEditor::OnPaint()
 {
 	CPaintDC dc(this); // device context for painting
-   
+
 	CRect rect;
 	GetClientRect(rect);
 
@@ -267,9 +272,4 @@ void CSequenceEditor::OnLButtonDown(UINT nFlags, CPoint point)
 	CWnd::OnLButtonDown(nFlags, point);
 	// Set focus to parent to allow keyboard note preview
 	GetParent()->SetFocus();
-}
-
-void CSequenceEditor::paintEvent(QPaintEvent *)
-{
-   OnPaint(); 
 }

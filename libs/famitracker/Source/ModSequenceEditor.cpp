@@ -36,6 +36,75 @@ BEGIN_MESSAGE_MAP(CModSequenceEditor, CWnd)
 END_MESSAGE_MAP()
 
 
+void CModSequenceEditor::paintEvent(QPaintEvent *)
+{
+   OnPaint();
+}
+
+void CModSequenceEditor::mouseMoveEvent(QMouseEvent *event)
+{
+   CPoint point(event->pos());
+   unsigned int flags = 0;
+   if ( event->modifiers()&Qt::ControlModifier )
+   {
+      flags |= MK_CONTROL;
+   }
+   if ( event->modifiers()&Qt::ShiftModifier )
+   {
+      flags |= MK_SHIFT;
+   }
+   if ( event->buttons()&Qt::LeftButton )
+   {
+      flags |= MK_LBUTTON;
+   }
+   if ( event->buttons()&Qt::MiddleButton )
+   {
+      flags |= MK_MBUTTON;
+   }
+   if ( event->buttons()&Qt::RightButton )
+   {
+      flags |= MK_RBUTTON;            
+   }
+   OnMouseMove(flags,point);
+   update();
+}
+
+void CModSequenceEditor::mousePressEvent(QMouseEvent *event)
+{
+   CPoint point(event->pos());
+   unsigned int flags = 0;
+   if ( event->modifiers()&Qt::ControlModifier )
+   {
+      flags |= MK_CONTROL;
+   }
+   if ( event->modifiers()&Qt::ShiftModifier )
+   {
+      flags |= MK_SHIFT;
+   }
+   if ( event->buttons()&Qt::LeftButton )
+   {
+      flags |= MK_LBUTTON;
+   }
+   if ( event->buttons()&Qt::MiddleButton )
+   {
+      flags |= MK_MBUTTON;
+   }
+   if ( event->buttons()&Qt::RightButton )
+   {
+      flags |= MK_RBUTTON;            
+   }
+   if ( event->button() == Qt::LeftButton )
+   {
+      OnLButtonDown(flags,point);
+   }
+   else if ( event->button() == Qt::MiddleButton )
+   {
+      OnMButtonDown(flags,point);
+   }
+   update();
+}
+
+
 CModSequenceEditor::CModSequenceEditor() : m_pInstrument(NULL)
 {
 }
@@ -148,72 +217,3 @@ void CModSequenceEditor::EditSequence(CPoint point)
 	// Notify parent that the sequence has changed
 	GetParent()->PostMessage(WM_USER + 1);
 }
-
-void CModSequenceEditor::paintEvent(QPaintEvent *)
-{
-   OnPaint();
-}
-
-void CModSequenceEditor::mouseMoveEvent(QMouseEvent *event)
-{
-   CPoint point(event->pos());
-   unsigned int flags = 0;
-   if ( event->modifiers()&Qt::ControlModifier )
-   {
-      flags |= MK_CONTROL;
-   }
-   if ( event->modifiers()&Qt::ShiftModifier )
-   {
-      flags |= MK_SHIFT;
-   }
-   if ( event->buttons()&Qt::LeftButton )
-   {
-      flags |= MK_LBUTTON;
-   }
-   if ( event->buttons()&Qt::MiddleButton )
-   {
-      flags |= MK_MBUTTON;
-   }
-   if ( event->buttons()&Qt::RightButton )
-   {
-      flags |= MK_RBUTTON;            
-   }
-   OnMouseMove(flags,point);
-   update();
-}
-
-void CModSequenceEditor::mousePressEvent(QMouseEvent *event)
-{
-   CPoint point(event->pos());
-   unsigned int flags = 0;
-   if ( event->modifiers()&Qt::ControlModifier )
-   {
-      flags |= MK_CONTROL;
-   }
-   if ( event->modifiers()&Qt::ShiftModifier )
-   {
-      flags |= MK_SHIFT;
-   }
-   if ( event->buttons()&Qt::LeftButton )
-   {
-      flags |= MK_LBUTTON;
-   }
-   if ( event->buttons()&Qt::MiddleButton )
-   {
-      flags |= MK_MBUTTON;
-   }
-   if ( event->buttons()&Qt::RightButton )
-   {
-      flags |= MK_RBUTTON;            
-   }
-   if ( event->button() == Qt::LeftButton )
-   {
-      OnLButtonDown(flags,point);
-   }
-   else if ( event->button() == Qt::MiddleButton )
-   {
-      OnMButtonDown(flags,point);
-   }
-   update();
-}
-

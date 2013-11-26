@@ -40,9 +40,11 @@ CDSound *CDSound::pThisObject = NULL;
 
 // Instance members
 
-CDSound::CDSound() :
+CDSound::CDSound(HWND hWnd, HANDLE hNotification) :
 	m_iDevices(0)//,
-//	m_lpDirectSound(NULL)
+//	m_lpDirectSound(NULL),
+//	m_hWndTarget(hWnd),
+//	m_hNotificationHandle(hNotification)
 {
 	ASSERT(pThisObject == NULL);
 	pThisObject = this;
@@ -97,12 +99,9 @@ extern "C" void SDL_FamiTracker(void* userdata, uint8_t* stream, int32_t len)
    ftmAudioSemaphore.release();
 }
 
-bool CDSound::Init(HWND hWnd, HANDLE hNotification, int Device)
+bool CDSound::Init(int Device)
 {	
    SDL_Init ( SDL_INIT_AUDIO );
-
-//	m_hNotificationHandle = hNotification;
-//	m_hWndTarget = hWnd;
 
 //	if (Device > (int)m_iDevices)
 //		Device = 0;
@@ -117,7 +116,7 @@ bool CDSound::Init(HWND hWnd, HANDLE hNotification, int Device)
 //		return false;
 //	}
 
-//	if (FAILED(m_lpDirectSound->SetCooperativeLevel(hWnd, DSSCL_PRIORITY)))
+//	if (FAILED(m_lpDirectSound->SetCooperativeLevel(m_hWndTarget, DSSCL_PRIORITY)))
 //		return false;
 	
 	return true;
@@ -135,19 +134,19 @@ void CDSound::Close()
 //		ClearEnumeration();
 }
 
-//void CDSound::ClearEnumeration()
-//{
+void CDSound::ClearEnumeration()
+{
 //	for (unsigned i = 0; i < m_iDevices; ++i) {
 //		delete [] m_pcDevice[i];
 //		if (m_pGUIDs[i] != NULL)
 //			delete m_pGUIDs[i];
 //	}
 
-//	m_iDevices = 0;
-//}
+	m_iDevices = 0;
+}
 
-//BOOL CDSound::EnumerateCallback(LPGUID lpGuid, LPCSTR lpcstrDescription, LPCSTR lpcstrModule, LPVOID lpContext)
-//{
+BOOL CDSound::EnumerateCallback(LPGUID lpGuid, LPCSTR lpcstrDescription, LPCSTR lpcstrModule, LPVOID lpContext)
+{
 //	m_pcDevice[m_iDevices] = new char[strlen(lpcstrDescription) + 1];
 //	strcpy(m_pcDevice[m_iDevices], lpcstrDescription);
 
@@ -160,16 +159,17 @@ void CDSound::Close()
 
 //	++m_iDevices;
 
-//	return TRUE;
-//}
+	return TRUE;
+}
 
-//void CDSound::EnumerateDevices()
-//{
-//	if (m_iDevices != 0)
-//		ClearEnumeration();
+void CDSound::EnumerateDevices()
+{
+	if (m_iDevices != 0)
+		ClearEnumeration();
 
+    qDebug("Hook SDL2 here?");
 //	DirectSoundEnumerate(DSEnumCallback, NULL);
-//}
+}
 
 unsigned int CDSound::GetDeviceCount() const
 {
@@ -181,15 +181,15 @@ char *CDSound::GetDeviceName(int iDevice) const
 	return m_pcDevice[iDevice];
 }
 
-//int CDSound::MatchDeviceID(char *Name) const
-//{
-//	for (unsigned int i = 0; i < m_iDevices; ++i) {
-//		if (!strcmp(Name, m_pcDevice[i]))
-//			return i;
-//	}
+int CDSound::MatchDeviceID(char *Name) const
+{
+	for (unsigned int i = 0; i < m_iDevices; ++i) {
+		if (!strcmp(Name, m_pcDevice[i]))
+			return i;
+	}
 
-//	return 0;
-//}
+	return 0;
+}
 
 int CDSound::CalculateBufferLength(int BufferLen, int Samplerate, int Samplesize, int Channels) const
 {
@@ -201,8 +201,8 @@ CDSoundChannel *CDSound::OpenChannel(int SampleRate, int SampleSize, int Channel
 {
    SDL_AudioSpec sdlAudioSpec;
    
-//	// Open a new secondary buffer
-//	//
+	// Open a new secondary buffer
+	//
 
 //	DSBPOSITIONNOTIFY	dspn[MAX_BLOCKS];
 //	WAVEFORMATEX		wfx;
@@ -327,7 +327,7 @@ void CDSound::CloseChannel(CDSoundChannel *pChannel)
 CDSoundChannel::CDSoundChannel()
 {
    m_bPaused = true;
-//	m_iCurrentWriteBlock = 0;
+	m_iCurrentWriteBlock = 0;
 
 //	m_hEventList[0] = NULL;
 //	m_hEventList[1] = NULL;
@@ -341,7 +341,7 @@ CDSoundChannel::~CDSoundChannel()
 //		CloseHandle(m_hEventList[1]);
 }
 
-void CDSoundChannel::Play() 
+void CDSoundChannel::Play()
 {
    ftmAudioSemaphore.release();
    m_bPaused = false;
@@ -454,7 +454,7 @@ void CDSoundChannel::Reset()
 //	m_lpDirectSoundBuffer->SetCurrentPosition(0);
 }
 
-int CDSoundChannel::WaitForDirectSoundEvent() const
+int  CDSoundChannel::WaitForDirectSoundEvent(DWORD dwTimeout) const
 {
 	// Wait for a DirectSound event
 //	if (!IsPlaying())
@@ -490,12 +490,12 @@ int CDSoundChannel::WaitForDirectSoundEvent() const
 //	return (WritePos / m_iBlockSize);
 //}
 
-//void CDSoundChannel::ResetWritePointer()
-//{
-//	m_iCurrentWriteBlock = 0;
-//}
+void CDSoundChannel::ResetWritePointer()
+{
+	m_iCurrentWriteBlock = 0;
+}
 
-//void CDSoundChannel::AdvanceWritePointer()
-//{
-//	m_iCurrentWriteBlock = (m_iCurrentWriteBlock + 1) % m_iBlocks;
-//}
+void CDSoundChannel::AdvanceWritePointer()
+{
+	m_iCurrentWriteBlock = (m_iCurrentWriteBlock + 1) % m_iBlocks;
+}

@@ -43,7 +43,6 @@ public slots:
    void ok_clicked();
    void cancel_clicked();
    void channels_valueChanged(int value);
-public:
 	DECLARE_DYNAMIC(CModulePropertiesDlg)
 
 private:
@@ -81,4 +80,5 @@ public:
 	afx_msg void OnCbnSelchangeExpansion();
 	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 	afx_msg void OnLvnItemchangedSonglist(NMHDR *pNMHDR, LRESULT *pResult);
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 };

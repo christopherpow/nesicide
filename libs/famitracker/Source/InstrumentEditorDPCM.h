@@ -62,6 +62,7 @@ protected:
 public:
 	DECLARE_DYNAMIC(CInstrumentEditorDPCM)
 
+public:
 	CInstrumentEditorDPCM(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CInstrumentEditorDPCM();
 	virtual int GetIDD() const { return IDD; };
@@ -74,7 +75,7 @@ public:
 	void SelectInstrument(int Instrument);
 
 protected:
-	static const TCHAR *KEY_NAMES[];
+	static const char *KEY_NAMES[];
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
@@ -82,7 +83,7 @@ protected:
 	void BuildKeyList();
 	void BuildSampleList();
 	void UpdateKey(int Index);
-	bool LoadSample(CString FilePath, CString FileName);
+	bool LoadSample(CString &FilePath, CString &FileName);
 	bool InsertSample(CDSample *pNewSample);
 
 	CDSample *GetSelectedSample();
@@ -121,24 +122,6 @@ public:
 	afx_msg void OnNMRClickSampleList(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnNMRClickTable(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnNMDblclkTable(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnEnChangeDeltaCounter();
+	afx_msg void OnDeltaposDeltaSpin(NMHDR *pNMHDR, LRESULT *pResult);
 };
-
-// Derive a new class from CFileDialog with implemented preview of DMC files
-
-class CDMCFileSoundDialog : public CFileDialog
-{
-   Q_OBJECT
-   // Qt interfaces
-public slots:
-   void fileSelected(QString file);
-public:
-	CDMCFileSoundDialog(BOOL bOpenFileDialog, LPCTSTR lpszDefExt = NULL, LPCTSTR lpszFileName = NULL, DWORD dwFlags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, LPCTSTR lpszFilter = NULL, CWnd* pParentWnd = NULL, DWORD dwSize = 0);
-	virtual ~CDMCFileSoundDialog();
-
-	static const int DEFAULT_PREVIEW_PITCH = 15;
-
-protected:
-	virtual void OnFileNameChange();
-	CString m_strLastFile;
-};
-

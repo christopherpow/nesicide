@@ -20,6 +20,8 @@ dpcm_import.htm
 dpcm_editor.htm
 shortcuts.htm
 nsf_export.htm
+text_export.htm
+command_line.htm
 changelog.htm
 menus.htm
 faq.htm
@@ -61,6 +63,7 @@ HIDR_MAINFRAME					= main_index.htm
 EFFECTS							= effect_list.htm
 PATTERN_EDITOR					= pattern_editor.htm
 NSF_EXPORT						= nsf_export.htm
+TEXT_EXPORT						= text_export.htm
 CHANGE_LOG						= changelog.htm
 SHORTCUTS						= shortcuts.htm
 DPCM_IMPORT						= dpcm_import.htm
@@ -79,6 +82,8 @@ HIDD_INSTRUMENT_FDS_ENVELOPE	= fds.htm
 HIDD_INSTRUMENT_N163			= n163.htm
 HIDD_PCMIMPORT					= dpcm_import.htm
 HIDD_EXPORT						= nsf_export.htm
+HIDD_TEXTEXPORT					= text_export.htm
+HIDD_COMMAND_LINE				= command_line.htm
 HIDD_PROPERTIES					= properties.htm
 HIDD_SAMPLE_EDITOR				= dpcm_editor.htm
 

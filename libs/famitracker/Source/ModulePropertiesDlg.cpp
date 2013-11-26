@@ -417,3 +417,25 @@ void CModulePropertiesDlg::FillSongList()
 	// Select first song when dialog is displayed
 	SelectSong(0);
 }
+
+BOOL CModulePropertiesDlg::PreTranslateMessage(MSG* pMsg)
+{
+	if (GetFocus() == m_pSongList) {
+		if(pMsg->message == WM_KEYDOWN) {
+			switch (pMsg->wParam) {
+				case VK_DELETE:
+					// Delete song
+					if (m_iSelectedSong != -1) {
+						OnBnClickedSongRemove();
+					}
+					break;
+				case VK_INSERT:
+					// Insert song
+					OnBnClickedSongAdd();
+					break;
+			}
+		}
+	}
+
+	return CDialog::PreTranslateMessage(pMsg);
+}

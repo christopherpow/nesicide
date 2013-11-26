@@ -57,17 +57,9 @@ void CPatternAction::SetDelete(bool PullUp, bool Back)
 	m_bBack = Back;
 }
 
-void CPatternAction::SetPaste(stClipData *pClipData, int Mode)
+void CPatternAction::SetPaste(CPatternClipData *pClipData)
 {
-	m_pClipData = new stClipData;
-	memcpy(m_pClipData, pClipData, sizeof(stClipData));
-	m_iPasteMode = Mode;
-}
-
-void CPatternAction::SetSelection(CSelection *pSelection)
-{
-//	m_pSelection = new CSelection();
-//	memcpy(m_pSelection, pSelection, sizeof(CSelection));
+	m_pClipData = pClipData;
 }
 
 void CPatternAction::SetTranspose(int Mode)
@@ -85,11 +77,9 @@ void CPatternAction::SetInstrument(int Instrument)
 	m_iInstrument = Instrument;
 }
 
-void CPatternAction::SetDragAndDrop(stClipData *pClipData, bool bDelete, bool bMix, CSelection *pDragTarget)
+void CPatternAction::SetDragAndDrop(CPatternClipData *pClipData, bool bDelete, bool bMix, CSelection *pDragTarget)
 {
-	m_pClipData = new stClipData;
-	memcpy(m_pClipData, pClipData, sizeof(stClipData));
-
+	m_pClipData		= pClipData;
 	m_bDragDelete	= bDelete;
 	m_bDragMix		= bMix;
 	m_dragTarget	= *pDragTarget;
@@ -100,28 +90,20 @@ void CPatternAction::SetPatternLength(int Length)
 	m_iNewPatternLen = Length;
 }
 
+void CPatternAction::SetClickedChannel(int Channel)
+{
+	m_iClickedChannel = Channel;
+}
+
 void CPatternAction::SaveEntire(CPatternView *pPatternView)
 {
 	// (avoid when possible)
-	m_pUndoClipData = new stClipData;
-	pPatternView->CopyEntire(m_pUndoClipData);
-}
-
-void CPatternAction::SaveSelection(CPatternView *pPatternView)
-{
-	// Save pattern selection
-	m_pUndoClipData = new stClipData;
-	pPatternView->Copy(m_pUndoClipData);
+	m_pUndoClipData = pPatternView->CopyEntire();
 }
 
 void CPatternAction::RestoreEntire(CPatternView *pPatternView)
 {
 	pPatternView->PasteEntire(m_pUndoClipData);
-}
-
-void CPatternAction::RestoreSelection(CPatternView *pPatternView)
-{
-	pPatternView->Paste(m_pUndoClipData);
 }
 
 void CPatternAction::IncreaseRowAction(CFamiTrackerDoc *pDoc)
@@ -180,13 +162,18 @@ bool CPatternAction::SaveState(CMainFrame *pMainFrm)
 	CFamiTrackerDoc *pDoc = pView->GetDocument();
 	CPatternView *pPatternView = pView->GetPatternView();
 
+	// Save undo cursor position
 	m_iUndoFrame	= pPatternView->GetFrame();
 	m_iUndoChannel  = pPatternView->GetChannel();
 	m_iUndoRow		= pPatternView->GetRow();
 	m_iUndoColumn   = pPatternView->GetColumn();
 
-	m_iUndoColumnCount = pDoc->GetEffColumns(m_iUndoChannel);
+	m_iRedoFrame	= pPatternView->GetFrame();
+	m_iRedoChannel  = pPatternView->GetChannel();
+	m_iRedoRow		= pPatternView->GetRow();
+	m_iRedoColumn   = pPatternView->GetColumn();
 
+	m_bSelecting = pPatternView->IsSelecting();
 	m_selection = pPatternView->GetSelection();
 
 	switch (m_iAction) {
@@ -214,12 +201,14 @@ bool CPatternAction::SaveState(CMainFrame *pMainFrm)
 			break;
 		case ACT_EDIT_PASTE:
 			// Paste
-			m_pUndoClipData = new stClipData;
-			pPatternView->CopyEntire(m_pUndoClipData);
-			if (m_iPasteMode == PASTE_MODE_MIX)
-				pPatternView->PasteMix(m_pClipData);
-			else
-				pPatternView->Paste(m_pClipData);
+			m_pUndoClipData = pPatternView->CopyEntire();
+			pPatternView->Paste(m_pClipData);
+			pDoc->UpdateAllViews(NULL, CHANGED_PATTERN);
+			break;
+		case ACT_EDIT_PASTE_MIX:
+			// Paste and mix
+			m_pUndoClipData = pPatternView->CopyEntire();
+			pPatternView->PasteMix(m_pClipData);
 			pDoc->UpdateAllViews(NULL, CHANGED_PATTERN);
 			break;
 		case ACT_EDIT_DELETE:
@@ -291,20 +280,39 @@ bool CPatternAction::SaveState(CMainFrame *pMainFrm)
 			pDoc->UpdateAllViews(NULL, CHANGED_PATTERN);
 			break;
 		case ACT_PATTERN_LENGTH:
+			// Change pattern length
 			m_iOldPatternLen = pDoc->GetPatternLength();
 			pDoc->SetPatternLength(m_iNewPatternLen);
 			pDoc->UpdateAllViews(NULL, CHANGED_PATTERN);
 			break;
 		case ACT_EXPAND_PATTERN:
+			// Expand pattern
 			SaveEntire(pPatternView);
 			pPatternView->ExpandPattern();
 			pDoc->UpdateAllViews(NULL, CHANGED_PATTERN);
 			break;
 		case ACT_SHRINK_PATTERN:
+			// Shrink pattern
 			SaveEntire(pPatternView);
 			pPatternView->ShrinkPattern();
 			pDoc->UpdateAllViews(NULL, CHANGED_PATTERN);
 			break;
+		case ACT_EXPAND_COLUMNS:
+			// Add effect column
+			m_iUndoColumnCount = pDoc->GetEffColumns(m_iClickedChannel);
+			pDoc->SetEffColumns(m_iClickedChannel, m_iUndoColumnCount + 1);
+			pDoc->UpdateAllViews(NULL, CHANGED_ERASE);
+			break;
+		case ACT_SHRINK_COLUMNS:
+			// Remove effect column
+			m_iUndoColumnCount = pDoc->GetEffColumns(m_iClickedChannel);
+			pDoc->SetEffColumns(m_iClickedChannel, m_iUndoColumnCount - 1);
+			pDoc->UpdateAllViews(NULL, CHANGED_ERASE);
+			break;
+#ifdef _DEBUG_
+		default:
+			AfxMessageBox(_T("TODO Implement action for this command"));
+#endif
 	}
 
 	return true;
@@ -315,15 +323,6 @@ void CPatternAction::Undo(CMainFrame *pMainFrm)
 	CFamiTrackerView *pView = (CFamiTrackerView*)pMainFrm->GetActiveView();
 	CFamiTrackerDoc *pDoc = pView->GetDocument();
 	CPatternView *pPatternView = pView->GetPatternView();
-
-	m_iRedoFrame	= pPatternView->GetFrame();
-	m_iRedoChannel  = pPatternView->GetChannel();
-	m_iRedoRow		= pPatternView->GetRow();
-	m_iRedoColumn   = pPatternView->GetColumn();
-	m_iRedoColumnCount = pDoc->GetEffColumns(m_iRedoChannel);
-
-	if (m_iRedoColumnCount != m_iUndoColumnCount)
-		pDoc->SetEffColumns(m_iUndoChannel, m_iUndoColumnCount);
 
 	pPatternView->MoveToFrame(m_iUndoFrame);
 	pPatternView->MoveToChannel(m_iUndoChannel);
@@ -347,6 +346,7 @@ void CPatternAction::Undo(CMainFrame *pMainFrm)
 			pDoc->UpdateAllViews(NULL, CHANGED_PATTERN);
 			break;
 		case ACT_EDIT_PASTE:
+		case ACT_EDIT_PASTE_MIX:
 		case ACT_EDIT_DELETE:
 		case ACT_EDIT_DELETE_ROWS:
 		case ACT_TRANSPOSE:
@@ -369,7 +369,10 @@ void CPatternAction::Undo(CMainFrame *pMainFrm)
 			break;
 		case ACT_DRAG_AND_DROP:
 			RestoreEntire(pPatternView);
-			pPatternView->SetSelection(m_selection);
+			if (m_bSelecting)
+				pPatternView->SetSelection(m_selection);
+			else
+				pPatternView->ClearSelection();
 			pDoc->UpdateAllViews(NULL, CHANGED_PATTERN);
 			break;
 		case ACT_PATTERN_LENGTH:
@@ -377,9 +380,15 @@ void CPatternAction::Undo(CMainFrame *pMainFrm)
 			pDoc->UpdateAllViews(NULL, CHANGED_PATTERN);
 			pMainFrm->UpdateControls();
 			break;
+		case ACT_EXPAND_COLUMNS:
+		case ACT_SHRINK_COLUMNS:
+			pDoc->SetEffColumns(m_iClickedChannel, m_iUndoColumnCount);
+			pDoc->UpdateAllViews(NULL, CHANGED_ERASE);
+			break;
+
 #ifdef _DEBUG_
 		default:
-			AfxMessageBox("Undo not implemented");
+			AfxMessageBox(_T("TODO Undo for this action is not implemented"));
 #endif
 	}
 }
@@ -411,10 +420,11 @@ void CPatternAction::Redo(CMainFrame *pMainFrm)
 			pDoc->UpdateAllViews(NULL, CHANGED_PATTERN);
 			break;
 		case ACT_EDIT_PASTE:
-			if (m_iPasteMode == PASTE_MODE_MIX)
-				pPatternView->PasteMix(m_pClipData);
-			else
-				pPatternView->Paste(m_pClipData);
+			pPatternView->Paste(m_pClipData);
+			pDoc->UpdateAllViews(NULL, CHANGED_PATTERN);
+			break;
+		case ACT_EDIT_PASTE_MIX:
+			pPatternView->PasteMix(m_pClipData);
 			pDoc->UpdateAllViews(NULL, CHANGED_PATTERN);
 			break;
 		case ACT_EDIT_DELETE:
@@ -461,7 +471,10 @@ void CPatternAction::Redo(CMainFrame *pMainFrm)
 			pDoc->UpdateAllViews(NULL, CHANGED_PATTERN);
 			break;
 		case ACT_DRAG_AND_DROP:
-			pPatternView->SetSelection(m_selection);
+			if (m_bSelecting)
+				pPatternView->SetSelection(m_selection);
+			else
+				pPatternView->ClearSelection();
 			if (m_bDragDelete)
 				pPatternView->Delete();
 			pPatternView->DragPaste(m_pClipData, &m_dragTarget, m_bDragMix);
@@ -480,9 +493,17 @@ void CPatternAction::Redo(CMainFrame *pMainFrm)
 			pPatternView->ShrinkPattern();
 			pDoc->UpdateAllViews(NULL, CHANGED_PATTERN);
 			break;
+		case ACT_EXPAND_COLUMNS:
+			pDoc->SetEffColumns(m_iClickedChannel, m_iUndoColumnCount + 1);
+			pDoc->UpdateAllViews(NULL, CHANGED_ERASE);
+			break;
+		case ACT_SHRINK_COLUMNS:
+			pDoc->SetEffColumns(m_iClickedChannel, m_iUndoColumnCount - 1);
+			pDoc->UpdateAllViews(NULL, CHANGED_ERASE);
+			break;
 #ifdef _DEBUG_
 		default:
-			AfxMessageBox("Redo not implemented");
+			AfxMessageBox(_T("TODO: Redo for this action is not implemented"));
 #endif
 	}
 
@@ -490,6 +511,7 @@ void CPatternAction::Redo(CMainFrame *pMainFrm)
 	pPatternView->MoveToChannel(m_iRedoChannel);
 	pPatternView->MoveToRow(m_iRedoRow);
 	pPatternView->MoveToColumn(m_iRedoColumn);
+	
 }
 
 void CPatternAction::Update(CMainFrame *pMainFrm)
@@ -504,4 +526,13 @@ void CPatternAction::Update(CMainFrame *pMainFrm)
 			pMainFrm->UpdateControls();
 			break;
 	}
+}
+
+void CPatternAction::UpdateCursor(CPatternView *pPatternView)
+{
+	// Update the redo cursor position
+	m_iRedoFrame	= pPatternView->GetFrame();
+	m_iRedoChannel  = pPatternView->GetChannel();
+	m_iRedoRow		= pPatternView->GetRow();
+	m_iRedoColumn   = pPatternView->GetColumn();
 }

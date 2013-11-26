@@ -26,18 +26,23 @@
 
 // CCommentsDlg dialog
 
+// Font
 LPCTSTR CCommentsDlg::FONT_FACE = _T("Courier");
+int		CCommentsDlg::FONT_SIZE = 12;
+
+RECT CCommentsDlg::WinRect;
 
 IMPLEMENT_DYNAMIC(CCommentsDlg, CDialog)
 
 CCommentsDlg::CCommentsDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CCommentsDlg::IDD, pParent)
+	: CDialog(CCommentsDlg::IDD, pParent), m_pFont(NULL)
 {
 
 }
 
 CCommentsDlg::~CCommentsDlg()
 {
+	SAFE_RELEASE(m_pFont);
 }
 
 void CCommentsDlg::DoDataExchange(CDataExchange* pDX)
@@ -52,6 +57,7 @@ BEGIN_MESSAGE_MAP(CCommentsDlg, CDialog)
    ON_BN_CLICKED(IDC_OK, OnBnClickedOk)
    ON_BN_CLICKED(IDC_CANCEL, OnBnClickedCancel)
 	ON_WM_SIZE()
+	ON_EN_CHANGE(IDC_COMMENTS, &CCommentsDlg::OnEnChangeComments)
 END_MESSAGE_MAP()
 
 void CCommentsDlg::ok_clicked()
@@ -66,7 +72,7 @@ void CCommentsDlg::cancel_clicked()
 
 // CCommentsDlg message handlers
 
-void CCommentsDlg::OnBnClickedOk()
+void CCommentsDlg::SaveComment()
 {
 	CMainFrame *pMainFrame = (CMainFrame*)GetParentFrame();
 	CFamiTrackerDoc *pDoc = (CFamiTrackerDoc*)pMainFrame->GetActiveDocument();
@@ -74,7 +80,13 @@ void CCommentsDlg::OnBnClickedOk()
 
 	GetDlgItemText(IDC_COMMENTS, comment);
 
-	pDoc->SetComment(comment);
+	pDoc->SetComment(comment, IsDlgButtonChecked(IDC_SHOWONOPEN) == BST_CHECKED);
+}
+
+void CCommentsDlg::OnBnClickedOk()
+{
+	if (m_bChanged)
+		SaveComment();
 
 	EndDialog(0);
 }
@@ -89,8 +101,8 @@ void CCommentsDlg::OnSize(UINT nType, int cx, int cy)
 	CDialog::OnSize(nType, cx, cy);
 
 	CWnd *pEdit = GetDlgItem(IDC_COMMENTS);
-	CWnd *pOk = GetDlgItem(IDC_OK);
-	CWnd *pCancel = GetDlgItem(IDC_CANCEL);
+	CWnd *pOk = GetDlgItem(IDOK);
+	CWnd *pCancel = GetDlgItem(IDCANCEL);
 	CWnd *pCheckBox = GetDlgItem(IDC_SHOWONOPEN);
 
 	CRect dlgRect;
@@ -125,14 +137,34 @@ BOOL CCommentsDlg::OnInitDialog()
 
 	SetDlgItemText(IDC_COMMENTS, comment);
 
+	m_bChanged = false;
+
+	m_pFont = new CFont();
+	m_pFont->CreateFont(FONT_SIZE, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, FONT_FACE);
+
 	CEdit *pEdit = (CEdit*)GetDlgItem(IDC_COMMENTS);
+	pEdit->SetFont(m_pFont);
 
-	CFont *pFont = new CFont();
-	
-	pFont->CreateFont(12, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, FONT_FACE);
+	CheckDlgButton(IDC_SHOWONOPEN, pDoc->ShowCommentOnOpen() ? BST_CHECKED : BST_UNCHECKED);
 
-	pEdit->SetFont(pFont);
+	if (WinRect.top == 0 && WinRect.bottom == 0) {
+		GetWindowRect(&WinRect);
+	}
+	else {
+		MoveWindow(WinRect.left, WinRect.top, WinRect.right - WinRect.left, WinRect.bottom - WinRect.top);
+	}
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
+}
+
+BOOL CCommentsDlg::DestroyWindow()
+{
+	GetWindowRect(&WinRect);
+	return CDialog::DestroyWindow();
+}
+
+void CCommentsDlg::OnEnChangeComments()
+{
+	m_bChanged = true;
 }

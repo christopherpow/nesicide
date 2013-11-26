@@ -59,6 +59,11 @@ void CChunk::StoreReference(CString refName)
 	m_vChunkData.push_back(new CChunkDataReference(CHUNK_DATA_REFERENCE, refName));
 }
 
+void CChunk::StoreBankReference(CString refName, int bank)
+{
+	m_vChunkData.push_back(new CChunkDataBank(CHUNK_DATA_BANK, refName, bank));
+}
+
 void CChunk::StoreString(char *pString, int len)
 {
 	m_vChunkData.push_back(new CChunkDataString(CHUNK_DATA_STRING, pString, len));
@@ -69,6 +74,13 @@ void CChunk::ChangeByte(int index, unsigned char data)
 	ASSERT(index < (int)m_vChunkData.size());
 	ASSERT(m_vChunkData[index]->GetType() == CHUNK_DATA_BYTE);
 	dynamic_cast<CChunkDataByte*>(m_vChunkData[index])->m_data = data;
+}
+
+void CChunk::SetupBankData(int index, unsigned char bank)
+{
+	ASSERT(index < (int)m_vChunkData.size());
+	ASSERT(m_vChunkData[index]->GetType() == CHUNK_DATA_BANK);
+	dynamic_cast<CChunkDataBank*>(m_vChunkData[index])->m_bank = bank;
 }
 
 int CChunk::GetType() const
@@ -88,6 +100,7 @@ unsigned int CChunk::CountData() const
 	for (unsigned int i = 0; i < m_vChunkData.size(); ++i) {
 		switch (m_vChunkData[i]->GetType()) {
 			case CHUNK_DATA_BYTE:
+			case CHUNK_DATA_BANK:
 				Size += 1;
 				break;
 			case CHUNK_DATA_WORD:
@@ -123,6 +136,8 @@ unsigned short CChunk::GetData(int index) const
 			return ((CChunkDataWord*)pData)->m_data;
 		case CHUNK_DATA_REFERENCE:
 			return ((CChunkDataReference*)pData)->ref;
+		case CHUNK_DATA_BANK:
+			return ((CChunkDataBank*)pData)->m_bank;
 	}
 	return 0;
 }
@@ -137,6 +152,7 @@ unsigned short CChunk::GetDataSize(int index) const
 	CChunkData *pData = m_vChunkData[index];
 	switch (pData->GetType()) {
 		case CHUNK_DATA_BYTE:
+		case CHUNK_DATA_BANK:
 			return 1;
 		case CHUNK_DATA_WORD:
 		case CHUNK_DATA_REFERENCE:
@@ -171,7 +187,7 @@ CString CChunk::GetDataRefName(int index) const
 			return ((CChunkDataReference*)pData)->m_refName;
 	}
 
-	return "";
+	return _T("");
 }
 
 void CChunk::UpdateDataRefName(int index, CString name)
@@ -182,6 +198,18 @@ void CChunk::UpdateDataRefName(int index, CString name)
 		case CHUNK_DATA_REFERENCE:
 			((CChunkDataReference*)pData)->m_refName = name;
 	}
+}
+
+CString CChunk::GetBankRefName(int index) const
+{
+	CChunkData *pData = m_vChunkData[index];
+	
+	switch (pData->GetType()) {
+		case CHUNK_DATA_BANK:
+			return ((CChunkDataBank*)pData)->m_bankOf;
+	}
+
+	return _T("");
 }
 
 void CChunk::SetLabel(CString name)

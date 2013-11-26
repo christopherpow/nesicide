@@ -19,6 +19,7 @@
 */
 
 #include "stdafx.h"
+#include "SampleWindow.h"
 #include "SWLogo.h"
 #include "resource.h"
 
@@ -40,7 +41,7 @@ void CSWLogo::SetSampleData(int *pSamples, unsigned int iCount)
 
 void CSWLogo::Draw(CDC *pDC, bool bMessage)
 {
-	if (bMessage)
+	if (!bMessage)
 		return;
 
 	CBitmap Bmp, *OldBmp;

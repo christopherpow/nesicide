@@ -47,6 +47,10 @@ CInstrument *CInstrumentS5B::Clone() const
 	return pNew;
 }
 
+void CInstrumentS5B::Setup()
+{
+}
+
 void CInstrumentS5B::Store(CDocumentFile *pDocFile)
 {
 	pDocFile->WriteBlockInt(SEQUENCE_COUNT);

@@ -38,7 +38,8 @@ CChannelMap::CChannelMap() :
 CChannelMap::~CChannelMap()
 {
 	for (int i = 0; i < m_iAddedChips; ++i) {
-		SAFE_RELEASE(m_pChipInst[i]);
+		m_pChipInst[i]->Release();
+		m_pChipInst[i] = NULL;
 	}
 }
 
@@ -47,7 +48,7 @@ void CChannelMap::SetupSoundChips()
 	// Add available chips
 #ifdef _DEBUG
 	// Under development
-	AddChip(SNDCHIP_NONE, new CInstrument2A03(), _T("Internal only (2A03/2A07)"));
+	AddChip(SNDCHIP_NONE, new CInstrument2A03(), _T("NES channels only"));
 	AddChip(SNDCHIP_VRC6, new CInstrumentVRC6(), _T("Konami VRC6"));
 	AddChip(SNDCHIP_VRC7, new CInstrumentVRC7(), _T("Konami VRC7"));
 	AddChip(SNDCHIP_FDS,  new CInstrumentFDS(),  _T("Nintendo FDS sound"));
@@ -56,7 +57,7 @@ void CChannelMap::SetupSoundChips()
 	AddChip(SNDCHIP_S5B,  new CInstrumentS5B(),  _T("Sunsoft 5B"));
 #else /* _DEBUG */
 	// Ready for use
-	AddChip(SNDCHIP_NONE, new CInstrument2A03(), _T("Internal only (2A03/2A07)"));
+	AddChip(SNDCHIP_NONE, new CInstrument2A03(), _T("NES channels only"));
 	AddChip(SNDCHIP_VRC6, new CInstrumentVRC6(), _T("Konami VRC6"));
 	AddChip(SNDCHIP_VRC7, new CInstrumentVRC7(), _T("Konami VRC7"));
 	AddChip(SNDCHIP_FDS,  new CInstrumentFDS(),  _T("Nintendo FDS sound"));

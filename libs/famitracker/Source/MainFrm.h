@@ -32,10 +32,16 @@
 #include "ControlPanelDlg.h"
 #include "CustomControls.h"
 
-enum FRAME_EDIT_POS { FRAME_EDIT_POS_TOP, FRAME_EDIT_POS_LEFT };
+enum FRAME_EDIT_POS { 
+	FRAME_EDIT_POS_TOP, 
+	FRAME_EDIT_POS_LEFT
+};
 
 class CSampleWindow;
 class CInstrumentFileTree;
+class CAction;
+class CActionHandler;
+class CFrameEditor;
 
 class CMainFrame : public CFrameWnd
 {
@@ -88,17 +94,20 @@ public:
 	void	SetupColors(void);
 	void	DisplayOctave();
 
-	void	SetHighlightRow(int Rows);
+	void	SetFirstHighlightRow(int Rows);
 	void	SetSecondHighlightRow(int Rows);
 
 	int		GetSelectedInstrument() const;
 	int		GetSelectedTrack() const;
+	void	SelectTrack(int Track);
 
 	bool	AddAction(CAction *pAction);
-	CAction *GetLastAction() const;
+	CAction *GetLastAction(int Filter) const;
 	void	ResetUndo();
 
 	void	UpdateMenus();
+
+	bool	ChangeAllPatterns() const;
 
 // Overrides
 public:
@@ -133,6 +142,7 @@ protected:  // control bar embedded members
 	CToolBar			m_wndToolBar;
 	CReBar				m_wndToolBarReBar;
 	CDialogReBar		m_wndOctaveBar;
+	//CDialogBar			m_wndOctaveBar;
 	CDialogBar			m_wndControlBar;	// Parent to frame editor and settings/instrument editor
 	CDialogBar			m_wndVerticalControlBar;	// Parent to large frame editor
 //	CControlPanelDlg	m_wndFrameBar;
@@ -176,9 +186,9 @@ protected:  // control bar embedded members
 	CInstrumentFileTree	*m_pInstrumentFileTree;
 
 private:
-	// State variables (to be used)
-	int		m_iInstrument;				// Selected instrument
-	int		m_iTrack;					// Selected track
+	// State variables (to be used) TODO
+	int					m_iInstrument;				// Selected instrument
+	int					m_iTrack;					// Selected track
 
 public:
 	virtual BOOL Create(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle = WS_OVERLAPPEDWINDOW, const RECT& rect = rectDefault, CWnd* pParentWnd = NULL, LPCTSTR lpszMenuName = NULL, DWORD dwExStyle = 0, CCreateContext* pContext = NULL);
@@ -196,7 +206,6 @@ public:
 	afx_msg void OnShowWindow(BOOL bShow, UINT nStatus);
 	virtual BOOL OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult);
 	afx_msg BOOL OnCopyData(CWnd* pWnd, COPYDATASTRUCT* pCopyDataStruct);
-
 	afx_msg void OnClickInstruments(NMHDR *pNMHDR, LRESULT *result);
 	afx_msg void OnChangedInstruments(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnRClickInstruments(NMHDR *pNMHDR, LRESULT *result);
@@ -206,7 +215,6 @@ public:
 	afx_msg void OnDeltaposRowsSpin(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnDeltaposFrameSpin(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnDeltaposKeyStepSpin(NMHDR *pNMHDR, LRESULT *pResult);
-
 	afx_msg void OnInstNameChange();
 	afx_msg void OnTrackerKillsound();
 	afx_msg void OnCreateNSF();
@@ -219,7 +227,6 @@ public:
 	afx_msg void OnKeyRepeat();
 	afx_msg void OnEnKeyStepChange();
 	afx_msg void OnHelpPerformance();
-
 	afx_msg void OnUpdateSBTempo(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateSBPosition(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateSBInstrument(CCmdUI *pCmdUI);
@@ -248,19 +255,21 @@ public:
 	afx_msg void OnUpdatePrevSong(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateViewControlpanel(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateHighlight(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateEditCut(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateEditCopy(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateEditPaste(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateEditDelete(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateEditEnablemidi(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateSelectionEnabled(CCmdUI *pCmdUI);
-
 	afx_msg void OnTimer(UINT nIDEvent);
 	afx_msg void OnFileGeneralsettings();
 	afx_msg void OnEnSongNameChange();
 	afx_msg void OnEnSongArtistChange();
 	afx_msg void OnEnSongCopyrightChange();
 	afx_msg void OnFileImportmidi();
+	afx_msg void OnFileImportText();
+	afx_msg void OnFileExportText();
 	afx_msg void OnEnKillfocusTempo();
-
 	afx_msg void OnModuleInsertFrame();
 	afx_msg void OnModuleRemoveFrame();
 	afx_msg void OnModuleDuplicateFrame();
@@ -270,7 +279,6 @@ public:
 	afx_msg void OnModuleModuleproperties();
 	afx_msg void OnModuleMoveframedown();
 	afx_msg void OnModuleMoveframeup();
-
 	afx_msg void OnLoadInstrument();
 	afx_msg void OnSaveInstrument();
 	afx_msg void OnEditInstrument();
@@ -279,13 +287,11 @@ public:
 	afx_msg void OnCloneInstrument();
 	afx_msg void OnDeepCloneInstrument();
 	afx_msg void OnBnClickedEditInst();
-
 	afx_msg void OnCbnSelchangeSong();
 	afx_msg void OnCbnSelchangeOctave();
 	afx_msg void OnRemoveFocus();
 	afx_msg void OnNextSong();
 	afx_msg void OnPrevSong();
-
 	afx_msg void OnTrackerSwitchToInstrument();
 	afx_msg void OnUpdateTrackerSwitchToInstrument(CCmdUI *pCmdUI);
 	afx_msg void OnClickedFollow();
@@ -295,7 +301,6 @@ public:
 	afx_msg void OnSelectPatternEditor();
 	afx_msg void OnSelectFrameEditor();
 	afx_msg void OnHelpEffecttable();
-
 	afx_msg void OnDestroy();
 	afx_msg void OnNextInstrument();
 	afx_msg void OnPrevInstrument();
@@ -308,26 +313,24 @@ public:
 	afx_msg void OnAddInstrumentMMC5();
 	afx_msg void OnAddInstrumentN163();
 	afx_msg void OnAddInstrumentS5B();
-
 	afx_msg void OnEditUndo();
 	afx_msg void OnEditRedo();
+	afx_msg void OnEditCut();
 	afx_msg void OnEditCopy();
 	afx_msg void OnEditPaste();
+	afx_msg void OnEditDelete();
+	afx_msg void OnEditSelectall();
 	afx_msg void OnEditExpandpatterns();
 	afx_msg void OnEditShrinkpatterns();
 	afx_msg void OnEditEnableMIDI();
-
 	afx_msg void OnUpdateEditUndo(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateEditRedo(CCmdUI *pCmdUI);
-
 	afx_msg void OnDecayFast();
 	afx_msg void OnDecaySlow();
 	afx_msg void OnFrameeditorTop();
 	afx_msg void OnFrameeditorLeft();
-
 	afx_msg void OnUpdateFrameeditorTop(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateFrameeditorLeft(CCmdUI *pCmdUI);
-
 	afx_msg void OnToggleSpeed();
 
 public slots:

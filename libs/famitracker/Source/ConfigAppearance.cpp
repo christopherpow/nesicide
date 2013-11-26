@@ -134,17 +134,10 @@ void CConfigAppearance::OnPaint()
 	CPaintDC dc(this); // device context for painting
 	// Do not call CPropertyPage::OnPaint() for painting messages
 
-	const TCHAR PREV_LINE[] = _T("--- -- - ---");
-
-	CWnd *pWnd;
 	CRect Rect, ParentRect;
-	CBrush	BrushColor, *OldBrush;
-
-	int ShadedCol, ShadedHiCol;
-
 	GetWindowRect(ParentRect);
 
-	pWnd = GetDlgItem(IDC_COL_PREVIEW);
+	CWnd *pWnd = GetDlgItem(IDC_COL_PREVIEW);
 	pWnd->GetWindowRect(Rect);
 
 	Rect.top -= ParentRect.top;
@@ -152,13 +145,13 @@ void CConfigAppearance::OnPaint()
 	Rect.left -= ParentRect.left;
 	Rect.right -= ParentRect.left;
 
+	CBrush BrushColor;
 	BrushColor.CreateSolidBrush(m_iColors[m_iSelectedItem]);
 
-	OldBrush = dc.SelectObject(&BrushColor);
-
+	// Solid color box
+	CBrush *pOldBrush = dc.SelectObject(&BrushColor);
 	dc.Rectangle(Rect);
-
-	dc.SelectObject(OldBrush);
+	dc.SelectObject(pOldBrush);
 
 	// Preview all colors
 
@@ -166,9 +159,12 @@ void CConfigAppearance::OnPaint()
 	pWnd->GetWindowRect(Rect);
 
 	Rect.top -= ParentRect.top;
-	Rect.bottom -= ParentRect.top-16;
+	Rect.bottom -= ParentRect.top;// - 16;
 	Rect.left -= ParentRect.left;
 	Rect.right -= ParentRect.left;
+
+	int WinHeight = Rect.bottom - Rect.top;
+	int WinWidth = Rect.right - Rect.left;
 
 	CFont Font, *OldFont;
 	LOGFONT LogFont;
@@ -185,29 +181,38 @@ void CConfigAppearance::OnPaint()
 
 	// Background
 	dc.FillSolidRect(Rect, GetColor(COL_BACKGROUND));
+	dc.SetBkMode(TRANSPARENT);
 
-	ShadedCol = DIM(GetColor(COL_PATTERN_TEXT), 50);
-	ShadedHiCol = DIM(GetColor(COL_PATTERN_TEXT_HILITE), 50);
+	COLORREF ShadedCol = DIM(GetColor(COL_PATTERN_TEXT), 50);
+	COLORREF ShadedHiCol = DIM(GetColor(COL_PATTERN_TEXT_HILITE), 50);
 
-	int iRowSize = m_iFontSize + 2;
+	int iRowSize = m_iFontSize;
+	int iRows = (WinHeight - 12) / iRowSize;// 12;
 
-	for (int i = 0; i < 12; ++i) {
+	COLORREF CursorCol = GetColor(COL_CURSOR);
+	COLORREF CursorShadedCol = DIM(CursorCol, 50);
+	COLORREF BgCol = GetColor(COL_BACKGROUND);
+	COLORREF HilightBgCol = GetColor(COL_BACKGROUND_HILITE);
+	COLORREF Hilight2BgCol = GetColor(COL_BACKGROUND_HILITE2);
 
-		int OffsetTop = Rect.top + (i * (iRowSize + 2));
+	for (int i = 0; i < iRows; ++i) {
+
+		int OffsetTop = Rect.top + (i * iRowSize) + 6;
 		int OffsetLeft = Rect.left + 9;
 
 		if (OffsetTop > (Rect.bottom - iRowSize))
 			break;
 
 		if ((i & 3) == 0) {
-
-			dc.SetBkColor(GetColor(COL_BACKGROUND_HILITE));
-			dc.FillSolidRect(Rect.left, OffsetTop, Rect.right - Rect.left, iRowSize + 2, GetColor(COL_BACKGROUND_HILITE));
+			if ((i & 6) == 0)
+				GradientBar(&dc, Rect.left, OffsetTop, Rect.right - Rect.left, iRowSize, Hilight2BgCol, BgCol);
+			else
+				GradientBar(&dc, Rect.left, OffsetTop, Rect.right - Rect.left, iRowSize, HilightBgCol, BgCol);
 
 			if (i == 0) {
 				dc.SetTextColor(GetColor(COL_PATTERN_TEXT_HILITE));
-				dc.SetBkColor(GetColor(COL_CURSOR));
-				dc.FillSolidRect(Rect.left + 5, OffsetTop, 40, iRowSize + 2, GetColor(COL_CURSOR));
+				GradientBar(&dc, Rect.left + 5, OffsetTop, 40, iRowSize, CursorCol, GetColor(COL_BACKGROUND));
+				dc.Draw3dRect(Rect.left + 5, OffsetTop, 40, iRowSize, CursorCol, CursorShadedCol);
 			}
 			else
 				dc.SetTextColor(ShadedHiCol);
@@ -217,23 +222,19 @@ void CConfigAppearance::OnPaint()
 				dc.SetTextColor(GetColor(COL_PATTERN_TEXT));
 			else
 				dc.SetTextColor(ShadedCol);
-
-			dc.SetBkColor(GetColor(COL_BACKGROUND));
 		}
 
+#define BAR(x, y) dc.FillSolidRect((x) + 3, (y) + (iRowSize / 2) + 1, 10 - 7, 1, ShadedCol)
+
 		if (i == 0) {
-			dc.TextOut(OffsetLeft, OffsetTop, _T("C"));
-			dc.TextOut(OffsetLeft + 12, OffsetTop, _T("-"));
-			dc.TextOut(OffsetLeft + 24, OffsetTop, _T("4"));
+			dc.TextOut(OffsetLeft, OffsetTop - 2, _T("C"));
+			dc.TextOut(OffsetLeft + 12, OffsetTop - 2, _T("-"));
+			dc.TextOut(OffsetLeft + 24, OffsetTop - 2, _T("4"));
 		}
 		else {
-			dc.TextOut(OffsetLeft, OffsetTop, _T("-"));
-			dc.TextOut(OffsetLeft + 12, OffsetTop, _T("-"));
-			dc.TextOut(OffsetLeft + 24, OffsetTop, _T("-"));
-		}
-
-		if (i == 0) {
-			dc.SetBkColor(GetColor(COL_BACKGROUND_HILITE));
+			BAR(OffsetLeft, OffsetTop - 2);
+			BAR(OffsetLeft + 12, OffsetTop - 2);
+			BAR(OffsetLeft + 24, OffsetTop - 2);
 		}
 
 		if ((i & 3) == 0) {
@@ -243,13 +244,12 @@ void CConfigAppearance::OnPaint()
 			dc.SetTextColor(ShadedCol);
 		}
 
-		dc.TextOut(OffsetLeft + 40, OffsetTop, _T("-"));
-		dc.TextOut(OffsetLeft + 52, OffsetTop, _T("-"));
-		dc.TextOut(OffsetLeft + 68, OffsetTop, _T("-"));
-		dc.TextOut(OffsetLeft + 84, OffsetTop, _T("-"));
-		dc.TextOut(OffsetLeft + 96, OffsetTop, _T("-"));
-		dc.TextOut(OffsetLeft + 108, OffsetTop, _T("-"));
-
+		BAR(OffsetLeft + 40, OffsetTop - 2);
+		BAR(OffsetLeft + 52, OffsetTop - 2);
+		BAR(OffsetLeft + 68, OffsetTop - 2);
+		BAR(OffsetLeft + 84, OffsetTop - 2);
+		BAR(OffsetLeft + 96, OffsetTop - 2);
+		BAR(OffsetLeft + 108, OffsetTop - 2);
 	}
 
 	dc.SelectObject(OldFont);
@@ -258,8 +258,6 @@ void CConfigAppearance::OnPaint()
 BOOL CConfigAppearance::OnInitDialog()
 {
 	CPropertyPage::OnInitDialog();
-
-	CComboBox *ItemsBox;
 
 	CDC *pDC = GetDC();
 	LOGFONT LogFont;
@@ -276,13 +274,13 @@ BOOL CConfigAppearance::OnInitDialog()
 
 	ReleaseDC(pDC);
 
-	ItemsBox = (CComboBox*)GetDlgItem(IDC_COL_ITEM);
+	CComboBox *pItemsBox = (CComboBox*)GetDlgItem(IDC_COL_ITEM);
 
 	for (int i = 0; i < COLOR_ITEM_COUNT; ++i) {
-		ItemsBox->AddString(COLOR_ITEMS[i]);
+		pItemsBox->AddString(COLOR_ITEMS[i]);
 	}
 
-	ItemsBox->SelectString(0, COLOR_ITEMS[0]);
+	pItemsBox->SelectString(0, COLOR_ITEMS[0]);
 
 	m_iSelectedItem = 0;
 
@@ -302,18 +300,19 @@ BOOL CConfigAppearance::OnInitDialog()
 
 	m_bPatternColors = theApp.GetSettings()->General.bPatternColor;
 
-	ItemsBox = (CComboBox*)GetDlgItem(IDC_SCHEME);
+	pItemsBox = (CComboBox*)GetDlgItem(IDC_SCHEME);
 
 	for (int i = 0; i < NUM_COLOR_SCHEMES; ++i) {
-		ItemsBox->AddString(COLOR_SCHEMES[i]->NAME);
+		pItemsBox->AddString(COLOR_SCHEMES[i]->NAME);
 	}
 
+	TCHAR txtBuf[16];
+
 	for (int i = 0; i < FONT_SIZE_COUNT; ++i) {
-		CString str;
-		str.Format(_T("%i"), FONT_SIZES[i]);
-		m_pFontSizeList->AddString(str);
+		_itot_s(FONT_SIZES[i], txtBuf, 16, 10);
+		m_pFontSizeList->AddString(txtBuf);
 		if (FONT_SIZES[i] == m_iFontSize)
-			m_pFontSizeList->SelectString(0, str);
+			m_pFontSizeList->SelectString(0, txtBuf);
 	}
 
 	return TRUE;  // return TRUE unless you set the focus to a control

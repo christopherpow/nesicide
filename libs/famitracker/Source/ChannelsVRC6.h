@@ -29,8 +29,19 @@ public:
 	CChannelHandlerVRC6();
 	virtual void ProcessChannel();
 	virtual void ResetChannel();
+
 protected:
-	virtual void PlayChannelNote(stChanNote *NoteData, int EffColumns);
+	virtual void HandleNoteData(stChanNote *pNoteData, int EffColumns);
+	virtual void HandleCustomEffects(int EffNum, int EffParam);
+	virtual bool HandleInstrument(int Instrument, bool Trigger, bool NewInstrument);
+	virtual void HandleEmptyNote();
+	virtual void HandleHalt();
+	virtual void HandleRelease();
+	virtual void HandleNote(int Note, int Octave);
+
+protected:
+	int m_iPostEffect;
+	int m_iPostEffectParam;
 };
 
 class CVRC6Square1 : public CChannelHandlerVRC6 {

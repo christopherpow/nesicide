@@ -111,95 +111,98 @@ CChannelHandlerS5B::CChannelHandlerS5B() : CChannelHandler(), m_iNoiseOffset(0),
 {
 	SetMaxPeriod(0xFFF);
 }
+
 /*
 bool NoteValid(int Note)
 {
 	return (Note != NONE && Note != HALT && Note != RELEASE);
 }
 */
-void CChannelHandlerS5B::PlayChannelNote(stChanNote *pNoteData, int EffColumns)
+
+void CChannelHandlerS5B::HandleNoteData(stChanNote *pNoteData, int EffColumns)
 {
-	int LastInstrument = m_iInstrument;
+	CChannelHandler::HandleNoteData(pNoteData, EffColumns);
+}
 
-	if (!CChannelHandler::CheckNote(pNoteData, INST_S5B))
-		return;
+void CChannelHandlerS5B::HandleCustomEffects(int EffNum, int EffParam)
+{
+	if (!CheckCommonEffects(EffNum, EffParam)) {
+		switch (EffNum) {
+			case EF_SUNSOFT_ENV_HI:
+				SetEnvelopeHigh(EffParam);
+				break;
+			case EF_SUNSOFT_ENV_LO:
+				SetEnvelopeLow(EffParam);
+				break;
+			case EF_SUNSOFT_ENV_TYPE:
+				SetEnvelopeType(EffParam);
+				m_bEnvEnable = true;
+				m_bUpdate = true;
+				break;
 
-	int Note	= pNoteData->Note;
-	int Octave	= pNoteData->Octave;
-	int Volume	= pNoteData->Vol;
-
-	m_bEnvEnable = false;
-
-	// Evaluate effects
-	for (int n = 0; n < EffColumns; n++) {
-		int EffCmd	 = pNoteData->EffNumber[n];
-		int EffParam = pNoteData->EffParam[n];
-
-		if (!CheckCommonEffects(EffCmd, EffParam)) {
-			switch (EffCmd) {
-				case EF_SUNSOFT_ENV_HI:
-					SetEnvelopeHigh(EffParam);
-					break;
-				case EF_SUNSOFT_ENV_LO:
-					SetEnvelopeLow(EffParam);
-					break;
-				case EF_SUNSOFT_ENV_TYPE:
-					SetEnvelopeType(EffParam);
-					m_bEnvEnable = true;
-					m_bUpdate = true;
-					break;
-
-					/*
-				case EF_SLIDE_UP:
-				case EF_SLIDE_DOWN:
-					PostEffect = EffCmd;
-					PostEffectParam = EffParam;
-					SetupSlide(EffCmd, EffParam);
-					break;
-					*/
-			}
+				/*
+			case EF_SLIDE_UP:
+			case EF_SLIDE_DOWN:
+				PostEffect = EffCmd;
+				PostEffectParam = EffParam;
+				SetupSlide(EffCmd, EffParam);
+				break;
+				*/
 		}
 	}
+}
 
-	CInstrumentS5B *pInst = (CInstrumentS5B*)m_pDocument->GetInstrument(m_iInstrument);
+bool CChannelHandlerS5B::HandleInstrument(int Instrument, bool Trigger, bool NewInstrument)
+{
+	CInstrumentS5B *pInstrument = (CInstrumentS5B*)m_pDocument->GetInstrument(m_iInstrument);
 
-	// Instrument
-	if ((LastInstrument != m_iInstrument) || (Note != 0 && Note != HALT && Note != RELEASE)) {
-		// Setup instrument
-		for (int i = 0; i < SEQ_COUNT; ++i) {
-			m_iSeqEnabled[i] = pInst->GetSeqEnable(i);
-			m_iSeqIndex[i]	 = pInst->GetSeqIndex(i);
+	if (pInstrument == NULL)
+		return false;
+
+	if (pInstrument->GetType() != INST_S5B) {
+		pInstrument->Release();
+		return false;
+	}
+
+	for (int i = 0; i < SEQ_COUNT; ++i) {
+		if (pInstrument->GetSeqIndex(i) != m_iSeqIndex[i] || pInstrument->GetSeqEnable(i) != m_iSeqEnabled[i] || Trigger) {
+			m_iSeqEnabled[i] = pInstrument->GetSeqEnable(i);
+			m_iSeqIndex[i]	 = pInstrument->GetSeqIndex(i);
 			m_iSeqPointer[i] = 0;
 		}
 	}
 
-	// Volume
-	if (Volume < 0x10) {
-		m_iVolume = Volume << VOL_SHIFT;
-	}
+	pInstrument->Release();
 
-	// Note action
-	if (Note == HALT) {
-		// Halt
-		CutNote();
-		m_bEnabled = false;
-		m_iNote = 0;
-	}
-	else if (Note == RELEASE) {
-		// Release
-		ReleaseNote();
-		m_bUpdate = true;
-	}
-	else if (Note != NONE) {
-		// New note
-		m_iNote	= RunNote(Octave, Note);
-		m_iSeqVolume = 0xF;
-		m_bEnabled = true;
+	return true;
+}
 
-		m_iDutyPeriod = S5B_MODE_SQUARE;
+void CChannelHandlerS5B::HandleEmptyNote()
+{
+}
 
-		m_bUpdate = true;
-	}
+void CChannelHandlerS5B::HandleHalt()
+{
+	CutNote();
+	m_bEnabled = false;
+	m_iNote = 0;
+}
+
+void CChannelHandlerS5B::HandleRelease()
+{
+	ReleaseNote();
+	m_bUpdate = true;
+}
+
+void CChannelHandlerS5B::HandleNote(int Note, int Octave)
+{
+	m_iNote	= RunNote(Octave, Note);
+	m_iSeqVolume = 0xF;
+	m_bEnabled = true;
+
+	m_iDutyPeriod = S5B_MODE_SQUARE;
+
+	m_bUpdate = true;
 }
 
 void CChannelHandlerS5B::ProcessChannel()

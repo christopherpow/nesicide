@@ -30,8 +30,7 @@
 
 const int CInstrument2A03::SEQUENCE_TYPES[] = {SEQ_VOLUME, SEQ_ARPEGGIO, SEQ_PITCH, SEQ_HIPITCH, SEQ_DUTYCYCLE};
 
-CInstrument2A03::CInstrument2A03() : 
-	m_iPitchOption(0)
+CInstrument2A03::CInstrument2A03()
 {
 	for (int i = 0; i < SEQUENCE_COUNT; ++i) {
 		m_iSeqEnable[i] = 0;
@@ -43,6 +42,7 @@ CInstrument2A03::CInstrument2A03() :
 			m_cSamples[i][j] = 0;
 			m_cSamplePitch[i][j] = 0;
 			m_cSampleLoopOffset[i][j] = 0;
+			m_cSampleDelta[i][j] = -1;
 		}
 	}
 }
@@ -68,6 +68,17 @@ CInstrument *CInstrument2A03::Clone() const
 	return pNew;
 }
 
+void CInstrument2A03::Setup()
+{
+	CFamiTrackerDoc *pDoc = CFamiTrackerDoc::GetDoc();
+
+	// Select free sequences
+	for (int i = 0; i < SEQ_COUNT; ++i) {
+		SetSeqEnable(i, 0);
+		SetSeqIndex(i, pDoc->GetFreeSequence(i));
+	}
+}
+
 void CInstrument2A03::Store(CDocumentFile *pDocFile)
 {
 	pDocFile->WriteBlockInt(SEQUENCE_COUNT);
@@ -81,6 +92,7 @@ void CInstrument2A03::Store(CDocumentFile *pDocFile)
 		for (int j = 0; j < 12; ++j) {
 			pDocFile->WriteBlockChar(GetSample(i, j));
 			pDocFile->WriteBlockChar(GetSamplePitch(i, j));
+			pDocFile->WriteBlockChar(GetSampleDeltaValue(i, j));
 		}
 	}
 }
@@ -112,6 +124,8 @@ bool CInstrument2A03::Load(CDocumentFile *pDocFile)
 				Index = 0;
 			SetSample(i, j, Index);
 			SetSamplePitch(i, j, pDocFile->GetBlockChar());
+			if (Version > 5)
+				SetSampleDeltaValue(i, j, pDocFile->GetBlockChar());
 		}
 	}
 
@@ -121,7 +135,7 @@ bool CInstrument2A03::Load(CDocumentFile *pDocFile)
 void CInstrument2A03::SaveFile(CFile *pFile, CFamiTrackerDoc *pDoc)
 {
 	// Saves an 2A03 instrument
-	// Current version 2.2
+	// Current version 2.4
 
 	// Sequences
 	unsigned char SeqCount = SEQUENCE_COUNT;
@@ -173,11 +187,13 @@ void CInstrument2A03::SaveFile(CFile *pFile, CFamiTrackerDoc *pDoc)
 		for (int j = 0; j < 12; ++j) {	// notes
 			if (GetSample(i, j) > 0) {
 				unsigned char Index = i * 12 + j;
-				unsigned char Sample = GetSample(i, j);;
-				unsigned char Pitch = GetSamplePitch(i, j);;
+				unsigned char Sample = GetSample(i, j);
+				unsigned char Pitch = GetSamplePitch(i, j);
+				unsigned char Delta = GetSampleDeltaValue(i, j);
 				pFile->Write(&Index, sizeof(char));
 				pFile->Write(&Sample, sizeof(char));
 				pFile->Write(&Pitch, sizeof(char));
+				pFile->Write(&Delta, sizeof(char));
 				UsedSamples[Sample - 1] = true;
 			}
 		}
@@ -288,11 +304,15 @@ bool CInstrument2A03::LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc
 		pFile->Read(&InstNote, sizeof(char));
 		int Octave = InstNote / 12;
 		int Note = InstNote % 12;
-		unsigned char Sample, Pitch;
+		unsigned char Sample, Pitch, Delta;
 		pFile->Read(&Sample, sizeof(char));
 		pFile->Read(&Pitch, sizeof(char));
+		if (iVersion >= 24) {
+			pFile->Read(&Delta, sizeof(char));
+		}
 		SetSamplePitch(Octave, Note, Pitch);
 		SetSample(Octave, Note, Sample);
+		SetSampleDeltaValue(Octave, Note, Delta);
 	}
 
 	// DPCM samples list
@@ -453,6 +473,11 @@ char CInstrument2A03::GetSampleLoopOffset(int Octave, int Note) const
 	return m_cSampleLoopOffset[Octave][Note];
 }
 
+char CInstrument2A03::GetSampleDeltaValue(int Octave, int Note) const
+{
+	return m_cSampleDelta[Octave][Note];
+}
+
 void CInstrument2A03::SetSample(int Octave, int Note, char Sample)
 {
 	m_cSamples[Octave][Note] = Sample;
@@ -477,6 +502,12 @@ void CInstrument2A03::SetSampleLoopOffset(int Octave, int Note, char Offset)
 	InstrumentChanged();
 }
 
+void CInstrument2A03::SetSampleDeltaValue(int Octave, int Note, char Value)
+{
+	m_cSampleDelta[Octave][Note] = Value;
+	InstrumentChanged();
+}
+
 bool CInstrument2A03::AssignedSamples() const
 {
 	// Returns true if there are assigned samples in this instrument	
@@ -489,15 +520,4 @@ bool CInstrument2A03::AssignedSamples() const
 	}
 
 	return false;
-}
-
-void CInstrument2A03::SetPitchOption(int Option)
-{
-	m_iPitchOption = Option;
-	InstrumentChanged();
-}
-
-int CInstrument2A03::GetPitchOption() const
-{
-	return m_iPitchOption;
 }

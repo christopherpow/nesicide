@@ -28,7 +28,7 @@
 // No unicode allowed here
 
 // Class constants
-const unsigned int CDocumentFile::FILE_VER		 = 0x0430;			// Current file version (4.30)
+const unsigned int CDocumentFile::FILE_VER		 = 0x0440;			// Current file version (4.40)
 const unsigned int CDocumentFile::COMPATIBLE_VER = 0x0100;			// Compatible file version (1.0)
 
 const char *CDocumentFile::FILE_HEADER_ID = "FamiTracker Module";
@@ -275,6 +275,7 @@ char CDocumentFile::GetBlockChar()
 
 CString CDocumentFile::ReadString()
 {
+	/*
 	char str[1024], c;
 	int str_ptr = 0;
 
@@ -284,6 +285,16 @@ CString CDocumentFile::ReadString()
 	str[str_ptr++] = 0;
 
 	return CString(str);
+	*/
+
+	CString str;
+	int str_ptr = 0;
+	char c;
+
+	while ((c = GetBlockChar()) && (str_ptr++ < 65536))
+		str.AppendChar(c);
+	
+	return str;
 }
 
 void CDocumentFile::GetBlock(void *Buffer, int Size)

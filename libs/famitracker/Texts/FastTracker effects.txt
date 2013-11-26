@@ -1,0 +1,301 @@
+Effects in FastTracker
+Back
+
+
+
+Before you start  
+
+      You can add effects to notes by entering a 3-character-code in the last row.
+
+       C#5 -- 000 (the three zero's)
+
+
+
+      The first number is what effect to use and the two following is the data for the first one. All effects are entered in hexadecimal. The word tick goes back to the Amiga and means number of VBL’s to wait until playing next row. When using a command FT2 will use the first tick to play the note and the following ticks for effect. 
+
+            ---   -- F03 <- Sets speed to three ticks per row
+            C-5 1 -- A0F
+
+            Tick 1: Plays sample at C-5
+            Tick 2: Slides the volume down $F
+            Tick 3: Slides the volume down $F
+
+      If effect is stated as fine FT2 will use speed per row instead of per tick. 
+      Things written inside brackets are optional.
+
+      Arpeggio (0--)  
+
+            Syntax: 0 + 1st halftone + 2nd halftone
+
+            Ex.: C-1 1 -- 037
+
+            At tick 1: Plays C-1 tick #1
+            At tick 2: Plays C-1 + 3 Notes = D#1 tick #2
+            At tick 3: Plays C-1 + 7 Notes = G-1 tick #3
+
+      Portamento up (1--)  
+            Portamento is used to slide the sample pitch up or down. This is done using the period value. If Amiga frequency table is used, the sliding will be non-linear (the speed depends on the frequency).  
+
+            Syntax: 1 + speed
+
+            Ex: C-5 1 -- 103 -> Bends the sample down three halftones per tick
+                ---   -- 103 -> Bends the sample down three halftones per tick
+
+      Portamento down (2--)  
+            Bends the sample down as stated above  
+
+            Syntax: 2 + speed
+
+            Ex: C-5 1 -- 203 -> Bends the sample down
+                ---   -- 203 -> Bends the sample even more down
+
+      Portamento to note (3--)  
+            This command is used together with a note, and will slide to its frequency. If glissando (E3) is used, the frequency will be rounded to the nearest halftone. Portamento will not bend further than the first last says.  
+
+            Syntax: Note + 3 + Speed to bend the sample.
+                        Or 3 + Speed to bend the sample if the command been used
+                                     before in this channel.
+
+            Ex: D-6 1 -- 000 -> Plays the sample at D-6
+                C-5 1 -- 303 -> Bends the sample down
+                ---   -- 3F0 -> Bends the sample down to C-5
+
+      Vibrato (4--)  
+            Adds vibrato to the channel with a rate and speed. Set vibrato control (E4-) can be used to change the vibrato waveform.  
+
+            Syntax: 4 + Rate + Depth
+
+      Tone portamento + Volumeslide (5--)  
+            This command will execute both tone portamento and volume slide. The speed is used for the volume slide.  
+
+            Syntax: 5 + Speed
+
+      Vibrato + Volumeslide (6--)  
+            This command will execute both vibrato and volume slide. The speed is used for the volume slide.
+
+            Syntax: 6 + Speed
+
+      Tremolo (7--)  
+            Tremolo adds vibrato to the current volume. The syntax is exactly as for the vibrato command.
+
+            Syntax: 7 + Rate + Depth
+
+      Set panning position (8--)  
+            Sets the panning position for a track until a new note is played  
+
+            Syntax: [Note] 8 + Panning Position
+
+            Ex: C-5  1 -- 800 -> Sets the panning position to the left
+                ---    -- 8FF -> Sets the panning position to the right
+                C-5  1 -- 000 -> Resets the panning position to defined
+                                 in the instrument editor
+
+            Note: GUS can only handle 16 different panning positions so the last digit has no effect on a GUS.
+
+      Sample offset (9--)  
+
+            Syntax: Note + 9 + Sample offset
+
+            Ex: C-5  1 -- 908 -> Starts playing the sample 2kb later if the smp is 8-bit.
+                ---    -- 9FF -> Nothing!
+
+            Note: The sample offset data will be multiplied with $100 (256). That limits this command to samples < 64kb.
+
+      Volumeslide (A0-, A-0)  
+            Volumeslide up  
+
+            Syntax: [Note] A + Slide speed + 0
+
+            Ex: C-5  1 -- C20 -> Plays the sample at volume $20
+                ---    -- A10 -> Slides the volume up.
+
+            Volumeslide down  
+
+            Syntax: [Note] A + 0 + Slide speed
+
+            Ex: C-5  1 -- C20 -> Plays the sample at volume $20
+                ---    -- A01 -> Slides the volume down.
+
+            Note: One of the data fields must be 0 or this command won't work. If no volume is specified the sample will be played at defined volume in the instrument editor.
+
+      Jump songposition (B--)  
+
+            Syntax: B + Songposition
+
+            Jumps to the specified song position and play the pattern from the beginning.
+
+      Set volume (C--)  
+
+            Syntax C + Volume
+
+            Sets the sample volume.  
+
+            Ex: C-5  1 -- C40 -> Plays the sample at volume $40
+                ---    -- C10 -> Changes the volume to $10
+
+            Note: The volume can't be greater than $40 If no volume is specified the sample will be played at defined volume in the instrument editor.
+
+      Pattern break (D--)  
+
+            Syntax: D + Pattern position
+
+            Breaks the current pattern, jumps to next pattern and start playing at specified position.  
+
+            Ex: ---   -- D16 -> Breaks the pattern and starts then next pattern at
+                                position $16
+
+      Filter on / off (E01)  
+
+            Syntax: E + 0 + 1 to make your .MOD file sound terrible on an Amiga.
+
+            This effect is not implemented in FT2 due to the fact that it's totally useless.
+
+      Fine portamento up (E1-)  
+
+            Syntax: E1 + Speed
+
+            This command works as portamento up/down, but is only slides up once.
+
+      Fine portamento down (E2-)  
+
+            Syntax: E2 + Speed
+
+            This command works as portamento up/down, but is only slides up once.
+
+      Set glissando control (E3-)  
+
+            Syntax: E3 + Status
+
+            If Status is =1, the frequency when using tone portamento will be rounded to the nearest halftone.
+
+      Set vibrato control (E4-)  
+
+            Syntax: E4 + Type
+
+            This command controls the vibrato waveform.
+
+            Type:  0 = Sine
+                   1 = Ramp down
+                   2 = Square
+
+            If you add 4 to the type, the waveform will not be retrigged when a new instrument is played.
+
+      Set fine-tune (E5-)  
+
+            Syntax: E5 + Tune
+
+            This command should be used together with a note. It will cause another fine-tune value to be used.
+
+      Pattern loop (E6-)  
+
+            Syntax: E6 + Count
+
+            If count is zero, the beginning of the loop will be specified. When a non-zero value is used, the pattern will be looped from the loop start.
+
+      Set tremolo control (E7-)  
+
+            Syntax: E7 + Type
+
+            This command works exactly as set vibrato control, but the tremolo waveform will be changed instead.
+
+      Retrig note (E9-, 8 not used)  
+
+            Syntax: E9 + Interval
+
+            Retriggs the note with the specified interval.
+
+      Fine volumeslide up (EA-)  
+
+            Syntax: EA + Speed
+
+            This command works as the usual volume slide, but it will only slide once.
+
+      Fine volume slide down (EB-)  
+
+            Syntax: EB + Speed
+
+            This command works as the usual volume slide, but it will only slide once.
+
+      Note cut (EC-)  
+
+            Syntax: EC + Tick
+
+            Cuts the note at the specified tick. Note that it will only set the volume to zero, and the sample will still be played.
+
+      Note delay (ED-)  
+
+            Syntax: ED + Ticks
+
+            This command will delay the note the selected number of ticks.
+
+      Set speed / tempo (F--)  
+
+            Syntax: F + speed / tempo
+
+            This command sets the speed between $1 and $1F. $20 -> $FF sets the tempo (BPM). The BPM is correct at speed 06.  
+
+            Ex: ---   -- F03 -> Sets the speed to 03
+                ---   -- F40 -> Sets the tempo to 54 BPM
+
+      Set global volume (G--)  
+
+            Syntax: G + volume
+
+            Sets the global volume. The volume should not be greater than $40.
+
+      Global volume slide (H--)  
+
+            Syntax: H + Up speed + Down speed
+
+            This command works exactly as volume slide, but it slides the global volume instead.
+
+      Set envelope position (L--)  
+
+            Syntax: L + Position
+
+            Changes the envelope position.
+
+      Panning slide (P--)  
+
+            Syntax: P + Right speed + left speed
+
+            This command slides the panning position. It works like the volume slide.
+
+      Multi retrig (R--)  
+
+            Syntax: R + Interval + Volume change
+
+            This is an extended version of the retrig command.  
+
+            Volume change:
+                    0 = None    8 = Unused
+                    1 = -1      9 = +1
+                    2 = -2      A = +2
+                    3 = -4      B = +4
+                    4 = -8      C = +8
+                    5 = -16     D = +16
+                    6 = *2/3    E = *3/2
+                    7 = *1/2    F = *2
+
+      Tremor (T--)  
+
+            Syntax: T + On time + Off time
+
+            This weird command will set the volume to zero during off time number of ticks. It is included for STM compatibility.
+
+      Extra fine portamento up (X1-)  
+
+            Syntax: X1 + Speed
+
+            This command works as fine portamento up/down, but the speed will be divided by four.
+
+      Extra fine portamento down (X2-)  
+
+            Syntax: X2 + Speed
+
+            This command works as fine portamento up/down, but the speed will be divided by four. 
+
+
+web hosting • domain names • web design
+online games • photo sharing
+free blog • advertising online

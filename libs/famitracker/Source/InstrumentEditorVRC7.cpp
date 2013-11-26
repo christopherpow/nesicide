@@ -42,10 +42,13 @@ IMPLEMENT_DYNAMIC(CInstrumentEditorVRC7, CInstrumentEditPanel)
 CInstrumentEditorVRC7::CInstrumentEditorVRC7(CWnd* pParent /*=NULL*/)
 	: CInstrumentEditPanel(CInstrumentEditorVRC7::IDD, pParent)
 {
+	m_pInstrument = NULL;
 }
 
 CInstrumentEditorVRC7::~CInstrumentEditorVRC7()
 {
+	if (m_pInstrument)
+		m_pInstrument->Release();
 }
 
 void CInstrumentEditorVRC7::DoDataExchange(CDataExchange* pDX)
@@ -320,7 +323,12 @@ void CInstrumentEditorVRC7::EnableControls(bool bEnable)
 void CInstrumentEditorVRC7::SelectInstrument(int Instrument)
 {
 	CComboBox *pPatchBox = (CComboBox*)GetDlgItem(IDC_PATCH);
+
+	if (m_pInstrument)
+		m_pInstrument->Release();
+
 	m_pInstrument = (CInstrumentVRC7*)GetDocument()->GetInstrument(Instrument);
+
 	int Patch = m_pInstrument->GetPatch();
 
 	pPatchBox->SetCurSel(Patch);
@@ -587,7 +595,7 @@ void CInstrumentEditorVRC7::OnCopy()
 
 void CInstrumentEditorVRC7::OnPaste()
 {
-   // Copy from clipboard
+	// Copy from clipboard
 	if (!OpenClipboard())
 		return;
 

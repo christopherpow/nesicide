@@ -20,9 +20,11 @@
 
 #pragma once
 
+// Vector.h is needed. This file cannot be included after stdafx.h
+
 // Helper classes/objects for NSF compiling
 
-enum CHUNK_DATA_TYPE { CHUNK_DATA_BYTE, CHUNK_DATA_WORD, CHUNK_DATA_REFERENCE, CHUNK_DATA_STRING };
+enum CHUNK_DATA_TYPE { CHUNK_DATA_BYTE, CHUNK_DATA_WORD, CHUNK_DATA_REFERENCE, CHUNK_DATA_BANK, CHUNK_DATA_STRING };
 
 //
 // Chunk data classes
@@ -58,6 +60,14 @@ public:
 	CChunkDataReference(int Type, CString refName) : CChunkData(Type), m_refName(refName), ref(-1) {};
 	CString m_refName;
 	unsigned short ref;
+};
+
+class CChunkDataBank : public CChunkData
+{
+public:
+	CChunkDataBank(int Type, CString bankOf, int bank) : CChunkData(Type), m_bankOf(bankOf), m_bank(bank) {};
+	CString m_bankOf;
+	unsigned int m_bank;
 };
 
 class CChunkDataString : public CChunkData
@@ -106,9 +116,11 @@ public:
 	void			StoreByte(unsigned char data);
 	void			StoreWord(unsigned short data);
 	void			StoreReference(CString refName);
+	void			StoreBankReference(CString refName, int bank);
 	void			StoreString(char *pString, int len);
 
 	void			ChangeByte(int index, unsigned char data);
+	void			SetupBankData(int index, unsigned char bank);
 
 	int				GetLength() const;
 	unsigned short	GetData(int index) const;
@@ -133,6 +145,7 @@ public:
 	unsigned int	GetBank() const;
 
 	void			UpdateDataRefName(int index, CString name);
+	CString			GetBankRefName(int index) const;
 
 public:
 	// Extra

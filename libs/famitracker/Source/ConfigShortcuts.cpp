@@ -21,6 +21,7 @@
 
 #include "stdafx.h"
 #include "FamiTracker.h"
+#include "FamiTrackerDoc.h"
 #include "MainFrm.h"
 #include "ConfigShortcuts.h"
 #include "Accelerator.h"

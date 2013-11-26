@@ -197,6 +197,15 @@ void CPCMImport::DoDataExchange(CDataExchange* pDX)
 	CDialog::DoDataExchange(pDX);
 }
 
+
+BEGIN_MESSAGE_MAP(CPCMImport, CDialog)
+	ON_WM_HSCROLL()
+	ON_BN_CLICKED(IDCANCEL, OnBnClickedCancel)
+	ON_BN_CLICKED(IDOK, OnBnClickedOk)
+//ON_BN_CLICKED(IDC_PREVIEW, &CPCMImport::OnBnClickedPreview)
+   ON_BN_CLICKED(IDC_PREVIEW, OnBnClickedPreview)
+END_MESSAGE_MAP()
+
 void CPCMImport::preview_clicked()
 {
    OnBnClickedPreview();
@@ -222,21 +231,13 @@ void CPCMImport::volume_valueChanged(int value)
    OnHScroll(SB_HORZ,value,dynamic_cast<CScrollBar*>(GetDlgItem(IDC_VOLUME)));
 }
 
-BEGIN_MESSAGE_MAP(CPCMImport, CDialog)
-	ON_WM_HSCROLL()
-	ON_BN_CLICKED(IDCANCEL, OnBnClickedCancel)
-	ON_BN_CLICKED(IDOK, OnBnClickedOk)
-//ON_BN_CLICKED(IDC_PREVIEW, &CPCMImport::OnBnClickedPreview)
-   ON_BN_CLICKED(IDC_PREVIEW, OnBnClickedPreview)
-END_MESSAGE_MAP()
-
 CDSample *CPCMImport::ShowDialog()
 {
 	// Return import parameters, 0 if cancel
 
 	CFileSoundDialog OpenFileDialog(TRUE, 0, 0, OFN_HIDEREADONLY, _T("Wave files (*.wav)|*.wav|All files (*.*)|*.*||"));
 
-//	OpenFileDialog.m_pOFN->lpstrInitialDir = theApp.GetSettings()->GetPath(PATH_WAV);
+	OpenFileDialog.m_pOFN->lpstrInitialDir = theApp.GetSettings()->GetPath(PATH_WAV);
 
 	if (OpenFileDialog.DoModal() == IDCANCEL)
 		return NULL;
@@ -289,7 +290,7 @@ BOOL CPCMImport::OnInitDialog()
 	UpdateFileInfo();
 
 	CString WinTitle;
-   WinTitle.Format(_T("PCM Import - [%s]"), m_strFileName.GetString());
+	WinTitle.Format(_T("PCM Import - [%s]"), (LPCTSTR)m_strFileName);
 	SetWindowText(WinTitle);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
@@ -335,7 +336,7 @@ void CPCMImport::OnBnClickedOk()
 	m_strFileName.Truncate(m_strFileName.GetLength() - 4);
 
 	// Set the name
-   strncpy(pSample->Name, (char*)(LPCSTR)m_strFileName.GetBuffer(), 256);
+   strncpy(pSample->Name, (char*)(LPCTSTR)m_strFileName, 256);
 
 	m_pImported = pSample;
 

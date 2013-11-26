@@ -37,10 +37,8 @@ protected:
    void mousePressEvent(QMouseEvent *event);
    void mouseReleaseEvent(QMouseEvent *event);
    void resizeEvent(QResizeEvent *event);
-public slots:
    bool eventFilter(QObject *object, QEvent *event);
    
-public:
    // MFC interfaces   
 	DECLARE_DYNAMIC(CSampleView)
 protected:

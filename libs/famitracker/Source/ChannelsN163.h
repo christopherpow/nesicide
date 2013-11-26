@@ -27,10 +27,18 @@
 class CChannelHandlerN163 : public CChannelHandler {
 public:
 	CChannelHandlerN163();
+	virtual void ResetChannel();
 	virtual void ProcessChannel();
 	virtual void RefreshChannel();
 protected:
-	virtual void PlayChannelNote(stChanNote *pNoteData, int EffColumns);
+	virtual void HandleNoteData(stChanNote *pNoteData, int EffColumns);
+	virtual void HandleCustomEffects(int EffNum, int EffParam);
+	virtual bool HandleInstrument(int Instrument, bool Trigger, bool NewInstrument);
+	virtual void HandleEmptyNote();
+	virtual void HandleHalt();
+	virtual void HandleRelease();
+	virtual void HandleNote(int Note, int Octave);
+
 	virtual void ClearRegisters();
 private:
 	void WriteReg(int Reg, int Value);
@@ -47,4 +55,7 @@ private:
 	int m_iWavePos;
 	int m_iWaveIndex;
 	int m_iWaveCount;
+protected:
+	int m_iPostEffect;
+	int m_iPostEffectParam;
 };

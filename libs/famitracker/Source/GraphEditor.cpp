@@ -25,8 +25,6 @@
 #include "SequenceEditor.h"
 #include "Graphics.h"
 
-#define ENABLE_RELEASE
-
 // CGraphEditor
 
 // The graphical sequence editor
@@ -472,12 +470,6 @@ void CGraphEditor::ModifyReleasePoint(CPoint point, bool Redraw)
 {
 	if (!m_pSequence || !m_pSequence->GetItemCount())
 		return;
-
-	// Temporarily disabled
-//	return;
-#ifndef ENABLE_RELEASE
-	return;
-#endif
 
 	int ItemWidth = GetItemWidth();
 	int ReleasePoint = (point.x - GRAPH_LEFT + (ItemWidth / 2)) / ItemWidth;

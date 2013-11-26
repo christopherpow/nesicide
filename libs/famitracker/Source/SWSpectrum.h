@@ -20,7 +20,6 @@
 
 #pragma once
 
-#include "SampleWindow.h"
 #include "FFT/Fft.h"
 
 const int FFT_POINTS = 256;

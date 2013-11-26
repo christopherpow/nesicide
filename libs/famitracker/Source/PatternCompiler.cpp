@@ -70,7 +70,7 @@ const unsigned char CMD_EFF_NOTE_CUT		= DEF_CMD(21);
 const unsigned char CMD_EFF_RETRIGGER		= DEF_CMD(22);
 const unsigned char CMD_EFF_DPCM_PITCH		= DEF_CMD(23);
 
-const unsigned char CMD_SET_DURATION		= DEF_CMD(24);	// B0h
+const unsigned char CMD_SET_DURATION		= DEF_CMD(24);	// B0h (change these in init.s)
 const unsigned char CMD_RESET_DURATION		= DEF_CMD(25);	// B2h
 
 const unsigned char CMD_EFF_FDS_MOD_DEPTH	= DEF_CMD(26);
@@ -82,8 +82,11 @@ const unsigned char CMD_EFF_VRC7_PATCH		= CMD_EFF_FDS_MOD_DEPTH;	// TODO: hack, 
 const unsigned char CMD_LOOP_POINT			= DEF_CMD(26);	// Currently not in use
 
 
-#define OPTIMIZE_DURATIONS		// Remove note durations when possible
-#define QUICK_INST				// Remove instrument switch command for instrument 0 - 15
+// Optimize note durations when possible (default on)
+#define OPTIMIZE_DURATIONS
+
+// Use single-byte instrument commands for instrument 0-15 (default on)
+#define QUICK_INST				
 
 CPatternCompiler::CPatternCompiler() :
 	m_iDataPointer(0),
@@ -160,6 +163,19 @@ void CPatternCompiler::CompileData(CFamiTrackerDoc *pDoc, int Track, int Pattern
 			EffParam = ChanNote.EffParam[j];
 			if (Effect == EF_DELAY && EffParam > 0) {
 				DispatchZeroes();
+				for (int k = 0; k < EffColumns; ++k) {
+					// Clear skip and jump commands on delayed rows
+					if (ChanNote.EffNumber[k] == EF_SKIP) {
+						WriteData(CMD_EFF_SKIP);
+						WriteData(ChanNote.EffParam[k] + 1);
+						ChanNote.EffNumber[k] = 0;
+					}
+					else if (ChanNote.EffNumber[k] == EF_JUMP) {
+						WriteData(CMD_EFF_JUMP);
+						WriteData(ChanNote.EffParam[k] + 1);
+						ChanNote.EffNumber[k] = 0;
+					}
+				}
 				Action = true;
 				WriteData(CMD_EFF_DELAY);
 				WriteData(EffParam);
@@ -189,7 +205,7 @@ void CPatternCompiler::CompileData(CFamiTrackerDoc *pDoc, int Track, int Pattern
 			}
 		}
 		
-#endif
+#endif /* OPTIMIZE_DURATIONS */
 /*
 		if (SpaceInfo.SpaceCount > 2 && SpaceInfo.SpaceSize != CurrentDefaultDuration) {
 			CurrentDefaultDuration = SpaceInfo.SpaceSize;
@@ -218,7 +234,7 @@ void CPatternCompiler::CompileData(CFamiTrackerDoc *pDoc, int Track, int Pattern
 #else
 				WriteData(CMD_INSTRUMENT);
 				WriteData(Instrument << 1);
-#endif
+#endif /* QUICK_INST */
 				Action = true;
 			}
 			else {
@@ -232,7 +248,7 @@ void CPatternCompiler::CompileData(CFamiTrackerDoc *pDoc, int Track, int Pattern
 				Action = true;
 			}
 		}
-#endif
+#endif /* OPTIMIZE_DURATIONS */
 
 		if (Note == 0) {
 			NESNote = 0xFF;
@@ -248,8 +264,10 @@ void CPatternCompiler::CompileData(CFamiTrackerDoc *pDoc, int Track, int Pattern
 				// 2A03 DPCM
 				int LookUp = (*DPCM_LookUp)[DPCMInst][Octave][Note - 1];
 				if (LookUp > 0) {
-					NESNote = LookUp << 1;
-					int Sample = ((CInstrument2A03*)pDoc->GetInstrument(DPCMInst))->GetSample(Octave, Note - 1) - 1;
+					NESNote = LookUp * 3;
+					CInstrument2A03 *pInstrument = ((CInstrument2A03*)pDoc->GetInstrument(DPCMInst));
+					int Sample = pInstrument->GetSample(Octave, Note - 1) - 1;
+					pInstrument->Release();
 					m_bDSamplesAccessed[Sample] = true;
 				}
 				else

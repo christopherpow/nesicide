@@ -31,102 +31,85 @@ CChannelHandlerVRC6::CChannelHandlerVRC6() : CChannelHandler()
 	SetMaxPeriod(0xFFF);
 }
 
-void CChannelHandlerVRC6::PlayChannelNote(stChanNote *pNoteData, int EffColumns)
+void CChannelHandlerVRC6::HandleNoteData(stChanNote *pNoteData, int EffColumns)
 {
-	CInstrumentVRC6 *pInstrument;
-	int PostEffect = 0, PostEffectParam;
+	m_iPostEffect = 0;
+	m_iPostEffectParam = 0;
 
-	int LastInstrument = m_iInstrument;
+	CChannelHandler::HandleNoteData(pNoteData, EffColumns);
 
-	if (!CChannelHandler::CheckNote(pNoteData, INST_VRC6))
-		return;
-
-	unsigned int Note, Octave;
-	unsigned int Volume;
-
-	Note	= pNoteData->Note;
-	Octave	= pNoteData->Octave;
-	Volume	= pNoteData->Vol;
-
-	if (Note != 0)
-		m_bRelease = false;
-	else {
-		if (pNoteData->Instrument != MAX_INSTRUMENTS)
-			m_iInstrument = pNoteData->Instrument;
+	if (pNoteData->Note != NONE && pNoteData->Note != HALT) {
+		if (m_iPostEffect && (m_iEffect == EF_SLIDE_UP || m_iEffect == EF_SLIDE_DOWN))
+			SetupSlide(m_iPostEffect, m_iPostEffectParam);
+		else if (m_iEffect == EF_SLIDE_DOWN || m_iEffect == EF_SLIDE_UP)
+			m_iEffect = EF_NONE;
 	}
+}
 
-	if (Note == RELEASE) {
-		m_bRelease = true;
-		m_iInstrument	= LastInstrument;
-	}
-	else if (Note == HALT) {
-		m_iInstrument	= LastInstrument;
-	}
-
-	// Evaluate effects
-	for (int n = 0; n < EffColumns; n++) {
-		int EffCmd	 = pNoteData->EffNumber[n];
-		int EffParam = pNoteData->EffParam[n];
-
-		if (!CheckCommonEffects(EffCmd, EffParam)) {
-			switch (EffCmd) {
-				case EF_DUTY_CYCLE:
-					m_iDefaultDuty = m_iDutyPeriod = EffParam;
-					break;
-				case EF_SLIDE_UP:
-				case EF_SLIDE_DOWN:
-					PostEffect = EffCmd;
-					PostEffectParam = EffParam;
-					SetupSlide(EffCmd, EffParam);
-					break;
-			}
+void CChannelHandlerVRC6::HandleCustomEffects(int EffNum, int EffParam)
+{
+	if (!CheckCommonEffects(EffNum, EffParam)) {
+		switch (EffNum) {
+			case EF_DUTY_CYCLE:
+				m_iDefaultDuty = m_iDutyPeriod = EffParam;
+				break;
+			case EF_SLIDE_UP:
+			case EF_SLIDE_DOWN:
+				m_iPostEffect = EffNum;
+				m_iPostEffectParam = EffParam;
+				SetupSlide(EffNum, EffParam);
+				break;
 		}
 	}
+}
 
-	pInstrument = (CInstrumentVRC6*)m_pDocument->GetInstrument(m_iInstrument);
+bool CChannelHandlerVRC6::HandleInstrument(int Instrument, bool Trigger, bool NewInstrument)
+{
+	CInstrumentVRC6 *pInstrument = (CInstrumentVRC6*)m_pDocument->GetInstrument(Instrument);
 
 	if (!pInstrument)
-		return;
+		return false;
 
-	if (LastInstrument != m_iInstrument || Note > 0 && Note != HALT && Note != RELEASE) {
-		// Setup instrument
-		for (int i = 0; i < CInstrumentVRC6::SEQUENCE_COUNT; ++i) {
+	if (pInstrument->GetType() != INST_VRC6) {
+		pInstrument->Release();
+		return false;
+	}
+
+	// Setup instrument
+	for (int i = 0; i < CInstrumentVRC6::SEQUENCE_COUNT; ++i) {
+		if (pInstrument->GetSeqIndex(i) != m_iSeqIndex[i] || pInstrument->GetSeqEnable(i) != m_iSeqEnabled[i] || Trigger) {
 			m_iSeqEnabled[i] = pInstrument->GetSeqEnable(i);
 			m_iSeqIndex[i]	 = pInstrument->GetSeqIndex(i);
 			m_iSeqPointer[i] = 0;
 		}
 	}
 
-	// Get volume
-	if (Volume < 0x10)
-		m_iVolume = Volume << VOL_SHIFT;
+	pInstrument->Release();
 
-	if (Note == HALT) {
-		KillChannel();
-		return;
-	}
+	return true;
+}
 
-	// No note
-	if (!Note)
-		return;
+void CChannelHandlerVRC6::HandleEmptyNote()
+{
+}
 
-	if (!m_bRelease) {
-		// Get the note
-		m_iNote				= RunNote(Octave, Note);
-		m_iSeqVolume		= 0xF;
-		m_iDutyPeriod		= m_iDefaultDuty;
-		m_bEnabled			= true;
-		m_iLastInstrument	= m_iInstrument;
-	}
-	else {
-		ReleaseNote();
-		ReleaseSequences(SNDCHIP_VRC6);
-	}
+void CChannelHandlerVRC6::HandleHalt()
+{
+	CutNote();
+}
 
-	if (PostEffect && (m_iEffect == EF_SLIDE_UP || m_iEffect == EF_SLIDE_DOWN))
-		SetupSlide(PostEffect, PostEffectParam);
-	else if (m_iEffect == EF_SLIDE_DOWN || m_iEffect == EF_SLIDE_UP)
-		m_iEffect = EF_NONE;
+void CChannelHandlerVRC6::HandleRelease()
+{
+	ReleaseNote();
+	ReleaseSequences(SNDCHIP_VRC6);
+}
+
+void CChannelHandlerVRC6::HandleNote(int Note, int Octave)
+{
+	m_iNote		  = RunNote(Octave, Note);
+	m_iSeqVolume  = 0x0F;
+	m_iDutyPeriod = m_iDefaultDuty;
+	m_bEnabled	  = true;
 }
 
 void CChannelHandlerVRC6::ProcessChannel()
@@ -163,16 +146,16 @@ void CVRC6Square1::RefreshChannel()
 	unsigned char HiFreq = (Period & 0xFF);
 	unsigned char LoFreq = (Period >> 8);
 
-	m_pAPU->ExternalWrite(0x9000, DutyCycle | Volume);
-	m_pAPU->ExternalWrite(0x9001, HiFreq);
-	m_pAPU->ExternalWrite(0x9002, 0x80 | LoFreq);
+	WriteExternalRegister(0x9000, DutyCycle | Volume);
+	WriteExternalRegister(0x9001, HiFreq);
+	WriteExternalRegister(0x9002, 0x80 | LoFreq);
 }
 
 void CVRC6Square1::ClearRegisters()
 {
-	m_pAPU->ExternalWrite(0x9000, 0);
-	m_pAPU->ExternalWrite(0x9001, 0);
-	m_pAPU->ExternalWrite(0x9002, 0);
+	WriteExternalRegister(0x9000, 0);
+	WriteExternalRegister(0x9001, 0);
+	WriteExternalRegister(0x9002, 0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -191,16 +174,16 @@ void CVRC6Square2::RefreshChannel()
 	unsigned char HiFreq = (Period & 0xFF);
 	unsigned char LoFreq = (Period >> 8);
 
-	m_pAPU->ExternalWrite(0xA000, DutyCycle | Volume);
-	m_pAPU->ExternalWrite(0xA001, HiFreq);
-	m_pAPU->ExternalWrite(0xA002, 0x80 | LoFreq);
+	WriteExternalRegister(0xA000, DutyCycle | Volume);
+	WriteExternalRegister(0xA001, HiFreq);
+	WriteExternalRegister(0xA002, 0x80 | LoFreq);
 }
 
 void CVRC6Square2::ClearRegisters()
 {
-	m_pAPU->ExternalWrite(0xA000, 0);
-	m_pAPU->ExternalWrite(0xA001, 0);
-	m_pAPU->ExternalWrite(0xA002, 0);
+	WriteExternalRegister(0xA000, 0);
+	WriteExternalRegister(0xA001, 0);
+	WriteExternalRegister(0xA002, 0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -218,7 +201,7 @@ void CVRC6Sawtooth::RefreshChannel()
 	unsigned char LoFreq = (Period >> 8);
 
 	unsigned int TremVol = GetTremolo();
-	unsigned int Volume = (m_iSeqVolume * (m_iVolume >> VOL_SHIFT)) / 15 - TremVol;
+	int Volume = (m_iSeqVolume * (m_iVolume >> VOL_SHIFT)) / 15 - TremVol;
 
 	Volume = (Volume << 1) | ((m_iDutyPeriod & 1) << 5);
 
@@ -230,14 +213,17 @@ void CVRC6Sawtooth::RefreshChannel()
 	if (m_iSeqVolume > 0 && m_iVolume > 0 && Volume == 0)
 		Volume = 1;
 
-	m_pAPU->ExternalWrite(0xB000, Volume);
-	m_pAPU->ExternalWrite(0xB001, HiFreq);
-	m_pAPU->ExternalWrite(0xB002, 0x80 | LoFreq);
+	if (!m_bGate)
+		Volume = 0;
+
+	WriteExternalRegister(0xB000, Volume);
+	WriteExternalRegister(0xB001, HiFreq);
+	WriteExternalRegister(0xB002, 0x80 | LoFreq);
 }
 
 void CVRC6Sawtooth::ClearRegisters()
 {
-	m_pAPU->ExternalWrite(0xB000, 0);
-	m_pAPU->ExternalWrite(0xB001, 0);
-	m_pAPU->ExternalWrite(0xB002, 0);
+	WriteExternalRegister(0xB000, 0);
+	WriteExternalRegister(0xB001, 0);
+	WriteExternalRegister(0xB002, 0);
 }

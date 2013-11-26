@@ -7,11 +7,11 @@
 ** the Free Software Foundation; either version 2 of the License, or
 ** (at your option) any later version.
 **
-** This program is distributed in the hope that it will be useful,
+** This program is distributed in the hope that it will be useful, 
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
-** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-** Library General Public License for more details.  To obtain a
-** copy of the GNU Library General Public License, write to the Free
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+** Library General Public License for more details.  To obtain a 
+** copy of the GNU Library General Public License, write to the Free 
 ** Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 **
 ** Any permitted reproduction of these routines, in whole or in part,
@@ -67,7 +67,7 @@ void CSettings::SetupSettings()
 	// All settings are loaded on program start and saved when closing the program
 	//
 
-	// The SETTING macros takes four arguments:
+	// The SETTING macros takes four arguments: 
 	//
 	//  1. Registry section
 	//  2. Registry key name
@@ -119,7 +119,7 @@ void CSettings::SetupSettings()
 	SETTING_BOOL("MIDI", "Velocity control", false,	&Midi.bMidiVelocity);
 	SETTING_BOOL("MIDI", "Auto Arpeggio", false, &Midi.bMidiArpeggio);
 
-	// Appearance
+	// Appearance	
 	SETTING_INT("Appearance", "Background", DEFAULT_COLOR_SCHEME.BACKGROUND, &Appearance.iColBackground);
 	SETTING_INT("Appearance", "Background highlighted", DEFAULT_COLOR_SCHEME.BACKGROUND_HILITE, &Appearance.iColBackgroundHilite);
 	SETTING_INT("Appearance", "Background highlighted 2", DEFAULT_COLOR_SCHEME.BACKGROUND_HILITE2, &Appearance.iColBackgroundHilite2);
@@ -131,7 +131,7 @@ void CSettings::SetupSettings()
 	SETTING_INT("Appearance", "Pattern effect", DEFAULT_COLOR_SCHEME.TEXT_EFFECT, &Appearance.iColPatternEffect);
 	SETTING_INT("Appearance", "Selection", DEFAULT_COLOR_SCHEME.SELECTION, &Appearance.iColSelection);
 	SETTING_INT("Appearance", "Cursor", DEFAULT_COLOR_SCHEME.CURSOR, &Appearance.iColCursor);
-
+	
 	// Window position
 	SETTING_INT("Window position", "Left", 100, &WindowPos.iLeft);
 	SETTING_INT("Window position", "Top", 100, &WindowPos.iTop);
@@ -144,13 +144,13 @@ void CSettings::SetupSettings()
 	SETTING_INT("Other", "Frame editor position", 0, &FrameEditPos);
 
 	// Paths
-	SETTING_STRING("Paths", "FTM path", _T(""), &Paths[PATH_FTM]);
-	SETTING_STRING("Paths", "FTI path", _T(""), &Paths[PATH_FTI]);
-	SETTING_STRING("Paths", "NSF path", _T(""), &Paths[PATH_NSF]);
-	SETTING_STRING("Paths", "DMC path", _T(""), &Paths[PATH_DMC]);
-	SETTING_STRING("Paths", "WAV path", _T(""), &Paths[PATH_WAV]);
+	SETTING_STRING("Paths", "FTM path", "", &Paths[PATH_FTM]);
+	SETTING_STRING("Paths", "FTI path", "", &Paths[PATH_FTI]);
+	SETTING_STRING("Paths", "NSF path", "", &Paths[PATH_NSF]);
+	SETTING_STRING("Paths", "DMC path", "", &Paths[PATH_DMC]);
+	SETTING_STRING("Paths", "WAV path", "", &Paths[PATH_WAV]);
 
-	SETTING_STRING("Paths", "Instrument menu", _T(""), &InstrumentMenuPath);
+	SETTING_STRING("Paths", "Instrument menu", "", &InstrumentMenuPath);
 
 	/*
 	SETTING_INT("Sound levels", "2A03", 0, &ChipLevels.iLevel2A03);
@@ -176,7 +176,7 @@ void CSettings::LoadSettings()
 		m_pSettings[i]->Load();
 	}
 
-	m_bNamcoMixing = LoadSetting(_T("Emulation"), _T("Linear Namco mixing"), 0) == 1;
+//	m_bNamcoMixing = LoadSetting(_T("Emulation"), _T("Linear Namco mixing"), 0) == 1;
 }
 
 void CSettings::SaveSettings()

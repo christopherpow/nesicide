@@ -92,7 +92,7 @@ void CChunkRenderText::StoreChunks(std::vector<CChunk*> &m_vChunks, CFile *pFile
 	// Actual DPCM samples are stored later
 }
 
-void CChunkRenderText::DumpStrings(CString preStr, CString postStr, CStringArray stringArray, CFile *pFile)
+void CChunkRenderText::DumpStrings(CString &preStr, CString &postStr, CStringArray &stringArray, CFile *pFile)
 {
 	WriteFileString(pFile, preStr);
 
@@ -181,8 +181,8 @@ void CChunkRenderText::StoreSampleListChunk(CChunk *pChunk, CFile *pFile)
 	// Store sample list
 	str.Format(_T("%s:\n"), (LPCTSTR)pChunk->GetLabel());
 
-	for (int i = 0; i < pChunk->GetLength(); i += 2) {
-		str.AppendFormat(_T("\t.byte %i, %i\n"), pChunk->GetData(i + 0), pChunk->GetData(i + 1));
+	for (int i = 0; i < pChunk->GetLength(); i += 3) {
+		str.AppendFormat(_T("\t.byte %i, %i, %i\n"), pChunk->GetData(i + 0), pChunk->GetData(i + 1), pChunk->GetData(i + 2));
 	}
 
 	m_sampleListStrings.Add(str);
@@ -237,7 +237,7 @@ void CChunkRenderText::StoreSongChunk(CChunk *pChunk, CFile *pFile)
 		str.AppendFormat("\t.byte %i\t; pattern length\n", pChunk->GetData(i++));
 		str.AppendFormat("\t.byte %i\t; speed\n", pChunk->GetData(i++));
 		str.AppendFormat("\t.byte %i\t; tempo\n", pChunk->GetData(i++));
-		str.AppendFormat("\t.byte %i\t; initial bank\n", pChunk->GetData(i++));
+		str.AppendFormat("\t.byte %i\t; initial bank\n", pChunk->GetData(i++)); //pChunk->GetBankRefName(i++));
 	}
 
 	str.Append("\n");
@@ -267,11 +267,19 @@ void CChunkRenderText::StoreFrameChunk(CChunk *pChunk, CFile *pFile)
 	// Frame list
 	str.Format("%s:\n\t.word ", (LPCTSTR)pChunk->GetLabel());
 
-	for (int i = 0; i < len; ++i) {
+	for (int i = 0, j = 0; i < len; ++i) {
 		if (pChunk->GetDataType(i) == CHUNK_DATA_REFERENCE)
-			str.AppendFormat("%s%s", (LPCTSTR)pChunk->GetDataRefName(i), (i < len - 1) ? ", " : "");
-		else
-			str.AppendFormat("$%02X%s", pChunk->GetData(i), (i < len - 1) ? ", " : "");
+			str.AppendFormat("%s%s", (j++ > 0) ? _T(", ") : _T(""), (LPCTSTR)pChunk->GetDataRefName(i));
+	}
+
+	// Bank values
+	for (int i = 0, j = 0; i < len; ++i) {
+		if (pChunk->GetDataType(i) == CHUNK_DATA_BANK) {
+			if (j == 0) {
+				str.AppendFormat("\n\t.byte ", pChunk->GetLabel());
+			}
+			str.AppendFormat("%s$%02X", (j++ > 0) ? _T(", ") : _T(""), pChunk->GetData(i));
+		}
 	}
 
 	str.Append("\n");

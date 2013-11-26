@@ -31,7 +31,7 @@
 #include "cqtmfc.h"
 
 // Return values from WaitForDirectSoundEvent()
-enum {CUSTOM_EVENT = 1, BUFFER_IN_SYNC, BUFFER_OUT_OF_SYNC};
+enum {BUFFER_CUSTOM_EVENT = 1, BUFFER_TIMEOUT, BUFFER_IN_SYNC, BUFFER_OUT_OF_SYNC};
 
 // DirectSound channel
 class CDSoundChannel : public QObject
@@ -50,10 +50,10 @@ public:
 	void Reset();
 	void WriteSoundBuffer(void *Buffer, unsigned int Samples);
 	bool IsPlaying() const;
-//	void ResetWritePointer();
-//	void AdvanceWritePointer();
+	void ResetWritePointer();
+	void AdvanceWritePointer();
 
-	int  WaitForDirectSoundEvent() const;
+	int  WaitForDirectSoundEvent(DWORD dwTimeout) const;
 
 	int GetBlockSize() const	{ return m_iBlockSize; };
 	int GetBlockSamples() const	{ return m_iBlockSize >> ((m_iSampleSize >> 3) - 1); };
@@ -63,9 +63,9 @@ public:
 	int	GetSampleRate()	const	{ return m_iSampleRate;	};
 	int GetChannels() const		{ return m_iChannels; };
 
-//private:
-//	int GetPlayBlock() const;
-//	int GetWriteBlock() const;
+private:
+	int GetPlayBlock() const;
+	int GetWriteBlock() const;
 
 //private:
 //	LPDIRECTSOUNDBUFFER	m_lpDirectSoundBuffer;
@@ -83,8 +83,8 @@ public:
 	unsigned int	m_iBlocks;
 	unsigned int	m_iBlockSize;				// in bytes
 
-//	// State
-//	unsigned int	m_iCurrentWriteBlock;
+	// State
+	unsigned int	m_iCurrentWriteBlock;
    bool m_bPaused;
 };
 
@@ -103,10 +103,10 @@ extern QList<SDL_Callback> sdlHooks;
 class CDSound 
 {
 public:
-	CDSound();
+	CDSound(HWND hWnd, HANDLE hNotification);
 	~CDSound();
 
-	bool			Init(HWND hWnd, HANDLE hNotification, int Device);
+	bool			Init(int Device);
 	void			Close();
 
 	CDSoundChannel	*OpenChannel(int SampleRate, int SampleSize, int Channels, int BufferLength, int Blocks);
@@ -114,13 +114,13 @@ public:
 
 	int				CalculateBufferLength(int BufferLen, int Samplerate, int Samplesize, int Channels) const;
 
-//	// Enumeration
-//	void			EnumerateDevices();
-//	void			ClearEnumeration();
-//	BOOL			EnumerateCallback(LPGUID lpGuid, LPCSTR lpcstrDescription, LPCSTR lpcstrModule, LPVOID lpContext);
+	// Enumeration
+	void			EnumerateDevices();
+	void			ClearEnumeration();
+	BOOL			EnumerateCallback(LPGUID lpGuid, LPCSTR lpcstrDescription, LPCSTR lpcstrModule, LPVOID lpContext);
 	unsigned int	GetDeviceCount() const;
 	char			*GetDeviceName(int iDevice) const;
-//	int				MatchDeviceID(char *Name) const;
+	int				MatchDeviceID(char *Name) const;
 
 public:
 	static const unsigned int MAX_DEVICES = 256;

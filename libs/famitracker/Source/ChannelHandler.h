@@ -35,20 +35,19 @@ class CAPU;
 class CChannelHandler {
 public:
 	CChannelHandler();
+	virtual ~CChannelHandler();
 
-	void PlayNote(stChanNote *NoteData, int EffColumns);		// Plays a note, calls the derived classes
-
-	// TODO: use these eventually
-	void CutNote();													// Called on note cut commands
-	void ReleaseNote();												// Called on note release commands
+	void PlayNote(stChanNote *pNoteData, int EffColumns);		// Plays a note, calls the derived classes
 
 	// Public functions
 	void InitChannel(CAPU *pAPU, int *pVibTable, CFamiTrackerDoc *pDoc);
-	void KillChannel();
-	void MakeSilent();
 	void Arpeggiate(unsigned int Note);
 
 	void SetVibratoStyle(int Style);
+
+	// Channel state
+	int GetStatePeriod() const { return m_iStatePeriod; };
+	int GetStateVolume() const { return m_iStateVolume; };
 
 	//
 	// Public virtual functions
@@ -68,7 +67,6 @@ public:
 	// Internal virtual functions
 	//
 protected:
-	virtual void PlayChannelNote(stChanNote *NoteData, int EffColumns) = 0; // Plays a note
 	virtual void ClearRegisters() = 0;										// Clear channel registers
 	virtual	unsigned int TriggerNote(int Note);
 
@@ -77,6 +75,20 @@ protected:
 	virtual CSequence *GetSequence(int Index, int Type);
 
 	virtual int GetPitch() const;
+
+	virtual void HandleNoteData(stChanNote *pNoteData, int EffColumns);
+
+	virtual void HandleCustomEffects(int EffNum, int EffParam);
+	virtual bool HandleInstrument(int Instrument, bool Trigger, bool NewInstrument);
+	virtual void HandleEmptyNote();
+	virtual void HandleHalt();
+	virtual void HandleRelease();
+	virtual void HandleNote(int Note, int Octave);
+
+protected:
+
+	void CutNote();												// Called on note cut commands
+	void ReleaseNote();											// Called on note release commands
 
 	int LimitPeriod(int Period) const;
 	int LimitVolume(int Volume) const;
@@ -88,6 +100,8 @@ protected:
 	int CalculatePeriod(bool InvertPitch) const;
 	int CalculateVolume(int Limit) const;
 
+	void RegisterKeyState(int Channel, int Note);
+
 	//
 	// Internal functions
 	//
@@ -95,8 +109,6 @@ protected:
 	int RunNote(int Octave, int Note);
 
 	void SetupSlide(int Type, int EffParam);
-
-	bool CheckNote(stChanNote *pNoteData, int InstrumentType);
 
 	bool CheckCommonEffects(unsigned char EffCmd, unsigned char EffParam);
 	bool HandleDelay(stChanNote *NoteData, int EffColumns);
@@ -113,13 +125,19 @@ protected:
 	void LinearAdd(int Step);
 	void LinearRemove(int Step);
 
+	void WriteRegister(uint16 Reg, uint8 Value);
+	void WriteExternalRegister(uint16 Reg, uint8 Value);
+
 private:
 	void UpdateNoteCut();
 	void UpdateDelay();
 	void UpdateVolumeSlide();
+	void UpdateTargetVolumeSlide();
 	void UpdateVibratoTremolo();
 	void UpdateEffects();
 
+public:
+	static int PITCH_WHEEL_RANGE;
 
 	// Shared variables
 protected:
@@ -128,9 +146,11 @@ protected:
 	int					m_iVibratoStyle;
 
 	// General
-	bool				m_bEnabled;
-	bool				m_bRelease;							// Note released
-	unsigned int		m_iInstrument, m_iLastInstrument;	// Instrument
+	bool				m_bEnabled;							// Channel enabled
+	bool				m_bRelease;							// Note released flag
+	bool				m_bGate;							// Note gate flag
+	unsigned int		m_iInstrument;						// Instrument
+	unsigned int		m_iLastInstrument;
 	int					m_iNote;							// Active note
 	int					m_iPeriod, m_iLastPeriod;			// Channel period
 	char				m_iVolume;							// Volume
@@ -149,8 +169,10 @@ protected:
 	unsigned int		m_iTremoloDepth, m_iTremoloSpeed, m_iTremoloPhase;
 
 	unsigned char		m_iEffect;		// arpeggio & portamento
-	unsigned char		m_cArpeggio, m_cArpVar;
-	int					m_iPortaTo, m_iPortaSpeed;
+	unsigned char		m_iArpeggio;
+	unsigned char		m_iArpState;
+	int					m_iPortaTo;
+	int					m_iPortaSpeed;
 
 	unsigned char		m_iNoteCut;					// Note cut effect
 	unsigned int		m_iFinePitch;				// Fine pitch effect
@@ -173,11 +195,8 @@ protected:
 
 	int					m_iPitch;					// Used by the pitch wheel
 
-	bool				m_bGate;
-
-	// TODO: sort and rename
-	unsigned int		InitVol;
-	unsigned int		Length;
+	int					m_iStatePeriod;
+	int					m_iStateVolume;
 
 	// Private variables
 private:

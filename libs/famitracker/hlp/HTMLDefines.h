@@ -5,8 +5,6 @@
 #define HID_PREV_FRAME                          0x1007E
 #define HID_CMD_OCTAVE_NEXT                     0x10080
 #define HID_CMD_OCTAVE_PREVIOUS                 0x10081
-#define HID_CMD_PASTE_OVERWRITE                 0x10082
-#define HID_CMD_PASTE_MIXED                     0x10083
 #define HID_CMD_NEXT_INSTRUMENT                 0x10084
 #define HID_CMD_PREV_INSTRUMENT                 0x10085
 #define HID_CMD_INCREASESTEPSIZE                0x10086
@@ -142,6 +140,18 @@
 #define HID_Menu33098                           0x1814A
 #define HID_FRAME_CUT                           0x1814B
 #define HID_FILE_TESTTEST                       0x1814C
+#define HID_FRAME_DELETE                        0x1814D
+#define HID_FILE_IMPORTTEXT                     0x18150
+#define HID_FILE_EXPORTTEXT                     0x18151
+#define HID_CLEANUP_MERGEDUPLICATEDPATTERNS     0x18152
+#define HID_POPUP_SAMPLESCOPE2                  0x18153
+#define HID_POPUP_SAMPLESCOPE1                  0x18154
+#define HID_EDIT_VOLUMEMASK                     0x18157
+#define HID_POPUP_HIDECHANNEL                   0x18158
+#define HID_EDIT_PASTE33113                     0x18159
+#define HID_EDIT_PASTEMIXED                     0x1815A
+#define HID_FRAME_PASTEASNEWPA                  0x1815B
+#define HID_FRAME_PASTENEWPATTERNS              0x1815C
 #define HID_INSTRUMENT_ADD_2A03                 0x19000
 #define HID_INSTRUMENT_ADD_FDS                  0x19001
 #define HID_INSTRUMENT_ADD_MMC5                 0x19002

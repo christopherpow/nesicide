@@ -92,6 +92,10 @@ bool CPatternData::IsCellFree(unsigned int Channel, unsigned int Pattern, unsign
 
 bool CPatternData::IsPatternEmpty(unsigned int Channel, unsigned int Pattern)
 {
+	// Unallocated pattern is empty
+	if (!m_pPatternData[Channel][Pattern])
+		return true;
+
 	// Check if pattern is empty
 	for (unsigned int i = 0; i < m_iPatternLength; i++) {
 		if (!IsCellFree(Channel, Pattern, i))

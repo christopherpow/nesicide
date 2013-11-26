@@ -2,9 +2,6 @@
 // Microsoft Visual C++ generated include file.
 // Used by FamiTracker.rc
 //
-#define VERSION_MAJ                     0
-#define VERSION_WIP                     0
-#define VERSION_REV                     1
 #define ID_INVALID_WAVEFILE             3
 #define IDC_IMPORT                      4
 #define VERSION_MIN                     4
@@ -31,17 +28,25 @@
 #define IDS_UNDERRUN_MESSAGE            116
 #define IDS_WELCOME_VER                 117
 #define IDS_INVALID_WAVEFILE            118
+#define IDS_INST_FILE_ERROR             119
+#define IDS_NEW_2A03_INSTRUMENT         120
+#define IDS_NEW_VRC6_INSTRUMENT         121
+#define IDS_NEW_VRC7_INSTRUMENT         122
+#define IDS_NEW_FDS_INSTRUMENT          123
+#define IDS_NEW_N163_INSTRUMENT         124
 #define ID_NEXT_FRAME                   125
+#define IDS_NEW_S5B_INSTRUMENT          125
 #define ID_PREV_FRAME                   126
+#define IDS_FRAME_DROP_COPY_NEW         126
 #define IDC_FOLLOW_TOGGLE               127
+#define IDS_FRAME_DROP_COPY             127
 #define IDR_MAINFRAME                   128
 #define ID_CMD_OCTAVE_NEXT              128
 #define IDR_FamiTrackerTYPE             129
 #define ID_CMD_OCTAVE_PREVIOUS          129
-#define ID_CMD_PASTE_OVERWRITE          130
+#define IDS_FRAME_DROP_MOVE             129
 #define IDD_MAINFRAME                   131
 #define IDS_CLIPBOARD_ERROR             131
-#define ID_CMD_PASTE_MIXED              131
 #define IDS_FILE_OPEN_ERROR             132
 #define ID_CMD_NEXT_INSTRUMENT          132
 #define IDS_FILE_VALID_ERROR            133
@@ -234,6 +239,7 @@
 #define IDC_PREVIEW                     1105
 #define IDC_PAL                         1112
 #define IDC_LOOP                        1118
+#define IDC_DELTA_ENABLE                1119
 #define IDC_OUTDEVICES                  1124
 #define IDC_INDEVICES                   1126
 #define IDC_SUBTUNE                     1127
@@ -365,7 +371,9 @@
 #define IDC_COMBO1                      1255
 #define IDC_TRACKS                      1257
 #define IDC_ABOUT3                      1258
-#define IDC_LIST1                       1260
+#define IDC_SPIN1                       1263
+#define IDC_DELTA_SPIN                  1263
+#define IDC_DELTA_COUNTER               1265
 #define ID_TRACKER_PLAY                 32771
 #define ID_TRACKER_PLAYPATTERN          32775
 #define ID_TRACKER_STOP                 32776
@@ -486,6 +494,18 @@
 #define ID_Menu33098                    33098
 #define ID_FRAME_CUT                    33099
 #define ID_FILE_TESTTEST                33100
+#define ID_FRAME_DELETE                 33101
+#define ID_FILE_IMPORTTEXT              33104
+#define ID_FILE_EXPORTTEXT              33105
+#define ID_CLEANUP_MERGEDUPLICATEDPATTERNS 33106
+#define ID_POPUP_SAMPLESCOPE2           33107
+#define ID_POPUP_SAMPLESCOPE1           33108
+#define ID_EDIT_VOLUMEMASK              33111
+#define ID_POPUP_HIDECHANNEL            33112
+#define ID_EDIT_PASTE33113              33113
+#define ID_EDIT_PASTEMIXED              33114
+#define ID_FRAME_PASTEASNEWPA           33115
+#define ID_FRAME_PASTENEWPATTERNS       33116
 #define ID_INSTRUMENT_ADD_2A03          36864
 #define ID_INSTRUMENT_ADD_FDS           36865
 #define ID_INSTRUMENT_ADD_MMC5          36866
@@ -504,9 +524,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        303
-#define _APS_NEXT_COMMAND_VALUE         33101
-#define _APS_NEXT_CONTROL_VALUE         1261
+#define _APS_NEXT_RESOURCE_VALUE        304
+#define _APS_NEXT_COMMAND_VALUE         33117
+#define _APS_NEXT_CONTROL_VALUE         1264
 #define _APS_NEXT_SYMED_VALUE           176
 #endif
 #endif

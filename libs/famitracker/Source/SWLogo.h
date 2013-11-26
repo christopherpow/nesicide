@@ -1,7 +1,5 @@
 #pragma once
 
-#include "SampleWindow.h"
-
 class CSWLogo : public CSampleWinState
 {
 public:

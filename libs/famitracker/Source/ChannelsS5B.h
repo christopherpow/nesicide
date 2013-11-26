@@ -30,7 +30,13 @@ public:
 	virtual void ProcessChannel();
 
 protected:
-	virtual void PlayChannelNote(stChanNote *pNoteData, int EffColumns);
+	virtual void HandleNoteData(stChanNote *pNoteData, int EffColumns);
+	virtual void HandleCustomEffects(int EffNum, int EffParam);
+	virtual bool HandleInstrument(int Instrument, bool Trigger, bool NewInstrument);
+	virtual void HandleEmptyNote();
+	virtual void HandleHalt();
+	virtual void HandleRelease();
+	virtual void HandleNote(int Note, int Octave);
 
 protected:
 	void WriteReg(int Reg, int Value);

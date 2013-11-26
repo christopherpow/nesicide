@@ -50,7 +50,9 @@ enum { WM_USER_SILENT_ALL = WM_USER + 1,
 	   WM_USER_STOP_RENDER,
 	   WM_USER_PREVIEW_SAMPLE,
 	   WM_USER_WRITE_APU,
-	   WM_USER_CLOSE_SOUND
+	   WM_USER_CLOSE_SOUND,
+	   WM_USER_SET_CHIP,
+	   WM_USER_VERIFY_EXPORT
 };
 
 // Player modes
@@ -69,12 +71,21 @@ struct stDPCMState {
 	int DeltaCntr;
 };
 
+struct stChanNote;
+
 class CChannelHandler;
 class CFamiTrackerView;
+class CFamiTrackerDoc;
 class CAPU;
 class CDSound;
 class CDSoundChannel;
 class CSampleWindow;
+class CDSample;
+class CTrackerChannel;
+
+#ifdef EXPORT_TEST
+class CExportTest;
+#endif /* EXPORT_TEST */
 
 // CSoundGen
 
@@ -110,7 +121,7 @@ public:
 	void		LoadMachineSettings(int Machine, int Rate);
 
 	// Sound
-	bool		InitializeSound(HWND hWnd, HANDLE hAliveCheck, HANDLE hNotification);
+	bool		InitializeSound(HWND hWnd);
 	void		FlushBuffer(int16 *Buffer, uint32 Size);
 	CDSound		*GetSoundInterface() const { return m_pDSound; };
 
@@ -118,10 +129,16 @@ public:
 	void		LockDocument();
 	void		UnlockDocument();
 
+	void		Interrupt() const;
+	bool		GetSoundTimeout() const;
+
 	bool		WaitForStop() const;
+	bool		IsRunning() const;
 
 	int			FindNote(unsigned int Period) const;
 	unsigned int GetPeriod(int Note) const;
+
+	CChannelHandler *GetChannel(int Index) const;
 
 public:
 	// Vibrato
@@ -138,7 +155,7 @@ public:
 	void		 SilentAll();
 
 	void		 ResetTempo();
-	unsigned int GetTempo() const;
+	float		 GetTempo() const;
 	bool		 IsPlaying() const { return m_bPlaying; };
 
 	// Stats
@@ -146,6 +163,8 @@ public:
 	unsigned int GetFrameRate();
 
 	// Tracker playing
+	void		 SetJumpPattern(int Pattern);
+	void		 SetSkipRow(int Row);
 	void		 EvaluateGlobalEffects(stChanNote *NoteData, int EffColumns);
 	stDPCMState	 GetDPCMState() const;
 
@@ -172,8 +191,12 @@ public:
 
 	// FDS & N163 wave preview
 	void		WaveChanged();
-	bool		HasWaveChanged();
+	bool		HasWaveChanged() const;
+	void		ResetWaveChanged();
 
+	void		WriteRegister(uint16 Reg, uint8 Value);
+
+	void		RegisterKeyState(int Channel, int Note);
 
 	// 
 	// Private functions
@@ -204,10 +227,16 @@ private:
 	// Misc
 	void		PlaySample(CDSample *pSample, int Offset, int Pitch);
 
+	// Verification
+#ifdef EXPORT_TEST
+	void		CompareRegisters();
+#endif /* EXPORT_TEST */
+
 public:
 	static const double NEW_VIBRATO_DEPTH[];
 	static const double OLD_VIBRATO_DEPTH[];
 
+	static const int AUDIO_TIMEOUT = 2000;		// 2s buffer timeout
 
 	//
 	// Private variables
@@ -229,16 +258,13 @@ private:
 
 	// Sync objects
 	CCriticalSection	m_csDocumentLock;
-	CCriticalSection	m_csFrameCounterLock;
-	CCriticalSection	m_csUnderrunLock;
 	CCriticalSection	m_csSampleWndLock;
-	CSemaphore			*m_pSoundSemaphore;
+
+	bool				m_bRunning;
 
 private:
 	// Handles
-	HANDLE				m_hNotificationEvent;
-	HANDLE				m_hAliveCheck;
-	HWND				m_hWnd;
+	HANDLE				m_hInterruptEvent;					// Used to interrupt sound buffer syncing
 
 // Sound variables (TODO: move sound to a new class?)
 private:
@@ -249,6 +275,7 @@ private:
 	void				*m_pAccumBuffer;
 	int32				*m_iGraphBuffer;
 	int					m_iAudioUnderruns;					// Keep track of underruns to inform user
+	bool				m_bBufferTimeout;
 	
 // Tracker playing variables
 private:
@@ -300,7 +327,13 @@ private:
 	CWaveFile			m_wfWaveFile;
 
 	// FDS & N163 waves
-	bool				m_bWaveChanged;
+	volatile bool		m_bWaveChanged;
+	volatile bool		m_bInternalWaveChanged;
+
+#ifdef EXPORT_TEST
+	CExportTest			*m_pExportTest;
+	bool				m_bExportTesting;
+#endif /* EXPORT_TEST */
 
 	// Overloaded functions
 public:
@@ -321,6 +354,8 @@ public:
 	afx_msg void OnPreviewSample(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnWriteAPU(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnCloseSound(WPARAM wParam, LPARAM lParam);
+	afx_msg void OnSetChip(WPARAM wParam, LPARAM lParam);
+	afx_msg void OnVerifyExport(WPARAM wParam, LPARAM lParam);
 };
 
 

@@ -45,6 +45,10 @@
 #include "Settings.h"
 #include "TrackerChannel.h"
 
+#ifdef EXPORT_TEST
+#include "ExportTest/ExportTest.h"
+#endif /* EXPORT_TEST */
+
 // 1kHz test tone
 //#define AUDIO_TEST
 
@@ -76,7 +80,48 @@ BEGIN_MESSAGE_MAP(CSoundGen, CWinThread)
 	ON_THREAD_MESSAGE(WM_USER_PREVIEW_SAMPLE, OnPreviewSample)
 	ON_THREAD_MESSAGE(WM_USER_WRITE_APU, OnWriteAPU)
 	ON_THREAD_MESSAGE(WM_USER_CLOSE_SOUND, OnCloseSound)
+	ON_THREAD_MESSAGE(WM_USER_SET_CHIP, OnSetChip)
+	ON_THREAD_MESSAGE(WM_USER_VERIFY_EXPORT, OnVerifyExport)
 END_MESSAGE_MAP()
+
+void CSoundGen::recvThreadMessage(unsigned int m, unsigned int w, unsigned int l)
+{
+   switch ( m )
+   {
+   case WM_USER_SILENT_ALL:
+      OnSilentAll(w,l);
+      break;
+   case WM_USER_LOAD_SETTINGS:
+      OnLoadSettings(w,l);
+      break;
+   case WM_USER_PLAY:
+      OnBeginPlayer(w,l);
+      break;
+   case WM_USER_STOP:
+      OnStopPlayer(w,l);
+      break;
+   case WM_USER_RESET:
+      OnResetPlayer(w,l);
+      break;
+   case WM_USER_START_RENDER:
+      OnStartRender(w,l);
+      break;
+   case WM_USER_STOP_RENDER:
+      OnStopRender(w,l);
+      break;
+   case WM_USER_PREVIEW_SAMPLE:
+      OnPreviewSample(w,l);
+      break;
+   case WM_USER_WRITE_APU:
+      OnWriteAPU(w,l);
+      break;
+   case WM_USER_CLOSE_SOUND:
+      OnCloseSound(w,l);
+      break;
+   default:
+      qDebug("Unhandled thread message: %d",m);
+   }
+}
 
 CSoundGen::CSoundGen() : 
 	m_pAPU(NULL),
@@ -94,8 +139,11 @@ CSoundGen::CSoundGen() :
 	m_iSpeed(0),
 	m_iTempo(0),
 	m_bPlayerHalted(false),
-	m_bWaveChanged(false),
-	m_iMachineType(NTSC)
+	m_bWaveChanged(0),
+	m_iMachineType(NTSC),
+	m_bRunning(false),
+	m_hInterruptEvent(NULL),
+	m_bBufferTimeout(false)
 {
    pThread = new QThread();
 
@@ -115,12 +163,14 @@ CSoundGen::CSoundGen() :
    
    m_pAPU->moveToThread(pThread); 
 
-//	m_pSoundSemaphore = new CSemaphore(0, 1);
-
 	// Create all kinds of channels
 	CreateChannels();
 
 	m_pAPU->SetNamcoMixing(theApp.GetSettings()->m_bNamcoMixing);
+
+#ifdef EXPORT_TEST
+	m_bExportTesting = false;
+#endif /* EXPORT_TEST */
 }
 
 CSoundGen::~CSoundGen()
@@ -228,10 +278,8 @@ void CSoundGen::SetupChannels()
 
 	// Initialize channels
 	for (int i = 0; i < CHANNELS; ++i) {
-		if (m_pChannels[i]) {
+		if (m_pChannels[i])
 			m_pChannels[i]->InitChannel(m_pAPU, m_iVibratoTable, m_pDocument);
-			m_pChannels[i]->MakeSilent();
-		}
 	}
 
 	m_csDocumentLock.Unlock();
@@ -290,7 +338,7 @@ void CSoundGen::RemoveDocument()
 	while (m_bPlaying) {
 		if ((GetTickCount() - StartTime) > 2000)
 			break;
-		QThread::sleep(10);
+		Sleep(10);
 	}
 
 	m_csDocumentLock.Lock();
@@ -349,18 +397,13 @@ void CSoundGen::SelectChip(int Chip)
 		return;
 	}
 
-	m_pAPU->SetExternalSound(Chip);
-
-	// Enable internal channels after reset
-	m_pAPU->Write(0x4015, 0x0F);
-	m_pAPU->Write(0x4017, 0x00);
-
-	// MMC5
-	if (Chip & SNDCHIP_MMC5)
-		m_pAPU->ExternalWrite(0x5015, 0x03);
-
+	PostThreadMessage(WM_USER_SET_CHIP, Chip, 0);
 }
 
+CChannelHandler *CSoundGen::GetChannel(int Index) const
+{
+	return m_pChannels[Index];
+}
 
 //
 // Interface functions
@@ -426,34 +469,51 @@ void CSoundGen::PreviewSample(CDSample *pSample, int Offset, int Pitch)
 	PostThreadMessage(WM_USER_PREVIEW_SAMPLE, (WPARAM)pSample, MAKELPARAM(Offset, Pitch));
 }
 
+bool CSoundGen::IsRunning() const
+{
+	return (m_hThread != NULL) && m_bRunning;
+}
+
 //// Sound buffer handling /////////////////////////////////////////////////////////////////////////////////
 
-bool CSoundGen::InitializeSound(HWND hWnd, HANDLE hAliveCheck, HANDLE hNotification)
+bool CSoundGen::InitializeSound(HWND hWnd)
 {
 	// Initialize sound, this is only called once!
 	// Start with NTSC by default
 
 	// Called from main thread
-//	ASSERT(GetCurrentThread() == theApp.m_hThread);
+	ASSERT(GetCurrentThread() == theApp.m_hThread);
 	ASSERT(m_pDSound == NULL);
 
-	m_hWnd = hWnd;
-	m_hAliveCheck = hAliveCheck;
-	m_hNotificationEvent = hNotification;
+	// Event used to interrupt the sound buffer synchronization
+	m_hInterruptEvent = ::CreateEvent(NULL, FALSE, FALSE, NULL);
 
 	// Create DirectSound object
-	m_pDSound = new CDSound();
+	m_pDSound = new CDSound(hWnd, m_hInterruptEvent);
 
 	// Out of memory
 	if (!m_pDSound)
 		return false;
 
+   qDebug("DSound::EnumerateDevices");
 //	m_pDSound->EnumerateDevices();
 
 	// Start thread when audio is done
 	ResumeThread();
 
 	return true;
+}
+
+void CSoundGen::Interrupt() const
+{
+	if (m_hInterruptEvent != NULL)
+		SetEvent(m_hInterruptEvent);
+}
+
+bool CSoundGen::GetSoundTimeout() const 
+{
+	// Return true on timeout
+	return m_bBufferTimeout;
 }
 
 bool CSoundGen::ResetSound()
@@ -463,12 +523,14 @@ bool CSoundGen::ResetSound()
 
 	// Called from player thread
 	ASSERT(GetCurrentThreadId() == m_nThreadID);
+	ASSERT(m_pDSound != NULL);
 
 	CSettings *pSettings = theApp.GetSettings();
 
 	unsigned int SampleSize = pSettings->Sound.iSampleSize;
 	unsigned int SampleRate = pSettings->Sound.iSampleRate;
 	unsigned int BufferLen	= pSettings->Sound.iBufferLength;
+	unsigned int Device		= pSettings->Sound.iDevice;
 
 	m_iSampleSize = SampleSize;
 	m_iAudioUnderruns = 0;
@@ -481,12 +543,12 @@ bool CSoundGen::ResetSound()
 	}
 
 	// Reinitialize direct sound
-	if (!m_pDSound->Init(m_hWnd, m_hNotificationEvent, theApp.GetSettings()->Sound.iDevice)) {
+	if (!m_pDSound->Init(Device)) {
 		AfxMessageBox(_T("Direct sound error!"));
 		return false;
 	}
 
-	int iBlocks = 1;	// default = 2
+	int iBlocks = 2;	// default = 2
 
 	// Create more blocks if a bigger buffer than 100ms is used to enhance program response
 	if (BufferLen > 100)
@@ -560,6 +622,11 @@ void CSoundGen::CloseSound()
 		delete m_pDSound;
 		m_pDSound = NULL;
 	}
+
+	if (m_hInterruptEvent) {
+		::CloseHandle(m_hInterruptEvent);
+		m_hInterruptEvent = NULL;
+	}
 }
 
 void CSoundGen::ResetBuffer()
@@ -589,6 +656,11 @@ void CSoundGen::FlushBuffer(int16 *pBuffer, uint32 Size)
 	if (!m_pDSoundChannel)
 		return;
 
+#ifdef EXPORT_TEST
+	if (m_bExportTesting)
+		return;
+#endif /* EXPORT_TEST */
+
 	BOOL bLocked = m_csDocumentLock.Unlock();
 
 	for (uint32 i = 0; i < Size; ++i) {
@@ -609,7 +681,7 @@ void CSoundGen::FlushBuffer(int16 *pBuffer, uint32 Size)
 		sine_phase += freq / (double(m_pDSoundChannel->GetSampleRate()) / 6.283184);
 		if (sine_phase > 6.283184)
 			sine_phase -= 6.283184;
-#endif
+#endif /* AUDIO_TEST */
 
 		// Limit
 		if (Sample > SAMPLE_MAX)
@@ -645,10 +717,13 @@ void CSoundGen::FlushBuffer(int16 *pBuffer, uint32 Size)
 				bool bUnderrun = false;
 
 				// Wait for a buffer event
-				while ((dwEvent = m_pDSoundChannel->WaitForDirectSoundEvent()) != BUFFER_IN_SYNC) {
+				while ((dwEvent = m_pDSoundChannel->WaitForDirectSoundEvent(AUDIO_TIMEOUT)) != BUFFER_IN_SYNC) {
 //					switch (dwEvent) {
-//						case CUSTOM_EVENT:
-//							// Custom event, quit this function
+//						case BUFFER_TIMEOUT:
+//							// Buffer timeout
+//							m_bBufferTimeout = true;
+//						case BUFFER_CUSTOM_EVENT:
+//							// Custom event, quit
 //							m_iBufferPtr = 0;
 //							if (bLocked)
 //								m_csDocumentLock.Lock();
@@ -656,9 +731,7 @@ void CSoundGen::FlushBuffer(int16 *pBuffer, uint32 Size)
 //						case BUFFER_OUT_OF_SYNC:
 //							// Buffer underrun detected
 //							static DWORD LastUnderrun;
-//							m_csUnderrunLock.Lock();
 //							m_iAudioUnderruns++;
-//							m_csUnderrunLock.Unlock();
 //							if ((GetTickCount() - LastUnderrun) < 2000) {
 //								// Display underrun message in main window
 //								CFrameWnd *pFrameWnd = (CFrameWnd*) theApp.GetMainWnd();
@@ -678,12 +751,13 @@ void CSoundGen::FlushBuffer(int16 *pBuffer, uint32 Size)
 				m_csSampleWndLock.Lock();
 
 				if (m_pSampleWnd)
-					m_pSampleWnd->DrawSamples((int*)m_iGraphBuffer, m_iBufSizeSamples);
+					m_pSampleWnd->FlushSamples((int*)m_iGraphBuffer, m_iBufSizeSamples);
 
 				m_csSampleWndLock.Unlock();
 
 				// Reset buffer position
 				m_iBufferPtr = 0;
+				m_bBufferTimeout = false;
 			}
 		}
 	}
@@ -692,22 +766,17 @@ void CSoundGen::FlushBuffer(int16 *pBuffer, uint32 Size)
 		m_csDocumentLock.Lock();
 }
 
-//unsigned int CSoundGen::GetUnderruns()
-//{
-//	m_csUnderrunLock.Lock();
-//	int Value = m_iAudioUnderruns;
-//	m_csUnderrunLock.Unlock();
-//	return Value;
-//}
+unsigned int CSoundGen::GetUnderruns()
+{
+	return m_iAudioUnderruns;
+}
 
-//unsigned int CSoundGen::GetFrameRate()
-//{
-//	m_csFrameCounterLock.Lock();
-//	int FrameRate = m_iFrameCounter;
-//	m_iFrameCounter = 0;
-//	m_csFrameCounterLock.Unlock();
-//	return FrameRate;
-//}
+unsigned int CSoundGen::GetFrameRate()
+{
+	int FrameRate = m_iFrameCounter;
+	m_iFrameCounter = 0;
+	return FrameRate;
+}
 
 //// Tracker playing routines //////////////////////////////////////////////////////////////////////////////
 
@@ -807,7 +876,11 @@ void CSoundGen::BeginPlayer(int Mode)
 
 //	LoadMachineSettings(m_pDocument->GetMachine(), m_pDocument->GetEngineSpeed());
 
-	theApp.SilentEverything();
+	MakeSilent();
+
+	m_pTrackerView->MakeSilent();
+
+//	theApp.SilentEverything();
 }
 
 void CSoundGen::HaltPlayer()
@@ -859,7 +932,6 @@ void CSoundGen::MakeSilent()
 	for (int i = 0; i < CHANNELS; ++i) {
 		if (m_pChannels[i]) {
 			m_pChannels[i]->ResetChannel();
-			m_pChannels[i]->MakeSilent();
 		}
 
 		if (m_pTrackerChannels[i]) {
@@ -884,9 +956,9 @@ void CSoundGen::ResetTempo()
 }
 
 // Return current tempo setting in BPM
-unsigned int CSoundGen::GetTempo() const
+float CSoundGen::GetTempo() const
 {
-	return !m_iSpeed ? 0 : (m_iTempo * 6) / m_iSpeed;
+	return !m_iSpeed ? 0 : float(m_iTempo * 6) / float(m_iSpeed);
 }
 
 void CSoundGen::RunFrame()
@@ -911,6 +983,15 @@ void CSoundGen::RunFrame()
 					m_bRequestRenderStop = true;
 			}
 		}
+
+#ifdef EXPORT_TEST
+		if (m_bExportTesting) {
+			if (m_iPlayTime > 60 * 10) {
+				m_bExportTesting = false;
+				m_bPlayerHalted = true;
+			}
+		}
+#endif /* EXPORT_TEST */
 
 		// Calculate playtime
 		m_pTrackerView->PlayerCommand(CMD_TIME, (m_iPlayTime * 10) / TicksPerSec);
@@ -1145,7 +1226,7 @@ void CSoundGen::LoadMachineSettings(int Machine, int Rate)
 	}
 
 	file.Close();
-#endif
+#endif /* WRITE_VOLUME_FILE */
 
 	if (Machine == NTSC)
 		m_pNoteLookupTable = m_iNoteLookupTableNTSC;
@@ -1219,6 +1300,16 @@ void CSoundGen::PlayNote(int Channel, stChanNote *NoteData, int EffColumns)
 	m_pChannels[Channel]->PlayNote(NoteData, EffColumns);
 }
 
+void CSoundGen::SetSkipRow(int Row)
+{
+	m_iSkipToRow = Row;
+}
+
+void CSoundGen::SetJumpPattern(int Pattern)
+{
+	m_iJumpToPattern = Pattern;
+}
+
 void CSoundGen::EvaluateGlobalEffects(stChanNote *NoteData, int EffColumns)
 {
 	// Handle global effects (effects that affects all channels)
@@ -1240,12 +1331,12 @@ void CSoundGen::EvaluateGlobalEffects(stChanNote *NoteData, int EffColumns)
 
 			// Bxx: Jump to pattern xx
 			case EF_JUMP:
-				m_iJumpToPattern = EffParam;
+				SetJumpPattern(EffParam);
 				break;
 
 			// Dxx: Skip to next track and start at row xx
 			case EF_SKIP:
-				m_iSkipToRow = EffParam;
+				SetSkipRow(EffParam);
 				break;
 
 			// Cxx: Halt playback
@@ -1394,7 +1485,7 @@ bool CSoundGen::WaitForStop() const
 	// Wait for player to stop, timeout = 4s
 
 	for (int i = 0; i < 40 && m_bPlaying; ++i)
-		QThread::sleep(100);
+		Sleep(100);
 
 	return !m_bPlaying;	// return false if still playing
 }
@@ -1408,10 +1499,17 @@ BOOL CSoundGen::InitInstance()
    QObject::connect(this,SIGNAL(postThreadMessage(unsigned int,unsigned int,unsigned int)),this,SLOT(recvThreadMessage(unsigned int,unsigned int,unsigned int)));
    
 	//
-	// Setup the synth, called when thread is started
+	// Setup the sound player object, called when thread is started
 	//
-	// Sound must be working before entering here!
-	//
+
+	// First check if thread creation should be cancelled
+	// This will occur when no sound object is available
+	
+	if (m_pDSound == NULL)
+		return FALSE;
+
+	// Set running flag
+	m_bRunning = true;
 
 	// Generate default vibrato table
 	GenerateVibratoTable(VIBRATO_NEW);
@@ -1433,9 +1531,7 @@ BOOL CSoundGen::InitInstance()
 	SetThreadPriority(THREAD_PRIORITY_TIME_CRITICAL);
 
 	m_iDelayedStart = 0;
-	m_csFrameCounterLock.Lock();
 	m_iFrameCounter = 0;
-	m_csFrameCounterLock.Unlock();
 
 	SetupChannels();
 
@@ -1457,6 +1553,8 @@ int CSoundGen::ExitInstance()
 
 	theApp.RemoveSoundGenerator();
 
+	m_bRunning = false;
+
 	return CWinThread::ExitInstance();
 }
 
@@ -1464,11 +1562,7 @@ BOOL CSoundGen::OnIdle(LONG lCount)
 {
 	// Main loop handler
 
-	m_csFrameCounterLock.Lock();
 	++m_iFrameCounter;
-	m_csFrameCounterLock.Unlock();
-
-	SetEvent(m_hAliveCheck);
 
 	// Access the document object
 	m_csDocumentLock.Lock();
@@ -1528,7 +1622,7 @@ BOOL CSoundGen::OnIdle(LONG lCount)
 	if (m_bPlayerHalted) {
 		for (int i = 0; i < CHANNELS; ++i) {
 			if (m_pChannels[i] != NULL) {
-				m_pChannels[i]->MakeSilent();
+				m_pChannels[i]->ResetChannel();
 			}
 		}
 	}
@@ -1538,6 +1632,10 @@ BOOL CSoundGen::OnIdle(LONG lCount)
 	m_iConsumedCycles = 0;
 
 	int FrameRate = m_pDocument->GetFrameRate();
+
+	// Copy wave changed flag
+	m_bInternalWaveChanged = m_bWaveChanged;
+	m_bWaveChanged = false;
 
 	// Update channels and channel registers
 	for (int i = 0; i < CHANNELS; ++i) {
@@ -1573,6 +1671,11 @@ BOOL CSoundGen::OnIdle(LONG lCount)
 	// Leave document object
 	// TODO: move this object to above APU update?
 	m_csDocumentLock.Unlock();
+
+#ifdef EXPORT_TEST
+	if (m_bExportTesting)
+		CompareRegisters();
+#endif /* EXPORT_TEST */
 
 	if (m_bPlayerHalted && m_bUpdateRow)
 		HaltPlayer();
@@ -1663,15 +1766,47 @@ void CSoundGen::OnCloseSound(WPARAM wParam, LPARAM lParam)
 	CloseSound();
 
 	// Notification
-	if (wParam != NULL)
-		((CEvent*)wParam)->SetEvent();
+	CEvent *pEvent = (CEvent*)wParam;
+	if (pEvent != NULL && pEvent->IsKindOf(RUNTIME_CLASS(CEvent)))
+		pEvent->SetEvent();
 }
+
+void CSoundGen::OnSetChip(WPARAM wParam, LPARAM lParam)
+{
+	int Chip = wParam;
+
+	m_pAPU->SetExternalSound(Chip);
+
+	// Enable internal channels after reset
+	m_pAPU->Write(0x4015, 0x0F);
+	m_pAPU->Write(0x4017, 0x00);
+
+	// MMC5
+	if (Chip & SNDCHIP_MMC5)
+		m_pAPU->ExternalWrite(0x5015, 0x03);
+}
+
+void CSoundGen::OnVerifyExport(WPARAM wParam, LPARAM lParam)
+{
+#ifdef EXPORT_TEST
+	m_pExportTest = (CExportTest*)wParam;
+	m_bExportTesting = true;
+	BeginPlayer(MODE_PLAY_START);
+#endif /* EXPORT_TEST */
+}
+
 /*
 void CSoundGen::SetMeterDecayRate(int Rate)
 {
 
 }
 */
+
+void CSoundGen::RegisterKeyState(int Channel, int Note)
+{
+	if (m_pTrackerView != NULL)
+		m_pTrackerView->PostMessage(MSG_NOTE_EVENT, Channel, Note);
+}
 
 // FDS & N163
 
@@ -1681,48 +1816,62 @@ void CSoundGen::WaveChanged()
 	m_bWaveChanged = true;
 }
 
-bool CSoundGen::HasWaveChanged()
+bool CSoundGen::HasWaveChanged() const
 {
-	bool bHasChanged = m_bWaveChanged;
-	m_bWaveChanged = false;
-	return bHasChanged;
+	return m_bInternalWaveChanged;
 }
 
-void CSoundGen::recvThreadMessage(unsigned int m, unsigned int w, unsigned int l)
+// Verification
+
+unsigned char m_iRegisters[0x20];
+
+void CSoundGen::WriteRegister(uint16 Reg, uint8 Value)
 {
-   switch ( m )
-   {
-   case WM_USER_SILENT_ALL:
-      OnSilentAll(w,l);
-      break;
-   case WM_USER_LOAD_SETTINGS:
-      OnLoadSettings(w,l);
-      break;
-   case WM_USER_PLAY:
-      OnBeginPlayer(w,l);
-      break;
-   case WM_USER_STOP:
-      OnStopPlayer(w,l);
-      break;
-   case WM_USER_RESET:
-      OnResetPlayer(w,l);
-      break;
-   case WM_USER_START_RENDER:
-      OnStartRender(w,l);
-      break;
-   case WM_USER_STOP_RENDER:
-      OnStopRender(w,l);
-      break;
-   case WM_USER_PREVIEW_SAMPLE:
-      OnPreviewSample(w,l);
-      break;
-   case WM_USER_WRITE_APU:
-      OnWriteAPU(w,l);
-      break;
-   case WM_USER_CLOSE_SOUND:
-      OnCloseSound(w,l);
-      break;
-   default:
-      qDebug("Unhandled thread message: %d",m);
-   }
+	m_iRegisters[Reg & 0x1F] = Value;
 }
+
+#ifdef EXPORT_TEST
+
+void CSoundGen::CompareRegisters()
+{
+	bool bFailed = false;
+	unsigned char iRegs[0x20];
+
+	m_pExportTest->RunPlay();
+
+	// Read regs
+	for (int i = 0x4000; i < 0x4014; ++i) {
+		iRegs[i & 0x1F] = m_pExportTest->ReadReg(i);
+	}
+
+	// Compare
+	for (int i = 0x4000; i < 0x4014; ++i) {
+		if (m_iRegisters[i & 0x1F] != iRegs[i & 0x1F]) {
+			bFailed = true;
+		}
+	}
+
+	if (bFailed) {
+		CString str;
+		str.Format(_T("Export verification failed\n\n"));
+
+		str.Append(_T("Internal:\n"));
+		for (int i = 0; i < 0x14; ++i) {
+			str.AppendFormat("$%02X ", m_iRegisters[i]);
+			str.AppendFormat((i & 3) == 3 ? _T("\n") : _T(""));
+		}
+
+		str.Append(_T("\n\nExported:\n"));
+		for (int i = 0; i < 0x14; ++i) {
+			str.AppendFormat("$%02X ", iRegs[i]);
+			str.AppendFormat((i & 3) == 3 ? _T("\n") : _T(""));
+		}
+
+		AfxMessageBox(str);
+
+		m_bPlayerHalted = true;
+		m_bExportTesting = false;
+	}
+}
+
+#endif /* EXPORT_TEST */

@@ -21,6 +21,7 @@
 #include "stdafx.h"
 #include <cmath>
 #include "FamiTracker.h"
+#include "SampleWindow.h"
 #include "SWSampleScope.h"
 #include "Graphics.h"
 

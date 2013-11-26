@@ -1528,6 +1528,12 @@ void CString::FormatV(LPCTSTR fmt, va_list ap)
    UpdateScratch();
 }
 
+void CString::AppendChar(TCHAR c)
+{
+   _qstr += c;
+   UpdateScratch();
+}
+
 CString& CString::Append(LPCSTR str)
 {
    _qstr.append(QString(str));
@@ -2076,6 +2082,19 @@ void CFile::Close()
    if ( _qfile.isOpen() )
       _qfile.close();
    m_hFile = hFileNull;
+}
+
+IMPLEMENT_DYNAMIC(CStdioFile,CFile)
+
+void CStdioFile::WriteString( 
+   LPCTSTR lpsz  
+)
+{
+#if UNICODE
+   _qfile.write(QString::fromWCharArray(lpsz).toLatin1());
+#else
+   _qfile.write(QString::fromLatin1(lpsz).toLatin1());
+#endif
 }
 
 CRect::CRect( )
@@ -6936,10 +6955,18 @@ CCommonDialog::~CCommonDialog()
 
 IMPLEMENT_DYNCREATE(CWinThread,CCmdTarget)
 
+void MFCThread::run()
+{
+   Run();
+}
+
 CWinThread::CWinThread()
 {
    m_hThread = (HANDLE)this;
    m_nThreadID = (DWORD)QThread::currentThreadId();
+   
+   m_pfnThreadProc = NULL;
+   m_pParam = NULL;
    
    m_pMainWnd = NULL;
 }
@@ -7012,6 +7039,43 @@ BOOL CWinThread::PostThreadMessage(
 {
    emit postThreadMessage(message,wParam,lParam);
    return TRUE;
+}
+
+int CWinThread::Run( )
+{
+   if ( m_pfnThreadProc )
+   {
+      m_pfnThreadProc();
+   }
+   return 0;
+}
+
+CWinThread* AfxBeginThread( 
+   AFX_THREADPROC pfnThreadProc, 
+   LPVOID pParam, 
+   int nPriority, 
+   UINT nStackSize, 
+   DWORD dwCreateFlags, 
+   LPSECURITY_ATTRIBUTES lpSecurityAttrs
+)
+{
+   CWinThread* pThread = new CWinThread();
+   pThread->CreateThread(dwCreateFlags,nStackSize,lpSecurityAttrs);
+   
+   pThread->m_pfnThreadProc = pfnThreadProc;
+   pThread->m_pParam = pParam;
+}
+
+CWinThread* AfxBeginThread( 
+   CRuntimeClass* pThreadClass, 
+   int nPriority = THREAD_PRIORITY_NORMAL, 
+   UINT nStackSize = 0, 
+   DWORD dwCreateFlags = 0, 
+   LPSECURITY_ATTRIBUTES lpSecurityAttrs = NULL  
+)
+{
+   CWinThread* pThread = pThreadClass->CreateObject();
+   pThread->CreateThread(dwCreateFlags,nStackSize,lpSecurityAttrs);
 }
 
 IMPLEMENT_DYNCREATE(CDocument,CCmdTarget)
@@ -10275,6 +10339,61 @@ COLORREF CColorDialog::GetColor( ) const
    return ret;
 }
 
+IMPLEMENT_DYNAMIC(COleDataSource,CCmdTarget)
+
+void COleDataSource::CacheGlobalData( 
+   CLIPFORMAT cfFormat, 
+   HGLOBAL hGlobal, 
+   LPFORMATETC lpFormatEtc
+)
+{
+   qDebug("COleDataSource::CacheGlobalData?");
+}
+
+DROPEFFECT COleDataSource::DoDragDrop( 
+   DWORD dwEffects, 
+   LPCRECT lpRectStartDrag,
+   COleDropSource* pDropSource
+)
+{
+}
+
+IMPLEMENT_DYNAMIC(COleDropTarget,CCmdTarget)
+
+BOOL COleDropTarget::Register( 
+   CWnd* pWnd  
+)
+{
+   pWnd->toQWidget()->setAcceptDrops(true);
+   return TRUE;
+}
+
+IMPLEMENT_DYNAMIC(COleDropSource,CCmdTarget)
+
+BOOL COleDataObject::IsDataAvailable( 
+   CLIPFORMAT cfFormat, 
+   LPFORMATETC lpFormatEtc
+)
+{
+   qDebug("COleDataObject::IsDataAvailable?");
+   return FALSE;
+}
+
+HGLOBAL COleDataObject::GetGlobalData( 
+   CLIPFORMAT cfFormat, 
+   LPFORMATETC lpFormatEtc
+)
+{
+   qDebug("COleDataObject::GetGlobalData?");
+   return (HGLOBAL)NULL;
+}
+
+IMPLEMENT_DYNAMIC(CSyncObject,CObject)
+
+IMPLEMENT_DYNAMIC(CSemaphore,CSyncObject)
+
+IMPLEMENT_DYNAMIC(CMutex,CSyncObject)
+
 CMutex::CMutex(
    BOOL bInitiallyOwn,
    LPCTSTR lpszName,
@@ -10304,6 +10423,8 @@ BOOL CMutex::Unlock( )
    return TRUE;
 }
 
+IMPLEMENT_DYNAMIC(CCriticalSection,CSyncObject)
+
 CCriticalSection::CCriticalSection()
 {
    _qtd = new QMutex;
@@ -10326,6 +10447,8 @@ BOOL CCriticalSection::Unlock( )
    _qtd->unlock();
    return TRUE;
 }
+
+IMPLEMENT_DYNAMIC(CEvent,CSyncObject)
 
 CEvent::CEvent(
    BOOL bInitiallyOwn,

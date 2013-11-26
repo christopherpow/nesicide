@@ -81,6 +81,16 @@ CInstrument *CInstrumentN163::Clone() const
 	return pNew;
 }
 
+void CInstrumentN163::Setup()
+{
+	CFamiTrackerDoc *pDoc = CFamiTrackerDoc::GetDoc();
+
+	for (int i = 0; i < SEQ_COUNT; ++i) {
+		SetSeqEnable(i, 0);
+		SetSeqIndex(i, pDoc->GetFreeSequenceN163(i));
+	}
+}
+
 void CInstrumentN163::Store(CDocumentFile *pDocFile)
 {
 	// Store sequences
@@ -268,6 +278,10 @@ int CInstrumentN163::Compile(CChunk *pChunk, int Index)
 	int StoredBytes = 0;
 
 	CFamiTrackerDoc *pDoc = CFamiTrackerDoc::GetDoc();
+	CCompiler *pCompiler = CCompiler::GetCompiler();
+
+	ASSERT(pDoc != NULL);
+	ASSERT(pCompiler != NULL);
 
 	// Store wave info
 	pChunk->StoreByte(m_iWaveSize >> 1);
@@ -313,6 +327,27 @@ int CInstrumentN163::StoreWave(CChunk *pChunk) const
 	}
 
 	return m_iWaveCount * (m_iWaveSize >> 1);
+}
+
+bool CInstrumentN163::IsWaveEqual(CInstrumentN163 *pInstrument)
+{
+	int Count = GetWaveCount();
+	int Size = GetWaveSize();
+
+	if (pInstrument->GetWaveCount() != Count)
+		return false;
+
+	if (pInstrument->GetWaveSize() != Size)
+		return false;
+
+	for (int i = 0; i < Count; ++i) {
+		for (int j = 0; j < Size; ++j) {
+			if (GetSample(i, j) != pInstrument->GetSample(i, j))
+				return false;
+		}
+	}
+
+	return true;
 }
 
 bool CInstrumentN163::CanRelease() const

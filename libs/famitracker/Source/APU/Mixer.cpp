@@ -167,7 +167,6 @@ void CMixer::UpdateSettings(int LowCut,	int HighCut, int HighDamp, int OverallVo
 	Synth2A03TND.treble_eq(eq);
 	SynthVRC6.treble_eq(eq);
 	SynthMMC5.treble_eq(eq);
-	SynthFDS.treble_eq(eq);
 	SynthS5B.treble_eq(eq);
 
 	double n163_treble = 24;
@@ -183,6 +182,8 @@ void CMixer::UpdateSettings(int LowCut,	int HighCut, int HighDamp, int OverallVo
 	SynthN163.treble_eq(eq_n163);
 
 	// Checked against hardware
+	blip_eq_t fds_eq(-48, 1000, m_iSampleRate);
+	SynthFDS.treble_eq(fds_eq);
 	Synth2A03SS.volume(fVolume * m_fLevel2A03);
 	Synth2A03TND.volume(fVolume * m_fLevel2A03);
 	SynthVRC6.volume(fVolume * 3.98333f * m_fLevelVRC6);

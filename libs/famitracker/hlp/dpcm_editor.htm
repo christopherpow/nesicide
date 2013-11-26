@@ -8,17 +8,18 @@
     <span class="topic">DPCM sample editor</span>
     <hr />
     
-    <p class="text">There is a DPCM sample editor available from 
-        the <a href="2a03.htm#Instruments">2A03 instrument editor</a>, 
-        it&#39;s intended mainly for removing silent parts from end of the sample.
-        Other types of edits should be done before the sample is 
+    <p class="text">There is a simple DPCM sample editor available from 
+        the <a href="2a03.htm#Instruments">DPCM instrument editor</a>, 
+        it&#39;s intended mainly for trimming silent parts from the beginning and end of samples.
+        Other types of edits should be done preferably before the sample is 
         converted to DPCM.</p>
     
     <p>
-        <IMG id="IMG2" style="FONT-SIZE: 10pt" src="img/dpcm_editor.png" alt=""></p>
+        <IMG id="IMG2" style="FONT-SIZE: 10pt" src="img/dpcm_editor.png" 
+            alt="Screenshot of the DPCM sample editor"></p>
     
-    <p class="text">Use the sample view to select a part of the sample and to set the 
-        start position (for preview). The buttons explained:</p>
+    <p class="text">Use the sample area to select a part of the sample and to set the 
+        start position (for preview).</p>
     
     <ul class="text">
         <li><b>Delete</b><br />
@@ -32,13 +33,13 @@
             Inserts zero-value samples 
             inside a selected area, causing the sample to tilt toward zero. The idea is to 
             restore the delta counter back to zero when the sample 
-            is finished, in order to restore volume for the triangle and noise channels.        
+            has finished, in order to restore volume for the triangle and noise channels.        
             <br />
             <br />
         </li>
         <li><b>Start from 64</b><br />
             Draws the sample with an initial value of 64 and is used to center the start of the wave. 
-            This is another way to keep the triangle and noise volume consistent, make 
+            This is another method to keep the triangle and noise volume consistent, make 
             sure all samples starts and ends at 64.
             The sample itself is not affected by this option, the equal operation in the 
             tracker is to use the effect <a href="effect_list.htm">Z40</a> when playing the sample.

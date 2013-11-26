@@ -145,10 +145,10 @@ void CInstrumentEditPanel::OnSetFocus(CWnd* pOldWnd)
 	CDialog::OnSetFocus(pOldWnd);
 }
 
-CFamiTrackerDoc *CInstrumentEditPanel::GetDocument()
+CFamiTrackerDoc *CInstrumentEditPanel::GetDocument() const
 {
 	// Return selected document
-   return ((CInstrumentEditDlg*)GetParent())->GetDocument();
+	return static_cast<CInstrumentEditDlg*>(GetParent())->GetDocument();
 }
 
 void CInstrumentEditPanel::PreviewNote(unsigned char Key)

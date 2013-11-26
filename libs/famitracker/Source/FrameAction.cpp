@@ -34,10 +34,14 @@
 
 CFrameAction::CFrameAction(int iAction) : CAction(iAction)
 {
+	m_pAllPatterns = NULL;
+	m_pClipData = NULL;
 }
 
 CFrameAction::~CFrameAction()
 {
+	SAFE_RELEASE_ARRAY(m_pAllPatterns);
+	SAFE_RELEASE(m_pClipData);
 }
 
 void CFrameAction::SetFrameCount(unsigned int FrameCount)
@@ -56,11 +60,9 @@ void CFrameAction::SetPatternDelta(int Delta, bool ChangeAll)
 	m_bChangeAll = ChangeAll;
 }
 
-void CFrameAction::SetPasteData(int *pData)
+void CFrameAction::SetPasteData(CFrameClipData *pClipData)
 {
-	for (int i = 0; i < MAX_CHANNELS; ++i) {
-		m_iPasteData[i] = pData[i];
-	}
+	m_pClipData = pClipData;
 }
 
 void CFrameAction::SaveFrame(CFamiTrackerDoc *pDoc)
@@ -77,6 +79,68 @@ void CFrameAction::RestoreFrame(CFamiTrackerDoc *pDoc)
 	}
 }
 
+void CFrameAction::SetDragInfo(int DragTarget, CFrameClipData *pClipData, bool Remove)
+{
+	m_iDragTarget = DragTarget;
+	m_pClipData = pClipData;
+	m_bDragRemove = Remove;
+}
+
+void CFrameAction::SaveAllFrames(CFamiTrackerDoc *pDoc)
+{
+	int Frames = pDoc->GetFrameCount();
+	int Channels = pDoc->GetChannelCount();
+
+	m_pAllPatterns = new unsigned int[Frames * Channels];
+
+	for (int i = 0; i < Frames; ++i) {
+		for (int j = 0; j < Channels; ++j) {
+			m_pAllPatterns[i * Channels + j] = pDoc->GetPatternAtFrame(i, j);
+		}
+	}
+
+	m_iUndoFrameCount = Frames;
+}
+
+void CFrameAction::RestoreAllFrames(CFamiTrackerDoc *pDoc)
+{
+	pDoc->SetFrameCount(m_iUndoFrameCount);
+
+	int Frames = pDoc->GetFrameCount();
+	int Channels = pDoc->GetChannelCount();
+	
+	for (int i = 0; i < Frames; ++i) {
+		for (int j = 0; j < Channels; ++j) {
+			pDoc->SetPatternAtFrame(i, j, m_pAllPatterns[i * Channels + j]);
+		}
+	}
+}
+
+int CFrameAction::ClipPattern(int Pattern) const
+{
+	if (Pattern < 0)
+		Pattern = 0;
+	if (Pattern > MAX_PATTERN - 1)
+		Pattern = MAX_PATTERN - 1;
+
+	return Pattern;
+}
+
+void CFrameAction::ClearPatterns(CFamiTrackerDoc *pDoc, int Target)
+{
+	int Rows = m_pClipData->ClipInfo.Rows;
+	int Channels = m_pClipData->ClipInfo.Channels;
+
+	// Clean up the copy to new patterns command
+	for (int i = 0; i < Rows; ++i) {
+		for (int j = 0; j < Channels; ++j) {
+			pDoc->ClearPattern(Target + i, j);
+		}
+	}
+
+	pDoc->DeleteFrames(Target, Rows);
+}
+
 bool CFrameAction::SaveState(CMainFrame *pMainFrm)
 {
 	// Perform action
@@ -87,6 +151,8 @@ bool CFrameAction::SaveState(CMainFrame *pMainFrm)
 
 	m_iUndoFramePos = pView->GetSelectedFrame();
 	m_iUndoChannelPos = pView->GetSelectedChannel();
+
+	pFrameEditor->GetSelectInfo(m_oSelInfo);
 
 	switch (m_iAction) {
 		case ACT_ADD:
@@ -114,6 +180,7 @@ bool CFrameAction::SaveState(CMainFrame *pMainFrm)
 			m_iUndoFrameCount = pDocument->GetFrameCount();
 			pDocument->SetFrameCount(m_iNewFrameCount);
 			pDocument->UpdateAllViews(NULL, CHANGED_FRAMES);
+			pMainFrm->UpdateControls();
 			break;
 		case ACT_SET_PATTERN:
 			m_iOldPattern = pDocument->GetPatternAtFrame(m_iUndoFramePos, m_iUndoChannelPos);
@@ -133,14 +200,11 @@ bool CFrameAction::SaveState(CMainFrame *pMainFrm)
 		case ACT_CHANGE_PATTERN:
 			{
 				m_iOldPattern = pDocument->GetPatternAtFrame(m_iUndoFramePos, m_iUndoChannelPos);
-				int NewPattern = m_iOldPattern + m_iPatternDelta;
-				if (NewPattern < 0)
-					NewPattern = 0;
-				if (NewPattern >= MAX_FRAMES)
-					NewPattern = MAX_FRAMES - 1;
+				int NewPattern = ClipPattern(m_iOldPattern + m_iPatternDelta);
 				if (NewPattern == m_iOldPattern)
 					return false;
 				pDocument->SetPatternAtFrame(m_iUndoFramePos, m_iUndoChannelPos, NewPattern);
+				pDocument->SetModifiedFlag();
 				pDocument->UpdateAllViews(NULL, CHANGED_PATTERN);
 			}
 			break;
@@ -154,6 +218,7 @@ bool CFrameAction::SaveState(CMainFrame *pMainFrm)
 				}
 				for (int i = 0; i < Channels; ++i)
 					pDocument->SetPatternAtFrame(m_iUndoFramePos, i, m_iPatterns[i] + m_iPatternDelta);
+				pDocument->SetModifiedFlag();
 				pDocument->UpdateAllViews(NULL, CHANGED_PATTERN);
 			}
 			break;
@@ -170,13 +235,39 @@ bool CFrameAction::SaveState(CMainFrame *pMainFrm)
 			pDocument->UpdateAllViews(NULL, CHANGED_FRAMES);
 			break;
 		case ACT_PASTE:
-			SaveFrame(pDocument);
-			{
-				int Channels = pDocument->GetAvailableChannels();
-				for (int i = 0; i < Channels; ++i)
-					pDocument->SetPatternAtFrame(m_iUndoFramePos, i, m_iPasteData[i]);
-			}
+			pFrameEditor->Paste(m_pClipData);
 			pDocument->UpdateAllViews(NULL, CHANGED_PATTERN);
+			break;
+		case ACT_PASTE_NEW:
+			pFrameEditor->PasteNew(m_pClipData);
+			pDocument->UpdateAllViews(NULL, CHANGED_PATTERN);
+			break;
+		case ACT_DRAG_AND_DROP_MOVE:
+			SaveAllFrames(pDocument);
+			pFrameEditor->PerformDragOperation(m_pClipData, m_iDragTarget, m_bDragRemove, false);
+			pDocument->UpdateAllViews(NULL, CHANGED_FRAMES);
+			pMainFrm->UpdateControls();
+			break;
+		case ACT_DRAG_AND_DROP_COPY:
+			SaveAllFrames(pDocument);
+			pFrameEditor->PerformDragOperation(m_pClipData, m_iDragTarget, false, false);
+			pDocument->UpdateAllViews(NULL, CHANGED_FRAMES);
+			pMainFrm->UpdateControls();
+			break;
+		case ACT_DRAG_AND_DROP_COPY_NEW:
+			SaveAllFrames(pDocument);
+			pFrameEditor->PerformDragOperation(m_pClipData, m_iDragTarget, false, true);
+			pDocument->UpdateAllViews(NULL, CHANGED_FRAMES);
+			pMainFrm->UpdateControls();
+			break;
+		case ACT_DELETE_SELECTION:
+			SaveAllFrames(pDocument);
+			pDocument->DeleteFrames(m_oSelInfo.iRowStart, m_oSelInfo.iRowEnd - m_oSelInfo.iRowStart + 1);
+			pView->SelectFrame(m_oSelInfo.iRowStart);
+			pFrameEditor->Clear();
+			pDocument->UpdateAllViews(NULL, CHANGED_FRAMES);
+			pDocument->UpdateAllViews(NULL, CHANGED_PATTERN);
+			pMainFrm->UpdateControls();
 			break;
 	}
 
@@ -196,6 +287,8 @@ void CFrameAction::Undo(CMainFrame *pMainFrm)
 
 	pView->SelectFrame(m_iUndoFramePos);
 	pView->SelectChannel(m_iUndoChannelPos);
+
+	pFrameEditor->SetSelectInfo(m_oSelInfo);
 
 	switch (m_iAction) {
 		case ACT_ADD:
@@ -252,8 +345,26 @@ void CFrameAction::Undo(CMainFrame *pMainFrm)
 			pDocument->UpdateAllViews(NULL, CHANGED_FRAMES);
 			break;
 		case ACT_PASTE:
-			RestoreFrame(pDocument);
+			pDocument->DeleteFrames(m_iUndoFramePos, m_pClipData->ClipInfo.Rows);
 			pDocument->UpdateAllViews(NULL, CHANGED_PATTERN);
+			break;
+		case ACT_PASTE_NEW:
+			ClearPatterns(pDocument, m_iUndoFramePos);
+			pDocument->UpdateAllViews(NULL, CHANGED_PATTERN);
+			break;
+		case ACT_DRAG_AND_DROP_MOVE:
+		case ACT_DRAG_AND_DROP_COPY:
+		case ACT_DELETE_SELECTION:
+			RestoreAllFrames(pDocument);
+			pView->SelectFrame(m_oSelInfo.iRowEnd);
+			pDocument->UpdateAllViews(NULL, CHANGED_PATTERN);
+			pMainFrm->UpdateControls();
+			break;
+		case ACT_DRAG_AND_DROP_COPY_NEW:
+			ClearPatterns(pDocument, m_iDragTarget);
+			pView->SelectFrame(m_oSelInfo.iRowEnd);
+			pDocument->UpdateAllViews(NULL, CHANGED_PATTERN);
+			pMainFrm->UpdateControls();
 			break;
 	}
 
@@ -265,9 +376,10 @@ void CFrameAction::Redo(CMainFrame *pMainFrm)
 {
 	// Redo action
 
+	CFrameEditor *pFrameEditor = pMainFrm->GetFrameEditor();
 	CFamiTrackerView *pView = (CFamiTrackerView*)pMainFrm->GetActiveView();
 	CFamiTrackerDoc *pDocument = pView->GetDocument();
-
+	
 	switch (m_iAction) {
 		case ACT_ADD:
 			pDocument->InsertFrame(m_iUndoFramePos + 1);
@@ -325,12 +437,34 @@ void CFrameAction::Redo(CMainFrame *pMainFrm)
 			pDocument->UpdateAllViews(NULL, CHANGED_FRAMES);
 			break;
 		case ACT_PASTE:
-			{
-				int Channels = pDocument->GetAvailableChannels();
-				for (int i = 0; i < Channels; ++i)
-					pDocument->SetPatternAtFrame(m_iUndoFramePos, i, m_iPasteData[i]);
-			}
+			pFrameEditor->Paste(m_pClipData);
 			pDocument->UpdateAllViews(NULL, CHANGED_PATTERN);
+			break;
+		case ACT_PASTE_NEW:
+			pFrameEditor->PasteNew(m_pClipData);
+			pDocument->UpdateAllViews(NULL, CHANGED_PATTERN);
+			break;
+		case ACT_DRAG_AND_DROP_MOVE:
+			pFrameEditor->PerformDragOperation(m_pClipData, m_iDragTarget, m_bDragRemove, false);
+			pDocument->UpdateAllViews(NULL, CHANGED_PATTERN);
+			pMainFrm->UpdateControls();
+			break;
+		case ACT_DRAG_AND_DROP_COPY:
+			pFrameEditor->PerformDragOperation(m_pClipData, m_iDragTarget, false, false);
+			pDocument->UpdateAllViews(NULL, CHANGED_PATTERN);
+			pMainFrm->UpdateControls();
+			break;
+		case ACT_DRAG_AND_DROP_COPY_NEW:
+			pFrameEditor->PerformDragOperation(m_pClipData, m_iDragTarget, false, true);
+			pDocument->UpdateAllViews(NULL, CHANGED_FRAMES);
+			pMainFrm->UpdateControls();
+			break;
+		case ACT_DELETE_SELECTION:
+			pDocument->DeleteFrames(m_oSelInfo.iRowStart, m_oSelInfo.iRowEnd - m_oSelInfo.iRowStart + 1);
+			pView->SelectFrame(m_oSelInfo.iRowStart);
+			pFrameEditor->Clear();
+			pDocument->UpdateAllViews(NULL, CHANGED_PATTERN);
+			pMainFrm->UpdateControls();
 			break;
 	}
 
@@ -349,5 +483,16 @@ void CFrameAction::Update(CMainFrame *pMainFrm)
 			pDocument->UpdateAllViews(NULL, CHANGED_FRAMES);
 			break;
 		// TODO add change pattern 
+		case ACT_CHANGE_PATTERN:
+			{
+				int OldPattern = pDocument->GetPatternAtFrame(m_iUndoFramePos, m_iUndoChannelPos);
+				int NewPattern = ClipPattern(OldPattern + m_iPatternDelta);
+				if (NewPattern == OldPattern)
+					return;
+				pDocument->SetPatternAtFrame(m_iUndoFramePos, m_iUndoChannelPos, NewPattern);
+				pDocument->SetModifiedFlag();
+				pDocument->UpdateAllViews(NULL, CHANGED_PATTERN);
+			}
+			break;
 	}
 }

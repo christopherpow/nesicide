@@ -51,37 +51,41 @@ CInstrumentEditorN163::CInstrumentEditorN163(CWnd* pParent /*=NULL*/)
 CInstrumentEditorN163::~CInstrumentEditorN163()
 {
 	SAFE_RELEASE(m_pSequenceEditor);
-}
 
+	if (m_pInstrument)
+		m_pInstrument->Release();
+}
 
 void CInstrumentEditorN163::DoDataExchange(CDataExchange* pDX)
 {
 	CSequenceInstrumentEditPanel::DoDataExchange(pDX);
 }
 
-
 void CInstrumentEditorN163::SelectInstrument(int Instrument)
 {
-	CInstrumentN163 *pInst = (CInstrumentN163*)GetDocument()->GetInstrument(Instrument);
+	CInstrumentN163 *pInstrument = (CInstrumentN163*)GetDocument()->GetInstrument(Instrument);
 	CListCtrl *pList = (CListCtrl*) GetDlgItem(IDC_INSTSETTINGS);
+
+	if (m_pInstrument)
+		m_pInstrument->Release();
 
 	m_pInstrument = NULL;
 
 	// Update instrument setting list
 	for (int i = 0; i < CInstrumentN163::SEQUENCE_COUNT; ++i) {
 		CString IndexStr;
-		IndexStr.Format(_T("%i"), pInst->GetSeqIndex(i));
-		pList->SetCheck(i, pInst->GetSeqEnable(i));
+		IndexStr.Format(_T("%i"), pInstrument->GetSeqIndex(i));
+		pList->SetCheck(i, pInstrument->GetSeqEnable(i));
 		pList->SetItemText(i, 1, IndexStr);
 	} 
 
 	// Setting text box
-	SetDlgItemInt(IDC_SEQ_INDEX, pInst->GetSeqIndex(m_iSelectedSetting));
+	SetDlgItemInt(IDC_SEQ_INDEX, pInstrument->GetSeqIndex(m_iSelectedSetting));
 
-	m_pInstrument = pInst;
+	m_pInstrument = pInstrument;
 
 	// Select new sequence
-	SelectSequence(pInst->GetSeqIndex(m_iSelectedSetting), m_iSelectedSetting);
+	SelectSequence(pInstrument->GetSeqIndex(m_iSelectedSetting), m_iSelectedSetting);
 }
 
 void CInstrumentEditorN163::SelectSequence(int Sequence, int Type)

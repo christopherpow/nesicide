@@ -34,7 +34,7 @@ class CSequenceSetting;
 class CSequenceEditor : public CWnd
 {
 	DECLARE_DYNAMIC(CSequenceEditor)
-   // Qt stuff
+   // Qt interfaces
 protected:
    void paintEvent(QPaintEvent *);
       

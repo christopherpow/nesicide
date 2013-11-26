@@ -67,18 +67,15 @@ BOOL CModuleImportDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
-	CListCtrl *pList = (CListCtrl*) GetDlgItem(IDC_TRACKS);
-
-	pList->InsertColumn(0, _T("Name"), LVCFMT_LEFT, 190);
-	pList->SendMessage(LVM_SETEXTENDEDLISTVIEWSTYLE, 0, LVS_EX_FULLROWSELECT | LVS_EX_CHECKBOXES);
+	m_ctlTrackList.SubclassDlgItem(IDC_TRACKS, this);
 
 	int TrackCount = m_pImportedDoc->GetTrackCount();
 	
 	for (int i = 0; i < TrackCount; ++i) {
 		CString str;
-		str.Format(_T("#%i %s"), i, m_pImportedDoc->GetTrackTitle(i));
-		pList->InsertItem(i, str);
-		pList->SetCheck(i, TRUE);
+		str.Format(_T("#%02i %s"), i + 1, m_pImportedDoc->GetTrackTitle(i));
+		m_ctlTrackList.AddString(str);
+		m_ctlTrackList.SetCheck(i, 1);
 	}
 
 	CheckDlgButton(IDC_INSTRUMENTS, BST_CHECKED);
@@ -136,10 +133,8 @@ bool CModuleImportDlg::ImportInstruments()
 
 bool CModuleImportDlg::ImportTracks()
 {
-	CListCtrl *pList = (CListCtrl*) GetDlgItem(IDC_TRACKS);
-
 	for (unsigned int i = 0; i < m_pImportedDoc->GetTrackCount(); ++i) {
-		if (pList->GetCheck(i) == TRUE) {
+		if (m_ctlTrackList.GetCheck(i) == 1) {
 			// Import track
 			if (!m_pDocument->ImportTrack(i, m_pImportedDoc, m_iInstrumentTable))
 				return false;

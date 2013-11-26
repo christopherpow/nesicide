@@ -79,6 +79,10 @@ CInstrument *CInstrumentFDS::Clone() const
 	return pNewInst;
 }
 
+void CInstrumentFDS::Setup()
+{
+}
+
 void CInstrumentFDS::StoreInstSequence(CFile *pFile, CSequence *pSeq)
 {
 	int i;

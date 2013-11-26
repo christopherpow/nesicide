@@ -20,14 +20,8 @@
 
 //
 // This is the base class for all classes that takes care of 
-// playing the channels.
+// translating notes to channel register writes.
 //
-
-/*
-
- TODO Remove the m_pInstrument pointer, as instruments may get deleted at any time
-
-*/
 
 #include "stdafx.h"
 #include "FamiTracker.h"
@@ -36,7 +30,8 @@
 #include "ChannelHandler.h"
 
 // Range for the pitch wheel command in notes
-int PITCH_RANGE = 6;
+int CChannelHandler::PITCH_WHEEL_RANGE = 6;
+
 
 CChannelHandler::CChannelHandler() : 
 	m_iChannelID(0), 
@@ -57,6 +52,10 @@ CChannelHandler::CChannelHandler() :
 	m_iSeqVolume = 0;
 }
 
+CChannelHandler::~CChannelHandler()
+{
+}
+
 void CChannelHandler::InitChannel(CAPU *pAPU, int *pVibTable, CFamiTrackerDoc *pDoc)
 {
 	// Called from main thread
@@ -65,14 +64,13 @@ void CChannelHandler::InitChannel(CAPU *pAPU, int *pVibTable, CFamiTrackerDoc *p
 	m_pVibratoTable = pVibTable;
 	m_pDocument = pDoc;
 
-//	m_pDelayedNote = NULL;
 	m_bDelayEnabled = false;
 
 	m_iEffect = 0;
 
-	//KillChannel();
-
 	m_iVibratoStyle = VIBRATO_NEW;
+
+	ResetChannel();
 }
 
 int CChannelHandler::LimitPeriod(int Period) const
@@ -114,8 +112,8 @@ int CChannelHandler::GetPitch() const
 { 
 	if (m_iPitch != 0 && m_iNote != 0 && m_pNoteLookupTable != NULL) {
 		// Interpolate pitch
-		int LowNote = m_iNote - PITCH_RANGE;
-		int HighNote = m_iNote + PITCH_RANGE;
+		int LowNote = m_iNote - PITCH_WHEEL_RANGE;
+		int HighNote = m_iNote + PITCH_WHEEL_RANGE;
 
 		if (LowNote < 0)
 			LowNote = 0;
@@ -148,13 +146,34 @@ void CChannelHandler::Arpeggiate(unsigned int Note)
 	m_iPeriod = TriggerNote(Note);
 }
 
-// TODO: document this
-void CChannelHandler::MakeSilent()
+void CChannelHandler::ResetChannel()
 {
+	// Resets the channel states (volume, instrument & duty)
+	// Clears channel registers
+
+	// Instrument 
+	m_iInstrument		= MAX_INSTRUMENTS;
+	m_iLastInstrument	= MAX_INSTRUMENTS;
+
+	for (int i = 0; i < SEQ_COUNT; ++i)
+		m_iSeqEnabled[i] = 0;
+
+	// Volume 
 	m_iVolume			= MAX_VOL;
+
+	m_iDefaultDuty		= 0;
+	m_iSeqVolume		= 0;
+
+	// Period
+	m_iPeriod			= 0;
+	m_iLastPeriod		= 0xFFFF;
+	m_iPeriodPart		= 0;
+
+	// Effect states
 	m_iPortaSpeed		= 0;
-	m_cArpeggio			= 0;
-	m_cArpVar			= 0;
+	m_iPortaTo			= 0;
+	m_iArpeggio			= 0;
+	m_iArpState			= 0;
 	m_iVibratoSpeed		= 0;
 	m_iVibratoPhase		= (m_iVibratoStyle == VIBRATO_OLD) ? 48 : 0;
 	m_iTremoloSpeed		= 0;
@@ -162,66 +181,126 @@ void CChannelHandler::MakeSilent()
 	m_iFinePitch		= 0x80;
 	m_iPeriod			= 0;
 	m_iVolSlide			= 0;
-//	m_iLastPeriod		= 0xFFFF;
 	m_bDelayEnabled		= false;
-
-	m_iDefaultDuty		= 0;
-
 	m_iNoteCut			= 0;
-
 	m_iVibratoDepth		= 0;
 	m_iTremoloDepth		= 0;
 
-	m_iPeriodPart = 0;
+	// States
+	m_bRelease			= false;
+	m_bGate				= false;
+	m_bEnabled			= false;
 
-	KillChannel();
-}
+	RegisterKeyState(m_iChannelID, -1);
 
-// TODO: remove this and use note cut instead. Should not clear channel registers
-void CChannelHandler::KillChannel()
-{
-	m_bEnabled		= false;
-	m_iLastPeriod	= 0xFFFF;
-	m_iSeqVolume	= 0x00;
-	m_iPortaTo		= 0;
-
-	for (int i = 0; i < SEQ_COUNT; ++i)
-		m_iSeqEnabled[i] = 0;
-
-	theApp.RegisterKeyState(m_iChannelID, -1);
-
-	ClearRegisters();
-}
-
-// Resets the channel, restore volume, instrument & duty
-void CChannelHandler::ResetChannel()
-{
-	m_iInstrument = 0;
-	m_iLastInstrument = MAX_INSTRUMENTS;
-	m_iVolume = MAX_VOL;
-	m_iDefaultDuty = 0;
-	m_iSeqVolume = 0;
-
-	for (int i = 0; i < SEQ_COUNT; ++i)
-		m_iSeqEnabled[i] = 0;
-
+	// Clear channel registers
 	ClearRegisters();
 }
 
 // Handle common things before letting the channels play the notes
-void CChannelHandler::PlayNote(stChanNote *NoteData, int EffColumns)
+void CChannelHandler::PlayNote(stChanNote *pNoteData, int EffColumns)
 {
-	ASSERT (NoteData != NULL);
+	ASSERT (pNoteData != NULL);
 
 	// Handle delay commands
-	if (HandleDelay(NoteData, EffColumns))
+	if (HandleDelay(pNoteData, EffColumns))
 		return;
 
 	// Handle global effects
-	theApp.GetSoundGenerator()->EvaluateGlobalEffects(NoteData, EffColumns);
+	theApp.GetSoundGenerator()->EvaluateGlobalEffects(pNoteData, EffColumns);
 
 	// Let the channel play
-	PlayChannelNote(NoteData, EffColumns);
+	HandleNoteData(pNoteData, EffColumns);
+}
+
+void CChannelHandler::HandleCustomEffects(int EffNum, int EffParam)
+{
+}
+
+bool CChannelHandler::HandleInstrument(int Instrument, bool Trigger, bool NewInstrument)
+{
+	return true;
+}
+
+void CChannelHandler::HandleEmptyNote()
+{
+}
+
+void CChannelHandler::HandleHalt()
+{
+}
+
+void CChannelHandler::HandleRelease()
+{
+}
+
+void CChannelHandler::HandleNote(int Note, int Octave)
+{
+}
+
+void CChannelHandler::HandleNoteData(stChanNote *pNoteData, int EffColumns)
+{
+	int LastInstrument = m_iInstrument;
+	int Instrument = pNoteData->Instrument;
+	int Note = pNoteData->Note;
+
+	// Clear the note cut effect
+	if (pNoteData->Note != NONE) {
+		m_iNoteCut = 0;
+	}
+
+	// Effects
+	for (int n = 0; n < EffColumns; n++) {
+		unsigned char EffNum   = pNoteData->EffNumber[n];
+		unsigned char EffParam = pNoteData->EffParam[n];
+		HandleCustomEffects(EffNum, EffParam);
+	}
+
+	// Instrument
+	if (Note == HALT || Note == RELEASE) 
+		Instrument = MAX_INSTRUMENTS;	// Ignore instrument for release and halt commands
+
+	if (Instrument != MAX_INSTRUMENTS)
+		m_iInstrument = Instrument;
+
+	bool Trigger = (Note != NONE) && (Note != HALT) && (Note != RELEASE);
+	bool NewInstrument = (m_iInstrument != LastInstrument) || (m_iInstrument == MAX_INSTRUMENTS);
+
+	if (m_iInstrument == MAX_INSTRUMENTS) {
+		// No instrument selected, default to 0
+		m_iInstrument = 0;
+	}
+
+	if (NewInstrument || Trigger) {
+		if (!HandleInstrument(m_iInstrument, Trigger, NewInstrument))
+			return;
+	}
+
+	// Volume
+	if (pNoteData->Vol < 0x10) {
+		m_iVolume = pNoteData->Vol << VOL_SHIFT;
+	}
+
+	// Clear release flag
+	if (pNoteData->Note != RELEASE && pNoteData->Note != NONE) {
+		m_bRelease = false;
+	}
+
+	// Note
+	switch (pNoteData->Note) {
+		case NONE:
+			HandleEmptyNote();
+			break;
+		case HALT:
+			HandleHalt();
+			break;
+		case RELEASE:
+			HandleRelease();
+			break;
+		default:
+			HandleNote(pNoteData->Note, pNoteData->Octave);
+			break;
+	}
 }
 
 void CChannelHandler::SetNoteTable(unsigned int *pNoteLookupTable)
@@ -238,7 +317,7 @@ unsigned int CChannelHandler::TriggerNote(int Note)
 		Note = 0;
 
 	// Trigger a note, return note period
-	theApp.RegisterKeyState(m_iChannelID, Note);
+	RegisterKeyState(m_iChannelID, Note);
 
 	if (!m_pNoteLookupTable)
 		return Note;
@@ -249,11 +328,10 @@ unsigned int CChannelHandler::TriggerNote(int Note)
 void CChannelHandler::CutNote()
 {
 	// Cut currently playing note
-//	MakeSilent();
 
-	KillChannel();
+	RegisterKeyState(m_iChannelID, -1);
 
-	m_bGate =  false;
+	m_bGate = false;
 }
 
 void CChannelHandler::ReleaseNote()
@@ -263,9 +341,9 @@ void CChannelHandler::ReleaseNote()
 	if (!m_bEnabled)
 		return;
 
-	theApp.RegisterKeyState(m_iChannelID, -1);
+	RegisterKeyState(m_iChannelID, -1);
 
-	m_bGate =  false;
+	m_bRelease = true;
 }
 
 int CChannelHandler::RunNote(int Octave, int Note)
@@ -326,7 +404,7 @@ bool CChannelHandler::CheckCommonEffects(unsigned char EffCmd, unsigned char Eff
 				m_iTremoloPhase = 0;
 			break;
 		case EF_ARPEGGIO:
-			m_cArpeggio = EffParam;
+			m_iArpeggio = EffParam;
 			m_iEffect = EF_ARPEGGIO;
 			break;
 		case EF_PITCH:
@@ -346,6 +424,9 @@ bool CChannelHandler::CheckCommonEffects(unsigned char EffCmd, unsigned char Eff
 		case EF_NOTE_CUT:
 			m_iNoteCut = EffParam + 1;
 			break;
+//		case EF_TARGET_VOLUME_SLIDE:
+			// TODO implement
+//			break;
 		default:
 			return false;
 	}
@@ -359,7 +440,7 @@ bool CChannelHandler::HandleDelay(stChanNote *pNoteData, int EffColumns)
 
 	if (m_bDelayEnabled) {
 		m_bDelayEnabled = false;
-		PlayChannelNote(&m_cnDelayed, m_iDelayEffColumns);
+		HandleNoteData(&m_cnDelayed, m_iDelayEffColumns);
 	}
 	
 	// Check delay
@@ -370,11 +451,23 @@ bool CChannelHandler::HandleDelay(stChanNote *pNoteData, int EffColumns)
 			m_iDelayEffColumns = EffColumns;
 			memcpy(&m_cnDelayed, pNoteData, sizeof(stChanNote));
 
-			// Only one delay/row is allowed
+			// Only one delay/row is allowed. Remove global effects
 			for (int j = 0; j < EffColumns; ++j) {
-				if (m_cnDelayed.EffNumber[j] == EF_DELAY) {
-					m_cnDelayed.EffNumber[j] = EF_NONE;
-					m_cnDelayed.EffParam[j] = 0;
+				switch (m_cnDelayed.EffNumber[j]) {
+					case EF_DELAY:
+						m_cnDelayed.EffNumber[j] = EF_NONE;
+						m_cnDelayed.EffParam[j] = 0;
+						break;
+					case EF_JUMP:
+						theApp.GetSoundGenerator()->SetJumpPattern(m_cnDelayed.EffParam[j]);
+						m_cnDelayed.EffNumber[j] = EF_NONE;
+						m_cnDelayed.EffParam[j] = 0;
+						break;
+					case EF_SKIP:
+						theApp.GetSoundGenerator()->SetSkipRow(m_cnDelayed.EffParam[j]);
+						m_cnDelayed.EffNumber[j] = EF_NONE;
+						m_cnDelayed.EffParam[j] = 0;
+						break;
 				}
 			}
 			return true;
@@ -418,6 +511,11 @@ void CChannelHandler::UpdateVolumeSlide()
 	m_iVolume += (m_iVolSlide & 0xF0) >> 4;
 	if (m_iVolume < 0)
 		m_iVolume = MAX_VOL;
+}
+
+void CChannelHandler::UpdateTargetVolumeSlide()
+{
+	// TODO implement
 }
 
 void CChannelHandler::UpdateVibratoTremolo()
@@ -470,22 +568,21 @@ void CChannelHandler::UpdateEffects()
 	// Handle other effects
 	switch (m_iEffect) {
 		case EF_ARPEGGIO:
-			if (m_cArpeggio != 0 && m_iNote != 0) {
-				switch (m_cArpVar) {
+			if (m_iArpeggio != 0) {
+				switch (m_iArpState) {
 					case 0:
 						m_iPeriod = TriggerNote(m_iNote);
 						break;
 					case 1:
-						m_iPeriod = TriggerNote(m_iNote + (m_cArpeggio >> 4));
-						if ((m_cArpeggio & 0x0F) == 0)
-							m_cArpVar = 2;
+						m_iPeriod = TriggerNote(m_iNote + (m_iArpeggio >> 4));
+						if ((m_iArpeggio & 0x0F) == 0)
+							++m_iArpState;
 						break;
 					case 2:
-						m_iPeriod = TriggerNote(m_iNote + (m_cArpeggio & 0x0F));
+						m_iPeriod = TriggerNote(m_iNote + (m_iArpeggio & 0x0F));
 						break;
 				}
-				if (++m_cArpVar > 2)
-					m_cArpVar = 0;
+				m_iArpState = (m_iArpState + 1) % 3;
 			}
 			break;
 		case EF_PORTAMENTO:
@@ -534,47 +631,6 @@ void CChannelHandler::ProcessChannel()
 	UpdateVolumeSlide();
 	UpdateVibratoTremolo();
 	UpdateEffects();
-}
-
-bool CChannelHandler::CheckNote(stChanNote *pNoteData, int InstrumentType)
-{
-	// Check that note data is valid and instrument is existing and valid
-	//
-	// Returns true if note data is valid or false if invalid.
-	//
-
-	// No note data
-	if (!pNoteData)
-		return false;
-
-	int Instrument = pNoteData->Instrument;
-
-//	if ((m_iInstrument = pNoteData->Instrument) == MAX_INSTRUMENTS)
-//		m_iInstrument = m_iLastInstrument;
-
-	// Halt and release
-	if (pNoteData->Note == HALT || pNoteData->Note == RELEASE || pNoteData->Note == NONE) {
-//		m_iVolume = 0x10;
-//		KillChannel();
-		// Allow incorrect instruments for note off
-		return true;
-	}
-
-	// Save instrument index
-	if (Instrument != MAX_INSTRUMENTS)
-		m_iInstrument = pNoteData->Instrument;
-
-	CInstrument *pInstrument = m_pDocument->GetInstrument(m_iInstrument);
-
-	// No instrument
-	if (!pInstrument)
-		return false;
-
-	// Wrong type of instrument
-	if (pInstrument->GetType() != InstrumentType)
-		return false;
-
-	return true;
 }
 
 int CChannelHandler::GetVibrato() const
@@ -653,7 +709,6 @@ void CChannelHandler::RunSequence(int Index, CSequence *pSequence)
 						m_iPeriod = TriggerNote(m_iNote);
 						break;
 				}
-
 				break;
 			// Pitch
 			case SEQ_PITCH:
@@ -677,36 +732,23 @@ void CChannelHandler::RunSequence(int Index, CSequence *pSequence)
 		int Items = pSequence->GetItemCount();
 		int Loop = pSequence->GetLoopPoint();
 
-		/*
-		if (m_bRelease) {
-			if (m_iSeqPointer[Index] == Items) {
-				// End of sequence 
-				m_iSeqEnabled[Index] = 0;
+		if (m_iSeqPointer[Index] == (Release + 1) || m_iSeqPointer[Index] == Items) {
+			// End point reached
+			if (Loop != -1 && !(m_bRelease && Release != -1)) {
+				m_iSeqPointer[Index] = Loop;
+			}
+			else {
+				if (m_iSeqPointer[Index] == Items) {
+					// End of sequence 
+					m_iSeqEnabled[Index] = 2;
+				}
+				else if (!m_bRelease)
+					// Waiting for release
+					m_iSeqPointer[Index]--;
 			}
 		}
-		else {
-		*/
-			if (m_iSeqPointer[Index] == (Release + 1) || m_iSeqPointer[Index] == Items) {
-				// End point reached
-				if (Loop != -1 && !(m_bRelease && Release != -1)) {
-					m_iSeqPointer[Index] = Loop;
-				}
-				else {
-					if (m_iSeqPointer[Index] == Items) {
-						// End of sequence 
-						m_iSeqEnabled[Index] = 2;
-					}
-					else if (!m_bRelease)
-						// Waiting for release
-						m_iSeqPointer[Index]--;
-				}
-			}
-//		}
 
 		pSequence->SetPlayPos(m_iSeqPointer[Index]);
-
-//		if (Index == MOD_ARPEGGIO)
-//			m_bArpEffDone = false;
 	}
 	else if (m_iSeqEnabled[Index] == 2) {
 		
@@ -721,14 +763,6 @@ void CChannelHandler::RunSequence(int Index, CSequence *pSequence)
 		}
 
 		m_iSeqEnabled[Index] = 0;
-
-//		if ( == && == 1) {
-			// Absolute arpeggio notes
-//			m_bArpEffDone = false;
-//			if (m_bArpEffDone == false) {
-//				m_bArpEffDone = true;
-//			}
-//		}
 
 		///////////////// temporary /////////////////////
 
@@ -753,6 +787,8 @@ void CChannelHandler::ReleaseSequences(int Chip)
 			ReleaseSequence(i, pSeq);
 		}
 	}
+
+//	m_bSequencesReleased = true;
 }
 
 void CChannelHandler::ReleaseSequence(int Index, CSequence *pSeq)
@@ -767,7 +803,7 @@ void CChannelHandler::ReleaseSequence(int Index, CSequence *pSeq)
 int CChannelHandler::CalculatePeriod(bool InvertPitch) const 
 {
 	if (InvertPitch)
-		return LimitPeriod(m_iPeriod - GetVibrato() - GetFinePitch() + GetPitch());
+		return LimitPeriod(m_iPeriod + GetVibrato() - GetFinePitch() - GetPitch());
 
 	return LimitPeriod(m_iPeriod - GetVibrato() + GetFinePitch() + GetPitch());
 }
@@ -788,10 +824,29 @@ int CChannelHandler::CalculateVolume(int Limit) const
 	if (m_iSeqVolume > 0 && m_iVolume > 0 && Volume == 0)
 		Volume = 1;
 
+	if (!m_bGate)
+		Volume = 0;
+
 	return Volume;
 }
 
 void CChannelHandler::AddCycles(int count)
 {
 	theApp.GetSoundGenerator()->AddCycles(count);
+}
+
+void CChannelHandler::WriteRegister(uint16 Reg, uint8 Value)
+{
+	m_pAPU->Write(Reg, Value);
+	theApp.GetSoundGenerator()->WriteRegister(Reg, Value);
+}
+
+void CChannelHandler::WriteExternalRegister(uint16 Reg, uint8 Value)
+{
+	m_pAPU->ExternalWrite(Reg, Value);
+}
+
+void CChannelHandler::RegisterKeyState(int Channel, int Note)
+{
+	theApp.GetSoundGenerator()->RegisterKeyState(Channel, Note);
 }

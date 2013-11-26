@@ -56,7 +56,6 @@ public slots:
 protected:
    void paintEvent(QPaintEvent*);
    
-public:
    DECLARE_DYNAMIC(CConfigAppearance)
 
 public:

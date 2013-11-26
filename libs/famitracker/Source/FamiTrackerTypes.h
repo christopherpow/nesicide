@@ -7,11 +7,11 @@
 ** the Free Software Foundation; either version 2 of the License, or
 ** (at your option) any later version.
 **
-** This program is distributed in the hope that it will be useful,
+** This program is distributed in the hope that it will be useful, 
 ** but WITHOUT ANY WARRANTY; without even the implied warranty of
-** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-** Library General Public License for more details.  To obtain a
-** copy of the GNU Library General Public License, write to the Free
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+** Library General Public License for more details.  To obtain a 
+** copy of the GNU Library General Public License, write to the Free 
 ** Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 **
 ** Any permitted reproduction of these routines, in whole or in part,
@@ -20,8 +20,6 @@
 
 
 #pragma once
-
-#include <stdio.h>
 
 #define MIDI_NOTE(octave, note)		((octave) * 12 + (note) - 1)
 #define GET_OCTAVE(midi_note)		((midi_note) / 12)
@@ -78,7 +76,7 @@ const int MIN_SPEED = 1;
 
 // Number of avaliable channels (max) TODO: should not be used anymore!
 // instead, check the channelsavailable variable and allocate dynamically
-const int MAX_CHANNELS	 = 5 + 3 + 2 + 6 + 1 + 8 + 3;
+const int MAX_CHANNELS	 = 5 + 3 + 2 + 6 + 1 + 8 + 3;		
 
 const int CHANNELS_DEFAULT = 5;
 const int CHANNELS_VRC6	   = 3;
@@ -123,7 +121,7 @@ enum {
 	EF_HALT,
 	EF_VOLUME,
 	EF_PORTAMENTO,
-	EF_PORTAOFF,		// unused!!
+	EF_PORTAOFF,				// unused!!
 	EF_SWEEPUP,
 	EF_SWEEPDOWN,
 	EF_ARPEGGIO,
@@ -141,18 +139,15 @@ enum {
 	EF_VOLUME_SLIDE,
 	EF_NOTE_CUT,
 	EF_RETRIGGER,
-
-	EF_DELAYED_VOLUME,
-
+	EF_DELAYED_VOLUME,			// Unimplemented
 	EF_FDS_MOD_DEPTH,
 	EF_FDS_MOD_SPEED_HI,
 	EF_FDS_MOD_SPEED_LO,
-
 	EF_DPCM_PITCH,
-
 	EF_SUNSOFT_ENV_LO,
 	EF_SUNSOFT_ENV_HI,
 	EF_SUNSOFT_ENV_TYPE,
+//	EF_TARGET_VOLUME_SLIDE, 
 /*
 	EF_VRC7_MODULATOR,
 	EF_VRC7_CARRIER,
@@ -173,8 +168,8 @@ enum {
 
 // Channel effect letters
 const char EFF_CHAR[] = {'F',	// Speed
-						 'B',	// Jump
-						 'D',	// Skip
+						 'B',	// Jump 
+						 'D',	// Skip 
 						 'C',	// Halt
 						 'E',	// Volume
 						 '3',	// Porta on
@@ -195,7 +190,7 @@ const char EFF_CHAR[] = {'F',	// Speed
 						 'R',	// Slide down
 						 'A',	// Volume slide
 						 'S',	// Note cut
-						 'X',	// DPCM retrigger
+						 'X',	// DPCM retrigger						 
 						 ' ',	// (TODO, delayed volume)
 						 'H',	// FDS modulation depth
 						 'I',	// FDS modulation speed hi
@@ -204,6 +199,7 @@ const char EFF_CHAR[] = {'F',	// Speed
 						 'H',	// Sunsoft envelope low
 						 'I',	// Sunsoft envelope high
 						 'J',	// Sunsoft envelope type
+//						 '9'	// Targeted volume slide
 						 /*
 						 'H',	// VRC7 modulator
 						 'I',	// VRC7 carrier
@@ -247,7 +243,7 @@ public:
 
 	// Copy from existing sample
 	void Copy(const CDSample *pDSample);
-
+	
 	// Allocate memory
 	void Allocate(int iSize, char *pData = NULL);
 

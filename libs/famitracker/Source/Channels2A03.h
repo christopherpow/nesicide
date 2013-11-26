@@ -30,13 +30,26 @@ public:
 	virtual void ProcessChannel();
 	virtual void ResetChannel();
 protected:
-	virtual void PlayChannelNote(stChanNote *NoteData, int EffColumns);
+	virtual void HandleNoteData(stChanNote *pNoteData, int EffColumns);
+	virtual void HandleCustomEffects(int EffNum, int EffParam);
+	virtual bool HandleInstrument(int Instrument, bool Trigger, bool NewInstrument);
+	virtual void HandleEmptyNote();
+	virtual void HandleHalt();
+	virtual void HandleRelease();
+	virtual void HandleNote(int Note, int Octave);
+
 protected:
 	// 2A03 wave functions
 	void LoadInstrument(CInstrument2A03 *pInst);
 protected:
 	unsigned char m_cSweep;			// Sweep, used by pulse channels
 	bool		  m_bArpEffDone;	// Currently not used
+
+	bool	m_bManualVolume;
+	int		m_iInitVolume;
+	bool	m_bSweeping;
+	int		m_iSweep;
+	int		m_iPostEffect, m_iPostEffectParam;
 };
 
 // Square 1
@@ -82,7 +95,14 @@ public:
 	CDPCMChan(CSampleMem *pSampleMem);
 	virtual void RefreshChannel();
 protected:
-	virtual void PlayChannelNote(stChanNote *NoteData, int EffColumns);
+	virtual void HandleNoteData(stChanNote *pNoteData, int EffColumns);
+	virtual void HandleCustomEffects(int EffNum, int EffParam);
+	virtual bool HandleInstrument(int Instrument, bool Trigger, bool NewInstrument);
+	virtual void HandleEmptyNote();
+	virtual void HandleHalt();
+	virtual void HandleRelease();
+	virtual void HandleNote(int Note, int Octave);
+
 	virtual void ClearRegisters();
 private:
 	// DPCM variables
@@ -94,4 +114,8 @@ private:
 	unsigned char m_iLoopOffset;
 	unsigned char m_iLoopLength;
 	int m_iRetrigger, m_iRetriggerCntr;
+
+	int m_iCustomPitch;
+
+	bool m_bTrigger;
 };

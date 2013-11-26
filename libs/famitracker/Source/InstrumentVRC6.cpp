@@ -56,6 +56,16 @@ CInstrument *CInstrumentVRC6::Clone() const
 	return pNew;
 }
 
+void CInstrumentVRC6::Setup()
+{
+	CFamiTrackerDoc *pDoc = CFamiTrackerDoc::GetDoc();
+
+	for (int i = 0; i < SEQ_COUNT; ++i) {
+		SetSeqEnable(i, 0);
+		SetSeqIndex(i, pDoc->GetFreeSequenceVRC6(i));
+	}
+}
+
 void CInstrumentVRC6::Store(CDocumentFile *pDocFile)
 {
 	pDocFile->WriteBlockInt(SEQUENCE_COUNT);

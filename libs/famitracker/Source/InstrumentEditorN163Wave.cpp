@@ -30,6 +30,7 @@
 #include "InstrumentEditPanel.h"
 #include "InstrumentEditorN163Wave.h"
 #include "MainFrm.h"
+#include "SoundGen.h"
 
 using namespace std;
 
@@ -46,6 +47,9 @@ CInstrumentEditorN163Wave::CInstrumentEditorN163Wave(CWnd* pParent) : CInstrumen
 CInstrumentEditorN163Wave::~CInstrumentEditorN163Wave()
 {
 	SAFE_RELEASE(m_pWaveEditor);
+
+	if (m_pInstrument)
+		m_pInstrument->Release();
 }
 
 void CInstrumentEditorN163Wave::DoDataExchange(CDataExchange* pDX)
@@ -55,6 +59,9 @@ void CInstrumentEditorN163Wave::DoDataExchange(CDataExchange* pDX)
 
 void CInstrumentEditorN163Wave::SelectInstrument(int Instrument)
 {
+	if (m_pInstrument)
+		m_pInstrument->Release();
+
 	m_pInstrument = (CInstrumentN163*)GetDocument()->GetInstrument(Instrument);
 
 	CComboBox *pSizeBox = (CComboBox*)GetDlgItem(IDC_WAVE_SIZE);
@@ -394,7 +401,7 @@ void CInstrumentEditorN163Wave::OnWavePosSelChange()
 	CComboBox *pPosBox = (CComboBox*)GetDlgItem(IDC_WAVE_POS);
 	pPosBox->GetLBText(pPosBox->GetCurSel(), str);
 
-   int pos = _ttoi(str);
+	int pos = _ttoi(str);
 
 	if (pos > 255)
 		pos = 255;

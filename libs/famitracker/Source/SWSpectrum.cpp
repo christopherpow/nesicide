@@ -20,6 +20,7 @@
 
 #include "stdafx.h"
 #include "FamiTracker.h"
+#include "SampleWindow.h"
 #include "SWSpectrum.h"
 #include "Graphics.h"
 

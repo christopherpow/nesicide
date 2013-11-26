@@ -23,11 +23,6 @@
 #include "stdafx.h"
 #include "Graphics.h"
 
-#define GRADIENT_FILL_RECT_H 0x00
-#define GRADIENT_FILL_RECT_V 0x01
-#define GRADIENT_FILL_TRIANGLE 0x02
-#define GRADIENT_FILL_OP_FLAG 0xff 
-
 void GradientRectTriple(CDC *pDC, int x, int y, int w, int h, COLORREF c1, COLORREF c2, COLORREF c3)
 {
 	// c1 -> c2 -> c3

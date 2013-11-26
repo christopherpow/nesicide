@@ -51,6 +51,9 @@ CInstrumentEditor2A03::CInstrumentEditor2A03(CWnd* pParent)
 CInstrumentEditor2A03::~CInstrumentEditor2A03()
 {
 	SAFE_RELEASE(m_pSequenceEditor);
+	
+	if (m_pInstrument != NULL)
+		m_pInstrument->Release();
 }
 
 void CInstrumentEditor2A03::DoDataExchange(CDataExchange* pDX)
@@ -64,7 +67,6 @@ BEGIN_MESSAGE_MAP(CInstrumentEditor2A03, CSequenceInstrumentEditPanel)
 	ON_EN_CHANGE(IDC_SEQ_INDEX, OnEnChangeSeqIndex)
 	ON_BN_CLICKED(IDC_FREE_SEQ, OnBnClickedFreeSeq)
 	ON_COMMAND(ID_CLONE_SEQUENCE, OnCloneSequence)
-//	ON_WM_KEYDOWN()
 END_MESSAGE_MAP()
 
 void CInstrumentEditor2A03::menuAction_triggered(int id)
@@ -236,26 +238,29 @@ void CInstrumentEditor2A03::OnKeyReturn()
 
 void CInstrumentEditor2A03::SelectInstrument(int Instrument)
 {
-	CInstrument2A03 *pInst = (CInstrument2A03*)GetDocument()->GetInstrument(Instrument);
+	CInstrument2A03 *pInstrument = (CInstrument2A03*)GetDocument()->GetInstrument(Instrument);
 	CListCtrl *pList = (CListCtrl*) GetDlgItem(IDC_INSTSETTINGS);
+
+	if (m_pInstrument != NULL)
+		m_pInstrument->Release();
 
 	m_pInstrument = NULL;
 
 	// Update instrument setting list
 	for (int i = 0; i < CInstrument2A03::SEQUENCE_COUNT; ++i) {
 		CString IndexStr;
-		IndexStr.Format(_T("%i"), pInst->GetSeqIndex(i));
-		pList->SetCheck(i, pInst->GetSeqEnable(i));
+		IndexStr.Format(_T("%i"), pInstrument->GetSeqIndex(i));
+		pList->SetCheck(i, pInstrument->GetSeqEnable(i));
 		pList->SetItemText(i, 1, IndexStr);
 	} 
 
 	// Setting text box
-	SetDlgItemInt(IDC_SEQ_INDEX, pInst->GetSeqIndex(m_iSelectedSetting));
+	SetDlgItemInt(IDC_SEQ_INDEX, pInstrument->GetSeqIndex(m_iSelectedSetting));
 
-	m_pInstrument = pInst;
+	m_pInstrument = pInstrument;
 
 	// Select new sequence
-	SelectSequence(pInst->GetSeqIndex(m_iSelectedSetting), m_iSelectedSetting);
+	SelectSequence(pInstrument->GetSeqIndex(m_iSelectedSetting), m_iSelectedSetting);
 
 	SetFocus();
 }
@@ -298,32 +303,4 @@ void CInstrumentEditor2A03::OnCloneSequence()
 	CSequence *pSeq = pDoc->GetSequence(SNDCHIP_NONE, FreeIndex, m_iSelectedSetting);
 	pSeq->Copy(m_pSequence);
 	SetDlgItemInt(IDC_SEQ_INDEX, FreeIndex, FALSE);
-}
-
-//void CInstrumentEditor2A03::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
-//{
-//	// TODO: Add your message handler code here and/or call default
-//
-//	CSequenceInstrumentEditPanel::OnKeyDown(nChar, nRepCnt, nFlags);
-//}
-
-BOOL CInstrumentEditor2A03::PreTranslateMessage(MSG* pMsg)
-{
-	/*
-	char ClassName[256];
-
-	switch (pMsg->message) {
-		case WM_KEYDOWN:
-			GetClassName(pMsg->hwnd, ClassName, 256);
-			if (strcmp(ClassName, "Edit")) {
-				PreviewNote((unsigned char)pMsg->wParam);
-				return TRUE;
-			}
-			break;
-		case WM_KEYUP:
-			PreviewRelease((unsigned char)pMsg->wParam);
-			return TRUE;
-	}
-*/
-	return CSequenceInstrumentEditPanel::PreTranslateMessage(pMsg);
 }

@@ -22,6 +22,8 @@
 
 #include "cqtmfc.h"
 
+class CSampleWindowThread;
+
 class CSampleWinState
 {
 public:
@@ -53,26 +55,44 @@ protected:
    void mouseDoubleClickEvent(QMouseEvent *event);
    QSize sizeHint() const { return QSize(141,36); } // Not sure why the size is protected...but...
    
-   DECLARE_DYNAMIC(CSampleWindow)
+	DECLARE_DYNAMIC(CSampleWindow)
+
 public:
 	CSampleWindow();
 	virtual ~CSampleWindow();
 
 	void SetSampleRate(int SampleRate);
+	void FlushSamples(int *Samples, int Count);
 
-   static const int WIN_WIDTH = 145;
+	UINT ThreadProc();
+
+	static const int WIN_WIDTH = 145;
 	static const int WIN_HEIGHT = 40;
  	
 private:
 	static const int STATE_COUNT = 4;
 
+private:
 	void NextState();
 
+private:
 	CSampleWinState *m_pStates[STATE_COUNT];
 	unsigned int	m_iCurrentState;
 
+	int				m_iBufferSize;
+	int				*m_pBuffer1;
+	int				*m_pBuffer2;
+	int				*m_pFillBuffer;
+
+	HANDLE			m_hNewSamples;
+
+	bool			m_bThreadRunning;
+
+	CCriticalSection m_csBufferSelect;
+	CCriticalSection m_csBuffer;
+
 public:
-	virtual BOOL CreateEx(DWORD dwExStyle, LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, const RECT& rect, CWnd* pParentWnd, UINT nID, LPVOID lpParam = NULL);
+	virtual BOOL CreateEx(DWORD dwExStyle, LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, const RECT& rect, CWnd* pParentWnd, UINT nID, CCreateContext* pContext = NULL);
 
 protected:
 	DECLARE_MESSAGE_MAP()
@@ -81,4 +101,5 @@ protected:
 	afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
 public:
 	afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
+	afx_msg void OnDestroy();
 };

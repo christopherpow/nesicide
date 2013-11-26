@@ -39,116 +39,123 @@ CChannelHandlerN163::CChannelHandlerN163() : CChannelHandler(),
 	m_iDutyPeriod = 0;
 }
 
-void CChannelHandlerN163::PlayChannelNote(stChanNote *pNoteData, int EffColumns)
+void CChannelHandlerN163::ResetChannel()
 {
-	int LastInstrument = m_iInstrument;
+	CChannelHandler::ResetChannel();
 
-	if (!CChannelHandler::CheckNote(pNoteData, INST_N163))
-		return;
+	m_iWaveIndex = 0;
+}
 
-	int Note	= pNoteData->Note;
-	int Octave	= pNoteData->Octave;
-	int Volume	= pNoteData->Vol;
-
-	CInstrumentN163 *pInstrument = (CInstrumentN163*)m_pDocument->GetInstrument(m_iInstrument);
-
-	if (pInstrument == NULL)
-		return;
-
-	int PostEffect = 0, PostEffectParam = 0;
-
+void CChannelHandlerN163::HandleNoteData(stChanNote *pNoteData, int EffColumns)
+{
+	m_iPostEffect = 0;
+	m_iPostEffectParam = 0;
 	m_bLoadWave = false;
-
-	// Evaluate effects
-	for (int n = 0; n < EffColumns; n++) {
-		unsigned char EffNum   = pNoteData->EffNumber[n];
-		unsigned char EffParam = pNoteData->EffParam[n];
-
-//		#define GET_SLIDE_SPEED(x) (((x & 0xF0) >> 3) + 1)
-
-		if (EffNum == EF_PORTA_DOWN) {
-			m_iPortaSpeed = EffParam << N163_PITCH_SLIDE_SHIFT;
-			m_iEffect = EF_PORTA_UP;
-		}
-		else if (EffNum == EF_PORTA_UP) {
-			m_iPortaSpeed = EffParam << N163_PITCH_SLIDE_SHIFT;
-			m_iEffect = EF_PORTA_DOWN;
-		}
-		else if (EffNum == EF_PORTAMENTO) {
-			m_iPortaSpeed = EffParam << N163_PITCH_SLIDE_SHIFT;
-			m_iEffect = EF_PORTAMENTO;
-		}
-		else if (!CheckCommonEffects(EffNum, EffParam)) {
-			// Custom effects
-			switch (EffNum) {
-				case EF_DUTY_CYCLE:
-					// Duty effect controls wave
-					m_iWaveIndex = EffParam;
-					m_bLoadWave = true;
-					break;
-				case EF_SLIDE_UP:
-				case EF_SLIDE_DOWN:
-					PostEffect = EffNum;
-					PostEffectParam = EffParam;
-					SetupSlide(EffNum, EffParam);
-					m_iPortaSpeed <<= N163_PITCH_SLIDE_SHIFT;
-					break;
-			}
-		}
-	}
 	
-	// Volume
-	if (Volume < 0x10) {
-		m_iVolume = Volume << VOL_SHIFT;
+	CChannelHandler::HandleNoteData(pNoteData, EffColumns);
+
+	if (pNoteData->Note != NONE) {
+		if (m_iPostEffect && (m_iEffect == EF_SLIDE_UP || m_iEffect == EF_SLIDE_DOWN)) {
+			SetupSlide(m_iPostEffect, m_iPostEffectParam);
+			m_iPortaSpeed <<= N163_PITCH_SLIDE_SHIFT;
+		}
+		else if (m_iEffect == EF_SLIDE_DOWN || m_iEffect == EF_SLIDE_UP)
+			m_iEffect = EF_NONE;
+	}
+}
+
+void CChannelHandlerN163::HandleCustomEffects(int EffNum, int EffParam)
+{
+	if (EffNum == EF_PORTA_DOWN) {
+		m_iPortaSpeed = EffParam << N163_PITCH_SLIDE_SHIFT;
+		m_iEffect = EF_PORTA_UP;
+	}
+	else if (EffNum == EF_PORTA_UP) {
+		m_iPortaSpeed = EffParam << N163_PITCH_SLIDE_SHIFT;
+		m_iEffect = EF_PORTA_DOWN;
+	}
+	else if (EffNum == EF_PORTAMENTO) {
+		m_iPortaSpeed = EffParam << N163_PITCH_SLIDE_SHIFT;
+		m_iEffect = EF_PORTAMENTO;
+	}
+	else if (!CheckCommonEffects(EffNum, EffParam)) {
+		// Custom effects
+		switch (EffNum) {
+			case EF_DUTY_CYCLE:
+				// Duty effect controls wave
+				m_iWaveIndex = EffParam;
+				m_bLoadWave = true;
+				break;
+			case EF_SLIDE_UP:
+			case EF_SLIDE_DOWN:
+				m_iPostEffect = EffNum;
+				m_iPostEffectParam = EffParam;
+				SetupSlide(EffNum, EffParam);
+				m_iPortaSpeed <<= N163_PITCH_SLIDE_SHIFT;
+				break;
+		}
+	}
+}
+
+bool CChannelHandlerN163::HandleInstrument(int Instrument, bool Trigger, bool NewInstrument)
+{
+	CInstrumentN163 *pInstrument = (CInstrumentN163*)m_pDocument->GetInstrument(Instrument);
+
+	if (!pInstrument)
+		return false;
+
+	if (pInstrument->GetType() != INST_N163) {
+		pInstrument->Release();
+		return false;
 	}
 
-	// Instrument switches
-	if (LastInstrument != m_iInstrument || Note > 0 && pInstrument && Note != HALT && Note != RELEASE) {
-		// Load new instrument
-		for (int i = 0; i < SEQ_COUNT; ++i) {
+	for (int i = 0; i < SEQ_COUNT; ++i) {
+		if (pInstrument->GetSeqIndex(i) != m_iSeqIndex[i] || pInstrument->GetSeqEnable(i) != m_iSeqEnabled[i] || Trigger) {
 			m_iSeqEnabled[i] = pInstrument->GetSeqEnable(i);
 			m_iSeqIndex[i]	 = pInstrument->GetSeqIndex(i);
 			m_iSeqPointer[i] = 0;
 		}
-		m_iWaveLen = pInstrument->GetWaveSize();
-		m_iWavePos = /*pInstrument->GetAutoWavePos() ? GetIndex() * 16 :*/ pInstrument->GetWavePos();
-		m_iWaveCount = pInstrument->GetWaveCount();
-		if (!m_bLoadWave && LastInstrument != m_iInstrument)
-			m_iWaveIndex = 0;
-		m_bLoadWave = true;
 	}
 
-	// Note action
-	if (Note == HALT) {
-		// Halt
-		CutNote();
-		m_bEnabled = false;
-		m_iNote = 0;
-		m_bRelease = false;
-	}
-	else if (Note == RELEASE) {
-		// Release
-		ReleaseNote();
-		ReleaseSequences(SNDCHIP_N163);
-		m_bRelease = true;
-	}
-	else if (Note != NONE) {
-		// New note
-		m_iNote	= RunNote(Octave, Note);
-		m_bEnabled = true;
-		m_iSeqVolume = 0x0F;
-		m_bRelease = false;
-	}
-	else if (Note == NONE) {
-		return;
-	}
+	m_iWaveLen = pInstrument->GetWaveSize();
+	m_iWavePos = /*pInstrument->GetAutoWavePos() ? GetIndex() * 16 :*/ pInstrument->GetWavePos();
+	m_iWaveCount = pInstrument->GetWaveCount();
 
-	if (PostEffect && (m_iEffect == EF_SLIDE_UP || m_iEffect == EF_SLIDE_DOWN)) {
-		SetupSlide(PostEffect, PostEffectParam);
-		m_iPortaSpeed <<= N163_PITCH_SLIDE_SHIFT;
-	}
-	else if (m_iEffect == EF_SLIDE_DOWN || m_iEffect == EF_SLIDE_UP)
-		m_iEffect = EF_NONE;
+	if (!m_bLoadWave && NewInstrument)
+		m_iWaveIndex = 0;
+
+	m_bLoadWave = true;
+
+	pInstrument->Release();
+
+	return true;
+}
+
+void CChannelHandlerN163::HandleEmptyNote()
+{
+}
+
+void CChannelHandlerN163::HandleHalt()
+{
+	CutNote();
+	m_bEnabled = false;
+	m_iNote = 0;
+	m_bRelease = false;
+}
+
+void CChannelHandlerN163::HandleRelease()
+{
+	ReleaseNote();
+	ReleaseSequences(SNDCHIP_N163);
+}
+
+void CChannelHandlerN163::HandleNote(int Note, int Octave)
+{
+	// New note
+	m_iNote	= RunNote(Octave, Note);
+	m_bEnabled = true;
+	m_iSeqVolume = 0x0F;
+	m_bRelease = false;
 }
 
 void CChannelHandlerN163::ProcessChannel()
@@ -219,18 +226,18 @@ void CChannelHandlerN163::ClearRegisters()
 
 void CChannelHandlerN163::WriteReg(int Reg, int Value)
 {
-	m_pAPU->ExternalWrite(0xF800, Reg);
-	m_pAPU->ExternalWrite(0x4800, Value);
+	WriteExternalRegister(0xF800, Reg);
+	WriteExternalRegister(0x4800, Value);
 }
 
 void CChannelHandlerN163::SetAddress(char Addr, bool AutoInc)
 {
-	m_pAPU->ExternalWrite(0xF800, (AutoInc ? 0x80 : 0) | Addr);
+	WriteExternalRegister(0xF800, (AutoInc ? 0x80 : 0) | Addr);
 }
 
 void CChannelHandlerN163::WriteData(char Data)
 {
-	m_pAPU->ExternalWrite(0x4800, Data);
+	WriteExternalRegister(0x4800, Data);
 }
 
 void CChannelHandlerN163::WriteData(int Addr, char Data)
@@ -241,11 +248,19 @@ void CChannelHandlerN163::WriteData(int Addr, char Data)
 
 void CChannelHandlerN163::LoadWave()
 {
+	if (m_iInstrument == MAX_INSTRUMENTS)
+		return;
+
 	// Fill the wave RAM
 	CInstrumentN163 *pInstrument = (CInstrumentN163*)m_pDocument->GetInstrument(m_iInstrument);
 
-	if (pInstrument == NULL || pInstrument->GetType() != INST_N163)
+	if (pInstrument == NULL)
 		return;
+
+	if (pInstrument->GetType() != INST_N163) {
+		pInstrument->Release();
+		return;
+	}
 
 	// Start of wave in memory
 	int Channel = GetIndex();
@@ -259,6 +274,8 @@ void CChannelHandlerN163::LoadWave()
 	for (int i = 0; i < m_iWaveLen; i += 2) {
 		WriteData((pInstrument->GetSample(m_iWaveIndex, i + 1) << 4) | pInstrument->GetSample(m_iWaveIndex, i));
 	}
+
+	pInstrument->Release();
 }
 
 void CChannelHandlerN163::CheckWaveUpdate()

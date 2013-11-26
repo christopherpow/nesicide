@@ -38,6 +38,10 @@
 		<param name="Local" value="nsf_export.htm"/>
 		</OBJECT>
 	<LI/> <OBJECT type="text/sitemap">
+		<param name="Name" value="Text import and export"/>
+		<param name="Local" value="text_export.htm"/>
+		</OBJECT>
+	<LI/> <OBJECT type="text/sitemap">
 		<param name="Name" value="Effect List"/>
 		<param name="Local" value="effect_list.htm"/>
 		</OBJECT>
@@ -48,6 +52,10 @@
 	<LI/> <OBJECT type="text/sitemap">
 		<param name="Name" value="DPCM editor"/>
 		<param name="Local" value="dpcm_editor.htm"/>
+		</OBJECT>
+	<LI/> <OBJECT type="text/sitemap">
+		<param name="Name" value="Command line"/>
+		<param name="Local" value="command_line.htm"/>
 		</OBJECT>
 	<LI/> <OBJECT type="text/sitemap">
 		<param name="Name" value="2A03/2A07 channels"/>

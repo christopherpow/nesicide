@@ -40,7 +40,6 @@ public slots:
    void quality_valueChanged(int value);
    void volume_valueChanged(int value);
    
-public:
 	DECLARE_DYNAMIC(CPCMImport)
 
 public:

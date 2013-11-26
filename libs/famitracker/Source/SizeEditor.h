@@ -35,7 +35,6 @@ protected:
    void timerEvent(QTimerEvent *event);
    
 	DECLARE_DYNAMIC(CSizeEditor)
-public:
 	CSizeEditor(CWnd *pParent);
 	virtual ~CSizeEditor();
 private:

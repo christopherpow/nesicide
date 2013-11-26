@@ -2037,6 +2037,12 @@ enum
 //   END
 };
 
+// From wingdi.h
+#define GRADIENT_FILL_RECT_H 0x00
+#define GRADIENT_FILL_RECT_V 0x01
+#define GRADIENT_FILL_TRIANGLE 0x02
+#define GRADIENT_FILL_OP_FLAG 0xff
+
 // Releasing pointers
 #define SAFE_RELEASE(p) \
         if (p != NULL) { \
@@ -2097,6 +2103,12 @@ typedef char TCHAR;
 #if !defined(TRACE0)
 #define TRACE0(x) { QString str; str.sprintf("TRACE0: %s(%d): %s",__FILE__,__LINE__, (x)); qDebug(str.toLatin1().constData()); }
 #endif
+#if !defined(TRACE1)
+#define TRACE1(x,y) { QString str; str.sprintf("TRACE2: %s(%d): %s",__FILE__,__LINE__, (x)); qDebug(str.toLatin1().constData()); }
+#endif
+#if !defined(TRACE2)
+#define TRACE2(x,y,z) { QString str; str.sprintf("TRACE2: %s(%d): %s",__FILE__,__LINE__, (x)); qDebug(str.toLatin1().constData()); }
+#endif
 #if !defined(TRACE)
 #define TRACE(x) { QString str; str.sprintf("TRACE0: %s(%d): %s",__FILE__,__LINE__, (x)); qDebug(str.toLatin1().constData()); }
 #endif
@@ -2104,6 +2116,15 @@ typedef char TCHAR;
 #define ATLTRACE2(a,b,str,q...) qDebug(str,##q)
 #endif
 #else
+#if !defined(TRACE0)
+#define TRACE0(x)
+#endif
+#if !defined(TRACE1)
+#define TRACE1(x,y)
+#endif
+#if !defined(TRACE2)
+#define TRACE2(x,y,z)
+#endif
 #if !defined(TRACE0)
 #define TRACE0(x)
 #endif
@@ -2497,8 +2518,52 @@ struct AFX_MSGMAP_ENTRY  // MFC 4.0 format
 
 #include <afxmsg_.h>
 
-class CSyncObject
+class COleDropTarget : public CCmdTarget
 {
+   DECLARE_DYNAMIC(COleDropTarget)
+public:
+   BOOL Register( 
+      CWnd* pWnd  
+   );
+};
+  
+class COleDropSource : public CCmdTarget
+{
+   DECLARE_DYNAMIC(COleDropSource)
+};
+
+class COleDataSource : public CCmdTarget
+{
+   DECLARE_DYNAMIC(COleDataSource)
+public:
+   void CacheGlobalData( 
+      CLIPFORMAT cfFormat, 
+      HGLOBAL hGlobal, 
+      LPFORMATETC lpFormatEtc = NULL  
+   );
+   DROPEFFECT DoDragDrop( 
+      DWORD dwEffects = DROPEFFECT_COPY|DROPEFFECT_MOVE|DROPEFFECT_LINK, 
+      LPCRECT lpRectStartDrag = NULL, 
+      COleDropSource* pDropSource = NULL  
+   );
+};
+
+class COleDataObject
+{
+public:
+   BOOL IsDataAvailable( 
+      CLIPFORMAT cfFormat, 
+      LPFORMATETC lpFormatEtc = NULL  
+   );
+   HGLOBAL GetGlobalData( 
+      CLIPFORMAT cfFormat, 
+      LPFORMATETC lpFormatEtc = NULL  
+   );
+};
+
+class CSyncObject : public CObject
+{
+   DECLARE_DYNAMIC(CSyncObject)
 public:
    CSyncObject() : m_hObject(this) {}
    virtual ~CSyncObject() {}
@@ -2516,6 +2581,7 @@ public:
 
 class CCriticalSection : public CSyncObject
 {
+   DECLARE_DYNAMIC(CCriticalSection)
 public:
    CCriticalSection();
    virtual ~CCriticalSection();
@@ -2529,6 +2595,7 @@ protected:
 
 class CMutex : public CSyncObject
 {
+   DECLARE_DYNAMIC(CMutex)
 public:
    CMutex(
       BOOL bInitiallyOwn = FALSE,
@@ -2546,10 +2613,12 @@ protected:
 
 class CSemaphore : public CSyncObject
 {
+   DECLARE_DYNAMIC(CSemaphore)
 };
 
 class CEvent : public CSyncObject
 {
+   DECLARE_DYNAMIC(CEvent)
 public:
    CEvent(
       BOOL bInitiallyOwn = FALSE,
@@ -2583,6 +2652,7 @@ public:
 
    CString& Append(LPCSTR str);
    CString& Append(LPWSTR str);
+   void AppendChar(TCHAR c);
    void AppendFormat(LPCTSTR fmt, ...);
    void AppendFormatV(LPCTSTR fmt, va_list ap);
    void Format( UINT nFormatID, ... );
@@ -2686,7 +2756,8 @@ public:
       modeCreate = 0x01,
       modeRead = 0x02,
       modeWrite = 0x04,
-      shareDenyWrite = 0x08
+      shareDenyWrite = 0x08,
+      typeText = 0x10
    };
    static HANDLE hFileNull;
    enum
@@ -2728,8 +2799,17 @@ public:
 
 public:
    HANDLE m_hFile;
-private:
+protected:
    QFile _qfile;
+};
+
+class CStdioFile : public CFile
+{
+   DECLARE_DYNAMIC(CStdioFile)
+public:
+   virtual void WriteString( 
+      LPCTSTR lpsz  
+   );
 };
 
 class CPoint : public tagPOINT
@@ -3520,6 +3600,10 @@ public:
       LPARAM lParam,
       LRESULT* pResult
    ) { return FALSE; }
+   DROPEFFECT OnDragEnter(COleDataObject* pDataObject, DWORD dwKeyState, CPoint point) {}
+   DROPEFFECT OnDragOver(COleDataObject* pDataObject, DWORD dwKeyState, CPoint point) {}
+   BOOL OnDrop(COleDataObject* pDataObject, DROPEFFECT dropEffect, CPoint point) {}
+   void OnDragLeave() {}
    void OnLButtonDblClk(UINT,CPoint) {}
    void OnLButtonDown(UINT,CPoint) {}
    void OnLButtonUp(UINT,CPoint) {}
@@ -3795,7 +3879,7 @@ public:
    BOOL DoFileSave();
    BOOL DoSave(LPCTSTR lpszPathName, BOOL bReplace = TRUE);
    virtual void UpdateAllViews(void* ptr,long hint = 0) { emit updateViews(hint); }
-   virtual CString GetTitle() { return m_strTitle; }
+   virtual CString GetTitle() const { return m_strTitle; }
    void AddView( 
       CView* pView  
    );
@@ -4867,13 +4951,21 @@ public:
    ) const;
 };
 
-class CWinThread : public QThread, public CCmdTarget
+class MFCThread : public QThread
+{
+protected:
+   virtual void run();
+   virtual int Run();
+};
+
+class CWinThread : public MFCThread, public CCmdTarget
 {
    Q_OBJECT
    DECLARE_DYNCREATE(CWinThread)
 public:
    CWinThread();
    virtual ~CWinThread();
+   virtual int Run( );
    BOOL CreateThread(
       DWORD dwCreateFlags = 0,
       UINT nStackSize = 0,
@@ -4894,11 +4986,29 @@ public:
    HANDLE m_hThread;
    DWORD m_nThreadID;
    CFrameWnd* m_pMainWnd;
+   AFX_THREADPROC m_pfnThreadProc;
+   LPVOID m_pParam;
 signals:
    void postThreadMessage(unsigned int m,unsigned int w,unsigned int l);
 public slots:
    void recvThreadMessage(unsigned int m,unsigned int w,unsigned int l) { qDebug("CWinThread::recvThreadMessage"); }
 };
+
+CWinThread* AfxBeginThread( 
+   AFX_THREADPROC pfnThreadProc, 
+   LPVOID pParam, 
+   int nPriority = THREAD_PRIORITY_NORMAL, 
+   UINT nStackSize = 0, 
+   DWORD dwCreateFlags = 0, 
+   LPSECURITY_ATTRIBUTES lpSecurityAttrs = NULL  
+); 
+CWinThread* AfxBeginThread( 
+   CRuntimeClass* pThreadClass, 
+   int nPriority = THREAD_PRIORITY_NORMAL, 
+   UINT nStackSize = 0, 
+   DWORD dwCreateFlags = 0, 
+   LPSECURITY_ATTRIBUTES lpSecurityAttrs = NULL  
+);
 
 class CDocTemplate : public CCmdTarget
 {

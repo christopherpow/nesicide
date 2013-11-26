@@ -27,23 +27,24 @@
  *
  */
 
-CInstrument::CInstrument() : m_iType(0)
+CInstrument::CInstrument() : m_iType(0), m_iRefCounter(1)
 {
 	memset(m_cName, 0, 128);
 }
 
 CInstrument::~CInstrument()
 {
+	ASSERT(m_iRefCounter == 0);
 }
 
 void CInstrument::SetName(const char *Name)
 {
-	strcpy(m_cName, Name);
+	strcpy_s(m_cName, 128, Name);
 }
 
 void CInstrument::GetName(char *Name) const
 {
-	strcpy(Name, m_cName);
+	strcpy_s(Name, 128, m_cName);
 }
 
 const char *CInstrument::GetName() const
@@ -60,4 +61,23 @@ void CInstrument::InstrumentChanged() const
 		if (pDoc != NULL)
 			pDoc->SetModifiedFlag();
 	}
+}
+
+// Reference counting
+
+void CInstrument::Retain()
+{
+	ASSERT(m_iRefCounter > 0);
+
+	InterlockedIncrement((volatile LONG*)&m_iRefCounter);
+}
+
+void CInstrument::Release()
+{
+	ASSERT(m_iRefCounter > 0);
+
+	InterlockedDecrement((volatile LONG*)&m_iRefCounter);
+
+	if (!m_iRefCounter)
+		delete this;
 }

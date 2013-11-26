@@ -31,6 +31,21 @@
 
 const TCHAR *CInstrumentEditorDPCM::KEY_NAMES[] = {_T("C"), _T("C#"), _T("D"), _T("D#"), _T("E"), _T("F"), _T("F#"), _T("G"), _T("G#"), _T("A"), _T("A#"), _T("B")};
 
+// Derive a new class from CFileDialog with implemented preview of DMC files
+
+class CDMCFileSoundDialog : public CFileDialog
+{
+public:
+	CDMCFileSoundDialog(BOOL bOpenFileDialog, LPCTSTR lpszDefExt = NULL, LPCTSTR lpszFileName = NULL, DWORD dwFlags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, LPCTSTR lpszFilter = NULL, CWnd* pParentWnd = NULL, DWORD dwSize = 0);
+	virtual ~CDMCFileSoundDialog();
+
+	static const int DEFAULT_PREVIEW_PITCH = 15;
+
+protected:
+	virtual void OnFileNameChange();
+	CString m_strLastFile;
+};
+
 //	CFileSoundDialog
 
 CDMCFileSoundDialog::CDMCFileSoundDialog(BOOL bOpenFileDialog, LPCTSTR lpszDefExt, LPCTSTR lpszFileName, DWORD dwFlags, LPCTSTR lpszFilter, CWnd* pParentWnd, DWORD dwSize) 
@@ -73,12 +88,14 @@ void CDMCFileSoundDialog::OnFileNameChange()
 // CInstrumentDPCM dialog
 
 IMPLEMENT_DYNAMIC(CInstrumentEditorDPCM, CInstrumentEditPanel)
-CInstrumentEditorDPCM::CInstrumentEditorDPCM(CWnd* pParent) : CInstrumentEditPanel(CInstrumentEditorDPCM::IDD, pParent)
+CInstrumentEditorDPCM::CInstrumentEditorDPCM(CWnd* pParent) : CInstrumentEditPanel(CInstrumentEditorDPCM::IDD, pParent), m_pInstrument(NULL)
 {
 }
 
 CInstrumentEditorDPCM::~CInstrumentEditorDPCM()
 {
+	if (m_pInstrument)
+		m_pInstrument->Release();
 }
 
 void CInstrumentEditorDPCM::DoDataExchange(CDataExchange* pDX)
@@ -279,14 +296,13 @@ BOOL CInstrumentEditorDPCM::OnInitDialog()
 {
 	CInstrumentEditPanel::OnInitDialog();
 
-	CComboBox *pPitch, *pOctave;
 	CString Text;
 
 	m_iOctave = 3;
-	m_iSelectedKey = -1;
+	m_iSelectedKey = 0;
 
-	pPitch	= reinterpret_cast<CComboBox*>(GetDlgItem(IDC_PITCH));
-	pOctave = reinterpret_cast<CComboBox*>(GetDlgItem(IDC_OCTAVE));
+	CComboBox *pPitch  = reinterpret_cast<CComboBox*>(GetDlgItem(IDC_PITCH));
+	CComboBox *pOctave = reinterpret_cast<CComboBox*>(GetDlgItem(IDC_OCTAVE));
 
 	m_pTableListCtrl = reinterpret_cast<CListCtrl*>(GetDlgItem(IDC_TABLE));
 	m_pTableListCtrl->DeleteAllItems();
@@ -301,8 +317,6 @@ BOOL CInstrumentEditorDPCM::OnInitDialog()
 	m_pSampleListCtrl->InsertColumn(1, _T("Name"), LVCFMT_LEFT, 88);
 	m_pSampleListCtrl->InsertColumn(2, _T("Size"), LVCFMT_LEFT, 39);
 	m_pSampleListCtrl->SendMessage(LVM_SETEXTENDEDLISTVIEWSTYLE, 0, LVS_EX_FULLROWSELECT);
-
-//	m_pSampleListCtrl->OnFile
 
 	for (int i = 0; i < 16; ++i) {
 		Text.Format(_T("%i"), i);
@@ -325,6 +339,12 @@ BOOL CInstrumentEditorDPCM::OnInitDialog()
 
 	BuildSampleList();
 	m_iSelectedSample = 0;
+
+	CSpinButtonCtrl *pSpin = (CSpinButtonCtrl*)GetDlgItem(IDC_DELTA_SPIN);
+	pSpin->SetRange(-1, 127);
+	pSpin->SetPos(-1);
+
+	SetDlgItemText(IDC_DELTA_COUNTER, _T("Off"));
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
@@ -404,7 +424,7 @@ void CInstrumentEditorDPCM::BuildSampleList()
 // TODO: I think I was wrong
 #define ADJUST_FOR_STORAGE(x) (x)
 
-bool CInstrumentEditorDPCM::LoadSample(CString FilePath, CString FileName)
+bool CInstrumentEditorDPCM::LoadSample(CString &FilePath, CString &FileName)
 {
 	CFile SampleFile;
 
@@ -416,7 +436,7 @@ bool CInstrumentEditorDPCM::LoadSample(CString FilePath, CString FileName)
 	CDSample *pNewSample = new CDSample();
 
 	if (pNewSample != NULL) {
-      strcpy(pNewSample->Name, (char*)FileName.GetString());
+		strcpy(pNewSample->Name, FileName);
 		int Size = (int)SampleFile.GetLength();
 		int AddSize = 0;
 		// Clip file if too large
@@ -474,7 +494,7 @@ void CInstrumentEditorDPCM::OnBnClickedLoad()
 {
 	CDMCFileSoundDialog OpenFileDialog(TRUE, 0, 0, OFN_HIDEREADONLY | OFN_FILEMUSTEXIST | OFN_ALLOWMULTISELECT | OFN_EXPLORER, _T("Delta modulated samples (*.dmc)|*.dmc|All files|*.*||"));
 
-//	OpenFileDialog.m_pOFN->lpstrInitialDir = theApp.GetSettings()->GetPath(PATH_DMC);
+	OpenFileDialog.m_pOFN->lpstrInitialDir = theApp.GetSettings()->GetPath(PATH_DMC);
 
 	if (OpenFileDialog.DoModal() == IDCANCEL)
 		return;
@@ -492,7 +512,7 @@ void CInstrumentEditorDPCM::OnBnClickedLoad()
 	}
 	else {
 		// Single file
-      LoadSample(OpenFileDialog.GetPathName(), OpenFileDialog.GetFileName());
+		LoadSample(OpenFileDialog.GetPathName(), OpenFileDialog.GetFileName());
 	}
 }
 
@@ -573,7 +593,9 @@ void CInstrumentEditorDPCM::OnCbnSelchangePitch()
 
 void CInstrumentEditorDPCM::OnNMClickTable(NMHDR *pNMHDR, LRESULT *pResult)
 {
+	CSpinButtonCtrl *pSpinButton;
 	CComboBox *pSampleBox, *pPitchBox;
+	CEdit *pDeltaValue;
 	CString Text;
 
 	m_pTableListCtrl	= reinterpret_cast<CListCtrl*>(GetDlgItem(IDC_TABLE));
@@ -581,10 +603,13 @@ void CInstrumentEditorDPCM::OnNMClickTable(NMHDR *pNMHDR, LRESULT *pResult)
 
 	int Sample			= m_pInstrument->GetSample(m_iOctave, m_iSelectedKey) - 1;
 	int Pitch			= m_pInstrument->GetSamplePitch(m_iOctave, m_iSelectedKey);
+	int Delta			= m_pInstrument->GetSampleDeltaValue(m_iOctave, m_iSelectedKey);
 
 	m_pTableListCtrl	= static_cast<CListCtrl*>(GetDlgItem(IDC_TABLE));
 	pSampleBox			= static_cast<CComboBox*>(GetDlgItem(IDC_SAMPLES));
 	pPitchBox			= static_cast<CComboBox*>(GetDlgItem(IDC_PITCH));
+	pDeltaValue			= static_cast<CEdit*>(GetDlgItem(IDC_DELTA_COUNTER));
+	pSpinButton			= static_cast<CSpinButtonCtrl*>(GetDlgItem(IDC_DELTA_SPIN));
 
 	Text.Format(_T("%02i - %s"), Sample, (LPCTSTR)m_pTableListCtrl->GetItemText(m_pTableListCtrl->GetSelectionMark(), 2));
 
@@ -593,13 +618,21 @@ void CInstrumentEditorDPCM::OnNMClickTable(NMHDR *pNMHDR, LRESULT *pResult)
 	else
 		pSampleBox->SetCurSel(0);
 	
-	if (Sample > 0)
+	if (Sample >= 0) {
 		pPitchBox->SetCurSel(Pitch & 0x0F);
 
-	if (Pitch & 0x80)
-		CheckDlgButton(IDC_LOOP, 1);
-	else
-		CheckDlgButton(IDC_LOOP, 0);
+		if (Pitch & 0x80)
+			CheckDlgButton(IDC_LOOP, 1);
+		else
+			CheckDlgButton(IDC_LOOP, 0);
+
+		if (Delta == -1)
+			pDeltaValue->SetWindowText(_T("Off"));
+		else
+			SetDlgItemInt(IDC_DELTA_COUNTER, Delta, FALSE);
+
+		pSpinButton->SetPos(Delta);
+	}
 
 	*pResult = 0;
 }
@@ -622,7 +655,7 @@ void CInstrumentEditorDPCM::OnCbnSelchangeSamples()
 			Name[1] = 0;
 		}
 
-		Sample = atoi(Name);
+		Sample = _tstoi(Name);
 		Sample++;
 
 		if (PrevSample == 0) {
@@ -711,9 +744,12 @@ void CInstrumentEditorDPCM::OnBnClickedLoop()
 }
 
 void CInstrumentEditorDPCM::SelectInstrument(int Instrument)
-{
-	CInstrument2A03 *pInst = (CInstrument2A03*)GetDocument()->GetInstrument(Instrument);
-	m_pInstrument = pInst;
+{	
+	if (m_pInstrument)
+		m_pInstrument->Release();
+
+	m_pInstrument = (CInstrument2A03*)GetDocument()->GetInstrument(Instrument);
+
 	BuildKeyList();
 }
 
@@ -724,13 +760,19 @@ BOOL CInstrumentEditorDPCM::PreTranslateMessage(MSG* pMsg)
 			case WM_KEYDOWN:
 				if (pMsg->wParam == 27)	// Esc
 					break;
-				// Select DPCM channel
-				CFamiTrackerView::GetView()->SelectChannel(4);
-				CFamiTrackerView::GetView()->PreviewNote((unsigned char)pMsg->wParam);
-				return TRUE;
+				if (GetFocus() != GetDlgItem(IDC_DELTA_COUNTER)) {
+					// Select DPCM channel
+					CFamiTrackerView::GetView()->SelectChannel(4);
+					CFamiTrackerView::GetView()->PreviewNote((unsigned char)pMsg->wParam);
+					return TRUE;
+				}
+				break;
 			case WM_KEYUP:
-				CFamiTrackerView::GetView()->PreviewRelease((unsigned char)pMsg->wParam);
-				return TRUE;
+				if (GetFocus() != GetDlgItem(IDC_DELTA_COUNTER)) {
+					CFamiTrackerView::GetView()->PreviewRelease((unsigned char)pMsg->wParam);
+					return TRUE;
+				}
+				break;
 		}
 	}
 
@@ -870,7 +912,7 @@ void CInstrumentEditorDPCM::OnNMRClickTable(NMHDR *pNMHDR, LRESULT *pResult)
 	for (int i = 0; i < MAX_DSAMPLES; i++) {
 		pDSample = GetDocument()->GetDSample(i);
 		if (pDSample->SampleSize > 0) {
-			PopupMenu.AppendMenu(MF_STRING, i + 2, A2T(pDSample->Name));
+			PopupMenu.AppendMenu(MF_STRING, i + 2, pDSample->Name);
 		}
 	}
 
@@ -913,6 +955,59 @@ void CInstrumentEditorDPCM::OnNMDblclkTable(NMHDR *pNMHDR, LRESULT *pResult)
 		return;
 
 	theApp.GetSoundGenerator()->PreviewSample(pSample, 0, Pitch);
+
+	*pResult = 0;
+}
+
+void CInstrumentEditorDPCM::OnEnChangeDeltaCounter()
+{
+	BOOL Trans;
+
+	if (!m_pInstrument)
+		return;
+
+	CSpinButtonCtrl *pSpin = (CSpinButtonCtrl*)GetDlgItem(IDC_DELTA_SPIN);
+
+	int Value = GetDlgItemInt(IDC_DELTA_COUNTER, &Trans, FALSE);
+
+	if (Trans == TRUE) {
+		if (Value < 0)
+			Value = 0;
+		if (Value > 127)
+			Value = 127;
+	}
+	else {
+		Value = -1;
+	}
+
+	if (m_pInstrument->GetSampleDeltaValue(m_iOctave, m_iSelectedKey) != Value)
+		m_pInstrument->SetSampleDeltaValue(m_iOctave, m_iSelectedKey, Value);
+}
+
+void CInstrumentEditorDPCM::OnDeltaposDeltaSpin(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMUPDOWN pNMUpDown = reinterpret_cast<LPNMUPDOWN>(pNMHDR);
+	CEdit *pDeltaValue = (CEdit*)GetDlgItem(IDC_DELTA_COUNTER);
+
+	int Value;
+
+	if (!m_pInstrument)
+		return;
+
+	if (pNMUpDown->iPos <= 0 && pNMUpDown->iDelta < 0) {
+		pDeltaValue->SetWindowText(_T("Off"));
+		Value = -1;
+	}
+	else {
+		Value = pNMUpDown->iPos + pNMUpDown->iDelta;
+		if (Value < 0)
+			Value = 0;
+		if (Value > 127)
+			Value = 127;
+		SetDlgItemInt(IDC_DELTA_COUNTER, Value, FALSE);
+	}
+
+	m_pInstrument->SetSampleDeltaValue(m_iOctave, m_iSelectedKey, Value);
 
 	*pResult = 0;
 }

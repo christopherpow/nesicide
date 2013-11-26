@@ -41,6 +41,9 @@ CInstrumentEditorFDSEnvelope::CInstrumentEditorFDSEnvelope(CWnd* pParent) : CSeq
 CInstrumentEditorFDSEnvelope::~CInstrumentEditorFDSEnvelope()
 {
 	SAFE_RELEASE(m_pSequenceEditor);
+
+	if (m_pInstrument)
+		m_pInstrument->Release();
 }
 
 void CInstrumentEditorFDSEnvelope::DoDataExchange(CDataExchange* pDX)
@@ -50,8 +53,11 @@ void CInstrumentEditorFDSEnvelope::DoDataExchange(CDataExchange* pDX)
 
 void CInstrumentEditorFDSEnvelope::SelectInstrument(int Instrument)
 {
-	CInstrumentFDS *pInst = (CInstrumentFDS*)GetDocument()->GetInstrument(Instrument);
-	m_pInstrument = pInst;
+	if (m_pInstrument)
+		m_pInstrument->Release();
+
+	m_pInstrument = (CInstrumentFDS*)GetDocument()->GetInstrument(Instrument);
+
 	LoadSequence();
 }
 

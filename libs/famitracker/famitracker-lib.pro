@@ -245,7 +245,6 @@ HEADERS += \
     Source/FamiTracker.h \
     Source/stdafx.h \
     Source/DirectSound.h \
-    Source/resource.h \
     Source/SWSpectrum.h \
     Source/SWSampleScope.h \
     Source/SampleWindow.h \
@@ -295,7 +294,9 @@ HEADERS += \
     Source/DialogReBar.h \
     Source/ConfigGeneral.h \
     Source/ConfigAppearance.h \
-    Source/CreateWaveDlg.h
+    Source/CreateWaveDlg.h \
+    resource.h \
+    version.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN

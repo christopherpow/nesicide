@@ -66,16 +66,18 @@
 // Remove duplicated patterns (default on)
 #define REMOVE_DUPLICATE_PATTERNS
 
-// Don't remove patterns across different tracks
+// Don't remove patterns across different tracks (default off)
 //#define LOCAL_DUPLICATE_PATTERN_REMOVAL
 
-// Enable bankswitching on all songs
+// Enable bankswitching on all songs (default off)
 //#define FORCE_BANKSWITCH
 
 const int CCompiler::PAGE_SIZE					= 0x1000;
 const int CCompiler::PAGE_START					= 0x8000;
 const int CCompiler::PAGE_BANKED				= 0xB000;
 const int CCompiler::PAGE_SAMPLES				= 0xC000;
+
+const int CCompiler::PATTERN_SWITCH_BANK		= 3;	// 0xB000 -> 0xBFFF
 
 // Define channel maps, DPCM (4) is always located last
 const int CCompiler::CHAN_ORDER_DEFAULT[]		= {0, 1, 2, 3, 4};
@@ -92,6 +94,7 @@ const char CCompiler::LABEL_INSTRUMENT_LIST[]	= "ft_instrument_list";
 const char CCompiler::LABEL_SAMPLES_LIST[]		= "ft_sample_list";
 const char CCompiler::LABEL_SAMPLES[]			= "ft_samples";
 const char CCompiler::LABEL_WAVETABLE[]			= "ft_wave_table";
+const char CCompiler::LABEL_SAMPLE[]			= "ft_sample_%i";			// one argument
 const char CCompiler::LABEL_WAVES[]				= "ft_waves_%i";			// one argument
 const char CCompiler::LABEL_SEQ_2A03[]			= "ft_seq_2a03_%i";			// one argument
 const char CCompiler::LABEL_SEQ_VRC6[]			= "ft_seq_vrc6_%i";			// one argument
@@ -99,38 +102,52 @@ const char CCompiler::LABEL_SEQ_FDS[]			= "ft_seq_fds_%i";			// one argument
 const char CCompiler::LABEL_SEQ_N163[]			= "ft_seq_n163_%i";			// one argument
 const char CCompiler::LABEL_INSTRUMENT[]		= "ft_inst_%i";				// one argument
 const char CCompiler::LABEL_SONG[]				= "ft_song_%i";				// one argument
-const char CCompiler::LABEL_SONG_FRAMES[]		= "ft_song_%i_frames";		// one argument
-const char CCompiler::LABEL_SONG_FRAME[]		= "ft_song_%i_frame_%i";	// two arguments
+const char CCompiler::LABEL_SONG_FRAMES[]		= "ft_s%i_frames";			// one argument
+const char CCompiler::LABEL_SONG_FRAME[]		= "ft_s%i_f%i";				// two arguments
 const char CCompiler::LABEL_PATTERN[]			= "ft_s%i_p%i_c%i";			// three arguments
+
+CCompiler *CCompiler::pCompiler = NULL;
+
+CCompiler *CCompiler::GetCompiler()
+{
+	return pCompiler;
+}
 
 // CCompiler
 
-CCompiler::CCompiler(CFamiTrackerDoc *pDoc, CEdit *pLogText) : m_pDocument(pDoc), m_iBanksUsed(0)
+CCompiler::CCompiler(CFamiTrackerDoc *pDoc, CCompilerLog *pLogger) : 
+	m_pDocument(pDoc), 
+	m_iBanksUsed(0),
+	m_pLogger(pLogger),
+	m_iWaveTables(0),
+	m_pSamplePointersChunk(NULL),
+	m_pCurrentBank(NULL)
 {
-	// Clear progress
-	m_pLogText = pLogText;
-
-	m_iWaveTables = 0;
-
-	m_pSamplePointersChunk = NULL;
-
 	memset(m_pFileBanks, 0, sizeof(CFileBank*) * 256);
-	m_pCurrentBank = NULL;
+
+	CCompiler::pCompiler = this;
 }
 
 CCompiler::~CCompiler()
 {
+	CCompiler::pCompiler = NULL;
+
+	SAFE_RELEASE(m_pLogger);
 }
 
 void CCompiler::Print(char *text, ...) const
 {
-	static char buf[256];
+	if (m_pLogger == NULL)
+		return;
+
+ 	static char buf[256];
 	static DWORD CharsWritten;
-	CString WndTxt;
-    va_list argp;
+	va_list argp;
     va_start(argp, text);
+
     if (!text)
 		return;
+
     vsprintf_s(buf, 256, text, argp);
 
 	int len = (int)strlen(buf);
@@ -141,18 +158,13 @@ void CCompiler::Print(char *text, ...) const
 		buf[len + 1] = 0;
 	}
 
-	if (m_pLogText) {
-		int Len = m_pLogText->GetWindowTextLength();
-		m_pLogText->SetSel(Len, Len, 0);
-		m_pLogText->ReplaceSel(buf, 0);
-		m_pLogText->RedrawWindow();
-	}
+	m_pLogger->WriteLog(buf);
 }
 
 void CCompiler::ClearLog() const
 {
-	if (m_pLogText)
-		m_pLogText->SetWindowText(_T(""));
+	if (m_pLogger != NULL)
+		m_pLogger->Clear();
 }
 
 void CCompiler::ExportNSF(CString FileName, int MachineType)
@@ -187,7 +199,10 @@ void CCompiler::ExportNSF(CString FileName, int MachineType)
 	if (m_bBankSwitched) {
 		// Expand and allocate label addresses
 		AddBankswitching();
-		AllocateDataBankswitched();
+		if (!AllocateDataBankswitched()) {
+			OutputFile.Close();
+			return;
+		}
 		// Write bank data
 		EnableBankswitching();
 		UpdateFrameBanks();
@@ -356,8 +371,8 @@ void CCompiler::ExportNES(CString FileName, bool EnablePAL)
 	ClearLog();
 
 	if (m_pDocument->GetExpansionChip() != SNDCHIP_NONE) {
-		Print("Expansion chips not supported.\n");
-		AfxMessageBox(_T("Error: Expansion chips is currently not supported when exporting to .NES!"), 0, 0);
+		Print("Error: Expansion chips not supported.\n");
+		AfxMessageBox(_T("Expansion chips are currently not supported when exporting to .NES!"), 0, 0);
 		return;
 	}
 
@@ -377,8 +392,8 @@ void CCompiler::ExportNES(CString FileName, bool EnablePAL)
 
 	if (m_bBankSwitched) {
 		// Abort if larger than 32kb
-		Print("Song is too big, aborted.\n");
-		AfxMessageBox(_T("Error: Song is too big to fit!"), 0, 0);
+		Print("Error: Song is too large, aborted.\n");
+		AfxMessageBox(_T("Song is too big to fit into 32kB!"), 0, 0);
 		return;
 	}
 
@@ -614,8 +629,9 @@ void CCompiler::ExportASM(CString FileName)
 		return;
 
 	if (m_bBankSwitched) {
-		AllocateDataBankswitched();
+		// TODO bankswitched asm is still unfinished
 		AddBankswitching();
+		AllocateDataBankswitched();
 	}
 	else {
 		AllocateData();
@@ -653,6 +669,195 @@ void CCompiler::ExportASM(CString FileName)
 	Cleanup();
 
 	Print("Done\n");
+}
+
+void CCompiler::ExportTest(char *pResult, stNSFHeader *pHeader, int MachineType)
+{
+//	CFileException ex;
+//	CFile OutputFile;
+//	stNSFHeader Header;
+	unsigned short MusicDataAddress;
+
+	// Compressed mode means that driver and music is located just below the sample space, no space is lost even when samples are used
+	bool bCompressedMode;
+
+	ClearLog();
+/*
+	if (!OutputFile.Open(FileName, CFile::modeWrite | CFile::modeCreate, &ex)) {
+		TCHAR szCause[255];
+		CString strFormatted;
+		ex.GetErrorMessage(szCause, 255);
+		strFormatted = _T("Could not open output file.\n\n");
+		strFormatted += szCause;
+		AfxMessageBox(strFormatted, MB_OK | MB_ICONERROR);
+		return;
+	}
+*/
+	// Build the music data
+	if (!CompileData()) {
+		// Failed
+//		OutputFile.Close();
+		return;
+	}
+
+	if (m_bBankSwitched) {
+		// Expand and allocate label addresses
+		AddBankswitching();
+		AllocateDataBankswitched();
+		// Write bank data
+		EnableBankswitching();
+		UpdateFrameBanks();
+		UpdateSongBanks();
+	}
+	else {
+		AllocateData();
+	}
+
+	// Rewrite DPCM sample pointers
+	UpdateSamplePointers(m_iSampleStart);
+
+	// Find out load address
+	if ((PAGE_SAMPLES - m_iDriverSize - m_iMusicDataSize) < 0x8000 || m_bBankSwitched)
+		bCompressedMode = false;
+	else
+		bCompressedMode = true;
+	
+	if (bCompressedMode) {
+		// Locate driver at $C000 - (driver size)
+		//m_iDriverAddress = PAGE_SAMPLES - (((m_iDriverSize / PAGE_SIZE) + 1) * PAGE_SIZE);
+		m_iLoadAddress = PAGE_SAMPLES - m_iDriverSize - /*m_iDriverAddress -*/ m_iMusicDataSize;
+		m_iDriverAddress = PAGE_SAMPLES - m_iDriverSize;
+		MusicDataAddress = m_iLoadAddress;
+	}
+	else {
+		// Locate driver at $8000
+		m_iLoadAddress = PAGE_START;
+		m_iDriverAddress = PAGE_START;
+		MusicDataAddress = m_iLoadAddress + m_iDriverSize;
+	}
+
+	// Init is located first at the driver
+	m_iInitAddress = m_iDriverAddress;
+
+	// Load driver
+	unsigned char *pDriver = LoadDriver(m_pDriverData, m_iDriverAddress);
+
+	// Patch driver binary
+	PatchVibratoTable(pDriver);
+	PatchSpeedSplitPoint(pDriver);
+
+	// Copy the Namco table, if used
+	if (m_pDocument->GetExpansionChip() & SNDCHIP_N163) {
+
+		CSoundGen *pSoundGen = theApp.GetSoundGenerator();
+
+		for (int i = 0; i < 96; ++i) {
+			*(pDriver + m_iDriverSize - 258 - 192 + i * 2 + 0) = (unsigned char)(pSoundGen->ReadNamcoPeriodTable(i) & 0xFF);
+			*(pDriver + m_iDriverSize - 258 - 192 + i * 2 + 1) = (unsigned char)(pSoundGen->ReadNamcoPeriodTable(i) >> 8);
+		}
+
+		// Patch the channel list
+		// TODO move this to the actual music data
+		int NamcoChannels = m_pDocument->GetNamcoChannels();
+		if (NamcoChannels != 8) {
+			/*
+			TRACE0("before\n");
+			for (int i = 0; i < 13; ++i)
+				TRACE1("%02X ", *(pDriver + m_iDriverSize - 258 - 96 * 6 - 13 + i));
+			TRACE0("\n");
+			for (int i = 0; i < 13; ++i)
+				TRACE1("%02X ", *(pDriver + m_iDriverSize - 258 - 96 * 6 - 13 * 2 + i));
+			TRACE0("\n");
+			*/
+			
+			// Channel type
+			*(pDriver + m_iDriverSize - 258 - 96 * 6 - (9 - NamcoChannels)) = 0;		// 2A03
+			// Channel id
+			*(pDriver + m_iDriverSize - 258 - 96 * 6 - 13 - (9 - NamcoChannels)) = 5;	// DPCM
+			
+			/*
+			TRACE0("after\n");
+			for (int i = 0; i < 13; ++i)
+				TRACE1("%02X ", *(pDriver + m_iDriverSize - 258 - 96 * 6 - 13 + i));
+			TRACE0("\n");
+			for (int i = 0; i < 13; ++i)
+				TRACE1("%02X ", *(pDriver + m_iDriverSize - 258 - 96 * 6 - 13 * 2 + i));
+			TRACE0("\n");
+			*/
+		}
+		
+	}
+
+	// Write music data address
+	SetDriverSongAddress(pDriver, MusicDataAddress);
+
+	// Create first empty bank
+	m_iBanksUsed = 0;
+	AllocateBank(m_iLoadAddress & 0xF000);
+	m_pCurrentBank->m_iOffset = m_iLoadAddress & 0xFFF;
+	m_pCurrentBank->m_iSize = m_pFileBanks[m_iBanksUsed - 1]->m_iOffset;
+
+	// Setup banks
+	if (m_bBankSwitched) {
+		// Copy data to banks
+		CopyData((char*)pDriver, m_iDriverSize);
+		WriteBinaryBankswitched();
+		WriteSamplesToBanks(m_iSampleStart);
+	}
+	else {
+		if (bCompressedMode) {
+			// Copy data to banks
+			WriteBinaryBanks();
+			CopyData((char*)pDriver, m_iDriverSize);
+			WriteSamplesToBanks(m_iSampleStart);
+		}
+		else {
+			// Copy data to banks
+			CopyData((char*)pDriver, m_iDriverSize);
+			WriteBinaryBanks();
+			WriteSamplesToBanks(m_iSampleStart);
+		}
+	}
+
+	int ptr = 0;
+
+	// Create NSF header
+	CreateHeader(pHeader, MachineType);
+
+	// Write header
+//	OutputFile.Write(&Header, sizeof(stNSFHeader));
+
+	// Write data to file
+	for (unsigned int i = 0; i < m_iBanksUsed; ++i) {
+//		OutputFile.Write(m_pFileBanks[i]->m_data + m_pFileBanks[i]->m_iOffset, m_pFileBanks[i]->m_iSize - m_pFileBanks[i]->m_iOffset);
+		int size = m_pFileBanks[i]->m_iSize - m_pFileBanks[i]->m_iOffset;
+		memcpy(pResult + ptr, m_pFileBanks[i]->m_data + m_pFileBanks[i]->m_iOffset, size);
+		ptr += size;
+	}
+
+	// Writing done, print some stats
+	Print(" * NSF load address: $%04X\n", m_iLoadAddress);
+	Print("Writing output file...\n");
+	Print(" * Driver size: %i bytes\n", m_iDriverSize);
+
+	if (m_bBankSwitched) {
+		Print(" * Song data size: %i bytes (%i%%)\n", m_iMusicDataSize, (100 * m_iMusicDataSize) / (0x80000 - m_iDriverSize - m_iSamplesSize));
+		Print(" * NSF type: Bankswitched (%i banks)\n", m_iBanksUsed - 1);
+	}
+	else {
+		Print(" * Song data size: %i bytes (%i%%)\n", m_iMusicDataSize, (100 * m_iMusicDataSize) / (0x8000 - m_iDriverSize - m_iSamplesSize));
+		Print(" * NSF type: Linear (driver @ $%04X)\n", m_iDriverAddress);
+	}
+
+	// Remove allocated data
+	SAFE_RELEASE_ARRAY(pDriver);
+
+//	Print("Done, total file size: %i bytes\n", OutputFile.GetLength());
+
+	// Done
+//	OutputFile.Close();
+
+	Cleanup();
 }
 
 unsigned char *CCompiler::LoadDriver(const driver_t *pDriver, unsigned short Origin) const
@@ -851,9 +1056,9 @@ void CCompiler::UpdateFrameBanks()
 			// Add bank data
 			for (int j = 0; j < Channels; ++j) {
 				unsigned char bank = GetObjectByRef(m_vFrameChunks[i]->GetDataRefName(j))->GetBank();
-				if (bank < 3)
-					bank = 3;
-				m_vFrameChunks[i]->ChangeByte(j + Channels, bank);
+				if (bank < PATTERN_SWITCH_BANK)
+					bank = PATTERN_SWITCH_BANK;
+				m_vFrameChunks[i]->SetupBankData(j + Channels, bank);
 			}
 		}
 	}
@@ -864,16 +1069,20 @@ void CCompiler::UpdateSongBanks()
 	// Write bank numbers to song lists (can only be used when bankswitching is used)
 
 	for (unsigned int i = 0; i < m_vSongChunks.size(); ++i) {
-		m_vSongChunks[i]->ChangeByte(5, GetObjectByRef(m_vSongChunks[i]->GetDataRefName(0))->GetBank());
+		int bank = GetObjectByRef(m_vSongChunks[i]->GetDataRefName(0))->GetBank();
+		if (bank < PATTERN_SWITCH_BANK)
+			bank = PATTERN_SWITCH_BANK;
+		m_vSongChunks[i]->SetupBankData(5, bank);
+		//m_vSongChunks[i]->ChangeByte(5, bank);	// TODO hardcoded number
 	}
 }
 
 void CCompiler::EnableBankswitching()
 {
 	// Set bankswitching flag in the song header
-	unsigned char flags = (unsigned char)m_pHeaderChunk->GetData(4);
+	unsigned char flags = (unsigned char)m_pHeaderChunk->GetData(4);	// TODO hardcoded number
 	flags |= 1;
-	m_pHeaderChunk->ChangeByte(4, flags);
+	m_pHeaderChunk->ChangeByte(4, flags);	// TODO hardcoded number
 }
 
 void CCompiler::AllocateData()
@@ -887,7 +1096,7 @@ void CCompiler::AllocateData()
 	// Pass 1, collect labels
 
 	for (unsigned int i = 0; i < m_vChunks.size(); ++i) {
-      labelMap[m_vChunks[i]->GetLabel()] = Offset;
+		labelMap[m_vChunks[i]->GetLabel()] = Offset;
 		Offset += m_vChunks[i]->CountData();
 	}
 
@@ -900,11 +1109,12 @@ void CCompiler::AllocateData()
 	// TODO move this below
 	// Clear bank data in song chunks
 	for (unsigned int i = 0; i < m_vSongChunks.size(); ++i) {
-		m_vSongChunks[i]->ChangeByte(5, 0);
+		//m_vSongChunks[i]->ChangeByte(5, 0);
+		m_vSongChunks[i]->SetupBankData(5, 0);
 	}
 }
 
-void CCompiler::AllocateDataBankswitched()
+bool CCompiler::AllocateDataBankswitched()
 {
 	// Resolve label addresses, with bankswitching enabled
 	//
@@ -929,15 +1139,23 @@ void CCompiler::AllocateDataBankswitched()
 		}
 	}
 
+	if (Offset + m_iDriverSize > 0x3000) {
+		// Instrument data did not fit within the limit, display an error and abort?
+		// 
+		Print("Error: Instrument data overflow, can't export file!\n");
+		return false;
+	}
+
 	int iTrack = 0;
 
 	// The switchable area is $B000-$C000
 	for (unsigned int i = 0; i < m_vChunks.size(); ++i) {
 		int Size = m_vChunks[i]->CountData();
+
 		switch (m_vChunks[i]->GetType()) {
 			case CHUNK_FRAME_LIST:
 				// Make sure the entire frame list will fit, if not then allocate a new bank
-				if (Offset + m_iDriverSize + m_iTrackFrameSize[iTrack++] + 100 > 0x4000) {
+				if (Offset + m_iDriverSize + m_iTrackFrameSize[iTrack++] > 0x4000) {
 					Offset = 0x3000 - m_iDriverSize;
 					++Bank;
 				}
@@ -968,6 +1186,8 @@ void CCompiler::AllocateDataBankswitched()
 	for (unsigned int i = 0; i < m_vChunks.size(); ++i) {
 		m_vChunks[i]->AssignLabels(labelMap);
 	}
+
+	return true;
 }
 
 bool CCompiler::CompileData()
@@ -1076,7 +1296,7 @@ bool CCompiler::CompileData()
 
 #ifdef FORCE_BANKSWITCH
 	m_bBankSwitched = true;
-#endif
+#endif /* FORCE_BANKSWITCH */
 
 	return true;
 }
@@ -1106,7 +1326,8 @@ void CCompiler::AddBankswitching()
 			int Length = m_vChunks[i]->GetLength();
 			// Bank data is located at end
 			for (int j = 0; j < Length; ++j) {
-				m_vChunks[i]->StoreByte(0);
+				//m_vChunks[i]->StoreByte(0);
+				m_vChunks[i]->StoreBankReference(m_vChunks[i]->GetDataRefName(j), 0);
 			}
 		}
 	}
@@ -1154,6 +1375,7 @@ void CCompiler::ScanSong()
 							if (pInstrument->GetSeqEnable(j))
 								m_bSequencesUsed2A03[pInstrument->GetSeqIndex(j)][j] = true;
 						}
+						pInstrument->Release();
 					}
 					break;
 				case INST_VRC6: 
@@ -1163,6 +1385,7 @@ void CCompiler::ScanSong()
 							if (pInstrument->GetSeqEnable(j))
 								m_bSequencesUsedVRC6[pInstrument->GetSeqIndex(j)][j] = true;
 						}
+						pInstrument->Release();
 					}
 					break;
 				case INST_N163:
@@ -1172,6 +1395,7 @@ void CCompiler::ScanSong()
 							if (pInstrument->GetSeqEnable(j))
 								m_bSequencesUsedN163[pInstrument->GetSeqIndex(j)][j] = true;
 						}
+						pInstrument->Release();
 					}
 					break;
 			}
@@ -1333,25 +1557,29 @@ void CCompiler::CreateSequenceList()
 		// TODO: this is bad, fds only uses 3 sequences
 
 		for (int i = 0; i < MAX_INSTRUMENTS; ++i) {
-			CInstrumentFDS *pInst = (CInstrumentFDS*)m_pDocument->GetInstrument(i);
+			CInstrumentFDS *pInstrument = (CInstrumentFDS*)m_pDocument->GetInstrument(i);
 
-			if (pInst && pInst->GetType() == INST_FDS) {
+			if (pInstrument) {
 
-				for (int j = 0; j < 3; ++j) {
-					CSequence* pSeq;
-					switch (j) {
-						case 0: pSeq = pInst->GetVolumeSeq(); break;
-						case 1: pSeq = pInst->GetArpSeq(); break;
-						case 2: pSeq = pInst->GetPitchSeq(); break;
-					}
-					if (pSeq->GetItemCount() > 0) {
-						int Index = i * SEQ_COUNT + j;
-						label.Format(LABEL_SEQ_FDS, Index);
-						StoreSequence(pSeq, label);
-						StoredCount++;
-						Size += 3 + pSeq->GetItemCount();
+				if (pInstrument->GetType() == INST_FDS) {
+					for (int j = 0; j < 3; ++j) {
+						CSequence* pSeq;
+						switch (j) {
+							case 0: pSeq = pInstrument->GetVolumeSeq(); break;
+							case 1: pSeq = pInstrument->GetArpSeq(); break;
+							case 2: pSeq = pInstrument->GetPitchSeq(); break;
+						}
+						if (pSeq->GetItemCount() > 0) {
+							int Index = i * SEQ_COUNT + j;
+							label.Format(LABEL_SEQ_FDS, Index);
+							StoreSequence(pSeq, label);
+							StoredCount++;
+							Size += 3 + pSeq->GetItemCount();
+						}
 					}
 				}
+
+				pInstrument->Release();
 			}
 		}
 	}
@@ -1406,12 +1634,42 @@ void CCompiler::CreateInstrumentList()
 	CChunk *pWavetableChunk = NULL;	// FDS
 	CChunk *pWavesChunk = NULL;		// N163
 	CString label;
-	int iWaveSize = 0;
+	int iWaveSize = 0;				// N163 waves size
 
 	CChunk *pInstListChunk = CreateChunk(CHUNK_INSTRUMENT_LIST, LABEL_INSTRUMENT_LIST);
 	
 	if (m_pDocument->GetExpansionChip() & SNDCHIP_FDS) {
 		pWavetableChunk = CreateChunk(CHUNK_WAVETABLE, LABEL_WAVETABLE);
+	}
+
+	memset(m_iWaveBanks, -1, MAX_INSTRUMENTS * sizeof(int));
+
+	// Collect N163 waves
+	for (unsigned int i = 0; i < m_iInstruments; ++i) {
+		int iIndex = m_iAssignedInstruments[i];
+		if (m_pDocument->GetInstrumentType(iIndex) == INST_N163 && m_iWaveBanks[i] == -1) {
+			CInstrumentN163 *pInstrument = (CInstrumentN163*)m_pDocument->GetInstrument(iIndex);
+			for (int j = i + 1; j < (int)m_iInstruments; ++j) {
+				int inst = m_iAssignedInstruments[j];
+				if (m_pDocument->GetInstrumentType(inst) == INST_N163 && m_iWaveBanks[j] == -1) {
+					CInstrumentN163 *pNewInst = (CInstrumentN163*)m_pDocument->GetInstrument(inst);
+					if (pInstrument->IsWaveEqual(pNewInst)) {
+						m_iWaveBanks[j] = iIndex;
+					}
+					pNewInst->Release();
+				}
+			}
+			if (m_iWaveBanks[i] == -1) {
+				m_iWaveBanks[i] = iIndex;
+				// Store wave
+				CString label;
+				label.Format(LABEL_WAVES, iIndex);
+				pWavesChunk = CreateChunk(CHUNK_WAVES, label);
+				// Store waves
+				iWaveSize += ((CInstrumentN163*)pInstrument)->StoreWave(pWavesChunk);
+			}
+			pInstrument->Release();
+		}
 	}
 
 	// Store instruments
@@ -1434,17 +1692,25 @@ void CCompiler::CreateInstrumentList()
 			AddWavetable((CInstrumentFDS*)pInstrument, pWavetableChunk);
 			pChunk->StoreByte(m_iWaveTables - 1);
 		}
-
+/*
 		if (pInstrument->GetType() == INST_N163) {
 			CString label;
-			label.Format(LABEL_WAVES, /*i*/ iIndex);
+			label.Format(LABEL_WAVES, iIndex);
 			pWavesChunk = CreateChunk(CHUNK_WAVES, label);
 			// Store waves
 			iWaveSize += ((CInstrumentN163*)pInstrument)->StoreWave(pWavesChunk);
 		}
+*/
+
+		if (pInstrument->GetType() == INST_N163) {
+			// Translate wave index
+			iIndex = m_iWaveBanks[i];
+		}
 
 		// Returns number of bytes 
 		iTotalSize += pInstrument->Compile(pChunk, iIndex);
+
+		pInstrument->Release();
 	}
 
 	Print(" * Instruments used: %i (%i bytes)\n", m_iInstruments, iTotalSize);
@@ -1464,7 +1730,9 @@ void CCompiler::CreateSampleList()
 	 *
 	 */
 
-	unsigned char iSample, iSamplePitch;
+	const int SAMPLE_ITEM_WIDTH = 3;	// 3 bytes / sample item
+
+	unsigned char iSample, iSamplePitch, iSampleDelta;
 	unsigned int Item = 0, iSampleIndex;
 	unsigned int TrackCount = m_pDocument->GetTrackCount();
 
@@ -1488,18 +1756,22 @@ void CCompiler::CreateSampleList()
 						iSamplePitch  = pInstrument->GetSamplePitch(j, k);
 						iSamplePitch |= (iSamplePitch & 0x80) >> 1;
 						iSampleIndex  = GetSampleIndex(iSample - 1);
+						iSampleDelta  = pInstrument->GetSampleDeltaValue(j, k);
 
 						// Save a reference to this item
 						m_iSamplesLookUp[i][j][k] = ++Item;
 
 						pChunk->StoreByte(iSamplePitch);
-						pChunk->StoreByte(iSampleIndex * 3);	// 3 bytes / sample item
+						pChunk->StoreByte(iSampleDelta);
+						pChunk->StoreByte(iSampleIndex * SAMPLE_ITEM_WIDTH);
 					}
 					else
 						// No instrument here
 						m_iSamplesLookUp[i][j][k] = 0;
 				}
 			}
+
+			pInstrument->Release();
 		}
 	}
 }
@@ -1538,6 +1810,7 @@ void CCompiler::StoreSamples()
 			iSampleSize = iSize >> 4;
 			iSampleBank = 0;
 
+			// Update SAMPLE_ITEM_WIDTH here
 			pChunk->StoreByte(iSampleAddr);
 			pChunk->StoreByte(iSampleSize);
 			pChunk->StoreByte(iSampleBank);
@@ -1609,7 +1882,7 @@ void CCompiler::StoreSongs()
 		pChunk->StoreByte(m_pDocument->GetPatternLength(i));
 		pChunk->StoreByte(m_pDocument->GetSongSpeed(i));
 		pChunk->StoreByte(m_pDocument->GetSongTempo(i));
-		pChunk->StoreByte(3);	// Pointer to frame bank
+		pChunk->StoreBankReference(label, 0);
 	}
 
 	// Store actual songs
@@ -1749,8 +2022,7 @@ void CCompiler::StorePatterns(unsigned int Track, int *pPatternSize, int *pPatte
 						++m_iDuplicatePatterns;
 					}
 				}
-#endif
-
+#endif /* REMOVE_DUPLICATE_PATTERNS */
 				if (StoreNew) {
 					// Store new pattern
 					CChunk *pChunk = CreateChunk(CHUNK_PATTERN, label);
@@ -1758,7 +2030,7 @@ void CCompiler::StorePatterns(unsigned int Track, int *pPatternSize, int *pPatte
 
 #ifdef REMOVE_DUPLICATE_PATTERNS
 					m_PatternMap[Hash] = pChunk;
-#endif
+#endif /* REMOVE_DUPLICATE_PATTERNS */
 
 					// Get size
 					int iSize = PatternCompiler.GetDataSize();
@@ -1788,13 +2060,13 @@ void CCompiler::StorePatterns(unsigned int Track, int *pPatternSize, int *pPatte
 			}
 		}
 	}
-#endif
+#endif /* REMOVE_DUPLICATE_PATTERNS */
 
 #ifdef LOCAL_DUPLICATE_PATTERN_REMOVAL
 	// Forget patterns when one whole track is stored
 	m_PatternMap.RemoveAll();
 	m_DuplicateMap.RemoveAll();
-#endif
+#endif /* LOCAL_DUPLICATE_PATTERN_REMOVAL */
 
 	*pPatternSize = iTotalSize;
 	*pPatternCount = iPatternCount;
@@ -1835,17 +2107,23 @@ void CCompiler::AddWavetable(CInstrumentFDS *pInstrument, CChunk *pChunk)
 void CCompiler::WriteSamplesAssembly(CFile *pFile)
 {
 	// Store DPCM samples in file, assembly format
-	CString str;
+	CString str, label;
 
-	str.Format(_T("\n; DPCM samples (located at DPCM segment)\n\t.segment \"DPCM\"\n"));
+	str.Format(_T("\n; DPCM samples (located at DPCM segment)\n"));
 	pFile->Write(str.GetBuffer(), str.GetLength());
+
+	if (m_bBankSwitched == false) {
+		str.Format(_T("\n\t.segment \"DPCM\"\n"));
+		pFile->Write(str.GetBuffer(), str.GetLength());
+	}
 
 	unsigned int Address = PAGE_SAMPLES;
 	unsigned int TotalSize = 0;
 
 	for (unsigned int i = 0; i < m_vSamples.size(); ++i) {
 		CDSample *pDSample = m_vSamples[i];
-		str.Format(_T("; Sample %i\n\t.byte "), i);
+		label.Format(LABEL_SAMPLE, i);
+		str.Format(_T("%s:\n\t.byte "), label);
 		int cntr = 0;
 		for (unsigned int j = 0; j < pDSample->SampleSize; ++j) {
 			unsigned char c = pDSample->SampleData[j];

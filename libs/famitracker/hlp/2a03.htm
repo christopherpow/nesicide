@@ -59,12 +59,14 @@
         </li>
         
         <li><b>Noise</b><br />
-            White noise generator. Can produce 32k-bit and 93-bit sequences, selectable
+            White noise generator.<br />
+                        Can produce 32k-bit and 93-bit sequences, selectable
             from the instruments duty/noise setting. There are only 16 different 
             pitches available, so a pitch value instead of notes &amp; octaves is displayed.<br /><br />
         </li>
 
         <li><b>DPCM (Delta PCM)</b><br />
+            Also known as DMC.<br />
             Used to play delta modulated samples. 
             Channel effects (volume, arpeggio &amp; pitch slides) does not work on this channel. 
             The volume column has no effect on this channel.
@@ -117,10 +119,10 @@
                 Used for note-shifting, commonly used to simulate chords.<br>
 			    Range: <b>-79</b> to <b>+79 </b>(notes)<br /><br />
                 Three modes are available: absolute, relative and fixed.<br />
-                <i>Absolute</i> adds to the base note.<br />
-                <i>Relative</i> adds to the base note and saves the result.<br />
-                <i>Fixed</i> does not add to the base note, instead it will be used when the 
-                sequence is done. Adding a loop prevents the base not from being used at all.<br />
+                <i>Absolute:</i> adds to the base note (default).<br />
+                <i>Relative:</i> adds to the base note and saves the result as new base note.<br />
+                <i>Fixed:</i> does not add to the base note, it will be used after the sequence 
+                is done. Adding a loop prevents the base not from being used at all.<br />
                 <br /></td>
         </tr>
         <tr>
@@ -171,9 +173,8 @@
     <ul class="text">
         <li>
             <b>Load</b><br />
-            Load samples from files. The format must be 1-bit 
-            delta PCM and max size is 4081 bytes. The size should be (x * 16) + 1 bytes, 
-            others sizes will be padded.
+            Load samples from files. The format must be 1-bit delta PCM and max size is 4081 
+            bytes. The size should be (x * 16) + 1 bytes, otherwise the sample will be padded.
             <br /><br />
         </li>
         <li>
@@ -199,7 +200,7 @@
         </li>
         <li>
             <b>Preview</b><br />
-            Plays the sample at pitch 15.
+            Plays the sample (at pitch 15).
             <br />
         </li>
         
@@ -212,6 +213,13 @@
         The &quot;<b>&lt;-</b>&quot;-button can also be used to assign samples, and &quot;<b>-&gt;</b>&quot;-button to remove assigned 
         samples. Loop is used to loop the sample from beginning.</p>
     
+    <p class="text">
+        The loop checkbox will enable the DPCM loop mode, where the entire sample is 
+        looped from start to end.</p>
+    <p class="text">
+        The D-counter (delta counter) setting is used to force the delta counter to an initial value before the 
+        sample is played (equivalent to a Zxx-command in the pattern). Set it to Off to start playing the sample without resetting 
+        the delta counter.</p>
     <p class="text">
         The pitch setting translates to a frequency according to the 
         following table:</p>

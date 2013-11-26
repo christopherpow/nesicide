@@ -38,7 +38,7 @@ CSampleEditorDlg::CSampleEditorDlg(CWnd* pParent /*=NULL*/, CDSample *pSample)
 	// Create a copy of the sample
 	m_pSample = new CDSample(*pSample);
 	m_pOriginalSample = pSample;
-	m_pSoundGen = theApp.GetSoundGenerator();   
+	m_pSoundGen = theApp.GetSoundGenerator();
 }
 
 CSampleEditorDlg::~CSampleEditorDlg()
@@ -73,7 +73,7 @@ BOOL CSampleEditorDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
-   m_pSampleView = new CSampleView();
+	m_pSampleView = new CSampleView();
 	m_pSampleView->SubclassDlgItem(IDC_SAMPLE, this);
 	m_pSampleView->CalculateSample(m_pSample, IsDlgButtonChecked(IDC_DELTASTART) ? 64 : 0);
 	m_pSampleView->UpdateInfo();
@@ -309,31 +309,154 @@ BEGIN_MESSAGE_MAP(CSampleView, CStatic)
 	ON_WM_SIZE()
 END_MESSAGE_MAP()
 
-CScrollBar* m_sbScrollBar;
-
-CSampleView::CSampleView() : 
-	m_iSelStart(-1), 
-	m_iSelEnd(-1), 
-	m_iStartCursor(0),
-	m_pSamples(NULL),
-	m_bClicked(false)
+void CSampleView::paintEvent(QPaintEvent *)
 {
-   m_pSolidPen = new CPen(PS_SOLID, 1, (COLORREF)0);
-	m_pDashedPen = new CPen(PS_DASH, 1, (COLORREF)0x00);
-	m_pGrayDashedPen = new CPen(PS_DASHDOT, 1, (COLORREF)0xF0F0F0);
-	m_pDarkGrayDashedPen = new CPen(PS_DASHDOT, 1, (COLORREF)0xE0E0E0);
-   
-   m_sbScrollBar = new CScrollBar;
+   OnPaint();
 }
 
-CSampleView::~CSampleView()
+void CSampleView::mouseMoveEvent(QMouseEvent *event)
 {
-	SAFE_RELEASE_ARRAY(m_pSamples);
+   CPoint point(event->pos());
+   unsigned int flags = 0;
+   if ( event->modifiers()&Qt::ControlModifier )
+   {
+      flags |= MK_CONTROL;
+   }
+   if ( event->modifiers()&Qt::ShiftModifier )
+   {
+      flags |= MK_SHIFT;
+   }
+   if ( event->buttons()&Qt::LeftButton )
+   {
+      flags |= MK_LBUTTON;
+   }
+   if ( event->buttons()&Qt::MiddleButton )
+   {
+      flags |= MK_MBUTTON;
+   }
+   if ( event->buttons()&Qt::RightButton )
+   {
+      flags |= MK_RBUTTON;            
+   }
+   OnMouseMove(flags,point);
+   update();
+}
 
-	SAFE_RELEASE(m_pSolidPen);
-	SAFE_RELEASE(m_pDashedPen);
-	SAFE_RELEASE(m_pGrayDashedPen);
-	SAFE_RELEASE(m_pDarkGrayDashedPen);
+void CSampleView::mousePressEvent(QMouseEvent *event)
+{
+   CPoint point(event->pos());
+   unsigned int flags = 0;
+   if ( event->modifiers()&Qt::ControlModifier )
+   {
+      flags |= MK_CONTROL;
+   }
+   if ( event->modifiers()&Qt::ShiftModifier )
+   {
+      flags |= MK_SHIFT;
+   }
+   if ( event->buttons()&Qt::LeftButton )
+   {
+      flags |= MK_LBUTTON;
+   }
+   if ( event->buttons()&Qt::MiddleButton )
+   {
+      flags |= MK_MBUTTON;
+   }
+   if ( event->buttons()&Qt::RightButton )
+   {
+      flags |= MK_RBUTTON;            
+   }
+   if ( event->button() == Qt::LeftButton )
+   {
+      OnLButtonDown(flags,point);
+   }
+   update();
+}
+
+void CSampleView::mouseReleaseEvent(QMouseEvent *event)
+{
+   CPoint point(event->pos());
+   unsigned int flags = 0;
+   if ( event->modifiers()&Qt::ControlModifier )
+   {
+      flags |= MK_CONTROL;
+   }
+   if ( event->modifiers()&Qt::ShiftModifier )
+   {
+      flags |= MK_SHIFT;
+   }
+   if ( event->buttons()&Qt::LeftButton )
+   {
+      flags |= MK_LBUTTON;
+   }
+   if ( event->buttons()&Qt::MiddleButton )
+   {
+      flags |= MK_MBUTTON;
+   }
+   if ( event->buttons()&Qt::RightButton )
+   {
+      flags |= MK_RBUTTON;            
+   }
+   if ( event->button() == Qt::LeftButton )
+   {
+      OnLButtonUp(flags,point);
+   }
+   update();
+}
+
+void CSampleView::resizeEvent(QResizeEvent *event)
+{
+   OnSize(0,event->size().width(),event->size().height());
+}
+
+void CSampleEditorDlg::timerEvent(QTimerEvent *event)
+{
+   int mfcId = mfcTimerId(event->timerId());
+   OnTimer(mfcId);
+}
+
+void CSampleEditorDlg::ok_clicked()
+{
+   OnOK();
+}
+
+void CSampleEditorDlg::cancel_clicked()
+{
+   OnCancel();
+}
+
+void CSampleEditorDlg::play_clicked()
+{
+   OnBnClickedPlay();
+}
+
+void CSampleEditorDlg::delete_clicked()
+{
+   OnBnClickedDelete();
+}
+
+void CSampleEditorDlg::deltaStart_clicked()
+{
+   OnBnClickedDeltastart();
+}
+
+void CSampleEditorDlg::tilt_clicked()
+{
+   OnBnClickedTilt();
+}
+
+void CSampleEditorDlg::keyPressEvent(QKeyEvent *event)
+{
+   UINT nChar = event->key();
+   UINT nRepCnt = event->count();
+   nChar = qtToMfcKeycode(nChar);
+   
+   OnKeyDown(nChar,nRepCnt,0);
+}
+
+void CSampleEditorDlg::resizeEvent(QResizeEvent *event)
+{
+   OnSize(0,event->size().width(),event->size().height());
 }
 
 bool CSampleView::eventFilter(QObject *object, QEvent *event)
@@ -417,22 +540,47 @@ bool CSampleView::eventFilter(QObject *object, QEvent *event)
    return false;
 }
 
+CScrollBar m_sbScrollBar;
+
+CSampleView::CSampleView() : 
+	m_iSelStart(-1), 
+	m_iSelEnd(-1), 
+	m_iStartCursor(0),
+	m_pSamples(NULL),
+	m_bClicked(false)
+{
+	m_pSolidPen = new CPen(PS_SOLID, 1, (COLORREF)0);
+	m_pDashedPen = new CPen(PS_DASH, 1, (COLORREF)0x00);
+	m_pGrayDashedPen = new CPen(PS_DASHDOT, 1, (COLORREF)0xF0F0F0);
+	m_pDarkGrayDashedPen = new CPen(PS_DASHDOT, 1, (COLORREF)0xE0E0E0);
+}
+
+CSampleView::~CSampleView()
+{
+	SAFE_RELEASE_ARRAY(m_pSamples);
+
+	SAFE_RELEASE(m_pSolidPen);
+	SAFE_RELEASE(m_pDashedPen);
+	SAFE_RELEASE(m_pGrayDashedPen);
+	SAFE_RELEASE(m_pDarkGrayDashedPen);
+}
+
 void CSampleView::OnPaint()
 {
 	int ScrollBarHeight = 0;
 
 	CPaintDC dc(this); // device context for painting
 
-   // Create scroll bar
-	if (m_sbScrollBar->m_hWnd == NULL) {
+	// Create scroll bar
+	if (m_sbScrollBar.m_hWnd == NULL) {
 		CRect rect;
 		GetClientRect(&rect);
-		m_sbScrollBar->Create(SBS_HORZ | SBS_BOTTOMALIGN | WS_CHILD | WS_VISIBLE, rect, this, 1);
-		m_sbScrollBar->EnableWindow(0);
+		m_sbScrollBar.Create(SBS_HORZ | SBS_BOTTOMALIGN | WS_CHILD | WS_VISIBLE, rect, this, 1);
+		m_sbScrollBar.EnableWindow(0);
 	}
 
 	CRect sbRect;
-	m_sbScrollBar->GetClientRect(&sbRect);
+	m_sbScrollBar.GetClientRect(&sbRect);
 	ScrollBarHeight = sbRect.bottom - sbRect.top;
 
 	GetClientRect(&m_clientRect);
@@ -709,15 +857,15 @@ void CSampleView::OnSize(UINT nType, int cx, int cy)
 {
 	CStatic::OnSize(nType, cx, cy);
 
-	if (m_sbScrollBar->m_hWnd != NULL) {
+	if (m_sbScrollBar.m_hWnd != NULL) {
 		CRect clientRect, scrollRect;
 		GetClientRect(&clientRect);
-		m_sbScrollBar->GetClientRect(&scrollRect);
+		m_sbScrollBar.GetClientRect(&scrollRect);
 		scrollRect.right = clientRect.right;
 		int height = scrollRect.Height();
 		scrollRect.top = clientRect.bottom - height;
 		scrollRect.bottom = scrollRect.top + height;
-		m_sbScrollBar->MoveWindow(&scrollRect);
+		m_sbScrollBar.MoveWindow(&scrollRect);
 	}
 }
 
@@ -729,154 +877,4 @@ void CSampleView::OnHome()
 void CSampleEditorDlg::CopySample(CDSample *pTarget)
 {
 	pTarget->Allocate(m_pSample->SampleSize, m_pSample->SampleData);
-}
-
-void CSampleView::paintEvent(QPaintEvent *)
-{
-   OnPaint();
-}
-
-void CSampleView::mouseMoveEvent(QMouseEvent *event)
-{
-   CPoint point(event->pos());
-   unsigned int flags = 0;
-   if ( event->modifiers()&Qt::ControlModifier )
-   {
-      flags |= MK_CONTROL;
-   }
-   if ( event->modifiers()&Qt::ShiftModifier )
-   {
-      flags |= MK_SHIFT;
-   }
-   if ( event->buttons()&Qt::LeftButton )
-   {
-      flags |= MK_LBUTTON;
-   }
-   if ( event->buttons()&Qt::MiddleButton )
-   {
-      flags |= MK_MBUTTON;
-   }
-   if ( event->buttons()&Qt::RightButton )
-   {
-      flags |= MK_RBUTTON;            
-   }
-   OnMouseMove(flags,point);
-   update();
-}
-
-void CSampleView::mousePressEvent(QMouseEvent *event)
-{
-   CPoint point(event->pos());
-   unsigned int flags = 0;
-   if ( event->modifiers()&Qt::ControlModifier )
-   {
-      flags |= MK_CONTROL;
-   }
-   if ( event->modifiers()&Qt::ShiftModifier )
-   {
-      flags |= MK_SHIFT;
-   }
-   if ( event->buttons()&Qt::LeftButton )
-   {
-      flags |= MK_LBUTTON;
-   }
-   if ( event->buttons()&Qt::MiddleButton )
-   {
-      flags |= MK_MBUTTON;
-   }
-   if ( event->buttons()&Qt::RightButton )
-   {
-      flags |= MK_RBUTTON;            
-   }
-   if ( event->button() == Qt::LeftButton )
-   {
-      OnLButtonDown(flags,point);
-   }
-   update();
-}
-
-void CSampleView::mouseReleaseEvent(QMouseEvent *event)
-{
-   CPoint point(event->pos());
-   unsigned int flags = 0;
-   if ( event->modifiers()&Qt::ControlModifier )
-   {
-      flags |= MK_CONTROL;
-   }
-   if ( event->modifiers()&Qt::ShiftModifier )
-   {
-      flags |= MK_SHIFT;
-   }
-   if ( event->buttons()&Qt::LeftButton )
-   {
-      flags |= MK_LBUTTON;
-   }
-   if ( event->buttons()&Qt::MiddleButton )
-   {
-      flags |= MK_MBUTTON;
-   }
-   if ( event->buttons()&Qt::RightButton )
-   {
-      flags |= MK_RBUTTON;            
-   }
-   if ( event->button() == Qt::LeftButton )
-   {
-      OnLButtonUp(flags,point);
-   }
-   update();
-}
-
-void CSampleView::resizeEvent(QResizeEvent *event)
-{
-   OnSize(0,event->size().width(),event->size().height());
-}
-
-void CSampleEditorDlg::timerEvent(QTimerEvent *event)
-{
-   int mfcId = mfcTimerId(event->timerId());
-   OnTimer(mfcId);
-}
-
-void CSampleEditorDlg::ok_clicked()
-{
-   OnOK();
-}
-
-void CSampleEditorDlg::cancel_clicked()
-{
-   OnCancel();
-}
-
-void CSampleEditorDlg::play_clicked()
-{
-   OnBnClickedPlay();
-}
-
-void CSampleEditorDlg::delete_clicked()
-{
-   OnBnClickedDelete();
-}
-
-void CSampleEditorDlg::deltaStart_clicked()
-{
-   OnBnClickedDeltastart();
-}
-
-void CSampleEditorDlg::tilt_clicked()
-{
-   OnBnClickedTilt();
-}
-
-void CSampleEditorDlg::keyPressEvent(QKeyEvent *event)
-{
-   UINT nChar = event->key();
-   UINT nRepCnt = event->count();
-   nChar = qtToMfcKeycode(nChar);
-   
-   OnKeyDown(nChar,nRepCnt,0);
-}
-
-void CSampleEditorDlg::resizeEvent(QResizeEvent *event)
-{
-   OnSize(0,event->size().width(),event->size().height());
 }

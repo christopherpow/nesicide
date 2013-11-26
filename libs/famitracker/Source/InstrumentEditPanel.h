@@ -44,7 +44,7 @@ public:
 	bool m_bShow;
 
 protected:
-	CFamiTrackerDoc *GetDocument();
+	CFamiTrackerDoc *GetDocument() const;
 
 	virtual void PreviewNote(unsigned char Key);
 	virtual void PreviewRelease(unsigned char Key);
@@ -72,7 +72,6 @@ protected:
    void mousePressEvent(QMouseEvent *event);
    
    // MFC interfaces
-public:
    DECLARE_DYNAMIC(CSequenceInstrumentEditPanel)
 
 public:

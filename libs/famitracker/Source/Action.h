@@ -24,6 +24,9 @@
 // Change MAX_LEVELS in the class CActionHandler if you want more undo levels
 //
 
+#include "PatternEditor.h"
+#include "FrameEditor.h"
+
 // Base class for action commands
 class CAction
 {
@@ -42,7 +45,8 @@ protected:
 };
 
 class CPatternView;
-struct stClipData;
+class CFrameClipData;
+class CPatternClipData;
 
 // Pattern commands
 class CPatternAction : public CAction
@@ -56,6 +60,7 @@ public:
 		ACT_INCREASE,
 		ACT_DECREASE,
 		ACT_EDIT_PASTE,
+		ACT_EDIT_PASTE_MIX,
 		ACT_EDIT_DELETE,
 		ACT_EDIT_DELETE_ROWS,
 		ACT_TRANSPOSE,
@@ -66,12 +71,14 @@ public:
 		ACT_DRAG_AND_DROP,
 		ACT_PATTERN_LENGTH,
 		ACT_EXPAND_PATTERN,
-		ACT_SHRINK_PATTERN
+		ACT_SHRINK_PATTERN,
+		ACT_EXPAND_COLUMNS,
+		ACT_SHRINK_COLUMNS
 	};
 
 public:
 	CPatternAction(int iAction);
-	~CPatternAction();
+	virtual ~CPatternAction();
 
 	bool SaveState(CMainFrame *pMainFrm);
 	void Undo(CMainFrame *pMainFrm);
@@ -80,23 +87,21 @@ public:
 public:
 	void SetNote(stChanNote &Note);
 	void SetDelete(bool PullUp, bool Back);
-	void SetPaste(stClipData *pClipData, int Mode);
-	void SetSelection(CSelection *pSelection);
+	void SetPaste(CPatternClipData *pClipData);
 	void SetTranspose(int Mode);
 	void SetScroll(int Scroll);
 	void SetInstrument(int Instrument);
-	void SetDragAndDrop(stClipData *pClipData, bool bDelete, bool bMix, CSelection *pDragTarget);
+	void SetDragAndDrop(CPatternClipData *pClipData, bool bDelete, bool bMix, CSelection *pDragTarget);
 	void SetPatternLength(int Length);
 	void Update(CMainFrame *pMainFrm);
+	void SetClickedChannel(int Channel);
+	void UpdateCursor(CPatternView *pPatternView);
 
 private:
 	void SaveEntire(CPatternView *pPatternView);
 	void RestoreEntire(CPatternView *pPatternView);
 	void IncreaseRowAction(CFamiTrackerDoc *pDoc);
 	void DecreaseRowAction(CFamiTrackerDoc *pDoc);
-
-	void SaveSelection(CPatternView *pPatternView);
-	void RestoreSelection(CPatternView *pPatternView);
 
 private:
 	stChanNote m_NewNote;
@@ -114,7 +119,6 @@ private:
 	int m_iRedoChannel;
 	int m_iRedoRow;
 	int m_iRedoColumn;
-	int m_iRedoColumnCount;
 
 	int m_iPatternLen;
 	int m_iActualPatternLen;
@@ -125,9 +129,10 @@ private:
 	bool m_bPullUp;
 	bool m_bBack;
 
-	int m_iPasteMode;
-	stClipData *m_pClipData;
-	stClipData *m_pUndoClipData;
+	CPatternClipData *m_pClipData;
+	CPatternClipData *m_pUndoClipData;
+	
+	bool m_bSelecting;
 	CSelection m_selection;
 
 	int m_iTransposeMode;
@@ -137,6 +142,9 @@ private:
 	bool m_bDragDelete;
 	bool m_bDragMix;
 	CSelection m_dragTarget;
+
+	int m_iClickedChannel;
+
 };
 
 // Frame commands
@@ -156,12 +164,17 @@ public:
 		ACT_CHANGE_PATTERN_ALL,
 		ACT_MOVE_DOWN,
 		ACT_MOVE_UP,
-		ACT_PASTE
+		ACT_PASTE,
+		ACT_PASTE_NEW,
+		ACT_DRAG_AND_DROP_MOVE,
+		ACT_DRAG_AND_DROP_COPY,
+		ACT_DRAG_AND_DROP_COPY_NEW,
+		ACT_DELETE_SELECTION
 	};
 
 public:
 	CFrameAction(int iAction);
-	~CFrameAction();
+	virtual ~CFrameAction();
 
 	bool SaveState(CMainFrame *pMainFrm);
 	void Undo(CMainFrame *pMainFrm);
@@ -172,11 +185,19 @@ public:
 	void SetPattern(unsigned int Pattern);
 	void SetPatternDelta(int Delta, bool ChangeAll);
 	void Update(CMainFrame *pMainFrm);
-	void SetPasteData(int *pData);
+	void SetPasteData(CFrameClipData *pClipData);
+	void SetDragInfo(int DragTarget, CFrameClipData *pClipData, bool Remove);
 
 private:
 	void SaveFrame(CFamiTrackerDoc *pDoc);
 	void RestoreFrame(CFamiTrackerDoc *pDoc);
+
+	void SaveAllFrames(CFamiTrackerDoc *pDoc);
+	void RestoreAllFrames(CFamiTrackerDoc *pDoc);
+
+	int ClipPattern(int Pattern) const;
+
+	void ClearPatterns(CFamiTrackerDoc *pDoc, int Target);
 
 private:
 	unsigned int m_iUndoFramePos;
@@ -192,10 +213,16 @@ private:
 	int m_iPatternDelta;
 	bool m_bChangeAll;
 
-	int m_iPasteData[MAX_CHANNELS];
-
 	unsigned int m_iPatterns[MAX_CHANNELS];
 
+	bool m_bDragRemove;
+	unsigned int m_iDragTarget;
+
+	unsigned int *m_pAllPatterns;
+
+	CFrameClipData *m_pClipData;
+
+	stSelectInfo m_oSelInfo;
 };
 
 // Stores action objects (a dual-stack, kind of)

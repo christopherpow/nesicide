@@ -37,7 +37,6 @@ protected:
    void keyPressEvent(QKeyEvent *event);
    void keyReleaseEvent(QKeyEvent *event);
    
-public:
 	DECLARE_DYNAMIC(CConfigShortcuts)
 
 public:

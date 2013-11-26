@@ -26,9 +26,6 @@
 #include "FamiTrackerDoc.h"
 #include "PatternData.h"
 
-// Paste modes
-enum {PASTE_MODE_NORMAL, PASTE_MODE_OVERWRITE, PASTE_MODE_MIX};
-
 // Tracker playing interface commands
 enum {
 	CMD_STEP_DOWN = 1,
@@ -49,7 +46,11 @@ enum {
 };
 
 // Custom window messages
-enum {MSG_UPDATE = WM_USER, MSG_MIDI_EVENT = WM_USER + 1};
+enum {
+	MSG_UPDATE = WM_USER, 
+	MSG_MIDI_EVENT,
+	MSG_NOTE_EVENT
+};
 
 // External classes
 class CFamiTrackerDoc;
@@ -61,13 +62,14 @@ class CFamiTrackerView : public CView
 {
    Q_OBJECT
    // Qt stuff
-protected:
+public:
    BOOL PostMessage(UINT message, WPARAM wParam = 0, LPARAM lParam = 0);
    LRESULT SendMessage(
       UINT message,
       WPARAM wParam = 0,
       LPARAM lParam = 0 
    );
+protected:
    void viewPaintEvent(QPaintEvent *event);
    void wheelEvent(QWheelEvent *event);
    void mouseMoveEvent(QMouseEvent *event);
@@ -91,13 +93,12 @@ public slots:
 protected: // create from serialization only
 	CFamiTrackerView();
 	DECLARE_DYNCREATE(CFamiTrackerView)
-   ~CFamiTrackerView();
 
 public:
 	static CFamiTrackerView *GetView();
-   
+
 // Attributes
-public:   
+public:
 	CFamiTrackerDoc* GetDocument() const;
 
 //
@@ -140,8 +141,6 @@ public:
 	// Settings
 	unsigned int GetStepping() const { return m_iInsertKeyStepping; };
 	void		 SetStepping(int Step);
-	void		 SetChangeAllPattern(bool ChangeAll) { m_bChangeAllPattern = ChangeAll; };
-	bool		 ChangeAllPatterns() { return m_bChangeAllPattern; };
 	void		 SetFollowMode(bool Mode);
 	void		 SetOctave(unsigned int iOctave);
 
@@ -170,9 +169,6 @@ public:
 	// Drawing
 	void		 UpdateEditor(LPARAM lHint);
 
-	// Keys
-	bool		 IsControlPressed() const;
-
 	// For UI updates
 	bool		 IsSelecting() const;
 	bool		 IsClipboardAvailable() const;
@@ -186,6 +182,10 @@ public:
 
 	// testing
 	//void HandleRawData(WPARAM wParam, LPARAM lParam);
+
+	// OLE
+	void		 BeginDragData(int ChanOffset, int RowOffset);
+	bool		 IsDragging() const;
 
 protected:
 	// General
@@ -210,12 +210,7 @@ protected:
 // Private functions
 //
 private:
-   // *******************************************************************
-   // CMainFrame routines that don't make sense being in CMainFrame in Qt
-   // *******************************************************************   
-   void	SetRowCount(int Count);
-	void	SetFrameCount(int Count);
-   
+
 	// Input handling
 	void	KeyIncreaseAction();
 	void	KeyDecreaseAction();
@@ -255,6 +250,9 @@ private:
 	// Copy
 	void	CopyVolumeColumn();
 
+	// Keyboard
+	bool	IsShiftPressed() const;
+	bool	IsControlPressed() const;
 
 //
 // Constants
@@ -274,15 +272,12 @@ protected:
 	// Cursor & editing
 	unsigned int		m_iMoveKeyStepping;						// Number of rows to jump when moving
 	unsigned int		m_iInsertKeyStepping;					// Number of rows to move when inserting notes
-	unsigned int		m_iInstrument;							// Selected instrument
 	unsigned int		m_iOctave;								// Selected octave	
 	bool				m_bEditEnable;							// Edit is enabled
-	bool				m_bSwitchToInstrument;
+	bool				m_bSwitchToInstrument;					// Select active instrument
 	bool				m_bFollowMode;							// Follow mode, default true
-	bool				m_bShiftPressed, m_bControlPressed;		// Shift and control keys
-	bool				m_bChangeAllPattern;					// All pattern will change
-	bool				m_bMaskInstrument;
-	int					m_iPasteMode;
+	bool				m_bMaskInstrument;						// Ignore instrument column on new notes
+	bool				m_bMaskVolume;							// Ignore volume column on new notes
 
 	// Playing
 	bool				m_bMuteChannels[MAX_CHANNELS];
@@ -296,7 +291,8 @@ protected:
 	int					m_iAutoArpKeyCount;
 
 	// Window size
-	unsigned int		m_iWindowWidth, m_iWindowHeight;
+	unsigned int		m_iWindowWidth;
+	unsigned int		m_iWindowHeight;
 
 	// Drawing
 	bool				m_bForceRedraw;
@@ -316,8 +312,12 @@ protected:
 	// Drawing
 	CPatternView		*m_pPatternView;
 
-	// Synchronization
-	CCriticalSection	m_csDrawLock;
+	// OLE support
+	COleDropTarget		m_DropTarget;
+	int					m_nDropEffect;
+	bool				m_bDropMix;		// Copy and mix
+	bool				m_bDragSource;	// This window is drag source
+	bool				m_bDropped;		// Drop was performed on this window
 
 // ---------------------------
 // TODO: Remove these below
@@ -326,27 +326,27 @@ protected:
 // Operations
 public:
 
-	// change this
+	// TODO change this
 	unsigned int Arpeggiate[MAX_CHANNELS];
 
-//// Overrides
-//public:
+// Overrides
+public:
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 
-//// Implementation
-//public:
-//	virtual ~CFamiTrackerView();
-//#ifdef _DEBUG
-//	virtual void AssertValid() const;
-//	virtual void Dump(CDumpContext& dc) const;
-//#endif
+// Implementation
+public:
+	virtual ~CFamiTrackerView();
+#ifdef _DEBUG
+	virtual void AssertValid() const;
+	virtual void Dump(CDumpContext& dc) const;
+#endif
 
-//// Generated message map functions
+// Generated message map functions
 protected:
 	DECLARE_MESSAGE_MAP()
 	virtual void OnDraw(CDC* /*pDC*/);
 
-//protected:
+protected:
 	virtual void CalcWindowRect(LPRECT lpClientRect, UINT nAdjustType = adjustBorder);
 	virtual void OnUpdate(CView* /*pSender*/, LPARAM /*lHint*/, CObject* /*pHint*/);
 
@@ -358,14 +358,14 @@ public:
 	afx_msg void OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
-
 	afx_msg void OnEditCopy();
 	afx_msg void OnEditCut();
 	afx_msg void OnEditPaste();
+	afx_msg void OnEditPastemix();
 	afx_msg void OnEditDelete();
 	afx_msg void OnEditInstrumentMask();
+	afx_msg void OnEditVolumeMask();
 	afx_msg void OnEditPasteoverwrite();
-
 	afx_msg void OnTrackerEdit();
 	afx_msg void OnTrackerPal();
 	afx_msg void OnTrackerNtsc();
@@ -375,9 +375,8 @@ public:
 	afx_msg void OnTransposeDecreaseoctave();
 	afx_msg void OnTransposeIncreasenote();
 	afx_msg void OnTransposeIncreaseoctave();
-
-	afx_msg void OnUpdateEditCopy(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateEditCut(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateEditCopy(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateEditPaste(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateEditDelete(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateTrackerEdit(CCmdUI *pCmdUI);
@@ -387,44 +386,46 @@ public:
 	afx_msg void OnUpdateSpeedCustom(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateEditPasteoverwrite(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateEditInstrumentMask(CCmdUI *pCmdUI);
-
+	afx_msg void OnUpdateEditVolumeMask(CCmdUI *pCmdUI);
 	afx_msg void OnIncreaseStepSize();
 	afx_msg void OnDecreaseStepSize();
-
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
-	virtual void OnInitialUpdate();
 	afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
 	afx_msg void OnEditSelectall();
 	afx_msg void OnKillFocus(CWnd* pNewWnd);
 	afx_msg void OnSetFocus(CWnd* pOldWnd);
 	afx_msg void OnTimer(UINT nIDEvent);
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
-
 	afx_msg void OnTrackerPlayrow();
 	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 	afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
-	afx_msg void OnEditPastemix();
-	afx_msg void OnUpdateEditPastemix(CCmdUI *pCmdUI);
 	afx_msg void OnTrackerToggleChannel();
 	afx_msg void OnTrackerSoloChannel();
 	afx_msg void OnTrackerUnmuteAllChannels();
 	afx_msg void OnNextOctave();
 	afx_msg void OnPreviousOctave();
-	afx_msg void OnPasteOverwrite();
-	afx_msg void OnPasteMixed();
 	afx_msg void OnSysKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg void OnEditInterpolate();
 	afx_msg void OnEditReplaceInstrument();
 	afx_msg void OnEditReverse();
-//	afx_msg void OnNcMouseMove(UINT nHitTest, CPoint point);
+	afx_msg void OnNcMouseMove(UINT nHitTest, CPoint point);
 	afx_msg void OnOneStepUp();
 	afx_msg void OnOneStepDown();
-	afx_msg void OnSysKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg void OnBlockStart();
 	afx_msg void OnBlockEnd();
 	afx_msg void OnPickupRow();
-
 	afx_msg LRESULT OnMidiEvent(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT OnUpdateMsg(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT OnNoteEvent(WPARAM wParam, LPARAM lParam);
+	virtual void OnInitialUpdate();
+	virtual DROPEFFECT OnDragEnter(COleDataObject* pDataObject, DWORD dwKeyState, CPoint point);
+	virtual void OnDragLeave();
+	virtual DROPEFFECT OnDragOver(COleDataObject* pDataObject, DWORD dwKeyState, CPoint point);
+	virtual BOOL OnDrop(COleDataObject* pDataObject, DROPEFFECT dropEffect, CPoint point);
 };
+
+#ifndef _DEBUG  // debug version in FamiTrackerView.cpp
+inline CFamiTrackerDoc* CFamiTrackerView::GetDocument() const
+   { return reinterpret_cast<CFamiTrackerDoc*>(m_pDocument); }
+#endif
 

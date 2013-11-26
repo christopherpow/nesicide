@@ -20,7 +20,6 @@ public slots:
    void availableTree_itemClicked(QTreeWidgetItem* item,int column);
    void availableTree_itemDoubleClicked(QTreeWidgetItem* item,int column);
    
-public:
 	DECLARE_DYNAMIC(CChannelsDlg)
 
 public:

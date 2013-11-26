@@ -53,13 +53,6 @@ CInstrumentEditDlg::CInstrumentEditDlg(CWnd* pParent /*=NULL*/)
 {
 }
 
-void CInstrumentEditDlg::instTab_currentChanged(int arg1)
-{
-   NMHDR nmhdr;
-   LRESULT result;
-   OnTcnSelchangeInstTab(&nmhdr,&result);
-}
-
 CInstrumentEditDlg::~CInstrumentEditDlg()
 {
 }
@@ -79,6 +72,139 @@ BEGIN_MESSAGE_MAP(CInstrumentEditDlg, CDialog)
 	ON_WM_NCLBUTTONUP()
 END_MESSAGE_MAP()
 
+void CInstrumentEditDlg::instTab_currentChanged(int arg1)
+{
+   NMHDR nmhdr;
+   LRESULT result;
+   OnTcnSelchangeInstTab(&nmhdr,&result);
+}
+
+void CInstrumentEditDlg::closeEvent(QCloseEvent *)
+{
+   DestroyWindow();
+}
+
+void CInstrumentEditDlg::paintEvent(QPaintEvent *)
+{
+   OnPaint();
+}
+
+void CInstrumentEditDlg::mouseMoveEvent(QMouseEvent *event)
+{
+   CPoint point(event->pos());
+   unsigned int flags = 0;
+   if ( event->modifiers()&Qt::ControlModifier )
+   {
+      flags |= MK_CONTROL;
+   }
+   if ( event->modifiers()&Qt::ShiftModifier )
+   {
+      flags |= MK_SHIFT;
+   }
+   if ( event->buttons()&Qt::LeftButton )
+   {
+      flags |= MK_LBUTTON;
+   }
+   if ( event->buttons()&Qt::MiddleButton )
+   {
+      flags |= MK_MBUTTON;
+   }
+   if ( event->buttons()&Qt::RightButton )
+   {
+      flags |= MK_RBUTTON;            
+   }
+   OnMouseMove(flags,point);
+}
+
+void CInstrumentEditDlg::mousePressEvent(QMouseEvent *event)
+{
+   CPoint point(event->pos());
+   unsigned int flags = 0;
+   if ( event->modifiers()&Qt::ControlModifier )
+   {
+      flags |= MK_CONTROL;
+   }
+   if ( event->modifiers()&Qt::ShiftModifier )
+   {
+      flags |= MK_SHIFT;
+   }
+   if ( event->buttons()&Qt::LeftButton )
+   {
+      flags |= MK_LBUTTON;
+   }
+   if ( event->buttons()&Qt::MiddleButton )
+   {
+      flags |= MK_MBUTTON;
+   }
+   if ( event->buttons()&Qt::RightButton )
+   {
+      flags |= MK_RBUTTON;            
+   }
+   if ( event->button() == Qt::LeftButton )
+   {
+      OnLButtonDown(flags,point);
+   }
+}
+
+void CInstrumentEditDlg::mouseReleaseEvent(QMouseEvent *event)
+{
+   CPoint point(event->pos());
+   unsigned int flags = 0;
+   if ( event->modifiers()&Qt::ControlModifier )
+   {
+      flags |= MK_CONTROL;
+   }
+   if ( event->modifiers()&Qt::ShiftModifier )
+   {
+      flags |= MK_SHIFT;
+   }
+   if ( event->buttons()&Qt::LeftButton )
+   {
+      flags |= MK_LBUTTON;
+   }
+   if ( event->buttons()&Qt::MiddleButton )
+   {
+      flags |= MK_MBUTTON;
+   }
+   if ( event->buttons()&Qt::RightButton )
+   {
+      flags |= MK_RBUTTON;            
+   }
+   if ( event->button() == Qt::LeftButton )
+   {
+      OnLButtonUp(flags,point);
+   }
+}
+
+void CInstrumentEditDlg::mouseDoubleClickEvent(QMouseEvent *event)
+{
+   CPoint point(event->pos());
+   unsigned int flags = 0;
+   if ( event->modifiers()&Qt::ControlModifier )
+   {
+      flags |= MK_CONTROL;
+   }
+   if ( event->modifiers()&Qt::ShiftModifier )
+   {
+      flags |= MK_SHIFT;
+   }
+   if ( event->buttons()&Qt::LeftButton )
+   {
+      flags |= MK_LBUTTON;
+   }
+   if ( event->buttons()&Qt::MiddleButton )
+   {
+      flags |= MK_MBUTTON;
+   }
+   if ( event->buttons()&Qt::RightButton )
+   {
+      flags |= MK_RBUTTON;            
+   }
+   if ( event->button() == Qt::LeftButton )
+   {
+      OnLButtonDblClk(flags,point);
+   }
+}
 
 // CInstrumentEditDlg message handlers
 
@@ -146,8 +272,8 @@ void CInstrumentEditDlg::SetCurrentInstrument(int Index)
 {
 	CString Title;
 	char Name[256];
-	CInstrument *pInst = m_pDocument->GetInstrument(Index);
-	int InstType = pInst->GetType();
+	CInstrument *pInstrument = m_pDocument->GetInstrument(Index);
+	int InstType = pInstrument->GetType();
 
 	// Dialog title
 	m_pDocument->GetInstrumentName(Index, Name);	
@@ -164,7 +290,7 @@ void CInstrumentEditDlg::SetCurrentInstrument(int Index)
 			case INST_2A03: {
 					int Channel = CFamiTrackerView::GetView()->GetSelectedChannel();
 					int Type = CFamiTrackerDoc::GetDoc()->GetChannelType(Channel);
-					bool bShowDPCM = (Type == CHANID_DPCM) || (((CInstrument2A03*)pInst)->AssignedSamples());
+					bool bShowDPCM = (Type == CHANID_DPCM) || (((CInstrument2A03*)pInstrument)->AssignedSamples());
 					InsertPane(new CInstrumentEditor2A03(), !bShowDPCM);
 					InsertPane(new CInstrumentEditorDPCM(), bShowDPCM);
 				}
@@ -201,6 +327,8 @@ void CInstrumentEditDlg::SetCurrentInstrument(int Index)
 	UpdateWindow();
 
 	m_iSelectedInstType = InstType;
+
+	pInstrument->Release();
 }
 
 void CInstrumentEditDlg::OnTcnSelchangeInstTab(NMHDR *pNMHDR, LRESULT *pResult)
@@ -498,131 +626,4 @@ void CInstrumentEditDlg::PostNcDestroy()
 {
 	// TODO Use this function to destroy the panels so it won't be visible when closing the editor
 	CDialog::PostNcDestroy();
-}
-
-void CInstrumentEditDlg::closeEvent(QCloseEvent *)
-{
-   DestroyWindow();
-}
-
-void CInstrumentEditDlg::paintEvent(QPaintEvent *)
-{
-   OnPaint();
-}
-
-void CInstrumentEditDlg::mouseMoveEvent(QMouseEvent *event)
-{
-   CPoint point(event->pos());
-   unsigned int flags = 0;
-   if ( event->modifiers()&Qt::ControlModifier )
-   {
-      flags |= MK_CONTROL;
-   }
-   if ( event->modifiers()&Qt::ShiftModifier )
-   {
-      flags |= MK_SHIFT;
-   }
-   if ( event->buttons()&Qt::LeftButton )
-   {
-      flags |= MK_LBUTTON;
-   }
-   if ( event->buttons()&Qt::MiddleButton )
-   {
-      flags |= MK_MBUTTON;
-   }
-   if ( event->buttons()&Qt::RightButton )
-   {
-      flags |= MK_RBUTTON;            
-   }
-   OnMouseMove(flags,point);
-}
-
-void CInstrumentEditDlg::mousePressEvent(QMouseEvent *event)
-{
-   CPoint point(event->pos());
-   unsigned int flags = 0;
-   if ( event->modifiers()&Qt::ControlModifier )
-   {
-      flags |= MK_CONTROL;
-   }
-   if ( event->modifiers()&Qt::ShiftModifier )
-   {
-      flags |= MK_SHIFT;
-   }
-   if ( event->buttons()&Qt::LeftButton )
-   {
-      flags |= MK_LBUTTON;
-   }
-   if ( event->buttons()&Qt::MiddleButton )
-   {
-      flags |= MK_MBUTTON;
-   }
-   if ( event->buttons()&Qt::RightButton )
-   {
-      flags |= MK_RBUTTON;            
-   }
-   if ( event->button() == Qt::LeftButton )
-   {
-      OnLButtonDown(flags,point);
-   }
-}
-
-void CInstrumentEditDlg::mouseReleaseEvent(QMouseEvent *event)
-{
-   CPoint point(event->pos());
-   unsigned int flags = 0;
-   if ( event->modifiers()&Qt::ControlModifier )
-   {
-      flags |= MK_CONTROL;
-   }
-   if ( event->modifiers()&Qt::ShiftModifier )
-   {
-      flags |= MK_SHIFT;
-   }
-   if ( event->buttons()&Qt::LeftButton )
-   {
-      flags |= MK_LBUTTON;
-   }
-   if ( event->buttons()&Qt::MiddleButton )
-   {
-      flags |= MK_MBUTTON;
-   }
-   if ( event->buttons()&Qt::RightButton )
-   {
-      flags |= MK_RBUTTON;            
-   }
-   if ( event->button() == Qt::LeftButton )
-   {
-      OnLButtonUp(flags,point);
-   }
-}
-
-void CInstrumentEditDlg::mouseDoubleClickEvent(QMouseEvent *event)
-{
-   CPoint point(event->pos());
-   unsigned int flags = 0;
-   if ( event->modifiers()&Qt::ControlModifier )
-   {
-      flags |= MK_CONTROL;
-   }
-   if ( event->modifiers()&Qt::ShiftModifier )
-   {
-      flags |= MK_SHIFT;
-   }
-   if ( event->buttons()&Qt::LeftButton )
-   {
-      flags |= MK_LBUTTON;
-   }
-   if ( event->buttons()&Qt::MiddleButton )
-   {
-      flags |= MK_MBUTTON;
-   }
-   if ( event->buttons()&Qt::RightButton )
-   {
-      flags |= MK_RBUTTON;            
-   }
-   if ( event->button() == Qt::LeftButton )
-   {
-      OnLButtonDblClk(flags,point);
-   }
 }

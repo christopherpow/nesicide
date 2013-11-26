@@ -30,16 +30,13 @@ class CSequenceSetting : public CWnd
    // Qt interfaces
 public slots:
    void menuAction_triggered(int id);
-
-public:
-   DECLARE_DYNAMIC(CSequenceSetting)
-   // Qt stuff
 protected:
    void paintEvent(QPaintEvent *);
    void mousePressEvent(QMouseEvent *event);
    
 public:
-   CSequenceSetting(CWnd *pParent);
+	DECLARE_DYNAMIC(CSequenceSetting)
+	CSequenceSetting(CWnd *pParent);
 	virtual ~CSequenceSetting();
 public:
 	void Setup(CFont *pFont);

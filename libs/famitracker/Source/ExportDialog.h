@@ -74,6 +74,10 @@ protected:
 	void CreateASM();
 	void CreateCustom( CString name );
 
+#ifdef EXPORT_TEST
+	void CreateTest();
+#endif
+
 	DECLARE_MESSAGE_MAP()
 public:
 	virtual BOOL OnInitDialog();

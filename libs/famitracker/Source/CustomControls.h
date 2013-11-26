@@ -86,8 +86,7 @@ public:
 protected:
 	DECLARE_MESSAGE_MAP()
 public:
-	CBannerEdit(CString txt) : CEdit(), m_strText(txt) {
-   };
+	CBannerEdit(CString txt) : CEdit(), m_strText(txt) {};
 protected:
 	CString m_strText;
 protected:

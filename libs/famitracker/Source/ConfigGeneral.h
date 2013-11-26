@@ -49,7 +49,6 @@ public slots:
 protected:
    void keyPressEvent(QKeyEvent *event);
    
-public:
 	DECLARE_DYNAMIC(CConfigGeneral)
 
 public:
