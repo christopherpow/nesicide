@@ -36,9 +36,9 @@ class CExportDialog : public CDialog
 public slots:
    void close_clicked();
    void export_clicked();
-   
-public:
-	DECLARE_DYNAMIC(CExportDialog)
+public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
+
+   DECLARE_DYNAMIC(CExportDialog)
 
 public:
 	CExportDialog(CWnd* pParent = NULL);   // standard constructor

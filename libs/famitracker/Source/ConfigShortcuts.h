@@ -36,6 +36,7 @@ public slots:
 protected:
    void keyPressEvent(QKeyEvent *event);
    void keyReleaseEvent(QKeyEvent *event);
+public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
    
 	DECLARE_DYNAMIC(CConfigShortcuts)
 

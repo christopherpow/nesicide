@@ -284,16 +284,17 @@ BOOL CConfigGeneral::OnInitDialog()
 	m_wndToolTip.Create(this, TTS_ALWAYSTIP);
 	m_wndToolTip.Activate(TRUE);
 
-	CWnd *pWndChild = GetWindow(GW_CHILD);
-	CString strToolTip;
+   qDebug("ToolTips...");
+//	CWnd *pWndChild = GetWindow(GW_CHILD);
+//	CString strToolTip;
 
-	while (pWndChild) {
-		int nID = pWndChild->GetDlgCtrlID();
-		if (strToolTip.LoadString(nID)) {
-			m_wndToolTip.AddTool(pWndChild, strToolTip);
-		}
-		pWndChild = pWndChild->GetWindow(GW_HWNDNEXT);
-	}
+//	while (pWndChild) {
+//		int nID = pWndChild->GetDlgCtrlID();
+//		if (strToolTip.LoadString(nID)) {
+//			m_wndToolTip.AddTool(pWndChild, strToolTip);
+//		}
+//		pWndChild = pWndChild->GetWindow(GW_HWNDNEXT);
+//	}
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE

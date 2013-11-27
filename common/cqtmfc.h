@@ -2152,6 +2152,7 @@ typedef int* POSITION;
 #endif
 #define strcpy_s(d,l,s) strncpy((char*)(d),(const char*)(s),(l))
 #define vsprintf_s(b,n,f,v) vsprintf((b),(f),(v))
+#define _itot_s(n,s,l,b) itoa(n,s,b)
 #if UNICODE
 #define _ttoi _wtoi
 #define _tstoi _wtoi
@@ -2668,10 +2669,10 @@ public:
    int Compare( LPCTSTR lpsz ) const;
    BOOL IsEmpty() const;
 
-   CString& operator=(const CString& str);
-   CString& operator=(LPCTSTR str);
-   CString& operator=(TCHAR c);
-   CString& operator=(QString str);
+   const CString& operator=(const CString& str);
+   const CString& operator=(LPCTSTR str);
+   const CString& operator=(TCHAR c);
+   const CString& operator=(QString str);
    CString& operator+(const CString& str);
    CString& operator+(LPCTSTR str);
    CString& operator+(TCHAR c);
@@ -3600,9 +3601,10 @@ public:
       LPARAM lParam,
       LRESULT* pResult
    ) { return FALSE; }
-   DROPEFFECT OnDragEnter(COleDataObject* pDataObject, DWORD dwKeyState, CPoint point) {}
-   DROPEFFECT OnDragOver(COleDataObject* pDataObject, DWORD dwKeyState, CPoint point) {}
-   BOOL OnDrop(COleDataObject* pDataObject, DROPEFFECT dropEffect, CPoint point) {}
+   BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message) { return FALSE; }   
+   DROPEFFECT OnDragEnter(COleDataObject* pDataObject, DWORD dwKeyState, CPoint point) { return DROPEFFECT_NONE; }
+   DROPEFFECT OnDragOver(COleDataObject* pDataObject, DWORD dwKeyState, CPoint point) { return DROPEFFECT_NONE; }
+   BOOL OnDrop(COleDataObject* pDataObject, DROPEFFECT dropEffect, CPoint point) { return FALSE; }
    void OnDragLeave() {}
    void OnLButtonDblClk(UINT,CPoint) {}
    void OnLButtonDown(UINT,CPoint) {}
@@ -3653,7 +3655,7 @@ public:
       CDataExchange* pDX
    ) {}
    int GetWindowTextLength( ) const;
-   CWnd* GetParent() { return m_pParentWnd?(CWnd*)m_pParentWnd:(CWnd*)m_pFrameWnd; }
+   CWnd* GetParent() const { return m_pParentWnd?(CWnd*)m_pParentWnd:(CWnd*)m_pFrameWnd; }
    void SetParent(CWnd* parent) { m_pParentWnd = parent; _qt->setParent(parent->toQWidget()); }
    void GetWindowText(
       CString& rString
@@ -4216,6 +4218,7 @@ public:
       CWnd* pParentWnd,
       UINT nID
    );
+   void Clear();
    int GetWindowTextLength( ) const;
    void GetWindowText(
       CString& rString
@@ -4957,6 +4960,8 @@ protected:
    virtual void run();
    virtual int Run();
 };
+
+typedef UINT (*AFX_THREADPROC)(LPVOID lpParameter);
 
 class CWinThread : public MFCThread, public CCmdTarget
 {

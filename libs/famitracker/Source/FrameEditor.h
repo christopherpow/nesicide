@@ -26,6 +26,7 @@
 class CFamiTrackerDoc;
 class CFamiTrackerView;
 class CFrameEditor;
+class CMainFrame;
 
 struct stSelectInfo {
 	bool bSelecting;
@@ -118,6 +119,7 @@ protected:
    void focusOutEvent(QFocusEvent *);
    void leaveEvent(QEvent *);
    void contextMenuEvent(QContextMenuEvent *event);   
+public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
 
 	DECLARE_DYNAMIC(CFrameEditor)
 public:

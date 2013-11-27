@@ -32,7 +32,6 @@
 class CInstrumentEditorFDS : public CInstrumentEditPanel
 {
    Q_OBJECT
-   DECLARE_DYNAMIC(CInstrumentEditorFDS)
    // Qt stuff
 public slots:
    void presetSine_clicked();
@@ -49,6 +48,9 @@ public slots:
    void pasteTable_clicked();
    void presetPulse50_clicked();
    void presetPulse25_clicked();
+public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
+   
+   DECLARE_DYNAMIC(CInstrumentEditorFDS)
 
 public:
 	CInstrumentEditorFDS(CWnd* pParent = NULL);   // standard constructor

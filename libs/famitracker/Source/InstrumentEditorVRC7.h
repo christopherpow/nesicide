@@ -27,10 +27,12 @@
 class CInstrumentEditorVRC7 : public CInstrumentEditPanel
 {
    Q_OBJECT
-   DECLARE_DYNAMIC(CInstrumentEditorVRC7)
    // Qt stuff
 protected:
    void contextMenuEvent(QContextMenuEvent *event);
+public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
+
+   DECLARE_DYNAMIC(CInstrumentEditorVRC7)
    
 public slots:
    void patch_currentIndexChanged(int index);

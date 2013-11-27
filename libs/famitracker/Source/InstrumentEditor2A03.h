@@ -28,13 +28,15 @@
 class CInstrumentEditor2A03 : public CSequenceInstrumentEditPanel
 {
    Q_OBJECT
-	DECLARE_DYNAMIC(CInstrumentEditor2A03)
    // Qt stuff
 public slots:
    void instSettings_itemSelectionChanged();
    void freeSeq_clicked();
    void sequenceSpin_valueChanged(int oldVal,int newVal);
    void menuAction_triggered(int id);
+public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
+   
+   DECLARE_DYNAMIC(CInstrumentEditor2A03)
    
 public:
 	CInstrumentEditor2A03(CWnd* pParent = NULL);   // standard constructor

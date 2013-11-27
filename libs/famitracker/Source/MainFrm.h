@@ -59,6 +59,7 @@ private:
    CFamiTrackerView* m_pView;
    QString m_fileName;
    bool initialized;
+public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
 
 protected: // create from serialization only
 	CMainFrame();

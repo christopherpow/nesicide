@@ -30,10 +30,12 @@
 class CInstrumentEditorFDSEnvelope : public CSequenceInstrumentEditPanel
 {
    Q_OBJECT
-   DECLARE_DYNAMIC(CInstrumentEditorFDSEnvelope)
    // Qt stuff
 public slots:
    void type_currentIndexChanged(int index);
+public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
+   
+   DECLARE_DYNAMIC(CInstrumentEditorFDSEnvelope)
 
 public:
 	CInstrumentEditorFDSEnvelope(CWnd* pParent = NULL);   // standard constructor

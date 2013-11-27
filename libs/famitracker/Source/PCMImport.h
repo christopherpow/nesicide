@@ -39,6 +39,7 @@ public slots:
    void preview_clicked();
    void quality_valueChanged(int value);
    void volume_valueChanged(int value);
+public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
    
 	DECLARE_DYNAMIC(CPCMImport)
 

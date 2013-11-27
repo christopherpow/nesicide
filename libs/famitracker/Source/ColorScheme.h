@@ -26,7 +26,7 @@ const static TCHAR *FONT_FACE = _T("Verdana");
 const static int FONT_SIZE	  = 12;
 
 // Static colors
-struct {
+const struct {
 	static const COLORREF CHANNEL_NORMAL	= 0x00202020;	// Normal channel name
 	static const COLORREF CHANNEL_MUTED		= 0x002020E0;	// Muted channel name
 	static const COLORREF FRAME_LIGHT		= 0x00FFFFFF;	// 3D frame
@@ -34,7 +34,7 @@ struct {
 } STATIC_COLOR_SCHEME;
 
 // Blend levels
-struct {
+const struct {
 	static const int SEPARATOR		= 75;	// Channel separators
 	static const int EMPTY_BG		= 70;	// Empty background
 	static const int UNFOCUSED		= 50;	// Unfocused cursor

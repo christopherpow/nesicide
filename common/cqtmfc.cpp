@@ -1429,7 +1429,6 @@ BOOL operator <( const CString& s1, const CString& s2 )
 CString::CString()
 {
    _qstr.clear();
-   _qstrn = QByteArray(_qstr.toLatin1());
    UpdateScratch();
 }
 
@@ -1638,7 +1637,7 @@ BOOL CString::IsEmpty() const
    return _qstr.isEmpty();
 }
 
-CString& CString::operator=(const CString& str)
+const CString& CString::operator=(const CString& str)
 {
    _qstr.clear();
    _qstr = str._qstr;
@@ -1646,7 +1645,7 @@ CString& CString::operator=(const CString& str)
    return *this;
 }
 
-CString& CString::operator=(LPCTSTR str)
+const CString& CString::operator=(LPCTSTR str)
 {
    _qstr.clear();
 #if UNICODE
@@ -1658,7 +1657,7 @@ CString& CString::operator=(LPCTSTR str)
    return *this;
 }
 
-CString& CString::operator=(TCHAR c)
+const CString& CString::operator=(TCHAR c)
 {
    _qstr.clear();
 #if UNICODE
@@ -1672,7 +1671,7 @@ CString& CString::operator=(TCHAR c)
    return *this;
 }
 
-CString& CString::operator=(QString str)
+const CString& CString::operator=(QString str)
 {
    _qstr.clear();
    _qstr = str;
@@ -7045,7 +7044,7 @@ int CWinThread::Run( )
 {
    if ( m_pfnThreadProc )
    {
-      m_pfnThreadProc();
+      m_pfnThreadProc(m_pParam);
    }
    return 0;
 }
@@ -7068,13 +7067,13 @@ CWinThread* AfxBeginThread(
 
 CWinThread* AfxBeginThread( 
    CRuntimeClass* pThreadClass, 
-   int nPriority = THREAD_PRIORITY_NORMAL, 
-   UINT nStackSize = 0, 
-   DWORD dwCreateFlags = 0, 
-   LPSECURITY_ATTRIBUTES lpSecurityAttrs = NULL  
+   int nPriority, 
+   UINT nStackSize, 
+   DWORD dwCreateFlags, 
+   LPSECURITY_ATTRIBUTES lpSecurityAttrs  
 )
 {
-   CWinThread* pThread = pThreadClass->CreateObject();
+   CWinThread* pThread = (CWinThread*)pThreadClass->CreateObject();
    pThread->CreateThread(dwCreateFlags,nStackSize,lpSecurityAttrs);
 }
 
@@ -8636,6 +8635,18 @@ BOOL CEdit::Create(
    }
    
    return TRUE;
+}
+
+void CEdit::Clear()
+{
+   if ( _dwStyle&ES_MULTILINE )
+   {
+      _qtd_ptedit->clear();
+   }
+   else
+   {
+      _qtd_ledit->clear();
+   }
 }
 
 LRESULT CEdit::SendMessage(

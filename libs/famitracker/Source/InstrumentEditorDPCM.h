@@ -58,8 +58,8 @@ public slots:
 protected:
    void keyPressEvent(QKeyEvent *event);
    void keyReleaseEvent(QKeyEvent *event);
+public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
    
-public:
 	DECLARE_DYNAMIC(CInstrumentEditorDPCM)
 
 public:
@@ -83,7 +83,7 @@ protected:
 	void BuildKeyList();
 	void BuildSampleList();
 	void UpdateKey(int Index);
-	bool LoadSample(CString &FilePath, CString &FileName);
+	bool LoadSample(const CString &FilePath, const CString &FileName);
 	bool InsertSample(CDSample *pNewSample);
 
 	CDSample *GetSelectedSample();

@@ -19,6 +19,7 @@ public slots:
    void addedList_cellDoubleClicked(int row,int column);
    void availableTree_itemClicked(QTreeWidgetItem* item,int column);
    void availableTree_itemDoubleClicked(QTreeWidgetItem* item,int column);
+public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
    
 	DECLARE_DYNAMIC(CChannelsDlg)
 

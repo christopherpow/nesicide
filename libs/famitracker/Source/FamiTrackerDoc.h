@@ -135,6 +135,7 @@ class CFamiTrackerDoc : public CDocument, public CFamiTrackerDocInterface
    // Qt stuff
 public:
    void menuAction_triggered(int id);
+public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
    
 protected: // create from serialization only
 	CFamiTrackerDoc();

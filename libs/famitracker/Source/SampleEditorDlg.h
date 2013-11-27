@@ -38,8 +38,8 @@ protected:
    void mouseReleaseEvent(QMouseEvent *event);
    void resizeEvent(QResizeEvent *event);
    bool eventFilter(QObject *object, QEvent *event);
+public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
    
-   // MFC interfaces   
 	DECLARE_DYNAMIC(CSampleView)
 protected:
 	DECLARE_MESSAGE_MAP()
@@ -93,6 +93,7 @@ public:
 class CSampleEditorDlg : public CDialog
 {
    Q_OBJECT
+public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
 
 	DECLARE_DYNAMIC(CSampleEditorDlg)
    // Qt interfaces

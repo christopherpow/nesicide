@@ -35,7 +35,7 @@ public slots:
    void cancel_clicked();
    void spinLoop_valueChanged(int arg1,int arg2);
    void spinTime_valueChanged(int arg1,int arg2);
-public:
+public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
 	DECLARE_DYNAMIC(CCreateWaveDlg)
 
 public:

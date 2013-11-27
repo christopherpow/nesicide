@@ -54,6 +54,7 @@ protected:
    void mouseReleaseEvent(QMouseEvent *event);
    void mouseDoubleClickEvent(QMouseEvent *event);
    QSize sizeHint() const { return QSize(141,36); } // Not sure why the size is protected...but...
+public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
    
 	DECLARE_DYNAMIC(CSampleWindow)
 

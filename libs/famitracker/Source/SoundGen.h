@@ -98,6 +98,8 @@ class CSoundGen : public CWinThread, ICallback
 public slots:
    void onIdleSlot();
    void recvThreadMessage(unsigned int m,unsigned int w,unsigned int l);
+public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
+   
 protected:
 	DECLARE_DYNCREATE(CSoundGen)
 public:

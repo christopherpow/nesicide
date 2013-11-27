@@ -89,6 +89,7 @@ public slots:
    void horizontalScrollBar_actionTriggered(int action);
    void menuAction_triggered(int id);
    void menuAboutToShow(CMenu* menu);
+public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
    
 protected: // create from serialization only
 	CFamiTrackerView();

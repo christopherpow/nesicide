@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include "cqtmfc.h"
+
 #define MIDI_NOTE(octave, note)		((octave) * 12 + (note) - 1)
 #define GET_OCTAVE(midi_note)		((midi_note) / 12)
 #define GET_NOTE(midi_note)			((midi_note) % 12 + 1)

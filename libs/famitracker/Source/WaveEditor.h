@@ -32,9 +32,9 @@ protected:
    void mousePressEvent(QMouseEvent *event);
    void mouseReleaseEvent(QMouseEvent *event);
    void paintEvent(QPaintEvent *);
-   
-public:
-	CWaveEditor(int sx, int sy, int lx, int ly);
+public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
+
+   CWaveEditor(int sx, int sy, int lx, int ly);
 	virtual ~CWaveEditor();
 	DECLARE_DYNAMIC(CWaveEditor)
 private:

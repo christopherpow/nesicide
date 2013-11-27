@@ -35,6 +35,10 @@ const TCHAR *CInstrumentEditorDPCM::KEY_NAMES[] = {_T("C"), _T("C#"), _T("D"), _
 
 class CDMCFileSoundDialog : public CFileDialog
 {
+   Q_OBJECT
+   // Qt interfaces
+public slots:
+   void fileSelected(QString file);
 public:
 	CDMCFileSoundDialog(BOOL bOpenFileDialog, LPCTSTR lpszDefExt = NULL, LPCTSTR lpszFileName = NULL, DWORD dwFlags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, LPCTSTR lpszFilter = NULL, CWnd* pParentWnd = NULL, DWORD dwSize = 0);
 	virtual ~CDMCFileSoundDialog();
@@ -424,7 +428,7 @@ void CInstrumentEditorDPCM::BuildSampleList()
 // TODO: I think I was wrong
 #define ADJUST_FOR_STORAGE(x) (x)
 
-bool CInstrumentEditorDPCM::LoadSample(CString &FilePath, CString &FileName)
+bool CInstrumentEditorDPCM::LoadSample(const CString& FilePath, const CString& FileName)
 {
 	CFile SampleFile;
 

@@ -33,9 +33,9 @@ public slots:
 protected:
    void paintEvent(QPaintEvent *);
    void mousePressEvent(QMouseEvent *event);
-   
-public:
-	DECLARE_DYNAMIC(CSequenceSetting)
+public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
+
+   DECLARE_DYNAMIC(CSequenceSetting)
 	CSequenceSetting(CWnd *pParent);
 	virtual ~CSequenceSetting();
 public:

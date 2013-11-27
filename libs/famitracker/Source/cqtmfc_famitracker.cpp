@@ -940,7 +940,7 @@ void qtMfcInitStringResources()
    qtMfcStringResources.insert(IDS_UNDERRUN_MESSAGE    , "Audio buffer underrun, increase the audio buffer size.");
    qtMfcStringResources.insert(IDS_WELCOME_VER         , "Welcome to FamiTracker %i.%i.%i, press F1 for help");
    qtMfcStringResources.insert(IDS_INVALID_WAVEFILE    , "Cannot load parent sample!\nOnly uncompressed PCM is supported.");
-   qtMfcStringResources.insert(IDS_INST_FILE_ERROR     "Could not load instrument file. Check that you have the most recent version of FamiTracker."
+   qtMfcStringResources.insert(IDS_INST_FILE_ERROR     , "Could not load instrument file. Check that you have the most recent version of FamiTracker.");
    qtMfcStringResources.insert(IDS_NEW_2A03_INSTRUMENT , "New 2A03 instrument");
    qtMfcStringResources.insert(IDS_NEW_VRC6_INSTRUMENT , "New VRC6 instrument");
    qtMfcStringResources.insert(IDS_NEW_VRC7_INSTRUMENT , "New VRC7 instrument");
@@ -1592,7 +1592,7 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_DPCM(CDialog* parent1)
    parent->MapDialogRect(&r12);
    mfc12->Create(_T("->"),WS_VISIBLE,r12,parent,IDC_REMOVE);
    mfcToQtWidget->insert(IDC_REMOVE,mfc12);
-   QObject::connect(mfc15,SIGNAL(clicked()),parent,SLOT(remove_clicked()));
+   QObject::connect(mfc12,SIGNAL(clicked()),parent,SLOT(remove_clicked()));
 //   GROUPBOX        "Loaded samples",IDC_STATIC,192,7,173,160
    CButton* mfc13 = new CButton(parent);
    CRect r13(CPoint(192,7),CSize(173,160));

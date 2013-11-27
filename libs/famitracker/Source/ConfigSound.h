@@ -38,6 +38,7 @@ public slots:
    void trebleFreq_valueChanged(int value);
    void trebleDamp_valueChanged(int value);
    void volume_valueChanged(int value);
+public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
 
 	DECLARE_DYNAMIC(CConfigSound)
 
