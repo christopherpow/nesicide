@@ -152,9 +152,8 @@ void CFrameEditor::focusOutEvent(QFocusEvent *)
 
 void CFrameEditor::resizeEvent(QResizeEvent *event)
 {
-   CRect rect;
-   GetClientRect(&rect);
-
+   CRect rect(0,0,event->size().width(),event->size().height());
+   rect.DeflateRect(::GetSystemMetrics(SM_CXVSCROLL),::GetSystemMetrics(SM_CYHSCROLL));
    OnSize(0,rect.Width(),rect.Height());
 }
 

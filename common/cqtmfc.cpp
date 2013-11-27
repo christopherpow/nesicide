@@ -6428,6 +6428,8 @@ BOOL CReBarCtrl::InsertBand(
    else
    {
       _qtd->addWidget(pWnd->toQWidget());
+      pWnd->toQWidget()->setMinimumWidth(1);
+      pWnd->toQWidget()->setSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::Fixed);
    }
    return TRUE;
 }
@@ -10448,8 +10450,16 @@ DWORD WINAPI WaitForSingleObject(
    if ( pSyncObj->IsKindOf(RUNTIME_CLASS(CEvent)) )
    {
       CEvent* pEvent = (CEvent*)pSyncObj;
+      while ( !pEvent->m_bSignalled )
+      {
+         Sleep(10);         
+      }
+      // CP: COMPLETE HACK!
+      if ( !pEvent->m_bManualReset )
+         pEvent->m_bSignalled = false;
+      return WAIT_OBJECT_0;
    }
-   // CP: How to wait?
+   return WAIT_FAILED;
 }
 
 BOOL WINAPI CloseHandle(
@@ -10528,6 +10538,8 @@ CEvent::CEvent(
    LPSECURITY_ATTRIBUTES lpsaAttribute
 )
 {
+   m_bSignalled = false;
+   m_bManualReset = bManualReset;
 }
 
 CEvent::~CEvent()
@@ -10536,16 +10548,20 @@ CEvent::~CEvent()
 
 BOOL CEvent::SetEvent()
 {
+   m_bSignalled = true;   
    return TRUE;
 }
 
 BOOL CEvent::ResetEvent()
 {
+   m_bSignalled = false;   
    return TRUE;
 }
 
 BOOL CEvent::PulseEvent()
 {
+   m_bSignalled = true;   
+   m_bSignalled = false;   
    return TRUE;
 }
 

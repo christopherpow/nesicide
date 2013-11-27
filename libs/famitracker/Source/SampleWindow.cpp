@@ -315,7 +315,7 @@ void CSampleWindow::OnRButtonUp(UINT nFlags, CPoint point)
 	menuPoint.x = rect.left + point.x;
 	menuPoint.y = rect.top + point.y;
 
-	UINT menuIds[] = {ID_POPUP_SAMPLEGRAPH1, ID_POPUP_SAMPLEGRAPH2, ID_POPUP_SPECTRUMANALYZER, ID_POPUP_NOTHING};
+	UINT menuIds[] = {ID_POPUP_SAMPLESCOPE1, ID_POPUP_SAMPLESCOPE2, ID_POPUP_SPECTRUMANALYZER, ID_POPUP_NOTHING};
 
 	pPopupMenu->CheckMenuItem(menuIds[m_iCurrentState], MF_BYCOMMAND | MF_CHECKED);
 

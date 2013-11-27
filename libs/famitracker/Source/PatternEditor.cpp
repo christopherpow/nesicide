@@ -91,14 +91,6 @@ LPCTSTR CPatternView::DEFAULT_HEADER_FONT = _T("Tahoma");
 const int CPatternView::DEFAULT_FONT_SIZE = 12;
 const int CPatternView::DEFAULT_HEADER_FONT_SIZE = 11;
 
-void CPatternView::resizeEvent(QResizeEvent *event)
-{
-   // CP: counteract unnecessary math in SetWindowSize...
-   int width = event->size().width() + 3;
-   int height = event->size().height() + 4;
-   SetWindowSize(width,height);
-}
-
 void CPatternView::leaveEvent(QEvent *)
 {
    OnMouseNcMove();

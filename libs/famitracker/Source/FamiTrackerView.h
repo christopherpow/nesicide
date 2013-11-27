@@ -71,6 +71,7 @@ public:
    );
 protected:
    void viewPaintEvent(QPaintEvent *event);
+   void resizeEvent(QResizeEvent *event);
    void wheelEvent(QWheelEvent *event);
    void mouseMoveEvent(QMouseEvent *event);
    void mousePressEvent(QMouseEvent *event);

@@ -2640,6 +2640,8 @@ public:
    BOOL SetEvent();
    BOOL ResetEvent();
    BOOL PulseEvent();
+   bool m_bSignalled;
+   bool m_bManualReset;
 };
 
 class CString;
@@ -3473,7 +3475,7 @@ enum
 class CWnd : public QWidget, public CCmdTarget, public QtUIElement
 {
    Q_OBJECT
-   // MFC interfaces
+
    DECLARE_DYNAMIC(CWnd)
 public:
    CWnd(CWnd* parent=0);

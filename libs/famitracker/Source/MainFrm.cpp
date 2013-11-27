@@ -1089,26 +1089,32 @@ void CMainFrame::menuAction_triggered(int id)
 {
    typedef void (CMainFrame::*actionHandler)();
    QHash<UINT_PTR,actionHandler> actionHandlers;
-   //	ON_COMMAND(ID_FILE_GENERALSETTINGS, OnFileGeneralsettings)
+   //   ON_COMMAND(ID_FILE_GENERALSETTINGS, OnFileGeneralsettings)
    actionHandlers.insert(ID_FILE_GENERALSETTINGS,&CMainFrame::OnFileGeneralsettings);
    //	ON_COMMAND(ID_FILE_IMPORTMIDI, OnFileImportmidi)
    actionHandlers.insert(ID_FILE_IMPORTMIDI,&CMainFrame::OnFileImportmidi);
+   //	ON_COMMAND(ID_FILE_IMPORTTEXT, OnFileImportText)
+   actionHandlers.insert(ID_FILE_IMPORTTEXT,&CMainFrame::OnFileImportText);
+   //	ON_COMMAND(ID_FILE_EXPORTTEXT, OnFileExportText)
+   actionHandlers.insert(ID_FILE_EXPORTTEXT,&CMainFrame::OnFileExportText);
    //	ON_COMMAND(ID_FILE_CREATE_NSF, OnCreateNSF)
    actionHandlers.insert(ID_FILE_CREATE_NSF,&CMainFrame::OnCreateNSF);
    //	ON_COMMAND(ID_FILE_CREATEWAV, OnCreateWAV)
    actionHandlers.insert(ID_FILE_CREATEWAV,&CMainFrame::OnCreateWAV);
-   
-   // ID_FILE_EXIT
-   actionHandlers.insert(ID_APP_EXIT,&CMainFrame::OnClose);
-   
    //	ON_COMMAND(ID_EDIT_UNDO, OnEditUndo)
    actionHandlers.insert(ID_EDIT_UNDO,&CMainFrame::OnEditUndo);
    //	ON_COMMAND(ID_EDIT_REDO, OnEditRedo)
    actionHandlers.insert(ID_EDIT_REDO,&CMainFrame::OnEditRedo);
+   //	ON_COMMAND(ID_EDIT_CUT, OnEditCut)
+   actionHandlers.insert(ID_EDIT_CUT,&CMainFrame::OnEditCut);
    //	ON_COMMAND(ID_EDIT_COPY, OnEditCopy)
    actionHandlers.insert(ID_EDIT_COPY,&CMainFrame::OnEditCopy);
    //	ON_COMMAND(ID_EDIT_PASTE, OnEditPaste)
    actionHandlers.insert(ID_EDIT_PASTE,&CMainFrame::OnEditPaste);
+   //	ON_COMMAND(ID_EDIT_DELETE, OnEditDelete)
+   actionHandlers.insert(ID_EDIT_DELETE,&CMainFrame::OnEditDelete);
+   //	ON_COMMAND(ID_EDIT_SELECTALL, OnEditSelectall)
+   actionHandlers.insert(ID_EDIT_SELECTALL,&CMainFrame::OnEditSelectall);
    //	ON_COMMAND(ID_EDIT_ENABLEMIDI, OnEditEnableMIDI)
    actionHandlers.insert(ID_EDIT_ENABLEMIDI,&CMainFrame::OnEditEnableMIDI);
    //	ON_COMMAND(ID_EDIT_EXPANDPATTERNS, OnEditExpandpatterns)
@@ -1169,24 +1175,16 @@ void CMainFrame::menuAction_triggered(int id)
    actionHandlers.insert(ID_TRACKER_DPCM,&CMainFrame::OnTrackerDPCM);
    //	ON_COMMAND(ID_VIEW_CONTROLPANEL, OnViewControlpanel)
    actionHandlers.insert(ID_VIEW_CONTROLPANEL,&CMainFrame::OnViewControlpanel);
-//   //	ON_COMMAND(ID_HELP, CFrameWnd::OnHelp)
-//   actionHandlers.insert(ID_HELP,CFrameWnd::OnHelp);
-//   //	ON_COMMAND(ID_HELP_FINDER, CFrameWnd::OnHelpFinder)
-//   actionHandlers.insert(ID_HELP_FINDER,CFrameWnd::OnHelpFinder);
-   //	ON_COMMAND(ID_HELP_PERFORMANCE, OnHelpPerformance)
-   actionHandlers.insert(ID_HELP_PERFORMANCE,&CMainFrame::OnHelpPerformance);
-   //	ON_COMMAND(ID_HELP_EFFECTTABLE, &CMainFrame::OnHelpEffecttable)
-   actionHandlers.insert(ID_HELP_EFFECTTABLE,&CMainFrame::OnHelpEffecttable);
-//   //	ON_COMMAND(ID_DEFAULT_HELP, CFrameWnd::OnHelpFinder)
-//   actionHandlers.insert(ID_DEFAULT_HELP,CFrameWnd::OnHelpFinder);
-//   //	ON_COMMAND(ID_CONTEXT_HELP, CFrameWnd::OnContextHelp)
-//   actionHandlers.insert(ID_CONTEXT_HELP,CFrameWnd::OnContextHelp);
-
+   ////	ON_COMMAND(ID_HELP, CFrameWnd::OnHelp)
+   ////	ON_COMMAND(ID_HELP_FINDER, CFrameWnd::OnHelpFinder)
+   ////	ON_COMMAND(ID_HELP_PERFORMANCE, OnHelpPerformance)
+   ////	ON_COMMAND(ID_HELP_EFFECTTABLE, &CMainFrame::OnHelpEffecttable)
+   ////	ON_COMMAND(ID_DEFAULT_HELP, CFrameWnd::OnHelpFinder)
+   ////	ON_COMMAND(ID_CONTEXT_HELP, CFrameWnd::OnContextHelp)
    //	ON_COMMAND(ID_FRAMEEDITOR_TOP, OnFrameeditorTop)
    actionHandlers.insert(ID_FRAMEEDITOR_TOP,&CMainFrame::OnFrameeditorTop);
    //	ON_COMMAND(ID_FRAMEEDITOR_LEFT, OnFrameeditorLeft)
    actionHandlers.insert(ID_FRAMEEDITOR_LEFT,&CMainFrame::OnFrameeditorLeft);
-
    //	ON_COMMAND(ID_NEXT_FRAME, OnNextFrame)
    actionHandlers.insert(ID_NEXT_FRAME,&CMainFrame::OnNextFrame);
    //	ON_COMMAND(ID_PREV_FRAME, OnPrevFrame)
@@ -1211,12 +1209,14 @@ void CMainFrame::menuAction_triggered(int id)
    actionHandlers.insert(ID_CMD_PREV_INSTRUMENT,&CMainFrame::OnPrevInstrument);
    //	ON_COMMAND(ID_TOGGLE_SPEED, OnToggleSpeed)
    actionHandlers.insert(ID_TOGGLE_SPEED,&CMainFrame::OnToggleSpeed);
-
    //	ON_COMMAND(ID_DECAY_FAST, OnDecayFast)
    actionHandlers.insert(ID_DECAY_FAST,&CMainFrame::OnDecayFast);
    //	ON_COMMAND(ID_DECAY_SLOW, OnDecaySlow)
    actionHandlers.insert(ID_DECAY_SLOW,&CMainFrame::OnDecaySlow);
 
+   // ID_FILE_EXIT
+   actionHandlers.insert(ID_APP_EXIT,&CMainFrame::OnClose);
+   
    if ( actionHandlers.contains(id) )
    {
       (this->*((actionHandlers[id])))();

@@ -501,9 +501,9 @@ void qtMfcInitMenuResource_IDR_SAMPLE_WND_POPUP(CMenu* parent)
    parent->AppendMenu(MF_POPUP|MF_STRING,(UINT_PTR)subMenu->m_hMenu,"Popup");
 //       BEGIN
 //           MENUITEM "Sample scope 1",              ID_POPUP_SAMPLESCOPE1
-   subMenu->AppendMenu(MF_STRING,ID_POPUP_SAMPLEGRAPH1,"Sample graph 1");
+   subMenu->AppendMenu(MF_STRING,ID_POPUP_SAMPLESCOPE1,"Sample scope 1");
 //           MENUITEM "Sample scope 2",              ID_POPUP_SAMPLESCOPE2
-   subMenu->AppendMenu(MF_STRING,ID_POPUP_SAMPLEGRAPH2,"Sample graph 2");
+   subMenu->AppendMenu(MF_STRING,ID_POPUP_SAMPLESCOPE2,"Sample scope 2");
 //           MENUITEM "Spectrum analyzer",           ID_POPUP_SPECTRUMANALYZER
    subMenu->AppendMenu(MF_STRING,ID_POPUP_SPECTRUMANALYZER,"Spectrum analyzer");
 //           MENUITEM "Nothing",                     ID_POPUP_NOTHING

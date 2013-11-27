@@ -188,7 +188,13 @@ LRESULT CFamiTrackerView::SendMessage(
 void CFamiTrackerView::updateViews(long hint)
 {
    OnUpdate(0,hint,0);
-//   m_pPatternView->update();
+}
+
+void CFamiTrackerView::resizeEvent(QResizeEvent *event)
+{
+   CRect rect(0,0,event->size().width(),event->size().height());
+   rect.InflateRect(::GetSystemMetrics(SM_CXVSCROLL),::GetSystemMetrics(SM_CYHSCROLL));
+   CalcWindowRect(&rect);
 }
 
 void CFamiTrackerView::wheelEvent(QWheelEvent *event)
@@ -676,6 +682,11 @@ bool CFamiTrackerView::eventFilter(QObject *object, QEvent *event)
 {
    if ( object == m_pPatternView )
    {
+      if ( event->type() == QEvent::Resize )
+      {
+         resizeEvent(dynamic_cast<QResizeEvent*>(event));
+         return true;
+      }
       if ( event->type() == QEvent::KeyPress )
       {
          keyPressEvent(dynamic_cast<QKeyEvent*>(event));
