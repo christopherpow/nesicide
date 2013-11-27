@@ -482,7 +482,7 @@ bool CSoundGen::InitializeSound(HWND hWnd)
 	// Start with NTSC by default
 
 	// Called from main thread
-	ASSERT(GetCurrentThread() == theApp.m_hThread);
+//	ASSERT(GetCurrentThread() == theApp.m_hThread);
 	ASSERT(m_pDSound == NULL);
 
 	// Event used to interrupt the sound buffer synchronization

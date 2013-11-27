@@ -177,7 +177,8 @@ SOURCES += \
     Source/DialogReBar.cpp \
     Source/ConfigGeneral.cpp \
     Source/ConfigAppearance.cpp \
-    Source/CreateWaveDlg.cpp
+    Source/CreateWaveDlg.cpp \
+    Source/TextExporter.cpp
 
 HEADERS += \
     Source/TrackerChannel.h \
@@ -296,7 +297,8 @@ HEADERS += \
     Source/ConfigAppearance.h \
     Source/CreateWaveDlg.h \
     resource.h \
-    version.h
+    version.h \
+    Source/TextExporter.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN

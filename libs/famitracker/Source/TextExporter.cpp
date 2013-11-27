@@ -332,7 +332,7 @@ public:
 
 // =============================================================================
 
-static bool ImportHex(CString& sToken, int& i, int line, int column, CString& sResult)
+static bool ImportHex(const CString& sToken, int& i, int line, int column, CString& sResult)
 {
 	i = 0;
 	for (int d=0; d < sToken.GetLength(); ++d)
@@ -595,7 +595,7 @@ CTextExport::~CTextExport()
 
 #define CHECK_COLON() CHECK_SYMBOL(":")
 
-const char* Charify(CString& s)
+const char* Charify(const CString& s)
 {
 	// NOTE if Famitracker is switched to unicode, need to do a conversion here
 	return s.GetString();

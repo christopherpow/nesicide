@@ -46,8 +46,6 @@ class CSampleWindow : public CWnd
 {
    Q_OBJECT
    // Qt stuff
-public slots:
-   void DrawSamples(int *Samples, int Count);
 protected:
    void paintEvent(QPaintEvent *);
    void mousePressEvent(QMouseEvent *event);

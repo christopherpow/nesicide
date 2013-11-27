@@ -540,7 +540,7 @@ bool CSampleView::eventFilter(QObject *object, QEvent *event)
    return false;
 }
 
-CScrollBar m_sbScrollBar;
+CScrollBar* m_sbScrollBar;
 
 CSampleView::CSampleView() : 
 	m_iSelStart(-1), 
@@ -553,6 +553,8 @@ CSampleView::CSampleView() :
 	m_pDashedPen = new CPen(PS_DASH, 1, (COLORREF)0x00);
 	m_pGrayDashedPen = new CPen(PS_DASHDOT, 1, (COLORREF)0xF0F0F0);
 	m_pDarkGrayDashedPen = new CPen(PS_DASHDOT, 1, (COLORREF)0xE0E0E0);
+   
+   m_sbScrollBar = new CScrollBar();
 }
 
 CSampleView::~CSampleView()
@@ -572,15 +574,15 @@ void CSampleView::OnPaint()
 	CPaintDC dc(this); // device context for painting
 
 	// Create scroll bar
-	if (m_sbScrollBar.m_hWnd == NULL) {
+	if (m_sbScrollBar->m_hWnd == NULL) {
 		CRect rect;
 		GetClientRect(&rect);
-		m_sbScrollBar.Create(SBS_HORZ | SBS_BOTTOMALIGN | WS_CHILD | WS_VISIBLE, rect, this, 1);
-		m_sbScrollBar.EnableWindow(0);
+		m_sbScrollBar->Create(SBS_HORZ | SBS_BOTTOMALIGN | WS_CHILD | WS_VISIBLE, rect, this, 1);
+		m_sbScrollBar->EnableWindow(0);
 	}
 
 	CRect sbRect;
-	m_sbScrollBar.GetClientRect(&sbRect);
+	m_sbScrollBar->GetClientRect(&sbRect);
 	ScrollBarHeight = sbRect.bottom - sbRect.top;
 
 	GetClientRect(&m_clientRect);
@@ -857,15 +859,15 @@ void CSampleView::OnSize(UINT nType, int cx, int cy)
 {
 	CStatic::OnSize(nType, cx, cy);
 
-	if (m_sbScrollBar.m_hWnd != NULL) {
+	if (m_sbScrollBar->m_hWnd != NULL) {
 		CRect clientRect, scrollRect;
 		GetClientRect(&clientRect);
-		m_sbScrollBar.GetClientRect(&scrollRect);
+		m_sbScrollBar->GetClientRect(&scrollRect);
 		scrollRect.right = clientRect.right;
 		int height = scrollRect.Height();
 		scrollRect.top = clientRect.bottom - height;
 		scrollRect.bottom = scrollRect.top + height;
-		m_sbScrollBar.MoveWindow(&scrollRect);
+		m_sbScrollBar->MoveWindow(&scrollRect);
 	}
 }
 

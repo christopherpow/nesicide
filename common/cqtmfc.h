@@ -2562,6 +2562,15 @@ public:
    );
 };
 
+DWORD WINAPI WaitForSingleObject(
+   HANDLE hHandle,
+   DWORD dwMilliseconds
+);
+
+BOOL WINAPI CloseHandle(
+   HANDLE hObject
+);
+
 class CSyncObject : public CObject
 {
    DECLARE_DYNAMIC(CSyncObject)
@@ -2810,6 +2819,13 @@ class CStdioFile : public CFile
 public:
    virtual void WriteString( 
       LPCTSTR lpsz  
+   );
+   virtual LPTSTR ReadString( 
+      LPTSTR lpsz, 
+      UINT nMax  
+   ); 
+   virtual BOOL ReadString( 
+      CString& rString 
    );
 };
 
@@ -4153,7 +4169,6 @@ public:
    void setPageStep(int pageStep) { _qtd->setPageStep(pageStep); }
 protected:
    QScrollBar* _qtd;
-   Qt::Orientation _orient;
 signals:
    void actionTriggered(int action);
 
@@ -4954,18 +4969,15 @@ public:
    ) const;
 };
 
-class MFCThread : public QThread
-{
-protected:
-   virtual void run();
-   virtual int Run();
-};
-
 typedef UINT (*AFX_THREADPROC)(LPVOID lpParameter);
 
-class CWinThread : public MFCThread, public CCmdTarget
+class CWinThread : public QThread, public CCmdTarget
 {
    Q_OBJECT
+   // Qt interfaces
+protected:
+   virtual void run();
+   
    DECLARE_DYNCREATE(CWinThread)
 public:
    CWinThread();

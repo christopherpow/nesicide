@@ -15,7 +15,7 @@
 #include <QMenuBar>
 #include <QUuid>
 
-extern CWinApp* ptrToTheApp;
+CWinApp* ptrToTheApp;
 
 CBrush nullBrush;
 
@@ -2096,6 +2096,38 @@ void CStdioFile::WriteString(
 #endif
 }
 
+LPTSTR CStdioFile::ReadString( 
+   LPTSTR lpsz, 
+   UINT nMax  
+)
+{
+   qint64 bytes = _qfile.readLine(lpsz,nMax);
+   if ( bytes < (nMax-1) )
+   {
+      lpsz[bytes] = '\n';
+   }
+   if ( bytes )
+   {
+      return lpsz;
+   }
+   else
+   {
+      return NULL;
+   }
+}
+
+BOOL CStdioFile::ReadString( 
+   CString& rString 
+)
+{
+   rString = _qfile.readLine().constData();
+   if ( rString.GetLength() )
+   {
+      rString += '\n';
+   }
+   return rString.GetLength()?TRUE:FALSE;
+}
+
 CRect::CRect( )
 {
    top = 0;
@@ -2608,11 +2640,16 @@ BOOL CBitmap::LoadBitmap(
 
 CDC::CDC()
 {
+   LOGFONT lf;
    m_hDC = NULL;
    _qwidget = NULL;
    _pen = NULL;
    _brush = NULL;
-   _font = NULL;
+   _font = new CFont();
+   memset(&lf,0,sizeof(LOGFONT));
+   strcpy(lf.lfFaceName,"MS Shell Dlg");
+   lf.lfHeight = 8;
+   _font->CreateFontIndirect(&lf);
    _bitmap = NULL;
    _bitmapSize = QSize(-1,-1);
    _rgn = NULL;
@@ -2631,11 +2668,16 @@ CDC::CDC()
 
 CDC::CDC(CWnd* parent)
 {
+   LOGFONT lf;
    m_hDC = (HDC)parent->toQWidget();
    _qwidget = parent->toQWidget();
    _pen = NULL;
    _brush = NULL;
-   _font = NULL;
+   _font = new CFont();
+   memset(&lf,0,sizeof(LOGFONT));
+   strcpy(lf.lfFaceName,"MS Shell Dlg");
+   lf.lfHeight = 8;
+   _font->CreateFontIndirect(&lf);
    _bitmap = NULL;
    _bitmapSize = QSize(-1,-1);
    _rgn = NULL;
@@ -4811,26 +4853,7 @@ CString CTreeCtrl::GetItemText(
 IMPLEMENT_DYNAMIC(CScrollBar,CWnd)
 
 CScrollBar::CScrollBar(CWnd *parent)
-   : CWnd(parent),
-     _orient(Qt::Vertical)
 {
-   if ( _qt )
-      delete _qt;
-
-   _grid = NULL;
-
-   if ( parent )
-      _qt = new QScrollBar(parent->toQWidget());
-   else
-      _qt = new QScrollBar;
-
-   // Downcast to save having to do it all over the place...
-   _qtd = dynamic_cast<QScrollBar*>(_qt);
-
-   _qtd->setMouseTracking(true);
-
-   // Pass-through signals
-   QObject::connect(_qtd,SIGNAL(actionTriggered(int)),this,SIGNAL(actionTriggered(int)));
 }
 
 CScrollBar::~CScrollBar()
@@ -4860,7 +4883,23 @@ BOOL CScrollBar::Create(
    m_hWnd = (HWND)this;
    _id = nID;
 
-   _qtd->setOrientation(_orient);
+   if ( _qt )
+      delete _qt;
+
+   _grid = NULL;
+
+   if ( pParentWnd )
+      _qt = new QScrollBar(pParentWnd->toQWidget());
+   else
+      _qt = new QScrollBar;
+
+   // Downcast to save having to do it all over the place...
+   _qtd = dynamic_cast<QScrollBar*>(_qt);
+
+   _qtd->setMouseTracking(true);
+
+   // Pass-through signals
+   QObject::connect(_qtd,SIGNAL(actionTriggered(int)),this,SIGNAL(actionTriggered(int)));
 
    QRect myRect(QPoint(rect.left,rect.top),QPoint(rect.right,rect.bottom));
    _qtd->setParent(pParentWnd->toQWidget());
@@ -6954,11 +6993,6 @@ CCommonDialog::~CCommonDialog()
 
 IMPLEMENT_DYNCREATE(CWinThread,CCmdTarget)
 
-void MFCThread::run()
-{
-   Run();
-}
-
 CWinThread::CWinThread()
 {
    m_hThread = (HANDLE)this;
@@ -7038,6 +7072,11 @@ BOOL CWinThread::PostThreadMessage(
 {
    emit postThreadMessage(message,wParam,lParam);
    return TRUE;
+}
+
+void CWinThread::run()
+{
+   Run();
 }
 
 int CWinThread::Run( )
@@ -7728,6 +7767,7 @@ IMPLEMENT_DYNCREATE(CWinApp,CWinThread)
 CWinApp::CWinApp() 
    : m_pRecentFileList(NULL) 
 {
+   ptrToTheApp = this;
 }
 
 CWinApp::~CWinApp()
@@ -10397,6 +10437,26 @@ HGLOBAL COleDataObject::GetGlobalData(
 {
    qDebug("COleDataObject::GetGlobalData?");
    return (HGLOBAL)NULL;
+}
+
+DWORD WINAPI WaitForSingleObject(
+   HANDLE hHandle,
+   DWORD dwMilliseconds
+)
+{
+   CSyncObject* pSyncObj = (CSyncObject*)hHandle;
+   if ( pSyncObj->IsKindOf(RUNTIME_CLASS(CEvent)) )
+   {
+      CEvent* pEvent = (CEvent*)pSyncObj;
+   }
+   // CP: How to wait?
+}
+
+BOOL WINAPI CloseHandle(
+   HANDLE hObject
+)
+{
+   // CP: Nothing to do here?
 }
 
 IMPLEMENT_DYNAMIC(CSyncObject,CObject)

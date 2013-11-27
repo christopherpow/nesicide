@@ -223,6 +223,8 @@ BEGIN_MESSAGE_MAP(CFamiTrackerDoc, CDocument)
 	ON_COMMAND(ID_EDIT_CLEARPATTERNS, OnEditClearPatterns)
 END_MESSAGE_MAP()
 
+CFamiTrackerDoc* CFamiTrackerDoc::ms_pDocOverride = NULL;
+
 void CFamiTrackerDoc::menuAction_triggered(int id)
 {
    typedef void (CFamiTrackerDoc::*actionHandler)();

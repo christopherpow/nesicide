@@ -26,27 +26,50 @@ const static TCHAR *FONT_FACE = _T("Verdana");
 const static int FONT_SIZE	  = 12;
 
 // Static colors
-const struct {
-	static const COLORREF CHANNEL_NORMAL	= 0x00202020;	// Normal channel name
-	static const COLORREF CHANNEL_MUTED		= 0x002020E0;	// Muted channel name
-	static const COLORREF FRAME_LIGHT		= 0x00FFFFFF;	// 3D frame
-	static const COLORREF FRAME_DARK		= 0x00808080;	// 3D frame
-} STATIC_COLOR_SCHEME;
+struct _STATIC_COLOR_SCHEME {
+	COLORREF CHANNEL_NORMAL;	// Normal channel name
+	COLORREF CHANNEL_MUTED;	// Muted channel name
+	COLORREF FRAME_LIGHT;	// 3D frame
+	COLORREF FRAME_DARK;	// 3D frame
+};
+
+const struct _STATIC_COLOR_SCHEME STATIC_COLOR_SCHEME = 
+{
+   0x00202020,	// Normal channel name
+	0x002020E0,	// Muted channel name
+	0x00FFFFFF,	// 3D frame
+	0x00808080	// 3D frame
+};
 
 // Blend levels
-const struct {
-	static const int SEPARATOR		= 75;	// Channel separators
-	static const int EMPTY_BG		= 70;	// Empty background
-	static const int UNFOCUSED		= 50;	// Unfocused cursor
-	static const int FOCUSED		= 80;	// Focused cursor
-	static const int SELECT			= 80;	// Selection box
-	static const int SELECT_EDGE	= 70;	// Edge of selection box
-	static const int UNUSED			= 30;	// Empty pattern
-	static const int PREVIEW		= 50;	// Pattern preview
-	static const int TEXT_SHADOW	= 20;
-	static const int HOVER			= 80;
-	static const int EDIT_MODE		= 80;
-} SHADE_LEVEL;
+struct _SHADE_LEVEL {
+	int SEPARATOR;	// Channel separators
+	int EMPTY_BG;	// Empty background
+	int UNFOCUSED;	// Unfocused cursor
+	int FOCUSED;	// Focused cursor
+	int SELECT;	// Selection box
+	int SELECT_EDGE;	// Edge of selection box
+	int UNUSED;	// Empty pattern
+	int PREVIEW;	// Pattern preview
+	int TEXT_SHADOW;
+	int HOVER;
+	int EDIT_MODE;
+};
+
+const struct _SHADE_LEVEL SHADE_LEVEL = 
+{
+   75,	// Channel separators
+	70,	// Empty background
+	50,	// Unfocused cursor
+	80,	// Focused cursor
+	80,	// Selection box
+	70,	// Edge of selection box
+	30,	// Empty pattern
+	50,	// Pattern preview
+	20,
+	80,
+	80
+};
 
 // Custom colors
 struct COLOR_SCHEME {

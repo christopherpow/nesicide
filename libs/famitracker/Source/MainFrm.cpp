@@ -98,7 +98,7 @@ void ScaleMouse(CPoint &pt)
 }
 
 // TODO: fix
-CDialogBar m_wndInstrumentBar;
+CDialogBar* m_wndInstrumentBar;
 
 // CMainFrame
 
@@ -1458,11 +1458,12 @@ bool CMainFrame::CreateDialogPanels()
 
 #ifdef NEW_INSTRUMENTPANEL
 /*
-	if (!m_wndInstrumentBar.Create(this, IDD_INSTRUMENTPANEL, CBRS_RIGHT | CBRS_TOOLTIPS | CBRS_FLYBY, IDD_INSTRUMENTPANEL)) {
+   m_wndInstrumentBar = new CDialogBar();
+	if (!m_wndInstrumentBar->Create(this, IDD_INSTRUMENTPANEL, CBRS_RIGHT | CBRS_TOOLTIPS | CBRS_FLYBY, IDD_INSTRUMENTPANEL)) {
 		TRACE0("Failed to create frame instrument bar\n");
 	}
 
-	m_wndInstrumentBar.ShowWindow(SW_SHOW);
+	m_wndInstrumentBar->ShowWindow(SW_SHOW);
 */
 #endif
 

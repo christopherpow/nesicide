@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "cqtmfc.h"
+
 class CFamiTrackerDoc; // forward declaration
 
 class CTextExport : public CObject
