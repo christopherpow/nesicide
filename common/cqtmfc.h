@@ -3779,6 +3779,7 @@ public slots:
 protected:
    bool eventFilter(QObject *object, QEvent *event);
    void focusInEvent(QFocusEvent *event);
+   void closeEvent(QCloseEvent *);
    QWidget* _qt;
    QFrame* _qtd;
    QGridLayout* _grid;

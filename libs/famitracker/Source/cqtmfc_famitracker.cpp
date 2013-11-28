@@ -3606,7 +3606,7 @@ void qtMfcInitDialogResource_IDD_COMMENTS(CDialog* parent1)
 //   IDD_COMMENTS DIALOGEX 0, 0, 358, 230
    CRect rect(CPoint(0,0),CSize(358,230));
    parent->MapDialogRect(&rect);
-   parent->setFixedSize(rect.Width(),rect.Height());
+   parent->setBaseSize(rect.Width(),rect.Height());
 //   STYLE DS_SETFONT | DS_FIXEDSYS | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 //   CAPTION "Module comments"
    parent->SetWindowText("Module comments");
@@ -3616,8 +3616,8 @@ void qtMfcInitDialogResource_IDD_COMMENTS(CDialog* parent1)
    CButton* mfc1 = new CButton(parent);
    CRect r1(CPoint(304,211),CSize(50,14));
    parent->MapDialogRect(&r1);
-   mfc1->Create(_T("Cancel"),WS_VISIBLE,r1,parent,IDC_CANCEL);
-   mfcToQtWidget->insert(IDC_CANCEL,mfc1);
+   mfc1->Create(_T("Cancel"),WS_VISIBLE,r1,parent,IDCANCEL);
+   mfcToQtWidget->insert(IDCANCEL,mfc1);
    QObject::connect(mfc1,SIGNAL(clicked()),parent,SLOT(cancel_clicked()));
 //   EDITTEXT        IDC_COMMENTS,0,0,358,206,ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_WANTRETURN | WS_VSCROLL | WS_HSCROLL
    CEdit* mfc2 = new CEdit(parent);
@@ -3635,8 +3635,8 @@ void qtMfcInitDialogResource_IDD_COMMENTS(CDialog* parent1)
    CButton* mfc4 = new CButton(parent);
    CRect r4(CPoint(248,211),CSize(50,14));
    parent->MapDialogRect(&r4);
-   mfc4->Create(_T("OK"),BS_DEFPUSHBUTTON | WS_VISIBLE,r4,parent,IDC_OK);
-   mfcToQtWidget->insert(IDC_OK,mfc4);
+   mfc4->Create(_T("OK"),BS_DEFPUSHBUTTON | WS_VISIBLE,r4,parent,IDOK);
+   mfcToQtWidget->insert(IDOK,mfc4);
    QObject::connect(mfc4,SIGNAL(clicked()),parent,SLOT(ok_clicked()));
 //   END
 }

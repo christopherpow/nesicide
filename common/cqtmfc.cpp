@@ -2196,7 +2196,7 @@ void CRect::MoveToX(
 )
 {
    int width = Width();
-   right = x+width;
+   right = x+width-1;
    left = x;
 }
 
@@ -2205,7 +2205,7 @@ void CRect::MoveToY(
 )
 {
    int height = Height();
-   bottom = y+height;
+   bottom = y+height-1;
    top = y;
 }
 
@@ -2215,10 +2215,10 @@ void CRect::MoveToXY(
 )
 {
    int width = Width();
-   right = x+width;
+   right = x+width-1;
    left = x;
    int height = Height();
-   bottom = y+height;
+   bottom = y+height-1;
    top = y;
 }
 
@@ -5197,6 +5197,11 @@ void CWnd::subclassWidget(int nID,CWnd* widget)
 void CWnd::focusInEvent(QFocusEvent *event)
 {
    SetFocus();
+}
+
+void CWnd::closeEvent(QCloseEvent *)
+{
+   DestroyWindow();
 }
 
 bool CWnd::eventFilter(QObject *object, QEvent *event)
@@ -9604,6 +9609,7 @@ BOOL CSpinButtonCtrl::Create(
                
                QRect rect = pWnd->toQWidget()->geometry();
                _qtd->setLineEdit(dynamic_cast<QLineEdit*>(pWnd->toQWidget()));
+               _qtd->lineEdit()->setValidator(NULL);
                _qtd->setGeometry(rect);
             }
          }

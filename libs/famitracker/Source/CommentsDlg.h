@@ -9,6 +9,8 @@ class CCommentsDlg : public CDialog
 {
    Q_OBJECT
    // Qt interfaces
+protected:
+   void resizeEvent(QResizeEvent *event);
 public slots:
    void ok_clicked();
    void cancel_clicked();

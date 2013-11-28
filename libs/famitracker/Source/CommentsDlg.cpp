@@ -71,6 +71,11 @@ void CCommentsDlg::cancel_clicked()
    OnBnClickedCancel();
 }
 
+void CCommentsDlg::resizeEvent(QResizeEvent *event)
+{
+   OnSize(0,event->size().width(),event->size().height());
+}
+
 // CCommentsDlg message handlers
 
 void CCommentsDlg::SaveComment()

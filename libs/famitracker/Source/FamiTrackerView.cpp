@@ -193,7 +193,7 @@ void CFamiTrackerView::updateViews(long hint)
 void CFamiTrackerView::resizeEvent(QResizeEvent *event)
 {
    CRect rect(0,0,event->size().width(),event->size().height());
-   rect.InflateRect(::GetSystemMetrics(SM_CXVSCROLL),::GetSystemMetrics(SM_CYHSCROLL));
+   rect.InflateRect(0,0,::GetSystemMetrics(SM_CXVSCROLL),::GetSystemMetrics(SM_CYHSCROLL));
    CalcWindowRect(&rect);
 }
 
