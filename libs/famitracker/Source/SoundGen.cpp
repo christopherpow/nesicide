@@ -118,6 +118,12 @@ void CSoundGen::recvThreadMessage(unsigned int m, unsigned int w, unsigned int l
    case WM_USER_CLOSE_SOUND:
       OnCloseSound(w,l);
       break;
+   case WM_USER_SET_CHIP:
+      OnSetChip(w,l);
+      break;
+   case WM_USER_VERIFY_EXPORT:
+      OnVerifyExport(w,l);
+      break;
    default:
       qDebug("Unhandled thread message: %d",m);
    }

@@ -9667,6 +9667,19 @@ void CSpinButtonCtrl::SetRange(
    }
 }
 
+void CSpinButtonCtrl::SetWindowText(
+   LPCTSTR lpszString
+)
+{
+   _qtd->blockSignals(true);
+#if UNICODE
+   _qtd->lineEdit()->setText(QString::fromWCharArray(lpszString));
+#else
+   _qtd->lineEdit()->setText(QString::fromLatin1(lpszString));
+#endif
+   _qtd->blockSignals(true);
+}
+
 void CSpinButtonCtrl::SetDlgItemInt(
    int nID,
    UINT nValue,
@@ -9704,6 +9717,12 @@ void CSpinButtonCtrl::SetDlgItemText(
    _qtd->blockSignals(true);
    _oldValue = pos;
    _qtd->lineEdit()->setText(val);
+   bool ok;
+   val.toInt(&ok);
+   if ( ok )
+   {
+      _qtd->setValue(val.toInt());
+   }
    _qtd->blockSignals(false);
 }
 

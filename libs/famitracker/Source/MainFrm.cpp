@@ -3125,8 +3125,7 @@ void CMainFrame::OnDestroy()
 		CEvent *pSoundEvent = new CEvent(FALSE, FALSE);
 		pSoundGen->PostThreadMessage(WM_USER_CLOSE_SOUND, (WPARAM)pSoundEvent, NULL);
 		// Wait for sound to close
-      qDebug("WaitForSingleObject?");
-//		::WaitForSingleObject(pSoundEvent->m_hObject, 5000);
+		::WaitForSingleObject(pSoundEvent->m_hObject, 5000);
 		delete pSoundEvent;
 	}
 

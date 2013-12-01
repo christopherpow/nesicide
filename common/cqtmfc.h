@@ -4497,6 +4497,9 @@ public:
       short nLower,
       short nUpper
    );
+   void SetWindowText(
+      LPCTSTR lpszString
+   );
    void SetDlgItemInt(
       int nID,
       UINT nValue,
