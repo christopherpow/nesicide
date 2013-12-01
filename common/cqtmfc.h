@@ -28,6 +28,7 @@
 #include <QEvent>
 #include <QList>
 #include <QHash>
+#include <QTimer>
 #include <QPaintEvent>
 #include <QMouseEvent>
 #include <QKeyEvent>
@@ -2587,6 +2588,8 @@ public:
       LPLONG lpPrevCount = NULL
    ) { return TRUE; }
    HANDLE m_hObject;
+protected:
+   QMutex _access;
 };
 
 class CCriticalSection : public CSyncObject
@@ -2642,6 +2645,9 @@ public:
    BOOL PulseEvent();
    bool m_bSignalled;
    bool m_bManualReset;
+   // Qt stuff
+   void addWaiter(QSemaphore* waiter);
+   QList<QSemaphore*> _waiters;
 };
 
 class CString;
@@ -3381,7 +3387,7 @@ public:
    );
 
 public:
-   HDC         m_hDC;
+   HDC  m_hDC;
 
 private:
    CDC(CDC& orig);
@@ -3393,6 +3399,7 @@ private:
    CPen*       _pen;
    CBrush*     _brush;
    CFont*      _font;
+   CFont*      _defaultFont;
    CBitmap*    _bitmap;
    QSize       _bitmapSize;
    CRgn*       _rgn;

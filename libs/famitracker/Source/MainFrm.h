@@ -54,7 +54,7 @@ protected:
    void resizeEvent(QResizeEvent *event);
    void timerEvent(QTimerEvent *event);
 private:
-   QTimer* idleTimer;
+   QTimer* pTimer;
    CFamiTrackerDoc* m_pDocument;
    CFamiTrackerView* m_pView;
    QString m_fileName;
@@ -335,7 +335,7 @@ public:
 	afx_msg void OnToggleSpeed();
 
 public slots:
-   void idleProcessing();
+   void onIdleSlot();
    void toolBarAction_triggered(int id);
    void toolBarAction_newDocument();
    void toolBarAction_openDocument();

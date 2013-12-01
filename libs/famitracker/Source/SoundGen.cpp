@@ -155,7 +155,7 @@ CSoundGen::CSoundGen() :
 
    pTimer = new QTimer();
 
-   connect(pTimer, SIGNAL(timeout()), this, SLOT(onIdleSlot()));
+   QObject::connect(pTimer, SIGNAL(timeout()), this, SLOT(onIdleSlot()));
    
    pTimer->start();
       
@@ -183,7 +183,9 @@ CSoundGen::~CSoundGen()
 {
    pTimer->stop();
    
-   disconnect(pTimer, SIGNAL(timeout()), this, SLOT(onIdleSlot()));
+   QObject::disconnect(pTimer, SIGNAL(timeout()), this, SLOT(onIdleSlot()));
+   
+   delete pTimer;
    
    pThread->terminate();
    pThread->wait();

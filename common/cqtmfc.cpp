@@ -2646,6 +2646,7 @@ CDC::CDC()
    _pen = NULL;
    _brush = NULL;
    _font = new CFont();
+   _defaultFont = _font;
    memset(&lf,0,sizeof(LOGFONT));
    strcpy(lf.lfFaceName,"MS Shell Dlg");
    lf.lfHeight = 8;
@@ -2674,6 +2675,7 @@ CDC::CDC(CWnd* parent)
    _pen = NULL;
    _brush = NULL;
    _font = new CFont();
+   _defaultFont = _font;
    memset(&lf,0,sizeof(LOGFONT));
    strcpy(lf.lfFaceName,"MS Shell Dlg");
    lf.lfHeight = 8;
@@ -2698,6 +2700,7 @@ CDC::CDC(CWnd* parent)
 
 CDC::~CDC()
 {
+   delete _defaultFont;
    flush();
    detach();
 }
@@ -10472,16 +10475,17 @@ DWORD WINAPI WaitForSingleObject(
 )
 {
    CSyncObject* pSyncObj = (CSyncObject*)hHandle;
+   static QSemaphore* waitingSem = NULL;
+   
    if ( pSyncObj->IsKindOf(RUNTIME_CLASS(CEvent)) )
    {
       CEvent* pEvent = (CEvent*)pSyncObj;
-      while ( !pEvent->m_bSignalled )
+      if ( !waitingSem )
       {
-         Sleep(10);         
+         waitingSem = new QSemaphore();
       }
-      // CP: COMPLETE HACK!
-      if ( !pEvent->m_bManualReset )
-         pEvent->m_bSignalled = false;
+      pEvent->addWaiter(waitingSem);
+      waitingSem->acquire();
       return WAIT_OBJECT_0;
    }
    return WAIT_FAILED;
@@ -10573,21 +10577,46 @@ CEvent::~CEvent()
 
 BOOL CEvent::SetEvent()
 {
+   _access.lock();
    m_bSignalled = true;   
+   foreach ( QSemaphore* waiter, _waiters )
+   {
+      waiter->release();
+      _waiters.removeAll(waiter);
+   }
+   _access.unlock();
    return TRUE;
 }
 
 BOOL CEvent::ResetEvent()
 {
+   _access.lock();
    m_bSignalled = false;   
+   _access.unlock();
    return TRUE;
 }
 
 BOOL CEvent::PulseEvent()
 {
+   _access.lock();
    m_bSignalled = true;   
+   foreach ( QSemaphore* waiter, _waiters )
+   {
+      waiter->release();
+      _waiters.removeAll(waiter);
+   }
+   _access.unlock();
+   _access.lock();
    m_bSignalled = false;   
+   _access.unlock();
    return TRUE;
+}
+
+void CEvent::addWaiter(QSemaphore *waiter)
+{ 
+   _access.lock();
+   _waiters.append(waiter); 
+   _access.unlock();
 }
 
 BOOL CFileFind::FindFile(

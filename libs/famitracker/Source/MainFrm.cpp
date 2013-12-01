@@ -130,14 +130,19 @@ CMainFrame::CMainFrame() :
 
 	m_iFrameEditorPos = FRAME_EDIT_POS_TOP;
 
-   idleTimer = new QTimer;
-   QObject::connect(idleTimer,SIGNAL(timeout()),this,SLOT(idleProcessing()));
+   pTimer = new QTimer;
+   
+   QObject::connect(pTimer,SIGNAL(timeout()),this,SLOT(onIdleSlot()));
 }
 
 CMainFrame::~CMainFrame()
 {
-   idleTimer->stop();
-   delete idleTimer;
+   pTimer->stop();
+   
+   QObject::disconnect(pTimer, SIGNAL(timeout()), this, SLOT(onIdleSlot()));
+   
+   delete pTimer;
+   
 	SAFE_RELEASE(m_pImageList);
 	SAFE_RELEASE(m_pLockedEditSpeed);
 	SAFE_RELEASE(m_pLockedEditTempo);
@@ -366,14 +371,14 @@ void CMainFrame::showEvent(QShowEvent *)
       initialized = true;
    }
 
-   idleTimer->start();
+   pTimer->start();
 
    SetFocus();
 }
 
 void CMainFrame::hideEvent(QHideEvent *)
 {
-   idleTimer->stop();
+   pTimer->stop();
 }
 
 void CMainFrame::resizeEvent(QResizeEvent *event)
@@ -387,7 +392,7 @@ void CMainFrame::timerEvent(QTimerEvent *event)
    OnTimer(mfcId);
 }
 
-void CMainFrame::idleProcessing()
+void CMainFrame::onIdleSlot()
 {
    CCmdUI cmdUI;
 

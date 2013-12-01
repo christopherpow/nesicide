@@ -51,10 +51,21 @@ CSampleWindow::CSampleWindow() :
 	m_pBuffer1(NULL),
 	m_pBuffer2(NULL)
 {
+   pTimer = new QTimer();
+
+   QObject::connect(pTimer, SIGNAL(timeout()), this, SLOT(onIdleSlot()));
+   
+   pTimer->start();   
 }
 
 CSampleWindow::~CSampleWindow()
 {
+   pTimer->stop();
+   
+   QObject::disconnect(pTimer, SIGNAL(timeout()), this, SLOT(onIdleSlot()));
+   
+   delete pTimer;
+   
 	for (int i = 0; i < 4; ++i) {
 		SAFE_RELEASE(m_pStates[i]);
 	}
@@ -72,8 +83,14 @@ BEGIN_MESSAGE_MAP(CSampleWindow, CWnd)
 	ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
+void CSampleWindow::onIdleSlot()
+{
+   update();
+}
+
 void CSampleWindow::paintEvent(QPaintEvent *)
 {
+//   OnPaint();
 // CP: OnPaint passes true insteaad of false, since the painting
 // is apparently done outside of OnPaint.  We'll cheat.
    CDC dc(this);
@@ -238,12 +255,14 @@ UINT CSampleWindow::ThreadProc()
 		// Draw
 		m_csBuffer.Lock();
 
-		CDC *pDC = GetDC();
+// CP: CAN'T DO THIS IN QT...ALL PAINTING MUST BE IN MAIN THREAD
+//      CDC *pDC = GetDC();
 
 		m_pStates[m_iCurrentState]->SetSampleData(pDrawBuffer, m_iBufferSize);
-		m_pStates[m_iCurrentState]->Draw(pDC, false);
+//		m_pStates[m_iCurrentState]->Draw(pDC, false);
 
-		ReleaseDC(pDC);
+//		ReleaseDC(pDC);
+// CP: CAN'T DO THIS IN QT...ALL PAINTING MUST BE IN MAIN THREAD
 
 		m_csBuffer.Unlock();
 	}
