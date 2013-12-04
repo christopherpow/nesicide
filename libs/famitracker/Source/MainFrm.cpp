@@ -2797,13 +2797,12 @@ void CMainFrame::OnFileExportText()
 
 BOOL CMainFrame::DestroyWindow()
 {
-   qDebug("Destroy window isn't really necessary...");
 	// Store window position
 
-//	CRect WinRect;
-//	int State = STATE_NORMAL;
+	CRect WinRect;
+	int State = STATE_NORMAL;
 
-//	GetWindowRect(WinRect);
+	GetWindowRect(WinRect);
 
 //	if (IsZoomed()) {
 //		State = STATE_MAXIMIZED;
@@ -2820,8 +2819,8 @@ BOOL CMainFrame::DestroyWindow()
 //		WinRect.right = 950;
 //	}
 
-//	// Save window position
-//	theApp.GetSettings()->SetWindowPos(WinRect.left, WinRect.top, WinRect.right, WinRect.bottom, State);
+	// Save window position
+	theApp.GetSettings()->SetWindowPos(WinRect.left, WinRect.top, WinRect.right, WinRect.bottom, State);
 
 	return CFrameWnd::DestroyWindow();
 }

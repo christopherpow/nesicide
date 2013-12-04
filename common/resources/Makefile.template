@@ -43,14 +43,14 @@ CONFIG := $(subst \,/,$(CONFIG))
 
 # Additional C compiler flags and options.
 # Default: none
-CFLAGS  = -t <!target-machine!> <!compiler-defines!> -g --debug-info <!compiler-flags!>
+CFLAGS  = -t <!target-machine!> <!compiler-defines!> -g --debug-info <!compiler-flags!> <!compiler-include-paths!>
 
 # Get rid of Windows path wonkiness.
 CFLAGS := $(subst \,/,$(CFLAGS))
 
 # Additional assembler flags and options.
 # Default: none
-ASFLAGS = -t <!target-machine!> <!assembler-defines!> -g --debug-info <!assembler-flags!>
+ASFLAGS = -t <!target-machine!> <!assembler-defines!> -g --debug-info <!assembler-flags!> <!assembler-include-paths!>
 
 # Get rid of Windows path wonkiness.
 ASFLAGS := $(subst \,/,$(ASFLAGS))
@@ -81,6 +81,7 @@ PROGRAM = $(PRGDIR)/<!prg-rom-name!>
 # Set SOURCES to something like 'src/foo.c src/bar.s'.
 SOURCES := <!clang-sources!>
 SOURCES += <!asm-sources!>
+SOURCES += <!custom-sources!>
 
 # Get rid of Windows path wonkiness.
 SOURCES := $(subst \,/,$(SOURCES))
@@ -108,14 +109,14 @@ $(OBJDIR):
 $(PROGRAM): $(CONFIG) $(OBJECTS) $(LIBS)
 	$(LINK) $(LDFLAGS) $(OBJECTS) $(LIBS) -o $@ <!linker-dependencies!>
 
-clean:
-	-$(call RMFILES,$(OBJECTS))
-	-$(call RMFILES,$(DEPENDS))
-	-$(call RMFILES,$(REMOVES))
-	-$(call RMFILES,$(PROGRAM))
-
 ### START USER-SUPPLIED CUSTOM RULES SECTION
 
 <!custom-rules!>
 
 ### END USER-SUPPLIED CUSTOM RULES SECTION
+
+clean:
+	-$(call RMFILES,$(OBJECTS))
+	-$(call RMFILES,$(DEPENDS))
+	-$(call RMFILES,$(REMOVES))
+	-$(call RMFILES,$(PROGRAM))

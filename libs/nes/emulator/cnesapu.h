@@ -8,7 +8,7 @@
 
 #include "cnes.h"
 
-#define NUM_APU_BUFS 32
+#define NUM_APU_BUFS 16
 #define APU_BUFFER_SIZE (NUM_APU_BUFS*APU_SAMPLES)
 
 // APU mask register ($4017) bit definitions.
@@ -736,6 +736,8 @@ protected:
    static uint32_t   m_cycles;
 
    static float m_sampleSpacer;
+   
+   static int32_t m_sampleBufferSize;
 
    static CRegisterDatabase* m_dbRegisters;
 

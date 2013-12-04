@@ -458,7 +458,16 @@ void ProjectPropertiesDialog::on_compilerIncludePathBrowse_clicked()
    if ( !value.isEmpty() )
    {
       includes.append(" -I ");
-      includes.append(dir.fromNativeSeparators(dir.relativeFilePath(value)));
+      if ( dir.fromNativeSeparators(dir.relativeFilePath(value)).isEmpty() )
+      {
+         // current dir...
+         includes.append(".");
+      }
+      else
+      {
+         // relative dir...
+         includes.append(dir.fromNativeSeparators(dir.relativeFilePath(value)));
+      }
       ui->compilerIncludePaths->setText(includes);
    }
 }
@@ -472,7 +481,16 @@ void ProjectPropertiesDialog::on_assemblerIncludePathBrowse_clicked()
    if ( !value.isEmpty() )
    {
       includes.append(" -I ");
-      includes.append(dir.fromNativeSeparators(dir.relativeFilePath(value)));
+      if ( dir.fromNativeSeparators(dir.relativeFilePath(value)).isEmpty() )
+      {
+         // current dir...
+         includes.append(".");
+      }
+      else
+      {
+         // relative dir...
+         includes.append(dir.fromNativeSeparators(dir.relativeFilePath(value)));
+      }
       ui->assemblerIncludePaths->setText(includes);
    }
 }

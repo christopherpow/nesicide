@@ -14,7 +14,7 @@ QString             CCC65Interface::targetMachine = "none";
 static const char* clangTargetRuleFmt =
       "vpath %<!extension!> $(foreach <!extension!>,$(SOURCES),$(dir $<!extension!>))\r\n\r\n"
       "$(OBJDIR)/%.o: %.<!extension!>\r\n"
-      "\t$(COMPILE) --create-dep $(@:.o=.d) -S $(CFLAGS) -o $(@:.o=.s) $<\r\n\r\n"
+      "\t$(COMPILE) --create-dep $(@:.o=.d) -S $(CFLAGS) -o $(@:.o=.s) $<\r\n"
       "\t$(ASSEMBLE) $(ASFLAGS) -o $@ $(@:.o=.s)\r\n\r\n"
       ;
 
@@ -109,6 +109,46 @@ QStringList CCC65Interface::getCLanguageSourcesFromProject()
    return sources;
 }
 
+QStringList CCC65Interface::getCustomSourcesFromProject()
+{
+   IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
+   QDir                         baseDir(QDir::currentPath());
+   CSourceItem*                 source;
+   QStringList                  sources;
+   QStringList                  extensions = EnvironmentSettingsDialog::customExtensions().split(" ", QString::SkipEmptyParts);
+   QStringList                  headerExtensions = EnvironmentSettingsDialog::headerExtensions().split(" ", QString::SkipEmptyParts);
+   bool                         add;
+
+   // For each source code object, compile it.
+   while ( iter.current() )
+   {
+      source = dynamic_cast<CSourceItem*>(iter.current());
+      add = true;
+      foreach ( QString extension, extensions )
+      {
+         if ( source && source->path().endsWith(extension,Qt::CaseInsensitive) )
+         {
+            foreach ( QString headerExtension, headerExtensions )
+            {
+               if ( source->path().endsWith(headerExtension,Qt::CaseInsensitive) )
+               {
+                  add = false;
+                  break;
+               }
+            }
+
+            if ( add )
+            {
+               sources.append(baseDir.fromNativeSeparators(baseDir.relativeFilePath(source->path())));
+            }
+         }
+      }
+      iter.next();
+   }
+
+   return sources;
+}
+
 bool CCC65Interface::createMakefile()
 {
    QDir outputDir(QDir::currentPath());
@@ -155,8 +195,10 @@ bool CCC65Interface::createMakefile()
       makeFileContent.replace("<!prg-rom-name!>",nesicideProject->getProjectLinkerOutputName());
       makeFileContent.replace("<!linker-config!>",nesicideProject->getLinkerConfigFile());
       makeFileContent.replace("<!compiler-flags!>",nesicideProject->getCompilerAdditionalOptions());
+      makeFileContent.replace("<!compiler-include-paths!>",nesicideProject->getCompilerIncludePaths());
       makeFileContent.replace("<!compiler-defines!>",nesicideProject->getCompilerDefinedSymbols());
       makeFileContent.replace("<!assembler-flags!>",nesicideProject->getAssemblerAdditionalOptions());
+      makeFileContent.replace("<!assembler-include-paths!>",nesicideProject->getAssemblerIncludePaths());
       makeFileContent.replace("<!assembler-defines!>",nesicideProject->getAssemblerDefinedSymbols());
       makeFileContent.replace("<!debug-file!>",nesicideProject->getProjectDebugInfoName());
       makeFileContent.replace("<!linker-flags!>",nesicideProject->getLinkerAdditionalOptions());
@@ -166,6 +208,7 @@ bool CCC65Interface::createMakefile()
       makeFileContent.replace("<!chr-dir!>",nesicideProject->getProjectCHRROMOutputBasePath());
       makeFileContent.replace("<!clang-sources!>",getCLanguageSourcesFromProject().join(" "));
       makeFileContent.replace("<!asm-sources!>",getAssemblerSourcesFromProject().join(" "));
+      makeFileContent.replace("<!custom-sources!>",getCustomSourcesFromProject().join(" "));
       makeFileContent.replace("<!target-rules!>",targetRules);
       makeFileContent.replace("<!linker-dependencies!>",nesicideProject->getLinkerAdditionalDependencies());
 
@@ -298,7 +341,7 @@ static void ErrorFunc (const struct cc65_parseerror* E)
 {
    char errorBuffer[256];
    sprintf(errorBuffer,
-           "<font color=red>%s:%s(%lu): %s</font>\n",
+           "<font color=red>%s:%s(%lu):%s</font>\n",
            E->type? "Error" : "Warning",
            E->name,
            (unsigned long) E->line,

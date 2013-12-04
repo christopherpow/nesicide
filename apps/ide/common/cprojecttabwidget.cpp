@@ -58,6 +58,7 @@ void CProjectTabWidget::tabBar_contextMenuEvent(QContextMenuEvent *event)
    QStringList extensions;
    extensions += EnvironmentSettingsDialog::sourceExtensionsForC().split(" ",QString::SkipEmptyParts);
    extensions += EnvironmentSettingsDialog::sourceExtensionsForAssembly().split(" ",QString::SkipEmptyParts);
+   extensions += EnvironmentSettingsDialog::customExtensions().split(" ",QString::SkipEmptyParts);
 
    if ( (editor) &&
         (!editor->treeLink()) )
@@ -371,6 +372,7 @@ void CProjectTabWidget::snapToTab(QString item)
          // If the file is a source file, open it using the CodeEditorForm.
          QStringList extensions = EnvironmentSettingsDialog::sourceExtensionsForC().split(" ",QString::SkipEmptyParts);
          extensions.append(EnvironmentSettingsDialog::sourceExtensionsForAssembly().split(" ",QString::SkipEmptyParts));
+         extensions.append(EnvironmentSettingsDialog::customExtensions().split(" ",QString::SkipEmptyParts));
          foreach ( QString ext, extensions )
          {
             if ( fileIn.fileName().endsWith(ext,Qt::CaseInsensitive) )

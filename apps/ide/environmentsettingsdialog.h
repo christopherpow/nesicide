@@ -52,6 +52,7 @@ public:
    static QString sourceExtensionsForC() { return m_cSourceExtensions; }
    static QString sourceExtensionsForAssembly() { return m_asmSourceExtensions; }
    static QString headerExtensions() { return m_headerExtensions; }
+   static QString customExtensions() { return m_customExtensions; }
    static QString highlightAsC() { return m_highlightAsC; }
    static QString highlightAsASM() { return m_highlightAsASM; }
    static int eolMode() { return m_eolMode; }
@@ -105,6 +106,7 @@ private:
    static QString m_cSourceExtensions;
    static QString m_asmSourceExtensions;
    static QString m_headerExtensions;
+   static QString m_customExtensions;
    static QString m_highlightAsC;
    static QString m_highlightAsASM;
    static int m_eolMode;

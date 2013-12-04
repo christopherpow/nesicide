@@ -25,6 +25,7 @@ public:
    static bool captureINESImage();
    static QStringList getCLanguageSourcesFromProject();
    static QStringList getAssemblerSourcesFromProject();
+   static QStringList getCustomSourcesFromProject();
    static void updateTargetMachine(QString target);
 
    // Debug information parsing/extending APIs.

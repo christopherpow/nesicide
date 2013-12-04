@@ -259,7 +259,7 @@ enum
 // drives the rate at which the SDL library will invoke
 // the callback method to retrieve more audio samples to
 // play.
-#define APU_SAMPLES           (3528) // CP: Consistent with FamiTracker's default which we're adopting.
+#define APU_SAMPLES           (4096)
 
 #define SDL_SAMPLE_RATE       (44100)
 

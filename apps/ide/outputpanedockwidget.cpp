@@ -83,17 +83,12 @@ bool OutputPaneDockWidget::eventFilter(QObject* object,QEvent* event)
             selection = textCursor.selectedText();
             ui->compilerOutputTextEdit->setTextCursor(textCursor);
 
-            if ( !selection.contains(".exe") && // Get rid of pesky ld65.exe: Error: and ld65.exe: Warning: matches...
-                 (selection.contains(": Error:") ||
-                  selection.contains(": Warning:")) )
+            QRegExp fileLineRegex("([^ \t]*)\\(([0-9]+)\\):");
+            if ( fileLineRegex.indexIn(selection) >= 0 )
             {
                // Parse the error file and line number.
-               errorParts = selection.split(":");
-               file = errorParts.at(0);
-               file = file.left(errorParts.at(0).indexOf('('));
-               line = errorParts.at(0);
-               line = line.right(errorParts.at(0).length()-file.length());
-               line = line.mid(1,line.length()-2);
+               file = fileLineRegex.cap(1);
+               line = fileLineRegex.cap(2);
 
                emit snapTo("OutputPaneFile,"+file+","+line);
             }

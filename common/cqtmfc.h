@@ -2300,6 +2300,7 @@ HANDLE WINAPI SetClipboardData(
 HANDLE WINAPI GetClipboardData(
   UINT uFormat
 );
+
 HGLOBAL WINAPI GlobalAlloc(
   UINT uFlags,
   SIZE_T dwBytes
@@ -2312,6 +2313,9 @@ BOOL WINAPI GlobalUnlock(
 );
 SIZE_T WINAPI GlobalSize(
   HGLOBAL hMem
+);
+HGLOBAL WINAPI GlobalFree(
+   HGLOBAL hMem
 );
 
 extern ACCEL* _acceleratorTbl;

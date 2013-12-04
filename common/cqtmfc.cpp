@@ -328,13 +328,6 @@ BOOL WINAPI GetWindowRect(
    return TRUE;
 }
 
-UINT WINAPI RegisterClipboardFormat(
-   LPCTSTR lpszFormat
-)
-{
-   return 0xC000; // From MS info for RegisterClipboardFormat...we don't really need it.
-}
-
 DWORD WINAPI GetFileAttributes(
    LPCTSTR lpFileName
 )
@@ -1160,6 +1153,9 @@ DWORD WINAPI GetSysColor(
    case COLOR_APPWORKSPACE:
       return 0xababab;
       break;
+   default:
+      qDebug("unsupported sys color: %d",nIndex);
+      break;
    }
    return 0xffffff;
 }
@@ -1181,11 +1177,46 @@ int WINAPI GetSystemMetrics(
       sb->setOrientation(Qt::Horizontal);
       return sb->sizeHint().height();
       break;
+   case SM_CXDRAG:
+      return 4;
+      break;
+   case SM_CYDRAG:
+      return 4;
+      break;
+   case SM_CXEDGE:
+      return 2;
+      break;
+   case SM_CYEDGE:
+      return 2;
+      break;
+   default:
+      qDebug("unsupported system metric: %d",nIndex);
+      break;
    }
    return 0;
 }
 
 QMimeData* gpClipboardMimeData = NULL;
+
+QList<QString> _clipboardFormats;
+#define CLIPBOARD_FORMAT_BASE 0xC000
+
+UINT WINAPI RegisterClipboardFormat(
+   LPCTSTR lpszFormat
+)
+{
+#if UNICODE
+   QString clipboardFormat = QString::fromWCharArray(lpszFormat);
+#else
+   QString clipboardFormat = QString::fromLatin1(lpszFormat);
+#endif
+   if ( !_clipboardFormats.contains(clipboardFormat) )
+   {
+      _clipboardFormats.append(clipboardFormat);
+   }
+   return CLIPBOARD_FORMAT_BASE+_clipboardFormats.indexOf(clipboardFormat);
+}
+
 BOOL WINAPI OpenClipboard(
 //  HWND hWndNewOwner
 )
@@ -1211,8 +1242,11 @@ HANDLE WINAPI SetClipboardData(
 )
 {
    QSharedMemory* pMem = (QSharedMemory*)hMem;
-   QByteArray value = QString::number((int)pMem,16).toLatin1();
-   gpClipboardMimeData->setData("application/x-qt-windows-mime;value=\"FamiTracker\"",value);
+   QByteArray value;
+   pMem->lock();
+   value = QByteArray::fromRawData((const char*)pMem->data(),pMem->size());
+   pMem->unlock();
+   gpClipboardMimeData->setData(_clipboardFormats.at(uFormat-CLIPBOARD_FORMAT_BASE),value);
    QApplication::clipboard()->setMimeData(gpClipboardMimeData);
    return hMem;
 }
@@ -1223,7 +1257,7 @@ BOOL WINAPI IsClipboardFormatAvailable(
 {
    QStringList formats = QApplication::clipboard()->mimeData()->formats();
 
-   if ( formats.count() && formats.contains("application/x-qt-windows-mime;value=\"FamiTracker\"") )
+   if ( formats.count() && formats.contains(_clipboardFormats.at(format-CLIPBOARD_FORMAT_BASE)) )
       return TRUE;
    return FALSE;
 }
@@ -1232,8 +1266,14 @@ HANDLE WINAPI GetClipboardData(
   UINT uFormat
 )
 {
-   QByteArray value = QApplication::clipboard()->mimeData()->data("application/x-qt-windows-mime;value=\"FamiTracker\"");
-   return (HANDLE)value.toInt(0,16);
+   QByteArray value = QApplication::clipboard()->mimeData()->data(_clipboardFormats.at(uFormat-CLIPBOARD_FORMAT_BASE));
+   QUuid uuid = QUuid::createUuid();
+   QSharedMemory* pMem = new QSharedMemory(uuid.toString());
+   pMem->create(value.size());
+   pMem->lock();
+   memcpy(pMem->data(),value.constData(),value.size());
+   pMem->unlock();
+   return pMem;
 }
 
 HGLOBAL WINAPI GlobalAlloc(
@@ -1254,8 +1294,8 @@ LPVOID WINAPI GlobalLock(
    QSharedMemory* pMem = (QSharedMemory*)hMem;
    void* pData;
 
-   pMem->lock();
    pData = pMem->data();
+   pMem->lock();
    return pData;
 }
 
@@ -1274,6 +1314,15 @@ SIZE_T WINAPI GlobalSize(
    QSharedMemory* pMem = (QSharedMemory*)hMem;
    return pMem->size();
 }
+
+HGLOBAL WINAPI GlobalFree(
+   HGLOBAL hMem
+)
+{
+   QSharedMemory* pMem = (QSharedMemory*)hMem;
+   delete pMem;
+}
+
 
 QList<ACCEL*> _acceleratorTables;
 
@@ -5078,7 +5127,6 @@ CWnd::CWnd(CWnd *parent)
 
 CWnd::~CWnd()
 {
-   DestroyWindow();
    if ( mfcVerticalScrollBar )
       delete mfcVerticalScrollBar;
    if ( mfcHorizontalScrollBar )
@@ -5249,6 +5297,11 @@ bool CWnd::eventFilter(QObject *object, QEvent *event)
       focusOutEvent(dynamic_cast<QFocusEvent*>(event));
       return false;
    }
+   if ( event->type() == QEvent::Leave )
+   {
+      leaveEvent(event);
+      return true;
+   }
    if ( event->type() == QEvent::MouseButtonPress )
    {
       mousePressEvent(dynamic_cast<QMouseEvent*>(event));
@@ -5292,6 +5345,26 @@ bool CWnd::eventFilter(QObject *object, QEvent *event)
    if ( event->type() == QEvent::ContextMenu )
    {
       contextMenuEvent(dynamic_cast<QContextMenuEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::DragEnter )
+   {
+      dragEnterEvent(dynamic_cast<QDragEnterEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::DragMove )
+   {
+      dragMoveEvent(dynamic_cast<QDragMoveEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::Drop )
+   {
+      dropEvent(dynamic_cast<QDropEvent*>(event));
+      return true;
+   }
+   if ( event->type() == QEvent::DragLeave )
+   {
+      dragLeaveEvent(dynamic_cast<QDragLeaveEvent*>(event));
       return true;
    }
 //   qDebug("eventFilter: unhandled %d object %s", event->type(), object->objectName().toLatin1().constData());
@@ -5970,11 +6043,12 @@ void CFrameWnd::menuAction_triggered(int id)
    switch ( id )
    {
    case ID_VIEW_TOOLBAR:
-      pWnd = mfcToQtWidget.value(AFX_IDW_TOOLBAR);
+      pWnd = mfcToQtWidget.value(AFX_IDW_REBAR);
+      pWnd->ShowWindow(pWnd->IsWindowVisible()?SW_HIDE:SW_SHOW);
       break;
    case ID_VIEW_STATUS_BAR:
       pWnd = mfcToQtWidget.value(AFX_IDW_STATUS_BAR);
-      ptrToTheApp->qtMainWindow->statusBar()->setVisible(pWnd->IsWindowVisible()?false:true);
+      ptrToTheApp->qtMainWindow->statusBar()->setVisible(pWnd->toQWidget()->isVisible()?false:true);
       break;
    }
    
@@ -5987,10 +6061,10 @@ void CFrameWnd::menuAboutToShow(CMenu* menu)
    // Cheaply handle messages.
    CWnd* pWnd;
 
-   pWnd = mfcToQtWidget.value(AFX_IDW_TOOLBAR);
+   pWnd = mfcToQtWidget.value(AFX_IDW_REBAR);
    menu->CheckMenuItem(ID_VIEW_TOOLBAR,pWnd->IsWindowVisible());
    pWnd = mfcToQtWidget.value(AFX_IDW_STATUS_BAR);
-   menu->CheckMenuItem(ID_VIEW_STATUS_BAR,pWnd->IsWindowVisible());
+   menu->CheckMenuItem(ID_VIEW_STATUS_BAR,pWnd->toQWidget()->isVisible());
    
    // Pass up the chain.
    AfxGetApp()->menuAboutToShow(menu);
@@ -6323,6 +6397,8 @@ BOOL CView::Create(
    
    // Set parent frame.
    m_pFrameWnd = pContext->m_pCurrentFrame;
+   
+   _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
 
    return TRUE;
 }
@@ -6479,6 +6555,8 @@ BOOL CReBar::Create(
    CRect rect;
    pParentWnd->GetClientRect(&rect);
    m_pReBarCtrl->Create(dwStyle,rect,pParentWnd,nID);
+
+   pParentWnd->mfcToQtWidgetMap()->insert(nID,this);
 
    ptrToTheApp->qtMainWindow->addToolBar(dynamic_cast<QToolBar*>(m_pReBarCtrl->toQWidget()));
    
@@ -10437,7 +10515,15 @@ DROPEFFECT COleDataSource::DoDragDrop(
    COleDropSource* pDropSource
 )
 {
+   DROPEFFECT eff = DROPEFFECT_NONE;
+   if ( QApplication::mouseButtons()&Qt::LeftButton )
+   {
+      eff = DROPEFFECT_COPY;      
+   }
+   return eff;
 }
+
+IMPLEMENT_DYNAMIC(COleDropSource,CCmdTarget)
 
 IMPLEMENT_DYNAMIC(COleDropTarget,CCmdTarget)
 
@@ -10449,15 +10535,12 @@ BOOL COleDropTarget::Register(
    return TRUE;
 }
 
-IMPLEMENT_DYNAMIC(COleDropSource,CCmdTarget)
-
 BOOL COleDataObject::IsDataAvailable( 
    CLIPFORMAT cfFormat, 
    LPFORMATETC lpFormatEtc
 )
 {
-   qDebug("COleDataObject::IsDataAvailable?");
-   return FALSE;
+   return IsClipboardFormatAvailable(cfFormat);
 }
 
 HGLOBAL COleDataObject::GetGlobalData( 
@@ -10465,8 +10548,7 @@ HGLOBAL COleDataObject::GetGlobalData(
    LPFORMATETC lpFormatEtc
 )
 {
-   qDebug("COleDataObject::GetGlobalData?");
-   return (HGLOBAL)NULL;
+   return (HGLOBAL)GetClipboardData(cfFormat);
 }
 
 DWORD WINAPI WaitForSingleObject(

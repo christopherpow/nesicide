@@ -250,6 +250,8 @@ uint32_t CAPU::m_cycles = 0;
 
 float        CAPU::m_sampleSpacer = 0.0;
 
+int32_t CAPU::m_sampleBufferSize = APU_BUFFER_SIZE;
+
 int32_t CAPU::m_sequencerMode = 0;
 int32_t CAPU::m_newSequencerMode = 0;
 // Cycles to wait before changing sequencer modes...0 or 1 are valid values
@@ -343,11 +345,13 @@ CAPU::CAPU()
 uint8_t* CAPU::PLAY ( uint16_t samples )
 {
    uint16_t* waveBuf;
+   
+   m_sampleBufferSize = samples*NUM_APU_BUFS;
 
    waveBuf = m_waveBuf + m_waveBufConsume;
 
    m_waveBufConsume += samples;
-   m_waveBufConsume %= APU_BUFFER_SIZE;
+   m_waveBufConsume %= m_sampleBufferSize;
 
    apuDataAvailable -= samples;
 
@@ -1742,7 +1746,7 @@ if ( wavOut )
 
       m_waveBufProduce++;
 
-      m_waveBufProduce %= APU_BUFFER_SIZE;
+      m_waveBufProduce %= m_sampleBufferSize;
 
       apuDataAvailable++;
 

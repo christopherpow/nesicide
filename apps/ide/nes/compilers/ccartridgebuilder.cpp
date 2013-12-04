@@ -17,7 +17,8 @@ void CCartridgeBuilder::clean()
    buildTextLogger->write("<b>Project build started.</b>");
 
    if ( (CCC65Interface::getCLanguageSourcesFromProject().count()) ||
-        (CCC65Interface::getAssemblerSourcesFromProject().count()) )
+        (CCC65Interface::getAssemblerSourcesFromProject().count()) ||
+        (CCC65Interface::getCustomSourcesFromProject().count()) )
    {
       sourceAssembler.clean();
       graphicsAssembler.clean();
@@ -82,7 +83,8 @@ bool CCartridgeBuilder::build()
    buildTextLogger->write("<b>Project build started.</b>");
 
    if ( (CCC65Interface::getCLanguageSourcesFromProject().count()) ||
-        (CCC65Interface::getAssemblerSourcesFromProject().count()) )
+        (CCC65Interface::getAssemblerSourcesFromProject().count()) ||
+        (CCC65Interface::getCustomSourcesFromProject().count()) )
    {
       if ( !nesicideProject->getLinkerConfigFile().isEmpty() )
       {

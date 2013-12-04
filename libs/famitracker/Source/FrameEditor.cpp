@@ -245,6 +245,41 @@ void CFrameEditor::paintEvent(QPaintEvent *event)
    OnPaint();
 }
 
+void CFrameEditor::mousePressEvent(QMouseEvent *event)
+{
+   CPoint point(event->pos());
+   unsigned int flags = 0;
+   if ( event->modifiers()&Qt::ControlModifier )
+   {
+      flags |= MK_CONTROL;
+   }
+   if ( event->modifiers()&Qt::ShiftModifier )
+   {
+      flags |= MK_SHIFT;
+   }
+   if ( event->buttons()&Qt::LeftButton )
+   {
+      flags |= MK_LBUTTON;
+   }
+   if ( event->buttons()&Qt::MiddleButton )
+   {
+      flags |= MK_MBUTTON;
+   }
+   if ( event->buttons()&Qt::RightButton )
+   {
+      flags |= MK_RBUTTON;            
+   }
+   if ( event->button() == Qt::LeftButton )
+   {
+      OnLButtonDown(flags,point);
+   }
+   else if ( event->button() == Qt::RightButton )
+   {
+      OnRButtonDown(flags,point);
+   }
+   update();
+}
+
 void CFrameEditor::mouseMoveEvent(QMouseEvent *event)
 {
    CPoint point(event->pos());
@@ -370,6 +405,99 @@ void CFrameEditor::wheelEvent(QWheelEvent* event)
 void CFrameEditor::updateViews(long hint)
 {
    update();
+}
+
+void CFrameEditor::dragEnterEvent(QDragEnterEvent *event)
+{
+   COleDataObject* pDataObj = new COleDataObject;
+   CPoint point(event->pos());
+   unsigned int flags = 0;
+   if ( event->keyboardModifiers()&Qt::ControlModifier )
+   {
+      flags |= MK_CONTROL;
+   }
+   if ( event->keyboardModifiers()&Qt::ShiftModifier )
+   {
+      flags |= MK_SHIFT;
+   }
+   if ( event->mouseButtons()&Qt::LeftButton )
+   {
+      flags |= MK_LBUTTON;
+   }
+   if ( event->mouseButtons()&Qt::MiddleButton )
+   {
+      flags |= MK_MBUTTON;
+   }
+   if ( event->mouseButtons()&Qt::RightButton )
+   {
+      flags |= MK_RBUTTON;            
+   }
+   m_DropTarget.OnDragEnter(this,pDataObj,flags,point);
+   event->accept();
+}
+
+void CFrameEditor::dragMoveEvent(QDragMoveEvent *event)
+{
+   COleDataObject* pDataObj = new COleDataObject;
+   CPoint point(event->pos());
+   unsigned int flags = 0;
+   if ( event->keyboardModifiers()&Qt::ControlModifier )
+   {
+      flags |= MK_CONTROL;
+   }
+   if ( event->keyboardModifiers()&Qt::ShiftModifier )
+   {
+      flags |= MK_SHIFT;
+   }
+   if ( event->mouseButtons()&Qt::LeftButton )
+   {
+      flags |= MK_LBUTTON;
+   }
+   if ( event->mouseButtons()&Qt::MiddleButton )
+   {
+      flags |= MK_MBUTTON;
+   }
+   if ( event->mouseButtons()&Qt::RightButton )
+   {
+      flags |= MK_RBUTTON;            
+   }
+   m_DropTarget.OnDragOver(this,pDataObj,flags,point);
+   event->accept();
+}
+
+void CFrameEditor::dropEvent(QDropEvent *event)
+{
+   COleDataObject* pDataObj = new COleDataObject;
+   CPoint point(event->pos());
+   unsigned int flags = 0;
+   if ( event->keyboardModifiers()&Qt::ControlModifier )
+   {
+      flags |= MK_CONTROL;
+   }
+   if ( event->keyboardModifiers()&Qt::ShiftModifier )
+   {
+      flags |= MK_SHIFT;
+   }
+   if ( event->mouseButtons()&Qt::LeftButton )
+   {
+      flags |= MK_LBUTTON;
+   }
+   if ( event->mouseButtons()&Qt::MiddleButton )
+   {
+      flags |= MK_MBUTTON;
+   }
+   if ( event->mouseButtons()&Qt::RightButton )
+   {
+      flags |= MK_RBUTTON;            
+   }
+   m_DropTarget.OnDrop(this,pDataObj,DROPEFFECT_COPY,point);
+   event->accept();
+}
+
+void CFrameEditor::dragLeaveEvent(QDragLeaveEvent *event)
+{
+   m_DropTarget.OnDragLeave(this);
+   event->accept();
 }
 
 void CFrameEditor::AssignDocument(CFamiTrackerDoc *pDoc, CFamiTrackerView *pView)

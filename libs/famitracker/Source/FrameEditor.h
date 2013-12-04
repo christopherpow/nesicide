@@ -108,6 +108,7 @@ public slots:
    void menuAction_triggered(int id);
 protected:
    void paintEvent(QPaintEvent *event);
+   void mousePressEvent(QMouseEvent *event);
    void mouseMoveEvent(QMouseEvent *event);
    void mouseReleaseEvent(QMouseEvent *event);
    void mouseDoubleClickEvent(QMouseEvent *event);
@@ -118,6 +119,10 @@ protected:
    void focusInEvent(QFocusEvent *event) { event->ignore(); }
    void focusOutEvent(QFocusEvent *);
    void leaveEvent(QEvent *);
+   void dragEnterEvent(QDragEnterEvent *event);
+   void dragMoveEvent(QDragMoveEvent *event);
+   void dropEvent(QDropEvent *event);
+   void dragLeaveEvent(QDragLeaveEvent *event);
    void contextMenuEvent(QContextMenuEvent *event);   
 public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
 
