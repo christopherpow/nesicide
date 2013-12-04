@@ -293,6 +293,24 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_CBN_SELCHANGE(IDC_OCTAVE, OnCbnSelchangeOctave)
 END_MESSAGE_MAP()
 
+bool CMainFrame::event(QEvent *event)
+{
+   MFCMessageEvent* msgEvent = dynamic_cast<MFCMessageEvent*>(event);
+   if ( msgEvent )
+   {
+//      ON_COMMAND(ID_MODULE_COMMENTS, OnModuleComments)
+      switch ( msgEvent->msg.wParam )
+      {
+      case ID_MODULE_COMMENTS:
+         OnModuleComments();
+         break;
+      }
+
+      return true;
+   }
+   return false;
+}
+
 void CMainFrame::focusInEvent(QFocusEvent *)
 {
    m_pView->SetFocus();

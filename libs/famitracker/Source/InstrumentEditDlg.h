@@ -41,6 +41,7 @@ protected:
    void mouseReleaseEvent(QMouseEvent *event);
    void mouseDoubleClickEvent(QMouseEvent *event);
    void closeEvent(QCloseEvent *);
+   void leaveEvent(QEvent *);
    
 public slots:
    void instTab_currentChanged(int arg1);

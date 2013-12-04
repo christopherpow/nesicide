@@ -5572,18 +5572,29 @@ void CWnd::DragAcceptFiles(
    _qtd->setAcceptDrops(bAccept);
 }
 
+MFCMessageEvent::MFCMessageEvent(Type type)
+   : QEvent(type)
+{
+   memset(&msg,0,sizeof(msg));
+}
+
 BOOL CWnd::PostMessage(
    UINT message,
    WPARAM wParam,
    LPARAM lParam
 )
 {
-   MSG msg;
-   msg.message = message;
-   msg.wParam = wParam;
-   msg.lParam = lParam;
+   MFCMessageEvent* post = new MFCMessageEvent(QEvent::User);
+   post->msg.message = message;
+   post->msg.wParam = wParam;
+   post->msg.lParam = lParam;
 
-   BOOL handled = PreTranslateMessage(&msg);
+   BOOL handled = PreTranslateMessage(&post->msg);
+   if ( !handled )
+   {
+      QApplication::instance()->postEvent(this,post);
+   }
+   
    return handled;
 }
 

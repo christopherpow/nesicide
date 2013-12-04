@@ -122,6 +122,24 @@ BEGIN_MESSAGE_MAP(CInstrumentEditorN163Wave, CInstrumentEditPanel)
 	ON_EN_CHANGE(IDC_INDEX, OnIndexChange)
 END_MESSAGE_MAP()
 
+bool CInstrumentEditorN163Wave::event(QEvent* event)
+{
+   MFCMessageEvent* msgEvent = dynamic_cast<MFCMessageEvent*>(event);
+   if ( msgEvent )
+   {
+//      ON_MESSAGE(WM_USER_WAVE_CHANGED, OnWaveChanged)
+      switch ( msgEvent->msg.message )
+      {
+      case WM_USER_WAVE_CHANGED:
+         OnWaveChanged(msgEvent->msg.wParam,msgEvent->msg.lParam);
+         break;
+      }
+
+      return true;
+   }
+   return false;
+}
+
 void CInstrumentEditorN163Wave::presetSine_clicked()
 {
    OnPresetSine();

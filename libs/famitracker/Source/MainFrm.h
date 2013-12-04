@@ -53,6 +53,7 @@ protected:
    void hideEvent(QHideEvent *);
    void resizeEvent(QResizeEvent *event);
    void timerEvent(QTimerEvent *event);
+   bool event(QEvent *event);
 private:
    QTimer* pTimer;
    CFamiTrackerDoc* m_pDocument;

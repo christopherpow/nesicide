@@ -3483,6 +3483,13 @@ enum
    adjustBorder = 1
 };
 
+class MFCMessageEvent : public QEvent
+{
+public:
+   MFCMessageEvent(Type type);
+   MSG msg;   
+};
+
 class CWnd : public QWidget, public CCmdTarget, public QtUIElement
 {
    Q_OBJECT

@@ -155,19 +155,26 @@ BEGIN_MESSAGE_MAP(CFamiTrackerView, CView)
 	ON_MESSAGE(MSG_NOTE_EVENT, OnNoteEvent)
 END_MESSAGE_MAP()
 
-BOOL CFamiTrackerView::PostMessage(
-   UINT message,
-   WPARAM wParam,
-   LPARAM lParam
-)
+bool CFamiTrackerView::event(QEvent* event)
 {
-   switch ( message )
+   MFCMessageEvent* msgEvent = dynamic_cast<MFCMessageEvent*>(event);
+   if ( msgEvent )
    {
-   case MSG_UPDATE:
-      OnUpdateMsg(wParam,lParam);
-      break;
+//      ON_MESSAGE(MSG_MIDI_EVENT, OnMidiEvent)
+//      ON_MESSAGE(MSG_UPDATE, OnUpdateMsg)
+//      ON_MESSAGE(MSG_NOTE_EVENT, OnNoteEvent)
+      switch ( msgEvent->msg.message )
+      {
+      case MSG_UPDATE:
+         OnUpdateMsg(msgEvent->msg.wParam,msgEvent->msg.lParam);
+         break;
+      case MSG_NOTE_EVENT:
+         OnNoteEvent(msgEvent->msg.wParam,msgEvent->msg.lParam);
+         break;
+      }
+      return true;
    }
-   return TRUE;
+   return false;
 }
 
 LRESULT CFamiTrackerView::SendMessage(

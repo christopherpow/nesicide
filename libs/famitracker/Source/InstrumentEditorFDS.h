@@ -33,6 +33,8 @@ class CInstrumentEditorFDS : public CInstrumentEditPanel
 {
    Q_OBJECT
    // Qt stuff
+protected:
+   bool event(QEvent *event);
 public slots:
    void presetSine_clicked();
    void presetTriangle_clicked();

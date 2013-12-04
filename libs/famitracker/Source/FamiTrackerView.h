@@ -63,13 +63,13 @@ class CFamiTrackerView : public CView
    Q_OBJECT
    // Qt stuff
 public:
-   BOOL PostMessage(UINT message, WPARAM wParam = 0, LPARAM lParam = 0);
    LRESULT SendMessage(
       UINT message,
       WPARAM wParam = 0,
       LPARAM lParam = 0 
    );
 protected:
+   bool event(QEvent *event);
    void viewPaintEvent(QPaintEvent *event);
    void resizeEvent(QResizeEvent *event);
    void leaveEvent(QEvent *);

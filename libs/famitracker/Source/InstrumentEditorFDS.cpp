@@ -107,6 +107,24 @@ BEGIN_MESSAGE_MAP(CInstrumentEditorFDS, CInstrumentEditPanel)
 	ON_MESSAGE(WM_USER + 1, OnModChanged)
 END_MESSAGE_MAP()
 
+bool CInstrumentEditorFDS::event(QEvent *event)
+{
+   MFCMessageEvent* msgEvent = dynamic_cast<MFCMessageEvent*>(event);
+   if ( msgEvent )
+   {
+//      ON_MESSAGE(WM_USER + 1, OnModChanged)
+      switch ( msgEvent->msg.message )
+      {
+      case WM_USER + 1:
+         OnModChanged(msgEvent->msg.wParam,msgEvent->msg.lParam);
+         break;
+      }
+
+      return true;
+   }
+   return false;
+}
+
 void CInstrumentEditorFDS::presetSine_clicked()
 {
    OnPresetSine();
