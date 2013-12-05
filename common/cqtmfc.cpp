@@ -3616,6 +3616,58 @@ void CListCtrl::subclassWidget(int nID,CWnd* widget)
    widget->setParent(NULL);
 }
 
+bool CListCtrl::event(QEvent *event)
+{
+   MFCMessageEvent* msgEvent = dynamic_cast<MFCMessageEvent*>(event);
+   if ( msgEvent )
+   {
+      if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
+      {
+         switch ( msgEvent->msg.message )
+         {
+         case LVM_SETEXTENDEDLISTVIEWSTYLE:
+            if ( !msgEvent->msg.wParam )
+            {
+               switch ( msgEvent->msg.lParam )
+               {
+               case LVS_EX_FULLROWSELECT:
+                  _qtd_table->setSelectionMode(QAbstractItemView::SingleSelection);
+                  _qtd_table->setSelectionBehavior(QAbstractItemView::SelectRows);
+                  break;
+               case LVS_EX_CHECKBOXES:
+                  qDebug("LVS_EX_CHECKBOXES?");
+                  break;
+               }
+            }
+            break;
+         }
+      }
+      else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
+      {
+         switch ( msgEvent->msg.message )
+         {
+         case LVM_SETEXTENDEDLISTVIEWSTYLE:
+            if ( !msgEvent->msg.wParam )
+            {
+               switch ( msgEvent->msg.lParam )
+               {
+               case LVS_EX_FULLROWSELECT:
+                  _qtd_list->setSelectionMode(QAbstractItemView::SingleSelection);
+                  _qtd_list->setSelectionBehavior(QAbstractItemView::SelectRows);
+                  break;
+               case LVS_EX_CHECKBOXES:
+                  qDebug("LVS_EX_CHECKBOXES?");
+                  break;
+               }
+            }
+            break;
+         }
+      }
+      return true;
+   }
+   return false;
+}
+
 QModelIndex CListCtrl::currentIndex () const
 {
    if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
@@ -3735,57 +3787,6 @@ CImageList* CListCtrl::SetImageList(
    CImageList* oldList = m_pImageList;
    m_pImageList = pImageList;
    return oldList;
-}
-
-LRESULT CListCtrl::SendMessage(
-   UINT message,
-   WPARAM wParam,
-   LPARAM lParam
-)
-{
-   if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
-   {
-      switch ( message )
-      {
-      case LVM_SETEXTENDEDLISTVIEWSTYLE:
-         if ( !wParam )
-         {
-            switch ( lParam )
-            {
-            case LVS_EX_FULLROWSELECT:
-               _qtd_table->setSelectionMode(QAbstractItemView::SingleSelection);
-               _qtd_table->setSelectionBehavior(QAbstractItemView::SelectRows);
-               break;
-            case LVS_EX_CHECKBOXES:
-               qDebug("LVS_EX_CHECKBOXES?");
-               break;
-            }
-         }
-         break;
-      }
-   }
-   else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
-   {
-      switch ( message )
-      {
-      case LVM_SETEXTENDEDLISTVIEWSTYLE:
-         if ( !wParam )
-         {
-            switch ( lParam )
-            {
-            case LVS_EX_FULLROWSELECT:
-               _qtd_list->setSelectionMode(QAbstractItemView::SingleSelection);
-               _qtd_list->setSelectionBehavior(QAbstractItemView::SelectRows);
-               break;
-            case LVS_EX_CHECKBOXES:
-               qDebug("LVS_EX_CHECKBOXES?");
-               break;
-            }
-         }
-         break;
-      }
-   }
-   return 0; // CP: not sure this matters...much
 }
 
 DWORD CListCtrl::SetExtendedStyle(
@@ -5222,7 +5223,18 @@ LRESULT CWnd::SendMessage(
    LPARAM lParam
 )
 {
-   return 0;
+   MFCMessageEvent* post = new MFCMessageEvent(QEvent::User);
+   post->msg.message = message;
+   post->msg.wParam = wParam;
+   post->msg.lParam = lParam;
+
+   BOOL handled = PreTranslateMessage(&post->msg);
+   if ( !handled )
+   {
+      QApplication::instance()->sendEvent(this,post);
+   }
+   
+   return handled;
 }
 
 void CWnd::SendMessageToDescendants(
@@ -6643,15 +6655,6 @@ BOOL CToolBar::CreateEx(
    return TRUE;
 }
 
-LRESULT CToolBar::SendMessage(
-   UINT message,
-   WPARAM wParam,
-   LPARAM lParam
-)
-{
-   return 0;
-}
-
 BOOL CToolBar::LoadToolBar(
    UINT nIDResource
 )
@@ -6739,15 +6742,6 @@ BOOL CStatusBar::Create(
    return TRUE;
 }
 
-LRESULT CStatusBar::SendMessage(
-   UINT message,
-   WPARAM wParam,
-   LPARAM lParam
-)
-{
-   return 0;
-}
-
 void CStatusBar::SetWindowText(
    LPCTSTR lpszString
 )
@@ -6815,46 +6809,48 @@ CDialogBar::~CDialogBar()
       delete _mfcd;
 }
 
-LRESULT CDialogBar::SendMessage(
-   UINT message,
-   WPARAM wParam,
-   LPARAM lParam
-)
+bool CDialogBar::event(QEvent *event)
 {
-   AFX_SIZEPARENTPARAMS* pLayout = (AFX_SIZEPARENTPARAMS*)lParam;
-
-   switch ( message )
+   MFCMessageEvent* msgEvent = dynamic_cast<MFCMessageEvent*>(event);
+   if ( msgEvent )
    {
-   case WM_SIZEPARENT:
-      if ( _qt->isVisible() )
+      AFX_SIZEPARENTPARAMS* pLayout = (AFX_SIZEPARENTPARAMS*)msgEvent->msg.lParam;
+   
+      switch ( msgEvent->msg.message )
       {
-         if ( _nStyle&CBRS_TOP )
+      case WM_SIZEPARENT:
+         if ( _qt->isVisible() )
          {
-            pLayout->rect.top += m_sizeDefault.cy;
-            pLayout->sizeTotal.cx = (pLayout->rect.right-pLayout->rect.left)+1;
-            pLayout->sizeTotal.cy += m_sizeDefault.cy;
+            if ( _nStyle&CBRS_TOP )
+            {
+               pLayout->rect.top += m_sizeDefault.cy;
+               pLayout->sizeTotal.cx = (pLayout->rect.right-pLayout->rect.left)+1;
+               pLayout->sizeTotal.cy += m_sizeDefault.cy;
+            }
+            else if ( _nStyle&CBRS_LEFT )
+            {
+               pLayout->rect.left += m_sizeDefault.cx;
+               pLayout->sizeTotal.cx += m_sizeDefault.cx;
+               pLayout->sizeTotal.cy = (pLayout->rect.bottom-pLayout->rect.top)+1;
+            }
+            else if ( _nStyle&CBRS_BOTTOM )
+            {
+               pLayout->rect.bottom -= m_sizeDefault.cy;
+               pLayout->sizeTotal.cx = (pLayout->rect.right-pLayout->rect.left)+1;
+               pLayout->sizeTotal.cy += m_sizeDefault.cy;
+            }
+            else if ( _nStyle&CBRS_RIGHT )
+            {
+               pLayout->rect.right -= m_sizeDefault.cx;
+               pLayout->sizeTotal.cx += m_sizeDefault.cx;
+               pLayout->sizeTotal.cy = (pLayout->rect.bottom-pLayout->rect.top)+1;
+            }
          }
-         else if ( _nStyle&CBRS_LEFT )
-         {
-            pLayout->rect.left += m_sizeDefault.cx;
-            pLayout->sizeTotal.cx += m_sizeDefault.cx;
-            pLayout->sizeTotal.cy = (pLayout->rect.bottom-pLayout->rect.top)+1;
-         }
-         else if ( _nStyle&CBRS_BOTTOM )
-         {
-            pLayout->rect.bottom -= m_sizeDefault.cy;
-            pLayout->sizeTotal.cx = (pLayout->rect.right-pLayout->rect.left)+1;
-            pLayout->sizeTotal.cy += m_sizeDefault.cy;
-         }
-         else if ( _nStyle&CBRS_RIGHT )
-         {
-            pLayout->rect.right -= m_sizeDefault.cx;
-            pLayout->sizeTotal.cx += m_sizeDefault.cx;
-            pLayout->sizeTotal.cy = (pLayout->rect.bottom-pLayout->rect.top)+1;
-         }
+         break;
       }
-      break;
+      return true;
    }
+   return false;
 }
 
 BOOL CDialogBar::Create(
@@ -8711,6 +8707,50 @@ void CEdit::subclassWidget(int nID,CWnd* widget)
    }
 }
 
+bool CEdit::event(QEvent *event)
+{
+   MFCMessageEvent* msgEvent = dynamic_cast<MFCMessageEvent*>(event);
+   if ( msgEvent )
+   {
+      if ( _dwStyle&ES_MULTILINE )
+      {
+         switch ( msgEvent->msg.message )
+         {
+         case EM_SETREADONLY:
+            if ( msgEvent->msg.wParam )
+            {
+               _dwStyle |= ES_READONLY;
+            }
+            else
+            {
+               _dwStyle &= (~ES_READONLY);
+            }
+            _qtd_ptedit->setReadOnly(msgEvent->msg.wParam);
+            break;
+         }
+      }
+      else
+      {
+         switch ( msgEvent->msg.message )
+         {
+         case EM_SETREADONLY:
+            if ( msgEvent->msg.wParam )
+            {
+               _dwStyle |= ES_READONLY;
+            }
+            else
+            {
+               _dwStyle &= (~ES_READONLY);
+            }
+            _qtd_ledit->setReadOnly(msgEvent->msg.wParam);
+            break;
+         }
+      }
+      return true;
+   }
+   return false;
+}
+
 BOOL CEdit::Create(
    DWORD dwStyle,
    const RECT& rect,
@@ -8786,49 +8826,6 @@ void CEdit::Clear()
    {
       _qtd_ledit->clear();
    }
-}
-
-LRESULT CEdit::SendMessage(
-   UINT message,
-   WPARAM wParam,
-   LPARAM lParam
-)
-{
-   if ( _dwStyle&ES_MULTILINE )
-   {
-      switch ( message )
-      {
-      case EM_SETREADONLY:
-         if ( wParam )
-         {
-            _dwStyle |= ES_READONLY;
-         }
-         else
-         {
-            _dwStyle &= (~ES_READONLY);
-         }
-         _qtd_ptedit->setReadOnly(wParam);
-         break;
-      }
-   }
-   else
-   {
-      switch ( message )
-      {
-      case EM_SETREADONLY:
-         if ( wParam )
-         {
-            _dwStyle |= ES_READONLY;
-         }
-         else
-         {
-            _dwStyle &= (~ES_READONLY);
-         }
-         _qtd_ledit->setReadOnly(wParam);
-         break;
-      }
-   }
-   return 0; // CP: not sure this matters...much
 }
 
 int CEdit::GetWindowTextLength( ) const

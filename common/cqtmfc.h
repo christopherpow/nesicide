@@ -4238,6 +4238,7 @@ class CEdit : public CWnd
 public:
    virtual void subclassWidget(int nID,CWnd* widget);
 protected:
+   bool event(QEvent *event);
    QPlainTextEdit* _qtd_ptedit;
    QLineEdit* _qtd_ledit;
 signals:
@@ -4267,11 +4268,6 @@ public:
       LPCTSTR lpszString
    );
    DWORD GetStyle() const;
-   LRESULT SendMessage(
-      UINT message,
-      WPARAM wParam = 0,
-      LPARAM lParam = 0
-   );
    void SetSel(
       DWORD dwSelection,
       BOOL bNoScroll = FALSE
@@ -4738,6 +4734,7 @@ public:
    virtual void subclassWidget(int nID,CWnd* widget);
    QModelIndex currentIndex () const;
 protected:
+   bool event(QEvent *event);
    QTableWidget* _qtd_table;
    QListWidget* _qtd_list;
 signals:
@@ -4758,11 +4755,6 @@ public:
    CImageList* SetImageList(
       CImageList* pImageList,
       int nImageListType
-   );
-   LRESULT SendMessage(
-      UINT message,
-      WPARAM wParam = 0,
-      LPARAM lParam = 0
    );
    DWORD SetExtendedStyle(
       DWORD dwNewStyle
@@ -5397,11 +5389,6 @@ public:
    ),
       UINT nID = AFX_IDW_TOOLBAR
    );
-   LRESULT SendMessage(
-      UINT message,
-      WPARAM wParam = 0,
-      LPARAM lParam = 0
-   );
    BOOL LoadToolBar(
       UINT nIDResource
    );
@@ -5417,6 +5404,7 @@ class CDialogBar : public CControlBar
    DECLARE_DYNAMIC(CDialogBar)
    // Qt interfaces
 protected:
+   bool event(QEvent *event);
    CDialog*     _mfcd;
    UINT _nStyle;
 public:
@@ -5427,11 +5415,6 @@ public:
       UINT nIDTemplate,
       UINT nStyle,
       UINT nID
-   );
-   LRESULT SendMessage(
-      UINT message,
-      WPARAM wParam = 0,
-      LPARAM lParam = 0
    );
    virtual CSize CalcFixedLayout(
       BOOL bStretch,
@@ -5456,11 +5439,6 @@ public:
       CWnd* pParentWnd,
       DWORD dwStyle = WS_CHILD | WS_VISIBLE | CBRS_BOTTOM,
       UINT nID = AFX_IDW_STATUS_BAR
-   );
-   LRESULT SendMessage(
-      UINT message,
-      WPARAM wParam = 0,
-      LPARAM lParam = 0
    );
    void SetWindowText(
       LPCTSTR lpszString
