@@ -365,7 +365,8 @@ SOURCES += \
     nes/project/cmusics.cpp \
     nes/project/csounds.cpp \
     nes/project/cmusicitem.cpp \
-    designers/newfiledialog.cpp
+    designers/newfiledialog.cpp \
+    appsettings.cpp
 
 HEADERS += \
    aboutdialog.h \
@@ -520,7 +521,8 @@ HEADERS += \
     nes/project/cmusics.h \
     nes/project/csounds.h \
     nes/project/cmusicitem.h \
-    designers/newfiledialog.h
+    designers/newfiledialog.h \
+    appsettings.h
 
 FORMS += \
    aboutdialog.ui \

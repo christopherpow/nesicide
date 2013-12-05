@@ -90,6 +90,7 @@ signals:
    void markProjectDirty(bool dirty);
    void applyProjectPropertiesToTab();
    void applyEnvironmentSettingsToTab();
+   void applyAppSettingsToTab();
    void addStatusBarWidget(QWidget* widget);
    void removeStatusBarWidget(QWidget* widget);
    void addToolBarWidget(QToolBar* toolBar);
@@ -106,6 +107,7 @@ public slots:
    void applyChanges(QString uuid);
    void applyProjectProperties();
    void applyEnvironmentSettings();
+   void applyAppSettings();
 };
 
 #endif // CPROJECTTABWIDGET_H

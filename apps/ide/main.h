@@ -7,11 +7,14 @@
 
 #include "cgamedatabasehandler.h"
 #include "cnesicideproject.h"
+#include "appsettings.h"
 
 extern TestSuiteExecutiveDialog* testSuiteExecutive;
 
 extern CGameDatabaseHandler gameDatabase;
 
 extern CNesicideProject* nesicideProject;
+
+extern AppSettings* appSettings;
 
 #endif // MAIN_H

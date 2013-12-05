@@ -11,6 +11,14 @@ cc65_dbginfo        CCC65Interface::dbgInfo = NULL;
 QStringList         CCC65Interface::errors;
 QString             CCC65Interface::targetMachine = "none";
 
+// This utility compares two file paths regardless of original slashery.
+bool fileNamesAreIdentical(QString file1, QString file2)
+{
+   file1 = QDir::fromNativeSeparators(file1);
+   file2 = QDir::fromNativeSeparators(file2);
+   return ( file1 == file2 );
+}
+
 static const char* clangTargetRuleFmt =
       "vpath %<!extension!> $(foreach <!extension!>,$(SOURCES),$(dir $<!extension!>))\r\n\r\n"
       "$(OBJDIR)/%.o: %.<!extension!>\r\n"
@@ -341,10 +349,10 @@ static void ErrorFunc (const struct cc65_parseerror* E)
 {
    char errorBuffer[256];
    sprintf(errorBuffer,
-           "<font color=red>%s:%s(%lu):%s</font>\n",
-           E->type? "Error" : "Warning",
+           "<font color=red>%s(%lu):%s - %s</font>\n",
            E->name,
            (unsigned long) E->line,
+           E->type? "Error" : "Warning",
            E->errormsg);
    buildTextLogger->write(errorBuffer);
 }
@@ -503,7 +511,7 @@ unsigned int CCC65Interface::getSourceFileModificationTime(QString sourceFile)
       {
          for ( file = 0; file < dbgSources->count; file++ )
          {
-            if ( sourceFile == dbgSources->data[file].source_name )
+            if ( fileNamesAreIdentical(dbgSources->data[file].source_name,sourceFile) )
             {
                mtime = dbgSources->data[file].source_mtime;
                break;
@@ -908,11 +916,11 @@ QString CCC65Interface::getSourceFileFromAbsoluteAddress(uint32_t addr,uint32_t 
    // Dispatch to appropriate target machine handler.
    if ( !targetMachine.compare("nes",Qt::CaseInsensitive) )
    {
-      return nesGetSourceFileFromAbsoluteAddress(addr,absAddr);
+      return QDir::fromNativeSeparators(nesGetSourceFileFromAbsoluteAddress(addr,absAddr));
    }
    else if ( !targetMachine.compare("c64",Qt::CaseInsensitive) )
    {
-      return c64GetSourceFileFromAbsoluteAddress(addr,absAddr);
+      return QDir::fromNativeSeparators(c64GetSourceFileFromAbsoluteAddress(addr,absAddr));
    }
 }
 
@@ -1006,7 +1014,7 @@ QString CCC65Interface::nesGetSourceFileFromAbsoluteAddress(uint32_t addr,uint32
          }
       }
    }
-   return file;
+   return QDir::fromNativeSeparators(file);
 }
 
 QString CCC65Interface::c64GetSourceFileFromAbsoluteAddress(uint32_t addr,uint32_t absAddr)
@@ -1081,7 +1089,7 @@ QString CCC65Interface::c64GetSourceFileFromAbsoluteAddress(uint32_t addr,uint32
          }
       }
    }
-   return file;
+   return QDir::fromNativeSeparators(file);
 }
 
 int CCC65Interface::getSourceLineFromAbsoluteAddress(uint32_t addr,uint32_t absAddr)
@@ -1304,7 +1312,7 @@ QString CCC65Interface::getSourceFileFromSymbol(QString symbol)
       }
    }
 
-   return file;
+   return QDir::fromNativeSeparators(file);
 }
 
 int CCC65Interface::getSourceLineFromFileAndSymbol(QString file,QString symbol)
@@ -1341,7 +1349,7 @@ int CCC65Interface::getSourceLineFromFileAndSymbol(QString file,QString symbol)
 
                if ( dbgSources && (dbgSources->count == 1) )
                {
-                  if ( dbgSources->data[0].source_name == file )
+                  if ( fileNamesAreIdentical(dbgSources->data[0].source_name,file) )
                   {
                      source_line = dbgLines->data[0].source_line;
                   }
@@ -1382,7 +1390,7 @@ int CCC65Interface::getLineMatchCount(QString file, int source_line)
       // Get the appropriate file.
       for ( fidx = 0; fidx < dbgSources->count; fidx++ )
       {
-         if ( dbgSources->data[fidx].source_name == file )
+         if ( fileNamesAreIdentical(dbgSources->data[fidx].source_name,file) )
          {
             break;
          }
@@ -1434,7 +1442,7 @@ unsigned int CCC65Interface::getAddressFromFileAndLine(QString file,int source_l
          // Get the appropriate file.
          for ( fidx = 0; fidx < dbgSources->count; fidx++ )
          {
-            if ( dbgSources->data[fidx].source_name == file )
+            if ( fileNamesAreIdentical(dbgSources->data[fidx].source_name,file) )
             {
                break;
             }
@@ -1530,7 +1538,7 @@ unsigned int CCC65Interface::nesGetAbsoluteAddressFromFileAndLine(QString file,i
          // Get the appropriate file.
          for ( fidx = 0; fidx < dbgSources->count; fidx++ )
          {
-            if ( dbgSources->data[fidx].source_name == file )
+            if ( fileNamesAreIdentical(dbgSources->data[fidx].source_name,file) )
             {
                break;
             }
@@ -1623,7 +1631,7 @@ unsigned int CCC65Interface::c64GetAbsoluteAddressFromFileAndLine(QString file,i
          // Get the appropriate file.
          for ( fidx = 0; fidx < dbgSources->count; fidx++ )
          {
-            if ( dbgSources->data[fidx].source_name == file )
+            if ( fileNamesAreIdentical(dbgSources->data[fidx].source_name,file) )
             {
                break;
             }

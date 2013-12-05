@@ -102,8 +102,6 @@ public slots:
    void setBreakpoint(int line, int addr, int absAddr);
    void updateTargetMachine(QString target);
    void checkOpenFile(QDateTime lastActivationTime);
-
-private slots:
    void editor_undo();
    void editor_redo();
    void editor_cut();
@@ -133,6 +131,7 @@ private slots:
    void customContextMenuRequested(const QPoint &pos);
    void applyProjectPropertiesToTab();
    void applyEnvironmentSettingsToTab();
+   void applyAppSettingsToTab();
 };
 
 #endif // CODEEDITORFORM_H

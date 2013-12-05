@@ -84,7 +84,7 @@ bool OutputPaneDockWidget::eventFilter(QObject* object,QEvent* event)
             selection = textCursor.selectedText();
             ui->compilerOutputTextEdit->setTextCursor(textCursor);
 
-            QRegExp fileLineRegex("([^ \t]*)\\(([0-9]+)\\):");
+            QRegExp fileLineRegex("([^ \t]*)\\(([0-9]+)\\)");
             if ( fileLineRegex.indexIn(selection) >= 0 )
             {
                // Parse the error file and line number.

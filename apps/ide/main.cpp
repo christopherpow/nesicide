@@ -10,6 +10,9 @@
 
 #include "model/cprojectmodel.h"
 
+// Application [transient] settings.
+AppSettings* appSettings = NULL;
+
 // Modeless dialog for Test Suite executive.
 TestSuiteExecutiveDialog* testSuiteExecutive = NULL;
 

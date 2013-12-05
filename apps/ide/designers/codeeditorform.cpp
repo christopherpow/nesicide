@@ -1368,6 +1368,10 @@ void CodeEditorForm::applyProjectPropertiesToTab()
 {
 }
 
+void CodeEditorForm::applyAppSettingsToTab()
+{
+}
+
 void CodeEditorForm::applyEnvironmentSettingsToTab()
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");

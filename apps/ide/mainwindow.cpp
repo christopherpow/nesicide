@@ -104,6 +104,9 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
 
+   // Create application [transient] settings bucket.
+   appSettings = new AppSettings();
+   
    // Initialize Environment settings.
    EnvironmentSettingsDialog::readSettings();
 
@@ -164,6 +167,7 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    QObject::connect(this,SIGNAL(applyProjectProperties()),tabWidget,SLOT(applyProjectProperties()));
    QObject::connect(this,SIGNAL(applyEnvironmentSettings()),tabWidget,SLOT(applyEnvironmentSettings()));
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),tabWidget,SIGNAL(updateTargetMachine(QString)));
+   QObject::connect(appSettings,SIGNAL(appSettingsChanged()),tabWidget,SLOT(applyAppSettings()));
 
    QObject::connect(menuEdit,SIGNAL(aboutToShow()),this,SLOT(menuEdit_aboutToShow()));
 
@@ -274,6 +278,7 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    MusicEditorForm::instance();
    
    // Set up UI in "Coding" mode.
+   appSettings->setAppMode(AppSettings::CodingMode);
    actionCoding_Mode->setChecked(true);
    if ( EnvironmentSettingsDialog::rememberWindowSettings() )
    {
@@ -3480,6 +3485,7 @@ void MainWindow::on_actionCoding_Mode_triggered()
 
    actionDebugging_Mode->setChecked(false);
    actionCoding_Mode->setChecked(true);
+   appSettings->setAppMode(AppSettings::CodingMode);
 }
 
 void MainWindow::on_actionDebugging_Mode_triggered()
@@ -3512,6 +3518,7 @@ void MainWindow::on_actionDebugging_Mode_triggered()
 
    actionDebugging_Mode->setChecked(true);
    actionCoding_Mode->setChecked(false);
+   appSettings->setAppMode(AppSettings::DebuggingMode);
 }
 
 void MainWindow::on_actionExit_triggered()
