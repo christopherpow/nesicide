@@ -41,10 +41,10 @@ JoypadLoggerDockWidget::JoypadLoggerDockWidget(QWidget *parent) :
 
 JoypadLoggerDockWidget::~JoypadLoggerDockWidget()
 {
+   delete pThread;
    delete ui;
    delete imgData;
    delete renderer;
-   delete pThread;
 }
 
 void JoypadLoggerDockWidget::updateTargetMachine(QString /*target*/)

@@ -15,8 +15,6 @@ OutputPaneDockWidget::OutputPaneDockWidget(QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::OutputPaneDockWidget)
 {
-   QDockWidget* search = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Search"));
-
    ui->setupUi(this);
 
    ui->outputStackedWidget->setCurrentIndex(Output_General);
@@ -51,7 +49,10 @@ OutputPaneDockWidget::OutputPaneDockWidget(QWidget *parent) :
    buildResults->setMaximumWidth(150);
    debugInfo->setMaximumWidth(150);
 
-   ui->searchInput->layout()->addWidget(search->widget());
+   m_pSearch = new SearchWidget();
+   CDockWidgetRegistry::addWidget ( "Search", m_pSearch );
+   
+   ui->searchStackedWidget->insertWidget(0,m_pSearch);
 
    QObject::connect(general,SIGNAL(clicked()),this,SLOT(showGeneralPane()));
    QObject::connect(searchResults,SIGNAL(clicked()),this,SLOT(showSearchPane()));
@@ -87,7 +88,7 @@ bool OutputPaneDockWidget::eventFilter(QObject* object,QEvent* event)
             if ( fileLineRegex.indexIn(selection) >= 0 )
             {
                // Parse the error file and line number.
-               file = fileLineRegex.cap(1);
+               file = QDir::fromNativeSeparators(fileLineRegex.cap(1));
                line = fileLineRegex.cap(2);
 
                emit snapTo("OutputPaneFile,"+file+","+line);
@@ -138,7 +139,7 @@ void OutputPaneDockWidget::initialize()
    buildResults->setChecked(false);
    debugInfo->setChecked(false);
    searchResults->setChecked(false);
-   ui->searchStackedWidget->setCurrentWidget(ui->searchInput);
+   ui->searchStackedWidget->setCurrentWidget(m_pSearch);
 }
 
 void OutputPaneDockWidget::searcher_searchDone(int results)
@@ -281,7 +282,7 @@ void OutputPaneDockWidget::resetPane(int tab)
    case Output_Search:
       searchResults->setStyleSheet("QPushButton { background: #A0A0A0 }");
       searchResults->setText("Search Results");
-      ui->searchStackedWidget->setCurrentWidget(ui->searchInput);
+      ui->searchStackedWidget->setCurrentWidget(m_pSearch);
       break;
    }
 }

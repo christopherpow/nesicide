@@ -1520,7 +1520,7 @@ unsigned int CCC65Interface::nesGetAbsoluteAddressFromFileAndLine(QString file,i
    int fidx;
    int count = 0;
    int absAddr = -1;
-
+   
    if ( dbgInfo )
    {
       dbgSources = cc65_get_sourcelist(dbgInfo);
@@ -1964,7 +1964,7 @@ bool CCC65Interface::isErrorOnLineOfFile(QString file,int source_line)
    bool    found = false;
 
    // Form error string key.
-   errorLookup = file+'('+QString::number(source_line)+"):";
+   errorLookup = QDir::fromNativeSeparators(file)+'('+QString::number(source_line)+"):";
    foreach ( const QString error, errors )
    {
       if ( error.contains(errorLookup) )

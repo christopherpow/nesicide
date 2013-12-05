@@ -1,27 +1,27 @@
-#ifndef SEARCHDOCKWIDGET_H
-#define SEARCHDOCKWIDGET_H
+#ifndef SEARCHWIDGET_H
+#define SEARCHWIDGET_H
 
-#include <QDockWidget>
+#include <QWidget>
 #include <QDir>
 
 namespace Ui {
-   class SearchDockWidget;
+   class SearchWidget;
 }
 
-class SearchDockWidget : public QDockWidget
+class SearchWidget : public QWidget
 {
    Q_OBJECT
 
 public:
-   explicit SearchDockWidget(QWidget *parent = 0);
-   virtual ~SearchDockWidget();
+   explicit SearchWidget(QWidget *parent = 0);
+   virtual ~SearchWidget();
 
 protected:
    void showEvent(QShowEvent *event);
    bool eventFilter(QObject *object, QEvent *event);
 
 private:
-   Ui::SearchDockWidget *ui;
+   Ui::SearchWidget *ui;
 
 signals:
    void search(QDir dir, QString searchText, QString pattern, bool subfolders, bool sourceSearchPaths, bool useRegex, bool caseSensitive);
@@ -34,4 +34,4 @@ private slots:
    void on_browse_clicked();
 };
 
-#endif // SEARCHDOCKWIDGET_H
+#endif // SEARCHWIDGET_H

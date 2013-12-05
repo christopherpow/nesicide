@@ -70,14 +70,13 @@ CHRROMDisplayDialog::~CHRROMDisplayDialog()
    {
       delete info;
    }
-
-   delete ui;
-   delete imgData;
-   delete renderer;
    if ( m_usePPU )
    {
       delete pThread;
    }
+   delete ui;
+   delete imgData;
+   delete renderer;
 }
 
 void CHRROMDisplayDialog::updateTargetMachine(QString /*target*/)

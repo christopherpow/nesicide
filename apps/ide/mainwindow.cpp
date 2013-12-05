@@ -184,9 +184,6 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    m_pSearchBar->hide();
    CDockWidgetRegistry::addWidget ( "Search Bar", m_pSearchBar );
 
-   m_pSearch = new SearchDockWidget();
-   CDockWidgetRegistry::addWidget ( "Search", m_pSearch );
-
    m_pProjectBrowser = new ProjectBrowserDockWidget(tabWidget);
    m_pProjectBrowser->setProjectModel(m_pProjectModel);
    addDockWidget(Qt::LeftDockWidgetArea, m_pProjectBrowser );

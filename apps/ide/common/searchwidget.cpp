@@ -1,5 +1,5 @@
-#include "searchdockwidget.h"
-#include "ui_searchdockwidget.h"
+#include "searchwidget.h"
+#include "ui_searchwidget.h"
 
 #include <QFileDialog>
 #include <QCompleter>
@@ -10,9 +10,9 @@
 
 #include "main.h"
 
-SearchDockWidget::SearchDockWidget(QWidget *parent) :
-    QDockWidget(parent),
-    ui(new Ui::SearchDockWidget)
+SearchWidget::SearchWidget(QWidget *parent) :
+    QWidget(parent),
+    ui(new Ui::SearchWidget)
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
 
@@ -43,12 +43,12 @@ SearchDockWidget::SearchDockWidget(QWidget *parent) :
    ui->searchText->installEventFilter(this);
 }
 
-SearchDockWidget::~SearchDockWidget()
+SearchWidget::~SearchWidget()
 {
    delete ui;
 }
 
-bool SearchDockWidget::eventFilter(QObject *object, QEvent *event)
+bool SearchWidget::eventFilter(QObject *object, QEvent *event)
 {
    if ( object == ui->searchText )
    {
@@ -67,7 +67,7 @@ bool SearchDockWidget::eventFilter(QObject *object, QEvent *event)
    return false;
 }
 
-void SearchDockWidget::showEvent(QShowEvent */*event*/)
+void SearchWidget::showEvent(QShowEvent */*event*/)
 {
    if ( !ui->location->count() )
    {
@@ -76,13 +76,12 @@ void SearchDockWidget::showEvent(QShowEvent */*event*/)
    if ( !ui->type->count() )
    {
       ui->type->addItem("*");
-      ui->type->addItem("*.s");
    }
    ui->searchText->lineEdit()->selectAll();
    ui->searchText->setFocus();
 }
 
-void SearchDockWidget::on_browse_clicked()
+void SearchWidget::on_browse_clicked()
 {
    QString dir = QFileDialog::getExistingDirectory(this,"Search in...",QDir::currentPath());
    if ( !dir.isEmpty() )
@@ -92,7 +91,7 @@ void SearchDockWidget::on_browse_clicked()
    }
 }
 
-void SearchDockWidget::on_find_clicked()
+void SearchWidget::on_find_clicked()
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    QStringList items;
@@ -164,12 +163,12 @@ void SearchDockWidget::on_find_clicked()
    }
 }
 
-void SearchDockWidget::searcher_searchDone(int found)
+void SearchWidget::searcher_searchDone(int found)
 {
    searchTextLogger->write("<b>"+QString::number(found)+" found.</b>");
 }
 
-void SearchDockWidget::on_projectFolder_clicked(bool checked)
+void SearchWidget::on_projectFolder_clicked(bool checked)
 {
    ui->location->setEnabled(!checked);
    ui->browse->setEnabled(!checked);

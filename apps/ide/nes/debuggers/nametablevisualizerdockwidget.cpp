@@ -38,10 +38,10 @@ NameTableVisualizerDockWidget::NameTableVisualizerDockWidget(QWidget *parent) :
 
 NameTableVisualizerDockWidget::~NameTableVisualizerDockWidget()
 {
+   delete pThread;
    delete ui;
    delete imgData;
    delete renderer;
-   delete pThread;
 }
 
 void NameTableVisualizerDockWidget::updateTargetMachine(QString /*target*/)

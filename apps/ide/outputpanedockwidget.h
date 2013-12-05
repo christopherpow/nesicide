@@ -4,6 +4,8 @@
 #include <QDockWidget>
 #include <QPushButton>
 
+#include "searchwidget.h"
+
 namespace Ui {
    class OutputPaneDockWidget;
 }
@@ -67,6 +69,7 @@ private:
    QPushButton* searchResults;
    QPushButton* buildResults;
    QPushButton* debugInfo;
+   SearchWidget* m_pSearch;
 };
 
 #endif // OUTPUTPANEDOCKWIDGET_H

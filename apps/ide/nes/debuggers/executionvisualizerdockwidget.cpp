@@ -54,11 +54,11 @@ ExecutionVisualizerDockWidget::ExecutionVisualizerDockWidget(QWidget *parent) :
 
 ExecutionVisualizerDockWidget::~ExecutionVisualizerDockWidget()
 {
+   delete pThread;
    delete ui;
    delete imgData;
    delete renderer;
    delete model;
-   delete pThread;
 }
 
 void ExecutionVisualizerDockWidget::updateTargetMachine(QString /*target*/)

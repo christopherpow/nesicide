@@ -37,10 +37,10 @@ CodeDataLoggerDockWidget::CodeDataLoggerDockWidget(QWidget *parent) :
 
 CodeDataLoggerDockWidget::~CodeDataLoggerDockWidget()
 {
+   delete pThread;
    delete ui;
    delete imgData;
    delete renderer;
-   delete pThread;
 }
 
 void CodeDataLoggerDockWidget::updateTargetMachine(QString /*target*/)

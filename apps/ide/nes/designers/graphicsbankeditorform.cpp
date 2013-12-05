@@ -67,13 +67,12 @@ GraphicsBankEditorForm::~GraphicsBankEditorForm()
    {
       delete info;
    }
-
+   delete pThread;
    delete ui;
    delete model;
    delete imgData;
    delete renderer;
    delete delegate;
-   delete pThread;
 }
 
 QList<IChrRomBankItem*> GraphicsBankEditorForm::bankItems()

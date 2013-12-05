@@ -36,7 +36,6 @@
 #include "nesemulatorcontrol.h"
 #include "c64emulatorthread.h"
 #include "c64emulatorcontrol.h"
-#include "searchdockwidget.h"
 #include "cexpandablestatusbar.h"
 
 #include "ui_mainwindow.h"
@@ -96,7 +95,6 @@ protected:
 
    SourceNavigator* m_pSourceNavigator;
    SearchBar* m_pSearchBar;
-   SearchDockWidget* m_pSearch;
 
    // NES-specific UI elements.
    NESEmulatorControl* m_pNESEmulatorControl;

@@ -240,7 +240,7 @@ SOURCES += \
    common/panzoomrenderer.cpp \
    common/qtcolorpicker.cpp \
    common/searchbar.cpp \
-   common/searchdockwidget.cpp \
+   common/searchwidget.cpp \
    common/searcherthread.cpp \
    common/sourcenavigator.cpp \
    nes/common/tilificationthread.cpp \
@@ -387,7 +387,7 @@ HEADERS += \
    common/panzoomrenderer.h \
    common/qtcolorpicker.h \
    common/searchbar.h \
-   common/searchdockwidget.h \
+   common/searchwidget.h \
    common/searcherthread.h \
    common/sourcenavigator.h \
    nes/common/tilificationthread.h \
@@ -529,7 +529,7 @@ FORMS += \
    c64/emulator/c64emulatorcontrol.ui \
    common/panzoomrenderer.ui \
    common/searchbar.ui \
-   common/searchdockwidget.ui \
+   common/searchwidget.ui \
    common/sourcenavigator.ui \
    nes/debuggers/apuinformationdockwidget.ui \
    debuggers/breakpointdialog.ui \

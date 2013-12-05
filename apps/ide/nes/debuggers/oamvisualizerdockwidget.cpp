@@ -41,10 +41,10 @@ OAMVisualizerDockWidget::OAMVisualizerDockWidget(QWidget *parent) :
 
 OAMVisualizerDockWidget::~OAMVisualizerDockWidget()
 {
+   delete pThread;
    delete ui;
    delete imgData;
    delete renderer;
-   delete pThread;
 }
 
 void OAMVisualizerDockWidget::updateTargetMachine(QString /*target*/)
