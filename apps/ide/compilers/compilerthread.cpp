@@ -18,7 +18,7 @@ CompilerThread::CompilerThread(QObject*)
 
 CompilerThread::~CompilerThread()
 {
-   pThread->terminate();
+   pThread->exit(0);
    pThread->wait();
    delete pThread;
 }

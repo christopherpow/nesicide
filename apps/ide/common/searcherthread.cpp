@@ -15,7 +15,7 @@ SearcherThread::SearcherThread(QObject*)
 
 SearcherThread::~SearcherThread()
 {
-   pThread->terminate();
+   pThread->exit(0);
    pThread->wait();
    delete pThread;
 }
