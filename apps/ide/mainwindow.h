@@ -198,7 +198,7 @@ private:
    void saveProject(QString fileName);
    void saveEmulatorState(QString fileName);
    bool closeProject();
-   void explodeTemplate(QString templateDirName,QString localDirName,QString* projectFileName);
+   void explodeTemplate(int level,QString templateName,QString projectName,QString templateDirName,QString localDirName,QString* projectFileName);
    void updateFromEmulatorPrefs(bool initial);
 
 protected:

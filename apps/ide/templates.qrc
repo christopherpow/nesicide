@@ -13,5 +13,16 @@
         <file>templates/NES/NROM Hello World - C/src/memmap.inc</file>
         <file>templates/NES/NROM Hello World - C/tilesets/gamegfx.png</file>
         <file>templates/NES/NROM Hello World - C/tilesets/titlegfx.png</file>
+        <file>templates/NES/NROM Hello World - UC/NROM Hello World - UC.nesproject</file>
+        <file>templates/NES/NROM Hello World - UC/lib/crt0.s</file>
+        <file>templates/NES/NROM Hello World - UC/source/data.uc</file>
+        <file>templates/NES/NROM Hello World - UC/source/main.uc</file>
+        <file>templates/NES/NROM Hello World - UC/source/nes.uc</file>
+        <file>templates/NES/NROM Hello World - UC/nes.ini</file>
+        <file>templates/NES/NROM Hello World - UC/uc.mk</file>
+        <file>templates/NES/NROM Hello World - UC/data/graphics.atr</file>
+        <file>templates/NES/NROM Hello World - UC/data/graphics.chr</file>
+        <file>templates/NES/NROM Hello World - UC/data/graphics.nam</file>
+        <file>templates/NES/NROM Hello World - UC/data/graphics.pal</file>
     </qresource>
 </RCC>

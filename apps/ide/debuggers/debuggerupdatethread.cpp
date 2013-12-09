@@ -19,7 +19,7 @@ DebuggerUpdateThread::~DebuggerUpdateThread()
    _func = NULL;
    pThread->terminate();
    pThread->wait();
-   delete pThread;
+//   delete pThread;
 }
 
 void DebuggerUpdateThread::updateDebuggers()

@@ -1758,29 +1758,36 @@ void MainWindow::on_actionProject_Properties_triggered()
    emit applyProjectProperties();
 }
 
-void MainWindow::explodeTemplate(QString templateDirName,QString localDirName,QString* projectFileName)
+void MainWindow::explodeTemplate(int level,QString templateName,QString projectName,QString templateDirName,QString localDirName,QString* projectFileName)
 {
    QDir templateDir(templateDirName);
    QDir localDir;
    QString localDirTemp;
-   QFileInfoList templateFileInfos = templateDir.entryInfoList();
-
+   QFileInfoList templateFileInfos = templateDir.entryInfoList();   
+   
    foreach ( QFileInfo fileInfo, templateFileInfos )
    {
+      localDirTemp = localDirName;
+      localDirTemp += "/";
+      if ( level == 0 )
+      {
+         localDirTemp += projectName;
+         localDirTemp += "/";      
+      }
+      localDir.mkpath(localDirTemp);
+      localDirTemp += fileInfo.fileName();
+      
+      localDirTemp.replace(templateName,projectName);
+      
       if ( fileInfo.isDir() )
       {
-         localDirTemp = localDirName;
-         localDirName += fileInfo.fileName();
-         localDirName += "/";
-         localDir.mkpath(localDirName);
-         explodeTemplate(fileInfo.filePath(),localDirName,projectFileName);
-         localDirName = localDirTemp;
+         explodeTemplate(level+1,templateName,projectName,fileInfo.filePath(),localDirTemp,projectFileName);
       }
       else
       {
          // Save the file locally.
          QFile templateFile(fileInfo.filePath());
-         QFile localFile(localDirName+fileInfo.fileName());
+         QFile localFile(localDirTemp);
 
          if ( templateFile.open(QIODevice::ReadOnly) &&
               localFile.open(QIODevice::ReadWrite|QIODevice::Truncate) )
@@ -1847,8 +1854,8 @@ void MainWindow::on_actionNew_Project_triggered()
             templateDirName += "/";
 
             // Recursively copy the project content to the local location.
-            explodeTemplate(templateDirName,"",&projectFileName);
-
+            explodeTemplate(0,dlg.getTemplate(),dlg.getName(),templateDirName,dlg.getPath(),&projectFileName);
+            
             openC64Project(projectFileName);
          }
          else if ( dlg.getTarget() == "Nintendo Entertainment System" )
@@ -1858,10 +1865,11 @@ void MainWindow::on_actionNew_Project_triggered()
             templateDirName += "/";
 
             // Recursively copy the project content to the local location.
-            explodeTemplate(templateDirName,"",&projectFileName);
+            explodeTemplate(0,dlg.getTemplate(),dlg.getName(),templateDirName,dlg.getPath(),&projectFileName);
 
             openNesProject(projectFileName);
          }
+         nesicideProject->setProjectTitle(dlg.getName());
       }
 
       m_pProjectBrowser->enableNavigation();
