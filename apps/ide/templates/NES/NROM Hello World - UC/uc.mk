@@ -1,4 +1,4 @@
-UC65_HOME = $(CC65_HOME)/bin
+UC65_HOME = $(CC65_HOME)/../uc65-release-0.5-rc4
 
 vpath %uc $(foreach uc,$(SOURCES),$(dir $uc))
 

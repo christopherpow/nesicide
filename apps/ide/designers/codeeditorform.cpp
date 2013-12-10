@@ -257,7 +257,7 @@ void CodeEditorForm::customContextMenuRequested(const QPoint &pos)
       emit snapToTab("SourceNavigatorFile,"+file);
       emit snapToTab("SourceNavigatorSymbol,"+symbol);
    }
-   else if ( (action) && (action->text() == ADD_TO_WATCH_TEXT) )
+   else if ( (action) && (action->text().startsWith(ADD_TO_WATCH_TEXT)) )
    {
       emit addWatchedItem(symbol);
    }
