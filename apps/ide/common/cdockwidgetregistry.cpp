@@ -12,12 +12,13 @@ QWidget* CDockWidgetRegistry::getWidget(const QString& name)
    return 0;
 }
 
-void CDockWidgetRegistry::addWidget(const QString& name, QWidget* widget, bool visible)
+void CDockWidgetRegistry::addWidget(const QString& name, QWidget* widget, bool visible, bool permanent)
 {
    CDockWidgetManager* pDockWidgetManager = new CDockWidgetManager;
    pDockWidgetManager->widget = widget;
    pDockWidgetManager->visible = visible;
    pDockWidgetManager->enabled = false;
+   pDockWidgetManager->permanent = permanent;
 
    widgets.insert ( name, pDockWidgetManager );
 }
@@ -33,8 +34,11 @@ void CDockWidgetRegistry::hideAll()
 
    for (i = widgets.begin(); i != widgets.end(); ++i)
    {
-      i.value()->widget->hide();
-      i.value()->visible = false;
+      if ( !i.value()->permanent )
+      {
+         i.value()->widget->hide();
+         i.value()->visible = false;
+      }
    }
 }
 
