@@ -1524,9 +1524,6 @@ void MainWindow::projectDataChangesEvent()
    m_pProjectBrowser->setVisible(nesicideProject->isInitialized());
 
    // Enabled/Disable actions based on if we have a project loaded or not
-   actionNew_Project->setEnabled(!nesicideProject->isInitialized());
-   actionCreate_Project_from_File->setEnabled(!nesicideProject->isInitialized());
-   actionOpen_Project->setEnabled(!nesicideProject->isInitialized());
    actionProject_Properties->setEnabled(nesicideProject->isInitialized());
    action_Project_Browser->setEnabled(nesicideProject->isInitialized());
    action_Close_Project->setEnabled(nesicideProject->isInitialized());
@@ -1813,6 +1810,13 @@ void MainWindow::explodeTemplate(int level,QString templateName,QString projectN
 
 void MainWindow::on_actionNew_Project_triggered()
 {
+   on_action_Close_Project_triggered();
+   
+   if ( nesicideProject->isInitialized() )
+   {
+      return;
+   }
+   
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    NewProjectDialog dlg("New Project","Untitled",settings.value("LastProjectBasePath").toString());
 
@@ -1999,6 +2003,13 @@ void MainWindow::openC64File(QString fileName)
 
 void MainWindow::on_actionCreate_Project_from_File_triggered()
 {
+   on_action_Close_Project_triggered();
+   
+   if ( nesicideProject->isInitialized() )
+   {
+      return;
+   }
+   
    QString romPath = EnvironmentSettingsDialog::romPath();
    QString selectedFilter;
    QString fileName = QFileDialog::getOpenFileName(this, "Open ROM", romPath, "All Files (*.*);;iNES ROM (*.nes);;Commodore 64 Program (*.c64 *.prg);;Commodore 64 Disk Image (*.d64)",&selectedFilter);
@@ -2339,6 +2350,13 @@ void MainWindow::openC64Project(QString fileName,bool run)
 
 void MainWindow::on_actionOpen_Project_triggered()
 {
+   on_action_Close_Project_triggered();
+   
+   if ( nesicideProject->isInitialized() )
+   {
+      return;
+   }
+   
    QString fileName = QFileDialog::getOpenFileName(this, "Open Project", "", "NES Project (*.nesproject);;Commodore 64 Project (*.c64project)");
 
    if (fileName.isEmpty())
