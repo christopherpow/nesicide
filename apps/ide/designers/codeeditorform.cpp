@@ -251,7 +251,7 @@ void CodeEditorForm::customContextMenuRequested(const QPoint &pos)
    // Run the context menu...
    action = menu.exec(QWidget::mapToGlobal(pos));
 
-   if ( (action) && (action->text() == GO_TO_DEFINITION_TEXT) )
+   if ( (action) && (action->text().startsWith(GO_TO_DEFINITION_TEXT)) )
    {
       QString file = CCC65Interface::getSourceFileFromSymbol(symbol);
       emit snapToTab("SourceNavigatorFile,"+file);
@@ -688,41 +688,14 @@ void CodeEditorForm::updateToolTip(QString symbol)
    // Next check for symbol tooltips.
    if ( EnvironmentSettingsDialog::showSymbolTips() )
    {
-      if ( (m_language == Language_C) &&
-           ((CCC65Interface::getSymbolType(clangSymbol) == CC65_SYM_LABEL) ||
-           (CCC65Interface::getSymbolType(clangSymbol) == CC65_SYM_IMPORT)) )
+      // Look for C-language emitted symbols [prepended with underscore]...
+      if ( (CCC65Interface::getSymbolType(clangSymbol) == CC65_SYM_LABEL) ||
+           (CCC65Interface::getSymbolType(clangSymbol) == CC65_SYM_IMPORT) )
       {
-         addr = CCC65Interface::getSymbolAddress(clangSymbol);
-
-         if ( addr != 0xFFFFFFFF )
-         {
-            absAddr = CCC65Interface::getSymbolAbsoluteAddress(clangSymbol);
-            if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
-            {
-               nesGetPrintableAddressWithAbsolute(address,addr,absAddr);
-            }
-            else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
-            {
-               c64GetPrintableAddressWithAbsolute(address,addr,absAddr);
-            }
-
-            file = CCC65Interface::getSourceFileFromSymbol(clangSymbol);
-            line = CCC65Interface::getSourceLineFromFileAndSymbol(file,clangSymbol);
-
-            if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
-            {
-               sprintf(toolTipText,TOOLTIP_LABEL,symbol.toAscii().constData(),file.toAscii().constData(),line,address,nesGetMemory(addr));
-            }
-            else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
-            {
-               sprintf(toolTipText,TOOLTIP_LABEL,symbol.toAscii().constData(),file.toAscii().constData(),line,address,c64GetMemory(addr));
-            }
-            setToolTip(toolTipText);
-         }
+         symbol = clangSymbol;
       }
-      else if ( (m_language == Language_Assembly) &&
-           ((CCC65Interface::getSymbolType(symbol) == CC65_SYM_LABEL) ||
-           (CCC65Interface::getSymbolType(symbol) == CC65_SYM_IMPORT)) )
+      if ( (CCC65Interface::getSymbolType(symbol) == CC65_SYM_LABEL) ||
+           (CCC65Interface::getSymbolType(symbol) == CC65_SYM_IMPORT) )
       {
          addr = CCC65Interface::getSymbolAddress(symbol);
 

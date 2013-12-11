@@ -2586,6 +2586,7 @@ void MainWindow::on_actionCode_Profiler_triggered()
 
 void MainWindow::on_actionSearch_triggered()
 {
+   output->hide();
    output->show();
    output->resetPane(OutputPaneDockWidget::Output_Search);
    output->showPane(OutputPaneDockWidget::Output_Search);
