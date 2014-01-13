@@ -26,15 +26,8 @@ enum {WM_USER_WAVE_CHANGED = WM_USER};
 
 class CWaveEditor : public CWnd
 {
-   // Qt interfaces
-protected:
-   void mouseMoveEvent(QMouseEvent *event);
-   void mousePressEvent(QMouseEvent *event);
-   void mouseReleaseEvent(QMouseEvent *event);
-   void paintEvent(QPaintEvent *);
-public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
-
-   CWaveEditor(int sx, int sy, int lx, int ly);
+public:
+	CWaveEditor(int sx, int sy, int lx, int ly);
 	virtual ~CWaveEditor();
 	DECLARE_DYNAMIC(CWaveEditor)
 private:

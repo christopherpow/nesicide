@@ -92,21 +92,6 @@ BEGIN_MESSAGE_MAP(CConfigAppearance, CPropertyPage)
    ON_BN_CLICKED(IDC_PATTERNCOLORS, OnBnClickedPatterncolors)
 END_MESSAGE_MAP()
 
-void CConfigAppearance::paintEvent(QPaintEvent *)
-{
-   OnPaint();
-}
-
-void CConfigAppearance::pickCol_clicked()
-{
-   OnBnClickedPickCol();
-}
-
-void CConfigAppearance::patternColors_clicked()
-{
-   OnBnClickedPatterncolors();
-}
-
 void CConfigAppearance::scheme_currentIndexChanged(int)
 {
    OnCbnSelchangeScheme();

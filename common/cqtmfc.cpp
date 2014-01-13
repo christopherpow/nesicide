@@ -1145,10 +1145,15 @@ DWORD WINAPI GetSysColor(
    switch ( nIndex )
    {
    case COLOR_3DFACE:
+//   case COLOR_BTNFACE: // CP: Same as COLOR_3DFACE
       return 0xf0f0f0;
       break;
-   case COLOR_BTNHIGHLIGHT:
+   case COLOR_3DHILIGHT:
+//   case COLOR_BTNHIGHLIGHT: // CP: Same as COLOR_3DHILIGHT
       return 0xffffff;
+      break;
+   case COLOR_BTNSHADOW:
+      return 0xeeeeee;
       break;
    case COLOR_APPWORKSPACE:
       return 0xababab;
@@ -1343,7 +1348,13 @@ HACCEL WINAPI LoadAccelerators(
    LPCTSTR lpTableName
 )
 {
-   UINT id = (UINT)lpTableName;
+   QString table;
+#if UNICODE
+   table = QString::fromWCharArray(lpTableName);
+#else
+   table = QString::fromLatin1(lpTableName);
+#endif
+   UINT id = (UINT)table.toInt();
    ACCEL* pTable = qtMfcAcceleratorResource(id);
    return (HACCEL)pTable;
 }
@@ -1355,16 +1366,45 @@ int WINAPI TranslateAccelerator(
 )
 {
    ACCEL* pAccel = (ACCEL*)hAccTable;
-   while ( pAccel->cmd )
+   Qt::KeyboardModifiers modifiers = QApplication::keyboardModifiers();
+   if ( (lpMsg->message == WM_KEYDOWN) ||
+        (lpMsg->message == WM_SYSKEYDOWN) )
    {
-      if ( lpMsg->wParam == pAccel->key )
+      while ( pAccel->cmd )
       {
-         CWnd* pWnd = (CWnd*)hWnd;
-         pWnd->SendMessage(WM_COMMAND,pAccel->cmd);
-         qDebug("Translating and sending %d message...",pAccel->key);
-         return 1;
+         if ( lpMsg->wParam == pAccel->key )
+         {
+            if ( pAccel->fVirt&FCONTROL )
+            {
+               if ( !(modifiers & Qt::ControlModifier) )
+               {
+                  pAccel++;
+                  continue;
+               }
+            }
+            if ( pAccel->fVirt&FSHIFT )
+            {
+               if ( !(modifiers & Qt::ShiftModifier) )
+               {
+                  pAccel++;
+                  continue;
+               }
+            }
+            if ( pAccel->fVirt&FALT )
+            {
+               if ( !(modifiers & Qt::AltModifier) )
+               {
+                  pAccel++;
+                  continue;
+               }
+            }
+            CWnd* pWnd = (CWnd*)hWnd;
+            pWnd->SendMessage(WM_COMMAND,pAccel->cmd);
+            qDebug("Translating and sending %d message...",pAccel->key);
+            return 1;
+         }
+         pAccel++;
       }
-      pAccel++;
    }
    return 0;
 }
@@ -2000,6 +2040,9 @@ HANDLE CFile::hFileNull = 0;
 
 IMPLEMENT_DYNAMIC(CFile,CCmdTarget)
 
+BEGIN_MESSAGE_MAP(CFile,CCmdTarget)
+END_MESSAGE_MAP()
+
 CFile::CFile()
    : m_hFile(hFileNull)
 {
@@ -2133,6 +2176,9 @@ void CFile::Close()
 }
 
 IMPLEMENT_DYNAMIC(CStdioFile,CFile)
+
+BEGIN_MESSAGE_MAP(CStdioFile,CFile)
+END_MESSAGE_MAP()
 
 void CStdioFile::WriteString( 
    LPCTSTR lpsz  
@@ -2719,7 +2765,7 @@ CDC::CDC()
 CDC::CDC(CWnd* parent)
 {
    LOGFONT lf;
-   m_hDC = (HDC)parent->toQWidget();
+   m_hDC = (HDC)this;
    _qwidget = parent->toQWidget();
    _pen = NULL;
    _brush = NULL;
@@ -2765,11 +2811,18 @@ void CDC::flush()
    }
 }
 
+CDC* PASCAL CDC::FromHandle( 
+   HDC hDC  
+)
+{
+   return (CDC*)hDC;
+}
+
 void CDC::attach()
 {
    _qpixmap = QPixmap(1,1);
    _qpainter.begin(&_qpixmap);
-   m_hDC = (HDC)&_qpixmap;
+   m_hDC = (HDC)this;
    attached = true;
 }
 
@@ -2779,7 +2832,7 @@ void CDC::attach(QWidget* parent)
    _qpixmap = QPixmap(_qwidget->size());
    _qpixmap.fill(_qwidget->palette().color(QPalette::Window)); // CP: hack to initialize pixmap with widget's background color.
    _qpainter.begin(&_qpixmap);
-   m_hDC = (HDC)&_qpixmap;
+   m_hDC = (HDC)this;
    attached = true;
    _doFlush = true;
 }
@@ -3207,6 +3260,9 @@ BOOL CDC::TextOut(
 
 IMPLEMENT_DYNAMIC(CComboBox,CWnd)
 
+BEGIN_MESSAGE_MAP(CComboBox,CWnd)
+END_MESSAGE_MAP()
+
 CComboBox::CComboBox(CWnd *parent)
    : CWnd(parent)
 {
@@ -3438,6 +3494,9 @@ int CComboBox::GetDlgItemText(
 
 IMPLEMENT_DYNAMIC(CListBox,CWnd)
 
+BEGIN_MESSAGE_MAP(CListBox,CWnd)
+END_MESSAGE_MAP()
+
 CListBox::CListBox(CWnd* parent)
    : CWnd(parent)
 {
@@ -3521,6 +3580,9 @@ int CListBox::AddString(
 
 IMPLEMENT_DYNAMIC(CCheckListBox,CListBox)
 
+BEGIN_MESSAGE_MAP(CCheckListBox,CListBox)
+END_MESSAGE_MAP()
+
 CCheckListBox::CCheckListBox(CWnd* parent)
    : CListBox(parent)
 {
@@ -3587,6 +3649,9 @@ void CCheckListBox::SetCheckStyle(
 }
 
 IMPLEMENT_DYNAMIC(CListCtrl,CWnd)
+
+BEGIN_MESSAGE_MAP(CListCtrl,CWnd)
+END_MESSAGE_MAP()
 
 CListCtrl::CListCtrl(CWnd* parent)
    : CWnd(parent),
@@ -4505,7 +4570,7 @@ BOOL CListCtrl::DeleteItem(
 {
    if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
    {
-      if ( nItem < _qtd_list->count() )
+      if ( nItem < _qtd_table->rowCount() )
       {
          _qtd_table->removeRow(nItem);
          return TRUE;
@@ -4627,6 +4692,9 @@ BOOL CListCtrl::EnsureVisible(
 }
 
 IMPLEMENT_DYNAMIC(CTreeCtrl,CWnd)
+
+BEGIN_MESSAGE_MAP(CTreeCtrl,CWnd)
+END_MESSAGE_MAP()
 
 CTreeCtrl::CTreeCtrl(CWnd* parent)
    : CWnd(parent)
@@ -4905,6 +4973,9 @@ CString CTreeCtrl::GetItemText(
 
 IMPLEMENT_DYNAMIC(CScrollBar,CWnd)
 
+BEGIN_MESSAGE_MAP(CScrollBar,CWnd)
+END_MESSAGE_MAP()
+
 CScrollBar::CScrollBar(CWnd *parent)
 {
 }
@@ -5050,6 +5121,8 @@ BOOL CScrollBar::EnableScrollBar(
 IMPLEMENT_DYNCREATE(CCmdTarget,CObject)
 
 // End-of-the-line entry for message maps.
+// Instead of auto-creating using the BEGIN_MESSAGE_MAP/END_MESSAGE_MAP,
+// we need to create a NULL-terminator.
 const AFX_MSGMAP* CCmdTarget::GetMessageMap() const 
    { return GetThisMessageMap(); } 
 const AFX_MSGMAP* PASCAL CCmdTarget::GetThisMessageMap() 
@@ -5063,6 +5136,394 @@ const AFX_MSGMAP* PASCAL CCmdTarget::GetThisMessageMap()
    return &messageMap; 
 }
 
+// From afximpl.h
+union MessageMapFunctions
+{
+	AFX_PMSG pfn;   // generic member function pointer
+
+	BOOL (AFX_MSG_CALL CCmdTarget::*pfn_b_D)(CDC*);
+	BOOL (AFX_MSG_CALL CCmdTarget::*pfn_b_b)(BOOL);
+	BOOL (AFX_MSG_CALL CCmdTarget::*pfn_b_u)(UINT);
+	BOOL (AFX_MSG_CALL CCmdTarget::*pfn_b_h)(HANDLE);
+	BOOL (AFX_MSG_CALL CCmdTarget::*pfn_b_W_u_u)(CWnd*, UINT, UINT);
+	BOOL (AFX_MSG_CALL CCmdTarget::*pfn_b_W_COPYDATASTRUCT)(CWnd*, COPYDATASTRUCT*);
+	BOOL (AFX_MSG_CALL CCmdTarget::*pfn_b_HELPINFO)(LPHELPINFO);
+	HBRUSH (AFX_MSG_CALL CCmdTarget::*pfn_B_D_W_u)(CDC*, CWnd*, UINT);
+	HBRUSH (AFX_MSG_CALL CCmdTarget::*pfn_B_D_u)(CDC*, UINT);
+	int (AFX_MSG_CALL CCmdTarget::*pfn_i_u_W_u)(UINT, CWnd*, UINT);
+	int (AFX_MSG_CALL CCmdTarget::*pfn_i_u_u)(UINT, UINT);
+	int (AFX_MSG_CALL CCmdTarget::*pfn_i_W_u_u)(CWnd*, UINT, UINT);
+	int (AFX_MSG_CALL CCmdTarget::*pfn_i_s)(LPTSTR); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	LRESULT (AFX_MSG_CALL CCmdTarget::*pfn_l_w_l)(WPARAM, LPARAM); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	LRESULT (AFX_MSG_CALL CCmdTarget::*pfn_l_u_u_M)(UINT, UINT, CMenu*); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	void (AFX_MSG_CALL CCmdTarget::*pfn_v_b_h)(BOOL, HANDLE); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	void (AFX_MSG_CALL CCmdTarget::*pfn_v_h)(HANDLE); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	void (AFX_MSG_CALL CCmdTarget::*pfn_v_h_h)(HANDLE,HANDLE); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	void (AFX_MSG_CALL CCmdTarget::*pfn_v_v)(); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	int (AFX_MSG_CALL CCmdTarget::*pfn_i_u)(UINT); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	HCURSOR (AFX_MSG_CALL CCmdTarget::*pfn_C_v)(); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	UINT (AFX_MSG_CALL CCmdTarget::*pfn_u_u)(UINT); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	BOOL (AFX_MSG_CALL CCmdTarget::*pfn_b_v)(); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	void (AFX_MSG_CALL CCmdTarget::*pfn_v_u)(UINT); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	void (AFX_MSG_CALL CCmdTarget::*pfn_v_u_u)(UINT, UINT); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	void (AFX_MSG_CALL CCmdTarget::*pfn_v_i_i)(int, int); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	void (AFX_MSG_CALL CCmdTarget::*pfn_v_u_u_u)(UINT, UINT, UINT); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	void (AFX_MSG_CALL CCmdTarget::*pfn_v_u_i_i)(UINT, int, int); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	void (AFX_MSG_CALL CCmdTarget::*pfn_v_w_l)(WPARAM, LPARAM); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	void (AFX_MSG_CALL CCmdTarget::*pfn_v_b_W_W)(BOOL, CWnd*, CWnd*); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	void (AFX_MSG_CALL CCmdTarget::*pfn_v_D)(CDC*); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	void (AFX_MSG_CALL CCmdTarget::*pfn_v_M)(CMenu*); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	void (AFX_MSG_CALL CCmdTarget::*pfn_v_M_u_b)(CMenu*, UINT, BOOL); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	void (AFX_MSG_CALL CCmdTarget::*pfn_v_W)(CWnd*); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	void (AFX_MSG_CALL CCmdTarget::*pfn_v_W_u_u)(CWnd*, UINT, UINT); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	void (AFX_MSG_CALL CCmdTarget::*pfn_v_W_p)(CWnd*, CPoint); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	void (AFX_MSG_CALL CCmdTarget::*pfn_v_W_h)(CWnd*, HANDLE); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	void (AFX_MSG_CALL CCmdTarget::*pfn_v_u_W)(UINT, CWnd*); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	void (AFX_MSG_CALL CCmdTarget::*pfn_v_u_W_b)(UINT, CWnd*, BOOL); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	void (AFX_MSG_CALL CCmdTarget::*pfn_v_u_u_W)(UINT, UINT, CWnd*); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	void (AFX_MSG_CALL CCmdTarget::*pfn_v_s)(LPTSTR); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	void (AFX_MSG_CALL CCmdTarget::*pfn_v_u_cs)(UINT, LPCTSTR); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	void (AFX_MSG_CALL CCmdTarget::*pfn_v_i_s)(int, LPTSTR); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	int (AFX_MSG_CALL CCmdTarget::*pfn_i_i_s)(int, LPTSTR); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	UINT (AFX_MSG_CALL CCmdTarget::*pfn_u_p)(CPoint); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	LRESULT (AFX_MSG_CALL CCmdTarget::*pfn_l_p)(CPoint); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	UINT (AFX_MSG_CALL CCmdTarget::*pfn_u_v)(); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	void (AFX_MSG_CALL CCmdTarget::*pfn_v_b_NCCALCSIZEPARAMS)(BOOL, NCCALCSIZE_PARAMS*); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	void (AFX_MSG_CALL CCmdTarget::*pfn_v_v_WINDOWPOS)(WINDOWPOS*); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	void (AFX_MSG_CALL CCmdTarget::*pfn_v_u_u_M)(UINT, UINT, HMENU); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	void (AFX_MSG_CALL CCmdTarget::*pfn_v_u_p)(UINT, CPoint); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	void (AFX_MSG_CALL CCmdTarget::*pfn_v_u_pr)(UINT, LPRECT); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	BOOL (AFX_MSG_CALL CCmdTarget::*pfn_b_u_s_p)(UINT, short, CPoint); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	LRESULT (AFX_MSG_CALL CCmdTarget::*pfn_l_v)(); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+
+	// type safe variant for thread messages
+	void (AFX_MSG_CALL CWinThread::*pfn_THREAD)(WPARAM, LPARAM); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+
+	// specific type safe variants for WM_COMMAND and WM_NOTIFY messages
+	void (AFX_MSG_CALL CCmdTarget::*pfnCmd_v_v)();
+	BOOL (AFX_MSG_CALL CCmdTarget::*pfnCmd_b_v)();
+	void (AFX_MSG_CALL CCmdTarget::*pfnCmd_v_u)(UINT);
+	BOOL (AFX_MSG_CALL CCmdTarget::*pfnCmd_b_u)(UINT);
+
+	void (AFX_MSG_CALL CCmdTarget::*pfnNotify_v_NMHDR_pl)(NMHDR*, LRESULT*);
+	BOOL (AFX_MSG_CALL CCmdTarget::*pfnNotify_b_NMHDR_pl)(NMHDR*, LRESULT*);
+	void (AFX_MSG_CALL CCmdTarget::*pfnNotify_v_u_NMHDR_pl)(UINT, NMHDR*, LRESULT*);
+	BOOL (AFX_MSG_CALL CCmdTarget::*pfnNotify_b_u_NMHDR_pl)(UINT, NMHDR*, LRESULT*);
+	void (AFX_MSG_CALL CCmdTarget::*pfnCmdUI_v_C)(CCmdUI*);
+	void (AFX_MSG_CALL CCmdTarget::*pfnCmdUI_v_C_u)(CCmdUI*, UINT);
+
+	void (AFX_MSG_CALL CCmdTarget::*pfnCmd_v_pv)(void*);
+	BOOL (AFX_MSG_CALL CCmdTarget::*pfnCmd_b_pv)(void*);
+
+//OLD
+	// specific type safe variants for WM-style messages
+//	BOOL    (AFX_MSG_CALL CWnd::*pfn_bD)(CDC*);
+//	BOOL    (AFX_MSG_CALL CWnd::*pfn_bb)(BOOL);
+//	BOOL    (AFX_MSG_CALL CWnd::*pfn_bWww)(CWnd*, UINT, UINT);
+//	BOOL    (AFX_MSG_CALL CWnd::*pfn_bHELPINFO)(HELPINFO*);
+//	BOOL    (AFX_MSG_CALL CWnd::*pfn_bWCDS)(CWnd*, COPYDATASTRUCT*);
+//	HBRUSH  (AFX_MSG_CALL CWnd::*pfn_hDWw)(CDC*, CWnd*, UINT);
+//	HBRUSH  (AFX_MSG_CALL CWnd::*pfn_hDw)(CDC*, UINT);
+//	int     (AFX_MSG_CALL CWnd::*pfn_iwWw)(UINT, CWnd*, UINT);
+//	int     (AFX_MSG_CALL CWnd::*pfn_iww)(UINT, UINT);
+//	int     (AFX_MSG_CALL CWnd::*pfn_iWww)(CWnd*, UINT, UINT);
+//	int     (AFX_MSG_CALL CWnd::*pfn_is)(LPTSTR);
+//	LRESULT (AFX_MSG_CALL CWnd::*pfn_lwl)(WPARAM, LPARAM);
+//	LRESULT (AFX_MSG_CALL CWnd::*pfn_lwwM)(UINT, UINT, CMenu*);
+//	void    (AFX_MSG_CALL CWnd::*pfn_vv)(void);
+
+//	void    (AFX_MSG_CALL CWnd::*pfn_vw)(UINT);
+//	void    (AFX_MSG_CALL CWnd::*pfn_vww)(UINT, UINT);
+//	void    (AFX_MSG_CALL CWnd::*pfn_vvii)(int, int);
+//	void    (AFX_MSG_CALL CWnd::*pfn_vwww)(UINT, UINT, UINT);
+//	void    (AFX_MSG_CALL CWnd::*pfn_vwii)(UINT, int, int);
+//	void    (AFX_MSG_CALL CWnd::*pfn_vwl)(WPARAM, LPARAM);
+//	void    (AFX_MSG_CALL CWnd::*pfn_vbWW)(BOOL, CWnd*, CWnd*);
+//	void    (AFX_MSG_CALL CWnd::*pfn_vD)(CDC*);
+//	void    (AFX_MSG_CALL CWnd::*pfn_vM)(CMenu*);
+//	void    (AFX_MSG_CALL CWnd::*pfn_vMwb)(CMenu*, UINT, BOOL);
+
+//	void    (AFX_MSG_CALL CWnd::*pfn_vW)(CWnd*);
+//	void    (AFX_MSG_CALL CWnd::*pfn_vWww)(CWnd*, UINT, UINT);
+//	void    (AFX_MSG_CALL CWnd::*pfn_vWp)(CWnd*, CPoint);
+//	void    (AFX_MSG_CALL CWnd::*pfn_vWh)(CWnd*, HANDLE);
+//	void    (AFX_MSG_CALL CWnd::*pfn_vwW)(UINT, CWnd*);
+//	void    (AFX_MSG_CALL CWnd::*pfn_vwWb)(UINT, CWnd*, BOOL);
+//	void    (AFX_MSG_CALL CWnd::*pfn_vwwW)(UINT, UINT, CWnd*);
+//	void    (AFX_MSG_CALL CWnd::*pfn_vwwx)(UINT, UINT);
+//	void    (AFX_MSG_CALL CWnd::*pfn_vs)(LPTSTR);
+//	void    (AFX_MSG_CALL CWnd::*pfn_vOWNER)(int, LPTSTR);   // force return TRUE
+//	int     (AFX_MSG_CALL CWnd::*pfn_iis)(int, LPTSTR);
+//	UINT    (AFX_MSG_CALL CWnd::*pfn_wp)(CPoint);
+//	UINT    (AFX_MSG_CALL CWnd::*pfn_wv)(void);
+	void    (AFX_MSG_CALL CCmdTarget::*pfn_vPOS)(WINDOWPOS*); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	void    (AFX_MSG_CALL CCmdTarget::*pfn_vCALC)(BOOL, NCCALCSIZE_PARAMS*); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	void    (AFX_MSG_CALL CCmdTarget::*pfn_vwp)(UINT, CPoint); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	void    (AFX_MSG_CALL CCmdTarget::*pfn_vwwh)(UINT, UINT, HANDLE); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+	BOOL    (AFX_MSG_CALL CCmdTarget::*pfn_bwsp)(UINT, short, CPoint); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+//	void    (AFX_MSG_CALL CWnd::*pfn_vws)(UINT, LPCTSTR);
+};
+
+INT_PTR _AfxGetDlgCtrlID(HWND hWnd)
+{
+   CWnd* pWnd = (CWnd*)hWnd;
+   return pWnd->GetDlgCtrlID();
+}
+
+const AFX_MSGMAP_ENTRY* AFXAPI
+AfxFindMessageEntry(const AFX_MSGMAP_ENTRY* lpEntry,
+	UINT nMsg, UINT nCode, UINT nID)
+{
+	// C version of search routine
+	while (lpEntry->nSig != AfxSig_end)
+	{
+		if (lpEntry->nMessage == nMsg && lpEntry->nCode == nCode &&
+			nID >= lpEntry->nID && nID <= lpEntry->nLastID)
+		{
+			return lpEntry;
+		}
+		lpEntry++;
+	}
+	return NULL;    // not found
+}
+
+AFX_STATIC BOOL AFXAPI _AfxDispatchCmdMsg(CCmdTarget* pTarget, UINT nID, int nCode,
+	AFX_PMSG pfn, void* pExtra, UINT_PTR nSig, AFX_CMDHANDLERINFO* pHandlerInfo)
+		// return TRUE to stop routing
+{
+	ENSURE_VALID(pTarget);
+	UNUSED(nCode);   // unused in release builds
+
+	union MessageMapFunctions mmf;
+	mmf.pfn = pfn;
+	BOOL bResult = TRUE; // default is ok
+
+	if (pHandlerInfo != NULL)
+	{
+		// just fill in the information, don't do it
+		pHandlerInfo->pTarget = pTarget;
+//		pHandlerInfo->pmf = mmf.pfn;
+		return TRUE;
+	}
+
+	switch (nSig)
+	{
+	default:    // illegal
+		ASSERT(FALSE);
+		return 0;
+		break;
+
+	case AfxSigCmd_v:
+		// normal command or control notification
+		ASSERT(CN_COMMAND == 0);        // CN_COMMAND same as BN_CLICKED
+		ASSERT(pExtra == NULL);
+		(pTarget->*mmf.pfnCmd_v_v)();
+		break;
+
+	case AfxSigCmd_b:
+		// normal command or control notification
+		ASSERT(CN_COMMAND == 0);        // CN_COMMAND same as BN_CLICKED
+		ASSERT(pExtra == NULL);
+		bResult = (pTarget->*mmf.pfnCmd_b_v)();
+		break;
+
+	case AfxSigCmd_RANGE:
+		// normal command or control notification in a range
+		ASSERT(CN_COMMAND == 0);        // CN_COMMAND same as BN_CLICKED
+		ASSERT(pExtra == NULL);
+		(pTarget->*mmf.pfnCmd_v_u)(nID);
+		break;
+
+	case AfxSigCmd_EX:
+		// extended command (passed ID, returns bContinue)
+		ASSERT(pExtra == NULL);
+		bResult = (pTarget->*mmf.pfnCmd_b_u)(nID);
+		break;
+
+	case AfxSigNotify_v:
+		{
+			AFX_NOTIFY* pNotify = (AFX_NOTIFY*)pExtra;
+			ENSURE(pNotify != NULL);
+			ASSERT(pNotify->pResult != NULL);
+			ASSERT(pNotify->pNMHDR != NULL);
+			(pTarget->*mmf.pfnNotify_v_NMHDR_pl)(pNotify->pNMHDR, pNotify->pResult);
+		}
+		break;
+
+	case AfxSigNotify_b:
+		{
+			AFX_NOTIFY* pNotify = (AFX_NOTIFY*)pExtra;
+			ENSURE(pNotify != NULL);
+			ASSERT(pNotify->pResult != NULL);
+			ASSERT(pNotify->pNMHDR != NULL);
+			bResult = (pTarget->*mmf.pfnNotify_b_NMHDR_pl)(pNotify->pNMHDR, pNotify->pResult);
+		}
+		break;
+
+	case AfxSigNotify_RANGE:
+		{
+			AFX_NOTIFY* pNotify = (AFX_NOTIFY*)pExtra;
+			ENSURE(pNotify != NULL);
+			ASSERT(pNotify->pResult != NULL);
+			ASSERT(pNotify->pNMHDR != NULL);
+			(pTarget->*mmf.pfnNotify_v_u_NMHDR_pl)(nID, pNotify->pNMHDR,
+				pNotify->pResult);
+		}
+		break;
+
+	case AfxSigNotify_EX:
+		{
+			AFX_NOTIFY* pNotify = (AFX_NOTIFY*)pExtra;
+			ENSURE(pNotify != NULL);
+			ASSERT(pNotify->pResult != NULL);
+			ASSERT(pNotify->pNMHDR != NULL);
+			bResult = (pTarget->*mmf.pfnNotify_b_u_NMHDR_pl)(nID, pNotify->pNMHDR,
+				pNotify->pResult);
+		}
+		break;
+
+	case AfxSigCmdUI:
+		{
+			// ON_UPDATE_COMMAND_UI or ON_UPDATE_COMMAND_UI_REFLECT case
+			ASSERT(CN_UPDATE_COMMAND_UI == (UINT)-1);
+			ASSERT(nCode == CN_UPDATE_COMMAND_UI || nCode == 0xFFFF);
+			ENSURE_ARG(pExtra != NULL);
+			CCmdUI* pCmdUI = (CCmdUI*)pExtra;
+			ASSERT(!pCmdUI->m_bContinueRouting);    // idle - not set
+			(pTarget->*mmf.pfnCmdUI_v_C)(pCmdUI);
+			bResult = !pCmdUI->m_bContinueRouting;
+			pCmdUI->m_bContinueRouting = FALSE;     // go back to idle
+		}
+		break;
+
+	case AfxSigCmdUI_RANGE:
+		{
+			// ON_UPDATE_COMMAND_UI case
+			ASSERT(nCode == CN_UPDATE_COMMAND_UI);
+			ENSURE_ARG(pExtra != NULL);
+			CCmdUI* pCmdUI = (CCmdUI*)pExtra;
+			ASSERT(pCmdUI->m_nID == nID);           // sanity assert
+			ASSERT(!pCmdUI->m_bContinueRouting);    // idle - not set
+			(pTarget->*mmf.pfnCmdUI_v_C_u)(pCmdUI, nID);
+			bResult = !pCmdUI->m_bContinueRouting;
+			pCmdUI->m_bContinueRouting = FALSE;     // go back to idle
+		}
+		break;
+
+	// general extensibility hooks
+	case AfxSigCmd_v_pv:
+		(pTarget->*mmf.pfnCmd_v_pv)(pExtra);
+		break;
+	case AfxSigCmd_b_pv:
+		bResult = (pTarget->*mmf.pfnCmd_b_pv)(pExtra);
+		break;
+	/*
+	case AfxSig_vv:
+		// normal command or control notification
+		ASSERT(CN_COMMAND == 0);        // CN_COMMAND same as BN_CLICKED
+		ASSERT(pExtra == NULL);
+		(pTarget->*mmf.pfn_COMMAND)();
+		break;
+
+	case AfxSig_bv:
+		// normal command or control notification
+		ASSERT(CN_COMMAND == 0);        // CN_COMMAND same as BN_CLICKED
+		ASSERT(pExtra == NULL);
+		bResult = (pTarget->*mmf.pfn_bCOMMAND)();
+		break;
+
+	case AfxSig_vw:
+		// normal command or control notification in a range
+		ASSERT(CN_COMMAND == 0);        // CN_COMMAND same as BN_CLICKED
+		ASSERT(pExtra == NULL);
+		(pTarget->*mmf.pfn_COMMAND_RANGE)(nID);
+		break;
+
+	case AfxSig_bw:
+		// extended command (passed ID, returns bContinue)
+		ASSERT(pExtra == NULL);
+		bResult = (pTarget->*mmf.pfn_COMMAND_EX)(nID);
+		break;
+
+	case AfxSig_vNMHDRpl:
+		{
+			AFX_NOTIFY* pNotify = (AFX_NOTIFY*)pExtra;
+			ENSURE(pNotify != NULL);
+			ASSERT(pNotify->pResult != NULL);
+			ASSERT(pNotify->pNMHDR != NULL);
+			(pTarget->*mmf.pfn_NOTIFY)(pNotify->pNMHDR, pNotify->pResult);
+		}
+		break;
+	case AfxSig_bNMHDRpl:
+		{
+			AFX_NOTIFY* pNotify = (AFX_NOTIFY*)pExtra;
+			ENSURE(pNotify != NULL);
+			ASSERT(pNotify->pResult != NULL);
+			ASSERT(pNotify->pNMHDR != NULL);
+			bResult = (pTarget->*mmf.pfn_bNOTIFY)(pNotify->pNMHDR, pNotify->pResult);
+		}
+		break;
+	case AfxSig_vwNMHDRpl:
+		{
+			AFX_NOTIFY* pNotify = (AFX_NOTIFY*)pExtra;
+			ENSURE(pNotify != NULL);
+			ASSERT(pNotify->pResult != NULL);
+			ASSERT(pNotify->pNMHDR != NULL);
+			(pTarget->*mmf.pfn_NOTIFY_RANGE)(nID, pNotify->pNMHDR,
+				pNotify->pResult);
+		}
+		break;
+	case AfxSig_bwNMHDRpl:
+		{
+			AFX_NOTIFY* pNotify = (AFX_NOTIFY*)pExtra;
+			ENSURE(pNotify != NULL);
+			ASSERT(pNotify->pResult != NULL);
+			ASSERT(pNotify->pNMHDR != NULL);
+			bResult = (pTarget->*mmf.pfn_NOTIFY_EX)(nID, pNotify->pNMHDR,
+				pNotify->pResult);
+		}
+		break;
+	case AfxSig_cmdui:
+		{
+			// ON_UPDATE_COMMAND_UI or ON_UPDATE_COMMAND_UI_REFLECT case
+			ASSERT(CN_UPDATE_COMMAND_UI == (UINT)-1);
+			ASSERT(nCode == CN_UPDATE_COMMAND_UI || nCode == 0xFFFF);
+			ENSURE_ARG(pExtra != NULL);
+			CCmdUI* pCmdUI = (CCmdUI*)pExtra;
+			ASSERT(!pCmdUI->m_bContinueRouting);    // idle - not set
+			(pTarget->*mmf.pfn_UPDATE_COMMAND_UI)(pCmdUI);
+			bResult = !pCmdUI->m_bContinueRouting;
+			pCmdUI->m_bContinueRouting = FALSE;     // go back to idle
+		}
+		break;
+
+	case AfxSig_cmduiw:
+		{
+			// ON_UPDATE_COMMAND_UI case
+			ASSERT(nCode == CN_UPDATE_COMMAND_UI);
+			ENSURE_ARG(pExtra != NULL);
+			CCmdUI* pCmdUI = (CCmdUI*)pExtra;
+			ASSERT(pCmdUI->m_nID == nID);           // sanity assert
+			ASSERT(!pCmdUI->m_bContinueRouting);    // idle - not set
+			(pTarget->*mmf.pfn_UPDATE_COMMAND_UI_RANGE)(pCmdUI, nID);
+			bResult = !pCmdUI->m_bContinueRouting;
+			pCmdUI->m_bContinueRouting = FALSE;     // go back to idle
+		}
+		break;
+
+	// general extensibility hooks
+	case AfxSig_vpv:
+		(pTarget->*mmf.pfn_OTHER)(pExtra);
+		break;
+	case AfxSig_bpv:
+		bResult = (pTarget->*mmf.pfn_OTHER_EX)(pExtra);
+		break;
+	*/
+
+	}
+	return bResult;
+}
+
 BOOL CCmdTarget::OnCmdMsg(
    UINT nID,
    int nCode,
@@ -5070,19 +5531,42 @@ BOOL CCmdTarget::OnCmdMsg(
    AFX_CMDHANDLERINFO* pHandlerInfo
 )
 {
+   // determine the message number and code (packed into nCode)
+	UINT nMsg = 0;
+
+   if (nCode != CN_UPDATE_COMMAND_UI)
+	{
+		nMsg = HIWORD(nCode);
+		nCode = LOWORD(nCode);
+	}
+
+	// for backward compatibility HIWORD(nCode)==0 is WM_COMMAND
+	if (nMsg == 0)
+		nMsg = WM_COMMAND;
+
    const AFX_MSGMAP* pMsgMap = GetMessageMap();
    
    while ( pMsgMap )
    {
       const AFX_MSGMAP_ENTRY* pEntry = pMsgMap->lpEntries;
-      while ( pEntry )
+      while ( pEntry->nSig != AfxSig_end )
       {
-         if ( (pEntry->nCode == nCode) &&
+         if ( (pEntry->nMessage == nMsg) &&
+              (pEntry->nCode == nCode) &&
               (pEntry->nID == nID) )
          {
-            qDebug("CCmdTarget::OnCmdMsg should handle nCode=%d nID=%d",nCode,nID);
-            return TRUE;
+            return _AfxDispatchCmdMsg(this, nID, nCode,
+                               pEntry->pfn, pExtra, pEntry->nSig, pHandlerInfo);
          }
+         pEntry++;
+      }
+      if ( pMsgMap->pfnGetBaseMap )
+      {
+         pMsgMap = (pMsgMap->pfnGetBaseMap)();
+      }
+      else
+      {
+         pMsgMap = NULL;
       }
    }
    return FALSE;
@@ -5092,6 +5576,9 @@ CWnd* CWnd::focusWnd = NULL;
 CFrameWnd* CWnd::m_pFrameWnd = NULL;
 
 IMPLEMENT_DYNAMIC(CWnd,CCmdTarget)
+
+BEGIN_MESSAGE_MAP(CWnd,CCmdTarget)
+END_MESSAGE_MAP()
 
 CWnd::CWnd(CWnd *parent)
    : m_pParentWnd(parent),
@@ -5111,6 +5598,7 @@ CWnd::CWnd(CWnd *parent)
    {
       _qt = new QFrame;
    }
+   _qt->setGeometry(0,0,1,1); // CP: Without this the pattern view is overshadowed by the translucent frame.
    _grid = new QGridLayout;
    _grid->setContentsMargins(0,0,0,0);
    _grid->setSpacing(0);
@@ -5143,6 +5631,20 @@ CWnd::~CWnd()
    _qtd = NULL;
 //   if ( _grid )
 //      delete _grid;
+}
+
+CWnd* PASCAL CWnd::FromHandle( 
+   HWND hWnd  
+)
+{
+   return (CWnd*)hWnd;
+}
+
+CWnd* PASCAL CWnd::FromHandlePermanent(
+   HWND hWnd 
+)
+{
+   return (CWnd*)hWnd;
 }
 
 CWnd* CWnd::SetFocus()
@@ -5182,6 +5684,7 @@ void CWnd::SetOwner(
    CWnd* pOwnerWnd
 )
 {
+   m_pOwnerWnd = pOwnerWnd; // Messages will go here.  
 }
 
 CWnd* CWnd::GetDescendantWindow( 
@@ -5223,16 +5726,17 @@ LRESULT CWnd::SendMessage(
    LPARAM lParam
 )
 {
-   MFCMessageEvent* post = new MFCMessageEvent(QEvent::User);
-   post->msg.message = message;
-   post->msg.wParam = wParam;
-   post->msg.lParam = lParam;
+   MFCMessageEvent post(QEvent::User);
+   post.msg.message = message;
+   post.msg.wParam = wParam;
+   post.msg.lParam = lParam;
 
-   BOOL handled = PreTranslateMessage(&post->msg);
+   BOOL handled = PreTranslateMessage(&post.msg);
    if ( !handled )
    {
-      QApplication::instance()->sendEvent(this,post);
+      QApplication::instance()->sendEvent(this,&post);
    }
+   update();
    
    return handled;
 }
@@ -5249,6 +5753,818 @@ void CWnd::SendMessageToDescendants(
    {
       pWnd->SendMessage(message,wParam,lParam);
    }
+}
+
+LRESULT CWnd::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
+{
+	// OnWndMsg does most of the work, except for DefWindowProc call
+	LRESULT lResult = 0;
+//	if (!OnWndMsg(message, wParam, lParam, &lResult))
+//		lResult = DefWindowProc(message, wParam, lParam);
+   // CP: We just need OnWndMsg...
+   OnWndMsg(message, wParam, lParam, &lResult);
+   
+	return lResult;
+}
+
+struct AFX_MSG_CACHE
+{
+	UINT nMsg;
+	const AFX_MSGMAP_ENTRY* lpEntry;
+	const AFX_MSGMAP* pMessageMap;
+};
+
+AFX_MSG_CACHE _afxMsgCache;
+
+BOOL CWnd::OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, LRESULT* pResult)
+{
+	LRESULT lResult = 0;
+	union MessageMapFunctions mmf;
+	mmf.pfn = 0;
+//	CInternalGlobalLock winMsgLock;
+	// special case for commands
+	if (message == WM_COMMAND)
+	{
+		if (OnCommand(wParam, lParam))
+		{
+			lResult = 1;
+			goto LReturnTrue;
+		}
+		return FALSE;
+	}
+
+	// special case for notifies
+	if (message == WM_NOTIFY)
+	{
+		NMHDR* pNMHDR = (NMHDR*)lParam;
+		if (pNMHDR->hwndFrom != NULL && OnNotify(wParam, lParam, &lResult))
+			goto LReturnTrue;
+		return FALSE;
+	}
+   
+//   qDebug("WM_ACTIVATE or WM_SETCURSOR or ActiveX not handled");
+//	// special case for activation
+//	if (message == WM_ACTIVATE)
+//		_AfxHandleActivate(this, wParam, CWnd::FromHandle((HWND)lParam));
+
+//	// special case for set cursor HTERROR
+//	if (message == WM_SETCURSOR &&
+//		_AfxHandleSetCursor(this, (short)LOWORD(lParam), HIWORD(lParam)))
+//	{
+//		lResult = 1;
+//		goto LReturnTrue;
+//	}
+
+//   // special case for windows that contain windowless ActiveX controls
+//   BOOL bHandled;
+
+//   bHandled = FALSE;
+//   if ((m_pCtrlCont != NULL) && (m_pCtrlCont->m_nWindowlessControls > 0))
+//   {
+//	  if (((message >= WM_MOUSEFIRST) && (message <= AFX_WM_MOUSELAST)) ||
+//		 ((message >= WM_KEYFIRST) && (message <= WM_IME_KEYLAST)) ||
+//		 ((message >= WM_IME_SETCONTEXT) && (message <= WM_IME_KEYUP)))
+//	  {
+//		 bHandled = m_pCtrlCont->HandleWindowlessMessage(message, wParam, lParam, &lResult);
+//	  }
+//   }
+//   if (bHandled)
+//   {
+//	  goto LReturnTrue;
+//   }
+
+//	switch (message)
+//	{
+//	case WM_SIZE:
+//		{
+//			CHwndRenderTarget* pRenderTarget = GetRenderTarget();
+//			if (pRenderTarget != NULL && pRenderTarget->IsValid())
+//			{
+//				pRenderTarget->Resize(CD2DSizeU(UINT32(LOWORD(lParam)), UINT32(HIWORD(lParam))));
+//				RedrawWindow();
+//			}
+//		}
+//		break;
+
+//	case WM_PAINT:
+//		if (DoD2DPaint())
+//		{
+//			lResult = 1;
+//			goto LReturnTrue;
+//		}
+//		break;
+
+//	case WM_ERASEBKGND:
+//		{
+//			CHwndRenderTarget* pRenderTarget = GetRenderTarget();
+//			if (pRenderTarget != NULL && pRenderTarget->IsValid())
+//			{
+//				lResult = 1;
+//				goto LReturnTrue;
+//			}
+//		}
+//		break;
+//	}
+   
+	const AFX_MSGMAP* pMessageMap; pMessageMap = GetMessageMap();
+   AFX_MSG_CACHE* pMsgCache; pMsgCache = &_afxMsgCache;
+	const AFX_MSGMAP_ENTRY* lpEntry;
+   if (message == pMsgCache->nMsg && pMessageMap == pMsgCache->pMessageMap)
+	{
+		// cache hit
+		lpEntry = pMsgCache->lpEntry;
+		if (lpEntry == NULL)
+			return FALSE;
+
+		// cache hit, and it needs to be handled
+		if (message < 0xC000)
+			goto LDispatch;
+		else
+			goto LDispatchRegistered;
+	}
+	else
+	{
+		// not in cache, look for it
+		pMsgCache->nMsg = message;
+		pMsgCache->pMessageMap = pMessageMap;
+
+      for (/* pMessageMap already init'ed */; pMessageMap->pfnGetBaseMap != NULL;
+         pMessageMap = (*pMessageMap->pfnGetBaseMap)())
+      {
+         // Note: catch not so common but fatal mistake!!
+         //      BEGIN_MESSAGE_MAP(CMyWnd, CMyWnd)
+         ASSERT(pMessageMap != (*pMessageMap->pfnGetBaseMap)());
+         if (message < 0xC000)
+         {
+            // constant window message
+            if ((lpEntry = AfxFindMessageEntry(pMessageMap->lpEntries,
+               message, 0, 0)) != NULL)
+            {
+               pMsgCache->lpEntry = lpEntry;
+               goto LDispatch;
+            }
+         }
+         else
+         {
+            // registered windows message
+            lpEntry = pMessageMap->lpEntries;
+            while ((lpEntry = AfxFindMessageEntry(lpEntry, 0xC000, 0, 0)) != NULL)
+            {
+               UINT* pnID = (UINT*)(lpEntry->nSig);
+               ASSERT(*pnID >= 0xC000 || *pnID == 0);
+                  // must be successfully registered
+               if (*pnID == message)
+               {
+                  pMsgCache->lpEntry = lpEntry;
+                  goto LDispatchRegistered;
+               }
+               lpEntry++;      // keep looking past this one
+            }
+         }
+      }
+      
+      pMsgCache->lpEntry = NULL;
+      return FALSE;
+   }
+
+LDispatch:
+	ASSERT(message < 0xC000);
+
+	mmf.pfn = lpEntry->pfn;
+
+	switch (lpEntry->nSig)
+	{
+	default:
+		ASSERT(FALSE);
+		break;
+	case AfxSig_l_p:
+		{
+			CPoint point(lParam);		
+			lResult = (this->*mmf.pfn_l_p)(point);
+			break;
+		}		
+	case AfxSig_b_D_v:
+		lResult = (this->*mmf.pfn_b_D)(CDC::FromHandle(reinterpret_cast<HDC>(wParam)));
+		break;
+
+	case AfxSig_b_b_v:
+		lResult = (this->*mmf.pfn_b_b)(static_cast<BOOL>(wParam));
+		break;
+
+	case AfxSig_b_u_v:
+		lResult = (this->*mmf.pfn_b_u)(static_cast<UINT>(wParam));
+		break;
+
+	case AfxSig_b_h_v:
+		lResult = (this->*mmf.pfn_b_h)(reinterpret_cast<HANDLE>(wParam));
+		break;
+
+	case AfxSig_i_u_v:
+		lResult = (this->*mmf.pfn_i_u)(static_cast<UINT>(wParam));
+		break;
+
+	case AfxSig_C_v_v:
+		lResult = reinterpret_cast<LRESULT>((this->*mmf.pfn_C_v)());
+		break;
+
+	case AfxSig_v_u_W:
+		(this->*mmf.pfn_v_u_W)(static_cast<UINT>(wParam), 
+			CWnd::FromHandle(reinterpret_cast<HWND>(lParam)));
+		break;
+
+	case AfxSig_u_u_v:
+		lResult = (this->*mmf.pfn_u_u)(static_cast<UINT>(wParam));
+		break;
+
+	case AfxSig_b_v_v:
+		lResult = (this->*mmf.pfn_b_v)();
+		break;
+
+	case AfxSig_b_W_uu:
+		lResult = (this->*mmf.pfn_b_W_u_u)(CWnd::FromHandle(reinterpret_cast<HWND>(wParam)),
+			LOWORD(lParam), HIWORD(lParam));
+		break;
+
+	case AfxSig_b_W_COPYDATASTRUCT:
+		lResult = (this->*mmf.pfn_b_W_COPYDATASTRUCT)(
+			CWnd::FromHandle(reinterpret_cast<HWND>(wParam)),
+			reinterpret_cast<COPYDATASTRUCT*>(lParam));
+		break;
+
+	case AfxSig_b_v_HELPINFO:
+		lResult = (this->*mmf.pfn_b_HELPINFO)(reinterpret_cast<LPHELPINFO>(lParam));
+		break;
+
+	case AfxSig_CTLCOLOR:
+		{
+			// special case for OnCtlColor to avoid too many temporary objects
+			ASSERT(message == WM_CTLCOLOR);
+			AFX_CTLCOLOR* pCtl = reinterpret_cast<AFX_CTLCOLOR*>(lParam);
+			CDC dcTemp; 
+			dcTemp.m_hDC = pCtl->hDC;
+			CWnd wndTemp; 
+			wndTemp.m_hWnd = pCtl->hWnd;
+			UINT nCtlType = pCtl->nCtlType;
+			// if not coming from a permanent window, use stack temporary
+			CWnd* pWnd = CWnd::FromHandlePermanent(wndTemp.m_hWnd);
+			if (pWnd == NULL)
+			{
+				pWnd = &wndTemp;
+			}
+			HBRUSH hbr = (this->*mmf.pfn_B_D_W_u)(&dcTemp, pWnd, nCtlType);
+			// fast detach of temporary objects
+			dcTemp.m_hDC = NULL;
+			wndTemp.m_hWnd = NULL;
+			lResult = reinterpret_cast<LRESULT>(hbr);
+		}
+		break;
+
+	case AfxSig_CTLCOLOR_REFLECT:
+		{
+			// special case for CtlColor to avoid too many temporary objects
+			ASSERT(message == WM_REFLECT_BASE+WM_CTLCOLOR);
+			AFX_CTLCOLOR* pCtl = reinterpret_cast<AFX_CTLCOLOR*>(lParam);
+			CDC dcTemp; 
+			dcTemp.m_hDC = pCtl->hDC;
+			UINT nCtlType = pCtl->nCtlType;
+			HBRUSH hbr = (this->*mmf.pfn_B_D_u)(&dcTemp, nCtlType);
+			// fast detach of temporary objects
+			dcTemp.m_hDC = NULL;
+			lResult = reinterpret_cast<LRESULT>(hbr);
+		}
+		break;
+
+	case AfxSig_i_u_W_u:
+		lResult = (this->*mmf.pfn_i_u_W_u)(LOWORD(wParam),
+			CWnd::FromHandle(reinterpret_cast<HWND>(lParam)), HIWORD(wParam));
+		break;
+
+	case AfxSig_i_uu_v:
+		lResult = (this->*mmf.pfn_i_u_u)(LOWORD(wParam), HIWORD(wParam));
+		break;
+
+	case AfxSig_i_W_uu:
+		lResult = (this->*mmf.pfn_i_W_u_u)(CWnd::FromHandle(reinterpret_cast<HWND>(wParam)),
+			LOWORD(lParam), HIWORD(lParam));
+		break;
+
+	case AfxSig_i_v_s:
+		lResult = (this->*mmf.pfn_i_s)(reinterpret_cast<LPTSTR>(lParam));
+		break;
+
+	case AfxSig_l_w_l:
+		lResult = (this->*mmf.pfn_l_w_l)(wParam, lParam);
+		break;
+
+	case AfxSig_l_uu_M:
+		lResult = (this->*mmf.pfn_l_u_u_M)(LOWORD(wParam), HIWORD(wParam), 
+			CMenu::FromHandle(reinterpret_cast<HMENU>(lParam)));
+		break;
+		
+	case AfxSig_v_b_h:
+	    (this->*mmf.pfn_v_b_h)(static_cast<BOOL>(wParam), 
+			reinterpret_cast<HANDLE>(lParam));
+		break;
+
+	case AfxSig_v_h_v:
+	    (this->*mmf.pfn_v_h)(reinterpret_cast<HANDLE>(wParam));
+		break;
+
+	case AfxSig_v_h_h:
+	    (this->*mmf.pfn_v_h_h)(reinterpret_cast<HANDLE>(wParam), 
+			reinterpret_cast<HANDLE>(lParam));
+		break;
+
+	case AfxSig_v_v_v:
+		(this->*mmf.pfn_v_v)();
+		break;
+
+	case AfxSig_v_u_v:
+		(this->*mmf.pfn_v_u)(static_cast<UINT>(wParam));
+		break;
+
+	case AfxSig_v_u_u:
+		(this->*mmf.pfn_v_u_u)(static_cast<UINT>(wParam), static_cast<UINT>(lParam));
+		break;
+
+	case AfxSig_v_uu_v:
+		(this->*mmf.pfn_v_u_u)(LOWORD(wParam), HIWORD(wParam));
+		break;
+
+	case AfxSig_v_v_ii:
+		(this->*mmf.pfn_v_i_i)(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		break;
+
+	case AfxSig_v_u_uu:
+		(this->*mmf.pfn_v_u_u_u)(static_cast<UINT>(wParam), LOWORD(lParam), HIWORD(lParam));
+		break;
+
+	case AfxSig_v_u_ii:
+		(this->*mmf.pfn_v_u_i_i)(static_cast<UINT>(wParam), LOWORD(lParam), HIWORD(lParam));
+		break;
+
+	case AfxSig_v_w_l:
+		(this->*mmf.pfn_v_w_l)(wParam, lParam);
+		break;
+
+	case AfxSig_MDIACTIVATE:
+		(this->*mmf.pfn_v_b_W_W)(m_hWnd == reinterpret_cast<HWND>(lParam),
+			CWnd::FromHandle(reinterpret_cast<HWND>(lParam)),
+			CWnd::FromHandle(reinterpret_cast<HWND>(wParam)));
+		break;
+
+	case AfxSig_v_D_v:
+		(this->*mmf.pfn_v_D)(CDC::FromHandle(reinterpret_cast<HDC>(wParam)));
+		break;
+
+	case AfxSig_v_M_v:
+		(this->*mmf.pfn_v_M)(CMenu::FromHandle(reinterpret_cast<HMENU>(wParam)));
+		break;
+
+	case AfxSig_v_M_ub:
+		(this->*mmf.pfn_v_M_u_b)(CMenu::FromHandle(reinterpret_cast<HMENU>(wParam)),
+			GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		break;
+
+	case AfxSig_v_W_v:
+		(this->*mmf.pfn_v_W)(CWnd::FromHandle(reinterpret_cast<HWND>(wParam)));
+		break;
+
+	case AfxSig_v_v_W:
+		(this->*mmf.pfn_v_W)(CWnd::FromHandle(reinterpret_cast<HWND>(lParam)));
+		break;
+
+	case AfxSig_v_W_uu:
+		(this->*mmf.pfn_v_W_u_u)(CWnd::FromHandle(reinterpret_cast<HWND>(wParam)), LOWORD(lParam),
+			HIWORD(lParam));
+		break;
+
+	case AfxSig_v_W_p:
+		{
+			CPoint point(lParam);
+			(this->*mmf.pfn_v_W_p)(CWnd::FromHandle(reinterpret_cast<HWND>(wParam)), point);
+		}
+		break;
+
+	case AfxSig_v_W_h:
+		(this->*mmf.pfn_v_W_h)(CWnd::FromHandle(reinterpret_cast<HWND>(wParam)),
+				reinterpret_cast<HANDLE>(lParam));
+		break;
+
+	case AfxSig_ACTIVATE:
+		(this->*mmf.pfn_v_u_W_b)(LOWORD(wParam),
+			CWnd::FromHandle(reinterpret_cast<HWND>(lParam)), HIWORD(wParam));
+		break;
+
+	case AfxSig_SCROLL:
+	case AfxSig_SCROLL_REFLECT:
+		{
+			// special case for WM_VSCROLL and WM_HSCROLL
+			ASSERT(message == WM_VSCROLL || message == WM_HSCROLL ||
+				message == WM_VSCROLL+WM_REFLECT_BASE || message == WM_HSCROLL+WM_REFLECT_BASE);
+			int nScrollCode = (short)LOWORD(wParam);
+			int nPos = (short)HIWORD(wParam);
+			if (lpEntry->nSig == AfxSig_SCROLL)
+				(this->*mmf.pfn_v_u_u_W)(nScrollCode, nPos,
+					CWnd::FromHandle(reinterpret_cast<HWND>(lParam)));
+			else
+				(this->*mmf.pfn_v_u_u)(nScrollCode, nPos);
+		}
+		break;
+
+	case AfxSig_v_v_s:
+		(this->*mmf.pfn_v_s)(reinterpret_cast<LPTSTR>(lParam));
+		break;
+
+	case AfxSig_v_u_cs:
+		(this->*mmf.pfn_v_u_cs)(static_cast<UINT>(wParam), reinterpret_cast<LPCTSTR>(lParam));
+		break;
+
+	case AfxSig_OWNERDRAW:
+		(this->*mmf.pfn_v_i_s)(static_cast<int>(wParam), reinterpret_cast<LPTSTR>(lParam));
+		lResult = TRUE;
+		break;
+
+	case AfxSig_i_i_s:
+		lResult = (this->*mmf.pfn_i_i_s)(static_cast<int>(wParam), reinterpret_cast<LPTSTR>(lParam));
+		break;
+
+	case AfxSig_u_v_p:
+		{
+			CPoint point(lParam);
+			lResult = (this->*mmf.pfn_u_p)(point);
+		}
+		break;
+
+	case AfxSig_u_v_v:
+		lResult = (this->*mmf.pfn_u_v)();
+		break;
+
+	case AfxSig_v_b_NCCALCSIZEPARAMS:
+		(this->*mmf.pfn_v_b_NCCALCSIZEPARAMS)(static_cast<BOOL>(wParam), 
+			reinterpret_cast<NCCALCSIZE_PARAMS*>(lParam));
+		break;
+
+	case AfxSig_v_v_WINDOWPOS:
+		(this->*mmf.pfn_v_v_WINDOWPOS)(reinterpret_cast<WINDOWPOS*>(lParam));
+		break;
+
+	case AfxSig_v_uu_M:
+		(this->*mmf.pfn_v_u_u_M)(LOWORD(wParam), HIWORD(wParam), reinterpret_cast<HMENU>(lParam));
+		break;
+
+	case AfxSig_v_u_p:
+		{
+			CPoint point(lParam);
+         (this->*mmf.pfn_v_u_p)(static_cast<UINT>(wParam), point);
+		}
+		break;
+
+	case AfxSig_SIZING:
+		(this->*mmf.pfn_v_u_pr)(static_cast<UINT>(wParam), reinterpret_cast<LPRECT>(lParam));
+		lResult = TRUE;
+		break;
+
+	case AfxSig_MOUSEWHEEL:
+		lResult = (this->*mmf.pfn_b_u_s_p)(LOWORD(wParam), (short)HIWORD(wParam),
+			CPoint(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)));
+		if (!lResult)
+			return FALSE;
+		break;
+	case AfxSig_MOUSEHWHEEL:
+      qDebug("AfxSig_MOUSEWHEEL");
+//		(this->*mmf.pfn_MOUSEHWHEEL)(LOWORD(wParam), (short)HIWORD(wParam),
+//			CPoint(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)));
+		break;
+	case AfxSig_l:
+		lResult = (this->*mmf.pfn_l_v)();
+		if (lResult != 0)
+			return FALSE;
+		break;
+	case AfxSig_u_W_u:
+      qDebug("AfxSig_u_W_u");
+//		lResult = (this->*mmf.pfn_u_W_u)(CWnd::FromHandle(reinterpret_cast<HWND>(wParam)), static_cast<UINT>(lParam));
+		break;
+	case AfxSig_v_u_M:
+      qDebug("AfxSig_v_u_M");
+//		(this->*mmf.pfn_v_u_M)(static_cast<UINT>(wParam), CMenu::FromHandle(reinterpret_cast<HMENU>(lParam)));
+		break;
+	case AfxSig_u_u_M:
+      qDebug("AfxSig_u_u_M");
+//		lResult = (this->*mmf.pfn_u_u_M)(static_cast<UINT>(wParam), CMenu::FromHandle(reinterpret_cast<HMENU>(lParam)));
+		break;
+	case AfxSig_u_v_MENUGETOBJECTINFO:
+      qDebug("AfxSig_u_v_MENUGETOBJECTINFO");
+//		lResult = (this->*mmf.pfn_u_v_MENUGETOBJECTINFO)(reinterpret_cast<MENUGETOBJECTINFO*>(lParam));
+		break;
+	case AfxSig_v_M_u:
+      qDebug("AfxSig_v_M_u");
+//		(this->*mmf.pfn_v_M_u)(CMenu::FromHandle(reinterpret_cast<HMENU>(wParam)), static_cast<UINT>(lParam));
+		break;
+	case AfxSig_v_u_LPMDINEXTMENU:
+      qDebug("AfxSig_v_u_LPMDINEXTMENU");
+//		(this->*mmf.pfn_v_u_LPMDINEXTMENU)(static_cast<UINT>(wParam), reinterpret_cast<LPMDINEXTMENU>(lParam));
+		break;
+	case AfxSig_APPCOMMAND:
+      qDebug("AfxSig_APPCOMMAND");
+//		(this->*mmf.pfn_APPCOMMAND)(CWnd::FromHandle(reinterpret_cast<HWND>(wParam)), static_cast<UINT>(GET_APPCOMMAND_LPARAM(lParam)), static_cast<UINT>(GET_DEVICE_LPARAM(lParam)), static_cast<UINT>(GET_KEYSTATE_LPARAM(lParam)));
+		lResult = TRUE;
+		break;
+	case AfxSig_RAWINPUT:
+      qDebug("AfxSig_RAWINPUT");
+//		(this->*mmf.pfn_RAWINPUT)(static_cast<UINT>(GET_RAWINPUT_CODE_WPARAM(wParam)), reinterpret_cast<HRAWINPUT>(lParam));
+		break;
+	case AfxSig_u_u_u:
+      qDebug("AfxSig_u_u_u");
+//		lResult = (this->*mmf.pfn_u_u_u)(static_cast<UINT>(wParam), static_cast<UINT>(lParam));
+		break;
+	case AfxSig_MOUSE_XBUTTON:
+      qDebug("AfxSig_MOUSE_XBUTTON");
+//		(this->*mmf.pfn_MOUSE_XBUTTON)(static_cast<UINT>(GET_KEYSTATE_WPARAM(wParam)), static_cast<UINT>(GET_XBUTTON_WPARAM(wParam)), CPoint(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)));
+		lResult = TRUE;
+		break;
+	case AfxSig_MOUSE_NCXBUTTON:
+      qDebug("AfxSig_MOUSE_NCXBUTTON");
+//		(this->*mmf.pfn_MOUSE_NCXBUTTON)(static_cast<short>(GET_NCHITTEST_WPARAM(wParam)), static_cast<UINT>(GET_XBUTTON_WPARAM(wParam)), CPoint(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)));
+		lResult = TRUE;
+		break;
+	case AfxSig_INPUTLANGCHANGE:
+      qDebug("AfxSig_INPUTLANGCHANGE");
+//		(this->*mmf.pfn_INPUTLANGCHANGE)(static_cast<UINT>(wParam), static_cast<UINT>(lParam));
+		lResult = TRUE;
+		break;
+	case AfxSig_INPUTDEVICECHANGE:
+      qDebug("AfxSig_INPUTDEVICECHANGE");
+//		(this->*mmf.pfn_INPUTDEVICECHANGE)(GET_DEVICE_CHANGE_LPARAM(wParam), reinterpret_cast<HANDLE>(lParam));
+		break;
+	case AfxSig_v_u_hkl:
+      qDebug("AfxSig_v_u_h");
+//		(this->*mmf.pfn_v_u_h)(static_cast<UINT>(wParam), reinterpret_cast<HKL>(lParam));
+		break;
+	}
+	goto LReturnTrue;
+
+LDispatchRegistered:    // for registered windows messages
+	ASSERT(message >= 0xC000);
+	ASSERT(sizeof(mmf) == sizeof(mmf.pfn));
+	mmf.pfn = lpEntry->pfn;
+	lResult = (this->*mmf.pfn_l_w_l)(wParam, lParam);
+
+LReturnTrue:
+	if (pResult != NULL)
+		*pResult = lResult;
+	return TRUE;
+}
+
+BOOL CWnd::OnCommand( 
+   WPARAM wParam, 
+   LPARAM lParam  
+)
+// return TRUE if command invocation was attempted
+{
+   UINT nID = LOWORD(wParam);
+   HWND hWndCtrl = (HWND)lParam;
+   int nCode = HIWORD(wParam);
+   
+   // default routing for command messages (through closure table)
+   
+   if (hWndCtrl == NULL)
+   {
+      // zero IDs for normal commands are not allowed
+      if (nID == 0)
+         return FALSE;
+   
+      qDebug("Probably want disabled command check...");
+//      // make sure command has not become disabled before routing
+//      CTestCmdUI state;
+//      state.m_nID = nID;
+//      OnCmdMsg(nID, CN_UPDATE_COMMAND_UI, &state, NULL);
+//      if (!state.m_bEnabled)
+//      {
+//         TRACE(traceAppMsg, 0, "Warning: not executing disabled command %d\n", nID);
+//         return TRUE;
+//      }
+   
+      // menu or accelerator
+      nCode = CN_COMMAND;
+   }
+   else
+   {
+      // control notification
+//      ASSERT(nID == 0 || ::IsWindow(hWndCtrl));
+   
+//      if (_afxThreadState->m_hLockoutNotifyWindow == m_hWnd)
+//         return TRUE;        // locked out - ignore control notification
+   
+//      // reflect notification to child window control
+//      if (ReflectLastMsg(hWndCtrl))
+//         return TRUE;    // eaten by child
+   
+      // zero IDs for normal commands are not allowed
+      if (nID == 0)
+         return FALSE;
+   }
+   
+#ifdef _DEBUG
+if (nCode < 0 && nCode != (int)0x8000)
+   TRACE(traceAppMsg, 0, "Implementation Warning: control notification = $%X.\n",
+      nCode);
+#endif
+
+   return OnCmdMsg(nID, nCode, NULL, NULL);
+}
+
+BOOL CWnd::OnNotify(WPARAM, LPARAM lParam, LRESULT* pResult)
+{
+	ASSERT(pResult != NULL);
+	NMHDR* pNMHDR = (NMHDR*)lParam;
+	HWND hWndCtrl = pNMHDR->hwndFrom;
+
+	// get the child ID from the window itself
+	UINT_PTR nID = _AfxGetDlgCtrlID(hWndCtrl);
+	int nCode = pNMHDR->code;
+
+//	ASSERT(hWndCtrl != NULL);
+//	ASSERT(::IsWindow(hWndCtrl));
+
+//	if (_afxThreadState->m_hLockoutNotifyWindow == m_hWnd)
+//		return TRUE;        // locked out - ignore control notification
+
+//	// reflect notification to child window control
+//	if (ReflectLastMsg(hWndCtrl, pResult))
+//		return TRUE;        // eaten by child
+
+	AFX_NOTIFY notify;
+	notify.pResult = pResult;
+	notify.pNMHDR = pNMHDR;
+	return OnCmdMsg((UINT)nID, MAKELONG(nCode, WM_NOTIFY), &notify, NULL);
+}
+
+bool CWnd::event(QEvent *event)
+{
+   MFCMessageEvent* msgEvent = dynamic_cast<MFCMessageEvent*>(event);
+   if ( msgEvent )
+   {
+      WindowProc(msgEvent->msg.message,msgEvent->msg.wParam,msgEvent->msg.lParam);
+      return true;
+   }
+   return false;
+}
+
+void CWnd::mousePressEvent(QMouseEvent *event)
+{
+   CPoint point(event->pos());
+   unsigned int flags = 0;
+   if ( event->modifiers()&Qt::ControlModifier )
+   {
+      flags |= MK_CONTROL;
+   }
+   if ( event->modifiers()&Qt::ShiftModifier )
+   {
+      flags |= MK_SHIFT;
+   }
+   if ( event->buttons()&Qt::LeftButton )
+   {
+      flags |= MK_LBUTTON;
+   }
+   if ( event->buttons()&Qt::MiddleButton )
+   {
+      flags |= MK_MBUTTON;
+   }
+   if ( event->buttons()&Qt::RightButton )
+   {
+      flags |= MK_RBUTTON;            
+   }
+   if ( event->button() == Qt::LeftButton )
+   {
+      PostMessage(WM_LBUTTONDOWN,flags,point.y<<16|point.x);
+   }
+   else if ( event->button() == Qt::RightButton )
+   {
+      PostMessage(WM_RBUTTONDOWN,flags,point.y<<16|point.x);
+   }
+}
+
+void CWnd::mouseMoveEvent(QMouseEvent *event)
+{
+   CPoint point(event->pos());
+   unsigned int flags = 0;
+   if ( event->modifiers()&Qt::ControlModifier )
+   {
+      flags |= MK_CONTROL;
+   }
+   if ( event->modifiers()&Qt::ShiftModifier )
+   {
+      flags |= MK_SHIFT;
+   }
+   if ( event->buttons()&Qt::LeftButton )
+   {
+      flags |= MK_LBUTTON;
+   }
+   if ( event->buttons()&Qt::MiddleButton )
+   {
+      flags |= MK_MBUTTON;
+   }
+   if ( event->buttons()&Qt::RightButton )
+   {
+      flags |= MK_RBUTTON;            
+   }
+   PostMessage(WM_MOUSEMOVE,flags,point.y<<16|point.x);
+}
+
+void CWnd::mouseReleaseEvent(QMouseEvent *event)
+{
+   CPoint point(event->pos());
+   unsigned int flags = 0;
+   if ( event->modifiers()&Qt::ControlModifier )
+   {
+      flags |= MK_CONTROL;
+   }
+   if ( event->modifiers()&Qt::ShiftModifier )
+   {
+      flags |= MK_SHIFT;
+   }
+   if ( event->buttons()&Qt::LeftButton )
+   {
+      flags |= MK_LBUTTON;
+   }
+   if ( event->buttons()&Qt::MiddleButton )
+   {
+      flags |= MK_MBUTTON;
+   }
+   if ( event->buttons()&Qt::RightButton )
+   {
+      flags |= MK_RBUTTON;            
+   }
+   if ( event->button() == Qt::LeftButton )
+   {
+      PostMessage(WM_LBUTTONUP,flags,point.y<<16|point.x);
+   }
+   else if ( event->button() == Qt::RightButton )
+   {
+      PostMessage(WM_RBUTTONUP,flags,point.y<<16|point.x);
+   }
+}
+
+void CWnd::mouseDoubleClickEvent(QMouseEvent *event)
+{
+   CPoint point(event->pos());
+   unsigned int flags = 0;
+   if ( event->modifiers()&Qt::ControlModifier )
+   {
+      flags |= MK_CONTROL;
+   }
+   if ( event->modifiers()&Qt::ShiftModifier )
+   {
+      flags |= MK_SHIFT;
+   }
+   if ( event->buttons()&Qt::LeftButton )
+   {
+      flags |= MK_LBUTTON;
+   }
+   if ( event->buttons()&Qt::MiddleButton )
+   {
+      flags |= MK_MBUTTON;
+   }
+   if ( event->buttons()&Qt::RightButton )
+   {
+      flags |= MK_RBUTTON;            
+   }
+   if ( event->button() == Qt::LeftButton )
+   {
+      PostMessage(WM_LBUTTONDBLCLK,flags,point.y<<16|point.x);
+   }
+   else if ( event->button() == Qt::RightButton )
+   {
+      PostMessage(WM_RBUTTONDBLCLK,flags,point.y<<16|point.x);
+   }
+}
+
+void CWnd::keyPressEvent(QKeyEvent *event)
+{
+   PostMessage(WM_KEYDOWN,qtToMfcKeycode(event->key()),0);
+}
+
+void CWnd::keyReleaseEvent(QKeyEvent *event)
+{
+   PostMessage(WM_KEYUP,qtToMfcKeycode(event->key()),0);
+}
+
+void CWnd::timerEvent(QTimerEvent *event)
+{
+   int mfcId = mfcTimerId(event->timerId());
+   PostMessage(WM_TIMER,mfcId);
+}
+
+void CWnd::paintEvent(QPaintEvent *event)
+{
+   SendMessage(WM_PAINT);
+}
+
+void CWnd::resizeEvent(QResizeEvent *event)
+{
+//   SendMessage(WM_ERASEBKGND);
+   PostMessage(WM_SIZE,SIZE_RESTORED,(event->size().height()<<16)|(event->size().width()));
 }
 
 void CWnd::subclassWidget(int nID,CWnd* widget)
@@ -5269,115 +6585,123 @@ void CWnd::closeEvent(QCloseEvent *)
 
 bool CWnd::eventFilter(QObject *object, QEvent *event)
 {
-   if ( event->type() == QEvent::Close )
+   if ( object == _qt )
    {
-      closeEvent(dynamic_cast<QCloseEvent*>(event));
-      return true;
-   }
-   if ( event->type() == QEvent::Show )
-   {
-      showEvent(dynamic_cast<QShowEvent*>(event));
-      return true;
-   }
-//   if ( event->type() == QEvent::ShowToParent )
-//   {
-//      showEvent(dynamic_cast<QShowEvent*>(event));
-//      return true;
-//   }
-   if ( event->type() == QEvent::Hide )
-   {
-      hideEvent(dynamic_cast<QHideEvent*>(event));
-      return true;
-   }
-   if ( event->type() == QEvent::Move )
-   {
-      moveEvent(dynamic_cast<QMoveEvent*>(event));
-      return true;
-   }
-   if ( event->type() == QEvent::Paint )
-   {
-      paintEvent(dynamic_cast<QPaintEvent*>(event));
-      return false;
-   }
-   if ( event->type() == QEvent::FocusIn )
-   {
-      focusInEvent(dynamic_cast<QFocusEvent*>(event));
-      return false;
-   }
-   if ( event->type() == QEvent::FocusOut )
-   {
-      focusOutEvent(dynamic_cast<QFocusEvent*>(event));
-      return false;
-   }
-   if ( event->type() == QEvent::Leave )
-   {
-      leaveEvent(event);
-      return true;
-   }
-   if ( event->type() == QEvent::MouseButtonPress )
-   {
-      mousePressEvent(dynamic_cast<QMouseEvent*>(event));
-      return true;
-   }
-   if ( event->type() == QEvent::MouseButtonRelease )
-   {
-      mouseReleaseEvent(dynamic_cast<QMouseEvent*>(event));
-      return true;
-   }
-   if ( event->type() == QEvent::MouseButtonDblClick )
-   {
-      mouseDoubleClickEvent(dynamic_cast<QMouseEvent*>(event));
-      return true;
-   }
-   if ( event->type() == QEvent::MouseMove )
-   {
-      mouseMoveEvent(dynamic_cast<QMouseEvent*>(event));
-      return true;
-   }
-   if ( event->type() == QEvent::Wheel )
-   {
-      wheelEvent(dynamic_cast<QWheelEvent*>(event));
-      return true;
-   }
-   if ( event->type() == QEvent::Resize )
-   {
-      resizeEvent(dynamic_cast<QResizeEvent*>(event));
-      return true;
-   }
-   if ( event->type() == QEvent::KeyPress )
-   {
-      keyPressEvent(dynamic_cast<QKeyEvent*>(event));
-      return false;
-   }
-   if ( event->type() == QEvent::KeyRelease )
-   {
-      keyReleaseEvent(dynamic_cast<QKeyEvent*>(event));
-      return false;
-   }
-   if ( event->type() == QEvent::ContextMenu )
-   {
-      contextMenuEvent(dynamic_cast<QContextMenuEvent*>(event));
-      return true;
-   }
-   if ( event->type() == QEvent::DragEnter )
-   {
-      dragEnterEvent(dynamic_cast<QDragEnterEvent*>(event));
-      return true;
-   }
-   if ( event->type() == QEvent::DragMove )
-   {
-      dragMoveEvent(dynamic_cast<QDragMoveEvent*>(event));
-      return true;
-   }
-   if ( event->type() == QEvent::Drop )
-   {
-      dropEvent(dynamic_cast<QDropEvent*>(event));
-      return true;
-   }
-   if ( event->type() == QEvent::DragLeave )
-   {
-      dragLeaveEvent(dynamic_cast<QDragLeaveEvent*>(event));
-      return true;
+      if ( event->type() == QEvent::Close )
+      {
+         closeEvent(dynamic_cast<QCloseEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::Show )
+      {
+         showEvent(dynamic_cast<QShowEvent*>(event));
+         return true;
+      }
+   //   if ( event->type() == QEvent::ShowToParent )
+   //   {
+   //      showEvent(dynamic_cast<QShowEvent*>(event));
+   //      return true;
+   //   }
+      if ( event->type() == QEvent::Hide )
+      {
+         hideEvent(dynamic_cast<QHideEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::Move )
+      {
+         moveEvent(dynamic_cast<QMoveEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::Paint )
+      {
+         paintEvent(dynamic_cast<QPaintEvent*>(event));
+         return false;
+      }
+      if ( event->type() == QEvent::FocusIn )
+      {
+         focusInEvent(dynamic_cast<QFocusEvent*>(event));
+         return false;
+      }
+      if ( event->type() == QEvent::FocusOut )
+      {
+         focusOutEvent(dynamic_cast<QFocusEvent*>(event));
+         return false;
+      }
+      if ( event->type() == QEvent::Leave )
+      {
+         leaveEvent(event);
+         return true;
+      }
+      if ( event->type() == QEvent::MouseButtonPress )
+      {
+         mousePressEvent(dynamic_cast<QMouseEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::MouseButtonRelease )
+      {
+         mouseReleaseEvent(dynamic_cast<QMouseEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::MouseButtonDblClick )
+      {
+         mouseDoubleClickEvent(dynamic_cast<QMouseEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::MouseMove )
+      {
+         mouseMoveEvent(dynamic_cast<QMouseEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::Wheel )
+      {
+         wheelEvent(dynamic_cast<QWheelEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::Resize )
+      {
+         resizeEvent(dynamic_cast<QResizeEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::KeyPress )
+      {
+         keyPressEvent(dynamic_cast<QKeyEvent*>(event));
+         return false;
+      }
+      if ( event->type() == QEvent::KeyRelease )
+      {
+         keyReleaseEvent(dynamic_cast<QKeyEvent*>(event));
+         return false;
+      }
+      if ( event->type() == QEvent::ContextMenu )
+      {
+         contextMenuEvent(dynamic_cast<QContextMenuEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::DragEnter )
+      {
+         dragEnterEvent(dynamic_cast<QDragEnterEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::DragMove )
+      {
+         dragMoveEvent(dynamic_cast<QDragMoveEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::Drop )
+      {
+         dropEvent(dynamic_cast<QDropEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::DragLeave )
+      {
+         dragLeaveEvent(dynamic_cast<QDragLeaveEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::Timer )
+      {
+         timerEvent(dynamic_cast<QTimerEvent*>(event));
+         return true;
+      }
    }
 //   qDebug("eventFilter: unhandled %d object %s", event->type(), object->objectName().toLatin1().constData());
    return false;
@@ -5574,7 +6898,7 @@ void CWnd::MoveWindow(LPCRECT lpRect, BOOL bRepaint)
    setGeometry(lpRect->left,lpRect->top,(lpRect->right-lpRect->left)+1,(lpRect->bottom-lpRect->top)+1);
    setFixedSize((lpRect->right-lpRect->left)+1,(lpRect->bottom-lpRect->top)+1);
 //   if ( bRepaint )
-      repaint();
+      update();
 }
 
 void CWnd::DragAcceptFiles(
@@ -5606,6 +6930,7 @@ BOOL CWnd::PostMessage(
    {
       QApplication::instance()->postEvent(this,post);
    }
+   update();
    
    return handled;
 }
@@ -5717,17 +7042,17 @@ UINT CWnd::IsDlgButtonChecked(
 
 BOOL CWnd::SubclassDlgItem(
    UINT nID,
-   CWnd* pParent
+   CWnd* pParentWnd
 )
 {
-   CWnd* pWndSrc = pParent->GetDlgItem(nID);
+   CWnd* pWndSrc = pParentWnd->GetDlgItem(nID);
 
    if ( pWndSrc )
    {
-      SetParent(pParent);
-      setParent(pParent->toQWidget());
+      SetParent(pParentWnd);
+      setParent(pParentWnd->toQWidget());
       setGeometry(pWndSrc->geometry());
-      pParent->subclassWidget(nID,this);
+      pParentWnd->subclassWidget(nID,this);
       subclassWidget(nID,pWndSrc);
 //      delete pWndSrc;
       return TRUE;
@@ -5882,11 +7207,11 @@ UINT CWnd::SetTimer(UINT id, UINT interval, void*)
 {
    if ( mfcToQtTimer.contains((int)id) )
    {
-      killTimer(mfcToQtTimer.value((int)id));
+      _qt->killTimer(mfcToQtTimer.value((int)id));
       qtToMfcTimer.remove(mfcToQtTimer.value((int)id));
       mfcToQtTimer.remove((int)id);
    }
-   int qtId = startTimer(interval);
+   int qtId = _qt->startTimer(interval);
    mfcToQtTimer.insert((int)id,qtId);
    qtToMfcTimer.insert(qtId,(int)id);
    return (UINT)id;
@@ -5896,7 +7221,7 @@ void CWnd::KillTimer(UINT id)
 {
    if ( mfcToQtTimer.contains((int)id) )
    {
-      killTimer(mfcToQtTimer.value((int)id));
+      _qt->killTimer(mfcToQtTimer.value((int)id));
       qtToMfcTimer.remove(mfcToQtTimer.value((int)id));
       mfcToQtTimer.remove((int)id);
    }
@@ -5981,6 +7306,9 @@ void CWnd::ShowWindow(int code)
 }
 
 IMPLEMENT_DYNCREATE(CFrameWnd,CWnd)
+
+BEGIN_MESSAGE_MAP(CFrameWnd,CWnd)
+END_MESSAGE_MAP()
 
 CFrameWnd::CFrameWnd(CWnd *parent)
    : CWnd(parent),
@@ -6377,6 +7705,9 @@ void CFrameWnd::OnClose()
 
 IMPLEMENT_DYNCREATE(CView,CWnd)
 
+BEGIN_MESSAGE_MAP(CView,CWnd)
+END_MESSAGE_MAP()
+
 CView::CView()
    : m_pDocument(NULL)
 {
@@ -6447,6 +7778,105 @@ BOOL CView::OnCmdMsg(UINT nID, int nCode, void* pExtra,
 
 IMPLEMENT_DYNAMIC(CControlBar,CWnd)
 
+BEGIN_MESSAGE_MAP(CControlBar,CWnd)
+//   ON_MESSAGE(WM_SIZEPARENT, OnSizeParent)
+END_MESSAGE_MAP()
+
+LRESULT CControlBar::WindowProc(UINT nMsg, WPARAM wParam, LPARAM lParam)
+{
+   ASSERT_VALID(this);
+
+	LRESULT lResult;
+	switch (nMsg)
+	{
+	case WM_NOTIFY:
+	case WM_COMMAND:
+	case WM_DRAWITEM:
+	case WM_MEASUREITEM:
+	case WM_DELETEITEM:
+	case WM_COMPAREITEM:
+	case WM_VKEYTOITEM:
+	case WM_CHARTOITEM:
+		// send these messages to the owner if not handled
+		if (OnWndMsg(nMsg, wParam, lParam, &lResult))
+			return lResult;
+		else
+		{
+
+//			if (m_pInPlaceOwner && nMsg == WM_COMMAND)
+//				lResult = m_pInPlaceOwner->SendMessage(nMsg, wParam, lParam);
+//			else
+				lResult = GetOwner()->SendMessage(nMsg, wParam, lParam);
+
+//			// special case for TTN_NEEDTEXTA and TTN_NEEDTEXTW
+//			if(nMsg == WM_NOTIFY)
+//			{
+//				NMHDR* pNMHDR = (NMHDR*)lParam;
+//				if (pNMHDR->code == TTN_NEEDTEXTA || pNMHDR->code == TTN_NEEDTEXTW)
+//				{
+//					TOOLTIPTEXTA* pTTTA = (TOOLTIPTEXTA*)pNMHDR;
+//					TOOLTIPTEXTW* pTTTW = (TOOLTIPTEXTW*)pNMHDR;
+
+//					if (pNMHDR->code == TTN_NEEDTEXTA)
+//					{
+//						if (pTTTA->hinst == 0 && (!pTTTA->lpszText || !*pTTTA->lpszText))
+//						{
+//							// not handled by owner, so let bar itself handle it
+//							lResult = CWnd::WindowProc(nMsg, wParam, lParam);
+//						}
+//					} else if (pNMHDR->code == TTN_NEEDTEXTW)
+//					{
+//						if (pTTTW->hinst == 0 && (!pTTTW->lpszText || !*pTTTW->lpszText))
+//						{
+//							// not handled by owner, so let bar itself handle it
+//							lResult = CWnd::WindowProc(nMsg, wParam, lParam);
+//						}
+//					}
+//				}
+//			}
+			return lResult;
+		}
+	}
+
+	// otherwise, just handle in default way
+	lResult = CWnd::WindowProc(nMsg, wParam, lParam);
+	return lResult;
+}
+
+LRESULT CControlBar::OnSizeParent(WPARAM, LPARAM lParam)
+{
+   AFX_SIZEPARENTPARAMS* pLayout = (AFX_SIZEPARENTPARAMS*)lParam;
+
+   if ( _qt->isVisible() )
+   {
+      if ( _dwStyle&CBRS_TOP )
+      {
+         pLayout->rect.top += m_sizeDefault.cy;
+         pLayout->sizeTotal.cx = (pLayout->rect.right-pLayout->rect.left)+1;
+         pLayout->sizeTotal.cy += m_sizeDefault.cy;
+      }
+      else if ( _dwStyle&CBRS_LEFT )
+      {
+         pLayout->rect.left += m_sizeDefault.cx;
+         pLayout->sizeTotal.cx += m_sizeDefault.cx;
+         pLayout->sizeTotal.cy = (pLayout->rect.bottom-pLayout->rect.top)+1;
+      }
+      else if ( _dwStyle&CBRS_BOTTOM )
+      {
+         pLayout->rect.bottom -= m_sizeDefault.cy;
+         pLayout->sizeTotal.cx = (pLayout->rect.right-pLayout->rect.left)+1;
+         pLayout->sizeTotal.cy += m_sizeDefault.cy;
+      }
+      else if ( _dwStyle&CBRS_RIGHT )
+      {
+         pLayout->rect.right -= m_sizeDefault.cx;
+         pLayout->sizeTotal.cx += m_sizeDefault.cx;
+         pLayout->sizeTotal.cy = (pLayout->rect.bottom-pLayout->rect.top)+1;
+      }
+   }
+   return 0;
+}
+
 CSize CControlBar::CalcFixedLayout(
    BOOL bStretch,
    BOOL bHorz
@@ -6468,6 +7898,9 @@ BOOL CControlBar::IsVisible() const
 }
 
 IMPLEMENT_DYNAMIC(CReBarCtrl,CWnd)
+
+BEGIN_MESSAGE_MAP(CReBarCtrl,CWnd)
+END_MESSAGE_MAP()
 
 void CReBarCtrl::subclassWidget(int nID,CWnd* widget)
 {
@@ -6555,6 +7988,9 @@ void CReBarCtrl::toolBarAction_triggered()
 
 IMPLEMENT_DYNAMIC(CReBar,CControlBar)
 
+BEGIN_MESSAGE_MAP(CReBar,CControlBar)
+END_MESSAGE_MAP()
+
 CReBar::CReBar()
 {
    m_pReBarCtrl = new CReBarCtrl;
@@ -6577,8 +8013,9 @@ BOOL CReBar::Create(
 
    CRect rect;
    pParentWnd->GetClientRect(&rect);
-   m_pReBarCtrl->Create(dwStyle,rect,pParentWnd,nID);
-
+   m_pReBarCtrl->Create(dwStyle,rect,this,nID);
+   SetParent(pParentWnd);   
+   
    pParentWnd->mfcToQtWidgetMap()->insert(nID,this);
 
    ptrToTheApp->qtMainWindow->addToolBar(dynamic_cast<QToolBar*>(m_pReBarCtrl->toQWidget()));
@@ -6586,7 +8023,26 @@ BOOL CReBar::Create(
    return TRUE;
 }
 
+LRESULT CReBar::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
+{
+	// special handling for certain messages (forwarding to owner/parent)
+	switch (message)
+	{
+	case WM_POPMESSAGESTRING:
+	case WM_SETMESSAGESTRING:
+		{
+			CWnd* pOwner=GetOwner();
+			ENSURE(pOwner);
+			return pOwner->SendMessage(message, wParam, lParam);
+		}
+	}
+	return CControlBar::WindowProc(message, wParam, lParam);
+}
+
 IMPLEMENT_DYNAMIC(CToolBar,CControlBar)
+
+BEGIN_MESSAGE_MAP(CToolBar,CControlBar)
+END_MESSAGE_MAP()
 
 CToolBar::CToolBar(CWnd* parent)
 {
@@ -6715,6 +8171,9 @@ void CToolBar::menu_aboutToShow()
 
 IMPLEMENT_DYNAMIC(CStatusBar,CControlBar)
 
+BEGIN_MESSAGE_MAP(CStatusBar,CControlBar)
+END_MESSAGE_MAP()
+
 CStatusBar::CStatusBar(CWnd* parent)
 {
    _dwStyle = 0;
@@ -6796,6 +8255,9 @@ BOOL CStatusBar::SetPaneText(
 
 IMPLEMENT_DYNAMIC(CDialogBar,CControlBar)
 
+BEGIN_MESSAGE_MAP(CDialogBar,CControlBar)
+END_MESSAGE_MAP()
+
 CDialogBar::CDialogBar()
 {
    _mfcd = new CDialog;
@@ -6809,50 +8271,6 @@ CDialogBar::~CDialogBar()
       delete _mfcd;
 }
 
-bool CDialogBar::event(QEvent *event)
-{
-   MFCMessageEvent* msgEvent = dynamic_cast<MFCMessageEvent*>(event);
-   if ( msgEvent )
-   {
-      AFX_SIZEPARENTPARAMS* pLayout = (AFX_SIZEPARENTPARAMS*)msgEvent->msg.lParam;
-   
-      switch ( msgEvent->msg.message )
-      {
-      case WM_SIZEPARENT:
-         if ( _qt->isVisible() )
-         {
-            if ( _nStyle&CBRS_TOP )
-            {
-               pLayout->rect.top += m_sizeDefault.cy;
-               pLayout->sizeTotal.cx = (pLayout->rect.right-pLayout->rect.left)+1;
-               pLayout->sizeTotal.cy += m_sizeDefault.cy;
-            }
-            else if ( _nStyle&CBRS_LEFT )
-            {
-               pLayout->rect.left += m_sizeDefault.cx;
-               pLayout->sizeTotal.cx += m_sizeDefault.cx;
-               pLayout->sizeTotal.cy = (pLayout->rect.bottom-pLayout->rect.top)+1;
-            }
-            else if ( _nStyle&CBRS_BOTTOM )
-            {
-               pLayout->rect.bottom -= m_sizeDefault.cy;
-               pLayout->sizeTotal.cx = (pLayout->rect.right-pLayout->rect.left)+1;
-               pLayout->sizeTotal.cy += m_sizeDefault.cy;
-            }
-            else if ( _nStyle&CBRS_RIGHT )
-            {
-               pLayout->rect.right -= m_sizeDefault.cx;
-               pLayout->sizeTotal.cx += m_sizeDefault.cx;
-               pLayout->sizeTotal.cy = (pLayout->rect.bottom-pLayout->rect.top)+1;
-            }
-         }
-         break;
-      }
-      return true;
-   }
-   return false;
-}
-
 BOOL CDialogBar::Create(
    CWnd* pParentWnd,
    UINT nIDTemplate,
@@ -6863,16 +8281,20 @@ BOOL CDialogBar::Create(
    m_hWnd = (HWND)this;
    _id = nID;
 
-   _nStyle = nStyle;
+   _dwStyle = nStyle;
 
    _mfcd->Create(nIDTemplate,this);
 
-   _qt->setParent(pParentWnd->toQWidget());
+   SetParent(pParentWnd);
 
    // This is a container.
    foreach ( UINT key, _mfcd->mfcToQtWidgetMap()->keys() )
    {
       mfcToQtWidget.insert(key,_mfcd->mfcToQtWidgetMap()->value(key));
+   }
+   foreach ( CWnd* pWnd, mfcToQtWidget )
+   {
+      pWnd->SetOwner(this);
    }
 
    pParentWnd->mfcToQtWidgetMap()->insertMulti(nID,this);
@@ -6929,6 +8351,11 @@ CSize CDialogBar::CalcFixedLayout(
 }
 
 IMPLEMENT_DYNAMIC(CDialog,CWnd)
+
+BEGIN_MESSAGE_MAP(CDialog,CWnd)
+   ON_BN_CLICKED(IDOK,OnOK)
+   ON_BN_CLICKED(IDCANCEL,OnCancel)
+END_MESSAGE_MAP()
 
 CDialog::CDialog()
 {
@@ -7077,6 +8504,9 @@ void CDialog::EndDialog(
 
 IMPLEMENT_DYNAMIC(CCommonDialog,CDialog)
 
+BEGIN_MESSAGE_MAP(CCommonDialog,CDialog)
+END_MESSAGE_MAP()
+
 CCommonDialog::CCommonDialog(CWnd *pParentWnd)
  : CDialog(0,pParentWnd)
 {
@@ -7087,6 +8517,9 @@ CCommonDialog::~CCommonDialog()
 }
 
 IMPLEMENT_DYNCREATE(CWinThread,CCmdTarget)
+
+BEGIN_MESSAGE_MAP(CWinThread,CCmdTarget)
+END_MESSAGE_MAP()
 
 CWinThread::CWinThread()
 {
@@ -7212,6 +8645,9 @@ CWinThread* AfxBeginThread(
 }
 
 IMPLEMENT_DYNCREATE(CDocument,CCmdTarget)
+
+BEGIN_MESSAGE_MAP(CDocument,CCmdTarget)
+END_MESSAGE_MAP()
 
 CDocument::CDocument()
    : m_pDocTemplate(NULL), m_bModified(FALSE), m_bAutoDelete(TRUE)
@@ -7510,6 +8946,9 @@ BOOL CDocument::SaveModified()
 
 IMPLEMENT_DYNAMIC(CDocTemplate,CCmdTarget)
 
+BEGIN_MESSAGE_MAP(CDocTemplate,CCmdTarget)
+END_MESSAGE_MAP()
+
 CDocTemplate::CDocTemplate(UINT nIDResource,CRuntimeClass* pDocClass,CRuntimeClass* pFrameClass,CRuntimeClass* pViewClass)
 {
    m_nIDResource = nIDResource;
@@ -7646,6 +9085,9 @@ CFrameWnd* CDocTemplate::CreateNewFrame(CDocument* pDoc, CFrameWnd* pOther)
 }
 
 IMPLEMENT_DYNAMIC(CSingleDocTemplate,CDocTemplate)
+
+BEGIN_MESSAGE_MAP(CSingleDocTemplate,CDocTemplate)
+END_MESSAGE_MAP()
 
 CSingleDocTemplate::CSingleDocTemplate(UINT f,CRuntimeClass* pDocClass,CRuntimeClass* pFrameClass,CRuntimeClass* pViewClass)
    : CDocTemplate(f,pDocClass,pFrameClass,pViewClass)
@@ -7854,10 +9296,16 @@ void CCommandLineInfo::ParseParam(
    BOOL bLast
 )
 {
-   qDebug("CCommandLineInfo::ParseParam");
+   if ( !bFlag )
+   {
+      m_strFileName = pszParam;   
+   }
 }
 
 IMPLEMENT_DYNCREATE(CWinApp,CWinThread)
+
+BEGIN_MESSAGE_MAP(CWinApp,CWinThread)
+END_MESSAGE_MAP()
 
 CWinApp::CWinApp() 
    : m_pRecentFileList(NULL) 
@@ -7945,12 +9393,12 @@ void CWinApp::ParseCommandLine(
    QString localArg;
    BOOL bLast = FALSE;
    BOOL bFlag;
-   for ( arg = 0; arg < rCmdInfo._args.count(); arg++ )
+   for ( arg = 1; arg < rCmdInfo._args.count(); arg++ )
    {
       if ( arg == rCmdInfo._args.count()-1 ) bLast = TRUE;
       localArg = rCmdInfo._args.at(arg);
       bFlag = FALSE;
-      if ( localArg.startsWith("//") ||
+      if ( localArg.startsWith("/") ||
            localArg.startsWith("-") )
       {
          localArg = localArg.right(localArg.length()-1);
@@ -7964,8 +9412,16 @@ BOOL CWinApp::ProcessShellCommand(
    CCommandLineInfo& rCmdInfo
 )
 {
-   // CP: Just do New file for now...
-   OpenDocumentFile(NULL);
+   if ( rCmdInfo.m_strFileName.IsEmpty() )
+   {
+      // New file...
+      OpenDocumentFile(NULL);
+   }
+   else
+   {
+      // Open file...
+      OpenDocumentFile(rCmdInfo.m_strFileName);
+   }
    return TRUE;
 }
 
@@ -8090,6 +9546,9 @@ HCURSOR CWinApp::LoadStandardCursor(
 
 IMPLEMENT_DYNAMIC(CMenu,CCmdTarget)
 
+BEGIN_MESSAGE_MAP(CMenu,CCmdTarget)
+END_MESSAGE_MAP()
+
 CMenu::CMenu()
    : m_hMenu(NULL)
 {
@@ -8109,6 +9568,13 @@ CMenu::~CMenu()
    }
    _cmenu->clear();
    delete _cmenu;
+}
+
+CMenu* PASCAL CMenu::FromHandle( 
+   HMENU hMenu  
+)
+{
+   return (CMenu*)hMenu;
 }
 
 void CMenu::menuAction_triggered()
@@ -8578,6 +10044,9 @@ BOOL CMenu::DestroyMenu( )
 
 IMPLEMENT_DYNAMIC(CTabCtrl,CWnd)
 
+BEGIN_MESSAGE_MAP(CTabCtrl,CWnd)
+END_MESSAGE_MAP()
+
 CTabCtrl::CTabCtrl(CWnd* parent)
    : CWnd(parent)
 {
@@ -8669,6 +10138,9 @@ BOOL CTabCtrl::DeleteAllItems( )
 }
 
 IMPLEMENT_DYNAMIC(CEdit,CWnd)
+
+BEGIN_MESSAGE_MAP(CEdit,CWnd)
+END_MESSAGE_MAP()
 
 CEdit::CEdit(CWnd* parent)
    : CWnd(parent),
@@ -9170,6 +10642,9 @@ int CEdit::GetDlgItemText(
 
 IMPLEMENT_DYNAMIC(CButton,CWnd)
 
+BEGIN_MESSAGE_MAP(CButton,CWnd)
+END_MESSAGE_MAP()
+
 CButton::CButton(CWnd* parent)
    : CWnd(parent),
      _qtd_push(NULL),
@@ -9192,6 +10667,11 @@ void CButton::subclassWidget(int nID,CWnd* widget)
    Create(text,widget->GetStyle(),rect,widget->GetParent(),nID);
    _qt->installEventFilter(dynamic_cast<CButton*>(this));
    widget->setParent(NULL);
+}
+
+void CButton::clicked()
+{
+   GetOwner()->SendMessage(WM_COMMAND,_id);
 }
 
 BOOL CButton::Create(
@@ -9234,7 +10714,7 @@ BOOL CButton::Create(
       _qtd_check->setVisible(dwStyle&WS_VISIBLE);
    
       // Pass-through signals
-      QObject::connect(_qtd_check,SIGNAL(clicked()),this,SIGNAL(clicked()));
+      QObject::connect(_qtd_check,SIGNAL(clicked()),this,SLOT(clicked()));
    }
    else if ( buttonType == BS_AUTO3STATE )
    {
@@ -9257,7 +10737,7 @@ BOOL CButton::Create(
       _qtd_check->setVisible(dwStyle&WS_VISIBLE);
    
       // Pass-through signals
-      QObject::connect(_qtd_check,SIGNAL(clicked()),this,SIGNAL(clicked()));
+      QObject::connect(_qtd_check,SIGNAL(clicked()),this,SLOT(clicked()));
    }
    else if ( buttonType == BS_AUTORADIOBUTTON )
    {
@@ -9279,7 +10759,7 @@ BOOL CButton::Create(
       _qtd_radio->setVisible(dwStyle&WS_VISIBLE);
    
       // Pass-through signals
-      QObject::connect(_qtd_radio,SIGNAL(clicked()),this,SIGNAL(clicked()));
+      QObject::connect(_qtd_radio,SIGNAL(clicked()),this,SLOT(clicked()));
    }
    else if ( (buttonType == BS_PUSHBUTTON) ||
              (buttonType == BS_DEFPUSHBUTTON) )
@@ -9302,7 +10782,7 @@ BOOL CButton::Create(
       _qtd_push->setVisible(dwStyle&WS_VISIBLE);
    
       // Pass-through signals
-      QObject::connect(_qtd_push,SIGNAL(clicked()),this,SIGNAL(clicked()));
+      QObject::connect(_qtd_push,SIGNAL(clicked()),this,SLOT(clicked()));
    }
    else if ( buttonType == BS_GROUPBOX )
    {
@@ -9324,8 +10804,9 @@ BOOL CButton::Create(
       _qtd_groupbox->setVisible(dwStyle&WS_VISIBLE);
    
       // Pass-through signals
-      QObject::connect(_qtd_groupbox,SIGNAL(clicked()),this,SIGNAL(clicked()));
+      QObject::connect(_qtd_groupbox,SIGNAL(clicked()),this,SLOT(clicked()));
    }
+   SetParent(pParentWnd);
 
    return TRUE;
 }
@@ -9630,6 +11111,9 @@ UINT CButton::IsDlgButtonChecked(
 
 IMPLEMENT_DYNAMIC(CSpinButtonCtrl,CWnd)
 
+BEGIN_MESSAGE_MAP(CSpinButtonCtrl,CWnd)
+END_MESSAGE_MAP()
+
 CSpinButtonCtrl::CSpinButtonCtrl(CWnd* parent)
    : CWnd(parent),
      _oldValue(0)
@@ -9840,6 +11324,9 @@ int CSpinButtonCtrl::GetDlgItemText(
 
 IMPLEMENT_DYNAMIC(CSliderCtrl,CWnd)
 
+BEGIN_MESSAGE_MAP(CSliderCtrl,CWnd)
+END_MESSAGE_MAP()
+
 CSliderCtrl::CSliderCtrl(CWnd* parent)
    : CWnd(parent)
 {
@@ -10021,6 +11508,9 @@ int CSliderCtrl::GetDlgItemText(
 
 IMPLEMENT_DYNAMIC(CProgressCtrl,CWnd)
 
+BEGIN_MESSAGE_MAP(CProgressCtrl,CWnd)
+END_MESSAGE_MAP()
+
 CProgressCtrl::CProgressCtrl(CWnd* parent)
    : CWnd(parent)
 {
@@ -10096,6 +11586,9 @@ int CProgressCtrl::GetPos( ) const
 }
 
 IMPLEMENT_DYNAMIC(CStatic,CWnd)
+
+BEGIN_MESSAGE_MAP(CStatic,CWnd)
+END_MESSAGE_MAP()
 
 CStatic::CStatic(CWnd *parent)
    : CWnd(parent)
@@ -10212,6 +11705,9 @@ int CStatic::GetDlgItemText(
 }
 
 IMPLEMENT_DYNAMIC(CFileDialog,CCommonDialog)
+
+BEGIN_MESSAGE_MAP(CFileDialog,CCommonDialog)
+END_MESSAGE_MAP()
 
 CFileDialog::CFileDialog(
    BOOL bOpenFileDialog,
@@ -10448,6 +11944,9 @@ CString CFileDialog::GetPathName( ) const
 
 IMPLEMENT_DYNAMIC(CColorDialog,CCommonDialog)
 
+BEGIN_MESSAGE_MAP(CColorDialog,CCommonDialog)
+END_MESSAGE_MAP()
+
 CColorDialog::CColorDialog(
    COLORREF clrInit,
    DWORD dwFlags,
@@ -10508,6 +12007,9 @@ COLORREF CColorDialog::GetColor( ) const
 
 IMPLEMENT_DYNAMIC(COleDataSource,CCmdTarget)
 
+BEGIN_MESSAGE_MAP(COleDataSource,CCmdTarget)
+END_MESSAGE_MAP()
+
 void COleDataSource::CacheGlobalData( 
    CLIPFORMAT cfFormat, 
    HGLOBAL hGlobal, 
@@ -10533,7 +12035,13 @@ DROPEFFECT COleDataSource::DoDragDrop(
 
 IMPLEMENT_DYNAMIC(COleDropSource,CCmdTarget)
 
+BEGIN_MESSAGE_MAP(COleDropSource,CCmdTarget)
+END_MESSAGE_MAP()
+
 IMPLEMENT_DYNAMIC(COleDropTarget,CCmdTarget)
+
+BEGIN_MESSAGE_MAP(COleDropTarget,CCmdTarget)
+END_MESSAGE_MAP()
 
 BOOL COleDropTarget::Register( 
    CWnd* pWnd  
@@ -10842,6 +12350,9 @@ HICON CImageList::ExtractIcon(
 
 IMPLEMENT_DYNAMIC(CPropertySheet,CWnd)
 
+BEGIN_MESSAGE_MAP(CPropertySheet,CWnd)
+END_MESSAGE_MAP()
+
 CPropertySheet::CPropertySheet(
    UINT nIDCaption,
    CWnd* pParentWnd,
@@ -10985,6 +12496,9 @@ INT_PTR CPropertySheet::DoModal( )
 
 IMPLEMENT_DYNAMIC(CPropertyPage,CDialog)
 
+BEGIN_MESSAGE_MAP(CPropertyPage,CDialog)
+END_MESSAGE_MAP()
+
 CPropertyPage::CPropertyPage(
    UINT nIDTemplate,
    UINT nIDCaption,
@@ -11032,6 +12546,9 @@ BOOL CPropertyPage::OnSetActive( )
 }
 
 IMPLEMENT_DYNAMIC(CToolTipCtrl,CWnd)
+
+BEGIN_MESSAGE_MAP(CToolTipCtrl,CWnd)
+END_MESSAGE_MAP()
 
 CToolTipCtrl::CToolTipCtrl( )
 {

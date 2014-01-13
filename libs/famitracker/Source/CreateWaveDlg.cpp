@@ -58,16 +58,6 @@ BEGIN_MESSAGE_MAP(CCreateWaveDlg, CDialog)
 	ON_NOTIFY(UDN_DELTAPOS, IDC_SPIN_TIME, OnDeltaposSpinTime)
 END_MESSAGE_MAP()
 
-void CCreateWaveDlg::begin_clicked()
-{
-   OnBnClickedBegin();
-}
-
-void CCreateWaveDlg::cancel_clicked()
-{
-   OnCancel();
-}
-
 void CCreateWaveDlg::spinLoop_valueChanged(int arg1,int arg2)
 {
    NMUPDOWN nmud;

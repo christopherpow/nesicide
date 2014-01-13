@@ -276,7 +276,7 @@ void CChunkRenderText::StoreFrameChunk(CChunk *pChunk, CFile *pFile)
 	for (int i = 0, j = 0; i < len; ++i) {
 		if (pChunk->GetDataType(i) == CHUNK_DATA_BANK) {
 			if (j == 0) {
-				str.AppendFormat("\n\t.byte ", pChunk->GetLabel());
+				str.AppendFormat("\n\t.byte ", (LPCTSTR)pChunk->GetLabel());
 			}
 			str.AppendFormat("%s$%02X", (j++ > 0) ? _T(", ") : _T(""), pChunk->GetData(i));
 		}

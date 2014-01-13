@@ -12,10 +12,6 @@ class CChannelsDlg : public CDialog
    Q_OBJECT
    // Qt interfaces
 public slots:
-   void ok_clicked();
-   void cancel_clicked();
-   void moveUp_clicked();
-   void moveDown_clicked();
    void addedList_cellDoubleClicked(int row,int column);
    void availableTree_itemClicked(QTreeWidgetItem* item,int column);
    void availableTree_itemDoubleClicked(QTreeWidgetItem* item,int column);

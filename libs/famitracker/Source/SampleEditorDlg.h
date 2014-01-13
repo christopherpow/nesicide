@@ -29,17 +29,6 @@
 // CSampleView control
 
 class CSampleView : public CStatic {
-   Q_OBJECT
-   // Qt interfaces
-protected:
-   void paintEvent(QPaintEvent*);
-   void mouseMoveEvent(QMouseEvent *event);
-   void mousePressEvent(QMouseEvent *event);
-   void mouseReleaseEvent(QMouseEvent *event);
-   void resizeEvent(QResizeEvent *event);
-   bool eventFilter(QObject *object, QEvent *event);
-public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
-   
 	DECLARE_DYNAMIC(CSampleView)
 protected:
 	DECLARE_MESSAGE_MAP()
@@ -92,24 +81,7 @@ public:
 
 class CSampleEditorDlg : public CDialog
 {
-   Q_OBJECT
-public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
-
 	DECLARE_DYNAMIC(CSampleEditorDlg)
-   // Qt interfaces
-protected:
-   void resizeEvent(QResizeEvent *event);
-   void timerEvent(QTimerEvent *event);
-   void keyPressEvent(QKeyEvent *event);
-public slots:
-   void ok_clicked();
-   void cancel_clicked();
-   void play_clicked();
-   void delete_clicked();
-   void deltaStart_clicked();
-   void tilt_clicked();
-
-   // MFC interfaces
 public:
 	CSampleEditorDlg(CWnd* pParent = NULL, CDSample *pSample = NULL);   // standard constructor
 	virtual ~CSampleEditorDlg();

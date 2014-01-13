@@ -187,7 +187,7 @@ CSoundGen::~CSoundGen()
    
    delete pTimer;
    
-   pThread->terminate();
+   pThread->exit(0);
    pThread->wait();
    
 	// Delete APU

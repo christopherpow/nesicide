@@ -78,7 +78,6 @@ class CBannerEdit : public CEdit {
    Q_OBJECT
    // Qt interfaces
 protected:
-   void paintEvent(QPaintEvent *event);
    void focusInEvent(QFocusEvent *);
    void focusOutEvent(QFocusEvent *);   
 public:

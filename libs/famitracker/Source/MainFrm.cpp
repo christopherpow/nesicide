@@ -293,24 +293,6 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_CBN_SELCHANGE(IDC_OCTAVE, OnCbnSelchangeOctave)
 END_MESSAGE_MAP()
 
-bool CMainFrame::event(QEvent *event)
-{
-   MFCMessageEvent* msgEvent = dynamic_cast<MFCMessageEvent*>(event);
-   if ( msgEvent )
-   {
-//      ON_COMMAND(ID_MODULE_COMMENTS, OnModuleComments)
-      switch ( msgEvent->msg.wParam )
-      {
-      case ID_MODULE_COMMENTS:
-         OnModuleComments();
-         break;
-      }
-
-      return true;
-   }
-   return false;
-}
-
 void CMainFrame::focusInEvent(QFocusEvent *)
 {
    m_pView->SetFocus();
@@ -365,7 +347,6 @@ void CMainFrame::showEvent(QShowEvent *)
       QObject::connect(&m_wndInstToolBar,SIGNAL(toolBarAction_triggered(int)),this,SLOT(instToolBarAction_triggered(int)));
       QObject::connect(&m_wndInstToolBar,SIGNAL(toolBarAction_menu_aboutToShow(int)),this,SLOT(instToolBarAction_menu_aboutToShow(int)));
       QObject::connect(m_wndOctaveBar.GetDlgItem(IDC_OCTAVE)->toQWidget(),SIGNAL(currentIndexChanged(int)),this,SLOT(octave_currentIndexChanged(int)));
-      QObject::connect(m_wndOctaveBar.GetDlgItem(IDC_FOLLOW)->toQWidget(),SIGNAL(clicked()),this,SLOT(follow_clicked()));
       QObject::connect(m_wndOctaveBar.GetDlgItem(IDC_HIGHLIGHTSPIN1),SIGNAL(valueChanged(int,int)),this,SLOT(highlightspin1_valueChanged(int,int)));
       QObject::connect(m_wndOctaveBar.GetDlgItem(IDC_HIGHLIGHTSPIN2),SIGNAL(valueChanged(int,int)),this,SLOT(highlightspin2_valueChanged(int,int)));
       QObject::connect(m_wndDialogBar.GetDlgItem(IDC_INSTRUMENTS)->toQWidget(),SIGNAL(doubleClicked(QModelIndex)),this,SLOT(instruments_doubleClicked(QModelIndex)));
@@ -380,10 +361,6 @@ void CMainFrame::showEvent(QShowEvent *)
       QObject::connect(m_wndDialogBar.GetDlgItem(IDC_SONG_ARTIST)->toQWidget(),SIGNAL(textEdited(QString)),this,SLOT(songArtist_textEdited(QString)));
       QObject::connect(m_wndDialogBar.GetDlgItem(IDC_SONG_COPYRIGHT)->toQWidget(),SIGNAL(textEdited(QString)),this,SLOT(songCopyright_textEdited(QString)));
       QObject::connect(m_wndDialogBar.GetDlgItem(IDC_INSTNAME)->toQWidget(),SIGNAL(textEdited(QString)),this,SLOT(instName_textEdited(QString)));
-      QObject::connect(m_wndDialogBar.GetDlgItem(IDC_KEYREPEAT)->toQWidget(),SIGNAL(clicked()),this,SLOT(keyRepeat_clicked()));
-      QObject::connect(m_wndFrameControls.GetDlgItem(IDC_FRAME_INC)->toQWidget(),SIGNAL(clicked()),this,SLOT(frameInc_clicked()));
-      QObject::connect(m_wndFrameControls.GetDlgItem(IDC_FRAME_DEC)->toQWidget(),SIGNAL(clicked()),this,SLOT(frameDec_clicked()));
-      QObject::connect(m_wndFrameControls.GetDlgItem(IDC_CHANGE_ALL)->toQWidget(),SIGNAL(clicked()),this,SLOT(frameChangeAll_clicked()));
       qDebug("DONE CONNECTING BURIED SIGNALS NOW...");
 
       initialized = true;
@@ -397,17 +374,6 @@ void CMainFrame::showEvent(QShowEvent *)
 void CMainFrame::hideEvent(QHideEvent *)
 {
    pTimer->stop();
-}
-
-void CMainFrame::resizeEvent(QResizeEvent *event)
-{
-   OnSize(0,event->size().width(),event->size().height());
-}
-
-void CMainFrame::timerEvent(QTimerEvent *event)
-{
-   int mfcId = mfcTimerId(event->timerId());
-   OnTimer(mfcId);
 }
 
 void CMainFrame::onIdleSlot()
@@ -857,21 +823,6 @@ void CMainFrame::instToolBarAction_menu_aboutToShow(int id)
    }
 }
 
-void CMainFrame::frameInc_clicked()
-{
-   OnBnClickedIncFrame();
-}
-
-void CMainFrame::frameDec_clicked()
-{
-   OnBnClickedDecFrame();
-}
-
-void CMainFrame::frameChangeAll_clicked()
-{
-   OnChangeAll();
-}
-
 void CMainFrame::instruments_currentRowChanged(int row)
 {
    NM_LISTVIEW nmlv;
@@ -912,11 +863,6 @@ void CMainFrame::songCopyright_textEdited(const QString &arg1)
 void CMainFrame::instName_textEdited(const QString &arg1)
 {
    OnInstNameChange();
-}
-
-void CMainFrame::follow_clicked()
-{
-   OnClickedFollow();
 }
 
 void CMainFrame::octave_currentIndexChanged(int)
@@ -975,11 +921,6 @@ void CMainFrame::framesSpin_valueChanged(int arg1, int arg2)
 void CMainFrame::keyStepSpin_valueChanged(int arg1, int arg2)
 {
    OnEnKeyStepChange();
-}
-
-void CMainFrame::keyRepeat_clicked()
-{
-   OnKeyRepeat();
 }
 
 void CMainFrame::menuAboutToShow(CMenu* menu)

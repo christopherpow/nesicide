@@ -7,15 +7,6 @@
 
 class CCommentsDlg : public CDialog
 {
-   Q_OBJECT
-   // Qt interfaces
-protected:
-   void resizeEvent(QResizeEvent *event);
-public slots:
-   void ok_clicked();
-   void cancel_clicked();
-public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
-   
 	DECLARE_DYNAMIC(CCommentsDlg)
 
 public:

@@ -88,105 +88,6 @@ void CSampleWindow::onIdleSlot()
    update();
 }
 
-void CSampleWindow::paintEvent(QPaintEvent *)
-{
-//   OnPaint();
-// CP: OnPaint passes true insteaad of false, since the painting
-// is apparently done outside of OnPaint.  We'll cheat.
-   CDC dc(this);
-   m_pStates[m_iCurrentState]->Draw(&dc, false);
-}
-
-void CSampleWindow::mousePressEvent(QMouseEvent *event)
-{
-   CPoint point(event->pos());
-   unsigned int flags = 0;
-   if ( event->modifiers()&Qt::ControlModifier )
-   {
-      flags |= MK_CONTROL;
-   }
-   if ( event->modifiers()&Qt::ShiftModifier )
-   {
-      flags |= MK_SHIFT;
-   }
-   if ( event->buttons()&Qt::LeftButton )
-   {
-      flags |= MK_LBUTTON;
-   }
-   if ( event->buttons()&Qt::MiddleButton )
-   {
-      flags |= MK_MBUTTON;
-   }
-   if ( event->buttons()&Qt::RightButton )
-   {
-      flags |= MK_RBUTTON;            
-   }
-   if ( event->button() == Qt::LeftButton )
-   {
-      OnLButtonDown(flags,point);
-   }
-}
-
-void CSampleWindow::mouseReleaseEvent(QMouseEvent *event)
-{
-   CPoint point(event->pos());
-   unsigned int flags = 0;
-   if ( event->modifiers()&Qt::ControlModifier )
-   {
-      flags |= MK_CONTROL;
-   }
-   if ( event->modifiers()&Qt::ShiftModifier )
-   {
-      flags |= MK_SHIFT;
-   }
-   if ( event->buttons()&Qt::LeftButton )
-   {
-      flags |= MK_LBUTTON;
-   }
-   if ( event->buttons()&Qt::MiddleButton )
-   {
-      flags |= MK_MBUTTON;
-   }
-   if ( event->buttons()&Qt::RightButton )
-   {
-      flags |= MK_RBUTTON;            
-   }
-   if ( event->button() == Qt::RightButton )
-   {
-      OnRButtonUp(flags,point);
-   }
-}
-
-void CSampleWindow::mouseDoubleClickEvent(QMouseEvent *event)
-{
-   CPoint point(event->pos());
-   unsigned int flags = 0;
-   if ( event->modifiers()&Qt::ControlModifier )
-   {
-      flags |= MK_CONTROL;
-   }
-   if ( event->modifiers()&Qt::ShiftModifier )
-   {
-      flags |= MK_SHIFT;
-   }
-   if ( event->buttons()&Qt::LeftButton )
-   {
-      flags |= MK_LBUTTON;
-   }
-   if ( event->buttons()&Qt::MiddleButton )
-   {
-      flags |= MK_MBUTTON;
-   }
-   if ( event->buttons()&Qt::RightButton )
-   {
-      flags |= MK_RBUTTON;            
-   }
-   if ( event->button() == Qt::LeftButton )
-   {
-      OnLButtonDblClk(flags,point);
-   }
-}
-
 // State methods
 
 void CSampleWindow::NextState()
@@ -314,7 +215,11 @@ void CSampleWindow::OnPaint()
 	m_csBuffer.Lock();
 
 	CPaintDC dc(this); // device context for painting
-	m_pStates[m_iCurrentState]->Draw(&dc, true);
+   
+   // CP: Pass false here since this OnPaint call in the proper place
+   //     for Qt.  MFC passes true to prevent re-drawing the sample 
+   //     window each time the sample buffer is updated.
+	m_pStates[m_iCurrentState]->Draw(&dc, false);
 
 	m_csBuffer.Unlock();
 }

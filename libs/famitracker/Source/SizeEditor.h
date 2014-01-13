@@ -25,16 +25,6 @@
 // Size editor
 class CSizeEditor : public CWnd
 {
-   // Qt stuff
-protected:
-   void paintEvent(QPaintEvent *) { OnPaint(); }
-   void mouseMoveEvent(QMouseEvent *event);
-   void mousePressEvent(QMouseEvent *event);
-   void mouseReleaseEvent(QMouseEvent *event);
-   void mouseDoubleClickEvent(QMouseEvent *event);
-   void timerEvent(QTimerEvent *event);
-public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
-   
 	DECLARE_DYNAMIC(CSizeEditor)
 	CSizeEditor(CWnd *pParent);
 	virtual ~CSizeEditor();

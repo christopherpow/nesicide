@@ -30,24 +30,7 @@ class CConfigGeneral : public CPropertyPage
    Q_OBJECT
    // Qt interfaces
 public slots: 
-   void wrapCursor_clicked();
-   void wrapFrames_clicked();
-   void freeCursor_clicked();
-   void wavePreview_clicked();
-   void keyRepeat_clicked();
-   void hexRow_clicked();
-   void framePreview_clicked();
-   void noDpcmReset_clicked();
-   void noStepMove_clicked();
-   void pullUpDelete_clicked();
-   void backups_clicked();
-   void singleInstance_clicked();
-   void style1_clicked();
-   void style2_clicked();
-   void style3_clicked();
    void pageLength_currentIndexChanged(int);
-protected:
-   void keyPressEvent(QKeyEvent *event);
 public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
    
 	DECLARE_DYNAMIC(CConfigGeneral)

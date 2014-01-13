@@ -69,21 +69,13 @@ public:
       LPARAM lParam = 0 
    );
 protected:
-   bool event(QEvent *event);
    void viewPaintEvent(QPaintEvent *event);
    void resizeEvent(QResizeEvent *event);
    void leaveEvent(QEvent *);
    void wheelEvent(QWheelEvent *event);
-   void mouseMoveEvent(QMouseEvent *event);
-   void mousePressEvent(QMouseEvent *event);
-   void mouseReleaseEvent(QMouseEvent *event);
-   void mouseDoubleClickEvent(QMouseEvent *event);   
    bool eventFilter(QObject *object, QEvent *event);
-   void keyPressEvent(QKeyEvent *event);
-   void keyReleaseEvent(QKeyEvent *event);
    void focusInEvent(QFocusEvent *);
    void focusOutEvent(QFocusEvent *);
-   void timerEvent(QTimerEvent *event);
    
 public slots:
    void updateViews(long hint);

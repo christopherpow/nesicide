@@ -61,21 +61,6 @@ BEGIN_MESSAGE_MAP(CCommentsDlg, CDialog)
    ON_EN_CHANGE(IDC_COMMENTS, OnEnChangeComments)
 END_MESSAGE_MAP()
 
-void CCommentsDlg::ok_clicked()
-{
-   OnBnClickedOk();
-}
-
-void CCommentsDlg::cancel_clicked()
-{
-   OnBnClickedCancel();
-}
-
-void CCommentsDlg::resizeEvent(QResizeEvent *event)
-{
-   OnSize(0,event->size().width(),event->size().height());
-}
-
 // CCommentsDlg message handlers
 
 void CCommentsDlg::SaveComment()

@@ -9,3 +9,5 @@ char* nesicideGetVersion()
 {
    return __nesicide_version__;
 }
+
+// check out why sample editor window resize crashes app

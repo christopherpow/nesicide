@@ -1172,15 +1172,10 @@ uint32_t CPPU::PPU ( uint32_t addr )
    }
    else if ( fixAddr == OAMDATA_REG )
    {
-      if ( (m_oamAddr&3) == SPRITEATT )
-      {
-         // Third sprite byte should be masked with E3 on read.
-         data = (*(m_PPUoam+m_oamAddr))&0xE3;
-      }
-      else
-      {
-         data = *(m_PPUoam+m_oamAddr);
-      }
+      uint8_t mask[4] = { 0xFF, 0xFF, 0xE3, 0xFF };
+
+      // Third sprite byte should be masked with E3 on read.
+      data = (*(m_PPUoam+m_oamAddr))&mask[m_oamAddr&0x3];
 
       // Refresh I/O latch...
       m_ppuIOLatch = data;

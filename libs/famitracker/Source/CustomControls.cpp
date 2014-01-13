@@ -107,11 +107,6 @@ BEGIN_MESSAGE_MAP(CBannerEdit, CEdit)
 	ON_WM_KILLFOCUS()
 END_MESSAGE_MAP()
 
-void CBannerEdit::paintEvent(QPaintEvent *event)
-{
-   OnPaint();
-}
-
 void CBannerEdit::focusInEvent(QFocusEvent *)
 {
    OnSetFocus(GetFocus());

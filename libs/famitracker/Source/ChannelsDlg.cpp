@@ -86,26 +86,6 @@ BEGIN_MESSAGE_MAP(CChannelsDlg, CDialog)
 	ON_BN_CLICKED(IDC_MOVE_UP, OnBnClickedMoveUp)
 END_MESSAGE_MAP()
 
-void CChannelsDlg::ok_clicked()
-{
-   OnOK();
-}
-
-void CChannelsDlg::cancel_clicked()
-{
-   OnCancel();
-}
-
-void CChannelsDlg::moveUp_clicked()
-{
-   OnBnClickedMoveUp();
-}
-
-void CChannelsDlg::moveDown_clicked()
-{
-   OnBnClickedMoveDown();
-}
-
 void CChannelsDlg::addedList_cellDoubleClicked(int row,int column)
 {
    NMHDR nmhdr;

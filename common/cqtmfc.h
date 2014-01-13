@@ -1,6 +1,9 @@
 #ifndef CQTMFC_H
 #define CQTMFC_H
 
+#undef PASCAL
+#define PASCAL
+
 #include <QDialogButtonBox>
 #include <QMainWindow>
 #include <QShortcut>
@@ -1906,6 +1909,86 @@
 #define L_MAX_URL_LENGTH	2084
 #endif
 
+// From afxpriv.h
+/////////////////////////////////////////////////////////////////////////////
+// Internal AFX Windows messages (see Technical note TN024 for more details)
+// (0x0360 - 0x037F are reserved for MFC)
+
+#define WM_QUERYAFXWNDPROC  0x0360  // lResult = 1 if processed by AfxWndProc
+#define WM_SIZEPARENT       0x0361  // lParam = &AFX_SIZEPARENTPARAMS
+#define WM_SETMESSAGESTRING 0x0362  // wParam = nIDS (or 0),
+                                    // lParam = lpszOther (or NULL)
+#define WM_IDLEUPDATECMDUI  0x0363  // wParam == bDisableIfNoHandler
+#define WM_INITIALUPDATE    0x0364  // (params unused) - sent to children
+#define WM_COMMANDHELP      0x0365  // lResult = TRUE/FALSE,
+                                    // lParam = dwContext
+#define WM_HELPHITTEST      0x0366  // lResult = dwContext,
+                                    // lParam = MAKELONG(x,y)
+#define WM_EXITHELPMODE     0x0367  // (params unused)
+#define WM_RECALCPARENT     0x0368  // force RecalcLayout on frame window
+                                    //  (only for inplace frame windows)
+#define WM_SIZECHILD        0x0369  // special notify from COleResizeBar
+                                    // wParam = ID of child window
+                                    // lParam = lpRectNew (new position/size)
+#define WM_KICKIDLE         0x036A  // (params unused) causes idles to kick in
+#define WM_QUERYCENTERWND   0x036B  // lParam = HWND to use as centering parent
+#define WM_DISABLEMODAL     0x036C  // lResult = 0, disable during modal state
+                                    // lResult = 1, don't disable
+#define WM_FLOATSTATUS      0x036D  // wParam combination of FS_* flags below
+
+// WM_ACTIVATETOPLEVEL is like WM_ACTIVATEAPP but works with hierarchies
+//   of mixed processes (as is the case with OLE in-place activation)
+#define WM_ACTIVATETOPLEVEL 0x036E  // wParam = nState (like WM_ACTIVATE)
+                                    // lParam = pointer to HWND[2]
+                                    //  lParam[0] = hWnd getting WM_ACTIVATE
+                                    //  lParam[1] = hWndOther
+
+#define WM_QUERY3DCONTROLS  0x036F  // lResult != 0 if 3D controls wanted
+
+// Note: Messages 0x0370, 0x0371, and 0x372 were incorrectly used by
+//  some versions of Windows.  To remain compatible, MFC does not
+//  use messages in that range.
+#define WM_RESERVED_0370    0x0370
+#define WM_RESERVED_0371    0x0371
+#define WM_RESERVED_0372    0x0372
+
+// WM_SOCKET_NOTIFY and WM_SOCKET_DEAD are used internally by MFC's
+// Windows sockets implementation.  For more information, see sockcore.cpp
+#define WM_SOCKET_NOTIFY    0x0373
+#define WM_SOCKET_DEAD      0x0374
+
+// same as WM_SETMESSAGESTRING except not popped if IsTracking()
+#define WM_POPMESSAGESTRING 0x0375
+
+// WM_HELPPROMPTADDR is used internally to get the address of
+//  m_dwPromptContext from the associated frame window. This is used
+//  during message boxes to setup for F1 help while that msg box is
+//  displayed. lResult is the address of m_dwPromptContext.
+#define WM_HELPPROMPTADDR   0x0376
+
+// Constants used in DLGINIT resources for OLE control containers
+// NOTE: These are NOT real Windows messages they are simply tags
+// used in the control resource and are never used as 'messages'
+#define WM_OCC_LOADFROMSTREAM           0x0376
+#define WM_OCC_LOADFROMSTORAGE          0x0377
+#define WM_OCC_INITNEW                  0x0378
+#define WM_OCC_LOADFROMSTREAM_EX        0x037A
+#define WM_OCC_LOADFROMSTORAGE_EX       0x037B
+
+// Marker used while rearranging the message queue
+#define WM_QUEUE_SENTINEL   0x0379
+
+// Note: Messages 0x037C - 0x37E reserved for future MFC use.
+#define WM_RESERVED_037C    0x037C
+#define WM_RESERVED_037D    0x037D
+#define WM_RESERVED_037E    0x037E
+
+// WM_FORWARDMSG - used by ATL to forward a message to another window for processing
+//  WPARAM - DWORD dwUserData - defined by user
+//  LPARAM - LPMSG pMsg - a pointer to the MSG structure
+//  return value - 0 if the message was not processed, nonzero if it was
+#define WM_FORWARDMSG       0x037F
+
 // Define resources here that are "hidden under the hood" of MFC...
 enum
 {
@@ -1918,9 +2001,6 @@ enum
    AFX_IDS_UNTITLED,
    AFX_IDP_ASK_TO_SAVE,
    AFX_IDP_FAILED_TO_CREATE_DOC,
-
-   WM_SIZEPARENT,
-   WM_INITIALUPDATE,
 
    IDC_STATIC,
 
@@ -2089,7 +2169,21 @@ struct AFX_SIZEPARENTPARAMS
     BOOL bStretch;   // should stretch to fill all space
 };
 
+struct AFX_CTLCOLOR
+{
+	HWND hWnd;
+	HDC hDC;
+	UINT nCtlType;
+};
+
+struct AFX_NOTIFY
+{
+	LRESULT* pResult;
+	NMHDR* pNMHDR;
+};
+
 #define ATL_MAKEINTRESOURCE(x) CString(QString::number(x))
+#define MAKEINTRESOURCE(x) ATL_MAKEINTRESOURCE(x)
 
 #if UNICODE
 typedef LPCWSTR LPCTSTR;
@@ -2182,6 +2276,11 @@ typedef int* POSITION;
 #endif
 
 #define ENSURE_VALID(x)
+#define ENSURE_ARG(x)
+#define UNUSED(x)
+
+#define GET_X_LPARAM(lp) LOWORD(lp)
+#define GET_Y_LPARAM(lp) HIWORD(lp)
 
 HCURSOR WINAPI SetCursor(
    HCURSOR hCursor
@@ -2390,7 +2489,7 @@ public: \
 #define IMPLEMENT_DYNCREATE(derived_class,base_class) \
    CRuntimeClass derived_class::class##derived_class = \
    { \
-   "derived_class", \
+   #derived_class, \
    sizeof(derived_class), \
    -1, \
    &derived_class::CreateObject, \
@@ -2416,7 +2515,7 @@ public: \
 #define IMPLEMENT_DYNAMIC(derived_class,base_class) \
    CRuntimeClass derived_class::class##derived_class = \
    { \
-   "derived_class", \
+   #derived_class, \
    sizeof(derived_class), \
    -1, \
    NULL, \
@@ -2466,9 +2565,9 @@ protected: \
 	virtual const AFX_MSGMAP* GetMessageMap() const; \
 
 #define BEGIN_MESSAGE_MAP(theClass, baseClass) \
-	const AFX_MSGMAP* theClass::GetMessageMap() const \
+   const AFX_MSGMAP* theClass::GetMessageMap() const \
 		{ return GetThisMessageMap(); } \
-	const AFX_MSGMAP* PASCAL theClass::GetThisMessageMap() \
+   const AFX_MSGMAP* PASCAL theClass::GetThisMessageMap() \
 	{ \
 		typedef theClass ThisClass;						   \
 		typedef baseClass TheBaseClass;					   \
@@ -2488,7 +2587,7 @@ class CCmdTarget : public CObject
 {
    DECLARE_DYNCREATE(CCmdTarget)
 public:
-   CCmdTarget() {}
+      CCmdTarget() {}
    virtual ~CCmdTarget() {}
    virtual BOOL OnCmdMsg(
       UINT nID,
@@ -2497,20 +2596,12 @@ public:
       AFX_CMDHANDLERINFO* pHandlerInfo
    );
    
-   DECLARE_MESSAGE_MAP();
+   DECLARE_MESSAGE_MAP()
    
    afx_msg LRESULT OnMenuChar(UINT nChar, UINT nFlags, CMenu* pMenu) { return 0; }
 };
 
 typedef void (AFX_MSG_CALL CCmdTarget::*AFX_PMSG)(void);
-
-class CWnd;
-typedef void (AFX_MSG_CALL CWnd::*AFX_PMSGW)(void);
-	// like 'AFX_PMSG' but for CWnd derived classes only
-
-class CWinThread;
-typedef void (AFX_MSG_CALL CWinThread::*AFX_PMSGT)(void);
-	// like 'AFX_PMSG' but for CWinThread-derived classes only
 
 struct AFX_MSGMAP_ENTRY  // MFC 4.0 format
 {
@@ -2524,6 +2615,7 @@ struct AFX_MSGMAP_ENTRY  // MFC 4.0 format
 
 #include <afxmsg_.h>
 
+class CWnd;
 class COleDropTarget : public CCmdTarget
 {
    DECLARE_DYNAMIC(COleDropTarget)
@@ -2531,11 +2623,15 @@ public:
    BOOL Register( 
       CWnd* pWnd  
    );
+   
+   DECLARE_MESSAGE_MAP()
 };
   
 class COleDropSource : public CCmdTarget
 {
    DECLARE_DYNAMIC(COleDropSource)
+   
+   DECLARE_MESSAGE_MAP()
 };
 
 class COleDataSource : public CCmdTarget
@@ -2552,6 +2648,8 @@ public:
       LPCRECT lpRectStartDrag = NULL, 
       COleDropSource* pDropSource = NULL  
    );
+   
+   DECLARE_MESSAGE_MAP()
 };
 
 class COleDataObject
@@ -2823,6 +2921,8 @@ public:
    HANDLE m_hFile;
 protected:
    QFile _qfile;
+   
+   DECLARE_MESSAGE_MAP()
 };
 
 class CStdioFile : public CFile
@@ -2839,6 +2939,8 @@ public:
    virtual BOOL ReadString( 
       CString& rString 
    );
+   
+   DECLARE_MESSAGE_MAP()
 };
 
 class CPoint : public tagPOINT
@@ -2858,6 +2960,11 @@ public:
    {
       x = _x;
       y = _y;
+   }
+   CPoint(LPARAM dwPoint)
+   {
+      x = LOWORD(dwPoint);
+      y = HIWORD(dwPoint);
    }
    void SetPoint(int _x, int _y)
    {
@@ -3165,6 +3272,10 @@ public:
    CDC(CWnd* parent);
    virtual ~CDC();
 
+   static CDC* PASCAL FromHandle( 
+      HDC hDC  
+   );
+   
    void attach();
    void attach(QWidget* parent);
    void detach();
@@ -3498,11 +3609,20 @@ class CWnd : public QWidget, public CCmdTarget, public QtUIElement
 public:
    CWnd(CWnd* parent=0);
    virtual ~CWnd();
+   
+   static CWnd* PASCAL FromHandle( 
+      HWND hWnd  
+   );   
+   static CWnd* PASCAL FromHandlePermanent(
+      HWND hWnd 
+   );
+   
    operator HWND() { return m_hWnd; }
    DWORD GetStyle() const { return _dwStyle; }
    void SetOwner(
       CWnd* pOwnerWnd
    );
+   CWnd* GetOwner() const { return m_pOwnerWnd; }
    CMenu* GetMenu( ) const { return m_pMenu; }
    CWnd* GetDescendantWindow( 
       int nID, 
@@ -3523,6 +3643,26 @@ public:
       BOOL bDeep = TRUE,
       BOOL bOnlyPerm = FALSE
    );
+   virtual LRESULT WindowProc( 
+      UINT message, 
+      WPARAM wParam, 
+      LPARAM lParam  
+   );
+   virtual BOOL OnWndMsg( 
+      UINT message, 
+      WPARAM wParam, 
+      LPARAM lParam, 
+      LRESULT* pResult  
+   );
+   virtual BOOL OnCommand( 
+      WPARAM wParam, 
+      LPARAM lParam  
+   );
+   virtual BOOL OnNotify(
+      WPARAM, 
+      LPARAM lParam, 
+      LRESULT* pResult
+   );   
    BOOL IsWindowVisible( ) const;
    virtual BOOL EnableWindow(
       BOOL bEnable = TRUE
@@ -3626,17 +3766,6 @@ public:
       UINT nCtlColor
    ) { return (HBRUSH)NULL; }
    afx_msg void OnPaint( ) {}
-   virtual BOOL OnCmdMsg(
-      UINT nID,
-      int nCode,
-      void* pExtra,
-      AFX_CMDHANDLERINFO* pHandlerInfo
-   ) { return FALSE; }
-   virtual BOOL OnNotify(
-      WPARAM wParam,
-      LPARAM lParam,
-      LRESULT* pResult
-   ) { return FALSE; }
    BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message) { return FALSE; }   
    DROPEFFECT OnDragEnter(COleDataObject* pDataObject, DWORD dwKeyState, CPoint point) { return DROPEFFECT_NONE; }
    DROPEFFECT OnDragOver(COleDataObject* pDataObject, DWORD dwKeyState, CPoint point) { return DROPEFFECT_NONE; }
@@ -3692,7 +3821,7 @@ public:
    ) {}
    int GetWindowTextLength( ) const;
    CWnd* GetParent() const { return m_pParentWnd?(CWnd*)m_pParentWnd:(CWnd*)m_pFrameWnd; }
-   void SetParent(CWnd* parent) { m_pParentWnd = parent; _qt->setParent(parent->toQWidget()); }
+   void SetParent(CWnd* parent) { m_pParentWnd = parent; m_pOwnerWnd = parent; _qt->setParent(parent->toQWidget()); }
    void GetWindowText(
       CString& rString
    ) const;
@@ -3763,6 +3892,7 @@ protected:
    CWnd* _mfcBuddy;
    static CFrameWnd* m_pFrameWnd;
    CWnd* m_pParentWnd;
+   CWnd* m_pOwnerWnd;
    static CWnd* focusWnd;
    CScrollBar* mfcVerticalScrollBar;
    CScrollBar* mfcHorizontalScrollBar;
@@ -3795,7 +3925,17 @@ public slots:
    void setFocus() { _qt->setFocus(); }
    void setFocus(Qt::FocusReason reason) { _qt->setFocus(reason); }
 protected:
-   bool eventFilter(QObject *object, QEvent *event);
+   virtual bool event(QEvent *event);   
+   virtual bool eventFilter(QObject *object, QEvent *event);
+   virtual void resizeEvent(QResizeEvent *event);
+   virtual void timerEvent(QTimerEvent *event);
+   virtual void mousePressEvent(QMouseEvent *event);
+   virtual void mouseMoveEvent(QMouseEvent *event);
+   virtual void mouseReleaseEvent(QMouseEvent *event);
+   virtual void mouseDoubleClickEvent(QMouseEvent *event);
+   virtual void keyPressEvent(QKeyEvent *event);
+   virtual void keyReleaseEvent(QKeyEvent *event);
+   virtual void paintEvent(QPaintEvent *event);
    void focusInEvent(QFocusEvent *event);
    void closeEvent(QCloseEvent *);
    QWidget* _qt;
@@ -3803,7 +3943,12 @@ protected:
    QGridLayout* _grid;
 public:
    HWND m_hWnd;
+   
+   DECLARE_MESSAGE_MAP()
 };
+
+typedef void (AFX_MSG_CALL CWnd::*AFX_PMSGW)(void);
+	// like 'AFX_PMSG' but for CWnd derived classes only
 
 class CView;
 class CDocument;
@@ -3873,6 +4018,8 @@ protected:
    BOOL m_bInRecalcLayout;
    CRect m_rectBorder;
    CString m_strTitle;
+   
+   DECLARE_MESSAGE_MAP()
 };
 
 class CDocTemplate;
@@ -3931,6 +4078,8 @@ protected:
    CString m_strPathName;
    CString m_strTitle;
    BOOL m_bModified;
+   
+   DECLARE_MESSAGE_MAP()
 };
 
 class CView : public CWnd
@@ -3968,6 +4117,8 @@ public:
 
 protected:
    CDocument* m_pDocument;
+   
+   DECLARE_MESSAGE_MAP()
 };
 
 class CMenu : public QObject, public CCmdTarget
@@ -3999,6 +4150,11 @@ signals:
 public:
    CMenu();
    virtual ~CMenu();
+   
+   static CMenu* PASCAL FromHandle( 
+      HMENU hMenu  
+   );
+   
    BOOL CreatePopupMenu();
    BOOL LoadMenu(
       UINT nIDResource
@@ -4066,6 +4222,8 @@ public:
       LPCRECT lpRect = 0
    );
    BOOL DestroyMenu( );
+   
+   DECLARE_MESSAGE_MAP()
 };
 
 class CDialog : public CWnd
@@ -4100,6 +4258,8 @@ public:
    void MapDialogRect(
       LPRECT lpRect
    ) const;
+   
+   DECLARE_MESSAGE_MAP()
 };
 
 class CCommonDialog : public CDialog
@@ -4114,6 +4274,8 @@ public:
       CWnd* pParentWnd
    );
    virtual ~CCommonDialog();
+   
+   DECLARE_MESSAGE_MAP()
 };
 
 class CFileDialog : public CCommonDialog
@@ -4152,6 +4314,8 @@ public:
    ) const;
    OPENFILENAME m_ofn;
    LPOPENFILENAME m_pOFN;
+   
+   DECLARE_MESSAGE_MAP()
 };
 
 class CColorDialog : public CCommonDialog
@@ -4174,6 +4338,8 @@ public:
    INT_PTR DoModal();
    COLORREF GetColor( ) const;
    CHOOSECOLOR m_cc;
+   
+   DECLARE_MESSAGE_MAP()
 };
 
 class CScrollBar : public CWnd
@@ -4222,6 +4388,8 @@ public:
    BOOL EnableScrollBar(
       UINT nArrowFlags = ESB_ENABLE_BOTH
    );
+   
+   DECLARE_MESSAGE_MAP()
 };
 
 typedef struct _NM_UPDOWN {
@@ -4311,6 +4479,8 @@ public:
       LPTSTR lpStr,
       int nMaxCount
    ) const;
+   
+   DECLARE_MESSAGE_MAP()
 };
 
 class CButton : public CWnd
@@ -4326,7 +4496,7 @@ protected:
    QRadioButton* _qtd_radio;
    QCheckBox* _qtd_check;
    QGroupBox* _qtd_groupbox;
-signals:
+public slots:
    void clicked();
 
    // MFC interfaces
@@ -4373,6 +4543,8 @@ public:
    UINT IsDlgButtonChecked(
       int nIDButton
    ) const;
+   
+   DECLARE_MESSAGE_MAP()
 };
 
 class CSliderCtrl : public CWnd
@@ -4435,6 +4607,8 @@ public:
       LPTSTR lpStr,
       int nMaxCount
    ) const;
+   
+   DECLARE_MESSAGE_MAP()
 };
 
 class CProgressCtrl : public CWnd
@@ -4467,6 +4641,8 @@ public:
       int nPos
    );
    int GetPos( ) const;
+   
+   DECLARE_MESSAGE_MAP()
 };
 
 class QSpinBox_MFC : public QSpinBox
@@ -4537,6 +4713,8 @@ public:
       LPTSTR lpStr,
       int nMaxCount
    ) const;
+   
+   DECLARE_MESSAGE_MAP()
 };
 
 class CComboBox : public CWnd
@@ -4611,6 +4789,8 @@ public:
       LPTSTR lpStr,
       int nMaxCount
    ) const;
+   
+   DECLARE_MESSAGE_MAP()
 };
 
 class CStatic : public CWnd
@@ -4657,6 +4837,8 @@ public:
       LPTSTR lpStr,
       int nMaxCount
    ) const;
+   
+   DECLARE_MESSAGE_MAP()
 };
 
 class CTabCtrl : public CWnd
@@ -4690,6 +4872,8 @@ public:
      int nItem
    );
    int GetCurSel( ) const;
+   
+   DECLARE_MESSAGE_MAP()
 };
 
 typedef struct tagNMLISTVIEW {
@@ -4855,6 +5039,8 @@ public:
    );
 protected:
    CImageList* m_pImageList;
+   
+   DECLARE_MESSAGE_MAP()
 };
 
 class CListBox : public CWnd
@@ -4891,6 +5077,8 @@ public:
    int AddString( 
       LPCTSTR lpszItem  
    );
+   
+   DECLARE_MESSAGE_MAP()
 };
 
 class CCheckListBox : public CListBox
@@ -4913,6 +5101,8 @@ public:
    void SetCheckStyle( 
       UINT nStyle  
    );
+   
+   DECLARE_MESSAGE_MAP()
 };
 
 typedef QTreeWidgetItem* HTREEITEM;
@@ -4983,6 +5173,8 @@ public:
    HTREEITEM GetParentItem(
       HTREEITEM hItem
    ) const;
+   
+   DECLARE_MESSAGE_MAP()
 };
 
 typedef UINT (*AFX_THREADPROC)(LPVOID lpParameter);
@@ -4993,6 +5185,11 @@ class CWinThread : public QThread, public CCmdTarget
    // Qt interfaces
 protected:
    virtual void run();
+signals:
+   void postThreadMessage(unsigned int m,unsigned int w,unsigned int l);
+public slots:
+   void recvThreadMessage(unsigned int m,unsigned int w,unsigned int l) { qDebug("CWinThread::recvThreadMessage"); }
+public: // For some reason Qt won't recognize the public in the DECLARE_DYNCREATE...
    
    DECLARE_DYNCREATE(CWinThread)
 public:
@@ -5021,11 +5218,12 @@ public:
    CFrameWnd* m_pMainWnd;
    AFX_THREADPROC m_pfnThreadProc;
    LPVOID m_pParam;
-signals:
-   void postThreadMessage(unsigned int m,unsigned int w,unsigned int l);
-public slots:
-   void recvThreadMessage(unsigned int m,unsigned int w,unsigned int l) { qDebug("CWinThread::recvThreadMessage"); }
+   
+   DECLARE_MESSAGE_MAP()
 };
+
+typedef void (AFX_MSG_CALL CWinThread::*AFX_PMSGT)(void);
+	// like 'AFX_PMSG' but for CWinThread-derived classes only
 
 CWinThread* AfxBeginThread( 
    AFX_THREADPROC pfnThreadProc, 
@@ -5087,6 +5285,8 @@ protected:
    CRuntimeClass* m_pDocClass;
    CRuntimeClass* m_pViewClass;
    CRuntimeClass* m_pFrameClass;
+   
+   DECLARE_MESSAGE_MAP()
 };
 
 class CSingleDocTemplate : public CDocTemplate
@@ -5114,6 +5314,8 @@ public:
    void RemoveDocument(CDocument* pDoc);
 protected:
    CDocument* m_pOnlyDoc;
+   
+   DECLARE_MESSAGE_MAP()
 };
 
 class CCommandLineInfo : public CObject
@@ -5236,6 +5438,8 @@ public:
 
 protected:
    QList<CDocTemplate*> _docTemplates;
+   
+   DECLARE_MESSAGE_MAP()
 };
 
 #define CBRS_TOP      0x0001 // Control bar is at the top of the frame window.
@@ -5252,6 +5456,11 @@ class CControlBar : public CWnd
 {
    DECLARE_DYNAMIC(CControlBar)
 public:
+   virtual LRESULT WindowProc( 
+      UINT nMsg, 
+      WPARAM wParam, 
+      LPARAM lParam  
+   );
    virtual CSize CalcFixedLayout(
       BOOL bStretch,
       BOOL bHorz
@@ -5260,6 +5469,11 @@ public:
       DWORD dwStyle
    );
    virtual BOOL IsVisible() const;
+   virtual LRESULT OnSizeParent(WPARAM, LPARAM lParam);
+public:
+   CSize m_sizeDefault;
+   
+   DECLARE_MESSAGE_MAP()
 };
 
 typedef struct {
@@ -5322,6 +5536,8 @@ public:
    void MinimizeBand(
       UINT uBand
    );
+   
+   DECLARE_MESSAGE_MAP()
 };
 
 class CReBar : public CControlBar
@@ -5336,9 +5552,16 @@ public:
       DWORD dwStyle = WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_TOP,
       UINT nID = AFX_IDW_REBAR
    );
+   virtual LRESULT WindowProc( 
+      UINT nMsg, 
+      WPARAM wParam, 
+      LPARAM lParam  
+   );
    CReBarCtrl& GetReBarCtrl() const { return *m_pReBarCtrl; }
 protected:
    CReBarCtrl* m_pReBarCtrl;
+   
+   DECLARE_MESSAGE_MAP()
 };
 
 #define TBBS_BUTTON     1 //  Standard pushbutton (default)
@@ -5396,6 +5619,8 @@ public:
       int nIndex,
       UINT nStyle
    );
+   
+   DECLARE_MESSAGE_MAP()
 };
 
 class CDialogBar : public CControlBar
@@ -5404,9 +5629,7 @@ class CDialogBar : public CControlBar
    DECLARE_DYNAMIC(CDialogBar)
    // Qt interfaces
 protected:
-   bool event(QEvent *event);
    CDialog*     _mfcd;
-   UINT _nStyle;
 public:
    CDialogBar();
    ~CDialogBar();
@@ -5420,8 +5643,8 @@ public:
       BOOL bStretch,
       BOOL bHorz
    );
-public:
-   CSize m_sizeDefault;
+   
+   DECLARE_MESSAGE_MAP()
 };
 
 class CStatusBar : public CControlBar
@@ -5452,6 +5675,8 @@ public:
       LPCTSTR lpszNewText,
       BOOL bUpdate = TRUE
    );
+   
+   DECLARE_MESSAGE_MAP()
 };
 
 #if UNICODE
@@ -5496,6 +5721,8 @@ public:
    void RelayEvent(
       LPMSG lpMsg
    );
+   
+   DECLARE_MESSAGE_MAP()
 };
 
 class CCmdUI
@@ -5666,6 +5893,8 @@ public:
    );
    virtual BOOL OnApply( );
    virtual BOOL OnSetActive( );
+   
+   DECLARE_MESSAGE_MAP()
 };
 
 class CPropertySheet : public CWnd
@@ -5717,6 +5946,8 @@ public:
       CPropertyPage *pPage
    );
    virtual INT_PTR DoModal( );
+   
+   DECLARE_MESSAGE_MAP()
 };
 
 int StretchDIBits(

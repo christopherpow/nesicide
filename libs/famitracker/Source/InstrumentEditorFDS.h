@@ -33,23 +33,10 @@ class CInstrumentEditorFDS : public CInstrumentEditPanel
 {
    Q_OBJECT
    // Qt stuff
-protected:
-   bool event(QEvent *event);
 public slots:
-   void presetSine_clicked();
-   void presetTriangle_clicked();
-   void presetSawtooth_clicked();
    void modRateSpin_valueChanged(int arg1,int arg2);
    void modDepthSpin_valueChanged(int arg1,int arg2);
    void modDelaySpin_valueChanged(int arg1,int arg2);
-   void modPresetFlat_clicked();
-   void modPresetSine_clicked();
-   void copyWave_clicked();
-   void pasteWave_clicked();
-   void copyTable_clicked();
-   void pasteTable_clicked();
-   void presetPulse50_clicked();
-   void presetPulse25_clicked();
 public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
    
    DECLARE_DYNAMIC(CInstrumentEditorFDS)

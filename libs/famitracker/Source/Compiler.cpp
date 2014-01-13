@@ -2123,7 +2123,7 @@ void CCompiler::WriteSamplesAssembly(CFile *pFile)
 	for (unsigned int i = 0; i < m_vSamples.size(); ++i) {
 		CDSample *pDSample = m_vSamples[i];
 		label.Format(LABEL_SAMPLE, i);
-		str.Format(_T("%s:\n\t.byte "), label);
+		str.Format(_T("%s:\n\t.byte "), (LPCTSTR)label);
 		int cntr = 0;
 		for (unsigned int j = 0; j < pDSample->SampleSize; ++j) {
 			unsigned char c = pDSample->SampleData[j];

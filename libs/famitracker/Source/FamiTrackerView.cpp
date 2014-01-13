@@ -155,28 +155,6 @@ BEGIN_MESSAGE_MAP(CFamiTrackerView, CView)
 	ON_MESSAGE(MSG_NOTE_EVENT, OnNoteEvent)
 END_MESSAGE_MAP()
 
-bool CFamiTrackerView::event(QEvent* event)
-{
-   MFCMessageEvent* msgEvent = dynamic_cast<MFCMessageEvent*>(event);
-   if ( msgEvent )
-   {
-//      ON_MESSAGE(MSG_MIDI_EVENT, OnMidiEvent)
-//      ON_MESSAGE(MSG_UPDATE, OnUpdateMsg)
-//      ON_MESSAGE(MSG_NOTE_EVENT, OnNoteEvent)
-      switch ( msgEvent->msg.message )
-      {
-      case MSG_UPDATE:
-         OnUpdateMsg(msgEvent->msg.wParam,msgEvent->msg.lParam);
-         break;
-      case MSG_NOTE_EVENT:
-         OnNoteEvent(msgEvent->msg.wParam,msgEvent->msg.lParam);
-         break;
-      }
-      return true;
-   }
-   return false;
-}
-
 LRESULT CFamiTrackerView::SendMessage(
    UINT message,
    WPARAM wParam,
@@ -237,175 +215,18 @@ void CFamiTrackerView::wheelEvent(QWheelEvent *event)
    m_pPatternView->update();
 }
 
-void CFamiTrackerView::mouseMoveEvent(QMouseEvent *event)
-{
-   CPoint point(event->pos());
-   unsigned int flags = 0;
-   if ( event->modifiers()&Qt::ControlModifier )
-   {
-      flags |= MK_CONTROL;
-   }
-   if ( event->modifiers()&Qt::ShiftModifier )
-   {
-      flags |= MK_SHIFT;
-   }
-   if ( event->buttons()&Qt::LeftButton )
-   {
-      flags |= MK_LBUTTON;
-   }
-   if ( event->buttons()&Qt::MiddleButton )
-   {
-      flags |= MK_MBUTTON;
-   }
-   if ( event->buttons()&Qt::RightButton )
-   {
-      flags |= MK_RBUTTON;            
-   }
-   OnMouseMove(flags,point);
-}
-
-void CFamiTrackerView::mousePressEvent(QMouseEvent *event)
-{
-   CPoint point(event->pos());
-   unsigned int flags = 0;
-   if ( event->modifiers()&Qt::ControlModifier )
-   {
-      flags |= MK_CONTROL;
-   }
-   if ( event->modifiers()&Qt::ShiftModifier )
-   {
-      flags |= MK_SHIFT;
-   }
-   if ( event->buttons()&Qt::LeftButton )
-   {
-      flags |= MK_LBUTTON;
-   }
-   if ( event->buttons()&Qt::MiddleButton )
-   {
-      flags |= MK_MBUTTON;
-   }
-   if ( event->buttons()&Qt::RightButton )
-   {
-      flags |= MK_RBUTTON;            
-   }
-   if ( event->button() == Qt::LeftButton )
-   {
-      OnLButtonDown(flags,point);
-      m_pPatternView->update();
-   }
-}
-
-void CFamiTrackerView::mouseReleaseEvent(QMouseEvent *event)
-{
-   CPoint point(event->pos());
-   unsigned int flags = 0;
-   if ( event->modifiers()&Qt::ControlModifier )
-   {
-      flags |= MK_CONTROL;
-   }
-   if ( event->modifiers()&Qt::ShiftModifier )
-   {
-      flags |= MK_SHIFT;
-   }
-   if ( event->buttons()&Qt::LeftButton )
-   {
-      flags |= MK_LBUTTON;
-   }
-   if ( event->buttons()&Qt::MiddleButton )
-   {
-      flags |= MK_MBUTTON;
-   }
-   if ( event->buttons()&Qt::RightButton )
-   {
-      flags |= MK_RBUTTON;            
-   }
-   if ( event->button() == Qt::LeftButton )
-   {
-      OnLButtonUp(flags,point);
-   }
-   if ( event->button() == Qt::RightButton )
-   {
-      OnRButtonUp(flags,point);
-      m_pPatternView->update();
-   }
-}
-
-void CFamiTrackerView::mouseDoubleClickEvent(QMouseEvent *event)
-{
-   CPoint point(event->pos());
-   unsigned int flags = 0;
-   if ( event->modifiers()&Qt::ControlModifier )
-   {
-      flags |= MK_CONTROL;
-   }
-   if ( event->modifiers()&Qt::ShiftModifier )
-   {
-      flags |= MK_SHIFT;
-   }
-   if ( event->buttons()&Qt::LeftButton )
-   {
-      flags |= MK_LBUTTON;
-   }
-   if ( event->buttons()&Qt::MiddleButton )
-   {
-      flags |= MK_MBUTTON;
-   }
-   if ( event->buttons()&Qt::RightButton )
-   {
-      flags |= MK_RBUTTON;            
-   }
-   if ( event->button() == Qt::LeftButton )
-   {
-      OnLButtonDblClk(flags,point);
-      m_pPatternView->update();
-   }
-}
-
-void CFamiTrackerView::keyPressEvent(QKeyEvent *event)
-{
-   UINT nChar = event->key();
-   UINT nRepCnt = event->count();
-   nChar = qtToMfcKeycode(nChar);
-
-   if ( (event->modifiers() == Qt::ControlModifier) &&
-        (event->key() == Qt::Key_C) )
-   {
-      OnEditCopy();
-   }
-   else if ( (event->modifiers() == Qt::ControlModifier) &&
-             (event->key() == Qt::Key_X) )
-   {
-      OnEditCut();
-   }
-   else if ( (event->modifiers() == Qt::ControlModifier) &&
-             (event->key() == Qt::Key_V) )
-   {
-      OnEditPaste();
-   }
-   else
-   {
-      OnKeyDown(nChar,nRepCnt,0);
-   }
-   m_pPatternView->update();
-}
-
-void CFamiTrackerView::keyReleaseEvent(QKeyEvent *event)
-{
-   UINT nChar = event->key();
-   UINT nRepCnt = event->count();
-   nChar = qtToMfcKeycode(nChar);
-
-   OnKeyUp(nChar,nRepCnt,0);
-   m_pPatternView->update();
-}
-
 void CFamiTrackerView::viewPaintEvent(QPaintEvent *event)
 {
+//   static QSize currentSize = QSize(0,0);
    // Qt attach to the MFC HLE.  This object is already QWidget type.
    CDC dc;
    dc.attach(m_pPatternView);
 
-   OnEraseBkgnd(&dc);
+//   if ( currentSize != size() )
+//   {
+      OnEraseBkgnd(&dc); // CP: This should really be done only on resize...      
+//      currentSize = size();
+//   }
    OnDraw(&dc);
 
    // dc will auto-detach on destruction
@@ -421,12 +242,6 @@ void CFamiTrackerView::focusOutEvent(QFocusEvent *)
 {
    OnKillFocus(NULL);
    m_pPatternView->update();
-}
-
-void CFamiTrackerView::timerEvent(QTimerEvent *event)
-{
-   int mfcId = mfcTimerId(event->timerId());
-   OnTimer(mfcId);
 }
 
 void CFamiTrackerView::verticalScrollBar_actionTriggered(int arg1)
@@ -737,6 +552,14 @@ bool CFamiTrackerView::eventFilter(QObject *object, QEvent *event)
       if ( event->type() == QEvent::Paint )
       {
          viewPaintEvent(dynamic_cast<QPaintEvent*>(event));
+         return true;
+      }
+   }
+   if ( object == _qt )
+   {
+      if ( event->type() == QEvent::Timer )
+      {
+         timerEvent(dynamic_cast<QTimerEvent*>(event));
          return true;
       }
    }

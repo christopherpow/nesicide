@@ -1285,14 +1285,12 @@ void qtMfcInitDialogResource_IDD_SPEED(CDialog* parent1)
    parent->MapDialogRect(&r1);
    mfc1->Create(_T("OK"),BS_DEFPUSHBUTTON | WS_VISIBLE,r1,parent,IDOK);
    mfcToQtWidget->insert(IDOK,mfc1);
-   QObject::connect(mfc1,SIGNAL(clicked()),parent,SLOT(ok_clicked()));
 //       PUSHBUTTON      "Cancel",IDCANCEL,139,23,50,14
    CButton* mfc2 = new CButton(parent);
    CRect r2(CPoint(139,23),CSize(50,14));
    parent->MapDialogRect(&r2);
    mfc2->Create(_T("Cancel"),WS_VISIBLE,r2,parent,IDCANCEL);
    mfcToQtWidget->insert(IDCANCEL,mfc2);
-   QObject::connect(mfc2,SIGNAL(clicked()),parent,SLOT(cancel_clicked()));
 //       CONTROL         "",IDC_SPEED_SLD,"msctls_trackbar32",WS_TABSTOP,7,7,101,16
    CSliderCtrl* mfc3 = new CSliderCtrl(parent);
    CRect r3(CPoint(7,7),CSize(101,16));
@@ -1393,21 +1391,18 @@ void qtMfcInitDialogResource_IDD_PCMIMPORT(CDialog* parent1)
    parent->MapDialogRect(&r12);
    mfc12->Create(_T("Preview"),WS_VISIBLE,r12,parent,IDC_PREVIEW);
    mfcToQtWidget->insert(IDC_PREVIEW,mfc12);
-   QObject::connect(mfc12,SIGNAL(clicked()),parent,SLOT(preview_clicked()));
 //   DEFPUSHBUTTON   "OK",IDOK,154,24,50,14
    CButton* mfc13 = new CButton(parent);
    CRect r13(CPoint(154,24),CSize(50,14));
    parent->MapDialogRect(&r13);
    mfc13->Create(_T("OK"),BS_DEFPUSHBUTTON | WS_VISIBLE,r13,parent,IDOK);
    mfcToQtWidget->insert(IDOK,mfc13);
-   QObject::connect(mfc13,SIGNAL(clicked()),parent,SLOT(ok_clicked()));
 //   PUSHBUTTON      "Cancel",IDCANCEL,154,41,50,14
    CButton* mfc14 = new CButton(parent);
    CRect r14(CPoint(154,41),CSize(50,14));
    parent->MapDialogRect(&r14);
    mfc14->Create(_T("Cancel"),WS_VISIBLE,r14,parent,IDCANCEL);
    mfcToQtWidget->insert(IDCANCEL,mfc14);
-   QObject::connect(mfc14,SIGNAL(clicked()),parent,SLOT(cancel_clicked()));
 //   END
 }
 
@@ -1487,7 +1482,6 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_INTERNAL(CDialog* parent1)
    parent->MapDialogRect(&r7);
    mfc7->Create(_T("Select next empty slot"),WS_VISIBLE,r7,parent,IDC_FREE_SEQ);
    mfcToQtWidget->insert(IDC_FREE_SEQ,mfc7);
-   QObject::connect(mfc7,SIGNAL(clicked()),parent,SLOT(freeSeq_clicked()));
 //   EDITTEXT        IDC_SEQUENCE_STRING,126,149,232,13,ES_AUTOHSCROLL
    CEdit* mfc8 = new CEdit(parent);
    CRect r8(CPoint(126,149),CSize(232,13));
@@ -1564,7 +1558,6 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_DPCM(CDialog* parent1)
    parent->MapDialogRect(&r8);
    mfc8->Create(_T("Loop"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r8,parent,IDC_LOOP);
    mfcToQtWidget->insert(IDC_LOOP,mfc8);
-   QObject::connect(mfc8,SIGNAL(clicked()),parent,SLOT(loop_clicked()));
 //   EDITTEXT        IDC_DELTA_COUNTER,138,97,42,14,ES_AUTOHSCROLL
    CEdit* mfc9 = new CEdit(parent);
    CRect r9(CPoint(138,97),CSize(42,14));
@@ -1585,14 +1578,12 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_DPCM(CDialog* parent1)
    parent->MapDialogRect(&r11);
    mfc11->Create(_T("<-"),WS_VISIBLE,r11,parent,IDC_ADD);
    mfcToQtWidget->insert(IDC_ADD,mfc11);
-   QObject::connect(mfc11,SIGNAL(clicked()),parent,SLOT(add_clicked()));
 //   PUSHBUTTON      "->",IDC_REMOVE,138,148,42,14
    CButton* mfc12 = new CButton(parent);
    CRect r12(CPoint(138,148),CSize(42,14));
    parent->MapDialogRect(&r12);
    mfc12->Create(_T("->"),WS_VISIBLE,r12,parent,IDC_REMOVE);
    mfcToQtWidget->insert(IDC_REMOVE,mfc12);
-   QObject::connect(mfc12,SIGNAL(clicked()),parent,SLOT(remove_clicked()));
 //   GROUPBOX        "Loaded samples",IDC_STATIC,192,7,173,160
    CButton* mfc13 = new CButton(parent);
    CRect r13(CPoint(192,7),CSize(173,160));
@@ -1620,42 +1611,36 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_DPCM(CDialog* parent1)
    parent->MapDialogRect(&r16);
    mfc16->Create(_T("Load"),BS_DEFPUSHBUTTON | WS_VISIBLE,r16,parent,IDC_LOAD);
    mfcToQtWidget->insert(IDC_LOAD,mfc16);
-   QObject::connect(mfc16,SIGNAL(clicked()),parent,SLOT(load_clicked()));
 //   PUSHBUTTON      "Unload",IDC_UNLOAD,312,35,47,14
    CButton* mfc17 = new CButton(parent);
    CRect r17(CPoint(312,35),CSize(47,14));
    parent->MapDialogRect(&r17);
    mfc17->Create(_T("Unload"),WS_VISIBLE,r17,parent,IDC_UNLOAD);
    mfcToQtWidget->insert(IDC_UNLOAD,mfc17);
-   QObject::connect(mfc17,SIGNAL(clicked()),parent,SLOT(unload_clicked()));
 //   PUSHBUTTON      "Save",IDC_SAVE,312,51,47,14
    CButton* mfc18 = new CButton(parent);
    CRect r18(CPoint(312,51),CSize(47,14));
    parent->MapDialogRect(&r18);
    mfc18->Create(_T("Save"),WS_VISIBLE,r18,parent,IDC_SAVE);
    mfcToQtWidget->insert(IDC_SAVE,mfc18);
-   QObject::connect(mfc18,SIGNAL(clicked()),parent,SLOT(save_clicked()));
 //   PUSHBUTTON      "Import",IDC_IMPORT,312,67,47,14
    CButton* mfc19 = new CButton(parent);
    CRect r19(CPoint(312,67),CSize(47,14));
    parent->MapDialogRect(&r19);
    mfc19->Create(_T("Import"),WS_VISIBLE,r19,parent,IDC_IMPORT);
    mfcToQtWidget->insert(IDC_IMPORT,mfc19);
-   QObject::connect(mfc19,SIGNAL(clicked()),parent,SLOT(import_clicked()));
 //   PUSHBUTTON      "Edit",IDC_EDIT,312,83,47,14
    CButton* mfc20 = new CButton(parent);
    CRect r20(CPoint(312,83),CSize(47,14));
    parent->MapDialogRect(&r20);
    mfc20->Create(_T("Edit"),WS_VISIBLE,r20,parent,IDC_EDIT);
    mfcToQtWidget->insert(IDC_EDIT,mfc20);
-   QObject::connect(mfc20,SIGNAL(clicked()),parent,SLOT(edit_clicked()));
 //   PUSHBUTTON      "Preview",IDC_PREVIEW,312,99,47,14
    CButton* mfc21 = new CButton(parent);
    CRect r21(CPoint(312,99),CSize(47,14));
    parent->MapDialogRect(&r21);
    mfc21->Create(_T("Preview"),WS_VISIBLE,r21,parent,IDC_PREVIEW);
    mfcToQtWidget->insert(IDC_PREVIEW,mfc21);
-   QObject::connect(mfc21,SIGNAL(clicked()),parent,SLOT(preview_clicked()));
 //   LTEXT           "D-counter",IDC_STATIC,138,86,33,8
    CStatic* mfc22 = new CStatic(parent);
    CRect r22(CPoint(138,86),CSize(33,8));
@@ -1755,14 +1740,12 @@ void qtMfcInitDialogResource_IDD_CONFIG_APPEARANCE(CDialog* parent1)
    parent->MapDialogRect(&r7);
    mfc7->Create(_T("Pick color"),WS_VISIBLE,r7,parent,IDC_PICK_COL);
    mfcToQtWidget->insert(IDC_PICK_COL,mfc7);
-   QObject::connect(mfc7,SIGNAL(clicked()),parent,SLOT(pickCol_clicked()));
 //   CONTROL         "Pattern colors",IDC_PATTERNCOLORS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,105,113,9
    CButton* mfc8 = new CButton(parent);
    CRect r8(CPoint(15,105),CSize(113,9));
    parent->MapDialogRect(&r8);
    mfc8->Create(_T("Pattern colors"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r8,parent,IDC_PATTERNCOLORS);
    mfcToQtWidget->insert(IDC_PATTERNCOLORS,mfc8);
-   QObject::connect(mfc8,SIGNAL(clicked()),parent,SLOT(patternColors_clicked()));
 //   GROUPBOX        "Pattern font and size",IDC_STATIC,7,126,149,34
    CButton* mfc9 = new CButton(parent);
    CRect r9(CPoint(7,126),CSize(149,34));
@@ -1854,42 +1837,36 @@ void qtMfcInitDialogResource_IDD_CONFIG_GENERAL(CDialog* parent1)
    parent->MapDialogRect(&r2);
    mfc2->Create(_T("Wrap cursor"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r2,parent,IDC_OPT_WRAPCURSOR);
    mfcToQtWidget->insert(IDC_OPT_WRAPCURSOR,mfc2);
-   QObject::connect(mfc2,SIGNAL(clicked()),parent,SLOT(wrapCursor_clicked()));
 //       CONTROL         "Wrap across frames",IDC_OPT_WRAPFRAMES,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,29,113,9
    CButton* mfc3 = new CButton(parent);
    CRect r3(CPoint(13,29),CSize(113,9));
    parent->MapDialogRect(&r3);
    mfc3->Create(_T("Wrap across frames"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r3,parent,IDC_OPT_WRAPFRAMES);
    mfcToQtWidget->insert(IDC_OPT_WRAPFRAMES,mfc3);
-   QObject::connect(mfc3,SIGNAL(clicked()),parent,SLOT(wrapFrames_clicked()));
 //       CONTROL         "Free cursor edit",IDC_OPT_FREECURSOR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,40,113,9
    CButton* mfc4 = new CButton(parent);
    CRect r4(CPoint(13,40),CSize(113,9));
    parent->MapDialogRect(&r4);
    mfc4->Create(_T("Free cursor edit"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r4,parent,IDC_OPT_FREECURSOR);
    mfcToQtWidget->insert(IDC_OPT_FREECURSOR,mfc4);
-   QObject::connect(mfc4,SIGNAL(clicked()),parent,SLOT(freeCursor_clicked()));
 //       CONTROL         "Preview wave-files",IDC_OPT_WAVEPREVIEW,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,51,113,9
    CButton* mfc5 = new CButton(parent);
    CRect r5(CPoint(13,51),CSize(113,9));
    parent->MapDialogRect(&r5);
    mfc5->Create(_T("Preview wave-files"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r5,parent,IDC_OPT_WAVEPREVIEW);
    mfcToQtWidget->insert(IDC_OPT_WAVEPREVIEW,mfc5);
-   QObject::connect(mfc5,SIGNAL(clicked()),parent,SLOT(wavePreview_clicked()));
 //       CONTROL         "Key repeat",IDC_OPT_KEYREPEAT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,62,113,9
    CButton* mfc6 = new CButton(parent);
    CRect r6(CPoint(13,62),CSize(113,9));
    parent->MapDialogRect(&r6);
    mfc6->Create(_T("Key repeat"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r6,parent,IDC_OPT_KEYREPEAT);
    mfcToQtWidget->insert(IDC_OPT_KEYREPEAT,mfc6);
-   QObject::connect(mfc6,SIGNAL(clicked()),parent,SLOT(keyRepeat_clicked()));
 //       CONTROL         "Show row numbers in hex",IDC_OPT_HEXROW,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,73,113,9
    CButton* mfc7 = new CButton(parent);
    CRect r7(CPoint(13,73),CSize(113,9));
    parent->MapDialogRect(&r7);
    mfc7->Create(_T("Show row numbers in hex"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r7,parent,IDC_OPT_HEXROW);
    mfcToQtWidget->insert(IDC_OPT_HEXROW,mfc7);
-   QObject::connect(mfc7,SIGNAL(clicked()),parent,SLOT(hexRow_clicked()));
 //       CONTROL         "Preview next/previous frame",IDC_OPT_FRAMEPREVIEW,
 //                       "Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,84,113,9
    CButton* mfc8 = new CButton(parent);
@@ -1897,7 +1874,6 @@ void qtMfcInitDialogResource_IDD_CONFIG_GENERAL(CDialog* parent1)
    parent->MapDialogRect(&r8);
    mfc8->Create(_T("Preview next/previous frame"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r8,parent,IDC_OPT_FRAMEPREVIEW);
    mfcToQtWidget->insert(IDC_OPT_FRAMEPREVIEW,mfc8);
-   QObject::connect(mfc8,SIGNAL(clicked()),parent,SLOT(framePreview_clicked()));
 //       CONTROL         "Don't reset DPCM on note stop",IDC_OPT_NODPCMRESET,
 //                       "Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,95,113,9
    CButton* mfc9 = new CButton(parent);
@@ -1905,35 +1881,30 @@ void qtMfcInitDialogResource_IDD_CONFIG_GENERAL(CDialog* parent1)
    parent->MapDialogRect(&r9);
    mfc9->Create(_T("Don't reset DPCM on note stop"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r9,parent,IDC_OPT_NODPCMRESET);
    mfcToQtWidget->insert(IDC_OPT_NODPCMRESET,mfc9);
-   QObject::connect(mfc9,SIGNAL(clicked()),parent,SLOT(noDpcmReset_clicked()));
 //       CONTROL         "Ignore Step when moving",IDC_OPT_NOSTEPMOVE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,106,113,9
    CButton* mfc10 = new CButton(parent);
    CRect r10(CPoint(13,106),CSize(113,9));
    parent->MapDialogRect(&r10);
    mfc10->Create(_T("Ignore Step when moving"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r10,parent,IDC_OPT_NOSTEPMOVE);
    mfcToQtWidget->insert(IDC_OPT_NOSTEPMOVE,mfc10);
-   QObject::connect(mfc10,SIGNAL(clicked()),parent,SLOT(noStepMove_clicked()));
 //       CONTROL         "Delete-key pulls up rows",IDC_OPT_PULLUPDELETE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,117,113,9
    CButton* mfc11 = new CButton(parent);
    CRect r11(CPoint(13,117),CSize(113,9));
    parent->MapDialogRect(&r11);
    mfc11->Create(_T("Delete-key pulls up rows"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r11,parent,IDC_OPT_PULLUPDELETE);
    mfcToQtWidget->insert(IDC_OPT_PULLUPDELETE,mfc11);
-   QObject::connect(mfc11,SIGNAL(clicked()),parent,SLOT(pullUpDelete_clicked()));
 //       CONTROL         "Backup files",IDC_OPT_BACKUPS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,128,113,9
    CButton* mfc12 = new CButton(parent);
    CRect r12(CPoint(13,128),CSize(113,9));
    parent->MapDialogRect(&r12);
    mfc12->Create(_T("Backup files"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r12,parent,IDC_OPT_BACKUPS);
    mfcToQtWidget->insert(IDC_OPT_BACKUPS,mfc12);
-   QObject::connect(mfc12,SIGNAL(clicked()),parent,SLOT(backups_clicked()));
 //       CONTROL         "Single instance",IDC_OPT_SINGLEINSTANCE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,139,113,9
    CButton* mfc13 = new CButton(parent);
    CRect r13(CPoint(13,139),CSize(113,9));
    parent->MapDialogRect(&r13);
    mfc13->Create(_T("Single instance"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r13,parent,IDC_OPT_SINGLEINSTANCE);
    mfcToQtWidget->insert(IDC_OPT_SINGLEINSTANCE,mfc13);
-   QObject::connect(mfc13,SIGNAL(clicked()),parent,SLOT(singleInstance_clicked()));
 //       GROUPBOX        "Pattern edit style",IDC_STATIC,138,7,135,48
    CButton* mfc14 = new CButton(parent);
    CRect r14(CPoint(138,7),CSize(135,48));
@@ -1946,21 +1917,18 @@ void qtMfcInitDialogResource_IDD_CONFIG_GENERAL(CDialog* parent1)
    parent->MapDialogRect(&r15);
    mfc15->Create(_T("FastTracker 2"),BS_AUTORADIOBUTTON | WS_VISIBLE,r15,parent,IDC_STYLE1);
    mfcToQtWidget->insert(IDC_STYLE1,mfc15);
-   QObject::connect(mfc15,SIGNAL(clicked()),parent,SLOT(style1_clicked()));
 //       CONTROL         "ModPlug tracker",IDC_STYLE2,"Button",BS_AUTORADIOBUTTON,144,30,120,8
    CButton* mfc16 = new CButton(parent);
    CRect r16(CPoint(144,30),CSize(120,8));
    parent->MapDialogRect(&r16);
    mfc16->Create(_T("ModPlug tracker"),BS_AUTORADIOBUTTON | WS_VISIBLE,r16,parent,IDC_STYLE2);
    mfcToQtWidget->insert(IDC_STYLE2,mfc16);
-   QObject::connect(mfc16,SIGNAL(clicked()),parent,SLOT(style2_clicked()));
 //       CONTROL         "Impulse Tracker",IDC_STYLE3,"Button",BS_AUTORADIOBUTTON,144,42,120,8
    CButton* mfc17 = new CButton(parent);
    CRect r17(CPoint(144,42),CSize(120,8));
    parent->MapDialogRect(&r17);
    mfc17->Create(_T("Impulse Tracker"),BS_AUTORADIOBUTTON | WS_VISIBLE,r17,parent,IDC_STYLE3);
    mfcToQtWidget->insert(IDC_STYLE3,mfc17);
-   QObject::connect(mfc17,SIGNAL(clicked()),parent,SLOT(style3_clicked()));
 //       GROUPBOX        "Edit settings",IDC_STATIC,137,57,135,30
    CButton* mfc18 = new CButton(parent);
    CRect r18(CPoint(137,57),CSize(135,30));
@@ -2105,35 +2073,30 @@ void qtMfcInitDialogResource_IDD_PROPERTIES(CDialog* parent1)
    parent->MapDialogRect(&r3);
    mfc3->Create(_T("Add"),WS_VISIBLE,r3,parent,IDC_SONG_ADD);
    mfcToQtWidget->insert(IDC_SONG_ADD,mfc3);
-   QObject::connect(mfc3,SIGNAL(clicked()),parent,SLOT(songAdd_clicked()));
 //       PUSHBUTTON      "Remove",IDC_SONG_REMOVE,138,35,60,14
    CButton* mfc4 = new CButton(parent);
    CRect r4(CPoint(138,35),CSize(60,14));
    parent->MapDialogRect(&r4);
    mfc4->Create(_T("Remove"),WS_VISIBLE,r4,parent,IDC_SONG_REMOVE);
    mfcToQtWidget->insert(IDC_SONG_REMOVE,mfc4);
-   QObject::connect(mfc4,SIGNAL(clicked()),parent,SLOT(songRemove_clicked()));
 //       PUSHBUTTON      "Move up",IDC_SONG_UP,138,52,60,14
    CButton* mfc5 = new CButton(parent);
    CRect r5(CPoint(138,52),CSize(60,14));
    parent->MapDialogRect(&r5);
    mfc5->Create(_T("Move up"),WS_VISIBLE,r5,parent,IDC_SONG_UP);
    mfcToQtWidget->insert(IDC_SONG_UP,mfc5);
-   QObject::connect(mfc5,SIGNAL(clicked()),parent,SLOT(songUp_clicked()));
 //       PUSHBUTTON      "Move down",IDC_SONG_DOWN,138,69,60,14
    CButton* mfc6 = new CButton(parent);
    CRect r6(CPoint(138,69),CSize(60,14));
    parent->MapDialogRect(&r6);
    mfc6->Create(_T("Move down"),WS_VISIBLE,r6,parent,IDC_SONG_DOWN);
    mfcToQtWidget->insert(IDC_SONG_DOWN,mfc6);
-   QObject::connect(mfc6,SIGNAL(clicked()),parent,SLOT(songDown_clicked()));
 //       PUSHBUTTON      "Import file",IDC_SONG_IMPORT,138,86,60,14
    CButton* mfc7 = new CButton(parent);
    CRect r7(CPoint(138,86),CSize(60,14));
    parent->MapDialogRect(&r7);
    mfc7->Create(_T("Import file"),WS_VISIBLE,r7,parent,IDC_SONG_IMPORT);
    mfcToQtWidget->insert(IDC_SONG_IMPORT,mfc7);
-   QObject::connect(mfc7,SIGNAL(clicked()),parent,SLOT(songImport_clicked()));
 //       LTEXT           " Title",IDC_STATIC,14,135,17,12,SS_CENTERIMAGE
    CStatic* mfc8 = new CStatic(parent);
    CRect r8(CPoint(14,135),CSize(17,12));
@@ -2184,14 +2147,12 @@ void qtMfcInitDialogResource_IDD_PROPERTIES(CDialog* parent1)
    parent->MapDialogRect(&r15);
    mfc15->Create(_T("OK"),BS_DEFPUSHBUTTON | WS_VISIBLE,r15,parent,IDOK);
    mfcToQtWidget->insert(IDOK,mfc15);
-   QObject::connect(mfc15,SIGNAL(clicked()),parent,SLOT(ok_clicked()));
 //       PUSHBUTTON      "Cancel",IDCANCEL,153,238,53,14
    CButton* mfc16 = new CButton(parent);
    CRect r16(CPoint(153,238),CSize(53,14));
    parent->MapDialogRect(&r16);
    mfc16->Create(_T("Cancel"),WS_VISIBLE,r16,parent,IDCANCEL);
    mfcToQtWidget->insert(IDCANCEL,mfc16);
-   QObject::connect(mfc16,SIGNAL(clicked()),parent,SLOT(cancel_clicked()));
 //       CONTROL         "",IDC_CHANNELS,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,147,173,51,13
    CSliderCtrl* mfc18 = new CSliderCtrl(parent);
    CRect r18(CPoint(147,173),CSize(51,13));
@@ -2456,14 +2417,12 @@ void qtMfcInitDialogResource_IDD_CONFIG_SHORTCUTS(CDialog* parent1)
    parent->MapDialogRect(&r4);
    mfc4->Create(_T("Clear"),WS_VISIBLE,r4,parent,IDC_CLEAR);
    mfcToQtWidget->insert(IDC_CLEAR,mfc4);
-   QObject::connect(mfc4,SIGNAL(clicked()),parent,SLOT(clear_clicked()));
 //       PUSHBUTTON      "Default",IDC_DEFAULT,228,147,45,14
    CButton* mfc5 = new CButton(parent);
    CRect r5(CPoint(228,147),CSize(45,14));
    parent->MapDialogRect(&r5);
    mfc5->Create(_T("Default"),WS_VISIBLE,r5,parent,IDC_DEFAULT);
    mfcToQtWidget->insert(IDC_DEFAULT,mfc5);
-   QObject::connect(mfc5,SIGNAL(clicked()),parent,SLOT(default_clicked()));
 //   END
 }
 
@@ -2612,14 +2571,12 @@ void qtMfcInitDialogResource_IDD_EXPORT(CDialog* parent1)
    parent->MapDialogRect(&r1);
    mfc1->Create(_T("Export"),BS_DEFPUSHBUTTON | WS_VISIBLE,r1,parent,IDC_EXPORT);
    mfcToQtWidget->insert(IDOK,mfc1);
-   QObject::connect(mfc1,SIGNAL(clicked()),parent,SLOT(export_clicked()));
 //       PUSHBUTTON      "&Close",IDC_CLOSE,187,23,53,14
    CButton* mfc2 = new CButton(parent);
    CRect r2(CPoint(187,23),CSize(53,14));
    parent->MapDialogRect(&r2);
    mfc2->Create(_T("Close"),WS_VISIBLE,r2,parent,IDC_CLOSE);
    mfcToQtWidget->insert(IDC_CLOSE,mfc2);
-   QObject::connect(mfc2,SIGNAL(clicked()),parent,SLOT(close_clicked()));
 //       EDITTEXT        IDC_NAME,60,18,114,13,ES_AUTOHSCROLL
    CEdit* mfc3 = new CEdit(parent);
    CRect r3(CPoint(60,18),CSize(114,13));
@@ -2692,7 +2649,6 @@ void qtMfcInitDialogResource_IDD_EXPORT(CDialog* parent1)
    parent->MapDialogRect(&r17);
    mfc17->Create(_T("&Play"),0,r17,parent,IDC_PLAY);
    mfcToQtWidget->insert(IDC_PLAY,mfc17);
-   QObject::connect(mfc17,SIGNAL(clicked()),parent,SLOT(play_clicked()));
 //   END
 }
 
@@ -2740,49 +2696,42 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_VRC7(CDialog* parent1)
    parent->MapDialogRect(&r3);
    mfc3->Create(_T("Copy"),WS_VISIBLE,r3,parent,IDC_COPY);
    mfcToQtWidget->insert(IDC_COPY,mfc3);
-   QObject::connect(mfc3,SIGNAL(clicked()),parent,SLOT(copy_clicked()));
 //       PUSHBUTTON      "Paste",IDC_PASTE,322,23,43,14
    CButton* mfc4 = new CButton(parent);
    CRect r4(CPoint(322,23),CSize(43,14));
    parent->MapDialogRect(&r4);
    mfc4->Create(_T("Paste"),WS_VISIBLE,r4,parent,IDC_PASTE);
    mfcToQtWidget->insert(IDC_PASTE,mfc4);
-   QObject::connect(mfc4,SIGNAL(clicked()),parent,SLOT(paste_clicked()));
 //       CONTROL         "Amplitude modulation",IDC_M_AM,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,54,84,10,WS_EX_TRANSPARENT
    CButton* mfc6 = new CButton(parent);
    CRect r6(CPoint(14,54),CSize(84,10));
    parent->MapDialogRect(&r6);
    mfc6->Create(_T("Amplitude modulation"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r6,parent,IDC_M_AM);
    mfcToQtWidget->insert(IDC_M_AM,mfc6);
-   QObject::connect(mfc6,SIGNAL(clicked()),parent,SLOT(m_am_clicked()));
 //       CONTROL         "Vibrato",IDC_M_VIB,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,104,54,39,10,WS_EX_TRANSPARENT
    CButton* mfc7 = new CButton(parent);
    CRect r7(CPoint(104,54),CSize(39,10));
    parent->MapDialogRect(&r7);
    mfc7->Create(_T("Vibrato"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r7,parent,IDC_M_VIB);
    mfcToQtWidget->insert(IDC_M_VIB,mfc7);
-   QObject::connect(mfc7,SIGNAL(clicked()),parent,SLOT(m_vib_clicked()));
 //       CONTROL         "Sustained",IDC_M_EG,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,70,47,10,WS_EX_TRANSPARENT
    CButton* mfc8 = new CButton(parent);
    CRect r8(CPoint(14,70),CSize(47,10));
    parent->MapDialogRect(&r8);
    mfc8->Create(_T("Sustained"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r8,parent,IDC_M_EG);
    mfcToQtWidget->insert(IDC_M_EG,mfc8);
-   QObject::connect(mfc8,SIGNAL(clicked()),parent,SLOT(m_eg_clicked()));
 //       CONTROL         "RATE key scale",IDC_M_KSR2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,89,70,65,10,WS_EX_TRANSPARENT
    CButton* mfc9 = new CButton(parent);
    CRect r9(CPoint(89,70),CSize(65,10));
    parent->MapDialogRect(&r9);
    mfc9->Create(_T("RATE key scale"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r9,parent,IDC_M_KSR2);
    mfcToQtWidget->insert(IDC_M_KSR2,mfc9);
-   QObject::connect(mfc9,SIGNAL(clicked()),parent,SLOT(m_ksr2_clicked()));
 //       CONTROL         "Wave rectification",IDC_M_DM,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,86,74,10,WS_EX_TRANSPARENT
    CButton* mfc10 = new CButton(parent);
    CRect r10(CPoint(14,86),CSize(74,10));
    parent->MapDialogRect(&r10);
    mfc10->Create(_T("Wave rectification"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r10,parent,IDC_M_DM);
    mfcToQtWidget->insert(IDC_M_DM,mfc10);
-   QObject::connect(mfc10,SIGNAL(clicked()),parent,SLOT(m_dm_clicked()));
 //       LTEXT           "Level",IDC_STATIC,91,87,18,8
    CStatic* mfc11 = new CStatic(parent);
    CRect r11(CPoint(91,87),CSize(18,8));
@@ -2867,35 +2816,30 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_VRC7(CDialog* parent1)
    parent->MapDialogRect(&r24);
    mfc24->Create(_T("Amplitude modulation"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r24,parent,IDC_C_AM);
    mfcToQtWidget->insert(IDC_C_AM,mfc24);
-   QObject::connect(mfc24,SIGNAL(clicked()),parent,SLOT(c_am_clicked()));
 //       CONTROL         "Vibrato",IDC_C_VIB,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,263,54,39,10
    CButton* mfc25 = new CButton(parent);
    CRect r25(CPoint(263,54),CSize(39,10));
    parent->MapDialogRect(&r25);
    mfc25->Create(_T("Vibrato"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r25,parent,IDC_C_VIB);
    mfcToQtWidget->insert(IDC_C_VIB,mfc25);
-   QObject::connect(mfc25,SIGNAL(clicked()),parent,SLOT(c_vib_clicked()));
 //       CONTROL         "Sustained",IDC_C_EG,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,171,70,47,10
    CButton* mfc26 = new CButton(parent);
    CRect r26(CPoint(171,70),CSize(47,10));
    parent->MapDialogRect(&r26);
    mfc26->Create(_T("Sustained"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r26,parent,IDC_C_EG);
    mfcToQtWidget->insert(IDC_C_EG,mfc26);
-   QObject::connect(mfc26,SIGNAL(clicked()),parent,SLOT(c_eg_clicked()));
 //       CONTROL         "RATE key scale",IDC_C_KSR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,247,70,65,10
    CButton* mfc27 = new CButton(parent);
    CRect r27(CPoint(247,70),CSize(65,10));
    parent->MapDialogRect(&r27);
    mfc27->Create(_T("RATE key scale"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r27,parent,IDC_C_KSR);
    mfcToQtWidget->insert(IDC_C_KSR,mfc27);
-   QObject::connect(mfc27,SIGNAL(clicked()),parent,SLOT(c_ksr_clicked()));
 //       CONTROL         "Wave rectification",IDC_C_DM,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,171,86,74,10
    CButton* mfc28 = new CButton(parent);
    CRect r28(CPoint(171,86),CSize(74,10));
    parent->MapDialogRect(&r28);
    mfc28->Create(_T("Wave rectification"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r28,parent,IDC_C_DM);
    mfcToQtWidget->insert(IDC_C_DM,mfc28);
-   QObject::connect(mfc28,SIGNAL(clicked()),parent,SLOT(c_dm_clicked()));
 //       LTEXT           "Level",IDC_STATIC,249,87,18,8
    CStatic* mfc29 = new CStatic(parent);
    CRect r29(CPoint(249,87),CSize(18,8));
@@ -3025,14 +2969,12 @@ void qtMfcInitDialogResource_IDD_CREATEWAV(CDialog* parent1)
    parent->MapDialogRect(&r1);
    mfc1->Create(_T("Begin"),BS_DEFPUSHBUTTON | WS_VISIBLE,r1,parent,IDC_BEGIN);
    mfcToQtWidget->insert(IDC_BEGIN,mfc1);
-   QObject::connect(mfc1,SIGNAL(clicked()),parent,SLOT(begin_clicked()));
 //       PUSHBUTTON      "Cancel",IDCANCEL,92,152,52,14
    CButton* mfc2 = new CButton(parent);
    CRect r2(CPoint(92,152),CSize(52,14));
    parent->MapDialogRect(&r2);
    mfc2->Create(_T("Cancel"),WS_VISIBLE,r2,parent,IDCANCEL);
    mfcToQtWidget->insert(IDCANCEL,mfc2);
-   QObject::connect(mfc2,SIGNAL(clicked()),parent,SLOT(cancel_clicked()));
 //       GROUPBOX        "Song length",IDC_STATIC,7,7,137,47
    CButton* mfc3 = new CButton(parent);
    CRect r3(CPoint(7,7),CSize(137,47));
@@ -3128,7 +3070,6 @@ void qtMfcInitDialogResource_IDD_WAVE_PROGRESS(CDialog* parent1)
    parent->MapDialogRect(&r1);
    mfc1->Create(_T("Cancel"),WS_VISIBLE,r1,parent,IDC_CANCEL);
    mfcToQtWidget->insert(IDC_CANCEL,mfc1);
-   QObject::connect(mfc1,SIGNAL(clicked()),parent,SLOT(cancel_clicked()));
 //       CONTROL         "",IDC_PROGRESS_BAR,"msctls_progress32",WS_BORDER,7,65,206,12
    CProgressCtrl* mfc2 = new CProgressCtrl(parent);
    CRect r2(CPoint(7,65),CSize(206,12));
@@ -3215,21 +3156,18 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_FDS(CDialog* parent1)
    parent->MapDialogRect(&r2);
    mfc2->Create(_T("Sine"),WS_VISIBLE,r2,parent,IDC_PRESET_SINE);
    mfcToQtWidget->insert(IDC_PRESET_SINE,mfc2);
-   QObject::connect(mfc2,SIGNAL(clicked()),parent,SLOT(presetSine_clicked()));
 //       PUSHBUTTON      "Triangle",IDC_PRESET_TRIANGLE,57,101,41,12
    CButton* mfc3 = new CButton(parent);
    CRect r3(CPoint(57,101),CSize(41,12));
    parent->MapDialogRect(&r3);
    mfc3->Create(_T("Triangle"),WS_VISIBLE,r3,parent,IDC_PRESET_TRIANGLE);
    mfcToQtWidget->insert(IDC_PRESET_TRIANGLE,mfc3);
-   QObject::connect(mfc3,SIGNAL(clicked()),parent,SLOT(presetTriangle_clicked()));
 //       PUSHBUTTON      "Sawtooth",IDC_PRESET_SAWTOOTH,100,101,41,12
    CButton* mfc4 = new CButton(parent);
    CRect r4(CPoint(100,101),CSize(41,12));
    parent->MapDialogRect(&r4);
    mfc4->Create(_T("Sawtooth"),WS_VISIBLE,r4,parent,IDC_PRESET_SAWTOOTH);
    mfcToQtWidget->insert(IDC_PRESET_SAWTOOTH,mfc4);
-   QObject::connect(mfc4,SIGNAL(clicked()),parent,SLOT(presetSawtooth_clicked()));
 //       LTEXT           "Modulation rate",IDC_STATIC,246,24,51,8
    CStatic* mfc5 = new CStatic(parent);
    CRect r5(CPoint(246,24),CSize(51,8));
@@ -3299,56 +3237,48 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_FDS(CDialog* parent1)
    parent->MapDialogRect(&r14);
    mfc14->Create(_T("Flat"),WS_VISIBLE,r14,parent,IDC_MOD_PRESET_FLAT);
    mfcToQtWidget->insert(IDC_MOD_PRESET_FLAT,mfc14);
-   QObject::connect(mfc14,SIGNAL(clicked()),parent,SLOT(modPresetFlat_clicked()));
 //       PUSHBUTTON      "Sine",IDC_MOD_PRESET_SINE,318,148,46,12
    CButton* mfc15 = new CButton(parent);
    CRect r15(CPoint(318,148),CSize(46,12));
    parent->MapDialogRect(&r15);
    mfc15->Create(_T("Sine"),WS_VISIBLE,r15,parent,IDC_MOD_PRESET_SINE);
    mfcToQtWidget->insert(IDC_MOD_PRESET_SINE,mfc15);
-   QObject::connect(mfc15,SIGNAL(clicked()),parent,SLOT(modPresetSine_clicked()));
 //       PUSHBUTTON      "Copy wave",IDC_COPY_WAVE,240,90,52,14
    CButton* mfc17 = new CButton(parent);
    CRect r17(CPoint(240,90),CSize(52,14));
    parent->MapDialogRect(&r17);
    mfc17->Create(_T("Copy wave"),WS_VISIBLE,r17,parent,IDC_COPY_WAVE);
    mfcToQtWidget->insert(IDC_COPY_WAVE,mfc17);
-   QObject::connect(mfc17,SIGNAL(clicked()),parent,SLOT(copyWave_clicked()));
 //       PUSHBUTTON      "Paste wave",IDC_PASTE_WAVE,240,104,52,14
    CButton* mfc18 = new CButton(parent);
    CRect r18(CPoint(240,104),CSize(52,14));
    parent->MapDialogRect(&r18);
    mfc18->Create(_T("Paste wave"),WS_VISIBLE,r18,parent,IDC_PASTE_WAVE);
    mfcToQtWidget->insert(IDC_PASTE_WAVE,mfc18);
-   QObject::connect(mfc18,SIGNAL(clicked()),parent,SLOT(pasteWave_clicked()));
 //       PUSHBUTTON      "Copy table",IDC_COPY_TABLE,305,90,50,14
    CButton* mfc19 = new CButton(parent);
    CRect r19(CPoint(305,90),CSize(50,14));
    parent->MapDialogRect(&r19);
    mfc19->Create(_T("Copy table"),WS_VISIBLE,r19,parent,IDC_COPY_TABLE);
    mfcToQtWidget->insert(IDC_COPY_TABLE,mfc19);
-   QObject::connect(mfc19,SIGNAL(clicked()),parent,SLOT(copyTable_clicked()));
 //       PUSHBUTTON      "Paste table",IDC_PASTE_TABLE,305,104,50,14
    CButton* mfc20 = new CButton(parent);
    CRect r20(CPoint(305,104),CSize(50,14));
    parent->MapDialogRect(&r20);
    mfc20->Create(_T("Paste table"),WS_VISIBLE,r20,parent,IDC_PASTE_TABLE);
    mfcToQtWidget->insert(IDC_PASTE_TABLE,mfc20);
-   QObject::connect(mfc20,SIGNAL(clicked()),parent,SLOT(pasteTable_clicked()));
 //       PUSHBUTTON      "50% pulse",IDC_PRESET_PULSE_50,143,101,41,12
    CButton* mfc21 = new CButton(parent);
    CRect r21(CPoint(143,101),CSize(41,12));
    parent->MapDialogRect(&r21);
    mfc21->Create(_T("50% pulse"),WS_VISIBLE,r21,parent,IDC_PRESET_PULSE_50);
    mfcToQtWidget->insert(IDC_PRESET_PULSE_50,mfc21);
-   QObject::connect(mfc21,SIGNAL(clicked()),parent,SLOT(presetPulse50_clicked()));
 //       PUSHBUTTON      "25% pulse",IDC_PRESET_PULSE_25,186,101,41,12
    CButton* mfc22 = new CButton(parent);
    CRect r22(CPoint(186,101),CSize(41,12));
    parent->MapDialogRect(&r22);
    mfc22->Create(_T("25% pulse"),WS_VISIBLE,r22,parent,IDC_PRESET_PULSE_25);
    mfcToQtWidget->insert(IDC_PRESET_PULSE_25,mfc22);
-   QObject::connect(mfc22,SIGNAL(clicked()),parent,SLOT(presetPulse25_clicked()));
 //   END
 }
 
@@ -3407,14 +3337,12 @@ void qtMfcInitDialogResource_IDD_SAMPLE_EDITOR(CDialog* parent1)
    parent->MapDialogRect(&r1);
    mfc1->Create(_T("OK"),BS_DEFPUSHBUTTON | WS_VISIBLE,r1,parent,IDOK);
    mfcToQtWidget->insert(IDOK,mfc1);
-   QObject::connect(mfc1,SIGNAL(clicked()),parent,SLOT(ok_clicked()));
 //   PUSHBUTTON      "Cancel",IDCANCEL,424,234,50,14
    CButton* mfc2 = new CButton(parent);
    CRect r2(CPoint(424,234),CSize(50,14));
    parent->MapDialogRect(&r2);
    mfc2->Create(_T("Cancel"),WS_VISIBLE,r2,parent,IDCANCEL);
    mfcToQtWidget->insert(IDCANCEL,mfc2);
-   QObject::connect(mfc2,SIGNAL(clicked()),parent,SLOT(cancel_clicked()));
 //   CONTROL         "",IDC_SAMPLE,"Static",SS_WHITERECT | SS_NOTIFY | SS_SUNKEN,7,7,467,204
    CStatic *mfc3 = new CStatic(parent);
    CRect r3(CPoint(7,7),CSize(467,204));
@@ -3427,7 +3355,6 @@ void qtMfcInitDialogResource_IDD_SAMPLE_EDITOR(CDialog* parent1)
    parent->MapDialogRect(&r4);
    mfc4->Create(_T("Play"),WS_VISIBLE,r4,parent,IDC_PLAY);
    mfcToQtWidget->insert(IDC_PLAY,mfc4);
-   QObject::connect(mfc4,SIGNAL(clicked()),parent,SLOT(play_clicked()));
 //   LTEXT           "Offset: 0, Pos: 0",IDC_POS,7,217,79,11,SS_SUNKEN
    CStatic* mfc5 = new CStatic(parent);
    CRect r5(CPoint(7,217),CSize(79,11));
@@ -3440,7 +3367,6 @@ void qtMfcInitDialogResource_IDD_SAMPLE_EDITOR(CDialog* parent1)
    parent->MapDialogRect(&r6);
    mfc6->Create(_T("Delete"),WS_VISIBLE,r6,parent,IDC_DELETE);
    mfcToQtWidget->insert(IDC_DELETE,mfc6);
-   QObject::connect(mfc6,SIGNAL(clicked()),parent,SLOT(delete_clicked()));
 //   CONTROL         "",IDC_PITCH,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,143,236,79,12
    CSliderCtrl* mfc7 = new CSliderCtrl(parent);
    CRect r7(CPoint(143,236),CSize(79,12));
@@ -3453,7 +3379,6 @@ void qtMfcInitDialogResource_IDD_SAMPLE_EDITOR(CDialog* parent1)
    parent->MapDialogRect(&r8);
    mfc8->Create(_T("Tilt"),WS_VISIBLE,r8,parent,IDC_TILT);
    mfcToQtWidget->insert(IDC_TILT,mfc8);
-   QObject::connect(mfc8,SIGNAL(clicked()),parent,SLOT(tilt_clicked()));
 //   LTEXT           "0 bytes",IDC_INFO,88,217,87,11,SS_SUNKEN
    CStatic* mfc9 = new CStatic(parent);
    CRect r9(CPoint(88,217),CSize(87,11));
@@ -3472,7 +3397,6 @@ void qtMfcInitDialogResource_IDD_SAMPLE_EDITOR(CDialog* parent1)
    parent->MapDialogRect(&r11);
    mfc11->Create(_T("Start from 64"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r11,parent,IDC_DELTASTART);
    mfcToQtWidget->insert(IDC_DELTASTART,mfc11);
-   QObject::connect(mfc11,SIGNAL(clicked()),parent,SLOT(deltaStart_clicked()));
 //   END
 }
 
@@ -3551,28 +3475,24 @@ void qtMfcInitDialogResource_IDD_CHANNELS(CDialog* parent1)
    parent->MapDialogRect(&r1);
    mfc1->Create(_T("OK"),BS_DEFPUSHBUTTON | WS_VISIBLE,r1,parent,IDOK);
    mfcToQtWidget->insert(IDOK,mfc1);
-   QObject::connect(mfc1,SIGNAL(clicked()),parent,SLOT(ok_clicked()));
 //       PUSHBUTTON      "Cancel",IDCANCEL,246,215,50,14
    CButton* mfc2 = new CButton(parent);
    CRect r2(CPoint(246,215),CSize(50,14));
    parent->MapDialogRect(&r2);
    mfc2->Create(_T("Cancel"),WS_VISIBLE,r2,parent,IDCANCEL);
    mfcToQtWidget->insert(IDCANCEL,mfc2);
-   QObject::connect(mfc2,SIGNAL(clicked()),parent,SLOT(cancel_clicked()));
 //       PUSHBUTTON      "Move up",IDC_MOVE_UP,7,215,50,14
    CButton* mfc3 = new CButton(parent);
    CRect r3(CPoint(7,215),CSize(50,14));
    parent->MapDialogRect(&r3);
    mfc3->Create(_T("Move up"),WS_VISIBLE,r3,parent,IDC_MOVE_UP);
    mfcToQtWidget->insert(IDC_MOVE_UP,mfc3);
-   QObject::connect(mfc3,SIGNAL(clicked()),parent,SLOT(moveUp_clicked()));
 //       PUSHBUTTON      "Move down",IDC_MOVE_DOWN,62,215,50,14
    CButton* mfc4 = new CButton(parent);
    CRect r4(CPoint(62,215),CSize(50,14));
    parent->MapDialogRect(&r4);
    mfc4->Create(_T("Move down"),WS_VISIBLE,r4,parent,IDC_MOVE_DOWN);
    mfcToQtWidget->insert(IDC_MOVE_DOWN,mfc4);
-   QObject::connect(mfc4,SIGNAL(clicked()),parent,SLOT(moveDown_clicked()));
 //       CONTROL         "",IDC_ADDED_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOCOLUMNHEADER | WS_BORDER | WS_TABSTOP,159,17,129,181
    CListCtrl* mfc5 = new CListCtrl(parent);
    CRect r5(CPoint(159,17),CSize(129,181));
@@ -3618,7 +3538,6 @@ void qtMfcInitDialogResource_IDD_COMMENTS(CDialog* parent1)
    parent->MapDialogRect(&r1);
    mfc1->Create(_T("Cancel"),WS_VISIBLE,r1,parent,IDCANCEL);
    mfcToQtWidget->insert(IDCANCEL,mfc1);
-   QObject::connect(mfc1,SIGNAL(clicked()),parent,SLOT(cancel_clicked()));
 //   EDITTEXT        IDC_COMMENTS,0,0,358,206,ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_WANTRETURN | WS_VSCROLL | WS_HSCROLL
    CEdit* mfc2 = new CEdit(parent);
    CRect r2(CPoint(0,0),CSize(358,206));
@@ -3637,7 +3556,6 @@ void qtMfcInitDialogResource_IDD_COMMENTS(CDialog* parent1)
    parent->MapDialogRect(&r4);
    mfc4->Create(_T("OK"),BS_DEFPUSHBUTTON | WS_VISIBLE,r4,parent,IDOK);
    mfcToQtWidget->insert(IDOK,mfc4);
-   QObject::connect(mfc4,SIGNAL(clicked()),parent,SLOT(ok_clicked()));
 //   END
 }
 
@@ -3716,35 +3634,30 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_N163_WAVE(CDialog* parent1)
    parent->MapDialogRect(&r2);
    mfc2->Create(_T("Sine"),WS_VISIBLE,r2,parent,IDC_PRESET_SINE);
    mfcToQtWidget->insert(IDC_PRESET_SINE,mfc2);
-   QObject::connect(mfc2,SIGNAL(clicked()),parent,SLOT(presetSine_clicked()));
 //       PUSHBUTTON      "Triangle",IDC_PRESET_TRIANGLE,57,101,41,12
    CButton* mfc3 = new CButton(parent);
    CRect r3(CPoint(57,104),CSize(41,14));
    parent->MapDialogRect(&r3);
    mfc3->Create(_T("Triangle"),WS_VISIBLE,r3,parent,IDC_PRESET_TRIANGLE);
    mfcToQtWidget->insert(IDC_PRESET_TRIANGLE,mfc3);
-   QObject::connect(mfc3,SIGNAL(clicked()),parent,SLOT(presetTriangle_clicked()));
 //       PUSHBUTTON      "Sawtooth",IDC_PRESET_SAWTOOTH,100,101,41,12
    CButton* mfc4 = new CButton(parent);
    CRect r4(CPoint(100,104),CSize(41,14));
    parent->MapDialogRect(&r4);
    mfc4->Create(_T("Sawtooth"),WS_VISIBLE,r4,parent,IDC_PRESET_SAWTOOTH);
    mfcToQtWidget->insert(IDC_PRESET_SAWTOOTH,mfc4);
-   QObject::connect(mfc4,SIGNAL(clicked()),parent,SLOT(presetSawtooth_clicked()));
 //       PUSHBUTTON      "50% pulse",IDC_PRESET_PULSE_50,143,101,41,12
    CButton* mfc5 = new CButton(parent);
    CRect r5(CPoint(143,104),CSize(41,14));
    parent->MapDialogRect(&r5);
    mfc5->Create(_T("50% pulse"),WS_VISIBLE,r5,parent,IDC_PRESET_PULSE_50);
    mfcToQtWidget->insert(IDC_PRESET_PULSE_50,mfc5);
-   QObject::connect(mfc5,SIGNAL(clicked()),parent,SLOT(presetPulse50_clicked()));
 //       PUSHBUTTON      "25% pulse",IDC_PRESET_PULSE_25,186,101,41,12
    CButton* mfc6 = new CButton(parent);
    CRect r6(CPoint(186,104),CSize(41,14));
    parent->MapDialogRect(&r6);
    mfc6->Create(_T("25% pulse"),WS_VISIBLE,r6,parent,IDC_PRESET_PULSE_25);
    mfcToQtWidget->insert(IDC_PRESET_PULSE_25,mfc6);
-   QObject::connect(mfc6,SIGNAL(clicked()),parent,SLOT(presetPulse25_clicked()));
 //       EDITTEXT        IDC_MML,16,145,342,14,ES_AUTOHSCROLL
    CEdit* mfc8 = new CEdit(parent);
    CRect r8(CPoint(16,145),CSize(342,14));
@@ -3757,14 +3670,12 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_N163_WAVE(CDialog* parent1)
    parent->MapDialogRect(&r9);
    mfc9->Create(_T("Copy wave"),WS_VISIBLE,r9,parent,IDC_COPY_WAVE);
    mfcToQtWidget->insert(IDC_COPY,mfc9);
-   QObject::connect(mfc9,SIGNAL(clicked()),parent,SLOT(copy_clicked()));
 //       PUSHBUTTON      "Paste wave",IDC_PASTE_WAVE,240,104,52,14
    CButton* mfc10 = new CButton(parent);
    CRect r10(CPoint(308,105),CSize(50,14));
    parent->MapDialogRect(&r10);
    mfc10->Create(_T("Paste wave"),WS_VISIBLE,r10,parent,IDC_PASTE_WAVE);
    mfcToQtWidget->insert(IDC_PASTE,mfc10);
-   QObject::connect(mfc10,SIGNAL(clicked()),parent,SLOT(paste_clicked()));
 //       EDITTEXT        IDC_INDEX,253,20,39,12,ES_AUTOHSCROLL | ES_READONLY
    CEdit* mfc11 = new CEdit(parent);
    CRect r11(CPoint(253,20),CSize(39,12));
@@ -3863,14 +3774,12 @@ void qtMfcInitDialogResource_IDD_IMPORT(CDialog* parent1)
    parent->MapDialogRect(&r1);
    mfc1->Create(_T("OK"),BS_DEFPUSHBUTTON | WS_VISIBLE,r1,parent,IDOK);
    mfcToQtWidget->insert(IDOK,mfc1);
-   QObject::connect(mfc1,SIGNAL(clicked()),parent,SLOT(ok_clicked()));
 //       PUSHBUTTON      "Cancel",IDCANCEL,104,188,50,14
    CButton* mfc2 = new CButton(parent);
    CRect r2(CPoint(104,188),CSize(50,14));
    parent->MapDialogRect(&r2);
    mfc2->Create(_T("Cancel"),WS_VISIBLE,r2,parent,IDCANCEL);
    mfcToQtWidget->insert(IDCANCEL,mfc2);
-   QObject::connect(mfc2,SIGNAL(clicked()),parent,SLOT(cancel_clicked()));
 //       CONTROL         "Include instruments",IDC_INSTRUMENTS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,161,116,10
    CButton* mfc4 = new CButton(parent);
    CRect r4(CPoint(14,161),CSize(116,10));

@@ -34,8 +34,6 @@ class CSequenceSetting;
 class CSequenceEditor : public CWnd
 {
    // Qt interfaces
-protected:
-   void paintEvent(QPaintEvent *);
 public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
    
 	DECLARE_DYNAMIC(CSequenceEditor)

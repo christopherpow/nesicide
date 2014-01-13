@@ -30,9 +30,6 @@ class CSequenceSetting : public CWnd
    // Qt interfaces
 public slots:
    void menuAction_triggered(int id);
-protected:
-   void paintEvent(QPaintEvent *);
-   void mousePressEvent(QMouseEvent *event);
 public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
 
    DECLARE_DYNAMIC(CSequenceSetting)

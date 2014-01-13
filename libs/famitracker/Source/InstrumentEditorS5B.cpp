@@ -138,11 +138,6 @@ void CInstrumentEditorS5B::instSettings_itemSelectionChanged()
    OnLvnItemchangedInstsettings((NMHDR*)&nmlv,&result);
 }
 
-void CInstrumentEditorS5B::freeSeq_clicked()
-{
-   OnBnClickedFreeSeq();
-}
-
 void CInstrumentEditorS5B::sequenceSpin_valueChanged(int oldVal,int newVal)
 {
    OnEnChangeSeqIndex();

@@ -54,29 +54,17 @@ class CInstrumentEditorDPCM : public CInstrumentEditPanel
 protected:
    void contextMenuEvent(QContextMenuEvent *event);
 public slots:
-   void load_clicked();
-   void unload_clicked();
    void sampleList_itemSelectionChanged();
    void sampleList_cellClicked(int row, int column);
    void sampleList_cellDoubleClicked(int row, int column);
-   void import_clicked();
    void octave_currentIndexChanged(int index);
    void pitch_currentIndexChanged(int index);
    void table_itemSelectionChanged();
    void table_cellClicked(int row, int column);
    void table_cellDoubleClicked(int row, int column);
    void samples_currentIndexChanged(int index);
-   void save_clicked();
-   void loop_clicked();
-   void add_clicked();
-   void remove_clicked();
    void loopPoint_textEdited(QString str);
-   void edit_clicked();
-   void preview_clicked();
    void menuAction_triggered(int id);
-protected:
-   void keyPressEvent(QKeyEvent *event);
-   void keyReleaseEvent(QKeyEvent *event);
 public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
    
 	DECLARE_DYNAMIC(CInstrumentEditorDPCM)

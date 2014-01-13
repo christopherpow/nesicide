@@ -35,11 +35,6 @@ public: // For some reason MOC doesn't like the protection specification inside 
 
    // Qt stuff
 protected:
-   void paintEvent(QPaintEvent *);
-   void mouseMoveEvent(QMouseEvent *event);
-   void mousePressEvent(QMouseEvent *event);
-   void mouseReleaseEvent(QMouseEvent *event);
-   void mouseDoubleClickEvent(QMouseEvent *event);
    void closeEvent(QCloseEvent *);
    void leaveEvent(QEvent *);
    

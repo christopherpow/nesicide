@@ -206,21 +206,6 @@ BEGIN_MESSAGE_MAP(CPCMImport, CDialog)
    ON_BN_CLICKED(IDC_PREVIEW, OnBnClickedPreview)
 END_MESSAGE_MAP()
 
-void CPCMImport::preview_clicked()
-{
-   OnBnClickedPreview();
-}
-
-void CPCMImport::ok_clicked()
-{
-   OnBnClickedOk();
-}
-
-void CPCMImport::cancel_clicked()
-{
-   OnBnClickedCancel();
-}
-
 void CPCMImport::quality_valueChanged(int value)
 {
    OnHScroll(SB_HORZ,value,dynamic_cast<CScrollBar*>(GetDlgItem(IDC_QUALITY)));

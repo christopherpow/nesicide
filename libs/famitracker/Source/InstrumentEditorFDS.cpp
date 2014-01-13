@@ -107,39 +107,6 @@ BEGIN_MESSAGE_MAP(CInstrumentEditorFDS, CInstrumentEditPanel)
 	ON_MESSAGE(WM_USER + 1, OnModChanged)
 END_MESSAGE_MAP()
 
-bool CInstrumentEditorFDS::event(QEvent *event)
-{
-   MFCMessageEvent* msgEvent = dynamic_cast<MFCMessageEvent*>(event);
-   if ( msgEvent )
-   {
-//      ON_MESSAGE(WM_USER + 1, OnModChanged)
-      switch ( msgEvent->msg.message )
-      {
-      case WM_USER + 1:
-         OnModChanged(msgEvent->msg.wParam,msgEvent->msg.lParam);
-         break;
-      }
-
-      return true;
-   }
-   return false;
-}
-
-void CInstrumentEditorFDS::presetSine_clicked()
-{
-   OnPresetSine();
-}
-
-void CInstrumentEditorFDS::presetTriangle_clicked()
-{
-   OnPresetTriangle();
-}
-
-void CInstrumentEditorFDS::presetSawtooth_clicked()
-{
-   OnPresetSawtooth();
-}
-
 void CInstrumentEditorFDS::modRateSpin_valueChanged(int arg1,int arg2)
 {
    OnModRateChange();
@@ -153,46 +120,6 @@ void CInstrumentEditorFDS::modDepthSpin_valueChanged(int arg1,int arg2)
 void CInstrumentEditorFDS::modDelaySpin_valueChanged(int arg1,int arg2)
 {
    OnModDelayChange();
-}
-
-void CInstrumentEditorFDS::modPresetFlat_clicked()
-{
-   OnModPresetFlat();
-}
-
-void CInstrumentEditorFDS::modPresetSine_clicked()
-{
-   OnModPresetSine();
-}
-
-void CInstrumentEditorFDS::copyWave_clicked()
-{
-   OnBnClickedCopyWave();
-}
-
-void CInstrumentEditorFDS::pasteWave_clicked()
-{
-   OnBnClickedPasteWave();
-}
-
-void CInstrumentEditorFDS::copyTable_clicked()
-{
-   OnBnClickedCopyTable();
-}
-
-void CInstrumentEditorFDS::pasteTable_clicked()
-{
-   OnBnClickedPasteTable();
-}
-
-void CInstrumentEditorFDS::presetPulse50_clicked()
-{
-   OnPresetPulse50();
-}
-
-void CInstrumentEditorFDS::presetPulse25_clicked()
-{
-   OnPresetPulse25();
 }
 
 // CInstrumentEditorFDS message handlers

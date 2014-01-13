@@ -98,46 +98,6 @@ void CInstrumentEditorVRC7::patch_currentIndexChanged(int index)
    OnCbnSelchangePatch();
 }
 
-void CInstrumentEditorVRC7::copy_clicked()
-{
-   OnCopy();
-}
-
-void CInstrumentEditorVRC7::paste_clicked()
-{
-   OnPaste();
-}
-
-void CInstrumentEditorVRC7::m_am_clicked()
-{
-   OnBnClickedCheckbox();
-}
-
-void CInstrumentEditorVRC7::m_vib_clicked()
-{
-   OnBnClickedCheckbox();
-}
-
-void CInstrumentEditorVRC7::m_eq_clicked()
-{
-   OnBnClickedCheckbox();
-}
-
-void CInstrumentEditorVRC7::m_ksr2_clicked()
-{
-   OnBnClickedCheckbox();
-}
-
-void CInstrumentEditorVRC7::m_dm_clicked()
-{
-   OnBnClickedCheckbox();
-}
-
-void CInstrumentEditorVRC7::m_eg_clicked()
-{
-   OnBnClickedCheckbox();
-}
-
 void CInstrumentEditorVRC7::m_ksl_valueChanged(int val)
 {
    OnHScroll(SB_HORZ,val,dynamic_cast<CScrollBar*>(GetDlgItem(IDC_M_KSL)));
@@ -166,36 +126,6 @@ void CInstrumentEditorVRC7::m_sl_valueChanged(int val)
 void CInstrumentEditorVRC7::m_rr_valueChanged(int val)
 {
    OnHScroll(SB_HORZ,val,dynamic_cast<CScrollBar*>(GetDlgItem(IDC_M_RR)));
-}
-
-void CInstrumentEditorVRC7::c_am_clicked()
-{
-   OnBnClickedCheckbox();
-}
-
-void CInstrumentEditorVRC7::c_vib_clicked()
-{
-   OnBnClickedCheckbox();
-}
-
-void CInstrumentEditorVRC7::c_eq_clicked()
-{
-   OnBnClickedCheckbox();
-}
-
-void CInstrumentEditorVRC7::c_ksr_clicked()
-{
-   OnBnClickedCheckbox();
-}
-
-void CInstrumentEditorVRC7::c_dm_clicked()
-{
-   OnBnClickedCheckbox();
-}
-
-void CInstrumentEditorVRC7::c_eg_clicked()
-{
-   OnBnClickedCheckbox();
 }
 
 void CInstrumentEditorVRC7::c_ksl_valueChanged(int val)

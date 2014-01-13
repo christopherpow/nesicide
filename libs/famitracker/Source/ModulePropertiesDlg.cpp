@@ -86,31 +86,6 @@ void CModulePropertiesDlg::songList_itemSelectionChanged()
    OnLvnItemchangedSonglist((NMHDR*)&nmlv,&result);
 }
 
-void CModulePropertiesDlg::songAdd_clicked()
-{
-   OnBnClickedSongAdd();
-}
-
-void CModulePropertiesDlg::songRemove_clicked()
-{
-   OnBnClickedSongRemove();
-}
-
-void CModulePropertiesDlg::songUp_clicked()
-{
-   OnBnClickedSongUp();
-}
-
-void CModulePropertiesDlg::songDown_clicked()
-{
-   OnBnClickedSongDown();
-}
-
-void CModulePropertiesDlg::songImport_clicked()
-{
-   OnBnClickedSongImport();
-}
-
 void CModulePropertiesDlg::songName_textEdited(QString text)
 {
    OnEnChangeSongname();
@@ -119,16 +94,6 @@ void CModulePropertiesDlg::songName_textEdited(QString text)
 void CModulePropertiesDlg::expansion_currentIndexChanged(int index)
 {
    OnCbnSelchangeExpansion();
-}
-
-void CModulePropertiesDlg::ok_clicked()
-{
-   OnBnClickedOk();
-}
-
-void CModulePropertiesDlg::cancel_clicked()
-{
-   OnCancel();
 }
 
 void CModulePropertiesDlg::channels_valueChanged(int value)

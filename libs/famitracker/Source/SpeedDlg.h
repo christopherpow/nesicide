@@ -30,8 +30,6 @@ class CSpeedDlg : public CDialog
    Q_OBJECT
    // Qt interfaces
 public slots:
-   void ok_clicked();
-   void cancel_clicked();
    void speedSld_valueChanged(int value);
 public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
 

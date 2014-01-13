@@ -36,26 +36,12 @@ public: // For some reason MOC doesn't like the protection specification inside 
    
 public slots:
    void patch_currentIndexChanged(int index);
-   void copy_clicked();
-   void paste_clicked();
-   void m_am_clicked();
-   void m_vib_clicked();
-   void m_eq_clicked();
-   void m_ksr2_clicked();
-   void m_dm_clicked();
-   void m_eg_clicked();
    void m_ksl_valueChanged(int val);
    void m_mul_valueChanged(int val);
    void m_ar_valueChanged(int val);
    void m_dr_valueChanged(int val);
    void m_sl_valueChanged(int val);
    void m_rr_valueChanged(int val);
-   void c_am_clicked();
-   void c_vib_clicked();
-   void c_eq_clicked();
-   void c_ksr_clicked();
-   void c_dm_clicked();
-   void c_eg_clicked();
    void c_ksl_valueChanged(int val);
    void c_mul_valueChanged(int val);
    void c_ar_valueChanged(int val);

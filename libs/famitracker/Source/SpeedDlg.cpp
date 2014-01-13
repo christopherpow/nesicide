@@ -48,16 +48,6 @@ BEGIN_MESSAGE_MAP(CSpeedDlg, CDialog)
 	ON_BN_CLICKED(IDCANCEL, OnBnClickedCancel)
 END_MESSAGE_MAP()
 
-void CSpeedDlg::ok_clicked()
-{
-   OnOK();
-}
-
-void CSpeedDlg::cancel_clicked()
-{
-   OnBnClickedCancel();
-}
-
 void CSpeedDlg::speedSld_valueChanged(int value)
 {
    OnHScroll(SB_HORZ,value,(CScrollBar*)GetDlgItem(IDC_SPEED_SLD));

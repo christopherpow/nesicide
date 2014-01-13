@@ -118,16 +118,6 @@ BEGIN_MESSAGE_MAP(CInstrumentEditorDPCM, CInstrumentEditPanel)
    ON_NOTIFY(NM_DBLCLK, IDC_TABLE, OnNMDblclkTable)
 END_MESSAGE_MAP()
 
-void CInstrumentEditorDPCM::load_clicked()
-{
-   OnBnClickedLoad();
-}
-
-void CInstrumentEditorDPCM::unload_clicked()
-{
-   OnBnClickedUnload();
-}
-
 void CInstrumentEditorDPCM::sampleList_itemSelectionChanged()
 {
 }
@@ -144,11 +134,6 @@ void CInstrumentEditorDPCM::sampleList_cellDoubleClicked(int row, int column)
    NMHDR nmhdr;
    LRESULT result;
    OnNMDblclkSampleList(&nmhdr,&result);
-}
-
-void CInstrumentEditorDPCM::import_clicked()
-{
-   OnBnClickedImport();
 }
 
 void CInstrumentEditorDPCM::octave_currentIndexChanged(int index)
@@ -184,39 +169,9 @@ void CInstrumentEditorDPCM::samples_currentIndexChanged(int index)
    OnCbnSelchangeSamples();
 }
 
-void CInstrumentEditorDPCM::save_clicked()
-{
-   OnBnClickedSave();
-}
-
-void CInstrumentEditorDPCM::loop_clicked()
-{
-   OnBnClickedLoop();
-}
-
-void CInstrumentEditorDPCM::add_clicked()
-{
-   OnBnClickedAdd();
-}
-
-void CInstrumentEditorDPCM::remove_clicked()
-{
-   OnBnClickedRemove();
-}
-
 void CInstrumentEditorDPCM::loopPoint_textEdited(QString str)
 {
    OnEnChangeLoopPoint();
-}
-
-void CInstrumentEditorDPCM::edit_clicked()
-{
-   OnBnClickedEdit();
-}
-
-void CInstrumentEditorDPCM::preview_clicked()
-{
-   OnBnClickedPreview();
 }
 
 void CInstrumentEditorDPCM::contextMenuEvent(QContextMenuEvent *event)
@@ -232,24 +187,6 @@ void CInstrumentEditorDPCM::contextMenuEvent(QContextMenuEvent *event)
    {
       OnNMRClickSampleList(&nmhdr,&result);
    }
-}
-
-void CInstrumentEditorDPCM::keyPressEvent(QKeyEvent *event)
-{
-   MSG msg;
-   msg.hwnd = (HWND)this;
-   msg.message = WM_KEYDOWN;
-   msg.wParam = event->key();
-   PreTranslateMessage(&msg);
-}
-
-void CInstrumentEditorDPCM::keyReleaseEvent(QKeyEvent *event)
-{
-   MSG msg;
-   msg.hwnd = (HWND)this;
-   msg.message = WM_KEYUP;
-   msg.wParam = event->key();
-   PreTranslateMessage(&msg);
 }
 
 void CInstrumentEditorDPCM::menuAction_triggered(int id)

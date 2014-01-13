@@ -32,16 +32,7 @@ class CInstrumentEditorN163Wave : public CInstrumentEditPanel
 {
    Q_OBJECT
    // Qt stuff
-protected:
-   bool event(QEvent *event);
 public slots:
-   void presetSine_clicked();
-   void presetTriangle_clicked();
-   void presetSawtooth_clicked();
-   void presetPulse50_clicked();
-   void presetPulse25_clicked();
-   void copy_clicked();
-   void paste_clicked();
    void indexSpin_valueChanged(int arg1,int arg2);
    void wavesSpin_valueChanged(int arg1,int arg2);
    void waveSize_currentIndexChanged(int index);

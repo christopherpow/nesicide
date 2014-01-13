@@ -58,11 +58,6 @@ BEGIN_MESSAGE_MAP(CSequenceEditor, CWnd)
 	ON_WM_LBUTTONDOWN()
 END_MESSAGE_MAP()
 
-void CSequenceEditor::paintEvent(QPaintEvent *)
-{
-   OnPaint(); 
-}
-
 BOOL CSequenceEditor::CreateEditor(CWnd *pParentWnd, const RECT &rect)
 {
 	CRect menuRect;

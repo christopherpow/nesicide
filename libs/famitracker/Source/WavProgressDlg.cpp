@@ -52,17 +52,6 @@ BEGIN_MESSAGE_MAP(CWavProgressDlg, CDialog)
 	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
-void CWavProgressDlg::cancel_clicked()
-{
-   OnBnClickedCancel();
-}
-
-void CWavProgressDlg::timerEvent(QTimerEvent *event)
-{
-   int mfcId = mfcTimerId(event->timerId());
-   OnTimer(mfcId);
-}
-
 // CWavProgressDlg message handlers
 
 void CWavProgressDlg::OnBnClickedCancel()

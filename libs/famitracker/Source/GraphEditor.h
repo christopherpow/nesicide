@@ -28,9 +28,6 @@ enum {EDIT_NONE, EDIT_LINE, EDIT_POINT, EDIT_LOOP, EDIT_RELEASE};
 // Graph editor base class
 class CGraphEditor : public CWnd
 {
-   // Qt stuff
-   void timerEvent(QTimerEvent *event);
-   void paintEvent(QPaintEvent *);
 public:
 	CGraphEditor(CSequence *pSequence);
 	virtual ~CGraphEditor();
@@ -96,11 +93,6 @@ public:
 class CBarGraphEditor : public CGraphEditor
 {
    // Qt stuff
-protected:
-   void paintEvent(QPaintEvent *);
-   void mouseMoveEvent(QMouseEvent *event);
-   void mousePressEvent(QMouseEvent *event);
-   void mouseReleaseEvent(QMouseEvent *event);
 private:
 	int m_iItems;
 public:
@@ -117,10 +109,6 @@ class CArpeggioGraphEditor : public CGraphEditor
    Q_OBJECT
    // Qt stuff
 protected:
-   void paintEvent(QPaintEvent *);
-   void mouseMoveEvent(QMouseEvent *event);
-   void mousePressEvent(QMouseEvent *event);
-   void mouseReleaseEvent(QMouseEvent *event);
    void wheelEvent(QWheelEvent *event);
 public slots:
    void verticalScrollBar_actionTriggered(int arg1);
@@ -156,11 +144,6 @@ public:
 class CPitchGraphEditor : public CGraphEditor
 {
    // Qt stuff
-protected:
-   void paintEvent(QPaintEvent *);
-   void mouseMoveEvent(QMouseEvent *event);
-   void mousePressEvent(QMouseEvent *event);
-   void mouseReleaseEvent(QMouseEvent *event);
 private:
 	static const int ITEMS = 20;
 public:
@@ -174,11 +157,6 @@ public:
 class CNoiseEditor : public CGraphEditor
 {
    // Qt stuff
-protected:
-   void paintEvent(QPaintEvent *);
-   void mouseMoveEvent(QMouseEvent *event);
-   void mousePressEvent(QMouseEvent *event);
-   void mouseReleaseEvent(QMouseEvent *event);
 private:
 	int m_iItems;
 	int m_iLastIndex;

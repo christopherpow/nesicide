@@ -126,16 +126,6 @@ BEGIN_MESSAGE_MAP(CExportDialog, CDialog)
 	ON_BN_CLICKED(IDC_PLAY, OnBnClickedPlay)
 END_MESSAGE_MAP()
 
-void CExportDialog::close_clicked()
-{
-   OnBnClickedClose();
-}
-
-void CExportDialog::export_clicked()
-{
-   OnBnClickedExport();
-}
-
 // CExportDialog message handlers
 
 void CExportDialog::OnBnClickedClose()

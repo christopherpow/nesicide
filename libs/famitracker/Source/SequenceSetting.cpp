@@ -167,42 +167,6 @@ void CSequenceSetting::OnMenuArpFixed()
 	}
 }
 
-void CSequenceSetting::mousePressEvent(QMouseEvent *event)
-{
-   CPoint point(event->pos());
-   unsigned int flags = 0;
-   if ( event->modifiers()&Qt::ControlModifier )
-   {
-      flags |= MK_CONTROL;
-   }
-   if ( event->modifiers()&Qt::ShiftModifier )
-   {
-      flags |= MK_SHIFT;
-   }
-   if ( event->buttons()&Qt::LeftButton )
-   {
-      flags |= MK_LBUTTON;
-   }
-   if ( event->buttons()&Qt::MiddleButton )
-   {
-      flags |= MK_MBUTTON;
-   }
-   if ( event->buttons()&Qt::RightButton )
-   {
-      flags |= MK_RBUTTON;            
-   }
-   if ( event->button() == Qt::LeftButton )
-   {
-      OnLButtonDown(flags,point);
-   }
-   update();
-}
-
-void CSequenceSetting::paintEvent(QPaintEvent *)
-{
-   OnPaint(); 
-}
-
 void CSequenceSetting::menuAction_triggered(int id)
 {
    typedef void (CSequenceSetting::*actionHandler)();

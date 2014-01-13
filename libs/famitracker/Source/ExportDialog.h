@@ -33,9 +33,6 @@ class CExportDialog : public CDialog
 {
    Q_OBJECT
    // Qt interfaces
-public slots:
-   void close_clicked();
-   void export_clicked();
 public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
 
    DECLARE_DYNAMIC(CExportDialog)

@@ -122,59 +122,6 @@ BEGIN_MESSAGE_MAP(CInstrumentEditorN163Wave, CInstrumentEditPanel)
 	ON_EN_CHANGE(IDC_INDEX, OnIndexChange)
 END_MESSAGE_MAP()
 
-bool CInstrumentEditorN163Wave::event(QEvent* event)
-{
-   MFCMessageEvent* msgEvent = dynamic_cast<MFCMessageEvent*>(event);
-   if ( msgEvent )
-   {
-//      ON_MESSAGE(WM_USER_WAVE_CHANGED, OnWaveChanged)
-      switch ( msgEvent->msg.message )
-      {
-      case WM_USER_WAVE_CHANGED:
-         OnWaveChanged(msgEvent->msg.wParam,msgEvent->msg.lParam);
-         break;
-      }
-
-      return true;
-   }
-   return false;
-}
-
-void CInstrumentEditorN163Wave::presetSine_clicked()
-{
-   OnPresetSine();
-}
-
-void CInstrumentEditorN163Wave::presetTriangle_clicked()
-{
-   OnPresetTriangle();
-}
-
-void CInstrumentEditorN163Wave::presetSawtooth_clicked()
-{
-   OnPresetSawtooth();
-}
-
-void CInstrumentEditorN163Wave::presetPulse50_clicked()
-{
-   OnPresetPulse50();
-}
-
-void CInstrumentEditorN163Wave::presetPulse25_clicked()
-{
-   OnPresetPulse25();
-}
-
-void CInstrumentEditorN163Wave::copy_clicked()
-{
-   OnBnClickedCopy();
-}
-
-void CInstrumentEditorN163Wave::paste_clicked()
-{
-   OnBnClickedPaste();
-}
-
 void CInstrumentEditorN163Wave::indexSpin_valueChanged(int arg1,int arg2)
 {
    OnIndexChange();

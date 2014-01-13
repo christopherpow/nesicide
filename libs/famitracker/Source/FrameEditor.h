@@ -107,15 +107,8 @@ public slots:
    void horizontalScrollBar_actionTriggered(int action);
    void menuAction_triggered(int id);
 protected:
-   void paintEvent(QPaintEvent *event);
-   void mousePressEvent(QMouseEvent *event);
-   void mouseMoveEvent(QMouseEvent *event);
-   void mouseReleaseEvent(QMouseEvent *event);
-   void mouseDoubleClickEvent(QMouseEvent *event);
    void wheelEvent(QWheelEvent *event);
-   void keyPressEvent(QKeyEvent *event);
-   void resizeEvent(QResizeEvent *event);
-   void timerEvent(QTimerEvent *event);
+//   void resizeEvent(QResizeEvent *event);
    void focusInEvent(QFocusEvent *event) { event->ignore(); }
    void focusOutEvent(QFocusEvent *);
    void leaveEvent(QEvent *);

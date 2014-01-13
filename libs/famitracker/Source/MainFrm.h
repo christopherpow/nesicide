@@ -51,9 +51,6 @@ protected:
    void focusInEvent(QFocusEvent *);
    void showEvent(QShowEvent *);
    void hideEvent(QHideEvent *);
-   void resizeEvent(QResizeEvent *event);
-   void timerEvent(QTimerEvent *event);
-   bool event(QEvent *event);
 private:
    QTimer* pTimer;
    CFamiTrackerDoc* m_pDocument;
@@ -372,16 +369,12 @@ public slots:
    void updateViews(long hint);
    void instruments_doubleClicked(const QModelIndex &index);
    void instruments_currentRowChanged(int row);
-   void frameChangeAll_clicked();
-   void frameInc_clicked();   
-   void frameDec_clicked();
    void subtune_currentIndexChanged(int index);
    void songName_textEdited(const QString &arg1);   
    void songArtist_textEdited(const QString &arg1);
    void songCopyright_textEdited(const QString &arg1);
    void instName_textEdited(const QString &arg1);
    void octave_currentIndexChanged(int);
-   void follow_clicked();
    void highlightspin1_valueChanged(int arg1, int arg2);
    void highlightspin2_valueChanged(int arg1, int arg2);
    void speedSpin_valueChanged(int arg1, int arg2);
@@ -389,7 +382,6 @@ public slots:
    void rowsSpin_valueChanged(int arg1, int arg2);
    void framesSpin_valueChanged(int arg1, int arg2);
    void keyStepSpin_valueChanged(int arg1, int arg2);
-   void keyRepeat_clicked();
    void menuAboutToShow(CMenu* menu);
    void menuAction_triggered(int id);
    

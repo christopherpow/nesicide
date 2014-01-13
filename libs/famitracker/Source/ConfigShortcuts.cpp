@@ -56,39 +56,11 @@ BEGIN_MESSAGE_MAP(CConfigShortcuts, CPropertyPage)
    ON_BN_CLICKED(IDC_CLEAR, OnBnClickedClear)
 END_MESSAGE_MAP()
 
-void CConfigShortcuts::clear_clicked()
-{
-   OnBnClickedClear();
-}
-
-void CConfigShortcuts::default_clicked()
-{
-   OnBnClickedDefault();
-}
-
 void CConfigShortcuts::shortcuts_cellClicked(int, int)
 {
    NMHDR nmhdr;
    LRESULT result;
    OnNMClickShortcuts(&nmhdr,&result);
-}
-
-void CConfigShortcuts::keyPressEvent(QKeyEvent *event)
-{
-   MSG msg;
-   msg.hwnd = (HWND)this;
-   msg.message = WM_KEYDOWN;
-   msg.wParam = event->key();
-   PreTranslateMessage(&msg);
-}
-
-void CConfigShortcuts::keyReleaseEvent(QKeyEvent *event)
-{
-   MSG msg;
-   msg.hwnd = (HWND)this;
-   msg.message = WM_KEYUP;
-   msg.wParam = event->key();
-   PreTranslateMessage(&msg);
 }
 
 // CConfigShortcuts message handlers

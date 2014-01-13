@@ -25,10 +25,6 @@
 class CModSequenceEditor : public CWnd
 {
    // Qt interfaces
-protected:
-   void mouseMoveEvent(QMouseEvent *event);
-   void mousePressEvent(QMouseEvent *event);
-   void paintEvent(QPaintEvent *);
 public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
    
 	CModSequenceEditor();

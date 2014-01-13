@@ -29,7 +29,6 @@ class CSequence;
 
 class CInstrumentEditPanel : public CDialog
 {
-public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
 	DECLARE_DYNAMIC(CInstrumentEditPanel)
 
 public:
@@ -68,12 +67,7 @@ public:
 // Adds some functions for sequences
 class CSequenceInstrumentEditPanel : public CInstrumentEditPanel 
 {
-   // Qt interfaces
-protected:
-   void mousePressEvent(QMouseEvent *event);
-public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
-
-   DECLARE_DYNAMIC(CSequenceInstrumentEditPanel)
+	DECLARE_DYNAMIC(CSequenceInstrumentEditPanel)
 
 public:
 	CSequenceInstrumentEditPanel(UINT nIDTemplate, CWnd* pParent);

@@ -31,7 +31,6 @@ class CInstrumentEditorVRC6 : public CSequenceInstrumentEditPanel
    // Qt stuff
 public slots:
    void instSettings_itemSelectionChanged();
-   void freeSeq_clicked();
    void sequenceSpin_valueChanged(int oldVal,int newVal);
    void menuAction_triggered(int id);
 public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
@@ -78,7 +77,6 @@ public:
 	afx_msg void OnLvnItemchangedInstsettings(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnEnChangeSeqIndex();
 	afx_msg void OnBnClickedFreeSeq();
-	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	virtual BOOL DestroyWindow();
 	afx_msg void OnCloneSequence();
 };

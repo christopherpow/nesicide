@@ -29,15 +29,7 @@
 
 class CWavProgressDlg : public CDialog
 {
-   Q_OBJECT
-   // Qt interfaces
-public slots:
-   void cancel_clicked();
-protected:
-   void timerEvent(QTimerEvent *event);
-public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
-
-   DECLARE_DYNAMIC(CWavProgressDlg)
+	DECLARE_DYNAMIC(CWavProgressDlg)
 
 public:
 	CWavProgressDlg(CWnd* pParent = NULL);   // standard constructor
