@@ -4409,7 +4409,7 @@ protected:
    bool event(QEvent *event);
    QPlainTextEdit* _qtd_ptedit;
    QLineEdit* _qtd_ledit;
-signals:
+public slots:
    void textChanged();
    void textEdited(QString str);
 
@@ -4556,8 +4556,8 @@ public:
    virtual void subclassWidget(int nID,CWnd* widget);
 protected:
    QSlider* _qtd;
-signals:
-   void valueChanged(int);
+public slots:
+   void valueChanged(int value);
 
    // MFC interfaces
 public:
@@ -4726,7 +4726,7 @@ public:
    virtual void subclassWidget(int nID,CWnd* widget);
 protected:
    QComboBox* _qtd;
-signals:
+public slots:
    void currentIndexChanged(int index);
 
    // MFC interfaces

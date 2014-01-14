@@ -281,7 +281,7 @@ enum AfxSig
 #define ON_UPDATE_COMMAND_UI(id, memberFxn) \
 	{ WM_COMMAND, CN_UPDATE_COMMAND_UI, (WORD)id, (WORD)id, AfxSigCmdUI, \
 		(AFX_PMSG) \
-		(/*static_cast< void (AFX_MSG_CALL CCmdTarget::*)(CCmdUI*) >*/ \
+		(static_cast< void (AFX_MSG_CALL CCmdTarget::*)(CCmdUI*) > \
 		(&ThisClass::memberFxn)) },
 
 #define ON_UPDATE_COMMAND_UI_RANGE(id, idLast, memberFxn) \
@@ -293,7 +293,7 @@ enum AfxSig
 #define ON_NOTIFY(wNotifyCode, id, memberFxn) \
 	{ WM_NOTIFY, (WORD)(int)wNotifyCode, (WORD)id, (WORD)id, AfxSigNotify_v, \
 		(AFX_PMSG) \
-		(/*static_cast< void (AFX_MSG_CALL CCmdTarget::*)(NMHDR*, LRESULT*) >*/ \
+		(static_cast< void (AFX_MSG_CALL CCmdTarget::*)(NMHDR*, LRESULT*) > \
 		(&ThisClass::memberFxn)) },
 
 #define ON_NOTIFY_RANGE(wNotifyCode, id, idLast, memberFxn) \
@@ -317,7 +317,10 @@ enum AfxSig
 // for general controls
 #define ON_CONTROL(wNotifyCode, id, memberFxn) \
 	{ WM_COMMAND, (WORD)wNotifyCode, (WORD)id, (WORD)id, AfxSigCmd_v, \
-		(/*static_cast< AFX_PMSG >*/ (void (CCmdTarget::*)())(&ThisClass::memberFxn)) },
+		(static_cast< void (CCmdTarget::*)() > (&ThisClass::memberFxn)) },
+
+//(static_cast< AFX_PMSG > (void (CCmdTarget::*)())(&ThisClass::memberFxn)) },
+
 
 #define ON_CONTROL_RANGE(wNotifyCode, id, idLast, memberFxn) \
 	{ WM_COMMAND, (WORD)wNotifyCode, (WORD)id, (WORD)idLast, AfxSigCmd_RANGE, \

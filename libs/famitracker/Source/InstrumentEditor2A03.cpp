@@ -97,11 +97,6 @@ void CInstrumentEditor2A03::instSettings_itemSelectionChanged()
    OnLvnItemchangedInstsettings((NMHDR*)&nmlv,&result);
 }
 
-void CInstrumentEditor2A03::sequenceSpin_valueChanged(int oldVal,int newVal)
-{
-   OnEnChangeSeqIndex();
-}
-
 // CInstrumentSettings message handlers
 
 BOOL CInstrumentEditor2A03::OnInitDialog()

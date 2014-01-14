@@ -44,15 +44,6 @@ enum E_COLOR_ITEMS {
 
 class CConfigAppearance : public CPropertyPage
 {
-   Q_OBJECT
-   // Qt interfaces
-public slots:
-   void scheme_currentIndexChanged(int);
-   void colItem_currentIndexChanged(int);
-   void font_currentIndexChanged(int);
-   void fontSize_currentIndexChanged(int);
-public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
-   
    DECLARE_DYNAMIC(CConfigAppearance)
 
 public:

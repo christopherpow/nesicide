@@ -34,23 +34,6 @@ public: // For some reason MOC doesn't like the protection specification inside 
 
    DECLARE_DYNAMIC(CInstrumentEditorVRC7)
    
-public slots:
-   void patch_currentIndexChanged(int index);
-   void m_ksl_valueChanged(int val);
-   void m_mul_valueChanged(int val);
-   void m_ar_valueChanged(int val);
-   void m_dr_valueChanged(int val);
-   void m_sl_valueChanged(int val);
-   void m_rr_valueChanged(int val);
-   void c_ksl_valueChanged(int val);
-   void c_mul_valueChanged(int val);
-   void c_ar_valueChanged(int val);
-   void c_dr_valueChanged(int val);
-   void c_sl_valueChanged(int val);
-   void c_rr_valueChanged(int val);
-   void tl_valueChanged(int val);
-   void fb_valueChanged(int val);
-   
 public:
 	CInstrumentEditorVRC7(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CInstrumentEditorVRC7();

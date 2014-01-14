@@ -35,9 +35,7 @@ class CInstrumentEditorN163Wave : public CInstrumentEditPanel
 public slots:
    void indexSpin_valueChanged(int arg1,int arg2);
    void wavesSpin_valueChanged(int arg1,int arg2);
-   void waveSize_currentIndexChanged(int index);
    void wavePos_editTextChanged(QString text);
-   void wavePos_currentIndexChanged(int index);
 public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
    
    DECLARE_DYNAMIC(CInstrumentEditorN163Wave)

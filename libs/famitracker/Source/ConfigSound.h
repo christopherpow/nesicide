@@ -27,19 +27,6 @@
 
 class CConfigSound : public CPropertyPage
 {
-   Q_OBJECT
-   // Qt interfaces
-public slots:
-   void devices_currentIndexChanged(int value);
-   void sampleRate_currentIndexChanged(int value);
-   void sampleSize_currentIndexChanged(int value);
-   void bufLength_valueChanged(int value);
-   void bassFreq_valueChanged(int value);
-   void trebleFreq_valueChanged(int value);
-   void trebleDamp_valueChanged(int value);
-   void volume_valueChanged(int value);
-public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
-
 	DECLARE_DYNAMIC(CConfigSound)
 
 public:

@@ -11,3 +11,4 @@ char* nesicideGetVersion()
 }
 
 // check out why sample editor window resize crashes app
+// finish imp ON_EN_CHANGE for CSpinButtonCtrl

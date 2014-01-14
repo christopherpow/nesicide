@@ -32,7 +32,6 @@ class CInstrumentEditorS5B : public CSequenceInstrumentEditPanel
    // Qt stuff
 public slots:
    void instSettings_itemSelectionChanged();
-   void sequenceSpin_valueChanged(int oldVal,int newVal);
 public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
 
    DECLARE_DYNAMIC(CInstrumentEditorS5B)

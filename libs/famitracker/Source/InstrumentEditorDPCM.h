@@ -57,13 +57,9 @@ public slots:
    void sampleList_itemSelectionChanged();
    void sampleList_cellClicked(int row, int column);
    void sampleList_cellDoubleClicked(int row, int column);
-   void octave_currentIndexChanged(int index);
-   void pitch_currentIndexChanged(int index);
    void table_itemSelectionChanged();
    void table_cellClicked(int row, int column);
    void table_cellDoubleClicked(int row, int column);
-   void samples_currentIndexChanged(int index);
-   void loopPoint_textEdited(QString str);
    void menuAction_triggered(int id);
 public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
    

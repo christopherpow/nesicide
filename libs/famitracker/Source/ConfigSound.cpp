@@ -51,46 +51,6 @@ BEGIN_MESSAGE_MAP(CConfigSound, CPropertyPage)
 	ON_CBN_SELCHANGE(IDC_DEVICES, OnCbnSelchangeDevices)
 END_MESSAGE_MAP()
 
-void CConfigSound::devices_currentIndexChanged(int value)
-{
-   OnCbnSelchangeDevices();
-}
-
-void CConfigSound::sampleRate_currentIndexChanged(int value)
-{
-   OnCbnSelchangeSampleRate();
-}
-
-void CConfigSound::sampleSize_currentIndexChanged(int value)
-{
-   OnCbnSelchangeSampleSize();
-}
-
-void CConfigSound::bufLength_valueChanged(int value)
-{
-   OnHScroll(SB_HORZ,value,dynamic_cast<CScrollBar*>(GetDlgItem(IDC_BUF_LENGTH)));
-}
-
-void CConfigSound::bassFreq_valueChanged(int value)
-{
-   OnHScroll(SB_HORZ,value,dynamic_cast<CScrollBar*>(GetDlgItem(IDC_BASS_FREQ)));
-}
-
-void CConfigSound::trebleFreq_valueChanged(int value)
-{
-   OnHScroll(SB_HORZ,value,dynamic_cast<CScrollBar*>(GetDlgItem(IDC_TREBLE_FREQ)));
-}
-
-void CConfigSound::trebleDamp_valueChanged(int value)
-{
-   OnHScroll(SB_HORZ,value,dynamic_cast<CScrollBar*>(GetDlgItem(IDC_TREBLE_DAMP)));
-}
-
-void CConfigSound::volume_valueChanged(int value)
-{
-   OnHScroll(SB_HORZ,value,dynamic_cast<CScrollBar*>(GetDlgItem(IDC_VOLUME)));
-}
-
 //int iDeviceIndex;
 
 const int MAX_BUFFER_LEN = 500;	// 500 ms

@@ -86,21 +86,6 @@ void CModulePropertiesDlg::songList_itemSelectionChanged()
    OnLvnItemchangedSonglist((NMHDR*)&nmlv,&result);
 }
 
-void CModulePropertiesDlg::songName_textEdited(QString text)
-{
-   OnEnChangeSongname();
-}
-
-void CModulePropertiesDlg::expansion_currentIndexChanged(int index)
-{
-   OnCbnSelchangeExpansion();
-}
-
-void CModulePropertiesDlg::channels_valueChanged(int value)
-{
-   OnHScroll(SB_HORZ,value,dynamic_cast<CScrollBar*>(GetDlgItem(IDC_CHANNELS)));
-}
-
 // CModulePropertiesDlg message handlers
 
 BOOL CModulePropertiesDlg::OnInitDialog()

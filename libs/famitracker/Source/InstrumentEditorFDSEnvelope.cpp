@@ -67,11 +67,6 @@ BEGIN_MESSAGE_MAP(CInstrumentEditorFDSEnvelope, CInstrumentEditPanel)
    ON_CBN_SELCHANGE(IDC_TYPE, OnCbnSelchangeType)
 END_MESSAGE_MAP()
 
-void CInstrumentEditorFDSEnvelope::type_currentIndexChanged(int index)
-{
-   OnCbnSelchangeType();
-}
-
 // CInstrumentEditorFDSEnvelope message handlers
 
 BOOL CInstrumentEditorFDSEnvelope::OnInitDialog()

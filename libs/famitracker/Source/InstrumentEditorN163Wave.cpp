@@ -132,19 +132,9 @@ void CInstrumentEditorN163Wave::wavesSpin_valueChanged(int arg1,int arg2)
    OnWavesChange();
 }
 
-void CInstrumentEditorN163Wave::waveSize_currentIndexChanged(int index)
-{
-   OnWaveSizeChange();
-}
-
 void CInstrumentEditorN163Wave::wavePos_editTextChanged(QString text)
 {
    OnWavePosChange();
-}
-
-void CInstrumentEditorN163Wave::wavePos_currentIndexChanged(int index)
-{
-   OnWavePosSelChange();
 }
 
 // CInstrumentEditorN163Wave message handlers

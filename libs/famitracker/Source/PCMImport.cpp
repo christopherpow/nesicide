@@ -206,16 +206,6 @@ BEGIN_MESSAGE_MAP(CPCMImport, CDialog)
    ON_BN_CLICKED(IDC_PREVIEW, OnBnClickedPreview)
 END_MESSAGE_MAP()
 
-void CPCMImport::quality_valueChanged(int value)
-{
-   OnHScroll(SB_HORZ,value,dynamic_cast<CScrollBar*>(GetDlgItem(IDC_QUALITY)));
-}
-
-void CPCMImport::volume_valueChanged(int value)
-{
-   OnHScroll(SB_HORZ,value,dynamic_cast<CScrollBar*>(GetDlgItem(IDC_VOLUME)));
-}
-
 CDSample *CPCMImport::ShowDialog()
 {
 	// Return import parameters, 0 if cancel

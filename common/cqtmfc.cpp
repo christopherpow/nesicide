@@ -3279,7 +3279,7 @@ CComboBox::CComboBox(CWnd *parent)
    _qtd->setMouseTracking(true);
 
    // Pass-through signals
-   QObject::connect(_qtd,SIGNAL(currentIndexChanged(int)),this,SIGNAL(currentIndexChanged(int)));
+   QObject::connect(_qtd,SIGNAL(currentIndexChanged(int)),this,SLOT(currentIndexChanged(int)));
 }
 
 CComboBox::~CComboBox()
@@ -3315,8 +3315,15 @@ BOOL CComboBox::Create(
    QFontMetrics fm(_qtd->font());
 
    _qtd->setMaxVisibleItems((rect.bottom-rect.top)/fm.height());
+   
+   SetParent(pParentWnd);
 
    return TRUE;
+}
+
+void CComboBox::currentIndexChanged(int index)
+{
+   GetOwner()->PostMessage(WM_COMMAND,(CBN_SELCHANGE<<16)|(_id),(LPARAM)m_hWnd);
 }
 
 void CComboBox::SetWindowText(
@@ -10163,6 +10170,7 @@ void CEdit::subclassWidget(int nID,CWnd* widget)
    widget->GetWindowRect(&rect);
    Create(widget->GetStyle(),rect,widget->GetParent(),nID);
    setMfcBuddy(widget->mfcBuddy());
+   widget->setMfcBuddy(this);
    _qt->installEventFilter(dynamic_cast<CEdit*>(this));
    
    // Check if this CEdit has been auto-buddied with a CSpinButtonCtrl and,
@@ -10251,7 +10259,7 @@ BOOL CEdit::Create(
       _qtd_ptedit = dynamic_cast<QPlainTextEdit*>(_qt);
 
       // Pass-through signals
-      QObject::connect(_qtd_ptedit,SIGNAL(textChanged()),this,SIGNAL(textChanged()));
+      QObject::connect(_qtd_ptedit,SIGNAL(textChanged()),this,SLOT(textChanged()));
       
       _qtd_ptedit->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
       _qtd_ptedit->setReadOnly(dwStyle&ES_READONLY);
@@ -10273,7 +10281,7 @@ BOOL CEdit::Create(
       _qtd_ledit = dynamic_cast<QLineEdit*>(_qt);
 
       // Pass-through signals
-      QObject::connect(_qtd_ledit,SIGNAL(textEdited(QString)),this,SIGNAL(textEdited(QString)));
+      QObject::connect(_qtd_ledit,SIGNAL(textEdited(QString)),this,SLOT(textEdited(QString)));
 
       _qtd_ledit->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
       _qtd_ledit->setReadOnly(dwStyle&ES_READONLY);
@@ -10285,7 +10293,19 @@ BOOL CEdit::Create(
       }
    }
    
+   SetParent(pParentWnd);
+   
    return TRUE;
+}
+
+void CEdit::textChanged()
+{
+   GetOwner()->PostMessage(WM_COMMAND,(EN_CHANGE<<16)|(_id),(LPARAM)m_hWnd);
+}
+
+void CEdit::textEdited(QString str)
+{
+   GetOwner()->PostMessage(WM_COMMAND,(EN_CHANGE<<16)|(_id),(LPARAM)m_hWnd);
 }
 
 void CEdit::Clear()
@@ -10671,7 +10691,7 @@ void CButton::subclassWidget(int nID,CWnd* widget)
 
 void CButton::clicked()
 {
-   GetOwner()->SendMessage(WM_COMMAND,_id);
+   GetOwner()->PostMessage(WM_COMMAND,_id);
 }
 
 BOOL CButton::Create(
@@ -11153,7 +11173,7 @@ BOOL CSpinButtonCtrl::Create(
       delete _qt;
 
    _grid = NULL;
-
+   
    _qt = new QSpinBox_MFC(pParentWnd->toQWidget());
 
    // Downcast to save having to do it all over the place...
@@ -11179,6 +11199,7 @@ BOOL CSpinButtonCtrl::Create(
             if ( dynamic_cast<CEdit*>(pWnd) )
             {
                pWnd->setMfcBuddy(this);
+               setMfcBuddy(pWnd);
                
                QRect rect = pWnd->toQWidget()->geometry();
                _qtd->setLineEdit(dynamic_cast<QLineEdit*>(pWnd->toQWidget()));
@@ -11189,6 +11210,8 @@ BOOL CSpinButtonCtrl::Create(
       }
    }
    
+   SetParent(pParentWnd);
+   
    _qtd->setVisible(dwStyle&WS_VISIBLE);
 
    return TRUE;
@@ -11196,12 +11219,26 @@ BOOL CSpinButtonCtrl::Create(
 
 void CSpinButtonCtrl::control_edited(int value)
 {
-   emit valueChanged(_oldValue,value);
+//   emit valueChanged(_oldValue,value);
+   NMUPDOWN nmud;
+   
+   nmud.hdr.hwndFrom = m_hWnd;
+   nmud.hdr.idFrom = _id;
+   nmud.hdr.code = UDN_DELTAPOS;
+   nmud.iPos = value;
+   nmud.iDelta = _oldValue-value;
+   GetOwner()->SendMessage(WM_NOTIFY,0,(LPARAM)&nmud);
    _oldValue = value;
+   HWND hWnd = (HWND)mfcBuddy();
+   int id = mfcBuddy()->GetDlgCtrlID();
+   GetOwner()->PostMessage(WM_COMMAND,(EN_CHANGE<<16)|(id),(LPARAM)hWnd);
 }
 
 void CSpinButtonCtrl::control_edited(QString value)
 {
+   HWND hWnd = (HWND)mfcBuddy();
+   int id = mfcBuddy()->GetDlgCtrlID();
+   GetOwner()->PostMessage(WM_COMMAND,(EN_CHANGE<<16)|(id),(LPARAM)hWnd);
 }
 
 int CSpinButtonCtrl::SetPos(
@@ -11350,7 +11387,7 @@ CSliderCtrl::CSliderCtrl(CWnd* parent)
    _qtd->setMouseTracking(true);
 
    // Pass-through signals
-   QObject::connect(_qtd,SIGNAL(valueChanged(int)),this,SIGNAL(valueChanged(int)));
+   QObject::connect(_qtd,SIGNAL(valueChanged(int)),this,SLOT(valueChanged(int)));
 }
 
 CSliderCtrl::~CSliderCtrl()
@@ -11359,6 +11396,18 @@ CSliderCtrl::~CSliderCtrl()
       delete _qtd;
    _qtd = NULL;
    _qt = NULL;
+}
+
+void CSliderCtrl::valueChanged(int value)
+{
+   if ( _dwStyle&TBS_VERT )
+   {
+      GetOwner()->PostMessage(WM_VSCROLL,(value<<16)|(SB_VERT|SB_THUMBTRACK),(LPARAM)m_hWnd);
+   }
+   else
+   {
+      GetOwner()->PostMessage(WM_HSCROLL,(value<<16)|(SB_HORZ|SB_THUMBTRACK),(LPARAM)m_hWnd);
+   }
 }
 
 void CSliderCtrl::subclassWidget(int nID,CWnd* widget)
@@ -11379,7 +11428,11 @@ BOOL CSliderCtrl::Create(
 {
    m_hWnd = (HWND)this;
    _id = nID;
-
+   
+   _dwStyle = dwStyle;
+   
+   SetParent(pParentWnd);
+   
    if ( dwStyle&TBS_NOTICKS )
    {
       _qtd->setTickPosition(QSlider::NoTicks);

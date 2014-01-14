@@ -1297,7 +1297,6 @@ void qtMfcInitDialogResource_IDD_SPEED(CDialog* parent1)
    parent->MapDialogRect(&r3);
    mfc3->Create(WS_TABSTOP | WS_VISIBLE,r3,parent,IDC_SPEED_SLD);
    mfcToQtWidget->insert(IDC_SPEED_SLD,mfc3);
-   QObject::connect(mfc3,SIGNAL(valueChanged(int)),parent,SLOT(speedSld_valueChanged(int)));
 //       LTEXT           "60 Hz",IDC_SPEED,112,11,26,12
    CStatic* mfc4 = new CStatic(parent);
    CRect r4(CPoint(112,11),CSize(26,12));
@@ -1339,7 +1338,6 @@ void qtMfcInitDialogResource_IDD_PCMIMPORT(CDialog* parent1)
    parent->MapDialogRect(&r3);
    mfc3->Create(TBS_AUTOTICKS | WS_TABSTOP | WS_VISIBLE,r3,parent,IDC_QUALITY);
    mfcToQtWidget->insert(IDC_QUALITY,mfc3);
-   QObject::connect(mfc3,SIGNAL(valueChanged(int)),parent,SLOT(quality_valueChanged(int)));
 //   LTEXT           "High",IDC_STATIC,123,21,16,10
    CStatic* mfc4 = new CStatic(parent);
    CRect r4(CPoint(123,21),CSize(16,10));
@@ -1362,7 +1360,6 @@ void qtMfcInitDialogResource_IDD_PCMIMPORT(CDialog* parent1)
    parent->MapDialogRect(&r7);
    mfc7->Create(TBS_AUTOTICKS | WS_TABSTOP | WS_VISIBLE,r7,parent,IDC_VOLUME);
    mfcToQtWidget->insert(IDC_VOLUME,mfc7);
-   QObject::connect(mfc7,SIGNAL(valueChanged(int)),parent,SLOT(volume_valueChanged(int)));
 //   LTEXT           "High",IDC_STATIC,123,61,16,10
    CStatic* mfc8 = new CStatic(parent);
    CRect r8(CPoint(123,61),CSize(16,10));
@@ -1475,7 +1472,6 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_INTERNAL(CDialog* parent1)
    parent->MapDialogRect(&r4);
    mfc4->Create(UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r4,parent,IDC_SEQUENCE_SPIN);
    mfcToQtWidget->insert(IDC_SEQUENCE_SPIN,mfc4);
-   QObject::connect(mfc4,SIGNAL(valueChanged(int,int)),parent,SLOT(sequenceSpin_valueChanged(int,int)));
 //   PUSHBUTTON      "Select next empty slot",IDC_FREE_SEQ,12,129,96,15
    CButton* mfc7 = new CButton(parent);
    CRect r7(CPoint(12,129),CSize(96,15));
@@ -1525,7 +1521,6 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_DPCM(CDialog* parent1)
    parent->MapDialogRect(&r3);
    mfc3->Create(CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r3,parent,IDC_SAMPLES);
    mfcToQtWidget->insert(IDC_SAMPLES,mfc3);
-   QObject::connect(mfc3,SIGNAL(currentIndexChanged(int)),parent,SLOT(samples_currentIndexChanged(int)));
 //   LTEXT           "Octave",IDC_STATIC,138,19,30,9
    CStatic* mfc4 = new CStatic(parent);
    CRect r4(CPoint(138,19),CSize(30,9));
@@ -1538,7 +1533,6 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_DPCM(CDialog* parent1)
    parent->MapDialogRect(&r5);
    mfc5->Create(CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r5,parent,IDC_OCTAVE);
    mfcToQtWidget->insert(IDC_OCTAVE,mfc5);
-   QObject::connect(mfc5,SIGNAL(currentIndexChanged(int)),parent,SLOT(octave_currentIndexChanged(int)));
 //   LTEXT           "Pitch",IDC_STATIC,138,44,30,8
    CStatic* mfc6 = new CStatic(parent);
    CRect r6(CPoint(138,44),CSize(30,8));
@@ -1551,7 +1545,6 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_DPCM(CDialog* parent1)
    parent->MapDialogRect(&r7);
    mfc7->Create(CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r7,parent,IDC_PITCH);
    mfcToQtWidget->insert(IDC_PITCH,mfc7);
-   QObject::connect(mfc7,SIGNAL(currentIndexChanged(int)),parent,SLOT(pitch_currentIndexChanged(int)));
 //   CONTROL         "Loop",IDC_LOOP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,138,71,42,9
    CButton* mfc8 = new CButton(parent);
    CRect r8(CPoint(138,71),CSize(42,9));
@@ -1708,7 +1701,6 @@ void qtMfcInitDialogResource_IDD_CONFIG_APPEARANCE(CDialog* parent1)
    parent->MapDialogRect(&r2);
    mfc2->Create(CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r2,parent,IDC_SCHEME);
    mfcToQtWidget->insert(IDC_SCHEME,mfc2);
-   QObject::connect(mfc2,SIGNAL(currentIndexChanged(int)),parent,SLOT(scheme_currentIndexChanged(int)));
 //   GROUPBOX        "Colors",IDC_STATIC,7,54,149,65
    CButton* mfc3 = new CButton(parent);
    CRect r3(CPoint(7,54),CSize(149,65));
@@ -1727,7 +1719,6 @@ void qtMfcInitDialogResource_IDD_CONFIG_APPEARANCE(CDialog* parent1)
    parent->MapDialogRect(&r5);
    mfc5->Create(CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r5,parent,IDC_COL_ITEM);
    mfcToQtWidget->insert(IDC_COL_ITEM,mfc5);
-   QObject::connect(mfc5,SIGNAL(currentIndexChanged(int)),parent,SLOT(colItem_currentIndexChanged(int)));
 //   CONTROL         "",IDC_COL_PREVIEW,"Static",SS_OWNERDRAW,15,85,69,15
    CStatic* mfc6 = new CStatic(parent);
    CRect r6(CPoint(15,85),CSize(69,15));
@@ -1758,14 +1749,12 @@ void qtMfcInitDialogResource_IDD_CONFIG_APPEARANCE(CDialog* parent1)
    parent->MapDialogRect(&r10);
    mfc10->Create(CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r10,parent,IDC_FONT);
    mfcToQtWidget->insert(IDC_FONT,mfc10);
-   QObject::connect(mfc10,SIGNAL(currentIndexChanged(int)),parent,SLOT(font_currentIndexChanged(int)));
 //   COMBOBOX        IDC_FONT_SIZE,122,139,28,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
    CComboBox* mfc11 = new CComboBox(parent);
    CRect r11(CPoint(122,139),CSize(28,30));
    parent->MapDialogRect(&r11);
    mfc11->Create(CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r11,parent,IDC_FONT_SIZE);
    mfcToQtWidget->insert(IDC_FONT_SIZE,mfc11);
-   QObject::connect(mfc11,SIGNAL(currentIndexChanged(int)),parent,SLOT(fontSize_currentIndexChanged(int)));
 //   GROUPBOX        "Preview",IDC_STATIC,166,7,107,153
    CButton* mfc12 = new CButton(parent);
    CRect r12(CPoint(166,7),CSize(107,153));
@@ -1947,7 +1936,6 @@ void qtMfcInitDialogResource_IDD_CONFIG_GENERAL(CDialog* parent1)
    parent->MapDialogRect(&r20);
    mfc20->Create(CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r20,parent,IDC_PAGELENGTH);
    mfcToQtWidget->insert(IDC_PAGELENGTH,mfc20);
-   QObject::connect(mfc20,SIGNAL(currentIndexChanged(int)),parent,SLOT(pageLength_currentIndexChanged(int)));
 //   IDD_CONFIG_GENERAL DLGINIT
 //   BEGIN
 //       IDC_PAGELENGTH, 0x403, 2, 0
@@ -2109,14 +2097,12 @@ void qtMfcInitDialogResource_IDD_PROPERTIES(CDialog* parent1)
    parent->MapDialogRect(&r9);
    mfc9->Create(ES_AUTOHSCROLL | WS_VISIBLE,r9,parent,IDC_SONGNAME);
    mfcToQtWidget->insert(IDC_SONGNAME,mfc9);
-   QObject::connect(mfc9,SIGNAL(textEdited(QString)),parent,SLOT(songName_textEdited(QString)));
 //       COMBOBOX        IDC_EXPANSION,14,173,113,61,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
    CComboBox* mfc11 = new CComboBox(parent);
    CRect r11(CPoint(14,173),CSize(113,61));
    parent->MapDialogRect(&r11);
    mfc11->Create(CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r11,parent,IDC_EXPANSION);
    mfcToQtWidget->insert(IDC_EXPANSION,mfc11);
-   QObject::connect(mfc11,SIGNAL(currentIndexChanged(int)),parent,SLOT(expansion_currentIndexChanged(int)));
 //       COMBOBOX        IDC_VIBRATO,14,204,184,61,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
    CComboBox* mfc13 = new CComboBox(parent);
    CRect r13(CPoint(14,204),CSize(184,61));
@@ -2159,7 +2145,6 @@ void qtMfcInitDialogResource_IDD_PROPERTIES(CDialog* parent1)
    parent->MapDialogRect(&r18);
    mfc18->Create(TBS_AUTOTICKS | WS_TABSTOP | WS_VISIBLE,r18,parent,IDC_CHANNELS);
    mfcToQtWidget->insert(IDC_CHANNELS,mfc18);
-   QObject::connect(mfc18,SIGNAL(valueChanged(int)),parent,SLOT(channels_valueChanged(int)));
 //   END
 }
 
@@ -2215,7 +2200,6 @@ void qtMfcInitDialogResource_IDD_CONFIG_SOUND(CDialog* parent1)
    parent->MapDialogRect(&r2);
    mfc2->Create(CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r2,parent,IDC_DEVICES);
    mfcToQtWidget->insert(IDC_DEVICES,mfc2);
-   QObject::connect(mfc2,SIGNAL(currentIndexChanged(int)),parent,SLOT(devices_currentIndexChanged(int)));
 //       GROUPBOX        "Sample rate",IDC_STATIC,7,48,113,33
    CButton* mfc3 = new CButton(parent);
    CRect r3(CPoint(7,48),CSize(113,33));
@@ -2228,7 +2212,6 @@ void qtMfcInitDialogResource_IDD_CONFIG_SOUND(CDialog* parent1)
    parent->MapDialogRect(&r4);
    mfc4->Create(CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r4,parent,IDC_SAMPLE_RATE);
    mfcToQtWidget->insert(IDC_SAMPLE_RATE,mfc4);
-   QObject::connect(mfc4,SIGNAL(currentIndexChanged(int)),parent,SLOT(sampleRate_currentIndexChanged(int)));
 //       GROUPBOX        "Sample size",IDC_STATIC,7,90,113,33
    CButton* mfc5 = new CButton(parent);
    CRect r5(CPoint(7,90),CSize(113,33));
@@ -2241,7 +2224,6 @@ void qtMfcInitDialogResource_IDD_CONFIG_SOUND(CDialog* parent1)
    parent->MapDialogRect(&r6);
    mfc6->Create(CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r6,parent,IDC_SAMPLE_SIZE);
    mfcToQtWidget->insert(IDC_SAMPLE_SIZE,mfc6);
-   QObject::connect(mfc6,SIGNAL(currentIndexChanged(int)),parent,SLOT(sampleSize_currentIndexChanged(int)));
 //   IDD_CONFIG_SOUND DLGINIT
 //   BEGIN
 //       IDC_SAMPLE_RATE, 0x403, 10, 0
@@ -2279,7 +2261,6 @@ void qtMfcInitDialogResource_IDD_CONFIG_SOUND(CDialog* parent1)
    parent->MapDialogRect(&r8);
    mfc8->Create(TBS_BOTH | TBS_NOTICKS | WS_TABSTOP | WS_VISIBLE,r8,parent,IDC_BUF_LENGTH);
    mfcToQtWidget->insert(IDC_BUF_LENGTH,mfc8);
-   QObject::connect(mfc8,SIGNAL(valueChanged(int)),parent,SLOT(bufLength_valueChanged(int)));
 //       CTEXT           "20 ms",IDC_BUF_LEN,83,142,31,11
    CStatic* mfc9 = new CStatic(parent);
    CRect r9(CPoint(83,142),CSize(31,11));
@@ -2304,7 +2285,6 @@ void qtMfcInitDialogResource_IDD_CONFIG_SOUND(CDialog* parent1)
    parent->MapDialogRect(&r12);
    mfc12->Create(TBS_BOTH | TBS_NOTICKS | WS_TABSTOP | WS_VISIBLE,r12,parent,IDC_BASS_FREQ);
    mfcToQtWidget->insert(IDC_BASS_FREQ,mfc12);
-   QObject::connect(mfc12,SIGNAL(valueChanged(int)),parent,SLOT(bassFreq_valueChanged(int)));
 //       CTEXT           "16 Hz",IDC_BASS_FREQ_T,234,64,32,10
    CStatic* mfc13 = new CStatic(parent);
    CRect r13(CPoint(234,64),CSize(32,10));
@@ -2329,7 +2309,6 @@ void qtMfcInitDialogResource_IDD_CONFIG_SOUND(CDialog* parent1)
    parent->MapDialogRect(&r16);
    mfc16->Create(TBS_BOTH | TBS_NOTICKS | WS_TABSTOP | WS_VISIBLE,r16,parent,IDC_TREBLE_DAMP);
    mfcToQtWidget->insert(IDC_TREBLE_DAMP,mfc16);
-   QObject::connect(mfc16,SIGNAL(valueChanged(int)),parent,SLOT(trebleDamp_valueChanged(int)));
 //       CTEXT           "-24 dB",IDC_TREBLE_DAMP_T,234,99,32,9
    CStatic* mfc17 = new CStatic(parent);
    CRect r17(CPoint(234,99),CSize(32,9));
@@ -2348,7 +2327,6 @@ void qtMfcInitDialogResource_IDD_CONFIG_SOUND(CDialog* parent1)
    parent->MapDialogRect(&r19);
    mfc19->Create(TBS_BOTH | TBS_NOTICKS | WS_TABSTOP | WS_VISIBLE,r19,parent,IDC_TREBLE_FREQ);
    mfcToQtWidget->insert(IDC_TREBLE_FREQ,mfc19);
-   QObject::connect(mfc19,SIGNAL(valueChanged(int)),parent,SLOT(trebleFreq_valueChanged(int)));
 //       CTEXT           "12000 Hz",IDC_TREBLE_FREQ_T,234,110,32,11
    CStatic* mfc20 = new CStatic(parent);
    CRect r20(CPoint(234,110),CSize(32,11));
@@ -2367,7 +2345,6 @@ void qtMfcInitDialogResource_IDD_CONFIG_SOUND(CDialog* parent1)
    parent->MapDialogRect(&r22);
    mfc22->Create(TBS_BOTH | TBS_NOTICKS | WS_TABSTOP | WS_VISIBLE,r22,parent,IDC_VOLUME);
    mfcToQtWidget->insert(IDC_VOLUME,mfc22);
-   QObject::connect(mfc22,SIGNAL(valueChanged(int)),parent,SLOT(volume_valueChanged(int)));
 //       CTEXT           "100 %",IDC_VOLUME_T,234,144,31,8
    CStatic* mfc23 = new CStatic(parent);
    CRect r23(CPoint(234,144),CSize(32,8));
@@ -2689,7 +2666,6 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_VRC7(CDialog* parent1)
    parent->MapDialogRect(&r2);
    mfc2->Create(CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r2,parent,IDC_PATCH);
    mfcToQtWidget->insert(IDC_PATCH,mfc2);
-   QObject::connect(mfc2,SIGNAL(currentIndexChanged(int)),parent,SLOT(patch_currentIndexChanged(int)));
 //       PUSHBUTTON      "Copy",IDC_COPY,322,7,43,14
    CButton* mfc3 = new CButton(parent);
    CRect r3(CPoint(322,7),CSize(43,14));
@@ -2744,7 +2720,6 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_VRC7(CDialog* parent1)
    parent->MapDialogRect(&r12);
    mfc12->Create(TBS_AUTOTICKS | WS_TABSTOP | WS_VISIBLE,r12,parent,IDC_M_KSL);
    mfcToQtWidget->insert(IDC_M_KSL,mfc12);
-   QObject::connect(mfc12,SIGNAL(valueChanged(int)),parent,SLOT(m_ksl_valueChanged(int)));
 //       LTEXT           "Mult. factor",IDC_STATIC,14,108,38,8
    CStatic* mfc13 = new CStatic(parent);
    CRect r13(CPoint(14,108),CSize(38,8));
@@ -2757,7 +2732,6 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_VRC7(CDialog* parent1)
    parent->MapDialogRect(&r14);
    mfc14->Create(TBS_AUTOTICKS | WS_TABSTOP | WS_VISIBLE,r14,parent,IDC_M_MUL);
    mfcToQtWidget->insert(IDC_M_MUL,mfc14);
-   QObject::connect(mfc14,SIGNAL(valueChanged(int)),parent,SLOT(m_mul_valueChanged(int)));
 //       LTEXT           "Attack",IDC_STATIC,14,127,22,8
    CStatic* mfc15 = new CStatic(parent);
    CRect r15(CPoint(14,127),CSize(22,8));
@@ -2770,7 +2744,6 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_VRC7(CDialog* parent1)
    parent->MapDialogRect(&r16);
    mfc16->Create(TBS_AUTOTICKS | WS_TABSTOP | WS_VISIBLE,r16,parent,IDC_M_AR);
    mfcToQtWidget->insert(IDC_M_AR,mfc16);
-   QObject::connect(mfc16,SIGNAL(valueChanged(int)),parent,SLOT(m_ar_valueChanged(int)));
 //       LTEXT           "Decay",IDC_STATIC,87,127,21,8
    CStatic* mfc17 = new CStatic(parent);
    CRect r17(CPoint(87,127),CSize(21,8));
@@ -2783,7 +2756,6 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_VRC7(CDialog* parent1)
    parent->MapDialogRect(&r18);
    mfc18->Create(TBS_AUTOTICKS | WS_TABSTOP | WS_VISIBLE,r18,parent,IDC_M_DR);
    mfcToQtWidget->insert(IDC_M_DR,mfc18);
-   QObject::connect(mfc18,SIGNAL(valueChanged(int)),parent,SLOT(m_dr_valueChanged(int)));
 //       LTEXT           "Sustain",IDC_STATIC,14,144,24,8
    CStatic* mfc19 = new CStatic(parent);
    CRect r19(CPoint(14,144),CSize(24,8));
@@ -2796,7 +2768,6 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_VRC7(CDialog* parent1)
    parent->MapDialogRect(&r20);
    mfc20->Create(TBS_AUTOTICKS | WS_TABSTOP | WS_VISIBLE,r20,parent,IDC_M_SL);
    mfcToQtWidget->insert(IDC_M_SL,mfc20);
-   QObject::connect(mfc20,SIGNAL(valueChanged(int)),parent,SLOT(m_sl_valueChanged(int)));
 //       LTEXT           "Release",IDC_STATIC,85,144,26,8
    CStatic* mfc21 = new CStatic(parent);
    CRect r21(CPoint(85,144),CSize(26,8));
@@ -2809,7 +2780,6 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_VRC7(CDialog* parent1)
    parent->MapDialogRect(&r22);
    mfc22->Create(TBS_AUTOTICKS | WS_TABSTOP | WS_VISIBLE,r22,parent,IDC_M_RR);
    mfcToQtWidget->insert(IDC_M_RR,mfc22);
-   QObject::connect(mfc22,SIGNAL(valueChanged(int)),parent,SLOT(m_rr_valueChanged(int)));
 //       CONTROL         "Amplitude modulation",IDC_C_AM,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,171,54,84,10
    CButton* mfc24 = new CButton(parent);
    CRect r24(CPoint(171,54),CSize(84,10));
@@ -2852,7 +2822,6 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_VRC7(CDialog* parent1)
    parent->MapDialogRect(&r30);
    mfc30->Create(TBS_AUTOTICKS | WS_TABSTOP | WS_VISIBLE,r30,parent,IDC_C_KSL);
    mfcToQtWidget->insert(IDC_C_KSL,mfc30);
-   QObject::connect(mfc30,SIGNAL(valueChanged(int)),parent,SLOT(c_ksl_valueChanged(int)));
 //       LTEXT           "Mult. factor",IDC_STATIC,171,108,38,8
    CStatic* mfc31 = new CStatic(parent);
    CRect r31(CPoint(171,108),CSize(38,8));
@@ -2865,7 +2834,6 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_VRC7(CDialog* parent1)
    parent->MapDialogRect(&r32);
    mfc32->Create(TBS_AUTOTICKS | WS_TABSTOP | WS_VISIBLE,r32,parent,IDC_C_MUL);
    mfcToQtWidget->insert(IDC_C_MUL,mfc32);
-   QObject::connect(mfc32,SIGNAL(valueChanged(int)),parent,SLOT(c_mul_valueChanged(int)));
 //       LTEXT           "Attack",IDC_STATIC,171,127,22,8
    CStatic* mfc33 = new CStatic(parent);
    CRect r33(CPoint(171,127),CSize(22,8));
@@ -2878,7 +2846,6 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_VRC7(CDialog* parent1)
    parent->MapDialogRect(&r34);
    mfc34->Create(TBS_AUTOTICKS | WS_TABSTOP | WS_VISIBLE,r34,parent,IDC_C_AR);
    mfcToQtWidget->insert(IDC_C_AR,mfc34);
-   QObject::connect(mfc34,SIGNAL(valueChanged(int)),parent,SLOT(c_ar_valueChanged(int)));
 //       LTEXT           "Decay",IDC_STATIC,247,127,21,8
    CStatic* mfc35 = new CStatic(parent);
    CRect r35(CPoint(247,127),CSize(21,8));
@@ -2891,7 +2858,6 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_VRC7(CDialog* parent1)
    parent->MapDialogRect(&r36);
    mfc36->Create(TBS_AUTOTICKS | WS_TABSTOP | WS_VISIBLE,r36,parent,IDC_C_DR);
    mfcToQtWidget->insert(IDC_C_DR,mfc36);
-   QObject::connect(mfc36,SIGNAL(valueChanged(int)),parent,SLOT(c_dr_valueChanged(int)));
 //       LTEXT           "Sustain",IDC_STATIC,171,144,24,8
    CStatic* mfc37 = new CStatic(parent);
    CRect r37(CPoint(171,144),CSize(24,8));
@@ -2904,7 +2870,6 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_VRC7(CDialog* parent1)
    parent->MapDialogRect(&r38);
    mfc38->Create(TBS_AUTOTICKS | WS_TABSTOP | WS_VISIBLE,r38,parent,IDC_C_SL);
    mfcToQtWidget->insert(IDC_C_SL,mfc38);
-   QObject::connect(mfc38,SIGNAL(valueChanged(int)),parent,SLOT(c_sl_valueChanged(int)));
 //       LTEXT           "Release",IDC_STATIC,245,144,26,8
    CStatic* mfc39 = new CStatic(parent);
    CRect r39(CPoint(245,144),CSize(26,8));
@@ -2917,7 +2882,6 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_VRC7(CDialog* parent1)
    parent->MapDialogRect(&r40);
    mfc40->Create(TBS_AUTOTICKS | WS_TABSTOP | WS_VISIBLE,r40,parent,IDC_C_RR);
    mfcToQtWidget->insert(IDC_C_RR,mfc40);
-   QObject::connect(mfc40,SIGNAL(valueChanged(int)),parent,SLOT(c_rr_valueChanged(int)));
 //       CTEXT           "Modulator\nlevel",IDC_STATIC,322,42,36,17
    CStatic* mfc41 = new CStatic(parent);
    CRect r41(CPoint(322,42),CSize(36,17));
@@ -2930,7 +2894,6 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_VRC7(CDialog* parent1)
    parent->MapDialogRect(&r42);
    mfc42->Create(TBS_VERT | TBS_BOTH | TBS_NOTICKS | WS_TABSTOP | WS_VISIBLE,r42,parent,IDC_TL);
    mfcToQtWidget->insert(IDC_TL,mfc42);
-   QObject::connect(mfc42,SIGNAL(valueChanged(int)),parent,SLOT(tl_valueChanged(int)));
 //       CTEXT           "Feedback",IDC_STATIC,322,112,36,9
    CStatic* mfc43 = new CStatic(parent);
    CRect r43(CPoint(322,112),CSize(36,9));
@@ -2943,7 +2906,6 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_VRC7(CDialog* parent1)
    parent->MapDialogRect(&r44);
    mfc44->Create(TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP | WS_VISIBLE,r44,parent,IDC_FB);
    mfcToQtWidget->insert(IDC_FB,mfc44);
-   QObject::connect(mfc44,SIGNAL(valueChanged(int)),parent,SLOT(fb_valueChanged(int)));
 //   END
 }
 
@@ -3007,7 +2969,6 @@ void qtMfcInitDialogResource_IDD_CREATEWAV(CDialog* parent1)
    parent->MapDialogRect(&r7);
    mfc7->Create(UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r7,parent,IDC_SPIN_LOOP);
    mfcToQtWidget->insert(IDC_SPIN_LOOP,mfc7);
-   QObject::connect(mfc7,SIGNAL(valueChanged(int,int)),parent,SLOT(spinLoop_valueChanged(int,int)));
 //       LTEXT           "time(s)",IDC_STATIC,115,20,21,10,SS_CENTERIMAGE
    CStatic* mfc8 = new CStatic(parent);
    CRect r8(CPoint(115,20),CSize(21,10));
@@ -3028,7 +2989,6 @@ void qtMfcInitDialogResource_IDD_CREATEWAV(CDialog* parent1)
    parent->MapDialogRect(&r10);
    mfc10->Create(UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r10,parent,IDC_SPIN_TIME);
    mfcToQtWidget->insert(IDC_SPIN_TIME,mfc10);
-   QObject::connect(mfc10,SIGNAL(valueChanged(int,int)),parent,SLOT(spinTime_valueChanged(int,int)));
 //       LTEXT           "mm:ss",IDC_STATIC,106,38,21,10,SS_CENTERIMAGE
    CStatic* mfc11 = new CStatic(parent);
    CRect r11(CPoint(106,38),CSize(21,10));
@@ -3188,7 +3148,6 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_FDS(CDialog* parent1)
    parent->MapDialogRect(&r7);
    mfc7->Create(UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS | WS_VISIBLE,r7,parent,IDC_MOD_RATE_SPIN);
    mfcToQtWidget->insert(IDC_MOD_RATE_SPIN,mfc7);
-   QObject::connect(mfc7,SIGNAL(valueChanged(int,int)),parent,SLOT(modRateSpin_valueChanged(int,int)));
 //       LTEXT           "Modulation depth",IDC_STATIC,246,46,56,8
    CStatic* mfc8 = new CStatic(parent);
    CRect r8(CPoint(246,46),CSize(56,8));
@@ -3209,7 +3168,6 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_FDS(CDialog* parent1)
    parent->MapDialogRect(&r10);
    mfc10->Create(UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r10,parent,IDC_MOD_DEPTH_SPIN);
    mfcToQtWidget->insert(IDC_MOD_DEPTH_SPIN,mfc10);
-   QObject::connect(mfc10,SIGNAL(valueChanged(int,int)),parent,SLOT(modDepthSpin_valueChanged(int,int)));
 //       LTEXT           "Modulation delay",IDC_STATIC,246,68,55,8
    CStatic* mfc11 = new CStatic(parent);
    CRect r11(CPoint(246,68),CSize(55,8));
@@ -3230,7 +3188,6 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_FDS(CDialog* parent1)
    parent->MapDialogRect(&r13);
    mfc13->Create(UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r13,parent,IDC_MOD_DELAY_SPIN);
    mfcToQtWidget->insert(IDC_MOD_DELAY_SPIN,mfc13);
-   QObject::connect(mfc13,SIGNAL(valueChanged(int,int)),parent,SLOT(modDelaySpin_valueChanged(int,int)));
 //       PUSHBUTTON      "Flat",IDC_MOD_PRESET_FLAT,318,131,46,12
    CButton* mfc14 = new CButton(parent);
    CRect r14(CPoint(318,131),CSize(46,12));
@@ -3438,7 +3395,6 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_FDS_ENVELOPE(CDialog* parent1)
 //       0
    mfc2->AddString(_T("Pitch"));
 //   END
-   QObject::connect(mfc2,SIGNAL(currentIndexChanged(int)),parent,SLOT(type_currentIndexChanged(int)));
 //   END
 }
 
@@ -3690,7 +3646,6 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_N163_WAVE(CDialog* parent1)
    parent->MapDialogRect(&r12);
    mfc12->Create(UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r12,parent,IDC_INDEX_SPIN);
    mfcToQtWidget->insert(IDC_INDEX_SPIN,mfc12);
-   QObject::connect(mfc12,SIGNAL(valueChanged(int,int)),parent,SLOT(indexSpin_valueChanged(int,int)));
 //       LTEXT           "of",IDC_STATIC,300,22,8,8
    CStatic* mfc13 = new CStatic(parent);
    CRect r13(CPoint(300,22),CSize(8,8));
@@ -3711,7 +3666,6 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_N163_WAVE(CDialog* parent1)
    parent->MapDialogRect(&r15);
    mfc15->Create(UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r15,parent,IDC_WAVES_SPIN);
    mfcToQtWidget->insert(IDC_WAVES_SPIN,mfc15);
-   QObject::connect(mfc15,SIGNAL(valueChanged(int,int)),parent,SLOT(wavesSpin_valueChanged(int,int)));
 //       LTEXT           "Wave size",IDC_STATIC,253,59,34,8
    CStatic* mfc17 = new CStatic(parent);
    CRect r17(CPoint(253,59),CSize(34,8));
@@ -3724,7 +3678,6 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_N163_WAVE(CDialog* parent1)
    parent->MapDialogRect(&r18);
    mfc18->Create(CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r18,parent,IDC_WAVE_SIZE);
    mfcToQtWidget->insert(IDC_WAVE_SIZE,mfc18);
-   QObject::connect(mfc18,SIGNAL(currentIndexChanged(int)),parent,SLOT(waveSize_currentIndexChanged(int)));
 //       LTEXT           "Wave position",IDC_STATIC,253,78,46,8
    CStatic* mfc19 = new CStatic(parent);
    CRect r19(CPoint(253,78),CSize(46,8));
@@ -3737,7 +3690,6 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_N163_WAVE(CDialog* parent1)
    parent->MapDialogRect(&r20);
    mfc20->Create(CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r20,parent,IDC_WAVE_POS);
    mfcToQtWidget->insert(IDC_WAVE_POS,mfc20);
-   QObject::connect(mfc20,SIGNAL(currentIndexChanged(int)),parent,SLOT(wavePos_currentIndexChanged(int)));
 //   END
 }
 

@@ -28,12 +28,6 @@
 
 class CCreateWaveDlg : public CDialog
 {
-   Q_OBJECT
-   // Qt interfaces
-public slots:
-   void spinLoop_valueChanged(int arg1,int arg2);
-   void spinTime_valueChanged(int arg1,int arg2);
-public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
 	DECLARE_DYNAMIC(CCreateWaveDlg)
 
 public:

@@ -369,19 +369,6 @@ public slots:
    void updateViews(long hint);
    void instruments_doubleClicked(const QModelIndex &index);
    void instruments_currentRowChanged(int row);
-   void subtune_currentIndexChanged(int index);
-   void songName_textEdited(const QString &arg1);   
-   void songArtist_textEdited(const QString &arg1);
-   void songCopyright_textEdited(const QString &arg1);
-   void instName_textEdited(const QString &arg1);
-   void octave_currentIndexChanged(int);
-   void highlightspin1_valueChanged(int arg1, int arg2);
-   void highlightspin2_valueChanged(int arg1, int arg2);
-   void speedSpin_valueChanged(int arg1, int arg2);
-   void tempoSpin_valueChanged(int arg1, int arg2);
-   void rowsSpin_valueChanged(int arg1, int arg2);
-   void framesSpin_valueChanged(int arg1, int arg2);
-   void keyStepSpin_valueChanged(int arg1, int arg2);
    void menuAboutToShow(CMenu* menu);
    void menuAction_triggered(int id);
    

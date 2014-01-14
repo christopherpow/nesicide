@@ -151,11 +151,6 @@ void CInstrumentEditorVRC6::instSettings_itemSelectionChanged()
    OnLvnItemchangedInstsettings((NMHDR*)&nmlv,&result);
 }
 
-void CInstrumentEditorVRC6::sequenceSpin_valueChanged(int oldVal,int newVal)
-{
-   OnEnChangeSeqIndex();
-}
-
 // CInstrumentSettings message handlers
 
 BOOL CInstrumentEditorVRC6::OnInitDialog()

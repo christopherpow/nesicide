@@ -136,16 +136,6 @@ void CInstrumentEditorDPCM::sampleList_cellDoubleClicked(int row, int column)
    OnNMDblclkSampleList(&nmhdr,&result);
 }
 
-void CInstrumentEditorDPCM::octave_currentIndexChanged(int index)
-{
-   OnCbnSelchangeOctave();
-}
-
-void CInstrumentEditorDPCM::pitch_currentIndexChanged(int index)
-{
-   OnCbnSelchangePitch();
-}
-
 void CInstrumentEditorDPCM::table_itemSelectionChanged()
 {
 }
@@ -162,16 +152,6 @@ void CInstrumentEditorDPCM::table_cellDoubleClicked(int row, int column)
    NMHDR nmhdr;
    LRESULT result;
    OnNMDblclkTable(&nmhdr,&result);
-}
-
-void CInstrumentEditorDPCM::samples_currentIndexChanged(int index)
-{
-   OnCbnSelchangeSamples();
-}
-
-void CInstrumentEditorDPCM::loopPoint_textEdited(QString str)
-{
-   OnEnChangeLoopPoint();
 }
 
 void CInstrumentEditorDPCM::contextMenuEvent(QContextMenuEvent *event)
