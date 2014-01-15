@@ -346,8 +346,6 @@ void CMainFrame::showEvent(QShowEvent *)
       QObject::connect(&m_wndToolBar,SIGNAL(toolBarAction_triggered(int)),this,SLOT(toolBarAction_triggered(int)));
       QObject::connect(&m_wndInstToolBar,SIGNAL(toolBarAction_triggered(int)),this,SLOT(instToolBarAction_triggered(int)));
       QObject::connect(&m_wndInstToolBar,SIGNAL(toolBarAction_menu_aboutToShow(int)),this,SLOT(instToolBarAction_menu_aboutToShow(int)));
-      QObject::connect(m_wndDialogBar.GetDlgItem(IDC_INSTRUMENTS)->toQWidget(),SIGNAL(doubleClicked(QModelIndex)),this,SLOT(instruments_doubleClicked(QModelIndex)));
-      QObject::connect(m_wndDialogBar.GetDlgItem(IDC_INSTRUMENTS)->toQWidget(),SIGNAL(currentRowChanged(int)),this,SLOT(instruments_currentRowChanged(int)));
       qDebug("DONE CONNECTING BURIED SIGNALS NOW...");
 
       initialized = true;
@@ -808,23 +806,6 @@ void CMainFrame::instToolBarAction_menu_aboutToShow(int id)
       OnLoadInstrumentMenu(&nmhdr,&result);
       break;
    }
-}
-
-void CMainFrame::instruments_currentRowChanged(int row)
-{
-   NM_LISTVIEW nmlv;
-   LRESULT result;
-
-   nmlv.uNewState = LVIS_SELECTED;
-   nmlv.iItem = row;
-   OnChangedInstruments((NMHDR*)&nmlv,&result);
-}
-
-void CMainFrame::instruments_doubleClicked(const QModelIndex &index)
-{
-   NMHDR nmhdr;
-   LRESULT result;
-   OnDblClkInstruments(&nmhdr,&result);
 }
 
 void CMainFrame::menuAboutToShow(CMenu* menu)

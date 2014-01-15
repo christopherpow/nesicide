@@ -4926,7 +4926,8 @@ public slots:
    void itemSelectionChanged();
    void cellClicked(int row, int column);
    void cellDoubleClicked(int row, int column);
-   void customContextMenuRequested(const QPoint &pos);
+   void clicked(QModelIndex index);
+   void doubleClicked(QModelIndex index);
 
    // MFC interfaces
 public:

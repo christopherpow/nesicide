@@ -3805,12 +3805,13 @@ BOOL CListCtrl::Create(
       _qtd_table->horizontalHeader()->setStretchLastSection(true);
       _qtd_table->verticalHeader()->hide();
       _qtd_table->setEditTriggers(QAbstractItemView::NoEditTriggers);
+      _qtd_table->setSelectionBehavior(QAbstractItemView::SelectRows);
+      _qtd_table->setShowGrid(false);
 
       // Pass-through signals
       QObject::connect(_qtd_table,SIGNAL(itemSelectionChanged()),this,SLOT(itemSelectionChanged()));
       QObject::connect(_qtd_table,SIGNAL(cellClicked(int,int)),this,SLOT(cellClicked(int,int)));
       QObject::connect(_qtd_table,SIGNAL(cellDoubleClicked(int,int)),this,SLOT(cellDoubleClicked(int,int)));
-      QObject::connect(_qtd_table,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(customContextMenuRequested(QPoint)));
 
       _qtd_table->verticalHeader()->setVisible(false);
       _qtd_table->horizontalHeader()->setSortIndicatorShown(true);
@@ -3835,7 +3836,6 @@ BOOL CListCtrl::Create(
       _qtd_table->horizontalHeader()->setStretchLastSection(true);
 
       _qtd_table->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
-//      _qtd_table->setContextMenuPolicy(Qt::CustomContextMenu);
       _qtd_table->setVisible(dwStyle&WS_VISIBLE);
    }
    else if ( (dwStyle&LVS_TYPEMASK) == LVS_LIST )
@@ -3850,10 +3850,12 @@ BOOL CListCtrl::Create(
 
       _qtd_list->setFont(QFont("MS Shell Dlg",8));
       _qtd_list->setEditTriggers(QAbstractItemView::NoEditTriggers);
+      _qtd_list->setSelectionBehavior(QAbstractItemView::SelectRows);
 
       // Pass-through signals
       QObject::connect(_qtd_list,SIGNAL(itemSelectionChanged()),this,SLOT(itemSelectionChanged()));
-      QObject::connect(_qtd_list,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(customContextMenuRequested(QPoint)));
+      QObject::connect(_qtd_list,SIGNAL(clicked(QModelIndex)),this,SLOT(clicked(QModelIndex)));
+      QObject::connect(_qtd_list,SIGNAL(doubleClicked(QModelIndex)),this,SLOT(doubleClicked(QModelIndex)));
 
       _qtd_list->setFlow(QListView::TopToBottom);
       _qtd_list->setWrapping(true);
@@ -3869,7 +3871,6 @@ BOOL CListCtrl::Create(
    //   }
 
       _qtd_list->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
-//      _qtd_list->setContextMenuPolicy(Qt::CustomContextMenu);
       _qtd_list->setVisible(dwStyle&WS_VISIBLE);
    }
    
@@ -3902,33 +3903,33 @@ void CListCtrl::itemSelectionChanged()
    nmlv.uNewState |= LVNI_SELECTED;
    nmlv.uOldState = 0;
    
-   GetOwner()->SendMessage(WM_NOTIFY,0,(LPARAM)&nmlv);
+   GetOwner()->SendMessage(WM_NOTIFY,_id,(LPARAM)&nmlv);
 }
 
-void CListCtrl::customContextMenuRequested(const QPoint &pos)
-{
-   NMITEMACTIVATE nmia;
-   LRESULT result;
+//void CListCtrl::customContextMenuRequested(const QPoint &pos)
+//{
+//   NMITEMACTIVATE nmia;
+//   LRESULT result;
 
-   nmia.hdr.hwndFrom = m_hWnd;
-   nmia.hdr.idFrom = _id;
-   nmia.hdr.code = NM_RCLICK;
-   if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
-   {
-      nmia.iItem = _qtd_table->currentIndex().row();
-      nmia.iSubItem = _qtd_table->currentIndex().column();
-   }
-   else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
-   {
-      nmia.iItem = _qtd_list->currentIndex().row();
-      nmia.iSubItem = _qtd_list->currentIndex().column();
-   }
-   nmia.ptAction.x = QCursor::pos().x();
-   nmia.ptAction.y = QCursor::pos().y();
+//   nmia.hdr.hwndFrom = m_hWnd;
+//   nmia.hdr.idFrom = _id;
+//   nmia.hdr.code = NM_RCLICK;
+//   if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
+//   {
+//      nmia.iItem = _qtd_table->currentIndex().row();
+//      nmia.iSubItem = _qtd_table->currentIndex().column();
+//   }
+//   else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
+//   {
+//      nmia.iItem = _qtd_list->currentIndex().row();
+//      nmia.iSubItem = _qtd_list->currentIndex().column();
+//   }
+//   nmia.ptAction.x = QCursor::pos().x();
+//   nmia.ptAction.y = QCursor::pos().y();
    
-   GetOwner()->SendMessage(WM_NOTIFY,0,(LPARAM)&nmia);
-   GetOwner()->PostMessage(WM_CONTEXTMENU,(WPARAM)m_hWnd,(LPARAM)((QCursor::pos().x())|(QCursor::pos().y()<<16)));
-}
+//   GetOwner()->SendMessage(WM_NOTIFY,_id,(LPARAM)&nmia);
+//   GetOwner()->PostMessage(WM_CONTEXTMENU,(WPARAM)m_hWnd,(LPARAM)((QCursor::pos().x())|(QCursor::pos().y()<<16)));
+//}
 
 void CListCtrl::cellClicked(int row, int column)
 {
@@ -3943,7 +3944,7 @@ void CListCtrl::cellClicked(int row, int column)
    nmia.ptAction.x = QCursor::pos().x();
    nmia.ptAction.y = QCursor::pos().y();
    
-   GetOwner()->SendMessage(WM_NOTIFY,0,(LPARAM)&nmia);
+   GetOwner()->SendMessage(WM_NOTIFY,_id,(LPARAM)&nmia);
 }
 
 void CListCtrl::cellDoubleClicked(int row, int column)
@@ -3959,7 +3960,39 @@ void CListCtrl::cellDoubleClicked(int row, int column)
    nmia.ptAction.x = QCursor::pos().x();
    nmia.ptAction.y = QCursor::pos().y();
    
-   GetOwner()->SendMessage(WM_NOTIFY,0,(LPARAM)&nmia);
+   GetOwner()->SendMessage(WM_NOTIFY,_id,(LPARAM)&nmia);
+}
+
+void CListCtrl::clicked(QModelIndex index)
+{
+   NMITEMACTIVATE nmia;
+   LRESULT result;
+   
+   nmia.hdr.hwndFrom = m_hWnd;
+   nmia.hdr.idFrom = _id;
+   nmia.hdr.code = NM_CLICK;
+   nmia.iItem = index.row();
+   nmia.iSubItem = index.column();
+   nmia.ptAction.x = QCursor::pos().x();
+   nmia.ptAction.y = QCursor::pos().y();
+   
+   GetOwner()->SendMessage(WM_NOTIFY,_id,(LPARAM)&nmia);
+}
+
+void CListCtrl::doubleClicked(QModelIndex index)
+{
+   NMITEMACTIVATE nmia;
+   LRESULT result;
+   
+   nmia.hdr.hwndFrom = m_hWnd;
+   nmia.hdr.idFrom = _id;
+   nmia.hdr.code = NM_DBLCLK;
+   nmia.iItem = index.row();
+   nmia.iSubItem = index.column();
+   nmia.ptAction.x = QCursor::pos().x();
+   nmia.ptAction.y = QCursor::pos().y();
+   
+   GetOwner()->SendMessage(WM_NOTIFY,_id,(LPARAM)&nmia);
 }
 
 CImageList* CListCtrl::SetImageList(
@@ -6698,6 +6731,16 @@ void CWnd::paintEvent(QPaintEvent *event)
 
 void CWnd::contextMenuEvent(QContextMenuEvent *event)
 {
+   NMITEMACTIVATE nmia;
+   LRESULT result;
+
+   nmia.hdr.hwndFrom = m_hWnd;
+   nmia.hdr.idFrom = _id;
+   nmia.hdr.code = NM_RCLICK;
+   nmia.ptAction.x = QCursor::pos().x();
+   nmia.ptAction.y = QCursor::pos().y();
+   
+   SendMessage(WM_NOTIFY,_id,(LPARAM)&nmia);
    PostMessage(WM_CONTEXTMENU,(WPARAM)m_hWnd,(LPARAM)((QCursor::pos().x()<<16)|(QCursor::pos().y())));
 }
 
@@ -10325,6 +10368,10 @@ bool CEdit::event(QEvent *event)
    MFCMessageEvent* msgEvent = dynamic_cast<MFCMessageEvent*>(event);
    if ( msgEvent )
    {
+      if ( CWnd::event(event) )
+      {
+         return true;
+      }
       if ( _dwStyle&ES_MULTILINE )
       {
          switch ( msgEvent->msg.message )
@@ -11359,7 +11406,7 @@ void CSpinButtonCtrl::control_edited(int value)
    nmud.hdr.code = UDN_DELTAPOS;
    nmud.iPos = value;
    nmud.iDelta = _oldValue-value;
-   GetOwner()->SendMessage(WM_NOTIFY,0,(LPARAM)&nmud);
+   GetOwner()->SendMessage(WM_NOTIFY,_id,(LPARAM)&nmud);
    _oldValue = value;
    HWND hWnd = (HWND)mfcBuddy();
    int id = mfcBuddy()->GetDlgCtrlID();
