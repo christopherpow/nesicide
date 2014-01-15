@@ -116,7 +116,6 @@ protected:
    void dragMoveEvent(QDragMoveEvent *event);
    void dropEvent(QDropEvent *event);
    void dragLeaveEvent(QDragLeaveEvent *event);
-   void contextMenuEvent(QContextMenuEvent *event);   
 public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
 
 	DECLARE_DYNAMIC(CFrameEditor)

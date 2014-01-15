@@ -118,57 +118,6 @@ BEGIN_MESSAGE_MAP(CInstrumentEditorDPCM, CInstrumentEditPanel)
    ON_NOTIFY(NM_DBLCLK, IDC_TABLE, OnNMDblclkTable)
 END_MESSAGE_MAP()
 
-void CInstrumentEditorDPCM::sampleList_itemSelectionChanged()
-{
-}
-
-void CInstrumentEditorDPCM::sampleList_cellClicked(int row, int column)
-{
-   NMHDR nmhdr;
-   LRESULT result;
-   OnNMClickSampleList(&nmhdr,&result);
-}
-
-void CInstrumentEditorDPCM::sampleList_cellDoubleClicked(int row, int column)
-{
-   NMHDR nmhdr;
-   LRESULT result;
-   OnNMDblclkSampleList(&nmhdr,&result);
-}
-
-void CInstrumentEditorDPCM::table_itemSelectionChanged()
-{
-}
-
-void CInstrumentEditorDPCM::table_cellClicked(int row, int column)
-{
-   NMHDR nmhdr;
-   LRESULT result;
-   OnNMClickTable(&nmhdr,&result);
-}
-
-void CInstrumentEditorDPCM::table_cellDoubleClicked(int row, int column)
-{
-   NMHDR nmhdr;
-   LRESULT result;
-   OnNMDblclkTable(&nmhdr,&result);
-}
-
-void CInstrumentEditorDPCM::contextMenuEvent(QContextMenuEvent *event)
-{
-   NMHDR nmhdr;
-   LRESULT result;
-
-   if ( GetDlgItem(IDC_TABLE)->toQWidget()->geometry().contains(event->pos()) )
-   {
-      OnNMRClickTable(&nmhdr,&result);
-   }
-   else if ( GetDlgItem(IDC_SAMPLE_LIST)->toQWidget()->geometry().contains(event->pos()) )
-   {
-      OnNMRClickSampleList(&nmhdr,&result);
-   }
-}
-
 void CInstrumentEditorDPCM::menuAction_triggered(int id)
 {
    typedef void (CInstrumentEditorDPCM::*actionHandler)();

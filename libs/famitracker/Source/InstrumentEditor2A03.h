@@ -30,7 +30,6 @@ class CInstrumentEditor2A03 : public CSequenceInstrumentEditPanel
    Q_OBJECT
    // Qt stuff
 public slots:
-   void instSettings_itemSelectionChanged();
    void menuAction_triggered(int id);
 public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
    

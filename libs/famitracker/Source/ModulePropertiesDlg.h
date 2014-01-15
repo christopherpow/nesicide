@@ -29,12 +29,6 @@
 
 class CModulePropertiesDlg : public CDialog
 {
-   Q_OBJECT
-   // Qt interfaces
-public slots:
-   void songList_itemSelectionChanged();
-public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
-   
 	DECLARE_DYNAMIC(CModulePropertiesDlg)
 
 private:

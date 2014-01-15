@@ -1451,7 +1451,6 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_INTERNAL(CDialog* parent1)
    parent->MapDialogRect(&r1);
    mfc1->Create(LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP | WS_VISIBLE,r1,parent,IDC_INSTSETTINGS);
    mfcToQtWidget->insert(IDC_INSTSETTINGS,mfc1);
-   QObject::connect(mfc1,SIGNAL(itemSelectionChanged()),parent,SLOT(instSettings_itemSelectionChanged()));
 //   CONTROL         "Sequence #",IDC_STATIC,"Static",SS_LEFTNOWORDWRAP | SS_CENTERIMAGE | WS_GROUP,12,149,53,10,WS_EX_TRANSPARENT
    CStatic* mfc2 = new CStatic(parent);
    CRect r2(CPoint(12,149),CSize(53,10));
@@ -1512,9 +1511,6 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_DPCM(CDialog* parent1)
    parent->MapDialogRect(&r2);
    mfc2->Create(LVS_REPORT | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP | WS_VISIBLE,r2,parent,IDC_TABLE);
    mfcToQtWidget->insert(IDC_TABLE,mfc2);
-   QObject::connect(mfc2,SIGNAL(itemSelectionChanged()),parent,SLOT(table_itemSelectionChanged()));
-   QObject::connect(mfc2,SIGNAL(cellClicked(int,int)),parent,SLOT(table_cellClicked(int,int)));
-   QObject::connect(mfc2,SIGNAL(cellDoubleClicked(int,int)),parent,SLOT(table_cellDoubleClicked(int,int)));
 //   COMBOBOX        IDC_SAMPLES,15,148,117,125,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
    CComboBox* mfc3 = new CComboBox(parent);
    CRect r3(CPoint(15,148),CSize(117,125));
@@ -1589,9 +1585,6 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_DPCM(CDialog* parent1)
    parent->MapDialogRect(&r14);
    mfc14->Create(LVS_REPORT | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP | WS_VISIBLE,r14,parent,IDC_SAMPLE_LIST);
    mfcToQtWidget->insert(IDC_SAMPLE_LIST,mfc14);
-   QObject::connect(mfc14,SIGNAL(itemSelectionChanged()),parent,SLOT(sampleList_itemSelectionChanged()));
-   QObject::connect(mfc14,SIGNAL(cellClicked(int,int)),parent,SLOT(sampleList_cellClicked(int,int)));
-   QObject::connect(mfc14,SIGNAL(cellDoubleClicked(int,int)),parent,SLOT(sampleList_cellDoubleClicked(int,int)));
 //   LTEXT           "Space used 16 / 16 kb",IDC_SPACE,198,151,166,9
    CStatic* mfc15 = new CStatic(parent);
    CRect r15(CPoint(198,151),CSize(166,9));
@@ -2054,7 +2047,6 @@ void qtMfcInitDialogResource_IDD_PROPERTIES(CDialog* parent1)
    parent->MapDialogRect(&r2);
    mfc2->Create(LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOCOLUMNHEADER | WS_BORDER | WS_TABSTOP | WS_VISIBLE,r2,parent,IDC_SONGLIST);
    mfcToQtWidget->insert(IDC_SONGLIST,mfc2);
-   QObject::connect(mfc2,SIGNAL(itemSelectionChanged()),parent,SLOT(songList_itemSelectionChanged()));
 //       PUSHBUTTON      "Add",IDC_SONG_ADD,138,18,60,14
    CButton* mfc3 = new CButton(parent);
    CRect r3(CPoint(138,18),CSize(60,14));
@@ -2375,7 +2367,6 @@ void qtMfcInitDialogResource_IDD_CONFIG_SHORTCUTS(CDialog* parent1)
    parent->MapDialogRect(&r1);
    mfc1->Create(LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP | WS_VISIBLE,r1,parent,IDC_SHORTCUTS);
    mfcToQtWidget->insert(IDC_SHORTCUTS,mfc1);
-   QObject::connect(mfc1,SIGNAL(cellClicked(int,int)),parent,SLOT(shortcuts_cellClicked(int,int)));
 //       LTEXT           "Keys:",IDC_STATIC,7,149,23,12
    CStatic* mfc2 = new CStatic(parent);
    CRect r2(CPoint(7,149),CSize(23,12));
@@ -3455,7 +3446,6 @@ void qtMfcInitDialogResource_IDD_CHANNELS(CDialog* parent1)
    parent->MapDialogRect(&r5);
    mfc5->Create(LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOCOLUMNHEADER | WS_BORDER | WS_TABSTOP | WS_VISIBLE,r5,parent,IDC_ADDED_LIST);
    mfcToQtWidget->insert(IDC_ADDED_LIST,mfc5);
-   QObject::connect(mfc5,SIGNAL(cellDoubleClicked(int,int)),parent,SLOT(addedList_cellDoubleClicked(int,int)));
 //       CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,7,209,289,1
    CStatic* mfc8 = new CStatic(parent);
    CRect r8(CPoint(7,209),CSize(289,1));

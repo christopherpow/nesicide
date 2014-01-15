@@ -27,12 +27,6 @@
 
 class CConfigShortcuts : public CPropertyPage
 {
-   Q_OBJECT
-   // Qt interfaces
-public slots:
-   void shortcuts_cellClicked(int,int);
-public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
-   
 	DECLARE_DYNAMIC(CConfigShortcuts)
 
 public:

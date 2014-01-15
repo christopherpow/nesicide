@@ -52,12 +52,6 @@ BEGIN_MESSAGE_MAP(CInstrumentList, CListCtrl)
 	ON_WM_CONTEXTMENU()
 END_MESSAGE_MAP()
 
-void CInstrumentList::contextMenuEvent(QContextMenuEvent *event)
-{
-   CPoint point = event->pos();
-   OnContextMenu(this,point);
-}
-
 // TODO: expand this class
 
 CInstrumentList::CInstrumentList(CMainFrame *pMainFrame) : m_pMainFrame(pMainFrame)

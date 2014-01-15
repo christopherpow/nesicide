@@ -26,12 +26,6 @@
 
 class CInstrumentEditorVRC7 : public CInstrumentEditPanel
 {
-   Q_OBJECT
-   // Qt stuff
-protected:
-   void contextMenuEvent(QContextMenuEvent *event);
-public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
-
    DECLARE_DYNAMIC(CInstrumentEditorVRC7)
    
 public:

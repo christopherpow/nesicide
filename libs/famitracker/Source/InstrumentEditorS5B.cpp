@@ -123,21 +123,6 @@ BEGIN_MESSAGE_MAP(CInstrumentEditorS5B, CInstrumentEditPanel)
 	ON_BN_CLICKED(IDC_FREE_SEQ, OnBnClickedFreeSeq)
 END_MESSAGE_MAP()
 
-void CInstrumentEditorS5B::instSettings_itemSelectionChanged()
-{
-   CListCtrl *pList = (CListCtrl*) GetDlgItem(IDC_INSTSETTINGS);
-   NMLISTVIEW nmlv;
-   LRESULT result;
-   
-   nmlv.uChanged = LVIF_STATE;
-   nmlv.iItem = pList->currentIndex().row();
-   nmlv.iSubItem = pList->currentIndex().column();
-   nmlv.uNewState = LCTRL_CHECKBOX_STATE|LVNI_SELECTED;
-   nmlv.uOldState = 0;
-   
-   OnLvnItemchangedInstsettings((NMHDR*)&nmlv,&result);
-}
-
 // CInstrumentSettings message handlers
 
 BOOL CInstrumentEditorS5B::OnInitDialog()

@@ -56,13 +56,6 @@ BEGIN_MESSAGE_MAP(CConfigShortcuts, CPropertyPage)
    ON_BN_CLICKED(IDC_CLEAR, OnBnClickedClear)
 END_MESSAGE_MAP()
 
-void CConfigShortcuts::shortcuts_cellClicked(int, int)
-{
-   NMHDR nmhdr;
-   LRESULT result;
-   OnNMClickShortcuts(&nmhdr,&result);
-}
-
 // CConfigShortcuts message handlers
 
 BOOL CConfigShortcuts::OnInitDialog()

@@ -101,11 +101,6 @@ void CFrameEditor::leaveEvent(QEvent *)
    OnNcMouseMove(0,CPoint());
 }
 
-void CFrameEditor::contextMenuEvent(QContextMenuEvent *event)
-{
-   OnContextMenu(this,CPoint(event->pos()));
-}
-
 void CFrameEditor::menuAction_triggered(int id)
 {
    typedef void (CFrameEditor::*actionHandler)();

@@ -88,11 +88,6 @@ BEGIN_MESSAGE_MAP(CInstrumentEditorVRC7, CInstrumentEditPanel)
    ON_COMMAND(IDC_PASTE, OnPaste)
 END_MESSAGE_MAP()
 
-void CInstrumentEditorVRC7::contextMenuEvent(QContextMenuEvent *event)
-{
-   OnContextMenu(this,event->globalPos());
-}
-
 // CInstrumentSettingsVRC7 message handlers
 
 BOOL CInstrumentEditorVRC7::OnInitDialog()

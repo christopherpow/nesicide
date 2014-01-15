@@ -26,10 +26,6 @@ class CMainFrame;
 
 // The instrument list
 class CInstrumentList : public CListCtrl {
-   Q_OBJECT
-protected:
-   void contextMenuEvent(QContextMenuEvent *event);
-public:
 	DECLARE_DYNAMIC(CInstrumentList)
 protected:
 	DECLARE_MESSAGE_MAP()

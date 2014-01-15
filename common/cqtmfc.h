@@ -3936,6 +3936,7 @@ protected:
    virtual void keyPressEvent(QKeyEvent *event);
    virtual void keyReleaseEvent(QKeyEvent *event);
    virtual void paintEvent(QPaintEvent *event);
+   virtual void contextMenuEvent(QContextMenuEvent *event);
    void focusInEvent(QFocusEvent *event);
    void closeEvent(QCloseEvent *);
    QWidget* _qt;
@@ -4921,10 +4922,11 @@ protected:
    bool event(QEvent *event);
    QTableWidget* _qtd_table;
    QListWidget* _qtd_list;
-signals:
+public slots:
    void itemSelectionChanged();
    void cellClicked(int row, int column);
    void cellDoubleClicked(int row, int column);
+   void customContextMenuRequested(const QPoint &pos);
 
    // MFC interfaces
 public:
@@ -5057,7 +5059,7 @@ public:
    QModelIndex currentIndex () const { return _qtd->currentIndex(); }
 protected:
    QListWidget* _qtd;
-signals:
+public slots:
    void itemSelectionChanged();
    void itemClicked(QListWidgetItem* lwi);
    void itemDoubleClicked(QListWidgetItem* lwi);
@@ -5121,7 +5123,7 @@ public:
    QModelIndex currentIndex () const { return _qtd->currentIndex(); }
 protected:
    QTreeWidget* _qtd;
-signals:
+public slots:
    void itemSelectionChanged();
    void itemClicked(QTreeWidgetItem* item, int column);
    void itemDoubleClicked(QTreeWidgetItem* item, int column);

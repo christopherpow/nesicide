@@ -139,21 +139,6 @@ void CInstrumentEditorN163::menuAction_triggered(int id)
    }
 }
 
-void CInstrumentEditorN163::instSettings_itemSelectionChanged()
-{
-   CListCtrl *pList = (CListCtrl*) GetDlgItem(IDC_INSTSETTINGS);
-   NMLISTVIEW nmlv;
-   LRESULT result;
-   
-   nmlv.uChanged = LVIF_STATE;
-   nmlv.iItem = pList->currentIndex().row();
-   nmlv.iSubItem = pList->currentIndex().column();
-   nmlv.uNewState = LCTRL_CHECKBOX_STATE|LVNI_SELECTED;
-   nmlv.uOldState = 0;
-   
-   OnLvnItemchangedInstsettings((NMHDR*)&nmlv,&result);
-}
-
 // CInstrumentEditorN163 message handlers
 
 BOOL CInstrumentEditorN163::OnInitDialog()

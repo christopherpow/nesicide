@@ -3554,13 +3554,30 @@ BOOL CListBox::Create(
    _qtd->setMouseTracking(true);
 
    // Pass-through signals
-   QObject::connect(_qtd,SIGNAL(itemSelectionChanged()),this,SIGNAL(itemSelectionChanged()));
-   QObject::connect(_qtd,SIGNAL(itemClicked(QListWidgetItem*)),this,SIGNAL(itemClicked(QListWidgetItem*)));
-   QObject::connect(_qtd,SIGNAL(itemDoubleClicked(QListWidgetItem*)),this,SIGNAL(itemDoubleClicked(QListWidgetItem*)));
+   QObject::connect(_qtd,SIGNAL(itemSelectionChanged()),this,SLOT(itemSelectionChanged()));
+   QObject::connect(_qtd,SIGNAL(itemClicked(QListWidgetItem*)),this,SLOT(itemClicked(QListWidgetItem*)));
+   QObject::connect(_qtd,SIGNAL(itemDoubleClicked(QListWidgetItem*)),this,SLOT(itemDoubleClicked(QListWidgetItem*)));
 
    _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
+   
+   SetParent(pParentWnd);
 
    return TRUE;
+}
+
+void CListBox::itemSelectionChanged()
+{
+   qFatal("CListBox::itemSelectionChanged not implemented");
+}
+
+void CListBox::itemClicked(QListWidgetItem* lwi)
+{
+   qFatal("CListBox::itemClicked not implemented");
+}
+
+void CListBox::itemDoubleClicked(QListWidgetItem* lwi)
+{
+   qFatal("CListBox::itemDoubleClicked not implemented");
 }
 
 int CListBox::GetCount( ) const
@@ -3693,6 +3710,10 @@ bool CListCtrl::event(QEvent *event)
    MFCMessageEvent* msgEvent = dynamic_cast<MFCMessageEvent*>(event);
    if ( msgEvent )
    {
+      if ( CWnd::event(event) )
+      {
+         return true;
+      }
       if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
       {
          switch ( msgEvent->msg.message )
@@ -3786,9 +3807,10 @@ BOOL CListCtrl::Create(
       _qtd_table->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
       // Pass-through signals
-      QObject::connect(_qtd_table,SIGNAL(itemSelectionChanged()),this,SIGNAL(itemSelectionChanged()));
-      QObject::connect(_qtd_table,SIGNAL(cellClicked(int,int)),this,SIGNAL(cellClicked(int,int)));
-      QObject::connect(_qtd_table,SIGNAL(cellDoubleClicked(int,int)),this,SIGNAL(cellDoubleClicked(int,int)));
+      QObject::connect(_qtd_table,SIGNAL(itemSelectionChanged()),this,SLOT(itemSelectionChanged()));
+      QObject::connect(_qtd_table,SIGNAL(cellClicked(int,int)),this,SLOT(cellClicked(int,int)));
+      QObject::connect(_qtd_table,SIGNAL(cellDoubleClicked(int,int)),this,SLOT(cellDoubleClicked(int,int)));
+      QObject::connect(_qtd_table,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(customContextMenuRequested(QPoint)));
 
       _qtd_table->verticalHeader()->setVisible(false);
       _qtd_table->horizontalHeader()->setSortIndicatorShown(true);
@@ -3813,6 +3835,7 @@ BOOL CListCtrl::Create(
       _qtd_table->horizontalHeader()->setStretchLastSection(true);
 
       _qtd_table->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
+//      _qtd_table->setContextMenuPolicy(Qt::CustomContextMenu);
       _qtd_table->setVisible(dwStyle&WS_VISIBLE);
    }
    else if ( (dwStyle&LVS_TYPEMASK) == LVS_LIST )
@@ -3829,7 +3852,8 @@ BOOL CListCtrl::Create(
       _qtd_list->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
       // Pass-through signals
-      QObject::connect(_qtd_list,SIGNAL(itemSelectionChanged()),this,SIGNAL(itemSelectionChanged()));
+      QObject::connect(_qtd_list,SIGNAL(itemSelectionChanged()),this,SLOT(itemSelectionChanged()));
+      QObject::connect(_qtd_list,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(customContextMenuRequested(QPoint)));
 
       _qtd_list->setFlow(QListView::TopToBottom);
       _qtd_list->setWrapping(true);
@@ -3845,10 +3869,97 @@ BOOL CListCtrl::Create(
    //   }
 
       _qtd_list->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
+//      _qtd_list->setContextMenuPolicy(Qt::CustomContextMenu);
       _qtd_list->setVisible(dwStyle&WS_VISIBLE);
    }
+   
+   SetParent(pParentWnd);
 
    return TRUE;
+}
+
+void CListCtrl::itemSelectionChanged()
+{
+   NMLISTVIEW nmlv;
+   LRESULT result;
+   
+   nmlv.hdr.hwndFrom = m_hWnd;
+   nmlv.hdr.idFrom = _id;
+   nmlv.hdr.code = LVN_ITEMCHANGED;
+   nmlv.uChanged = LVIF_STATE;
+   if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
+   {
+      nmlv.iItem = _qtd_table->currentIndex().row();
+      nmlv.iSubItem = _qtd_table->currentIndex().column();
+      nmlv.uNewState = (_qtd_table->currentItem()->checkState()==Qt::Checked?0x2000:0);
+   }
+   else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
+   {
+      nmlv.iItem = _qtd_list->currentIndex().row();
+      nmlv.iSubItem = _qtd_list->currentIndex().column();
+      nmlv.uNewState = (_qtd_list->currentItem()->checkState()==Qt::Checked?0x2000:0);
+   }
+   nmlv.uNewState |= LVNI_SELECTED;
+   nmlv.uOldState = 0;
+   
+   GetOwner()->SendMessage(WM_NOTIFY,0,(LPARAM)&nmlv);
+}
+
+void CListCtrl::customContextMenuRequested(const QPoint &pos)
+{
+   NMITEMACTIVATE nmia;
+   LRESULT result;
+
+   nmia.hdr.hwndFrom = m_hWnd;
+   nmia.hdr.idFrom = _id;
+   nmia.hdr.code = NM_RCLICK;
+   if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
+   {
+      nmia.iItem = _qtd_table->currentIndex().row();
+      nmia.iSubItem = _qtd_table->currentIndex().column();
+   }
+   else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
+   {
+      nmia.iItem = _qtd_list->currentIndex().row();
+      nmia.iSubItem = _qtd_list->currentIndex().column();
+   }
+   nmia.ptAction.x = QCursor::pos().x();
+   nmia.ptAction.y = QCursor::pos().y();
+   
+   GetOwner()->SendMessage(WM_NOTIFY,0,(LPARAM)&nmia);
+   GetOwner()->PostMessage(WM_CONTEXTMENU,(WPARAM)m_hWnd,(LPARAM)((QCursor::pos().x())|(QCursor::pos().y()<<16)));
+}
+
+void CListCtrl::cellClicked(int row, int column)
+{
+   NMITEMACTIVATE nmia;
+   LRESULT result;
+
+   nmia.hdr.hwndFrom = m_hWnd;
+   nmia.hdr.idFrom = _id;
+   nmia.hdr.code = NM_CLICK;
+   nmia.iItem = row;
+   nmia.iSubItem = column;
+   nmia.ptAction.x = QCursor::pos().x();
+   nmia.ptAction.y = QCursor::pos().y();
+   
+   GetOwner()->SendMessage(WM_NOTIFY,0,(LPARAM)&nmia);
+}
+
+void CListCtrl::cellDoubleClicked(int row, int column)
+{
+   NMITEMACTIVATE nmia;
+   LRESULT result;
+   
+   nmia.hdr.hwndFrom = m_hWnd;
+   nmia.hdr.idFrom = _id;
+   nmia.hdr.code = NM_DBLCLK;
+   nmia.iItem = row;
+   nmia.iSubItem = column;
+   nmia.ptAction.x = QCursor::pos().x();
+   nmia.ptAction.y = QCursor::pos().y();
+   
+   GetOwner()->SendMessage(WM_NOTIFY,0,(LPARAM)&nmia);
 }
 
 CImageList* CListCtrl::SetImageList(
@@ -4722,9 +4833,9 @@ CTreeCtrl::CTreeCtrl(CWnd* parent)
    _qtd->setMouseTracking(true);
 
    // Pass-through signals
-   QObject::connect(_qtd,SIGNAL(itemSelectionChanged()),this,SIGNAL(itemSelectionChanged()));
-   QObject::connect(_qtd,SIGNAL(itemClicked(QTreeWidgetItem*,int)),this,SIGNAL(itemClicked(QTreeWidgetItem*,int)));
-   QObject::connect(_qtd,SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)),this,SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)));
+   QObject::connect(_qtd,SIGNAL(itemSelectionChanged()),this,SLOT(itemSelectionChanged()));
+   QObject::connect(_qtd,SIGNAL(itemClicked(QTreeWidgetItem*,int)),this,SLOT(itemClicked(QTreeWidgetItem*,int)));
+   QObject::connect(_qtd,SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)),this,SLOT(itemDoubleClicked(QTreeWidgetItem*,int)));
 }
 
 CTreeCtrl::~CTreeCtrl()
@@ -4765,8 +4876,25 @@ BOOL CTreeCtrl::Create(
 
    _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
    _qtd->setVisible(dwStyle&WS_VISIBLE);
+   
+   SetParent(pParentWnd);
 
    return TRUE;
+}
+
+void CTreeCtrl::itemSelectionChanged()
+{
+   qFatal("CTreeCtrl::itemSelectionChanged not implemented");
+}
+
+void CTreeCtrl::itemClicked(QTreeWidgetItem* item, int column)
+{
+   qFatal("CTreeCtrl::itemClicked not implemented");
+}
+
+void CTreeCtrl::itemDoubleClicked(QTreeWidgetItem* item, int column)
+{
+   qFatal("CTreeCtrl::itemDoubleClicked not implemented");
 }
 
 HTREEITEM CTreeCtrl::InsertItem(
@@ -6566,6 +6694,11 @@ void CWnd::timerEvent(QTimerEvent *event)
 void CWnd::paintEvent(QPaintEvent *event)
 {
    SendMessage(WM_PAINT);
+}
+
+void CWnd::contextMenuEvent(QContextMenuEvent *event)
+{
+   PostMessage(WM_CONTEXTMENU,(WPARAM)m_hWnd,(LPARAM)((QCursor::pos().x()<<16)|(QCursor::pos().y())));
 }
 
 void CWnd::resizeEvent(QResizeEvent *event)
@@ -11219,7 +11352,6 @@ BOOL CSpinButtonCtrl::Create(
 
 void CSpinButtonCtrl::control_edited(int value)
 {
-//   emit valueChanged(_oldValue,value);
    NMUPDOWN nmud;
    
    nmud.hdr.hwndFrom = m_hWnd;

@@ -51,15 +51,7 @@ class CInstrumentEditorDPCM : public CInstrumentEditPanel
 {
    Q_OBJECT
    // Qt interfaces
-protected:
-   void contextMenuEvent(QContextMenuEvent *event);
 public slots:
-   void sampleList_itemSelectionChanged();
-   void sampleList_cellClicked(int row, int column);
-   void sampleList_cellDoubleClicked(int row, int column);
-   void table_itemSelectionChanged();
-   void table_cellClicked(int row, int column);
-   void table_cellDoubleClicked(int row, int column);
    void menuAction_triggered(int id);
 public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
    

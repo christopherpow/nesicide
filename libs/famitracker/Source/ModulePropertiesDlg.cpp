@@ -71,21 +71,6 @@ BEGIN_MESSAGE_MAP(CModulePropertiesDlg, CDialog)
    ON_NOTIFY(LVN_ITEMCHANGED, IDC_SONGLIST, OnLvnItemchangedSonglist)
 END_MESSAGE_MAP()
 
-void CModulePropertiesDlg::songList_itemSelectionChanged()
-{
-   CListCtrl *pList = (CListCtrl*) GetDlgItem(IDC_SONGLIST);
-   NMLISTVIEW nmlv;
-   LRESULT result;
-   
-   nmlv.uChanged = LVIF_STATE;
-   nmlv.iItem = pList->currentIndex().row();
-   nmlv.iSubItem = pList->currentIndex().column();
-   nmlv.uNewState = LCTRL_CHECKBOX_STATE|LVNI_SELECTED;
-   nmlv.uOldState = 0;
-   
-   OnLvnItemchangedSonglist((NMHDR*)&nmlv,&result);
-}
-
 // CModulePropertiesDlg message handlers
 
 BOOL CModulePropertiesDlg::OnInitDialog()
