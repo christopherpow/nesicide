@@ -3906,31 +3906,6 @@ void CListCtrl::itemSelectionChanged()
    GetOwner()->SendMessage(WM_NOTIFY,_id,(LPARAM)&nmlv);
 }
 
-//void CListCtrl::customContextMenuRequested(const QPoint &pos)
-//{
-//   NMITEMACTIVATE nmia;
-//   LRESULT result;
-
-//   nmia.hdr.hwndFrom = m_hWnd;
-//   nmia.hdr.idFrom = _id;
-//   nmia.hdr.code = NM_RCLICK;
-//   if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
-//   {
-//      nmia.iItem = _qtd_table->currentIndex().row();
-//      nmia.iSubItem = _qtd_table->currentIndex().column();
-//   }
-//   else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
-//   {
-//      nmia.iItem = _qtd_list->currentIndex().row();
-//      nmia.iSubItem = _qtd_list->currentIndex().column();
-//   }
-//   nmia.ptAction.x = QCursor::pos().x();
-//   nmia.ptAction.y = QCursor::pos().y();
-   
-//   GetOwner()->SendMessage(WM_NOTIFY,_id,(LPARAM)&nmia);
-//   GetOwner()->PostMessage(WM_CONTEXTMENU,(WPARAM)m_hWnd,(LPARAM)((QCursor::pos().x())|(QCursor::pos().y()<<16)));
-//}
-
 void CListCtrl::cellClicked(int row, int column)
 {
    NMITEMACTIVATE nmia;
@@ -5750,6 +5725,7 @@ END_MESSAGE_MAP()
 
 CWnd::CWnd(CWnd *parent)
    : m_pParentWnd(parent),
+     m_pOwnerWnd(parent),
      mfcVerticalScrollBar(NULL),
      mfcHorizontalScrollBar(NULL),
      m_hWnd((HWND)NULL),
@@ -6740,14 +6716,23 @@ void CWnd::contextMenuEvent(QContextMenuEvent *event)
    nmia.ptAction.x = QCursor::pos().x();
    nmia.ptAction.y = QCursor::pos().y();
    
-   SendMessage(WM_NOTIFY,_id,(LPARAM)&nmia);
+   GetOwner()->SendMessage(WM_NOTIFY,_id,(LPARAM)&nmia);
    PostMessage(WM_CONTEXTMENU,(WPARAM)m_hWnd,(LPARAM)((QCursor::pos().x()<<16)|(QCursor::pos().y())));
 }
 
 void CWnd::resizeEvent(QResizeEvent *event)
 {
 //   SendMessage(WM_ERASEBKGND);
-   PostMessage(WM_SIZE,SIZE_RESTORED,(event->size().height()<<16)|(event->size().width()));
+   QSize size = event->size();
+   if ( _dwStyle&WS_VSCROLL )
+   {
+      size.setWidth(size.width()-::GetSystemMetrics(SM_CXVSCROLL));
+   }
+   if ( _dwStyle&WS_HSCROLL )
+   {
+      size.setHeight(size.height()-::GetSystemMetrics(SM_CYHSCROLL));
+   }
+   PostMessage(WM_SIZE,SIZE_RESTORED,(size.height()<<16)|(size.width()));
 }
 
 void CWnd::subclassWidget(int nID,CWnd* widget)
