@@ -111,7 +111,6 @@ protected:
 //   void resizeEvent(QResizeEvent *event);
    void focusInEvent(QFocusEvent *event) { event->ignore(); }
    void focusOutEvent(QFocusEvent *);
-   void leaveEvent(QEvent *);
    void dragEnterEvent(QDragEnterEvent *event);
    void dragMoveEvent(QDragMoveEvent *event);
    void dropEvent(QDropEvent *event);

@@ -95,12 +95,6 @@ BEGIN_MESSAGE_MAP(CFrameEditor, CWnd)
 	ON_COMMAND(ID_MODULE_MOVEFRAMEUP, OnModuleMoveFrameUp)
 END_MESSAGE_MAP()
 
-
-void CFrameEditor::leaveEvent(QEvent *)
-{
-   OnNcMouseMove(0,CPoint());
-}
-
 void CFrameEditor::menuAction_triggered(int id)
 {
    typedef void (CFrameEditor::*actionHandler)();

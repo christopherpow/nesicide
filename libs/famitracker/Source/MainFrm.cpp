@@ -307,15 +307,15 @@ void CMainFrame::showEvent(QShowEvent *)
 
       m_pView = (CFamiTrackerView*)GetActiveView();
 
-      m_pView->GetPatternView()->setParent(m_pView->toQWidget());
+//      m_pView->GetPatternView()->setParent(m_pView->toQWidget());
+//      m_pView->GetPatternView()->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::MinimumExpanding));
+//      m_pView->setFocusProxy(m_pView->GetPatternView());
+//      m_pView->GetPatternView()->setFocusPolicy(Qt::StrongFocus);
       m_pView->setVisible(false); // Hide the view otherwise it 'obscures' the real view.
 
-      m_pView->GetPatternView()->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::MinimumExpanding));
       m_pView->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::MinimumExpanding));
 
       m_pView->setFocusPolicy(Qt::StrongFocus);
-      m_pView->setFocusProxy(m_pView->GetPatternView());
-      m_pView->GetPatternView()->setFocusPolicy(Qt::StrongFocus);
       m_pFrameEditor->setFocusPolicy(Qt::NoFocus);
 
       realCentralWidget->setLayout(m_pView->toQWidget()->layout());

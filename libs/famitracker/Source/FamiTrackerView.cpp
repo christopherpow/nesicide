@@ -155,36 +155,9 @@ BEGIN_MESSAGE_MAP(CFamiTrackerView, CView)
 	ON_MESSAGE(MSG_NOTE_EVENT, OnNoteEvent)
 END_MESSAGE_MAP()
 
-LRESULT CFamiTrackerView::SendMessage(
-   UINT message,
-   WPARAM wParam,
-   LPARAM lParam 
-)
-{
-   switch ( message )
-   {
-   case WM_INITIALUPDATE:
-      OnInitialUpdate();
-      break;
-   }
-   return 0;
-}
-
 void CFamiTrackerView::updateViews(long hint)
 {
    OnUpdate(0,hint,0);
-}
-
-void CFamiTrackerView::resizeEvent(QResizeEvent *event)
-{
-   CRect rect(0,0,event->size().width(),event->size().height());
-   rect.InflateRect(0,0,::GetSystemMetrics(SM_CXVSCROLL)+(2*::GetSystemMetrics(SM_CXEDGE)),::GetSystemMetrics(SM_CYHSCROLL)+(2*::GetSystemMetrics(SM_CYEDGE)));
-   CalcWindowRect(&rect);
-}
-
-void CFamiTrackerView::leaveEvent(QEvent *)
-{
-   OnNcMouseMove(0,CPoint());
 }
 
 void CFamiTrackerView::wheelEvent(QWheelEvent *event)
@@ -212,36 +185,19 @@ void CFamiTrackerView::wheelEvent(QWheelEvent *event)
       flags |= MK_RBUTTON;            
    }
    OnMouseWheel(flags,event->delta(),point);
-   m_pPatternView->update();
-}
-
-void CFamiTrackerView::viewPaintEvent(QPaintEvent *event)
-{
-//   static QSize currentSize = QSize(0,0);
-   // Qt attach to the MFC HLE.  This object is already QWidget type.
-   CDC dc;
-   dc.attach(m_pPatternView);
-
-//   if ( currentSize != size() )
-//   {
-      OnEraseBkgnd(&dc); // CP: This should really be done only on resize...      
-//      currentSize = size();
-//   }
-   OnDraw(&dc);
-
-   // dc will auto-detach on destruction
+//   m_pPatternView->update();
 }
 
 void CFamiTrackerView::focusInEvent(QFocusEvent *)
 {
    OnSetFocus(NULL);
-   m_pPatternView->update();
+//   m_pPatternView->update();
 }
 
 void CFamiTrackerView::focusOutEvent(QFocusEvent *)
 {
    OnKillFocus(NULL);
-   m_pPatternView->update();
+//   m_pPatternView->update();
 }
 
 void CFamiTrackerView::verticalScrollBar_actionTriggered(int arg1)
@@ -494,76 +450,15 @@ CFamiTrackerView::CFamiTrackerView() :
 
 	m_pPatternView = new CPatternView();
    
-   m_pPatternView->installEventFilter(this);
-   m_pPatternView->setMouseTracking(true);
-   _grid->addWidget(m_pPatternView,0,0);
+//   m_pPatternView->installEventFilter(this);
+//   m_pPatternView->setMouseTracking(true);
+//   _grid->addWidget(m_pPatternView,0,0);
 }
 
 CFamiTrackerView::~CFamiTrackerView()
 {
 	// Release allocated objects
 	SAFE_RELEASE(m_pPatternView);
-}
-
-bool CFamiTrackerView::eventFilter(QObject *object, QEvent *event)
-{
-   if ( object == m_pPatternView )
-   {
-      if ( event->type() == QEvent::Resize )
-      {
-         resizeEvent(dynamic_cast<QResizeEvent*>(event));
-         return true;
-      }
-      if ( event->type() == QEvent::KeyPress )
-      {
-         keyPressEvent(dynamic_cast<QKeyEvent*>(event));
-         return true;
-      }
-      if ( event->type() == QEvent::KeyRelease )
-      {
-         keyReleaseEvent(dynamic_cast<QKeyEvent*>(event));
-         return true;
-      }
-      if ( event->type() == QEvent::MouseMove )
-      {
-         mouseMoveEvent(dynamic_cast<QMouseEvent*>(event));
-         return true;
-      }
-      if ( event->type() == QEvent::MouseButtonPress )
-      {
-         mousePressEvent(dynamic_cast<QMouseEvent*>(event));
-         return true;
-      }
-      if ( event->type() == QEvent::MouseButtonRelease )
-      {
-         mouseReleaseEvent(dynamic_cast<QMouseEvent*>(event));
-         return true;
-      }
-      if ( event->type() == QEvent::MouseButtonDblClick )
-      {
-         mouseDoubleClickEvent(dynamic_cast<QMouseEvent*>(event));
-         return true;
-      }
-      if ( event->type() == QEvent::Wheel )
-      {
-         wheelEvent(dynamic_cast<QWheelEvent*>(event));
-         return true;
-      }
-      if ( event->type() == QEvent::Paint )
-      {
-         viewPaintEvent(dynamic_cast<QPaintEvent*>(event));
-         return true;
-      }
-   }
-   if ( object == _qt )
-   {
-      if ( event->type() == QEvent::Timer )
-      {
-         timerEvent(dynamic_cast<QTimerEvent*>(event));
-         return true;
-      }
-   }
-   return false;
 }
 
 BOOL CFamiTrackerView::PreCreateWindow(CREATESTRUCT& cs)
@@ -1372,7 +1267,7 @@ void CFamiTrackerView::OnInitialUpdate()
 //	CView::OnInitialUpdate();	
 
    QObject::connect(pDoc,SIGNAL(updateViews(long)),this,SLOT(updateViews(long)));
-   QObject::connect(pDoc,SIGNAL(updateViews(long)),m_pPatternView,SLOT(updateViews(long)));
+//   QObject::connect(pDoc,SIGNAL(updateViews(long)),m_pPatternView,SLOT(updateViews(long)));
 }
 
 void CFamiTrackerView::OnUpdate(CView* /*pSender*/, LPARAM lHint, CObject* /*pHint*/)

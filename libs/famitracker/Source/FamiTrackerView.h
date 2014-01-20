@@ -62,18 +62,8 @@ class CFamiTrackerView : public CView
 {
    Q_OBJECT
    // Qt stuff
-public:
-   LRESULT SendMessage(
-      UINT message,
-      WPARAM wParam = 0,
-      LPARAM lParam = 0 
-   );
 protected:
-   void viewPaintEvent(QPaintEvent *event);
-   void resizeEvent(QResizeEvent *event);
-   void leaveEvent(QEvent *);
    void wheelEvent(QWheelEvent *event);
-   bool eventFilter(QObject *object, QEvent *event);
    void focusInEvent(QFocusEvent *);
    void focusOutEvent(QFocusEvent *);
    

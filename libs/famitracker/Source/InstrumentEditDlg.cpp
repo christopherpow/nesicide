@@ -84,11 +84,6 @@ void CInstrumentEditDlg::closeEvent(QCloseEvent *)
    DestroyWindow();
 }
 
-void CInstrumentEditDlg::leaveEvent(QEvent *event)
-{
-   OnNcLButtonUp(0,CPoint());
-}
-
 // CInstrumentEditDlg message handlers
 
 BOOL CInstrumentEditDlg::OnInitDialog()

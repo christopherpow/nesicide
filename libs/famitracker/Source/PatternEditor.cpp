@@ -91,20 +91,20 @@ LPCTSTR CPatternView::DEFAULT_HEADER_FONT = _T("Tahoma");
 const int CPatternView::DEFAULT_FONT_SIZE = 12;
 const int CPatternView::DEFAULT_HEADER_FONT_SIZE = 11;
 
-void CPatternView::leaveEvent(QEvent *)
-{
-   OnMouseNcMove();
-}
+//void CPatternView::leaveEvent(QEvent *)
+//{
+//   OnMouseNcMove();
+//}
 
-void CPatternView::focusInEvent(QFocusEvent *)
-{
-   m_pView->SetFocus();
-}
+//void CPatternView::focusInEvent(QFocusEvent *)
+//{
+//   m_pView->SetFocus();
+//}
 
-void CPatternView::updateViews(long hint)
-{
-   update();
-}
+//void CPatternView::updateViews(long hint)
+//{
+//   update();
+//}
 
 CPatternView::CPatternView() :
 	m_pPatternDC(NULL),

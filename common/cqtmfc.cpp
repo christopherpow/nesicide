@@ -5715,6 +5715,12 @@ BOOL CCmdTarget::OnCmdMsg(
    return FALSE;
 }
 
+MFCWidget::MFCWidget(QWidget *parent)
+   : QWidget(parent)
+{
+   setContextMenuPolicy(Qt::PreventContextMenu);
+}
+
 CWnd* CWnd::focusWnd = NULL;
 CFrameWnd* CWnd::m_pFrameWnd = NULL;
 
@@ -5895,6 +5901,10 @@ void CWnd::SendMessageToDescendants(
 {
    foreach ( CWnd* pWnd, mfcToQtWidget )
    {
+      if ( pWnd->IsKindOf(RUNTIME_CLASS(CView)) )
+      {
+         qDebug("CView...");
+      }
       pWnd->SendMessage(message,wParam,lParam);
    }
 }
@@ -6718,6 +6728,11 @@ void CWnd::contextMenuEvent(QContextMenuEvent *event)
    
    GetOwner()->SendMessage(WM_NOTIFY,_id,(LPARAM)&nmia);
    PostMessage(WM_CONTEXTMENU,(WPARAM)m_hWnd,(LPARAM)((QCursor::pos().x()<<16)|(QCursor::pos().y())));
+}
+
+void CWnd::leaveEvent(QEvent *event)
+{
+   PostMessage(WM_NCMOUSEMOVE);
 }
 
 void CWnd::resizeEvent(QResizeEvent *event)
@@ -7871,9 +7886,10 @@ void CFrameWnd::OnClose()
    }
 }
 
-IMPLEMENT_DYNCREATE(CView,CWnd)
+IMPLEMENT_DYNAMIC(CView,CWnd)
 
 BEGIN_MESSAGE_MAP(CView,CWnd)
+   ON_MESSAGE(WM_INITIALUPDATE,OnInitialUpdate)
 END_MESSAGE_MAP()
 
 CView::CView()
@@ -7895,6 +7911,155 @@ void CView::menuAboutToShow(CMenu* menu)
 {
    // Pass up the chain.
    m_pDocument->menuAboutToShow(menu);
+}
+
+bool CView::eventFilter(QObject *object, QEvent *event)
+{
+   if ( object == viewWidget )
+   {
+      if ( event->type() == QEvent::Close )
+      {
+         closeEvent(dynamic_cast<QCloseEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::Show )
+      {
+         showEvent(dynamic_cast<QShowEvent*>(event));
+         return true;
+      }
+   //   if ( event->type() == QEvent::ShowToParent )
+   //   {
+   //      showEvent(dynamic_cast<QShowEvent*>(event));
+   //      return true;
+   //   }
+      if ( event->type() == QEvent::Hide )
+      {
+         hideEvent(dynamic_cast<QHideEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::Move )
+      {
+         moveEvent(dynamic_cast<QMoveEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::Paint )
+      {
+         paintEvent(dynamic_cast<QPaintEvent*>(event));
+         return false;
+      }
+      if ( event->type() == QEvent::FocusIn )
+      {
+         focusInEvent(dynamic_cast<QFocusEvent*>(event));
+         return false;
+      }
+      if ( event->type() == QEvent::FocusOut )
+      {
+         focusOutEvent(dynamic_cast<QFocusEvent*>(event));
+         return false;
+      }
+      if ( event->type() == QEvent::Leave )
+      {
+         leaveEvent(event);
+         return true;
+      }
+      if ( event->type() == QEvent::MouseButtonPress )
+      {
+         mousePressEvent(dynamic_cast<QMouseEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::MouseButtonRelease )
+      {
+         mouseReleaseEvent(dynamic_cast<QMouseEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::MouseButtonDblClick )
+      {
+         mouseDoubleClickEvent(dynamic_cast<QMouseEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::MouseMove )
+      {
+         mouseMoveEvent(dynamic_cast<QMouseEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::Wheel )
+      {
+         wheelEvent(dynamic_cast<QWheelEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::Resize )
+      {
+         resizeEvent(dynamic_cast<QResizeEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::KeyPress )
+      {
+         keyPressEvent(dynamic_cast<QKeyEvent*>(event));
+         return false;
+      }
+      if ( event->type() == QEvent::KeyRelease )
+      {
+         keyReleaseEvent(dynamic_cast<QKeyEvent*>(event));
+         return false;
+      }
+      if ( event->type() == QEvent::ContextMenu )
+      {
+         contextMenuEvent(dynamic_cast<QContextMenuEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::DragEnter )
+      {
+         dragEnterEvent(dynamic_cast<QDragEnterEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::DragMove )
+      {
+         dragMoveEvent(dynamic_cast<QDragMoveEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::Drop )
+      {
+         dropEvent(dynamic_cast<QDropEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::DragLeave )
+      {
+         dragLeaveEvent(dynamic_cast<QDragLeaveEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::Timer )
+      {
+         timerEvent(dynamic_cast<QTimerEvent*>(event));
+         return true;
+      }
+   }
+//   qDebug("eventFilter: unhandled %d object %s", event->type(), object->objectName().toLatin1().constData());
+   return false;
+}
+
+void CView::resizeEvent(QResizeEvent *event)
+{
+   CRect rect(0,0,event->size().width(),event->size().height());
+   rect.InflateRect(0,0,::GetSystemMetrics(SM_CXVSCROLL)+(2*::GetSystemMetrics(SM_CXEDGE)),::GetSystemMetrics(SM_CYHSCROLL)+(2*::GetSystemMetrics(SM_CYEDGE)));
+   CalcWindowRect(&rect);
+}
+
+void CView::paintEvent(QPaintEvent *event)
+{
+//   static QSize currentSize = QSize(0,0);
+   
+   // Qt attach to the MFC HLE.  This object is already QWidget type.
+   CDC dc;
+   dc.attach(viewWidget);
+
+//   if ( currentSize != size() )
+//   {
+      SendMessage(WM_ERASEBKGND,(WPARAM)(HDC)&dc);
+//      currentSize = size();
+//   }
+   OnDraw(&dc);
+
+   // dc will auto-detach on destruction
 }
 
 BOOL CView::Create( 
@@ -7919,6 +8084,12 @@ BOOL CView::Create(
    
    // Set parent frame.
    m_pFrameWnd = pContext->m_pCurrentFrame;
+   
+   viewWidget = new MFCWidget();
+   viewWidget->setStyleSheet("QWidget { background: red; }");
+   viewWidget->setMouseTracking(true);
+   _grid->addWidget(viewWidget,0,0);
+   viewWidget->installEventFilter(this);
    
    _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
 

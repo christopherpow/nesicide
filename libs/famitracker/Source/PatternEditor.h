@@ -129,17 +129,7 @@ class CFamiTrackerDoc;
 class CFamiTrackerView;
 
 // CPatternView
-class CPatternView : public QWidget // Pull in Qt stuff
-{
-   Q_OBJECT
-// Qt stuff
-protected:
-   void leaveEvent(QEvent *); // CP: hack for non-client mouse move
-   void focusInEvent(QFocusEvent *);
-   
-public slots:
-   void updateViews(long hint);
-
+class CPatternView {
 public:
 	static const unsigned int ROW_PLAY_COLOR = 0x400050;
 

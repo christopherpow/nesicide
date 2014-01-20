@@ -3601,7 +3601,13 @@ public:
    MSG msg;   
 };
 
-class CWnd : public QWidget, public CCmdTarget, public QtUIElement
+class MFCWidget : public QWidget
+{
+public:
+   MFCWidget(QWidget* parent=0);
+};
+
+class CWnd : public MFCWidget, public CCmdTarget, public QtUIElement
 {
    Q_OBJECT
 
@@ -3927,7 +3933,7 @@ public slots:
 protected:
    virtual bool event(QEvent *event);   
    virtual bool eventFilter(QObject *object, QEvent *event);
-   virtual void resizeEvent(QResizeEvent *event);
+   virtual void leaveEvent(QEvent *event);
    virtual void timerEvent(QTimerEvent *event);
    virtual void mousePressEvent(QMouseEvent *event);
    virtual void mouseMoveEvent(QMouseEvent *event);
@@ -3935,6 +3941,7 @@ protected:
    virtual void mouseDoubleClickEvent(QMouseEvent *event);
    virtual void keyPressEvent(QKeyEvent *event);
    virtual void keyReleaseEvent(QKeyEvent *event);
+   virtual void resizeEvent(QResizeEvent *event);
    virtual void paintEvent(QPaintEvent *event);
    virtual void contextMenuEvent(QContextMenuEvent *event);
    void focusInEvent(QFocusEvent *event);
@@ -4085,8 +4092,13 @@ protected:
 
 class CView : public CWnd
 {
-   DECLARE_DYNCREATE(CView)
+   DECLARE_DYNAMIC(CView)
    // Qt interfaces
+protected:
+   MFCWidget* viewWidget;
+   virtual bool eventFilter(QObject *object, QEvent *event);
+   virtual void resizeEvent(QResizeEvent *event);
+   virtual void paintEvent(QPaintEvent *event);
 public:
    virtual void menuAction_triggered(int id);
    virtual void menuAboutToShow(CMenu* menu);
@@ -4104,16 +4116,20 @@ public:
       DWORD dwExStyle = 0, 
       CCreateContext* pContext = NULL  
    );
+   virtual void OnDraw( 
+      CDC* pDC  
+   ) = 0;
    virtual BOOL OnCmdMsg(
       UINT nID,
       int nCode,
       void* pExtra,
       AFX_CMDHANDLERINFO* pHandlerInfo
    );
-   virtual void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {}
-   virtual void OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags) {}
-   virtual void OnSysKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {}
-   virtual void OnSysKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags) {}
+   void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {}
+   void OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags) {}
+   void OnSysKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {}
+   void OnSysKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags) {}
+   virtual void OnInitialUpdate() {}
    CDocument* GetDocument() const { return m_pDocument; }
 
 protected:

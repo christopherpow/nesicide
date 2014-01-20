@@ -36,7 +36,6 @@ public: // For some reason MOC doesn't like the protection specification inside 
    // Qt stuff
 protected:
    void closeEvent(QCloseEvent *);
-   void leaveEvent(QEvent *);
    
 public slots:
    void instTab_currentChanged(int arg1);
