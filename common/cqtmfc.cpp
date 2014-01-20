@@ -8027,6 +8027,9 @@ bool CView::eventFilter(QObject *object, QEvent *event)
          dragLeaveEvent(dynamic_cast<QDragLeaveEvent*>(event));
          return true;
       }
+   }
+   if ( object == _qt )
+   {
       if ( event->type() == QEvent::Timer )
       {
          timerEvent(dynamic_cast<QTimerEvent*>(event));
