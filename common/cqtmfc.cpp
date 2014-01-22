@@ -9015,6 +9015,23 @@ void CDocument::OnCloseDocument()
    emit documentClosed(); 
 }
 
+void CDocument::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHint)
+{
+   ASSERT(pSender == NULL || !_views.count());
+		// must have views if sent by one of them
+
+	POSITION pos = GetFirstViewPosition();
+	while (pos != NULL)
+	{
+		CView* pView = GetNextView(pos);
+		ASSERT_VALID(pView);
+		if (pView != pSender)
+      {
+			pView->OnUpdate(pSender, lHint, pHint);
+      }
+	}
+}
+
 void CDocument::AddView( 
    CView* pView  
 )
@@ -9073,17 +9090,19 @@ POSITION CDocument::GetFirstViewPosition() const
    return pos;
 }
 
-CView* CDocument::GetNextView(POSITION pos) const
+CView* CDocument::GetNextView( 
+   POSITION& rPosition  
+) const
 {
-   if ( (*pos) == -1 )
+   if ( !rPosition )
    {
-      delete pos;
       return NULL; // Choker for end-of-list
    }
-   CView* pView = _views.at((*pos)++);
-   if ( (*pos) >= _views.count() )
+   CView* pView = _views.at((*rPosition)++);
+   if ( (*rPosition) >= _views.count() )
    {
-      (*pos) = -1;
+      delete rPosition;
+      rPosition = NULL;
    }
    return pView;
 }

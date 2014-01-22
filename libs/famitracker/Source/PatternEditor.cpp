@@ -101,11 +101,6 @@ const int CPatternView::DEFAULT_HEADER_FONT_SIZE = 11;
 //   m_pView->SetFocus();
 //}
 
-//void CPatternView::updateViews(long hint)
-//{
-//   update();
-//}
-
 CPatternView::CPatternView() :
 	m_pPatternDC(NULL),
 	m_pPatternBmp(NULL),

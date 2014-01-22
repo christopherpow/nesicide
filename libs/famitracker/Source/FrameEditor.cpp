@@ -232,11 +232,6 @@ void CFrameEditor::wheelEvent(QWheelEvent* event)
    update();
 }
 
-void CFrameEditor::updateViews(long hint)
-{
-   update();
-}
-
 void CFrameEditor::dragEnterEvent(QDragEnterEvent *event)
 {
    COleDataObject* pDataObj = new COleDataObject;
@@ -334,8 +329,6 @@ void CFrameEditor::AssignDocument(CFamiTrackerDoc *pDoc, CFamiTrackerView *pView
 {
 	m_pDocument = pDoc;
 	m_pView		= pView;
-   
-   QObject::connect(pDoc,SIGNAL(updateViews(long)),this,SLOT(updateViews(long)));  
 }
 
 // CFrameEditor message handlers

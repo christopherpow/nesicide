@@ -102,7 +102,6 @@ class CFrameEditor : public CWnd
    Q_OBJECT
    // Qt interfaces
 public slots:
-   void updateViews(long hint);
    void verticalScrollBar_actionTriggered(int action);
    void horizontalScrollBar_actionTriggered(int action);
    void menuAction_triggered(int id);

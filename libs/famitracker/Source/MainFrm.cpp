@@ -320,8 +320,6 @@ void CMainFrame::showEvent(QShowEvent *)
 
       realCentralWidget->setLayout(m_pView->toQWidget()->layout());
 
-      QObject::connect(m_pDocument,SIGNAL(updateViews(long)),m_pFrameEditor,SLOT(updateViews(long)));
-      QObject::connect(m_pDocument,SIGNAL(updateViews(long)),this,SLOT(updateViews(long)));
       QObject::connect(m_pDocument,SIGNAL(documentSaved()),this,SIGNAL(documentSaved()));
       QObject::connect(m_pDocument,SIGNAL(documentClosed()),this,SIGNAL(documentClosed()));
       QObject::connect(m_pMenu->GetSubMenu(0),SIGNAL(menuAction_triggered(int)),m_pView,SLOT(menuAction_triggered(int)));
@@ -570,10 +568,6 @@ void CMainFrame::onIdleSlot()
 
    //	ON_UPDATE_COMMAND_UI(ID_FRAMEEDITOR_TOP, OnUpdateFrameeditorTop)
    //	ON_UPDATE_COMMAND_UI(ID_FRAMEEDITOR_LEFT, OnUpdateFrameeditorLeft)
-}
-
-void CMainFrame::updateViews(long hint)
-{
 }
 
 void CMainFrame::setModified(bool modified)

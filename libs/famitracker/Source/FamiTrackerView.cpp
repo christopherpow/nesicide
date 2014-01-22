@@ -155,11 +155,6 @@ BEGIN_MESSAGE_MAP(CFamiTrackerView, CView)
 	ON_MESSAGE(MSG_NOTE_EVENT, OnNoteEvent)
 END_MESSAGE_MAP()
 
-void CFamiTrackerView::updateViews(long hint)
-{
-   OnUpdate(0,hint,0);
-}
-
 void CFamiTrackerView::wheelEvent(QWheelEvent *event)
 {
    CPoint point(event->pos());
@@ -1265,9 +1260,6 @@ void CFamiTrackerView::OnInitialUpdate()
 
 	// Call OnUpdate
 //	CView::OnInitialUpdate();	
-
-   QObject::connect(pDoc,SIGNAL(updateViews(long)),this,SLOT(updateViews(long)));
-//   QObject::connect(pDoc,SIGNAL(updateViews(long)),m_pPatternView,SLOT(updateViews(long)));
 }
 
 void CFamiTrackerView::OnUpdate(CView* /*pSender*/, LPARAM lHint, CObject* /*pHint*/)

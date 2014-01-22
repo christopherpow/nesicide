@@ -3796,7 +3796,6 @@ public:
    virtual void OnKillFocus(CWnd*) {}
    void OnVScroll(UINT,UINT,CScrollBar*) {}
    void OnHScroll(UINT,UINT,CScrollBar*) {}
-   void OnUpdate(CWnd* p=0,UINT hint=0,CObject* o=0) { /*_qt->update();*/ }
    void Invalidate(BOOL bErase = TRUE) { /*update();*/ }
    void RedrawWindow(LPCRECT rect=0,CRgn* rgn=0,UINT f=0) { _qt->update(); }
    CWnd* SetFocus();
@@ -4040,7 +4039,6 @@ public:
    virtual void menuAboutToShow(CMenu* menu);
 signals:
    void setModified(bool f);
-   void updateViews(long hint);
    void documentSaved();
    void documentClosed();
 
@@ -4062,7 +4060,9 @@ public:
    virtual void OnFileSave();
    virtual void OnFileSaveAs();
    virtual POSITION GetFirstViewPosition() const;
-   virtual CView* GetNextView(POSITION pos) const;
+   virtual CView* GetNextView( 
+      POSITION& rPosition  
+   ) const;
    CDocTemplate* GetDocTemplate() const { return m_pDocTemplate; }
    const CString& GetPathName( ) const { return m_strPathName; }
    virtual void SetPathName(
@@ -4072,7 +4072,7 @@ public:
    virtual void SetTitle(CString title );
    BOOL DoFileSave();
    BOOL DoSave(LPCTSTR lpszPathName, BOOL bReplace = TRUE);
-   virtual void UpdateAllViews(void* ptr,long hint = 0) { emit updateViews(hint); }
+   virtual void UpdateAllViews(CView *pSender,LPARAM lHint = 0, CObject *pHint = 0);
    virtual CString GetTitle() const { return m_strTitle; }
    void AddView( 
       CView* pView  
@@ -4102,6 +4102,7 @@ protected:
 public:
    virtual void menuAction_triggered(int id);
    virtual void menuAboutToShow(CMenu* menu);
+   virtual QWidget* toViewWidget() { return viewWidget; }
    
 public:
    CView();
@@ -4125,6 +4126,7 @@ public:
       void* pExtra,
       AFX_CMDHANDLERINFO* pHandlerInfo
    );
+   virtual void OnUpdate(CWnd* p=0,UINT hint=0,CObject* o=0) {}
    void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {}
    void OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags) {}
    void OnSysKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {}
