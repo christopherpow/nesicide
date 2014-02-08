@@ -51,6 +51,7 @@ BEGIN_MESSAGE_MAP(CModuleImportDlg, CDialog)
    ON_BN_CLICKED(IDCANCEL, OnBnClickedCancel)
 END_MESSAGE_MAP()
 
+
 // CModuleImportDlg message handlers
 
 BOOL CModuleImportDlg::OnInitDialog()

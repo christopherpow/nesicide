@@ -20,9 +20,6 @@
 
 #pragma once
 
-#include "cqtmfc.h"
-#include "resource.h"
-
 class CExportDialog;
 
 typedef void (CExportDialog::*exportFunc_t)();
@@ -31,11 +28,7 @@ typedef void (CExportDialog::*exportFunc_t)();
 
 class CExportDialog : public CDialog
 {
-   Q_OBJECT
-   // Qt interfaces
-public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
-
-   DECLARE_DYNAMIC(CExportDialog)
+	DECLARE_DYNAMIC(CExportDialog)
 
 public:
 	CExportDialog(CWnd* pParent = NULL);   // standard constructor

@@ -20,8 +20,6 @@
 
 #pragma once
 
-#include "cqtmfc.h"
-
 // Size editor
 class CSizeEditor : public CWnd
 {

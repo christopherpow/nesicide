@@ -40,13 +40,6 @@ public:
 
 // Edit controls that can be enabled by double clicking
 class CLockedEdit : public CEdit {
-   Q_OBJECT
-   // Qt interfaces
-protected:
-   void mouseDoubleClickEvent(QMouseEvent *event);
-   void focusInEvent(QFocusEvent *);
-   void focusOutEvent(QFocusEvent *);   
-public:
 	DECLARE_DYNAMIC(CLockedEdit)
 protected:
 	DECLARE_MESSAGE_MAP()
@@ -71,12 +64,6 @@ public:
 
 // Edit controls that displays a banner when empty
 class CBannerEdit : public CEdit {
-   Q_OBJECT
-   // Qt interfaces
-protected:
-   void focusInEvent(QFocusEvent *);
-   void focusOutEvent(QFocusEvent *);   
-public:
 	DECLARE_DYNAMIC(CBannerEdit)
 protected:
 	DECLARE_MESSAGE_MAP()

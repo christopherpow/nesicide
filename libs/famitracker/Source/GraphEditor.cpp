@@ -1205,33 +1205,6 @@ void CNoiseEditor::ModifyReleased()
 	m_iLastIndex = -1;
 }
 
-void CArpeggioGraphEditor::wheelEvent(QWheelEvent *event)
-{
-   CPoint point(event->pos());
-   unsigned int flags = 0;
-   if ( event->modifiers()&Qt::ControlModifier )
-   {
-      flags |= MK_CONTROL;
-   }
-   if ( event->modifiers()&Qt::ShiftModifier )
-   {
-      flags |= MK_SHIFT;
-   }
-   if ( event->buttons()&Qt::LeftButton )
-   {
-      flags |= MK_LBUTTON;
-   }
-   if ( event->buttons()&Qt::MiddleButton )
-   {
-      flags |= MK_MBUTTON;
-   }
-   if ( event->buttons()&Qt::RightButton )
-   {
-      flags |= MK_RBUTTON;            
-   }
-   OnMouseWheel(flags,event->delta(),point);
-}
-
 void CArpeggioGraphEditor::verticalScrollBar_actionTriggered(int arg1)
 {
    // CP: these values don't match Qt apparently...

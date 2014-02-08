@@ -20,19 +20,12 @@
 
 #pragma once
 
-#include "cqtmfc.h"
-#include "resource.h"
-
 #include "FamiTrackerDoc.h"
 
 // CModuleImportDlg dialog
 
 class CModuleImportDlg : public CDialog
 {
-   Q_OBJECT
-   // Qt interfaces
-public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
-   
 	DECLARE_DYNAMIC(CModuleImportDlg)
 
 public:

@@ -3792,12 +3792,12 @@ public:
    void KillTimer(UINT id);
    void OnTimer(UINT timerId) {}
    void OnKeyDown(UINT,UINT,UINT) {}
-   virtual void OnSetFocus(CWnd*) {}
-   virtual void OnKillFocus(CWnd*) {}
+   void OnSetFocus(CWnd*);
+   void OnKillFocus(CWnd*) {}
    void OnVScroll(UINT,UINT,CScrollBar*) {}
    void OnHScroll(UINT,UINT,CScrollBar*) {}
    void Invalidate(BOOL bErase = TRUE) { /*update();*/ }
-   void RedrawWindow(LPCRECT rect=0,CRgn* rgn=0,UINT f=0) { _qt->update(); }
+   void RedrawWindow(LPCRECT rect=0,CRgn* rgn=0,UINT f=0) { update(); }
    CWnd* SetFocus();
    CWnd* GetFocus();
    void SetCapture(CWnd* p=0) { /* DON'T DO THIS grabMouse(); */ }
@@ -3941,9 +3941,11 @@ protected:
    virtual void keyPressEvent(QKeyEvent *event);
    virtual void keyReleaseEvent(QKeyEvent *event);
    virtual void resizeEvent(QResizeEvent *event);
+   virtual void moveEvent(QMoveEvent *event);
    virtual void paintEvent(QPaintEvent *event);
    virtual void contextMenuEvent(QContextMenuEvent *event);
    void focusInEvent(QFocusEvent *event);
+   void focusOutEvent(QFocusEvent *event);
    void closeEvent(QCloseEvent *);
    QWidget* _qt;
    QFrame* _qtd;
@@ -4001,6 +4003,7 @@ public:
       AFX_CMDHANDLERINFO* pHandlerInfo
    );
    void OnSize(UINT nType, int cx, int cy);
+   void OnSetFocus(CWnd* pOldWnd);
    virtual void SetMessageText(LPCTSTR fmt,...);
    void SetMessageText(
       UINT nID
@@ -4098,7 +4101,14 @@ protected:
    MFCWidget* viewWidget;
    virtual bool eventFilter(QObject *object, QEvent *event);
    virtual void resizeEvent(QResizeEvent *event);
+   virtual void focusInEvent(QFocusEvent *event);
    virtual void paintEvent(QPaintEvent *event);
+   virtual void showEvent(QShowEvent *event);
+   virtual void mousePressEvent(QMouseEvent *event);
+   virtual void mouseMoveEvent(QMouseEvent *event);
+   virtual void mouseReleaseEvent(QMouseEvent *event);
+   virtual void mouseDoubleClickEvent(QMouseEvent *event);
+   virtual bool event(QEvent *event);
 public:
    virtual void menuAction_triggered(int id);
    virtual void menuAboutToShow(CMenu* menu);
@@ -4117,6 +4127,7 @@ public:
       DWORD dwExStyle = 0, 
       CCreateContext* pContext = NULL  
    );
+   CWnd* SetFocus();
    virtual void OnDraw( 
       CDC* pDC  
    ) = 0;
@@ -4126,11 +4137,12 @@ public:
       void* pExtra,
       AFX_CMDHANDLERINFO* pHandlerInfo
    );
-   virtual void OnUpdate(CWnd* p=0,UINT hint=0,CObject* o=0) {}
+   virtual void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint) { update(); }
    void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {}
    void OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags) {}
    void OnSysKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {}
    void OnSysKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags) {}
+   void OnSetFocus(CWnd *);
    virtual void OnInitialUpdate() {}
    CDocument* GetDocument() const { return m_pDocument; }
 
@@ -4417,6 +4429,31 @@ typedef struct _NM_UPDOWN {
   int   iDelta;
 } NMUPDOWN, *LPNMUPDOWN;
 
+typedef struct {
+  int       iBitmap;
+  int       idCommand;
+  BYTE      fsState;
+  BYTE      fsStyle;
+#ifdef _WIN64
+  BYTE      bReserved[6];
+#else 
+#if defined(_WIN32)
+  BYTE      bReserved[2];
+#endif 
+#endif 
+  DWORD_PTR dwData;
+  INT_PTR   iString;
+} TBBUTTON, *PTBBUTTON, *LPTBBUTTON;
+
+typedef struct tagNMTOOLBAR {
+  NMHDR    hdr;
+  int      iItem;
+  TBBUTTON tbButton;
+  int      cchText;
+  LPTSTR   pszText;
+  RECT     rcButton;
+} NMTOOLBAR, *LPNMTOOLBAR;
+
 class CEdit : public CWnd
 {
    Q_OBJECT
@@ -4425,7 +4462,7 @@ class CEdit : public CWnd
 public:
    virtual void subclassWidget(int nID,CWnd* widget);
 protected:
-   bool event(QEvent *event);
+   virtual bool event(QEvent *event);
    QPlainTextEdit* _qtd_ptedit;
    QLineEdit* _qtd_ledit;
 public slots:
@@ -4685,6 +4722,7 @@ protected:
 public slots:
    void control_edited(int value);
    void control_edited(QString value);
+   void control_returnPressed();
 signals:
    void valueChanged(int oldValue, int newValue);
 
@@ -4937,7 +4975,7 @@ public:
    virtual void subclassWidget(int nID,CWnd* widget);
    QModelIndex currentIndex () const;
 protected:
-   bool event(QEvent *event);
+   virtual bool event(QEvent *event);
    QTableWidget* _qtd_table;
    QListWidget* _qtd_list;
 public slots:

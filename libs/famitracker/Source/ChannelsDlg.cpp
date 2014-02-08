@@ -86,27 +86,6 @@ BEGIN_MESSAGE_MAP(CChannelsDlg, CDialog)
 	ON_BN_CLICKED(IDC_MOVE_UP, OnBnClickedMoveUp)
 END_MESSAGE_MAP()
 
-void CChannelsDlg::addedList_cellDoubleClicked(int row,int column)
-{
-   NMHDR nmhdr;
-   LRESULT result;
-   OnDblClickAdded(&nmhdr,&result);
-}
-
-void CChannelsDlg::availableTree_itemClicked(QTreeWidgetItem* item,int column)
-{
-   NMHDR nmhdr;
-   LRESULT result;
-   OnClickAvailable(&nmhdr,&result);
-}
-
-void CChannelsDlg::availableTree_itemDoubleClicked(QTreeWidgetItem* item,int column)
-{
-   NMHDR nmhdr;
-   LRESULT result;
-   OnDblClickAvailable(&nmhdr,&result);
-}
-
 // CChannelsDlg message handlers
 
 BOOL CChannelsDlg::OnInitDialog()
@@ -187,7 +166,7 @@ void CChannelsDlg::OnDblClickAdded(NMHDR *pNMHDR, LRESULT *result)
 			for (int j = 0; CHILD_ITEMS[i][j] != NULL; ++j) {
 				if (CHILD_ITEMS_ID[i][j] == ChanID) {
 					CString str;
-					str.Format(_T("%i: %s"), j, CHILD_ITEMS[i][j]);
+					str.Format(_T("%i: %s"), j + 1, CHILD_ITEMS[i][j]);
 					HTREEITEM hChild = m_pAvailableTree->InsertItem(str, hParent, hParent);
 					m_pAvailableTree->SetItemData(hChild, CHILD_ITEMS_ID[i][j]);
 					m_pAvailableTree->Expand(hParent, TVE_EXPAND);

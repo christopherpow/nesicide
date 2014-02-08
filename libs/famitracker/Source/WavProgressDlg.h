@@ -20,9 +20,6 @@
 
 #pragma once
 
-#include "cqtmfc.h"
-#include "resource.h"
-
 #include "SoundGen.h"
 
 // CWavProgressDlg dialog

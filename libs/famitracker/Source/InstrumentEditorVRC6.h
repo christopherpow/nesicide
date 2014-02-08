@@ -33,8 +33,8 @@ public slots:
    void menuAction_triggered(int id);
 public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
 
-   DECLARE_DYNAMIC(CInstrumentEditorVRC6)
-   
+	DECLARE_DYNAMIC(CInstrumentEditorVRC6)
+
 public:
 	CInstrumentEditorVRC6(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CInstrumentEditorVRC6();

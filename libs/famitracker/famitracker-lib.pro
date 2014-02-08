@@ -73,6 +73,7 @@ QMAKE_CFLAGS += $$SDL_CFLAGS
 LIBS += $$SDL_LIBS
 
 SOURCES += \
+    cqtmfc_famitracker.cpp \
     Source/TrackerChannel.cpp \
     Source/SoundGen.cpp \
     Source/Settings.cpp \
@@ -140,7 +141,6 @@ SOURCES += \
     Source/resampler/sinc.cpp \
     Source/resampler/resample.inl \
     Source/resampler/resample.cpp \
-    Source/cqtmfc_famitracker.cpp \
     Source/InstrumentEditorVRC7.cpp \
     Source/InstrumentEditorVRC6.cpp \
     Source/InstrumentEditorFDS.cpp \
@@ -181,6 +181,7 @@ SOURCES += \
     Source/TextExporter.cpp
 
 HEADERS += \
+    cqtmfc_famitracker.h \
     Source/TrackerChannel.h \
     Source/SoundGen.h \
     Source/Settings.h \
@@ -261,7 +262,6 @@ HEADERS += \
     Source/PCMImport.h \
     Source/resampler/sinc.hpp \
     Source/resampler/resample.hpp \
-    Source/cqtmfc_famitracker.h \
     Source/InstrumentEditorVRC7.h \
     Source/InstrumentEditorVRC6.h \
     Source/InstrumentEditorFDS.h \

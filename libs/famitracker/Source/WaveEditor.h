@@ -20,8 +20,6 @@
 
 #pragma once
 
-#include "cqtmfc.h"
-
 enum {WM_USER_WAVE_CHANGED = WM_USER};
 
 class CWaveEditor : public CWnd

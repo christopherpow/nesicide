@@ -20,7 +20,6 @@
 
 #pragma once
 
-#include "cqtmfc.h"
 #include "FamiTrackerTypes.h"
 #include "PatternData.h"
 

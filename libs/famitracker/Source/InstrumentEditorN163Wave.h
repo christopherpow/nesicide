@@ -38,8 +38,8 @@ public slots:
    void wavePos_editTextChanged(QString text);
 public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
    
-   DECLARE_DYNAMIC(CInstrumentEditorN163Wave)
-   
+	DECLARE_DYNAMIC(CInstrumentEditorN163Wave)
+
 public:
 	CInstrumentEditorN163Wave(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CInstrumentEditorN163Wave();

@@ -62,11 +62,6 @@ class CFamiTrackerView : public CView
 {
    Q_OBJECT
    // Qt stuff
-protected:
-   void wheelEvent(QWheelEvent *event);
-   void focusInEvent(QFocusEvent *);
-   void focusOutEvent(QFocusEvent *);
-   
 public slots:
    void verticalScrollBar_actionTriggered(int action);
    void horizontalScrollBar_actionTriggered(int action);

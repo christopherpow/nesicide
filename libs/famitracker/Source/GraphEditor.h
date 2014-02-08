@@ -108,8 +108,6 @@ class CArpeggioGraphEditor : public CGraphEditor
 {
    Q_OBJECT
    // Qt stuff
-protected:
-   void wheelEvent(QWheelEvent *event);
 public slots:
    void verticalScrollBar_actionTriggered(int arg1);
    

@@ -2,7 +2,7 @@
 #include "ui_musiceditorform.h"
 
 #include "Source/FamiTracker.h"
-#include "Source/cqtmfc_famitracker.h"
+#include "cqtmfc_famitracker.h"
 
 #include "cqtmfc.h"
 

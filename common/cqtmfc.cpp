@@ -1,5 +1,4 @@
 #include "cqtmfc.h"
-//#include "resource.h"
 
 #include <stdarg.h>
 
@@ -3836,6 +3835,7 @@ BOOL CListCtrl::Create(
       _qtd_table->horizontalHeader()->setStretchLastSection(true);
 
       _qtd_table->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
+      _qtd_table->setContextMenuPolicy(Qt::PreventContextMenu);
       _qtd_table->setVisible(dwStyle&WS_VISIBLE);
    }
    else if ( (dwStyle&LVS_TYPEMASK) == LVS_LIST )
@@ -3871,6 +3871,7 @@ BOOL CListCtrl::Create(
    //   }
 
       _qtd_list->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
+      _qtd_list->setContextMenuPolicy(Qt::PreventContextMenu);
       _qtd_list->setVisible(dwStyle&WS_VISIBLE);
    }
    
@@ -4883,6 +4884,7 @@ BOOL CTreeCtrl::Create(
    }
 
    _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
+   _qtd->setContextMenuPolicy(Qt::DefaultContextMenu);
    _qtd->setVisible(dwStyle&WS_VISIBLE);
    
    SetParent(pParentWnd);
@@ -4892,17 +4894,38 @@ BOOL CTreeCtrl::Create(
 
 void CTreeCtrl::itemSelectionChanged()
 {
-   qFatal("CTreeCtrl::itemSelectionChanged not implemented");
 }
 
 void CTreeCtrl::itemClicked(QTreeWidgetItem* item, int column)
 {
-   qFatal("CTreeCtrl::itemClicked not implemented");
+   NMITEMACTIVATE nmia;
+   LRESULT result;
+
+   nmia.hdr.hwndFrom = m_hWnd;
+   nmia.hdr.idFrom = _id;
+   nmia.hdr.code = NM_CLICK;
+   nmia.iItem = _qtd->indexAt(QCursor::pos()).row();
+   nmia.iSubItem = column;
+   nmia.ptAction.x = QCursor::pos().x();
+   nmia.ptAction.y = QCursor::pos().y();
+   
+   GetOwner()->SendMessage(WM_NOTIFY,_id,(LPARAM)&nmia);
 }
 
 void CTreeCtrl::itemDoubleClicked(QTreeWidgetItem* item, int column)
 {
-   qFatal("CTreeCtrl::itemDoubleClicked not implemented");
+   NMITEMACTIVATE nmia;
+   LRESULT result;
+
+   nmia.hdr.hwndFrom = m_hWnd;
+   nmia.hdr.idFrom = _id;
+   nmia.hdr.code = NM_DBLCLK;
+   nmia.iItem = _qtd->indexAt(QCursor::pos()).row();
+   nmia.iSubItem = column;
+   nmia.ptAction.x = QCursor::pos().x();
+   nmia.ptAction.y = QCursor::pos().y();
+   
+   GetOwner()->SendMessage(WM_NOTIFY,_id,(LPARAM)&nmia);
 }
 
 HTREEITEM CTreeCtrl::InsertItem(
@@ -5800,11 +5823,10 @@ CWnd* PASCAL CWnd::FromHandlePermanent(
 CWnd* CWnd::SetFocus()
 {
    CWnd* pWnd = focusWnd;
-   if ( focusWnd )
-      focusWnd->OnKillFocus(this);
-   focusWnd = this;
+//   if ( focusWnd )
+//      focusWnd->OnKillFocus(this);
    _qt->setFocus();
-   OnSetFocus(pWnd);
+   focusWnd = this;
    return pWnd;
 }
 
@@ -6557,12 +6579,13 @@ BOOL CWnd::OnNotify(WPARAM, LPARAM lParam, LRESULT* pResult)
 bool CWnd::event(QEvent *event)
 {
    MFCMessageEvent* msgEvent = dynamic_cast<MFCMessageEvent*>(event);
+   bool proc = false;
    if ( msgEvent )
    {
-      WindowProc(msgEvent->msg.message,msgEvent->msg.wParam,msgEvent->msg.lParam);
-      return true;
+      proc = WindowProc(msgEvent->msg.message,msgEvent->msg.wParam,msgEvent->msg.lParam);
+      update();
    }
-   return false;
+   return proc;
 }
 
 void CWnd::mousePressEvent(QMouseEvent *event)
@@ -6596,6 +6619,19 @@ void CWnd::mousePressEvent(QMouseEvent *event)
    else if ( event->button() == Qt::RightButton )
    {
       PostMessage(WM_RBUTTONDOWN,flags,point.y<<16|point.x);
+      
+      // Also handle context menu...
+      NMITEMACTIVATE nmia;
+      LRESULT result;
+   
+      nmia.hdr.hwndFrom = m_hWnd;
+      nmia.hdr.idFrom = _id;
+      nmia.hdr.code = NM_RCLICK;
+      nmia.ptAction.x = QCursor::pos().x();
+      nmia.ptAction.y = QCursor::pos().y();
+      
+      GetOwner()->SendMessage(WM_NOTIFY,_id,(LPARAM)&nmia);
+      PostMessage(WM_CONTEXTMENU,(WPARAM)m_hWnd,(LPARAM)((QCursor::pos().x()<<16)|(QCursor::pos().y())));
    }
 }
 
@@ -6750,6 +6786,11 @@ void CWnd::resizeEvent(QResizeEvent *event)
    PostMessage(WM_SIZE,SIZE_RESTORED,(size.height()<<16)|(size.width()));
 }
 
+void CWnd::moveEvent(QMoveEvent *event)
+{
+   PostMessage(WM_MOVE,0,(event->pos().y()<<16)|(event->pos().x()));
+}
+
 void CWnd::subclassWidget(int nID,CWnd* widget)
 {
    mfcToQtWidget.remove(nID);
@@ -6758,7 +6799,12 @@ void CWnd::subclassWidget(int nID,CWnd* widget)
 
 void CWnd::focusInEvent(QFocusEvent *event)
 {
-   SetFocus();
+   PostMessage(WM_SETFOCUS,(WPARAM)(HWND)focusWnd);
+}
+
+void CWnd::focusOutEvent(QFocusEvent *event)
+{
+   PostMessage(WM_KILLFOCUS,(WPARAM)(HWND)NULL);
 }
 
 void CWnd::closeEvent(QCloseEvent *)
@@ -6818,22 +6864,22 @@ bool CWnd::eventFilter(QObject *object, QEvent *event)
       if ( event->type() == QEvent::MouseButtonPress )
       {
          mousePressEvent(dynamic_cast<QMouseEvent*>(event));
-         return true;
+         return false;
       }
       if ( event->type() == QEvent::MouseButtonRelease )
       {
          mouseReleaseEvent(dynamic_cast<QMouseEvent*>(event));
-         return true;
+         return false;
       }
       if ( event->type() == QEvent::MouseButtonDblClick )
       {
          mouseDoubleClickEvent(dynamic_cast<QMouseEvent*>(event));
-         return true;
+         return false;
       }
       if ( event->type() == QEvent::MouseMove )
       {
          mouseMoveEvent(dynamic_cast<QMouseEvent*>(event));
-         return true;
+         return false;
       }
       if ( event->type() == QEvent::Wheel )
       {
@@ -7007,6 +7053,11 @@ int CWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
    return 0;
 }
 
+void CWnd::OnSetFocus(CWnd *)
+{
+   focusWnd = this;
+}
+
 void CWnd::OnDestroy( )
 {
 }
@@ -7112,6 +7163,10 @@ BOOL CWnd::PostMessage(
    if ( !handled )
    {
       QApplication::instance()->postEvent(this,post);
+   }
+   else
+   {
+      delete post;
    }
    update();
    
@@ -7491,6 +7546,7 @@ void CWnd::ShowWindow(int code)
 IMPLEMENT_DYNCREATE(CFrameWnd,CWnd)
 
 BEGIN_MESSAGE_MAP(CFrameWnd,CWnd)
+   ON_WM_SETFOCUS()
 END_MESSAGE_MAP()
 
 CFrameWnd::CFrameWnd(CWnd *parent)
@@ -7796,6 +7852,14 @@ BOOL CFrameWnd::OnCmdMsg(UINT nID, int nCode, void* pExtra,
 	return FALSE;
 }
 
+void CFrameWnd::OnSetFocus(CWnd *pOldWnd)
+{
+   if (m_pViewActive != NULL)
+		m_pViewActive->SetFocus();
+	else
+		CWnd::OnSetFocus(pOldWnd);
+}
+
 void CFrameWnd::OnSize(UINT nType, int cx, int cy)
 {
 	CWnd::OnSize(nType, cx, cy);    // important for MDI Children
@@ -7890,6 +7954,8 @@ IMPLEMENT_DYNAMIC(CView,CWnd)
 
 BEGIN_MESSAGE_MAP(CView,CWnd)
    ON_MESSAGE(WM_INITIALUPDATE,OnInitialUpdate)
+   ON_WM_SETFOCUS()
+   ON_WM_KILLFOCUS()
 END_MESSAGE_MAP()
 
 CView::CView()
@@ -7899,6 +7965,17 @@ CView::CView()
 
 CView::~CView()
 {
+}
+
+bool CView::event(QEvent *event)
+{
+   MFCMessageEvent* msgEvent = dynamic_cast<MFCMessageEvent*>(event);
+   bool proc = false;
+   if ( msgEvent )
+   {
+      proc = WindowProc(msgEvent->msg.message,msgEvent->msg.wParam,msgEvent->msg.lParam);
+   }
+   return proc;
 }
 
 void CView::menuAction_triggered(int id)
@@ -7965,22 +8042,22 @@ bool CView::eventFilter(QObject *object, QEvent *event)
       if ( event->type() == QEvent::MouseButtonPress )
       {
          mousePressEvent(dynamic_cast<QMouseEvent*>(event));
-         return true;
+         return false;
       }
       if ( event->type() == QEvent::MouseButtonRelease )
       {
          mouseReleaseEvent(dynamic_cast<QMouseEvent*>(event));
-         return true;
+         return false;
       }
       if ( event->type() == QEvent::MouseButtonDblClick )
       {
          mouseDoubleClickEvent(dynamic_cast<QMouseEvent*>(event));
-         return true;
+         return false;
       }
       if ( event->type() == QEvent::MouseMove )
       {
          mouseMoveEvent(dynamic_cast<QMouseEvent*>(event));
-         return true;
+         return false;
       }
       if ( event->type() == QEvent::Wheel )
       {
@@ -8040,11 +8117,158 @@ bool CView::eventFilter(QObject *object, QEvent *event)
    return false;
 }
 
+void CView::mousePressEvent(QMouseEvent *event)
+{
+   CPoint point(event->pos());
+   unsigned int flags = 0;
+   if ( event->modifiers()&Qt::ControlModifier )
+   {
+      flags |= MK_CONTROL;
+   }
+   if ( event->modifiers()&Qt::ShiftModifier )
+   {
+      flags |= MK_SHIFT;
+   }
+   if ( event->buttons()&Qt::LeftButton )
+   {
+      flags |= MK_LBUTTON;
+   }
+   if ( event->buttons()&Qt::MiddleButton )
+   {
+      flags |= MK_MBUTTON;
+   }
+   if ( event->buttons()&Qt::RightButton )
+   {
+      flags |= MK_RBUTTON;            
+   }
+   if ( event->button() == Qt::LeftButton )
+   {
+      PostMessage(WM_LBUTTONDOWN,flags,point.y<<16|point.x);
+   }
+   else if ( event->button() == Qt::RightButton )
+   {
+      PostMessage(WM_RBUTTONDOWN,flags,point.y<<16|point.x);
+      
+      // Also handle context menu...
+      NMITEMACTIVATE nmia;
+      LRESULT result;
+   
+      nmia.hdr.hwndFrom = m_hWnd;
+      nmia.hdr.idFrom = _id;
+      nmia.hdr.code = NM_RCLICK;
+      nmia.ptAction.x = QCursor::pos().x();
+      nmia.ptAction.y = QCursor::pos().y();
+      
+      m_pFrameWnd->SendMessage(WM_NOTIFY,_id,(LPARAM)&nmia);
+      PostMessage(WM_CONTEXTMENU,(WPARAM)m_hWnd,(LPARAM)((QCursor::pos().x()<<16)|(QCursor::pos().y())));
+   }
+}
+
+void CView::mouseMoveEvent(QMouseEvent *event)
+{
+   CPoint point(event->pos());
+   unsigned int flags = 0;
+   if ( event->modifiers()&Qt::ControlModifier )
+   {
+      flags |= MK_CONTROL;
+   }
+   if ( event->modifiers()&Qt::ShiftModifier )
+   {
+      flags |= MK_SHIFT;
+   }
+   if ( event->buttons()&Qt::LeftButton )
+   {
+      flags |= MK_LBUTTON;
+   }
+   if ( event->buttons()&Qt::MiddleButton )
+   {
+      flags |= MK_MBUTTON;
+   }
+   if ( event->buttons()&Qt::RightButton )
+   {
+      flags |= MK_RBUTTON;            
+   }
+   PostMessage(WM_MOUSEMOVE,flags,point.y<<16|point.x);
+}
+
+void CView::mouseReleaseEvent(QMouseEvent *event)
+{
+   CPoint point(event->pos());
+   unsigned int flags = 0;
+   if ( event->modifiers()&Qt::ControlModifier )
+   {
+      flags |= MK_CONTROL;
+   }
+   if ( event->modifiers()&Qt::ShiftModifier )
+   {
+      flags |= MK_SHIFT;
+   }
+   if ( event->buttons()&Qt::LeftButton )
+   {
+      flags |= MK_LBUTTON;
+   }
+   if ( event->buttons()&Qt::MiddleButton )
+   {
+      flags |= MK_MBUTTON;
+   }
+   if ( event->buttons()&Qt::RightButton )
+   {
+      flags |= MK_RBUTTON;            
+   }
+   if ( event->button() == Qt::LeftButton )
+   {
+      PostMessage(WM_LBUTTONUP,flags,point.y<<16|point.x);
+   }
+   else if ( event->button() == Qt::RightButton )
+   {
+      PostMessage(WM_RBUTTONUP,flags,point.y<<16|point.x);
+   }
+}
+
+void CView::mouseDoubleClickEvent(QMouseEvent *event)
+{
+   CPoint point(event->pos());
+   unsigned int flags = 0;
+   if ( event->modifiers()&Qt::ControlModifier )
+   {
+      flags |= MK_CONTROL;
+   }
+   if ( event->modifiers()&Qt::ShiftModifier )
+   {
+      flags |= MK_SHIFT;
+   }
+   if ( event->buttons()&Qt::LeftButton )
+   {
+      flags |= MK_LBUTTON;
+   }
+   if ( event->buttons()&Qt::MiddleButton )
+   {
+      flags |= MK_MBUTTON;
+   }
+   if ( event->buttons()&Qt::RightButton )
+   {
+      flags |= MK_RBUTTON;            
+   }
+   if ( event->button() == Qt::LeftButton )
+   {
+      PostMessage(WM_LBUTTONDBLCLK,flags,point.y<<16|point.x);
+   }
+   else if ( event->button() == Qt::RightButton )
+   {
+      PostMessage(WM_RBUTTONDBLCLK,flags,point.y<<16|point.x);
+   }
+}
+
 void CView::resizeEvent(QResizeEvent *event)
 {
    CRect rect(0,0,event->size().width(),event->size().height());
    rect.InflateRect(0,0,::GetSystemMetrics(SM_CXVSCROLL)+(2*::GetSystemMetrics(SM_CXEDGE)),::GetSystemMetrics(SM_CYHSCROLL)+(2*::GetSystemMetrics(SM_CYEDGE)));
    CalcWindowRect(&rect);
+}
+
+void CView::focusInEvent(QFocusEvent *event)
+{
+   PostMessage(WM_SETFOCUS,(WPARAM)(HWND)focusWnd);
 }
 
 void CView::paintEvent(QPaintEvent *event)
@@ -8063,6 +8287,26 @@ void CView::paintEvent(QPaintEvent *event)
    OnDraw(&dc);
 
    // dc will auto-detach on destruction
+}
+
+void CView::showEvent(QShowEvent *event)
+{
+   SetFocus();
+}
+
+CWnd* CView::SetFocus()
+{
+   CWnd* pWnd = focusWnd;
+//   if ( focusWnd )
+//      focusWnd->OnKillFocus(this);
+   viewWidget->setFocus();
+   return pWnd;
+}
+
+void CView::OnSetFocus(CWnd *)
+{
+   viewWidget->setFocus();   
+   focusWnd = this;
 }
 
 BOOL CView::Create( 
@@ -8092,8 +8336,10 @@ BOOL CView::Create(
    viewWidget->setStyleSheet("QWidget { background: red; }");
    viewWidget->setMouseTracking(true);
    _grid->addWidget(viewWidget,0,0);
+   viewWidget->setParent(toQWidget());
    viewWidget->installEventFilter(this);
-   
+   viewWidget->setFocusPolicy(Qt::StrongFocus);
+
    _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
 
    return TRUE;
@@ -10550,11 +10796,11 @@ bool CEdit::event(QEvent *event)
       {
          return true;
       }
-      if ( _dwStyle&ES_MULTILINE )
+      switch ( msgEvent->msg.message )
       {
-         switch ( msgEvent->msg.message )
+      case EM_SETREADONLY:
+         if ( _dwStyle&ES_MULTILINE )
          {
-         case EM_SETREADONLY:
             if ( msgEvent->msg.wParam )
             {
                _dwStyle |= ES_READONLY;
@@ -10564,14 +10810,9 @@ bool CEdit::event(QEvent *event)
                _dwStyle &= (~ES_READONLY);
             }
             _qtd_ptedit->setReadOnly(msgEvent->msg.wParam);
-            break;
          }
-      }
-      else
-      {
-         switch ( msgEvent->msg.message )
+         else
          {
-         case EM_SETREADONLY:
             if ( msgEvent->msg.wParam )
             {
                _dwStyle |= ES_READONLY;
@@ -10581,8 +10822,8 @@ bool CEdit::event(QEvent *event)
                _dwStyle &= (~ES_READONLY);
             }
             _qtd_ledit->setReadOnly(msgEvent->msg.wParam);
-            break;
          }
+         break;
       }
       return true;
    }
@@ -11537,15 +11778,12 @@ BOOL CSpinButtonCtrl::Create(
    // Downcast to save having to do it all over the place...
    _qtd = dynamic_cast<QSpinBox_MFC*>(_qt);
 
-   // Pass-through signals
-   QObject::connect(_qtd,SIGNAL(valueChanged(int)),this,SLOT(control_edited(int)));
-   QObject::connect(_qtd->lineEdit(),SIGNAL(textEdited(QString)),this,SLOT(control_edited(QString)));
-
    _qtd->setMouseTracking(true);
+   _qtd->installEventFilter(dynamic_cast<CSpinButtonCtrl*>(this));
    _qtd->setKeyboardTracking(false);
    _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
    _qtd->setRange(0,65536);
-   
+
    // Figure out if we need to buddy-up.
    if ( dwStyle&UDS_AUTOBUDDY )
    {
@@ -11568,11 +11806,24 @@ BOOL CSpinButtonCtrl::Create(
       }
    }
    
+   // Pass-through signals
+   QObject::connect(_qtd,SIGNAL(valueChanged(int)),this,SLOT(control_edited(int)));
+   QObject::connect(_qtd->lineEdit(),SIGNAL(textEdited(QString)),this,SLOT(control_edited(QString)));
+   QObject::connect(_qtd->lineEdit(),SIGNAL(returnPressed()),this,SLOT(control_returnPressed()));
+
+   _qtd->lineEdit()->installEventFilter(dynamic_cast<CSpinButtonCtrl*>(this));
+   _qtd->lineEdit()->setFocusPolicy(Qt::ClickFocus);
+   
    SetParent(pParentWnd);
    
    _qtd->setVisible(dwStyle&WS_VISIBLE);
 
    return TRUE;
+}
+
+void CSpinButtonCtrl::control_returnPressed()
+{
+   qDebug(",,");
 }
 
 void CSpinButtonCtrl::control_edited(int value)

@@ -20,14 +20,12 @@
 
 #pragma once
 
-#include "cqtmfc.h"
-#include "resource.h"
 
 // CSpeedDlg dialog
 
 class CSpeedDlg : public CDialog
 {
-   DECLARE_DYNAMIC(CSpeedDlg)
+	DECLARE_DYNAMIC(CSpeedDlg)
 
 public:
 	CSpeedDlg(CWnd* pParent = NULL);   // standard constructor

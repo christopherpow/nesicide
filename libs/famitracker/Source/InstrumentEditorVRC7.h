@@ -20,14 +20,10 @@
 
 #pragma once
 
-#include "stdafx.h"
-#include "FamiTrackerDoc.h"
-#include "InstrumentEditPanel.h"
-
 class CInstrumentEditorVRC7 : public CInstrumentEditPanel
 {
-   DECLARE_DYNAMIC(CInstrumentEditorVRC7)
-   
+	DECLARE_DYNAMIC(CInstrumentEditorVRC7)
+
 public:
 	CInstrumentEditorVRC7(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CInstrumentEditorVRC7();

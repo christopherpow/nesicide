@@ -128,18 +128,6 @@ void CFrameEditor::menuAction_triggered(int id)
    }
 }
 
-void CFrameEditor::focusOutEvent(QFocusEvent *)
-{
-   OnKillFocus(NULL);
-}
-
-//void CFrameEditor::resizeEvent(QResizeEvent *event)
-//{
-//   CRect rect(0,0,event->size().width(),event->size().height());
-//   rect.DeflateRect(::GetSystemMetrics(SM_CXVSCROLL),::GetSystemMetrics(SM_CYHSCROLL));
-//   OnSize(0,rect.Width(),rect.Height());
-//}
-
 void CFrameEditor::verticalScrollBar_actionTriggered(int arg1)
 {
    // CP: these values don't match Qt apparently...
@@ -201,34 +189,6 @@ void CFrameEditor::horizontalScrollBar_actionTriggered(int arg1)
    }
    
    OnHScroll(arg1,mfcHorizontalScrollBar->sliderPosition(),0);
-   update();
-}
-
-void CFrameEditor::wheelEvent(QWheelEvent* event)
-{
-   CPoint point(event->pos());
-   unsigned int flags = 0;
-   if ( event->modifiers()&Qt::ControlModifier )
-   {
-      flags |= MK_CONTROL;
-   }
-   if ( event->modifiers()&Qt::ShiftModifier )
-   {
-      flags |= MK_SHIFT;
-   }
-   if ( event->buttons()&Qt::LeftButton )
-   {
-      flags |= MK_LBUTTON;
-   }
-   if ( event->buttons()&Qt::MiddleButton )
-   {
-      flags |= MK_MBUTTON;
-   }
-   if ( event->buttons()&Qt::RightButton )
-   {
-      flags |= MK_RBUTTON;            
-   }
-   OnMouseWheel(flags,event->delta(),point);
    update();
 }
 

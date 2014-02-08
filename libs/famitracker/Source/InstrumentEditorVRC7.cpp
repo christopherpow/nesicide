@@ -88,6 +88,7 @@ BEGIN_MESSAGE_MAP(CInstrumentEditorVRC7, CInstrumentEditPanel)
    ON_COMMAND(IDC_PASTE, OnPaste)
 END_MESSAGE_MAP()
 
+
 // CInstrumentSettingsVRC7 message handlers
 
 BOOL CInstrumentEditorVRC7::OnInitDialog()

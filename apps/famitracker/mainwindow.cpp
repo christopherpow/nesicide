@@ -1,10 +1,9 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include "Source/FamiTracker.h"
+#include "cqtmfc_famitracker.h"
 
-#include "Source/cqtmfc_famitracker.h"
-#include "Source/MainFrm.h"
+#include "Source/FamiTracker.h"
 
 #include <QFileInfo>
 #include <QUrl>

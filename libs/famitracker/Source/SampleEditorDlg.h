@@ -20,9 +20,6 @@
 
 #pragma once
 
-#include "cqtmfc.h"
-#include "resource.h"
-
 #include "FamiTrackerTypes.h"
 #include "SoundGen.h"
 
@@ -82,6 +79,7 @@ public:
 class CSampleEditorDlg : public CDialog
 {
 	DECLARE_DYNAMIC(CSampleEditorDlg)
+
 public:
 	CSampleEditorDlg(CWnd* pParent = NULL, CDSample *pSample = NULL);   // standard constructor
 	virtual ~CSampleEditorDlg();

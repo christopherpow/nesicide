@@ -20,13 +20,9 @@
 
 #pragma once
 
-#include "cqtmfc.h"
-
 class CModSequenceEditor : public CWnd
 {
-   // Qt interfaces
-public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
-   
+public:
 	CModSequenceEditor();
 	virtual ~CModSequenceEditor();
 	DECLARE_DYNAMIC(CModSequenceEditor)

@@ -48,6 +48,7 @@ BEGIN_MESSAGE_MAP(CSpeedDlg, CDialog)
 	ON_BN_CLICKED(IDCANCEL, OnBnClickedCancel)
 END_MESSAGE_MAP()
 
+
 // CSpeedDlg message handlers
 
 

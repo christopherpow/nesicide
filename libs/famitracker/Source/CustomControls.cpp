@@ -101,16 +101,6 @@ BEGIN_MESSAGE_MAP(CBannerEdit, CEdit)
 	ON_WM_KILLFOCUS()
 END_MESSAGE_MAP()
 
-void CBannerEdit::focusInEvent(QFocusEvent *)
-{
-   OnSetFocus(GetFocus());
-}
-
-void CBannerEdit::focusOutEvent(QFocusEvent *)
-{
-   OnKillFocus(NULL);
-}
-
 void CBannerEdit::OnSetFocus(CWnd* pOldWnd)
 {
 	CEdit::OnSetFocus(pOldWnd);
@@ -168,46 +158,6 @@ BEGIN_MESSAGE_MAP(CLockedEdit, CEdit)
 	ON_WM_SETFOCUS()
 	ON_WM_KILLFOCUS()
 END_MESSAGE_MAP()
-
-void CLockedEdit::mouseDoubleClickEvent(QMouseEvent *event)
-{
-   CPoint point(event->pos());
-   unsigned int flags = 0;
-   if ( event->modifiers()&Qt::ControlModifier )
-   {
-      flags |= MK_CONTROL;
-   }
-   if ( event->modifiers()&Qt::ShiftModifier )
-   {
-      flags |= MK_SHIFT;
-   }
-   if ( event->buttons()&Qt::LeftButton )
-   {
-      flags |= MK_LBUTTON;
-   }
-   if ( event->buttons()&Qt::MiddleButton )
-   {
-      flags |= MK_MBUTTON;
-   }
-   if ( event->buttons()&Qt::RightButton )
-   {
-      flags |= MK_RBUTTON;            
-   }
-   if ( event->button() == Qt::LeftButton )
-   {
-      OnLButtonDblClk(flags,point);
-   }
-}
-
-void CLockedEdit::focusInEvent(QFocusEvent *)
-{
-   OnSetFocus(GetFocus());
-}
-
-void CLockedEdit::focusOutEvent(QFocusEvent *)
-{
-   OnKillFocus(NULL);
-}
 
 bool CLockedEdit::IsEditable() const
 {

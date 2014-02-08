@@ -20,16 +20,10 @@
 
 #pragma once
 
-#include "stdafx.h"
-#include "FamiTrackerDoc.h"
-#include "InstrumentEditPanel.h"
-
-#include "SequenceEditor.h"
-
 class CInstrumentEditorS5B : public CSequenceInstrumentEditPanel
 {
-   DECLARE_DYNAMIC(CInstrumentEditorS5B)
-   
+	DECLARE_DYNAMIC(CInstrumentEditorS5B)
+
 public:
 	CInstrumentEditorS5B(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CInstrumentEditorS5B();

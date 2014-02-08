@@ -20,7 +20,6 @@
 
 #pragma once
 
-#include "cqtmfc.h"
 #include "FamiTrackerDoc.h"
 
 enum {WM_SIZE_CHANGE = WM_USER, WM_CURSOR_CHANGE, WM_SEQUENCE_CHANGED};
@@ -33,11 +32,7 @@ class CSequenceSetting;
 // Sequence editor
 class CSequenceEditor : public CWnd
 {
-   // Qt interfaces
-public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
-   
 	DECLARE_DYNAMIC(CSequenceEditor)
-      
 public:
 	CSequenceEditor(CFamiTrackerDoc *pDoc);
 	virtual ~CSequenceEditor();

@@ -48,7 +48,6 @@ class CMainFrame : public CFrameWnd
    Q_OBJECT
    // Qt interfaces
 protected:
-   void focusInEvent(QFocusEvent *);
    void showEvent(QShowEvent *);
    void hideEvent(QHideEvent *);
 private:

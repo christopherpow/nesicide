@@ -293,11 +293,6 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_CBN_SELCHANGE(IDC_OCTAVE, OnCbnSelchangeOctave)
 END_MESSAGE_MAP()
 
-void CMainFrame::focusInEvent(QFocusEvent *)
-{
-   m_pView->SetFocus();
-}
-
 void CMainFrame::showEvent(QShowEvent *)
 {
    if ( !initialized )
@@ -307,11 +302,7 @@ void CMainFrame::showEvent(QShowEvent *)
 
       m_pView = (CFamiTrackerView*)GetActiveView();
 
-//      m_pView->GetPatternView()->setParent(m_pView->toQWidget());
-//      m_pView->GetPatternView()->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::MinimumExpanding));
-//      m_pView->setFocusProxy(m_pView->GetPatternView());
-//      m_pView->GetPatternView()->setFocusPolicy(Qt::StrongFocus);
-      m_pView->setVisible(false); // Hide the view otherwise it 'obscures' the real view.
+//      m_pView->setVisible(false); // Hide the view otherwise it 'obscures' the real view.
 
       m_pView->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::MinimumExpanding));
 
@@ -348,10 +339,8 @@ void CMainFrame::showEvent(QShowEvent *)
 
       initialized = true;
    }
-
+   
    pTimer->start();
-
-   SetFocus();
 }
 
 void CMainFrame::hideEvent(QHideEvent *)
@@ -2967,7 +2956,7 @@ void CMainFrame::OnDestroy()
 		CEvent *pSoundEvent = new CEvent(FALSE, FALSE);
 		pSoundGen->PostThreadMessage(WM_USER_CLOSE_SOUND, (WPARAM)pSoundEvent, NULL);
 		// Wait for sound to close
-		::WaitForSingleObject(pSoundEvent->m_hObject, 5000);
+		::WaitForSingleObject(pSoundEvent->m_hObject, 2000);
 		delete pSoundEvent;
 	}
 
@@ -2998,23 +2987,22 @@ void CMainFrame::SelectTrack(int Track)
 
 BOOL CMainFrame::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult)
 {
-   qDebug("CMainFrame::OnNotify");
-//    LPNMTOOLBAR lpnmtb = (LPNMTOOLBAR) lParam;
+    LPNMTOOLBAR lpnmtb = (LPNMTOOLBAR) lParam;
+	
+	// Handle new instrument menu
+	switch (((LPNMHDR)lParam)->code) {
+		case TBN_DROPDOWN:
+			switch (lpnmtb->iItem) {
+				case ID_INSTRUMENT_NEW:
+					OnNewInstrumentMenu((LPNMHDR)lParam, pResult);
+					return FALSE;
+				case ID_INSTRUMENT_LOAD:
+					OnLoadInstrumentMenu((LPNMHDR)lParam, pResult);
+					return FALSE;
+			}
+	}
 
-//	// Handle new instrument menu
-//	switch (((LPNMHDR)lParam)->code) {
-//		case TBN_DROPDOWN:
-//			switch (lpnmtb->iItem) {
-//				case ID_INSTRUMENT_NEW:
-//					OnNewInstrumentMenu((LPNMHDR)lParam, pResult);
-//					return FALSE;
-//				case ID_INSTRUMENT_LOAD:
-//					OnLoadInstrumentMenu((LPNMHDR)lParam, pResult);
-//					return FALSE;
-//			}
-//	}
-
-//	return CFrameWnd::OnNotify(wParam, lParam, pResult);
+	return CFrameWnd::OnNotify(wParam, lParam, pResult);
 }
 
 void CMainFrame::OnNewInstrumentMenu( NMHDR * pNotifyStruct, LRESULT * result )

@@ -44,7 +44,7 @@ enum E_COLOR_ITEMS {
 
 class CConfigAppearance : public CPropertyPage
 {
-   DECLARE_DYNAMIC(CConfigAppearance)
+	DECLARE_DYNAMIC(CConfigAppearance)
 
 public:
 	CConfigAppearance();

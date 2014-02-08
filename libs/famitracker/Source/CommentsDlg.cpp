@@ -61,6 +61,7 @@ BEGIN_MESSAGE_MAP(CCommentsDlg, CDialog)
    ON_EN_CHANGE(IDC_COMMENTS, OnEnChangeComments)
 END_MESSAGE_MAP()
 
+
 // CCommentsDlg message handlers
 
 void CCommentsDlg::SaveComment()

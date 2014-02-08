@@ -10,5 +10,5 @@ char* nesicideGetVersion()
    return __nesicide_version__;
 }
 
-// check out why sample editor window resize crashes app
-// finish imp ON_EN_CHANGE for CSpinButtonCtrl
+// context menu events go to wrong widget causing crash?
+// focusing back to pattern editor from frame editor is broken.

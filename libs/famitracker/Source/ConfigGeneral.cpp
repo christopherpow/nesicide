@@ -62,6 +62,7 @@ BEGIN_MESSAGE_MAP(CConfigGeneral, CPropertyPage)
 	ON_BN_CLICKED(IDC_OPT_SINGLEINSTANCE, OnBnClickedOptSingleInstance)
 END_MESSAGE_MAP()
 
+
 // CConfigGeneral message handlers
 
 BOOL CConfigGeneral::OnSetActive()
