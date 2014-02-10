@@ -27,12 +27,6 @@
 
 class CInstrumentEditorVRC6 : public CSequenceInstrumentEditPanel
 {
-   Q_OBJECT
-   // Qt stuff
-public slots:
-   void menuAction_triggered(int id);
-public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
-
 	DECLARE_DYNAMIC(CInstrumentEditorVRC6)
 
 public:

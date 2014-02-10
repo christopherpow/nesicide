@@ -49,12 +49,6 @@ protected:
 
 class CInstrumentEditorDPCM : public CInstrumentEditPanel
 {
-   Q_OBJECT
-   // Qt interfaces
-public slots:
-   void menuAction_triggered(int id);
-public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
-   
 	DECLARE_DYNAMIC(CInstrumentEditorDPCM)
 
 public:

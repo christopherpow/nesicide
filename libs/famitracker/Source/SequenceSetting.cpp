@@ -166,20 +166,3 @@ void CSequenceSetting::OnMenuArpFixed()
 		m_pSequence->SetItem(i, Item);
 	}
 }
-
-void CSequenceSetting::menuAction_triggered(int id)
-{
-   typedef void (CSequenceSetting::*actionHandler)();
-   QHash<UINT_PTR,actionHandler> actionHandlers;
-   //	ON_COMMAND(MENU_ARP_ABSOLUTE, OnMenuArpAbsolute)
-   actionHandlers.insert(MENU_ARP_ABSOLUTE, &CSequenceSetting::OnMenuArpAbsolute);
-   //	ON_COMMAND(MENU_ARP_RELATIVE, OnMenuArpRelative)
-   actionHandlers.insert(MENU_ARP_RELATIVE, &CSequenceSetting::OnMenuArpRelative);
-   //	ON_COMMAND(MENU_ARP_FIXED, OnMenuArpFixed)
-   actionHandlers.insert(MENU_ARP_FIXED, &CSequenceSetting::OnMenuArpFixed);
-   
-   if ( actionHandlers.contains(id) )
-   {
-      (this->*((actionHandlers[id])))();
-   }
-}

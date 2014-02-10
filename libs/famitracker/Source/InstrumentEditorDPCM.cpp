@@ -118,29 +118,6 @@ BEGIN_MESSAGE_MAP(CInstrumentEditorDPCM, CInstrumentEditPanel)
    ON_NOTIFY(NM_DBLCLK, IDC_TABLE, OnNMDblclkTable)
 END_MESSAGE_MAP()
 
-void CInstrumentEditorDPCM::menuAction_triggered(int id)
-{
-   typedef void (CInstrumentEditorDPCM::*actionHandler)();
-   QHash<UINT_PTR,actionHandler> actionHandlers;
-   //	ON_BN_CLICKED(IDC_LOAD, OnBnClickedLoad)
-   actionHandlers.insert(IDC_LOAD,&CInstrumentEditorDPCM::OnBnClickedLoad);
-   //	ON_BN_CLICKED(IDC_UNLOAD, OnBnClickedUnload)
-   actionHandlers.insert(IDC_UNLOAD,&CInstrumentEditorDPCM::OnBnClickedUnload);
-   //	ON_BN_CLICKED(IDC_IMPORT, OnBnClickedImport)
-   actionHandlers.insert(IDC_IMPORT,&CInstrumentEditorDPCM::OnBnClickedImport);
-   //	ON_BN_CLICKED(IDC_SAVE, OnBnClickedSave)
-   actionHandlers.insert(IDC_SAVE,&CInstrumentEditorDPCM::OnBnClickedSave);
-   //	ON_BN_CLICKED(IDC_EDIT, &CInstrumentEditorDPCM::OnBnClickedEdit)
-   actionHandlers.insert(IDC_EDIT,&CInstrumentEditorDPCM::OnBnClickedEdit);
-   //	ON_BN_CLICKED(IDC_PREVIEW, &CInstrumentEditorDPCM::OnBnClickedPreview)
-   actionHandlers.insert(IDC_PREVIEW,&CInstrumentEditorDPCM::OnBnClickedPreview);
-   
-   if ( actionHandlers.contains(id) )
-   {
-      (this->*((actionHandlers[id])))();
-   }
-}
-
 // CInstrumentDPCM message handlers
 
 BOOL CInstrumentEditorDPCM::OnInitDialog()

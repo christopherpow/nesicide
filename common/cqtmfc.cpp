@@ -3037,9 +3037,16 @@ BOOL CDC::DrawEdge(
    UINT nFlags
 )
 {
-   QRect rect(lpRect->left,lpRect->top,lpRect->right-lpRect->left,lpRect->bottom-lpRect->top);
-   _qpainter.drawRect(rect);
-   qDebug("CDC::DrawEdge not implemented!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+   QRect rect1(lpRect->left,lpRect->top,lpRect->right-lpRect->left-1,lpRect->bottom-lpRect->top-1);
+   QRect rect2(lpRect->left+1,lpRect->top+1,lpRect->right-lpRect->left,lpRect->bottom-lpRect->top);
+   QPen pen1(::GetSysColor(COLOR_BTNSHADOW));
+   QPen pen2(::GetSysColor(COLOR_3DFACE));
+   QPen pen = _qpainter.pen();
+   _qpainter.setPen(pen1);
+   _qpainter.drawRect(rect1);
+   _qpainter.setPen(pen2);
+   _qpainter.drawRect(rect2);
+   _qpainter.setPen(pen);
    return TRUE;
 }
 
@@ -3089,10 +3096,15 @@ int CDC::DrawText(
 #else
    QString qstr = QString::fromLatin1((LPCTSTR)str);
 #endif
+   QTextOption to;
    QPen origPen = _qpainter.pen();
    _qpainter.setPen(QPen(_textColor));
 //   _qpainter.setFont((QFont)*_font);
-   _qpainter.drawText(rect,qstr.toLatin1().constData());
+   if ( nFormat&DT_CENTER )
+   {
+      to.setAlignment(Qt::AlignCenter);
+   }
+   _qpainter.drawText(rect,qstr.toLatin1().constData(),to);
    _qpainter.setPen(origPen);
    return 0; // CP: should be text height
 }
@@ -3111,9 +3123,14 @@ int CDC::DrawText(
    QString qstr = QString::fromLatin1(lpszString);
 #endif
    QPen origPen = _qpainter.pen();
+   QTextOption to;
    _qpainter.setPen(QPen(_textColor));
 //   _qpainter.setFont((QFont)*_font);
-   _qpainter.drawText(rect,qstr.left(nCount).toLatin1().constData());
+   if ( nFormat&DT_CENTER )
+   {
+      to.setAlignment(Qt::AlignCenter);
+   }
+   _qpainter.drawText(rect,qstr.left(nCount).toLatin1().constData(),to);
    _qpainter.setPen(origPen);
    return 0; // CP: should be text height
 }
@@ -3760,6 +3777,130 @@ bool CListCtrl::event(QEvent *event)
    return false;
 }
 
+bool CListCtrl::eventFilter(QObject *object, QEvent *event)
+{
+   if ( object == _qt )
+   {
+      if ( event->type() == QEvent::Close )
+      {
+         closeEvent(dynamic_cast<QCloseEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::Show )
+      {
+         showEvent(dynamic_cast<QShowEvent*>(event));
+         return true;
+      }
+   //   if ( event->type() == QEvent::ShowToParent )
+   //   {
+   //      showEvent(dynamic_cast<QShowEvent*>(event));
+   //      return true;
+   //   }
+      if ( event->type() == QEvent::Hide )
+      {
+         hideEvent(dynamic_cast<QHideEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::Move )
+      {
+         moveEvent(dynamic_cast<QMoveEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::Paint )
+      {
+         paintEvent(dynamic_cast<QPaintEvent*>(event));
+         return false;
+      }
+      if ( event->type() == QEvent::FocusIn )
+      {
+         focusInEvent(dynamic_cast<QFocusEvent*>(event));
+         return false;
+      }
+      if ( event->type() == QEvent::FocusOut )
+      {
+         focusOutEvent(dynamic_cast<QFocusEvent*>(event));
+         return false;
+      }
+      if ( event->type() == QEvent::Leave )
+      {
+         leaveEvent(event);
+         return true;
+      }
+      if ( event->type() == QEvent::MouseButtonPress )
+      {
+         mousePressEvent(dynamic_cast<QMouseEvent*>(event));
+         return false;
+      }
+      if ( event->type() == QEvent::MouseButtonRelease )
+      {
+         mouseReleaseEvent(dynamic_cast<QMouseEvent*>(event));
+         return false;
+      }
+      if ( event->type() == QEvent::MouseButtonDblClick )
+      {
+         mouseDoubleClickEvent(dynamic_cast<QMouseEvent*>(event));
+         return false;
+      }
+      if ( event->type() == QEvent::MouseMove )
+      {
+         mouseMoveEvent(dynamic_cast<QMouseEvent*>(event));
+         return false;
+      }
+      if ( event->type() == QEvent::Wheel )
+      {
+         wheelEvent(dynamic_cast<QWheelEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::Resize )
+      {
+         resizeEvent(dynamic_cast<QResizeEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::KeyPress )
+      {
+         keyPressEvent(dynamic_cast<QKeyEvent*>(event));
+         return false;
+      }
+      if ( event->type() == QEvent::KeyRelease )
+      {
+         keyReleaseEvent(dynamic_cast<QKeyEvent*>(event));
+         return false;
+      }
+      if ( event->type() == QEvent::ContextMenu )
+      {
+         contextMenuEvent(dynamic_cast<QContextMenuEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::DragEnter )
+      {
+         dragEnterEvent(dynamic_cast<QDragEnterEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::DragMove )
+      {
+         dragMoveEvent(dynamic_cast<QDragMoveEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::Drop )
+      {
+         dropEvent(dynamic_cast<QDropEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::DragLeave )
+      {
+         dragLeaveEvent(dynamic_cast<QDragLeaveEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::Timer )
+      {
+         timerEvent(dynamic_cast<QTimerEvent*>(event));
+         return true;
+      }
+   }
+//   qDebug("eventFilter: unhandled %d object %s", event->type(), object->objectName().toLatin1().constData());
+   return false;
+}
+
 QModelIndex CListCtrl::currentIndex () const
 {
    if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
@@ -3805,6 +3946,7 @@ BOOL CListCtrl::Create(
       _qtd_table->verticalHeader()->hide();
       _qtd_table->setEditTriggers(QAbstractItemView::NoEditTriggers);
       _qtd_table->setSelectionBehavior(QAbstractItemView::SelectRows);
+      _qtd_table->installEventFilter(this);
       _qtd_table->setShowGrid(false);
 
       // Pass-through signals
@@ -3835,7 +3977,7 @@ BOOL CListCtrl::Create(
       _qtd_table->horizontalHeader()->setStretchLastSection(true);
 
       _qtd_table->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
-      _qtd_table->setContextMenuPolicy(Qt::PreventContextMenu);
+//      _qtd_table->setContextMenuPolicy(Qt::PreventContextMenu);
       _qtd_table->setVisible(dwStyle&WS_VISIBLE);
    }
    else if ( (dwStyle&LVS_TYPEMASK) == LVS_LIST )
@@ -3851,6 +3993,7 @@ BOOL CListCtrl::Create(
       _qtd_list->setFont(QFont("MS Shell Dlg",8));
       _qtd_list->setEditTriggers(QAbstractItemView::NoEditTriggers);
       _qtd_list->setSelectionBehavior(QAbstractItemView::SelectRows);
+      _qtd_list->installEventFilter(this);
 
       // Pass-through signals
       QObject::connect(_qtd_list,SIGNAL(itemSelectionChanged()),this,SLOT(itemSelectionChanged()));
@@ -3871,7 +4014,7 @@ BOOL CListCtrl::Create(
    //   }
 
       _qtd_list->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
-      _qtd_list->setContextMenuPolicy(Qt::PreventContextMenu);
+//      _qtd_list->setContextMenuPolicy(Qt::PreventContextMenu);
       _qtd_list->setVisible(dwStyle&WS_VISIBLE);
    }
    
@@ -5697,10 +5840,12 @@ BOOL CCmdTarget::OnCmdMsg(
    AFX_CMDHANDLERINFO* pHandlerInfo
 )
 {
-   // determine the message number and code (packed into nCode)
+	// determine the message number and code (packed into nCode)
+	const AFX_MSGMAP* pMessageMap;
+	const AFX_MSGMAP_ENTRY* lpEntry;
 	UINT nMsg = 0;
 
-   if (nCode != CN_UPDATE_COMMAND_UI)
+	if (nCode != CN_UPDATE_COMMAND_UI)
 	{
 		nMsg = HIWORD(nCode);
 		nCode = LOWORD(nCode);
@@ -5710,32 +5855,22 @@ BOOL CCmdTarget::OnCmdMsg(
 	if (nMsg == 0)
 		nMsg = WM_COMMAND;
 
-   const AFX_MSGMAP* pMsgMap = GetMessageMap();
-   
-   while ( pMsgMap )
-   {
-      const AFX_MSGMAP_ENTRY* pEntry = pMsgMap->lpEntries;
-      while ( pEntry->nSig != AfxSig_end )
-      {
-         if ( (pEntry->nMessage == nMsg) &&
-              (pEntry->nCode == nCode) &&
-              (pEntry->nID == nID) )
-         {
-            return _AfxDispatchCmdMsg(this, nID, nCode,
-                               pEntry->pfn, pExtra, pEntry->nSig, pHandlerInfo);
-         }
-         pEntry++;
-      }
-      if ( pMsgMap->pfnGetBaseMap )
-      {
-         pMsgMap = (pMsgMap->pfnGetBaseMap)();
-      }
-      else
-      {
-         pMsgMap = NULL;
-      }
-   }
-   return FALSE;
+	// look through message map to see if it applies to us
+
+	for (pMessageMap = GetMessageMap(); pMessageMap->pfnGetBaseMap != NULL;
+	  pMessageMap = (*pMessageMap->pfnGetBaseMap)())
+	{
+		// Note: catches BEGIN_MESSAGE_MAP(CMyClass, CMyClass)!
+		ASSERT(pMessageMap != (*pMessageMap->pfnGetBaseMap)());
+		lpEntry = AfxFindMessageEntry(pMessageMap->lpEntries, nMsg, nCode, nID);
+		if (lpEntry != NULL)
+		{
+			// found it
+			return _AfxDispatchCmdMsg(this, nID, nCode,
+				lpEntry->pfn, pExtra, lpEntry->nSig, pHandlerInfo);
+		}
+	}
+	return FALSE;   // not handled
 }
 
 MFCWidget::MFCWidget(QWidget *parent)
@@ -5923,10 +6058,6 @@ void CWnd::SendMessageToDescendants(
 {
    foreach ( CWnd* pWnd, mfcToQtWidget )
    {
-      if ( pWnd->IsKindOf(RUNTIME_CLASS(CView)) )
-      {
-         qDebug("CView...");
-      }
       pWnd->SendMessage(message,wParam,lParam);
    }
 }
@@ -6630,7 +6761,8 @@ void CWnd::mousePressEvent(QMouseEvent *event)
       nmia.ptAction.x = QCursor::pos().x();
       nmia.ptAction.y = QCursor::pos().y();
       
-      GetOwner()->SendMessage(WM_NOTIFY,_id,(LPARAM)&nmia);
+      if ( GetOwner() )
+         GetOwner()->SendMessage(WM_NOTIFY,_id,(LPARAM)&nmia);
       PostMessage(WM_CONTEXTMENU,(WPARAM)m_hWnd,(LPARAM)((QCursor::pos().x()<<16)|(QCursor::pos().y())));
    }
 }
@@ -6761,8 +6893,9 @@ void CWnd::contextMenuEvent(QContextMenuEvent *event)
    nmia.hdr.code = NM_RCLICK;
    nmia.ptAction.x = QCursor::pos().x();
    nmia.ptAction.y = QCursor::pos().y();
-   
-   GetOwner()->SendMessage(WM_NOTIFY,_id,(LPARAM)&nmia);
+
+   if ( GetOwner() )   
+      GetOwner()->SendMessage(WM_NOTIFY,_id,(LPARAM)&nmia);
    PostMessage(WM_CONTEXTMENU,(WPARAM)m_hWnd,(LPARAM)((QCursor::pos().x()<<16)|(QCursor::pos().y())));
 }
 
@@ -7618,6 +7751,7 @@ CFrameWnd::CFrameWnd(CWnd *parent)
    for ( idx = 0; idx < m_pMenu->GetMenuItemCount(); idx++ )
    {
       ptrToTheApp->qtMainWindow->menuBar()->addMenu(m_pMenu->GetSubMenu(idx)->toQMenu());
+      QObject::connect(m_pMenu->GetSubMenu(idx),SIGNAL(menuAction_triggered(int)),this,SLOT(menuAction_triggered(int)));      
    }
 }
 
@@ -7628,22 +7762,7 @@ CFrameWnd::~CFrameWnd()
 
 void CFrameWnd::menuAction_triggered(int id)
 {
-   // Cheaply handle messages.
-   CWnd* pWnd;
-   switch ( id )
-   {
-   case ID_VIEW_TOOLBAR:
-      pWnd = mfcToQtWidget.value(AFX_IDW_REBAR);
-      pWnd->ShowWindow(pWnd->IsWindowVisible()?SW_HIDE:SW_SHOW);
-      break;
-   case ID_VIEW_STATUS_BAR:
-      pWnd = mfcToQtWidget.value(AFX_IDW_STATUS_BAR);
-      ptrToTheApp->qtMainWindow->statusBar()->setVisible(pWnd->toQWidget()->isVisible()?false:true);
-      break;
-   }
-   
-   // Pass up the chain.
-   AfxGetApp()->menuAction_triggered(id);
+   SendMessage(WM_COMMAND,id);
 }
 
 void CFrameWnd::menuAboutToShow(CMenu* menu)
@@ -7976,12 +8095,6 @@ bool CView::event(QEvent *event)
       proc = WindowProc(msgEvent->msg.message,msgEvent->msg.wParam,msgEvent->msg.lParam);
    }
    return proc;
-}
-
-void CView::menuAction_triggered(int id)
-{
-   // Pass up the chain.
-   m_pDocument->menuAction_triggered(id);
 }
 
 void CView::menuAboutToShow(CMenu* menu)
@@ -9244,12 +9357,6 @@ CDocument::CDocument()
    QObject::connect(this,SIGNAL(documentClosed()),ptrToTheApp->qtMainWindow,SLOT(documentClosed()));
 }
 
-void CDocument::menuAction_triggered(int id)
-{
-   // Pass up the chain.
-   AfxGetMainWnd()->menuAction_triggered(id);
-}
-
 void CDocument::menuAboutToShow(CMenu* menu)
 {
    // Pass up the chain.
@@ -9912,6 +10019,8 @@ void CCommandLineInfo::ParseParam(
 IMPLEMENT_DYNCREATE(CWinApp,CWinThread)
 
 BEGIN_MESSAGE_MAP(CWinApp,CWinThread)
+   ON_COMMAND_RANGE(ID_FILE_MRU_FILE1,ID_FILE_MRU_FILE16,OnOpenRecentFile)
+   ON_COMMAND(ID_APP_EXIT, OnAppExit)
 END_MESSAGE_MAP()
 
 CWinApp::CWinApp() 
@@ -9925,18 +10034,13 @@ CWinApp::~CWinApp()
    delete m_pRecentFileList;
 }
 
-void CWinApp::menuAction_triggered(int id)
-{
-   // Handle MRU.
-   if ( (id >= ID_FILE_MRU_FILE1) &&
-        (id <= ID_FILE_MRU_FILE16))
-   {
-      OnOpenRecentFile(id);
-   }
-}
-
 void CWinApp::menuAboutToShow(CMenu* menu)
 {
+}
+
+void CWinApp::OnAppExit()
+{
+   m_pMainWnd->OnClose();   
 }
 
 BOOL CWinApp::DoPromptFileName(CString& fileName, UINT nIDSTitle, DWORD lFlags,
@@ -10603,11 +10707,6 @@ BOOL CMenu::TrackPopupMenu(
    LPCRECT lpRect
 )
 {
-   if ( !(nFlags&TPM_RETURNCMD) )
-   {
-      QObject::connect(this,SIGNAL(menuAction_triggered(int)),pWnd,SLOT(menuAction_triggered(int)));
-      QObject::connect(this,SIGNAL(menuAboutToShow(CMenu*)),pWnd,SLOT(menuAboutToShow(CMenu*)));
-   }
    QAction* action = _qtd->exec(QCursor::pos());
    int result = 0;
    if ( action && (nFlags&TPM_RETURNCMD) )
@@ -10618,10 +10717,9 @@ BOOL CMenu::TrackPopupMenu(
    {
       result = 1;
    }
-   if ( !(nFlags&TPM_RETURNCMD) )
+   if ( action )
    {
-      QObject::disconnect(this,SIGNAL(menuAction_triggered(int)),pWnd,SLOT(menuAction_triggered(int)));
-      QObject::disconnect(this,SIGNAL(menuAboutToShow(CMenu*)),pWnd,SLOT(menuAboutToShow(CMenu*)));
+      pWnd->SendMessage(WM_COMMAND,findMenuID(action));
    }
    return result;
 }

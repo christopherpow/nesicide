@@ -26,6 +26,7 @@
 #include "cqtmfc.h"
 
 #include "version.h"
+
 // Enable export verification
 //#define EXPORT_TEST
 
@@ -75,11 +76,8 @@ class CMutex;
 
 class CFamiTrackerApp : public CWinApp
 {
-   Q_OBJECT
 public:
-   void menuAction_triggered(int id);
-
-   // Constructor
+	// Constructor
 	CFamiTrackerApp();
 
 	//

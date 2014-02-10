@@ -126,19 +126,6 @@ BEGIN_MESSAGE_MAP(CInstrumentEditorN163, CSequenceInstrumentEditPanel)
 	ON_COMMAND(ID_CLONE_SEQUENCE, OnCloneSequence)
 END_MESSAGE_MAP()
 
-void CInstrumentEditorN163::menuAction_triggered(int id)
-{
-   typedef void (CInstrumentEditorN163::*actionHandler)();
-   QHash<UINT_PTR,actionHandler> actionHandlers;
-   //	ON_COMMAND(ID_FRAME_COPY, OnFrameCopy)
-   actionHandlers.insert(ID_CLONE_SEQUENCE, &CInstrumentEditorN163::OnCloneSequence);
-   
-   if ( actionHandlers.contains(id) )
-   {
-      (this->*((actionHandlers[id])))();
-   }
-}
-
 // CInstrumentEditorN163 message handlers
 
 BOOL CInstrumentEditorN163::OnInitDialog()

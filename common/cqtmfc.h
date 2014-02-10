@@ -1992,6 +1992,27 @@
 // Define resources here that are "hidden under the hood" of MFC...
 enum
 {
+   __NEEDS_TO_FIT_IN_16_BITS_START = 0xF000,
+   //   STRINGTABLE
+   //   BEGIN
+      ID_FILE_MRU_FILE1       ,
+      ID_FILE_MRU_FILE2       ,
+      ID_FILE_MRU_FILE3       ,
+      ID_FILE_MRU_FILE4       ,
+      ID_FILE_MRU_FILE5       ,
+      ID_FILE_MRU_FILE6       ,
+      ID_FILE_MRU_FILE7       ,
+      ID_FILE_MRU_FILE8       ,
+      ID_FILE_MRU_FILE9       ,
+      ID_FILE_MRU_FILE10      ,
+      ID_FILE_MRU_FILE11      ,
+      ID_FILE_MRU_FILE12      ,
+      ID_FILE_MRU_FILE13      ,
+      ID_FILE_MRU_FILE14      ,
+      ID_FILE_MRU_FILE15      ,
+      ID_FILE_MRU_FILE16      ,
+   //   END
+   
    __UNDER_THE_HOOD_START = 0x8000000,
 
    AFX_IDS_ALLFILTER,
@@ -2046,26 +2067,6 @@ enum
    ID_HELP_USING           ,
    ID_CONTEXT_HELP         ,
    ID_HELP                 ,
-//   END
-
-//   STRINGTABLE
-//   BEGIN
-   ID_FILE_MRU_FILE1       ,
-   ID_FILE_MRU_FILE2       ,
-   ID_FILE_MRU_FILE3       ,
-   ID_FILE_MRU_FILE4       ,
-   ID_FILE_MRU_FILE5       ,
-   ID_FILE_MRU_FILE6       ,
-   ID_FILE_MRU_FILE7       ,
-   ID_FILE_MRU_FILE8       ,
-   ID_FILE_MRU_FILE9       ,
-   ID_FILE_MRU_FILE10      ,
-   ID_FILE_MRU_FILE11      ,
-   ID_FILE_MRU_FILE12      ,
-   ID_FILE_MRU_FILE13      ,
-   ID_FILE_MRU_FILE14      ,
-   ID_FILE_MRU_FILE15      ,
-   ID_FILE_MRU_FILE16      ,
 //   END
 
 //   STRINGTABLE
@@ -3964,12 +3965,15 @@ class CDocument;
 class CCmdUI;
 class CFrameWnd : public CWnd
 {
+   Q_OBJECT
+public:
    DECLARE_DYNCREATE(CFrameWnd)
    // Qt interfaces
 public:
    void addControlBar(int area,QWidget* bar);
-   virtual void menuAction_triggered(int id);
+public slots:
    virtual void menuAboutToShow(CMenu* menu);
+   virtual void menuAction_triggered(int id);
 
    // MFC interfaces
 public:
@@ -4038,7 +4042,6 @@ class CDocument : public QObject, public CCmdTarget
    Q_OBJECT
    DECLARE_DYNCREATE(CDocument)
 public:
-   virtual void menuAction_triggered(int id);
    virtual void menuAboutToShow(CMenu* menu);
 signals:
    void setModified(bool f);
@@ -4110,7 +4113,6 @@ protected:
    virtual void mouseDoubleClickEvent(QMouseEvent *event);
    virtual bool event(QEvent *event);
 public:
-   virtual void menuAction_triggered(int id);
    virtual void menuAboutToShow(CMenu* menu);
    virtual QWidget* toViewWidget() { return viewWidget; }
    
@@ -4976,6 +4978,7 @@ public:
    QModelIndex currentIndex () const;
 protected:
    virtual bool event(QEvent *event);
+   virtual bool eventFilter(QObject *object, QEvent *event);
    QTableWidget* _qtd_table;
    QListWidget* _qtd_list;
 public slots:
@@ -5447,7 +5450,6 @@ class CWinApp : public CWinThread
    DECLARE_DYNCREATE(CWinApp)
    // Qt interfaces
 public:
-   virtual void menuAction_triggered(int id);
    virtual void menuAboutToShow(CMenu* menu);
    QMainWindow* qtMainWindow;
    
@@ -5491,6 +5493,7 @@ public:
    afx_msg void OnFileOpen( );
    afx_msg void OnOpenRecentFile( UINT nID );
    BOOL ExitInstance() { return TRUE; }
+   void OnAppExit();
 public:
    CRecentFileList* m_pRecentFileList;
    // Qt interfaces

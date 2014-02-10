@@ -11,4 +11,4 @@ char* nesicideGetVersion()
 }
 
 // context menu events go to wrong widget causing crash?
-// focusing back to pattern editor from frame editor is broken.
+// main menu items that are in base classes now don't work because i ripped out my hacks.  need to put them back in--properly.

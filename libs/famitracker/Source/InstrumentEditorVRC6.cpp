@@ -123,19 +123,6 @@ BEGIN_MESSAGE_MAP(CInstrumentEditorVRC6, CSequenceInstrumentEditPanel)
 	ON_COMMAND(ID_CLONE_SEQUENCE, OnCloneSequence)
 END_MESSAGE_MAP()
 
-void CInstrumentEditorVRC6::menuAction_triggered(int id)
-{
-   typedef void (CInstrumentEditorVRC6::*actionHandler)();
-   QHash<UINT_PTR,actionHandler> actionHandlers;
-   //	ON_COMMAND(ID_FRAME_COPY, OnFrameCopy)
-   actionHandlers.insert(ID_CLONE_SEQUENCE, &CInstrumentEditorVRC6::OnCloneSequence);
-   
-   if ( actionHandlers.contains(id) )
-   {
-      (this->*((actionHandlers[id])))();
-   }
-}
-
 // CInstrumentSettings message handlers
 
 BOOL CInstrumentEditorVRC6::OnInitDialog()

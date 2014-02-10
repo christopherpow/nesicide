@@ -261,7 +261,7 @@ enum AfxSig
 	{ WM_COMMAND, CN_COMMAND, (WORD)id, (WORD)idLast, AfxSigCmd_RANGE, \
 		(AFX_PMSG) \
 		(static_cast< void (AFX_MSG_CALL CCmdTarget::*)(UINT) > \
-		(memberFxn)) },
+		(&ThisClass::memberFxn)) },
 		// ON_COMMAND_RANGE(id, idLast, OnBar) is the same as
 		//   ON_CONTROL_RANGE(0, id, idLast, OnBar)
 
@@ -275,7 +275,7 @@ enum AfxSig
 	{ WM_COMMAND, CN_COMMAND, (WORD)id, (WORD)idLast, AfxSigCmd_EX, \
 		(AFX_PMSG) \
 		(static_cast< BOOL (AFX_MSG_CALL CCmdTarget::*)(UINT) > \
-		(memberFxn)) },
+		(&ThisClass::memberFxn)) },
 
 // update ui's are listed as WM_COMMAND's so they get routed like commands
 #define ON_UPDATE_COMMAND_UI(id, memberFxn) \

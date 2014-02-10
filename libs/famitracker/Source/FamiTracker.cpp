@@ -74,43 +74,6 @@ BEGIN_MESSAGE_MAP(CFamiTrackerApp, CWinApp)
 #endif
 END_MESSAGE_MAP()
 
-void CFamiTrackerApp::menuAction_triggered(int id)
-{
-   typedef void (CFamiTrackerApp::*actionHandler)();
-   QHash<UINT_PTR,actionHandler> actionHandlers;
-   //	ON_COMMAND(ID_APP_ABOUT, OnAppAbout)
-   actionHandlers.insert(ID_APP_ABOUT,&CFamiTrackerApp::OnAppAbout);
-   //	// Standard file based document commands
-   //	ON_COMMAND(ID_FILE_NEW, CWinApp::OnFileNew)
-   actionHandlers.insert(ID_FILE_NEW,&CFamiTrackerApp::OnFileNew);
-   //	ON_COMMAND(ID_FILE_OPEN, OnFileOpen)
-   actionHandlers.insert(ID_FILE_OPEN,&CFamiTrackerApp::OnFileOpen);
-   //	ON_COMMAND(ID_TRACKER_PLAY, OnTrackerPlay)
-   actionHandlers.insert(ID_TRACKER_PLAY,&CFamiTrackerApp::OnTrackerPlay);
-   //	ON_COMMAND(ID_TRACKER_PLAY_START, OnTrackerPlayStart)
-   actionHandlers.insert(ID_TRACKER_PLAY_START,&CFamiTrackerApp::OnTrackerPlayStart);
-   //	ON_COMMAND(ID_TRACKER_PLAY_CURSOR, OnTrackerPlayCursor)
-   actionHandlers.insert(ID_TRACKER_PLAY_CURSOR,&CFamiTrackerApp::OnTrackerPlayCursor);
-   ////	ON_COMMAND(ID_TRACKER_PLAY, OnTrackerPlay)
-   //	ON_COMMAND(ID_TRACKER_STOP, OnTrackerStop)
-   actionHandlers.insert(ID_TRACKER_STOP,&CFamiTrackerApp::OnTrackerStop);
-   //	ON_COMMAND(ID_TRACKER_TOGGLE_PLAY, OnTrackerTogglePlay)
-   actionHandlers.insert(ID_TRACKER_TOGGLE_PLAY,&CFamiTrackerApp::OnTrackerTogglePlay);
-   //	ON_COMMAND(ID_TRACKER_PLAYPATTERN, OnTrackerPlaypattern)
-   actionHandlers.insert(ID_TRACKER_PLAYPATTERN,&CFamiTrackerApp::OnTrackerPlaypattern);
-   //#ifdef UPDATE_CHECK
-   //	ON_COMMAND(ID_HELP_CHECKFORNEWVERSIONS, CheckNewVersion)
-   //#endif
-
-   if ( actionHandlers.contains(id) )
-   {
-      (this->*((actionHandlers[id])))();
-   }
-   
-   // Base class handlers.
-   CWinApp::menuAction_triggered(id);
-}
-
 // Include this for windows xp style in visual studio 2005 or later
 #pragma comment(linker, "\"/manifestdependency:type='Win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='X86' publicKeyToken='6595b64144ccf1df' language='*'\"")
 

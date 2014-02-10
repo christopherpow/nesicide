@@ -225,30 +225,6 @@ END_MESSAGE_MAP()
 
 CFamiTrackerDoc* CFamiTrackerDoc::ms_pDocOverride = NULL;
 
-void CFamiTrackerDoc::menuAction_triggered(int id)
-{
-   typedef void (CFamiTrackerDoc::*actionHandler)();
-   QHash<UINT_PTR,actionHandler> actionHandlers;
-   //	ON_COMMAND(ID_FILE_SAVE_AS, OnFileSaveAs)
-   actionHandlers.insert(ID_FILE_SAVE_AS,&CFamiTrackerDoc::OnFileSaveAs);
-   //	ON_COMMAND(ID_FILE_SAVE, OnFileSave)
-   actionHandlers.insert(ID_FILE_SAVE,&CFamiTrackerDoc::OnFileSave);
-   //	ON_COMMAND(ID_CLEANUP_REMOVEUNUSEDINSTRUMENTS, OnEditRemoveUnusedInstruments)
-   actionHandlers.insert(ID_CLEANUP_REMOVEUNUSEDINSTRUMENTS,&CFamiTrackerDoc::OnEditRemoveUnusedInstruments);
-   //	ON_COMMAND(ID_CLEANUP_REMOVEUNUSEDPATTERNS, OnEditRemoveUnusedPatterns)
-   actionHandlers.insert(ID_CLEANUP_REMOVEUNUSEDPATTERNS,&CFamiTrackerDoc::OnEditRemoveUnusedPatterns);
-   //	ON_COMMAND(ID_EDIT_CLEARPATTERNS, OnEditClearPatterns)
-   actionHandlers.insert(ID_EDIT_CLEARPATTERNS,&CFamiTrackerDoc::OnEditClearPatterns);
-   
-   if ( actionHandlers.contains(id) )
-   {
-      (this->*((actionHandlers[id])))();
-   }
-   
-   // Base class handler.
-   CDocument::menuAction_triggered(id);
-}
-
 //
 // Convert an instrument type to sound chip
 //

@@ -95,39 +95,6 @@ BEGIN_MESSAGE_MAP(CFrameEditor, CWnd)
 	ON_COMMAND(ID_MODULE_MOVEFRAMEUP, OnModuleMoveFrameUp)
 END_MESSAGE_MAP()
 
-void CFrameEditor::menuAction_triggered(int id)
-{
-   typedef void (CFrameEditor::*actionHandler)();
-   QHash<UINT_PTR,actionHandler> actionHandlers;
-   // ON_COMMAND(ID_FRAME_CUT, OnEditCut)
-   actionHandlers.insert(ID_FRAME_CUT, &CFrameEditor::OnEditCut);
-   // ON_COMMAND(ID_FRAME_COPY, OnEditCopy)
-   actionHandlers.insert(ID_FRAME_COPY, &CFrameEditor::OnEditCopy);
-   // ON_COMMAND(ID_FRAME_PASTE, OnEditPaste)
-   actionHandlers.insert(ID_FRAME_PASTE, &CFrameEditor::OnEditPaste);
-   // ON_COMMAND(ID_FRAME_PASTENEWPATTERNS, OnEditPasteNewPatterns)
-   actionHandlers.insert(ID_FRAME_PASTENEWPATTERNS, &CFrameEditor::OnEditPasteNewPatterns);
-   // ON_COMMAND(ID_FRAME_DELETE, OnEditDelete)
-   actionHandlers.insert(ID_FRAME_DELETE, &CFrameEditor::OnEditDelete);
-   // ON_COMMAND(ID_MODULE_INSERTFRAME, OnModuleInsertFrame)
-   actionHandlers.insert(ID_MODULE_INSERTFRAME, &CFrameEditor::OnModuleInsertFrame);
-   // ON_COMMAND(ID_MODULE_REMOVEFRAME, OnModuleRemoveFrame)
-   actionHandlers.insert(ID_MODULE_REMOVEFRAME, &CFrameEditor::OnModuleRemoveFrame);
-   // ON_COMMAND(ID_MODULE_DUPLICATEFRAME, OnModuleDuplicateFrame)
-   actionHandlers.insert(ID_MODULE_DUPLICATEFRAME, &CFrameEditor::OnModuleDuplicateFrame);
-   // ON_COMMAND(ID_MODULE_DUPLICATEFRAMEPATTERNS, OnModuleDuplicateFramePatterns)
-   actionHandlers.insert(ID_MODULE_DUPLICATEFRAMEPATTERNS, &CFrameEditor::OnModuleDuplicateFramePatterns);
-   // ON_COMMAND(ID_MODULE_MOVEFRAMEDOWN, OnModuleMoveFrameDown)
-   actionHandlers.insert(ID_MODULE_MOVEFRAMEDOWN, &CFrameEditor::OnModuleMoveFrameDown);
-   // ON_COMMAND(ID_MODULE_MOVEFRAMEUP, OnModuleMoveFrameUp)
-   actionHandlers.insert(ID_MODULE_MOVEFRAMEUP, &CFrameEditor::OnModuleMoveFrameUp);
-   
-   if ( actionHandlers.contains(id) )
-   {
-      (this->*((actionHandlers[id])))();
-   }
-}
-
 void CFrameEditor::verticalScrollBar_actionTriggered(int arg1)
 {
    // CP: these values don't match Qt apparently...
