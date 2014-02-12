@@ -217,42 +217,6 @@ void CFamiTrackerView::horizontalScrollBar_actionTriggered(int arg1)
    OnHScroll(arg1,mfcHorizontalScrollBar->sliderPosition(),mfcHorizontalScrollBar);
 }
 
-void CFamiTrackerView::menuAboutToShow(CMenu* menu)
-{
-   CCmdUI cmdUI;
-   cmdUI.m_pMenu = menu;
-
-   ////	ON_UPDATE_COMMAND_UI(ID_EDIT_CUT, OnUpdateEditCut)
-   ////	ON_UPDATE_COMMAND_UI(ID_EDIT_DELETE, OnUpdateEditDelete)
-   //   ON_UPDATE_COMMAND_UI(ID_EDIT_INSTRUMENTMASK, OnUpdateEditInstrumentMask)
-   cmdUI.m_nID = ID_EDIT_INSTRUMENTMASK;
-   OnUpdateEditInstrumentMask(&cmdUI);
-   //   ON_UPDATE_COMMAND_UI(ID_EDIT_VOLUMEMASK, OnUpdateEditVolumeMask)
-   cmdUI.m_nID = ID_EDIT_VOLUMEMASK;
-   OnUpdateEditVolumeMask(&cmdUI);
-   //   ON_UPDATE_COMMAND_UI(ID_TRACKER_EDIT, OnUpdateTrackerEdit)
-   cmdUI.m_nID = ID_TRACKER_EDIT;
-   OnUpdateTrackerEdit(&cmdUI);
-   //   ON_UPDATE_COMMAND_UI(ID_TRACKER_PAL, OnUpdateTrackerPal)
-   cmdUI.m_nID = ID_TRACKER_PAL;
-   OnUpdateTrackerPal(&cmdUI);
-   //   ON_UPDATE_COMMAND_UI(ID_TRACKER_NTSC, OnUpdateTrackerNtsc)
-   cmdUI.m_nID = ID_TRACKER_NTSC;
-   OnUpdateTrackerNtsc(&cmdUI);
-   //   ON_UPDATE_COMMAND_UI(ID_SPEED_DEFAULT, OnUpdateSpeedDefault)
-   cmdUI.m_nID = ID_SPEED_DEFAULT;
-   OnUpdateSpeedDefault(&cmdUI);
-   //   ON_UPDATE_COMMAND_UI(ID_SPEED_CUSTOM, OnUpdateSpeedCustom)
-   cmdUI.m_nID = ID_SPEED_CUSTOM;
-   OnUpdateSpeedCustom(&cmdUI);
-   //   ON_UPDATE_COMMAND_UI(ID_EDIT_PASTEMIX, OnUpdateEditPaste)
-   cmdUI.m_nID = ID_EDIT_PASTEMIX;
-   OnUpdateEditPaste(&cmdUI);
-
-   // Base class handler.   
-   CView::menuAboutToShow(menu);
-}
-
 // Convert keys 0-F to numbers, -1 = invalid key
 int ConvertKeyToHex(int Key) {
 
@@ -691,7 +655,7 @@ void CFamiTrackerView::OnSetFocus(CWnd* pOldWnd)
 	UpdateEditor(UPDATE_CURSOR);
 }
 
-void CFamiTrackerView::OnTimer(UINT nIDEvent)
+void CFamiTrackerView::OnTimer(UINT_PTR nIDEvent)
 {
 	// Timer callback function
 	CFamiTrackerDoc* pDoc = GetDocument();

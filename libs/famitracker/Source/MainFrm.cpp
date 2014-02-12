@@ -313,13 +313,6 @@ void CMainFrame::showEvent(QShowEvent *)
 
       QObject::connect(m_pDocument,SIGNAL(documentSaved()),this,SIGNAL(documentSaved()));
       QObject::connect(m_pDocument,SIGNAL(documentClosed()),this,SIGNAL(documentClosed()));
-      QObject::connect(m_pMenu->GetSubMenu(0),SIGNAL(menuAboutToShow(CMenu*)),m_pView,SLOT(menuAboutToShow(CMenu*)));
-      QObject::connect(m_pMenu->GetSubMenu(1),SIGNAL(menuAboutToShow(CMenu*)),m_pView,SLOT(menuAboutToShow(CMenu*)));
-      QObject::connect(m_pMenu->GetSubMenu(2),SIGNAL(menuAboutToShow(CMenu*)),m_pView,SLOT(menuAboutToShow(CMenu*)));
-      QObject::connect(m_pMenu->GetSubMenu(3),SIGNAL(menuAboutToShow(CMenu*)),m_pView,SLOT(menuAboutToShow(CMenu*)));
-      QObject::connect(m_pMenu->GetSubMenu(4),SIGNAL(menuAboutToShow(CMenu*)),m_pView,SLOT(menuAboutToShow(CMenu*)));
-      QObject::connect(m_pMenu->GetSubMenu(5),SIGNAL(menuAboutToShow(CMenu*)),m_pView,SLOT(menuAboutToShow(CMenu*)));
-      QObject::connect(m_pMenu->GetSubMenu(6),SIGNAL(menuAboutToShow(CMenu*)),m_pView,SLOT(menuAboutToShow(CMenu*)));
 
       // Connect buried signals.
       qDebug("START CONNECTING BURIED SIGNALS NOW...");
@@ -360,41 +353,6 @@ void CMainFrame::onIdleSlot()
    {
    }
    //	ON_UPDATE_COMMAND_UI(ID_EDIT_ENABLEMIDI, OnUpdateEditEnablemidi)
-   //	ON_UPDATE_COMMAND_UI(ID_MODULE_INSERTFRAME, OnUpdateInsertFrame)
-   cmdUI.m_nID = ID_MODULE_INSERTFRAME;
-   cmdUI.m_pOther = &m_wndToolBar;
-   if ( cmdUI.m_pOther )
-   {
-      OnUpdateInsertFrame(&cmdUI);
-   }
-   //	ON_UPDATE_COMMAND_UI(ID_MODULE_REMOVEFRAME, OnUpdateRemoveFrame)
-   cmdUI.m_nID = ID_MODULE_REMOVEFRAME;
-   cmdUI.m_pOther = &m_wndToolBar;
-   if ( cmdUI.m_pOther )
-   {
-      OnUpdateRemoveFrame(&cmdUI);
-   }
-   //	ON_UPDATE_COMMAND_UI(ID_MODULE_DUPLICATEFRAME, OnUpdateDuplicateFrame)
-   cmdUI.m_nID = ID_MODULE_DUPLICATEFRAME;
-   cmdUI.m_pOther = &m_wndToolBar;
-   if ( cmdUI.m_pOther )
-   {
-      OnUpdateDuplicateFrame(&cmdUI);
-   }
-   //	ON_UPDATE_COMMAND_UI(ID_MODULE_MOVEFRAMEDOWN, OnUpdateModuleMoveframedown)
-   cmdUI.m_nID = ID_MODULE_MOVEFRAMEDOWN;
-   cmdUI.m_pOther = &m_wndToolBar;
-   if ( cmdUI.m_pOther )
-   {
-      OnUpdateModuleMoveframedown(&cmdUI);
-   }
-   //	ON_UPDATE_COMMAND_UI(ID_MODULE_MOVEFRAMEUP, OnUpdateModuleMoveframeup)
-   cmdUI.m_nID = ID_MODULE_MOVEFRAMEUP;
-   cmdUI.m_pOther = &m_wndToolBar;
-   if ( cmdUI.m_pOther )
-   {
-      OnUpdateModuleMoveframeup(&cmdUI);
-   }
    //	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_NEW, OnUpdateInstrumentNew)
    cmdUI.m_nID = ID_INSTRUMENT_NEW;
    cmdUI.m_pOther = &m_wndToolBar;
@@ -782,132 +740,6 @@ void CMainFrame::instToolBarAction_menu_aboutToShow(int id)
       OnLoadInstrumentMenu(&nmhdr,&result);
       break;
    }
-}
-
-void CMainFrame::menuAboutToShow(CMenu* menu)
-{
-   CCmdUI cmdUI;
-   cmdUI.m_pMenu = menu;
-
-   // Handle MRU.
-   cmdUI.m_nID = ID_FILE_MRU_FILE1;
-   OnUpdateRecentFileList(&cmdUI);
-   
-   //	ON_UPDATE_COMMAND_UI(ID_EDIT_UNDO, OnUpdateEditUndo)
-   cmdUI.m_nID = ID_EDIT_UNDO;
-   OnUpdateEditUndo(&cmdUI);
-   //	ON_UPDATE_COMMAND_UI(ID_EDIT_REDO, OnUpdateEditRedo)
-   cmdUI.m_nID = ID_EDIT_REDO;
-   OnUpdateEditRedo(&cmdUI);
-   //	ON_UPDATE_COMMAND_UI(ID_EDIT_COPY, OnUpdateEditCopy)
-   cmdUI.m_nID = ID_EDIT_COPY;
-   OnUpdateEditCopy(&cmdUI);
-   //	ON_UPDATE_COMMAND_UI(ID_EDIT_PASTE, OnUpdateEditPaste)
-   cmdUI.m_nID = ID_EDIT_PASTE;
-   OnUpdateEditPaste(&cmdUI);
-   //	ON_UPDATE_COMMAND_UI(ID_EDIT_ENABLEMIDI, OnUpdateEditEnablemidi)
-   cmdUI.m_nID = ID_EDIT_ENABLEMIDI;
-   OnUpdateEditEnablemidi(&cmdUI);
-   //	ON_UPDATE_COMMAND_UI(ID_MODULE_INSERTFRAME, OnUpdateInsertFrame)
-   cmdUI.m_nID = ID_MODULE_INSERTFRAME;
-   OnUpdateInsertFrame(&cmdUI);
-   //	ON_UPDATE_COMMAND_UI(ID_MODULE_REMOVEFRAME, OnUpdateRemoveFrame)
-   cmdUI.m_nID = ID_MODULE_REMOVEFRAME;
-   OnUpdateRemoveFrame(&cmdUI);
-   //	ON_UPDATE_COMMAND_UI(ID_MODULE_DUPLICATEFRAME, OnUpdateDuplicateFrame)
-   cmdUI.m_nID = ID_MODULE_DUPLICATEFRAME;
-   OnUpdateDuplicateFrame(&cmdUI);
-   //	ON_UPDATE_COMMAND_UI(ID_MODULE_MOVEFRAMEDOWN, OnUpdateModuleMoveframedown)
-   cmdUI.m_nID = ID_MODULE_MOVEFRAMEDOWN;
-   OnUpdateModuleMoveframedown(&cmdUI);
-   //	ON_UPDATE_COMMAND_UI(ID_MODULE_MOVEFRAMEUP, OnUpdateModuleMoveframeup)
-   cmdUI.m_nID = ID_MODULE_MOVEFRAMEUP;
-   OnUpdateModuleMoveframeup(&cmdUI);
-   //	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_NEW, OnUpdateInstrumentNew)
-   cmdUI.m_nID = ID_INSTRUMENT_NEW;
-   OnUpdateInstrumentNew(&cmdUI);
-   //	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_REMOVE, OnUpdateInstrumentRemove)
-   cmdUI.m_nID = ID_INSTRUMENT_REMOVE;
-   OnUpdateInstrumentRemove(&cmdUI);
-   //	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_CLONE, OnUpdateInstrumentClone)
-   cmdUI.m_nID = ID_INSTRUMENT_CLONE;
-   OnUpdateInstrumentClone(&cmdUI);
-   //	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_DEEPCLONE, OnUpdateInstrumentDeepClone)
-   cmdUI.m_nID = ID_INSTRUMENT_DEEPCLONE;
-   OnUpdateInstrumentDeepClone(&cmdUI);
-   //	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_EDIT, OnUpdateInstrumentEdit)
-   cmdUI.m_nID = ID_INSTRUMENT_EDIT;
-   OnUpdateInstrumentEdit(&cmdUI);
-   //	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_LOAD, OnUpdateInstrumentLoad)
-   cmdUI.m_nID = ID_INSTRUMENT_LOAD;
-   OnUpdateInstrumentLoad(&cmdUI);
-   //	ON_UPDATE_COMMAND_UI(ID_INSTRUMENT_SAVE, OnUpdateInstrumentSave)
-   cmdUI.m_nID = ID_INSTRUMENT_SAVE;
-   OnUpdateInstrumentSave(&cmdUI);
-   //	ON_UPDATE_COMMAND_UI(ID_INDICATOR_INSTRUMENT, OnUpdateSBInstrument)
-   cmdUI.m_nID = ID_INDICATOR_INSTRUMENT;
-   OnUpdateSBInstrument(&cmdUI);
-   //	ON_UPDATE_COMMAND_UI(ID_INDICATOR_OCTAVE, OnUpdateSBOctave)
-   cmdUI.m_nID = ID_INDICATOR_OCTAVE;
-   OnUpdateSBOctave(&cmdUI);
-   //	ON_UPDATE_COMMAND_UI(ID_INDICATOR_RATE, OnUpdateSBFrequency)
-   cmdUI.m_nID = ID_INDICATOR_RATE;
-   OnUpdateSBFrequency(&cmdUI);
-   //	ON_UPDATE_COMMAND_UI(ID_INDICATOR_TEMPO, OnUpdateSBTempo)
-   cmdUI.m_nID = ID_INDICATOR_TEMPO;
-   OnUpdateSBTempo(&cmdUI);
-   //	ON_UPDATE_COMMAND_UI(ID_INDICATOR_CHIP, OnUpdateSBChip)
-   cmdUI.m_nID = ID_INDICATOR_CHIP;
-   OnUpdateSBChip(&cmdUI);
-   //	ON_UPDATE_COMMAND_UI(IDC_KEYREPEAT, OnUpdateKeyRepeat)
-   cmdUI.m_nID = IDC_KEYREPEAT;
-   OnUpdateKeyRepeat(&cmdUI);
-   //	ON_UPDATE_COMMAND_UI(IDC_SPEED, OnUpdateSpeedEdit)
-   cmdUI.m_nID = IDC_SPEED;
-   OnUpdateSpeedEdit(&cmdUI);
-   //	ON_UPDATE_COMMAND_UI(IDC_TEMPO, OnUpdateTempoEdit)
-   cmdUI.m_nID = IDC_TEMPO;
-   OnUpdateTempoEdit(&cmdUI);
-   //	ON_UPDATE_COMMAND_UI(IDC_ROWS, OnUpdateRowsEdit)
-   cmdUI.m_nID = IDC_ROWS;
-   OnUpdateRowsEdit(&cmdUI);
-   //	ON_UPDATE_COMMAND_UI(IDC_FRAMES, OnUpdateFramesEdit)
-   cmdUI.m_nID = IDC_FRAMES;
-   OnUpdateFramesEdit(&cmdUI);
-   //	ON_UPDATE_COMMAND_UI(ID_NEXT_SONG, OnUpdateNextSong)
-   cmdUI.m_nID = ID_NEXT_SONG;
-   OnUpdateNextSong(&cmdUI);
-   //	ON_UPDATE_COMMAND_UI(ID_PREV_SONG, OnUpdatePrevSong)
-   cmdUI.m_nID = ID_PREV_SONG;
-   OnUpdatePrevSong(&cmdUI);
-   //	ON_UPDATE_COMMAND_UI(ID_TRACKER_SWITCHTOTRACKINSTRUMENT, OnUpdateTrackerSwitchToInstrument)
-   cmdUI.m_nID = ID_TRACKER_SWITCHTOTRACKINSTRUMENT;
-   OnUpdateTrackerSwitchToInstrument(&cmdUI);
-   //	ON_UPDATE_COMMAND_UI(ID_VIEW_CONTROLPANEL, OnUpdateViewControlpanel)
-   cmdUI.m_nID = ID_VIEW_CONTROLPANEL;
-   OnUpdateViewControlpanel(&cmdUI);
-   //	ON_UPDATE_COMMAND_UI(IDC_HIGHLIGHT1, OnUpdateHighlight)
-   cmdUI.m_nID = IDC_HIGHLIGHT1;
-   OnUpdateHighlight(&cmdUI);
-   //	ON_UPDATE_COMMAND_UI(IDC_HIGHLIGHT2, OnUpdateHighlight)
-   cmdUI.m_nID = IDC_HIGHLIGHT2;
-   OnUpdateHighlight(&cmdUI);
-   //	ON_UPDATE_COMMAND_UI(ID_EDIT_EXPANDPATTERNS, OnUpdateSelectionEnabled)
-   cmdUI.m_nID = ID_EDIT_EXPANDPATTERNS;
-   OnUpdateSelectionEnabled(&cmdUI);
-   //	ON_UPDATE_COMMAND_UI(ID_EDIT_SHRINKPATTERNS, OnUpdateSelectionEnabled)
-   cmdUI.m_nID = ID_EDIT_SHRINKPATTERNS;
-   OnUpdateSelectionEnabled(&cmdUI);
-
-   //	ON_UPDATE_COMMAND_UI(ID_FRAMEEDITOR_TOP, OnUpdateFrameeditorTop)
-   cmdUI.m_nID = ID_FRAMEEDITOR_TOP;
-   OnUpdateFrameeditorTop(&cmdUI);
-   //	ON_UPDATE_COMMAND_UI(ID_FRAMEEDITOR_LEFT, OnUpdateFrameeditorLeft)
-   cmdUI.m_nID = ID_FRAMEEDITOR_LEFT;
-   OnUpdateFrameeditorLeft(&cmdUI);
-
-   // Base class handlers.
-   CFrameWnd::menuAboutToShow(menu);
 }
 
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)

@@ -1200,6 +1200,27 @@ int WINAPI GetSystemMetrics(
    return 0;
 }
 
+SHORT WINAPI GetKeyState(
+  int nVirtKey
+)
+{
+   Qt::KeyboardModifiers mod = QApplication::keyboardModifiers();
+   SHORT ret = 0;
+   
+   switch ( nVirtKey )
+   {
+   case VK_CONTROL:
+      ret = (mod&Qt::ControlModifier)?0x80:0;
+      break;
+   case VK_SHIFT:
+      ret = (mod&Qt::ShiftModifier)?0x80:0;
+      break;
+   default:
+      qDebug("GetKeyState(%d): unsupported key",nVirtKey);
+   }
+   return ret;
+}
+
 QMimeData* gpClipboardMimeData = NULL;
 
 QList<QString> _clipboardFormats;
@@ -4036,13 +4057,19 @@ void CListCtrl::itemSelectionChanged()
    {
       nmlv.iItem = _qtd_table->currentIndex().row();
       nmlv.iSubItem = _qtd_table->currentIndex().column();
-      nmlv.uNewState = (_qtd_table->currentItem()->checkState()==Qt::Checked?0x2000:0);
+      if ( _qtd_table->currentItem() )
+      {
+         nmlv.uNewState = (_qtd_table->currentItem()->checkState()==Qt::Checked?0x2000:0);
+      }
    }
    else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
    {
       nmlv.iItem = _qtd_list->currentIndex().row();
       nmlv.iSubItem = _qtd_list->currentIndex().column();
-      nmlv.uNewState = (_qtd_list->currentItem()->checkState()==Qt::Checked?0x2000:0);
+      if ( _qtd_list->currentItem() )
+      {
+         nmlv.uNewState = (_qtd_list->currentItem()->checkState()==Qt::Checked?0x2000:0);
+      }
    }
    nmlv.uNewState |= LVNI_SELECTED;
    nmlv.uOldState = 0;
@@ -6906,7 +6933,6 @@ void CWnd::leaveEvent(QEvent *event)
 
 void CWnd::resizeEvent(QResizeEvent *event)
 {
-//   SendMessage(WM_ERASEBKGND);
    QSize size = event->size();
    if ( _dwStyle&WS_VSCROLL )
    {
@@ -7680,13 +7706,15 @@ IMPLEMENT_DYNCREATE(CFrameWnd,CWnd)
 
 BEGIN_MESSAGE_MAP(CFrameWnd,CWnd)
    ON_WM_SETFOCUS()
+   ON_WM_INITMENUPOPUP()
 END_MESSAGE_MAP()
 
 CFrameWnd::CFrameWnd(CWnd *parent)
    : CWnd(parent),
      m_pViewActive(NULL),
      m_pDocument(NULL),
-     m_bInRecalcLayout(FALSE)
+     m_bInRecalcLayout(FALSE),
+     m_bAutoMenuEnable(FALSE)
 {
    int idx;
 
@@ -7763,20 +7791,6 @@ CFrameWnd::~CFrameWnd()
 void CFrameWnd::menuAction_triggered(int id)
 {
    SendMessage(WM_COMMAND,id);
-}
-
-void CFrameWnd::menuAboutToShow(CMenu* menu)
-{
-   // Cheaply handle messages.
-   CWnd* pWnd;
-
-   pWnd = mfcToQtWidget.value(AFX_IDW_REBAR);
-   menu->CheckMenuItem(ID_VIEW_TOOLBAR,pWnd->IsWindowVisible());
-   pWnd = mfcToQtWidget.value(AFX_IDW_STATUS_BAR);
-   menu->CheckMenuItem(ID_VIEW_STATUS_BAR,pWnd->toQWidget()->isVisible());
-   
-   // Pass up the chain.
-   AfxGetApp()->menuAboutToShow(menu);
 }
 
 void CFrameWnd::addControlBar(int area, QWidget *bar)
@@ -8022,35 +8036,91 @@ void CFrameWnd::RecalcLayout(
 	m_bInRecalcLayout = FALSE;
 }
 
-void CFrameWnd::OnUpdateRecentFileList(CCmdUI *pCmdUI)
+void CFrameWnd::OnInitMenuPopup(CMenu* pMenu, UINT nIndex, BOOL bSysMenu)
 {
-   CRecentFileList* pRecentFileList = AfxGetApp()->m_pRecentFileList;
-   CMenu* pMRU = GetMenu()->GetSubMenu(0);
-   CString mruPath;
-   CString mruString;
-   int mru;
-   
-   for ( mru = ID_FILE_MRU_FILE1; mru <= ID_FILE_MRU_FILE16; mru++ )
-   {
-      pMRU->RemoveMenu(mru,MF_BYCOMMAND);
-   }
-   
-   if ( pRecentFileList->GetSize() )
-   {
-      for ( mru = 0; mru < pRecentFileList->GetSize(); mru++ )
-      {
-         pRecentFileList->GetDisplayName(mruPath,mru,QDir::currentPath().toLatin1().constData(),QDir::currentPath().length());
-         mruString.Format("%d %s",mru+1,(LPCTSTR)mruPath);
-         pMRU->InsertMenu(ID_APP_EXIT,MF_STRING|MF_BYCOMMAND,ID_FILE_MRU_FILE1+mru,mruString);
-      }
-   }
-   else
-   {
-      pMRU->InsertMenu(ID_APP_EXIT,MF_STRING|MF_BYCOMMAND,ID_FILE_MRU_FILE1,"Recent File");
-      pMRU->EnableMenuItem(ID_FILE_MRU_FILE1,false);
-   }
-   // CP: Not sure why separator disappears...
-   pMRU->InsertMenu(ID_APP_EXIT,MF_SEPARATOR|MF_BYCOMMAND);
+//	AfxCancelModes(m_hWnd);
+
+	if (bSysMenu)
+		return;     // don't support system menu
+
+	ENSURE_VALID(pMenu);
+	
+	// check the enabled state of various menu items
+
+	CCmdUI state;
+	state.m_pMenu = pMenu;
+	ASSERT(state.m_pOther == NULL);
+//	ASSERT(state.m_pParentMenu == NULL);
+
+//	// determine if menu is popup in top-level menu and set m_pOther to
+//	//  it if so (m_pParentMenu == NULL indicates that it is secondary popup)
+//	HMENU hParentMenu;
+//	if (AfxGetThreadState()->m_hTrackingMenu == pMenu->m_hMenu)
+//		state.m_pParentMenu = pMenu;    // parent == child for tracking popup
+//	else if ((hParentMenu = (m_dwMenuBarState == AFX_MBS_VISIBLE) ? ::GetMenu(m_hWnd) : m_hMenu) != NULL)
+//	{
+//		CWnd* pParent = GetTopLevelParent();
+//			// child windows don't have menus -- need to go to the top!
+//		if (pParent != NULL &&
+//			(hParentMenu = pParent->GetMenu()->GetSafeHmenu()) != NULL)
+//		{
+//			int nIndexMax = ::GetMenuItemCount(hParentMenu);
+//			for (int nItemIndex = 0; nItemIndex < nIndexMax; nItemIndex++)
+//			{
+//				if (::GetSubMenu(hParentMenu, nItemIndex) == pMenu->m_hMenu)
+//				{
+//					// when popup is found, m_pParentMenu is containing menu
+//					state.m_pParentMenu = CMenu::FromHandle(hParentMenu);
+//					break;
+//				}
+//			}
+//		}
+//	}
+
+	state.m_nIndexMax = pMenu->GetMenuItemCount();
+	for (state.m_nIndex = 0; state.m_nIndex < state.m_nIndexMax;
+	  state.m_nIndex++)
+	{
+		state.m_nID = pMenu->GetMenuItemID(state.m_nIndex);
+		if (state.m_nID == 0)
+			continue; // menu separator or invalid cmd - ignore it
+
+		ASSERT(state.m_pOther == NULL);
+		ASSERT(state.m_pMenu != NULL);
+		if (state.m_nID == (UINT)-1)
+		{
+			// possibly a popup menu, route to first item of that popup
+			state.m_pSubMenu = pMenu->GetSubMenu(state.m_nIndex);
+			if (state.m_pSubMenu == NULL ||
+				(state.m_nID = state.m_pSubMenu->GetMenuItemID(0)) == 0 ||
+				state.m_nID == (UINT)-1)
+			{
+				continue;       // first item of popup can't be routed to
+			}
+			state.DoUpdate(this, FALSE);    // popups are never auto disabled
+		}
+		else
+		{
+			// normal menu item
+			// Auto enable/disable if frame window has 'm_bAutoMenuEnable'
+			//    set and command is _not_ a system command.
+			state.m_pSubMenu = NULL;
+			state.DoUpdate(this, m_bAutoMenuEnable && state.m_nID < 0xF000);
+		}
+
+		// adjust for menu deletions and additions
+		UINT nCount = pMenu->GetMenuItemCount();
+		if (nCount < state.m_nIndexMax)
+		{
+			state.m_nIndex -= (state.m_nIndexMax - nCount);
+			while (state.m_nIndex < nCount &&
+				pMenu->GetMenuItemID(state.m_nIndex) == state.m_nID)
+			{
+				state.m_nIndex++;
+			}
+		}
+		state.m_nIndexMax = nCount;
+	}
 }
 
 void CFrameWnd::OnClose()
@@ -8095,12 +8165,6 @@ bool CView::event(QEvent *event)
       proc = WindowProc(msgEvent->msg.message,msgEvent->msg.wParam,msgEvent->msg.lParam);
    }
    return proc;
-}
-
-void CView::menuAboutToShow(CMenu* menu)
-{
-   // Pass up the chain.
-   m_pDocument->menuAboutToShow(menu);
 }
 
 bool CView::eventFilter(QObject *object, QEvent *event)
@@ -9357,12 +9421,6 @@ CDocument::CDocument()
    QObject::connect(this,SIGNAL(documentClosed()),ptrToTheApp->qtMainWindow,SLOT(documentClosed()));
 }
 
-void CDocument::menuAboutToShow(CMenu* menu)
-{
-   // Pass up the chain.
-   AfxGetMainWnd()->menuAboutToShow(menu);
-}
-
 void CDocument::OnCloseDocument()
 { 
    emit documentClosed(); 
@@ -10020,6 +10078,7 @@ IMPLEMENT_DYNCREATE(CWinApp,CWinThread)
 
 BEGIN_MESSAGE_MAP(CWinApp,CWinThread)
    ON_COMMAND_RANGE(ID_FILE_MRU_FILE1,ID_FILE_MRU_FILE16,OnOpenRecentFile)
+   ON_UPDATE_COMMAND_UI(ID_FILE_MRU_FILE1,OnUpdateRecentFileList)
    ON_COMMAND(ID_APP_EXIT, OnAppExit)
 END_MESSAGE_MAP()
 
@@ -10034,13 +10093,54 @@ CWinApp::~CWinApp()
    delete m_pRecentFileList;
 }
 
-void CWinApp::menuAboutToShow(CMenu* menu)
-{
-}
-
 void CWinApp::OnAppExit()
 {
    m_pMainWnd->OnClose();   
+}
+
+void CWinApp::OnUpdateRecentFileList(CCmdUI *pCmdUI)
+{
+   CRecentFileList* pRecentFileList = AfxGetApp()->m_pRecentFileList;
+   CMenu* pMRU = pCmdUI->m_pMenu;
+   CString mruPath;
+   CString mruString;
+   int menu = 0;
+   int mru;
+   int mruPosition = -1;
+   int idx;
+
+   // Find MRU index in menu...
+   for ( idx = 0; idx < pMRU->GetMenuItemCount(); idx++ )
+   {
+      if ( pMRU->GetMenuItemID(idx) == ID_FILE_MRU_FILE1 )
+      {
+         mruPosition = idx;
+         break;
+      }
+   }
+
+   if ( mruPosition >= 0 )
+   {
+      for ( mru = ID_FILE_MRU_FILE1; mru <= ID_FILE_MRU_FILE16; mru++ )
+      {
+         pMRU->RemoveMenu(mru,MF_BYCOMMAND);
+      }
+      
+      if ( pRecentFileList->GetSize() )
+      {
+         for ( mru = 0; mru < pRecentFileList->GetSize(); mru++ )
+         {
+            pRecentFileList->GetDisplayName(mruPath,mru,QDir::currentPath().toLatin1().constData(),QDir::currentPath().length());
+            mruString.Format("%d %s",mru+1,(LPCTSTR)mruPath);
+            pMRU->InsertMenu(mruPosition+mru,MF_STRING|MF_BYPOSITION,ID_FILE_MRU_FILE1+mru,mruString);
+         }
+      }
+      else
+      {
+         pMRU->InsertMenu(mruPosition,MF_STRING|MF_BYPOSITION,ID_FILE_MRU_FILE1,"Recent File");
+         pMRU->EnableMenuItem(ID_FILE_MRU_FILE1,false);
+      }
+   }
 }
 
 BOOL CWinApp::DoPromptFileName(CString& fileName, UINT nIDSTitle, DWORD lFlags,
@@ -10266,6 +10366,7 @@ CMenu::CMenu()
    _qtd = new QMenu;
    _cmenu = new QHash<int,CMenu*>;
    m_hMenu = (HMENU)this;
+   _qtd->setSeparatorsCollapsible(false);
 }
 
 CMenu::~CMenu()
@@ -10295,7 +10396,7 @@ void CMenu::menuAction_triggered()
 
 void CMenu::menuAboutToShow()
 {
-   emit menuAboutToShow(this);
+   AfxGetMainWnd()->SendMessage(WM_INITMENUPOPUP,(WPARAM)this);
 }
 
 QAction* CMenu::findMenuItem(UINT id) const
@@ -10348,12 +10449,15 @@ BOOL CMenu::RemoveMenu(
    switch ( nFlags&MF_BYPOSITION )
    {
    case MF_BYPOSITION:
+      qtToMfcMenu.remove(_qtd->actions().at(nPosition));
       _qtd->removeAction(_qtd->actions().at(nPosition));
       break;
    default:
+      qtToMfcMenu.remove(findMenuItem(nPosition));
       _qtd->removeAction(findMenuItem(nPosition));
       break;
    }
+   mfcToQtMenu.remove(nPosition);
    return TRUE;
 }
 
@@ -13373,7 +13477,10 @@ CCmdUI::CCmdUI()
      m_pSubMenu(NULL),
      m_pOther(NULL),
      m_nID(0),
-     m_nIndex(0)
+     m_nIndex(0),
+     m_nIndexMax(0),
+     m_bEnableChanged(FALSE),
+     m_bContinueRouting(TRUE)
 {
 }
 

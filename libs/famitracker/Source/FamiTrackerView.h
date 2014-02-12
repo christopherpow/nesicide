@@ -65,7 +65,6 @@ class CFamiTrackerView : public CView
 public slots:
    void verticalScrollBar_actionTriggered(int action);
    void horizontalScrollBar_actionTriggered(int action);
-   void menuAboutToShow(CMenu* menu);
 public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
    
 protected: // create from serialization only
@@ -372,7 +371,7 @@ public:
 	afx_msg void OnEditSelectall();
 	afx_msg void OnKillFocus(CWnd* pNewWnd);
 	afx_msg void OnSetFocus(CWnd* pOldWnd);
-	afx_msg void OnTimer(UINT nIDEvent);
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnTrackerPlayrow();
 	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
