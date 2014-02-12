@@ -4300,6 +4300,12 @@ public:
    void MapDialogRect(
       LPRECT lpRect
    ) const;
+   virtual BOOL OnCmdMsg(
+      UINT nID,
+      int nCode,
+      void* pExtra,
+      AFX_CMDHANDLERINFO* pHandlerInfo
+   );
    
    DECLARE_MESSAGE_MAP()
 };

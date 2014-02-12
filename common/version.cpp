@@ -10,5 +10,5 @@ char* nesicideGetVersion()
    return __nesicide_version__;
 }
 
-// context menu events go to wrong widget causing crash?
 // main menu items that are in base classes now don't work because i ripped out my hacks.  need to put them back in--properly.
+// ID_VIEW_TOOLBAR, ID_VIEW_STATUS_BAR

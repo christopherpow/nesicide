@@ -9198,6 +9198,46 @@ BOOL CDialog::Create(
    return result;
 }
 
+BOOL CDialog::OnCmdMsg(UINT nID, int nCode, void* pExtra,
+	AFX_CMDHANDLERINFO* pHandlerInfo)
+{
+	if (CWnd::OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
+		return TRUE;
+
+//	if ((nCode != CN_COMMAND && nCode != CN_UPDATE_COMMAND_UI) ||
+//			!IS_COMMAND_ID(nID) || nID >= 0xf000)
+//	{
+//		// control notification or non-command button or system command
+//		return FALSE;       // not routed any further
+//	}
+
+	// if we have an owner window, give it second crack
+	CWnd* pOwner = GetParent();
+	if (pOwner != NULL)
+	{
+//		TRACE(traceCmdRouting, 1, "Routing command id 0x%04X to owner window.\n", nID);
+
+		ASSERT(pOwner != this);
+		if (pOwner->OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
+			return TRUE;
+	}
+
+	// last crack goes to the current CWinThread object
+	CWinThread* pThread = AfxGetThread();
+	if (pThread != NULL)
+	{
+//		TRACE(traceCmdRouting, 1, "Routing command id 0x%04X to app.\n", nID);
+
+		if (pThread->OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
+			return TRUE;
+	}
+
+//	TRACE(traceCmdRouting, 1, "IGNORING command id 0x%04X sent to %hs dialog.\n", nID,
+//			GetRuntimeClass()->m_lpszClassName);
+
+	return FALSE;
+}
+
 INT_PTR CDialog::DoModal()
 {
    if ( !_inited )
@@ -13480,7 +13520,7 @@ CCmdUI::CCmdUI()
      m_nIndex(0),
      m_nIndexMax(0),
      m_bEnableChanged(FALSE),
-     m_bContinueRouting(TRUE)
+     m_bContinueRouting(FALSE)
 {
 }
 
