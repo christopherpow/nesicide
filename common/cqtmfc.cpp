@@ -3850,22 +3850,22 @@ bool CListCtrl::eventFilter(QObject *object, QEvent *event)
       if ( event->type() == QEvent::MouseButtonPress )
       {
          mousePressEvent(dynamic_cast<QMouseEvent*>(event));
-         return false;
+         return true;
       }
       if ( event->type() == QEvent::MouseButtonRelease )
       {
          mouseReleaseEvent(dynamic_cast<QMouseEvent*>(event));
-         return false;
+         return true;
       }
       if ( event->type() == QEvent::MouseButtonDblClick )
       {
          mouseDoubleClickEvent(dynamic_cast<QMouseEvent*>(event));
-         return false;
+         return true;
       }
       if ( event->type() == QEvent::MouseMove )
       {
          mouseMoveEvent(dynamic_cast<QMouseEvent*>(event));
-         return false;
+         return true;
       }
       if ( event->type() == QEvent::Wheel )
       {
@@ -7023,22 +7023,22 @@ bool CWnd::eventFilter(QObject *object, QEvent *event)
       if ( event->type() == QEvent::MouseButtonPress )
       {
          mousePressEvent(dynamic_cast<QMouseEvent*>(event));
-         return false;
+         return true;
       }
       if ( event->type() == QEvent::MouseButtonRelease )
       {
          mouseReleaseEvent(dynamic_cast<QMouseEvent*>(event));
-         return false;
+         return true;
       }
       if ( event->type() == QEvent::MouseButtonDblClick )
       {
          mouseDoubleClickEvent(dynamic_cast<QMouseEvent*>(event));
-         return false;
+         return true;
       }
       if ( event->type() == QEvent::MouseMove )
       {
          mouseMoveEvent(dynamic_cast<QMouseEvent*>(event));
-         return false;
+         return true;
       }
       if ( event->type() == QEvent::Wheel )
       {
@@ -11998,6 +11998,130 @@ void CSpinButtonCtrl::subclassWidget(int nID,CWnd* widget)
    widget->setParent(NULL);
 }
 
+bool CSpinButtonCtrl::eventFilter(QObject *object, QEvent *event)
+{
+   if ( object == _qt )
+   {
+      if ( event->type() == QEvent::Close )
+      {
+         closeEvent(dynamic_cast<QCloseEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::Show )
+      {
+         showEvent(dynamic_cast<QShowEvent*>(event));
+         return true;
+      }
+   //   if ( event->type() == QEvent::ShowToParent )
+   //   {
+   //      showEvent(dynamic_cast<QShowEvent*>(event));
+   //      return true;
+   //   }
+      if ( event->type() == QEvent::Hide )
+      {
+         hideEvent(dynamic_cast<QHideEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::Move )
+      {
+         moveEvent(dynamic_cast<QMoveEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::Paint )
+      {
+         paintEvent(dynamic_cast<QPaintEvent*>(event));
+         return false;
+      }
+      if ( event->type() == QEvent::FocusIn )
+      {
+         focusInEvent(dynamic_cast<QFocusEvent*>(event));
+         return false;
+      }
+      if ( event->type() == QEvent::FocusOut )
+      {
+         focusOutEvent(dynamic_cast<QFocusEvent*>(event));
+         return false;
+      }
+      if ( event->type() == QEvent::Leave )
+      {
+         leaveEvent(event);
+         return true;
+      }
+      if ( event->type() == QEvent::MouseButtonPress )
+      {
+         mousePressEvent(dynamic_cast<QMouseEvent*>(event));
+         return false;
+      }
+      if ( event->type() == QEvent::MouseButtonRelease )
+      {
+         mouseReleaseEvent(dynamic_cast<QMouseEvent*>(event));
+         return false;
+      }
+      if ( event->type() == QEvent::MouseButtonDblClick )
+      {
+         mouseDoubleClickEvent(dynamic_cast<QMouseEvent*>(event));
+         return false;
+      }
+      if ( event->type() == QEvent::MouseMove )
+      {
+         mouseMoveEvent(dynamic_cast<QMouseEvent*>(event));
+         return false;
+      }
+      if ( event->type() == QEvent::Wheel )
+      {
+         wheelEvent(dynamic_cast<QWheelEvent*>(event));
+         return false;
+      }
+      if ( event->type() == QEvent::Resize )
+      {
+         resizeEvent(dynamic_cast<QResizeEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::KeyPress )
+      {
+         keyPressEvent(dynamic_cast<QKeyEvent*>(event));
+         return false;
+      }
+      if ( event->type() == QEvent::KeyRelease )
+      {
+         keyReleaseEvent(dynamic_cast<QKeyEvent*>(event));
+         return false;
+      }
+      if ( event->type() == QEvent::ContextMenu )
+      {
+         contextMenuEvent(dynamic_cast<QContextMenuEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::DragEnter )
+      {
+         dragEnterEvent(dynamic_cast<QDragEnterEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::DragMove )
+      {
+         dragMoveEvent(dynamic_cast<QDragMoveEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::Drop )
+      {
+         dropEvent(dynamic_cast<QDropEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::DragLeave )
+      {
+         dragLeaveEvent(dynamic_cast<QDragLeaveEvent*>(event));
+         return true;
+      }
+      if ( event->type() == QEvent::Timer )
+      {
+         timerEvent(dynamic_cast<QTimerEvent*>(event));
+         return true;
+      }
+   }
+//   qDebug("eventFilter: unhandled %d object %s", event->type(), object->objectName().toLatin1().constData());
+   return false;
+}
+
 BOOL CSpinButtonCtrl::Create(
    DWORD dwStyle,
    const RECT& rect,
@@ -12078,10 +12202,10 @@ void CSpinButtonCtrl::control_edited(int value)
    nmud.iPos = value;
    nmud.iDelta = _oldValue-value;
    GetOwner()->SendMessage(WM_NOTIFY,_id,(LPARAM)&nmud);
-   _oldValue = value;
    HWND hWnd = (HWND)mfcBuddy();
    int id = mfcBuddy()->GetDlgCtrlID();
    GetOwner()->PostMessage(WM_COMMAND,(EN_CHANGE<<16)|(id),(LPARAM)hWnd);
+   _oldValue = value;
 }
 
 void CSpinButtonCtrl::control_edited(QString value)

@@ -4733,6 +4733,7 @@ class CSpinButtonCtrl : public CWnd
    // Qt interfaces
 public:
    virtual void subclassWidget(int nID,CWnd* widget);
+   virtual bool eventFilter(QObject *object, QEvent *event);
 protected:
    QSpinBox_MFC* _qtd;
    int _oldValue;
@@ -4740,8 +4741,6 @@ public slots:
    void control_edited(int value);
    void control_edited(QString value);
    void control_returnPressed();
-signals:
-   void valueChanged(int oldValue, int newValue);
 
    // MFC interfaces
 public:
