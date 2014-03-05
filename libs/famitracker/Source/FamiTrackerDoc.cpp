@@ -423,7 +423,7 @@ void CFamiTrackerDoc::DeleteContents()
 	m_bForceBackup = false;
 	m_bBackupDone = true;	// No backup on new modules
 
-   UpdateAllViews(NULL, CLOSE_DOCUMENT);
+	UpdateAllViews(NULL, CLOSE_DOCUMENT);
 
 	// Make sure player is stopped
 	theApp.OnTrackerStop();
@@ -763,7 +763,8 @@ void CFamiTrackerDoc::OnEditRemoveUnusedInstruments()
 				}
 				if (!Used)
 					GetSequenceN163(i, j)->Clear();
-			}	}
+			}	
+		}
 	}
 
 	// Update instrument list
@@ -977,8 +978,8 @@ BOOL CFamiTrackerDoc::SaveDocument(LPCTSTR lpszPathName) const
 	DocumentFile.Close();
 
 	// Save old creation date
-//	HANDLE hOldFile;
-//	FILETIME creationTime;
+	HANDLE hOldFile;
+	FILETIME creationTime;
 
 //	hOldFile = CreateFile(lpszPathName, FILE_READ_ATTRIBUTES, FILE_SHARE_READ, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 //	GetFileTime(hOldFile, &creationTime, NULL, NULL);
@@ -986,21 +987,21 @@ BOOL CFamiTrackerDoc::SaveDocument(LPCTSTR lpszPathName) const
 
 	// Everything is done and the program cannot crash at this point
 	// Replace the original
-//	if (!MoveFileEx(TempFile, lpszPathName, MOVEFILE_REPLACE_EXISTING | MOVEFILE_COPY_ALLOWED)) {
-//		// Display message if saving failed
-//		CString	ErrorMsg;
-//		TCHAR	*lpMsgBuf;
-//		ErrorMsg.LoadString(IDS_SAVE_ERROR_REASON);
-//		FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&lpMsgBuf, 0, NULL);
-//		ErrorMsg.Append(lpMsgBuf);
-//		AfxMessageBox(ErrorMsg, MB_OK | MB_ICONERROR);
-//		LocalFree(lpMsgBuf);
-//		// Remove temp file
-//		DeleteFile(TempFile);
-//		return FALSE;
-//	}
+	if (!MoveFileEx(TempFile, lpszPathName, MOVEFILE_REPLACE_EXISTING | MOVEFILE_COPY_ALLOWED)) {
+		// Display message if saving failed
+		CString	ErrorMsg;
+		TCHAR	*lpMsgBuf;
+		ErrorMsg.LoadString(IDS_SAVE_ERROR_REASON);
+		FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&lpMsgBuf, 0, NULL);
+		ErrorMsg.Append(lpMsgBuf);
+		AfxMessageBox(ErrorMsg, MB_OK | MB_ICONERROR);
+		LocalFree(lpMsgBuf);
+		// Remove temp file
+		DeleteFile(TempFile);
+		return FALSE;
+	}
 
-//	// Restore creation date
+	// Restore creation date
 //	hOldFile = CreateFile(lpszPathName, FILE_WRITE_ATTRIBUTES, FILE_SHARE_READ, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 //	SetFileTime(hOldFile, &creationTime, NULL, NULL);
 //	CloseHandle(hOldFile);

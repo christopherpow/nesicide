@@ -14160,6 +14160,36 @@ VOID WINAPI Sleep(
    QThread::currentThread()->wait(dwMilliseconds);
 }
 
+BOOL WINAPI MoveFileEx(
+  LPCTSTR lpExistingFileName,
+  LPCTSTR lpNewFileName,
+  DWORD dwFlags
+)
+{
+   QFile file;
+   
+#if UNICODE
+   file.setFileName(QString::fromWCharArray(lpExistingFileName));
+   return file.rename(QString::fromWCharArray(lpNewFileName));
+#else
+   file.setFileName(QString::fromLatin1(lpExistingFileName));
+   return file.rename(QString::fromLatin1(lpNewFileName));
+#endif   
+}
+
+BOOL WINAPI DeleteFile(
+  LPCTSTR lpFileName
+)
+{
+   QFile file;
+   
+#if UNICODE
+   file.setFileName(QString::fromWCharArray(lpFileName));
+#else
+   file.setFileName(QString::fromLatin1(lpFileName));
+#endif   
+   return file.remove();   
+}
 
 DWORD WINAPI GetTempPath(
   DWORD nBufferLength,

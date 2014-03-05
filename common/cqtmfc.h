@@ -6154,6 +6154,16 @@ VOID WINAPI Sleep(
   DWORD dwMilliseconds
 );
 
+BOOL WINAPI MoveFileEx(
+  LPCTSTR lpExistingFileName,
+  LPCTSTR lpNewFileName,
+  DWORD dwFlags
+);
+
+BOOL WINAPI DeleteFile(
+  LPCTSTR lpFileName
+);
+
 DWORD WINAPI GetTempPath(
   DWORD nBufferLength,
   LPTSTR lpBuffer
