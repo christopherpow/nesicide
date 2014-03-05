@@ -13,6 +13,7 @@
 #include <QFontDatabase>
 #include <QMenuBar>
 #include <QUuid>
+#include <QDateTime>
 
 CWinApp* ptrToTheApp;
 
@@ -14157,6 +14158,64 @@ VOID WINAPI Sleep(
 )
 {
    QThread::currentThread()->wait(dwMilliseconds);
+}
+
+
+DWORD WINAPI GetTempPath(
+  DWORD nBufferLength,
+  LPTSTR lpBuffer
+)
+{
+   QString path = QDir::tempPath();
+#if UNICODE
+   wcsncpy(lpBuffer,path.unicode(),nBufferLength);
+#else
+   strncpy(lpBuffer,path.toLatin1().constData(),nBufferLength);
+#endif
+}
+
+UINT WINAPI GetTempFileName(
+  LPCTSTR lpPathName,
+  LPCTSTR lpPrefixString,
+  UINT uUnique,
+  LPTSTR lpTempFileName
+)
+{
+   UINT value = QDateTime::currentMSecsSinceEpoch();
+   QDir dir;
+   QString fileName;
+   QString filePath;
+   QFile file;
+   
+#if UNICODE
+   dir.setPath(QString::fromWCharArray(lpPathName));
+#else
+   dir.setPath(QString::fromLatin1(lpPathName));
+#endif   
+   
+   do
+   {
+#if UNICODE
+      fileName.sprintf("%u.%s",value,QString::fromWCharArray(lpPrefixString).toLatin1().constData());
+#else
+      fileName.sprintf("%u.%s",value,lpPrefixString);
+#endif
+      filePath = dir.absoluteFilePath(fileName);
+      file.setFileName(filePath);
+      if ( !file.exists() )
+      {
+         break;
+      }
+      value++;
+   } while ( 1 );
+   
+#if UNICODE
+   wcscpy(lpTempFileName,filePath.unicode());
+#else
+   strcpy(lpTempFileName,filePath.toLatin1().constData());
+#endif
+   
+   return value;
 }
 
 CDocument* openFile(QString fileName)
