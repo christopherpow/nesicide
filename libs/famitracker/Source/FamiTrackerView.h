@@ -65,7 +65,6 @@ class CFamiTrackerView : public CView
 public slots:
    void verticalScrollBar_actionTriggered(int action);
    void horizontalScrollBar_actionTriggered(int action);
-   void menuAboutToShow(CMenu* menu);
 public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
    
 protected: // create from serialization only

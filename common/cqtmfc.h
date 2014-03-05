@@ -1992,7 +1992,7 @@
 // Define resources here that are "hidden under the hood" of MFC...
 enum
 {
-   __NEEDS_TO_FIT_IN_16_BITS_START = 0xF000,
+   __NEEDS_TO_FIT_IN_16_BITS_START = 0xE000,
    //   STRINGTABLE
    //   BEGIN
       ID_FILE_MRU_FILE1       ,
@@ -2387,6 +2387,9 @@ DWORD WINAPI GetSysColor(
 int WINAPI GetSystemMetrics(
   int nIndex
 );
+SHORT WINAPI GetKeyState(
+  int nVirtKey
+);
 BOOL WINAPI IsClipboardFormatAvailable(
   UINT format
 );
@@ -2640,6 +2643,16 @@ class COleDropSource : public CCmdTarget
    
    DECLARE_MESSAGE_MAP()
 };
+
+#if !(defined(Q_WS_WIN) || defined(Q_WS_WIN32))
+typedef enum tagDROPEFFECT {
+       DROPEFFECT_NONE=0,
+       DROPEFFECT_COPY=1,
+       DROPEFFECT_MOVE=2,
+       DROPEFFECT_LINK=4,
+       DROPEFFECT_SCROLL=0x80000000
+} DROPEFFECT;
+#endif
 
 class COleDataSource : public CCmdTarget
 {
@@ -3978,7 +3991,6 @@ public:
 public:
    void addControlBar(int area,QWidget* bar);
 public slots:
-   virtual void menuAboutToShow(CMenu* menu);
    virtual void menuAction_triggered(int id);
 
    // MFC interfaces
@@ -4025,7 +4037,7 @@ public:
       BOOL bNotify = TRUE
    );
    void OnClose();
-   afx_msg void OnUpdateRecentFileList(CCmdUI *pCmdUI);
+   void OnInitMenuPopup(CMenu* pMenu, UINT nIndex, BOOL bSysMenu);
 
 protected:
    CView* m_pViewActive;
@@ -4038,6 +4050,7 @@ protected:
    BOOL m_bInRecalcLayout;
    CRect m_rectBorder;
    CString m_strTitle;
+   BOOL m_bAutoMenuEnable;
    
    DECLARE_MESSAGE_MAP()
 };
@@ -4047,8 +4060,6 @@ class CDocument : public QObject, public CCmdTarget
 {
    Q_OBJECT
    DECLARE_DYNCREATE(CDocument)
-public:
-   virtual void menuAboutToShow(CMenu* menu);
 signals:
    void setModified(bool f);
    void documentSaved();
@@ -4118,9 +4129,6 @@ protected:
    virtual void mouseReleaseEvent(QMouseEvent *event);
    virtual void mouseDoubleClickEvent(QMouseEvent *event);
    virtual bool event(QEvent *event);
-public:
-   virtual void menuAboutToShow(CMenu* menu);
-   virtual QWidget* toViewWidget() { return viewWidget; }
    
 public:
    CView();
@@ -4183,7 +4191,6 @@ public slots:
    void menuAboutToShow();
 signals:
    void menuAction_triggered(int id);
-   void menuAboutToShow(CMenu* menu);
 
    // MFC interface
 public:
@@ -4297,6 +4304,12 @@ public:
    void MapDialogRect(
       LPRECT lpRect
    ) const;
+   virtual BOOL OnCmdMsg(
+      UINT nID,
+      int nCode,
+      void* pExtra,
+      AFX_CMDHANDLERINFO* pHandlerInfo
+   );
    
    DECLARE_MESSAGE_MAP()
 };
@@ -4724,6 +4737,7 @@ class CSpinButtonCtrl : public CWnd
    // Qt interfaces
 public:
    virtual void subclassWidget(int nID,CWnd* widget);
+   virtual bool eventFilter(QObject *object, QEvent *event);
 protected:
    QSpinBox_MFC* _qtd;
    int _oldValue;
@@ -4731,8 +4745,6 @@ public slots:
    void control_edited(int value);
    void control_edited(QString value);
    void control_returnPressed();
-signals:
-   void valueChanged(int oldValue, int newValue);
 
    // MFC interfaces
 public:
@@ -5456,7 +5468,6 @@ class CWinApp : public CWinThread
    DECLARE_DYNCREATE(CWinApp)
    // Qt interfaces
 public:
-   virtual void menuAboutToShow(CMenu* menu);
    QMainWindow* qtMainWindow;
    
 public:
@@ -5497,6 +5508,7 @@ public:
    virtual CWnd * GetMainWnd( ) { return m_pMainWnd; }
    afx_msg void OnFileNew( );
    afx_msg void OnFileOpen( );
+   afx_msg void OnUpdateRecentFileList(CCmdUI *pCmdUI);
    afx_msg void OnOpenRecentFile( UINT nID );
    BOOL ExitInstance() { return TRUE; }
    void OnAppExit();
@@ -5813,6 +5825,7 @@ public:
    );
    UINT m_nID;
    UINT m_nIndex;
+   UINT m_nIndexMax;
    CMenu* m_pMenu;
    CWnd* m_pOther;
    CMenu* m_pSubMenu;
@@ -6143,6 +6156,10 @@ MMRESULT mmioSetInfo(
 MMRESULT mmioClose(
   HMMIO hmmio,
   UINT wFlags
+);
+
+VOID WINAPI Sleep(
+  DWORD dwMilliseconds
 );
 
 CString qtMfcStringResource(int id);

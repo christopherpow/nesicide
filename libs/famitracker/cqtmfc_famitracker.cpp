@@ -1559,7 +1559,7 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_DPCM(CDialog* parent1)
    CSpinButtonCtrl* mfc10 = new CSpinButtonCtrl(parent);
    CRect r10(CPoint(170,106),CSize(11,14));
    parent->MapDialogRect(&r10);
-   mfc10->Create(UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r10,parent,IDC_HIGHLIGHTSPIN1);
+   mfc10->Create(UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r10,parent,IDC_DELTA_SPIN);
    mfcToQtWidget->insert(IDC_DELTA_SPIN,mfc10);
 //   PUSHBUTTON      "<-",IDC_ADD,138,130,42,14
    CButton* mfc11 = new CButton(parent);

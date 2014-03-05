@@ -365,7 +365,6 @@ public slots:
    void instToolBarAction_save();
    void instToolBarAction_edit();
    void setModified(bool modified);
-   void menuAboutToShow(CMenu* menu);
    
 signals:
    void addToolBarWidget(QToolBar* toolBar);
