@@ -6154,6 +6154,10 @@ MMRESULT mmioClose(
   UINT wFlags
 );
 
+VOID WINAPI Sleep(
+  DWORD dwMilliseconds
+);
+
 CString qtMfcStringResource(int id);
 
 CBitmap* qtMfcBitmapResource(int id);

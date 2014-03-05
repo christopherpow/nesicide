@@ -14152,6 +14152,13 @@ MMRESULT mmioClose(
    return MMSYSERR_INVALHANDLE;
 }
 
+VOID WINAPI Sleep(
+  DWORD dwMilliseconds
+)
+{
+   QThread::currentThread()->wait(dwMilliseconds);
+}
+
 CDocument* openFile(QString fileName)
 {
    if ( fileName.isEmpty() )
