@@ -2623,7 +2623,9 @@ struct AFX_MSGMAP_ENTRY  // MFC 4.0 format
 
 #include <afxmsg_.h>
 
+#if !(defined(Q_WS_WIN) || defined(Q_WS_WIN32))
 typedef DWORD DROPEFFECT;
+#endif
 
 class CWnd;
 class COleDropTarget : public CCmdTarget
