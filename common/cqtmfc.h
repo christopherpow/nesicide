@@ -6154,6 +6154,18 @@ VOID WINAPI Sleep(
   DWORD dwMilliseconds
 );
 
+DWORD WINAPI GetTempPath(
+  DWORD nBufferLength,
+  LPTSTR lpBuffer
+);
+
+UINT WINAPI GetTempFileName(
+  LPCTSTR lpPathName,
+  LPCTSTR lpPrefixString,
+  UINT uUnique,
+  LPTSTR lpTempFileName
+);
+
 CString qtMfcStringResource(int id);
 
 CBitmap* qtMfcBitmapResource(int id);
