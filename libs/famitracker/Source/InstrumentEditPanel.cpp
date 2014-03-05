@@ -80,7 +80,8 @@ HBRUSH CInstrumentEditPanel::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 			pDC->SetBkMode(TRANSPARENT);
 			// TODO: this might fail on some themes?
 			//return NULL;
-			return GetSysColorBrush(COLOR_3DHILIGHT);
+         qDebug("GetSysColorBrush");
+//			return GetSysColorBrush(COLOR_3DHILIGHT);
 			//return CreateSolidBrush(m_iBGColor);
 	}
 
