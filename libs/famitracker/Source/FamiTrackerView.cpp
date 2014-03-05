@@ -691,7 +691,7 @@ void CFamiTrackerView::OnSetFocus(CWnd* pOldWnd)
 	UpdateEditor(UPDATE_CURSOR);
 }
 
-void CFamiTrackerView::OnTimer(UINT nIDEvent)
+void CFamiTrackerView::OnTimer(UINT_PTR nIDEvent)
 {
 	// Timer callback function
 	CFamiTrackerDoc* pDoc = GetDocument();

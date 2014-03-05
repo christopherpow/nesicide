@@ -2248,7 +2248,7 @@ typedef int* POSITION;
 #endif
 #define strcpy_s(d,l,s) strncpy((char*)(d),(const char*)(s),(l))
 #define vsprintf_s(b,n,f,v) vsprintf((b),(f),(v))
-#define _itot_s(n,s,l,b) itoa(n,s,b)
+#define _itot_s(n,s,l,b) snprintf(s,l,"%d",n) 
 #if UNICODE
 #define _ttoi _wtoi
 #define _tstoi _wtoi
@@ -2282,6 +2282,8 @@ typedef int* POSITION;
 
 #define GET_X_LPARAM(lp) LOWORD(lp)
 #define GET_Y_LPARAM(lp) HIWORD(lp)
+
+#define _huge
 
 HCURSOR WINAPI SetCursor(
    HCURSOR hCursor
@@ -2614,7 +2616,11 @@ struct AFX_MSGMAP_ENTRY  // MFC 4.0 format
   AFX_PMSG pfn;  // routine to call (or special value)
 };
 
+#define UINT_PTR UINT
+
 #include <afxmsg_.h>
+
+typedef DWORD DROPEFFECT;
 
 class CWnd;
 class COleDropTarget : public CCmdTarget
@@ -3791,7 +3797,7 @@ public:
    void OnSize(UINT nType, int cx, int cy) {}
    UINT SetTimer(UINT id, UINT interval, void*);
    void KillTimer(UINT id);
-   void OnTimer(UINT timerId) {}
+   void OnTimer(UINT_PTR timerId) {}
    void OnKeyDown(UINT,UINT,UINT) {}
    void OnSetFocus(CWnd*);
    void OnKillFocus(CWnd*) {}

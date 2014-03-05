@@ -887,7 +887,7 @@ enum AfxSig
 #define ON_WM_TIMER() \
 	{ WM_TIMER, 0, 0, 0, AfxSig_vw, \
 		(AFX_PMSG)(AFX_PMSGW) \
-		(static_cast< void (AFX_MSG_CALL CWnd::*)(UINT_PTR) > ( &ThisClass :: OnTimer)) },
+        (static_cast< void (AFX_MSG_CALL CWnd::*)(UINT_PTR) > ( &ThisClass :: OnTimer)) },
 
 #define ON_WM_HSCROLL() \
 	{ WM_HSCROLL, 0, 0, 0, AfxSig_vwwW, \
