@@ -2477,7 +2477,7 @@ struct CRuntimeClass
 {
    LPCSTR m_lpszClassName; // A null-terminated string containing the ASCII class name.
    int m_nObjectSize; // The size of the object, in bytes. If the object has data members that point to allocated memory, the size of that memory is not included.
-   UINT m_wSchema; // The schema number ( –1 for nonserializable classes). See the IMPLEMENT_SERIAL macro for a description of the schema number.
+   UINT m_wSchema; // The schema number ( \961 for nonserializable classes). See the IMPLEMENT_SERIAL macro for a description of the schema number.
    CObject* ( * m_pfnCreateObject )( ); // A function pointer to the default constructor that creates an object of your class (valid only if the class supports dynamic creation; otherwise, returns NULL).
    CRuntimeClass* ( PASCAL* m_pfn_GetBaseClass )( ); // If your application is dynamically linked to the AFXDLL version of MFC, a pointer to a function that returns the CRuntimeClass structure of the base class.
    CRuntimeClass* m_pBaseClass;
@@ -2645,16 +2645,6 @@ class COleDropSource : public CCmdTarget
    
    DECLARE_MESSAGE_MAP()
 };
-
-#if !(defined(Q_WS_WIN) || defined(Q_WS_WIN32))
-typedef enum tagDROPEFFECT {
-       DROPEFFECT_NONE=0,
-       DROPEFFECT_COPY=1,
-       DROPEFFECT_MOVE=2,
-       DROPEFFECT_LINK=4,
-       DROPEFFECT_SCROLL=0x80000000
-} DROPEFFECT;
-#endif
 
 class COleDataSource : public CCmdTarget
 {
