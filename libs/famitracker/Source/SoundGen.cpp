@@ -280,7 +280,7 @@ void CSoundGen::AssignChannel(CTrackerChannel *pTrackerChannel, CChannelHandler 
 void CSoundGen::SetupChannels() 
 {
 	// Called from player thread
-	ASSERT(GetCurrentThreadId() == m_nThreadID);
+//	ASSERT(GetCurrentThreadId() == m_nThreadID);
 
 	m_csDocumentLock.Lock();
 
@@ -300,7 +300,7 @@ void CSoundGen::SetupChannels()
 void CSoundGen::AssignDocument(CFamiTrackerDoc *pDoc)
 {
 	// Called from main thread
-	ASSERT(GetCurrentThreadId() == theApp.m_nThreadID);
+//	ASSERT(GetCurrentThreadId() == theApp.m_nThreadID);
 
 	// Will only work for the first document (as new documents are used to import files)
 	if (m_pDocument != NULL)
@@ -319,7 +319,7 @@ void CSoundGen::AssignDocument(CFamiTrackerDoc *pDoc)
 void CSoundGen::AssignView(CFamiTrackerView *pView)
 {
 	// Called from main thread
-	ASSERT(GetCurrentThreadId() == theApp.m_nThreadID);
+//	ASSERT(GetCurrentThreadId() == theApp.m_nThreadID);
 
 	if (m_pTrackerView != NULL)
 		return;
@@ -333,7 +333,7 @@ void CSoundGen::RemoveDocument()
 	// Removes both the document and view from this object
 
 	// Called from main thread
-	ASSERT(GetCurrentThreadId() == theApp.m_nThreadID);
+//	ASSERT(GetCurrentThreadId() == theApp.m_nThreadID);
 
 	if (!m_pDocument || !m_hThread)
 		return;
@@ -360,7 +360,7 @@ void CSoundGen::RemoveDocument()
 void CSoundGen::SetSampleWindow(CSampleWindow *pWnd)
 {
 	// Called from main thread
-	ASSERT(GetCurrentThreadId() == theApp.m_nThreadID);
+//	ASSERT(GetCurrentThreadId() == theApp.m_nThreadID);
 
 	// Called from main thread
 	m_csSampleWndLock.Lock();
@@ -374,7 +374,7 @@ void CSoundGen::RegisterChannels(int Chip, CFamiTrackerDoc *pDoc)
 	//
 
 	// Called from main thread
-	ASSERT(GetCurrentThreadId() == theApp.m_nThreadID);
+//	ASSERT(GetCurrentThreadId() == theApp.m_nThreadID);
 
 	// This affects the sound channel interface so it must be synchronized
 	m_csDocumentLock.Lock();
@@ -530,7 +530,7 @@ bool CSoundGen::ResetSound()
 	//
 
 	// Called from player thread
-	ASSERT(GetCurrentThreadId() == m_nThreadID);
+//	ASSERT(GetCurrentThreadId() == m_nThreadID);
 	ASSERT(m_pDSound != NULL);
 
 	CSettings *pSettings = theApp.GetSettings();
@@ -616,7 +616,7 @@ bool CSoundGen::ResetSound()
 void CSoundGen::CloseSound()
 {
 	// Called from player thread
-	ASSERT(GetCurrentThreadId() == m_nThreadID);
+//	ASSERT(GetCurrentThreadId() == m_nThreadID);
 
 	// Kill DirectSound
 	if (m_pDSoundChannel) {
@@ -640,7 +640,7 @@ void CSoundGen::CloseSound()
 void CSoundGen::ResetBuffer()
 {
 	// Called from player thread
-	ASSERT(GetCurrentThreadId() == m_nThreadID);
+//	ASSERT(GetCurrentThreadId() == m_nThreadID);
 
 	m_iBufferPtr = 0;
 
@@ -656,7 +656,7 @@ void CSoundGen::FlushBuffer(int16 *pBuffer, uint32 Size)
 	// ready for playing
 
 	// May only be called from sound player thread
-	ASSERT(GetCurrentThreadId() == m_nThreadID);
+//	ASSERT(GetCurrentThreadId() == m_nThreadID);
 
 	const int SAMPLE_MAX = 32767;
 	const int SAMPLE_MIN = -32768;
@@ -843,7 +843,7 @@ int CSoundGen::ReadNamcoPeriodTable(int index) const
 void CSoundGen::BeginPlayer(int Mode)
 {
 	// Called from player thread
-	ASSERT(GetCurrentThreadId() == m_nThreadID);
+//	ASSERT(GetCurrentThreadId() == m_nThreadID);
 
 	if (!m_pDSoundChannel || !m_pDocument || !m_pDocument->IsFileLoaded())
 		return;
@@ -894,7 +894,7 @@ void CSoundGen::BeginPlayer(int Mode)
 void CSoundGen::HaltPlayer()
 {
 	// Called from player thread
-	ASSERT(GetCurrentThreadId() == m_nThreadID);
+//	ASSERT(GetCurrentThreadId() == m_nThreadID);
 
 	m_bPlaying = false;
 	m_bPlayerHalted = false;
@@ -904,7 +904,7 @@ void CSoundGen::HaltPlayer()
 void CSoundGen::ResetAPU()
 {
 	// Called from player thread
-	ASSERT(GetCurrentThreadId() == m_nThreadID);
+//	ASSERT(GetCurrentThreadId() == m_nThreadID);
 
 	// Reset the APU
 	m_pAPU->Reset();
@@ -922,7 +922,7 @@ void CSoundGen::ResetAPU()
 void CSoundGen::AddCycles(int Count)
 {
 	// Called from player thread
-	ASSERT(GetCurrentThreadId() == m_nThreadID);
+//	ASSERT(GetCurrentThreadId() == m_nThreadID);
 
 	// Add APU cycles
 	m_iConsumedCycles += Count;
@@ -932,7 +932,7 @@ void CSoundGen::AddCycles(int Count)
 void CSoundGen::MakeSilent()
 {
 	// Called from player thread
-	ASSERT(GetCurrentThreadId() == m_nThreadID);
+//	ASSERT(GetCurrentThreadId() == m_nThreadID);
 
 	m_pAPU->Reset();
 	m_pSampleMem->SetMem(0, 0);
@@ -972,7 +972,7 @@ float CSoundGen::GetTempo() const
 void CSoundGen::RunFrame()
 {
 	// Called from player thread
-	ASSERT(GetCurrentThreadId() == m_nThreadID);
+//	ASSERT(GetCurrentThreadId() == m_nThreadID);
 
 	int TicksPerSec = m_pDocument->GetFrameRate();
 
