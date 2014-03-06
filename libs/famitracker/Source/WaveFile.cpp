@@ -18,10 +18,11 @@
 ** must bear this legend.
 */
 
+#include "cqtmfc.h"
+
 #include <windows.h>
 #include "WaveFile.h"
 
-#include "cqtmfc.h"
 
 bool CWaveFile::OpenFile(LPTSTR Filename, int SampleRate, int SampleSize, int Channels)
 {

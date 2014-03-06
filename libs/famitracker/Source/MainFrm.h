@@ -259,7 +259,7 @@ public:
 	afx_msg void OnUpdateEditDelete(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateEditEnablemidi(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateSelectionEnabled(CCmdUI *pCmdUI);
-	afx_msg void OnTimer(UINT nIDEvent);
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg void OnFileGeneralsettings();
 	afx_msg void OnEnSongNameChange();
 	afx_msg void OnEnSongArtistChange();
