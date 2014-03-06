@@ -6154,6 +6154,10 @@ VOID WINAPI Sleep(
   DWORD dwMilliseconds
 );
 
+VOID WINAPI ExitProcess(
+  UINT uExitCode
+);
+
 BOOL WINAPI MoveFileEx(
   LPCTSTR lpExistingFileName,
   LPCTSTR lpNewFileName,

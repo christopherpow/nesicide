@@ -990,12 +990,12 @@ BOOL CFamiTrackerDoc::SaveDocument(LPCTSTR lpszPathName) const
 	if (!MoveFileEx(TempFile, lpszPathName, MOVEFILE_REPLACE_EXISTING | MOVEFILE_COPY_ALLOWED)) {
 		// Display message if saving failed
 		CString	ErrorMsg;
-		TCHAR	*lpMsgBuf;
+//		TCHAR	*lpMsgBuf;
 		ErrorMsg.LoadString(IDS_SAVE_ERROR_REASON);
-		FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&lpMsgBuf, 0, NULL);
-		ErrorMsg.Append(lpMsgBuf);
+//		FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&lpMsgBuf, 0, NULL);
+//		ErrorMsg.Append(lpMsgBuf);
 		AfxMessageBox(ErrorMsg, MB_OK | MB_ICONERROR);
-		LocalFree(lpMsgBuf);
+//		LocalFree(lpMsgBuf);
 		// Remove temp file
 		DeleteFile(TempFile);
 		return FALSE;

@@ -14160,6 +14160,13 @@ VOID WINAPI Sleep(
    QThread::currentThread()->wait(dwMilliseconds);
 }
 
+VOID WINAPI ExitProcess(
+  UINT uExitCode
+)
+{
+   exit(uExitCode);
+}
+
 BOOL WINAPI MoveFileEx(
   LPCTSTR lpExistingFileName,
   LPCTSTR lpNewFileName,
