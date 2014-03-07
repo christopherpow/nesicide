@@ -14175,6 +14175,16 @@ BOOL WINAPI MoveFileEx(
 {
    QFile file;
    
+   if ( dwFlags&MOVEFILE_REPLACE_EXISTING )
+   {
+#if UNICODE
+      file.setFileName(QString::fromWCharArray(lpNewFileName));
+#else
+      file.setFileName(QString::fromLatin1(lpNewFileName));
+#endif   
+      file.remove();      
+   }
+   
 #if UNICODE
    file.setFileName(QString::fromWCharArray(lpExistingFileName));
    return file.rename(QString::fromWCharArray(lpNewFileName));
