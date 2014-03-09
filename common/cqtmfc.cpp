@@ -12204,19 +12204,19 @@ void CSpinButtonCtrl::control_edited(int value)
    nmud.hdr.code = UDN_DELTAPOS;
    nmud.iPos = value;
    nmud.iDelta = _oldValue-value;
+   _oldValue = value;
    GetOwner()->SendMessage(WM_NOTIFY,_id,(LPARAM)&nmud);
    HWND hWnd = (HWND)mfcBuddy();
    int id = mfcBuddy()->GetDlgCtrlID();
    GetOwner()->PostMessage(WM_COMMAND,(EN_CHANGE<<16)|(id),(LPARAM)hWnd);
-   _oldValue = value;
 }
 
 void CSpinButtonCtrl::control_edited(QString value)
 {
    HWND hWnd = (HWND)mfcBuddy();
    int id = mfcBuddy()->GetDlgCtrlID();
-   GetOwner()->PostMessage(WM_COMMAND,(EN_CHANGE<<16)|(id),(LPARAM)hWnd);
    _oldValue = _qtd->value();
+   GetOwner()->PostMessage(WM_COMMAND,(EN_CHANGE<<16)|(id),(LPARAM)hWnd);
 }
 
 int CSpinButtonCtrl::SetPos(
@@ -12262,8 +12262,10 @@ void CSpinButtonCtrl::SetWindowText(
    _qtd->blockSignals(true);
 #if UNICODE
    _qtd->lineEdit()->setText(QString::fromWCharArray(lpszString));
+   _oldValue = QString::fromWCharArray(lpszString).toInt();
 #else
    _qtd->lineEdit()->setText(QString::fromLatin1(lpszString));
+   _oldValue = QString::fromLatin1(lpszString).toInt();
 #endif
    _qtd->blockSignals(true);
 }
@@ -12274,10 +12276,9 @@ void CSpinButtonCtrl::SetDlgItemInt(
    BOOL bSigned
 )
 {
-   int pos = _qtd->value();
    _qtd->blockSignals(true);
-   _oldValue = pos;
    _qtd->setValue(nValue);
+   _oldValue = nValue;
    _qtd->blockSignals(false);
 }
 
@@ -12296,14 +12297,12 @@ void CSpinButtonCtrl::SetDlgItemText(
 )
 {
    QString val;
-   int pos = _qtd->value();
 #if UNICODE
    val = QString::fromWCharArray(lpszString);
 #else
    val = QString::fromLatin1(lpszString);
 #endif
    _qtd->blockSignals(true);
-   _oldValue = pos;
    _qtd->lineEdit()->setText(val);
    bool ok;
    val.toInt(&ok);
@@ -12311,6 +12310,7 @@ void CSpinButtonCtrl::SetDlgItemText(
    {
       _qtd->setValue(val.toInt());
    }
+   _oldValue = val.toInt();
    _qtd->blockSignals(false);
 }
 
