@@ -31,14 +31,6 @@
 
 class CInstrumentEditorFDS : public CInstrumentEditPanel
 {
-   Q_OBJECT
-   // Qt stuff
-public slots:
-   void modRateSpin_valueChanged(int arg1,int arg2);
-   void modDepthSpin_valueChanged(int arg1,int arg2);
-   void modDelaySpin_valueChanged(int arg1,int arg2);
-public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
-   
    DECLARE_DYNAMIC(CInstrumentEditorFDS)
 
 public:

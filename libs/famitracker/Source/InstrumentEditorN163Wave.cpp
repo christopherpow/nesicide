@@ -122,16 +122,6 @@ BEGIN_MESSAGE_MAP(CInstrumentEditorN163Wave, CInstrumentEditPanel)
 	ON_EN_CHANGE(IDC_INDEX, OnIndexChange)
 END_MESSAGE_MAP()
 
-void CInstrumentEditorN163Wave::indexSpin_valueChanged(int arg1,int arg2)
-{
-   OnIndexChange();
-}
-
-void CInstrumentEditorN163Wave::wavesSpin_valueChanged(int arg1,int arg2)
-{
-   OnWavesChange();
-}
-
 void CInstrumentEditorN163Wave::wavePos_editTextChanged(QString text)
 {
    OnWavePosChange();

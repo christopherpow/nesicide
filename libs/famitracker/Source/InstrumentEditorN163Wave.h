@@ -33,8 +33,6 @@ class CInstrumentEditorN163Wave : public CInstrumentEditPanel
    Q_OBJECT
    // Qt stuff
 public slots:
-   void indexSpin_valueChanged(int arg1,int arg2);
-   void wavesSpin_valueChanged(int arg1,int arg2);
    void wavePos_editTextChanged(QString text);
 public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
    

@@ -1224,23 +1224,26 @@ SHORT WINAPI GetKeyState(
 
 QMimeData* gpClipboardMimeData = NULL;
 
-QList<QString> _clipboardFormats;
+QHash<UINT,QString> _clipboardFormats;
 #define CLIPBOARD_FORMAT_BASE 0xC000
+UINT _clipboardReg = CLIPBOARD_FORMAT_BASE;
 
 UINT WINAPI RegisterClipboardFormat(
    LPCTSTR lpszFormat
 )
 {
+   UINT reg = _clipboardReg;
 #if UNICODE
    QString clipboardFormat = QString::fromWCharArray(lpszFormat);
 #else
    QString clipboardFormat = QString::fromLatin1(lpszFormat);
 #endif
-   if ( !_clipboardFormats.contains(clipboardFormat) )
+   if ( !_clipboardFormats.values().contains(clipboardFormat) )
    {
-      _clipboardFormats.append(clipboardFormat);
+      _clipboardFormats.insert(reg,clipboardFormat);
    }
-   return CLIPBOARD_FORMAT_BASE+_clipboardFormats.indexOf(clipboardFormat);
+   _clipboardReg++;
+   return reg;
 }
 
 BOOL WINAPI OpenClipboard(
@@ -1268,11 +1271,10 @@ HANDLE WINAPI SetClipboardData(
 )
 {
    QSharedMemory* pMem = (QSharedMemory*)hMem;
-   QByteArray value;
    pMem->lock();
-   value = QByteArray::fromRawData((const char*)pMem->data(),pMem->size());
+   gpClipboardMimeData->setData(_clipboardFormats.value(uFormat),
+                                QByteArray::fromRawData((const char*)pMem->data(),pMem->size()));
    pMem->unlock();
-   gpClipboardMimeData->setData(_clipboardFormats.at(uFormat-CLIPBOARD_FORMAT_BASE),value);
    QApplication::clipboard()->setMimeData(gpClipboardMimeData);
    return hMem;
 }
@@ -1283,7 +1285,7 @@ BOOL WINAPI IsClipboardFormatAvailable(
 {
    QStringList formats = QApplication::clipboard()->mimeData()->formats();
 
-   if ( formats.count() && formats.contains(_clipboardFormats.at(format-CLIPBOARD_FORMAT_BASE)) )
+   if ( formats.count() && formats.contains(_clipboardFormats.value(format)) )
       return TRUE;
    return FALSE;
 }
@@ -1292,7 +1294,7 @@ HANDLE WINAPI GetClipboardData(
   UINT uFormat
 )
 {
-   QByteArray value = QApplication::clipboard()->mimeData()->data(_clipboardFormats.at(uFormat-CLIPBOARD_FORMAT_BASE));
+   QByteArray value = QApplication::clipboard()->mimeData()->data(_clipboardFormats.value(uFormat));
    QUuid uuid = QUuid::createUuid();
    QSharedMemory* pMem = new QSharedMemory(uuid.toString());
    pMem->create(value.size());
@@ -6742,7 +6744,8 @@ bool CWnd::event(QEvent *event)
    if ( msgEvent )
    {
       proc = WindowProc(msgEvent->msg.message,msgEvent->msg.wParam,msgEvent->msg.lParam);
-      update();
+      if ( proc )
+         update();
    }
    return proc;
 }
@@ -12190,7 +12193,6 @@ BOOL CSpinButtonCtrl::Create(
 
 void CSpinButtonCtrl::control_returnPressed()
 {
-   qDebug(",,");
 }
 
 void CSpinButtonCtrl::control_edited(int value)
@@ -12214,6 +12216,7 @@ void CSpinButtonCtrl::control_edited(QString value)
    HWND hWnd = (HWND)mfcBuddy();
    int id = mfcBuddy()->GetDlgCtrlID();
    GetOwner()->PostMessage(WM_COMMAND,(EN_CHANGE<<16)|(id),(LPARAM)hWnd);
+   _oldValue = _qtd->value();
 }
 
 int CSpinButtonCtrl::SetPos(

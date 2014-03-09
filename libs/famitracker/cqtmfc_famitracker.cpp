@@ -3580,25 +3580,25 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_N163_WAVE(CDialog* parent1)
    parent->MapDialogRect(&r2);
    mfc2->Create(_T("Sine"),WS_VISIBLE,r2,parent,IDC_PRESET_SINE);
    mfcToQtWidget->insert(IDC_PRESET_SINE,mfc2);
-//       PUSHBUTTON      "Triangle",IDC_PRESET_TRIANGLE,57,101,41,12
+//   PUSHBUTTON      "Triangle",IDC_PRESET_TRIANGLE,57,104,41,14
    CButton* mfc3 = new CButton(parent);
    CRect r3(CPoint(57,104),CSize(41,14));
    parent->MapDialogRect(&r3);
    mfc3->Create(_T("Triangle"),WS_VISIBLE,r3,parent,IDC_PRESET_TRIANGLE);
    mfcToQtWidget->insert(IDC_PRESET_TRIANGLE,mfc3);
-//       PUSHBUTTON      "Sawtooth",IDC_PRESET_SAWTOOTH,100,101,41,12
+//   PUSHBUTTON      "Sawtooth",IDC_PRESET_SAWTOOTH,100,104,41,14
    CButton* mfc4 = new CButton(parent);
    CRect r4(CPoint(100,104),CSize(41,14));
    parent->MapDialogRect(&r4);
    mfc4->Create(_T("Sawtooth"),WS_VISIBLE,r4,parent,IDC_PRESET_SAWTOOTH);
    mfcToQtWidget->insert(IDC_PRESET_SAWTOOTH,mfc4);
-//       PUSHBUTTON      "50% pulse",IDC_PRESET_PULSE_50,143,101,41,12
+//   PUSHBUTTON      "50% pulse",IDC_PRESET_PULSE_50,143,104,41,14
    CButton* mfc5 = new CButton(parent);
    CRect r5(CPoint(143,104),CSize(41,14));
    parent->MapDialogRect(&r5);
    mfc5->Create(_T("50% pulse"),WS_VISIBLE,r5,parent,IDC_PRESET_PULSE_50);
    mfcToQtWidget->insert(IDC_PRESET_PULSE_50,mfc5);
-//       PUSHBUTTON      "25% pulse",IDC_PRESET_PULSE_25,186,101,41,12
+//   PUSHBUTTON      "25% pulse",IDC_PRESET_PULSE_25,186,104,41,14
    CButton* mfc6 = new CButton(parent);
    CRect r6(CPoint(186,104),CSize(41,14));
    parent->MapDialogRect(&r6);
@@ -3610,17 +3610,17 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_N163_WAVE(CDialog* parent1)
    parent->MapDialogRect(&r8);
    mfc8->Create(ES_AUTOHSCROLL | WS_VISIBLE,r8,parent,IDC_MML);
    mfcToQtWidget->insert(IDC_MML,mfc8);
-//       PUSHBUTTON      "Copy wave",IDC_COPY_WAVE,240,90,52,14
+//   PUSHBUTTON      "Copy wave",IDC_COPY,249,105,50,14
    CButton* mfc9 = new CButton(parent);
    CRect r9(CPoint(249,105),CSize(50,14));
    parent->MapDialogRect(&r9);
-   mfc9->Create(_T("Copy wave"),WS_VISIBLE,r9,parent,IDC_COPY_WAVE);
+   mfc9->Create(_T("Copy wave"),WS_VISIBLE,r9,parent,IDC_COPY);
    mfcToQtWidget->insert(IDC_COPY,mfc9);
-//       PUSHBUTTON      "Paste wave",IDC_PASTE_WAVE,240,104,52,14
+//   PUSHBUTTON      "Paste wave",IDC_PASTE,308,105,50,14
    CButton* mfc10 = new CButton(parent);
    CRect r10(CPoint(308,105),CSize(50,14));
    parent->MapDialogRect(&r10);
-   mfc10->Create(_T("Paste wave"),WS_VISIBLE,r10,parent,IDC_PASTE_WAVE);
+   mfc10->Create(_T("Paste wave"),WS_VISIBLE,r10,parent,IDC_PASTE);
    mfcToQtWidget->insert(IDC_PASTE,mfc10);
 //       EDITTEXT        IDC_INDEX,253,20,39,12,ES_AUTOHSCROLL | ES_READONLY
    CEdit* mfc11 = new CEdit(parent);

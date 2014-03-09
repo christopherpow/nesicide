@@ -107,21 +107,6 @@ BEGIN_MESSAGE_MAP(CInstrumentEditorFDS, CInstrumentEditPanel)
 	ON_MESSAGE(WM_USER + 1, OnModChanged)
 END_MESSAGE_MAP()
 
-void CInstrumentEditorFDS::modRateSpin_valueChanged(int arg1,int arg2)
-{
-   OnModRateChange();
-}
-
-void CInstrumentEditorFDS::modDepthSpin_valueChanged(int arg1,int arg2)
-{
-   OnModDepthChange();
-}
-
-void CInstrumentEditorFDS::modDelaySpin_valueChanged(int arg1,int arg2)
-{
-   OnModDelayChange();
-}
-
 // CInstrumentEditorFDS message handlers
 
 BOOL CInstrumentEditorFDS::OnInitDialog()
