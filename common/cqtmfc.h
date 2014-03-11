@@ -2619,8 +2619,6 @@ struct AFX_MSGMAP_ENTRY  // MFC 4.0 format
   AFX_PMSG pfn;  // routine to call (or special value)
 };
 
-#define UINT_PTR UINT
-
 #include <afxmsg_.h>
 
 #if !(defined(Q_WS_WIN) || defined(Q_WS_WIN32))

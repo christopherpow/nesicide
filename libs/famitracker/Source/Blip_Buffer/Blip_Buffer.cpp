@@ -37,18 +37,16 @@ Blip_Buffer::Blip_Buffer()
 	bass_freq_ = 16;
 	length_ = 0;
 	
-	// assumptions code makes about implementation-defined features
+ 	// assumptions code makes about implementation-defined features
 	#ifndef NDEBUG
 		// right shift of negative value preserves sign
-		long i = LONG_MIN;
-		assert( (i >> 1) == LONG_MIN / 2 );
-		i = LONG_MIN;
-		assert( (i >> 31) == -1 );
+		int i = INT_MIN;
+		assert( (i >> 1) == INT_MIN / 2 );
 		
 		// casting to smaller signed type truncates bits and extends sign
-		i = (SHRT_MAX + 1) * 5;
-		assert( (short) i == SHRT_MIN );
-	#endif
+		long l = (SHRT_MAX + 1) * 5;
+		assert( (short) l == SHRT_MIN );
+	#endif   
 }
 
 Blip_Buffer::~Blip_Buffer()

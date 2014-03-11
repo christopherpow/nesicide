@@ -130,7 +130,7 @@ void CGraphEditor::Initialize()
 	// Allow extra initialization
 }
 
-void CGraphEditor::OnTimer(UINT nIDEvent)
+void CGraphEditor::OnTimer(UINT_PTR nIDEvent)
 {
 	if (m_pSequence) {
 		int Pos = m_pSequence->GetPlayPos();
