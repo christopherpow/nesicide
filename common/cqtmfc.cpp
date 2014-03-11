@@ -11298,7 +11298,19 @@ void CEdit::SetSel(
    }
    else
    {
-      _qtd_ledit->setSelection(nStartChar,nEndChar);
+      if ( nStartChar < 0 )
+      {
+         _qtd_ledit->deselect();
+      }
+      else if ( (nStartChar == 0) &&
+                (nEndChar == -1) )
+      {
+         _qtd_ledit->selectAll();
+      }
+      else
+      {
+         _qtd_ledit->setSelection(nStartChar,nEndChar);
+      }
    }
 }
 
