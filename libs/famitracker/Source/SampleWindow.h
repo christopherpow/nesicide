@@ -46,11 +46,8 @@ class CSampleWindow : public CWnd
 {
    Q_OBJECT
    // Qt stuff
-   QTimer* pTimer;
 protected:
    QSize sizeHint() const { return QSize(141,36); } // Not sure why the size is protected...but...
-public slots:
-   void onIdleSlot();
 public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
    
 	DECLARE_DYNAMIC(CSampleWindow)

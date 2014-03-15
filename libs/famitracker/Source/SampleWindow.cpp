@@ -51,21 +51,10 @@ CSampleWindow::CSampleWindow() :
 	m_pBuffer1(NULL),
 	m_pBuffer2(NULL)
 {
-   pTimer = new QTimer();
-
-   QObject::connect(pTimer, SIGNAL(timeout()), this, SLOT(onIdleSlot()));
-   
-   pTimer->start();   
 }
 
 CSampleWindow::~CSampleWindow()
 {
-   pTimer->stop();
-   
-   QObject::disconnect(pTimer, SIGNAL(timeout()), this, SLOT(onIdleSlot()));
-   
-   delete pTimer;
-   
 	for (int i = 0; i < 4; ++i) {
 		SAFE_RELEASE(m_pStates[i]);
 	}
@@ -82,11 +71,6 @@ BEGIN_MESSAGE_MAP(CSampleWindow, CWnd)
 	ON_WM_RBUTTONUP()
 	ON_WM_DESTROY()
 END_MESSAGE_MAP()
-
-void CSampleWindow::onIdleSlot()
-{
-   update();
-}
 
 // State methods
 

@@ -459,8 +459,8 @@ int  CDSoundChannel::WaitForDirectSoundEvent(DWORD dwTimeout) const
 	// Wait for a DirectSound event
 //	if (!IsPlaying())
 //		Play();
-   ftmAudioSemaphore.acquire();
-   return BUFFER_IN_SYNC;
+   bool ok = ftmAudioSemaphore.tryAcquire(1,dwTimeout);
+   return ok?BUFFER_IN_SYNC:BUFFER_OUT_OF_SYNC;
 
 //	// Wait for events
 //	switch (WaitForMultipleObjects(2, m_hEventList, FALSE, INFINITE)) {

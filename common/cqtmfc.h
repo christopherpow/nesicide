@@ -3806,8 +3806,8 @@ public:
    void OnKillFocus(CWnd*) {}
    void OnVScroll(UINT,UINT,CScrollBar*) {}
    void OnHScroll(UINT,UINT,CScrollBar*) {}
-   void Invalidate(BOOL bErase = TRUE) { /*update();*/ }
-   void RedrawWindow(LPCRECT rect=0,CRgn* rgn=0,UINT f=0) { update(); }
+   void Invalidate(BOOL bErase = TRUE) { _qt->update(); }
+   void RedrawWindow(LPCRECT rect=0,CRgn* rgn=0,UINT f=0) { _qt->update(); }
    CWnd* SetFocus();
    CWnd* GetFocus();
    void SetCapture(CWnd* p=0) { /* DON'T DO THIS grabMouse(); */ }
@@ -3934,11 +3934,6 @@ public:
    virtual void setEnabled(bool enabled) { _qt->setEnabled(enabled); }
    QRect rect() const { return _qt->rect(); }
    virtual QWidget* toQWidget() { return _qt; }
-public slots:
-   void update() { _qt->update(); }
-   void repaint() { _qt->update(); }
-   void setFocus() { _qt->setFocus(); }
-   void setFocus(Qt::FocusReason reason) { _qt->setFocus(reason); }
 protected:
    virtual bool event(QEvent *event);   
    virtual bool eventFilter(QObject *object, QEvent *event);
@@ -4150,6 +4145,8 @@ public:
    void OnSysKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags) {}
    void OnSetFocus(CWnd *);
    virtual void OnInitialUpdate() {}
+   void Invalidate(BOOL bErase = TRUE) { viewWidget->update(); }
+   void RedrawWindow(LPCRECT rect=0,CRgn* rgn=0,UINT f=0) { viewWidget->update(); }
    CDocument* GetDocument() const { return m_pDocument; }
 
 protected:

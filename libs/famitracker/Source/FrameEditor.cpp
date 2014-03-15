@@ -124,7 +124,6 @@ void CFrameEditor::verticalScrollBar_actionTriggered(int arg1)
    }
 
    OnVScroll(arg1,mfcVerticalScrollBar->sliderPosition(),0);
-   update();
 }
 
 void CFrameEditor::horizontalScrollBar_actionTriggered(int arg1)
@@ -156,7 +155,6 @@ void CFrameEditor::horizontalScrollBar_actionTriggered(int arg1)
    }
    
    OnHScroll(arg1,mfcHorizontalScrollBar->sliderPosition(),0);
-   update();
 }
 
 void CFrameEditor::dragEnterEvent(QDragEnterEvent *event)
