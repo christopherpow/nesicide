@@ -1109,8 +1109,6 @@ void qtMfcInitDialogResource_IDD_MAINFRAME(CDialog* parent1)
    mfc3->Create(ES_AUTOHSCROLL | ES_READONLY | ES_NUMBER | WS_VISIBLE,r3,parent,IDC_SPEED);
    mfcToQtWidget->insert(IDC_SPEED,mfc3);
 //       CONTROL         "",IDC_SPEED_SPIN,"msctls_updown32",UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,81,15,11,13
-   // CP: Note, we fake a MFC "spin-box" separate control by double-booking a QSpinBox-derived CSpinButtonControl
-   // as both the CSpinButtonCtrl control and it's buddy CEdit.
    CSpinButtonCtrl* mfc4 = new CSpinButtonCtrl(parent);
    CRect r4(CPoint(81,15),CSize(11,13));
    parent->MapDialogRect(&r4);
@@ -1129,8 +1127,6 @@ void qtMfcInitDialogResource_IDD_MAINFRAME(CDialog* parent1)
    mfc6->Create(ES_AUTOHSCROLL | ES_READONLY | WS_VISIBLE,r6,parent,IDC_TEMPO);
    mfcToQtWidget->insert(IDC_TEMPO,mfc6);
 //       CONTROL         "",IDC_TEMPO_SPIN,"msctls_updown32",UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,81,28,11,13
-   // CP: Note, we fake a MFC "spin-box" separate control by double-booking a QSpinBox-derived CSpinButtonControl
-   // as both the CSpinButtonCtrl control and it's buddy CEdit.
    CSpinButtonCtrl* mfc7 = new CSpinButtonCtrl(parent);
    CRect r7(CPoint(81,28),CSize(11,13));
    parent->MapDialogRect(&r7);
@@ -1149,8 +1145,6 @@ void qtMfcInitDialogResource_IDD_MAINFRAME(CDialog* parent1)
    mfc9->Create(ES_AUTOHSCROLL | ES_READONLY | ES_WANTRETURN | WS_VISIBLE,r9,parent,IDC_ROWS);
    mfcToQtWidget->insert(IDC_ROWS,mfc9);
 //       CONTROL         "",IDC_ROWS_SPIN,"msctls_updown32",UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,81,43,11,13
-   // CP: Note, we fake a MFC "spin-box" separate control by double-booking a QSpinBox-derived CSpinButtonControl
-   // as both the CSpinButtonCtrl control and it's buddy CEdit.
    CSpinButtonCtrl* mfc10 = new CSpinButtonCtrl(parent);
    CRect r10(CPoint(81,43),CSize(11,13));
    parent->MapDialogRect(&r10);
@@ -1169,8 +1163,6 @@ void qtMfcInitDialogResource_IDD_MAINFRAME(CDialog* parent1)
    mfc12->Create(ES_AUTOHSCROLL | ES_READONLY | WS_VISIBLE,r12,parent,IDC_FRAMES);
    mfcToQtWidget->insert(IDC_FRAMES,mfc12);
 //       CONTROL         "",IDC_FRAME_SPIN,"msctls_updown32",UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,81,58,11,13
-   // CP: Note, we fake a MFC "spin-box" separate control by double-booking a QSpinBox-derived CSpinButtonControl
-   // as both the CSpinButtonCtrl control and it's buddy CEdit.
    CSpinButtonCtrl* mfc13 = new CSpinButtonCtrl(parent);
    CRect r13(CPoint(81,58),CSize(11,13));
    parent->MapDialogRect(&r13);
@@ -1189,8 +1181,6 @@ void qtMfcInitDialogResource_IDD_MAINFRAME(CDialog* parent1)
    mfc16->Create(ES_AUTOHSCROLL | ES_READONLY | WS_VISIBLE,r16,parent,IDC_KEYSTEP);
    mfcToQtWidget->insert(IDC_KEYSTEP,mfc16);
 //       CONTROL         "",IDC_KEYSTEP_SPIN,"msctls_updown32",UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,81,88,11,13
-   // CP: Note, we fake a MFC "spin-box" separate control by double-booking a QSpinBox-derived CSpinButtonControl
-   // as both the CSpinButtonCtrl control and it's buddy CEdit.
    CSpinButtonCtrl* mfc17 = new CSpinButtonCtrl(parent);
    CRect r17(CPoint(81,88),CSize(11,13));
    parent->MapDialogRect(&r17);
@@ -1464,8 +1454,6 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_INTERNAL(CDialog* parent1)
    mfc3->Create(ES_AUTOHSCROLL | ES_NUMBER | WS_VISIBLE,r3,parent,IDC_SEQ_INDEX);
    mfcToQtWidget->insert(IDC_SEQ_INDEX,mfc3);
 //   CONTROL         "",IDC_SEQUENCE_SPIN,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,66,153,11,9
-   // CP: Note, we fake a MFC "spin-box" separate control by double-booking a QSpinBox-derived CSpinButtonControl
-   // as both the CSpinButtonCtrl control and it's buddy CEdit.
    CSpinButtonCtrl* mfc4 = new CSpinButtonCtrl(parent);
    CRect r4(CPoint(66,153),CSize(11,9));
    parent->MapDialogRect(&r4);
@@ -1554,8 +1542,6 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_DPCM(CDialog* parent1)
    mfc9->Create(ES_AUTOHSCROLL | WS_VISIBLE,r9,parent,IDC_DELTA_COUNTER);
    mfcToQtWidget->insert(IDC_DELTA_COUNTER,mfc9);
 //   CONTROL         "",IDC_DELTA_SPIN,"msctls_updown32",UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,170,106,11,14
-   // CP: Note, we fake a MFC "spin-box" separate control by double-booking a QSpinBox-derived CSpinButtonControl
-   // as both the CSpinButtonCtrl control and it's buddy CEdit.
    CSpinButtonCtrl* mfc10 = new CSpinButtonCtrl(parent);
    CRect r10(CPoint(170,106),CSize(11,14));
    parent->MapDialogRect(&r10);
@@ -2470,8 +2456,6 @@ void qtMfcInitDialogResource_IDD_OCTAVE(CDialog* parent)
    mfc5->Create(ES_AUTOHSCROLL | ES_NUMBER | WS_VISIBLE,r5,parent,IDC_HIGHLIGHT1);
    mfcToQtWidget->insert(IDC_HIGHLIGHT1,mfc5);
 //       CONTROL         "",IDC_HIGHLIGHTSPIN1,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_HOTTRACK,197,3,11,6
-   // CP: Note, we fake a MFC "spin-box" separate control by double-booking a QSpinBox-derived CSpinButtonControl
-   // as both the CSpinButtonCtrl control and it's buddy CEdit.
    CSpinButtonCtrl* mfc6 = new CSpinButtonCtrl(parent);
    CRect r6(CPoint(197,3),CSize(11,6));
    parent->MapDialogRect(&r6);
@@ -2490,8 +2474,6 @@ void qtMfcInitDialogResource_IDD_OCTAVE(CDialog* parent)
    mfc8->Create(ES_AUTOHSCROLL | ES_NUMBER | WS_VISIBLE,r8,parent,IDC_HIGHLIGHT2);
    mfcToQtWidget->insert(IDC_HIGHLIGHT2,mfc8);
 //       CONTROL         "",IDC_HIGHLIGHTSPIN2,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_HOTTRACK,281,3,11,6
-   // CP: Note, we fake a MFC "spin-box" separate control by double-booking a QSpinBox-derived CSpinButtonControl
-   // as both the CSpinButtonCtrl control and it's buddy CEdit.
    CSpinButtonCtrl* mfc9 = new CSpinButtonCtrl(parent);
    CRect r9(CPoint(281,3),CSize(11,6));
    parent->MapDialogRect(&r9);
@@ -2953,8 +2935,6 @@ void qtMfcInitDialogResource_IDD_CREATEWAV(CDialog* parent1)
    mfc6->Create(ES_AUTOHSCROLL | WS_VISIBLE,r6,parent,IDC_TIMES);
    mfcToQtWidget->insert(IDC_TIMES,mfc6);
 //       CONTROL         "",IDC_SPIN_LOOP,"msctls_updown32",UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,105,17,11,17
-   // CP: Note, we fake a MFC "spin-box" separate control by double-booking a QSpinBox-derived CSpinButtonControl
-   // as both the CSpinButtonCtrl control and it's buddy CEdit.
    CSpinButtonCtrl* mfc7 = new CSpinButtonCtrl(parent);
    CRect r7(CPoint(105,17),CSize(11,17));
    parent->MapDialogRect(&r7);
@@ -2973,8 +2953,6 @@ void qtMfcInitDialogResource_IDD_CREATEWAV(CDialog* parent1)
    mfc9->Create(ES_AUTOHSCROLL | WS_VISIBLE,r9,parent,IDC_SECONDS);
    mfcToQtWidget->insert(IDC_SECONDS,mfc9);
 //       CONTROL         "",IDC_SPIN_TIME,"msctls_updown32",UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,93,36,11,14
-   // CP: Note, we fake a MFC "spin-box" separate control by double-booking a QSpinBox-derived CSpinButtonControl
-   // as both the CSpinButtonCtrl control and it's buddy CEdit.
    CSpinButtonCtrl* mfc10 = new CSpinButtonCtrl(parent);
    CRect r10(CPoint(93,36),CSize(11,14));
    parent->MapDialogRect(&r10);
@@ -3132,8 +3110,6 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_FDS(CDialog* parent1)
    mfc6->Create(ES_AUTOHSCROLL | ES_NUMBER | WS_VISIBLE,r6,parent,IDC_MOD_RATE);
    mfcToQtWidget->insert(IDC_MOD_RATE,mfc6);
 //       CONTROL         "",IDC_MOD_RATE_SPIN,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS,344,25,11,14
-   // CP: Note, we fake a MFC "spin-box" separate control by double-booking a QSpinBox-derived CSpinButtonControl
-   // as both the CSpinButtonCtrl control and it's buddy CEdit.
    CSpinButtonCtrl* mfc7 = new CSpinButtonCtrl(parent);
    CRect r7(CPoint(344,25),CSize(11,14));
    parent->MapDialogRect(&r7);
@@ -3152,8 +3128,6 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_FDS(CDialog* parent1)
    mfc9->Create(ES_AUTOHSCROLL | ES_NUMBER | WS_VISIBLE,r9,parent,IDC_MOD_DEPTH);
    mfcToQtWidget->insert(IDC_MOD_DEPTH,mfc9);
 //       CONTROL         "",IDC_MOD_DEPTH_SPIN,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,344,43,11,14
-   // CP: Note, we fake a MFC "spin-box" separate control by double-booking a QSpinBox-derived CSpinButtonControl
-   // as both the CSpinButtonCtrl control and it's buddy CEdit.
    CSpinButtonCtrl* mfc10 = new CSpinButtonCtrl(parent);
    CRect r10(CPoint(344,43),CSize(11,14));
    parent->MapDialogRect(&r10);
@@ -3172,8 +3146,6 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_FDS(CDialog* parent1)
    mfc12->Create(ES_AUTOHSCROLL | ES_NUMBER | WS_VISIBLE,r12,parent,IDC_MOD_DELAY);
    mfcToQtWidget->insert(IDC_MOD_DELAY,mfc12);
 //       CONTROL         "",IDC_MOD_DELAY_SPIN,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,344,63,11,14
-   // CP: Note, we fake a MFC "spin-box" separate control by double-booking a QSpinBox-derived CSpinButtonControl
-   // as both the CSpinButtonCtrl control and it's buddy CEdit.
    CSpinButtonCtrl* mfc13 = new CSpinButtonCtrl(parent);
    CRect r13(CPoint(344,63),CSize(11,14));
    parent->MapDialogRect(&r13);
@@ -3629,8 +3601,6 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_N163_WAVE(CDialog* parent1)
    mfc11->Create(ES_AUTOHSCROLL | ES_READONLY | WS_VISIBLE,r11,parent,IDC_INDEX);
    mfcToQtWidget->insert(IDC_INDEX,mfc11);
 //       CONTROL         "",IDC_INDEX_SPIN,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,281,26,11,14
-   // CP: Note, we fake a MFC "spin-box" separate control by double-booking a QSpinBox-derived CSpinButtonControl
-   // as both the CSpinButtonCtrl control and it's buddy CEdit.
    CSpinButtonCtrl* mfc12 = new CSpinButtonCtrl(parent);
    CRect r12(CPoint(281,26),CSize(11,12));
    parent->MapDialogRect(&r12);
@@ -3649,8 +3619,6 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_N163_WAVE(CDialog* parent1)
    mfc14->Create(ES_AUTOHSCROLL | ES_READONLY | WS_VISIBLE,r14,parent,IDC_WAVES);
    mfcToQtWidget->insert(IDC_WAVES,mfc14);
 //       CONTROL         "",IDC_WAVES_SPIN,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,342,19,11,14
-   // CP: Note, we fake a MFC "spin-box" separate control by double-booking a QSpinBox-derived CSpinButtonControl
-   // as both the CSpinButtonCtrl control and it's buddy CEdit.
    CSpinButtonCtrl* mfc15 = new CSpinButtonCtrl(parent);
    CRect r15(CPoint(342,19),CSize(11,14));
    parent->MapDialogRect(&r15);
