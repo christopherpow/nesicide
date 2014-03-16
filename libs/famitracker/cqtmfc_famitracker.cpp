@@ -1551,7 +1551,7 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_DPCM(CDialog* parent1)
    CEdit* mfc9 = new CEdit(parent);
    CRect r9(CPoint(138,97),CSize(42,14));
    parent->MapDialogRect(&r9);
-   mfc9->Create(ES_AUTOHSCROLL | WS_VISIBLE,r9,parent,IDC_HIGHLIGHT1);
+   mfc9->Create(ES_AUTOHSCROLL | WS_VISIBLE,r9,parent,IDC_DELTA_COUNTER);
    mfcToQtWidget->insert(IDC_DELTA_COUNTER,mfc9);
 //   CONTROL         "",IDC_DELTA_SPIN,"msctls_updown32",UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,170,106,11,14
    // CP: Note, we fake a MFC "spin-box" separate control by double-booking a QSpinBox-derived CSpinButtonControl

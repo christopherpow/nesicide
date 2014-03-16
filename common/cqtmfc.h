@@ -4499,7 +4499,6 @@ public:
    void SetWindowText(
       LPCTSTR lpszString
    );
-   DWORD GetStyle() const;
    void SetSel(
       DWORD dwSelection,
       BOOL bNoScroll = FALSE

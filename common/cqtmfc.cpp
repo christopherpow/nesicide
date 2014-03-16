@@ -11254,20 +11254,6 @@ void CEdit::SetWindowText(
    }
 }
 
-DWORD CEdit::GetStyle() const
-{
-   LONG ret = 0;
-   if ( _dwStyle&ES_MULTILINE )
-   {
-      ret |= _qtd_ptedit->isReadOnly()?ES_READONLY:0;
-   }
-   else
-   {
-      ret |= _qtd_ledit->isReadOnly()?ES_READONLY:0;
-   }
-   return ret;
-}
-
 void CEdit::SetSel(
    DWORD dwSelection,
    BOOL bNoScroll
