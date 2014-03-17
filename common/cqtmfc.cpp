@@ -12147,7 +12147,6 @@ BOOL CSpinButtonCtrl::Create(
    _qtd = dynamic_cast<QSpinBox_MFC*>(_qt);
 
    _qtd->setMouseTracking(true);
-   _qtd->installEventFilter(dynamic_cast<CSpinButtonCtrl*>(this));
    _qtd->setKeyboardTracking(false);
    _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
    _qtd->setRange(0,65536);
@@ -12177,7 +12176,6 @@ BOOL CSpinButtonCtrl::Create(
    // Pass-through signals
    QObject::connect(_qtd,SIGNAL(valueChanged(int)),this,SLOT(control_edited(int)));
    QObject::connect(_qtd->lineEdit(),SIGNAL(textEdited(QString)),this,SLOT(control_edited(QString)));
-   QObject::connect(_qtd->lineEdit(),SIGNAL(returnPressed()),this,SLOT(control_returnPressed()));
 
    _qtd->lineEdit()->installEventFilter(dynamic_cast<CSpinButtonCtrl*>(this));
    _qtd->lineEdit()->setFocusPolicy(Qt::ClickFocus);
@@ -12187,10 +12185,6 @@ BOOL CSpinButtonCtrl::Create(
    _qtd->setVisible(dwStyle&WS_VISIBLE);
 
    return TRUE;
-}
-
-void CSpinButtonCtrl::control_returnPressed()
-{
 }
 
 void CSpinButtonCtrl::control_edited(int value)

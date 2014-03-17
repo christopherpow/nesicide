@@ -4730,7 +4730,6 @@ protected:
 public slots:
    void control_edited(int value);
    void control_edited(QString value);
-   void control_returnPressed();
 
    // MFC interfaces
 public:
