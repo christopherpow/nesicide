@@ -9294,7 +9294,9 @@ void CDialog::MapDialogRect(
 {
    QFontMetrics sysFontMetrics(QFont("MS Shell Dlg",8));
 
-   int baseunitX = sysFontMetrics.averageCharWidth()+1;
+//   int baseunitX = sysFontMetrics.averageCharWidth()+1;
+   qDebug("QFontMetrics::averageCharWidth hacked to 5 for Linux/OSX");
+   int baseunitX = 5+1;
    int baseunitY = sysFontMetrics.height();
 
    lpRect->left   = MulDiv(lpRect->left,   baseunitX, 4);
