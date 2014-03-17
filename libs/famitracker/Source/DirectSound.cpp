@@ -199,7 +199,8 @@ int CDSound::CalculateBufferLength(int BufferLen, int Samplerate, int Samplesize
 
 CDSoundChannel *CDSound::OpenChannel(int SampleRate, int SampleSize, int Channels, int BufferLength, int Blocks)
 {
-   SDL_AudioSpec sdlAudioSpec;
+   SDL_AudioSpec sdlAudioSpecIn;
+   SDL_AudioSpec sdlAudioSpecOut;
    
 	// Open a new secondary buffer
 	//
@@ -222,24 +223,30 @@ CDSoundChannel *CDSound::OpenChannel(int SampleRate, int SampleSize, int Channel
 	int SoundBufferSize = CalculateBufferLength(BufferLength, SampleRate, SampleSize, Channels);
 	int BlockSize = SoundBufferSize / Blocks;
 
-   sdlAudioSpec.callback = SDL_FamiTracker;
-   sdlAudioSpec.userdata = NULL;
-   sdlAudioSpec.channels = Channels;
+   sdlAudioSpecIn.callback = SDL_FamiTracker;
+   sdlAudioSpecIn.userdata = NULL;
+   sdlAudioSpecIn.channels = Channels;
    if ( SampleSize == 8 )
    {
-      sdlAudioSpec.format = AUDIO_U8;
+      sdlAudioSpecIn.format = AUDIO_U8;
    }
    else 
    {
-      sdlAudioSpec.format = AUDIO_S16SYS;
+      sdlAudioSpecIn.format = AUDIO_S16SYS;
    }
-   sdlAudioSpec.freq = SampleRate;
+   sdlAudioSpecIn.freq = SampleRate;
 
    // Set up audio sample rate for video mode...
-   sdlAudioSpec.samples = (BlockSize/(SampleSize>>3));
+   sdlAudioSpecIn.samples = (BlockSize/(SampleSize>>3));
    qDebug("---------------------------------BufferSize: %d, BlockSize: %d, SampleSize: %d",SoundBufferSize,BlockSize,SampleSize);
-   SDL_OpenAudio ( &sdlAudioSpec, NULL );
+   SDL_OpenAudio ( &sdlAudioSpecIn, &sdlAudioSpecOut );
 
+   if ( !memcmp(&sdlAudioSpecIn,&sdlAudioSpecOut,sizeof(SDL_AudioSpec)) )
+   {
+      qDebug("SDL_OpenAudio didn't give us what we want...adjust!");
+      SoundBufferSize = sdlAudioSpecOut.samples*(SampleSize>>3);
+   }
+   
    if ( m_pSoundBuffer )
       delete m_pSoundBuffer;
    m_pSoundBuffer = new unsigned char[SoundBufferSize];
