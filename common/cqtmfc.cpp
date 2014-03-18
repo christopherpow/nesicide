@@ -3354,6 +3354,7 @@ BOOL CComboBox::Create(
    QFontMetrics fm(_qtd->font());
 
    _qtd->setMaxVisibleItems((rect.bottom-rect.top)/fm.height());
+   _qtd->setFont(QFont("MS Shell Dlg",8));
    
    SetParent(pParentWnd);
 
@@ -3591,6 +3592,7 @@ BOOL CListBox::Create(
    _qtd->setFont(QFont("MS Shell Dlg",8));
    _qtd->setEditTriggers(QAbstractItemView::NoEditTriggers);
    _qtd->setMouseTracking(true);
+   _qtd->setFont(QFont("MS Shell Dlg",8));
 
    // Pass-through signals
    QObject::connect(_qtd,SIGNAL(itemSelectionChanged()),this,SLOT(itemSelectionChanged()));
@@ -3971,6 +3973,7 @@ BOOL CListCtrl::Create(
       _qtd_table->setSelectionBehavior(QAbstractItemView::SelectRows);
       _qtd_table->installEventFilter(this);
       _qtd_table->setShowGrid(false);
+      _qtd_table->setFont(QFont("MS Shell Dlg",8));
 
       // Pass-through signals
       QObject::connect(_qtd_table,SIGNAL(itemSelectionChanged()),this,SLOT(itemSelectionChanged()));
@@ -4017,6 +4020,7 @@ BOOL CListCtrl::Create(
       _qtd_list->setEditTriggers(QAbstractItemView::NoEditTriggers);
       _qtd_list->setSelectionBehavior(QAbstractItemView::SelectRows);
       _qtd_list->installEventFilter(this);
+      _qtd_list->setFont(QFont("MS Shell Dlg",8));
 
       // Pass-through signals
       QObject::connect(_qtd_list,SIGNAL(itemSelectionChanged()),this,SLOT(itemSelectionChanged()));
@@ -5058,6 +5062,7 @@ BOOL CTreeCtrl::Create(
    _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
    _qtd->setContextMenuPolicy(Qt::DefaultContextMenu);
    _qtd->setVisible(dwStyle&WS_VISIBLE);
+   _qtd->setFont(QFont("MS Shell Dlg",8));
    
    SetParent(pParentWnd);
 
@@ -7177,6 +7182,7 @@ BOOL CWnd::CreateEx(
    PreCreateWindow(createStruct);
    _qtd->setLineWidth(0);
    _qtd->setMidLineWidth(0);
+   _qtd->setFont(QFont("MS Shell Dlg",8));
    if ( createStruct.dwExStyle&WS_EX_STATICEDGE )
    {
       _qtd->setFrameShape(QFrame::StyledPanel);
@@ -8707,6 +8713,7 @@ BOOL CReBarCtrl::Create(
                           "stop: 0 #f0f0f0, stop: .4 #ffffff, stop: 1 #ababab);"
                           "border-color: #3f3f3f;"
                        "}");
+   _qtd->setFont(QFont("MS Shell Dlg",8));
 
    _qtd->setMouseTracking(true);
    _qtd->setMovable(false);
@@ -9194,6 +9201,7 @@ BOOL CDialog::Create(
    {
       _qtd->setWindowFlags(_qtd->windowFlags()|Qt::Dialog);
    }
+   _qtd->setFont(QFont("MS Shell Dlg",8));
 
    foreach ( CWnd* pWnd, mfcToQtWidget ) pWnd->blockSignals(true);
    BOOL result = OnInitDialog();
@@ -10517,6 +10525,7 @@ BOOL CMenu::CreatePopupMenu()
 {
    _cmenu->clear();
    _qtd->clear();
+   _qtd->setFont(QFont("MS Shell Dlg",8));
    mfcToQtMenu.clear();
    qtToMfcMenu.clear();
    return TRUE;
@@ -10945,6 +10954,7 @@ BOOL CTabCtrl::Create(
 
    _qtd->setMouseTracking(true);
    _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
+   _qtd->setFont(QFont("MS Shell Dlg",8));
 
    // Pass-through signals
    QObject::connect(_qtd,SIGNAL(currentChanged(int)),this,SIGNAL(currentChanged(int)));
@@ -11110,6 +11120,7 @@ BOOL CEdit::Create(
       _qtd_ptedit->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
       _qtd_ptedit->setReadOnly(dwStyle&ES_READONLY);
       _qtd_ptedit->setVisible(dwStyle&WS_VISIBLE);
+      _qtd_ptedit->setFont(QFont("MS Shell Dlg",8));
       
       if ( dwStyle&ES_NUMBER )
       {
@@ -11132,6 +11143,7 @@ BOOL CEdit::Create(
       _qtd_ledit->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
       _qtd_ledit->setReadOnly(dwStyle&ES_READONLY);
       _qtd_ledit->setVisible(dwStyle&WS_VISIBLE);
+      _qtd_ledit->setFont(QFont("MS Shell Dlg",8));
       
       if ( dwStyle&ES_NUMBER )
       {
@@ -11576,6 +11588,7 @@ BOOL CButton::Create(
       _qtd_check->setMouseTracking(true);
       _qtd_check->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
       _qtd_check->setVisible(dwStyle&WS_VISIBLE);
+      _qtd_check->setFont(QFont("MS Shell Dlg",8));
    
       // Pass-through signals
       QObject::connect(_qtd_check,SIGNAL(clicked()),this,SLOT(clicked()));
@@ -11599,6 +11612,7 @@ BOOL CButton::Create(
       _qtd_check->setMouseTracking(true);
       _qtd_check->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
       _qtd_check->setVisible(dwStyle&WS_VISIBLE);
+      _qtd_check->setFont(QFont("MS Shell Dlg",8));
    
       // Pass-through signals
       QObject::connect(_qtd_check,SIGNAL(clicked()),this,SLOT(clicked()));
@@ -11621,6 +11635,7 @@ BOOL CButton::Create(
       _qtd_radio->setMouseTracking(true);
       _qtd_radio->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
       _qtd_radio->setVisible(dwStyle&WS_VISIBLE);
+      _qtd_radio->setFont(QFont("MS Shell Dlg",8));
    
       // Pass-through signals
       QObject::connect(_qtd_radio,SIGNAL(clicked()),this,SLOT(clicked()));
@@ -11644,6 +11659,7 @@ BOOL CButton::Create(
       _qtd_push->setMouseTracking(true);
       _qtd_push->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
       _qtd_push->setVisible(dwStyle&WS_VISIBLE);
+      _qtd_push->setFont(QFont("MS Shell Dlg",8));
    
       // Pass-through signals
       QObject::connect(_qtd_push,SIGNAL(clicked()),this,SLOT(clicked()));
@@ -11666,6 +11682,7 @@ BOOL CButton::Create(
       _qtd_groupbox->setMouseTracking(true);
       _qtd_groupbox->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
       _qtd_groupbox->setVisible(dwStyle&WS_VISIBLE);
+      _qtd_groupbox->setFont(QFont("MS Shell Dlg",8));
    
       // Pass-through signals
       QObject::connect(_qtd_groupbox,SIGNAL(clicked()),this,SLOT(clicked()));
@@ -12151,6 +12168,7 @@ BOOL CSpinButtonCtrl::Create(
    _qtd->setKeyboardTracking(false);
    _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
    _qtd->setRange(0,65536);
+   _qtd->setFont(QFont("MS Shell Dlg",8));
 
    // Figure out if we need to buddy-up.
    if ( dwStyle&UDS_AUTOBUDDY )
@@ -12428,6 +12446,7 @@ BOOL CSliderCtrl::Create(
 
    _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
    _qtd->setVisible(dwStyle&WS_VISIBLE);
+   _qtd->setFont(QFont("MS Shell Dlg",8));
 
    return TRUE;
 }
@@ -12581,6 +12600,7 @@ BOOL CProgressCtrl::Create(
    _qtd->setOrientation(Qt::Horizontal);
    _qtd->setMouseTracking(true);
    _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
+   _qtd->setFont(QFont("MS Shell Dlg",8));
 
    // Pass-through signals
 }
@@ -12663,6 +12683,7 @@ BOOL CStatic::Create(
    _qtd = dynamic_cast<QLabel*>(_qt);
    _qtd->setMouseTracking(true);
    _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
+   _qtd->setFont(QFont("MS Shell Dlg",8));
 
 #if UNICODE
    _qtd->setText(QString::fromWCharArray(lpszText));
