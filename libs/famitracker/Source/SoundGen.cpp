@@ -557,8 +557,8 @@ bool CSoundGen::ResetSound()
 	int iBlocks = 1;	// default = 2
 
 	// Create more blocks if a bigger buffer than 100ms is used to enhance program response
-	if (BufferLen > 100)
-		iBlocks = (BufferLen / 66);
+//	if (BufferLen > 100)
+//		iBlocks = (BufferLen / 66);
 
 	// Create channel
 	m_pDSoundChannel = m_pDSound->OpenChannel(SampleRate, SampleSize, 1, BufferLen, iBlocks);

@@ -3051,7 +3051,6 @@ int StretchDIBits(
    QImage image((const uchar*)lpBits,nSrcWidth,nSrcHeight,QImage::Format_RGB32);
    image = image.scaled(nDestWidth,nDestHeight);
    dc.painter()->drawImage(XDest,YDest,image);
-//   dc.flush();
    return 0;
 }
 
