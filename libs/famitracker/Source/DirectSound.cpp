@@ -238,10 +238,13 @@ CDSoundChannel *CDSound::OpenChannel(int SampleRate, int SampleSize, int Channel
 
    // Set up audio sample rate for video mode...
    sdlAudioSpecIn.samples = (BlockSize/(SampleSize>>3));
-   qDebug("---------------------------------BufferSize: %d, BlockSize: %d, SampleSize: %d",SoundBufferSize,BlockSize,SampleSize);
+
    SDL_OpenAudio ( &sdlAudioSpecIn, &sdlAudioSpecOut );
 
-   if ( !memcmp(&sdlAudioSpecIn,&sdlAudioSpecOut,sizeof(SDL_AudioSpec)) )
+   if ( (sdlAudioSpecIn.samples != sdlAudioSpecOut.samples) ||
+        (sdlAudioSpecIn.freq != sdlAudioSpecOut.freq) ||
+        (sdlAudioSpecIn.format != sdlAudioSpecOut.format) ||
+        (sdlAudioSpecIn.channels != sdlAudioSpecOut.channels) )
    {
       qDebug("SDL_OpenAudio didn't give us what we want...adjust!");
       SoundBufferSize = sdlAudioSpecOut.samples*(SampleSize>>3);

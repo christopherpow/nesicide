@@ -315,13 +315,11 @@ void CMainFrame::showEvent(QShowEvent *)
       QObject::connect(m_pDocument,SIGNAL(documentClosed()),this,SIGNAL(documentClosed()));
 
       // Connect buried signals.
-      qDebug("START CONNECTING BURIED SIGNALS NOW...");
       QObject::connect(m_pDocument,SIGNAL(setModified(bool)),this,SIGNAL(editor_modificationChanged(bool)));
       QObject::connect(m_pDocument,SIGNAL(setModified(bool)),this,SLOT(setModified(bool)));
       QObject::connect(&m_wndToolBar,SIGNAL(toolBarAction_triggered(int)),this,SLOT(toolBarAction_triggered(int)));
       QObject::connect(&m_wndInstToolBar,SIGNAL(toolBarAction_triggered(int)),this,SLOT(instToolBarAction_triggered(int)));
       QObject::connect(&m_wndInstToolBar,SIGNAL(toolBarAction_menu_aboutToShow(int)),this,SLOT(instToolBarAction_menu_aboutToShow(int)));
-      qDebug("DONE CONNECTING BURIED SIGNALS NOW...");
 
       initialized = true;
    }

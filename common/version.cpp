@@ -12,3 +12,5 @@ char* nesicideGetVersion()
 
 // main menu items that are in base classes now don't work because i ripped out my hacks.  need to put them back in--properly.
 // ID_VIEW_TOOLBAR, ID_VIEW_STATUS_BAR
+
+// QFontMetrics::averageCharWidth hack in MapDialogRect 

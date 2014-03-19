@@ -5249,6 +5249,7 @@ class CWinThread : public QThread, public CCmdTarget
    Q_OBJECT
    // Qt interfaces
 protected:
+   QThread::Priority _priority;
    virtual void run();
 signals:
    void postThreadMessage(unsigned int m,unsigned int w,unsigned int l);

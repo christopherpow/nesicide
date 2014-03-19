@@ -8519,7 +8519,6 @@ BOOL CView::Create(
    m_pFrameWnd = pContext->m_pCurrentFrame;
    
    viewWidget = new MFCWidget();
-   viewWidget->setStyleSheet("QWidget { background: red; }");
    viewWidget->setMouseTracking(true);
    _grid->addWidget(viewWidget,0,0);
    viewWidget->setParent(toQWidget());
@@ -8753,7 +8752,7 @@ void CReBarCtrl::MinimizeBand(
    UINT uBand
 )
 {
-   qDebug("CReBarCtrl::MinimizeBand");
+   // CP: This API doesn't need to do much, I think.
 }
 
 void CReBarCtrl::toolBarAction_triggered()
@@ -9302,7 +9301,6 @@ void CDialog::MapDialogRect(
    QFontMetrics sysFontMetrics(QFont("MS Shell Dlg",8));
 
 //   int baseunitX = sysFontMetrics.averageCharWidth()+1;
-   qDebug("QFontMetrics::averageCharWidth hacked to 5 for Linux/OSX");
    int baseunitX = 5+1;
    int baseunitY = sysFontMetrics.height();
 
@@ -9339,7 +9337,8 @@ IMPLEMENT_DYNCREATE(CWinThread,CCmdTarget)
 BEGIN_MESSAGE_MAP(CWinThread,CCmdTarget)
 END_MESSAGE_MAP()
 
-CWinThread::CWinThread()
+CWinThread::CWinThread() : 
+   _priority(QThread::NormalPriority)
 {
    m_hThread = (HANDLE)this;
    m_nThreadID = (DWORD)QThread::currentThreadId();
@@ -9373,7 +9372,7 @@ BOOL CWinThread::CreateThread(
 DWORD CWinThread::ResumeThread( )
 {
    InitInstance();
-   start(QThread::InheritPriority);
+   start();
    return 0;
 }
 
@@ -9381,32 +9380,30 @@ BOOL CWinThread::SetThreadPriority(
    int nPriority
 )
 {
-   QThread::Priority priority = QThread::currentThread()->priority();
    switch ( nPriority )
    {
    case THREAD_PRIORITY_TIME_CRITICAL:
-      priority = QThread::TimeCriticalPriority;
+      _priority = QThread::TimeCriticalPriority;
       break;
    case THREAD_PRIORITY_HIGHEST:
-      priority = QThread::HighestPriority;
+      _priority = QThread::HighestPriority;
       break;
    case THREAD_PRIORITY_ABOVE_NORMAL:
-      priority = QThread::HighPriority;
+      _priority = QThread::HighPriority;
       break;
    case THREAD_PRIORITY_NORMAL:
-      priority = QThread::NormalPriority;
+      _priority = QThread::NormalPriority;
       break;
    case THREAD_PRIORITY_BELOW_NORMAL:
-      priority = QThread::LowPriority;
+      _priority = QThread::LowPriority;
       break;
    case THREAD_PRIORITY_LOWEST:
-      priority = QThread::LowestPriority;
+      _priority = QThread::LowestPriority;
       break;
    case THREAD_PRIORITY_IDLE:
-      priority = QThread::IdlePriority;
+      _priority = QThread::IdlePriority;
       break;
    }
-   setPriority(priority);
    return TRUE;
 }
 
@@ -9422,6 +9419,7 @@ BOOL CWinThread::PostThreadMessage(
 
 void CWinThread::run()
 {
+   setPriority(_priority);
    Run();
 }
 
