@@ -4387,10 +4387,6 @@ int CListCtrl::InsertColumn(
    {
       _qtd_table->insertColumn(nCol);
    }
-   else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
-   {
-//      _qtd_list->insertColumn(nCol);
-   }
 
    if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
    {
@@ -4405,19 +4401,6 @@ int CListCtrl::InsertColumn(
       _qtd_table->setColumnWidth(nCol,nWidth);
       _qtd_table->setHorizontalHeaderItem(nCol,twi);
       return _qtd_table->columnCount()-1;
-   }
-   else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
-   {
-//      QListWidgetItem* lwi = new QListWidgetItem;
-
-//#if UNICODE
-//      lwi->setText(QString::fromWCharArray(lpszColumnHeading));
-//#else
-//      lwi->setText(QString::fromLatin1(lpszColumnHeading));
-//#endif
-
-//      _qtd_list->setColumnWidth(nCol,nWidth);
-//      return _qtd_list->columnCount()-1;
    }
    return 0;
 }
@@ -4441,6 +4424,7 @@ int CListCtrl::InsertItem(
       _qtd_table->insertRow(nItem);
       _qtd_table->setItem(nItem,0,twi);
       _qtd_table->blockSignals(false);
+      _qtd_table->update();
       _qtd_table->resizeRowToContents(nItem);
       _qtd_table->resizeColumnsToContents();
       return _qtd_table->rowCount()-1;
@@ -4458,6 +4442,7 @@ int CListCtrl::InsertItem(
       _qtd_list->blockSignals(true);
       _qtd_list->insertItem(nItem,lwi);
       _qtd_list->blockSignals(false);
+      _qtd_list->update();
       return _qtd_list->count()-1;
    }
    return 0;
@@ -4487,6 +4472,7 @@ int CListCtrl::InsertItem(
       _qtd_table->insertRow(nItem);
       _qtd_table->setItem(nItem,0,twi);
       _qtd_table->blockSignals(false);
+      _qtd_table->update();
       _qtd_table->resizeRowToContents(nItem);
       _qtd_table->resizeColumnsToContents();
       return _qtd_table->rowCount()-1;
@@ -4507,6 +4493,7 @@ int CListCtrl::InsertItem(
       _qtd_list->blockSignals(true);
       _qtd_list->insertItem(nItem,lwi);
       _qtd_list->blockSignals(false);
+      _qtd_list->update();
       return _qtd_list->count()-1;
    }
    return 0;
