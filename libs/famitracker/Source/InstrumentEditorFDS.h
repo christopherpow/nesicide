@@ -31,7 +31,7 @@
 
 class CInstrumentEditorFDS : public CInstrumentEditPanel
 {
-   DECLARE_DYNAMIC(CInstrumentEditorFDS)
+	DECLARE_DYNAMIC(CInstrumentEditorFDS)
 
 public:
 	CInstrumentEditorFDS(CWnd* pParent = NULL);   // standard constructor

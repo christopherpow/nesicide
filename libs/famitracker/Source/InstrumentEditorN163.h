@@ -28,7 +28,7 @@
 
 class CInstrumentEditorN163 : public CSequenceInstrumentEditPanel
 {
-   DECLARE_DYNAMIC(CInstrumentEditorN163)
+	DECLARE_DYNAMIC(CInstrumentEditorN163)
 
 public:
 	CInstrumentEditorN163(CWnd* pParent = NULL);   // standard constructor

@@ -11027,19 +11027,6 @@ void CEdit::subclassWidget(int nID,CWnd* widget)
    setMfcBuddy(widget->mfcBuddy());
    widget->setMfcBuddy(this);
    _qt->installEventFilter(dynamic_cast<CEdit*>(this));
-   
-   // Check if this CEdit has been auto-buddied with a CSpinButtonCtrl and,
-   // if so, reparent it appropriately.
-   QSpinBox_MFC* spinBox = dynamic_cast<QSpinBox_MFC*>(widget->toQWidget()->parentWidget());
-   if ( spinBox )
-   {
-      spinBox->setLineEdit(dynamic_cast<QLineEdit*>(toQWidget()));
-      // Don't un-parent the original widget, it's inside a QSpinBox!
-   }
-   else
-   {
-      widget->setParent(NULL);
-   }
 }
 
 bool CEdit::event(QEvent *event)
@@ -11245,23 +11232,19 @@ void CEdit::SetWindowText(
    }
    else
    {
-      // Check if this CEdit has been auto-buddied with a CSpinButtonCtrl and,
-      // if so, update it appropriately.
-      CSpinButtonCtrl* spinBox = dynamic_cast<CSpinButtonCtrl*>(mfcBuddy());
       _qtd_ledit->blockSignals(true);
-      if ( spinBox )
-      {
-         spinBox->SetWindowText(lpszString);
-      }
-      else
-      {
 #if UNICODE
-         _qtd_ledit->setText(QString::fromWCharArray(lpszString));
+      _qtd_ledit->setText(QString::fromWCharArray(lpszString));
 #else
-         _qtd_ledit->setText(QString::fromLatin1(lpszString));
+      _qtd_ledit->setText(QString::fromLatin1(lpszString));
 #endif
-      }
       _qtd_ledit->blockSignals(false);
+   }
+   
+   // Tell our buddied CSpinButtonCtrl if necessary...
+   if ( mfcBuddy() )
+   {
+      mfcBuddy()->SetWindowText(lpszString);
    }
 }
 
@@ -11329,23 +11312,12 @@ void CEdit::ReplaceSel(
    }
    else
    {
-      // Check if this CEdit has been auto-buddied with a CSpinButtonCtrl and,
-      // if so, update it appropriately.
-      CSpinButtonCtrl* spinBox = dynamic_cast<CSpinButtonCtrl*>(mfcBuddy());
       _qtd_ledit->blockSignals(true);
-      if ( spinBox )
-      {
-         // CP: FIXME
-         qFatal("NOT IMPLEMENTED");
-      }
-      else
-      {
 #if UNICODE
-         _qtd_ledit->insert(QString::fromWCharArray(lpszNewText));
+      _qtd_ledit->insert(QString::fromWCharArray(lpszNewText));
 #else
-         _qtd_ledit->insert(QString::fromLatin1(lpszNewText));
+      _qtd_ledit->insert(QString::fromLatin1(lpszNewText));
 #endif
-      }
       _qtd_ledit->blockSignals(false);
    }
 }
@@ -11402,19 +11374,15 @@ void CEdit::SetDlgItemInt(
    }
    else
    {
-      // Check if this CEdit has been auto-buddied with a CSpinButtonCtrl and,
-      // if so, update it appropriately.
-      CSpinButtonCtrl* spinBox = dynamic_cast<CSpinButtonCtrl*>(mfcBuddy());
       _qtd_ledit->blockSignals(true);
-      if ( spinBox )
-      {
-         spinBox->SetDlgItemInt(nID,nValue,bSigned);
-      }
-      else
-      {
-         _qtd_ledit->setText(QString::number(nValue));
-      }
+      _qtd_ledit->setText(QString::number(nValue));
       _qtd_ledit->blockSignals(false);
+   }
+   
+   // Tell our buddied CSpinButtonCtrl if necessary...
+   if ( mfcBuddy() )
+   {
+      mfcBuddy()->SetDlgItemInt(nID,nValue,bSigned);
    }
 }
 
@@ -11451,23 +11419,19 @@ void CEdit::SetDlgItemText(
    }
    else
    {
-      // Check if this CEdit has been auto-buddied with a CSpinButtonCtrl and,
-      // if so, update it appropriately.
-      CSpinButtonCtrl* spinBox = dynamic_cast<CSpinButtonCtrl*>(mfcBuddy());
       _qtd_ledit->blockSignals(true);
-      if ( spinBox )
-      {
-         spinBox->SetDlgItemText(nID,lpszString);
-      }
-      else
-      {
 #if UNICODE
-         _qtd_ledit->setText(QString::fromWCharArray(lpszString));
+      _qtd_ledit->setText(QString::fromWCharArray(lpszString));
 #else
-         _qtd_ledit->setText(QString::fromLatin1(lpszString));
+      _qtd_ledit->setText(QString::fromLatin1(lpszString));
 #endif
-      }
       _qtd_ledit->blockSignals(false);
+   }
+   
+   // Tell our buddied CSpinButtonCtrl if necessary...
+   if ( mfcBuddy() )
+   {
+      mfcBuddy()->SetDlgItemText(nID,lpszString);
    }
 }
 
@@ -12181,10 +12145,10 @@ BOOL CSpinButtonCtrl::Create(
                pWnd->setMfcBuddy(this);
                setMfcBuddy(pWnd);
                
-               QRect rect = pWnd->toQWidget()->geometry();
-               _qtd->setLineEdit(dynamic_cast<QLineEdit*>(pWnd->toQWidget()));
+               QRect wndRect = pWnd->toQWidget()->geometry();
                _qtd->lineEdit()->setValidator(NULL);
-               _qtd->setGeometry(rect);
+               _qtd->setGeometry(wndRect.adjusted(wndRect.width()-((rect.right-rect.left)+1),0,0,0));
+               pWnd->setGeometry(pWnd->geometry().adjusted(0,0,-(rect.right-rect.left),0));
             }
          }
       }
@@ -12193,9 +12157,6 @@ BOOL CSpinButtonCtrl::Create(
    // Pass-through signals
    QObject::connect(_qtd,SIGNAL(valueChanged(int)),this,SLOT(control_edited(int)));
    QObject::connect(_qtd->lineEdit(),SIGNAL(textEdited(QString)),this,SLOT(control_edited(QString)));
-
-   _qtd->lineEdit()->installEventFilter(dynamic_cast<CSpinButtonCtrl*>(this));
-   _qtd->lineEdit()->setFocusPolicy(Qt::ClickFocus);
    
    SetParent(pParentWnd);
    
@@ -12208,6 +12169,11 @@ void CSpinButtonCtrl::control_edited(int value)
 {
    NMUPDOWN nmud;
    
+   // We need to pretend we're seeing this before the value's actually changed in the control.
+   _qtd->blockSignals(true);
+   _qtd->setValue(_oldValue);
+   _qtd->blockSignals(false);
+   
    nmud.hdr.hwndFrom = m_hWnd;
    nmud.hdr.idFrom = _id;
    nmud.hdr.code = UDN_DELTAPOS;
@@ -12217,6 +12183,7 @@ void CSpinButtonCtrl::control_edited(int value)
    GetOwner()->SendMessage(WM_NOTIFY,_id,(LPARAM)&nmud);
    HWND hWnd = (HWND)mfcBuddy();
    int id = mfcBuddy()->GetDlgCtrlID();
+   GetOwner()->SetDlgItemInt(id,value);
    GetOwner()->PostMessage(WM_COMMAND,(EN_CHANGE<<16)|(id),(LPARAM)hWnd);
 }
 
@@ -12268,7 +12235,18 @@ void CSpinButtonCtrl::SetWindowText(
    LPCTSTR lpszString
 )
 {
+   QString val;
+#if UNICODE
+   val = QString::fromWCharArray(lpszString);
+#else
+   val = QString::fromLatin1(lpszString);
+#endif
    _qtd->blockSignals(true);
+   bool ok;
+   val.toInt(&ok);
+   if ( ok )
+   {
+      _qtd->setValue(val.toInt());
 #if UNICODE
    _qtd->lineEdit()->setText(QString::fromWCharArray(lpszString));
    _oldValue = QString::fromWCharArray(lpszString).toInt();
@@ -12276,6 +12254,7 @@ void CSpinButtonCtrl::SetWindowText(
    _qtd->lineEdit()->setText(QString::fromLatin1(lpszString));
    _oldValue = QString::fromLatin1(lpszString).toInt();
 #endif
+   }
    _qtd->blockSignals(true);
 }
 
@@ -12312,14 +12291,14 @@ void CSpinButtonCtrl::SetDlgItemText(
    val = QString::fromLatin1(lpszString);
 #endif
    _qtd->blockSignals(true);
-   _qtd->lineEdit()->setText(val);
    bool ok;
    val.toInt(&ok);
    if ( ok )
    {
       _qtd->setValue(val.toInt());
+      _qtd->lineEdit()->setText(val);
+      _oldValue = val.toInt();
    }
-   _oldValue = val.toInt();
    _qtd->blockSignals(false);
 }
 

@@ -27,8 +27,8 @@
 
 class CInstrumentEditor2A03 : public CSequenceInstrumentEditPanel
 {
-   DECLARE_DYNAMIC(CInstrumentEditor2A03)
-   
+	DECLARE_DYNAMIC(CInstrumentEditor2A03)
+
 public:
 	CInstrumentEditor2A03(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CInstrumentEditor2A03();

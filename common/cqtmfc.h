@@ -4712,7 +4712,6 @@ class QSpinBox_MFC : public QSpinBox
 {
 public:
    QSpinBox_MFC(QWidget* parent=0) : QSpinBox(parent) {}
-   void setLineEdit(QLineEdit *edit) { QSpinBox::setLineEdit(edit); }
    QLineEdit* lineEdit() const { return QSpinBox::lineEdit(); }
 };
 

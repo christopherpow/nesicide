@@ -29,7 +29,7 @@
 
 class CInstrumentEditorFDSEnvelope : public CSequenceInstrumentEditPanel
 {
-   DECLARE_DYNAMIC(CInstrumentEditorFDSEnvelope)
+	DECLARE_DYNAMIC(CInstrumentEditorFDSEnvelope)
 
 public:
 	CInstrumentEditorFDSEnvelope(CWnd* pParent = NULL);   // standard constructor

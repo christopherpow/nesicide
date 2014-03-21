@@ -126,6 +126,7 @@ BEGIN_MESSAGE_MAP(CInstrumentEditorN163, CSequenceInstrumentEditPanel)
 	ON_COMMAND(ID_CLONE_SEQUENCE, OnCloneSequence)
 END_MESSAGE_MAP()
 
+
 // CInstrumentEditorN163 message handlers
 
 BOOL CInstrumentEditorN163::OnInitDialog()

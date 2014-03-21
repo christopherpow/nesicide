@@ -122,11 +122,6 @@ BEGIN_MESSAGE_MAP(CInstrumentEditorN163Wave, CInstrumentEditPanel)
 	ON_EN_CHANGE(IDC_INDEX, OnIndexChange)
 END_MESSAGE_MAP()
 
-void CInstrumentEditorN163Wave::wavePos_editTextChanged(QString text)
-{
-   OnWavePosChange();
-}
-
 // CInstrumentEditorN163Wave message handlers
 
 BOOL CInstrumentEditorN163Wave::OnInitDialog()
