@@ -4053,7 +4053,6 @@ BOOL CListCtrl::Create(
 void CListCtrl::itemSelectionChanged()
 {
    NMLISTVIEW nmlv;
-   LRESULT result;
    
    nmlv.hdr.hwndFrom = m_hWnd;
    nmlv.hdr.idFrom = _id;
@@ -4086,7 +4085,6 @@ void CListCtrl::itemSelectionChanged()
 void CListCtrl::cellClicked(int row, int column)
 {
    NMITEMACTIVATE nmia;
-   LRESULT result;
 
    nmia.hdr.hwndFrom = m_hWnd;
    nmia.hdr.idFrom = _id;
@@ -4102,7 +4100,6 @@ void CListCtrl::cellClicked(int row, int column)
 void CListCtrl::cellDoubleClicked(int row, int column)
 {
    NMITEMACTIVATE nmia;
-   LRESULT result;
    
    nmia.hdr.hwndFrom = m_hWnd;
    nmia.hdr.idFrom = _id;
@@ -4118,7 +4115,6 @@ void CListCtrl::cellDoubleClicked(int row, int column)
 void CListCtrl::clicked(QModelIndex index)
 {
    NMITEMACTIVATE nmia;
-   LRESULT result;
    
    nmia.hdr.hwndFrom = m_hWnd;
    nmia.hdr.idFrom = _id;
@@ -4134,7 +4130,6 @@ void CListCtrl::clicked(QModelIndex index)
 void CListCtrl::doubleClicked(QModelIndex index)
 {
    NMITEMACTIVATE nmia;
-   LRESULT result;
    
    nmia.hdr.hwndFrom = m_hWnd;
    nmia.hdr.idFrom = _id;
@@ -5076,7 +5071,6 @@ void CTreeCtrl::itemSelectionChanged()
 void CTreeCtrl::itemClicked(QTreeWidgetItem* item, int column)
 {
    NMITEMACTIVATE nmia;
-   LRESULT result;
 
    nmia.hdr.hwndFrom = m_hWnd;
    nmia.hdr.idFrom = _id;
@@ -5092,7 +5086,6 @@ void CTreeCtrl::itemClicked(QTreeWidgetItem* item, int column)
 void CTreeCtrl::itemDoubleClicked(QTreeWidgetItem* item, int column)
 {
    NMITEMACTIVATE nmia;
-   LRESULT result;
 
    nmia.hdr.hwndFrom = m_hWnd;
    nmia.hdr.idFrom = _id;
@@ -6788,7 +6781,6 @@ void CWnd::mousePressEvent(QMouseEvent *event)
       
       // Also handle context menu...
       NMITEMACTIVATE nmia;
-      LRESULT result;
    
       nmia.hdr.hwndFrom = m_hWnd;
       nmia.hdr.idFrom = _id;
@@ -6921,7 +6913,6 @@ void CWnd::paintEvent(QPaintEvent *event)
 void CWnd::contextMenuEvent(QContextMenuEvent *event)
 {
    NMITEMACTIVATE nmia;
-   LRESULT result;
 
    nmia.hdr.hwndFrom = m_hWnd;
    nmia.hdr.idFrom = _id;
@@ -8337,7 +8328,6 @@ void CView::mousePressEvent(QMouseEvent *event)
       
       // Also handle context menu...
       NMITEMACTIVATE nmia;
-      LRESULT result;
    
       nmia.hdr.hwndFrom = m_hWnd;
       nmia.hdr.idFrom = _id;
@@ -10930,6 +10920,17 @@ void CTabCtrl::subclassWidget(int nID,CWnd* widget)
    widget->setParent(NULL);
 }
 
+void CTabCtrl::currentChanged(int value)
+{
+   NMHDR nmhdr;
+   
+   nmhdr.hwndFrom = m_hWnd;
+   nmhdr.idFrom = _id;
+   nmhdr.code = TCN_SELCHANGE;
+   
+   GetOwner()->SendMessage(WM_NOTIFY,_id,(LPARAM)&nmhdr);
+}
+
 BOOL CTabCtrl::Create( 
   DWORD dwStyle, 
   const RECT& rect, 
@@ -10937,6 +10938,9 @@ BOOL CTabCtrl::Create(
   UINT nID  
 )
 {
+   m_hWnd = (HWND)this;
+   _id = nID;
+
    if ( _qt )
       delete _qt;
 
@@ -10953,9 +10957,11 @@ BOOL CTabCtrl::Create(
    _qtd->setMouseTracking(true);
    _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
    _qtd->setFont(QFont("MS Shell Dlg",8));
+   
+   SetParent(pParentWnd);
 
    // Pass-through signals
-   QObject::connect(_qtd,SIGNAL(currentChanged(int)),this,SIGNAL(currentChanged(int)));
+   QObject::connect(_qtd,SIGNAL(currentChanged(int)),this,SLOT(currentChanged(int)));
 }
 
 LONG CTabCtrl::InsertItem(
@@ -11123,7 +11129,7 @@ BOOL CEdit::Create(
       _qtd_ledit = dynamic_cast<QLineEdit*>(_qt);
 
       // Pass-through signals
-      QObject::connect(_qtd_ledit,SIGNAL(textEdited(QString)),this,SLOT(textEdited(QString)));
+      QObject::connect(_qtd_ledit,SIGNAL(textChanged(QString)),this,SLOT(textChanged()));
 
       _qtd_ledit->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
       _qtd_ledit->setReadOnly(dwStyle&ES_READONLY);
@@ -11142,11 +11148,6 @@ BOOL CEdit::Create(
 }
 
 void CEdit::textChanged()
-{
-   GetOwner()->PostMessage(WM_COMMAND,(EN_CHANGE<<16)|(_id),(LPARAM)m_hWnd);
-}
-
-void CEdit::textEdited(QString str)
 {
    GetOwner()->PostMessage(WM_COMMAND,(EN_CHANGE<<16)|(_id),(LPARAM)m_hWnd);
 }
@@ -11368,15 +11369,11 @@ void CEdit::SetDlgItemInt(
 {
    if ( _dwStyle&ES_MULTILINE )
    {
-      _qtd_ptedit->blockSignals(true);
       _qtd_ptedit->setPlainText(QString::number(nValue));
-      _qtd_ptedit->blockSignals(false);
    }
    else
    {
-      _qtd_ledit->blockSignals(true);
       _qtd_ledit->setText(QString::number(nValue));
-      _qtd_ledit->blockSignals(false);
    }
    
    // Tell our buddied CSpinButtonCtrl if necessary...
@@ -11409,23 +11406,19 @@ void CEdit::SetDlgItemText(
 {
    if ( _dwStyle&ES_MULTILINE )
    {
-      _qtd_ptedit->blockSignals(true);
 #if UNICODE
       _qtd_ptedit->setPlainText(QString::fromWCharArray(lpszString));
 #else
       _qtd_ptedit->setPlainText(QString::fromLatin1(lpszString));
 #endif
-      _qtd_ptedit->blockSignals(false);
    }
    else
    {
-      _qtd_ledit->blockSignals(true);
 #if UNICODE
       _qtd_ledit->setText(QString::fromWCharArray(lpszString));
 #else
       _qtd_ledit->setText(QString::fromLatin1(lpszString));
 #endif
-      _qtd_ledit->blockSignals(false);
    }
    
    // Tell our buddied CSpinButtonCtrl if necessary...

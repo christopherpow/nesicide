@@ -72,13 +72,6 @@ BEGIN_MESSAGE_MAP(CInstrumentEditDlg, CDialog)
 	ON_WM_NCLBUTTONUP()
 END_MESSAGE_MAP()
 
-void CInstrumentEditDlg::instTab_currentChanged(int arg1)
-{
-   NMHDR nmhdr;
-   LRESULT result;
-   OnTcnSelchangeInstTab(&nmhdr,&result);
-}
-
 void CInstrumentEditDlg::closeEvent(QCloseEvent *)
 {
    DestroyWindow();

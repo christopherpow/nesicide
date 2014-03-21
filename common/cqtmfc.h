@@ -4475,7 +4475,6 @@ protected:
    QLineEdit* _qtd_ledit;
 public slots:
    void textChanged();
-   void textEdited(QString str);
 
    // MFC interfaces
 public:
@@ -4911,8 +4910,8 @@ public:
    virtual void subclassWidget(int nID,CWnd* widget);
 protected:
    QTabWidget* _qtd;
-signals:
-   void currentChanged(int);
+public slots:
+   void currentChanged(int value);
 
    // MFC interfaces
 public:

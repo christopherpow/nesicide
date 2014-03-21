@@ -36,9 +36,6 @@ public: // For some reason MOC doesn't like the protection specification inside 
    // Qt stuff
 protected:
    void closeEvent(QCloseEvent *);
-   
-public slots:
-   void instTab_currentChanged(int arg1);
       
 public:
 	CInstrumentEditDlg(CWnd* pParent = NULL);   // standard constructor

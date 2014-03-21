@@ -1643,7 +1643,6 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT(CDialog* parent1)
    parent->MapDialogRect(&r1);
    mfc1->Create(WS_VISIBLE,r1,parent,IDC_INST_TAB);
    mfcToQtWidget->insert(IDC_INST_TAB,mfc1);
-   QObject::connect(mfc1,SIGNAL(currentChanged(int)),parent,SLOT(instTab_currentChanged(int)));
 //   CONTROL         "",IDC_KEYBOARD,"Static",SS_OWNERDRAW | SS_REALSIZEIMAGE | SS_SUNKEN,7,198,375,37
    CStatic* mfc2 = new CStatic(parent);
    CRect r2(CPoint(7,198),CSize(375,37));
@@ -3430,8 +3429,6 @@ void qtMfcInitDialogResource_IDD_CHANNELS(CDialog* parent1)
    parent->MapDialogRect(&r9);
    mfc9->Create(TVS_HASBUTTONS | TVS_HASLINES | TVS_LINESATROOT | WS_BORDER | WS_HSCROLL | WS_TABSTOP | WS_VISIBLE,r9,parent,IDC_AVAILABLE_TREE);
    mfcToQtWidget->insert(IDC_AVAILABLE_TREE,mfc9);
-   QObject::connect(mfc9,SIGNAL(itemClicked(QTreeWidgetItem*,int)),parent,SLOT(availableTree_itemClicked(QTreeWidgetItem*,int)));
-   QObject::connect(mfc9,SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)),parent,SLOT(availableTree_itemDoubleClicked(QTreeWidgetItem*,int)));
 //   END
 }
 
