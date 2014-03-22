@@ -5762,7 +5762,6 @@ public:
    virtual void subclassWidget(int nID, CWnd *widget);
 protected:
    QToolTip* _qtd;
-   QList<CWnd*> _tippers;
    // MFC interfaces
 public:
    CToolTipCtrl( );
@@ -5983,7 +5982,7 @@ public slots:
    void apply_clicked();
    void pageModified();
 public:
-   void _commonConstruct(CWnd* parent,UINT selectedPage);
+   void _commonConstruct(CString title,CWnd* parent,UINT selectedPage);
    explicit CPropertySheet(
       UINT nIDCaption,
       CWnd* pParentWnd = NULL,

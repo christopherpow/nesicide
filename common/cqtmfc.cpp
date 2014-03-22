@@ -13380,7 +13380,9 @@ CPropertySheet::CPropertySheet(
    UINT iSelectPage
 )
 {
-   _commonConstruct(pParentWnd,iSelectPage);
+   CString title;
+   title = qtMfcStringResource(nIDCaption);
+   _commonConstruct(title,pParentWnd,iSelectPage);
 }
 
 CPropertySheet::CPropertySheet(
@@ -13389,7 +13391,7 @@ CPropertySheet::CPropertySheet(
    UINT iSelectPage
 )
 {
-   _commonConstruct(pParentWnd,iSelectPage);
+   _commonConstruct(pszCaption,pParentWnd,iSelectPage);
 }
 
 CPropertySheet::CPropertySheet(
@@ -13401,7 +13403,9 @@ CPropertySheet::CPropertySheet(
    HBITMAP hbmHeader
 )
 {
-   _commonConstruct(pParentWnd,iSelectPage);
+   CString title;
+   title = qtMfcStringResource(nIDCaption);
+   _commonConstruct(title,pParentWnd,iSelectPage);
 }
 
 CPropertySheet::CPropertySheet(
@@ -13413,10 +13417,10 @@ CPropertySheet::CPropertySheet(
    HBITMAP hbmHeader
 )
 {
-   _commonConstruct(pParentWnd,iSelectPage);
+   _commonConstruct(pszCaption,pParentWnd,iSelectPage);
 }
 
-void CPropertySheet::_commonConstruct(CWnd* parent,UINT selectedPage)
+void CPropertySheet::_commonConstruct(CString title,CWnd* parent,UINT selectedPage)
 {
    if ( _qt )
       delete _qt;
@@ -13424,6 +13428,7 @@ void CPropertySheet::_commonConstruct(CWnd* parent,UINT selectedPage)
    _qt = new QDialog;
 
    _qtd = dynamic_cast<QDialog*>(_qt);
+   _qtd->setWindowTitle(title);
 
    _selectedPage = selectedPage;
 
