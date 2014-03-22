@@ -3834,6 +3834,9 @@ public:
    virtual void DoDataExchange(
       CDataExchange* pDX
    ) {}
+   CWnd* GetWindow(
+         UINT nCmd
+   ) const;
    int GetWindowTextLength( ) const;
    CWnd* GetParent() const { return m_pParentWnd?(CWnd*)m_pParentWnd:(CWnd*)m_pFrameWnd; }
    void SetParent(CWnd* parent) { m_pParentWnd = parent; m_pOwnerWnd = parent; _qt->setParent(parent->toQWidget()); }
@@ -6181,6 +6184,7 @@ QIcon* qtIconResource(int id);
 CDocument* openFile(QString fileName);
 
 UINT qtToMfcKeycode(UINT qt);
+UINT mfcToQtKeycode(UINT mfc);
 
 extern bool ideifiedFamiTracker;
 void ideifyFamiTracker();

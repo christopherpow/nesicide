@@ -1445,24 +1445,12 @@ UINT WINAPI MapVirtualKey(
   UINT uMapType
 )
 {
-   switch ( uMapType )
+   // CP: Nothing to do here?
+   if ( uMapType != MAPVK_VK_TO_VSC )
    {
-   case MAPVK_VK_TO_VSC:
-      qDebug("MapVirtualKey...not sure what to do here yet uCode=%x, uMapType=%d.",uCode,uMapType);
-      switch ( uCode )
-      {
-      case VK_DIVIDE:
-         return Qt::Key_Slash;
-         break;
-      }
-
-      return uCode;
-      break;
-   default:
-      qDebug("MapVirtualKey case %d not supported",uMapType);
-      break;
+      qDebug("MapVirtualKey: unsupported uMapType %d",uMapType);
    }
-   return 0;
+   return uCode;
 }
 
 //IMPLEMENT_DYNAMIC(CObject,NULL) <- CObject is base...treat it special.
@@ -7611,6 +7599,37 @@ void CWnd::KillTimer(UINT id)
    }
 }
 
+CWnd* CWnd::GetWindow(
+      UINT nCmd
+) const
+{
+   CWnd* pWnd = NULL;
+   UINT myID = _id;
+   int idx;
+   switch ( nCmd )
+   {
+   case GW_CHILD:
+      pWnd = mfcToQtWidget.begin().value();
+      break;
+   case GW_HWNDNEXT:
+      pWnd = GetParent();
+      idx = pWnd->mfcToQtWidgetMap()->keys().indexOf(myID)+1;
+      if ( idx < pWnd->mfcToQtWidgetMap()->count() )
+      {
+         pWnd = pWnd->mfcToQtWidgetMap()->value(pWnd->mfcToQtWidgetMap()->keys().at(idx));
+      }
+      else
+      {
+         pWnd = NULL;
+      }
+      break;
+   default:
+      qDebug("CWnd::GetWindow unsupported nCmd %d",nCmd);
+      break;
+   }
+   return pWnd;
+}
+
 int CWnd::GetWindowTextLength( ) const
 {
    return _qt->windowTitle().length();
@@ -13587,7 +13606,6 @@ BOOL CToolTipCtrl::AddTool(
    UINT_PTR nIDTool
 )
 {
-   _tippers.append(pWnd);
    pWnd->toQWidget()->setToolTip(qtMfcStringResource(nIDText));
    return TRUE;
 }
@@ -13599,8 +13617,11 @@ BOOL CToolTipCtrl::AddTool(
    UINT_PTR nIDTool
 )
 {
-   _tippers.append(pWnd);
-   pWnd->toQWidget()->setToolTip(lpszText);
+#if UNICODE
+   pWnd->toQWidget()->setToolTip(QString::fromWCharArray(lpszText));
+#else
+   pWnd->toQWidget()->setToolTip(QString::fromLatin1(lpszText));
+#endif
    return TRUE;
 }
 
@@ -15143,6 +15164,78 @@ UINT qtToMfcKeycode(UINT qt)
       break;
    }
    return mfc;
+}
+
+UINT mfcToQtKeycode(UINT mfc)
+{
+   UINT qt = mfc; // Assume same...
+   switch ( mfc )
+   {
+   case VK_DIVIDE:
+      qt = Qt::Key_division;
+      break;
+   case VK_F1:
+      qt = Qt::Key_F1;
+      break;
+   case VK_F2:
+      qt = Qt::Key_F2;
+      break;
+   case VK_F3:
+      qt = Qt::Key_F3;
+      break;
+   case VK_F4:
+      qt = Qt::Key_F4;
+      break;
+   case VK_F5:
+      qt = Qt::Key_F5;
+      break;
+   case VK_F6:
+      qt = Qt::Key_F6;
+      break;
+   case VK_F7:
+      qt = Qt::Key_F7;
+      break;
+   case VK_F8:
+      qt = Qt::Key_F8;
+      break;
+   case VK_F9:
+      qt = Qt::Key_F9;
+      break;
+   case VK_F10:
+      qt = Qt::Key_F10;
+      break;
+   case VK_F11:
+      qt = Qt::Key_F11;
+      break;
+   case VK_F12:
+      qt = Qt::Key_F12;
+      break;
+   case VK_F13:
+      qt = Qt::Key_F13;
+      break;
+   case VK_F14:
+      qt = Qt::Key_F14;
+      break;
+   case VK_F15:
+      qt = Qt::Key_F15;
+      break;
+   case VK_F16:
+      qt = Qt::Key_F16;
+      break;
+   case VK_F17:
+      qt = Qt::Key_F17;
+      break;
+   case VK_F18:
+      qt = Qt::Key_F18;
+      break;
+   case VK_F19:
+      qt = Qt::Key_F19;
+      break;
+   default:
+      qDebug("mfcToQtKeycode...not sure what to do here yet mfc=%x.",mfc);
+      break;      
+   }
+   return qt;
 }
 
 bool ideifiedFamiTracker = false;
