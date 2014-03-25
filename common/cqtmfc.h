@@ -4472,6 +4472,7 @@ class CEdit : public CWnd
    // Qt interfaces
 public:
    virtual void subclassWidget(int nID,CWnd* widget);
+   void updateFromBuddy();
 protected:
    virtual bool event(QEvent *event);
    QPlainTextEdit* _qtd_ptedit;
@@ -4725,12 +4726,12 @@ class CSpinButtonCtrl : public CWnd
 public:
    virtual void subclassWidget(int nID,CWnd* widget);
    virtual bool eventFilter(QObject *object, QEvent *event);
+   void updateFromBuddy();
 protected:
    QSpinBox_MFC* _qtd;
    int _oldValue;
 public slots:
-   void control_edited(int value);
-   void control_edited(QString value);
+   void valueChanged(int value);
 
    // MFC interfaces
 public:

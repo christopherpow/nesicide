@@ -3804,11 +3804,6 @@ bool CListCtrl::eventFilter(QObject *object, QEvent *event)
          showEvent(dynamic_cast<QShowEvent*>(event));
          return true;
       }
-   //   if ( event->type() == QEvent::ShowToParent )
-   //   {
-   //      showEvent(dynamic_cast<QShowEvent*>(event));
-   //      return true;
-   //   }
       if ( event->type() == QEvent::Hide )
       {
          hideEvent(dynamic_cast<QHideEvent*>(event));
@@ -3842,27 +3837,27 @@ bool CListCtrl::eventFilter(QObject *object, QEvent *event)
       if ( event->type() == QEvent::MouseButtonPress )
       {
          mousePressEvent(dynamic_cast<QMouseEvent*>(event));
-         return true;
+         return false;
       }
       if ( event->type() == QEvent::MouseButtonRelease )
       {
          mouseReleaseEvent(dynamic_cast<QMouseEvent*>(event));
-         return true;
+         return false;
       }
       if ( event->type() == QEvent::MouseButtonDblClick )
       {
          mouseDoubleClickEvent(dynamic_cast<QMouseEvent*>(event));
-         return true;
+         return false;
       }
       if ( event->type() == QEvent::MouseMove )
       {
          mouseMoveEvent(dynamic_cast<QMouseEvent*>(event));
-         return true;
+         return false;
       }
       if ( event->type() == QEvent::Wheel )
       {
          wheelEvent(dynamic_cast<QWheelEvent*>(event));
-         return true;
+         return false;
       }
       if ( event->type() == QEvent::Resize )
       {
@@ -6959,11 +6954,6 @@ bool CWnd::eventFilter(QObject *object, QEvent *event)
          showEvent(dynamic_cast<QShowEvent*>(event));
          return true;
       }
-   //   if ( event->type() == QEvent::ShowToParent )
-   //   {
-   //      showEvent(dynamic_cast<QShowEvent*>(event));
-   //      return true;
-   //   }
       if ( event->type() == QEvent::Hide )
       {
          hideEvent(dynamic_cast<QHideEvent*>(event));
@@ -6997,27 +6987,27 @@ bool CWnd::eventFilter(QObject *object, QEvent *event)
       if ( event->type() == QEvent::MouseButtonPress )
       {
          mousePressEvent(dynamic_cast<QMouseEvent*>(event));
-         return true;
+         return false;
       }
       if ( event->type() == QEvent::MouseButtonRelease )
       {
          mouseReleaseEvent(dynamic_cast<QMouseEvent*>(event));
-         return true;
+         return false;
       }
       if ( event->type() == QEvent::MouseButtonDblClick )
       {
          mouseDoubleClickEvent(dynamic_cast<QMouseEvent*>(event));
-         return true;
+         return false;
       }
       if ( event->type() == QEvent::MouseMove )
       {
          mouseMoveEvent(dynamic_cast<QMouseEvent*>(event));
-         return true;
+         return false;
       }
       if ( event->type() == QEvent::Wheel )
       {
          wheelEvent(dynamic_cast<QWheelEvent*>(event));
-         return true;
+         return false;
       }
       if ( event->type() == QEvent::Resize )
       {
@@ -8187,11 +8177,6 @@ bool CView::eventFilter(QObject *object, QEvent *event)
          showEvent(dynamic_cast<QShowEvent*>(event));
          return true;
       }
-   //   if ( event->type() == QEvent::ShowToParent )
-   //   {
-   //      showEvent(dynamic_cast<QShowEvent*>(event));
-   //      return true;
-   //   }
       if ( event->type() == QEvent::Hide )
       {
          hideEvent(dynamic_cast<QHideEvent*>(event));
@@ -8245,7 +8230,7 @@ bool CView::eventFilter(QObject *object, QEvent *event)
       if ( event->type() == QEvent::Wheel )
       {
          wheelEvent(dynamic_cast<QWheelEvent*>(event));
-         return true;
+         return false;
       }
       if ( event->type() == QEvent::Resize )
       {
@@ -11041,6 +11026,20 @@ void CEdit::subclassWidget(int nID,CWnd* widget)
    _qt->installEventFilter(dynamic_cast<CEdit*>(this));
 }
 
+void CEdit::updateFromBuddy()
+{
+   CString str;
+   mfcBuddy()->GetDlgItemText(mfcBuddy()->GetDlgCtrlID(),str);
+   _qtd_ledit->blockSignals(true);
+#if UNICODE
+   _qtd_ledit->setText(QString::fromWCharArray((LPCTSTR)str));
+#else
+   _qtd_ledit->setText(QString::fromLatin1((LPCTSTR)str));
+#endif
+   _qtd_ledit->blockSignals(false);
+   GetOwner()->PostMessage(WM_COMMAND,(EN_CHANGE<<16)|(_id),(LPARAM)m_hWnd);
+}
+
 bool CEdit::event(QEvent *event)
 {
    MFCMessageEvent* msgEvent = dynamic_cast<MFCMessageEvent*>(event);
@@ -11156,6 +11155,11 @@ BOOL CEdit::Create(
 void CEdit::textChanged()
 {
    GetOwner()->PostMessage(WM_COMMAND,(EN_CHANGE<<16)|(_id),(LPARAM)m_hWnd);
+   
+   if ( mfcBuddy() )
+   {
+      dynamic_cast<CSpinButtonCtrl*>(mfcBuddy())->updateFromBuddy();
+   }
 }
 
 void CEdit::Clear()
@@ -11993,11 +11997,6 @@ bool CSpinButtonCtrl::eventFilter(QObject *object, QEvent *event)
          showEvent(dynamic_cast<QShowEvent*>(event));
          return true;
       }
-   //   if ( event->type() == QEvent::ShowToParent )
-   //   {
-   //      showEvent(dynamic_cast<QShowEvent*>(event));
-   //      return true;
-   //   }
       if ( event->type() == QEvent::Hide )
       {
          hideEvent(dynamic_cast<QHideEvent*>(event));
@@ -12103,6 +12102,41 @@ bool CSpinButtonCtrl::eventFilter(QObject *object, QEvent *event)
    return false;
 }
 
+void CSpinButtonCtrl::updateFromBuddy()
+{
+   CString lpszString;
+   mfcBuddy()->GetDlgItemText(mfcBuddy()->GetDlgCtrlID(),lpszString);
+//   _qtd->blockSignals(true);
+//#if UNICODE
+//   _qtd->setValuelineEdit()->setText(QString::fromWCharArray((LPCTSTR)lpszString));
+//#else
+//   _qtd->lineEdit()->setText(QString::fromLatin1((LPCTSTR)lpszString));
+//#endif
+//   _qtd->blockSignals(true);
+   QString val;
+#if UNICODE
+   val = QString::fromWCharArray(lpszString);
+#else
+   val = QString::fromLatin1(lpszString);
+#endif
+   _qtd->blockSignals(true);
+   bool ok;
+   val.toInt(&ok);
+   if ( ok )
+   {
+      _qtd->setValue(val.toInt());
+#if UNICODE
+      _qtd->lineEdit()->setText(QString::fromWCharArray(lpszString));
+      _oldValue = QString::fromWCharArray(lpszString).toInt();
+#else
+      _qtd->lineEdit()->setText(QString::fromLatin1(lpszString));
+      _oldValue = QString::fromLatin1(lpszString).toInt();
+#endif
+   }
+   _qtd->blockSignals(false);
+   GetOwner()->PostMessage(WM_COMMAND,(EN_CHANGE<<16)|(_id),(LPARAM)m_hWnd);
+}
+
 BOOL CSpinButtonCtrl::Create(
    DWORD dwStyle,
    const RECT& rect,
@@ -12128,17 +12162,20 @@ BOOL CSpinButtonCtrl::Create(
    _qtd->setMouseTracking(true);
    _qtd->setKeyboardTracking(false);
    _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
-   _qtd->setRange(0,65536);
+   _qtd->setRange(-65535,65536);
    _qtd->setFont(QFont("MS Shell Dlg",8));
+   _qtd->setVisible(dwStyle&WS_VISIBLE);
 
    // Figure out if we need to buddy-up.
    if ( dwStyle&UDS_AUTOBUDDY )
    {
-      // Check each corner.
+      // Check each widget that might be near me.
       foreach ( CWnd* pWnd, *(GetParent()->mfcToQtWidgetMap()) )
       {
+         // Do I overlap?  If so I'm auto-buddying.
          if ( geometry().intersects(pWnd->toQWidget()->geometry()) )
          {
+            // But only to CEdit...
             if ( dynamic_cast<CEdit*>(pWnd) )
             {
                pWnd->setMfcBuddy(this);
@@ -12154,17 +12191,14 @@ BOOL CSpinButtonCtrl::Create(
    }
    
    // Pass-through signals
-   QObject::connect(_qtd,SIGNAL(valueChanged(int)),this,SLOT(control_edited(int)));
-   QObject::connect(_qtd->lineEdit(),SIGNAL(textEdited(QString)),this,SLOT(control_edited(QString)));
+   QObject::connect(_qtd,SIGNAL(valueChanged(int)),this,SLOT(valueChanged(int)));
    
    SetParent(pParentWnd);
-   
-   _qtd->setVisible(dwStyle&WS_VISIBLE);
 
    return TRUE;
 }
 
-void CSpinButtonCtrl::control_edited(int value)
+void CSpinButtonCtrl::valueChanged(int value)
 {
    NMUPDOWN nmud;
    
@@ -12176,22 +12210,23 @@ void CSpinButtonCtrl::control_edited(int value)
    nmud.hdr.hwndFrom = m_hWnd;
    nmud.hdr.idFrom = _id;
    nmud.hdr.code = UDN_DELTAPOS;
-   nmud.iPos = value;
-   nmud.iDelta = _oldValue-value;
-   _oldValue = value;
+   nmud.iPos = 0;
+   nmud.iDelta = ((_oldValue-value)>0)?1:-1;
    GetOwner()->SendMessage(WM_NOTIFY,_id,(LPARAM)&nmud);
-   HWND hWnd = (HWND)mfcBuddy();
-   int id = mfcBuddy()->GetDlgCtrlID();
-   GetOwner()->SetDlgItemInt(id,value);
-   GetOwner()->PostMessage(WM_COMMAND,(EN_CHANGE<<16)|(id),(LPARAM)hWnd);
-}
 
-void CSpinButtonCtrl::control_edited(QString value)
-{
-   HWND hWnd = (HWND)mfcBuddy();
-   int id = mfcBuddy()->GetDlgCtrlID();
-   _oldValue = _qtd->value();
-   GetOwner()->PostMessage(WM_COMMAND,(EN_CHANGE<<16)|(id),(LPARAM)hWnd);
+   // We need to pretend we're seeing this before the value's actually changed in the control.
+   _qtd->blockSignals(true);
+   _qtd->setValue(value);
+   _qtd->blockSignals(false);
+   _oldValue = value;
+   
+   if ( _dwStyle&UDS_SETBUDDYINT )
+   {
+      if ( mfcBuddy() )
+      {
+         dynamic_cast<CEdit*>(mfcBuddy())->updateFromBuddy();
+      }
+   }
 }
 
 int CSpinButtonCtrl::SetPos(
@@ -12247,14 +12282,14 @@ void CSpinButtonCtrl::SetWindowText(
    {
       _qtd->setValue(val.toInt());
 #if UNICODE
-   _qtd->lineEdit()->setText(QString::fromWCharArray(lpszString));
-   _oldValue = QString::fromWCharArray(lpszString).toInt();
+      _qtd->lineEdit()->setText(QString::fromWCharArray(lpszString));
+      _oldValue = QString::fromWCharArray(lpszString).toInt();
 #else
-   _qtd->lineEdit()->setText(QString::fromLatin1(lpszString));
-   _oldValue = QString::fromLatin1(lpszString).toInt();
+      _qtd->lineEdit()->setText(QString::fromLatin1(lpszString));
+      _oldValue = QString::fromLatin1(lpszString).toInt();
 #endif
    }
-   _qtd->blockSignals(true);
+   _qtd->blockSignals(false);
 }
 
 void CSpinButtonCtrl::SetDlgItemInt(
