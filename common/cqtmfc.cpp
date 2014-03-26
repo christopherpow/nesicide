@@ -12210,7 +12210,7 @@ void CSpinButtonCtrl::valueChanged(int value)
    nmud.hdr.hwndFrom = m_hWnd;
    nmud.hdr.idFrom = _id;
    nmud.hdr.code = UDN_DELTAPOS;
-   nmud.iPos = 0;
+   nmud.iPos = value;
    nmud.iDelta = ((_oldValue-value)>0)?1:-1;
    GetOwner()->SendMessage(WM_NOTIFY,_id,(LPARAM)&nmud);
 
@@ -12237,6 +12237,10 @@ int CSpinButtonCtrl::SetPos(
    _qtd->blockSignals(true);
    _oldValue = pos;
    _qtd->setValue(nPos);
+   if ( mfcBuddy() )
+   {
+      dynamic_cast<CEdit*>(mfcBuddy())->updateFromBuddy();
+   }
    _qtd->blockSignals(false);
    return pos;
 }
