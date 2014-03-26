@@ -10953,6 +10953,8 @@ BOOL CTabCtrl::Create(
 
    // Pass-through signals
    QObject::connect(_qtd,SIGNAL(currentChanged(int)),this,SLOT(currentChanged(int)));
+   
+   return TRUE;
 }
 
 LONG CTabCtrl::InsertItem(
@@ -11749,6 +11751,10 @@ UINT CButton::GetDlgItemInt(
    DWORD buttonType = _dwStyle&0x000F;
    DWORD buttonStyle = _dwStyle&0xFFF0;
 
+   if ( lpTrans )
+   {
+      (*lpTrans) = 1;
+   }
    if ( buttonType == BS_AUTOCHECKBOX )
    {
       return _qtd_check->text().toInt();
@@ -11769,7 +11775,12 @@ UINT CButton::GetDlgItemInt(
    else if ( buttonType == BS_GROUPBOX )
    {
       return _qtd_groupbox->title().toInt();
-   }   
+   }
+   if ( lpTrans )
+   {
+      (*lpTrans) = 0;
+   }
+   return 0;
 }
 
 void CButton::SetDlgItemText(
@@ -11856,7 +11867,8 @@ int CButton::GetDlgItemText(
    {
       rString = _qtd_groupbox->title();
       return _qtd_groupbox->title().length();
-   }   
+   }
+   return 0;
 }
 
 int CButton::GetDlgItemText(
@@ -11913,7 +11925,8 @@ int CButton::GetDlgItemText(
       strncpy(lpStr,_qtd_groupbox->title().toLatin1().constData(),nMaxCount);
 #endif
       return _qtd_groupbox->title().length();
-   }   
+   }
+   return 0;
 }
 
 void CButton::CheckDlgButton(
@@ -11974,7 +11987,8 @@ UINT CButton::IsDlgButtonChecked(
    else if ( buttonType == BS_GROUPBOX )
    {
       return _qtd_groupbox->isChecked();
-   }   
+   }
+   return 0;
 }
 
 IMPLEMENT_DYNAMIC(CSpinButtonCtrl,CWnd)
@@ -12659,6 +12673,8 @@ BOOL CProgressCtrl::Create(
    _qtd->setFont(QFont("MS Shell Dlg",8));
 
    // Pass-through signals
+   
+   return TRUE;
 }
 
 void CProgressCtrl::SetRange(
@@ -13196,6 +13212,7 @@ BOOL WINAPI CloseHandle(
 )
 {
    // CP: Nothing to do here?
+   return TRUE;
 }
 
 IMPLEMENT_DYNAMIC(CSyncObject,CObject)
@@ -14015,7 +14032,7 @@ MMRESULT mmioCreateChunk(
 )
 {
    QFile* pFile = (QFile*)hmmio;
-   char* data = "RIFF";
+   const char* data = "RIFF";
    
    if ( pFile->isOpen() )
    {
@@ -14063,6 +14080,7 @@ LONG mmioWrite(
    {
       return MMSYSERR_INVALHANDLE;
    }
+   return MMSYSERR_NOERROR;
 }
 
 MMRESULT mmioAscend(
@@ -14100,6 +14118,7 @@ MMRESULT mmioAscend(
    {
       return MMSYSERR_INVALHANDLE;
    }
+   return MMSYSERR_NOERROR;
 }
 
 MMRESULT mmioDescend(
@@ -14118,6 +14137,7 @@ MMRESULT mmioDescend(
    {
       return MMSYSERR_INVALHANDLE;
    }
+   return MMSYSERR_NOERROR;
 }
 
 LONG mmioSeek(
@@ -14178,6 +14198,7 @@ MMRESULT mmioAdvance(
    {
       return MMSYSERR_INVALHANDLE;
    }
+   return MMSYSERR_NOERROR;
 }
 
 MMRESULT mmioGetInfo(
@@ -14196,6 +14217,7 @@ MMRESULT mmioGetInfo(
    {
       return MMSYSERR_INVALHANDLE;
    }
+   return MMSYSERR_NOERROR;
 }
 
 MMRESULT mmioSetInfo(
@@ -14215,6 +14237,7 @@ MMRESULT mmioSetInfo(
    {
       return MMSYSERR_INVALHANDLE;
    }
+   return MMSYSERR_NOERROR;
 }
 
 MMRESULT mmioClose(
@@ -14297,8 +14320,10 @@ DWORD WINAPI GetTempPath(
    QString path = QDir::tempPath();
 #if UNICODE
    wcsncpy(lpBuffer,path.unicode(),nBufferLength);
+   return wcslen(lpBuffer);
 #else
    strncpy(lpBuffer,path.toLatin1().constData(),nBufferLength);
+   return strlen(lpBuffer);
 #endif
 }
 

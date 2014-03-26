@@ -2184,6 +2184,7 @@ struct AFX_NOTIFY
 };
 
 #define ATL_MAKEINTRESOURCE(x) CString(QString::number(x))
+#undef MAKEINTRESOURCE
 #define MAKEINTRESOURCE(x) ATL_MAKEINTRESOURCE(x)
 
 #if UNICODE
@@ -3979,7 +3980,7 @@ public:
 public:
    void addControlBar(int area,QWidget* bar);
 public slots:
-   virtual void menuAction_triggered(int id);
+   void menuAction_triggered(int id);
 
    // MFC interfaces
 public:
