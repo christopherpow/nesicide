@@ -9243,9 +9243,9 @@ INT_PTR CDialog::DoModal()
 
    INT_PTR result = _qtd->exec();
    if ( result == QDialog::Accepted )
-      return 1;
+      return IDOK;
    else
-      return 0;
+      return IDCANCEL;
 }
 
 void CDialog::SetWindowText(
@@ -11401,10 +11401,32 @@ UINT CEdit::GetDlgItemInt(
 {
    if ( _dwStyle&ES_MULTILINE )
    {
+      if ( lpTrans )
+      {
+         // Check for numeric...
+         (*lpTrans) = TRUE;
+         
+         QString text = _qtd_ptedit->toPlainText();
+         if ( !text.remove(QRegExp("[0-9]*")).isEmpty() )
+         {
+            (*lpTrans) = FALSE;
+         }
+      }
       return _qtd_ptedit->toPlainText().toInt();
    }
    else
    {
+      if ( lpTrans )
+      {
+         // Check for numeric...
+         (*lpTrans) = TRUE;
+         
+         QString text = _qtd_ledit->text();
+         if ( !text.remove(QRegExp("[0-9]*")).isEmpty() )
+         {
+            (*lpTrans) = FALSE;
+         }
+      }
       return _qtd_ledit->text().toInt();
    }
 }
@@ -11962,7 +11984,8 @@ END_MESSAGE_MAP()
 
 CSpinButtonCtrl::CSpinButtonCtrl(CWnd* parent)
    : CWnd(parent),
-     _oldValue(0)
+     _oldValue(0),
+     _curPos(0)
 {
 }
 
@@ -12212,8 +12235,9 @@ void CSpinButtonCtrl::valueChanged(int value)
    nmud.hdr.code = UDN_DELTAPOS;
    nmud.iPos = value;
    nmud.iDelta = ((_oldValue-value)>0)?1:-1;
+   
    GetOwner()->SendMessage(WM_NOTIFY,_id,(LPARAM)&nmud);
-
+   
    // We need to pretend we're seeing this before the value's actually changed in the control.
    _qtd->blockSignals(true);
    _qtd->setValue(value);
@@ -12236,6 +12260,7 @@ int CSpinButtonCtrl::SetPos(
    int pos = _qtd->value();
    _qtd->blockSignals(true);
    _oldValue = pos;
+   _curPos = pos;
    _qtd->setValue(nPos);
    if ( mfcBuddy() )
    {
@@ -12247,7 +12272,7 @@ int CSpinButtonCtrl::SetPos(
 
 int CSpinButtonCtrl::GetPos( ) const
 {
-   return _qtd->value();
+   return _curPos;
 }
 
 void CSpinButtonCtrl::SetRange(
@@ -12314,6 +12339,17 @@ UINT CSpinButtonCtrl::GetDlgItemInt(
    BOOL bSigned
 ) const
 {
+   if ( lpTrans )
+   {
+      // Check for numeric...
+      (*lpTrans) = TRUE;
+      
+      QString text = _qtd->lineEdit()->text();
+      if ( !text.remove(QRegExp("[0-9]*")).isEmpty() )
+      {
+         (*lpTrans) = FALSE;
+      }
+   }
    return _qtd->value();
 }
 
@@ -12799,6 +12835,7 @@ CFileDialog::CFileDialog(
    // Pass-through signals
 
    _qtd->setMouseTracking(true);
+   _qtd->setOption(QFileDialog::DontUseNativeDialog);
    _qtd->hide();
 
 #if UNICODE
@@ -12930,11 +12967,11 @@ INT_PTR CFileDialog::DoModal()
          strcpy(m_ofn.lpstrFile,_qtd->selectedFiles().at(0).toLatin1().constData());
 #endif
       }
-      return 1;
+      return IDOK;
    }
    else
    {
-      return 0;
+      return IDCANCEL;
    }
 }
 
@@ -13053,9 +13090,9 @@ INT_PTR CColorDialog::DoModal()
    }
    result = _qtd->exec();
    if ( result == QDialog::Accepted )
-      return 1;
+      return IDOK;
    else
-      return 0;
+      return IDCANCEL;
 }
 
 COLORREF CColorDialog::GetColor( ) const
@@ -13554,9 +13591,9 @@ INT_PTR CPropertySheet::DoModal( )
    SetFocus();
    result = _qtd->exec();
    if ( result == QDialog::Accepted )
-      return 1;
+      return IDOK;
    else
-      return 0;
+      return IDCANCEL;
 }
 
 IMPLEMENT_DYNAMIC(CPropertyPage,CDialog)

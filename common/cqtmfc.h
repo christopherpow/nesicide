@@ -4730,6 +4730,7 @@ public:
 protected:
    QSpinBox_MFC* _qtd;
    int _oldValue;
+   int _curPos;
 public slots:
    void valueChanged(int value);
 
