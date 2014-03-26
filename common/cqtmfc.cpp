@@ -12262,10 +12262,15 @@ int CSpinButtonCtrl::SetPos(
    _oldValue = pos;
    _curPos = pos;
    _qtd->setValue(nPos);
-   if ( mfcBuddy() )
+   
+   if ( _dwStyle&UDS_SETBUDDYINT )
    {
-      dynamic_cast<CEdit*>(mfcBuddy())->updateFromBuddy();
+      if ( mfcBuddy() )
+      {
+         dynamic_cast<CEdit*>(mfcBuddy())->updateFromBuddy();
+      }
    }
+   
    _qtd->blockSignals(false);
    return pos;
 }
