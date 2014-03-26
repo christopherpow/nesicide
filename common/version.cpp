@@ -14,3 +14,5 @@ char* nesicideGetVersion()
 // ID_VIEW_TOOLBAR, ID_VIEW_STATUS_BAR
 
 // QFontMetrics::averageCharWidth hack in MapDialogRect 
+
+// Need to implement focus better.  CEdit's aren't getting focus properly in CDialogs, causing improper key input terminations.

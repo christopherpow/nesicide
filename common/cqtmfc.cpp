@@ -11154,7 +11154,7 @@ BOOL CEdit::Create(
 
 void CEdit::textChanged()
 {
-   GetOwner()->PostMessage(WM_COMMAND,(EN_CHANGE<<16)|(_id),(LPARAM)m_hWnd);
+   GetOwner()->SendMessage(WM_COMMAND,(EN_CHANGE<<16)|(_id),(LPARAM)m_hWnd);
    
    if ( mfcBuddy() )
    {
