@@ -336,10 +336,6 @@ void CMainFrame::onIdleSlot()
 {
    CCmdUI cmdUI;
 
-   // Hack to get sample window to update since it updates in MFC based 
-   // on a worker-thread, which is illegal in Qt.
-   m_pSampleWindow->Invalidate();
-   
    //	ON_UPDATE_COMMAND_UI(ID_EDIT_UNDO, OnUpdateEditUndo)
    //	ON_UPDATE_COMMAND_UI(ID_EDIT_REDO, OnUpdateEditRedo)
    //	ON_UPDATE_COMMAND_UI(ID_EDIT_COPY, OnUpdateEditCopy)
@@ -2074,6 +2070,10 @@ void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 		// Check sound player
 		case TMR_SOUND_CHECK:
 			theApp.CheckSynth();
+         
+         // Hack to get sample window to update since it updates in MFC based 
+         // on a worker-thread, which is illegal in Qt.
+         m_pSampleWindow->Invalidate();
 			break;
 		// Auto save
 		case TMR_AUTOSAVE: {
