@@ -3913,6 +3913,7 @@ protected:
    CWnd* m_pParentWnd;
    CWnd* m_pOwnerWnd;
    static CWnd* focusWnd;
+   static QHash<QWidget*,CWnd*> qtToMfcWindow;
    CScrollBar* mfcVerticalScrollBar;
    CScrollBar* mfcHorizontalScrollBar;
    CMenu* m_pMenu;
@@ -3982,8 +3983,6 @@ public:
 public slots:
    void menuAction_triggered(int id);
    void focusChanged(QWidget* old, QWidget* now);
-   void toolBarAction_triggered(int id);
-   void toolBarAction_menu_aboutToShow(int id);
 
    // MFC interfaces
 public:
@@ -5660,9 +5659,6 @@ protected:
 public slots:
    void toolBarAction_triggered();
    void menu_aboutToShow();
-signals:
-   void toolBarAction_triggered(int id);
-   void toolBarAction_menu_aboutToShow(int id);
 
    // MFC interfaces
 public:

@@ -334,6 +334,7 @@ void CMainFrame::onIdleSlot()
    CCmdUI cmdUI;
 
    //	ON_UPDATE_COMMAND_UI(ID_EDIT_UNDO, OnUpdateEditUndo)
+   SendMessage()
    //	ON_UPDATE_COMMAND_UI(ID_EDIT_REDO, OnUpdateEditRedo)
    //	ON_UPDATE_COMMAND_UI(ID_EDIT_COPY, OnUpdateEditCopy)
    cmdUI.m_nID = ID_EDIT_COPY;

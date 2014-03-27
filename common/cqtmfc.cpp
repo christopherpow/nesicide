@@ -3345,6 +3345,8 @@ BOOL CComboBox::Create(
    _qtd->setFont(QFont("MS Shell Dlg",8));
    
    SetParent(pParentWnd);
+   
+   qtToMfcWindow.insert(_qtd,this);
 
    return TRUE;
 }
@@ -3590,6 +3592,8 @@ BOOL CListBox::Create(
    _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
    
    SetParent(pParentWnd);
+   
+   qtToMfcWindow.insert(_qtd,this);
 
    return TRUE;
 }
@@ -3988,6 +3992,8 @@ BOOL CListCtrl::Create(
       _qtd_table->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
 //      _qtd_table->setContextMenuPolicy(Qt::PreventContextMenu);
       _qtd_table->setVisible(dwStyle&WS_VISIBLE);
+      
+      qtToMfcWindow.insert(_qtd_table,this);
    }
    else if ( (dwStyle&LVS_TYPEMASK) == LVS_LIST )
    {
@@ -4026,6 +4032,8 @@ BOOL CListCtrl::Create(
       _qtd_list->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
 //      _qtd_list->setContextMenuPolicy(Qt::PreventContextMenu);
       _qtd_list->setVisible(dwStyle&WS_VISIBLE);
+      
+      qtToMfcWindow.insert(_qtd_list,this);
    }
    
    SetParent(pParentWnd);
@@ -5030,6 +5038,8 @@ BOOL CTreeCtrl::Create(
    _qtd->setFont(QFont("MS Shell Dlg",8));
    
    SetParent(pParentWnd);
+   
+   qtToMfcWindow.insert(_qtd,this);
 
    return TRUE;
 }
@@ -5360,6 +5370,8 @@ BOOL CScrollBar::Create(
    }
    _qtd->setGeometry(myRect);
    _qtd->setVisible(dwStyle&WS_VISIBLE);
+   
+   qtToMfcWindow.insert(_qtd,this);
 
    return TRUE;
 }
@@ -5877,11 +5889,14 @@ MFCWidget::MFCWidget(QWidget *parent)
 }
 
 CWnd* CWnd::focusWnd = NULL;
+QHash<QWidget*,CWnd*> CWnd::qtToMfcWindow;
 CFrameWnd* CWnd::m_pFrameWnd = NULL;
 
 IMPLEMENT_DYNAMIC(CWnd,CCmdTarget)
 
 BEGIN_MESSAGE_MAP(CWnd,CCmdTarget)
+//   ON_WM_SETFOCUS()
+//   ON_WM_KILLFOCUS()
 END_MESSAGE_MAP()
 
 CWnd::CWnd(CWnd *parent)
@@ -5955,8 +5970,6 @@ CWnd* PASCAL CWnd::FromHandlePermanent(
 CWnd* CWnd::SetFocus()
 {
    CWnd* pWnd = focusWnd;
-//   if ( focusWnd )
-//      focusWnd->OnKillFocus(this);
    _qt->setFocus();
    focusWnd = this;
    return pWnd;
@@ -7169,6 +7182,7 @@ BOOL CWnd::CreateEx(
    }
    _qt->setGeometry(createStruct.x,createStruct.y,createStruct.cx,createStruct.cy);
    OnCreate(&createStruct);
+   
    return TRUE;
 }
 
@@ -7792,18 +7806,15 @@ void CFrameWnd::menuAction_triggered(int id)
    SendMessage(WM_COMMAND,id);
 }
 
-
-void CFrameWnd::toolBarAction_menu_aboutToShow(int id)
-{
-}
-
-void CFrameWnd::toolBarAction_triggered(int id)
-{
-   SendMessage(WM_COMMAND,id);
-}
-
 void CFrameWnd::focusChanged(QWidget *old, QWidget *now)
 {
+   CWnd* pOldWnd = qtToMfcWindow.value(old);
+   CWnd* pNowWnd = qtToMfcWindow.value(now);
+   qDebug("focusChanged old=%x now=%x",old,now);
+   if ( pOldWnd )
+      pOldWnd->SendMessage(WM_KILLFOCUS,(WPARAM)pNowWnd);
+   if ( pNowWnd )
+      pNowWnd->SendMessage(WM_SETFOCUS,(WPARAM)pOldWnd);
 }
 
 void CFrameWnd::addControlBar(int area, QWidget *bar)
@@ -8481,15 +8492,13 @@ void CView::showEvent(QShowEvent *event)
 CWnd* CView::SetFocus()
 {
    CWnd* pWnd = focusWnd;
-//   if ( focusWnd )
-//      focusWnd->OnKillFocus(this);
    viewWidget->setFocus();
    return pWnd;
 }
 
 void CView::OnSetFocus(CWnd *)
 {
-   viewWidget->setFocus();   
+   viewWidget->setFocus(); 
    focusWnd = this;
 }
 
@@ -8524,6 +8533,8 @@ BOOL CView::Create(
    viewWidget->setFocusPolicy(Qt::StrongFocus);
 
    _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
+   
+   qtToMfcWindow.insert(_qtd,this);
 
    return TRUE;
 }
@@ -8718,6 +8729,8 @@ BOOL CReBarCtrl::Create(
    pParentWnd->GetClientRect(&clientRect);
    _qtd->setGeometry(clientRect.left,clientRect.top,(clientRect.right-clientRect.left)+1,(clientRect.bottom-clientRect.top)+1);
    
+   qtToMfcWindow.insert(_qtd,this);
+   
    return TRUE;
 }
 
@@ -8738,8 +8751,6 @@ BOOL CReBarCtrl::InsertBand(
       _qtd->addActions(toolBar->actions());
       _qtd->setIconSize(toolBar->iconSize());
       pWnd->toQWidget()->setVisible(false);
-      QObject::connect(pToolBar,SIGNAL(toolBarAction_triggered(int)),GetParent(),SLOT(toolBarAction_triggered(int)));
-      QObject::connect(pToolBar,SIGNAL(toolBarAction_menu_aboutToShow(int)),GetParent(),SLOT(toolBarAction_menu_aboutToShow(int)));
    }
    else
    {
@@ -8759,7 +8770,7 @@ void CReBarCtrl::MinimizeBand(
 
 void CReBarCtrl::toolBarAction_triggered()
 {
-   emit toolBarAction_triggered(qobject_cast<QAction*>(sender())->data().toInt());
+   SendMessage(WM_COMMAND,qobject_cast<QAction*>(sender())->data().toInt());
 }
 
 IMPLEMENT_DYNAMIC(CReBar,CControlBar)
@@ -8882,9 +8893,6 @@ BOOL CToolBar::CreateEx(
    else
       _qt->setParent(NULL);
 
-   QObject::connect(this,SIGNAL(toolBarAction_triggered(int)),pParentWnd,SLOT(toolBarAction_triggered(int)));
-   QObject::connect(this,SIGNAL(toolBarAction_menu_aboutToShow(int)),pParentWnd,SLOT(toolBarAction_menu_aboutToShow(int)));
-   
    pParentWnd->mfcToQtWidgetMap()->insert(nID,this);
 
    return TRUE;
@@ -8927,7 +8935,7 @@ void CToolBar::SetButtonStyle(
 
 void CToolBar::toolBarAction_triggered()
 {
-   emit toolBarAction_triggered(qobject_cast<QAction*>(sender())->data().toInt());
+   GetOwner()->SendMessage(WM_COMMAND,qobject_cast<QAction*>(sender())->data().toInt());
 }
 
 void CToolBar::menu_aboutToShow()
@@ -9218,6 +9226,9 @@ BOOL CDialog::Create(
    foreach ( CWnd* pWnd, mfcToQtWidget ) pWnd->blockSignals(true);
    BOOL result = OnInitDialog();
    _inited = true;
+   
+   qtToMfcWindow.insert(_qtd,this);
+   
    return result;
 }
 
@@ -10986,6 +10997,8 @@ BOOL CTabCtrl::Create(
    // Pass-through signals
    QObject::connect(_qtd,SIGNAL(currentChanged(int)),this,SLOT(currentChanged(int)));
    
+   qtToMfcWindow.insert(_qtd,this);
+   
    return TRUE;
 }
 
@@ -11156,6 +11169,8 @@ BOOL CEdit::Create(
       {
          _qtd_ptedit->setInputMethodHints(Qt::ImhFormattedNumbersOnly);
       }
+      
+      qtToMfcWindow.insert(_qtd_ptedit,this);
    }
    else
    {
@@ -11179,6 +11194,8 @@ BOOL CEdit::Create(
       {
          _qtd_ledit->setInputMethodHints(Qt::ImhFormattedNumbersOnly);
       }
+      
+      qtToMfcWindow.insert(_qtd_ledit,this);
    }
    
    SetParent(pParentWnd);
@@ -11613,6 +11630,8 @@ BOOL CButton::Create(
    
       // Pass-through signals
       QObject::connect(_qtd_check,SIGNAL(clicked()),this,SLOT(clicked()));
+      
+      qtToMfcWindow.insert(_qtd_check,this);
    }
    else if ( buttonType == BS_AUTO3STATE )
    {
@@ -11637,6 +11656,8 @@ BOOL CButton::Create(
    
       // Pass-through signals
       QObject::connect(_qtd_check,SIGNAL(clicked()),this,SLOT(clicked()));
+      
+      qtToMfcWindow.insert(_qtd_check,this);
    }
    else if ( buttonType == BS_AUTORADIOBUTTON )
    {
@@ -11660,6 +11681,8 @@ BOOL CButton::Create(
    
       // Pass-through signals
       QObject::connect(_qtd_radio,SIGNAL(clicked()),this,SLOT(clicked()));
+      
+      qtToMfcWindow.insert(_qtd_radio,this);
    }
    else if ( (buttonType == BS_PUSHBUTTON) ||
              (buttonType == BS_DEFPUSHBUTTON) )
@@ -11684,6 +11707,8 @@ BOOL CButton::Create(
    
       // Pass-through signals
       QObject::connect(_qtd_push,SIGNAL(clicked()),this,SLOT(clicked()));
+      
+      qtToMfcWindow.insert(_qtd_push,this);
    }
    else if ( buttonType == BS_GROUPBOX )
    {
@@ -11707,6 +11732,8 @@ BOOL CButton::Create(
    
       // Pass-through signals
       QObject::connect(_qtd_groupbox,SIGNAL(clicked()),this,SLOT(clicked()));
+      
+      qtToMfcWindow.insert(_qtd_groupbox,this);
    }
    SetParent(pParentWnd);
 
@@ -12263,6 +12290,8 @@ BOOL CSpinButtonCtrl::Create(
    QObject::connect(_qtd,SIGNAL(valueChanged(int)),this,SLOT(valueChanged(int)));
    
    SetParent(pParentWnd);
+   
+   qtToMfcWindow.insert(_qtd,this);
 
    return TRUE;
 }
@@ -12549,6 +12578,8 @@ BOOL CSliderCtrl::Create(
    _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
    _qtd->setVisible(dwStyle&WS_VISIBLE);
    _qtd->setFont(QFont("MS Shell Dlg",8));
+   
+   qtToMfcWindow.insert(_qtd,this);
 
    return TRUE;
 }
@@ -12706,6 +12737,8 @@ BOOL CProgressCtrl::Create(
 
    // Pass-through signals
    
+   qtToMfcWindow.insert(_qtd,this);
+   
    return TRUE;
 }
 
@@ -12796,6 +12829,8 @@ BOOL CStatic::Create(
 #endif
 
    // Pass-through signals
+   
+   qtToMfcWindow.insert(_qtd,this);
 
    return TRUE;
 }
