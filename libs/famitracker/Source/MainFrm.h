@@ -333,7 +333,6 @@ public:
 
 public slots:
    void onIdleSlot();
-   void instToolBarAction_menu_aboutToShow(int id);
    void setModified(bool modified);
    
 signals:

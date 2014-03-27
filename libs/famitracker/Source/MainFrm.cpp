@@ -317,7 +317,6 @@ void CMainFrame::showEvent(QShowEvent *)
       // Connect buried signals.
       QObject::connect(m_pDocument,SIGNAL(setModified(bool)),this,SIGNAL(editor_modificationChanged(bool)));
       QObject::connect(m_pDocument,SIGNAL(setModified(bool)),this,SLOT(setModified(bool)));
-      QObject::connect(&m_wndInstToolBar,SIGNAL(toolBarAction_menu_aboutToShow(int)),this,SLOT(instToolBarAction_menu_aboutToShow(int)));
 
       initialized = true;
    }
@@ -508,23 +507,6 @@ void CMainFrame::onIdleSlot()
 
 void CMainFrame::setModified(bool modified)
 {
-}
-
-void CMainFrame::instToolBarAction_menu_aboutToShow(int id)
-{
-   NMHDR nmhdr;
-   LRESULT result;
-
-   nmhdr.hwndFrom = (HWND)this;
-   switch ( id )
-   {
-   case 0:
-      OnNewInstrumentMenu(&nmhdr,&result);
-      break;
-   case 4:
-      OnLoadInstrumentMenu(&nmhdr,&result);
-      break;
-   }
 }
 
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)

@@ -2174,9 +2174,6 @@ void MainWindow::closeEvent ( QCloseEvent* event )
    {
       event->ignore();
    }
-   
-   settings.setValue("FamiTrackerWindowGeometry",saveGeometry());
-   settings.setValue("FamiTrackerWindowState",saveState());
 }
 
 void MainWindow::timerEvent(QTimerEvent */*event*/)

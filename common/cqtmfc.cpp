@@ -7792,6 +7792,11 @@ void CFrameWnd::menuAction_triggered(int id)
    SendMessage(WM_COMMAND,id);
 }
 
+
+void CFrameWnd::toolBarAction_menu_aboutToShow(int id)
+{
+}
+
 void CFrameWnd::toolBarAction_triggered(int id)
 {
    SendMessage(WM_COMMAND,id);
@@ -8734,6 +8739,7 @@ BOOL CReBarCtrl::InsertBand(
       _qtd->setIconSize(toolBar->iconSize());
       pWnd->toQWidget()->setVisible(false);
       QObject::connect(pToolBar,SIGNAL(toolBarAction_triggered(int)),GetParent(),SLOT(toolBarAction_triggered(int)));
+      QObject::connect(pToolBar,SIGNAL(toolBarAction_menu_aboutToShow(int)),GetParent(),SLOT(toolBarAction_menu_aboutToShow(int)));
    }
    else
    {
@@ -8877,6 +8883,7 @@ BOOL CToolBar::CreateEx(
       _qt->setParent(NULL);
 
    QObject::connect(this,SIGNAL(toolBarAction_triggered(int)),pParentWnd,SLOT(toolBarAction_triggered(int)));
+   QObject::connect(this,SIGNAL(toolBarAction_menu_aboutToShow(int)),pParentWnd,SLOT(toolBarAction_menu_aboutToShow(int)));
    
    pParentWnd->mfcToQtWidgetMap()->insert(nID,this);
 
@@ -8925,6 +8932,9 @@ void CToolBar::toolBarAction_triggered()
 
 void CToolBar::menu_aboutToShow()
 {
+   NMTOOLBAR nmtb;
+   LRESULT result;
+
    QList<QAction*> actions = _qtd->actions();
    QAction* origin = NULL;
    foreach ( QAction* action, actions )
@@ -8937,7 +8947,12 @@ void CToolBar::menu_aboutToShow()
 
    if ( origin )
    {
-      emit toolBarAction_menu_aboutToShow(actions.indexOf(origin));
+      nmtb.hdr.hwndFrom = m_hWnd;
+      nmtb.hdr.idFrom = _id;
+      nmtb.hdr.code = TBN_DROPDOWN;
+      nmtb.iItem = origin->data().toInt();
+      
+      GetOwner()->SendMessage(WM_NOTIFY,_id,(LPARAM)&nmtb);
    }
 }
 
