@@ -7204,6 +7204,101 @@ void CWnd::UpdateDialogControls(
    BOOL bDisableIfNoHndler
 )
 {
+   CCmdUI state;
+   CWnd* pWnd;
+
+   foreach ( pWnd, mfcToQtWidget )
+   {
+      state.m_nID = pWnd->GetDlgCtrlID();
+      state.m_pOther = pWnd;      
+      
+      // call it directly to disable any routing
+      if (pWnd->CWnd::OnCmdMsg(0, MAKELONG(0xffff,
+         WM_COMMAND+WM_REFLECT_BASE), &state, NULL))
+         continue;
+
+		// check for handlers in the parent window
+		if (CWnd::OnCmdMsg((UINT)state.m_nID, CN_UPDATE_COMMAND_UI, &state, NULL))
+			continue;
+      
+      		// determine whether to disable when no handler exists
+      		BOOL bDisableTemp = bDisableIfNoHndler;
+      		if (bDisableTemp)
+      		{
+//      			if ((wndTemp.SendMessage(WM_GETDLGCODE) & DLGC_BUTTON) == 0)
+//      			{
+//      				// non-button controls don't get automagically disabled
+      				bDisableTemp = FALSE;
+//      			}
+//      			else
+//      			{
+//      				// only certain button controls get automagically disabled
+//      				UINT nStyle = (UINT)(wndTemp.GetStyle() & 0x0F);
+//      				if (nStyle == (UINT)BS_AUTOCHECKBOX ||
+//      					nStyle == (UINT)BS_AUTO3STATE ||
+//      					nStyle == (UINT)BS_GROUPBOX ||
+//      					nStyle == (UINT)BS_AUTORADIOBUTTON)
+//      				{
+//      					bDisableTemp = FALSE;
+//      				}
+//      			}
+      		}
+		// check for handlers in the target (owner)
+		state.DoUpdate(pTarget, bDisableTemp);
+   }
+
+//   CCmdUI state;
+//	CWnd wndTemp;       // very temporary window just for CmdUI update
+
+//	// walk all the kids - assume the IDs are for buttons
+//	for (HWND hWndChild = ::GetTopWindow(m_hWnd); hWndChild != NULL;
+//			hWndChild = ::GetNextWindow(hWndChild, GW_HWNDNEXT))
+//	{
+//		// send to buttons
+//		wndTemp.m_hWnd = hWndChild; // quick and dirty attach
+//		state.m_nID = _AfxGetDlgCtrlID(hWndChild);
+//		state.m_pOther = &wndTemp;
+
+//		// check for reflect handlers in the child window
+//		CWnd* pWnd = CWnd::FromHandlePermanent(hWndChild);
+//		if (pWnd != NULL)
+//		{
+//			// call it directly to disable any routing
+//			if (pWnd->CWnd::OnCmdMsg(0, MAKELONG(0xffff,
+//				WM_COMMAND+WM_REFLECT_BASE), &state, NULL))
+//				continue;
+//		}
+
+//		// check for handlers in the parent window
+//		if (CWnd::OnCmdMsg((UINT)state.m_nID, CN_UPDATE_COMMAND_UI, &state, NULL))
+//			continue;
+
+//		// determine whether to disable when no handler exists
+//		BOOL bDisableTemp = bDisableIfNoHndler;
+//		if (bDisableTemp)
+//		{
+//			if ((wndTemp.SendMessage(WM_GETDLGCODE) & DLGC_BUTTON) == 0)
+//			{
+//				// non-button controls don't get automagically disabled
+//				bDisableTemp = FALSE;
+//			}
+//			else
+//			{
+//				// only certain button controls get automagically disabled
+//				UINT nStyle = (UINT)(wndTemp.GetStyle() & 0x0F);
+//				if (nStyle == (UINT)BS_AUTOCHECKBOX ||
+//					nStyle == (UINT)BS_AUTO3STATE ||
+//					nStyle == (UINT)BS_GROUPBOX ||
+//					nStyle == (UINT)BS_AUTORADIOBUTTON)
+//				{
+//					bDisableTemp = FALSE;
+//				}
+//			}
+//		}
+//		// check for handlers in the target (owner)
+//		state.DoUpdate(pTarget, bDisableTemp);
+//	}
+//	wndTemp.m_hWnd = NULL;      // quick and dirty detach
 }
 
 void CWnd::RepositionBars(
@@ -9121,37 +9216,23 @@ BOOL CStatusBar::SetPaneText(
 
 void CStatusBar::OnUpdateCmdUI(CFrameWnd* pTarget, BOOL bDisableIfNoHndler)
 {
-	CToolCmdUI state;
+   CStatusCmdUI state;
 	state.m_pOther = this;
-
-//	state.m_nIndexMax = (UINT)DefWindowProc(TB_BUTTONCOUNT, 0, 0);
-   state.m_nIndexMax = _panes.count();
-	for (state.m_nIndex = 0; state.m_nIndex < state.m_nIndexMax; state.m_nIndex++)
+   state.m_nIndexMax = (UINT)_panes.count();
+	for (state.m_nIndex = 0; state.m_nIndex < state.m_nIndexMax;
+		state.m_nIndex++)
 	{
-//		// get buttons state
-//		TBBUTTON button;
-//		_GetButton(state.m_nIndex, &button);
-//		state.m_nID = button.idCommand;
-      state.m_nID = _panes.value(state.m_nIndex)->GetDlgCtrlID();
+		state.m_nID = _panes.value(state.m_nIndex)->GetDlgCtrlID();
 
-		// ignore separators
-//		if (!(button.fsStyle & TBSTYLE_SEP))
+		// allow the statusbar itself to have update handlers
+		if (CWnd::OnCmdMsg(state.m_nID, CN_UPDATE_COMMAND_UI, &state, NULL))
+			continue;
 
-      // allow reflections
-      if (CWnd::OnCmdMsg(0, 
-         MAKELONG(CN_UPDATE_COMMAND_UI&0xffff, WM_COMMAND+WM_REFLECT_BASE), 
-         &state, NULL))
-         continue;
-
-      // allow the toolbar itself to have update handlers
-      if (CWnd::OnCmdMsg(state.m_nID, CN_UPDATE_COMMAND_UI, &state, NULL))
-         continue;
-
-      // allow the owner to process the update
-      state.DoUpdate(pTarget, bDisableIfNoHndler);
+		// allow target (owner) to handle the remaining updates
+		state.DoUpdate(pTarget, FALSE);
 	}
 
-	// update the dialog controls added to the toolbar
+	// update the dialog controls added to the status bar
 	UpdateDialogControls(pTarget, bDisableIfNoHndler);
 }
 
@@ -9250,6 +9331,11 @@ CSize CDialogBar::CalcFixedLayout(
                    bHorz ? m_sizeDefault.cy : 32767);
 	else
 		return m_sizeDefault;
+}
+
+void CDialogBar::OnUpdateCmdUI(CFrameWnd* pTarget, BOOL bDisableIfNoHndler)
+{
+	UpdateDialogControls(pTarget, bDisableIfNoHndler);
 }
 
 IMPLEMENT_DYNAMIC(CDialog,CWnd)
@@ -9447,6 +9533,44 @@ void CDialog::EndDialog(
 {
    _qtd->setResult(nResult);
    _qtd->close();
+}
+
+void CDialog::OnUpdateCmdUI(CFrameWnd* pTarget, BOOL bDisableIfNoHndler)
+{
+//	CToolCmdUI state;
+//	state.m_pOther = this;
+
+////	state.m_nIndexMax = (UINT)DefWindowProc(TB_BUTTONCOUNT, 0, 0);
+//   state.m_nIndexMax = _qtd->actions().count();
+//	for (state.m_nIndex = 0; state.m_nIndex < state.m_nIndexMax; state.m_nIndex++)
+//	{
+////		// get buttons state
+////		TBBUTTON button;
+////		_GetButton(state.m_nIndex, &button);
+////		state.m_nID = button.idCommand;
+//      state.m_nID = _qtd->actions().at(state.m_nIndex)->data().toInt();
+
+//		// ignore separators
+////		if (!(button.fsStyle & TBSTYLE_SEP))
+//      if ( !_qtd->actions().at(state.m_nIndex)->isSeparator() )
+//		{
+//			// allow reflections
+//			if (CWnd::OnCmdMsg(0, 
+//				MAKELONG(CN_UPDATE_COMMAND_UI&0xffff, WM_COMMAND+WM_REFLECT_BASE), 
+//				&state, NULL))
+//				continue;
+
+//			// allow the toolbar itself to have update handlers
+//			if (CWnd::OnCmdMsg(state.m_nID, CN_UPDATE_COMMAND_UI, &state, NULL))
+//				continue;
+
+//			// allow the owner to process the update
+//			state.DoUpdate(pTarget, bDisableIfNoHndler);
+//		}
+//	}
+
+	// update the dialog controls added to the toolbar
+	UpdateDialogControls(pTarget, bDisableIfNoHndler);
 }
 
 IMPLEMENT_DYNAMIC(CCommonDialog,CDialog)

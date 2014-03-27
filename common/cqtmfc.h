@@ -4307,6 +4307,7 @@ public:
       void* pExtra,
       AFX_CMDHANDLERINFO* pHandlerInfo
    );
+   virtual void OnUpdateCmdUI(CFrameWnd* pTarget, BOOL bDisableIfNoHndler);
    
    DECLARE_MESSAGE_MAP()
 };
@@ -5721,6 +5722,7 @@ public:
       BOOL bStretch,
       BOOL bHorz
    );
+   virtual void OnUpdateCmdUI(CFrameWnd* pTarget, BOOL bDisableIfNoHndler);
    
    DECLARE_MESSAGE_MAP()
 };
@@ -5840,6 +5842,10 @@ class CTestCmdUI : public CCmdUI
 {
 public:
    BOOL m_bEnabled;
+};
+
+class CStatusCmdUI : public CCmdUI
+{
 };
 
 class CArchive
