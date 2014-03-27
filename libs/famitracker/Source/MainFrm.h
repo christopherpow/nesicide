@@ -49,9 +49,7 @@ class CMainFrame : public CFrameWnd
    // Qt interfaces
 protected:
    void showEvent(QShowEvent *);
-   void hideEvent(QHideEvent *);
 private:
-   QTimer* pTimer;
    CFamiTrackerDoc* m_pDocument;
    CFamiTrackerView* m_pView;
    QString m_fileName;
@@ -332,7 +330,6 @@ public:
 	afx_msg void OnToggleSpeed();
 
 public slots:
-   void onIdleSlot();
    void setModified(bool modified);
    
 signals:

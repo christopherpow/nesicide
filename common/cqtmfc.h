@@ -3636,6 +3636,7 @@ public:
    
    operator HWND() { return m_hWnd; }
    DWORD GetStyle() const { return _dwStyle; }
+   BOOL IsFrameWnd() const { return this==(CWnd*)m_pFrameWnd; }
    void SetOwner(
       CWnd* pOwnerWnd
    );
@@ -3983,6 +3984,9 @@ public:
 public slots:
    void menuAction_triggered(int id);
    void focusChanged(QWidget* old, QWidget* now);
+   void onIdleSlot();
+protected:
+   QTimer* pIdleTimer;   
 
    // MFC interfaces
 public:
@@ -5542,8 +5546,11 @@ public:
    );
    virtual BOOL IsVisible() const;
    virtual LRESULT OnSizeParent(WPARAM, LPARAM lParam);
+   virtual void OnUpdateCmdUI(CFrameWnd* pTarget, BOOL bDisableIfNoHndler) {}
 public:
    CSize m_sizeDefault;
+   
+   afx_msg LRESULT OnIdleUpdateCmdUI(WPARAM wParam,LPARAM);   
    
    DECLARE_MESSAGE_MAP()
 };
@@ -5689,6 +5696,8 @@ public:
       UINT nStyle
    );
    
+   virtual void OnUpdateCmdUI(CFrameWnd* pTarget, BOOL bDisableIfNoHndler);
+   
    DECLARE_MESSAGE_MAP()
 };
 
@@ -5744,6 +5753,8 @@ public:
       LPCTSTR lpszNewText,
       BOOL bUpdate = TRUE
    );
+   
+   virtual void OnUpdateCmdUI(CFrameWnd* pTarget, BOOL bDisableIfNoHndler);
    
    DECLARE_MESSAGE_MAP()
 };
@@ -5819,6 +5830,16 @@ public:
    CMenu* m_pSubMenu;
    BOOL m_bContinueRouting;
    BOOL m_bEnableChanged;
+};
+
+class CToolCmdUI : public CCmdUI
+{
+};
+
+class CTestCmdUI : public CCmdUI
+{
+public:
+   BOOL m_bEnabled;
 };
 
 class CArchive

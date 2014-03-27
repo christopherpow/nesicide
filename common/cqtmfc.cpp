@@ -6651,8 +6651,7 @@ BOOL CWnd::OnCommand(
       if (nID == 0)
          return FALSE;
    
-      qDebug("Probably want disabled command check...");
-//      // make sure command has not become disabled before routing
+      // make sure command has not become disabled before routing
 //      CTestCmdUI state;
 //      state.m_nID = nID;
 //      OnCmdMsg(nID, CN_UPDATE_COMMAND_UI, &state, NULL);
@@ -7794,11 +7793,26 @@ CFrameWnd::CFrameWnd(CWnd *parent)
    
    // Get focus changes...
    QObject::connect(QApplication::instance(),SIGNAL(focusChanged(QWidget*,QWidget*)),this,SLOT(focusChanged(QWidget*,QWidget*)));
+
+   // Set up for idle...   
+   pIdleTimer = new QTimer;
+   QObject::connect(pIdleTimer,SIGNAL(timeout()),this,SLOT(onIdleSlot()));
+   pIdleTimer->start();
 }
 
 CFrameWnd::~CFrameWnd()
 {
+   pIdleTimer->stop();   
+   QObject::disconnect(pIdleTimer, SIGNAL(timeout()), this, SLOT(onIdleSlot()));   
+   delete pIdleTimer;
+   
    delete m_pMenu;
+}
+
+void CFrameWnd::onIdleSlot()
+{
+   SendMessageToDescendants(WM_IDLEUPDATECMDUI,
+      (WPARAM)TRUE, 0, TRUE, TRUE);
 }
 
 void CFrameWnd::menuAction_triggered(int id)
@@ -8562,6 +8576,7 @@ IMPLEMENT_DYNAMIC(CControlBar,CWnd)
 
 BEGIN_MESSAGE_MAP(CControlBar,CWnd)
 //   ON_MESSAGE(WM_SIZEPARENT, OnSizeParent)
+   ON_MESSAGE(WM_IDLEUPDATECMDUI, OnIdleUpdateCmdUI)
 END_MESSAGE_MAP()
 
 LRESULT CControlBar::WindowProc(UINT nMsg, WPARAM wParam, LPARAM lParam)
@@ -8623,6 +8638,22 @@ LRESULT CControlBar::WindowProc(UINT nMsg, WPARAM wParam, LPARAM lParam)
 	// otherwise, just handle in default way
 	lResult = CWnd::WindowProc(nMsg, wParam, lParam);
 	return lResult;
+}
+
+LRESULT CControlBar::OnIdleUpdateCmdUI(WPARAM wParam,LPARAM)
+{
+   // the style must be visible and if it is docked
+	// the dockbar style must also be visible
+	if ((GetStyle() & WS_VISIBLE) /*&&
+		(m_pDockBar == NULL || (m_pDockBar->GetStyle() & WS_VISIBLE))*/)
+	{
+		CFrameWnd* pTarget = (CFrameWnd*)GetOwner();
+		if (pTarget == NULL || !pTarget->IsFrameWnd())
+			pTarget = GetParentFrame();
+		if (pTarget != NULL)
+			OnUpdateCmdUI(pTarget, (BOOL)wParam);
+	}
+	return 0L;
 }
 
 LRESULT CControlBar::OnSizeParent(WPARAM, LPARAM lParam)
@@ -8894,6 +8925,8 @@ BOOL CToolBar::CreateEx(
       _qt->setParent(NULL);
 
    pParentWnd->mfcToQtWidgetMap()->insert(nID,this);
+   
+   SetParent(pParentWnd);
 
    return TRUE;
 }
@@ -8931,6 +8964,44 @@ void CToolBar::SetButtonStyle(
       qDebug("CToolBar::SetButtonStyle %d not implemented",nStyle);
       break;
    }
+}
+
+void CToolBar::OnUpdateCmdUI(CFrameWnd* pTarget, BOOL bDisableIfNoHndler)
+{
+	CToolCmdUI state;
+	state.m_pOther = this;
+
+//	state.m_nIndexMax = (UINT)DefWindowProc(TB_BUTTONCOUNT, 0, 0);
+   state.m_nIndexMax = _qtd->actions().count();
+	for (state.m_nIndex = 0; state.m_nIndex < state.m_nIndexMax; state.m_nIndex++)
+	{
+//		// get buttons state
+//		TBBUTTON button;
+//		_GetButton(state.m_nIndex, &button);
+//		state.m_nID = button.idCommand;
+      state.m_nID = _qtd->actions().at(state.m_nIndex)->data().toInt();
+
+		// ignore separators
+//		if (!(button.fsStyle & TBSTYLE_SEP))
+      if ( !_qtd->actions().at(state.m_nIndex)->isSeparator() )
+		{
+			// allow reflections
+			if (CWnd::OnCmdMsg(0, 
+				MAKELONG(CN_UPDATE_COMMAND_UI&0xffff, WM_COMMAND+WM_REFLECT_BASE), 
+				&state, NULL))
+				continue;
+
+			// allow the toolbar itself to have update handlers
+			if (CWnd::OnCmdMsg(state.m_nID, CN_UPDATE_COMMAND_UI, &state, NULL))
+				continue;
+
+			// allow the owner to process the update
+			state.DoUpdate(pTarget, bDisableIfNoHndler);
+		}
+	}
+
+	// update the dialog controls added to the toolbar
+	UpdateDialogControls(pTarget, bDisableIfNoHndler);
 }
 
 void CToolBar::toolBarAction_triggered()
@@ -9046,6 +9117,42 @@ BOOL CStatusBar::SetPaneText(
       return TRUE;
    }
    return FALSE;
+}
+
+void CStatusBar::OnUpdateCmdUI(CFrameWnd* pTarget, BOOL bDisableIfNoHndler)
+{
+	CToolCmdUI state;
+	state.m_pOther = this;
+
+//	state.m_nIndexMax = (UINT)DefWindowProc(TB_BUTTONCOUNT, 0, 0);
+   state.m_nIndexMax = _panes.count();
+	for (state.m_nIndex = 0; state.m_nIndex < state.m_nIndexMax; state.m_nIndex++)
+	{
+//		// get buttons state
+//		TBBUTTON button;
+//		_GetButton(state.m_nIndex, &button);
+//		state.m_nID = button.idCommand;
+      state.m_nID = _panes.value(state.m_nIndex)->GetDlgCtrlID();
+
+		// ignore separators
+//		if (!(button.fsStyle & TBSTYLE_SEP))
+
+      // allow reflections
+      if (CWnd::OnCmdMsg(0, 
+         MAKELONG(CN_UPDATE_COMMAND_UI&0xffff, WM_COMMAND+WM_REFLECT_BASE), 
+         &state, NULL))
+         continue;
+
+      // allow the toolbar itself to have update handlers
+      if (CWnd::OnCmdMsg(state.m_nID, CN_UPDATE_COMMAND_UI, &state, NULL))
+         continue;
+
+      // allow the owner to process the update
+      state.DoUpdate(pTarget, bDisableIfNoHndler);
+	}
+
+	// update the dialog controls added to the toolbar
+	UpdateDialogControls(pTarget, bDisableIfNoHndler);
 }
 
 IMPLEMENT_DYNAMIC(CDialogBar,CControlBar)
