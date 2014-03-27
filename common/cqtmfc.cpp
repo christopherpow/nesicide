@@ -6035,7 +6035,7 @@ CDC* CWnd::GetDC()
 
 void CWnd::ReleaseDC(CDC* pDC)
 {
-   update();
+//   update();
 }
 
 LRESULT CWnd::SendMessage(
@@ -7925,7 +7925,6 @@ void CFrameWnd::focusChanged(QWidget *old, QWidget *now)
 {
    CWnd* pOldWnd = qtToMfcWindow.value(old);
    CWnd* pNowWnd = qtToMfcWindow.value(now);
-   qDebug("focusChanged old=%x now=%x",old,now);
    if ( pOldWnd )
       pOldWnd->SendMessage(WM_KILLFOCUS,(WPARAM)pNowWnd);
    if ( pNowWnd )
