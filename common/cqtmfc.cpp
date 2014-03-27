@@ -3095,6 +3095,7 @@ void CDC::Draw3dRect( int x, int y, int cx, int cy, COLORREF clrTopLeft, COLORRE
    _qpainter.drawLine(x+cx-1,y+cy-1,x+cx-1,y);
    _qpainter.setPen(origPen);
 }
+
 int CDC::DrawText(
    const CString& str,
    LPRECT lpRect,
@@ -5895,8 +5896,8 @@ CFrameWnd* CWnd::m_pFrameWnd = NULL;
 IMPLEMENT_DYNAMIC(CWnd,CCmdTarget)
 
 BEGIN_MESSAGE_MAP(CWnd,CCmdTarget)
-//   ON_WM_SETFOCUS()
-//   ON_WM_KILLFOCUS()
+   ON_WM_SETFOCUS()
+   ON_WM_KILLFOCUS()
 END_MESSAGE_MAP()
 
 CWnd::CWnd(CWnd *parent)
@@ -6873,7 +6874,12 @@ void CWnd::mouseDoubleClickEvent(QMouseEvent *event)
 
 void CWnd::keyPressEvent(QKeyEvent *event)
 {
-   PostMessage(WM_KEYDOWN,qtToMfcKeycode(event->key()),0);
+   qDebug("keyPress: key=%x, scan=%x",event->key(),event->nativeScanCode());
+#ifdef __APPLE__
+   PostMessage(WM_KEYDOWN,qtToMfcKeycode(event->key()),event->key()<<16);
+#else
+   PostMessage(WM_KEYDOWN,qtToMfcKeycode(event->key()),event->nativeScanCode()<<16);
+#endif
 }
 
 void CWnd::keyReleaseEvent(QKeyEvent *event)
