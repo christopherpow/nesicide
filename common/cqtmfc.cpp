@@ -7777,6 +7777,9 @@ CFrameWnd::CFrameWnd(CWnd *parent)
       ptrToTheApp->qtMainWindow->menuBar()->addMenu(m_pMenu->GetSubMenu(idx)->toQMenu());
       QObject::connect(m_pMenu->GetSubMenu(idx),SIGNAL(menuAction_triggered(int)),this,SLOT(menuAction_triggered(int)));      
    }
+   
+   // Get focus changes...
+   QObject::connect(QApplication::instance(),SIGNAL(focusChanged(QWidget*,QWidget*)),this,SLOT(focusChanged(QWidget*,QWidget*)));
 }
 
 CFrameWnd::~CFrameWnd()
@@ -7787,6 +7790,15 @@ CFrameWnd::~CFrameWnd()
 void CFrameWnd::menuAction_triggered(int id)
 {
    SendMessage(WM_COMMAND,id);
+}
+
+void CFrameWnd::toolBarAction_triggered(int id)
+{
+   SendMessage(WM_COMMAND,id);
+}
+
+void CFrameWnd::focusChanged(QWidget *old, QWidget *now)
+{
 }
 
 void CFrameWnd::addControlBar(int area, QWidget *bar)
@@ -8700,6 +8712,7 @@ BOOL CReBarCtrl::Create(
    CRect clientRect;
    pParentWnd->GetClientRect(&clientRect);
    _qtd->setGeometry(clientRect.left,clientRect.top,(clientRect.right-clientRect.left)+1,(clientRect.bottom-clientRect.top)+1);
+   
    return TRUE;
 }
 
@@ -8709,16 +8722,18 @@ BOOL CReBarCtrl::InsertBand(
 )
 {
    CWnd* pWnd = (CWnd*)prbbi->hwndChild;
+   CToolBar* pToolBar = dynamic_cast<CToolBar*>(pWnd);
    if ( _qtd->actions().count() )
    {
       _qtd->addSeparator();
    }
-   if ( dynamic_cast<QToolBar*>(pWnd->toQWidget()) )
+   if ( pToolBar )
    {
       QToolBar* toolBar = dynamic_cast<QToolBar*>(pWnd->toQWidget());
       _qtd->addActions(toolBar->actions());
       _qtd->setIconSize(toolBar->iconSize());
       pWnd->toQWidget()->setVisible(false);
+      QObject::connect(pToolBar,SIGNAL(toolBarAction_triggered(int)),GetParent(),SLOT(toolBarAction_triggered(int)));
    }
    else
    {
@@ -8738,7 +8753,7 @@ void CReBarCtrl::MinimizeBand(
 
 void CReBarCtrl::toolBarAction_triggered()
 {
-   emit toolBarAction_triggered(_qtd->actions().indexOf(qobject_cast<QAction*>(sender())));
+   emit toolBarAction_triggered(qobject_cast<QAction*>(sender())->data().toInt());
 }
 
 IMPLEMENT_DYNAMIC(CReBar,CControlBar)
@@ -8861,6 +8876,8 @@ BOOL CToolBar::CreateEx(
    else
       _qt->setParent(NULL);
 
+   QObject::connect(this,SIGNAL(toolBarAction_triggered(int)),pParentWnd,SLOT(toolBarAction_triggered(int)));
+   
    pParentWnd->mfcToQtWidgetMap()->insert(nID,this);
 
    return TRUE;
@@ -8903,7 +8920,7 @@ void CToolBar::SetButtonStyle(
 
 void CToolBar::toolBarAction_triggered()
 {
-   emit toolBarAction_triggered(_qtd->actions().indexOf(qobject_cast<QAction*>(sender())));
+   emit toolBarAction_triggered(qobject_cast<QAction*>(sender())->data().toInt());
 }
 
 void CToolBar::menu_aboutToShow()

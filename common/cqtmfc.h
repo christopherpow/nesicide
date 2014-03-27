@@ -3981,6 +3981,8 @@ public:
    void addControlBar(int area,QWidget* bar);
 public slots:
    void menuAction_triggered(int id);
+   void focusChanged(QWidget* old, QWidget* now);
+   void toolBarAction_triggered(int id);
 
    // MFC interfaces
 public:

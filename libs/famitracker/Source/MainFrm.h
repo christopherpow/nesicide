@@ -333,37 +333,7 @@ public:
 
 public slots:
    void onIdleSlot();
-   void toolBarAction_triggered(int id);
-   void toolBarAction_newDocument();
-   void toolBarAction_openDocument();
-   void toolBarAction_saveDocument();
-   void toolBarAction_editCut();
-   void toolBarAction_editCopy();
-   void toolBarAction_editPaste();
-   void toolBarAction_about();
-   void toolBarAction_help();
-   void toolBarAction_addFrame();
-   void toolBarAction_removeFrame();
-   void toolBarAction_moveFrameDown();
-   void toolBarAction_moveFrameUp();
-   void toolBarAction_duplicateFrame();
-   void toolBarAction_moduleProperties();
-   void toolBarAction_play();
-   void toolBarAction_playLoop();
-   void toolBarAction_stop();
-   void toolBarAction_editMode();
-   void toolBarAction_previousTrack();
-   void toolBarAction_nextTrack();
-   void toolBarAction_settings();
-   void toolBarAction_createNSF();
-   void instToolBarAction_triggered(int id);
    void instToolBarAction_menu_aboutToShow(int id);
-   void instToolBarAction_new();
-   void instToolBarAction_remove();
-   void instToolBarAction_clone();
-   void instToolBarAction_load();
-   void instToolBarAction_save();
-   void instToolBarAction_edit();
    void setModified(bool modified);
    
 signals:
