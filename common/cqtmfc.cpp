@@ -6017,11 +6017,8 @@ BOOL CWnd::PreTranslateMessage(
    case WM_NULL:
       processed = TRUE;
       break;
-   default:
-      processed = FALSE;
-      break;
    }
-   return processed;
+   return ptrToTheApp->PreTranslateMessage(pMsg);
 }
 
 CWnd* CWnd::GetFocus()
@@ -6756,7 +6753,14 @@ bool CWnd::event(QEvent *event)
    {
       proc = WindowProc(msgEvent->msg.message,msgEvent->msg.wParam,msgEvent->msg.lParam);
       if ( proc )
+      {
+         event->accept();
          update();
+      }
+      else
+      {
+         event->ignore();
+      }
    }
    return proc;
 }
@@ -7066,12 +7070,12 @@ bool CWnd::eventFilter(QObject *object, QEvent *event)
       if ( event->type() == QEvent::KeyPress )
       {
          keyPressEvent(dynamic_cast<QKeyEvent*>(event));
-         return false;
+         return event->isAccepted();
       }
       if ( event->type() == QEvent::KeyRelease )
       {
          keyReleaseEvent(dynamic_cast<QKeyEvent*>(event));
-         return false;
+         return event->isAccepted();
       }
       if ( event->type() == QEvent::ContextMenu )
       {
@@ -8413,12 +8417,12 @@ bool CView::eventFilter(QObject *object, QEvent *event)
       if ( event->type() == QEvent::KeyPress )
       {
          keyPressEvent(dynamic_cast<QKeyEvent*>(event));
-         return false;
+         return event->isAccepted();
       }
       if ( event->type() == QEvent::KeyRelease )
       {
          keyReleaseEvent(dynamic_cast<QKeyEvent*>(event));
-         return false;
+         return event->isAccepted();
       }
       if ( event->type() == QEvent::ContextMenu )
       {
@@ -10582,7 +10586,7 @@ BOOL CWinApp::PreTranslateMessage(
    MSG* pMsg
 )
 {
-   return TRUE;
+   return FALSE;
 }
 
 POSITION CWinApp::GetFirstDocTemplatePosition( ) const
@@ -10852,7 +10856,7 @@ BOOL CMenu::AppendMenu(
 #endif
       if ( action->text().contains("\t") )
       {
-         action->setShortcut(QKeySequence(action->text().split("\t").at(1)));
+//         action->setShortcut(QKeySequence(action->text().split("\t").at(1)));
       }
       if ( nFlags&MF_CHECKED )
       {
@@ -10923,7 +10927,7 @@ BOOL CMenu::InsertMenu(
          action = newAction;
          if ( action->text().contains("\t") )
          {
-            action->setShortcut(QKeySequence(action->text().split("\t").at(1)));
+//            action->setShortcut(QKeySequence(action->text().split("\t").at(1)));
          }
          if ( nFlags&MF_CHECKED )
          {
@@ -11098,7 +11102,7 @@ BOOL CMenu::ModifyMenu(
 #endif
          if ( action->text().contains("\t") )
          {
-            action->setShortcut(QKeySequence(action->text().split("\t").at(1)));
+//            action->setShortcut(QKeySequence(action->text().split("\t").at(1)));
          }
       }
       return TRUE;

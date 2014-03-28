@@ -571,7 +571,7 @@ void qtMfcInitMenuResource(UINT menuID,CMenu* parent)
       {
          if ( action->text().contains("\t") )
          {
-            action->setShortcut(QKeySequence(action->text().split("\t").at(1)));
+//            action->setShortcut(QKeySequence(action->text().split("\t").at(1)));
          }
       }
       menu++;

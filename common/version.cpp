@@ -15,4 +15,4 @@ char* nesicideGetVersion()
 
 // QFontMetrics::averageCharWidth hack in MapDialogRect 
 
-// Need to implement focus better.  CEdit's aren't getting focus properly in CDialogs, causing improper key input terminations.
+// FillSolidRect and Draw3dRect do exactly what MFC does
