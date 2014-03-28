@@ -2428,6 +2428,37 @@ void CRect::InflateRect(
    bottom += b;
 }
 
+void CRect::OffsetRect( 
+   int x, 
+   int y  
+)
+{
+   left += x;
+   right += x;
+   top += y;
+   bottom += y;
+}
+
+void CRect::OffsetRect( 
+   POINT point  
+)
+{
+   left += point.x;
+   right += point.x;
+   top += point.y;
+   bottom += point.y;
+}
+
+void CRect::OffsetRect( 
+   SIZE size  
+)
+{
+   left += size.cx;
+   right += size.cx;
+   top += size.cy;
+   bottom += size.cy;
+}
+
 /*
  *  CDC object classes
  */
@@ -13057,6 +13088,7 @@ BOOL CStatic::Create(
    _qtd->setMouseTracking(true);
    _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
    _qtd->setFont(QFont("MS Shell Dlg",8));
+   _qtd->setWordWrap(true);
 
 #if UNICODE
    _qtd->setText(QString::fromWCharArray(lpszText));
@@ -13069,6 +13101,17 @@ BOOL CStatic::Create(
    qtToMfcWindow.insert(_qtd,this);
 
    return TRUE;
+}
+
+HBITMAP CStatic::SetBitmap(
+   HBITMAP hBitmap
+)
+{
+   CBitmap* pBitmap = (CBitmap*)hBitmap;
+   _qtd->setPixmap(*pBitmap->toQPixmap());
+   _qtd->setScaledContents(true);
+   
+   return (HBITMAP)0;
 }
 
 void CStatic::SetDlgItemInt(

@@ -26,7 +26,7 @@
 #include "FamiTrackerDoc.h"
 #include "FamiTrackerView.h"
 #include "MainFrm.h"
-//#include "AboutDlg.h"
+#include "AboutDlg.h"
 #include "TrackerChannel.h"
 //#include "MIDI.h"
 #include "SoundGen.h"
@@ -776,9 +776,8 @@ void CFamiTrackerApp::ReloadColorScheme(void)
 // App command to run the about dialog
 void CFamiTrackerApp::OnAppAbout()
 {
-   qDebug("OnAppAbout");
-//	CAboutDlg aboutDlg;
-//	aboutDlg.DoModal();
+	CAboutDlg aboutDlg;
+	aboutDlg.DoModal();
 }
 
 // CFamiTrackerApp message handlers

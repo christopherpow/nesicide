@@ -154,5 +154,6 @@
         <file>resources/toolbar1.bmp</file>
         <file>resources/Toolbar-d5.bmp</file>
         <file>resources/Makefile.template</file>
+        <file>resources/FamiTracker-Exe.ico</file>
     </qresource>
 </RCC>

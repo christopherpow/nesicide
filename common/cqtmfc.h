@@ -3080,6 +3080,16 @@ public:
       int r,
       int b
    );
+   void OffsetRect( 
+      int x, 
+      int y  
+   ); 
+   void OffsetRect( 
+      POINT point  
+   ); 
+   void OffsetRect( 
+      SIZE size  
+   );
    operator LPRECT() const
    {
       return (RECT*)this;
@@ -3770,6 +3780,7 @@ public:
    );
    void OnDestroy( );
    void OnMouseMove(UINT,CPoint) {}
+   void OnMouseLeave() {}
    void OnNcMouseMove(UINT nHitTest, CPoint point) {}
    void OnNcLButtonUp(
       UINT nHitTest,
@@ -4281,7 +4292,7 @@ protected:
    // MFC interfaces
 public:
    CDialog( );
-   CDialog(int dlgID,CWnd* parent);
+   CDialog(int dlgID,CWnd* parent=0);
    virtual ~CDialog();
    void EndDialog(
       int nResult
@@ -4886,6 +4897,9 @@ public:
       const RECT& rect,
       CWnd* pParentWnd,
       UINT nID = 0xffff
+   );
+   HBITMAP SetBitmap(
+      HBITMAP hBitmap
    );
    void SetDlgItemInt(
       int nID,

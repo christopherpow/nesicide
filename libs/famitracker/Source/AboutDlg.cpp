@@ -117,9 +117,9 @@ BOOL CAboutDlg::OnInitDialog()
 	CString aboutString;
 
 #ifdef WIP
-	aboutString.Format(_T("FamiTracker version %i.%i.%i beta %i"), VERSION_MAJ, VERSION_MIN, VERSION_REV, VERSION_WIP);
+	aboutString.Format(_T("FamiTracker version %i.%i.%i.%i beta %i"), VERSION_MAJ, VERSION_MIN, VERSION_REV, VERSION_QT, VERSION_WIP);
 #else
-	aboutString.Format(_T("FamiTracker version %i.%i.%i"), VERSION_MAJ, VERSION_MIN, VERSION_REV);
+	aboutString.Format(_T("FamiTracker version %i.%i.%i.%i"), VERSION_MAJ, VERSION_MIN, VERSION_REV, VERSION_QT);
 #endif
 
 	SetDlgItemText(IDC_ABOUT1, aboutString);
@@ -141,28 +141,28 @@ BOOL CAboutDlg::OnInitDialog()
 	m_wndToolTip.AddTool(m_pMail, _T("Send mail to jsr@famitracker.com"));
 	m_wndToolTip.AddTool(m_pWeb, _T("Go to http://www.famitracker.com"));
 
-	pFont = m_pMail->GetFont();
-	pFont->GetLogFont(&LogFont);
-	LogFont.lfUnderline = 1;
-	m_pLinkFont = new CFont();
-	m_pLinkFont->CreateFontIndirect(&LogFont);
-	m_pMail->SetFont(m_pLinkFont);
-	m_pWeb->SetFont(m_pLinkFont);
+//	pFont = m_pMail->GetFont();
+//	pFont->GetLogFont(&LogFont);
+//	LogFont.lfUnderline = 1;
+//	m_pLinkFont = new CFont();
+//	m_pLinkFont->CreateFontIndirect(&LogFont);
+//	m_pMail->SetFont(m_pLinkFont);
+//	m_pWeb->SetFont(m_pLinkFont);
 
-	CStatic *pStatic = (CStatic*)GetDlgItem(IDC_ABOUT1);
-	CFont *pOldFont = pStatic->GetFont();
-	LOGFONT NewLogFont;
-	pOldFont->GetLogFont(&NewLogFont);
-	NewLogFont.lfWeight = FW_BOLD;
-	m_pBoldFont = new CFont();
-	m_pTitleFont = new CFont();
-	m_pBoldFont->CreateFontIndirect(&NewLogFont);
-	NewLogFont.lfHeight = 16;
-//	NewLogFont.lfUnderline = TRUE;
-	m_pTitleFont->CreateFontIndirect(&NewLogFont);
-	((CStatic*)GetDlgItem(IDC_ABOUT1))->SetFont(m_pTitleFont);
-	((CStatic*)GetDlgItem(IDC_ABOUT2))->SetFont(m_pBoldFont);
-	((CStatic*)GetDlgItem(IDC_ABOUT3))->SetFont(m_pBoldFont);
+//	CStatic *pStatic = (CStatic*)GetDlgItem(IDC_ABOUT1);
+//	CFont *pOldFont = pStatic->GetFont();
+//	LOGFONT NewLogFont;
+//	pOldFont->GetLogFont(&NewLogFont);
+//	NewLogFont.lfWeight = FW_BOLD;
+//	m_pBoldFont = new CFont();
+//	m_pTitleFont = new CFont();
+//	m_pBoldFont->CreateFontIndirect(&NewLogFont);
+//	NewLogFont.lfHeight = 16;
+////	NewLogFont.lfUnderline = TRUE;
+//	m_pTitleFont->CreateFontIndirect(&NewLogFont);
+//	((CStatic*)GetDlgItem(IDC_ABOUT1))->SetFont(m_pTitleFont);
+//	((CStatic*)GetDlgItem(IDC_ABOUT2))->SetFont(m_pBoldFont);
+//	((CStatic*)GetDlgItem(IDC_ABOUT3))->SetFont(m_pBoldFont);
 
 	return TRUE;
 }

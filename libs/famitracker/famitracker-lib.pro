@@ -178,7 +178,8 @@ SOURCES += \
     Source/ConfigGeneral.cpp \
     Source/ConfigAppearance.cpp \
     Source/CreateWaveDlg.cpp \
-    Source/TextExporter.cpp
+    Source/TextExporter.cpp \
+    Source/AboutDlg.cpp
 
 HEADERS += \
     cqtmfc_famitracker.h \
@@ -298,7 +299,8 @@ HEADERS += \
     Source/CreateWaveDlg.h \
     resource.h \
     version.h \
-    Source/TextExporter.h
+    Source/TextExporter.h \
+    Source/AboutDlg.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN
