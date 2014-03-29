@@ -5855,6 +5855,9 @@ class CToolCmdUI : public CCmdUI
 class CTestCmdUI : public CCmdUI
 {
 public:
+   virtual void Enable(
+      BOOL bOn = TRUE
+   );
    BOOL m_bEnabled;
 };
 

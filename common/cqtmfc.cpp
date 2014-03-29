@@ -1422,8 +1422,8 @@ int WINAPI TranslateAccelerator(
                }
             }
             CWnd* pWnd = (CWnd*)hWnd;
+            qDebug("Translating %d key and sending %d message...",pAccel->key,pAccel->cmd);
             pWnd->SendMessage(WM_COMMAND,pAccel->cmd);
-            qDebug("Translating and sending %d message...",pAccel->key);
             return 1;
          }
          pAccel++;
@@ -6682,14 +6682,15 @@ BOOL CWnd::OnCommand(
    
       // make sure command has not become disabled before routing
 // CP: Enabling this causes a NULL CMenu object to be passed to MRU update handler
-//      CTestCmdUI state;
-//      state.m_nID = nID;
-//      OnCmdMsg(nID, CN_UPDATE_COMMAND_UI, &state, NULL);
-//      if (!state.m_bEnabled)
-//      {
-////         TRACE(traceAppMsg, 0, "Warning: not executing disabled command %d\n", nID);
-//         return TRUE;
-//      }
+      CTestCmdUI state;
+      state.m_nID = nID;
+      qDebug("Disabled command check.");
+      OnCmdMsg(nID, CN_UPDATE_COMMAND_UI, &state, NULL);
+      if (!state.m_bEnabled)
+      {
+//         TRACE(traceAppMsg, 0, "Warning: not executing disabled command %d\n", nID);
+         return TRUE;
+      }
    
       // menu or accelerator
       nCode = CN_COMMAND;
@@ -6763,7 +6764,7 @@ bool CWnd::event(QEvent *event)
          event->ignore();
       }
    }
-   return false;
+   return proc;
 }
 
 void CWnd::mousePressEvent(QMouseEvent *event)
@@ -8047,7 +8048,6 @@ BOOL CFrameWnd::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle,
 //	m_hMenuDefault = m_dwMenuBarState == AFX_MBS_VISIBLE ? ::GetMenu(m_hWnd) : m_hMenu;
 
 //	// load accelerator resource
-   qDebug("nIDResource %d",nIDResource);
 //	LoadAccelTable(ATL_MAKEINTRESOURCE(nIDResource));
 
 	if (pContext == NULL)   // send initial update
@@ -10457,6 +10457,12 @@ void CWinApp::OnUpdateRecentFileList(CCmdUI *pCmdUI)
    int mruPosition = -1;
    int idx;
 
+   // Might be called just to test enabled state...if so, just return.
+   if ( !pMRU )
+   {
+      return;
+   }
+   
    // Find MRU index in menu...
    for ( idx = 0; idx < pMRU->GetMenuItemCount(); idx++ )
    {
@@ -10739,6 +10745,32 @@ CMenu* PASCAL CMenu::FromHandle(
 
 void CMenu::menuAction_triggered()
 {
+   // Check if command is enabled by calling its UI update...
+   CTestCmdUI state;
+   QWidget* pWidget = QApplication::focusWidget();
+   QAction* pAction = dynamic_cast<QAction*>(sender());
+   state.m_nID = pAction->data().toInt();
+   qDebug("Disabled command check from shortcut.");
+   ptrToTheApp->GetMainWnd()->OnCmdMsg(state.m_nID, CN_UPDATE_COMMAND_UI, &state, NULL);
+   if (!state.m_bEnabled)
+   {
+      // Command is disabled, and we just got triggered, which means the
+      // shortcut associated with this menu triggered us.  Re-route the
+      // shortcut as a keyPressEvent.
+      QKeySequence keys = pAction->shortcut();
+      int keyc;
+      for ( keyc = 0; keyc < keys.count(); keyc++ )
+      {
+         QKeyEvent keyEvent(QEvent::KeyPress,keys[keyc],0);
+         if ( pWidget )
+         {
+            pAction->setEnabled(false);
+            QApplication::sendEvent(pWidget,&keyEvent);
+            pAction->setEnabled(true);
+         }
+      }
+      return;
+   }
    emit menuAction_triggered(qtToMfcMenu.value((QAction*)sender()));
 }
 
@@ -10875,6 +10907,7 @@ BOOL CMenu::AppendMenu(
          action->setEnabled(true);
       }
       QObject::connect(action,SIGNAL(triggered()),this,SLOT(menuAction_triggered()));
+      action->setData(nIDNewItem);
       mfcToQtMenu.insert(nIDNewItem,action);
       qtToMfcMenu.insert(action,nIDNewItem);
    }
@@ -10946,6 +10979,7 @@ BOOL CMenu::InsertMenu(
             action->setEnabled(true);
          }
          QObject::connect(action,SIGNAL(triggered()),this,SLOT(menuAction_triggered()));
+         action->setData(nIDNewItem);
          mfcToQtMenu.insert(nIDNewItem,action);
          qtToMfcMenu.insert(action,nIDNewItem);
       }
@@ -11187,14 +11221,6 @@ UINT CMenu::EnableMenuItem(
    {
       bool enabled = action->isEnabled();
       action->setEnabled(nEnable);
-      if ( nEnable )
-      {
-         action->setShortcutContext(Qt::ApplicationShortcut);
-      }
-      else
-      {
-         action->setShortcutContext(Qt::WidgetShortcut);
-      }
       return enabled;
    }
    return -1;
@@ -14203,6 +14229,13 @@ void CCmdUI::SetText(
    else if ( m_pSubMenu )
    {
    }
+}
+
+void CTestCmdUI::Enable(
+   BOOL bOn
+)
+{
+   m_bEnabled = bOn;
 }
 
 BOOL CArchive::IsStoring( ) const
