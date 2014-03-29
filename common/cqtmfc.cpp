@@ -6684,7 +6684,6 @@ BOOL CWnd::OnCommand(
 // CP: Enabling this causes a NULL CMenu object to be passed to MRU update handler
       CTestCmdUI state;
       state.m_nID = nID;
-      qDebug("Disabled command check.");
       OnCmdMsg(nID, CN_UPDATE_COMMAND_UI, &state, NULL);
       if (!state.m_bEnabled)
       {
@@ -10750,7 +10749,6 @@ void CMenu::menuAction_triggered()
    QWidget* pWidget = QApplication::focusWidget();
    QAction* pAction = dynamic_cast<QAction*>(sender());
    state.m_nID = pAction->data().toInt();
-   qDebug("Disabled command check from shortcut.");
    ptrToTheApp->GetMainWnd()->OnCmdMsg(state.m_nID, CN_UPDATE_COMMAND_UI, &state, NULL);
    if (!state.m_bEnabled)
    {
