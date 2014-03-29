@@ -6681,12 +6681,13 @@ BOOL CWnd::OnCommand(
          return FALSE;
    
       // make sure command has not become disabled before routing
+// CP: Enabling this causes a NULL CMenu object to be passed to MRU update handler
 //      CTestCmdUI state;
 //      state.m_nID = nID;
 //      OnCmdMsg(nID, CN_UPDATE_COMMAND_UI, &state, NULL);
 //      if (!state.m_bEnabled)
 //      {
-//         TRACE(traceAppMsg, 0, "Warning: not executing disabled command %d\n", nID);
+////         TRACE(traceAppMsg, 0, "Warning: not executing disabled command %d\n", nID);
 //         return TRUE;
 //      }
    
@@ -6762,7 +6763,7 @@ bool CWnd::event(QEvent *event)
          event->ignore();
       }
    }
-   return proc;
+   return false;
 }
 
 void CWnd::mousePressEvent(QMouseEvent *event)
@@ -7000,72 +7001,72 @@ bool CWnd::eventFilter(QObject *object, QEvent *event)
       if ( event->type() == QEvent::Close )
       {
          closeEvent(dynamic_cast<QCloseEvent*>(event));
-         return true;
+         return event->isAccepted();
       }
       if ( event->type() == QEvent::Show )
       {
          showEvent(dynamic_cast<QShowEvent*>(event));
-         return true;
+         return event->isAccepted();
       }
       if ( event->type() == QEvent::Hide )
       {
          hideEvent(dynamic_cast<QHideEvent*>(event));
-         return true;
+         return event->isAccepted();
       }
       if ( event->type() == QEvent::Move )
       {
          moveEvent(dynamic_cast<QMoveEvent*>(event));
-         return true;
+         return event->isAccepted();
       }
       if ( event->type() == QEvent::Paint )
       {
          paintEvent(dynamic_cast<QPaintEvent*>(event));
-         return false;
+         return false; // always propagate
       }
       if ( event->type() == QEvent::FocusIn )
       {
          focusInEvent(dynamic_cast<QFocusEvent*>(event));
-         return false;
+         return event->isAccepted();
       }
       if ( event->type() == QEvent::FocusOut )
       {
          focusOutEvent(dynamic_cast<QFocusEvent*>(event));
-         return false;
+         return event->isAccepted();
       }
       if ( event->type() == QEvent::Leave )
       {
          leaveEvent(event);
-         return true;
+         return event->isAccepted();
       }
       if ( event->type() == QEvent::MouseButtonPress )
       {
          mousePressEvent(dynamic_cast<QMouseEvent*>(event));
-         return false;
+         return event->isAccepted();
       }
       if ( event->type() == QEvent::MouseButtonRelease )
       {
          mouseReleaseEvent(dynamic_cast<QMouseEvent*>(event));
-         return false;
+         return event->isAccepted();
       }
       if ( event->type() == QEvent::MouseButtonDblClick )
       {
          mouseDoubleClickEvent(dynamic_cast<QMouseEvent*>(event));
-         return false;
+         return event->isAccepted();
       }
       if ( event->type() == QEvent::MouseMove )
       {
          mouseMoveEvent(dynamic_cast<QMouseEvent*>(event));
-         return false;
+         return event->isAccepted();
       }
       if ( event->type() == QEvent::Wheel )
       {
          wheelEvent(dynamic_cast<QWheelEvent*>(event));
-         return false;
+         return event->isAccepted();
       }
       if ( event->type() == QEvent::Resize )
       {
          resizeEvent(dynamic_cast<QResizeEvent*>(event));
-         return true;
+         return event->isAccepted();
       }
       if ( event->type() == QEvent::KeyPress )
       {
@@ -7080,32 +7081,32 @@ bool CWnd::eventFilter(QObject *object, QEvent *event)
       if ( event->type() == QEvent::ContextMenu )
       {
          contextMenuEvent(dynamic_cast<QContextMenuEvent*>(event));
-         return true;
+         return event->isAccepted();
       }
       if ( event->type() == QEvent::DragEnter )
       {
          dragEnterEvent(dynamic_cast<QDragEnterEvent*>(event));
-         return true;
+         return event->isAccepted();
       }
       if ( event->type() == QEvent::DragMove )
       {
          dragMoveEvent(dynamic_cast<QDragMoveEvent*>(event));
-         return true;
+         return event->isAccepted();
       }
       if ( event->type() == QEvent::Drop )
       {
          dropEvent(dynamic_cast<QDropEvent*>(event));
-         return true;
+         return event->isAccepted();
       }
       if ( event->type() == QEvent::DragLeave )
       {
          dragLeaveEvent(dynamic_cast<QDragLeaveEvent*>(event));
-         return true;
+         return event->isAccepted();
       }
       if ( event->type() == QEvent::Timer )
       {
          timerEvent(dynamic_cast<QTimerEvent*>(event));
-         return true;
+         return event->isAccepted();
       }
    }
 //   qDebug("eventFilter: unhandled %d object %s", event->type(), object->objectName().toLatin1().constData());
@@ -7924,7 +7925,7 @@ CFrameWnd::CFrameWnd(CWnd *parent)
    for ( idx = 0; idx < m_pMenu->GetMenuItemCount(); idx++ )
    {
       ptrToTheApp->qtMainWindow->menuBar()->addMenu(m_pMenu->GetSubMenu(idx)->toQMenu());
-      QObject::connect(m_pMenu->GetSubMenu(idx),SIGNAL(menuAction_triggered(int)),this,SLOT(menuAction_triggered(int)));      
+      QObject::connect(m_pMenu->GetSubMenu(idx),SIGNAL(menuAction_triggered(int)),this,SLOT(menuAction_triggered(int)));     
    }
    
    // Get focus changes...
@@ -8046,6 +8047,7 @@ BOOL CFrameWnd::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle,
 //	m_hMenuDefault = m_dwMenuBarState == AFX_MBS_VISIBLE ? ::GetMenu(m_hWnd) : m_hMenu;
 
 //	// load accelerator resource
+   qDebug("nIDResource %d",nIDResource);
 //	LoadAccelTable(ATL_MAKEINTRESOURCE(nIDResource));
 
 	if (pContext == NULL)   // send initial update
@@ -8347,72 +8349,72 @@ bool CView::eventFilter(QObject *object, QEvent *event)
       if ( event->type() == QEvent::Close )
       {
          closeEvent(dynamic_cast<QCloseEvent*>(event));
-         return true;
+         return event->isAccepted();
       }
       if ( event->type() == QEvent::Show )
       {
          showEvent(dynamic_cast<QShowEvent*>(event));
-         return true;
+         return event->isAccepted();
       }
       if ( event->type() == QEvent::Hide )
       {
          hideEvent(dynamic_cast<QHideEvent*>(event));
-         return true;
+         return event->isAccepted();
       }
       if ( event->type() == QEvent::Move )
       {
          moveEvent(dynamic_cast<QMoveEvent*>(event));
-         return true;
+         return event->isAccepted();
       }
       if ( event->type() == QEvent::Paint )
       {
          paintEvent(dynamic_cast<QPaintEvent*>(event));
-         return false;
+         return false; // always propagate
       }
       if ( event->type() == QEvent::FocusIn )
       {
          focusInEvent(dynamic_cast<QFocusEvent*>(event));
-         return false;
+         return event->isAccepted();
       }
       if ( event->type() == QEvent::FocusOut )
       {
          focusOutEvent(dynamic_cast<QFocusEvent*>(event));
-         return false;
+         return event->isAccepted();
       }
       if ( event->type() == QEvent::Leave )
       {
          leaveEvent(event);
-         return true;
+         return event->isAccepted();
       }
       if ( event->type() == QEvent::MouseButtonPress )
       {
          mousePressEvent(dynamic_cast<QMouseEvent*>(event));
-         return false;
+         return event->isAccepted();
       }
       if ( event->type() == QEvent::MouseButtonRelease )
       {
          mouseReleaseEvent(dynamic_cast<QMouseEvent*>(event));
-         return false;
+         return event->isAccepted();
       }
       if ( event->type() == QEvent::MouseButtonDblClick )
       {
          mouseDoubleClickEvent(dynamic_cast<QMouseEvent*>(event));
-         return false;
+         return event->isAccepted();
       }
       if ( event->type() == QEvent::MouseMove )
       {
          mouseMoveEvent(dynamic_cast<QMouseEvent*>(event));
-         return false;
+         return event->isAccepted();
       }
       if ( event->type() == QEvent::Wheel )
       {
          wheelEvent(dynamic_cast<QWheelEvent*>(event));
-         return false;
+         return event->isAccepted();
       }
       if ( event->type() == QEvent::Resize )
       {
          resizeEvent(dynamic_cast<QResizeEvent*>(event));
-         return true;
+         return event->isAccepted();
       }
       if ( event->type() == QEvent::KeyPress )
       {
@@ -8427,27 +8429,27 @@ bool CView::eventFilter(QObject *object, QEvent *event)
       if ( event->type() == QEvent::ContextMenu )
       {
          contextMenuEvent(dynamic_cast<QContextMenuEvent*>(event));
-         return true;
+         return event->isAccepted();
       }
       if ( event->type() == QEvent::DragEnter )
       {
          dragEnterEvent(dynamic_cast<QDragEnterEvent*>(event));
-         return true;
+         return event->isAccepted();
       }
       if ( event->type() == QEvent::DragMove )
       {
          dragMoveEvent(dynamic_cast<QDragMoveEvent*>(event));
-         return true;
+         return event->isAccepted();
       }
       if ( event->type() == QEvent::Drop )
       {
          dropEvent(dynamic_cast<QDropEvent*>(event));
-         return true;
+         return event->isAccepted();
       }
       if ( event->type() == QEvent::DragLeave )
       {
          dragLeaveEvent(dynamic_cast<QDragLeaveEvent*>(event));
-         return true;
+         return event->isAccepted();
       }
    }
    if ( object == _qt )
@@ -8455,7 +8457,7 @@ bool CView::eventFilter(QObject *object, QEvent *event)
       if ( event->type() == QEvent::Timer )
       {
          timerEvent(dynamic_cast<QTimerEvent*>(event));
-         return true;
+         return event->isAccepted();
       }
    }
 //   qDebug("eventFilter: unhandled %d object %s", event->type(), object->objectName().toLatin1().constData());
@@ -10740,7 +10742,7 @@ void CMenu::menuAction_triggered()
    emit menuAction_triggered(qtToMfcMenu.value((QAction*)sender()));
 }
 
-void CMenu::menuAboutToShow()
+void CMenu::menu_aboutToShow()
 {
    AfxGetMainWnd()->SendMessage(WM_INITMENUPOPUP,(WPARAM)this);
 }
@@ -10856,21 +10858,21 @@ BOOL CMenu::AppendMenu(
 #endif
       if ( action->text().contains("\t") )
       {
-//         action->setShortcut(QKeySequence(action->text().split("\t").at(1)));
+         action->setShortcut(QKeySequence(action->text().split("\t").at(1)));
       }
       if ( nFlags&MF_CHECKED )
       {
          action->setCheckable(true);
          action->setChecked(true);
       }
-      if ( nFlags&MF_ENABLED )
-      {
-         action->setEnabled(true);
-      }
       if ( (nFlags&MF_DISABLED) ||
            (nFlags&MF_GRAYED) )
       {
-         action->setDisabled(true);
+         action->setEnabled(false);
+      }
+      else
+      {
+         action->setEnabled(true);
       }
       QObject::connect(action,SIGNAL(triggered()),this,SLOT(menuAction_triggered()));
       mfcToQtMenu.insert(nIDNewItem,action);
@@ -10927,21 +10929,21 @@ BOOL CMenu::InsertMenu(
          action = newAction;
          if ( action->text().contains("\t") )
          {
-//            action->setShortcut(QKeySequence(action->text().split("\t").at(1)));
+            action->setShortcut(QKeySequence(action->text().split("\t").at(1)));
          }
          if ( nFlags&MF_CHECKED )
          {
             action->setCheckable(true);
             action->setChecked(true);
          }
-         if ( nFlags&MF_ENABLED )
-         {
-            action->setEnabled(true);
-         }
          if ( (nFlags&MF_DISABLED) ||
               (nFlags&MF_GRAYED) )
          {
-            action->setDisabled(true);
+            action->setEnabled(false);
+         }
+         else
+         {
+            action->setEnabled(true);
          }
          QObject::connect(action,SIGNAL(triggered()),this,SLOT(menuAction_triggered()));
          mfcToQtMenu.insert(nIDNewItem,action);
@@ -11102,7 +11104,7 @@ BOOL CMenu::ModifyMenu(
 #endif
          if ( action->text().contains("\t") )
          {
-//            action->setShortcut(QKeySequence(action->text().split("\t").at(1)));
+            action->setShortcut(QKeySequence(action->text().split("\t").at(1)));
          }
       }
       return TRUE;
@@ -11185,6 +11187,14 @@ UINT CMenu::EnableMenuItem(
    {
       bool enabled = action->isEnabled();
       action->setEnabled(nEnable);
+      if ( nEnable )
+      {
+         action->setShortcutContext(Qt::ApplicationShortcut);
+      }
+      else
+      {
+         action->setShortcutContext(Qt::WidgetShortcut);
+      }
       return enabled;
    }
    return -1;

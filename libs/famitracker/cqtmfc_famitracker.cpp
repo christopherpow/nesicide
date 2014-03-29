@@ -19,7 +19,7 @@ void qtMfcInitMenuResource_IDR_MAINFRAME(CMenu* parent)
 //    POPUP "&File"
    subMenuTree[0] = new CMenu;
    subMenu = subMenuTree[0];
-   QObject::connect(subMenu->toQMenu(),SIGNAL(aboutToShow()),subMenu,SLOT(menuAboutToShow()));
+   QObject::connect(subMenu->toQMenu(),SIGNAL(aboutToShow()),subMenu,SLOT(menu_aboutToShow()));
    parent->AppendMenu(MF_POPUP|MF_STRING,(UINT_PTR)subMenu->m_hMenu,"&File");
 //    BEGIN
 //        MENUITEM "&New\tCtrl+N",                ID_FILE_NEW
@@ -60,7 +60,7 @@ void qtMfcInitMenuResource_IDR_MAINFRAME(CMenu* parent)
 //    POPUP "&Edit"
    subMenuTree[0] = new CMenu;
    subMenu = subMenuTree[0];
-   QObject::connect(subMenu->toQMenu(),SIGNAL(aboutToShow()),subMenu,SLOT(menuAboutToShow()));
+   QObject::connect(subMenu->toQMenu(),SIGNAL(aboutToShow()),subMenu,SLOT(menu_aboutToShow()));
    parent->AppendMenu(MF_POPUP|MF_STRING,(UINT_PTR)subMenu->m_hMenu,"&Edit");
 //    BEGIN
 //        MENUITEM "&Undo\tCtrl+Z",               ID_EDIT_UNDO
@@ -88,7 +88,7 @@ void qtMfcInitMenuResource_IDR_MAINFRAME(CMenu* parent)
 //        POPUP "Transpose"
    subMenuTree[1] = new CMenu;
    subMenu = subMenuTree[1];
-   QObject::connect(subMenu->toQMenu(),SIGNAL(aboutToShow()),subMenu,SLOT(menuAboutToShow()));
+   QObject::connect(subMenu->toQMenu(),SIGNAL(aboutToShow()),subMenu,SLOT(menu_aboutToShow()));
    subMenuTree[0]->AppendMenu(MF_POPUP|MF_STRING,(UINT_PTR)subMenu->m_hMenu,"Transpose");
 //        BEGIN
 //            MENUITEM "Decrease Note\tCtrl+F1",      ID_TRANSPOSE_DECREASENOTE
@@ -120,7 +120,7 @@ void qtMfcInitMenuResource_IDR_MAINFRAME(CMenu* parent)
 //        POPUP "Clean up"
    subMenuTree[1] = new CMenu;
    subMenu = subMenuTree[1];
-   QObject::connect(subMenu->toQMenu(),SIGNAL(aboutToShow()),subMenu,SLOT(menuAboutToShow()));
+   QObject::connect(subMenu->toQMenu(),SIGNAL(aboutToShow()),subMenu,SLOT(menu_aboutToShow()));
    subMenuTree[0]->AppendMenu(MF_POPUP|MF_STRING,(UINT_PTR)subMenu->m_hMenu,"Clean up");
 //        BEGIN
 //            MENUITEM "Remove unused instruments",   ID_CLEANUP_REMOVEUNUSEDINSTRUMENTS
@@ -146,7 +146,7 @@ void qtMfcInitMenuResource_IDR_MAINFRAME(CMenu* parent)
 //    POPUP "&Module"
    subMenuTree[0] = new CMenu;
    subMenu = subMenuTree[0];
-   QObject::connect(subMenu->toQMenu(),SIGNAL(aboutToShow()),subMenu,SLOT(menuAboutToShow()));
+   QObject::connect(subMenu->toQMenu(),SIGNAL(aboutToShow()),subMenu,SLOT(menu_aboutToShow()));
    parent->AppendMenu(MF_POPUP|MF_STRING,(UINT_PTR)subMenu->m_hMenu,"&Module");
 //    BEGIN
 //        MENUITEM "Insert frame",                ID_MODULE_INSERTFRAME
@@ -175,7 +175,7 @@ void qtMfcInitMenuResource_IDR_MAINFRAME(CMenu* parent)
 //    POPUP "&Instrument"
    subMenuTree[0] = new CMenu;
    subMenu = subMenuTree[0];
-   QObject::connect(subMenu->toQMenu(),SIGNAL(aboutToShow()),subMenu,SLOT(menuAboutToShow()));
+   QObject::connect(subMenu->toQMenu(),SIGNAL(aboutToShow()),subMenu,SLOT(menu_aboutToShow()));
    parent->AppendMenu(MF_POPUP|MF_STRING,(UINT_PTR)subMenu->m_hMenu,"&Instrument");
 //    BEGIN
 //        MENUITEM "New instrument",              ID_INSTRUMENT_NEW
@@ -200,7 +200,7 @@ void qtMfcInitMenuResource_IDR_MAINFRAME(CMenu* parent)
 //    POPUP "T&racker"
    subMenuTree[0] = new CMenu;
    subMenu = subMenuTree[0];
-   QObject::connect(subMenu->toQMenu(),SIGNAL(aboutToShow()),subMenu,SLOT(menuAboutToShow()));
+   QObject::connect(subMenu->toQMenu(),SIGNAL(aboutToShow()),subMenu,SLOT(menu_aboutToShow()));
    parent->AppendMenu(MF_POPUP|MF_STRING,(UINT_PTR)subMenu->m_hMenu,"T&racker");
 //    BEGIN
 //        MENUITEM "&Play\tReturn",               ID_TRACKER_PLAY
@@ -240,7 +240,7 @@ void qtMfcInitMenuResource_IDR_MAINFRAME(CMenu* parent)
 //        POPUP "Engine Speed"
    subMenuTree[1] = new CMenu;
    subMenu = subMenuTree[1];
-   QObject::connect(subMenu->toQMenu(),SIGNAL(aboutToShow()),subMenu,SLOT(menuAboutToShow()));
+   QObject::connect(subMenu->toQMenu(),SIGNAL(aboutToShow()),subMenu,SLOT(menu_aboutToShow()));
    subMenuTree[0]->AppendMenu(MF_POPUP|MF_STRING,(UINT_PTR)subMenu->m_hMenu,"Engine Speed");
 //        BEGIN
 //            MENUITEM "Default",                     ID_SPEED_DEFAULT
@@ -255,7 +255,7 @@ void qtMfcInitMenuResource_IDR_MAINFRAME(CMenu* parent)
 //    POPUP "&View"
    subMenuTree[0] = new CMenu;
    subMenu = subMenuTree[0];
-   QObject::connect(subMenu->toQMenu(),SIGNAL(aboutToShow()),subMenu,SLOT(menuAboutToShow()));
+   QObject::connect(subMenu->toQMenu(),SIGNAL(aboutToShow()),subMenu,SLOT(menu_aboutToShow()));
    parent->AppendMenu(MF_POPUP|MF_STRING,(UINT_PTR)subMenu->m_hMenu,"&View");
 //    BEGIN
 //        MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
@@ -269,7 +269,7 @@ void qtMfcInitMenuResource_IDR_MAINFRAME(CMenu* parent)
 //        POPUP "Frame editor position"
    subMenuTree[1] = new CMenu;
    subMenu = subMenuTree[1];
-   QObject::connect(subMenu->toQMenu(),SIGNAL(aboutToShow()),subMenu,SLOT(menuAboutToShow()));
+   QObject::connect(subMenu->toQMenu(),SIGNAL(aboutToShow()),subMenu,SLOT(menu_aboutToShow()));
    subMenuTree[0]->AppendMenu(MF_POPUP|MF_STRING,(UINT_PTR)subMenu->m_hMenu,"Frame editor position");
 //        BEGIN
 //            MENUITEM "Top",                         ID_FRAMEEDITOR_TOP, CHECKED
@@ -282,7 +282,7 @@ void qtMfcInitMenuResource_IDR_MAINFRAME(CMenu* parent)
 //    POPUP "&Help"
    subMenuTree[0] = new CMenu;
    subMenu = subMenuTree[0];
-   QObject::connect(subMenu->toQMenu(),SIGNAL(aboutToShow()),subMenu,SLOT(menuAboutToShow()));
+   QObject::connect(subMenu->toQMenu(),SIGNAL(aboutToShow()),subMenu,SLOT(menu_aboutToShow()));
    parent->AppendMenu(MF_POPUP|MF_STRING,(UINT_PTR)subMenu->m_hMenu,"&Help");
 //    BEGIN
 //        MENUITEM "&Help Topics\tF1",            ID_HELP_FINDER
@@ -311,7 +311,7 @@ void qtMfcInitMenuResource_IDR_PATTERN_POPUP(CMenu* parent)
 //       POPUP "Popup"
    subMenuTree[0] = new CMenu;
    subMenu = subMenuTree[0];
-   QObject::connect(subMenu->toQMenu(),SIGNAL(aboutToShow()),subMenu,SLOT(menuAboutToShow()));
+   QObject::connect(subMenu->toQMenu(),SIGNAL(aboutToShow()),subMenu,SLOT(menu_aboutToShow()));
    parent->AppendMenu(MF_POPUP|MF_STRING,(UINT_PTR)subMenu->m_hMenu,"&Popup");
 //       BEGIN
 //           MENUITEM "&Undo",                       ID_EDIT_UNDO
@@ -335,7 +335,7 @@ void qtMfcInitMenuResource_IDR_PATTERN_POPUP(CMenu* parent)
 //           POPUP "Transpose"
    subMenuTree[1] = new CMenu;
    subMenu = subMenuTree[1];
-   QObject::connect(subMenu->toQMenu(),SIGNAL(aboutToShow()),subMenu,SLOT(menuAboutToShow()));
+   QObject::connect(subMenu->toQMenu(),SIGNAL(aboutToShow()),subMenu,SLOT(menu_aboutToShow()));
    subMenuTree[0]->AppendMenu(MF_POPUP|MF_STRING,(UINT_PTR)subMenu->m_hMenu,"Transpose");
 //           BEGIN
 //               MENUITEM "Increase Note",               ID_TRANSPOSE_INCREASENOTE
@@ -387,7 +387,7 @@ void qtMfcInitMenuResource_IDR_FRAME_POPUP(CMenu* parent)
 //       POPUP "Frame"
    subMenuTree[0] = new CMenu;
    subMenu = subMenuTree[0];
-   QObject::connect(subMenu->toQMenu(),SIGNAL(aboutToShow()),subMenu,SLOT(menuAboutToShow()));
+   QObject::connect(subMenu->toQMenu(),SIGNAL(aboutToShow()),subMenu,SLOT(menu_aboutToShow()));
    parent->AppendMenu(MF_POPUP|MF_STRING,(UINT_PTR)subMenu->m_hMenu,"&Frame");
 //       BEGIN
 //           MENUITEM "&Insert frame\tIns",          ID_MODULE_INSERTFRAME
@@ -431,7 +431,7 @@ void qtMfcInitMenuResource_IDR_INSTRUMENT_POPUP(CMenu* parent)
 //       POPUP "Instrument"
    subMenuTree[0] = new CMenu;
    subMenu = subMenuTree[0];
-   QObject::connect(subMenu->toQMenu(),SIGNAL(aboutToShow()),subMenu,SLOT(menuAboutToShow()));
+   QObject::connect(subMenu->toQMenu(),SIGNAL(aboutToShow()),subMenu,SLOT(menu_aboutToShow()));
    parent->AppendMenu(MF_POPUP|MF_STRING,(UINT_PTR)subMenu->m_hMenu,"Instrument");
 //       BEGIN
 //           MENUITEM "Add",                         ID_INSTRUMENT_NEW
@@ -463,7 +463,7 @@ void qtMfcInitMenuResource_IDR_SAMPLES_POPUP(CMenu* parent)
 //       POPUP "Popup"
    subMenuTree[0] = new CMenu;
    subMenu = subMenuTree[0];
-   QObject::connect(subMenu->toQMenu(),SIGNAL(aboutToShow()),subMenu,SLOT(menuAboutToShow()));
+   QObject::connect(subMenu->toQMenu(),SIGNAL(aboutToShow()),subMenu,SLOT(menu_aboutToShow()));
    parent->AppendMenu(MF_POPUP|MF_STRING,(UINT_PTR)subMenu->m_hMenu,"Popup");
 //       BEGIN
 //           MENUITEM "Preview",                     IDC_PREVIEW
@@ -497,7 +497,7 @@ void qtMfcInitMenuResource_IDR_SAMPLE_WND_POPUP(CMenu* parent)
 //       POPUP "Popup"
    subMenuTree[0] = new CMenu;
    subMenu = subMenuTree[0];
-   QObject::connect(subMenu->toQMenu(),SIGNAL(aboutToShow()),subMenu,SLOT(menuAboutToShow()));
+   QObject::connect(subMenu->toQMenu(),SIGNAL(aboutToShow()),subMenu,SLOT(menu_aboutToShow()));
    parent->AppendMenu(MF_POPUP|MF_STRING,(UINT_PTR)subMenu->m_hMenu,"Popup");
 //       BEGIN
 //           MENUITEM "Sample scope 1",              ID_POPUP_SAMPLESCOPE1
@@ -523,7 +523,7 @@ void qtMfcInitMenuResource_IDR_PATTERN_HEADER_POPUP(CMenu* parent)
 //       POPUP "Popup"
    subMenuTree[0] = new CMenu;
    subMenu = subMenuTree[0];
-   QObject::connect(subMenu->toQMenu(),SIGNAL(aboutToShow()),subMenu,SLOT(menuAboutToShow()));
+   QObject::connect(subMenu->toQMenu(),SIGNAL(aboutToShow()),subMenu,SLOT(menu_aboutToShow()));
    parent->AppendMenu(MF_POPUP|MF_STRING,(UINT_PTR)subMenu->m_hMenu,"Popup");
 //       BEGIN
 //           MENUITEM "&Toggle channel\tAlt+F9",     ID_POPUP_TOGGLECHANNEL
@@ -571,7 +571,7 @@ void qtMfcInitMenuResource(UINT menuID,CMenu* parent)
       {
          if ( action->text().contains("\t") )
          {
-//            action->setShortcut(QKeySequence(action->text().split("\t").at(1)));
+            action->setShortcut(QKeySequence(action->text().split("\t").at(1)));
          }
       }
       menu++;

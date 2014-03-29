@@ -4196,7 +4196,7 @@ protected:
    QHash<QAction*,UINT_PTR> qtToMfcMenu;
 public slots:
    void menuAction_triggered();
-   void menuAboutToShow();
+   void menu_aboutToShow();
 signals:
    void menuAction_triggered(int id);
 
