@@ -52,12 +52,12 @@ void CCommentsDlg::DoDataExchange(CDataExchange* pDX)
 
 
 BEGIN_MESSAGE_MAP(CCommentsDlg, CDialog)
-//ON_BN_CLICKED(IDC_OK, &CCommentsDlg::OnBnClickedOk)
-//ON_BN_CLICKED(IDC_CANCEL, &CCommentsDlg::OnBnClickedCancel)
-   ON_BN_CLICKED(IDC_OK, OnBnClickedOk)
-   ON_BN_CLICKED(IDC_CANCEL, OnBnClickedCancel)
+//	ON_BN_CLICKED(IDOK, &CCommentsDlg::OnBnClickedOk)
+//	ON_BN_CLICKED(IDCANCEL, &CCommentsDlg::OnBnClickedCancel)
+	ON_BN_CLICKED(IDOK, OnBnClickedOk)
+	ON_BN_CLICKED(IDCANCEL, OnBnClickedCancel)
 	ON_WM_SIZE()
-//ON_EN_CHANGE(IDC_COMMENTS, &CCommentsDlg::OnEnChangeComments)
+// ON_EN_CHANGE(IDC_COMMENTS, &CCommentsDlg::OnEnChangeComments)
    ON_EN_CHANGE(IDC_COMMENTS, OnEnChangeComments)
 END_MESSAGE_MAP()
 

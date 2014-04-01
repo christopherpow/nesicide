@@ -29,14 +29,7 @@
 
 class CInstrumentEditDlg : public CDialog
 {
-   Q_OBJECT
-public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
 	DECLARE_DYNAMIC(CInstrumentEditDlg)
-
-   // Qt stuff
-protected:
-   void closeEvent(QCloseEvent *);
-      
 public:
 	CInstrumentEditDlg(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CInstrumentEditDlg();

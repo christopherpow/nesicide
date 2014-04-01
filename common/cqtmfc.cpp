@@ -3833,22 +3833,22 @@ bool CListCtrl::eventFilter(QObject *object, QEvent *event)
       if ( event->type() == QEvent::Close )
       {
          closeEvent(dynamic_cast<QCloseEvent*>(event));
-         return true;
+         return false;
       }
       if ( event->type() == QEvent::Show )
       {
          showEvent(dynamic_cast<QShowEvent*>(event));
-         return true;
+         return false;
       }
       if ( event->type() == QEvent::Hide )
       {
          hideEvent(dynamic_cast<QHideEvent*>(event));
-         return true;
+         return false;
       }
       if ( event->type() == QEvent::Move )
       {
          moveEvent(dynamic_cast<QMoveEvent*>(event));
-         return true;
+         return false;
       }
       if ( event->type() == QEvent::Paint )
       {
@@ -3868,7 +3868,7 @@ bool CListCtrl::eventFilter(QObject *object, QEvent *event)
       if ( event->type() == QEvent::Leave )
       {
          leaveEvent(event);
-         return true;
+         return false;
       }
       if ( event->type() == QEvent::MouseButtonPress )
       {
@@ -3898,7 +3898,7 @@ bool CListCtrl::eventFilter(QObject *object, QEvent *event)
       if ( event->type() == QEvent::Resize )
       {
          resizeEvent(dynamic_cast<QResizeEvent*>(event));
-         return true;
+         return false;
       }
       if ( event->type() == QEvent::KeyPress )
       {
@@ -4047,6 +4047,8 @@ BOOL CListCtrl::Create(
       QObject::connect(_qtd_list,SIGNAL(itemSelectionChanged()),this,SLOT(itemSelectionChanged()));
       QObject::connect(_qtd_list,SIGNAL(clicked(QModelIndex)),this,SLOT(clicked(QModelIndex)));
       QObject::connect(_qtd_list,SIGNAL(doubleClicked(QModelIndex)),this,SLOT(doubleClicked(QModelIndex)));
+      QObject::connect(_qtd_list,SIGNAL(pressed(QModelIndex)),this,SLOT(clicked(QModelIndex)));
+      QObject::connect(_qtd_list,SIGNAL(entered(QModelIndex)),this,SLOT(clicked(QModelIndex)));
 
       _qtd_list->setFlow(QListView::TopToBottom);
       _qtd_list->setWrapping(true);
@@ -4082,7 +4084,7 @@ void CListCtrl::itemSelectionChanged()
    nmlv.hdr.code = LVN_ITEMCHANGED;
    nmlv.uChanged = LVIF_STATE;
    if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
-   {
+   {   
       nmlv.iItem = _qtd_table->currentIndex().row();
       nmlv.iSubItem = _qtd_table->currentIndex().column();
       if ( _qtd_table->currentItem() )
@@ -7001,112 +7003,112 @@ bool CWnd::eventFilter(QObject *object, QEvent *event)
       if ( event->type() == QEvent::Close )
       {
          closeEvent(dynamic_cast<QCloseEvent*>(event));
-         return event->isAccepted();
+         return false;
       }
       if ( event->type() == QEvent::Show )
       {
          showEvent(dynamic_cast<QShowEvent*>(event));
-         return event->isAccepted();
+         return false;
       }
       if ( event->type() == QEvent::Hide )
       {
          hideEvent(dynamic_cast<QHideEvent*>(event));
-         return event->isAccepted();
+         return false;
       }
       if ( event->type() == QEvent::Move )
       {
          moveEvent(dynamic_cast<QMoveEvent*>(event));
-         return event->isAccepted();
+         return false;
       }
       if ( event->type() == QEvent::Paint )
       {
          paintEvent(dynamic_cast<QPaintEvent*>(event));
-         return false; // always propagate
+         return false;
       }
       if ( event->type() == QEvent::FocusIn )
       {
          focusInEvent(dynamic_cast<QFocusEvent*>(event));
-         return event->isAccepted();
+         return false;
       }
       if ( event->type() == QEvent::FocusOut )
       {
          focusOutEvent(dynamic_cast<QFocusEvent*>(event));
-         return event->isAccepted();
+         return false;
       }
       if ( event->type() == QEvent::Leave )
       {
          leaveEvent(event);
-         return event->isAccepted();
+         return false;
       }
       if ( event->type() == QEvent::MouseButtonPress )
       {
          mousePressEvent(dynamic_cast<QMouseEvent*>(event));
-         return event->isAccepted();
+         return false;
       }
       if ( event->type() == QEvent::MouseButtonRelease )
       {
          mouseReleaseEvent(dynamic_cast<QMouseEvent*>(event));
-         return event->isAccepted();
+         return false;
       }
       if ( event->type() == QEvent::MouseButtonDblClick )
       {
          mouseDoubleClickEvent(dynamic_cast<QMouseEvent*>(event));
-         return event->isAccepted();
+         return false;
       }
       if ( event->type() == QEvent::MouseMove )
       {
          mouseMoveEvent(dynamic_cast<QMouseEvent*>(event));
-         return event->isAccepted();
+         return false;
       }
       if ( event->type() == QEvent::Wheel )
       {
          wheelEvent(dynamic_cast<QWheelEvent*>(event));
-         return event->isAccepted();
+         return false;
       }
       if ( event->type() == QEvent::Resize )
       {
          resizeEvent(dynamic_cast<QResizeEvent*>(event));
-         return event->isAccepted();
+         return false;
       }
       if ( event->type() == QEvent::KeyPress )
       {
          keyPressEvent(dynamic_cast<QKeyEvent*>(event));
-         return event->isAccepted();
+         return false;
       }
       if ( event->type() == QEvent::KeyRelease )
       {
          keyReleaseEvent(dynamic_cast<QKeyEvent*>(event));
-         return event->isAccepted();
+         return false;
       }
       if ( event->type() == QEvent::ContextMenu )
       {
          contextMenuEvent(dynamic_cast<QContextMenuEvent*>(event));
-         return event->isAccepted();
+         return true;
       }
       if ( event->type() == QEvent::DragEnter )
       {
          dragEnterEvent(dynamic_cast<QDragEnterEvent*>(event));
-         return event->isAccepted();
+         return true;
       }
       if ( event->type() == QEvent::DragMove )
       {
          dragMoveEvent(dynamic_cast<QDragMoveEvent*>(event));
-         return event->isAccepted();
+         return true;
       }
       if ( event->type() == QEvent::Drop )
       {
          dropEvent(dynamic_cast<QDropEvent*>(event));
-         return event->isAccepted();
+         return true;
       }
       if ( event->type() == QEvent::DragLeave )
       {
          dragLeaveEvent(dynamic_cast<QDragLeaveEvent*>(event));
-         return event->isAccepted();
+         return true;
       }
       if ( event->type() == QEvent::Timer )
       {
          timerEvent(dynamic_cast<QTimerEvent*>(event));
-         return event->isAccepted();
+         return true;
       }
    }
 //   qDebug("eventFilter: unhandled %d object %s", event->type(), object->objectName().toLatin1().constData());
@@ -7172,6 +7174,7 @@ BOOL CWnd::CreateEx(
 
    m_hWnd = (HWND)this;
    _id = nID;
+   _dwStyle = dwStyle;
 
    createStruct.dwExStyle = dwExStyle;
    createStruct.style = dwStyle;
@@ -7396,16 +7399,29 @@ void CWnd::SetFont(
    _qt->setFont((QFont)*pFont);
 }
 
-void CWnd::MoveWindow(int x, int y, int cx, int cy)
+void CWnd::MoveWindow(int x, int y, int cx, int cy, BOOL bRepaint)
 {
-   MoveWindow(CRect(CPoint(x,y),CSize(cx,cy)));
+   MoveWindow(CRect(CPoint(x,y),CSize(cx,cy)),TRUE);
 }
 
 void CWnd::MoveWindow(LPCRECT lpRect, BOOL bRepaint)
 {
-   setGeometry(lpRect->left,lpRect->top,(lpRect->right-lpRect->left)+1,(lpRect->bottom-lpRect->top)+1);
-   setFixedSize((lpRect->right-lpRect->left)+1,(lpRect->bottom-lpRect->top)+1);
-//   if ( bRepaint )
+   if ( _dwStyle&WS_CHILD )
+   {
+      CRect rectOrig = *lpRect;
+      CRect rectParent;
+      GetParent()->GetClientRect(&rectParent);
+      rectOrig.OffsetRect(rectParent.left,rectParent.top);
+      setGeometry(rectOrig.left,rectOrig.top,(rectOrig.right-rectOrig.left)+1,(rectOrig.bottom-rectOrig.top)+1);
+      setFixedSize((rectOrig.right-rectOrig.left)+1,(rectOrig.bottom-rectOrig.top)+1);
+   }
+   else
+   {
+      setGeometry(lpRect->left,lpRect->top,(lpRect->right-lpRect->left)+1,(lpRect->bottom-lpRect->top)+1);
+      setBaseSize((lpRect->right-lpRect->left)+1,(lpRect->bottom-lpRect->top)+1);
+      setSizeIncrement(1,1);
+   }
+   if ( bRepaint )
       update();
 }
 
@@ -7806,10 +7822,10 @@ void CWnd::GetWindowRect(
    LPRECT lpRect
 ) const
 {
-   lpRect->left = geometry().left();
-   lpRect->right = geometry().right();
-   lpRect->top = geometry().top();
-   lpRect->bottom = geometry().bottom();
+   lpRect->left = _qt->geometry().topLeft().x();
+   lpRect->right = _qt->geometry().topRight().x();
+   lpRect->top = _qt->geometry().topLeft().y();
+   lpRect->bottom = _qt->geometry().bottomRight().y();
 }
 
 void CWnd::GetClientRect(
@@ -9436,6 +9452,12 @@ CDialog::~CDialog()
    }
 }
 
+void CDialog::closeEvent(QCloseEvent *event)
+{
+   SendMessage(WM_COMMAND,IDCANCEL);
+   CWnd::closeEvent(event);
+}
+
 BOOL CDialog::Create(
    UINT nIDTemplate,
    CWnd* pParentWnd
@@ -9519,6 +9541,7 @@ INT_PTR CDialog::DoModal()
    SetFocus();
 
    INT_PTR result = _qtd->exec();
+   DestroyWindow();
    if ( result == QDialog::Accepted )
       return IDOK;
    else
@@ -9771,6 +9794,7 @@ CDocument::CDocument()
 void CDocument::OnCloseDocument()
 { 
    emit documentClosed(); 
+   ptrToTheApp->GetMainWnd()->DestroyWindow();
 }
 
 void CDocument::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHint)
@@ -10746,7 +10770,6 @@ void CMenu::menuAction_triggered()
 {
    // Check if command is enabled by calling its UI update...
    CTestCmdUI state;
-   QWidget* pWidget = QApplication::focusWidget();
    QAction* pAction = dynamic_cast<QAction*>(sender());
    state.m_nID = pAction->data().toInt();
    ptrToTheApp->GetMainWnd()->OnCmdMsg(state.m_nID, CN_UPDATE_COMMAND_UI, &state, NULL);
@@ -10760,12 +10783,9 @@ void CMenu::menuAction_triggered()
       for ( keyc = 0; keyc < keys.count(); keyc++ )
       {
          QKeyEvent keyEvent(QEvent::KeyPress,keys[keyc],0);
-         if ( pWidget )
-         {
-            pAction->setEnabled(false);
-            QApplication::sendEvent(pWidget,&keyEvent);
-            pAction->setEnabled(true);
-         }
+         pAction->setEnabled(false);
+         QApplication::sendEvent(ptrToTheApp->GetMainWnd()->toQWidget(),&keyEvent);
+         pAction->setEnabled(true);
       }
       return;
    }
@@ -10774,6 +10794,7 @@ void CMenu::menuAction_triggered()
 
 void CMenu::menu_aboutToShow()
 {
+   ptrToTheApp->GetMainWnd()->toQWidget()->setFocus();
    AfxGetMainWnd()->SendMessage(WM_INITMENUPOPUP,(WPARAM)this);
 }
 
@@ -11435,6 +11456,42 @@ bool CEdit::event(QEvent *event)
    return false;
 }
 
+void CEdit::keyPressEvent(QKeyEvent *event)
+{
+   if ( mfcBuddy() )
+   {
+      if ( event->key() == Qt::Key_Up || 
+           event->key() == Qt::Key_Down ||
+           event->key() == Qt::Key_PageUp ||
+           event->key() == Qt::Key_PageDown )
+      {
+         QApplication::sendEvent(mfcBuddy()->toQWidget(),event);
+      }
+   }
+   else
+   {
+      CWnd::keyPressEvent(event);
+   }
+}
+
+void CEdit::keyReleaseEvent(QKeyEvent *event)
+{
+   if ( mfcBuddy() )
+   {
+      if ( event->key() == Qt::Key_Up || 
+           event->key() == Qt::Key_Down ||
+           event->key() == Qt::Key_PageUp ||
+           event->key() == Qt::Key_PageDown )
+      {
+         QApplication::sendEvent(mfcBuddy()->toQWidget(),event);
+      }
+   }
+   else
+   {
+      CWnd::keyReleaseEvent(event);
+   }
+}
+
 BOOL CEdit::Create(
    DWORD dwStyle,
    const RECT& rect,
@@ -11489,7 +11546,8 @@ BOOL CEdit::Create(
 
       // Pass-through signals
       QObject::connect(_qtd_ledit,SIGNAL(textChanged(QString)),this,SLOT(textChanged()));
-
+      QObject::connect(_qtd_ledit,SIGNAL(returnPressed()),this,SLOT(textChanged()));
+            
       _qtd_ledit->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
       _qtd_ledit->setReadOnly(dwStyle&ES_READONLY);
       _qtd_ledit->setVisible(dwStyle&WS_VISIBLE);
@@ -11890,7 +11948,7 @@ void CButton::subclassWidget(int nID,CWnd* widget)
 
 void CButton::clicked()
 {
-   GetOwner()->PostMessage(WM_COMMAND,_id);
+   GetOwner()->SendMessage(WM_COMMAND,_id);
 }
 
 BOOL CButton::Create(
@@ -12535,7 +12593,7 @@ void CSpinButtonCtrl::updateFromBuddy()
 #endif
    }
    _qtd->blockSignals(false);
-   GetOwner()->PostMessage(WM_COMMAND,(EN_CHANGE<<16)|(_id),(LPARAM)m_hWnd);
+//   GetOwner()->PostMessage(WM_COMMAND,(EN_CHANGE<<16)|(_id),(LPARAM)m_hWnd);
 }
 
 BOOL CSpinButtonCtrl::Create(
@@ -12561,7 +12619,7 @@ BOOL CSpinButtonCtrl::Create(
    _qtd = dynamic_cast<QSpinBox_MFC*>(_qt);
 
    _qtd->setMouseTracking(true);
-   _qtd->setKeyboardTracking(false);
+   _qtd->setKeyboardTracking(true);
    _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
    _qtd->setRange(-65535,65536);
    _qtd->setFont(QFont("MS Shell Dlg",8));

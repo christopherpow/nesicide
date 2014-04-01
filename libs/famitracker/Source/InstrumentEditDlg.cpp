@@ -72,11 +72,6 @@ BEGIN_MESSAGE_MAP(CInstrumentEditDlg, CDialog)
 	ON_WM_NCLBUTTONUP()
 END_MESSAGE_MAP()
 
-void CInstrumentEditDlg::closeEvent(QCloseEvent *)
-{
-   DestroyWindow();
-}
-
 // CInstrumentEditDlg message handlers
 
 BOOL CInstrumentEditDlg::OnInitDialog()

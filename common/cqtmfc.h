@@ -3834,7 +3834,7 @@ public:
       LPCRECT lpRect,
          BOOL bRepaint = TRUE
    );
-   void MoveWindow(int x,int y,int cx, int cy);
+   void MoveWindow(int x,int y,int cx, int cy, BOOL bRepaint = TRUE);
    CDC* GetDC();
    void ReleaseDC(CDC* pDC);
    void ShowWindow(int code);
@@ -3852,7 +3852,7 @@ public:
    ) const;
    int GetWindowTextLength( ) const;
    CWnd* GetParent() const { return m_pParentWnd?(CWnd*)m_pParentWnd:(CWnd*)m_pFrameWnd; }
-   void SetParent(CWnd* parent) { m_pParentWnd = parent; m_pOwnerWnd = parent; _qt->setParent(parent->toQWidget()); }
+   void SetParent(CWnd* parent) { _dwStyle|=WS_CHILD; m_pParentWnd = parent; m_pOwnerWnd = parent; _qt->setParent(parent->toQWidget()); }
    void GetWindowText(
       CString& rString
    ) const;
@@ -4288,6 +4288,7 @@ public:
    QDialog* _qtd;
    bool _inited;
 protected:
+   virtual void closeEvent(QCloseEvent *event);
 
    // MFC interfaces
 public:
@@ -4494,6 +4495,8 @@ public:
    void updateFromBuddy();
 protected:
    virtual bool event(QEvent *event);
+   virtual void keyPressEvent(QKeyEvent *event);
+   virtual void keyReleaseEvent(QKeyEvent *event);
    QPlainTextEdit* _qtd_ptedit;
    QLineEdit* _qtd_ledit;
 public slots:
