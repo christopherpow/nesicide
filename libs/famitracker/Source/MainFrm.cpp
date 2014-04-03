@@ -2194,14 +2194,13 @@ void CMainFrame::OnUpdateEditEnablemidi(CCmdUI *pCmdUI)
 
 void CMainFrame::OnShowWindow(BOOL bShow, UINT nStatus)
 {
-   qDebug("CMainFrame::OnShowWindow");
-//	CFrameWnd::OnShowWindow(bShow, nStatus);
+	CFrameWnd::OnShowWindow(bShow, nStatus);
 
-//	if (bShow == TRUE) {
-//		// Set the window state as saved in settings
-//		if (theApp.GetSettings()->WindowPos.iState == STATE_MAXIMIZED)
-//			CFrameWnd::ShowWindow(SW_MAXIMIZE);
-//	}
+	if (bShow == TRUE) {
+		// Set the window state as saved in settings
+		if (theApp.GetSettings()->WindowPos.iState == STATE_MAXIMIZED)
+			CFrameWnd::ShowWindow(SW_MAXIMIZE);
+	}
 }
 
 void CMainFrame::OnDestroy()

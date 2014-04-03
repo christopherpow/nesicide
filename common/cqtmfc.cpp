@@ -6097,9 +6097,14 @@ void CWnd::SendMessageToDescendants(
    BOOL bOnlyPerm
 )
 {
+   SendMessage(message,wParam,lParam);
    foreach ( CWnd* pWnd, mfcToQtWidget )
    {
       pWnd->SendMessage(message,wParam,lParam);
+      if ( bDeep && !(pWnd->mfcToQtWidgetMap()->isEmpty()) )
+      {
+         pWnd->SendMessageToDescendants(message,wParam,lParam,bDeep,bOnlyPerm);
+      }
    }
 }
 
@@ -7854,10 +7859,12 @@ void CWnd::ShowWindow(int code)
    switch ( code )
    {
    case SW_SHOW:
+      _dwStyle |= WS_VISIBLE;
       foreach ( CWnd* pWnd, mfcToQtWidget ) pWnd->blockSignals(false);
       setVisible(true);
       break;
    case SW_HIDE:
+      _dwStyle &= (~WS_VISIBLE);
       foreach ( CWnd* pWnd, mfcToQtWidget ) pWnd->blockSignals(true);
       setVisible(false);
       break;
@@ -9573,6 +9580,7 @@ void CDialog::ShowWindow(int code)
       _qtd->setVisible(false);
       break;
    }
+   CWnd::ShowWindow(code);
 }
 
 void CDialog::MapDialogRect(
@@ -11793,11 +11801,15 @@ void CEdit::SetDlgItemInt(
 {
    if ( _dwStyle&ES_MULTILINE )
    {
+      _qtd_ptedit->blockSignals(true);
       _qtd_ptedit->setPlainText(QString::number(nValue));
+      _qtd_ptedit->blockSignals(false);
    }
    else
    {
+      _qtd_ledit->blockSignals(true);
       _qtd_ledit->setText(QString::number(nValue));
+      _qtd_ledit->blockSignals(false);
    }
    
    // Tell our buddied CSpinButtonCtrl if necessary...
@@ -11852,19 +11864,23 @@ void CEdit::SetDlgItemText(
 {
    if ( _dwStyle&ES_MULTILINE )
    {
+      _qtd_ptedit->blockSignals(true);
 #if UNICODE
       _qtd_ptedit->setPlainText(QString::fromWCharArray(lpszString));
 #else
       _qtd_ptedit->setPlainText(QString::fromLatin1(lpszString));
 #endif
+      _qtd_ptedit->blockSignals(false);
    }
    else
    {
+      _qtd_ledit->blockSignals(true);
 #if UNICODE
       _qtd_ledit->setText(QString::fromWCharArray(lpszString));
 #else
       _qtd_ledit->setText(QString::fromLatin1(lpszString));
 #endif
+      _qtd_ledit->blockSignals(false);
    }
    
    // Tell our buddied CSpinButtonCtrl if necessary...

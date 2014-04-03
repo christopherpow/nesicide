@@ -3779,6 +3779,10 @@ public:
       LPCREATESTRUCT lpCreateStruct
    );
    void OnDestroy( );
+   afx_msg void OnShowWindow( 
+      BOOL bShow, 
+      UINT nStatus  
+   ) {}
    void OnMouseMove(UINT,CPoint) {}
    void OnMouseLeave() {}
    void OnNcMouseMove(UINT nHitTest, CPoint point) {}
