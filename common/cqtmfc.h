@@ -2285,6 +2285,16 @@ typedef int* POSITION;
 
 #define _huge
 
+namespace qtmfc_workaround
+{
+template <size_t szof> struct uint_ptr_select;
+template <>            struct uint_ptr_select<4u> { typedef unsigned int type; };
+template <>            struct uint_ptr_select<8u> { typedef qulonglong   type; };
+
+typedef uint_ptr_select<sizeof(UINT_PTR)>::type uint_ptr;
+
+}
+
 HCURSOR WINAPI SetCursor(
    HCURSOR hCursor
 );
