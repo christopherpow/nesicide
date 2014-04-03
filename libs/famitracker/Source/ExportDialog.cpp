@@ -377,7 +377,8 @@ void CExportDialog::OnBnClickedPlay()
 	Compiler.ExportNSF(file, (IsDlgButtonChecked(IDC_PAL) != 0));
 
 	// Play exported file (available in debug)
-	ShellExecute(NULL, _T("open"), file, NULL, NULL, SW_SHOWNORMAL);
+    // FIX: Need a definition for: ShellExecute
+	// ShellExecute(NULL, _T("open"), file, NULL, NULL, SW_SHOWNORMAL);
 
 #endif
 }

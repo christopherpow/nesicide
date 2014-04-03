@@ -19,6 +19,8 @@ CWinApp* ptrToTheApp;
 
 CBrush nullBrush;
 
+using namespace qtmfc_workaround;
+
 HGDIOBJ GetStockObject(
    int fnObject
 )
@@ -10880,7 +10882,7 @@ BOOL CMenu::AppendMenu(
          action->setEnabled(true);
       }
       QObject::connect(action,SIGNAL(triggered()),this,SLOT(menuAction_triggered()));
-      action->setData(nIDNewItem);
+      action->setData((uint_ptr)nIDNewItem);
       mfcToQtMenu.insert(nIDNewItem,action);
       qtToMfcMenu.insert(action,nIDNewItem);
    }
@@ -10952,7 +10954,7 @@ BOOL CMenu::InsertMenu(
             action->setEnabled(true);
          }
          QObject::connect(action,SIGNAL(triggered()),this,SLOT(menuAction_triggered()));
-         action->setData(nIDNewItem);
+         action->setData((uint_ptr)nIDNewItem);
          mfcToQtMenu.insert(nIDNewItem,action);
          qtToMfcMenu.insert(action,nIDNewItem);
       }
