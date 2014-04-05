@@ -6,7 +6,6 @@
 
 #include <QDialogButtonBox>
 #include <QMainWindow>
-#include <QShortcut>
 #include <QAction>
 #include <QObject>
 #include <QWidget>
@@ -2272,9 +2271,9 @@ typedef int* POSITION;
 #define ASSERT_VALID(y)
 #define ASSERT_KINDOF(y,z)
 #else
-#define ASSERT(y) { if (!(y)) { QString str; str.sprintf("ASSERT: %s(%d)",__FILE__,__LINE__); qFatal(str.toLatin1().constData()); } }
-#define ASSERT_VALID(y) { if (!(y)) { QString str; str.sprintf("ASSERT_VALID: %s(%d)",__FILE__,__LINE__); qFatal(str.toLatin1().constData()); } }
-#define ASSERT_KINDOF(y,z) { if ( !dynamic_cast<y*>(z) ) { QString str; str.sprintf("ASSERT_KINDOF: %s(%d)",__FILE__,__LINE__); qFatal(str.toLatin1().constData()); } }
+#define ASSERT(y) { if (!(y)) { QString str; str.sprintf("%d ASSERT: %s(%d)",(int)QThread::currentThreadId(),__FILE__,__LINE__); qDebug(str.toLatin1().constData()); qFatal("DUMPING"); } }
+#define ASSERT_VALID(y) { if (!(y)) { QString str; str.sprintf("%d ASSERT_VALID: %s(%d)",(int)QThread::currentThreadId(),__FILE__,__LINE__); qDebug(str.toLatin1().constData()); qFatal("DUMPING");  } }
+#define ASSERT_KINDOF(y,z) { if ( !dynamic_cast<y*>(z) ) { QString str; str.sprintf("%d ASSERT_KINDOF: %s(%d)",(int)QThread::currentThreadId(),__FILE__,__LINE__); qDebug(str.toLatin1().constData()); qFatal("DUMPING");  } }
 #endif
 
 #define ENSURE_VALID(x)
@@ -3819,6 +3818,7 @@ public:
    void KillTimer(UINT id);
    void OnTimer(UINT_PTR timerId) {}
    void OnKeyDown(UINT,UINT,UINT) {}
+   void OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags) {}
    void OnSetFocus(CWnd*);
    void OnKillFocus(CWnd*) {}
    void OnVScroll(UINT,UINT,CScrollBar*) {}
@@ -3917,6 +3917,7 @@ public:
    // This method only for Qt glue
    UINT_PTR mfcTimerId(int qtTimerId) { return qtToMfcTimer.value(qtTimerId); }
    void setMfcBuddy(CWnd* buddy) { _mfcBuddy = buddy; }
+   virtual void updateFromBuddy() {}
    CWnd* mfcBuddy() const { return _mfcBuddy; } 
 
    // MFC-to-Qt conversions
@@ -4489,6 +4490,15 @@ typedef struct tagNMTOOLBAR {
   RECT     rcButton;
 } NMTOOLBAR, *LPNMTOOLBAR;
 
+class QLineEdit_MFC : public QLineEdit
+{
+public:
+   QLineEdit_MFC(QWidget* parent=0) : QLineEdit(parent) {}
+protected:
+   virtual void keyPressEvent(QKeyEvent *event);
+   virtual void keyReleaseEvent(QKeyEvent* event);
+};
+
 class CEdit : public CWnd
 {
    Q_OBJECT
@@ -4496,13 +4506,13 @@ class CEdit : public CWnd
    // Qt interfaces
 public:
    virtual void subclassWidget(int nID,CWnd* widget);
-   void updateFromBuddy();
+   virtual void updateFromBuddy();
 protected:
    virtual bool event(QEvent *event);
-   virtual void keyPressEvent(QKeyEvent *event);
-   virtual void keyReleaseEvent(QKeyEvent *event);
+//   virtual void keyPressEvent(QKeyEvent *event);
+//   virtual void keyReleaseEvent(QKeyEvent *event);
    QPlainTextEdit* _qtd_ptedit;
-   QLineEdit* _qtd_ledit;
+   QLineEdit_MFC* _qtd_ledit;
 public slots:
    void textChanged();
 
@@ -4752,7 +4762,7 @@ class CSpinButtonCtrl : public CWnd
 public:
    virtual void subclassWidget(int nID,CWnd* widget);
    virtual bool eventFilter(QObject *object, QEvent *event);
-   void updateFromBuddy();
+   virtual void updateFromBuddy();
 protected:
    QSpinBox_MFC* _qtd;
    int _oldValue;

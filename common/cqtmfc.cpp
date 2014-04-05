@@ -1423,7 +1423,8 @@ int WINAPI TranslateAccelerator(
             }
             CWnd* pWnd = (CWnd*)hWnd;
             qDebug("Translating %d key and sending %d message...",pAccel->key,pAccel->cmd);
-            pWnd->SendMessage(WM_COMMAND,pAccel->cmd);
+            // CP: Include window handle in message to skip enabled check.
+            pWnd->SendMessage(WM_COMMAND,pAccel->cmd,(LPARAM)pWnd);
             return 1;
          }
          pAccel++;
@@ -6075,11 +6076,12 @@ LRESULT CWnd::SendMessage(
 )
 {
    MFCMessageEvent post(QEvent::User);
+   BOOL handled;
    post.msg.message = message;
    post.msg.wParam = wParam;
    post.msg.lParam = lParam;
 
-   BOOL handled = PreTranslateMessage(&post.msg);
+   handled = PreTranslateMessage(&post.msg);
    if ( !handled )
    {
       QApplication::instance()->sendEvent(this,&post);
@@ -6919,15 +6921,15 @@ void CWnd::keyPressEvent(QKeyEvent *event)
 {
    qDebug("keyPress: key=%x, scan=%x",event->key(),event->nativeScanCode());
 #ifdef __APPLE__
-   PostMessage(WM_KEYDOWN,qtToMfcKeycode(event->key()),event->key()<<16);
+   SendMessage(WM_KEYDOWN,qtToMfcKeycode(event->key()),event->key()<<16);
 #else
-   PostMessage(WM_KEYDOWN,qtToMfcKeycode(event->key()),event->nativeScanCode()<<16);
+   SendMessage(WM_KEYDOWN,qtToMfcKeycode(event->key()),event->nativeScanCode()<<16);
 #endif
 }
 
 void CWnd::keyReleaseEvent(QKeyEvent *event)
 {
-   PostMessage(WM_KEYUP,qtToMfcKeycode(event->key()),0);
+   SendMessage(WM_KEYUP,qtToMfcKeycode(event->key()),0);
 }
 
 void CWnd::timerEvent(QTimerEvent *event)
@@ -7450,11 +7452,12 @@ BOOL CWnd::PostMessage(
 )
 {
    MFCMessageEvent* post = new MFCMessageEvent(QEvent::User);
+   BOOL handled;
    post->msg.message = message;
    post->msg.wParam = wParam;
    post->msg.lParam = lParam;
 
-   BOOL handled = PreTranslateMessage(&post->msg);
+   handled = PreTranslateMessage(&post->msg);
    if ( !handled )
    {
       QApplication::instance()->postEvent(this,post);
@@ -9303,6 +9306,7 @@ void CStatusBar::OnUpdateCmdUI(CFrameWnd* pTarget, BOOL bDisableIfNoHndler)
 IMPLEMENT_DYNAMIC(CDialogBar,CControlBar)
 
 BEGIN_MESSAGE_MAP(CDialogBar,CControlBar)
+   ON_MESSAGE(WM_IDLEUPDATECMDUI, OnIdleUpdateCmdUI)
 END_MESSAGE_MAP()
 
 CDialogBar::CDialogBar()
@@ -10781,7 +10785,7 @@ void CMenu::menuAction_triggered()
    QAction* pAction = dynamic_cast<QAction*>(sender());
    state.m_nID = pAction->data().toInt();
    ptrToTheApp->GetMainWnd()->OnCmdMsg(state.m_nID, CN_UPDATE_COMMAND_UI, &state, NULL);
-   if (!state.m_bEnabled)
+   if ( !state.m_bEnabled )
    {
       // Command is disabled, and we just got triggered, which means the
       // shortcut associated with this menu triggered us.  Re-route the
@@ -11377,6 +11381,32 @@ BOOL CTabCtrl::DeleteAllItems( )
    return TRUE;
 }
 
+void QLineEdit_MFC::keyPressEvent(QKeyEvent *event)
+{
+   if ( (event->key() != Qt::Key_Enter) &&
+        (event->key() != Qt::Key_Return) )
+   {
+      QLineEdit::keyPressEvent(event);
+   }
+   else
+   {
+      event->accept();
+   }
+}
+
+void QLineEdit_MFC::keyReleaseEvent(QKeyEvent *event)
+{
+   if ( (event->key() != Qt::Key_Enter) &&
+        (event->key() != Qt::Key_Return) )
+   {
+      QLineEdit::keyReleaseEvent(event);
+   }
+   else
+   {
+      event->accept();
+   }
+}
+
 IMPLEMENT_DYNAMIC(CEdit,CWnd)
 
 BEGIN_MESSAGE_MAP(CEdit,CWnd)
@@ -11457,48 +11487,51 @@ bool CEdit::event(QEvent *event)
             }
             _qtd_ledit->setReadOnly(msgEvent->msg.wParam);
          }
+         return true;
          break;
       }
-      return true;
+      return false;
    }
    return false;
 }
 
-void CEdit::keyPressEvent(QKeyEvent *event)
-{
-   if ( mfcBuddy() )
-   {
-      if ( event->key() == Qt::Key_Up || 
-           event->key() == Qt::Key_Down ||
-           event->key() == Qt::Key_PageUp ||
-           event->key() == Qt::Key_PageDown )
-      {
-         QApplication::sendEvent(mfcBuddy()->toQWidget(),event);
-      }
-   }
-   else
-   {
-      CWnd::keyPressEvent(event);
-   }
-}
+//void CEdit::keyPressEvent(QKeyEvent *event)
+//{
+//   if ( mfcBuddy() )
+//   {
+//      if ( event->key() == Qt::Key_Up || 
+//           event->key() == Qt::Key_Down ||
+//           event->key() == Qt::Key_PageUp ||
+//           event->key() == Qt::Key_PageDown )
+//      {
+//         QApplication::sendEvent(mfcBuddy()->toQWidget(),event);
+//         CWnd::keyPressEvent(event);
+//      }
+//   }
+//   else
+//   {
+//      CWnd::keyPressEvent(event);
+//   }
+//}
 
-void CEdit::keyReleaseEvent(QKeyEvent *event)
-{
-   if ( mfcBuddy() )
-   {
-      if ( event->key() == Qt::Key_Up || 
-           event->key() == Qt::Key_Down ||
-           event->key() == Qt::Key_PageUp ||
-           event->key() == Qt::Key_PageDown )
-      {
-         QApplication::sendEvent(mfcBuddy()->toQWidget(),event);
-      }
-   }
-   else
-   {
-      CWnd::keyReleaseEvent(event);
-   }
-}
+//void CEdit::keyReleaseEvent(QKeyEvent *event)
+//{
+//   if ( mfcBuddy() )
+//   {
+//      if ( event->key() == Qt::Key_Up || 
+//           event->key() == Qt::Key_Down ||
+//           event->key() == Qt::Key_PageUp ||
+//           event->key() == Qt::Key_PageDown )
+//      {
+//         QApplication::sendEvent(mfcBuddy()->toQWidget(),event);
+//         CWnd::keyReleaseEvent(event);
+//      }
+//   }
+//   else
+//   {
+//      CWnd::keyReleaseEvent(event);
+//   }
+//}
 
 BOOL CEdit::Create(
    DWORD dwStyle,
@@ -11545,12 +11578,12 @@ BOOL CEdit::Create(
    else
    {
       if ( pParentWnd )
-         _qt = new QLineEdit(pParentWnd->toQWidget());
+         _qt = new QLineEdit_MFC(pParentWnd->toQWidget());
       else
-         _qt = new QLineEdit;
+         _qt = new QLineEdit_MFC;
 
       // Downcast to save having to do it all over the place...
-      _qtd_ledit = dynamic_cast<QLineEdit*>(_qt);
+      _qtd_ledit = dynamic_cast<QLineEdit_MFC*>(_qt);
 
       // Pass-through signals
       QObject::connect(_qtd_ledit,SIGNAL(textChanged(QString)),this,SLOT(textChanged()));
@@ -11580,7 +11613,7 @@ void CEdit::textChanged()
    
    if ( mfcBuddy() )
    {
-      dynamic_cast<CSpinButtonCtrl*>(mfcBuddy())->updateFromBuddy();
+      mfcBuddy()->updateFromBuddy();
    }
 }
 
@@ -11801,15 +11834,15 @@ void CEdit::SetDlgItemInt(
 {
    if ( _dwStyle&ES_MULTILINE )
    {
-      _qtd_ptedit->blockSignals(true);
+//      _qtd_ptedit->blockSignals(true);
       _qtd_ptedit->setPlainText(QString::number(nValue));
-      _qtd_ptedit->blockSignals(false);
+//      _qtd_ptedit->blockSignals(false);
    }
    else
    {
-      _qtd_ledit->blockSignals(true);
+//      _qtd_ledit->blockSignals(true);
       _qtd_ledit->setText(QString::number(nValue));
-      _qtd_ledit->blockSignals(false);
+//      _qtd_ledit->blockSignals(false);
    }
    
    // Tell our buddied CSpinButtonCtrl if necessary...
@@ -11864,23 +11897,23 @@ void CEdit::SetDlgItemText(
 {
    if ( _dwStyle&ES_MULTILINE )
    {
-      _qtd_ptedit->blockSignals(true);
+//      _qtd_ptedit->blockSignals(true);
 #if UNICODE
       _qtd_ptedit->setPlainText(QString::fromWCharArray(lpszString));
 #else
       _qtd_ptedit->setPlainText(QString::fromLatin1(lpszString));
 #endif
-      _qtd_ptedit->blockSignals(false);
+//      _qtd_ptedit->blockSignals(false);
    }
    else
    {
-      _qtd_ledit->blockSignals(true);
+//      _qtd_ledit->blockSignals(true);
 #if UNICODE
       _qtd_ledit->setText(QString::fromWCharArray(lpszString));
 #else
       _qtd_ledit->setText(QString::fromLatin1(lpszString));
 #endif
-      _qtd_ledit->blockSignals(false);
+//      _qtd_ledit->blockSignals(false);
    }
    
    // Tell our buddied CSpinButtonCtrl if necessary...
@@ -12583,7 +12616,7 @@ void CSpinButtonCtrl::updateFromBuddy()
    mfcBuddy()->GetDlgItemText(mfcBuddy()->GetDlgCtrlID(),lpszString);
 //   _qtd->blockSignals(true);
 //#if UNICODE
-//   _qtd->setValuelineEdit()->setText(QString::fromWCharArray((LPCTSTR)lpszString));
+//   _qtd->lineEdit()->setText(QString::fromWCharArray((LPCTSTR)lpszString));
 //#else
 //   _qtd->lineEdit()->setText(QString::fromLatin1((LPCTSTR)lpszString));
 //#endif
@@ -12609,7 +12642,6 @@ void CSpinButtonCtrl::updateFromBuddy()
 #endif
    }
    _qtd->blockSignals(false);
-//   GetOwner()->PostMessage(WM_COMMAND,(EN_CHANGE<<16)|(_id),(LPARAM)m_hWnd);
 }
 
 BOOL CSpinButtonCtrl::Create(
@@ -12635,7 +12667,7 @@ BOOL CSpinButtonCtrl::Create(
    _qtd = dynamic_cast<QSpinBox_MFC*>(_qt);
 
    _qtd->setMouseTracking(true);
-   _qtd->setKeyboardTracking(true);
+   _qtd->setKeyboardTracking(false);
    _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
    _qtd->setRange(-65535,65536);
    _qtd->setFont(QFont("MS Shell Dlg",8));
@@ -12702,7 +12734,7 @@ void CSpinButtonCtrl::valueChanged(int value)
    {
       if ( mfcBuddy() )
       {
-         dynamic_cast<CEdit*>(mfcBuddy())->updateFromBuddy();
+         mfcBuddy()->updateFromBuddy();
       }
    }
 }
@@ -12721,7 +12753,7 @@ int CSpinButtonCtrl::SetPos(
    {
       if ( mfcBuddy() )
       {
-         dynamic_cast<CEdit*>(mfcBuddy())->updateFromBuddy();
+         mfcBuddy()->updateFromBuddy();
       }
    }
    
@@ -12778,6 +12810,14 @@ void CSpinButtonCtrl::SetWindowText(
 #endif
    }
    _qtd->blockSignals(false);
+   
+   if ( _dwStyle&UDS_SETBUDDYINT )
+   {
+      if ( mfcBuddy() )
+      {
+         mfcBuddy()->updateFromBuddy();
+      }
+   }
 }
 
 void CSpinButtonCtrl::SetDlgItemInt(
@@ -12790,6 +12830,14 @@ void CSpinButtonCtrl::SetDlgItemInt(
    _qtd->setValue(nValue);
    _oldValue = nValue;
    _qtd->blockSignals(false);
+   
+   if ( _dwStyle&UDS_SETBUDDYINT )
+   {
+      if ( mfcBuddy() )
+      {
+         mfcBuddy()->updateFromBuddy();
+      }
+   }
 }
 
 UINT CSpinButtonCtrl::GetDlgItemInt(
@@ -12833,6 +12881,14 @@ void CSpinButtonCtrl::SetDlgItemText(
       _oldValue = val.toInt();
    }
    _qtd->blockSignals(false);
+   
+   if ( _dwStyle&UDS_SETBUDDYINT )
+   {
+      if ( mfcBuddy() )
+      {
+         mfcBuddy()->updateFromBuddy();
+      }
+   }
 }
 
 int CSpinButtonCtrl::GetDlgItemText(

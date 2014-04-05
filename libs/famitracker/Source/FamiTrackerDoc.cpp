@@ -417,7 +417,7 @@ void CFamiTrackerDoc::DeleteContents()
 {
 	// Current document is being unloaded, clear and reset variables and memory
 	// Delete everything because the current object is being reused in SDI
-
+   qDebug("CFamiTrackerDoc::DeleteContents: %d",QThread::currentThreadId());
 	// Mark file as unloaded
 	m_bFileLoaded = false;
 	m_bForceBackup = false;
@@ -524,6 +524,7 @@ void CFamiTrackerDoc::SetModifiedFlag(BOOL bModified)
 
 void CFamiTrackerDoc::CreateEmpty()
 {
+   qDebug("CFamiTrackerDoc::CreateEmpty: %d",QThread::currentThreadId());
 	// Allocate first song
 	SwitchToTrack(0);
 

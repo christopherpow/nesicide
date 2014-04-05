@@ -16,3 +16,7 @@ char* nesicideGetVersion()
 // QFontMetrics::averageCharWidth hack in MapDialogRect 
 
 // FillSolidRect and Draw3dRect do exactly what MFC does
+
+// OnTimer ASSERT in FamiTrackerView when updating meters when
+// interrupted by a file reload with a file with less configured
+// channels than the currently loaded file.
