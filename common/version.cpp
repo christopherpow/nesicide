@@ -20,3 +20,5 @@ char* nesicideGetVersion()
 // OnTimer ASSERT in FamiTrackerView when updating meters when
 // interrupted by a file reload with a file with less configured
 // channels than the currently loaded file.
+
+// CReBar for instrument toolbar needs to be hooked to UPDATE_COMMAND_UI system

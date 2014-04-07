@@ -3973,7 +3973,22 @@ void qtMfcInitToolBarResource_IDR_MAINFRAME(UINT dlgID,CToolBar* parent)
    QToolBar* toolBar = dynamic_cast<QToolBar*>(parent->toQWidget());
    QPixmap toolBarActionPixmap;
    QAction* toolBarAction;
-
+   QRgb pixel00;
+   int x,y;
+   
+   toolBarImage = toolBarImage.convertToFormat(QImage::Format_ARGB32);
+   pixel00 = toolBarImage.pixel(0,0);
+   for ( y = 0; y < toolBarImage.height(); y++ )
+   {
+      for ( x = 0; x < toolBarImage.width(); x++ )
+      {
+         if ( toolBarImage.pixel(x,y) == pixel00 )
+         {
+            toolBarImage.setPixel(x,y,qRgba(0,0,0,0));
+         }
+      }
+   }
+   
 //IDR_MAINFRAME TOOLBAR 16, 15
    toolBar->setIconSize(QSize(16,15));
 //BEGIN
@@ -4148,6 +4163,16 @@ void qtMfcInitToolBarResource_IDR_MAINFRAME(UINT dlgID,CToolBar* parent)
    QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
    toolBar->addAction(toolBarAction);
 //END
+   
+   for ( x = 0; x < toolBar->actions().count(); x++ )
+   {
+      CString toolTipCString = qtMfcStringResource(toolBar->actions().at(x)->data().toInt());
+      QString toolTip = toolTipCString;
+      if ( toolTip.indexOf('\n') >= 0 )
+      {
+         toolBar->actions().value(x)->setToolTip(toolTip.right(toolTip.length()-toolTip.indexOf('\n')-1));
+      }
+   }
 }
 
 void qtMfcInitToolBarResource_IDR_INSTRUMENT_TOOLBAR(UINT dlgID,CToolBar* parent)
@@ -4156,7 +4181,22 @@ void qtMfcInitToolBarResource_IDR_INSTRUMENT_TOOLBAR(UINT dlgID,CToolBar* parent
    QToolBar* toolBar = dynamic_cast<QToolBar*>(parent->toQWidget());
    QPixmap toolBarActionPixmap;
    QAction* toolBarAction;
-
+   QRgb pixel00;
+   int x,y;
+   
+   toolBarImage = toolBarImage.convertToFormat(QImage::Format_ARGB32);
+   pixel00 = toolBarImage.pixel(0,0);
+   for ( y = 0; y < toolBarImage.height(); y++ )
+   {
+      for ( x = 0; x < toolBarImage.width(); x++ )
+      {
+         if ( toolBarImage.pixel(x,y) == pixel00 )
+         {
+            toolBarImage.setPixel(x,y,qRgba(0,0,0,0));
+         }
+      }
+   }
+   
 //IDR_INSTRUMENT_TOOLBAR TOOLBAR 16, 15
    toolBar->setIconSize(QSize(16,15));
 //BEGIN

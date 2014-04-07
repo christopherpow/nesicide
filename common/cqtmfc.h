@@ -2012,6 +2012,72 @@ enum
       ID_FILE_MRU_FILE16      ,
    //   END
    
+   //   STRINGTABLE
+   //   BEGIN
+      ID_INDICATOR_EXT        ,
+      ID_INDICATOR_CAPS       ,
+      ID_INDICATOR_NUM        ,
+      ID_INDICATOR_SCRL       ,
+      ID_INDICATOR_OVR        ,
+      ID_INDICATOR_REC        ,
+   //   END
+   
+   //   STRINGTABLE
+   //   BEGIN
+      ID_FILE_NEW             ,
+      ID_FILE_OPEN            ,
+      ID_FILE_CLOSE           ,
+      ID_FILE_SAVE            ,
+      ID_FILE_SAVE_AS         ,
+   //   END
+   
+   //   STRINGTABLE
+   //   BEGIN
+      ID_APP_ABOUT            ,
+      ID_APP_EXIT             ,
+      ID_HELP_INDEX           ,
+      ID_HELP_FINDER          ,
+      ID_HELP_USING           ,
+      ID_CONTEXT_HELP         ,
+      ID_HELP                 ,
+   //   END
+   
+   //   STRINGTABLE
+   //   BEGIN
+      ID_NEXT_PANE            ,
+      ID_PREV_PANE            ,
+   //   END
+   
+   //   STRINGTABLE
+   //   BEGIN
+      ID_WINDOW_SPLIT         ,
+   //   END
+   
+   //   STRINGTABLE
+   //   BEGIN
+      ID_EDIT_CLEAR           ,
+      ID_EDIT_CLEAR_ALL       ,
+      ID_EDIT_COPY            ,
+      ID_EDIT_CUT             ,
+      ID_EDIT_FIND            ,
+      ID_EDIT_PASTE           ,
+      ID_EDIT_REPEAT          ,
+      ID_EDIT_REPLACE         ,
+      ID_EDIT_SELECT_ALL      ,
+      ID_EDIT_UNDO            ,
+      ID_EDIT_REDO            ,
+   //   END
+   
+   //   STRINGTABLE
+   //   BEGIN
+      ID_VIEW_TOOLBAR         ,
+      ID_VIEW_STATUS_BAR      ,
+   //   END
+   
+   ID_SEPARATOR,
+
+   IDC_STATIC,
+
    __UNDER_THE_HOOD_START = 0x8000000,
 
    AFX_IDS_ALLFILTER,
@@ -2022,82 +2088,16 @@ enum
    AFX_IDP_ASK_TO_SAVE,
    AFX_IDP_FAILED_TO_CREATE_DOC,
 
-   IDC_STATIC,
-
    AFX_IDW_PANE_FIRST,
    AFX_IDW_STATUS_BAR,
    AFX_IDW_TOOLBAR,
    AFX_IDW_REBAR,
-
-   ID_SEPARATOR,
 
 //   STRINGTABLE
 //   BEGIN
    AFX_IDS_APP_TITLE       ,
    AFX_IDS_IDLEMESSAGE     ,
    AFX_IDS_HELPMODEMESSAGE,
-//   END
-
-//   STRINGTABLE
-//   BEGIN
-   ID_INDICATOR_EXT        ,
-   ID_INDICATOR_CAPS       ,
-   ID_INDICATOR_NUM        ,
-   ID_INDICATOR_SCRL       ,
-   ID_INDICATOR_OVR        ,
-   ID_INDICATOR_REC        ,
-//   END
-
-//   STRINGTABLE
-//   BEGIN
-   ID_FILE_NEW             ,
-   ID_FILE_OPEN            ,
-   ID_FILE_CLOSE           ,
-   ID_FILE_SAVE            ,
-   ID_FILE_SAVE_AS         ,
-//   END
-
-//   STRINGTABLE
-//   BEGIN
-   ID_APP_ABOUT            ,
-   ID_APP_EXIT             ,
-   ID_HELP_INDEX           ,
-   ID_HELP_FINDER          ,
-   ID_HELP_USING           ,
-   ID_CONTEXT_HELP         ,
-   ID_HELP                 ,
-//   END
-
-//   STRINGTABLE
-//   BEGIN
-   ID_NEXT_PANE            ,
-   ID_PREV_PANE            ,
-//   END
-
-//   STRINGTABLE
-//   BEGIN
-   ID_WINDOW_SPLIT         ,
-//   END
-
-//   STRINGTABLE
-//   BEGIN
-   ID_EDIT_CLEAR           ,
-   ID_EDIT_CLEAR_ALL       ,
-   ID_EDIT_COPY            ,
-   ID_EDIT_CUT             ,
-   ID_EDIT_FIND            ,
-   ID_EDIT_PASTE           ,
-   ID_EDIT_REPEAT          ,
-   ID_EDIT_REPLACE         ,
-   ID_EDIT_SELECT_ALL      ,
-   ID_EDIT_UNDO            ,
-   ID_EDIT_REDO            ,
-//   END
-
-//   STRINGTABLE
-//   BEGIN
-   ID_VIEW_TOOLBAR         ,
-   ID_VIEW_STATUS_BAR      ,
 //   END
 
 //   STRINGTABLE
@@ -4324,7 +4324,6 @@ public:
       void* pExtra,
       AFX_CMDHANDLERINFO* pHandlerInfo
    );
-   virtual void OnUpdateCmdUI(CFrameWnd* pTarget, BOOL bDisableIfNoHndler);
    
    DECLARE_MESSAGE_MAP()
 };
@@ -5684,6 +5683,9 @@ protected:
 #define TBBS_AUTOSIZE   7 //  The button's width will be calculated based on the text of the button, not on the size of the image
 #define TBBS_NOPREFIX   8 //  The button text will not have an accelerator prefix associated with it
 
+#define TBBS_DISABLED 0x100
+#define TBBS_PRESSED  0x200
+
 class CToolBar : public CControlBar
 {
    Q_OBJECT
@@ -5726,6 +5728,9 @@ public:
    void SetButtonStyle(
       int nIndex,
       UINT nStyle
+   );
+   UINT GetButtonStyle(
+      int nIndex
    );
    
    virtual void OnUpdateCmdUI(CFrameWnd* pTarget, BOOL bDisableIfNoHndler);
@@ -5867,6 +5872,10 @@ public:
 
 class CToolCmdUI : public CCmdUI
 {
+public: // re-implementations only
+	virtual void Enable(BOOL bOn);
+	virtual void SetCheck(int nCheck);
+	virtual void SetText(LPCTSTR lpszText);
 };
 
 class CTestCmdUI : public CCmdUI

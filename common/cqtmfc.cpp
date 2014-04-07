@@ -6081,11 +6081,7 @@ LRESULT CWnd::SendMessage(
    post.msg.wParam = wParam;
    post.msg.lParam = lParam;
 
-   handled = PreTranslateMessage(&post.msg);
-   if ( !handled )
-   {
-      QApplication::instance()->sendEvent(this,&post);
-   }
+   handled = QApplication::instance()->sendEvent(this,&post);
    update();
    
    return handled;
@@ -6761,15 +6757,19 @@ bool CWnd::event(QEvent *event)
    bool proc = false;
    if ( msgEvent )
    {
-      proc = WindowProc(msgEvent->msg.message,msgEvent->msg.wParam,msgEvent->msg.lParam);
-      if ( proc )
+      proc = PreTranslateMessage(&msgEvent->msg);
+      if ( !proc )
       {
-         event->accept();
-         update();
-      }
-      else
-      {
-         event->ignore();
+         proc = WindowProc(msgEvent->msg.message,msgEvent->msg.wParam,msgEvent->msg.lParam);
+         if ( proc )
+         {
+            event->accept();
+            update();
+         }
+         else
+         {
+            event->ignore();
+         }
       }
    }
    return proc;
@@ -7277,6 +7277,7 @@ void CWnd::UpdateDialogControls(
       		BOOL bDisableTemp = bDisableIfNoHndler;
       		if (bDisableTemp)
       		{
+               if ( !dynamic_cast<CButton*>(pWnd) )               
 //      			if ((wndTemp.SendMessage(WM_GETDLGCODE) & DLGC_BUTTON) == 0)
 //      			{
 //      				// non-button controls don't get automagically disabled
@@ -7298,59 +7299,6 @@ void CWnd::UpdateDialogControls(
 		// check for handlers in the target (owner)
 		state.DoUpdate(pTarget, bDisableTemp);
    }
-
-//   CCmdUI state;
-//	CWnd wndTemp;       // very temporary window just for CmdUI update
-
-//	// walk all the kids - assume the IDs are for buttons
-//	for (HWND hWndChild = ::GetTopWindow(m_hWnd); hWndChild != NULL;
-//			hWndChild = ::GetNextWindow(hWndChild, GW_HWNDNEXT))
-//	{
-//		// send to buttons
-//		wndTemp.m_hWnd = hWndChild; // quick and dirty attach
-//		state.m_nID = _AfxGetDlgCtrlID(hWndChild);
-//		state.m_pOther = &wndTemp;
-
-//		// check for reflect handlers in the child window
-//		CWnd* pWnd = CWnd::FromHandlePermanent(hWndChild);
-//		if (pWnd != NULL)
-//		{
-//			// call it directly to disable any routing
-//			if (pWnd->CWnd::OnCmdMsg(0, MAKELONG(0xffff,
-//				WM_COMMAND+WM_REFLECT_BASE), &state, NULL))
-//				continue;
-//		}
-
-//		// check for handlers in the parent window
-//		if (CWnd::OnCmdMsg((UINT)state.m_nID, CN_UPDATE_COMMAND_UI, &state, NULL))
-//			continue;
-
-//		// determine whether to disable when no handler exists
-//		BOOL bDisableTemp = bDisableIfNoHndler;
-//		if (bDisableTemp)
-//		{
-//			if ((wndTemp.SendMessage(WM_GETDLGCODE) & DLGC_BUTTON) == 0)
-//			{
-//				// non-button controls don't get automagically disabled
-//				bDisableTemp = FALSE;
-//			}
-//			else
-//			{
-//				// only certain button controls get automagically disabled
-//				UINT nStyle = (UINT)(wndTemp.GetStyle() & 0x0F);
-//				if (nStyle == (UINT)BS_AUTOCHECKBOX ||
-//					nStyle == (UINT)BS_AUTO3STATE ||
-//					nStyle == (UINT)BS_GROUPBOX ||
-//					nStyle == (UINT)BS_AUTORADIOBUTTON)
-//				{
-//					bDisableTemp = FALSE;
-//				}
-//			}
-//		}
-//		// check for handlers in the target (owner)
-//		state.DoUpdate(pTarget, bDisableTemp);
-//	}
-//	wndTemp.m_hWnd = NULL;      // quick and dirty detach
 }
 
 void CWnd::RepositionBars(
@@ -7452,23 +7400,14 @@ BOOL CWnd::PostMessage(
 )
 {
    MFCMessageEvent* post = new MFCMessageEvent(QEvent::User);
-   BOOL handled;
    post->msg.message = message;
    post->msg.wParam = wParam;
    post->msg.lParam = lParam;
 
-   handled = PreTranslateMessage(&post->msg);
-   if ( !handled )
-   {
-      QApplication::instance()->postEvent(this,post);
-   }
-   else
-   {
-      delete post;
-   }
+   QApplication::instance()->postEvent(this,post);
    update();
    
-   return handled;
+   return true;
 }
 
 CWnd* CWnd::GetDlgItem(
@@ -9101,6 +9040,14 @@ BOOL CToolBar::LoadToolBar(
    return TRUE;
 }
 
+UINT CToolBar::GetButtonStyle(
+   int nIndex
+)
+{
+//   qDebug("implement CToolBar::GetButtonStyle.");
+   return 0;
+}
+
 void CToolBar::SetButtonStyle(
    int nIndex,
    UINT nStyle
@@ -9110,9 +9057,10 @@ void CToolBar::SetButtonStyle(
    QMenu* menu;
    QToolButton* ptb;
    QList<QAction*> actions;
-   switch ( nStyle )
+   UINT type = nStyle&0xff;
+   
+   if ( type == TBBS_DROPDOWN )
    {
-   case TBBS_DROPDOWN:
       actions = _qtd->actions();
       cur = actions.at(nIndex);
       menu = new QMenu;
@@ -9121,10 +9069,18 @@ void CToolBar::SetButtonStyle(
       ptb->setPopupMode(QToolButton::MenuButtonPopup);
       cur->setMenu(menu);
       QObject::connect(menu,SIGNAL(aboutToShow()),this,SLOT(menu_aboutToShow()));
-      break;
-   default:
-      qDebug("CToolBar::SetButtonStyle %d not implemented",nStyle);
-      break;
+   }
+   if ( nStyle&TBBS_DISABLED )
+   {
+      actions = _qtd->actions();
+      cur = actions.at(nIndex);
+      cur->setEnabled(false);
+   }
+   else
+   {
+      actions = _qtd->actions();
+      cur = actions.at(nIndex);
+      cur->setEnabled(true);
    }
 }
 
@@ -9609,44 +9565,6 @@ void CDialog::EndDialog(
 {
    _qtd->setResult(nResult);
    _qtd->close();
-}
-
-void CDialog::OnUpdateCmdUI(CFrameWnd* pTarget, BOOL bDisableIfNoHndler)
-{
-//	CToolCmdUI state;
-//	state.m_pOther = this;
-
-////	state.m_nIndexMax = (UINT)DefWindowProc(TB_BUTTONCOUNT, 0, 0);
-//   state.m_nIndexMax = _qtd->actions().count();
-//	for (state.m_nIndex = 0; state.m_nIndex < state.m_nIndexMax; state.m_nIndex++)
-//	{
-////		// get buttons state
-////		TBBUTTON button;
-////		_GetButton(state.m_nIndex, &button);
-////		state.m_nID = button.idCommand;
-//      state.m_nID = _qtd->actions().at(state.m_nIndex)->data().toInt();
-
-//		// ignore separators
-////		if (!(button.fsStyle & TBSTYLE_SEP))
-//      if ( !_qtd->actions().at(state.m_nIndex)->isSeparator() )
-//		{
-//			// allow reflections
-//			if (CWnd::OnCmdMsg(0, 
-//				MAKELONG(CN_UPDATE_COMMAND_UI&0xffff, WM_COMMAND+WM_REFLECT_BASE), 
-//				&state, NULL))
-//				continue;
-
-//			// allow the toolbar itself to have update handlers
-//			if (CWnd::OnCmdMsg(state.m_nID, CN_UPDATE_COMMAND_UI, &state, NULL))
-//				continue;
-
-//			// allow the owner to process the update
-//			state.DoUpdate(pTarget, bDisableIfNoHndler);
-//		}
-//	}
-
-	// update the dialog controls added to the toolbar
-	UpdateDialogControls(pTarget, bDisableIfNoHndler);
 }
 
 IMPLEMENT_DYNAMIC(CCommonDialog,CDialog)
@@ -11448,7 +11366,7 @@ void CEdit::updateFromBuddy()
    _qtd_ledit->setText(QString::fromLatin1((LPCTSTR)str));
 #endif
    _qtd_ledit->blockSignals(false);
-   GetOwner()->PostMessage(WM_COMMAND,(EN_CHANGE<<16)|(_id),(LPARAM)m_hWnd);
+   GetOwner()->SendMessage(WM_COMMAND,(EN_CHANGE<<16)|(_id),(LPARAM)m_hWnd);
 }
 
 bool CEdit::event(QEvent *event)
@@ -11848,7 +11766,7 @@ void CEdit::SetDlgItemInt(
    // Tell our buddied CSpinButtonCtrl if necessary...
    if ( mfcBuddy() )
    {
-      mfcBuddy()->SetDlgItemInt(nID,nValue,bSigned);
+      mfcBuddy()->updateFromBuddy();
    }
 }
 
@@ -11919,7 +11837,7 @@ void CEdit::SetDlgItemText(
    // Tell our buddied CSpinButtonCtrl if necessary...
    if ( mfcBuddy() )
    {
-      mfcBuddy()->SetDlgItemText(nID,lpszString);
+      mfcBuddy()->updateFromBuddy();
    }
 }
 
@@ -12748,6 +12666,7 @@ int CSpinButtonCtrl::SetPos(
    _oldValue = pos;
    _curPos = pos;
    _qtd->setValue(nPos);
+   _qtd->blockSignals(false);
    
    if ( _dwStyle&UDS_SETBUDDYINT )
    {
@@ -12757,7 +12676,6 @@ int CSpinButtonCtrl::SetPos(
       }
    }
    
-   _qtd->blockSignals(false);
    return pos;
 }
 
@@ -14357,6 +14275,51 @@ void CCmdUI::SetText(
    else if ( m_pSubMenu )
    {
    }
+}
+
+void CToolCmdUI::Enable(BOOL bOn)
+{
+	m_bEnableChanged = TRUE;
+	CToolBar* pToolBar = (CToolBar*)m_pOther;
+	ASSERT(pToolBar != NULL);
+	ASSERT_KINDOF(CToolBar, pToolBar);
+	ASSERT(m_nIndex < m_nIndexMax);
+
+	UINT nNewStyle = pToolBar->GetButtonStyle(m_nIndex) & ~TBBS_DISABLED;
+	if (!bOn)
+	{
+		nNewStyle |= TBBS_DISABLED;
+		// If a button is currently pressed and then is disabled
+		// COMCTL32.DLL does not unpress the button, even after the mouse
+		// button goes up!  We work around this bug by forcing TBBS_PRESSED
+		// off when a button is disabled.
+		nNewStyle &= ~TBBS_PRESSED;
+	}
+	ASSERT(!(nNewStyle & TBBS_SEPARATOR));
+	pToolBar->SetButtonStyle(m_nIndex, nNewStyle);
+}
+
+void CToolCmdUI::SetCheck(int nCheck)
+{
+//	ASSERT(nCheck >= 0 && nCheck <= 2); // 0=>off, 1=>on, 2=>indeterminate
+//	CToolBar* pToolBar = (CToolBar*)m_pOther;
+//	ASSERT(pToolBar != NULL);
+//	ASSERT_KINDOF(CToolBar, pToolBar);
+//	ASSERT(m_nIndex < m_nIndexMax);
+
+//	UINT nNewStyle = pToolBar->GetButtonStyle(m_nIndex) &
+//				~(TBBS_CHECKED | TBBS_INDETERMINATE);
+//	if (nCheck == 1)
+//		nNewStyle |= TBBS_CHECKED;
+//	else if (nCheck == 2)
+//		nNewStyle |= TBBS_INDETERMINATE;
+//	ASSERT(!(nNewStyle & TBBS_SEPARATOR));
+//	pToolBar->SetButtonStyle(m_nIndex, nNewStyle | TBBS_CHECKBOX);
+}
+
+void CToolCmdUI::SetText(LPCTSTR)
+{
+	// ignore it
 }
 
 void CTestCmdUI::Enable(
