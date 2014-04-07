@@ -2011,7 +2011,7 @@ enum
       ID_FILE_MRU_FILE15      ,
       ID_FILE_MRU_FILE16      ,
    //   END
-   
+
    //   STRINGTABLE
    //   BEGIN
       ID_INDICATOR_EXT        ,
@@ -2067,7 +2067,7 @@ enum
       ID_EDIT_UNDO            ,
       ID_EDIT_REDO            ,
    //   END
-   
+
    //   STRINGTABLE
    //   BEGIN
       ID_VIEW_TOOLBAR         ,
@@ -2077,8 +2077,6 @@ enum
    ID_SEPARATOR,
 
    IDC_STATIC,
-
-   __UNDER_THE_HOOD_START = 0x8000000,
 
    AFX_IDS_ALLFILTER,
    AFX_IDS_OPENFILE,

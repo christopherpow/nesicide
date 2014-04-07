@@ -4686,6 +4686,7 @@ BOOL CListCtrl::SetItemText(
 
       if ( add )
          _qtd_table->setItem(nItem,nSubItem,twi);
+      _qtd_table->update();
    }
    else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
    {
@@ -4705,6 +4706,7 @@ BOOL CListCtrl::SetItemText(
 
       if ( add )
          _qtd_list->insertItem(nItem,lwi);
+      _qtd_list->update();
    }
 
    return TRUE;
@@ -4893,6 +4895,7 @@ BOOL CListCtrl::DeleteItem(
       {
          QListWidgetItem* lwi = _qtd_list->takeItem(nItem);
          delete lwi;
+         _qtd_list->update();
          return TRUE;
       }
    }
@@ -6099,7 +6102,7 @@ void CWnd::SendMessageToDescendants(
    foreach ( CWnd* pWnd, mfcToQtWidget )
    {
       pWnd->SendMessage(message,wParam,lParam);
-      if ( bDeep && !(pWnd->mfcToQtWidgetMap()->isEmpty()) )
+      if ( bDeep )
       {
          pWnd->SendMessageToDescendants(message,wParam,lParam,bDeep,bOnlyPerm);
       }
@@ -7233,6 +7236,9 @@ BOOL CWnd::CreateEx(
    }
    _qt->setGeometry(createStruct.x,createStruct.y,createStruct.cx,createStruct.cy);
    OnCreate(&createStruct);
+
+   if ( pParentWnd )
+      pParentWnd->mfcToQtWidgetMap()->insertMulti(nID,this);
    
    return TRUE;
 }
@@ -8860,6 +8866,8 @@ BOOL CReBarCtrl::Create(
    CRect clientRect;
    pParentWnd->GetClientRect(&clientRect);
    _qtd->setGeometry(clientRect.left,clientRect.top,(clientRect.right-clientRect.left)+1,(clientRect.bottom-clientRect.top)+1);
+
+   pParentWnd->mfcToQtWidgetMap()->insert(nID,this);
    
    qtToMfcWindow.insert(_qtd,this);
    
@@ -8883,6 +8891,8 @@ BOOL CReBarCtrl::InsertBand(
       _qtd->addActions(toolBar->actions());
       _qtd->setIconSize(toolBar->iconSize());
       pWnd->toQWidget()->setVisible(false);
+      
+      mfcToQtWidgetMap()->insert(pWnd->GetDlgCtrlID(),pWnd);   
    }
    else
    {
@@ -8908,6 +8918,7 @@ void CReBarCtrl::toolBarAction_triggered()
 IMPLEMENT_DYNAMIC(CReBar,CControlBar)
 
 BEGIN_MESSAGE_MAP(CReBar,CControlBar)
+   ON_MESSAGE(WM_IDLEUPDATECMDUI, OnIdleUpdateCmdUI)
 END_MESSAGE_MAP()
 
 CReBar::CReBar()
@@ -8934,8 +8945,9 @@ BOOL CReBar::Create(
    pParentWnd->GetClientRect(&rect);
    m_pReBarCtrl->Create(dwStyle,rect,this,nID);
    SetParent(pParentWnd);   
-   
-   pParentWnd->mfcToQtWidgetMap()->insert(nID,this);
+
+//   pParentWnd->mfcToQtWidgetMap()->insert(nID,this);   
+//   mfcToQtWidgetMap()->insert(nID,m_pReBarCtrl);
 
    ptrToTheApp->qtMainWindow->addToolBar(dynamic_cast<QToolBar*>(m_pReBarCtrl->toQWidget()));
    
@@ -9444,8 +9456,13 @@ BOOL CDialog::Create(
    {
       _qtd->setWindowFlags(_qtd->windowFlags()|Qt::Dialog);
    }
+   else
+   {
+      pParentWnd->mfcToQtWidgetMap()->insertMulti(nIDTemplate,this);
+   }
    _qtd->setFont(QFont("MS Shell Dlg",8));
 
+   
    foreach ( CWnd* pWnd, mfcToQtWidget ) pWnd->blockSignals(true);
    BOOL result = OnInitDialog();
    _inited = true;
