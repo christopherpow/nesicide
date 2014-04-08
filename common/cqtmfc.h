@@ -2195,16 +2195,16 @@ typedef char TCHAR;
 #endif
 #if !defined(QT_NO_DEBUG)
 #if !defined(TRACE0)
-#define TRACE0(x) { QString str; str.sprintf("TRACE0: %s(%d): %s",__FILE__,__LINE__, (x)); qDebug(str.toLatin1().constData()); }
+#define TRACE0(x) { QString __str; __str.sprintf("TRACE0: %s(%d): %s",__FILE__,__LINE__, (x)); qDebug(__str.toLatin1().constData()); }
 #endif
 #if !defined(TRACE1)
-#define TRACE1(x,y) { QString str; str.sprintf("TRACE2: %s(%d): %s",__FILE__,__LINE__, (x)); qDebug(str.toLatin1().constData()); }
+#define TRACE1(x,y) { QString __str; __str.sprintf("TRACE1: %s(%d): %s",__FILE__,__LINE__, (x)); qDebug(__str.toLatin1().constData()); }
 #endif
 #if !defined(TRACE2)
-#define TRACE2(x,y,z) { QString str; str.sprintf("TRACE2: %s(%d): %s",__FILE__,__LINE__, (x)); qDebug(str.toLatin1().constData()); }
+#define TRACE2(x,y,z) { QString __str; __str.sprintf("TRACE2: %s(%d): %s",__FILE__,__LINE__, (x)); qDebug(__str.toLatin1().constData()); }
 #endif
 #if !defined(TRACE)
-#define TRACE(x) { QString str; str.sprintf("TRACE0: %s(%d): %s",__FILE__,__LINE__, (x)); qDebug(str.toLatin1().constData()); }
+#define TRACE(x) { QString __str; __str.sprintf("TRACE: %s(%d): %s",__FILE__,__LINE__, (x)); qDebug(__str.toLatin1().constData()); }
 #endif
 #if !defined(ATLTRACE2)
 #define ATLTRACE2(a,b,str,q...) qDebug(str,##q)
@@ -3854,7 +3854,7 @@ public:
    ) const;
    int GetWindowTextLength( ) const;
    CWnd* GetParent() const { return m_pParentWnd?(CWnd*)m_pParentWnd:(CWnd*)m_pFrameWnd; }
-   void SetParent(CWnd* parent) { _dwStyle|=WS_CHILD; m_pParentWnd = parent; m_pOwnerWnd = parent; _qt->setParent(parent->toQWidget()); }
+   void SetParent(CWnd* parent);
    void GetWindowText(
       CString& rString
    ) const;
@@ -4508,6 +4508,7 @@ protected:
    virtual bool event(QEvent *event);
 //   virtual void keyPressEvent(QKeyEvent *event);
 //   virtual void keyReleaseEvent(QKeyEvent *event);
+   virtual void focusInEvent(QFocusEvent *event);
    QPlainTextEdit* _qtd_ptedit;
    QLineEdit_MFC* _qtd_ledit;
 public slots:

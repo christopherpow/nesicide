@@ -6098,7 +6098,6 @@ void CWnd::SendMessageToDescendants(
    BOOL bOnlyPerm
 )
 {
-//   SendMessage(message,wParam,lParam);
    foreach ( CWnd* pWnd, mfcToQtWidget )
    {
       pWnd->SendMessage(message,wParam,lParam);
@@ -7257,6 +7256,14 @@ void CWnd::OnDestroy( )
 {
 }
 
+void CWnd::SetParent(CWnd *parent)
+{
+   _dwStyle |= WS_CHILD; 
+   m_pParentWnd = parent; 
+   m_pOwnerWnd = parent; 
+   _qt->setParent(parent->toQWidget());
+}
+
 void CWnd::UpdateDialogControls(
    CCmdTarget* pTarget,
    BOOL bDisableIfNoHndler
@@ -7808,12 +7815,10 @@ void CWnd::ShowWindow(int code)
    {
    case SW_SHOW:
       _dwStyle |= WS_VISIBLE;
-      foreach ( CWnd* pWnd, mfcToQtWidget ) pWnd->blockSignals(false);
       setVisible(true);
       break;
    case SW_HIDE:
       _dwStyle &= (~WS_VISIBLE);
-      foreach ( CWnd* pWnd, mfcToQtWidget ) pWnd->blockSignals(true);
       setVisible(false);
       break;
    }
@@ -8802,7 +8807,11 @@ CSize CControlBar::CalcFixedLayout(
    BOOL bHorz
 )
 {
-   return CSize(0,0);
+   if (bStretch) // if not docked stretch to fit
+      return CSize(bHorz ? 32767 : m_sizeDefault.cx,
+                   bHorz ? m_sizeDefault.cy : 32767);
+	else
+		return m_sizeDefault;
 }
 
 void CControlBar::SetBarStyle(
@@ -9458,8 +9467,6 @@ BOOL CDialog::Create(
    }
    _qtd->setFont(QFont("MS Shell Dlg",8));
 
-   
-   foreach ( CWnd* pWnd, mfcToQtWidget ) pWnd->blockSignals(true);
    BOOL result = OnInitDialog();
    _inited = true;
    
@@ -9544,12 +9551,10 @@ void CDialog::ShowWindow(int code)
    switch ( code )
    {
    case SW_SHOW:
-      foreach ( CWnd* pWnd, mfcToQtWidget ) pWnd->blockSignals(false);
       _qtd->setVisible(true);
       _qtd->setFocus();
       break;
    case SW_HIDE:
-      foreach ( CWnd* pWnd, mfcToQtWidget ) pWnd->blockSignals(true);
       _qtd->setVisible(false);
       break;
    }
@@ -10744,7 +10749,7 @@ void CMenu::menuAction_triggered()
 void CMenu::menu_aboutToShow()
 {
    ptrToTheApp->GetMainWnd()->toQWidget()->setFocus();
-   AfxGetMainWnd()->SendMessage(WM_INITMENUPOPUP,(WPARAM)this);
+   AfxGetMainWnd()->SendMessage(WM_INITMENUPOPUP,(WPARAM)m_hMenu);
 }
 
 QAction* CMenu::findMenuItem(UINT id) const
@@ -11170,11 +11175,8 @@ BOOL CMenu::TrackPopupMenu(
    }
    else if ( action )
    {
-      result = 1;
-   }
-   if ( action )
-   {
       pWnd->SendMessage(WM_COMMAND,findMenuID(action));
+      result = 1;
    }
    return result;
 }
@@ -11469,6 +11471,11 @@ bool CEdit::event(QEvent *event)
 //      CWnd::keyReleaseEvent(event);
 //   }
 //}
+
+void CEdit::focusInEvent(QFocusEvent *event)
+{
+   GetOwner()->SendMessage(WM_COMMAND,(EN_SETFOCUS<<16)|(_id),(LPARAM)m_hWnd);
+}
 
 BOOL CEdit::Create(
    DWORD dwStyle,
@@ -11928,7 +11935,7 @@ void CButton::subclassWidget(int nID,CWnd* widget)
 
 void CButton::clicked()
 {
-   GetOwner()->SendMessage(WM_COMMAND,_id);
+   GetOwner()->SendMessage(WM_COMMAND,(BN_CLICKED<<16)|(_id),(LPARAM)m_hWnd);
 }
 
 BOOL CButton::Create(

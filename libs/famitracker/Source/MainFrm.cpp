@@ -2591,7 +2591,7 @@ void CMainFrame::SetFrameEditorPosition(int Position)
 	}
 
 	ResizeFrameWindow();
-
+   
 	m_pFrameEditor->ShowWindow(SW_SHOW);
 	m_pFrameEditor->Invalidate();
 	m_pFrameEditor->RedrawWindow();
