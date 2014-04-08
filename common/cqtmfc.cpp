@@ -6084,7 +6084,7 @@ LRESULT CWnd::SendMessage(
    post.msg.wParam = wParam;
    post.msg.lParam = lParam;
 
-   handled = QApplication::instance()->sendEvent(this,&post);
+   handled = QApplication::sendEvent(this,&post);
    update();
    
    return handled;
@@ -6098,11 +6098,11 @@ void CWnd::SendMessageToDescendants(
    BOOL bOnlyPerm
 )
 {
-   SendMessage(message,wParam,lParam);
+//   SendMessage(message,wParam,lParam);
    foreach ( CWnd* pWnd, mfcToQtWidget )
    {
       pWnd->SendMessage(message,wParam,lParam);
-      if ( bDeep )
+      if ( bDeep && (mfcToQtWidget.count()) )
       {
          pWnd->SendMessageToDescendants(message,wParam,lParam,bDeep,bOnlyPerm);
       }
@@ -7410,7 +7410,7 @@ BOOL CWnd::PostMessage(
    post->msg.wParam = wParam;
    post->msg.lParam = lParam;
 
-   QApplication::instance()->postEvent(this,post);
+   QApplication::postEvent(this,post);
    update();
    
    return true;
@@ -9036,7 +9036,7 @@ BOOL CToolBar::CreateEx(
       _qt->setParent(pParentWnd->toQWidget());
    else
       _qt->setParent(NULL);
-
+   
    pParentWnd->mfcToQtWidgetMap()->insert(nID,this);
    
    SetParent(pParentWnd);
@@ -9067,7 +9067,6 @@ void CToolBar::SetButtonStyle(
 {
    QAction* cur;
    QMenu* menu;
-   QToolButton* ptb;
    QList<QAction*> actions;
    UINT type = nStyle&0xff;
    
@@ -9076,9 +9075,6 @@ void CToolBar::SetButtonStyle(
       actions = _qtd->actions();
       cur = actions.at(nIndex);
       menu = new QMenu;
-      ptb = dynamic_cast<QToolButton*>(_qtd->widgetForAction(cur));
-      ptb->setMenu(menu);
-      ptb->setPopupMode(QToolButton::MenuButtonPopup);
       cur->setMenu(menu);
       QObject::connect(menu,SIGNAL(aboutToShow()),this,SLOT(menu_aboutToShow()));
    }
@@ -10726,12 +10722,18 @@ void CMenu::menuAction_triggered()
       // shortcut associated with this menu triggered us.  Re-route the
       // shortcut as a keyPressEvent.
       QKeySequence keys = pAction->shortcut();
+      QWidget* focusWidget = QApplication::focusWidget();
       int keyc;
+      if ( !focusWidget )
+      {
+         focusWidget = ptrToTheApp->GetMainWnd()->toQWidget();
+      }
       for ( keyc = 0; keyc < keys.count(); keyc++ )
       {
          QKeyEvent keyEvent(QEvent::KeyPress,keys[keyc],0);
+         qDebug("Sending key event to main window...%d",keys[keyc]);
          pAction->setEnabled(false);
-         QApplication::sendEvent(ptrToTheApp->GetMainWnd()->toQWidget(),&keyEvent);
+         QApplication::sendEvent(focusWidget,&keyEvent);
          pAction->setEnabled(true);
       }
       return;
@@ -11624,22 +11626,24 @@ void CEdit::SetWindowText(
    if ( _dwStyle&ES_MULTILINE )
    {
       _qtd_ptedit->blockSignals(true);
+      _qtd_ptedit->clear();
+      _qtd_ptedit->blockSignals(true);
 #if UNICODE
       _qtd_ptedit->setPlainText(QString::fromWCharArray(lpszString));
 #else
       _qtd_ptedit->setPlainText(QString::fromLatin1(lpszString));
 #endif
-      _qtd_ptedit->blockSignals(true);
    }
    else
    {
       _qtd_ledit->blockSignals(true);
+      _qtd_ledit->clear();
+      _qtd_ledit->blockSignals(false);
 #if UNICODE
       _qtd_ledit->setText(QString::fromWCharArray(lpszString));
 #else
       _qtd_ledit->setText(QString::fromLatin1(lpszString));
 #endif
-      _qtd_ledit->blockSignals(false);
    }
    
    // Tell our buddied CSpinButtonCtrl if necessary...
@@ -11769,15 +11773,11 @@ void CEdit::SetDlgItemInt(
 {
    if ( _dwStyle&ES_MULTILINE )
    {
-//      _qtd_ptedit->blockSignals(true);
       _qtd_ptedit->setPlainText(QString::number(nValue));
-//      _qtd_ptedit->blockSignals(false);
    }
    else
    {
-//      _qtd_ledit->blockSignals(true);
       _qtd_ledit->setText(QString::number(nValue));
-//      _qtd_ledit->blockSignals(false);
    }
    
    // Tell our buddied CSpinButtonCtrl if necessary...
@@ -11832,23 +11832,19 @@ void CEdit::SetDlgItemText(
 {
    if ( _dwStyle&ES_MULTILINE )
    {
-//      _qtd_ptedit->blockSignals(true);
 #if UNICODE
       _qtd_ptedit->setPlainText(QString::fromWCharArray(lpszString));
 #else
       _qtd_ptedit->setPlainText(QString::fromLatin1(lpszString));
 #endif
-//      _qtd_ptedit->blockSignals(false);
    }
    else
    {
-//      _qtd_ledit->blockSignals(true);
 #if UNICODE
       _qtd_ledit->setText(QString::fromWCharArray(lpszString));
 #else
       _qtd_ledit->setText(QString::fromLatin1(lpszString));
 #endif
-//      _qtd_ledit->blockSignals(false);
    }
    
    // Tell our buddied CSpinButtonCtrl if necessary...
