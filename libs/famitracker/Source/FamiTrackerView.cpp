@@ -293,10 +293,6 @@ CFamiTrackerView::CFamiTrackerView() :
 	pSoundGen->AssignView(this);
 
 	m_pPatternView = new CPatternView();
-   
-//   m_pPatternView->installEventFilter(this);
-//   m_pPatternView->setMouseTracking(true);
-//   _grid->addWidget(m_pPatternView,0,0);
 }
 
 CFamiTrackerView::~CFamiTrackerView()

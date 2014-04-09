@@ -20,9 +20,6 @@
 
 #pragma once
 
-#include "FamiTrackerTypes.h"
-#include "SoundGen.h"
-
 // CSampleView control
 
 class CSampleView : public CStatic {

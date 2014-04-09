@@ -20,12 +20,6 @@
 
 #pragma once
 
-#include "stdafx.h"
-#include "FamiTrackerDoc.h"
-#include "InstrumentEditPanel.h"
-
-#include "SequenceEditor.h"
-
 class CInstrumentEditorN163 : public CSequenceInstrumentEditPanel
 {
 	DECLARE_DYNAMIC(CInstrumentEditorN163)

@@ -20,10 +20,6 @@
 
 #pragma once
 
-#include "stdafx.h"
-#include "FamiTrackerDoc.h"
-#include "InstrumentEditPanel.h"
-
 #include "WaveEditor.h"
 
 // CInstrumentEditorN163Wave dialog

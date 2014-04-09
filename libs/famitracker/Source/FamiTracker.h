@@ -114,10 +114,10 @@ public:
 	void			VerifyExport();
 #endif /* EXPORT_TEST */
 
-//	//
-//	// Private functions
-//	//
-//private:
+	//
+	// Private functions
+	//
+private:
 //	void CheckAppThemed();
 	void ShutDownSynth();
 	bool CheckSingleInstance(CFTCommandLineInfo &cmdInfo);

@@ -25,7 +25,6 @@
 
 class CControlPanelDlg : public CDialog
 {
-public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
 	DECLARE_DYNAMIC(CControlPanelDlg)
 
 public:

@@ -20,13 +20,9 @@
 
 #pragma once
 
-#include "cqtmfc.h"
-
-class CSequence;
-
 class CSequenceSetting : public CWnd
 {
-   DECLARE_DYNAMIC(CSequenceSetting)
+	DECLARE_DYNAMIC(CSequenceSetting)
 	CSequenceSetting(CWnd *pParent);
 	virtual ~CSequenceSetting();
 public:

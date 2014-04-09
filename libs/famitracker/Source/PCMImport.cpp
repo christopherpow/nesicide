@@ -311,7 +311,7 @@ void CPCMImport::OnBnClickedOk()
 	m_strFileName.Truncate(m_strFileName.GetLength() - 4);
 
 	// Set the name
-   strncpy(pSample->Name, (char*)(LPCTSTR)m_strFileName, 256);
+	strcpy_s(pSample->Name, 256, (char*)(LPCSTR)m_strFileName);
 
 	m_pImported = pSample;
 

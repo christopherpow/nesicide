@@ -6921,7 +6921,7 @@ void CWnd::mouseDoubleClickEvent(QMouseEvent *event)
 
 void CWnd::keyPressEvent(QKeyEvent *event)
 {
-   qDebug("keyPress: key=%x, scan=%x",event->key(),event->nativeScanCode());
+//   qDebug("keyPress: key=%x, scan=%x",event->key(),event->nativeScanCode());
 #ifdef __APPLE__
    SendMessage(WM_KEYDOWN,qtToMfcKeycode(event->key()),event->key()<<16);
 #else

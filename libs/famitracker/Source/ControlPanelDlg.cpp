@@ -48,6 +48,7 @@ void CControlPanelDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CControlPanelDlg, CDialog)
 END_MESSAGE_MAP()
 
+
 // CControlPanelDlg message handlers
 
 BOOL CControlPanelDlg::PreTranslateMessage(MSG* pMsg)

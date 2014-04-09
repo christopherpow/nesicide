@@ -72,6 +72,7 @@ BEGIN_MESSAGE_MAP(CInstrumentEditDlg, CDialog)
 	ON_WM_NCLBUTTONUP()
 END_MESSAGE_MAP()
 
+
 // CInstrumentEditDlg message handlers
 
 BOOL CInstrumentEditDlg::OnInitDialog()

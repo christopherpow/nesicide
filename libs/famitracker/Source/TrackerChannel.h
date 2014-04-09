@@ -20,8 +20,6 @@
 
 #pragma once
 
-#include "FamiTrackerTypes.h"
-#include "PatternData.h"
 
 class CTrackerChannel
 {

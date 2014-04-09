@@ -21,8 +21,6 @@
 #pragma once
 //#include "afxwin.h"
 
-#include "cqtmfc.h"
-#include "resource.h"
 
 // CCreateWaveDlg dialog
 

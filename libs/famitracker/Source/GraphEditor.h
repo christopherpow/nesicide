@@ -92,7 +92,6 @@ public:
 // Bar graph editor
 class CBarGraphEditor : public CGraphEditor
 {
-   // Qt stuff
 private:
 	int m_iItems;
 public:
@@ -141,7 +140,6 @@ public:
 // Pitch graph editor
 class CPitchGraphEditor : public CGraphEditor
 {
-   // Qt stuff
 private:
 	static const int ITEMS = 20;
 public:
@@ -154,7 +152,6 @@ public:
 // Sunsoft noise editor
 class CNoiseEditor : public CGraphEditor
 {
-   // Qt stuff
 private:
 	int m_iItems;
 	int m_iLastIndex;

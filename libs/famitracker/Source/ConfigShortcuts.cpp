@@ -134,18 +134,14 @@ BOOL CConfigShortcuts::OnApply()
 
 BOOL CConfigShortcuts::PreTranslateMessage(MSG* pMsg)
 {
-   qDebug("PreTranslateMessage");
 	if (GetFocus() == GetDlgItem(IDC_KEY)) {
-      qDebug("PreTranslateMessage::IDC_KEY focused");
 		switch (pMsg->message) {
 			case WM_KEYDOWN:
 			case WM_SYSKEYDOWN:
-         qDebug("PreTranslateMessage::KeyPressed");
 				KeyPressed(pMsg->wParam);
 				return TRUE;
 			case WM_KEYUP:
 			case WM_SYSKEYUP:
-         qDebug("PreTranslateMessage::KeyReleased");
 				KeyReleased(pMsg->wParam);
 				return TRUE;
 		}

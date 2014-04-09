@@ -20,9 +20,7 @@
 
 #pragma once
 
-#include "cqtmfc.h"
 #include "CustomExporterInterfaces.h"
-#include "DocumentFile.h"
 
 // Instrument types
 enum {

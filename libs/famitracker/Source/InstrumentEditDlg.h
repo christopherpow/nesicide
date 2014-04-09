@@ -30,6 +30,7 @@
 class CInstrumentEditDlg : public CDialog
 {
 	DECLARE_DYNAMIC(CInstrumentEditDlg)
+
 public:
 	CInstrumentEditDlg(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CInstrumentEditDlg();
