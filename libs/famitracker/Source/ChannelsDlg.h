@@ -1,8 +1,5 @@
 #pragma once
 
-#include "cqtmfc.h"
-#include "resource.h"
-
 const int ROOT_ITEM_COUNT = 7;
 
 // CChannelsDlg dialog

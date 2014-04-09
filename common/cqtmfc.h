@@ -4124,8 +4124,8 @@ protected:
 
 class CView : public CWnd
 {
-   DECLARE_DYNAMIC(CView)
-   // Qt interfaces
+   Q_OBJECT
+   // Qt stuff
 protected:
    MFCWidget* viewWidget;
    virtual bool eventFilter(QObject *object, QEvent *event);
@@ -4138,6 +4138,9 @@ protected:
    virtual void mouseReleaseEvent(QMouseEvent *event);
    virtual void mouseDoubleClickEvent(QMouseEvent *event);
    virtual bool event(QEvent *event);
+public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
+   
+   DECLARE_DYNAMIC(CView)
    
 public:
    CView();
@@ -4420,7 +4423,7 @@ public:
    void setPageStep(int pageStep) { _qtd->setPageStep(pageStep); }
 protected:
    QScrollBar* _qtd;
-signals:
+public slots:
    void actionTriggered(int action);
 
    // MFC interfaces

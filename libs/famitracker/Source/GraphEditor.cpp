@@ -655,9 +655,7 @@ void CArpeggioGraphEditor::Initialize()
 	SCROLLINFO info;
 
 	m_pScrollBar = new CScrollBar();
-   
-   QObject::connect(m_pScrollBar,SIGNAL(actionTriggered(int)),this,SLOT(verticalScrollBar_actionTriggered(int)));
-   
+
 	m_GraphRect.right -= SCROLLBAR_WIDTH;
 	m_pScrollBar->Create(SBS_VERT | SBS_LEFTALIGN | WS_CHILD | WS_VISIBLE, CRect(m_GraphRect.right, m_GraphRect.top, m_GraphRect.right + SCROLLBAR_WIDTH, m_GraphRect.bottom), this, 0);
 
@@ -1205,33 +1203,3 @@ void CNoiseEditor::ModifyReleased()
 	m_iLastIndex = -1;
 }
 
-void CArpeggioGraphEditor::verticalScrollBar_actionTriggered(int arg1)
-{
-   // CP: these values don't match Qt apparently...
-   switch ( arg1 )
-   {
-   case QAbstractSlider::SliderSingleStepAdd: 
-      arg1 = SB_LINEDOWN;
-      break;
-   case QAbstractSlider::SliderSingleStepSub: 
-      arg1 = SB_LINEUP;
-      break;
-   case QAbstractSlider::SliderPageStepAdd: 
-      arg1 = SB_PAGEDOWN;
-      break;
-   case QAbstractSlider::SliderPageStepSub: 
-      arg1 = SB_PAGEUP;
-      break;
-   case QAbstractSlider::SliderToMinimum:
-      arg1 = SB_TOP;
-      break;
-   case QAbstractSlider::SliderToMaximum:
-      arg1 = SB_BOTTOM;
-      break;
-   case QAbstractSlider::SliderMove:
-      arg1 = SB_THUMBTRACK;
-      break;
-   }
-
-   OnVScroll(arg1,m_pScrollBar->sliderPosition(),m_pScrollBar);
-}

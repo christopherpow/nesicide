@@ -5360,6 +5360,8 @@ BOOL CScrollBar::Create(
 {
    m_hWnd = (HWND)this;
    _id = nID;
+   
+   _dwStyle = dwStyle;
 
    if ( _qt )
       delete _qt;
@@ -5377,7 +5379,7 @@ BOOL CScrollBar::Create(
    _qtd->setMouseTracking(true);
 
    // Pass-through signals
-   QObject::connect(_qtd,SIGNAL(actionTriggered(int)),this,SIGNAL(actionTriggered(int)));
+   QObject::connect(_qtd,SIGNAL(actionTriggered(int)),this,SLOT(actionTriggered(int)));
 
    QRect myRect(QPoint(rect.left,rect.top),QPoint(rect.right,rect.bottom));
    _qtd->setParent(pParentWnd->toQWidget());
@@ -5409,9 +5411,49 @@ BOOL CScrollBar::Create(
    _qtd->setGeometry(myRect);
    _qtd->setVisible(dwStyle&WS_VISIBLE);
    
+   SetParent(pParentWnd);
+   
    qtToMfcWindow.insert(_qtd,this);
 
    return TRUE;
+}
+
+void CScrollBar::actionTriggered(int action)
+{
+   // CP: these values don't match Qt apparently...
+   switch ( action )
+   {
+   case QAbstractSlider::SliderSingleStepAdd: 
+      action = SB_LINEDOWN;
+      break;
+   case QAbstractSlider::SliderSingleStepSub: 
+      action = SB_LINEUP;
+      break;
+   case QAbstractSlider::SliderPageStepAdd: 
+      action = SB_PAGEDOWN;
+      break;
+   case QAbstractSlider::SliderPageStepSub: 
+      action = SB_PAGEUP;
+      break;
+   case QAbstractSlider::SliderToMinimum:
+      action = SB_TOP;
+      break;
+   case QAbstractSlider::SliderToMaximum:
+      action = SB_BOTTOM;
+      break;
+   case QAbstractSlider::SliderMove:
+      action = SB_THUMBTRACK;
+      break;
+   }
+   
+   if ( _dwStyle&SBS_VERT )
+   {
+      GetOwner()->SendMessage(WM_VSCROLL,(sliderPosition()<<16)|(action),(LPARAM)m_hWnd);
+   }
+   else
+   {
+      GetOwner()->SendMessage(WM_HSCROLL,(sliderPosition()<<16)|(action),(LPARAM)m_hWnd);
+   }
 }
 
 BOOL CScrollBar::SetScrollInfo(
@@ -7226,12 +7268,14 @@ BOOL CWnd::CreateEx(
       mfcVerticalScrollBar = new CScrollBar(this);
       mfcVerticalScrollBar->Create(SBS_VERT | SBS_RIGHTALIGN | WS_CHILD | WS_VISIBLE, rect, this, 0);
       _grid->addWidget(mfcVerticalScrollBar->toQWidget(),0,1);
+      QObject::connect(mfcVerticalScrollBar,SIGNAL(actionTriggered(int)),this,SLOT(verticalScrollBar_actionTriggered(int)));
    }
    if ( createStruct.style&WS_HSCROLL )
    {
       mfcHorizontalScrollBar = new CScrollBar(this);
       mfcHorizontalScrollBar->Create(SBS_HORZ | SBS_BOTTOMALIGN | WS_CHILD | WS_VISIBLE, rect, this, 0);
       _grid->addWidget(mfcHorizontalScrollBar->toQWidget(),1,0);
+      QObject::connect(mfcHorizontalScrollBar,SIGNAL(actionTriggered(int)),this,SLOT(horizontalScrollBar_actionTriggered(int)));
    }
    _qt->setGeometry(createStruct.x,createStruct.y,createStruct.cx,createStruct.cy);
    OnCreate(&createStruct);
@@ -8657,7 +8701,7 @@ BOOL CView::Create(
    viewWidget->setParent(toQWidget());
    viewWidget->installEventFilter(this);
    viewWidget->setFocusPolicy(Qt::StrongFocus);
-
+   
    _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
    
    qtToMfcWindow.insert(_qtd,this);
@@ -10736,7 +10780,6 @@ void CMenu::menuAction_triggered()
       for ( keyc = 0; keyc < keys.count(); keyc++ )
       {
          QKeyEvent keyEvent(QEvent::KeyPress,keys[keyc],0);
-         qDebug("Sending key event to main window...%d",keys[keyc]);
          pAction->setEnabled(false);
          QApplication::sendEvent(focusWidget,&keyEvent);
          pAction->setEnabled(true);

@@ -36,10 +36,6 @@
 #include "Accelerator.h"
 #include "TrackerChannel.h"
 
-#include "cqtmfc.h"
-
-#include <QPainter>
-
 //#ifdef _DEBUG
 //#define new DEBUG_NEW
 //#endif
@@ -154,68 +150,6 @@ BEGIN_MESSAGE_MAP(CFamiTrackerView, CView)
 	ON_MESSAGE(MSG_UPDATE, OnUpdateMsg)
 	ON_MESSAGE(MSG_NOTE_EVENT, OnNoteEvent)
 END_MESSAGE_MAP()
-
-void CFamiTrackerView::verticalScrollBar_actionTriggered(int arg1)
-{
-   // CP: these values don't match Qt apparently...
-   switch ( arg1 )
-   {
-   case QAbstractSlider::SliderSingleStepAdd: 
-      arg1 = SB_LINEDOWN;
-      break;
-   case QAbstractSlider::SliderSingleStepSub: 
-      arg1 = SB_LINEUP;
-      break;
-   case QAbstractSlider::SliderPageStepAdd: 
-      arg1 = SB_PAGEDOWN;
-      break;
-   case QAbstractSlider::SliderPageStepSub: 
-      arg1 = SB_PAGEUP;
-      break;
-   case QAbstractSlider::SliderToMinimum:
-      arg1 = SB_TOP;
-      break;
-   case QAbstractSlider::SliderToMaximum:
-      arg1 = SB_BOTTOM;
-      break;
-   case QAbstractSlider::SliderMove:
-      arg1 = SB_THUMBTRACK;
-      break;
-   }
-
-   OnVScroll(arg1,mfcVerticalScrollBar->sliderPosition(),mfcVerticalScrollBar);
-}
-
-void CFamiTrackerView::horizontalScrollBar_actionTriggered(int arg1)
-{
-   // CP: these values don't match Qt apparently...
-   switch ( arg1 )
-   {
-   case QAbstractSlider::SliderSingleStepAdd: 
-      arg1 = SB_LINEDOWN;
-      break;
-   case QAbstractSlider::SliderSingleStepSub: 
-      arg1 = SB_LINEUP;
-      break;
-   case QAbstractSlider::SliderPageStepAdd: 
-      arg1 = SB_PAGEDOWN;
-      break;
-   case QAbstractSlider::SliderPageStepSub: 
-      arg1 = SB_PAGEUP;
-      break;
-   case QAbstractSlider::SliderToMinimum:
-      arg1 = SB_TOP;
-      break;
-   case QAbstractSlider::SliderToMaximum:
-      arg1 = SB_BOTTOM;
-      break;
-   case QAbstractSlider::SliderMove:
-      arg1 = SB_THUMBTRACK;
-      break;
-   }
-   
-   OnHScroll(arg1,mfcHorizontalScrollBar->sliderPosition(),mfcHorizontalScrollBar);
-}
 
 // Convert keys 0-F to numbers, -1 = invalid key
 int ConvertKeyToHex(int Key) {
@@ -733,9 +667,6 @@ int CFamiTrackerView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 //	SetTimer(TMR_SCROLL, 30, NULL);
 
 	m_DropTarget.Register(this);
-   
-   QObject::connect(mfcHorizontalScrollBar,SIGNAL(actionTriggered(int)),this,SLOT(horizontalScrollBar_actionTriggered(int)));
-   QObject::connect(mfcVerticalScrollBar,SIGNAL(actionTriggered(int)),this,SLOT(verticalScrollBar_actionTriggered(int)));
 
 	return 0;
 }

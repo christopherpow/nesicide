@@ -20,8 +20,6 @@
 
 #pragma once
 
-#include "cqtmfc.h"
-
 // Color macros
 
 #define RED(x)	 (x & 255)

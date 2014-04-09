@@ -20,9 +20,6 @@
 
 #pragma once
 
-#include "cqtmfc.h"
-#include "resource.h"
-
 // CConfigShortcuts dialog
 
 class CConfigShortcuts : public CPropertyPage

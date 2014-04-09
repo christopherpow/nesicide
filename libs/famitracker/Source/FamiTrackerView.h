@@ -20,11 +20,8 @@
 
 #pragma once
 
-#include "cqtmfc.h"
+//#include <afxmt.h>
 
-#include "FamiTracker.h"
-#include "FamiTrackerDoc.h"
-#include "PatternData.h"
 
 // Tracker playing interface commands
 enum {
@@ -60,13 +57,6 @@ class CAction;
 
 class CFamiTrackerView : public CView
 {
-   Q_OBJECT
-   // Qt stuff
-public slots:
-   void verticalScrollBar_actionTriggered(int action);
-   void horizontalScrollBar_actionTriggered(int action);
-public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
-   
 protected: // create from serialization only
 	CFamiTrackerView();
 	DECLARE_DYNCREATE(CFamiTrackerView)

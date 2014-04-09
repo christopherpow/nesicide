@@ -1,7 +1,5 @@
 #pragma once
 
-#include "cqtmfc.h"
-#include "resource.h"
 
 // CCommentsDlg dialog
 

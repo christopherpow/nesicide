@@ -20,8 +20,6 @@
 
 #pragma once
 
-#include "cqtmfc.h"
-
 class CLinkLabel : public CStatic
 {
 public:

@@ -21,7 +21,6 @@
 
 #pragma once
 
-#include "cqtmfc.h"
 
 // Get access to some APU constants
 #include "APU/APU.h"

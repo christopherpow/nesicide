@@ -20,9 +20,6 @@
 
 #pragma once
 
-#include "cqtmfc.h"
-#include "Sequence.h"
-
 enum {EDIT_NONE, EDIT_LINE, EDIT_POINT, EDIT_LOOP, EDIT_RELEASE};
 
 // Graph editor base class
@@ -105,11 +102,6 @@ public:
 // Arpeggio graph editor
 class CArpeggioGraphEditor : public CGraphEditor
 {
-   Q_OBJECT
-   // Qt stuff
-public slots:
-   void verticalScrollBar_actionTriggered(int arg1);
-   
 public:
 	DECLARE_DYNAMIC(CArpeggioGraphEditor)
 	CArpeggioGraphEditor(CSequence *pSequence);

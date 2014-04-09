@@ -35,9 +35,6 @@ enum E_COLOR_ITEMS {
 	COLOR_ITEM_COUNT
 };
 
-#include "cqtmfc.h"
-#include "resource.h"
-
 #include "ColorScheme.h"
 
 // CConfigAppearance dialog

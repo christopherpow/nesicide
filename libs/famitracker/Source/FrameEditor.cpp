@@ -95,68 +95,6 @@ BEGIN_MESSAGE_MAP(CFrameEditor, CWnd)
 	ON_COMMAND(ID_MODULE_MOVEFRAMEUP, OnModuleMoveFrameUp)
 END_MESSAGE_MAP()
 
-void CFrameEditor::verticalScrollBar_actionTriggered(int arg1)
-{
-   // CP: these values don't match Qt apparently...
-   switch ( arg1 )
-   {
-   case QAbstractSlider::SliderSingleStepAdd: 
-      arg1 = SB_LINEDOWN;
-      break;
-   case QAbstractSlider::SliderSingleStepSub: 
-      arg1 = SB_LINEUP;
-      break;
-   case QAbstractSlider::SliderPageStepAdd: 
-      arg1 = SB_PAGEDOWN;
-      break;
-   case QAbstractSlider::SliderPageStepSub: 
-      arg1 = SB_PAGEUP;
-      break;
-   case QAbstractSlider::SliderToMinimum:
-      arg1 = SB_TOP;
-      break;
-   case QAbstractSlider::SliderToMaximum:
-      arg1 = SB_BOTTOM;
-      break;
-   case QAbstractSlider::SliderMove:
-      arg1 = SB_THUMBTRACK;
-      break;
-   }
-
-   OnVScroll(arg1,mfcVerticalScrollBar->sliderPosition(),0);
-}
-
-void CFrameEditor::horizontalScrollBar_actionTriggered(int arg1)
-{
-   // CP: these values don't match Qt apparently...
-   switch ( arg1 )
-   {
-   case QAbstractSlider::SliderSingleStepAdd: 
-      arg1 = SB_LINEDOWN;
-      break;
-   case QAbstractSlider::SliderSingleStepSub: 
-      arg1 = SB_LINEUP;
-      break;
-   case QAbstractSlider::SliderPageStepAdd: 
-      arg1 = SB_PAGEDOWN;
-      break;
-   case QAbstractSlider::SliderPageStepSub: 
-      arg1 = SB_PAGEUP;
-      break;
-   case QAbstractSlider::SliderToMinimum:
-      arg1 = SB_TOP;
-      break;
-   case QAbstractSlider::SliderToMaximum:
-      arg1 = SB_BOTTOM;
-      break;
-   case QAbstractSlider::SliderMove:
-      arg1 = SB_THUMBTRACK;
-      break;
-   }
-   
-   OnHScroll(arg1,mfcHorizontalScrollBar->sliderPosition(),0);
-}
-
 void CFrameEditor::dragEnterEvent(QDragEnterEvent *event)
 {
    COleDataObject* pDataObj = new COleDataObject;
@@ -263,9 +201,6 @@ int CFrameEditor::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CWnd::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
-   QObject::connect(mfcVerticalScrollBar,SIGNAL(actionTriggered(int)),this,SLOT(verticalScrollBar_actionTriggered(int)));
-   QObject::connect(mfcHorizontalScrollBar,SIGNAL(actionTriggered(int)),this,SLOT(horizontalScrollBar_actionTriggered(int)));
-   
 	m_hAccel = LoadAccelerators(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDR_FRAMEWND));
 
 	CreateGdiObjects();

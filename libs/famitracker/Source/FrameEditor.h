@@ -101,9 +101,6 @@ class CFrameEditor : public CWnd
 {
    Q_OBJECT
    // Qt interfaces
-public slots:
-   void verticalScrollBar_actionTriggered(int action);
-   void horizontalScrollBar_actionTriggered(int action);
 protected:
    void dragEnterEvent(QDragEnterEvent *event);
    void dragMoveEvent(QDragMoveEvent *event);
