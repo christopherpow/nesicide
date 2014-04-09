@@ -1069,6 +1069,7 @@ void qtMfcInitDialogResource_IDD_ABOUTBOX(CDialog* parent1)
 //IDD_ABOUTBOX DIALOGEX 0, 0, 285, 282
 //STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 //CAPTION "About FamiTracker"
+   parent->SetWindowText("About FamiTracker");
 //FONT 8, "MS Shell Dlg", 0, 0, 0x1
       CRect rect(CPoint(0,0),CSize(285,282));
       parent->MapDialogRect(&rect);
@@ -1114,7 +1115,7 @@ void qtMfcInitDialogResource_IDD_ABOUTBOX(CDialog* parent1)
       CStatic* mfc7 = new CStatic(parent);
       CRect r7(CPoint(7,15),CSize(21,20));
       parent->MapDialogRect(&r7);
-      mfc7->Create(_T(""),SS_BITMAP | WS_VISIBLE,r7,parent,IDC_STATIC);
+      mfc7->Create(_T("IDR_MAINFRAME"),SS_REALSIZEIMAGE | WS_VISIBLE,r7,parent,IDC_STATIC);
       mfc7->SetBitmap((HBITMAP)qtMfcBitmapResource(IDR_MAINFRAME));
       // IDC_STATIC do not get added to MFC-to-Qt map.
 //    LTEXT           "Contributions:",IDC_STATIC,54,137,224,9
@@ -2396,7 +2397,7 @@ void qtMfcInitDialogResource_IDD_CONFIG_SOUND(CDialog* parent1)
    CStatic* mfc9 = new CStatic(parent);
    CRect r9(CPoint(83,142),CSize(31,11));
    parent->MapDialogRect(&r9);
-   mfc9->Create(_T("20 ms"),WS_VISIBLE,r9,parent,IDC_BUF_LEN);
+   mfc9->Create(_T("20 ms"),SS_CENTER | WS_VISIBLE,r9,parent,IDC_BUF_LEN);
    mfcToQtWidget->insert(IDC_BUF_LEN,mfc9);
 //       GROUPBOX        "Bass filtering",IDC_STATIC,126,48,147,33
    CButton* mfc10 = new CButton(parent);
@@ -2420,7 +2421,7 @@ void qtMfcInitDialogResource_IDD_CONFIG_SOUND(CDialog* parent1)
    CStatic* mfc13 = new CStatic(parent);
    CRect r13(CPoint(234,64),CSize(32,10));
    parent->MapDialogRect(&r13);
-   mfc13->Create(_T("16 Hz"),WS_VISIBLE,r13,parent,IDC_BASS_FREQ_T);
+   mfc13->Create(_T("16 Hz"),SS_CENTER | WS_VISIBLE,r13,parent,IDC_BASS_FREQ_T);
    mfcToQtWidget->insert(IDC_BASS_FREQ_T,mfc13);
 //       GROUPBOX        "Treble filtering",IDC_STATIC,126,86,147,43
    CButton* mfc14 = new CButton(parent);
@@ -2444,7 +2445,7 @@ void qtMfcInitDialogResource_IDD_CONFIG_SOUND(CDialog* parent1)
    CStatic* mfc17 = new CStatic(parent);
    CRect r17(CPoint(234,99),CSize(32,9));
    parent->MapDialogRect(&r17);
-   mfc17->Create(_T("-24 dB"),WS_VISIBLE,r17,parent,IDC_TREBLE_DAMP_T);
+   mfc17->Create(_T("-24 dB"),SS_CENTER | WS_VISIBLE,r17,parent,IDC_TREBLE_DAMP_T);
    mfcToQtWidget->insert(IDC_TREBLE_DAMP_T,mfc17);
 //       LTEXT           "Frequency",IDC_STATIC,132,112,36,10
    CStatic* mfc18 = new CStatic(parent);
@@ -2462,7 +2463,7 @@ void qtMfcInitDialogResource_IDD_CONFIG_SOUND(CDialog* parent1)
    CStatic* mfc20 = new CStatic(parent);
    CRect r20(CPoint(234,110),CSize(32,11));
    parent->MapDialogRect(&r20);
-   mfc20->Create(_T("12000 Hz"),WS_VISIBLE,r20,parent,IDC_TREBLE_FREQ_T);
+   mfc20->Create(_T("12000 Hz"),SS_CENTER | WS_VISIBLE,r20,parent,IDC_TREBLE_FREQ_T);
    mfcToQtWidget->insert(IDC_TREBLE_FREQ_T,mfc20);
 //       GROUPBOX        "Volume",IDC_STATIC,126,133,147,27
    CButton* mfc21 = new CButton(parent);
@@ -2480,7 +2481,7 @@ void qtMfcInitDialogResource_IDD_CONFIG_SOUND(CDialog* parent1)
    CStatic* mfc23 = new CStatic(parent);
    CRect r23(CPoint(234,144),CSize(32,8));
    parent->MapDialogRect(&r23);
-   mfc23->Create(_T("100 %"),WS_VISIBLE,r23,parent,IDC_VOLUME_T);
+   mfc23->Create(_T("100 %"),SS_CENTER | WS_VISIBLE,r23,parent,IDC_VOLUME_T);
    mfcToQtWidget->insert(IDC_VOLUME_T,mfc23);
 //   END
 }
@@ -3012,7 +3013,7 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_VRC7(CDialog* parent1)
    CStatic* mfc41 = new CStatic(parent);
    CRect r41(CPoint(322,42),CSize(36,17));
    parent->MapDialogRect(&r41);
-   mfc41->Create(_T("Modulator\nlevel"),WS_VISIBLE,r41,parent,IDC_STATIC);
+   mfc41->Create(_T("Modulator\nlevel"),SS_CENTER | WS_VISIBLE,r41,parent,IDC_STATIC);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //       CONTROL         "",IDC_TL,"msctls_trackbar32",TBS_VERT | TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,329,59,16,53
    CSliderCtrl* mfc42 = new CSliderCtrl(parent);
@@ -3024,7 +3025,7 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_VRC7(CDialog* parent1)
    CStatic* mfc43 = new CStatic(parent);
    CRect r43(CPoint(322,112),CSize(36,9));
    parent->MapDialogRect(&r43);
-   mfc43->Create(_T("Feedback"),WS_VISIBLE,r43,parent,IDC_STATIC);
+   mfc43->Create(_T("Feedback"),SS_CENTER | WS_VISIBLE,r43,parent,IDC_STATIC);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //       CONTROL         "",IDC_FB,"msctls_trackbar32",TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP,325,124,25,41
    CSliderCtrl* mfc44 = new CSliderCtrl(parent);
@@ -3162,7 +3163,7 @@ void qtMfcInitDialogResource_IDD_WAVE_PROGRESS(CDialog* parent1)
    CStatic* mfc3 = new CStatic(parent);
    CRect r3(CPoint(7,37),CSize(206,11));
    parent->MapDialogRect(&r3);
-   mfc3->Create(_T("Progress"),WS_VISIBLE,r3,parent,IDC_PROGRESS_LBL);
+   mfc3->Create(_T("Progress"),SS_CENTER | WS_VISIBLE,r3,parent,IDC_PROGRESS_LBL);
    mfcToQtWidget->insert(IDC_PROGRESS_LBL,mfc3);
 //       CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,7,83,206,1
    CStatic* mfc4 = new CStatic(parent);
@@ -3174,7 +3175,7 @@ void qtMfcInitDialogResource_IDD_WAVE_PROGRESS(CDialog* parent1)
    CStatic* mfc5 = new CStatic(parent);
    CRect r5(CPoint(7,7),CSize(206,18));
    parent->MapDialogRect(&r5);
-   mfc5->Create(_T("File"),SS_CENTERIMAGE | WS_VISIBLE,r5,parent,IDC_PROGRESS_FILE);
+   mfc5->Create(_T("File"),SS_CENTER | SS_CENTERIMAGE | WS_VISIBLE,r5,parent,IDC_PROGRESS_FILE);
    mfcToQtWidget->insert(IDC_PROGRESS_FILE,mfc5);
 //       CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,7,29,206,1
    CStatic* mfc6 = new CStatic(parent);
@@ -3186,7 +3187,7 @@ void qtMfcInitDialogResource_IDD_WAVE_PROGRESS(CDialog* parent1)
    CStatic* mfc7 = new CStatic(parent);
    CRect r7(CPoint(7,49),CSize(206,11));
    parent->MapDialogRect(&r7);
-   mfc7->Create(_T("Progress"),WS_VISIBLE,r7,parent,IDC_TIME);
+   mfc7->Create(_T("Progress"),SS_CENTER | WS_VISIBLE,r7,parent,IDC_TIME);
    mfcToQtWidget->insert(IDC_TIME,mfc7);
 //   END
 }

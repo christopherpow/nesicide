@@ -3568,7 +3568,8 @@ BEGIN_MESSAGE_MAP(CListBox,CWnd)
 END_MESSAGE_MAP()
 
 CListBox::CListBox(CWnd* parent)
-   : CWnd(parent)
+   : CWnd(parent),
+     _qtd(NULL)
 {
 }
 
@@ -7424,13 +7425,18 @@ void CWnd::MoveWindow(LPCRECT lpRect, BOOL bRepaint)
       CRect rectParent;
       GetParent()->GetClientRect(&rectParent);
       rectOrig.OffsetRect(rectParent.left,rectParent.top);
+      if ( rectOrig.Width() < 0 ) rectOrig.right = rectOrig.left;
+      if ( rectOrig.Height() < 0 ) rectOrig.bottom = rectOrig.top;
       setGeometry(rectOrig.left,rectOrig.top,(rectOrig.right-rectOrig.left)+1,(rectOrig.bottom-rectOrig.top)+1);
       setFixedSize((rectOrig.right-rectOrig.left)+1,(rectOrig.bottom-rectOrig.top)+1);
    }
    else
    {
-      setGeometry(lpRect->left,lpRect->top,(lpRect->right-lpRect->left)+1,(lpRect->bottom-lpRect->top)+1);
-      setBaseSize((lpRect->right-lpRect->left)+1,(lpRect->bottom-lpRect->top)+1);
+      CRect rectOrig = *lpRect;
+      if ( rectOrig.Width() < 0 ) rectOrig.right = rectOrig.left;
+      if ( rectOrig.Height() < 0 ) rectOrig.bottom = rectOrig.top;
+      setGeometry(rectOrig.left,rectOrig.top,(rectOrig.right-rectOrig.left)+1,(rectOrig.bottom-rectOrig.top)+1);
+      setBaseSize((rectOrig.right-rectOrig.left)+1,(rectOrig.bottom-rectOrig.top)+1);
       setSizeIncrement(1,1);
    }
    if ( bRepaint )
@@ -13222,6 +13228,8 @@ BOOL CStatic::Create(
    m_hWnd = (HWND)this;
    _id = nID;
 
+   _dwStyle = dwStyle;
+   
    if ( _qt )
       delete _qt;
 
@@ -13237,7 +13245,30 @@ BOOL CStatic::Create(
    _qtd->setMouseTracking(true);
    _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
    _qtd->setFont(QFont("MS Shell Dlg",8));
-   _qtd->setWordWrap(true);
+   
+   if ( (dwStyle&SS_LEFTNOWORDWRAP) != SS_LEFTNOWORDWRAP )
+   {
+      _qtd->setWordWrap(true);      
+   }
+   else if ( dwStyle&SS_RIGHT )
+   {
+      _qtd->setAlignment(Qt::AlignRight);
+      if ( dwStyle&SS_RIGHTJUST )
+      {
+         _qtd->setAlignment(Qt::AlignJustify|Qt::AlignRight);
+      }
+   }
+   else if ( dwStyle&SS_CENTER )
+   {
+      _qtd->setAlignment(Qt::AlignCenter);
+   }
+   else // SS_LEFT == 0
+   {
+      _qtd->setAlignment(Qt::AlignLeft);
+   }
+   
+   // CP: Should really handle SS_BITMAP, SS_ICON, and SS_REALSIZEIMAGE here
+   // but instead I just call CStatic::SetBitmap during resource construction.
 
 #if UNICODE
    _qtd->setText(QString::fromWCharArray(lpszText));
@@ -13258,7 +13289,10 @@ HBITMAP CStatic::SetBitmap(
 {
    CBitmap* pBitmap = (CBitmap*)hBitmap;
    _qtd->setPixmap(*pBitmap->toQPixmap());
-   _qtd->setScaledContents(true);
+   if ( _dwStyle&SS_REALSIZEIMAGE )
+   {
+      _qtd->setFixedSize(pBitmap->toQPixmap()->size());
+   }      
    
    return (HBITMAP)0;
 }
@@ -13379,6 +13413,7 @@ CFileDialog::CFileDialog(
    }
    if ( dwFlags&OFN_FILEMUSTEXIST )
    {
+      _qtd->setFileMode(QFileDialog::ExistingFile);
    }
    if ( dwFlags&OFN_PATHMUSTEXIST )
    {
@@ -13389,10 +13424,12 @@ CFileDialog::CFileDialog(
    if ( bOpenFileDialog )
    {
       _qtd->setAcceptMode(QFileDialog::AcceptOpen);
+      m_ofn.lpstrTitle = _T("Open");
    }
    else
    {
       _qtd->setAcceptMode(QFileDialog::AcceptSave);
+      m_ofn.lpstrTitle = _T("Save");
    }
 }
 
