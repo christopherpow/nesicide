@@ -50,7 +50,8 @@ HBRUSH CLinkLabel::CtlColor(CDC* pDC, UINT /*nCtlColor*/)
 
 void CLinkLabel::OnLButtonUp(UINT nFlags, CPoint point)
 {
-	ShellExecute(NULL, _T("open"), m_strAddress, NULL, NULL, SW_SHOWNORMAL);
+    // FIX: Need a definition for: ShellExecute
+	// ShellExecute(NULL, _T("open"), m_strAddress, NULL, NULL, SW_SHOWNORMAL);
 	CStatic::OnLButtonUp(nFlags, point);
 }
 
@@ -79,7 +80,8 @@ void CLinkLabel::OnMouseMove(UINT nFlags, CPoint point)
 		t.cbSize = sizeof(TRACKMOUSEEVENT);
 		t.dwFlags = TME_LEAVE;
 		t.hwndTrack = m_hWnd;
-		TrackMouseEvent(&t);
+        // FIX: Need a definition for: TrackMouseEvent
+		// TrackMouseEvent(&t);
 	}
 
 	CStatic::OnMouseMove(nFlags, point);
