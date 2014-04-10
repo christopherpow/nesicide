@@ -6226,6 +6226,19 @@ VOID WINAPI ExitProcess(
   UINT uExitCode
 );
 
+BOOL WINAPI TrackMouseEvent(
+   LPTRACKMOUSEEVENT lpEventTrack
+);
+
+HINSTANCE ShellExecute(
+   HWND hwnd,
+   LPCTSTR lpOperation,
+   LPCTSTR lpFile,
+   LPCTSTR lpParameters,
+   LPCTSTR lpDirectory,
+   INT nShowCmd
+);
+
 BOOL WINAPI MoveFileEx(
   LPCTSTR lpExistingFileName,
   LPCTSTR lpNewFileName,

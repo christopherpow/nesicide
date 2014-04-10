@@ -6128,7 +6128,6 @@ LRESULT CWnd::SendMessage(
    post.msg.lParam = lParam;
 
    handled = QApplication::sendEvent(this,&post);
-   update();
    
    return handled;
 }
@@ -7005,7 +7004,8 @@ void CWnd::contextMenuEvent(QContextMenuEvent *event)
 
 void CWnd::leaveEvent(QEvent *event)
 {
-   PostMessage(WM_NCMOUSEMOVE);
+   PostMessage(WM_NCMOUSEMOVE); // CP: Have to emulate this since Qt doesn't really tell us NC.
+   PostMessage(WM_MOUSELEAVE);
 }
 
 void CWnd::resizeEvent(QResizeEvent *event)
@@ -7174,17 +7174,7 @@ BOOL CWnd::IsWindowVisible( ) const
 
 BOOL CWnd::DestroyWindow()
 {
-   if ( _qt )
-   {
-      QList<QWidget *> widgets = _qt->findChildren<QWidget *>();
-      foreach ( QWidget* widget, widgets ) widget->deleteLater();
-      _qt->close();
-   }
-   if ( focusWnd == this )
-   {
-      focusWnd = NULL;
-      m_pFrameWnd->SetFocus();
-   }
+   SendMessage(WM_DESTROY);
    return TRUE;
 }
 
@@ -7269,14 +7259,12 @@ BOOL CWnd::CreateEx(
       mfcVerticalScrollBar = new CScrollBar(this);
       mfcVerticalScrollBar->Create(SBS_VERT | SBS_RIGHTALIGN | WS_CHILD | WS_VISIBLE, rect, this, 0);
       _grid->addWidget(mfcVerticalScrollBar->toQWidget(),0,1);
-      QObject::connect(mfcVerticalScrollBar,SIGNAL(actionTriggered(int)),this,SLOT(verticalScrollBar_actionTriggered(int)));
    }
    if ( createStruct.style&WS_HSCROLL )
    {
       mfcHorizontalScrollBar = new CScrollBar(this);
       mfcHorizontalScrollBar->Create(SBS_HORZ | SBS_BOTTOMALIGN | WS_CHILD | WS_VISIBLE, rect, this, 0);
       _grid->addWidget(mfcHorizontalScrollBar->toQWidget(),1,0);
-      QObject::connect(mfcHorizontalScrollBar,SIGNAL(actionTriggered(int)),this,SLOT(horizontalScrollBar_actionTriggered(int)));
    }
    _qt->setGeometry(createStruct.x,createStruct.y,createStruct.cx,createStruct.cy);
    OnCreate(&createStruct);
@@ -7299,6 +7287,17 @@ void CWnd::OnSetFocus(CWnd *)
 
 void CWnd::OnDestroy( )
 {
+   if ( _qt )
+   {
+      QList<QWidget *> widgets = _qt->findChildren<QWidget *>();
+      foreach ( QWidget* widget, widgets ) widget->deleteLater();
+      _qt->close();
+   }
+   if ( focusWnd == this )
+   {
+      focusWnd = NULL;
+      m_pFrameWnd->SetFocus();
+   }
 }
 
 void CWnd::SetParent(CWnd *parent)
@@ -14853,6 +14852,25 @@ VOID WINAPI ExitProcess(
 )
 {
    exit(uExitCode);
+}
+
+BOOL WINAPI TrackMouseEvent(
+   LPTRACKMOUSEEVENT lpEventTrack
+)
+{
+   qDebug("TrackMouseEvent");
+}
+
+HINSTANCE ShellExecute(
+   HWND hwnd,
+   LPCTSTR lpOperation,
+   LPCTSTR lpFile,
+   LPCTSTR lpParameters,
+   LPCTSTR lpDirectory,
+   INT nShowCmd
+)
+{
+   qDebug("ShellExecute");
 }
 
 BOOL WINAPI MoveFileEx(
