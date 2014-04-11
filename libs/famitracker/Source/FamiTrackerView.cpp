@@ -620,11 +620,11 @@ void CFamiTrackerView::OnTimer(UINT_PTR nIDEvent)
 			else {
 				if (pDoc->IsFileLoaded()) {
 					// TODO: Change this to use the ordinary drawing routines
-					CDC *pDC = GetDC();
-					if (pDC && pDC->m_hDC) {
-						m_pPatternView->DrawMeters(pDC);
-						ReleaseDC(pDC);
-					}
+//					CDC *pDC = GetDC();
+//					if (pDC && pDC->m_hDC) {
+//						m_pPatternView->DrawMeters(pDC);
+//						ReleaseDC(pDC);
+//					}
 				}
 			}
 

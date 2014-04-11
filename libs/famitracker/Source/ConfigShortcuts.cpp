@@ -233,17 +233,17 @@ CString CConfigShortcuts::AssembleKeyString(int Mod, int Key)
 
 	if (Mod & MOD_SHIFT) {
 		KeyStr.Append(pAccel->GetVKeyName(VK_SHIFT));
-		KeyStr.Append(_T(" + "));
+//		KeyStr.Append(_T(" + ")); CP: Name of Qt::ShiftModifier includes '+'
 	}
 
 	if (Mod & MOD_CONTROL) {
 		KeyStr.Append(pAccel->GetVKeyName(VK_CONTROL));
-		KeyStr.Append(_T(" + "));
+//		KeyStr.Append(_T(" + ")); CP: Name of Qt::ControlModifier includes '+'
 	}
 
 	if (Mod & MOD_ALT) {
 		KeyStr.Append(pAccel->GetVKeyName(VK_MENU));
-		KeyStr.Append(_T(" + "));
+//		KeyStr.Append(_T(" + ")); CP: Name of Qt::AltModifier includes '+'
 	}
 
 	KeyStr.Append(pAccel->GetVKeyName(Key));

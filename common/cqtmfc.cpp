@@ -14,10 +14,13 @@
 #include <QMenuBar>
 #include <QUuid>
 #include <QDateTime>
+#include <QPaintEngine>
 
 CWinApp* ptrToTheApp;
 
 CBrush nullBrush;
+
+using namespace qtmfc_workaround;
 
 HGDIOBJ GetStockObject(
    int fnObject
@@ -365,6 +368,7 @@ int WINAPI GetKeyNameText(
    int cchSize
 )
 {
+//   QString keyString;
    LONG modParam = 0;
    switch ( (lParam>>16)&0xFF )
    {
@@ -373,6 +377,12 @@ int WINAPI GetKeyNameText(
 //      break;
 //   case VK_ABNT_C2:		// 0xC2	Abnt C2
 //      break;
+   case VK_SHIFT:
+      lParam = Qt::ShiftModifier;
+      break;
+   case VK_CONTROL:
+      lParam = Qt::ControlModifier;
+      break;
    case VK_ADD:		// 0x6B	Numpad +
       modParam = Qt::KeypadModifier;
       lParam = Qt::Key_Plus;
@@ -2849,8 +2859,11 @@ void CDC::flush()
    {
       QPainter p;
       p.begin(_qwidget);
-      p.drawPixmap(0,0,_qpixmap);
-      p.end();
+      if ( p.isActive() )
+      {
+         p.drawPixmap(0,0,_qpixmap);
+         p.end();
+      }
    }
 }
 
@@ -2869,11 +2882,16 @@ void CDC::attach()
    attached = true;
 }
 
-void CDC::attach(QWidget* parent)
+void CDC::attach(QWidget* parent, bool transparent)
 {
    _qwidget = parent;
+   if ( _qpainter.isActive() )
+      _qpainter.end();
    _qpixmap = QPixmap(_qwidget->size());
-   _qpixmap.fill(_qwidget->palette().color(QPalette::Window)); // CP: hack to initialize pixmap with widget's background color.
+   if ( transparent )
+      _qpixmap.fill(QColor(0,0,0,0));
+   else
+      _qpixmap.fill(_qwidget->palette().color(QPalette::Window)); // CP: paint over an existing widget
    _qpainter.begin(&_qpixmap);
    m_hDC = (HDC)this;
    attached = true;
@@ -6024,6 +6042,7 @@ CWnd::~CWnd()
    mfcVerticalScrollBar = NULL;
    mfcHorizontalScrollBar = NULL;
 
+   _myDC->doFlush(false);
    delete _myDC;
 
    if ( _qt )
@@ -6107,12 +6126,14 @@ BOOL CWnd::EnableToolTips(
 
 CDC* CWnd::GetDC()
 {
+   _myDC->attach(toQWidget(),true);
    return _myDC;
 }
 
 void CWnd::ReleaseDC(CDC* pDC)
 {
-//   update();
+   pDC->doFlush(true);
+   pDC->flush();
 }
 
 LRESULT CWnd::SendMessage(
@@ -6730,7 +6751,6 @@ BOOL CWnd::OnCommand(
          return FALSE;
    
       // make sure command has not become disabled before routing
-// CP: Enabling this causes a NULL CMenu object to be passed to MRU update handler
       CTestCmdUI state;
       state.m_nID = nID;
       OnCmdMsg(nID, CN_UPDATE_COMMAND_UI, &state, NULL);
@@ -6963,7 +6983,7 @@ void CWnd::mouseDoubleClickEvent(QMouseEvent *event)
 
 void CWnd::keyPressEvent(QKeyEvent *event)
 {
-//   qDebug("keyPress: key=%x, scan=%x",event->key(),event->nativeScanCode());
+   qDebug("keyPress: key=%x, scan=%x",event->key(),event->nativeScanCode());
 #ifdef __APPLE__
    SendMessage(WM_KEYDOWN,qtToMfcKeycode(event->key()),event->key()<<16);
 #else
@@ -8353,17 +8373,6 @@ CView::CView()
 
 CView::~CView()
 {
-}
-
-bool CView::event(QEvent *event)
-{
-   MFCMessageEvent* msgEvent = dynamic_cast<MFCMessageEvent*>(event);
-   bool proc = false;
-   if ( msgEvent )
-   {
-      proc = WindowProc(msgEvent->msg.message,msgEvent->msg.wParam,msgEvent->msg.lParam);
-   }
-   return proc;
 }
 
 bool CView::eventFilter(QObject *object, QEvent *event)
@@ -10477,6 +10486,9 @@ void CWinApp::OnUpdateRecentFileList(CCmdUI *pCmdUI)
    int mruPosition = -1;
    int idx;
 
+   // Enabled if content.
+   pCmdUI->Enable(pRecentFileList->GetSize());
+   
    // Might be called just to test enabled state...if so, just return.
    if ( !pMRU )
    {
@@ -10928,7 +10940,7 @@ BOOL CMenu::AppendMenu(
          action->setEnabled(true);
       }
       QObject::connect(action,SIGNAL(triggered()),this,SLOT(menuAction_triggered()));
-      action->setData(nIDNewItem);
+      action->setData((uint_ptr)nIDNewItem);
       mfcToQtMenu.insert(nIDNewItem,action);
       qtToMfcMenu.insert(action,nIDNewItem);
    }
@@ -11000,7 +11012,7 @@ BOOL CMenu::InsertMenu(
             action->setEnabled(true);
          }
          QObject::connect(action,SIGNAL(triggered()),this,SLOT(menuAction_triggered()));
-         action->setData(nIDNewItem);
+         action->setData((uint_ptr)nIDNewItem);
          mfcToQtMenu.insert(nIDNewItem,action);
          qtToMfcMenu.insert(action,nIDNewItem);
       }
@@ -11368,6 +11380,34 @@ BOOL CTabCtrl::DeleteAllItems( )
    return TRUE;
 }
 
+QPlainTextEdit_MFC::~QPlainTextEdit_MFC()
+{
+   _mfc = NULL;
+}
+
+void QPlainTextEdit_MFC::paintEvent(QPaintEvent *event)
+{
+   QPlainTextEdit::paintEvent(event);
+   if ( _mfc )
+   {
+      _mfc->SendMessage(WM_PAINT);
+   }
+}
+
+QLineEdit_MFC::~QLineEdit_MFC()
+{
+   _mfc = NULL;
+}
+
+void QLineEdit_MFC::paintEvent(QPaintEvent *event)
+{
+   QLineEdit::paintEvent(event);
+   if ( _mfc )
+   {
+      _mfc->SendMessage(WM_PAINT);
+   }
+}
+
 void QLineEdit_MFC::keyPressEvent(QKeyEvent *event)
 {
    if ( (event->key() != Qt::Key_Enter) &&
@@ -11408,8 +11448,12 @@ CEdit::CEdit(CWnd* parent)
 
 CEdit::~CEdit()
 {
-   if ( _qtd )
-      delete _qtd;
+   if ( _qtd_ledit )
+      delete _qtd_ledit;
+   if ( _qtd_ptedit )
+      delete _qtd_ptedit;
+   _qtd_ledit = NULL;
+   _qtd_ptedit = NULL;
    _qtd = NULL;
    _qt = NULL;
 }
@@ -11420,7 +11464,15 @@ void CEdit::subclassWidget(int nID,CWnd* widget)
    widget->GetWindowRect(&rect);
    Create(widget->GetStyle(),rect,widget->GetParent(),nID);
    setMfcBuddy(widget->mfcBuddy());
-   widget->setMfcBuddy(this);
+   widget->setMfcBuddy(mfcBuddy());
+   if ( _qtd_ledit )
+   {
+      _qtd_ledit->setMfc(this);
+   }
+   if ( _qtd_ptedit )
+   {
+      _qtd_ptedit->setMfc(this);
+   }
    _qt->installEventFilter(dynamic_cast<CEdit*>(this));
 }
 
@@ -11545,12 +11597,12 @@ BOOL CEdit::Create(
    if ( dwStyle&ES_MULTILINE )
    {
       if ( pParentWnd )
-         _qt = new QPlainTextEdit(pParentWnd->toQWidget());
+         _qt = new QPlainTextEdit_MFC(pParentWnd->toQWidget());
       else
-         _qt = new QPlainTextEdit;
+         _qt = new QPlainTextEdit_MFC;
 
       // Downcast to save having to do it all over the place...
-      _qtd_ptedit = dynamic_cast<QPlainTextEdit*>(_qt);
+      _qtd_ptedit = dynamic_cast<QPlainTextEdit_MFC*>(_qt);
 
       // Pass-through signals
       QObject::connect(_qtd_ptedit,SIGNAL(textChanged()),this,SLOT(textChanged()));
@@ -13187,6 +13239,20 @@ int CProgressCtrl::GetPos( ) const
    return _qtd->value();
 }
 
+QLabel_MFC::~QLabel_MFC()
+{
+   _mfc = NULL;
+}
+
+void QLabel_MFC::paintEvent(QPaintEvent *event)
+{
+   QLabel::paintEvent(event);
+   if ( _mfc )
+   {
+      _mfc->SendMessage(WM_PAINT);
+   }
+}
+
 IMPLEMENT_DYNAMIC(CStatic,CWnd)
 
 BEGIN_MESSAGE_MAP(CStatic,CWnd)
@@ -13212,6 +13278,7 @@ void CStatic::subclassWidget(int nID,CWnd* widget)
    CString text;
    widget->GetWindowText(text);
    Create(text,widget->GetStyle(),rect,widget->GetParent(),nID);
+   _qtd->setMfc(this);
    _qt->installEventFilter(dynamic_cast<CStatic*>(this));
    widget->setParent(NULL);
 }
@@ -13235,12 +13302,12 @@ BOOL CStatic::Create(
    _grid = NULL;
 
    if ( pParentWnd )
-      _qt = new QLabel(pParentWnd->toQWidget());
+      _qt = new QLabel_MFC(pParentWnd->toQWidget());
    else
-      _qt = new QLabel;
+      _qt = new QLabel_MFC;
 
    // Downcast to save having to do it all over the place...
-   _qtd = dynamic_cast<QLabel*>(_qt);
+   _qtd = dynamic_cast<QLabel_MFC*>(_qt);
    _qtd->setMouseTracking(true);
    _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
    _qtd->setFont(QFont("MS Shell Dlg",8));
@@ -14425,6 +14492,7 @@ void CTestCmdUI::Enable(
    BOOL bOn
 )
 {
+   m_bEnableChanged = TRUE;
    m_bEnabled = bOn;
 }
 
@@ -15055,12 +15123,14 @@ UINT qtToMfcKeycode(UINT qt)
       mfc = VK_CONTROL;
       break;
    case Qt::Key_Meta: // 0x01000022	On Mac OS X, this corresponds to the Control keys. On Windows keyboards, this key is mapped to the Windows key.
+      mfc = VK_CONTROL;
       break;
    case Qt::Key_Alt: // 0x01000023
       break;
    case Qt::Key_AltGr: // 0x01001103	On Windows, when the KeyDown event for this key is sent, the Ctrl+Alt modifiers are also set.
       break;
    case Qt::Key_CapsLock: // 0x01000024
+      mfc = VK_CAPITAL;
       break;
    case Qt::Key_NumLock: // 0x01000025
       mfc = VK_NUMLOCK;
@@ -15177,8 +15247,10 @@ UINT qtToMfcKeycode(UINT qt)
       mfc = VK_HELP;
       break;
    case Qt::Key_Direction_L: // 0x01000059
+      mfc = VK_LEFT;
       break;
    case Qt::Key_Direction_R: // 0x01000060
+      mfc = VK_RIGHT;
       break;
    case Qt::Key_Space: // 0x20
       mfc = VK_SPACE;
@@ -15302,24 +15374,32 @@ UINT qtToMfcKeycode(UINT qt)
    case Qt::Key_Z: // 0x5a
       break;
    case Qt::Key_BracketLeft: // 0x5b
+      mfc = VK_OEM_4;
       break;
    case Qt::Key_Backslash: // 0x5c
+      mfc = VK_OEM_5;
       break;
    case Qt::Key_BracketRight: // 0x5d
+      mfc = VK_OEM_6;
       break;
    case Qt::Key_AsciiCircum: // 0x5e
       break;
    case Qt::Key_Underscore: // 0x5f
       break;
    case Qt::Key_QuoteLeft: // 0x60
+      mfc = VK_OEM_3;
       break;
    case Qt::Key_BraceLeft: // 0x7b
+      mfc = VK_OEM_4;
       break;
    case Qt::Key_Bar: // 0x7c
+      mfc = VK_OEM_5;
       break;
    case Qt::Key_BraceRight: // 0x7d
+      mfc = VK_OEM_6;
       break;
    case Qt::Key_AsciiTilde: // 0x7e
+      mfc = VK_OEM_3;
       break;
    case Qt::Key_nobreakspace: // 0x0a0
       break;

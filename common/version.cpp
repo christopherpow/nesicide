@@ -21,4 +21,8 @@ char* nesicideGetVersion()
 // interrupted by a file reload with a file with less configured
 // channels than the currently loaded file.
 
-// CReBar for instrument toolbar needs to be hooked to UPDATE_COMMAND_UI system
+// Key presses are being passed up the chain of Qt event system when they shouldn't 
+// be because they've been acted-upon by the MFC event system.  But there's no clean
+// way to differentiate...that I've found...yet.  This impacts things like shortcut
+// accelerators, and pressing RETURN to close a dialog also starts/stops the tracker
+// because RETURN is "play toggle" shortcut.

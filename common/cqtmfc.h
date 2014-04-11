@@ -2283,6 +2283,16 @@ typedef int* POSITION;
 
 #define _huge
 
+namespace qtmfc_workaround
+{
+template <size_t szof> struct uint_ptr_select;
+template <>            struct uint_ptr_select<4u> { typedef unsigned int type; };
+template <>            struct uint_ptr_select<8u> { typedef qulonglong   type; };
+
+typedef uint_ptr_select<sizeof(UINT_PTR)>::type uint_ptr;
+
+}
+
 HCURSOR WINAPI SetCursor(
    HCURSOR hCursor
 );
@@ -3295,7 +3305,7 @@ public:
    );
    
    void attach();
-   void attach(QWidget* parent);
+   void attach(QWidget* parent,bool transparent = false);
    void detach();
    void flush();
    void doFlush(bool doIt) { _doFlush = doIt; }
@@ -4137,7 +4147,6 @@ protected:
    virtual void mouseMoveEvent(QMouseEvent *event);
    virtual void mouseReleaseEvent(QMouseEvent *event);
    virtual void mouseDoubleClickEvent(QMouseEvent *event);
-   virtual bool event(QEvent *event);
 public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
    
    DECLARE_DYNAMIC(CView)
@@ -4493,10 +4502,25 @@ typedef struct tagNMTOOLBAR {
 class QLineEdit_MFC : public QLineEdit
 {
 public:
-   QLineEdit_MFC(QWidget* parent=0) : QLineEdit(parent) {}
+   QLineEdit_MFC(QWidget* parent=0) : QLineEdit(parent), _mfc(NULL) {}
+   virtual ~QLineEdit_MFC();
+   void setMfc(CWnd* pMfc) { _mfc = pMfc; }
+   virtual void paintEvent(QPaintEvent *event);
 protected:
    virtual void keyPressEvent(QKeyEvent *event);
    virtual void keyReleaseEvent(QKeyEvent* event);
+   CWnd* _mfc;
+};
+
+class QPlainTextEdit_MFC : public QPlainTextEdit
+{
+public:
+   QPlainTextEdit_MFC(QWidget *parent=0) : QPlainTextEdit(parent), _mfc(NULL) {}
+   virtual ~QPlainTextEdit_MFC();
+   void setMfc(CWnd* pMfc) { _mfc = pMfc; }
+   virtual void paintEvent(QPaintEvent *event);
+protected:
+   CWnd* _mfc;
 };
 
 class CEdit : public CWnd
@@ -4512,7 +4536,7 @@ protected:
 //   virtual void keyPressEvent(QKeyEvent *event);
 //   virtual void keyReleaseEvent(QKeyEvent *event);
    virtual void focusInEvent(QFocusEvent *event);
-   QPlainTextEdit* _qtd_ptedit;
+   QPlainTextEdit_MFC* _qtd_ptedit;
    QLineEdit_MFC* _qtd_ledit;
 public slots:
    void textChanged();
@@ -4895,6 +4919,17 @@ public:
    DECLARE_MESSAGE_MAP()
 };
 
+class QLabel_MFC : public QLabel
+{
+public:
+   QLabel_MFC(QWidget* parent=0) : QLabel(parent), _mfc(NULL) {}
+   virtual ~QLabel_MFC();
+   void setMfc(CWnd* pMfc) { _mfc = pMfc; }
+protected:
+   virtual void paintEvent(QPaintEvent *event);
+   CWnd* _mfc;
+};
+
 class CStatic : public CWnd
 {
    DECLARE_DYNAMIC(CStatic)
@@ -4903,7 +4938,7 @@ public:
    virtual void subclassWidget(int nID,CWnd* widget);
    void setText(const QString & text) { _qtd->setText(text); }
 protected:
-   QLabel* _qtd;
+   QLabel_MFC* _qtd;
 
    // MFC interfaces
 public:
@@ -5883,6 +5918,7 @@ public: // re-implementations only
 class CTestCmdUI : public CCmdUI
 {
 public:
+   CTestCmdUI() : m_bEnabled(TRUE) {}
    virtual void Enable(
       BOOL bOn = TRUE
    );
