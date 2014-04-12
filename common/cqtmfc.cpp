@@ -3652,17 +3652,17 @@ BOOL CListBox::Create(
 
 void CListBox::itemSelectionChanged()
 {
-   qFatal("CListBox::itemSelectionChanged not implemented");
+   qDebug("CListBox::itemSelectionChanged not implemented");
 }
 
 void CListBox::itemClicked(QListWidgetItem* lwi)
 {
-   qFatal("CListBox::itemClicked not implemented");
+   qDebug("CListBox::itemClicked not implemented");
 }
 
 void CListBox::itemDoubleClicked(QListWidgetItem* lwi)
 {
-   qFatal("CListBox::itemDoubleClicked not implemented");
+   qDebug("CListBox::itemDoubleClicked not implemented");
 }
 
 int CListBox::GetCount( ) const
