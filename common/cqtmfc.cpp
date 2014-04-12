@@ -7206,6 +7206,11 @@ BOOL CWnd::DestroyWindow()
       foreach ( QWidget* widget, widgets ) widget->deleteLater();
       _qt->close();
    }
+   foreach ( int timerID, mfcToQtTimer )
+   {
+      _qt->killTimer(timerID);
+   }
+
    if ( focusWnd == this )
    {
       focusWnd = NULL;
