@@ -3860,7 +3860,7 @@ void qtMfcInitDialogResource_IDD_IMPORT(CDialog* parent1)
    CRect r7(CPoint(14,18),CSize(133,120));
    parent->MapDialogRect(&r7);
    mfc7->Create(LBS_OWNERDRAWFIXED | LBS_HASSTRINGS | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r7,parent,IDC_TRACKS);
-   mfcToQtWidget->insert(IDC_CHANNELS,mfc7);
+   mfcToQtWidget->insert(IDC_TRACKS,mfc7);
 //   END
 }
 
