@@ -6835,6 +6835,11 @@ bool CWnd::event(QEvent *event)
             event->ignore();
          }
       }
+      else
+      {
+         event->accept();
+         update();
+      }
    }
    return proc;
 }
@@ -7905,7 +7910,7 @@ CFrameWnd::CFrameWnd(CWnd *parent)
      m_pViewActive(NULL),
      m_pDocument(NULL),
      m_bInRecalcLayout(FALSE),
-     m_bAutoMenuEnable(FALSE)
+     m_bAutoMenuEnable(TRUE)
 {
    int idx;
 
@@ -10898,10 +10903,12 @@ BOOL CMenu::AppendMenu(
 )
 {
    CMenu* pMenu = (CMenu*)nIDNewItem; // For MF_POPUP
+   QAction* action;
    if ( nFlags&MF_POPUP )
    {
       _cmenu->insert(_qtd->actions().count(),pMenu);
-      _qtd->addMenu(pMenu->toQMenu());
+      action = _qtd->addMenu(pMenu->toQMenu());
+      action->setData((uint_ptr)-1);
 
 #if UNICODE
       pMenu->toQMenu()->setTitle(QString::fromWCharArray(lpszNewItem));
@@ -10917,9 +10924,9 @@ BOOL CMenu::AppendMenu(
    else
    {
 #if UNICODE
-      QAction* action = _qtd->addAction(QString::fromWCharArray(lpszNewItem));
+      action = _qtd->addAction(QString::fromWCharArray(lpszNewItem));
 #else
-      QAction* action = _qtd->addAction(QString::fromLatin1(lpszNewItem));
+      action = _qtd->addAction(QString::fromLatin1(lpszNewItem));
 #endif
       if ( action->text().contains("\t") )
       {
@@ -10971,7 +10978,8 @@ BOOL CMenu::InsertMenu(
       if ( nFlags&MF_POPUP )
       {
          _cmenu->insert(_qtd->actions().indexOf(action),pMenu);
-         _qtd->insertMenu(action,pMenu->toQMenu());
+         action = _qtd->insertMenu(action,pMenu->toQMenu());
+         action->setData((uint_ptr)-1);
    
 #if UNICODE
          pMenu->toQMenu()->setTitle(QString::fromWCharArray(lpszNewItem));
@@ -14377,6 +14385,7 @@ void CCmdUI::Enable(
    BOOL bOn
 )
 {
+   m_bEnableChanged = TRUE;
    if ( m_pOther )
    {
       m_pOther->EnableWindow(bOn);
@@ -14492,7 +14501,6 @@ void CTestCmdUI::Enable(
    BOOL bOn
 )
 {
-   m_bEnableChanged = TRUE;
    m_bEnabled = bOn;
 }
 

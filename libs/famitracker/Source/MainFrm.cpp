@@ -158,7 +158,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_WM_DESTROY()
 	ON_WM_COPYDATA()
 	ON_COMMAND(ID_FILE_GENERALSETTINGS, OnFileGeneralsettings)
-	ON_COMMAND(ID_FILE_IMPORTMIDI, OnFileImportmidi)
+//	ON_COMMAND(ID_FILE_IMPORTMIDI, OnFileImportmidi)
 	ON_COMMAND(ID_FILE_IMPORTTEXT, OnFileImportText)
 	ON_COMMAND(ID_FILE_EXPORTTEXT, OnFileExportText)
 	ON_COMMAND(ID_FILE_CREATE_NSF, OnCreateNSF)
@@ -1826,7 +1826,6 @@ void CMainFrame::OnUpdateKeyRepeat(CCmdUI *pCmdUI)
 
 void CMainFrame::OnFileImportmidi()
 {
-   qDebug("Missing support for MIDI import...");
 //	CMIDIImport	Importer;
 //	CFileDialog FileDialog(TRUE, 0, 0, OFN_HIDEREADONLY, _T("MIDI files (*.mid)|*.mid|All files|*.*||"));
 
