@@ -9442,6 +9442,17 @@ void CDialogBar::OnUpdateCmdUI(CFrameWnd* pTarget, BOOL bDisableIfNoHndler)
 	UpdateDialogControls(pTarget, bDisableIfNoHndler);
 }
 
+void QDialog_MFC::keyPressEvent(QKeyEvent *event)
+{
+   if ( event->key() == Qt::Key_Return )
+   {
+      event->ignore();
+      accept();
+      return;
+   }
+   QDialog::keyPressEvent(event);
+}
+
 IMPLEMENT_DYNAMIC(CDialog,CWnd)
 
 BEGIN_MESSAGE_MAP(CDialog,CWnd)
@@ -9454,9 +9465,9 @@ CDialog::CDialog()
    if ( _qt )
       delete _qt;
 
-   _qt = new QDialog;
+   _qt = new QDialog_MFC;
 
-   _qtd = dynamic_cast<QDialog*>(_qt);
+   _qtd = dynamic_cast<QDialog_MFC*>(_qt);
    _inited = false;
 
    _qtd->setMouseTracking(true);
@@ -9474,11 +9485,11 @@ CDialog::CDialog(int dlgID, CWnd *parent)
    _grid = NULL;
 
    if ( parent )
-      _qt = new QDialog(parent);
+      _qt = new QDialog_MFC(parent);
    else
-      _qt = new QDialog;
+      _qt = new QDialog_MFC;
 
-   _qtd = dynamic_cast<QDialog*>(_qt);
+   _qtd = dynamic_cast<QDialog_MFC*>(_qt);
    _inited = false;
    _id = dlgID;
 
@@ -14243,9 +14254,9 @@ CPropertyPage::CPropertyPage(
 
    _grid = NULL;
 
-   _qt = new QDialog;
+   _qt = new QDialog_MFC;
 
-   _qtd = dynamic_cast<QDialog*>(_qt);
+   _qtd = dynamic_cast<QDialog_MFC*>(_qt);
    _inited = false;
 
    _qtd->setMouseTracking(true);

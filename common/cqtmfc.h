@@ -4295,12 +4295,20 @@ public:
    DECLARE_MESSAGE_MAP()
 };
 
+class QDialog_MFC : public QDialog
+{
+public:
+   QDialog_MFC(QWidget* parent=0) : QDialog(parent) {}
+protected:
+   virtual void keyPressEvent(QKeyEvent *event);
+};
+
 class CDialog : public CWnd
 {
    DECLARE_DYNAMIC(CDialog)
    // Qt interfaces
 public:
-   QDialog* _qtd;
+   QDialog_MFC* _qtd;
    bool _inited;
 protected:
    virtual void closeEvent(QCloseEvent *event);
