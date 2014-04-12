@@ -7200,6 +7200,17 @@ BOOL CWnd::IsWindowVisible( ) const
 BOOL CWnd::DestroyWindow()
 {
    SendMessage(WM_DESTROY);
+   if ( _qt )
+   {
+      QList<QWidget *> widgets = _qt->findChildren<QWidget *>();
+      foreach ( QWidget* widget, widgets ) widget->deleteLater();
+      _qt->close();
+   }
+   if ( focusWnd == this )
+   {
+      focusWnd = NULL;
+      m_pFrameWnd->SetFocus();
+   }
    return TRUE;
 }
 
@@ -7312,17 +7323,6 @@ void CWnd::OnSetFocus(CWnd *)
 
 void CWnd::OnDestroy( )
 {
-   if ( _qt )
-   {
-      QList<QWidget *> widgets = _qt->findChildren<QWidget *>();
-      foreach ( QWidget* widget, widgets ) widget->deleteLater();
-      _qt->close();
-   }
-   if ( focusWnd == this )
-   {
-      focusWnd = NULL;
-      m_pFrameWnd->SetFocus();
-   }
 }
 
 void CWnd::SetParent(CWnd *parent)
