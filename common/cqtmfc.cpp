@@ -1432,8 +1432,9 @@ int WINAPI TranslateAccelerator(
                }
             }
             CWnd* pWnd = (CWnd*)hWnd;
-            qDebug("Translating %d key and sending %d message...",pAccel->key,pAccel->cmd);
+
             // CP: Include window handle in message to skip enabled check.
+            qDebug("Translating %d key and sending %d message...",pAccel->key,pAccel->cmd);
             pWnd->SendMessage(WM_COMMAND,pAccel->cmd,(LPARAM)pWnd);
             return 1;
          }
@@ -6988,7 +6989,7 @@ void CWnd::mouseDoubleClickEvent(QMouseEvent *event)
 
 void CWnd::keyPressEvent(QKeyEvent *event)
 {
-   qDebug("keyPress: key=%x, scan=%x",event->key(),event->nativeScanCode());
+   qDebug("keyPress: key=%x, scan=%x %d %d",event->key(),event->nativeScanCode(),dynamic_cast<CDialog*>(this),dynamic_cast<CFrameWnd*>(this));
 #ifdef __APPLE__
    SendMessage(WM_KEYDOWN,qtToMfcKeycode(event->key()),event->key()<<16);
 #else
@@ -9449,13 +9450,12 @@ void CDialogBar::OnUpdateCmdUI(CFrameWnd* pTarget, BOOL bDisableIfNoHndler)
 
 void QDialog_MFC::keyPressEvent(QKeyEvent *event)
 {
-   if ( event->key() == Qt::Key_Return )
-   {
-      event->ignore();
-      accept();
-      return;
-   }
    QDialog::keyPressEvent(event);
+}
+
+void QDialog_MFC::keyReleaseEvent(QKeyEvent *event)
+{
+   QDialog::keyReleaseEvent(event);
 }
 
 IMPLEMENT_DYNAMIC(CDialog,CWnd)
@@ -10571,7 +10571,6 @@ BOOL CWinApp::DoPromptFileName(CString& fileName, UINT nIDSTitle, DWORD lFlags,
 	else
 	{
 		// do for all doc template
-      qDebug("Not really using CDocTemplate...");
 //		POSITION pos = m_templateList.GetHeadPosition();
       POSITION pos = GetFirstDocTemplatePosition();
 		BOOL bFirst = TRUE;
@@ -10757,8 +10756,11 @@ HCURSOR CWinApp::LoadStandardCursor(
    LPCTSTR lpszCursorName
 ) const
 {
-   qDebug("LoadStandardCursor needs work...");
-//   setCursor()
+#if UNICODE
+   QString str = QString::fromWCharArray(lpszCursorName);
+#else
+   QString str = QString::fromLatin1(lpszCursorName);
+#endif
    return (HCURSOR)NULL;
 }
 
