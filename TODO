@@ -1,12 +1,12 @@
 FamiTracker Qt BURN-DOWN LIST:
 
 Bugs/things to work on:
-1. FrameEditor accelerator keys need handling (PreTranslate...)
-2. MFC message map implement proper handlers.
-3. Paint event handling for subclassed widgets needs to support paint-over of standard widgets.
-4. TrackPopupMenu needs to hook into #2 so that pattern-editor menu actions go up the proper chain and get handled.
+**DONE** 1. FrameEditor accelerator keys need handling (PreTranslate...)
+**DONE** 2. MFC message map implement proper handlers.
+**DONE** 3. Paint event handling for subclassed widgets needs to support paint-over of standard widgets.
+**DONE** 4. TrackPopupMenu needs to hook into #2 so that pattern-editor menu actions go up the proper chain and get handled.
 **DONE** 5. Implement CEdit/CSpinButtonCtrl solution that ties in better with Qt widgets.
-6. Support non-numeric spin-controls for CreateWave dialog.
+**DONE** 6. Support non-numeric spin-controls for CreateWave dialog.
 **DONE** 7. Figure out why CreateWave dialog's subclassed CListBox isn't subclassing properly.
 **DONE** 8. Module importing doesn't work properly.
 9. Frame Editor doesn't move properly between top/left sides and doesn't size appropriately on the left side for non-2A03 channel inclusions.
@@ -15,9 +15,9 @@ Features/things to get to DONE:
 **90%** 2. Finish implementing configuration dialogs.
 
 **80%** 4. Finish implementation of accelerator keys.
-   a. Implement hooks to UI for triggers.
+**DONE**    a. Implement hooks to UI for triggers.
 
-**60%** 6. Finish implementation of custom controls [instrument list!]
+**DONE** 6. Finish implementation of custom controls [instrument list!]
 
 7. MIDI
    a. Find out how to do it OSX-ish or Linux-ish.
@@ -25,7 +25,7 @@ Features/things to get to DONE:
 
 9. Test, test, test...
 
-10. Port 0.4.3 functionality.
+**DONE** 10. Port 0.4.2 functionality.
 
 NESICIDE TO-DO LIST:
 
