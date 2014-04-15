@@ -1204,6 +1204,15 @@ int WINAPI GetSystemMetrics(
    case SM_CYEDGE:
       return 2;
       break;
+   case SM_CXDLGFRAME:
+      return 3;
+      break;
+   case SM_CYDLGFRAME:
+      return 3;
+      break;
+   case SM_CYCAPTION:
+      return 22;
+      break;
    default:
       qDebug("unsupported system metric: %d",nIndex);
       break;
@@ -4832,13 +4841,25 @@ BOOL CListCtrl::SetBkColor(
 {
    QString color;
    color.sprintf("#%02X%02X%02X",GetRValue(cr),GetGValue(cr),GetBValue(cr));
+   bkColor = QColor(GetRValue(cr),GetGValue(cr),GetBValue(cr));
    if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
    {
-      _qtd_table->setStyleSheet(_qtd_table->styleSheet()+"QTableWidget { background: "+color+" }");
+      color.sprintf("#%02X%02X%02X",txtColor.red(),txtColor.green(),txtColor.blue());
+      _qtd_table->setStyleSheet("QTableWidget { color: "+color+";");
+      color.sprintf("#%02X%02X%02X",bkColor.red(),bkColor.green(),bkColor.blue());
+      _qtd_table->setStyleSheet(_qtd_table->styleSheet()+"background: "+color+";");
+      color.sprintf("#%02X%02X%02X",txtBkColor.red(),txtBkColor.green(),txtBkColor.blue());
+      _qtd_table->setStyleSheet(_qtd_table->styleSheet()+"background: "+color+"; }");      
    }
    else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
    {
-      _qtd_list->setStyleSheet(_qtd_list->styleSheet()+"QListWidget { background: "+color+" }");
+      color.sprintf("#%02X%02X%02X",txtColor.red(),txtColor.green(),txtColor.blue());
+      _qtd_list->setStyleSheet("QListWidget { color: "+color+";");
+      color.sprintf("#%02X%02X%02X",bkColor.red(),bkColor.green(),bkColor.blue());
+      _qtd_list->setStyleSheet(_qtd_list->styleSheet()+"background: "+color+";");
+      color.sprintf("#%02X%02X%02X",txtBkColor.red(),txtBkColor.green(),txtBkColor.blue());
+      _qtd_list->setStyleSheet(_qtd_list->styleSheet()+"background: "+color+"; };");      
+      _qtd_list->setStyleSheet(_qtd_list->styleSheet()+"QListWidget::item:selected { color: #000000; background: #f0f0f0; };");
    }
    return TRUE;
 }
@@ -4849,13 +4870,25 @@ BOOL CListCtrl::SetTextBkColor(
 {
    QString color;
    color.sprintf("#%02X%02X%02X",GetRValue(cr),GetGValue(cr),GetBValue(cr));
+   txtBkColor = QColor(GetRValue(cr),GetGValue(cr),GetBValue(cr));
    if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
    {
-      _qtd_table->setStyleSheet(_qtd_table->styleSheet()+"QTableWidget { background: "+color+" }");
+      color.sprintf("#%02X%02X%02X",txtColor.red(),txtColor.green(),txtColor.blue());
+      _qtd_table->setStyleSheet("QTableWidget { color: "+color+";");
+      color.sprintf("#%02X%02X%02X",bkColor.red(),bkColor.green(),bkColor.blue());
+      _qtd_table->setStyleSheet(_qtd_table->styleSheet()+"background: "+color+";");
+      color.sprintf("#%02X%02X%02X",txtBkColor.red(),txtBkColor.green(),txtBkColor.blue());
+      _qtd_table->setStyleSheet(_qtd_table->styleSheet()+"background: "+color+"; }");      
    }
    else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
    {
-      _qtd_list->setStyleSheet(_qtd_list->styleSheet()+"QListWidget { background: "+color+" }");
+      color.sprintf("#%02X%02X%02X",txtColor.red(),txtColor.green(),txtColor.blue());
+      _qtd_list->setStyleSheet("QListWidget { color: "+color+";");
+      color.sprintf("#%02X%02X%02X",bkColor.red(),bkColor.green(),bkColor.blue());
+      _qtd_list->setStyleSheet(_qtd_list->styleSheet()+"background: "+color+";");
+      color.sprintf("#%02X%02X%02X",txtBkColor.red(),txtBkColor.green(),txtBkColor.blue());
+      _qtd_list->setStyleSheet(_qtd_list->styleSheet()+"background: "+color+"; }");      
+      _qtd_list->setStyleSheet(_qtd_list->styleSheet()+"QListWidget::item:selected { color: #000000; background: #f0f0f0; };");
    }
    return TRUE;
 }
@@ -4865,14 +4898,26 @@ BOOL CListCtrl::SetTextColor(
 )
 {
    QString color;
-   color.sprintf("#%02X%02X%02X",GetRValue(cr),GetGValue(cr),GetBValue(cr));
+   QString styleSheet;
+   txtColor = QColor(GetRValue(cr),GetGValue(cr),GetBValue(cr));
    if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
    {
-      _qtd_table->setStyleSheet(_qtd_table->styleSheet()+"QTableWidget { color: "+color+" }");
+      color.sprintf("#%02X%02X%02X",txtColor.red(),txtColor.green(),txtColor.blue());
+      _qtd_table->setStyleSheet("QTableWidget { color: "+color+";");
+      color.sprintf("#%02X%02X%02X",bkColor.red(),bkColor.green(),bkColor.blue());
+      _qtd_table->setStyleSheet(_qtd_table->styleSheet()+"background: "+color+";");
+      color.sprintf("#%02X%02X%02X",txtBkColor.red(),txtBkColor.green(),txtBkColor.blue());
+      _qtd_table->setStyleSheet(_qtd_table->styleSheet()+"background: "+color+"; }");      
    }
    else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
    {
-      _qtd_list->setStyleSheet(_qtd_list->styleSheet()+"QListWidget { color: "+color+" }");
+      color.sprintf("#%02X%02X%02X",txtColor.red(),txtColor.green(),txtColor.blue());
+      _qtd_list->setStyleSheet("QListWidget { color: "+color+";");
+      color.sprintf("#%02X%02X%02X",bkColor.red(),bkColor.green(),bkColor.blue());
+      _qtd_list->setStyleSheet(_qtd_list->styleSheet()+"background: "+color+";");
+      color.sprintf("#%02X%02X%02X",txtBkColor.red(),txtBkColor.green(),txtBkColor.blue());
+      _qtd_list->setStyleSheet(_qtd_list->styleSheet()+"background: "+color+"; }");      
+      _qtd_list->setStyleSheet(_qtd_list->styleSheet()+"QListWidget::item:selected { color: #000000; background: #f0f0f0; };");
    }
    return TRUE;
 }
@@ -7010,6 +7055,11 @@ void CWnd::timerEvent(QTimerEvent *event)
 
 void CWnd::paintEvent(QPaintEvent *event)
 {
+   AFX_CTLCOLOR ctlColor;
+   ctlColor.hWnd = m_hWnd;
+   ctlColor.hDC = (HDC)GetDC();
+   ctlColor.nCtlType = 0;
+   SendMessage(WM_CTLCOLOR+WM_REFLECT_BASE,(WPARAM)(HDC)GetDC(),(LPARAM)&ctlColor);
    SendMessage(WM_PAINT);
 }
 
@@ -7856,6 +7906,12 @@ void CWnd::SetWindowText(
    LPCTSTR lpszString
 )
 {
+#if UNICODE
+   QString str = QString::fromWCharArray(lpszString);
+#else
+   QString str = QString::fromLatin1(lpszString);
+#endif
+   _qt->setWindowTitle(str);
 }
 
 void CWnd::GetWindowRect(
@@ -9424,7 +9480,7 @@ BOOL CDialogBar::Create(
    
    CRect rect;
 	GetWindowRect(&rect);
-   m_sizeDefault = CSize(_mfcd->rect().size());    // set fixed size
+   m_sizeDefault = rect.Size();//CSize(_mfcd->rect().size());    // set fixed size
    
    ShowWindow(SW_SHOW);
 
@@ -13440,6 +13496,44 @@ int CStatic::GetDlgItemText(
    strncpy(lpStr,_qtd->text().toLatin1().constData(),nMaxCount);
 #endif
    return _qtd->text().length();
+}
+
+int CStatic::GetWindowTextLength( ) const
+{
+   return _qtd->text().length();
+}
+
+void CStatic::GetWindowText(
+   CString& rString
+) const
+{
+   rString = _qtd->text();
+}
+
+int CStatic::GetWindowText(
+   LPTSTR lpszStringBuf,
+   int nMaxCount
+) const
+{
+#if UNICODE
+   wcsncpy(lpszStringBuf,(LPTSTR)_qtd->text().unicode(),nMaxCount);
+   return wcslen(lpszStringBuf);
+#else
+   strncpy(lpszStringBuf,(LPTSTR)_qtd->text().toLatin1().constData(),nMaxCount);
+   return strlen(lpszStringBuf);
+#endif
+}
+
+void CStatic::SetWindowText(
+   LPCTSTR lpszString
+)
+{
+#if UNICODE
+   QString str = QString::fromWCharArray(lpszString);
+#else
+   QString str = QString::fromLatin1(lpszString);
+#endif
+   _qt->setWindowTitle(str);
 }
 
 IMPLEMENT_DYNAMIC(CFileDialog,CCommonDialog)

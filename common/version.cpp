@@ -26,3 +26,6 @@ char* nesicideGetVersion()
 // way to differentiate...that I've found...yet.  This impacts things like shortcut
 // accelerators, and pressing RETURN to close a dialog also starts/stops the tracker
 // because RETURN is "play toggle" shortcut.
+
+// CFrameWnd also handles the WM_ENTERIDLE message to describe the current menu
+// item selected on the status bar.  msdn.microsoft.com/en-us/library/xt2c310k.aspx

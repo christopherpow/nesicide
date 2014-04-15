@@ -3881,7 +3881,7 @@ public:
          UINT nCmd
    ) const;
    int GetWindowTextLength( ) const;
-   CWnd* GetParent() const { return m_pParentWnd?(CWnd*)m_pParentWnd:(CWnd*)m_pFrameWnd; }
+   CWnd* GetParent() const { return m_pParentWnd; }
    void SetParent(CWnd* parent);
    void GetWindowText(
       CString& rString
@@ -5004,6 +5004,17 @@ public:
       LPTSTR lpStr,
       int nMaxCount
    ) const;
+   int GetWindowTextLength( ) const;
+   void GetWindowText(
+      CString& rString
+   ) const;
+   int GetWindowText(
+      LPTSTR lpszStringBuf,
+      int nMaxCount
+   ) const;
+   void SetWindowText(
+      LPCTSTR lpszString
+   );
    
    DECLARE_MESSAGE_MAP()
 };
@@ -5089,6 +5100,9 @@ protected:
    virtual bool eventFilter(QObject *object, QEvent *event);
    QTableWidget* _qtd_table;
    QListWidget* _qtd_list;
+   QColor bkColor;
+   QColor txtBkColor;
+   QColor txtColor;
 public slots:
    void itemSelectionChanged();
    void cellClicked(int row, int column);
