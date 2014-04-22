@@ -2860,9 +2860,9 @@ CDC::CDC(CWnd* parent)
 
 CDC::~CDC()
 {
-   delete _defaultFont;
    flush();
    detach();
+   delete _defaultFont;
 }
 
 void CDC::flush()
@@ -6067,7 +6067,8 @@ CWnd::CWnd(CWnd *parent)
      _grid(NULL),
      _myDC(NULL),
      _mfcBuddy(NULL),
-     _dwStyle(0)
+     _dwStyle(0),
+     _frameWidth(0)
 {
    if ( parent )
    {
@@ -9759,14 +9760,15 @@ void CDialog::ShowWindow(int code)
    switch ( code )
    {
    case SW_SHOW:
+      _dwStyle |= WS_VISIBLE;
       _qtd->setVisible(true);
       _qtd->setFocus();
       break;
    case SW_HIDE:
+      _dwStyle &= (~WS_VISIBLE);
       _qtd->setVisible(false);
       break;
    }
-   CWnd::ShowWindow(code);
 }
 
 void CDialog::MapDialogRect(
