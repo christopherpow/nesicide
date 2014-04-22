@@ -3057,9 +3057,9 @@ public:
       POINT topLeft,
       POINT bottomRight
    );
-   int Width() const { return (right-left)+1; }
-   int Height() const { return (bottom-top)+1; }
-   CSize Size() const { return CSize((right-left)+1,(bottom-top)+1); }
+   int Width() const { return (right-left); }
+   int Height() const { return (bottom-top); }
+   CSize Size() const { return CSize((right-left),(bottom-top)); }
    void MoveToX(
       int x
    );
@@ -3125,7 +3125,7 @@ public:
    }
    operator QRect() const
    {
-      return QRect(left,top,(right-left)+1,(bottom-top)+1);
+      return QRect(left,top,(right-left),(bottom-top));
    }
 };
 
@@ -4002,6 +4002,7 @@ protected:
    void closeEvent(QCloseEvent *);
    QWidget* _qt;
    QFrame* _qtd;
+   int _frameWidth;
    QGridLayout* _grid;
 public:
    HWND m_hWnd;
@@ -4355,6 +4356,9 @@ public:
    void MapDialogRect(
       LPRECT lpRect
    ) const;
+   virtual BOOL PreTranslateMessage(
+      MSG* pMsg
+   );
    virtual BOOL OnCmdMsg(
       UINT nID,
       int nCode,

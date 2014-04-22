@@ -1181,7 +1181,9 @@ int WINAPI GetSystemMetrics(
 {
    static QScrollBar* sb = NULL;
    if ( !sb )
+   {
       sb = new QScrollBar(Qt::Vertical);
+   }
    switch ( nIndex )
    {
    case SM_CXVSCROLL:
@@ -2323,7 +2325,7 @@ void CRect::MoveToX(
 )
 {
    int width = Width();
-   right = x+width-1;
+   right = x+width;
    left = x;
 }
 
@@ -2332,7 +2334,7 @@ void CRect::MoveToY(
 )
 {
    int height = Height();
-   bottom = y+height-1;
+   bottom = y+height;
    top = y;
 }
 
@@ -2342,10 +2344,10 @@ void CRect::MoveToXY(
 )
 {
    int width = Width();
-   right = x+width-1;
+   right = x+width;
    left = x;
    int height = Height();
-   bottom = y+height-1;
+   bottom = y+height;
    top = y;
 }
 
@@ -6080,7 +6082,6 @@ CWnd::CWnd(CWnd *parent)
    _grid->setContentsMargins(0,0,0,0);
    _grid->setSpacing(0);
    _qt->setLayout(_grid);
-
    _myDC = new CDC(this);
    _myDC->doFlush(false);
 
@@ -7099,15 +7100,16 @@ void CWnd::leaveEvent(QEvent *event)
 void CWnd::resizeEvent(QResizeEvent *event)
 {
    QSize size = event->size();
+
    if ( _dwStyle&WS_VSCROLL )
    {
-      size.setWidth(size.width()-::GetSystemMetrics(SM_CXVSCROLL));
+      size.setWidth(size.width()-(GetSystemMetrics(SM_CXVSCROLL)+1));
    }
    if ( _dwStyle&WS_HSCROLL )
    {
-      size.setHeight(size.height()-::GetSystemMetrics(SM_CYHSCROLL));
+      size.setHeight(size.height()-(GetSystemMetrics(SM_CYHSCROLL)+1));
    }
-   PostMessage(WM_SIZE,SIZE_RESTORED,(size.height()<<16)|(size.width()));
+   SendMessage(WM_SIZE,SIZE_RESTORED,(size.height()<<16)|(size.width()));
 }
 
 void CWnd::moveEvent(QMoveEvent *event)
@@ -7344,19 +7346,17 @@ BOOL CWnd::CreateEx(
    _qtd->setFont(QFont("MS Shell Dlg",8));
    if ( createStruct.dwExStyle&WS_EX_STATICEDGE )
    {
-      _qtd->setFrameShape(QFrame::StyledPanel);
+      _qtd->setFrameShape(QFrame::Panel);
       _qtd->setFrameShadow(QFrame::Sunken);
       _qtd->setLineWidth(1);
-      createStruct.cx += 2;
-      createStruct.cy += 2;
+      _frameWidth = 1;
    }
-   if ( createStruct.style&SS_SUNKEN )
+   else if ( createStruct.dwExStyle&WS_EX_CLIENTEDGE )
    {
-      _qtd->setFrameShape(QFrame::StyledPanel);
+      _qtd->setFrameShape(QFrame::Panel);
       _qtd->setFrameShadow(QFrame::Sunken);
-      _qtd->setLineWidth(1);
-      createStruct.cx += 2;
-      createStruct.cy += 2;
+      _qtd->setLineWidth(2);
+      _frameWidth = 2;
    }
    if ( createStruct.style&WS_VSCROLL )
    {
@@ -7506,29 +7506,28 @@ void CWnd::SetFont(
 
 void CWnd::MoveWindow(int x, int y, int cx, int cy, BOOL bRepaint)
 {
-   MoveWindow(CRect(CPoint(x,y),CSize(cx,cy)),TRUE);
+   MoveWindow(CRect(CPoint(x,y),CSize(cx,cy)),bRepaint);
 }
 
 void CWnd::MoveWindow(LPCRECT lpRect, BOOL bRepaint)
 {
+   CRect rectOrig = *lpRect;
    if ( _dwStyle&WS_CHILD )
    {
-      CRect rectOrig = *lpRect;
       CRect rectParent;
       GetParent()->GetClientRect(&rectParent);
       rectOrig.OffsetRect(rectParent.left,rectParent.top);
       if ( rectOrig.Width() < 0 ) rectOrig.right = rectOrig.left;
       if ( rectOrig.Height() < 0 ) rectOrig.bottom = rectOrig.top;
-      setGeometry(rectOrig.left,rectOrig.top,(rectOrig.right-rectOrig.left)+1,(rectOrig.bottom-rectOrig.top)+1);
-      setFixedSize((rectOrig.right-rectOrig.left)+1,(rectOrig.bottom-rectOrig.top)+1);
+      setGeometry(rectOrig.left,rectOrig.top,(rectOrig.right-rectOrig.left),(rectOrig.bottom-rectOrig.top));
+      setFixedSize((rectOrig.right-rectOrig.left),(rectOrig.bottom-rectOrig.top));
    }
    else
    {
-      CRect rectOrig = *lpRect;
       if ( rectOrig.Width() < 0 ) rectOrig.right = rectOrig.left;
       if ( rectOrig.Height() < 0 ) rectOrig.bottom = rectOrig.top;
-      setGeometry(rectOrig.left,rectOrig.top,(rectOrig.right-rectOrig.left)+1,(rectOrig.bottom-rectOrig.top)+1);
-      setBaseSize((rectOrig.right-rectOrig.left)+1,(rectOrig.bottom-rectOrig.top)+1);
+      setGeometry(rectOrig.left,rectOrig.top,(rectOrig.right-rectOrig.left),(rectOrig.bottom-rectOrig.top));
+      setBaseSize((rectOrig.right-rectOrig.left),(rectOrig.bottom-rectOrig.top));
       setSizeIncrement(1,1);
    }
    if ( bRepaint )
@@ -7930,10 +7929,10 @@ void CWnd::GetWindowRect(
    LPRECT lpRect
 ) const
 {
-   lpRect->left = _qt->geometry().topLeft().x();
-   lpRect->right = _qt->geometry().topRight().x();
-   lpRect->top = _qt->geometry().topLeft().y();
-   lpRect->bottom = _qt->geometry().bottomRight().y();
+   lpRect->left = _qt->frameGeometry().topLeft().x();
+   lpRect->right = _qt->frameGeometry().topRight().x();
+   lpRect->top = _qt->frameGeometry().topLeft().y();
+   lpRect->bottom = _qt->frameGeometry().bottomRight().y();
 }
 
 void CWnd::GetClientRect(
@@ -7944,16 +7943,29 @@ void CWnd::GetClientRect(
    lpRect->right = rect().right();
    lpRect->top = 0;
    lpRect->bottom = rect().bottom();
-   if ( _grid )
+   if ( _dwStyle&WS_VSCROLL )/*mfcVerticalScrollBar &&
+        mfcVerticalScrollBar->toQWidget()->isVisible() )*/
    {
-      if ( _grid->columnCount() > 1 )
-      {
-         lpRect->right -= GetSystemMetrics(SM_CXVSCROLL);
-      }
-      if ( _grid->rowCount() > 1 )
-      {
-         lpRect->bottom -= GetSystemMetrics(SM_CYHSCROLL);
-      }
+      lpRect->right -= (GetSystemMetrics(SM_CXVSCROLL)+1);
+   }
+   else
+   {
+      lpRect->right -= (2*_frameWidth);
+   }
+   if ( _dwStyle&WS_HSCROLL )/*mfcHorizontalScrollBar &&
+        mfcHorizontalScrollBar->toQWidget()->isVisible() )*/
+   {
+      lpRect->bottom -= (GetSystemMetrics(SM_CYHSCROLL)+1);
+   }
+   else
+   {
+      lpRect->bottom -= (2*_frameWidth);
+   }
+   if ( (lpRect->right < 0) ||
+        (lpRect->bottom < 0) )
+   {
+      lpRect->right = 0;
+      lpRect->bottom = 0;
    }
 }
 
@@ -7963,11 +7975,11 @@ void CWnd::ShowWindow(int code)
    {
    case SW_SHOW:
       _dwStyle |= WS_VISIBLE;
-      setVisible(true);
+      _qtd->setVisible(true);
       break;
    case SW_HIDE:
       _dwStyle &= (~WS_VISIBLE);
-      setVisible(false);
+      _qtd->setVisible(false);
       break;
    }
 }
@@ -8731,17 +8743,17 @@ void CView::focusInEvent(QFocusEvent *event)
 
 void CView::paintEvent(QPaintEvent *event)
 {
-//   static QSize currentSize = QSize(0,0);
+   static QSize currentSize = QSize(0,0);
    
    // Qt attach to the MFC HLE.  This object is already QWidget type.
    CDC dc;
    dc.attach(viewWidget);
 
-//   if ( currentSize != size() )
-//   {
+   if ( currentSize != size() )
+   {
       SendMessage(WM_ERASEBKGND,(WPARAM)(HDC)&dc);
-//      currentSize = size();
-//   }
+      currentSize = viewWidget->size();
+   }
    OnDraw(&dc);
 
    // dc will auto-detach on destruction
@@ -9629,6 +9641,39 @@ BOOL CDialog::Create(
    qtToMfcWindow.insert(_qtd,this);
    
    return result;
+}
+
+BOOL CDialog::PreTranslateMessage(MSG* pMsg)
+{
+   return CWnd::PreTranslateMessage(pMsg);
+	// for modeless processing (or modal)
+	ASSERT(m_hWnd != NULL);
+
+	// allow tooltip messages to be filtered
+//	if (CWnd::PreTranslateMessage(pMsg))
+//		return TRUE;
+
+	// don't translate dialog messages when in Shift+F1 help mode
+//	CFrameWnd* pFrameWnd = GetTopLevelFrame();
+//	if (pFrameWnd != NULL && pFrameWnd->m_bHelpMode)
+//		return FALSE;
+
+//	 fix around for VK_ESCAPE in a multiline Edit that is on a Dialog
+//	 that doesn't have a cancel or the cancel is disabled.
+//	if (pMsg->message == WM_KEYDOWN &&
+//		(pMsg->wParam == VK_ESCAPE || pMsg->wParam == VK_CANCEL) &&
+//		(::GetWindowLong(pMsg->hwnd, GWL_STYLE) & ES_MULTILINE) &&
+//		_AfxCompareClassName(pMsg->hwnd, _T("Edit")))
+//	{
+//		HWND hItem = ::GetDlgItem(m_hWnd, IDCANCEL);
+//		if (hItem == NULL || ::IsWindowEnabled(hItem))
+//		{
+//			SendMessage(WM_COMMAND, IDCANCEL, 0);
+//			return TRUE;
+//		}
+//	}
+//	// filter both messages to dialog and from children
+//	return PreTranslateInput(pMsg);
 }
 
 BOOL CDialog::OnCmdMsg(UINT nID, int nCode, void* pExtra,
@@ -13419,9 +13464,16 @@ BOOL CStatic::Create(
    // Downcast to save having to do it all over the place...
    _qtd = dynamic_cast<QLabel_MFC*>(_qt);
    _qtd->setMouseTracking(true);
-   _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
+   _qtd->setGeometry(QRect(rect.left,rect.top,(rect.right-rect.left),(rect.bottom-rect.top)));
    _qtd->setFont(QFont("MS Shell Dlg",8));
    
+   if ( dwStyle&SS_SUNKEN )
+   {
+      _qtd->setFrameShape(QFrame::Panel);
+      _qtd->setFrameShadow(QFrame::Sunken);
+//      _qtd->setLineWidth(1);
+//      _frameWidth = 1;
+   }
    if ( (dwStyle&SS_LEFTNOWORDWRAP) != SS_LEFTNOWORDWRAP )
    {
       _qtd->setWordWrap(true);      
