@@ -4217,7 +4217,8 @@ class CMenu : public QObject, public CCmdTarget
    // Qt interfaces
 public:
    QMenu* toQMenu() { return _qtd; }
-   QAction* findMenuItem(UINT id) const;
+   QAction* findMenuItemByID(UINT id) const;
+   QAction* findMenuItemByPosition(UINT pos) const;
    UINT findMenuID(QAction* action) const;
    HMENU m_hMenu;
 public:

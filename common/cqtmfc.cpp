@@ -10966,9 +10966,8 @@ void CMenu::menu_aboutToShow()
    AfxGetMainWnd()->SendMessage(WM_INITMENUPOPUP,(WPARAM)m_hMenu);
 }
 
-QAction* CMenu::findMenuItem(UINT id) const
+QAction* CMenu::findMenuItemByID(UINT id) const
 {
-   int subMenu;
    foreach ( CMenu* menu, *_cmenu )
    {
       if ( menu->mfcToQtMenuMap()->contains(id) )
@@ -10983,9 +10982,17 @@ QAction* CMenu::findMenuItem(UINT id) const
    return NULL;
 }
 
+QAction* CMenu::findMenuItemByPosition(UINT pos) const
+{
+   if ( pos < _qtd->actions().count() )
+   {
+      return _qtd->actions().at(pos);
+   }
+   return NULL;
+}
+
 UINT CMenu::findMenuID(QAction* action) const
 {
-   int subMenu;
    foreach ( CMenu* menu, *_cmenu )
    {
       if ( menu->qtToMfcMenuMap()->contains(action) )
@@ -11013,16 +11020,15 @@ BOOL CMenu::RemoveMenu(
    UINT nFlags
 )
 {
-   switch ( nFlags&MF_BYPOSITION )
+   if ( nFlags&MF_BYPOSITION )
    {
-   case MF_BYPOSITION:
-      qtToMfcMenu.remove(_qtd->actions().at(nPosition));
-      _qtd->removeAction(_qtd->actions().at(nPosition));
-      break;
-   default:
-      qtToMfcMenu.remove(findMenuItem(nPosition));
-      _qtd->removeAction(findMenuItem(nPosition));
-      break;
+      qtToMfcMenu.remove(findMenuItemByPosition(nPosition));
+      _qtd->removeAction(findMenuItemByPosition(nPosition));
+   }
+   else
+   {
+      qtToMfcMenu.remove(findMenuItemByID(nPosition));
+      _qtd->removeAction(findMenuItemByID(nPosition));
    }
    mfcToQtMenu.remove(nPosition);
    return TRUE;
@@ -11086,14 +11092,11 @@ BOOL CMenu::AppendMenu(
          action->setCheckable(true);
          action->setChecked(true);
       }
+      action->setEnabled(true);
       if ( (nFlags&MF_DISABLED) ||
            (nFlags&MF_GRAYED) )
       {
          action->setEnabled(false);
-      }
-      else
-      {
-         action->setEnabled(true);
       }
       QObject::connect(action,SIGNAL(triggered()),this,SLOT(menuAction_triggered()));
       action->setData((uint_ptr)nIDNewItem);
@@ -11116,10 +11119,10 @@ BOOL CMenu::InsertMenu(
    switch ( nFlags&MF_BYPOSITION )
    {
    case MF_BYPOSITION:
-      action = _qtd->actions().at(nPosition);
+      action = findMenuItemByPosition(nPosition);
       break;
    default:
-      action = findMenuItem(nPosition);
+      action = findMenuItemByID(nPosition);
       break;
    }
    if ( action )
@@ -11159,14 +11162,11 @@ BOOL CMenu::InsertMenu(
             action->setCheckable(true);
             action->setChecked(true);
          }
+         action->setEnabled(true);
          if ( (nFlags&MF_DISABLED) ||
               (nFlags&MF_GRAYED) )
          {
             action->setEnabled(false);
-         }
-         else
-         {
-            action->setEnabled(true);
          }
          QObject::connect(action,SIGNAL(triggered()),this,SLOT(menuAction_triggered()));
          action->setData((uint_ptr)nIDNewItem);
@@ -11186,7 +11186,7 @@ UINT CMenu::GetMenuItemID(
    int nPos
 ) const
 {
-   return findMenuID(_qtd->actions().at(nPos));
+   return findMenuID(findMenuItemByPosition(nPos));
 }
 
 UINT CMenu::GetMenuState(
@@ -11207,11 +11207,11 @@ UINT CMenu::GetMenuState(
       }
       else
       {
-         action = _qtd->actions().at(nID);
+         action = findMenuItemByPosition(nID);
       }
       break;
    default:
-      action = findMenuItem(nID);
+      action = findMenuItemByID(nID);
       break;
    }
    if ( action )
@@ -11253,10 +11253,10 @@ int CMenu::GetMenuString(
    switch ( nFlags&MF_BYPOSITION )
    {
    case MF_BYPOSITION:
-      action = _qtd->actions().at(nIDItem);
+      action = findMenuItemByPosition(nIDItem);
       break;
    default:
-      action = findMenuItem(nIDItem);
+      action = findMenuItemByID(nIDItem);
       break;
    }
    if ( action )
@@ -11284,10 +11284,10 @@ int CMenu::GetMenuString(
    switch ( nFlags&MF_BYPOSITION )
    {
    case MF_BYPOSITION:
-      action = _qtd->actions().at(nIDItem);
+      action = findMenuItemByPosition(nIDItem);
       break;
    default:
-      action = findMenuItem(nIDItem);
+      action = findMenuItemByID(nIDItem);
       break;
    }
    if ( action )
@@ -11311,10 +11311,10 @@ BOOL CMenu::ModifyMenu(
    switch ( nFlags&MF_BYPOSITION )
    {
    case MF_BYPOSITION:
-      action = _qtd->actions().at(nPosition);
+      action = findMenuItemByPosition(nPosition);
       break;
    default:
-      action = findMenuItem(nPosition);
+      action = findMenuItemByID(nPosition);
       break;
    }
    if ( action )
@@ -11346,11 +11346,11 @@ BOOL CMenu::SetDefaultItem(
 
    if ( fByPos )
    {
-      action = _qtd->actions().at(uItem);
+      action = findMenuItemByPosition(uItem);
    }
    else
    {
-      action = findMenuItem(uItem);
+      action = findMenuItemByID(uItem);
    }
    if ( action )
    {
@@ -11365,13 +11365,21 @@ UINT CMenu::CheckMenuItem(
    UINT nCheck
 )
 {
-   QAction* action = findMenuItem(nIDCheckItem);
+   QAction* action;
    UINT prevState = (UINT)-1;
+   if ( nCheck&MF_BYPOSITION )
+   {
+      action = findMenuItemByPosition(nIDCheckItem);
+   }
+   else
+   {
+      action = findMenuItemByID(nIDCheckItem);
+   }
    if ( action )
    {
       prevState = action->isChecked();
       action->setCheckable(true);
-      action->setChecked(nCheck);
+      action->setChecked(nCheck&(~MF_BYPOSITION));
    }
    return prevState;
 }
@@ -11403,11 +11411,19 @@ UINT CMenu::EnableMenuItem(
    UINT nEnable
 )
 {
-   QAction* action = findMenuItem(nIDEnableItem);
+   QAction* action;
+   if ( nEnable&MF_BYPOSITION )
+   {
+      action = findMenuItemByPosition(nIDEnableItem);
+   }
+   else
+   {
+      action = findMenuItemByID(nIDEnableItem);
+   }
    if ( action )
    {
       bool enabled = action->isEnabled();
-      action->setEnabled(nEnable);
+      action->setEnabled(nEnable&(~MF_BYPOSITION));
       return enabled;
    }
    return -1;

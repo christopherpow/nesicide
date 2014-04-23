@@ -30,7 +30,7 @@
 #define VERSION_REV  2
 
 // CP: Qt versioning adds a .x
-#define VERSION_QT   8 // 2014-04-03
+#define VERSION_QT   9 // 2014-??-??
 
 #define VERSION_WIP  0
 
