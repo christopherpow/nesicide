@@ -9687,7 +9687,11 @@ CWinThread::CWinThread() :
    _priority(QThread::NormalPriority)
 {
    m_hThread = (HANDLE)this;
+#ifdef Q_OS_MAC
+   m_nThreadID = QThread::currentThreadId();
+#else
    m_nThreadID = (DWORD)QThread::currentThreadId();
+#endif
    
    m_pfnThreadProc = NULL;
    m_pParam = NULL;

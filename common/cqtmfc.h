@@ -5366,7 +5366,11 @@ public:
    virtual BOOL ExitInstance() { return FALSE; }
 public:
    HANDLE m_hThread;
+#ifdef Q_OS_MAC
+   HANDLE m_nThreadID;
+#else
    DWORD m_nThreadID;
+#endif
    CFrameWnd* m_pMainWnd;
    AFX_THREADPROC m_pfnThreadProc;
    LPVOID m_pParam;
