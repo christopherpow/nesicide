@@ -2324,8 +2324,7 @@ void CRect::MoveToX(
    int x
 )
 {
-   int width = Width();
-   right = x+width;
+   right = x+right;
    left = x;
 }
 
@@ -2333,8 +2332,7 @@ void CRect::MoveToY(
    int y
 )
 {
-   int height = Height();
-   bottom = y+height;
+   bottom = y+bottom;
    top = y;
 }
 
@@ -2343,11 +2341,9 @@ void CRect::MoveToXY(
    int y
 )
 {
-   int width = Width();
-   right = x+width;
+   right = x+right;
    left = x;
-   int height = Height();
-   bottom = y+height;
+   bottom = y+bottom;
    top = y;
 }
 
@@ -2355,11 +2351,9 @@ void CRect::MoveToXY(
    POINT point
 )
 {
-   int width = Width();
-   right = point.x+width;
+   right = point.x+right;
    left = point.x;
-   int height = Height();
-   bottom = point.y+height;
+   bottom = point.y+bottom;
    top = point.y;
 }
 
@@ -3399,7 +3393,7 @@ BOOL CComboBox::Create(
    m_hWnd = (HWND)this;
    _id = nID;
 
-   _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,_qtd->sizeHint().height());
+   _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left),_qtd->sizeHint().height());
    _qtd->setVisible(dwStyle&WS_VISIBLE);
 
    QFontMetrics fm(_qtd->font());
@@ -3653,7 +3647,7 @@ BOOL CListBox::Create(
    QObject::connect(_qtd,SIGNAL(itemClicked(QListWidgetItem*)),this,SLOT(itemClicked(QListWidgetItem*)));
    QObject::connect(_qtd,SIGNAL(itemDoubleClicked(QListWidgetItem*)),this,SLOT(itemDoubleClicked(QListWidgetItem*)));
 
-   _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
+   _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left),(rect.bottom-rect.top));
    
    SetParent(pParentWnd);
    
@@ -4053,7 +4047,7 @@ BOOL CListCtrl::Create(
       }
       _qtd_table->horizontalHeader()->setStretchLastSection(true);
 
-      _qtd_table->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
+      _qtd_table->setGeometry(rect.left,rect.top,(rect.right-rect.left),(rect.bottom-rect.top));
 //      _qtd_table->setContextMenuPolicy(Qt::PreventContextMenu);
       _qtd_table->setVisible(dwStyle&WS_VISIBLE);
       
@@ -4095,7 +4089,7 @@ BOOL CListCtrl::Create(
    //      _qtd_list->setSortingEnabled(true);
    //   }
 
-      _qtd_list->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
+      _qtd_list->setGeometry(rect.left,rect.top,(rect.right-rect.left),(rect.bottom-rect.top));
 //      _qtd_list->setContextMenuPolicy(Qt::PreventContextMenu);
       _qtd_list->setVisible(dwStyle&WS_VISIBLE);
       
@@ -5149,7 +5143,7 @@ BOOL CTreeCtrl::Create(
       _qtd->setLineWidth(1);
    }
 
-   _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
+   _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left),(rect.bottom-rect.top));
    _qtd->setContextMenuPolicy(Qt::DefaultContextMenu);
    _qtd->setVisible(dwStyle&WS_VISIBLE);
    _qtd->setFont(QFont("MS Shell Dlg",8));
@@ -7951,7 +7945,7 @@ void CWnd::GetClientRect(
    }
    else
    {
-      lpRect->right -= (2*_frameWidth);
+//      lpRect->right -= (2*_frameWidth);
    }
    if ( _dwStyle&WS_HSCROLL )/*mfcHorizontalScrollBar &&
         mfcHorizontalScrollBar->toQWidget()->isVisible() )*/
@@ -7960,7 +7954,7 @@ void CWnd::GetClientRect(
    }
    else
    {
-      lpRect->bottom -= (2*_frameWidth);
+//      lpRect->bottom -= (2*_frameWidth);
    }
    if ( (lpRect->right < 0) ||
         (lpRect->bottom < 0) )
@@ -8808,7 +8802,7 @@ BOOL CView::Create(
    viewWidget->installEventFilter(this);
    viewWidget->setFocusPolicy(Qt::StrongFocus);
    
-   _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
+   _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left),(rect.bottom-rect.top));
    
    qtToMfcWindow.insert(_qtd,this);
 
@@ -9024,7 +9018,7 @@ BOOL CReBarCtrl::Create(
    _qtd->setMovable(false);
    CRect clientRect;
    pParentWnd->GetClientRect(&clientRect);
-   _qtd->setGeometry(clientRect.left,clientRect.top,(clientRect.right-clientRect.left)+1,(clientRect.bottom-clientRect.top)+1);
+   _qtd->setGeometry(clientRect.left,clientRect.top,(clientRect.right-clientRect.left),(clientRect.bottom-clientRect.top));
 
    pParentWnd->mfcToQtWidgetMap()->insert(nID,this);
    
@@ -11510,7 +11504,7 @@ BOOL CTabCtrl::Create(
    _qtd = dynamic_cast<QTabWidget*>(_qt);
 
    _qtd->setMouseTracking(true);
-   _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
+   _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left),(rect.bottom-rect.top));
    _qtd->setFont(QFont("MS Shell Dlg",8));
    
    SetParent(pParentWnd);
@@ -11791,7 +11785,7 @@ BOOL CEdit::Create(
       // Pass-through signals
       QObject::connect(_qtd_ptedit,SIGNAL(textChanged()),this,SLOT(textChanged()));
       
-      _qtd_ptedit->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
+      _qtd_ptedit->setGeometry(rect.left,rect.top,(rect.right-rect.left),(rect.bottom-rect.top));
       _qtd_ptedit->setReadOnly(dwStyle&ES_READONLY);
       _qtd_ptedit->setVisible(dwStyle&WS_VISIBLE);
       _qtd_ptedit->setFont(QFont("MS Shell Dlg",8));
@@ -11817,7 +11811,7 @@ BOOL CEdit::Create(
       QObject::connect(_qtd_ledit,SIGNAL(textChanged(QString)),this,SLOT(textChanged()));
       QObject::connect(_qtd_ledit,SIGNAL(returnPressed()),this,SLOT(textChanged()));
             
-      _qtd_ledit->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
+      _qtd_ledit->setGeometry(rect.left,rect.top,(rect.right-rect.left),(rect.bottom-rect.top));
       _qtd_ledit->setReadOnly(dwStyle&ES_READONLY);
       _qtd_ledit->setVisible(dwStyle&WS_VISIBLE);
       _qtd_ledit->setFont(QFont("MS Shell Dlg",8));
@@ -12258,7 +12252,7 @@ BOOL CButton::Create(
       _qtd_check->setCheckable(true);
       
       _qtd_check->setMouseTracking(true);
-      _qtd_check->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
+      _qtd_check->setGeometry(rect.left,rect.top,(rect.right-rect.left),(rect.bottom-rect.top));
       _qtd_check->setVisible(dwStyle&WS_VISIBLE);
       _qtd_check->setFont(QFont("MS Shell Dlg",8));
    
@@ -12284,7 +12278,7 @@ BOOL CButton::Create(
       _qtd_check->setTristate(true);
       
       _qtd_check->setMouseTracking(true);
-      _qtd_check->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
+      _qtd_check->setGeometry(rect.left,rect.top,(rect.right-rect.left),(rect.bottom-rect.top));
       _qtd_check->setVisible(dwStyle&WS_VISIBLE);
       _qtd_check->setFont(QFont("MS Shell Dlg",8));
    
@@ -12309,7 +12303,7 @@ BOOL CButton::Create(
       _qtd_radio->setCheckable(true);
       
       _qtd_radio->setMouseTracking(true);
-      _qtd_radio->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
+      _qtd_radio->setGeometry(rect.left,rect.top,(rect.right-rect.left),(rect.bottom-rect.top));
       _qtd_radio->setVisible(dwStyle&WS_VISIBLE);
       _qtd_radio->setFont(QFont("MS Shell Dlg",8));
    
@@ -12335,7 +12329,7 @@ BOOL CButton::Create(
       _qtd_push->setDefault(buttonType==BS_DEFPUSHBUTTON);
       
       _qtd_push->setMouseTracking(true);
-      _qtd_push->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
+      _qtd_push->setGeometry(rect.left,rect.top,(rect.right-rect.left),(rect.bottom-rect.top));
       _qtd_push->setVisible(dwStyle&WS_VISIBLE);
       _qtd_push->setFont(QFont("MS Shell Dlg",8));
    
@@ -12360,7 +12354,7 @@ BOOL CButton::Create(
       _qtd_groupbox->setContentsMargins(0,0,0,0);
       
       _qtd_groupbox->setMouseTracking(true);
-      _qtd_groupbox->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
+      _qtd_groupbox->setGeometry(rect.left,rect.top,(rect.right-rect.left),(rect.bottom-rect.top));
       _qtd_groupbox->setVisible(dwStyle&WS_VISIBLE);
       _qtd_groupbox->setFont(QFont("MS Shell Dlg",8));
    
@@ -12890,7 +12884,7 @@ BOOL CSpinButtonCtrl::Create(
 
    _qtd->setMouseTracking(true);
    _qtd->setKeyboardTracking(false);
-   _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
+   _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left),(rect.bottom-rect.top));
    _qtd->setRange(-65535,65536);
    _qtd->setFont(QFont("MS Shell Dlg",8));
    _qtd->setVisible(dwStyle&WS_VISIBLE);
@@ -12902,7 +12896,8 @@ BOOL CSpinButtonCtrl::Create(
       foreach ( CWnd* pWnd, *(GetParent()->mfcToQtWidgetMap()) )
       {
          // Do I overlap?  If so I'm auto-buddying.
-         if ( geometry().intersects(pWnd->toQWidget()->geometry()) )
+         // Cheat a bit on the overlap by inflating the spin button a pixel.
+         if ( geometry().adjusted(-1,-1,1,1).intersects(pWnd->toQWidget()->geometry()) )
          {
             // But only to CEdit...
             if ( dynamic_cast<CEdit*>(pWnd) )
@@ -13232,7 +13227,7 @@ BOOL CSliderCtrl::Create(
       _qtd->setInvertedAppearance(true);
    }
 
-   _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
+   _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left),(rect.bottom-rect.top));
    _qtd->setVisible(dwStyle&WS_VISIBLE);
    _qtd->setFont(QFont("MS Shell Dlg",8));
    
@@ -13389,7 +13384,7 @@ BOOL CProgressCtrl::Create(
    // Not sure if there's vertical sliders in MFC...
    _qtd->setOrientation(Qt::Horizontal);
    _qtd->setMouseTracking(true);
-   _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left)+1,(rect.bottom-rect.top)+1);
+   _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left),(rect.bottom-rect.top));
    _qtd->setFont(QFont("MS Shell Dlg",8));
 
    // Pass-through signals

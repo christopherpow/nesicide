@@ -123,7 +123,7 @@ void CBannerEdit::OnPaint()
 	CDC *dc(GetDC());
 	CFont font;
 
-	font.CreateFont(12, 0, 0, 0, 0, TRUE, FALSE, FALSE, 0, 0, 0, 0, 0, BANNER_FONT);
+   font.CreateFont(12, 0, 0, 0, 0, TRUE, FALSE, FALSE, 0, 0, 0, 0, 0, BANNER_FONT);
 	CFont *pOldFont = dc->SelectObject(&font);
 
 	dc->SetTextColor(BANNER_COLOR);
