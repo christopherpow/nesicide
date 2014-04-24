@@ -10901,7 +10901,8 @@ BEGIN_MESSAGE_MAP(CMenu,CCmdTarget)
 END_MESSAGE_MAP()
 
 CMenu::CMenu()
-   : m_hMenu(NULL)
+   : m_hMenu(NULL),
+     m_pOwnerWnd(NULL)
 {
    _qtd = new QMenu;
    _cmenu = new QHash<int,CMenu*>;
@@ -10962,8 +10963,15 @@ void CMenu::menuAction_triggered()
 
 void CMenu::menu_aboutToShow()
 {
-   ptrToTheApp->GetMainWnd()->toQWidget()->setFocus();
-   AfxGetMainWnd()->SendMessage(WM_INITMENUPOPUP,(WPARAM)m_hMenu);
+   AfxGetMainWnd()->toQWidget()->setFocus();
+   if ( m_pOwnerWnd )
+   {
+      m_pOwnerWnd->SendMessage(WM_INITMENUPOPUP,(WPARAM)m_hMenu);
+   }
+   else
+   {
+      AfxGetMainWnd()->SendMessage(WM_INITMENUPOPUP,(WPARAM)m_hMenu);
+   }
 }
 
 QAction* CMenu::findMenuItemByID(UINT id) const
@@ -11392,6 +11400,9 @@ BOOL CMenu::TrackPopupMenu(
    LPCRECT lpRect
 )
 {
+   // Set owner window so menu updates go to right place.
+   m_pOwnerWnd = pWnd;
+   
    QAction* action = _qtd->exec(QCursor::pos());
    int result = 0;
    if ( action && (nFlags&TPM_RETURNCMD) )
@@ -11400,7 +11411,7 @@ BOOL CMenu::TrackPopupMenu(
    }
    else if ( action )
    {
-      pWnd->SendMessage(WM_COMMAND,findMenuID(action));
+      m_pOwnerWnd->SendMessage(WM_COMMAND,findMenuID(action));
       result = 1;
    }
    return result;
