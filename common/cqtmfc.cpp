@@ -7995,7 +7995,8 @@ CFrameWnd::CFrameWnd(CWnd *parent)
      m_pViewActive(NULL),
      m_pDocument(NULL),
      m_bInRecalcLayout(FALSE),
-     m_bAutoMenuEnable(TRUE)
+     m_bAutoMenuEnable(TRUE),
+     initialized(false)
 {
    int idx;
 
@@ -8079,6 +8080,39 @@ CFrameWnd::~CFrameWnd()
    delete pIdleTimer;
    
    delete m_pMenu;
+}
+
+void CFrameWnd::showEvent(QShowEvent *event)
+{
+   CView* pView;
+   
+   if ( !initialized )
+   {
+      // Perform initialization that couldn't yet be done in the constructor due to being not-quite-MFC.
+      m_pDocument = (CDocument*)GetActiveDocument();
+
+      pView = (CView*)GetActiveView();
+
+      pView->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::MinimumExpanding));
+
+      pView->setFocusPolicy(Qt::StrongFocus);
+//      m_pFrameEditor->setFocusPolicy(Qt::NoFocus);
+
+      realCentralWidget->setLayout(pView->toQWidget()->layout());
+
+      QObject::connect(m_pDocument,SIGNAL(documentSaved()),this,SIGNAL(documentSaved()));
+      QObject::connect(m_pDocument,SIGNAL(documentClosed()),this,SIGNAL(documentClosed()));
+
+      // Connect buried signals.
+      QObject::connect(m_pDocument,SIGNAL(setModified(bool)),this,SIGNAL(editor_modificationChanged(bool)));
+      QObject::connect(m_pDocument,SIGNAL(setModified(bool)),this,SLOT(setModified(bool)));
+
+      initialized = true;
+   }
+}
+
+void CFrameWnd::setModified(bool modified)
+{
 }
 
 void CFrameWnd::onIdleSlot()

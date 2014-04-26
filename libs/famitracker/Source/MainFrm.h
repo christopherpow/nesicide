@@ -45,17 +45,6 @@ class CFrameEditor;
 
 class CMainFrame : public CFrameWnd
 {
-   Q_OBJECT
-   // Qt interfaces
-protected:
-   void showEvent(QShowEvent *);
-private:
-   CFamiTrackerDoc* m_pDocument;
-   CFamiTrackerView* m_pView;
-   QString m_fileName;
-   bool initialized;
-public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
-
 protected: // create from serialization only
 	CMainFrame();
 	DECLARE_DYNCREATE(CMainFrame)
@@ -328,16 +317,6 @@ public:
 	afx_msg void OnUpdateFrameeditorTop(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateFrameeditorLeft(CCmdUI *pCmdUI);
 	afx_msg void OnToggleSpeed();
-
-public slots:
-   void setModified(bool modified);
-   
-signals:
-   void addToolBarWidget(QToolBar* toolBar);
-   void removeToolBarWidget(QToolBar* toolBar);
-   void editor_modificationChanged(bool m);
-   void documentSaved();
-   void documentClosed();
 };
 
 // Global DPI functions

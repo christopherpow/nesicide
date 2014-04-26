@@ -122,8 +122,7 @@ CMainFrame::CMainFrame() :
 	m_iInstrument(0),
 	m_iTrack(0),
 	m_pActionHandler(NULL),
-	m_pInstrumentFileTree(NULL),
-   initialized(false)
+	m_pInstrumentFileTree(NULL)
 {
 	_dpiX = DEFAULT_DPI;
 	_dpiY = DEFAULT_DPI;
@@ -282,39 +281,6 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_CBN_SELCHANGE(IDC_SUBTUNE, OnCbnSelchangeSong)
 	ON_CBN_SELCHANGE(IDC_OCTAVE, OnCbnSelchangeOctave)
 END_MESSAGE_MAP()
-
-void CMainFrame::showEvent(QShowEvent *)
-{
-   if ( !initialized )
-   {
-      // Perform initialization that couldn't yet be done in the constructor due to being not-quite-MFC.
-      m_pDocument = (CFamiTrackerDoc*)GetActiveDocument();
-
-      m_pView = (CFamiTrackerView*)GetActiveView();
-
-//      m_pView->setVisible(false); // Hide the view otherwise it 'obscures' the real view.
-
-      m_pView->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::MinimumExpanding));
-
-      m_pView->setFocusPolicy(Qt::StrongFocus);
-      m_pFrameEditor->setFocusPolicy(Qt::NoFocus);
-
-      realCentralWidget->setLayout(m_pView->toQWidget()->layout());
-
-      QObject::connect(m_pDocument,SIGNAL(documentSaved()),this,SIGNAL(documentSaved()));
-      QObject::connect(m_pDocument,SIGNAL(documentClosed()),this,SIGNAL(documentClosed()));
-
-      // Connect buried signals.
-      QObject::connect(m_pDocument,SIGNAL(setModified(bool)),this,SIGNAL(editor_modificationChanged(bool)));
-      QObject::connect(m_pDocument,SIGNAL(setModified(bool)),this,SLOT(setModified(bool)));
-
-      initialized = true;
-   }
-}
-
-void CMainFrame::setModified(bool modified)
-{
-}
 
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
@@ -2590,7 +2556,7 @@ void CMainFrame::SetFrameEditorPosition(int Position)
 	}
 
 	ResizeFrameWindow();
-   
+
 	m_pFrameEditor->ShowWindow(SW_SHOW);
 	m_pFrameEditor->Invalidate();
 	m_pFrameEditor->RedrawWindow();

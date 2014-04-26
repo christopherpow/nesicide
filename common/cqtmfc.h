@@ -4034,8 +4034,19 @@ public slots:
    void menuAction_triggered(int id);
    void focusChanged(QWidget* old, QWidget* now);
    void onIdleSlot();
+   void setModified(bool modified);
 protected:
+   void showEvent(QShowEvent *event);
    QTimer* pIdleTimer;   
+private:
+   bool initialized;
+   
+signals:
+   void addToolBarWidget(QToolBar* toolBar);
+   void removeToolBarWidget(QToolBar* toolBar);
+   void editor_modificationChanged(bool m);
+   void documentSaved();
+   void documentClosed();
 
    // MFC interfaces
 public:
@@ -6322,6 +6333,17 @@ VOID WINAPI ExitProcess(
 BOOL WINAPI TrackMouseEvent(
    LPTRACKMOUSEEVENT lpEventTrack
 );
+
+typedef struct _browseinfoA {
+	HWND	hwndOwner;
+//	LPCITEMIDLIST	pidlRoot;
+	LPSTR	pszDisplayName;
+	LPCSTR	lpszTitle;
+	UINT	ulFlags;
+//	BFFCALLBACK	lpfn;
+	LPARAM	lParam;
+	int	iImage;
+} BROWSEINFOA,*PBROWSEINFOA,*LPBROWSEINFOA;
 
 HINSTANCE ShellExecute(
    HWND hwnd,
