@@ -3539,6 +3539,8 @@ void CComboBox::SetDlgItemInt(
    BOOL bSigned
 )
 {
+   _qtd->setEditable(true);
+   _qtd->lineEdit()->setReadOnly(true);
    _qtd->setEditText(QString::number(nValue));
 }
 
@@ -3556,6 +3558,8 @@ void CComboBox::SetDlgItemText(
    LPCTSTR lpszString
 )
 {
+   _qtd->setEditable(true);
+   _qtd->lineEdit()->setReadOnly(true);
 #if UNICODE
    _qtd->setEditText(QString::fromWCharArray(lpszString));
 #else
@@ -7945,7 +7949,7 @@ void CWnd::GetClientRect(
    }
    else
    {
-//      lpRect->right -= (2*_frameWidth);
+      lpRect->right -= (2*_frameWidth);
    }
    if ( _dwStyle&WS_HSCROLL )/*mfcHorizontalScrollBar &&
         mfcHorizontalScrollBar->toQWidget()->isVisible() )*/
@@ -7954,7 +7958,7 @@ void CWnd::GetClientRect(
    }
    else
    {
-//      lpRect->bottom -= (2*_frameWidth);
+      lpRect->bottom -= (2*_frameWidth);
    }
    if ( (lpRect->right < 0) ||
         (lpRect->bottom < 0) )
