@@ -22,10 +22,6 @@
 
 #include "cqtmfc.h"
 
-#include "FamiTrackerDoc.h"
-#include "PatternEditor.h"
-#include "Action.h"
-#include "FrameEditor.h"
 #include "InstrumentEditDlg.h"
 //#include "PerformanceDlg.h"
 #include "DialogReBar.h"
