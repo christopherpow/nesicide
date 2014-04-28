@@ -3329,7 +3329,7 @@ public:
    );
    
    void attach();
-   void attach(QWidget* parent,bool transparent = false);
+   void attach(QWidget* qtParent, CWnd* mfcParent, bool transparent = false);
    void detach();
    void flush();
    void doFlush(bool doIt) { _doFlush = doIt; }
@@ -3337,6 +3337,7 @@ public:
    QPixmap* pixmap() { return &_qpixmap; }
    QSize pixmapSize() { return _bitmapSize; }
    QWidget* widget() { return _qwidget; }
+   CWnd* window() { return m_pWnd; }
    QPixmap* bitmap() { return _bitmap?_bitmap->toQPixmap():NULL; }
 
    BOOL CreateCompatibleDC(
@@ -3578,6 +3579,7 @@ private:
    QColor      _textColor;
    CPoint      _windowOrg;
    CPoint      _viewportOrg;
+   CWnd* m_pWnd;
 };
 
 class CPaintDC : public CDC
@@ -3859,8 +3861,8 @@ public:
    void RedrawWindow(LPCRECT rect=0,CRgn* rgn=0,UINT f=0) { _qt->update(); }
    CWnd* SetFocus();
    CWnd* GetFocus();
-   void SetCapture(CWnd* p=0) { /* DON'T DO THIS grabMouse(); */ }
-   void ReleaseCapture() { /* DON'T DO THIS releaseMouse(); */ }
+   void SetCapture(CWnd* p=0) { /* CP: DANGEROUS: grabMouse();*/ }
+   void ReleaseCapture() { /* CP: DANGEROUS: releaseMouse();*/ }
    CFrameWnd* GetParentFrame( ) const { return m_pFrameWnd; }
    void SetFont(
       CFont* pFont,
@@ -3984,10 +3986,12 @@ public:
    void setFocusPolicy(Qt::FocusPolicy policy) { _qt->setFocusPolicy(policy); }
    void setFocusProxy(QWidget *widget) { _qt->setFocusProxy(widget); }
    void setFixedSize(int w, int h) { _qt->setFixedSize(w,h); }
+   void setBaseSize(int w, int h) { _qt->setBaseSize(w,h); }
    virtual void setVisible(bool visible) { _qt->setVisible(visible); }
    virtual void setEnabled(bool enabled) { _qt->setEnabled(enabled); }
    QRect rect() const { return _qt->rect(); }
    virtual QWidget* toQWidget() { return _qt; }
+   int getFrameWidth() { return _frameWidth; }
 protected:
    virtual bool event(QEvent *event);   
    virtual bool eventFilter(QObject *object, QEvent *event);

@@ -2796,6 +2796,7 @@ CDC::CDC()
 {
    LOGFONT lf;
    m_hDC = NULL;
+   m_pWnd = NULL;
    _qwidget = NULL;
    _pen = NULL;
    _brush = NULL;
@@ -2825,6 +2826,7 @@ CDC::CDC(CWnd* parent)
 {
    LOGFONT lf;
    m_hDC = (HDC)this;
+   m_pWnd = parent;
    _qwidget = parent->toQWidget();
    _pen = NULL;
    _brush = NULL;
@@ -2849,7 +2851,7 @@ CDC::CDC(CWnd* parent)
    attached = false;
    _doFlush = false;
 
-   attach(parent->toQWidget());
+   attach(parent->toQWidget(),parent);
 }
 
 CDC::~CDC()
@@ -2861,13 +2863,18 @@ CDC::~CDC()
 
 void CDC::flush()
 {
+   int offset = 0;
    if ( _qwidget && _doFlush )
    {
       QPainter p;
       p.begin(_qwidget);
       if ( p.isActive() )
       {
-         p.drawPixmap(0,0,_qpixmap);
+         if ( m_pWnd )
+         {
+            offset = m_pWnd->getFrameWidth();
+         }
+         p.drawPixmap(offset,offset,_qpixmap);
          p.end();
       }
    }
@@ -2888,9 +2895,9 @@ void CDC::attach()
    attached = true;
 }
 
-void CDC::attach(QWidget* parent, bool transparent)
+void CDC::attach(QWidget* qtParent, CWnd* mfcParent, bool transparent)
 {
-   _qwidget = parent;
+   _qwidget = qtParent;
    if ( _qpainter.isActive() )
       _qpainter.end();
    _qpixmap = QPixmap(_qwidget->size());
@@ -2900,6 +2907,7 @@ void CDC::attach(QWidget* parent, bool transparent)
       _qpixmap.fill(_qwidget->palette().color(QPalette::Window)); // CP: paint over an existing widget
    _qpainter.begin(&_qpixmap);
    m_hDC = (HDC)this;
+   m_pWnd = mfcParent;
    attached = true;
    _doFlush = true;
 }
@@ -2919,7 +2927,7 @@ BOOL CDC::CreateCompatibleDC(
 )
 {
    if ( pDC->widget() )
-      attach(pDC->widget());
+      attach(pDC->widget(),pDC->window());
    else
       attach();
    return TRUE;
@@ -6184,7 +6192,7 @@ BOOL CWnd::EnableToolTips(
 
 CDC* CWnd::GetDC()
 {
-   _myDC->attach(toQWidget(),true);
+   _myDC->attach(toQWidget(),this,true);
    return _myDC;
 }
 
@@ -7518,16 +7526,15 @@ void CWnd::MoveWindow(LPCRECT lpRect, BOOL bRepaint)
       rectOrig.OffsetRect(rectParent.left,rectParent.top);
       if ( rectOrig.Width() < 0 ) rectOrig.right = rectOrig.left;
       if ( rectOrig.Height() < 0 ) rectOrig.bottom = rectOrig.top;
-      setGeometry(rectOrig.left,rectOrig.top,(rectOrig.right-rectOrig.left),(rectOrig.bottom-rectOrig.top));
-      setFixedSize((rectOrig.right-rectOrig.left),(rectOrig.bottom-rectOrig.top));
+      setGeometry(rectOrig.left,rectOrig.top,rectOrig.Width(),rectOrig.Height());
+      setFixedSize(rectOrig.Width(),rectOrig.Height());
    }
    else
    {
       if ( rectOrig.Width() < 0 ) rectOrig.right = rectOrig.left;
       if ( rectOrig.Height() < 0 ) rectOrig.bottom = rectOrig.top;
-      setGeometry(rectOrig.left,rectOrig.top,(rectOrig.right-rectOrig.left),(rectOrig.bottom-rectOrig.top));
-      setBaseSize((rectOrig.right-rectOrig.left),(rectOrig.bottom-rectOrig.top));
-      setSizeIncrement(1,1);
+      setGeometry(rectOrig.left,rectOrig.top,rectOrig.Width(),rectOrig.Height());
+      setBaseSize(rectOrig.Width(),rectOrig.Height());
    }
    if ( bRepaint )
       update();
@@ -7950,6 +7957,7 @@ void CWnd::GetClientRect(
    else
    {
       lpRect->right -= (2*_frameWidth);
+      lpRect->right++;
    }
    if ( _dwStyle&WS_HSCROLL )/*mfcHorizontalScrollBar &&
         mfcHorizontalScrollBar->toQWidget()->isVisible() )*/
@@ -7959,6 +7967,7 @@ void CWnd::GetClientRect(
    else
    {
       lpRect->bottom -= (2*_frameWidth);
+      lpRect->bottom++;
    }
    if ( (lpRect->right < 0) ||
         (lpRect->bottom < 0) )
@@ -8096,7 +8105,6 @@ void CFrameWnd::showEvent(QShowEvent *event)
       pView->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::MinimumExpanding));
 
       pView->setFocusPolicy(Qt::StrongFocus);
-//      m_pFrameEditor->setFocusPolicy(Qt::NoFocus);
 
       realCentralWidget->setLayout(pView->toQWidget()->layout());
 
@@ -8780,7 +8788,7 @@ void CView::paintEvent(QPaintEvent *event)
    
    // Qt attach to the MFC HLE.  This object is already QWidget type.
    CDC dc;
-   dc.attach(viewWidget);
+   dc.attach(viewWidget,this);
 
    if ( currentSize != size() )
    {
@@ -10999,13 +11007,14 @@ void CMenu::menuAction_triggered()
 
 void CMenu::menu_aboutToShow()
 {
-   AfxGetMainWnd()->toQWidget()->setFocus();
    if ( m_pOwnerWnd )
    {
+      m_pOwnerWnd->toQWidget()->setFocus();
       m_pOwnerWnd->SendMessage(WM_INITMENUPOPUP,(WPARAM)m_hMenu);
    }
    else
    {
+      AfxGetMainWnd()->toQWidget()->setFocus();
       AfxGetMainWnd()->SendMessage(WM_INITMENUPOPUP,(WPARAM)m_hMenu);
    }
 }
@@ -13537,8 +13546,8 @@ BOOL CStatic::Create(
    {
       _qtd->setFrameShape(QFrame::Panel);
       _qtd->setFrameShadow(QFrame::Sunken);
-//      _qtd->setLineWidth(1);
-//      _frameWidth = 1;
+      _qtd->setLineWidth(1);
+      _frameWidth = 1;
    }
    if ( (dwStyle&SS_LEFTNOWORDWRAP) != SS_LEFTNOWORDWRAP )
    {

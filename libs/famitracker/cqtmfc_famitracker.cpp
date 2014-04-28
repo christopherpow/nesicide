@@ -3400,7 +3400,6 @@ void qtMfcInitDialogResource_IDD_SAMPLE_EDITOR(CDialog* parent1)
    CRect rect(CPoint(0,0),CSize(481,255));
    parent->MapDialogRect(&rect);
    parent->setBaseSize(rect.Width(),rect.Height());
-   parent->setSizeIncrement(1,1);
 //   STYLE DS_SETFONT | DS_FIXEDSYS | WS_MAXIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 //   CAPTION "DPCM sample editor"
    parent->SetWindowText("DPCM sample editor");
@@ -3598,7 +3597,6 @@ void qtMfcInitDialogResource_IDD_COMMENTS(CDialog* parent1)
    CRect rect(CPoint(0,0),CSize(358,230));
    parent->MapDialogRect(&rect);
    parent->setBaseSize(rect.Width(),rect.Height());
-   parent->setSizeIncrement(1,1);
 //   STYLE DS_SETFONT | DS_FIXEDSYS | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 //   CAPTION "Module comments"
    parent->SetWindowText("Module comments");

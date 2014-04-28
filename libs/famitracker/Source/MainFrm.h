@@ -20,8 +20,6 @@
 
 #pragma once
 
-#include "cqtmfc.h"
-
 #include "InstrumentEditDlg.h"
 //#include "PerformanceDlg.h"
 #include "DialogReBar.h"
