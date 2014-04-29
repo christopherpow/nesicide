@@ -1069,6 +1069,7 @@ void qtMfcInitDialogResource_IDD_ABOUTBOX(CDialog* parent1)
 
 //IDD_ABOUTBOX DIALOGEX 0, 0, 285, 282
 //STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+   parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags()|Qt::CustomizeWindowHint|Qt::WindowCloseButtonHint|Qt::WindowTitleHint);
 //CAPTION "About FamiTracker"
    parent->SetWindowText("About FamiTracker");
 //FONT 8, "MS Shell Dlg", 0, 0, 0x1
@@ -1421,6 +1422,7 @@ void qtMfcInitDialogResource_IDD_SPEED(CDialog* parent1)
    parent->MapDialogRect(&rect);
    parent->setFixedSize(rect.Width(),rect.Height());
 //   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+   parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags()|Qt::CustomizeWindowHint|Qt::WindowCloseButtonHint|Qt::WindowTitleHint);
 //   CAPTION "Custom speed"
    parent->SetWindowText("Custom speed");
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
@@ -1463,6 +1465,7 @@ void qtMfcInitDialogResource_IDD_PCMIMPORT(CDialog* parent1)
    parent->MapDialogRect(&rect);
    parent->setFixedSize(rect.Width(),rect.Height());
 //   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+   parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags()|Qt::CustomizeWindowHint|Qt::WindowCloseButtonHint|Qt::WindowTitleHint);
 //   CAPTION "PCM import"
    parent->SetWindowText("PCM import");
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
@@ -1789,6 +1792,7 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT(CDialog* parent1)
    parent->MapDialogRect(&rect);
    parent->setFixedSize(rect.Width(),rect.Height());
 //   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+   parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags()|Qt::CustomizeWindowHint|Qt::WindowCloseButtonHint);
 //   CAPTION "Instrument editor"
    parent->SetWindowText("Instrument editor");
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
@@ -1819,6 +1823,7 @@ void qtMfcInitDialogResource_IDD_CONFIG_APPEARANCE(CDialog* parent1)
    parent->MapDialogRect(&rect);
    parent->setFixedSize(rect.Width(),rect.Height());
 //   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+   parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags()|Qt::CustomizeWindowHint|Qt::WindowCloseButtonHint|Qt::WindowTitleHint);
 //   CAPTION "Appearance"
    parent->SetWindowText("Appearance");
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
@@ -1944,6 +1949,7 @@ void qtMfcInitDialogResource_IDD_CONFIG_GENERAL(CDialog* parent1)
    parent->MapDialogRect(&rect);
    parent->setFixedSize(rect.Width(),rect.Height());
 //   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+   parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags()|Qt::CustomizeWindowHint|Qt::WindowCloseButtonHint|Qt::WindowTitleHint);
 //   CAPTION "General"
    parent->SetWindowText("General");
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
@@ -2154,6 +2160,7 @@ void qtMfcInitDialogResource_IDD_PROPERTIES(CDialog* parent1)
    parent->MapDialogRect(&rect);
    parent->setFixedSize(rect.Width(),rect.Height());
 //   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+   parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags()|Qt::CustomizeWindowHint|Qt::WindowCloseButtonHint|Qt::WindowTitleHint);
 //   CAPTION "Module properties"
    parent->SetWindowText("Module properties");
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
@@ -2316,6 +2323,7 @@ void qtMfcInitDialogResource_IDD_CONFIG_SOUND(CDialog* parent1)
    parent->MapDialogRect(&rect);
    parent->setFixedSize(rect.Width(),rect.Height());
 //   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+   parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags()|Qt::CustomizeWindowHint|Qt::WindowCloseButtonHint|Qt::WindowTitleHint);
 //   EXSTYLE WS_EX_CONTEXTHELP
 //   CAPTION "Sound"
    parent->SetWindowText("Sound");
@@ -2498,6 +2506,7 @@ void qtMfcInitDialogResource_IDD_CONFIG_SHORTCUTS(CDialog* parent1)
    parent->MapDialogRect(&rect);
    parent->setFixedSize(rect.Width(),rect.Height());
 //   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+   parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags()|Qt::CustomizeWindowHint|Qt::WindowCloseButtonHint|Qt::WindowTitleHint);
 //   CAPTION "Shortcuts"
    parent->SetWindowText("Shortcuts");
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
@@ -2544,10 +2553,6 @@ void qtMfcInitDialogResource_IDD_OCTAVE(CDialog* parent)
    CRect rect(CPoint(0,0),CSize(461,12));
    parent->MapDialogRect(&rect);
    parent->setFixedSize(rect.Width(),rect.Height());
-
-   // THIS DIALOG IS NOT DIRECTLY ACCESSIBLE SO SIGNALS/SLOTS
-   // WILL BE CONNECTED BY THE OWNING WINDOW.
-
 //   STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
 //   EXSTYLE WS_EX_TRANSPARENT | WS_EX_NOACTIVATE
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
@@ -2648,6 +2653,7 @@ void qtMfcInitDialogResource_IDD_EXPORT(CDialog* parent1)
    parent->MapDialogRect(&rect);
    parent->setFixedSize(rect.Width(),rect.Height());
 //   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+   parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags()|Qt::CustomizeWindowHint|Qt::WindowCloseButtonHint|Qt::WindowTitleHint);
 //   CAPTION "Export file"
    parent->SetWindowText("Export file");
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
@@ -3049,6 +3055,7 @@ void qtMfcInitDialogResource_IDD_CREATEWAV(CDialog* parent1)
    parent->setFixedSize(rect.Width(),rect.Height());
    
 //   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+   parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags()|Qt::CustomizeWindowHint|Qt::WindowCloseButtonHint|Qt::WindowTitleHint);
 //   CAPTION "Create wave file"
    parent->SetWindowText("Create wave file");
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
@@ -3145,6 +3152,7 @@ void qtMfcInitDialogResource_IDD_WAVE_PROGRESS(CDialog* parent1)
    parent->MapDialogRect(&rect);
    parent->setFixedSize(rect.Width(),rect.Height());
 //   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+   parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags()|Qt::CustomizeWindowHint|Qt::WindowCloseButtonHint|Qt::WindowTitleHint);
 //   CAPTION "Creating WAV..."
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
 //   BEGIN
@@ -3399,8 +3407,9 @@ void qtMfcInitDialogResource_IDD_SAMPLE_EDITOR(CDialog* parent1)
 //   IDD_SAMPLE_EDITOR DIALOGEX 0, 0, 481, 255
    CRect rect(CPoint(0,0),CSize(481,255));
    parent->MapDialogRect(&rect);
-   parent->setBaseSize(rect.Width(),rect.Height());
+   parent->toQWidget()->resize(rect.Width(),rect.Height());
 //   STYLE DS_SETFONT | DS_FIXEDSYS | WS_MAXIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+   parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags()|Qt::CustomizeWindowHint|Qt::WindowCloseButtonHint|Qt::WindowMaximizeButtonHint|Qt::WindowTitleHint);
 //   CAPTION "DPCM sample editor"
    parent->SetWindowText("DPCM sample editor");
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
@@ -3526,6 +3535,7 @@ void qtMfcInitDialogResource_IDD_CHANNELS(CDialog* parent1)
    parent->MapDialogRect(&rect);
    parent->setFixedSize(rect.Width(),rect.Height());
 //   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+   parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags()|Qt::CustomizeWindowHint|Qt::WindowCloseButtonHint|Qt::WindowTitleHint);
 //   CAPTION "Channels"
    parent->SetWindowText("Channels");
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
@@ -3596,8 +3606,9 @@ void qtMfcInitDialogResource_IDD_COMMENTS(CDialog* parent1)
 //   IDD_COMMENTS DIALOGEX 0, 0, 358, 230
    CRect rect(CPoint(0,0),CSize(358,230));
    parent->MapDialogRect(&rect);
-   parent->setBaseSize(rect.Width(),rect.Height());
+   parent->toQWidget()->resize(rect.Width(),rect.Height());
 //   STYLE DS_SETFONT | DS_FIXEDSYS | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+   parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags()|Qt::CustomizeWindowHint|Qt::WindowCloseButtonHint|Qt::WindowMaximizeButtonHint|Qt::WindowMinimizeButtonHint|Qt::WindowTitleHint);
 //   CAPTION "Module comments"
    parent->SetWindowText("Module comments");
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
@@ -3814,6 +3825,7 @@ void qtMfcInitDialogResource_IDD_IMPORT(CDialog* parent1)
    parent->MapDialogRect(&rect);
    parent->setFixedSize(rect.Width(),rect.Height());
 //   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+   parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags()|Qt::CustomizeWindowHint|Qt::WindowCloseButtonHint|Qt::WindowTitleHint);
 //   CAPTION "Import options"
    parent->SetWindowText("Import options");
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
