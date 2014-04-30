@@ -7075,11 +7075,14 @@ void CWnd::timerEvent(QTimerEvent *event)
 
 void CWnd::paintEvent(QPaintEvent *event)
 {
+   CDC* pDC = GetDC();
    AFX_CTLCOLOR ctlColor;
    ctlColor.hWnd = m_hWnd;
-   ctlColor.hDC = (HDC)GetDC();
+   ctlColor.hDC = (HDC)pDC;
    ctlColor.nCtlType = 0;
-   SendMessage(WM_CTLCOLOR+WM_REFLECT_BASE,(WPARAM)(HDC)GetDC(),(LPARAM)&ctlColor);
+   SendMessage(WM_CTLCOLOR+WM_REFLECT_BASE,0,(LPARAM)&ctlColor);
+   SendMessage(WM_ERASEBKGND,(WPARAM)(HDC)pDC);
+   ReleaseDC(pDC);
    SendMessage(WM_PAINT);
 }
 
@@ -13476,9 +13479,23 @@ QLabel_MFC::~QLabel_MFC()
 
 void QLabel_MFC::paintEvent(QPaintEvent *event)
 {
-   QLabel::paintEvent(event);
+   CDC* pDC = _mfc?_mfc->GetDC():NULL;
    if ( _mfc )
    {
+      QString style;
+      AFX_CTLCOLOR ctlColor;
+      ctlColor.hWnd = (HWND)_mfc;
+      ctlColor.hDC = (HDC)pDC;
+      ctlColor.nCtlType = 0;
+      _mfc->SendMessage(WM_ERASEBKGND,(WPARAM)(HDC)pDC);
+      _mfc->SendMessage(WM_CTLCOLOR+WM_REFLECT_BASE,0,(LPARAM)&ctlColor);
+      style.sprintf("QLabel { color: #%02x%02x%02x; }",GetRValue(pDC->GetTextColor()),GetGValue(pDC->GetTextColor()),GetBValue(pDC->GetTextColor()));
+      setStyleSheet(style);
+   }
+   QLabel::paintEvent(event);      
+   if ( _mfc )
+   {
+      _mfc->ReleaseDC(pDC);
       _mfc->SendMessage(WM_PAINT);
    }
 }
@@ -15199,7 +15216,7 @@ BOOL WINAPI TrackMouseEvent(
    LPTRACKMOUSEEVENT lpEventTrack
 )
 {
-   qDebug("TrackMouseEvent");
+   // CP: Nothing to do here I think.
 }
 
 HINSTANCE ShellExecute(

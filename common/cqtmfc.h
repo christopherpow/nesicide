@@ -3505,9 +3505,17 @@ public:
       COLORREF crColor
    )
    {
+      if ( ((CDC*)m_hDC) != this )
+      {
+         return ((CDC*)m_hDC)->SetTextColor(crColor);
+      }
       COLORREF old = _textColor.red()|(_textColor.green()<<8)|_textColor.blue()<<16;
       _textColor = QColor(GetRValue(crColor),GetGValue(crColor),GetBValue(crColor));
       return old;
+   }
+   COLORREF GetTextColor()
+   {
+      return _textColor.red()|(_textColor.green()<<8)|_textColor.blue()<<16;
    }
    virtual CPoint SetViewportOrg(
       int x,
