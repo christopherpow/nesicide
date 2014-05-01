@@ -11619,9 +11619,23 @@ QPlainTextEdit_MFC::~QPlainTextEdit_MFC()
 
 void QPlainTextEdit_MFC::paintEvent(QPaintEvent *event)
 {
-   QPlainTextEdit::paintEvent(event);
+   CDC* pDC = _mfc?_mfc->GetDC():NULL;
    if ( _mfc )
    {
+      QString style;
+      AFX_CTLCOLOR ctlColor;
+      ctlColor.hWnd = (HWND)_mfc;
+      ctlColor.hDC = (HDC)pDC;
+      ctlColor.nCtlType = 0;
+      _mfc->SendMessage(WM_ERASEBKGND,(WPARAM)(HDC)pDC);
+      _mfc->SendMessage(WM_CTLCOLOR+WM_REFLECT_BASE,0,(LPARAM)&ctlColor);
+      style.sprintf("QLabel { color: #%02x%02x%02x; }",GetRValue(pDC->GetTextColor()),GetGValue(pDC->GetTextColor()),GetBValue(pDC->GetTextColor()));
+      setStyleSheet(style);
+   }
+   QPlainTextEdit::paintEvent(event);      
+   if ( _mfc )
+   {
+      _mfc->ReleaseDC(pDC);
       _mfc->SendMessage(WM_PAINT);
    }
 }
@@ -11633,9 +11647,23 @@ QLineEdit_MFC::~QLineEdit_MFC()
 
 void QLineEdit_MFC::paintEvent(QPaintEvent *event)
 {
-   QLineEdit::paintEvent(event);
+   CDC* pDC = _mfc?_mfc->GetDC():NULL;
    if ( _mfc )
    {
+      QString style;
+      AFX_CTLCOLOR ctlColor;
+      ctlColor.hWnd = (HWND)_mfc;
+      ctlColor.hDC = (HDC)pDC;
+      ctlColor.nCtlType = 0;
+      _mfc->SendMessage(WM_ERASEBKGND,(WPARAM)(HDC)pDC);
+      _mfc->SendMessage(WM_CTLCOLOR+WM_REFLECT_BASE,0,(LPARAM)&ctlColor);
+      style.sprintf("QLabel { color: #%02x%02x%02x; }",GetRValue(pDC->GetTextColor()),GetGValue(pDC->GetTextColor()),GetBValue(pDC->GetTextColor()));
+      setStyleSheet(style);
+   }
+   QLineEdit::paintEvent(event);      
+   if ( _mfc )
+   {
+      _mfc->ReleaseDC(pDC);
       _mfc->SendMessage(WM_PAINT);
    }
 }
