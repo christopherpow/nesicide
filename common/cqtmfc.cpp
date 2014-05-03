@@ -20,6 +20,8 @@ CWinApp* ptrToTheApp;
 
 CBrush nullBrush;
 
+bool gInPaintEvent = false;
+
 using namespace qtmfc_workaround;
 
 HGDIOBJ GetStockObject(
@@ -2864,7 +2866,7 @@ CDC::~CDC()
 void CDC::flush()
 {
    int offset = 0;
-   if ( _qwidget && _doFlush )
+   if ( gInPaintEvent && _qwidget && _doFlush )
    {
       QPainter p;
       p.begin(_qwidget);
@@ -7075,15 +7077,16 @@ void CWnd::timerEvent(QTimerEvent *event)
 
 void CWnd::paintEvent(QPaintEvent *event)
 {
-   CDC* pDC = GetDC();
+   gInPaintEvent = true;
+   CDC* pDC = _myDC;
    AFX_CTLCOLOR ctlColor;
    ctlColor.hWnd = m_hWnd;
    ctlColor.hDC = (HDC)pDC;
    ctlColor.nCtlType = 0;
    SendMessage(WM_CTLCOLOR+WM_REFLECT_BASE,0,(LPARAM)&ctlColor);
    SendMessage(WM_ERASEBKGND,(WPARAM)(HDC)pDC);
-   ReleaseDC(pDC);
    SendMessage(WM_PAINT);
+   gInPaintEvent = false;
 }
 
 void CWnd::contextMenuEvent(QContextMenuEvent *event)
@@ -8015,58 +8018,47 @@ CFrameWnd::CFrameWnd(CWnd *parent)
    m_pFrameWnd = this;
    ptrToTheApp->m_pMainWnd = this;
 
-   QWidget* centralWidget = _qt;
-   QGridLayout* gridLayout = _grid;
-
-   gridLayout->setSpacing(0);
-   gridLayout->setContentsMargins(0, 0, 0, 0);
-   gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
+   _grid->setSpacing(0);
+   _grid->setContentsMargins(0, 0, 0, 0);
+   _grid->setObjectName(QString::fromUtf8("gridLayout"));
 
    cbrsBottom = new QVBoxLayout();
    cbrsBottom->setSpacing(0);
    cbrsBottom->setContentsMargins(0,0,0,0);
    cbrsBottom->setObjectName(QString::fromUtf8("cbrsBottom"));
 
-   gridLayout->addLayout(cbrsBottom, 2, 0, 1, -1);
-   gridLayout->setRowMinimumHeight(2,0);
-   gridLayout->setRowStretch(2,0);
+   _grid->addLayout(cbrsBottom, 2, 0, 1, -1);
+   _grid->setRowMinimumHeight(2,0);
+   _grid->setRowStretch(2,0);
 
    cbrsTop = new QVBoxLayout();
    cbrsTop->setSpacing(0);
    cbrsTop->setContentsMargins(0,0,0,0);
    cbrsTop->setObjectName(QString::fromUtf8("cbrsTop"));
 
-   gridLayout->addLayout(cbrsTop, 0, 0, 1, -1);
-   gridLayout->setRowMinimumHeight(0,0);
-   gridLayout->setRowStretch(0,0);
+   _grid->addLayout(cbrsTop, 0, 0, 1, -1);
+   _grid->setRowMinimumHeight(0,0);
+   _grid->setRowStretch(0,0);
 
    cbrsLeft = new QHBoxLayout();
    cbrsLeft->setSpacing(0);
    cbrsLeft->setContentsMargins(0,0,0,0);
    cbrsLeft->setObjectName(QString::fromUtf8("cbrsLeft"));
 
-   gridLayout->addLayout(cbrsLeft, 1, 0, 1, 1);
-   gridLayout->setColumnMinimumWidth(0,0);
-   gridLayout->setColumnStretch(0,0);
+   _grid->addLayout(cbrsLeft, 1, 0, 1, 1);
+   _grid->setColumnMinimumWidth(0,0);
+   _grid->setColumnStretch(0,0);
 
    cbrsRight = new QHBoxLayout();
    cbrsRight->setSpacing(0);
    cbrsRight->setContentsMargins(0,0,0,0);
    cbrsRight->setObjectName(QString::fromUtf8("cbrsRight"));
 
-   gridLayout->addLayout(cbrsRight, 1, 2, 1, 1);
-   gridLayout->setColumnMinimumWidth(2,0);
-   gridLayout->setColumnStretch(2,0);
+   _grid->addLayout(cbrsRight, 1, 2, 1, 1);
+   _grid->setColumnMinimumWidth(2,0);
+   _grid->setColumnStretch(2,0);
 
-   realCentralWidget = new QWidget;
-   realCentralWidget->setObjectName(QString::fromUtf8("realCentralWidget"));
-
-   gridLayout->addWidget(realCentralWidget, 1, 1, 1, 1);
-
-   gridLayout->setRowStretch(1,1);
-   gridLayout->setColumnStretch(1,1);
-
-   centralWidget->setLayout(gridLayout);
+   _qt->setLayout(_grid);
 
    m_pMenu = new CMenu;
    m_pMenu->LoadMenu(128);
@@ -8167,6 +8159,18 @@ void CFrameWnd::addControlBar(int area, QWidget *bar)
    RecalcLayout();
 }
 
+void CFrameWnd::addView(QWidget *view)
+{
+   realCentralWidget = view;
+   realCentralWidget->setObjectName(QString::fromUtf8("realCentralWidget"));
+
+   _grid->addWidget(realCentralWidget, 1, 1, 1, 1);
+   _grid->setRowStretch(1,1);
+   _grid->setColumnStretch(1,1);
+
+   RecalcLayout();
+}
+
 BOOL CFrameWnd::Create( 
    LPCTSTR lpszClassName, 
    LPCTSTR lpszWindowName, 
@@ -8178,6 +8182,8 @@ BOOL CFrameWnd::Create(
    CCreateContext* pContext
 )
 {
+   CView* pView;
+   
    if ( !CWnd::Create(lpszClassName,lpszWindowName,dwStyle,rect,pParentWnd,lpszMenuName,dwExStyle,pContext) )
       return FALSE;
    
@@ -8185,15 +8191,15 @@ BOOL CFrameWnd::Create(
    m_pDocument = pContext->m_pCurrentDoc;
    
    // The view is actually created in CFrameWnd::CreateView but I'm being lazy...
-   m_pViewActive = (CView*)pContext->m_pNewViewClass->CreateObject();   
+   pView = (CView*)pContext->m_pNewViewClass->CreateObject();   
+   
+   mfcToQtWidgetMap()->insert(AFX_IDW_PANE_FIRST,pView);
    
    // Set frame in hijacked context.
    pContext->m_pCurrentFrame = this;
    
    // Create the view!
-   m_pViewActive->Create(lpszClassName,lpszWindowName,dwStyle|WS_VSCROLL|WS_HSCROLL,rect,pParentWnd,lpszMenuName,dwExStyle,pContext);
-
-   mfcToQtWidgetMap()->insert(AFX_IDW_PANE_FIRST,m_pViewActive);
+   pView->Create(lpszClassName,lpszWindowName,dwStyle|WS_VSCROLL|WS_HSCROLL,rect,pParentWnd,lpszMenuName,dwExStyle,pContext);
    
    return TRUE;
 }
@@ -8284,6 +8290,10 @@ void CFrameWnd::InitialUpdateFrame(
 //			pApp->m_nCmdShow = -1; // set to default after first time
 //		}
 //		ActivateFrame(nCmdShow);
+      if ( pView )
+      {
+         pView->toQWidget()->setVisible(true);
+      }
 //		if (pView != NULL)
 //			pView->OnActivateView(TRUE, pView, pView);
 	}
@@ -8499,6 +8509,8 @@ BEGIN_MESSAGE_MAP(CView,CWnd)
    ON_MESSAGE(WM_INITIALUPDATE,OnInitialUpdate)
    ON_WM_SETFOCUS()
    ON_WM_KILLFOCUS()
+   ON_WM_PAINT()
+   ON_WM_ERASEBKGND()
 END_MESSAGE_MAP()
 
 CView::CView()
@@ -8512,7 +8524,7 @@ CView::~CView()
 
 bool CView::eventFilter(QObject *object, QEvent *event)
 {
-   if ( object == viewWidget )
+   if ( object == _qt )
    {
       if ( event->type() == QEvent::Close )
       {
@@ -8619,9 +8631,6 @@ bool CView::eventFilter(QObject *object, QEvent *event)
          dragLeaveEvent(dynamic_cast<QDragLeaveEvent*>(event));
          return event->isAccepted();
       }
-   }
-   if ( object == _qt )
-   {
       if ( event->type() == QEvent::Timer )
       {
          timerEvent(dynamic_cast<QTimerEvent*>(event));
@@ -8632,151 +8641,10 @@ bool CView::eventFilter(QObject *object, QEvent *event)
    return false;
 }
 
-void CView::mousePressEvent(QMouseEvent *event)
-{
-   CPoint point(event->pos());
-   unsigned int flags = 0;
-   if ( event->modifiers()&Qt::ControlModifier )
-   {
-      flags |= MK_CONTROL;
-   }
-   if ( event->modifiers()&Qt::ShiftModifier )
-   {
-      flags |= MK_SHIFT;
-   }
-   if ( event->buttons()&Qt::LeftButton )
-   {
-      flags |= MK_LBUTTON;
-   }
-   if ( event->buttons()&Qt::MiddleButton )
-   {
-      flags |= MK_MBUTTON;
-   }
-   if ( event->buttons()&Qt::RightButton )
-   {
-      flags |= MK_RBUTTON;            
-   }
-   if ( event->button() == Qt::LeftButton )
-   {
-      PostMessage(WM_LBUTTONDOWN,flags,point.y<<16|point.x);
-   }
-   else if ( event->button() == Qt::RightButton )
-   {
-      PostMessage(WM_RBUTTONDOWN,flags,point.y<<16|point.x);
-      
-      // Also handle context menu...
-      NMITEMACTIVATE nmia;
-   
-      nmia.hdr.hwndFrom = m_hWnd;
-      nmia.hdr.idFrom = _id;
-      nmia.hdr.code = NM_RCLICK;
-      nmia.ptAction.x = QCursor::pos().x();
-      nmia.ptAction.y = QCursor::pos().y();
-      
-      m_pFrameWnd->SendMessage(WM_NOTIFY,_id,(LPARAM)&nmia);
-      PostMessage(WM_CONTEXTMENU,(WPARAM)m_hWnd,(LPARAM)((QCursor::pos().x()<<16)|(QCursor::pos().y())));
-   }
-}
-
-void CView::mouseMoveEvent(QMouseEvent *event)
-{
-   CPoint point(event->pos());
-   unsigned int flags = 0;
-   if ( event->modifiers()&Qt::ControlModifier )
-   {
-      flags |= MK_CONTROL;
-   }
-   if ( event->modifiers()&Qt::ShiftModifier )
-   {
-      flags |= MK_SHIFT;
-   }
-   if ( event->buttons()&Qt::LeftButton )
-   {
-      flags |= MK_LBUTTON;
-   }
-   if ( event->buttons()&Qt::MiddleButton )
-   {
-      flags |= MK_MBUTTON;
-   }
-   if ( event->buttons()&Qt::RightButton )
-   {
-      flags |= MK_RBUTTON;            
-   }
-   PostMessage(WM_MOUSEMOVE,flags,point.y<<16|point.x);
-}
-
-void CView::mouseReleaseEvent(QMouseEvent *event)
-{
-   CPoint point(event->pos());
-   unsigned int flags = 0;
-   if ( event->modifiers()&Qt::ControlModifier )
-   {
-      flags |= MK_CONTROL;
-   }
-   if ( event->modifiers()&Qt::ShiftModifier )
-   {
-      flags |= MK_SHIFT;
-   }
-   if ( event->buttons()&Qt::LeftButton )
-   {
-      flags |= MK_LBUTTON;
-   }
-   if ( event->buttons()&Qt::MiddleButton )
-   {
-      flags |= MK_MBUTTON;
-   }
-   if ( event->buttons()&Qt::RightButton )
-   {
-      flags |= MK_RBUTTON;            
-   }
-   if ( event->button() == Qt::LeftButton )
-   {
-      PostMessage(WM_LBUTTONUP,flags,point.y<<16|point.x);
-   }
-   else if ( event->button() == Qt::RightButton )
-   {
-      PostMessage(WM_RBUTTONUP,flags,point.y<<16|point.x);
-   }
-}
-
-void CView::mouseDoubleClickEvent(QMouseEvent *event)
-{
-   CPoint point(event->pos());
-   unsigned int flags = 0;
-   if ( event->modifiers()&Qt::ControlModifier )
-   {
-      flags |= MK_CONTROL;
-   }
-   if ( event->modifiers()&Qt::ShiftModifier )
-   {
-      flags |= MK_SHIFT;
-   }
-   if ( event->buttons()&Qt::LeftButton )
-   {
-      flags |= MK_LBUTTON;
-   }
-   if ( event->buttons()&Qt::MiddleButton )
-   {
-      flags |= MK_MBUTTON;
-   }
-   if ( event->buttons()&Qt::RightButton )
-   {
-      flags |= MK_RBUTTON;            
-   }
-   if ( event->button() == Qt::LeftButton )
-   {
-      PostMessage(WM_LBUTTONDBLCLK,flags,point.y<<16|point.x);
-   }
-   else if ( event->button() == Qt::RightButton )
-   {
-      PostMessage(WM_RBUTTONDBLCLK,flags,point.y<<16|point.x);
-   }
-}
-
 void CView::resizeEvent(QResizeEvent *event)
 {
    CRect rect(0,0,event->size().width(),event->size().height());
-   rect.InflateRect(0,0,::GetSystemMetrics(SM_CXVSCROLL)+(2*::GetSystemMetrics(SM_CXEDGE)),::GetSystemMetrics(SM_CYHSCROLL)+(2*::GetSystemMetrics(SM_CYEDGE)));
+   rect.InflateRect(0,0,GetSystemMetrics(SM_CXVSCROLL)+(2*GetSystemMetrics(SM_CXEDGE)),GetSystemMetrics(SM_CYHSCROLL)+(2*GetSystemMetrics(SM_CYEDGE)));
    CalcWindowRect(&rect);
 }
 
@@ -8787,20 +8655,21 @@ void CView::focusInEvent(QFocusEvent *event)
 
 void CView::paintEvent(QPaintEvent *event)
 {
-   static QSize currentSize = QSize(0,0);
-   
-   // Qt attach to the MFC HLE.  This object is already QWidget type.
-   CDC dc;
-   dc.attach(viewWidget,this);
-
-   if ( currentSize != size() )
+   static QSize currentSize = size();
+   gInPaintEvent = true;
+   CDC* pDC = _myDC;
+//   AFX_CTLCOLOR ctlColor;
+//   ctlColor.hWnd = m_hWnd;
+//   ctlColor.hDC = (HDC)pDC;
+//   ctlColor.nCtlType = 0;
+//   SendMessage(WM_CTLCOLOR+WM_REFLECT_BASE,0,(LPARAM)&ctlColor);
+//   if ( size() != currentSize )
    {
-      SendMessage(WM_ERASEBKGND,(WPARAM)(HDC)&dc);
-      currentSize = viewWidget->size();
+      SendMessage(WM_ERASEBKGND,(WPARAM)(HDC)pDC);
+      currentSize = size();
    }
-   OnDraw(&dc);
-
-   // dc will auto-detach on destruction
+   SendMessage(WM_PAINT);
+   gInPaintEvent = false;
 }
 
 void CView::showEvent(QShowEvent *event)
@@ -8811,14 +8680,21 @@ void CView::showEvent(QShowEvent *event)
 CWnd* CView::SetFocus()
 {
    CWnd* pWnd = focusWnd;
-   viewWidget->setFocus();
+   _qt->setFocus();
    return pWnd;
 }
 
 void CView::OnSetFocus(CWnd *)
 {
-   viewWidget->setFocus(); 
+   _qt->setFocus(); 
    focusWnd = this;
+}
+
+void CView::OnPaint()
+{
+   CPaintDC dc(this);
+   dc.attach(_qt,this);
+   OnDraw(&dc);
 }
 
 BOOL CView::Create( 
@@ -8831,9 +8707,11 @@ BOOL CView::Create(
    DWORD dwExStyle, 
    CCreateContext* pContext
 )
-{   
+{    
    if ( !CWnd::Create(lpszClassName,lpszWindowName,dwStyle,rect,pParentWnd,lpszMenuName,dwExStyle,pContext) )
       return FALSE;
+
+   _id = AFX_IDW_PANE_FIRST;
    
    // Add document to view.
    m_pDocument = pContext->m_pCurrentDoc;
@@ -8844,17 +8722,12 @@ BOOL CView::Create(
    // Set parent frame.
    m_pFrameWnd = pContext->m_pCurrentFrame;
    
-   viewWidget = new MFCWidget();
-   viewWidget->setMouseTracking(true);
-   _grid->addWidget(viewWidget,0,0);
-   viewWidget->setParent(toQWidget());
-   viewWidget->installEventFilter(this);
-   viewWidget->setFocusPolicy(Qt::StrongFocus);
-   
    _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left),(rect.bottom-rect.top));
    
    qtToMfcWindow.insert(_qtd,this);
 
+   m_pFrameWnd->addView(toQWidget());
+   
    return TRUE;
 }
 
@@ -8880,7 +8753,7 @@ BOOL CView::OnCmdMsg(UINT nID, int nCode, void* pExtra,
 IMPLEMENT_DYNAMIC(CControlBar,CWnd)
 
 BEGIN_MESSAGE_MAP(CControlBar,CWnd)
-//   ON_MESSAGE(WM_SIZEPARENT, OnSizeParent)
+   ON_MESSAGE(WM_SIZEPARENT, OnSizeParent)
    ON_MESSAGE(WM_IDLEUPDATECMDUI, OnIdleUpdateCmdUI)
 END_MESSAGE_MAP()
 
@@ -11619,6 +11492,7 @@ QPlainTextEdit_MFC::~QPlainTextEdit_MFC()
 
 void QPlainTextEdit_MFC::paintEvent(QPaintEvent *event)
 {
+   gInPaintEvent = true;
    CDC* pDC = _mfc?_mfc->GetDC():NULL;
    if ( _mfc )
    {
@@ -11638,6 +11512,7 @@ void QPlainTextEdit_MFC::paintEvent(QPaintEvent *event)
       _mfc->ReleaseDC(pDC);
       _mfc->SendMessage(WM_PAINT);
    }
+   gInPaintEvent = false;
 }
 
 QLineEdit_MFC::~QLineEdit_MFC()
@@ -11647,6 +11522,7 @@ QLineEdit_MFC::~QLineEdit_MFC()
 
 void QLineEdit_MFC::paintEvent(QPaintEvent *event)
 {
+   gInPaintEvent = true;
    CDC* pDC = _mfc?_mfc->GetDC():NULL;
    if ( _mfc )
    {
@@ -11666,6 +11542,7 @@ void QLineEdit_MFC::paintEvent(QPaintEvent *event)
       _mfc->ReleaseDC(pDC);
       _mfc->SendMessage(WM_PAINT);
    }
+   gInPaintEvent = false;
 }
 
 void QLineEdit_MFC::keyPressEvent(QKeyEvent *event)
@@ -13507,6 +13384,7 @@ QLabel_MFC::~QLabel_MFC()
 
 void QLabel_MFC::paintEvent(QPaintEvent *event)
 {
+   gInPaintEvent = true;
    CDC* pDC = _mfc?_mfc->GetDC():NULL;
    if ( _mfc )
    {
@@ -13526,6 +13404,7 @@ void QLabel_MFC::paintEvent(QPaintEvent *event)
       _mfc->ReleaseDC(pDC);
       _mfc->SendMessage(WM_PAINT);
    }
+   gInPaintEvent = false;
 }
 
 IMPLEMENT_DYNAMIC(CStatic,CWnd)

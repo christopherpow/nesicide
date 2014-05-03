@@ -4042,6 +4042,7 @@ public:
    // Qt interfaces
 public:
    void addControlBar(int area,QWidget* bar);
+   void addView(QWidget* view);
 public slots:
    void menuAction_triggered(int id);
    void focusChanged(QWidget* old, QWidget* now);
@@ -4191,10 +4192,6 @@ protected:
    virtual void focusInEvent(QFocusEvent *event);
    virtual void paintEvent(QPaintEvent *event);
    virtual void showEvent(QShowEvent *event);
-   virtual void mousePressEvent(QMouseEvent *event);
-   virtual void mouseMoveEvent(QMouseEvent *event);
-   virtual void mouseReleaseEvent(QMouseEvent *event);
-   virtual void mouseDoubleClickEvent(QMouseEvent *event);
 public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
    
    DECLARE_DYNAMIC(CView)
@@ -4228,9 +4225,8 @@ public:
    void OnSysKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {}
    void OnSysKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags) {}
    void OnSetFocus(CWnd *);
+   void OnPaint();
    virtual void OnInitialUpdate() {}
-   void Invalidate(BOOL bErase = TRUE) { viewWidget->update(); }
-   void RedrawWindow(LPCRECT rect=0,CRgn* rgn=0,UINT f=0) { viewWidget->update(); }
    CDocument* GetDocument() const { return m_pDocument; }
 
 protected:

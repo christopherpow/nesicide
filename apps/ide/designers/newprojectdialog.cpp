@@ -72,7 +72,7 @@ void NewProjectDialog::on_pathBrowse_clicked()
 
    QString path = settings.value("LastProjectBasePath").toString();
 
-   QString value = QFileDialog::getSaveFileName(this,"Project Path",path,"",NULL,QFileDialog::ShowDirsOnly);
+   QString value = QFileDialog::getExistingDirectory(this,"Project Path",path,QFileDialog::ShowDirsOnly);
 
    if ( !value.isEmpty() )
    {
