@@ -7123,7 +7123,7 @@ void CWnd::resizeEvent(QResizeEvent *event)
    {
       size.setHeight(size.height()-(GetSystemMetrics(SM_CYHSCROLL)+1));
    }
-   qDebug("size %dx%d",size.width(),size.height());
+//   qDebug("size %dx%d",size.width(),size.height());
    SendMessage(WM_SIZE,SIZE_RESTORED,(size.height()<<16)|(size.width()));
 }
 
@@ -7502,7 +7502,7 @@ void CWnd::RepositionBars(
    {
       if ( pWnd == pWndExtra )
       {
-         qDebug("layout.rect %d+%d,%dx%d",layout.rect.left,layout.rect.top,layout.rect.right-layout.rect.left,layout.rect.bottom-layout.rect.top);
+//         qDebug("layout.rect %d+%d,%dx%d",layout.rect.left,layout.rect.top,layout.rect.right-layout.rect.left,layout.rect.bottom-layout.rect.top);
          pWndExtra->MoveWindow(&layout.rect); //this causes wobble of the pattern view...
       }
       else
@@ -8647,7 +8647,7 @@ void CView::resizeEvent(QResizeEvent *event)
 {
    CRect rect(0,0,event->size().width(),event->size().height());
    rect.InflateRect(0,0,2*GetSystemMetrics(SM_CXEDGE),2*GetSystemMetrics(SM_CYEDGE));
-   qDebug("cv size %dx%d",event->size().width(),event->size().height());
+//   qDebug("cv size %dx%d",event->size().width(),event->size().height());
    CalcWindowRect(&rect);
 }
 

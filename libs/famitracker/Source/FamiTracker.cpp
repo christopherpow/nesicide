@@ -826,7 +826,6 @@ void CFamiTrackerApp::OnTrackerStop()
 	if (m_pSoundGenerator)
 		m_pSoundGenerator->StopPlayer();
 
-   qDebug("m_pMIDI->ResetOutput");
 //	m_pMIDI->ResetOutput();
 }
 

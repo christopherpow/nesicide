@@ -113,6 +113,9 @@
       </property>
       <item row="0" column="1">
        <widget class="QToolButton" name="previous">
+        <property name="toolTip">
+         <string>Previous Song</string>
+        </property>
         <property name="text">
          <string/>
         </property>
@@ -127,6 +130,9 @@
       </item>
       <item row="1" column="4">
        <widget class="QToolButton" name="shuffle">
+        <property name="toolTip">
+         <string>Shuffle Songs</string>
+        </property>
         <property name="text">
          <string/>
         </property>
@@ -144,6 +150,9 @@
       </item>
       <item row="1" column="2">
        <widget class="QToolButton" name="repeat">
+        <property name="toolTip">
+         <string>Repeat Song</string>
+        </property>
         <property name="text">
          <string/>
         </property>
@@ -161,6 +170,9 @@
       </item>
       <item row="1" column="1">
        <widget class="QToolButton" name="playOnStart">
+        <property name="toolTip">
+         <string>Play at Startup</string>
+        </property>
         <property name="text">
          <string/>
         </property>
@@ -178,6 +190,9 @@
       </item>
       <item row="0" column="0">
        <widget class="QToolButton" name="visuals">
+        <property name="toolTip">
+         <string>Show Visualizations</string>
+        </property>
         <property name="text">
          <string/>
         </property>
@@ -195,6 +210,9 @@
       </item>
       <item row="0" column="4">
        <widget class="QToolButton" name="next">
+        <property name="toolTip">
+         <string>Next Song</string>
+        </property>
         <property name="text">
          <string/>
         </property>
@@ -209,6 +227,9 @@
       </item>
       <item row="0" column="2">
        <widget class="QToolButton" name="playStop">
+        <property name="toolTip">
+         <string>Play/Pause</string>
+        </property>
         <property name="text">
          <string/>
         </property>
@@ -223,6 +244,9 @@
       </item>
       <item row="1" column="0">
        <widget class="QToolButton" name="browse">
+        <property name="toolTip">
+         <string>Add FTM Path</string>
+        </property>
         <property name="text">
          <string/>
         </property>
@@ -255,6 +279,9 @@
       </item>
       <item row="2" column="4">
        <widget class="QToolButton" name="timeLimit">
+        <property name="toolTip">
+         <string>Use Time Limiter</string>
+        </property>
         <property name="text">
          <string/>
         </property>
@@ -296,6 +323,9 @@
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>Track/Pattern Seek</string>
         </property>
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
