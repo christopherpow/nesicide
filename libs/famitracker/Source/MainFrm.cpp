@@ -2144,6 +2144,11 @@ CFrameEditor *CMainFrame::GetFrameEditor() const
 	return m_pFrameEditor;
 }
 
+CSampleWindow *CMainFrame::GetSampleWindow() const
+{
+	return m_pSampleWindow;
+}
+
 void CMainFrame::OnEditEnableMIDI()
 {
    qDebug("No MIDI support...");

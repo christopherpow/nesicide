@@ -111,11 +111,15 @@ void MainWindow::dropEvent(QDropEvent *event)
 void MainWindow::closeEvent(QCloseEvent *event)
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
-
-   AfxGetMainWnd()->OnClose();
-
+   
    settings.setValue("FamiTrackerWindowGeometry",saveGeometry());
    settings.setValue("FamiTrackerWindowState",saveState());
+   
+   // CP: Force synchronization because we're terminating in OnClose and the settings object
+   // can't synchronize to disk if we wait for that.
+   settings.sync();
+
+   AfxGetMainWnd()->OnClose();
 
    // Ignore the close event.  "MFC" will close the document which will trigger app closure.
    event->ignore();

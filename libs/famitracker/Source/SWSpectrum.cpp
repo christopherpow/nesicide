@@ -144,6 +144,5 @@ void CSWSpectrum::Draw(CDC *pDC, bool bMessage)
 
 		Step += Stepping;
 	}
-
-	StretchDIBits(*pDC, 0, 0, WIN_WIDTH, WIN_HEIGHT, 0, 0, WIN_WIDTH, WIN_HEIGHT, m_pBlitBuffer, &bmi, DIB_RGB_COLORS, SRCCOPY);
+   StretchDIBits(*pDC, 0, 0,  pDC->widget()->rect().width(),  pDC->widget()->rect().height(), 0, 0, WIN_WIDTH, WIN_HEIGHT, m_pBlitBuffer, &bmi, DIB_RGB_COLORS, SRCCOPY);
 }

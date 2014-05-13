@@ -3969,6 +3969,9 @@ void qtMfcInitDialogResource(UINT dlgID,CDialog* parent)
    case IDD_MAINBAR:
       qtMfcInitDialogResource_IDD_MAINBAR(parent);
       break;
+   case 0:
+      // CP: Allow blank dialogs.
+      break;
    default:
       qFatal("dialog resource not implemented...");
    }

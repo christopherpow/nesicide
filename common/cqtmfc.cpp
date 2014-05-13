@@ -1,4 +1,5 @@
 #include "cqtmfc.h"
+#include "resource.h"
 
 #include <stdarg.h>
 
@@ -7122,6 +7123,7 @@ void CWnd::resizeEvent(QResizeEvent *event)
    {
       size.setHeight(size.height()-(GetSystemMetrics(SM_CYHSCROLL)+1));
    }
+   qDebug("size %dx%d",size.width(),size.height());
    SendMessage(WM_SIZE,SIZE_RESTORED,(size.height()<<16)|(size.width()));
 }
 
@@ -7500,7 +7502,8 @@ void CWnd::RepositionBars(
    {
       if ( pWnd == pWndExtra )
       {
-         pWndExtra->MoveWindow(&layout.rect);
+         qDebug("layout.rect %d+%d,%dx%d",layout.rect.left,layout.rect.top,layout.rect.right-layout.rect.left,layout.rect.bottom-layout.rect.top);
+         pWndExtra->MoveWindow(&layout.rect); //this causes wobble of the pattern view...
       }
       else
       {
@@ -7569,6 +7572,15 @@ BOOL CWnd::PostMessage(
    post->msg.message = message;
    post->msg.wParam = wParam;
    post->msg.lParam = lParam;
+   
+   if ( backgroundedFamiTracker )
+   {
+      // CP: Don't want comment boxes popping up!
+      if ( wParam == ID_MODULE_COMMENTS )
+      {
+         return false;
+      }
+   }
 
    QApplication::postEvent(this,post);
    update();
@@ -8010,8 +8022,7 @@ CFrameWnd::CFrameWnd(CWnd *parent)
      m_pViewActive(NULL),
      m_pDocument(NULL),
      m_bInRecalcLayout(FALSE),
-     m_bAutoMenuEnable(TRUE),
-     initialized(false)
+     m_bAutoMenuEnable(TRUE)
 {
    int idx;
 
@@ -8064,7 +8075,10 @@ CFrameWnd::CFrameWnd(CWnd *parent)
    m_pMenu->LoadMenu(128);
    for ( idx = 0; idx < m_pMenu->GetMenuItemCount(); idx++ )
    {
-      ptrToTheApp->qtMainWindow->menuBar()->addMenu(m_pMenu->GetSubMenu(idx)->toQMenu());
+      if ( !backgroundedFamiTracker )
+      {
+         ptrToTheApp->qtMainWindow->menuBar()->addMenu(m_pMenu->GetSubMenu(idx)->toQMenu());
+      }
       QObject::connect(m_pMenu->GetSubMenu(idx),SIGNAL(menuAction_triggered(int)),this,SLOT(menuAction_triggered(int)));     
    }
    
@@ -8084,34 +8098,6 @@ CFrameWnd::~CFrameWnd()
    delete pIdleTimer;
    
    delete m_pMenu;
-}
-
-void CFrameWnd::showEvent(QShowEvent *event)
-{
-   CView* pView;
-   
-   if ( !initialized )
-   {
-      // Perform initialization that couldn't yet be done in the constructor due to being not-quite-MFC.
-      m_pDocument = (CDocument*)GetActiveDocument();
-
-      pView = (CView*)GetActiveView();
-
-      pView->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::MinimumExpanding));
-
-      pView->setFocusPolicy(Qt::StrongFocus);
-
-      realCentralWidget->setLayout(pView->toQWidget()->layout());
-
-      QObject::connect(m_pDocument,SIGNAL(documentSaved()),this,SIGNAL(documentSaved()));
-      QObject::connect(m_pDocument,SIGNAL(documentClosed()),this,SIGNAL(documentClosed()));
-
-      // Connect buried signals.
-      QObject::connect(m_pDocument,SIGNAL(setModified(bool)),this,SIGNAL(editor_modificationChanged(bool)));
-      QObject::connect(m_pDocument,SIGNAL(setModified(bool)),this,SLOT(setModified(bool)));
-
-      initialized = true;
-   }
 }
 
 void CFrameWnd::setModified(bool modified)
@@ -8200,6 +8186,19 @@ BOOL CFrameWnd::Create(
    
    // Create the view!
    pView->Create(lpszClassName,lpszWindowName,dwStyle|WS_VSCROLL|WS_HSCROLL,rect,pParentWnd,lpszMenuName,dwExStyle,pContext);
+
+   pView->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::MinimumExpanding));
+
+   pView->setFocusPolicy(Qt::StrongFocus);
+
+   realCentralWidget->setLayout(pView->toQWidget()->layout());
+
+   QObject::connect(m_pDocument,SIGNAL(documentSaved()),this,SIGNAL(documentSaved()));
+   QObject::connect(m_pDocument,SIGNAL(documentClosed()),this,SIGNAL(documentClosed()));
+
+   // Connect buried signals.
+   QObject::connect(m_pDocument,SIGNAL(setModified(bool)),this,SIGNAL(editor_modificationChanged(bool)));
+   QObject::connect(m_pDocument,SIGNAL(setModified(bool)),this,SLOT(setModified(bool)));
    
    return TRUE;
 }
@@ -8311,11 +8310,14 @@ void CFrameWnd::SetMessageText(LPCTSTR fmt,...)
    va_start(args,fmt);
    message.FormatV(fmt,args);
    va_end(args);
+   if ( !backgroundedFamiTracker )
+   {
 #if UNICODE
-   ptrToTheApp->qtMainWindow->statusBar()->showMessage(QString::fromWCharArray(message));
+      ptrToTheApp->qtMainWindow->statusBar()->showMessage(QString::fromWCharArray(message));
 #else
-   ptrToTheApp->qtMainWindow->statusBar()->showMessage(QString::fromLatin1(message));
+      ptrToTheApp->qtMainWindow->statusBar()->showMessage(QString::fromLatin1(message));
 #endif
+   }
 }
 
 void CFrameWnd::SetMessageText(
@@ -8644,7 +8646,8 @@ bool CView::eventFilter(QObject *object, QEvent *event)
 void CView::resizeEvent(QResizeEvent *event)
 {
    CRect rect(0,0,event->size().width(),event->size().height());
-   rect.InflateRect(0,0,GetSystemMetrics(SM_CXVSCROLL)+(2*GetSystemMetrics(SM_CXEDGE)),GetSystemMetrics(SM_CYHSCROLL)+(2*GetSystemMetrics(SM_CYEDGE)));
+   rect.InflateRect(0,0,2*GetSystemMetrics(SM_CXEDGE),2*GetSystemMetrics(SM_CYEDGE));
+   qDebug("cv size %dx%d",event->size().width(),event->size().height());
    CalcWindowRect(&rect);
 }
 
@@ -9021,11 +9024,11 @@ BOOL CReBar::Create(
    m_pReBarCtrl->Create(dwStyle,rect,this,nID);
    SetParent(pParentWnd);   
 
-//   pParentWnd->mfcToQtWidgetMap()->insert(nID,this);   
-//   mfcToQtWidgetMap()->insert(nID,m_pReBarCtrl);
+   if ( !backgroundedFamiTracker )
+   {
+      ptrToTheApp->qtMainWindow->addToolBar(dynamic_cast<QToolBar*>(m_pReBarCtrl->toQWidget()));
+   }
 
-   ptrToTheApp->qtMainWindow->addToolBar(dynamic_cast<QToolBar*>(m_pReBarCtrl->toQWidget()));
-   
    return TRUE;
 }
 
@@ -9272,11 +9275,14 @@ void CStatusBar::SetWindowText(
    LPCTSTR lpszString
 )
 {
+   if ( !backgroundedFamiTracker )
+   {
 #if UNICODE
    ptrToTheApp->qtMainWindow->statusBar()->showMessage(QString::fromWCharArray(lpszString));
 #else
    ptrToTheApp->qtMainWindow->statusBar()->showMessage(QString::fromLatin1(lpszString));
 #endif
+   }
 }
 
 BOOL CStatusBar::SetIndicators(
@@ -9296,7 +9302,10 @@ BOOL CStatusBar::SetIndicators(
       {
          mfcToQtWidget.insert(lpIDArray[pane],newPane);
       }
-      ptrToTheApp->qtMainWindow->statusBar()->addPermanentWidget(newPane->toQWidget());
+      if ( !backgroundedFamiTracker )
+      {
+         ptrToTheApp->qtMainWindow->statusBar()->addPermanentWidget(newPane->toQWidget());
+      }
    }
    return TRUE;
 }
@@ -10194,7 +10203,14 @@ BOOL CDocTemplate::GetDocString(
    switch ( index )
    {
    case windowTitle:
-      rString = " - FamiTracker";
+      if ( backgroundedFamiTracker )
+      {
+         rString = " - FamiPlayer";
+      }
+      else
+      {
+         rString = " - FamiTracker";
+      }
       break;
 
    case docName:
@@ -16233,4 +16249,11 @@ bool ideifiedFamiTracker = false;
 void ideifyFamiTracker()
 {
    ideifiedFamiTracker = true;
+}
+
+bool backgroundedFamiTracker = false;
+
+void backgroundifyFamiTracker()
+{
+   backgroundedFamiTracker = true;
 }

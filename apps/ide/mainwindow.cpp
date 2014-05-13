@@ -2165,6 +2165,10 @@ void MainWindow::closeEvent ( QCloseEvent* event )
       settings.setValue("DebuggingModeIDEState",saveState());
    }
 
+   // CP: Force synchronization because we're terminating in OnClose and the settings object
+   // can't synchronize to disk if we wait for that.
+   settings.sync();
+
    if (nesicideProject->isInitialized())
    {
       cancel = closeProject();

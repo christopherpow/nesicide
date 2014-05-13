@@ -46,6 +46,7 @@ protected: // create from serialization only
 // Attributes
 public:
 	CFrameEditor *GetFrameEditor() const;
+   CSampleWindow *GetSampleWindow() const;
 
 // Operations
 public:

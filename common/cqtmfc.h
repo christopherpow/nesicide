@@ -4049,10 +4049,7 @@ public slots:
    void onIdleSlot();
    void setModified(bool modified);
 protected:
-   void showEvent(QShowEvent *event);
    QTimer* pIdleTimer;   
-private:
-   bool initialized;
    
 signals:
    void addToolBarWidget(QToolBar* toolBar);
@@ -4186,7 +4183,6 @@ class CView : public CWnd
    Q_OBJECT
    // Qt stuff
 protected:
-   MFCWidget* viewWidget;
    virtual bool eventFilter(QObject *object, QEvent *event);
    virtual void resizeEvent(QResizeEvent *event);
    virtual void focusInEvent(QFocusEvent *event);
@@ -6397,5 +6393,8 @@ UINT mfcToQtKeycode(UINT mfc);
 
 extern bool ideifiedFamiTracker;
 void ideifyFamiTracker();
+
+extern bool backgroundedFamiTracker;
+void backgroundifyFamiTracker();
 
 #endif // CQTMFC_H

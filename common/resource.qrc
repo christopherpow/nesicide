@@ -155,5 +155,11 @@
         <file>resources/Toolbar-d5.bmp</file>
         <file>resources/Makefile.template</file>
         <file>resources/FamiTracker-Exe.ico</file>
+        <file>resources/Actions-arrow-left-double-icon.png</file>
+        <file>resources/Actions-arrow-right-double-icon.png</file>
+        <file>resources/Actions-arrow-right-icon.png</file>
+        <file>resources/Pause-icon.png</file>
+        <file>resources/Actions-edit-undo-icon.png</file>
+        <file>resources/Actions-games-solve-icon.png</file>
     </qresource>
 </RCC>
