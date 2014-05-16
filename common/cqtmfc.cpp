@@ -22,6 +22,7 @@ CWinApp* ptrToTheApp;
 CBrush nullBrush;
 
 bool gInPaintEvent = false;
+QString gApplicationName = "FamiTracker";
 
 using namespace qtmfc_workaround;
 
@@ -14722,7 +14723,7 @@ CRecentFileList::CRecentFileList(
    int nMaxDispLen  
 )
 {
-   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", gApplicationName);
    QString key;
    int n;
    
@@ -14765,7 +14766,7 @@ void CRecentFileList::Add(
 #else
    QString str = QString::fromLatin1(lpszPathName);
 #endif
-   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", gApplicationName);
    QString key;
    QString def;
    int n;
@@ -16253,7 +16254,8 @@ void ideifyFamiTracker()
 
 bool backgroundedFamiTracker = false;
 
-void backgroundifyFamiTracker()
+void backgroundifyFamiTracker(QString applicationName)
 {
+   gApplicationName = applicationName;
    backgroundedFamiTracker = true;
 }

@@ -133,11 +133,17 @@ INCLUDEPATH += \
    $$TOP/common
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    playlisteditordialog.cpp \
+    aboutdialog.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    playlisteditordialog.h \
+    aboutdialog.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    playlisteditordialog.ui \
+    aboutdialog.ui
 
 RESOURCES += \
     $$TOP/common/resource.qrc

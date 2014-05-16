@@ -161,5 +161,6 @@
         <file>resources/Pause-icon.png</file>
         <file>resources/Actions-edit-undo-icon.png</file>
         <file>resources/Actions-games-solve-icon.png</file>
+        <file>resources/application-x-mplayer2.png</file>
     </qresource>
 </RCC>

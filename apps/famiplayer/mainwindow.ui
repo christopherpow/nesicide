@@ -71,14 +71,14 @@
      <number>0</number>
     </property>
     <item row="1" column="0">
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
-      <property name="spacing">
-       <number>0</number>
-      </property>
+     <layout class="QGridLayout" name="gridLayout_5">
       <property name="sizeConstraint">
        <enum>QLayout::SetNoConstraint</enum>
       </property>
-      <item>
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <item row="0" column="0">
        <widget class="QComboBox" name="current">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -89,9 +89,12 @@
         <property name="editable">
          <bool>true</bool>
         </property>
+        <property name="maxVisibleItems">
+         <number>100</number>
+        </property>
        </widget>
       </item>
-      <item>
+      <item row="0" column="1">
        <widget class="QComboBox" name="subtune">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -99,210 +102,216 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="maxVisibleItems">
+         <number>100</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="2">
+       <widget class="QComboBox" name="paths"/>
+      </item>
+      <item row="0" column="2" rowspan="2">
+       <layout class="QGridLayout" name="gridLayout">
+        <property name="sizeConstraint">
+         <enum>QLayout::SetNoConstraint</enum>
+        </property>
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <item row="0" column="2">
+         <widget class="QToolButton" name="previous">
+          <property name="toolTip">
+           <string>Previous Song</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../../common/resource.qrc">
+            <normaloff>:/resources/Actions-arrow-left-double-icon.png</normaloff>:/resources/Actions-arrow-left-double-icon.png</iconset>
+          </property>
+          <property name="autoRaise">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="4">
+         <widget class="QToolButton" name="shuffle">
+          <property name="toolTip">
+           <string>Shuffle Songs</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../../common/resource.qrc">
+            <normaloff>:/resources/Actions-games-solve-icon.png</normaloff>:/resources/Actions-games-solve-icon.png</iconset>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <property name="autoRaise">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="3">
+         <widget class="QToolButton" name="repeat">
+          <property name="toolTip">
+           <string>Repeat Song</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../../common/resource.qrc">
+            <normaloff>:/resources/Actions-edit-undo-icon.png</normaloff>:/resources/Actions-edit-undo-icon.png</iconset>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <property name="autoRaise">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QToolButton" name="playOnStart">
+          <property name="toolTip">
+           <string>Play at Startup</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../../common/resource.qrc">
+            <normaloff>:/resources/22_execution.png</normaloff>:/resources/22_execution.png</iconset>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <property name="autoRaise">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QToolButton" name="visuals">
+          <property name="toolTip">
+           <string>Show Visualizations</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../../common/resource.qrc">
+            <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <property name="autoRaise">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="4">
+         <widget class="QToolButton" name="next">
+          <property name="toolTip">
+           <string>Next Song</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../../common/resource.qrc">
+            <normaloff>:/resources/Actions-arrow-right-double-icon.png</normaloff>:/resources/Actions-arrow-right-double-icon.png</iconset>
+          </property>
+          <property name="autoRaise">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3">
+         <widget class="QToolButton" name="playStop">
+          <property name="toolTip">
+           <string>Play/Pause</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../../common/resource.qrc">
+            <normaloff>:/resources/Actions-arrow-right-icon.png</normaloff>:/resources/Actions-arrow-right-icon.png</iconset>
+          </property>
+          <property name="autoRaise">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QToolButton" name="browse">
+          <property name="toolTip">
+           <string>Add FTM Path</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../../common/resource.qrc">
+            <normaloff>:/resources/22_document-save.png</normaloff>:/resources/22_document-save.png</iconset>
+          </property>
+          <property name="autoRaise">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QToolButton" name="playlist">
+          <property name="toolTip">
+           <string>Playlist Editor</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../../common/resource.qrc">
+            <normaloff>:/resources/application-x-mplayer2.png</normaloff>:/resources/application-x-mplayer2.png</iconset>
+          </property>
+          <property name="checkable">
+           <bool>false</bool>
+          </property>
+          <property name="autoRaise">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QToolButton" name="help">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../../common/resource.qrc">
+            <normaloff>:/resources/help-about.png</normaloff>:/resources/help-about.png</iconset>
+          </property>
+          <property name="autoRaise">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="2" column="0" colspan="3">
+       <widget class="QLabel" name="info">
+        <property name="text">
+         <string>TextLabel</string>
+        </property>
        </widget>
       </item>
      </layout>
     </item>
-    <item row="1" column="2" rowspan="3">
-     <layout class="QGridLayout" name="gridLayout">
-      <property name="sizeConstraint">
-       <enum>QLayout::SetNoConstraint</enum>
-      </property>
-      <property name="spacing">
-       <number>0</number>
-      </property>
-      <item row="0" column="1">
-       <widget class="QToolButton" name="previous">
-        <property name="toolTip">
-         <string>Previous Song</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="../../common/resource.qrc">
-          <normaloff>:/resources/Actions-arrow-left-double-icon.png</normaloff>:/resources/Actions-arrow-left-double-icon.png</iconset>
-        </property>
-        <property name="autoRaise">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="4">
-       <widget class="QToolButton" name="shuffle">
-        <property name="toolTip">
-         <string>Shuffle Songs</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="../../common/resource.qrc">
-          <normaloff>:/resources/Actions-games-solve-icon.png</normaloff>:/resources/Actions-games-solve-icon.png</iconset>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="autoRaise">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2">
-       <widget class="QToolButton" name="repeat">
-        <property name="toolTip">
-         <string>Repeat Song</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="../../common/resource.qrc">
-          <normaloff>:/resources/Actions-edit-undo-icon.png</normaloff>:/resources/Actions-edit-undo-icon.png</iconset>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="autoRaise">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QToolButton" name="playOnStart">
-        <property name="toolTip">
-         <string>Play at Startup</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="../../common/resource.qrc">
-          <normaloff>:/resources/22_execution.png</normaloff>:/resources/22_execution.png</iconset>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="autoRaise">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QToolButton" name="visuals">
-        <property name="toolTip">
-         <string>Show Visualizations</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="../../common/resource.qrc">
-          <normaloff>:/resources/22_preferences-desktop-display-color.png</normaloff>:/resources/22_preferences-desktop-display-color.png</iconset>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="autoRaise">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="4">
-       <widget class="QToolButton" name="next">
-        <property name="toolTip">
-         <string>Next Song</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="../../common/resource.qrc">
-          <normaloff>:/resources/Actions-arrow-right-double-icon.png</normaloff>:/resources/Actions-arrow-right-double-icon.png</iconset>
-        </property>
-        <property name="autoRaise">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QToolButton" name="playStop">
-        <property name="toolTip">
-         <string>Play/Pause</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="../../common/resource.qrc">
-          <normaloff>:/resources/Actions-arrow-right-icon.png</normaloff>:/resources/Actions-arrow-right-icon.png</iconset>
-        </property>
-        <property name="autoRaise">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QToolButton" name="browse">
-        <property name="toolTip">
-         <string>Add FTM Path</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="../../common/resource.qrc">
-          <normaloff>:/resources/22_document-save.png</normaloff>:/resources/22_document-save.png</iconset>
-        </property>
-        <property name="autoRaise">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0" colspan="4">
-       <widget class="QFrame" name="playTime">
-        <property name="frameShape">
-         <enum>QFrame::StyledPanel</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_3">
-         <property name="margin">
-          <number>0</number>
-         </property>
-         <property name="spacing">
-          <number>0</number>
-         </property>
-        </layout>
-       </widget>
-      </item>
-      <item row="2" column="4">
-       <widget class="QToolButton" name="timeLimit">
-        <property name="toolTip">
-         <string>Use Time Limiter</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="icon">
-         <iconset resource="../../common/resource.qrc">
-          <normaloff>:/resources/RR_bomb.png</normaloff>:/resources/RR_bomb.png</iconset>
-        </property>
-        <property name="checkable">
-         <bool>true</bool>
-        </property>
-        <property name="autoRaise">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-    <item row="2" column="0">
-     <widget class="QComboBox" name="paths"/>
-    </item>
-    <item row="3" column="0">
+    <item row="3" column="0" colspan="2">
      <layout class="QHBoxLayout" name="horizontalLayout_3">
       <property name="spacing">
        <number>0</number>
@@ -354,6 +363,51 @@
           <number>0</number>
          </property>
         </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QFrame" name="playTime">
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_3">
+         <property name="margin">
+          <number>0</number>
+         </property>
+         <property name="spacing">
+          <number>0</number>
+         </property>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="frames">
+        <property name="text">
+         <string>text</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="timeLimit">
+        <property name="toolTip">
+         <string>Use Time Limiter</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../../common/resource.qrc">
+          <normaloff>:/resources/RR_bomb.png</normaloff>:/resources/RR_bomb.png</iconset>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="autoRaise">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
      </layout>

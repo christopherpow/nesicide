@@ -47,6 +47,7 @@ protected: // create from serialization only
 public:
 	CFrameEditor *GetFrameEditor() const;
    CSampleWindow *GetSampleWindow() const;
+   CInstrumentEditDlg *GetInstrumentEditor();
 
 // Operations
 public:

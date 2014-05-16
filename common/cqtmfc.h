@@ -6395,6 +6395,6 @@ extern bool ideifiedFamiTracker;
 void ideifyFamiTracker();
 
 extern bool backgroundedFamiTracker;
-void backgroundifyFamiTracker();
+void backgroundifyFamiTracker(QString applicationName);
 
 #endif // CQTMFC_H

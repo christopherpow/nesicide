@@ -13,13 +13,16 @@ class CWndMFC : public CDialog
 {
    DECLARE_DYNAMIC(CWndMFC)
 
-protected:
-   int GetTimeLimit();
-
 public:   
    virtual BOOL OnInitDialog();
    afx_msg void OnDeltaposSpinTime(NMHDR *pNMHDR, LRESULT *pResult);
-   
+   afx_msg void OnDeltaposSpinLoop(NMHDR *pNMHDR, LRESULT *pResult);
+   afx_msg void OnEnChangeTimes();
+   afx_msg void OnEnChangeSeconds();
+   int GetTimeLimit();
+   int ConvertTime(LPCTSTR str);
+   int GetFrameLoopCount();
+
    DECLARE_MESSAGE_MAP()
 };
 
@@ -41,6 +44,9 @@ protected:
    void updateSubtuneText();
    void loadFile(QString file);
    void createShuffleLists();
+   void startSettleTimer();
+   void updateUiFromPlaylist();
+   void updateUiFromINI();
    bool eventFilter(QObject *object, QEvent *event);
 
 private:
@@ -55,6 +61,7 @@ private:
     QStringList m_shuffleListFolder;
     QStringList m_shuffleListSong;
     int m_iCurrentShuffleIndex;
+    int m_iFramesPlayed;
 
 private slots:
     void onIdleSlot();
@@ -73,6 +80,8 @@ private slots:
     void on_repeat_toggled(bool checked);
     void on_shuffle_toggled(bool checked);
     void on_timeLimit_toggled(bool checked);
+    void on_help_clicked();
+    void on_playlist_clicked();
 };
 
 #endif // MAINWINDOW_H
