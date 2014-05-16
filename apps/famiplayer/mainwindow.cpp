@@ -19,6 +19,7 @@
 #include <QCompleter>
 #include <QUrl>
 #include <QDateTime>
+#include <QMessageBox>
 
 IMPLEMENT_DYNAMIC(CWndMFC,CDialog)
 
@@ -384,11 +385,13 @@ void MainWindow::onIdleSlot()
    if ( m_bDraggingPosition )
    {
       // FF/RW
+      m_bCheck = false;
       pView->PlayerCommand(CMD_JUMP_TO,(ui->position->value()/pDoc->GetPatternLength())-1);
       pView->GetPatternView()->JumpToRow(ui->position->value()%pDoc->GetPatternLength());
    }
    else
    {
+      m_bCheck = true;
       ui->frames->setText(QString::number(m_iFramesPlayed)+"/"+QString::number(pDoc->ScanActualLength(pDoc->GetSelectedTrack(),m_pWndMFC->GetFrameLoopCount())));
       ui->position->setValue((pView->GetPatternView()->GetPlayFrame()*pDoc->GetPatternLength())+pView->GetPatternView()->GetPlayRow());
    }
@@ -710,14 +713,32 @@ void MainWindow::loadFile(QString file)
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiPlayer");
    CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
    CFamiTrackerDoc* pDoc = (CFamiTrackerDoc*)pMainFrame->GetActiveDocument();
+
    startSettleTimer();
-   openFile(file);
-   settings.setValue("CurrentFile",file);
+   pDoc = (CFamiTrackerDoc*)openFile(file);
    
-   m_iFramesPlayed = 0;
-   
-   ui->position->setRange(0,(pDoc->GetFrameCount()*pDoc->GetPatternLength()));
-   ui->position->setPageStep(pDoc->GetPatternLength());
+   if ( pDoc )
+   {
+      settings.setValue("CurrentFile",file);
+      
+      m_iFramesPlayed = 0;
+      
+      ui->position->setRange(0,(pDoc->GetFrameCount()*pDoc->GetPatternLength()));
+      ui->position->setPageStep(pDoc->GetPatternLength());
+   }
+   else
+   {
+      QString str = "Could not find file:\n\n"+file;
+      int result = QMessageBox::warning(this,"File load error!",str,"Next Track","Previous Track",0);
+      if ( result == 0 )
+      {
+         on_next_clicked();
+      }
+      else
+      {
+         on_previous_clicked();
+      }
+   }
 }
 
 void MainWindow::on_subtune_currentIndexChanged(int index)

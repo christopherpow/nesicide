@@ -15257,7 +15257,12 @@ UINT WINAPI GetTempFileName(
 
 CDocument* openFile(QString fileName)
 {
-   if ( fileName.isEmpty() )
+   QFileInfo fileInfo(fileName);
+   if ( !fileInfo.exists() )
+   {
+      return NULL;
+   }
+   else if ( fileName.isEmpty() )
    {
       return ptrToTheApp->OpenDocumentFile(NULL);
    }
