@@ -322,11 +322,15 @@ void MainWindow::onIdleSlot()
          int timeLimit = m_pWndMFC->GetTimeLimit();
          CString playTime;
          int totalPlayTime;
-         int loopCount;
          
          pMainFrame->GetDescendantWindow(AFX_IDW_STATUS_BAR)->GetDlgItemText(ID_INDICATOR_TIME,playTime);
          totalPlayTime = m_pWndMFC->ConvertTime(playTime);
-         loopCount = m_pWndMFC->GetDlgItemInt(IDC_TIMES);
+         
+         if ( lastFrame != pView->GetPlayFrame() )
+         {
+            lastFrame = pView->GetPlayFrame();
+            m_iFramesPlayed++;
+         }
          
          if ( ui->timeLimit->isChecked() )
          {
@@ -351,11 +355,6 @@ void MainWindow::onIdleSlot()
                   
                   // Create a bit of a delay between songs.
                   m_pTimer->start(500);
-               }
-               if ( lastFrame != pView->GetPlayFrame() )
-               {
-                  lastFrame = pView->GetPlayFrame();
-                  m_iFramesPlayed++;
                }
             }
          }

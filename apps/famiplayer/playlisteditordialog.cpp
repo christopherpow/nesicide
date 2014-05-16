@@ -90,7 +90,7 @@ void PlaylistEditorDialog::on_load_clicked()
 
 void PlaylistEditorDialog::on_save_clicked()
 {
-   QString fileName = QFileDialog::getSaveFileName(this,"Load Playlist",QDir::currentPath(),
+   QString fileName = QFileDialog::getSaveFileName(this,"Save Playlist",QDir::currentPath(),
                       "FamiPlayer Playlist (*.fpl)");
    if ( !fileName.isEmpty() )
    {
