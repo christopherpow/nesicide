@@ -391,7 +391,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QToolButton" name="timeLimit">
+       <widget class="QToolButton" name="limit">
         <property name="toolTip">
          <string>Use Time Limiter</string>
         </property>
@@ -404,6 +404,9 @@
         </property>
         <property name="checkable">
          <bool>true</bool>
+        </property>
+        <property name="popupMode">
+         <enum>QToolButton::InstantPopup</enum>
         </property>
         <property name="autoRaise">
          <bool>true</bool>

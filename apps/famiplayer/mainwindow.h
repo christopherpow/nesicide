@@ -55,6 +55,7 @@ private:
     bool m_bChangeSong;
     bool m_bCheck;
     bool m_bDraggingPosition;
+    QMenu* m_pLimitMenu;
     QTimer* m_pTimer;
     QTimer* m_pSettleTimer;
     CWndMFC* m_pWndMFC;
@@ -62,12 +63,16 @@ private:
     QStringList m_shuffleListSong;
     int m_iCurrentShuffleIndex;
     int m_iFramesPlayed;
+    bool m_bTimeLimited;
+    bool m_bLoopLimited;
 
 private slots:
     void onIdleSlot();
     void settleTimer_timeout();
     void current_returnPressed();
     void documentClosed();
+    void limitMenu_aboutToShow();
+    void limitMenu_triggered(QAction* action);
     void on_playStop_clicked();
     void on_browse_clicked();
     void on_next_clicked();
@@ -79,7 +84,6 @@ private slots:
     void on_playOnStart_toggled(bool checked);
     void on_repeat_toggled(bool checked);
     void on_shuffle_toggled(bool checked);
-    void on_timeLimit_toggled(bool checked);
     void on_help_clicked();
     void on_playlist_clicked();
 };

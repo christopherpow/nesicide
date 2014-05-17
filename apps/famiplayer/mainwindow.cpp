@@ -228,9 +228,21 @@ MainWindow::MainWindow(QWidget *parent) :
    {
       updateUiFromPlaylist();               
    }
+
+   m_bTimeLimited = settings.value("TimeLimiting",true).toBool();   
+   m_bLoopLimited = settings.value("LoopLimiting",true).toBool();
+   ui->limit->setChecked(m_bTimeLimited || m_bLoopLimited);
    
-   ui->timeLimit->setChecked(settings.value("TimeLimit",true).toBool());
-   on_timeLimit_toggled(settings.value("TimeLimit",true).toBool());
+   m_pLimitMenu = new QMenu;
+   QAction* action = m_pLimitMenu->addAction("Time-limiting");
+   action->setData(0);
+   action->setCheckable(true);
+   action = m_pLimitMenu->addAction("Loop-limiting");
+   action->setData(1);
+   action->setCheckable(true);
+   ui->limit->setMenu(m_pLimitMenu);
+   QObject::connect(m_pLimitMenu,SIGNAL(aboutToShow()),this,SLOT(limitMenu_aboutToShow()));
+   QObject::connect(m_pLimitMenu,SIGNAL(triggered(QAction*)),this,SLOT(limitMenu_triggered(QAction*)));
    
    m_iCurrentShuffleIndex = 0;
    ui->shuffle->setChecked(settings.value("Shuffle",false).toBool());
@@ -333,31 +345,27 @@ void MainWindow::onIdleSlot()
             m_iFramesPlayed++;
          }
          
-         if ( ui->timeLimit->isChecked() )
+         if ( m_bTimeLimited &&
+              (timeLimit == totalPlayTime) )
          {
-            if ( timeLimit == totalPlayTime )
-            {
-               // Force stop...
-               m_bPlaying = false;
-               pApp->OnCmdMsg(ID_TRACKER_TOGGLE_PLAY,0,0,0);
-               m_bChangeSong = true;
-               
-               // Create a bit of a delay between songs.
-               m_pTimer->start(500);
-            }
-            else
-            {   
-               if (m_iFramesPlayed > pDoc->ScanActualLength(pDoc->GetSelectedTrack(),m_pWndMFC->GetFrameLoopCount()))
-               {
-                  // Force stop...
-                  m_bPlaying = false;
-                  pApp->OnCmdMsg(ID_TRACKER_TOGGLE_PLAY,0,0,0);
-                  m_bChangeSong = true;
-                  
-                  // Create a bit of a delay between songs.
-                  m_pTimer->start(500);
-               }
-            }
+            // Force stop...
+            m_bPlaying = false;
+            pApp->OnCmdMsg(ID_TRACKER_TOGGLE_PLAY,0,0,0);
+            m_bChangeSong = true;
+            
+            // Create a bit of a delay between songs.
+            m_pTimer->start(500);
+         }
+         else if ( m_bLoopLimited &&
+                   m_iFramesPlayed > pDoc->ScanActualLength(pDoc->GetSelectedTrack(),m_pWndMFC->GetFrameLoopCount()) )
+         {   
+            // Force stop...
+            m_bPlaying = false;
+            pApp->OnCmdMsg(ID_TRACKER_TOGGLE_PLAY,0,0,0);
+            m_bChangeSong = true;
+            
+            // Create a bit of a delay between songs.
+            m_pTimer->start(500);
          }
          if ( !pApp->GetSoundGenerator()->IsPlaying() )
          {
@@ -899,12 +907,6 @@ void MainWindow::on_shuffle_toggled(bool checked)
    }
 }
 
-void MainWindow::on_timeLimit_toggled(bool checked)
-{
-   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiPlayer");
-   settings.setValue("TimeLimit",checked);
-}
-
 void MainWindow::updateUiFromINI()
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiPlayer");
@@ -1003,4 +1005,27 @@ void MainWindow::on_playlist_clicked()
    {
       on_playStop_clicked();
    }
+}
+
+void MainWindow::limitMenu_aboutToShow()
+{
+   m_pLimitMenu->actions().at(0)->setChecked(m_bTimeLimited);
+   m_pLimitMenu->actions().at(1)->setChecked(m_bLoopLimited);
+}
+
+void MainWindow::limitMenu_triggered(QAction* action)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiPlayer");
+   switch ( action->data().toInt() )
+   {
+   case 0:
+      m_bTimeLimited = action->isChecked();
+      break;
+   case 1:
+      m_bLoopLimited = action->isChecked();
+      break;
+   }
+   settings.setValue("TimeLimiting",m_bTimeLimited);
+   settings.setValue("LoopLimiting",m_bLoopLimited);
+   ui->limit->setChecked(m_bTimeLimited || m_bLoopLimited);
 }
