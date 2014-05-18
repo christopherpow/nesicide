@@ -169,11 +169,11 @@ MainWindow::MainWindow(QWidget *parent) :
    ui->indicators->layout()->addWidget(AfxGetMainWnd()->GetDescendantWindow(AFX_IDW_STATUS_BAR)->GetDlgItem(ID_INDICATOR_TIME)->toQWidget());
 
    m_bChangeSong = false;
-   
+   m_bPlaying = false;
+   m_bDraggingPosition = false;
+         
    // Enable grabbing the slider while playing.
    ui->position->installEventFilter(this);
-   
-   m_bDraggingPosition = false;
    
    // Create play-time widget...from MFC stuff.
    m_pWndMFC = new CWndMFC();   
@@ -251,8 +251,6 @@ MainWindow::MainWindow(QWidget *parent) :
    ui->repeat->setChecked(settings.value("Repeat",false).toBool());
    on_repeat_toggled(settings.value("Repeat",false).toBool());
 
-   m_bPlaying = false;
-   
    ui->playOnStart->setChecked(settings.value("PlayOnStart",false).toBool());
    if ( settings.value("PlayOnStart",false).toBool() )
    {
