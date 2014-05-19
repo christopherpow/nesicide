@@ -20,6 +20,7 @@
 #include <QUrl>
 #include <QDateTime>
 #include <QMessageBox>
+#include <QFileDialog>
 
 IMPLEMENT_DYNAMIC(CWndMFC,CDialog)
 
@@ -295,7 +296,7 @@ bool MainWindow::eventFilter(QObject *object, QEvent *event)
       CFamiTrackerView* pView = (CFamiTrackerView*)pMainFrame->GetActiveView();
       
       QPainter p;
-      QRect rect = pMainFrame->GetSampleWindow()->toQWidget()->rect().adjusted(2,2,-3,-3);
+      QRect rect = pMainFrame->GetSampleWindow()->toQWidget()->rect().adjusted(3,2,-3,-3);
       QPixmap pixmap(rect.size());
       p.begin(&pixmap);
       pMainFrame->GetSampleWindow()->toQWidget()->render(&p,QPoint(),QRegion(3,3,rect.width(),rect.height()));
@@ -491,23 +492,37 @@ void MainWindow::on_browse_clicked()
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiPlayer");
    QStringList folderList = settings.value("FolderList").toStringList();
-   QString lastFolder = settings.value("LastFolder").toString();
-   lastFolder = QFileDialog::getExistingDirectory(0,"Select a folder of FTMs...",lastFolder,0);
+   QString lastFolder = settings.value("LastFolder").toString();   
+   bool wasPlaying = m_bPlaying;
+   
+   if ( wasPlaying )
+   {
+      on_playStop_clicked();
+   }
+
+   lastFolder = QFileDialog::getExistingDirectory(this,"Select a folder of FTMs...",lastFolder,0);
    if ( !lastFolder.isEmpty() )
    {
       ui->paths->addItem(lastFolder);
       settings.setValue("LastFolder",lastFolder);
+      
+      // CP: Add folder to INI list even if it doesn't have any FTMs in it currently.
+      folderList.append(lastFolder);
+      folderList.removeDuplicates();
+      settings.setValue("FolderList",folderList);
 
       QDir dir(lastFolder);
       QFileInfoList fileInfos = dir.entryInfoList(QStringList("*.ftm"));
       if ( fileInfos.count() )
       {
-         folderList.append(lastFolder);
-         folderList.removeDuplicates();
-         settings.setValue("FolderList",folderList);
          changeFolder(lastFolder);
          createShuffleLists();
       }
+   }
+   
+   if ( wasPlaying )
+   {
+      on_playStop_clicked();
    }
 }
 
@@ -681,6 +696,10 @@ void MainWindow::changeFolder(QString newFolderPath)
    foreach ( QFileInfo fileInfo, fileInfos )
    {
       ui->current->addItem(fileInfo.fileName(),fileInfo.filePath());
+   }
+   if ( !ui->current->count() )
+   {
+      ui->paths->removeItem(ui->paths->currentIndex());
    }
 }
 
