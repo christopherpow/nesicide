@@ -45,8 +45,8 @@ protected:
    void loadFile(QString file);
    void createShuffleLists();
    void startSettleTimer();
-   void updateUiFromPlaylist();
-   void updateUiFromINI();
+   void updateUiFromPlaylist(bool wasPlaying);
+   void updateUiFromINI(bool wasPlaying);
    bool eventFilter(QObject *object, QEvent *event);
 
 private:
@@ -74,7 +74,6 @@ private slots:
     void limitMenu_aboutToShow();
     void limitMenu_triggered(QAction* action);
     void on_playStop_clicked();
-    void on_browse_clicked();
     void on_next_clicked();
     void on_previous_clicked();
     void on_paths_currentIndexChanged(const QString &arg1);

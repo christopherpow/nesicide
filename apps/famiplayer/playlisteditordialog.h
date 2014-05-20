@@ -29,12 +29,10 @@ private slots:
    void on_load_clicked();
    void on_save_clicked();
    void on_cancel_clicked();
-   
    void on_rescan_clicked();
-   
    void on_ok_clicked();
-   
-   void on_useINI_clicked();
+   void on_useINI_clicked();   
+   void on_addPath_clicked();
    
 private:
    Ui::PlaylistEditorDialog *ui;

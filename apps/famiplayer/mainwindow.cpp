@@ -155,6 +155,9 @@ MainWindow::MainWindow(QWidget *parent) :
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiPlayer");
    
+   // Randomizeme!
+   srand(QDateTime::currentDateTime().toTime_t());
+   
    ui->setupUi(this);
    
    m_pTimer = new QTimer;
@@ -164,7 +167,7 @@ MainWindow::MainWindow(QWidget *parent) :
    backgroundifyFamiTracker("FamiPlayer");
    qtMfcInit(this);
    theApp.InitInstance();
-
+   
    ui->paths->setDuplicatesEnabled(false);
       
    ui->indicators->layout()->addWidget(AfxGetMainWnd()->GetDescendantWindow(AFX_IDW_STATUS_BAR)->GetDlgItem(ID_INDICATOR_TIME)->toQWidget());
@@ -223,11 +226,11 @@ MainWindow::MainWindow(QWidget *parent) :
    
    if ( settings.value("PlaylistFile").toString().isEmpty() )
    {
-      updateUiFromINI();
+      updateUiFromINI(false);
    }
    else
    {
-      updateUiFromPlaylist();               
+      updateUiFromPlaylist(false);
    }
 
    m_bTimeLimited = settings.value("TimeLimiting",true).toBool();   
@@ -253,7 +256,7 @@ MainWindow::MainWindow(QWidget *parent) :
    on_repeat_toggled(settings.value("Repeat",false).toBool());
 
    ui->playOnStart->setChecked(settings.value("PlayOnStart",false).toBool());
-   if ( settings.value("PlayOnStart",false).toBool() )
+   if ( ui->playStop->isEnabled() && settings.value("PlayOnStart",false).toBool() )
    {
       on_playStop_clicked();
    }
@@ -460,11 +463,7 @@ void MainWindow::dropEvent(QDropEvent *event)
                on_playStop_clicked();
             }
             settings.setValue("PlaylistFile",fileInfo.filePath());
-            updateUiFromPlaylist();
-            if ( wasPlaying )
-            {
-               on_playStop_clicked();
-            }
+            updateUiFromPlaylist(wasPlaying);
             event->acceptProposedAction();
          }
       }
@@ -488,44 +487,6 @@ void MainWindow::closeEvent(QCloseEvent *event)
    event->ignore();
 }
 
-void MainWindow::on_browse_clicked()
-{
-   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiPlayer");
-   QStringList folderList = settings.value("FolderList").toStringList();
-   QString lastFolder = settings.value("LastFolder").toString();   
-   bool wasPlaying = m_bPlaying;
-   
-   if ( wasPlaying )
-   {
-      on_playStop_clicked();
-   }
-
-   lastFolder = QFileDialog::getExistingDirectory(this,"Select a folder of FTMs...",lastFolder,0);
-   if ( !lastFolder.isEmpty() )
-   {
-      ui->paths->addItem(lastFolder);
-      settings.setValue("LastFolder",lastFolder);
-      
-      // CP: Add folder to INI list even if it doesn't have any FTMs in it currently.
-      folderList.append(lastFolder);
-      folderList.removeDuplicates();
-      settings.setValue("FolderList",folderList);
-
-      QDir dir(lastFolder);
-      QFileInfoList fileInfos = dir.entryInfoList(QStringList("*.ftm"));
-      if ( fileInfos.count() )
-      {
-         changeFolder(lastFolder);
-         createShuffleLists();
-      }
-   }
-   
-   if ( wasPlaying )
-   {
-      on_playStop_clicked();
-   }
-}
-
 void MainWindow::on_playStop_clicked()
 {
    AfxGetApp()->OnCmdMsg(ID_TRACKER_TOGGLE_PLAY,0,0,0);
@@ -536,7 +497,7 @@ void MainWindow::on_playStop_clicked()
    }
    else
    {
-      ui->playStop->setIcon(QIcon(":/resources/stock_media-play.png"));
+      ui->playStop->setIcon(QIcon(":/resources/Actions-arrow-right-icon.png"));
    }
 }
 
@@ -693,6 +654,7 @@ void MainWindow::changeFolder(QString newFolderPath)
    QDir dir(ui->paths->currentText());
    QFileInfoList fileInfos = dir.entryInfoList(QStringList("*.ftm"));
    ui->current->clear();
+   ui->subtune->clear();
    foreach ( QFileInfo fileInfo, fileInfos )
    {
       ui->current->addItem(fileInfo.fileName(),fileInfo.filePath());
@@ -714,6 +676,7 @@ void MainWindow::changeSong(QString newSongPath)
       
       loadFile(fileInfo.filePath());
       ui->current->setToolTip(fileInfo.filePath());
+      ui->current->lineEdit()->setCursorPosition(0);
       updateSubtuneText();
    }
 }
@@ -924,43 +887,68 @@ void MainWindow::on_shuffle_toggled(bool checked)
    }
 }
 
-void MainWindow::updateUiFromINI()
+void MainWindow::updateUiFromINI(bool wasPlaying)
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiPlayer");
    QStringList folderList = settings.value("FolderList").toStringList();
    QString currentFolder = settings.value("CurrentFolder").toString();
    QString currentFile = settings.value("CurrentFile").toString();
    
-   // Randomizeme!
-   srand(QDateTime::currentDateTime().toTime_t());
-   
    ui->paths->clear();
    ui->current->clear();
+   ui->subtune->clear();
 
    if ( !folderList.isEmpty() )
    {
       ui->paths->addItems(folderList);
    }
    
-   if ( !currentFolder.isEmpty() )
+   if ( (!currentFolder.isEmpty()) &&
+        (ui->paths->findText(currentFolder,Qt::MatchExactly) != -1) )
    {
-      ui->paths->setCurrentIndex(ui->paths->findText(currentFolder));
+      ui->paths->setCurrentIndex(ui->paths->findText(currentFolder,Qt::MatchExactly));
+   }
+   else
+   {
+      ui->paths->setCurrentIndex(0);
    }
 
-   if ( !currentFile.isEmpty() )
+   if ( (!currentFile.isEmpty()) &&
+        (ui->current->findText(currentFile,Qt::MatchExactly) != -1) )
    {
       QFileInfo fileInfo(currentFile);
-      ui->current->setCurrentIndex(ui->current->findText(fileInfo.fileName()));
-   }   
+      ui->current->setCurrentIndex(ui->current->findText(fileInfo.fileName(),Qt::MatchExactly));
+   }
+   else
+   {
+      ui->current->setCurrentIndex(0);
+   }
+   createShuffleLists();
+   
+   // If the last folder in the playlist was deleted, or if the playlist has 
+   // no songs for some reason, revert to 'factory' configuration.
+   if ( !ui->current->count() )
+   {
+      AfxGetApp()->OnCmdMsg(ID_FILE_NEW,0,0,0);
+      ui->playStop->setEnabled(false);
+   }
+   else
+   {      
+      ui->playStop->setEnabled(true);
+      
+      if ( wasPlaying )
+      {
+         on_playStop_clicked();
+      }   
+   }
    
    ui->info->setText("No playlist loaded.");
-   ui->browse->setEnabled(true);
 }
 
-void MainWindow::updateUiFromPlaylist()
+void MainWindow::updateUiFromPlaylist(bool wasPlaying)
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiPlayer");
-   
+
    if ( !settings.value("PlaylistFile").toString().isEmpty() )
    {
       PlaylistEditorDialog ped;
@@ -968,12 +956,13 @@ void MainWindow::updateUiFromPlaylist()
       
       ui->paths->clear();
       ui->current->clear();
+      ui->subtune->clear();
       foreach ( QString file, files )
       {
          QFileInfo fileInfo(file);
          if ( fileInfo.exists() )
          {
-            if ( ui->paths->findText(fileInfo.path()) == -1 )
+            if ( ui->paths->findText(fileInfo.path(),Qt::MatchExactly) == -1 )
             {
                ui->paths->addItem(fileInfo.path());            
             }
@@ -981,12 +970,28 @@ void MainWindow::updateUiFromPlaylist()
          }
       }
       ui->info->setText("Playlist: "+settings.value("PlaylistFile").toString());
-      ui->browse->setEnabled(false);
    }
    else
    {
       ui->info->setText("No playlist loaded.");
-      ui->browse->setEnabled(true);
+   }
+   createShuffleLists();
+   
+   // If the last folder in the playlist was deleted, or if the playlist has 
+   // no songs for some reason, revert to 'factory' configuration.
+   if ( !ui->current->count() )
+   {
+      AfxGetApp()->OnCmdMsg(ID_FILE_NEW,0,0,0);
+      ui->playStop->setEnabled(false);
+   }
+   else
+   {      
+      ui->playStop->setEnabled(true);
+      
+      if ( wasPlaying )
+      {
+         on_playStop_clicked();
+      }   
    }
 }
 
@@ -1001,27 +1006,24 @@ void MainWindow::on_playlist_clicked()
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiPlayer");
    bool wasPlaying = m_bPlaying;
    
-   PlaylistEditorDialog ped;
-   
    if ( wasPlaying )
    {
       on_playStop_clicked();
    }
-
+   
+   PlaylistEditorDialog ped;
+   
    ped.exec();
    if ( settings.value("PlaylistFile").toString().isEmpty() )
    {
-      updateUiFromINI();
+      updateUiFromINI(wasPlaying);
    }
    else
    {
-      updateUiFromPlaylist();               
+      updateUiFromPlaylist(wasPlaying);               
    }
    
-   if ( wasPlaying )
-   {
-      on_playStop_clicked();
-   }
+   // Play-state is restored by update functions.
 }
 
 void MainWindow::limitMenu_aboutToShow()
