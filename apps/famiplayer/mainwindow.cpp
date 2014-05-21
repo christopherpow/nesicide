@@ -648,16 +648,19 @@ void MainWindow::on_current_currentIndexChanged(const QString &arg1)
 void MainWindow::changeFolder(QString newFolderPath)
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiPlayer");
+   QStringList playlist = settings.value("Playlist").toStringList();
    
    settings.setValue("CurrentFolder",newFolderPath);
 
-   QDir dir(ui->paths->currentText());
-   QFileInfoList fileInfos = dir.entryInfoList(QStringList("*.ftm"));
    ui->current->clear();
    ui->subtune->clear();
-   foreach ( QFileInfo fileInfo, fileInfos )
+   foreach ( QString file, playlist )
    {
-      ui->current->addItem(fileInfo.fileName(),fileInfo.filePath());
+      QFileInfo fileInfo(file);
+      if ( fileInfo.path() == newFolderPath )
+      {
+         ui->current->addItem(fileInfo.fileName(),fileInfo.filePath());
+      }
    }
    if ( !ui->current->count() )
    {
@@ -890,7 +893,8 @@ void MainWindow::on_shuffle_toggled(bool checked)
 void MainWindow::updateUiFromINI(bool wasPlaying)
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiPlayer");
-   QStringList folderList = settings.value("FolderList").toStringList();
+   QStringList playlist = settings.value("Playlist").toStringList();
+   QStringList folderList;
    QString currentFolder = settings.value("CurrentFolder").toString();
    QString currentFile = settings.value("CurrentFile").toString();
    
@@ -898,10 +902,14 @@ void MainWindow::updateUiFromINI(bool wasPlaying)
    ui->current->clear();
    ui->subtune->clear();
 
-   if ( !folderList.isEmpty() )
+   foreach ( QString file, playlist )
    {
-      ui->paths->addItems(folderList);
+      QFileInfo fileInfo(file);
+      folderList.append(fileInfo.path());
    }
+   folderList.removeDuplicates();
+
+   ui->paths->addItems(folderList);
    
    if ( (!currentFolder.isEmpty()) &&
         (ui->paths->findText(currentFolder,Qt::MatchExactly) != -1) )
@@ -912,11 +920,11 @@ void MainWindow::updateUiFromINI(bool wasPlaying)
    {
       ui->paths->setCurrentIndex(0);
    }
-
+   
+   QFileInfo fileInfo(currentFile);
    if ( (!currentFile.isEmpty()) &&
-        (ui->current->findText(currentFile,Qt::MatchExactly) != -1) )
+        (ui->current->findText(fileInfo.fileName(),Qt::MatchExactly) != -1) )
    {
-      QFileInfo fileInfo(currentFile);
       ui->current->setCurrentIndex(ui->current->findText(fileInfo.fileName(),Qt::MatchExactly));
    }
    else
@@ -948,6 +956,8 @@ void MainWindow::updateUiFromINI(bool wasPlaying)
 void MainWindow::updateUiFromPlaylist(bool wasPlaying)
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiPlayer");
+   QString currentFolder = settings.value("CurrentFolder").toString();
+   QString currentFile = settings.value("CurrentFile").toString();
 
    if ( !settings.value("PlaylistFile").toString().isEmpty() )
    {
@@ -957,6 +967,7 @@ void MainWindow::updateUiFromPlaylist(bool wasPlaying)
       ui->paths->clear();
       ui->current->clear();
       ui->subtune->clear();
+      
       foreach ( QString file, files )
       {
          QFileInfo fileInfo(file);
@@ -974,6 +985,27 @@ void MainWindow::updateUiFromPlaylist(bool wasPlaying)
    else
    {
       ui->info->setText("No playlist loaded.");
+   }
+
+   if ( (!currentFolder.isEmpty()) &&
+        (ui->paths->findText(currentFolder,Qt::MatchExactly) != -1) )
+   {
+      ui->paths->setCurrentIndex(ui->paths->findText(currentFolder,Qt::MatchExactly));
+   }
+   else
+   {
+      ui->paths->setCurrentIndex(0);
+   }
+
+   QFileInfo fileInfo(currentFile);
+   if ( (!currentFile.isEmpty()) &&
+        (ui->current->findText(fileInfo.fileName(),Qt::MatchExactly) != -1) )
+   {
+      ui->current->setCurrentIndex(ui->current->findText(fileInfo.fileName(),Qt::MatchExactly));
+   }
+   else
+   {
+      ui->current->setCurrentIndex(0);
    }
    createShuffleLists();
    

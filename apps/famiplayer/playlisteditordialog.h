@@ -18,8 +18,8 @@ public:
    QStringList playlist();
    
 protected:
-   void populateTreeFromFile(QString playlistFileName);
-   void populateTreeFromDisk();
+   void populateTreeFromFile();
+   void populateTreeFromINI();
    QStringList dumpTreeToList();
    void dumpTreeToFile(QString playlistFileName);
    

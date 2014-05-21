@@ -12,41 +12,10 @@ PlaylistEditorDialog::PlaylistEditorDialog(QWidget *parent) :
    QDialog(parent),
    ui(new Ui::PlaylistEditorDialog)
 {
-   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiPlayer");
-   QStringList folderList = settings.value("FolderList").toStringList();
-   QList<QTreeWidgetItem*> twis;
-
    ui->setupUi(this);
    
-   setWindowTitle("Playlist Editor: No playlist loaded. (Changes will affect INI)");
-   
-   foreach ( QString folder, folderList )
-   {
-      QTreeWidgetItem* twi = new QTreeWidgetItem(QStringList(folder));
-      twi->setFlags(twi->flags()|Qt::ItemIsUserCheckable);
-      twi->setCheckState(0,Qt::Checked);
-      twis.append(twi);
-   }
-
-   ui->playlist->addTopLevelItems(twis);
-   
-   foreach ( QTreeWidgetItem* twi, twis )
-   {
-      QDir dir(twi->text(0));
-      QFileInfoList fileInfos = dir.entryInfoList(QStringList("*.ftm"));
-      foreach ( QFileInfo fileInfo, fileInfos )
-      {
-         QTreeWidgetItem* twic = new QTreeWidgetItem(QStringList(fileInfo.fileName()));
-         twic->setFlags(twi->flags()|Qt::ItemIsUserCheckable);
-         twic->setCheckState(0,Qt::Checked);
-         twi->addChild(twic);
-      }
-   }
-   
-   if ( !settings.value("PlaylistFile").toString().isEmpty() )
-   {
-      populateTreeFromFile(settings.value("PlaylistFile").toString());
-   }
+   populateTreeFromINI();
+   populateTreeFromFile();
 }
 
 PlaylistEditorDialog::~PlaylistEditorDialog()
@@ -75,15 +44,18 @@ void PlaylistEditorDialog::on_playlist_itemChanged(QTreeWidgetItem *item, int co
          ui->playlist->blockSignals(false);
       }
    }
+   setWindowModified(true);
 }
 
 void PlaylistEditorDialog::on_load_clicked()
 {
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiPlayer");
    QString fileName = QFileDialog::getOpenFileName(this,"Load Playlist",QDir::currentPath(),
                       "FamiPlayer Playlist (*.fpl)");
    if ( !fileName.isEmpty() )
    {
-      populateTreeFromFile(fileName);
+      settings.setValue("PlaylistFile",fileName);
+      populateTreeFromFile();
    }
 }
 
@@ -96,6 +68,7 @@ void PlaylistEditorDialog::on_save_clicked()
    {
       settings.setValue("PlaylistFile",fileName);      
       dumpTreeToFile(fileName);
+      populateTreeFromFile();
    }
 }
 
@@ -147,6 +120,7 @@ void PlaylistEditorDialog::dumpTreeToFile(QString playlistFileName)
          playlistFile.write(QString(file+"\r\n").toLatin1());
       }
       playlistFile.close();
+      setWindowModified(false);
    }
    else
    {
@@ -154,123 +128,129 @@ void PlaylistEditorDialog::dumpTreeToFile(QString playlistFileName)
    }
 }
 
-void PlaylistEditorDialog::populateTreeFromFile(QString playlistFileName)
+void PlaylistEditorDialog::populateTreeFromFile()
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiPlayer");
    QStringList fileFullList;
-   QStringList folderList;
-   QList<QTreeWidgetItem*> twis;
-   QFile playlistFile(playlistFileName);
+   QFile playlistFile(settings.value("PlaylistFile").toString());
    QString fileToPlay;
    QFileInfo fileInfo;
-   
-   playlistFile.open(QIODevice::ReadOnly);
-   if ( playlistFile.isOpen() )
+
+   if ( !settings.value("PlaylistFile").toString().isEmpty() )
    {
-      ui->playlist->clear();
-      while ( !(fileToPlay = playlistFile.readLine()).isEmpty() )
+      playlistFile.open(QIODevice::ReadOnly);
+      if ( playlistFile.isOpen() )
       {
-         fileFullList.append(QDir::fromNativeSeparators(fileToPlay));
-         fileInfo.setFile(fileToPlay);
-         folderList.append(QDir::fromNativeSeparators(fileInfo.path()));
-      }
-      folderList.removeDuplicates();
-      fileFullList.removeDuplicates();
-      
-      foreach ( QString folder, folderList )
-      {
-         QFileInfo folderInfo(folder);      
-         QTreeWidgetItem* twi = new QTreeWidgetItem(QStringList(folder));
-         twi->setFlags(twi->flags()|Qt::ItemIsUserCheckable);
-         twi->setCheckState(0,Qt::Checked);
-         if ( !folderInfo.exists() )
+         ui->playlist->clear();
+         
+         while ( !(fileToPlay = playlistFile.readLine()).isEmpty() )
          {
-            twi->setDisabled(true);
+            fileFullList.append(QDir::fromNativeSeparators(fileToPlay));
          }
-         twis.append(twi);
+         fileFullList.replaceInStrings(QRegExp("[\r\n]"),"");         
+         fileFullList.removeDuplicates();
+         
+         settings.setValue("Playlist",fileFullList);
+         populateTreeFromINI();
+         
+         QString title;
+         title = "Playlist Editor: [*]";
+         title += settings.value("PlaylistFile").toString();
+         setWindowTitle(title);
+
+         playlistFile.close();
+         setWindowModified(false);
       }
-   
-      ui->playlist->addTopLevelItems(twis);
-      
-      foreach ( QTreeWidgetItem* twi, twis )
+      else
       {
-         foreach ( QString file, fileFullList )
-         {
-            file.remove(QRegExp("[\r\n]"));
-            fileInfo.setFile(file);
-            QTreeWidgetItem* twic = new QTreeWidgetItem(QStringList(fileInfo.fileName()));
-            twic->setFlags(twi->flags()|Qt::ItemIsUserCheckable);
-            twic->setCheckState(0,Qt::Checked);
-            twis = ui->playlist->findItems(fileInfo.path(),Qt::MatchExactly);
-            if ( twis.count() == 1 )
-            {
-               twis.at(0)->addChild(twic);
-            }
-            if ( !fileInfo.exists() )
-            {
-               twic->setDisabled(true);
-            }
-         }
+         QMessageBox::critical(this,"Error!","Could not open playlist file!");
       }
-      
-      settings.setValue("PlaylistFile",playlistFileName);
-      
-      QString title;
-      title = "Playlist Editor: ";
-      title += playlistFileName;
-      setWindowTitle(title);
-      
-      playlistFile.close();
-   }
-   else
-   {
-      QMessageBox::critical(this,"Error!","Could not open playlist file!");
    }
 }
 
-void PlaylistEditorDialog::populateTreeFromDisk()
+void PlaylistEditorDialog::populateTreeFromINI()
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiPlayer");
+   QStringList playlist = settings.value("Playlist").toStringList();
+   QStringList folderList;
    QList<QTreeWidgetItem*> twis;
-   QString fileToPlay;
-   QFileInfo fileInfo;
-   QTreeWidgetItemIterator twi(ui->playlist);
+
+   setWindowTitle("Playlist Editor: [*]No playlist loaded. (Changes will affect INI)");
    
-   while ( (*twi) )
+   ui->playlist->clear();
+   
+   foreach ( QString file, playlist )
    {
-      if ( !(*twi)->parent() )
-      {         
-         QFileInfo folderInfo((*twi)->text(0));      
-         (*twi)->setDisabled(false);
-         (*twi)->takeChildren();
-         if ( !folderInfo.exists() )
-         {
-            (*twi)->setDisabled(true);
-         }
-         else
-         {
-            QDir dir((*twi)->text(0));
-            QFileInfoList fileInfos = dir.entryInfoList(QStringList("*.ftm"));
-            foreach ( QFileInfo fileInfo, fileInfos )
-            {
-               QTreeWidgetItem* twic = new QTreeWidgetItem(QStringList(QDir::fromNativeSeparators(fileInfo.fileName())));
-               twic->setFlags((*twi)->flags()|Qt::ItemIsUserCheckable);
-               twic->setCheckState(0,Qt::Checked);
-               if ( !fileInfo.exists() )
-               {
-                  twic->setDisabled(true);
-               }
-               (*twi)->addChild(twic);
-            }
-         }
-      }
-      ++twi;
+      QFileInfo fileInfo(file);
+      folderList.append(fileInfo.path());
    }
+   folderList.removeDuplicates();
+
+   foreach ( QString folder, folderList )
+   {
+      QFileInfo folderInfo(folder);      
+      QTreeWidgetItem* twi = new QTreeWidgetItem(QStringList(folder));
+      twi->setFlags(twi->flags()|Qt::ItemIsUserCheckable);
+      twi->setCheckState(0,Qt::Checked);
+      if ( !folderInfo.exists() )
+      {
+         twi->setDisabled(true);
+      }
+      twis.append(twi);
+   }
+
+   ui->playlist->addTopLevelItems(twis);
+
+   foreach ( QString file, playlist )
+   {
+      QFileInfo fileInfo(file);
+      twis = ui->playlist->findItems(fileInfo.path(),Qt::MatchExactly);
+      if ( twis.count() == 1 )
+      {
+         QTreeWidgetItem* twic = new QTreeWidgetItem(QStringList(fileInfo.fileName()));
+         twic->setFlags(twic->flags()|Qt::ItemIsUserCheckable);
+         twic->setCheckState(0,Qt::Checked);
+         twic->setData(0,Qt::UserRole,fileInfo.path());
+         if ( !fileInfo.exists() )
+         {
+            twic->setDisabled(true);
+         }
+         twis.at(0)->addChild(twic);
+      }
+   }
+   setWindowModified(false);
 }
 
 void PlaylistEditorDialog::on_rescan_clicked()
 {
-   populateTreeFromDisk();
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiPlayer");
+   QTreeWidgetItemIterator twi(ui->playlist);
+   QStringList playlist = settings.value("Playlist").toStringList();
+   QDir dir;
+   QString file;
+   QStringList files;
+   QFileInfoList fileInfos;
+   
+   while ( *twi )
+   {
+      if ( !(*twi)->parent() )
+      {
+         // root == folder
+         dir.setPath((*twi)->text(0));
+         fileInfos = dir.entryInfoList(QStringList("*.ftm"));
+         
+         foreach ( QFileInfo fileInfo, fileInfos )
+         {
+            playlist.append(fileInfo.filePath());
+         }
+         playlist.removeDuplicates();
+      }
+      ++twi;
+   }
+   
+   settings.setValue("Playlist",playlist);
+   populateTreeFromINI();
+   setWindowModified(true);
 }
 
 QStringList PlaylistEditorDialog::playlist()
@@ -281,33 +261,33 @@ QStringList PlaylistEditorDialog::playlist()
 void PlaylistEditorDialog::on_ok_clicked()
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiPlayer");
-   QStringList folderList = settings.value("FolderList").toStringList();
-   QTreeWidgetItemIterator twi(ui->playlist);
-   
-   while ( *twi )
+   settings.setValue("Playlist",dumpTreeToList());
+   if ( isWindowModified() && !settings.value("PlaylistFile").toString().isEmpty() )
    {
-      if ( !(*twi)->parent() )
+      int result = QMessageBox::warning(this,"Save playlist?",
+                           "You have made changes to the loaded playlist file.  Do you "
+                           "want to save them?",QMessageBox::Yes,QMessageBox::No);
+      if ( result == QMessageBox::Yes )
       {
-         if ( (*twi)->checkState(0) != Qt::Checked )
-         {
-            folderList.removeAll((*twi)->text(0));
-         }
-         else
-         {
-            folderList.append((*twi)->text(0));
-         }
+         dumpTreeToFile(settings.value("PlaylistFile").toString());
       }
-      ++twi;
-   }   
-   folderList.removeDuplicates();
-   settings.setValue("FolderList",folderList);
-   
+   }
    accept();
 }
 
 void PlaylistEditorDialog::on_useINI_clicked()
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiPlayer");
+   if ( isWindowModified() && !settings.value("PlaylistFile").toString().isEmpty() )
+   {
+      int result = QMessageBox::warning(this,"Save playlist?",
+                           "You have made changes to the loaded playlist file.  Do you "
+                           "want to save them?",QMessageBox::Yes,QMessageBox::No);
+      if ( result == QMessageBox::Yes )
+      {
+         dumpTreeToFile(settings.value("PlaylistFile").toString());
+      }
+   }
    settings.remove("PlaylistFile");
    accept();
 }
@@ -315,7 +295,7 @@ void PlaylistEditorDialog::on_useINI_clicked()
 void PlaylistEditorDialog::on_addPath_clicked()
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiPlayer");
-   QStringList folderList = settings.value("FolderList").toStringList();
+   QStringList playlist = settings.value("Playlist").toStringList();
    QString lastFolder = settings.value("LastFolder").toString();   
 
    lastFolder = QFileDialog::getExistingDirectory(this,"Select a folder of FTMs...",lastFolder,0);
@@ -329,6 +309,18 @@ void PlaylistEditorDialog::on_addPath_clicked()
       twi->setCheckState(0,Qt::Checked);
       ui->playlist->addTopLevelItem(twi);
       
-      populateTreeFromDisk();
+      QDir dir(lastFolder);
+      QFileInfoList fileInfos = dir.entryInfoList(QStringList("*.ftm"));
+      foreach ( QFileInfo fileInfo, fileInfos )
+      {
+         QTreeWidgetItem* twic = new QTreeWidgetItem(QStringList(fileInfo.fileName()));
+         twic->setFlags(twic->flags()|Qt::ItemIsUserCheckable);
+         twic->setCheckState(0,Qt::Checked);
+         twic->setData(0,Qt::UserRole,lastFolder);
+         twi->addChild(twic);
+      }
+      
+      settings.setValue("Playlist",dumpTreeToList());
+      setWindowModified(true);
    }
 }
