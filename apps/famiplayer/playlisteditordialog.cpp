@@ -250,6 +250,15 @@ void PlaylistEditorDialog::on_rescan_clicked()
    
    settings.setValue("Playlist",playlist);
    populateTreeFromINI();
+
+   // CP: Fix window title from call to populateTreeFromINI if a file is actually loaded.   
+   if ( !settings.value("PlaylistFile").toString().isEmpty() )
+   {
+      QString title;
+      title = "Playlist Editor: [*]";
+      title += settings.value("PlaylistFile").toString();
+      setWindowTitle(title);
+   }
    setWindowModified(true);
 }
 
