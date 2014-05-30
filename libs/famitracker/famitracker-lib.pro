@@ -22,6 +22,10 @@ INCLUDEPATH += \
    Source \
    $$TOP/common
 
+debug {
+   DEFINES += _DEBUG
+}
+
 win32 {
 	DEPENDENCYPATH = $$TOP/deps/Windows
 }

@@ -2578,6 +2578,10 @@ public:
       const CRuntimeClass* pClass  
    ) const;
    
+#ifdef _DEBUG
+   virtual void AssertValid() const {}
+   virtual void Dump(CDumpContext& dc) const {}
+#endif
 };
 
 #define AFX_MSG_CALL

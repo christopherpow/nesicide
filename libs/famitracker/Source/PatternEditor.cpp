@@ -700,8 +700,8 @@ void CPatternView::DrawScreen(CDC *pDC, CFamiTrackerView *pView)
 	int PosY = 100;
 	pDC->SetTextColor(0xFFFF);
 	pDC->SetBkColor(0);
-	Text.Format(_T("%i ms"), (__int64(EndTime.QuadPart) - __int64(StartTime.QuadPart)) / (__int64(Freq.QuadPart) / 1000));
-	pDC->TextOut(m_iWinWidth - 150, PosY, Text); PosY += 20;
+//	Text.Format(_T("%i ms"), (__int64(EndTime.QuadPart) - __int64(StartTime.QuadPart)) / (__int64(Freq.QuadPart) / 1000));
+//	pDC->TextOut(m_iWinWidth - 150, PosY, Text); PosY += 20;
 	Text.Format(_T("%i redraws"), m_iRedraws);
 	pDC->TextOut(m_iWinWidth - 150, PosY, Text); PosY += 20;
 	Text.Format(_T("%i fast redraws"), m_iFastRedraws);

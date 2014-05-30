@@ -2819,7 +2819,7 @@ CDC::CDC()
    _lineOrg.y = 0;
    _bkColor = QColor(0,0,0);
    _bkMode = 0;
-   _textColor = QColor(0,0,0);
+   _textColor = QColor(255,255,255);
    _windowOrg.x = 0;
    _windowOrg.y = 0;
    attached = false;
@@ -2849,7 +2849,7 @@ CDC::CDC(CWnd* parent)
    _lineOrg.y = 0;
    _bkColor = QColor(0,0,0);
    _bkMode = 0;
-   _textColor = QColor(0,0,0);
+   _textColor = QColor(255,255,255);
    _windowOrg.x = 0;
    _windowOrg.y = 0;
    attached = false;
@@ -6851,9 +6851,9 @@ BOOL CWnd::OnCommand(
    }
    
 #ifdef _DEBUG
-if (nCode < 0 && nCode != (int)0x8000)
-   TRACE(traceAppMsg, 0, "Implementation Warning: control notification = $%X.\n",
-      nCode);
+//if (nCode < 0 && nCode != (int)0x8000)
+//   TRACE(traceAppMsg, 0, "Implementation Warning: control notification = $%X.\n",
+//      nCode);
 #endif
 
    return OnCmdMsg(nID, nCode, NULL, NULL);
@@ -8659,7 +8659,7 @@ void CView::focusInEvent(QFocusEvent *event)
 
 void CView::paintEvent(QPaintEvent *event)
 {
-   static QSize currentSize = size();
+   static QSize currentSize = _qt->size();
    gInPaintEvent = true;
    CDC* pDC = _myDC;
 //   AFX_CTLCOLOR ctlColor;
@@ -8667,10 +8667,10 @@ void CView::paintEvent(QPaintEvent *event)
 //   ctlColor.hDC = (HDC)pDC;
 //   ctlColor.nCtlType = 0;
 //   SendMessage(WM_CTLCOLOR+WM_REFLECT_BASE,0,(LPARAM)&ctlColor);
-//   if ( size() != currentSize )
+   if ( _qt->size() != currentSize )
    {
       SendMessage(WM_ERASEBKGND,(WPARAM)(HDC)pDC);
-      currentSize = size();
+      currentSize = _qt->size();
    }
    SendMessage(WM_PAINT);
    gInPaintEvent = false;
