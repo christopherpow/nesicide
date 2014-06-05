@@ -4,7 +4,11 @@
 #
 #-------------------------------------------------
 
-QT       += core gui # widgets
+QT       += core gui
+
+greaterThan(QT_MAJOR_VERSION,4) {
+    QT += widgets
+}
 
 TOP = ../..
 
@@ -76,12 +80,12 @@ mac {
 
    QMAKE_POST_LINK += install_name_tool -change libfamitracker.1.dylib \
       @executable_path/../Frameworks/libfamitracker.1.dylib \
-      $${DESTDIR}/$${TARGET}.app/Contents/MacOS/famitracker $$escape_expand(\n\t)
+      $${DESTDIR}/$${TARGET}.app/Contents/MacOS/famiplayer $$escape_expand(\n\t)
 
    # SDL
    QMAKE_POST_LINK += cp -r $$DEPENDENCYPATH/SDL.framework \
       $${DESTDIR}/$${TARGET}.app/Contents/Frameworks/ $$escape_expand(\n\t)
-   QMAKE_POST_LINK += install_name_tool -add_rpath @loader_path/../Frameworks $${DESTDIR}/$${TARGET}.app/Contents/MacOS/famitracker $$escape_expand(\n\t)
+   QMAKE_POST_LINK += install_name_tool -add_rpath @loader_path/../Frameworks $${DESTDIR}/$${TARGET}.app/Contents/MacOS/famiplayer $$escape_expand(\n\t)
    #QMAKE_POST_LINK += install_name_tool -change SDL \
    #   @executable_path/../Frameworks/SDL.framework/SDL \
    #   $${DESTDIR}/$${TARGET}.app/Contents/MacOS/famitracker $$escape_expand(\n\t)

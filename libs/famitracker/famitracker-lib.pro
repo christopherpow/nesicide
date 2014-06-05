@@ -7,7 +7,11 @@
 TARGET = famitracker
 TEMPLATE = lib
 
-QT += core gui # widgets
+QT += core gui
+
+greaterThan(QT_MAJOR_VERSION,4) {
+    QT += widgets
+}
 
 TOP = ../..
 
@@ -21,10 +25,6 @@ INCLUDEPATH += \
    . \
    Source \
    $$TOP/common
-
-debug {
-   DEFINES += _DEBUG
-}
 
 win32 {
 	DEPENDENCYPATH = $$TOP/deps/Windows
@@ -331,7 +331,7 @@ unix:!symbian {
 
 unix:mac {
 	# windows.h and co.
-	NIX_CFLAGS = -I $$DEPENDENCYPATH/wine/include -DWINE_UNICODE_NATIVE
+        NIX_CFLAGS = -I $$DEPENDENCYPATH/wine/include -DWINE_UNICODE_NATIVE
 
 	# stdafx.h
 	NIX_CFLAGS += -I $$DEPENDENCYPATH

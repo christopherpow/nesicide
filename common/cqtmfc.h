@@ -2153,12 +2153,6 @@ enum
                 p = NULL;       \
         }       \
 
-
-#if defined(Q_OS_WIN32)
-#define max(a,b) (((a) > (b)) ? (a) : (b))
-#define min(a,b) (((a) > (b)) ? (b) : (a))
-#endif
-
 // workaround to force ignore ms_abi errors, not needed as long as we don't link with other mfc implementations
 // also g++ doesn't have __has_attribute()
 #if !defined(Q_OS_WIN) && !defined(Q_OS_WIN32) && !defined(__GNUC__) && !defined(__GNUG__)
@@ -2169,6 +2163,11 @@ enum
 
 #include <windows.h>
 #include <prsht.h>
+
+#if defined(Q_OS_WIN) || defined (Q_OS_WIN32)
+#define max(a,b) (((a) > (b)) ? (a) : (b))
+#define min(a,b) (((a) > (b)) ? (b) : (a))
+#endif
 
 #define stricmp strcasecmp
 

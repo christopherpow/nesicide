@@ -1,8 +1,3 @@
-#include "cqtmfc.h"
-#include "resource.h"
-
-#include <stdarg.h>
-
 #include <QCoreApplication>
 #include <QApplication>
 #include <QLinearGradient>
@@ -16,6 +11,11 @@
 #include <QUuid>
 #include <QDateTime>
 #include <QPaintEngine>
+
+#include "cqtmfc.h"
+#include "resource.h"
+
+#include <stdarg.h>
 
 CWinApp* ptrToTheApp;
 
@@ -8078,9 +8078,10 @@ CFrameWnd::CFrameWnd(CWnd *parent)
    {
       if ( !backgroundedFamiTracker )
       {
+          qDebug("ptrToTheApp %x, qtMainWindow %x",ptrToTheApp,ptrToTheApp->qtMainWindow);
          ptrToTheApp->qtMainWindow->menuBar()->addMenu(m_pMenu->GetSubMenu(idx)->toQMenu());
       }
-      QObject::connect(m_pMenu->GetSubMenu(idx),SIGNAL(menuAction_triggered(int)),this,SLOT(menuAction_triggered(int)));     
+      QObject::connect(m_pMenu->GetSubMenu(idx),SIGNAL(menuAction_triggered(int)),this,SLOT(menuAction_triggered(int)));
    }
    
    // Get focus changes...

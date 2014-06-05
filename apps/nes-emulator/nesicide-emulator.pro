@@ -56,7 +56,7 @@ mac {
    QMAKE_POST_LINK += install_name_tool -change libnes-emulator.1.dylib \
       @executable_path/../Frameworks/libnes-emulator.1.dylib \'$${BUILD_DIR}/$${TARGET}.app/Contents/MacOS/$${TARGET}\' $$escape_expand(\n\t)
 
-   ICON = ./Resources/controller.icns
+   ICON = $$TOP/common/resources/controller.icns
 }
 
 unix:!mac {

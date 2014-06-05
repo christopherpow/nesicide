@@ -979,7 +979,7 @@ void CFamiTrackerView::OnInitialUpdate()
 	CFrameEditor *pFrameEditor = pMainFrame->GetFrameEditor();
 	ASSERT_VALID(pFrameEditor);
 
-	TRACE1("View: OnInitialUpdate (%s)\n", pDoc->GetTitle());
+//	TRACE1("View: OnInitialUpdate (%s)\n", pDoc->GetTitle());
 
 	// Setup order window
 	pFrameEditor->AssignDocument(pDoc, this);

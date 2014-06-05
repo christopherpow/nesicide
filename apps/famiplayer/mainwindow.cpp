@@ -1,5 +1,13 @@
+#include <QDateTime>
+
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+
+#include <QFileInfo>
+#include <QCompleter>
+#include <QUrl>
+#include <QMessageBox>
+#include <QFileDialog>
 
 #include "cqtmfc_famitracker.h"
 
@@ -14,13 +22,6 @@
 
 #include "playlisteditordialog.h"
 #include "aboutdialog.h"
-
-#include <QFileInfo>
-#include <QCompleter>
-#include <QUrl>
-#include <QDateTime>
-#include <QMessageBox>
-#include <QFileDialog>
 
 IMPLEMENT_DYNAMIC(CWndMFC,CDialog)
 
