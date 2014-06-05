@@ -129,6 +129,8 @@ unix:!mac {
    NES_LIBS = -L$$TOP/libs/nes -lnes-emulator
    C64_LIBS = -L$$TOP/libs/c64 -lc64-emulator
    FAMITRACKER_LIBS = -L$$TOP/libs/famitracker -lfamitracker
+   FAMITRACKER_LFLAGS = -Wl,-rpath=\"$$PWD/$$TOP/libs/famitracker\"
+   NES_LFLAGS = -Wl,-rpath=\"$$PWD/$$TOP/libs/nes\"
 
     # if the user didnt set cxxflags and libs then use defaults
     ###########################################################
@@ -192,6 +194,8 @@ QMAKE_CXXFLAGS += -DIDE \
                   $$SDL_CXXFLAGS \
                   $$LUA_CXXFLAGS \
                   $$SCINTILLA_CXXFLAGS
+QMAKE_LFLAGS += $$FAMITRACKER_LFLAGS \
+                $$NES_LFLAGS
 LIBS += $$NES_LIBS \
         $$C64_LIBS \
         $$FAMITRACKER_LIBS \

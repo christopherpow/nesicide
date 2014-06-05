@@ -93,6 +93,7 @@ mac {
 
 unix:!mac {
    FAMITRACKER_CXXFLAGS = -I$$TOP/libs/famitracker -I/usr/include/wine/windows/
+   FAMITRACKER_LFLAGS = -Wl,-rpath=\"$$PWD/$$TOP/libs/famitracker\"
 
     # if the user didnt set cxxflags and libs then use defaults
     ###########################################################
@@ -120,6 +121,7 @@ unix:!mac {
 
 QMAKE_CXXFLAGS += $$FAMITRACKER_CXXFLAGS \
                   $$SDL_CXXFLAGS
+QMAKE_LFLAGS = $$FAMITRACKER_LFLAGS
 LIBS += $$FAMITRACKER_LIBS \
         $$SDL_LIBS
 
