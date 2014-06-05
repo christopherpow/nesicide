@@ -1485,7 +1485,7 @@ CRuntimeClass CObject::classCObject =
 {
 "CObject",
 sizeof(CObject),
--1,
+(UINT)-1,
 NULL,
 NULL,
 NULL

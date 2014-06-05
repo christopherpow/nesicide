@@ -2528,7 +2528,7 @@ public: \
    { \
    #derived_class, \
    sizeof(derived_class), \
-   -1, \
+   (UINT)-1, \
    &derived_class::CreateObject, \
    NULL, \
    RUNTIME_CLASS(base_class) \
@@ -2554,7 +2554,7 @@ public: \
    { \
    #derived_class, \
    sizeof(derived_class), \
-   -1, \
+   (UINT)-1, \
    NULL, \
    NULL, \
    RUNTIME_CLASS(base_class) \
