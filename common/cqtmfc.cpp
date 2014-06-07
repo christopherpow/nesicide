@@ -1491,7 +1491,7 @@ NULL,
 NULL
 };
 
-CRuntimeClass* CObject::GetRuntimeClass()
+CRuntimeClass* CObject::GetRuntimeClass() const
 {
    return &classCObject;
 }
@@ -1515,11 +1515,6 @@ BOOL CObject::IsKindOf(
       pClass = pClass->m_pBaseClass;
    }
    return FALSE;
-}
-
-CRuntimeClass* CObject::GetRuntimeClass() const
-{
-   return &classCObject;
 }
 
 /*
@@ -8072,14 +8067,19 @@ CFrameWnd::CFrameWnd(CWnd *parent)
 
    _qt->setLayout(_grid);
 
+   if ( !backgroundedFamiTracker )
+   {
+      ptrToTheApp->qtMainWindow->menuBar()->setNativeMenuBar(false);
+   }
+
    m_pMenu = new CMenu;
    m_pMenu->LoadMenu(128);
    for ( idx = 0; idx < m_pMenu->GetMenuItemCount(); idx++ )
    {
       if ( !backgroundedFamiTracker )
       {
-          qDebug("ptrToTheApp %x, qtMainWindow %x",ptrToTheApp,ptrToTheApp->qtMainWindow);
-         ptrToTheApp->qtMainWindow->menuBar()->addMenu(m_pMenu->GetSubMenu(idx)->toQMenu());
+         QMenu* pMenu = m_pMenu->GetSubMenu(idx)->toQMenu();
+         ptrToTheApp->qtMainWindow->menuBar()->addMenu(pMenu);
       }
       QObject::connect(m_pMenu->GetSubMenu(idx),SIGNAL(menuAction_triggered(int)),this,SLOT(menuAction_triggered(int)));
    }

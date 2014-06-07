@@ -450,7 +450,7 @@ void CPatternView::Invalidate(bool bEntire)
 	// Called when the pattern editor needs to be redrawn and not just painted on screen
 	// bEntire: Draw the unused background in pattern editor
 	m_bUpdated = true;
-	m_bDrawEntire = bEntire;
+   m_bDrawEntire = bEntire;
 }
 
 void CPatternView::Modified()
@@ -667,7 +667,7 @@ void CPatternView::DrawScreen(CDC *pDC, CFamiTrackerView *pView)
 		pDC->BitBlt(0, HEADER_HEIGHT, iBlitWidth, iBlitHeight, m_pPatternDC, 0, 0, SRCCOPY);
 	else {
 		// Copy the back buffer to screen
-		if (m_bDrawEntire)
+      if (m_bDrawEntire)
 			DrawUnbufferedArea(pDC);
 		
 		pDC->BitBlt(0, 0, iBlitWidth, HEADER_HEIGHT, m_pHeaderDC, 0, 0, SRCCOPY);

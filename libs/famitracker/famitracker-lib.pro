@@ -15,7 +15,16 @@ greaterThan(QT_MAJOR_VERSION,4) {
 
 TOP = ../..
 
-DEFINES += FAMITRACKER_LIBRARY
+CONFIG(release, debug|release) {
+   DESTDIR = release
+} else {
+   DESTDIR = debug
+}
+
+OBJECTS_DIR = $$DESTDIR
+MOC_DIR = $$DESTDIR
+RCC_DIR = $$DESTDIR
+UI_DIR = $$DESTDIR
 
 DEFINES -= UNICODE
 
@@ -37,7 +46,6 @@ mac {
 #}
 
 win32 {
-
    SDL_CXXFLAGS = -I$$DEPENDENCYPATH/SDL
    SDL_LIBS =  -L$$DEPENDENCYPATH/SDL/ -lsdl
 }
@@ -331,7 +339,7 @@ unix:!symbian {
 
 unix:mac {
 	# windows.h and co.
-        NIX_CFLAGS = -I $$DEPENDENCYPATH/wine/include -DWINE_UNICODE_NATIVE
+   NIX_CFLAGS = -I $$DEPENDENCYPATH/wine/include -DWINE_UNICODE_NATIVE
 
 	# stdafx.h
 	NIX_CFLAGS += -I $$DEPENDENCYPATH

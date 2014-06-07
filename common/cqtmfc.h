@@ -2568,10 +2568,11 @@ public: \
 class CObject
 {
 public:
-   DECLARE_DYNAMIC(CObject)
+//   DECLARE_DYNAMIC(CObject)
    CObject() {}
    virtual ~CObject() {}
    virtual void DeleteObject() {}
+   static CRuntimeClass classCObject;
    virtual CRuntimeClass* GetRuntimeClass( ) const;
    BOOL IsKindOf( 
       const CRuntimeClass* pClass  
