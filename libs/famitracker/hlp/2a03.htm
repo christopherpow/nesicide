@@ -4,41 +4,37 @@
 <TITLE></TITLE>
     <link href="style.css" rel="stylesheet" type="text/css" />
     <style type="text/css">
-        .dpcmKey
+        td.key
         {
-            width: 45px;
+            width: 35px;
             text-align: center;
+            border: solid 1px #808080;
         }
-        .dpcmFreq
+        td.freq
         {
             width: 100px;
             text-align: center;
-        }
-        .dpcmTable
-        {
-            FONT-SIZE: 9pt;
-            table-layout: fixed;
-            width: 11%;
-            font-family: Arial;
-            border-collapse: collapse;
-            background-color: #FCFCFC;
-        }
+            border: solid 1px #808080;
+        }        
     </style>
 </HEAD>
-<BODY class="heading">
+<BODY>
 
-    <span class="topic">2A03/2A07 internal channels</span>
-    <hr />
+    <span class="topic">2A03/2A07 internal channels</span><hr />
     
     <p class="heading">About</p>
     
     <p class="text">
-        This is the sound generator found inside the NES CPU. 
-        The NTSC version (america/japan) is named 2A03 and the PAL version (europe) is named 2A07. 
-        The difference between the chips is that NTSC version runs at 1.79 MHz and 60 FPS while PAL runs at 1.66 MHz and 50 FPS. 
-        The 60/50 FPS comes from the video refresh rate, 
-        but the NSF format allows any frame rate and is customizable from the 
-        <a href="menus.htm#Tracker">Tracker menu</a>.<br /><br />
+        This is the sound generator found inside the NES CPU. The NTSC version 
+        (america/japan) is named 2A03 and the PAL version (europe) is named 2A07. The 
+        difference between the chips is that NTSC version runs at 1.79 MHz and 60 FPS 
+        while PAL runs at 1.66 MHz and 50 FPS.</p>
+    <p class="text">
+        The audio refresh rate is normally tied to the video refresh rate, where each 
+        video frame corresponds to one audio tick, but the NSF format allows any refresh 
+        rate and is customizable from the 
+        <a href="menu_tracker.htm">Tracker menu</a></p>
+    <p class="text">
         There is five sound channels available:</p>
     
     <ul class="text">
@@ -73,12 +69,19 @@
         </li>
     </ul>
     
-    <p class="text">
-        <b>Note:</b> 
-        The volume level 
-        of triangle and noise channels will be affected by the DPCM channel, 
-        due to the way the sound is mixed in the hardware. 
-        More info is available on the bottom of this page.</p>
+    <table class="noteFrame" cellpadding="5px">
+        <tr>
+            <td>
+                <p class="text">
+                    <b>Note:</b> 
+                    The volume level 
+                    of triangle and noise channels will be affected by the DPCM channel, 
+                    due to the way the sound is mixed in the hardware. 
+                    More info is available on the bottom of this page.
+                </p>
+            </td>
+        </tr>
+    </table>
     
     <hr />
     <p class="heading"><a name="Instruments">Instruments</a></p>
@@ -90,7 +93,7 @@
     <p class="text"><b>2A03 settings</b></p>
     
     <p class="text">
-        <IMG id="IMG1" style="FONT-SIZE: 10pt" src="img/inst_2a03.png" alt=""></p>
+        <img id="IMG1" style="FONT-SIZE: 10pt" src="img/inst_2a03.png" alt=""></p>
     
     <p class="text">
         This part of the instrument is only used by the wave channels of 2A03 (pulse, triangle and noise). 
@@ -100,51 +103,40 @@
     
     <p class="text">
         These effects are available</p>
-        
-    <table class="text">
-        <tr>
-            <td class="gray" valign="top" width=250px>
-                Volume</td>
-            <td>
-  			    Channel amplitude.
-			    It is not possible to change triangle volume, but zero will disable the 
-			    channel and non-zero will enable it.<br><br />
-			    
-			    Range: <b>0</b> to <b>15</b>(volume units)<br /></td>
-        </tr>
-        <tr>
-            <td class="gray" valign="top">
-                Arpeggio</td>
-            <td>
-                Used for note-shifting, commonly used to simulate chords.<br>
-			    Range: <b>-79</b> to <b>+79 </b>(notes)<br /><br />
-                Three modes are available: absolute, relative and fixed.<br />
-                <i>Absolute:</i> adds to the base note (default).<br />
-                <i>Relative:</i> adds to the base note and saves the result as new base note.<br />
-                <i>Fixed:</i> does not add to the base note, it will be used after the sequence 
-                is done. Adding a loop prevents the base not from being used at all.<br />
-                <br /></td>
-        </tr>
-        <tr>
-            <td class="gray" valign="top">
-                Pitch bend &amp; High-speed pitch bend<br /></td>
-            <td>
-                Affects the pitch, Hi-pitch multiplies the value by 16.<br /><br />
-                Range: <b>-127</b> to <b>126</b>(pitch units)<br />
-                <br /></td>
-        </tr>
-        <tr>
-            <td class="gray" valign="top">
-                Duty cycle / noise mode</td>
-            <td>
-                Sets the duty cycle period and noise mode.<br /><br />
-	            <i>Square:</i> <b>0 = 12.5%</b>, <b>1 = 25%</b>,<b> 2 = 50%</b>, <b>3 = 75% </b> (pulse width)<br>
-	            <i>Noise:</i> <b>0 = 32k-bit mode</b>, <b>1 = 93-bit mode</b>
-                <br /><br />
-                Triangle channel is unaffected.<br /></td>
-        </tr>
-    </table>
-	        
+    
+    <ul class="text">
+        <li>
+            <b>Volume</b><br />
+            Controls channel amplitude. The triangle channel has no volume control, but a volume of zero will make it silent.<br />
+            Range: <b>0</b> to <b>15</b>.<br />
+            <br />
+        </li>
+        <li>
+            <b>Arpeggio</b><br />
+            Used for rapid note shifting, commonly used to simulate chords. This sequence has three separate modes: absolute, relative and fixed.<br />
+            <ul>
+            <li><i>Absolute:</i></li> adds to the base note (default).<br />
+            <li><i>Relative:</i></li> adds to the base note and saves the result as new base note.<br />
+            <li><i>Fixed:</i></li> does not add to the base note, instead it's used after the sequence 
+            is done. Adding a loop prevents the base note from being used at all.<br />
+            </ul>
+            <br />
+        </li>
+        <li>
+            <b>Pitch bend / high-speed pitch bend</b><br />
+            Affects the pitch, Hi-pitch multiplies the value by 16.<br />
+            Range: <b>-127</b> to <b>126</b> (pitch units)<br />
+            <br />
+        </li>
+        <li>
+            <b>Duty cycle / noise mode</b><br />
+            Sets the duty cycle period and noise mode, the triangle channel is unaffected.<br />
+            <ul>
+            <li><i>Pulse:</i></li> <b>0</b> = 12.5%, <b>1</b> = 25%, <b>2</b> = 50%, <b>3</b> = 75% (pulse width)<br />
+            <li><i>Noise:</i></li> <b>0</b> = 32k-bit mode, <b>1</b> = 93-bit mode</ul>
+        </li>
+    </ul>
+    
     <p class="text">
         Sequences are defined in the graphical sequence editor, where you can draw with 
         the mouse (right-click to draw lines) or directly edit the values in the text box. 
@@ -167,41 +159,35 @@
 
     <p class="text">
         This tab is used to assign samples for the DPCM channel, it 
-        does not affect the wave channels. Assigned samples are samples assigned in 
+        does not affect any other channel. Assigned samples are samples assigned in 
         the selected instrument while loaded samples are global for all instruments.</p>
     
     <ul class="text">
         <li>
             <b>Load</b><br />
-            Load samples from files. The format must be 1-bit delta PCM and max size is 4081 
-            bytes. The size should be (x * 16) + 1 bytes, otherwise the sample will be padded.
-            <br /><br />
+            Load samples from files, the default file extension for DPCM files is &#39;.dmc&#39;. The format must be 1-bit delta PCM and max size is 4081 
+            bytes. The size should be a multiple of 16 + 1 bytes, otherwise the sample will be padded.<br /><br />
         </li>
         <li>
             <b>Unload</b><br />
-            Remove selected sample.
-            <br /><br />
+            Remove selected sample.<br /><br />
         </li>
         <li>
             <b>Save</b><br />
-            Saves selected sample to a file.
-            <br /><br />
+            Saves selected sample to a file.<br /><br />
         </li>
         <li>
             <b>Import</b><br />
             Load and convert PCM&nbsp; files to delta PCM.
-            <a href="dpcm_import.htm">See more info about importing PCM.</a>
-            <br /><br />
+            <a href="dpcm_import.htm">See more info about importing PCM.</a><br /><br />
         </li>
         <li>
             <b>Edit</b><br />
-            Open the <a href="dpcm_editor.htm">DPCM editor</a>.
-            <br /><br />
+            Open the <a href="dpcm_editor.htm">DPCM editor</a>.<br /><br />
         </li>
         <li>
             <b>Preview</b><br />
-            Plays the sample (at pitch 15).
-            <br />
+            Plays the sample (at pitch 15).<br />
         </li>
         
     </ul>
@@ -211,10 +197,10 @@
 		Select a key in &quot;Assigned samples&quot;-box and select the sample from the 
         drop-down box below (or right click in the list). The pitch box&nbsp;sets the&nbsp;pitch for the sample (15 - 0).
         The &quot;<b>&lt;-</b>&quot;-button can also be used to assign samples, and &quot;<b>-&gt;</b>&quot;-button to remove assigned 
-        samples. Loop is used to loop the sample from beginning.</p>
+        samples.</p>
     
     <p class="text">
-        The loop checkbox will enable the DPCM loop mode, where the entire sample is 
+        The loop setting will enable the DPCM loop mode, where the entire sample is 
         looped from start to end.</p>
     <p class="text">
         The D-counter (delta counter) setting is used to force the delta counter to an initial value before the 
@@ -224,114 +210,99 @@
         The pitch setting translates to a frequency according to the 
         following table:</p>
         
-    <table class="dpcmTable">
+    <table class="default" border="1" cellpadding="3px" style="width: 130px">
         <tr>
-            <td class="dpcmKey">
-                0</td>
-            <td class="dpcmFreq">
-                4181.71 Hz</td>
+            <td class="key highlight"><b>Key</b></td>
+            <td class="freq highlight"><b>Frequency</b></td>
         </tr>
         <tr>
-            <td class="dpcmKey">
-                1</td>
-            <td class="dpcmFreq">
-                4709.93 Hz</td>
+            <td class="key">0</td>
+            <td class="freq">4181.71 Hz</td>
         </tr>
         <tr>
-            <td class="dpcmKey">
-                2</td>
-            <td class="dpcmFreq">
-                5264.04 Hz</td>
+            <td class="key">1</td>
+            <td class="freq">4709.93 Hz</td>
         </tr>
         <tr>
-            <td class="dpcmKey">
-                3</td>
-            <td class="dpcmFreq">
-                5593.04 Hz</td>
+            <td class="key">2</td>
+            <td class="freq">5264.04 Hz</td>
         </tr>
         <tr>
-            <td class="dpcmKey">
-                4</td>
-            <td class="dpcmFreq">
-                6257.95 Hz</td>
+            <td class="key">3</td>
+            <td class="freq">5593.04 Hz</td>
         </tr>
         <tr>
-            <td class="dpcmKey">
-                5</td>
-            <td class="dpcmFreq">
-                7046.35 Hz</td>
+            <td class="key">4</td>
+            <td class="freq">6257.95 Hz</td>
         </tr>
         <tr>
-            <td class="dpcmKey">
-                6</td>
-            <td class="dpcmFreq">
-                7919.35 Hz</td>
+            <td class="key">5</td>
+            <td class="freq">7046.35 Hz</td>
         </tr>
         <tr>
-            <td class="dpcmKey">
-                7</td>
-            <td class="dpcmFreq">
-                8363.42 Hz</td>
+            <td class="key">6</td>
+            <td class="freq">7919.35 Hz</td>
         </tr>
         <tr>
-            <td class="dpcmKey">
-                8</td>
-            <td class="dpcmFreq">
-                9419.86 Hz</td>
+            <td class="key">7</td>
+            <td class="freq">8363.42 Hz</td>
         </tr>
         <tr>
-            <td class="dpcmKey">
-                9</td>
-            <td class="dpcmFreq">
-                11,186.08 Hz</td>
+            <td class="key">8</td>
+            <td class="freq">9419.86 Hz</td>
         </tr>
         <tr>
-            <td class="dpcmKey">
-                10</td>
-            <td class="dpcmFreq">
-                12,604.03 Hz</td>
+            <td class="key">9</td>
+            <td class="freq">11,186.08 Hz</td>
         </tr>
         <tr>
-            <td class="dpcmKey">
-                11</td>
-            <td class="dpcmFreq">
-                13,982.60 Hz</td>
+            <td class="key">10</td>
+            <td class="freq">12,604.03 Hz</td>
         </tr>
         <tr>
-            <td class="dpcmKey">
-                12</td>
-            <td class="dpcmFreq">
-                16,884.65 Hz</td>
+            <td class="key">11</td>
+            <td class="freq">13,982.60 Hz</td>
         </tr>
         <tr>
-            <td class="dpcmKey">
-                13</td>
-            <td class="dpcmFreq">
-                21,306.82 Hz</td>
+            <td class="key">12</td>
+            <td class="freq">16,884.65 Hz</td>
         </tr>
         <tr>
-            <td class="dpcmKey">
-                14</td>
-            <td class="dpcmFreq">
-                24,857.95 Hz</td>
+            <td class="key">13</td>
+            <td class="freq">21,306.82 Hz</td>
         </tr>
         <tr>
-            <td class="dpcmKey">
-                15</td>
-            <td class="dpcmFreq">
-                33,143.94 Hz</td>
+            <td class="key">14</td>
+            <td class="freq">24,857.95 Hz</td>
+        </tr>
+        <tr>
+            <td class="key">15</td>
+            <td class="freq">33,143.94 Hz</td>
         </tr>
     </table>
     
     <p class="text">
-        <b>Note:</b> 
-        Playing a DPCM sample may decrease the volume level of triangle and noise. 
-        If full volume isn&#39;t restored after the sample is finished, 
-        use a note stop or a Z00-effect in the DPCM channel to restore it. 
-        You can use the 
-        <a href="menus.htm#Tracker">Tracker/Display DPCM</a> 
-        option to display the current value of the DPCM delta counter, 
-        a higher value results in lower volume output.</p>
+        This is equivalent to the quality setting when converting WAV files to DPCM 
+        samples.</p>
+        
+    <table class="noteFrame" cellpadding="5px">
+        <tr>
+            <td>
+                <p class="text">
+                    <b>Note:</b>
+                    Playing a DPCM sample may decrease the volume level of triangle and noise. 
+                    If full volume isn&#39;t restored after the sample is finished, 
+                    use a note stop or a Z00-effect in the DPCM channel to restore it. 
+                    You can use the 
+                    <a href="menus.htm#Tracker">Tracker/Display DPCM</a> 
+                    option to display the current value of the DPCM delta counter, 
+                    a higher value results in lower volume output. Likewise, you can use the Zxx 
+                    effect to get some additional control of volume on the triangle and noise 
+                    channels.
+                </p>
+            </td>
+        </tr>
+    </table>
 
     <hr />
     <span class="footer">Back to <a href="sound_overview.htm">sound hardware</a> &middot; <a href="main_index.htm">main index</a></span>

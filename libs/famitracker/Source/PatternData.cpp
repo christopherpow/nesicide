@@ -104,7 +104,7 @@ bool CPatternData::IsPatternEmpty(unsigned int Channel, unsigned int Pattern)
 	return true;
 }
 
-bool CPatternData::IsPatternInUse(unsigned int Channel, unsigned int Pattern)
+bool CPatternData::IsPatternInUse(unsigned int Channel, unsigned int Pattern) const
 {
 	// Check if pattern is addressed in frame list
 	for (unsigned i = 0; i < m_iFrameCount; ++i) {
@@ -152,8 +152,7 @@ void CPatternData::ClearEverything()
 	for (int i = 0; i < MAX_CHANNELS; i++) {
 		for (int j = 0; j < MAX_PATTERN; j++) {
 			if (m_pPatternData[i][j]) {
-				delete [] m_pPatternData[i][j];
-				m_pPatternData[i][j] = NULL;
+				SAFE_RELEASE_ARRAY(m_pPatternData[i][j]);
 			}
 		}
 	}

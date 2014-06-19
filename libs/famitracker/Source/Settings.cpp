@@ -33,23 +33,27 @@
 #include "ColorScheme.h"
 
 #define SETTING_INT(Section, Entry, Default, Variable)	\
-	AddSetting(new CSettingInt(_T(Section), _T(Entry), Default, Variable))	\
+	AddSetting<int>(_T(Section), _T(Entry), Default, Variable)	\
 
 #define SETTING_BOOL(Section, Entry, Default, Variable)	\
-	AddSetting(new CSettingBool(_T(Section), _T(Entry), Default, Variable))	\
+	AddSetting<bool>(_T(Section), _T(Entry), Default, Variable)	\
 
 #define SETTING_STRING(Section, Entry, Default, Variable)	\
-	AddSetting(new CSettingString(_T(Section), _T(Entry), Default, Variable))	\
+	AddSetting<CString>(_T(Section), _T(Entry), Default, Variable)	\
 
 // CSettings
 
+CSettings* CSettings::GetObject()
+{
+	static CSettings Object;
+	return &Object;
+}
+
 CSettings::CSettings() : m_iAddedSettings(0)
 {
-	m_bNamcoMixing = false;
-
 	memset(m_pSettings, 0, sizeof(CSettingBase*) * MAX_SETTINGS);
 	SetupSettings();
-	ATLTRACE2(atlTraceGeneral, 0, "Settings: Added %d settings\n", m_iAddedSettings);	// debug
+	TRACE1(_T("Settings: Added %i settings\n"), m_iAddedSettings);
 }
 
 CSettings::~CSettings()
@@ -93,6 +97,9 @@ void CSettings::SetupSettings()
 	SETTING_STRING("General", "Pattern font", FONT_FACE, &General.strFont);
 	SETTING_INT("General", "Pattern font size", FONT_SIZE, &General.iFontSize);
 	SETTING_BOOL("General", "Single instance", false, &General.bSingleInstance);
+	SETTING_BOOL("General", "Preview full row", false, &General.bPreviewFullRow);
+	SETTING_BOOL("General", "Display flats", false, &General.bDisplayFlats);
+	SETTING_BOOL("General", "Double click selection", false, &General.bDblClickSelect);
 
 	// Keys
 	SETTING_INT("Keys", "Note cut",		0x31, &Keys.iKeyNoteCut);
@@ -105,7 +112,7 @@ void CSettings::SetupSettings()
 	SETTING_INT("Sound", "Sample rate",	44100, &Sound.iSampleRate);
 	SETTING_INT("Sound", "Sample size", 16, &Sound.iSampleSize);
 	SETTING_INT("Sound", "Buffer length", 40, &Sound.iBufferLength);
-	SETTING_INT("Sound", "Bass filter freq", 16, &Sound.iBassFilter);
+	SETTING_INT("Sound", "Bass filter freq", 30, &Sound.iBassFilter);
 	SETTING_INT("Sound", "Treble filter freq", 12000, &Sound.iTrebleFilter);
 	SETTING_INT("Sound", "Treble filter damping", 24, &Sound.iTrebleDamping);
 	SETTING_INT("Sound", "Volume", 100, &Sound.iMixVolume);
@@ -119,7 +126,7 @@ void CSettings::SetupSettings()
 	SETTING_BOOL("MIDI", "Velocity control", false,	&Midi.bMidiVelocity);
 	SETTING_BOOL("MIDI", "Auto Arpeggio", false, &Midi.bMidiArpeggio);
 
-	// Appearance	
+	// Appearance
 	SETTING_INT("Appearance", "Background", DEFAULT_COLOR_SCHEME.BACKGROUND, &Appearance.iColBackground);
 	SETTING_INT("Appearance", "Background highlighted", DEFAULT_COLOR_SCHEME.BACKGROUND_HILITE, &Appearance.iColBackgroundHilite);
 	SETTING_INT("Appearance", "Background highlighted 2", DEFAULT_COLOR_SCHEME.BACKGROUND_HILITE2, &Appearance.iColBackgroundHilite2);
@@ -142,6 +149,7 @@ void CSettings::SetupSettings()
 	// Other
 	SETTING_INT("Other", "Sample window state", 0, &SampleWinState);
 	SETTING_INT("Other", "Frame editor position", 0, &FrameEditPos);
+	SETTING_BOOL("Other", "Follow mode", true, &FollowMode);
 
 	// Paths
 	SETTING_STRING("Paths", "FTM path", "", &Paths[PATH_FTM]);
@@ -152,13 +160,20 @@ void CSettings::SetupSettings()
 
 	SETTING_STRING("Paths", "Instrument menu", "", &InstrumentMenuPath);
 
-	/*
-	SETTING_INT("Sound levels", "2A03", 0, &ChipLevels.iLevel2A03);
-	SETTING_INT("Sound levels", "VRC6", 0, &ChipLevels.iLevelVRC6);
-	SETTING_INT("Sound levels", "VRC7", 0, &ChipLevels.iLevelVRC7);
-	SETTING_INT("Sound levels", "MMC5", 0, &ChipLevels.iLevelMMC5);
-	SETTING_INT("Sound levels", "FDS", 0, &ChipLevels.iLevelFDS);
-	*/
+	// Mixing
+	SETTING_INT("Mixer", "APU1", 0, &ChipLevels.iLevelAPU1);
+	SETTING_INT("Mixer", "APU2", 0, &ChipLevels.iLevelAPU2);
+	SETTING_INT("Mixer", "VRC6", 0, &ChipLevels.iLevelVRC6);
+	SETTING_INT("Mixer", "VRC7", 0, &ChipLevels.iLevelVRC7);
+	SETTING_INT("Mixer", "MMC5", 0, &ChipLevels.iLevelMMC5);
+	SETTING_INT("Mixer", "FDS", 0, &ChipLevels.iLevelFDS);
+	SETTING_INT("Mixer", "N163", 0, &ChipLevels.iLevelN163);
+	SETTING_INT("Mixer", "S5B", 0, &ChipLevels.iLevelS5B);
+}
+
+template<class T> void CSettings::AddSetting(LPCTSTR pSection, LPCTSTR pEntry, T tDefault, T* pVariable)
+{
+	AddSetting(new CSettingType<T>(pSection, pEntry, tDefault, pVariable));
 }
 
 void CSettings::AddSetting(CSettingBase *pSetting)
@@ -167,7 +182,6 @@ void CSettings::AddSetting(CSettingBase *pSetting)
 	m_pSettings[m_iAddedSettings++] = pSetting;
 }
 
-
 // CSettings member functions
 
 void CSettings::LoadSettings()
@@ -175,8 +189,6 @@ void CSettings::LoadSettings()
 	for (int i = 0; i < m_iAddedSettings; ++i) {
 		m_pSettings[i]->Load();
 	}
-
-//	m_bNamcoMixing = LoadSetting(_T("Emulation"), _T("Linear Namco mixing"), 0) == 1;
 }
 
 void CSettings::SaveSettings()
@@ -228,178 +240,48 @@ void CSettings::SetPath(CString PathName, unsigned int PathType)
 
 void CSettings::StoreSetting(CString Section, CString Name, int Value) const
 {
-   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
-   QString key;
-#ifdef UNICODE
-   key = QString::fromWCharArray((LPCTSTR)Section);
-   key += "/";
-   key += QString::fromWCharArray((LPCTSTR)Name);
-#else
-   key = QString::fromLocal8Bit((LPCTSTR)Section);
-   key += "/";
-   key += QString::fromLocal8Bit((LPCTSTR)Name);
-#endif
-//   qDebug("StoreSetting");
-//   qDebug(key.toAscii().constData());
-
-   settings.setValue(key,Value);
+	theApp.WriteProfileInt(Section, Name, Value);
 }
 
 int CSettings::LoadSetting(CString Section, CString Name, int Default) const
 {
-   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
-   QString key;
-#ifdef UNICODE
-   key = QString::fromWCharArray((LPCTSTR)Section);
-   key += "/";
-   key += QString::fromWCharArray((LPCTSTR)Name);
-#else
-   key = QString::fromLocal8Bit((LPCTSTR)Section);
-   key += "/";
-   key += QString::fromLocal8Bit((LPCTSTR)Name);
-#endif
-//   qDebug("LoadSetting");
-//   qDebug(key.toAscii().constData());
-
-   return settings.value(key,Default).toInt();
+	return theApp.GetProfileInt(Section, Name, Default);
 }
 
 // Settings types
 
-void CSettingBool::Load()
+template<class T>
+void CSettingType<T>::Load()
 {
-   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
-   QString key;
-#ifdef UNICODE
-   key = QString::fromWCharArray(m_pSection);
-   key += "/";
-   key += QString::fromWCharArray(m_pEntry);
-#else
-   key = QString(m_pSection);
-   key += "/";
-   key += QString(m_pEntry);
-#endif
-//   qDebug("CSettingBool::Load");
-//   qDebug(key.toAscii().constData());
-
-   *(bool*)m_pVariable = settings.value(key,QVariant(m_bDefaultValue)).toBool();
+	*m_pVariable = theApp.GetProfileInt(m_pSection, m_pEntry, m_tDefaultValue);
 }
 
-void CSettingBool::Save()
+template<>
+void CSettingType<bool>::Load()
 {
-   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
-   QString key;
-#ifdef UNICODE
-   key = QString::fromWCharArray(m_pSection);
-   key += "/";
-   key += QString::fromWCharArray(m_pEntry);
-#else
-   key = QString(m_pSection);
-   key += "/";
-   key += QString(m_pEntry);
-#endif
-//   qDebug("CSettingBool::Save");
-//   qDebug(key.toAscii().constData());
-
-   settings.setValue(key,QVariant(*(bool*)m_pVariable));
+	*m_pVariable = theApp.GetProfileInt(m_pSection, m_pEntry, m_tDefaultValue ? 1 : 0) == 1;
 }
 
-void CSettingBool::Default()
+template<>
+void CSettingType<CString>::Load()
 {
-	*(bool*)m_pVariable = m_bDefaultValue;
+	*m_pVariable = theApp.GetProfileString(m_pSection, m_pEntry, m_tDefaultValue);
 }
 
-void CSettingInt::Load()
+template<class T>
+void CSettingType<T>::Save()
 {
-   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
-   QString key;
-#ifdef UNICODE
-   key = QString::fromWCharArray(m_pSection);
-   key += "/";
-   key += QString::fromWCharArray(m_pEntry);
-#else
-   key = QString(m_pSection);
-   key += "/";
-   key += QString(m_pEntry);
-#endif
-//   qDebug("CSettingInt::Load");
-//   qDebug(key.toAscii().constData());
-
-   *(int*)m_pVariable = settings.value(key,QVariant(m_iDefaultValue)).toInt();
+	theApp.WriteProfileInt(m_pSection, m_pEntry, *m_pVariable);
 }
 
-void CSettingInt::Save()
+template<>
+void CSettingType<CString>::Save()
 {
-   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
-   QString key;
-#ifdef UNICODE
-   key = QString::fromWCharArray(m_pSection);
-   key += "/";
-   key += QString::fromWCharArray(m_pEntry);
-#else
-   key = QString(m_pSection);
-   key += "/";
-   key += QString(m_pEntry);
-#endif
-//   qDebug("CSettingInt::Save");
-//   qDebug(key.toAscii().constData());
-
-   settings.setValue(key,QVariant(*(int*)m_pVariable));
+	theApp.WriteProfileString(m_pSection, m_pEntry, *m_pVariable);
 }
 
-void CSettingInt::Default()
+template<class T>
+void CSettingType<T>::Default()
 {
-	*(int*)m_pVariable = m_iDefaultValue;
-}
-
-void CSettingString::Load()
-{
-   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
-   QString key;
-#ifdef UNICODE
-   key = QString::fromWCharArray(m_pSection);
-   key += "/";
-   key += QString::fromWCharArray(m_pEntry);
-#else
-   key = QString(m_pSection);
-   key += "/";
-   key += QString(m_pEntry);
-#endif
-//   qDebug("CSettingString::Load");
-//   qDebug(key.toAscii().constData());
-
-#ifdef UNICODE
-   (*(CString*)m_pVariable) = CString(settings.value(key,QString::fromWCharArray(m_pDefaultValue)).toString());
-#else
-   (*(CString*)m_pVariable) = CString(settings.value(key,QString::fromLocal8Bit(m_pDefaultValue)).toString());
-#endif
-}
-
-void CSettingString::Save()
-{
-   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
-   QString key;
-#ifdef UNICODE
-   key = QString::fromWCharArray(m_pSection);
-   key += "/";
-   key += QString::fromWCharArray(m_pEntry);
-#else
-   key = QString(m_pSection);
-   key += "/";
-   key += QString(m_pEntry);
-#endif
-//   qDebug("CSettingString::Save");
-//   qDebug(key.toAscii().constData());
-
-#ifdef UNICODE
-   settings.setValue(key,QString::fromWCharArray(((CString*)m_pVariable)->GetBuffer()));
-#else
-   settings.setValue(key,QString::fromLocal8Bit(((CString*)m_pVariable)->GetBuffer()));
-#endif
-}
-
-void CSettingString::Default()
-{
-   CString* pString = (CString*)m_pVariable;
-   pString->Format("%s",m_pDefaultValue);
+	*m_pVariable = m_tDefaultValue;
 }

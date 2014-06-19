@@ -18,10 +18,9 @@
 ** must bear this legend.
 */
 
-
 #pragma once
 
-#include "cqtmfc.h"
+#include "DSample.h"
 
 #define MIDI_NOTE(octave, note)		((octave) * 12 + (note) - 1)
 #define GET_OCTAVE(midi_note)		((midi_note) / 12)
@@ -75,7 +74,6 @@ const int MAX_TEMPO	= 255;
 // Min speed
 const int MIN_SPEED = 1;
 
-
 // Number of avaliable channels (max) TODO: should not be used anymore!
 // instead, check the channelsavailable variable and allocate dynamically
 const int MAX_CHANNELS	 = 5 + 3 + 2 + 6 + 1 + 8 + 3;		
@@ -87,9 +85,11 @@ const int CHANNELS_VRC7	   = 6;
 const int OCTAVE_RANGE = 8;
 const int NOTE_RANGE   = 12;
 
+const int INVALID_INSTRUMENT = -1;
+
 // Sequence types (shared with VRC6)
 
-enum {
+enum sequence_t {
 	SEQ_VOLUME,
 	SEQ_ARPEGGIO,
 	SEQ_PITCH,
@@ -115,7 +115,7 @@ enum {
 //const int SEQ_SUNSOFT_NOISE = SEQ_DUTYCYCLE + 1;
 
 // Channel effects
-enum {
+enum effect_t {
 	EF_NONE = 0,
 	EF_SPEED,
 	EF_JUMP,
@@ -169,92 +169,61 @@ enum {
 //const int EF_RETRIGGER = EF_SWEEPDOWN;
 
 // Channel effect letters
-const char EFF_CHAR[] = {'F',	// Speed
-						 'B',	// Jump 
-						 'D',	// Skip 
-						 'C',	// Halt
-						 'E',	// Volume
-						 '3',	// Porta on
-						 ' ',	// Porta off		// unused
-						 'H',	// Sweep up
-						 'I',	// Sweep down
-						 '0',	// Arpeggio
-						 '4',	// Vibrato
-						 '7',	// Tremolo
-						 'P',	// Pitch
-						 'G',	// Note delay
-						 'Z',	// DAC setting
-						 '1',	// Portamento up
-						 '2',	// Portamento down
-						 'V',	// Duty cycle
-						 'Y',	// Sample offset
-						 'Q',	// Slide up
-						 'R',	// Slide down
-						 'A',	// Volume slide
-						 'S',	// Note cut
-						 'X',	// DPCM retrigger						 
-						 ' ',	// (TODO, delayed volume)
-						 'H',	// FDS modulation depth
-						 'I',	// FDS modulation speed hi
-						 'J',	// FDS modulation speed lo
-						 'W',	// DPCM Pitch
-						 'H',	// Sunsoft envelope low
-						 'I',	// Sunsoft envelope high
-						 'J',	// Sunsoft envelope type
-//						 '9'	// Targeted volume slide
-						 /*
-						 'H',	// VRC7 modulator
-						 'I',	// VRC7 carrier
-						 'J',	// VRC7 modulator/feedback level
-						 */
+const char EFF_CHAR[] = {
+	'F',	// Speed
+	'B',	// Jump 
+	'D',	// Skip 
+	'C',	// Halt
+	'E',	// Volume
+	'3',	// Porta on
+	 0,		// Porta off		// unused
+	'H',	// Sweep up
+	'I',	// Sweep down
+	'0',	// Arpeggio
+	'4',	// Vibrato
+	'7',	// Tremolo
+	'P',	// Pitch
+	'G',	// Note delay
+	'Z',	// DAC setting
+	'1',	// Portamento up
+	'2',	// Portamento down
+	'V',	// Duty cycle
+	'Y',	// Sample offset
+	'Q',	// Slide up
+	'R',	// Slide down
+	'A',	// Volume slide
+	'S',	// Note cut
+	'X',	// DPCM retrigger						 
+	 0,		// (TODO, delayed volume)
+	'H',	// FDS modulation depth
+	'I',	// FDS modulation speed hi
+	'J',	// FDS modulation speed lo
+	'W',	// DPCM Pitch
+	'H',	// Sunsoft envelope low
+	'I',	// Sunsoft envelope high
+	'J',	// Sunsoft envelope type
+	//'9'	// Targeted volume slide
+	/*
+	'H',	// VRC7 modulator
+	'I',	// VRC7 carrier
+	'J',	// VRC7 modulator/feedback level
+	*/
 };
 
 
-enum {
+enum note_t {
 	NONE = 0,	// No note
 	C, Cs, D, Ds, E, F, Fs, G, Gs, A, As, B,
 	RELEASE,	// Release, begin note release sequence
 	HALT,		// Halt, stops note
 };
 
-enum {
+enum machine_t {
 	NTSC,
 	PAL
 };
 
-enum {
+enum vibrato_t {
 	VIBRATO_OLD = 0,
 	VIBRATO_NEW,
-};
-
-
-// DPCM sample
-class CDSample {
-public:
-	// Empty constructor
-	CDSample();
-
-	// Unnamed sample constructor
-	CDSample(int Size, char *pData = NULL);
-
-	// Copy constructor
-	CDSample(CDSample &sample);
-
-	// Destructor
-	~CDSample();
-
-	// Copy from existing sample
-	void Copy(const CDSample *pDSample);
-	
-	// Allocate memory
-	void Allocate(int iSize, char *pData = NULL);
-
-	// Sample data & name
-	// TODO: make these private
-	unsigned int SampleSize;
-	char *SampleData;
-	char Name[256];
-
-	// Max size of samples supported by NES, in bytes
-	static const int MAX_SIZE = 0x0FF1;
 };

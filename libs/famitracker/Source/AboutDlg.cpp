@@ -85,6 +85,37 @@ void CLinkLabel::OnMouseMove(UINT nFlags, CPoint point)
 	CStatic::OnMouseMove(nFlags, point);
 }
 
+class CHead : public CStatic
+{
+public:
+	CHead();
+protected:
+	DECLARE_MESSAGE_MAP()
+public:
+   virtual void DrawItem(LPDRAWITEMSTRUCT);
+};
+
+BEGIN_MESSAGE_MAP(CHead, CStatic)
+END_MESSAGE_MAP()
+
+CHead::CHead()
+{
+}
+
+void CHead::DrawItem(LPDRAWITEMSTRUCT lpDraw)
+{
+	CDC *pDC = CDC::FromHandle(lpDraw->hDC);
+
+	CBitmap bmp;
+	bmp.LoadBitmap(IDB_ABOUT);
+
+	CDC dcImage;
+	dcImage.CreateCompatibleDC(pDC);
+	dcImage.SelectObject(bmp);
+
+	pDC->BitBlt(0, 0, 434, 80, &dcImage, 0, 0, SRCCOPY);
+}
+
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialog)
 END_MESSAGE_MAP()
 
@@ -112,6 +143,8 @@ void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 	CDialog::DoDataExchange(pDX);
 }
 
+CHead *m_pHead;
+
 BOOL CAboutDlg::OnInitDialog()
 {
 	CString aboutString;
@@ -130,6 +163,9 @@ BOOL CAboutDlg::OnInitDialog()
 	m_pMail->SubclassDlgItem(IDC_MAIL, this);
 	m_pWeb->SubclassDlgItem(IDC_WEBPAGE, this);
 
+	m_pHead = new CHead();
+	m_pHead->SubclassDlgItem(IDC_HEAD, this);
+
 	LOGFONT LogFont;
 	CFont *pFont;
 	
@@ -138,8 +174,8 @@ BOOL CAboutDlg::OnInitDialog()
 	m_wndToolTip.Create(this, TTS_ALWAYSTIP);
 	m_wndToolTip.Activate(TRUE);
 
-	m_wndToolTip.AddTool(m_pMail, _T("Send mail to jsr@famitracker.com"));
-	m_wndToolTip.AddTool(m_pWeb, _T("Go to http://www.famitracker.com"));
+	m_wndToolTip.AddTool(m_pMail, IDS_ABOUT_TOOLTIP_MAIL);
+	m_wndToolTip.AddTool(m_pWeb, IDS_ABOUT_TOOLTIP_WEB);
 
 //	pFont = m_pMail->GetFont();
 //	pFont->GetLogFont(&LogFont);

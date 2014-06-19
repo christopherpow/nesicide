@@ -65,7 +65,7 @@ private:
 
 
 // Settings
-enum {
+enum arp_setting_t {
 	ARP_SETTING_ABSOLUTE = 0,
 	ARP_SETTING_FIXED = 1,
 	ARP_SETTING_RELATIVE = 2

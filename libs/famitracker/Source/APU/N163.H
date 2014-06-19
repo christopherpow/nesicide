@@ -18,8 +18,8 @@
 ** must bear this legend.
 */
 
-#ifndef _N163_H_
-#define _N163_H_
+#ifndef N163_H
+#define N163_H
 
 #include "External.h"
 #include "Channel.h"
@@ -35,8 +35,7 @@ public:
 
 	virtual inline void EndFrame();
 
-	void ProcessClean(uint32 Time, uint8 ChannelsActive);
-	void ProcessDirty(uint32 Time, uint8 ChannelsActive, CN163 *pParent);
+	void Process(uint32 Time, uint8 ChannelsActive, CN163 *pParent);
 
 	uint8 ReadMem(uint8 Reg);
 
@@ -60,23 +59,14 @@ public:
 	void EndFrame();
 	void Write(uint16 Address, uint8 Value);
 	uint8 Read(uint16 Address, bool &Mapped);
-
 	uint8 ReadMem(uint8 Reg);
-
 	void Mix(int32 Value, uint32 Time, uint8 ChanID);
-
-	void SetMixingMethod(bool bLinear);
-
-protected:
-	void ProcessNew(uint32 Time);
-	void ProcessOld(uint32 Time);
-
 
 private:
 	CN163Chan	*m_pChannels[8];
 
 	uint8		*m_pWaveData;
-	uint8		ExpandAddr;
+	uint8		m_iExpandAddr;
 	uint8		m_iChansInUse;
 
 	int32		m_iLastValue;
@@ -86,9 +76,6 @@ private:
 	uint32		m_iChannelCntr;
 	uint32		m_iActiveChan;
 	uint32		m_iCycle;
-
-	bool		m_bMixingMethod;
-
 };
 
-#endif /* _N163_H_ */
+#endif /* N163_H */

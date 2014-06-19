@@ -21,7 +21,7 @@
 
 #include "stdafx.h"
 #include "FamiTracker.h"
-#include "Source/ModuleImportDlg.h"
+#include "ModuleImportDlg.h"
 
 
 // CModuleImportDlg dialog

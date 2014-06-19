@@ -4,24 +4,6 @@
 <TITLE></TITLE>
     <link href="style.css" rel="stylesheet" type="text/css" />
     <style type="text/css">
-        .paramTableStyle
-        {
-            FONT-SIZE: 9pt;
-            table-layout: fixed;
-            width: 12%;
-            font-family: Arial;
-            border-collapse: collapse;
-            background-color: #FCFCFC;
-        }
-        .tableStyle
-        {
-            FONT-SIZE: 9pt;
-            table-layout: fixed;
-            width: 110px;
-            font-family: Arial;
-            border-collapse: collapse;
-            background-color: #FCFCFC;
-        }        
         .tableDescription
         {
             font-size: 9pt;
@@ -31,33 +13,35 @@
 </HEAD>
 <BODY>
 
-    <span class="topic">Konami VRC7</span>
-    <hr />
+    <span class="topic">Konami VRC7</span><hr />
     
     <p class="heading">About</p>
     
     <p class="text">
         The VRC7 chip contains a customized OPLL unit (YM2413) that has 6 channels for 
-        frequency modulation synthesis. This chip was only used in Lagrange Point 
+        frequency modulation synthesis. This chip was only used in the game Lagrange Point 
         by Konami.</p>
         
     <p class="text">
-        It has 15 predefined patches and one user defined patch,
+        This chip has 15 predefined patches and can hold one user defined patch,
         the predefined patches are 
-        customized for VRC7 and are not the default 
-        YM2413 ones. </p>
+        customized for VRC7 and are not the default ones for
+        YM2413. </p>
     
     <p class="text">
-        <b>Note:</b> 
-        The chip is limited to only <b>one</b> user 
-        defined patch, so it&#39;s not possible to use different user defined 
-        patches in different channels at the same time!
-        Please see documents about YM2413 or documents about FM in 
-        general if you need more information.       
-    <p class="text">
-        Note release command can be used on these channels, it will enable the sustain 
-        flag.</p>
+        Note cut command will clear the key on flag, note release command will clear the 
+        key on flag but keep the sustained flag.</p>
     
+    <table class="noteFrame" cellpadding="5px"><tr><td>
+        <p class="text">
+            <b>Note:</b> 
+            The chip is limited to only <b>one</b> user 
+            defined patch, so it&#39;s not possible to simultaneously use different user defined 
+            patches in different channels!
+            See documents about YM2413 if you need more information.
+        </p>
+    </td></tr></table>
+            
     <hr />
     <p class="heading">Instruments</p>
     
@@ -77,14 +61,18 @@
         The custom patch settings are enabled when patch 0 is selected
         and are used to customize the modulator and carrier oscillator, 
         but it will also display the settings for the internal patches.</p>
+    <p class="text">
+        <b>Note:</b> when using sustained patches, use the <b>note cut</b> command to move on 
+        to the release phase. The note release command will also release the note, but 
+        does so at a fixed rate.</p>
         
-    <table border="1" cellpadding="3" cellspacing="0" class="paramTableStyle" >
+    <table border="1" cellpadding="3px" cellspacing="0" class="default" style="width: 12%">
         <tr>
-            <td width=220px>
+            <td class="highlight" style="width: 200px">
                 <b>Parameter</b></td>
-            <td width=350px>
+            <td class="highlight" style="width: 320px">
                 <b>Description</b></td>
-            <td width=80px>
+            <td class="highlight" style="width: 80px">
                 <b>Range</b></td>
         </tr>
         <tr>
@@ -121,7 +109,7 @@
         </tr>
         <tr>
             <td>
-                RATE key scale</td>
+                Key scaling</td>
             <td>
                 Increases the ADSR rate for higher pitches</td>
             <td>
@@ -129,9 +117,9 @@
         </tr>
         <tr>
             <td>
-                Key Scale Level</td>
+                Key scaling level</td>
             <td>
-                The attenuation level for RATE, according to table 2</td>
+                The attenuation level for key scaling, according to table 2</td>
             <td>
                 0 - 3</td>
         </tr>
@@ -139,7 +127,7 @@
             <td>
                 Wave rectification</td>
             <td>
-                Half wave rectification of the sine wave</td>
+                Half-wave rectification of the sine wave</td>
             <td>
                 on / off</td>
         </tr>
@@ -147,7 +135,7 @@
             <td>
                 Multiplication factor</td>
             <td>
-                Multiplies the pitch with a factor, according to table 3</td>
+                Multiplies the pitch by a factor, according to table 3</td>
             <td>
                 0 - 15</td>
         </tr>
@@ -173,11 +161,11 @@
     <br />
     <br />
     
-    <table class="tableStyle" border="1" cellpadding="3" cellspacing="0">
+    <table class="default" border="1" cellpadding="3px" cellspacing="0" style="width: 110px">
         <tr>
-            <td width=30px>
+            <td class="highlight" style="width: 40px">
                 <b>Value</b></td>
-            <td align="center">
+            <td clasS="highlight" align="center">
                 <b>Rate</b></td>
         </tr>    
         <tr>
@@ -210,11 +198,11 @@
     <br />
     <br />
     
-    <table class="tableStyle" border="1" cellpadding="3" cellspacing="0">
+    <table class="default" border="1" cellpadding="3px" cellspacing="0" style="width: 110px">
         <tr>
-            <td width=30px>
+            <td class="highlight" style="width: 40px">
                 <b>Value</b></td>
-            <td align="center">
+            <td class="highlight" align="center">
                 <b>Factor</b></td>
         </tr>    
         <tr>

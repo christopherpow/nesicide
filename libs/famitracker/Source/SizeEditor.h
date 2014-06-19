@@ -26,6 +26,9 @@ class CSizeEditor : public CWnd
 	DECLARE_DYNAMIC(CSizeEditor)
 	CSizeEditor(CWnd *pParent);
 	virtual ~CSizeEditor();
+public:
+	void SetValue(int Value);
+	int GetValue() const;
 private:
 	int m_iValue;
 	int m_iButtonPressed;
@@ -44,8 +47,7 @@ public:
 	afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
-
-	void SetValue(int Value);
-	int GetValue() const;
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
+	afx_msg void OnSetFocus(CWnd* pOldWnd);
+	afx_msg void OnKillFocus(CWnd* pNewWnd);
 };

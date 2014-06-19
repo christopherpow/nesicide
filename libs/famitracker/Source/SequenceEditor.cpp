@@ -41,7 +41,11 @@ CSequenceEditor::CSequenceEditor(CFamiTrackerDoc *pDoc) : CWnd(),
 	m_pFont(NULL),
 	m_iMaxVol(15), 
 	m_iMaxDuty(3),
-	m_pDocument(pDoc)
+	m_pDocument(pDoc),
+	m_pParent(NULL),
+	m_pSequence(NULL),
+	m_iSelectedSetting(0),
+	m_iInstrumentType(0)
 {
 }
 
@@ -56,6 +60,9 @@ CSequenceEditor::~CSequenceEditor()
 BEGIN_MESSAGE_MAP(CSequenceEditor, CWnd)
 	ON_WM_PAINT()
 	ON_WM_LBUTTONDOWN()
+	ON_MESSAGE(WM_SIZE_CHANGE, OnSizeChange)
+	ON_MESSAGE(WM_CURSOR_CHANGE, OnCursorChange)
+	ON_MESSAGE(WM_SEQUENCE_CHANGED, OnSequenceChanged)
 END_MESSAGE_MAP()
 
 BOOL CSequenceEditor::CreateEditor(CWnd *pParentWnd, const RECT &rect)
@@ -99,6 +106,13 @@ void CSequenceEditor::OnPaint()
 	CRect rect;
 	GetClientRect(rect);
 
+	if (this == GetFocus()) {
+		CRect focusRect = rect;
+		focusRect.DeflateRect(rect.Height() - 1, 2, rect.Height() + 1, 2);
+      qFatal("DrawFocusRect");
+//		dc.DrawFocusRect(focusRect);
+	}
+
 	// Update size editor
 	if (m_pSequence)
 		m_pSizeEditor->SetValue(m_pSequence->GetItemCount());
@@ -112,42 +126,49 @@ void CSequenceEditor::OnPaint()
 	dc.TextOut(120, rect.bottom - 19, LengthStr);
 }
 
-BOOL CSequenceEditor::PreTranslateMessage(MSG* pMsg)
+LRESULT CSequenceEditor::OnSizeChange(WPARAM wParam, LPARAM lParam)
 {
-	CDC *pDC;
+	// Number of sequence items has changed
+	m_pSequence->SetItemCount(wParam);
+	m_pGraphEditor->RedrawWindow();
+	RedrawWindow();
+	PostMessage(WM_SEQUENCE_CHANGED, 1);
+
+	return TRUE;
+}
+
+LRESULT CSequenceEditor::OnCursorChange(WPARAM wParam, LPARAM lParam)
+{
+	// Graph cursor has changed
+	CDC *pDC = GetDC();
+	pDC->SelectObject(m_pFont);
+
 	CRect rect;
+	GetClientRect(rect);
+
 	CString Text;
-
-	switch (pMsg->message) {
-		case WM_SIZE_CHANGE:
-			// Number of sequence items has changed
-			m_pSequence->SetItemCount(pMsg->wParam);
-			m_pGraphEditor->RedrawWindow();
-			RedrawWindow();
-			PostMessage(WM_SEQUENCE_CHANGED, 1);
-			return TRUE;
-		case WM_CURSOR_CHANGE:
-			// Graph cursor has changed
-			pDC = GetDC();
-			pDC->SelectObject(m_pFont);
-			GetClientRect(rect);
-			// Arpeggio
-			if (m_iSelectedSetting == SEQ_ARPEGGIO && m_pSequence->GetSetting() == 1) {
-				Text.Format(_T("{%i, %s}  "), pMsg->wParam, (LPCTSTR)((CArpeggioGraphEditor*)m_pGraphEditor)->GetNoteString(pMsg->lParam));
-			}
-			else
-				Text.Format(_T("{%i, %i}  "), pMsg->wParam, pMsg->lParam);
-			pDC->TextOut(170, rect.bottom - 19, Text);
-			ReleaseDC(pDC);
-			return TRUE;
-		case WM_SEQUENCE_CHANGED:
-			if (this == NULL)
-				return FALSE;
-			SequenceChangedMessage(pMsg->wParam == 1);
-			return TRUE;
+	// Arpeggio
+	if (m_iSelectedSetting == SEQ_ARPEGGIO && m_pSequence->GetSetting() == 1) {
+      Text.Format(_T("{%i, %s}  "), wParam, (LPCTSTR)static_cast<CArpeggioGraphEditor*>(m_pGraphEditor)->GetNoteString(lParam));
 	}
+	else {
+		Text.Format(_T("{%i, %i}  "), wParam, lParam);
+	}
+	
+	pDC->TextOut(170, rect.bottom - 19, Text);
+	ReleaseDC(pDC);
 
-	return CWnd::PreTranslateMessage(pMsg);
+	return TRUE;
+}
+
+LRESULT CSequenceEditor::OnSequenceChanged(WPARAM wParam, LPARAM lParam)
+{
+	if (this == NULL)	// TODO: is this needed?
+		return FALSE;
+	
+	SequenceChangedMessage(wParam == 1);
+
+	return TRUE;
 }
 
 void CSequenceEditor::ChangedSetting()
@@ -157,7 +178,7 @@ void CSequenceEditor::ChangedSetting()
 
 	switch (m_iSelectedSetting) {
 		case SEQ_ARPEGGIO:
-			dynamic_cast<CArpeggioGraphEditor*>(m_pGraphEditor)->ChangeSetting();
+			static_cast<CArpeggioGraphEditor*>(m_pGraphEditor)->ChangeSetting();
 			break;
 	}
 
@@ -186,12 +207,16 @@ void CSequenceEditor::SequenceChangedMessage(bool Changed)
 		Text.AppendFormat(_T("%i "), m_pSequence->GetItem(i));
 	}
 
-	dynamic_cast<CSequenceInstrumentEditPanel*>(m_pParent)->SetSequenceString(Text, Changed);
+	static_cast<CSequenceInstrumentEditPanel*>(m_pParent)->SetSequenceString(Text, Changed);
 	//((CSequenceInstrumentEditPanel*)m_pParent)->SetSequenceString(Text, Changed);
 
 	// Set flag in document
-	if (Changed)
-		((CFrameWnd*)AfxGetMainWnd())->GetActiveDocument()->SetModifiedFlag();
+	if (Changed) {
+		CFrameWnd *pMainFrame = dynamic_cast<CFrameWnd*>(theApp.m_pMainWnd);
+		if (pMainFrame) {
+			pMainFrame->GetActiveDocument()->SetModifiedFlag();
+		}
+	}
 }
 
 //const int SEQ_SUNSOFT_NOISE = SEQ_DUTYCYCLE + 1;
@@ -257,8 +282,7 @@ void CSequenceEditor::DestroyGraphEditor()
 	if (m_pGraphEditor) {
 		m_pGraphEditor->ShowWindow(SW_HIDE);
 		m_pGraphEditor->DestroyWindow();
-		delete m_pGraphEditor;
-		m_pGraphEditor = NULL;
+		SAFE_RELEASE(m_pGraphEditor);
 	}
 }
 
@@ -266,5 +290,6 @@ void CSequenceEditor::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	CWnd::OnLButtonDown(nFlags, point);
 	// Set focus to parent to allow keyboard note preview
-	GetParent()->SetFocus();
+	//GetParent()->SetFocus();
+	SetFocus();
 }

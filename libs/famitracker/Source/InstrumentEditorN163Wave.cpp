@@ -40,7 +40,8 @@ IMPLEMENT_DYNAMIC(CInstrumentEditorN163Wave, CInstrumentEditPanel)
 
 CInstrumentEditorN163Wave::CInstrumentEditorN163Wave(CWnd* pParent) : CInstrumentEditPanel(CInstrumentEditorN163Wave::IDD, pParent),
 	m_pWaveEditor(NULL), 
-	m_pInstrument(NULL)
+	m_pInstrument(NULL),
+	m_iWaveIndex(0)
 {
 }
 
@@ -62,10 +63,11 @@ void CInstrumentEditorN163Wave::SelectInstrument(int Instrument)
 	if (m_pInstrument)
 		m_pInstrument->Release();
 
-	m_pInstrument = (CInstrumentN163*)GetDocument()->GetInstrument(Instrument);
+	m_pInstrument = static_cast<CInstrumentN163*>(GetDocument()->GetInstrument(Instrument));
+	ASSERT(m_pInstrument->GetType() == INST_N163);
 
-	CComboBox *pSizeBox = (CComboBox*)GetDlgItem(IDC_WAVE_SIZE);
-	CComboBox *pPosBox = (CComboBox*)GetDlgItem(IDC_WAVE_POS);
+	CComboBox *pSizeBox = static_cast<CComboBox*>(GetDlgItem(IDC_WAVE_SIZE));
+	CComboBox *pPosBox = static_cast<CComboBox*>(GetDlgItem(IDC_WAVE_POS));
 
 	CString SizeStr;
 	SizeStr.Format(_T("%i"), m_pInstrument->GetWaveSize());
@@ -93,8 +95,8 @@ void CInstrumentEditorN163Wave::SelectInstrument(int Instrument)
 		m_pWaveEditor->SetLength(m_pInstrument->GetWaveSize());
 	}
 
-	CSpinButtonCtrl *pIndexSpin = (CSpinButtonCtrl*)GetDlgItem(IDC_INDEX_SPIN);
-	CSpinButtonCtrl *pWavesSpin = (CSpinButtonCtrl*)GetDlgItem(IDC_WAVES_SPIN);
+	CSpinButtonCtrl *pIndexSpin = static_cast<CSpinButtonCtrl*>(GetDlgItem(IDC_INDEX_SPIN));
+	CSpinButtonCtrl *pWavesSpin = static_cast<CSpinButtonCtrl*>(GetDlgItem(IDC_WAVES_SPIN));
 
 	int WaveCount = m_pInstrument->GetWaveCount();
 
@@ -135,15 +137,13 @@ BOOL CInstrumentEditorN163Wave::OnInitDialog()
 	m_pWaveEditor->ShowWindow(SW_SHOW);
 	m_pWaveEditor->UpdateWindow();
 
-	CComboBox *pSize = (CComboBox*)GetDlgItem(IDC_WAVE_SIZE);
-
-	CSpinButtonCtrl *pIndexSpin = (CSpinButtonCtrl*)GetDlgItem(IDC_INDEX_SPIN);
-	CSpinButtonCtrl *pWavesSpin = (CSpinButtonCtrl*)GetDlgItem(IDC_WAVES_SPIN);
+	CSpinButtonCtrl *pIndexSpin = static_cast<CSpinButtonCtrl*>(GetDlgItem(IDC_INDEX_SPIN));
+	CSpinButtonCtrl *pWavesSpin = static_cast<CSpinButtonCtrl*>(GetDlgItem(IDC_WAVES_SPIN));
 
 	pIndexSpin->SetRange(0, CInstrumentN163::MAX_WAVE_COUNT - 1);
 	pWavesSpin->SetRange(0, CInstrumentN163::MAX_WAVE_COUNT - 1);
 	
-	CComboBox *pWaveSize = (CComboBox*)GetDlgItem(IDC_WAVE_SIZE);
+	CComboBox *pWaveSize = static_cast<CComboBox*>(GetDlgItem(IDC_WAVE_SIZE));
 
 	for (int i = 0; i < CInstrumentN163::MAX_WAVE_SIZE; i += 4) {
 		CString txt;
@@ -233,31 +233,41 @@ void CInstrumentEditorN163Wave::OnBnClickedCopy()
 	for (int i = 0; i < len; ++i)
 		Str.AppendFormat(_T("%i "), m_pInstrument->GetSample(m_iWaveIndex,i));
 
-	if (!OpenClipboard())
+	if (!OpenClipboard()) {
+		AfxMessageBox(IDS_CLIPBOARD_OPEN_ERROR);
 		return;
+	}
 
-	EmptyClipboard();
+	::EmptyClipboard();
 
 	int size = Str.GetLength() + 1;
-	HANDLE hMem = GlobalAlloc(GMEM_MOVEABLE, size);
-	LPTSTR lptstrCopy = (LPTSTR)GlobalLock(hMem);  
-	strcpy_s(lptstrCopy, size, Str.GetBuffer());
-	GlobalUnlock(hMem);
-	SetClipboardData(CF_TEXT, hMem);
+	HANDLE hMem = ::GlobalAlloc(GMEM_MOVEABLE, size);
+	if (hMem != NULL) {
+		LPTSTR lptstrCopy = (LPTSTR)::GlobalLock(hMem);  
+		if (lptstrCopy != NULL)
+			strcpy_s(lptstrCopy, size, Str.GetBuffer());
+		::GlobalUnlock(hMem);
+		::SetClipboardData(CF_TEXT, hMem);
+	}
 
-	CloseClipboard();	
+	::CloseClipboard();
 }
 
 void CInstrumentEditorN163Wave::OnBnClickedPaste()
 {
 	// Copy from clipboard
-	if (!OpenClipboard())
+	if (!OpenClipboard()) {
+		AfxMessageBox(IDS_CLIPBOARD_OPEN_ERROR);
 		return;
+	}
 
 	HANDLE hMem = GetClipboardData(CF_TEXT);
-	LPTSTR lptstrCopy = (LPTSTR)GlobalLock(hMem);
-	ParseString(lptstrCopy);
-	GlobalUnlock(hMem);
+	if (hMem != NULL) {
+		LPTSTR lptstrCopy = (LPTSTR)GlobalLock(hMem);
+		if (lptstrCopy != NULL)
+			ParseString(lptstrCopy);
+		GlobalUnlock(hMem);
+	}
 	CloseClipboard();
 }
 
@@ -284,7 +294,7 @@ void CInstrumentEditorN163Wave::ParseString(LPTSTR pString)
 
 	CString SizeStr;
 	SizeStr.Format(_T("%i"), size);
-	((CComboBox*)GetDlgItem(IDC_WAVE_SIZE))->SelectString(0, SizeStr);
+	static_cast<CComboBox*>(GetDlgItem(IDC_WAVE_SIZE))->SelectString(0, SizeStr);
 
 	FillPosBox(size);
 
@@ -338,7 +348,7 @@ void CInstrumentEditorN163Wave::OnWavePosChange()
 void CInstrumentEditorN163Wave::OnWavePosSelChange()
 {
 	CString str;
-	CComboBox *pPosBox = (CComboBox*)GetDlgItem(IDC_WAVE_POS);
+	CComboBox *pPosBox = static_cast<CComboBox*>(GetDlgItem(IDC_WAVE_POS));
 	pPosBox->GetLBText(pPosBox->GetCurSel(), str);
 
 	int pos = _ttoi(str);
@@ -353,7 +363,7 @@ void CInstrumentEditorN163Wave::OnWavePosSelChange()
 
 void CInstrumentEditorN163Wave::FillPosBox(int size)
 {
-	CComboBox *pPosBox = (CComboBox*)GetDlgItem(IDC_WAVE_POS);
+	CComboBox *pPosBox = static_cast<CComboBox*>(GetDlgItem(IDC_WAVE_POS));
 	pPosBox->ResetContent();
 
 	CString str;
@@ -377,7 +387,7 @@ void CInstrumentEditorN163Wave::OnPositionClicked()
 */
 void CInstrumentEditorN163Wave::OnWavesChange()
 {
-	CSpinButtonCtrl *pIndexSpin = (CSpinButtonCtrl*)GetDlgItem(IDC_INDEX_SPIN);
+	CSpinButtonCtrl *pIndexSpin = static_cast<CSpinButtonCtrl*>(GetDlgItem(IDC_INDEX_SPIN));
 
 	int count = GetDlgItemInt(IDC_WAVES) + 1;
 	

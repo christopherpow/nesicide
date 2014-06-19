@@ -24,12 +24,13 @@
 // Derived channels, N163
 //
 
-class CChannelHandlerN163 : public CChannelHandler {
+class CChannelHandlerN163 : public CChannelHandlerInverted {
 public:
 	CChannelHandlerN163();
 	virtual void ResetChannel();
 	virtual void ProcessChannel();
 	virtual void RefreshChannel();
+
 protected:
 	virtual void HandleNoteData(stChanNote *pNoteData, int EffColumns);
 	virtual void HandleCustomEffects(int EffNum, int EffParam);
@@ -38,8 +39,8 @@ protected:
 	virtual void HandleHalt();
 	virtual void HandleRelease();
 	virtual void HandleNote(int Note, int Octave);
-
 	virtual void ClearRegisters();
+
 private:
 	void WriteReg(int Reg, int Value);
 	void SetAddress(char Addr, bool AutoInc);
@@ -51,6 +52,7 @@ private:
 	inline int GetIndex() const { return m_iChannelID - CHANID_N163_CHAN1; }
 private:
 	bool m_bLoadWave;
+	int m_iChannels;
 	int m_iWaveLen;
 	int m_iWavePos;
 	int m_iWaveIndex;
@@ -58,4 +60,6 @@ private:
 protected:
 	int m_iPostEffect;
 	int m_iPostEffectParam;
+
+	bool m_bResetPhase;
 };

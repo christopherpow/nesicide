@@ -22,10 +22,19 @@
 
 #ifdef EXPORT_TEST
 
+struct stRegs {
+	unsigned char R_2A03[0x20];
+	unsigned char R_VRC6[0x10];
+	unsigned char R_VRC7[0x40];
+	unsigned char R_FDS[0x10];
+	unsigned char R_MMC5[0x08];
+	unsigned char R_N163[0x100];
+};
+
 // DLL imports
-typedef void (*LoadFile_t)(char*, int, int);
+typedef void (*LoadFile_t)(char*, int, void*);
 typedef int (*RunFrame_t)(unsigned int, int);
-typedef unsigned char (*ReadResult_t)(unsigned int);
+typedef unsigned char (*ReadResult_t)(unsigned int, int);
 
 struct stNSFHeader;
 
@@ -36,11 +45,17 @@ public:
 	CExportTest();
 	~CExportTest();
 
-	bool Setup();
+	bool Setup(LPCTSTR lpszFile = NULL);
 	void RunInit(int Song);
 	void RunPlay();
 
-	unsigned char ReadReg(int Reg);
+	void ReportSuccess();
+	bool ReportError(stRegs *pInternalRegs, stRegs *pExternalRegs, int UpdateFrames, int Chip);
+
+	unsigned char ReadReg(int Reg, int Chip);
+
+private:
+	void PrintErrorReport(stRegs *pInternalRegs, stRegs *pExternalRegs, int UpdateFrames, int Chip);
 
 private:
 	struct {
@@ -50,6 +65,9 @@ private:
 	} ImportFuncs;
 
 	stNSFHeader *m_pHeader;
+	int m_iFileSize;
+	HMODULE m_hModule;
+	bool m_bErrors;
 };
 
 #endif /* EXPORT_TEST */

@@ -24,6 +24,8 @@
 
 #pragma once
 
+#include "cqtmfc.h"
+
 //#define _CRTDBG_MAPALLOC
 
 //// Get rid of warnings in VS 2005

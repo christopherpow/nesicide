@@ -18,8 +18,8 @@
 ** must bear this legend.
 */
 
-#ifndef _CHANNEL_H_
-#define _CHANNEL_H_
+#ifndef CHANNEL_H
+#define CHANNEL_H
 
 class CMixer;
 
@@ -103,4 +103,4 @@ protected:
 	int32	m_iLastValue;		// Last value sent to mixer
 };
 
-#endif /* _CHANNEL_H_ */
+#endif /* CHANNEL_H */

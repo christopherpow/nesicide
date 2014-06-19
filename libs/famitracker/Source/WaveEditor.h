@@ -20,7 +20,9 @@
 
 #pragma once
 
-enum {WM_USER_WAVE_CHANGED = WM_USER};
+enum {
+	WM_USER_WAVE_CHANGED = WM_USER
+};
 
 class CWaveEditor : public CWnd
 {

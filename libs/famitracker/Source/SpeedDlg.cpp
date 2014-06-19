@@ -29,7 +29,7 @@ const int RATE_MAX = 400;
 
 IMPLEMENT_DYNAMIC(CSpeedDlg, CDialog)
 CSpeedDlg::CSpeedDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CSpeedDlg::IDD, pParent)
+	: CDialog(CSpeedDlg::IDD, pParent), m_iInitSpeed(0), m_iSpeed(0)
 {
 }
 
@@ -72,7 +72,7 @@ BOOL CSpeedDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
-	CSliderCtrl *Slider = (CSliderCtrl*)GetDlgItem(IDC_SPEED_SLD);
+	CSliderCtrl *Slider = static_cast<CSliderCtrl*>(GetDlgItem(IDC_SPEED_SLD));
 	CString String;
 
 	// TODO: Program will crash if speed is set below 25Hz, I don't know why

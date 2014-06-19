@@ -20,8 +20,6 @@
 
 #pragma once
 
-#include "resource.h"
-
 #include "SequenceEditor.h"
 #include "InstrumentEditPanel.h"
 

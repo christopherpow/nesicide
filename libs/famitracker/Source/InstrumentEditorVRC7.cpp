@@ -95,14 +95,30 @@ BOOL CInstrumentEditorVRC7::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
-	CComboBox *pPatchBox = (CComboBox*)GetDlgItem(IDC_PATCH);
+	CComboBox *pPatchBox = static_cast<CComboBox*>(GetDlgItem(IDC_PATCH));
 	CString Text;
 
-	Text.Format(_T("Patch #0 (custom patch)"));
-	pPatchBox->AddString(Text);
+    const TCHAR* const PATCH_NAME[16] = {
+        _T("(custom patch)"),
+        _T("Bell"),
+        _T("Guitar"),
+        _T("Piano"),
+        _T("Flute"),
+        _T("Clarinet"),
+        _T("Rattling Bell"),
+        _T("Trumpet"),
+        _T("Reed Organ"),
+        _T("Soft Bell"),
+        _T("Xylophone"),
+        _T("Vibraphone"),
+        _T("Brass"),
+        _T("Bass Guitar"),
+        _T("Synthesizer"),
+        _T("Chorus")
+    };
 
-	for (int i = 1; i < 16; ++i) {
-		Text.Format(_T("Patch #%i"), i);
+	for (int i = 0; i < 16; ++i) {
+		Text.Format(_T("Patch #%i - %s"), i, PATCH_NAME[i]);
 		pPatchBox->AddString(Text);
 	}
 
@@ -131,20 +147,19 @@ BOOL CInstrumentEditorVRC7::OnInitDialog()
 
 void CInstrumentEditorVRC7::OnCbnSelchangePatch()
 {
-	int Patch;
-	CComboBox *pPatchBox = (CComboBox*)GetDlgItem(IDC_PATCH);
-	Patch = pPatchBox->GetCurSel();
-	//CInstrumentVRC7 *InstConf = (CInstrumentVRC7*)GetDocument()->GetInstrument(m_iInstrument);
+	CComboBox *pPatchBox = static_cast<CComboBox*>(GetDlgItem(IDC_PATCH));
+	SelectPatch(pPatchBox->GetCurSel());
+}
+
+void CInstrumentEditorVRC7::SelectPatch(int Patch)
+{
 	m_pInstrument->SetPatch(Patch);
-	//InstConf->SetPatch(Patch);
 	EnableControls(Patch == 0);
 
 	if (Patch == 0)
 		LoadCustomPatch();
 	else
 		LoadInternalPatch(Patch);
-
-//	CheckDlgButton(IDC_HOLD, InstConf->GetHold());
 }
 
 void CInstrumentEditorVRC7::EnableControls(bool bEnable)
@@ -173,12 +188,13 @@ void CInstrumentEditorVRC7::EnableControls(bool bEnable)
 
 void CInstrumentEditorVRC7::SelectInstrument(int Instrument)
 {
-	CComboBox *pPatchBox = (CComboBox*)GetDlgItem(IDC_PATCH);
+	CComboBox *pPatchBox = static_cast<CComboBox*>(GetDlgItem(IDC_PATCH));
 
 	if (m_pInstrument)
 		m_pInstrument->Release();
 
-	m_pInstrument = (CInstrumentVRC7*)GetDocument()->GetInstrument(Instrument);
+	m_pInstrument = static_cast<CInstrumentVRC7*>(GetDocument()->GetInstrument(Instrument));
+	ASSERT(m_pInstrument->GetType() == INST_VRC7);
 
 	int Patch = m_pInstrument->GetPatch();
 
@@ -204,19 +220,19 @@ HBRUSH CInstrumentEditorVRC7::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 
 void CInstrumentEditorVRC7::SetupSlider(int Slider, int Max)
 {
-	CSliderCtrl *pSlider = (CSliderCtrl*)GetDlgItem(Slider);
+	CSliderCtrl *pSlider = static_cast<CSliderCtrl*>(GetDlgItem(Slider));
 	pSlider->SetRangeMax(Max);
 }
 
 int CInstrumentEditorVRC7::GetSliderVal(int Slider)
 {
-	CSliderCtrl *pSlider = (CSliderCtrl*)GetDlgItem(Slider);
+	CSliderCtrl *pSlider = static_cast<CSliderCtrl*>(GetDlgItem(Slider));
 	return pSlider->GetPos();
 }
 
 void CInstrumentEditorVRC7::SetSliderVal(int Slider, int Value)
 {
-	CSliderCtrl *pSlider = (CSliderCtrl*)GetDlgItem(Slider);
+	CSliderCtrl *pSlider = static_cast<CSliderCtrl*>(GetDlgItem(Slider));
 	pSlider->SetPos(Value);
 }
 
@@ -430,31 +446,51 @@ void CInstrumentEditorVRC7::OnCopy()
 	for (int i = 0; i < 8; ++i)
 		MML.AppendFormat(_T("$%02X "), (patch == 0) ? (unsigned char)(m_pInstrument->GetCustomReg(i)) : default_inst[patch * 16 + i]);
 	
-	if (!OpenClipboard())
+	if (!OpenClipboard()) {
+		AfxMessageBox(IDS_CLIPBOARD_OPEN_ERROR);
 		return;
+	}
 
-	EmptyClipboard();
+	::EmptyClipboard();
 
 	int size = MML.GetLength() + 1;
-	HANDLE hMem = GlobalAlloc(GMEM_MOVEABLE, size);
-	LPTSTR lptstrCopy = (LPTSTR)GlobalLock(hMem);  
-	strcpy_s(lptstrCopy, size, MML.GetBuffer());
-	GlobalUnlock(hMem);
-	SetClipboardData(CF_TEXT, hMem);
-	CloseClipboard();
+	
+	HANDLE hMem = ::GlobalAlloc(GMEM_MOVEABLE, size);
+	if (hMem != NULL) {
+		LPTSTR lptstrCopy = (LPTSTR)::GlobalLock(hMem);  
+		if (lptstrCopy != NULL)
+			_tcscpy_s(lptstrCopy, size, MML.GetBuffer());
+		::GlobalUnlock(hMem);
+		::SetClipboardData(CF_TEXT, hMem);
+	}
+
+	::CloseClipboard();
 }
 
 void CInstrumentEditorVRC7::OnPaste()
 {
 	// Copy from clipboard
-	if (!OpenClipboard())
+	if (!OpenClipboard()) {
+		AfxMessageBox(IDS_CLIPBOARD_OPEN_ERROR);
 		return;
+	}
 
-	HANDLE hMem = GetClipboardData(CF_TEXT);
-	LPTSTR lptstrCopy = (LPTSTR)GlobalLock(hMem);
-	string str = lptstrCopy;
-	GlobalUnlock(hMem);
-	CloseClipboard();
+	if (::IsClipboardFormatAvailable(CF_TEXT)) {
+		HANDLE hMem = ::GetClipboardData(CF_TEXT);
+		if (hMem != NULL) {
+			LPTSTR lptstrCopy = (LPTSTR)::GlobalLock(hMem);
+			if (lptstrCopy != NULL)
+				PasteSettings(lptstrCopy);
+			::GlobalUnlock(hMem);
+		}
+	}
+
+	::CloseClipboard();
+}
+
+void CInstrumentEditorVRC7::PasteSettings(LPTSTR pString)
+{
+	string str(pString);
 
 	// Convert to register values
 	istringstream values(str);
@@ -463,9 +499,9 @@ void CInstrumentEditorVRC7::OnPaste()
 
 	for (int i = 0; (i < 8) && (begin != end); ++i) {
 		string number = *begin++;
-		if (number[0] == _T('$')) {
+		if (number[0] == '$') {
 			int value;
-			_stscanf_s(number.c_str(), _T("$%X"), &value);
+			sscanf_s(number.c_str(), "$%X", &value);
 			if (value >= 0 && value <= 0xFF) {
 				m_pInstrument->SetCustomReg(i, value);
 			}
@@ -473,4 +509,27 @@ void CInstrumentEditorVRC7::OnPaste()
 	}
 
 	LoadCustomPatch();
+}
+
+BOOL CInstrumentEditorVRC7::PreTranslateMessage(MSG* pMsg)
+{
+	if (pMsg->message == WM_KEYDOWN && m_pInstrument != NULL && GetFocus() != GetDlgItem(IDC_PATCH)) {
+		int Patch = m_pInstrument->GetPatch();
+		switch (pMsg->wParam) {
+			case VK_DOWN:
+				if (Patch < 15) {
+					SelectPatch(Patch + 1);
+					static_cast<CComboBox*>(GetDlgItem(IDC_PATCH))->SetCurSel(Patch + 1);
+				}
+				break;
+			case VK_UP:
+				if (Patch > 0) {
+					SelectPatch(Patch - 1);
+					static_cast<CComboBox*>(GetDlgItem(IDC_PATCH))->SetCurSel(Patch - 1);
+				}
+				break;
+		}
+	}
+
+	return CInstrumentEditPanel::PreTranslateMessage(pMsg);
 }

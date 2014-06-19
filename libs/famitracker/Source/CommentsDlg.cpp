@@ -37,7 +37,6 @@ IMPLEMENT_DYNAMIC(CCommentsDlg, CDialog)
 CCommentsDlg::CCommentsDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CCommentsDlg::IDD, pParent), m_pFont(NULL)
 {
-
 }
 
 CCommentsDlg::~CCommentsDlg()
@@ -66,8 +65,7 @@ END_MESSAGE_MAP()
 
 void CCommentsDlg::SaveComment()
 {
-	CMainFrame *pMainFrame = (CMainFrame*)GetParentFrame();
-	CFamiTrackerDoc *pDoc = (CFamiTrackerDoc*)pMainFrame->GetActiveDocument();
+	CFamiTrackerDoc *pDoc = CFamiTrackerDoc::GetDoc();
 	CString comment;
 
 	GetDlgItemText(IDC_COMMENTS, comment);
@@ -123,8 +121,7 @@ BOOL CCommentsDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
-	CMainFrame *pMainFrame = (CMainFrame*)GetParentFrame();
-	CFamiTrackerDoc *pDoc = (CFamiTrackerDoc*)pMainFrame->GetActiveDocument();
+	CFamiTrackerDoc *pDoc = CFamiTrackerDoc::GetDoc();
 	CString comment = pDoc->GetComment();
 
 	SetDlgItemText(IDC_COMMENTS, comment);
@@ -159,4 +156,19 @@ BOOL CCommentsDlg::DestroyWindow()
 void CCommentsDlg::OnEnChangeComments()
 {
 	m_bChanged = true;
+}
+
+void CCommentsDlg::OnBnClickedShowonopen()
+{
+	m_bChanged = true;
+}
+
+void CCommentsDlg::OnGetMinMaxInfo(MINMAXINFO* lpMMI)
+{
+	// TODO: Add your message handler code here and/or call default
+
+	lpMMI->ptMinTrackSize.x = 400;
+	lpMMI->ptMinTrackSize.y = 200;
+
+	CDialog::OnGetMinMaxInfo(lpMMI);
 }

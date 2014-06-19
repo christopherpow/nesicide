@@ -33,6 +33,22 @@ const uint8 CSquare::DUTY_TABLE[4][16] = {
 
 CSquare::CSquare(CMixer *pMixer, int ID, int Chip) : CChannel(pMixer, ID, Chip)
 {
+	m_iDutyLength = 0;
+	m_iDutyCycle = 0;
+	m_iLooping = 0;
+	m_iEnvelopeFix = 0;
+	m_iEnvelopeSpeed = 0;
+	m_iEnvelopeVolume = 0;
+	m_iSweepEnabled = 0;
+	m_iSweepPeriod = 0;
+	m_iSweepMode = 0;
+	m_iSweepShift = 0;
+	m_iSweepCounter = 0;
+	m_iSweepResult = 0;
+	m_bSweepWritten = 0;
+
+	m_iFixedVolume = 0;
+	m_iEnvelopeCounter = 0;
 }
 
 CSquare::~CSquare()
@@ -137,7 +153,7 @@ void CSquare::SweepUpdate(int Diff)
 	m_iSweepResult = (m_iPeriod >> m_iSweepShift);
 
 	if (m_iSweepMode)
-		m_iSweepResult = m_iPeriod - (m_iSweepResult - Diff);
+		m_iSweepResult = m_iPeriod - m_iSweepResult - Diff;
 	else
 		m_iSweepResult = m_iPeriod + m_iSweepResult;
 

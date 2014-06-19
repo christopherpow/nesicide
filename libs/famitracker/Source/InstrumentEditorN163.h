@@ -61,6 +61,7 @@ public:
 	afx_msg void OnLvnItemchangedInstsettings(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnEnChangeSeqIndex();
 	afx_msg void OnBnClickedFreeSeq();
+	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	virtual BOOL DestroyWindow();
 	afx_msg void OnCloneSequence();
 };

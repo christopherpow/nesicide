@@ -18,15 +18,15 @@
 ** must bear this legend.
 */
 
-#ifndef _APU_H_
-#define _APU_H_
-
-#include <QObject>
+#ifndef APU_H
+#define APU_H
 
 //#define LOGGING
 
-#include "../common.h"
+#include "../Common.h"
 #include "Mixer.h"
+
+#include <QObject>
 
 const uint8 SNDCHIP_NONE  = 0;
 const uint8 SNDCHIP_VRC6  = 1;			// Konami VRCVI
@@ -36,7 +36,10 @@ const uint8 SNDCHIP_MMC5  = 8;			// Nintendo MMC5
 const uint8 SNDCHIP_N163  = 16;			// Namco N-106
 const uint8 SNDCHIP_S5B	  = 32;			// Sunsoft 5B
 
-enum {MACHINE_NTSC, MACHINE_PAL};
+enum apu_machine_t {
+	MACHINE_NTSC, 
+	MACHINE_PAL
+};
 
 // External classes
 class CSquare;
@@ -53,10 +56,14 @@ class CS5B;
 
 class CExternal;
 
+#ifdef LOGGING
+class CFile;
+#endif
+
 class CAPU : public QObject {
    Q_OBJECT
 public:
-	CAPU(ICallback *pCallback, CSampleMem *pSampleMem);
+	CAPU(IAudioCallback *pCallback, CSampleMem *pSampleMem);
 	~CAPU();
 
 	void	Reset();
@@ -82,9 +89,7 @@ public:
 	bool	DPCMPlaying() const;
 	uint8	GetReg(int Chip, int Reg) const;
 
-	void	SetChipLevel(int Chip, int Level);
-
-	void	SetNamcoMixing(bool bLinear);
+	void	SetChipLevel(chip_level_t Chip, float Level);
 
 #ifdef LOGGING
 	void	Log();
@@ -107,12 +112,12 @@ private:
 	inline void	ClockSequence();
 
 	void EndFrame();
-		
+	
 	void LogExternalWrite(uint16 Address, uint8 Value);
 
 private:
 	CMixer		*m_pMixer;
-	ICallback	*m_pParent;
+	IAudioCallback *m_pParent;
 
 	// Internal channels
 	CSquare		*m_pSquare1;
@@ -158,10 +163,10 @@ private:
 
 #ifdef LOGGING
 	CFile		  *m_pLog;
-	int			  m_iFrame = 0;
-	unsigned char m_iRegs[32];
+	int			  m_iFrame;
+//	unsigned char m_iRegs[32];
 #endif
 
 };
 
-#endif /* _APU_H_ */
+#endif /* APU_H */

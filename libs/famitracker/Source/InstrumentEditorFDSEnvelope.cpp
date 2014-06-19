@@ -56,8 +56,9 @@ void CInstrumentEditorFDSEnvelope::SelectInstrument(int Instrument)
 	if (m_pInstrument)
 		m_pInstrument->Release();
 
-	m_pInstrument = (CInstrumentFDS*)GetDocument()->GetInstrument(Instrument);
-
+	m_pInstrument = static_cast<CInstrumentFDS*>(GetDocument()->GetInstrument(Instrument));
+	ASSERT(m_pInstrument->GetType() == INST_FDS);
+	
 	LoadSequence();
 }
 
@@ -81,7 +82,7 @@ BOOL CInstrumentEditorFDSEnvelope::OnInitDialog()
 	m_pSequenceEditor->CreateEditor(this, rect);
 	m_pSequenceEditor->SetMaxValues(MAX_VOLUME, 0);
 
-	((CComboBox*)GetDlgItem(IDC_TYPE))->SetCurSel(0);
+	static_cast<CComboBox*>(GetDlgItem(IDC_TYPE))->SetCurSel(0);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
@@ -94,7 +95,7 @@ void CInstrumentEditorFDSEnvelope::SetSequenceString(CString Sequence, bool Chan
 
 void CInstrumentEditorFDSEnvelope::OnCbnSelchangeType()
 {
-	CComboBox *pTypeBox = (CComboBox*)GetDlgItem(IDC_TYPE);
+	CComboBox *pTypeBox = static_cast<CComboBox*>(GetDlgItem(IDC_TYPE));
 	m_iSelectedType = pTypeBox->GetCurSel();
 	LoadSequence();
 }

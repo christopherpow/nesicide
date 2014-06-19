@@ -31,9 +31,8 @@
 IMPLEMENT_DYNAMIC(CWavProgressDlg, CDialog)
 
 CWavProgressDlg::CWavProgressDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CWavProgressDlg::IDD, pParent)
+	: CDialog(CWavProgressDlg::IDD, pParent), m_dwStartTime(0), m_iSongEndType(SONG_TIME_LIMIT), m_iSongEndParam(0), m_iTrack(0)
 {
-
 }
 
 CWavProgressDlg::~CWavProgressDlg()
@@ -56,49 +55,44 @@ END_MESSAGE_MAP()
 
 void CWavProgressDlg::OnBnClickedCancel()
 {
-	if (m_pSoundGen->IsRendering()) {
-		//m_pSoundGen->StopRendering();
-		m_pSoundGen->PostThreadMessage(WM_USER_STOP_RENDER, 0, 0);
+	CSoundGen *pSoundGen = theApp.GetSoundGenerator();
+
+	if (pSoundGen->IsRendering()) {
+		//pSoundGen->StopRendering();
+		pSoundGen->PostThreadMessage(WM_USER_STOP_RENDER, 0, 0);
 	}
 
 	EndDialog(0);
 }
 
-void CWavProgressDlg::SetFile(CString File)
+void CWavProgressDlg::BeginRender(const CString &File, render_end_t LengthType, int LengthParam, int Track)
 {
-	m_sFile = File;
-}
-
-void CWavProgressDlg::SetOptions(int LengthType, int LengthParam)
-{
-	// Set song length
 	m_iSongEndType = LengthType;
 	m_iSongEndParam = LengthParam;
+	m_sFile = File;
+	m_iTrack = Track;
+
+	if (m_sFile.GetLength() > 0)
+		DoModal();
 }
 
 BOOL CWavProgressDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
-	CString FileStr;
 
-	if (m_sFile.GetLength() == 0)
-		return TRUE;
+	static_cast<CProgressCtrl*>(GetDlgItem(IDC_PROGRESS_BAR))->SetRange(0, 100);
+	CFamiTrackerView *pView = CFamiTrackerView::GetView();
+	CSoundGen *pSoundGen = theApp.GetSoundGenerator();
 
-	m_pSoundGen = theApp.GetSoundGenerator();
-	m_pProgressBar = (CProgressCtrl*)GetDlgItem(IDC_PROGRESS_BAR);
-	m_pView = CFamiTrackerView::GetView();
-	m_pDoc = CFamiTrackerDoc::GetDoc();
-
-	m_pView->Invalidate();
-	m_pView->RedrawWindow();
-
-	m_pProgressBar->SetRange(0, 100);
+	pView->Invalidate();
+	pView->RedrawWindow();
 
 	// Start rendering
-	FileStr.Format(_T("Saving to: %s"), m_sFile.GetString());
+	CString FileStr;
+	AfxFormatString1(FileStr, IDS_WAVE_PROGRESS_FILE_FORMAT, m_sFile);
 	SetDlgItemText(IDC_PROGRESS_FILE, FileStr);
 
-	if (!m_pSoundGen->RenderToFile(m_sFile.GetBuffer(), m_iSongEndType, m_iSongEndParam))
+	if (!pSoundGen->RenderToFile(m_sFile.GetBuffer(), m_iSongEndType, m_iSongEndParam, m_iTrack))
 		EndDialog(0);
 
 	m_dwStartTime = GetTickCount();
@@ -118,16 +112,19 @@ void CWavProgressDlg::OnTimer(UINT_PTR nIDEvent)
 	bool Done;
 	DWORD Time = (GetTickCount() - m_dwStartTime) / 1000;
 	
-	//Frame = pView->GetSelectedFrame() + 1;
-//	FrameCount = m_pDoc->GetFrameCount();
+	CProgressCtrl *pProgressBar = static_cast<CProgressCtrl*>(GetDlgItem(IDC_PROGRESS_BAR));
+	CSoundGen *pSoundGen = theApp.GetSoundGenerator();
 
-	m_pSoundGen->GetRenderStat(Frame, RenderedTime, Done, FramesToRender);
+	pSoundGen->GetRenderStat(Frame, RenderedTime, Done, FramesToRender);
 
 	if (m_iSongEndType == SONG_LOOP_LIMIT) {
 		if (Frame > FramesToRender)
 			Frame = FramesToRender;
 		PercentDone = (Frame * 100) / FramesToRender;
-		Text.Format(_T("Frame: %i / %i (%i%% done) "), Frame, FramesToRender, PercentDone);
+		CString str1, str2;
+		str1.Format(_T("%i / %i"), Frame, FramesToRender);
+		str2.Format(_T("%i%%"), PercentDone);
+		AfxFormatString2(Text, IDS_WAVE_PROGRESS_FRAME_FORMAT, str1, str2);
 	}
 	else if (m_iSongEndType == SONG_TIME_LIMIT) {
 		int TotalSec, TotalMin;
@@ -137,27 +134,29 @@ void CWavProgressDlg::OnTimer(UINT_PTR nIDEvent)
 		CurrSec = RenderedTime % 60;
 		CurrMin = RenderedTime / 60;
 		PercentDone = (RenderedTime * 100) / m_iSongEndParam;
-		Text.Format(_T("Time: %02i:%02i / %02i:%02i (%i%% done) "), CurrMin, CurrSec, TotalMin, TotalSec, PercentDone);
+		CString str1, str2;
+		str1.Format(_T("%02i:%02i / %02i:%02i"), CurrMin, CurrSec, TotalMin, TotalSec);
+		str2.Format(_T("%i%%"), PercentDone);
+		AfxFormatString2(Text, IDS_WAVE_PROGRESS_TIME_FORMAT, str1, str2);
 	}
 
 	SetDlgItemText(IDC_PROGRESS_LBL, Text);
 
-	Text.Format(_T("Elapsed time: %02i:%02i"), (Time / 60), (Time % 60));
+	CString str;
+	str.Format(_T("%02i:%02i"), (Time / 60), (Time % 60));
+	AfxFormatString1(Text, IDS_WAVE_PROGRESS_ELAPSED_FORMAT, str);
 	SetDlgItemText(IDC_TIME, Text);
 
-	m_pProgressBar->SetPos(PercentDone);
+	pProgressBar->SetPos(PercentDone);
 
-	if (!m_pSoundGen->IsRendering()) {
-		SetDlgItemText(IDC_CANCEL, _T("Done"));
+	if (!pSoundGen->IsRendering()) {
+		SetDlgItemText(IDC_CANCEL, CString(MAKEINTRESOURCE(IDS_WAVE_EXPORT_DONE)));
 		CString title;
 		GetWindowText(title);
-		title.Append(_T(" finished"));
+		title.Append(_T(" "));
+		title.Append(CString(MAKEINTRESOURCE(IDS_WAVE_EXPORT_FINISHED)));
 		SetWindowText(title);
-	//	Text.Format("%02i:02i, frame: %i / %i (%i%% done) ", (Time / 60), (Time % 60), FrameCount, FrameCount, 100);
-//		Text.Format("Frame: %i / %i (%i%% done) ", FrameCount, FrameCount, 100);
-//		Text.Format("%02i:%02i, (%i%% done)", (Time / 60), (Time % 60), 100);
-//		SetDlgItemText(IDC_PROGRESS_LBL, Text);
-		m_pProgressBar->SetPos(100);
+		pProgressBar->SetPos(100);
 		KillTimer(0);
 	}
 

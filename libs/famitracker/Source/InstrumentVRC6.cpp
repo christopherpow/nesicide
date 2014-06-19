@@ -78,16 +78,15 @@ void CInstrumentVRC6::Store(CDocumentFile *pDocFile)
 
 bool CInstrumentVRC6::Load(CDocumentFile *pDocFile)
 {
-	int i, Index;
 	int SeqCnt = pDocFile->GetBlockInt();
 
 	ASSERT_FILE_DATA(SeqCnt < (SEQUENCE_COUNT + 1));
 
 	SeqCnt = SEQUENCE_COUNT;//SEQ_COUNT;
 
-	for (i = 0; i < SeqCnt; i++) {
+	for (int i = 0; i < SeqCnt; i++) {
 		SetSeqEnable(i, pDocFile->GetBlockChar());
-		Index = pDocFile->GetBlockChar();
+		int Index = pDocFile->GetBlockChar();
 		ASSERT_FILE_DATA(Index < MAX_SEQUENCES);
 		SetSeqIndex(i, Index);
 	}
@@ -95,89 +94,68 @@ bool CInstrumentVRC6::Load(CDocumentFile *pDocFile)
 	return true;
 }
 
-void CInstrumentVRC6::SaveFile(CFile *pFile, CFamiTrackerDoc *pDoc)
+void CInstrumentVRC6::SaveFile(CInstrumentFile *pFile, CFamiTrackerDoc *pDoc)
 {
-//	CFamiTrackerDoc *pDoc = (CFamiTrackerDoc*)theApp.GetFirstDocument();
-
 	// Sequences
-	unsigned char SeqCount = SEQUENCE_COUNT;
-	pFile->Write(&SeqCount, sizeof(char));
+	pFile->WriteChar(SEQUENCE_COUNT);
 
 	for (int i = 0; i < SEQUENCE_COUNT; ++i) {
 		int Sequence = GetSeqIndex(i);
 		if (GetSeqEnable(i)) {
 			CSequence *pSeq = pDoc->GetSequence(SNDCHIP_VRC6, Sequence, i);
 
-			char Enabled = 1;
-			int ItemCount = pSeq->GetItemCount();
-			int LoopPoint = pSeq->GetLoopPoint();
-			int ReleasePoint = pSeq->GetReleasePoint();
-			int Setting	= pSeq->GetSetting();
-			
-			pFile->Write(&Enabled, sizeof(char));
-			pFile->Write(&ItemCount, sizeof(int));
-			pFile->Write(&LoopPoint, sizeof(int));
-			pFile->Write(&ReleasePoint, sizeof(int));
-			pFile->Write(&Setting, sizeof(int));
+			pFile->WriteChar(1);
+			pFile->WriteInt(pSeq->GetItemCount());
+			pFile->WriteInt(pSeq->GetLoopPoint());
+			pFile->WriteInt(pSeq->GetReleasePoint());
+			pFile->WriteInt(pSeq->GetSetting());
 
-			for (int j = 0; j < ItemCount; ++j) {
-				signed char Value = pSeq->GetItem(j);
-				pFile->Write(&Value, sizeof(char));
+			for (unsigned j = 0; j < pSeq->GetItemCount(); ++j) {
+				pFile->WriteChar(pSeq->GetItem(j));
 			}
 		}
 		else {
-			char Enabled = 0;
-			pFile->Write(&Enabled, sizeof(char));
+			pFile->WriteChar(0);
 		}
 	}
 }
 
-bool CInstrumentVRC6::LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc)
+bool CInstrumentVRC6::LoadFile(CInstrumentFile *pFile, int iVersion, CFamiTrackerDoc *pDoc)
 {
 	// Sequences
 	stSequence OldSequence;
-	unsigned char SeqCount;
-	unsigned char Enabled;
-	int Count, Index;
-	int LoopPoint, ReleasePoint, Setting;
 
-	pFile->Read(&SeqCount, sizeof(char));
+	unsigned char SeqCount = pFile->ReadChar();
 
 	// Loop through all instrument effects
 	for (int i = 0; i < SeqCount; ++i) {
-		pFile->Read(&Enabled, sizeof(char));
+		unsigned char Enabled = pFile->ReadChar();
 		if (Enabled == 1) {
 			// Read the sequence
-
-			pFile->Read(&Count, sizeof(int));
-			Index = pDoc->GetFreeSequenceVRC6(i);
+			int Count = pFile->ReadInt();
+			int Index = pDoc->GetFreeSequenceVRC6(i);
 
 			CSequence *pSeq = pDoc->GetSequence(SNDCHIP_VRC6, Index, i);
 
 			if (iVersion < 20) {
 				OldSequence.Count = Count;
 				for (int j = 0; j < Count; ++j) {
-					pFile->Read(&OldSequence.Length[j], sizeof(char));
-					pFile->Read(&OldSequence.Value[j], sizeof(char));
+					OldSequence.Length[j] = pFile->ReadChar();
+					OldSequence.Value[j] = pFile->ReadChar();
 				}
 				pDoc->ConvertSequence(&OldSequence, pSeq, i);	// convert
 			}
 			else {
 				pSeq->SetItemCount(Count);
-				pFile->Read(&LoopPoint, sizeof(int));
-				pSeq->SetLoopPoint(LoopPoint);
+				pSeq->SetLoopPoint(pFile->ReadInt());
 				if (iVersion > 20) {
-					pFile->Read(&ReleasePoint, sizeof(int));
-					pSeq->SetReleasePoint(ReleasePoint);
+					pSeq->SetReleasePoint(pFile->ReadInt());
 				}
 				if (iVersion >= 22) {
-					pFile->Read(&Setting, sizeof(int));
-					pSeq->SetSetting(Setting);
+					pSeq->SetSetting(pFile->ReadInt());
 				}
 				for (int j = 0; j < Count; ++j) {
-					char Val;
-					pFile->Read(&Val, sizeof(char));
-					pSeq->SetItem(j, Val);
+					pSeq->SetItem(j, pFile->ReadChar());
 				}
 			}
 			SetSeqEnable(i, true);
@@ -192,12 +170,10 @@ bool CInstrumentVRC6::LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc
 	return true;
 }
 
-int CInstrumentVRC6::Compile(CChunk *pChunk, int Index)
+int CInstrumentVRC6::Compile(CFamiTrackerDoc *pDoc, CChunk *pChunk, int Index)
 {
 	int ModSwitch = 0;
 	int StoredBytes = 0;
-
-	CFamiTrackerDoc *pDoc = CFamiTrackerDoc::GetDoc();
 
 	for (int i = 0; i < SEQUENCE_COUNT; ++i) {
 		ModSwitch = (ModSwitch >> 1) | (GetSeqEnable(i) && (pDoc->GetSequence(SNDCHIP_VRC6, GetSeqIndex(i), i)->GetItemCount() > 0) ? 0x10 : 0);
@@ -208,7 +184,7 @@ int CInstrumentVRC6::Compile(CChunk *pChunk, int Index)
 
 	for (int i = 0; i < SEQUENCE_COUNT; ++i) {
 		if (GetSeqEnable(i) != 0 && (pDoc->GetSequence(SNDCHIP_VRC6, GetSeqIndex(i), i)->GetItemCount() != 0)) {
-			CString str;
+			CStringA str;
 			str.Format(CCompiler::LABEL_SEQ_VRC6, GetSeqIndex(i) * SEQUENCE_COUNT + i);
 			pChunk->StoreReference(str);
 			StoredBytes += 2;

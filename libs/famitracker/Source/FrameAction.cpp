@@ -32,10 +32,11 @@
 // Undo/redo commands for frame editor
 //
 
-CFrameAction::CFrameAction(int iAction) : CAction(iAction)
+CFrameAction::CFrameAction(int iAction) : 
+	CAction(iAction),
+	m_pAllPatterns(NULL),
+	m_pClipData(NULL)
 {
-	m_pAllPatterns = NULL;
-	m_pClipData = NULL;
 }
 
 CFrameAction::~CFrameAction()
@@ -146,7 +147,7 @@ bool CFrameAction::SaveState(CMainFrame *pMainFrm)
 	// Perform action
 
 	CFrameEditor *pFrameEditor = pMainFrm->GetFrameEditor();
-	CFamiTrackerView *pView = (CFamiTrackerView*)pMainFrm->GetActiveView();
+	CFamiTrackerView *pView = static_cast<CFamiTrackerView*>(pMainFrm->GetActiveView());
 	CFamiTrackerDoc *pDocument = pView->GetDocument();
 
 	m_iUndoFramePos = pView->GetSelectedFrame();
@@ -279,7 +280,7 @@ void CFrameAction::Undo(CMainFrame *pMainFrm)
 	// Undo action
 
 	CFrameEditor *pFrameEditor = pMainFrm->GetFrameEditor();
-	CFamiTrackerView *pView = (CFamiTrackerView*)pMainFrm->GetActiveView();
+	CFamiTrackerView *pView = static_cast<CFamiTrackerView*>(pMainFrm->GetActiveView());
 	CFamiTrackerDoc *pDocument = pView->GetDocument();
 
 	m_iRedoFramePos = pView->GetSelectedFrame();
@@ -377,7 +378,7 @@ void CFrameAction::Redo(CMainFrame *pMainFrm)
 	// Redo action
 
 	CFrameEditor *pFrameEditor = pMainFrm->GetFrameEditor();
-	CFamiTrackerView *pView = (CFamiTrackerView*)pMainFrm->GetActiveView();
+	CFamiTrackerView *pView = static_cast<CFamiTrackerView*>(pMainFrm->GetActiveView());
 	CFamiTrackerDoc *pDocument = pView->GetDocument();
 	
 	switch (m_iAction) {
@@ -474,7 +475,7 @@ void CFrameAction::Redo(CMainFrame *pMainFrm)
 
 void CFrameAction::Update(CMainFrame *pMainFrm)
 {
-	CFamiTrackerView *pView = (CFamiTrackerView*)pMainFrm->GetActiveView();
+	CFamiTrackerView *pView = static_cast<CFamiTrackerView*>(pMainFrm->GetActiveView());
 	CFamiTrackerDoc *pDocument = pView->GetDocument();
 
 	switch (m_iAction) {

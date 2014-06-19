@@ -30,7 +30,7 @@
 IMPLEMENT_DYNAMIC(CControlPanelDlg, CDialog)
 
 CControlPanelDlg::CControlPanelDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CControlPanelDlg::IDD, pParent)
+	: CDialog(CControlPanelDlg::IDD, pParent), m_pMainFrame(NULL)
 {
 
 }
@@ -78,5 +78,6 @@ BOOL CControlPanelDlg::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult)
 
 void CControlPanelDlg::SetFrameParent(CWnd *pMainFrm)
 {
+	// TODO: Use parent instead?
 	m_pMainFrame = pMainFrm;
 }

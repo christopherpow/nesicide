@@ -22,10 +22,11 @@
 #include "FamiTracker.h"
 #include "FamiTrackerDoc.h"
 #include "FamiTrackerView.h"
-#include "CreateWaveDlg.h"
-#include "WavProgressDlg.h"
+#include "MainFrm.h"
 #include "SoundGen.h"
 #include "TrackerChannel.h"
+#include "WavProgressDlg.h"
+#include "CreateWaveDlg.h"
 
 const int MAX_LOOP_TIMES = 99;
 const int MAX_PLAY_TIME	 = (99 * 60) + 0;
@@ -72,12 +73,12 @@ int CCreateWaveDlg::GetFrameLoopCount()
 
 int CCreateWaveDlg::GetTimeLimit()
 {
-	int Minutes, Seconds, Time;
+	int Minutes, Seconds;
 	TCHAR str[256];
 
 	GetDlgItemText(IDC_SECONDS, str, 256);
 	_stscanf(str, _T("%u:%u"), &Minutes, &Seconds);
-	Time = (Minutes * 60) + (Seconds % 60);
+	int Time = (Minutes * 60) + (Seconds % 60);
 
 	if (Time < 1)
 		Time = 1;
@@ -91,15 +92,24 @@ int CCreateWaveDlg::GetTimeLimit()
 
 void CCreateWaveDlg::OnBnClickedBegin()
 {
-	RENDER_END EndType;
-	int EndParam;
+	render_end_t EndType = SONG_TIME_LIMIT;
+	int EndParam = 0;
 
 	CFamiTrackerDoc *pDoc = CFamiTrackerDoc::GetDoc();
+	CFamiTrackerView *pView = CFamiTrackerView::GetView();
 
 	CString FileName = pDoc->GetFileTitle();
 
+	CMainFrame *pMainFrm = static_cast<CMainFrame*>(pView->GetParentFrame());
+	int Track = pMainFrm->GetSelectedTrack();
+
+	if (pDoc->GetTrackCount() > 1) {
+		FileName.AppendFormat(_T(" - Track %02i"), Track + 1);
+	}
+
 	CWavProgressDlg ProgressDlg;
-	CFileDialog SaveDialog(FALSE, _T("wav"), FileName, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, _T("Microsoft PCM files (*.wav)|*.wav|All files (*.*)|*.*||"));
+	CString fileFilter = LoadDefaultFilter(IDS_FILTER_WAV, _T(".wav"));	
+	CFileDialog SaveDialog(FALSE, _T("wav"), FileName, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, fileFilter);
 
 	// Close this dialog
 	EndDialog(0);
@@ -118,8 +128,6 @@ void CCreateWaveDlg::OnBnClickedBegin()
 		EndParam = GetTimeLimit();
 	}
 
-	CFamiTrackerView *pView = CFamiTrackerView::GetView();
-
 	pView->UnmuteAllChannels();
 
 	// Mute selected channels
@@ -128,10 +136,8 @@ void CCreateWaveDlg::OnBnClickedBegin()
 			pView->ToggleChannel(i);
 	}
 
-//	m_sFileName = SaveDialog.GetPathName();
-	ProgressDlg.SetFile(SaveDialog.GetPathName().GetString());
-	ProgressDlg.SetOptions(EndType, EndParam);
-	ProgressDlg.DoModal();
+	// Show the render progress dialog, this will also start rendering
+	ProgressDlg.BeginRender(SaveDialog.GetPathName(), EndType, EndParam, Track);
 
 	// Unmute all channels
 	pView->UnmuteAllChannels();

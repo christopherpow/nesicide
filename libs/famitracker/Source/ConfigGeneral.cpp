@@ -60,6 +60,8 @@ BEGIN_MESSAGE_MAP(CConfigGeneral, CPropertyPage)
 	ON_BN_CLICKED(IDC_OPT_PULLUPDELETE, OnBnClickedOptPullupdelete)
 	ON_BN_CLICKED(IDC_OPT_BACKUPS, OnBnClickedOptBackups)
 	ON_BN_CLICKED(IDC_OPT_SINGLEINSTANCE, OnBnClickedOptSingleInstance)
+	ON_BN_CLICKED(IDC_OPT_PREVIEWFULLROW, OnBnClickedOptPreviewFullRow)
+	ON_BN_CLICKED(IDC_OPT_DOUBLECLICK, OnBnClickedOptDisableDoubleClick)
 END_MESSAGE_MAP()
 
 
@@ -82,6 +84,9 @@ BOOL CConfigGeneral::OnSetActive()
 	CheckDlgButton(IDC_OPT_PULLUPDELETE, m_bPullUpDelete);
 	CheckDlgButton(IDC_OPT_BACKUPS, m_bBackups);
 	CheckDlgButton(IDC_OPT_SINGLEINSTANCE, m_bSingleInstance);
+	CheckDlgButton(IDC_OPT_PREVIEWFULLROW, m_bPreviewFullRow);
+	CheckDlgButton(IDC_OPT_DOUBLECLICK, m_bDisableDblClick);
+	
 	SetDlgItemInt(IDC_PAGELENGTH, m_iPageStepSize, FALSE);
 	return CPropertyPage::OnSetActive();
 }
@@ -147,6 +152,8 @@ BOOL CConfigGeneral::OnApply()
 	theApp.GetSettings()->General.bPullUpDelete		= m_bPullUpDelete;
 	theApp.GetSettings()->General.bBackups			= m_bBackups;
 	theApp.GetSettings()->General.bSingleInstance	= m_bSingleInstance;
+	theApp.GetSettings()->General.bPreviewFullRow	= m_bPreviewFullRow;
+	theApp.GetSettings()->General.bDblClickSelect	= m_bDisableDblClick;
 
 	theApp.GetSettings()->Keys.iKeyNoteCut			= m_iKeyNoteCut;
 	theApp.GetSettings()->Keys.iKeyNoteRelease		= m_iKeyNoteRelease;
@@ -176,6 +183,8 @@ BOOL CConfigGeneral::OnInitDialog()
 	m_bPullUpDelete		= theApp.GetSettings()->General.bPullUpDelete;
 	m_bBackups			= theApp.GetSettings()->General.bBackups;
 	m_bSingleInstance	= theApp.GetSettings()->General.bSingleInstance;
+	m_bPreviewFullRow	= theApp.GetSettings()->General.bPreviewFullRow;
+	m_bDisableDblClick	= theApp.GetSettings()->General.bDblClickSelect;
 
 	m_iKeyNoteCut		= theApp.GetSettings()->Keys.iKeyNoteCut; 
 	m_iKeyNoteRelease	= theApp.GetSettings()->Keys.iKeyNoteRelease; 
@@ -268,6 +277,18 @@ void CConfigGeneral::OnBnClickedOptBackups()
 void CConfigGeneral::OnBnClickedOptSingleInstance()
 {
 	m_bSingleInstance = IsDlgButtonChecked(IDC_OPT_SINGLEINSTANCE) != 0;
+	SetModified();
+}
+
+void CConfigGeneral::OnBnClickedOptPreviewFullRow()
+{
+	m_bPreviewFullRow = IsDlgButtonChecked(IDC_OPT_PREVIEWFULLROW) != 0;
+	SetModified();
+}
+
+void CConfigGeneral::OnBnClickedOptDisableDoubleClick()
+{
+	m_bDisableDblClick = IsDlgButtonChecked(IDC_OPT_DOUBLECLICK) != 0;
 	SetModified();
 }
 

@@ -25,6 +25,7 @@
 #include "FamiTrackerDoc.h"
 #include "ChannelHandler.h"
 #include "ChannelsVRC6.h"
+#include "SoundGen.h"
 
 CChannelHandlerVRC6::CChannelHandlerVRC6() : CChannelHandler() 
 {
@@ -38,7 +39,7 @@ void CChannelHandlerVRC6::HandleNoteData(stChanNote *pNoteData, int EffColumns)
 
 	CChannelHandler::HandleNoteData(pNoteData, EffColumns);
 
-	if (pNoteData->Note != NONE && pNoteData->Note != HALT) {
+	if (pNoteData->Note != NONE && pNoteData->Note != HALT && pNoteData->Note != RELEASE) {
 		if (m_iPostEffect && (m_iEffect == EF_SLIDE_UP || m_iEffect == EF_SLIDE_DOWN))
 			SetupSlide(m_iPostEffect, m_iPostEffectParam);
 		else if (m_iEffect == EF_SLIDE_DOWN || m_iEffect == EF_SLIDE_UP)
@@ -65,26 +66,21 @@ void CChannelHandlerVRC6::HandleCustomEffects(int EffNum, int EffParam)
 
 bool CChannelHandlerVRC6::HandleInstrument(int Instrument, bool Trigger, bool NewInstrument)
 {
-	CInstrumentVRC6 *pInstrument = (CInstrumentVRC6*)m_pDocument->GetInstrument(Instrument);
+	CFamiTrackerDoc *pDocument = m_pSoundGen->GetDocument();
+	CInstrumentContainer<CInstrumentVRC6> instContainer(pDocument, Instrument);
+	CInstrumentVRC6 *pInstrument = instContainer();
 
 	if (!pInstrument)
 		return false;
 
-	if (pInstrument->GetType() != INST_VRC6) {
-		pInstrument->Release();
-		return false;
-	}
-
 	// Setup instrument
 	for (int i = 0; i < CInstrumentVRC6::SEQUENCE_COUNT; ++i) {
-		if (pInstrument->GetSeqIndex(i) != m_iSeqIndex[i] || pInstrument->GetSeqEnable(i) != m_iSeqEnabled[i] || Trigger) {
-			m_iSeqEnabled[i] = pInstrument->GetSeqEnable(i);
+		if (pInstrument->GetSeqIndex(i) != m_iSeqIndex[i] || pInstrument->GetSeqEnable(i) > m_iSeqState[i] || Trigger) {
+			m_iSeqState[i]   = pInstrument->GetSeqEnable(i) == 1 ? SEQ_STATE_RUNNING : SEQ_STATE_DISABLED;
 			m_iSeqIndex[i]	 = pInstrument->GetSeqIndex(i);
 			m_iSeqPointer[i] = 0;
 		}
 	}
-
-	pInstrument->Release();
 
 	return true;
 }
@@ -109,20 +105,21 @@ void CChannelHandlerVRC6::HandleNote(int Note, int Octave)
 	m_iNote		  = RunNote(Octave, Note);
 	m_iSeqVolume  = 0x0F;
 	m_iDutyPeriod = m_iDefaultDuty;
-	m_bEnabled	  = true;
 }
 
 void CChannelHandlerVRC6::ProcessChannel()
 {
+	CFamiTrackerDoc *pDocument = m_pSoundGen->GetDocument();
+
 	// Default effects
 	CChannelHandler::ProcessChannel();
 
-	if (!m_bEnabled)
-		return;
-
 	// Sequences
 	for (int i = 0; i < CInstrumentVRC6::SEQUENCE_COUNT; ++i)
-		CChannelHandler::RunSequence(i, m_pDocument->GetSequence(SNDCHIP_VRC6, m_iSeqIndex[i], CInstrumentVRC6::SEQUENCE_TYPES[i]));
+		RunSequence(i, pDocument->GetSequence(SNDCHIP_VRC6, m_iSeqIndex[i], CInstrumentVRC6::SEQUENCE_TYPES[i]));
+
+	if (m_bGate && m_iSeqState[SEQ_VOLUME] != SEQ_STATE_DISABLED)
+		m_bGate = !(m_iSeqState[SEQ_VOLUME] == SEQ_STATE_DISABLED);
 }
 
 void CChannelHandlerVRC6::ResetChannel()
@@ -136,15 +133,17 @@ void CChannelHandlerVRC6::ResetChannel()
 
 void CVRC6Square1::RefreshChannel()
 {
-	if (!m_bEnabled)
-		return;
-
-	unsigned int Period = CalculatePeriod(false);
-	unsigned int Volume = CalculateVolume(15);
+	unsigned int Period = CalculatePeriod();
+	unsigned int Volume = CalculateVolume();
 	unsigned char DutyCycle = m_iDutyPeriod << 4;
 
 	unsigned char HiFreq = (Period & 0xFF);
 	unsigned char LoFreq = (Period >> 8);
+
+	if (!m_bGate || !Volume) {
+		WriteExternalRegister(0x9002, 0x00);
+		return;
+	}
 
 	WriteExternalRegister(0x9000, DutyCycle | Volume);
 	WriteExternalRegister(0x9001, HiFreq);
@@ -164,15 +163,17 @@ void CVRC6Square1::ClearRegisters()
 
 void CVRC6Square2::RefreshChannel()
 {
-	if (!m_bEnabled)
-		return;
-
-	unsigned int Period = CalculatePeriod(false);
-	unsigned int Volume = CalculateVolume(15);
+	unsigned int Period = CalculatePeriod();
+	unsigned int Volume = CalculateVolume();
 	unsigned char DutyCycle = m_iDutyPeriod << 4;
 
 	unsigned char HiFreq = (Period & 0xFF);
 	unsigned char LoFreq = (Period >> 8);
+
+	if (!m_bGate || !Volume) {
+		WriteExternalRegister(0xA002, 0x00);
+		return;
+	}
 
 	WriteExternalRegister(0xA000, DutyCycle | Volume);
 	WriteExternalRegister(0xA001, HiFreq);
@@ -192,16 +193,13 @@ void CVRC6Square2::ClearRegisters()
 
 void CVRC6Sawtooth::RefreshChannel()
 {
-	if (!m_bEnabled) 
-		return;
-
-	unsigned int Period = CalculatePeriod(false);
+	unsigned int Period = CalculatePeriod();
 
 	unsigned char HiFreq = (Period & 0xFF);
 	unsigned char LoFreq = (Period >> 8);
 
 	unsigned int TremVol = GetTremolo();
-	int Volume = (m_iSeqVolume * (m_iVolume >> VOL_SHIFT)) / 15 - TremVol;
+	int Volume = (m_iSeqVolume * (m_iVolume >> VOL_COLUMN_SHIFT)) / 15 - TremVol;
 
 	Volume = (Volume << 1) | ((m_iDutyPeriod & 1) << 5);
 
@@ -211,10 +209,15 @@ void CVRC6Sawtooth::RefreshChannel()
 		Volume = 63;
 
 	if (m_iSeqVolume > 0 && m_iVolume > 0 && Volume == 0)
-		Volume = 1;
+		Volume = 2;
 
 	if (!m_bGate)
 		Volume = 0;
+
+	if (!m_bGate || !Volume) {
+		WriteExternalRegister(0xB002, 0x00);
+		return;
+	}
 
 	WriteExternalRegister(0xB000, Volume);
 	WriteExternalRegister(0xB001, HiFreq);

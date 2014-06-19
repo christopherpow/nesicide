@@ -20,8 +20,6 @@
 
 #pragma once
 
-#include "FamiTrackerDoc.h"
-
 namespace jarh {
 	class sinc;
 }
@@ -41,6 +39,7 @@ public:
 
 protected:
 	CDSample *m_pImported;
+	CDSample *m_pCachedSample;
 
 	CString		m_strPath, m_strFileName;
 	CFile		m_fSampleFile;
@@ -50,29 +49,28 @@ protected:
 	int m_iVolume;
 	int m_iSampleSize;
 	int m_iChannels;
-	int m_iWaveSize;
 	int m_iBlockAlign;
 	int m_iAvgBytesPerSec;
 	int m_iSamplesPerSec;
+	int m_iCachedQuality;
+	int m_iCachedVolume;
+	unsigned int m_iWaveSize;
 
 	jarh::sinc *m_psinc;
 
 protected:
-	static const int MAX_QUALITY;
-	static const int MIN_QUALITY;
-
 	static const int SAMPLES_MAX;
 
+	static const int QUALITY_RANGE;
 	static const int VOLUME_RANGE;
 
-	static LPCTSTR QUALITY_FORMAT;
-	static LPCTSTR GAIN_FORMAT;
-
 protected:
+	CDSample *GetSample();
 	CDSample *ConvertFile();
-	//int ReadSample(void);
+
 	bool OpenWaveFile();
 	void UpdateFileInfo();
+	void UpdateText();
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support

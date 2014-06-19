@@ -36,7 +36,7 @@ class CChunkRenderText;
 typedef void (CChunkRenderText::*renderFunc_t)(CChunk *pChunk, CFile *pFile);
 
 struct stChunkRenderFunc {
-	CHUNK_TYPES	 type;
+	chunk_type_t type;
 	renderFunc_t function;
 };
 
@@ -49,10 +49,10 @@ private:
 	static const stChunkRenderFunc RENDER_FUNCTIONS[];
 
 private:
-	void DumpStrings(const CString &preStr, const CString &postStr, CStringArray &stringArray, CFile *pFile);
-	void WriteFileString(CFile *pFile, CString str);
-	void PrintList(CChunk *pChunk, CString &str);
-	void StoreByteString(CChunk *pChunk, CString &str);
+	void DumpStrings(const CStringA &preStr, const CStringA &postStr, CStringArray &stringArray, CFile *pFile) const;
+	void WriteFileString(CFile *pFile, const CStringA &str) const;
+	void PrintList(CChunk *pChunk, CStringA &str) const;
+	void StoreByteString(CChunk *pChunk, CStringA &str) const;
 
 private:
 	void StoreHeaderChunk(CChunk *pChunk, CFile *pFile);

@@ -88,7 +88,7 @@ public:
 	void SetNote(stChanNote &Note);
 	void SetDelete(bool PullUp, bool Back);
 	void SetPaste(CPatternClipData *pClipData);
-	void SetTranspose(int Mode);
+	void SetTranspose(transpose_t Mode);
 	void SetScroll(int Scroll);
 	void SetInstrument(int Instrument);
 	void SetDragAndDrop(CPatternClipData *pClipData, bool bDelete, bool bMix, CSelection *pDragTarget);
@@ -135,7 +135,7 @@ private:
 	bool m_bSelecting;
 	CSelection m_selection;
 
-	int m_iTransposeMode;
+	transpose_t m_iTransposeMode;
 	int m_iScrollValue;
 	int m_iInstrument;
 

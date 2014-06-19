@@ -64,8 +64,9 @@ void CInstrumentEditorFDS::SelectInstrument(int Instrument)
 	if (m_pInstrument)
 		m_pInstrument->Release();
 
-	m_pInstrument = (CInstrumentFDS*)GetDocument()->GetInstrument(Instrument);
-
+	m_pInstrument = static_cast<CInstrumentFDS*>(GetDocument()->GetInstrument(Instrument));
+	ASSERT(m_pInstrument->GetType() == INST_FDS);
+	
 	if (m_pWaveEditor)
 		m_pWaveEditor->SetInstrument(m_pInstrument);
 
@@ -229,8 +230,8 @@ void CInstrumentEditorFDS::OnModPresetSine()
 void CInstrumentEditorFDS::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 {
 	int ModSpeed = GetDlgItemInt(IDC_MOD_RATE);
-	int ModDepth = GetDlgItemInt(IDC_MOD_DEPTH);
-	int ModDelay = GetDlgItemInt(IDC_MOD_DELAY);
+//	int ModDepth = GetDlgItemInt(IDC_MOD_DEPTH);
+//	int ModDelay = GetDlgItemInt(IDC_MOD_DELAY);
 
 	m_pInstrument->SetModulationSpeed(ModSpeed);
 }
@@ -278,44 +279,51 @@ void CInstrumentEditorFDS::OnBnClickedCopyWave()
 	for (int i = 0; i < 64; ++i)
 		Str.AppendFormat(_T("%i "), m_pInstrument->GetSample(i));
 
-	if (!OpenClipboard())
+	if (!OpenClipboard()) {
+		AfxMessageBox(IDS_CLIPBOARD_OPEN_ERROR);
 		return;
+	}
 
-	EmptyClipboard();
+	::EmptyClipboard();
 
 	int size = Str.GetLength() + 1;
-	HANDLE hMem = GlobalAlloc(GMEM_MOVEABLE, size);
-	LPTSTR lptstrCopy = (LPTSTR)GlobalLock(hMem);  
-	strcpy_s(lptstrCopy, size, Str.GetBuffer());
-	GlobalUnlock(hMem);
-	SetClipboardData(CF_TEXT, hMem);
 
-	CloseClipboard();	
+	HANDLE hMem = ::GlobalAlloc(GMEM_MOVEABLE, size);
+	if (hMem != NULL) {
+		LPTSTR lptstrCopy = (LPTSTR)::GlobalLock(hMem);
+		if (lptstrCopy)
+			strcpy_s(lptstrCopy, size, Str.GetBuffer());
+		::GlobalUnlock(hMem);
+		::SetClipboardData(CF_TEXT, hMem);
+	}
+
+	::CloseClipboard();	
 }
 
 void CInstrumentEditorFDS::OnBnClickedPasteWave()
 {
-	// Copy from clipboard
-	if (!OpenClipboard())
-		return;
-
-	HANDLE hMem = GetClipboardData(CF_TEXT);
-
-	if (!hMem) {
-		CloseClipboard();
+	// Paste from clipboard
+	if (!OpenClipboard()) {
+		AfxMessageBox(IDS_CLIPBOARD_OPEN_ERROR);
 		return;
 	}
 
-	LPTSTR lptstrCopy = (LPTSTR)GlobalLock(hMem);
-	
-	if (!lptstrCopy) {
-		CloseClipboard();
-		return;
+	if (::IsClipboardFormatAvailable(CF_TEXT)) {
+		HANDLE hMem = ::GetClipboardData(CF_TEXT);
+		if (hMem != NULL) {
+			LPTSTR lptstrCopy = (LPTSTR)::GlobalLock(hMem);
+			if (lptstrCopy != NULL)
+				ParseWaveString(lptstrCopy);
+			::GlobalUnlock(hMem);
+		}
 	}
 
-	string str(lptstrCopy);
-	GlobalUnlock(hMem);
-	CloseClipboard();
+	::CloseClipboard();
+}
+
+void CInstrumentEditorFDS::ParseWaveString(LPTSTR pString)
+{
+	string str(pString);
 
 	// Convert to register values
 	istringstream values(str);
@@ -340,44 +348,51 @@ void CInstrumentEditorFDS::OnBnClickedCopyTable()
 	for (int i = 0; i < 32; ++i)
 		Str.AppendFormat(_T("%i "), m_pInstrument->GetModulation(i));
 
-	if (!OpenClipboard())
+	if (!OpenClipboard()) {
+		AfxMessageBox(IDS_CLIPBOARD_OPEN_ERROR);
 		return;
+	}
 
-	EmptyClipboard();
+	::EmptyClipboard();
 
 	int size = Str.GetLength() + 1;
-	HANDLE hMem = GlobalAlloc(GMEM_MOVEABLE, size);
-	LPTSTR lptstrCopy = (LPTSTR)GlobalLock(hMem);  
-	strcpy_s(lptstrCopy, size, Str.GetBuffer());
-	GlobalUnlock(hMem);
-	SetClipboardData(CF_TEXT, hMem);
+	
+	HANDLE hMem = ::GlobalAlloc(GMEM_MOVEABLE, size);
 
-	CloseClipboard();
+	if (hMem != NULL) {
+		LPTSTR lptstrCopy = (LPTSTR)::GlobalLock(hMem);
+		if (lptstrCopy != NULL)
+			strcpy_s(lptstrCopy, size, Str.GetBuffer());
+		::GlobalUnlock(hMem);
+		::SetClipboardData(CF_TEXT, hMem);
+	}
+
+	::CloseClipboard();
 }
 
 void CInstrumentEditorFDS::OnBnClickedPasteTable()
 {
-	// Copy from clipboard
-	if (!OpenClipboard())
-		return;
-
-	HANDLE hMem = GetClipboardData(CF_TEXT);
-
-	if (!hMem) {
-		CloseClipboard();
+	// Paste from clipboard
+	if (!OpenClipboard()) {
+		AfxMessageBox(IDS_CLIPBOARD_OPEN_ERROR);
 		return;
 	}
 
-	LPTSTR lptstrCopy = (LPTSTR)GlobalLock(hMem);
+	HANDLE hMem = ::GetClipboardData(CF_TEXT);
 
-	if (!lptstrCopy) {
-		CloseClipboard();
-		return;
+	if (hMem != NULL) {
+		LPTSTR lptstrCopy = (LPTSTR)::GlobalLock(hMem);
+		if (lptstrCopy != NULL)
+			ParseTableString(lptstrCopy);
+		::GlobalUnlock(hMem);
 	}
 
-	string str(lptstrCopy);
-	GlobalUnlock(hMem);
-	CloseClipboard();
+	::CloseClipboard();
+}
+
+void CInstrumentEditorFDS::ParseTableString(LPTSTR pString)
+{
+	string str(pString);
 
 	// Convert to register values
 	istringstream values(str);

@@ -23,28 +23,27 @@
 #include "Instrument.h"
 
 /*
- * class CInstrument, base class for instruments
+ * Class CInstrument, base class for instruments
  *
  */
 
-CInstrument::CInstrument() : m_iType(0), m_iRefCounter(1)
+CInstrument::CInstrument() : CRefCounter(), m_iType(0)
 {
-	memset(m_cName, 0, 128);
+	memset(m_cName, 0, INST_NAME_MAX);
 }
 
 CInstrument::~CInstrument()
 {
-	ASSERT(m_iRefCounter == 0);
 }
 
 void CInstrument::SetName(const char *Name)
 {
-	strcpy_s(m_cName, 128, Name);
+	strcpy_s(m_cName, INST_NAME_MAX, Name);
 }
 
 void CInstrument::GetName(char *Name) const
 {
-	strcpy_s(Name, 128, m_cName);
+	strcpy_s(Name, INST_NAME_MAX, m_cName);
 }
 
 const char *CInstrument::GetName() const
@@ -55,7 +54,7 @@ const char *CInstrument::GetName() const
 void CInstrument::InstrumentChanged() const
 {
 	// Set modified flag
-	CFrameWnd *pFrameWnd = ((CFrameWnd*)AfxGetMainWnd());
+	CFrameWnd *pFrameWnd = dynamic_cast<CFrameWnd*>(AfxGetMainWnd());
 	if (pFrameWnd != NULL) {
 		CDocument *pDoc = pFrameWnd->GetActiveDocument();
 		if (pDoc != NULL)
@@ -65,14 +64,23 @@ void CInstrument::InstrumentChanged() const
 
 // Reference counting
 
-void CInstrument::Retain()
+CRefCounter::CRefCounter() : m_iRefCounter(1)
+{
+}
+
+CRefCounter::~CRefCounter()
+{
+	ASSERT(m_iRefCounter == 0);
+}
+
+void CRefCounter::Retain()
 {
 	ASSERT(m_iRefCounter > 0);
 
 	InterlockedIncrement((volatile LONG*)&m_iRefCounter);
 }
 
-void CInstrument::Release()
+void CRefCounter::Release()
 {
 	ASSERT(m_iRefCounter > 0);
 
@@ -80,4 +88,30 @@ void CInstrument::Release()
 
 	if (!m_iRefCounter)
 		delete this;
+}
+
+// File load / store
+
+void CInstrumentFile::WriteInt(unsigned int Value)
+{
+	Write(&Value, sizeof(int));
+}
+
+void CInstrumentFile::WriteChar(unsigned char Value)
+{
+	Write(&Value, sizeof(char));
+}
+
+unsigned int CInstrumentFile::ReadInt()
+{
+	unsigned int Value;
+	Read(&Value, sizeof(int));
+	return Value;
+}
+
+unsigned char CInstrumentFile::ReadChar()
+{
+	unsigned char Value;
+	Read(&Value, sizeof(char));
+	return Value;
 }

@@ -134,6 +134,87 @@
 #define WC_LINKW	L"SysLink"
 
 #ifdef UNICODE
+typedef const unsigned short *LPCTSTR;
+typedef unsigned short *LPTCH;
+typedef unsigned short *LPTSTR;
+typedef unsigned short *PTBYTE;
+typedef unsigned short *PTCH;
+typedef unsigned short *PTCHAR;
+typedef unsigned short *PTSTR;
+typedef unsigned short TBYTE;
+typedef unsigned short TCHAR;
+#define TEXT(quote) L##quote
+#define SERVICES_ACTIVE_DATABASE	SERVICES_ACTIVE_DATABASEW
+#define SERVICES_FAILED_DATABASE	SERVICES_FAILED_DATABASEW
+#define SC_GROUP_IDENTIFIER	SC_GROUP_IDENTIFIERW
+#define HDM_GETITEM HDM_GETITEMW
+#define HDM_INSERTITEM HDM_INSERTITEMW
+#define HDM_SETITEM HDM_SETITEMW
+#define ACM_OPEN ACM_OPENW
+#define HDN_BEGINTRACK HDN_BEGINTRACKW
+#define HDN_DIVIDERDBLCLICK HDN_DIVIDERDBLCLICKW
+#define HDN_ENDTRACK HDN_ENDTRACKW
+#define HDN_ITEMCHANGED HDN_ITEMCHANGEDW
+#define HDN_ITEMCHANGING HDN_ITEMCHANGINGW
+#define HDN_ITEMCLICK HDN_ITEMCLICKW
+#define HDN_ITEMDBLCLICK HDN_ITEMDBLCLICKW
+#define HDN_TRACK HDN_TRACKW
+#define LVM_EDITLABEL LVM_EDITLABELW
+#define LVM_FINDITEM LVM_FINDITEMW
+#define LVM_GETCOLUMN LVM_GETCOLUMNW
+#define LVM_GETISEARCHSTRING LVM_GETISEARCHSTRINGW
+#define LVM_GETITEM LVM_GETITEMW
+#define LVM_GETITEMTEXT LVM_GETITEMTEXTW
+#define LVM_GETSTRINGWIDTH LVM_GETSTRINGWIDTHW
+#define LVM_INSERTCOLUMN LVM_INSERTCOLUMNW
+#define LVM_INSERTITEM LVM_INSERTITEMW
+#define LVM_SETCOLUMN LVM_SETCOLUMNW
+#define LVM_SETITEM LVM_SETITEMW
+#define LVM_SETITEMTEXT LVM_SETITEMTEXTW
+#define LVN_BEGINLABELEDIT LVN_BEGINLABELEDITW
+#define LVN_ENDLABELEDIT LVN_ENDLABELEDITW
+#define LVN_GETDISPINFO LVN_GETDISPINFOW
+#define LVN_SETDISPINFO LVN_SETDISPINFOW
+#define PSM_SETFINISHTEXT PSM_SETFINISHTEXTW
+#define PSM_SETTITLE PSM_SETTITLEW
+#define SB_GETTEXT SB_GETTEXTW
+#define SB_GETTEXTLENGTH SB_GETTEXTLENGTHW
+#define SB_SETTEXT SB_SETTEXTW
+#define TB_ADDSTRING TB_ADDSTRINGW
+#define TB_GETBUTTONTEXT TB_GETBUTTONTEXTW
+#define TB_SAVERESTORE TB_SAVERESTOREW
+#define TBN_GETBUTTONINFO TBN_GETBUTTONINFOW
+#define TCM_GETITEM TCM_GETITEM
+#define TCM_INSERTITEM TCM_INSERTITEMW
+#define TCM_SETITEM TCM_SETITEMW
+#define TTM_ADDTOOL TTM_ADDTOOLW
+#define TTM_DELTOOL TTM_DELTOOLW
+#define TTM_ENUMTOOLS TTM_ENUMTOOLSW
+#define TTM_GETCURRENTTOOL TTM_GETCURRENTTOOLW
+#define TTM_GETTEXT TTM_GETTEXTW
+#define TTM_GETTOOLINFO TTM_GETTOOLINFOW
+#define TTM_HITTEST TTM_HITTESTW
+#define TTM_NEWTOOLRECT TTM_NEWTOOLRECTW
+#define TTM_SETTOOLINFO TTM_SETTOOLINFOW
+#define TTM_UPDATETIPTEXT TTM_UPDATETIPTEXTW
+#define TTN_NEEDTEXT TTN_NEEDTEXTW
+#define TVM_EDITLABEL TVM_EDITLABELW
+#define TVM_GETISEARCHSTRING TVM_GETISEARCHSTRINGW
+#define TVM_GETITEM TVM_GETITEMW
+#define TVM_INSERTITEM TVM_INSERTITEMW
+#define TVM_SETITEM TVM_SETITEMW
+#define TVN_BEGINDRAG TVN_BEGINDRAGW
+#define TVN_BEGINLABELEDIT TVN_BEGINLABELEDITW
+#define TVN_BEGINRDRAG TVN_BEGINRDRAGW
+#define TVN_DELETEITEM TVN_DELETEITEMW
+#define TVN_ENDLABELEDIT TVN_ENDLABELEDITW
+#define TVN_GETDISPINFO TVN_GETDISPINFOW
+#define TVN_ITEMEXPANDED TVN_ITEMEXPANDEDW
+#define TVN_ITEMEXPANDING TVN_ITEMEXPANDINGW
+#define TVN_SELCHANGED TVN_SELCHANGEDW
+#define TVN_SELCHANGING TVN_SELCHANGINGW
+#define TVN_SETDISPINFO TVN_SETDISPINFOW
+#define ANIMATE_CLASS ANIMATE_CLASSW
 #define HOTKEY_CLASS HOTKEY_CLASSW
 #define PROGRESS_CLASS PROGRESS_CLASSW
 #define STATUSCLASSNAME STATUSCLASSNAMEW
@@ -141,26 +222,92 @@
 #define TOOLTIPS_CLASS TOOLTIPS_CLASSW
 #define TRACKBAR_CLASS TRACKBAR_CLASSW
 #define UPDOWN_CLASS UPDOWN_CLASSW
-#define ANIMATE_CLASS ANIMATE_CLASSW
-#define DATETIMEPICK_CLASS DATETIMEPICK_CLASSW
-#define MONTHCAL_CLASS MONTHCAL_CLASSW
-#define REBARCLASSNAME REBARCLASSNAMEW
-#define WC_COMBOBOXEX WC_COMBOBOXEXW
 #define WC_HEADER WC_HEADERW
-#define WC_IPADDRESS WC_IPADDRESSW
 #define WC_LISTVIEW WC_LISTVIEWW
 #define WC_TABCONTROL WC_TABCONTROLW
 #define WC_TREEVIEW WC_TREEVIEWW
-#define WC_PAGESCROLLER WC_PAGESCROLLERW
-#define WC_NATIVEFONTCTL WC_NATIVEFONTCTLW
-#define WC_BUTTON WC_BUTTONW
-#define WC_STATIC WC_STATICW
-#define WC_EDIT WC_EDITW
-#define WC_LISTBOX WC_LISTBOXW
-#define WC_COMBOBOX WC_COMBOBOXW
-#define WC_SCROLLBAR WC_SCROLLBARW
-#define WC_LINK WC_LINKW
+#define LPSTR_TEXTCALLBACK LPSTR_TEXTCALLBACKW
 #else
+typedef const char *LPCTSTR;
+typedef char *LPTCH;
+typedef char *LPTSTR;
+typedef unsigned char *PTBYTE;
+typedef char *PTCH;
+typedef char *PTCHAR;
+typedef char *PTSTR;
+typedef unsigned char TBYTE;
+typedef char TCHAR;
+#define TEXT(quote) quote
+#define SERVICES_ACTIVE_DATABASE	SERVICES_ACTIVE_DATABASEA
+#define SERVICES_FAILED_DATABASE	SERVICES_FAILED_DATABASEA
+#define SC_GROUP_IDENTIFIER	SC_GROUP_IDENTIFIERA
+#define HDM_GETITEM HDM_GETITEMA
+#define HDM_INSERTITEM HDM_INSERTITEMA
+#define HDM_SETITEM HDM_SETITEMA
+#define ACM_OPEN ACM_OPENA
+#define HDN_BEGINTRACK HDN_BEGINTRACKA
+#define HDN_DIVIDERDBLCLICK HDN_DIVIDERDBLCLICKA
+#define HDN_ENDTRACK HDN_ENDTRACKA
+#define HDN_ITEMCHANGED HDN_ITEMCHANGEDA
+#define HDN_ITEMCHANGING HDN_ITEMCHANGINGA
+#define HDN_ITEMCLICK HDN_ITEMCLICKA
+#define HDN_ITEMDBLCLICK HDN_ITEMDBLCLICKA
+#define HDN_TRACK HDN_TRACKA
+#define LVM_EDITLABEL LVM_EDITLABELA
+#define LVM_FINDITEM LVM_FINDITEMA
+#define LVM_GETCOLUMN LVM_GETCOLUMNA
+#define LVM_GETISEARCHSTRING LVM_GETISEARCHSTRINGA
+#define LVM_GETITEM LVM_GETITEMA
+#define LVM_GETITEMTEXT LVM_GETITEMTEXTA
+#define LVM_GETSTRINGWIDTH LVM_GETSTRINGWIDTHA
+#define LVM_INSERTCOLUMN LVM_INSERTCOLUMNA
+#define LVM_INSERTITEM LVM_INSERTITEMA
+#define LVM_SETCOLUMN LVM_SETCOLUMNA
+#define LVM_SETITEM LVM_SETITEMA
+#define LVM_SETITEMTEXT LVM_SETITEMTEXTA
+#define LVN_BEGINLABELEDIT LVN_BEGINLABELEDITA
+#define LVN_ENDLABELEDIT LVN_ENDLABELEDITA
+#define LVN_GETDISPINFO LVN_GETDISPINFOA
+#define LVN_SETDISPINFO LVN_SETDISPINFOA
+#define PSM_SETFINISHTEXT PSM_SETFINISHTEXTA
+#define PSM_SETTITLE PSM_SETTITLEA
+#define SB_GETTEXT SB_GETTEXTA
+#define SB_GETTEXTLENGTH SB_GETTEXTLENGTHA
+#define SB_SETTEXT SB_SETTEXTA
+#define TB_ADDSTRING TB_ADDSTRINGA
+#define TB_GETBUTTONTEXT TB_GETBUTTONTEXTA
+#define TB_SAVERESTORE TB_SAVERESTOREA
+#define TBN_GETBUTTONINFO TBN_GETBUTTONINFOA
+#define TCM_GETITEM TCM_GETITEMA
+#define TCM_INSERTITEM TCM_INSERTITEMA
+#define TCM_SETITEM TCM_SETITEMA
+#define TTM_ADDTOOL TTM_ADDTOOLA
+#define TTM_DELTOOL TTM_DELTOOLA
+#define TTM_ENUMTOOLS TTM_ENUMTOOLSA
+#define TTM_GETCURRENTTOOL TTM_GETCURRENTTOOLA
+#define TTM_GETTEXT TTM_GETTEXTA
+#define TTM_GETTOOLINFO TTM_GETTOOLINFOA
+#define TTM_HITTEST TTM_HITTESTA
+#define TTM_NEWTOOLRECT TTM_NEWTOOLRECTA
+#define TTM_SETTOOLINFO TTM_SETTOOLINFOA
+#define TTM_UPDATETIPTEXT TTM_UPDATETIPTEXTA
+#define TTN_NEEDTEXT TTN_NEEDTEXTA
+#define TVM_EDITLABEL TVM_EDITLABELA
+#define TVM_GETISEARCHSTRING TVM_GETISEARCHSTRINGA
+#define TVM_GETITEM TVM_GETITEMA
+#define TVM_INSERTITEM TVM_INSERTITEMA
+#define TVM_SETITEM TVM_SETITEMA
+#define TVN_BEGINDRAG TVN_BEGINDRAGA
+#define TVN_BEGINLABELEDIT TVN_BEGINLABELEDITA
+#define TVN_BEGINRDRAG TVN_BEGINRDRAGA
+#define TVN_DELETEITEM TVN_DELETEITEMA
+#define TVN_ENDLABELEDIT TVN_ENDLABELEDITA
+#define TVN_GETDISPINFO TVN_GETDISPINFOA
+#define TVN_ITEMEXPANDED TVN_ITEMEXPANDEDA
+#define TVN_ITEMEXPANDING TVN_ITEMEXPANDINGA
+#define TVN_SELCHANGED TVN_SELCHANGEDA
+#define TVN_SELCHANGING TVN_SELCHANGINGA
+#define TVN_SETDISPINFO TVN_SETDISPINFOA
 #define ANIMATE_CLASS ANIMATE_CLASSA
 #define HOTKEY_CLASS HOTKEY_CLASSA
 #define PROGRESS_CLASS PROGRESS_CLASSA
@@ -169,24 +316,11 @@
 #define TOOLTIPS_CLASS TOOLTIPS_CLASSA
 #define TRACKBAR_CLASS TRACKBAR_CLASSA
 #define UPDOWN_CLASS UPDOWN_CLASSA
-#define DATETIMEPICK_CLASS DATETIMEPICK_CLASSA
-#define MONTHCAL_CLASS MONTHCAL_CLASSA
-#define REBARCLASSNAME REBARCLASSNAMEA
-#define WC_COMBOBOXEX WC_COMBOBOXEXA
 #define WC_HEADER WC_HEADERA
-#define WC_IPADDRESS WC_IPADDRESSA
 #define WC_LISTVIEW WC_LISTVIEWA
 #define WC_TABCONTROL WC_TABCONTROLA
 #define WC_TREEVIEW WC_TREEVIEWA
-#define WC_PAGESCROLLER WC_PAGESCROLLERA
-#define WC_NATIVEFONTCTL WC_NATIVEFONTCTLA
-#define WC_BUTTON WC_BUTTONA
-#define WC_STATIC WC_STATICA
-#define WC_EDIT WC_EDITA
-#define WC_LISTBOX WC_LISTBOXA
-#define WC_COMBOBOX WC_COMBOBOXA
-#define WC_SCROLLBAR WC_SCROLLBARA
-#define WC_LINK WC_LINKA
+#define LPSTR_TEXTCALLBACK LPSTR_TEXTCALLBACKA
 #endif
 
 #if (_WIN32_IE >= 0x0500)
@@ -2161,6 +2295,9 @@ enum
 #endif
 #endif
 
+// CP: Not sure what this does yet.
+#define USES_CONVERSION
+
 #include <windows.h>
 #include <prsht.h>
 
@@ -2263,6 +2400,7 @@ typedef int* POSITION;
 #endif
 #define strcpy_s(d,l,s) strncpy((char*)(d),(const char*)(s),(l))
 #define vsprintf_s(b,n,f,v) vsprintf((b),(f),(v))
+#define _vsntprintf_s(b,n,p,f,v) vsprintf_s((b),(n),(f),(v))
 #define _itot_s(n,s,l,b) snprintf(s,l,"%d",n) 
 #if UNICODE
 #define _ttoi _wtoi
@@ -2280,6 +2418,7 @@ typedef int* POSITION;
 #define _tcsicmp stricmp
 #define _stscanf sscanf
 #define _stscanf_s sscanf
+#define sscanf_s sscanf
 #endif
 #ifdef QT_NO_DEBUG
 #define ASSERT(y)
@@ -2296,6 +2435,9 @@ typedef int* POSITION;
 #define ASSERT_KINDOF(y,z) { if ( !dynamic_cast<y*>(z) ) { QString str; str.sprintf("%d ASSERT_KINDOF: %s(%d)",(int)QThread::currentThreadId(),__FILE__,__LINE__); qDebug(str.toLatin1().constData()); qFatal("DUMPING");  } }
 #endif
 #endif
+
+#define AFXAPI
+#define AFX_STATIC static
 
 #define ENSURE_VALID(x)
 #define ENSURE_ARG(x)
@@ -2519,7 +2661,7 @@ struct CRuntimeClass
 
 #define DECLARE_DYNCREATE(class_name) \
 public: \
-   CRuntimeClass* GetRuntimeClass(); \
+   CRuntimeClass* GetRuntimeClass() const; \
    static CRuntimeClass class##class_name; \
    static CObject* CreateObject();  
 
@@ -2539,14 +2681,14 @@ public: \
        return new derived_class; \
    } \
    \
-   CRuntimeClass* derived_class::GetRuntimeClass() \
+   CRuntimeClass* derived_class::GetRuntimeClass() const \
    { \
       return &class##derived_class; \
    }
 
 #define DECLARE_DYNAMIC(class_name) \
 public: \
-   CRuntimeClass* GetRuntimeClass(); \
+   CRuntimeClass* GetRuntimeClass() const; \
    static CRuntimeClass class##class_name;
 
 #define IMPLEMENT_DYNAMIC(derived_class,base_class) \
@@ -2560,7 +2702,7 @@ public: \
    RUNTIME_CLASS(base_class) \
    }; \
    \
-   CRuntimeClass* derived_class::GetRuntimeClass() \
+   CRuntimeClass* derived_class::GetRuntimeClass() const \
    { \
       return &class##derived_class; \
    }
@@ -2876,9 +3018,12 @@ protected:
 class CStringA : public CString
 {
 public:
+   CStringA() : CString() {}
    CStringA(CString str);
+   CStringA(LPCTSTR str);
    operator char*() const;
 };
+
 
 class CStringArray
 {
@@ -3125,6 +3270,9 @@ public:
    void OffsetRect( 
       SIZE size  
    );
+   BOOL PtInRect(
+      POINT point
+   ) const;
    operator LPRECT() const
    {
       return (RECT*)this;
@@ -3602,7 +3750,20 @@ public:
 
 class CDataExchange
 {
+public:
+   CDataExchange(
+      CWnd* pDlgWnd,
+      BOOL bSaveAndValidate
+   );
+   BOOL m_bSaveAndValidate;
+   CWnd* m_pDlgWnd;
 };
+
+void AFXAPI DDX_Slider(
+   CDataExchange* pDX,
+   int nIDC,
+   int& value
+);
 
 class QtUIElement
 {
@@ -3743,6 +3904,7 @@ public:
    virtual BOOL PreCreateWindow(
       CREATESTRUCT& cs
    ) { return TRUE; }
+   virtual void PreSubclassWindow() {}
    enum
    {
       reposDefault,
@@ -3828,6 +3990,9 @@ public:
       BOOL bShow, 
       UINT nStatus  
    ) {}
+   afx_msg void OnGetMinMaxInfo(
+      MINMAXINFO* lpMMI
+   ) {}
    void OnMouseMove(UINT,CPoint) {}
    void OnMouseLeave() {}
    void OnNcMouseMove(UINT nHitTest, CPoint point) {}
@@ -3893,6 +4058,9 @@ public:
       UINT message,
       WPARAM wParam = 0,
       LPARAM lParam = 0
+   );
+   BOOL UpdateData(
+      BOOL bSaveAndValidate = TRUE
    );
    virtual void DoDataExchange(
       CDataExchange* pDX
@@ -4095,6 +4263,7 @@ public:
    );
    void OnSize(UINT nType, int cx, int cy);
    void OnSetFocus(CWnd* pOldWnd);
+   virtual void OnUpdateFrameTitle(BOOL bAddToTitle) {}
    virtual void SetMessageText(LPCTSTR fmt,...);
    void SetMessageText(
       UINT nID
@@ -4511,6 +4680,7 @@ public:
       int nPos,
       BOOL bRedraw = TRUE
    );
+   int GetScrollPos() const;
    void SetScrollRange(
       int nMinPos,
       int nMaxPos,
@@ -4621,6 +4791,9 @@ public:
    void SetWindowText(
       LPCTSTR lpszString
    );
+   void SetLimitText(
+      UINT nMax
+   );
    void SetSel(
       DWORD dwSelection,
       BOOL bNoScroll = FALSE
@@ -4698,6 +4871,9 @@ public:
    HBITMAP SetBitmap(
       HBITMAP hBitmap
    );
+   HICON SetIcon(
+      HICON hIcon
+   );
    void SetDlgItemInt(
       int nID,
       UINT nValue,
@@ -4768,6 +4944,9 @@ public:
    int GetPos( ) const;
    void SetTicFreq(
       int nFreq
+   );
+   int SetPageSize(
+      int nSize
    );
    void SetDlgItemInt(
       int nID,
@@ -5116,6 +5295,41 @@ typedef struct tagLVFINDINFO {
   UINT vkDirection;
 } LVFINDINFO, FAR* LPFINDINFO;
 
+typedef struct {
+  UINT   mask;
+  int    iItem;
+  int    iSubItem;
+  UINT   state;
+  UINT   stateMask;
+  LPTSTR pszText;
+  int    cchTextMax;
+  int    iImage;
+  LPARAM lParam;
+#if (_WIN32_IE >= 0x0300)
+  int    iIndent;
+#endif
+#if (_WIN32_WINNT >= 0x0501)
+  int    iGroupId;
+  UINT   cColumns;
+  UINT   puColumns;
+#endif
+#if (_WIN32_WINNT >= 0x0600)
+  int    piColFmt;
+  int    iGroup;
+#endif
+} LVITEM, *LPLVITEM;
+
+typedef struct tagNMLVDISPINFO {
+  NMHDR  hdr;
+  LVITEM item;
+} NMLVDISPINFO;
+
+typedef struct tagLVKEYDOWN {
+  NMHDR hdr;
+  WORD  wVKey;
+  UINT  flags;
+} NMLVKEYDOWN, *LPNMLVKEYDOWN;
+
 class CImageList;
 
 class CListCtrl : public CWnd
@@ -5400,6 +5614,7 @@ class CWinThread : public QThread, public CCmdTarget
    // Qt interfaces
 protected:
    QThread::Priority _priority;
+   bool _initialized;
    virtual void run();
 signals:
    void postThreadMessage(unsigned int m,unsigned int w,unsigned int l);
@@ -5428,6 +5643,9 @@ public:
          );
    virtual BOOL InitInstance() { return FALSE; }
    virtual BOOL ExitInstance() { return FALSE; }
+   virtual BOOL OnIdle(
+      LONG lCount
+   ) { return FALSE; }
 public:
    HANDLE m_hThread;
 #ifdef Q_OS_MAC
@@ -5624,7 +5842,27 @@ public:
    void LoadStdProfileSettings( 
       UINT nMaxMRU = _AFX_MRU_COUNT  
    );
-   virtual void AddToRecentFileList( 
+   BOOL WriteProfileInt(
+      LPCTSTR lpszSection,
+      LPCTSTR lpszEntry,
+      int nValue
+   );
+   BOOL WriteProfileString(
+      LPCTSTR lpszSection,
+      LPCTSTR lpszEntry,
+      LPCTSTR lpszValue
+   );
+   UINT GetProfileInt(
+      LPCTSTR lpszSection,
+      LPCTSTR lpszEntry,
+      int nDefault
+   );
+   CString GetProfileString(
+      LPCTSTR lpszSection,
+      LPCTSTR lpszEntry,
+      LPCTSTR lpszDefault = NULL
+   );
+   virtual void AddToRecentFileList(
       LPCTSTR lpszPathName  
    );
    void AddDocTemplate(CDocTemplate* pDocTemplate);
@@ -6203,8 +6441,39 @@ public:
    DECLARE_MESSAGE_MAP()
 };
 
+class CWaitCursor
+{
+public:
+   CWaitCursor();
+   virtual ~CWaitCursor();
+};
+
+HICON WINAPI LoadIcon(
+   HINSTANCE hInstance,
+   LPCTSTR lpIconName
+);
+
+BOOL WINAPI GetFileVersionInfo(
+   LPCTSTR lptstrFilename,
+   DWORD dwHandle,
+   DWORD dwLen,
+   LPVOID lpData
+);
+
+DWORD WINAPI GetFileVersionInfoSize(
+   LPCTSTR lptstrFilename,
+   LPDWORD lpdwHandle
+);
+
+BOOL WINAPI VerQueryValue(
+   LPCVOID pBlock,
+   LPCTSTR lpSubBlock,
+   LPVOID *lplpBuffer,
+   PUINT puLen
+);
+
 int StretchDIBits(
-  CDC& dc,
+  HDC hDC,
   int XDest,
   int YDest,
   int nDestWidth,
@@ -6222,9 +6491,7 @@ int StretchDIBits(
 CWinApp* AfxGetApp();
 CFrameWnd* AfxGetMainWnd();
 CWinThread* AfxGetThread();
-
-#define AFXAPI
-#define AFX_STATIC static
+void AfxDebugBreak();
 
 #if defined(Q_OS_WIN32)
 #define MB_CANCELTRYCONTINUE 6
@@ -6248,6 +6515,20 @@ void AfxFormatString1(
    CString& rString,
    UINT nIDS,
    LPCTSTR lpsz1
+);
+
+void AfxFormatString2(
+   CString& rString,
+   UINT nIDS,
+   LPCTSTR lpsz1,
+   LPCTSTR lpsz2
+);
+
+void AfxFormatStrings(
+   CString& rString,
+   UINT nIDS,
+   LPCTSTR* lpszArray,
+   UINT nCount
 );
 
 void AfxGetFileTitle(

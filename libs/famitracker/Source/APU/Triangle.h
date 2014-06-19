@@ -23,8 +23,8 @@
  *
  */
 
-#ifndef _TRIANGLE_H_
-#define _TRIANGLE_H_
+#ifndef TRIANGLE_H
+#define TRIANGLE_H
 
 #include "Channel.h"
 
@@ -51,4 +51,4 @@ private:
 	int8	m_iStepGen;
 };
 
-#endif /* _TRIANGLE_H_ */
+#endif /* TRIANGLE_H */

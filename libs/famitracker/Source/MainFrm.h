@@ -26,12 +26,17 @@
 #include "ControlPanelDlg.h"
 #include "CustomControls.h"
 
-enum FRAME_EDIT_POS { 
+enum frame_edit_pos_t { 
 	FRAME_EDIT_POS_TOP, 
 	FRAME_EDIT_POS_LEFT
 };
 
-class CSampleWindow;
+enum {
+	WM_USER_DISPLAY_MESSAGE_STRING = WM_USER,
+	WM_USER_DISPLAY_MESSAGE_ID
+};
+
+class CVisualizerWnd;
 class CInstrumentFileTree;
 class CAction;
 class CActionHandler;
@@ -46,12 +51,9 @@ protected: // create from serialization only
 // Attributes
 public:
 	CFrameEditor *GetFrameEditor() const;
-   CSampleWindow *GetSampleWindow() const;
-   CInstrumentEditDlg *GetInstrumentEditor();
 
 // Operations
 public:
-
 	void	SetStatusText(LPCTSTR Text,...);
 	void	ChangeNoteState(int Note);
 	
@@ -62,17 +64,15 @@ public:
 	void	UpdateControls();
 
 	// Instrument
-	void	UpdateInstrumentList();
+	void	OpenInstrumentEditor();
 	void	CloseInstrumentEditor();
+	void	UpdateInstrumentList();
 	void	SelectInstrument(int Index);
-	void	ClearInstrumentList();
-	void	AddInstrument(int Index);
-	void	RemoveInstrument(int Index);
-	void	NewInstrument(int ChipType);
 
 	void	SetIndicatorTime(int Min, int Sec, int MSec);
-	void	SetSongInfo(char *Name, char *Artist, char *Copyright);
-	void	SetupColors(void);
+	void	SetIndicatorPos(int Frame, int Row);
+	void	SetSongInfo(const char *pName, const char *pArtist, const char *pCopyright);
+	void	SetupColors();
 	void	DisplayOctave();
 
 	void	SetFirstHighlightRow(int Rows);
@@ -90,6 +90,7 @@ public:
 
 	bool	ChangeAllPatterns() const;
 
+
 // Overrides
 public:
 
@@ -105,28 +106,33 @@ protected:
 	bool	CreateDialogPanels();
 	bool	CreateToolbars();
 	bool	CreateInstrumentToolbar();
-	bool	CreateSampleWindow();
-	void	OpenInstrumentSettings();
+	bool	CreateVisualizerWindow();
 	void	SetSpeed(int Speed);
 	void	SetTempo(int Tempo);
 	void	SetRowCount(int Count);
 	void	SetFrameCount(int Count);
-	int		FindInstrument(int Index) const;
-	int		GetInstrumentIndex(int ListIndex) const;
+
+	// Instrument list operations
+	void	NewInstrument(int ChipType);
+	void	ClearInstrumentList();
+	void	GetInstrumentName(char *pText) const;
+	void	SetInstrumentName(char *pText);
 
 	void	UpdateMenu(CMenu *pMenu);
 	void	SetFrameEditorPosition(int Position);
 	void	SelectInstrumentFolder();
+
+	bool	CheckRepeat() const;
+
+	void	CheckAudioStatus();
 
 protected:  // control bar embedded members
 	CStatusBar			m_wndStatusBar;
 	CToolBar			m_wndToolBar;
 	CReBar				m_wndToolBarReBar;
 	CDialogReBar		m_wndOctaveBar;
-	//CDialogBar			m_wndOctaveBar;
 	CDialogBar			m_wndControlBar;	// Parent to frame editor and settings/instrument editor
 	CDialogBar			m_wndVerticalControlBar;	// Parent to large frame editor
-//	CControlPanelDlg	m_wndFrameBar;
 	CControlPanelDlg	m_wndDialogBar;
 
 	CControlPanelDlg	m_wndFrameControls;		// Contains +, - and change all
@@ -138,9 +144,9 @@ protected:  // control bar embedded members
 //	CPerformanceDlg		m_wndPerformanceDlg;
 
 	CFrameEditor		*m_pFrameEditor;
-	CListCtrl			*m_pInstrumentList;
+	CInstrumentList		*m_pInstrumentList;
 	CImageList			*m_pImageList;
-	CSampleWindow		*m_pSampleWindow;
+	CVisualizerWnd		*m_pVisualizerWnd;
 
 	CLockedEdit			*m_pLockedEditSpeed;
 	CLockedEdit			*m_pLockedEditTempo;
@@ -187,22 +193,23 @@ public:
 	afx_msg void OnShowWindow(BOOL bShow, UINT nStatus);
 	virtual BOOL OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult);
 	afx_msg BOOL OnCopyData(CWnd* pWnd, COPYDATASTRUCT* pCopyDataStruct);
-	afx_msg void OnClickInstruments(NMHDR *pNMHDR, LRESULT *result);
-	afx_msg void OnChangedInstruments(NMHDR* pNMHDR, LRESULT* pResult);
-	afx_msg void OnRClickInstruments(NMHDR *pNMHDR, LRESULT *result);
-	afx_msg void OnDblClkInstruments(NMHDR *pNMHDR, LRESULT *result);
 	afx_msg void OnDeltaposTempoSpin(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnDeltaposSpeedSpin(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnDeltaposRowsSpin(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnDeltaposFrameSpin(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnDeltaposKeyStepSpin(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnInstNameChange();
+	afx_msg void OnTrackerTogglePlay();
+	afx_msg void OnTrackerPlay();
+	afx_msg void OnTrackerPlayStart();
+	afx_msg void OnTrackerPlayCursor();
+	afx_msg void OnTrackerPlaypattern();
+	afx_msg void OnTrackerStop();
 	afx_msg void OnTrackerKillsound();
 	afx_msg void OnCreateNSF();
 	afx_msg void OnCreateWAV();
 	afx_msg void OnNextFrame();
 	afx_msg void OnPrevFrame();
-	afx_msg void OnChangeAll();
 	afx_msg void OnBnClickedIncFrame();
 	afx_msg void OnBnClickedDecFrame();
 	afx_msg void OnKeyRepeat();
@@ -242,12 +249,11 @@ public:
 	afx_msg void OnUpdateEditDelete(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateEditEnablemidi(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateSelectionEnabled(CCmdUI *pCmdUI);
-	afx_msg void OnTimer(UINT_PTR nIDEvent);
+   afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg void OnFileGeneralsettings();
 	afx_msg void OnEnSongNameChange();
 	afx_msg void OnEnSongArtistChange();
 	afx_msg void OnEnSongCopyrightChange();
-	afx_msg void OnFileImportmidi();
 	afx_msg void OnFileImportText();
 	afx_msg void OnFileExportText();
 	afx_msg void OnEnKillfocusTempo();
@@ -282,6 +288,7 @@ public:
 	afx_msg void OnSelectPatternEditor();
 	afx_msg void OnSelectFrameEditor();
 	afx_msg void OnHelpEffecttable();
+	afx_msg void OnHelpFAQ();
 	afx_msg void OnDestroy();
 	afx_msg void OnNextInstrument();
 	afx_msg void OnPrevInstrument();
@@ -303,6 +310,10 @@ public:
 	afx_msg void OnEditSelectall();
 	afx_msg void OnEditExpandpatterns();
 	afx_msg void OnEditShrinkpatterns();
+	afx_msg void OnEditClearPatterns();
+	afx_msg void OnEditRemoveUnusedInstruments();
+	afx_msg void OnEditRemoveUnusedPatterns();
+	afx_msg void OnEditMergeDuplicatedPatterns();
 	afx_msg void OnEditEnableMIDI();
 	afx_msg void OnUpdateEditUndo(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateEditRedo(CCmdUI *pCmdUI);
@@ -313,12 +324,15 @@ public:
 	afx_msg void OnUpdateFrameeditorTop(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateFrameeditorLeft(CCmdUI *pCmdUI);
 	afx_msg void OnToggleSpeed();
+	afx_msg LRESULT OnDisplayMessageString(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT OnDisplayMessageID(WPARAM wParam, LPARAM lParam);
+protected:
+	virtual void OnUpdateFrameTitle(BOOL bAddToTitle);
+public:
+	afx_msg void OnViewToolbar();
 };
 
 // Global DPI functions
 int  SX(int pt);
 int  SY(int pt);
 void ScaleMouse(CPoint &pt);
-
-// Global helpers
-CString LoadDefaultFilter(LPCTSTR Name, LPCTSTR Ext);

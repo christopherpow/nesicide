@@ -20,56 +20,7 @@
 
 #pragma once
 
-// CSampleView control
-
-class CSampleView : public CStatic {
-	DECLARE_DYNAMIC(CSampleView)
-protected:
-	DECLARE_MESSAGE_MAP()
-public:
-	CSampleView();
-	virtual ~CSampleView();
-
-	void	DrawPlayCursor(int Pos);
-	void	DrawStartCursor();
-	void	CalculateSample(CDSample *pSample, int Start);
-	void	UpdateInfo();
-	void	OnHome();
-
-	int		GetStartOffset() const { return m_iStartCursor; };
-	int		GetSelStart() const { return (m_iSelStart < m_iSelEnd) ? m_iSelStart : m_iSelEnd; };
-	int		GetSelEnd() const { return (m_iSelStart > m_iSelEnd) ? m_iSelStart : m_iSelEnd; };
-	int		GetBlock(int Pixel) const;
-	int		GetPixel(int Block) const;
-
-private:
-	int *m_pSamples;
-
-	int m_iSize;
-	int m_iBlockSize;
-	int m_iSelStart;
-	int m_iSelEnd;
-	int m_iStartCursor;
-	double m_dSampleStep;
-	bool m_bClicked;
-
-	CRect	m_clientRect;
-	CDC		m_dcCopy;
-	CBitmap m_bmpCopy;
-
-	CPen *m_pSolidPen;
-	CPen *m_pDashedPen;
-	CPen *m_pGrayDashedPen;
-	CPen *m_pDarkGrayDashedPen;
-
-public:
-	afx_msg void OnPaint();
-	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
-	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
-	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
-	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
-	afx_msg void OnSize(UINT nType, int cx, int cy);
-};
+#include "SampleEditorView.h"
 
 // CSampleEditorDlg dialog
 
@@ -82,6 +33,7 @@ public:
 	virtual ~CSampleEditorDlg();
 
 	void CopySample(CDSample *pTarget);
+	void SelectionChanged();
 
 // Dialog Data
 	enum { IDD = IDD_SAMPLE_EDITOR };
@@ -92,10 +44,10 @@ protected:
 	void MoveControls();
 	void UpdateSampleView();
 
-	CDSample	*m_pSample;
-	CDSample	*m_pOriginalSample;
-	CSampleView *m_pSampleView;
-	CSoundGen	*m_pSoundGen;
+	CDSample		  *m_pSample;
+	CDSample		  *m_pOriginalSample;
+	CSampleEditorView *m_pSampleEditorView;
+	CSoundGen		  *m_pSoundGen;
 
 	DECLARE_MESSAGE_MAP()
 public:
@@ -111,4 +63,7 @@ public:
 	afx_msg void OnBnClickedDeltastart();
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg void OnBnClickedTilt();
+	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	afx_msg void OnGetMinMaxInfo(MINMAXINFO* lpMMI);
 };

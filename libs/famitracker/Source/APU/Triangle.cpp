@@ -29,6 +29,10 @@ const uint8 CTriangle::TRIANGLE_WAVE[] = {
 CTriangle::CTriangle(CMixer *pMixer, int ID) : CChannel(pMixer, ID, SNDCHIP_NONE)
 {
 	m_iStepGen = 0;
+	m_iLoop = 0;
+	m_iLinearLoad = 0;
+	m_iHalt = 0;
+	m_iLinearCounter = 0;
 }
 
 CTriangle::~CTriangle()

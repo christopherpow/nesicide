@@ -112,7 +112,31 @@
 	<LI/> <OBJECT type="text/sitemap">
 		<param name="Name" value="Shortcuts configuration"/>
 		<param name="Local" value="config_shortcuts.htm"/>
-		</OBJECT>		
+		</OBJECT>
+	<LI/> <OBJECT type="text/sitemap">
+		<param name="Name" value="Mixer configuration"/>
+		<param name="Local" value="config_mixer.htm"/>
+		</OBJECT>
+	<LI/> <OBJECT type="text/sitemap">
+		<param name="Name" value="Module comments"/>
+		<param name="Local" value="comments.htm"/>
+		</OBJECT>
+	<LI/> <OBJECT type="text/sitemap">
+		<param name="Name" value="Wave export"/>
+		<param name="Local" value="export_wave.htm"/>
+		</OBJECT>
+	<LI/> <OBJECT type="text/sitemap">
+		<param name="Name" value="Peformance dialog"/>
+		<param name="Local" value="performance.htm"/>
+		</OBJECT>
+	<LI/> <OBJECT type="text/sitemap">
+		<param name="Name" value="Speed dialog"/>
+		<param name="Local" value="speed.htm"/>
+		</OBJECT>
+	<LI/> <OBJECT type="text/sitemap">
+		<param name="Name" value="License information"/>
+		<param name="Local" value="gpl.txt"/>
+		</OBJECT>
     </UL>
   </BODY>
 </HTML>

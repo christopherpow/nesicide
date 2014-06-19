@@ -43,7 +43,6 @@ protected:
 	int GetFrameLoopCount();
 	int GetTimeLimit();
 
-	CString m_sFileName;
 	CCheckListBox m_ctlChannelList;
 
 	DECLARE_MESSAGE_MAP()

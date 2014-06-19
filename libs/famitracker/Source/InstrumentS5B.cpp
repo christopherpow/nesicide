@@ -79,17 +79,17 @@ bool CInstrumentS5B::Load(CDocumentFile *pDocFile)
 	return true;
 }
 
-void CInstrumentS5B::SaveFile(CFile *pFile, CFamiTrackerDoc *pDoc)
+void CInstrumentS5B::SaveFile(CInstrumentFile *pFile, CFamiTrackerDoc *pDoc)
 {
 	AfxMessageBox(_T("Saving 5B instruments is not yet supported"));
 }
 
-bool CInstrumentS5B::LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc)
+bool CInstrumentS5B::LoadFile(CInstrumentFile *pFile, int iVersion, CFamiTrackerDoc *pDoc)
 {
 	return false;
 }
 
-int CInstrumentS5B::Compile(CChunk *pChunk, int Index)
+int CInstrumentS5B::Compile(CFamiTrackerDoc *pDoc, CChunk *pChunk, int Index)
 {
 	return 0;
 }

@@ -46,6 +46,8 @@ protected:
 	int GetSliderVal(int Slider);
 	void SetSliderVal(int Slider, int Value);
 	void EnableControls(bool bEnable);
+	void SelectPatch(int Patch);
+	void PasteSettings(LPTSTR pString);
 
 protected:
 	//unsigned int m_iInstrument;
@@ -63,4 +65,5 @@ public:
 	afx_msg void OnContextMenu(CWnd* /*pWnd*/, CPoint /*point*/);
 	afx_msg void OnCopy();
 	afx_msg void OnPaste();
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 };

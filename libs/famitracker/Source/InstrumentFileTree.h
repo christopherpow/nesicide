@@ -39,6 +39,8 @@ public:
 
 	static const int MENU_BASE = 0x9000;	// Choose a range where no strings are located
 
+	static const int CACHE_TIMEOUT = 60000;	// 1 minute
+
 protected:
 	bool ScanDirectory(CString path, CMenu *pMenu, int level);
 	void DeleteMenuObjects();

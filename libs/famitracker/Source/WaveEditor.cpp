@@ -197,9 +197,6 @@ void CWaveEditor::EditWave(CPoint pt1, CPoint pt2)
 	int x1 = min(pt2.x, pt1.x);
 	int x2 = max(pt2.x, pt1.x);
 
-	int y1 = min(pt2.y, pt1.y);
-	int y2 = max(pt2.y, pt1.y);
-
 	float dx = float(pt2.x - pt1.x);
 	float dy = float(pt2.y - pt1.y) / dx;
 

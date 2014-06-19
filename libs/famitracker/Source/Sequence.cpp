@@ -48,7 +48,13 @@ void CSequence::SetItem(int Index, signed char Value)
 void CSequence::SetItemCount(unsigned int Count)
 {
 	ASSERT(Count <= MAX_SEQUENCE_ITEMS);
+	
 	m_iItemCount = Count;
+
+	if (m_iLoopPoint > m_iItemCount)
+		m_iLoopPoint = -1;
+	if (m_iReleasePoint > m_iItemCount)
+		m_iReleasePoint = -1;
 }
 
 void CSequence::SetLoopPoint(unsigned int Point)

@@ -43,6 +43,8 @@ BEGIN_MESSAGE_MAP(CSizeEditor, CWnd)
 	ON_WM_MOUSEMOVE()
 	ON_WM_SETCURSOR()
 	ON_WM_TIMER()
+	ON_WM_SETFOCUS()
+	ON_WM_KILLFOCUS()
 END_MESSAGE_MAP()
 
 CSizeEditor::CSizeEditor(CWnd *pParent) : 
@@ -62,11 +64,10 @@ void CSizeEditor::OnPaint()
 {
 	CPaintDC dc(this);
 
-	CFont Font, *pOldFont;
-
+	CFont Font;
 	Font.CreateFont(-11, 0, 0, 0, FW_NORMAL, FALSE, FALSE, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH, _T("Tahoma"));
 
-	pOldFont = dc.SelectObject(&Font);
+	CFont *pOldFont = dc.SelectObject(&Font);
 
 	CString Value;
 	Value.Format(_T("%i"), m_iValue);
@@ -74,31 +75,39 @@ void CSizeEditor::OnPaint()
 	CRect rect;
 	GetClientRect(rect);
 
-	int GRAY = GetSysColor(COLOR_BTNFACE);
-	int LIGHT_GRAY = GetSysColor(COLOR_BTNHILIGHT);
-	int DARK_GRAY = GetSysColor(COLOR_BTNSHADOW);
+	COLORREF BUTTON_FACE = GetSysColor(COLOR_BTNFACE);
+	COLORREF BUTTON_HILIGHT = GetSysColor(COLOR_BTNHILIGHT);
+	COLORREF BUTTON_SHADOW = GetSysColor(COLOR_BTNSHADOW);
 
 	// Background
 	dc.FillSolidRect(rect, 0x00);
-	dc.Draw3dRect(rect, DARK_GRAY, LIGHT_GRAY);
+	dc.Draw3dRect(rect, BUTTON_SHADOW, BUTTON_HILIGHT);
+
+	if (this == GetFocus()) {
+		CRect focusRect = rect;
+		focusRect.DeflateRect(rect.Height() - 1, 2, rect.Height() + 1, 2);
+		dc.SetBkColor(0xFFFFFF);
+      qFatal("DrawFocusRect");
+//		dc.DrawFocusRect(focusRect);
+	}
 
 	CRect buttonRect;
 
 	// The '-'-button
 	buttonRect = CRect(2, 2, rect.bottom - 2, rect.bottom - 2);
-	dc.FillSolidRect(buttonRect, GRAY);
+	dc.FillSolidRect(buttonRect, BUTTON_FACE);
 	if (m_iButtonPressed == 1)
-		dc.Draw3dRect(buttonRect, DARK_GRAY, LIGHT_GRAY);
+		dc.Draw3dRect(buttonRect, BUTTON_SHADOW, BUTTON_HILIGHT);
 	else
-		dc.Draw3dRect(buttonRect, LIGHT_GRAY, DARK_GRAY);
+		dc.Draw3dRect(buttonRect, BUTTON_HILIGHT, BUTTON_SHADOW);
 
 	// The '+'-button
 	buttonRect = CRect(rect.right - rect.bottom, 2, rect.right - 2, rect.bottom - 2);
-	dc.FillSolidRect(buttonRect, GRAY);
+	dc.FillSolidRect(buttonRect, BUTTON_FACE);
 	if (m_iButtonPressed == 2)
-		dc.Draw3dRect(buttonRect, DARK_GRAY, LIGHT_GRAY);
+		dc.Draw3dRect(buttonRect, BUTTON_SHADOW, BUTTON_HILIGHT);
 	else
-		dc.Draw3dRect(buttonRect, LIGHT_GRAY, DARK_GRAY);
+		dc.Draw3dRect(buttonRect, BUTTON_HILIGHT, BUTTON_SHADOW);
 
 	CRect textRect;
 	textRect = rect;
@@ -107,7 +116,6 @@ void CSizeEditor::OnPaint()
 	// Text
 	dc.SetBkMode(TRANSPARENT);
 	dc.SetTextColor(0xFFFFFF);
-	//dc.TextOut(20, 1, Value);
 	dc.DrawText(Value, &textRect, DT_RIGHT);
 	dc.SetTextColor(0);
 	dc.TextOut(6, 1 + ((m_iButtonPressed == 1) ? 1 : 0), _T("-"));
@@ -125,13 +133,13 @@ BOOL CSizeEditor::OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message)
 	return CWnd::OnSetCursor(pWnd, nHitTest, message);
 }
 
-
 void CSizeEditor::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	CRect rect;
 	GetClientRect(rect);
 
 	SetCapture();
+	SetFocus();
 
 	if ((point.x > rect.bottom) && (point.x < (rect.right - rect.bottom))) {
 		m_iButtonPressed = 3;
@@ -241,4 +249,16 @@ void CSizeEditor::OnTimer(UINT_PTR nIDEvent)
 		IncreaseValue();
 
 	CWnd::OnTimer(nIDEvent);
+}
+
+void CSizeEditor::OnSetFocus(CWnd* pOldWnd)
+{
+	CWnd::OnSetFocus(pOldWnd);
+	Invalidate();
+}
+
+void CSizeEditor::OnKillFocus(CWnd* pNewWnd)
+{
+	CWnd::OnKillFocus(pNewWnd);
+	Invalidate();
 }

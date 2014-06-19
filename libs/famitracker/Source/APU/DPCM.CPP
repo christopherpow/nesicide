@@ -32,6 +32,8 @@ const uint16 CDPCM::DMC_PERIODS_PAL[]  = {
 CDPCM::CDPCM(CMixer *pMixer, CSampleMem *pSampleMem, int ID) : CChannel(pMixer, ID, SNDCHIP_NONE), m_pSampleMem(pSampleMem)
 {
 	PERIOD_TABLE = DMC_PERIODS_NTSC;
+
+	Reset();
 }
 
 CDPCM::~CDPCM()

@@ -22,18 +22,24 @@
 #include "FamiTracker.h"
 #include "FamiTrackerDoc.h"
 #include "SoundGen.h"
+#include "SampleEditorView.h"
 #include "SampleEditorDlg.h"
 
 //
 // The DPCM sample editor
 //
 
+enum {
+	TMR_PLAY_CURSOR, 
+	TMR_START_CURSOR
+};
+
 // CSampleEditorDlg dialog
 
 IMPLEMENT_DYNAMIC(CSampleEditorDlg, CDialog)
 
 CSampleEditorDlg::CSampleEditorDlg(CWnd* pParent /*=NULL*/, CDSample *pSample)
-	: CDialog(CSampleEditorDlg::IDD, pParent), m_pSampleView(NULL)
+	: CDialog(CSampleEditorDlg::IDD, pParent), m_pSampleEditorView(NULL)
 {
 	// Create a copy of the sample
 	m_pSample = new CDSample(*pSample);
@@ -43,7 +49,7 @@ CSampleEditorDlg::CSampleEditorDlg(CWnd* pParent /*=NULL*/, CDSample *pSample)
 
 CSampleEditorDlg::~CSampleEditorDlg()
 {
-	SAFE_RELEASE(m_pSampleView);
+	SAFE_RELEASE(m_pSampleEditorView);
 	SAFE_RELEASE(m_pSample);
 }
 
@@ -64,6 +70,8 @@ BEGIN_MESSAGE_MAP(CSampleEditorDlg, CDialog)
 	ON_WM_KEYDOWN()
 //ON_BN_CLICKED(IDC_TILT, &CSampleEditorDlg::OnBnClickedTilt)
    ON_BN_CLICKED(IDC_TILT, OnBnClickedTilt)
+	ON_WM_HSCROLL()
+	ON_WM_GETMINMAXINFO()
 END_MESSAGE_MAP()
 
 
@@ -73,24 +81,25 @@ BOOL CSampleEditorDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
-	m_pSampleView = new CSampleView();
-	m_pSampleView->SubclassDlgItem(IDC_SAMPLE, this);
-	m_pSampleView->CalculateSample(m_pSample, IsDlgButtonChecked(IDC_DELTASTART) ? 64 : 0);
-	m_pSampleView->UpdateInfo();
+	m_pSampleEditorView = new CSampleEditorView();
+	m_pSampleEditorView->SubclassDlgItem(IDC_SAMPLE, this);
 
-	CSliderCtrl *pitch = (CSliderCtrl*)GetDlgItem(IDC_PITCH);
+	CSliderCtrl *pitch = static_cast<CSliderCtrl*>(GetDlgItem(IDC_PITCH));
 	pitch->SetRange(0, 15);
 	pitch->SetPos(15);
 
 	MoveControls();
 
 	// A timer for the flashing start cursor
-	SetTimer(1, 500, NULL);
+	SetTimer(TMR_START_CURSOR, 500, NULL);
 
 	CString title;
 	GetWindowText(title);
 	title.AppendFormat(_T(" [%s]"), m_pSample->Name);
 	SetWindowText(title);
+
+	UpdateSampleView();
+	SelectionChanged();
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
@@ -107,13 +116,13 @@ void CSampleEditorDlg::MoveControls()
 	CRect rect;
 	GetClientRect(&rect);
 
-	if (m_pSampleView) {
+	if (m_pSampleEditorView) {
 		rect.top++;
 		rect.left++;
-		rect.bottom -= 80;
+		rect.bottom -= 60;
 		rect.right -= 2;
-		m_pSampleView->MoveWindow(rect);
-		m_pSampleView->Invalidate();
+		m_pSampleEditorView->MoveWindow(rect);
+		m_pSampleEditorView->Invalidate();
 	}
 
 	CWnd *control;
@@ -129,16 +138,23 @@ void CSampleEditorDlg::MoveControls()
 
 	if (control = GetDlgItem(IDC_POS)) {
 		control->GetClientRect(&controlRect);
-		controlRect.MoveToXY(5, rect.bottom - 75);
+		controlRect.MoveToXY(5, rect.bottom - 53);
 		controlRect.InflateRect(0, 0, 2, 2);
 		control->MoveWindow(controlRect);
 	}
 
 	if (control = GetDlgItem(IDC_INFO)) {
 		control->GetClientRect(&controlRect);
-		controlRect.MoveToXY(130, rect.bottom - 75);
+		controlRect.MoveToXY(170, rect.bottom - 53);
 		controlRect.InflateRect(0, 0, 2, 2);
-		controlRect.right = rect.right - 5;
+		controlRect.right = rect.right - 190;
+		//controlRect.right = rect.right - 90;
+		control->MoveWindow(controlRect);
+	}
+
+	if (control = GetDlgItem(IDC_ZOOM)) {
+		control->GetClientRect(&controlRect);
+		controlRect.MoveToXY(rect.right - 180, rect.bottom - 53);
 		control->MoveWindow(controlRect);
 	}
 
@@ -150,25 +166,25 @@ void CSampleEditorDlg::MoveControls()
 
 	if (control = GetDlgItem(IDC_PITCH)) {
 		control->GetClientRect(&controlRect);
-		controlRect.MoveToXY(120, rect.bottom - 30);
-		control->MoveWindow(controlRect);
-	}
-
-	if (control = GetDlgItem(IDC_DELTASTART)) {
-		control->GetClientRect(&controlRect);
-		controlRect.MoveToXY(10, rect.bottom - 50);
+		controlRect.MoveToXY(145, rect.bottom - 30);
 		control->MoveWindow(controlRect);
 	}
 
 	if (control = GetDlgItem(IDC_DELETE)) {
 		control->GetClientRect(&controlRect);
-		controlRect.MoveToXY(250, rect.bottom - 30);
+		controlRect.MoveToXY(270, rect.bottom - 30);
 		control->MoveWindow(controlRect);
 	}
 
 	if (control = GetDlgItem(IDC_TILT)) {
 		control->GetClientRect(&controlRect);
-		controlRect.MoveToXY(330, rect.bottom - 30);
+		controlRect.MoveToXY(350, rect.bottom - 30);
+		control->MoveWindow(controlRect);
+	}
+
+	if (control = GetDlgItem(IDC_DELTASTART)) {
+		control->GetClientRect(&controlRect);
+		controlRect.MoveToXY(440, rect.bottom - 25);
 		control->MoveWindow(controlRect);
 	}
 
@@ -193,14 +209,14 @@ void CSampleEditorDlg::OnBnClickedPlay()
 	if (m_pSample->SampleSize == 0)
 		return;
 
-	int Pitch = ((CSliderCtrl*)GetDlgItem(IDC_PITCH))->GetPos();
+	int Pitch = static_cast<CSliderCtrl*>(GetDlgItem(IDC_PITCH))->GetPos();
 	m_pSoundGen->WriteAPU(0x4011, IsDlgButtonChecked(IDC_DELTASTART) ? 64 : 0);
-	m_pSoundGen->PreviewSample(m_pSample, m_pSampleView->GetStartOffset(), Pitch);
+	m_pSoundGen->PreviewSample(m_pSample, m_pSampleEditorView->GetStartOffset(), Pitch);
 	// Wait for sample to play (at most 400ms)
 	DWORD time = GetTickCount() + 400;
-	while (m_pSoundGen->PreviewDone() == true || GetTickCount() > time);
+	while (m_pSoundGen->PreviewDone() == true && GetTickCount() < time);
 	// Start play cursor timer
-	SetTimer(0, 10, NULL);
+	SetTimer(TMR_PLAY_CURSOR, 10, NULL);
 }
 
 void CSampleEditorDlg::OnTimer(UINT_PTR nIDEvent)
@@ -208,7 +224,7 @@ void CSampleEditorDlg::OnTimer(UINT_PTR nIDEvent)
 	// Update play cursor
 
 	switch (nIDEvent) {
-		case 0: {
+		case TMR_PLAY_CURSOR: {
 			// Play cursor
 			stDPCMState state = m_pSoundGen->GetDPCMState();
 
@@ -220,16 +236,16 @@ void CSampleEditorDlg::OnTimer(UINT_PTR nIDEvent)
 				Pos = -1;
 			}
 
-			m_pSampleView->DrawPlayCursor(Pos);
+			m_pSampleEditorView->DrawPlayCursor(Pos);
 		}
-		case 1: {
+		case TMR_START_CURSOR: {
 			// Start cursor
 			if (m_pSoundGen->PreviewDone()) {
 				static bool bDraw = false;
 				if (!bDraw)
-					m_pSampleView->DrawStartCursor();
+					m_pSampleEditorView->DrawStartCursor();
 				else
-					m_pSampleView->DrawPlayCursor(-1);
+					m_pSampleEditorView->DrawPlayCursor(-1);
 				bDraw = !bDraw;
 			}
 		}
@@ -240,372 +256,45 @@ void CSampleEditorDlg::OnTimer(UINT_PTR nIDEvent)
 
 void CSampleEditorDlg::OnBnClickedDelete()
 {
-	int SelStart = m_pSampleView->GetSelStart();
-	int SelEnd = m_pSampleView->GetSelEnd();
+	// Make sure no sample is currently playing
+	m_pSoundGen->CancelPreviewSample();
 
-	if (SelStart == SelEnd)
+	if (!m_pSampleEditorView->HasSelection())
 		return;
 
-	int StartSample = m_pSampleView->GetBlock(SelStart + 1) * 16;
-	int EndSample = m_pSampleView->GetBlock(SelEnd + 1) * 16;
-	int Diff = EndSample - StartSample;
+	unsigned int StartSample = m_pSampleEditorView->GetSelStart() * 16;
+	unsigned int EndSample = m_pSampleEditorView->GetSelEnd() * 16;
 
-	for (int i = 0; i < Diff; ++i) {
-		if ((EndSample + i) < (int)m_pSample->SampleSize)
-			m_pSample->SampleData[StartSample + i] = m_pSample->SampleData[EndSample + i];
-	}
+	ASSERT(StartSample <= 4081);
+	ASSERT(EndSample <= 4081);
 
-	m_pSample->SampleSize -= Diff;
+	if (EndSample >= m_pSample->SampleSize)
+		EndSample = m_pSample->SampleSize - 1;
+
+//	TRACE(_T("Removing selected part from sample, start: %i, end %i (diff: %i)\n"), StartSample, EndSample, EndSample - StartSample);
+
+	// Remove the selected part
+	memcpy(m_pSample->SampleData + StartSample, m_pSample->SampleData + EndSample, m_pSample->SampleSize - EndSample);
+	m_pSample->SampleSize -= EndSample - StartSample;
 
 	// Reallocate
-	// TODO: fix this, it crashes
-	/*
 	char *pData = new char[m_pSample->SampleSize];
 	memcpy(pData, m_pSample->SampleData, m_pSample->SampleSize);
 	delete [] m_pSample->SampleData;
 	m_pSample->SampleData = pData;
-	*/
 
 	UpdateSampleView();
-}
-
-void CSampleEditorDlg::OnBnClickedDeltastart()
-{
-	UpdateSampleView();
-}
-
-void CSampleEditorDlg::UpdateSampleView()
-{
-	m_pSampleView->CalculateSample(m_pSample, IsDlgButtonChecked(IDC_DELTASTART) ? 64 : 0);
-	m_pSampleView->UpdateInfo();
-	m_pSampleView->Invalidate();
-	m_pSampleView->RedrawWindow();
-}
-
-void CSampleEditorDlg::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
-{
-	// TODO: this never gets called
-	if (nChar == VK_DELETE) {
-		OnBnClickedDelete();
-	}
-	if (nChar == VK_HOME) {
-		m_pSampleView->OnHome();
-	}
-
-	CDialog::OnKeyDown(nChar, nRepCnt, nFlags);
-}
-
-
-// CSampleView control
-
-IMPLEMENT_DYNAMIC(CSampleView, CStatic)
-
-BEGIN_MESSAGE_MAP(CSampleView, CStatic)
-	ON_WM_PAINT()
-	ON_WM_ERASEBKGND()
-	ON_WM_MOUSEMOVE()
-	ON_WM_LBUTTONDOWN()
-	ON_WM_LBUTTONUP()
-	ON_WM_SIZE()
-END_MESSAGE_MAP()
-
-CScrollBar* m_sbScrollBar;
-
-CSampleView::CSampleView() : 
-	m_iSelStart(-1), 
-	m_iSelEnd(-1), 
-	m_iStartCursor(0),
-	m_pSamples(NULL),
-	m_bClicked(false)
-{
-	m_pSolidPen = new CPen(PS_SOLID, 1, (COLORREF)0);
-	m_pDashedPen = new CPen(PS_DASH, 1, (COLORREF)0x00);
-	m_pGrayDashedPen = new CPen(PS_DASHDOT, 1, (COLORREF)0xF0F0F0);
-	m_pDarkGrayDashedPen = new CPen(PS_DASHDOT, 1, (COLORREF)0xE0E0E0);
-   
-   m_sbScrollBar = new CScrollBar();
-}
-
-CSampleView::~CSampleView()
-{
-	SAFE_RELEASE_ARRAY(m_pSamples);
-
-	SAFE_RELEASE(m_pSolidPen);
-	SAFE_RELEASE(m_pDashedPen);
-	SAFE_RELEASE(m_pGrayDashedPen);
-	SAFE_RELEASE(m_pDarkGrayDashedPen);
-}
-
-void CSampleView::OnPaint()
-{
-	int ScrollBarHeight = 0;
-
-	CPaintDC dc(this); // device context for painting
-
-	// Create scroll bar
-	if (m_sbScrollBar->m_hWnd == NULL) {
-		CRect rect;
-		GetClientRect(&rect);
-		m_sbScrollBar->Create(SBS_HORZ | SBS_BOTTOMALIGN | WS_CHILD | WS_VISIBLE, rect, this, 1);
-		m_sbScrollBar->EnableWindow(0);
-	}
-
-	CRect sbRect;
-	m_sbScrollBar->GetClientRect(&sbRect);
-	ScrollBarHeight = sbRect.bottom - sbRect.top;
-
-	GetClientRect(&m_clientRect);
-
-	m_clientRect.bottom -= ScrollBarHeight;
-
-	int MaxY = m_clientRect.bottom - 2;
-	int MaxX = m_clientRect.right - 2;
-	int x, y;
-
-	if (m_dcCopy.m_hDC != NULL)
-		m_dcCopy.DeleteDC();
-
-	if (m_bmpCopy.m_hObject != NULL)
-		m_bmpCopy.DeleteObject();
-
-	m_bmpCopy.CreateCompatibleBitmap(&dc, m_clientRect.Width(), m_clientRect.Height());
-	m_dcCopy.CreateCompatibleDC(&dc);
-	m_dcCopy.SelectObject(&m_bmpCopy);
-	m_dcCopy.FillSolidRect(m_clientRect, 0xFFFFFF);
-	m_dcCopy.SetViewportOrg(1, 1);
-
-	if (m_iSize == 0) {
-		m_dcCopy.TextOut(10, 10, CString(_T("No sample")));
-		dc.BitBlt(0, 0, m_clientRect.Width(), m_clientRect.Height(), &m_dcCopy, 0, 0, SRCCOPY);
-		return;
-	}
-
-	double Step = double(m_iSize) / double(MaxX);	// Samples / pixel
-
-	m_dSampleStep = Step;
-	m_iBlockSize = (MaxX * (8 * 16)) / m_iSize;
-
-	CPen *oldPen = m_dcCopy.SelectObject(m_pSolidPen);
-
-	// Block markers
-	m_dcCopy.SelectObject(m_pGrayDashedPen);
-	m_dcCopy.SetBkMode(TRANSPARENT);
-	int Blocks = (m_iSize / (8 * 16));
-	if (Blocks < (MaxX / 2)) {
-		for (int i = 1; i < Blocks; ++i) {
-			x = int((i * 128) / m_dSampleStep) - 1;
-			if (i % 4 == 0)
-				m_dcCopy.SelectObject(m_pDarkGrayDashedPen);
-			else
-				m_dcCopy.SelectObject(m_pGrayDashedPen);
-			m_dcCopy.MoveTo(x, 0);
-			m_dcCopy.LineTo(x, MaxY);
-		}
-	}
-
-	// Selection, each step is 16 bytes, or 128 samples
-	if (m_iSelStart != m_iSelEnd) {
-		m_dcCopy.FillSolidRect(m_iSelStart, 0, m_iSelEnd - m_iSelStart, MaxY, 0xFF80A0);
-//		copy.FillSolidRect(m_iSelStart, 0, 1, MaxY, 0xFF6080);
-//		copy.FillSolidRect(m_iSelEnd, 0, 1, MaxY, 0xFF6080);
-	}
-
-	// Draw the sample
-	y = (m_pSamples[0] * MaxY) / 127;
-	m_dcCopy.MoveTo(0, y);
-	m_dcCopy.SelectObject(m_pSolidPen);
-
-	for (x = 0; x < MaxX; ++x) {
-		y = (m_pSamples[(x * m_iSize) / MaxX] * MaxY) / 127;
-		m_dcCopy.LineTo(x, y);
-	}
-
-	m_dcCopy.SetViewportOrg(0, 0);
-	m_dcCopy.SelectObject(oldPen);
-
-	dc.BitBlt(0, 0, m_clientRect.Width(), m_clientRect.Height(), &m_dcCopy, 0, 0, SRCCOPY);
-}
-
-BOOL CSampleView::OnEraseBkgnd(CDC* pDC)
-{
-	return FALSE;
-}
-
-void CSampleView::OnMouseMove(UINT nFlags, CPoint point)
-{
-	double Sample = double(point.x) * m_dSampleStep;
-	int Offset = int(Sample / (8.0 * 64.0));
-	int Pos = int(Sample / (8.0 * 16.0));
-
-	if (!m_iSize)
-		return;
-
-	if (point.y > m_clientRect.bottom)
-		return;
-
-	if (nFlags & MK_LBUTTON && m_iSelStart != -1) {
-		//m_iSelEnd = int((point.x + m_iBlockSize / 2) / m_iBlockSize) * m_iBlockSize;
-		int Block = GetBlock(point.x + m_iBlockSize / 2);
-		m_iSelEnd = GetPixel(Block);
-		Invalidate();
-		RedrawWindow();
-	}
-
-	CString Text;
-	Text.Format(_T("Offset: %i, Pos: %i"), Offset, Pos);
-	GetParent()->SetDlgItemText(IDC_POS, Text);
-
-	CStatic::OnMouseMove(nFlags, point);
-}
-
-void CSampleView::OnLButtonDown(UINT nFlags, CPoint point)
-{
-	if (!m_iSize)
-		return;
-
-	if (point.y > m_clientRect.bottom)
-		return;
-
-	int Block = GetBlock(point.x);
-	m_iSelStart = GetPixel(Block);
-	m_iSelEnd = m_iSelStart;
-	Invalidate();
-	RedrawWindow();
-	m_bClicked = true;
-	CStatic::OnLButtonDown(nFlags, point);
-}
-
-void CSampleView::OnLButtonUp(UINT nFlags, CPoint point)
-{
-	// Sets the start cursor
-
-	if (!m_iSize)
-		return;
-
-	if (!m_bClicked)
-		return;
-
-	m_bClicked = false;
-
-	double Sample = double(point.x) * m_dSampleStep;
-	int Offset = int(Sample / (8.0 * 64.0));
-
-	if (m_iSelEnd == m_iSelStart) {
-		m_iStartCursor = Offset;
-		m_iSelStart = m_iSelEnd = -1;
-		DrawStartCursor();
-	}
-	else {
-		if (m_iSelEnd < m_iSelStart) {
-			int Temp = m_iSelEnd;
-			m_iSelEnd = m_iSelStart;
-			m_iSelStart = Temp;
-		}
-	}
-
-	CStatic::OnLButtonUp(nFlags, point);
-}
-
-void CSampleView::DrawPlayCursor(int Pos)
-{
-	CDC *pDC = GetDC();
-	int x = int(((double(Pos + m_iStartCursor) * 64.0) * 8.0) / m_dSampleStep);
-
-	pDC->BitBlt(0, 0, m_clientRect.Width(), m_clientRect.Height(), &m_dcCopy, 0, 0, SRCCOPY);
-
-	if (Pos != -1) {
-		CPen *oldPen = pDC->SelectObject(m_pDashedPen);
-		pDC->MoveTo(x, 0);
-		pDC->LineTo(x, m_clientRect.bottom);
-		pDC->SelectObject(oldPen);
-	}
-
-	ReleaseDC(pDC);
-}
-
-void CSampleView::DrawStartCursor()
-{
-	CDC *pDC = GetDC();
-	int x = int((double(m_iStartCursor) * 8.0 * 64.0) / m_dSampleStep);
-
-	pDC->BitBlt(0, 0, m_clientRect.Width(), m_clientRect.Height(), &m_dcCopy, 0, 0, SRCCOPY);
-
-	if (m_iStartCursor != -1) {
-		CPen *oldPen = pDC->SelectObject(m_pDashedPen);
-		pDC->MoveTo(x, 0);
-		pDC->LineTo(x, m_clientRect.bottom);
-		pDC->SelectObject(oldPen);
-	}
-
-	ReleaseDC(pDC);
-}
-
-void CSampleView::CalculateSample(CDSample *pSample, int Start)
-{
-	int Samples = pSample->SampleSize;
-	int Size = Samples * 8;
-
-	SAFE_RELEASE_ARRAY(m_pSamples);
-
-	if (pSample->SampleSize == 0) {
-		m_iSize = 0;
-		m_iStartCursor = 0;
-		m_iSelStart = m_iSelEnd = -1;
-		return;
-	}
-
-	m_pSamples = new int[Size];
-	m_iSize = Size;
-
-	int cntr = Start;
-
-	for (int i = 0; i < Size; ++i) {
-		if (pSample->SampleData[i / 8] & (1 << (i % 8))) {
-			if (cntr < 126)
-				cntr += 2;
-		}
-		else {
-			if (cntr > 1)
-				cntr -= 2;
-		}
-		m_pSamples[i] = cntr;
-	}	
-
-	m_iSelStart = m_iSelEnd = -1;
-	m_iStartCursor = 0;
-}
-
-int CSampleView::GetBlock(int Pixel) const
-{
-	double Sample = double(Pixel) * m_dSampleStep;
-	int Pos = int(Sample / (8.0 * 16.0));
-	return Pos;
-}
-
-int CSampleView::GetPixel(int Block) const
-{
-	return int((double(Block) * 128.0) / m_dSampleStep);
-}
-
-void CSampleView::UpdateInfo()
-{
-	if (!m_iSize)
-		return;
-	CString Text;
-	Text.Format(_T("Delta end pos: %i, Size: %i bytes"), m_pSamples[m_iSize - 1], m_iSize / 8);
-	GetParent()->SetDlgItemText(IDC_INFO, Text);
+	SelectionChanged();
 }
 
 void CSampleEditorDlg::OnBnClickedTilt()
 {
-	int SelStart = m_pSampleView->GetSelStart();
-	int SelEnd = m_pSampleView->GetSelEnd();
-
-	if (SelStart == SelEnd)
+	if (!m_pSampleEditorView->HasSelection())
 		return;
 
-	int StartSample = m_pSampleView->GetBlock(SelStart + 1) * 16;
-	int EndSample = m_pSampleView->GetBlock(SelEnd + 1) * 16;
+	int StartSample = m_pSampleEditorView->GetSelStart() * 16;
+	int EndSample = m_pSampleEditorView->GetSelEnd() * 16;
+
 	int Diff = EndSample - StartSample;
 
 	int Nr = 10;
@@ -622,30 +311,96 @@ void CSampleEditorDlg::OnBnClickedTilt()
 	}
 
 	UpdateSampleView();
+	SelectionChanged();
 }
 
-void CSampleView::OnSize(UINT nType, int cx, int cy)
+void CSampleEditorDlg::OnBnClickedDeltastart()
 {
-	CStatic::OnSize(nType, cx, cy);
+	UpdateSampleView();
+}
 
-	if (m_sbScrollBar->m_hWnd != NULL) {
-		CRect clientRect, scrollRect;
-		GetClientRect(&clientRect);
-		m_sbScrollBar->GetClientRect(&scrollRect);
-		scrollRect.right = clientRect.right;
-		int height = scrollRect.Height();
-		scrollRect.top = clientRect.bottom - height;
-		scrollRect.bottom = scrollRect.top + height;
-		m_sbScrollBar->MoveWindow(&scrollRect);
+void CSampleEditorDlg::UpdateSampleView()
+{
+	m_pSampleEditorView->ExpandSample(m_pSample, IsDlgButtonChecked(IDC_DELTASTART) ? 64 : 0);
+	m_pSampleEditorView->UpdateInfo();
+	m_pSampleEditorView->Invalidate();
+	m_pSampleEditorView->RedrawWindow();
+
+	CSliderCtrl *pZoom = static_cast<CSliderCtrl*>(GetDlgItem(IDC_ZOOM));
+	pZoom->SetRange(0, 10);
+}
+
+void CSampleEditorDlg::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+	switch (nChar) {
+		case VK_DELETE:
+			OnBnClickedDelete();
+			break;
+		case VK_HOME:
+			m_pSampleEditorView->OnHome();
+			break;
+		case VK_END:
+			m_pSampleEditorView->OnEnd();
+			break;
+		case VK_RIGHT:
+			m_pSampleEditorView->OnRight();
+			break;
+		case VK_LEFT:
+			m_pSampleEditorView->OnLeft();
+			break;
+		case 0x50:
+			OnBnClickedPlay();
+			break;
 	}
-}
 
-void CSampleView::OnHome()
-{
-	m_iStartCursor = 0;
+	CDialog::OnKeyDown(nChar, nRepCnt, nFlags);
 }
 
 void CSampleEditorDlg::CopySample(CDSample *pTarget)
 {
 	pTarget->Allocate(m_pSample->SampleSize, m_pSample->SampleData);
+}
+
+void CSampleEditorDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
+{
+	int Pitch = static_cast<CSliderCtrl*>(GetDlgItem(IDC_PITCH))->GetPos();
+
+	CString text;
+	text.Format(_T("Pitch (%i)"), Pitch);
+	SetDlgItemText(IDC_STATIC_PITCH, text);
+
+	float Zoom = float(static_cast<CSliderCtrl*>(GetDlgItem(IDC_ZOOM))->GetPos()) * 0.1f;
+	m_pSampleEditorView->SetZoom(1.0f - Zoom);
+	m_pSampleEditorView->Invalidate();
+
+	CDialog::OnHScroll(nSBCode, nPos, pScrollBar);
+}
+
+BOOL CSampleEditorDlg::PreTranslateMessage(MSG* pMsg)
+{
+	if (pMsg->message == WM_KEYDOWN) {
+		OnKeyDown(pMsg->wParam, 0, 0);
+		return TRUE;
+	}
+
+	return CDialog::PreTranslateMessage(pMsg);
+}
+
+void CSampleEditorDlg::SelectionChanged()
+{
+	if (m_pSampleEditorView->HasSelection()) {
+		GetDlgItem(IDC_DELETE)->EnableWindow(TRUE);
+		GetDlgItem(IDC_TILT)->EnableWindow(TRUE);
+	}
+	else {
+		GetDlgItem(IDC_DELETE)->EnableWindow(FALSE);
+		GetDlgItem(IDC_TILT)->EnableWindow(FALSE);
+	}
+}
+
+void CSampleEditorDlg::OnGetMinMaxInfo(MINMAXINFO* lpMMI)
+{
+	lpMMI->ptMinTrackSize.x = 630;
+	lpMMI->ptMinTrackSize.y = 400;
+	CDialog::OnGetMinMaxInfo(lpMMI);
 }

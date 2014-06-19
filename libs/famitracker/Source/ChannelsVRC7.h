@@ -40,8 +40,14 @@ protected:
 	virtual void HandleNote(int Note, int Octave);
 
 	unsigned int TriggerNote(int Note);
+
+	virtual int CalculateVolume() const;
+
 protected:
-	unsigned int GetFnum(int Note);
+	unsigned int GetFnum(int Note) const;
+
+protected:
+	static bool m_bRegsDirty;
 
 protected:
 	unsigned char m_iChannel;

@@ -29,11 +29,27 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	CInstrumentList(CMainFrame *pMainFrame);
+
+	int GetInstrumentIndex(int Selection) const;
+	int FindInstrument(int Index);
+	void SelectInstrument(int Index);
+	void SelectNextItem();
+	void SelectPreviousItem();
+	void InsertInstrument(int Index);
+	void RemoveInstrument(int Index);
+	void SetInstrumentName(int Index, TCHAR *pName);
+
 private:
 	CMainFrame *m_pMainFrame;
 public:
 	afx_msg void OnContextMenu(CWnd*, CPoint);
 	afx_msg void OnAddInstrument();
+	afx_msg void OnLvnBeginlabeledit(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnNMClick(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnLvnKeydown(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnLvnEndlabeledit(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnLvnItemchanged(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnNMDblclk(NMHDR *pNMHDR, LRESULT *pResult);
 };
 
 // Edit controls that can be enabled by double clicking
@@ -42,7 +58,7 @@ class CLockedEdit : public CEdit {
 protected:
 	DECLARE_MESSAGE_MAP()
 public:
-	CLockedEdit() : m_bUpdate(false) {
+	CLockedEdit() : m_bUpdate(false), m_iValue(0) {
 	};
 	bool IsEditable() const;
 	bool Update();
@@ -66,7 +82,7 @@ class CBannerEdit : public CEdit {
 protected:
 	DECLARE_MESSAGE_MAP()
 public:
-	CBannerEdit(const CString& txt) : CEdit(), m_strText(txt) {};
+	CBannerEdit(const CString &txt) : CEdit(), m_strText(txt) {};
 protected:
 	CString m_strText;
 protected:

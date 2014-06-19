@@ -29,6 +29,7 @@ public:
 	CChannelHandler2A03();
 	virtual void ProcessChannel();
 	virtual void ResetChannel();
+
 protected:
 	virtual void HandleNoteData(stChanNote *pNoteData, int EffColumns);
 	virtual void HandleCustomEffects(int EffNum, int EffParam);
@@ -39,9 +40,6 @@ protected:
 	virtual void HandleNote(int Note, int Octave);
 
 protected:
-	// 2A03 wave functions
-	void LoadInstrument(CInstrument2A03 *pInst);
-protected:
 	unsigned char m_cSweep;			// Sweep, used by pulse channels
 	bool		  m_bArpEffDone;	// Currently not used
 
@@ -49,13 +47,14 @@ protected:
 	int		m_iInitVolume;
 	bool	m_bSweeping;
 	int		m_iSweep;
-	int		m_iPostEffect, m_iPostEffectParam;
+	int		m_iPostEffect, 
+			m_iPostEffectParam;
 };
 
 // Square 1
 class CSquare1Chan : public CChannelHandler2A03 {
 public:
-	CSquare1Chan() : CChannelHandler2A03() { m_iDefaultDuty = 0; m_bEnabled = false; };
+	CSquare1Chan() : CChannelHandler2A03() { m_iDefaultDuty = 0; };
 	virtual void RefreshChannel();
 protected:
 	virtual void ClearRegisters();
@@ -64,7 +63,7 @@ protected:
 // Square 2
 class CSquare2Chan : public CChannelHandler2A03 {
 public:
-	CSquare2Chan() : CChannelHandler2A03() { m_iDefaultDuty = 0; m_bEnabled = false; };
+	CSquare2Chan() : CChannelHandler2A03() { m_iDefaultDuty = 0; };
 	virtual void RefreshChannel();
 protected:
 	virtual void ClearRegisters();
@@ -73,7 +72,7 @@ protected:
 // Triangle
 class CTriangleChan : public CChannelHandler2A03 {
 public:
-	CTriangleChan() : CChannelHandler2A03() { m_bEnabled = false; };
+	CTriangleChan() : CChannelHandler2A03() {};
 	virtual void RefreshChannel();
 protected:
 	virtual void ClearRegisters();
@@ -82,10 +81,13 @@ protected:
 // Noise
 class CNoiseChan : public CChannelHandler2A03 {
 public:
-	CNoiseChan() : CChannelHandler2A03() { m_iDefaultDuty = 0; m_bEnabled = false; };
+	CNoiseChan();
 	virtual void RefreshChannel();
 protected:
 	virtual void ClearRegisters();
+	virtual void HandleNote(int Note, int Octave);
+	virtual void SetupSlide(int Type, int EffParam);
+
 	unsigned int TriggerNote(int Note);
 };
 
@@ -107,15 +109,16 @@ protected:
 private:
 	// DPCM variables
 	CSampleMem *m_pSampleMem;
+
 	unsigned char m_cDAC;
 	unsigned char m_iLoop;
 	unsigned char m_iOffset;
 	unsigned char m_iSampleLength;
 	unsigned char m_iLoopOffset;
 	unsigned char m_iLoopLength;
-	int m_iRetrigger, m_iRetriggerCntr;
-
+	int m_iRetrigger;
+	int m_iRetriggerCntr;
 	int m_iCustomPitch;
-
 	bool m_bTrigger;
+	bool m_bEnabled;
 };

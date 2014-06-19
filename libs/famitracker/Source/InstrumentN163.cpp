@@ -149,66 +149,54 @@ bool CInstrumentN163::Load(CDocumentFile *pDocFile)
 	return true;
 }
 
-void CInstrumentN163::SaveFile(CFile *pFile, CFamiTrackerDoc *pDoc)
+void CInstrumentN163::SaveFile(CInstrumentFile *pFile, CFamiTrackerDoc *pDoc)
 {
 	// Sequences
-	unsigned char SeqCount = SEQUENCE_COUNT;
-	pFile->Write(&SeqCount, sizeof(char));
+	pFile->WriteChar(SEQUENCE_COUNT);
 
 	for (int i = 0; i < SEQUENCE_COUNT; ++i) {
 		int Sequence = GetSeqIndex(i);
 
 		if (GetSeqEnable(i)) {
 			CSequence *pSeq = pDoc->GetSequence(SNDCHIP_N163, Sequence, i);
-			char Enabled = 1;
-			int ItemCount = pSeq->GetItemCount();
-			int LoopPoint = pSeq->GetLoopPoint();
-			int ReleasePoint = pSeq->GetReleasePoint();
-			int Setting = pSeq->GetSetting();
-			pFile->Write(&Enabled, sizeof(char));
-			pFile->Write(&ItemCount, sizeof(int));
-			pFile->Write(&LoopPoint, sizeof(int));
-			pFile->Write(&ReleasePoint, sizeof(int));
-			pFile->Write(&Setting, sizeof(int));
-			for (unsigned int j = 0; j < pSeq->GetItemCount(); j++) {
-				int Value = pSeq->GetItem(j);
-				pFile->Write(&Value, sizeof(char));
+			pFile->WriteChar(1);
+			pFile->WriteInt(pSeq->GetItemCount());
+			pFile->WriteInt(pSeq->GetLoopPoint());
+			pFile->WriteInt(pSeq->GetReleasePoint());
+			pFile->WriteInt(pSeq->GetSetting());
+			for (unsigned j = 0; j < pSeq->GetItemCount(); ++j) {
+				pFile->WriteChar(pSeq->GetItem(j));
 			}
 		}
 		else {
-			char Enabled = 0;
-			pFile->Write(&Enabled, sizeof(char));
+			pFile->WriteChar(0);
 		}
 	}
 
 	// Write wave config
-	int WaveSize = GetWaveSize();
-	pFile->Write(&WaveSize, sizeof(int));
-	int WavePos = GetWavePos();
-	pFile->Write(&WavePos, sizeof(int));
 	int WaveCount = GetWaveCount();
-	pFile->Write(&WaveCount, sizeof(int));
+	int WaveSize = GetWaveSize();
+
+	pFile->WriteInt(WaveSize);
+	pFile->WriteInt(GetWavePos());
+	pFile->WriteInt(WaveCount);
 
 	for (int i = 0; i < WaveCount; ++i) {
 		for (int j = 0; j < WaveSize; ++j) {
-			char w = GetSample(i, j);
-			pFile->Write(&w, sizeof(char));
+			pFile->WriteChar(GetSample(i, j));
 		}
 	}
 }
 
-bool CInstrumentN163::LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc)
+bool CInstrumentN163::LoadFile(CInstrumentFile *pFile, int iVersion, CFamiTrackerDoc *pDoc)
 {
 	// Sequences
-	unsigned char SeqCount;
-	pFile->Read(&SeqCount, sizeof(char));
+	unsigned char SeqCount = pFile->ReadChar();
 
 	// Loop through all instrument effects
 	for (unsigned int i = 0; i < SeqCount; ++i) {
 
-		unsigned char Enabled;
-		pFile->Read(&Enabled, sizeof(char));
-
+		unsigned char Enabled = pFile->ReadChar();
 		if (Enabled == 1) {
 			// Read the sequence
 			int Count;
@@ -222,20 +210,11 @@ bool CInstrumentN163::LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc
 			CSequence *pSeq = pDoc->GetSequenceN163(Index, i);
 
 			pSeq->SetItemCount(Count);
-			int LoopPoint;
-			int Setting;
-			pFile->Read(&LoopPoint, sizeof(int));
-			pSeq->SetLoopPoint(LoopPoint);
-			int ReleasePoint;
-			pFile->Read(&ReleasePoint, sizeof(int));
-			pSeq->SetReleasePoint(ReleasePoint);
-			pFile->Read(&Setting, sizeof(int));
-			pSeq->SetSetting(Setting);
-
+			pSeq->SetLoopPoint(pFile->ReadInt());
+			pSeq->SetReleasePoint(pFile->ReadInt());
+			pSeq->SetSetting(pFile->ReadInt());
 			for (int j = 0; j < Count; ++j) {
-				char Val;
-				pFile->Read(&Val, sizeof(char));
-				pSeq->SetItem(j, Val);
+				pSeq->SetItem(j, pFile->ReadChar());
 			}
 			SetSeqEnable(i, true);
 			SetSeqIndex(i, Index);
@@ -247,10 +226,9 @@ bool CInstrumentN163::LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc
 	}
 
 	// Read wave config
-	int WaveSize, WavePos, WaveCount;
-	pFile->Read(&WaveSize, sizeof(int));
-	pFile->Read(&WavePos, sizeof(int));
-	pFile->Read(&WaveCount, sizeof(int));
+	int WaveSize = pFile->ReadInt();
+	int WavePos = pFile->ReadInt();
+	int WaveCount = pFile->ReadInt();
 
 	if (WaveSize <= 0 || WaveSize > 32)
 		return false;
@@ -263,21 +241,18 @@ bool CInstrumentN163::LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc
 
 	for (int i = 0; i < WaveCount; ++i) {
 		for (int j = 0; j < WaveSize; ++j) {
-			char w;
-			pFile->Read(&w, sizeof(char));
-			SetSample(i, j, w);
+			SetSample(i, j, pFile->ReadChar());
 		}
 	}
 
 	return true;
 }
 
-int CInstrumentN163::Compile(CChunk *pChunk, int Index)
+int CInstrumentN163::Compile(CFamiTrackerDoc *pDoc, CChunk *pChunk, int Index)
 {
 	int ModSwitch = 0;
 	int StoredBytes = 0;
 
-	CFamiTrackerDoc *pDoc = CFamiTrackerDoc::GetDoc();
 	CCompiler *pCompiler = CCompiler::GetCompiler();
 
 	ASSERT(pDoc != NULL);
@@ -289,7 +264,7 @@ int CInstrumentN163::Compile(CChunk *pChunk, int Index)
 	StoredBytes += 2;
 
 	// Store reference to wave
-	CString waveLabel;
+	CStringA waveLabel;
 	waveLabel.Format(CCompiler::LABEL_WAVES, Index);
 	pChunk->StoreReference(waveLabel);
 	StoredBytes += 2;
@@ -304,7 +279,7 @@ int CInstrumentN163::Compile(CChunk *pChunk, int Index)
 
 	for (int i = 0; i < SEQUENCE_COUNT; ++i) {
 		if (GetSeqEnable(i) != 0 && (pDoc->GetSequence(SNDCHIP_N163, GetSeqIndex(i), i)->GetItemCount() != 0)) {
-			CString str;
+			CStringA str;
 			str.Format(CCompiler::LABEL_SEQ_N163, GetSeqIndex(i) * SEQUENCE_COUNT + i);
 			pChunk->StoreReference(str);
 			StoredBytes += 2;

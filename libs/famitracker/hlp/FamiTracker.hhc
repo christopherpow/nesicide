@@ -44,8 +44,45 @@
 						<param name="Name" value="Shortcuts" />
 						<param name="Local" value="config_shortcuts.htm"/>
 						</OBJECT>
+					<LI/> <OBJECT type="text/sitemap">
+						<param name="Name" value="Mixer" />
+						<param name="Local" value="config_mixer.htm"/>
+						</OBJECT>
 				</UL>
-				
+			<LI/> <OBJECT type="text/sitemap">
+				<param name="Name" value="Menus"/>
+				<param name="Local" value="menus.htm"/>
+				</OBJECT>
+				<UL>
+					<LI/> <OBJECT type="text/sitemap">
+						<param name="Name" value="File"/>
+						<param name="Local" value="menu_file.htm"/>
+						</OBJECT>
+					<LI/> <OBJECT type="text/sitemap">
+						<param name="Name" value="Edit"/>
+						<param name="Local" value="menu_edit.htm"/>
+						</OBJECT>
+					<LI/> <OBJECT type="text/sitemap">
+						<param name="Name" value="Module"/>
+						<param name="Local" value="menu_module.htm"/>
+						</OBJECT>
+					<LI/> <OBJECT type="text/sitemap">
+						<param name="Name" value="Instrument"/>
+						<param name="Local" value="menu_instrument.htm"/>
+						</OBJECT>
+					<LI/> <OBJECT type="text/sitemap">
+						<param name="Name" value="Tracker"/>
+						<param name="Local" value="menu_tracker.htm"/>
+						</OBJECT>
+					<LI/> <OBJECT type="text/sitemap">
+						<param name="Name" value="View"/>
+						<param name="Local" value="menu_view.htm"/>
+						</OBJECT>
+					<LI/> <OBJECT type="text/sitemap">
+						<param name="Name" value="Help"/>
+						<param name="Local" value="menu_help.htm"/>
+						</OBJECT>
+				</UL>	
 			<LI/> <OBJECT type="text/sitemap">
 				<param name="Name" value="Pattern editor" />
 				<param name="Local" value="pattern_editor.htm"/>
@@ -57,11 +94,7 @@
 			<LI/> <OBJECT type="text/sitemap">
 				<param name="Name" value="Control panel" />
 				<param name="Local" value="control_panel.htm"/>
-				</OBJECT>
-			<LI/> <OBJECT type="text/sitemap">
-				<param name="Name" value="Menus"/>
-				<param name="Local" value="menus.htm"/>
-				</OBJECT>
+				</OBJECT>			
 			<LI/> <OBJECT type="text/sitemap">
 				<param name="Name" value="Key commands"/>
 				<param name="Local" value="shortcuts.htm"/>
@@ -130,7 +163,11 @@
 	<LI/> <OBJECT type="text/sitemap">
 		<param name="Name" value="Change log"/>
 		<param name="Local" value="changelog.htm"/>
-		</OBJECT>		
+		</OBJECT>
+	<LI/> <OBJECT type="text/sitemap">
+		<param name="Name" value="License"/>
+		<param name="Local" value="gpl.txt"/>
+		</OBJECT>			
 		
 </UL>
 </BODY></HTML>

@@ -26,86 +26,90 @@
 #include "FamiTrackerDoc.h"
 #include "ChannelHandler.h"
 #include "ChannelsS5B.h"
+#include "SoundGen.h"
 
-//const int CChannelHandlerS5B::SEQ_TYPES[] = {SEQ_VOLUME, SEQ_ARPEGGIO, SEQ_PITCH, SEQ_HIPITCH, SEQ_SUNSOFT_NOISE};
+// Static member variables, for the shared stuff in 5B
+int			  CChannelHandlerS5B::m_iModes		= 0;
+int			  CChannelHandlerS5B::m_iNoiseFreq	= 0;
+unsigned char CChannelHandlerS5B::m_iEnvFreqHi	= 0;
+unsigned char CChannelHandlerS5B::m_iEnvFreqLo	= 0;
+int			  CChannelHandlerS5B::m_iEnvType	= 0;
+bool		  CChannelHandlerS5B::m_bRegsDirty	= false;
 
-static int gModes = 0;
-static int gNoiseFreq = 0;
-static unsigned char gEnvFreqHi = 0;
-static unsigned char gEnvFreqLo = 0;
-static int gEnvType = 0;
-static bool gRegsDirty = false;
+// Class functions
 
-static void SetEnvelopeHigh(int Val)
+void CChannelHandlerS5B::SetEnvelopeHigh(int Val)
 {
-	gEnvFreqHi = Val;
-	gRegsDirty = true;
+	m_iEnvFreqHi = Val;
+	m_bRegsDirty = true;
 }
 
-static void SetEnvelopeLow(int Val)
+void CChannelHandlerS5B::SetEnvelopeLow(int Val)
 {
-	gEnvFreqLo = Val;
-	gRegsDirty = true;
+	m_iEnvFreqLo = Val;
+	m_bRegsDirty = true;
 }
 
-static void SetEnvelopeType(int Val)
+void CChannelHandlerS5B::SetEnvelopeType(int Val)
 {
-	gEnvType = Val;
-	gRegsDirty = true;
+	m_iEnvType = Val;
+	m_bRegsDirty = true;
 }
 
-static void SetMode(int Chan, int Square, int Noise)
+void CChannelHandlerS5B::SetMode(int Chan, int Square, int Noise)
 {
-	int initModes = gModes;
+	int initModes = m_iModes;
 
 	switch (Chan) {
 		case 0:
-			gModes &= 0x36;
+			m_iModes &= 0x36;
 			break;
 		case 1:
-			gModes &= 0x2D;
+			m_iModes &= 0x2D;
 			break;
 		case 2:
-			gModes &= 0x1B;
+			m_iModes &= 0x1B;
 			break;
 	}
 
-	gModes |= (Noise << (3 + Chan)) | (Square << Chan);
+	m_iModes |= (Noise << (3 + Chan)) | (Square << Chan);
 	
-	if (gModes != initModes) {
-		gRegsDirty = true;
+	if (m_iModes != initModes) {
+		m_bRegsDirty = true;
 	}
 }
 
-static void SetNoiseFreq(int Freq)
+void CChannelHandlerS5B::SetNoiseFreq(int Freq)
 {
-	gNoiseFreq = Freq;
-	gRegsDirty = true;
+	m_iNoiseFreq = Freq;
+	m_bRegsDirty = true;
 }
 
-static void UpdateRegs(CAPU *pAPU)
+void CChannelHandlerS5B::UpdateRegs(CAPU *pAPU)
 {
-	if (!gRegsDirty)
+	if (!m_bRegsDirty)
 		return;
 
 	// Done only once
 	pAPU->ExternalWrite(0xC000, 0x07);
-	pAPU->ExternalWrite(0xE000, gModes);
+	pAPU->ExternalWrite(0xE000, m_iModes);
 
 	pAPU->ExternalWrite(0xC000, 0x06);
-	pAPU->ExternalWrite(0xE000, gNoiseFreq);
+	pAPU->ExternalWrite(0xE000, m_iNoiseFreq);
 
 	pAPU->ExternalWrite(0xC000, 0x0B);
-	pAPU->ExternalWrite(0xE000, gEnvFreqLo);
+	pAPU->ExternalWrite(0xE000, m_iEnvFreqLo);
 
 	pAPU->ExternalWrite(0xC000, 0x0C);
-	pAPU->ExternalWrite(0xE000, gEnvFreqHi);
+	pAPU->ExternalWrite(0xE000, m_iEnvFreqHi);
 
 	pAPU->ExternalWrite(0xC000, 0x0D);
-	pAPU->ExternalWrite(0xE000, gEnvType);
+	pAPU->ExternalWrite(0xE000, m_iEnvType);
 
-	gRegsDirty = false;
+	m_bRegsDirty = false;
 }
+
+// Instance functions
 
 CChannelHandlerS5B::CChannelHandlerS5B() : CChannelHandler(), m_iNoiseOffset(0), m_bUpdate(false)
 {
@@ -154,25 +158,20 @@ void CChannelHandlerS5B::HandleCustomEffects(int EffNum, int EffParam)
 
 bool CChannelHandlerS5B::HandleInstrument(int Instrument, bool Trigger, bool NewInstrument)
 {
-	CInstrumentS5B *pInstrument = (CInstrumentS5B*)m_pDocument->GetInstrument(m_iInstrument);
+	CFamiTrackerDoc *pDocument = m_pSoundGen->GetDocument();
+	CInstrumentContainer<CInstrumentS5B> instContainer(pDocument, Instrument);
+	CInstrumentS5B *pInstrument = instContainer();
 
 	if (pInstrument == NULL)
 		return false;
 
-	if (pInstrument->GetType() != INST_S5B) {
-		pInstrument->Release();
-		return false;
-	}
-
 	for (int i = 0; i < SEQ_COUNT; ++i) {
-		if (pInstrument->GetSeqIndex(i) != m_iSeqIndex[i] || pInstrument->GetSeqEnable(i) != m_iSeqEnabled[i] || Trigger) {
-			m_iSeqEnabled[i] = pInstrument->GetSeqEnable(i);
+		if (pInstrument->GetSeqIndex(i) != m_iSeqIndex[i] || pInstrument->GetSeqEnable(i) > m_iSeqState[i] || Trigger) {
+			m_iSeqState[i]   = pInstrument->GetSeqEnable(i) == 1 ? SEQ_STATE_RUNNING : SEQ_STATE_DISABLED;
 			m_iSeqIndex[i]	 = pInstrument->GetSeqIndex(i);
 			m_iSeqPointer[i] = 0;
 		}
 	}
-
-	pInstrument->Release();
 
 	return true;
 }
@@ -184,7 +183,6 @@ void CChannelHandlerS5B::HandleEmptyNote()
 void CChannelHandlerS5B::HandleHalt()
 {
 	CutNote();
-	m_bEnabled = false;
 	m_iNote = 0;
 }
 
@@ -198,7 +196,6 @@ void CChannelHandlerS5B::HandleNote(int Note, int Octave)
 {
 	m_iNote	= RunNote(Octave, Note);
 	m_iSeqVolume = 0xF;
-	m_bEnabled = true;
 
 	m_iDutyPeriod = S5B_MODE_SQUARE;
 
@@ -207,15 +204,14 @@ void CChannelHandlerS5B::HandleNote(int Note, int Octave)
 
 void CChannelHandlerS5B::ProcessChannel()
 {
+	CFamiTrackerDoc *pDocument = m_pSoundGen->GetDocument();
+
 	// Default effects
 	CChannelHandler::ProcessChannel();
 
-	if (!m_bEnabled)
-		return;
-
 	// Sequences
 	for (int i = 0; i < SEQ_COUNT; ++i)
-		CChannelHandler::RunSequence(i, m_pDocument->GetSequence(SNDCHIP_S5B, m_iSeqIndex[i], i));
+		RunSequence(i, pDocument->GetSequence(SNDCHIP_S5B, m_iSeqIndex[i], i));
 }
 
 void CChannelHandlerS5B::WriteReg(int Reg, int Value)
@@ -231,18 +227,15 @@ void CChannelHandlerS5B::WriteReg(int Reg, int Value)
 
 void CS5BChannel1::RefreshChannel()
 {
-//	if (!m_bEnabled)
-//		return;
-
 	if (!m_bUpdate)
 		return;
 
 	m_bUpdate = false;
 
-	int Period = CalculatePeriod(false);
+	int Period = CalculatePeriod();
 	unsigned char LoPeriod = Period & 0xFF;
 	unsigned char HiPeriod = Period >> 8;
-	int Volume = CalculateVolume(15);
+	int Volume = CalculateVolume();
 
 	unsigned char Noise = (m_iDutyPeriod & S5B_MODE_NOISE) ? 0 : 1;
 	unsigned char Square = (m_iDutyPeriod & S5B_MODE_SQUARE) ? 0 : 1;
@@ -259,8 +252,6 @@ void CS5BChannel1::RefreshChannel()
 		SetNoiseFreq(NoisePeriod);
 
 //	UpdateRegs(m_pAPU);
-
-//	m_bEnabled = false;
 }
 
 void CS5BChannel1::ClearRegisters()
@@ -275,13 +266,10 @@ void CS5BChannel1::ClearRegisters()
 
 void CS5BChannel2::RefreshChannel()
 {
-	if (!m_bEnabled)
-		return;
-
-	int Period = CalculatePeriod(false);
+	int Period = CalculatePeriod();
 	unsigned char LoPeriod = Period & 0xFF;
 	unsigned char HiPeriod = Period >> 8;
-	int Volume = CalculateVolume(15);
+	int Volume = CalculateVolume();
 
 	unsigned char Noise = (m_iDutyPeriod & S5B_MODE_NOISE) ? 0 : 1;
 	unsigned char Square = (m_iDutyPeriod & S5B_MODE_SQUARE) ? 0 : 1;
@@ -311,18 +299,16 @@ void CS5BChannel2::ClearRegisters()
 
 void CS5BChannel3::RefreshChannel()
 {
-	//if (!m_bEnabled)
-	//	return;
 /*
 	if (!m_bUpdate)
 		return;
 
 	m_bUpdate = true;
 */
-	int Period = CalculatePeriod(false);
+	int Period = CalculatePeriod();
 	unsigned char LoPeriod = Period & 0xFF;
 	unsigned char HiPeriod = Period >> 8;
-	int Volume = CalculateVolume(15);
+	int Volume = CalculateVolume();
 
 	unsigned char Noise = (m_iDutyPeriod & S5B_MODE_NOISE) ? 0 : 1;
 	unsigned char Square = (m_iDutyPeriod & S5B_MODE_SQUARE) ? 0 : 1;
@@ -345,3 +331,4 @@ void CS5BChannel3::ClearRegisters()
 {
 	WriteReg(10, 0);		// Clear volume
 }
+

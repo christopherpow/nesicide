@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2013  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -19,18 +19,18 @@
 */
 
 #include "stdafx.h"
+//#include <io.h>
+//#include <atlimage.h>
 #include "FamiTracker.h"
 #include "FamiTrackerDoc.h"
 #include "FamiTrackerView.h"
 #include "PatternEditor.h"
-//#include "FontDrawer.h"
 #include "TrackerChannel.h"
 #include "Settings.h"
 #include "MainFrm.h"
 #include "Action.h"
 #include "ColorScheme.h"
 #include "Graphics.h"
-//#include "ChannelHandler.h"
 
 /*
  * CPatternView
@@ -41,16 +41,26 @@
  *
  */
 
-#ifndef SVN_BUILD
-//#define DRAW_REGS
-#endif /* SVN_BUILD */
-
 const int VOL_COLUMN_MAX = 0x10;	// TODO: move this somewhere else
 
-enum {SCROLL_NONE, SCROLL_UP, SCROLL_DOWN, SCROLL_RIGHT, SCROLL_LEFT};
+enum {
+	SCROLL_NONE, 
+	SCROLL_UP, 
+	SCROLL_DOWN, 
+	SCROLL_RIGHT, 
+	SCROLL_LEFT
+};
 
 // Column layout
-enum {COLUMN_NOTE, COLUMN_INSTRUMENT, COLUMN_VOLUME, COLUMN_EFF1, COLUMN_EFF2, COLUMN_EFF3, COLUMN_EFF4};
+enum {
+	COLUMN_NOTE, 
+	COLUMN_INSTRUMENT, 
+	COLUMN_VOLUME, 
+	COLUMN_EFF1, 
+	COLUMN_EFF2, 
+	COLUMN_EFF3, 
+	COLUMN_EFF4
+};
 
 // Number of effect columns
 const int NUM_EFF_COLUMNS = 4;
@@ -141,11 +151,8 @@ int CPatternView::GetChannelAtPoint(int PointX) const
 
 int CPatternView::GetColumnAtPoint(int PointX) const
 {
-	const int EFFECT_WIDTH = (CHAR_WIDTH * 3 + COLUMN_SPACING);
-
 	int ColumnOffset, Column = -1, i;
 	int Channel = -1;
-	int Channels = m_pDocument->GetAvailableChannels();
 	int Offset = COLUMN_SPACING - 3;
 	int StartOffset = PointX - ROW_COL_WIDTH;
 
@@ -382,7 +389,6 @@ void CPatternView::SetDocument(CFamiTrackerDoc *pDoc, CFamiTrackerView *pView)
 
 	m_iPlayFrame = 0;
 	m_iPlayRow = 0;
-	m_iPlayPatternLength = 0;
 
 	m_bSelecting = false;
 	m_bCurrentlySelecting = false;
@@ -426,7 +432,6 @@ void CPatternView::Reset()
 
 	m_iPlayFrame = 0;
 	m_iPlayRow = 0;
-	m_iPlayPatternLength = 0;
 
 	m_bSelecting = false;
 	m_bCurrentlySelecting = false;
@@ -450,7 +455,7 @@ void CPatternView::Invalidate(bool bEntire)
 	// Called when the pattern editor needs to be redrawn and not just painted on screen
 	// bEntire: Draw the unused background in pattern editor
 	m_bUpdated = true;
-   m_bDrawEntire = bEntire;
+	m_bDrawEntire = bEntire;
 }
 
 void CPatternView::Modified()
@@ -468,14 +473,22 @@ void CPatternView::AdjustCursor()
 		m_iCurrentFrame = m_pDocument->GetFrameCount() - 1;
 
 	// Follow play cursor
-	if (m_bFollowMode && (theApp.IsPlaying() || m_bForcePlayRowUpdate) /*&& !m_bSelecting*/) {
-		m_cpCursorPos.m_iRow = m_iPlayRow;
-		m_iCurrentFrame = m_iPlayFrame;
-		m_bForcePlayRowUpdate = false;
+	if ((theApp.IsPlaying() || m_bForcePlayRowUpdate) /*&& !m_bSelecting*/) {
+		CSoundGen *pSoundGen = theApp.GetSoundGenerator();
+		// Store a synchronized copy of frame & row position from player
+		m_iPlayFrame = pSoundGen->GetPlayerFrame();
+		m_iPlayRow = pSoundGen->GetPlayerRow();
+		
+		if (m_bFollowMode) {
+			m_cpCursorPos.m_iRow = m_iPlayRow;
+			m_iCurrentFrame = m_iPlayFrame;
+			m_bForcePlayRowUpdate = false;
+		}
+			SetSelectionStart();
 	}
 
+	UpdatePatternLength();
 	m_iDrawFrame = m_iCurrentFrame;
-	m_iPatternLength = GetCurrentPatternLength(m_iDrawFrame);
 	m_iChannels = m_pDocument->GetAvailableChannels();
 
 	if (m_cpCursorPos.m_iRow > m_iPatternLength - 1)
@@ -571,9 +584,6 @@ bool CPatternView::FullErase() const
 		return true;
 	
 	int ChannelCount = m_pDocument->GetAvailableChannels();
-	bool InvisibleChannels = false;
-	bool FullErase = false;
-
 	int ChannelsVisible = ChannelCount - m_iFirstChannel;
 	int Offset = ROW_COL_WIDTH;
 	int WinWidth = m_iWinWidth;
@@ -597,13 +607,13 @@ bool CPatternView::FullErase() const
 	return false;
 }
 
-#ifdef _DEBUG
-CString patternEditorText;
-#endif
+void CPatternView::UpdatePatternLength()
+{
+	m_iPatternLength = GetCurrentPatternLength(m_iCurrentFrame);
+}
 
 void CPatternView::DrawScreen(CDC *pDC, CFamiTrackerView *pView)
 {
-	static int Redraws = 0;
 	static bool WasSelecting;
 
 #ifdef _DEBUG
@@ -667,7 +677,7 @@ void CPatternView::DrawScreen(CDC *pDC, CFamiTrackerView *pView)
 		pDC->BitBlt(0, HEADER_HEIGHT, iBlitWidth, iBlitHeight, m_pPatternDC, 0, 0, SRCCOPY);
 	else {
 		// Copy the back buffer to screen
-      if (m_bDrawEntire)
+		if (m_bDrawEntire)
 			DrawUnbufferedArea(pDC);
 		
 		pDC->BitBlt(0, 0, iBlitWidth, HEADER_HEIGHT, m_pHeaderDC, 0, 0, SRCCOPY);
@@ -676,6 +686,8 @@ void CPatternView::DrawScreen(CDC *pDC, CFamiTrackerView *pView)
 		// Auto-reset this
 		m_bDrawEntire = false;
 	}
+
+	int Line = 1;
 
 #ifdef _DEBUG
 	pDC->SetBkColor(DEFAULT_COLOR_SCHEME.CURSOR);
@@ -687,10 +699,16 @@ void CPatternView::DrawScreen(CDC *pDC, CFamiTrackerView *pView)
 #ifndef SVN_BUILD
 	pDC->SetBkColor(DEFAULT_COLOR_SCHEME.CURSOR);
 	pDC->SetTextColor(DEFAULT_COLOR_SCHEME.TEXT_HILITE);
-	pDC->TextOut(m_iWinWidth - 110, m_iWinHeight - 20, _T("Release build"));
+	pDC->TextOut(m_iWinWidth - 110, m_iWinHeight - 20 * Line++, _T("Release build"));
 #endif
 #endif
-
+/*
+	if (theApp.GetSettings()->m_bNamcoMixing && (m_pDocument->GetExpansionChip() & SNDCHIP_N163)) {
+		pDC->SetTextColor(0x4040FF);
+		pDC->SetBkColor(0x404040);
+		pDC->TextOut(m_iWinWidth - 208, m_iWinHeight - 20 * Line++, _T("Inaccurate Namco emulation!"));
+	}
+*/
 #ifdef _DEBUG
 
 	QueryPerformanceCounter(&EndTime);
@@ -756,10 +774,6 @@ void CPatternView::DrawScreen(CDC *pDC, CFamiTrackerView *pView)
 
 #endif
 
-#ifdef _DEBUG
-	//pDC->DrawText(patternEditorText, CRect(m_iPatternWidth + 50, m_iWinHeight / 2, m_iWinWidth , m_iWinHeight), DT_WORDBREAK);
-#endif
-
 	WasSelecting = m_bSelecting;
 	m_bErasedBg = false;
 
@@ -787,7 +801,6 @@ void CPatternView::CreateBackground(CDC *pDC, bool bForce)
 	static int LastHeight = 0;
 	static int LastPatternWidth = 0;
 
-	int ColumnCount = 0, CurrentColumn = 0;
 	int Channels = m_pDocument->GetAvailableChannels();
 
 	++m_iErases;
@@ -800,12 +813,9 @@ void CPatternView::CreateBackground(CDC *pDC, bool bForce)
 		m_iColumns[i] = GetChannelColumns(i) - 1;
 
 		if (i == m_cpCursorPos.m_iChannel) {
-			CurrentColumn = ColumnCount + m_cpCursorPos.m_iColumn;
 			if (m_cpCursorPos.m_iColumn > m_iColumns[i])
 				m_cpCursorPos.m_iColumn = m_iColumns[i];
 		}
-
-		ColumnCount += GetChannelColumns(i);
 	}
 
 	AdjustCursorChannel();
@@ -951,7 +961,6 @@ void CPatternView::DrawPatternArea(CDC *pDC)
 {
 	// Draw all rows
 
-	COLORREF ColBg = theApp.GetSettings()->Appearance.iColBackground;
 	CFont *OldFont = pDC->SelectObject(&m_fontPattern);
 
 	const int Channels = m_pDocument->GetAvailableChannels();
@@ -1092,11 +1101,10 @@ void CPatternView::DrawRow(CDC *pDC, int Row, int Line, int Frame, bool bPreview
 	COLORREF ColHiBg2	= theApp.GetSettings()->Appearance.iColBackgroundHilite2;
 	COLORREF ColSelect	= theApp.GetSettings()->Appearance.iColSelection;
 
-	bool bEditMode	= m_pView->GetEditMode();
+	bool bEditMode = m_pView->GetEditMode();
 
-	int Channels	= m_iFirstChannel + m_iChannelsVisible;
-	int Frames		= m_pDocument->GetFrameCount();
-	int OffsetX		= ROW_COL_WIDTH;
+	int Channels = m_iFirstChannel + m_iChannelsVisible;
+	int OffsetX = ROW_COL_WIDTH;
 
 	stChanNote NoteData;
 
@@ -1270,10 +1278,21 @@ void CPatternView::DrawRow(CDC *pDC, int Row, int Line, int Frame, bool bPreview
 
 void CPatternView::DrawCell(int PosX, int Column, int Channel, bool bInvert, stChanNote *pNoteData, CDC *pDC, RowColorInfo_t *pColorInfo)
 {
-	const char NOTES_A[] = {'C', 'C', 'D', 'D', 'E', 'F', 'F', 'G', 'G', 'A', 'A', 'B'};
-	const char NOTES_B[] = {'-', '#', '-', '#', '-', '-', '#', '-', '#', '-', '#', '-'};
-	const char NOTES_C[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
-	const char HEX[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+	// Sharps
+	static const char NOTES_A_SHARP[] = {'C', 'C', 'D', 'D', 'E', 'F', 'F', 'G', 'G', 'A', 'A', 'B'};
+	static const char NOTES_B_SHARP[] = {'-', '#', '-', '#', '-', '-', '#', '-', '#', '-', '#', '-'};
+	// Flats
+	static const char NOTES_A_FLAT[] = {'C', 'D', 'D', 'E', 'E', 'F', 'G', 'G', 'A', 'A', 'B', 'B'};
+	static const char NOTES_B_FLAT[] = {'-', 'b', '-', 'b', '-', '-', 'b', '-', 'b', '-', 'b', '-'};
+	// Octaves
+	static const char NOTES_C[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+	// Hex numbers
+	static const char HEX[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+
+	bool m_bDisplayFlat = theApp.GetSettings()->General.bDisplayFlats;
+
+	const char *NOTES_A = m_bDisplayFlat ? NOTES_A_FLAT : NOTES_A_SHARP;
+	const char *NOTES_B = m_bDisplayFlat ? NOTES_B_FLAT : NOTES_B_SHARP;
 
 	const CTrackerChannel *pTrackerChannel = m_pDocument->GetChannel(Channel);
 
@@ -1299,7 +1318,10 @@ void CPatternView::DrawCell(int PosX, int Column, int Channel, bool bInvert, stC
 	}
 
 	// Detect invalid note data
-	if (pNoteData->Note < 0 || pNoteData->Note > HALT || EffNumber >= EF_COUNT || pNoteData->Instrument > MAX_INSTRUMENTS) {
+	if (pNoteData->Note > HALT || 
+		pNoteData->Octave > 8 ||
+		EffNumber >= EF_COUNT || 
+		pNoteData->Instrument > MAX_INSTRUMENTS) {
 		if (Column == 0/* || Column == 4*/) {
 			CString Text;
 			Text.Format(_T("(invalid)"));
@@ -1312,7 +1334,8 @@ void CPatternView::DrawCell(int PosX, int Column, int Channel, bool bInvert, stC
 	COLORREF InstColor = pColorInfo->Instrument;
 
 	// Make non-available instruments red in the pattern editor
-	if (pNoteData->Instrument < MAX_INSTRUMENTS && (!m_pDocument->IsInstrumentUsed(pNoteData->Instrument))) {
+	if (pNoteData->Instrument < MAX_INSTRUMENTS && 
+		(!m_pDocument->IsInstrumentUsed(pNoteData->Instrument) || !pTrackerChannel->IsInstrumentCompatible(pNoteData->Instrument, m_pDocument))) {
 		InstColor = RED(255);
 	}
 
@@ -1469,11 +1492,11 @@ void CPatternView::DrawChannelNames(CDC *pDC)
 		// Effect columns
 		pDC->SetTextColor(TEXT_COLOR);
 		if (m_pDocument->GetEffColumns(Channel) > 0)
-			pDC->TextOut(Offset + CHANNEL_WIDTH + COLUMN_SPACING + 2, HEADER_CHAN_START + HEADER_CHAN_HEIGHT - 16, _T("fx2"));
+			pDC->TextOut(Offset + CHANNEL_WIDTH + COLUMN_SPACING + 6, HEADER_CHAN_START + HEADER_CHAN_HEIGHT - 17, _T("fx2"));
 		if (m_pDocument->GetEffColumns(Channel) > 1)
-			pDC->TextOut(Offset + CHANNEL_WIDTH + COLUMN_SPACING * 2 + CHAR_WIDTH * 3 + 2, HEADER_CHAN_START + HEADER_CHAN_HEIGHT - 16, _T("fx3"));
+			pDC->TextOut(Offset + CHANNEL_WIDTH + COLUMN_SPACING * 2 + CHAR_WIDTH * 3 + 6, HEADER_CHAN_START + HEADER_CHAN_HEIGHT - 17, _T("fx3"));
 		if (m_pDocument->GetEffColumns(Channel) > 2)
-			pDC->TextOut(Offset + CHANNEL_WIDTH + COLUMN_SPACING * 3 + (CHAR_WIDTH * 2) * 3 + 2, HEADER_CHAN_START + HEADER_CHAN_HEIGHT - 16, _T("fx4"));
+			pDC->TextOut(Offset + CHANNEL_WIDTH + COLUMN_SPACING * 3 + (CHAR_WIDTH * 2) * 3 + 6, HEADER_CHAN_START + HEADER_CHAN_HEIGHT - 17, _T("fx4"));
 
 		// Arrows for expanding/removing fx columns
 		if (m_pDocument->GetEffColumns(Channel) > 0) {
@@ -1522,12 +1545,9 @@ void CPatternView::DrawChannelNames(CDC *pDC)
 
 void CPatternView::DrawMeters(CDC *pDC)
 {
-	const COLORREF COL_DARK = 0x808080;
-	const COLORREF COL_LIGHT = 0x20F040;
-	
-	const COLORREF COL_DARK_SHADOW = DIM(COL_DARK, 80);
-	const COLORREF COL_LIGHT_SHADOW = DIM(COL_LIGHT, 60);
-
+	const COLORREF COL_DARK			= 0x989C98;
+	const COLORREF COL_LIGHT		= 0x20F040;
+	const COLORREF COL_DARK_SHADOW  = DIM(COL_DARK, 80);
 	const COLORREF DPCM_STATE_COLOR = 0x00404040;
 
 	const int BAR_TOP	 = 5 + 18 + HEADER_CHAN_START;
@@ -1538,9 +1558,7 @@ void CPatternView::DrawMeters(CDC *pDC)
 
 	static COLORREF colors[15];
 	static COLORREF colors_dim[15];
-	static COLORREF colors_dark[15];
 	static COLORREF colors_shadow[15];
-	static COLORREF colors_dark_shadow[15];
 
 	static int LastSamplePos, LastDeltaPos;
 
@@ -1549,16 +1567,13 @@ void CPatternView::DrawMeters(CDC *pDC)
 
 	int Offset = BAR_LEFT;
 
-	CPoint points[5];
 	CFont *pOldFont = pDC->SelectObject(&m_fontHeader);
 
 	if (colors[0] == 0) {
-		for (int i = 0; i < 15; i++) {
+		for (int i = 0; i < 15; ++i) {
 			// Cache colors
 			colors[i] = BLEND(COL_LIGHT, 0x00F0F0, (100 - (i * i) / 3));
-			colors_dark[i] = BLEND(COL_DARK, 0x00F0F0, (100 - (i * i) / 3));
 			colors_shadow[i] = DIM(colors[i], 60);
-			colors_dark_shadow[i] = DIM(colors_dark[i], 70);
 			colors_dim[i] = DIM(colors[i], 90);
 		}
 	}
@@ -1566,18 +1581,20 @@ void CPatternView::DrawMeters(CDC *pDC)
 	for (int i = 0; i < m_iChannelsVisible; ++i) {
 		int Channel = i + m_iFirstChannel;
 		CTrackerChannel *pChannel = m_pDocument->GetChannel(Channel);
+		int level = pChannel->GetVolumeMeter();
 
 		for (int j = 0; j < 15; ++j) {
-			if (j < pChannel->GetVolumeMeter()) {
-				pDC->FillSolidRect(Offset + (j * BAR_SIZE) + BAR_SIZE - 1, BAR_TOP + 1, 1, BAR_HEIGHT, colors_shadow[j]);
-				pDC->FillSolidRect(Offset + (j * BAR_SIZE) + 1, BAR_TOP + BAR_HEIGHT, BAR_SIZE - 1, 1, colors_shadow[j]);
-				pDC->FillSolidRect(CRect(Offset + (j * BAR_SIZE), BAR_TOP, Offset + (j * BAR_SIZE) + (BAR_SIZE - BAR_SPACE), BAR_TOP + BAR_HEIGHT), colors[j]);
-				pDC->Draw3dRect(CRect(Offset + (j * BAR_SIZE), BAR_TOP, Offset + (j * BAR_SIZE) + (BAR_SIZE - BAR_SPACE), BAR_TOP + BAR_HEIGHT), colors[j], colors_dim[j]);
+			int x = Offset + (j * BAR_SIZE);
+			if (j < level) {
+				pDC->FillSolidRect(x + BAR_SIZE - 1, BAR_TOP + 1, 1, BAR_HEIGHT, colors_shadow[j]);
+				pDC->FillSolidRect(x + 1, BAR_TOP + BAR_HEIGHT, BAR_SIZE - 1, 1, colors_shadow[j]);
+				pDC->FillSolidRect(CRect(x, BAR_TOP, x + (BAR_SIZE - BAR_SPACE), BAR_TOP + BAR_HEIGHT), colors[j]);
+				pDC->Draw3dRect(CRect(x, BAR_TOP, x + (BAR_SIZE - BAR_SPACE), BAR_TOP + BAR_HEIGHT), colors[j], colors_dim[j]);
 			}
 			else {
-				pDC->FillSolidRect(Offset + (j * BAR_SIZE) + BAR_SIZE - 1, BAR_TOP + 1, BAR_SPACE, BAR_HEIGHT, COL_DARK_SHADOW);
-				pDC->FillSolidRect(Offset + (j * BAR_SIZE) + 1, BAR_TOP + BAR_HEIGHT, BAR_SIZE - 1, 1, COL_DARK_SHADOW);
-				pDC->FillSolidRect(CRect(Offset + (j * BAR_SIZE), BAR_TOP, Offset + (j * BAR_SIZE) + (BAR_SIZE - BAR_SPACE), BAR_TOP + BAR_HEIGHT), COL_DARK);
+				pDC->FillSolidRect(x + BAR_SIZE - 1, BAR_TOP + 1, BAR_SPACE, BAR_HEIGHT, COL_DARK_SHADOW);
+				pDC->FillSolidRect(x + 1, BAR_TOP + BAR_HEIGHT, BAR_SIZE - 1, 1, COL_DARK_SHADOW);
+				pDC->FillSolidRect(CRect(x, BAR_TOP, x + (BAR_SIZE - BAR_SPACE), BAR_TOP + BAR_HEIGHT), COL_DARK);
 			}
 		}
 
@@ -1908,7 +1925,7 @@ void CPatternView::UpdateSelection()
 
 	if (bShift) {
 
-		if (!m_bCurrentlySelecting && m_bSelecting) {
+		if (!m_bCurrentlySelecting && !m_bSelecting) {
 			m_selection.SetStart(m_cpSelCursor);
 		}
 
@@ -2146,9 +2163,7 @@ void CPatternView::MoveToFrame(int Frame)
 	
 	if (theApp.IsPlaying() && m_bFollowMode) {
 		if (m_iPlayFrame != Frame) {
-			m_iPlayFrame = Frame;
-			m_iPlayRow = 0;
-			m_iPlayPatternLength = GetCurrentPatternLength(m_iPlayFrame);
+			theApp.GetSoundGenerator()->MoveToFrame(Frame);
 			theApp.GetSoundGenerator()->ResetTempo();
 		}
 	}
@@ -2185,12 +2200,14 @@ void CPatternView::NextFrame()
 {
 	MoveToFrame(m_iCurrentFrame + 1);
 	m_bSelecting = false;
+	UpdateSelection();
 }
 
 void CPatternView::PreviousFrame()
 {
 	MoveToFrame(m_iCurrentFrame - 1);
 	m_bSelecting = false;
+	UpdateSelection();
 }
 
 // Used by scrolling
@@ -2243,49 +2260,6 @@ void CPatternView::ScrollPreviousChannel()
 	m_cpCursorPos.m_iColumn = 0;
 }
 
-// Used by the player
-
-bool CPatternView::StepRow()
-{
-	m_iPlayRow++;
-
-	if (m_iPlayRow >= m_iPlayPatternLength)
-		m_iPlayRow = 0;
-
-	m_bForcePlayRowUpdate = true;
-
-	return (m_iPlayRow == 0);
-}
-
-bool CPatternView::StepFrame()
-{
-	m_bForceFullRedraw = true;
-	m_iPlayFrame++;
-	if (m_iPlayFrame >= (signed)m_pDocument->GetFrameCount()) {
-		m_iPlayFrame = 0;
-		m_iPlayPatternLength = GetCurrentPatternLength(m_iPlayFrame);
-		return true;
-	}
-	m_iPlayPatternLength = GetCurrentPatternLength(m_iPlayFrame);
-	return false;
-}
-
-void CPatternView::JumpToRow(int Row)
-{
-	if (Row >= m_iPlayPatternLength && m_iPlayPatternLength > 0)
-		Row = m_iPlayPatternLength - 1;
-
-	m_iPlayRow = Row;
-}
-
-void CPatternView::JumpToFrame(int Frame)
-{
-	if ((unsigned int)Frame >= m_pDocument->GetFrameCount())
-		Frame = m_pDocument->GetFrameCount() - 1;
-
-	m_iPlayFrame = Frame;
-	m_iPlayPatternLength = GetCurrentPatternLength(Frame);
-}
 
 // Mouse routines
 
@@ -2293,6 +2267,7 @@ void CPatternView::OnMouseDown(CPoint point)
 {
 	const bool bShift = IsShiftPressed();
 	const bool bControl = IsControlPressed();
+	const int ChannelCount = m_pDocument->GetAvailableChannels() - 1;
 
 	m_bSelectionInvalid = true;
 	m_bSelectedAll = false;
@@ -2302,7 +2277,7 @@ void CPatternView::OnMouseDown(CPoint point)
 		int Channel = GetChannelAtPoint(point.x);
 		int Column = GetColumnAtPoint(point.x);
 
-		if (Channel < 0 || Channel > (signed)m_pDocument->GetAvailableChannels() - 1) {
+		if (Channel < 0 || Channel > ChannelCount) {
 			// Outside of the channel area
 			m_pView->UnmuteAllChannels();
 			return;
@@ -2341,7 +2316,7 @@ void CPatternView::OnMouseDown(CPoint point)
 				// Pattern area
 				if (point.x < ROW_COL_WIDTH) {
 					m_selection.SetStart(CCursorPos(PointPos.m_iRow, 0, 0));
-					m_selection.SetEnd(CCursorPos(PointPos.m_iRow, m_pDocument->GetAvailableChannels(), GetChannelColumns(m_pDocument->GetAvailableChannels())));
+					m_selection.SetEnd(CCursorPos(PointPos.m_iRow, ChannelCount, GetChannelColumns(ChannelCount)));
 					m_bSelecting = false;
 					m_bSelectionInvalid = false;
 					m_bFullRowSelect = true;
@@ -2351,9 +2326,11 @@ void CPatternView::OnMouseDown(CPoint point)
 				else
 					m_bFullRowSelect = false;
 
-				if (PointPos.m_iChannel < 0 || PointPos.m_iChannel > (signed)m_pDocument->GetAvailableChannels() - 1)
+				if (PointPos.m_iChannel < 0 || PointPos.m_iChannel > ChannelCount)
 					return;
 				if (PointPos.m_iRow < 0)
+					return;
+				if (PointPos.m_iRow >= m_iPatternLength)
 					return;
 				if (PointPos.m_iColumn < 0)
 					return;
@@ -2394,6 +2371,8 @@ void CPatternView::OnMouseDown(CPoint point)
 
 void CPatternView::OnMouseUp(CPoint point)
 {
+	const int ChannelCount = m_pDocument->GetAvailableChannels() - 1;
+
 	m_iScrolling = SCROLL_NONE;
 
 	if (point.y < HEADER_HEIGHT) {
@@ -2427,7 +2406,7 @@ void CPatternView::OnMouseUp(CPoint point)
 		if (m_bSelecting)
 			return;
 
-		if (PointPos.m_iChannel < 0 || PointPos.m_iChannel > (signed)m_pDocument->GetAvailableChannels() - 1)
+		if (PointPos.m_iChannel < 0 || PointPos.m_iChannel > ChannelCount)
 			return;
 		if (PointPos.m_iRow < 0)
 			return;
@@ -2442,6 +2421,7 @@ void CPatternView::OnMouseMove(UINT nFlags, CPoint point)
 {
 	// Called only when lbutton is active
 	const bool bControl = IsControlPressed();
+	const int ChannelCount = m_pDocument->GetAvailableChannels() - 1;
 
 	 if (!m_bSelectedAll) {
 
@@ -2469,8 +2449,8 @@ void CPatternView::OnMouseMove(UINT nFlags, CPoint point)
 					PointPos.m_iChannel = 0;
 	//				Column = 0;
 				}
-				if (PointPos.m_iChannel > (signed)m_pDocument->GetAvailableChannels() - 1) {
-					PointPos.m_iChannel = (signed)m_pDocument->GetAvailableChannels() - 1;
+				if (PointPos.m_iChannel > ChannelCount) {
+					PointPos.m_iChannel = ChannelCount;
 					PointPos.m_iColumn = m_pDocument->GetEffColumns(PointPos.m_iChannel) * 3 + 4;
 				}
 
@@ -2515,14 +2495,21 @@ void CPatternView::OnMouseMove(UINT nFlags, CPoint point)
 	}
 }
 
+bool CPatternView::IsOverHeader(CPoint &point) const
+{
+	return (point.y < HEADER_HEIGHT);
+}
+
 void CPatternView::OnMouseDblClk(CPoint point)
 {
+	const int ChannelCount = m_pDocument->GetAvailableChannels() - 1;
+
 	if (point.y < HEADER_HEIGHT) {
 		// Channel headers
 		int Channel = GetChannelAtPoint(point.x);
 		int Column = GetColumnAtPoint(point.x);
 
-		if (Channel < 0 || Channel > (signed)m_pDocument->GetAvailableChannels() - 1)
+		if (Channel < 0 || Channel > ChannelCount)
 			return;
 
 		// Solo
@@ -2540,7 +2527,7 @@ void CPatternView::OnMouseDblClk(CPoint point)
 	}
 	else if (point.y > HEADER_HEIGHT) {
 		// Select whole channel
-		SelectAllChannel();
+		SelectAllChannels();
 		if (point.x < ROW_COL_WIDTH)
 			// Select whole frame
 			SelectAll();
@@ -2586,6 +2573,8 @@ void CPatternView::OnMouseScroll(int Delta)
 
 void CPatternView::OnMouseRDown(CPoint point)
 {
+	const int ChannelCount = m_pDocument->GetAvailableChannels() - 1;
+
 	if (point.y < HEADER_HEIGHT) {
 		// Channel headers
 	}
@@ -2595,7 +2584,7 @@ void CPatternView::OnMouseRDown(CPoint point)
 		int Channel = GetChannelAtPoint(point.x);
 		int Column = GetColumnAtPoint(point.x);
 
-		if (Channel < 0 || Channel > (signed)m_pDocument->GetAvailableChannels() - 1)
+		if (Channel < 0 || Channel > ChannelCount)
 			return;
 		if (Row < 0)
 			return;
@@ -2628,12 +2617,13 @@ void CPatternView::DragPaste(CPatternClipData *pClipData, CSelection *pDragTarge
 bool CPatternView::OnMouseHover(UINT nFlags, CPoint point)
 {
 	bool bRedraw = false;
+	const int ChannelCount = m_pDocument->GetAvailableChannels() - 1;
 
 	if (point.y < HEADER_HEIGHT) {
 		int Channel = GetChannelAtPoint(point.x);
 		int Column = GetColumnAtPoint(point.x);
 
-		if (Channel < 0 || Channel > (signed)m_pDocument->GetAvailableChannels() - 1) {
+		if (Channel < 0 || Channel > ChannelCount) {
 			bRedraw = m_iMouseHoverEffArrow != 0;
 			m_iMouseHoverEffArrow = 0;
 			return bRedraw;
@@ -2704,16 +2694,6 @@ int CPatternView::GetRow() const
 int CPatternView::GetColumn() const
 {
 	return m_cpCursorPos.m_iColumn;
-}
-
-int CPatternView::GetPlayFrame() const
-{
-	return m_iPlayFrame;
-}
-
-int CPatternView::GetPlayRow() const
-{
-	return m_iPlayRow;
 }
 
 // Copy and paste ///////////////////////////////////////////////////////////////////////////////////////////
@@ -2821,7 +2801,6 @@ void CPatternView::Paste(CPatternClipData *pClipData)
 {
 	// Paste
 	stChanNote NoteData;
-	stChanNote *pNoteData = pClipData->pPattern;
 	int ChannelCount = m_pDocument->GetAvailableChannels();
 
 	int Channels	= pClipData->ClipInfo.Channels;
@@ -2967,6 +2946,8 @@ void CPatternView::PasteMix(CPatternClipData *pClipData)
 
 void CPatternView::DeleteSelectionRows(CSelection &selection)
 {
+	int Track = GetMainFrame()->GetSelectedTrack();
+
 	// Delete selection including rows
 	for (int i = selection.GetChanStart(); i <= selection.GetChanEnd(); ++i) {
 		if (i < 0 || i > (signed)m_pDocument->GetAvailableChannels())
@@ -2976,7 +2957,7 @@ void CPatternView::DeleteSelectionRows(CSelection &selection)
 			if (j < 0 || j > m_iPatternLength)
 				continue;
 
-			m_pDocument->PullUp(m_iCurrentFrame, i, selection.GetRowStart());
+			m_pDocument->PullUp(Track, m_iCurrentFrame, i, selection.GetRowStart());
 		}
 	}
 }
@@ -3116,7 +3097,7 @@ bool CPatternView::IsSelecting() const
 	return m_bSelecting;
 }
 
-void CPatternView::SelectAllChannel()
+void CPatternView::SelectAllChannels()
 {
 	m_bSelecting = true;
 
@@ -3127,7 +3108,7 @@ void CPatternView::SelectAllChannel()
 void CPatternView::SelectAll()
 {
 	if (!m_bSelecting)
-		SelectAllChannel();
+		SelectAllChannels();
 	else {
 		m_bSelecting = true;
 		m_selection.SetStart(CCursorPos());
@@ -3262,20 +3243,20 @@ void CPatternView::ClearSelection()
 int CPatternView::GetCurrentPatternLength(int Frame) const
 {
 	stChanNote Note;
-	int i, j, k;
 	int Channels = m_pDocument->GetAvailableChannels();
 	int PatternLength = m_pDocument->GetPatternLength();	// default length
+	int FrameCount = m_pDocument->GetFrameCount();
 
 	if (!theApp.GetSettings()->General.bFramePreview)
 		return PatternLength;
 
-	if (Frame < 0 || Frame >= (signed)m_pDocument->GetFrameCount())
+	if (Frame < 0 || Frame >= FrameCount)
 		return PatternLength;
 
-	for (j = 0; j < PatternLength; j++) {
-		for (i = 0; i < Channels; i++) {
+	for (int j = 0; j < PatternLength; ++j) {
+		for (int i = 0; i < Channels; ++i) {
 			m_pDocument->GetNoteData(Frame, i, j, &Note);
-			for (k = 0; k < (signed)m_pDocument->GetEffColumns(i) + 1; k++) {
+			for (int k = 0; k < (signed)m_pDocument->GetEffColumns(i) + 1; ++k) {
 				switch (Note.EffNumber[k]) {
 					case EF_SKIP:
 					case EF_JUMP:
@@ -3435,7 +3416,7 @@ void CPatternView::IncreaseEffectColumn(int Channel)
 	if (Columns < (MAX_EFFECT_COLUMNS - 1)) {
 		CPatternAction *pAction = new CPatternAction(CPatternAction::ACT_EXPAND_COLUMNS);
 		pAction->SetClickedChannel(Channel);
-		((CMainFrame*)m_pView->GetParentFrame())->AddAction(pAction);
+		GetMainFrame()->AddAction(pAction);
 	}
 }
 
@@ -3445,7 +3426,7 @@ void CPatternView::DecreaseEffectColumn(int Channel)
 	if (Columns > 0) {
 		CPatternAction *pAction = new CPatternAction(CPatternAction::ACT_SHRINK_COLUMNS);
 		pAction->SetClickedChannel(Channel);
-		((CMainFrame*)m_pView->GetParentFrame())->AddAction(pAction);
+		GetMainFrame()->AddAction(pAction);
 	}
 }
 
@@ -3504,7 +3485,7 @@ void CPatternView::AutoScroll(CPoint point, UINT nFlags)
 		m_iScrolling = SCROLL_NONE;
 }
 
-bool CPatternView::ScrollTimer()
+bool CPatternView::ScrollTimerCallback()
 {
 	if (m_iScrolling == SCROLL_UP) {
 		m_cpCursorPos.m_iRow--;
@@ -3573,7 +3554,6 @@ void CPatternView::OnVScroll(UINT nSBCode, UINT nPos)
 void CPatternView::OnHScroll(UINT nSBCode, UINT nPos)
 {
 	unsigned int count = 0;
-	int Channels = m_pDocument->GetAvailableChannels();
 
 	switch (nSBCode) {
 		case SB_LINERIGHT: 
@@ -3646,13 +3626,14 @@ void CPatternView::ExpandPattern()
 {
 	int Rows = m_selection.GetRowEnd() - m_selection.GetRowStart();
 	int StartRow = m_selection.GetRowStart();
+	int Track = GetMainFrame()->GetSelectedTrack();
 
 	for (int i = m_selection.GetChanStart(); i <= m_selection.GetChanEnd(); ++i) {
 		for (int j = Rows / 2; j >= 0; --j) {
 			stChanNote Note;
 			m_pDocument->GetNoteData(m_iCurrentFrame, i, StartRow + j, &Note);
 			m_pDocument->SetNoteData(m_iCurrentFrame, i, StartRow + j * 2, &Note);
-			m_pDocument->ClearRow(m_iCurrentFrame, i, StartRow + j * 2 + 1);
+			m_pDocument->ClearRow(Track, m_iCurrentFrame, i, StartRow + j * 2 + 1);
 		}
 	}
 }
@@ -3661,6 +3642,7 @@ void CPatternView::ShrinkPattern()
 {
 	int Rows = m_selection.GetRowEnd() - m_selection.GetRowStart();
 	int StartRow = m_selection.GetRowStart();
+	int Track = GetMainFrame()->GetSelectedTrack();
 
 	for (int i = m_selection.GetChanStart(); i <= m_selection.GetChanEnd(); ++i) {
 		for (int j = 0; j <= Rows; ++j) {
@@ -3670,7 +3652,7 @@ void CPatternView::ShrinkPattern()
 				m_pDocument->SetNoteData(m_iCurrentFrame, i, StartRow + j, &Note);
 			}
 			else {
-				m_pDocument->ClearRow(m_iCurrentFrame, i, StartRow + j);
+				m_pDocument->ClearRow(Track, m_iCurrentFrame, i, StartRow + j);
 			}
 		}
 	}
@@ -3799,7 +3781,7 @@ bool CPatternView::PerformDrop(CPatternClipData *pClipData, bool bCopy, bool bCo
 
 	CPatternAction *pAction = new CPatternAction(CPatternAction::ACT_DRAG_AND_DROP);
 	pAction->SetDragAndDrop(pClipData, bDelete, bMix, &m_selDrag);
-	((CMainFrame*) m_pView->GetParentFrame())->AddAction(pAction);
+	GetMainFrame()->AddAction(pAction);
 
 	return true;
 }
@@ -3836,6 +3818,11 @@ bool CPatternView::IsShiftPressed() const
 bool CPatternView::IsControlPressed() const
 {
 	return (::GetKeyState(VK_CONTROL) & 0x80) == 0x80;
+}
+
+CMainFrame *CPatternView::GetMainFrame() const
+{
+	return static_cast<CMainFrame*>(m_pView->GetParentFrame());
 }
 
 // CCursorPos /////////////////////////////////////////////////////////////////////

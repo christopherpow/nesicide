@@ -81,6 +81,11 @@ CWinThread* AfxGetThread()
    return ptrToTheApp;
 }
 
+void AfxDebugBreak()
+{
+   qFatal("AfxDebugBreak");
+}
+
 AFX_STATIC void AFXAPI _AfxAppendFilterSuffix(CString& filter, OPENFILENAME& ofn,
 	CDocTemplate* pTemplate, CString* pstrDefaultExt)
 {
@@ -292,6 +297,40 @@ void AfxFormatString1(
    rString.Format(nIDS,lpsz1);
 }
 
+void AfxFormatString2(
+   CString& rString,
+   UINT nIDS,
+   LPCTSTR lpsz1,
+   LPCTSTR lpsz2
+)
+{
+   rString.Format(nIDS,lpsz1,lpsz2);
+}
+
+void AfxFormatStrings(
+   CString& rString,
+   UINT nIDS,
+   LPCTSTR* lpszArray,
+   UINT nCount
+)
+{
+   switch ( nCount )
+   {
+      case 1:
+         AfxFormatString1(rString,nIDS,lpszArray[0]);
+         break;
+      case 2:
+         AfxFormatString2(rString,nIDS,lpszArray[0],lpszArray[1]);
+         break;
+      case 3:
+         rString.Format(nIDS,lpszArray[0],lpszArray[1],lpszArray[2]);
+         break;
+      default:
+         qFatal("AfxFormatStrings doesn't handle %d parameters",nCount);
+         break;
+   }
+}
+
 void AfxGetFileTitle(
    LPCTSTR path,
    LPTSTR file,
@@ -314,8 +353,7 @@ void AfxGetFileTitle(
 
 HINSTANCE AFXAPI AfxGetInstanceHandle( )
 {
-   // CP: not really needed...
-   return 0;
+   return (HINSTANCE)ptrToTheApp;
 }
 
 HCURSOR WINAPI SetCursor(
@@ -1505,14 +1543,14 @@ BOOL CObject::IsKindOf(
    const CRuntimeClass* pClass  
 ) const
 {
-   pClass = pClass->m_pBaseClass;
-   while ( pClass )
+   CRuntimeClass* pMyClass = GetRuntimeClass();
+   while ( pMyClass )
    {
-      if ( pClass == GetRuntimeClass() )
+      if ( pClass == pMyClass )
       {
          return TRUE;
       }
-      pClass = pClass->m_pBaseClass;
+      pMyClass = pMyClass->m_pBaseClass;
    }
    return FALSE;
 }
@@ -2019,6 +2057,17 @@ CStringA::CStringA(CString str)
    UpdateScratch();
 }
 
+CStringA::CStringA(LPCTSTR str)
+{
+   _qstr.clear();
+#if UNICODE
+   _qstr = QString::fromWCharArray(str);
+#else
+   _qstr = QString::fromLatin1(str);
+#endif
+   UpdateScratch();
+}
+
 CStringA::operator char*() const
 {
    return _qstr.toLatin1().data();
@@ -2473,6 +2522,20 @@ void CRect::OffsetRect(
    right += size.cx;
    top += size.cy;
    bottom += size.cy;
+}
+
+BOOL CRect::PtInRect(
+   POINT point
+) const
+{
+   if ( point.x >= left &&
+        point.y >= top &&
+        point.x < right &&
+        point.y < bottom )
+   {
+      return TRUE;
+   }
+   return FALSE;
 }
 
 /*
@@ -3083,8 +3146,52 @@ BOOL CDC::BitBlt(
    return TRUE;
 }
 
+CWaitCursor::CWaitCursor()
+{
+   QApplication::setOverrideCursor(Qt::WaitCursor);
+}
+
+CWaitCursor::~CWaitCursor()
+{
+   QApplication::restoreOverrideCursor();
+}
+
+HICON WINAPI LoadIcon(
+   HINSTANCE hInstance,
+   LPCTSTR lpIconName
+)
+{
+   CWinApp* pApp = (CWinApp*)hInstance;
+   qDebug("finish ::LoadIcon...");
+}
+
+BOOL WINAPI GetFileVersionInfo(
+   LPCTSTR lptstrFilename,
+   DWORD dwHandle,
+   DWORD dwLen,
+   LPVOID lpData
+)
+{
+}
+
+DWORD WINAPI GetFileVersionInfoSize(
+   LPCTSTR lptstrFilename,
+   LPDWORD lpdwHandle
+)
+{
+}
+
+BOOL WINAPI VerQueryValue(
+   LPCVOID pBlock,
+   LPCTSTR lpSubBlock,
+   LPVOID *lplpBuffer,
+   PUINT puLen
+)
+{
+}
+
 int StretchDIBits(
-  CDC& dc,
+  HDC hDC,
   int XDest,
   int YDest,
   int nDestWidth,
@@ -3099,9 +3206,10 @@ int StretchDIBits(
   DWORD dwRop
 )
 {
+   CDC* pDC = (CDC*)hDC;
    QImage image((const uchar*)lpBits,nSrcWidth,nSrcHeight,QImage::Format_RGB32);
    image = image.scaled(nDestWidth,nDestHeight);
-   dc.painter()->drawImage(XDest,YDest,image);
+   pDC->painter()->drawImage(XDest,YDest,image);
    return 0;
 }
 
@@ -5575,6 +5683,11 @@ int CScrollBar::SetScrollPos(
    return pos;
 }
 
+int CScrollBar::GetScrollPos() const
+{
+   return _qtd->value();
+}
+
 void CScrollBar::SetScrollRange(
    int nMinPos,
    int nMaxPos,
@@ -7702,6 +7815,7 @@ BOOL CWnd::SubclassDlgItem(
       setParent(pParentWnd->toQWidget());
       setGeometry(pWndSrc->geometry());
       pParentWnd->subclassWidget(nID,this);
+      PreSubclassWindow();
       subclassWidget(nID,pWndSrc);
 //      delete pWndSrc;
       return TRUE;
@@ -7874,6 +7988,15 @@ void CWnd::KillTimer(UINT id)
       qtToMfcTimer.remove(mfcToQtTimer.value((int)id));
       mfcToQtTimer.remove((int)id);
    }
+}
+
+BOOL CWnd::UpdateData(
+   BOOL bSaveAndValidate
+)
+{
+   CDataExchange dx(this,bSaveAndValidate);
+   DoDataExchange(&dx);
+   return TRUE;
 }
 
 CWnd* CWnd::GetWindow(
@@ -9742,7 +9865,8 @@ BEGIN_MESSAGE_MAP(CWinThread,CCmdTarget)
 END_MESSAGE_MAP()
 
 CWinThread::CWinThread() : 
-   _priority(QThread::NormalPriority)
+   _priority(QThread::NormalPriority),
+   _initialized(false)
 {
    m_hThread = (HANDLE)this;
 #ifdef Q_OS_MAC
@@ -9770,7 +9894,7 @@ BOOL CWinThread::CreateThread(
    m_pMainWnd = AfxGetMainWnd();
 
    if ( !(dwCreateFlags&CREATE_SUSPENDED) )
-   {
+   {      
       ResumeThread();
    }
 
@@ -9779,9 +9903,20 @@ BOOL CWinThread::CreateThread(
 
 DWORD CWinThread::ResumeThread( )
 {
-   InitInstance();
-   start();
-   return 0;
+   if ( !_initialized )
+   {
+      InitInstance();
+      _initialized = true;
+   }
+   if ( !isRunning() )
+   {
+      start();
+      return 1;
+   }
+   else
+   {
+      return 0;
+   }
 }
 
 BOOL CWinThread::SetThreadPriority(
@@ -10709,6 +10844,107 @@ BOOL CWinApp::ProcessShellCommand(
       OpenDocumentFile(rCmdInfo.m_strFileName);
    }
    return TRUE;
+}
+
+BOOL CWinApp::WriteProfileInt(
+   LPCTSTR lpszSection,
+   LPCTSTR lpszEntry,
+   int nValue
+)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
+   QString key;
+#ifdef UNICODE
+   key = QString::fromWCharArray(lpszSection);
+   key += "/";
+   key += QString::fromWCharArray(lpszEntry);
+#else
+   key = QString::fromLatin1(lpszSection);
+   key += "/";
+   key += QString::fromLatin1(lpszEntry);
+#endif
+//   qDebug("StoreSetting");
+//   qDebug(key.toAscii().constData());
+
+   settings.setValue(key,nValue);
+}
+
+BOOL CWinApp::WriteProfileString(
+   LPCTSTR lpszSection,
+   LPCTSTR lpszEntry,
+   LPCTSTR lpszValue
+)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
+   QString key;
+   QString value;
+#ifdef UNICODE
+   key = QString::fromWCharArray(lpszSection);
+   key += "/";
+   key += QString::fromWCharArray(lpszEntry);
+   value = QString::fromWCharArray(lpszValue);
+#else
+   key = QString::fromLatin1(lpszSection);
+   key += "/";
+   key += QString::fromLatin1(lpszEntry);
+   value = QString::fromLatin1(lpszValue);
+#endif
+//   qDebug("StoreSetting");
+//   qDebug(key.toAscii().constData());
+
+   settings.setValue(key,value);
+}
+
+UINT CWinApp::GetProfileInt(
+   LPCTSTR lpszSection,
+   LPCTSTR lpszEntry,
+   int nDefault
+)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
+   QString key;
+#ifdef UNICODE
+   key = QString::fromWCharArray(lpszSection);
+   key += "/";
+   key += QString::fromWCharArray(lpszEntry);
+#else
+   key = QString::fromLatin1(lpszSection);
+   key += "/";
+   key += QString::fromLatin1(lpszEntry);
+#endif
+//   qDebug("StoreSetting");
+//   qDebug(key.toAscii().constData());
+
+   return settings.value(key).toInt();
+}
+
+CString CWinApp::GetProfileString(
+   LPCTSTR lpszSection,
+   LPCTSTR lpszEntry,
+   LPCTSTR lpszDefault
+)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
+   QString key;
+   QString defaultStr;
+   QString value;
+
+#ifdef UNICODE
+   key = QString::fromWCharArray(lpszSection);
+   key += "/";
+   key += QString::fromWCharArray(lpszEntry);
+   defaultStr = QString::fromWCharArray(lpszDefault);
+#else
+   key = QString::fromLatin1(lpszSection);
+   key += "/";
+   key += QString::fromLatin1(lpszEntry);
+   defaultStr = QString::fromLatin1(lpszDefault);
+#endif
+   value = settings.value(key,defaultStr).toString();
+//   qDebug("StoreSetting");
+//   qDebug(key.toAscii().constData());
+
+   return CString(value);
 }
 
 BOOL CWinApp::PreTranslateMessage(
@@ -11881,6 +12117,19 @@ int CEdit::GetWindowText(
    }
 }
 
+void CEdit::SetLimitText(
+   UINT nMax
+)
+{
+   if ( _dwStyle&ES_MULTILINE )
+   {
+   }
+   else
+   {
+      _qtd_ledit->setMaxLength(nMax);
+   }
+}
+
 void CEdit::SetWindowText(
    LPCTSTR lpszString
 )
@@ -12343,6 +12592,13 @@ BOOL CButton::Create(
    SetParent(pParentWnd);
 
    return TRUE;
+}
+
+HICON CButton::SetIcon(
+   HICON hIcon
+)
+{
+   SetBitmap((HBITMAP)hIcon);
 }
 
 HBITMAP CButton::SetBitmap(
@@ -13254,6 +13510,15 @@ void CSliderCtrl::SetTicFreq(
    _qtd->setTickInterval(nFreq);
 }
 
+int CSliderCtrl::SetPageSize(
+   int nSize
+)
+{
+   int step = _qtd->pageStep();
+   _qtd->setPageStep(nSize);
+   return step;
+}
+
 void CSliderCtrl::SetDlgItemInt(
    int nID,
    UINT nValue,
@@ -14003,19 +14268,40 @@ DWORD WINAPI WaitForSingleObject(
    DWORD dwMilliseconds
 )
 {
-   CSyncObject* pSyncObj = (CSyncObject*)hHandle;
+   CObject* pObject = (CObject*)hHandle;
    static QSemaphore* waitingSem = NULL;
-   
-   if ( pSyncObj->IsKindOf(RUNTIME_CLASS(CEvent)) )
+   bool timedOut;
+
+   if ( pObject->IsKindOf(RUNTIME_CLASS(CWinThread)) )
    {
-      CEvent* pEvent = (CEvent*)pSyncObj;
+      CWinThread* pWinThread = (CWinThread*)pObject;
+      timedOut = pWinThread->wait(dwMilliseconds);
+      if ( timedOut )
+      {
+         return WAIT_TIMEOUT;
+      }
+      else
+      {
+         return WAIT_OBJECT_0;
+      }
+   }
+   else if ( pObject->IsKindOf(RUNTIME_CLASS(CEvent)) )
+   {
+      CEvent* pEvent = (CEvent*)pObject;
       if ( !waitingSem )
       {
          waitingSem = new QSemaphore();
       }
       pEvent->addWaiter(waitingSem);
-      waitingSem->acquire();
-      return WAIT_OBJECT_0;
+      timedOut = waitingSem->tryAcquire(1,dwMilliseconds);
+      if ( timedOut )
+      {
+         return WAIT_TIMEOUT;
+      }
+      else
+      {
+         return WAIT_OBJECT_0;
+      }
    }
    return WAIT_FAILED;
 }
@@ -14040,9 +14326,9 @@ CMutex::CMutex(
    LPSECURITY_ATTRIBUTES lpsaAttribute
 )
 {
-   _qtd = new QMutex;
+   _qtd = new QMutex(QMutex::Recursive);
    if ( bInitiallyOwn )
-      _qtd->lock();
+      Lock();
 }
 
 CMutex::~CMutex()
@@ -14804,6 +15090,29 @@ BOOL CRecentFileList::GetDisplayName(
       return TRUE;
    }
    return FALSE;
+}
+
+CDataExchange::CDataExchange(
+   CWnd* pDlgWnd,
+   BOOL bSaveAndValidate
+) : m_pDlgWnd(pDlgWnd),
+    m_bSaveAndValidate(bSaveAndValidate)
+{}
+
+void AFXAPI DDX_Slider(
+   CDataExchange* pDX,
+   int nIDC,
+   int& value
+)
+{
+   if ( pDX->m_bSaveAndValidate )
+   {
+      value = pDX->m_pDlgWnd->GetDlgItemInt(nIDC);
+   }
+   else
+   {
+      pDX->m_pDlgWnd->SetDlgItemInt(nIDC,value);
+   }
 }
 
 int EnumFontFamiliesEx(

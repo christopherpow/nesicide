@@ -61,8 +61,10 @@ void CInstrumentEditorS5B::DoDataExchange(CDataExchange* pDX)
 
 void CInstrumentEditorS5B::SelectInstrument(int Instrument)
 {
-	CInstrumentS5B *pInstrument = (CInstrumentS5B*)GetDocument()->GetInstrument(Instrument);
-	CListCtrl *pList = (CListCtrl*) GetDlgItem(IDC_INSTSETTINGS);
+	CInstrumentS5B *pInstrument = static_cast<CInstrumentS5B*>(GetDocument()->GetInstrument(Instrument));
+	ASSERT(pInstrument->GetType() == INST_S5B);
+	
+	CListCtrl *pList = static_cast<CListCtrl*>(GetDlgItem(IDC_INSTSETTINGS));
 
 	if (m_pInstrument)
 		m_pInstrument->Release();
@@ -104,7 +106,7 @@ void CInstrumentEditorS5B::TranslateMML(CString String, int Max, int Min)
 	GetDocument()->SetModifiedFlag();
 
 	// Enable setting
-	((CListCtrl*)GetDlgItem(IDC_INSTSETTINGS))->SetCheck(m_iSelectedSetting, 1);
+	static_cast<CListCtrl*>(GetDlgItem(IDC_INSTSETTINGS))->SetCheck(m_iSelectedSetting, 1);
 }
 
 void CInstrumentEditorS5B::SetSequenceString(CString Sequence, bool Changed)
@@ -113,7 +115,7 @@ void CInstrumentEditorS5B::SetSequenceString(CString Sequence, bool Changed)
 	SetDlgItemText(IDC_SEQUENCE_STRING, Sequence);
 	// If the sequence was changed, assume the user wants to enable it
 	if (Changed) {
-		((CListCtrl*)GetDlgItem(IDC_INSTSETTINGS))->SetCheck(m_iSelectedSetting, 1);
+		static_cast<CListCtrl*>(GetDlgItem(IDC_INSTSETTINGS))->SetCheck(m_iSelectedSetting, 1);
 	}
 }
 
@@ -130,7 +132,7 @@ BOOL CInstrumentEditorS5B::OnInitDialog()
 	CInstrumentEditPanel::OnInitDialog();
 
 	// Instrument settings
-	CListCtrl *pList = (CListCtrl*) GetDlgItem(IDC_INSTSETTINGS);
+	CListCtrl *pList = static_cast<CListCtrl*>(GetDlgItem(IDC_INSTSETTINGS));
 	pList->DeleteAllItems();
 	pList->InsertColumn(0, _T(""), LVCFMT_LEFT, 26);
 	pList->InsertColumn(1, _T("#"), LVCFMT_LEFT, 30);
@@ -148,7 +150,7 @@ BOOL CInstrumentEditorS5B::OnInitDialog()
 
 	SetDlgItemInt(IDC_SEQ_INDEX, m_iSelectedSetting);
 
-	CSpinButtonCtrl *pSequenceSpin = (CSpinButtonCtrl*)GetDlgItem(IDC_SEQUENCE_SPIN);
+	CSpinButtonCtrl *pSequenceSpin = static_cast<CSpinButtonCtrl*>(GetDlgItem(IDC_SEQUENCE_SPIN));
 	pSequenceSpin->SetRange(0, MAX_SEQUENCES - 1);
 
 	CRect rect(190 - 2, 30 - 2, CSequenceEditor::SEQUENCE_EDIT_WIDTH, CSequenceEditor::SEQUENCE_EDIT_HEIGHT);
@@ -165,7 +167,7 @@ BOOL CInstrumentEditorS5B::OnInitDialog()
 void CInstrumentEditorS5B::OnLvnItemchangedInstsettings(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
-	CListCtrl *pList = (CListCtrl*)GetDlgItem(IDC_INSTSETTINGS);
+	CListCtrl *pList = static_cast<CListCtrl*>(GetDlgItem(IDC_INSTSETTINGS));
 
 	if (pNMLV->uChanged & LVIF_STATE && m_pInstrument != NULL) {
 		// Selected new setting
@@ -195,7 +197,7 @@ void CInstrumentEditorS5B::OnLvnItemchangedInstsettings(NMHDR *pNMHDR, LRESULT *
 void CInstrumentEditorS5B::OnEnChangeSeqIndex()
 {
 	// Selected sequence changed
-	CListCtrl *pList = (CListCtrl*) GetDlgItem(IDC_INSTSETTINGS);
+	CListCtrl *pList = static_cast<CListCtrl*>(GetDlgItem(IDC_INSTSETTINGS));
 	int Index = GetDlgItemInt(IDC_SEQ_INDEX);
 
 	if (Index < 0)

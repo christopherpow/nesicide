@@ -50,6 +50,7 @@ protected:
 	static LPCTSTR RAW_FILTER[2];
 	static LPCTSTR DPCMS_FILTER[2];
 	static LPCTSTR PRG_FILTER[2];
+	static LPCTSTR ASM_FILTER[2];
 
 #ifdef _DEBUG
 	CString m_strFile;
@@ -63,10 +64,6 @@ protected:
 	void CreatePRG();
 	void CreateASM();
 	void CreateCustom( CString name );
-
-#ifdef EXPORT_TEST
-	void CreateTest();
-#endif
 
 	DECLARE_MESSAGE_MAP()
 public:

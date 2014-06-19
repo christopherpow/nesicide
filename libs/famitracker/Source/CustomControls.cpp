@@ -30,7 +30,7 @@
  Contains some custom GUI controls.
 
  * CInstrumentList
-   - The instrument list, extended to contain a context menu
+   - The instrument list
  
  * CBannerEdit
    - An edit box that displays a banner when no text is present
@@ -44,34 +44,131 @@
 /// CInstrumentList
 ///
 
-// This class takes care of the context menu message
+// This class takes care of handling the instrument list, 
+// since mapping of instruments list to instruments are not 1:1
 
 IMPLEMENT_DYNAMIC(CInstrumentList, CListCtrl)
 
 BEGIN_MESSAGE_MAP(CInstrumentList, CListCtrl)
 	ON_WM_CONTEXTMENU()
+//   ON_NOTIFY_REFLECT(LVN_BEGINLABELEDIT, &CInstrumentList::OnLvnBeginlabeledit)
+//   ON_NOTIFY_REFLECT(NM_CLICK, &CInstrumentList::OnNMClick)
+//   ON_NOTIFY_REFLECT(LVN_KEYDOWN, &CInstrumentList::OnLvnKeydown)
+//   ON_NOTIFY_REFLECT(LVN_ENDLABELEDIT, &CInstrumentList::OnLvnEndlabeledit)
+//   ON_NOTIFY_REFLECT(LVN_ITEMCHANGED, &CInstrumentList::OnLvnItemchanged)
+//   ON_NOTIFY_REFLECT(NM_DBLCLK, &CInstrumentList::OnNMDblclk)
+   ON_NOTIFY_REFLECT(LVN_BEGINLABELEDIT, &CInstrumentList::OnLvnBeginlabeledit)
+   ON_NOTIFY_REFLECT(NM_CLICK, &CInstrumentList::OnNMClick)
+   ON_NOTIFY_REFLECT(LVN_KEYDOWN, &CInstrumentList::OnLvnKeydown)
+   ON_NOTIFY_REFLECT(LVN_ENDLABELEDIT, &CInstrumentList::OnLvnEndlabeledit)
+   ON_NOTIFY_REFLECT(LVN_ITEMCHANGED, &CInstrumentList::OnLvnItemchanged)
+   ON_NOTIFY_REFLECT(NM_DBLCLK, &CInstrumentList::OnNMDblclk)
 END_MESSAGE_MAP()
-
-// TODO: expand this class
 
 CInstrumentList::CInstrumentList(CMainFrame *pMainFrame) : m_pMainFrame(pMainFrame)
 {
 }
 
-void CInstrumentList::OnContextMenu(CWnd* pWnd, CPoint point)
+int CInstrumentList::GetInstrumentIndex(int Selection) const
 {
-	int Instrument(0);
+	// Get the instrument number from an item in the list (Selection = list index)
+	int Instrument;
 	TCHAR Text[256];
 
-	if (GetSelectionMark() != -1) {
-		// Select the instrument
-		GetItemText(GetSelectionMark(), 0, Text, 256);
-		_stscanf(Text, _T("%X"), &Instrument);
-		CFamiTrackerDoc::GetDoc()->GetInstrumentName(Instrument, Text);
-		CFamiTrackerView::GetView()->SetInstrument(Instrument);
-		// TODO: fix??
-		//m_wndDialogBar.GetDlgItem(IDC_INSTNAME)->SetWindowText(Text);
+	if (Selection == -1)
+		return -1;
+
+	GetItemText(Selection, 0, Text, 256);
+	_stscanf(Text, _T("%X"), &Instrument);
+
+	return Instrument;
+}
+
+int CInstrumentList::FindInstrument(int Index)
+{
+	// Find the instrument item from the list (Index = instrument number)
+	CString Txt;
+	Txt.Format(_T("%02X"), Index);
+
+	LVFINDINFO info;
+	info.flags = LVFI_PARTIAL | LVFI_STRING;
+	info.psz = Txt;
+
+	return FindItem(&info);
+}
+
+void CInstrumentList::SelectInstrument(int Index)
+{
+	// Highlight a specified instrument (Index = instrument number)	
+	int ListIndex = FindInstrument(Index);
+	SetSelectionMark(ListIndex);
+	SetItemState(ListIndex, LVIS_SELECTED | LVIS_FOCUSED, LVIS_SELECTED | LVIS_FOCUSED);
+	EnsureVisible(ListIndex, FALSE);
+}
+
+void CInstrumentList::SelectNextItem()
+{
+	// Select next instrument
+	int SelIndex = GetSelectionMark();
+	int Count = GetItemCount();
+	if (SelIndex < (Count - 1)) {
+		int Slot = GetInstrumentIndex(SelIndex + 1);
+		m_pMainFrame->SelectInstrument(Slot);
 	}
+}
+
+void CInstrumentList::SelectPreviousItem()
+{
+	// Select previous instrument
+	int SelIndex = GetSelectionMark();
+	if (SelIndex > 0) {
+		int Slot = GetInstrumentIndex(SelIndex - 1);
+		m_pMainFrame->SelectInstrument(Slot);
+	}
+}
+
+void CInstrumentList::InsertInstrument(int Index)
+{
+	// Inserts an instrument in the list (Index = instrument number)
+	CFamiTrackerDoc *pDoc = CFamiTrackerDoc::GetDoc();
+
+	if (!pDoc->IsInstrumentUsed(Index))
+		return;
+
+	char Name[CInstrument::INST_NAME_MAX];
+	pDoc->GetInstrumentName(Index, Name);
+	int Type = pDoc->GetInstrumentType(Index);
+
+	// Name is of type index - name
+	CString Text;
+	Text.Format(_T("%02X - %s"), Index, A2T(Name));
+	InsertItem(Index, Text, Type - 1);
+}
+
+void CInstrumentList::RemoveInstrument(int Index)
+{
+	// Remove an instrument from the list (Index = instrument number)
+	int Selection = FindInstrument(Index);
+	if (Selection != -1)
+		DeleteItem(Selection);
+}
+
+void CInstrumentList::SetInstrumentName(int Index, TCHAR *pName)
+{
+	// Update instrument name in the list
+	int ListIndex = GetSelectionMark();
+	CString Name;
+	Name.Format(_T("%02X - %s"), Index, pName);
+	SetItemText(ListIndex, 0, Name);
+}
+
+void CInstrumentList::OnContextMenu(CWnd* pWnd, CPoint point)
+{
+	int Instrument = GetInstrumentIndex(GetSelectionMark());
+
+	// Select the instrument
+	if (Instrument != -1)
+		m_pMainFrame->SelectInstrument(Instrument);
 
 	// Display the popup menu
 	CMenu *pPopupMenu, PopupMenuBar;
@@ -82,6 +179,63 @@ void CInstrumentList::OnContextMenu(CWnd* pWnd, CPoint point)
 
 	// Return focus to pattern editor
 	m_pMainFrame->GetActiveView()->SetFocus();
+}
+
+void CInstrumentList::OnLvnItemchanged(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
+	
+	// Selection changed
+//	if (pNMLV->uNewState & LVIS_SELECTED)
+//		m_pMainFrame->SelectInstrument(GetInstrumentIndex(pNMLV->iItem));
+
+	*pResult = 0;
+}
+
+void CInstrumentList::OnLvnBeginlabeledit(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	NMLVDISPINFO *pDispInfo = reinterpret_cast<NMLVDISPINFO*>(pNMHDR);
+	// TODO: Add your control notification handler code here
+	*pResult = 0;
+}
+
+void CInstrumentList::OnLvnEndlabeledit(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	NMLVDISPINFO *pDispInfo = reinterpret_cast<NMLVDISPINFO*>(pNMHDR);
+	// TODO: Add your control notification handler code here
+	*pResult = 0;
+}
+
+void CInstrumentList::OnNMClick(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+
+	// Select instrument
+	m_pMainFrame->SelectInstrument(GetInstrumentIndex(pNMItemActivate->iItem));
+
+	// Move focus to pattern editor 
+	m_pMainFrame->GetActiveView()->SetFocus();
+
+	*pResult = 0;
+}
+
+void CInstrumentList::OnLvnKeydown(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMLVKEYDOWN pLVKeyDow = reinterpret_cast<LPNMLVKEYDOWN>(pNMHDR);
+
+	// Empty
+
+	*pResult = 0;
+}
+
+void CInstrumentList::OnNMDblclk(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+	
+	// Double-click = instrument editor
+	m_pMainFrame->OpenInstrumentEditor();
+
+	*pResult = 0;
 }
 
 ///
@@ -123,16 +277,16 @@ void CBannerEdit::OnPaint()
 	CDC *dc(GetDC());
 	CFont font;
 
-   font.CreateFont(12, 0, 0, 0, 0, TRUE, FALSE, FALSE, 0, 0, 0, 0, 0, BANNER_FONT);
+	font.CreateFont(12, 0, 0, 0, 0, TRUE, FALSE, FALSE, 0, 0, 0, 0, 0, BANNER_FONT);
 	CFont *pOldFont = dc->SelectObject(&font);
 
+	dc->SetBkColor(dc->GetPixel(4, 4));
 	dc->SetTextColor(BANNER_COLOR);
 	dc->TextOut(2, 1, m_strText);
 	dc->SelectObject(pOldFont);
 
 	ReleaseDC(dc);
 }
-
 
 void CBannerEdit::OnKillFocus(CWnd* pNewWnd)
 {

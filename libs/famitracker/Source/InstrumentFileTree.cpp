@@ -65,7 +65,7 @@ bool CInstrumentFileTree::ShouldRebuild() const
 
 bool CInstrumentFileTree::BuildMenuTree(CString instrumentPath)
 {
-	SetCursor(AfxGetApp()->LoadStandardCursor(IDC_WAIT));
+	CWaitCursor wait;
 
 	DeleteMenuObjects();
 	m_fileList.RemoveAll();
@@ -96,7 +96,7 @@ bool CInstrumentFileTree::BuildMenuTree(CString instrumentPath)
 			m_fileList.FreeExtra();
 			m_menuArray.FreeExtra();
 
-			m_iTimeout = GetTickCount() + 60000;
+			m_iTimeout = GetTickCount() + CACHE_TIMEOUT;
 			m_bShouldRebuild = false;
 		}
 	}
@@ -128,7 +128,7 @@ bool CInstrumentFileTree::ScanDirectory(CString path, CMenu *pMenu, int level)
 			bool bDisabled = false;
 			if (!ScanDirectory(path + _T("\\") + fileFinder.GetFileName(), pSubMenu, level + 1))
 				bDisabled = true;
-			pMenu->AppendMenu(MF_STRING | MF_POPUP | (bDisabled ? MF_DISABLED : MF_ENABLED), (UINT_PTR)pSubMenu->m_hMenu, fileFinder.GetFileName());		
+         pMenu->AppendMenu(MF_STRING | MF_POPUP | (bDisabled ? MF_DISABLED : MF_ENABLED), (UINT_PTR)pSubMenu->m_hMenu, fileFinder.GetFileName());
 			bNoFile = false;
 		}
 	}

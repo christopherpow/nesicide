@@ -50,6 +50,9 @@ protected:
 
 	void EnableModControls(bool enable);
 
+	void ParseWaveString(LPTSTR pString);
+	void ParseTableString(LPTSTR pString);
+
 protected:
 	CInstrumentFDS		*m_pInstrument;
 	CWaveEditorFDS		*m_pWaveEditor;

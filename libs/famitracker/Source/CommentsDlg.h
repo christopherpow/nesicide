@@ -37,4 +37,6 @@ public:
 	virtual BOOL OnInitDialog();
 	virtual BOOL DestroyWindow();
 	afx_msg void OnEnChangeComments();
+	afx_msg void OnBnClickedShowonopen();
+	afx_msg void OnGetMinMaxInfo(MINMAXINFO* lpMMI);
 };

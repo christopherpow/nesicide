@@ -30,6 +30,8 @@ DEFINES -= UNICODE
 
 QMAKE_CXXFLAGS_WARN_ON += -Wno-reorder -Wno-unused
 
+QMAKE_CXXFLAGS += -DNULL=0
+
 INCLUDEPATH += \
    . \
    Source \
@@ -88,7 +90,6 @@ SOURCES += \
     cqtmfc_famitracker.cpp \
     Source/TrackerChannel.cpp \
     Source/SoundGen.cpp \
-    Source/Settings.cpp \
     Source/Sequence.cpp \
     Source/PatternEditor.cpp \
     Source/PatternData.cpp \
@@ -134,12 +135,12 @@ SOURCES += \
     Source/Blip_Buffer/Blip_Buffer.cpp \
     Source/FFT/Fft.cpp \
     $$TOP/common/cqtmfc.cpp \
+    Source/VisualizerScope.cpp \
+    Source/VisualizerSpectrum.cpp \
+    Source/VisualizerStatic.cpp \
+    Source/VisualizerWnd.cpp \
     Source/FamiTrackerView.cpp \
-    Source/FamiTracker.cpp \
     Source/DirectSound.cpp \
-    Source/SWSpectrum.cpp \
-    Source/SWSampleScope.cpp \
-    Source/SampleWindow.cpp \
     Source/GraphEditor.cpp \
     Source/SequenceEditor.cpp \
     Source/SizeEditor.cpp \
@@ -167,7 +168,6 @@ SOURCES += \
     Source/ModulePropertiesDlg.cpp \
     Source/ModuleImportDlg.cpp \
     Source/SpeedDlg.cpp \
-    Source/SWLogo.cpp \
     Source/WavProgressDlg.cpp \
     Source/WaveFile.cpp \
     Source/ControlPanelDlg.cpp \
@@ -176,7 +176,6 @@ SOURCES += \
     Source/CustomExporters.cpp \
     Source/CustomExporter.cpp \
     Source/CustomExporter_C_Interface.cpp \
-    Source/Compiler.cpp \
     Source/Chunk.cpp \
     Source/ChunkRender.cpp \
     Source/CommentsDlg.cpp \
@@ -191,7 +190,14 @@ SOURCES += \
     Source/ConfigAppearance.cpp \
     Source/CreateWaveDlg.cpp \
     Source/TextExporter.cpp \
-    Source/AboutDlg.cpp
+    Source/AboutDlg.cpp \
+    Source/DSample.cpp \
+    Source/Compiler.cpp \
+    Source/SampleEditorView.cpp \
+    Source/FamiTracker.cpp \
+    Source/Settings.cpp \
+    Source/ConfigMixer.cpp \
+    Source/CommandLineExport.cpp
 
 HEADERS += \
     cqtmfc_famitracker.h \
@@ -260,9 +266,6 @@ HEADERS += \
     Source/FamiTracker.h \
     Source/stdafx.h \
     Source/DirectSound.h \
-    Source/SWSpectrum.h \
-    Source/SWSampleScope.h \
-    Source/SampleWindow.h \
     Source/GraphEditor.h \
     Source/SequenceEditor.h \
     Source/SizeEditor.h \
@@ -288,7 +291,6 @@ HEADERS += \
     Source/ModulePropertiesDlg.h \
     Source/ModuleImportDlg.h \
     Source/SpeedDlg.h \
-    Source/SWLogo.h \
     Source/WavProgressDlg.h \
     Source/WaveFile.h \
     Source/ControlPanelDlg.h \
@@ -312,7 +314,15 @@ HEADERS += \
     resource.h \
     version.h \
     Source/TextExporter.h \
-    Source/AboutDlg.h
+    Source/AboutDlg.h \
+    Source/DSample.h \
+    Source/SampleEditorView.h \
+    Source/VisualizerScope.h \
+    Source/VisualizerSpectrum.h \
+    Source/VisualizerStatic.h \
+    Source/VisualizerWnd.h \
+    Source/ConfigMixer.h \
+    Source/CommandLineExport.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN

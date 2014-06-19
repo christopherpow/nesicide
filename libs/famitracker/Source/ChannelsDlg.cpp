@@ -92,8 +92,8 @@ BOOL CChannelsDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
-	m_pAvailableTree = (CTreeCtrl*)GetDlgItem(IDC_AVAILABLE_TREE);
-	m_pAddedChannels = (CListCtrl*)GetDlgItem(IDC_ADDED_LIST);
+	m_pAvailableTree = static_cast<CTreeCtrl*>(GetDlgItem(IDC_AVAILABLE_TREE));
+	m_pAddedChannels = static_cast<CListCtrl*>(GetDlgItem(IDC_ADDED_LIST));
 
 	int RootItems = sizeof(ROOT_ITEMS) / sizeof(TCHAR);
 

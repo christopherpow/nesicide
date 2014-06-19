@@ -20,21 +20,26 @@
 
 #pragma once
 
+enum {
+	NOTE_PRIO_0, 
+	NOTE_PRIO_1, 
+	NOTE_PRIO_2
+};
 
 class CTrackerChannel
 {
 public:
-	CTrackerChannel(const TCHAR *pName, const int iChip, const int iID);
+	CTrackerChannel(LPCTSTR pName, const int iChip, const int iID);
 	~CTrackerChannel(void);
-	const TCHAR *GetChannelName() const;
+	LPCTSTR GetChannelName() const;
 	const char GetChip() const;
 	const int GetID() const;
 	const int GetColumnCount() const;
 	void SetColumnCount(int Count);
 
 	stChanNote GetNote();
-	void SetNote(stChanNote Note);
-	bool NewNoteData();
+	void SetNote(stChanNote &Note, int Priority);
+	bool NewNoteData() const;
 	void Reset();
 
 	void SetVolumeMeter(int Value);
@@ -43,8 +48,10 @@ public:
 	void SetPitch(int Pitch);
 	int GetPitch() const;
 
+	bool IsInstrumentCompatible(int Instrument, CFamiTrackerDoc *pDoc) const;
+
 private:
-	const TCHAR *m_pChannelName;
+	LPCTSTR m_pChannelName;
 
 private:
 	int m_iChip;
@@ -53,9 +60,11 @@ private:
 
 	stChanNote m_Note;
 	bool m_bNewNote;
+	int	m_iNotePriority;
 
 	int m_iVolumeMeter;
 	int m_iPitch;
 
-	CMutex m_NoteLock;
+private:
+	CCriticalSection m_csNoteLock;
 };

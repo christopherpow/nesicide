@@ -16,52 +16,52 @@ class Fft
 public:
     Fft (int Points, long sampleRate);
     ~Fft ();
-    int     Points () const { return _Points; }
+    int     Points () const { return m_Points; }
     void    Transform ();
-    void    CopyIn (/*SampleIter& iter*/int SampleCount, int *Samples);
+    void    CopyIn (/*SampleIter& iter*/int SampleCount, short *Samples);
 
     double  GetIntensity (int i) const
     { 
   //      Assert (i < _Points);
-        return fftarray[i].Mod()/_sqrtPoints; 
+        return m_X[i].Mod()/m_sqrtPoints; 
     }
 
     int     GetFrequency (int point) const
     {
         // return frequency in Hz of a given point
 //        Assert (point < _Points);
-        long x =_sampleRate * point;
-        return x / _Points;
+        long x =m_sampleRate * point;
+        return x / m_Points;
     }
 
     int     HzToPoint (int freq) const 
     { 
-        return (long)_Points * freq / _sampleRate; 
+        return (long)m_Points * freq / m_sampleRate; 
     }
 
-    int     MaxFreq() const { return _sampleRate; }
+    int     MaxFreq() const { return m_sampleRate; }
 
     int     Tape (int i) const
     {
 //        Assert (i < _Points);
-        return (int) _aTape[i];
+        return (int) m_aTape[i];
     }
 
 private:
 
     void PutAt ( int i, double val )
     {
-        fftarray [_aBitRev[i]] = Complex (val);
+        m_X [m_aBitRev[i]] = Complex (val);
     }
 
-    int			_Points;
-    long		_sampleRate;
-    int			_logPoints;
-    double		_sqrtPoints;
-    int		   *_aBitRev;       // bit reverse vector
-    Complex	   *fftarray;             // in-place fft array
-    Complex	  **_W;             // exponentials
-    double     *_aTape;         // recording tape
+    int			m_Points;
+    long		m_sampleRate;
+    int			m_logPoints;
+    double		m_sqrtPoints;
+    int		   *m_aBitRev;       // bit reverse vector
+    Complex	   *m_X;             // in-place fft array
+    Complex	  **m_W;             // exponentials
+    double     *m_aTape;         // recording tape
 };
 
 #endif

@@ -28,13 +28,15 @@
  *
  */
 
-CTrackerChannel::CTrackerChannel(const TCHAR *pName, const int iChip, const int iID) : 
+CTrackerChannel::CTrackerChannel(LPCTSTR pName, const int iChip, const int iID) : 
 	m_pChannelName(pName),
 	m_iChip(iChip),
 	m_iChannelID(iID),
 	m_iColumnCount(0),
 	m_bNewNote(false),
-	m_iPitch(0)
+	m_iPitch(0),
+	m_iNotePriority(0),
+	m_iVolumeMeter(0)
 {
 }
 
@@ -42,7 +44,7 @@ CTrackerChannel::~CTrackerChannel(void)
 {
 }
 
-const TCHAR *CTrackerChannel::GetChannelName() const
+LPCTSTR CTrackerChannel::GetChannelName() const
 {
 	return m_pChannelName;
 }
@@ -67,38 +69,48 @@ void CTrackerChannel::SetColumnCount(int Count)
 	m_iColumnCount = Count;
 }
 
-void CTrackerChannel::SetNote(stChanNote Note)
+void CTrackerChannel::SetNote(stChanNote &Note, int Priority)
 {
-	m_NoteLock.Lock();
-	m_Note = Note;
-	m_bNewNote = true;
-	m_NoteLock.Unlock();
+	m_csNoteLock.Lock();
+
+	if (Priority > m_iNotePriority) {
+		m_Note = Note;
+		m_bNewNote = true;
+		m_iNotePriority = Priority;
+	}
+
+	m_csNoteLock.Unlock();
 }
 
 stChanNote CTrackerChannel::GetNote()
 {
 	stChanNote Note;
-	m_NoteLock.Lock();
-	m_bNewNote = false;
+	
+	m_csNoteLock.Lock();
+
 	Note = m_Note;
-	m_NoteLock.Unlock();
+	m_bNewNote = false;
+	m_iNotePriority = NOTE_PRIO_0;
+
+	m_csNoteLock.Unlock();
+
 	return Note;
 }
 
-bool CTrackerChannel::NewNoteData()
+bool CTrackerChannel::NewNoteData() const
 {
-	bool bNewNote;
-	m_NoteLock.Lock();
-	bNewNote = m_bNewNote;
-	m_NoteLock.Unlock();
-	return bNewNote;
+	return m_bNewNote;
 }
 
 void CTrackerChannel::Reset()
 {
-	m_NoteLock.Lock();
+	m_csNoteLock.Lock();
+
 	m_bNewNote = false;
-	m_NoteLock.Unlock();
+	m_iVolumeMeter = 0;
+	m_iNotePriority = NOTE_PRIO_0;
+
+	m_csNoteLock.Unlock();
 }
 
 void CTrackerChannel::SetVolumeMeter(int Value)
@@ -120,6 +132,30 @@ int CTrackerChannel::GetPitch() const
 {
 	return m_iPitch;
 }
+
+bool CTrackerChannel::IsInstrumentCompatible(int Instrument, CFamiTrackerDoc *pDoc) const
+{
+	int InstType = pDoc->GetInstrumentType(Instrument);
+
+	switch (m_iChip) {
+		case SNDCHIP_NONE:
+		case SNDCHIP_MMC5:
+			return InstType == INST_2A03;
+		case SNDCHIP_N163:
+			return InstType == INST_N163;
+		case SNDCHIP_S5B:
+			return InstType == INST_S5B;
+		case SNDCHIP_VRC6:
+			return InstType == INST_VRC6;
+		case SNDCHIP_VRC7:
+			return InstType == INST_VRC7;
+		case SNDCHIP_FDS:
+			return InstType == INST_FDS;
+	}
+
+	return false;
+}
+
 /*
 int CTrackerChannel::GetEffect(int Letter) const
 {

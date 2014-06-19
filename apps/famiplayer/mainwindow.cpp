@@ -17,7 +17,7 @@
 #include "Source/PatternEditor.h"
 #include "Source/MainFrm.h"
 #include "Source/SoundGen.h"
-#include "Source/SampleWindow.h"
+#include "Source/VisualizerWnd.h"
 #include "Source/Settings.h"
 
 #include "playlisteditordialog.h"

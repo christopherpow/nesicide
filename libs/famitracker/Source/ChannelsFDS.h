@@ -20,7 +20,7 @@
 
 #pragma once
 
-class CChannelHandlerFDS : public CChannelHandler {
+class CChannelHandlerFDS : public CChannelHandlerInverted {
 public:
 	CChannelHandlerFDS();
 	virtual void ProcessChannel();
@@ -33,8 +33,8 @@ protected:
 	virtual void HandleHalt();
 	virtual void HandleRelease();
 	virtual void HandleNote(int Note, int Octave);
-
 	virtual void ClearRegisters();
+
 protected:
 	// FDS functions
 	void FillWaveRAM(CInstrumentFDS *pInst);
@@ -52,6 +52,7 @@ protected:
 	CSequence *m_pPitchSeq;
 	// Modulation table
 	char m_iModTable[32];
+	char m_iWaveTable[64];
 	// Modulation
 	bool m_bResetMod;
 protected:

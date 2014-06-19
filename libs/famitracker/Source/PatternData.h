@@ -18,7 +18,6 @@
 ** must bear this legend.
 */
 
-
 #pragma once
 
 // Channel note struct, holds the data for each row in patterns
@@ -65,7 +64,7 @@ public:
 
 	bool IsCellFree(unsigned int Channel, unsigned int Pattern, unsigned int Row);
 	bool IsPatternEmpty(unsigned int Channel, unsigned int Pattern);
-	bool IsPatternInUse(unsigned int Channel, unsigned int Pattern);
+	bool IsPatternInUse(unsigned int Channel, unsigned int Pattern) const;
 
 	int GetEffectColumnCount(int Channel) const
 		{ return m_iEffectColumns[Channel]; };

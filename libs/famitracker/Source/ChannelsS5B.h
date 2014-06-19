@@ -41,6 +41,25 @@ protected:
 protected:
 	void WriteReg(int Reg, int Value);
 
+	// Static functions
+protected:	
+	static void SetEnvelopeHigh(int Val);
+	static void SetEnvelopeLow(int Val);
+	static void SetEnvelopeType(int Val);
+	static void SetMode(int Chan, int Square, int Noise);
+	static void SetNoiseFreq(int Freq);
+	static void UpdateRegs(CAPU *pAPU);
+
+	// Static memebers
+protected:
+	static int m_iModes;
+	static int m_iNoiseFreq;
+	static unsigned char m_iEnvFreqHi;
+	static unsigned char m_iEnvFreqLo;
+	static int m_iEnvType;
+	static bool m_bRegsDirty;
+
+	// Instance members
 protected:
 	int m_iNoiseOffset;
 	bool m_bEnvEnable;
@@ -63,7 +82,7 @@ protected:
 // Channel 1
 class CS5BChannel1 : public CChannelHandlerS5B {
 public:
-	CS5BChannel1() : CChannelHandlerS5B() { m_iDefaultDuty = 0; m_bEnabled = false; };
+	CS5BChannel1() : CChannelHandlerS5B() { m_iDefaultDuty = 0; };
 	void RefreshChannel();
 protected:
 	void ClearRegisters();
@@ -72,7 +91,7 @@ protected:
 // Channel 2
 class CS5BChannel2 : public CChannelHandlerS5B {
 public:
-	CS5BChannel2() : CChannelHandlerS5B() { m_iDefaultDuty = 0; m_bEnabled = false; };
+	CS5BChannel2() : CChannelHandlerS5B() { m_iDefaultDuty = 0; };
 	void RefreshChannel();
 protected:
 	void ClearRegisters();
@@ -81,7 +100,7 @@ protected:
 // Channel 3
 class CS5BChannel3 : public CChannelHandlerS5B {
 public:
-	CS5BChannel3() : CChannelHandlerS5B() { m_iDefaultDuty = 0; m_bEnabled = false; };
+	CS5BChannel3() : CChannelHandlerS5B() { m_iDefaultDuty = 0; };
 	void RefreshChannel();
 protected:
 	void ClearRegisters();

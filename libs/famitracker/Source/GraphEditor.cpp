@@ -50,7 +50,8 @@ CGraphEditor::CGraphEditor(CSequence *pSequence) :
 	m_pBitmap(NULL), 
 	m_pSmallFont(NULL),
 	m_iHighlightedItem(-1),
-	m_bHasFocus(false)
+	m_iHighlightedValue(0),
+	m_bButtonState(false)
 {
 	m_pSequence = pSequence;
 	m_iLastPlayPos = 0;
@@ -60,14 +61,9 @@ CGraphEditor::CGraphEditor(CSequence *pSequence) :
 
 CGraphEditor::~CGraphEditor()
 {
-	if (m_pSmallFont)
-		delete m_pSmallFont;
-
-	if (m_pBackDC)
-		delete m_pBackDC;
-
-	if (m_pBitmap)
-		delete m_pBitmap;
+	SAFE_RELEASE(m_pSmallFont);
+	SAFE_RELEASE(m_pBackDC);
+	SAFE_RELEASE(m_pBitmap);
 }
 
 BOOL CGraphEditor::OnEraseBkgnd(CDC* pDC)
@@ -97,7 +93,7 @@ BOOL CGraphEditor::CreateEx(DWORD dwExStyle, LPCTSTR lpszClassName, LPCTSTR lpsz
 	GetClientRect(m_BottomRect);
 	GetClientRect(m_ClientRect);
 
-	m_GraphRect.top += GRAPH_BOTTOM * 2 + 3;
+	m_GraphRect.top += GRAPH_BOTTOM * 2 + 4;
 	m_GraphRect.bottom -= GRAPH_BOTTOM;
 	m_GraphRect.left += GRAPH_LEFT;
 	m_GraphRect.bottom = (m_GraphRect.bottom / 15) * 15;
@@ -149,17 +145,28 @@ void CGraphEditor::OnPaint()
 
 void CGraphEditor::PaintBuffer(CDC *pBackDC, CDC *pFrontDC)
 {
+	if (this == GetFocus()) {
+		CRect focusRect = m_ClientRect;		
+		pBackDC->SetBkColor(0);
+      qFatal("DrawFocusRect");
+//		pBackDC->DrawFocusRect(focusRect);
+	}
+
 	pFrontDC->BitBlt(0, 0, m_ClientRect.Width(), m_ClientRect.Height(), pBackDC, 0, 0, SRCCOPY);
 }
 
-void CGraphEditor::DrawBackground(CDC *pDC, int Lines, bool DrawMarks, int MarkOffset)
+void CGraphEditor::DrawBackground(CDC *pDC, int Lines, bool DrawMarks, int MarkOffset) const
 {
+	const COLORREF COL_BACKGROUND	= 0x000000;
+	const COLORREF COL_BOTTOM		= 0x404040;
+	const COLORREF COL_HORZ_BAR		= 0x202020;
+
 	// Fill background
-	pDC->FillSolidRect(m_ClientRect, 0);
-	pDC->Draw3dRect(m_GraphRect, 0x808080, 0xC0C0C0);
+	pDC->FillSolidRect(m_ClientRect, COL_BACKGROUND);
+	pDC->FillSolidRect(m_GraphRect.left, m_GraphRect.top, 1, m_GraphRect.bottom, COL_BOTTOM);
 
 	// Fill bottom area
-	pDC->FillSolidRect(m_BottomRect, 0x404040);
+	pDC->FillSolidRect(m_BottomRect, COL_BOTTOM);
 
 	if (m_pSequence) {
 		int ItemWidth = GetItemWidth();
@@ -170,7 +177,7 @@ void CGraphEditor::DrawBackground(CDC *pDC, int Lines, bool DrawMarks, int MarkO
 			int y = m_GraphRect.top + 1;
 			int w = ItemWidth;
 			int h = m_GraphRect.Height() - 2;
-			pDC->FillSolidRect(x, y, w, h, 0x202020);
+			pDC->FillSolidRect(x, y, w, h, COL_HORZ_BAR);
 		}
 	}
 
@@ -180,16 +187,15 @@ void CGraphEditor::DrawBackground(CDC *pDC, int Lines, bool DrawMarks, int MarkO
 		int StepHeight = m_GraphRect.Height() / Lines;
 
 		// Draw vertical bars
-		for (int i = 0; i < Lines; i++) {
+		for (int i = 0; i < Lines+1; i++) {
 			int x = m_GraphRect.left + 1;
 			int y = m_GraphRect.top + StepHeight * i;
 			int w = m_GraphRect.Width() - 2;
 			int h = 1;
 	
 			if (DrawMarks) {
-				marker++;
-				if ((marker+1) % 12 == 0) {
-					pDC->FillSolidRect(x, y, w, StepHeight, 0x202020);
+				if ((++marker + 1) % 12 == 0) {
+					pDC->FillSolidRect(x, y, w, StepHeight, COL_HORZ_BAR);
 				}
 			}
 
@@ -198,7 +204,7 @@ void CGraphEditor::DrawBackground(CDC *pDC, int Lines, bool DrawMarks, int MarkO
 	}
 }
 
-void CGraphEditor::DrawRange(CDC *pDC, int Max, int Min)
+void CGraphEditor::DrawRange(CDC *pDC, int Max, int Min) const
 {
 	CFont *pOldFont = pDC->SelectObject(m_pSmallFont);
 	CString line;
@@ -223,7 +229,7 @@ void CGraphEditor::DrawRange(CDC *pDC, int Max, int Min)
 	pDC->SelectObject(pOldFont);
 }
 
-void CGraphEditor::DrawLoopPoint(CDC *pDC, int StepWidth)
+void CGraphEditor::DrawLoopPoint(CDC *pDC, int StepWidth) const
 {
 	// Draw loop point
 	int LoopPoint = m_pSequence->GetLoopPoint();
@@ -244,7 +250,7 @@ void CGraphEditor::DrawLoopPoint(CDC *pDC, int StepWidth)
 	pDC->SelectObject(pOldFont);
 }
 
-void CGraphEditor::DrawReleasePoint(CDC *pDC, int StepWidth)
+void CGraphEditor::DrawReleasePoint(CDC *pDC, int StepWidth) const
 {
 	// Draw loop point
 	int ReleasePoint = m_pSequence->GetReleasePoint();
@@ -265,38 +271,58 @@ void CGraphEditor::DrawReleasePoint(CDC *pDC, int StepWidth)
 	pDC->SelectObject(pOldFont);
 }
 
-void CGraphEditor::DrawLine(CDC *pDC)
+void CGraphEditor::DrawLine(CDC *pDC) const
 {
 	if (m_ptLineStart.x != 0 && m_ptLineStart.y != 0) {
-		CPen *OldPen, Pen;
+		CPen Pen;
 		Pen.CreatePen(1, 3, 0xFFFFFF);
-		OldPen = pDC->SelectObject(&Pen);
+		CPen *pOldPen = pDC->SelectObject(&Pen);
 		pDC->MoveTo(m_ptLineStart);
 		pDC->LineTo(m_ptLineEnd);
-		pDC->SelectObject(OldPen);
+		pDC->SelectObject(pOldPen);
 	}
 }
 
-void CGraphEditor::DrawRect(CDC *pDC, int x, int y, int w, int h, bool Highlight, bool Highlight2)
+template<COLORREF COL_BG1, COLORREF COL_BG2, COLORREF COL_EDGE1, COLORREF COL_EDGE2>
+void CGraphEditor::DrawRect(CDC *pDC, int x, int y, int w, int h, bool flat) const
 {
-	if (Highlight) {
-		pDC->FillSolidRect(x, y, w, h, 0x50C050);
-		pDC->Draw3dRect(x, y, w, h, 0x80FF80, 0x408040);
-	}
-	/*
-	else if (Highlight2) {
-		pDC->FillSolidRect(x, y, w, h, 0xFF9933);
-		pDC->Draw3dRect(x, y, w, h, 0xFFCC66, 0xAA6611);
-	}
-	*/
-	else {
-		pDC->FillSolidRect(x, y, w, h, 0xC8C0C0);
-		pDC->Draw3dRect(x, y, w, h, 0xFFFFFF, 0xA0A0A0);
+	if (h == 0)
+		h = 1;
 
+	if (flat) {
+		GradientRect(pDC, x + 1, y + 1, w - 2, h - 2, COL_BG1, COL_BG2);
+		pDC->Draw3dRect(x, y, w, h, COL_EDGE2, COL_EDGE2);
+	}
+	else {
+		GradientRect(pDC, x + 1, y + 1, w - 2, h - 2, COL_BG1, COL_BG2);
+		pDC->Draw3dRect(x, y, w, h, COL_EDGE1, COL_EDGE2);
 	}
 }
 
-int CGraphEditor::GetItemWidth()
+void CGraphEditor::DrawRect(CDC *pDC, int x, int y, int w, int h) const
+{
+	DrawRect<0xF0F0F0, 0xD0D0D0, 0xFFFFFF, 0xA0A0A0>(pDC, x, y, w, h, false);
+}
+
+void CGraphEditor::DrawPlayRect(CDC *pDC, int x, int y, int w, int h) const
+{
+	DrawRect<0xA0F0A0, 0x86DC86, RGB(198, 242, 198), RGB(106, 223, 106)>(pDC, x, y, w, h, false);
+}
+
+void CGraphEditor::DrawCursorRect(CDC *pDC, int x, int y, int w, int h) const
+{
+	DrawRect<0xFFE0C0, 0xE5C699, RGB(215, 235, 253), RGB(120, 182, 226)>(pDC, x, y, w, h, m_bButtonState);
+}
+
+void CGraphEditor::DrawShadowRect(CDC *pDC, int x, int y, int w, int h) const
+{	
+	if (h == 0)
+		h = 1;
+
+	GradientBar(pDC, x, y, w, h, 0x484848, 0x444444);
+}
+
+int CGraphEditor::GetItemWidth() const
 {
 	if (!m_pSequence || m_pSequence->GetItemCount() == 0)
 		return 0;
@@ -312,16 +338,15 @@ int CGraphEditor::GetItemWidth()
 	return Width;
 }
 
-int CGraphEditor::GetItemHeight()
-{
-	// Virtual function
-	return 0;
-}
-
 void CGraphEditor::OnLButtonDown(UINT nFlags, CPoint point)
 {
+	m_bButtonState = true;
+
 	SetCapture();
 	SetFocus();
+
+	if (!m_pSequence || !m_pSequence->GetItemCount())
+		return;
 
 	if (point.y < m_GraphRect.bottom) {
 		m_iEditing = EDIT_POINT;
@@ -337,12 +362,18 @@ void CGraphEditor::OnLButtonDown(UINT nFlags, CPoint point)
 
 void CGraphEditor::OnLButtonUp(UINT nFlags, CPoint point)
 {
+	m_bButtonState = false;
+
 	ModifyReleased();
 	ReleaseCapture();
+	Invalidate();
 }
 
 void CGraphEditor::OnMouseMove(UINT nFlags, CPoint point)
 {
+	if (!m_pSequence || !m_pSequence->GetItemCount())
+		return;
+
 	if (nFlags & MK_LBUTTON) {
 		switch (m_iEditing) {
 			case EDIT_POINT:
@@ -356,33 +387,27 @@ void CGraphEditor::OnMouseMove(UINT nFlags, CPoint point)
 	else if (nFlags & MK_RBUTTON) {
 		switch (m_iEditing) {
 			case EDIT_LINE:	{
-				int StartX, StartY, x;
-				int EndX, EndY;
-				float DeltaY, fY;
-
 				int PosX = point.x;
 				int PosY = point.y;
 
 				if (m_iEditing == EDIT_LINE) {
 					m_ptLineEnd = CPoint(PosX, PosY);
 
-					StartX = (m_ptLineStart.x < m_ptLineEnd.x ? m_ptLineStart.x : m_ptLineEnd.x);
-					StartY = (m_ptLineStart.x < m_ptLineEnd.x ? m_ptLineStart.y : m_ptLineEnd.y);
-					EndX = (m_ptLineStart.x > m_ptLineEnd.x ? m_ptLineStart.x : m_ptLineEnd.x);
-					EndY = (m_ptLineStart.x > m_ptLineEnd.x ? m_ptLineStart.y : m_ptLineEnd.y);
+					int StartX = (m_ptLineStart.x < m_ptLineEnd.x ? m_ptLineStart.x : m_ptLineEnd.x);
+					int StartY = (m_ptLineStart.x < m_ptLineEnd.x ? m_ptLineStart.y : m_ptLineEnd.y);
+					int EndX = (m_ptLineStart.x > m_ptLineEnd.x ? m_ptLineStart.x : m_ptLineEnd.x);
+					int EndY = (m_ptLineStart.x > m_ptLineEnd.x ? m_ptLineStart.y : m_ptLineEnd.y);
 
-					DeltaY = float(EndY - StartY) / float((EndX - StartX) + 1);
-					fY = float(StartY);
+					float DeltaY = float(EndY - StartY) / float((EndX - StartX) + 1);
+					float fY = float(StartY);
 
-					for (x = StartX; x < EndX; x++) {
+					for (int x = StartX; x < EndX; x++) {
 						ModifyItem(CPoint(x, (int)fY), false);
 						fY += DeltaY;
 					}
 
 					RedrawWindow();
 					m_pParentWnd->PostMessage(WM_SEQUENCE_CHANGED, 1);
-
-					//ModifyItem(CPoint(x, (int)fY), true);
 				}
 				}
 				break;
@@ -393,7 +418,7 @@ void CGraphEditor::OnMouseMove(UINT nFlags, CPoint point)
 	}
 	else {
 		// No button
-//		HighlightItem(point);
+		HighlightItem(point);
 	}
 
 	// Notify parent
@@ -428,10 +453,6 @@ void CGraphEditor::OnRButtonUp(UINT nFlags, CPoint point)
 	m_iEditing = EDIT_NONE;
 	RedrawWindow();
 	CWnd::OnRButtonUp(nFlags, point);
-}
-
-void CGraphEditor::HighlightItem(CPoint point)
-{
 }
 
 void CGraphEditor::ModifyReleased()
@@ -505,17 +526,20 @@ void CGraphEditor::CursorChanged(int x)
 	m_pParentWnd->PostMessage(WM_CURSOR_CHANGE, Pos, Value);
 }
 
+bool CGraphEditor::IsEditLine() const
+{
+	return m_iEditing == EDIT_LINE;
+}
+
 void CGraphEditor::OnSetFocus(CWnd* pOldWnd)
 {
 	CWnd::OnSetFocus(pOldWnd);
-	m_bHasFocus = true;
 	RedrawWindow();
 }
 
 void CGraphEditor::OnKillFocus(CWnd* pNewWnd)
 {
 	CWnd::OnKillFocus(pNewWnd);
-	m_bHasFocus = false;
 	RedrawWindow();
 }
 
@@ -523,15 +547,12 @@ void CGraphEditor::OnKillFocus(CWnd* pNewWnd)
 
 void CBarGraphEditor::OnPaint()
 {
+	ASSERT(m_pBackDC != NULL);
+
 	CPaintDC dc(this);
 	
-	CDC *pDC = m_pBackDC;
-
-	if (!pDC)
-		return;
-
-	DrawBackground(pDC, m_iItems, false, 0);
-	DrawRange(pDC, m_iItems, 0);
+	DrawBackground(m_pBackDC, m_iLevels, false, 0);
+	DrawRange(m_pBackDC, m_iLevels, 0);
 
 	// Return now if no sequence is selected
 	if (!m_pSequence) {
@@ -548,82 +569,85 @@ void CBarGraphEditor::OnPaint()
 	}
 
 	int StepWidth = GetItemWidth();
-	int StepHeight = m_GraphRect.Height() / m_iItems;
+	int StepHeight = m_GraphRect.Height() / m_iLevels;
+
+	if (m_iHighlightedValue > 0 && m_iHighlightedItem >= 0 && m_iHighlightedItem < Count) {
+		int x = m_GraphRect.left + m_iHighlightedItem * StepWidth + 1;
+		int y = m_GraphRect.top + StepHeight * (m_iLevels - m_iHighlightedValue);
+		int w = StepWidth;
+		int h = StepHeight * m_iHighlightedValue;
+		DrawShadowRect(m_pBackDC, x, y, w, h);
+	}
 
 	// Draw items
 	for (int i = 0; i < Count; i++) {
 		int x = m_GraphRect.left + i * StepWidth + 1;
-		int y = m_GraphRect.top + StepHeight * (m_iItems - m_pSequence->GetItem(i));
+		int y = m_GraphRect.top + StepHeight * (m_iLevels - m_pSequence->GetItem(i));
 		int w = StepWidth;
 		int h = StepHeight * m_pSequence->GetItem(i);
-		DrawRect(pDC, x, y, w, h, m_iCurrentPlayPos == i, m_iHighlightedItem == i);
+
+		if (m_iCurrentPlayPos == i)
+			DrawPlayRect(m_pBackDC, x, y, w, h);
+		else if ((m_iHighlightedItem == i) && (m_pSequence->GetItem(i) >= m_iHighlightedValue) && !IsEditLine())
+			DrawCursorRect(m_pBackDC, x, y, w, h);
+		else
+			DrawRect(m_pBackDC, x, y, w, h);
 	}
 	
-	DrawLoopPoint(pDC, StepWidth);
-	DrawReleasePoint(pDC, StepWidth);
-	DrawLine(pDC);
+	DrawLoopPoint(m_pBackDC, StepWidth);
+	DrawReleasePoint(m_pBackDC, StepWidth);
+	DrawLine(m_pBackDC);
 
 	PaintBuffer(m_pBackDC, &dc);
 }
 
 void CBarGraphEditor::HighlightItem(CPoint point)
 {
-	if (!m_pSequence || !m_pSequence->GetItemCount())
-		return;
-
 	int ItemWidth = GetItemWidth();
 	int ItemHeight = GetItemHeight();
-	int ItemIndex;
-	int ItemValue;
+	int ItemIndex = (point.x - GRAPH_LEFT) / ItemWidth;
+	int ItemValue = m_iLevels - (((point.y - m_GraphRect.top) + (ItemHeight / 2)) / ItemHeight);
 	int LastItem = m_iHighlightedItem;
-
-	ItemIndex = (point.x - GRAPH_LEFT) / ItemWidth;
-	ItemValue = m_iItems - (((point.y - m_GraphRect.top) + (ItemHeight / 2)) / ItemHeight);
-
-	if (ItemIndex >= MAX_SEQUENCE_ITEMS)
-		return;
+	int LastValue = m_iHighlightedValue;
 
 	m_iHighlightedItem = ItemIndex;
+	m_iHighlightedValue = ItemValue;
 
-	if (m_pSequence->GetItem(ItemIndex) < ItemValue)
+	if (m_GraphRect.PtInRect(point) == 0 || unsigned(ItemIndex) >= m_pSequence->GetItemCount()) {
 		m_iHighlightedItem = -1;
-
-	if (LastItem != m_iHighlightedItem)
+		m_iHighlightedValue = 0;
+	}
+	
+	if (LastItem != m_iHighlightedItem || LastValue != m_iHighlightedValue)
 		RedrawWindow(NULL);
 }
 
 void CBarGraphEditor::ModifyItem(CPoint point, bool Redraw)
 {
-	int ItemIndex;
-	int ItemValue;
-
-	if (!m_pSequence || !m_pSequence->GetItemCount())
-		return;
-
 	int ItemWidth = GetItemWidth();
 	int ItemHeight = GetItemHeight();
-
-	ItemIndex = (point.x - GRAPH_LEFT) / ItemWidth;
-	ItemValue = m_iItems - (((point.y - m_GraphRect.top) + (ItemHeight / 2)) / ItemHeight);
+	int ItemIndex = (point.x - GRAPH_LEFT) / ItemWidth;
+	int ItemValue = m_iLevels - (((point.y - m_GraphRect.top) + (ItemHeight / 2)) / ItemHeight);
 
 	if (ItemValue < 0)
 		ItemValue = 0;
-	if (ItemValue > m_iItems)
-		ItemValue = m_iItems;
+	if (ItemValue > m_iLevels)
+		ItemValue = m_iLevels;
 
 	if (ItemIndex < 0 || ItemIndex >= (int)m_pSequence->GetItemCount())
 		return;
 
 	m_iHighlightedItem = ItemIndex;
+	m_iHighlightedValue = ItemValue;
 
 	m_pSequence->SetItem(ItemIndex, ItemValue);
 
 	CGraphEditor::ModifyItem(point, Redraw);
 }
 
-int CBarGraphEditor::GetItemHeight()
+int CBarGraphEditor::GetItemHeight() const
 {
-	return m_GraphRect.Height() / m_iItems;
+	return m_GraphRect.Height() / m_iLevels;
 }
 
 // Arpeggio graph editor
@@ -644,8 +668,7 @@ CArpeggioGraphEditor::CArpeggioGraphEditor(CSequence *pSequence) :
 
 CArpeggioGraphEditor::~CArpeggioGraphEditor()
 {
-	if (m_pScrollBar)
-		delete m_pScrollBar;
+	SAFE_RELEASE(m_pScrollBar);
 }
 
 void CArpeggioGraphEditor::Initialize()
@@ -731,12 +754,10 @@ CString CArpeggioGraphEditor::GetNoteString(int Value)
 	const char NOTES_B[] = {'-', '#', '-', '#', '-', '-', '#', '-', '#', '-', '#', '-'};
 	const char NOTES_C[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
 
+	int Octave = Value / 12;
+	int Note = Value % 12;
+
 	CString line;
-	int Octave, Note;
-
-	Octave = Value / 12;
-	Note = Value % 12;
-
 	line.Format(_T("%c%c%c"), NOTES_A[Note], NOTES_B[Note], NOTES_C[Octave]);
 
 	return line;
@@ -748,29 +769,25 @@ void CArpeggioGraphEditor::DrawRange(CDC *pDC, int Max, int Min)
 	const char NOTES_B[] = {'-', '#', '-', '#', '-', '-', '#', '-', '#', '-', '#', '-'};
 	const char NOTES_C[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
 
-	CString line;
-
-	if (m_pSequence->GetSetting() != ARP_SETTING_FIXED)
+	if (m_pSequence->GetSetting() != ARP_SETTING_FIXED) {
 		// Absolute, relative
 		CGraphEditor::DrawRange(pDC, Max, Min);
+	}
 	else {
 		// Fixed
 		pDC->FillSolidRect(m_ClientRect.left, m_GraphRect.top, m_GraphRect.left, m_GraphRect.bottom, 0x00);
 
 		CFont *pOldFont = pDC->SelectObject(m_pSmallFont);
 
-//		pDC->SetBkMode(OPAQUE);
 		pDC->SetTextColor(0xFFFFFF);
 		pDC->SetBkColor(0);
 
-		int NoteValue, Octave, Note;
-
 		// Top
-		NoteValue = m_iScrollOffset + 20;
-		Octave = NoteValue / 12;
-		Note = NoteValue % 12;
+		int NoteValue = m_iScrollOffset + 20;
+		int Octave = NoteValue / 12;
+		int Note = NoteValue % 12;
 
-		//line.Format("%c%c%c", NOTES_A[Note], NOTES_B[Note], NOTES_C[Octave]);
+		CString line;
 		line = GetNoteString(NoteValue);
 		pDC->TextOut(2, m_GraphRect.top - 3, line);
 
@@ -781,21 +798,18 @@ void CArpeggioGraphEditor::DrawRange(CDC *pDC, int Max, int Min)
 
 		line.Format(_T("%c%c%c"), NOTES_A[Note], NOTES_B[Note], NOTES_C[Octave]);
 		pDC->TextOut(2, m_GraphRect.bottom - 13, line);
-
 		pDC->SelectObject(pOldFont);
 	}
 }
 
 void CArpeggioGraphEditor::OnPaint()
 {
+	ASSERT(m_pBackDC != NULL);
+
 	CPaintDC dc(this);
 
-	CDC *pDC = m_pBackDC;
-	if (!pDC)
-		return;
-
-	DrawBackground(pDC, ITEMS + 1, true, m_pSequence->GetSetting() & ARP_SETTING_FIXED ? 2 - m_iScrollOffset : -m_iScrollOffset);
-	DrawRange(pDC, m_iScrollOffset + 10, m_iScrollOffset - 10);
+	DrawBackground(m_pBackDC, ITEMS + 1, true, m_pSequence->GetSetting() & ARP_SETTING_FIXED ? 2 - m_iScrollOffset : -m_iScrollOffset);
+	DrawRange(m_pBackDC, m_iScrollOffset + 10, m_iScrollOffset - 10);
 
 	// Return now if no sequence is selected
 	if (!m_pSequence) {
@@ -815,7 +829,18 @@ void CArpeggioGraphEditor::OnPaint()
 	int StepHeight = m_GraphRect.Height() / ITEMS;
 
 	// One last line
-	pDC->FillSolidRect(m_GraphRect.left + 1, m_GraphRect.top + 20 * StepHeight, m_GraphRect.Width() - 2, 1, COLOR_LINES);
+	m_pBackDC->FillSolidRect(m_GraphRect.left + 1, m_GraphRect.top + 20 * StepHeight, m_GraphRect.Width() - 2, 1, COLOR_LINES);
+
+	if (m_iHighlightedItem >= 0 && m_iHighlightedItem < Count) {
+		int item = (ITEMS / 2) - m_iHighlightedValue + m_iScrollOffset;
+		if (item >= 0 && item <= 20) {
+			int x = m_GraphRect.left + m_iHighlightedItem * StepWidth + 1;
+			int y = m_GraphRect.top + StepHeight * item + 1;
+			int w = StepWidth;
+			int h = StepHeight - 1;
+			DrawShadowRect(m_pBackDC, x, y, w, h);
+		}
+	}
 
 	// Draw items
 	for (int i = 0; i < Count; i++) {
@@ -826,48 +851,28 @@ void CArpeggioGraphEditor::OnPaint()
 
 		if (item >= 0 && item <= 20) {
 			int x = m_GraphRect.left + i * StepWidth + 1;
-			int y = m_GraphRect.top + StepHeight * item + 1;
-			int w = StepWidth - 1;
-			int h = StepHeight - 1;
-			DrawRect(pDC, x, y, w, h, m_iCurrentPlayPos == i, m_iHighlightedItem == i);
+			int y = m_GraphRect.top + StepHeight * item;
+			int w = StepWidth;
+			int h = StepHeight;
+
+			if (m_iCurrentPlayPos == i)
+				DrawPlayRect(m_pBackDC, x, y, w, h);
+			else if (m_iHighlightedItem == i && (m_pSequence->GetItem(i) == m_iHighlightedValue) && !IsEditLine())
+				DrawCursorRect(m_pBackDC, x, y, w, h);
+			else
+				DrawRect(m_pBackDC, x, y, w, h);
 		}
 	}
 
-	DrawLoopPoint(pDC, StepWidth);
-	DrawReleasePoint(pDC, StepWidth);
-	DrawLine(pDC);
+	DrawLoopPoint(m_pBackDC, StepWidth);
+	DrawReleasePoint(m_pBackDC, StepWidth);
+	DrawLine(m_pBackDC);
 
 	PaintBuffer(m_pBackDC, &dc);
 }
 
-void CArpeggioGraphEditor::HighlightItem(CPoint point)
-{
-	if (!m_pSequence || !m_pSequence->GetItemCount())
-		return;
-
-	int ItemWidth = GetItemWidth();
-	int LastHighlight = m_iHighlightedItem;
-
-	int ItemIndex = (point.x - GRAPH_LEFT) / ItemWidth;
-
-	if (ItemIndex >= MAX_SEQUENCE_ITEMS)
-		return;
-
-	m_iHighlightedItem = ItemIndex;
-
-	if (GetItemValue(point.y) != m_pSequence->GetItem(m_iHighlightedItem))
-		m_iHighlightedItem = -1;
-	
-	if (m_iHighlightedItem != LastHighlight) {
-		RedrawWindow(NULL);
-	}
-}
-
 void CArpeggioGraphEditor::ModifyItem(CPoint point, bool Redraw)
 {
-	if (!m_pSequence || !m_pSequence->GetItemCount())
-		return;
-
 	int ItemWidth = GetItemWidth();
 	int ItemIndex = (point.x - GRAPH_LEFT) / ItemWidth;
 	int ItemValue = GetItemValue(point.y);
@@ -876,10 +881,32 @@ void CArpeggioGraphEditor::ModifyItem(CPoint point, bool Redraw)
 		return;
 
 	m_iHighlightedItem = ItemIndex;
+	m_iHighlightedValue = ItemValue;
 
 	m_pSequence->SetItem(ItemIndex, ItemValue);
 
 	CGraphEditor::ModifyItem(point, Redraw);
+}
+
+void CArpeggioGraphEditor::HighlightItem(CPoint point)
+{
+	int ItemWidth = GetItemWidth();
+	int ItemIndex = (point.x - GRAPH_LEFT) / ItemWidth;
+	int ItemValue = GetItemValue(point.y);
+	int LastItem = m_iHighlightedItem;
+	int LastValue = m_iHighlightedValue;
+
+	m_iHighlightedItem = ItemIndex;
+	m_iHighlightedValue = ItemValue;
+
+	if (m_GraphRect.PtInRect(point) == 0 || unsigned(ItemIndex) >= m_pSequence->GetItemCount()) { 
+		m_iHighlightedItem = -1;
+		m_iHighlightedValue = 0;
+	}
+
+	if (m_iHighlightedItem != LastItem || m_iHighlightedValue != LastValue) {
+		RedrawWindow(NULL);
+	}
 }
 
 int CArpeggioGraphEditor::GetItemValue(int pos)
@@ -907,7 +934,7 @@ int CArpeggioGraphEditor::GetItemValue(int pos)
 	return ItemValue;
 }
 
-int CArpeggioGraphEditor::GetItemHeight()
+int CArpeggioGraphEditor::GetItemHeight() const
 {
 	return m_GraphRect.Height() / ITEMS;
 }
@@ -974,17 +1001,14 @@ BOOL CArpeggioGraphEditor::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 
 void CPitchGraphEditor::OnPaint()
 {
+	ASSERT(m_pBackDC != NULL);
+
 	CPaintDC dc(this);
 
-	CDC *pDC = m_pBackDC;
+	DrawBackground(m_pBackDC, 0, false, 0);
+	DrawRange(m_pBackDC, 127, -128);
 
-	if (!pDC)
-		return;
-
-	DrawBackground(pDC, 0, false, 0);
-	DrawRange(pDC, 127, -128);
-
-	pDC->FillSolidRect(m_GraphRect.left, m_GraphRect.top + m_GraphRect.Height() / 2, m_GraphRect.Width(), 1, COLOR_LINES);
+	m_pBackDC->FillSolidRect(m_GraphRect.left, m_GraphRect.top + m_GraphRect.Height() / 2, m_GraphRect.Width(), 1, COLOR_LINES);
 
 	// Return now if no sequence is selected
 	if (!m_pSequence) {
@@ -1004,45 +1028,67 @@ void CPitchGraphEditor::OnPaint()
 	int StepHeight = m_GraphRect.Height() / ITEMS;
 
 	// One last line
-	pDC->FillSolidRect(m_GraphRect.left + 1, m_GraphRect.top + 20 * StepHeight, m_GraphRect.Width() - 2, 1, COLOR_LINES);
+	m_pBackDC->FillSolidRect(m_GraphRect.left + 1, m_GraphRect.top + 20 * StepHeight, m_GraphRect.Width() - 2, 1, COLOR_LINES);
+
+	if (m_iHighlightedItem != -1) {
+		int x = m_GraphRect.left + m_iHighlightedItem * StepWidth + 1;
+		int y = m_GraphRect.top + m_GraphRect.Height() / 2;
+		int w = StepWidth;
+		int h = -(m_iHighlightedValue * m_GraphRect.Height()) / 255 ;
+		DrawShadowRect(m_pBackDC, x, y, w, h);
+	}
+
+	int Value = m_pSequence->GetItem(m_iHighlightedItem);
+	bool bHighlight = !IsEditLine();
+	if (m_iHighlightedValue > 0) {
+		if (m_iHighlightedValue > Value || Value < 0) {
+			bHighlight = false;
+		}
+	}
+	else {
+		if (m_iHighlightedValue < Value || Value > 0) {
+			bHighlight = false;
+		}
+	}
 
 	// Draw items
 	for (int i = 0; i < Count; i++) {
 		int item = m_pSequence->GetItem(i);
-		int x = m_GraphRect.left + i * StepWidth;
+		int x = m_GraphRect.left + i * StepWidth + 1;
 		int y = m_GraphRect.top + m_GraphRect.Height() / 2;
-		int w = StepWidth - 1;
+		int w = StepWidth;
 		int h = -(item * m_GraphRect.Height()) / 255 ;
-		DrawRect(pDC, x, y, w, h, m_iCurrentPlayPos == i, false);
+		if (h < 0) {
+			y += h;
+			h = -h;
+		}
+		if (m_iCurrentPlayPos == i)
+			DrawPlayRect(m_pBackDC, x, y, w, h);
+		else if (m_iHighlightedItem == i && bHighlight)
+			DrawCursorRect(m_pBackDC, x, y, w, h);
+		else
+			DrawRect(m_pBackDC, x, y, w, h);
 	}
 
-	DrawLoopPoint(pDC, StepWidth);
-	DrawReleasePoint(pDC, StepWidth);
-	DrawLine(pDC);
+	DrawLoopPoint(m_pBackDC, StepWidth);
+	DrawReleasePoint(m_pBackDC, StepWidth);
+	DrawLine(m_pBackDC);
 
 	PaintBuffer(m_pBackDC, &dc);
 }
 
-int CPitchGraphEditor::GetItemHeight()
+int CPitchGraphEditor::GetItemHeight() const
 {
 	return m_GraphRect.Height() / ITEMS;
 }
 
 void CPitchGraphEditor::ModifyItem(CPoint point, bool Redraw)
 {
-	int ItemIndex;
-	int ItemValue;
-
-	if (!m_pSequence || !m_pSequence->GetItemCount())
-		return;
-
+	int MouseY = (point.y - m_GraphRect.top) - (m_GraphRect.Height() / 2);
 	int ItemWidth = GetItemWidth();
 	int ItemHeight = GetItemHeight();
-
-	int MouseY = (point.y - m_GraphRect.top) - (m_GraphRect.Height() / 2);
-
-	ItemIndex = (point.x - GRAPH_LEFT) / ItemWidth;
-	ItemValue = -(MouseY * 255) / m_GraphRect.Height();
+	int ItemIndex = (point.x - GRAPH_LEFT) / ItemWidth;
+	int ItemValue = -(MouseY * 255) / m_GraphRect.Height();
 
 	if (ItemValue < -128)
 		ItemValue = -128;
@@ -1052,24 +1098,52 @@ void CPitchGraphEditor::ModifyItem(CPoint point, bool Redraw)
 	if (ItemIndex < 0 || ItemIndex >= (int)m_pSequence->GetItemCount())
 		return;
 
+	m_iHighlightedItem = ItemIndex;
+	m_iHighlightedValue = ItemValue;
+
 	m_pSequence->SetItem(ItemIndex, ItemValue);
 
 	CGraphEditor::ModifyItem(point, Redraw);
+}
+
+void CPitchGraphEditor::HighlightItem(CPoint point)
+{
+	int MouseY = (point.y - m_GraphRect.top) - (m_GraphRect.Height() / 2);
+	int ItemWidth = GetItemWidth();
+	int ItemHeight = GetItemHeight();
+	int ItemIndex = (point.x - GRAPH_LEFT) / ItemWidth;
+	int ItemValue = -(MouseY * 255) / m_GraphRect.Height();
+	int LastItem = m_iHighlightedItem;
+	int LastValue = m_iHighlightedValue;
+
+	if (ItemValue < -128)
+		ItemValue = -128;
+	if (ItemValue > 127)
+		ItemValue = 127;
+
+	m_iHighlightedItem = ItemIndex;
+	m_iHighlightedValue = ItemValue;
+
+	if (m_GraphRect.PtInRect(point) == 0 || ItemIndex < 0 || unsigned(ItemIndex) >= m_pSequence->GetItemCount()) {
+		m_iHighlightedItem = -1;
+		m_iHighlightedValue = 0;
+	}
+	
+	if (m_iHighlightedItem != LastItem || m_iHighlightedValue != LastValue) {
+		RedrawWindow(NULL);
+	}
 }
 
 // Sunsoft noise editor
 
 void CNoiseEditor::OnPaint()
 {
+	ASSERT(m_pBackDC != NULL);
+
 	CPaintDC dc(this);
 	
-	CDC *pDC = m_pBackDC;
-
-	if (!pDC)
-		return;
-
-	DrawBackground(pDC, m_iItems, false, 0);
-	DrawRange(pDC, m_iItems, 0);
+	DrawBackground(m_pBackDC, m_iItems, false, 0);
+	DrawRange(m_pBackDC, m_iItems, 0);
 
 	// Return now if no sequence is selected
 	if (!m_pSequence) {
@@ -1096,7 +1170,11 @@ void CNoiseEditor::OnPaint()
 		int y = m_GraphRect.top + StepHeight * (m_iItems - item);
 		int w = StepWidth;
 		int h = StepHeight;//* item;
-		DrawRect(pDC, x, y, w, h, m_iCurrentPlayPos == i, false);
+		
+		if (m_iCurrentPlayPos == i)
+			DrawPlayRect(m_pBackDC, x, y, w, h);
+		else
+			DrawRect(m_pBackDC, x, y, w, h);
 
 		// Draw switches
 		item = m_pSequence->GetItem(i);
@@ -1107,36 +1185,36 @@ void CNoiseEditor::OnPaint()
 			static const COLORREF BUTTON_COL = COMBINE(0, 160, 160);
 			int y = Offset;
 			int h = 9;
-			pDC->FillSolidRect(x, y, w, h, BUTTON_COL);
-			pDC->Draw3dRect(x, y, w, h, BLEND(BUTTON_COL, 0xFFFFFF, 80), BLEND(BUTTON_COL, 0x000000, 80));
+			m_pBackDC->FillSolidRect(x, y, w, h, BUTTON_COL);
+			m_pBackDC->Draw3dRect(x, y, w, h, BLEND(BUTTON_COL, 0xFFFFFF, 80), BLEND(BUTTON_COL, 0x000000, 80));
 		}
 		else {
 			static const COLORREF BUTTON_COL = COMBINE(50, 50, 50);
 			int y = Offset;
 			int h = 9;
-			pDC->FillSolidRect(x, y, w, h, BUTTON_COL);
-			pDC->Draw3dRect(x, y, w, h, BLEND(BUTTON_COL, 0xFFFFFF, 80), BLEND(BUTTON_COL, 0x000000, 80));
+			m_pBackDC->FillSolidRect(x, y, w, h, BUTTON_COL);
+			m_pBackDC->Draw3dRect(x, y, w, h, BLEND(BUTTON_COL, 0xFFFFFF, 80), BLEND(BUTTON_COL, 0x000000, 80));
 		}
 
 		if (item & S5B_MODE_NOISE) {
 			static const COLORREF BUTTON_COL = COMBINE(160, 0, 160);
 			int y = Offset + 11;
 			int h = 9;
-			pDC->FillSolidRect(x, y, w, h, BUTTON_COL);
-			pDC->Draw3dRect(x, y, w, h, BLEND(BUTTON_COL, 0xFFFFFF, 80), BLEND(BUTTON_COL, 0x000000, 80));
+			m_pBackDC->FillSolidRect(x, y, w, h, BUTTON_COL);
+			m_pBackDC->Draw3dRect(x, y, w, h, BLEND(BUTTON_COL, 0xFFFFFF, 80), BLEND(BUTTON_COL, 0x000000, 80));
 		}
 		else {
 			static const COLORREF BUTTON_COL = COMBINE(50, 50, 50);
 			int y = Offset + 11;
 			int h = 9;
-			pDC->FillSolidRect(x, y, w, h, BUTTON_COL);
-			pDC->Draw3dRect(x, y, w, h, BLEND(BUTTON_COL, 0xFFFFFF, 80), BLEND(BUTTON_COL, 0x000000, 80));
+			m_pBackDC->FillSolidRect(x, y, w, h, BUTTON_COL);
+			m_pBackDC->Draw3dRect(x, y, w, h, BLEND(BUTTON_COL, 0xFFFFFF, 80), BLEND(BUTTON_COL, 0x000000, 80));
 		}
 	}
 	
-	DrawLoopPoint(pDC, StepWidth);
-	DrawReleasePoint(pDC, StepWidth);
-	DrawLine(pDC);
+	DrawLoopPoint(m_pBackDC, StepWidth);
+	DrawReleasePoint(m_pBackDC, StepWidth);
+	DrawLine(m_pBackDC);
 
 	PaintBuffer(m_pBackDC, &dc);
 }
@@ -1144,10 +1222,6 @@ void CNoiseEditor::OnPaint()
 void CNoiseEditor::ModifyItem(CPoint point, bool Redraw)
 {
 	int ItemValue;
-
-	if (!m_pSequence || !m_pSequence->GetItemCount())
-		return;
-
 	int ItemWidth = GetItemWidth();
 	int ItemHeight = GetItemHeight();
 
@@ -1193,7 +1267,12 @@ void CNoiseEditor::ModifyItem(CPoint point, bool Redraw)
 	CGraphEditor::ModifyItem(point, Redraw);
 }
 
-int CNoiseEditor::GetItemHeight()
+void CNoiseEditor::HighlightItem(CPoint point)
+{
+	// TODO
+}
+
+int CNoiseEditor::GetItemHeight() const
 {
 	return m_GraphRect.Height() / m_iItems;
 }
@@ -1202,4 +1281,3 @@ void CNoiseEditor::ModifyReleased()
 {
 	m_iLastIndex = -1;
 }
-

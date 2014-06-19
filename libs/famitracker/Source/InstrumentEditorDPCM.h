@@ -79,13 +79,11 @@ protected:
 	CDSample *GetSelectedSample();
 
 protected:
-	CListCtrl	*m_pTableListCtrl;
-	CListCtrl	*m_pSampleListCtrl;
-
 	CInstrument2A03	*m_pInstrument;
 
 	int	m_iSelectedSample;
-	int	m_iOctave, m_iSelectedKey;
+	int	m_iOctave;
+	int m_iSelectedKey;
 
 	DECLARE_MESSAGE_MAP()
 public:

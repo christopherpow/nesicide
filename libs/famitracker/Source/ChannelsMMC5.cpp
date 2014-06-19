@@ -26,6 +26,7 @@
 #include "FamiTrackerDoc.h"
 #include "ChannelHandler.h"
 #include "ChannelsMMC5.h"
+#include "SoundGen.h"
 
 const int CChannelHandlerMMC5::SEQ_TYPES[] = {SEQ_VOLUME, SEQ_ARPEGGIO, SEQ_PITCH, SEQ_HIPITCH, SEQ_DUTYCYCLE};
 
@@ -43,7 +44,7 @@ void CChannelHandlerMMC5::HandleNoteData(stChanNote *pNoteData, int EffColumns)
 
 	CChannelHandler::HandleNoteData(pNoteData, EffColumns);
 
-	if (pNoteData->Note != NONE && pNoteData->Note != HALT) {
+	if (pNoteData->Note != NONE && pNoteData->Note != HALT && pNoteData->Note != RELEASE) {
 		if (m_iPostEffect && (m_iEffect == EF_SLIDE_UP || m_iEffect == EF_SLIDE_DOWN))
 			SetupSlide(m_iPostEffect, m_iPostEffectParam);
 		else if (m_iEffect == EF_SLIDE_DOWN || m_iEffect == EF_SLIDE_UP)
@@ -74,25 +75,20 @@ void CChannelHandlerMMC5::HandleCustomEffects(int EffNum, int EffParam)
 
 bool CChannelHandlerMMC5::HandleInstrument(int Instrument, bool Trigger, bool NewInstrument)
 {
-	CInstrument2A03 *pInstrument = (CInstrument2A03*)m_pDocument->GetInstrument(Instrument);
+	CFamiTrackerDoc *pDocument = m_pSoundGen->GetDocument();
+	CInstrumentContainer<CInstrument2A03> instContainer(pDocument, Instrument);
+	CInstrument2A03 *pInstrument = instContainer();
 
 	if (pInstrument == NULL)
 		return false;
 
-	if (pInstrument->GetType() != INST_2A03) {
-		pInstrument->Release();
-		return false;
-	}
-
 	for (int i = 0; i < CInstrument2A03::SEQUENCE_COUNT; ++i) {
-		if (m_iSeqIndex[i] != pInstrument->GetSeqIndex(i) || pInstrument->GetSeqEnable(i) != m_iSeqEnabled[i] || Trigger) {
-			m_iSeqEnabled[i] = pInstrument->GetSeqEnable(i);
+		if (m_iSeqIndex[i] != pInstrument->GetSeqIndex(i) || pInstrument->GetSeqEnable(i) > m_iSeqState[i] || Trigger) {
+			m_iSeqState[i]   = pInstrument->GetSeqEnable(i) == 1 ? SEQ_STATE_RUNNING : SEQ_STATE_DISABLED;
 			m_iSeqIndex[i]	 = pInstrument->GetSeqIndex(i);
 			m_iSeqPointer[i] = 0;
 		}
 	}
-	
-	pInstrument->Release();
 
 	return true;
 }
@@ -117,20 +113,18 @@ void CChannelHandlerMMC5::HandleNote(int Note, int Octave)
 	m_iNote		  = RunNote(Octave, Note);
 	m_iDutyPeriod = m_iDefaultDuty;
 	m_iSeqVolume  = m_iInitVolume;
-	m_bEnabled	  = true;
 }
 
 void CChannelHandlerMMC5::ProcessChannel()
 {
+	CFamiTrackerDoc *pDocument = m_pSoundGen->GetDocument();
+
 	// Default effects
 	CChannelHandler::ProcessChannel();
-	
-	if (!m_bEnabled)
-		return;
 
 	// Sequences
 	for (int i = 0; i < SEQUENCES; ++i)
-		RunSequence(i, m_pDocument->GetSequence(m_iSeqIndex[i], SEQ_TYPES[i]));
+		RunSequence(i, pDocument->GetSequence(m_iSeqIndex[i], SEQ_TYPES[i]));
 }
 
 void CChannelHandlerMMC5::ResetChannel()
@@ -144,11 +138,8 @@ void CChannelHandlerMMC5::ResetChannel()
 
 void CMMC5Square1Chan::RefreshChannel()
 {
-	if (!m_bEnabled)
-		return;
-
-	int Period = CalculatePeriod(false);
-	int Volume = CalculateVolume(15);
+	int Period = CalculatePeriod();
+	int Volume = CalculateVolume();
 	char DutyCycle = (m_iDutyPeriod & 0x03);
 
 	unsigned char HiFreq		= (Period & 0xFF);
@@ -179,11 +170,8 @@ void CMMC5Square1Chan::ClearRegisters()
 
 void CMMC5Square2Chan::RefreshChannel()
 {
-	if (!m_bEnabled)
-		return;
-
-	int Period = CalculatePeriod(false);
-	int Volume = CalculateVolume(15);
+	int Period = CalculatePeriod();
+	int Volume = CalculateVolume();
 	char DutyCycle = (m_iDutyPeriod & 0x03);
 
 	unsigned char HiFreq		= (Period & 0xFF);

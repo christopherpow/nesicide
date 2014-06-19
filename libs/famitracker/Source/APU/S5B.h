@@ -1,5 +1,5 @@
-#ifndef _S5B_H_
-#define _S5B_H_
+#ifndef S5B_H
+#define S5B_H
 
 #include "External.h"
 #include "Channel.h"
@@ -22,7 +22,6 @@ private:
 	static float AMPLIFY;
 private:
 	uint8	m_iRegister;
-	uint8	m_iChannels;
 
 	uint32	m_iTime;
 
@@ -30,4 +29,4 @@ private:
 
 };
 
-#endif /* _S5B_H_ */
+#endif /* S5B_H */

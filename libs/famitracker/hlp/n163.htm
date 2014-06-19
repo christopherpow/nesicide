@@ -24,24 +24,25 @@
         NSF players supports only 32 steps as the largest size so this is the limitation 
         in the tracker at the moment.</p>
         
-    <p class="text">
-        <b>Note:</b> This chip has 8 channels in total, but the actual number of channels to use 
-        is configurable (from the module properties dialog). This is an important 
-        feature because all channels are clocked sequentally by the chip, so the pitch range 
-        will depend on the channel count: a lower number of channels allows an extended 
-        top pitch range. More channels will also increase the effects of aliasing (since 
-        this chip uses a phase accumulator as frequency divider).</p>
-        
-    <p class="text">
-        What is even more important is that the DAC is also shared by 
-        all channels in the same sequential manner. The rate for this channel switching 
-        is 120 kHz which means that when all 8 channels are enabled, there will be 
-        audible channel switching noise at 15 kHz (or 17 kHz when 7 channels are 
-        enabled) The Namco cart did not have a LP filter to deal with this, so it 
-        is very audible. To avoid this, do not use 8 (or 7) channels. This behaviour is 
-        not commonly emulated by NSF players (at the moment), with the exception of 
-        NEZplug++.</p>
-    
+    <table class="noteFrame" cellpadding="5px"><tr><td>
+        <p class="text">
+            <b>Note:</b> This chip has 8 channels in total, but the actual number of channels to use 
+            is configurable (from the module properties dialog). This is of importance 
+            because all channels are clocked sequentally by the chip, so the pitch range 
+            will depend on the channel count: a lower number of channels allows an extended 
+            top pitch range. More channels will also increase the effects of aliasing (since 
+            this chip uses a phase accumulator for tone generation).</p>
+            
+        <p class="text">
+            What is even more important is that the DAC is also shared by 
+            all channels in the same sequential manner. The rate for this channel switching 
+            is 120 kHz, which means that <b>when all 8 channels are enabled, there will be 
+            audible channel switching noise at 15 kHz</b> (or 17 kHz when 7 channels are 
+            enabled). The Namco cart did not have a LP filter to deal with this, so it 
+            is very audible. <b>To avoid this, do not use 8 (or 7) channels.</b> This behaviour is 
+            not commonly emulated by NSF players (at the moment), with the exception of 
+            NEZplug++.</p>
+    </td></tr></table>
     
     <hr />
     <p class="heading">Instruments</p>

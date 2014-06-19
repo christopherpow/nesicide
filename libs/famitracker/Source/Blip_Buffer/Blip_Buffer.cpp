@@ -11,6 +11,8 @@
 #include <stdlib.h>
 #include <math.h>
 
+//#define DITHERING
+
 /* Copyright (C) 2003-2006 Shay Green. This module is free software; you
 can redistribute it and/or modify it under the terms of the GNU Lesser
 General Public License as published by the Free Software Foundation; either
@@ -37,16 +39,18 @@ Blip_Buffer::Blip_Buffer()
 	bass_freq_ = 16;
 	length_ = 0;
 	
- 	// assumptions code makes about implementation-defined features
+	// assumptions code makes about implementation-defined features
 	#ifndef NDEBUG
-		// right shift of negative value preserves sign
-		int i = INT_MIN;
-		assert( (i >> 1) == INT_MIN / 2 );
+//		// right shift of negative value preserves sign
+//		long i = LONG_MIN;
+//		assert( (i >> 1) == LONG_MIN / 2 );
+//		i = LONG_MIN;
+//		assert( (i >> 31) == -1 );
 		
-		// casting to smaller signed type truncates bits and extends sign
-		long l = (SHRT_MAX + 1) * 5;
-		assert( (short) l == SHRT_MIN );
-	#endif   
+//		// casting to smaller signed type truncates bits and extends sign
+//		i = (SHRT_MAX + 1) * 5;
+//		assert( (short) i == SHRT_MIN );
+	#endif
 }
 
 Blip_Buffer::~Blip_Buffer()
@@ -343,6 +347,24 @@ void Blip_Synth_::volume_unit( double new_unit )
 	}
 }
 
+#ifdef DITHERING
+int dither(long size)
+{
+	static unsigned int lfsr = 0xACE1u;
+	unsigned bit;
+	unsigned period = 0;
+ 
+	bit  = ((lfsr >> 0) ^ (lfsr >> 2) ^ (lfsr >> 3) ^ (lfsr >> 5) ) & 1;
+	lfsr =  (lfsr >> 1) | (bit << 15);
+
+	switch (lfsr % 3) {
+		case 1: return size * 1;
+		case 2: return size * -1;
+	}
+	return 0;
+}
+#endif
+
 long Blip_Buffer::read_samples( blip_sample_t* out, long max_samples, int stereo )
 {
 	long count = samples_avail();
@@ -360,7 +382,11 @@ long Blip_Buffer::read_samples( blip_sample_t* out, long max_samples, int stereo
 		{
 			for ( long n = count; n--; )
 			{
+#ifdef DITHERING
+				long s = (accum + dither(1 << sample_shift)) >> sample_shift;
+#else
 				long s = accum >> sample_shift;
+#endif
 				accum -= accum >> bass_shift;
 				accum += *in++;
 				*out++ = (blip_sample_t) s;

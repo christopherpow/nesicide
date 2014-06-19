@@ -22,31 +22,11 @@
 
 //#include <afxmt.h>
 
-
-// Tracker playing interface commands
+// Custom window messages for CFamiTrackerView
 enum {
-	CMD_STEP_DOWN = 1,
-	CMD_HALT,
-	CMD_JUMP_TO,
-	CMD_SKIP_TO,
-	CMD_MOVE_TO_TOP,
-	CMD_IS_PLAYING,
-	CMD_READ_ROW,
-	CMD_GET_TEMPO,
-	CMD_GET_SPEED,
-	CMD_TIME,
-	CMD_TICK,
-	CMD_BEGIN,
-	CMD_GET_FRAME,
-	CMD_MOVE_TO_START,
-	CMD_MOVE_TO_CURSOR,
-};
-
-// Custom window messages
-enum {
-	MSG_UPDATE = WM_USER, 
-	MSG_MIDI_EVENT,
-	MSG_NOTE_EVENT
+	WM_USER_PLAYER = WM_USER, 
+	WM_USER_MIDI_EVENT,
+	WM_USER_NOTE_EVENT
 };
 
 // External classes
@@ -74,8 +54,6 @@ public:
 public:
 
 	// Instruments
-	void		 SetInstrument(int Instrument);
-	unsigned int GetInstrument() const;
 	bool		 SwitchToInstrument() const { return m_bSwitchToInstrument; };
 	void		 SwitchToInstrument(bool Switch) { m_bSwitchToInstrument = Switch; };
 
@@ -96,14 +74,10 @@ public:
 	unsigned int GetSelectedChannel() const;
 	unsigned int GetSelectedRow() const; 
 	unsigned int GetSelectedColumn() const; 
-	unsigned int GetPlayFrame() const;
 	bool		 GetFollowMode() const;
 	int			 GetSelectedChipType() const;
 	unsigned int GetOctave() const { return m_iOctave; };
 	bool		 GetEditMode() const { return m_bEditEnable; };
-
-	void		 SetFrameQueue(int Frame);
-	int			 GetFrameQueue() const;
 
 	// Settings
 	unsigned int GetStepping() const { return m_iInsertKeyStepping; };
@@ -115,15 +89,15 @@ public:
 	void		 IncreaseCurrentPattern();
 	void		 DecreaseCurrentPattern();
 
-	// Player
-	int			 PlayerCommand(char Command, int Value);
-	void 		 GetRow(CFamiTrackerDoc *pDoc);
+	// Player callback
+	void		 PlayerTick();
+	void		 PlayerPlayNote(int Channel, stChanNote *pNote);
+
 	void		 MakeSilent();
 	void		 RegisterKeyState(int Channel, int Note);
-	void		 FeedNote(int Channel, stChanNote *NoteData);
 
 	// Note preview
-	void		 PreviewNote(unsigned char Key);
+	bool		 PreviewNote(unsigned char Key);
 	void		 PreviewRelease(unsigned char Key);
 
 	// General
@@ -132,6 +106,7 @@ public:
 	void		 UnmuteAllChannels();
 	bool		 IsChannelSolo(unsigned int Channel) const;
 	bool		 IsChannelMuted(unsigned int Channel) const;
+	void		 SetChannelMute(int Channel, bool bMute);
 
 	// Drawing
 	void		 UpdateEditor(LPARAM lHint);
@@ -155,6 +130,10 @@ public:
 	bool		 IsDragging() const;
 
 protected:
+	// Instruments
+	void		 SetInstrument(int Instrument);
+	unsigned int GetInstrument() const;
+
 	// General
 	void	StepDown();
 
@@ -183,7 +162,8 @@ private:
 	void	KeyDecreaseAction();
 	
 	int		TranslateKey(unsigned char Key) const;
-	int		TranslateKey2(unsigned char Key) const;
+	int		TranslateKeyDefault(unsigned char Key) const;
+	int		TranslateKeyModplug(unsigned char Key) const;
 	int		TranslateKeyAzerty(unsigned char Key) const;
 	
 	bool	CheckClearKey(unsigned char Key) const;
@@ -208,6 +188,7 @@ private:
 	void	PlayNote(unsigned int Channel, unsigned int Note, unsigned int Octave, unsigned int Velocity);
 	void	ReleaseNote(unsigned int Channel);
 	void	HaltNote(unsigned int Channel);
+	void	HaltNoteSingle(unsigned int Channel);
 	
 	void	UpdateArpDisplay();
 	
@@ -248,7 +229,7 @@ protected:
 
 	// Playing
 	bool				m_bMuteChannels[MAX_CHANNELS];
-	unsigned int		m_iPlayTime;
+	//unsigned int		m_iPlayTime;
 	int					m_iFrameQueue;
 	int					m_iSwitchToInstrument;
 
@@ -269,8 +250,10 @@ protected:
 	char				m_cKeyList[256];
 	unsigned int		m_iKeyboardNote;
 	int					m_iLastNote;
-	int					m_iLastInstrument, m_iLastVolume;
-	int					m_iLastEffect, m_iLastEffectParam;
+	int					m_iLastInstrument;
+	int					m_iLastVolume;
+	int					m_iLastEffect;
+	int					m_iLastEffectParam;
 
 	// MIDI
 	unsigned int		m_iLastMIDINote;
@@ -342,6 +325,8 @@ public:
 	afx_msg void OnTransposeDecreaseoctave();
 	afx_msg void OnTransposeIncreasenote();
 	afx_msg void OnTransposeIncreaseoctave();
+	afx_msg void OnDecreaseValues();
+	afx_msg void OnIncreaseValues();
 	afx_msg void OnUpdateEditCut(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateEditCopy(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateEditPaste(CCmdUI *pCmdUI);
@@ -381,9 +366,9 @@ public:
 	afx_msg void OnBlockStart();
 	afx_msg void OnBlockEnd();
 	afx_msg void OnPickupRow();
-	afx_msg LRESULT OnMidiEvent(WPARAM wParam, LPARAM lParam);
-	afx_msg LRESULT OnUpdateMsg(WPARAM wParam, LPARAM lParam);
-	afx_msg LRESULT OnNoteEvent(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT OnUserMidiEvent(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT OnUserPlayerEvent(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT OnUserNoteEvent(WPARAM wParam, LPARAM lParam);
 	virtual void OnInitialUpdate();
 	virtual DROPEFFECT OnDragEnter(COleDataObject* pDataObject, DWORD dwKeyState, CPoint point);
 	virtual void OnDragLeave();

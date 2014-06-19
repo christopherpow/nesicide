@@ -30,11 +30,15 @@
 // CConfigShortcuts dialog
 
 IMPLEMENT_DYNAMIC(CConfigShortcuts, CPropertyPage)
-CConfigShortcuts::CConfigShortcuts()
-	: CPropertyPage(CConfigShortcuts::IDD), m_bShift(false), m_bControl(false), m_bAlt(false)
+CConfigShortcuts::CConfigShortcuts() : 
+	CPropertyPage(CConfigShortcuts::IDD), 
+	m_bShift(false), 
+	m_bControl(false), 
+	m_bAlt(false), 
+	m_iSelectedItem(0),
+	m_iKeys(new int[CAccelerator::ACCEL_COUNT]),
+	m_iMods(new int[CAccelerator::ACCEL_COUNT])
 {
-	m_iKeys = new int[CAccelerator::ACCEL_COUNT];
-	m_iMods = new int[CAccelerator::ACCEL_COUNT];
 }
 
 CConfigShortcuts::~CConfigShortcuts()
@@ -56,6 +60,7 @@ BEGIN_MESSAGE_MAP(CConfigShortcuts, CPropertyPage)
    ON_BN_CLICKED(IDC_CLEAR, OnBnClickedClear)
 END_MESSAGE_MAP()
 
+
 // CConfigShortcuts message handlers
 
 BOOL CConfigShortcuts::OnInitDialog()
@@ -63,7 +68,7 @@ BOOL CConfigShortcuts::OnInitDialog()
 	CPropertyPage::OnInitDialog();
 
 	CAccelerator *pAccel = theApp.GetAccelerator();
-	CListCtrl *pListView = (CListCtrl*)GetDlgItem(IDC_SHORTCUTS);
+	CListCtrl *pListView = static_cast<CListCtrl*>(GetDlgItem(IDC_SHORTCUTS));
 
 	pListView->DeleteAllItems();
 	pListView->InsertColumn(0, _T("Action"), LVCFMT_LEFT, 170);
@@ -91,7 +96,7 @@ BOOL CConfigShortcuts::OnInitDialog()
 
 void CConfigShortcuts::OnNMClickShortcuts(NMHDR *pNMHDR, LRESULT *pResult)
 {
-	CListCtrl *pListView = (CListCtrl*)GetDlgItem(IDC_SHORTCUTS);
+	CListCtrl *pListView = static_cast<CListCtrl*>(GetDlgItem(IDC_SHORTCUTS));
 	m_iSelectedItem = pListView->GetSelectionMark();
 	CString KeyString = AssembleKeyString(m_iMods[m_iSelectedItem], m_iKeys[m_iSelectedItem]);
 	SetDlgItemText(IDC_KEY, KeyString);
@@ -101,7 +106,6 @@ void CConfigShortcuts::OnNMClickShortcuts(NMHDR *pNMHDR, LRESULT *pResult)
 
 void CConfigShortcuts::OnBnClickedDefault()
 {
-	CListCtrl *pListView = (CListCtrl*)GetDlgItem(IDC_SHORTCUTS);
 	CAccelerator *pAccel = theApp.GetAccelerator();
 	
 	int Key = pAccel->GetDefaultKey(m_iSelectedItem);
@@ -118,7 +122,6 @@ void CConfigShortcuts::OnBnClickedDefault()
 BOOL CConfigShortcuts::OnApply()
 {
 	CAccelerator *pAccel = theApp.GetAccelerator();
-	CListCtrl *pListView = (CListCtrl*)GetDlgItem(IDC_SHORTCUTS);
 
 	// Store keys
 	for (int i = 0; i < CAccelerator::ACCEL_COUNT; ++i)
@@ -126,8 +129,9 @@ BOOL CConfigShortcuts::OnApply()
 
 	pAccel->Setup();
 
-	CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
-	pMainFrame->UpdateMenus();
+	CMainFrame* pMainFrame = dynamic_cast<CMainFrame*>(theApp.m_pMainWnd);
+	if (pMainFrame != NULL)
+		pMainFrame->UpdateMenus();
 
 	return CPropertyPage::OnApply();
 }
@@ -202,7 +206,7 @@ void CConfigShortcuts::StoreKey(int Item, int Key, int Mod)
 	CString KeyName = pAccel->GetVKeyName(Key);
 
 	// Save to list
-	CListCtrl *pListView = (CListCtrl*)GetDlgItem(IDC_SHORTCUTS);
+	CListCtrl *pListView = static_cast<CListCtrl*>(GetDlgItem(IDC_SHORTCUTS));
 
 	pListView->SetItemText(m_iSelectedItem, 1, CAccelerator::MOD_NAMES[Mod]);
 	pListView->SetItemText(m_iSelectedItem, 2, KeyName);
@@ -213,7 +217,7 @@ void CConfigShortcuts::StoreKey(int Item, int Key, int Mod)
 
 void CConfigShortcuts::OnBnClickedClear()
 {
-	CListCtrl *pListView = (CListCtrl*)GetDlgItem(IDC_SHORTCUTS);
+	CListCtrl *pListView = static_cast<CListCtrl*>(GetDlgItem(IDC_SHORTCUTS));
 	
 	pListView->SetItemText(m_iSelectedItem, 1, CAccelerator::MOD_NAMES[MOD_NONE]);
 	pListView->SetItemText(m_iSelectedItem, 2, _T("None"));

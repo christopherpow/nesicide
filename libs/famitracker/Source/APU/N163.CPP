@@ -19,9 +19,9 @@
 */
 
 #include <memory>
-#include "../common.h"
+#include "../Common.h"
 #include "APU.h"
-#include "N163.H"
+#include "N163.h"
 
 /*
 
@@ -37,7 +37,14 @@
 // Namco 163 (previously called N106)
 //
 
-CN163::CN163(CMixer *pMixer) : m_iChansInUse(0)
+CN163::CN163(CMixer *pMixer) : 
+	m_iChansInUse(0), 
+	m_iExpandAddr(0), 
+	m_iLastValue(0), 
+	m_iGlobalTime(0), 
+	m_iChannelCntr(0),
+	m_iActiveChan(0),
+	m_iCycle(0)
 {
 	m_pWaveData = new uint8[0x80];
 
@@ -51,8 +58,6 @@ CN163::CN163(CMixer *pMixer) : m_iChansInUse(0)
 	m_pChannels[5] = new CN163Chan(pMixer, CHANID_N163_CHAN6, m_pWaveData);
 	m_pChannels[6] = new CN163Chan(pMixer, CHANID_N163_CHAN7, m_pWaveData);
 	m_pChannels[7] = new CN163Chan(pMixer, CHANID_N163_CHAN8, m_pWaveData);
-
-	m_bMixingMethod = false;
 }
 
 CN163::~CN163()
@@ -78,25 +83,11 @@ void CN163::Reset()
 	m_iCycle = 0;
 }
 
-void CN163::SetMixingMethod(bool bLinear)
-{
-	m_bMixingMethod = bLinear;
-}
-
 void CN163::Process(uint32 Time)
 {
-	if (!m_bMixingMethod && m_iChansInUse >= 6)
-		ProcessNew(Time);
-	else
-		ProcessOld(Time);
-}
+	const uint32 CHAN_PERIOD = 15;		// 15 cycles/channel
 
-void CN163::ProcessNew(uint32 Time)
-{
-	const uint32 CHAN_PERIOD = 15;		
-
-	//m_pMixer->SetNamcoVolume((m_iChansInUse == 0) ? 1.0f : (1.5f + float(m_iChansInUse - 1) / 1.5f));		// Use this for full
-	m_pMixer->SetNamcoVolume((m_iChansInUse == 0) ? 1.0f : (1.5f + float(m_iChansInUse - 1) / 2.0f));
+	m_pMixer->SetNamcoVolume((m_iChansInUse == 0) ? 1.3f : (1.5f + float(m_iChansInUse - 1) / 1.5f));
 
 	while (Time > 0) {
 
@@ -105,7 +96,7 @@ void CN163::ProcessNew(uint32 Time)
 		if (TimeToRun > Time)
 			TimeToRun = Time;
 
-		m_pChannels[m_iActiveChan]->ProcessDirty(TimeToRun, m_iChansInUse + 1, this);
+		m_pChannels[m_iActiveChan]->Process(TimeToRun, m_iChansInUse + 1, this);
 
 		Time -= TimeToRun;
 		m_iGlobalTime += TimeToRun;
@@ -118,14 +109,6 @@ void CN163::ProcessNew(uint32 Time)
 			m_iChannelCntr -= CHAN_PERIOD;
 		}
 	}
-}
-
-void CN163::ProcessOld(uint32 Time)
-{
-	m_pMixer->SetNamcoVolume((m_iChansInUse == 0) ? 1.0f : 0.75f);
-
-	for (int i = 7 - m_iChansInUse; i < 8; ++i)
-		m_pChannels[i]->ProcessClean(Time, m_iChansInUse + 1);
 }
 
 void CN163::Mix(int32 Value, uint32 Time, uint8 ChanID)
@@ -153,7 +136,7 @@ void CN163::EndFrame()
 
 void CN163::Write(uint16 Address, uint8 Value)
 {
-	int Area = ExpandAddr & 0x7F;
+	int Area = m_iExpandAddr & 0x7F;
 
 	switch (Address) {
 		case 0x4800:
@@ -168,12 +151,12 @@ void CN163::Write(uint16 Address, uint8 Value)
 					m_iChansInUse = (Value >> 4) & 0x07;
 			}
 
-			if (ExpandAddr & 0x80)
-				ExpandAddr = (ExpandAddr + 1) | 0x80;
+			if (m_iExpandAddr & 0x80)
+				m_iExpandAddr = (m_iExpandAddr + 1) | 0x80;
 			break;
 
 		case 0xF800:
-			ExpandAddr = Value;
+			m_iExpandAddr = Value;
 			break;
 	}
 
@@ -186,9 +169,9 @@ uint8 CN163::Read(uint16 Address, bool &Mapped)
 	switch (Address) {
 		case 0x4800:
 			Mapped = true;
-			ReadAddr = ExpandAddr & 0x7F;
-			if (ExpandAddr & 0x80)
-				ExpandAddr = ((ExpandAddr + 1) & 0x7F) | 0x80;
+			ReadAddr = m_iExpandAddr & 0x7F;
+			if (m_iExpandAddr & 0x80)
+				m_iExpandAddr = ((m_iExpandAddr + 1) & 0x7F) | 0x80;
 			return m_pWaveData[ReadAddr];
 	}
 
@@ -217,6 +200,7 @@ CN163Chan::CN163Chan(CMixer *pMixer, int ID, uint8 *pWaveData) :
 	CExChannel(pMixer, SNDCHIP_N163, ID),
 	m_pWaveData(pWaveData)
 {
+	Reset();
 }
 
 CN163Chan::~CN163Chan()
@@ -272,40 +256,8 @@ void CN163Chan::Write(uint16 Address, uint8 Value)
 	}
 }
 
-void CN163Chan::ProcessClean(uint32 Time, uint8 ChannelsActive)
+void CN163Chan::Process(uint32 Time, uint8 ChannelsActive, CN163 *pParent)
 {
-	// Clean (inaccurate) N163 emulation
-
-	if (!m_iFrequency || !m_iWaveLength) {
-		m_iTime += Time;
-		return;
-	}
-
-	while (Time >= m_iCounter) {
-		Time	-= m_iCounter;
-		m_iTime += m_iCounter;
-		m_iCounter = 15 * ChannelsActive;
-		
-		m_iPhase = (m_iPhase + m_iFrequency) % m_iWaveLength;
-
-		int WavePtr = m_iPhase >> 16;
-
-		uint8 Sample = m_pWaveData[((WavePtr + m_iWaveOffset) & 0xFF) >> 1];
-
-		if (WavePtr & 1)
-			Sample >>= 4;
-
-		Mix((Sample & 0x0F) * m_iVolume);
-	}
-	
-	m_iCounter -= Time;
-	m_iTime += Time;
-}
-
-void CN163Chan::ProcessDirty(uint32 Time, uint8 ChannelsActive, CN163 *pParent)
-{
-	// Unclean (accurate) N163 emulation
-
 	uint32 TimeStamp = 0;
 
 	pParent->Mix(m_iLastSample, TimeStamp, m_iChanId);

@@ -20,7 +20,11 @@
 
 #pragma once
 
-enum {WM_SIZE_CHANGE = WM_USER, WM_CURSOR_CHANGE, WM_SEQUENCE_CHANGED};
+enum {
+	WM_SIZE_CHANGE = WM_USER, 
+	WM_CURSOR_CHANGE, 
+	WM_SEQUENCE_CHANGED
+};
 
 class CSequence;
 class CGraphEditor;
@@ -63,7 +67,10 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnPaint();
-	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	//virtual BOOL PreTranslateMessage(MSG* pMsg);
 	virtual BOOL DestroyWindow();
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+	afx_msg LRESULT OnSizeChange(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT OnCursorChange(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT OnSequenceChanged(WPARAM wParam, LPARAM lParam);
 };

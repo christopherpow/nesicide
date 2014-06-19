@@ -7,7 +7,7 @@ Index file=FamiTracker.hhk
 Default topic=main_index.htm
 Display compile progress=Yes
 Full-text search=Yes
-Language=0x0409 Engelska (USA)
+Language=0x0409 English (USA)
 
 [FILES]
 main_index.htm
@@ -31,6 +31,18 @@ config_appearance.htm
 config_midi.htm
 config_sound.htm
 config_shortcuts.htm
+config_mixer.htm
+menu_edit.htm
+menu_help.htm
+menu_instrument.htm
+menu_file.htm
+menu_module.htm
+menu_tracker.htm
+menu_view.htm
+comments.htm
+export_wave.htm
+performance.htm
+speed.htm
 sound_overview.htm
 2a03.htm
 vrc6.htm
@@ -48,15 +60,9 @@ img/toolbar1.png
 img/toolbar2.png
 img/pattern.png
 img/properties.png
-img/menu_file.png
-img/menu_edit.png
-img/menu_module.png
-img/menu_instrument.png
-img/menu_tracker.png
-img/menu_view.png
-img/menu_help.png
 img/Icon.png
 style.css
+gpl.txt
 
 [ALIAS]
 HIDR_MAINFRAME					= main_index.htm
@@ -72,7 +78,7 @@ HIDD_CONFIG_APPEARANCE			= config_appearance.htm
 HIDD_CONFIG_MIDI				= config_midi.htm
 HIDD_CONFIG_SOUND				= config_sound.htm
 HIDD_CONFIG_SHORTCUTS			= config_shortcuts.htm
-HIDD_CONDIG_LEVELS				= configuration.htm
+HIDD_CONFIG_MIXER				= config_mixer.htm
 HIDD_INSTRUMENT_INTERNAL		= 2a03.htm
 HIDD_INSTRUMENT_DPCM			= 2a03.htm
 HIDD_INSTRUMENT_VRC6			= vrc6.htm
@@ -86,6 +92,13 @@ HIDD_TEXTEXPORT					= text_export.htm
 HIDD_COMMAND_LINE				= command_line.htm
 HIDD_PROPERTIES					= properties.htm
 HIDD_SAMPLE_EDITOR				= dpcm_editor.htm
+HIDD_PERFORMANCE				= performance.htm
+HIDD_COMMENTS					= comments.htm
+HIDD_ABOUTBOX					= main_index.htm
+HIDD_SPEED						= speed.htm
+HIDD_WAVE_PROGRESS				= export_wave.htm
+HIDD_CREATEWAV					= export_wave.htm
+
 
 [MAP]
 #include HTMLDefines.h

@@ -99,66 +99,24 @@ extern "C" void SDL_FamiTracker(void* userdata, uint8_t* stream, int32_t len)
    ftmAudioSemaphore.release();
 }
 
-bool CDSound::Init(int Device)
+bool CDSound::SetupDevice(int iDevice)
 {	
    SDL_Init ( SDL_INIT_AUDIO );
-
-//	if (Device > (int)m_iDevices)
-//		Device = 0;
-	
-//	if (m_lpDirectSound) {
-//		m_lpDirectSound->Release();
-//		m_lpDirectSound = NULL;
-//	}
-
-//	if (FAILED(DirectSoundCreate((LPCGUID)m_pGUIDs[Device], &m_lpDirectSound, NULL))) {
-//		m_lpDirectSound = NULL;
-//		return false;
-//	}
-
-//	if (FAILED(m_lpDirectSound->SetCooperativeLevel(m_hWndTarget, DSSCL_PRIORITY)))
-//		return false;
 	
 	return true;
 }
 
-void CDSound::Close()
+void CDSound::CloseDevice()
 {
-//	if (!m_lpDirectSound)
-//		return;
-
-//	m_lpDirectSound->Release();
-//	m_lpDirectSound = NULL;
-
-//	if (m_iDevices != 0)
-//		ClearEnumeration();
 }
 
 void CDSound::ClearEnumeration()
 {
-//	for (unsigned i = 0; i < m_iDevices; ++i) {
-//		delete [] m_pcDevice[i];
-//		if (m_pGUIDs[i] != NULL)
-//			delete m_pGUIDs[i];
-//	}
-
 	m_iDevices = 0;
 }
 
-BOOL CDSound::EnumerateCallback(LPGUID lpGuid, LPCSTR lpcstrDescription, LPCSTR lpcstrModule, LPVOID lpContext)
+BOOL CDSound::EnumerateCallback(LPGUID lpGuid, LPCTSTR lpcstrDescription, LPCTSTR lpcstrModule, LPVOID lpContext)
 {
-//	m_pcDevice[m_iDevices] = new char[strlen(lpcstrDescription) + 1];
-//	strcpy(m_pcDevice[m_iDevices], lpcstrDescription);
-
-//	if (lpGuid != NULL) {
-//		m_pGUIDs[m_iDevices] = new GUID;
-//		memcpy(m_pGUIDs[m_iDevices], lpGuid, sizeof(GUID));
-//	}
-//	else
-//		m_pGUIDs[m_iDevices] = NULL;
-
-//	++m_iDevices;
-
 	return TRUE;
 }
 
@@ -168,7 +126,6 @@ void CDSound::EnumerateDevices()
 		ClearEnumeration();
 
     qDebug("Hook SDL2 here?");
-//	DirectSoundEnumerate(DSEnumCallback, NULL);
 }
 
 unsigned int CDSound::GetDeviceCount() const
@@ -176,15 +133,16 @@ unsigned int CDSound::GetDeviceCount() const
 	return m_iDevices;
 }
 
-char *CDSound::GetDeviceName(int iDevice) const
+LPCTSTR CDSound::GetDeviceName(int iDevice) const
 {
+	ASSERT(iDevice < m_iDevices);
 	return m_pcDevice[iDevice];
 }
 
-int CDSound::MatchDeviceID(char *Name) const
+int CDSound::MatchDeviceID(LPCTSTR Name) const
 {
 	for (unsigned int i = 0; i < m_iDevices; ++i) {
-		if (!strcmp(Name, m_pcDevice[i]))
+		if (!_tcscmp(Name, m_pcDevice[i]))
 			return i;
 	}
 
@@ -202,16 +160,6 @@ CDSoundChannel *CDSound::OpenChannel(int SampleRate, int SampleSize, int Channel
    SDL_AudioSpec sdlAudioSpecIn;
    SDL_AudioSpec sdlAudioSpecOut;
    
-	// Open a new secondary buffer
-	//
-
-//	DSBPOSITIONNOTIFY	dspn[MAX_BLOCKS];
-//	WAVEFORMATEX		wfx;
-//	DSBUFFERDESC		dsbd;
-
-//	if (!m_lpDirectSound)
-//		return NULL;
-
 	// Adjust buffer length in case a buffer would end up in half samples
 	while ((SampleRate * BufferLength / (Blocks * 1000) != (double)SampleRate * BufferLength / (Blocks * 1000)))
 		++BufferLength;
@@ -261,48 +209,9 @@ CDSoundChannel *CDSound::OpenChannel(int SampleRate, int SampleSize, int Channel
 	pChannel->m_iSampleRate			= SampleRate;
 	pChannel->m_iChannels			= Channels;
 
-//	pChannel->m_iCurrentWriteBlock	= 0;
-//	pChannel->m_hWndTarget			= m_hWndTarget;
-//	pChannel->m_hEventList[0]		= m_hNotificationHandle;
-//	pChannel->m_hEventList[1]		= hBufferEvent;
+	pChannel->m_iCurrentWriteBlock	= 0;
 
-//	memset(&wfx, 0x00, sizeof(WAVEFORMATEX));
-//	wfx.cbSize				= sizeof(WAVEFORMATEX);
-//	wfx.nChannels			= Channels;
-//	wfx.nSamplesPerSec		= SampleRate;
-//	wfx.wBitsPerSample		= SampleSize;
-//	wfx.nBlockAlign			= wfx.nChannels * (wfx.wBitsPerSample / 8);
-//	wfx.nAvgBytesPerSec		= wfx.nSamplesPerSec * wfx.nBlockAlign;
-//	wfx.wFormatTag			= WAVE_FORMAT_PCM;
-
-//	memset(&dsbd, 0x00, sizeof(DSBUFFERDESC));
-//	dsbd.dwSize			= sizeof(DSBUFFERDESC);
-//	dsbd.dwBufferBytes	= SoundBufferSize;
-//	dsbd.dwFlags		= DSBCAPS_LOCSOFTWARE | DSBCAPS_GLOBALFOCUS | DSBCAPS_CTRLPOSITIONNOTIFY | DSBCAPS_GETCURRENTPOSITION2;
-//	dsbd.lpwfxFormat	= &wfx;
-
-//	if (FAILED(m_lpDirectSound->CreateSoundBuffer(&dsbd, &pChannel->m_lpDirectSoundBuffer, NULL))) {
-//		delete pChannel;
-//		return NULL;
-//	}
-
-//	// Setup notifications
-//	for (int i = 0; i < Blocks; ++i) {
-//		dspn[i].dwOffset = i * BlockSize;
-//		dspn[i].hEventNotify = hBufferEvent;
-//	}
-
-//	if (FAILED(pChannel->m_lpDirectSoundBuffer->QueryInterface(IID_IDirectSoundNotify, (void**)&pChannel->m_lpDirectSoundNotify))) {
-//		delete pChannel;
-//		return NULL;
-//	}
-
-//	if (FAILED(pChannel->m_lpDirectSoundNotify->SetNotificationPositions(Blocks, dspn))) {
-//		delete pChannel;
-//		return NULL;
-//	}
-
-	pChannel->Clear();
+	pChannel->ClearBuffer();
 
    // SDL...
    pChannel->Play();
@@ -321,9 +230,6 @@ void CDSound::CloseChannel(CDSoundChannel *pChannel)
 	if (pChannel == NULL)
 		return;
 
-//	pChannel->m_lpDirectSoundBuffer->Release();
-//	pChannel->m_lpDirectSoundNotify->Release();
-
 	delete pChannel;
 }
 
@@ -333,150 +239,47 @@ CDSoundChannel::CDSoundChannel()
 {
    m_bPaused = true;
 	m_iCurrentWriteBlock = 0;
-
-//	m_hEventList[0] = NULL;
-//	m_hEventList[1] = NULL;
-//	m_hWndTarget = NULL;
 }
 
 CDSoundChannel::~CDSoundChannel()
 {
-//	// Kill buffer event
-//	if (m_hEventList[1])
-//		CloseHandle(m_hEventList[1]);
 }
 
-void CDSoundChannel::Play()
+bool CDSoundChannel::Play()
 {
    ftmAudioSemaphore.release();
    m_bPaused = false;
-//	// Begin playback of buffer
-//	m_lpDirectSoundBuffer->Play(NULL, NULL, DSBPLAY_LOOPING);
 }
 
-void CDSoundChannel::Stop()
+bool CDSoundChannel::Stop()
 {
    m_bPaused = true;
-//	// Stop playback
-//	m_lpDirectSoundBuffer->Stop();
-	Reset();
-}
-
-void CDSoundChannel::Pause() 
-{
-   m_bPaused = true;
-//	// Pause playback of buffer, doesn't reset cursors
-//	m_lpDirectSoundBuffer->Stop();
+   return true;
 }
 
 bool CDSoundChannel::IsPlaying() const
 {
    return m_bPaused;
-//	DWORD Status;
-//	m_lpDirectSoundBuffer->GetStatus(&Status);
-//	return ((Status & DSBSTATUS_PLAYING) == DSBSTATUS_PLAYING);
 }
 
-void CDSoundChannel::Clear()
+bool CDSoundChannel::ClearBuffer()
 {
-//	DWORD	*AudioPtr1, *AudioPtr2;
-//	DWORD	AudioBytes1, AudioBytes2;
-//	HRESULT	hRes;
-
 	if (IsPlaying())
 		Stop();
-
-//	m_lpDirectSoundBuffer->SetCurrentPosition(0);
-
-//	hRes = m_lpDirectSoundBuffer->Lock(0, m_iSoundBufferSize, (void**)&AudioPtr1, &AudioBytes1, (void**)&AudioPtr2, &AudioBytes2, 0);
-	
-//	if FAILED(hRes) {
-//		return;
-//	}
-
-//	if (m_iSampleSize == 8) {
-//		memset(AudioPtr1, 0x80, AudioBytes1);
-//		if (AudioPtr2)
-//			memset(AudioPtr2, 0x80, AudioBytes2);
-//	}
-//	else {
-//		memset(AudioPtr1, 0x00, AudioBytes1);
-//		if (AudioPtr2)
-//			memset(AudioPtr2, 0x00, AudioBytes2);
-//	}
-
-//	hRes = m_lpDirectSoundBuffer->Unlock((void*)AudioPtr1, AudioBytes1, (void*)AudioPtr2, AudioBytes2);
-
-//	if FAILED(hRes)
-//		return;
-
-//	m_lpDirectSoundBuffer->SetCurrentPosition(0);
-//	m_iCurrentWriteBlock = 0;
 }
 
-void CDSoundChannel::WriteSoundBuffer(void *Buffer, unsigned int Samples)
+bool CDSoundChannel::WriteBuffer(char *pBuffer, unsigned int Samples)
 {   
-   memcpy(m_pSoundBuffer+m_iSoundProducer,Buffer,Samples);
+   memcpy(m_pSoundBuffer+m_iSoundProducer,pBuffer,Samples);
    m_iSoundProducer += Samples;
    m_iSoundProducer %= m_iSoundBufferSize;
-
-   // Fill sound buffer
-	//
-	// Buffer	- Pointer to a buffer with samples
-	// Samples	- Number of samples, in bytes
-	//
-
-//	DWORD	*AudioPtr1, *AudioPtr2;
-//	DWORD	AudioBytes1, AudioBytes2;
-//	HRESULT	hRes;
-//	int		Block = m_iCurrentWriteBlock;
-
-//	ASSERT(Samples == m_iBlockSize);
-	
-//	hRes = m_lpDirectSoundBuffer->Lock(Block * m_iBlockSize, m_iBlockSize, (void**)&AudioPtr1, &AudioBytes1, (void**)&AudioPtr2, &AudioBytes2, 0);
-
-//	// Could not lock
-//	if (FAILED(hRes))
-//		return;
-
-//	memcpy(AudioPtr1, Buffer, AudioBytes1);
-
-//	if (AudioPtr2)
-//		memcpy(AudioPtr2, (unsigned char*)Buffer + AudioBytes1, AudioBytes2);
-
-//	hRes = m_lpDirectSoundBuffer->Unlock((void*)AudioPtr1, AudioBytes1, (void*)AudioPtr2, AudioBytes2);
-
-//	if (FAILED(hRes))
-//		return;
-
-//	AdvanceWritePointer();
 }
 
-void CDSoundChannel::Reset()
-{
-//	// Reset playback from the beginning of the buffer
-//	m_iCurrentWriteBlock = 0;
-//	m_lpDirectSoundBuffer->SetCurrentPosition(0);
-}
-
-int  CDSoundChannel::WaitForDirectSoundEvent(DWORD dwTimeout) const
+buffer_event_t CDSoundChannel::WaitForSyncEvent(DWORD dwTimeout) const
 {
 	// Wait for a DirectSound event
-//	if (!IsPlaying())
-//		Play();
    bool ok = ftmAudioSemaphore.tryAcquire(1,dwTimeout);
    return ok?BUFFER_IN_SYNC:BUFFER_OUT_OF_SYNC;
-
-//	// Wait for events
-//	switch (WaitForMultipleObjects(2, m_hEventList, FALSE, INFINITE)) {
-//		case WAIT_OBJECT_0:			// External event
-//			return CUSTOM_EVENT;
-//		case WAIT_OBJECT_0 + 1:		// Direct sound buffer
-//			return (GetWriteBlock() == m_iCurrentWriteBlock) ? BUFFER_OUT_OF_SYNC : BUFFER_IN_SYNC;
-//	}
-
-//	// Error
-//	return 0;
 }
 
 //int CDSoundChannel::GetPlayBlock() const
@@ -494,13 +297,3 @@ int  CDSoundChannel::WaitForDirectSoundEvent(DWORD dwTimeout) const
 //	m_lpDirectSoundBuffer->GetCurrentPosition(&PlayPos, &WritePos);
 //	return (WritePos / m_iBlockSize);
 //}
-
-void CDSoundChannel::ResetWritePointer()
-{
-	m_iCurrentWriteBlock = 0;
-}
-
-void CDSoundChannel::AdvanceWritePointer()
-{
-	m_iCurrentWriteBlock = (m_iCurrentWriteBlock + 1) % m_iBlocks;
-}

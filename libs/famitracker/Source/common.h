@@ -39,7 +39,7 @@ const int SPEED_PAL		= 2;
 
 
 // Used to play the audio when the buffer is full
-class ICallback {
+class IAudioCallback {
 public:
 	virtual void FlushBuffer(int16 *Buffer, uint32 Size) = 0;
 };
@@ -48,22 +48,30 @@ public:
 // class for simulating CPU memory, used by the DPCM channel
 class CSampleMem 
 {
-	public:
-		uint8 Read(uint16 Address) {
-			if (!m_pMemory)
-				return 0;
-			uint16 Addr = (Address - 0xC000);// % m_iMemSize;
-			if (Addr >= m_iMemSize)
-				return 0;
-			return m_pMemory[Addr];
-		};
+public:
+	CSampleMem() : m_pMemory(0), m_iMemSize(0) {
+	};
 
-		void SetMem(char *Ptr, int Size) {
-			m_pMemory = (uint8*)Ptr;
-			m_iMemSize = Size;
-		};
+	uint8 Read(uint16 Address) {
+		if (!m_pMemory)
+			return 0;
+		uint16 Addr = (Address - 0xC000);// % m_iMemSize;
+		if (Addr >= m_iMemSize)
+			return 0;
+		return m_pMemory[Addr];
+	};
 
-	private:
-		uint8  *m_pMemory;
-		uint16	m_iMemSize;
+	void SetMem(char *Ptr, int Size) {
+		m_pMemory = (uint8*)Ptr;
+		m_iMemSize = Size;
+	};
+
+	void Clear() {
+		m_pMemory = 0;
+		m_iMemSize = 0;
+	}
+
+private:
+	uint8  *m_pMemory;
+	uint16	m_iMemSize;
 };

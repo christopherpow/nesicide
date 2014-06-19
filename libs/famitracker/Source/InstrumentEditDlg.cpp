@@ -33,6 +33,8 @@
 #include "InstrumentEditorN163Wave.h"
 #include "InstrumentEditorS5B.h"
 #include "MainFrm.h"
+#include "SoundGen.h"
+#include "TrackerChannel.h"
 
 // Constants
 const int CInstrumentEditDlg::KEYBOARD_TOP	  = 323;
@@ -139,25 +141,26 @@ void CInstrumentEditDlg::SetCurrentInstrument(int Index)
 {
 	CString Title;
 	char Name[256];
-	CInstrument *pInstrument = m_pDocument->GetInstrument(Index);
+	CInstrumentContainer<CInstrument> instContainer(m_pDocument, Index);
+	CInstrument *pInstrument = instContainer();
 	int InstType = pInstrument->GetType();
 
 	// Dialog title
 	m_pDocument->GetInstrumentName(Index, Name);	
-	Title.Format(IDS_INST_EDITOR_TITLE, Index, Name, CHIP_NAMES[InstType]);
+	CString Suffix;
+	Suffix.Format(_T("%02X. %s (%s)"), Index, Name, CHIP_NAMES[InstType]);
+	AfxFormatString1(Title, IDS_INSTRUMENT_EDITOR_TITLE, Suffix);
 	SetWindowText(Title);
 
 	if (InstType != m_iSelectedInstType) {
-
 		ShowWindow(SW_HIDE);
-
 		ClearPanels();
 
 		switch (InstType) {
 			case INST_2A03: {
 					int Channel = CFamiTrackerView::GetView()->GetSelectedChannel();
 					int Type = CFamiTrackerDoc::GetDoc()->GetChannelType(Channel);
-					bool bShowDPCM = (Type == CHANID_DPCM) || (((CInstrument2A03*)pInstrument)->AssignedSamples());
+					bool bShowDPCM = (Type == CHANID_DPCM) || (static_cast<CInstrument2A03*>(pInstrument)->AssignedSamples());
 					InsertPane(new CInstrumentEditor2A03(), !bShowDPCM);
 					InsertPane(new CInstrumentEditorDPCM(), bShowDPCM);
 				}
@@ -194,23 +197,20 @@ void CInstrumentEditDlg::SetCurrentInstrument(int Index)
 	UpdateWindow();
 
 	m_iSelectedInstType = InstType;
-
-	pInstrument->Release();
 }
 
 void CInstrumentEditDlg::OnTcnSelchangeInstTab(NMHDR *pNMHDR, LRESULT *pResult)
 {
-	CTabCtrl *pTabControl = (CTabCtrl*)GetDlgItem(IDC_INST_TAB);
+	CTabCtrl *pTabControl = static_cast<CTabCtrl*>(GetDlgItem(IDC_INST_TAB));
 	int Selection = pTabControl->GetCurSel();
 
 	for (int i = 0; i < PANEL_COUNT; i++) {
-		if (m_pPanels[i] != NULL) {
+		if (m_pPanels[i] != NULL && i != Selection) {
 			m_pPanels[i]->ShowWindow(SW_HIDE);
 		}
 	}
 
 	m_pPanels[Selection]->ShowWindow(SW_SHOW);
-	m_pPanels[Selection]->SetFocus();
 
 	m_pFocusPanel = m_pPanels[Selection];
 
@@ -225,17 +225,17 @@ void CInstrumentEditDlg::OnPaint()
 	const int WHITE_KEY_W	= 10;
 	const int BLACK_KEY_W	= 8;
 
-	CBitmap WhiteKeyBmp, BlackKeyBmp, *OldWhite;
-	CBitmap WhiteKeyMarkBmp, BlackKeyMarkBmp, *OldBlack;
+	CBitmap WhiteKeyBmp, BlackKeyBmp, *pOldWhite;
+	CBitmap WhiteKeyMarkBmp, BlackKeyMarkBmp, *pOldBlack;
 
 	CDC WhiteKey, BlackKey;
 	CDC BackDC;
 
-	CBitmap Bmp, *OldBmp;
+	CBitmap Bmp, *pOldBmp;
 
 	Bmp.CreateCompatibleBitmap(&dc, 800, 800);
 	BackDC.CreateCompatibleDC(&dc);
-	OldBmp = BackDC.SelectObject(&Bmp);
+	pOldBmp = BackDC.SelectObject(&Bmp);
 
 	WhiteKeyBmp.LoadBitmap(IDB_KEY_WHITE);
 	BlackKeyBmp.LoadBitmap(IDB_KEY_BLACK);
@@ -245,10 +245,8 @@ void CInstrumentEditDlg::OnPaint()
 	WhiteKey.CreateCompatibleDC(&dc);
 	BlackKey.CreateCompatibleDC(&dc);
 
-	OldWhite = WhiteKey.SelectObject(&WhiteKeyBmp);
-	OldBlack = BlackKey.SelectObject(&BlackKeyBmp);
-
-	int Pos;
+	pOldWhite = WhiteKey.SelectObject(&WhiteKeyBmp);
+	pOldBlack = BlackKey.SelectObject(&BlackKeyBmp);
 
 	const int WHITE[]	= {0, 2, 4, 5, 7, 9, 11};
 	const int BLACK_1[] = {1, 3};
@@ -258,7 +256,7 @@ void CInstrumentEditDlg::OnPaint()
 	int Octave	= m_iActiveKey / 12;
 
 	for (int j = 0; j < 8; j++) {
-		Pos = /*KEYBOARD_LEFT +*/ ((WHITE_KEY_W * 7) * j);
+		int Pos = /*KEYBOARD_LEFT +*/ ((WHITE_KEY_W * 7) * j);
 
 		for (int i = 0; i < 7; i++) {
 			if ((Note == WHITE[i]) && (Octave == j) && m_iActiveKey != -1)
@@ -288,12 +286,12 @@ void CInstrumentEditDlg::OnPaint()
 		}
 	}
 
-	WhiteKey.SelectObject(OldWhite);
-	BlackKey.SelectObject(OldBlack);
+	WhiteKey.SelectObject(pOldWhite);
+	BlackKey.SelectObject(pOldBlack);
 
 	dc.BitBlt(SX(KEYBOARD_LEFT - 6) + 6, SY(KEYBOARD_TOP - 12) + 12, KEYBOARD_WIDTH, KEYBOARD_HEIGHT, &BackDC, 0, 0, SRCCOPY);
 
-	BackDC.SelectObject(OldBmp);
+	BackDC.SelectObject(pOldBmp);
 }
 
 void CInstrumentEditDlg::ChangeNoteState(int Note)
@@ -309,10 +307,9 @@ void CInstrumentEditDlg::ChangeNoteState(int Note)
 void CInstrumentEditDlg::SwitchOnNote(int x, int y)
 {
 	CFamiTrackerView *pView = CFamiTrackerView::GetView();
+	CMainFrame *pFrameWnd = static_cast<CMainFrame*>(GetParent());
+
 	stChanNote NoteData;
-	int Octave;
-	int Note;
-	int KeyPos;
 
 	// TODO: remove hardcoded numbers
 
@@ -326,13 +323,15 @@ void CInstrumentEditDlg::SwitchOnNote(int x, int y)
 
 	int Channel = pView->GetSelectedChannel();
 
-	Octave = (x - KEYBOARD_LEFT) / 70;
-
 	if (y > KEYBOARD_TOP && y < (KEYBOARD_TOP + 58) && x > KEYBOARD_LEFT && x < (KEYBOARD_LEFT + 560)) {
+		
+		int Octave = (x - KEYBOARD_LEFT) / 70;
+		int Note;
+
 		if (y > KEYBOARD_TOP + 38) {
 			
 			// Only white keys
-			KeyPos = (x - KEYBOARD_LEFT) % 70;
+			int KeyPos = (x - KEYBOARD_LEFT) % 70;
 
 			if (KeyPos >= 0 && KeyPos < 10)				// C
 				Note = 0;
@@ -351,7 +350,7 @@ void CInstrumentEditDlg::SwitchOnNote(int x, int y)
 		}
 		else {
 			// Black and white keys
-			KeyPos = (x - KEYBOARD_LEFT) % 70;
+			int KeyPos = (x - KEYBOARD_LEFT) % 70;
 
 			if (KeyPos >= 0 && KeyPos < 7)			// C
 				Note = 0;
@@ -383,11 +382,11 @@ void CInstrumentEditDlg::SwitchOnNote(int x, int y)
 			NoteData.Note			= Note + 1;
 			NoteData.Octave			= Octave;
 			NoteData.Vol			= 0x0F;
-			NoteData.Instrument		= pView->GetInstrument();
+			NoteData.Instrument		= pFrameWnd->GetSelectedInstrument();
 			memset(NoteData.EffNumber, 0, 4);
 			memset(NoteData.EffParam, 0, 4);
 
-			pView->FeedNote(Channel, &NoteData);
+			theApp.GetSoundGenerator()->QueueNote(Channel, NoteData, NOTE_PRIO_2);
 		}
 
 		m_iLastKey = Note + (Octave * 12);
@@ -400,7 +399,7 @@ void CInstrumentEditDlg::SwitchOnNote(int x, int y)
 		memset(NoteData.EffNumber, 0, 4);
 		memset(NoteData.EffParam, 0, 4);
 
-		pView->FeedNote(Channel, &NoteData);
+		theApp.GetSoundGenerator()->QueueNote(Channel, NoteData, NOTE_PRIO_2);
 
 		m_iLastKey = -1;
 	}
@@ -411,17 +410,17 @@ void CInstrumentEditDlg::SwitchOffNote(bool ForceHalt)
 	stChanNote NoteData;
 
 	CFamiTrackerView *pView = CFamiTrackerView::GetView();
+	CMainFrame *pFrameWnd = static_cast<CMainFrame*>(GetParent());
 
 	int Channel = pView->GetSelectedChannel();
 
-	NoteData.Note			= (pView->DoRelease() && !ForceHalt) ? RELEASE : HALT;
-	NoteData.Octave			= 0;
-	NoteData.Vol			= 0x10;
-	NoteData.Instrument		= pView->GetInstrument();// 0;
-	memset(NoteData.EffNumber, 0, 4);
-	memset(NoteData.EffParam, 0, 4);
+	memset(&NoteData, 0, sizeof(stChanNote));
 
-	pView->FeedNote(Channel, &NoteData);
+	NoteData.Note			= (pView->DoRelease() && !ForceHalt) ? RELEASE : HALT;
+	NoteData.Vol			= 0x10;
+	NoteData.Instrument		= pFrameWnd->GetSelectedInstrument();
+
+	theApp.GetSoundGenerator()->QueueNote(Channel, NoteData, NOTE_PRIO_2);
 
 	m_iLastKey = -1;
 }

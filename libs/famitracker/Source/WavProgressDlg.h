@@ -32,25 +32,21 @@ public:
 	CWavProgressDlg(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CWavProgressDlg();
 
-	void SetFile(CString File);
-	void SetOptions(int LengthType, int LengthParam);
+   void BeginRender(const CString &File, render_end_t LengthType, int LengthParam, int Track);
 
 // Dialog Data
 	enum { IDD = IDD_WAVE_PROGRESS };
 
 protected:
-
-	CSoundGen			*m_pSoundGen;
-	CProgressCtrl		*m_pProgressBar;
-	CFamiTrackerView	*m_pView;
-	CFamiTrackerDoc		*m_pDoc;
-	DWORD				m_dwStartTime;
+	DWORD m_dwStartTime;
+	render_end_t m_iSongEndType;
+	int m_iSongEndParam;
+	int m_iTrack;
+	
+	CString m_sFile;
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-
-	CString m_sFile;
-	int m_iSongEndType, m_iSongEndParam;
 
 	DECLARE_MESSAGE_MAP()
 public:

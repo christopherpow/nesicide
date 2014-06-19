@@ -43,11 +43,11 @@ enum PATHS {
 	PATH_COUNT
 };
 
-
 // Base class for settings, pure virtual
 class CSettingBase {
 public:
-	CSettingBase(LPCTSTR pSection, LPCTSTR pEntry, void *pVariable) : m_pSection(pSection), m_pEntry(pEntry), m_pVariable(pVariable) {};
+	CSettingBase(LPCTSTR pSection, LPCTSTR pEntry) : m_pSection(pSection), m_pEntry(pEntry) {};
+	virtual ~CSettingBase() {}
 	virtual void Load() = 0;
 	virtual void Save() = 0;
 	virtual void Default() = 0;
@@ -55,47 +55,28 @@ public:
 protected:
 	LPCTSTR m_pSection;
 	LPCTSTR m_pEntry;
-	void *m_pVariable;
 };
 
-// Bool setting
-class CSettingBool : public CSettingBase {
+// Templated setting class
+template <class T>
+class CSettingType : public CSettingBase {
 public:
-	CSettingBool(LPCTSTR pSection, LPCTSTR pEntry, bool defaultVal, void *pVar) : CSettingBase(pSection, pEntry, pVar), m_bDefaultValue(defaultVal) {};
+	CSettingType(LPCTSTR pSection, LPCTSTR pEntry, T defaultVal, T *pVar) : CSettingBase(pSection, pEntry), m_tDefaultValue(defaultVal), m_pVariable(pVar) {};
 	virtual void Load();
 	virtual void Save();
 	virtual void Default();
 protected:
-	bool m_bDefaultValue;
-};
-
-// Integer setting
-class CSettingInt : public CSettingBase {
-public:
-	CSettingInt(LPCTSTR pSection, LPCTSTR pEntry, int defaultVal, void *pVar) : CSettingBase(pSection, pEntry, pVar), m_iDefaultValue(defaultVal) {};
-	virtual void Load();
-	virtual void Save();
-	virtual void Default();
-protected:
-	int m_iDefaultValue;
-};
-
-// String setting
-class CSettingString : public CSettingBase {
-public:
-	CSettingString(LPCTSTR pSection, LPCTSTR pEntry, LPCTSTR pDefault, void *pVar) : CSettingBase(pSection, pEntry, pVar), m_pDefaultValue(pDefault) {};
-	virtual void Load();
-	virtual void Save();
-	virtual void Default();
-protected:
-	LPCTSTR m_pDefaultValue;
+	T *m_pVariable;
+	T m_tDefaultValue;
 };
 
 // Settings collection
 class CSettings : public CObject
 {
-public:
+private:
 	CSettings();
+
+public:
 	virtual ~CSettings();
 
 	void	LoadSettings();
@@ -109,6 +90,9 @@ public:
 
 	CString GetPath(unsigned int PathType) const;
 	void	SetPath(CString PathName, unsigned int PathType);
+
+public:
+	static CSettings* GetObject();
 
 public:
 	// Local cache of all settings (all public)
@@ -131,6 +115,9 @@ public:
 		bool	bBackups;
 		int		iFontSize;
 		bool	bSingleInstance;
+		bool	bPreviewFullRow;
+		bool	bDisplayFlats;
+		bool	bDblClickSelect;
 	} General;
 
 	struct {
@@ -186,20 +173,23 @@ public:
 	// Other
 	int SampleWinState;
 	int FrameEditPos;
+	bool FollowMode;
 
 	struct {
-		int		iLevel2A03;
+		int		iLevelAPU1;
+		int		iLevelAPU2;
 		int		iLevelVRC6;
 		int		iLevelVRC7;
 		int		iLevelMMC5;
 		int		iLevelFDS;
+		int		iLevelN163;
+		int		iLevelS5B;
 	} ChipLevels;
-
-	bool m_bNamcoMixing;
 
 	CString InstrumentMenuPath;
 
 private:
+	template<class T> void AddSetting(LPCTSTR pSection, LPCTSTR pEntry, T tDefault, T* pVariable);
 	void AddSetting(CSettingBase *pSetting);
 	void SetupSettings();
 

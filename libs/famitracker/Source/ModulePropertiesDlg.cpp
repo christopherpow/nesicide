@@ -25,6 +25,7 @@
 #include "ModulePropertiesDlg.h"
 #include "ChannelMap.h"
 #include "ModuleImportDlg.h"
+#include "SoundGen.h"
 
 LPCTSTR TRACK_FORMAT = _T("#%02i %s");
 
@@ -36,7 +37,7 @@ LPCTSTR TRACK_FORMAT = _T("#%02i %s");
 
 IMPLEMENT_DYNAMIC(CModulePropertiesDlg, CDialog)
 CModulePropertiesDlg::CModulePropertiesDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CModulePropertiesDlg::IDD, pParent)
+	: CDialog(CModulePropertiesDlg::IDD, pParent), m_iSelectedSong(0), m_pDocument(NULL)
 {
 }
 
@@ -71,6 +72,7 @@ BEGIN_MESSAGE_MAP(CModulePropertiesDlg, CDialog)
    ON_NOTIFY(LVN_ITEMCHANGED, IDC_SONGLIST, OnLvnItemchangedSonglist)
 END_MESSAGE_MAP()
 
+
 // CModulePropertiesDlg message handlers
 
 BOOL CModulePropertiesDlg::OnInitDialog()
@@ -81,14 +83,14 @@ BOOL CModulePropertiesDlg::OnInitDialog()
 	CFrameWnd *pFrameWnd = static_cast<CFrameWnd*>(GetParent());
 	m_pDocument = static_cast<CFamiTrackerDoc*>(pFrameWnd->GetActiveDocument());
 
-	m_pSongList = (CListCtrl*)GetDlgItem(IDC_SONGLIST);
-	m_pSongList->InsertColumn(0, _T("Songs"), 0, 150);
-	m_pSongList->SendMessage(LVM_SETEXTENDEDLISTVIEWSTYLE, 0, LVS_EX_FULLROWSELECT);
+	CListCtrl *pSongList = static_cast<CListCtrl*>(GetDlgItem(IDC_SONGLIST));
+	pSongList->InsertColumn(0, _T("Songs"), 0, 150);
+	pSongList->SendMessage(LVM_SETEXTENDEDLISTVIEWSTYLE, 0, LVS_EX_FULLROWSELECT);
 
 	FillSongList();
 
 	// Expansion chips
-	CComboBox *pChipBox = (CComboBox*)GetDlgItem(IDC_EXPANSION);
+	CComboBox *pChipBox = static_cast<CComboBox*>(GetDlgItem(IDC_EXPANSION));
 	int ExpChip = m_pDocument->GetExpansionChip();
 	CChannelMap *pChannelMap = theApp.GetChannelMap();
 
@@ -98,25 +100,26 @@ BOOL CModulePropertiesDlg::OnInitDialog()
 	pChipBox->SetCurSel(pChannelMap->GetChipIndex(ExpChip));
 
 	// Vibrato 
-	CComboBox *pVibratoBox = (CComboBox*)GetDlgItem(IDC_VIBRATO);
+	CComboBox *pVibratoBox = static_cast<CComboBox*>(GetDlgItem(IDC_VIBRATO));
 	pVibratoBox->SetCurSel((m_pDocument->GetVibratoStyle() == VIBRATO_NEW) ? 0 : 1);
 
 	// Namco channel count
-	CSliderCtrl *pChanSlider = (CSliderCtrl*)GetDlgItem(IDC_CHANNELS);
+	CSliderCtrl *pChanSlider = static_cast<CSliderCtrl*>(GetDlgItem(IDC_CHANNELS));
 	pChanSlider->SetRange(1, 8);
+	CString channelsStr;
+	channelsStr.LoadString(IDS_PROPERTIES_CHANNELS);
 	if (ExpChip == SNDCHIP_N163) {
 		int Channels = m_pDocument->GetNamcoChannels();
 		pChanSlider->SetPos(Channels);
 		pChanSlider->EnableWindow(TRUE);
-		CString text;
-		text.Format(_T("Channels: %i"), Channels);
-		SetDlgItemText(IDC_CHANNELS_NR, text);
+		channelsStr.AppendFormat(_T(" %i"), Channels);
 	}
 	else {
 		pChanSlider->SetPos(0);
 		pChanSlider->EnableWindow(FALSE);
-		SetDlgItemText(IDC_CHANNELS_NR, _T("Channels: N/A"));
+		channelsStr.Append(_T(" N/A"));
 	}
+	SetDlgItemText(IDC_CHANNELS_NR, channelsStr);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
@@ -124,24 +127,27 @@ BOOL CModulePropertiesDlg::OnInitDialog()
 
 void CModulePropertiesDlg::OnBnClickedOk()
 {
-	CComboBox *pExpansionChipBox = (CComboBox*)GetDlgItem(IDC_EXPANSION);
-	CMainFrame *pMainFrame = (CMainFrame*)GetParentFrame();
+	CComboBox *pExpansionChipBox = static_cast<CComboBox*>(GetDlgItem(IDC_EXPANSION));
+	CMainFrame *pMainFrame = static_cast<CMainFrame*>(GetParentFrame());
 
 	// Expansion chip
 	unsigned int iExpansionChip = theApp.GetChannelMap()->GetChipIdent(pExpansionChipBox->GetCurSel());
-	unsigned int iChannels = ((CSliderCtrl*)GetDlgItem(IDC_CHANNELS))->GetPos();
+	unsigned int iChannels = static_cast<CSliderCtrl*>(GetDlgItem(IDC_CHANNELS))->GetPos();
 
 	if (m_pDocument->GetExpansionChip() != iExpansionChip || m_pDocument->GetNamcoChannels() != iChannels) {
 		m_pDocument->SetNamcoChannels(iChannels);
 		m_pDocument->SelectExpansionChip(iExpansionChip);
+		m_pDocument->UpdateAllViews(NULL, CHANGED_CHANNEL_COUNT);
 	}
 
 	// Vibrato 
-	CComboBox *pVibratoBox = (CComboBox*)GetDlgItem(IDC_VIBRATO);
+	CComboBox *pVibratoBox = static_cast<CComboBox*>(GetDlgItem(IDC_VIBRATO));
 	m_pDocument->SetVibratoStyle((pVibratoBox->GetCurSel() == 0) ? VIBRATO_NEW : VIBRATO_OLD);
 
 	if (pMainFrame->GetSelectedTrack() != m_iSelectedSong)
-		m_pDocument->SelectTrack(m_iSelectedSong);
+		pMainFrame->SelectTrack(m_iSelectedSong);
+
+	theApp.GetSoundGenerator()->DocumentPropertiesChange(m_pDocument);
 
 	OnOK();
 }
@@ -151,14 +157,13 @@ void CModulePropertiesDlg::OnBnClickedSongAdd()
 	CString TrackTitle;
 
 	// Try to add a track
-	if (!m_pDocument->AddTrack())
+	int NewTrack = m_pDocument->AddTrack();
+
+	if (NewTrack == -1)
 		return;
 	
-	// New track is always the last one
-	int NewTrack = m_pDocument->GetTrackCount() - 1;
-	
 	TrackTitle.Format(TRACK_FORMAT, NewTrack, m_pDocument->GetTrackTitle(NewTrack));
-	m_pSongList->InsertItem(NewTrack, TrackTitle);
+	static_cast<CListCtrl*>(GetDlgItem(IDC_SONGLIST))->InsertItem(NewTrack, TrackTitle);
 
 	SelectSong(NewTrack);
 }
@@ -167,9 +172,9 @@ void CModulePropertiesDlg::OnBnClickedSongRemove()
 {
 	ASSERT(m_iSelectedSong != -1);
 
-	CString TrackTitle;
-
+	CListCtrl *pSongList = static_cast<CListCtrl*>(GetDlgItem(IDC_SONGLIST));
 	unsigned Count = m_pDocument->GetTrackCount();
+	CString TrackTitle;
 
 	if (Count == 1)
 		return; // Single track
@@ -178,7 +183,7 @@ void CModulePropertiesDlg::OnBnClickedSongRemove()
 	if (AfxMessageBox(IDS_SONG_DELETE, MB_OKCANCEL | MB_ICONWARNING) == IDCANCEL)
 		return;
 
-	m_pSongList->DeleteItem(m_iSelectedSong);
+	pSongList->DeleteItem(m_iSelectedSong);
 	m_pDocument->RemoveTrack(m_iSelectedSong);
 
 	Count = m_pDocument->GetTrackCount();	// Get new track count
@@ -186,7 +191,7 @@ void CModulePropertiesDlg::OnBnClickedSongRemove()
 	// Redraw track list
 	for (unsigned int i = 0; i < Count; ++i) {
 		TrackTitle.Format(_T("#%02i %s"), i + 1, m_pDocument->GetTrackTitle(i));
-		m_pSongList->SetItemText(i, 0, TrackTitle);
+		pSongList->SetItemText(i, 0, TrackTitle);
 	}
 
 	if (m_iSelectedSong == Count)
@@ -197,8 +202,9 @@ void CModulePropertiesDlg::OnBnClickedSongRemove()
 
 void CModulePropertiesDlg::OnBnClickedSongUp()
 {
-	CString Text;
+	CListCtrl *pSongList = static_cast<CListCtrl*>(GetDlgItem(IDC_SONGLIST));
 	int Song = m_iSelectedSong;
+	CString Text;
 
 	if (Song == 0)
 		return;
@@ -206,17 +212,18 @@ void CModulePropertiesDlg::OnBnClickedSongUp()
 	m_pDocument->MoveTrackUp(Song);
 
 	Text.Format(TRACK_FORMAT, Song + 1, m_pDocument->GetTrackTitle(Song));
-	m_pSongList->SetItemText(Song, 0, Text);
+	pSongList->SetItemText(Song, 0, Text);
 	Text.Format(TRACK_FORMAT, Song, m_pDocument->GetTrackTitle(Song - 1));
-	m_pSongList->SetItemText(Song - 1, 0, Text);
+	pSongList->SetItemText(Song - 1, 0, Text);
 
 	SelectSong(Song - 1);
 }
 
 void CModulePropertiesDlg::OnBnClickedSongDown()
 {
-	CString Text;
+	CListCtrl *pSongList = static_cast<CListCtrl*>(GetDlgItem(IDC_SONGLIST));
 	int Song = m_iSelectedSong;
+	CString Text;
 
 	if (Song == (m_pDocument->GetTrackCount() - 1))
 		return;
@@ -224,35 +231,37 @@ void CModulePropertiesDlg::OnBnClickedSongDown()
 	m_pDocument->MoveTrackDown(Song);
 
 	Text.Format(TRACK_FORMAT, Song + 1, m_pDocument->GetTrackTitle(Song));
-	m_pSongList->SetItemText(Song, 0, Text);
+	pSongList->SetItemText(Song, 0, Text);
 	Text.Format(TRACK_FORMAT, Song + 2, m_pDocument->GetTrackTitle(Song + 1));
-	m_pSongList->SetItemText(Song + 1, 0, Text);
+	pSongList->SetItemText(Song + 1, 0, Text);
 
 	SelectSong(Song + 1);
 }
 
 void CModulePropertiesDlg::OnEnChangeSongname()
 {
+	CListCtrl *pSongList = static_cast<CListCtrl*>(GetDlgItem(IDC_SONGLIST));
+	CEdit *pName = static_cast<CEdit*>(GetDlgItem(IDC_SONGNAME));
 	CString Text, Title;
-	CEdit *pName = (CEdit*)GetDlgItem(IDC_SONGNAME);
 
 	if (m_iSelectedSong == -1)
 		return;
 
 	pName->GetWindowText(Text);
 
-	Title.Format(TRACK_FORMAT, m_iSelectedSong + 1, (LPCTSTR)Text);
+   Title.Format(TRACK_FORMAT, m_iSelectedSong + 1, (LPCTSTR)Text);
 
-	m_pSongList->SetItemText(m_iSelectedSong, 0, Title);
+	pSongList->SetItemText(m_iSelectedSong, 0, Title);
 	m_pDocument->SetTrackTitle(m_iSelectedSong, Text.GetBuffer());
 }
 
 void CModulePropertiesDlg::SelectSong(int Song)
 {
+	CListCtrl *pSongList = static_cast<CListCtrl*>(GetDlgItem(IDC_SONGLIST));
 	ASSERT(Song >= 0);
 
-	m_pSongList->SetItemState(Song, LVIS_SELECTED | LVIS_FOCUSED, LVIS_SELECTED | LVIS_FOCUSED);
-	m_pSongList->EnsureVisible(Song, FALSE);
+	pSongList->SetItemState(Song, LVIS_SELECTED | LVIS_FOCUSED, LVIS_SELECTED | LVIS_FOCUSED);
+	pSongList->EnsureVisible(Song, FALSE);
 }
 
 void CModulePropertiesDlg::UpdateSongButtons()
@@ -285,33 +294,34 @@ void CModulePropertiesDlg::OnBnClickedSongImport()
 
 void CModulePropertiesDlg::OnCbnSelchangeExpansion()
 {
-	CComboBox *pExpansionChipBox = (CComboBox*)GetDlgItem(IDC_EXPANSION);
-	CMainFrame *pMainFrame = (CMainFrame*)GetParentFrame();
-	CSliderCtrl *pSlider = (CSliderCtrl*)GetDlgItem(IDC_CHANNELS);
+	CComboBox *pExpansionChipBox = static_cast<CComboBox*>(GetDlgItem(IDC_EXPANSION));
+	CSliderCtrl *pSlider = static_cast<CSliderCtrl*>(GetDlgItem(IDC_CHANNELS));
 
 	// Expansion chip
 	unsigned int iExpansionChip = theApp.GetChannelMap()->GetChipIdent(pExpansionChipBox->GetCurSel());
 
+	CString channelsStr;
+	channelsStr.LoadString(IDS_PROPERTIES_CHANNELS);
 	if (iExpansionChip == SNDCHIP_N163) {
 		pSlider->EnableWindow(TRUE);
 		int Channels = m_pDocument->GetNamcoChannels();
 		pSlider->SetPos(Channels);
-		CString text;
-		text.Format(_T("Channels: %i"), Channels);
-		SetDlgItemText(IDC_CHANNELS_NR, text);
+		channelsStr.AppendFormat(_T(" %i"), Channels);
 	}
 	else {
 		pSlider->EnableWindow(FALSE);
-		SetDlgItemText(IDC_CHANNELS_NR, _T("Channels: N/A"));
+		channelsStr.Append(_T(" N/A"));
 	}
+	SetDlgItemText(IDC_CHANNELS_NR, channelsStr);
 }
 
 void CModulePropertiesDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 {
-	CSliderCtrl *pSlider = (CSliderCtrl*)GetDlgItem(IDC_CHANNELS);
+	CSliderCtrl *pSlider = static_cast<CSliderCtrl*>(GetDlgItem(IDC_CHANNELS));
 
 	CString text;
-	text.Format(_T("Channels: %i"),  pSlider->GetPos());
+	text.LoadString(IDS_PROPERTIES_CHANNELS);
+	text.AppendFormat(_T(" %i"),  pSlider->GetPos());
 	SetDlgItemText(IDC_CHANNELS_NR, text);
 
 	CDialog::OnHScroll(nSBCode, nPos, pScrollBar);
@@ -326,7 +336,7 @@ void CModulePropertiesDlg::OnLvnItemchangedSonglist(NMHDR *pNMHDR, LRESULT *pRes
 
 		m_iSelectedSong = Song;
 
-		CEdit *pName = (CEdit*)GetDlgItem(IDC_SONGNAME);
+		CEdit *pName = static_cast<CEdit*>(GetDlgItem(IDC_SONGNAME));
 		pName->SetWindowText(CString(m_pDocument->GetTrackTitle(Song)));
 
 		UpdateSongButtons();
@@ -337,16 +347,17 @@ void CModulePropertiesDlg::OnLvnItemchangedSonglist(NMHDR *pNMHDR, LRESULT *pRes
 
 void CModulePropertiesDlg::FillSongList()
 {
+	CListCtrl *pSongList = static_cast<CListCtrl*>(GetDlgItem(IDC_SONGLIST));
 	CString Text;
 
-	m_pSongList->DeleteAllItems();
+	pSongList->DeleteAllItems();
 
 	// Song editor
 	int Songs = m_pDocument->GetTrackCount();
 
 	for (int i = 0; i < Songs; ++i) {
 		Text.Format(TRACK_FORMAT, i + 1, m_pDocument->GetTrackTitle(i));	// start counting songs from 1
-		m_pSongList->InsertItem(i, Text);
+		pSongList->InsertItem(i, Text);
 	}
 
 	// Select first song when dialog is displayed
@@ -355,7 +366,9 @@ void CModulePropertiesDlg::FillSongList()
 
 BOOL CModulePropertiesDlg::PreTranslateMessage(MSG* pMsg)
 {
-	if (GetFocus() == m_pSongList) {
+	CListCtrl *pSongList = static_cast<CListCtrl*>(GetDlgItem(IDC_SONGLIST));
+
+	if (GetFocus() == pSongList) {
 		if(pMsg->message == WM_KEYDOWN) {
 			switch (pMsg->wParam) {
 				case VK_DELETE:

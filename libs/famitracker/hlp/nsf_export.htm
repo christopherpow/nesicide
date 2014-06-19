@@ -8,9 +8,14 @@
 	    <span class="topic">NSF export</span><hr>
 	    
 		<p class="text">
-            NSF (Nintendo Sound Format, invented by Kevin Horton) is a type of file used to represent NES music. 
-            To create NSF files, select Create NSF from the File menu to open the NSF export window.</p>
+            NSF (Nintendo Sound Format, invented by Kevin Horton) is a type of file used to represent NES music,
+            first developed for storing ripped game music. That means NSF is not a native 
+            music format, instead it contains a small program that plays the music using the 
+            NES&#39;s 6502 CPU. FamiTracker compresses and converts the module data
+            and attaches a player program when creating the NSF file.
+            </p>
         <p class="text">
+            To create NSF files, select Create NSF from the File menu to open the NSF export window.
             The NSF file options contains some options related to the NSF file format: the 
             song information fields is the same as in the control panel. There is also a 
             system type option: NTSC, PAL or Dual. Select Dual if you want the NSF to be 
@@ -21,7 +26,7 @@
         <UL class="text">
 			<LI>
 			    <b>NSF</b><br />
-			    Creates a NSF file.
+			    Creates the NSF file.
 			    <br /><br /></LI>
             <LI>
                 <b>NES</b><br />

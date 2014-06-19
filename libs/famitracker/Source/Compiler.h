@@ -42,7 +42,7 @@ struct stNSFHeader {
 	unsigned char	Reserved[4];
 };
 
-const int BANK_SIZE = 4096;	// As specified by the NSF specification
+const int BANK_SIZE = 0x1000;	// As specified by the NSF specification
 
 /*
  * NSF file bank
@@ -50,12 +50,12 @@ const int BANK_SIZE = 4096;	// As specified by the NSF specification
 class CFileBank
 {
 public:
-	CFileBank() : m_iSize(0), m_iLocation(0), m_iOffset(0) {};
+	CFileBank();
 
-	char m_data[BANK_SIZE];
-	int	 m_iSize;
-	int	 m_iLocation;
-	int	 m_iOffset;
+	char m_data[BANK_SIZE];		// Bank data
+	int	 m_iSize;				// Size of current bank
+	int	 m_iLocation;			// Location in memory of this bank
+	int	 m_iOffset;				// Start offset
 };
 
 struct driver_t;
@@ -66,7 +66,8 @@ struct driver_t;
 class CCompilerLog
 {
 public:
-	virtual void WriteLog(char *text) = 0;
+	virtual ~CCompilerLog() {}
+	virtual void WriteLog(LPCTSTR text) = 0;
 	virtual void Clear() = 0;
 };
 
@@ -79,31 +80,31 @@ public:
 	CCompiler(CFamiTrackerDoc *pDoc, CCompilerLog *pLogger);
 	~CCompiler();
 	
-	void	ExportNSF(CString FileName, int MachineType);
-	void	ExportNES(CString FileName, bool EnablePAL);
-	void	ExportBIN(CString BIN_File, CString DPCM_File);
-	void	ExportPRG(CString FileName, bool EnablePAL);
-	void	ExportASM(CString FileName);
-
-	void	ExportTest(char *pResult, stNSFHeader *pHeader, int MachineType);
+	void	ExportNSF(LPCTSTR lpszFileName, int MachineType);
+	void	ExportNES(LPCTSTR lpszFileName, bool EnablePAL);
+	void	ExportBIN(LPCTSTR lpszBIN_File, LPCTSTR lpszDPCM_File);
+	void	ExportPRG(LPCTSTR lpszFileName, bool EnablePAL);
+	void	ExportASM(LPCTSTR lpszFileName);
 
 private:
-	void	CreateHeader(stNSFHeader *pHeader, int MachineType);
-	void	SetDriverSongAddress(unsigned char *pDriver, unsigned short Address);
+	void	CreateHeader(stNSFHeader *pHeader, int MachineType) const;
+	void	SetDriverSongAddress(unsigned char *pDriver, unsigned short Address) const;
 
-	void	PatchVibratoTable(unsigned char *pDriver);
-	void	PatchSpeedSplitPoint(unsigned char *pDriver);
+	void	PatchVibratoTable(unsigned char *pDriver) const;
 
 	unsigned char *LoadDriver(const driver_t *pDriver, unsigned short Origin) const;
 
 	// NSF banks
 	void	CopyData(char *pData, int iSize);
+	void	FillData(char data, int size);
 	void	AllocateBank(int Location);
 
 	// Compiler
 	bool	CompileData();
-	void	AllocateData();
-	bool	AllocateDataBankswitched();
+	void	ResolveLabels();
+	bool	ResolveLabelsBankswitched();
+	void	CollectLabels(CMap<CStringA, LPCSTR, int, int> &labelMap);
+	void	AssignLabels(CMap<CStringA, LPCSTR, int, int> &labelMap);
 	void	AddBankswitching();
 	void	Cleanup();
 
@@ -116,24 +117,25 @@ private:
 	void	CreateSequenceList();
 	void	CreateInstrumentList();
 	void	CreateSampleList();
-	void	CreateFrameList(int Track, int *pFrameSize, int *pFrameCount);
+	void	CreateFrameList(int Track, int &iFrameSize, int &iFrameCount);
 
-	CChunk *StoreSequence(CSequence *pSeq, CString &label);
+	int		StoreSequence(CSequence *pSeq, CStringA &label);
 	void	StoreSamples();
 	void	StoreSongs();
-	void	StorePatterns(unsigned int Track, int *pPatternSize, int *pPatternCount);
+	void	StorePatterns(unsigned int Track, int &iPatternSize, int &iPatternCount);
 
 	void	WriteSamplesAssembly(CFile *pFile);
 	void	WriteSamplesBinary(CFile *pFile);
-	void	WriteSamplesToBanks(unsigned short Address);
+	void	WriteSamplesToBanks(unsigned int Address);
 
 	// Bankswitching functions
-	void	UpdateSamplePointers(unsigned short Origin);
+	void	UpdateSamplePointers(unsigned int Origin);
 	void	UpdateFrameBanks();
 	void	UpdateSongBanks();
+	void	ClearSongBanks();
 	void	EnableBankswitching();
 
-	int		AdjustSampleAddress(unsigned short Address);
+	unsigned int AdjustSampleAddress(unsigned int Address) const;
 
 	// FDS
 	void	AddWavetable(CInstrumentFDS *pInstrument, CChunk *pChunk);
@@ -141,19 +143,16 @@ private:
 	// File writing
 	void	WriteAssembly(CFile *pFile);
 	void	WriteBinary(CFile *pFile);
-	void	WriteBinaryBanks();
+	void	WriteBinaryFlat();
 	void	WriteBinaryBankswitched();
 
 	// Object list functions
-	CChunk	*CreateChunk(int Type, CString label);
-	CChunk	*GetObjectByRef(CString label) const;
+	CChunk	*CreateChunk(chunk_type_t Type, CStringA label);
+	CChunk	*GetObjectByRef(CStringA label) const;
 	int		CountData() const;
 
-	// File functions
-	void	WriteFileString(CFile *pFile, CString &str);
-
 	// Debugging
-	void	Print(char *text, ...) const;
+	void	Print(LPCTSTR text, ...) const;
 	void	ClearLog() const;
 
 public:
@@ -163,6 +162,11 @@ public:
 	static const int PAGE_SAMPLES;
 
 	static const int PATTERN_SWITCH_BANK;
+
+	static const int DPCM_PAGE_WINDOW;
+	static const int DPCM_SWITCH_ADDRESS;
+
+	static const bool LAST_BANK_FIXED;
 
 	// Channel order lists
 	static const int CHAN_ORDER_DEFAULT[];
@@ -191,6 +195,10 @@ public:
 	static const char LABEL_SONG_FRAME[];
 	static const char LABEL_PATTERN[];
 
+	// Flags
+	static const int FLAG_BANKSWITCHED;
+	static const int FLAG_VIBRATO;
+
 protected:
 	static CCompiler *pCompiler;			// Points to an active CCompiler object
 
@@ -198,12 +206,9 @@ public:
 	static CCompiler *GetCompiler();		// Get the active CCompiler object, NULL otherwise
 
 private:
-	int				m_iChanOrder[MAX_CHANNELS];
-
-private:
 	CFamiTrackerDoc *m_pDocument;
 
-	// Object list
+	// Object lists
 	std::vector<CChunk*> m_vChunks;
 	std::vector<CChunk*> m_vSequenceChunks;
 	std::vector<CChunk*> m_vInstrumentChunks;
@@ -211,7 +216,6 @@ private:
 	std::vector<CChunk*> m_vFrameChunks;
 	std::vector<CChunk*> m_vPatternChunks;
 	//std::vector<CChunk*> m_vWaveChunks;
-
 
 	// Special objects
 	CChunk			*m_pSamplePointersChunk;
@@ -226,7 +230,6 @@ private:
 	// Driver
 	const driver_t	*m_pDriverData;
 	unsigned int	m_iVibratoTableLocation;
-	unsigned int	m_iSpeedPatchLocation;
 
 	// Sequences and instruments
 	unsigned int	m_iInstruments;
@@ -256,11 +259,17 @@ private:
 
 	unsigned int	m_iDuplicatePatterns;	// Number of duplicated patterns removed
 
+	unsigned int	m_iHeaderFlagOffset;	// Offset to flag location in main header
+
+	unsigned int	m_iSongBankReference;	// Offset to bank value in song header
+
+	int				m_iChanOrder[MAX_CHANNELS]; // Channel order list
+
 	// NSF banks
-	CFileBank		*m_pFileBanks[256];
-	CFileBank		*m_pCurrentBank;
-	unsigned int	m_iBanksUsed;
-	unsigned int	m_iFirstSampleBank;
+	CFileBank		*m_pFileBanks[256];		// All banks
+	CFileBank		*m_pCurrentBank;		// Pointer to current bank
+	unsigned int	m_iBanksUsed;			// Number of banks allocated
+	unsigned int	m_iFirstSampleBank;		// Bank number with the first DPCM sample
 
 	unsigned int	m_iSamplePointerBank;
 	unsigned int	m_iSamplePointerOffset;
@@ -269,9 +278,12 @@ private:
 	unsigned int	m_iWaveTables;
 
 	// Optimization
-	CMap<UINT, UINT, CChunk*, CChunk*>		 m_PatternMap;
-	CMap<CString, LPCTSTR, CString, LPCTSTR> m_DuplicateMap;
+	CMap<UINT, UINT, CChunk*, CChunk*> m_PatternMap;
+	CMap<CStringA, LPCSTR, CStringA, LPCSTR> m_DuplicateMap;
 
 	// Debugging
 	CCompilerLog	*m_pLogger;
+
+	// Diagnostics
+	unsigned int	m_iHashCollisions;
 };

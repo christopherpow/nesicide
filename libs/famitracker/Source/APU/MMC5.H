@@ -1,5 +1,5 @@
-#ifndef _MMC5_H_
-#define _MMC5_H_
+#ifndef MMC5_H
+#define MMC5_H
 
 #include "External.h"
 #include "Channel.h"
@@ -25,4 +25,4 @@ private:
 	uint8	m_iMulHigh;
 };
 
-#endif /* _MMC5_H_ */
+#endif /* MMC5_H */

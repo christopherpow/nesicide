@@ -42,19 +42,16 @@
 #include <memory>
 #include <cmath>
 #include "APU.h"
-
 #include "Square.h"
 #include "Triangle.h"
 #include "Noise.h"
 #include "DPCM.h"
-
-#include "VRC6.H"
-#include "MMC5.H"
-#include "FDS.H"
-#include "N163.H"
+#include "VRC6.h"
+#include "MMC5.h"
+#include "FDS.h"
+#include "N163.h"
 #include "VRC7.h"
 #include "S5B.h"
-
 
 const int	 CAPU::SEQUENCER_PERIOD		= 7458;
 //const int	 CAPU::SEQUENCER_PERIOD_PAL	= 7458;			// ????
@@ -72,7 +69,7 @@ const uint8 CAPU::LENGTH_TABLE[] = {
 
 static std::vector<CExternal*> ExChips;
 
-CAPU::CAPU(ICallback *pCallback, CSampleMem *pSampleMem) : 
+CAPU::CAPU(IAudioCallback *pCallback, CSampleMem *pSampleMem) : 
 	m_pParent(pCallback),
 	m_iFrameCycles(0),
 	m_pSoundBuffer(NULL),
@@ -98,6 +95,7 @@ CAPU::CAPU(ICallback *pCallback, CSampleMem *pSampleMem) :
 
 #ifdef LOGGING
 	m_pLog = new CFile("apu_log.txt", CFile::modeCreate | CFile::modeWrite);
+	m_iFrame = 0;
 #endif
 }
 
@@ -194,11 +192,11 @@ void CAPU::Process()
 	// The amount of cycles that will be emulated is added by CAPU::AddCycles
 	//
 	
-	static uint32 Time, i;
+	//static uint32 Time, i;
 
 	while (m_iCyclesToRun > 0) {
 
-		Time = m_iCyclesToRun;
+		uint32 Time = m_iCyclesToRun, i;
 
 		if (Time > m_iSequencerClock)
 			Time = m_iSequencerClock;
@@ -302,7 +300,7 @@ void CAPU::Reset()
 void CAPU::SetupMixer(int LowCut, int HighCut, int HighDamp, int Volume) const
 {
 	// New settings
-	m_pMixer->UpdateSettings(LowCut, HighCut, HighDamp, Volume);
+	m_pMixer->UpdateSettings(LowCut, HighCut, HighDamp, float(Volume) / 100.0f);
 	m_pVRC7->SetVolume((float(Volume) / 100.0f) * m_fLevelVRC7);
 }
 
@@ -557,26 +555,20 @@ void CAPU::Log()
 }
 #endif
 
-void CAPU::SetChipLevel(int Chip, int Level)
+void CAPU::SetChipLevel(chip_level_t Chip, float Level)
 {
-	float fLevel = expf(float(Level) / 20.0f);	// dB -> gain
+	float fLevel = powf(10, Level / 20.0f);		// Convert dB to linear
 
 	switch (Chip) {
-		case SNDCHIP_VRC7:
+		case CHIP_LEVEL_VRC7:
 			m_fLevelVRC7 = fLevel;
 			break;
-		case SNDCHIP_S5B:
+		case CHIP_LEVEL_S5B:
 			m_fLevelS5B = fLevel;
 			break;
 		default:
 			m_pMixer->SetChipLevel(Chip, fLevel);
 	}
-}
-
-void CAPU::SetNamcoMixing(bool bLinear)
-{
-	m_pMixer->SetNamcoMixing(bLinear);
-	m_pN163->SetMixingMethod(bLinear);
 }
 
 void CAPU::LogExternalWrite(uint16 Address, uint8 Value)
@@ -597,7 +589,7 @@ uint8 CAPU::GetReg(int Chip, int Reg) const
 		case SNDCHIP_NONE:
 			return m_iRegs[Reg & 0x1F]; 
 		case SNDCHIP_VRC6:
-			return m_iRegsVRC6[Reg & 0x1F]; 
+			return m_iRegsVRC6[Reg & 0x0F]; 
 		case SNDCHIP_N163:
 			return m_pN163->ReadMem(Reg);
 		case SNDCHIP_FDS:

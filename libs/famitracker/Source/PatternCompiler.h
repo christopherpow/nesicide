@@ -21,48 +21,58 @@
 #pragma once
 
 class CFamiTrackerDoc;
+class CCompilerLog;
 
 struct stSpacingInfo {
 	int SpaceCount;
 	int SpaceSize;
 };
 
+typedef unsigned char DPCM_List_t[MAX_INSTRUMENTS][OCTAVE_RANGE][NOTE_RANGE];
+
 class CPatternCompiler
 {
 public:
-	CPatternCompiler();
+	CPatternCompiler(CFamiTrackerDoc *pDoc, unsigned int *pInstList, DPCM_List_t *pDPCMList, CCompilerLog *pLogger);
 	~CPatternCompiler();
 
-	void CleanUp();
-	void CompileData(CFamiTrackerDoc *pDoc, int Track, int Pattern, int Channel, unsigned char (*DPCM_LookUp)[MAX_INSTRUMENTS][OCTAVE_RANGE][NOTE_RANGE], unsigned int *iAssignedInstruments);
-	bool IsSampleAccessed(unsigned int Index) { return m_bDSamplesAccessed[Index]; };
-
-public:
-	unsigned int	GetDataSize() { return m_iDataPointer; };
-	unsigned char	GetData(unsigned int i) { ASSERT(i < m_iDataPointer); return m_pData[i]; };
-	unsigned char	*GetData() { return m_pData; };
-	unsigned int	GetCompressedDataSize() { return m_iCompressedDataPointer; };
-	unsigned char	GetCompressedData(unsigned int i) { ASSERT(i < m_iCompressedDataPointer); return m_pCompressedData[i]; };
-	bool			EmptyPattern() const;
-	unsigned int	GetHash() const;
+	void CompileData(int Track, int Pattern, int Channel);
+	
+	unsigned int   GetHash() const;
+	bool		   CompareData(unsigned char *pArray, int Size) const;
+	unsigned int   GetStringSize() const;
+	unsigned char* GetString() const;
+	unsigned int   GetCompressedStringSize() const;
+	unsigned char* GetCompressedString() const;
 
 private:
-	unsigned int FindInstrument(int Instrument, unsigned int *pInstList);
+	unsigned int FindInstrument(int Instrument) const;
+	unsigned int FindSample(int Instrument, int Octave, int Key) const;
+
+	unsigned char Command(int cmd) const;
+
 	void WriteData(unsigned char Value);
-	void DispatchZeroes();
-	void AccumulateZero();
+	void WriteDuration();
+	void AccumulateDuration();
 	void OptimizeString();
-	int	 GetBlockSize(int Position);
-	stSpacingInfo ScanNoteLengths(CFamiTrackerDoc *pDoc, int Track, unsigned int StartRow, int Pattern, int Channel);
+	int	GetBlockSize(int Position);
+	stSpacingInfo ScanNoteLengths(int Track, unsigned int StartRow, int Pattern, int Channel);
+
+	// Debugging
+	void Print(LPCTSTR text) const;
 
 private:
-	unsigned char	*m_pData;
-	unsigned char	*m_pCompressedData;
-	unsigned int	m_iDataPointer;
-	unsigned int	m_iCompressedDataPointer;
-	unsigned int	m_iZeroes;
+	std::vector<unsigned char> m_vData;
+	std::vector<unsigned char> m_vCompressedData;
+
+	unsigned int	m_iDuration;
 	unsigned int	m_iCurrentDefaultDuration;
 	bool			m_bDSamplesAccessed[OCTAVE_RANGE * NOTE_RANGE]; // <- check the range, its not optimal right now
-	bool			m_bEmpty;
 	unsigned int	m_iHash;
+	unsigned int	*m_pInstrumentList;
+
+	DPCM_List_t		*m_pDPCMList;
+
+	CFamiTrackerDoc *m_pDocument;
+	CCompilerLog	*m_pLogger;
 };

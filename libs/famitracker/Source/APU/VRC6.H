@@ -18,39 +18,47 @@
 ** must bear this legend.
 */
 
-#ifndef _VRC6_H_
-#define _VRC6_H_
+#ifndef VRC6_H
+#define VRC6_H
 
 #include "External.h"
 #include "Channel.h"
 
 class CVRC6_Pulse : public CExChannel {
 public:
-	CVRC6_Pulse(CMixer *pMixer, int ID) : CExChannel(pMixer, SNDCHIP_VRC6, ID) {};
+	CVRC6_Pulse(CMixer *pMixer, int ID);
 	void Reset();
 	void Write(uint16 Address, uint8 Value);
 	void Process(int Time);
 
 private:
-	uint8	DutyCycle, Volume, Gate, Enabled;
-	uint32	Frequency;
-	uint8	FreqLow, FreqHigh;
-	int32	Counter;
-	uint8	DutyCycleCounter;
+	uint8	m_iDutyCycle, 
+			m_iVolume, 
+			m_iGate, 
+			m_iEnabled;
+	uint32	m_iPeriod;
+	uint8	m_iPeriodLow, 
+			m_iPeriodHigh;
+	int32	m_iCounter;
+	uint8	m_iDutyCycleCounter;
 };
 
 class CVRC6_Sawtooth : public CExChannel {
 public:
-	CVRC6_Sawtooth(CMixer *pMixer, int ID) : CExChannel(pMixer, SNDCHIP_VRC6, ID) {};
+	CVRC6_Sawtooth(CMixer *pMixer, int ID);
 	void Reset();
 	void Write(uint16 Address, uint8 Value);
 	void Process(int Time);
 
 private:
-	uint8	PhaseAccumulator, PhaseInput, Enabled, ResetReg;
-	uint32	Frequency;
-	uint8	FreqLow, FreqHigh;
-	int32	Counter;
+	uint8	m_iPhaseAccumulator, 
+			m_iPhaseInput, 
+			m_iEnabled, 
+			m_iResetReg;
+	uint32	m_iPeriod;
+	uint8	m_iPeriodLow, 
+			m_iPeriodHigh;
+	int32	m_iCounter;
 };
 
 class CVRC6 : public CExternal {
@@ -64,8 +72,8 @@ public:
 	void Process(uint32 Time);
 
 private:
-	CVRC6_Pulse		*Pulse1, *Pulse2;
-	CVRC6_Sawtooth	*Sawtooth;
+	CVRC6_Pulse	*m_pPulse1, *m_pPulse2;
+	CVRC6_Sawtooth *m_pSawtooth;
 };
 
-#endif /* _VRC6_H_ */
+#endif /* VRC6_H */

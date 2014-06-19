@@ -25,6 +25,7 @@
 #include "FamiTrackerDoc.h"
 #include "ChannelHandler.h"
 #include "ChannelsVRC7.h"
+#include "SoundGen.h"
 
 #define OPL_NOTE_ON 0x10
 #define OPL_SUSTAIN_ON 0x20
@@ -38,12 +39,15 @@ enum {
 	CMD_NOTE_RELEASE
 };
 
+// True if custom instrument registers needs to be updated, shared among all channels
+bool CChannelHandlerVRC7::m_bRegsDirty = false;
+
 CChannelHandlerVRC7::CChannelHandlerVRC7() : 
 	CChannelHandler(), 
 	m_iCommand(0),
 	m_iTriggeredNote(0)
 {
-	m_iVolume = MAX_VOL;
+	m_iVolume = VOL_COLUMN_MAX;
 	SetMaxPeriod(2047);
 }
 
@@ -52,8 +56,6 @@ void CChannelHandlerVRC7::SetChannelID(int ID)
 	CChannelHandler::SetChannelID(ID);
 	m_iChannel = ID - CHANID_VRC7_CH1;
 }
-
-bool bRegsDirty = false;
 
 void CChannelHandlerVRC7::HandleNoteData(stChanNote *pNoteData, int EffColumns)
 {
@@ -69,10 +71,14 @@ void CChannelHandlerVRC7::HandleNoteData(stChanNote *pNoteData, int EffColumns)
 		m_iPortaSpeed = GET_SLIDE_SPEED(m_iPostEffectParam);
 		m_iEffect = m_iPostEffect;
 
-		if (m_iPostEffect == EF_SLIDE_UP)
+		if (m_iPostEffect == EF_SLIDE_UP) {
 			m_iNote = m_iNote + (m_iPostEffectParam & 0xF);
-		else
+			m_iEffect = EF_SLIDE_DOWN;
+		}
+		else {
 			m_iNote = m_iNote - (m_iPostEffectParam & 0xF);
+			m_iEffect = EF_SLIDE_UP;
+		}
 
 		int OldOctave = m_iOctave;
 		m_iPortaTo = TriggerNote(m_iNote);
@@ -145,7 +151,7 @@ void CChannelHandlerVRC7::HandleCustomEffects(int EffNum, int EffParam)
 						m_iRegs[0x03] = (m_iRegs[0x03] & 0xF8) | (EffParam & 0x07);
 					else
 						m_iRegs[0x02] = (m_iRegs[0x02] & 0xC0) | (EffParam & 0x3F);
-					bRegsDirty = true;
+					m_bRegsDirty = true;
 					break;
 					*/
 			}
@@ -155,17 +161,14 @@ void CChannelHandlerVRC7::HandleCustomEffects(int EffNum, int EffParam)
 
 bool CChannelHandlerVRC7::HandleInstrument(int Instrument, bool Trigger, bool NewInstrument)
 {
-	CInstrumentVRC7 *pInstrument = (CInstrumentVRC7*)m_pDocument->GetInstrument(m_iInstrument);
+	CFamiTrackerDoc *pDocument = m_pSoundGen->GetDocument();
+	CInstrumentContainer<CInstrumentVRC7> instContainer(pDocument, Instrument);
+	CInstrumentVRC7 *pInstrument = instContainer();
 
 	if (pInstrument == NULL)
 		return false;
 
-	if (pInstrument->GetType() != INST_VRC7) {
-		pInstrument->Release();
-		return false;
-	}
-
-	if (Trigger) {
+	if (Trigger || NewInstrument) {
 		// Patch number
 		m_iPatch = pInstrument->GetPatch();
 
@@ -175,8 +178,6 @@ bool CChannelHandlerVRC7::HandleInstrument(int Instrument, bool Trigger, bool Ne
 				m_iRegs[i] = pInstrument->GetCustomReg(i);
 		}
 	}
-
-	pInstrument->Release();
 
 	return true;
 }
@@ -207,9 +208,8 @@ void CChannelHandlerVRC7::HandleNote(int Note, int Octave)
 		m_iPeriod = 0;
 
 	// Trigger note
-	m_iNote		= CChannelHandler::RunNote(Octave, Note);
-	m_bEnabled	= true;
-	m_bHold		= true;
+	m_iNote	= CChannelHandler::RunNote(Octave, Note);
+	m_bHold	= true;
 
 	if ((m_iEffect != EF_PORTAMENTO || m_iPortaSpeed == 0) || m_iCommand == CMD_NOTE_HALT)
 		m_iCommand = CMD_NOTE_TRIGGER;
@@ -244,15 +244,24 @@ unsigned int CChannelHandlerVRC7::TriggerNote(int Note)
 	RegisterKeyState(m_iChannelID, Note);
 	if (m_iCommand != CMD_NOTE_TRIGGER && m_iCommand != CMD_NOTE_HALT)
 		m_iCommand = CMD_NOTE_ON;
-	m_bEnabled = true;
 	m_iOctave = Note / 12;
 	return GetFnum(Note);
 }
 
-unsigned int CChannelHandlerVRC7::GetFnum(int Note)
+unsigned int CChannelHandlerVRC7::GetFnum(int Note) const
 {
-	const int FREQ_TABLE[] = {172, 181, 192, 204, 216, 229, 242, 257, 272, 288, 305, 323};
+	const int FREQ_TABLE[] = {172, 183, 194, 205, 217, 230, 244, 258, 274, 290, 307, 326};
 	return FREQ_TABLE[Note % 12] << 2;
+}
+
+int CChannelHandlerVRC7::CalculateVolume() const
+{
+	int Volume = (m_iVolume >> VOL_COLUMN_SHIFT) - GetTremolo();
+	if (Volume > 15)
+		Volume = 15;
+	if (Volume < 0)
+		Volume = 0;
+	return 15 - Volume;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -269,17 +278,17 @@ void CVRC7Channel::RefreshChannel()
 	
 	Note = m_iTriggeredNote;
 	Patch = m_iPatch;
-	Volume = 15 - ((m_iVolume >> VOL_SHIFT) - GetTremolo());
+	Volume = CalculateVolume();
 	Bnum = m_iOctave;
 	Fnum = (m_iPeriod >> 2) - GetVibrato() - GetFinePitch();// (m_iFinePitch - 0x80);
 
 	// Write custom instrument
-	if (Patch == 0 && (m_iCommand == CMD_NOTE_TRIGGER || bRegsDirty)) {
+	if (Patch == 0 && (m_iCommand == CMD_NOTE_TRIGGER || m_bRegsDirty)) {
 		for (int i = 0; i < 8; ++i)
 			RegWrite(i, m_iRegs[i]);
 	}
 
-	bRegsDirty = false;
+	m_bRegsDirty = false;
 
 	if (!m_bGate)
 		m_iCommand = CMD_NOTE_HALT;

@@ -28,15 +28,21 @@
 #include "ChannelsFDS.h"
 #include "SoundGen.h"
 
-CChannelHandlerFDS::CChannelHandlerFDS() : CChannelHandler() 
+CChannelHandlerFDS::CChannelHandlerFDS() : 
+	CChannelHandlerInverted(), 
+	m_pVolumeSeq(NULL),
+	m_pArpeggioSeq(NULL),
+	m_pPitchSeq(NULL)
 { 
 	SetMaxPeriod(0xFFF);
+	SetMaxVolume(32);
 
-	m_iSeqEnabled[SEQ_VOLUME] = 0;
-	m_iSeqEnabled[SEQ_ARPEGGIO] = 0;
-	m_iSeqEnabled[SEQ_PITCH] = 0;
+	m_iSeqState[SEQ_VOLUME] = SEQ_STATE_DISABLED;
+	m_iSeqState[SEQ_ARPEGGIO] = SEQ_STATE_DISABLED;
+	m_iSeqState[SEQ_PITCH] = SEQ_STATE_DISABLED;
 
 	memset(m_iModTable, 0, 32);
+	memset(m_iWaveTable, 0, 64);
 
 	m_bResetMod = false;
 }
@@ -52,7 +58,7 @@ void CChannelHandlerFDS::HandleNoteData(stChanNote *pNoteData, int EffColumns)
 
 	CChannelHandler::HandleNoteData(pNoteData, EffColumns);
 
-	if (pNoteData->Note != NONE && pNoteData->Note != HALT) {
+	if (pNoteData->Note != NONE && pNoteData->Note != HALT && pNoteData->Note != RELEASE) {
 		if (m_iPostEffect && (m_iEffect == EF_SLIDE_UP || m_iEffect == EF_SLIDE_DOWN))
 			SetupSlide(m_iPostEffect, m_iPostEffectParam);
 		else if (m_iEffect == EF_SLIDE_DOWN || m_iEffect == EF_SLIDE_UP)
@@ -103,17 +109,14 @@ void CChannelHandlerFDS::HandleCustomEffects(int EffNum, int EffParam)
 
 bool CChannelHandlerFDS::HandleInstrument(int Instrument, bool Trigger, bool NewInstrument)
 {
-	CInstrumentFDS *pInstrument = (CInstrumentFDS*)m_pDocument->GetInstrument(m_iInstrument);
+	CFamiTrackerDoc *pDocument = m_pSoundGen->GetDocument();
+	CInstrumentContainer<CInstrumentFDS> instContainer(pDocument, Instrument);	// TODO check this
+	CInstrumentFDS *pInstrument = instContainer();
 
 	if (pInstrument == NULL)
 		return false;
 
-	if (pInstrument->GetType() != INST_FDS) {
-		pInstrument->Release();
-		return false;
-	}
-
-	if (Trigger && NewInstrument) {
+	if (Trigger || NewInstrument) {
 		FillWaveRAM(pInstrument);
 		FillModulationTable(pInstrument);
 	}
@@ -123,13 +126,13 @@ bool CChannelHandlerFDS::HandleInstrument(int Instrument, bool Trigger, bool New
 		m_pArpeggioSeq = pInstrument->GetArpSeq();
 		m_pPitchSeq = pInstrument->GetPitchSeq();
 
-		m_iSeqEnabled[SEQ_VOLUME] = (m_pVolumeSeq->GetItemCount() > 0) ? 1 : 0;
+		m_iSeqState[SEQ_VOLUME] = (m_pVolumeSeq->GetItemCount() > 0) ? SEQ_STATE_RUNNING : SEQ_STATE_DISABLED;
 		m_iSeqPointer[SEQ_VOLUME] = 0;
 
-		m_iSeqEnabled[SEQ_ARPEGGIO] = (m_pArpeggioSeq->GetItemCount() > 0) ? 1 : 0;
+		m_iSeqState[SEQ_ARPEGGIO] = (m_pArpeggioSeq->GetItemCount() > 0) ? SEQ_STATE_RUNNING : SEQ_STATE_DISABLED;
 		m_iSeqPointer[SEQ_ARPEGGIO] = 0;
 
-		m_iSeqEnabled[SEQ_PITCH] = (m_pPitchSeq->GetItemCount() > 0) ? 1 : 0;
+		m_iSeqState[SEQ_PITCH] = (m_pPitchSeq->GetItemCount() > 0) ? SEQ_STATE_RUNNING : SEQ_STATE_DISABLED;
 		m_iSeqPointer[SEQ_PITCH] = 0;
 
 //			if (pInstrument->GetModulationEnable()) {
@@ -138,8 +141,6 @@ bool CChannelHandlerFDS::HandleInstrument(int Instrument, bool Trigger, bool New
 			m_iModulationDelay = pInstrument->GetModulationDelay();
 //			}
 	}
-
-	pInstrument->Release();
 
 	return true;
 }
@@ -151,23 +152,24 @@ void CChannelHandlerFDS::HandleEmptyNote()
 void CChannelHandlerFDS::HandleHalt()
 {
 	CutNote();
-	m_bEnabled = false;
 }
 
 void CChannelHandlerFDS::HandleRelease()
 {
 	ReleaseNote();
 
-	CChannelHandler::ReleaseSequence(SEQ_VOLUME, m_pVolumeSeq);
-	CChannelHandler::ReleaseSequence(SEQ_ARPEGGIO, m_pArpeggioSeq);
-	CChannelHandler::ReleaseSequence(SEQ_PITCH, m_pPitchSeq);
+	if (m_iSeqState[SEQ_VOLUME] != SEQ_STATE_DISABLED)
+		CChannelHandler::ReleaseSequence(SEQ_VOLUME, m_pVolumeSeq);
+	if (m_iSeqState[SEQ_ARPEGGIO] != SEQ_STATE_DISABLED)
+		CChannelHandler::ReleaseSequence(SEQ_ARPEGGIO, m_pArpeggioSeq);
+	if (m_iSeqState[SEQ_PITCH] != SEQ_STATE_DISABLED)
+		CChannelHandler::ReleaseSequence(SEQ_PITCH, m_pPitchSeq);
 }
 
 void CChannelHandlerFDS::HandleNote(int Note, int Octave)
 {
 	// Trigger a new note
 	m_iNote	= RunNote(Octave, Note);
-	m_bEnabled = true;
 	m_bResetMod = true;
 	m_iLastInstrument = m_iInstrument;
 
@@ -180,31 +182,30 @@ void CChannelHandlerFDS::ProcessChannel()
 	CChannelHandler::ProcessChannel();	
 
 	// Sequences
-	if (m_iSeqEnabled[SEQ_VOLUME])
-		CChannelHandler::RunSequence(SEQ_VOLUME, m_pVolumeSeq);
+	if (m_iSeqState[SEQ_VOLUME] != SEQ_STATE_DISABLED)
+		RunSequence(SEQ_VOLUME, m_pVolumeSeq);
 
-	if (m_iSeqEnabled[SEQ_ARPEGGIO])
-		CChannelHandler::RunSequence(SEQ_ARPEGGIO, m_pArpeggioSeq);
+	if (m_iSeqState[SEQ_ARPEGGIO] != SEQ_STATE_DISABLED)
+		RunSequence(SEQ_ARPEGGIO, m_pArpeggioSeq);
 
-	if (m_iSeqEnabled[SEQ_PITCH])
-		CChannelHandler::RunSequence(SEQ_PITCH, m_pPitchSeq);
+	if (m_iSeqState[SEQ_PITCH] != SEQ_STATE_DISABLED)
+		RunSequence(SEQ_PITCH, m_pPitchSeq);
 }
 
 void CChannelHandlerFDS::RefreshChannel()
 {
 	CheckWaveUpdate();	
 
-	int Frequency = CalculatePeriod(true);
+	int Frequency = CalculatePeriod();
 	unsigned char LoFreq = Frequency & 0xFF;
 	unsigned char HiFreq = (Frequency >> 8) & 0x0F;
 
 	unsigned char ModFreqLo = m_iModulationSpeed & 0xFF;
 	unsigned char ModFreqHi = (m_iModulationSpeed >> 8) & 0x0F;
 
-	unsigned char Volume = CalculateVolume(32);
+	unsigned char Volume = CalculateVolume();
 
-	//if (m_iNote == 0x80)
-	if (!m_bEnabled)
+	if (!m_bGate)
 		Volume = 0;
 
 	// Write frequency
@@ -255,39 +256,49 @@ void CChannelHandlerFDS::ClearRegisters()
 
 	m_iSeqVolume = 0x20;
 
-//	m_iNote = 0x80;
-	m_bEnabled = false;
-
-//	m_iLastInstrument = MAX_INSTRUMENTS;
-//	m_iInstrument = 0;
+	memset(m_iModTable, 0, 32);
+	memset(m_iWaveTable, 0, 64);
 }
 
-void CChannelHandlerFDS::FillWaveRAM(CInstrumentFDS *pInst)
+void CChannelHandlerFDS::FillWaveRAM(CInstrumentFDS *pInstrument)
 {
-	// Fills the 64 byte waveform table
-	// Enable write for waveform RAM
-	WriteExternalRegister(0x4089, 0x80);
+	bool bNew(false);
 
-	// This is the time the loop takes in NSF code
-	AddCycles(1088);
+	for (int i = 0; i < 64; ++i) {
+		if (m_iWaveTable[i] != pInstrument->GetSample(i)) {
+			bNew = true;
+			break;
+		}
+	}
 
-	// Wave ram
-	for (int i = 0; i < 0x40; ++i)
-		WriteExternalRegister(0x4040 + i, pInst->GetSample(i));
+	if (bNew) {
+		for (int i = 0; i < 64; ++i)
+			m_iWaveTable[i] = pInstrument->GetSample(i);
 
-	// Disable write for waveform RAM, master volume = full
-	WriteExternalRegister(0x4089, 0x00);
+		// Fills the 64 byte waveform table
+		// Enable write for waveform RAM
+		WriteExternalRegister(0x4089, 0x80);
+
+		// This is the time the loop takes in NSF code
+		AddCycles(1088);
+
+		// Wave ram
+		for (int i = 0; i < 0x40; ++i)
+			WriteExternalRegister(0x4040 + i, pInstrument->GetSample(i));
+
+		// Disable write for waveform RAM, master volume = full
+		WriteExternalRegister(0x4089, 0x00);
+	}
 }
 
-void CChannelHandlerFDS::FillModulationTable(CInstrumentFDS *pInst)
+void CChannelHandlerFDS::FillModulationTable(CInstrumentFDS *pInstrument)
 {
 	// Fills the 32 byte modulation table
-
 
 	bool bNew(true);
 
 	for (int i = 0; i < 32; ++i) {
-		if (m_iModTable[i] != pInst->GetModulation(i)) {
+		if (m_iModTable[i] != pInstrument->GetModulation(i)) {
 			bNew = true;
 			break;
 		}
@@ -296,7 +307,7 @@ void CChannelHandlerFDS::FillModulationTable(CInstrumentFDS *pInst)
 	if (bNew) {
 		// Copy table
 		for (int i = 0; i < 32; ++i)
-			m_iModTable[i] = pInst->GetModulation(i);
+			m_iModTable[i] = pInstrument->GetModulation(i);
 
 		// Disable modulation
 		WriteExternalRegister(0x4087, 0x80);
@@ -311,19 +322,18 @@ void CChannelHandlerFDS::FillModulationTable(CInstrumentFDS *pInst)
 void CChannelHandlerFDS::CheckWaveUpdate()
 {
 	// Check wave changes
+	CFamiTrackerDoc *pDocument = m_pSoundGen->GetDocument();
 	bool bWaveChanged = theApp.GetSoundGenerator()->HasWaveChanged();
 
 	if (m_iInstrument != MAX_INSTRUMENTS && bWaveChanged) {
-		CInstrumentFDS *pInstrument = (CInstrumentFDS*)m_pDocument->GetInstrument(m_iInstrument);
+		CInstrumentContainer<CInstrumentFDS> instContainer(pDocument, m_iInstrument);
+		CInstrumentFDS *pInstrument = instContainer();
 		if (pInstrument != NULL) {
-			if (pInstrument->GetType() == INST_FDS) {
-				// Realtime update
-				m_iModulationSpeed = pInstrument->GetModulationSpeed();
-				m_iModulationDepth = pInstrument->GetModulationDepth();
-				FillWaveRAM(pInstrument);
-				FillModulationTable(pInstrument);
-			}
-			pInstrument->Release();
+			// Realtime update
+			m_iModulationSpeed = pInstrument->GetModulationSpeed();
+			m_iModulationDepth = pInstrument->GetModulationDepth();
+			FillWaveRAM(pInstrument);
+			FillModulationTable(pInstrument);
 		}
 	}
 }

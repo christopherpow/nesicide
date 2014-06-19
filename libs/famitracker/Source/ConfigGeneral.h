@@ -51,6 +51,8 @@ protected:
 	bool	m_bPullUpDelete;
 	bool	m_bBackups;
 	bool	m_bSingleInstance;
+	bool	m_bPreviewFullRow;
+	bool	m_bDisableDblClick;
 	int		m_iKeyNoteCut;
 	int		m_iKeyNoteRelease;
 	int		m_iKeyClear;
@@ -82,6 +84,9 @@ public:
 	afx_msg void OnBnClickedOptPullupdelete();
 	afx_msg void OnBnClickedOptBackups();
 	afx_msg void OnBnClickedOptSingleInstance();
+	afx_msg void OnBnClickedOptPreviewFullRow();
+	afx_msg void OnBnClickedOptDisableDoubleClick();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 
 };
+

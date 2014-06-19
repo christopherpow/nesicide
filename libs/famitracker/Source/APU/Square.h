@@ -23,8 +23,8 @@
  *
  */
 
-#ifndef _SQUARE_H_
-#define _SQUARE_H_
+#ifndef SQUARE_H
+#define SQUARE_H
 
 #include "Channel.h"
 
@@ -58,4 +58,4 @@ private:
 	bool	m_bSweepWritten;
 };
 
-#endif /* _SQUARE_H_ */
+#endif /* SQUARE_H */

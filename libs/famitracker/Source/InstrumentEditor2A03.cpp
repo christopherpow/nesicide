@@ -77,7 +77,7 @@ BOOL CInstrumentEditor2A03::OnInitDialog()
 	CInstrumentEditPanel::OnInitDialog();
 
 	// Instrument settings
-	CListCtrl *pList = (CListCtrl*) GetDlgItem(IDC_INSTSETTINGS);
+	CListCtrl *pList = static_cast<CListCtrl*>(GetDlgItem(IDC_INSTSETTINGS));
 	pList->DeleteAllItems();
 	pList->InsertColumn(0, _T(""), LVCFMT_LEFT, 26);
 	pList->InsertColumn(1, _T("#"), LVCFMT_LEFT, 30);
@@ -95,10 +95,14 @@ BOOL CInstrumentEditor2A03::OnInitDialog()
 
 	SetDlgItemInt(IDC_SEQ_INDEX, m_iSelectedSetting);
 
-	CSpinButtonCtrl *pSequenceSpin = (CSpinButtonCtrl*)GetDlgItem(IDC_SEQUENCE_SPIN);
+	CSpinButtonCtrl *pSequenceSpin = static_cast<CSpinButtonCtrl*>(GetDlgItem(IDC_SEQUENCE_SPIN));
 	pSequenceSpin->SetRange(0, MAX_SEQUENCES - 1);
 
-	CRect rect(SX(190 - 2 - 40) + 40, SY(30) - 2, SX(CSequenceEditor::SEQUENCE_EDIT_WIDTH - 190) + 190, SY(CSequenceEditor::SEQUENCE_EDIT_HEIGHT-42)+42);
+	CRect rect(
+		SX(190 - 2 - 40) + 40,
+		SY(30) - 2,
+		SX(CSequenceEditor::SEQUENCE_EDIT_WIDTH - 190) + 190,
+		SY(CSequenceEditor::SEQUENCE_EDIT_HEIGHT - 42) + 42);
 
 	m_pSequenceEditor = new CSequenceEditor(GetDocument());
 	m_pSequenceEditor->CreateEditor(this, rect);
@@ -141,7 +145,7 @@ void CInstrumentEditor2A03::OnLvnItemchangedInstsettings(NMHDR *pNMHDR, LRESULT 
 void CInstrumentEditor2A03::OnEnChangeSeqIndex()
 {
 	// Selected sequence changed
-	CListCtrl *pList = (CListCtrl*) GetDlgItem(IDC_INSTSETTINGS);
+	CListCtrl *pList = static_cast<CListCtrl*>(GetDlgItem(IDC_INSTSETTINGS));
 	int Index = GetDlgItemInt(IDC_SEQ_INDEX);
 
 	if (Index < 0)
@@ -201,8 +205,10 @@ void CInstrumentEditor2A03::OnKeyReturn()
 
 void CInstrumentEditor2A03::SelectInstrument(int Instrument)
 {
-	CInstrument2A03 *pInstrument = (CInstrument2A03*)GetDocument()->GetInstrument(Instrument);
-	CListCtrl *pList = (CListCtrl*) GetDlgItem(IDC_INSTSETTINGS);
+	CInstrument2A03 *pInstrument = static_cast<CInstrument2A03*>(GetDocument()->GetInstrument(Instrument));
+	ASSERT(pInstrument->GetType() == INST_2A03);
+
+	CListCtrl *pList = static_cast<CListCtrl*>(GetDlgItem(IDC_INSTSETTINGS));
 
 	if (m_pInstrument != NULL)
 		m_pInstrument->Release();
@@ -246,7 +252,7 @@ void CInstrumentEditor2A03::TranslateMML(CString String, int Max, int Min)
 	GetDocument()->SetModifiedFlag();
 
 	// Enable setting
-	((CListCtrl*)GetDlgItem(IDC_INSTSETTINGS))->SetCheck(m_iSelectedSetting, 1);
+	static_cast<CListCtrl*>(GetDlgItem(IDC_INSTSETTINGS))->SetCheck(m_iSelectedSetting, 1);
 }
 
 void CInstrumentEditor2A03::SetSequenceString(CString Sequence, bool Changed)
@@ -255,7 +261,7 @@ void CInstrumentEditor2A03::SetSequenceString(CString Sequence, bool Changed)
 	SetDlgItemText(IDC_SEQUENCE_STRING, Sequence);
 	// If the sequence was changed, assume the user wants to enable it
 	if (Changed) {
-		((CListCtrl*)GetDlgItem(IDC_INSTSETTINGS))->SetCheck(m_iSelectedSetting, 1);
+		static_cast<CListCtrl*>(GetDlgItem(IDC_INSTSETTINGS))->SetCheck(m_iSelectedSetting, 1);
 	}
 }
 

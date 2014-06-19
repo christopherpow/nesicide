@@ -71,22 +71,26 @@ CMixer::CMixer()
 	memset(m_fChannelLevels, 0, sizeof(float) * CHANNELS);
 	memset(m_iChanLevelFallOff, 0, sizeof(uint32) * CHANNELS);
 
-	m_fLevel2A03 = 1.0f;
+	m_fLevelAPU1 = 1.0f;
+	m_fLevelAPU2 = 1.0f;
 	m_fLevelVRC6 = 1.0f;
 	m_fLevelMMC5 = 1.0f;
 	m_fLevelFDS = 1.0f;
-   
-   m_iLowCut = 0;
-   m_iHighCut = 0;
-   m_iHighDamp = 0;
-   m_iOverallVol = 0;
+	m_fLevelN163 = 1.0f;
 
-	m_bNamcoMixing = false;
+	m_iExternalChip = 0;
+	m_iSampleRate = 0;
+	m_iLowCut = 0;
+	m_iHighCut = 0;
+	m_iHighDamp = 0;
+	m_fOverallVol = 1.0f;
 }
 
 CMixer::~CMixer()
 {
 }
+
+double SumSS = 0, SumTND = 0;
 
 inline double CMixer::CalcPin1(double Val1, double Val2)
 {
@@ -113,56 +117,71 @@ inline double CMixer::CalcPin2(double Val1, double Val2, double Val3)
 void CMixer::ExternalSound(int Chip)
 {
 	m_iExternalChip = Chip;
-	UpdateSettings(m_iLowCut, m_iHighCut, m_iHighDamp, m_iOverallVol);
+	UpdateSettings(m_iLowCut, m_iHighCut, m_iHighDamp, m_fOverallVol);
 }
 
-void CMixer::SetNamcoMixing(bool bLinear)
-{
-	m_bNamcoMixing = bLinear;
-}
-
-void CMixer::SetChipLevel(int Chip, float Level)
+void CMixer::SetChipLevel(chip_level_t Chip, float Level)
 {
 	switch (Chip) {
-		case SNDCHIP_NONE:
-			m_fLevel2A03 = Level;
+		case CHIP_LEVEL_APU1:
+			m_fLevelAPU1 = Level;
 			break;
-		case SNDCHIP_VRC6:
+		case CHIP_LEVEL_APU2:
+			m_fLevelAPU2 = Level;
+			break;
+		case CHIP_LEVEL_VRC6:
 			m_fLevelVRC6 = Level;
 			break;
-		case SNDCHIP_MMC5:
+		case CHIP_LEVEL_MMC5:
 			m_fLevelMMC5 = Level;
 			break;
-		case SNDCHIP_FDS:
+		case CHIP_LEVEL_FDS:
 			m_fLevelFDS = Level;
+			break;
+		case CHIP_LEVEL_N163:
+			m_fLevelN163 = Level;
 			break;
 	}
 }
 
-void CMixer::UpdateSettings(int LowCut,	int HighCut, int HighDamp, int OverallVol)
+float CMixer::GetAttenuation() const
 {
-	float fVolume = float(OverallVol) / 100.0f;
+	const float ATTENUATION_VRC6 = 0.80f;
+	const float ATTENUATION_VRC7 = 0.34f;
+	const float ATTENUATION_N163 = 0.70f;
+	const float ATTENUATION_MMC5 = 0.83f;
+	const float ATTENUATION_FDS  = 0.90f;
 
-	m_fDamping = 1.0f;
+	float Attenuation = 1.0f;
+
+	// Increase headroom if some expansion chips are enabled
 
 	if (m_iExternalChip & SNDCHIP_VRC7)
-		// Decrease the internal audio when VRC7 is enabled to increase the headroom
-		m_fDamping *= 0.34f;
-	else
-		m_fDamping *= 1.0f;
+		Attenuation *= ATTENUATION_VRC7;
 
 	if (m_iExternalChip & SNDCHIP_N163)
-		m_fDamping *= 0.9f;
-	else
-		m_fDamping *= 1.0f;
+		Attenuation *= ATTENUATION_N163;
 
-	fVolume *= m_fDamping;
+	if (m_iExternalChip & SNDCHIP_VRC6)
+		Attenuation *= ATTENUATION_VRC6;
+
+	if (m_iExternalChip & SNDCHIP_MMC5)
+		Attenuation *= ATTENUATION_MMC5;
+
+	if (m_iExternalChip & SNDCHIP_FDS)
+		Attenuation *= ATTENUATION_FDS;
+
+	return Attenuation;
+}
+
+void CMixer::UpdateSettings(int LowCut,	int HighCut, int HighDamp, float OverallVol)
+{
+	float Volume = OverallVol * GetAttenuation();
 
 	// Blip-buffer filtering
 	BlipBuffer.bass_freq(LowCut);
 
 	blip_eq_t eq(-HighDamp, HighCut, m_iSampleRate);
-
 
 	Synth2A03SS.treble_eq(eq);
 	Synth2A03TND.treble_eq(eq);
@@ -170,7 +189,7 @@ void CMixer::UpdateSettings(int LowCut,	int HighCut, int HighDamp, int OverallVo
 	SynthMMC5.treble_eq(eq);
 	SynthS5B.treble_eq(eq);
 
-	// N163
+	// N163 special filtering
 	double n163_treble = 24;
 	long n163_rolloff = 12000;
 
@@ -183,33 +202,33 @@ void CMixer::UpdateSettings(int LowCut,	int HighCut, int HighDamp, int OverallVo
 	blip_eq_t eq_n163(-n163_treble, n163_rolloff, m_iSampleRate);
 	SynthN163.treble_eq(eq_n163);
 
-	// FDS
+	// FDS special filtering (TODO fix this for high sample rates)
 	blip_eq_t fds_eq(-48, 1000, m_iSampleRate);
 
 	SynthFDS.treble_eq(fds_eq);
 
 	// Volume levels
-	Synth2A03SS.volume(fVolume * m_fLevel2A03);
-	Synth2A03TND.volume(fVolume * m_fLevel2A03);
-	SynthVRC6.volume(fVolume * 3.98333f * m_fLevelVRC6);
-	SynthFDS.volume(fVolume * 1.00f * m_fLevelFDS);
-	SynthMMC5.volume(fVolume * 1.18421f * m_fLevelMMC5);
+	Synth2A03SS.volume(Volume * m_fLevelAPU1);
+	Synth2A03TND.volume(Volume * m_fLevelAPU2);
+	SynthVRC6.volume(Volume * 3.98333f * m_fLevelVRC6);
+	SynthFDS.volume(Volume * 1.00f * m_fLevelFDS);
+	SynthMMC5.volume(Volume * 1.18421f * m_fLevelMMC5);
 	
 	// Not checked
-	SynthN163.volume(fVolume * 1.1f * (m_bNamcoMixing ? 0.8f : 1.0f));
-	SynthS5B.volume(fVolume * 1.0f);
+	SynthN163.volume(Volume * 1.1f * m_fLevelN163);
+	//SynthS5B.volume(Volume * 1.0f);
 
 	m_iLowCut = LowCut;
 	m_iHighCut = HighCut;
 	m_iHighDamp = HighDamp;
-	m_iOverallVol = OverallVol;
+	m_fOverallVol = OverallVol;
 }
 
 void CMixer::SetNamcoVolume(float fVol)
 {
-	float fVolume = fVol * float(m_iOverallVol) / 100.0f;
+	float fVolume = fVol * m_fOverallVol * GetAttenuation();
 
-	SynthN163.volume(fVolume * 1.1f * (m_bNamcoMixing ? 0.8f : 1.0f));
+	SynthN163.volume(fVolume * 1.1f * m_fLevelN163);
 }
 
 void CMixer::MixSamples(blip_sample_t *pBuffer, uint32 Count)
@@ -239,6 +258,9 @@ void CMixer::SetClockRate(uint32 Rate)
 void CMixer::ClearBuffer()
 {
 	BlipBuffer.clear();
+
+	SumSS = 0;
+	SumTND = 0;
 }
 
 int CMixer::SamplesAvail() const
@@ -280,7 +302,7 @@ int CMixer::FinishBuffer(int t)
 
 void CMixer::MixInternal1(int Time)
 {
-	static double LastSum;
+	//static double LastSum;
 	double Sum, Delta;
 
 #ifdef LINEAR_MIXING
@@ -290,14 +312,14 @@ void CMixer::MixInternal1(int Time)
 	Sum = CalcPin1(m_iChannels[CHANID_SQUARE1], m_iChannels[CHANID_SQUARE2]);
 #endif
 
-	Delta = (Sum - LastSum) * AMP_2A03;
+	Delta = (Sum - SumSS) * AMP_2A03;
 	Synth2A03SS.offset(Time, (int)Delta, &BlipBuffer);
-	LastSum = Sum;
+	SumSS = Sum;
 }
 
 void CMixer::MixInternal2(int Time)
 {
-	static double LastSum;
+//	static double LastSum;
 	double Sum, Delta;
 
 #ifdef LINEAR_MIXING
@@ -307,9 +329,9 @@ void CMixer::MixInternal2(int Time)
 	Sum = CalcPin2(m_iChannels[CHANID_TRIANGLE], m_iChannels[CHANID_NOISE], m_iChannels[CHANID_DPCM]);
 #endif
 
-	Delta = (Sum - LastSum) * AMP_2A03;
+	Delta = (Sum - SumTND) * AMP_2A03;
 	Synth2A03TND.offset(Time, (int)Delta, &BlipBuffer);
-	LastSum = Sum;
+	SumTND = Sum;
 }
 
 void CMixer::MixN163(int Value, int Time)
@@ -417,6 +439,12 @@ void CMixer::StoreChannelLevel(int Channel, int Value)
 		m_fChannelLevels[Channel] = float(AbsVol);
 		m_iChanLevelFallOff[Channel] = LEVEL_FALL_OFF_DELAY;
 	}
+}
+
+void CMixer::ClearChannelLevels()
+{
+	memset(m_fChannelLevels, 0, sizeof(float) * CHANNELS);
+	memset(m_iChanLevelFallOff, 0, sizeof(uint32) * CHANNELS);
 }
 
 uint32 CMixer::ResampleDuration(uint32 Time) const

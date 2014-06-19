@@ -20,7 +20,7 @@
 
 #pragma once
 
-enum E_COLOR_ITEMS {
+enum color_items_t {
 	COL_BACKGROUND,
 	COL_BACKGROUND_HILITE,
 	COL_BACKGROUND_HILITE2,
@@ -56,7 +56,6 @@ protected:
 	static int CALLBACK EnumFontFamExProc(ENUMLOGFONTEX *lpelfe, NEWTEXTMETRICEX *lpntme, DWORD FontType, LPARAM lParam);
 
 	static const TCHAR *COLOR_ITEMS[];
-//	static const TCHAR *COLOR_SCHEMES[];
 	static const int NUM_COLOR_SCHEMES;
 
 	static const COLOR_SCHEME *COLOR_SCHEMES[];
@@ -73,15 +72,14 @@ protected:
 	int GetColor(int Index) const;
 
 protected:
-	CComboBox*	m_pFontList;
-	CComboBox*	m_pFontSizeList;
 	CString		m_strFont;
 	
 	int			m_iFontSize;
 	int			m_iSelectedItem;
 	bool		m_bPatternColors;
+	bool		m_bDisplayFlats;
 
-	int m_iColors[COLOR_ITEM_COUNT];
+	int			m_iColors[COLOR_ITEM_COUNT];
 
 	DECLARE_MESSAGE_MAP()
 public:
@@ -95,4 +93,5 @@ public:
 	afx_msg void OnCbnSelchangeScheme();
 	afx_msg void OnCbnSelchangeFontSize();
 	afx_msg void OnBnClickedPatterncolors();
+	afx_msg void OnBnClickedDisplayFlats();
 };

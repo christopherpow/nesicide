@@ -18,8 +18,8 @@
 ** must bear this legend.
 */
 
-#ifndef _EXTERNAL_H_
-#define _EXTERNAL_H_
+#ifndef EXTERNAL_H
+#define EXTERNAL_H
 
 class CMixer;
 
@@ -40,4 +40,4 @@ protected:
 	CMixer *m_pMixer;
 };
 
-#endif /* _EXTERNAL_H_ */
+#endif /* EXTERNAL_H */

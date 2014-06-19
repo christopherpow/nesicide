@@ -57,7 +57,7 @@ const int CConfigAppearance::FONT_SIZE_COUNT = sizeof(FONT_SIZES) / sizeof(int);
 int CALLBACK CConfigAppearance::EnumFontFamExProc(ENUMLOGFONTEX *lpelfe, NEWTEXTMETRICEX *lpntme, DWORD FontType, LPARAM lParam)
 {
 	if (lpelfe->elfLogFont.lfCharSet == ANSI_CHARSET && lpelfe->elfFullName[0] != '@')
-		((CConfigAppearance*)lParam)->AddFontName((char*)&lpelfe->elfFullName);
+		reinterpret_cast<CConfigAppearance*>(lParam)->AddFontName((char*)&lpelfe->elfFullName);
 
 	return 1;
 }
@@ -91,6 +91,7 @@ BEGIN_MESSAGE_MAP(CConfigAppearance, CPropertyPage)
    ON_CBN_SELCHANGE(IDC_FONT_SIZE, OnCbnSelchangeFontSize)
    ON_BN_CLICKED(IDC_PATTERNCOLORS, OnBnClickedPatterncolors)
 END_MESSAGE_MAP()
+
 
 // CConfigAppearance message handlers
 
@@ -183,10 +184,7 @@ void CConfigAppearance::OnPaint()
 				dc.SetTextColor(ShadedHiCol);
 		}
 		else {
-			if ((i & 3) == 0)
-				dc.SetTextColor(GetColor(COL_PATTERN_TEXT));
-			else
-				dc.SetTextColor(ShadedCol);
+			dc.SetTextColor(ShadedCol);
 		}
 
 #define BAR(x, y) dc.FillSolidRect((x) + 3, (y) + (iRowSize / 2) + 1, 10 - 7, 1, ShadedCol)
@@ -227,19 +225,21 @@ BOOL CConfigAppearance::OnInitDialog()
 	CDC *pDC = GetDC();
 	LOGFONT LogFont;
 
-	m_strFont = theApp.GetSettings()->General.strFont;
+	const CSettings *pSettings = theApp.GetSettings();
+
+	m_strFont = pSettings->General.strFont;
 
 	memset(&LogFont, 0, sizeof(LOGFONT));
 	LogFont.lfCharSet = DEFAULT_CHARSET;
 
-	m_pFontList = (CComboBox*)GetDlgItem(IDC_FONT);
-	m_pFontSizeList = (CComboBox*)GetDlgItem(IDC_FONT_SIZE);
+	CComboBox *pFontList = static_cast<CComboBox*>(GetDlgItem(IDC_FONT));
+	CComboBox *pFontSizeList = static_cast<CComboBox*>(GetDlgItem(IDC_FONT_SIZE));
 
 	EnumFontFamiliesEx(pDC->m_hDC, &LogFont, (FONTENUMPROC)EnumFontFamExProc, (LPARAM)this, 0);
 
 	ReleaseDC(pDC);
 
-	CComboBox *pItemsBox = (CComboBox*)GetDlgItem(IDC_COL_ITEM);
+	CComboBox *pItemsBox = static_cast<CComboBox*>(GetDlgItem(IDC_COL_ITEM));
 
 	for (int i = 0; i < COLOR_ITEM_COUNT; ++i) {
 		pItemsBox->AddString(COLOR_ITEMS[i]);
@@ -249,23 +249,24 @@ BOOL CConfigAppearance::OnInitDialog()
 
 	m_iSelectedItem = 0;
 
-	m_iColors[COL_BACKGROUND]			= theApp.GetSettings()->Appearance.iColBackground;
-	m_iColors[COL_BACKGROUND_HILITE]	= theApp.GetSettings()->Appearance.iColBackgroundHilite;
-	m_iColors[COL_BACKGROUND_HILITE2]	= theApp.GetSettings()->Appearance.iColBackgroundHilite2;
-	m_iColors[COL_PATTERN_TEXT]			= theApp.GetSettings()->Appearance.iColPatternText;
-	m_iColors[COL_PATTERN_TEXT_HILITE]	= theApp.GetSettings()->Appearance.iColPatternTextHilite;
-	m_iColors[COL_PATTERN_TEXT_HILITE2]	= theApp.GetSettings()->Appearance.iColPatternTextHilite2;
-	m_iColors[COL_PATTERN_INSTRUMENT]	= theApp.GetSettings()->Appearance.iColPatternInstrument;
-	m_iColors[COL_PATTERN_VOLUME]		= theApp.GetSettings()->Appearance.iColPatternVolume;
-	m_iColors[COL_PATTERN_EFF_NUM]		= theApp.GetSettings()->Appearance.iColPatternEffect;
-	m_iColors[COL_SELECTION]			= theApp.GetSettings()->Appearance.iColSelection;
-	m_iColors[COL_CURSOR]				= theApp.GetSettings()->Appearance.iColCursor;
+	m_iColors[COL_BACKGROUND]			= pSettings->Appearance.iColBackground;
+	m_iColors[COL_BACKGROUND_HILITE]	= pSettings->Appearance.iColBackgroundHilite;
+	m_iColors[COL_BACKGROUND_HILITE2]	= pSettings->Appearance.iColBackgroundHilite2;
+	m_iColors[COL_PATTERN_TEXT]			= pSettings->Appearance.iColPatternText;
+	m_iColors[COL_PATTERN_TEXT_HILITE]	= pSettings->Appearance.iColPatternTextHilite;
+	m_iColors[COL_PATTERN_TEXT_HILITE2]	= pSettings->Appearance.iColPatternTextHilite2;
+	m_iColors[COL_PATTERN_INSTRUMENT]	= pSettings->Appearance.iColPatternInstrument;
+	m_iColors[COL_PATTERN_VOLUME]		= pSettings->Appearance.iColPatternVolume;
+	m_iColors[COL_PATTERN_EFF_NUM]		= pSettings->Appearance.iColPatternEffect;
+	m_iColors[COL_SELECTION]			= pSettings->Appearance.iColSelection;
+	m_iColors[COL_CURSOR]				= pSettings->Appearance.iColCursor;
 
-	m_iFontSize	= theApp.GetSettings()->General.iFontSize;
+	m_iFontSize	= pSettings->General.iFontSize;
 
-	m_bPatternColors = theApp.GetSettings()->General.bPatternColor;
+	m_bPatternColors = pSettings->General.bPatternColor;
+	m_bDisplayFlats = pSettings->General.bDisplayFlats;
 
-	pItemsBox = (CComboBox*)GetDlgItem(IDC_SCHEME);
+	pItemsBox = static_cast<CComboBox*>(GetDlgItem(IDC_SCHEME));
 
 	for (int i = 0; i < NUM_COLOR_SCHEMES; ++i) {
 		pItemsBox->AddString(COLOR_SCHEMES[i]->NAME);
@@ -275,9 +276,9 @@ BOOL CConfigAppearance::OnInitDialog()
 
 	for (int i = 0; i < FONT_SIZE_COUNT; ++i) {
 		_itot_s(FONT_SIZES[i], txtBuf, 16, 10);
-		m_pFontSizeList->AddString(txtBuf);
+		pFontSizeList->AddString(txtBuf);
 		if (FONT_SIZES[i] == m_iFontSize)
-			m_pFontSizeList->SelectString(0, txtBuf);
+			pFontSizeList->SelectString(0, txtBuf);
 	}
 
 	return TRUE;  // return TRUE unless you set the focus to a control
@@ -286,10 +287,12 @@ BOOL CConfigAppearance::OnInitDialog()
 
 void CConfigAppearance::AddFontName(char *Name)
 {
-	m_pFontList->AddString(Name);
+	CComboBox *pFontList = static_cast<CComboBox*>(GetDlgItem(IDC_FONT));
+
+	pFontList->AddString(Name);
 
 	if (m_strFont.Compare(Name) == 0)
-		m_pFontList->SelectString(0, Name);
+		pFontList->SelectString(0, Name);
 }
 
 BOOL CConfigAppearance::OnApply()
@@ -299,6 +302,7 @@ BOOL CConfigAppearance::OnApply()
 	pSettings->General.strFont		 = m_strFont;
 	pSettings->General.iFontSize	 = m_iFontSize;
 	pSettings->General.bPatternColor = m_bPatternColors;
+	pSettings->General.bDisplayFlats = m_bDisplayFlats;
 
 	pSettings->Appearance.iColBackground			= m_iColors[COL_BACKGROUND];
 	pSettings->Appearance.iColBackgroundHilite		= m_iColors[COL_BACKGROUND_HILITE];
@@ -319,7 +323,8 @@ BOOL CConfigAppearance::OnApply()
 
 void CConfigAppearance::OnCbnSelchangeFont()
 {
-	m_pFontList->GetLBText(m_pFontList->GetCurSel(), m_strFont);
+	CComboBox *pFontList = static_cast<CComboBox*>(GetDlgItem(IDC_FONT));
+	pFontList->GetLBText(pFontList->GetCurSel(), m_strFont);
 	RedrawWindow();
 	SetModified();
 }
@@ -327,6 +332,7 @@ void CConfigAppearance::OnCbnSelchangeFont()
 BOOL CConfigAppearance::OnSetActive()
 {
 	CheckDlgButton(IDC_PATTERNCOLORS, m_bPatternColors);
+	CheckDlgButton(IDC_DISPLAYFLATS, m_bDisplayFlats);
 	return CPropertyPage::OnSetActive();
 }
 
@@ -346,14 +352,14 @@ void CConfigAppearance::OnBnClickedPickCol()
 
 void CConfigAppearance::OnCbnSelchangeColItem()
 {
-	CComboBox *List = (CComboBox*)GetDlgItem(IDC_COL_ITEM);
+	CComboBox *List = static_cast<CComboBox*>(GetDlgItem(IDC_COL_ITEM));
 	m_iSelectedItem = List->GetCurSel();
 	RedrawWindow();
 }
 
 void CConfigAppearance::OnCbnSelchangeScheme()
 {
-	CComboBox *pList = (CComboBox*)GetDlgItem(IDC_SCHEME);
+	CComboBox *pList = static_cast<CComboBox*>(GetDlgItem(IDC_SCHEME));
 	
 	SelectColorScheme(COLOR_SCHEMES[pList->GetCurSel()]);
 
@@ -363,8 +369,8 @@ void CConfigAppearance::OnCbnSelchangeScheme()
 
 void CConfigAppearance::SelectColorScheme(const COLOR_SCHEME *pColorScheme)
 {
-	CComboBox *pFontList = (CComboBox*)GetDlgItem(IDC_FONT);
-	CComboBox *pFontSizeList = (CComboBox*)GetDlgItem(IDC_FONT_SIZE);
+	CComboBox *pFontList = static_cast<CComboBox*>(GetDlgItem(IDC_FONT));
+	CComboBox *pFontSizeList = static_cast<CComboBox*>(GetDlgItem(IDC_FONT_SIZE));
 
 	SetColor(COL_BACKGROUND, pColorScheme->BACKGROUND);
 	SetColor(COL_BACKGROUND_HILITE, pColorScheme->BACKGROUND_HILITE);
@@ -399,7 +405,8 @@ int CConfigAppearance::GetColor(int Index) const
 void CConfigAppearance::OnCbnSelchangeFontSize()
 {
 	CString str;
-	m_pFontSizeList->GetLBText(m_pFontSizeList->GetCurSel(), str);
+	CComboBox *pFontSizeList = static_cast<CComboBox*>(GetDlgItem(IDC_FONT_SIZE));
+	pFontSizeList->GetLBText(pFontSizeList->GetCurSel(), str);
 	m_iFontSize = _ttoi(str);
 	RedrawWindow();
 	SetModified();
@@ -408,5 +415,11 @@ void CConfigAppearance::OnCbnSelchangeFontSize()
 void CConfigAppearance::OnBnClickedPatterncolors()
 {
 	m_bPatternColors = IsDlgButtonChecked(IDC_PATTERNCOLORS) != 0;
+	SetModified();
+}
+
+void CConfigAppearance::OnBnClickedDisplayFlats()
+{
+	m_bDisplayFlats = IsDlgButtonChecked(IDC_DISPLAYFLATS) != 0;
 	SetModified();
 }

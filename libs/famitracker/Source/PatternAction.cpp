@@ -62,7 +62,7 @@ void CPatternAction::SetPaste(CPatternClipData *pClipData)
 	m_pClipData = pClipData;
 }
 
-void CPatternAction::SetTranspose(int Mode)
+void CPatternAction::SetTranspose(transpose_t Mode)
 {
 	m_iTransposeMode = Mode;
 }
@@ -158,11 +158,12 @@ void CPatternAction::DecreaseRowAction(CFamiTrackerDoc *pDoc)
 
 bool CPatternAction::SaveState(CMainFrame *pMainFrm)
 {
-	CFamiTrackerView *pView = (CFamiTrackerView*)pMainFrm->GetActiveView();
+	CFamiTrackerView *pView = static_cast<CFamiTrackerView*>(pMainFrm->GetActiveView());
 	CFamiTrackerDoc *pDoc = pView->GetDocument();
 	CPatternView *pPatternView = pView->GetPatternView();
 
 	// Save undo cursor position
+	m_iUndoTrack	= pMainFrm->GetSelectedTrack();
 	m_iUndoFrame	= pPatternView->GetFrame();
 	m_iUndoChannel  = pPatternView->GetChannel();
 	m_iUndoRow		= pPatternView->GetRow();
@@ -188,15 +189,15 @@ bool CPatternAction::SaveState(CMainFrame *pMainFrm)
 			if (m_bBack && m_iUndoRow == 0)
 				return false;
 			pDoc->GetNoteData(m_iUndoFrame, m_iUndoChannel, m_iUndoRow - (m_bBack ? 1 : 0), &m_OldNote);
-			pDoc->ClearRowField(m_iUndoFrame, m_iUndoChannel, m_iUndoRow - (m_bBack ? 1 : 0), m_iUndoColumn);
+			pDoc->ClearRowField(m_iUndoTrack, m_iUndoFrame, m_iUndoChannel, m_iUndoRow - (m_bBack ? 1 : 0), m_iUndoColumn);
 			if (m_bPullUp)
-				pDoc->PullUp(m_iUndoFrame, m_iUndoChannel, m_iUndoRow - (m_bBack ? 1 : 0));
+				pDoc->PullUp(m_iUndoTrack, m_iUndoFrame, m_iUndoChannel, m_iUndoRow - (m_bBack ? 1 : 0));
 			pDoc->UpdateAllViews(NULL, CHANGED_PATTERN);
 			break;
 		case ACT_INSERT_ROW:
 			// Insert empty row
 			pDoc->GetNoteData(m_iUndoFrame, m_iUndoChannel, pDoc->GetPatternLength() - 1, &m_OldNote);
-			pDoc->InsertRow(m_iUndoFrame, m_iUndoChannel, m_iUndoRow);
+			pDoc->InsertRow(m_iUndoTrack, m_iUndoFrame, m_iUndoChannel, m_iUndoRow);
 			pDoc->UpdateAllViews(NULL, CHANGED_PATTERN);
 			break;
 		case ACT_EDIT_PASTE:
@@ -283,7 +284,7 @@ bool CPatternAction::SaveState(CMainFrame *pMainFrm)
 			// Change pattern length
 			m_iOldPatternLen = pDoc->GetPatternLength();
 			pDoc->SetPatternLength(m_iNewPatternLen);
-			pDoc->UpdateAllViews(NULL, CHANGED_PATTERN);
+			pDoc->UpdateAllViews(NULL, CHANGED_PATTERN_LENGTH);
 			break;
 		case ACT_EXPAND_PATTERN:
 			// Expand pattern
@@ -320,7 +321,7 @@ bool CPatternAction::SaveState(CMainFrame *pMainFrm)
 
 void CPatternAction::Undo(CMainFrame *pMainFrm)
 {
-	CFamiTrackerView *pView = (CFamiTrackerView*)pMainFrm->GetActiveView();
+	CFamiTrackerView *pView = static_cast<CFamiTrackerView*>(pMainFrm->GetActiveView());
 	CFamiTrackerDoc *pDoc = pView->GetDocument();
 	CPatternView *pPatternView = pView->GetPatternView();
 
@@ -336,12 +337,12 @@ void CPatternAction::Undo(CMainFrame *pMainFrm)
 			break;
 		case ACT_DELETE_ROW:
 			if (m_bPullUp)
-				pDoc->InsertRow(m_iUndoFrame, m_iUndoChannel, m_iUndoRow - (m_bBack ? 1 : 0));
+				pDoc->InsertRow(m_iUndoTrack, m_iUndoFrame, m_iUndoChannel, m_iUndoRow - (m_bBack ? 1 : 0));
 			pDoc->SetNoteData(m_iUndoFrame, m_iUndoChannel, m_iUndoRow - (m_bBack ? 1 : 0), &m_OldNote);
 			pDoc->UpdateAllViews(NULL, CHANGED_PATTERN);
 			break;
 		case ACT_INSERT_ROW:
-			pDoc->PullUp(m_iUndoFrame, m_iUndoChannel, m_iUndoRow);
+			pDoc->PullUp(m_iUndoTrack, m_iUndoFrame, m_iUndoChannel, m_iUndoRow);
 			pDoc->SetNoteData(m_iUndoFrame, m_iUndoChannel, pDoc->GetPatternLength() - 1, &m_OldNote);
 			pDoc->UpdateAllViews(NULL, CHANGED_PATTERN);
 			break;
@@ -395,7 +396,7 @@ void CPatternAction::Undo(CMainFrame *pMainFrm)
 
 void CPatternAction::Redo(CMainFrame *pMainFrm)
 {
-	CFamiTrackerView *pView = (CFamiTrackerView*)pMainFrm->GetActiveView();
+	CFamiTrackerView *pView = static_cast<CFamiTrackerView*>(pMainFrm->GetActiveView());
 	CFamiTrackerDoc *pDoc = pView->GetDocument();
 	CPatternView *pPatternView = pView->GetPatternView();
 
@@ -410,13 +411,13 @@ void CPatternAction::Redo(CMainFrame *pMainFrm)
 			pDoc->UpdateAllViews(NULL, CHANGED_PATTERN);
 			break;
 		case ACT_DELETE_ROW:
-			pDoc->ClearRowField(m_iUndoFrame, m_iUndoChannel, m_iUndoRow - (m_bBack ? 1 : 0), m_iUndoColumn);
+			pDoc->ClearRowField(m_iUndoTrack, m_iUndoFrame, m_iUndoChannel, m_iUndoRow - (m_bBack ? 1 : 0), m_iUndoColumn);
 			if (m_bPullUp)
-				pDoc->PullUp(m_iUndoFrame, m_iUndoChannel, m_iUndoRow - (m_bBack ? 1 : 0));
+				pDoc->PullUp(m_iUndoTrack, m_iUndoFrame, m_iUndoChannel, m_iUndoRow - (m_bBack ? 1 : 0));
 			pDoc->UpdateAllViews(NULL, CHANGED_PATTERN);
 			break;
 		case ACT_INSERT_ROW:
-			pDoc->InsertRow(m_iUndoFrame, m_iUndoChannel, m_iUndoRow);
+			pDoc->InsertRow(m_iUndoTrack, m_iUndoFrame, m_iUndoChannel, m_iUndoRow);
 			pDoc->UpdateAllViews(NULL, CHANGED_PATTERN);
 			break;
 		case ACT_EDIT_PASTE:
@@ -516,7 +517,7 @@ void CPatternAction::Redo(CMainFrame *pMainFrm)
 
 void CPatternAction::Update(CMainFrame *pMainFrm)
 {
-	CFamiTrackerView *pView = (CFamiTrackerView*)pMainFrm->GetActiveView();
+	CFamiTrackerView *pView = static_cast<CFamiTrackerView*>(pMainFrm->GetActiveView());
 	CFamiTrackerDoc *pDoc = pView->GetDocument();
 
 	switch (m_iAction) {

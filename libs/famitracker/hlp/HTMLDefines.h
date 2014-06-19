@@ -19,6 +19,9 @@
 #define HID_BLOCK_START                         0x10090
 #define HID_BLOCK_END                           0x10091
 #define HID_CLONE_SEQUENCE                      0x100AF
+#define HID_MODULE_TEST_EXPORT                  0x100B0
+#define HID_INCREASEVALUES                      0x100B1
+#define HID_DECREASEVALUES                      0x100B2
 #define HID_TRACKER_PLAY_CURSOR                 0x1012C
 #define HID_TRACKER_PLAY                        0x18003
 #define HID_TRACKER_PLAYPATTERN                 0x18007
@@ -152,6 +155,13 @@
 #define HID_EDIT_PASTEMIXED                     0x1815A
 #define HID_FRAME_PASTEASNEWPA                  0x1815B
 #define HID_FRAME_PASTENEWPATTERNS              0x1815C
+#define HID_POPUP_DELETE33117                   0x1815D
+#define HID_POPUP_TRIM                          0x1815E
+#define HID_POPUP_PLAY                          0x1815F
+#define HID_INSTRUMENT_SAVETOFILE               0x18160
+#define HID_INSTRUMENT_LOADFROMFILE             0x18161
+#define HID_HELP_FAQ                            0x18162
+#define HID_POPUP_CLONESEQUENCE                 0x18165
 #define HID_INSTRUMENT_ADD_2A03                 0x19000
 #define HID_INSTRUMENT_ADD_FDS                  0x19001
 #define HID_INSTRUMENT_ADD_MMC5                 0x19002
@@ -165,6 +175,7 @@
 #define HID_INDICATOR_RATE                      0x1D003
 #define HID_INDICATOR_TEMPO                     0x1D004
 #define HID_INDICATOR_TIME                      0x1D005
+#define HID_INDICATOR_POS                       0x1D006
  
 // Prompts (IDP_*) 
  
@@ -179,6 +190,9 @@
 #define HIDR_INSTRUMENT_TOOLBAR                 0x20118
 #define HIDR_PATTERN_HEADER_POPUP               0x2011D
 #define HIDR_FRAMEWND                           0x20123
+#define HIDR_SAMPLE_EDITOR_POPUP                0x20130
+#define HIDR_EXPORT_TEST_REPORT                 0x20137
+#define HIDR_SEQUENCE_POPUP                     0x2013F
  
 // Dialogs (IDD_*) 
 #define HIDD_ABOUTBOX                           0x20064
@@ -190,7 +204,6 @@
 #define HIDD_INSTRUMENT_DPCM                    0x2009F
 #define HIDD_INSTRUMENT                         0x200A0
 #define HIDD_CONFIG_APPEARANCE                  0x200B4
-#define HIDD_MIDIIMPORT                         0x200B5
 #define HIDD_CONFIG_GENERAL                     0x200B7
 #define HIDD_PROPERTIES                         0x200B9
 #define HIDD_CONFIG_MIDI                        0x200C2
@@ -211,9 +224,11 @@
 #define HIDD_HEADER                             0x2011B
 #define HIDD_COMMENTS                           0x20120
 #define HIDD_CONFIG_LEVELS                      0x20124
+#define HIDD_CONFIG_MIXER                       0x20124
 #define HIDD_INSTRUMENT_N163_WAVE1              0x20125
 #define HIDD_INSTRUMENT_N163_WAVE               0x20125
 #define HIDD_IMPORT                             0x2012D
+#define HIDD_EXPORT_TEST                        0x20134
  
 // Frame Controls (IDW_*) 
 // This is a part of the Microsoft Foundation Classes C++ library.
@@ -238,10 +253,19 @@
 // Non-Client HitTest help IDs
 #define HID_HT_NOWHERE                          0x40000
 #define HID_HT_CAPTION                          0x40002
+#define HID_HT_SIZE                             0x40004
 #define HID_HT_HSCROLL                          0x40006
 #define HID_HT_VSCROLL                          0x40007
 #define HID_HT_MINBUTTON                        0x40008
 #define HID_HT_MAXBUTTON                        0x40009
+#define HID_HT_SIZE                             0x4000A // alias: ID_HT_LEFT
+#define HID_HT_SIZE                             0x4000B // alias: ID_HT_RIGHT
+#define HID_HT_SIZE                             0x4000C // alias: ID_HT_TOP
+#define HID_HT_SIZE                             0x4000D // alias: ID_HT_TOPLEFT
+#define HID_HT_SIZE                             0x4000E // alias: ID_HT_TOPRIGHT
+#define HID_HT_SIZE                             0x4000F // alias: ID_HT_BOTTOM
+#define HID_HT_SIZE                             0x40010 // alias: ID_HT_BOTTOMLEFT
+#define HID_HT_SIZE                             0x40011 // alias: ID_HT_BOTTOMRIGHT
 #define HID_HT_SIZE                             0x40012 // alias: ID_HT_BORDER
 #define HID_HT_OBJECT							0x40013
 #define HID_HT_CLOSE							0x40014
@@ -259,12 +283,42 @@
 #define HID_SC_TASKLIST                         0x1EF13
 
 // File MRU and aliases
+#define HID_FILE_MRU_FILE1                      0x1E110
+#define HID_FILE_MRU_FILE1                      0x1E111 // aliases: MRU_2 - MRU_16
+#define HID_FILE_MRU_FILE1                      0x1E112
+#define HID_FILE_MRU_FILE1                      0x1E113
+#define HID_FILE_MRU_FILE1                      0x1E114
+#define HID_FILE_MRU_FILE1                      0x1E115
+#define HID_FILE_MRU_FILE1                      0x1E116
+#define HID_FILE_MRU_FILE1                      0x1E117
+#define HID_FILE_MRU_FILE1                      0x1E118
+#define HID_FILE_MRU_FILE1                      0x1E119
+#define HID_FILE_MRU_FILE1                      0x1E11A
+#define HID_FILE_MRU_FILE1                      0x1E11B
+#define HID_FILE_MRU_FILE1                      0x1E11C
+#define HID_FILE_MRU_FILE1                      0x1E11D
+#define HID_FILE_MRU_FILE1                      0x1E11E
 #define HID_FILE_MRU_FILE1                      0x1E11F
 
 // Window menu list
 #define HID_WINDOW_ALL                          0x1EF1F
 
 // OLE menu and aliases
+#define HID_OLE_VERB_1                          0x1E210
+#define HID_OLE_VERB_1                          0x1E211 // aliases: VERB_2 -> VERB_16
+#define HID_OLE_VERB_1                          0x1E212
+#define HID_OLE_VERB_1                          0x1E213
+#define HID_OLE_VERB_1                          0x1E214
+#define HID_OLE_VERB_1                          0x1E215
+#define HID_OLE_VERB_1                          0x1E216
+#define HID_OLE_VERB_1                          0x1E217
+#define HID_OLE_VERB_1                          0x1E218
+#define HID_OLE_VERB_1                          0x1E219
+#define HID_OLE_VERB_1                          0x1E21A
+#define HID_OLE_VERB_1                          0x1E21B
+#define HID_OLE_VERB_1                          0x1E21C
+#define HID_OLE_VERB_1                          0x1E21D
+#define HID_OLE_VERB_1                          0x1E21E
 #define HID_OLE_VERB_1                          0x1E21F
 
 // Commands (HID_*) 

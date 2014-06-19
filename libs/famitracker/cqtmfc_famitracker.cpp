@@ -4,6 +4,8 @@
 
 #include "stdafx.h"
 
+#include "FamiTrackerDoc.h"
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // Menu
@@ -37,8 +39,6 @@ void qtMfcInitMenuResource_IDR_MAINFRAME(CMenu* parent)
    subMenu->AppendMenu(MF_STRING,ID_FILE_CREATE_NSF,"&Create NSF...\tCtrl+E");
 //        MENUITEM "Create WAV...",               ID_FILE_CREATEWAV
    subMenu->AppendMenu(MF_STRING,ID_FILE_CREATEWAV,"Create WAV...");
-//        MENUITEM "Import MIDI...",              ID_FILE_IMPORTMIDI
-   subMenu->AppendMenu(MF_STRING,ID_FILE_IMPORTMIDI,"Import MIDI...");
 //        MENUITEM SEPARATOR
    subMenu->AppendMenu(MF_SEPARATOR);
 //   MENUITEM "Import text...",              ID_FILE_IMPORTTEXT
@@ -290,6 +290,8 @@ void qtMfcInitMenuResource_IDR_MAINFRAME(CMenu* parent)
    subMenu->AppendMenu(MF_STRING,ID_HELP_FINDER,"&Help Topics\tF1");
 //        MENUITEM "Effect table",                ID_HELP_EFFECTTABLE
    subMenu->AppendMenu(MF_STRING,ID_HELP_EFFECTTABLE,"Effect table");
+//   MENUITEM "FAQ",                         ID_HELP_FAQ
+   subMenu->AppendMenu(MF_STRING,ID_HELP_FAQ,"FAQ");
 //        MENUITEM SEPARATOR
    subMenu->AppendMenu(MF_SEPARATOR);
 //        MENUITEM "Performance",                 ID_HELP_PERFORMANCE
@@ -441,6 +443,12 @@ void qtMfcInitMenuResource_IDR_INSTRUMENT_POPUP(CMenu* parent)
    subMenu->AppendMenu(MF_STRING,ID_INSTRUMENT_REMOVE,"Remove");
 //           MENUITEM SEPARATOR
    subMenu->AppendMenu(MF_SEPARATOR);
+//   MENUITEM "&Load from file...",          ID_INSTRUMENT_LOAD
+   subMenu->AppendMenu(MF_STRING,ID_INSTRUMENT_LOAD,"&Load from file...");
+//   MENUITEM "&Save to file...",            ID_INSTRUMENT_SAVE
+   subMenu->AppendMenu(MF_STRING,ID_INSTRUMENT_SAVE,"&Save to file...");
+//   MENUITEM SEPARATOR
+   subMenu->AppendMenu(MF_SEPARATOR);
 //           MENUITEM "Clone instrument",            ID_INSTRUMENT_CLONE
    subMenu->AppendMenu(MF_STRING,ID_INSTRUMENT_CLONE,"Clone instrument");
 //           MENUITEM "Deep clone instrument",       ID_INSTRUMENT_DEEPCLONE
@@ -501,9 +509,9 @@ void qtMfcInitMenuResource_IDR_SAMPLE_WND_POPUP(CMenu* parent)
    QObject::connect(subMenu->toQMenu(),SIGNAL(aboutToShow()),subMenu,SLOT(menu_aboutToShow()));
    parent->AppendMenu(MF_POPUP|MF_STRING,(UINT_PTR)subMenu->m_hMenu,"Popup");
 //       BEGIN
-//           MENUITEM "Sample scope 1",              ID_POPUP_SAMPLESCOPE1
+//           MENUITEM "Sample scope",              ID_POPUP_SAMPLESCOPE1
    subMenu->AppendMenu(MF_STRING,ID_POPUP_SAMPLESCOPE1,"Sample scope 1");
-//           MENUITEM "Sample scope 2",              ID_POPUP_SAMPLESCOPE2
+//           MENUITEM "Sample scope (blur)",              ID_POPUP_SAMPLESCOPE2
    subMenu->AppendMenu(MF_STRING,ID_POPUP_SAMPLESCOPE2,"Sample scope 2");
 //           MENUITEM "Spectrum analyzer",           ID_POPUP_SPECTRUMANALYZER
    subMenu->AppendMenu(MF_STRING,ID_POPUP_SPECTRUMANALYZER,"Spectrum analyzer");
@@ -537,6 +545,52 @@ void qtMfcInitMenuResource_IDR_PATTERN_HEADER_POPUP(CMenu* parent)
 //   END
 }
 
+void qtMfcInitMenuResource_IDR_SAMPLE_EDITOR_POPUP(CMenu* parent)
+{
+   QAction* menuAction;
+
+//IDR_SAMPLE_EDITOR_POPUP MENU
+      CMenu* subMenuTree[2];
+      CMenu* subMenu;
+//BEGIN
+//    POPUP "Popup"
+      subMenuTree[0] = new CMenu;
+      subMenu = subMenuTree[0];
+      QObject::connect(subMenu->toQMenu(),SIGNAL(aboutToShow()),subMenu,SLOT(menu_aboutToShow()));
+      parent->AppendMenu(MF_POPUP|MF_STRING,(UINT_PTR)subMenu->m_hMenu,"Popup");
+//    BEGIN
+//        MENUITEM "Play\tP",                     IDC_PLAY
+      subMenu->AppendMenu(MF_STRING,IDC_PLAY,"Play\tP");
+//        MENUITEM SEPARATOR
+      subMenu->AppendMenu(MF_SEPARATOR);
+//        MENUITEM "Delete\tDel",                 IDC_DELETE
+      subMenu->AppendMenu(MF_STRING,IDC_DELETE,"Delete\tDel");
+//        MENUITEM "Tilt",                        IDC_TILT
+      subMenu->AppendMenu(MF_STRING,IDC_TILT,"Tilt");
+//    END
+//END
+}
+
+void qtMfcInitMenuResource_IDR_SEQUENCE_POPUP(CMenu* parent)
+{
+   QAction* menuAction;
+
+//IDR_SEQUENCE_POPUP MENU
+   CMenu* subMenuTree[2];
+   CMenu* subMenu;
+//BEGIN
+//    POPUP "Popup"
+   subMenuTree[0] = new CMenu;
+   subMenu = subMenuTree[0];
+   QObject::connect(subMenu->toQMenu(),SIGNAL(aboutToShow()),subMenu,SLOT(menu_aboutToShow()));
+   parent->AppendMenu(MF_POPUP|MF_STRING,(UINT_PTR)subMenu->m_hMenu,"Popup");
+//    BEGIN
+//        MENUITEM "&Clone sequence",             ID_CLONE_SEQUENCE
+   subMenu->AppendMenu(MF_STRING,ID_CLONE_SEQUENCE,"&Clone sequence");
+//    END
+//END
+}
+
 void qtMfcInitMenuResource(UINT menuID,CMenu* parent)
 {
    switch ( menuID )
@@ -561,6 +615,12 @@ void qtMfcInitMenuResource(UINT menuID,CMenu* parent)
       break;
    case IDR_PATTERN_HEADER_POPUP:
       qtMfcInitMenuResource_IDR_PATTERN_HEADER_POPUP(parent);
+      break;
+   case IDR_SAMPLE_EDITOR_POPUP:
+      qtMfcInitMenuResource_IDR_SAMPLE_EDITOR_POPUP(parent);
+      break;
+   case IDR_SEQUENCE_POPUP:
+      qtMfcInitMenuResource_IDR_SEQUENCE_POPUP(parent);
       break;
    }
    // Fixup shortcuts
@@ -1010,25 +1070,27 @@ void qtMfcInitBitmapResources()
    // Bitmap
    //
    qtMfcBitmapResources.clear();
-   
-//   IDB_SAMPLEBG            BITMAP                  "res\\SampleBg.bmp"
-   qtMfcBitmapResources.insert(IDB_SAMPLEBG,new CBitmap(":/resources/SampleBg.bmp"));
+
+//   IDB_ABOUT               BITMAP                  "res\\About.bmp"
+   qtMfcBitmapResources.insert(IDB_ABOUT,new CBitmap(":/resources/About.bmp"));
 //   IDB_KEY_BLACK           BITMAP                  "res\\key_black_unpressed.bmp"
    qtMfcBitmapResources.insert(IDB_KEY_BLACK,new CBitmap(":/resources/key_black_unpressed.bmp"));
+//   IDR_MAINFRAME           BITMAP                  "res\\MainToolbar-16.bmp"
+   qtMfcBitmapResources.insert(IDR_MAINFRAME,new CBitmap(":/resources/MainToolbar-16.bmp"));
+//   IDT_INSTRUMENT          BITMAP                  "res\\InstrumentToolbar-16.bmp"
+   qtMfcBitmapResources.insert(IDT_INSTRUMENT,new CBitmap(":/resources/InstrumentToolbar-16.bmp"));
+//   IDB_VISUALIZER          BITMAP                  "res\\VisualizerBg.bmp"
+   qtMfcBitmapResources.insert(IDB_VISUALIZER,new CBitmap(":/resources/VisualizerBg.bmp"));
 //   IDB_KEY_BLACK_MARK      BITMAP                  "res\\key_black_pressed.bmp"
    qtMfcBitmapResources.insert(IDB_KEY_BLACK_MARK,new CBitmap(":/resources/key_black_pressed.bmp"));
 //   IDB_KEY_WHITE           BITMAP                  "res\\key_white_unpressed.bmp"
    qtMfcBitmapResources.insert(IDB_KEY_WHITE,new CBitmap(":/resources/key_white_unpressed.bmp"));
 //   IDB_KEY_WHITE_MARK      BITMAP                  "res\\key_white_pressed.bmp"
    qtMfcBitmapResources.insert(IDB_KEY_WHITE_MARK,new CBitmap(":/resources/key_white_pressed.bmp"));
-//   IDB_INSTRUMENT_TOOLS    BITMAP                  "res\\toolbar1.bmp"
-   qtMfcBitmapResources.insert(IDB_INSTRUMENT_TOOLS,new CBitmap(":/resources/toolbar1.bmp"));
-//   IDB_TOOLBAR_256         BITMAP                  "res\\Toolbar-d5.bmp"
-   qtMfcBitmapResources.insert(IDB_TOOLBAR_256,new CBitmap(":/resources/Toolbar-d5.bmp"));
-//   IDB_TOOLBAR_INST_256    BITMAP                  "res\\inst_toolbar.bmp"
-   qtMfcBitmapResources.insert(IDB_TOOLBAR_INST_256,new CBitmap(":/resources/inst_toolbar.bmp"));
-//   IDR_MAINFRAME           ICON                    "res\\FamiTracker-Exe.ico"
-   qtMfcBitmapResources.insert(IDR_MAINFRAME,new CBitmap(":/resources/FamiTracker-Exe.ico"));
+//   IDB_TOOLBAR_256         BITMAP                  "res\\MainToolbar-256.bmp"
+   qtMfcBitmapResources.insert(IDB_TOOLBAR_256,new CBitmap(":/resources/MainToolbar-256.bmp"));
+//   IDB_TOOLBAR_INST_256    BITMAP                  "res\\InstrumentToolbar-256.bmp"
+   qtMfcBitmapResources.insert(IDB_TOOLBAR_INST_256,new CBitmap(":/resources/InstrumentToolbar-256.bmp"));
 }
 
 void qtInitIconResources()
@@ -1373,11 +1435,11 @@ void qtMfcInitDialogResource_IDD_MAINFRAME(CDialog* parent1)
    parent->MapDialogRect(&r24);
    mfc24->Create(CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r24,parent,IDC_SUBTUNE);
    mfcToQtWidget->insert(IDC_SUBTUNE,mfc24);
-//       CONTROL         "",IDC_INSTRUMENTS,"SysListView32",LVS_LIST | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOCOLUMNHEADER | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,193,5,202,103
+//   CONTROL         "",IDC_INSTRUMENTS,"SysListView32",LVS_LIST | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_EDITLABELS | LVS_ALIGNLEFT | LVS_NOCOLUMNHEADER | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,193,5,202,103
    CListCtrl* mfc25 = new CListCtrl(parent);
    CRect r25(CPoint(193,5),CSize(202,103));
    parent->MapDialogRect(&r25);
-   mfc25->Create(LVS_LIST | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOCOLUMNHEADER | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP | WS_VISIBLE,r25,parent,IDC_INSTRUMENTS);
+   mfc25->Create(LVS_LIST | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_EDITLABELS | LVS_ALIGNLEFT | LVS_NOCOLUMNHEADER | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP | WS_VISIBLE,r25,parent,IDC_INSTRUMENTS);
    mfcToQtWidget->insert(IDC_INSTRUMENTS,mfc25);
 //       EDITTEXT        IDC_INSTNAME,324,109,71,12,ES_AUTOHSCROLL
    CEdit* mfc26 = new CEdit(parent);
@@ -1460,7 +1522,7 @@ void qtMfcInitDialogResource_IDD_PCMIMPORT(CDialog* parent1)
    CPCMImport* parent = dynamic_cast<CPCMImport*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
 
-//   IDD_PCMIMPORT DIALOGEX 0, 0, 211, 134
+//   IDD_PCMIMPORT DIALOGEX 0, 0, 211, 144
    CRect rect(CPoint(0,0),CSize(211,134));
    parent->MapDialogRect(&rect);
    parent->setFixedSize(rect.Width(),rect.Height());
@@ -1514,9 +1576,9 @@ void qtMfcInitDialogResource_IDD_PCMIMPORT(CDialog* parent1)
    CRect r8(CPoint(123,61),CSize(16,10));
    parent->MapDialogRect(&r8);
    mfc8->Create(_T("High"),WS_VISIBLE,r8,parent,IDC_STATIC);
-//   GROUPBOX        "File info",IDC_STATIC,7,86,136,40
+//   GROUPBOX        "File info",IDC_STATIC,7,86,136,511
    CButton* mfc9 = new CButton(parent);
-   CRect r9(CPoint(7,86),CSize(136,40));
+   CRect r9(CPoint(7,86),CSize(136,51));
    parent->MapDialogRect(&r9);
    mfc9->Create(_T("File info"),BS_GROUPBOX | WS_VISIBLE,r9,parent,IDC_STATIC);
 //   LTEXT           "Static",IDC_SAMPLE_RATE,15,99,118,8
@@ -1525,9 +1587,9 @@ void qtMfcInitDialogResource_IDD_PCMIMPORT(CDialog* parent1)
    parent->MapDialogRect(&r10);
    mfc10->Create(_T(""),WS_VISIBLE,r10,parent,IDC_SAMPLE_RATE);
    mfcToQtWidget->insert(IDC_SAMPLE_RATE,mfc10);
-//   LTEXT           "Static",IDC_RESAMPLING,15,111,118,8
+//   LTEXT           "Static",IDC_RESAMPLING,15,110,118,8
    CStatic* mfc11 = new CStatic(parent);
-   CRect r11(CPoint(15,111),CSize(118,8));
+   CRect r11(CPoint(15,110),CSize(118,8));
    parent->MapDialogRect(&r11);
    mfc11->Create(_T(""),WS_VISIBLE,r11,parent,IDC_RESAMPLING);
    mfcToQtWidget->insert(IDC_RESAMPLING,mfc11);
@@ -1549,6 +1611,12 @@ void qtMfcInitDialogResource_IDD_PCMIMPORT(CDialog* parent1)
    parent->MapDialogRect(&r14);
    mfc14->Create(_T("Cancel"),WS_VISIBLE,r14,parent,IDCANCEL);
    mfcToQtWidget->insert(IDCANCEL,mfc14);
+//   LTEXT           "Static",IDC_SAMPLESIZE,15,121,118,8
+   CStatic* mfc15 = new CStatic(parent);
+   CRect r15(CPoint(15,121),CSize(118,8));
+   parent->MapDialogRect(&r15);
+   mfc15->Create(_T(""),WS_VISIBLE,r15,parent,IDC_SAMPLESIZE);
+   mfcToQtWidget->insert(IDC_SAMPLESIZE,mfc15);
 //   END
 }
 
@@ -1643,7 +1711,7 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_DPCM(CDialog* parent1)
    CRect rect(CPoint(0,0),CSize(372,174));
    parent->MapDialogRect(&rect);
    parent->setFixedSize(rect.Width(),rect.Height());
-//   STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_SYSMENU
+//   STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
 //   BEGIN
 //   GROUPBOX        "Assigned samples",IDC_STATIC,7,7,179,160
@@ -1706,17 +1774,17 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_DPCM(CDialog* parent1)
    parent->MapDialogRect(&r10);
    mfc10->Create(UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | WS_VISIBLE,r10,parent,IDC_DELTA_SPIN);
    mfcToQtWidget->insert(IDC_DELTA_SPIN,mfc10);
-//   PUSHBUTTON      "<-",IDC_ADD,138,130,42,14
+//   PUSHBUTTON      "",IDC_ADD,138,130,42,14,BS_ICON
    CButton* mfc11 = new CButton(parent);
    CRect r11(CPoint(138,130),CSize(42,14));
    parent->MapDialogRect(&r11);
-   mfc11->Create(_T("<-"),WS_VISIBLE,r11,parent,IDC_ADD);
+   mfc11->Create(_T(""),BS_ICON | WS_VISIBLE,r11,parent,IDC_ADD);
    mfcToQtWidget->insert(IDC_ADD,mfc11);
-//   PUSHBUTTON      "->",IDC_REMOVE,138,148,42,14
+//   PUSHBUTTON      "",IDC_REMOVE,138,148,42,14,BS_ICON
    CButton* mfc12 = new CButton(parent);
    CRect r12(CPoint(138,148),CSize(42,14));
    parent->MapDialogRect(&r12);
-   mfc12->Create(_T("->"),WS_VISIBLE,r12,parent,IDC_REMOVE);
+   mfc12->Create(_T(""),BS_ICON | WS_VISIBLE,r12,parent,IDC_REMOVE);
    mfcToQtWidget->insert(IDC_REMOVE,mfc12);
 //   GROUPBOX        "Loaded samples",IDC_STATIC,192,7,173,160
    CButton* mfc13 = new CButton(parent);
@@ -1870,9 +1938,9 @@ void qtMfcInitDialogResource_IDD_CONFIG_APPEARANCE(CDialog* parent1)
    parent->MapDialogRect(&r7);
    mfc7->Create(_T("Pick color"),WS_VISIBLE,r7,parent,IDC_PICK_COL);
    mfcToQtWidget->insert(IDC_PICK_COL,mfc7);
-//   CONTROL         "Pattern colors",IDC_PATTERNCOLORS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,105,113,9
+//   CONTROL         "Pattern colors",IDC_PATTERNCOLORS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,105,58,9
    CButton* mfc8 = new CButton(parent);
-   CRect r8(CPoint(15,105),CSize(113,9));
+   CRect r8(CPoint(15,105),CSize(58,9));
    parent->MapDialogRect(&r8);
    mfc8->Create(_T("Pattern colors"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r8,parent,IDC_PATTERNCOLORS);
    mfcToQtWidget->insert(IDC_PATTERNCOLORS,mfc8);
@@ -1906,35 +1974,12 @@ void qtMfcInitDialogResource_IDD_CONFIG_APPEARANCE(CDialog* parent1)
    parent->MapDialogRect(&r13);
    mfc13->Create(_T(""),SS_OWNERDRAW | WS_VISIBLE,r13,parent,IDC_PREVIEW);
    mfcToQtWidget->insert(IDC_PREVIEW,mfc13);
-//   END
-}
-
-//#include "dialog-file"
-void qtMfcInitDialogResource_IDD_MIDIIMPORT(CDialog* parent)
-{
-//  dialog-type* parent = dynamic_cast<dialog-type*>(parent1);
-   QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
-
-//   IDD_MIDIIMPORT DIALOGEX 0, 0, 204, 137
-//   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-//   CAPTION "MIDI file import"
-//   FONT 8, "MS Shell Dlg", 400, 0, 0x1
-//   BEGIN
-//       DEFPUSHBUTTON   "OK",IDOK,147,7,50,14
-//       PUSHBUTTON      "Cancel",IDCANCEL,147,24,50,14
-//       GROUPBOX        "Channel mapping",IDC_STATIC,7,7,131,101
-//       LTEXT           "Square 1",IDC_STATIC,12,19,42,11
-//       LTEXT           "Square 2",IDC_STATIC,12,36,42,10
-//       LTEXT           "Triangle",IDC_STATIC,12,54,42,10
-//       LTEXT           "Noise",IDC_STATIC,12,72,42,10
-//       LTEXT           "DPCM",IDC_STATIC,12,90,42,10
-//       COMBOBOX        IDC_CHANNEL1,60,18,72,72,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-//       COMBOBOX        IDC_CHANNEL2,60,36,72,72,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-//       COMBOBOX        IDC_CHANNEL3,60,54,72,72,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-//       COMBOBOX        IDC_CHANNEL4,60,72,72,72,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-//       COMBOBOX        IDC_CHANNEL5,60,90,72,72,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-//       LTEXT           "Pattern length:",IDC_STATIC,12,118,56,10
-//       EDITTEXT        IDC_PATLEN,74,117,58,13,ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER
+//   CONTROL         "Display flats",IDC_DISPLAYFLATS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,83,105,58,9
+   CButton* mfc14 = new CButton(parent);
+   CRect r14(CPoint(83,105),CSize(58,9));
+   parent->MapDialogRect(&r14);
+   mfc14->Create(_T("Display flats"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r14,parent,IDC_DISPLAYFLATS);
+   mfcToQtWidget->insert(IDC_DISPLAYFLATS,mfc14);
 //   END
 }
 
@@ -1966,71 +2011,71 @@ void qtMfcInitDialogResource_IDD_CONFIG_GENERAL(CDialog* parent1)
    parent->MapDialogRect(&r2);
    mfc2->Create(_T("Wrap cursor"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r2,parent,IDC_OPT_WRAPCURSOR);
    mfcToQtWidget->insert(IDC_OPT_WRAPCURSOR,mfc2);
-//       CONTROL         "Wrap across frames",IDC_OPT_WRAPFRAMES,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,29,113,9
+//   CONTROL         "Wrap across frames",IDC_OPT_WRAPFRAMES,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,28,113,9
    CButton* mfc3 = new CButton(parent);
-   CRect r3(CPoint(13,29),CSize(113,9));
+   CRect r3(CPoint(13,28),CSize(113,9));
    parent->MapDialogRect(&r3);
    mfc3->Create(_T("Wrap across frames"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r3,parent,IDC_OPT_WRAPFRAMES);
    mfcToQtWidget->insert(IDC_OPT_WRAPFRAMES,mfc3);
-//       CONTROL         "Free cursor edit",IDC_OPT_FREECURSOR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,40,113,9
+//   CONTROL         "Free cursor edit",IDC_OPT_FREECURSOR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,38,113,9
    CButton* mfc4 = new CButton(parent);
-   CRect r4(CPoint(13,40),CSize(113,9));
+   CRect r4(CPoint(13,38),CSize(113,9));
    parent->MapDialogRect(&r4);
    mfc4->Create(_T("Free cursor edit"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r4,parent,IDC_OPT_FREECURSOR);
    mfcToQtWidget->insert(IDC_OPT_FREECURSOR,mfc4);
-//       CONTROL         "Preview wave-files",IDC_OPT_WAVEPREVIEW,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,51,113,9
+//   CONTROL         "Preview wave-files",IDC_OPT_WAVEPREVIEW,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,48,113,9
    CButton* mfc5 = new CButton(parent);
-   CRect r5(CPoint(13,51),CSize(113,9));
+   CRect r5(CPoint(13,48),CSize(113,9));
    parent->MapDialogRect(&r5);
    mfc5->Create(_T("Preview wave-files"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r5,parent,IDC_OPT_WAVEPREVIEW);
    mfcToQtWidget->insert(IDC_OPT_WAVEPREVIEW,mfc5);
-//       CONTROL         "Key repeat",IDC_OPT_KEYREPEAT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,62,113,9
+//   CONTROL         "Key repeat",IDC_OPT_KEYREPEAT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,58,113,9
    CButton* mfc6 = new CButton(parent);
-   CRect r6(CPoint(13,62),CSize(113,9));
+   CRect r6(CPoint(13,58),CSize(113,9));
    parent->MapDialogRect(&r6);
    mfc6->Create(_T("Key repeat"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r6,parent,IDC_OPT_KEYREPEAT);
    mfcToQtWidget->insert(IDC_OPT_KEYREPEAT,mfc6);
-//       CONTROL         "Show row numbers in hex",IDC_OPT_HEXROW,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,73,113,9
+//   CONTROL         "Show row numbers in hex",IDC_OPT_HEXROW,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,68,113,9
    CButton* mfc7 = new CButton(parent);
-   CRect r7(CPoint(13,73),CSize(113,9));
+   CRect r7(CPoint(13,68),CSize(113,9));
    parent->MapDialogRect(&r7);
    mfc7->Create(_T("Show row numbers in hex"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r7,parent,IDC_OPT_HEXROW);
    mfcToQtWidget->insert(IDC_OPT_HEXROW,mfc7);
 //       CONTROL         "Preview next/previous frame",IDC_OPT_FRAMEPREVIEW,
-//                       "Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,84,113,9
+//   "Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,78,113,9
    CButton* mfc8 = new CButton(parent);
-   CRect r8(CPoint(13,84),CSize(113,9));
+   CRect r8(CPoint(13,78),CSize(113,9));
    parent->MapDialogRect(&r8);
    mfc8->Create(_T("Preview next/previous frame"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r8,parent,IDC_OPT_FRAMEPREVIEW);
    mfcToQtWidget->insert(IDC_OPT_FRAMEPREVIEW,mfc8);
 //       CONTROL         "Don't reset DPCM on note stop",IDC_OPT_NODPCMRESET,
-//                       "Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,95,113,9
+//   "Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,88,113,9
    CButton* mfc9 = new CButton(parent);
-   CRect r9(CPoint(13,95),CSize(113,9));
+   CRect r9(CPoint(13,88),CSize(113,9));
    parent->MapDialogRect(&r9);
    mfc9->Create(_T("Don't reset DPCM on note stop"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r9,parent,IDC_OPT_NODPCMRESET);
    mfcToQtWidget->insert(IDC_OPT_NODPCMRESET,mfc9);
-//       CONTROL         "Ignore Step when moving",IDC_OPT_NOSTEPMOVE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,106,113,9
+//CONTROL         "Ignore Step when moving",IDC_OPT_NOSTEPMOVE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,98,113,9
    CButton* mfc10 = new CButton(parent);
-   CRect r10(CPoint(13,106),CSize(113,9));
+   CRect r10(CPoint(13,98),CSize(113,9));
    parent->MapDialogRect(&r10);
    mfc10->Create(_T("Ignore Step when moving"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r10,parent,IDC_OPT_NOSTEPMOVE);
    mfcToQtWidget->insert(IDC_OPT_NOSTEPMOVE,mfc10);
-//       CONTROL         "Delete-key pulls up rows",IDC_OPT_PULLUPDELETE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,117,113,9
+//CONTROL         "Delete-key pulls up rows",IDC_OPT_PULLUPDELETE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,108,113,9
    CButton* mfc11 = new CButton(parent);
-   CRect r11(CPoint(13,117),CSize(113,9));
+   CRect r11(CPoint(13,108),CSize(113,9));
    parent->MapDialogRect(&r11);
    mfc11->Create(_T("Delete-key pulls up rows"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r11,parent,IDC_OPT_PULLUPDELETE);
    mfcToQtWidget->insert(IDC_OPT_PULLUPDELETE,mfc11);
-//       CONTROL         "Backup files",IDC_OPT_BACKUPS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,128,113,9
+//CONTROL         "Backup files",IDC_OPT_BACKUPS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,118,113,9
    CButton* mfc12 = new CButton(parent);
-   CRect r12(CPoint(13,128),CSize(113,9));
+   CRect r12(CPoint(13,118),CSize(113,9));
    parent->MapDialogRect(&r12);
    mfc12->Create(_T("Backup files"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r12,parent,IDC_OPT_BACKUPS);
-   mfcToQtWidget->insert(IDC_OPT_BACKUPS,mfc12);
-//       CONTROL         "Single instance",IDC_OPT_SINGLEINSTANCE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,139,113,9
+   mfcToQtWidget->insert(IDC_OPT_BACKUPS,mfc12);   
+//CONTROL         "Single instance",IDC_OPT_SINGLEINSTANCE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,128,113,9
    CButton* mfc13 = new CButton(parent);
-   CRect r13(CPoint(13,139),CSize(113,9));
+   CRect r13(CPoint(13,128),CSize(113,9));
    parent->MapDialogRect(&r13);
    mfc13->Create(_T("Single instance"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r13,parent,IDC_OPT_SINGLEINSTANCE);
    mfcToQtWidget->insert(IDC_OPT_SINGLEINSTANCE,mfc13);
@@ -2146,6 +2191,19 @@ void qtMfcInitDialogResource_IDD_CONFIG_GENERAL(CDialog* parent1)
    parent->MapDialogRect(&r29);
    mfc29->Create(ES_AUTOHSCROLL | ES_READONLY | WS_VISIBLE,r29,parent,IDC_KEY_NOTE_RELEASE);
    mfcToQtWidget->insert(IDC_KEY_NOTE_RELEASE,mfc29);
+//   CONTROL         "Preview full row",IDC_OPT_PREVIEWFULLROW,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,138,113,9
+   CButton* mfc30 = new CButton(parent);
+   CRect r30(CPoint(13,138),CSize(113,9));
+   parent->MapDialogRect(&r30);
+   mfc30->Create(_T("Preview full row"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r30,parent,IDC_OPT_PREVIEWFULLROW);
+   mfcToQtWidget->insert(IDC_OPT_PREVIEWFULLROW,mfc30);
+//   CONTROL         "Don't select on double-click",IDC_OPT_DOUBLECLICK,
+//                   "Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,148,113,9
+   CButton* mfc31 = new CButton(parent);
+   CRect r31(CPoint(13,148),CSize(113,9));
+   parent->MapDialogRect(&r31);
+   mfc31->Create(_T("Don't select on double-click"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r31,parent,IDC_OPT_DOUBLECLICK);
+   mfcToQtWidget->insert(IDC_OPT_DOUBLECLICK,mfc31);
 //   END
 }
 
@@ -2549,12 +2607,12 @@ void qtMfcInitDialogResource_IDD_OCTAVE(CDialog* parent)
 //   CDialog* parent = dynamic_cast<CDialog*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
 
-//   IDD_OCTAVE DIALOGEX 0, 0, 461, 12
-   CRect rect(CPoint(0,0),CSize(461,12));
+//   IDD_OCTAVE DIALOGEX 0, 0, 276, 12
+   CRect rect(CPoint(0,0),CSize(276,12));
    parent->MapDialogRect(&rect);
    parent->setFixedSize(rect.Width(),rect.Height());
 //   STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
-//   EXSTYLE WS_EX_TRANSPARENT | WS_EX_NOACTIVATE
+//   EXSTYLE WS_EX_CONTROLPARENT
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
 //   BEGIN
 //       COMBOBOX        IDC_OCTAVE,36,0,30,74,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
@@ -2591,9 +2649,9 @@ void qtMfcInitDialogResource_IDD_OCTAVE(CDialog* parent)
    mfc1->AddString(_T("7"));
 //       0
 //   END
-//       CONTROL         "Octave",IDC_STATIC,"Static",SS_LEFTNOWORDWRAP | WS_GROUP,6,2,24,8
+//       CONTROL         "Octave",IDC_STATIC,"Static",SS_LEFTNOWORDWRAP | WS_GROUP,6,1,24,8
    CStatic *mfc2 = new CStatic(parent);
-   CRect r2(CPoint(6,2),CSize(24,8));
+   CRect r2(CPoint(6,1),CSize(24,8));
    parent->MapDialogRect(&r2);
    mfc2->Create(_T("Octave"),SS_LEFTNOWORDWRAP | WS_GROUP | WS_VISIBLE,r2,parent,IDC_STATIC);
    // IDC_STATIC do not get added to MFC-to-Qt map.
@@ -2603,39 +2661,39 @@ void qtMfcInitDialogResource_IDD_OCTAVE(CDialog* parent)
    parent->MapDialogRect(&r3);
    mfc3->Create(_T("Follow-mode"),BS_AUTOCHECKBOX | BS_PUSHLIKE | WS_TABSTOP | WS_VISIBLE,r3,parent,IDC_FOLLOW);
    mfcToQtWidget->insert(IDC_FOLLOW,mfc3);
-//       CONTROL         "Row highlight",IDC_STATIC,"Static",SS_LEFTNOWORDWRAP | WS_GROUP,129,2,44,8
+//       CONTROL         "Row highlight",IDC_STATIC,"Static",SS_LEFTNOWORDWRAP | WS_GROUP,129,1,61,8
    CStatic *mfc4 = new CStatic(parent);
-   CRect r4(CPoint(129,2),CSize(44,8));
+   CRect r4(CPoint(129,1),CSize(61,8));
    parent->MapDialogRect(&r4);
    mfc4->Create(_T("Row highlight"),SS_LEFTNOWORDWRAP | WS_GROUP | WS_VISIBLE,r4,parent,IDC_STATIC);
    // IDC_STATIC do not get added to MFC-to-Qt map.
-//       EDITTEXT        IDC_HIGHLIGHT1,177,0,27,12,ES_AUTOHSCROLL | ES_NUMBER
+//       EDITTEXT        IDC_HIGHLIGHT1,191,0,27,12,ES_AUTOHSCROLL | ES_NUMBER
    CEdit* mfc5 = new CEdit(parent);
-   CRect r5(CPoint(177,0),CSize(27,12));
+   CRect r5(CPoint(191,0),CSize(27,12));
    parent->MapDialogRect(&r5);
    mfc5->Create(ES_AUTOHSCROLL | ES_NUMBER | WS_VISIBLE,r5,parent,IDC_HIGHLIGHT1);
    mfcToQtWidget->insert(IDC_HIGHLIGHT1,mfc5);
-//       CONTROL         "",IDC_HIGHLIGHTSPIN1,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_HOTTRACK,197,3,11,6
+//       CONTROL         "",IDC_HIGHLIGHTSPIN1,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_HOTTRACK,213,2,11,6
    CSpinButtonCtrl* mfc6 = new CSpinButtonCtrl(parent);
-   CRect r6(CPoint(197,3),CSize(11,6));
+   CRect r6(CPoint(213,2),CSize(11,6));
    parent->MapDialogRect(&r6);
    mfc6->Create(UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_HOTTRACK | WS_VISIBLE,r6,parent,IDC_HIGHLIGHTSPIN1);
    mfcToQtWidget->insert(IDC_HIGHLIGHTSPIN1,mfc6);
-//       CONTROL         "2nd highlight",IDC_STATIC,"Static",SS_LEFTNOWORDWRAP | WS_GROUP,211,2,42,8
+//       CONTROL         "2:nd",IDC_STATIC,"Static",SS_LEFTNOWORDWRAP | WS_GROUP,225,1,16,8
    CStatic *mfc7 = new CStatic(parent);
-   CRect r7(CPoint(211,2),CSize(42,8));
+   CRect r7(CPoint(225,1),CSize(16,8));
    parent->MapDialogRect(&r7);
-   mfc7->Create(_T("2nd highlight"),SS_LEFTNOWORDWRAP | WS_GROUP | WS_VISIBLE,r7,parent,IDC_STATIC);
+   mfc7->Create(_T("2:nd"),SS_LEFTNOWORDWRAP | WS_GROUP | WS_VISIBLE,r7,parent,IDC_STATIC);
    // IDC_STATIC do not get added to MFC-to-Qt map.
-//       EDITTEXT        IDC_HIGHLIGHT2,259,0,27,12,ES_AUTOHSCROLL | ES_NUMBER
+//       EDITTEXT        IDC_HIGHLIGHT2,241,0,27,12,ES_AUTOHSCROLL | ES_NUMBER
    CEdit* mfc8 = new CEdit(parent);
-   CRect r8(CPoint(259,0),CSize(27,12));
+   CRect r8(CPoint(241,0),CSize(27,12));
    parent->MapDialogRect(&r8);
    mfc8->Create(ES_AUTOHSCROLL | ES_NUMBER | WS_VISIBLE,r8,parent,IDC_HIGHLIGHT2);
    mfcToQtWidget->insert(IDC_HIGHLIGHT2,mfc8);
-//       CONTROL         "",IDC_HIGHLIGHTSPIN2,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_HOTTRACK,281,3,11,6
+//       CONTROL         "",IDC_HIGHLIGHTSPIN2,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_HOTTRACK,263,2,11,6
    CSpinButtonCtrl* mfc9 = new CSpinButtonCtrl(parent);
-   CRect r9(CPoint(281,3),CSize(11,6));
+   CRect r9(CPoint(263,2),CSize(11,6));
    parent->MapDialogRect(&r9);
    mfc9->Create(UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_HOTTRACK | WS_VISIBLE,r9,parent,IDC_HIGHLIGHTSPIN2);
    mfcToQtWidget->insert(IDC_HIGHLIGHTSPIN2,mfc9);
@@ -3902,9 +3960,6 @@ void qtMfcInitDialogResource(UINT dlgID,CDialog* parent)
       break;
    case IDD_CONFIG_APPEARANCE:
       qtMfcInitDialogResource_IDD_CONFIG_APPEARANCE(parent);
-      break;
-   case IDD_MIDIIMPORT:
-      qtMfcInitDialogResource_IDD_MIDIIMPORT(parent);
       break;
    case IDD_CONFIG_GENERAL:
       qtMfcInitDialogResource_IDD_CONFIG_GENERAL(parent);

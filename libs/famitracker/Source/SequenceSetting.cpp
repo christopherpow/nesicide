@@ -32,7 +32,11 @@
 #include "SequenceSetting.h"
 
 // Arpeggio menu
-enum {MENU_ARP_ABSOLUTE = 500, MENU_ARP_RELATIVE, MENU_ARP_FIXED};
+enum {
+	MENU_ARP_ABSOLUTE = 500, 
+	MENU_ARP_RELATIVE, 
+	MENU_ARP_FIXED
+};
 
 IMPLEMENT_DYNAMIC(CSequenceSetting, CWnd)
 
@@ -144,19 +148,19 @@ void CSequenceSetting::SelectSequence(CSequence *pSequence, int Type, int Instru
 void CSequenceSetting::OnMenuArpAbsolute()
 {
 	m_pSequence->SetSetting(ARP_SETTING_ABSOLUTE);
-	((CSequenceEditor*)m_pParent)->ChangedSetting();
+	static_cast<CSequenceEditor*>(m_pParent)->ChangedSetting();
 }
 
 void CSequenceSetting::OnMenuArpRelative()
 {
 	m_pSequence->SetSetting(ARP_SETTING_RELATIVE);
-	((CSequenceEditor*)m_pParent)->ChangedSetting();
+	static_cast<CSequenceEditor*>(m_pParent)->ChangedSetting();
 }
 
 void CSequenceSetting::OnMenuArpFixed()
 {
 	m_pSequence->SetSetting(ARP_SETTING_FIXED);
-	((CSequenceEditor*)m_pParent)->ChangedSetting();
+	static_cast<CSequenceEditor*>(m_pParent)->ChangedSetting();
 
 	// Prevent invalid sequence items
 	for (unsigned int i = 0; i < m_pSequence->GetItemCount(); ++i) {

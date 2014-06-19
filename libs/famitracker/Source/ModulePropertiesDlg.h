@@ -32,7 +32,6 @@ private:
 	void UpdateSongButtons();
 	
 	unsigned int m_iSelectedSong;
-	CListCtrl *m_pSongList;
 
 	CFamiTrackerDoc *m_pDocument;
 

@@ -83,54 +83,35 @@ void CInstrumentFDS::Setup()
 {
 }
 
-void CInstrumentFDS::StoreInstSequence(CFile *pFile, CSequence *pSeq)
+void CInstrumentFDS::StoreInstSequence(CInstrumentFile *pFile, CSequence *pSeq)
 {
-	int i;
 	// Store number of items in this sequence
-	i = pSeq->GetItemCount();
-	pFile->Write(&i, 4);
+	pFile->WriteInt(pSeq->GetItemCount());
 	// Store loop point
-	i = pSeq->GetLoopPoint();
-	pFile->Write(&i, 4);
+	pFile->WriteInt(pSeq->GetLoopPoint());
 	// Store release point (v4)
-	i = pSeq->GetReleasePoint();
-	pFile->Write(&i, 4);
+	pFile->WriteInt(pSeq->GetReleasePoint());
 	// Store setting (v4)
-	i = pSeq->GetSetting();
-	pFile->Write(&i, 4);
+	pFile->WriteInt(pSeq->GetSetting());
 	// Store items
-	for (unsigned int j = 0; j < pSeq->GetItemCount(); j++) {
-		char c = pSeq->GetItem(j);
-		pFile->Write(&c, 1);
-	}
+	for (unsigned i = 0; i < pSeq->GetItemCount(); ++i)
+		pFile->WriteChar(pSeq->GetItem(i));
 }
 
-bool CInstrumentFDS::LoadInstSequence(CFile *pFile, CSequence *pSeq)
+bool CInstrumentFDS::LoadInstSequence(CInstrumentFile *pFile, CSequence *pSeq)
 {
-	int SeqCount;
-	int LoopPoint;
-	int ReleasePoint;
-	int Settings;
-
-	pFile->Read(&SeqCount, 4);
-	pFile->Read(&LoopPoint, 4);
-	pFile->Read(&ReleasePoint, 4);
-	pFile->Read(&Settings, 4);
-
+	unsigned SeqCount = pFile->ReadInt();
 	if (SeqCount > MAX_SEQUENCE_ITEMS)
 		SeqCount = MAX_SEQUENCE_ITEMS;
 
 	pSeq->Clear();
 	pSeq->SetItemCount(SeqCount);
-	pSeq->SetLoopPoint(LoopPoint);
-	pSeq->SetReleasePoint(ReleasePoint);
-	pSeq->SetSetting(Settings);
+	pSeq->SetLoopPoint(pFile->ReadInt());
+	pSeq->SetReleasePoint(pFile->ReadInt());
+	pSeq->SetSetting(pFile->ReadInt());
 
-	for (int i = 0; i < SeqCount; ++i) {
-		char Value;
-		pFile->Read(&Value, 1);
-		pSeq->SetItem(i, Value);
-	}
+	for (unsigned i = 0; i < SeqCount; ++i)
+		pSeq->SetItem(i, pFile->ReadChar());
 
 	return true;
 }
@@ -158,7 +139,7 @@ bool CInstrumentFDS::LoadSequence(CDocumentFile *pDocFile, CSequence *pSeq)
 	unsigned int ReleasePoint;
 	unsigned int Settings;
 
-	SeqCount  = (unsigned char)pDocFile->GetBlockChar();
+	SeqCount = (unsigned char)pDocFile->GetBlockChar();
 	LoopPoint = pDocFile->GetBlockInt();
 	ReleasePoint = pDocFile->GetBlockInt();
 	Settings = pDocFile->GetBlockInt();
@@ -255,28 +236,22 @@ bool CInstrumentFDS::Load(CDocumentFile *pDocFile)
 	return true;
 }
 
-void CInstrumentFDS::SaveFile(CFile *pFile, CFamiTrackerDoc *pDoc)
+void CInstrumentFDS::SaveFile(CInstrumentFile *pFile, CFamiTrackerDoc *pDoc)
 {
 	// Write wave
 	for (int i = 0; i < WAVE_SIZE; ++i) {
-		char sample = GetSample(i);
-		pFile->Write(&sample, 1);
+		pFile->WriteChar(GetSample(i));
 	}
 
 	// Write modulation table
 	for (int i = 0; i < MOD_SIZE; ++i) {
-		char mod = GetModulation(i);
-		pFile->Write(&mod, 1);
+		pFile->WriteChar(GetModulation(i));
 	}
 
 	// Modulation parameters
-	int data;
-	data = GetModulationSpeed();
-	pFile->Write(&data, sizeof(int));
-	data = GetModulationDepth();
-	pFile->Write(&data, sizeof(int));
-	data = GetModulationDelay();
-	pFile->Write(&data, sizeof(int));
+	pFile->WriteInt(GetModulationSpeed());
+	pFile->WriteInt(GetModulationDepth());
+	pFile->WriteInt(GetModulationDelay());
 
 	// Sequences
 	StoreInstSequence(pFile, m_pVolume);
@@ -284,30 +259,22 @@ void CInstrumentFDS::SaveFile(CFile *pFile, CFamiTrackerDoc *pDoc)
 	StoreInstSequence(pFile, m_pPitch);
 }
 
-bool CInstrumentFDS::LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc)
+bool CInstrumentFDS::LoadFile(CInstrumentFile *pFile, int iVersion, CFamiTrackerDoc *pDoc)
 {
 	// Read wave
 	for (int i = 0; i < WAVE_SIZE; ++i) {
-		char sample;
-		pFile->Read(&sample, 1);
-		SetSample(i, sample);
+		SetSample(i, pFile->ReadChar());
 	}
 
 	// Read modulation table
 	for (int i = 0; i < MOD_SIZE; ++i) {
-		char mod;
-		pFile->Read(&mod, 1);
-		SetModulation(i, mod);
+		SetModulation(i, pFile->ReadChar());
 	}
 
 	// Modulation parameters
-	int data;
-	pFile->Read(&data, sizeof(int));
-	SetModulationSpeed(data);
-	pFile->Read(&data, sizeof(int));
-	SetModulationDepth(data);
-	pFile->Read(&data, sizeof(int));
-	SetModulationDelay(data);
+	SetModulationSpeed(pFile->ReadInt());
+	SetModulationDepth(pFile->ReadInt());
+	SetModulationDelay(pFile->ReadInt());
 
 	// Sequences
 	LoadInstSequence(pFile, m_pVolume);
@@ -322,9 +289,9 @@ bool CInstrumentFDS::LoadFile(CFile *pFile, int iVersion, CFamiTrackerDoc *pDoc)
 	return true;
 }
 
-int CInstrumentFDS::Compile(CChunk *pChunk, int Index)
+int CInstrumentFDS::Compile(CFamiTrackerDoc *pDoc, CChunk *pChunk, int Index)
 {
-	CString str;
+	CStringA str;
 
 	// Store wave
 //	int Table = pCompiler->AddWavetable(m_iSamples);

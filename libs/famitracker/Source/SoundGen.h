@@ -34,6 +34,8 @@
 //
 
 #include "WaveFile.h"
+#include "Common.h"
+#include "APU/APU.h"
 
 const int VIBRATO_LENGTH = 256;
 const int TREMOLO_LENGTH = 256;
@@ -41,32 +43,38 @@ const int TREMOLO_LENGTH = 256;
 const int NOTE_COUNT = 96;	// 96 available notes
 
 // Custom messages
-enum { WM_USER_SILENT_ALL = WM_USER + 1,
-	   WM_USER_LOAD_SETTINGS,
-	   WM_USER_PLAY,
-	   WM_USER_STOP,
-	   WM_USER_RESET,
-	   WM_USER_START_RENDER,
-	   WM_USER_STOP_RENDER,
-	   WM_USER_PREVIEW_SAMPLE,
-	   WM_USER_WRITE_APU,
-	   WM_USER_CLOSE_SOUND,
-	   WM_USER_SET_CHIP,
-	   WM_USER_VERIFY_EXPORT
+enum { 
+	WM_USER_SILENT_ALL = WM_USER + 1,
+	WM_USER_LOAD_SETTINGS,
+	WM_USER_PLAY,
+	WM_USER_STOP,
+	WM_USER_RESET,
+	WM_USER_START_RENDER,
+	WM_USER_STOP_RENDER,
+	WM_USER_PREVIEW_SAMPLE,
+	WM_USER_WRITE_APU,
+	WM_USER_CLOSE_SOUND,
+	WM_USER_SET_CHIP,
+	WM_USER_VERIFY_EXPORT,
+	WM_USER_REMOVE_DOCUMENT
 };
 
 // Player modes
-enum {MODE_PLAY,			// Play from top of pattern
-	  MODE_PLAY_START,		// Play from start of song
-	  MODE_PLAY_REPEAT,		// Play and repeat
-	  MODE_PLAY_CURSOR,		// Play from cursor
-	  MODE_PLAY_FRAME		// Play frame
+enum play_mode_t {
+	MODE_PLAY,				// Play from top of pattern
+	MODE_PLAY_START,		// Play from start of song
+	MODE_PLAY_REPEAT,		// Play and repeat
+	MODE_PLAY_CURSOR,		// Play from cursor
+	MODE_PLAY_FRAME			// Play frame
 };
 
-typedef enum { SONG_TIME_LIMIT, SONG_LOOP_LIMIT } RENDER_END;
+enum render_end_t { 
+	SONG_TIME_LIMIT, 
+	SONG_LOOP_LIMIT 
+};
 
 // Used to get the DPCM state
-struct stDPCMState {	
+struct stDPCMState {
 	int SamplePos;
 	int DeltaCntr;
 };
@@ -79,7 +87,7 @@ class CFamiTrackerDoc;
 class CAPU;
 class CDSound;
 class CDSoundChannel;
-class CSampleWindow;
+class CVisualizerWnd;
 class CDSample;
 class CTrackerChannel;
 
@@ -89,7 +97,7 @@ class CExportTest;
 
 // CSoundGen
 
-class CSoundGen : public CWinThread, ICallback
+class CSoundGen : public CWinThread, IAudioCallback
 {
    Q_OBJECT
    // Qt stuff
@@ -115,24 +123,22 @@ public:
 	void		AssignDocument(CFamiTrackerDoc *pDoc);
 	void		AssignView(CFamiTrackerView *pView);
 	void		RemoveDocument();
-	void		SetSampleWindow(CSampleWindow *pWnd);
+	void		SetVisualizerWindow(CVisualizerWnd *pWnd);
 
 	// Multiple times initialization
 	void		RegisterChannels(int Chip, CFamiTrackerDoc *pDoc);
 	void		SelectChip(int Chip);
-	void		LoadMachineSettings(int Machine, int Rate);
+	void		LoadMachineSettings(int Machine, int Rate, int NamcoChannels);
 
 	// Sound
 	bool		InitializeSound(HWND hWnd);
 	void		FlushBuffer(int16 *Buffer, uint32 Size);
 	CDSound		*GetSoundInterface() const { return m_pDSound; };
 
-	// Synchronization
-	void		LockDocument();
-	void		UnlockDocument();
-
 	void		Interrupt() const;
 	bool		GetSoundTimeout() const;
+	bool		IsBufferUnderrun();
+	bool		IsAudioClipping();
 
 	bool		WaitForStop() const;
 	bool		IsRunning() const;
@@ -142,9 +148,12 @@ public:
 
 	CChannelHandler *GetChannel(int Index) const;
 
+	void		DocumentPropertiesChange(CFamiTrackerDoc *pDocument);
+
 public:
 	// Vibrato
 	void		 GenerateVibratoTable(int Type);
+	void		 SetupVibratoTable(int Type);
 	int			 ReadVibratoTable(int index) const;
 
 	int			 ReadNamcoPeriodTable(int index) const;
@@ -161,7 +170,7 @@ public:
 	bool		 IsPlaying() const { return m_bPlaying; };
 
 	// Stats
-	unsigned int GetUnderruns();
+	unsigned int GetUnderruns() const;
 	unsigned int GetFrameRate();
 
 	// Tracker playing
@@ -171,16 +180,15 @@ public:
 	stDPCMState	 GetDPCMState() const;
 
 	// Rendering
-	bool		 RenderToFile(LPTSTR pFile, int SongEndType, int SongEndParam);
+	bool		 RenderToFile(LPTSTR pFile, render_end_t SongEndType, int SongEndParam, int Track);
 	void		 StopRendering();
-	void		 GetRenderStat(int &Frame, int &Time, bool &Done, int &FramesToRender);
-	bool		 IsRendering();	
-	void		 CheckRenderStop();
-	void		 SongIsDone();
-	void		 FrameIsDone(int SkipFrames);
+	void		 GetRenderStat(int &Frame, int &Time, bool &Done, int &FramesToRender) const;
+	bool		 IsRendering() const;	
+	bool		 IsBackgroundTask() const;
 
 	// Sample previewing
 	void		 PreviewSample(CDSample *pSample, int Offset, int Pitch);
+	void		 CancelPreviewSample();
 	bool		 PreviewDone() const;
 
 	void		 WriteAPU(int Address, char Value);
@@ -197,8 +205,28 @@ public:
 	void		ResetWaveChanged();
 
 	void		WriteRegister(uint16 Reg, uint8 Value);
+	void		WriteExternalRegister(uint16 Reg, uint8 Value);
 
 	void		RegisterKeyState(int Channel, int Note);
+
+	// Channels
+	void		SetMuteChannel(int Channel, bool bMute);
+
+	// Player
+	int			GetPlayerRow() const;
+	int			GetPlayerFrame() const;
+	int			GetPlayerTicks() const;
+	void		QueueNote(int Channel, stChanNote &NoteData, int Priority) const;
+	void		MoveToFrame(int Frame);
+	void		SetQueueFrame(int Frame);
+	int			GetQueueFrame() const;
+
+#ifdef EXPORT_TEST
+	bool		IsTestingExport() const { return m_bExportTesting; }
+#endif /* EXPORT_TEST */
+
+	bool HasDocument() const { return m_pDocument != NULL; };
+	CFamiTrackerDoc *GetDocument() const { return m_pDocument; };
 
 	// 
 	// Private functions
@@ -206,31 +234,43 @@ public:
 private:
 	// Internal initialization
 	void		CreateChannels();
-	void		SetupChannels();
 	void		AssignChannel(CTrackerChannel *pTrackerChannel, CChannelHandler *pRenderer);
 	void		ResetAPU();
 	void		GeneratePeriodTables(int BaseFreq);
 
 	// Audio
-public: // CP: Need this to be public for SDL re-sync on settings change.
-	bool		ResetSound();
-private:
-	void		CloseSound();
+	bool		ResetAudioDevice();
+	void		CloseAudioDevice();
+	void		CloseAudio();
+	template<class T, int SHIFT> void FillBuffer(int16 *pBuffer, uint32 Size);
+	bool		PlayBuffer();
 
 	// Player
+	void		UpdateChannels();
+	void		UpdateAPU();
+	void		UpdatePlayer();
+	void		PlayChannelNotes();
 	void	 	PlayNote(int Channel, stChanNote *NoteData, int EffColumns);
 	void		RunFrame();
 	void		CheckControl();
 	void		ResetBuffer();
-	void		BeginPlayer(int Mode);
+	void		BeginPlayer(play_mode_t Mode);
 	void		HaltPlayer();
 	void		MakeSilent();
 
 	// Misc
 	void		PlaySample(CDSample *pSample, int Offset, int Pitch);
+	
+	// Player
+	void		ReadPatternRow();
+	void		PlayerStepRow();
+	void		PlayerStepFrame();
+	void		PlayerJumpTo(int Frame);
+	void		PlayerSkipTo(int Row);
 
 	// Verification
 #ifdef EXPORT_TEST
+	void		EndExportTest();
 	void		CompareRegisters();
 #endif /* EXPORT_TEST */
 
@@ -254,17 +294,16 @@ private:
 	// Sound
 	CDSound				*m_pDSound;
 	CDSoundChannel		*m_pDSoundChannel;
-	CSampleWindow		*m_pSampleWnd;
+	CVisualizerWnd		*m_pVisualizerWnd;
 	CAPU				*m_pAPU;
 	CSampleMem			*m_pSampleMem;
 
-	// Sync objects
-	CCriticalSection	m_csDocumentLock;
-	CCriticalSection	m_csSampleWndLock;
-
 	bool				m_bRunning;
 
+	// Thread synchronization
 private:
+	mutable CCriticalSection m_csVisualizerWndLock;
+
 	// Handles
 	HANDLE				m_hInterruptEvent;					// Used to interrupt sound buffer syncing
 
@@ -274,31 +313,37 @@ private:
 	unsigned int		m_iBufSizeSamples;					// Buffer size in samples
 	unsigned int		m_iBufSizeBytes;					// Buffer size in bytes
 	unsigned int		m_iBufferPtr;						// This will point in samples
-	void				*m_pAccumBuffer;
-	int32				*m_iGraphBuffer;
+	char				*m_pAccumBuffer;
+	short				*m_iGraphBuffer;
 	int					m_iAudioUnderruns;					// Keep track of underruns to inform user
 	bool				m_bBufferTimeout;
+	bool				m_bBufferUnderrun;
+	bool				m_bAudioClipping;
+	int					m_iClipCounter;
 	
 // Tracker playing variables
 private:
-	unsigned int		m_iTempo, m_iSpeed;					// Tempo and speed
+	unsigned int		m_iTempo;							// Tempo and speed
+	unsigned int		m_iSpeed;							
 	int					m_iTempoAccum;						// Used for speed calculation
-	unsigned int		m_iPlayTime;
-	volatile bool		m_bPlaying;
+	int					m_iTempoFrames;						// Frames / row
+	unsigned int		m_iPlayTicks;
+	bool				m_bPlaying;							// True when tracker is playing back the module
+	bool				m_bHaltRequest;						// True when a halt is requested
 	bool				m_bPlayLooping;
 	int					m_iFrameCounter;
 
 	int					m_iUpdateCycles;					// Number of cycles/APU update
-
 	int					m_iConsumedCycles;					// Cycles consumed by the update registers functions
 
 	unsigned int		m_iSpeedSplitPoint;					// Speed/tempo split point fetched from the module
+	unsigned int		m_iFrameRate;						// Module frame rate
 
 	// Play control
 	int					m_iJumpToPattern;
 	int					m_iSkipToRow;
-	int					m_iStepRows;
-	int					m_iPlayMode;
+	int					m_iStepRows;						// # of rows skipped last update
+	play_mode_t			m_iPlayMode;
 
 	unsigned int		*m_pNoteLookupTable;				// NTSC or PAL
 	unsigned int		m_iNoteLookupTableNTSC[96];			// For 2A03
@@ -312,25 +357,31 @@ private:
 	unsigned int		m_iMachineType;						// NTSC/PAL
 
 	// Rendering
-	RENDER_END			m_iRenderEndWhen;
-	int					m_iRenderEndParam;
-	int					m_iRenderedFrames;
-	int					m_iRenderedSong;
+	bool				m_bRendering;
+	bool				m_bRequestRenderStop;
+	render_end_t		m_iRenderEndWhen;
+	unsigned int		m_iRenderEndParam;
 	int					m_iDelayedStart;
 	int					m_iDelayedEnd;
 
 	int					m_iTempoDecrement;
 	bool				m_bUpdateRow;
 
-	bool				m_bRendering;
-	bool				m_bRequestRenderStop;
-	bool				m_bPlayerHalted;
-
 	CWaveFile			m_wfWaveFile;
 
 	// FDS & N163 waves
 	volatile bool		m_bWaveChanged;
 	volatile bool		m_bInternalWaveChanged;
+
+	// Player state
+	int					m_iQueuedFrame;					// Queued frame
+	int					m_iPlayFrame;					// Current frame to play
+	int					m_iPlayRow;						// Current row to play
+	bool				m_bDirty;						// Row/frame has changed
+	unsigned int		m_iFramesPlayed;				// Number of frames played since start
+	bool				m_bFramePlayed[MAX_FRAMES];		// true for each frame played
+
+	bool				m_bMuteChannels[CHANNELS];
 
 #ifdef EXPORT_TEST
 	CExportTest			*m_pExportTest;
@@ -348,16 +399,16 @@ public:
 	DECLARE_MESSAGE_MAP()
 	afx_msg void OnSilentAll(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnLoadSettings(WPARAM wParam, LPARAM lParam);
-	afx_msg void OnBeginPlayer(WPARAM wParam, LPARAM lParam);
+	afx_msg void OnStartPlayer(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnStopPlayer(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnResetPlayer(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnStartRender(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnStopRender(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnPreviewSample(WPARAM wParam, LPARAM lParam);
+	afx_msg void OnHaltPreview(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnWriteAPU(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnCloseSound(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnSetChip(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnVerifyExport(WPARAM wParam, LPARAM lParam);
+	afx_msg void OnRemoveDocument(WPARAM wParam, LPARAM lParam);
 };
-
-

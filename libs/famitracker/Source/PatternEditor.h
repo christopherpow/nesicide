@@ -24,7 +24,12 @@
 
 #include "SoundGen.h"
 
-enum {TRANSPOSE_DEC_NOTES, TRANSPOSE_INC_NOTES, TRANSPOSE_DEC_OCTAVES, TRANSPOSE_INC_OCTAVES};
+enum transpose_t {
+	TRANSPOSE_DEC_NOTES,
+	TRANSPOSE_INC_NOTES,
+	TRANSPOSE_DEC_OCTAVES,
+	TRANSPOSE_INC_OCTAVES
+};
 
 // Graphical layout of pattern editor
 
@@ -52,7 +57,7 @@ public:
 		Size = Channels * Rows;
 		pPattern = new stChanNote[Size];
 	}
-	virtual ~CPatternClipData() {
+	~CPatternClipData() {
 		SAFE_RELEASE_ARRAY(pPattern);
 	}
 
@@ -61,6 +66,10 @@ public:
 	void FromMem(HGLOBAL hMem);		// Copy structures from memory
 	
 	stChanNote *GetPattern(int Channel, int Row);
+
+private:
+	// Do not make copies
+	CPatternClipData(const CPatternClipData &obj) {};
 
 public:
 	struct {
@@ -145,21 +154,17 @@ public:
 	void Invalidate(bool bEntire);
 	void Modified();
 	void AdjustCursor();
-	void AdjustCursorChannel();
 	bool FullErase() const;
+	void UpdatePatternLength();
 
 	void DrawScreen(CDC *pDC, CFamiTrackerView *pView);
 	void CreateBackground(CDC *pDC, bool bForce);
-	void UpdateScreen(CDC *pDC);
-	void DrawHeader(CDC *pDC);
 	void DrawMeters(CDC *pDC);
-	void FastScroll(CDC *pDC, int Rows);
 
 	void SetDPCMState(stDPCMState State);
 
 	void SetFocus(bool bFocus);
 
-	void PaintEditor();
 	CRect GetActiveRect() const;
 
 	// Cursor
@@ -192,17 +197,10 @@ public:
 	void ScrollNextChannel();
 	void ScrollPreviousChannel();
 
-	bool StepRow();
-	bool StepFrame();
-	void JumpToRow(int Row);
-	void JumpToFrame(int Frame);
-
 	int GetFrame() const;
 	int GetChannel() const;
 	int GetRow() const;
 	int GetColumn() const;
-	int GetPlayFrame() const;
-	int GetPlayRow() const;
 
 	// Mouse
 	void OnMouseDown(CPoint point);
@@ -215,6 +213,9 @@ public:
 	void OnMouseRDown(CPoint point);
 
 	bool CancelDragging();
+	void ClearSelection();
+
+	bool IsOverHeader(CPoint &point) const;
 
 	// Edit: Copy & paste, selection
 	CPatternClipData *CopyEntire();
@@ -229,14 +230,12 @@ public:
 	void RemoveSelectedNotes();
 
 	bool IsSelecting() const;
-	void SelectAllChannel();
+	void SelectAllChannels();
 	void SelectAll();
 
 	void Interpolate();
 	void Reverse();
 	void ReplaceInstrument(int Instrument);
-
-	void ClearSelection();
 
 	void GetVolumeColumn(CString &str) const;
 
@@ -253,7 +252,7 @@ public:
 
 	// Scrolling
 	void AutoScroll(CPoint point, UINT nFlags);
-	bool ScrollTimer();
+	bool ScrollTimerCallback();
 	void OnVScroll(UINT nSBCode, UINT nPos);
 	void OnHScroll(UINT nSBCode, UINT nPos);
 
@@ -291,8 +290,8 @@ private:
 	int  GetRealEndColumn(int Column) const;
 	bool IsSingleChannelSelection() const;
 	bool IsInSelection(CCursorPos &Point) const;
-
-	int GetChannelColumns(int Channel) const;
+	void AdjustCursorChannel();
+	int	 GetChannelColumns(int Channel) const;
 
 	CCursorPos GetCursorAtPoint(CPoint point) const;
 
@@ -310,6 +309,12 @@ private:
 
 	void IncreaseEffectColumn(int Channel);
 	void DecreaseEffectColumn(int Channel);
+
+	// Drawing
+	void PaintEditor();
+	void DrawHeader(CDC *pDC);
+	void FastScroll(CDC *pDC, int Rows);
+	void UpdateScreen(CDC *pDC);
 
 	// Head
 	void DrawChannelNames(CDC *pDC);
@@ -332,6 +337,9 @@ private:
 	bool IsShiftPressed() const;
 	bool IsControlPressed() const;
 
+	// Main frame
+	CMainFrame *GetMainFrame() const;
+
 private:
 	static LPCTSTR DEFAULT_HEADER_FONT;
 	static const int DEFAULT_FONT_SIZE;
@@ -350,7 +358,6 @@ private:
 	int m_iVisibleFullRows;				// Number of full visible rows on screen
 
 	int m_iPatternHeight;				// Full size of the allocated pattern area
-//	int	m_iPatternWidth;
 
 	// Edit cursor
 	CCursorPos m_cpCursorPos;			// Cursor position
@@ -361,7 +368,6 @@ private:
 	int m_iPatternLength;
 	int	m_iPrevPatternLength;
 	int	m_iNextPatternLength;
-	int m_iPlayPatternLength;
 
 	int m_iChannels;
 	int m_iChannelWidths[MAX_CHANNELS];
@@ -409,11 +415,10 @@ private:
 
 	int	m_iMouseHoverChan;
 	int m_iMouseHoverEffArrow;
-	//int m_iMouseClickChan;
 
 	// Selection
 	bool m_bSelecting;
-	bool m_bCurrentlySelecting;
+	bool m_bCurrentlySelecting;	// todo: remove this?
 	bool m_bDragStart;
 	bool m_bDragging;
 	bool m_bSelectedAll;

@@ -20,7 +20,13 @@
 
 #pragma once
 
-enum {EDIT_NONE, EDIT_LINE, EDIT_POINT, EDIT_LOOP, EDIT_RELEASE};
+enum edit_t {
+	EDIT_NONE, 
+	EDIT_LINE, 
+	EDIT_POINT, 
+	EDIT_LOOP, 
+	EDIT_RELEASE
+};
 
 // Graph editor base class
 class CGraphEditor : public CWnd
@@ -29,12 +35,42 @@ public:
 	CGraphEditor(CSequence *pSequence);
 	virtual ~CGraphEditor();
 	DECLARE_DYNAMIC(CGraphEditor)
-	bool HasFocus() const { return m_bHasFocus; }
+
+protected:
+	int GetItemWidth() const;
+	virtual void Initialize();
+	virtual int GetItemHeight() const = 0;
+	virtual void HighlightItem(CPoint point) = 0;
+	virtual void ModifyItem(CPoint point, bool Redraw);
+	virtual void ModifyLoopPoint(CPoint point, bool Redraw);
+	virtual void ModifyReleasePoint(CPoint point, bool Redraw);
+	virtual void ModifyReleased();
+	void PaintBuffer(CDC *pBackDC, CDC *pFrontDC);
+	void CursorChanged(int x);
+	bool IsEditLine() const;
+
+	// Drawing
+	virtual void DrawRange(CDC *pDC, int Max, int Min) const;
+	void DrawBackground(CDC *pDC, int Lines, bool DrawMarks, int MarkOffset) const;
+	void DrawLoopPoint(CDC *pDC, int StepWidth) const;
+	void DrawReleasePoint(CDC *pDC, int StepWidth) const;
+	void DrawLine(CDC *pDC) const;
+
+	void DrawRect(CDC *pDC, int x, int y, int w, int h) const;
+	void DrawPlayRect(CDC *pDC, int x, int y, int w, int h) const;
+	void DrawCursorRect(CDC *pDC, int x, int y, int w, int h) const;
+	void DrawShadowRect(CDC *pDC, int x, int y, int w, int h) const;
+
+private:
+	template<COLORREF COL_BG1, COLORREF COL_BG2, COLORREF COL_EDGE1, COLORREF COL_EDGE2>
+	void DrawRect(CDC *pDC, int x, int y, int w, int h, bool flat) const;
+
 protected:
 	static const int GRAPH_LEFT = 28;			// Left side marigin
 	static const int GRAPH_BOTTOM = 5;			// Bottom marigin
 	static const int ITEM_MAX_WIDTH = 40;
 	static const int COLOR_LINES = 0x404040;
+
 protected:
 	CWnd *m_pParentWnd;
 	CSequence *m_pSequence;
@@ -46,29 +82,14 @@ protected:
 	CDC *m_pBackDC;
 	int m_iLastPlayPos;
 	int m_iCurrentPlayPos;
-	bool m_bHasFocus;
-protected:
-	int GetItemWidth();
-	virtual void Initialize();
-	virtual int GetItemHeight();
-	virtual void HighlightItem(CPoint point);
-	virtual void ModifyItem(CPoint point, bool Redraw);
-	virtual void ModifyLoopPoint(CPoint point, bool Redraw);
-	virtual void ModifyReleasePoint(CPoint point, bool Redraw);
-	virtual void DrawRange(CDC *pDC, int Max, int Min);
-	virtual void ModifyReleased();
-	void DrawBackground(CDC *pDC, int Lines, bool DrawMarks, int MarkOffset);
-	void DrawLoopPoint(CDC *pDC, int StepWidth);
-	void DrawReleasePoint(CDC *pDC, int StepWidth);
-	void DrawLine(CDC *pDC);
-	void DrawRect(CDC *pDC, int x, int y, int w, int h, bool Highlight, bool Highlight2);
-	void PaintBuffer(CDC *pBackDC, CDC *pFrontDC);
-	void CursorChanged(int x);
+	int m_iHighlightedItem;
+	int m_iHighlightedValue;
+	bool m_bButtonState;
+
 private:
 	CPoint m_ptLineStart, m_ptLineEnd;
-	int m_iEditing;
-protected:
-	int m_iHighlightedItem;
+	edit_t m_iEditing;
+
 protected:
 	DECLARE_MESSAGE_MAP()
 public:
@@ -79,8 +100,7 @@ public:
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg void OnRButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
-	afx_msg void OnTimer(UINT_PTR nIDEvent);
-
+   afx_msg void OnTimer(UINT_PTR nIDEvent);
 	BOOL CreateEx(DWORD dwExStyle, LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, const RECT& rect, CWnd* pParentWnd, UINT nID, LPVOID lpParam = NULL);
 	afx_msg void OnSetFocus(CWnd* pOldWnd);
 	afx_msg void OnKillFocus(CWnd* pNewWnd);
@@ -90,13 +110,13 @@ public:
 class CBarGraphEditor : public CGraphEditor
 {
 private:
-	int m_iItems;
+	int m_iLevels;
 public:
-	CBarGraphEditor(CSequence *pSequence, int Items) : CGraphEditor(pSequence), m_iItems(Items) { };
+	CBarGraphEditor(CSequence *pSequence, int Levels) : CGraphEditor(pSequence), m_iLevels(Levels) { };
 	afx_msg void OnPaint();
 	void HighlightItem(CPoint point);
 	void ModifyItem(CPoint point, bool Redraw);
-	int GetItemHeight();
+	int GetItemHeight() const;
 };
 
 // Arpeggio graph editor
@@ -120,9 +140,9 @@ protected:
 	void DrawRange(CDC *pDC, int Max, int Min);
 	afx_msg void OnPaint();
 	afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
-	void HighlightItem(CPoint point);
 	void ModifyItem(CPoint point, bool Redraw);
-	int GetItemHeight();
+	void HighlightItem(CPoint point);
+	int GetItemHeight() const;
 	
 	DECLARE_MESSAGE_MAP()
 public:
@@ -138,7 +158,8 @@ public:
 	CPitchGraphEditor(CSequence *pSequence) : CGraphEditor(pSequence) { };
 	afx_msg void OnPaint();
 	void ModifyItem(CPoint point, bool Redraw);
-	int GetItemHeight();
+	void HighlightItem(CPoint point);
+	int GetItemHeight() const;
 };
 
 // Sunsoft noise editor
@@ -150,8 +171,9 @@ private:
 protected:
 	void ModifyReleased();
 public:
-	CNoiseEditor(CSequence *pSequence, int Items) : CGraphEditor(pSequence), m_iItems(Items) { };
+	CNoiseEditor(CSequence *pSequence, int Items) : CGraphEditor(pSequence), m_iItems(Items), m_iLastIndex(-1) { };
 	afx_msg void OnPaint();
 	void ModifyItem(CPoint point, bool Redraw);
-	int GetItemHeight();
+	void HighlightItem(CPoint point);
+	int GetItemHeight() const;
 };

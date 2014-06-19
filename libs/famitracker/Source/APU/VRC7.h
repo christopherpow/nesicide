@@ -18,8 +18,8 @@
 ** must bear this legend.
 */
 
-#ifndef _VRC7_H_
-#define _VRC7_H_
+#ifndef VRC7_H
+#define VRC7_H
 
 #include "External.h"
 #include "emu2413.h"
@@ -55,4 +55,4 @@ private:
 };
 
 
-#endif /* _VRC7_H_ */
+#endif /* VRC7_H */

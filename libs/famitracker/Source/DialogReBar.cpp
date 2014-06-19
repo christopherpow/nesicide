@@ -46,7 +46,7 @@ END_MESSAGE_MAP()
 // COctaveDlgBar message handlers
 
 BOOL CDialogReBar::OnEraseBkgnd(CDC* pDC)
-{/*
+{
 	if (!theApp.IsThemeActive()) {
 		CDialogBar::OnEraseBkgnd(pDC);
 		return TRUE;
@@ -60,8 +60,6 @@ BOOL CDialogReBar::OnEraseBkgnd(CDC* pDC)
     LRESULT lResult = pParent->SendMessage(WM_ERASEBKGND, (WPARAM)pDC->m_hDC, 0L);
     pDC->SetWindowOrg(pt.x, pt.y);
     return (BOOL)lResult;
-	*/
-	return FALSE;
 }
 
 void CDialogReBar::OnMove(int x, int y)
@@ -88,8 +86,8 @@ BOOL CDialogReBar::Create(CWnd* pParentWnd, UINT nIDTemplate, UINT nStyle, UINT 
 	if (!CDialogBar::Create(pParentWnd, nIDTemplate, nStyle, nID))
 		return FALSE;
 
-	((CSpinButtonCtrl*)GetDlgItem(IDC_HIGHLIGHTSPIN1))->SetRange(0, RANGE_MAX);
-	((CSpinButtonCtrl*)GetDlgItem(IDC_HIGHLIGHTSPIN2))->SetRange(0, RANGE_MAX);
+	static_cast<CSpinButtonCtrl*>(GetDlgItem(IDC_HIGHLIGHTSPIN1))->SetRange(0, RANGE_MAX);
+	static_cast<CSpinButtonCtrl*>(GetDlgItem(IDC_HIGHLIGHTSPIN2))->SetRange(0, RANGE_MAX);
 
 	return TRUE;
 }

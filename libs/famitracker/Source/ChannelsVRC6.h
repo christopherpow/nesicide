@@ -46,7 +46,7 @@ protected:
 
 class CVRC6Square1 : public CChannelHandlerVRC6 {
 public:
-	CVRC6Square1() : CChannelHandlerVRC6() { m_iDefaultDuty = 0; m_bEnabled = false; };
+	CVRC6Square1() : CChannelHandlerVRC6() { m_iDefaultDuty = 0; };
 	void RefreshChannel();
 protected:
 	void ClearRegisters();
@@ -55,7 +55,7 @@ private:
 
 class CVRC6Square2 : public CChannelHandlerVRC6 {
 public:
-	CVRC6Square2() : CChannelHandlerVRC6() { m_iDefaultDuty = 0;  m_bEnabled = false; };
+	CVRC6Square2() : CChannelHandlerVRC6() { m_iDefaultDuty = 0; };
 	void RefreshChannel();
 protected:
 	void ClearRegisters();
@@ -64,7 +64,7 @@ private:
 
 class CVRC6Sawtooth : public CChannelHandlerVRC6 {
 public:
-	CVRC6Sawtooth() : CChannelHandlerVRC6() { m_iDefaultDuty = 0;  m_bEnabled = false; };
+	CVRC6Sawtooth() : CChannelHandlerVRC6() { m_iDefaultDuty = 0; };
 	void RefreshChannel();
 protected:
 	void ClearRegisters();
