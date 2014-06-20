@@ -228,6 +228,7 @@ typedef unsigned short TCHAR;
 #define WC_TREEVIEW WC_TREEVIEWW
 #define LPSTR_TEXTCALLBACK LPSTR_TEXTCALLBACKW
 #else
+#if !(defined(Q_OS_WIN)||defined(Q_OS_WIN32))
 typedef const char *LPCTSTR;
 typedef char *LPTCH;
 typedef char *LPTSTR;
@@ -237,6 +238,7 @@ typedef char *PTCHAR;
 typedef char *PTSTR;
 typedef unsigned char TBYTE;
 typedef char TCHAR;
+#endif
 #define TEXT(quote) quote
 #define SERVICES_ACTIVE_DATABASE	SERVICES_ACTIVE_DATABASEA
 #define SERVICES_FAILED_DATABASE	SERVICES_FAILED_DATABASEA
@@ -6466,7 +6468,7 @@ DWORD WINAPI GetFileVersionInfoSize(
 );
 
 BOOL WINAPI VerQueryValue(
-   LPCVOID pBlock,
+   char*& pBlock,
    LPCTSTR lpSubBlock,
    LPVOID *lplpBuffer,
    PUINT puLen

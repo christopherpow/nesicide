@@ -1443,13 +1443,13 @@ DROPEFFECT CFrameEditorDropTarget::OnDragEnter(CWnd* pWnd, COleDataObject* pData
 		m_pParent->UpdateDrag(point);
 	}
 
-	return m_nDropEffect;
+	return (DROPEFFECT)m_nDropEffect;
 }
 
 DROPEFFECT CFrameEditorDropTarget::OnDragOver(CWnd* pWnd, COleDataObject* pDataObject, DWORD dwKeyState, CPoint point)
 {
 	m_pParent->UpdateDrag(point);
-	return m_nDropEffect;
+	return (DROPEFFECT)m_nDropEffect;
 }
 
 BOOL CFrameEditorDropTarget::OnDrop(CWnd* pWnd, COleDataObject* pDataObject, DROPEFFECT dropEffect, CPoint point)

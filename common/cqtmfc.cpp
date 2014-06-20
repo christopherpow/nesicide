@@ -3182,7 +3182,7 @@ DWORD WINAPI GetFileVersionInfoSize(
 }
 
 BOOL WINAPI VerQueryValue(
-   LPCVOID pBlock,
+   char*& pBlock,
    LPCTSTR lpSubBlock,
    LPVOID *lplpBuffer,
    PUINT puLen

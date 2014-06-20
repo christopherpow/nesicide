@@ -23,6 +23,8 @@ MOC_DIR = $$DESTDIR
 RCC_DIR = $$DESTDIR
 UI_DIR = $$DESTDIR
 
+DEFINES -= UNICODE
+
 TARGET = "famitracker"
 
 win32 {

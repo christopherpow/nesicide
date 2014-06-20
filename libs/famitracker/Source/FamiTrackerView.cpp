@@ -3115,7 +3115,7 @@ DROPEFFECT CFamiTrackerView::OnDragEnter(COleDataObject* pDataObject, DWORD dwKe
 		UpdateEditor(UPDATE_CURSOR);
 	}
 
-	return m_nDropEffect;
+	return (DROPEFFECT)m_nDropEffect;
 }
 
 void CFamiTrackerView::OnDragLeave()
@@ -3142,7 +3142,7 @@ DROPEFFECT CFamiTrackerView::OnDragOver(COleDataObject* pDataObject, DWORD dwKey
 		UpdateEditor(UPDATE_CURSOR);
 	}
 
-	return m_nDropEffect;
+	return (DROPEFFECT)m_nDropEffect;
 }
 
 BOOL CFamiTrackerView::OnDrop(COleDataObject* pDataObject, DROPEFFECT dropEffect, CPoint point)
