@@ -1103,24 +1103,29 @@ void qtInitIconResources()
 
    // Icon with lowest ID value placed first to ensure application icon
    // remains consistent on all systems.
-//   IDR_MAINFRAME           ICON                    "res\\FamiTracker-Exe.ico"
-   qtIconResources.insert(IDR_MAINFRAME,new QIcon(":/resources/FamiTracker-Exe.ico"));
-//   IDI_INST_2A03INV        ICON                    "res\\Inst_2A03inv.ico"
-   qtIconResources.insert(IDI_INST_2A03INV,new QIcon(":/resources/Inst_2A03inv.ico"));
-//   IDI_INST_VRC6INV        ICON                    "res\\ico00001.ico"
-   qtIconResources.insert(IDI_INST_VRC6INV,new QIcon(":/resources/ico00001.ico"));
-//   IDI_INST_VRC7INV        ICON                    "res\\ico00003.ico"
-   qtIconResources.insert(IDI_INST_VRC7INV,new QIcon(":/resources/ico00003.ico"));
-//   IDR_FamiTrackerTYPE     ICON                    "res\\Famitracker-Document.ico"
-   qtIconResources.insert(IDR_FamiTrackerTYPE,new QIcon(":/resources/Famitracker-Document.ico"));
-//   IDI_INST_N163           ICON                    "res\\ico00004.ico"
-   qtIconResources.insert(IDI_INST_N163,new QIcon(":/resources/ico00004.ico"));
-//   IDI_INST_FDS            ICON                    "res\\icon2.ico"
-   qtIconResources.insert(IDI_INST_FDS,new QIcon(":/resources/icon2.ico"));
-//   IDI_INST_5B             ICON                    "res\\ico00005.ico"
-   qtIconResources.insert(IDI_INST_5B,new QIcon(":/resources/ico00005.ico"));
-//   IDI_INST_2A07           ICON                    "res\\icon1.ico"
-   qtIconResources.insert(IDI_INST_2A07,new QIcon(":/resources/icon1.ico"));
+
+//   IDR_MAINFRAME           ICON                    "res\\Application.ico"
+   qtIconResources.insert(IDR_MAINFRAME,new QIcon(":/resources/Application.ico"));
+//   IDI_INST_2A03           ICON                    "res\\Inst_2A03.ico"
+   qtIconResources.insert(IDI_INST_2A03,new QIcon(":/resources/Inst_2A03.ico"));
+//   IDI_INST_VRC6           ICON                    "res\\Inst_VRC6.ico"
+   qtIconResources.insert(IDI_INST_VRC6,new QIcon(":/resources/Inst_VRC6.ico"));
+//   IDI_INST_VRC7           ICON                    "res\\Inst_VRC7.ico"
+   qtIconResources.insert(IDI_INST_VRC7,new QIcon(":/resources/Inst_VRC7.ico"));
+//   IDR_FamiTrackerTYPE     ICON                    "res\\Document.ico"
+   qtIconResources.insert(IDR_FamiTrackerTYPE,new QIcon(":/resources/Document.ico"));
+//   IDI_INST_N163           ICON                    "res\\Inst_N163.ico"
+   qtIconResources.insert(IDI_INST_N163,new QIcon(":/resources/Inst_N163.ico"));
+//   IDI_INST_FDS            ICON                    "res\\Inst_FDS.ico"
+   qtIconResources.insert(IDI_INST_FDS,new QIcon(":/resources/Inst_FDS.ico"));
+//   IDI_INST_5B             ICON                    "res\\Inst_S5B.ico"
+   qtIconResources.insert(IDI_INST_5B,new QIcon(":/resources/Inst_S5B.ico"));
+//   IDI_INST_2A07           ICON                    "res\\Inst_2A07.ico"
+   qtIconResources.insert(IDI_INST_2A07,new QIcon(":/resources/Inst_2A07.ico"));
+//   IDI_LEFT                ICON                    "res\\LeftArrow.ico"
+   qtIconResources.insert(IDI_LEFT,new QIcon(":/resources/LeftArrow.ico"));
+//   IDI_RIGHT               ICON                    "res\\RightArrow.ico"
+   qtIconResources.insert(IDI_RIGHT,new QIcon(":/resources/RightArrow.ico"));
 }
 
 #include "AboutDlg.h"
@@ -2876,9 +2881,9 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_VRC7(CDialog* parent1)
    parent->MapDialogRect(&r6);
    mfc6->Create(_T("Amplitude modulation"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r6,parent,IDC_M_AM);
    mfcToQtWidget->insert(IDC_M_AM,mfc6);
-//       CONTROL         "Vibrato",IDC_M_VIB,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,104,54,39,10,WS_EX_TRANSPARENT
+//   CONTROL         "Vibrato",IDC_M_VIB,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,109,54,39,10,WS_EX_TRANSPARENT
    CButton* mfc7 = new CButton(parent);
-   CRect r7(CPoint(104,54),CSize(39,10));
+   CRect r7(CPoint(109,54),CSize(39,10));
    parent->MapDialogRect(&r7);
    mfc7->Create(_T("Vibrato"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r7,parent,IDC_M_VIB);
    mfcToQtWidget->insert(IDC_M_VIB,mfc7);
@@ -2888,27 +2893,27 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_VRC7(CDialog* parent1)
    parent->MapDialogRect(&r8);
    mfc8->Create(_T("Sustained"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r8,parent,IDC_M_EG);
    mfcToQtWidget->insert(IDC_M_EG,mfc8);
-//       CONTROL         "RATE key scale",IDC_M_KSR2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,89,70,65,10,WS_EX_TRANSPARENT
+//   CONTROL         "Key scaling",IDC_M_KSR2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,86,51,10,WS_EX_TRANSPARENT
    CButton* mfc9 = new CButton(parent);
-   CRect r9(CPoint(89,70),CSize(65,10));
+   CRect r9(CPoint(14,86),CSize(51,10));
    parent->MapDialogRect(&r9);
-   mfc9->Create(_T("RATE key scale"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r9,parent,IDC_M_KSR2);
+   mfc9->Create(_T("Key scaling"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r9,parent,IDC_M_KSR2);
    mfcToQtWidget->insert(IDC_M_KSR2,mfc9);
-//       CONTROL         "Wave rectification",IDC_M_DM,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,14,86,74,10,WS_EX_TRANSPARENT
+//   CONTROL         "Wave rectification",IDC_M_DM,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,74,70,74,10,WS_EX_TRANSPARENT
    CButton* mfc10 = new CButton(parent);
-   CRect r10(CPoint(14,86),CSize(74,10));
+   CRect r10(CPoint(74,70),CSize(74,10));
    parent->MapDialogRect(&r10);
    mfc10->Create(_T("Wave rectification"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r10,parent,IDC_M_DM);
    mfcToQtWidget->insert(IDC_M_DM,mfc10);
-//       LTEXT           "Level",IDC_STATIC,91,87,18,8
+//   LTEXT           "Level",IDC_STATIC,69,87,18,8
    CStatic* mfc11 = new CStatic(parent);
-   CRect r11(CPoint(91,87),CSize(18,8));
+   CRect r11(CPoint(69,87),CSize(18,8));
    parent->MapDialogRect(&r11);
    mfc11->Create(_T("Level"),WS_VISIBLE,r11,parent,IDC_STATIC);
    // IDC_STATIC do not get added to MFC-to-Qt map.
-//       CONTROL         "",IDC_M_KSL,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,112,86,44,11,WS_EX_TRANSPARENT
+//   CONTROL         "",IDC_M_KSL,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,90,86,58,11,WS_EX_TRANSPARENT
    CSliderCtrl* mfc12 = new CSliderCtrl(parent);
-   CRect r12(CPoint(112,86),CSize(44,11));
+   CRect r12(CPoint(90,86),CSize(58,11));
    parent->MapDialogRect(&r12);
    mfc12->Create(TBS_AUTOTICKS | WS_TABSTOP | WS_VISIBLE,r12,parent,IDC_M_KSL);
    mfcToQtWidget->insert(IDC_M_KSL,mfc12);
@@ -2978,9 +2983,9 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_VRC7(CDialog* parent1)
    parent->MapDialogRect(&r24);
    mfc24->Create(_T("Amplitude modulation"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r24,parent,IDC_C_AM);
    mfcToQtWidget->insert(IDC_C_AM,mfc24);
-//       CONTROL         "Vibrato",IDC_C_VIB,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,263,54,39,10
+//   CONTROL         "Vibrato",IDC_C_VIB,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,267,54,39,10
    CButton* mfc25 = new CButton(parent);
-   CRect r25(CPoint(263,54),CSize(39,10));
+   CRect r25(CPoint(267,54),CSize(39,10));
    parent->MapDialogRect(&r25);
    mfc25->Create(_T("Vibrato"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r25,parent,IDC_C_VIB);
    mfcToQtWidget->insert(IDC_C_VIB,mfc25);
@@ -2990,27 +2995,27 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_VRC7(CDialog* parent1)
    parent->MapDialogRect(&r26);
    mfc26->Create(_T("Sustained"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r26,parent,IDC_C_EG);
    mfcToQtWidget->insert(IDC_C_EG,mfc26);
-//       CONTROL         "RATE key scale",IDC_C_KSR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,247,70,65,10
+//   CONTROL         "Key scaling",IDC_C_KSR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,171,86,51,10
    CButton* mfc27 = new CButton(parent);
-   CRect r27(CPoint(247,70),CSize(65,10));
+   CRect r27(CPoint(171,86),CSize(51,10));
    parent->MapDialogRect(&r27);
-   mfc27->Create(_T("RATE key scale"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r27,parent,IDC_C_KSR);
+   mfc27->Create(_T("Key scaling"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r27,parent,IDC_C_KSR);
    mfcToQtWidget->insert(IDC_C_KSR,mfc27);
-//       CONTROL         "Wave rectification",IDC_C_DM,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,171,86,74,10
+//   CONTROL         "Wave rectification",IDC_C_DM,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,232,70,74,10
    CButton* mfc28 = new CButton(parent);
-   CRect r28(CPoint(171,86),CSize(74,10));
+   CRect r28(CPoint(232,70),CSize(74,10));
    parent->MapDialogRect(&r28);
    mfc28->Create(_T("Wave rectification"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r28,parent,IDC_C_DM);
    mfcToQtWidget->insert(IDC_C_DM,mfc28);
-//       LTEXT           "Level",IDC_STATIC,249,87,18,8
+//   LTEXT           "Level",IDC_STATIC,226,87,18,8
    CStatic* mfc29 = new CStatic(parent);
-   CRect r29(CPoint(249,87),CSize(18,8));
+   CRect r29(CPoint(226,87),CSize(18,8));
    parent->MapDialogRect(&r29);
    mfc29->Create(_T("Level"),WS_VISIBLE,r29,parent,IDC_STATIC);
    // IDC_STATIC do not get added to MFC-to-Qt map.
-//       CONTROL         "",IDC_C_KSL,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,270,86,40,11
+//   CONTROL         "",IDC_C_KSL,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,247,86,59,11
    CSliderCtrl* mfc30 = new CSliderCtrl(parent);
-   CRect r30(CPoint(270,86),CSize(40,11));
+   CRect r30(CPoint(247,86),CSize(59,11));
    parent->MapDialogRect(&r30);
    mfc30->Create(TBS_AUTOTICKS | WS_TABSTOP | WS_VISIBLE,r30,parent,IDC_C_KSL);
    mfcToQtWidget->insert(IDC_C_KSL,mfc30);
@@ -3698,36 +3703,173 @@ void qtMfcInitDialogResource_IDD_COMMENTS(CDialog* parent1)
 //   END
 }
 
-//#include "dialog-file"
-void qtMfcInitDialogResource_IDD_CONFIG_LEVELS(CDialog* parent)
+#include "ConfigMixer.h"
+void qtMfcInitDialogResource_IDD_CONFIG_MIXER(CDialog* parent1)
 {
-//  dialog-type* parent = dynamic_cast<dialog-type*>(parent1);
+   CConfigMixer* parent = dynamic_cast<CConfigMixer*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
 
-//   IDD_CONFIG_LEVELS DIALOGEX 0, 0, 280, 167
-//   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-//   EXSTYLE WS_EX_CONTEXTHELP
-//   CAPTION "Sound levels"
-//   FONT 8, "MS Shell Dlg", 400, 0, 0x1
-//   BEGIN
-//       GROUPBOX        "2A03",IDC_STATIC,7,7,47,131
-//       CONTROL         "",IDC_VOL_2A03,"msctls_trackbar32",TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP,17,16,26,110
-//       CTEXT           "0 dB",IDC_LEVEL_2A03,19,126,23,8
-//       CONTROL         "Enable normalization",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,151,81,10
-//       GROUPBOX        "VRC6",IDC_STATIC,63,7,47,131
-//       CONTROL         "",IDC_VOL_VRC6,"msctls_trackbar32",TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP,73,16,26,110
-//       CTEXT           "0 dB",IDC_LEVEL_VRC6,75,126,23,8
-//       GROUPBOX        "VRC7",IDC_STATIC,117,7,47,131
-//       CONTROL         "",IDC_VOL_VRC7,"msctls_trackbar32",TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP,127,16,26,110
-//       CTEXT           "0 dB",IDC_LEVEL_VRC7,130,126,21,8
-//       GROUPBOX        "MMC5",IDC_STATIC,171,7,47,131
-//       CONTROL         "",IDC_VOL_MMC5,"msctls_trackbar32",TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP,181,16,26,110
-//       CTEXT           "0 dB",IDC_LEVEL_MMC5,182,126,24,8
-//       GROUPBOX        "FDS",IDC_STATIC,226,7,47,131
-//       CONTROL         "",IDC_VOL_FDS,"msctls_trackbar32",TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP,236,16,26,110
-//       CTEXT           "0 dB",IDC_LEVEL_FDS,238,126,22,8
-//       PUSHBUTTON      "Default",IDC_DEFAULT,228,147,45,14
-//   END
+//IDD_CONFIG_MIXER DIALOGEX 0, 0, 280, 167
+   CRect rect(CPoint(0,0),CSize(280,167));
+   parent->MapDialogRect(&rect);
+   parent->toQWidget()->setFixedSize(rect.Width(),rect.Height());
+//STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+//EXSTYLE WS_EX_CONTEXTHELP
+//CAPTION "Mixer"
+   parent->SetWindowText("Mixer");
+//FONT 8, "MS Shell Dlg", 400, 0, 0x1
+//BEGIN
+//    CONTROL         "",IDC_SLIDER_APU1,"msctls_trackbar32",TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP,7,30,26,114
+   CSliderCtrl* mfc1 = new CSliderCtrl(parent);
+   CRect r1(CPoint(7,30),CSize(26,114));
+   parent->MapDialogRect(&r1);
+   mfc1->Create(TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP | WS_VISIBLE,r1,parent,IDC_SLIDER_APU1);
+   mfcToQtWidget->insert(IDC_SLIDER_APU1,mfc1);
+//    CTEXT           "APU1",IDC_STATIC,7,22,26,8
+   CStatic* mfc2 = new CStatic(parent);
+   CRect r2(CPoint(7,22),CSize(26,8));
+   parent->MapDialogRect(&r2);
+   mfc2->Create(_T("APU1"),SS_CENTER | WS_VISIBLE,r2,parent,IDC_STATIC);
+   // IDC_STATIC do not get added to widget list
+//    CONTROL         "",IDC_SLIDER_APU2,"msctls_trackbar32",TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP,41,30,26,114
+   CSliderCtrl* mfc3 = new CSliderCtrl(parent);
+   CRect r3(CPoint(41,30),CSize(26,114));
+   parent->MapDialogRect(&r3);
+   mfc3->Create(TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP | WS_VISIBLE,r3,parent,IDC_SLIDER_APU2);
+   mfcToQtWidget->insert(IDC_SLIDER_APU2,mfc3);
+//    CTEXT           "APU2",IDC_STATIC,41,22,26,8
+   CStatic* mfc4 = new CStatic(parent);
+   CRect r4(CPoint(41,22),CSize(26,8));
+   parent->MapDialogRect(&r4);
+   mfc4->Create(_T("APU2"),SS_CENTER | WS_VISIBLE,r4,parent,IDC_STATIC);
+   // IDC_STATIC do not get added to widget list
+//    CONTROL         "",IDC_SLIDER_VRC6,"msctls_trackbar32",TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP,75,30,26,114
+   CSliderCtrl* mfc5 = new CSliderCtrl(parent);
+   CRect r5(CPoint(75,30),CSize(26,114));
+   parent->MapDialogRect(&r5);
+   mfc5->Create(TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP | WS_VISIBLE,r5,parent,IDC_SLIDER_VRC6);
+   mfcToQtWidget->insert(IDC_SLIDER_VRC6,mfc5);
+//    CTEXT           "VRC6",IDC_STATIC,75,22,26,8
+   CStatic* mfc6 = new CStatic(parent);
+   CRect r6(CPoint(75,22),CSize(26,8));
+   parent->MapDialogRect(&r6);
+   mfc6->Create(_T("VRC6"),SS_CENTER | WS_VISIBLE,r6,parent,IDC_STATIC);
+   // IDC_STATIC do not get added to widget list
+//    CONTROL         "",IDC_SLIDER_VRC7,"msctls_trackbar32",TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP,109,30,26,114
+   CSliderCtrl* mfc7 = new CSliderCtrl(parent);
+   CRect r7(CPoint(109,30),CSize(26,114));
+   parent->MapDialogRect(&r7);
+   mfc7->Create(TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP | WS_VISIBLE,r7,parent,IDC_SLIDER_VRC7);
+   mfcToQtWidget->insert(IDC_SLIDER_VRC7,mfc7);
+//    CTEXT           "VRC7",IDC_STATIC,109,22,26,8
+   CStatic* mfc8 = new CStatic(parent);
+   CRect r8(CPoint(109,22),CSize(26,8));
+   parent->MapDialogRect(&r8);
+   mfc8->Create(_T("VRC7"),SS_CENTER | WS_VISIBLE,r8,parent,IDC_STATIC);
+   // IDC_STATIC do not get added to widget list
+//    CONTROL         "",IDC_SLIDER_MMC5,"msctls_trackbar32",TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP,143,30,26,114
+   CSliderCtrl* mfc9 = new CSliderCtrl(parent);
+   CRect r9(CPoint(143,30),CSize(26,114));
+   parent->MapDialogRect(&r9);
+   mfc9->Create(TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP | WS_VISIBLE,r9,parent,IDC_SLIDER_MMC5);
+   mfcToQtWidget->insert(IDC_SLIDER_MMC5,mfc9);
+//    CTEXT           "MMC5",IDC_STATIC,143,22,26,8
+   CStatic* mfc10 = new CStatic(parent);
+   CRect r10(CPoint(143,22),CSize(26,8));
+   parent->MapDialogRect(&r10);
+   mfc10->Create(_T("MMC5"),SS_CENTER | WS_VISIBLE,r10,parent,IDC_STATIC);
+   // IDC_STATIC do not get added to widget list
+//    CONTROL         "",IDC_SLIDER_FDS,"msctls_trackbar32",TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP,177,30,26,114
+   CSliderCtrl* mfc11 = new CSliderCtrl(parent);
+   CRect r11(CPoint(177,30),CSize(26,114));
+   parent->MapDialogRect(&r11);
+   mfc11->Create(TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP | WS_VISIBLE,r11,parent,IDC_SLIDER_FDS);
+   mfcToQtWidget->insert(IDC_SLIDER_FDS,mfc11);
+//    CTEXT           "FDS",IDC_STATIC,177,22,26,8
+   CStatic* mfc12 = new CStatic(parent);
+   CRect r12(CPoint(177,22),CSize(26,8));
+   parent->MapDialogRect(&r12);
+   mfc12->Create(_T("FDS"),SS_CENTER | WS_VISIBLE,r12,parent,IDC_STATIC);
+   // IDC_STATIC do not get added to widget list
+//    CONTROL         "",IDC_SLIDER_N163,"msctls_trackbar32",TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP,211,30,26,114
+   CSliderCtrl* mfc13 = new CSliderCtrl(parent);
+   CRect r13(CPoint(211,30),CSize(26,114));
+   parent->MapDialogRect(&r13);
+   mfc13->Create(TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP | WS_VISIBLE,r13,parent,IDC_SLIDER_N163);
+   mfcToQtWidget->insert(IDC_SLIDER_N163,mfc13);
+//    CTEXT           "N163",IDC_STATIC,211,22,26,8
+   CStatic* mfc14 = new CStatic(parent);
+   CRect r14(CPoint(211,22),CSize(26,8));
+   parent->MapDialogRect(&r14);
+   mfc14->Create(_T("N163"),SS_CENTER | WS_VISIBLE,r14,parent,IDC_STATIC);
+   // IDC_STATIC do not get added to widget list
+//    CONTROL         "",IDC_SLIDER_S5B,"msctls_trackbar32",TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_DISABLED | WS_TABSTOP,245,30,26,114
+   CSliderCtrl* mfc15 = new CSliderCtrl(parent);
+   CRect r15(CPoint(245,30),CSize(26,114));
+   parent->MapDialogRect(&r15);
+   mfc15->Create(TBS_AUTOTICKS | TBS_VERT | TBS_BOTH | WS_TABSTOP | WS_VISIBLE,r15,parent,IDC_SLIDER_S5B);
+   mfcToQtWidget->insert(IDC_SLIDER_S5B,mfc15);
+//    CTEXT           "S5B",IDC_STATIC,245,22,26,8
+   CStatic* mfc16 = new CStatic(parent);
+   CRect r16(CPoint(245,22),CSize(26,8));
+   parent->MapDialogRect(&r16);
+   mfc16->Create(_T("S5B"),SS_CENTER | WS_VISIBLE,r16,parent,IDC_STATIC);
+   // IDC_STATIC do not get added to widget list
+//    CTEXT           "0.0dB",IDC_LEVEL_APU1,7,149,30,8
+   CStatic* mfc17 = new CStatic(parent);
+   CRect r17(CPoint(7,149),CSize(30,8));
+   parent->MapDialogRect(&r17);
+   mfc17->Create(_T("0.0dB"),SS_CENTER | WS_VISIBLE,r17,parent,IDC_LEVEL_APU1);
+   mfcToQtWidget->insert(IDC_LEVEL_APU1,mfc17);
+//    CTEXT           "0.0dB",IDC_LEVEL_APU2,40,149,30,8
+   CStatic* mfc18 = new CStatic(parent);
+   CRect r18(CPoint(40,149),CSize(30,8));
+   parent->MapDialogRect(&r18);
+   mfc18->Create(_T("0.0dB"),SS_CENTER | WS_VISIBLE,r18,parent,IDC_LEVEL_APU2);
+   mfcToQtWidget->insert(IDC_LEVEL_APU2,mfc18);
+//    CTEXT           "0.0dB",IDC_LEVEL_VRC6,73,149,30,8
+   CStatic* mfc19 = new CStatic(parent);
+   CRect r19(CPoint(73,149),CSize(30,8));
+   parent->MapDialogRect(&r19);
+   mfc19->Create(_T("0.0dB"),SS_CENTER | WS_VISIBLE,r19,parent,IDC_LEVEL_VRC6);
+   mfcToQtWidget->insert(IDC_LEVEL_VRC6,mfc19);
+//    CTEXT           "0.0dB",IDC_LEVEL_VRC7,108,149,30,8
+   CStatic* mfc20 = new CStatic(parent);
+   CRect r20(CPoint(108,149),CSize(30,8));
+   parent->MapDialogRect(&r20);
+   mfc20->Create(_T("0.0dB"),SS_CENTER | WS_VISIBLE,r20,parent,IDC_LEVEL_VRC7);
+   mfcToQtWidget->insert(IDC_LEVEL_VRC7,mfc20);
+//    CTEXT           "0.0dB",IDC_LEVEL_MMC5,142,149,30,8
+   CStatic* mfc21 = new CStatic(parent);
+   CRect r21(CPoint(142,149),CSize(30,8));
+   parent->MapDialogRect(&r21);
+   mfc21->Create(_T("0.0dB"),SS_CENTER | WS_VISIBLE,r21,parent,IDC_LEVEL_MMC5);
+   mfcToQtWidget->insert(IDC_LEVEL_MMC5,mfc21);
+//    CTEXT           "0.0dB",IDC_LEVEL_FDS,176,149,30,8
+   CStatic* mfc22 = new CStatic(parent);
+   CRect r22(CPoint(176,149),CSize(30,8));
+   parent->MapDialogRect(&r22);
+   mfc22->Create(_T("0.0dB"),SS_CENTER | WS_VISIBLE,r22,parent,IDC_LEVEL_FDS);
+   mfcToQtWidget->insert(IDC_LEVEL_FDS,mfc22);
+//    CTEXT           "0.0dB",IDC_LEVEL_N163,209,149,30,8
+   CStatic* mfc23 = new CStatic(parent);
+   CRect r23(CPoint(209,149),CSize(30,8));
+   parent->MapDialogRect(&r23);
+   mfc23->Create(_T("0.0dB"),SS_CENTER | WS_VISIBLE,r23,parent,IDC_LEVEL_N163);
+   mfcToQtWidget->insert(IDC_LEVEL_N163,mfc23);
+//    CTEXT           "0.0dB",IDC_LEVEL_S5B,243,149,30,8
+   CStatic* mfc24 = new CStatic(parent);
+   CRect r24(CPoint(243,149),CSize(30,8));
+   parent->MapDialogRect(&r24);
+   mfc24->Create(_T("0.0dB"),SS_CENTER | WS_VISIBLE,r24,parent,IDC_LEVEL_S5B);
+   mfcToQtWidget->insert(IDC_LEVEL_S5B,mfc24);
+//    LTEXT           "Hardware mixing levels",IDC_STATIC,7,7,74,8
+   CStatic* mfc25 = new CStatic(parent);
+   CRect r25(CPoint(7,7),CSize(74,8));
+   parent->MapDialogRect(&r25);
+   mfc25->Create(_T("Hardware mixing levels"),WS_VISIBLE,r25,parent,IDC_STATIC);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
+//END
 }
 
 #include "InstrumentEditorN163Wave.h"
@@ -4003,8 +4145,8 @@ void qtMfcInitDialogResource(UINT dlgID,CDialog* parent)
    case IDD_COMMENTS:
       qtMfcInitDialogResource_IDD_COMMENTS(parent);
       break;
-   case IDD_CONFIG_LEVELS:
-      qtMfcInitDialogResource_IDD_CONFIG_LEVELS(parent);
+   case IDD_CONFIG_MIXER:
+      qtMfcInitDialogResource_IDD_CONFIG_MIXER(parent);
       break;
    case IDD_INSTRUMENT_N163_WAVE:
       qtMfcInitDialogResource_IDD_INSTRUMENT_N163_WAVE(parent);

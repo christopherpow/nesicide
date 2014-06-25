@@ -2866,7 +2866,11 @@ CDC::CDC()
    _defaultFont = _font;
    memset(&lf,0,sizeof(LOGFONT));
    strcpy(lf.lfFaceName,"MS Shell Dlg");
+#if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
    lf.lfHeight = 8;
+#else
+   lf.lfHeight = 11;
+#endif
    _font->CreateFontIndirect(&lf);
    _bitmap = NULL;
    _bitmapSize = QSize(-1,-1);
@@ -2896,7 +2900,11 @@ CDC::CDC(CWnd* parent)
    _defaultFont = _font;
    memset(&lf,0,sizeof(LOGFONT));
    strcpy(lf.lfFaceName,"MS Shell Dlg");
+#if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
    lf.lfHeight = 8;
+#else
+   lf.lfHeight = 11;
+#endif
    _font->CreateFontIndirect(&lf);
    _bitmap = NULL;
    _bitmapSize = QSize(-1,-1);
@@ -3162,7 +3170,21 @@ HICON WINAPI LoadIcon(
 )
 {
    CWinApp* pApp = (CWinApp*)hInstance;
-   qDebug("finish ::LoadIcon...");
+#if UNICODE
+   QString str = QString::fromWCharArray(lpIconName);
+#else
+   QString str = QString::fromLatin1(lpIconName);
+#endif
+   bool ok;
+   UINT nIDResource = str.toInt(&ok);
+   if ( ok )
+   {
+      return (HICON)qtIconResource(nIDResource);
+   }
+   else
+   {
+      qFatal("cannot find icon resource");
+   }
 }
 
 BOOL WINAPI GetFileVersionInfo(
@@ -3514,7 +3536,11 @@ BOOL CComboBox::Create(
    QFontMetrics fm(_qtd->font());
 
    _qtd->setMaxVisibleItems((rect.bottom-rect.top)/fm.height());
+#if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
    _qtd->setFont(QFont("MS Shell Dlg",8));
+#else
+   _qtd->setFont(QFont("MS Shell Dlg",11));
+#endif
    
    SetParent(pParentWnd);
    
@@ -3756,10 +3782,13 @@ BOOL CListBox::Create(
    // Downcast to save having to do it all over the place...
    _qtd = dynamic_cast<QListWidget*>(_qt);
 
+#if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
    _qtd->setFont(QFont("MS Shell Dlg",8));
+#else
+   _qtd->setFont(QFont("MS Shell Dlg",11));
+#endif
    _qtd->setEditTriggers(QAbstractItemView::NoEditTriggers);
    _qtd->setMouseTracking(true);
-   _qtd->setFont(QFont("MS Shell Dlg",8));
 
    // Pass-through signals
    QObject::connect(_qtd,SIGNAL(itemSelectionChanged()),this,SLOT(itemSelectionChanged()));
@@ -4130,14 +4159,17 @@ BOOL CListCtrl::Create(
       // Downcast to save having to do it all over the place...
       _qtd_table = dynamic_cast<QTableWidget*>(_qt);
 
+#if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
       _qtd_table->setFont(QFont("MS Shell Dlg",8));
+#else
+      _qtd_table->setFont(QFont("MS Shell Dlg",11));
+#endif
       _qtd_table->horizontalHeader()->setStretchLastSection(true);
       _qtd_table->verticalHeader()->hide();
       _qtd_table->setEditTriggers(QAbstractItemView::NoEditTriggers);
       _qtd_table->setSelectionBehavior(QAbstractItemView::SelectRows);
       _qtd_table->installEventFilter(this);
       _qtd_table->setShowGrid(false);
-      _qtd_table->setFont(QFont("MS Shell Dlg",8));
 
       // Pass-through signals
       QObject::connect(_qtd_table,SIGNAL(itemSelectionChanged()),this,SLOT(itemSelectionChanged()));
@@ -4182,11 +4214,14 @@ BOOL CListCtrl::Create(
       // Downcast to save having to do it all over the place...
       _qtd_list = dynamic_cast<QListWidget*>(_qt);
 
+#if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
       _qtd_list->setFont(QFont("MS Shell Dlg",8));
+#else
+      _qtd_list->setFont(QFont("MS Shell Dlg",11));
+#endif
       _qtd_list->setEditTriggers(QAbstractItemView::NoEditTriggers);
       _qtd_list->setSelectionBehavior(QAbstractItemView::SelectRows);
       _qtd_list->installEventFilter(this);
-      _qtd_list->setFont(QFont("MS Shell Dlg",8));
 
       // Pass-through signals
       QObject::connect(_qtd_list,SIGNAL(itemSelectionChanged()),this,SLOT(itemSelectionChanged()));
@@ -5215,7 +5250,11 @@ CTreeCtrl::CTreeCtrl(CWnd* parent)
    // Downcast to save having to do it all over the place...
    _qtd = dynamic_cast<QTreeWidget*>(_qt);
 
+#if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
    _qtd->setFont(QFont("MS Shell Dlg",8));
+#else
+   _qtd->setFont(QFont("MS Shell Dlg",11));
+#endif
    _qtd->setEditTriggers(QAbstractItemView::NoEditTriggers);
    _qtd->setHeaderHidden(true);
    _qtd->setMouseTracking(true);
@@ -5265,8 +5304,12 @@ BOOL CTreeCtrl::Create(
    _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left),(rect.bottom-rect.top));
    _qtd->setContextMenuPolicy(Qt::DefaultContextMenu);
    _qtd->setVisible(dwStyle&WS_VISIBLE);
+#if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
    _qtd->setFont(QFont("MS Shell Dlg",8));
-   
+#else
+   _qtd->setFont(QFont("MS Shell Dlg",11));
+#endif
+
    SetParent(pParentWnd);
    
    qtToMfcWindow.insert(_qtd,this);
@@ -6206,7 +6249,11 @@ CWnd::CWnd(CWnd *parent)
 
    _qt->setMouseTracking(true);
    _qt->installEventFilter(this);
+#if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
    _qt->setFont(QFont("MS Shell Dlg",8));
+#else
+   _qt->setFont(QFont("MS Shell Dlg",11));
+#endif
 
    _qtd = dynamic_cast<QFrame*>(_qt);
 }
@@ -7467,7 +7514,11 @@ BOOL CWnd::CreateEx(
    PreCreateWindow(createStruct);
    _qtd->setLineWidth(0);
    _qtd->setMidLineWidth(0);
+#if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
    _qtd->setFont(QFont("MS Shell Dlg",8));
+#else
+   _qtd->setFont(QFont("MS Shell Dlg",11));
+#endif
    if ( createStruct.dwExStyle&WS_EX_STATICEDGE )
    {
       _qtd->setFrameShape(QFrame::Panel);
@@ -9062,7 +9113,11 @@ BOOL CReBarCtrl::Create(
                           "stop: 0 #f0f0f0, stop: .4 #ffffff, stop: 1 #ababab);"
                           "border-color: #3f3f3f;"
                        "}");
+#if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
    _qtd->setFont(QFont("MS Shell Dlg",8));
+#else
+   _qtd->setFont(QFont("MS Shell Dlg",11));
+#endif
 
    _qtd->setMouseTracking(true);
    _qtd->setMovable(false);
@@ -9335,6 +9390,7 @@ void CToolBar::OnUpdateCmdUI(CFrameWnd* pTarget, BOOL bDisableIfNoHndler)
 
 void CToolBar::toolBarAction_triggered()
 {
+   qDebug("CToolBar::toolBarAction_triggered");
    GetOwner()->SendMessage(WM_COMMAND,qobject_cast<QAction*>(sender())->data().toInt());
 }
 
@@ -9684,7 +9740,11 @@ BOOL CDialog::Create(
    {
       pParentWnd->mfcToQtWidgetMap()->insertMulti(nIDTemplate,this);
    }
+#if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
    _qtd->setFont(QFont("MS Shell Dlg",8));
+#else
+   _qtd->setFont(QFont("MS Shell Dlg",11));
+#endif
 
    BOOL result = OnInitDialog();
    _inited = true;
@@ -9825,7 +9885,11 @@ void CDialog::MapDialogRect(
    LPRECT lpRect
 ) const
 {
+#if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
    QFontMetrics sysFontMetrics(QFont("MS Shell Dlg",8));
+#else
+   QFontMetrics sysFontMetrics(QFont("MS Shell Dlg",11));
+#endif
 
 //   int baseunitX = sysFontMetrics.averageCharWidth()+1;
    int baseunitX = 5+1;
@@ -9911,11 +9975,11 @@ DWORD CWinThread::ResumeThread( )
    if ( !isRunning() )
    {
       start();
-      return 1;
+      return 0;
    }
    else
    {
-      return 0;
+      return 1;
    }
 }
 
@@ -10863,8 +10927,6 @@ BOOL CWinApp::WriteProfileInt(
    key += "/";
    key += QString::fromLatin1(lpszEntry);
 #endif
-//   qDebug("StoreSetting");
-//   qDebug(key.toAscii().constData());
 
    settings.setValue(key,nValue);
 }
@@ -10889,8 +10951,6 @@ BOOL CWinApp::WriteProfileString(
    key += QString::fromLatin1(lpszEntry);
    value = QString::fromLatin1(lpszValue);
 #endif
-//   qDebug("StoreSetting");
-//   qDebug(key.toAscii().constData());
 
    settings.setValue(key,value);
 }
@@ -10903,6 +10963,7 @@ UINT CWinApp::GetProfileInt(
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
    QString key;
+   UINT value = nDefault;
 #ifdef UNICODE
    key = QString::fromWCharArray(lpszSection);
    key += "/";
@@ -10915,7 +10976,12 @@ UINT CWinApp::GetProfileInt(
 //   qDebug("StoreSetting");
 //   qDebug(key.toAscii().constData());
 
-   return settings.value(key).toInt();
+   if ( settings.contains(key) )
+   {
+      value = settings.value(key).toInt();
+   }
+
+   return value;
 }
 
 CString CWinApp::GetProfileString(
@@ -10940,9 +11006,11 @@ CString CWinApp::GetProfileString(
    key += QString::fromLatin1(lpszEntry);
    defaultStr = QString::fromLatin1(lpszDefault);
 #endif
-   value = settings.value(key,defaultStr).toString();
-//   qDebug("StoreSetting");
-//   qDebug(key.toAscii().constData());
+
+   if ( settings.contains(key) )
+   {
+      value = settings.value(key,defaultStr).toString();
+   }
 
    return CString(value);
 }
@@ -11228,7 +11296,11 @@ BOOL CMenu::CreatePopupMenu()
 {
    _cmenu->clear();
    _qtd->clear();
+#if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
    _qtd->setFont(QFont("MS Shell Dlg",8));
+#else
+   _qtd->setFont(QFont("MS Shell Dlg",11));
+#endif
    mfcToQtMenu.clear();
    qtToMfcMenu.clear();
    return TRUE;
@@ -11686,8 +11758,12 @@ BOOL CTabCtrl::Create(
 
    _qtd->setMouseTracking(true);
    _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left),(rect.bottom-rect.top));
+#if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
    _qtd->setFont(QFont("MS Shell Dlg",8));
-   
+#else
+   _qtd->setFont(QFont("MS Shell Dlg",11));
+#endif
+
    SetParent(pParentWnd);
 
    // Pass-through signals
@@ -12001,8 +12077,12 @@ BOOL CEdit::Create(
       _qtd_ptedit->setGeometry(rect.left,rect.top,(rect.right-rect.left),(rect.bottom-rect.top));
       _qtd_ptedit->setReadOnly(dwStyle&ES_READONLY);
       _qtd_ptedit->setVisible(dwStyle&WS_VISIBLE);
+#if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
       _qtd_ptedit->setFont(QFont("MS Shell Dlg",8));
-      
+#else
+      _qtd_ptedit->setFont(QFont("MS Shell Dlg",11));
+#endif
+
       if ( dwStyle&ES_NUMBER )
       {
          _qtd_ptedit->setInputMethodHints(Qt::ImhFormattedNumbersOnly);
@@ -12027,8 +12107,12 @@ BOOL CEdit::Create(
       _qtd_ledit->setGeometry(rect.left,rect.top,(rect.right-rect.left),(rect.bottom-rect.top));
       _qtd_ledit->setReadOnly(dwStyle&ES_READONLY);
       _qtd_ledit->setVisible(dwStyle&WS_VISIBLE);
+#if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
       _qtd_ledit->setFont(QFont("MS Shell Dlg",8));
-      
+#else
+      _qtd_ledit->setFont(QFont("MS Shell Dlg",11));
+#endif
+
       if ( dwStyle&ES_NUMBER )
       {
          _qtd_ledit->setInputMethodHints(Qt::ImhFormattedNumbersOnly);
@@ -12480,8 +12564,12 @@ BOOL CButton::Create(
       _qtd_check->setMouseTracking(true);
       _qtd_check->setGeometry(rect.left,rect.top,(rect.right-rect.left),(rect.bottom-rect.top));
       _qtd_check->setVisible(dwStyle&WS_VISIBLE);
+#if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
       _qtd_check->setFont(QFont("MS Shell Dlg",8));
-   
+#else
+      _qtd_check->setFont(QFont("MS Shell Dlg",11));
+#endif
+
       // Pass-through signals
       QObject::connect(_qtd_check,SIGNAL(clicked()),this,SLOT(clicked()));
       
@@ -12506,8 +12594,12 @@ BOOL CButton::Create(
       _qtd_check->setMouseTracking(true);
       _qtd_check->setGeometry(rect.left,rect.top,(rect.right-rect.left),(rect.bottom-rect.top));
       _qtd_check->setVisible(dwStyle&WS_VISIBLE);
+#if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
       _qtd_check->setFont(QFont("MS Shell Dlg",8));
-   
+#else
+      _qtd_check->setFont(QFont("MS Shell Dlg",11));
+#endif
+
       // Pass-through signals
       QObject::connect(_qtd_check,SIGNAL(clicked()),this,SLOT(clicked()));
       
@@ -12531,8 +12623,12 @@ BOOL CButton::Create(
       _qtd_radio->setMouseTracking(true);
       _qtd_radio->setGeometry(rect.left,rect.top,(rect.right-rect.left),(rect.bottom-rect.top));
       _qtd_radio->setVisible(dwStyle&WS_VISIBLE);
+#if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
       _qtd_radio->setFont(QFont("MS Shell Dlg",8));
-   
+#else
+      _qtd_radio->setFont(QFont("MS Shell Dlg",11));
+#endif
+
       // Pass-through signals
       QObject::connect(_qtd_radio,SIGNAL(clicked()),this,SLOT(clicked()));
       
@@ -12557,8 +12653,12 @@ BOOL CButton::Create(
       _qtd_push->setMouseTracking(true);
       _qtd_push->setGeometry(rect.left,rect.top,(rect.right-rect.left),(rect.bottom-rect.top));
       _qtd_push->setVisible(dwStyle&WS_VISIBLE);
+#if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
       _qtd_push->setFont(QFont("MS Shell Dlg",8));
-   
+#else
+      _qtd_push->setFont(QFont("MS Shell Dlg",11));
+#endif
+
       // Pass-through signals
       QObject::connect(_qtd_push,SIGNAL(clicked()),this,SLOT(clicked()));
       
@@ -12582,8 +12682,12 @@ BOOL CButton::Create(
       _qtd_groupbox->setMouseTracking(true);
       _qtd_groupbox->setGeometry(rect.left,rect.top,(rect.right-rect.left),(rect.bottom-rect.top));
       _qtd_groupbox->setVisible(dwStyle&WS_VISIBLE);
+#if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
       _qtd_groupbox->setFont(QFont("MS Shell Dlg",8));
-   
+#else
+      _qtd_groupbox->setFont(QFont("MS Shell Dlg",11));
+#endif
+
       // Pass-through signals
       QObject::connect(_qtd_groupbox,SIGNAL(clicked()),this,SLOT(clicked()));
       
@@ -12598,7 +12702,28 @@ HICON CButton::SetIcon(
    HICON hIcon
 )
 {
-   SetBitmap((HBITMAP)hIcon);
+   DWORD buttonType = _dwStyle&0x000F;
+   DWORD buttonStyle = _dwStyle&0xFFF0;
+
+   if ( buttonType == BS_AUTOCHECKBOX )
+   {
+      _qtd_check->setIcon(*(QIcon*)hIcon);
+   }
+   else if ( buttonType == BS_AUTO3STATE )
+   {
+      _qtd_check->setIcon(*(QIcon*)hIcon);
+   }
+   else if ( buttonType == BS_AUTORADIOBUTTON )
+   {
+      _qtd_radio->setIcon(*(QIcon*)hIcon);
+   }
+   else if ( (buttonType == BS_PUSHBUTTON) ||
+             (buttonType == BS_DEFPUSHBUTTON) )
+   {
+      _qtd_push->setIcon(*(QIcon*)hIcon);
+   }
+
+   return (HICON)0;
 }
 
 HBITMAP CButton::SetBitmap(
@@ -13119,7 +13244,11 @@ BOOL CSpinButtonCtrl::Create(
    _qtd->setKeyboardTracking(false);
    _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left),(rect.bottom-rect.top));
    _qtd->setRange(-65535,65536);
+#if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
    _qtd->setFont(QFont("MS Shell Dlg",8));
+#else
+   _qtd->setFont(QFont("MS Shell Dlg",11));
+#endif
    _qtd->setVisible(dwStyle&WS_VISIBLE);
 
    // Figure out if we need to buddy-up.
@@ -13462,8 +13591,12 @@ BOOL CSliderCtrl::Create(
 
    _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left),(rect.bottom-rect.top));
    _qtd->setVisible(dwStyle&WS_VISIBLE);
+#if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
    _qtd->setFont(QFont("MS Shell Dlg",8));
-   
+#else
+   _qtd->setFont(QFont("MS Shell Dlg",11));
+#endif
+
    qtToMfcWindow.insert(_qtd,this);
 
    return TRUE;
@@ -13627,7 +13760,11 @@ BOOL CProgressCtrl::Create(
    _qtd->setOrientation(Qt::Horizontal);
    _qtd->setMouseTracking(true);
    _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left),(rect.bottom-rect.top));
+#if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
    _qtd->setFont(QFont("MS Shell Dlg",8));
+#else
+   _qtd->setFont(QFont("MS Shell Dlg",11));
+#endif
 
    // Pass-through signals
    
@@ -13747,8 +13884,12 @@ BOOL CStatic::Create(
    _qtd = dynamic_cast<QLabel_MFC*>(_qt);
    _qtd->setMouseTracking(true);
    _qtd->setGeometry(QRect(rect.left,rect.top,(rect.right-rect.left),(rect.bottom-rect.top)));
+#if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
    _qtd->setFont(QFont("MS Shell Dlg",8));
-   
+#else
+   _qtd->setFont(QFont("MS Shell Dlg",11));
+#endif
+
    if ( dwStyle&SS_SUNKEN )
    {
       _qtd->setFrameShape(QFrame::Panel);

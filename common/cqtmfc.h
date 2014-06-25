@@ -4549,7 +4549,7 @@ public:
       UINT nIDTemplate,
       CWnd* pParentWnd = NULL
          );
-   virtual BOOL OnInitDialog() { return TRUE; }
+   virtual BOOL OnInitDialog() { UpdateData(FALSE); return TRUE; }
    virtual INT_PTR DoModal();
    void MapDialogRect(
       LPRECT lpRect

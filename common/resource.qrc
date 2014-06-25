@@ -162,5 +162,20 @@
         <file>resources/Actions-edit-undo-icon.png</file>
         <file>resources/Actions-games-solve-icon.png</file>
         <file>resources/application-x-mplayer2.png</file>
+        <file>resources/About.bmp</file>
+        <file>resources/Application.ico</file>
+        <file>resources/Document.ico</file>
+        <file>resources/Inst_2A07.ico</file>
+        <file>resources/Inst_FDS.ico</file>
+        <file>resources/Inst_N163.ico</file>
+        <file>resources/Inst_S5B.ico</file>
+        <file>resources/Inst_VRC6.ico</file>
+        <file>resources/Inst_VRC7.ico</file>
+        <file>resources/InstrumentToolbar-16.bmp</file>
+        <file>resources/InstrumentToolbar-256.bmp</file>
+        <file>resources/LeftArrow.ico</file>
+        <file>resources/MainToolbar-16.bmp</file>
+        <file>resources/MainToolbar-256.bmp</file>
+        <file>resources/RightArrow.ico</file>
     </qresource>
 </RCC>

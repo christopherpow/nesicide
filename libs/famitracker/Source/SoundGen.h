@@ -109,7 +109,7 @@ public slots:
 public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
    
 protected:
-	DECLARE_DYNCREATE(CSoundGen)
+   DECLARE_DYNCREATE(CSoundGen)
 public:
 	CSoundGen();
 	virtual ~CSoundGen();

@@ -139,6 +139,9 @@ void CSoundGen::recvThreadMessage(unsigned int m, unsigned int w, unsigned int l
    case WM_USER_REMOVE_DOCUMENT:
       OnRemoveDocument(w,l);
       break;
+   case WM_QUIT:
+      this->terminate();
+      break;
    default:
       qDebug("Unhandled thread message: %d",m);
    }
