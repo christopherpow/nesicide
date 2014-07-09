@@ -27,10 +27,10 @@
 // Version info
 #define VERSION_MAJ  0
 #define VERSION_MIN  4
-#define VERSION_REV  2
+#define VERSION_REV  3
 
 // CP: Qt versioning adds a .x
-#define VERSION_QT   9 // 2014-??-??
+#define VERSION_QT   1 // 2014-??-??
 
 #define VERSION_WIP  0
 

@@ -96,57 +96,6 @@ END_MESSAGE_MAP()
 int dither(long size);
 #endif
 
-void CSoundGen::recvThreadMessage(unsigned int m, unsigned int w, unsigned int l)
-{
-   switch ( m )
-   {
-   case WM_USER_SILENT_ALL:
-      OnSilentAll(w,l);
-      break;
-   case WM_USER_LOAD_SETTINGS:
-      OnLoadSettings(w,l);
-      break;
-   case WM_USER_PLAY:
-      OnStartPlayer(w,l);
-      break;
-   case WM_USER_STOP:
-      OnStopPlayer(w,l);
-      break;
-   case WM_USER_RESET:
-      OnResetPlayer(w,l);
-      break;
-   case WM_USER_START_RENDER:
-      OnStartRender(w,l);
-      break;
-   case WM_USER_STOP_RENDER:
-      OnStopRender(w,l);
-      break;
-   case WM_USER_PREVIEW_SAMPLE:
-      OnPreviewSample(w,l);
-      break;
-   case WM_USER_WRITE_APU:
-      OnWriteAPU(w,l);
-      break;
-   case WM_USER_CLOSE_SOUND:
-      OnCloseSound(w,l);
-      break;
-   case WM_USER_SET_CHIP:
-      OnSetChip(w,l);
-      break;
-   case WM_USER_VERIFY_EXPORT:
-      OnVerifyExport(w,l);
-      break;
-   case WM_USER_REMOVE_DOCUMENT:
-      OnRemoveDocument(w,l);
-      break;
-   case WM_QUIT:
-      this->terminate();
-      break;
-   default:
-      qDebug("Unhandled thread message: %d",m);
-   }
-}
-
 CSoundGen::CSoundGen() : 
 	m_pAPU(NULL),
 	m_pSampleMem(NULL),
@@ -485,7 +434,7 @@ void CSoundGen::PreviewSample(CDSample *pSample, int Offset, int Pitch)
 	if (!m_hThread)
 		return;
 
-	// Preview a DPCM sample. If the name of sample is null, 
+   // Preview a DPCM sample. If the name of sample is null,
 	// the sample will be removed after played
 	PostThreadMessage(WM_USER_PREVIEW_SAMPLE, (WPARAM)pSample, MAKELPARAM(Offset, Pitch));
 }

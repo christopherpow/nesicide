@@ -2450,6 +2450,8 @@ typedef int* POSITION;
 
 #define _huge
 
+#define __x86_64__
+
 namespace qtmfc_workaround
 {
 template <size_t szof> struct uint_ptr_select;
@@ -2457,7 +2459,6 @@ template <>            struct uint_ptr_select<4u> { typedef unsigned int type; }
 template <>            struct uint_ptr_select<8u> { typedef qulonglong   type; };
 
 typedef uint_ptr_select<sizeof(UINT_PTR)>::type uint_ptr;
-
 }
 
 HCURSOR WINAPI SetCursor(
@@ -5618,10 +5619,7 @@ protected:
    QThread::Priority _priority;
    bool _initialized;
    virtual void run();
-signals:
-   void postThreadMessage(unsigned int m,unsigned int w,unsigned int l);
-public slots:
-   void recvThreadMessage(unsigned int m,unsigned int w,unsigned int l) { qDebug("CWinThread::recvThreadMessage"); }
+   virtual bool event(QEvent *event);
 public: // For some reason Qt won't recognize the public in the DECLARE_DYNCREATE...
    
    DECLARE_DYNCREATE(CWinThread)

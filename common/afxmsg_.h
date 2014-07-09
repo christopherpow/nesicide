@@ -342,8 +342,8 @@ enum AfxSig
 #define ON_NOTIFY_REFLECT(wNotifyCode, memberFxn) \
 	{ WM_NOTIFY+WM_REFLECT_BASE, (WORD)(int)wNotifyCode, 0, 0, AfxSigNotify_v, \
 		(AFX_PMSG) \
-		(static_cast<void (AFX_MSG_CALL CCmdTarget::*)(NMHDR*, LRESULT*) > \
-		(memberFxn)) },
+      (static_cast<void (AFX_MSG_CALL CCmdTarget::*)(NMHDR*, LRESULT*) > \
+      (&ThisClass::memberFxn)) },
 
 #define ON_NOTIFY_REFLECT_EX(wNotifyCode, memberFxn) \
 	{ WM_NOTIFY+WM_REFLECT_BASE, (WORD)(int)wNotifyCode, 0, 0, AfxSigNotify_b, \
