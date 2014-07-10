@@ -99,14 +99,6 @@ class CExportTest;
 
 class CSoundGen : public CWinThread, IAudioCallback
 {
-   Q_OBJECT
-   // Qt stuff
-   QThread* pThread;
-   QTimer* pTimer;
-public slots:
-   void onIdleSlot();
-public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
-   
 protected:
    DECLARE_DYNCREATE(CSoundGen)
 public:

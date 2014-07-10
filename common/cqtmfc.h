@@ -5620,6 +5620,9 @@ protected:
    bool _initialized;
    virtual void run();
    virtual bool event(QEvent *event);
+   QTimer* pTimer;
+public slots:
+   void onIdleSlot();   
 public: // For some reason Qt won't recognize the public in the DECLARE_DYNCREATE...
    
    DECLARE_DYNCREATE(CWinThread)

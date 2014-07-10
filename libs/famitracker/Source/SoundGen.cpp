@@ -127,25 +127,13 @@ CSoundGen::CSoundGen() :
 	m_iClipCounter(0)
 {
 	TRACE0("SoundGen: Object created\n");
-
-   pThread = new QThread();
-
-   pTimer = new QTimer();
-
-   QObject::connect(pTimer, SIGNAL(timeout()), this, SLOT(onIdleSlot()));
-   
-   pTimer->start();
       
-   pThread->start();
-   
 	// DPCM sample interface
 	m_pSampleMem = new CSampleMem();
 
 	// Create APU
 	m_pAPU = new CAPU(this, m_pSampleMem);
    
-   m_pAPU->moveToThread(pThread); 
-
 	// Create all kinds of channels
 	CreateChannels();
 
@@ -156,15 +144,6 @@ CSoundGen::CSoundGen() :
 
 CSoundGen::~CSoundGen()
 {
-   pTimer->stop();
-   
-   QObject::disconnect(pTimer, SIGNAL(timeout()), this, SLOT(onIdleSlot()));
-   
-   delete pTimer;
-   
-   pThread->exit(0);
-   pThread->wait();
-   
 	// Delete APU
 	SAFE_RELEASE(m_pAPU);
 	SAFE_RELEASE(m_pSampleMem);
@@ -174,11 +153,6 @@ CSoundGen::~CSoundGen()
 		SAFE_RELEASE(m_pChannels[i]);
 		SAFE_RELEASE(m_pTrackerChannels[i]);
 	}
-}
-
-void CSoundGen::onIdleSlot()
-{
-   OnIdle(0);
 }
 
 //
@@ -1541,8 +1515,6 @@ bool CSoundGen::WaitForStop() const
 
 BOOL CSoundGen::InitInstance()
 {
-   QObject::connect(this,SIGNAL(postThreadMessage(unsigned int,unsigned int,unsigned int)),this,SLOT(recvThreadMessage(unsigned int,unsigned int,unsigned int)));
-   
 	//
 	// Setup the sound player object, called when thread is started
 	//

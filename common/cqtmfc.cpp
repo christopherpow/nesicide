@@ -9946,10 +9946,26 @@ CWinThread::CWinThread() :
    m_pParam = NULL;
    
    m_pMainWnd = NULL;
+   
+   pTimer = new QTimer;
+   
+   QObject::connect(pTimer,SIGNAL(timeout()),this,SLOT(onIdleSlot()));
+   
+   pTimer->start();
 }
 
 CWinThread::~CWinThread()
 {
+   QObject::disconnect(pTimer,SIGNAL(timeout()),this,SLOT(onIdleSlot()));
+   
+   pTimer->stop();
+   
+   delete pTimer;
+}
+
+void CWinThread::onIdleSlot()
+{
+   OnIdle(0);
 }
 
 bool CWinThread::event(QEvent *event)
@@ -14887,12 +14903,13 @@ DWORD WINAPI WaitForSingleObject(
 )
 {
    CObject* pObject = (CObject*)hHandle;
+   CWinThread* pWinThread = dynamic_cast<CWinThread*>(pObject);
+   CEvent* pEvent = dynamic_cast<CEvent*>(pObject);
    static QSemaphore* waitingSem = NULL;
    bool timedOut;
 
-   if ( pObject->IsKindOf(RUNTIME_CLASS(CWinThread)) )
+   if ( pWinThread && pWinThread->IsKindOf(RUNTIME_CLASS(CWinThread)) )
    {
-      CWinThread* pWinThread = (CWinThread*)pObject;
       timedOut = pWinThread->wait(dwMilliseconds);
       if ( timedOut )
       {
@@ -14903,9 +14920,8 @@ DWORD WINAPI WaitForSingleObject(
          return WAIT_OBJECT_0;
       }
    }
-   else if ( pObject->IsKindOf(RUNTIME_CLASS(CEvent)) )
+   else if ( pEvent && pEvent->IsKindOf(RUNTIME_CLASS(CEvent)) )
    {
-      CEvent* pEvent = (CEvent*)pObject;
       if ( !waitingSem )
       {
          waitingSem = new QSemaphore();
