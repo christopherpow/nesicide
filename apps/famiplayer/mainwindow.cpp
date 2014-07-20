@@ -291,7 +291,7 @@ bool MainWindow::eventFilter(QObject *object, QEvent *event)
    else if ( object == ui->sampleWindow && event->type() == QEvent::MouseButtonPress )
    {
       CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
-      pMainFrame->GetSampleWindow()->SendMessage(WM_LBUTTONDOWN);      
+      pMainFrame->GetVisualizerWindow()->SendMessage(WM_LBUTTONDOWN);
    }
    else if ( object == ui->sampleWindow && event->type() == QEvent::Paint )
    {      
@@ -300,10 +300,10 @@ bool MainWindow::eventFilter(QObject *object, QEvent *event)
       CFamiTrackerView* pView = (CFamiTrackerView*)pMainFrame->GetActiveView();
       
       QPainter p;
-      QRect rect = pMainFrame->GetSampleWindow()->toQWidget()->rect().adjusted(3,2,-3,-3);
+      QRect rect = pMainFrame->GetVisualizerWindow()->toQWidget()->rect().adjusted(3,2,-3,-3);
       QPixmap pixmap(rect.size());
       p.begin(&pixmap);
-      pMainFrame->GetSampleWindow()->toQWidget()->render(&p,QPoint(),QRegion(3,3,rect.width(),rect.height()));
+      pMainFrame->GetVisualizerWindow()->toQWidget()->render(&p,QPoint(),QRegion(3,3,rect.width(),rect.height()));
       p.end();
       p.begin(ui->sampleWindow);
       p.drawPixmap(0,0,pixmap.scaled(p.window().size(),Qt::IgnoreAspectRatio,Qt::FastTransformation));
@@ -328,6 +328,7 @@ void MainWindow::onIdleSlot()
    static int lastFrame = -1;
    
    ui->sampleWindow->update();
+   pMainFrame->GetVisualizerWindow()->RedrawWindow();
 
    if ( m_bCheck )
    {
@@ -342,9 +343,9 @@ void MainWindow::onIdleSlot()
          pMainFrame->GetDescendantWindow(AFX_IDW_STATUS_BAR)->GetDlgItemText(ID_INDICATOR_TIME,playTime);
          totalPlayTime = m_pWndMFC->ConvertTime(playTime);
          
-         if ( lastFrame != pView->GetPlayFrame() )
+         if ( lastFrame != pApp->GetSoundGenerator()->GetPlayerFrame() )
          {
-            lastFrame = pView->GetPlayFrame();
+            lastFrame = pApp->GetSoundGenerator()->GetPlayerFrame();
             m_iFramesPlayed++;
          }
          
@@ -388,7 +389,7 @@ void MainWindow::onIdleSlot()
             on_next_clicked();
          }
          m_bChangeSong = false;
-         ui->position->setValue((pView->GetPatternView()->GetPlayFrame()*pDoc->GetPatternLength())+pView->GetPatternView()->GetPlayRow());
+         ui->position->setValue((pApp->GetSoundGenerator()->GetPlayerFrame()*pDoc->GetPatternLength())+pApp->GetSoundGenerator()->GetPlayerRow());
          startSettleTimer();
          m_pTimer->start(0);
       }
@@ -397,14 +398,14 @@ void MainWindow::onIdleSlot()
    {
       // FF/RW
       m_bCheck = false;
-      pView->PlayerCommand(CMD_JUMP_TO,(ui->position->value()/pDoc->GetPatternLength())-1);
-      pView->GetPatternView()->JumpToRow(ui->position->value()%pDoc->GetPatternLength());
+      pView->SelectFrame(ui->position->value()/pDoc->GetPatternLength());
+      pView->SelectRow(ui->position->value()%pDoc->GetPatternLength());
    }
    else
    {
       m_bCheck = true;
       ui->frames->setText(QString::number(m_iFramesPlayed)+"/"+QString::number(pDoc->ScanActualLength(pDoc->GetSelectedTrack(),m_pWndMFC->GetFrameLoopCount())));
-      ui->position->setValue((pView->GetPatternView()->GetPlayFrame()*pDoc->GetPatternLength())+pView->GetPatternView()->GetPlayRow());
+      ui->position->setValue((pApp->GetSoundGenerator()->GetPlayerFrame()*pDoc->GetPatternLength())+pApp->GetSoundGenerator()->GetPlayerRow());
    }
 }
 
@@ -490,7 +491,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::on_playStop_clicked()
 {
-   AfxGetApp()->OnCmdMsg(ID_TRACKER_TOGGLE_PLAY,0,0,0);
+   AfxGetMainWnd()->OnCmdMsg(ID_TRACKER_TOGGLE_PLAY,0,0,0);
    m_bPlaying = !m_bPlaying;
    if ( m_bPlaying )
    {
@@ -778,7 +779,8 @@ void MainWindow::on_subtune_currentIndexChanged(int index)
          }
       }
       
-      pView->PlayerCommand(CMD_MOVE_TO_START,0);
+      pView->SelectFrame(0);
+      pView->SelectRow(0);
       
       m_iFramesPlayed = 0;     
       

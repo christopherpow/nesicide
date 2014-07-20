@@ -2450,8 +2450,6 @@ typedef int* POSITION;
 
 #define _huge
 
-#define __x86_64__
-
 namespace qtmfc_workaround
 {
 template <size_t szof> struct uint_ptr_select;
@@ -2785,7 +2783,7 @@ public:
    
    DECLARE_MESSAGE_MAP()
    
-   afx_msg LRESULT OnMenuChar(UINT nChar, UINT nFlags, CMenu* pMenu) { return 0; }
+   afx_msg LRESULT OnMenuChar(UINT /*nChar*/, UINT /*nFlags*/, CMenu* /*pMenu*/) { return 0; }
 };
 
 typedef void (AFX_MSG_CALL CCmdTarget::*AFX_PMSG)(void);
@@ -2877,7 +2875,7 @@ public:
    virtual BOOL Unlock( )
    { return TRUE; }
    virtual BOOL Unlock(
-      LONG lCount,
+      LONG /*lCount*/,
       LPLONG lpPrevCount = NULL
    ) { return TRUE; }
    HANDLE m_hObject;
@@ -3048,7 +3046,7 @@ class CException
 public:
    virtual BOOL GetErrorMessage(
       LPTSTR lpszError,
-      UINT nMaxError,
+      UINT /*nMaxError*/,
       PUINT pnHelpContext = NULL
    ) const
    {
@@ -3772,47 +3770,47 @@ class QtUIElement
 {
 public:
    virtual void SetDlgItemInt(
-      int nID,
-      UINT nValue,
+      int /*nID*/,
+      UINT /*nValue*/,
       BOOL bSigned = TRUE
    ) {}
    virtual UINT GetDlgItemInt(
-      int nID,
+      int /*nID*/,
       BOOL* lpTrans = NULL,
       BOOL bSigned = TRUE
    ) const { return 0; }
    virtual void SetDlgItemText(
-      int nID,
-      LPCTSTR lpszString
+      int /*nID*/,
+      LPCTSTR /*lpszString*/
    ) {}
    virtual int GetDlgItemText(
-      int nID,
-      CString& rString
+      int /*nID*/,
+      CString& /*rString*/
    ) const { return 0; }
    virtual int GetDlgItemText(
-      int nID,
-      LPTSTR lpStr,
-      int nMaxCount
+      int /*nID*/,
+      LPTSTR /*lpStr*/,
+      int /*nMaxCount*/
    ) const { return 0; }
    virtual void CheckDlgButton(
-      int nIDButton,
-      UINT nCheck
+      int /*nIDButton*/,
+      UINT /*nCheck*/
    ) {}
    virtual UINT IsDlgButtonChecked(
-      int nIDButton
+      int /*nIDButton*/
    ) const { return 0; }
    virtual void SetWindowText(
-      LPCTSTR lpszString
+      LPCTSTR /*lpszString*/
    ) {}
    virtual int GetWindowTextLength( ) const { return 0; }
    virtual void GetWindowText(
-      CString& rString
+      CString& /*rString*/
    ) const {}
    virtual int GetWindowText(
-      LPTSTR lpszStringBuf,
-      int nMaxCount
+      LPTSTR /*lpszStringBuf*/,
+      int /*nMaxCount*/
    ) const { return 0; }
-   virtual void subclassWidget(int nID,CWnd* widget) { return; }
+   virtual void subclassWidget(int /*nID*/,CWnd* /*widget*/) { return; }
 };
 
 class CFrameWnd;
@@ -3905,7 +3903,7 @@ public:
       BOOL bEnable = TRUE
    );
    virtual BOOL PreCreateWindow(
-      CREATESTRUCT& cs
+      CREATESTRUCT& /*cs*/
    ) { return TRUE; }
    virtual void PreSubclassWindow() {}
    enum
@@ -3990,32 +3988,32 @@ public:
    );
    void OnDestroy( );
    afx_msg void OnShowWindow( 
-      BOOL bShow, 
-      UINT nStatus  
+      BOOL /*bShow*/,
+      UINT /*nStatus*/
    ) {}
    afx_msg void OnGetMinMaxInfo(
-      MINMAXINFO* lpMMI
+      MINMAXINFO* /*lpMMI*/
    ) {}
    void OnMouseMove(UINT,CPoint) {}
    void OnMouseLeave() {}
-   void OnNcMouseMove(UINT nHitTest, CPoint point) {}
+   void OnNcMouseMove(UINT /*nHitTest*/, CPoint /*point*/) {}
    void OnNcLButtonUp(
-      UINT nHitTest,
-      CPoint point
+      UINT /*nHitTest*/,
+      CPoint /*point*/
    ) {}
    BOOL OnEraseBkgnd(
-      CDC* pDC
+      CDC* /*pDC*/
    ) { return TRUE; }
    HBRUSH OnCtlColor(
-      CDC* pDC,
-      CWnd* pWnd,
-      UINT nCtlColor
+      CDC* /*pDC*/,
+      CWnd* /*pWnd*/,
+      UINT /*nCtlColor*/
    ) { return (HBRUSH)NULL; }
    afx_msg void OnPaint( ) {}
-   BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message) { return FALSE; }   
-   DROPEFFECT OnDragEnter(COleDataObject* pDataObject, DWORD dwKeyState, CPoint point) { return DROPEFFECT_NONE; }
-   DROPEFFECT OnDragOver(COleDataObject* pDataObject, DWORD dwKeyState, CPoint point) { return DROPEFFECT_NONE; }
-   BOOL OnDrop(COleDataObject* pDataObject, DROPEFFECT dropEffect, CPoint point) { return FALSE; }
+   BOOL OnSetCursor(CWnd* /*pWnd*/, UINT /*nHitTest*/, UINT /*message*/) { return FALSE; }
+   DROPEFFECT OnDragEnter(COleDataObject* /*pDataObject*/, DWORD /*dwKeyState*/, CPoint /*point*/) { return DROPEFFECT_NONE; }
+   DROPEFFECT OnDragOver(COleDataObject* /*pDataObject*/, DWORD /*dwKeyState*/, CPoint /*point*/) { return DROPEFFECT_NONE; }
+   BOOL OnDrop(COleDataObject* /*pDataObject*/, DROPEFFECT /*dropEffect*/, CPoint /*point*/) { return FALSE; }
    void OnDragLeave() {}
    void OnLButtonDblClk(UINT,CPoint) {}
    void OnLButtonDown(UINT,CPoint) {}
@@ -4027,12 +4025,12 @@ public:
    void OnRButtonDown(UINT,CPoint) {}
    void OnRButtonUp(UINT,CPoint) {}
    BOOL OnMouseWheel(UINT,UINT,CPoint) { return TRUE; }
-   void OnSize(UINT nType, int cx, int cy) {}
+   void OnSize(UINT /*nType*/, int /*cx*/, int /*cy*/) {}
    UINT SetTimer(UINT id, UINT interval, void*);
    void KillTimer(UINT id);
-   void OnTimer(UINT_PTR timerId) {}
+   void OnTimer(UINT_PTR /*timerId*/) {}
    void OnKeyDown(UINT,UINT,UINT) {}
-   void OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags) {}
+   void OnKeyUp(UINT /*nChar*/, UINT /*nRepCnt*/, UINT /*nFlags*/) {}
    void OnSetFocus(CWnd*);
    void OnKillFocus(CWnd*) {}
    void OnVScroll(UINT,UINT,CScrollBar*) {}
@@ -4066,7 +4064,7 @@ public:
       BOOL bSaveAndValidate = TRUE
    );
    virtual void DoDataExchange(
-      CDataExchange* pDX
+      CDataExchange* /*pDX*/
    ) {}
    CWnd* GetWindow(
          UINT nCmd
@@ -4266,12 +4264,12 @@ public:
    );
    void OnSize(UINT nType, int cx, int cy);
    void OnSetFocus(CWnd* pOldWnd);
-   virtual void OnUpdateFrameTitle(BOOL bAddToTitle) {}
+   virtual void OnUpdateFrameTitle(BOOL /*bAddToTitle*/) {}
    virtual void SetMessageText(LPCTSTR fmt,...);
    void SetMessageText(
       UINT nID
    );
-   void SetActiveView(CView* pViewNew, BOOL bNotify) { m_pViewActive = pViewNew; }
+   void SetActiveView(CView* pViewNew, BOOL /*bNotify*/) { m_pViewActive = pViewNew; }
    CView* GetActiveView( ) const { return m_pViewActive; } // Only one view for SDI
    virtual CDocument* GetActiveDocument( ) { return m_pDocument; }
    virtual void RecalcLayout(
@@ -4309,10 +4307,10 @@ signals:
 public:
    CDocument();
    void AssertValid() const {}
-   void Dump(CDumpContext& dc) const {}
+   void Dump(CDumpContext& /*dc*/) const {}
    virtual BOOL OnNewDocument() { DeleteContents(); return TRUE; }
-   virtual BOOL OnSaveDocument(LPCTSTR lpszPathName) { emit documentSaved(); return TRUE; }
-   virtual BOOL OnOpenDocument(LPCTSTR lpszPathName) { return TRUE; }
+   virtual BOOL OnSaveDocument(LPCTSTR /*lpszPathName*/) { emit documentSaved(); return TRUE; }
+   virtual BOOL OnOpenDocument(LPCTSTR /*lpszPathName*/) { return TRUE; }
    virtual BOOL SaveModified();
    virtual BOOL CanCloseFrame(
       CFrameWnd* pFrame
@@ -4391,11 +4389,11 @@ public:
       void* pExtra,
       AFX_CMDHANDLERINFO* pHandlerInfo
    );
-   virtual void OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint) { update(); }
-   void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {}
-   void OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags) {}
-   void OnSysKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {}
-   void OnSysKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags) {}
+   virtual void OnUpdate(CView* /*pSender*/, LPARAM /*lHint*/, CObject* /*pHint*/) { update(); }
+   void OnKeyDown(UINT /*nChar*/, UINT /*nRepCnt*/, UINT /*nFlags*/) {}
+   void OnKeyUp(UINT /*nChar*/, UINT /*nRepCnt*/, UINT /*nFlags*/) {}
+   void OnSysKeyDown(UINT /*nChar*/, UINT /*nRepCnt*/, UINT /*nFlags*/) {}
+   void OnSysKeyUp(UINT /*nChar*/, UINT /*nRepCnt*/, UINT /*nFlags*/) {}
    void OnSetFocus(CWnd *);
    void OnPaint();
    virtual void OnInitialUpdate() {}

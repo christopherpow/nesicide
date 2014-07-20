@@ -2087,7 +2087,12 @@ void CMainFrame::OnHelpFAQ()
 
 CFrameEditor *CMainFrame::GetFrameEditor() const
 {
-	return m_pFrameEditor;
+   return m_pFrameEditor;
+}
+
+CVisualizerWnd *CMainFrame::GetVisualizerWindow() const
+{
+   return m_pVisualizerWnd;
 }
 
 void CMainFrame::OnEditEnableMIDI()

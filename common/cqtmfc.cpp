@@ -4286,6 +4286,7 @@ void CListCtrl::itemSelectionChanged()
    nmlv.uNewState |= LVNI_SELECTED;
    nmlv.uOldState = 0;
    
+   SendMessage(WM_REFLECT_BASE+WM_NOTIFY,_id,(LPARAM)&nmlv);
    GetOwner()->SendMessage(WM_NOTIFY,_id,(LPARAM)&nmlv);
 }
 
@@ -4301,6 +4302,7 @@ void CListCtrl::cellClicked(int row, int column)
    nmia.ptAction.x = QCursor::pos().x();
    nmia.ptAction.y = QCursor::pos().y();
    
+   SendMessage(WM_REFLECT_BASE+WM_NOTIFY,_id,(LPARAM)&nmia);
    GetOwner()->SendMessage(WM_NOTIFY,_id,(LPARAM)&nmia);
 }
 
@@ -4316,6 +4318,7 @@ void CListCtrl::cellDoubleClicked(int row, int column)
    nmia.ptAction.x = QCursor::pos().x();
    nmia.ptAction.y = QCursor::pos().y();
    
+   SendMessage(WM_REFLECT_BASE+WM_NOTIFY,_id,(LPARAM)&nmia);
    GetOwner()->SendMessage(WM_NOTIFY,_id,(LPARAM)&nmia);
 }
 
@@ -4331,6 +4334,7 @@ void CListCtrl::clicked(QModelIndex index)
    nmia.ptAction.x = QCursor::pos().x();
    nmia.ptAction.y = QCursor::pos().y();
    
+   SendMessage(WM_REFLECT_BASE+WM_NOTIFY,_id,(LPARAM)&nmia);
    GetOwner()->SendMessage(WM_NOTIFY,_id,(LPARAM)&nmia);
 }
 
@@ -4346,6 +4350,7 @@ void CListCtrl::doubleClicked(QModelIndex index)
    nmia.ptAction.x = QCursor::pos().x();
    nmia.ptAction.y = QCursor::pos().y();
    
+   SendMessage(WM_REFLECT_BASE+WM_NOTIFY,_id,(LPARAM)&nmia);
    GetOwner()->SendMessage(WM_NOTIFY,_id,(LPARAM)&nmia);
 }
 
@@ -5918,7 +5923,7 @@ AfxFindMessageEntry(const AFX_MSGMAP_ENTRY* lpEntry,
 	// C version of search routine
 	while (lpEntry->nSig != AfxSig_end)
 	{
-		if (lpEntry->nMessage == nMsg && lpEntry->nCode == nCode &&
+      if (lpEntry->nMessage == nMsg && lpEntry->nCode == nCode &&
 			nID >= lpEntry->nID && nID <= lpEntry->nLastID)
 		{
 			return lpEntry;
@@ -8909,6 +8914,8 @@ BOOL CView::Create(
    qtToMfcWindow.insert(_qtd,this);
 
    m_pFrameWnd->addView(toQWidget());
+
+   _qtd->setAttribute(Qt::WA_OpaquePaintEvent);
    
    return TRUE;
 }
@@ -9974,6 +9981,14 @@ bool CWinThread::event(QEvent *event)
    bool proc = false;
    if ( msgEvent )
    {
+      // Terminator.
+      if ( msgEvent->msg.message == WM_QUIT )
+      {
+         terminate();
+         wait();
+         return true;
+      }
+
       // CPTODO: THIS IS A COMPLETE HACK JUST TO GET PostThreadMessage
       // working as it should be.  Need to find the proper implementation
       // of message handler for CWinThread.
@@ -10016,7 +10031,7 @@ bool CWinThread::event(QEvent *event)
             {
                // constant window message
                if ((lpEntry = AfxFindMessageEntry(pMessageMap->lpEntries,
-                  message, 0, 0)) != NULL)
+                  message, wParam, 0)) != NULL)
                {
                   pMsgCache->lpEntry = lpEntry;
                   goto LDispatch;
@@ -10507,12 +10522,12 @@ BOOL CWinThread::PostThreadMessage(
    LPARAM lParam
       )
 {
-   MFCMessageEvent* post = new MFCMessageEvent(QEvent::User);
-   post->msg.message = message;
-   post->msg.wParam = wParam;
-   post->msg.lParam = lParam;
+   MFCMessageEvent post(QEvent::User);
+   post.msg.message = message;
+   post.msg.wParam = wParam;
+   post.msg.lParam = lParam;
 
-   QApplication::postEvent(this,post);
+   QApplication::sendEvent(this,&post);
 
    return true;
 }
@@ -16070,7 +16085,7 @@ VOID WINAPI Sleep(
   DWORD dwMilliseconds
 )
 {
-   QThread::currentThread()->wait(dwMilliseconds);
+   QThread::currentThread()->msleep(dwMilliseconds);
 }
 
 VOID WINAPI ExitProcess(
