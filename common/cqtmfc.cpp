@@ -6443,7 +6443,7 @@ BOOL CWnd::OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, LRESULT* pResult
 	}
 
 	// special case for notifies
-	if (message == WM_NOTIFY)
+   if (message == WM_NOTIFY)
 	{
 		NMHDR* pNMHDR = (NMHDR*)lParam;
 		if (pNMHDR->hwndFrom != NULL && OnNotify(wParam, lParam, &lResult))
@@ -10031,7 +10031,7 @@ bool CWinThread::event(QEvent *event)
             {
                // constant window message
                if ((lpEntry = AfxFindMessageEntry(pMessageMap->lpEntries,
-                  message, wParam, 0)) != NULL)
+                  message, 0, 0)) != NULL)
                {
                   pMsgCache->lpEntry = lpEntry;
                   goto LDispatch;
