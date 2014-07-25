@@ -4210,8 +4210,6 @@ class CCmdUI;
 class CFrameWnd : public CWnd
 {
    Q_OBJECT
-public:
-   DECLARE_DYNCREATE(CFrameWnd)
    // Qt interfaces
 public:
    void addControlBar(int area,QWidget* bar);
@@ -4232,6 +4230,8 @@ signals:
    void documentClosed();
 
    // MFC interfaces
+public:
+   DECLARE_DYNCREATE(CFrameWnd)
 public:
    CFrameWnd(CWnd* parent = 0);
    virtual ~CFrameWnd();

@@ -582,17 +582,19 @@ BOOL CFamiTrackerView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 void CFamiTrackerView::OnKillFocus(CWnd* pNewWnd)
 {
 	CView::OnKillFocus(pNewWnd);
-	m_bHasFocus = false;
+qDebug("OnKillFocus");
+   m_bHasFocus = false;
 	m_pPatternView->SetFocus(false);
 	UpdateEditor(UPDATE_CURSOR);
 }
 
 void CFamiTrackerView::OnSetFocus(CWnd* pOldWnd)
 {
-	CView::OnSetFocus(pOldWnd);
-	m_bHasFocus = true;
+   CView::OnSetFocus(pOldWnd);
+qDebug("OnSetFocus");
+   m_bHasFocus = true;
 	m_pPatternView->SetFocus(true);
-	UpdateEditor(UPDATE_CURSOR);
+   UpdateEditor(UPDATE_CURSOR);
 }
 
 void CFamiTrackerView::OnTimer(UINT_PTR nIDEvent)
@@ -1079,10 +1081,10 @@ void CFamiTrackerView::OnInitialUpdate()
 
 void CFamiTrackerView::OnUpdate(CView* /*pSender*/, LPARAM lHint, CObject* /*pHint*/)
 {
-	// Called when the document has changed
+   // Called when the document has changed
 	CMainFrame *pMainFrm = static_cast<CMainFrame*>(GetParentFrame());
 
-	switch (lHint) {
+   switch (lHint) {
 		// Pattern length has changed
 		case CHANGED_PATTERN_LENGTH:
 			m_pPatternView->ClearSelection();
@@ -1328,9 +1330,11 @@ void CFamiTrackerView::UpdateEditor(LPARAM lHint)
 	CFamiTrackerDoc *pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
 
+   qDebug("UpdateEditor called lHint=%d !!!!!!!!!!!!!!!!!!!!!!!!!!",lHint);
+
 	// Prevent crashing when trying to load non-existing file
 	if (!pDoc->IsFileLoaded())
-		return;
+      return;
 
 	switch (lHint) {
 		// TODO: remove this maybe? call directly on the document
@@ -1367,6 +1371,7 @@ void CFamiTrackerView::UpdateEditor(LPARAM lHint)
 			TRACE0("View: UpdateEditor() called OnUpdate() (remove this)\n");
 			OnUpdate(NULL, lHint, NULL);
 	}
+qDebug("UpdateEditor exiting...");
 }
 
 void CFamiTrackerView::RemoveWithoutDelete()
@@ -3004,7 +3009,8 @@ void CFamiTrackerView::OnEditReplaceInstrument()
 
 void CFamiTrackerView::OnNcMouseMove(UINT nHitTest, CPoint point)
 {
-	if (m_pPatternView->OnMouseNcMove())
+qDebug("OnNcMouseMove");
+   if (m_pPatternView->OnMouseNcMove())
 		UpdateEditor(UPDATE_ENTIRE);
 
 	CView::OnNcMouseMove(nHitTest, point);

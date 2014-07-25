@@ -19,10 +19,12 @@ protected:
    void dragEnterEvent(QDragEnterEvent *event);
    void dragMoveEvent(QDragMoveEvent *event);
    void dropEvent(QDropEvent *event);
+   void showEvent(QShowEvent *);
    void closeEvent(QCloseEvent *);
 
 private:
     Ui::MainWindow *ui;
+    bool _initialized;
 
 private slots:
     void addToolBarWidget(QToolBar* toolBar);

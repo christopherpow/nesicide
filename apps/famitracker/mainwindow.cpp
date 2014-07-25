@@ -10,24 +10,10 @@
 
 MainWindow::MainWindow(QWidget *parent) :
    QMainWindow(parent),
-   ui(new Ui::MainWindow)
+   ui(new Ui::MainWindow),
+   _initialized(false)
 {
-   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
-
    ui->setupUi(this);
-
-   // Initialize the app...
-   qtMfcInit(this);
-   theApp.InitInstance();
-
-   setCentralWidget(theApp.m_pMainWnd->toQWidget());
-
-   QObject::connect(theApp.m_pMainWnd,SIGNAL(addToolBarWidget(QToolBar*)),this,SLOT(addToolBarWidget(QToolBar*)));
-   QObject::connect(theApp.m_pMainWnd,SIGNAL(removeToolBarWidget(QToolBar*)),this,SLOT(removeToolBarWidget(QToolBar*)));
-   QObject::connect(theApp.m_pMainWnd,SIGNAL(editor_modificationChanged(bool)),this,SLOT(editor_modificationChanged(bool)));
-
-   restoreGeometry(settings.value("FamiTrackerWindowGeometry").toByteArray());
-   restoreState(settings.value("FamiTrackerWindowState").toByteArray());
 }
 
 MainWindow::~MainWindow()
@@ -64,6 +50,29 @@ void MainWindow::documentClosed()
    theApp.ExitInstance();
 
    exit(0);
+}
+
+void MainWindow::showEvent(QShowEvent *)
+{
+   if ( !_initialized )
+   {
+      QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
+
+      // Initialize the app...
+      qtMfcInit(this);
+      theApp.InitInstance();
+
+      setCentralWidget(theApp.m_pMainWnd->toQWidget());
+
+      QObject::connect(theApp.m_pMainWnd,SIGNAL(addToolBarWidget(QToolBar*)),this,SLOT(addToolBarWidget(QToolBar*)));
+      QObject::connect(theApp.m_pMainWnd,SIGNAL(removeToolBarWidget(QToolBar*)),this,SLOT(removeToolBarWidget(QToolBar*)));
+      QObject::connect(theApp.m_pMainWnd,SIGNAL(editor_modificationChanged(bool)),this,SLOT(editor_modificationChanged(bool)));
+
+      restoreGeometry(settings.value("FamiTrackerWindowGeometry").toByteArray());
+      restoreState(settings.value("FamiTrackerWindowState").toByteArray());
+
+      _initialized = true;
+   }
 }
 
 void MainWindow::dragEnterEvent(QDragEnterEvent *event)

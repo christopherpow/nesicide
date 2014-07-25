@@ -8253,26 +8253,6 @@ CFrameWnd::CFrameWnd(CWnd *parent)
    {
       ptrToTheApp->qtMainWindow->menuBar()->setNativeMenuBar(false);
    }
-
-   m_pMenu = new CMenu;
-   m_pMenu->LoadMenu(128);
-   for ( idx = 0; idx < m_pMenu->GetMenuItemCount(); idx++ )
-   {
-      if ( !backgroundedFamiTracker )
-      {
-         QMenu* pMenu = m_pMenu->GetSubMenu(idx)->toQMenu();
-         ptrToTheApp->qtMainWindow->menuBar()->addMenu(pMenu);
-      }
-      QObject::connect(m_pMenu->GetSubMenu(idx),SIGNAL(menuAction_triggered(int)),this,SLOT(menuAction_triggered(int)));
-   }
-   
-   // Get focus changes...
-   QObject::connect(QApplication::instance(),SIGNAL(focusChanged(QWidget*,QWidget*)),this,SLOT(focusChanged(QWidget*,QWidget*)));
-
-   // Set up for idle...   
-   pIdleTimer = new QTimer;
-   QObject::connect(pIdleTimer,SIGNAL(timeout()),this,SLOT(onIdleSlot()));
-   pIdleTimer->start();
 }
 
 CFrameWnd::~CFrameWnd()
@@ -8353,10 +8333,32 @@ BOOL CFrameWnd::Create(
 )
 {
    CView* pView;
-   
+   int idx;
+
+   m_pMenu = new CMenu;
+   m_pMenu->LoadMenu(128);
+
+   for ( idx = 0; idx < m_pMenu->GetMenuItemCount(); idx++ )
+   {
+      if ( !backgroundedFamiTracker )
+      {
+         QMenu* pMenu = m_pMenu->GetSubMenu(idx)->toQMenu();
+         ptrToTheApp->qtMainWindow->menuBar()->addMenu(pMenu);
+      }
+      QObject::connect(m_pMenu->GetSubMenu(idx),SIGNAL(menuAction_triggered(int)),this,SLOT(menuAction_triggered(int)));
+   }
+
+   // Get focus changes...
+   QObject::connect(QApplication::instance(),SIGNAL(focusChanged(QWidget*,QWidget*)),this,SLOT(focusChanged(QWidget*,QWidget*)));
+
+   // Set up for idle...
+   pIdleTimer = new QTimer;
+   QObject::connect(pIdleTimer,SIGNAL(timeout()),this,SLOT(onIdleSlot()));
+   pIdleTimer->start();
+
    if ( !CWnd::Create(lpszClassName,lpszWindowName,dwStyle,rect,pParentWnd,lpszMenuName,dwExStyle,pContext) )
       return FALSE;
-   
+
    // Set this frame's document.
    m_pDocument = pContext->m_pCurrentDoc;
    
@@ -8367,7 +8369,7 @@ BOOL CFrameWnd::Create(
    
    // Set frame in hijacked context.
    pContext->m_pCurrentFrame = this;
-   
+
    // Create the view!
    pView->Create(lpszClassName,lpszWindowName,dwStyle|WS_VSCROLL|WS_HSCROLL,rect,pParentWnd,lpszMenuName,dwExStyle,pContext);
 
@@ -9940,34 +9942,26 @@ END_MESSAGE_MAP()
 
 CWinThread::CWinThread() : 
    _priority(QThread::NormalPriority),
+   pTimer(NULL),
    _initialized(false)
 {
    m_hThread = (HANDLE)this;
-#ifdef Q_OS_MAC
-   m_nThreadID = QThread::currentThreadId();
-#else
-   m_nThreadID = (DWORD)QThread::currentThreadId();
-#endif
-   
    m_pfnThreadProc = NULL;
    m_pParam = NULL;
    
    m_pMainWnd = NULL;
-   
-   pTimer = new QTimer;
-   
-   QObject::connect(pTimer,SIGNAL(timeout()),this,SLOT(onIdleSlot()));
-   
-   pTimer->start();
 }
 
 CWinThread::~CWinThread()
 {
-   QObject::disconnect(pTimer,SIGNAL(timeout()),this,SLOT(onIdleSlot()));
-   
-   pTimer->stop();
-   
-   delete pTimer;
+   if ( pTimer )
+   {
+      QObject::disconnect(pTimer,SIGNAL(timeout()),this,SLOT(onIdleSlot()));
+
+      pTimer->stop();
+
+      delete pTimer;
+   }
 }
 
 void CWinThread::onIdleSlot()
@@ -10471,6 +10465,13 @@ DWORD CWinThread::ResumeThread( )
 {
    if ( !_initialized )
    {
+      pTimer = new QTimer;
+      pTimer->setTimerType(Qt::PreciseTimer);
+
+      QObject::connect(pTimer,SIGNAL(timeout()),this,SLOT(onIdleSlot()));
+
+      pTimer->start();
+
       InitInstance();
       _initialized = true;
    }
@@ -10534,6 +10535,12 @@ BOOL CWinThread::PostThreadMessage(
 
 void CWinThread::run()
 {
+#ifdef Q_OS_MAC
+      m_nThreadID = QThread::currentThreadId();
+#else
+      m_nThreadID = (DWORD)QThread::currentThreadId();
+#endif
+
    setPriority(_priority);
    Run();
 }
