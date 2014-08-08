@@ -7338,14 +7338,19 @@ void CWnd::timerEvent(QTimerEvent *event)
 
 void CWnd::paintEvent(QPaintEvent *event)
 {
+   static QSize currentSize = _qt->size();
    gInPaintEvent = true;
    CDC* pDC = _myDC;
    AFX_CTLCOLOR ctlColor;
    ctlColor.hWnd = m_hWnd;
    ctlColor.hDC = (HDC)pDC;
    ctlColor.nCtlType = 0;
-   SendMessage(WM_CTLCOLOR+WM_REFLECT_BASE,0,(LPARAM)&ctlColor);
-   SendMessage(WM_ERASEBKGND,(WPARAM)(HDC)pDC);
+   SendMessage(WM_CTLCOLOR,0,(LPARAM)&ctlColor);
+   if ( _qt->size() != currentSize )
+   {
+      SendMessage(WM_ERASEBKGND,(WPARAM)(HDC)pDC);
+      currentSize = _qt->size();
+   }
    SendMessage(WM_PAINT);
    gInPaintEvent = false;
 }
@@ -8953,25 +8958,6 @@ void CView::resizeEvent(QResizeEvent *event)
 void CView::focusInEvent(QFocusEvent *event)
 {
    PostMessage(WM_SETFOCUS,(WPARAM)(HWND)focusWnd);
-}
-
-void CView::paintEvent(QPaintEvent *event)
-{
-   static QSize currentSize = _qt->size();
-   gInPaintEvent = true;
-   CDC* pDC = _myDC;
-//   AFX_CTLCOLOR ctlColor;
-//   ctlColor.hWnd = m_hWnd;
-//   ctlColor.hDC = (HDC)pDC;
-//   ctlColor.nCtlType = 0;
-//   SendMessage(WM_CTLCOLOR+WM_REFLECT_BASE,0,(LPARAM)&ctlColor);
-   if ( _qt->size() != currentSize )
-   {
-      SendMessage(WM_ERASEBKGND,(WPARAM)(HDC)pDC);
-      currentSize = _qt->size();
-   }
-   SendMessage(WM_PAINT);
-   gInPaintEvent = false;
 }
 
 void CView::showEvent(QShowEvent *event)
@@ -10721,7 +10707,6 @@ void CDocument::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHint)
    ASSERT(pSender == NULL || !_views.count());
 		// must have views if sent by one of them
 
-qDebug("UpdateAllViews:lHint=%d",lHint);
 	POSITION pos = GetFirstViewPosition();
 	while (pos != NULL)
 	{
@@ -12441,7 +12426,7 @@ void QPlainTextEdit_MFC::paintEvent(QPaintEvent *event)
       ctlColor.hDC = (HDC)pDC;
       ctlColor.nCtlType = 0;
       _mfc->SendMessage(WM_ERASEBKGND,(WPARAM)(HDC)pDC);
-      _mfc->SendMessage(WM_CTLCOLOR+WM_REFLECT_BASE,0,(LPARAM)&ctlColor);
+      _mfc->SendMessage(WM_CTLCOLOR,0,(LPARAM)&ctlColor);
       style.sprintf("QLabel { color: #%02x%02x%02x; }",GetRValue(pDC->GetTextColor()),GetGValue(pDC->GetTextColor()),GetBValue(pDC->GetTextColor()));
       setStyleSheet(style);
    }
@@ -12471,7 +12456,7 @@ void QLineEdit_MFC::paintEvent(QPaintEvent *event)
       ctlColor.hDC = (HDC)pDC;
       ctlColor.nCtlType = 0;
       _mfc->SendMessage(WM_ERASEBKGND,(WPARAM)(HDC)pDC);
-      _mfc->SendMessage(WM_CTLCOLOR+WM_REFLECT_BASE,0,(LPARAM)&ctlColor);
+      _mfc->SendMessage(WM_CTLCOLOR,0,(LPARAM)&ctlColor);
       style.sprintf("QLabel { color: #%02x%02x%02x; }",GetRValue(pDC->GetTextColor()),GetGValue(pDC->GetTextColor()),GetBValue(pDC->GetTextColor()));
       setStyleSheet(style);
    }
@@ -14423,7 +14408,7 @@ void QLabel_MFC::paintEvent(QPaintEvent *event)
       ctlColor.hDC = (HDC)pDC;
       ctlColor.nCtlType = 0;
       _mfc->SendMessage(WM_ERASEBKGND,(WPARAM)(HDC)pDC);
-      _mfc->SendMessage(WM_CTLCOLOR+WM_REFLECT_BASE,0,(LPARAM)&ctlColor);
+      _mfc->SendMessage(WM_CTLCOLOR,0,(LPARAM)&ctlColor);
       style.sprintf("QLabel { color: #%02x%02x%02x; }",GetRValue(pDC->GetTextColor()),GetGValue(pDC->GetTextColor()),GetBValue(pDC->GetTextColor()));
       setStyleSheet(style);
    }

@@ -4372,7 +4372,6 @@ protected:
    virtual bool eventFilter(QObject *object, QEvent *event);
    virtual void resizeEvent(QResizeEvent *event);
    virtual void focusInEvent(QFocusEvent *event);
-   virtual void paintEvent(QPaintEvent *event);
    virtual void showEvent(QShowEvent *event);
 public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
    

@@ -582,7 +582,6 @@ BOOL CFamiTrackerView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 void CFamiTrackerView::OnKillFocus(CWnd* pNewWnd)
 {
 	CView::OnKillFocus(pNewWnd);
-qDebug("OnKillFocus");
    m_bHasFocus = false;
 	m_pPatternView->SetFocus(false);
 	UpdateEditor(UPDATE_CURSOR);
@@ -591,7 +590,6 @@ qDebug("OnKillFocus");
 void CFamiTrackerView::OnSetFocus(CWnd* pOldWnd)
 {
    CView::OnSetFocus(pOldWnd);
-qDebug("OnSetFocus");
    m_bHasFocus = true;
 	m_pPatternView->SetFocus(true);
    UpdateEditor(UPDATE_CURSOR);
@@ -1084,7 +1082,6 @@ void CFamiTrackerView::OnUpdate(CView* /*pSender*/, LPARAM lHint, CObject* /*pHi
    // Called when the document has changed
 	CMainFrame *pMainFrm = static_cast<CMainFrame*>(GetParentFrame());
 
-qDebug("OnUpdate:lHint=%d",lHint);
    switch (lHint) {
 		// Pattern length has changed
 		case CHANGED_PATTERN_LENGTH:
