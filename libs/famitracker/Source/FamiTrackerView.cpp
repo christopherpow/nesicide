@@ -826,8 +826,8 @@ void CFamiTrackerView::OnTrackerEdit()
 		GetParentFrame()->SetMessageText(IDS_EDIT_MODE);
 	else
 		GetParentFrame()->SetMessageText(IDS_NORMAL_MODE);
-	
-	UpdateEditor(UPDATE_ENTIRE);
+
+   UpdateEditor(UPDATE_ENTIRE);
 }
 
 void CFamiTrackerView::OnTrackerPal()
@@ -1084,6 +1084,7 @@ void CFamiTrackerView::OnUpdate(CView* /*pSender*/, LPARAM lHint, CObject* /*pHi
    // Called when the document has changed
 	CMainFrame *pMainFrm = static_cast<CMainFrame*>(GetParentFrame());
 
+qDebug("OnUpdate:lHint=%d",lHint);
    switch (lHint) {
 		// Pattern length has changed
 		case CHANGED_PATTERN_LENGTH:
@@ -1166,8 +1167,8 @@ void CFamiTrackerView::OnUpdate(CView* /*pSender*/, LPARAM lHint, CObject* /*pHi
 			break;
 
 		case UPDATE_HIGHLIGHT:
-			m_pPatternView->SetHighlight(GetDocument()->GetFirstHighlight(), GetDocument()->GetSecondHighlight());
-			UpdateEditor(UPDATE_ENTIRE);
+         m_pPatternView->SetHighlight(GetDocument()->GetFirstHighlight(), GetDocument()->GetSecondHighlight());
+         UpdateEditor(UPDATE_ENTIRE);
 			break;
 
 		default:
@@ -1330,8 +1331,6 @@ void CFamiTrackerView::UpdateEditor(LPARAM lHint)
 	CFamiTrackerDoc *pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
 
-   qDebug("UpdateEditor called lHint=%d !!!!!!!!!!!!!!!!!!!!!!!!!!",lHint);
-
 	// Prevent crashing when trying to load non-existing file
 	if (!pDoc->IsFileLoaded())
       return;
@@ -1371,7 +1370,6 @@ void CFamiTrackerView::UpdateEditor(LPARAM lHint)
 			TRACE0("View: UpdateEditor() called OnUpdate() (remove this)\n");
 			OnUpdate(NULL, lHint, NULL);
 	}
-qDebug("UpdateEditor exiting...");
 }
 
 void CFamiTrackerView::RemoveWithoutDelete()

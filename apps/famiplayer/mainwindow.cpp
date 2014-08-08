@@ -328,7 +328,6 @@ void MainWindow::onIdleSlot()
    static int lastFrame = -1;
    
    ui->sampleWindow->update();
-   pMainFrame->GetVisualizerWindow()->RedrawWindow();
 
    if ( m_bCheck )
    {

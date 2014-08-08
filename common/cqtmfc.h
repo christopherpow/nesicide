@@ -3835,6 +3835,12 @@ public:
    MFCWidget(QWidget* parent=0);
 };
 
+typedef struct _AFX_THREAD_STATE
+{
+   MSG m_lastSentMsg;
+   struct _AFX_THREAD_STATE* GetData() { return (struct _AFX_THREAD_STATE*)this; }
+} _AFX_THREAD_STATE;
+
 class CWnd : public MFCWidget, public CCmdTarget, public QtUIElement
 {
    Q_OBJECT
@@ -3893,6 +3899,10 @@ public:
       WPARAM wParam, 
       LPARAM lParam  
    );
+   BOOL PASCAL ReflectLastMsg(HWND hWndChild, LRESULT* pResult=0);
+   BOOL SendChildNotifyLastMsg(LRESULT* pResult);
+   BOOL OnChildNotify(UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT* pResult);
+   BOOL ReflectChildNotify(UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT* pResult);
    virtual BOOL OnNotify(
       WPARAM, 
       LPARAM lParam, 
@@ -4129,6 +4139,8 @@ public:
    virtual BOOL DestroyWindow( );
    virtual void PostNcDestroy( ) {}
 
+   static _AFX_THREAD_STATE _afxThreadState;
+
    // This method only for Qt glue
    UINT_PTR mfcTimerId(int qtTimerId) { return qtToMfcTimer.value(qtTimerId); }
    void setMfcBuddy(CWnd* buddy) { _mfcBuddy = buddy; }
@@ -4331,11 +4343,11 @@ public:
       LPCTSTR lpszPathName,
       BOOL bAddToMRU = TRUE
    );
-   virtual void SetTitle(CString title );
+   virtual void SetTitle(LPCTSTR title );
    BOOL DoFileSave();
    BOOL DoSave(LPCTSTR lpszPathName, BOOL bReplace = TRUE);
    virtual void UpdateAllViews(CView *pSender,LPARAM lHint = 0, CObject *pHint = 0);
-   virtual CString GetTitle() const { return m_strTitle; }
+   const CString& GetTitle() const { return m_strTitle; }
    void AddView( 
       CView* pView  
    );

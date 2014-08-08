@@ -3066,7 +3066,7 @@ void CFamiTrackerDoc::RemoveInstrument(unsigned int Index)
 	m_csInstrument.Unlock();
 
 	SetModifiedFlag();
-	UpdateAllViews(NULL, UPDATE_ENTIRE);	// TODO: remove
+   UpdateAllViews(NULL, UPDATE_ENTIRE);	// TODO: remove
 }
 
 int CFamiTrackerDoc::CloneInstrument(unsigned int Index)

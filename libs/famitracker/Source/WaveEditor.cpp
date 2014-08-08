@@ -231,7 +231,7 @@ void CWaveEditor::EditWave(CPoint point)
 	if (index > GetMaxSamples() - 1)
 		index = GetMaxSamples() - 1;
 
-	if (!GetLineMode()) {
+   if (!GetLineMode()) {
 
 		CDC *pDC = GetDC();
 
@@ -246,9 +246,9 @@ void CWaveEditor::EditWave(CPoint point)
 		DrawRect(pDC, index * m_iSX, s * m_iSY, m_iSX, m_iSY);
 
 		ReleaseDC(pDC);
-	}
-	else
-		SetSample(index, sample);
+   }
+   else
+      SetSample(index, sample);
 
 	// Indicates wave change
 	GetParent()->PostMessage(WM_USER_WAVE_CHANGED);
@@ -291,10 +291,9 @@ void CWaveEditor::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
 			SetLineMode(false);
 			break;
 		case 2: 
-			SetLineMode(true);
+         SetLineMode(true);
 			break;
 	}
-
 	Invalidate();
 	RedrawWindow();
 }

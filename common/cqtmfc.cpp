@@ -4286,7 +4286,6 @@ void CListCtrl::itemSelectionChanged()
    nmlv.uNewState |= LVNI_SELECTED;
    nmlv.uOldState = 0;
    
-   SendMessage(WM_REFLECT_BASE+WM_NOTIFY,_id,(LPARAM)&nmlv);
    GetOwner()->SendMessage(WM_NOTIFY,_id,(LPARAM)&nmlv);
 }
 
@@ -4302,7 +4301,6 @@ void CListCtrl::cellClicked(int row, int column)
    nmia.ptAction.x = QCursor::pos().x();
    nmia.ptAction.y = QCursor::pos().y();
    
-   SendMessage(WM_REFLECT_BASE+WM_NOTIFY,_id,(LPARAM)&nmia);
    GetOwner()->SendMessage(WM_NOTIFY,_id,(LPARAM)&nmia);
 }
 
@@ -4318,7 +4316,6 @@ void CListCtrl::cellDoubleClicked(int row, int column)
    nmia.ptAction.x = QCursor::pos().x();
    nmia.ptAction.y = QCursor::pos().y();
    
-   SendMessage(WM_REFLECT_BASE+WM_NOTIFY,_id,(LPARAM)&nmia);
    GetOwner()->SendMessage(WM_NOTIFY,_id,(LPARAM)&nmia);
 }
 
@@ -4334,7 +4331,6 @@ void CListCtrl::clicked(QModelIndex index)
    nmia.ptAction.x = QCursor::pos().x();
    nmia.ptAction.y = QCursor::pos().y();
    
-   SendMessage(WM_REFLECT_BASE+WM_NOTIFY,_id,(LPARAM)&nmia);
    GetOwner()->SendMessage(WM_NOTIFY,_id,(LPARAM)&nmia);
 }
 
@@ -4350,7 +4346,6 @@ void CListCtrl::doubleClicked(QModelIndex index)
    nmia.ptAction.x = QCursor::pos().x();
    nmia.ptAction.y = QCursor::pos().y();
    
-   SendMessage(WM_REFLECT_BASE+WM_NOTIFY,_id,(LPARAM)&nmia);
    GetOwner()->SendMessage(WM_NOTIFY,_id,(LPARAM)&nmia);
 }
 
@@ -6227,6 +6222,8 @@ BEGIN_MESSAGE_MAP(CWnd,CCmdTarget)
    ON_WM_KILLFOCUS()
 END_MESSAGE_MAP()
 
+_AFX_THREAD_STATE CWnd::_afxThreadState;
+
 CWnd::CWnd(CWnd *parent)
    : m_pParentWnd(parent),
      m_pOwnerWnd(parent),
@@ -6380,6 +6377,8 @@ LRESULT CWnd::SendMessage(
    post.msg.message = message;
    post.msg.wParam = wParam;
    post.msg.lParam = lParam;
+
+   _afxThreadState.m_lastSentMsg = post.msg;
 
    handled = QApplication::sendEvent(this,&post);
    
@@ -7004,9 +7003,9 @@ BOOL CWnd::OnCommand(
 //      if (_afxThreadState->m_hLockoutNotifyWindow == m_hWnd)
 //         return TRUE;        // locked out - ignore control notification
    
-//      // reflect notification to child window control
-//      if (ReflectLastMsg(hWndCtrl))
-//         return TRUE;    // eaten by child
+      // reflect notification to child window control
+      if (ReflectLastMsg(hWndCtrl))
+         return TRUE;    // eaten by child
    
       // zero IDs for normal commands are not allowed
       if (nID == 0)
@@ -7020,6 +7019,103 @@ BOOL CWnd::OnCommand(
 #endif
 
    return OnCmdMsg(nID, nCode, NULL, NULL);
+}
+
+BOOL PASCAL CWnd::ReflectLastMsg(HWND hWndChild, LRESULT* pResult)
+{
+   CWnd* pWnd = (CWnd*)hWndChild;
+   ASSERT(pWnd == NULL || pWnd->m_hWnd == hWndChild);
+   if (pWnd == NULL)
+   {
+      return FALSE;
+   }
+
+   // only OLE controls and permanent windows will get reflected msgs
+   ASSERT(pWnd != NULL);
+   return pWnd->SendChildNotifyLastMsg(pResult);
+}
+
+BOOL CWnd::SendChildNotifyLastMsg(LRESULT* pResult)
+{
+   _AFX_THREAD_STATE* pThreadState = _afxThreadState.GetData();
+   return OnChildNotify(pThreadState->m_lastSentMsg.message,
+      pThreadState->m_lastSentMsg.wParam, pThreadState->m_lastSentMsg.lParam, pResult);
+}
+
+
+BOOL CWnd::OnChildNotify(UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT* pResult)
+{
+   return ReflectChildNotify(uMsg, wParam, lParam, pResult);
+}
+
+BOOL CWnd::ReflectChildNotify(UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT* pResult)
+{
+   // Note: reflected messages are send directly to CWnd::OnWndMsg
+   //  and CWnd::OnCmdMsg for speed and because these messages are not
+   //  routed by normal OnCmdMsg routing (they are only dispatched)
+
+   switch (uMsg)
+   {
+   // normal messages (just wParam, lParam through OnWndMsg)
+   case WM_HSCROLL:
+   case WM_VSCROLL:
+   case WM_PARENTNOTIFY:
+   case WM_DRAWITEM:
+   case WM_MEASUREITEM:
+   case WM_DELETEITEM:
+   case WM_VKEYTOITEM:
+   case WM_CHARTOITEM:
+   case WM_COMPAREITEM:
+      // reflect the message through the message map as WM_REFLECT_BASE+uMsg
+      return CWnd::OnWndMsg(WM_REFLECT_BASE+uMsg, wParam, lParam, pResult);
+
+   // special case for WM_COMMAND
+   case WM_COMMAND:
+      {
+         // reflect the message through the message map as OCM_COMMAND
+         int nCode = HIWORD(wParam);
+         if (CWnd::OnCmdMsg(0, MAKELONG(nCode, WM_REFLECT_BASE+WM_COMMAND), NULL, NULL))
+         {
+            if (pResult != NULL)
+               *pResult = 1;
+            return TRUE;
+         }
+      }
+      break;
+
+   // special case for WM_NOTIFY
+   case WM_NOTIFY:
+      {
+         // reflect the message through the message map as OCM_NOTIFY
+         NMHDR* pNMHDR = (NMHDR*)lParam;
+         int nCode = pNMHDR->code;
+         AFX_NOTIFY notify;
+         notify.pResult = pResult;
+         notify.pNMHDR = pNMHDR;
+         return CWnd::OnCmdMsg(0, MAKELONG(nCode, WM_REFLECT_BASE+WM_NOTIFY), &notify, NULL);
+      }
+
+   // other special cases (WM_CTLCOLOR family)
+   default:
+      if (uMsg >= WM_CTLCOLORMSGBOX && uMsg <= WM_CTLCOLORSTATIC)
+      {
+         // fill in special struct for compatiblity with 16-bit WM_CTLCOLOR
+         AFX_CTLCOLOR ctl;
+         ctl.hDC = (HDC)wParam;
+         ctl.nCtlType = uMsg - WM_CTLCOLORMSGBOX;
+         //ASSERT(ctl.nCtlType >= CTLCOLOR_MSGBOX);
+         ASSERT(ctl.nCtlType <= CTLCOLOR_STATIC);
+
+         // reflect the message through the message map as OCM_CTLCOLOR
+         BOOL bResult = CWnd::OnWndMsg(WM_REFLECT_BASE+WM_CTLCOLOR, 0, (LPARAM)&ctl, pResult);
+         if ((HBRUSH)*pResult == NULL)
+            bResult = FALSE;
+         return bResult;
+      }
+      break;
+   }
+
+   return FALSE;   // let the parent handle it
 }
 
 BOOL CWnd::OnNotify(WPARAM, LPARAM lParam, LRESULT* pResult)
@@ -7038,9 +7134,9 @@ BOOL CWnd::OnNotify(WPARAM, LPARAM lParam, LRESULT* pResult)
 //	if (_afxThreadState->m_hLockoutNotifyWindow == m_hWnd)
 //		return TRUE;        // locked out - ignore control notification
 
-//	// reflect notification to child window control
-//	if (ReflectLastMsg(hWndCtrl, pResult))
-//		return TRUE;        // eaten by child
+   // reflect notification to child window control
+   if (ReflectLastMsg(hWndCtrl, pResult))
+      return TRUE;        // eaten by child
 
 	AFX_NOTIFY notify;
 	notify.pResult = pResult;
@@ -7750,9 +7846,11 @@ BOOL CWnd::PostMessage(
       }
    }
 
+   _afxThreadState.m_lastSentMsg = post->msg;
+
    QApplication::postEvent(this,post);
    update();
-   
+
    return true;
 }
 
@@ -8436,7 +8534,22 @@ void CFrameWnd::GetMessageString(
 
 void CFrameWnd::UpdateFrameTitleForDocument(LPCTSTR title)
 {
-   m_pDocument->SetTitle(title);
+   QString windowTitle;
+   CString appName;
+   m_strTitle = title;
+
+#if UNICODE
+   windowTitle = QString::fromWCharArray((LPCTSTR)title);
+#else
+   windowTitle = QString::fromLatin1((LPCTSTR)title);
+#endif
+   m_pDocument->GetDocTemplate()->GetDocString(appName,CDocTemplate::windowTitle);
+#if UNICODE
+   windowTitle += QString::fromWCharArray((LPCTSTR)appName);
+#else
+   windowTitle += QString::fromLatin1((LPCTSTR)appName);
+#endif
+   ptrToTheApp->qtMainWindow->setWindowTitle(windowTitle);
 }
 
 void CFrameWnd::InitialUpdateFrame(
@@ -9402,7 +9515,7 @@ void CToolBar::OnUpdateCmdUI(CFrameWnd* pTarget, BOOL bDisableIfNoHndler)
 
 void CToolBar::toolBarAction_triggered()
 {
-   qDebug("CToolBar::toolBarAction_triggered");
+   qDebug("CToolBar owner %x",GetOwner());
    GetOwner()->SendMessage(WM_COMMAND,qobject_cast<QAction*>(sender())->data().toInt());
 }
 
@@ -10466,11 +10579,10 @@ DWORD CWinThread::ResumeThread( )
    if ( !_initialized )
    {
       pTimer = new QTimer;
-      pTimer->setTimerType(Qt::PreciseTimer);
 
       QObject::connect(pTimer,SIGNAL(timeout()),this,SLOT(onIdleSlot()));
 
-      pTimer->start();
+      pTimer->start(0);
 
       InitInstance();
       _initialized = true;
@@ -10551,6 +10663,10 @@ int CWinThread::Run( )
    {
       m_pfnThreadProc(m_pParam);
    }
+   else
+   {
+      QCoreApplication::processEvents();
+   }
    return 0;
 }
 
@@ -10605,6 +10721,7 @@ void CDocument::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHint)
    ASSERT(pSender == NULL || !_views.count());
 		// must have views if sent by one of them
 
+qDebug("UpdateAllViews:lHint=%d",lHint);
 	POSITION pos = GetFirstViewPosition();
 	while (pos != NULL)
 	{
@@ -10624,34 +10741,9 @@ void CDocument::AddView(
    _views.append(pView);
 }
 
-void CDocument::SetTitle(CString title )
+void CDocument::SetTitle(LPCTSTR title )
 {
-   CString appName;
-   QString windowTitle;
-   QFileInfo fileInfo;
-
-   if ( title.Right(1) == "*" )
-   {
-      m_strTitle = title.Left(title.GetLength()-1);
-   }
-   else
-   {
-      m_strTitle = title;
-   }
-
-#if UNICODE
-   windowTitle = QString::fromWCharArray((LPCTSTR)title);
-#else
-   windowTitle = QString::fromLatin1((LPCTSTR)title);
-#endif
-   fileInfo.setFile(windowTitle);
-   m_pDocTemplate->GetDocString(appName,CDocTemplate::windowTitle);
-#if UNICODE
-   windowTitle = fileInfo.fileName() + QString::fromWCharArray((LPCTSTR)appName);
-#else
-   windowTitle = fileInfo.fileName() + QString::fromLatin1((LPCTSTR)appName);
-#endif
-   ptrToTheApp->qtMainWindow->setWindowTitle(windowTitle);
+   m_strTitle = title;
 }
 
 void CDocument::OnFileSave()
@@ -10700,7 +10792,8 @@ void CDocument::SetPathName(
    m_strPathName = lpszPathName;
    
    QFileInfo fileInfo(lpszPathName);
-   SetTitle(fileInfo.fileName());
+   CString str = fileInfo.fileName();
+   SetTitle(str);
    
    if ( bAddToMRU )
    {
@@ -10930,6 +11023,7 @@ BOOL CDocTemplate::GetDocString(
       break;
 
    case docName:
+      rString = "Untitled";
       break;
 
    case fileNewName:
@@ -11053,7 +11147,7 @@ void CSingleDocTemplate::SetDefaultTitle(
 )
 {
    CString title;
-   GetDocString(title,fileNewName);
+   GetDocString(title,docName);
    pDocument->SetTitle(title);
 }
 
@@ -14950,7 +15044,7 @@ DWORD WINAPI WaitForSingleObject(
       }
       pEvent->addWaiter(waitingSem);
       timedOut = waitingSem->tryAcquire(1,dwMilliseconds);
-      if ( timedOut )
+      if ( !timedOut )
       {
          return WAIT_TIMEOUT;
       }
