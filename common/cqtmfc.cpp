@@ -4260,7 +4260,7 @@ BOOL CListCtrl::Create(
 void CListCtrl::itemSelectionChanged()
 {
    NMLISTVIEW nmlv;
-   
+
    nmlv.hdr.hwndFrom = m_hWnd;
    nmlv.hdr.idFrom = _id;
    nmlv.hdr.code = LVN_ITEMCHANGED;
@@ -8360,21 +8360,11 @@ CFrameWnd::CFrameWnd(CWnd *parent)
 
 CFrameWnd::~CFrameWnd()
 {
-   pIdleTimer->stop();   
-   QObject::disconnect(pIdleTimer, SIGNAL(timeout()), this, SLOT(onIdleSlot()));   
-   delete pIdleTimer;
-   
    delete m_pMenu;
 }
 
 void CFrameWnd::setModified(bool modified)
 {
-}
-
-void CFrameWnd::onIdleSlot()
-{
-   SendMessageToDescendants(WM_IDLEUPDATECMDUI,
-      (WPARAM)TRUE, 0, TRUE, TRUE);
 }
 
 void CFrameWnd::menuAction_triggered(int id)
@@ -8453,11 +8443,6 @@ BOOL CFrameWnd::Create(
 
    // Get focus changes...
    QObject::connect(QApplication::instance(),SIGNAL(focusChanged(QWidget*,QWidget*)),this,SLOT(focusChanged(QWidget*,QWidget*)));
-
-   // Set up for idle...
-   pIdleTimer = new QTimer;
-   QObject::connect(pIdleTimer,SIGNAL(timeout()),this,SLOT(onIdleSlot()));
-   pIdleTimer->start();
 
    if ( !CWnd::Create(lpszClassName,lpszWindowName,dwStyle,rect,pParentWnd,lpszMenuName,dwExStyle,pContext) )
       return FALSE;
@@ -10066,6 +10051,8 @@ CWinThread::~CWinThread()
 void CWinThread::onIdleSlot()
 {
    OnIdle(0);
+   ptrToTheApp->m_pMainWnd->SendMessageToDescendants(WM_IDLEUPDATECMDUI,
+                                                     (WPARAM)TRUE, 0, TRUE, TRUE);
 }
 
 bool CWinThread::event(QEvent *event)

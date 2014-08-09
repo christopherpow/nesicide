@@ -4229,10 +4229,7 @@ public:
 public slots:
    void menuAction_triggered(int id);
    void focusChanged(QWidget* old, QWidget* now);
-   void onIdleSlot();
    void setModified(bool modified);
-protected:
-   QTimer* pIdleTimer;   
    
 signals:
    void addToolBarWidget(QToolBar* toolBar);
