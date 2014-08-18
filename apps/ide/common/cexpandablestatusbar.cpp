@@ -23,7 +23,7 @@ bool CExpandableStatusBar::eventFilter(QObject *object, QEvent *event)
          QMouseEvent* mouseEvent = dynamic_cast<QMouseEvent*>(event);
          touchPos = mapToGlobal(mouseEvent->pos());
          str.sprintf("(%d,%d)",touchPos.x(),touchPos.y());
-//         qDebug(str.toAscii().constData());
+//         qDebug(str.toLatin1().constData());
       }
       if ( event->type() == QEvent::MouseMove )
       {
@@ -45,7 +45,7 @@ bool CExpandableStatusBar::eventFilter(QObject *object, QEvent *event)
 
             touchPos = mapToGlobal(mouseEvent->pos());
             str.sprintf("(%d,%d)",touchPos.x(),touchPos.y());
-//            qDebug(str.toAscii().constData());
+//            qDebug(str.toLatin1().constData());
 
             event->accept();
             return true;

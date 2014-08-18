@@ -78,7 +78,7 @@ void CProjectTreeOpenAction::doVisit(CSubModel *model, const QUuid &uuid)
       if (editor != NULL)
       {
          IProjectTreeViewItem* item = editor->treeLink();
-         if (item != NULL && item->uuid() == uuid)
+         if (item != NULL && item->uuid() == uuid.toString())
          {
             // Found the item, bring to front instead of opening it.
             m_tabWidget->setCurrentIndex(i);

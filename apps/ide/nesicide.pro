@@ -2,11 +2,28 @@
 # Project created by QtCreator 2009-12-07T20:35:20
 # -------------------------------------------------
 QT += network \
-   opengl \
-   webkit \
-   xml
+      opengl \
+      webkitwidgets \
+      xml
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION,4) {
+    QT += widgets
+}
+
+TOP = ../..
+
+CONFIG(release, debug|release) {
+   DESTDIR = release
+} else {
+   DESTDIR = debug
+}
+
+OBJECTS_DIR = $$DESTDIR
+MOC_DIR = $$DESTDIR
+RCC_DIR = $$DESTDIR
+UI_DIR = $$DESTDIR
+
+DEFINES -= UNICODE
 
 TOP = ../..
 
@@ -44,12 +61,7 @@ win32 {
    SDL_LIBS =  -L$$DEPENDENCYPATH/SDL/ -lsdl
 
    SCINTILLA_CXXFLAGS = -I$$DEPENDENCYPATH/Qscintilla
-
-   CONFIG(release, debug|release) {
-      SCINTILLA_LIBS = -L$$DEPENDENCYPATH/Qscintilla/release -lqscintilla2
-   } else {
-      SCINTILLA_LIBS = -L$$DEPENDENCYPATH/Qscintilla/debug -lqscintilla2
-   }
+   SCINTILLA_LIBS = -L$$DEPENDENCYPATH/Qscintilla -lqscintilla2
 
    LUA_CXXFLAGS = -I$$DEPENDENCYPATH/Lua
    LUA_LIBS = $$DEPENDENCYPATH/Lua/liblua.a
@@ -79,6 +91,9 @@ mac {
    NES_CXXFLAGS = -I $$TOP/libs/nes -I $$TOP/libs/nes/emulator -I $$TOP/libs/nes/common
    C64_CXXFLAGS = -I$$TOP/libs/c64 -I$$TOP/libs/c64/emulator -I$$TOP/libs/c64/common
    FAMITRACKER_CXXFLAGS = -I$$TOP/libs/famitracker
+
+   SCINTILLA_CXXFLAGS = -I$$DEPENDENCYPATH/Qscintilla
+   SCINTILLA_LIBS = -L$$DEPENDENCYPATH/Qscintilla -lqscintilla2
 
    SDL_CXXFLAGS = -I $$DEPENDENCYPATH/SDL.framework/Headers
    SDL_LIBS = -F $$DEPENDENCYPATH -framework SDL
@@ -112,14 +127,20 @@ mac {
       @executable_path/../Frameworks/libfamitracker.1.dylib \
       $${DESTDIR}/$${TARGET}.app/Contents/MacOS/nesicide $$escape_expand(\n\t)
 
-   QMAKE_POST_LINK += cp mac/dependencies/libqscintilla2.6.1.0.dylib \
-      $${DESTDIR}/$${TARGET}.app/Contents/Frameworks/libqscintilla2.6.dylib $$escape_expand(\n\t)
-   QMAKE_POST_LINK += install_name_tool -change libqscintilla2.6.dylib \
-      @executable_path/../Frameworks/libqscintilla2.6.dylib \
+   QMAKE_POST_LINK += cp $$DEPENDENCYPATH/Qscintilla/libqscintilla2.11.2.0.dylib \
+      $${DESTDIR}/$${TARGET}.app/Contents/Frameworks/libqscintilla2.11.dylib $$escape_expand(\n\t)
+   QMAKE_POST_LINK += install_name_tool -change libqscintilla2.11.dylib \
+      @executable_path/../Frameworks/libqscintilla2.11.dylib \
       $${DESTDIR}/$${TARGET}.app/Contents/MacOS/nesicide $$escape_expand(\n\t)
 
-   QMAKE_POST_LINK += cp -r ~/Library/Frameworks/Lua.framework \
+   # SDL
+   QMAKE_POST_LINK += cp -r $$DEPENDENCYPATH/SDL.framework \
       $${DESTDIR}/$${TARGET}.app/Contents/Frameworks/ $$escape_expand(\n\t)
+
+   QMAKE_POST_LINK += cp -r $$DEPENDENCYPATH/Lua.framework \
+      $${DESTDIR}/$${TARGET}.app/Contents/Frameworks/ $$escape_expand(\n\t)
+
+   QMAKE_POST_LINK += install_name_tool -add_rpath @loader_path/../Frameworks $${DESTDIR}/$${TARGET}.app/Contents/MacOS/nesicide $$escape_expand(\n\t)
 }
 
 unix:!mac {

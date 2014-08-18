@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "cqtmfc.h"
+
 enum {
 	WM_SIZE_CHANGE = WM_USER, 
 	WM_CURSOR_CHANGE, 
@@ -30,6 +32,7 @@ class CSequence;
 class CGraphEditor;
 class CSizeEditor;
 class CSequenceSetting;
+class CFamiTrackerDoc;
 
 // Sequence editor
 class CSequenceEditor : public CWnd

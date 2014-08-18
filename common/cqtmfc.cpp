@@ -5838,7 +5838,7 @@ union MessageMapFunctions
 	LRESULT (AFX_MSG_CALL CCmdTarget::*pfn_l_v)(); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
 
 	// type safe variant for thread messages
-	void (AFX_MSG_CALL CWinThread::*pfn_THREAD)(WPARAM, LPARAM); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+   void (AFX_MSG_CALL CCmdTarget::*pfn_THREAD)(WPARAM, LPARAM); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
 
 	// specific type safe variants for WM_COMMAND and WM_NOTIFY messages
 	void (AFX_MSG_CALL CCmdTarget::*pfnCmd_v_v)();
@@ -9486,7 +9486,6 @@ void CToolBar::OnUpdateCmdUI(CFrameWnd* pTarget, BOOL bDisableIfNoHndler)
 
 void CToolBar::toolBarAction_triggered()
 {
-   qDebug("CToolBar owner %x",GetOwner());
    GetOwner()->SendMessage(WM_COMMAND,qobject_cast<QAction*>(sender())->data().toInt());
 }
 
@@ -10027,11 +10026,14 @@ END_MESSAGE_MAP()
 CWinThread::CWinThread() : 
    _priority(QThread::NormalPriority),
    pTimer(NULL),
+   pThread(NULL),
    _initialized(false)
 {
    m_hThread = (HANDLE)this;
    m_pfnThreadProc = NULL;
    m_pParam = NULL;
+
+   pThread = new QThread();
    
    m_pMainWnd = NULL;
 }
@@ -10040,19 +10042,12 @@ CWinThread::~CWinThread()
 {
    if ( pTimer )
    {
-      QObject::disconnect(pTimer,SIGNAL(timeout()),this,SLOT(onIdleSlot()));
+      QObject::disconnect(pTimer,SIGNAL(timeout()),this,SLOT(runSlot()));
 
       pTimer->stop();
 
       delete pTimer;
    }
-}
-
-void CWinThread::onIdleSlot()
-{
-   OnIdle(0);
-   ptrToTheApp->m_pMainWnd->SendMessageToDescendants(WM_IDLEUPDATECMDUI,
-                                                     (WPARAM)TRUE, 0, TRUE, TRUE);
 }
 
 bool CWinThread::event(QEvent *event)
@@ -10064,469 +10059,55 @@ bool CWinThread::event(QEvent *event)
       // Terminator.
       if ( msgEvent->msg.message == WM_QUIT )
       {
-         terminate();
-         wait();
+         pThread->terminate();
+         pThread->wait();
          return true;
       }
 
-      // CPTODO: THIS IS A COMPLETE HACK JUST TO GET PostThreadMessage
-      // working as it should be.  Need to find the proper implementation
-      // of message handler for CWinThread.
-      UINT message = msgEvent->msg.message;
-      LPARAM lParam = msgEvent->msg.lParam;
-      WPARAM wParam = msgEvent->msg.wParam;
-      LRESULT lResult = 0;
-      union MessageMapFunctions mmf;
-      mmf.pfn = 0;
+      MSG* pMsg = &msgEvent->msg;
 
       const AFX_MSGMAP* pMessageMap; pMessageMap = GetMessageMap();
-      AFX_MSG_CACHE* pMsgCache; pMsgCache = &_afxMsgCache;
       const AFX_MSGMAP_ENTRY* lpEntry;
-      if (message == pMsgCache->nMsg && pMessageMap == pMsgCache->pMessageMap)
-      {
-         // cache hit
-         lpEntry = pMsgCache->lpEntry;
-         if (lpEntry == NULL)
-            return FALSE;
 
-         // cache hit, and it needs to be handled
-         if (message < 0xC000)
-            goto LDispatch;
+      for (/* pMessageMap already init'ed */; pMessageMap->pfnGetBaseMap != NULL;
+         pMessageMap = (*pMessageMap->pfnGetBaseMap)())
+      {
+         // Note: catch not so common but fatal mistake!!
+         //      BEGIN_MESSAGE_MAP(CMyThread, CMyThread)
+
+         ASSERT(pMessageMap != (*pMessageMap->pfnGetBaseMap)());
+         if (pMsg->message < 0xC000)
+         {
+            // constant window message
+            if ((lpEntry = AfxFindMessageEntry(pMessageMap->lpEntries,
+               pMsg->message, 0, 0)) != NULL)
+               goto LDispatch;
+         }
          else
-            goto LDispatchRegistered;
-      }
-      else
-      {
-         // not in cache, look for it
-         pMsgCache->nMsg = message;
-         pMsgCache->pMessageMap = pMessageMap;
-
-         for (/* pMessageMap already init'ed */; pMessageMap->pfnGetBaseMap != NULL;
-            pMessageMap = (*pMessageMap->pfnGetBaseMap)())
          {
-            // Note: catch not so common but fatal mistake!!
-            //      BEGIN_MESSAGE_MAP(CMyWnd, CMyWnd)
-            ASSERT(pMessageMap != (*pMessageMap->pfnGetBaseMap)());
-            if (message < 0xC000)
+            // registered windows message
+            lpEntry = pMessageMap->lpEntries;
+            while ((lpEntry = AfxFindMessageEntry(lpEntry, 0xC000, 0, 0)) != NULL)
             {
-               // constant window message
-               if ((lpEntry = AfxFindMessageEntry(pMessageMap->lpEntries,
-                  message, 0, 0)) != NULL)
-               {
-                  pMsgCache->lpEntry = lpEntry;
+               UINT* pnID = (UINT*)(lpEntry->nSig);
+               ASSERT(*pnID >= 0xC000);
+                  // must be successfully registered
+               if (*pnID == pMsg->message)
                   goto LDispatch;
-               }
-            }
-            else
-            {
-               // registered windows message
-               lpEntry = pMessageMap->lpEntries;
-               while ((lpEntry = AfxFindMessageEntry(lpEntry, 0xC000, 0, 0)) != NULL)
-               {
-                  UINT* pnID = (UINT*)(lpEntry->nSig);
-                  ASSERT(*pnID >= 0xC000 || *pnID == 0);
-                     // must be successfully registered
-                  if (*pnID == message)
-                  {
-                     pMsgCache->lpEntry = lpEntry;
-                     goto LDispatchRegistered;
-                  }
-                  lpEntry++;      // keep looking past this one
-               }
+               lpEntry++;      // keep looking past this one
             }
          }
-
-         pMsgCache->lpEntry = NULL;
-         return FALSE;
       }
+      return FALSE;
 
-   LDispatch:
-      ASSERT(message < 0xC000);
+      LDispatch:
+         union MessageMapFunctions mmf;
+         mmf.pfn = lpEntry->pfn;
 
-      mmf.pfn = lpEntry->pfn;
+         // always posted, so return value is meaningless
 
-      switch (lpEntry->nSig)
-      {
-      default:
-         ASSERT(FALSE);
-         break;
-      case AfxSig_l_p:
-         {
-            CPoint point(lParam);
-            lResult = (this->*mmf.pfn_l_p)(point);
-            break;
-         }
-      case AfxSig_b_D_v:
-         lResult = (this->*mmf.pfn_b_D)(CDC::FromHandle(reinterpret_cast<HDC>(wParam)));
-         break;
-
-      case AfxSig_b_b_v:
-         lResult = (this->*mmf.pfn_b_b)(static_cast<BOOL>(wParam));
-         break;
-
-      case AfxSig_b_u_v:
-         lResult = (this->*mmf.pfn_b_u)(static_cast<UINT>(wParam));
-         break;
-
-      case AfxSig_b_h_v:
-         lResult = (this->*mmf.pfn_b_h)(reinterpret_cast<HANDLE>(wParam));
-         break;
-
-      case AfxSig_i_u_v:
-         lResult = (this->*mmf.pfn_i_u)(static_cast<UINT>(wParam));
-         break;
-
-      case AfxSig_C_v_v:
-         lResult = reinterpret_cast<LRESULT>((this->*mmf.pfn_C_v)());
-         break;
-
-      case AfxSig_v_u_W:
-         (this->*mmf.pfn_v_u_W)(static_cast<UINT>(wParam),
-            CWnd::FromHandle(reinterpret_cast<HWND>(lParam)));
-         break;
-
-      case AfxSig_u_u_v:
-         lResult = (this->*mmf.pfn_u_u)(static_cast<UINT>(wParam));
-         break;
-
-      case AfxSig_b_v_v:
-         lResult = (this->*mmf.pfn_b_v)();
-         break;
-
-      case AfxSig_b_W_uu:
-         lResult = (this->*mmf.pfn_b_W_u_u)(CWnd::FromHandle(reinterpret_cast<HWND>(wParam)),
-            LOWORD(lParam), HIWORD(lParam));
-         break;
-
-      case AfxSig_b_W_COPYDATASTRUCT:
-         lResult = (this->*mmf.pfn_b_W_COPYDATASTRUCT)(
-            CWnd::FromHandle(reinterpret_cast<HWND>(wParam)),
-            reinterpret_cast<COPYDATASTRUCT*>(lParam));
-         break;
-
-      case AfxSig_b_v_HELPINFO:
-         lResult = (this->*mmf.pfn_b_HELPINFO)(reinterpret_cast<LPHELPINFO>(lParam));
-         break;
-
-      case AfxSig_CTLCOLOR:
-         {
-            // special case for OnCtlColor to avoid too many temporary objects
-            ASSERT(message == WM_CTLCOLOR);
-            AFX_CTLCOLOR* pCtl = reinterpret_cast<AFX_CTLCOLOR*>(lParam);
-            CDC dcTemp;
-            dcTemp.m_hDC = pCtl->hDC;
-            CWnd wndTemp;
-            wndTemp.m_hWnd = pCtl->hWnd;
-            UINT nCtlType = pCtl->nCtlType;
-            // if not coming from a permanent window, use stack temporary
-            CWnd* pWnd = CWnd::FromHandlePermanent(wndTemp.m_hWnd);
-            if (pWnd == NULL)
-            {
-               pWnd = &wndTemp;
-            }
-            HBRUSH hbr = (this->*mmf.pfn_B_D_W_u)(&dcTemp, pWnd, nCtlType);
-            // fast detach of temporary objects
-            dcTemp.m_hDC = NULL;
-            wndTemp.m_hWnd = NULL;
-            lResult = reinterpret_cast<LRESULT>(hbr);
-         }
-         break;
-
-      case AfxSig_CTLCOLOR_REFLECT:
-         {
-            // special case for CtlColor to avoid too many temporary objects
-            ASSERT(message == WM_REFLECT_BASE+WM_CTLCOLOR);
-            AFX_CTLCOLOR* pCtl = reinterpret_cast<AFX_CTLCOLOR*>(lParam);
-            CDC dcTemp;
-            dcTemp.m_hDC = pCtl->hDC;
-            UINT nCtlType = pCtl->nCtlType;
-            HBRUSH hbr = (this->*mmf.pfn_B_D_u)(&dcTemp, nCtlType);
-            // fast detach of temporary objects
-            dcTemp.m_hDC = NULL;
-            lResult = reinterpret_cast<LRESULT>(hbr);
-         }
-         break;
-
-      case AfxSig_i_u_W_u:
-         lResult = (this->*mmf.pfn_i_u_W_u)(LOWORD(wParam),
-            CWnd::FromHandle(reinterpret_cast<HWND>(lParam)), HIWORD(wParam));
-         break;
-
-      case AfxSig_i_uu_v:
-         lResult = (this->*mmf.pfn_i_u_u)(LOWORD(wParam), HIWORD(wParam));
-         break;
-
-      case AfxSig_i_W_uu:
-         lResult = (this->*mmf.pfn_i_W_u_u)(CWnd::FromHandle(reinterpret_cast<HWND>(wParam)),
-            LOWORD(lParam), HIWORD(lParam));
-         break;
-
-      case AfxSig_i_v_s:
-         lResult = (this->*mmf.pfn_i_s)(reinterpret_cast<LPTSTR>(lParam));
-         break;
-
-      case AfxSig_l_w_l:
-         lResult = (this->*mmf.pfn_l_w_l)(wParam, lParam);
-         break;
-
-      case AfxSig_l_uu_M:
-         lResult = (this->*mmf.pfn_l_u_u_M)(LOWORD(wParam), HIWORD(wParam),
-            CMenu::FromHandle(reinterpret_cast<HMENU>(lParam)));
-         break;
-
-      case AfxSig_v_b_h:
-          (this->*mmf.pfn_v_b_h)(static_cast<BOOL>(wParam),
-            reinterpret_cast<HANDLE>(lParam));
-         break;
-
-      case AfxSig_v_h_v:
-          (this->*mmf.pfn_v_h)(reinterpret_cast<HANDLE>(wParam));
-         break;
-
-      case AfxSig_v_h_h:
-          (this->*mmf.pfn_v_h_h)(reinterpret_cast<HANDLE>(wParam),
-            reinterpret_cast<HANDLE>(lParam));
-         break;
-
-      case AfxSig_v_v_v:
-         (this->*mmf.pfn_v_v)();
-         break;
-
-      case AfxSig_v_u_v:
-         (this->*mmf.pfn_v_u)(static_cast<UINT>(wParam));
-         break;
-
-      case AfxSig_v_u_u:
-         (this->*mmf.pfn_v_u_u)(static_cast<UINT>(wParam), static_cast<UINT>(lParam));
-         break;
-
-      case AfxSig_v_uu_v:
-         (this->*mmf.pfn_v_u_u)(LOWORD(wParam), HIWORD(wParam));
-         break;
-
-      case AfxSig_v_v_ii:
-         (this->*mmf.pfn_v_i_i)(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-         break;
-
-      case AfxSig_v_u_uu:
-         (this->*mmf.pfn_v_u_u_u)(static_cast<UINT>(wParam), LOWORD(lParam), HIWORD(lParam));
-         break;
-
-      case AfxSig_v_u_ii:
-         (this->*mmf.pfn_v_u_i_i)(static_cast<UINT>(wParam), LOWORD(lParam), HIWORD(lParam));
-         break;
-
-      case AfxSig_v_w_l:
-         (this->*mmf.pfn_v_w_l)(wParam, lParam);
-         break;
-
-//      case AfxSig_MDIACTIVATE:
-//         (this->*mmf.pfn_v_b_W_W)(m_hWnd == reinterpret_cast<HWND>(lParam),
-//            CWnd::FromHandle(reinterpret_cast<HWND>(lParam)),
-//            CWnd::FromHandle(reinterpret_cast<HWND>(wParam)));
-//         break;
-
-      case AfxSig_v_D_v:
-         (this->*mmf.pfn_v_D)(CDC::FromHandle(reinterpret_cast<HDC>(wParam)));
-         break;
-
-      case AfxSig_v_M_v:
-         (this->*mmf.pfn_v_M)(CMenu::FromHandle(reinterpret_cast<HMENU>(wParam)));
-         break;
-
-      case AfxSig_v_M_ub:
-         (this->*mmf.pfn_v_M_u_b)(CMenu::FromHandle(reinterpret_cast<HMENU>(wParam)),
-            GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-         break;
-
-      case AfxSig_v_W_v:
-         (this->*mmf.pfn_v_W)(CWnd::FromHandle(reinterpret_cast<HWND>(wParam)));
-         break;
-
-      case AfxSig_v_v_W:
-         (this->*mmf.pfn_v_W)(CWnd::FromHandle(reinterpret_cast<HWND>(lParam)));
-         break;
-
-      case AfxSig_v_W_uu:
-         (this->*mmf.pfn_v_W_u_u)(CWnd::FromHandle(reinterpret_cast<HWND>(wParam)), LOWORD(lParam),
-            HIWORD(lParam));
-         break;
-
-      case AfxSig_v_W_p:
-         {
-            CPoint point(lParam);
-            (this->*mmf.pfn_v_W_p)(CWnd::FromHandle(reinterpret_cast<HWND>(wParam)), point);
-         }
-         break;
-
-      case AfxSig_v_W_h:
-         (this->*mmf.pfn_v_W_h)(CWnd::FromHandle(reinterpret_cast<HWND>(wParam)),
-               reinterpret_cast<HANDLE>(lParam));
-         break;
-
-      case AfxSig_ACTIVATE:
-         (this->*mmf.pfn_v_u_W_b)(LOWORD(wParam),
-            CWnd::FromHandle(reinterpret_cast<HWND>(lParam)), HIWORD(wParam));
-         break;
-
-      case AfxSig_SCROLL:
-      case AfxSig_SCROLL_REFLECT:
-         {
-            // special case for WM_VSCROLL and WM_HSCROLL
-            ASSERT(message == WM_VSCROLL || message == WM_HSCROLL ||
-               message == WM_VSCROLL+WM_REFLECT_BASE || message == WM_HSCROLL+WM_REFLECT_BASE);
-            int nScrollCode = (short)LOWORD(wParam);
-            int nPos = (short)HIWORD(wParam);
-            if (lpEntry->nSig == AfxSig_SCROLL)
-               (this->*mmf.pfn_v_u_u_W)(nScrollCode, nPos,
-                  CWnd::FromHandle(reinterpret_cast<HWND>(lParam)));
-            else
-               (this->*mmf.pfn_v_u_u)(nScrollCode, nPos);
-         }
-         break;
-
-      case AfxSig_v_v_s:
-         (this->*mmf.pfn_v_s)(reinterpret_cast<LPTSTR>(lParam));
-         break;
-
-      case AfxSig_v_u_cs:
-         (this->*mmf.pfn_v_u_cs)(static_cast<UINT>(wParam), reinterpret_cast<LPCTSTR>(lParam));
-         break;
-
-      case AfxSig_OWNERDRAW:
-         (this->*mmf.pfn_v_i_s)(static_cast<int>(wParam), reinterpret_cast<LPTSTR>(lParam));
-         lResult = TRUE;
-         break;
-
-      case AfxSig_i_i_s:
-         lResult = (this->*mmf.pfn_i_i_s)(static_cast<int>(wParam), reinterpret_cast<LPTSTR>(lParam));
-         break;
-
-      case AfxSig_u_v_p:
-         {
-            CPoint point(lParam);
-            lResult = (this->*mmf.pfn_u_p)(point);
-         }
-         break;
-
-      case AfxSig_u_v_v:
-         lResult = (this->*mmf.pfn_u_v)();
-         break;
-
-      case AfxSig_v_b_NCCALCSIZEPARAMS:
-         (this->*mmf.pfn_v_b_NCCALCSIZEPARAMS)(static_cast<BOOL>(wParam),
-            reinterpret_cast<NCCALCSIZE_PARAMS*>(lParam));
-         break;
-
-      case AfxSig_v_v_WINDOWPOS:
-         (this->*mmf.pfn_v_v_WINDOWPOS)(reinterpret_cast<WINDOWPOS*>(lParam));
-         break;
-
-      case AfxSig_v_uu_M:
-         (this->*mmf.pfn_v_u_u_M)(LOWORD(wParam), HIWORD(wParam), reinterpret_cast<HMENU>(lParam));
-         break;
-
-      case AfxSig_v_u_p:
-         {
-            CPoint point(lParam);
-            (this->*mmf.pfn_v_u_p)(static_cast<UINT>(wParam), point);
-         }
-         break;
-
-      case AfxSig_SIZING:
-         (this->*mmf.pfn_v_u_pr)(static_cast<UINT>(wParam), reinterpret_cast<LPRECT>(lParam));
-         lResult = TRUE;
-         break;
-
-      case AfxSig_MOUSEWHEEL:
-         lResult = (this->*mmf.pfn_b_u_s_p)(LOWORD(wParam), (short)HIWORD(wParam),
-            CPoint(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)));
-         if (!lResult)
-            return FALSE;
-         break;
-      case AfxSig_MOUSEHWHEEL:
-         qDebug("AfxSig_MOUSEWHEEL");
-   //		(this->*mmf.pfn_MOUSEHWHEEL)(LOWORD(wParam), (short)HIWORD(wParam),
-   //			CPoint(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)));
-         break;
-      case AfxSig_l:
-         lResult = (this->*mmf.pfn_l_v)();
-         if (lResult != 0)
-            return FALSE;
-         break;
-      case AfxSig_u_W_u:
-         qDebug("AfxSig_u_W_u");
-   //		lResult = (this->*mmf.pfn_u_W_u)(CWnd::FromHandle(reinterpret_cast<HWND>(wParam)), static_cast<UINT>(lParam));
-         break;
-      case AfxSig_v_u_M:
-         qDebug("AfxSig_v_u_M");
-   //		(this->*mmf.pfn_v_u_M)(static_cast<UINT>(wParam), CMenu::FromHandle(reinterpret_cast<HMENU>(lParam)));
-         break;
-      case AfxSig_u_u_M:
-         qDebug("AfxSig_u_u_M");
-   //		lResult = (this->*mmf.pfn_u_u_M)(static_cast<UINT>(wParam), CMenu::FromHandle(reinterpret_cast<HMENU>(lParam)));
-         break;
-      case AfxSig_u_v_MENUGETOBJECTINFO:
-         qDebug("AfxSig_u_v_MENUGETOBJECTINFO");
-   //		lResult = (this->*mmf.pfn_u_v_MENUGETOBJECTINFO)(reinterpret_cast<MENUGETOBJECTINFO*>(lParam));
-         break;
-      case AfxSig_v_M_u:
-         qDebug("AfxSig_v_M_u");
-   //		(this->*mmf.pfn_v_M_u)(CMenu::FromHandle(reinterpret_cast<HMENU>(wParam)), static_cast<UINT>(lParam));
-         break;
-      case AfxSig_v_u_LPMDINEXTMENU:
-         qDebug("AfxSig_v_u_LPMDINEXTMENU");
-   //		(this->*mmf.pfn_v_u_LPMDINEXTMENU)(static_cast<UINT>(wParam), reinterpret_cast<LPMDINEXTMENU>(lParam));
-         break;
-      case AfxSig_APPCOMMAND:
-         qDebug("AfxSig_APPCOMMAND");
-   //		(this->*mmf.pfn_APPCOMMAND)(CWnd::FromHandle(reinterpret_cast<HWND>(wParam)), static_cast<UINT>(GET_APPCOMMAND_LPARAM(lParam)), static_cast<UINT>(GET_DEVICE_LPARAM(lParam)), static_cast<UINT>(GET_KEYSTATE_LPARAM(lParam)));
-         lResult = TRUE;
-         break;
-      case AfxSig_RAWINPUT:
-         qDebug("AfxSig_RAWINPUT");
-   //		(this->*mmf.pfn_RAWINPUT)(static_cast<UINT>(GET_RAWINPUT_CODE_WPARAM(wParam)), reinterpret_cast<HRAWINPUT>(lParam));
-         break;
-      case AfxSig_u_u_u:
-         qDebug("AfxSig_u_u_u");
-   //		lResult = (this->*mmf.pfn_u_u_u)(static_cast<UINT>(wParam), static_cast<UINT>(lParam));
-         break;
-      case AfxSig_MOUSE_XBUTTON:
-         qDebug("AfxSig_MOUSE_XBUTTON");
-   //		(this->*mmf.pfn_MOUSE_XBUTTON)(static_cast<UINT>(GET_KEYSTATE_WPARAM(wParam)), static_cast<UINT>(GET_XBUTTON_WPARAM(wParam)), CPoint(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)));
-         lResult = TRUE;
-         break;
-      case AfxSig_MOUSE_NCXBUTTON:
-         qDebug("AfxSig_MOUSE_NCXBUTTON");
-   //		(this->*mmf.pfn_MOUSE_NCXBUTTON)(static_cast<short>(GET_NCHITTEST_WPARAM(wParam)), static_cast<UINT>(GET_XBUTTON_WPARAM(wParam)), CPoint(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)));
-         lResult = TRUE;
-         break;
-      case AfxSig_INPUTLANGCHANGE:
-         qDebug("AfxSig_INPUTLANGCHANGE");
-   //		(this->*mmf.pfn_INPUTLANGCHANGE)(static_cast<UINT>(wParam), static_cast<UINT>(lParam));
-         lResult = TRUE;
-         break;
-      case AfxSig_INPUTDEVICECHANGE:
-         qDebug("AfxSig_INPUTDEVICECHANGE");
-   //		(this->*mmf.pfn_INPUTDEVICECHANGE)(GET_DEVICE_CHANGE_LPARAM(wParam), reinterpret_cast<HANDLE>(lParam));
-         break;
-      case AfxSig_v_u_hkl:
-         qDebug("AfxSig_v_u_h");
-   //		(this->*mmf.pfn_v_u_h)(static_cast<UINT>(wParam), reinterpret_cast<HKL>(lParam));
-         break;
-      }
-      goto LReturnTrue;
-
-   LDispatchRegistered:    // for registered windows messages
-      ASSERT(message >= 0xC000);
-      ASSERT(sizeof(mmf) == sizeof(mmf.pfn));
-      mmf.pfn = lpEntry->pfn;
-      lResult = (this->*mmf.pfn_l_w_l)(wParam, lParam);
-
-   LReturnTrue:
-//      if (pResult != NULL)
-//         *pResult = lResult;
-      return TRUE;
+         (this->*mmf.pfn_THREAD)(pMsg->wParam, pMsg->lParam);
+         return TRUE;
    }
    return proc;
 }
@@ -10538,6 +10119,9 @@ BOOL CWinThread::CreateThread(
 )
 {
    m_pMainWnd = AfxGetMainWnd();
+
+   pThread = new QThread();
+   moveToThread(pThread);
 
    if ( !(dwCreateFlags&CREATE_SUSPENDED) )
    {      
@@ -10551,18 +10135,20 @@ DWORD CWinThread::ResumeThread( )
 {
    if ( !_initialized )
    {
+      InitInstance();
+
       pTimer = new QTimer;
 
-      QObject::connect(pTimer,SIGNAL(timeout()),this,SLOT(onIdleSlot()));
+      pTimer->start();
+      pTimer->moveToThread(pThread);
 
-      pTimer->start(0);
+      QObject::connect(pTimer,SIGNAL(timeout()),this,SLOT(runSlot()));
 
-      InitInstance();
       _initialized = true;
    }
-   if ( !isRunning() )
+   if ( !pThread->isRunning() )
    {
-      start();
+      pThread->start();
       return 0;
    }
    else
@@ -10618,7 +10204,7 @@ BOOL CWinThread::PostThreadMessage(
    return true;
 }
 
-void CWinThread::run()
+void CWinThread::runSlot()
 {
 #ifdef Q_OS_MAC
       m_nThreadID = QThread::currentThreadId();
@@ -10626,7 +10212,7 @@ void CWinThread::run()
       m_nThreadID = (DWORD)QThread::currentThreadId();
 #endif
 
-   setPriority(_priority);
+   pThread->setPriority(_priority);
    Run();
 }
 
@@ -10635,11 +10221,15 @@ int CWinThread::Run( )
    if ( m_pfnThreadProc )
    {
       m_pfnThreadProc(m_pParam);
+      return 0;
    }
-   else
+
+   if ( pThread->thread() == QApplication::instance()->thread() )
    {
-      QCoreApplication::processEvents();
-   }
+   OnIdle(0);
+   ptrToTheApp->m_pMainWnd->SendMessageToDescendants(WM_IDLEUPDATECMDUI,
+                                                     (WPARAM)TRUE, 0, TRUE, TRUE);
+}
    return 0;
 }
 
@@ -11555,7 +11145,7 @@ UINT CWinApp::GetProfileInt(
    key += QString::fromLatin1(lpszEntry);
 #endif
 //   qDebug("StoreSetting");
-//   qDebug(key.toAscii().constData());
+//   qDebug(key.toLatin1().constData());
 
    if ( settings.contains(key) )
    {

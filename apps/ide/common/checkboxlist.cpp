@@ -12,7 +12,11 @@
 
 #include "checkboxlist.h"
 #include <QtGui>
-
+#include <QItemDelegate>
+#include <QApplication>
+#include <QCheckBox>
+#include <QAbstractItemView>
+#include <QStylePainter>
 
 // internal private delegate
 class CheckBoxListDelegate : public QItemDelegate

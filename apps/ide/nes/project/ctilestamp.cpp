@@ -294,7 +294,7 @@ void CTileStamp::saveItemEvent()
    m_attr = editor()->attributeData();
 
    editor()->currentSize(&m_xSize,&m_ySize);
-   m_attrTblUUID = editor()->currentAttributeTable();
+   m_attrTblUUID = editor()->currentAttributeTable().toString();
    m_grid = editor()->isGridEnabled();
    m_tileProperties = editor()->tileProperties();
 

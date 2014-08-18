@@ -677,11 +677,11 @@ void CodeEditorForm::updateToolTip(QString symbol)
    // First check for opcode tooltips.
    if ( EnvironmentSettingsDialog::showOpcodeTips() )
    {
-      opcodeToolTipText = OPCODEINFO(symbol.toAscii().constData());
+      opcodeToolTipText = OPCODEINFO(symbol.toLatin1().constData());
       if ( opcodeToolTipText )
       {
          opcodeToolTipForm.sprintf("<pre>%s</pre>",opcodeToolTipText);
-         setToolTip(opcodeToolTipForm.toAscii().constData());
+         setToolTip(opcodeToolTipForm.toLatin1().constData());
       }
    }
 
@@ -716,11 +716,11 @@ void CodeEditorForm::updateToolTip(QString symbol)
 
             if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
             {
-               sprintf(toolTipText,TOOLTIP_LABEL,symbol.toAscii().constData(),file.toAscii().constData(),line,address,nesGetMemory(addr));
+               sprintf(toolTipText,TOOLTIP_LABEL,symbol.toLatin1().constData(),file.toLatin1().constData(),line,address,nesGetMemory(addr));
             }
             else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
             {
-               sprintf(toolTipText,TOOLTIP_LABEL,symbol.toAscii().constData(),file.toAscii().constData(),line,address,c64GetMemory(addr));
+               sprintf(toolTipText,TOOLTIP_LABEL,symbol.toLatin1().constData(),file.toLatin1().constData(),line,address,c64GetMemory(addr));
             }
             setToolTip(toolTipText);
          }
@@ -729,7 +729,7 @@ void CodeEditorForm::updateToolTip(QString symbol)
       {
          addr = CCC65Interface::getSymbolAddress(symbol);
 
-         sprintf(toolTipText,TOOLTIP_EQUATE,symbol.toAscii().constData(),addr);
+         sprintf(toolTipText,TOOLTIP_EQUATE,symbol.toLatin1().constData(),addr);
          setToolTip(toolTipText);
       }
    }
@@ -794,9 +794,9 @@ void CodeEditorForm::on_actionRun_to_here_triggered()
    int addr = 0;
    int absAddr = 0;
 
-   addr = pasm_get_source_addr_by_linenum_and_file ( m_ctxtTextCursor.blockNumber()+1, ui->textEdit->documentTitle().toAscii().constData() );
+   addr = pasm_get_source_addr_by_linenum_and_file ( m_ctxtTextCursor.blockNumber()+1, ui->textEdit->documentTitle().toLatin1().constData() );
 
-   absAddr = pasm_get_source_absolute_addr_by_linenum_and_file ( m_ctxtTextCursor.blockNumber()+1, ui->textEdit->documentTitle().toAscii().constData() );
+   absAddr = pasm_get_source_absolute_addr_by_linenum_and_file ( m_ctxtTextCursor.blockNumber()+1, ui->textEdit->documentTitle().toLatin1().constData() );
 
    if ( addr != -1 )
    {

@@ -60,7 +60,7 @@ bool CSourceItem::serializeContent()
 
       if ( fileOut.open(QIODevice::ReadWrite|QIODevice::Truncate|QIODevice::Text) )
       {
-         fileOut.write(sourceCode().toAscii());
+         fileOut.write(sourceCode().toLatin1());
       }
 
       m_editor->setModified(false);

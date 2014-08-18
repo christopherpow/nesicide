@@ -74,7 +74,7 @@ extern "C" void SDL_Emulator(void* userdata, uint8_t* stream, int32_t len)
    QString str;
    str.sprintf("Smp: %d, Freq: %d, Ctr: %d, Diff %d, Per %lf", len>>1, f.LowPart, t.LowPart,t.LowPart-to.LowPart,(float)(t.LowPart-to.LowPart)/(float)f.LowPart);
    to = t;
-   qDebug(str.toAscii().constData());
+   qDebug(str.toLatin1().constData());
 #endif
    if ( nesGetAudioSamplesAvailable() >= (len>>1) )
    {

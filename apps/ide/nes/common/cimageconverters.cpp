@@ -66,7 +66,6 @@ QImage CImageConverters::toIndexed8(QByteArray chrIn, int xSize, int ySize)
    char plane2;
    char pixel;
 
-   imgOut.setNumColors(16);
    imgOut.setColorCount(16);
    imgOut.setColor(0,qRgb(0x00,0x00,0x00));
    imgOut.setColor(1,qRgb(0x40,0x40,0x40));
@@ -130,7 +129,6 @@ QImage CImageConverters::toIndexed8(QByteArray chrIn, QList<int> colorTable, int
    // Constrain to "left-and-right banks" for 256x128 CHR image if necessary.
    if ( (tileHeight <= 16) && (tileWidth > 16) ) tileWidth = 16;
 
-   imgOut.setNumColors(16);
    imgOut.setColorCount(16);
    for ( idx = 0; idx < colorTable.count(); idx++ )
    {
@@ -203,7 +201,6 @@ QImage CImageConverters::toIndexed8(QByteArray chrIn, QByteArray attrIn, QList<u
    if ( attrQuadsX == 0 ) attrQuadsX = 1;
    if ( attrQuadsY == 0 ) attrQuadsY = 1;
 
-   imgOut.setNumColors(16);
    imgOut.setColorCount(16);
    for ( idx = 0; idx < colorTable.count(); idx++ )
    {

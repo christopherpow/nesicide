@@ -65,7 +65,7 @@ T* findItemByUuid(CNesicideProject* project, const QUuid& uuid)
    IProjectTreeViewItemIterator iter(project);
    while ( iter.current() != NULL )
    {
-      if (iter.current()->uuid() == uuid)
+      if (iter.current()->uuid() == uuid.toString())
       {
          CProjectBase* item = dynamic_cast<CProjectBase*>(iter.current());
          if ( item == NULL )

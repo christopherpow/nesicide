@@ -60,28 +60,14 @@ mac {
 
    QMAKE_POST_LINK += mkdir -p $${DESTDIR}/$${TARGET}.app/Contents/Frameworks $$escape_expand(\n\t)
 
-   # copy lib from debug/release or base
-#   QMAKE_POST_LINK += cp $$TOP/libs/famitracker/$$DESTDIR/libfamitracker.1.0.0.dylib \
-#      $${DESTDIR}/$${TARGET}.app/Contents/Frameworks/libfamitracker.1.dylib || true $$escape_expand(\n\t)
-
-#   QMAKE_POST_LINK += ln -s $$TOP/libs/famitracker/$$DESTDIR/libfamitracker.1.0.0.dylib \
-#                      $${DESTDIR}/$${TARGET}.app/Contents/Frameworks/libfamitracker.1.dylib || true $$escape_expand(\n\t)
-
    QMAKE_POST_LINK += install_name_tool -change libfamitracker.1.dylib \
        $$TOP/../../../../libs/famitracker/$$DESTDIR/libfamitracker.1.0.0.dylib \
        $${DESTDIR}/$${TARGET}.app/Contents/MacOS/famitracker $$escape_expand(\n\t)
-
-#   QMAKE_POST_LINK += install_name_tool -change libfamitracker.1.dylib \
-#      @executable_path/../Frameworks/libfamitracker.1.dylib \
-#      $${DESTDIR}/$${TARGET}.app/Contents/MacOS/famitracker $$escape_expand(\n\t)
 
    # SDL
    QMAKE_POST_LINK += cp -r $$DEPENDENCYPATH/SDL.framework \
       $${DESTDIR}/$${TARGET}.app/Contents/Frameworks/ $$escape_expand(\n\t)
    QMAKE_POST_LINK += install_name_tool -add_rpath @loader_path/../Frameworks $${DESTDIR}/$${TARGET}.app/Contents/MacOS/famitracker $$escape_expand(\n\t)
-   #QMAKE_POST_LINK += install_name_tool -change SDL \
-   #   @executable_path/../Frameworks/SDL.framework/SDL \
-   #   $${DESTDIR}/$${TARGET}.app/Contents/MacOS/famitracker $$escape_expand(\n\t)
 }
 
 unix:!mac {

@@ -58,7 +58,7 @@ int CNesicideProject::findSource ( char* objname, char** objdata, int* size )
          source = dynamic_cast<CSourceItem*>(iter.current());
          if ( source )
          {
-            (*objdata) = strdup(source->sourceCode().toAscii().constData());
+            (*objdata) = strdup(source->sourceCode().toLatin1().constData());
             (*size) = strlen((*objdata));
          }
          break;
@@ -922,16 +922,16 @@ bool CNesicideProject::exportData()
          if ( propertyItem.type == propertyEnumeration )
          {
             projHdrFile.write(".enum ");
-            projHdrFile.write(propertyItem.name.toAscii());
+            projHdrFile.write(propertyItem.name.toLatin1());
             projHdrFile.write("\n");
 
             items = getEnumItems(propertyItem.value);
             foreach ( PropertyEnumItem enumItem, items )
             {
                projHdrFile.write("\t");
-               projHdrFile.write(enumItem.symbol.toAscii());
+               projHdrFile.write(enumItem.symbol.toLatin1());
                projHdrFile.write(" = ");
-               projHdrFile.write(enumItem.value.toAscii());
+               projHdrFile.write(enumItem.value.toLatin1());
                projHdrFile.write("\n");
             }
 

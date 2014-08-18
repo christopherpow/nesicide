@@ -115,7 +115,7 @@ void CProjectModel::visitDataItem(const QUuid &uuid, IUuidVisitor &visitor)
    IProjectTreeViewItemIterator iter(m_pProject);
    while ( iter.current() != NULL )
    {
-      if (iter.current()->uuid() == uuid)
+      if (iter.current()->uuid() == uuid.toString())
       {
          // Convert item to ProjectBase.
          CProjectBase* item = dynamic_cast<CProjectBase*>(iter.current());

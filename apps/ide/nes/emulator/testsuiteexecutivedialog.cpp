@@ -270,7 +270,7 @@ void TestSuiteExecutiveDialog::doTestPhase()
 
       crypto.addData((char*)nesGetTVOut(),256*240*4);
 
-      if ( crypto.result().toBase64() != previousSha1.toAscii() )
+      if ( crypto.result().toBase64() != previousSha1.toLatin1() )
       {
          int result;
 

@@ -32,19 +32,19 @@ void CPluginManager::doInitScript()
    struct stat stFileInfo;
    QString filePath = initScriptPath;
 
-   if (!stat((filePath = QString(initScriptPath)).toAscii().constData(), &stFileInfo))
+   if (!stat((filePath = QString(initScriptPath)).toLatin1().constData(), &stFileInfo))
    {
       // the script is in a plugin folder in the same folder as a distributed application
    }
-   else if (!stat((filePath = QString("nesicide.app/Contents/Resources/")+initScriptPath).toAscii().constData(), &stFileInfo))
+   else if (!stat((filePath = QString("nesicide.app/Contents/Resources/")+initScriptPath).toLatin1().constData(), &stFileInfo))
    {
       // normal path to scripts when dubbel clicking on an application
    }
-   else if (!stat((filePath = QString("../../../")+initScriptPath).toAscii().constData(), &stFileInfo))
+   else if (!stat((filePath = QString("../../../")+initScriptPath).toLatin1().constData(), &stFileInfo))
    {
       // the script is in a plugin folder in the same folder as an application that's debugged with Qt
    }
-   else if (!stat((filePath = QString("../Resources/")+initScriptPath).toAscii().constData(), &stFileInfo))
+   else if (!stat((filePath = QString("../Resources/")+initScriptPath).toLatin1().constData(), &stFileInfo))
    {
       // path to find scripts when using the Qt debuger
    }
@@ -53,10 +53,10 @@ void CPluginManager::doInitScript()
       // no more place to look for the script, bailing out... lua will do the error handling though
    }
 
-   report(globalLuaInstance, status = luaL_dofile(globalLuaInstance, filePath.toAscii().constData()));
+   report(globalLuaInstance, status = luaL_dofile(globalLuaInstance, filePath.toLatin1().constData()));
 #else
    QString filePath = QCoreApplication::applicationDirPath()+"/"+QString(initScriptPath);
-   report(globalLuaInstance, status = luaL_dofile(globalLuaInstance, filePath.toAscii().constData()));
+   report(globalLuaInstance, status = luaL_dofile(globalLuaInstance, filePath.toLatin1().constData()));
 #endif
 }
 
@@ -72,19 +72,19 @@ void CPluginManager::loadPlugins()
    struct stat stFileInfo;
    QString filePath = pluginPath;
 
-   if (!stat((filePath = QString(pluginPath)).toAscii().constData(), &stFileInfo))
+   if (!stat((filePath = QString(pluginPath)).toLatin1().constData(), &stFileInfo))
    {
       // the script is in a plugin folder in the same folder as a distributed application
    }
-   else if (!stat((filePath = QString("nesicide.app/Contents/Resources/")+pluginPath).toAscii().constData(), &stFileInfo))
+   else if (!stat((filePath = QString("nesicide.app/Contents/Resources/")+pluginPath).toLatin1().constData(), &stFileInfo))
    {
       // normal path to scripts when dubbel clicking on an application
    }
-   else if (!stat((filePath = QString("../../../")+pluginPath).toAscii().constData(), &stFileInfo))
+   else if (!stat((filePath = QString("../../../")+pluginPath).toLatin1().constData(), &stFileInfo))
    {
       // the script is in a plugin folder in the same folder as an application that's debugged with Qt
    }
-   else if (!stat((filePath = QString("../Resources/")+pluginPath).toAscii().constData(), &stFileInfo))
+   else if (!stat((filePath = QString("../Resources/")+pluginPath).toLatin1().constData(), &stFileInfo))
    {
       // path to find scripts when using the Qt debuger
    }
@@ -93,7 +93,7 @@ void CPluginManager::loadPlugins()
       // no more place to look for the script, bailing out... lua will do the error handling though
    }
 
-   QDir pluginDir(filePath.toAscii().constData());
+   QDir pluginDir(filePath.toLatin1().constData());
 #else
    QDir pluginDir(pluginPath);
 #endif
@@ -143,7 +143,7 @@ void CPluginManager::loadPlugins()
                {
                   generalTextLogger->write ( "&nbsp;&nbsp;&nbsp;loading logic" );
 
-                  if (report(globalLuaInstance, luaL_dostring(globalLuaInstance, luascript.toAscii())))
+                  if (report(globalLuaInstance, luaL_dostring(globalLuaInstance, luascript.toLatin1())))
                   {
                      continue; // ignore rest of the plugin and continue with next one if we couldn't load the script
                   }
@@ -156,7 +156,7 @@ void CPluginManager::loadPlugins()
             {
                //onLoad
                generalTextLogger->write ( "&nbsp;&nbsp;&nbsp;call onLoadFunc \"" + onLoad + "\"");
-               lua_getglobal(globalLuaInstance, onLoad.toAscii());
+               lua_getglobal(globalLuaInstance, onLoad.toLatin1());
 
                if (report(globalLuaInstance, lua_pcall(globalLuaInstance, 0, LUA_MULTRET, 0)))
                {

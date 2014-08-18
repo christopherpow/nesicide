@@ -326,7 +326,7 @@ void MainWindow::onIdleSlot()
    CFamiTrackerDoc* pDoc = (CFamiTrackerDoc*)pMainFrame->GetActiveDocument();
    CFamiTrackerView* pView = (CFamiTrackerView*)pMainFrame->GetActiveView();
    static int lastFrame = -1;
-   
+
    ui->sampleWindow->update();
 
    if ( m_bCheck )

@@ -70,12 +70,12 @@ QMenu& CDesignerEditorBase::editorMenu()
 
    if ( _treeLink )
    {
-      str.sprintf("Undo '%s'",_treeLink->caption().toAscii().constData());
+      str.sprintf("Undo '%s'",_treeLink->caption().toLatin1().constData());
    }
    actions.append(m_undoStack.createUndoAction(this,str));
    if ( _treeLink )
    {
-      str.sprintf("Redo '%s'",_treeLink->caption().toAscii().constData());
+      str.sprintf("Redo '%s'",_treeLink->caption().toLatin1().constData());
    }
    actions.append(m_undoStack.createRedoAction(this,str));
 

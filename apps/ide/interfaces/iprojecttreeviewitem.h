@@ -120,7 +120,7 @@ private:
 //   IProjectTreeViewItemIterator iter();
 //   while ( iter.current() != NULL )
 //   {
-//      qDebug(iter.current()->caption().toAscii().data());
+//      qDebug(iter.current()->caption().toLatin1().data());
 //      iter.next();
 //   }
 //
@@ -128,7 +128,7 @@ private:
 //   IProjectTreeViewItemIterator iter(pCartridge);
 //   while ( iter.current() != NULL )
 //   {
-//      qDebug(iter.current()->caption().toAscii().data());
+//      qDebug(iter.current()->caption().toLatin1().data());
 //      iter.next();
 //   }
 class IProjectTreeViewItemIterator

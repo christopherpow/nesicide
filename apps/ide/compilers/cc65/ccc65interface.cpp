@@ -230,7 +230,7 @@ bool CCC65Interface::createMakefile()
       }
 
       // Write the file to disk.
-      makeFile.write(makeFileContent.toAscii());
+      makeFile.write(makeFileContent.toLatin1());
 
       makeFile.close();
       res.close();
@@ -374,7 +374,7 @@ bool CCC65Interface::captureDebugInfo()
 
    CCC65Interface::clear();
 
-   dbgInfo = cc65_read_dbginfo(dbgInfoFile.toAscii().constData(), ErrorFunc);
+   dbgInfo = cc65_read_dbginfo(dbgInfoFile.toLatin1().constData(), ErrorFunc);
 
    if (dbgInfo == 0)
    {
@@ -557,7 +557,7 @@ cc65_symbol_type CCC65Interface::getSymbolType(QString symbol, int index)
 
    if ( dbgInfo )
    {
-      dbgSymbols = cc65_symbol_byname(dbgInfo,symbol.toAscii().constData());
+      dbgSymbols = cc65_symbol_byname(dbgInfo,symbol.toLatin1().constData());
 
       if ( dbgSymbols )
       {
@@ -583,7 +583,7 @@ unsigned int CCC65Interface::getSymbolAddress(QString symbol, int index)
    // proper symbol in the returned pile.
    if ( dbgInfo )
    {
-      dbgSymbols = cc65_symbol_byname(dbgInfo,symbol.toAscii().constData());
+      dbgSymbols = cc65_symbol_byname(dbgInfo,symbol.toLatin1().constData());
 
       if ( dbgSymbols )
       {
@@ -636,7 +636,7 @@ unsigned int CCC65Interface::nesGetSymbolAbsoluteAddress(QString symbol, int ind
    // proper symbol in the returned pile.
    if ( dbgInfo )
    {
-      dbgSymbols = cc65_symbol_byname(dbgInfo,symbol.toAscii().constData());
+      dbgSymbols = cc65_symbol_byname(dbgInfo,symbol.toLatin1().constData());
 
       if ( dbgSymbols )
       {
@@ -693,7 +693,7 @@ unsigned int CCC65Interface::c64GetSymbolAbsoluteAddress(QString symbol, int ind
    // proper symbol in the returned pile.
    if ( dbgInfo )
    {
-      dbgSymbols = cc65_symbol_byname(dbgInfo,symbol.toAscii().constData());
+      dbgSymbols = cc65_symbol_byname(dbgInfo,symbol.toLatin1().constData());
 
       if ( dbgSymbols )
       {
@@ -747,7 +747,7 @@ unsigned int CCC65Interface::getSymbolSegment(QString symbol, int index)
    // proper symbol in the returned pile.
    if ( dbgInfo )
    {
-      dbgSymbols = cc65_symbol_byname(dbgInfo,symbol.toAscii().constData());
+      dbgSymbols = cc65_symbol_byname(dbgInfo,symbol.toLatin1().constData());
 
       if ( dbgSymbols )
       {
@@ -785,7 +785,7 @@ QString CCC65Interface::getSymbolSegmentName(QString symbol, int index)
    // proper symbol in the returned pile.
    if ( dbgInfo )
    {
-      dbgSymbols = cc65_symbol_byname(dbgInfo,symbol.toAscii().constData());
+      dbgSymbols = cc65_symbol_byname(dbgInfo,symbol.toLatin1().constData());
 
       if ( dbgSymbols )
       {
@@ -828,7 +828,7 @@ unsigned int CCC65Interface::getSymbolIndexFromSegment(QString symbol, int segme
 
    if ( dbgInfo )
    {
-      dbgSymbols = cc65_symbol_byname(dbgInfo,symbol.toAscii().constData());
+      dbgSymbols = cc65_symbol_byname(dbgInfo,symbol.toLatin1().constData());
 
       if ( dbgSymbols )
       {
@@ -859,7 +859,7 @@ unsigned int CCC65Interface::getSymbolSize(QString symbol, int index)
    // proper symbol in the returned pile.
    if ( dbgInfo )
    {
-      dbgSymbols = cc65_symbol_byname(dbgInfo,symbol.toAscii().constData());
+      dbgSymbols = cc65_symbol_byname(dbgInfo,symbol.toLatin1().constData());
 
       if ( dbgSymbols )
       {
@@ -893,7 +893,7 @@ int CCC65Interface::getSymbolMatchCount(QString symbol)
 
    if ( dbgInfo )
    {
-      dbgSymbols = cc65_symbol_byname(dbgInfo,symbol.toAscii().constData());
+      dbgSymbols = cc65_symbol_byname(dbgInfo,symbol.toLatin1().constData());
 
       if ( dbgSymbols )
       {
@@ -1269,7 +1269,7 @@ QString CCC65Interface::getSourceFileFromSymbol(QString symbol)
 
    if ( dbgInfo )
    {
-      dbgSymbols = cc65_symbol_byname(dbgInfo,symbol.toAscii().constData());
+      dbgSymbols = cc65_symbol_byname(dbgInfo,symbol.toLatin1().constData());
 
       // Getting a symbol by name gets all the def and ref entries for the symbol, so
       // we need to ignore the symbol count.  Move the 'sym' reference variable to the
@@ -1325,7 +1325,7 @@ int CCC65Interface::getSourceLineFromFileAndSymbol(QString file,QString symbol)
 
    if ( dbgInfo )
    {
-      dbgSymbols = cc65_symbol_byname(dbgInfo,symbol.toAscii().constData());
+      dbgSymbols = cc65_symbol_byname(dbgInfo,symbol.toLatin1().constData());
 
       // Getting a symbol by name gets all the def and ref entries for the symbol, so
       // we need to ignore the symbol count.  Move the 'sym' reference variable to the
@@ -1991,7 +1991,7 @@ bool CCC65Interface::isStringASymbol(QString string)
 
    if ( dbgInfo )
    {
-      dbgSymbols = cc65_symbol_byname(dbgInfo,string.toAscii().constData());
+      dbgSymbols = cc65_symbol_byname(dbgInfo,string.toLatin1().constData());
 
       if ( dbgSymbols )
       {

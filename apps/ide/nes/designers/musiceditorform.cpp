@@ -1,10 +1,11 @@
 #include "musiceditorform.h"
 #include "ui_musiceditorform.h"
 
-#include "Source/FamiTracker.h"
 #include "cqtmfc_famitracker.h"
 
 #include "cqtmfc.h"
+
+#include "Source/FamiTrackerDoc.h"
 
 MusicEditorForm* MusicEditorForm::_instance = NULL;
 
@@ -56,9 +57,7 @@ void MusicEditorForm::onSave()
 {
    CDesignerEditorBase::onSave();
 
-   CFamiTrackerDoc* pDoc = (CFamiTrackerDoc*)AfxGetMainWnd()->GetActiveDocument();
-
-   pDoc->OnSaveDocument((TCHAR*)m_fileName.toAscii().constData()); 
+   AfxGetMainWnd()->SendMessage(ID_FILE_SAVE);
    
    setModified(false);
 }

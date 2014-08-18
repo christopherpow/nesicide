@@ -25,6 +25,7 @@
 #include <QStringList>
 #include <QMessageBox>
 #include <QSettings>
+#include <QWebView>
 
 OutputPaneDockWidget* output = NULL;
 ProjectBrowserDockWidget* m_pProjectBrowser = NULL;
@@ -55,23 +56,23 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
       dir.setPath("../../deps");
       envdat += dir.absolutePath();
       envdat += "/cc65-master/bin;";
-      qputenv("PATH",QString(envdat+envvar).toAscii());
+      qputenv("PATH",QString(envdat+envvar).toLatin1());
 
       envdat = dir.absolutePath();
       envdat += "/cc65-master";
-      qputenv("CC65_HOME",envdat.toAscii());
+      qputenv("CC65_HOME",envdat.toLatin1());
 
       envdat = dir.absolutePath();
       envdat += "/cc65-master/lib";
-      qputenv("LD65_LIB",envdat.toAscii());
+      qputenv("LD65_LIB",envdat.toLatin1());
 
       envdat = dir.absolutePath();
       envdat += "/cc65-master/asminc";
-      qputenv("CA65_INC",envdat.toAscii());
+      qputenv("CA65_INC",envdat.toLatin1());
 
       envdat = dir.absolutePath();
       envdat += "/cc65-master/include";
-      qputenv("CC65_INC",envdat.toAscii());
+      qputenv("CC65_INC",envdat.toLatin1());
    }
    else
    {
@@ -82,23 +83,23 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
       envdat += "/GnuWin32/bin;";
       envdat += QCoreApplication::applicationDirPath();
       envdat += "/cc65-master/bin;";
-      qputenv("PATH",QString(envdat+envvar).toAscii());
+      qputenv("PATH",QString(envdat+envvar).toLatin1());
 
       envdat = QCoreApplication::applicationDirPath();
       envdat += "/cc65-master";
-      qputenv("CC65_HOME",envdat.toAscii());
+      qputenv("CC65_HOME",envdat.toLatin1());
 
       envdat = QCoreApplication::applicationDirPath();
       envdat += "/cc65-master/lib";
-      qputenv("LD65_LIB",envdat.toAscii());
+      qputenv("LD65_LIB",envdat.toLatin1());
 
       envdat = QCoreApplication::applicationDirPath();
       envdat += "/cc65-master/asminc";
-      qputenv("CA65_INC",envdat.toAscii());
+      qputenv("CA65_INC",envdat.toLatin1());
 
       envdat = QCoreApplication::applicationDirPath();
       envdat += "/cc65-master/include";
-      qputenv("CC65_INC",envdat.toAscii());
+      qputenv("CC65_INC",envdat.toLatin1());
    }
 #endif
    

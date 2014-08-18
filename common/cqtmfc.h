@@ -2291,10 +2291,8 @@ enum
 
 // workaround to force ignore ms_abi errors, not needed as long as we don't link with other mfc implementations
 // also g++ doesn't have __has_attribute()
-#if !defined(Q_OS_WIN) && !defined(Q_OS_WIN32) && !defined(__GNUC__) && !defined(__GNUG__)
-#if !__has_attribute(ms_abi)
+#if !defined(Q_OS_WIN) && !defined(Q_OS_WIN32)
 #define ms_abi
-#endif
 #endif
 
 // CP: Not sure what this does yet.
@@ -5617,19 +5615,20 @@ public:
 
 typedef UINT (*AFX_THREADPROC)(LPVOID lpParameter);
 
-class CWinThread : public QThread, public CCmdTarget
+class CWinThread : public QObject, public CCmdTarget
 {
    Q_OBJECT
    // Qt interfaces
 protected:
    QThread::Priority _priority;
    bool _initialized;
-   virtual void run();
    virtual bool event(QEvent *event);
    QTimer* pTimer;
+   QThread* pThread;
 public slots:
-   void onIdleSlot();   
+   void runSlot();
 public: // For some reason Qt won't recognize the public in the DECLARE_DYNCREATE...
+   bool wait(unsigned long time = ULONG_MAX) { pThread->wait(time); }
    
    DECLARE_DYNCREATE(CWinThread)
 public:

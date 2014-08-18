@@ -88,7 +88,7 @@ void SearcherThread::doSearch(QDir dir,int* finds)
                }
                if ( found )
                {
-                  foundText.sprintf("%s:%d:%s",base.relativeFilePath(entries.at(entry).filePath()).toAscii().constData(),line+1,contentLines.at(line).toAscii().constData());
+                  foundText.sprintf("%s:%d:%s",base.relativeFilePath(entries.at(entry).filePath()).toLatin1().constData(),line+1,contentLines.at(line).toLatin1().constData());
                   searchTextLogger->write(foundText);
                   (*finds)++;
                }

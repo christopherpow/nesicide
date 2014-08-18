@@ -479,7 +479,7 @@ void BreakpointDialog::DisplayResolutions(BreakpointInfo* pBreakpoint)
 //               textSplit = text.split(QRegExp("[\r\n]"));
 //               text = textSplit.at(linenum-1);
                item.sprintf("%s:%d:",
-                            source.toAscii().constData(),
+                            source.toLatin1().constData(),
                             linenum);
                item.append(text);
                ui->resolutions->addItem(item);

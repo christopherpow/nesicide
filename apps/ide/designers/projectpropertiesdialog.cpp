@@ -595,7 +595,7 @@ void ProjectPropertiesDialog::serializeLinkerConfig()
          fileOut.open(QIODevice::ReadWrite|QIODevice::Truncate|QIODevice::Text);
          if ( fileOut.isOpen() )
          {
-            fileOut.write(ui->linkerConfig->toPlainText().toAscii());
+            fileOut.write(ui->linkerConfig->toPlainText().toLatin1());
             fileOut.close();
          }
          else
@@ -771,7 +771,7 @@ void ProjectPropertiesDialog::serializeCustomRules()
          fileOut.open(QIODevice::ReadWrite|QIODevice::Truncate|QIODevice::Text);
          if ( fileOut.isOpen() )
          {
-            fileOut.write(ui->customRules->toPlainText().toAscii());
+            fileOut.write(ui->customRules->toPlainText().toLatin1());
             fileOut.close();
          }
          else
