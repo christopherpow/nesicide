@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -62,7 +62,9 @@ void CInstrumentVRC6::Setup()
 
 	for (int i = 0; i < SEQ_COUNT; ++i) {
 		SetSeqEnable(i, 0);
-		SetSeqIndex(i, pDoc->GetFreeSequenceVRC6(i));
+		int Index = pDoc->GetFreeSequenceVRC6(i);
+		if (Index != -1)
+			SetSeqIndex(i, Index);
 	}
 }
 
@@ -94,7 +96,7 @@ bool CInstrumentVRC6::Load(CDocumentFile *pDocFile)
 	return true;
 }
 
-void CInstrumentVRC6::SaveFile(CInstrumentFile *pFile, CFamiTrackerDoc *pDoc)
+void CInstrumentVRC6::SaveFile(CInstrumentFile *pFile, const CFamiTrackerDoc *pDoc)
 {
 	// Sequences
 	pFile->WriteChar(SEQUENCE_COUNT);
@@ -102,7 +104,7 @@ void CInstrumentVRC6::SaveFile(CInstrumentFile *pFile, CFamiTrackerDoc *pDoc)
 	for (int i = 0; i < SEQUENCE_COUNT; ++i) {
 		int Sequence = GetSeqIndex(i);
 		if (GetSeqEnable(i)) {
-			CSequence *pSeq = pDoc->GetSequence(SNDCHIP_VRC6, Sequence, i);
+			CSequence *pSeq = pDoc->GetSequenceVRC6(Sequence, i);
 
 			pFile->WriteChar(1);
 			pFile->WriteInt(pSeq->GetItemCount());
@@ -134,32 +136,33 @@ bool CInstrumentVRC6::LoadFile(CInstrumentFile *pFile, int iVersion, CFamiTracke
 			// Read the sequence
 			int Count = pFile->ReadInt();
 			int Index = pDoc->GetFreeSequenceVRC6(i);
+			if (Index != -1) {
+				CSequence *pSeq = pDoc->GetSequence(SNDCHIP_VRC6, Index, i);
 
-			CSequence *pSeq = pDoc->GetSequence(SNDCHIP_VRC6, Index, i);
-
-			if (iVersion < 20) {
-				OldSequence.Count = Count;
-				for (int j = 0; j < Count; ++j) {
-					OldSequence.Length[j] = pFile->ReadChar();
-					OldSequence.Value[j] = pFile->ReadChar();
+				if (iVersion < 20) {
+					OldSequence.Count = Count;
+					for (int j = 0; j < Count; ++j) {
+						OldSequence.Length[j] = pFile->ReadChar();
+						OldSequence.Value[j] = pFile->ReadChar();
+					}
+					CFamiTrackerDoc::ConvertSequence(&OldSequence, pSeq, i);	// convert
 				}
-				pDoc->ConvertSequence(&OldSequence, pSeq, i);	// convert
+				else {
+					pSeq->SetItemCount(Count);
+					pSeq->SetLoopPoint(pFile->ReadInt());
+					if (iVersion > 20) {
+						pSeq->SetReleasePoint(pFile->ReadInt());
+					}
+					if (iVersion >= 22) {
+						pSeq->SetSetting(pFile->ReadInt());
+					}
+					for (int j = 0; j < Count; ++j) {
+						pSeq->SetItem(j, pFile->ReadChar());
+					}
+				}
+				SetSeqEnable(i, true);
+				SetSeqIndex(i, Index);
 			}
-			else {
-				pSeq->SetItemCount(Count);
-				pSeq->SetLoopPoint(pFile->ReadInt());
-				if (iVersion > 20) {
-					pSeq->SetReleasePoint(pFile->ReadInt());
-				}
-				if (iVersion >= 22) {
-					pSeq->SetSetting(pFile->ReadInt());
-				}
-				for (int j = 0; j < Count; ++j) {
-					pSeq->SetItem(j, pFile->ReadChar());
-				}
-			}
-			SetSeqEnable(i, true);
-			SetSeqIndex(i, Index);
 		}
 		else {
 			SetSeqEnable(i, false);

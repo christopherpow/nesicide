@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -20,10 +20,7 @@
 
 #pragma once
 
-#include "cqtmfc.h"
-#include "FamiTrackerTypes.h"
-
-class CMainFrame;
+// TODO clean up in this class
 
 class CFamiTrackerDoc;
 class CFamiTrackerView;
@@ -125,12 +122,12 @@ public:
 	bool IsCopyValid(COleDataObject* pDataObject);
 	void UpdateDrag(CPoint &point);
 	BOOL DropData(COleDataObject* pDataObject, DROPEFFECT dropEffect);
-	void PerformDragOperation(CFrameClipData *pClipData, int DragTarget, bool bDelete, bool bNewPatterns);
+	void PerformDragOperation(unsigned int Track, CFrameClipData *pClipData, int DragTarget, bool bDelete, bool bNewPatterns);
 
 	void Clear();
 
-	void Paste(CFrameClipData *pClipData);
-	void PasteNew(CFrameClipData *pClipData);
+	void Paste(unsigned int Track, CFrameClipData *pClipData);
+	void PasteNew(unsigned int Track, CFrameClipData *pClipData);
 
 	unsigned int CalcWidth(int Channels) const;
 
@@ -138,6 +135,8 @@ public:
 	void SetSelectInfo(stSelectInfo &Info);
 
 	bool IsClipboardAvailable() const;
+
+	bool NeedUpdate() const;
 
 private:
 	void CreateGdiObjects();
@@ -185,6 +184,12 @@ private:
 	int m_iRowsVisible;
 	int m_iMiddleRow;
 
+	// Draw info
+	int m_iLastCursorFrame;
+	int m_iLastCursorChannel;
+	int m_iLastPlayFrame;
+
+	// Accelerator table
 	HACCEL m_hAccel;
 
 	// Select/drag

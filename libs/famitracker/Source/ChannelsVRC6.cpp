@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -89,15 +89,17 @@ void CChannelHandlerVRC6::HandleEmptyNote()
 {
 }
 
-void CChannelHandlerVRC6::HandleHalt()
+void CChannelHandlerVRC6::HandleCut()
 {
 	CutNote();
 }
 
 void CChannelHandlerVRC6::HandleRelease()
 {
-	ReleaseNote();
-	ReleaseSequences(SNDCHIP_VRC6);
+	if (!m_bRelease) {
+		ReleaseNote();
+		ReleaseSequences(SNDCHIP_VRC6);
+	}
 }
 
 void CChannelHandlerVRC6::HandleNote(int Note, int Octave)

@@ -68,12 +68,16 @@
         
     <p class="text">
         The time base for the song is 60 or
-        50 updates per second (when using default NTSC/PAL settings), and this is used to 
+        50 ticks per second (when using default NTSC/PAL settings), and this is used to 
         calculate the average tempo of the song. This means that some rows may play 
         slightly longer or shorter than others, 
         something that might be audible. To avoid this, leave the 
         tempo setting at 150 (125 for PAL!) and use only the speed setting to change BPM 
         to ensure that all rows get the same duration.</p>
+    <p class="text">
+        Also be aware that the maximum supported BPM is 900 for NTSC and 750 for PAL 
+        (equal to speed 1 at tempo 150 / 125), going above that will not function 
+        properly!</p>
         
     <p class="text">
         The step setting changes the step behaviour when moving the cursor in the 

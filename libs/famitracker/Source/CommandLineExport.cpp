@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2013  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@
 #include "SoundGen.h"
 #include "TextExporter.h"
 #include "CustomExporters.h"
+#include "DocumentWrapper.h"
 
 // Command line export logger
 class CCommandLineLog : public CCompilerLog
@@ -180,7 +181,8 @@ void CCommandLineExport::CommandLineExport(const CString& fileIn, const CString&
 			if (sNames.GetCount())
 			{
 				pExporters->SetCurrentExporter(sNames[0]);
-				bool bResult = (pExporters->GetCurrentExporter().Export(pExportDoc, fileOut));
+				CFamiTrackerDocWrapper documentWrapper(CFamiTrackerDoc::GetDoc(), 0);
+				bool bResult = (pExporters->GetCurrentExporter().Export(&documentWrapper, fileOut));
 				if (bLog)
 				{
 					fLog.WriteString(_T("Custom exporter: "));

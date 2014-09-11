@@ -38,7 +38,7 @@
 /*
  * TODO:
  *  - Remove duplicated FDS waves
- *  - What to do with the bank value in CHUNK_SONG??
+ *  - Remove the bank value in CHUNK_SONG??
  *  - Derive classes for each output format instead of separate functions
  *  - Create a config file for NSF driver optimizations
  *  - Pattern hash collisions prevents detecting similar patterns, fix that
@@ -263,7 +263,7 @@ void CCompiler::ExportNSF(LPCTSTR lpszFileName, int MachineType)
 	PatchVibratoTable(pDriver);
 
 	// Copy the Namco table, if used
-	if (m_pDocument->GetExpansionChip() & SNDCHIP_N163) {
+	if (m_pDocument->ExpansionEnabled(SNDCHIP_N163)) {
 
 		CSoundGen *pSoundGen = theApp.GetSoundGenerator();
 
@@ -341,9 +341,7 @@ void CCompiler::ExportNSF(LPCTSTR lpszFileName, int MachineType)
 		TCHAR szCause[255];
 		CString strFormatted;
 		ex.GetErrorMessage(szCause, 255);
-		strFormatted.LoadString(IDS_OPEN_FILE_ERROR);
-		strFormatted += _T(" ");
-		strFormatted += szCause;
+		AfxFormatString1(strFormatted, IDS_OPEN_FILE_ERROR, szCause);
 		AfxMessageBox(strFormatted, MB_OK | MB_ICONERROR);
 		Print(_T("Error: Could not open output file\n"));
 		Cleanup();
@@ -415,9 +413,7 @@ void CCompiler::ExportNES(LPCTSTR lpszFileName, bool EnablePAL)
 		TCHAR szCause[255];
 		CString strFormatted;
 		ex.GetErrorMessage(szCause, 255);
-		strFormatted.LoadString(IDS_OPEN_FILE_ERROR);
-		strFormatted += _T(" ");
-		strFormatted += szCause;
+		AfxFormatString1(strFormatted, IDS_OPEN_FILE_ERROR, szCause);
 		AfxMessageBox(strFormatted, MB_OK | MB_ICONERROR);
 		return;
 	}
@@ -521,9 +517,7 @@ void CCompiler::ExportBIN(LPCTSTR lpszBIN_File, LPCTSTR lpszDPCM_File)
 		TCHAR szCause[255];
 		CString strFormatted;
 		ex.GetErrorMessage(szCause, 255);
-		strFormatted.LoadString(IDS_OPEN_FILE_ERROR);
-		strFormatted += _T(" ");
-		strFormatted += szCause;
+		AfxFormatString1(strFormatted, IDS_OPEN_FILE_ERROR, szCause);
 		AfxMessageBox(strFormatted, MB_OK | MB_ICONERROR);
 		OutputFileBIN.Close();
 		return;
@@ -534,9 +528,7 @@ void CCompiler::ExportBIN(LPCTSTR lpszBIN_File, LPCTSTR lpszDPCM_File)
 			TCHAR szCause[255];
 			CString strFormatted;
 			ex.GetErrorMessage(szCause, 255);
-			strFormatted.LoadString(IDS_OPEN_FILE_ERROR);
-			strFormatted += _T(" ");
-			strFormatted += szCause;
+			AfxFormatString1(strFormatted, IDS_OPEN_FILE_ERROR, szCause);
 			AfxMessageBox(strFormatted, MB_OK | MB_ICONERROR);
 			OutputFileBIN.Close();
 			OutputFileDPCM.Close();
@@ -584,9 +576,7 @@ void CCompiler::ExportPRG(LPCTSTR lpszFileName, bool EnablePAL)
 		TCHAR szCause[255];
 		CString strFormatted;
 		ex.GetErrorMessage(szCause, 255);
-		strFormatted.LoadString(IDS_OPEN_FILE_ERROR);
-		strFormatted += _T(" ");
-		strFormatted += szCause;
+		AfxFormatString1(strFormatted, IDS_OPEN_FILE_ERROR, szCause);
 		AfxMessageBox(strFormatted, MB_OK | MB_ICONERROR);
 		return;
 	}
@@ -692,9 +682,7 @@ void CCompiler::ExportASM(LPCTSTR lpszFileName)
 		TCHAR szCause[255];
 		CString strFormatted;
 		ex.GetErrorMessage(szCause, 255);
-		strFormatted.LoadString(IDS_OPEN_FILE_ERROR);
-		strFormatted += _T(" ");
-		strFormatted += szCause;
+		AfxFormatString1(strFormatted, IDS_OPEN_FILE_ERROR, szCause);
 		AfxMessageBox(strFormatted, MB_OK | MB_ICONERROR);
 		return;
 	}
@@ -879,10 +867,10 @@ void CCompiler::UpdateSamplePointers(unsigned int Origin)
 	m_pSamplePointersChunk->Clear();
 
 	// The list is stored in the same order as the samples vector
-	for (std::vector<CDSample*>::iterator it = m_vSamples.begin(); it != m_vSamples.end(); ++it) {
+	for (std::vector<const CDSample*>::iterator it = m_vSamples.begin(); it != m_vSamples.end(); ++it) {
 
-		CDSample *pDSample = *it;
-		unsigned int Size = pDSample->SampleSize;
+		const CDSample *pDSample = *it;
+		unsigned int Size = pDSample->GetSize();
 
 		if (m_bBankSwitched) {
 			if ((Address + Size) >= DPCM_SWITCH_ADDRESS) {
@@ -899,7 +887,7 @@ void CCompiler::UpdateSamplePointers(unsigned int Origin)
 #ifdef _DEBUG
 		Print(_T(" * DPCM sample %s: $%04X, bank %i (%i bytes)\n"), pDSample->Name, Address, Bank, Size);
 #endif
-		Address += pDSample->SampleSize;
+		Address += Size;
 		Address += AdjustSampleAddress(Address);
 	}
 #ifdef _DEBUG
@@ -1366,7 +1354,7 @@ void CCompiler::CreateMainHeader()
 	pChunk->StoreWord(DividerPAL);
 
 	// N163 channel count
-	if (m_pDocument->GetExpansionChip() & SNDCHIP_N163) {
+	if (m_pDocument->ExpansionEnabled(SNDCHIP_N163)) {
 		pChunk->StoreByte(m_pDocument->GetNamcoChannels());
 	}
 
@@ -1385,7 +1373,7 @@ void CCompiler::CreateSequenceList()
 
 	for (int i = 0; i < MAX_SEQUENCES; ++i) {
 		for (int j = 0; j < CInstrument2A03::SEQUENCE_COUNT; ++j) {
-			CSequence* pSeq = m_pDocument->GetSequence(i, j);
+			CSequence* pSeq = m_pDocument->GetSequence((unsigned)i, j);
 
 			if (m_bSequencesUsed2A03[i][j] && pSeq->GetItemCount() > 0) {
 				int Index = i * SEQ_COUNT + j;
@@ -1508,7 +1496,7 @@ void CCompiler::CreateInstrumentList()
 
 	CChunk *pInstListChunk = CreateChunk(CHUNK_INSTRUMENT_LIST, LABEL_INSTRUMENT_LIST);
 	
-	if (m_pDocument->GetExpansionChip() & SNDCHIP_FDS) {
+	if (m_pDocument->ExpansionEnabled(SNDCHIP_FDS)) {
 		pWavetableChunk = CreateChunk(CHUNK_WAVETABLE, LABEL_WAVETABLE);
 	}
 
@@ -1603,15 +1591,13 @@ void CCompiler::CreateSampleList()
 
 	const int SAMPLE_ITEM_WIDTH = 3;	// 3 bytes / sample item
 
-	unsigned char iSample, iSamplePitch, iSampleDelta;
-	unsigned int Item = 0, iSampleIndex;
-
 	// Clear the sample list
 	memset(m_iSampleBank, 0xFF, MAX_DSAMPLES);
 	
 	CChunk *pChunk = CreateChunk(CHUNK_SAMPLE_LIST, LABEL_SAMPLES_LIST);
 
 	// Store sample instruments
+	unsigned int Item = 0;
 	for (int i = 0; i < MAX_INSTRUMENTS; ++i) {
 
 		if (m_pDocument->IsInstrumentUsed(i) && m_pDocument->GetInstrumentType(i) == INST_2A03) {
@@ -1621,13 +1607,13 @@ void CCompiler::CreateSampleList()
 			for (int j = 0; j < OCTAVE_RANGE; ++j) {
 				for (int k = 0; k < NOTE_RANGE; ++k) {
 					// Get sample
-					iSample = pInstrument->GetSample(j, k);
-					if ((iSample > 0) && m_bSamplesAccessed[i][j][k] && m_pDocument->GetSampleSize(iSample - 1) > 0) {
+					unsigned char iSample = pInstrument->GetSample(j, k);
+					if ((iSample > 0) && m_bSamplesAccessed[i][j][k] && m_pDocument->IsSampleUsed(iSample - 1)) {
 
-						iSamplePitch  = pInstrument->GetSamplePitch(j, k);
+						unsigned char iSamplePitch  = pInstrument->GetSamplePitch(j, k);
 						iSamplePitch |= (iSamplePitch & 0x80) >> 1;
-						iSampleIndex  = GetSampleIndex(iSample - 1);
-						iSampleDelta  = pInstrument->GetSampleDeltaValue(j, k);
+						unsigned char iSampleIndex  = GetSampleIndex(iSample - 1);
+						unsigned int iSampleDelta  = pInstrument->GetSampleDeltaValue(j, k);
 
 						// Save a reference to this item
 						m_iSamplesLookUp[i][j][k] = ++Item;
@@ -1668,8 +1654,8 @@ void CCompiler::StoreSamples()
 
 		unsigned int iIndex = m_iSampleBank[i];
 		ASSERT(iIndex != 0xFF);
-		CDSample *pDSample = m_pDocument->GetSample(iIndex);
-		unsigned int iSize = pDSample->SampleSize;
+		const CDSample *pDSample = m_pDocument->GetSample(iIndex);
+		unsigned int iSize = pDSample->GetSize();
 
 		if (iSize > 0) {
 			// Fill sample list
@@ -1823,7 +1809,7 @@ void CCompiler::CreateFrameList(int Track, int &iFrameSize, int &iFrameCount)
 		// Pattern pointers
 		for (int j = 0; j < ChannelCount; ++j) {
 			int iChan = m_iChanOrder[j];
-			if (m_pDocument->GetExpansionChip() & SNDCHIP_N163) {
+			if (m_pDocument->ExpansionEnabled(SNDCHIP_N163)) {
 				if (j == ChannelCount - 1)	// TODO hardcode last chan to DPCM
 					iChan = 4;
 			}
@@ -1977,25 +1963,27 @@ void CCompiler::WriteSamplesAssembly(CFile *pFile)
 	unsigned int TotalSize = 0;
 
 	for (unsigned int i = 0; i < m_vSamples.size(); ++i) {
-		CDSample *pDSample = m_vSamples[i];
+		const CDSample *pDSample = m_vSamples[i];
+		unsigned int SampleSize = pDSample->GetSize();
+		const char *pData = pDSample->GetData();
 		label.Format(LABEL_SAMPLE, i);
 		str.Format("%s:\n\t.byte ", LPCSTR(label));
 		int cntr = 0;
-		for (unsigned int j = 0; j < pDSample->SampleSize; ++j) {
-			unsigned char c = pDSample->SampleData[j];
+		for (unsigned int j = 0; j < SampleSize; ++j) {
+			unsigned char c = pData[j];//pDSample->SampleData[j];
 			str.AppendFormat("$%02X", c);
 			// Insert line breaks
-			if (cntr++ == 30 && j < pDSample->SampleSize - 1) {
+			if (cntr++ == 30 && j < SampleSize - 1) {
 				str.Append("\n\t.byte ");
 				cntr = 0;
 			}
-			else if (j < pDSample->SampleSize - 1) {
+			else if (j < SampleSize - 1) {
 				str.Append(", ");
 			}
 		}
 
-		Address += pDSample->SampleSize;
-		TotalSize += pDSample->SampleSize;
+		Address += SampleSize;
+		TotalSize += SampleSize;
 
 		// Adjust if necessary
 		if ((Address & 0x3F) > 0) {
@@ -2019,13 +2007,14 @@ void CCompiler::WriteSamplesBinary(CFile *pFile)
 	unsigned int Address = PAGE_SAMPLES;
 	unsigned int TotalSize = 0;
 
-	for (std::vector<CDSample*>::iterator it = m_vSamples.begin(); it != m_vSamples.end(); ++it) {
-		CDSample *pDSample = *it;
+	for (std::vector<const CDSample*>::iterator it = m_vSamples.begin(); it != m_vSamples.end(); ++it) {
+		const CDSample *pDSample = *it;
+		unsigned int SampleSize = pDSample->GetSize();
 
-		pFile->Write(pDSample->SampleData, pDSample->SampleSize);
+		pFile->Write(pDSample->GetData(), SampleSize);
 
-		Address += pDSample->SampleSize;
-		TotalSize += pDSample->SampleSize;
+		Address += SampleSize;
+		TotalSize += SampleSize;
 
 		// Adjust size
 		if ((Address & 0x3F) > 0) {
@@ -2070,21 +2059,22 @@ void CCompiler::WriteSamplesToBanks(unsigned int Address)
 		*/
 	}
 
-	for (std::vector<CDSample*>::iterator it = m_vSamples.begin(); it != m_vSamples.end(); ++it) {
-		CDSample *pDSample = *it;
+	for (std::vector<const CDSample*>::iterator it = m_vSamples.begin(); it != m_vSamples.end(); ++it) {
+		const CDSample *pDSample = *it;
+		unsigned int SampleSize = pDSample->GetSize();
 
 		if (m_bBankSwitched) {
-			if (Address + pDSample->SampleSize >= DPCM_SWITCH_ADDRESS) {
+			if (Address + SampleSize >= DPCM_SWITCH_ADDRESS) {
 				Address = PAGE_SAMPLES;
 				// Allocate new bank
 				AllocateBank(PAGE_SAMPLES);
 			}
 		}
 
-		CopyData(pDSample->SampleData, pDSample->SampleSize);
+		CopyData(pDSample->GetData(), SampleSize);
 
-		Address += pDSample->SampleSize;
-		TotalSize += pDSample->SampleSize;
+		Address += SampleSize;
+		TotalSize += SampleSize;
 
 		// Adjust size
 		unsigned int iAdjust = AdjustSampleAddress(Address);
@@ -2214,7 +2204,7 @@ void CCompiler::AllocateBank(int Location)
 	m_pCurrentBank = m_pFileBanks[m_iBanksUsed - 1];
 }
 
-void CCompiler::CopyData(char *pData, int iSize)
+void CCompiler::CopyData(const char *pData, int iSize)
 {
 	// Copy data to NSF banks
 

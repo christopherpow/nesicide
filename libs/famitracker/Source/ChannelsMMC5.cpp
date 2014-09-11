@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -97,15 +97,17 @@ void CChannelHandlerMMC5::HandleEmptyNote()
 {
 }
 
-void CChannelHandlerMMC5::HandleHalt()
+void CChannelHandlerMMC5::HandleCut()
 {
 	CutNote();
 }
 
 void CChannelHandlerMMC5::HandleRelease()
 {
-	ReleaseNote();
-	ReleaseSequences(SNDCHIP_NONE);
+	if (!m_bRelease) {
+		ReleaseNote();
+		ReleaseSequences(SNDCHIP_NONE);
+	}
 }
 
 void CChannelHandlerMMC5::HandleNote(int Note, int Octave)
@@ -124,7 +126,7 @@ void CChannelHandlerMMC5::ProcessChannel()
 
 	// Sequences
 	for (int i = 0; i < SEQUENCES; ++i)
-		RunSequence(i, pDocument->GetSequence(m_iSeqIndex[i], SEQ_TYPES[i]));
+		RunSequence(i, pDocument->GetSequence(unsigned(m_iSeqIndex[i]), SEQ_TYPES[i]));
 }
 
 void CChannelHandlerMMC5::ResetChannel()

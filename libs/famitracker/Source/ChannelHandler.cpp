@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -204,7 +204,7 @@ void CChannelHandler::ResetChannel()
 	m_bRelease			= false;
 	m_bGate				= false;
 
-	RegisterKeyState(m_iChannelID, -1);
+	RegisterKeyState(-1);
 
 	// Clear channel registers
 	ClearRegisters();
@@ -287,7 +287,7 @@ void CChannelHandler::HandleNoteData(stChanNote *pNoteData, int EffColumns)
 			HandleEmptyNote();
 			break;
 		case HALT:
-			HandleHalt();
+			HandleCut();
 			break;
 		case RELEASE:
 			HandleRelease();
@@ -312,7 +312,7 @@ unsigned int CChannelHandler::TriggerNote(int Note)
 		Note = 0;
 
 	// Trigger a note, return note period
-	RegisterKeyState(m_iChannelID, Note);
+	RegisterKeyState(Note);
 
 	if (!m_pNoteLookupTable)
 		return Note;
@@ -324,7 +324,7 @@ void CChannelHandler::CutNote()
 {
 	// Cut currently playing note
 
-	RegisterKeyState(m_iChannelID, -1);
+	RegisterKeyState(-1);
 
 	m_bGate = false;
 	m_iPeriod = 0;
@@ -335,7 +335,7 @@ void CChannelHandler::ReleaseNote()
 {
 	// Release currently playing note
 
-	RegisterKeyState(m_iChannelID, -1);
+	RegisterKeyState(-1);
 
 	m_bRelease = true;
 }
@@ -477,7 +477,7 @@ void CChannelHandler::UpdateNoteCut()
 	if (m_iNoteCut > 0) {
 		m_iNoteCut--;
 		if (m_iNoteCut == 0) {
-			CutNote();
+			HandleCut();
 		}
 	}
 }
@@ -597,15 +597,21 @@ void CChannelHandler::UpdateEffects()
 		case EF_SLIDE_UP:
 			if (m_iPortaSpeed > 0) {
 				PeriodRemove(m_iPortaSpeed);
-				if (m_iPeriod < m_iPortaTo)
+				if (m_iPeriod < m_iPortaTo) {
 					m_iPeriod = m_iPortaTo;
+					m_iPortaTo = 0;
+					m_iEffect = EF_NONE;
+				}
 			}
 			break;
 		case EF_SLIDE_DOWN:
 			if (m_iPortaSpeed > 0) {
 				PeriodAdd(m_iPortaSpeed);
-				if (m_iPeriod > m_iPortaTo)
+				if (m_iPeriod > m_iPortaTo) {
 					m_iPeriod = m_iPortaTo;
+					m_iPortaTo = 0;
+					m_iEffect = EF_NONE;
+				}
 			}
 			break;
 		case EF_PORTA_DOWN:
@@ -684,7 +690,7 @@ int CChannelHandler::GetFinePitch() const
 
 // Sequence routines
 
-void CChannelHandler::RunSequence(int Index, CSequence *pSequence)
+void CChannelHandler::RunSequence(int Index, const CSequence *pSequence)
 {
 	if (pSequence->GetItemCount() == 0 || !m_bGate)
 		return;
@@ -756,10 +762,10 @@ void CChannelHandler::RunSequence(int Index, CSequence *pSequence)
 				}
 			}
 
-			pSequence->SetPlayPos(m_iSeqPointer[Index]);
+			m_pSoundGen->SetSequencePlayPos(pSequence, m_iSeqPointer[Index]);
 		}
 		break;
-	case SEQ_STATE_HALT:
+	case SEQ_STATE_END:
 		
 		///////////////// temporary /////////////////////
 
@@ -775,7 +781,10 @@ void CChannelHandler::RunSequence(int Index, CSequence *pSequence)
 
 		///////////////// temporary /////////////////////
 
-		pSequence->SetPlayPos(-1);
+		m_pSoundGen->SetSequencePlayPos(pSequence, -1);
+		break;
+	case SEQ_STATE_HALT:
+		// Do nothing
 		break;
 	}
 }
@@ -848,9 +857,9 @@ void CChannelHandler::WriteExternalRegister(uint16 Reg, uint8 Value)
 	m_pSoundGen->WriteExternalRegister(Reg, Value);
 }
 
-void CChannelHandler::RegisterKeyState(int Channel, int Note)
+void CChannelHandler::RegisterKeyState(int Note)
 {
-	m_pSoundGen->RegisterKeyState(Channel, Note);
+	m_pSoundGen->RegisterKeyState(m_iChannelID, Note);
 }
 
 /*

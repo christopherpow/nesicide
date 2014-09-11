@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -231,24 +231,24 @@ void CWaveEditor::EditWave(CPoint point)
 	if (index > GetMaxSamples() - 1)
 		index = GetMaxSamples() - 1;
 
-   if (!GetLineMode()) {
-
+	if (!GetLineMode()) {
 		CDC *pDC = GetDC();
+		if (pDC != NULL) {
+			// Erase old sample
+			int s = (m_iLY - 1) - GetSample(index);
+			pDC->FillSolidRect(index * m_iSX, s * m_iSY, m_iSX, m_iSY, (s & 1) ? 0xA0A0A0 : 0xB0B0B0);
+		
+			SetSample(index, sample);
+		
+			// New sample
+			s = (m_iLY - 1) - GetSample(index);
+			DrawRect(pDC, index * m_iSX, s * m_iSY, m_iSX, m_iSY);
 
-		// Erase old sample
-		int s = (m_iLY - 1) - GetSample(index);
-		pDC->FillSolidRect(index * m_iSX, s * m_iSY, m_iSX, m_iSY, (s & 1) ? 0xA0A0A0 : 0xB0B0B0);
-	
+			ReleaseDC(pDC);
+		}
+	}
+	else
 		SetSample(index, sample);
-	
-		// New sample
-		s = (m_iLY - 1) - GetSample(index);
-		DrawRect(pDC, index * m_iSX, s * m_iSY, m_iSX, m_iSY);
-
-		ReleaseDC(pDC);
-   }
-   else
-      SetSample(index, sample);
 
 	// Indicates wave change
 	GetParent()->PostMessage(WM_USER_WAVE_CHANGED);
@@ -291,9 +291,10 @@ void CWaveEditor::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
 			SetLineMode(false);
 			break;
 		case 2: 
-         SetLineMode(true);
+			SetLineMode(true);
 			break;
 	}
+
 	Invalidate();
 	RedrawWindow();
 }

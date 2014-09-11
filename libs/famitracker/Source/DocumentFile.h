@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -35,14 +35,14 @@ public:
 	bool		EndDocument();
 
 	void		CreateBlock(const char *ID, int Version);
-	void		WriteBlock(const void *Data, unsigned int Size);
+	void		WriteBlock(const char *pData, unsigned int Size);
 	void		WriteBlockInt(int Value);
 	void		WriteBlockChar(char Value);
 	void		WriteString(CString String);
 	bool		FlushBlock();
 
 	// Read functions
-	bool		CheckValidity();
+	bool		ValidateFile();
 	unsigned int GetFileVersion() const;
 
 	bool		ReadBlock();
@@ -72,6 +72,9 @@ public:
 
 	static const unsigned int MAX_BLOCK_SIZE;
 	static const unsigned int BLOCK_SIZE;
+
+private:
+	template<class T> void WriteBlockData(T Value);
 
 protected:
 	void ReallocateBlock();

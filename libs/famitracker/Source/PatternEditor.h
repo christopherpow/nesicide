@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "SoundGen.h"
+#include "Common.h"
 
 enum transpose_t {
 	TRANSPOSE_DEC_NOTES,
@@ -66,6 +66,7 @@ public:
 	void FromMem(HGLOBAL hMem);		// Copy structures from memory
 	
 	stChanNote *GetPattern(int Channel, int Row);
+	const stChanNote *GetPattern(int Channel, int Row) const;
 
 private:
 	// Do not make copies
@@ -120,11 +121,12 @@ public:
 	int GetColEnd() const;
 	int GetChanStart() const;
 	int GetChanEnd() const;
-	bool IsWithin(CCursorPos pos) const;
+	bool IsWithin(const CCursorPos &pos) const;
 	bool IsSingleChannel() const;
+	bool IsSameStartPoint(const CSelection &selection) const;
 
-	void SetStart(CCursorPos pos);
-	void SetEnd(CCursorPos pos);
+	void SetStart(const CCursorPos &pos);
+	void SetEnd(const CCursorPos &pos);
 
 public:
 	CCursorPos m_cpStart;
@@ -134,18 +136,18 @@ public:
 // External classes
 class CFamiTrackerDoc;
 class CFamiTrackerView;
+class CMainFrame;
 
-// CPatternView
-class CPatternView {
+// CPatternEditor
+class CPatternEditor {
 public:
 	static const unsigned int ROW_PLAY_COLOR = 0x400050;
 
 	// Public functions
 public:
-	CPatternView();
-	~CPatternView();
+	CPatternEditor();
+	~CPatternEditor();
 
-	bool InitView(UINT ClipBoard);
 	void ApplyColorScheme();
 	void SetDocument(CFamiTrackerDoc *pDoc, CFamiTrackerView *pView);
 	void SetWindowSize(int width, int height);
@@ -205,12 +207,12 @@ public:
 	// Mouse
 	void OnMouseDown(CPoint point);
 	void OnMouseUp(CPoint point);
-	bool OnMouseHover(UINT nFlags, CPoint point);
+	bool OnMouseHover(UINT nFlags, const CPoint &point);
 	bool OnMouseNcMove();
-	void OnMouseMove(UINT nFlags, CPoint point);
+	void OnMouseMove(UINT nFlags, const CPoint &point);
 	void OnMouseDblClk(CPoint point);
 	void OnMouseScroll(int Delta);
-	void OnMouseRDown(CPoint point);
+	void OnMouseRDown(const CPoint &point);
 
 	bool CancelDragging();
 	void ClearSelection();
@@ -218,18 +220,19 @@ public:
 	bool IsOverHeader(CPoint &point) const;
 
 	// Edit: Copy & paste, selection
-	CPatternClipData *CopyEntire();
-	CPatternClipData *Copy();
+	CPatternClipData *CopyEntire() const;
+	CPatternClipData *Copy() const;
 	void Cut();
-	void PasteEntire(CPatternClipData *pClipData);
-	void Paste(CPatternClipData *pClipData);
-	void PasteMix(CPatternClipData *pClipData);
-	void DeleteSelectionRows(CSelection &selection);
-	void DeleteSelection(CSelection &selection);
+	void PasteEntire(const CPatternClipData *pClipData);
+	void Paste(const CPatternClipData *pClipData);
+	void PasteMix(const CPatternClipData *pClipData);
+	void DeleteSelectionRows(const CSelection &selection);
+	void DeleteSelection(const CSelection &selection);
 	void Delete();
 	void RemoveSelectedNotes();
 
 	bool IsSelecting() const;
+	void SelectChannel();
 	void SelectAllChannels();
 	void SelectAll();
 
@@ -251,7 +254,7 @@ public:
 	int GetChannelAtPoint(int PointX) const;
 
 	// Scrolling
-	void AutoScroll(CPoint point, UINT nFlags);
+	void AutoScroll(const CPoint &point, UINT nFlags);
 	bool ScrollTimerCallback();
 	void OnVScroll(UINT nSBCode, UINT nPos);
 	void OnHScroll(UINT nSBCode, UINT nPos);
@@ -263,9 +266,9 @@ public:
 	int GetVisibleWidth() const { return m_iVisibleWidth; }
 
 	CSelection GetSelection() const;
-	void SetSelection(CSelection &selection);
+	void SetSelection(const CSelection &selection);
 
-	void DragPaste(CPatternClipData *pClipData, CSelection *pDragTarget, bool bMix);
+	void DragPaste(const CPatternClipData *pClipData, const CSelection *pDragTarget, bool bMix);
 
 	void ExpandPattern();
 	void ShrinkPattern();
@@ -275,10 +278,10 @@ public:
 #endif
 
 	// OLE support
-	void BeginDrag(CPatternClipData *pClipData);
+	void BeginDrag(const CPatternClipData *pClipData);
 	void EndDrag();
-	bool PerformDrop(CPatternClipData *pClipData, bool bCopy, bool bCopyMix);
-	void UpdateDrag(CPoint point);
+	bool PerformDrop(const CPatternClipData *pClipData, bool bCopy, bool bCopyMix);
+	void UpdateDrag(const CPoint &point);
 
 	// Private functions
 private:
@@ -289,11 +292,11 @@ private:
 	int  GetRealStartColumn(int Column) const;
 	int  GetRealEndColumn(int Column) const;
 	bool IsSingleChannelSelection() const;
-	bool IsInSelection(CCursorPos &Point) const;
 	void AdjustCursorChannel();
 	int	 GetChannelColumns(int Channel) const;
+	int  GetSelectedTrack() const;
 
-	CCursorPos GetCursorAtPoint(CPoint point) const;
+	CCursorPos GetCursorAtPoint(const CPoint &point) const;
 
 	void ClearRow(CDC *pDC, int Line);
 	void DrawPatternArea(CDC *pDC);
@@ -330,7 +333,7 @@ private:
 	void UpdateSelection();
 
 	// Other
-	int GetCurrentPatternLength(int Frame) const;
+	int GetCurrentPatternLength(unsigned int Frame) const;
 	void CalcLayout();
 
 	// Keys
@@ -349,8 +352,6 @@ private:
 private:
 	CFamiTrackerDoc	 *m_pDocument;
 	CFamiTrackerView *m_pView;
-
-	UINT m_iClipBoard;
 
 	// Window
 	int m_iWinWidth, m_iWinHeight;		// Window height & width
@@ -376,7 +377,6 @@ private:
 	// Play cursor
 	int m_iPlayRow;
 	int m_iPlayFrame;
-	bool m_bForcePlayRowUpdate;
 
 	bool m_bFollowMode;					// Follow mode enable/disable
 

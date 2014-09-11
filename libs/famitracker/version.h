@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 // Version info
 #define VERSION_MAJ  0
 #define VERSION_MIN  4
-#define VERSION_REV  3
+#define VERSION_REV  4
 
 // CP: Qt versioning adds a .x
 #define VERSION_QT   1 // 2014-??-??

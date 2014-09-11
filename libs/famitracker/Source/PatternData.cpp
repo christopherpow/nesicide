@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -25,21 +25,16 @@
 // This class contains pattern data
 // A list of these objects exists inside the document one for each song
 
-CPatternData::CPatternData(unsigned int PatternLength, unsigned int Speed, unsigned int Tempo)
+CPatternData::CPatternData(unsigned int PatternLength, unsigned int Speed, unsigned int Tempo) :
+	m_iPatternLength(PatternLength),
+	m_iFrameCount(1),
+	m_iSongSpeed(Speed),
+	m_iSongTempo(Tempo)
 {
 	// Clear memory
-	memset(m_iFrameList, 0, sizeof(short) * MAX_FRAMES * MAX_CHANNELS);
+	memset(m_iFrameList, 0, sizeof(char) * MAX_FRAMES * MAX_CHANNELS);
 	memset(m_pPatternData, 0, sizeof(stChanNote*) * MAX_CHANNELS * MAX_PATTERN);
-	memset(m_iEffectColumns, 0, sizeof(int) * MAX_CHANNELS);
-
-	m_iPatternLength = PatternLength;
-	m_iFrameCount	 = 1;
-	m_iSongSpeed	 = Speed;
-	m_iSongTempo	 = Tempo;
-
-	// Pre-allocate pattern 0 for all channels
-	for (int i = 0; i < MAX_CHANNELS; ++i)
-		AllocatePattern(i, 0);
+	memset(m_iEffectColumns, 0, sizeof(char) * MAX_CHANNELS);
 }
 
 CPatternData::~CPatternData()
@@ -52,55 +47,33 @@ CPatternData::~CPatternData()
 	}
 }
 
-void CPatternData::SetEffect(unsigned int Channel, unsigned int Pattern, unsigned int Row, unsigned int Column, char EffNumber, char EffParam)
+bool CPatternData::IsCellFree(unsigned int Channel, unsigned int Pattern, unsigned int Row) const
 {
-	GetPatternData(Channel, Pattern, Row)->EffNumber[Column] = EffNumber;
-	GetPatternData(Channel, Pattern, Row)->EffParam[Column] = EffParam;
-}
+	stChanNote *pNote = GetPatternData(Channel, Pattern, Row);
 
-void CPatternData::SetInstrument(unsigned int Channel, unsigned int Pattern, unsigned int Row, char Instrument)
-{
-	GetPatternData(Channel, Pattern, Row)->Instrument = Instrument;
-}
+	if (pNote == NULL)
+		return true;
 
-void CPatternData::SetNote(unsigned int Channel, unsigned int Pattern, unsigned int Row, char Note)
-{
-	GetPatternData(Channel, Pattern, Row)->Note = Note;
-}
-
-void CPatternData::SetOctave(unsigned int Channel, unsigned int Pattern, unsigned int Row, char Octave)
-{
-	GetPatternData(Channel, Pattern, Row)->Octave = Octave;
-}
-
-void CPatternData::SetVolume(unsigned int Channel, unsigned int Pattern, unsigned int Row, char Volume)
-{
-	GetPatternData(Channel, Pattern, Row)->Vol = Volume;
-}
-
-bool CPatternData::IsCellFree(unsigned int Channel, unsigned int Pattern, unsigned int Row)
-{
-	stChanNote *Note = GetPatternData(Channel, Pattern, Row);
-
-	bool IsFree = Note->Note == NONE && 
-		Note->EffNumber[0] == 0 && Note->EffNumber[1] == 0 && 
-		Note->EffNumber[2] == 0 && Note->EffNumber[3] == 0 && 
-		Note->Vol == 0x10 && Note->Instrument == MAX_INSTRUMENTS;
+	bool IsFree = pNote->Note == NONE && 
+		pNote->EffNumber[0] == 0 && pNote->EffNumber[1] == 0 && 
+		pNote->EffNumber[2] == 0 && pNote->EffNumber[3] == 0 && 
+		pNote->Vol == MAX_VOLUME && pNote->Instrument == MAX_INSTRUMENTS;
 
 	return IsFree;
 }
 
-bool CPatternData::IsPatternEmpty(unsigned int Channel, unsigned int Pattern)
+bool CPatternData::IsPatternEmpty(unsigned int Channel, unsigned int Pattern) const
 {
-	// Unallocated pattern is empty
+	// Unallocated pattern means empty
 	if (!m_pPatternData[Channel][Pattern])
 		return true;
 
-	// Check if pattern is empty
-	for (unsigned int i = 0; i < m_iPatternLength; i++) {
+	// Check if allocated pattern is empty
+	for (unsigned int i = 0; i < m_iPatternLength; ++i) {
 		if (!IsCellFree(Channel, Pattern, i))
 			return false;
 	}
+
 	return true;
 }
 
@@ -111,10 +84,20 @@ bool CPatternData::IsPatternInUse(unsigned int Channel, unsigned int Pattern) co
 		if (m_iFrameList[i][Channel] == Pattern)
 			return true;
 	}
+
 	return false;
 }
 
-stChanNote *CPatternData::GetPatternData(int Channel, int Pattern, int Row)
+stChanNote *CPatternData::GetPatternData(unsigned int Channel, unsigned int Pattern, unsigned int Row) const
+{
+	// Private method, may return NULL
+	if (!m_pPatternData[Channel][Pattern])
+		return NULL;
+
+	return m_pPatternData[Channel][Pattern] + Row;
+}
+
+stChanNote *CPatternData::GetPatternData(unsigned int Channel, unsigned int Pattern, unsigned int Row)
 {
 	if (!m_pPatternData[Channel][Pattern])		// Allocate pattern if accessed for the first time
 		AllocatePattern(Channel, Pattern);
@@ -122,19 +105,20 @@ stChanNote *CPatternData::GetPatternData(int Channel, int Pattern, int Row)
 	return m_pPatternData[Channel][Pattern] + Row;
 }
 
-void CPatternData::AllocatePattern(int Channel, int Pattern)
+void CPatternData::AllocatePattern(unsigned int Channel, unsigned int Pattern)
 {
 	// Allocate memory
 	m_pPatternData[Channel][Pattern] = new stChanNote[MAX_PATTERN_LENGTH];
 
 	// Clear memory
-	for (int i = 0; i < MAX_PATTERN_LENGTH; i++) {
+	for (int i = 0; i < MAX_PATTERN_LENGTH; ++i) {
 		stChanNote *pNote = m_pPatternData[Channel][Pattern] + i;
 		pNote->Note		  = 0;
 		pNote->Octave	  = 0;
 		pNote->Instrument = MAX_INSTRUMENTS;
-		pNote->Vol		  = 0x10;
-		for (int n = 0; n < MAX_EFFECT_COLUMNS; n++) {
+		pNote->Vol		  = MAX_VOLUME;
+
+		for (int n = 0; n < MAX_EFFECT_COLUMNS; ++n) {
 			pNote->EffNumber[n] = 0;
 			pNote->EffParam[n] = 0;
 		}
@@ -143,35 +127,34 @@ void CPatternData::AllocatePattern(int Channel, int Pattern)
 
 void CPatternData::ClearEverything()
 {
-	// Resets everything
+	// Release all patterns and clear frame list
 
 	// Frame list
-	memset(m_iFrameList, 0, sizeof(short) * MAX_FRAMES * MAX_CHANNELS);
+	memset(m_iFrameList, 0, sizeof(char) * MAX_FRAMES * MAX_CHANNELS);
+	m_iFrameCount = 1;
 	
 	// Patterns, deallocate everything
-	for (int i = 0; i < MAX_CHANNELS; i++) {
-		for (int j = 0; j < MAX_PATTERN; j++) {
-			if (m_pPatternData[i][j]) {
-				SAFE_RELEASE_ARRAY(m_pPatternData[i][j]);
-			}
+	for (int i = 0; i < MAX_CHANNELS; ++i) {
+		for (int j = 0; j < MAX_PATTERN; ++j) {
+			ClearPattern(i, j);
 		}
 	}
-
-	m_iFrameCount = 1;
 }
 
-void CPatternData::ClearPattern(int Channel, int Pattern)
+void CPatternData::ClearPattern(unsigned int Channel, unsigned int Pattern)
 {
 	// Deletes a specified pattern in a channel
-	SAFE_RELEASE_ARRAY(m_pPatternData[Channel][Pattern]);
+	if (m_pPatternData[Channel][Pattern] != NULL) {
+		SAFE_RELEASE_ARRAY(m_pPatternData[Channel][Pattern]);
+	}
 }
 
-unsigned short CPatternData::GetFramePattern(int Frame, int Channel) const
+unsigned int CPatternData::GetFramePattern(unsigned int Frame, unsigned int Channel) const
 { 
 	return m_iFrameList[Frame][Channel]; 
 }
 
-void CPatternData::SetFramePattern(int Frame, int Channel, int Pattern)
+void CPatternData::SetFramePattern(unsigned int Frame, unsigned int Channel, unsigned int Pattern)
 {
 	m_iFrameList[Frame][Channel] = Pattern;
 }

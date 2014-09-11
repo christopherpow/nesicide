@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ enum {
 IMPLEMENT_DYNAMIC(CSequenceSetting, CWnd)
 
 CSequenceSetting::CSequenceSetting(CWnd *pParent) 
-	: CWnd(), m_pParent(pParent), m_pSequence(NULL)
+	: CWnd(), m_pParent(pParent), m_pSequence(NULL), m_bMouseOver(false)
 {
 }
 
@@ -55,9 +55,10 @@ BEGIN_MESSAGE_MAP(CSequenceSetting, CWnd)
 	ON_COMMAND(MENU_ARP_ABSOLUTE, OnMenuArpAbsolute)
 	ON_COMMAND(MENU_ARP_RELATIVE, OnMenuArpRelative)
 	ON_COMMAND(MENU_ARP_FIXED, OnMenuArpFixed)
+	ON_WM_MOUSEMOVE()
+	ON_WM_MOUSELEAVE()
 END_MESSAGE_MAP()
 
-int mode = 0;
 
 void CSequenceSetting::Setup(CFont *pFont)
 {
@@ -84,15 +85,14 @@ void CSequenceSetting::OnPaint()
 	int mode = m_pSequence->GetSetting();
 
 	if (bDraw) {
-		const COLORREF BG_COLOR = 0x202020;
 
-		dc.FillSolidRect(rect, BG_COLOR);
-		dc.DrawEdge(rect, EDGE_BUMP, BF_RECT);
+		int BgColor = m_bMouseOver ? 0x303030 : 0x101010;
 
+		dc.FillSolidRect(rect, BgColor);
+		dc.DrawEdge(rect, EDGE_SUNKEN, BF_RECT);
 		dc.SelectObject(m_pFont);
-
 		dc.SetTextColor(0xFFFFFF);
-		dc.SetBkColor(BG_COLOR);
+		dc.SetBkColor(BgColor);
 
 		LPCTSTR MODES[] = {_T("Absolute"), _T("Fixed"), _T("Relative")};
 
@@ -113,19 +113,13 @@ void CSequenceSetting::OnLButtonDown(UINT nFlags, CPoint point)
 
 		switch (m_pSequence->GetSetting()) {
 			case ARP_SETTING_ABSOLUTE:
-				m_menuPopup.CheckMenuItem(MENU_ARP_ABSOLUTE, MF_CHECKED | MF_BYCOMMAND);
-				m_menuPopup.CheckMenuItem(MENU_ARP_RELATIVE, MF_UNCHECKED | MF_BYCOMMAND);
-				m_menuPopup.CheckMenuItem(MENU_ARP_FIXED, MF_UNCHECKED | MF_BYCOMMAND);
+				m_menuPopup.CheckMenuRadioItem(MENU_ARP_ABSOLUTE, MENU_ARP_FIXED, MENU_ARP_ABSOLUTE, MF_BYCOMMAND);
 				break;
 			case ARP_SETTING_RELATIVE:
-				m_menuPopup.CheckMenuItem(MENU_ARP_ABSOLUTE, MF_UNCHECKED | MF_BYCOMMAND);
-				m_menuPopup.CheckMenuItem(MENU_ARP_RELATIVE, MF_CHECKED | MF_BYCOMMAND);
-				m_menuPopup.CheckMenuItem(MENU_ARP_FIXED, MF_UNCHECKED | MF_BYCOMMAND);
+				m_menuPopup.CheckMenuRadioItem(MENU_ARP_ABSOLUTE, MENU_ARP_FIXED, MENU_ARP_RELATIVE, MF_BYCOMMAND);
 				break;
 			case ARP_SETTING_FIXED:
-				m_menuPopup.CheckMenuItem(MENU_ARP_ABSOLUTE, MF_UNCHECKED | MF_BYCOMMAND);
-				m_menuPopup.CheckMenuItem(MENU_ARP_RELATIVE, MF_UNCHECKED | MF_BYCOMMAND);
-				m_menuPopup.CheckMenuItem(MENU_ARP_FIXED, MF_CHECKED | MF_BYCOMMAND);
+				m_menuPopup.CheckMenuRadioItem(MENU_ARP_ABSOLUTE, MENU_ARP_FIXED, MENU_ARP_FIXED, MF_BYCOMMAND);
 				break;
 		}
 
@@ -169,4 +163,34 @@ void CSequenceSetting::OnMenuArpFixed()
 			Item = 0;
 		m_pSequence->SetItem(i, Item);
 	}
+}
+
+void CSequenceSetting::OnMouseMove(UINT nFlags, CPoint point)
+{
+	bool bOldMouseOver = m_bMouseOver;
+	m_bMouseOver = true;
+	if (bOldMouseOver != m_bMouseOver) {
+		TRACKMOUSEEVENT mouseEvent;
+		mouseEvent.cbSize = sizeof(TRACKMOUSEEVENT);
+		mouseEvent.dwFlags = TME_LEAVE;
+		mouseEvent.hwndTrack = m_hWnd;
+		TrackMouseEvent(&mouseEvent);
+		RedrawWindow();
+	}
+
+	CWnd::OnMouseMove(nFlags, point);
+}
+
+void CSequenceSetting::OnMouseLeave()
+{
+	m_bMouseOver = false;
+	RedrawWindow();
+
+	TRACKMOUSEEVENT mouseEvent;
+	mouseEvent.cbSize = sizeof(TRACKMOUSEEVENT);
+	mouseEvent.dwFlags = TME_CANCEL;
+	mouseEvent.hwndTrack = m_hWnd;
+	TrackMouseEvent(&mouseEvent);
+
+	CWnd::OnMouseLeave();
 }

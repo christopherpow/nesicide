@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -98,7 +98,7 @@ BOOL CInstrumentEditorVRC7::OnInitDialog()
 	CComboBox *pPatchBox = static_cast<CComboBox*>(GetDlgItem(IDC_PATCH));
 	CString Text;
 
-    const TCHAR* const PATCH_NAME[16] = {
+    const _TCHAR* const PATCH_NAME[16] = {
         _T("(custom patch)"),
         _T("Bell"),
         _T("Guitar"),

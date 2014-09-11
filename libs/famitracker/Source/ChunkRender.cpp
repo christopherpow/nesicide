@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@
 #include "ChunkRender.h"
 
 /**
- * Text chunk render
+ * Text chunk render, these methods will always output single byte strings
  *
  */
 
@@ -57,7 +57,7 @@ void CChunkRenderText::StoreChunks(std::vector<CChunk*> &m_vChunks, CFile *pFile
 	}
 	
 	// Write strings to file
-	WriteFileString(pFile, CStringA("; FamiTracker exported music data\n;\n\n"));
+	WriteFileString(CStringA("; FamiTracker exported music data\n;\n\n"), pFile);
 
 	// Module header
 	DumpStrings(CStringA("; Module header\n"), CStringA("\n"), m_headerStrings, pFile);
@@ -94,13 +94,13 @@ void CChunkRenderText::StoreChunks(std::vector<CChunk*> &m_vChunks, CFile *pFile
 
 void CChunkRenderText::DumpStrings(const CStringA &preStr, const CStringA &postStr, CStringArray &stringArray, CFile *pFile) const
 {
-	WriteFileString(pFile, preStr);
+	WriteFileString(preStr, pFile);
 
 	for (int i = 0; i < stringArray.GetCount(); ++i) {
-		WriteFileString(pFile, stringArray[i]);
+		WriteFileString(stringArray[i], pFile);
 	}
 
-	WriteFileString(pFile, postStr);
+	WriteFileString(postStr, pFile);
 }
 
 void CChunkRenderText::StoreHeaderChunk(CChunk *pChunk, CFile *pFile)
@@ -169,7 +169,7 @@ void CChunkRenderText::StoreSequenceChunk(CChunk *pChunk, CFile *pFile)
 	CStringA str;
 
 	str.Format("%s:\n", pChunk->GetLabel());
-	StoreByteString(pChunk, str);
+	StoreByteString(pChunk, str, 20);
 
 	m_sequenceStrings.Add(str);
 }
@@ -366,20 +366,12 @@ void CChunkRenderText::StoreWavesChunk(CChunk *pChunk, CFile *pFile)
 	m_wavesStrings.Add(str);
 }
 
-void CChunkRenderText::WriteFileString(CFile *pFile, const CStringA &str) const
+void CChunkRenderText::WriteFileString(const CStringA &str, CFile *pFile) const
 {
 	pFile->Write(const_cast<CStringA&>(str).GetBuffer(), str.GetLength());
 }
 
-void CChunkRenderText::PrintList(CChunk *pChunk, CStringA &str) const
-{
-	int len = pChunk->GetLength();
-	for (int i = 0; i < len; ++i) {
-		str.AppendFormat("%i%s", pChunk->GetData(i), (i < len - 1) ? ", " : "");
-	}
-}
-
-void CChunkRenderText::StoreByteString(CChunk *pChunk, CStringA &str) const
+void CChunkRenderText::StoreByteString(CChunk *pChunk, CStringA &str, int LineBreak) const
 {
 	int len = pChunk->GetLength();
 	
@@ -388,7 +380,7 @@ void CChunkRenderText::StoreByteString(CChunk *pChunk, CStringA &str) const
 	for (int i = 0; i < len; ++i) {
 		str.AppendFormat("$%02X", pChunk->GetData(i));
 
-		if ((i % 20 == 19) && (i < len - 1))
+		if ((i % LineBreak == (LineBreak - 1)) && (i < len - 1))
 			str.Append("\n\t.byte ");
 		else if (i < len - 1)
 			str.Append(", ");

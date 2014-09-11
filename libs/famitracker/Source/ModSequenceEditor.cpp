@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -121,7 +121,6 @@ void CModSequenceEditor::EditSequence(CPoint point)
 
 	int index = (point.x - 2) / (SIZE_X + 2);
 	int value = ((point.y - 3) / 7);
-	int s;
 
 	if (index < 0)
 		index = 0;
@@ -137,13 +136,13 @@ void CModSequenceEditor::EditSequence(CPoint point)
 
 	CDC *pDC = GetDC();
 
-	s = m_pInstrument->GetModulation(index);
-
-	FillItem(pDC, index, s, true);
-
-	m_pInstrument->SetModulation(index, value);
-
-	FillItem(pDC, index, value, false);
+	if (pDC != NULL) {
+		int s = m_pInstrument->GetModulation(index);
+		FillItem(pDC, index, s, true);
+		m_pInstrument->SetModulation(index, value);
+		FillItem(pDC, index, value, false);
+		ReleaseDC(pDC);
+	}
 
 	// Notify parent that the sequence has changed
 	GetParent()->PostMessage(WM_USER + 1);

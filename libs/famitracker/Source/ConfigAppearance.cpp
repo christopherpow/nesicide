@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -88,8 +88,10 @@ BEGIN_MESSAGE_MAP(CConfigAppearance, CPropertyPage)
 	ON_CBN_SELCHANGE(IDC_SCHEME, OnCbnSelchangeScheme)
 //ON_CBN_SELCHANGE(IDC_FONT_SIZE, &CConfigAppearance::OnCbnSelchangeFontSize)
 //ON_BN_CLICKED(IDC_PATTERNCOLORS, &CConfigAppearance::OnBnClickedPatterncolors)
+//	ON_BN_CLICKED(IDC_DISPLAYFLATS, &CConfigAppearance::OnBnClickedDisplayFlats)
    ON_CBN_SELCHANGE(IDC_FONT_SIZE, OnCbnSelchangeFontSize)
    ON_BN_CLICKED(IDC_PATTERNCOLORS, OnBnClickedPatterncolors)
+	ON_BN_CLICKED(IDC_DISPLAYFLATS, OnBnClickedDisplayFlats)
 END_MESSAGE_MAP()
 
 
@@ -222,23 +224,20 @@ BOOL CConfigAppearance::OnInitDialog()
 {
 	CPropertyPage::OnInitDialog();
 
-	CDC *pDC = GetDC();
-	LOGFONT LogFont;
-
 	const CSettings *pSettings = theApp.GetSettings();
-
 	m_strFont = pSettings->General.strFont;
 
-	memset(&LogFont, 0, sizeof(LOGFONT));
-	LogFont.lfCharSet = DEFAULT_CHARSET;
+	CDC *pDC = GetDC();
+	if (pDC != NULL) {
+		LOGFONT LogFont;
+		memset(&LogFont, 0, sizeof(LOGFONT));
+		LogFont.lfCharSet = DEFAULT_CHARSET;
+		EnumFontFamiliesEx(pDC->m_hDC, &LogFont, (FONTENUMPROC)EnumFontFamExProc, (LPARAM)this, 0);
+		ReleaseDC(pDC);
+	}
 
 	CComboBox *pFontList = static_cast<CComboBox*>(GetDlgItem(IDC_FONT));
 	CComboBox *pFontSizeList = static_cast<CComboBox*>(GetDlgItem(IDC_FONT_SIZE));
-
-	EnumFontFamiliesEx(pDC->m_hDC, &LogFont, (FONTENUMPROC)EnumFontFamExProc, (LPARAM)this, 0);
-
-	ReleaseDC(pDC);
-
 	CComboBox *pItemsBox = static_cast<CComboBox*>(GetDlgItem(IDC_COL_ITEM));
 
 	for (int i = 0; i < COLOR_ITEM_COUNT; ++i) {

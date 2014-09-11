@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -60,40 +60,40 @@ BOOL CConfigMIDI::OnInitDialog()
 {
 	CPropertyPage::OnInitDialog();
 
-//	CMIDI	*pMIDI = theApp.GetMIDI();
-//	int		NumDev, i;
-//	CString Text;
+	CMIDI	*pMIDI = theApp.GetMIDI();
+	int		NumDev, i;
+	CString Text;
 
-//	CComboBox *pInDevices = (CComboBox*)GetDlgItem(IDC_INDEVICES);
-//	CComboBox *pOutDevices = (CComboBox*)GetDlgItem(IDC_OUTDEVICES);
+	CComboBox *pInDevices = static_cast<CComboBox*>(GetDlgItem(IDC_INDEVICES));
+	CComboBox *pOutDevices = static_cast<CComboBox*>(GetDlgItem(IDC_OUTDEVICES));
 
-//	pInDevices->AddString(_T("<none>"));
-//	pOutDevices->AddString(_T("<none>"));
+	pInDevices->AddString(_T("<none>"));
+	pOutDevices->AddString(_T("<none>"));
 
-//	// Input
-//	NumDev = pMIDI->GetNumInputDevices();
+	// Input
+	NumDev = pMIDI->GetNumInputDevices();
 
-//	for (i = 0; i < NumDev; ++i) {
-//		pMIDI->GetInputDeviceString(i, Text);
-//		pInDevices->AddString(Text);
-//	}
+	for (i = 0; i < NumDev; ++i) {
+		pMIDI->GetInputDeviceString(i, Text);
+		pInDevices->AddString(Text);
+	}
 
-//	// Output
-//	NumDev = pMIDI->GetNumOutputDevices();
+	// Output
+	NumDev = pMIDI->GetNumOutputDevices();
 
-//	for (i = 0; i < NumDev; ++i) {
-//		pMIDI->GetOutputDeviceString(i, Text);
-//		pOutDevices->AddString(Text);
-//	}
+	for (i = 0; i < NumDev; ++i) {
+		pMIDI->GetOutputDeviceString(i, Text);
+		pOutDevices->AddString(Text);
+	}
 
-//	pInDevices->SetCurSel(pMIDI->GetInputDevice());
-//	pOutDevices->SetCurSel(pMIDI->GetOutputDevice());
+	pInDevices->SetCurSel(pMIDI->GetInputDevice());
+	pOutDevices->SetCurSel(pMIDI->GetOutputDevice());
 
-//	CheckDlgButton(IDC_MASTER_SYNC, theApp.GetSettings()->Midi.bMidiMasterSync	? 1 : 0);
-//	CheckDlgButton(IDC_KEY_RELEASE, theApp.GetSettings()->Midi.bMidiKeyRelease	? 1 : 0);
-//	CheckDlgButton(IDC_CHANMAP,		theApp.GetSettings()->Midi.bMidiChannelMap	? 1 : 0);
-//	CheckDlgButton(IDC_VELOCITY,	theApp.GetSettings()->Midi.bMidiVelocity	? 1 : 0);
-//	CheckDlgButton(IDC_ARPEGGIATE,	theApp.GetSettings()->Midi.bMidiArpeggio	? 1 : 0);
+	CheckDlgButton(IDC_MASTER_SYNC, theApp.GetSettings()->Midi.bMidiMasterSync	? 1 : 0);
+	CheckDlgButton(IDC_KEY_RELEASE, theApp.GetSettings()->Midi.bMidiKeyRelease	? 1 : 0);
+	CheckDlgButton(IDC_CHANMAP,		theApp.GetSettings()->Midi.bMidiChannelMap	? 1 : 0);
+	CheckDlgButton(IDC_VELOCITY,	theApp.GetSettings()->Midi.bMidiVelocity	? 1 : 0);
+	CheckDlgButton(IDC_ARPEGGIATE,	theApp.GetSettings()->Midi.bMidiArpeggio	? 1 : 0);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
@@ -101,18 +101,18 @@ BOOL CConfigMIDI::OnInitDialog()
 
 BOOL CConfigMIDI::OnApply()
 {
-//	CComboBox	*InDevices	= (CComboBox*)GetDlgItem(IDC_INDEVICES);
-//	CComboBox	*OutDevices	= (CComboBox*)GetDlgItem(IDC_OUTDEVICES);
-//	CMIDI		*pMIDI		= theApp.GetMIDI();
+	CComboBox	*pInDevices	 = static_cast<CComboBox*>(GetDlgItem(IDC_INDEVICES));
+	CComboBox	*pOutDevices = static_cast<CComboBox*>(GetDlgItem(IDC_OUTDEVICES));
+	CMIDI		*pMIDI		 = theApp.GetMIDI();
 	
-//	pMIDI->SetInputDevice(InDevices->GetCurSel(), IsDlgButtonChecked(IDC_MASTER_SYNC) != 0);
-//	pMIDI->SetOutputDevice(OutDevices->GetCurSel());
+	pMIDI->SetInputDevice(pInDevices->GetCurSel(), IsDlgButtonChecked(IDC_MASTER_SYNC) != 0);
+	pMIDI->SetOutputDevice(pOutDevices->GetCurSel());
 	
-//	theApp.GetSettings()->Midi.bMidiMasterSync	= IsDlgButtonChecked(IDC_MASTER_SYNC)	== 1;
-//	theApp.GetSettings()->Midi.bMidiKeyRelease	= IsDlgButtonChecked(IDC_KEY_RELEASE)	== 1;
-//	theApp.GetSettings()->Midi.bMidiChannelMap	= IsDlgButtonChecked(IDC_CHANMAP)		== 1;
-//	theApp.GetSettings()->Midi.bMidiVelocity	= IsDlgButtonChecked(IDC_VELOCITY)		== 1;
-//	theApp.GetSettings()->Midi.bMidiArpeggio	= IsDlgButtonChecked(IDC_ARPEGGIATE)	== 1;
+	theApp.GetSettings()->Midi.bMidiMasterSync	= IsDlgButtonChecked(IDC_MASTER_SYNC)	== 1;
+	theApp.GetSettings()->Midi.bMidiKeyRelease	= IsDlgButtonChecked(IDC_KEY_RELEASE)	== 1;
+	theApp.GetSettings()->Midi.bMidiChannelMap	= IsDlgButtonChecked(IDC_CHANMAP)		== 1;
+	theApp.GetSettings()->Midi.bMidiVelocity	= IsDlgButtonChecked(IDC_VELOCITY)		== 1;
+	theApp.GetSettings()->Midi.bMidiArpeggio	= IsDlgButtonChecked(IDC_ARPEGGIATE)	== 1;
 
 	return CPropertyPage::OnApply();
 }

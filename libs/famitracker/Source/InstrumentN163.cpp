@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -87,7 +87,9 @@ void CInstrumentN163::Setup()
 
 	for (int i = 0; i < SEQ_COUNT; ++i) {
 		SetSeqEnable(i, 0);
-		SetSeqIndex(i, pDoc->GetFreeSequenceN163(i));
+		int Index = pDoc->GetFreeSequenceN163(i);
+		if (Index != -1)
+			SetSeqIndex(i, Index);
 	}
 }
 
@@ -149,7 +151,7 @@ bool CInstrumentN163::Load(CDocumentFile *pDocFile)
 	return true;
 }
 
-void CInstrumentN163::SaveFile(CInstrumentFile *pFile, CFamiTrackerDoc *pDoc)
+void CInstrumentN163::SaveFile(CInstrumentFile *pFile, const CFamiTrackerDoc *pDoc)
 {
 	// Sequences
 	pFile->WriteChar(SEQUENCE_COUNT);
@@ -158,7 +160,7 @@ void CInstrumentN163::SaveFile(CInstrumentFile *pFile, CFamiTrackerDoc *pDoc)
 		int Sequence = GetSeqIndex(i);
 
 		if (GetSeqEnable(i)) {
-			CSequence *pSeq = pDoc->GetSequence(SNDCHIP_N163, Sequence, i);
+			const CSequence *pSeq = pDoc->GetSequenceN163(Sequence, i);
 			pFile->WriteChar(1);
 			pFile->WriteInt(pSeq->GetItemCount());
 			pFile->WriteInt(pSeq->GetLoopPoint());
@@ -199,25 +201,25 @@ bool CInstrumentN163::LoadFile(CInstrumentFile *pFile, int iVersion, CFamiTracke
 		unsigned char Enabled = pFile->ReadChar();
 		if (Enabled == 1) {
 			// Read the sequence
-			int Count;
-			pFile->Read(&Count, sizeof(int));
-
+			int Count = pFile->ReadInt();
 			if (Count < 0 || Count > MAX_SEQUENCE_ITEMS)
 				return false;
 
 			// Find a free sequence
 			int Index = pDoc->GetFreeSequenceN163(i);
-			CSequence *pSeq = pDoc->GetSequenceN163(Index, i);
-
-			pSeq->SetItemCount(Count);
-			pSeq->SetLoopPoint(pFile->ReadInt());
-			pSeq->SetReleasePoint(pFile->ReadInt());
-			pSeq->SetSetting(pFile->ReadInt());
-			for (int j = 0; j < Count; ++j) {
-				pSeq->SetItem(j, pFile->ReadChar());
+			if (Index != -1) {
+				CSequence *pSeq = pDoc->GetSequenceN163(Index, i);
+	
+				pSeq->SetItemCount(Count);
+				pSeq->SetLoopPoint(pFile->ReadInt());
+				pSeq->SetReleasePoint(pFile->ReadInt());
+				pSeq->SetSetting(pFile->ReadInt());
+				for (int j = 0; j < Count; ++j) {
+					pSeq->SetItem(j, pFile->ReadChar());
+				}
+				SetSeqEnable(i, true);
+				SetSeqIndex(i, Index);
 			}
-			SetSeqEnable(i, true);
-			SetSeqIndex(i, Index);
 		}
 		else {
 			SetSeqEnable(i, false);

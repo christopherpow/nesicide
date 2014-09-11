@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -103,19 +103,6 @@ unsigned int CSequence::GetSetting() const
 {
 	return m_iSetting;
 }
-
-void CSequence::SetPlayPos(int Position)
-{
-	m_iPlaying = Position;
-}
-
-int	CSequence::GetPlayPos()
-{
-	int Ret = m_iPlaying;
-	m_iPlaying = -1;
-	return Ret;
-}
-
 
 void CSequence::Copy(const CSequence *pSeq)
 {

@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -65,4 +65,10 @@ public:
 private:
 	HACCEL	m_hAccel;
 	HACCEL	m_hAdditionalAccel;
+
+	// Shortcut table
+	stAccelEntry *m_pEntriesTable;
+
+	// Accelerator table
+	ACCEL	*m_pAccelTable;
 };

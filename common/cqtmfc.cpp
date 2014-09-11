@@ -6515,26 +6515,27 @@ BOOL CWnd::OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, LRESULT* pResult
 //	}
    
 	const AFX_MSGMAP* pMessageMap; pMessageMap = GetMessageMap();
-   AFX_MSG_CACHE* pMsgCache; pMsgCache = &_afxMsgCache;
-	const AFX_MSGMAP_ENTRY* lpEntry;
-   if (message == pMsgCache->nMsg && pMessageMap == pMsgCache->pMessageMap)
-	{
-		// cache hit
-		lpEntry = pMsgCache->lpEntry;
-		if (lpEntry == NULL)
-			return FALSE;
+//   AFX_MSG_CACHE* pMsgCache; pMsgCache = &_afxMsgCache;
+   const AFX_MSGMAP_ENTRY* lpEntry;
+//   if (message == pMsgCache->nMsg && pMessageMap == pMsgCache->pMessageMap)
+//   {
+//      // cache hit
+//      lpEntry = pMsgCache->lpEntry;
+//      qDebug("CACHED MESSAGE %x", message);
+//      if (lpEntry == NULL)
+//         return FALSE;
 
-		// cache hit, and it needs to be handled
-		if (message < 0xC000)
-			goto LDispatch;
-		else
-			goto LDispatchRegistered;
-	}
-	else
+//      // cache hit, and it needs to be handled
+//      if (message < 0xC000)
+//         goto LDispatch;
+//      else
+//         goto LDispatchRegistered;
+//   }
+//   else
 	{
 		// not in cache, look for it
-		pMsgCache->nMsg = message;
-		pMsgCache->pMessageMap = pMessageMap;
+//		pMsgCache->nMsg = message;
+//		pMsgCache->pMessageMap = pMessageMap;
 
       for (/* pMessageMap already init'ed */; pMessageMap->pfnGetBaseMap != NULL;
          pMessageMap = (*pMessageMap->pfnGetBaseMap)())
@@ -6548,7 +6549,7 @@ BOOL CWnd::OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, LRESULT* pResult
             if ((lpEntry = AfxFindMessageEntry(pMessageMap->lpEntries,
                message, 0, 0)) != NULL)
             {
-               pMsgCache->lpEntry = lpEntry;
+//               pMsgCache->lpEntry = lpEntry;
                goto LDispatch;
             }
          }
@@ -6563,7 +6564,7 @@ BOOL CWnd::OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, LRESULT* pResult
                   // must be successfully registered
                if (*pnID == message)
                {
-                  pMsgCache->lpEntry = lpEntry;
+//                  pMsgCache->lpEntry = lpEntry;
                   goto LDispatchRegistered;
                }
                lpEntry++;      // keep looking past this one
@@ -6571,7 +6572,7 @@ BOOL CWnd::OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, LRESULT* pResult
          }
       }
       
-      pMsgCache->lpEntry = NULL;
+//      pMsgCache->lpEntry = NULL;
       return FALSE;
    }
 
@@ -10226,10 +10227,10 @@ int CWinThread::Run( )
 
    if ( pThread->thread() == QApplication::instance()->thread() )
    {
-   OnIdle(0);
-   ptrToTheApp->m_pMainWnd->SendMessageToDescendants(WM_IDLEUPDATECMDUI,
-                                                     (WPARAM)TRUE, 0, TRUE, TRUE);
-}
+      OnIdle(0);
+      ptrToTheApp->m_pMainWnd->SendMessageToDescendants(WM_IDLEUPDATECMDUI,
+                                                        (WPARAM)TRUE, 0, TRUE, TRUE);
+   }
    return 0;
 }
 

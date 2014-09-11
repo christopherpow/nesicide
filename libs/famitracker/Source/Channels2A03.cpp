@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -119,15 +119,17 @@ void CChannelHandler2A03::HandleEmptyNote()
 		m_cSweep = m_iSweep;
 }
 
-void CChannelHandler2A03::HandleHalt()
+void CChannelHandler2A03::HandleCut()
 {
 	CutNote();
 }
 
 void CChannelHandler2A03::HandleRelease()
 {
-	ReleaseNote();
-	ReleaseSequences(SNDCHIP_NONE);
+	if (!m_bRelease) {
+		ReleaseNote();
+		ReleaseSequences(SNDCHIP_NONE);
+	}
 /*
 	if (!m_bSweeping && (m_cSweep != 0 || m_iSweep != 0)) {
 		m_iSweep = 0;
@@ -171,7 +173,7 @@ void CChannelHandler2A03::ProcessChannel()
 
 	// Sequences
 	for (int i = 0; i < CInstrument2A03::SEQUENCE_COUNT; ++i)
-		RunSequence(i, pDocument->GetSequence(m_iSeqIndex[i], CInstrument2A03::SEQUENCE_TYPES[i]));
+		RunSequence(i, pDocument->GetSequence(unsigned(m_iSeqIndex[i]), CInstrument2A03::SEQUENCE_TYPES[i]));
 
 	if (m_bGate && m_iSeqState[SEQ_VOLUME] != SEQ_STATE_DISABLED)
 		m_bGate = !(m_iSeqState[SEQ_VOLUME] == SEQ_STATE_DISABLED);
@@ -425,7 +427,7 @@ unsigned int CNoiseChan::TriggerNote(int Note)
 		Note = 0;
 		*/
 
-	RegisterKeyState(m_iChannelID, Note);
+	RegisterKeyState(Note);
 
 //	Note &= 0x0F;
 
@@ -499,7 +501,7 @@ void CDPCMChan::HandleEmptyNote()
 {
 }
 
-void CDPCMChan::HandleHalt()
+void CDPCMChan::HandleCut()
 {
 //	KillChannel();
 	CutNote();
@@ -536,10 +538,10 @@ void CDPCMChan::HandleNote(int Note, int Octave)
 
 		const CDSample *pDSample = pDocument->GetSample(SampleIndex - 1);
 
-		int SampleSize = pDSample->SampleSize;
+		int SampleSize = pDSample->GetSize();
 
 		if (SampleSize > 0) {
-			m_pSampleMem->SetMem(pDSample->SampleData, SampleSize);
+			m_pSampleMem->SetMem(pDSample->GetData(), SampleSize);
 			m_iPeriod = Pitch & 0x0F;
 			m_iSampleLength = (SampleSize >> 4) - (m_iOffset << 2);
 			m_iLoopLength = SampleSize - m_iLoopOffset;
@@ -557,7 +559,7 @@ void CDPCMChan::HandleNote(int Note, int Octave)
 		}
 	}
 
-	RegisterKeyState(m_iChannelID, (Note - 1) + (Octave * 12));
+	RegisterKeyState((Note - 1) + (Octave * 12));
 }
 
 void CDPCMChan::RefreshChannel()
@@ -607,7 +609,7 @@ void CDPCMChan::RefreshChannel()
 	}
 	else if (m_bTrigger) {
 		// Start playing the sample
-		WriteRegister(0x4010, 0x00 | (m_iPeriod & 0x0F) | m_iLoop);
+		WriteRegister(0x4010, (m_iPeriod & 0x0F) | m_iLoop);
 		WriteRegister(0x4012, m_iOffset);							// load address, start at $C000
 		WriteRegister(0x4013, m_iSampleLength);						// length
 		WriteRegister(0x4015, 0x0F);

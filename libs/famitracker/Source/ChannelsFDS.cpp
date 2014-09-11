@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -149,21 +149,23 @@ void CChannelHandlerFDS::HandleEmptyNote()
 {
 }
 
-void CChannelHandlerFDS::HandleHalt()
+void CChannelHandlerFDS::HandleCut()
 {
 	CutNote();
 }
 
 void CChannelHandlerFDS::HandleRelease()
 {
-	ReleaseNote();
+	if (!m_bRelease) {
+		ReleaseNote();
 
-	if (m_iSeqState[SEQ_VOLUME] != SEQ_STATE_DISABLED)
-		CChannelHandler::ReleaseSequence(SEQ_VOLUME, m_pVolumeSeq);
-	if (m_iSeqState[SEQ_ARPEGGIO] != SEQ_STATE_DISABLED)
-		CChannelHandler::ReleaseSequence(SEQ_ARPEGGIO, m_pArpeggioSeq);
-	if (m_iSeqState[SEQ_PITCH] != SEQ_STATE_DISABLED)
-		CChannelHandler::ReleaseSequence(SEQ_PITCH, m_pPitchSeq);
+		if (m_iSeqState[SEQ_VOLUME] != SEQ_STATE_DISABLED)
+			CChannelHandler::ReleaseSequence(SEQ_VOLUME, m_pVolumeSeq);
+		if (m_iSeqState[SEQ_ARPEGGIO] != SEQ_STATE_DISABLED)
+			CChannelHandler::ReleaseSequence(SEQ_ARPEGGIO, m_pArpeggioSeq);
+		if (m_iSeqState[SEQ_PITCH] != SEQ_STATE_DISABLED)
+			CChannelHandler::ReleaseSequence(SEQ_PITCH, m_pPitchSeq);
+	}
 }
 
 void CChannelHandlerFDS::HandleNote(int Note, int Octave)

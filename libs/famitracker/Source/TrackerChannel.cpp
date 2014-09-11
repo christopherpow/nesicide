@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ CTrackerChannel::CTrackerChannel(LPCTSTR pName, const int iChip, const int iID) 
 	m_iColumnCount(0),
 	m_bNewNote(false),
 	m_iPitch(0),
-	m_iNotePriority(0),
+	m_iNotePriority(NOTE_PRIO_0),
 	m_iVolumeMeter(0)
 {
 }
@@ -69,7 +69,7 @@ void CTrackerChannel::SetColumnCount(int Count)
 	m_iColumnCount = Count;
 }
 
-void CTrackerChannel::SetNote(stChanNote &Note, int Priority)
+void CTrackerChannel::SetNote(stChanNote &Note, note_prio_t Priority)
 {
 	m_csNoteLock.Lock();
 

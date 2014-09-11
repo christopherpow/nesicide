@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -58,39 +58,39 @@ public:
 	void	SetStatusText(LPCTSTR Text,...);
 	void	ChangeNoteState(int Note);
 	
-	void	UpdateTrackBox();
-	void	ChangedTrack();
-	void	ResizeFrameWindow();
-
-	void	UpdateControls();
-
-	// Instrument
-	void	OpenInstrumentEditor();
-	void	CloseInstrumentEditor();
-	void	UpdateInstrumentList();
-	void	SelectInstrument(int Index);
-
+	// Indicators & controls
 	void	SetIndicatorTime(int Min, int Sec, int MSec);
 	void	SetIndicatorPos(int Frame, int Row);
 	void	SetSongInfo(const char *pName, const char *pArtist, const char *pCopyright);
 	void	SetupColors();
 	void	DisplayOctave();
 
+	void	UpdateTrackBox();
+	void	UpdateControls();
+	void	ResizeFrameWindow();
+
 	void	SetFirstHighlightRow(int Rows);
 	void	SetSecondHighlightRow(int Rows);
 
-	int		GetSelectedInstrument() const;
-	int		GetSelectedTrack() const;
-	void	SelectTrack(int Track);
+	void	UpdateMenus();
 
+	// Instrument
+	void	OpenInstrumentEditor();
+	void	CloseInstrumentEditor();
+	void	UpdateInstrumentList();
+	void	SelectInstrument(int Index);
+	int		GetSelectedInstrument() const;
+
+	// Track
+	int		GetSelectedTrack() const;
+	void	SelectTrack(unsigned int Track);
+
+	// Undo/redo
 	bool	AddAction(CAction *pAction);
 	CAction *GetLastAction(int Filter) const;
 	void	ResetUndo();
 
-	void	UpdateMenus();
-
 	bool	ChangeAllPatterns() const;
-
 
 // Overrides
 public:
@@ -103,7 +103,7 @@ public:
 	virtual void Dump(CDumpContext& dc) const;
 #endif
 
-protected:
+private:
 	bool	CreateDialogPanels();
 	bool	CreateToolbars();
 	bool	CreateInstrumentToolbar();
@@ -127,7 +127,7 @@ protected:
 
 	void	CheckAudioStatus();
 
-protected:  // control bar embedded members
+private:  // control bar embedded members
 	CStatusBar			m_wndStatusBar;
 	CToolBar			m_wndToolBar;
 	CReBar				m_wndToolBarReBar;
@@ -165,16 +165,13 @@ protected:  // control bar embedded members
 	CBitmap				m_bmInstToolbar;		// instrument toolbar
 	CImageList			m_ilInstToolBar;
 
-	int					m_iInstrumentIcons[8];
-
 	CActionHandler		*m_pActionHandler;
 
 	int					m_iFrameEditorPos;
 
 	CInstrumentFileTree	*m_pInstrumentFileTree;
 
-private:
-	// State variables (to be used) TODO
+	// State variables
 	int					m_iInstrument;				// Selected instrument
 	int					m_iTrack;					// Selected track
 
@@ -250,7 +247,7 @@ public:
 	afx_msg void OnUpdateEditDelete(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateEditEnablemidi(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateSelectionEnabled(CCmdUI *pCmdUI);
-   afx_msg void OnTimer(UINT_PTR nIDEvent);
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg void OnFileGeneralsettings();
 	afx_msg void OnEnSongNameChange();
 	afx_msg void OnEnSongArtistChange();

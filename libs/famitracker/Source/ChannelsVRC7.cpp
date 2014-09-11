@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -30,21 +30,12 @@
 #define OPL_NOTE_ON 0x10
 #define OPL_SUSTAIN_ON 0x20
 
-enum {
-	CMD_NONE, 
-	CMD_NOTE_ON,
-	CMD_NOTE_TRIGGER,
-	CMD_NOTE_OFF, 
-	CMD_NOTE_HALT,
-	CMD_NOTE_RELEASE
-};
-
 // True if custom instrument registers needs to be updated, shared among all channels
 bool CChannelHandlerVRC7::m_bRegsDirty = false;
 
 CChannelHandlerVRC7::CChannelHandlerVRC7() : 
 	CChannelHandler(), 
-	m_iCommand(0),
+	m_iCommand(CMD_NONE),
 	m_iTriggeredNote(0)
 {
 	m_iVolume = VOL_COLUMN_MAX;
@@ -186,16 +177,19 @@ void CChannelHandlerVRC7::HandleEmptyNote()
 {
 }
 
-void CChannelHandlerVRC7::HandleHalt()
+void CChannelHandlerVRC7::HandleCut()
 {
 	m_iCommand = CMD_NOTE_HALT;
-	RegisterKeyState(m_iChannelID, -1);
+	m_iPortaTo = 0;
+	RegisterKeyState(-1);
 }
 
 void CChannelHandlerVRC7::HandleRelease()
 {
-	m_iCommand = CMD_NOTE_RELEASE;
-	RegisterKeyState(m_iChannelID, -1);
+	if (!m_bRelease) {
+		m_iCommand = CMD_NOTE_RELEASE;
+		RegisterKeyState(-1);
+	}
 }
 
 void CChannelHandlerVRC7::HandleNote(int Note, int Octave)
@@ -241,7 +235,7 @@ void CChannelHandlerVRC7::ResetChannel()
 unsigned int CChannelHandlerVRC7::TriggerNote(int Note)
 {
 	m_iTriggeredNote = Note;
-	RegisterKeyState(m_iChannelID, Note);
+	RegisterKeyState(Note);
 	if (m_iCommand != CMD_NOTE_TRIGGER && m_iCommand != CMD_NOTE_HALT)
 		m_iCommand = CMD_NOTE_ON;
 	m_iOctave = Note / 12;

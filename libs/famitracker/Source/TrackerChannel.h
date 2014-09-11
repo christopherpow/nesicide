@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 
 #pragma once
 
-enum {
+enum note_prio_t {
 	NOTE_PRIO_0, 
 	NOTE_PRIO_1, 
 	NOTE_PRIO_2
@@ -38,7 +38,7 @@ public:
 	void SetColumnCount(int Count);
 
 	stChanNote GetNote();
-	void SetNote(stChanNote &Note, int Priority);
+	void SetNote(stChanNote &Note, note_prio_t Priority);
 	bool NewNoteData() const;
 	void Reset();
 
@@ -60,7 +60,7 @@ private:
 
 	stChanNote m_Note;
 	bool m_bNewNote;
-	int	m_iNotePriority;
+	note_prio_t	m_iNotePriority;
 
 	int m_iVolumeMeter;
 	int m_iPitch;

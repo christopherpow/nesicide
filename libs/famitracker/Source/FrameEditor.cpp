@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 #include "FamiTrackerDoc.h"
 #include "FamiTrackerView.h"
 #include "MainFrm.h"
-#include "Action.h"
+#include "FrameAction.h"
 #include "Accelerator.h"
 #include "PatternEditor.h"
 #include "FrameEditor.h"
@@ -47,6 +47,9 @@ CFrameEditor::CFrameEditor(CMainFrame *pMainFrm):
 	m_iFirstChannel(0),
 	m_iRowsVisible(0),
 	m_iMiddleRow(0),
+	m_iLastCursorFrame(0),
+	m_iLastCursorChannel(0),
+	m_iLastPlayFrame(0),
 	m_bInputEnable(false),
 	m_pMainFrame(pMainFrm),
 	m_pDocument(NULL),
@@ -291,7 +294,8 @@ void CFrameEditor::OnPaint()
 	CBitmap *pOldBmp = m_dcBack.SelectObject(&m_bmpBack);
 	CFont *pOldFont = m_dcBack.SelectObject(&m_Font);
 
-	const int FrameCount   = pDoc->GetFrameCount();
+	const int Track		   = m_pMainFrame->GetSelectedTrack();
+	const int FrameCount   = pDoc->GetFrameCount(Track);
 	const int ChannelCount = pDoc->GetAvailableChannels();
 	int ActiveFrame		   = pView->GetSelectedFrame();
 	int ActiveChannel	   = pView->GetSelectedChannel();
@@ -346,12 +350,17 @@ void CFrameEditor::OnPaint()
 	if (FirstVisibleFrame + End >= FrameCount)
 		End = Start + FrameCount - ((FirstVisibleFrame > 0) ? FirstVisibleFrame : 0);
 
+	// Save draw info
+	m_iLastCursorFrame = ActiveFrame;
+	m_iLastCursorChannel = ActiveChannel;
+	m_iLastPlayFrame = PlayFrame;
+
 	// Draw rows
 	for (int i = Start; i < End; ++i) {
 		
 		// Play cursor
 		if (PlayFrame == Frame && !pView->GetFollowMode() && theApp.IsPlaying()) {
-			GradientBar(&m_dcBack, 0, SY(i * ROW_HEIGHT + 4), SX(Width), SY(ROW_HEIGHT - 1), CPatternView::ROW_PLAY_COLOR, ColBackground);
+			GradientBar(&m_dcBack, 0, SY(i * ROW_HEIGHT + 4), SX(Width), SY(ROW_HEIGHT - 1), CPatternEditor::ROW_PLAY_COLOR, ColBackground);
 		}
 
 		// Queue cursor
@@ -404,12 +413,12 @@ void CFrameEditor::OnPaint()
 			int Chan = j + m_iFirstChannel;
 
 			// Dim patterns that are different from current
-			if (pDoc->GetPatternAtFrame(Frame, Chan) == pDoc->GetPatternAtFrame(ActiveFrame, Chan) || bSelectedRow)
+			if (pDoc->GetPatternAtFrame(Track, Frame, Chan) == pDoc->GetPatternAtFrame(Track, ActiveFrame, Chan) || bSelectedRow)
 				m_dcBack.SetTextColor(CurrentColor);
 			else
 				m_dcBack.SetTextColor(DIM(CurrentColor, 70));
 
-			Text.Format(_T("%02X"), pDoc->GetPatternAtFrame(Frame, Chan));
+			Text.Format(_T("%02X"), pDoc->GetPatternAtFrame(Track, Frame, Chan));
 			CRect rect(SX(30 + j * FRAME_ITEM_WIDTH), SY(i * ROW_HEIGHT + 3), SX(28 + j * FRAME_ITEM_WIDTH + FRAME_ITEM_WIDTH), SY(i * ROW_HEIGHT + 3 + 20));
 			m_dcBack.DrawText(Text, rect, DT_LEFT | DT_TOP | DT_NOCLIP);
 		}
@@ -475,7 +484,7 @@ void CFrameEditor::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 			break;
 		case SB_THUMBPOSITION:
 		case SB_THUMBTRACK:
-			if (m_pDocument->GetFrameCount() > 1)
+			if (m_pDocument->GetFrameCount(m_pMainFrame->GetSelectedTrack()) > 1)
 				m_pView->SelectFrame(nPos);
 			break;	
 	}
@@ -528,6 +537,7 @@ void CFrameEditor::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	const int PAGE_SIZE = 4;
 
 	CMainFrame *pMainFrame = static_cast<CMainFrame*>(GetParentFrame());
+	int Track = pMainFrame->GetSelectedTrack();
 	
 	bool bShift = (::GetKeyState(VK_SHIFT) & 0x80) == 0x80;
 
@@ -544,7 +554,7 @@ void CFrameEditor::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 			Num = nChar - 65 + 0x0A;
 
 		unsigned int ChannelCount = m_pDocument->GetChannelCount();
-		unsigned int FrameCount = m_pDocument->GetFrameCount();
+		unsigned int FrameCount = m_pDocument->GetFrameCount(Track);
 		unsigned int Channel = m_pView->GetSelectedChannel();
 		unsigned int Frame = m_pView->GetSelectedFrame();
 
@@ -575,7 +585,7 @@ void CFrameEditor::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 					Channel -= 1;
 				m_pView->SelectChannel(Channel);
 				m_iCursorPos = 0;
-				m_iNewPattern = m_pDocument->GetPatternAtFrame(Frame, Channel);
+				m_iNewPattern = m_pDocument->GetPatternAtFrame(Track, Frame, Channel);
 				break;
 			case VK_RIGHT:
 				if (Channel == ChannelCount - 1)
@@ -584,7 +594,7 @@ void CFrameEditor::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 					Channel += 1;
 				m_pView->SelectChannel(Channel);
 				m_iCursorPos = 0;
-				m_iNewPattern = m_pDocument->GetPatternAtFrame(Frame, Channel);
+				m_iNewPattern = m_pDocument->GetPatternAtFrame(Track, Frame, Channel);
 				break;
 			case VK_UP:
 				if (Frame == 0)
@@ -593,7 +603,7 @@ void CFrameEditor::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 					Frame -= 1;
 				m_pView->SelectFrame(Frame);
 				m_iCursorPos = 0;
-				m_iNewPattern = m_pDocument->GetPatternAtFrame(Frame, Channel);
+				m_iNewPattern = m_pDocument->GetPatternAtFrame(Track, Frame, Channel);
 				break;
 			case VK_DOWN:
 				if (Frame == FrameCount - 1)
@@ -602,7 +612,7 @@ void CFrameEditor::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 					Frame += 1;
 				m_pView->SelectFrame(Frame);
 				m_iCursorPos = 0;
-				m_iNewPattern = m_pDocument->GetPatternAtFrame(Frame, Channel);
+				m_iNewPattern = m_pDocument->GetPatternAtFrame(Track, Frame, Channel);
 				break;
 			case VK_RETURN:
 				m_pView->SetFocus();
@@ -620,7 +630,7 @@ void CFrameEditor::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 					Frame += PAGE_SIZE;
 				m_pView->SelectFrame(Frame);
 				m_iCursorPos = 0;
-				m_iNewPattern = m_pDocument->GetPatternAtFrame(Frame, Channel);
+				m_iNewPattern = m_pDocument->GetPatternAtFrame(Track, Frame, Channel);
 				break;
 			case VK_PRIOR:
 				if ((signed)Frame - PAGE_SIZE < 0)
@@ -629,19 +639,19 @@ void CFrameEditor::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 					Frame -= PAGE_SIZE;
 				m_pView->SelectFrame(Frame);
 				m_iCursorPos = 0;
-				m_iNewPattern = m_pDocument->GetPatternAtFrame(Frame, Channel);
+				m_iNewPattern = m_pDocument->GetPatternAtFrame(Track, Frame, Channel);
 				break;
 			case VK_HOME:
 				Frame = 0;
 				m_pView->SelectFrame(Frame);
 				m_iCursorPos = 0;
-				m_iNewPattern = m_pDocument->GetPatternAtFrame(Frame, Channel);
+				m_iNewPattern = m_pDocument->GetPatternAtFrame(Track, Frame, Channel);
 				break;
 			case VK_END:
 				Frame = FrameCount - 1;
 				m_pView->SelectFrame(Frame);
 				m_iCursorPos = 0;
-				m_iNewPattern = m_pDocument->GetPatternAtFrame(Frame, Channel);
+				m_iNewPattern = m_pDocument->GetPatternAtFrame(Track, Frame, Channel);
 				break;
 		}
 
@@ -695,7 +705,7 @@ void CFrameEditor::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 					m_pView->SetFocus();
 				else {
 					m_pView->SelectChannel(m_pView->GetSelectedChannel() + 1);
-					m_iNewPattern = m_pDocument->GetPatternAtFrame(m_pView->GetSelectedFrame(), m_pView->GetSelectedChannel());
+					m_iNewPattern = m_pDocument->GetPatternAtFrame(Track, m_pView->GetSelectedFrame(), m_pView->GetSelectedChannel());
 					m_iCursorPos = 0;
 				}
 			}
@@ -736,7 +746,7 @@ int CFrameEditor::GetRowFromPoint(CPoint &point, bool DropTarget) const
 	// Translate a point value to a row
 	int Delta = ((point.y - TOP_OFFSET) / ROW_HEIGHT) - m_iMiddleRow;
 	int NewFrame = m_pView->GetSelectedFrame() + Delta;
-	int FrameCount = m_pDocument->GetFrameCount();
+	int FrameCount = m_pDocument->GetFrameCount(m_pMainFrame->GetSelectedTrack());
 	
 	if (NewFrame < 0)
 		NewFrame = 0;
@@ -933,7 +943,7 @@ BOOL CFrameEditor::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 void CFrameEditor::AutoScroll(CPoint point)
 {
 	int Row = GetRowFromPoint(point, false);
-	int Rows = m_pDocument->GetFrameCount();
+	int Rows = m_pDocument->GetFrameCount(m_pMainFrame->GetSelectedTrack());
 
 	if (point.y <= m_iTopScrollArea && Row > 0) {
 		m_pView->SelectPrevFrame();
@@ -965,7 +975,7 @@ void CFrameEditor::EnableInput()
 	m_bInputEnable = true;
 	m_bCursor = true;
 	m_iCursorPos = 0;
-	m_iNewPattern = m_pDocument->GetPatternAtFrame(m_pView->GetSelectedFrame(), m_pView->GetSelectedChannel());
+	m_iNewPattern = m_pDocument->GetPatternAtFrame(m_pMainFrame->GetSelectedTrack(), m_pView->GetSelectedFrame(), m_pView->GetSelectedChannel());
 
 	SetTimer(0, 500, NULL);	// Cursor timer
 
@@ -1005,7 +1015,7 @@ void CFrameEditor::OnEditCopy()
 
 	for (int i = 0; i < Rows; ++i) {
 		for (int j = 0; j < Channels; ++j) {
-			ClipData.SetFrame(i, j, m_pDocument->GetPatternAtFrame(i + SelectStart, j));
+			ClipData.SetFrame(i, j, m_pDocument->GetPatternAtFrame(m_pMainFrame->GetSelectedTrack(), i + SelectStart, j));
 		}
 	}
 
@@ -1024,6 +1034,8 @@ void CFrameEditor::OnEditCopy()
 
 void CFrameEditor::OnEditPaste()
 {
+	int Track = m_pMainFrame->GetSelectedTrack();
+
 	if (!OpenClipboard()) {
 		AfxMessageBox(IDS_CLIPBOARD_OPEN_ERROR);
 		return;
@@ -1050,7 +1062,7 @@ void CFrameEditor::OnEditPaste()
 
 	// Check validity
 	if (pClipData->ClipInfo.Channels != m_pDocument->GetChannelCount() ||
-		pClipData->ClipInfo.Rows + m_pDocument->GetFrameCount() > MAX_FRAMES) 
+		pClipData->ClipInfo.Rows + m_pDocument->GetFrameCount(Track) > MAX_FRAMES) 
 	{
 		SAFE_RELEASE(pClipData);
 		return;
@@ -1063,6 +1075,8 @@ void CFrameEditor::OnEditPaste()
 
 void CFrameEditor::OnEditPasteNewPatterns()
 {
+	int Track = m_pMainFrame->GetSelectedTrack();
+
 	if (!OpenClipboard()) {
 		AfxMessageBox(IDS_CLIPBOARD_OPEN_ERROR);
 		return;
@@ -1089,7 +1103,7 @@ void CFrameEditor::OnEditPasteNewPatterns()
 
 	// Check validity
 	if (pClipData->ClipInfo.Channels != m_pDocument->GetChannelCount() ||
-		pClipData->ClipInfo.Rows + m_pDocument->GetFrameCount() > MAX_FRAMES) 
+		pClipData->ClipInfo.Rows + m_pDocument->GetFrameCount(Track) > MAX_FRAMES) 
 	{
 		SAFE_RELEASE(pClipData);
 		return;
@@ -1109,7 +1123,7 @@ void CFrameEditor::OnEditDelete()
 	m_pMainFrame->AddAction(pAction);
 }
 
-void CFrameEditor::Paste(CFrameClipData *pClipData)
+void CFrameEditor::Paste(unsigned int Track, CFrameClipData *pClipData)
 {
 	int Rows = pClipData->ClipInfo.Rows;
 	int Channels = pClipData->ClipInfo.Channels;
@@ -1117,23 +1131,22 @@ void CFrameEditor::Paste(CFrameClipData *pClipData)
 	int SelectedFrame = m_pView->GetSelectedFrame();
 
 	for (int i = 0; i < Rows; ++i) {
-		m_pDocument->InsertFrame(SelectedFrame + i);
+		m_pDocument->InsertFrame(Track, SelectedFrame + i);
 		for (int j = 0; j < Channels; ++j) {
-			m_pDocument->SetPatternAtFrame(SelectedFrame + i, j, pClipData->GetFrame(i, j));
+			m_pDocument->SetPatternAtFrame(Track, SelectedFrame + i, j, pClipData->GetFrame(i, j));
 		}
 	}
 }
 
-void CFrameEditor::PasteNew(CFrameClipData *pClipData)
+void CFrameEditor::PasteNew(unsigned int Track, CFrameClipData *pClipData)
 {
 	int Rows = pClipData->ClipInfo.Rows;
 	int Channels = pClipData->ClipInfo.Channels;
-		
-	int Track = m_pMainFrame->GetSelectedTrack();
+	
 	int SelectedFrame = m_pView->GetSelectedFrame();
 
 	for (int i = 0; i < Rows; ++i) {
-		m_pDocument->InsertFrame(SelectedFrame + i);
+		m_pDocument->InsertFrame(Track, SelectedFrame + i);
 		for (int j = 0; j < Channels; ++j) {
 			int Source = pClipData->GetFrame(i, j);
 			int Target = m_pDocument->GetPatternAtFrame(Track, SelectedFrame + i, j);
@@ -1221,7 +1234,7 @@ void CFrameEditor::InitiateDrag()
 
 	for (int i = 0; i < Rows; ++i) {
 		for (int j = 0; j < Channels; ++j) {
-			ClipData.SetFrame(i, j, m_pDocument->GetPatternAtFrame(i + SelectStart, j));
+			ClipData.SetFrame(i, j, m_pDocument->GetPatternAtFrame(m_pMainFrame->GetSelectedTrack(), i + SelectStart, j));
 		}
 	}
 
@@ -1262,7 +1275,7 @@ bool CFrameEditor::IsCopyValid(COleDataObject* pDataObject)
 	pClipData->FromMem(hMem);
 	int Frames = pClipData->ClipInfo.Rows;
 	SAFE_RELEASE(pClipData);
-	return (m_pDocument->GetFrameCount() + Frames) <= MAX_FRAMES;
+	return (m_pDocument->GetFrameCount(m_pMainFrame->GetSelectedTrack()) + Frames) <= MAX_FRAMES;
 }
 
 void CFrameEditor::UpdateDrag(CPoint &point)
@@ -1299,7 +1312,7 @@ BOOL CFrameEditor::DropData(COleDataObject* pDataObject, DROPEFFECT dropEffect)
 	switch (dropEffect) {
 		case DROPEFFECT_COPY:
 			// Copy
-			if ((pClipData->ClipInfo.Rows + m_pDocument->GetFrameCount()) <= MAX_FRAMES) {
+			if ((pClipData->ClipInfo.Rows + m_pDocument->GetFrameCount(Track)) <= MAX_FRAMES) {
 				int Action = m_DropTarget.CopyToNewPatterns() ? CFrameAction::ACT_DRAG_AND_DROP_COPY_NEW : CFrameAction::ACT_DRAG_AND_DROP_COPY;
 				CFrameAction *pAction = new CFrameAction(Action);
 				pAction->SetDragInfo(m_iDragRow, pClipData, false);
@@ -1330,14 +1343,13 @@ BOOL CFrameEditor::DropData(COleDataObject* pDataObject, DROPEFFECT dropEffect)
 	return TRUE;
 }
 
-void CFrameEditor::PerformDragOperation(CFrameClipData *pClipData, int DragTarget, bool bDelete, bool bNewPatterns)
+void CFrameEditor::PerformDragOperation(unsigned int Track, CFrameClipData *pClipData, int DragTarget, bool bDelete, bool bNewPatterns)
 {
 	int SelStart	= pClipData->ClipInfo.OleInfo.SourceRowStart;
 	int SelEnd		= pClipData->ClipInfo.OleInfo.SourceRowEnd;
 	int Rows		= pClipData->ClipInfo.Rows;
 	int Channels	= pClipData->ClipInfo.Channels;
 	
-	int Track		  = m_pMainFrame->GetSelectedTrack();
 	int SelectedFrame = m_pView->GetSelectedFrame();
 
 	if (bDelete) {
@@ -1346,7 +1358,7 @@ void CFrameEditor::PerformDragOperation(CFrameClipData *pClipData, int DragTarge
 			DragTarget -= Rows;
 
 		for (int i = 0; i < Rows; ++i) {
-			m_pDocument->RemoveFrame(SelStart);
+			m_pDocument->RemoveFrame(Track, SelStart);
 			if (SelStart < SelectedFrame)
 				--SelectedFrame;
 		}
@@ -1354,7 +1366,7 @@ void CFrameEditor::PerformDragOperation(CFrameClipData *pClipData, int DragTarge
 
 	for (int i = 0; i < Rows; ++i) {
 		int Frame = DragTarget + i;
-		m_pDocument->InsertFrame(Frame);
+		m_pDocument->InsertFrame(Track, Frame);
 		for (int j = 0; j < Channels; ++j) {
 			if (bNewPatterns) {
 				// Copy to new pattern numbers
@@ -1364,7 +1376,7 @@ void CFrameEditor::PerformDragOperation(CFrameClipData *pClipData, int DragTarge
 			}
 			else {
 				// Copy to existing pattern numbers
-				m_pDocument->SetPatternAtFrame(Frame, j, pClipData->GetFrame(i, j));
+				m_pDocument->SetPatternAtFrame(Track, Frame, j, pClipData->GetFrame(i, j));
 			}
 		}
 		if (DragTarget <= SelectedFrame)
@@ -1407,6 +1419,21 @@ bool CFrameEditor::IsClipboardAvailable() const
 	return ::IsClipboardFormatAvailable(m_iClipBoard) == TRUE;
 }
 
+bool CFrameEditor::NeedUpdate() const
+{
+	// Checks if the cursor has changed and area needs to be redrawn
+	const CFamiTrackerView *pView = CFamiTrackerView::GetView();
+	const CSoundGen *pSoundGen = theApp.GetSoundGenerator();
+
+	if (pView->GetSelectedFrame() != m_iLastCursorFrame)
+		return true;
+
+	if (m_iLastPlayFrame != pSoundGen->GetPlayerFrame())
+		return true;
+
+	return false;
+}
+
 // CFrameEditorDropTarget ////////////
 
 void CFrameEditorDropTarget::SetClipBoardFormat(UINT iClipBoard)
@@ -1443,13 +1470,13 @@ DROPEFFECT CFrameEditorDropTarget::OnDragEnter(CWnd* pWnd, COleDataObject* pData
 		m_pParent->UpdateDrag(point);
 	}
 
-	return (DROPEFFECT)m_nDropEffect;
+	return m_nDropEffect;
 }
 
 DROPEFFECT CFrameEditorDropTarget::OnDragOver(CWnd* pWnd, COleDataObject* pDataObject, DWORD dwKeyState, CPoint point)
 {
 	m_pParent->UpdateDrag(point);
-	return (DROPEFFECT)m_nDropEffect;
+	return m_nDropEffect;
 }
 
 BOOL CFrameEditorDropTarget::OnDrop(CWnd* pWnd, COleDataObject* pDataObject, DROPEFFECT dropEffect, CPoint point)

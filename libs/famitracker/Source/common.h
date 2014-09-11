@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -22,12 +22,12 @@
 
 typedef unsigned char		uint8;
 typedef unsigned short		uint16;
-typedef unsigned long		uint32;
-typedef unsigned long long	uint64;
+typedef unsigned int	    	uint32;
+typedef unsigned long    	uint64;
 typedef signed char			int8;
 typedef signed short		int16;
-typedef signed long			int32;
-typedef signed long long		int64;
+typedef signed int			int32;
+typedef signed long		int64;
 
 #define _MAIN_H_
 
@@ -37,6 +37,12 @@ const int SPEED_AUTO	= 0;
 const int SPEED_NTSC	= 1;
 const int SPEED_PAL		= 2;
 
+
+// Used to get the DPCM state
+struct stDPCMState {
+	int SamplePos;
+	int DeltaCntr;
+};
 
 // Used to play the audio when the buffer is full
 class IAudioCallback {
@@ -52,7 +58,7 @@ public:
 	CSampleMem() : m_pMemory(0), m_iMemSize(0) {
 	};
 
-	uint8 Read(uint16 Address) {
+	uint8 Read(uint16 Address) const {
 		if (!m_pMemory)
 			return 0;
 		uint16 Addr = (Address - 0xC000);// % m_iMemSize;
@@ -61,8 +67,8 @@ public:
 		return m_pMemory[Addr];
 	};
 
-	void SetMem(char *Ptr, int Size) {
-		m_pMemory = (uint8*)Ptr;
+	void SetMem(const char *pPtr, int Size) {
+		m_pMemory = (uint8*)pPtr;
 		m_iMemSize = Size;
 	};
 
@@ -72,6 +78,6 @@ public:
 	}
 
 private:
-	uint8  *m_pMemory;
-	uint16	m_iMemSize;
+	const uint8 *m_pMemory;
+	uint16 m_iMemSize;
 };

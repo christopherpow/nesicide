@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -79,7 +79,7 @@ bool CInstrumentS5B::Load(CDocumentFile *pDocFile)
 	return true;
 }
 
-void CInstrumentS5B::SaveFile(CInstrumentFile *pFile, CFamiTrackerDoc *pDoc)
+void CInstrumentS5B::SaveFile(CInstrumentFile *pFile, const CFamiTrackerDoc *pDoc)
 {
 	AfxMessageBox(_T("Saving 5B instruments is not yet supported"));
 }

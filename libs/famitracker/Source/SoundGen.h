@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -73,13 +73,9 @@ enum render_end_t {
 	SONG_LOOP_LIMIT 
 };
 
-// Used to get the DPCM state
-struct stDPCMState {
-	int SamplePos;
-	int DeltaCntr;
-};
-
 struct stChanNote;
+
+#include "TrackerChannel.h" //enum note_prio_t;
 
 class CChannelHandler;
 class CFamiTrackerView;
@@ -100,7 +96,7 @@ class CExportTest;
 class CSoundGen : public CWinThread, IAudioCallback
 {
 protected:
-   DECLARE_DYNCREATE(CSoundGen)
+	DECLARE_DYNCREATE(CSoundGen)
 public:
 	CSoundGen();
 	virtual ~CSoundGen();
@@ -150,12 +146,13 @@ public:
 	int			 ReadNamcoPeriodTable(int index) const;
 
 	// Player interface
-	void		 StartPlayer(int Mode);	
+	void		 StartPlayer(play_mode_t Mode, int Track);	
 	void		 StopPlayer();
-	void		 ResetPlayer();
+	void		 ResetPlayer(int Track);
 	void		 LoadSettings();
 	void		 SilentAll();
 
+	void		 ResetState();
 	void		 ResetTempo();
 	float		 GetTempo() const;
 	bool		 IsPlaying() const { return m_bPlaying; };
@@ -206,8 +203,9 @@ public:
 	// Player
 	int			GetPlayerRow() const;
 	int			GetPlayerFrame() const;
+	int			GetPlayerTrack() const;
 	int			GetPlayerTicks() const;
-	void		QueueNote(int Channel, stChanNote &NoteData, int Priority) const;
+	void		QueueNote(int Channel, stChanNote &NoteData, note_prio_t Priority) const;
 	void		MoveToFrame(int Frame);
 	void		SetQueueFrame(int Frame);
 	int			GetQueueFrame() const;
@@ -218,6 +216,10 @@ public:
 
 	bool HasDocument() const { return m_pDocument != NULL; };
 	CFamiTrackerDoc *GetDocument() const { return m_pDocument; };
+
+	// Sequence play position
+	void SetSequencePlayPos(const CSequence *pSequence, int Pos);
+	int GetSequencePlayPos(const CSequence *pSequence);
 
 	// 
 	// Private functions
@@ -245,12 +247,12 @@ private:
 	void		RunFrame();
 	void		CheckControl();
 	void		ResetBuffer();
-	void		BeginPlayer(play_mode_t Mode);
+	void		BeginPlayer(play_mode_t Mode, int Track);
 	void		HaltPlayer();
 	void		MakeSilent();
 
 	// Misc
-	void		PlaySample(CDSample *pSample, int Offset, int Pitch);
+	void		PlaySample(const CDSample *pSample, int Offset, int Pitch);
 	
 	// Player
 	void		ReadPatternRow();
@@ -278,7 +280,6 @@ private:
 	// Objects
 	CChannelHandler		*m_pChannels[CHANNELS];
 	CTrackerChannel		*m_pTrackerChannels[CHANNELS];
-	CDSample			*m_pPreviewSample;
 	CFamiTrackerDoc		*m_pDocument;
 	CFamiTrackerView	*m_pTrackerView;
 
@@ -288,6 +289,8 @@ private:
 	CVisualizerWnd		*m_pVisualizerWnd;
 	CAPU				*m_pAPU;
 	CSampleMem			*m_pSampleMem;
+
+	const CDSample		*m_pPreviewSample;
 
 	bool				m_bRunning;
 
@@ -366,6 +369,7 @@ private:
 
 	// Player state
 	int					m_iQueuedFrame;					// Queued frame
+	int					m_iPlayTrack;					// Current track that is playing
 	int					m_iPlayFrame;					// Current frame to play
 	int					m_iPlayRow;						// Current row to play
 	bool				m_bDirty;						// Row/frame has changed
@@ -373,6 +377,11 @@ private:
 	bool				m_bFramePlayed[MAX_FRAMES];		// true for each frame played
 
 	bool				m_bMuteChannels[CHANNELS];
+
+	// Sequence play visualization
+	const CSequence		*m_pSequencePlayPos;
+	int					m_iSequencePlayPos;
+	int					m_iSequenceTimeout;
 
 #ifdef EXPORT_TEST
 	CExportTest			*m_pExportTest;

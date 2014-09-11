@@ -2,6 +2,7 @@
 // Microsoft Visual C++ generated include file.
 // Used by FamiTracker.rc
 //
+#define ID_MANIFEST                     1
 #define ID_INVALID_WAVEFILE             3
 #define IDC_IMPORT                      4
 #define VERSION_MIN                     4
@@ -20,6 +21,7 @@
 #define IDS_INSTRUMENT_EDITOR_TITLE     106
 #define IDS_INST_VERSION_UNSUPPORTED    107
 #define IDS_INVALID_INST_FILE           108
+#define IDS_FILE_SAVED                  108
 #define IDS_MIDI_ERR_INPUT              109
 #define IDS_MIDI_ERR_OUTPUT             110
 #define IDS_NEW_SOUND_CONFIG            111
@@ -74,6 +76,7 @@
 #define IDS_FILTER_FTI                  141
 #define IDS_SAVE_ERROR_REASON           142
 #define ID_CMD_STEP_DOWN                142
+#define IDS_SAVE_FILE_ERROR             142
 #define IDS_START_ERROR                 143
 #define ID_DELETE_ROW                   143
 #define IDS_SOUNDGEN_ERROR              144
@@ -155,6 +158,7 @@
 #define IDI_INST_N163                   245
 #define IDI_INST_FDS                    246
 #define IDI_INST_5B                     247
+#define IDI_INST_S5B                    247
 #define IDD_INSTRUMENT_FDS              248
 #define IDD_FRAMEBAR                    251
 #define IDD_FRAMECONTROLS               251

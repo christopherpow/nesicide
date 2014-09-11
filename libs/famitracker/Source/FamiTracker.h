@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@
 
 #include "version.h"
 
+#include "SoundGen.h"
 #include "cqtmfc.h"
 
 // Support DLL translations
@@ -102,7 +103,7 @@ public:
 	void			ThreadDisplayMessage(UINT nIDPrompt, UINT nType = 0, UINT nIDHelp = 0);
 
 	// Tracker player functions
-	void			StartPlayer(int Mode);
+	void			StartPlayer(play_mode_t Mode);
 	void			StopPlayer();
 	void			StopPlayerAndWait();
 	void			TogglePlayer();

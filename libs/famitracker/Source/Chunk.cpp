@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -34,9 +34,7 @@ CChunk::CChunk(chunk_type_t Type, CStringA label) : m_iType(Type), m_strLabel(la
 
 CChunk::~CChunk()
 {
-	for (std::vector<CChunkData*>::iterator it = m_vChunkData.begin(); it != m_vChunkData.end(); ++it) {
-		delete (*it);
-	}
+	Clear();
 }
 
 void CChunk::Clear()

@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -86,6 +86,9 @@ const int OCTAVE_RANGE = 8;
 const int NOTE_RANGE   = 12;
 
 const int INVALID_INSTRUMENT = -1;
+
+// Max allowed value in volume column. The actual meaning is no specific volume information, rather than max volume.
+const int MAX_VOLUME = 0x10;
 
 // Sequence types (shared with VRC6)
 

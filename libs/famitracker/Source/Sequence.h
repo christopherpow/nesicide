@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -41,15 +41,8 @@ public:
 	void		 SetItemCount(unsigned int Count);
 	void		 SetLoopPoint(unsigned int Point);
 	void		 SetReleasePoint(unsigned int Point);
-	void		 SetSetting(unsigned int Setting);
-
-	//void		 Store(CDocumentFile *pDocFile, int Index, int Type);
- 
+	void		 SetSetting(unsigned int Setting); 
 	void		 Copy(const CSequence *pSeq);
-
-	// Used by instrument editor
-	void		 SetPlayPos(int pos);
-	int			 GetPlayPos();
 
 private:
 	// Sequence data
@@ -57,9 +50,7 @@ private:
 	unsigned int m_iLoopPoint;
 	unsigned int m_iReleasePoint;
 	unsigned int m_iSetting;
-//	unsigned int m_iItemCountRelease;
 	signed char	 m_cValues[MAX_SEQUENCE_ITEMS];
-	// Used by instrument editor
 	int			 m_iPlaying;
 };
 

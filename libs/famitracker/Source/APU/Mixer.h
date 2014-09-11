@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -21,48 +21,9 @@
 #ifndef MIXER_H
 #define MIXER_H
 
+#include "Types.h"
 #include "../Common.h"
 #include "../Blip_Buffer/blip_buffer.h"
-
-enum CHAN_IDS {
-	CHANID_SQUARE1,
-	CHANID_SQUARE2,
-	CHANID_TRIANGLE,
-	CHANID_NOISE,
-	CHANID_DPCM,
-
-	CHANID_VRC6_PULSE1,
-	CHANID_VRC6_PULSE2,
-	CHANID_VRC6_SAWTOOTH,
-
-	CHANID_MMC5_SQUARE1,
-	CHANID_MMC5_SQUARE2,
-	CHANID_MMC5_VOICE,
-
-	CHANID_N163_CHAN1,
-	CHANID_N163_CHAN2,
-	CHANID_N163_CHAN3,
-	CHANID_N163_CHAN4,
-	CHANID_N163_CHAN5,
-	CHANID_N163_CHAN6,
-	CHANID_N163_CHAN7,
-	CHANID_N163_CHAN8,
-
-	CHANID_FDS,
-
-	CHANID_VRC7_CH1,
-	CHANID_VRC7_CH2,
-	CHANID_VRC7_CH3,
-	CHANID_VRC7_CH4,
-	CHANID_VRC7_CH5,
-	CHANID_VRC7_CH6,
-
-	CHANID_S5B_CH1,
-	CHANID_S5B_CH2,
-	CHANID_S5B_CH3,
-
-	CHANNELS		/* Total number of channels */
-};
 
 enum chip_level_t {
 	CHIP_LEVEL_APU1,

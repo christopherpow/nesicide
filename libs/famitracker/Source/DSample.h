@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2013  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ public:
 	CDSample();
 
 	// Unnamed sample constructor
-	CDSample(int Size, char *pData = NULL);
+	CDSample(unsigned int Size, char *pData = NULL);
 
 	// Copy constructor
 	CDSample(CDSample &sample);
@@ -38,28 +38,36 @@ public:
 	// Copy from existing sample
 	void Copy(const CDSample *pDSample);
 	
-	// Allocate memory
-	void Allocate(int iSize, char *pData = NULL);
+	// Allocate memory, optionally copy data
+	void Allocate(unsigned int iSize, const char *pData = NULL);
 
 	// Clear sample data
 	void Clear();
 
-	// Set sample data and size
-	void SetData(int Size, char *pData);
+	// Set sample data and size, the object will own the memory area assigned
+	void SetData(unsigned int Size, char *pData);
 
 	// Get sample size
-	int GetSize() const;
+	unsigned int GetSize() const;
 
 	// Get sample data
 	char *GetData() const;
 
-	// Sample data & name
-	// TODO: make these private
-	unsigned int SampleSize;
-	char *SampleData;
-	char Name[256];
+	// Set sample name
+	void SetName(const char *pName);
+
+	// Get sample name
+	const char *GetName() const;
 
 public:
 	// Max size of a sample as supported by the NES, in bytes
 	static const int MAX_SIZE = 0x0FF1;
+	// Size of sample name
+	static const int MAX_NAME_SIZE = 256;
+
+private:
+	// Sample data
+	unsigned int m_iSampleSize;
+	char		 *m_pSampleData;
+	char		 m_Name[MAX_NAME_SIZE];
 };

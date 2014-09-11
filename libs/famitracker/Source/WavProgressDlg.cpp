@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -65,7 +65,7 @@ void CWavProgressDlg::OnBnClickedCancel()
 	EndDialog(0);
 }
 
-void CWavProgressDlg::BeginRender(const CString &File, render_end_t LengthType, int LengthParam, int Track)
+void CWavProgressDlg::BeginRender(CString &File, render_end_t LengthType, int LengthParam, int Track)
 {
 	m_iSongEndType = LengthType;
 	m_iSongEndParam = LengthParam;

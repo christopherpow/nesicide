@@ -665,7 +665,7 @@ void qtMfcInitStringResources()
       qtMfcStringResources.insert(IDS_INSTRUMENT_FILE_FAIL,"Instrument file was not vaild");
       qtMfcStringResources.insert(IDS_CLIPPING_MESSAGE,"Warning: Audio is clipping, decrease mixing levels!");
       qtMfcStringResources.insert(IDS_FILTER_FTI,"FamiTracker Instrument (*.fti)");
-      qtMfcStringResources.insert(IDS_SAVE_ERROR_REASON,"Could not save file: ");
+      qtMfcStringResources.insert(IDS_SAVE_FILE_ERROR,"Could not save file: %1");
       qtMfcStringResources.insert(IDS_START_ERROR,"Program could not start properly, default settings has been restored. Please restart the program.");
 //   END
 
@@ -996,6 +996,7 @@ void qtMfcInitStringResources()
                                "This file was created in a newer version of FamiTracker. Please download the most recent version to open this file.");
       qtMfcStringResources.insert(IDS_INSTRUMENT_EDITOR_TITLE,"Instrument editor - %1");
       qtMfcStringResources.insert(IDS_INST_VERSION_UNSUPPORTED,"File version not supported!");
+      qtMfcStringResources.insert(IDS_FILE_SAVED,"File saved (%1 bytes)");
       qtMfcStringResources.insert(IDS_INVALID_INST_FILE,"Could not open instrument file");
       qtMfcStringResources.insert(IDS_MIDI_ERR_INPUT,"MIDI Error: Could not open MIDI input device!");
       qtMfcStringResources.insert(IDS_MIDI_ERR_OUTPUT,"MIDI Error: Could not open MIDI output device!");

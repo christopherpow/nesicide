@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -110,19 +110,15 @@ void CDocumentFile::ReallocateBlock()
 	m_pBlockData = pData;
 }
 
-void CDocumentFile::WriteBlock(const void *Data, unsigned int Size)
+void CDocumentFile::WriteBlock(const char *pData, unsigned int Size)
 {
 	ASSERT(m_pBlockData != NULL);
 
-	unsigned int WriteSize, WritePtr = 0;
-	char *pData = (char*)Data;
+	unsigned int WritePtr = 0;
 
 	// Allow block to grow in size
 	while (Size > 0) {
-		if (Size > BLOCK_SIZE)
-			WriteSize = BLOCK_SIZE;
-		else
-			WriteSize = Size;
+		unsigned int WriteSize = (Size > BLOCK_SIZE) ? BLOCK_SIZE : Size;
 
 		if ((m_iBlockPointer + WriteSize) >= m_iMaxBlockSize)
 			ReallocateBlock();
@@ -134,14 +130,19 @@ void CDocumentFile::WriteBlock(const void *Data, unsigned int Size)
 	}
 }
 
+template<class T> void CDocumentFile::WriteBlockData(T Value)
+{
+	WriteBlock(reinterpret_cast<const char*>(&Value), sizeof(Value));
+}
+
 void CDocumentFile::WriteBlockInt(int Value)
 {
-	WriteBlock(&Value, sizeof(int));
+	WriteBlockData(Value);
 }
 
 void CDocumentFile::WriteBlockChar(char Value)
 {
-	WriteBlock(&Value, sizeof(char));
+	WriteBlockData(Value);
 }
 
 void CDocumentFile::WriteString(CString String)
@@ -162,8 +163,8 @@ bool CDocumentFile::FlushBlock()
 
 //	try {
 		Write(m_cBlockID, 16);
-		Write(&m_iBlockVersion, sizeof(int));
-		Write(&m_iBlockPointer, sizeof(int));
+		Write(&m_iBlockVersion, sizeof(m_iBlockVersion));
+		Write(&m_iBlockPointer, sizeof(m_iBlockPointer));
 		Write(m_pBlockData, m_iBlockPointer);
 //	}
 //	catch (CFileException *e) {
@@ -176,7 +177,7 @@ bool CDocumentFile::FlushBlock()
 	return true;
 }
 
-bool CDocumentFile::CheckValidity()
+bool CDocumentFile::ValidateFile()
 {
 	// Checks if loaded file is valid
 
@@ -260,16 +261,16 @@ void CDocumentFile::RollbackPointer(int count)
 int CDocumentFile::GetBlockInt()
 {
 	int Value;
-	memcpy(&Value, m_pBlockData + m_iBlockPointer, sizeof(int));
-	m_iBlockPointer += sizeof(int);
+	memcpy(&Value, m_pBlockData + m_iBlockPointer, sizeof(Value));
+	m_iBlockPointer += sizeof(Value);
 	return Value;
 }
 
 char CDocumentFile::GetBlockChar()
 {
 	char Value;
-	memcpy(&Value, m_pBlockData + m_iBlockPointer, sizeof(char));
-	m_iBlockPointer += sizeof(char);
+	memcpy(&Value, m_pBlockData + m_iBlockPointer, sizeof(Value));
+	m_iBlockPointer += sizeof(Value);
 	return Value;
 }
 

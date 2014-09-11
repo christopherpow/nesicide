@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -61,7 +61,7 @@ void CDMCFileSoundDialog::OnFileNameChange()
 			ULONGLONG size = file.GetLength();
 			size = min(size, CDSample::MAX_SIZE);
 			CDSample *pSample = new CDSample((int)size);
-			file.Read(pSample->SampleData, (int)size);
+			file.Read(pSample->GetData(), (int)size);
 			theApp.GetSoundGenerator()->PreviewSample(pSample, 0, DEFAULT_PREVIEW_PITCH);
 			file.Close();
 			m_strLastFile = GetPathName();
@@ -196,17 +196,18 @@ void CInstrumentEditorDPCM::BuildKeyList()
 void CInstrumentEditorDPCM::UpdateKey(int Index)
 {
 	CListCtrl *pTableListCtrl = static_cast<CListCtrl*>(GetDlgItem(IDC_TABLE));
-	char Name[256];
+	char Name[CDSample::MAX_NAME_SIZE];
 
 	if (m_pInstrument->GetSample(m_iOctave, Index) > 0) {
 		int Item = m_pInstrument->GetSample(m_iOctave, Index) - 1;
 		int Pitch = m_pInstrument->GetSamplePitch(m_iOctave, Index);
+		const CDSample *pSample = GetDocument()->GetSample(Item);
 
-		if (GetDocument()->GetSampleSize(Item) == 0) {
+		if (pSample->GetSize() == 0) {
 			strcpy(Name, "(n/a)");
 		}
 		else {
-			GetDocument()->GetSampleName(Item, Name);
+			strncpy(Name, pSample->GetName(), CDSample::MAX_NAME_SIZE);
 		}
 		pTableListCtrl->SetItemText(Index, 2, Name);
 		sprintf(Name, "%i %s", Pitch & 0x0F, (Pitch & 0x80) ? "L" : "");
@@ -234,17 +235,17 @@ void CInstrumentEditorDPCM::BuildSampleList()
 	pSampleBox->AddString(_T("(no sample)"));
 
 	for (int i = 0; i < MAX_DSAMPLES; ++i) {
-		CDSample *pDSample = GetDocument()->GetSample(i);
-		if (pDSample->SampleSize > 0) {
+		const CDSample *pDSample = GetDocument()->GetSample(i);
+		if (pDSample->GetSize() > 0) {
 			Text.Format(_T("%i"), i);
 			pSampleListCtrl->InsertItem(Index, Text);
-			Text.Format(_T("%s"), pDSample->Name);
+			Text.Format(_T("%s"), pDSample->GetName());
 			pSampleListCtrl->SetItemText(Index, 1, Text);
-			Text.Format(_T("%i"), pDSample->SampleSize);
+			Text.Format(_T("%i"), pDSample->GetSize());
 			pSampleListCtrl->SetItemText(Index, 2, Text);
-			Text.Format(_T("%02i - %s"), i, pDSample->Name);
+			Text.Format(_T("%02i - %s"), i, pDSample->GetName());
 			pSampleBox->AddString(Text);
-			Size += pDSample->SampleSize;
+			Size += pDSample->GetSize();
 			++Index;
 		}
 	}
@@ -271,31 +272,30 @@ bool CInstrumentEditorDPCM::LoadSample(const CString &FilePath, const CString &F
 		return false;
 	}
 
-	CDSample *pNewSample = new CDSample();
-
-	if (pNewSample != NULL) {
-		strcpy(pNewSample->Name, FileName);
-		int Size = (int)SampleFile.GetLength();
-		int AddSize = 0;
-		
-		// Clip file if too large
-		Size = min(Size, CDSample::MAX_SIZE);
-		
-		// Make sure size is compatible with DPCM hardware
-		if ((Size & 0xF) != 1) {
-			AddSize = 0x10 - ((Size + 0x0F) & 0x0F);
-		}
-		
-		pNewSample->SampleSize = Size + AddSize;
-		pNewSample->SampleData = new char[Size + AddSize];
-		SampleFile.Read(pNewSample->SampleData, Size);
-		memset(pNewSample->SampleData + Size, 0xAA, AddSize);
-
-		if (!InsertSample(pNewSample))
-			return false;
-	}
+	int Size = (int)SampleFile.GetLength();
+	int AddSize = 0;
 	
+	// Clip file if too large
+	Size = min(Size, CDSample::MAX_SIZE);
+	
+	// Make sure size is compatible with DPCM hardware
+	if ((Size & 0xF) != 1) {
+		AddSize = 0x10 - ((Size + 0x0F) & 0x0F);
+	}
+
+	CDSample *pNewSample = new CDSample(Size + AddSize);
+
+	SampleFile.Read(pNewSample->GetData(), Size);
+	// Pad uneven sizes with AAh
+	memset(pNewSample->GetData() + Size, 0xAA, AddSize);
+
+	pNewSample->SetName(FileName);
+
 	SampleFile.Close();
+
+	if (!InsertSample(pNewSample))
+		return false;
+	
 	BuildSampleList();
 
 	return true;
@@ -315,16 +315,13 @@ bool CInstrumentEditorDPCM::InsertSample(CDSample *pNewSample)
 
 	int Size = GetDocument()->GetTotalSampleSize();
 	
-	if ((Size + pNewSample->SampleSize) > MAX_SAMPLE_SPACE) {
+	if ((Size + pNewSample->GetSize()) > MAX_SAMPLE_SPACE) {
 		CString message;
 		AfxFormatString1(message, IDS_OUT_OF_SAMPLEMEM_FORMAT, MakeIntString(MAX_SAMPLE_SPACE / 1024));
 		AfxMessageBox(message, MB_ICONERROR);
 	}
 	else {
-		strcpy(pFreeSample->Name, pNewSample->Name);
-		pFreeSample->SampleSize = pNewSample->SampleSize;
-		pFreeSample->SampleData = new char[pNewSample->SampleSize];
-		memcpy(pFreeSample->SampleData, pNewSample->SampleData, pNewSample->SampleSize);
+		pFreeSample->Copy(pNewSample);
 		GetDocument()->SetModifiedFlag();
 	}
 
@@ -455,7 +452,7 @@ void CInstrumentEditorDPCM::OnNMClickTable(NMHDR *pNMHDR, LRESULT *pResult)
 	int Pitch = m_pInstrument->GetSamplePitch(m_iOctave, m_iSelectedKey);
 	int Delta = m_pInstrument->GetSampleDeltaValue(m_iOctave, m_iSelectedKey);
 
-   Text.Format(_T("%02i - %s"), Sample, (LPCTSTR)pTableListCtrl->GetItemText(pTableListCtrl->GetSelectionMark(), 2));
+	Text.Format(_T("%02i - %s"), Sample, pTableListCtrl->GetItemText(pTableListCtrl->GetSelectionMark(), 2));
 
 	if (Sample != -1)
 		pSampleBox->SelectString(0, Text);
@@ -547,13 +544,13 @@ void CInstrumentEditorDPCM::OnBnClickedSave()
 	pSampleListCtrl->GetItemText(Index, 0, Text, 256);
 	Index = _tstoi(Text);
 	
-	CDSample *pDSample = GetDocument()->GetSample(Index);
+	const CDSample *pDSample = GetDocument()->GetSample(Index);
 
-	if (pDSample->SampleSize == 0)
+	if (pDSample->GetSize() == 0)
 		return;
 
 	CString fileFilter = LoadDefaultFilter(IDS_FILTER_DMC, _T(".dmc"));
-	CFileDialog SaveFileDialog(FALSE, _T("dmc"), (LPCSTR)pDSample->Name, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, fileFilter);
+	CFileDialog SaveFileDialog(FALSE, _T("dmc"), (LPCSTR)pDSample->GetName(), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, fileFilter);
 	
 	SaveFileDialog.m_pOFN->lpstrInitialDir = theApp.GetSettings()->GetPath(PATH_DMC);
 
@@ -569,7 +566,7 @@ void CInstrumentEditorDPCM::OnBnClickedSave()
 		return;
 	}
 
-	SampleFile.Write(pDSample->SampleData, pDSample->SampleSize);
+	SampleFile.Write(pDSample->GetData(), pDSample->GetSize());
 	SampleFile.Close();
 }
 
@@ -629,7 +626,7 @@ void CInstrumentEditorDPCM::OnBnClickedAdd()
 
 	int Pitch = pPitchBox->GetCurSel();
 
-	if (GetDocument()->GetSampleSize(m_iSelectedSample) > 0) {
+	if (GetDocument()->IsSampleUsed(m_iSelectedSample)) {
 		m_pInstrument->SetSample(m_iOctave, m_iSelectedKey, m_iSelectedSample + 1);
 		m_pInstrument->SetSamplePitch(m_iOctave, m_iSelectedKey, Pitch);
 		UpdateKey(m_iSelectedKey);
@@ -752,8 +749,8 @@ void CInstrumentEditorDPCM::OnNMRClickTable(NMHDR *pNMHDR, LRESULT *pResult)
 	// Fill menu
 	for (int i = 0; i < MAX_DSAMPLES; i++) {
 		CDSample *pDSample = GetDocument()->GetSample(i);
-		if (pDSample->SampleSize > 0) {
-			PopupMenu.AppendMenu(MF_STRING, i + 2, pDSample->Name);
+		if (pDSample->GetSize() > 0) {
+			PopupMenu.AppendMenu(MF_STRING, i + 2, pDSample->GetName());
 		}
 	}
 
@@ -792,7 +789,7 @@ void CInstrumentEditorDPCM::OnNMDblclkTable(NMHDR *pNMHDR, LRESULT *pResult)
 
 	CListCtrl *pTableListCtrl = static_cast<CListCtrl*>(GetDlgItem(IDC_TABLE));
 
-	if (pSample == NULL || pSample->SampleSize == 0 || pTableListCtrl->GetItemText(m_iSelectedKey, 2) == _T("(no sample)"))
+	if (pSample == NULL || pSample->GetSize() == 0 || pTableListCtrl->GetItemText(m_iSelectedKey, 2) == _T("(no sample)"))
 		return;
 
 	theApp.GetSoundGenerator()->PreviewSample(pSample, 0, Pitch);

@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -177,29 +177,30 @@ BOOL CAboutDlg::OnInitDialog()
 	m_wndToolTip.AddTool(m_pMail, IDS_ABOUT_TOOLTIP_MAIL);
 	m_wndToolTip.AddTool(m_pWeb, IDS_ABOUT_TOOLTIP_WEB);
 
-//	pFont = m_pMail->GetFont();
-//	pFont->GetLogFont(&LogFont);
-//	LogFont.lfUnderline = 1;
-//	m_pLinkFont = new CFont();
-//	m_pLinkFont->CreateFontIndirect(&LogFont);
-//	m_pMail->SetFont(m_pLinkFont);
-//	m_pWeb->SetFont(m_pLinkFont);
+	pFont = m_pMail->GetFont();
+	pFont->GetLogFont(&LogFont);
+	LogFont.lfUnderline = 1;
+	m_pLinkFont = new CFont();
+	m_pLinkFont->CreateFontIndirect(&LogFont);
+	m_pMail->SetFont(m_pLinkFont);
+	m_pWeb->SetFont(m_pLinkFont);
 
-//	CStatic *pStatic = (CStatic*)GetDlgItem(IDC_ABOUT1);
-//	CFont *pOldFont = pStatic->GetFont();
-//	LOGFONT NewLogFont;
-//	pOldFont->GetLogFont(&NewLogFont);
-//	NewLogFont.lfWeight = FW_BOLD;
-//	m_pBoldFont = new CFont();
-//	m_pTitleFont = new CFont();
-//	m_pBoldFont->CreateFontIndirect(&NewLogFont);
-//	NewLogFont.lfHeight = 16;
-////	NewLogFont.lfUnderline = TRUE;
-//	m_pTitleFont->CreateFontIndirect(&NewLogFont);
-//	((CStatic*)GetDlgItem(IDC_ABOUT1))->SetFont(m_pTitleFont);
-//	((CStatic*)GetDlgItem(IDC_ABOUT2))->SetFont(m_pBoldFont);
-//	((CStatic*)GetDlgItem(IDC_ABOUT3))->SetFont(m_pBoldFont);
-
+	
+	CStatic *pStatic = static_cast<CStatic*>(GetDlgItem(IDC_ABOUT1));
+	CFont *pOldFont = pStatic->GetFont();
+	LOGFONT NewLogFont;
+	pOldFont->GetLogFont(&NewLogFont);
+	NewLogFont.lfWeight = FW_BOLD;
+	m_pBoldFont = new CFont();
+	m_pTitleFont = new CFont();
+	m_pBoldFont->CreateFontIndirect(&NewLogFont);
+	NewLogFont.lfHeight = 18;
+//	NewLogFont.lfUnderline = TRUE;
+	m_pTitleFont->CreateFontIndirect(&NewLogFont);
+	static_cast<CStatic*>(GetDlgItem(IDC_ABOUT1))->SetFont(m_pTitleFont);
+	static_cast<CStatic*>(GetDlgItem(IDC_ABOUT2))->SetFont(m_pBoldFont);
+	static_cast<CStatic*>(GetDlgItem(IDC_ABOUT3))->SetFont(m_pBoldFont);
+	
 	return TRUE;
 }
 

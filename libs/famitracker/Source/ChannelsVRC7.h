@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -24,6 +24,15 @@
 // Derived channels, VRC7
 //
 
+enum vrc7_command_t {
+	CMD_NONE, 
+	CMD_NOTE_ON,
+	CMD_NOTE_TRIGGER,
+	CMD_NOTE_OFF, 
+	CMD_NOTE_HALT,
+	CMD_NOTE_RELEASE
+};
+
 class CChannelHandlerVRC7 : public CChannelHandler {
 public:
 	CChannelHandlerVRC7();
@@ -35,7 +44,7 @@ protected:
 	virtual void HandleCustomEffects(int EffNum, int EffParam);
 	virtual bool HandleInstrument(int Instrument, bool Trigger, bool NewInstrument);
 	virtual void HandleEmptyNote();
-	virtual void HandleHalt();
+	virtual void HandleCut();
 	virtual void HandleRelease();
 	virtual void HandleNote(int Note, int Octave);
 
@@ -57,7 +66,8 @@ protected:
 
 	bool	m_bHold;
 
-	int		m_iCommand;
+	vrc7_command_t m_iCommand;
+
 	int		m_iTriggeredNote;
 	int		m_iOctave;
 	

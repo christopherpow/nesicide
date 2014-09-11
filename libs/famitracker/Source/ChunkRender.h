@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -50,9 +50,8 @@ private:
 
 private:
 	void DumpStrings(const CStringA &preStr, const CStringA &postStr, CStringArray &stringArray, CFile *pFile) const;
-	void WriteFileString(CFile *pFile, const CStringA &str) const;
-	void PrintList(CChunk *pChunk, CStringA &str) const;
-	void StoreByteString(CChunk *pChunk, CStringA &str) const;
+	void WriteFileString(const CStringA &str, CFile *pFile) const;
+	void StoreByteString(CChunk *pChunk, CStringA &str, int LineBreak) const;
 
 private:
 	void StoreHeaderChunk(CChunk *pChunk, CFile *pFile);

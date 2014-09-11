@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -800,10 +800,10 @@ unsigned char *CPatternCompiler::GetString() const
 {
 	int size = m_vData.size();
 	unsigned char *pData = new unsigned char[size];
-//	stdext::checked_array_iterator<unsigned char*> checked_array(pData, size);
+qFatal("stdext::checked_array_iterator NEEDS IMPLEMENTING");
+//   stdext::checked_array_iterator<unsigned char*> checked_array(pData, size);
 //	std::copy(m_vData.begin(), m_vData.end(), checked_array);
-   std::copy(m_vData.begin(), m_vData.end(), pData);
-   return pData;
+	return pData;
 }
 
 unsigned int CPatternCompiler::GetCompressedStringSize() const
@@ -814,9 +814,9 @@ unsigned int CPatternCompiler::GetCompressedStringSize() const
 unsigned char *CPatternCompiler::GetCompressedString() const
 {
 	int size = m_vCompressedData.size();
-	unsigned char *pData = new unsigned char[size];
+   qFatal("stdext::checked_array_iterator NEEDS IMPLEMENTING");
+   unsigned char *pData = new unsigned char[size];
 //	stdext::checked_array_iterator<unsigned char*> checked_array(pData, size);
 //	std::copy(m_vCompressedData.begin(), m_vCompressedData.end(), checked_array);
-   std::copy(m_vCompressedData.begin(), m_vCompressedData.end(), pData);
-   return pData;
+	return pData;
 }

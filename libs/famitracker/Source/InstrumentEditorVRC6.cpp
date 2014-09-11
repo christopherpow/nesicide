@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -220,6 +220,8 @@ void CInstrumentEditorVRC6::OnEnChangeSeqIndex()
 void CInstrumentEditorVRC6::OnBnClickedFreeSeq()
 {
 	int FreeIndex = GetDocument()->GetFreeSequenceVRC6(m_iSelectedSetting);
+	if (FreeIndex == -1)
+		FreeIndex = 0;
 	SetDlgItemInt(IDC_SEQ_INDEX, FreeIndex, FALSE);	// Things will update automatically by changing this
 }
 
@@ -258,7 +260,9 @@ void CInstrumentEditorVRC6::OnCloneSequence()
 {
 	CFamiTrackerDoc *pDoc = GetDocument();
 	int FreeIndex = pDoc->GetFreeSequenceVRC6(m_iSelectedSetting);
-	CSequence *pSeq = pDoc->GetSequence(SNDCHIP_VRC6, FreeIndex, m_iSelectedSetting);
-	pSeq->Copy(m_pSequence);
-	SetDlgItemInt(IDC_SEQ_INDEX, FreeIndex, FALSE);
+	if (FreeIndex != -1) {
+		CSequence *pSeq = pDoc->GetSequence(SNDCHIP_VRC6, FreeIndex, m_iSelectedSetting);
+		pSeq->Copy(m_pSequence);
+		SetDlgItemInt(IDC_SEQ_INDEX, FreeIndex, FALSE);
+	}
 }

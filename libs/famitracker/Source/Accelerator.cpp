@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -92,22 +92,14 @@ const stAccelEntry CAccelerator::DEFAULT_TABLE[] = {
 	{_T("Expand patterns"),				MOD_NONE,		0,				ID_EDIT_EXPANDPATTERNS},
 	{_T("Shrink patterns"),				MOD_NONE,		0,				ID_EDIT_SHRINKPATTERNS},
 	{_T("Duplicate patterns"),			MOD_NONE,		0,				ID_MODULE_DUPLICATEFRAMEPATTERNS},
+	{_T("Decrease pattern values"),		MOD_SHIFT,		VK_F1,			ID_DECREASEVALUES},
+	{_T("Increase pattern values"),		MOD_SHIFT,		VK_F2,			ID_INCREASEVALUES},
 };
 
 const int CAccelerator::ACCEL_COUNT = sizeof(CAccelerator::DEFAULT_TABLE) / sizeof(stAccelEntry);
 
 // Registry key
 LPCTSTR CAccelerator::SHORTCUTS_SECTION = _T("Shortcuts");
-
-//
-// Static objects
-//
-
-// Shortcut table
-static stAccelEntry EntriesTable[CAccelerator::ACCEL_COUNT];
-
-// Accelerator table
-static ACCEL AccelTable[CAccelerator::ACCEL_COUNT];
 
 // Translate internal modifier -> windows modifier
 static BYTE GetMod(int Mod) 
@@ -117,7 +109,11 @@ static BYTE GetMod(int Mod)
 
 // Class instance functions
 
-CAccelerator::CAccelerator() : m_hAccel(NULL), m_hAdditionalAccel(NULL)
+CAccelerator::CAccelerator() : 
+	m_hAccel(NULL), 
+	m_hAdditionalAccel(NULL), 
+	m_pEntriesTable(new stAccelEntry[ACCEL_COUNT]), 
+	m_pAccelTable(new ACCEL[ACCEL_COUNT])
 {
 	ATLTRACE2(atlTraceGeneral, 0, "Accelerator: Accelerator table contains %d items\n", ACCEL_COUNT);
 }
@@ -125,24 +121,26 @@ CAccelerator::CAccelerator() : m_hAccel(NULL), m_hAdditionalAccel(NULL)
 CAccelerator::~CAccelerator()
 {
 	ASSERT(m_hAccel == NULL);
+	SAFE_RELEASE_ARRAY(m_pEntriesTable);
+	SAFE_RELEASE_ARRAY(m_pAccelTable);
 }
 
 LPCTSTR CAccelerator::GetItemName(int Item) const
 {
 	ASSERT(Item < ACCEL_COUNT);
-	return EntriesTable[Item].name;
+	return m_pEntriesTable[Item].name;
 }
 
 int CAccelerator::GetItemKey(int Item) const
 {
 	ASSERT(Item < ACCEL_COUNT);
-	return EntriesTable[Item].key;
+	return m_pEntriesTable[Item].key;
 }
 
 int CAccelerator::GetItemMod(int Item) const
 {
 	ASSERT(Item < ACCEL_COUNT);
-	return EntriesTable[Item].mod;
+	return m_pEntriesTable[Item].mod;
 }
 
 int CAccelerator::GetDefaultKey(int Item) const
@@ -160,13 +158,13 @@ int CAccelerator::GetDefaultMod(int Item) const
 LPCTSTR CAccelerator::GetItemModName(int Item) const
 {
 	ASSERT(Item < ACCEL_COUNT);
-	return MOD_NAMES[EntriesTable[Item].mod];
+	return MOD_NAMES[m_pEntriesTable[Item].mod];
 }
 
 LPCTSTR CAccelerator::GetItemKeyName(int Item) const
 {
-	if (EntriesTable[Item].key > 0) {
-		return GetVKeyName(EntriesTable[Item].key);
+	if (m_pEntriesTable[Item].key > 0) {
+		return GetVKeyName(m_pEntriesTable[Item].key);
 	}
 
 	return _T("None");
@@ -199,19 +197,19 @@ LPCTSTR CAccelerator::GetVKeyName(int virtualKey) const
 void CAccelerator::StoreShortcut(int Item, int Key, int Mod)
 {
 	ASSERT(Item < ACCEL_COUNT);
-	EntriesTable[Item].key = Key;
-	EntriesTable[Item].mod = Mod;
+	m_pEntriesTable[Item].key = Key;
+	m_pEntriesTable[Item].mod = Mod;
 }
 
 bool CAccelerator::GetShortcutString(int id, CString &str) const
 {
 	for (int i = 0; i < ACCEL_COUNT; ++i) {
-		if (EntriesTable[i].id == id) {
-			CString KeyName = GetVKeyName(EntriesTable[i].key);
+		if (m_pEntriesTable[i].id == id) {
+			CString KeyName = GetVKeyName(m_pEntriesTable[i].key);
 			if (KeyName.GetLength() > 1)
 				KeyName = KeyName.Mid(0, 1).MakeUpper() + KeyName.Mid(1, KeyName.GetLength() - 1).MakeLower();
-			if (EntriesTable[i].mod > 0)
-				str.Format(_T("\t%s+%s"), MOD_NAMES[EntriesTable[i].mod], (LPCTSTR)KeyName);
+			if (m_pEntriesTable[i].mod > 0)
+				str.Format(_T("\t%s+%s"), MOD_NAMES[m_pEntriesTable[i].mod], (LPCTSTR)KeyName);
 			else
 				str.Format(_T("\t%s"), (LPCTSTR)KeyName);
 			return true;
@@ -227,7 +225,7 @@ void CAccelerator::SaveShortcuts(CSettings *pSettings) const
 {
 	// Save values
 	for (int i = 0; i < ACCEL_COUNT; ++i) {
-		pSettings->StoreSetting(SHORTCUTS_SECTION, EntriesTable[i].name, (EntriesTable[i].mod << 8) | EntriesTable[i].key);
+		pSettings->StoreSetting(SHORTCUTS_SECTION, m_pEntriesTable[i].name, (m_pEntriesTable[i].mod << 8) | m_pEntriesTable[i].key);
 	}
 }
 
@@ -238,16 +236,16 @@ void CAccelerator::LoadShortcuts(CSettings *pSettings)
 
 	// Load custom values, if exists
 	for (int i = 0; i < ACCEL_COUNT; ++i) {
-		int Default = (EntriesTable[i].mod << 8) | EntriesTable[i].key;
-		int Setting = pSettings->LoadSetting(SHORTCUTS_SECTION, EntriesTable[i].name, Default);
-		EntriesTable[i].key = Setting & 0xFF;
-		EntriesTable[i].mod = Setting >> 8;
+		int Default = (m_pEntriesTable[i].mod << 8) | m_pEntriesTable[i].key;
+		int Setting = pSettings->LoadSetting(SHORTCUTS_SECTION, m_pEntriesTable[i].name, Default);
+		m_pEntriesTable[i].key = Setting & 0xFF;
+		m_pEntriesTable[i].mod = Setting >> 8;
 	}
 }
 
 void CAccelerator::LoadDefaults()
 {
-	memcpy(EntriesTable, DEFAULT_TABLE, sizeof(stAccelEntry) * ACCEL_COUNT);
+	memcpy(m_pEntriesTable, DEFAULT_TABLE, sizeof(stAccelEntry) * ACCEL_COUNT);
 }
 
 void CAccelerator::Setup()
@@ -259,15 +257,15 @@ void CAccelerator::Setup()
 		m_hAccel = NULL;
 	}
 
-	memset(AccelTable, 0, sizeof(ACCEL) * ACCEL_COUNT);
+	memset(m_pAccelTable, 0, sizeof(ACCEL) * ACCEL_COUNT);
 
 	for (int i = 0; i < ACCEL_COUNT; ++i) {
-		AccelTable[i].cmd = EntriesTable[i].id;
-		AccelTable[i].fVirt = FVIRTKEY | GetMod(EntriesTable[i].mod);
-		AccelTable[i].key = EntriesTable[i].key;
+		m_pAccelTable[i].cmd = m_pEntriesTable[i].id;
+		m_pAccelTable[i].fVirt = FVIRTKEY | GetMod(m_pEntriesTable[i].mod);
+		m_pAccelTable[i].key = m_pEntriesTable[i].key;
 	}
 
-	m_hAccel = CreateAcceleratorTable(AccelTable, ACCEL_COUNT);
+	m_hAccel = CreateAcceleratorTable(m_pAccelTable, ACCEL_COUNT);
 }
 
 BOOL CAccelerator::Translate(HWND hWnd, MSG *pMsg)

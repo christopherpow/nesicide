@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -162,7 +162,7 @@ void CModulePropertiesDlg::OnBnClickedSongAdd()
 	if (NewTrack == -1)
 		return;
 	
-	TrackTitle.Format(TRACK_FORMAT, NewTrack, m_pDocument->GetTrackTitle(NewTrack));
+	TrackTitle.Format(TRACK_FORMAT, NewTrack, m_pDocument->GetTrackTitle(NewTrack).GetString());
 	static_cast<CListCtrl*>(GetDlgItem(IDC_SONGLIST))->InsertItem(NewTrack, TrackTitle);
 
 	SelectSong(NewTrack);
@@ -173,6 +173,7 @@ void CModulePropertiesDlg::OnBnClickedSongRemove()
 	ASSERT(m_iSelectedSong != -1);
 
 	CListCtrl *pSongList = static_cast<CListCtrl*>(GetDlgItem(IDC_SONGLIST));
+	CMainFrame *pMainFrame = static_cast<CMainFrame*>(GetParentFrame());
 	unsigned Count = m_pDocument->GetTrackCount();
 	CString TrackTitle;
 
@@ -190,7 +191,7 @@ void CModulePropertiesDlg::OnBnClickedSongRemove()
 
 	// Redraw track list
 	for (unsigned int i = 0; i < Count; ++i) {
-		TrackTitle.Format(_T("#%02i %s"), i + 1, m_pDocument->GetTrackTitle(i));
+		TrackTitle.Format(_T("#%02i %s"), i + 1, m_pDocument->GetTrackTitle(i).GetString());
 		pSongList->SetItemText(i, 0, TrackTitle);
 	}
 
@@ -211,9 +212,9 @@ void CModulePropertiesDlg::OnBnClickedSongUp()
 
 	m_pDocument->MoveTrackUp(Song);
 
-	Text.Format(TRACK_FORMAT, Song + 1, m_pDocument->GetTrackTitle(Song));
+	Text.Format(TRACK_FORMAT, Song + 1, m_pDocument->GetTrackTitle(Song).GetString());
 	pSongList->SetItemText(Song, 0, Text);
-	Text.Format(TRACK_FORMAT, Song, m_pDocument->GetTrackTitle(Song - 1));
+	Text.Format(TRACK_FORMAT, Song, m_pDocument->GetTrackTitle(Song - 1).GetString());
 	pSongList->SetItemText(Song - 1, 0, Text);
 
 	SelectSong(Song - 1);
@@ -230,9 +231,9 @@ void CModulePropertiesDlg::OnBnClickedSongDown()
 
 	m_pDocument->MoveTrackDown(Song);
 
-	Text.Format(TRACK_FORMAT, Song + 1, m_pDocument->GetTrackTitle(Song));
+	Text.Format(TRACK_FORMAT, Song + 1, m_pDocument->GetTrackTitle(Song).GetString());
 	pSongList->SetItemText(Song, 0, Text);
-	Text.Format(TRACK_FORMAT, Song + 2, m_pDocument->GetTrackTitle(Song + 1));
+	Text.Format(TRACK_FORMAT, Song + 2, m_pDocument->GetTrackTitle(Song + 1).GetString());
 	pSongList->SetItemText(Song + 1, 0, Text);
 
 	SelectSong(Song + 1);
@@ -249,10 +250,10 @@ void CModulePropertiesDlg::OnEnChangeSongname()
 
 	pName->GetWindowText(Text);
 
-   Title.Format(TRACK_FORMAT, m_iSelectedSong + 1, (LPCTSTR)Text);
+	Title.Format(TRACK_FORMAT, m_iSelectedSong + 1, Text);
 
 	pSongList->SetItemText(m_iSelectedSong, 0, Title);
-	m_pDocument->SetTrackTitle(m_iSelectedSong, Text.GetBuffer());
+	m_pDocument->SetTrackTitle(m_iSelectedSong, Text);
 }
 
 void CModulePropertiesDlg::SelectSong(int Song)
@@ -337,7 +338,7 @@ void CModulePropertiesDlg::OnLvnItemchangedSonglist(NMHDR *pNMHDR, LRESULT *pRes
 		m_iSelectedSong = Song;
 
 		CEdit *pName = static_cast<CEdit*>(GetDlgItem(IDC_SONGNAME));
-		pName->SetWindowText(CString(m_pDocument->GetTrackTitle(Song)));
+		pName->SetWindowText(CString(m_pDocument->GetTrackTitle(Song).GetString()));
 
 		UpdateSongButtons();
     }
@@ -356,7 +357,7 @@ void CModulePropertiesDlg::FillSongList()
 	int Songs = m_pDocument->GetTrackCount();
 
 	for (int i = 0; i < Songs; ++i) {
-		Text.Format(TRACK_FORMAT, i + 1, m_pDocument->GetTrackTitle(i));	// start counting songs from 1
+		Text.Format(TRACK_FORMAT, i + 1, m_pDocument->GetTrackTitle(i).GetString());	// start counting songs from 1
 		pSongList->InsertItem(i, Text);
 	}
 

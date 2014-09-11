@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -95,7 +95,7 @@ BOOL CSampleEditorDlg::OnInitDialog()
 
 	CString title;
 	GetWindowText(title);
-	title.AppendFormat(_T(" [%s]"), m_pSample->Name);
+	title.AppendFormat(_T(" [%s]"), m_pSample->GetName());
 	SetWindowText(title);
 
 	UpdateSampleView();
@@ -206,7 +206,7 @@ void CSampleEditorDlg::MoveControls()
 
 void CSampleEditorDlg::OnBnClickedPlay()
 {
-	if (m_pSample->SampleSize == 0)
+	if (m_pSample->GetSize() == 0)
 		return;
 
 	int Pitch = static_cast<CSliderCtrl*>(GetDlgItem(IDC_PITCH))->GetPos();
@@ -268,20 +268,19 @@ void CSampleEditorDlg::OnBnClickedDelete()
 	ASSERT(StartSample <= 4081);
 	ASSERT(EndSample <= 4081);
 
-	if (EndSample >= m_pSample->SampleSize)
-		EndSample = m_pSample->SampleSize - 1;
+	if (EndSample >= m_pSample->GetSize())
+		EndSample = m_pSample->GetSize() - 1;
 
-//	TRACE(_T("Removing selected part from sample, start: %i, end %i (diff: %i)\n"), StartSample, EndSample, EndSample - StartSample);
+	TRACE(_T("Removing selected part from sample, start: %i, end %i (diff: %i)\n"), StartSample, EndSample, EndSample - StartSample);
 
 	// Remove the selected part
-	memcpy(m_pSample->SampleData + StartSample, m_pSample->SampleData + EndSample, m_pSample->SampleSize - EndSample);
-	m_pSample->SampleSize -= EndSample - StartSample;
+	memcpy(m_pSample->GetData() + StartSample, m_pSample->GetData() + EndSample, m_pSample->GetSize() - EndSample);
+	int NewSize = m_pSample->GetSize() - (EndSample - StartSample);
 
 	// Reallocate
-	char *pData = new char[m_pSample->SampleSize];
-	memcpy(pData, m_pSample->SampleData, m_pSample->SampleSize);
-	delete [] m_pSample->SampleData;
-	m_pSample->SampleData = pData;
+	char *pData = new char[NewSize];
+	memcpy(pData, m_pSample->GetData(), NewSize);
+	m_pSample->SetData(NewSize, pData);
 
 	UpdateSampleView();
 	SelectionChanged();
@@ -300,11 +299,12 @@ void CSampleEditorDlg::OnBnClickedTilt()
 	int Nr = 10;
 	int Step = (Diff * 8) / Nr;
 	int Cntr = rand() % Step;
+	char *pData = m_pSample->GetData();
 
 	for (int i = StartSample; i < EndSample; ++i) {
 		for (int j = 0; j < 8; ++j) {
 			if (++Cntr == Step) {
-				m_pSample->SampleData[i] &= (0xFF ^ (1 << j));
+				pData[i] &= (0xFF ^ (1 << j));
 				Cntr = 0;
 			}
 		}
@@ -358,7 +358,7 @@ void CSampleEditorDlg::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 
 void CSampleEditorDlg::CopySample(CDSample *pTarget)
 {
-	pTarget->Allocate(m_pSample->SampleSize, m_pSample->SampleData);
+	pTarget->Allocate(m_pSample->GetSize(), m_pSample->GetData());
 }
 
 void CSampleEditorDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)

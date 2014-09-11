@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -133,7 +133,7 @@ unsigned int CDSound::GetDeviceCount() const
 	return m_iDevices;
 }
 
-LPCTSTR CDSound::GetDeviceName(int iDevice) const
+LPCTSTR CDSound::GetDeviceName(unsigned int iDevice) const
 {
 	ASSERT(iDevice < m_iDevices);
 	return m_pcDevice[iDevice];
@@ -245,13 +245,13 @@ CDSoundChannel::~CDSoundChannel()
 {
 }
 
-bool CDSoundChannel::Play()
+bool CDSoundChannel::Play() const
 {
    ftmAudioSemaphore.release();
    m_bPaused = false;
 }
 
-bool CDSoundChannel::Stop()
+bool CDSoundChannel::Stop() const
 {
    m_bPaused = true;
    return true;

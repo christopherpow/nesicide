@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -34,16 +34,15 @@
 #define TRANSPOSE_FDS
 
 // Default song settings
-const unsigned int DEFAULT_TEMPO_NTSC   = 150;
-const unsigned int DEFAULT_TEMPO_PAL    = 125;
-const unsigned int DEFAULT_SPEED	    = 6;
-const unsigned int DEFAULT_MACHINE_TYPE = NTSC;
-
+const unsigned int DEFAULT_TEMPO_NTSC		 = 150;
+const unsigned int DEFAULT_TEMPO_PAL		 = 125;
+const unsigned int DEFAULT_SPEED			 = 6;
+const unsigned int DEFAULT_MACHINE_TYPE		 = NTSC;
 const unsigned int DEFAULT_SPEED_SPLIT_POINT = 32;
 const unsigned int OLD_SPEED_SPLIT_POINT	 = 21;
 
 // Columns
-enum {
+enum column_t {
 	C_NOTE, 
 	C_INSTRUMENT1, 
 	C_INSTRUMENT2, 
@@ -64,8 +63,6 @@ enum {
 
 const unsigned int COLUMNS = 7;
 
-const unsigned int VOLUME_EMPTY = 0x10;		// Value of cleared volume column field
-
 // Special assert used when loading files
 #ifdef _DEBUG
 	#define ASSERT_FILE_DATA(Statement) ASSERT(Statement)
@@ -73,7 +70,7 @@ const unsigned int VOLUME_EMPTY = 0x10;		// Value of cleared volume column field
 	#define ASSERT_FILE_DATA(Statement) if (!(Statement)) return true
 #endif
 
-// View update modes
+// View update modes (TODO check these and remove inappropriate flags)
 enum {
 	CHANGED_TRACK = 1,		// Changed track
 	CHANGED_TRACKCOUNT,		// Update track count
@@ -98,6 +95,22 @@ enum {
 	CLOSE_DOCUMENT			// Document is closing
 };
 
+#if 0
+// New document update flags, will replace the old ones at some point
+// These will only indicate changes to the document, no cursor movement etc
+enum {
+	UPDATE_TRACK,			// Track has been added / removed / changed
+	UPDATE_PATTERN,			// Pattern data has been edited
+	UPDATE_FRAME,			// Frame data has been edited
+	UPDATE_INSTRUMENT,		// Instrument has been added / removed
+	UPDATE_PROPERTIES,		// Module properties has changed (including channel count)
+	UPDATE_HIGHLIGHT,		// Row highlight option has changed
+	UPDATE_COLUMNS,			// Effect columns has changed
+	UPDATE_CLOSE			// Document is closing
+};
+#endif
+
+
 // Old sequence list, kept for compability
 struct stSequence {
 	unsigned int Count;
@@ -107,67 +120,40 @@ struct stSequence {
 
 
 // Access data types used by the document class
-#include "Sequence.h"
 #include "PatternData.h"
 #include "Instrument.h"
-
+#include "Sequence.h"
 
 // External classes
 class CTrackerChannel;
-class CMainFrame;
 class CDocumentFile;
-
-// Use this when it's done
-/*
-class CPatternCell {
-public:
-	unsigned char	GetNote() { return m_cNote; };
-	unsigned char	GetOctave() { return m_cOctave; };
-	unsigned char	GetVolume() { return m_cVolume; };
-	unsigned char	GetInstrument() { return m_cInstrument; };
-	unsigned char	GetEffect(unsigned char Column) { return m_cEffNumber[MAX_EFFECT_COLUMNS]; };
-	unsigned char	GetEffectParam(unsigned char Column) { return m_cEffParam[MAX_EFFECT_COLUMNS]; };
-public:
-	unsigned char	m_cNote;
-	unsigned char	m_cOctave;
-	unsigned char	m_cVolume;
-	unsigned char	m_cInstrument;
-	unsigned char	m_cEffNumber[MAX_EFFECT_COLUMNS];
-	unsigned char	m_cEffParam[MAX_EFFECT_COLUMNS];
-
-};
-*/
 
 //
 // I'll try to organize this class, things are quite messy right now!
 //
 
-class CFamiTrackerDoc : public CDocument, public CFamiTrackerDocInterface
+class CFamiTrackerDoc : public CDocument
 {
 protected: // create from serialization only
 	CFamiTrackerDoc();
 	DECLARE_DYNCREATE(CFamiTrackerDoc)
 
-	int m_iVersion;
-public:
-	static const int CLASS_VERSION = 3;
-	const int GetVersion() const { return m_iVersion; };
-
 	// Static functions
 public:
 	static CFamiTrackerDoc* GetDoc();
 
-// Attributes
-public:
-	CString GetFileTitle() const;
-/*
+
 	// Other
+#ifdef AUTOSAVE
 	void AutoSave();
-*/
+#endif
+
 	//
 	// Public functions
 	//
 public:
+
+	CString GetFileTitle() const;
 
 	//
 	// Document file I/O
@@ -181,7 +167,7 @@ public:
 	bool ImportTrack(int Track, CFamiTrackerDoc *pImported, int *pInstTable);
 
 	//
-	// Interface functions (not related to document data)
+	// Interface functions (not related to document data) TODO move this?
 	//
 	void			ResetChannels();
 	void			RegisterChannel(CTrackerChannel *pChannel, int ChannelType, int ChipType);
@@ -201,93 +187,72 @@ public:
 	//
 
 	// Local (song) data
-	void			SetFrameCount(unsigned int Count);
-	void			SetPatternLength(unsigned int Length);
-	void			SetSongSpeed(unsigned int Speed);
-	void			SetSongTempo(unsigned int Tempo);
+	void			SetPatternLength(unsigned int Track, unsigned int Length);
+	void			SetFrameCount(unsigned int Track, unsigned int Count);
+	void			SetSongSpeed(unsigned int Track, unsigned int Speed);
+	void			SetSongTempo(unsigned int Track, unsigned int Tempo);
 
-	// Todo: Remove these
-	unsigned int	GetPatternLength()		const { return m_pSelectedTrack->GetPatternLength(); };
-	unsigned int	GetFrameCount()			const { return m_pSelectedTrack->GetFrameCount(); };
-	unsigned int	GetSongSpeed()			const { return m_pSelectedTrack->GetSongSpeed(); };
-	unsigned int	GetSongTempo()			const { return m_pSelectedTrack->GetSongTempo(); };
+	unsigned int	GetPatternLength(unsigned int Track) const;
+	unsigned int	GetFrameCount(unsigned int Track) const;
+	unsigned int	GetSongSpeed(unsigned int Track) const;
+	unsigned int	GetSongTempo(unsigned int Track) const;
 
-	unsigned int	GetAvailableChannels()	const { return m_iChannelsAvailable; };
+	unsigned int	GetEffColumns(unsigned int Track, unsigned int Channel) const;
+	void			SetEffColumns(unsigned int Track, unsigned int Channel, unsigned int Columns);
 
-	unsigned int	GetPatternLength(int Track) const { return m_pTracks[Track]->GetPatternLength(); };
-	unsigned int	GetFrameCount(int Track)	const { return m_pTracks[Track]->GetFrameCount(); };
-	unsigned int	GetSongSpeed(int Track)		const { return m_pTracks[Track]->GetSongSpeed(); };
-	unsigned int	GetSongTempo(int Track)		const { return m_pTracks[Track]->GetSongTempo(); };
+	unsigned int 	GetPatternAtFrame(unsigned int Track, unsigned int Frame, unsigned int Channel) const;
+	void			SetPatternAtFrame(unsigned int Track, unsigned int Frame, unsigned int Channel, unsigned int Pattern);
 
-	unsigned int	GetEffColumns(int Track, unsigned int Channel) const;
-	unsigned int	GetEffColumns(unsigned int Channel) const; 
-	void			SetEffColumns(unsigned int Channel, unsigned int Columns);
-
-	unsigned int 	GetPatternAtFrame(int Track, unsigned int Frame, unsigned int Channel) const;
-	unsigned int	GetPatternAtFrame(unsigned int Frame, unsigned int Channel) const;
-	void			SetPatternAtFrame(unsigned int Frame, unsigned int Channel, unsigned int Pattern);
-
-	int				GetFirstFreePattern(int Channel) const;
-	bool			IsPatternEmpty(unsigned int Channel, unsigned int Pattern) const;
-
-	void			ClearPatterns(int Track);
+	bool			IsPatternEmpty(unsigned int Track, unsigned int Channel, unsigned int Pattern) const;
 
 	// Pattern editing
-	void			IncreasePattern(unsigned int Frame, unsigned int Channel, int Count);
-	void			DecreasePattern(unsigned int Frame, unsigned int Channel, int Count);
-	void			IncreaseInstrument(unsigned int Frame, unsigned int Channel, unsigned int Row);
-	void			DecreaseInstrument(unsigned int Frame, unsigned int Channel, unsigned int Row);
-	void			IncreaseVolume(unsigned int Frame, unsigned int Channel, unsigned int Row);
-	void			DecreaseVolume(unsigned int Frame, unsigned int Channel, unsigned int Row);
-	void			IncreaseEffect(unsigned int Frame, unsigned int Channel, unsigned int Row, unsigned int Index);
-	void			DecreaseEffect(unsigned int Frame, unsigned int Channel, unsigned int Row, unsigned int Index);
+	void			SetNoteData(unsigned int Track, unsigned int Frame, unsigned int Channel, unsigned int Row, const stChanNote *pData);
+	void			GetNoteData(unsigned int Track, unsigned int Frame, unsigned int Channel, unsigned int Row, stChanNote *pData) const;
 
-	void			SetNoteData(unsigned int Frame, unsigned int Channel, unsigned int Row, stChanNote *Data);
-	void			GetNoteData(unsigned int Frame, unsigned int Channel, unsigned int Row, stChanNote *Data) const;
+	void			SetDataAtPattern(unsigned int Track, unsigned int Pattern, unsigned int Channel, unsigned int Row, const stChanNote *pData);
+	void			GetDataAtPattern(unsigned int Track, unsigned int Pattern, unsigned int Channel, unsigned int Row, stChanNote *pData) const;
 
-	void			SetDataAtPattern(unsigned int Track, unsigned int Pattern, unsigned int Channel, unsigned int Row, stChanNote *Data);
-	void			GetDataAtPattern(unsigned int Track, unsigned int Pattern, unsigned int Channel, unsigned int Row, stChanNote *Data) const;
+	void			ClearPatterns(unsigned int Track);
+	void			ClearPattern(unsigned int Track, unsigned int Frame, unsigned int Channel);
 
-	unsigned int	GetNoteEffectType(unsigned int Frame, unsigned int Channel, unsigned int Row, int Index) const;
-	unsigned int	GetNoteEffectParam(unsigned int Frame, unsigned int Channel, unsigned int Row, int Index) const;
-
-	void			ClearPattern(unsigned int Frame, unsigned int Channel);
-
-	bool			InsertRow(int Track, unsigned int Frame, unsigned int Channel, unsigned int Row);
-	bool			DeleteNote(int Track, unsigned int Frame, unsigned int Channel, unsigned int Row, unsigned int Column);
-	bool			ClearRow(int Track, unsigned int Frame, unsigned int Channel, unsigned int Row);
-	bool			ClearRowField(int Track, unsigned int Frame, unsigned int Channel, unsigned int Row, unsigned int Column);
-	bool			RemoveNote(int Track, unsigned int Frame, unsigned int Channel, unsigned int Row);
-	bool			PullUp(int Track, unsigned int Frame, unsigned int Channel, unsigned int Row);
-	void			CopyPattern(int Track, int Target, int Source, int Channel);
+	bool			InsertRow(unsigned int Track, unsigned int Frame, unsigned int Channel, unsigned int Row);
+	bool			DeleteNote(unsigned int Track, unsigned int Frame, unsigned int Channel, unsigned int Row, unsigned int Column);
+	bool			ClearRow(unsigned int Track, unsigned int Frame, unsigned int Channel, unsigned int Row);
+	bool			ClearRowField(unsigned int Track, unsigned int Frame, unsigned int Channel, unsigned int Row, unsigned int Column);
+	bool			RemoveNote(unsigned int Track, unsigned int Frame, unsigned int Channel, unsigned int Row);
+	bool			PullUp(unsigned int Track, unsigned int Frame, unsigned int Channel, unsigned int Row);
+	void			CopyPattern(unsigned int Track, int Target, int Source, int Channel);
 
 	// Frame editing
-	bool			InsertFrame(int Pos);
-	bool			RemoveFrame(int Pos);
-	bool			DuplicateFrame(int Pos);
-	bool			DuplicatePatterns(int Pos);
-	bool			MoveFrameDown(int Pos);
-	bool			MoveFrameUp(int Pos);
-	void			DeleteFrames(int Pos, int Count);
+	bool			InsertFrame(unsigned int Track, unsigned int Frame);
+	bool			RemoveFrame(unsigned int Track, unsigned int Frame);
+	bool			DuplicateFrame(unsigned int Track, unsigned int Frame);
+	bool			DuplicatePatterns(unsigned int Track, unsigned int Frame);
+	bool			MoveFrameDown(unsigned int Track, unsigned int Frame);
+	bool			MoveFrameUp(unsigned int Track, unsigned int Frame);
+	void			DeleteFrames(unsigned int Track, unsigned int Frame, int Count);
 
 	// Global (module) data
 	void			SetEngineSpeed(unsigned int Speed);
 	void			SetMachine(unsigned int Machine);
 	unsigned int	GetMachine() const		{ return m_iMachine; };
 	unsigned int	GetEngineSpeed() const	{ return m_iEngineSpeed; };
-	unsigned int	GetFrameRate(void) const;
+	unsigned int	GetFrameRate() const;
 
 	void			SelectExpansionChip(unsigned char Chip);
 	unsigned char	GetExpansionChip() const { return m_iExpansionChip; };
-	bool			ExpansionEnabled(int Chip) const;
+	bool			ExpansionEnabled(unsigned char Chip) const;
 
-	int				GetNamcoChannels() const;
-	void			SetNamcoChannels(int Channels);
+	unsigned int	GetNamcoChannels() const;
+	void			SetNamcoChannels(unsigned int Channels);
 
-	void			SetSongInfo(const char *Name, const char *Artist, const char *Copyright);
-	const char*		GetSongName() const		 { return m_strName; };
-	const char*		GetSongArtist() const	 { return m_strArtist; };
-	const char*		GetSongCopyright() const { return m_strCopyright; };
+	// Todo: remove this, use getchannelcount instead
+	unsigned int	GetAvailableChannels()	const { return m_iChannelsAvailable; };
+
+	// Todo: Replace with CString
+	const char*		GetSongName() const;
+	const char*		GetSongArtist() const;
+	const char*		GetSongCopyright() const;
 	void			SetSongName(const char *pName);
 	void			SetSongArtist(const char *pArtist);
 	void			SetSongCopyright(const char *pCopyright);
@@ -298,7 +263,7 @@ public:
 	bool			GetLinearPitch() const;
 	void			SetLinearPitch(bool Enable);
 
-	void			SetComment(CString &comment, bool ShowOnLoad);
+	void			SetComment(CString &comment, bool bShowOnLoad);
 	CString			GetComment() const;
 	bool			ShowCommentOnOpen() const;
 
@@ -310,61 +275,59 @@ public:
 	int				GetSecondHighlight() const;
 
 	// Track management functions
-	void			SelectTrack(unsigned int Track);	// TODO remove
-	unsigned int	GetTrackCount() const;
-	unsigned int	GetSelectedTrack() const;			// TODO remove
-	char*			GetTrackTitle(unsigned int Track) const;
 	int				AddTrack();
 	void			RemoveTrack(unsigned int Track);
-	void			SetTrackTitle(unsigned int Track, CString Title);
+	unsigned int	GetTrackCount() const;
+	CString			GetTrackTitle(unsigned int Track) const;
+	void			SetTrackTitle(unsigned int Track, const CString &title);
 	void			MoveTrackUp(unsigned int Track);
 	void			MoveTrackDown(unsigned int Track);
 
 
 	// Instruments functions
-	CInstrument*	GetInstrument(int Index) const;
-	int				GetInstrumentCount() const;
-	bool			IsInstrumentUsed(int Index) const;
-
-	int				AddInstrument(const char *Name, int ChipType);				// Add a new instrument
-	int				AddInstrument(CInstrument *pInst);
-	void			AddInstrument(CInstrument *pInst, unsigned int Slot);
-	void			RemoveInstrument(unsigned int Index);						// Remove an instrument
-	void			SetInstrumentName(unsigned int Index, const char *Name);	// Set the name of an instrument
-	void			GetInstrumentName(unsigned int Index, char *Name) const;	// Get the name of an instrument
-	int				CloneInstrument(unsigned int Index);						// Create a copy of an instrument
-	CInstrument*	CreateInstrument(int InstType);							// Creates a new instrument of InstType
-	int				FindFreeInstrumentSlot();
-	void			SaveInstrument(unsigned int Instrument, CString FileName);
-	int 			LoadInstrument(CString FileName);
-	int				GetInstrumentType(unsigned int Index) const;
-
+	CInstrument*	GetInstrument(unsigned int Index) const;
+	unsigned int	GetInstrumentCount() const;
+	bool			IsInstrumentUsed(unsigned int Index) const;
+	int				AddInstrument(const char *pName, int ChipType);					// Add a new instrument
+	int				AddInstrument(CInstrument *pInstrument);
+	void			AddInstrument(CInstrument *pInstrument, unsigned int Slot);
+	void			RemoveInstrument(unsigned int Index);							// Remove an instrument
+	void			SetInstrumentName(unsigned int Index, const char *pName);		// Set the name of an instrument
+	void			GetInstrumentName(unsigned int Index, char *pName) const;		// Get the name of an instrument
+	int				CloneInstrument(unsigned int Index);							// Create a copy of an instrument
+	CInstrument*	CreateInstrument(inst_type_t InstType) const;					// Creates a new instrument of InstType
+	int				FindFreeInstrumentSlot() const;
+	inst_type_t		GetInstrumentType(unsigned int Index) const;
 	int				DeepCloneInstrument(unsigned int Index);
+	void			SaveInstrument(unsigned int Index, CString FileName) const;
+	int 			LoadInstrument(CString FileName);
 
 	// Read only getter for exporter plugins
 	CInstrument2A03Interface const* Get2A03Instrument(int Instrument) const;
 
 
 	// Sequences functions
-	CSequence*		GetSequence(int Chip, int Index, int Type);
-	CSequence*		GetSequence(int Index, int Type);
-	int				GetSequenceItemCount(int Index, int Type) const;
-	int				GetFreeSequence(int Type) const;
+	CSequence*		GetSequence(int Chip, unsigned int Index, int Type);
 	int				GetSequenceCount(int Type) const;
 
-	CSequence*		GetSequenceVRC6(int Index, int Type);
-	CSequence*		GetSequenceVRC6(int Index, int Type) const;
-	int				GetSequenceItemCountVRC6(int Index, int Type) const;
+	CSequence*		GetSequence(unsigned int Index, int Type);
+	CSequence*		GetSequence(unsigned int Index, int Type) const;
+	int				GetSequenceItemCount(unsigned int Index, int Type) const;
+	int				GetFreeSequence(int Type) const;
+
+	CSequence*		GetSequenceVRC6(unsigned int Index, int Type);
+	CSequence*		GetSequenceVRC6(unsigned int Index, int Type) const;
+	int				GetSequenceItemCountVRC6(unsigned int Index, int Type) const;
 	int				GetFreeSequenceVRC6(int Type) const;
 
-	CSequence*		GetSequenceN163(int Index, int Type);
-	CSequence*		GetSequenceN163(int Index, int Type) const;
-	int				GetSequenceItemCountN163(int Index, int Type) const;
+	CSequence*		GetSequenceN163(unsigned int Index, int Type);
+	CSequence*		GetSequenceN163(unsigned int Index, int Type) const;
+	int				GetSequenceItemCountN163(unsigned int Index, int Type) const;
 	int				GetFreeSequenceN163(int Type) const;
 
-	CSequence*		GetSequenceS5B(int Index, int Type);
-	CSequence*		GetSequenceS5B(int Index, int Type) const;
-	int				GetSequenceItemCountS5B(int Index, int Type) const;
+	CSequence*		GetSequenceS5B(unsigned int Index, int Type);
+	CSequence*		GetSequenceS5B(unsigned int Index, int Type) const;
+	int				GetSequenceItemCountS5B(unsigned int Index, int Type) const;
 	int				GetFreeSequenceS5B(int Type) const;
 
 	// Read only getter for exporter plugins
@@ -373,25 +336,23 @@ public:
 
 	// DPCM samples
 	CDSample*		GetSample(unsigned int Index);
-	int				GetSampleCount() const;
+	const CDSample*	GetSample(unsigned int Index) const;
+	bool			IsSampleUsed(unsigned int Index) const;
+	unsigned int	GetSampleCount() const;
 	int				GetFreeSampleSlot() const;
 	void			RemoveSample(unsigned int Index);
-	void			GetSampleName(unsigned int Index, char *Name) const;
-	int				GetSampleSize(unsigned int Sample);
-	char			GetSampleData(unsigned int Sample, unsigned int Offset);
-	int				GetTotalSampleSize() const;
+	unsigned int	GetTotalSampleSize() const;
 
-	// For file version compability
-	void			ConvertSequence(stSequence *OldSequence, CSequence *NewSequence, int Type);
-
-	int				ScanActualLength(int Track, int Count) const;
-	int				GetActualPatternLength(int Frame) const;
+	// Other
+	unsigned int	ScanActualLength(unsigned int Track, unsigned int Count) const;
 
 	// Operations
 	void			RemoveUnusedInstruments();
 	void			RemoveUnusedPatterns();
 	void			MergeDuplicatedPatterns();
 
+	// For file version compability
+	static void		ConvertSequence(stSequence *pOldSequence, CSequence *pNewSequence, int Type);
 
 	// Constants
 public:
@@ -406,10 +367,11 @@ public:
 
 	static const bool	DEFAULT_LINEAR_PITCH;
 
+
 	//
-	// Protected functions
+	// Private functions
 	//
-protected:
+private:
 
 	//
 	// File management functions (load/save)
@@ -449,25 +411,29 @@ protected:
 	bool			ReadBlock_SequencesN163(CDocumentFile *pDocFile);
 	bool			ReadBlock_SequencesS5B(CDocumentFile *pDocFile);
 
-	void			SwitchToTrack(unsigned int Track);
-
 	// For file version compability
 	void			ReorderSequences();
 	void			ConvertSequences();
-/*
+
+#ifdef AUTOSAVE
 	void			SetupAutoSave();
 	void			ClearAutoSave();
-*/
+#endif
+
 	//
-	// Module data
+	// Internal module operations
 	//
 
 	void			AllocateTrack(unsigned int Song);
 	CPatternData*	GetTrack(unsigned int Track);
+	CPatternData*	GetTrack(unsigned int Track) const;
 	void			SwapTracks(unsigned int Track1, unsigned int Track2);
 
 	void			SetupChannels(unsigned char Chip);
 	void			ApplyExpansionChip();
+
+	unsigned int	GetFirstFreePattern(unsigned int Track, unsigned int Channel) const;
+
 
 	//
 	// Private variables
@@ -478,7 +444,7 @@ private:
 	// Interface variables
 	//
 
-	// Channels (TODO: remove or move these?)
+	// Channels (TODO: run-time state, remove or move these?)
 	CTrackerChannel	*m_pChannels[CHANNELS];
 	int				m_iRegisteredChannels;
 	int				m_iChannelTypes[CHANNELS];
@@ -492,27 +458,28 @@ private:
 	bool			m_bFileLoaded;			// Is a file loaded?
 	bool			m_bFileLoadFailed;		// Last file load operation failed
 	unsigned int	m_iFileVersion;			// Loaded file version
-	unsigned int	m_iTrack;				// Selected track
 
 	bool			m_bForceBackup;
 	bool			m_bBackupDone;
+#ifdef TRANSPOSE_FDS
+	bool			m_bAdjustFDSArpeggio;
+#endif
 
-/*
+#ifdef AUTOSAVE
 	// Auto save
 	int				m_iAutoSaveCounter;
 	CString			m_sAutoSaveFile;
-*/
+#endif
 
 	//
 	// Document data
 	//
 
 	// Patterns and song data
-	CPatternData	*m_pSelectedTrack;							// Points to selected track (TODO remove)
 	CPatternData	*m_pTracks[MAX_TRACKS];						// List of all tracks
 	CString			m_sTrackNames[MAX_TRACKS];
 
-	unsigned int	m_iTracks;									// Track count
+	unsigned int	m_iTrackCount;								// Number of tracks added
 	unsigned int	m_iChannelsAvailable;						// Number of channels added
 
 	// Instruments, samples and sequences
@@ -538,9 +505,11 @@ private:
 	unsigned int	m_iEngineSpeed;								// Refresh rate
 	unsigned int	m_iSpeedSplitPoint;							// Speed/tempo split-point
 
+	// Comments
 	CString			m_strComment;
 	bool			m_bDisplayComment;
 
+	// Row highlight
 	unsigned int	m_iFirstHighlight;
 	unsigned int	m_iSecondHighlight;
 
@@ -555,8 +524,7 @@ private:
 	// Thread synchronization
 private:
 	mutable CCriticalSection m_csInstrument;
-	//mutable CCriticalSection m_csDocumentLock;
-	mutable CMutex m_csDocumentLock;
+	mutable CMutex			 m_csDocumentLock;
 
 // Operations
 public:
@@ -591,7 +559,8 @@ public:
 template <class T>
 class CInstrumentContainer {
 public:
-   CInstrumentContainer(CFamiTrackerDoc *pDoc, int Index) {
+   CInstrumentContainer(CFamiTrackerDoc *pDoc, int Index)
+   {
       ASSERT(Index < MAX_INSTRUMENTS);
       m_pInstrument = pDoc->GetInstrument(Index);
    }

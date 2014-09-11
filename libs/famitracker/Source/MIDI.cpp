@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -223,10 +223,8 @@ void CMIDI::Event(unsigned char Status, unsigned char Data1, unsigned char Data2
 {
 	//static int TimingCounter;
 
-	unsigned char MsgType, MsgChannel;
-
-	MsgType		= Status >> 4;
-	MsgChannel	= Status & 0x0F;
+	unsigned char MsgType	 = Status >> 4;
+	unsigned char MsgChannel = Status & 0x0F;
 
 	// Timing
 	switch (Status) {
@@ -256,8 +254,6 @@ void CMIDI::Event(unsigned char Status, unsigned char Data1, unsigned char Data2
 			}
 	}
 }
-
-int m_iQuant;
 
 bool CMIDI::ReadMessage(unsigned char & Message, unsigned char & Channel, unsigned char & Data1, unsigned char & Data2)
 {

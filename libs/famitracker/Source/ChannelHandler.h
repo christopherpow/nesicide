@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -78,7 +78,7 @@ protected:
 	virtual void HandleCustomEffects(int EffNum, int EffParam) = 0;
 	virtual bool HandleInstrument(int Instrument, bool Trigger, bool NewInstrument) = 0;
 	virtual void HandleEmptyNote() = 0;
-	virtual void HandleHalt() = 0;
+	virtual void HandleCut() = 0;
 	virtual void HandleRelease() = 0;
 	virtual void HandleNote(int Note, int Octave) = 0;
 
@@ -100,7 +100,7 @@ protected:
 	void SetMaxPeriod(int Period);
 	void SetMaxVolume(int Volume);
 
-	void RegisterKeyState(int Channel, int Note);
+	void RegisterKeyState(int Note);
 
 	int RunNote(int Octave, int Note);
 
@@ -128,7 +128,7 @@ protected:
 
 	// Sequence functions
 protected:
-	void RunSequence(int Index, CSequence *pSequence);
+	void RunSequence(int Index, const CSequence *pSequence);
 	void ClearSequences();
 	void ReleaseSequences(int Chip);
 	void ReleaseSequence(int Index, CSequence *pSeq);

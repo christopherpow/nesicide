@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -38,12 +38,12 @@ CInstrument::~CInstrument()
 
 void CInstrument::SetName(const char *Name)
 {
-	strcpy_s(m_cName, INST_NAME_MAX, Name);
+	strncpy(m_cName, Name, INST_NAME_MAX);
 }
 
 void CInstrument::GetName(char *Name) const
 {
-	strcpy_s(Name, INST_NAME_MAX, m_cName);
+	strncpy(Name, m_cName, INST_NAME_MAX);
 }
 
 const char *CInstrument::GetName() const

@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 #include "GraphEditor.h"
 #include "SequenceEditor.h"
 #include "Graphics.h"
+#include "SoundGen.h"
 
 // CGraphEditor
 
@@ -129,7 +130,8 @@ void CGraphEditor::Initialize()
 void CGraphEditor::OnTimer(UINT_PTR nIDEvent)
 {
 	if (m_pSequence) {
-		int Pos = m_pSequence->GetPlayPos();
+		int Pos = theApp.GetSoundGenerator()->GetSequencePlayPos(m_pSequence);
+		//int Pos = m_pSequence->GetPlayPos();
 		if (Pos != m_iLastPlayPos) {
 			m_iCurrentPlayPos = Pos;
 			RedrawWindow();
@@ -148,8 +150,7 @@ void CGraphEditor::PaintBuffer(CDC *pBackDC, CDC *pFrontDC)
 	if (this == GetFocus()) {
 		CRect focusRect = m_ClientRect;		
 		pBackDC->SetBkColor(0);
-      qFatal("DrawFocusRect");
-//		pBackDC->DrawFocusRect(focusRect);
+		pBackDC->DrawFocusRect(focusRect);
 	}
 
 	pFrontDC->BitBlt(0, 0, m_ClientRect.Width(), m_ClientRect.Height(), pBackDC, 0, 0, SRCCOPY);
@@ -172,7 +173,8 @@ void CGraphEditor::DrawBackground(CDC *pDC, int Lines, bool DrawMarks, int MarkO
 		int ItemWidth = GetItemWidth();
 
 		// Draw horizontal bars
-		for (unsigned int i = 1; i < m_pSequence->GetItemCount(); i += 2) {
+		int count = m_pSequence->GetItemCount();
+		for (int i = 1; i < count; i += 2) {
 			int x = m_GraphRect.left + i * ItemWidth + 1;
 			int y = m_GraphRect.top + 1;
 			int w = ItemWidth;
@@ -187,7 +189,7 @@ void CGraphEditor::DrawBackground(CDC *pDC, int Lines, bool DrawMarks, int MarkO
 		int StepHeight = m_GraphRect.Height() / Lines;
 
 		// Draw vertical bars
-		for (int i = 0; i < Lines+1; i++) {
+		for (int i = 0; i < Lines + 1; ++i) {
 			int x = m_GraphRect.left + 1;
 			int y = m_GraphRect.top + StepHeight * i;
 			int w = m_GraphRect.Width() - 2;
@@ -808,7 +810,7 @@ void CArpeggioGraphEditor::OnPaint()
 
 	CPaintDC dc(this);
 
-	DrawBackground(m_pBackDC, ITEMS + 1, true, m_pSequence->GetSetting() & ARP_SETTING_FIXED ? 2 - m_iScrollOffset : -m_iScrollOffset);
+	DrawBackground(m_pBackDC, ITEMS, true, m_pSequence->GetSetting() & ARP_SETTING_FIXED ? 2 - m_iScrollOffset : -m_iScrollOffset);
 	DrawRange(m_pBackDC, m_iScrollOffset + 10, m_iScrollOffset - 10);
 
 	// Return now if no sequence is selected
@@ -833,6 +835,8 @@ void CArpeggioGraphEditor::OnPaint()
 
 	if (m_iHighlightedItem >= 0 && m_iHighlightedItem < Count) {
 		int item = (ITEMS / 2) - m_iHighlightedValue + m_iScrollOffset;
+		if (m_pSequence->GetSetting() == ARP_SETTING_FIXED)
+			item += (ITEMS / 2);
 		if (item >= 0 && item <= 20) {
 			int x = m_GraphRect.left + m_iHighlightedItem * StepWidth + 1;
 			int y = m_GraphRect.top + StepHeight * item + 1;
@@ -845,10 +849,8 @@ void CArpeggioGraphEditor::OnPaint()
 	// Draw items
 	for (int i = 0; i < Count; i++) {
 		int item = (ITEMS / 2) - m_pSequence->GetItem(i) + m_iScrollOffset;
-
 		if (m_pSequence->GetSetting() == ARP_SETTING_FIXED)
 			item += (ITEMS / 2);
-
 		if (item >= 0 && item <= 20) {
 			int x = m_GraphRect.left + i * StepWidth + 1;
 			int y = m_GraphRect.top + StepHeight * item;

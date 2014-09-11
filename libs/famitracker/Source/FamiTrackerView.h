@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -24,16 +24,18 @@
 
 // Custom window messages for CFamiTrackerView
 enum {
-	WM_USER_PLAYER = WM_USER, 
-	WM_USER_MIDI_EVENT,
-	WM_USER_NOTE_EVENT
+	WM_USER_PLAYER = WM_USER,		// Pattern play row has changed
+	WM_USER_MIDI_EVENT,				// There is a new MIDI command	
+	WM_USER_NOTE_EVENT				// There is a new note command (by player)
 };
 
 // External classes
 class CFamiTrackerDoc;
-class CPatternView;
+class CPatternEditor;
 class CFrameEditor;
 class CAction;
+
+// TODO move general tracker state variables to the mainframe instead of the view, such as selected octave, instrument etc
 
 class CFamiTrackerView : public CView
 {
@@ -49,7 +51,7 @@ public:
 	CFamiTrackerDoc* GetDocument() const;
 
 //
-// View access functions
+// Public functions
 //
 public:
 
@@ -67,13 +69,14 @@ public:
 	void		 SelectLastFrame();
 	void		 SelectFrame(unsigned int Frame);
 	void		 SelectChannel(unsigned int Channel);
-	void		 SelectRow(unsigned int Row);
-	void		 SelectColumn(unsigned int Column);
+	void		 SelectRow(unsigned int Row);			// TODO remove?
+	void		 SelectColumn(unsigned int Column);		// TODO remove?
 	 
 	unsigned int GetSelectedFrame() const;
 	unsigned int GetSelectedChannel() const;
 	unsigned int GetSelectedRow() const; 
-	unsigned int GetSelectedColumn() const; 
+	unsigned int GetSelectedColumn() const;				// TODO remove?
+
 	bool		 GetFollowMode() const;
 	int			 GetSelectedChipType() const;
 	unsigned int GetOctave() const { return m_iOctave; };
@@ -86,10 +89,10 @@ public:
 	void		 SetOctave(unsigned int iOctave);
 
 	// Document editing functions
-	void		 IncreaseCurrentPattern();
-	void		 DecreaseCurrentPattern();
+	void		 IncreaseCurrentPattern();				// TODO remove?
+	void		 DecreaseCurrentPattern();				// TODO remove?
 
-	// Player callback
+	// Player callback (TODO move to new interface)
 	void		 PlayerTick();
 	void		 PlayerPlayNote(int Channel, stChanNote *pNote);
 
@@ -108,28 +111,31 @@ public:
 	bool		 IsChannelMuted(unsigned int Channel) const;
 	void		 SetChannelMute(int Channel, bool bMute);
 
-	// Drawing
-	void		 UpdateEditor(LPARAM lHint);
-
 	// For UI updates
 	bool		 IsSelecting() const;
 	bool		 IsClipboardAvailable() const;
 
 	void		 SetupColors();
-	void		 DrawFrameWindow();
+	void		 DrawFrameWindow();						// TODO remove?
 
 	bool		 DoRelease() const;
 
-	CPatternView *GetPatternView() const { return m_pPatternView; }
-
-	// testing
-	//void HandleRawData(WPARAM wParam, LPARAM lParam);
+	CPatternEditor *GetPatternEditor() const { return m_pPatternEditor; }
 
 	// OLE
 	void		 BeginDragData(int ChanOffset, int RowOffset);
 	bool		 IsDragging() const;
 
-protected:
+//
+// Private functions
+//
+private:
+
+	// Drawing
+	void	UpdateMeters();
+	void	UpdateEditor(LPARAM lHint);
+	void	PeriodicUpdate();
+
 	// Instruments
 	void		 SetInstrument(int Instrument);
 	unsigned int GetInstrument() const;
@@ -137,25 +143,20 @@ protected:
 	// General
 	void	StepDown();
 
-	// Input handling
+	// Input key handling
 	void	HandleKeyboardInput(char Key);
 	void	TranslateMidiMessage();
 	void	RemoveWithoutDelete();
+
+	void	OnKeyEscape();
+	void	OnKeyTab();
+	void	OnKeyPageUp();
+	void	OnKeyPageDown();
 	void	OnKeyDelete();
 	void	OnKeyInsert();
 	void	OnKeyBack();
 	void	OnKeyHome();
 	void	OnKeyEnd();
-
-	// MIDI note functions
-	void	TriggerMIDINote(unsigned int Channel, unsigned int MidiNote, unsigned int Velocity, bool Insert);
-	void	ReleaseMIDINote(unsigned int Channel, unsigned int MidiNote, bool InsertCut);
-	void	CutMIDINote(unsigned int Channel, unsigned int MidiNote, bool InsertCut);
-
-//
-// Private functions
-//
-private:
 
 	// Input handling
 	void	KeyIncreaseAction();
@@ -178,11 +179,16 @@ private:
 	bool	EditVolumeColumn(stChanNote &Note, int Value, bool &bStepDown);
 	bool	EditEffNumberColumn(stChanNote &Note, unsigned char nChar, int EffectIndex, bool &bStepDown);
 	bool	EditEffParamColumn(stChanNote &Note, int Value, int EffectIndex, bool &bStepDown, bool &bMoveRight, bool &bMoveLeft);
-	void	InsertEffect(char Effect);
+
 	void	InsertNote(int Note, int Octave, int Channel, int Velocity);
 
 	// MIDI keyboard emulation
 	void	HandleKeyboardNote(char nChar, bool Pressed);
+
+	// MIDI note functions
+	void	TriggerMIDINote(unsigned int Channel, unsigned int MidiNote, unsigned int Velocity, bool Insert);
+	void	ReleaseMIDINote(unsigned int Channel, unsigned int MidiNote, bool InsertCut);
+	void	CutMIDINote(unsigned int Channel, unsigned int MidiNote, bool InsertCut);
 
 	// Note handling
 	void	PlayNote(unsigned int Channel, unsigned int Note, unsigned int Octave, unsigned int Velocity);
@@ -195,12 +201,25 @@ private:
 	// Other
 	bool	AddAction(CAction *pAction) const;
 
+#ifdef EXPORT_TEST
+	void	DrawExportTestProgress();
+#endif /* EXPORT_TEST */
+
 	// Copy
 	void	CopyVolumeColumn();
 
 	// Keyboard
 	bool	IsShiftPressed() const;
 	bool	IsControlPressed() const;
+
+	// Update timer
+#if 0
+	static UINT ThreadProcFunc(LPVOID pParam);
+
+	bool	StartTimerThread();
+	void	EndTimerThread();
+	UINT	ThreadProc();
+#endif
 
 //
 // Constants
@@ -211,7 +230,7 @@ public:
 //
 // View variables
 //
-protected:
+private:
 	// General
 	bool				m_bHasFocus;
 	UINT				m_iClipBoard;
@@ -229,45 +248,49 @@ protected:
 
 	// Playing
 	bool				m_bMuteChannels[MAX_CHANNELS];
-	//unsigned int		m_iPlayTime;
-	int					m_iFrameQueue;
 	int					m_iSwitchToInstrument;
 
 	// Auto arpeggio
 	char				m_iAutoArpNotes[128];
-	int					m_iAutoArpPtr, m_iLastAutoArpPtr;
+	int					m_iAutoArpPtr;
+	int					m_iLastAutoArpPtr;
 	int					m_iAutoArpKeyCount;
 
 	// Window size
-	unsigned int		m_iWindowWidth;
-	unsigned int		m_iWindowHeight;
+	unsigned int		m_iWindowWidth;							// Width of view area
+	unsigned int		m_iWindowHeight;						// Height of view area
 
 	// Drawing
-	bool				m_bForceRedraw;
-	bool				m_bUpdateBackground;
+	bool				m_bUpdateBackground;					// Update background
+
+	mutable CCriticalSection m_csDrawLock;						// Lock for DCs
 
 	// Input
 	char				m_cKeyList[256];
 	unsigned int		m_iKeyboardNote;
-	int					m_iLastNote;
-	int					m_iLastInstrument;
-	int					m_iLastVolume;
-	int					m_iLastEffect;
-	int					m_iLastEffectParam;
+	int					m_iLastNote;							// Last note added to pattern
+	int					m_iLastInstrument;						// Last instrument added to pattern
+	int					m_iLastVolume;							// Last volume added to pattern
+	int					m_iLastEffect;							// Last effect number added to pattern
+	int					m_iLastEffectParam;						// Last effect parameter added to pattern
 
 	// MIDI
 	unsigned int		m_iLastMIDINote;
 	unsigned int		m_iActiveNotes[MAX_CHANNELS];
 
 	// Drawing
-	CPatternView		*m_pPatternView;
+	CPatternEditor		*m_pPatternEditor;						// Pointer to the pattern editor object
 
 	// OLE support
 	COleDropTarget		m_DropTarget;
 	int					m_nDropEffect;
-	bool				m_bDropMix;		// Copy and mix
-	bool				m_bDragSource;	// This window is drag source
-	bool				m_bDropped;		// Drop was performed on this window
+	bool				m_bDropMix;								// Copy and mix
+	bool				m_bDragSource;							// This window is drag source
+	bool				m_bDropped;								// Drop was performed on this window
+
+	// Timer thread
+	CWinThread			*m_pTimerThread;
+	bool				m_bTimerThreadRunning;
 
 // ---------------------------
 // TODO: Remove these below
@@ -276,7 +299,7 @@ protected:
 // Operations
 public:
 
-	// TODO change this
+	// TODO change this!
 	unsigned int Arpeggiate[MAX_CHANNELS];
 
 // Overrides
@@ -294,13 +317,10 @@ public:
 // Generated message map functions
 protected:
 	DECLARE_MESSAGE_MAP()
+public:
 	virtual void OnDraw(CDC* /*pDC*/);
-
-protected:
 	virtual void CalcWindowRect(LPRECT lpClientRect, UINT nAdjustType = adjustBorder);
 	virtual void OnUpdate(CView* /*pSender*/, LPARAM /*lHint*/, CObject* /*pHint*/);
-
-public:
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
@@ -374,6 +394,7 @@ public:
 	virtual void OnDragLeave();
 	virtual DROPEFFECT OnDragOver(COleDataObject* pDataObject, DWORD dwKeyState, CPoint point);
 	virtual BOOL OnDrop(COleDataObject* pDataObject, DROPEFFECT dropEffect, CPoint point);
+	afx_msg void OnDestroy();
 };
 
 #ifndef _DEBUG  // debug version in FamiTrackerView.cpp

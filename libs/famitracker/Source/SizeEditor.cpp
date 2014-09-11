@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -87,8 +87,7 @@ void CSizeEditor::OnPaint()
 		CRect focusRect = rect;
 		focusRect.DeflateRect(rect.Height() - 1, 2, rect.Height() + 1, 2);
 		dc.SetBkColor(0xFFFFFF);
-      qFatal("DrawFocusRect");
-//		dc.DrawFocusRect(focusRect);
+		dc.DrawFocusRect(focusRect);
 	}
 
 	CRect buttonRect;

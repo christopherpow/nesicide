@@ -1,5 +1,6 @@
  
 // Commands (ID_* and IDM_*) 
+#define HID_MANIFEST                            0x10001
 #define HID_INVALID_WAVEFILE                    0x10003
 #define HID_NEXT_FRAME                          0x1007D
 #define HID_PREV_FRAME                          0x1007E

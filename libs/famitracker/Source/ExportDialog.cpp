@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -32,6 +32,8 @@
 #include "Compiler.h"
 #include "Settings.h"
 #include "CustomExporters.h"
+#include "DocumentWrapper.h"
+#include "MainFrm.h"
 
 // Define internal exporters
 const LPTSTR CExportDialog::DEFAULT_EXPORT_NAMES[] = {
@@ -192,7 +194,7 @@ void CExportDialog::OnBnClickedExport()
 
 void CExportDialog::CreateNSF()
 {
-	CFamiTrackerDoc *pDoc = (CFamiTrackerDoc*)((CFrameWnd*) GetParent())->GetActiveDocument();
+	CFamiTrackerDoc *pDoc = CFamiTrackerDoc::GetDoc();
 	CString	DefFileName = pDoc->GetFileTitle();
 	CCompiler Compiler(pDoc, new CEditLog(GetDlgItem(IDC_OUTPUT)));
 	CString Name, Artist, Copyright;
@@ -213,7 +215,9 @@ void CExportDialog::CreateNSF()
 
 	USES_CONVERSION;
 
-	pDoc->SetSongInfo(T2A(Name.GetBuffer()), T2A(Artist.GetBuffer()), T2A(Copyright.GetBuffer()));
+	pDoc->SetSongName(T2A(Name.GetBuffer()));
+	pDoc->SetSongArtist(T2A(Artist.GetBuffer()));
+	pDoc->SetSongCopyright(T2A(Copyright.GetBuffer()));
 
 	CFileDialog FileDialog(FALSE, NSF_FILTER[1], DefFileName, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, filter);
 
@@ -232,7 +236,7 @@ void CExportDialog::CreateNSF()
 
 void CExportDialog::CreateNES()
 {
-	CFamiTrackerDoc *pDoc = (CFamiTrackerDoc*)((CFrameWnd*) GetParent())->GetActiveDocument();
+	CFamiTrackerDoc *pDoc = CFamiTrackerDoc::GetDoc();
 	CString	DefFileName = pDoc->GetFileTitle();
 	CCompiler Compiler(pDoc, new CEditLog(GetDlgItem(IDC_OUTPUT)));
 	CString filter = LoadDefaultFilter(NES_FILTER[0], NES_FILTER[1]);
@@ -254,7 +258,7 @@ void CExportDialog::CreateNES()
 
 void CExportDialog::CreateBIN()
 {
-	CFamiTrackerDoc *pDoc = (CFamiTrackerDoc*)((CFrameWnd*) GetParent())->GetActiveDocument();
+	CFamiTrackerDoc *pDoc = CFamiTrackerDoc::GetDoc();
 	CCompiler Compiler(pDoc, new CEditLog(GetDlgItem(IDC_OUTPUT)));
 	CString MusicFilter = LoadDefaultFilter(RAW_FILTER[0], RAW_FILTER[1]);
 	CString DPCMFilter = LoadDefaultFilter(DPCMS_FILTER[0], DPCMS_FILTER[1]);
@@ -282,7 +286,7 @@ void CExportDialog::CreateBIN()
 
 void CExportDialog::CreatePRG()
 {
-	CFamiTrackerDoc *pDoc = (CFamiTrackerDoc*)((CFrameWnd*) GetParent())->GetActiveDocument();
+	CFamiTrackerDoc *pDoc = CFamiTrackerDoc::GetDoc();
 	CCompiler Compiler(pDoc, new CEditLog(GetDlgItem(IDC_OUTPUT)));
 	CString Filter = LoadDefaultFilter(PRG_FILTER[0], PRG_FILTER[1]);
 
@@ -304,7 +308,7 @@ void CExportDialog::CreatePRG()
 void CExportDialog::CreateASM()
 {
 	// Currently not included
-	CFamiTrackerDoc *pDoc = (CFamiTrackerDoc*)((CFrameWnd*) GetParent())->GetActiveDocument();
+	CFamiTrackerDoc *pDoc = CFamiTrackerDoc::GetDoc();
 	CCompiler Compiler(pDoc, new CEditLog(GetDlgItem(IDC_OUTPUT)));
 
 	CString Filter = LoadDefaultFilter(ASM_FILTER[0], ASM_FILTER[1]);
@@ -338,8 +342,11 @@ void CExportDialog::CreateCustom( CString name )
 		return;
 
 	CString fileName( FileDialogCustom.GetPathName() );	
-	
-	if(theApp.GetCustomExporters()->GetCurrentExporter().Export( static_cast<CFamiTrackerDoc const*>(CFamiTrackerDoc::GetDoc()), CStringA(fileName) ))
+
+	int Track = static_cast<CMainFrame*>(theApp.m_pMainWnd)->GetSelectedTrack();
+	CFamiTrackerDocWrapper documentWrapper(CFamiTrackerDoc::GetDoc(), Track);
+
+	if(theApp.GetCustomExporters()->GetCurrentExporter().Export( &documentWrapper, CStringA(fileName) ))
 	{
 		AfxMessageBox(_T("Successfully exported!"));
 	}

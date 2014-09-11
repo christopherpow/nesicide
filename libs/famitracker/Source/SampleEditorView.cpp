@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -72,8 +72,6 @@ void CSampleEditorView::OnPaint()
 {
 	CPaintDC dc(this); // device context for painting
 
-	ASSERT(m_iViewStart != m_iViewEnd);
-
 	CRect sbRect;
 	m_pScrollBar->GetClientRect(&sbRect);
 	int ScrollBarHeight = sbRect.bottom - sbRect.top;
@@ -104,6 +102,9 @@ void CSampleEditorView::OnPaint()
 
 	// Size of visible area
 	int Size = m_iViewEnd - m_iViewStart;
+
+	if (Size == 0)
+		Size = 1;
 
 	double Step = double(Size) / double(Width);	// Samples / pixel
 
@@ -310,11 +311,11 @@ void CSampleEditorView::ExpandSample(CDSample *pSample, int Start)
 	// Expand DPCM to PCM
 	//
 
-	int Size = pSample->SampleSize * 8;
+	int Size = pSample->GetSize() * 8;
 
 	SAFE_RELEASE_ARRAY(m_pSamples);
 
-	if (pSample->SampleSize == 0) {
+	if (pSample->GetSize() == 0) {
 		m_iSize = 0;
 		m_iStartCursor = 0;
 		m_iSelStart = m_iSelEnd = -1;
@@ -325,11 +326,12 @@ void CSampleEditorView::ExpandSample(CDSample *pSample, int Start)
 	m_pSamples = new int[Size];
 	m_iSize = Size;
 
+	const char *pData = pSample->GetData();
 	int Delta = Start;
 
 	for (int i = 0; i < Size; ++i) {
 		int BitPos = (i & 0x07);
-		if (pSample->SampleData[i >> 3] & (1 << BitPos)) {
+		if (pData[i >> 3] & (1 << BitPos)) {
 			if (Delta < 126)
 				Delta += 2;
 		}

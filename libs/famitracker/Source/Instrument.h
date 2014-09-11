@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -71,13 +71,13 @@ public:
 	void GetName(char *Name) const;
 	const char* GetName() const;
 public:
-	virtual int GetType() const = 0;												// Returns instrument type
+	virtual inst_type_t GetType() const = 0;										// Returns instrument type
 	virtual CInstrument* CreateNew() const = 0;										// Creates a new object
 	virtual CInstrument* Clone() const = 0;											// Creates a copy
 	virtual void Setup() = 0;														// Setup some initial values
 	virtual void Store(CDocumentFile *pDocFile) = 0;								// Saves the instrument to the module
 	virtual bool Load(CDocumentFile *pDocFile) = 0;									// Loads the instrument from a module
-	virtual void SaveFile(CInstrumentFile *pFile, CFamiTrackerDoc *pDoc) = 0;		// Saves to an FTI file
+	virtual void SaveFile(CInstrumentFile *pFile, const CFamiTrackerDoc *pDoc) = 0;	// Saves to an FTI file
 	virtual bool LoadFile(CInstrumentFile *pFile, int iVersion, CFamiTrackerDoc *pDoc) = 0;	// Loads from an FTI file
 	virtual int Compile(CFamiTrackerDoc *pDoc, CChunk *pChunk, int Index) = 0;		// Compiles the instrument for NSF generation
 	virtual bool CanRelease() const = 0;
@@ -93,13 +93,13 @@ private:
 class CInstrument2A03 : public CInstrument, public CInstrument2A03Interface {
 public:
 	CInstrument2A03();
-	virtual int	GetType() const { return INST_2A03; };
+	virtual inst_type_t	GetType() const { return INST_2A03; };
 	virtual CInstrument* CreateNew() const { return new CInstrument2A03(); };
 	virtual CInstrument* Clone() const;
 	virtual void Setup();
 	virtual void Store(CDocumentFile *pFile);
 	virtual bool Load(CDocumentFile *pDocFile);
-	virtual void SaveFile(CInstrumentFile *pFile, CFamiTrackerDoc *pDoc);
+	virtual void SaveFile(CInstrumentFile *pFile, const CFamiTrackerDoc *pDoc);
 	virtual bool LoadFile(CInstrumentFile *pFile, int iVersion, CFamiTrackerDoc *pDoc);
 	virtual int Compile(CFamiTrackerDoc *pDoc, CChunk *pChunk, int Index);
 	virtual bool CanRelease() const;
@@ -141,13 +141,13 @@ private:
 class CInstrumentVRC6 : public CInstrument {
 public:
 	CInstrumentVRC6();
-	virtual int	GetType() const { return INST_VRC6; };
+	virtual inst_type_t	GetType() const { return INST_VRC6; };
 	virtual CInstrument* CreateNew() const { return new CInstrumentVRC6(); };
 	virtual CInstrument* Clone() const;
 	virtual void Setup();
 	virtual void Store(CDocumentFile *pDocFile);
 	virtual bool Load(CDocumentFile *pDocFile);
-	virtual void SaveFile(CInstrumentFile *pFile, CFamiTrackerDoc *pDoc);
+	virtual void SaveFile(CInstrumentFile *pFile, const CFamiTrackerDoc *pDoc);
 	virtual bool LoadFile(CInstrumentFile *pFile, int iVersion, CFamiTrackerDoc *pDoc);
 	virtual int Compile(CFamiTrackerDoc *pDoc, CChunk *pChunk, int Index);
 	virtual bool CanRelease() const;
@@ -170,13 +170,13 @@ private:
 class CInstrumentVRC7 : public CInstrument {
 public:
 	CInstrumentVRC7();
-	virtual int	GetType() const { return INST_VRC7; };
+	virtual inst_type_t	GetType() const { return INST_VRC7; };
 	virtual CInstrument* CreateNew() const { return new CInstrumentVRC7(); };
 	virtual CInstrument* Clone() const;
 	virtual void Setup();
 	virtual void Store(CDocumentFile *pDocFile);
 	virtual bool Load(CDocumentFile *pDocFile);
-	virtual void SaveFile(CInstrumentFile *pFile, CFamiTrackerDoc *pDoc);
+	virtual void SaveFile(CInstrumentFile *pFile, const CFamiTrackerDoc *pDoc);
 	virtual bool LoadFile(CInstrumentFile *pFile, int iVersion, CFamiTrackerDoc *pDoc);
 	virtual int Compile(CFamiTrackerDoc *pDoc, CChunk *pChunk, int Index);
 	virtual bool CanRelease() const;
@@ -196,13 +196,13 @@ class CInstrumentFDS : public CInstrument {
 public:
 	CInstrumentFDS();
 	virtual ~CInstrumentFDS();
-	virtual int GetType() const { return INST_FDS; };
+	virtual inst_type_t GetType() const { return INST_FDS; };
 	virtual CInstrument* CreateNew() const { return new CInstrumentFDS(); };
 	virtual CInstrument* Clone() const;
 	virtual void Setup();
 	virtual void Store(CDocumentFile *pDocFile);
 	virtual bool Load(CDocumentFile *pDocFile);
-	virtual void SaveFile(CInstrumentFile *pFile, CFamiTrackerDoc *pDoc);
+	virtual void SaveFile(CInstrumentFile *pFile, const CFamiTrackerDoc *pDoc);
 	virtual bool LoadFile(CInstrumentFile *pFile, int iVersion, CFamiTrackerDoc *pDoc);
 	virtual int Compile(CFamiTrackerDoc *pDoc, CChunk *pChunk, int Index);
 	virtual bool CanRelease() const;
@@ -251,13 +251,13 @@ private:
 class CInstrumentN163 : public CInstrument {
 public:
 	CInstrumentN163();
-	virtual int GetType() const { return INST_N163; };
+	virtual inst_type_t GetType() const { return INST_N163; };
 	virtual CInstrument* CreateNew() const { return new CInstrumentN163(); };
 	virtual CInstrument* Clone() const;
 	virtual void Setup();
 	virtual void Store(CDocumentFile *pDocFile);
 	virtual bool Load(CDocumentFile *pDocFile);
-	virtual void SaveFile(CInstrumentFile *pFile, CFamiTrackerDoc *pDoc);
+	virtual void SaveFile(CInstrumentFile *pFile, const CFamiTrackerDoc *pDoc);
 	virtual bool LoadFile(CInstrumentFile *pFile, int iVersion, CFamiTrackerDoc *pDoc);
 	virtual int Compile(CFamiTrackerDoc *pDoc, CChunk *pChunk, int Index);
 	virtual bool CanRelease() const;
@@ -302,13 +302,13 @@ private:
 class CInstrumentS5B : public CInstrument {
 public:
 	CInstrumentS5B();
-	virtual int GetType() const { return INST_S5B; };
+	virtual inst_type_t GetType() const { return INST_S5B; };
 	virtual CInstrument* CreateNew() const { return new CInstrumentS5B(); };
 	virtual CInstrument* Clone() const;
 	virtual void Setup();
 	virtual void Store(CDocumentFile *pDocFile);
 	virtual bool Load(CDocumentFile *pDocFile);
-	virtual void SaveFile(CInstrumentFile *pFile, CFamiTrackerDoc *pDoc);
+	virtual void SaveFile(CInstrumentFile *pFile, const CFamiTrackerDoc *pDoc);
 	virtual bool LoadFile(CInstrumentFile *pFile, int iVersion, CFamiTrackerDoc *pDoc);
 	virtual int Compile(CFamiTrackerDoc *pDoc, CChunk *pChunk, int Index);
 	virtual bool CanRelease() const;

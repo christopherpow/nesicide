@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -59,7 +59,7 @@ BEGIN_MESSAGE_MAP(CCreateWaveDlg, CDialog)
 	ON_NOTIFY(UDN_DELTAPOS, IDC_SPIN_TIME, OnDeltaposSpinTime)
 END_MESSAGE_MAP()
 
-int CCreateWaveDlg::GetFrameLoopCount()
+int CCreateWaveDlg::GetFrameLoopCount() const
 {
 	int Frames = GetDlgItemInt(IDC_TIMES);
 
@@ -71,7 +71,7 @@ int CCreateWaveDlg::GetFrameLoopCount()
 	return Frames;
 }
 
-int CCreateWaveDlg::GetTimeLimit()
+int CCreateWaveDlg::GetTimeLimit() const
 {
 	int Minutes, Seconds;
 	TCHAR str[256];
@@ -100,7 +100,7 @@ void CCreateWaveDlg::OnBnClickedBegin()
 
 	CString FileName = pDoc->GetFileTitle();
 
-	CMainFrame *pMainFrm = static_cast<CMainFrame*>(pView->GetParentFrame());
+	CMainFrame *pMainFrm = static_cast<CMainFrame*>(theApp.GetMainWnd());
 	int Track = pMainFrm->GetSelectedTrack();
 
 	if (pDoc->GetTrackCount() > 1) {

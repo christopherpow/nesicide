@@ -322,7 +322,8 @@ HEADERS += \
     Source/VisualizerStatic.h \
     Source/VisualizerWnd.h \
     Source/ConfigMixer.h \
-    Source/CommandLineExport.h
+    Source/CommandLineExport.h \
+    Source/FamiTrackerTypes.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN

@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -30,82 +30,118 @@ struct stChanNote {
 	unsigned char EffParam[MAX_EFFECT_COLUMNS];
 };
 
+// TODO rename to CTrack perhaps?
+
 // CPatternData holds all notes in the patterns
 class CPatternData {
 public:
 	CPatternData(unsigned int PatternLength, unsigned int Speed, unsigned int Tempo);
 	~CPatternData();
 
-	void SetEffect(unsigned int Channel, unsigned int Pattern, unsigned int Row, unsigned int Column, char EffNumber, char EffParam);
-	void SetInstrument(unsigned int Channel, unsigned int Pattern, unsigned int Row, char Instrument);
-	void SetNote(unsigned int Channel, unsigned int Pattern, unsigned int Row, char Note);
-	void SetOctave(unsigned int Channel, unsigned int Pattern, unsigned int Row, char Octave);
-	void SetVolume(unsigned int Channel, unsigned int Pattern, unsigned int Row, char Volume);
+	char GetNote(unsigned int Channel, unsigned int Pattern, unsigned int Row) const { 
+		stChanNote *pNote = GetPatternData(Channel, Pattern, Row);
+		return pNote == NULL ? 0 : pNote->Note; 
+	};
 
-	// None of these are const because accessing an unallocated pattern will allocate it
+	char GetOctave(unsigned int Channel, unsigned int Pattern, unsigned int Row) const { 
+		stChanNote *pNote = GetPatternData(Channel, Pattern, Row);
+		return pNote == NULL ? 0 : pNote->Octave; 
+	};
 
-	char GetNote(unsigned int Channel, unsigned int Pattern, unsigned int Row) 
-		{ return GetPatternData(Channel, Pattern, Row)->Note; };
+	char GetInstrument(unsigned int Channel, unsigned int Pattern, unsigned int Row) const { 
+		stChanNote *pNote = GetPatternData(Channel, Pattern, Row);
+		return pNote == NULL ? 0 : pNote->Instrument; 
+	};
 
-	char GetOctave(unsigned int Channel, unsigned int Pattern, unsigned int Row) 
-		{ return GetPatternData(Channel, Pattern, Row)->Octave; };
+	char GetVolume(unsigned int Channel, unsigned int Pattern, unsigned int Row) const { 
+		stChanNote *pNote = GetPatternData(Channel, Pattern, Row);
+		return pNote == NULL ? 0 : pNote->Vol; 
+	};
 
-	char GetInstrument(unsigned int Channel, unsigned int Pattern, unsigned int Row) 
-		{ return GetPatternData(Channel, Pattern, Row)->Instrument; };
+	char GetEffect(unsigned int Channel, unsigned int Pattern, unsigned int Row, unsigned int Column) const { 
+		stChanNote *pNote = GetPatternData(Channel, Pattern, Row);
+		return pNote == NULL ? 0 : pNote->EffNumber[Column]; 
+	};
 
-	char GetVolume(unsigned int Channel, unsigned int Pattern, unsigned int Row) 
-		{ return GetPatternData(Channel, Pattern, Row)->Vol; };
+	char GetEffectParam(unsigned int Channel, unsigned int Pattern, unsigned int Row, unsigned int Column) const { 
+		stChanNote *pNote = GetPatternData(Channel, Pattern, Row);
+		return pNote == NULL ? 0 : pNote->EffParam[Column]; 
+	};
 
-	char GetEffect(unsigned int Channel, unsigned int Pattern, unsigned int Row, unsigned int Column) 
-		{ return GetPatternData(Channel, Pattern, Row)->EffNumber[Column]; };
-
-	char GetEffectParam(unsigned int Channel, unsigned int Pattern, unsigned int Row, unsigned int Column) 
-		{ return GetPatternData(Channel, Pattern, Row)->EffParam[Column]; };
-
-	bool IsCellFree(unsigned int Channel, unsigned int Pattern, unsigned int Row);
-	bool IsPatternEmpty(unsigned int Channel, unsigned int Pattern);
+	bool IsCellFree(unsigned int Channel, unsigned int Pattern, unsigned int Row) const;
+	bool IsPatternEmpty(unsigned int Channel, unsigned int Pattern) const;
 	bool IsPatternInUse(unsigned int Channel, unsigned int Pattern) const;
 
-	int GetEffectColumnCount(int Channel) const
-		{ return m_iEffectColumns[Channel]; };
+	int GetEffectColumnCount(int Channel) const { 
+		return m_iEffectColumns[Channel]; 
+	};
 
-	void SetEffectColumnCount(int Channel, int Count)
-		{ m_iEffectColumns[Channel] = Count; };
+	void SetEffectColumnCount(int Channel, int Count) { 
+		m_iEffectColumns[Channel] = Count; 
+	};
 
 	void ClearEverything();
-	void ClearPattern(int Channel, int Pattern);
+	void ClearPattern(unsigned int Channel, unsigned int Pattern);
 
-	stChanNote *GetPatternData(int Channel, int Pattern, int Row);
+	stChanNote *GetPatternData(unsigned int Channel, unsigned int Pattern, unsigned int Row);
 
-	unsigned int GetPatternLength() const		{ return m_iPatternLength;	 };
-	unsigned int GetFrameCount() const			{ return m_iFrameCount;		 };
-	unsigned int GetSongSpeed() const			{ return m_iSongSpeed;		 };
-	unsigned int GetSongTempo() const			{ return m_iSongTempo;		 };
+	unsigned int GetPatternLength() const { 
+		return m_iPatternLength;
+	};
 
-	void SetPatternLength(unsigned int Length)	{ m_iPatternLength = Length; };
-	void SetFrameCount(unsigned int Count)		{ m_iFrameCount = Count;	 };
-	void SetSongSpeed(unsigned int Speed)		{ m_iSongSpeed = Speed;		 };
-	void SetSongTempo(unsigned int Tempo)		{ m_iSongTempo = Tempo;		 };
+	unsigned int GetFrameCount() const { 
+		return m_iFrameCount;
+	};
 
-	unsigned short GetFramePattern(int Frame, int Channel) const;
-	void SetFramePattern(int Frame, int Channel, int Pattern);
+	unsigned int GetSongSpeed() const { 
+		return m_iSongSpeed;
+	};
+
+	unsigned int GetSongTempo() const { 
+		return m_iSongTempo;
+	};
+
+	void SetPatternLength(unsigned int Length) {
+		m_iPatternLength = Length; 
+	};
+
+	void SetFrameCount(unsigned int Count) {
+		m_iFrameCount = Count;
+	};
+
+	void SetSongSpeed(unsigned int Speed) {
+		m_iSongSpeed = Speed;
+	};
+
+	void SetSongTempo(unsigned int Tempo) {
+		m_iSongTempo = Tempo;
+	};
+
+	unsigned int GetFramePattern(unsigned int Frame, unsigned int Channel) const;
+	void SetFramePattern(unsigned int Frame, unsigned int Channel, unsigned int Pattern);
 
 private:
-	void AllocatePattern(int Channel, int Patterns);
+	stChanNote *GetPatternData(unsigned int Channel, unsigned int Pattern, unsigned int Row) const;
+	void AllocatePattern(unsigned int Channel, unsigned int Patterns);
 
 	// Pattern data
 private:
 
-	// List of the patterns assigned to frames
-	unsigned short m_iFrameList[MAX_FRAMES][MAX_CHANNELS];		
-
+	// Track parameters
 	unsigned int m_iPatternLength;			// Amount of rows in one pattern
 	unsigned int m_iFrameCount;				// Number of frames
 	unsigned int m_iSongSpeed;				// Song speed
 	unsigned int m_iSongTempo;				// Song tempo
 
+	// TODO use these here
+	//unsigned int m_iRowHighlight1;
+	//unsigned int m_iRowHighlight2;
+
 	// Number of visible effect columns for each channel
-	unsigned int m_iEffectColumns[MAX_CHANNELS];
+	unsigned char m_iEffectColumns[MAX_CHANNELS];
+
+	// List of the patterns assigned to frames
+	unsigned char m_iFrameList[MAX_FRAMES][MAX_CHANNELS];		
 
 	// All accesses to m_pPatternData must go through GetPatternData()
 	stChanNote *m_pPatternData[MAX_CHANNELS][MAX_PATTERN];

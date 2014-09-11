@@ -506,8 +506,14 @@ void MainWindow::on_previous_clicked()
 {
    CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
    CFamiTrackerView* pView = (CFamiTrackerView*)pMainFrame->GetActiveView();
-   CFamiTrackerDoc* pDoc = (CFamiTrackerDoc*)pMainFrame->GetActiveDocument();
-   
+   CFamiTrackerDoc* pDoc = (CFamiTrackerDoc*)pMainFrame->GetActiveDocument();   
+   bool wasPlaying = m_bPlaying;
+
+   if ( wasPlaying )
+   {
+      on_playStop_clicked();
+   }
+
    if ( pDoc->GetSelectedTrack() > 0 )
    {
       ui->subtune->setCurrentIndex(ui->subtune->currentIndex()-1);
@@ -551,8 +557,13 @@ void MainWindow::on_previous_clicked()
       }
       ui->subtune->setCurrentIndex(ui->subtune->count()-1);
    }
-   
-   m_iFramesPlayed = 0;     
+
+   m_iFramesPlayed = 0;
+
+   if ( wasPlaying )
+   {
+      on_playStop_clicked();
+   }
 }
 
 void MainWindow::on_next_clicked()
@@ -560,6 +571,12 @@ void MainWindow::on_next_clicked()
    CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
    CFamiTrackerView* pView = (CFamiTrackerView*)pMainFrame->GetActiveView();
    CFamiTrackerDoc* pDoc = (CFamiTrackerDoc*)pMainFrame->GetActiveDocument();
+   bool wasPlaying = m_bPlaying;
+
+   if ( wasPlaying )
+   {
+      on_playStop_clicked();
+   }
 
    if ( pDoc->GetSelectedTrack() < pDoc->GetTrackCount()-1 )
    {
@@ -606,6 +623,11 @@ void MainWindow::on_next_clicked()
    }
    
    m_iFramesPlayed = 0;     
+
+   if ( wasPlaying )
+   {
+      on_playStop_clicked();
+   }
 }
 
 void MainWindow::on_paths_currentIndexChanged(const QString &arg1)

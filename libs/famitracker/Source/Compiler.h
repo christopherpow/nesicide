@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -95,7 +95,7 @@ private:
 	unsigned char *LoadDriver(const driver_t *pDriver, unsigned short Origin) const;
 
 	// NSF banks
-	void	CopyData(char *pData, int iSize);
+	void	CopyData(const char *pData, int iSize);
 	void	FillData(char data, int size);
 	void	AllocateBank(int Location);
 
@@ -222,7 +222,7 @@ private:
 	CChunk			*m_pHeaderChunk;
 
 	// Samples
-	std::vector<CDSample*> m_vSamples;
+	std::vector<const CDSample*> m_vSamples;
 
 	// Flags
 	bool			m_bBankSwitched;

@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -66,7 +66,7 @@ public:
 	virtual unsigned int	  GetFrameCount()			const = 0;
 	virtual unsigned int	  GetPatternLength()		const = 0;
 	virtual unsigned int	  GetSongSpeed()			const = 0;
-	virtual CSequenceInterface const	  *GetSequence(int Index, int Type) const = 0;
+	virtual CSequenceInterface const	  *GetSequence(unsigned int Index, int Type) const = 0;
 	virtual int				  GetSequenceCount(int Type) const = 0;
 	virtual int               GetInstrumentCount() const = 0;
 	virtual CInstrument2A03Interface const *Get2A03Instrument(int Instrument) const = 0;
@@ -74,8 +74,8 @@ public:
 	virtual unsigned int	GetNoteEffectParam(unsigned int Frame, unsigned int Channel, unsigned int Row, int Index) const = 0;
 	virtual int				GetSampleCount() const = 0;
 	virtual void			GetSampleName(unsigned int Index, char *Name) const = 0;
-	virtual int				GetSampleSize(unsigned int Sample) = 0;
-	virtual char			GetSampleData(unsigned int Sample, unsigned int Offset) = 0;
+	virtual int				GetSampleSize(unsigned int Sample) const = 0;
+	virtual char			GetSampleData(unsigned int Sample, unsigned int Offset) const = 0;
 };
 
 //

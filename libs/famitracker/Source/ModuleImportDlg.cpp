@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -64,7 +64,7 @@ BOOL CModuleImportDlg::OnInitDialog()
 	
 	for (int i = 0; i < TrackCount; ++i) {
 		CString str;
-		str.Format(_T("#%02i %s"), i + 1, m_pImportedDoc->GetTrackTitle(i));
+		str.Format(_T("#%02i %s"), i + 1, m_pImportedDoc->GetTrackTitle(i).GetString());
 		m_ctlTrackList.AddString(str);
 		m_ctlTrackList.SetCheck(i, 1);
 	}

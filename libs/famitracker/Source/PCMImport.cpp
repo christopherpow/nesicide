@@ -324,7 +324,7 @@ void CPCMImport::OnBnClickedOk()
 	m_strFileName.Truncate(m_strFileName.GetLength() - 4);
 
 	// Set the name
-	strcpy_s(pSample->Name, 256, (char*)(LPCSTR)m_strFileName);
+	pSample->SetName((LPCSTR)m_strFileName);
 
 	m_pImported = pSample;
 	m_pCachedSample = NULL;
@@ -371,7 +371,7 @@ CDSample *CPCMImport::GetSample()
 		SAFE_RELEASE(m_pCachedSample);
 		m_pCachedSample = ConvertFile();
 		// This sample may not be auto-deleted
-		strcpy_s(m_pCachedSample->Name, 256, "cached");
+		m_pCachedSample->SetName("cached");
 	}
 
 	m_iCachedQuality = m_iQuality;
@@ -488,14 +488,13 @@ bool CPCMImport::OpenWaveFile()
 	m_iWaveSize = 0;
 	m_ullSampleStart = 0;
 
-//	TRACE(_T("DPCM import: Loading wave file %s...\n"), m_strPath);
+	TRACE(_T("DPCM import: Loading wave file %s...\n"), m_strPath);
 
 	if (!m_fSampleFile.Open(m_strPath, CFile::modeRead, &ex)) {
 		TCHAR   szCause[255];
 		CString strFormatted;
 		ex.GetErrorMessage(szCause, 255);
-		strFormatted.LoadString(IDS_OPEN_FILE_ERROR);
-		strFormatted += szCause;
+		AfxFormatString1(strFormatted, IDS_OPEN_FILE_ERROR, szCause);
 		AfxMessageBox(strFormatted);
 		return false;
 	}
@@ -540,7 +539,7 @@ bool CPCMImport::OpenWaveFile()
 					// Invalid audio format
 					Scanning = false;
 					ValidWave = false;
-//					TRACE(_T("DPCM import: Unrecognized wave format (%i)\n"), WaveFormat.wf.wFormatTag);
+					TRACE(_T("DPCM import: Unrecognized wave format (%i)\n"), WaveFormat.wf.wFormatTag);
 				}
 
 			}
@@ -553,7 +552,7 @@ bool CPCMImport::OpenWaveFile()
 			}
 			else {
 				// Unrecognized block
-//				TRACE(_T("DPCM import: Unrecognized block %c%c%c%c\n"), Header[0], Header[1], Header[2], Header[3]);
+				TRACE(_T("DPCM import: Unrecognized block %c%c%c%c\n"), Header[0], Header[1], Header[2], Header[3]);
 				m_fSampleFile.Seek(BlockSize, CFile::current);
 			}
 		}
@@ -574,7 +573,7 @@ bool CPCMImport::OpenWaveFile()
 	m_iAvgBytesPerSec = WaveFormat.wf.nAvgBytesPerSec;
 	m_iSamplesPerSec  = WaveFormat.wf.nSamplesPerSec;
 
-//	TRACE(_T("DPCM import: Scan done (%i Hz, %i bits, %i channels)\n"), m_iSamplesPerSec, m_iSampleSize, m_iChannels);
+	TRACE(_T("DPCM import: Scan done (%i Hz, %i bits, %i channels)\n"), m_iSamplesPerSec, m_iSampleSize, m_iChannels);
 
 	return true;
 }

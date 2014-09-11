@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -274,18 +274,19 @@ void CBannerEdit::OnPaint()
 	if (str.GetLength() > 0 || GetFocus() == this)
 		return;
 
-	CDC *dc(GetDC());
-	CFont font;
+	CDC *pDC = GetDC();
+	if (pDC != NULL) {
+		CFont font;
+		font.CreateFont(12, 0, 0, 0, 0, TRUE, FALSE, FALSE, 0, 0, 0, 0, 0, BANNER_FONT);
+		CFont *pOldFont = pDC->SelectObject(&font);
 
-	font.CreateFont(12, 0, 0, 0, 0, TRUE, FALSE, FALSE, 0, 0, 0, 0, 0, BANNER_FONT);
-	CFont *pOldFont = dc->SelectObject(&font);
+		pDC->SetBkColor(pDC->GetPixel(4, 4));
+		pDC->SetTextColor(BANNER_COLOR);
+		pDC->TextOut(2, 1, m_strText);
+		pDC->SelectObject(pOldFont);
 
-	dc->SetBkColor(dc->GetPixel(4, 4));
-	dc->SetTextColor(BANNER_COLOR);
-	dc->TextOut(2, 1, m_strText);
-	dc->SelectObject(pOldFont);
-
-	ReleaseDC(dc);
+		ReleaseDC(pDC);
+	}
 }
 
 void CBannerEdit::OnKillFocus(CWnd* pNewWnd)

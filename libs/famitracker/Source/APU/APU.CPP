@@ -1,6 +1,6 @@
 /*
 ** FamiTracker - NES/Famicom sound tracker
-** Copyright (C) 2005-2012  Jonathan Liss
+** Copyright (C) 2005-2014  Jonathan Liss
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -210,7 +210,7 @@ void CAPU::Process()
 			Period = min(max(Period, 7), i);
 			m_pSquare1->Process(Period);
 			m_pSquare2->Process(Period);
-			i -= Period;
+         i -= Period;
 		}
 
 		i = Time;
