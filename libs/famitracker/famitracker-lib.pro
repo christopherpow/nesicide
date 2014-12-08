@@ -332,7 +332,8 @@ HEADERS += \
     Source/ConfigMixer.h \
     Source/CommandLineExport.h \
     Source/FamiTrackerTypes.h \
-    Source/DocumentWrapper.h
+    Source/DocumentWrapper.h \
+    Source/APU/Types.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN
