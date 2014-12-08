@@ -23,6 +23,8 @@
 #include "SequenceEditor.h"
 #include "InstrumentEditPanel.h"
 
+#include "resource.h"
+
 // CInstrumentEditDlg dialog
 
 class CInstrumentEditDlg : public CDialog

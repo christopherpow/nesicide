@@ -41,15 +41,16 @@ Blip_Buffer::Blip_Buffer()
 	
 	// assumptions code makes about implementation-defined features
 	#ifndef NDEBUG
-		// right shift of negative value preserves sign
-		long i = LONG_MIN;
-		assert( (i >> 1) == LONG_MIN / 2 );
-		i = LONG_MIN;
-		assert( (i >> 31) == -1 );
+   qDebug("Figure out 64-bit version of these asserts...");
+//		// right shift of negative value preserves sign
+//		long i = LONG_MIN;
+//		assert( (i >> 1) == LONG_MIN / 2 );
+//		i = LONG_MIN;
+//		assert( (i >> 31) == -1 );
 		
-		// casting to smaller signed type truncates bits and extends sign
-		i = (SHRT_MAX + 1) * 5;
-		assert( (short) i == SHRT_MIN );
+//		// casting to smaller signed type truncates bits and extends sign
+//		i = (SHRT_MAX + 1) * 5;
+//		assert( (short) i == SHRT_MIN );
 	#endif
 }
 

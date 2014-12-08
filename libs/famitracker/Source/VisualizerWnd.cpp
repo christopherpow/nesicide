@@ -163,10 +163,10 @@ void CVisualizerWnd::ReportAudioProblem()
 
 UINT CVisualizerWnd::ThreadProc()
 {
-   DWORD nThreadID = (DWORD)AfxGetThread()->m_nThreadID;
+//   DWORD nThreadID = (DWORD)AfxGetThread()->m_nThreadID;
 	m_bThreadRunning = true;
 
-	TRACE1("Visualizer: Started thread (0x%04x)\n", nThreadID);
+//	TRACE1("Visualizer: Started thread (0x%04x)\n", nThreadID);
 
 	while (::WaitForSingleObject(m_hNewSamples, INFINITE) == WAIT_OBJECT_0 && m_bThreadRunning) {
 

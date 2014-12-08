@@ -20,6 +20,9 @@
 
 #pragma once
 
+#include "cqtmfc.h"
+#include "MainFrm.h"
+
 // TODO clean up in this class
 
 class CFamiTrackerDoc;

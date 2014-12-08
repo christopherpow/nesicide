@@ -137,7 +137,7 @@ void CCreateWaveDlg::OnBnClickedBegin()
 	}
 
 	// Show the render progress dialog, this will also start rendering
-	ProgressDlg.BeginRender(SaveDialog.GetPathName(), EndType, EndParam, Track);
+   ProgressDlg.BeginRender(SaveDialog.GetPathName(), EndType, EndParam, Track);
 
 	// Unmute all channels
 	pView->UnmuteAllChannels();

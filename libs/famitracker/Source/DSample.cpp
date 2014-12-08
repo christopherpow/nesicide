@@ -75,7 +75,7 @@ void CDSample::Copy(const CDSample *pDSample)
 
 void CDSample::Allocate(unsigned int iSize, const char *pData)
 {
-	ASSERT(pData != NULL);
+//	ASSERT(pData != NULL);
 
 	SAFE_RELEASE_ARRAY(m_pSampleData);
 

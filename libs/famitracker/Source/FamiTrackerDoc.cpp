@@ -731,12 +731,12 @@ BOOL CFamiTrackerDoc::SaveDocument(LPCTSTR lpszPathName) const
 	// Replace the original
 	if (!MoveFileEx(TempFile, lpszPathName, MOVEFILE_REPLACE_EXISTING | MOVEFILE_COPY_ALLOWED)) {
 		// Display message if saving failed
-		TCHAR *lpMsgBuf;
-		FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&lpMsgBuf, 0, NULL);
+//		TCHAR *lpMsgBuf;
+//		FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&lpMsgBuf, 0, NULL);
 		CString	strFormatted;
-		AfxFormatString1(strFormatted, IDS_SAVE_FILE_ERROR, lpMsgBuf);
+      AfxFormatString1(strFormatted, IDS_SAVE_FILE_ERROR, "Couldn't move file.");
 		AfxMessageBox(strFormatted, MB_OK | MB_ICONERROR);
-		LocalFree(lpMsgBuf);
+//		LocalFree(lpMsgBuf);
 		// Remove temp file
 		DeleteFile(TempFile);
 		return FALSE;

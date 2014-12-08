@@ -3500,6 +3500,12 @@ public:
       UINT nEdge,
       UINT nFlags
    );
+   void DrawFocusRect(
+      LPCRECT lpRect
+   )
+   {
+      DrawEdge((LPRECT)lpRect,EDGE_SUNKEN,BF_RECT);
+   }
    BOOL BitBlt(
       int x,
       int y,
@@ -4428,6 +4434,7 @@ public:
 protected:
    QMenu* _qtd;
    QHash<int,CMenu*>* _cmenu;
+   QHash<int,QActionGroup*> _groups;
    QHash<UINT_PTR,QAction*> mfcToQtMenu;
    QHash<QAction*,UINT_PTR> qtToMfcMenu;
    CWnd* m_pOwnerWnd;
@@ -4500,6 +4507,12 @@ public:
    UINT CheckMenuItem(
       UINT nIDCheckItem,
       UINT nCheck
+   );
+   BOOL CheckMenuRadioItem(
+      UINT nIDFirst,
+      UINT nIDLast,
+      UINT nIDItem,
+      UINT nFlags
    );
    UINT EnableMenuItem(
       UINT nIDEnableItem,

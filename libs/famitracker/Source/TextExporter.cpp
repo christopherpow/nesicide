@@ -245,7 +245,7 @@ public:
 		int result = ::sscanf(t, "%d", &i);
 		if(result == EOF || result == 0)
 		{
-			if (err) err->Format(_T("Line %d column %d: expected integer, '%s' found."), line, c, t);
+         if (err) err->Format(_T("Line %d column %d: expected integer, '%s' found."), line, c, (LPCTSTR)t);
 			return false;
 		}
 
@@ -271,7 +271,7 @@ public:
 		int result = ::sscanf(t, "%x", &i);
 		if(result == EOF || result == 0)
 		{
-			if (err) err->Format(_T("Line %d column %d: expected hexadecimal, '%s' found."), line, c, t);
+         if (err) err->Format(_T("Line %d column %d: expected hexadecimal, '%s' found."), line, c, (LPCTSTR)t);
 			return false;
 		}
 
@@ -291,7 +291,7 @@ public:
 		CString s = ReadToken();
 		if (s.GetLength() > 0)
 		{
-			if (err) err->Format(_T("Line %d column %d: expected end of line, '%s' found."), line, c, s);
+         if (err) err->Format(_T("Line %d column %d: expected end of line, '%s' found."), line, c, (LPCTSTR)s);
 			return false;
 		}
 
@@ -332,7 +332,7 @@ public:
 
 // =============================================================================
 
-static bool ImportHex(CString& sToken, int& i, int line, int column, CString& sResult)
+static bool ImportHex(const CString& sToken, int& i, int line, int column, CString& sResult)
 {
 	i = 0;
 	for (int d=0; d < sToken.GetLength(); ++d)
@@ -348,7 +348,7 @@ static bool ImportHex(CString& sToken, int& i, int line, int column, CString& sR
 			if (0 == t.CompareNoCase(HEX_TEXT[h])) break;
 		if (h >= 16)
 		{
-			sResult.Format(_T("Line %d column %d: hexadecimal number expected, '%s' found."), line, column, sToken);
+         sResult.Format(_T("Line %d column %d: hexadecimal number expected, '%s' found."), line, column, (LPCTSTR)sToken);
 			return false;
 		}
 		i += h;
@@ -397,7 +397,7 @@ static bool ImportCellText(
 	{
 		if (sNote.GetLength() != 3)
 		{
-			sResult.Format(_T("Line %d column %d: note column should be 3 characters wide, '%s' found."), t.line, t.GetColumn(), sNote);
+         sResult.Format(_T("Line %d column %d: note column should be 3 characters wide, '%s' found."), t.line, t.GetColumn(), (LPCTSTR)sNote);
 			return false;
 		}
 
@@ -425,7 +425,7 @@ static bool ImportCellText(
 				case TCHAR('a'): case TCHAR('A'): n = 9; break;
 				case TCHAR('b'): case TCHAR('B'): n = 11; break;
 				default:
-					sResult.Format(_T("Line %d column %d: unrecognized note '%s'."), t.line, t.GetColumn(), sNote);
+               sResult.Format(_T("Line %d column %d: unrecognized note '%s'."), t.line, t.GetColumn(), (LPCTSTR)sNote);
 					return false;
 			}
 			switch (sNote.GetAt(1))
@@ -434,7 +434,7 @@ static bool ImportCellText(
 				case TCHAR('#'): case TCHAR('+'): n += 1; break;
 				case TCHAR('b'): case TCHAR('f'): n -= 1; break;
 				default:
-					sResult.Format(_T("Line %d column %d: unrecognized note '%s'."), t.line, t.GetColumn(), sNote);
+               sResult.Format(_T("Line %d column %d: unrecognized note '%s'."), t.line, t.GetColumn(), (LPCTSTR)sNote);
 					return false;
 			}
 			while (n <   0) n += 12;
@@ -444,7 +444,7 @@ static bool ImportCellText(
 			int o = sNote.GetAt(2) - TCHAR('0');
 			if (o < 0 || o >= OCTAVE_RANGE)
 			{
-				sResult.Format(_T("Line %d column %d: unrecognized octave '%s'."), t.line, t.GetColumn(), sNote);
+            sResult.Format(_T("Line %d column %d: unrecognized octave '%s'."), t.line, t.GetColumn(), (LPCTSTR)sNote);
 				return false;
 			}
 			Cell.Octave = o;
@@ -457,7 +457,7 @@ static bool ImportCellText(
 	{
 		if (sInst.GetLength() != 2)
 		{
-			sResult.Format(_T("Line %d column %d: instrument column should be 2 characters wide, '%s' found."), t.line, t.GetColumn(), sInst);
+         sResult.Format(_T("Line %d column %d: instrument column should be 2 characters wide, '%s' found."), t.line, t.GetColumn(), (LPCTSTR)sInst);
 			return false;
 		}
 		int h;
@@ -465,7 +465,7 @@ static bool ImportCellText(
 			return false;
 		if (h >= MAX_INSTRUMENTS)
 		{
-			sResult.Format(_T("Line %d column %d: instrument '%s' is out of bounds."), t.line, t.GetColumn(), sInst);
+         sResult.Format(_T("Line %d column %d: instrument '%s' is out of bounds."), t.line, t.GetColumn(), (LPCTSTR)sInst);
 			return false;
 		}
 		Cell.Instrument = h;
@@ -481,7 +481,7 @@ static bool ImportCellText(
 		if (0 == sVol.CompareNoCase(VOL_TEXT[v])) break;
 	if (v > 17)
 	{
-		sResult.Format(_T("Line %d column %d: unrecognized volume token '%s'."), t.line, t.GetColumn(), sVol);
+      sResult.Format(_T("Line %d column %d: unrecognized volume token '%s'."), t.line, t.GetColumn(), (LPCTSTR)sVol);
 		return false;
 	}
 	Cell.Vol = v;
@@ -493,7 +493,7 @@ static bool ImportCellText(
 		{
 			if (sEff.GetLength() != 3)
 			{
-				sResult.Format(_T("Line %d column %d: effect column should be 3 characters wide, '%s' found."), t.line, t.GetColumn(), sEff);
+            sResult.Format(_T("Line %d column %d: effect column should be 3 characters wide, '%s' found."), t.line, t.GetColumn(), (LPCTSTR)sEff);
 				return false;
 			}
 
@@ -504,7 +504,7 @@ static bool ImportCellText(
 				if (EFF_CHAR[p] == pC) break;
 			if (p >= EF_COUNT)
 			{
-				sResult.Format(_T("Line %d column %d: unrecognized effect '%s'."), t.line, t.GetColumn(), sEff);
+            sResult.Format(_T("Line %d column %d: unrecognized effect '%s'."), t.line, t.GetColumn(), (LPCTSTR)sEff);
 				return false;
 			}
 			Cell.EffNumber[e] = p+1;
@@ -588,14 +588,14 @@ CTextExport::~CTextExport()
 		CString symbol_ = t.ReadToken(); \
 		if (symbol_ != _T(x)) \
 		{ \
-			sResult.Format(_T("Line %d column %d: expected '%s', '%s' found."), t.line, t.GetColumn(), _T(x), symbol_); \
+         sResult.Format(_T("Line %d column %d: expected '%s', '%s' found."), t.line, t.GetColumn(), _T(x), (LPCTSTR)symbol_); \
 			return sResult; \
 		} \
 	}
 
 #define CHECK_COLON() CHECK_SYMBOL(":")
 
-const char* Charify(CString& s)
+const char* Charify(const CString& s)
 {
 	// NOTE if Famitracker is switched to unicode, need to do a conversion here
 	return s.GetString();
@@ -654,15 +654,15 @@ const CString& CTextExport::ImportFile(LPCTSTR FileName, CFamiTrackerDoc *pDoc)
 				t.FinishLine();
 				break;
 			case CT_TITLE:
-				pDoc->SetSongName(Charify(t.ReadToken()));
+            pDoc->SetSongName(Charify(t.ReadToken()));
 				CHECK(t.ReadEOL(&sResult));
 				break;
 			case CT_AUTHOR:
-				pDoc->SetSongArtist(Charify(t.ReadToken()));
+            pDoc->SetSongArtist(Charify(t.ReadToken()));
 				CHECK(t.ReadEOL(&sResult));
 				break;
 			case CT_COPYRIGHT:
-				pDoc->SetSongCopyright(Charify(t.ReadToken()));
+            pDoc->SetSongCopyright(Charify(t.ReadToken()));
 				CHECK(t.ReadEOL(&sResult));
 				break;
 			case CT_COMMENT:
@@ -1088,7 +1088,7 @@ const CString& CTextExport::ImportFile(LPCTSTR FileName, CFamiTrackerDoc *pDoc)
 				break;
 			case CT_COUNT:
 			default:
-				sResult.Format(_T("Unrecognized command at line %d: '%s'."), t.line, command);
+            sResult.Format(_T("Unrecognized command at line %d: '%s'."), t.line, (LPCTSTR)command);
 				return sResult;
 		}
 	}
@@ -1123,9 +1123,9 @@ const CString& CTextExport::ExportFile(LPCTSTR FileName, CFamiTrackerDoc *pDoc)
 	            "%-15s %s\n"
 	            "%-15s %s\n"
 	            "\n"),
-	            CT[CT_TITLE],     ExportString(pDoc->GetSongName()),
-	            CT[CT_AUTHOR],    ExportString(pDoc->GetSongArtist()),
-	            CT[CT_COPYRIGHT], ExportString(pDoc->GetSongCopyright()));
+               CT[CT_TITLE],     (LPCTSTR)ExportString(pDoc->GetSongName()),
+               CT[CT_AUTHOR],    (LPCTSTR)ExportString(pDoc->GetSongArtist()),
+               CT[CT_COPYRIGHT], (LPCTSTR)ExportString(pDoc->GetSongCopyright()));
 	f.WriteString(s);
 
 	f.WriteString(_T("# Song comment\n"));
@@ -1138,13 +1138,13 @@ const CString& CTextExport::ExportFile(LPCTSTR FileName, CFamiTrackerDoc *pDoc)
 		if (bCommentLines)
 		{
 			CString sLine = sComment.Left(nPos);
-			s.Format(_T("%s %s\n"), CT[CT_COMMENT], ExportString(sLine));
+         s.Format(_T("%s %s\n"), CT[CT_COMMENT], (LPCTSTR)ExportString(sLine));
 			f.WriteString(s);
 			sComment = sComment.Mid(nPos+2); // +2 skips \r\n
 		}
 		else
 		{
-			s.Format(_T("%s %s\n"), CT[CT_COMMENT], ExportString(sComment));
+         s.Format(_T("%s %s\n"), CT[CT_COMMENT], (LPCTSTR)ExportString(sComment));
 			f.WriteString(s);
 		}
 	} while (bCommentLines);
@@ -1214,7 +1214,7 @@ const CString& CTextExport::ExportFile(LPCTSTR FileName, CFamiTrackerDoc *pDoc)
 				CT[CT_DPCMDEF],
 				smp,
 				pSample->GetSize(),
-				ExportString(pSample->GetName()));
+            (LPCTSTR)ExportString(pSample->GetName()));
 			f.WriteString(s);
 
 			for (unsigned int i=0; i < pSample->GetSize(); i += 32)
@@ -1254,7 +1254,7 @@ const CString& CTextExport::ExportFile(LPCTSTR FileName, CFamiTrackerDoc *pDoc)
 						pDI->GetSeqEnable(2) ? pDI->GetSeqIndex(2) : -1,
 						pDI->GetSeqEnable(3) ? pDI->GetSeqIndex(3) : -1,
 						pDI->GetSeqEnable(4) ? pDI->GetSeqIndex(4) : -1,
-						ExportString(pInst->GetName()));
+                  (LPCTSTR)ExportString(pInst->GetName()));
 					f.WriteString(s);
 
 					for (int oct = 0; oct < OCTAVE_RANGE; ++oct)
@@ -1289,7 +1289,7 @@ const CString& CTextExport::ExportFile(LPCTSTR FileName, CFamiTrackerDoc *pDoc)
 						pDI->GetSeqEnable(2) ? pDI->GetSeqIndex(2) : -1,
 						pDI->GetSeqEnable(3) ? pDI->GetSeqIndex(3) : -1,
 						pDI->GetSeqEnable(4) ? pDI->GetSeqIndex(4) : -1,
-						ExportString(pInst->GetName()));
+                  (LPCTSTR)ExportString(pInst->GetName()));
 					f.WriteString(s);
 				}
 				break;
@@ -1308,7 +1308,7 @@ const CString& CTextExport::ExportFile(LPCTSTR FileName, CFamiTrackerDoc *pDoc)
 						pDI->GetCustomReg(5) & 0xFF,
 						pDI->GetCustomReg(6) & 0xFF,
 						pDI->GetCustomReg(7) & 0xFF,
-						ExportString(pInst->GetName()));
+                  (LPCTSTR)ExportString(pInst->GetName()));
 					f.WriteString(s);
 				}
 				break;
@@ -1322,7 +1322,7 @@ const CString& CTextExport::ExportFile(LPCTSTR FileName, CFamiTrackerDoc *pDoc)
 						pDI->GetModulationSpeed(),
 						pDI->GetModulationDepth(),
 						pDI->GetModulationDelay(),
-						ExportString(pInst->GetName()));
+                  (LPCTSTR)ExportString(pInst->GetName()));
 					f.WriteString(s);
 
 					s.Format(_T("%-8s %3d :"), CT[CT_FDSWAVE], i);
@@ -1380,7 +1380,7 @@ const CString& CTextExport::ExportFile(LPCTSTR FileName, CFamiTrackerDoc *pDoc)
 						pDI->GetWaveSize(),
 						pDI->GetWavePos(),
 						pDI->GetWaveCount(),
-						ExportString(pInst->GetName()));
+                  (LPCTSTR)ExportString(pInst->GetName()));
 					f.WriteString(s);
 
 					for (int w=0; w < pDI->GetWaveCount(); ++w)
@@ -1409,7 +1409,7 @@ const CString& CTextExport::ExportFile(LPCTSTR FileName, CFamiTrackerDoc *pDoc)
 						pDI->GetSeqEnable(2) ? pDI->GetSeqIndex(2) : -1,
 						pDI->GetSeqEnable(3) ? pDI->GetSeqIndex(3) : -1,
 						pDI->GetSeqEnable(4) ? pDI->GetSeqIndex(4) : -1,
-						ExportString(pInst->GetName()));
+                  (LPCTSTR)ExportString(pInst->GetName()));
 					f.WriteString(s);
 				}
 				break;
@@ -1429,7 +1429,7 @@ const CString& CTextExport::ExportFile(LPCTSTR FileName, CFamiTrackerDoc *pDoc)
 			pDoc->GetPatternLength(t),
 			pDoc->GetSongSpeed(t),
 			pDoc->GetSongTempo(t),
-			ExportString(zpTitle));
+         (LPCTSTR)ExportString(zpTitle));
 		f.WriteString(s);
 
 		s.Format(_T("%s :"), CT[CT_COLUMNS]);

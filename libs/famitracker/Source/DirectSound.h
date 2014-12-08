@@ -49,8 +49,8 @@ public:
 	CDSoundChannel();
 	~CDSoundChannel();
 
-	bool Play() const;
-	bool Stop() const;
+   bool Play();
+   bool Stop();
 	bool IsPlaying() const;
 	bool ClearBuffer();
 	bool WriteBuffer(char *pBuffer, unsigned int Samples);

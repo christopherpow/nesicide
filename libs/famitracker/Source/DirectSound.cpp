@@ -245,13 +245,13 @@ CDSoundChannel::~CDSoundChannel()
 {
 }
 
-bool CDSoundChannel::Play() const
+bool CDSoundChannel::Play()
 {
    ftmAudioSemaphore.release();
    m_bPaused = false;
 }
 
-bool CDSoundChannel::Stop() const
+bool CDSoundChannel::Stop()
 {
    m_bPaused = true;
    return true;

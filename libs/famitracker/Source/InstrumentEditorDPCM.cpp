@@ -452,7 +452,7 @@ void CInstrumentEditorDPCM::OnNMClickTable(NMHDR *pNMHDR, LRESULT *pResult)
 	int Pitch = m_pInstrument->GetSamplePitch(m_iOctave, m_iSelectedKey);
 	int Delta = m_pInstrument->GetSampleDeltaValue(m_iOctave, m_iSelectedKey);
 
-	Text.Format(_T("%02i - %s"), Sample, pTableListCtrl->GetItemText(pTableListCtrl->GetSelectionMark(), 2));
+   Text.Format(_T("%02i - %s"), Sample, (LPCTSTR)pTableListCtrl->GetItemText(pTableListCtrl->GetSelectionMark(), 2));
 
 	if (Sample != -1)
 		pSampleBox->SelectString(0, Text);

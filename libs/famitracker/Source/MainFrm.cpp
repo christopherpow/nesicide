@@ -34,7 +34,7 @@
 #include "TextExporter.h"
 #include "ConfigGeneral.h"
 #include "ConfigAppearance.h"
-#include "ConfigMIDI.h"
+//#include "ConfigMIDI.h"
 #include "ConfigSound.h"
 #include "ConfigShortcuts.h"
 #include "ConfigWindow.h"

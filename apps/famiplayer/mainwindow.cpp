@@ -360,7 +360,7 @@ void MainWindow::onIdleSlot()
             m_pTimer->start(500);
          }
          else if ( m_bLoopLimited &&
-                   m_iFramesPlayed > pDoc->ScanActualLength(pDoc->GetSelectedTrack(),m_pWndMFC->GetFrameLoopCount()) )
+                   m_iFramesPlayed > pDoc->ScanActualLength(pMainFrame->GetSelectedTrack(),m_pWndMFC->GetFrameLoopCount()) )
          {   
             // Force stop...
             m_bPlaying = false;
@@ -388,7 +388,7 @@ void MainWindow::onIdleSlot()
             on_next_clicked();
          }
          m_bChangeSong = false;
-         ui->position->setValue((pApp->GetSoundGenerator()->GetPlayerFrame()*pDoc->GetPatternLength())+pApp->GetSoundGenerator()->GetPlayerRow());
+         ui->position->setValue((pApp->GetSoundGenerator()->GetPlayerFrame()*pDoc->GetPatternLength(pMainFrame->GetSelectedTrack()))+pApp->GetSoundGenerator()->GetPlayerRow());
          startSettleTimer();
          m_pTimer->start(0);
       }
@@ -397,14 +397,14 @@ void MainWindow::onIdleSlot()
    {
       // FF/RW
       m_bCheck = false;
-      pView->SelectFrame(ui->position->value()/pDoc->GetPatternLength());
-      pView->SelectRow(ui->position->value()%pDoc->GetPatternLength());
+      pView->SelectFrame(ui->position->value()/pDoc->GetPatternLength(pMainFrame->GetSelectedTrack()));
+      pView->SelectRow(ui->position->value()%pDoc->GetPatternLength(pMainFrame->GetSelectedTrack()));
    }
    else
    {
       m_bCheck = true;
-      ui->frames->setText(QString::number(m_iFramesPlayed)+"/"+QString::number(pDoc->ScanActualLength(pDoc->GetSelectedTrack(),m_pWndMFC->GetFrameLoopCount())));
-      ui->position->setValue((pApp->GetSoundGenerator()->GetPlayerFrame()*pDoc->GetPatternLength())+pApp->GetSoundGenerator()->GetPlayerRow());
+      ui->frames->setText(QString::number(m_iFramesPlayed)+"/"+QString::number(pDoc->ScanActualLength(pMainFrame->GetSelectedTrack(),m_pWndMFC->GetFrameLoopCount())));
+      ui->position->setValue((pApp->GetSoundGenerator()->GetPlayerFrame()*pDoc->GetPatternLength(pMainFrame->GetSelectedTrack()))+pApp->GetSoundGenerator()->GetPlayerRow());
    }
 }
 
@@ -514,7 +514,7 @@ void MainWindow::on_previous_clicked()
       on_playStop_clicked();
    }
 
-   if ( pDoc->GetSelectedTrack() > 0 )
+   if ( pMainFrame->GetSelectedTrack() > 0 )
    {
       ui->subtune->setCurrentIndex(ui->subtune->currentIndex()-1);
    }
@@ -578,7 +578,7 @@ void MainWindow::on_next_clicked()
       on_playStop_clicked();
    }
 
-   if ( pDoc->GetSelectedTrack() < pDoc->GetTrackCount()-1 )
+   if ( pMainFrame->GetSelectedTrack() < pDoc->GetTrackCount()-1 )
    {
       ui->subtune->setCurrentIndex(ui->subtune->currentIndex()+1);
    }
@@ -717,7 +717,7 @@ void MainWindow::updateSubtuneText()
    ui->subtune->clear();
    for ( song = 0; song < pDoc->GetTrackCount(); song++ )
    {
-      subtune.sprintf("#%d %s",song+1,pDoc->GetTrackTitle(song));
+      subtune.sprintf("#%d %s",song+1,(LPCTSTR)pDoc->GetTrackTitle(song));
       ui->subtune->addItem(subtune);
    }
 }
@@ -737,8 +737,8 @@ void MainWindow::loadFile(QString file)
       
       m_iFramesPlayed = 0;
       
-      ui->position->setRange(0,(pDoc->GetFrameCount()*pDoc->GetPatternLength()));
-      ui->position->setPageStep(pDoc->GetPatternLength());
+      ui->position->setRange(0,(pDoc->GetFrameCount(pMainFrame->GetSelectedTrack())*pDoc->GetPatternLength(pMainFrame->GetSelectedTrack())));
+      ui->position->setPageStep(pDoc->GetPatternLength(pMainFrame->GetSelectedTrack()));
    }
    else
    {
@@ -764,7 +764,7 @@ void MainWindow::on_subtune_currentIndexChanged(int index)
       CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
       CFamiTrackerView* pView = (CFamiTrackerView*)pMainFrame->GetActiveView();
       CFamiTrackerDoc* pDoc = (CFamiTrackerDoc*)pMainFrame->GetActiveDocument();   
-      int current = pDoc->GetSelectedTrack();
+      int current = pMainFrame->GetSelectedTrack();
       bool wasPlaying = m_bPlaying;
       
       if ( current < index )
@@ -805,8 +805,8 @@ void MainWindow::on_subtune_currentIndexChanged(int index)
       
       m_iFramesPlayed = 0;     
       
-      ui->position->setRange(0,(pDoc->GetFrameCount()*pDoc->GetPatternLength()));
-      ui->position->setPageStep(pDoc->GetPatternLength());
+      ui->position->setRange(0,(pDoc->GetFrameCount(pMainFrame->GetSelectedTrack())*pDoc->GetPatternLength(pMainFrame->GetSelectedTrack())));
+      ui->position->setPageStep(pDoc->GetPatternLength(pMainFrame->GetSelectedTrack()));
    }
 }
 

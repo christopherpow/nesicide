@@ -11811,6 +11811,66 @@ UINT CMenu::CheckMenuItem(
    return prevState;
 }
 
+BOOL CMenu::CheckMenuRadioItem(
+   UINT nIDFirst,
+   UINT nIDLast,
+   UINT nIDItem,
+   UINT nFlags
+)
+{
+   QAction* action;
+   UINT prevState = (UINT)-1;
+   QActionGroup* group = _groups.value(nIDFirst);
+   int idx;
+
+   if ( !group )
+   {
+      group = new QActionGroup(NULL);
+   }
+
+   if ( nFlags&MF_BYPOSITION )
+   {
+      for ( idx = nIDFirst; idx <= nIDLast; idx++ )
+      {
+         QAction* groupMember = findMenuItemByPosition(idx);
+         group->addAction(groupMember);
+         groupMember->setActionGroup(group);
+         if ( idx == nIDItem )
+         {
+            action = groupMember;
+         }
+      }
+   }
+   else
+   {
+      QAction* groupMember = findMenuItemByID(nIDFirst);
+      do
+      {
+         group->addAction(groupMember);
+         groupMember->setActionGroup(group);
+         if ( groupMember == findMenuItemByID(nIDLast) )
+         {
+            groupMember = NULL;
+         }
+         else if ( groupMember == findMenuItemByID(nIDItem) )
+         {
+            action = groupMember;
+         }
+         else
+         {
+            groupMember = groupMember->menu()->actions().at(groupMember->menu()->actions().indexOf(groupMember)+1);
+         }
+      } while ( groupMember );
+   }
+   if ( action )
+   {
+      prevState = action->isChecked();
+      action->setCheckable(true);
+      action->setChecked(nFlags&(~MF_BYPOSITION));
+   }
+   return prevState;
+}
+
 BOOL CMenu::TrackPopupMenu(
    UINT nFlags,
    int x,

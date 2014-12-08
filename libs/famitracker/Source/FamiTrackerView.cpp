@@ -153,7 +153,7 @@ BEGIN_MESSAGE_MAP(CFamiTrackerView, CView)
 	ON_MESSAGE(WM_USER_MIDI_EVENT, OnUserMidiEvent)
 	ON_MESSAGE(WM_USER_PLAYER, OnUserPlayerEvent)
 	ON_MESSAGE(WM_USER_NOTE_EVENT, OnUserNoteEvent)
-	ON_WM_CLOSE()
+//	ON_WM_CLOSE()
 	ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
@@ -1034,7 +1034,7 @@ void CFamiTrackerView::OnInitialUpdate()
 	CFrameEditor *pFrameEditor = pMainFrame->GetFrameEditor();
 	ASSERT_VALID(pFrameEditor);
 
-	TRACE1("View: OnInitialUpdate (%s)\n", pDoc->GetTitle());
+//	TRACE1("View: OnInitialUpdate (%s)\n", pDoc->GetTitle());
 
 	// Setup order window
 	pFrameEditor->AssignDocument(pDoc, this);
@@ -1679,13 +1679,14 @@ void CFamiTrackerView::InsertNote(int Note, int Octave, int Channel, int Velocit
 	}	
 
 	// Quantization
-	if (theApp.GetSettings()->Midi.bMidiMasterSync) {
-		int Delay = theApp.GetMIDI()->GetQuantization();
-		if (Delay > 0) {
-			Cell.EffNumber[0] = EF_DELAY;
-			Cell.EffParam[0] = Delay;
-		}
-	}
+   qDebug("quantization");
+//	if (theApp.GetSettings()->Midi.bMidiMasterSync) {
+//		int Delay = theApp.GetMIDI()->GetQuantization();
+//		if (Delay > 0) {
+//			Cell.EffNumber[0] = EF_DELAY;
+//			Cell.EffParam[0] = Delay;
+//		}
+//	}
 	
 	if (m_bEditEnable) {
 		if (Note == HALT)
@@ -2900,82 +2901,83 @@ void CFamiTrackerView::PreviewRelease(unsigned char Key)
 
 void CFamiTrackerView::TranslateMidiMessage()
 {
-	// Check and handle MIDI messages
+   qDebug("TranslateMidiMessage");
+//	// Check and handle MIDI messages
 
-	unsigned char Message, Channel, Data1, Data2;
-	CString Status;
+//	unsigned char Message, Channel, Data1, Data2;
+//	CString Status;
 
-	CMIDI *pMIDI = theApp.GetMIDI();
-	CFamiTrackerDoc* pDoc = GetDocument();
+//	CMIDI *pMIDI = theApp.GetMIDI();
+//	CFamiTrackerDoc* pDoc = GetDocument();
 
-	if (!pMIDI || !pDoc)
-		return;
+//	if (!pMIDI || !pDoc)
+//		return;
 
-	while (pMIDI->ReadMessage(Message, Channel, Data1, Data2)) {
+//	while (pMIDI->ReadMessage(Message, Channel, Data1, Data2)) {
 
-		if (Message != 0x0F) {
-			if (!theApp.GetSettings()->Midi.bMidiChannelMap)
-				Channel = m_pPatternEditor->GetChannel();
-			if (Channel > pDoc->GetAvailableChannels() - 1)
-				Channel = pDoc->GetAvailableChannels() - 1;
-		}
+//		if (Message != 0x0F) {
+//			if (!theApp.GetSettings()->Midi.bMidiChannelMap)
+//				Channel = m_pPatternEditor->GetChannel();
+//			if (Channel > pDoc->GetAvailableChannels() - 1)
+//				Channel = pDoc->GetAvailableChannels() - 1;
+//		}
 
-		switch (Message) {
-			case MIDI_MSG_NOTE_ON:
+//		switch (Message) {
+//			case MIDI_MSG_NOTE_ON:
 
-				// Remove two octaves from MIDI device notes
-				Data1 -= 24;
-				if (Data1 > 127)
-					break;
+//				// Remove two octaves from MIDI device notes
+//				Data1 -= 24;
+//				if (Data1 > 127)
+//					break;
 
-				if (Data2 == 0) {
-					// MIDI key is released, don't input note break into pattern
-					if (DoRelease())
-						ReleaseMIDINote(Channel, Data1, false);
-					else
-						CutMIDINote(Channel, Data1, false);
-				}
-				else
-					TriggerMIDINote(Channel, Data1, Data2, true);
+//				if (Data2 == 0) {
+//					// MIDI key is released, don't input note break into pattern
+//					if (DoRelease())
+//						ReleaseMIDINote(Channel, Data1, false);
+//					else
+//						CutMIDINote(Channel, Data1, false);
+//				}
+//				else
+//					TriggerMIDINote(Channel, Data1, Data2, true);
 
-				{
-					CString str1, str2, str3;
-					str1.Format(_T("%02i"), Data1 % 12);
-					str2.Format(_T("%02i"), Data1 / 12);
-					str3.Format(_T("%02X"), Data2);
-					AfxFormatString3(Status, IDS_MIDI_MESSAGE_ON_FORMAT, str1, str2, str3);
-					GetParentFrame()->SetMessageText(Status);
-				}
-				break;
+//				{
+//					CString str1, str2, str3;
+//					str1.Format(_T("%02i"), Data1 % 12);
+//					str2.Format(_T("%02i"), Data1 / 12);
+//					str3.Format(_T("%02X"), Data2);
+//					AfxFormatString3(Status, IDS_MIDI_MESSAGE_ON_FORMAT, str1, str2, str3);
+//					GetParentFrame()->SetMessageText(Status);
+//				}
+//				break;
 
-			case MIDI_MSG_NOTE_OFF:
+//			case MIDI_MSG_NOTE_OFF:
 
-				// Remove two octaves from MIDI device notes
-				Data1 -= 24;
-				if (Data1 > 127)
-					break;
+//				// Remove two octaves from MIDI device notes
+//				Data1 -= 24;
+//				if (Data1 > 127)
+//					break;
 
-				CutMIDINote(Channel, Data1, false);
-				Status.Format(IDS_MIDI_MESSAGE_OFF);
-				GetParentFrame()->SetMessageText(Status);
-				break;
+//				CutMIDINote(Channel, Data1, false);
+//				Status.Format(IDS_MIDI_MESSAGE_OFF);
+//				GetParentFrame()->SetMessageText(Status);
+//				break;
 			
-			case MIDI_MSG_PITCH_WHEEL: 
-				{
-					CTrackerChannel *pChannel = pDoc->GetChannel(Channel);
-					int PitchValue = 0x2000 - ((Data1 & 0x7F) | ((Data2 & 0x7F) << 7));
-					pChannel->SetPitch(-PitchValue / 0x10);
-				}
-				break;
+//			case MIDI_MSG_PITCH_WHEEL:
+//				{
+//					CTrackerChannel *pChannel = pDoc->GetChannel(Channel);
+//					int PitchValue = 0x2000 - ((Data1 & 0x7F) | ((Data2 & 0x7F) << 7));
+//					pChannel->SetPitch(-PitchValue / 0x10);
+//				}
+//				break;
 
-			case 0x0F:
-				if (Channel == 0x08) {
-					m_pPatternEditor->MoveDown(m_iInsertKeyStepping);
-					UpdateEditor(UPDATE_CURSOR);
-				}
-				break;
-		}
-	}
+//			case 0x0F:
+//				if (Channel == 0x08) {
+//					m_pPatternEditor->MoveDown(m_iInsertKeyStepping);
+//					UpdateEditor(UPDATE_CURSOR);
+//				}
+//				break;
+//		}
+//	}
 }
 
 //

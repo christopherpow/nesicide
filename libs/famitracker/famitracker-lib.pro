@@ -15,6 +15,14 @@ greaterThan(QT_MAJOR_VERSION,4) {
 
 TOP = ../..
 
+macx {
+    MAC_SDK  = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk
+    if( !exists( $$MAC_SDK) ) {
+        error("The selected Mac OSX SDK does not exist at $$MAC_SDK!")
+    }
+    macx:QMAKE_MAC_SDK = macosx10.10
+}
+
 CONFIG(release, debug|release) {
    DESTDIR = release
 } else {
@@ -184,7 +192,6 @@ SOURCES += \
     Source/ConfigWindow.cpp \
     Source/ConfigSound.cpp \
     Source/ConfigShortcuts.cpp \
-    Source/ConfigMIDI.cpp \
     Source/DialogReBar.cpp \
     Source/ConfigGeneral.cpp \
     Source/ConfigAppearance.cpp \
@@ -197,7 +204,8 @@ SOURCES += \
     Source/FamiTracker.cpp \
     Source/Settings.cpp \
     Source/ConfigMixer.cpp \
-    Source/CommandLineExport.cpp
+    Source/CommandLineExport.cpp \
+    Source/DocumentWrapper.cpp
 
 HEADERS += \
     cqtmfc_famitracker.h \
@@ -323,7 +331,8 @@ HEADERS += \
     Source/VisualizerWnd.h \
     Source/ConfigMixer.h \
     Source/CommandLineExport.h \
-    Source/FamiTrackerTypes.h
+    Source/FamiTrackerTypes.h \
+    Source/DocumentWrapper.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN

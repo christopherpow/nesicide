@@ -98,7 +98,7 @@ BOOL CInstrumentEditorVRC7::OnInitDialog()
 	CComboBox *pPatchBox = static_cast<CComboBox*>(GetDlgItem(IDC_PATCH));
 	CString Text;
 
-    const _TCHAR* const PATCH_NAME[16] = {
+    const TCHAR* const PATCH_NAME[16] = {
         _T("(custom patch)"),
         _T("Bell"),
         _T("Guitar"),
