@@ -10195,12 +10195,12 @@ BOOL CWinThread::PostThreadMessage(
    LPARAM lParam
       )
 {
-   MFCMessageEvent post(QEvent::User);
-   post.msg.message = message;
-   post.msg.wParam = wParam;
-   post.msg.lParam = lParam;
+   MFCMessageEvent* post = new MFCMessageEvent(QEvent::User);
+   post->msg.message = message;
+   post->msg.wParam = wParam;
+   post->msg.lParam = lParam;
 
-   QApplication::sendEvent(this,&post);
+   QApplication::postEvent(this,post);
 
    return true;
 }
@@ -15813,7 +15813,7 @@ VOID WINAPI Sleep(
   DWORD dwMilliseconds
 )
 {
-   QThread::currentThread()->msleep(dwMilliseconds);
+   QThread::currentThread()->wait(dwMilliseconds);
 }
 
 VOID WINAPI ExitProcess(
