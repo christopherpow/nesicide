@@ -108,6 +108,7 @@ bool CDSound::SetupDevice(int iDevice)
 
 void CDSound::CloseDevice()
 {
+   SDL_Quit();
 }
 
 void CDSound::ClearEnumeration()

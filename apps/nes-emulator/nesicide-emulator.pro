@@ -15,11 +15,30 @@ macx {
 
 TARGET = nes-emulator
 
+win32 {
+   DEPENDENCYPATH = $$TOP/deps/Windows
+}
+mac {
+   DEPENDENCYPATH = $$TOP/deps/osx
+}
+#unix:mac {
+#	DEPENDENCYPATH = $$TOP/deps/linux
+#}
+
 # Remove crap we do not need!
 CONFIG -= rtti exceptions
 
 isEmpty (NESICIDE_LIBS) {
    NESICIDE_LIBS = -lnes-emulator
+}
+
+# set platform specific cxxflags and libs
+#########################################
+
+CONFIG(release, debug|release) {
+   LIB_BUILD_TYPE_DIR = release
+} else {
+   LIB_BUILD_TYPE_DIR = debug
 }
 
 win32 {
@@ -55,14 +74,22 @@ mac {
    }
    NESICIDE_LIBS = -L$$TOP/libs/nes/$$BUILD_DIR -lnes-emulator
 
-   SDL_CXXFLAGS = -I$$TOP/deps/osx/SDL.framework/Headers
-   SDL_LIBS = -F$$TOP/deps/osx -framework SDL
+   SDL_CXXFLAGS = -I $$DEPENDENCYPATH/SDL.framework/Headers
+   SDL_LIBS = -F $$DEPENDENCYPATH -framework SDL
 
-  QMAKE_POST_LINK += mkdir -p \'$${BUILD_DIR}/$${TARGET}.app/Contents/Frameworks\' $$escape_expand(\n\t)
-   QMAKE_POST_LINK += cp \'$$TOP/libs/nes/$${BUILD_DIR}/libnes-emulator.1.0.0.dylib\' \
-   \'$${BUILD_DIR}/$${TARGET}.app/Contents/Frameworks/libnes-emulator.1.dylib\' $$escape_expand(\n\t)
+   QMAKE_POST_LINK += mkdir -p $${DESTDIR}/$${TARGET}.app/Contents/Frameworks $$escape_expand(\n\t)
+
+   QMAKE_POST_LINK += cp $$TOP/libs/nes/$${LIB_BUILD_TYPE_DIR}/libnes-emulator.1.0.0.dylib \
+      $${DESTDIR}/$${TARGET}.app/Contents/Frameworks/libnes-emulator.1.dylib $$escape_expand(\n\t)
    QMAKE_POST_LINK += install_name_tool -change libnes-emulator.1.dylib \
-      @executable_path/../Frameworks/libnes-emulator.1.dylib \'$${BUILD_DIR}/$${TARGET}.app/Contents/MacOS/$${TARGET}\' $$escape_expand(\n\t)
+      @executable_path/../Frameworks/libnes-emulator.1.dylib \
+      $${DESTDIR}/$${TARGET}.app/Contents/MacOS/nes-emulator $$escape_expand(\n\t)
+
+   # SDL
+   QMAKE_POST_LINK += cp -r $$DEPENDENCYPATH/SDL.framework \
+      $${DESTDIR}/$${TARGET}.app/Contents/Frameworks/ $$escape_expand(\n\t)
+
+   QMAKE_POST_LINK += install_name_tool -add_rpath @loader_path/../Frameworks $${DESTDIR}/$${TARGET}.app/Contents/MacOS/nes-emulator $$escape_expand(\n\t)
 
    ICON = $$TOP/common/resources/controller.icns
 }

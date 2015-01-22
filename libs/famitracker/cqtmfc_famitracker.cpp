@@ -4556,6 +4556,7 @@ void qtMfcInit(QMainWindow* parent)
 {
    // Hook Qt to this MFC app...
    AfxGetApp()->qtMainWindow = parent;
+   AfxGetApp()->moveToThread(QApplication::instance()->thread());
 
    qtMfcInitStringResources();
    qtMfcInitBitmapResources();

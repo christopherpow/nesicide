@@ -10035,7 +10035,7 @@ CWinThread::CWinThread() :
    m_pParam = NULL;
 
    pThread = new QThread();
-   
+
    m_pMainWnd = NULL;
 }
 
@@ -12657,6 +12657,10 @@ void CEdit::SetDlgItemText(
    LPCTSTR lpszString
 )
 {
+   if ( QThread::currentThread() != QApplication::instance()->thread() )
+   {
+      qFatal("doing stuff in non-UI %x %x", QThread::currentThread(),QApplication::instance()->thread());
+   }
    if ( _dwStyle&ES_MULTILINE )
    {
 #if UNICODE

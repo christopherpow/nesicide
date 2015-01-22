@@ -691,9 +691,9 @@ void CFamiTrackerApp::TogglePlayer()
 {
 	if (m_pSoundGenerator) {
 		if (m_pSoundGenerator->IsPlaying())
-			StopPlayer();
+         StopPlayer();
 		else
-			StartPlayer(MODE_PLAY);
+         StartPlayer(MODE_PLAY);
 	}
 }
 

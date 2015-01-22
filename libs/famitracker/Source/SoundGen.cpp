@@ -952,9 +952,12 @@ void CSoundGen::MakeSilent()
 {
 	// Called from player thread
 //	ASSERT(GetCurrentThreadId() == m_nThreadID);
+   qDebug("CSoundGen::MakeSilent ENTER");
 
 	m_pAPU->Reset();
 	m_pSampleMem->Clear();
+
+   qDebug("CSoundGen::MakeSilent");
 
 	for (int i = 0; i < CHANNELS; ++i) {
 		if (m_pChannels[i])
@@ -962,6 +965,7 @@ void CSoundGen::MakeSilent()
 		if (m_pTrackerChannels[i])
 			m_pTrackerChannels[i]->Reset();
 	}
+   qDebug("CSoundGen::MakeSilent EXIT");
 }
 
 void CSoundGen::ResetState()

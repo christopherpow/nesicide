@@ -5,6 +5,7 @@
 #define PASCAL
 
 #include <QDialogButtonBox>
+#include <QApplication>
 #include <QMainWindow>
 #include <QAction>
 #include <QObject>

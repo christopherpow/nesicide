@@ -266,7 +266,6 @@ MainWindow::MainWindow(QWidget *parent) :
    m_pTimer->start();
    
    QObject::connect(m_pSettleTimer,SIGNAL(timeout()),this,SLOT(settleTimer_timeout()));
-   m_bCheck = true;
 }
 
 MainWindow::~MainWindow()
@@ -296,8 +295,6 @@ bool MainWindow::eventFilter(QObject *object, QEvent *event)
    else if ( object == ui->sampleWindow && event->type() == QEvent::Paint )
    {      
       CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
-      CFamiTrackerDoc* pDoc = (CFamiTrackerDoc*)pMainFrame->GetActiveDocument();
-      CFamiTrackerView* pView = (CFamiTrackerView*)pMainFrame->GetActiveView();
       
       QPainter p;
       QRect rect = pMainFrame->GetVisualizerWindow()->toQWidget()->rect().adjusted(3,2,-3,-3);
@@ -315,7 +312,7 @@ bool MainWindow::eventFilter(QObject *object, QEvent *event)
 
 void MainWindow::settleTimer_timeout()
 {
-   m_bCheck = true;
+   QObject::connect(m_pTimer,SIGNAL(timeout()),this,SLOT(onIdleSlot()));
    m_pSettleTimer->stop();
 }
 
@@ -329,80 +326,75 @@ void MainWindow::onIdleSlot()
 
    ui->sampleWindow->update();
 
-   if ( m_bCheck )
+   // Move to next song if playing and the current song has reached a stop.
+   if ( m_bPlaying && !m_bChangeSong )
    {
-      // Move to next song if playing and the current song has reached a stop.
-      if ( m_bCheck && m_bPlaying && !m_bChangeSong )
+      // Check if time is at time limit and if so, advance to next song.
+      int timeLimit = m_pWndMFC->GetTimeLimit();
+      CString playTime;
+      int totalPlayTime;
+
+      pMainFrame->GetDescendantWindow(AFX_IDW_STATUS_BAR)->GetDlgItemText(ID_INDICATOR_TIME,playTime);
+      totalPlayTime = m_pWndMFC->ConvertTime(playTime);
+
+      if ( lastFrame != pApp->GetSoundGenerator()->GetPlayerFrame() )
       {
-         // Check if time is at time limit and if so, advance to next song.
-         int timeLimit = m_pWndMFC->GetTimeLimit();
-         CString playTime;
-         int totalPlayTime;
-         
-         pMainFrame->GetDescendantWindow(AFX_IDW_STATUS_BAR)->GetDlgItemText(ID_INDICATOR_TIME,playTime);
-         totalPlayTime = m_pWndMFC->ConvertTime(playTime);
-         
-         if ( lastFrame != pApp->GetSoundGenerator()->GetPlayerFrame() )
-         {
-            lastFrame = pApp->GetSoundGenerator()->GetPlayerFrame();
-            m_iFramesPlayed++;
-         }
-         
-         if ( m_bTimeLimited &&
-              (timeLimit == totalPlayTime) )
-         {
-            // Force stop...
-            m_bPlaying = false;
-            pApp->OnCmdMsg(ID_TRACKER_TOGGLE_PLAY,0,0,0);
-            m_bChangeSong = true;
-            
-            // Create a bit of a delay between songs.
-            m_pTimer->start(500);
-         }
-         else if ( m_bLoopLimited &&
-                   m_iFramesPlayed > pDoc->ScanActualLength(pMainFrame->GetSelectedTrack(),m_pWndMFC->GetFrameLoopCount()) )
-         {   
-            // Force stop...
-            m_bPlaying = false;
-            pApp->OnCmdMsg(ID_TRACKER_TOGGLE_PLAY,0,0,0);
-            m_bChangeSong = true;
-            
-            // Create a bit of a delay between songs.
-            m_pTimer->start(500);
-         }
-         if ( !pApp->GetSoundGenerator()->IsPlaying() )
-         {
-            m_bPlaying = false;
-            m_bChangeSong = true;
-            
-            // Create a bit of a delay between songs.
-            m_pTimer->start(500);
-         }
+         lastFrame = pApp->GetSoundGenerator()->GetPlayerFrame();
+         m_iFramesPlayed++;
       }
-      // Wait until player starts playing before turning the above logic back on.
-      else if ( m_bChangeSong )
+
+      if ( m_bTimeLimited &&
+           (timeLimit == totalPlayTime) )
       {
-         on_playStop_clicked();
-         if ( !ui->repeat->isChecked() )
-         {
-            on_next_clicked();
-         }
-         m_bChangeSong = false;
-         ui->position->setValue((pApp->GetSoundGenerator()->GetPlayerFrame()*pDoc->GetPatternLength(pMainFrame->GetSelectedTrack()))+pApp->GetSoundGenerator()->GetPlayerRow());
-         startSettleTimer();
-         m_pTimer->start(0);
+         // Force stop...
+         m_bPlaying = false;
+         pApp->OnCmdMsg(ID_TRACKER_TOGGLE_PLAY,0,0,0);
+         m_bChangeSong = true;
+
+         // Create a bit of a delay between songs.
+         m_pTimer->start(500);
       }
+      else if ( m_bLoopLimited &&
+                m_iFramesPlayed > pDoc->ScanActualLength(pMainFrame->GetSelectedTrack(),m_pWndMFC->GetFrameLoopCount()) )
+      {
+         // Force stop...
+         m_bPlaying = false;
+         pApp->OnCmdMsg(ID_TRACKER_TOGGLE_PLAY,0,0,0);
+         m_bChangeSong = true;
+
+         // Create a bit of a delay between songs.
+         m_pTimer->start(500);
+      }
+      if ( !pApp->GetSoundGenerator()->IsPlaying() )
+      {
+         m_bPlaying = false;
+         m_bChangeSong = true;
+
+         // Create a bit of a delay between songs.
+         m_pTimer->start(500);
+      }
+   }
+   // Wait until player starts playing before turning the above logic back on.
+   else if ( m_bChangeSong )
+   {
+      on_playStop_clicked();
+      if ( !ui->repeat->isChecked() )
+      {
+         on_next_clicked();
+      }
+      m_bChangeSong = false;
+      ui->position->setValue((pApp->GetSoundGenerator()->GetPlayerFrame()*pDoc->GetPatternLength(pMainFrame->GetSelectedTrack()))+pApp->GetSoundGenerator()->GetPlayerRow());
+      startSettleTimer();
+      m_pTimer->start(0);
    }
    if ( m_bDraggingPosition )
    {
       // FF/RW
-      m_bCheck = false;
       pView->SelectFrame(ui->position->value()/pDoc->GetPatternLength(pMainFrame->GetSelectedTrack()));
       pView->SelectRow(ui->position->value()%pDoc->GetPatternLength(pMainFrame->GetSelectedTrack()));
    }
    else
    {
-      m_bCheck = true;
       ui->frames->setText(QString::number(m_iFramesPlayed)+"/"+QString::number(pDoc->ScanActualLength(pMainFrame->GetSelectedTrack(),m_pWndMFC->GetFrameLoopCount())));
       ui->position->setValue((pApp->GetSoundGenerator()->GetPlayerFrame()*pDoc->GetPatternLength(pMainFrame->GetSelectedTrack()))+pApp->GetSoundGenerator()->GetPlayerRow());
    }
@@ -411,7 +403,6 @@ void MainWindow::onIdleSlot()
 void MainWindow::startSettleTimer()
 {
    m_pSettleTimer->start(800);
-   m_bCheck = false;
 }
 
 void MainWindow::documentClosed()
@@ -573,17 +564,22 @@ void MainWindow::on_next_clicked()
    CFamiTrackerDoc* pDoc = (CFamiTrackerDoc*)pMainFrame->GetActiveDocument();
    bool wasPlaying = m_bPlaying;
 
+qDebug("on_next_clicked: ENTERED");
    if ( wasPlaying )
    {
       on_playStop_clicked();
    }
+qDebug("on_next_clicked: after first on_playStop_clicked");
 
+qDebug("on_next_clicked: 574");
    if ( pMainFrame->GetSelectedTrack() < pDoc->GetTrackCount()-1 )
    {
+      qDebug("on_next_clicked: 577");
       ui->subtune->setCurrentIndex(ui->subtune->currentIndex()+1);
    }
    else
    {
+      qDebug("on_next_clicked: 582");
       if ( ui->shuffle->isChecked() )
       {
          if ( m_iCurrentShuffleIndex < m_shuffleListFolder.count()-1 )
@@ -596,6 +592,7 @@ void MainWindow::on_next_clicked()
          }
          if ( m_iCurrentShuffleIndex < m_shuffleListFolder.count() )
          {
+            qDebug("on_next_clicked: 595");
             ui->paths->setCurrentIndex(ui->paths->findText(m_shuffleListFolder.at(m_iCurrentShuffleIndex)));
             ui->current->setCurrentIndex(ui->current->findText(m_shuffleListSong.at(m_iCurrentShuffleIndex)));
          }
@@ -604,30 +601,37 @@ void MainWindow::on_next_clicked()
       {
          if ( ui->current->currentIndex() < ui->current->count()-1 )
          {
+            qDebug("on_next_clicked: 604");
             ui->current->setCurrentIndex(ui->current->currentIndex()+1);
          }
          else
          {
             if ( ui->paths->currentIndex() < ui->paths->count()-1 )
             {
+               qDebug("on_next_clicked: 611");
                ui->paths->setCurrentIndex(ui->paths->currentIndex()+1);
             }
             else
             {
+               qDebug("on_next_clicked: 616");
                ui->paths->setCurrentIndex(0);
             }
+            qDebug("on_next_clicked: 619");
             ui->current->setCurrentIndex(0);
          }
       }
+      qDebug("on_next_clicked: 623");
       ui->subtune->setCurrentIndex(0);
    }
    
    m_iFramesPlayed = 0;     
 
+qDebug("on_next_clicked: before last on_playStop_clicked");
    if ( wasPlaying )
    {
       on_playStop_clicked();
    }
+   qDebug("on_next_clicked: EXITED");
 }
 
 void MainWindow::on_paths_currentIndexChanged(const QString &arg1)

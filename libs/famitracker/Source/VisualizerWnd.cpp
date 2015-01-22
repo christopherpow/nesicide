@@ -187,13 +187,13 @@ UINT CVisualizerWnd::ThreadProc()
 		// Draw
 		m_csBuffer.Lock();
 
-		CDC *pDC = GetDC();
-		if (pDC != NULL) {
-			m_pStates[m_iCurrentState]->SetSampleData(pDrawBuffer, m_iBufferSize);
-			m_pStates[m_iCurrentState]->Draw();
-			m_pStates[m_iCurrentState]->Display(pDC, false);
-			ReleaseDC(pDC);
-		}
+      CDC *pDC = GetDC();
+      if (pDC != NULL) {
+         m_pStates[m_iCurrentState]->SetSampleData(pDrawBuffer, m_iBufferSize);
+         m_pStates[m_iCurrentState]->Draw();
+         m_pStates[m_iCurrentState]->Display(pDC, false);
+         ReleaseDC(pDC);
+      }
 
 		m_csBuffer.Unlock();
 	}
