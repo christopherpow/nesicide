@@ -351,6 +351,8 @@ void CFamiTrackerDoc::OnCloseDocument()
 	// Remove itself from sound generator
 	CSoundGen *pSoundGen = theApp.GetSoundGenerator();
 
+qDebug("::OnCloseDocument()");
+
 	if (pSoundGen)
 		pSoundGen->RemoveDocument();
 

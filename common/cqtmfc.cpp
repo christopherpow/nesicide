@@ -6372,17 +6372,42 @@ LRESULT CWnd::SendMessage(
    LPARAM lParam
 )
 {
-   MFCMessageEvent post(QEvent::User);
-   BOOL handled;
-   post.msg.message = message;
-   post.msg.wParam = wParam;
-   post.msg.lParam = lParam;
+   if ( this->thread() != QThread::currentThread() )
+   {
+      MFCMessageEvent* post = new MFCMessageEvent(QEvent::User);
+      post->msg.message = message;
+      post->msg.wParam = wParam;
+      post->msg.lParam = lParam;
 
-   _afxThreadState.m_lastSentMsg = post.msg;
+      if ( backgroundedFamiTracker )
+      {
+         // CP: Don't want comment boxes popping up!
+         if ( wParam == ID_MODULE_COMMENTS )
+         {
+            return false;
+         }
+      }
 
-   handled = QApplication::sendEvent(this,&post);
-   
-   return handled;
+      memcpy(&_afxThreadState.m_lastSentMsg,&post->msg,sizeof(MSG));
+
+      QApplication::postEvent(this,post);
+
+      return true;
+   }
+   else
+   {
+      MFCMessageEvent post(QEvent::User);
+      BOOL handled;
+      post.msg.message = message;
+      post.msg.wParam = wParam;
+      post.msg.lParam = lParam;
+
+      _afxThreadState.m_lastSentMsg = post.msg;
+
+      handled = QApplication::sendEvent(this,&post);
+
+      return handled;
+   }
 }
 
 void CWnd::SendMessageToDescendants(
@@ -15813,7 +15838,7 @@ VOID WINAPI Sleep(
   DWORD dwMilliseconds
 )
 {
-   QThread::currentThread()->wait(dwMilliseconds);
+   QThread::currentThread()->msleep(dwMilliseconds);
 }
 
 VOID WINAPI ExitProcess(

@@ -402,7 +402,8 @@ void MainWindow::onIdleSlot()
 
 void MainWindow::startSettleTimer()
 {
-   m_pSettleTimer->start(800);
+   QObject::disconnect(m_pTimer,SIGNAL(timeout()),this,SLOT(onIdleSlot()));
+   m_pSettleTimer->start(200);
 }
 
 void MainWindow::documentClosed()
@@ -564,22 +565,17 @@ void MainWindow::on_next_clicked()
    CFamiTrackerDoc* pDoc = (CFamiTrackerDoc*)pMainFrame->GetActiveDocument();
    bool wasPlaying = m_bPlaying;
 
-qDebug("on_next_clicked: ENTERED");
    if ( wasPlaying )
    {
       on_playStop_clicked();
    }
-qDebug("on_next_clicked: after first on_playStop_clicked");
 
-qDebug("on_next_clicked: 574");
    if ( pMainFrame->GetSelectedTrack() < pDoc->GetTrackCount()-1 )
    {
-      qDebug("on_next_clicked: 577");
       ui->subtune->setCurrentIndex(ui->subtune->currentIndex()+1);
    }
    else
    {
-      qDebug("on_next_clicked: 582");
       if ( ui->shuffle->isChecked() )
       {
          if ( m_iCurrentShuffleIndex < m_shuffleListFolder.count()-1 )
@@ -592,7 +588,6 @@ qDebug("on_next_clicked: 574");
          }
          if ( m_iCurrentShuffleIndex < m_shuffleListFolder.count() )
          {
-            qDebug("on_next_clicked: 595");
             ui->paths->setCurrentIndex(ui->paths->findText(m_shuffleListFolder.at(m_iCurrentShuffleIndex)));
             ui->current->setCurrentIndex(ui->current->findText(m_shuffleListSong.at(m_iCurrentShuffleIndex)));
          }
@@ -601,37 +596,30 @@ qDebug("on_next_clicked: 574");
       {
          if ( ui->current->currentIndex() < ui->current->count()-1 )
          {
-            qDebug("on_next_clicked: 604");
             ui->current->setCurrentIndex(ui->current->currentIndex()+1);
          }
          else
          {
             if ( ui->paths->currentIndex() < ui->paths->count()-1 )
             {
-               qDebug("on_next_clicked: 611");
                ui->paths->setCurrentIndex(ui->paths->currentIndex()+1);
             }
             else
             {
-               qDebug("on_next_clicked: 616");
                ui->paths->setCurrentIndex(0);
             }
-            qDebug("on_next_clicked: 619");
             ui->current->setCurrentIndex(0);
          }
       }
-      qDebug("on_next_clicked: 623");
       ui->subtune->setCurrentIndex(0);
    }
    
    m_iFramesPlayed = 0;     
 
-qDebug("on_next_clicked: before last on_playStop_clicked");
    if ( wasPlaying )
    {
       on_playStop_clicked();
    }
-   qDebug("on_next_clicked: EXITED");
 }
 
 void MainWindow::on_paths_currentIndexChanged(const QString &arg1)

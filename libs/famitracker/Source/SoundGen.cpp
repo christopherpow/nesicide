@@ -279,7 +279,7 @@ void CSoundGen::RemoveDocument()
 	WaitForStop();
 
 	PostThreadMessage(WM_USER_REMOVE_DOCUMENT, 0, 0);
-
+qDebug("::RemoveDocument()");
 	// Wait 5s for thread to clear the pointer
 	for (int i = 0; i < 50 && m_pDocument != NULL; ++i)
 		Sleep(100);
@@ -952,12 +952,9 @@ void CSoundGen::MakeSilent()
 {
 	// Called from player thread
 //	ASSERT(GetCurrentThreadId() == m_nThreadID);
-   qDebug("CSoundGen::MakeSilent ENTER");
 
 	m_pAPU->Reset();
 	m_pSampleMem->Clear();
-
-   qDebug("CSoundGen::MakeSilent");
 
 	for (int i = 0; i < CHANNELS; ++i) {
 		if (m_pChannels[i])
@@ -965,7 +962,6 @@ void CSoundGen::MakeSilent()
 		if (m_pTrackerChannels[i])
 			m_pTrackerChannels[i]->Reset();
 	}
-   qDebug("CSoundGen::MakeSilent EXIT");
 }
 
 void CSoundGen::ResetState()
@@ -1521,7 +1517,8 @@ bool CSoundGen::WaitForStop() const
 
 	//return ::WaitForSingleObject(m_hIsPlaying, 4000) == WAIT_OBJECT_0;
 
-	for (int i = 0; i < 40 && IsPlaying(); ++i)
+qDebug("::WaitForStop()");
+   for (int i = 0; i < 40 && IsPlaying(); ++i)
 		Sleep(100);
 
 	return !IsPlaying();	// return false if still playing

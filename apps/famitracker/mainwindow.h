@@ -16,6 +16,7 @@ public:
     ~MainWindow();
 
 protected:
+   bool eventFilter(QObject *object, QEvent *event);
    void dragEnterEvent(QDragEnterEvent *event);
    void dragMoveEvent(QDragMoveEvent *event);
    void dropEvent(QDropEvent *event);

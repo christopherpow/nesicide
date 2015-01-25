@@ -4,6 +4,8 @@
 #include "cqtmfc_famitracker.h"
 
 #include "Source/FamiTracker.h"
+#include "Source/MainFrm.h"
+#include "Source/VisualizerWnd.h"
 
 #include <QFileInfo>
 #include <QUrl>
@@ -52,6 +54,26 @@ void MainWindow::documentClosed()
    exit(0);
 }
 
+bool MainWindow::eventFilter(QObject *object, QEvent *event)
+{
+   if ( event->type() == QEvent::Paint )
+   {
+      CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
+
+      QPainter p;
+      QRect rect = pMainFrame->GetVisualizerWindow()->toQWidget()->rect().adjusted(3,2,-3,-3);
+      QPixmap pixmap(rect.size());
+      p.begin(&pixmap);
+      pMainFrame->GetVisualizerWindow()->toQWidget()->render(&p,QPoint(),QRegion(3,3,rect.width(),rect.height()));
+      p.end();
+      p.begin(pMainFrame->GetVisualizerWindow()->toQWidget());
+      p.drawPixmap(0,0,pixmap.scaled(p.window().size(),Qt::IgnoreAspectRatio,Qt::FastTransformation));
+      p.end();
+      return true;
+   }
+   return false;
+}
+
 void MainWindow::showEvent(QShowEvent *)
 {
    if ( !_initialized )
@@ -63,10 +85,13 @@ void MainWindow::showEvent(QShowEvent *)
       theApp.InitInstance();
 
       setCentralWidget(theApp.m_pMainWnd->toQWidget());
+      theApp.m_pMainWnd->toQWidget()->setAcceptDrops(true);
 
       QObject::connect(theApp.m_pMainWnd,SIGNAL(addToolBarWidget(QToolBar*)),this,SLOT(addToolBarWidget(QToolBar*)));
       QObject::connect(theApp.m_pMainWnd,SIGNAL(removeToolBarWidget(QToolBar*)),this,SLOT(removeToolBarWidget(QToolBar*)));
       QObject::connect(theApp.m_pMainWnd,SIGNAL(editor_modificationChanged(bool)),this,SLOT(editor_modificationChanged(bool)));
+
+      CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
 
       restoreGeometry(settings.value("FamiTrackerWindowGeometry").toByteArray());
       restoreState(settings.value("FamiTrackerWindowState").toByteArray());
