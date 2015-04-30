@@ -18,10 +18,13 @@
 ** must bear this legend.
 */
 
+#include <string>
 #include "stdafx.h"
 #include "FamiTracker.h"
 #include "FamiTrackerDoc.h"
 #include "FamiTrackerView.h"
+#include "SequenceEditor.h"
+#include "InstrumentEditPanel.h"
 #include "InstrumentEditDlg.h"
 #include "InstrumentEditor2A03.h"
 #include "InstrumentEditorDPCM.h"
@@ -42,7 +45,15 @@ const int CInstrumentEditDlg::KEYBOARD_LEFT	  = 12;
 const int CInstrumentEditDlg::KEYBOARD_WIDTH  = 561;
 const int CInstrumentEditDlg::KEYBOARD_HEIGHT = 58;
 
-const TCHAR *CInstrumentEditDlg::CHIP_NAMES[] = {_T(""), _T("2A03"), _T("VRC6"), _T("VRC7"), _T("FDS"), _T("Namco"), _T("Sunsoft")};
+const TCHAR *CInstrumentEditDlg::CHIP_NAMES[] = {
+	_T(""), 
+	_T("2A03"), 
+	_T("VRC6"), 
+	_T("VRC7"), 
+	_T("FDS"), 
+	_T("Namco"), 
+	_T("Sunsoft")
+};
 
 // CInstrumentEditDlg dialog
 
@@ -88,10 +99,6 @@ BOOL CInstrumentEditDlg::OnInitDialog()
 
 	for (int i = 0; i < PANEL_COUNT; ++i)
 		m_pPanels[i] = NULL;
-
-	// Get active document
-	CFrameWnd *pFrameWnd = static_cast<CFrameWnd*>(GetParent());
-	m_pDocument = static_cast<CFamiTrackerDoc*>(pFrameWnd->GetActiveDocument());
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
@@ -139,16 +146,17 @@ void CInstrumentEditDlg::ClearPanels()
 
 void CInstrumentEditDlg::SetCurrentInstrument(int Index)
 {
-	CString Title;
-	char Name[256];
-	CInstrumentContainer<CInstrument> instContainer(m_pDocument, Index);
+	CFamiTrackerDoc *pDoc = CFamiTrackerDoc::GetDoc();
+	CInstrumentContainer<CInstrument> instContainer(pDoc, Index);
 	CInstrument *pInstrument = instContainer();
 	int InstType = pInstrument->GetType();
 
 	// Dialog title
-	m_pDocument->GetInstrumentName(Index, Name);	
+	char Name[256];
+	pDoc->GetInstrumentName(Index, Name);	
 	CString Suffix;
 	Suffix.Format(_T("%02X. %s (%s)"), Index, Name, CHIP_NAMES[InstType]);
+	CString Title;
 	AfxFormatString1(Title, IDS_INSTRUMENT_EDITOR_TITLE, Suffix);
 	SetWindowText(Title);
 
@@ -159,7 +167,7 @@ void CInstrumentEditDlg::SetCurrentInstrument(int Index)
 		switch (InstType) {
 			case INST_2A03: {
 					int Channel = CFamiTrackerView::GetView()->GetSelectedChannel();
-					int Type = CFamiTrackerDoc::GetDoc()->GetChannelType(Channel);
+					int Type = pDoc->GetChannelType(Channel);
 					bool bShowDPCM = (Type == CHANID_DPCM) || (static_cast<CInstrument2A03*>(pInstrument)->AssignedSamples());
 					InsertPane(new CInstrumentEditor2A03(), !bShowDPCM);
 					InsertPane(new CInstrumentEditorDPCM(), bShowDPCM);
@@ -394,8 +402,8 @@ void CInstrumentEditDlg::SwitchOnNote(int x, int y)
 	else {
 		NoteData.Note			= pView->DoRelease() ? RELEASE : HALT;//HALT;
 		NoteData.Octave			= 0;
-		NoteData.Vol			= 0;
-		NoteData.Instrument		= 0;
+		NoteData.Vol			= 0x10;
+		NoteData.Instrument		= pFrameWnd->GetSelectedInstrument();;
 		memset(NoteData.EffNumber, 0, 4);
 		memset(NoteData.EffParam, 0, 4);
 

@@ -18,6 +18,7 @@
 ** must bear this legend.
 */
 
+#include <string>
 #include "stdafx.h"
 #include "FamiTracker.h"
 #include "FamiTrackerDoc.h"
@@ -41,10 +42,7 @@ IMPLEMENT_DYNAMIC(CInstrumentEditorN163, CSequenceInstrumentEditPanel)
 
 CInstrumentEditorN163::CInstrumentEditorN163(CWnd* pParent /*=NULL*/)
 	: CSequenceInstrumentEditPanel(CInstrumentEditorN163::IDD, pParent),
-	m_pParentWin(pParent),
-	m_pInstrument(NULL),
-	m_pSequenceEditor(NULL),
-	m_iSelectedSetting(0)
+	m_pInstrument(NULL)
 {
 }
 
@@ -75,10 +73,8 @@ void CInstrumentEditorN163::SelectInstrument(int Instrument)
 
 	// Update instrument setting list
 	for (int i = 0; i < CInstrumentN163::SEQUENCE_COUNT; ++i) {
-		CString IndexStr;
-		IndexStr.Format(_T("%i"), pInstrument->GetSeqIndex(i));
 		pList->SetCheck(i, pInstrument->GetSeqEnable(i));
-		pList->SetItemText(i, 1, IndexStr);
+		pList->SetItemText(i, 1, MakeIntString(pInstrument->GetSeqIndex(i)));
 	} 
 
 	// Setting text box
@@ -135,33 +131,7 @@ BOOL CInstrumentEditorN163::OnInitDialog()
 {
 	CSequenceInstrumentEditPanel::OnInitDialog();
 
-	// Instrument settings
-	CListCtrl *pList = static_cast<CListCtrl*>(GetDlgItem(IDC_INSTSETTINGS));
-	pList->DeleteAllItems();
-	pList->InsertColumn(0, _T(""), LVCFMT_LEFT, 26);
-	pList->InsertColumn(1, _T("#"), LVCFMT_LEFT, 30);
-	pList->InsertColumn(2, _T("Effect name"), LVCFMT_LEFT, 84);
-	pList->SendMessage(LVM_SETEXTENDEDLISTVIEWSTYLE, 0, LVS_EX_FULLROWSELECT | LVS_EX_CHECKBOXES);
-	
-	for (int i = 0; i < CInstrumentN163::SEQUENCE_COUNT; ++i) {
-		pList->InsertItem(i, _T(""), 0);
-		pList->SetCheck(i, 0);
-		pList->SetItemText(i, 1, _T("0"));
-		pList->SetItemText(i, 2, INST_SETTINGS_N163[i]);
-	}
-
-	pList->SetItemState(m_iSelectedSetting, LVIS_SELECTED | LVIS_FOCUSED, LVIS_SELECTED | LVIS_FOCUSED);
-
-	SetDlgItemInt(IDC_SEQ_INDEX, m_iSelectedSetting);
-
-	CSpinButtonCtrl *pSequenceSpin = static_cast<CSpinButtonCtrl*>(GetDlgItem(IDC_SEQUENCE_SPIN));
-	pSequenceSpin->SetRange(0, MAX_SEQUENCES - 1);
-
-	CRect rect(190 - 2, 30 - 2, CSequenceEditor::SEQUENCE_EDIT_WIDTH, CSequenceEditor::SEQUENCE_EDIT_HEIGHT);
-	
-	m_pSequenceEditor = new CSequenceEditor(GetDocument());	
-	m_pSequenceEditor->CreateEditor(this, rect);
-	m_pSequenceEditor->ShowWindow(SW_SHOW);
+	SetupDialog(INST_SETTINGS_N163);
 	m_pSequenceEditor->SetMaxValues(MAX_VOLUME, CInstrumentN163::MAX_WAVE_COUNT - 1);
 	
 	return TRUE;  // return TRUE unless you set the focus to a control
@@ -211,13 +181,9 @@ void CInstrumentEditorN163::OnEnChangeSeqIndex()
 	
 	if (m_pInstrument) {
 		// Update list
-		CString Text;
-		Text.Format(_T("%i"), Index);
-		pList->SetItemText(m_iSelectedSetting, 1, Text);
-
+		pList->SetItemText(m_iSelectedSetting, 1, MakeIntString(Index));
 		if (m_pInstrument->GetSeqIndex(m_iSelectedSetting) != Index)
 			m_pInstrument->SetSeqIndex(m_iSelectedSetting, Index);
-
 		SelectSequence(Index, m_iSelectedSetting);
 	}
 }

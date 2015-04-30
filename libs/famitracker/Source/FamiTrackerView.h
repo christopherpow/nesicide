@@ -20,7 +20,10 @@
 
 #pragma once
 
-//#include <afxmt.h>
+
+// CFamiTrackerView, the document view class
+
+//#include <afxmt.h>	// Include synchronization objects
 
 // Custom window messages for CFamiTrackerView
 enum {
@@ -69,31 +72,24 @@ public:
 	void		 SelectLastFrame();
 	void		 SelectFrame(unsigned int Frame);
 	void		 SelectChannel(unsigned int Channel);
-	void		 SelectRow(unsigned int Row);			// TODO remove?
-	void		 SelectColumn(unsigned int Column);		// TODO remove?
+	void		 SelectFrameChannel(unsigned int Frame, unsigned int Channel);
 	 
 	unsigned int GetSelectedFrame() const;
 	unsigned int GetSelectedChannel() const;
 	unsigned int GetSelectedRow() const; 
-	unsigned int GetSelectedColumn() const;				// TODO remove?
 
+	void		 SetFollowMode(bool Mode);
 	bool		 GetFollowMode() const;
 	int			 GetSelectedChipType() const;
+	void		 SetOctave(unsigned int iOctave);
 	unsigned int GetOctave() const { return m_iOctave; };
 	bool		 GetEditMode() const { return m_bEditEnable; };
-
-	// Settings
-	unsigned int GetStepping() const { return m_iInsertKeyStepping; };
 	void		 SetStepping(int Step);
-	void		 SetFollowMode(bool Mode);
-	void		 SetOctave(unsigned int iOctave);
-
-	// Document editing functions
-	void		 IncreaseCurrentPattern();				// TODO remove?
-	void		 DecreaseCurrentPattern();				// TODO remove?
+	unsigned int GetStepping() const { return m_iInsertKeyStepping; };
 
 	// Player callback (TODO move to new interface)
 	void		 PlayerTick();
+	bool		 PlayerGetNote(int Track, int Frame, int Channel, int Row, stChanNote &NoteData);
 	void		 PlayerPlayNote(int Channel, stChanNote *pNote);
 
 	void		 MakeSilent();
@@ -103,11 +99,10 @@ public:
 	bool		 PreviewNote(unsigned char Key);
 	void		 PreviewRelease(unsigned char Key);
 
-	// General
+	// Mute methods
 	void		 SoloChannel(unsigned int Channel);
 	void		 ToggleChannel(unsigned int Channel);
 	void		 UnmuteAllChannels();
-	bool		 IsChannelSolo(unsigned int Channel) const;
 	bool		 IsChannelMuted(unsigned int Channel) const;
 	void		 SetChannelMute(int Channel, bool bMute);
 
@@ -115,8 +110,8 @@ public:
 	bool		 IsSelecting() const;
 	bool		 IsClipboardAvailable() const;
 
+	// General
 	void		 SetupColors();
-	void		 DrawFrameWindow();						// TODO remove?
 
 	bool		 DoRelease() const;
 
@@ -126,14 +121,30 @@ public:
 	void		 BeginDragData(int ChanOffset, int RowOffset);
 	bool		 IsDragging() const;
 
+	// Update methods
+	void		 TrackChanged(unsigned int Track);
+
+	// Auto-arpeggio
+	int			 GetAutoArpeggio(unsigned int Channel);
+
 //
 // Private functions
 //
 private:
 
+	CFrameEditor *GetFrameEditor() const;
+
 	// Drawing
 	void	UpdateMeters();
-	void	UpdateEditor(LPARAM lHint);
+	
+	void	InvalidateCursor();
+	void	InvalidateHeader();
+	void	InvalidatePatternEditor();
+	void	InvalidateFrameEditor();
+
+	void	RedrawPatternEditor();
+	void	RedrawFrameEditor();
+
 	void	PeriodicUpdate();
 
 	// Instruments
@@ -146,15 +157,18 @@ private:
 	// Input key handling
 	void	HandleKeyboardInput(char Key);
 	void	TranslateMidiMessage();
-	void	RemoveWithoutDelete();
 
+	void	OnKeyDirUp();
+	void	OnKeyDirDown();
+	void	OnKeyDirLeft();
+	void	OnKeyDirRight();
 	void	OnKeyEscape();
 	void	OnKeyTab();
 	void	OnKeyPageUp();
 	void	OnKeyPageDown();
 	void	OnKeyDelete();
 	void	OnKeyInsert();
-	void	OnKeyBack();
+	void	OnKeyBackspace();
 	void	OnKeyHome();
 	void	OnKeyEnd();
 
@@ -198,6 +212,9 @@ private:
 	
 	void	UpdateArpDisplay();
 	
+	// Mute methods
+	bool	IsChannelSolo(unsigned int Channel) const;
+
 	// Other
 	bool	AddAction(CAction *pAction) const;
 
@@ -233,13 +250,13 @@ public:
 private:
 	// General
 	bool				m_bHasFocus;
-	UINT				m_iClipBoard;
-	int					m_iMenuChannel;
+	UINT				m_iClipboard;
+	int					m_iMenuChannel;							// Which channel a popup-menu belongs to
 
 	// Cursor & editing
 	unsigned int		m_iMoveKeyStepping;						// Number of rows to jump when moving
 	unsigned int		m_iInsertKeyStepping;					// Number of rows to move when inserting notes
-	unsigned int		m_iOctave;								// Selected octave	
+	unsigned int		m_iOctave;								// Selected octave	 (TODO move to mainframe)
 	bool				m_bEditEnable;							// Edit is enabled
 	bool				m_bSwitchToInstrument;					// Select active instrument
 	bool				m_bFollowMode;							// Follow mode, default true
@@ -247,7 +264,7 @@ private:
 	bool				m_bMaskVolume;							// Ignore volume column on new notes
 
 	// Playing
-	bool				m_bMuteChannels[MAX_CHANNELS];
+	bool				m_bMuteChannels[MAX_CHANNELS];			// Muted channels
 	int					m_iSwitchToInstrument;
 
 	// Auto arpeggio
@@ -255,15 +272,11 @@ private:
 	int					m_iAutoArpPtr;
 	int					m_iLastAutoArpPtr;
 	int					m_iAutoArpKeyCount;
+	unsigned int		m_iArpeggiate[MAX_CHANNELS];
 
 	// Window size
 	unsigned int		m_iWindowWidth;							// Width of view area
 	unsigned int		m_iWindowHeight;						// Height of view area
-
-	// Drawing
-	bool				m_bUpdateBackground;					// Update background
-
-	mutable CCriticalSection m_csDrawLock;						// Lock for DCs
 
 	// Input
 	char				m_cKeyList[256];
@@ -288,23 +301,14 @@ private:
 	bool				m_bDragSource;							// This window is drag source
 	bool				m_bDropped;								// Drop was performed on this window
 
-	// Timer thread
-	CWinThread			*m_pTimerThread;
-	bool				m_bTimerThreadRunning;
-
-// ---------------------------
-// TODO: Remove these below
-// ---------------------------
+	// Thread synchronization
+	mutable CCriticalSection m_csDrawLock;						// Lock for DCs
 
 // Operations
 public:
 
-	// TODO change this!
-	unsigned int Arpeggiate[MAX_CHANNELS];
-
 // Overrides
 public:
-	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 
 // Implementation
 public:

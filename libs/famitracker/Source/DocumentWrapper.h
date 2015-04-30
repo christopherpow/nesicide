@@ -20,6 +20,8 @@
 
 #pragma once
 
+// Document wrapper class for custom exporters
+
 #include "FamiTrackerDoc.h"
 
 class CFamiTrackerDocWrapper : public CFamiTrackerDocInterface

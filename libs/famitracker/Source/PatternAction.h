@@ -21,6 +21,14 @@
 #pragma once
 
 #include "Action.h"
+#include "PatternEditorTypes.h"
+
+enum transpose_t {
+	TRANSPOSE_DEC_NOTES,
+	TRANSPOSE_INC_NOTES,
+	TRANSPOSE_DEC_OCTAVES,
+	TRANSPOSE_INC_OCTAVES
+};
 
 // Pattern commands
 class CPatternAction : public CAction
@@ -37,6 +45,7 @@ public:
 		ACT_EDIT_PASTE_MIX,
 		ACT_EDIT_DELETE,
 		ACT_EDIT_DELETE_ROWS,
+		ACT_INSERT_SEL_ROWS,
 		ACT_TRANSPOSE,
 		ACT_SCROLL_VALUES,
 		ACT_INTERPOLATE,
@@ -69,13 +78,25 @@ public:
 	void SetPatternLength(int Length);
 	void Update(CMainFrame *pMainFrm);
 	void SetClickedChannel(int Channel);
-	void UpdateCursor(CPatternEditor *pPatternEditor);
 
 private:
-	void SaveEntire(CPatternEditor *pPatternEditor);
+	void SaveEntire(const CPatternEditor *pPatternEditor);
 	void RestoreEntire(CPatternEditor *pPatternEditor);
-	void IncreaseRowAction(CFamiTrackerDoc *pDoc);
-	void DecreaseRowAction(CFamiTrackerDoc *pDoc);
+	void IncreaseRowAction(CFamiTrackerDoc *pDoc) const;
+	void DecreaseRowAction(CFamiTrackerDoc *pDoc) const;
+
+	void RestoreSelection(CPatternEditor *pPatternEditor);
+
+	void InsertRows(CFamiTrackerDoc *pDoc) const;
+	void PullUpRows(CFamiTrackerDoc *pDoc) const;
+	void ExpandPattern(CFamiTrackerDoc *pDoc) const;
+	void ShrinkPattern(CFamiTrackerDoc *pDoc) const;
+	void ReplaceInstrument(CFamiTrackerDoc *pDoc) const;
+	void Transpose(CFamiTrackerDoc *pDoc) const;
+	void Interpolate(CFamiTrackerDoc *pDoc) const;
+	void Reverse(CFamiTrackerDoc *pDoc) const;
+	void ScrollValues(CFamiTrackerDoc *pDoc) const;
+	void DeleteSelection(CFamiTrackerDoc *pDoc) const;
 
 private:
 	stChanNote m_NewNote;

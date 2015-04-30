@@ -163,6 +163,7 @@
 #define HID_INSTRUMENT_LOADFROMFILE             0x18161
 #define HID_HELP_FAQ                            0x18162
 #define HID_POPUP_CLONESEQUENCE                 0x18165
+#define HID_TRACKER_DISPLAYREGISTERSTATE        0x18166
 #define HID_INSTRUMENT_ADD_2A03                 0x19000
 #define HID_INSTRUMENT_ADD_FDS                  0x19001
 #define HID_INSTRUMENT_ADD_MMC5                 0x19002

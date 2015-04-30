@@ -276,7 +276,6 @@ BOOL CPCMImport::OnInitDialog()
 
 void CPCMImport::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 {
-	CString Text;
 	CSliderCtrl *pQualitySlider = static_cast<CSliderCtrl*>(GetDlgItem(IDC_QUALITY));
 	CSliderCtrl *pVolumeSlider = static_cast<CSliderCtrl*>(GetDlgItem(IDC_VOLUME));
 
@@ -291,14 +290,10 @@ void CPCMImport::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 
 void CPCMImport::UpdateText()
 {
-	CString str, Text;
-
-	str.Format(_T("%i"), m_iQuality);
-	AfxFormatString1(Text, IDS_DPCM_IMPORT_QUALITY_FORMAT, str);
+	CString Text;
+	AfxFormatString1(Text, IDS_DPCM_IMPORT_QUALITY_FORMAT, MakeIntString(m_iQuality));
 	SetDlgItemText(IDC_QUALITY_FRM, Text);
-
-	str.Format(_T("%+.0f"), float(m_iVolume));
-	AfxFormatString1(Text, IDS_DPCM_IMPORT_GAIN_FORMAT, str);
+	AfxFormatString1(Text, IDS_DPCM_IMPORT_GAIN_FORMAT, MakeFloatString(float(m_iVolume), _T("%+.0f")));
 	SetDlgItemText(IDC_VOLUME_FRM, Text);
 }
 
@@ -370,7 +365,7 @@ CDSample *CPCMImport::GetSample()
 	if (m_pCachedSample == NULL || m_iCachedQuality != m_iQuality || m_iCachedVolume != m_iVolume) {
 		SAFE_RELEASE(m_pCachedSample);
 		m_pCachedSample = ConvertFile();
-		// This sample may not be auto-deleted
+		// This sample may not be auto-deleted, so give it a name
 		m_pCachedSample->SetName("cached");
 	}
 

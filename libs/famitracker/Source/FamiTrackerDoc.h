@@ -18,17 +18,14 @@
 ** must bear this legend.
 */
 
-
 #pragma once
+
 
 // Synchronization objects
 //#include <afxmt.h>
 
 // Get access to some APU constants
-#include "APU/APU.h"
 #include "APU/Types.h"
-// Some pure virtual interfaces that expose non MFC functionality to exporter plugins
-#include "CustomExporterInterfaces.h"
 // Constants, types and enums
 #include "FamiTrackerTypes.h"
 
@@ -42,8 +39,8 @@ const unsigned int DEFAULT_MACHINE_TYPE		 = NTSC;
 const unsigned int DEFAULT_SPEED_SPLIT_POINT = 32;
 const unsigned int OLD_SPEED_SPLIT_POINT	 = 21;
 
-// Columns
-enum column_t {
+// Cursor columns
+enum cursor_column_t {
 	C_NOTE, 
 	C_INSTRUMENT1, 
 	C_INSTRUMENT2, 
@@ -73,44 +70,16 @@ const unsigned int COLUMNS = 7;
 
 // View update modes (TODO check these and remove inappropriate flags)
 enum {
-	CHANGED_TRACK = 1,		// Changed track
-	CHANGED_TRACKCOUNT,		// Update track count
-	CHANGED_FRAMES,			// Redraw frame window
-	CHANGED_PATTERN,
-	CHANGED_PATTERN_LENGTH,
-	CHANGED_HEADER,			// Redraw header (???)
-	CHANGED_ERASE,			// Also make sure background is erased
-	CHANGED_CLEAR_SEL,		// Clear selection
-	
-	UPDATE_ENTIRE,			// Redraw entire document
-	UPDATE_FAST,			// Fast document drawing
-	UPDATE_EDIT,			// When document changed
-	UPDATE_CURSOR,			// When cursor moved
-	UPDATE_FRAME,			// Frame cursor has changed
-	UPDATE_PLAYING,			// Tracker is playing
-	UPDATE_HIGHLIGHT,		// Highlight option has changed
-
-	UPDATE_INSTRUMENTS,		// Instrument list has changed
-	CHANGED_CHANNEL_COUNT,	// Number of channels changed
-
-	CLOSE_DOCUMENT			// Document is closing
-};
-
-#if 0
-// New document update flags, will replace the old ones at some point
-// These will only indicate changes to the document, no cursor movement etc
-enum {
-	UPDATE_TRACK,			// Track has been added / removed / changed
+	UPDATE_NONE = 0,		// No update
+	UPDATE_TRACK = 1,		// Track has been added, removed or changed
 	UPDATE_PATTERN,			// Pattern data has been edited
 	UPDATE_FRAME,			// Frame data has been edited
 	UPDATE_INSTRUMENT,		// Instrument has been added / removed
 	UPDATE_PROPERTIES,		// Module properties has changed (including channel count)
 	UPDATE_HIGHLIGHT,		// Row highlight option has changed
 	UPDATE_COLUMNS,			// Effect columns has changed
-	UPDATE_CLOSE			// Document is closing
+	UPDATE_CLOSE			// Document is closing (TODO remove)
 };
-#endif
-
 
 // Old sequence list, kept for compability
 struct stSequence {
@@ -163,7 +132,7 @@ public:
 	bool HasLastLoadFailed() const;
 
 	// Import
-	CFamiTrackerDoc* LoadImportFile(LPCTSTR lpszPathName);
+	CFamiTrackerDoc* LoadImportFile(LPCTSTR lpszPathName) const;
 	bool ImportInstruments(CFamiTrackerDoc *pImported, int *pInstTable);
 	bool ImportTrack(int Track, CFamiTrackerDoc *pImported, int *pInstTable);
 
@@ -173,6 +142,7 @@ public:
 	void			ResetChannels();
 	void			RegisterChannel(CTrackerChannel *pChannel, int ChannelType, int ChipType);
 	CTrackerChannel* GetChannel(int Index) const;
+	int				GetChannelIndex(int Channel) const;
 
 	int				GetChannelType(int Channel) const;
 	int				GetChipType(int Channel) const;
@@ -271,6 +241,10 @@ public:
 	void			SetSpeedSplitPoint(int SplitPoint);
 	int				GetSpeedSplitPoint() const;
 
+	void			SetHighlight(unsigned int Track, int First, int Second);
+	unsigned int	GetFirstHighlight(unsigned int Track) const;
+	unsigned int	GetSecondHighlight(unsigned int Track) const;
+
 	void			SetHighlight(int First, int Second);
 	int				GetFirstHighlight() const;
 	int				GetSecondHighlight() const;
@@ -283,7 +257,6 @@ public:
 	void			SetTrackTitle(unsigned int Track, const CString &title);
 	void			MoveTrackUp(unsigned int Track);
 	void			MoveTrackDown(unsigned int Track);
-
 
 	// Instruments functions
 	CInstrument*	GetInstrument(unsigned int Index) const;
@@ -302,10 +275,6 @@ public:
 	int				DeepCloneInstrument(unsigned int Index);
 	void			SaveInstrument(unsigned int Index, CString FileName) const;
 	int 			LoadInstrument(CString FileName);
-
-	// Read only getter for exporter plugins
-	CInstrument2A03Interface const* Get2A03Instrument(int Instrument) const;
-
 
 	// Sequences functions
 	CSequence*		GetSequence(int Chip, unsigned int Index, int Type);
@@ -331,10 +300,6 @@ public:
 	int				GetSequenceItemCountS5B(unsigned int Index, int Type) const;
 	int				GetFreeSequenceS5B(int Type) const;
 
-	// Read only getter for exporter plugins
-	CSequenceInterface const* GetSequence(int Index, int Type) const;
-
-
 	// DPCM samples
 	CDSample*		GetSample(unsigned int Index);
 	const CDSample*	GetSample(unsigned int Index) const;
@@ -345,12 +310,13 @@ public:
 	unsigned int	GetTotalSampleSize() const;
 
 	// Other
-	unsigned int	ScanActualLength(unsigned int Track, unsigned int Count) const;
+	unsigned int	ScanActualLength(unsigned int Track, unsigned int Count, unsigned int &RowCount) const;
 
 	// Operations
 	void			RemoveUnusedInstruments();
 	void			RemoveUnusedPatterns();
 	void			MergeDuplicatedPatterns();
+	void			SwapInstruments(int First, int Second);
 
 	// For file version compability
 	static void		ConvertSequence(stSequence *pOldSequence, CSequence *pNewSequence, int Type);
@@ -396,6 +362,7 @@ private:
 	bool			WriteBlock_Patterns(CDocumentFile *pDocFile) const;
 	bool			WriteBlock_DSamples(CDocumentFile *pDocFile) const;
 	bool			WriteBlock_Comments(CDocumentFile *pDocFile) const;
+	bool			WriteBlock_ChannelLayout(CDocumentFile *pDocFile) const;
 	bool			WriteBlock_SequencesVRC6(CDocumentFile *pDocFile) const;
 	bool			WriteBlock_SequencesN163(CDocumentFile *pDocFile) const;
 	bool			WriteBlock_SequencesS5B(CDocumentFile *pDocFile) const;
@@ -408,6 +375,7 @@ private:
 	bool			ReadBlock_Patterns(CDocumentFile *pDocFile);
 	bool			ReadBlock_DSamples(CDocumentFile *pDocFile);
 	bool			ReadBlock_Comments(CDocumentFile *pDocFile);
+	bool			ReadBlock_ChannelLayout(CDocumentFile *pDocFile);
 	bool			ReadBlock_SequencesVRC6(CDocumentFile *pDocFile);
 	bool			ReadBlock_SequencesN163(CDocumentFile *pDocFile);
 	bool			ReadBlock_SequencesS5B(CDocumentFile *pDocFile);
@@ -496,27 +464,26 @@ private:
 	unsigned int	m_iNamcoChannels;
 	vibrato_t		m_iVibratoStyle;							// 0 = old style, 1 = new style
 	bool			m_bLinearPitch;
+	unsigned int	m_iMachine;									// NTSC / PAL
+	unsigned int	m_iEngineSpeed;								// Refresh rate
+	unsigned int	m_iSpeedSplitPoint;							// Speed/tempo split-point
 
 	// NSF info
 	char			m_strName[32];								// Song name
 	char			m_strArtist[32];							// Song artist
 	char			m_strCopyright[32];							// Song copyright
 
-	unsigned int	m_iMachine;									// NTSC / PAL
-	unsigned int	m_iEngineSpeed;								// Refresh rate
-	unsigned int	m_iSpeedSplitPoint;							// Speed/tempo split-point
-
 	// Comments
 	CString			m_strComment;
 	bool			m_bDisplayComment;
 
-	// Row highlight
+	// Row highlight (TODO remove)
 	unsigned int	m_iFirstHighlight;
 	unsigned int	m_iSecondHighlight;
 
 	// Things below are for compability with older files
-	stSequence		m_Sequences[MAX_SEQUENCES][SEQ_COUNT];		// Allocate one sequence-list for each effect
-	stSequence		m_TmpSequences[MAX_SEQUENCES];
+   CArray<stSequence> m_vTmpSequences;
+   CArray<stSequence[SEQ_COUNT]> m_vSequences;
 
 	//
 	// End of document data
@@ -557,11 +524,11 @@ public:
 };
 
 // This takes care of reference counting
+// TODO replace this with boost shared_ptr
 template <class T>
 class CInstrumentContainer {
 public:
-   CInstrumentContainer(CFamiTrackerDoc *pDoc, int Index)
-   {
+   CInstrumentContainer(CFamiTrackerDoc *pDoc, int Index) {
       ASSERT(Index < MAX_INSTRUMENTS);
       m_pInstrument = pDoc->GetInstrument(Index);
    }

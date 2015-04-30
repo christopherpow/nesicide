@@ -20,6 +20,9 @@
 
 #pragma once
 
+
+// Visualizer classes
+
 //#include <afxmt.h>		// Synchronization objects
 
 class CVisualizerBase
@@ -48,7 +51,7 @@ protected:
 	short *m_pSamples;
 };
 
-// CSampleWindow
+// CVisualizerWnd
 
 class CVisualizerWnd : public CWnd
 {

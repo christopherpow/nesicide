@@ -20,11 +20,14 @@
 
 #pragma once
 
+
+// CVisualizerStatic, static picture visualizer
+
 class CVisualizerStatic : public CVisualizerBase
 {
 public:
 	CVisualizerStatic();
-	~CVisualizerStatic();
+	virtual ~CVisualizerStatic();
 
 	void Create(int Width, int Height);
 	void SetSampleRate(int SampleRate);

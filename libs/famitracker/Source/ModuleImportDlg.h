@@ -20,7 +20,9 @@
 
 #pragma once
 
-#include "FamiTrackerDoc.h"
+#include "FamiTrackerTypes.h"
+
+class CFamiTrackerDoc;
 
 // CModuleImportDlg dialog
 

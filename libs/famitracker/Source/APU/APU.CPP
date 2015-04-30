@@ -18,24 +18,6 @@
 ** must bear this legend.
 */
 
-//
-// The NES APU + Expansion chips (2A03/2A07) emulation core
-//
-// Written by Jonathan Liss 2002 - 2003
-//
-// Briefly about how the audio stream is handled
-//
-//  To set up sound, call AllocateBuffer with desired sample rate, stereo and speed (NTSC/PAL).
-//  At every end of frame, call EndFrame. It will then call the parent to flush the buffer with about one frame
-//  worth of sound.
-//  The sound is rendered in 32 bit signed format.
-//  Speed may be changed during playback. No buffers needs to be reallocated.
-//
-// Mail: zxy965r@tninet.se
-//
-// TODO:
-//
-
 #include <vector>
 #include "../stdafx.h"
 #include <cstdio>
@@ -185,53 +167,56 @@ inline void CAPU::ClockSequence()
 	}
 }
 
-void CAPU::Process()
+inline void CAPU::RunAPU1(uint32 Time)
 {
-	// The main APU emulation
-	//
-	// The amount of cycles that will be emulated is added by CAPU::AddCycles
-	//
-	
-	//static uint32 Time, i;
+	// APU pin 1
+	while (Time > 0) {
+		uint32 Period = std::min(m_pSquare1->GetPeriod(), m_pSquare2->GetPeriod());
+		Period = std::min<uint32>(std::max<uint32>(Period, 7), Time);
+		m_pSquare1->Process(Period);
+		m_pSquare2->Process(Period);
+		Time -= Period;
+	}
+}
 
+inline void CAPU::RunAPU2(uint32 Time)
+{
+	// APU pin 2
+	while (Time > 0) {
+		uint32 Period = std::min(m_pTriangle->GetPeriod(), m_pNoise->GetPeriod());
+		Period = std::min<uint32>(Period, m_pDPCM->GetPeriod());
+		Period = std::min<uint32>(std::max<uint32>(Period, 7), Time);
+		m_pTriangle->Process(Period);
+		m_pNoise->Process(Period);
+		m_pDPCM->Process(Period);
+		Time -= Period;
+	}
+}
+
+// The main APU emulation
+//
+// The amount of cycles that will be emulated is added by CAPU::AddCycles
+//
+void CAPU::Process()
+{	
 	while (m_iCyclesToRun > 0) {
 
-		uint32 Time = m_iCyclesToRun, i;
-
-		if (Time > m_iSequencerClock)
-			Time = m_iSequencerClock;
-		if (Time > m_iFrameClock)
-			Time = m_iFrameClock;
+		uint32 Time = m_iCyclesToRun;
+		Time = std::min(Time, m_iSequencerClock);
+		Time = std::min(Time, m_iFrameClock);
 		
-		// Fixes the problem with distortion due to volume modulation
-		i = Time;
-		while (i > 0) {
-			uint32 Period = min(m_pSquare1->GetPeriod(), m_pSquare2->GetPeriod());
-			Period = min(max(Period, 7), i);
-			m_pSquare1->Process(Period);
-			m_pSquare2->Process(Period);
-         i -= Period;
-		}
-
-		i = Time;
-		while (i > 0) {
-			uint32 Period = min(m_pTriangle->GetPeriod(), m_pNoise->GetPeriod());
-			Period = min(Period, m_pDPCM->GetPeriod());
-			Period = min(max(Period, 7), i);
-			m_pTriangle->Process(Period);
-			m_pNoise->Process(Period);
-			m_pDPCM->Process(Period);
-			i -= Period;
-		}
+		// Run internal channels
+		RunAPU1(Time);
+		RunAPU2(Time);
 
 		for (std::vector<CExternal*>::iterator iter = ExChips.begin(); iter != ExChips.end(); ++iter) {
 			(*iter)->Process(Time);
 		}
 
-		m_iFrameCycles		+= Time;
-		m_iSequencerClock	-= Time;
-		m_iFrameClock		-= Time;
-		m_iCyclesToRun		-= Time;
+		m_iFrameCycles	  += Time;
+		m_iSequencerClock -= Time;
+		m_iFrameClock	  -= Time;
+		m_iCyclesToRun	  -= Time;
 
 		if (m_iSequencerClock == 0)
 			ClockSequence();

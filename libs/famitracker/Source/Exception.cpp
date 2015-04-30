@@ -61,9 +61,9 @@ static CString GetDumpFilename(int counter)
 	if (counter > 0)
 		filename.AppendFormat(_T("(%i)"), counter);
 
-#ifndef SVN_BUILD
+#ifndef RELEASE_BUILD
 	filename.Append(_T("-custom"));
-#endif /* SVN_BUILD */
+#endif /* RELEASE_BUILD */
 
 	filename.Append(MINIDUMP_FILE_END);
 

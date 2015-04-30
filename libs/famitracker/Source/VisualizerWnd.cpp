@@ -163,10 +163,10 @@ void CVisualizerWnd::ReportAudioProblem()
 
 UINT CVisualizerWnd::ThreadProc()
 {
-//   DWORD nThreadID = (DWORD)AfxGetThread()->m_nThreadID;
+   UINT_PTR nThreadID = (UINT_PTR)AfxGetThread()->m_nThreadID;
 	m_bThreadRunning = true;
 
-//	TRACE1("Visualizer: Started thread (0x%04x)\n", nThreadID);
+	TRACE1("Visualizer: Started thread (0x%04x)\n", nThreadID);
 
 	while (::WaitForSingleObject(m_hNewSamples, INFINITE) == WAIT_OBJECT_0 && m_bThreadRunning) {
 
@@ -187,13 +187,13 @@ UINT CVisualizerWnd::ThreadProc()
 		// Draw
 		m_csBuffer.Lock();
 
-      CDC *pDC = GetDC();
-      if (pDC != NULL) {
-         m_pStates[m_iCurrentState]->SetSampleData(pDrawBuffer, m_iBufferSize);
-         m_pStates[m_iCurrentState]->Draw();
-         m_pStates[m_iCurrentState]->Display(pDC, false);
-         ReleaseDC(pDC);
-      }
+		CDC *pDC = GetDC();
+		if (pDC != NULL) {
+			m_pStates[m_iCurrentState]->SetSampleData(pDrawBuffer, m_iBufferSize);
+			m_pStates[m_iCurrentState]->Draw();
+			m_pStates[m_iCurrentState]->Display(pDC, false);
+			ReleaseDC(pDC);
+		}
 
 		m_csBuffer.Unlock();
 	}

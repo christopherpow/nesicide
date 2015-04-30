@@ -52,11 +52,7 @@ protected:
 	static const int MAX_DUTY = 7;
 
 protected:
-	CWnd				*m_pParentWin;
-	CSequenceEditor		*m_pSequenceEditor;
-	CInstrumentVRC6		*m_pInstrument;
-
-	unsigned int		m_iSelectedSetting;	 // In settings list
+	CInstrumentVRC6	*m_pInstrument;
 
 	DECLARE_MESSAGE_MAP()
 public:

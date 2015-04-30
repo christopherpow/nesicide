@@ -20,7 +20,9 @@
 
 #pragma once
 
+
 // DPCM sample class
+
 class CDSample {
 public:
 	// Empty constructor

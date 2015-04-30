@@ -34,11 +34,10 @@ MOC_DIR = $$DESTDIR
 RCC_DIR = $$DESTDIR
 UI_DIR = $$DESTDIR
 
-DEFINES -= UNICODE
-
 QMAKE_CXXFLAGS_WARN_ON += -Wno-reorder -Wno-unused
 
-QMAKE_CXXFLAGS += -DNULL=0
+DEFINES -= UNICODE
+DEFINES += NOMINMAX NULL=0
 
 INCLUDEPATH += \
    . \
@@ -90,7 +89,10 @@ unix:!mac {
    INSTALLS += target
 }
 
-QMAKE_CXXFLAGS += $$SDL_CXXFLAGS
+# Boost is (thankfully) a generic dependency.
+BOOST_CXXFLAGS=-I$$DEPENDENCYPATH/../boost_1_58_0
+
+QMAKE_CXXFLAGS += $$SDL_CXXFLAGS $$BOOST_CXXFLAGS
 QMAKE_CFLAGS += $$SDL_CFLAGS
 LIBS += $$SDL_LIBS
 
@@ -185,7 +187,6 @@ SOURCES += \
     Source/CustomExporter.cpp \
     Source/CustomExporter_C_Interface.cpp \
     Source/Chunk.cpp \
-    Source/ChunkRender.cpp \
     Source/CommentsDlg.cpp \
     Source/InstrumentFileTree.cpp \
     Source/Accelerator.cpp \
@@ -205,7 +206,12 @@ SOURCES += \
     Source/Settings.cpp \
     Source/ConfigMixer.cpp \
     Source/CommandLineExport.cpp \
-    Source/DocumentWrapper.cpp
+    Source/DocumentWrapper.cpp \
+    Source/ChunkRenderBinary.cpp \
+    Source/ChunkRenderText.cpp \
+    Source/Clipboard.cpp \
+    Source/InstrumentListCtrl.cpp \
+    Source/PatternEditorTypes.cpp
 
 HEADERS += \
     cqtmfc_famitracker.h \
@@ -307,7 +313,6 @@ HEADERS += \
     Source/CustomExporters.h \
     Source/CustomExporter.h \
     Source/CustomExporter_C_Interface.h \
-    Source/ChunkRender.h \
     Source/CommentsDlg.h \
     Source/InstrumentFileTree.h \
     Source/Accelerator.h \
@@ -333,7 +338,11 @@ HEADERS += \
     Source/CommandLineExport.h \
     Source/FamiTrackerTypes.h \
     Source/DocumentWrapper.h \
-    Source/APU/Types.h
+    Source/APU/Types.h \
+    Source/ChunkRenderBinary.h \
+    Source/ChunkRenderText.h \
+    Source/Clipboard.h \
+    Source/PatternEditorTypes.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN

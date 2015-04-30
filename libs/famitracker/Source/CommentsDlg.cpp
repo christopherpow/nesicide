@@ -168,8 +168,6 @@ void CCommentsDlg::OnBnClickedShowonopen()
 
 void CCommentsDlg::OnGetMinMaxInfo(MINMAXINFO* lpMMI)
 {
-	// TODO: Add your message handler code here and/or call default
-
 	lpMMI->ptMinTrackSize.x = 400;
 	lpMMI->ptMinTrackSize.y = 200;
 

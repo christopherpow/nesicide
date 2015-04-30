@@ -27,6 +27,7 @@
 #include "ChannelHandler.h"
 #include "ChannelsS5B.h"
 #include "SoundGen.h"
+#include "APU/APU.h"
 
 // Static member variables, for the shared stuff in 5B
 int			  CChannelHandlerS5B::m_iModes		= 0;
@@ -111,9 +112,11 @@ void CChannelHandlerS5B::UpdateRegs(CAPU *pAPU)
 
 // Instance functions
 
-CChannelHandlerS5B::CChannelHandlerS5B() : CChannelHandler(), m_iNoiseOffset(0), m_bUpdate(false)
+CChannelHandlerS5B::CChannelHandlerS5B() : 
+	CChannelHandler(0xFFF, 0x0F), 
+	m_iNoiseOffset(0), 
+	m_bUpdate(false)
 {
-	SetMaxPeriod(0xFFF);
 }
 
 /*
@@ -166,10 +169,12 @@ bool CChannelHandlerS5B::HandleInstrument(int Instrument, bool Trigger, bool New
 		return false;
 
 	for (int i = 0; i < SEQ_COUNT; ++i) {
-		if (pInstrument->GetSeqIndex(i) != m_iSeqIndex[i] || pInstrument->GetSeqEnable(i) > m_iSeqState[i] || Trigger) {
-			m_iSeqState[i]   = pInstrument->GetSeqEnable(i) == 1 ? SEQ_STATE_RUNNING : SEQ_STATE_DISABLED;
-			m_iSeqIndex[i]	 = pInstrument->GetSeqIndex(i);
-			m_iSeqPointer[i] = 0;
+		const CSequence *pSequence = pDocument->GetSequence(SNDCHIP_S5B, pInstrument->GetSeqIndex(i), i);
+		if (Trigger || !IsSequenceEqual(i, pSequence) || pInstrument->GetSeqEnable(i) > GetSequenceState(i)) {
+			if (pInstrument->GetSeqEnable(i) == 1)
+				SetupSequence(i, pSequence);
+			else
+				ClearSequence(i);
 		}
 	}
 
@@ -213,7 +218,7 @@ void CChannelHandlerS5B::ProcessChannel()
 
 	// Sequences
 	for (int i = 0; i < SEQ_COUNT; ++i)
-		RunSequence(i, pDocument->GetSequence(SNDCHIP_S5B, m_iSeqIndex[i], i));
+		RunSequence(i);
 }
 
 void CChannelHandlerS5B::WriteReg(int Reg, int Value)

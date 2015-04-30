@@ -20,6 +20,7 @@
 
 #pragma once
 
+
 // CConfigShortcuts dialog
 
 class CConfigShortcuts : public CPropertyPage

@@ -20,10 +20,7 @@
 
 #pragma once
 
-#include "SequenceEditor.h"
-#include "InstrumentEditPanel.h"
-
-#include "resource.h"
+class CInstrumentEditPanel;
 
 // CInstrumentEditDlg dialog
 
@@ -37,12 +34,8 @@ public:
 
 	void ChangeNoteState(int Note);
 	void SetCurrentInstrument(int Index);
-
 	bool IsOpened() const;
-
 	void EndDialog(int nResult);
-
-	CFamiTrackerDoc *GetDocument() const { return m_pDocument; };
 
 // Dialog Data
 	enum { IDD = IDD_INSTRUMENT };
@@ -75,13 +68,11 @@ protected:
 	// Variables for windows
 	CInstrumentEditPanel *m_pPanels[PANEL_COUNT];
 	CInstrumentEditPanel *m_pFocusPanel;
+
 	bool m_bOpened;
 	int m_iSelectedInstType;
 	int m_iPanels;
-
 	int	m_iInstrument;
-
-	CFamiTrackerDoc *m_pDocument;
 
 	DECLARE_MESSAGE_MAP()
 public:
@@ -95,11 +86,8 @@ public:
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
 	virtual BOOL DestroyWindow();
-protected:
 	virtual void OnOK();
 	virtual void OnCancel();
-public:
 	afx_msg void OnNcLButtonUp(UINT nHitTest, CPoint point);
-protected:
 	virtual void PostNcDestroy();
 };

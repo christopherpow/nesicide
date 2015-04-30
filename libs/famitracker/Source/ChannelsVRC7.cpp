@@ -34,12 +34,11 @@
 bool CChannelHandlerVRC7::m_bRegsDirty = false;
 
 CChannelHandlerVRC7::CChannelHandlerVRC7() : 
-	CChannelHandler(), 
+	CChannelHandler(2047, 15),
 	m_iCommand(CMD_NONE),
 	m_iTriggeredNote(0)
 {
 	m_iVolume = VOL_COLUMN_MAX;
-	SetMaxPeriod(2047);
 }
 
 void CChannelHandlerVRC7::SetChannelID(int ID)
@@ -232,7 +231,7 @@ void CChannelHandlerVRC7::ResetChannel()
 	CChannelHandler::ResetChannel();
 }
 
-unsigned int CChannelHandlerVRC7::TriggerNote(int Note)
+int CChannelHandlerVRC7::TriggerNote(int Note)
 {
 	m_iTriggeredNote = Note;
 	RegisterKeyState(Note);
@@ -263,18 +262,12 @@ int CChannelHandlerVRC7::CalculateVolume() const
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void CVRC7Channel::RefreshChannel()
-{
-	int Note;
-	int Fnum;		// F-number
-	int Bnum;		// Block
-	int Patch;
-	int Volume;
-	
-	Note = m_iTriggeredNote;
-	Patch = m_iPatch;
-	Volume = CalculateVolume();
-	Bnum = m_iOctave;
-	Fnum = (m_iPeriod >> 2) - GetVibrato() - GetFinePitch();// (m_iFinePitch - 0x80);
+{	
+	int Note = m_iTriggeredNote;
+	int Patch = m_iPatch;
+	int Volume = CalculateVolume();
+	int Bnum = m_iOctave;
+	int Fnum = (m_iPeriod >> 2) - GetVibrato() - GetFinePitch();// (m_iFinePitch - 0x80);
 
 	// Write custom instrument
 	if (Patch == 0 && (m_iCommand == CMD_NOTE_TRIGGER || m_bRegsDirty)) {

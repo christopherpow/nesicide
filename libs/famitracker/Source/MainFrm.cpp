@@ -29,8 +29,6 @@
 #include "ModulePropertiesDlg.h"
 #include "ChannelsDlg.h"
 #include "VisualizerWnd.h"
-#include "InstrumentEditor2A03.h"
-#include "InstrumentEditorDPCM.h"
 #include "TextExporter.h"
 #include "ConfigGeneral.h"
 #include "ConfigAppearance.h"
@@ -50,6 +48,7 @@
 #include "FrameAction.h"
 #include "PatternEditor.h"
 #include "FrameEditor.h"
+#include "APU/APU.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -121,11 +120,12 @@ CMainFrame::CMainFrame() :
 	m_pBannerEditArtist(NULL),
 	m_pBannerEditCopyright(NULL),
 	m_pInstrumentList(NULL),
+	m_pActionHandler(NULL),
+	m_iFrameEditorPos(FRAME_EDIT_POS_TOP),
+	m_pInstrumentFileTree(NULL),
 	m_iInstrument(0),
 	m_iTrack(0),
-	m_pActionHandler(NULL),
-	m_pInstrumentFileTree(NULL),
-	m_iFrameEditorPos(FRAME_EDIT_POS_TOP)
+	m_iOctave(3)
 {
 	_dpiX = DEFAULT_DPI;
 	_dpiY = DEFAULT_DPI;
@@ -208,6 +208,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_COMMAND(ID_TRACKER_KILLSOUND, OnTrackerKillsound)
 	ON_COMMAND(ID_TRACKER_SWITCHTOTRACKINSTRUMENT, OnTrackerSwitchToInstrument)
 	ON_COMMAND(ID_TRACKER_DPCM, OnTrackerDPCM)
+	ON_COMMAND(ID_TRACKER_DISPLAYREGISTERSTATE, OnTrackerDisplayRegisterState)
 	ON_COMMAND(ID_VIEW_CONTROLPANEL, OnViewControlpanel)
 //	ON_COMMAND(ID_HELP, CFrameWnd::OnHelp)
 //	ON_COMMAND(ID_HELP_FINDER, CFrameWnd::OnHelpFinder)
@@ -378,12 +379,12 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_strTitle.Append(_T(" [BETA]"));
 #endif
 
-#ifndef SVN_BUILD
+//#ifndef RELEASE_BUILD
 //	if (AfxGetResourceHandle() != AfxGetInstanceHandle()) {
 //		// Prevent confusing bugs while developing
 //		m_strTitle.Append(_T(" [Localization enabled]"));
 //	}
-#endif
+//#endif
 
 	return 0;
 }
@@ -528,9 +529,9 @@ bool CMainFrame::CreateDialogPanels()
 	m_pInstrumentList->SendMessage(LVM_SETEXTENDEDLISTVIEWSTYLE, 0, LVS_EX_FULLROWSELECT);
 
 	// Title, author & copyright
-	m_pBannerEditName = new CBannerEdit(CString(_T("(title)")));
-	m_pBannerEditArtist = new CBannerEdit(CString(_T("(author)")));
-	m_pBannerEditCopyright = new CBannerEdit(CString(_T("(copyright)")));
+	m_pBannerEditName = new CBannerEdit(IDS_INFO_TITLE);
+	m_pBannerEditArtist = new CBannerEdit(IDS_INFO_AUTHOR);
+	m_pBannerEditCopyright = new CBannerEdit(IDS_INFO_COPYRIGHT);
 
 	m_pBannerEditName->SubclassDlgItem(IDC_SONG_NAME, &m_wndDialogBar);
 	m_pBannerEditArtist->SubclassDlgItem(IDC_SONG_ARTIST, &m_wndDialogBar);
@@ -667,10 +668,10 @@ void CMainFrame::ResizeFrameWindow()
 			CRect rect;
 			m_wndVerticalControlBar.GetClientRect(&rect);
 
-			Height = rect.Height() - HEADER_HEIGHT - 2;
+			Height = rect.Height() - CPatternEditor::HEADER_HEIGHT - 2;
 			Width = m_pFrameEditor->CalcWidth(Channels);
 
-			m_pFrameEditor->MoveWindow(SX(2), SY(HEADER_HEIGHT + 1), SX(Width), SY(Height));
+			m_pFrameEditor->MoveWindow(SX(2), SY(CPatternEditor::HEADER_HEIGHT + 1), SX(Width), SY(Height));
 
 			// Move frame controls
 			m_wndFrameControls.MoveWindow(SX(4), SY(10), SX(150), SY(26));
@@ -717,7 +718,8 @@ void CMainFrame::SetTempo(int Tempo)
 {
 	CFamiTrackerDoc *pDoc = static_cast<CFamiTrackerDoc*>(GetActiveDocument());
 	int MinTempo = pDoc->GetSpeedSplitPoint();
-	LIMIT(Tempo, MAX_TEMPO, MinTempo);
+	Tempo = std::max(Tempo, MinTempo);
+	Tempo = std::min(Tempo, MAX_TEMPO);
 	pDoc->SetSongTempo(m_iTrack, Tempo);
 	theApp.GetSoundGenerator()->ResetTempo();
 
@@ -729,7 +731,8 @@ void CMainFrame::SetSpeed(int Speed)
 {
 	CFamiTrackerDoc *pDoc = static_cast<CFamiTrackerDoc*>(GetActiveDocument());
 	int MaxSpeed = pDoc->GetSpeedSplitPoint() - 1;
-	LIMIT(Speed, MaxSpeed, MIN_SPEED);
+	Speed = std::max(Speed, MIN_SPEED);
+	Speed = std::min(Speed, MaxSpeed);
 	pDoc->SetSongSpeed(m_iTrack, Speed);
 	theApp.GetSoundGenerator()->ResetTempo();
 
@@ -745,7 +748,8 @@ void CMainFrame::SetRowCount(int Count)
 	if (!pDoc->IsFileLoaded())
 		return;
 
-	LIMIT(Count, MAX_PATTERN_LENGTH, 1);
+	Count = std::max(Count, 1);
+	Count = std::min(Count, MAX_PATTERN_LENGTH);
 
 	if (Count != pDoc->GetPatternLength(m_iTrack)) {
 
@@ -776,7 +780,8 @@ void CMainFrame::SetFrameCount(int Count)
 	if (!pDoc->IsFileLoaded())
 		return;
 
-	LIMIT(Count, MAX_FRAMES, 1);
+	Count = std::max(Count, 1);
+	Count = std::min(Count, MAX_FRAMES);
 
 	if (Count != pDoc->GetFrameCount(m_iTrack)) {
 
@@ -875,7 +880,7 @@ void CMainFrame::NewInstrument(int ChipType)
 	}
 
 	// Add to list and select
-	m_pInstrumentList->InsertInstrument(Index);
+	pDoc->UpdateAllViews(NULL, UPDATE_INSTRUMENT);
 	SelectInstrument(Index);
 }
 
@@ -883,6 +888,7 @@ void CMainFrame::UpdateInstrumentList()
 {
 	// Rewrite the instrument list
 	ClearInstrumentList();
+
 	for (int i = 0; i < MAX_INSTRUMENTS; ++i) {
 		m_pInstrumentList->InsertInstrument(i);
 	}
@@ -939,6 +945,19 @@ int CMainFrame::GetSelectedInstrument() const
 {
 	// Returns selected instrument
 	return m_iInstrument;
+}
+
+void CMainFrame::SwapInstruments(int First, int Second)
+{
+	// Swap two instruments
+	CFamiTrackerDoc *pDoc = static_cast<CFamiTrackerDoc*>(GetActiveDocument());
+
+	pDoc->SwapInstruments(First, Second);
+	pDoc->SetModifiedFlag();
+	UpdateInstrumentList();
+	pDoc->UpdateAllViews(NULL, UPDATE_PATTERN);
+
+	SelectInstrument(Second);
 }
 
 void CMainFrame::OnNextInstrument()
@@ -1083,6 +1102,7 @@ void CMainFrame::OnRemoveInstrument()
 
 	// Remove from document
 	pDoc->RemoveInstrument(Instrument);
+	pDoc->UpdateAllViews(NULL, UPDATE_INSTRUMENT);
 
 	// Remove from list
 	m_pInstrumentList->RemoveInstrument(Instrument);
@@ -1120,7 +1140,7 @@ void CMainFrame::OnCloneInstrument()
 		return;
 	}
 
-	m_pInstrumentList->InsertInstrument(Slot);
+	pDoc->UpdateAllViews(NULL, UPDATE_INSTRUMENT);
 	SelectInstrument(Slot);
 }
 
@@ -1201,12 +1221,9 @@ void CMainFrame::OnSaveInstrument()
 	pDoc->GetInstrumentName(Index, Name);
 
 	// Remove bad characters
-	char *ptr = Name;
-
-	while (*ptr != 0) {
+	for (char *ptr = Name; *ptr != 0; ++ptr) {
 		if (*ptr == '/')
 			*ptr = ' ';
-		ptr++;
 	}
 
 	CString filter = LoadDefaultFilter(IDS_FILTER_FTI, _T(".fti"));
@@ -1340,14 +1357,16 @@ void CMainFrame::OnKeyRepeat()
 void CMainFrame::OnDeltaposKeyStepSpin(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	int Pos = m_wndDialogBar.GetDlgItemInt(IDC_KEYSTEP) - ((NMUPDOWN*)pNMHDR)->iDelta;
-	LIMIT(Pos, MAX_PATTERN_LENGTH, 0);
+	Pos = std::max(Pos, 0);
+	Pos = std::min(Pos, MAX_PATTERN_LENGTH);
 	m_wndDialogBar.SetDlgItemInt(IDC_KEYSTEP, Pos);
 }
 
 void CMainFrame::OnEnKeyStepChange()
 {
 	int Step = m_wndDialogBar.GetDlgItemInt(IDC_KEYSTEP);
-	LIMIT(Step, MAX_PATTERN_LENGTH, 0);
+	Step = std::max(Step, 0);
+	Step = std::min(Step, MAX_PATTERN_LENGTH);
 	static_cast<CFamiTrackerView*>(GetActiveView())->SetStepping(Step);
 }
 
@@ -1383,7 +1402,7 @@ void CMainFrame::OnHelpPerformance()
 void CMainFrame::OnUpdateSBInstrument(CCmdUI *pCmdUI)
 {
 	CString String;
-	String.Format(_T("Instrument: %02X"), GetSelectedInstrument());
+	AfxFormatString1(String, ID_INDICATOR_INSTRUMENT, MakeIntString(GetSelectedInstrument(), _T("%02X")));
 	pCmdUI->Enable(); 
 	pCmdUI->SetText(String);
 }
@@ -1391,8 +1410,8 @@ void CMainFrame::OnUpdateSBInstrument(CCmdUI *pCmdUI)
 void CMainFrame::OnUpdateSBOctave(CCmdUI *pCmdUI)
 {
 	CString String;
-	int Octave = static_cast<CFamiTrackerView*>(GetActiveView())->GetOctave();
-	String.Format(_T("Octave: %i"), Octave);
+	const int Octave = static_cast<CFamiTrackerView*>(GetActiveView())->GetOctave();
+	AfxFormatString1(String, ID_INDICATOR_OCTAVE, MakeIntString(Octave));
 	pCmdUI->Enable(); 
 	pCmdUI->SetText(String);
 }
@@ -1405,7 +1424,7 @@ void CMainFrame::OnUpdateSBFrequency(CCmdUI *pCmdUI)
 	CString String;
 
 	if (EngineSpeed == 0)
-		EngineSpeed = (Machine == NTSC ? CAPU::FRAME_RATE_NTSC : CAPU::FRAME_RATE_PAL);
+		EngineSpeed = (Machine == NTSC) ? CAPU::FRAME_RATE_NTSC : CAPU::FRAME_RATE_PAL;
 
 	String.Format(_T("%i Hz"), EngineSpeed);
 
@@ -1578,9 +1597,7 @@ void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 
 void CMainFrame::OnUpdateKeyStepEdit(CCmdUI *pCmdUI)
 {
-	CString Text;
-	Text.Format(_T("%i"), static_cast<CFamiTrackerView*>(GetActiveView())->GetStepping());
-	pCmdUI->SetText(Text);
+	pCmdUI->SetText(MakeIntString(static_cast<CFamiTrackerView*>(GetActiveView())->GetStepping()));
 }
 
 void CMainFrame::OnUpdateSpeedEdit(CCmdUI *pCmdUI)
@@ -1589,9 +1606,7 @@ void CMainFrame::OnUpdateSpeedEdit(CCmdUI *pCmdUI)
 		if (m_pLockedEditSpeed->Update())
 			SetSpeed(m_pLockedEditSpeed->GetValue());
 		else {
-			CString Text;
-			Text.Format(_T("%i"), static_cast<CFamiTrackerDoc*>(GetActiveDocument())->GetSongSpeed(m_iTrack));
-			pCmdUI->SetText(Text);
+			pCmdUI->SetText(MakeIntString(static_cast<CFamiTrackerDoc*>(GetActiveDocument())->GetSongSpeed(m_iTrack)));
 		}
 	}	
 }
@@ -1602,23 +1617,18 @@ void CMainFrame::OnUpdateTempoEdit(CCmdUI *pCmdUI)
 		if (m_pLockedEditTempo->Update())
 			SetTempo(m_pLockedEditTempo->GetValue());
 		else {
-			CString Text;
-			Text.Format(_T("%i"), static_cast<CFamiTrackerDoc*>(GetActiveDocument())->GetSongTempo(m_iTrack));
-			pCmdUI->SetText(Text);
+			pCmdUI->SetText(MakeIntString(static_cast<CFamiTrackerDoc*>(GetActiveDocument())->GetSongTempo(m_iTrack)));
 		}
 	}
 }
 
 void CMainFrame::OnUpdateRowsEdit(CCmdUI *pCmdUI)
 {
-	CString Text;
-
 	if (!m_pLockedEditLength->IsEditable()) {
 		if (m_pLockedEditLength->Update())
 			SetRowCount(m_pLockedEditLength->GetValue());
 		else {
-			Text.Format(_T("%i"), static_cast<CFamiTrackerDoc*>(GetActiveDocument())->GetPatternLength(m_iTrack));
-			pCmdUI->SetText(Text);
+			pCmdUI->SetText(MakeIntString(static_cast<CFamiTrackerDoc*>(GetActiveDocument())->GetPatternLength(m_iTrack)));
 		}
 	}
 }
@@ -1629,9 +1639,7 @@ void CMainFrame::OnUpdateFramesEdit(CCmdUI *pCmdUI)
 		if (m_pLockedEditFrames->Update())
 			SetFrameCount(m_pLockedEditFrames->GetValue());
 		else {
-			CString Text;
-			Text.Format(_T("%i"), static_cast<CFamiTrackerDoc*>(GetActiveDocument())->GetFrameCount(m_iTrack));
-			pCmdUI->SetText(Text);
+			pCmdUI->SetText(MakeIntString(static_cast<CFamiTrackerDoc*>(GetActiveDocument())->GetFrameCount(m_iTrack)));
 		}
 	}	
 }
@@ -1757,10 +1765,11 @@ void CMainFrame::OnFileImportText()
 
 	SetSongInfo(pDoc->GetSongName(), pDoc->GetSongArtist(), pDoc->GetSongCopyright());
 	pDoc->SetModifiedFlag(FALSE);
-	pDoc->UpdateAllViews(NULL, CHANGED_ERASE);
-	pDoc->UpdateAllViews(NULL, UPDATE_INSTRUMENTS);
-	pDoc->UpdateAllViews(NULL, UPDATE_ENTIRE);
-	theApp.GetSoundGenerator()->DocumentPropertiesChange(pDoc);
+	// TODO figure out how to handle this case, call OnInitialUpdate??
+	//pDoc->UpdateAllViews(NULL, CHANGED_ERASE);		// Remove
+	pDoc->UpdateAllViews(NULL, UPDATE_INSTRUMENT);
+	//pDoc->UpdateAllViews(NULL, UPDATE_ENTIRE);		// TODO Remove
+	theApp.GetSoundGenerator()->DocumentPropertiesChanged(pDoc);
 }
 
 void CMainFrame::OnFileExportText()
@@ -1832,6 +1841,16 @@ void CMainFrame::OnTrackerDPCM()
 		pMenu->CheckMenuItem(ID_TRACKER_DPCM, MF_UNCHECKED);
 	else
 		pMenu->CheckMenuItem(ID_TRACKER_DPCM, MF_CHECKED);
+}
+
+void CMainFrame::OnTrackerDisplayRegisterState()
+{
+	CMenu *pMenu = GetMenu();
+
+	if (pMenu->GetMenuState(ID_TRACKER_DISPLAYREGISTERSTATE, MF_BYCOMMAND) == MF_CHECKED)
+		pMenu->CheckMenuItem(ID_TRACKER_DISPLAYREGISTERSTATE, MF_UNCHECKED);
+	else
+		pMenu->CheckMenuItem(ID_TRACKER_DISPLAYREGISTERSTATE, MF_CHECKED);
 }
 
 void CMainFrame::OnUpdateTrackerSwitchToInstrument(CCmdUI *pCmdUI)
@@ -2154,11 +2173,13 @@ void CMainFrame::SelectTrack(unsigned int Track)
 
 	CFamiTrackerDoc *pDoc = static_cast<CFamiTrackerDoc*>(GetActiveDocument());
 	CComboBox *pTrackBox = static_cast<CComboBox*>(m_wndDialogBar.GetDlgItem(IDC_SUBTUNE));
+	CFamiTrackerView *pView = static_cast<CFamiTrackerView*>(GetActiveView());
 	
 	m_iTrack = Track;
 
 	pTrackBox->SetCurSel(m_iTrack);
-	pDoc->UpdateAllViews(NULL, CHANGED_TRACK);
+	//pDoc->UpdateAllViews(NULL, CHANGED_TRACK);
+	pView->TrackChanged(m_iTrack);
 	OnUpdateFrameTitle(TRUE);
 }
 
@@ -2182,7 +2203,7 @@ BOOL CMainFrame::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult)
 	return CFrameWnd::OnNotify(wParam, lParam, pResult);
 }
 
-void CMainFrame::OnNewInstrumentMenu( NMHDR * pNotifyStruct, LRESULT * result )
+void CMainFrame::OnNewInstrumentMenu(NMHDR* pNotifyStruct, LRESULT* result)
 {
 	CRect rect;
 	::GetWindowRect(pNotifyStruct->hwndFrom, &rect);
@@ -2490,7 +2511,7 @@ void CMainFrame::OnEditClearPatterns()
 		return;
 
 	pDoc->ClearPatterns(Track);
-	pDoc->UpdateAllViews(NULL, CHANGED_PATTERN);
+	pDoc->UpdateAllViews(NULL, UPDATE_PATTERN);
 
 	ResetUndo();
 }
@@ -2510,7 +2531,7 @@ void CMainFrame::OnEditRemoveUnusedInstruments()
 	pDoc->RemoveUnusedInstruments();
 
 	// Update instrument list
-	pDoc->UpdateAllViews(NULL, UPDATE_INSTRUMENTS);
+	pDoc->UpdateAllViews(NULL, UPDATE_INSTRUMENT);
 }
 
 void CMainFrame::OnEditRemoveUnusedPatterns()
@@ -2523,15 +2544,12 @@ void CMainFrame::OnEditRemoveUnusedPatterns()
 		return;
 
 	pDoc->RemoveUnusedPatterns();
-	pDoc->UpdateAllViews(NULL, CHANGED_PATTERN);
+	pDoc->UpdateAllViews(NULL, UPDATE_PATTERN);
 }
 
 void CMainFrame::OnEditMergeDuplicatedPatterns()
 {
-	CFamiTrackerDoc *pDoc = static_cast<CFamiTrackerDoc*>(GetActiveDocument());
-
-	pDoc->MergeDuplicatedPatterns();
-	pDoc->UpdateAllViews(NULL, CHANGED_FRAMES);
+	AddAction(new CFrameAction(CFrameAction::ACT_MERGE_DUPLICATED_PATTERNS));
 }
 
 void CMainFrame::OnUpdateSelectionEnabled(CCmdUI *pCmdUI)
@@ -2603,7 +2621,7 @@ void CMainFrame::OnToggleSpeed()
 		Speed = DEFAULT_SPEED_SPLIT_POINT;
 
 	pDoc->SetSpeedSplitPoint(Speed);
-	theApp.GetSoundGenerator()->DocumentPropertiesChange(pDoc);
+	theApp.GetSoundGenerator()->DocumentPropertiesChanged(pDoc);
 
 	SetStatusText(_T("Speed/tempo split-point set to %i"), Speed);
 }

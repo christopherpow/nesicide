@@ -20,7 +20,8 @@
 
 #pragma once
 
-// CDocumentFile
+
+// CDocumentFile, class for reading/writing document files
 
 class CDocumentFile : public CFile
 {

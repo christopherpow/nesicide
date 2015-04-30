@@ -996,6 +996,7 @@ bool C64EmulatorThread::serialize(QDomDocument& /*doc*/, QDomNode& /*node*/)
 
 bool C64EmulatorThread::serializeContent(QFile& /*fileOut*/)
 {
+   return true;
 }
 
 bool C64EmulatorThread::deserialize(QDomDocument& /*doc*/, QDomNode& /*node*/, QString& /*errors*/)

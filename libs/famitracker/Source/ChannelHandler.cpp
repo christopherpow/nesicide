@@ -23,18 +23,20 @@
 // translating notes to channel register writes.
 //
 
+//#include <algorithm>
 #include "stdafx.h"
 #include "FamiTracker.h"
 #include "FamiTrackerDoc.h"
 #include "SoundGen.h"
 #include "ChannelHandler.h"
+#include "APU/APU.h"
 
 /*
  * Class CChannelHandler
  *
  */
 
-CChannelHandler::CChannelHandler() : 
+CChannelHandler::CChannelHandler(int MaxPeriod, int MaxVolume) : 
 	m_iChannelID(0), 
 	m_iInstrument(0), 
 	m_iLastInstrument(MAX_INSTRUMENTS),
@@ -43,14 +45,16 @@ CChannelHandler::CChannelHandler() :
 	m_pAPU(NULL),
 	m_iPitch(0),
 	m_iNote(0),
+	m_iSeqVolume(0),
 	m_iDefaultDuty(0),
 	m_iDutyPeriod(0),
-	m_iMaxPeriod(0x7FF),		// Default for 2A03 channels
-	m_iMaxVolume(0x0F),			// Default for 2A03 channels
+	m_iMaxPeriod(MaxPeriod),
+	m_iMaxVolume(MaxVolume),
 	m_bGate(false),
-	m_iSeqVolume(0),
 	m_bNewVibratoMode(false),
-	m_bLinearPitch(false)
+	m_bLinearPitch(false),
+	m_bPeriodUpdated(false),
+	m_bVolumeUpdate(false)
 { 
 }
 
@@ -70,12 +74,12 @@ void CChannelHandler::InitChannel(CAPU *pAPU, int *pVibTable, CSoundGen *pSoundG
 
 	m_iEffect = 0;
 
-	DocumentPropertiesChange(pSoundGen->GetDocument());
+	DocumentPropertiesChanged(pSoundGen->GetDocument());
 
 	ResetChannel();
 }
 
-void CChannelHandler::DocumentPropertiesChange(CFamiTrackerDoc *pDoc)
+void CChannelHandler::DocumentPropertiesChanged(CFamiTrackerDoc *pDoc)
 {
 	m_bNewVibratoMode = (pDoc->GetVibratoStyle() == VIBRATO_NEW);
 	m_bLinearPitch = pDoc->GetLinearPitch();
@@ -83,34 +87,16 @@ void CChannelHandler::DocumentPropertiesChange(CFamiTrackerDoc *pDoc)
 
 int CChannelHandler::LimitPeriod(int Period) const
 {
-	if (Period > m_iMaxPeriod)
-		Period = m_iMaxPeriod;
-
-	if (Period < 0)
-		Period = 0;
-
+	Period = std::min(Period, m_iMaxPeriod);
+	Period = std::max(Period, 0);
 	return Period;
 }
 
 int CChannelHandler::LimitVolume(int Volume) const
 {
-	if (Volume > 15)
-		Volume = 15;
-
-	if (Volume < 0)
-		Volume = 0;
-
+	Volume = std::min(Volume, 15);
+	Volume = std::max(Volume, 0);
 	return Volume;
-}
-
-void CChannelHandler::SetMaxPeriod(int Period)
-{
-	m_iMaxPeriod = Period;
-}
-
-void CChannelHandler::SetMaxVolume(int Volume)
-{
-	m_iMaxVolume = Volume;
 }
 
 void CChannelHandler::SetPitch(int Pitch)
@@ -125,24 +111,12 @@ int CChannelHandler::GetPitch() const
 { 
 	if (m_iPitch != 0 && m_iNote != 0 && m_pNoteLookupTable != NULL) {
 		// Interpolate pitch
-		int LowNote = m_iNote - PITCH_WHEEL_RANGE;
-		int HighNote = m_iNote + PITCH_WHEEL_RANGE;
-
-		if (LowNote < 0)
-			LowNote = 0;
-		if (HighNote > 95)
-			HighNote = 95;
-
-		int Freq = m_pNoteLookupTable[m_iNote];
-		int Lower = m_pNoteLookupTable[LowNote];
-		int Higher = m_pNoteLookupTable[HighNote];
-		int Pitch;
-
-		if (m_iPitch < 0)
-			Pitch = (Freq - Lower);
-		else
-			Pitch = (Higher - Freq);
-
+		int LowNote  = std::max(m_iNote - PITCH_WHEEL_RANGE, 0);
+		int HighNote = std::min(m_iNote + PITCH_WHEEL_RANGE, 95);
+		int Freq	 = m_pNoteLookupTable[m_iNote];
+		int Lower	 = m_pNoteLookupTable[LowNote];
+		int Higher	 = m_pNoteLookupTable[HighNote];
+		int Pitch	 = (m_iPitch < 0) ? (Freq - Lower) : (Higher - Freq);
 		return (Pitch * m_iPitch) / 511;
 	}
 
@@ -151,16 +125,7 @@ int CChannelHandler::GetPitch() const
 
 void CChannelHandler::Arpeggiate(unsigned int Note)
 {
-	m_iPeriod = TriggerNote(Note);
-}
-
-void CChannelHandler::ClearSequences()
-{
-	for (int i = 0; i < SEQ_COUNT; ++i) {
-		m_iSeqState[i] = SEQ_STATE_DISABLED;
-		m_iSeqPointer[i] = 0;
-		m_iSeqIndex[i] = 0;
-	}
+	SetPeriod(TriggerNote(Note));
 }
 
 void CChannelHandler::ResetChannel()
@@ -263,7 +228,7 @@ void CChannelHandler::HandleNoteData(stChanNote *pNoteData, int EffColumns)
 
 	if (m_iInstrument == MAX_INSTRUMENTS) {
 		// No instrument selected, default to 0
-		m_iInstrument = 0;
+		m_iInstrument = m_pSoundGen->GetDefaultInstrument();
 	}
 
 	if (NewInstrument || Trigger) {
@@ -304,12 +269,10 @@ void CChannelHandler::SetNoteTable(unsigned int *pNoteLookupTable)
 	m_pNoteLookupTable = pNoteLookupTable;
 }
 
-unsigned int CChannelHandler::TriggerNote(int Note)
+int CChannelHandler::TriggerNote(int Note)
 {
-	if (Note >= NOTE_COUNT)
-		Note = NOTE_COUNT - 1;
-	if (Note < 0)
-		Note = 0;
+	Note = std::min(Note, NOTE_COUNT - 1);
+	Note = std::max(Note, 0);
 
 	// Trigger a note, return note period
 	RegisterKeyState(Note);
@@ -546,7 +509,7 @@ void CChannelHandler::PeriodAdd(int Step)
 	if (m_bLinearPitch)
 		LinearAdd(Step);
 	else
-		m_iPeriod += Step;
+		SetPeriod(GetPeriod() + Step);
 }
 
 void CChannelHandler::PeriodRemove(int Step)
@@ -554,7 +517,7 @@ void CChannelHandler::PeriodRemove(int Step)
 	if (m_bLinearPitch)
 		LinearRemove(Step);
 	else
-		m_iPeriod -= Step;
+		SetPeriod(GetPeriod() - Step);
 }
 
 void CChannelHandler::UpdateEffects()
@@ -565,15 +528,15 @@ void CChannelHandler::UpdateEffects()
 			if (m_iArpeggio != 0) {
 				switch (m_iArpState) {
 					case 0:
-						m_iPeriod = TriggerNote(m_iNote);
+						SetPeriod(TriggerNote(m_iNote));
 						break;
 					case 1:
-						m_iPeriod = TriggerNote(m_iNote + (m_iArpeggio >> 4));
+						SetPeriod(TriggerNote(m_iNote + (m_iArpeggio >> 4)));
 						if ((m_iArpeggio & 0x0F) == 0)
 							++m_iArpState;
 						break;
 					case 2:
-						m_iPeriod = TriggerNote(m_iNote + (m_iArpeggio & 0x0F));
+						SetPeriod(TriggerNote(m_iNote + (m_iArpeggio & 0x0F)));
 						break;
 				}
 				m_iArpState = (m_iArpState + 1) % 3;
@@ -585,12 +548,12 @@ void CChannelHandler::UpdateEffects()
 				if (m_iPeriod > m_iPortaTo) {
 					PeriodRemove(m_iPortaSpeed);
 					if (m_iPeriod < m_iPortaTo)
-						m_iPeriod = m_iPortaTo;
+						SetPeriod(m_iPortaTo);
 				}
 				else if (m_iPeriod < m_iPortaTo) {
 					PeriodAdd(m_iPortaSpeed);
 					if (m_iPeriod > m_iPortaTo)
-						m_iPeriod = m_iPortaTo;
+						SetPeriod(m_iPortaTo);
 				}
 			}
 			break;
@@ -598,7 +561,7 @@ void CChannelHandler::UpdateEffects()
 			if (m_iPortaSpeed > 0) {
 				PeriodRemove(m_iPortaSpeed);
 				if (m_iPeriod < m_iPortaTo) {
-					m_iPeriod = m_iPortaTo;
+					SetPeriod(m_iPortaTo);
 					m_iPortaTo = 0;
 					m_iEffect = EF_NONE;
 				}
@@ -608,19 +571,19 @@ void CChannelHandler::UpdateEffects()
 			if (m_iPortaSpeed > 0) {
 				PeriodAdd(m_iPortaSpeed);
 				if (m_iPeriod > m_iPortaTo) {
-					m_iPeriod = m_iPortaTo;
+					SetPeriod(m_iPortaTo);
 					m_iPortaTo = 0;
 					m_iEffect = EF_NONE;
 				}
 			}
 			break;
 		case EF_PORTA_DOWN:
-			PeriodAdd(m_iPortaSpeed);
-			m_iPeriod = LimitPeriod(m_iPeriod);
+			if (GetPeriod() > 0)
+				PeriodAdd(m_iPortaSpeed);
 			break;
 		case EF_PORTA_UP:
-			PeriodRemove(m_iPortaSpeed);
-			m_iPeriod = LimitPeriod(m_iPeriod);
+			if (GetPeriod() > 0)
+				PeriodRemove(m_iPortaSpeed);
 			break;
 	}
 }
@@ -643,6 +606,11 @@ bool CChannelHandler::IsActive() const
 	return m_bGate;
 }
 
+bool CChannelHandler::IsReleasing() const
+{
+	return m_bRelease;
+}
+
 int CChannelHandler::GetVibrato() const
 {
 	// Vibrato offset (4xx)
@@ -663,7 +631,7 @@ int CChannelHandler::GetVibrato() const
 	}
 
 	if (m_bLinearPitch)
-		VibFreq = (m_iPeriod * VibFreq) / 128;
+		VibFreq = (GetPeriod() * VibFreq) / 128;
 
 	return VibFreq;
 }
@@ -688,148 +656,19 @@ int CChannelHandler::GetFinePitch() const
 	return (0x80 - m_iFinePitch);
 }
 
-// Sequence routines
-
-void CChannelHandler::RunSequence(int Index, const CSequence *pSequence)
-{
-	if (pSequence->GetItemCount() == 0 || !m_bGate)
-		return;
-
-	switch (m_iSeqState[Index]) {
-	case SEQ_STATE_RUNNING:
-		{
-			int Value = pSequence->GetItem(m_iSeqPointer[Index]);
-
-			switch (Index) {
-				// Volume modifier
-				case SEQ_VOLUME:
-					m_iSeqVolume = Value;
-					break;
-				// Arpeggiator
-				case SEQ_ARPEGGIO:
-					switch (pSequence->GetSetting()) {
-						case ARP_SETTING_ABSOLUTE:
-							m_iPeriod = TriggerNote(m_iNote + Value);
-							break;
-						case ARP_SETTING_FIXED:
-							m_iPeriod = TriggerNote(Value);
-							break;
-						case ARP_SETTING_RELATIVE:
-							m_iNote += Value;
-							if (m_iNote > 95)
-								m_iNote = 95;
-							if (m_iNote < 0)
-								m_iNote = 0;
-							m_iPeriod = TriggerNote(m_iNote);
-							break;
-					}
-					break;
-				// Pitch
-				case SEQ_PITCH:
-					m_iPeriod += Value;
-					m_iPeriod = LimitPeriod(m_iPeriod);
-					break;
-				// Hi-pitch
-				case SEQ_HIPITCH:
-					m_iPeriod += Value << 4;
-					m_iPeriod = LimitPeriod(m_iPeriod);
-					break;
-				// Duty cycling
-				case SEQ_DUTYCYCLE:
-					m_iDutyPeriod = Value;
-					break;
-			}
-
-			++m_iSeqPointer[Index];
-
-			int Release = pSequence->GetReleasePoint();
-			int Items = pSequence->GetItemCount();
-			int Loop = pSequence->GetLoopPoint();
-
-			if (m_iSeqPointer[Index] == (Release + 1) || m_iSeqPointer[Index] >= Items) {
-				// End point reached
-				if (Loop != -1 && !(m_bRelease && Release != -1)) {
-					m_iSeqPointer[Index] = Loop;
-				}
-				else {
-					if (m_iSeqPointer[Index] >= Items) {
-						// End of sequence 
-						m_iSeqState[Index] = SEQ_STATE_END;
-					}
-					else if (!m_bRelease)
-						// Waiting for release
-						--m_iSeqPointer[Index];
-				}
-			}
-
-			m_pSoundGen->SetSequencePlayPos(pSequence, m_iSeqPointer[Index]);
-		}
-		break;
-	case SEQ_STATE_END:
-		
-		///////////////// temporary /////////////////////
-
-		switch (Index) {
-			case SEQ_ARPEGGIO:
-				if (pSequence->GetSetting() == ARP_SETTING_FIXED) {
-					m_iPeriod = TriggerNote(m_iNote);
-				}
-				break;
-		}
-
-		m_iSeqState[Index] = SEQ_STATE_HALT;
-
-		///////////////// temporary /////////////////////
-
-		m_pSoundGen->SetSequencePlayPos(pSequence, -1);
-		break;
-	case SEQ_STATE_HALT:
-		// Do nothing
-		break;
-	}
-}
-
-void CChannelHandler::ReleaseSequences(int Chip)
-{
-	CFamiTrackerDoc *pDocument = m_pSoundGen->GetDocument();
-
-	for (int i = 0; i < SEQ_COUNT; ++i) {
-		if (m_iSeqState[i] == SEQ_STATE_RUNNING || m_iSeqState[i] == SEQ_STATE_END) {
-			CSequence *pSeq = pDocument->GetSequence(Chip, m_iSeqIndex[i], i);
-			ReleaseSequence(i, pSeq);
-		}
-	}
-
-//	m_bSequencesReleased = true;
-}
-
-void CChannelHandler::ReleaseSequence(int Index, CSequence *pSeq)
-{
-	int ReleasePoint = pSeq->GetReleasePoint();
-
-	if (ReleasePoint != -1) {
-		m_iSeqPointer[Index] = ReleasePoint;
-		m_iSeqState[Index] = SEQ_STATE_RUNNING;
-	}
-}
-
 int CChannelHandler::CalculatePeriod() const 
 {
-	return LimitPeriod(m_iPeriod - GetVibrato() + GetFinePitch() + GetPitch());
+	return LimitPeriod(GetPeriod() - GetVibrato() + GetFinePitch() + GetPitch());
 }
 
 int CChannelHandler::CalculateVolume() const
 {
 	// Volume calculation
-	int Volume;
+	int Volume = m_iVolume >> VOL_COLUMN_SHIFT;
 
-	Volume = m_iVolume >> VOL_COLUMN_SHIFT;
 	Volume = (m_iSeqVolume * Volume) / 15 - GetTremolo();
-
-	if (Volume < 0)
-		Volume = 0;
-	if (Volume > m_iMaxVolume)
-		Volume = m_iMaxVolume;
+	Volume = std::max(Volume, 0);
+	Volume = std::min(Volume, m_iMaxVolume);
 
 	if (m_iSeqVolume > 0 && m_iVolume > 0 && Volume == 0)
 		Volume = 1;
@@ -862,6 +701,37 @@ void CChannelHandler::RegisterKeyState(int Note)
 	m_pSoundGen->RegisterKeyState(m_iChannelID, Note);
 }
 
+void CChannelHandler::SetVolume(int Volume)
+{
+	m_iSeqVolume = Volume;
+}
+
+void CChannelHandler::SetPeriod(int Period)
+{
+	m_iPeriod = LimitPeriod(Period);
+	m_bPeriodUpdated = true;
+}
+
+int CChannelHandler::GetPeriod() const
+{
+	return m_iPeriod;
+}
+
+void CChannelHandler::SetNote(int Note)
+{
+	m_iNote = Note;
+}
+
+int CChannelHandler::GetNote() const
+{
+	return m_iNote;
+}
+
+void CChannelHandler::SetDutyPeriod(int Period)
+{
+	m_iDutyPeriod = Period;
+}
+
 /*
  * Class CChannelHandlerInverted
  *
@@ -880,5 +750,169 @@ void CChannelHandlerInverted::SetupSlide(int Type, int EffParam)
 
 int CChannelHandlerInverted::CalculatePeriod() const 
 {
-	return LimitPeriod(m_iPeriod + GetVibrato() - GetFinePitch() - GetPitch());
+	return LimitPeriod(GetPeriod() + GetVibrato() - GetFinePitch() - GetPitch());
+}
+
+/*
+ * Class CSequenceHandler
+ *
+ */
+
+CSequenceHandler::CSequenceHandler()
+{
+	ClearSequences();
+}
+
+// Sequence routines
+
+void CSequenceHandler::SetupSequence(int Index, const CSequence *pSequence)
+{
+	m_iSeqState[Index]	 = SEQ_STATE_RUNNING;
+	m_iSeqPointer[Index] = 0;
+	m_pSequence[Index]	 = pSequence;
+}
+
+void CSequenceHandler::ClearSequence(int Index)
+{
+	m_iSeqState[Index]	 = SEQ_STATE_DISABLED;
+	m_iSeqPointer[Index] = 0;
+	m_pSequence[Index]	 = NULL;
+}
+
+void CSequenceHandler::UpdateSequenceRunning(int Index, const CSequence *pSequence)
+{
+	int Value = pSequence->GetItem(m_iSeqPointer[Index]);
+
+	switch (Index) {
+		// Volume modifier
+		case SEQ_VOLUME:
+			SetVolume(Value);
+			break;
+		// Arpeggiator
+		case SEQ_ARPEGGIO:
+			switch (pSequence->GetSetting()) {
+				case ARP_SETTING_ABSOLUTE:
+					SetPeriod(TriggerNote(GetNote() + Value));
+					break;
+				case ARP_SETTING_FIXED:
+					SetPeriod(TriggerNote(Value));
+					break;
+				case ARP_SETTING_RELATIVE:
+					SetNote(GetNote() + Value);
+					SetPeriod(TriggerNote(GetNote()));
+					break;
+			}
+			break;
+		// Pitch
+		case SEQ_PITCH:
+			SetPeriod(GetPeriod() + Value);
+			break;
+		// Hi-pitch
+		case SEQ_HIPITCH:
+			SetPeriod(GetPeriod() + (Value << 4));
+			break;
+		// Duty cycling
+		case SEQ_DUTYCYCLE:
+			SetDutyPeriod(Value);
+			break;
+	}
+
+	++m_iSeqPointer[Index];
+
+	int Release = pSequence->GetReleasePoint();
+	int Items = pSequence->GetItemCount();
+	int Loop = pSequence->GetLoopPoint();
+
+	if (m_iSeqPointer[Index] == (Release + 1) || m_iSeqPointer[Index] >= Items) {
+		// End point reached
+		if (Loop != -1 && !(IsReleasing() && Release != -1)) {
+			m_iSeqPointer[Index] = Loop;
+		}
+		else {
+			if (m_iSeqPointer[Index] >= Items) {
+				// End of sequence 
+				m_iSeqState[Index] = SEQ_STATE_END;
+			}
+			else if (!IsReleasing()) {
+				// Waiting for release
+				--m_iSeqPointer[Index];
+			}
+		}
+	}
+
+	theApp.GetSoundGenerator()->SetSequencePlayPos(pSequence, m_iSeqPointer[Index]);
+}
+
+void CSequenceHandler::UpdateSequenceEnd(int Index, const CSequence *pSequence)
+{
+	switch (Index) {
+		case SEQ_ARPEGGIO:
+			if (pSequence->GetSetting() == ARP_SETTING_FIXED) {
+				SetPeriod(TriggerNote(GetNote()));
+			}
+			break;
+	}
+
+	m_iSeqState[Index] = SEQ_STATE_HALT;
+
+	theApp.GetSoundGenerator()->SetSequencePlayPos(pSequence, -1);
+}
+
+void CSequenceHandler::RunSequence(int Index)
+{
+	const CSequence *pSequence = m_pSequence[Index];
+
+	if (!pSequence || pSequence->GetItemCount() == 0 || !IsActive())
+		return;
+
+	switch (m_iSeqState[Index]) {
+		case SEQ_STATE_RUNNING:
+			UpdateSequenceRunning(Index, pSequence);
+			break;
+		case SEQ_STATE_END:
+			UpdateSequenceEnd(Index, pSequence);
+			break;
+		case SEQ_STATE_DISABLED:
+		case SEQ_STATE_HALT:
+			// Do nothing
+			break;
+	}
+}
+
+void CSequenceHandler::ClearSequences()
+{
+	for (int i = 0; i < SEQ_COUNT; ++i) {
+		m_iSeqState[i]	 = SEQ_STATE_DISABLED;
+		m_iSeqPointer[i] = 0;
+		m_pSequence[i]	 = NULL;
+	}
+}
+
+void CSequenceHandler::ReleaseSequences()
+{
+	for (int i = 0; i < SEQ_COUNT; ++i) {
+		if (m_iSeqState[i] == SEQ_STATE_RUNNING || m_iSeqState[i] == SEQ_STATE_END) {
+			ReleaseSequence(i, m_pSequence[i]);
+		}
+	}
+}
+
+void CSequenceHandler::ReleaseSequence(int Index, const CSequence *pSeq)
+{
+	int ReleasePoint = pSeq->GetReleasePoint();
+
+	if (ReleasePoint != -1) {
+		m_iSeqPointer[Index] = ReleasePoint;
+		m_iSeqState[Index] = SEQ_STATE_RUNNING;
+	}
+}
+
+bool CSequenceHandler::IsSequenceEqual(int Index, const CSequence *pSequence) const
+{
+	return pSequence == m_pSequence[Index];
+}
+
+seq_state_t CSequenceHandler::GetSequenceState(int Index) const
+{
+	return m_iSeqState[Index];
 }

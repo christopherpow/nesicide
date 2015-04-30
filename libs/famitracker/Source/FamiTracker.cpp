@@ -47,9 +47,9 @@ const DWORD	SHARED_MEM_SIZE			= 256;
 #define new DEBUG_NEW
 #endif
 
-#ifdef SVN_BUILD
+#ifdef RELEASE_BUILD
 #pragma message("Building SVN release build...")
-#endif /* SVN_BUILD */
+#endif /* RELEASE_BUILD */
 
 // CFamiTrackerApp
 
@@ -889,22 +889,24 @@ CString LoadDefaultFilter(UINT nID, LPCTSTR Ext)
 
 void AfxFormatString3(CString &rString, UINT nIDS, LPCTSTR lpsz1, LPCTSTR lpsz2, LPCTSTR lpsz3)
 {
+	// AfxFormatString with three arguments
 	LPCTSTR arr[] = {lpsz1, lpsz2, lpsz3};
 	AfxFormatStrings(rString, nIDS, arr, 3);
 }
 
-CString MakeIntString(int val)
+CString MakeIntString(int val, LPCTSTR format)
 {
-	// Turns an int to a string
+	// Turns an int into a string
 	CString str;
-	str.Format(_T("%i"), val);
+	str.Format(format, val);
 	return str;
 }
 
-CString MakeFloatString(float val)
+CString MakeFloatString(float val, LPCTSTR format)
 {
+	// Turns a float into a string
 	CString str;
-	str.Format(_T("%g"), val);
+	str.Format(format, val);
 	return str;
 }
 

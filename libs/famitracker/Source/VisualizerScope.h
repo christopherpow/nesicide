@@ -20,11 +20,14 @@
 
 #pragma once
 
+
+// CVisualizerScope, scope style visualizer
+
 class CVisualizerScope : public CVisualizerBase
 {
 public:
 	CVisualizerScope(bool bBlur);
-	~CVisualizerScope();
+	virtual ~CVisualizerScope();
 
 	void Create(int Width, int Height);
 	void SetSampleRate(int SampleRate);

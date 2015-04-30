@@ -44,11 +44,8 @@ protected:
 	void SelectSequence(int Sequence, int Type);
 	void TranslateMML(CString String, int Max, int Min);
 
-	int m_iSelectedSetting;
-
-	CWnd				*m_pParentWin;
-	CSequenceEditor		*m_pSequenceEditor;
-	CInstrumentN163		*m_pInstrument;
+protected:
+	CInstrumentN163	*m_pInstrument;
 
 protected:
 	static LPCTSTR INST_SETTINGS_N163[CInstrumentN163::SEQUENCE_COUNT];

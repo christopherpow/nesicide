@@ -19,7 +19,7 @@
 */
 
 #include "stdafx.h"
-#include "FamiTrackerDoc.h"
+#include "DSample.h"
 
 /*
  * CDSample
@@ -75,8 +75,6 @@ void CDSample::Copy(const CDSample *pDSample)
 
 void CDSample::Allocate(unsigned int iSize, const char *pData)
 {
-//	ASSERT(pData != NULL);
-
 	SAFE_RELEASE_ARRAY(m_pSampleData);
 
 	m_pSampleData = new char[iSize];

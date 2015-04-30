@@ -55,7 +55,6 @@ CMIDI::CMIDI() :
 	m_bInStarted(false), 
 	m_iInDevice(0),
 	m_iOutDevice(0),
-	m_iQueuePtr(0),
 	m_iQueueHead(0), 
 	m_iQueueTail(0),
 	m_hMIDIIn(NULL),
@@ -141,7 +140,9 @@ bool CMIDI::OpenDevices(void)
 		midiOutReset(m_hMIDIOut);
 	}
 
+	m_csQueue.Lock();
 	m_iQueueHead = m_iQueueTail = 0;
+	m_csQueue.Unlock();
 
 	return true;
 }
@@ -209,70 +210,82 @@ void CMIDI::SetOutputDevice(int Device)
 
 void CMIDI::Enqueue(unsigned char MsgType, unsigned char MsgChannel, unsigned char Data1, unsigned char Data2)
 {
-	MsgTypeQueue[m_iQueueHead] = MsgType;
-	MsgChanQueue[m_iQueueHead] = MsgChannel;
-	Data1Queue[m_iQueueHead]   = Data1;
-	Data2Queue[m_iQueueHead]   = Data2;
-
-	Quantization[m_iQueueHead] = m_iTimingCounter;
+	m_csQueue.Lock();
+	
+	m_iMsgTypeQueue[m_iQueueHead] = MsgType;
+	m_iMsgChanQueue[m_iQueueHead] = MsgChannel;
+	m_iData1Queue[m_iQueueHead]   = Data1;
+	m_iData2Queue[m_iQueueHead]   = Data2;
+	m_iQuantization[m_iQueueHead] = m_iTimingCounter;
 
 	m_iQueueHead = (m_iQueueHead + 1) % MAX_QUEUE;
+
+	m_csQueue.Unlock();
 }
 
 void CMIDI::Event(unsigned char Status, unsigned char Data1, unsigned char Data2)
 {
-	//static int TimingCounter;
+	const unsigned char MsgType	   = Status >> 4;
+	const unsigned char MsgChannel = Status & 0x0F;
 
-	unsigned char MsgType	 = Status >> 4;
-	unsigned char MsgChannel = Status & 0x0F;
+	CFrameWnd *pFrame = static_cast<CFrameWnd*>(AfxGetApp()->m_pMainWnd);
+	CView *pView = pFrame->GetActiveView();
+
+	TRACE("%i: MIDI message %02X %02X %02X\n", GetTickCount(), Status, Data1, Data2);
 
 	// Timing
 	switch (Status) {
-		case 0xF8:	// Timing tick
-			if (m_bMasterSync) {
-				if (++m_iTimingCounter == 6) {
-					m_iTimingCounter = 0;
-					Enqueue(MsgType, MsgChannel, Data1, Data2);
-					CFamiTrackerView::GetView()->PostMessage(WM_USER_MIDI_EVENT);
-				}
+	case 0xF8:	// Timing tick
+		if (m_bMasterSync) {
+			if (++m_iTimingCounter == 6) {
+				m_iTimingCounter = 0;
+				Enqueue(MsgType, MsgChannel, Data1, Data2);
+				pView->PostMessage(WM_USER_MIDI_EVENT);
 			}
-			break;
-		case 0xFA:	// Start
-			m_iTimingCounter = 0;
-			break;
-		case 0xFC:	// Stop
-			m_iTimingCounter = 0;
-			break;
-		default:
-			switch (MsgType) {
-				case MIDI_MSG_NOTE_OFF:
-				case MIDI_MSG_NOTE_ON: 
-				case MIDI_MSG_PITCH_WHEEL:
-					Enqueue(MsgType, MsgChannel, Data1, Data2);
-					CFamiTrackerView::GetView()->PostMessage(WM_USER_MIDI_EVENT);
-					break;
-			}
+		}
+		break;
+	case 0xFA:	// Start
+		m_iTimingCounter = 0;
+		break;
+	case 0xFC:	// Stop
+		m_iTimingCounter = 0;
+		break;
+	default:
+		switch (MsgType) {
+			case MIDI_MSG_NOTE_OFF:
+			case MIDI_MSG_NOTE_ON: 
+			case MIDI_MSG_PITCH_WHEEL:
+				Enqueue(MsgType, MsgChannel, Data1, Data2);
+				pView->PostMessage(WM_USER_MIDI_EVENT);
+				break;
+		}
 	}
 }
 
 bool CMIDI::ReadMessage(unsigned char & Message, unsigned char & Channel, unsigned char & Data1, unsigned char & Data2)
 {
-	if (m_iQueueHead == m_iQueueTail)
-		return false;
+	bool Result = false;
+	
+	m_csQueue.Lock();
 
-	Message = m_iLastMsgType = MsgTypeQueue[m_iQueueTail];
-	Channel = m_iLastMsgChan = MsgChanQueue[m_iQueueTail];
-	Data1 = Data1Queue[m_iQueueTail];
-	Data2 = Data2Queue[m_iQueueTail];
+	if (m_iQueueHead != m_iQueueTail) {
+		Result = true;
 
-	m_iQuant = Quantization[m_iQueueTail];
+		Message = m_iMsgTypeQueue[m_iQueueTail];
+		Channel = m_iMsgChanQueue[m_iQueueTail];
+		Data1	= m_iData1Queue[m_iQueueTail];
+		Data2	= m_iData2Queue[m_iQueueTail];
+		m_iQuant = m_iQuantization[m_iQueueTail];
 
-	m_iQueueTail = (m_iQueueTail + 1) % MAX_QUEUE;
+		m_iQueueTail = (m_iQueueTail + 1) % MAX_QUEUE;
+	}
 
-	return true;
+	m_csQueue.Unlock();
+
+	return Result;
 }
 
-int CMIDI::GetQuantization()
+int CMIDI::GetQuantization() const
 {
 	return m_iQuant;
 }

@@ -100,11 +100,10 @@ void CCreateWaveDlg::OnBnClickedBegin()
 
 	CString FileName = pDoc->GetFileTitle();
 
-	CMainFrame *pMainFrm = static_cast<CMainFrame*>(theApp.GetMainWnd());
-	int Track = pMainFrm->GetSelectedTrack();
+	int Track = m_ctlTracks.GetCurSel();
 
 	if (pDoc->GetTrackCount() > 1) {
-		FileName.AppendFormat(_T(" - Track %02i"), Track + 1);
+		FileName.AppendFormat(_T(" - Track %02i (%s)"), Track + 1, pDoc->GetTrackTitle(Track).GetBuffer());
 	}
 
 	CWavProgressDlg ProgressDlg;
@@ -137,7 +136,7 @@ void CCreateWaveDlg::OnBnClickedBegin()
 	}
 
 	// Show the render progress dialog, this will also start rendering
-   ProgressDlg.BeginRender(SaveDialog.GetPathName(), EndType, EndParam, Track);
+	ProgressDlg.BeginRender(SaveDialog.GetPathName(), EndType, EndParam, Track);
 
 	// Unmute all channels
 	pView->UnmuteAllChannels();
@@ -156,12 +155,25 @@ BOOL CCreateWaveDlg::OnInitDialog()
 	m_ctlChannelList.ResetContent();
 	m_ctlChannelList.SetCheckStyle(BS_AUTOCHECKBOX);
 
+	m_ctlTracks.SubclassDlgItem(IDC_TRACKS, this);
+
 	CFamiTrackerDoc *pDoc = CFamiTrackerDoc::GetDoc();
 
-	for (int i = 0; i < pDoc->GetChannelCount(); ++i) {
+	int ChannelCount = pDoc->GetAvailableChannels();
+	for (int i = 0; i < ChannelCount; ++i) {
 		m_ctlChannelList.AddString(pDoc->GetChannel(i)->GetChannelName());
 		m_ctlChannelList.SetCheck(i, 1);
 	}
+
+	for (unsigned int i = 0; i < pDoc->GetTrackCount(); ++i) {
+		CString text;
+		text.Format(_T("#%02i - "), i + 1);
+		text.Append(pDoc->GetTrackTitle(i));
+		m_ctlTracks.AddString(text);
+	}
+
+	CMainFrame *pMainFrm = static_cast<CMainFrame*>(theApp.GetMainWnd());
+	m_ctlTracks.SetCurSel(pMainFrm->GetSelectedTrack());
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE

@@ -1309,7 +1309,7 @@ UINT WINAPI RegisterClipboardFormat(
    return reg;
 }
 
-BOOL WINAPI OpenClipboard(
+BOOL CWnd::OpenClipboard(
 //  HWND hWndNewOwner
 )
 {
@@ -3251,6 +3251,14 @@ BOOL CDC::DrawEdge(
    _qpainter.setPen(pen2);
    _qpainter.drawRect(rect2);
    _qpainter.setPen(pen);
+   return TRUE;
+}
+
+BOOL CDC::RectVisible(
+   LPCRECT lpRect
+) const
+{
+   qDebug("RectVisible needs work..");
    return TRUE;
 }
 

@@ -20,6 +20,9 @@
 
 #pragma once
 
+
+// Various graphics helpers
+
 // Color macros
 
 #define RED(x)	 (x & 255)

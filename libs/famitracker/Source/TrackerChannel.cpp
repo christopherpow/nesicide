@@ -73,7 +73,7 @@ void CTrackerChannel::SetNote(stChanNote &Note, note_prio_t Priority)
 {
 	m_csNoteLock.Lock();
 
-	if (Priority > m_iNotePriority) {
+	if (Priority >= m_iNotePriority) {
 		m_Note = Note;
 		m_bNewNote = true;
 		m_iNotePriority = Priority;

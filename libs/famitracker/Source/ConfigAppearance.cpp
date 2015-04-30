@@ -386,12 +386,10 @@ void CConfigAppearance::SelectColorScheme(const COLOR_SCHEME *pColorScheme)
 	m_strFont = pColorScheme->FONT_FACE;
 	m_iFontSize = pColorScheme->FONT_SIZE;
 	pFontList->SelectString(0, m_strFont);
-	CString SizeStr;
-	SizeStr.Format(_T("%i"), m_iFontSize);
-	pFontSizeList->SelectString(0, SizeStr);
+	pFontSizeList->SelectString(0, MakeIntString(m_iFontSize));
 }
 
-void CConfigAppearance::SetColor(int Index, int Color) 
+void CConfigAppearance::SetColor(int Index, int Color)
 {
 	m_iColors[Index] = Color;
 }

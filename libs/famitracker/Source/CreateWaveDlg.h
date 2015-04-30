@@ -19,7 +19,6 @@
 */
 
 #pragma once
-//#include "afxwin.h"
 
 
 // CCreateWaveDlg dialog
@@ -44,6 +43,7 @@ protected:
 	int GetTimeLimit() const;
 
 	CCheckListBox m_ctlChannelList;
+	CComboBox	  m_ctlTracks;
 
 	DECLARE_MESSAGE_MAP()
 public:

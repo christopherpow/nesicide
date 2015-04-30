@@ -23,11 +23,6 @@
 class CFamiTrackerDoc;
 class CCompilerLog;
 
-struct stSpacingInfo {
-	int SpaceCount;
-	int SpaceSize;
-};
-
 typedef unsigned char DPCM_List_t[MAX_INSTRUMENTS][OCTAVE_RANGE][NOTE_RANGE];
 
 class CPatternCompiler
@@ -36,34 +31,42 @@ public:
 	CPatternCompiler(CFamiTrackerDoc *pDoc, unsigned int *pInstList, DPCM_List_t *pDPCMList, CCompilerLog *pLogger);
 	~CPatternCompiler();
 
-	void CompileData(int Track, int Pattern, int Channel);
+	void			CompileData(int Track, int Pattern, int Channel);
 	
-	unsigned int   GetHash() const;
-	bool		   CompareData(unsigned char *pArray, int Size) const;
-	unsigned int   GetStringSize() const;
-	unsigned char* GetString() const;
-	unsigned int   GetCompressedStringSize() const;
-	unsigned char* GetCompressedString() const;
+	unsigned int	GetHash() const;
+	bool			CompareData(const std::vector<char> &data) const;
+
+	const std::vector<char> &GetData() const;
+	const std::vector<char> &GetCompressedData() const;
+
+	unsigned int	GetDataSize() const;
+	unsigned int	GetCompressedDataSize() const;
+
+private:	
+	struct stSpacingInfo {
+		int SpaceCount;
+		int SpaceSize;
+	};
 
 private:
-	unsigned int FindInstrument(int Instrument) const;
-	unsigned int FindSample(int Instrument, int Octave, int Key) const;
+	unsigned int	FindInstrument(int Instrument) const;
+	unsigned int	FindSample(int Instrument, int Octave, int Key) const;
 
-	unsigned char Command(int cmd) const;
+	unsigned char	Command(int cmd) const;
 
-	void WriteData(unsigned char Value);
-	void WriteDuration();
-	void AccumulateDuration();
-	void OptimizeString();
-	int	GetBlockSize(int Position);
-	stSpacingInfo ScanNoteLengths(int Track, unsigned int StartRow, int Pattern, int Channel);
+	void			WriteData(unsigned char Value);
+	void			WriteDuration();
+	void			AccumulateDuration();
+	void			OptimizeString();
+	int				GetBlockSize(int Position);
+	stSpacingInfo	ScanNoteLengths(int Track, unsigned int StartRow, int Pattern, int Channel);
 
 	// Debugging
-	void Print(LPCTSTR text) const;
+	void			Print(LPCTSTR text) const;
 
 private:
-	std::vector<unsigned char> m_vData;
-	std::vector<unsigned char> m_vCompressedData;
+	std::vector<char> m_vData;
+	std::vector<char> m_vCompressedData;
 
 	unsigned int	m_iDuration;
 	unsigned int	m_iCurrentDefaultDuration;

@@ -18,8 +18,10 @@
 ** must bear this legend.
 */
 
-#ifndef _VERSION_H_
-#define _VERSION_H_
+#pragma once
+
+
+// Application version information
 
 // Define this for beta builds
 //#define WIP
@@ -27,14 +29,14 @@
 // Version info
 #define VERSION_MAJ  0
 #define VERSION_MIN  4
-#define VERSION_REV  4
+#define VERSION_REV  6
 
 // CP: Qt versioning adds a .x
 #define VERSION_QT   1 // 2014-??-??
 
 #define VERSION_WIP  0
 
-#ifdef SVN_BUILD
+#ifdef RELEASE_BUILD
 
 #include "config.h"
 #define VERSION VERSION_MAJ,VERSION_MIN,VERSION_REV,SVN_VERSION
@@ -43,6 +45,5 @@
 
 #define VERSION VERSION_MAJ,VERSION_MIN,VERSION_REV,VERSION_WIP
 
-#endif /* SVN_BUILD */
+#endif /* RELEASE_BUILD */
 
-#endif /* _VERSION_H_ */

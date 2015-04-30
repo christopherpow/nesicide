@@ -51,8 +51,6 @@ BEGIN_MESSAGE_MAP(CConfigSound, CPropertyPage)
 	ON_CBN_SELCHANGE(IDC_DEVICES, OnCbnSelchangeDevices)
 END_MESSAGE_MAP()
 
-//int iDeviceIndex;
-
 const int MAX_BUFFER_LEN = 500;	// 500 ms
 
 // CConfigSound message handlers
@@ -71,9 +69,17 @@ BOOL CConfigSound::OnInitDialog()
 	CSliderCtrl *pTrebleSliderDamping = static_cast<CSliderCtrl*>(GetDlgItem(IDC_TREBLE_DAMP));
 	CSliderCtrl *pVolumeSlider		  = static_cast<CSliderCtrl*>(GetDlgItem(IDC_VOLUME));
 
+	// Set ranges
 	pBufSlider->SetRange(1, MAX_BUFFER_LEN);
+	pBassSlider->SetRange(16, 4000);
+	pTrebleSliderFreq->SetRange(20, 20000);
+	pTrebleSliderDamping->SetRange(0, 90);
+	pVolumeSlider->SetRange(0, 100);
 
-	switch (theApp.GetSettings()->Sound.iSampleRate) {
+	CSettings *pSettings = theApp.GetSettings();
+
+	// Read settings
+	switch (pSettings->Sound.iSampleRate) {
 		case 11025: pSampleRate->SelectString(0, _T("11 025 Hz")); break;
 		case 22050: pSampleRate->SelectString(0, _T("22 050 Hz")); break;
 		case 44100: pSampleRate->SelectString(0, _T("44 100 Hz")); break;
@@ -81,46 +87,26 @@ BOOL CConfigSound::OnInitDialog()
 		case 96000: pSampleRate->SelectString(0, _T("96 000 Hz")); break;
 	}
 
-	switch (theApp.GetSettings()->Sound.iSampleSize) {
+	switch (pSettings->Sound.iSampleSize) {
 		case 16: pSampleSize->SelectString(0, _T("16 bit")); break;
 		case 8:	 pSampleSize->SelectString(0, _T("8 bit")); break;
 	}
 
-	pBufSlider->SetPos(theApp.GetSettings()->Sound.iBufferLength);
+	pBufSlider->SetPos(pSettings->Sound.iBufferLength);
+	pBassSlider->SetPos(pSettings->Sound.iBassFilter);
+	pTrebleSliderFreq->SetPos(pSettings->Sound.iTrebleFilter);
+	pTrebleSliderDamping->SetPos(pSettings->Sound.iTrebleDamping);
+	pVolumeSlider->SetPos(pSettings->Sound.iMixVolume);
 
-	CString Text;
-	Text.Format(_T("%i ms"), theApp.GetSettings()->Sound.iBufferLength);
-	SetDlgItemText(IDC_BUF_LEN, Text);
-
-	pBassSlider->SetRange(16, 4000);
-	pTrebleSliderFreq->SetRange(20, 20000);
-	pTrebleSliderDamping->SetRange(0, 90);
-	pVolumeSlider->SetRange(0, 100);
-
-	pBassSlider->SetPos(theApp.GetSettings()->Sound.iBassFilter);
-	pTrebleSliderFreq->SetPos(theApp.GetSettings()->Sound.iTrebleFilter);
-	pTrebleSliderDamping->SetPos(theApp.GetSettings()->Sound.iTrebleDamping);
-	pVolumeSlider->SetPos(theApp.GetSettings()->Sound.iMixVolume);
-
-	Text.Format(_T("%i Hz"), pBassSlider->GetPos());
-	SetDlgItemText(IDC_BASS_FREQ_T, Text);
-
-	Text.Format(_T("%i Hz"), pTrebleSliderFreq->GetPos());
-	SetDlgItemText(IDC_TREBLE_FREQ_T, Text);
-
-	Text.Format(_T("-%i dB"), pTrebleSliderDamping->GetPos());
-	SetDlgItemText(IDC_TREBLE_DAMP_T, Text);
-
-	Text.Format(_T("%i %%"), pVolumeSlider->GetPos());
-	SetDlgItemText(IDC_VOLUME_T, Text);
+	UpdateTexts();
 
 	CDSound *pDSound = theApp.GetSoundGenerator()->GetSoundInterface();
-	int iCount = pDSound->GetDeviceCount();
+	const int iCount = pDSound->GetDeviceCount();
 
 	for (int i = 0; i < iCount; ++i)
 		pDevices->AddString(pDSound->GetDeviceName(i));
 
-	pDevices->SetCurSel(theApp.GetSettings()->Sound.iDevice);
+	pDevices->SetCurSel(pSettings->Sound.iDevice);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
@@ -128,25 +114,8 @@ BOOL CConfigSound::OnInitDialog()
 
 void CConfigSound::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 {
-	CString Text;
-
-	Text.Format(_T("%i ms"), static_cast<CSliderCtrl*>(GetDlgItem(IDC_BUF_LENGTH))->GetPos());
-	SetDlgItemText(IDC_BUF_LEN, Text);
-
-	Text.Format(_T("%i Hz"), static_cast<CSliderCtrl*>(GetDlgItem(IDC_BASS_FREQ))->GetPos());
-	SetDlgItemText(IDC_BASS_FREQ_T, Text);
-
-	Text.Format(_T("%i Hz"), static_cast<CSliderCtrl*>(GetDlgItem(IDC_TREBLE_FREQ))->GetPos());
-	SetDlgItemText(IDC_TREBLE_FREQ_T, Text);
-
-	Text.Format(_T("-%i dB"), static_cast<CSliderCtrl*>(GetDlgItem(IDC_TREBLE_DAMP))->GetPos());
-	SetDlgItemText(IDC_TREBLE_DAMP_T, Text);
-
-	Text.Format(_T("%i %%"), static_cast<CSliderCtrl*>(GetDlgItem(IDC_VOLUME))->GetPos());
-	SetDlgItemText(IDC_VOLUME_T, Text);
-
+	UpdateTexts();
 	SetModified();
-
 	CPropertyPage::OnHScroll(nSBCode, nPos, pScrollBar);
 }
 
@@ -197,4 +166,24 @@ void CConfigSound::OnCbnSelchangeSampleSize()
 void CConfigSound::OnCbnSelchangeDevices()
 {
 	SetModified();
+}
+
+void CConfigSound::UpdateTexts()
+{
+	CString Text;
+
+	Text.Format(_T("%i ms"), static_cast<CSliderCtrl*>(GetDlgItem(IDC_BUF_LENGTH))->GetPos());
+	SetDlgItemText(IDC_BUF_LEN, Text);
+
+	Text.Format(_T("%i Hz"), static_cast<CSliderCtrl*>(GetDlgItem(IDC_BASS_FREQ))->GetPos());
+	SetDlgItemText(IDC_BASS_FREQ_T, Text);
+
+	Text.Format(_T("%i Hz"), static_cast<CSliderCtrl*>(GetDlgItem(IDC_TREBLE_FREQ))->GetPos());
+	SetDlgItemText(IDC_TREBLE_FREQ_T, Text);
+
+	Text.Format(_T("-%i dB"), static_cast<CSliderCtrl*>(GetDlgItem(IDC_TREBLE_DAMP))->GetPos());
+	SetDlgItemText(IDC_TREBLE_DAMP_T, Text);
+
+	Text.Format(_T("%i %%"), static_cast<CSliderCtrl*>(GetDlgItem(IDC_VOLUME))->GetPos());
+	SetDlgItemText(IDC_VOLUME_T, Text);
 }

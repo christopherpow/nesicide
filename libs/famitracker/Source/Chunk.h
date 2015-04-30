@@ -20,7 +20,8 @@
 
 #pragma once
 
-// Vector.h is needed. That file cannot be included after stdafx.h
+// std::vector is required by this header file
+
 
 // Helper classes/objects for NSF compiling
 
@@ -78,14 +79,10 @@ public:
 class CChunkDataString : public CChunkData
 {
 public:
-	CChunkDataString(unsigned char *str, int len) : CChunkData(), m_str(str), m_iLen(len) {}
-	~CChunkDataString() {
-		SAFE_RELEASE(m_str);
-	};
-	int GetSize() const { return m_iLen; }
+	CChunkDataString(const std::vector<char> &data) : CChunkData(), m_vData(data) {}
+	int GetSize() const { return m_vData.size(); }
 	unsigned short GetData() const { return 0; };	// Invalid for this type
-	unsigned char *m_str;
-	unsigned int m_iLen;
+	std::vector<char> m_vData;
 };
 
 
@@ -102,7 +99,9 @@ enum chunk_type_t {
 	CHUNK_FRAME,
 	CHUNK_PATTERN,
 	CHUNK_WAVETABLE,
-	CHUNK_WAVES
+	CHUNK_WAVES,
+	CHUNK_CHANNEL_MAP,
+	CHUNK_CHANNEL_TYPES
 };
 
 //
@@ -130,7 +129,7 @@ public:
 	void			StoreWord(unsigned short data);
 	void			StoreReference(CStringA refName);
 	void			StoreBankReference(CStringA refName, int bank);
-	void			StoreString(unsigned char *pString, int len);
+	void			StoreString(const std::vector<char> &data);
 
 	void			ChangeByte(int index, unsigned char data);
 	void			SetupBankData(int index, unsigned char bank);
@@ -141,8 +140,7 @@ public:
 	bool			IsDataReference(int index) const;
 	bool			IsDataBank(int index) const;
 
-	unsigned char*	GetStringData(int index) const;
-	unsigned int	GetStringLength(int index) const;
+	const std::vector<char> &GetStringData(int index) const;
 
 	void			UpdateDataRefName(int index, CStringA &name);
 
@@ -151,7 +149,7 @@ public:
 	void			AssignLabels(CMap<CStringA, LPCSTR, int, int> &labelMap);
 
 private:
-	std::vector<CChunkData*> m_vChunkData;
+	std::vector<CChunkData*> m_vChunkData;	// List of data stored in this chunk
 
 	CStringA m_strLabel;		// Label of this chunk
 	unsigned char m_iBank;		// The bank this chunk will be stored in

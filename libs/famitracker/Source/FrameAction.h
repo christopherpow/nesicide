@@ -21,6 +21,7 @@
 #pragma once
 
 #include "Action.h"
+#include "FrameEditor.h"
 
 // Frame commands
 class CFrameAction : public CAction
@@ -44,7 +45,8 @@ public:
 		ACT_DRAG_AND_DROP_MOVE,
 		ACT_DRAG_AND_DROP_COPY,
 		ACT_DRAG_AND_DROP_COPY_NEW,
-		ACT_DELETE_SELECTION
+		ACT_DELETE_SELECTION,
+		ACT_MERGE_DUPLICATED_PATTERNS
 	};
 
 public:

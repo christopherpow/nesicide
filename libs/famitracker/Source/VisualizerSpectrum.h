@@ -20,6 +20,9 @@
 
 #pragma once
 
+
+// CVisualizerSpectrum, spectrum style visualizer
+
 class Fft;
 
 const int FFT_POINTS = 256;
@@ -28,7 +31,7 @@ class CVisualizerSpectrum : public CVisualizerBase
 {
 public:
 	CVisualizerSpectrum();
-	~CVisualizerSpectrum();
+	virtual ~CVisualizerSpectrum();
 
 	void Create(int Width, int Height);
 	void SetSampleRate(int SampleRate);

@@ -84,13 +84,14 @@ CMixer::CMixer()
 	m_iHighCut = 0;
 	m_iHighDamp = 0;
 	m_fOverallVol = 1.0f;
+
+	m_dSumSS = 0.0;
+	m_dSumTND = 0.0;
 }
 
 CMixer::~CMixer()
 {
 }
-
-double SumSS = 0, SumTND = 0;
 
 inline double CMixer::CalcPin1(double Val1, double Val2)
 {
@@ -147,7 +148,7 @@ void CMixer::SetChipLevel(chip_level_t Chip, float Level)
 float CMixer::GetAttenuation() const
 {
 	const float ATTENUATION_VRC6 = 0.80f;
-	const float ATTENUATION_VRC7 = 0.34f;
+	const float ATTENUATION_VRC7 = 0.64f;
 	const float ATTENUATION_N163 = 0.70f;
 	const float ATTENUATION_MMC5 = 0.83f;
 	const float ATTENUATION_FDS  = 0.90f;
@@ -259,8 +260,8 @@ void CMixer::ClearBuffer()
 {
 	BlipBuffer.clear();
 
-	SumSS = 0;
-	SumTND = 0;
+	m_dSumSS = 0;
+	m_dSumTND = 0;
 }
 
 int CMixer::SamplesAvail() const
@@ -302,36 +303,30 @@ int CMixer::FinishBuffer(int t)
 
 void CMixer::MixInternal1(int Time)
 {
-	//static double LastSum;
-	double Sum, Delta;
-
 #ifdef LINEAR_MIXING
 	SumL = ((m_iChannels[CHANID_SQUARE1].Left + m_iChannels[CHANID_SQUARE2].Left) * 0.00752) * InternalVol;
 	SumR = ((m_iChannels[CHANID_SQUARE1].Right + m_iChannels[CHANID_SQUARE2].Right) *  0.00752) * InternalVol;
 #else
-	Sum = CalcPin1(m_iChannels[CHANID_SQUARE1], m_iChannels[CHANID_SQUARE2]);
+	double Sum = CalcPin1(m_iChannels[CHANID_SQUARE1], m_iChannels[CHANID_SQUARE2]);
 #endif
 
-	Delta = (Sum - SumSS) * AMP_2A03;
+	double Delta = (Sum - m_dSumSS) * AMP_2A03;
 	Synth2A03SS.offset(Time, (int)Delta, &BlipBuffer);
-	SumSS = Sum;
+	m_dSumSS = Sum;
 }
 
 void CMixer::MixInternal2(int Time)
 {
-//	static double LastSum;
-	double Sum, Delta;
-
 #ifdef LINEAR_MIXING
 	SumL = ((0.00851 * m_iChannels[CHANID_TRIANGLE].Left + 0.00494 * m_iChannels[CHANID_NOISE].Left + 0.00335 * m_iChannels[CHANID_DPCM].Left)) * InternalVol;
 	SumR = ((0.00851 * m_iChannels[CHANID_TRIANGLE].Right + 0.00494 * m_iChannels[CHANID_NOISE].Right + 0.00335 * m_iChannels[CHANID_DPCM].Right)) * InternalVol;
 #else
-	Sum = CalcPin2(m_iChannels[CHANID_TRIANGLE], m_iChannels[CHANID_NOISE], m_iChannels[CHANID_DPCM]);
+	double Sum = CalcPin2(m_iChannels[CHANID_TRIANGLE], m_iChannels[CHANID_NOISE], m_iChannels[CHANID_DPCM]);
 #endif
 
-	Delta = (Sum - SumTND) * AMP_2A03;
+	double Delta = (Sum - m_dSumTND) * AMP_2A03;
 	Synth2A03TND.offset(Time, (int)Delta, &BlipBuffer);
-	SumTND = Sum;
+	m_dSumTND = Sum;
 }
 
 void CMixer::MixN163(int Value, int Time)
@@ -431,8 +426,7 @@ void CMixer::StoreChannelLevel(int Channel, int Value)
 	}
 
 	if (Channel >= CHANID_S5B_CH1 && Channel <= CHANID_S5B_CH3) {
-		AbsVol /= 16;
-		// TODO: log -> linear conversion
+		AbsVol = (int)(logf((float)AbsVol) * 2.8f);
 	}
 
 	if (float(AbsVol) >= m_fChannelLevels[Channel]) {

@@ -48,6 +48,7 @@
 #include "Settings.h"
 #include "SoundGen.h"
 #include "ChannelMap.h"
+#include "APU/APU.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -351,8 +352,6 @@ void CFamiTrackerDoc::OnCloseDocument()
 	// Remove itself from sound generator
 	CSoundGen *pSoundGen = theApp.GetSoundGenerator();
 
-qDebug("::OnCloseDocument()");
-
 	if (pSoundGen)
 		pSoundGen->RemoveDocument();
 
@@ -374,7 +373,7 @@ void CFamiTrackerDoc::DeleteContents()
 	m_bForceBackup = false;
 	m_bBackupDone = true;	// No backup on new modules
 
-	UpdateAllViews(NULL, CLOSE_DOCUMENT);
+	UpdateAllViews(NULL, UPDATE_CLOSE);	// TODO remove
 
 	// DPCM samples
 	for (int i = 0; i < MAX_DSAMPLES; ++i) {
@@ -391,7 +390,6 @@ void CFamiTrackerDoc::DeleteContents()
 
 	// Clear sequences
 	for (int i = 0; i < MAX_SEQUENCES; ++i) {
-		m_TmpSequences[i].Count = 0;
 		for (int j = 0; j < SEQ_COUNT; ++j) {
 			SAFE_RELEASE(m_pSequences2A03[i][j]);
 			SAFE_RELEASE(m_pSequencesVRC6[i][j]);
@@ -427,7 +425,8 @@ void CFamiTrackerDoc::DeleteContents()
 	m_iSecondHighlight = DEFAULT_SECOND_HIGHLIGHT;
 
 	// Used for loading older files
-	memset(m_Sequences, 0, sizeof(stSequence) * MAX_SEQUENCES * SEQ_COUNT);
+	m_vSequences.RemoveAll();
+	m_vTmpSequences.RemoveAll();
 
 	// Auto save
 #ifdef AUTOSAVE
@@ -491,7 +490,7 @@ void CFamiTrackerDoc::CreateEmpty()
 
 	m_csDocumentLock.Unlock();
 
-	theApp.GetSoundGenerator()->DocumentPropertiesChange(this);
+	theApp.GetSoundGenerator()->DocumentPropertiesChanged(this);
 }
 
 //
@@ -559,94 +558,68 @@ void CFamiTrackerDoc::Dump(CDumpContext& dc) const
 
 void CFamiTrackerDoc::ReorderSequences()
 {
-	int Keepers[SEQ_COUNT] = {0, 0, 0, 0, 0};
+	int Slots[SEQ_COUNT] = {0, 0, 0, 0, 0};
 	int Indices[MAX_SEQUENCES][SEQ_COUNT];
-	int Index;
 
 	memset(Indices, 0xFF, MAX_SEQUENCES * SEQ_COUNT * sizeof(int));
 
+	m_vSequences.SetSize(MAX_SEQUENCES);
+
 	// Organize sequences
-	for (int i = 0; i < MAX_INSTRUMENTS; i++) {
+	for (int i = 0; i < MAX_INSTRUMENTS; ++i) {
 		if (m_pInstruments[i] != NULL) {
 			CInstrument2A03 *pInst = dynamic_cast<CInstrument2A03*>(m_pInstruments[i]);
 			if (pInst != NULL) {
-				for (int x = 0; x < SEQ_COUNT; x++) {
-					if (pInst->GetSeqEnable(x)) {
-						Index = pInst->GetSeqIndex(x);
-						if (Indices[Index][x] >= 0 && Indices[Index][x] != -1) {
-							pInst->SetSeqIndex(x, Indices[Index][x]);
+				for (int j = 0; j < SEQ_COUNT; ++j) {
+					if (pInst->GetSeqEnable(j)) {
+						int Index = pInst->GetSeqIndex(j);
+						if (Indices[Index][j] >= 0 && Indices[Index][j] != -1) {
+							pInst->SetSeqIndex(j, Indices[Index][j]);
 						}
 						else {
-							memcpy(&m_Sequences[Keepers[x]][x], &m_TmpSequences[Index], sizeof(stSequence));
-							for (unsigned int j = 0; j < m_Sequences[Keepers[x]][x].Count; j++) {
-								switch (x) {
-									case SEQ_VOLUME: LIMIT(m_Sequences[Keepers[x]][x].Value[j], 15, 0); break;
-									case SEQ_DUTYCYCLE: LIMIT(m_Sequences[Keepers[x]][x].Value[j], 3, 0); break;
+							memcpy(&m_vSequences[Slots[j]][j], &m_vTmpSequences[Index], sizeof(stSequence));
+							for (unsigned int k = 0; k < m_vSequences[Slots[j]][j].Count; ++k) {
+								switch (j) {
+									case SEQ_VOLUME: 
+										m_vSequences[Slots[j]][j].Value[k] = std::max<int>(m_vSequences[Slots[j]][j].Value[k], 0);
+										m_vSequences[Slots[j]][j].Value[k] = std::min<int>(m_vSequences[Slots[j]][j].Value[k], 15);
+										break;
+									case SEQ_DUTYCYCLE: 
+										m_vSequences[Slots[j]][j].Value[k] = std::max<int>(m_vSequences[Slots[j]][j].Value[k], 0);
+										m_vSequences[Slots[j]][j].Value[k] = std::min<int>(m_vSequences[Slots[j]][j].Value[k], 3);
+										break;
 								}
 							}
-							Indices[Index][x] = Keepers[x];
-							pInst->SetSeqIndex(x, Keepers[x]);
-							Keepers[x]++;
+							Indices[Index][j] = Slots[j];
+							pInst->SetSeqIndex(j, Slots[j]);
+							Slots[j]++;
 						}
 					}
 					else
-						pInst->SetSeqIndex(x, 0);
+						pInst->SetSeqIndex(j, 0);
 				}
 			}
 		}
 	}
+
+	// De-allocate memory
+	m_vTmpSequences.RemoveAll();
 }
 
 void CFamiTrackerDoc::ConvertSequences()
 {
-	int iLength, ValPtr, Count, Value, Length;
-
 	// This function is used to convert the old type sequences to new type
 
-	for (unsigned int  i = 0; i < MAX_SEQUENCES; ++i) {
+	for (int  i = 0; i < MAX_SEQUENCES; ++i) {
 		for (int j = 0; j < SEQ_COUNT; ++j) {
-			stSequence *pSeq = &m_Sequences[i][j];
-			if (pSeq->Count > 0 && pSeq->Count < MAX_SEQUENCE_ITEMS) {
-				CSequence *pNewSeq = GetSequence(i, j);
-				
-				// Save a pointer to this
-				int iLoopPoint = -1;
-				iLength = 0;
-				ValPtr = 0;
-
-				// Store the sequence
-				Count = pSeq->Count;
-				for (int k = 0; k < Count; k++) {
-					Value	= pSeq->Value[k];
-					Length	= pSeq->Length[k];
-
-					if (Length < 0) {
-						iLoopPoint = 0;
-						for (int l = signed(pSeq->Count) + Length - 1; l < signed(pSeq->Count) - 1; l++)
-							iLoopPoint += (pSeq->Length[l] + 1);
-					}
-					else {
-						for (int l = 0; l < Length + 1 && ValPtr < MAX_SEQUENCE_ITEMS; l++) {
-							if ((j == SEQ_PITCH || j == SEQ_HIPITCH) && l > 0)
-								pNewSeq->SetItem(ValPtr++, 0);
-							else
-								pNewSeq->SetItem(ValPtr++, (unsigned char)Value);
-							iLength++;
-						}
-					}
-				}
-
-				if (iLoopPoint != -1) {
-					if (iLoopPoint > iLength)
-						iLoopPoint = iLength;
-					iLoopPoint = iLength - iLoopPoint;
-				}
-
-				pNewSeq->SetItemCount(ValPtr);
-				pNewSeq->SetLoopPoint(iLoopPoint);
-			}
+			stSequence *pOldSeq = &m_vSequences[i][j];
+			CSequence *pNewSeq = GetSequence(i, j);
+			ConvertSequence(pOldSeq, pNewSeq, j);
 		}
 	}
+
+	// De-allocate memory
+	m_vSequences.RemoveAll();
 }
 
 /*** File format description ***
@@ -752,9 +725,8 @@ BOOL CFamiTrackerDoc::SaveDocument(LPCTSTR lpszPathName) const
 	// Todo: avoid calling the main window from document class
 	CMainFrame *pMainFrame = static_cast<CMainFrame*>(AfxGetMainWnd());
 	if (pMainFrame != NULL) {
-		CString text, size;
-		size.Format(_T("%i"), FileSize);
-		AfxFormatString1(text, IDS_FILE_SAVED, size);
+		CString text;
+		AfxFormatString1(text, IDS_FILE_SAVED, MakeIntString(static_cast<int>(FileSize)));
 		pMainFrame->SetMessageText(text);
 	}
 
@@ -859,10 +831,9 @@ bool CFamiTrackerDoc::WriteBlock_Header(CDocumentFile *pDocFile) const
 
 	for (unsigned int i = 0; i < m_iChannelsAvailable; ++i) {
 		// Channel type
-		pDocFile->WriteBlockChar(m_iChannelTypes[i]);	
+		pDocFile->WriteBlockChar(m_iChannelTypes[i]);
 		for (unsigned int j = 0; j < m_iTrackCount; ++j) {
 			ASSERT(m_pTracks[j] != NULL);
-//			AllocateSong(j);
 			// Effect columns
 			pDocFile->WriteBlockChar(m_pTracks[j]->GetEffectColumnCount(i));
 		}
@@ -1284,6 +1255,13 @@ bool CFamiTrackerDoc::WriteBlock_Comments(CDocumentFile *pDocFile) const
 	return pDocFile->FlushBlock();
 }
 
+bool CFamiTrackerDoc::WriteBlock_ChannelLayout(CDocumentFile *pDocFile) const
+{
+//	pDocFile->CreateBlock(FILE_CHANNEL_LAYOUT, 1);
+	// Todo
+	return pDocFile->FlushBlock();
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Document load functions
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1366,7 +1344,7 @@ BOOL CFamiTrackerDoc::OpenDocument(LPCTSTR lpszPathName)
 	m_bFileLoaded = true;
 	m_bFileLoadFailed = false;
 
-	theApp.GetSoundGenerator()->DocumentPropertiesChange(this);
+	theApp.GetSoundGenerator()->DocumentPropertiesChanged(this);
 
 	return TRUE;
 }
@@ -1450,12 +1428,13 @@ BOOL CFamiTrackerDoc::OpenDocumentOld(CFile *pOpenFile)
 
 			case FB_SEQUENCES:
 				pOpenFile->Read(&ReadCount, sizeof(int));
+				m_vTmpSequences.SetSize(ReadCount);
 				for (i = 0; i < ReadCount; i++) {
 					pOpenFile->Read(&ImportedSequence, sizeof(stSequenceImport));
 					if (ImportedSequence.Count > 0 && ImportedSequence.Count < MAX_SEQUENCE_ITEMS) {
-						m_TmpSequences[i].Count = ImportedSequence.Count;
-						memcpy(m_TmpSequences[i].Length, ImportedSequence.Length, ImportedSequence.Count);
-						memcpy(m_TmpSequences[i].Value, ImportedSequence.Value, ImportedSequence.Count);
+						m_vTmpSequences[i].Count = ImportedSequence.Count;
+						memcpy(m_vTmpSequences[i].Length, ImportedSequence.Length, ImportedSequence.Count);
+						memcpy(m_vTmpSequences[i].Value, ImportedSequence.Value, ImportedSequence.Count);
 					}
 				}
 				break;
@@ -1799,7 +1778,29 @@ bool CFamiTrackerDoc::ReadBlock_Header(CDocumentFile *pDocFile)
 			unsigned char ChannelType = pDocFile->GetBlockChar();					// Channel type (unused)
 			for (unsigned j = 0; j < m_iTrackCount; ++j) {
 				CPatternData *pTrack = GetTrack(j);
-				pTrack->SetEffectColumnCount(i, pDocFile->GetBlockChar());		// Effect columns
+				unsigned char ColumnCount = pDocFile->GetBlockChar();
+				pTrack->SetEffectColumnCount(i, ColumnCount);		// Effect columns
+			}
+		}
+
+		if (Version >= 4) {
+			// Read highlight settings for tracks
+			for (unsigned int i = 0; i < m_iTrackCount; ++i) {
+				CPatternData *pTrack = GetTrack(i);
+				// TODO read highlight
+				int FirstHighlight = m_iFirstHighlight;
+				int SecondHighlight = m_iSecondHighlight;
+				//
+				pTrack->SetHighlight(FirstHighlight, SecondHighlight);
+			}
+		}
+		else {
+			// Use global highlight
+			for (unsigned int i = 0; i < m_iTrackCount; ++i) {
+				CPatternData *pTrack = GetTrack(i);
+				int FirstHighlight = m_iFirstHighlight;
+				int SecondHighlight = m_iSecondHighlight;
+				pTrack->SetHighlight(FirstHighlight, SecondHighlight);
 			}
 		}
 	}
@@ -1812,6 +1813,13 @@ bool CFamiTrackerDoc::ReadBlock_Comments(CDocumentFile *pDocFile)
 	int Version = pDocFile->GetBlockVersion();
 	m_bDisplayComment = (pDocFile->GetBlockInt() == 1) ? true : false;
 	m_strComment = pDocFile->ReadString();
+	return false;
+}
+
+bool CFamiTrackerDoc::ReadBlock_ChannelLayout(CDocumentFile *pDocFile)
+{
+	int Version = pDocFile->GetBlockVersion();
+	// Todo
 	return false;
 }
 
@@ -1868,19 +1876,21 @@ bool CFamiTrackerDoc::ReadBlock_Sequences(CDocumentFile *pDocFile)
 	ASSERT_FILE_DATA(Count < (MAX_SEQUENCES * SEQ_COUNT));
 
 	if (Version == 1) {
+		m_vTmpSequences.SetSize(MAX_SEQUENCES);
 		for (unsigned int i = 0; i < Count; ++i) {
 			unsigned int Index = pDocFile->GetBlockInt();
 			unsigned char SeqCount = pDocFile->GetBlockChar();
 			ASSERT_FILE_DATA(Index < MAX_SEQUENCES);
 			ASSERT_FILE_DATA(SeqCount < MAX_SEQUENCE_ITEMS);
-			m_TmpSequences[Index].Count = SeqCount;
+			m_vTmpSequences[Index].Count = SeqCount;
 			for (int j = 0; j < SeqCount; ++j) {
-				m_TmpSequences[Index].Value[j] = pDocFile->GetBlockChar();
-				m_TmpSequences[Index].Length[j] = pDocFile->GetBlockChar();
+				m_vTmpSequences[Index].Value[j] = pDocFile->GetBlockChar();
+				m_vTmpSequences[Index].Length[j] = pDocFile->GetBlockChar();
 			}
 		}
 	}
 	else if (Version == 2) {
+		m_vSequences.SetSize(MAX_SEQUENCES);
 		for (unsigned int i = 0; i < Count; ++i) {
 			unsigned int Index = pDocFile->GetBlockInt();
 			unsigned int Type = pDocFile->GetBlockInt();
@@ -1888,13 +1898,14 @@ bool CFamiTrackerDoc::ReadBlock_Sequences(CDocumentFile *pDocFile)
 			ASSERT_FILE_DATA(Index < MAX_SEQUENCES);
 			ASSERT_FILE_DATA(Type < SEQ_COUNT);
 			ASSERT_FILE_DATA(SeqCount < MAX_SEQUENCE_ITEMS);
-			m_Sequences[Index][Type].Count = SeqCount;
+			m_vSequences[Index][Type].Count = SeqCount;
 			for (int j = 0; j < SeqCount; ++j) {
 				char Value = pDocFile->GetBlockChar();
 				char Length = pDocFile->GetBlockChar();
-				m_Sequences[Index][Type].Value[j] = Value;
-				m_Sequences[Index][Type].Length[j] = Length;
+				m_vSequences[Index][Type].Value[j] = Value;
+				m_vSequences[Index][Type].Length[j] = Length;
 			}
+
 		}
 	}
 	else if (Version >= 3) {
@@ -2426,7 +2437,7 @@ bool CFamiTrackerDoc::ReadBlock_DSamples(CDocumentFile *pDocFile)
 
 // FTM import ////
 
-CFamiTrackerDoc *CFamiTrackerDoc::LoadImportFile(LPCTSTR lpszPathName)
+CFamiTrackerDoc *CFamiTrackerDoc::LoadImportFile(LPCTSTR lpszPathName) const
 {
 	// Import a module as new subtunes
 	CFamiTrackerDoc *pImported = new CFamiTrackerDoc();
@@ -2662,6 +2673,16 @@ bool CFamiTrackerDoc::IsSampleUsed(unsigned int Index) const
 	return m_DSamples[Index].GetSize() > 0;
 }
 
+unsigned int CFamiTrackerDoc::GetSampleCount() const
+{
+	unsigned int Count = 0;
+	for (int i = 0; i < MAX_DSAMPLES; ++i) {
+		if (m_DSamples[i].GetSize() > 0)
+			++Count;
+	}
+	return Count;
+}
+
 int CFamiTrackerDoc::GetFreeSampleSlot() const
 {
 	for (int i = 0; i < MAX_DSAMPLES; ++i) {
@@ -2736,13 +2757,6 @@ CSequence* CFamiTrackerDoc::GetSequence(unsigned int Index, int Type) const
 	ASSERT(Index < MAX_SEQUENCES);
 	ASSERT(Type >= 0 && Type < SEQ_COUNT);
 	return m_pSequences2A03[Index][Type];
-}
-
-CSequenceInterface const *CFamiTrackerDoc::GetSequence(int Index, int Type) const
-{
-	ASSERT(Index >= 0 && Index < MAX_SEQUENCES);
-	ASSERT(Type >= 0 && Type < SEQ_COUNT);
-	return dynamic_cast<CSequenceInterface const *>(m_pSequences2A03[Index][Type]);
 }
 
 int CFamiTrackerDoc::GetSequenceItemCount(unsigned int Index, int Type) const
@@ -2984,13 +2998,6 @@ CInstrument *CFamiTrackerDoc::GetInstrument(unsigned int Index) const
 	return pInstrument;
 }
 
-CInstrument2A03Interface const *CFamiTrackerDoc::Get2A03Instrument(int Instrument) const
-{
-	// This may return a NULL pointer
-	ASSERT(Instrument >= 0 && Instrument < MAX_INSTRUMENTS);
-	return dynamic_cast<CInstrument2A03Interface const *>(m_pInstruments[Instrument]);
-}
-
 unsigned int CFamiTrackerDoc::GetInstrumentCount() const
 {
 	unsigned int count = 0;
@@ -3050,7 +3057,6 @@ int CFamiTrackerDoc::AddInstrument(CInstrument *pInstrument)
 	m_pInstruments[Slot] = pInstrument;
 
 	SetModifiedFlag();
-	UpdateAllViews(NULL, UPDATE_ENTIRE);	// TODO: remove
 
 	return Slot;
 }
@@ -3064,7 +3070,6 @@ void CFamiTrackerDoc::AddInstrument(CInstrument *pInstrument, unsigned int Slot)
 	m_pInstruments[Slot] = pInstrument;
 
 	SetModifiedFlag();
-	UpdateAllViews(NULL, UPDATE_ENTIRE);	// TODO: remove
 }
 
 int CFamiTrackerDoc::AddInstrument(const char *pName, int ChipType)
@@ -3088,7 +3093,6 @@ int CFamiTrackerDoc::AddInstrument(const char *pName, int ChipType)
 	m_pInstruments[Slot]->SetName(pName);
 
 	SetModifiedFlag();
-	UpdateAllViews(NULL, UPDATE_ENTIRE);	// TODO: remove
 
 	return Slot;
 }
@@ -3110,7 +3114,6 @@ void CFamiTrackerDoc::RemoveInstrument(unsigned int Index)
 	m_csInstrument.Unlock();
 
 	SetModifiedFlag();
-	UpdateAllViews(NULL, UPDATE_ENTIRE);	// TODO: remove
 }
 
 int CFamiTrackerDoc::CloneInstrument(unsigned int Index)
@@ -3127,7 +3130,6 @@ int CFamiTrackerDoc::CloneInstrument(unsigned int Index)
 		m_pInstruments[Slot] = pInstrument->Clone();
 		pInstrument->Release();
 		SetModifiedFlag();
-		//UpdateAllViews(NULL, UPDATE_INSTRUMENTS);
 	}
 
 	return Slot;
@@ -3999,7 +4001,6 @@ int CFamiTrackerDoc::AddTrack()
 	++m_iTrackCount;
 
 	SetModifiedFlag();
-	UpdateAllViews(NULL, CHANGED_TRACKCOUNT);	// TODO: remove
 
 	return NewTrack;
 }
@@ -4028,7 +4029,6 @@ void CFamiTrackerDoc::RemoveTrack(unsigned int Track)
 //	SwitchToTrack(m_iTrack);
 
 	SetModifiedFlag();
-	UpdateAllViews(NULL, CHANGED_TRACKCOUNT);	// TODO: remove
 }
 
 void CFamiTrackerDoc::SetTrackTitle(unsigned int Track, const CString &title)
@@ -4037,9 +4037,7 @@ void CFamiTrackerDoc::SetTrackTitle(unsigned int Track, const CString &title)
 		return;
 
 	m_sTrackNames[Track] = title;
-
 	SetModifiedFlag();
-	UpdateAllViews(NULL, CHANGED_TRACKCOUNT);	// TODO: remove
 }
 
 void CFamiTrackerDoc::MoveTrackUp(unsigned int Track)
@@ -4047,9 +4045,7 @@ void CFamiTrackerDoc::MoveTrackUp(unsigned int Track)
 	ASSERT(Track > 0);
 
 	SwapTracks(Track, Track - 1);
-
 	SetModifiedFlag();
-	UpdateAllViews(NULL, CHANGED_TRACKCOUNT);	// TODO: remove
 }
 
 void CFamiTrackerDoc::MoveTrackDown(unsigned int Track)
@@ -4057,9 +4053,7 @@ void CFamiTrackerDoc::MoveTrackDown(unsigned int Track)
 	ASSERT(Track < MAX_TRACKS);
 
 	SwapTracks(Track, Track + 1);
-
 	SetModifiedFlag();
-	UpdateAllViews(NULL, CHANGED_TRACKCOUNT);	// TODO: remove
 }
 
 void CFamiTrackerDoc::SwapTracks(unsigned int Track1, unsigned int Track2)
@@ -4175,45 +4169,45 @@ void CFamiTrackerDoc::ConvertSequence(stSequence *pOldSequence, CSequence *pNewS
 	// This function is used to convert old version sequences (used by older file versions)
 	// to the current version
 
-	if (pOldSequence->Count > 0 && pOldSequence->Count < MAX_SEQUENCE_ITEMS) {
+	if (pOldSequence->Count == 0 || pOldSequence->Count >= MAX_SEQUENCE_ITEMS)
+		return;	// Invalid sequence
 
-		// Save a pointer to this
-		int iLoopPoint = -1;
-		int iLength = 0;
-		int ValPtr = 0;
+	// Save a pointer to this
+	int iLoopPoint = -1;
+	int iLength = 0;
+	int ValPtr = 0;
 
-		// Store the sequence
-		int Count = pOldSequence->Count;
+	// Store the sequence
+	int Count = pOldSequence->Count;
 
-		for (int k = 0; k < Count; ++k) {
-			int Value	= pOldSequence->Value[k];
-			int Length	= pOldSequence->Length[k];
+	for (int i = 0; i < Count; ++i) {
+		int Value  = pOldSequence->Value[i];
+		int Length = pOldSequence->Length[i];
 
-			if (Length < 0) {
-				iLoopPoint = 0;
-				for (int l = signed(pOldSequence->Count) + Length - 1; l < signed(pOldSequence->Count) - 1; l++)
-					iLoopPoint += (pOldSequence->Length[l] + 1);
-			}
-			else {
-				for (int l = 0; l < Length + 1; l++) {
-					if ((Type == SEQ_PITCH || Type == SEQ_HIPITCH) && l > 0)
-						pNewSequence->SetItem(ValPtr++, 0);
-					else
-						pNewSequence->SetItem(ValPtr++, (unsigned char)Value);
-					iLength++;
-				}
+		if (Length < 0) {
+			iLoopPoint = 0;
+			for (int l = signed(pOldSequence->Count) + Length - 1; l < signed(pOldSequence->Count) - 1; l++)
+				iLoopPoint += (pOldSequence->Length[l] + 1);
+		}
+		else {
+			for (int l = 0; l < Length + 1; l++) {
+				if ((Type == SEQ_PITCH || Type == SEQ_HIPITCH) && l > 0)
+					pNewSequence->SetItem(ValPtr++, 0);
+				else
+					pNewSequence->SetItem(ValPtr++, (unsigned char)Value);
+				iLength++;
 			}
 		}
-
-		if (iLoopPoint != -1) {
-			if (iLoopPoint > iLength)
-				iLoopPoint = iLength;
-			iLoopPoint = iLength - iLoopPoint;
-		}
-
-		pNewSequence->SetItemCount(ValPtr);
-		pNewSequence->SetLoopPoint(iLoopPoint);
 	}
+
+	if (iLoopPoint != -1) {
+		if (iLoopPoint > iLength)
+			iLoopPoint = iLength;
+		iLoopPoint = iLength - iLoopPoint;
+	}
+
+	pNewSequence->SetItemCount(ValPtr);
+	pNewSequence->SetLoopPoint(iLoopPoint);
 }
 
 unsigned int CFamiTrackerDoc::GetFirstFreePattern(unsigned int Track, unsigned int Channel) const
@@ -4276,16 +4270,15 @@ CTrackerChannel *CFamiTrackerDoc::GetChannel(int Index) const
 	return m_pChannels[Index];
 }
 
-// DPCM samples
-
-unsigned int CFamiTrackerDoc::GetSampleCount() const
+int CFamiTrackerDoc::GetChannelIndex(int Channel) const
 {
-	unsigned int Count = 0;
-	for (int i = 0; i < MAX_DSAMPLES; ++i) {
-		if (m_DSamples[i].GetSize() > 0)
-			++Count;
+	// Translate channel ID to index, returns -1 if not found
+	ASSERT(m_iRegisteredChannels != 0);
+	for (int i = 0; i < m_iRegisteredChannels; ++i) {
+		if (m_pChannels[i]->GetID() == Channel)
+			return i;
 	}
-	return Count;
+	return -1;
 }
 
 // Vibrato functions
@@ -4428,23 +4421,44 @@ int CFamiTrackerDoc::GetSpeedSplitPoint() const
 	return m_iSpeedSplitPoint;
 }
 
+void CFamiTrackerDoc::SetHighlight(unsigned int Track, int First, int Second)
+{
+	CPatternData *pTrack = GetTrack(Track);
+	pTrack->SetHighlight(First, Second);
+}
+
+unsigned int CFamiTrackerDoc::GetFirstHighlight(unsigned int Track) const
+{
+	CPatternData *pTrack = GetTrack(Track);
+	return pTrack->GetFirstRowHighlight();
+}
+
+unsigned int CFamiTrackerDoc::GetSecondHighlight(unsigned int Track) const
+{
+	CPatternData *pTrack = GetTrack(Track);
+	return pTrack->GetSecondRowHighlight();
+}
+
 void CFamiTrackerDoc::SetHighlight(int First, int Second)
 {
+	// TODO remove
 	m_iFirstHighlight = First;
 	m_iSecondHighlight = Second;
 }
 
 int CFamiTrackerDoc::GetFirstHighlight() const
 {
+	// TODO remove
 	return m_iFirstHighlight;
 }
 
 int CFamiTrackerDoc::GetSecondHighlight() const
 {
+	// TODO remove
 	return m_iSecondHighlight;
 }
 
-unsigned int CFamiTrackerDoc::ScanActualLength(unsigned int Track, unsigned int Count) const 
+unsigned int CFamiTrackerDoc::ScanActualLength(unsigned int Track, unsigned int Count, unsigned int &RowCount) const 
 {
 	// Return number for frames played for a certain number of loops
 
@@ -4456,6 +4470,12 @@ unsigned int CFamiTrackerDoc::ScanActualLength(unsigned int Track, unsigned int 
 	int Frame = 0;
 	bool bScanning = true;
 	int FrameCount = GetFrameCount(Track);
+	int FirstLoopRows = 0;
+	int SecondLoopRows = 0;
+	int Rows = 0;
+	int TotalFrames = 0;
+	bool InFirstLoop = true;
+	int PatternRowCount = 0;
 
 	memset(FrameVisited, 0, sizeof(int) * MAX_FRAMES);
 
@@ -4465,6 +4485,7 @@ unsigned int CFamiTrackerDoc::ScanActualLength(unsigned int Track, unsigned int 
 		SkipTo = -1;
 
 		for (unsigned k = 0; k < GetPatternLength(Track) && JumpTo == -1 && SkipTo == -1; ++k) {
+			PatternRowCount = k + 1;
 			for (int j = 0; j < GetChannelCount(); ++j) {
 				stChanNote Note;
 				GetNoteData(Track, Frame, j, k, &Note);
@@ -4485,10 +4506,19 @@ unsigned int CFamiTrackerDoc::ScanActualLength(unsigned int Track, unsigned int 
 			}
 		}
 
-		if (FrameVisited[Frame] == 0)
+		if (FrameVisited[Frame] == 0) {
+			Rows += PatternRowCount;
 			++FirstLoop;
-		else if (FrameVisited[Frame] == 1)
+		}
+		else if (FrameVisited[Frame] == 1) {
 			++SecondLoop;
+			if (InFirstLoop) {
+				FirstLoopRows = Rows;
+				Rows = 0;
+			}
+			Rows += PatternRowCount;
+			InFirstLoop = false;
+		}
 		else if (FrameVisited[Frame] == 2)
 			bScanning = false;
 
@@ -4504,12 +4534,18 @@ unsigned int CFamiTrackerDoc::ScanActualLength(unsigned int Track, unsigned int 
 			Frame = 0;
 	}
 
-	if (Count > 1)
-		return FirstLoop + SecondLoop * (Count - 1);
-	else if (Count == 1)
-		return FirstLoop;
+	SecondLoopRows = Rows;
 
-	return 0;
+	if (Count > 1) {
+		RowCount = FirstLoopRows + SecondLoopRows * (Count - 1);
+		TotalFrames = FirstLoop + SecondLoop * (Count - 1);
+	}
+	else if (Count == 1) {
+		RowCount = Rows;//FirstLoopRows;
+		TotalFrames = FirstLoop;
+	}
+
+	return TotalFrames;
 }
 
 // Operations
@@ -4665,4 +4701,28 @@ void CFamiTrackerDoc::MergeDuplicatedPatterns()
             m_pTracks[i]->SetFramePattern(f,c,uiPatternUsed[uiPattern]);
         }
     }
+}
+
+void CFamiTrackerDoc::SwapInstruments(int First, int Second)
+{
+	// Swap instruments
+	CInstrument *pTemp = m_pInstruments[First];
+	m_pInstruments[First] = m_pInstruments[Second];
+	m_pInstruments[Second] = pTemp;
+	
+	// Scan patterns
+	for (unsigned int i = 0; i < m_iTrackCount; ++i) {
+		CPatternData *pTrack = m_pTracks[i];
+		for (int j = 0; j < MAX_PATTERN; ++j) {
+			for (unsigned int k = 0; k < GetAvailableChannels(); ++k) {
+				for (int l = 0; l < MAX_PATTERN_LENGTH; ++l) {
+					stChanNote *pData = pTrack->GetPatternData(k, j, l);
+					if (pData->Instrument == First)
+						pData->Instrument = Second;
+					else if (pData->Instrument == Second)
+						pData->Instrument = First;
+				}
+			}
+		}
+	}
 }

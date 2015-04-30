@@ -135,10 +135,10 @@ mac {
       @executable_path/../Frameworks/libfamitracker.1.dylib \
       $${DESTDIR}/$${TARGET}.app/Contents/MacOS/nesicide $$escape_expand(\n\t)
 
-   QMAKE_POST_LINK += cp $$DEPENDENCYPATH/Qscintilla/libqscintilla2.11.2.0.dylib \
-      $${DESTDIR}/$${TARGET}.app/Contents/Frameworks/libqscintilla2.11.dylib $$escape_expand(\n\t)
-   QMAKE_POST_LINK += install_name_tool -change libqscintilla2.11.dylib \
-      @executable_path/../Frameworks/libqscintilla2.11.dylib \
+   QMAKE_POST_LINK += cp $$DEPENDENCYPATH/Qscintilla/libqscintilla2.12.0.0.dylib \
+      $${DESTDIR}/$${TARGET}.app/Contents/Frameworks/libqscintilla2.12.dylib $$escape_expand(\n\t)
+   QMAKE_POST_LINK += install_name_tool -change libqscintilla2.12.dylib \
+      @executable_path/../Frameworks/libqscintilla2.12.dylib \
       $${DESTDIR}/$${TARGET}.app/Contents/MacOS/nesicide $$escape_expand(\n\t)
 
    # SDL

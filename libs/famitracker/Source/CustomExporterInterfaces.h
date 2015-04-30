@@ -18,12 +18,7 @@
 ** must bear this legend.
 */
 
-
 #pragma once
-
-#if !defined(Q_OS_WIN32)
-#define __cdecl
-#endif
 
 #include "FamiTrackerTypes.h"
 #include "PatternData.h"

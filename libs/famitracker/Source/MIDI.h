@@ -22,13 +22,13 @@
 
 #include <mmsystem.h>
 
-const int MIDI_MSG_NOTE_OFF			= 8;
-const int MIDI_MSG_NOTE_ON			= 9;
-const int MIDI_MSG_AFTER_TOUCH		= 0xA;
-const int MIDI_MSG_CONTROL_CHANGE	= 0xB;
-const int MIDI_MSG_PROGRAM_CHANGE	= 0xC;
-const int MIDI_MSG_CHANNEL_PRESSURE = 0xD;
-const int MIDI_MSG_PITCH_WHEEL		= 0xE;
+const int MIDI_MSG_NOTE_OFF			= 0x08;
+const int MIDI_MSG_NOTE_ON			= 0x09;
+const int MIDI_MSG_AFTER_TOUCH		= 0x0A;
+const int MIDI_MSG_CONTROL_CHANGE	= 0x0B;
+const int MIDI_MSG_PROGRAM_CHANGE	= 0x0C;
+const int MIDI_MSG_CHANNEL_PRESSURE = 0x0D;
+const int MIDI_MSG_PITCH_WHEEL		= 0x0E;
 
 // CMIDI command target
 
@@ -49,7 +49,7 @@ public:
 	void	ResetOutput();
 	void	ToggleInput();
 
-	int		GetQuantization();
+	int		GetQuantization() const;
 
 	bool	IsOpened() const;
 	bool	IsAvailable() const;
@@ -67,45 +67,46 @@ public:
 	void	GetInputDeviceString(int Num, CString &Text) const;
 	void	GetOutputDeviceString(int Num, CString &Text) const;
 
-	// Protected functions
-protected:
+	// Private methods
+private:
 	void	Event(unsigned char Status, unsigned char Data1, unsigned char Data2);
 	void	Enqueue(unsigned char MsgType, unsigned char MsgChannel, unsigned char Data1, unsigned char Data2);
 
 	// Constants
-protected:
+private:
 	static const int MAX_QUEUE = 100;
+
+	// Static functions & variables
+private:
+	static void CALLBACK MidiInProc(HMIDIIN hMidiIn, UINT wMsg, DWORD dwInstance, DWORD dwParam1, DWORD dwParam2);
+	static CMIDI *m_pInstance;
 
 	// Private variables
 private:
-	int		m_iInDevice;				// MIDI input device
-	int		m_iOutDevice;				// MIDI output device
+	// Devices
+	int		m_iInDevice;
+	int		m_iOutDevice;
 
 	bool	m_bMasterSync;
 	bool	m_bInStarted;
 
-	char	MsgTypeQueue[MAX_QUEUE];
-	char	MsgChanQueue[MAX_QUEUE];
-	char	Data1Queue[MAX_QUEUE];
-	char	Data2Queue[MAX_QUEUE];
-
-	char	Quantization[MAX_QUEUE];
-	int		m_iQuant;
-
-	int		m_iTimingCounter;
-
-	int		m_iQueuePtr;
+	// MIDI queue
 	int		m_iQueueHead;
 	int		m_iQueueTail;
 
-	unsigned char	m_iLastMsgType;
-	unsigned char	m_iLastMsgChan;
+	char	m_iMsgTypeQueue[MAX_QUEUE];
+	char	m_iMsgChanQueue[MAX_QUEUE];
+	char	m_iData1Queue[MAX_QUEUE];
+	char	m_iData2Queue[MAX_QUEUE];
+	char	m_iQuantization[MAX_QUEUE];
 
-	HMIDIIN		m_hMIDIIn;
-	HMIDIOUT	m_hMIDIOut;
+	int		m_iQuant;
+	int		m_iTimingCounter;
 
-	// Static functions & variables
-protected:
-	static void CALLBACK MidiInProc(HMIDIIN hMidiIn, UINT wMsg, DWORD dwInstance, DWORD dwParam1, DWORD dwParam2);
-	static CMIDI *m_pInstance;
+	// Device handles
+	HMIDIIN	 m_hMIDIIn;
+	HMIDIOUT m_hMIDIOut;
+
+	// Thread sync
+	CCriticalSection m_csQueue;
 };

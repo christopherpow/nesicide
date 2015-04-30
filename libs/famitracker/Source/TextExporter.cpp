@@ -654,15 +654,15 @@ const CString& CTextExport::ImportFile(LPCTSTR FileName, CFamiTrackerDoc *pDoc)
 				t.FinishLine();
 				break;
 			case CT_TITLE:
-            pDoc->SetSongName(Charify(t.ReadToken()));
+				pDoc->SetSongName(Charify(t.ReadToken()));
 				CHECK(t.ReadEOL(&sResult));
 				break;
 			case CT_AUTHOR:
-            pDoc->SetSongArtist(Charify(t.ReadToken()));
+				pDoc->SetSongArtist(Charify(t.ReadToken()));
 				CHECK(t.ReadEOL(&sResult));
 				break;
 			case CT_COPYRIGHT:
-            pDoc->SetSongCopyright(Charify(t.ReadToken()));
+				pDoc->SetSongCopyright(Charify(t.ReadToken()));
 				CHECK(t.ReadEOL(&sResult));
 				break;
 			case CT_COMMENT:

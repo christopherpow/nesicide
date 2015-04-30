@@ -31,9 +31,16 @@
 
 //#define NOISE_PITCH_SCALE
 
-CChannelHandler2A03::CChannelHandler2A03() : CChannelHandler()
+CChannelHandler2A03::CChannelHandler2A03() : 
+	CChannelHandler(0x7FF, 0x0F),
+	m_cSweep(0),
+	m_bManualVolume(0),
+	m_iInitVolume(0),
+	m_bSweeping(0),
+	m_iSweep(0),
+	m_iPostEffect(0),
+	m_iPostEffectParam(0)
 {
-	SetMaxPeriod(0x7FF);
 }
 
 void CChannelHandler2A03::HandleNoteData(stChanNote *pNoteData, int EffColumns)
@@ -63,7 +70,7 @@ void CChannelHandler2A03::HandleCustomEffects(int EffNum, int EffParam)
 		// Custom effects
 		switch (EffNum) {
 			case EF_VOLUME:
-				// Kill this maybe?
+				// Kill this eventually
 				m_iInitVolume = EffParam;
 				m_bManualVolume = true;
 				break;
@@ -100,10 +107,12 @@ bool CChannelHandler2A03::HandleInstrument(int Instrument, bool Trigger, bool Ne
 		return false;
 
 	for (int i = 0; i < CInstrument2A03::SEQUENCE_COUNT; ++i) {
-		if (pInstrument->GetSeqIndex(i) != m_iSeqIndex[i] || pInstrument->GetSeqEnable(i) > m_iSeqState[i] || Trigger) {
-			m_iSeqState[i]	 = (pInstrument->GetSeqEnable(i) == 1) ? SEQ_STATE_RUNNING : SEQ_STATE_DISABLED;
-			m_iSeqIndex[i]	 = pInstrument->GetSeqIndex(i);
-			m_iSeqPointer[i] = 0;
+		const CSequence *pSequence = pDocument->GetSequence(SNDCHIP_NONE, pInstrument->GetSeqIndex(i), i);
+		if (Trigger || !IsSequenceEqual(i, pSequence) || pInstrument->GetSeqEnable(i) > GetSequenceState(i)) {
+			if (pInstrument->GetSeqEnable(i) == 1)
+				SetupSequence(i, pSequence);
+			else
+				ClearSequence(i);
 		}
 	}
 
@@ -128,7 +137,7 @@ void CChannelHandler2A03::HandleRelease()
 {
 	if (!m_bRelease) {
 		ReleaseNote();
-		ReleaseSequences(SNDCHIP_NONE);
+		ReleaseSequences();
 	}
 /*
 	if (!m_bSweeping && (m_cSweep != 0 || m_iSweep != 0)) {
@@ -149,6 +158,8 @@ void CChannelHandler2A03::HandleNote(int Note, int Octave)
 	m_iDutyPeriod	= m_iDefaultDuty;
 	m_iSeqVolume	= m_iInitVolume;
 
+	m_iArpState = 0;
+
 	if (!m_bSweeping && (m_cSweep != 0 || m_iSweep != 0)) {
 		m_iSweep = 0;
 		m_cSweep = 0;
@@ -162,8 +173,6 @@ void CChannelHandler2A03::HandleNote(int Note, int Octave)
 
 void CChannelHandler2A03::ProcessChannel()
 {
-	CFamiTrackerDoc *pDocument = m_pSoundGen->GetDocument();
-
 	// Default effects
 	CChannelHandler::ProcessChannel();
 	
@@ -173,10 +182,7 @@ void CChannelHandler2A03::ProcessChannel()
 
 	// Sequences
 	for (int i = 0; i < CInstrument2A03::SEQUENCE_COUNT; ++i)
-		RunSequence(i, pDocument->GetSequence(unsigned(m_iSeqIndex[i]), CInstrument2A03::SEQUENCE_TYPES[i]));
-
-	if (m_bGate && m_iSeqState[SEQ_VOLUME] != SEQ_STATE_DISABLED)
-		m_bGate = !(m_iSeqState[SEQ_VOLUME] == SEQ_STATE_DISABLED);
+		RunSequence(i);
 }
 
 void CChannelHandler2A03::ResetChannel()
@@ -198,7 +204,6 @@ void CSquare1Chan::RefreshChannel()
 	unsigned char LoFreq = (Period >> 8);
 
 	if (!m_bGate || !Volume) {
-		//DutyCycle = 0;
 		WriteRegister(0x4000, 0x30);
 		m_iLastPeriod = 0xFFFF;
 		return;
@@ -228,9 +233,6 @@ void CSquare1Chan::RefreshChannel()
 	}
 
 	m_iLastPeriod = Period;
-
-	m_iStatePeriod = Period;
-	m_iStateVolume = Volume;
 }
 
 void CSquare1Chan::ClearRegisters()
@@ -417,7 +419,7 @@ void CNoiseChan::ClearRegisters()
 	WriteRegister(0x400F, 0);
 }
 
-unsigned int CNoiseChan::TriggerNote(int Note)
+int CNoiseChan::TriggerNote(int Note)
 {
 	// Clip range to 0-15
 	/*

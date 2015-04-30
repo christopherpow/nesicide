@@ -27,8 +27,7 @@
 #include "FamiTrackerView.h"
 #include "InstrumentEditPanel.h"
 #include "InstrumentEditDlg.h"
-
-using namespace std;
+#include "SequenceEditor.h"
 
 // CInstrumentEditPanel dialog
 //
@@ -36,7 +35,7 @@ using namespace std;
 //
 
 IMPLEMENT_DYNAMIC(CInstrumentEditPanel, CDialog)
-CInstrumentEditPanel::CInstrumentEditPanel(UINT nIDTemplate, CWnd* pParent) : CDialog(nIDTemplate, pParent), m_bShow(false)
+CInstrumentEditPanel::CInstrumentEditPanel(UINT nIDTemplate, CWnd* pParent) : CDialog(nIDTemplate, pParent)//, m_bShow(false)
 {
 }
 
@@ -80,7 +79,7 @@ HBRUSH CInstrumentEditPanel::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 			pDC->SetBkMode(TRANSPARENT);
 			// TODO: this might fail on some themes?
 			//return NULL;
-         qDebug("GetSysColorBrush");
+         qFatal("GetSysColorBrush support!");
 //			return GetSysColorBrush(COLOR_3DHILIGHT);
 			//return CreateSolidBrush(m_iBGColor);
 	}
@@ -112,19 +111,14 @@ BOOL CInstrumentEditPanel::PreTranslateMessage(MSG* pMsg)
 					break;
 				default:	// Note keys
 					// Make sure the dialog is selected when previewing
-            qDebug("GetClassName not used for now...");
+               qFatal("GetClassName support!");
 //					GetClassName(pMsg->hwnd, ClassName, 256);
 //					if (_tcscmp(ClassName, _T("Edit"))) {
-//					//if (GetFocus() == this || GetFocus() == GetParent()) {
-//					//if (!CDialog::PreTranslateMessage(pMsg)) {
-					
-//					//if (DYNAMIC_DOWNCAST(CEdit, GetFocus()) == NULL) {
 //						// Remove repeated keys
-						if ((pMsg->lParam & (1 << 30)) == 0)
-							PreviewNote((unsigned char)pMsg->wParam);
-						return TRUE;
+//						if ((pMsg->lParam & (1 << 30)) == 0)
+//							PreviewNote((unsigned char)pMsg->wParam);
+//						return TRUE;
 //					}
-					
 			}
 			break;
 		case WM_KEYUP:
@@ -157,7 +151,7 @@ void CInstrumentEditPanel::OnSetFocus(CWnd* pOldWnd)
 CFamiTrackerDoc *CInstrumentEditPanel::GetDocument() const
 {
 	// Return selected document
-	return static_cast<CInstrumentEditDlg*>(GetParent())->GetDocument();
+	return CFamiTrackerDoc::GetDoc();
 }
 
 void CInstrumentEditPanel::PreviewNote(unsigned char Key)
@@ -178,8 +172,12 @@ void CInstrumentEditPanel::PreviewRelease(unsigned char Key)
 
 IMPLEMENT_DYNAMIC(CSequenceInstrumentEditPanel, CInstrumentEditPanel)
 
-CSequenceInstrumentEditPanel::CSequenceInstrumentEditPanel(UINT nIDTemplate, CWnd* pParent) 
-	: CInstrumentEditPanel(nIDTemplate, pParent), m_pSequence(NULL)
+CSequenceInstrumentEditPanel::CSequenceInstrumentEditPanel(UINT nIDTemplate, CWnd* pParent) : 
+	CInstrumentEditPanel(nIDTemplate, pParent), 
+	m_pSequenceEditor(NULL),
+	m_pSequence(NULL),
+	m_pParentWin(pParent),
+	m_iSelectedSetting(0)
 {
 }
 
@@ -196,6 +194,53 @@ BEGIN_MESSAGE_MAP(CSequenceInstrumentEditPanel, CInstrumentEditPanel)
 	ON_NOTIFY(NM_RCLICK, IDC_INSTSETTINGS, OnRClickInstSettings)
 END_MESSAGE_MAP()
 
+void CSequenceInstrumentEditPanel::SetupDialog(LPCTSTR *pListItems)
+{
+	// Instrument settings
+	CListCtrl *pList = static_cast<CListCtrl*>(GetDlgItem(IDC_INSTSETTINGS));
+	
+	pList->DeleteAllItems();
+	pList->InsertColumn(0, _T(""), LVCFMT_LEFT, 26);
+	pList->InsertColumn(1, _T("#"), LVCFMT_LEFT, 30);
+	pList->InsertColumn(2, _T("Effect name"), LVCFMT_LEFT, 84);
+	pList->SendMessage(LVM_SETEXTENDEDLISTVIEWSTYLE, 0, LVS_EX_FULLROWSELECT | LVS_EX_CHECKBOXES);
+	
+	for (int i = SEQ_COUNT - 1; i > -1; i--) {
+		pList->InsertItem(0, _T(""), 0);
+		pList->SetCheck(0, 0);
+		pList->SetItemText(0, 1, _T("0"));
+		pList->SetItemText(0, 2, pListItems[i]);
+	}
+	
+	pList->SetItemState(m_iSelectedSetting, LVIS_SELECTED | LVIS_FOCUSED, LVIS_SELECTED | LVIS_FOCUSED);
+
+	SetDlgItemInt(IDC_SEQ_INDEX, m_iSelectedSetting);
+
+	CSpinButtonCtrl *pSequenceSpin = static_cast<CSpinButtonCtrl*>(GetDlgItem(IDC_SEQUENCE_SPIN));
+	pSequenceSpin->SetRange(0, MAX_SEQUENCES - 1);
+
+	CRect rect(190 - 2, 30 - 2, CSequenceEditor::SEQUENCE_EDIT_WIDTH, CSequenceEditor::SEQUENCE_EDIT_HEIGHT);
+	
+	m_pSequenceEditor = new CSequenceEditor(GetDocument());	
+	m_pSequenceEditor->CreateEditor(this, rect);
+	m_pSequenceEditor->ShowWindow(SW_SHOW);
+}
+
+int CSequenceInstrumentEditPanel::ReadStringValue(const std::string &str)
+{
+	// Translate a string number to integer, accepts '$' and 'x' for hexadecimal notation
+	std::stringstream ss;
+	if (str[0] == '$')
+		ss << std::hex << str.substr(1);
+	else if (str[0] == 'x')
+		ss << std::hex << str.substr(1);
+	else
+		ss << str;
+	int value = 0;
+	ss >> value;
+	return value;
+}
+
 void CSequenceInstrumentEditPanel::PreviewNote(unsigned char Key)
 {
 	// Skip if MML window has focus
@@ -208,7 +253,7 @@ void CSequenceInstrumentEditPanel::PreviewRelease(unsigned char Key)
 	CFamiTrackerView::GetView()->PreviewRelease(Key);
 }
 
-void CSequenceInstrumentEditPanel::TranslateMML(CString String, CSequence *pSequence, int Max, int Min)
+void CSequenceInstrumentEditPanel::TranslateMML(CString String, CSequence *pSequence, int Max, int Min) const
 {
 	// Takes a string and translates it into a sequence
 
@@ -218,14 +263,14 @@ void CSequenceInstrumentEditPanel::TranslateMML(CString String, CSequence *pSequ
 	pSequence->SetLoopPoint(-1);
 	pSequence->SetReleasePoint(-1);
 
-	string str;
+	std::string str;
 	str.assign(CStringA(String));
-	istringstream values(str);
-	istream_iterator<string> begin(values);
-	istream_iterator<string> end;
+	std::istringstream values(str);
+	std::istream_iterator<std::string> begin(values);
+	std::istream_iterator<std::string> end;
 
 	while (begin != end && AddedItems < MAX_SEQUENCE_ITEMS) {
-		string item = *begin++;
+		std::string item = *begin++;
 
 		if (item[0] == '|') {
 			// Set loop point
@@ -237,10 +282,10 @@ void CSequenceInstrumentEditPanel::TranslateMML(CString String, CSequence *pSequ
 		}
 		else {
 			// Convert to number
-			int value = atoi(item.c_str());
+			int value = ReadStringValue(item);
 			// Check for invalid chars
 			if (!(value == 0 && item[0] != '0')) {
-				LIMIT(value, Max, Min);
+				value = std::min<int>(std::max<int>(value, Min), Max);
 				pSequence->SetItem(AddedItems++, value);
 			}
 		}

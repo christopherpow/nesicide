@@ -18,7 +18,7 @@
 ** must bear this legend.
 */
 
-#include "stdafx.h"
+#include <boost/scoped_ptr.hpp>
 #include <cmath>
 #include "FamiTracker.h"
 #include "FamiTrackerDoc.h"
@@ -34,6 +34,8 @@
 #include "Settings.h"
 #include "Accelerator.h"
 #include "TrackerChannel.h"
+#include "Clipboard.h"
+#include "APU/APU.h"
 
 //#ifdef _DEBUG
 //#define new DEBUG_NEW
@@ -158,7 +160,7 @@ BEGIN_MESSAGE_MAP(CFamiTrackerView, CView)
 END_MESSAGE_MAP()
 
 // Convert keys 0-F to numbers, -1 = invalid key
-int ConvertKeyToHex(int Key) {
+static int ConvertKeyToHex(int Key) {
 
 	switch (Key) {
 		case 48: case VK_NUMPAD0: return 0x00;
@@ -186,18 +188,10 @@ int ConvertKeyToHex(int Key) {
 	return -1;
 }
 
-// Convert keys 0-9 to numbers
-int ConvertKeyToDec(int Key)
-{
-	if (Key > 47 && Key < 58)
-		return Key - 48;
-
-	return -1;
-}
-
 // CFamiTrackerView construction/destruction
 
 CFamiTrackerView::CFamiTrackerView() : 
+	m_iClipboard(0),
 	m_iMoveKeyStepping(1),
 	m_iInsertKeyStepping(1),
 	m_bEditEnable(false),
@@ -208,7 +202,6 @@ CFamiTrackerView::CFamiTrackerView() :
 	m_iLastVolume(MAX_VOLUME),
 	m_iLastInstrument(0),
 	m_iSwitchToInstrument(-1),
-	m_bUpdateBackground(true),
 	m_bFollowMode(true),
 	m_iAutoArpPtr(0),
 	m_iLastAutoArpPtr(0),
@@ -217,17 +210,17 @@ CFamiTrackerView::CFamiTrackerView() :
 	m_iKeyboardNote(-1),
 	m_nDropEffect(DROPEFFECT_NONE),
 	m_bDragSource(false),
-	m_pPatternEditor(new CPatternEditor()),
-	m_pTimerThread(NULL)
+	m_pPatternEditor(new CPatternEditor())
 {
 	memset(m_bMuteChannels, 0, sizeof(bool) * MAX_CHANNELS);
 	memset(m_iActiveNotes, 0, sizeof(int) * MAX_CHANNELS);
 	memset(m_cKeyList, 0, sizeof(char) * 256);
-	memset(Arpeggiate, 0, sizeof(int) * MAX_CHANNELS);
+	memset(m_iArpeggiate, 0, sizeof(int) * MAX_CHANNELS);
 
 	// Register this object in the sound generator
 	CSoundGen *pSoundGen = theApp.GetSoundGenerator();
 	ASSERT_VALID(pSoundGen);
+
 	pSoundGen->AssignView(this);
 }
 
@@ -285,18 +278,6 @@ CFamiTrackerView *CFamiTrackerView::GetView()
 
 // Creation / destroy
 
-BOOL CFamiTrackerView::PreCreateWindow(CREATESTRUCT& cs)
-{
-	// TODO is this method needed?
-
-	m_iClipBoard = ::RegisterClipboardFormat(CLIPBOARD_ID);
-
-	if (m_iClipBoard == 0)
-		AfxMessageBox(IDS_CLIPBOARD_ERROR, MB_ICONERROR);
-
-	return CView::PreCreateWindow(cs);
-}
-
 int CFamiTrackerView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	if (CView::OnCreate(lpCreateStruct) == -1)
@@ -309,7 +290,12 @@ int CFamiTrackerView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	// Setup pattern editor
 	m_pPatternEditor->ApplyColorScheme();
-	m_pPatternEditor->Invalidate(true);
+
+	// Create clipboard format
+	m_iClipboard = ::RegisterClipboardFormat(CLIPBOARD_ID);
+
+	if (m_iClipboard == 0)
+		AfxMessageBox(IDS_CLIPBOARD_ERROR, MB_ICONERROR);
 
 	return 0;
 }
@@ -365,8 +351,8 @@ BOOL CFamiTrackerView::OnEraseBkgnd(CDC* pDC)
 		return FALSE;
 
 	// Called when the background should be erased
-	m_pPatternEditor->CreateBackground(pDC, m_bUpdateBackground);
-	m_bUpdateBackground = false;
+	m_pPatternEditor->CreateBackground(pDC);
+
 	return FALSE;
 }
 
@@ -375,23 +361,93 @@ void CFamiTrackerView::SetupColors()
 	// Color scheme has changed
 	CMainFrame *pMainFrame = static_cast<CMainFrame*>(GetParentFrame());
 	m_pPatternEditor->ApplyColorScheme();
-	m_bUpdateBackground = true;
-	m_pPatternEditor->Invalidate(true);
-	RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_ERASE);
-//	m_pFrameBoxWnd->RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_ERASE);
-	pMainFrame->RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_ERASE);
 
+	m_pPatternEditor->InvalidatePatternData();
+	m_pPatternEditor->InvalidateBackground();
+	RedrawPatternEditor();
+
+	// Frame editor
+	CFrameEditor *pFrameEditor = GetFrameEditor();
+	pFrameEditor->SetupColors();
+	pFrameEditor->RedrawFrameEditor();
+
+	pMainFrame->RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_ERASE);
 }
 
-void CFamiTrackerView::DrawFrameWindow()
+void CFamiTrackerView::UpdateMeters()
 {
-	// Todo: move this function
+	// TODO: Change this to use the ordinary drawing routines
+	m_csDrawLock.Lock();
+
+	CDC *pDC = GetDC();
+	if (pDC && pDC->m_hDC) {
+		m_pPatternEditor->DrawMeters(pDC);
+		ReleaseDC(pDC);
+	}
+
+	m_csDrawLock.Unlock();
+}
+
+void CFamiTrackerView::InvalidateCursor()
+{
+	// Cursor has moved, redraw screen	
+	m_pPatternEditor->InvalidateCursor();
+	RedrawPatternEditor();
+	RedrawFrameEditor();
+}
+
+void CFamiTrackerView::InvalidateHeader()
+{
+	// Header area has changed (channel muted etc...)
+	m_pPatternEditor->InvalidateHeader();
+	RedrawWindow(m_pPatternEditor->GetHeaderRect(), NULL, RDW_INVALIDATE);
+}
+
+void CFamiTrackerView::InvalidatePatternEditor()
+{
+	// Pattern data has changed, redraw screen
+	RedrawPatternEditor();
+	// ??? TODO do we need this??
+	RedrawFrameEditor();
+}
+
+void CFamiTrackerView::InvalidateFrameEditor()
+{
+	// Frame data has changed, redraw frame editor
+
+	CFrameEditor *pFrameEditor = GetFrameEditor();
+	pFrameEditor->InvalidateFrameData();
+
+	RedrawFrameEditor();
+	// Update pattern editor according to selected frame
+	RedrawPatternEditor();
+}
+
+void CFamiTrackerView::RedrawPatternEditor()
+{
+	// Redraw the pattern editor, partial or full if needed
+	bool NeedErase = m_pPatternEditor->CursorUpdated();
+
+	if (NeedErase)
+		RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_ERASE);
+	else
+		RedrawWindow(m_pPatternEditor->GetInvalidatedRect(), NULL, RDW_INVALIDATE);
+}
+
+void CFamiTrackerView::RedrawFrameEditor()
+{
+	// Redraw the frame editor	
+	CFrameEditor *pFrameEditor = GetFrameEditor();
+	pFrameEditor->RedrawFrameEditor();
+}
+
+CFrameEditor *CFamiTrackerView::GetFrameEditor() const
+{
 	CMainFrame *pMainFrame = static_cast<CMainFrame*>(GetParentFrame());
-	CFrameEditor *pFrameEditor = pMainFrame->GetFrameEditor();
 	ASSERT_VALID(pMainFrame);
+	CFrameEditor *pFrameEditor = pMainFrame->GetFrameEditor();
 	ASSERT_VALID(pFrameEditor);
-	
-	pFrameEditor->RedrawWindow();
+	return pFrameEditor;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -407,8 +463,15 @@ LRESULT CFamiTrackerView::OnUserMidiEvent(WPARAM wParam, LPARAM lParam)
 LRESULT CFamiTrackerView::OnUserPlayerEvent(WPARAM wParam, LPARAM lParam)
 {
 	// Player is playing
-	UpdateEditor(UPDATE_PLAYING);
-	TRACE0("Player event\n");
+	// TODO clean up
+	int Frame = (int)wParam;
+	int Row = (int)lParam;
+
+	m_pPatternEditor->InvalidateCursor();
+	RedrawPatternEditor();
+
+	//m_pPatternEditor->AdjustCursor();	// Fix frame editor cursor
+	RedrawFrameEditor();
 	return 0;
 }
 
@@ -432,9 +495,10 @@ void CFamiTrackerView::CalcWindowRect(LPRECT lpClientRect, UINT nAdjustType)
 	m_iWindowHeight -= ::GetSystemMetrics(SM_CYEDGE) * 2;
 
 	m_pPatternEditor->SetWindowSize(m_iWindowWidth, m_iWindowHeight);
+	m_pPatternEditor->InvalidateBackground();
+	// Update cursor since first visible channel might change
+	m_pPatternEditor->CursorUpdated();
 	
-	m_bUpdateBackground = true;
-
 	CView::CalcWindowRect(lpClientRect, nAdjustType);
 }
 
@@ -446,7 +510,7 @@ void CFamiTrackerView::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar
 	ASSERT_VALID(pDoc);
 
 	m_pPatternEditor->OnVScroll(nSBCode, nPos);
-	UpdateEditor(UPDATE_CURSOR);
+	InvalidateCursor();
 
 	CView::OnVScroll(nSBCode, nPos, pScrollBar);
 }
@@ -457,7 +521,7 @@ void CFamiTrackerView::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar
 	ASSERT_VALID(pDoc);
 
 	m_pPatternEditor->OnHScroll(nSBCode, nPos);
-	UpdateEditor(UPDATE_CURSOR);
+	InvalidateCursor();
 
 	CView::OnHScroll(nSBCode, nPos, pScrollBar);
 }
@@ -471,7 +535,7 @@ void CFamiTrackerView::OnRButtonUp(UINT nFlags, CPoint point)
 	CMenu *pPopupMenu, PopupMenuBar;
 	
 	if (m_pPatternEditor->CancelDragging()) {
-		UpdateEditor(CHANGED_PATTERN);
+		InvalidateCursor();
 		CView::OnRButtonUp(nFlags, point);
 		return;
 	}
@@ -480,7 +544,7 @@ void CFamiTrackerView::OnRButtonUp(UINT nFlags, CPoint point)
 
 	GetWindowRect(WinRect);
 
-	if (point.y < HEADER_HEIGHT) {
+	if (m_pPatternEditor->IsOverHeader(point)) {
 		// Pattern header
 		m_iMenuChannel = m_pPatternEditor->GetChannelAtPoint(point.x);
 		PopupMenuBar.LoadMenu(IDR_PATTERN_HEADER_POPUP);
@@ -505,7 +569,11 @@ void CFamiTrackerView::OnLButtonDown(UINT nFlags, CPoint point)
 
 	m_pPatternEditor->OnMouseDown(point);
 	SetCapture();	// Capture mouse 
-	UpdateEditor(CHANGED_PATTERN);
+	InvalidateCursor();
+
+	if (m_pPatternEditor->IsOverHeader(point))
+		InvalidateHeader();
+
 	CView::OnLButtonDown(nFlags, point);
 }
 
@@ -514,8 +582,10 @@ void CFamiTrackerView::OnLButtonUp(UINT nFlags, CPoint point)
 	KillTimer(TMR_SCROLL);
 
 	m_pPatternEditor->OnMouseUp(point);
-	ReleaseCapture();
-	UpdateEditor(CHANGED_PATTERN);
+	ReleaseCapture();	// Release mouse
+
+	InvalidateCursor();
+	InvalidateHeader();
 
 	/*
 	if (m_bControlPressed && !m_pPatternEditor->IsSelecting()) {
@@ -533,27 +603,24 @@ void CFamiTrackerView::OnLButtonDblClk(UINT nFlags, CPoint point)
 		return;
 
 	m_pPatternEditor->OnMouseDblClk(point);
-	UpdateEditor(UPDATE_CURSOR);
+	InvalidateCursor();
 	CView::OnLButtonDblClk(nFlags, point);
 }
 
 void CFamiTrackerView::OnMouseMove(UINT nFlags, CPoint point)
 {
-	static CPoint last_point;	// TODO remove static variable
 	CFamiTrackerDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
 
-	if (point == last_point)
-		return;
-	last_point = point;
-
-	if (!(nFlags & MK_LBUTTON)) {
-		if (m_pPatternEditor->OnMouseHover(nFlags, point))
-			UpdateEditor(UPDATE_CURSOR);
-	}
-	else if (nFlags & MK_LBUTTON) {
+	if (nFlags & MK_LBUTTON) {
+		// Left button down
 		m_pPatternEditor->OnMouseMove(nFlags, point);
-		UpdateEditor(UPDATE_CURSOR);
+		InvalidateCursor();
+	}
+	else {
+		// Left button up
+		if (m_pPatternEditor->OnMouseHover(nFlags, point))
+			InvalidateHeader();
 	}
 	
 	CView::OnMouseMove(nFlags, point);
@@ -599,7 +666,7 @@ BOOL CFamiTrackerView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 		AddAction(pAction);
 	}
 	else
-		UpdateEditor(CHANGED_PATTERN);
+		InvalidateCursor();
 	
 	return CView::OnMouseWheel(nFlags, zDelta, pt);
 }
@@ -611,7 +678,7 @@ void CFamiTrackerView::OnKillFocus(CWnd* pNewWnd)
 	CView::OnKillFocus(pNewWnd);
 	m_bHasFocus = false;
 	m_pPatternEditor->SetFocus(false);
-	UpdateEditor(UPDATE_CURSOR);
+	InvalidateCursor();
 }
 
 void CFamiTrackerView::OnSetFocus(CWnd* pOldWnd)
@@ -619,7 +686,7 @@ void CFamiTrackerView::OnSetFocus(CWnd* pOldWnd)
 	CView::OnSetFocus(pOldWnd);
 	m_bHasFocus = true;
 	m_pPatternEditor->SetFocus(true);
-	UpdateEditor(UPDATE_CURSOR);
+	InvalidateCursor();
 }
 
 void CFamiTrackerView::OnTimer(UINT_PTR nIDEvent)
@@ -634,7 +701,8 @@ void CFamiTrackerView::OnTimer(UINT_PTR nIDEvent)
 		// Auto-scroll timer
 		case TMR_SCROLL:
 			if (m_pPatternEditor->ScrollTimerCallback()) {
-				UpdateEditor(UPDATE_CURSOR);
+				// Redraw entire since pattern layout might change
+				RedrawPatternEditor();
 			}
 			break;
 	}
@@ -647,8 +715,9 @@ void CFamiTrackerView::PeriodicUpdate()
 	// Called periodically by an background timer
 
 	CFamiTrackerDoc* pDoc = GetDocument();
-	CMainFrame *pMainFrm = static_cast<CMainFrame*>(GetParentFrame());
 	ASSERT_VALID(pDoc);
+
+	CMainFrame *pMainFrm = static_cast<CMainFrame*>(GetParentFrame());
 	ASSERT_VALID(pMainFrm);
 
 	CSoundGen *pSoundGen = theApp.GetSoundGenerator();
@@ -688,6 +757,7 @@ void CFamiTrackerView::PeriodicUpdate()
 		}
 	}
 
+	// TODO get rid of static variables
 	static int LastNoteState;
 
 	if (LastNoteState != m_iKeyboardNote)
@@ -706,8 +776,9 @@ void CFamiTrackerView::PeriodicUpdate()
 void CFamiTrackerView::DrawExportTestProgress()
 {
 	CFamiTrackerDoc* pDoc = GetDocument();
-	CSoundGen *pSoundGen = theApp.GetSoundGenerator();
 	ASSERT_VALID(pDoc);
+
+	CSoundGen *pSoundGen = theApp.GetSoundGenerator();
 
 	m_csDrawLock.Lock();
 
@@ -738,27 +809,23 @@ void CFamiTrackerView::OnEditCopy()
 {
 	bool bShiftPressed = IsShiftPressed();
 
-	if (!OpenClipboard()) {
+	CClipboard Clipboard(this, m_iClipboard);
+
+	if (!Clipboard.IsOpened()) {
 		AfxMessageBox(IDS_CLIPBOARD_OPEN_ERROR);
 		return;
 	}
+	
+	boost::scoped_ptr<CPatternClipData> pClipData(m_pPatternEditor->Copy());
 
-	::EmptyClipboard();
-	
-	CPatternClipData *pClipData = m_pPatternEditor->Copy();
-	
 	SIZE_T Size = pClipData->GetAllocSize();
-	HGLOBAL hMem = ::GlobalAlloc(GMEM_MOVEABLE, Size);
+	HGLOBAL hMem = Clipboard.AllocMem(Size);
 
 	if (hMem != NULL) {
 		pClipData->ToMem(hMem);
 		// Set clipboard for internal data, hMem may not be used after this point
-		::SetClipboardData(m_iClipBoard, hMem);
+		Clipboard.SetData(hMem);
 	}
-
-	::CloseClipboard();
-
-	SAFE_RELEASE(pClipData);
 
 	// Copy volume values
 	if (bShiftPressed) {
@@ -774,19 +841,20 @@ void CFamiTrackerView::OnEditCut()
 
 void CFamiTrackerView::OnEditPaste()
 {
-	if (!OpenClipboard()) {
+	CClipboard Clipboard(this, m_iClipboard);
+
+	if (!Clipboard.IsOpened()) {
 		AfxMessageBox(IDS_CLIPBOARD_OPEN_ERROR);
 		return;
 	}
 
-	if (!::IsClipboardFormatAvailable(m_iClipBoard)) {
+	if (!Clipboard.IsDataAvailable()) {
 		AfxMessageBox(IDS_CLIPBOARD_NOT_AVALIABLE);
 		::CloseClipboard();
 		return;
 	}
 
-	HGLOBAL hMem = ::GetClipboardData(m_iClipBoard);
-
+	HGLOBAL hMem = Clipboard.GetData();
 	if (hMem != NULL) {
 		CPatternClipData *pClipData = new CPatternClipData();
 		pClipData->FromMem(hMem);
@@ -795,26 +863,24 @@ void CFamiTrackerView::OnEditPaste()
 		pAction->SetPaste(pClipData);
 		AddAction(pAction);
 	}
-
-	::CloseClipboard();
-
-	UpdateEditor(CHANGED_PATTERN);
 }
 
 void CFamiTrackerView::OnEditPastemix()
 {
-	if (!OpenClipboard()) {
+	CClipboard Clipboard(this, m_iClipboard);
+
+	if (!Clipboard.IsOpened()) {
 		AfxMessageBox(IDS_CLIPBOARD_OPEN_ERROR);
 		return;
 	}
 
-	if (!::IsClipboardFormatAvailable(m_iClipBoard)) {
+	if (!Clipboard.IsDataAvailable()) {
 		AfxMessageBox(IDS_CLIPBOARD_NOT_AVALIABLE);
 		::CloseClipboard();
 		return;
 	}
 
-	HGLOBAL hMem = ::GetClipboardData(m_iClipBoard);
+	HGLOBAL hMem = Clipboard.GetData();
 
 	if (hMem != NULL) {
 		CPatternClipData *pClipData = new CPatternClipData();
@@ -825,10 +891,6 @@ void CFamiTrackerView::OnEditPastemix()
 		pAction->SetPaste(pClipData);
 		AddAction(pAction);
 	}
-
-	::CloseClipboard();
-
-	UpdateEditor(CHANGED_PATTERN);
 }
 
 void CFamiTrackerView::OnEditDelete()
@@ -845,13 +907,17 @@ void CFamiTrackerView::OnTrackerEdit()
 	else
 		GetParentFrame()->SetMessageText(IDS_NORMAL_MODE);
 	
-	UpdateEditor(UPDATE_ENTIRE);
+	m_pPatternEditor->InvalidateBackground();
+	m_pPatternEditor->InvalidateHeader();
+	m_pPatternEditor->InvalidateCursor();
+	RedrawPatternEditor();
 }
 
 void CFamiTrackerView::OnTrackerPal()
 {
 	CFamiTrackerDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
+
 	int Machine = PAL;
 	pDoc->SetMachine(Machine);
 	theApp.GetSoundGenerator()->LoadMachineSettings(Machine, pDoc->GetEngineSpeed(), pDoc->GetNamcoChannels());
@@ -861,6 +927,7 @@ void CFamiTrackerView::OnTrackerNtsc()
 {
 	CFamiTrackerDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
+
 	int Machine = NTSC;
 	pDoc->SetMachine(Machine);
 	theApp.GetSoundGenerator()->LoadMachineSettings(Machine, pDoc->GetEngineSpeed(), pDoc->GetNamcoChannels());
@@ -890,6 +957,7 @@ void CFamiTrackerView::OnSpeedDefault()
 {
 	CFamiTrackerDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
+
 	int Speed = 0;
 	pDoc->SetEngineSpeed(Speed);
 	theApp.GetSoundGenerator()->LoadMachineSettings(pDoc->GetMachine(), Speed, pDoc->GetNamcoChannels());
@@ -950,7 +1018,7 @@ void CFamiTrackerView::OnEditVolumeMask()
 void CFamiTrackerView::OnEditSelectall()
 {
 	m_pPatternEditor->SelectAll();
-	UpdateEditor(UPDATE_CURSOR);
+	InvalidateCursor();
 }
 
 void CFamiTrackerView::OnTrackerPlayrow()
@@ -958,59 +1026,37 @@ void CFamiTrackerView::OnTrackerPlayrow()
 	CFamiTrackerDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
 
-	stChanNote Note;
-	int Track = static_cast<CMainFrame*>(GetParentFrame())->GetSelectedTrack();
-	int Frame = m_pPatternEditor->GetFrame();
-	int Row = m_pPatternEditor->GetRow();
-	int Channels = pDoc->GetAvailableChannels();
+	const int Track = static_cast<CMainFrame*>(GetParentFrame())->GetSelectedTrack();
+	const int Frame = m_pPatternEditor->GetFrame();
+	const int Row = m_pPatternEditor->GetRow();
+	const int Channels = pDoc->GetAvailableChannels();
 
 	for (int i = 0; i < Channels; ++i) {
+		stChanNote Note;
 		pDoc->GetNoteData(Track, Frame, i, Row, &Note);
 		if (!m_bMuteChannels[i])
 			theApp.GetSoundGenerator()->QueueNote(i, Note, NOTE_PRIO_1);
 	}
 
 	m_pPatternEditor->MoveDown(1);
-	UpdateEditor(UPDATE_CURSOR);
+	InvalidateCursor();
 }
 
 void CFamiTrackerView::CopyVolumeColumn()
 {
 	CString str;
-
 	m_pPatternEditor->GetVolumeColumn(str);
 
-	if (!OpenClipboard()) {
+	CClipboard Clipboard(this, CF_TEXT);
+
+	if (!Clipboard.IsOpened()) {
 		AfxMessageBox(IDS_CLIPBOARD_OPEN_ERROR);
 		return;
 	}
 
-	::EmptyClipboard();
-
-	HGLOBAL hMem = ::GlobalAlloc(GMEM_MOVEABLE, str.GetLength() + 1);
-
-	if (hMem == NULL) {
+	if (!Clipboard.SetDataPointer(str.GetBuffer(), str.GetLength() + 1)) {
 		AfxMessageBox(IDS_CLIPBOARD_COPY_ERROR);
-		::CloseClipboard();
-		return;
 	}
-
-	char *pStr = (char*)::GlobalLock(hMem);
-
-	if (pStr == NULL) {
-		AfxMessageBox(IDS_CLIPBOARD_COPY_ERROR);
-		::CloseClipboard();
-		return;
-	}
-
-	strcpy_s(pStr, str.GetLength() + 1, (LPCSTR)str);
-
-	::GlobalUnlock(hMem);
-
-	// Set clipboard for internal data, hMem may not be used after this point
-	::SetClipboardData(CF_TEXT, hMem);
-
-	::CloseClipboard();
 }
 
 
@@ -1031,8 +1077,7 @@ void CFamiTrackerView::OnInitialUpdate()
 	CMainFrame *pMainFrame = static_cast<CMainFrame*>(GetParentFrame());
 	ASSERT_VALID(pMainFrame);
 
-	CFrameEditor *pFrameEditor = pMainFrame->GetFrameEditor();
-	ASSERT_VALID(pFrameEditor);
+	CFrameEditor *pFrameEditor = GetFrameEditor();
 
 //	TRACE1("View: OnInitialUpdate (%s)\n", pDoc->GetTitle());
 
@@ -1041,6 +1086,7 @@ void CFamiTrackerView::OnInitialUpdate()
 
 	// Notify the pattern view about new document & view
 	m_pPatternEditor->SetDocument(pDoc, this);
+	m_pPatternEditor->ResetCursor();
 
 	// Always start with first track
 	pMainFrame->SelectTrack(0);
@@ -1079,12 +1125,13 @@ void CFamiTrackerView::OnInitialUpdate()
 	}
 
 	// Draw screen
-	m_pPatternEditor->Invalidate(true);
-	RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_ERASE);
+	m_pPatternEditor->InvalidateBackground();
+	m_pPatternEditor->InvalidatePatternData();
+	RedrawPatternEditor();
 
-	pFrameEditor->Clear();
-
-	DrawFrameWindow();
+	pFrameEditor->CancelSelection();
+	pFrameEditor->InvalidateFrameData();
+	RedrawFrameEditor();
 
 	if (theApp.m_pMainWnd->IsWindowVisible())
 		SetFocus();
@@ -1094,7 +1141,7 @@ void CFamiTrackerView::OnInitialUpdate()
 		pMainFrame->PostMessage(WM_COMMAND, ID_MODULE_COMMENTS);
 
 	// Call OnUpdate
-//	CView::OnInitialUpdate();	
+	//CView::OnInitialUpdate();	
 }
 
 void CFamiTrackerView::OnUpdate(CView* /*pSender*/, LPARAM lHint, CObject* /*pHint*/)
@@ -1103,134 +1150,94 @@ void CFamiTrackerView::OnUpdate(CView* /*pSender*/, LPARAM lHint, CObject* /*pHi
 	CMainFrame *pMainFrm = static_cast<CMainFrame*>(GetParentFrame());
 	ASSERT_VALID(pMainFrm);
 
-#if 0
 	// Handle new flags
 	switch (lHint) {
-		// Track has been added / removed / changed
+	// Track has been added, removed or changed
 	case UPDATE_TRACK:
+		if (theApp.IsPlaying())
+			theApp.StopPlayer();
+		pMainFrm->UpdateTrackBox();
+		m_pPatternEditor->InvalidateBackground();
+		m_pPatternEditor->InvalidatePatternData();
+		m_pPatternEditor->InvalidateHeader();
+		RedrawPatternEditor();
 		break;
-		// Pattern data has been edited
+	// Pattern data has been edited
 	case UPDATE_PATTERN:
+		m_pPatternEditor->InvalidatePatternData();
+		RedrawPatternEditor();
 		break;
-		// Frame data has been edited
+	// Frame data has been edited
 	case UPDATE_FRAME:
+		InvalidateFrameEditor();
+
+		m_pPatternEditor->InvalidatePatternData();
+		RedrawPatternEditor();
 		break;
-		// Instrument has been added / removed
+	// Instrument has been added / removed
 	case UPDATE_INSTRUMENT:
+		pMainFrm->UpdateInstrumentList();
+		m_pPatternEditor->InvalidatePatternData();
+		RedrawPatternEditor();
 		break;
-		// Module properties has changed (including channel count)
+	// Module properties has changed (including channel count)
 	case UPDATE_PROPERTIES:
+		// Old
+		m_pPatternEditor->ResetCursor();
+		//m_pPatternEditor->Modified();
+		pMainFrm->ResetUndo();
+		pMainFrm->ResizeFrameWindow();
+
+		m_pPatternEditor->InvalidateBackground();	// Channel count might have changed, recalculated pattern layout
+		m_pPatternEditor->InvalidatePatternData();
+		m_pPatternEditor->InvalidateHeader();
+		RedrawPatternEditor();
 		break;
-		// Row highlight option has changed
+	// Row highlight option has changed
 	case UPDATE_HIGHLIGHT:
+		m_pPatternEditor->SetHighlight(GetDocument()->GetFirstHighlight(), GetDocument()->GetSecondHighlight());
+		m_pPatternEditor->InvalidatePatternData();
+		RedrawPatternEditor();
 		break;
-		// Effect columns has changed
+	// Effect columns has changed
 	case UPDATE_COLUMNS:
+		m_pPatternEditor->InvalidateBackground();	// Recalculate pattern layout
+		m_pPatternEditor->InvalidateHeader();
+		m_pPatternEditor->InvalidatePatternData();
+		RedrawPatternEditor();
 		break;
-		// Document is closing
+	// Document is closing
 	case UPDATE_CLOSE:
+		// Old
+		pMainFrm->CloseInstrumentEditor();
 		break;
 	}
-#endif
+}
 
-	switch (lHint) {
-		// Pattern length has changed
-		case CHANGED_PATTERN_LENGTH:
-			m_pPatternEditor->ClearSelection();
-			// Fall through
-		// Pattern data has changed
-		case CHANGED_PATTERN:
-			m_pPatternEditor->Modified();	 // Pattern has changed, set modified flag
-			m_pPatternEditor->Invalidate(false);
-//			if (m_pPatternEditor->FullErase())
-//				RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_ERASE);
-//			else
-			RedrawWindow(m_pPatternEditor->GetActiveRect(), NULL, RDW_INVALIDATE);
-			DrawFrameWindow();
-			break;
-		// Frame count or data has changed
-		case CHANGED_FRAMES:
-			DrawFrameWindow();
-			m_pPatternEditor->AdjustCursor();
-			m_pPatternEditor->Modified();
-			m_pPatternEditor->Invalidate(false);
-			break;
-		// A new track is selected
-		case CHANGED_TRACK:
-			if (theApp.IsPlaying())
-				theApp.ResetPlayer();
-			m_pPatternEditor->Reset();
-			m_pPatternEditor->Invalidate(false);
-			pMainFrm->ResetUndo();
-			Invalidate();
-			RedrawWindow();
-			pMainFrm->UpdateTrackBox();
-			DrawFrameWindow();
-			// Update setting boxes
-			pMainFrm->UpdateControls();
-			break;
-		// Track count or track order has changed
-		case CHANGED_TRACKCOUNT:
-			if (theApp.IsPlaying())
-				theApp.StopPlayer();
-				//theApp.ResetPlayer();
-			pMainFrm->UpdateTrackBox();
-			m_pPatternEditor->Invalidate(false);
-			Invalidate();
-			RedrawWindow();
-			break;
-		// Channel count changed, called when an expansion chip is selected
-		case CHANGED_CHANNEL_COUNT:
-			m_pPatternEditor->Reset();
-			m_pPatternEditor->Modified();
-			pMainFrm->ResetUndo();
-			pMainFrm->ResizeFrameWindow();
-			m_pPatternEditor->Invalidate(true);
-			RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_ERASE);
-			break;
-		// Instrument list has changed
-		case UPDATE_INSTRUMENTS:
-			pMainFrm->UpdateInstrumentList();
-			break;
-		// Document is closing
-		case CLOSE_DOCUMENT:
-			pMainFrm->CloseInstrumentEditor();
-			break;
+void CFamiTrackerView::TrackChanged(unsigned int Track)
+{
+	// Called when the selected track has changed
+	CMainFrame *pMainFrm = static_cast<CMainFrame*>(GetParentFrame());
+	ASSERT_VALID(pMainFrm);
 
-			// TODO: Remove these 
+	if (theApp.IsPlaying())
+		theApp.ResetPlayer();
 
-		case CHANGED_ERASE:
-			// Invalidate, erase and redraw entire area
-			m_bUpdateBackground = true;
-			m_pPatternEditor->Invalidate(true);
-			RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_ERASE);
-			break;
+	pMainFrm->ResetUndo();
 
-		case UPDATE_ENTIRE:
-			// Invalidate and redraw entire area
-			m_pPatternEditor->Modified();
-			m_pPatternEditor->Invalidate(true);
-			RedrawWindow(NULL, NULL, RDW_INVALIDATE);
-			DrawFrameWindow();
-			break;
+	m_pPatternEditor->ResetCursor();
+	m_pPatternEditor->InvalidatePatternData();
+	m_pPatternEditor->InvalidateBackground();
+	m_pPatternEditor->InvalidateHeader();
+	RedrawPatternEditor();
 
-		case UPDATE_HIGHLIGHT:
-			m_pPatternEditor->SetHighlight(GetDocument()->GetFirstHighlight(), GetDocument()->GetSecondHighlight());
-			UpdateEditor(UPDATE_ENTIRE);
-			break;
+	pMainFrm->UpdateTrackBox();
 
-		default:
-			TRACE0("View: Unknown update hint (fix this)\n");
-			// No hint specified, redraw everything
-			m_pPatternEditor->Invalidate(true);
-//			m_pPatternEditor->AdjustCursorChannel();
-			if (m_pPatternEditor->FullErase())
-				RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_ERASE);
-			else
-				RedrawWindow(m_pPatternEditor->GetActiveRect(), NULL, RDW_INVALIDATE);
-			DrawFrameWindow();
-			break;
-	}
+	InvalidateFrameEditor();
+	RedrawFrameEditor();
+
+	// Update setting boxes
+	pMainFrm->UpdateControls();
 }
 
 // GUI elements updates
@@ -1257,7 +1264,7 @@ void CFamiTrackerView::OnUpdateEditCut(CCmdUI *pCmdUI)
 
 void CFamiTrackerView::OnUpdateEditPaste(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable(IsClipboardFormatAvailable(m_iClipBoard) ? 1 : 0);
+	pCmdUI->Enable(IsClipboardAvailable() ? 1 : 0);
 }
 
 void CFamiTrackerView::OnUpdateEditDelete(CCmdUI *pCmdUI)
@@ -1274,6 +1281,7 @@ void CFamiTrackerView::OnUpdateTrackerPal(CCmdUI *pCmdUI)
 {
 	CFamiTrackerDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
+
 	pCmdUI->Enable(pDoc->GetExpansionChip() == SNDCHIP_NONE);
 	UINT item = pDoc->GetMachine() == PAL ? ID_TRACKER_PAL : ID_TRACKER_NTSC;
 	if (pCmdUI->m_pMenu != NULL)
@@ -1284,6 +1292,7 @@ void CFamiTrackerView::OnUpdateTrackerNtsc(CCmdUI *pCmdUI)
 {
 	CFamiTrackerDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
+
 	UINT item = pDoc->GetMachine() == NTSC ? ID_TRACKER_NTSC : ID_TRACKER_PAL;
 	if (pCmdUI->m_pMenu != NULL)
 		pCmdUI->m_pMenu->CheckMenuRadioItem(ID_TRACKER_NTSC, ID_TRACKER_PAL, item, MF_BYCOMMAND);
@@ -1293,6 +1302,7 @@ void CFamiTrackerView::OnUpdateSpeedDefault(CCmdUI *pCmdUI)
 {
 	CFamiTrackerDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
+
 	pCmdUI->SetCheck(pDoc->GetEngineSpeed() == 0);
 }
 
@@ -1300,6 +1310,7 @@ void CFamiTrackerView::OnUpdateSpeedCustom(CCmdUI *pCmdUI)
 {
 	CFamiTrackerDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);	
+
 	pCmdUI->SetCheck(pDoc->GetEngineSpeed() != 0);
 }
 
@@ -1320,7 +1331,7 @@ void CFamiTrackerView::PlayerTick()
 		m_iAutoArpPtr = (m_iAutoArpPtr + 1) & 127;				
 		if (m_iAutoArpNotes[m_iAutoArpPtr] == 1) {
 			m_iLastAutoArpPtr = m_iAutoArpPtr;
-			Arpeggiate[m_pPatternEditor->GetChannel()] = m_iAutoArpPtr;
+			m_iArpeggiate[m_pPatternEditor->GetChannel()] = m_iAutoArpPtr;
 			break;
 		}
 		else if (m_iAutoArpNotes[m_iAutoArpPtr] == 2) {
@@ -1328,6 +1339,43 @@ void CFamiTrackerView::PlayerTick()
 		}
 	}
 	while (m_iAutoArpPtr != OldPtr);
+}
+
+bool CFamiTrackerView::PlayerGetNote(int Track, int Frame, int Channel, int Row, stChanNote &NoteData)
+{
+	CFamiTrackerDoc *pDoc = GetDocument();
+	bool ValidCommand = false;
+
+	pDoc->GetNoteData(Track, Frame, Channel, Row, &NoteData);
+	
+	if (!IsChannelMuted(Channel)) {
+		// Let view know what is about to play
+		PlayerPlayNote(Channel, &NoteData);
+		ValidCommand = true;
+	}
+	else {
+		// These effects will pass even if the channel is muted
+		const int PASS_EFFECTS[] = {EF_HALT, EF_JUMP, EF_SPEED, EF_SKIP};
+		int Columns = pDoc->GetEffColumns(Track, Channel) + 1;
+		
+		NoteData.Note		= HALT;
+		NoteData.Octave		= 0;
+		NoteData.Instrument = 0;
+
+		for (int j = 0; j < Columns; ++j) {
+			bool Clear = true;
+			for (int k = 0; k < 4; ++k) {
+				if (NoteData.EffNumber[j] == PASS_EFFECTS[k]) {
+					ValidCommand = true;
+					Clear = false;
+				}
+			}
+			if (Clear)
+				NoteData.EffNumber[j] = EF_NONE;
+		}
+	}
+
+	return ValidCommand;
 }
 
 void CFamiTrackerView::PlayerPlayNote(int Channel, stChanNote *pNote)
@@ -1354,9 +1402,10 @@ unsigned int CFamiTrackerView::GetSelectedRow() const
 	return m_pPatternEditor->GetRow();
 }
 
-unsigned int CFamiTrackerView::GetSelectedColumn() const
+void CFamiTrackerView::SetFollowMode(bool Mode)
 {
-	return m_pPatternEditor->GetColumn();
+	m_bFollowMode = Mode;
+	m_pPatternEditor->SetFollowMove(Mode);
 }
 
 bool CFamiTrackerView::GetFollowMode() const
@@ -1364,85 +1413,17 @@ bool CFamiTrackerView::GetFollowMode() const
 	return m_bFollowMode; 
 }
 
+int	CFamiTrackerView::GetAutoArpeggio(unsigned int Channel)
+{
+	// Return and reset next arpeggio note
+	int ret = m_iArpeggiate[Channel];
+	m_iArpeggiate[Channel] = 0;
+	return ret;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // General
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-void CFamiTrackerView::RedrawPattern()
-{
-	// Redraws the pattern area
-}
-
-void CFamiTrackerView::RedrawEntire()
-{
-	// Redraws the entire view
-}
-*/
-
-void CFamiTrackerView::UpdateMeters()
-{
-	// TODO: Change this to use the ordinary drawing routines
-	m_csDrawLock.Lock();
-
-	CDC *pDC = GetDC();
-	if (pDC && pDC->m_hDC) {
-		m_pPatternEditor->DrawMeters(pDC);
-		ReleaseDC(pDC);
-	}
-
-	m_csDrawLock.Unlock();
-}
-
-void CFamiTrackerView::UpdateEditor(LPARAM lHint)
-{
-	CFamiTrackerDoc *pDoc = GetDocument();
-	ASSERT_VALID(pDoc);
-
-	// Prevent crashing when trying to load non-existing file
-	if (!pDoc->IsFileLoaded())
-		return;
-
-	switch (lHint) {
-		// TODO: remove this maybe? call directly on the document
-		case CHANGED_PATTERN:
-			pDoc->UpdateAllViews(NULL, CHANGED_PATTERN);
-			break;
-		case UPDATE_PLAYING:
-			// Pattern player, allow fast updates
-			m_pPatternEditor->Invalidate(false);
-			// TODO enabling this will cause full redraws in debug mode
-//#ifdef _DEBUG
-//			Invalidate();
-//#else
-			RedrawWindow(m_pPatternEditor->GetActiveRect(), NULL, RDW_INVALIDATE);
-//#endif
-			m_pPatternEditor->AdjustCursor();	// Fix frame editor cursor
-			DrawFrameWindow();
-			break;
-		case UPDATE_FRAME:
-			// Redraw frame window & pattern
-			// TODO: fix this
-		case UPDATE_CURSOR:
-//			if (::IsWindow(m_pFrameBoxWnd->m_hWnd)
-			DrawFrameWindow();
-			// Cursor has moved, redraw screen
-			m_pPatternEditor->Invalidate(false);
-			if (m_pPatternEditor->FullErase())
-				RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_ERASE);
-			else
-				RedrawWindow(m_pPatternEditor->GetActiveRect(), NULL, RDW_INVALIDATE);
-			break;
-		default:
-			// TODO: remove this
-			TRACE0("View: UpdateEditor() called OnUpdate() (remove this)\n");
-			OnUpdate(NULL, lHint, NULL);
-	}
-}
-
-void CFamiTrackerView::RemoveWithoutDelete()
-{
-	AddAction(new CPatternAction(CPatternAction::ACT_EDIT_DELETE_ROWS));
-}
 
 void CFamiTrackerView::RegisterKeyState(int Channel, int Note)
 {
@@ -1458,70 +1439,67 @@ void CFamiTrackerView::RegisterKeyState(int Channel, int Note)
 		*/
 }
 
-void CFamiTrackerView::SelectFrame(unsigned int Frame)
-{
-	ASSERT(Frame < MAX_FRAMES);
-	m_pPatternEditor->MoveToFrame(Frame);
-	UpdateEditor(UPDATE_FRAME);
-}
-
 void CFamiTrackerView::SelectNextFrame()
 {
 	m_pPatternEditor->NextFrame();
-	UpdateEditor(UPDATE_FRAME);
+	InvalidateFrameEditor();
 }
 
 void CFamiTrackerView::SelectPrevFrame()
 {
 	m_pPatternEditor->PreviousFrame();
-	UpdateEditor(UPDATE_FRAME);
+	InvalidateFrameEditor();
 }
 
 void CFamiTrackerView::SelectFirstFrame()
 {
 	m_pPatternEditor->MoveToFrame(0);
-	UpdateEditor(UPDATE_FRAME);
+	InvalidateFrameEditor();
 }
 
 void CFamiTrackerView::SelectLastFrame()
 {
 	CFamiTrackerDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
+
 	int Track = static_cast<CMainFrame*>(GetParentFrame())->GetSelectedTrack();
 	m_pPatternEditor->MoveToFrame(pDoc->GetFrameCount(Track) - 1);
-	UpdateEditor(UPDATE_FRAME);
+	InvalidateFrameEditor();
+}
+
+void CFamiTrackerView::MoveCursorNextChannel()
+{
+	m_pPatternEditor->NextChannel();
+	InvalidateCursor();
+}
+
+void CFamiTrackerView::MoveCursorPrevChannel()
+{
+	m_pPatternEditor->PreviousChannel();
+	InvalidateCursor();
+}
+
+void CFamiTrackerView::SelectFrame(unsigned int Frame)
+{
+	ASSERT(Frame < MAX_FRAMES);
+	m_pPatternEditor->MoveToFrame(Frame);
+	InvalidateCursor();
 }
 
 void CFamiTrackerView::SelectChannel(unsigned int Channel)
 {
 	ASSERT(Channel < MAX_CHANNELS);
 	m_pPatternEditor->MoveToChannel(Channel);
-	UpdateEditor(UPDATE_FRAME);
+	InvalidateCursor();
 }
 
-void CFamiTrackerView::SelectRow(unsigned int Row)
+void CFamiTrackerView::SelectFrameChannel(unsigned int Frame, unsigned int Channel)
 {
-	ASSERT(Row < MAX_PATTERN_LENGTH);
-	m_pPatternEditor->MoveToRow(Row);
-	UpdateEditor(UPDATE_FRAME);
-}
-
-void CFamiTrackerView::SelectColumn(unsigned int Column)
-{
-	m_pPatternEditor->MoveToColumn(Column);
-	UpdateEditor(UPDATE_FRAME);
-}
-
-void CFamiTrackerView::MoveCursorNextChannel()
-{
-	m_pPatternEditor->NextChannel();
-	UpdateEditor(UPDATE_CURSOR);
-}
-
-void CFamiTrackerView::MoveCursorPrevChannel()
-{
-	m_pPatternEditor->PreviousChannel();
-	UpdateEditor(UPDATE_CURSOR);
+	ASSERT(Frame < MAX_FRAMES);
+	ASSERT(Channel < MAX_CHANNELS);
+	m_pPatternEditor->MoveToFrame(Frame);
+	m_pPatternEditor->MoveToChannel(Channel);
+	// This method does no redrawing
 }
 
 void CFamiTrackerView::ToggleChannel(unsigned int Channel)
@@ -1534,7 +1512,7 @@ void CFamiTrackerView::ToggleChannel(unsigned int Channel)
 
 	SetChannelMute(Channel, !m_bMuteChannels[Channel]);
 	HaltNoteSingle(Channel);
-	UpdateEditor(CHANGED_HEADER);
+	InvalidateHeader();
 }
 
 void CFamiTrackerView::SoloChannel(unsigned int Channel)
@@ -1564,7 +1542,7 @@ void CFamiTrackerView::SoloChannel(unsigned int Channel)
 		SetChannelMute(Channel, false);
 	}
 
-	UpdateEditor(CHANGED_HEADER);
+	InvalidateHeader();
 }
 
 void CFamiTrackerView::UnmuteAllChannels()
@@ -1578,7 +1556,7 @@ void CFamiTrackerView::UnmuteAllChannels()
 		SetChannelMute(i, false);
 	}
 
-	UpdateEditor(CHANGED_HEADER);
+	InvalidateHeader();
 }
 
 bool CFamiTrackerView::IsChannelSolo(unsigned int Channel) const
@@ -1599,7 +1577,6 @@ bool CFamiTrackerView::IsChannelSolo(unsigned int Channel) const
 void CFamiTrackerView::SetChannelMute(int Channel, bool bMute)
 {
 	m_bMuteChannels[Channel] = bMute;
-	theApp.GetSoundGenerator()->SetMuteChannel(Channel, bMute);
 }
 
 bool CFamiTrackerView::IsChannelMuted(unsigned int Channel) const
@@ -1612,8 +1589,9 @@ void CFamiTrackerView::SetInstrument(int Instrument)
 {
 	// Todo: remove this
 	CFamiTrackerDoc* pDoc = GetDocument();
-	CMainFrame *pMainFrm = static_cast<CMainFrame*>(GetParentFrame());
 	ASSERT_VALID(pDoc);
+
+	CMainFrame *pMainFrm = static_cast<CMainFrame*>(GetParentFrame());
 	ASSERT_VALID(pMainFrm);
 	ASSERT(Instrument >= 0 && Instrument < MAX_INSTRUMENTS);
 
@@ -1626,19 +1604,9 @@ void CFamiTrackerView::SetInstrument(int Instrument)
 
 unsigned int CFamiTrackerView::GetInstrument() const 
 {
-	// Todo: remove
 	CMainFrame *pMainFrm = static_cast<CMainFrame*>(GetParentFrame());
 	ASSERT_VALID(pMainFrm);
 	return pMainFrm->GetSelectedInstrument();
-}
-
-void CFamiTrackerView::IncreaseCurrentPattern()
-{
-
-}
-
-void CFamiTrackerView::DecreaseCurrentPattern()
-{
 }
 
 void CFamiTrackerView::StepDown()
@@ -1649,18 +1617,17 @@ void CFamiTrackerView::StepDown()
 	if (m_iInsertKeyStepping)
 		m_pPatternEditor->MoveDown(m_iInsertKeyStepping);
 
-	UpdateEditor(UPDATE_CURSOR);
+	InvalidateCursor();
 }
 
 void CFamiTrackerView::InsertNote(int Note, int Octave, int Channel, int Velocity)
 {
 	// Inserts a note
+	const int Track = static_cast<CMainFrame*>(GetParentFrame())->GetSelectedTrack();
+	const int Frame = m_pPatternEditor->GetFrame();
+	const int Row = m_pPatternEditor->GetRow();
+
 	stChanNote Cell;
-
-	int Track = static_cast<CMainFrame*>(GetParentFrame())->GetSelectedTrack();
-	int Frame = m_pPatternEditor->GetFrame();
-	int Row = m_pPatternEditor->GetRow();
-
 	GetDocument()->GetNoteData(Track, Frame, Channel, Row, &Cell);
 
 	Cell.Note = Note;
@@ -1699,11 +1666,9 @@ void CFamiTrackerView::InsertNote(int Note, int Octave, int Channel, int Velocit
 		CPatternAction *pAction = new CPatternAction(CPatternAction::ACT_EDIT_NOTE);
 		pAction->SetNote(Cell);
 		if (AddAction(pAction)) {
-			CSettings *pSettings = theApp.GetSettings();
+			const CSettings *pSettings = theApp.GetSettings();
 			if ((m_pPatternEditor->GetColumn() == 0) && !theApp.IsPlaying() && (m_iInsertKeyStepping > 0) && !pSettings->Midi.bMidiMasterSync)
 				StepDown();
-			pAction->UpdateCursor(m_pPatternEditor);
-			UpdateEditor(CHANGED_PATTERN);
 		}
 	}
 }
@@ -1810,7 +1775,7 @@ void CFamiTrackerView::HaltNoteSingle(unsigned int Channel)
 /// MIDI note handling functions
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void FixNoise(unsigned int &MidiNote, unsigned int &Octave, unsigned int &Note)
+static void FixNoise(unsigned int &MidiNote, unsigned int &Octave, unsigned int &Note)
 {
 	// NES noise channel
 	MidiNote = (MidiNote % 16) + 16;
@@ -1828,7 +1793,7 @@ void CFamiTrackerView::TriggerMIDINote(unsigned int Channel, unsigned int MidiNo
 	if (Octave > 7)	// ?
 		return;
 
-	CFamiTrackerDoc* pDoc = GetDocument();
+	CFamiTrackerDoc *pDoc = GetDocument();
 
 	if (pDoc->GetChannel(Channel)->GetID() == CHANID_NOISE)
 		FixNoise(MidiNote, Octave, Note);
@@ -1862,6 +1827,8 @@ void CFamiTrackerView::TriggerMIDINote(unsigned int Channel, unsigned int MidiNo
 		if (m_iAutoArpNotes[i] == 1)
 			++m_iAutoArpKeyCount;
 	}
+
+//	TRACE("%i: Trigger note %i on channel %i\n", GetTickCount(), MidiNote, Channel);
 }
 
 // Cut the currently playing note
@@ -1894,6 +1861,8 @@ void CFamiTrackerView::CutMIDINote(unsigned int Channel, unsigned int MidiNote, 
 	// IT-mode, cut note on cuts
 	if (theApp.GetSettings()->General.iEditStyle == EDIT_STYLE3)
 		HaltNote(Channel);
+
+//	TRACE("%i: Cut note %i on channel %i\n", GetTickCount(), MidiNote, Channel);
 }
 
 // Release the currently playing note
@@ -1923,6 +1892,8 @@ void CFamiTrackerView::ReleaseMIDINote(unsigned int Channel, unsigned int MidiNo
 	// IT-mode, release note
 	if (theApp.GetSettings()->General.iEditStyle == EDIT_STYLE3)
 		ReleaseNote(Channel);
+
+//	TRACE("%i: Release note %i on channel %i\n", GetTickCount(), MidiNote, Channel);
 }
 
 void CFamiTrackerView::UpdateArpDisplay()
@@ -1965,10 +1936,6 @@ bool CFamiTrackerView::IsControlPressed() const
 void CFamiTrackerView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 {	
 	// Called when a key is pressed
-	 
-	CFamiTrackerDoc* pDoc = GetDocument();
-	ASSERT_VALID(pDoc);
-
 	if (GetFocus() != this)
 		return;
 
@@ -1981,23 +1948,17 @@ void CFamiTrackerView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	}
 	
 	switch (nChar) {
-
-		// Cursor movement
 		case VK_UP:
-			m_pPatternEditor->MoveUp(m_iMoveKeyStepping);
-			UpdateEditor(UPDATE_CURSOR);
+			OnKeyDirUp();
 			break;
 		case VK_DOWN:
-			m_pPatternEditor->MoveDown(m_iMoveKeyStepping);
-			UpdateEditor(UPDATE_CURSOR);
+			OnKeyDirDown();
 			break;
 		case VK_LEFT:
-			m_pPatternEditor->MoveLeft();
-			UpdateEditor(UPDATE_CURSOR);
+			OnKeyDirLeft();
 			break;
 		case VK_RIGHT:
-			m_pPatternEditor->MoveRight();
-			UpdateEditor(UPDATE_CURSOR);
+			OnKeyDirRight();
 			break;
 		case VK_HOME:
 			OnKeyHome();
@@ -2014,8 +1975,6 @@ void CFamiTrackerView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		case VK_TAB:
 			OnKeyTab();
 			break;
-
-		// Pattern editing
 		case VK_ADD:
 			KeyIncreaseAction();
 			break;
@@ -2029,15 +1988,13 @@ void CFamiTrackerView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 			OnKeyInsert();
 			break;
 		case VK_BACK:
-			OnKeyBack();
+			OnKeyBackspace();
 			break;
-
-		// Remove selection
 		case VK_ESCAPE:
 			OnKeyEscape();
 			break;
 
-		// Octaves
+		// Octaves, unless overridden
 		case VK_F2: SetOctave(0); break;
 		case VK_F3: SetOctave(1); break;
 		case VK_F4: SetOctave(2); break;
@@ -2057,7 +2014,6 @@ void CFamiTrackerView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 void CFamiTrackerView::OnSysKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
 	// This is called when a key + ALT is pressed
-
 	if (nChar >= VK_NUMPAD0 && nChar <= VK_NUMPAD9) {
 		SetStepping(nChar - VK_NUMPAD0);
 		return;
@@ -2066,11 +2022,11 @@ void CFamiTrackerView::OnSysKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	switch (nChar) {
 		case VK_LEFT:
 			m_pPatternEditor->MoveChannelLeft();
-			UpdateEditor(UPDATE_CURSOR);
+			InvalidateCursor();
 			break;
 		case VK_RIGHT:
 			m_pPatternEditor->MoveChannelRight();
-			UpdateEditor(UPDATE_CURSOR);
+			InvalidateCursor();
 			break;
 	}
 
@@ -2080,7 +2036,6 @@ void CFamiTrackerView::OnSysKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 void CFamiTrackerView::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
 	// Called when a key is released
-
 	HandleKeyboardNote(nChar, false);
 	m_cKeyList[nChar] = 0;
 
@@ -2091,11 +2046,39 @@ void CFamiTrackerView::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 // Custom key handling routines
 //
 
+void CFamiTrackerView::OnKeyDirUp()
+{
+	// Move up
+	m_pPatternEditor->MoveUp(m_iMoveKeyStepping);
+	InvalidateCursor();
+}
+
+void CFamiTrackerView::OnKeyDirDown()
+{
+	// Move down
+	m_pPatternEditor->MoveDown(m_iMoveKeyStepping);
+	InvalidateCursor();
+}
+
+void CFamiTrackerView::OnKeyDirLeft()
+{
+	// Move left
+	m_pPatternEditor->MoveLeft();
+	InvalidateCursor();
+}
+
+void CFamiTrackerView::OnKeyDirRight()
+{
+	// Move right
+	m_pPatternEditor->MoveRight();
+	InvalidateCursor();
+}
+
 void CFamiTrackerView::OnKeyEscape()
 {
 	// ESC -> remove selection
-	m_pPatternEditor->ClearSelection();
-	UpdateEditor(UPDATE_CURSOR);
+	m_pPatternEditor->CancelSelection();
+	InvalidateCursor();
 }
 
 void CFamiTrackerView::OnKeyTab()
@@ -2108,68 +2091,80 @@ void CFamiTrackerView::OnKeyTab()
 	else
 		m_pPatternEditor->NextChannel();
 
-	UpdateEditor(UPDATE_CURSOR);
+	InvalidateCursor();
 }
 
 void CFamiTrackerView::OnKeyPageUp()
 {
-	m_pPatternEditor->MovePageUp();
-	UpdateEditor(UPDATE_CURSOR);
+	// Move page up
+	int PageSize = theApp.GetSettings()->General.iPageStepSize;
+	m_pPatternEditor->MoveUp(PageSize);
+	InvalidateCursor();
 }
 
 void CFamiTrackerView::OnKeyPageDown()
 {
-	m_pPatternEditor->MovePageDown();
-	UpdateEditor(UPDATE_CURSOR);
+	// Move page down
+	int PageSize = theApp.GetSettings()->General.iPageStepSize;
+	m_pPatternEditor->MoveDown(PageSize);
+	InvalidateCursor();
 }
 
 void CFamiTrackerView::OnKeyHome()
 {
+	// Move home
 	m_pPatternEditor->OnHomeKey();
-	UpdateEditor(UPDATE_CURSOR);
+	InvalidateCursor();
 }
 
 void CFamiTrackerView::OnKeyEnd()
 {
+	// Move to end
 	m_pPatternEditor->OnEndKey();
-	UpdateEditor(UPDATE_CURSOR);
+	InvalidateCursor();
 }
 
 void CFamiTrackerView::OnKeyInsert()
 {
+	// Insert row
 	CFamiTrackerDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
 
 	if (PreventRepeat(VK_INSERT, true))
 		return;
 
-	AddAction(new CPatternAction(CPatternAction::ACT_INSERT_ROW));
+	if (m_pPatternEditor->IsSelecting()) {
+		AddAction(new CPatternAction(CPatternAction::ACT_INSERT_SEL_ROWS));
+	}
+	else {
+		AddAction(new CPatternAction(CPatternAction::ACT_INSERT_ROW));
+	}
 }
 
-void CFamiTrackerView::OnKeyBack()
+void CFamiTrackerView::OnKeyBackspace()
 {
+	// Pull up row
 	CFamiTrackerDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
 
-	if (m_pPatternEditor->IsSelecting()) 
-		RemoveWithoutDelete();
+	if (m_pPatternEditor->IsSelecting()) {
+		AddAction(new CPatternAction(CPatternAction::ACT_EDIT_DELETE_ROWS));
+	}
 	else {
 		if (PreventRepeat(VK_BACK, true))
 			return;
-
 		CPatternAction *pAction = new CPatternAction(CPatternAction::ACT_DELETE_ROW);
 		pAction->SetDelete(true, true);
 		if (AddAction(pAction)) {
 			m_pPatternEditor->MoveUp(1);
-			pAction->UpdateCursor(m_pPatternEditor);
+			InvalidateCursor();
 		}
 	}
-
-	UpdateEditor(CHANGED_PATTERN);
 }
 
 void CFamiTrackerView::OnKeyDelete()
 {
+	// Delete row data
 	CFamiTrackerDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
 
@@ -2405,7 +2400,6 @@ bool CFamiTrackerView::EditEffNumberColumn(stChanNote &Note, unsigned char nChar
 bool CFamiTrackerView::EditEffParamColumn(stChanNote &Note, int Key, int EffectIndex, bool &bStepDown, bool &bMoveRight, bool &bMoveLeft)
 {
 	int EditStyle = theApp.GetSettings()->General.iEditStyle;
-	unsigned char Mask, Shift;
 	int Column = m_pPatternEditor->GetColumn();
 	int Value = ConvertKeyToHex(Key);
 
@@ -2428,6 +2422,7 @@ bool CFamiTrackerView::EditEffParamColumn(stChanNote &Note, int Key, int EffectI
 	if (Value == -1 || Value == 0x80)
 		return false;
 
+	unsigned char Mask, Shift;
 	if (Column == C_EFF_PARAM1 || Column == C_EFF2_PARAM1 || Column == C_EFF3_PARAM1 || Column == C_EFF4_PARAM1) {
 		Mask = 0x0F;
 		Shift = 4;
@@ -2444,7 +2439,6 @@ bool CFamiTrackerView::EditEffParamColumn(stChanNote &Note, int Key, int EffectI
 			break;
 		case EDIT_STYLE2:	// Modplug
 			Note.EffParam[EffectIndex] = ((Note.EffParam[EffectIndex] & 0x0F) << 4) | Value & 0x0F;
-			UpdateEditor(CHANGED_PATTERN);
 			break;
 		case EDIT_STYLE3:	// IT
 			Note.EffParam[EffectIndex] = (Note.EffParam[EffectIndex] & Mask) | Value << Shift;
@@ -2568,14 +2562,11 @@ void CFamiTrackerView::HandleKeyboardInput(char nChar)
 		if (AddAction(pAction)) {
 			if (bMoveLeft)
 				m_pPatternEditor->MoveLeft();
-
 			if (bMoveRight)
 				m_pPatternEditor->MoveRight();
-
 			if (bStepDown)
 				StepDown();
-
-			pAction->UpdateCursor(m_pPatternEditor);
+			InvalidateCursor();
 		}
 	}
 }
@@ -2901,83 +2892,75 @@ void CFamiTrackerView::PreviewRelease(unsigned char Key)
 
 void CFamiTrackerView::TranslateMidiMessage()
 {
-   qDebug("TranslateMidiMessage");
+	qDebug("TranslateMidiMessage");
 //	// Check and handle MIDI messages
-
-//	unsigned char Message, Channel, Data1, Data2;
-//	CString Status;
-
+//
 //	CMIDI *pMIDI = theApp.GetMIDI();
 //	CFamiTrackerDoc* pDoc = GetDocument();
-
+//	CString Status;
+//
 //	if (!pMIDI || !pDoc)
 //		return;
-
+//
+//	unsigned char Message, Channel, Data1, Data2;
 //	while (pMIDI->ReadMessage(Message, Channel, Data1, Data2)) {
-
+//
 //		if (Message != 0x0F) {
 //			if (!theApp.GetSettings()->Midi.bMidiChannelMap)
 //				Channel = m_pPatternEditor->GetChannel();
 //			if (Channel > pDoc->GetAvailableChannels() - 1)
 //				Channel = pDoc->GetAvailableChannels() - 1;
 //		}
-
+//
+//		// Translate key releases to note off messages
+//		if (Message == MIDI_MSG_NOTE_ON && Data2 == 0) {
+//			Message = MIDI_MSG_NOTE_OFF;
+//		}
+//
+//		if (Message == MIDI_MSG_NOTE_ON || Message == MIDI_MSG_NOTE_OFF) {
+//			// Remove two octaves from MIDI notes
+//			Data1 -= 24;
+//			if (Data1 > 127)
+//				return;
+//		}
+//
 //		switch (Message) {
 //			case MIDI_MSG_NOTE_ON:
-
-//				// Remove two octaves from MIDI device notes
-//				Data1 -= 24;
-//				if (Data1 > 127)
-//					break;
-
-//				if (Data2 == 0) {
-//					// MIDI key is released, don't input note break into pattern
-//					if (DoRelease())
-//						ReleaseMIDINote(Channel, Data1, false);
-//					else
-//						CutMIDINote(Channel, Data1, false);
-//				}
-//				else
-//					TriggerMIDINote(Channel, Data1, Data2, true);
-
-//				{
-//					CString str1, str2, str3;
-//					str1.Format(_T("%02i"), Data1 % 12);
-//					str2.Format(_T("%02i"), Data1 / 12);
-//					str3.Format(_T("%02X"), Data2);
-//					AfxFormatString3(Status, IDS_MIDI_MESSAGE_ON_FORMAT, str1, str2, str3);
-//					GetParentFrame()->SetMessageText(Status);
-//				}
+//				TriggerMIDINote(Channel, Data1, Data2, true);
+//				AfxFormatString3(Status, IDS_MIDI_MESSAGE_ON_FORMAT, 
+//					MakeIntString(Data1 % 12), 
+//					MakeIntString(Data1 / 12),
+//					MakeIntString(Data2));
 //				break;
-
+//
 //			case MIDI_MSG_NOTE_OFF:
-
-//				// Remove two octaves from MIDI device notes
-//				Data1 -= 24;
-//				if (Data1 > 127)
-//					break;
-
-//				CutMIDINote(Channel, Data1, false);
+//				// MIDI key is released, don't input note break into pattern
+//				if (DoRelease())
+//					ReleaseMIDINote(Channel, Data1, false);
+//				else
+//					CutMIDINote(Channel, Data1, false);
 //				Status.Format(IDS_MIDI_MESSAGE_OFF);
-//				GetParentFrame()->SetMessageText(Status);
 //				break;
-			
-//			case MIDI_MSG_PITCH_WHEEL:
+//			
+//			case MIDI_MSG_PITCH_WHEEL: 
 //				{
 //					CTrackerChannel *pChannel = pDoc->GetChannel(Channel);
 //					int PitchValue = 0x2000 - ((Data1 & 0x7F) | ((Data2 & 0x7F) << 7));
 //					pChannel->SetPitch(-PitchValue / 0x10);
 //				}
 //				break;
-
+//
 //			case 0x0F:
 //				if (Channel == 0x08) {
 //					m_pPatternEditor->MoveDown(m_iInsertKeyStepping);
-//					UpdateEditor(UPDATE_CURSOR);
+//					InvalidateCursor();
 //				}
 //				break;
 //		}
 //	}
+//
+//	if (Status.GetLength() > 0)
+//		GetParentFrame()->SetMessageText(Status);
 }
 
 //
@@ -3031,6 +3014,7 @@ int CFamiTrackerView::GetSelectedChipType() const
 {
 	CFamiTrackerDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
+
 	return pDoc->GetChipType(m_pPatternEditor->GetChannel());
 }
 
@@ -3044,12 +3028,6 @@ void CFamiTrackerView::OnDecreaseStepSize()
 {
 	if (m_iInsertKeyStepping > 0)
 		SetStepping(m_iInsertKeyStepping - 1);
-}
-
-void CFamiTrackerView::SetFollowMode(bool Mode)
-{
-	m_bFollowMode = Mode;
-	m_pPatternEditor->SetFollowMove(Mode);
 }
 
 void CFamiTrackerView::SetStepping(int Step) 
@@ -3084,7 +3062,7 @@ void CFamiTrackerView::OnEditReplaceInstrument()
 void CFamiTrackerView::OnNcMouseMove(UINT nHitTest, CPoint point)
 {
 	if (m_pPatternEditor->OnMouseNcMove())
-		UpdateEditor(UPDATE_ENTIRE);
+		InvalidateHeader();
 
 	CView::OnNcMouseMove(nHitTest, point);
 }
@@ -3092,13 +3070,13 @@ void CFamiTrackerView::OnNcMouseMove(UINT nHitTest, CPoint point)
 void CFamiTrackerView::OnOneStepUp()
 {
 	m_pPatternEditor->MoveUp(SINGLE_STEP);
-	UpdateEditor(UPDATE_CURSOR);	
+	InvalidateCursor();
 }
 
 void CFamiTrackerView::OnOneStepDown()
 {
 	m_pPatternEditor->MoveDown(SINGLE_STEP);
-	UpdateEditor(UPDATE_CURSOR);
+	InvalidateCursor();
 }
 
 void CFamiTrackerView::MakeSilent()
@@ -3109,7 +3087,7 @@ void CFamiTrackerView::MakeSilent()
 
 	memset(m_iActiveNotes, 0, sizeof(int) * MAX_CHANNELS);
 	memset(m_cKeyList, 0, sizeof(char) * 256);
-	memset(Arpeggiate, 0, sizeof(int) * MAX_CHANNELS);
+	memset(m_iArpeggiate, 0, sizeof(int) * MAX_CHANNELS);
 	memset(m_iAutoArpNotes, 0, sizeof(char) * 128);
 }
 
@@ -3120,19 +3098,19 @@ bool CFamiTrackerView::IsSelecting() const
 
 bool CFamiTrackerView::IsClipboardAvailable() const
 {
-	return ::IsClipboardFormatAvailable(m_iClipBoard) == TRUE;
+	return ::IsClipboardFormatAvailable(m_iClipboard) == TRUE;
 }
 
 void CFamiTrackerView::OnBlockStart()
 {
 	m_pPatternEditor->SetBlockStart();
-	UpdateEditor(UPDATE_CURSOR);
+	InvalidateCursor();
 }
 
 void CFamiTrackerView::OnBlockEnd()
 {
 	m_pPatternEditor->SetBlockEnd();
-	UpdateEditor(UPDATE_CURSOR);
+	InvalidateCursor();
 }
 
 void CFamiTrackerView::OnPickupRow()
@@ -3168,7 +3146,7 @@ DROPEFFECT CFamiTrackerView::OnDragEnter(COleDataObject* pDataObject, DWORD dwKe
 {
 	TRACE0("OLE: OnDragEnter\n");
 
-	if (pDataObject->IsDataAvailable(m_iClipBoard)) {
+	if (pDataObject->IsDataAvailable(m_iClipboard)) {
 		if (dwKeyState & (MK_CONTROL | MK_SHIFT)) {
 			m_nDropEffect = DROPEFFECT_COPY;
 			if (dwKeyState & MK_SHIFT)
@@ -3181,21 +3159,19 @@ DROPEFFECT CFamiTrackerView::OnDragEnter(COleDataObject* pDataObject, DWORD dwKe
 		}
 
 		// Get drag rectangle
-		CPatternClipData *pDragData = new CPatternClipData();
+		boost::scoped_ptr<CPatternClipData> pDragData(new CPatternClipData());
 
-		HGLOBAL hMem = pDataObject->GetGlobalData(m_iClipBoard);
+		HGLOBAL hMem = pDataObject->GetGlobalData(m_iClipboard);
 		pDragData->FromMem(hMem);
 
 		// Begin drag operation
-		m_pPatternEditor->BeginDrag(pDragData);
+		m_pPatternEditor->BeginDrag(pDragData.get());
 		m_pPatternEditor->UpdateDrag(point);
 
-		SAFE_RELEASE(pDragData);
-
-		UpdateEditor(UPDATE_CURSOR);
+		InvalidateCursor();
 	}
 
-	return (DROPEFFECT)m_nDropEffect;
+	return m_nDropEffect;
 }
 
 void CFamiTrackerView::OnDragLeave()
@@ -3204,7 +3180,7 @@ void CFamiTrackerView::OnDragLeave()
 
 	if (m_nDropEffect != DROPEFFECT_NONE) {
 		m_pPatternEditor->EndDrag();
-		UpdateEditor(UPDATE_CURSOR);
+		InvalidateCursor();
 	}
 	
 	m_nDropEffect = DROPEFFECT_NONE;
@@ -3219,10 +3195,10 @@ DROPEFFECT CFamiTrackerView::OnDragOver(COleDataObject* pDataObject, DWORD dwKey
 	// Update drag'n'drop cursor
 	if (m_nDropEffect != DROPEFFECT_NONE) {
 		m_pPatternEditor->UpdateDrag(point);
-		UpdateEditor(UPDATE_CURSOR);
+		InvalidateCursor();
 	}
 
-	return (DROPEFFECT)m_nDropEffect;
+	return m_nDropEffect;
 }
 
 BOOL CFamiTrackerView::OnDrop(COleDataObject* pDataObject, DROPEFFECT dropEffect, CPoint point)
@@ -3240,7 +3216,7 @@ BOOL CFamiTrackerView::OnDrop(COleDataObject* pDataObject, DROPEFFECT dropEffect
 
 		// Get clipboard data
 		CPatternClipData *pClipData = new CPatternClipData();
-		HGLOBAL hMem = pDataObject->GetGlobalData(m_iClipBoard);
+		HGLOBAL hMem = pDataObject->GetGlobalData(m_iClipboard);
 		pClipData->FromMem(hMem);
 				
 		// Paste into pattern
@@ -3248,7 +3224,7 @@ BOOL CFamiTrackerView::OnDrop(COleDataObject* pDataObject, DROPEFFECT dropEffect
 			SAFE_RELEASE(pClipData);
 		}
 
-		UpdateEditor(UPDATE_CURSOR);
+		InvalidateCursor();
 		m_bDropped = true;
 
 		Result = TRUE;
@@ -3263,9 +3239,8 @@ void CFamiTrackerView::BeginDragData(int ChanOffset, int RowOffset)
 {
 	TRACE0("OLE: BeginDragData\n");
 
-	COleDataSource *pSrc = new COleDataSource();
-	
-	CPatternClipData *pClipData = m_pPatternEditor->Copy();
+	boost::scoped_ptr<COleDataSource> pSrc(new COleDataSource());
+	boost::scoped_ptr<CPatternClipData> pClipData(m_pPatternEditor->Copy());
 	SIZE_T Size = pClipData->GetAllocSize();
 
 	pClipData->ClipInfo.OleInfo.ChanOffset = ChanOffset;
@@ -3280,7 +3255,7 @@ void CFamiTrackerView::BeginDragData(int ChanOffset, int RowOffset)
 		m_bDragSource = true;
 		m_bDropped = false;
 
-		pSrc->CacheGlobalData(m_iClipBoard, hMem);
+		pSrc->CacheGlobalData(m_iClipboard, hMem);
 		DROPEFFECT res = pSrc->DoDragDrop(DROPEFFECT_COPY | DROPEFFECT_MOVE);
 
 		if (m_bDropped == false) {
@@ -3293,134 +3268,16 @@ void CFamiTrackerView::BeginDragData(int ChanOffset, int RowOffset)
 					break;
 			}
 
-			m_pPatternEditor->ClearSelection();
+			m_pPatternEditor->CancelSelection();
 		}
 	}
 
 	m_bDragSource = false;
 
 	::GlobalFree(hMem);
-
-	SAFE_RELEASE(pClipData);
-	SAFE_RELEASE(pSrc);
 }
 
 bool CFamiTrackerView::IsDragging() const 
 {
 	return m_bDragSource;
-}
-
-// Update timer, was meant to replace windows timer but CWnds doesn't work well from other threads
-
-#if 0
-
-bool CFamiTrackerView::StartTimerThread()
-{
-	// Create a timer thread
-	m_pTimerThread = AfxBeginThread(&ThreadProcFunc, (LPVOID)this, THREAD_PRIORITY_NORMAL);
-
-	return m_pTimerThread != NULL;
-}
-
-void CFamiTrackerView::EndTimerThread()
-{
-	if (m_pTimerThread != NULL) {
-		HANDLE hThread = m_pTimerThread->m_hThread;
-
-		TRACE0("View: Joining thread...\n");
-		m_bTimerThreadRunning = false;
-		if (::WaitForSingleObject(hThread, 5000) == WAIT_OBJECT_0) {
-			m_pTimerThread = NULL;
-			TRACE0("View: Thread has finished.\n");
-		}
-		else {
-			TRACE0("View: Could not shutdown worker thread\n");
-		}
-	}
-}
-
-UINT CFamiTrackerView::ThreadProcFunc(LPVOID pParam)
-{
-	CFamiTrackerView *pObj = reinterpret_cast<CFamiTrackerView*>(pParam);
-
-	if (pObj == NULL || !pObj->IsKindOf(RUNTIME_CLASS(CFamiTrackerView)))
-		return 1;
-
-	return pObj->ThreadProc();
-}
-
-UINT CFamiTrackerView::ThreadProc()
-{
-	// Use a timer period of 20ms
-	const DWORD TIMER_PERIOD = 20;
-
-	DWORD nThreadID = AfxGetThread()->m_nThreadID;
-	m_bTimerThreadRunning = true;
-
-	TRACE1("View: Update timer thread started (0x%04x)\n", nThreadID);
-
-	while (m_bTimerThreadRunning) {
-		Sleep(TIMER_PERIOD);
-
-		//PeriodicUpdate();
-	}
-
-	return 0;
-}
-
-#endif
-
-// CPatternClipData ////////////////////////////////////////////////////////////
-
-SIZE_T CPatternClipData::GetAllocSize() const
-{
-	return sizeof(ClipInfo) + Size * sizeof(stChanNote);
-}
-
-void CPatternClipData::ToMem(HGLOBAL hMem) 
-{
-	// From CPatternClipData to memory
-	ASSERT(hMem != NULL);
-	ASSERT(pPattern != NULL);
-
-	BYTE *pByte = (BYTE*)::GlobalLock(hMem);
-
-	memcpy(pByte, &ClipInfo, sizeof(ClipInfo));
-	memcpy(pByte + sizeof(ClipInfo), pPattern, Size * sizeof(stChanNote));
-
-	::GlobalUnlock(hMem);
-}
-
-void CPatternClipData::FromMem(HGLOBAL hMem)
-{
-	// From memory to CPatternClipData
-	ASSERT(hMem != NULL);
-	ASSERT(pPattern == NULL);
-
-	BYTE *pByte = (BYTE*)::GlobalLock(hMem);
-
-	memcpy(&ClipInfo, pByte, sizeof(ClipInfo));
-	
-	Size = ClipInfo.Channels * ClipInfo.Rows;
-	pPattern = new stChanNote[Size];
-
-	memcpy(pPattern, pByte + sizeof(ClipInfo), Size * sizeof(stChanNote));
-
-	::GlobalUnlock(hMem);
-}
-
-stChanNote *CPatternClipData::GetPattern(int Channel, int Row)
-{
-	ASSERT(Channel < ClipInfo.Channels);
-	ASSERT(Row < ClipInfo.Rows);
-
-	return pPattern + (Channel * ClipInfo.Rows + Row);
-}
-
-const stChanNote *CPatternClipData::GetPattern(int Channel, int Row) const
-{
-	ASSERT(Channel < ClipInfo.Channels);
-	ASSERT(Row < ClipInfo.Rows);
-
-	return pPattern + (Channel * ClipInfo.Rows + Row);
 }

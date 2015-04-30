@@ -29,7 +29,9 @@ CPatternData::CPatternData(unsigned int PatternLength, unsigned int Speed, unsig
 	m_iPatternLength(PatternLength),
 	m_iFrameCount(1),
 	m_iSongSpeed(Speed),
-	m_iSongTempo(Tempo)
+	m_iSongTempo(Tempo),
+	m_iRowHighlight1(CFamiTrackerDoc::DEFAULT_FIRST_HIGHLIGHT),
+	m_iRowHighlight2(CFamiTrackerDoc::DEFAULT_SECOND_HIGHLIGHT)
 {
 	// Clear memory
 	memset(m_iFrameList, 0, sizeof(char) * MAX_FRAMES * MAX_CHANNELS);
@@ -157,4 +159,20 @@ unsigned int CPatternData::GetFramePattern(unsigned int Frame, unsigned int Chan
 void CPatternData::SetFramePattern(unsigned int Frame, unsigned int Channel, unsigned int Pattern)
 {
 	m_iFrameList[Frame][Channel] = Pattern;
+}
+
+void CPatternData::SetHighlight(unsigned int First, unsigned int Second)
+{
+	m_iRowHighlight1 = First;
+	m_iRowHighlight2 = Second;
+}
+
+unsigned int CPatternData::GetSecondRowHighlight() const
+{
+	return m_iRowHighlight1;
+}
+
+unsigned int CPatternData::GetFirstRowHighlight() const
+{
+	return m_iRowHighlight2;
 }

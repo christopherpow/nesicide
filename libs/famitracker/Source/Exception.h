@@ -20,9 +20,10 @@
 
 #pragma once
 
+
 #ifndef _DEBUG
 // Enable crash handler
-#define ENABLE_CRASH_HANDLER
+//#define ENABLE_CRASH_HANDLER
 #endif /* _DEBUG */
 
 #ifdef ENABLE_CRASH_HANDLER

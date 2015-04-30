@@ -22,8 +22,7 @@
 
 class CAPU;
 
-// TODO: Break out sequence functions to a new class
-
+// Sequence states
 enum seq_state_t {
 	SEQ_STATE_DISABLED,
 	SEQ_STATE_RUNNING,
@@ -32,114 +31,150 @@ enum seq_state_t {
 };
 
 //
+// Sequence handler class
+//
+class CSequenceHandler {
+protected:
+	CSequenceHandler();
+
+	// Virtual methods
+	virtual	int  TriggerNote(int Note) = 0;
+	virtual void SetVolume(int Volume) = 0;
+	virtual void SetPeriod(int Period) = 0;
+	virtual int  GetPeriod() const = 0;
+	virtual void SetNote(int Note) = 0;
+	virtual int  GetNote() const = 0;
+	virtual void SetDutyPeriod(int Period) = 0;
+	virtual bool IsActive() const = 0;
+	virtual bool IsReleasing() const = 0;
+
+	// Sequence functions
+	void SetupSequence(int Index, const CSequence *pSequence);
+	void ClearSequence(int Index);
+	void RunSequence(int Index);
+	void ClearSequences();
+	void ReleaseSequences();
+	bool IsSequenceEqual(int Index, const CSequence *pSequence) const;
+	seq_state_t GetSequenceState(int Index) const;
+
+private:
+	void UpdateSequenceRunning(int Index, const CSequence *pSequence);
+	void UpdateSequenceEnd(int Index, const CSequence *pSequence);
+	void ReleaseSequence(int Index, const CSequence *pSeq);
+
+	// Sequence variables
+private:
+	const CSequence	*m_pSequence[SEQ_COUNT];
+	seq_state_t		m_iSeqState[SEQ_COUNT];
+	int				m_iSeqPointer[SEQ_COUNT];
+};
+
+//
 // Base class for channel renderers
 //
-class CChannelHandler {
+class CChannelHandler : public CSequenceHandler {
+protected:
+	CChannelHandler(int MaxPeriod, int MaxVolume);
+
 public:
-	CChannelHandler();
 	virtual ~CChannelHandler();
 
-	void PlayNote(stChanNote *pNoteData, int EffColumns);		// Plays a note, calls the derived classes
+	void	PlayNote(stChanNote *pNoteData, int EffColumns);	// Plays a note, calls the derived classes
 
 	// Public functions
-	void InitChannel(CAPU *pAPU, int *pVibTable, CSoundGen *pSoundGen);
-	void Arpeggiate(unsigned int Note);
+	void	InitChannel(CAPU *pAPU, int *pVibTable, CSoundGen *pSoundGen);
+	void	Arpeggiate(unsigned int Note);
 
-	// Channel state
-	int GetStatePeriod() const { return m_iStatePeriod; };
-	int GetStateVolume() const { return m_iStateVolume; };
-
-	void DocumentPropertiesChange(CFamiTrackerDoc *pDoc);
+	void	DocumentPropertiesChanged(CFamiTrackerDoc *pDoc);
 
 	//
 	// Public virtual functions
 	//
 public:
-	virtual void ProcessChannel() = 0;							// Run the instrument and effects
-	virtual void RefreshChannel() = 0;							// Update channel registers
-	virtual void ResetChannel();								// Resets all state variables to default
+	virtual void	ProcessChannel() = 0;						// Run the instrument and effects
+	virtual void	RefreshChannel() = 0;						// Update channel registers
+	virtual void	ResetChannel();								// Resets all state variables to default
 
-	virtual void SetNoteTable(unsigned int *NoteLookupTable);
-	virtual void UpdateSequencePlayPos() {};
-	virtual void SetPitch(int Pitch);
+	virtual void	SetNoteTable(unsigned int *pNoteLookupTable);
+	virtual void	UpdateSequencePlayPos() {};
+	virtual void	SetPitch(int Pitch);
 
-	virtual void SetChannelID(int ID) { m_iChannelID = ID; }
+	virtual void	SetChannelID(int ID) { m_iChannelID = ID; }
 
 	// 
 	// Internal virtual functions
 	//
 protected:
-	virtual void ClearRegisters() = 0;							// Clear channel registers
-	virtual	unsigned int TriggerNote(int Note);
+	virtual void	ClearRegisters() = 0;						// Clear channel registers
+	virtual	int		TriggerNote(int Note);
 
-	virtual void HandleNoteData(stChanNote *pNoteData, int EffColumns);
+	virtual void	HandleNoteData(stChanNote *pNoteData, int EffColumns);
 
 	// Pure virtual functions for handling notes
-	virtual void HandleCustomEffects(int EffNum, int EffParam) = 0;
-	virtual bool HandleInstrument(int Instrument, bool Trigger, bool NewInstrument) = 0;
-	virtual void HandleEmptyNote() = 0;
-	virtual void HandleCut() = 0;
-	virtual void HandleRelease() = 0;
-	virtual void HandleNote(int Note, int Octave) = 0;
+	virtual void	HandleCustomEffects(int EffNum, int EffParam) = 0;
+	virtual bool	HandleInstrument(int Instrument, bool Trigger, bool NewInstrument) = 0;
+	virtual void	HandleEmptyNote() = 0;
+	virtual void	HandleCut() = 0;
+	virtual void	HandleRelease() = 0;
+	virtual void	HandleNote(int Note, int Octave) = 0;
 
-	virtual void SetupSlide(int Type, int EffParam);
+	virtual void	SetupSlide(int Type, int EffParam);
 
-	virtual int CalculatePeriod() const;
-	virtual int CalculateVolume() const;
+	virtual int		CalculatePeriod() const;
+	virtual int		CalculateVolume() const;
 
 	// 
 	// Internal non-virtual functions
 	//
 protected:
-	void CutNote();												// Called on note cut commands
-	void ReleaseNote();											// Called on note release commands
+	void	CutNote();											// Called on note cut commands
+	void	ReleaseNote();										// Called on note release commands
 
-	int LimitPeriod(int Period) const;
-	int LimitVolume(int Volume) const;
+	int		LimitPeriod(int Period) const;
+	int		LimitVolume(int Volume) const;
 
-	void SetMaxPeriod(int Period);
-	void SetMaxVolume(int Volume);
+	void	RegisterKeyState(int Note);
 
-	void RegisterKeyState(int Note);
+	int		RunNote(int Octave, int Note);
+	int		GetPitch() const;
 
-	int RunNote(int Octave, int Note);
+	bool	CheckCommonEffects(unsigned char EffCmd, unsigned char EffParam);
+	bool	HandleDelay(stChanNote *NoteData, int EffColumns);
 
-	int GetPitch() const;
+	int		GetVibrato() const;
+	int		GetTremolo() const;
+	int		GetFinePitch() const;
 
-	bool CheckCommonEffects(unsigned char EffCmd, unsigned char EffParam);
-	bool HandleDelay(stChanNote *NoteData, int EffColumns);
+	void	AddCycles(int count);
 
-	int GetVibrato() const;
-	int GetTremolo() const;
-	int GetFinePitch() const;
+	void	PeriodAdd(int Step);
+	void	PeriodRemove(int Step);
 
-	void AddCycles(int count);
+	void	LinearAdd(int Step);
+	void	LinearRemove(int Step);
 
-	void PeriodAdd(int Step);
-	void PeriodRemove(int Step);
+	bool	IsActive() const;
+	bool	IsReleasing() const;
 
-	void LinearAdd(int Step);
-	void LinearRemove(int Step);
+	void	WriteRegister(uint16 Reg, uint8 Value);
+	void	WriteExternalRegister(uint16 Reg, uint8 Value);
 
-	bool IsActive() const;
-
-	void WriteRegister(uint16 Reg, uint8 Value);
-	void WriteExternalRegister(uint16 Reg, uint8 Value);
-
-	// Sequence functions
+	// CSequenceHandler virtual methods
 protected:
-	void RunSequence(int Index, const CSequence *pSequence);
-	void ClearSequences();
-	void ReleaseSequences(int Chip);
-	void ReleaseSequence(int Index, CSequence *pSeq);
+	void	SetVolume(int Volume);
+	void	SetPeriod(int Period);
+	int		GetPeriod() const;
+	void	SetNote(int Note);
+	int		GetNote() const;
+	void	SetDutyPeriod(int Period);
 
 private:
-	void UpdateNoteCut();
-	void UpdateDelay();
-	void UpdateVolumeSlide();
-	void UpdateTargetVolumeSlide();
-	void UpdateVibratoTremolo();
-	void UpdateEffects();
+	void	UpdateNoteCut();
+	void	UpdateDelay();
+	void	UpdateVolumeSlide();
+	void	UpdateTargetVolumeSlide();
+	void	UpdateVibratoTremolo();
+	void	UpdateEffects();
 
 public:
 	// Range for the pitch wheel command (in semitones)
@@ -156,11 +191,14 @@ protected:
 	// General
 	bool			m_bRelease;						// Note released flag
 	bool			m_bGate;						// Note gate flag
-	unsigned int	m_iInstrument,					// Instrument
-					m_iLastInstrument;
+
+	unsigned int	m_iInstrument;					// Instrument
+	unsigned int	m_iLastInstrument;				// Previous instrument
+
 	int				m_iNote;						// Active note
-	int				m_iPeriod,
-					m_iLastPeriod;					// Channel period
+	int				m_iPeriod;						// Channel period/frequency
+	int				m_iLastPeriod;					// Previous period
+	int				m_iSeqVolume;					// Sequence volume
 	int				m_iVolume;						// Volume
 	char			m_iDutyPeriod;
 
@@ -169,6 +207,9 @@ protected:
 	bool			m_bNewVibratoMode;
 	bool			m_bLinearPitch;
 
+	bool			m_bPeriodUpdated;				// Flag for detecting new period value
+	bool			m_bVolumeUpdate;				// Flag for detecting new volume value (currently unused)
+
 	// Delay effect variables
 	bool			m_bDelayEnabled;
 	unsigned char	m_cDelayCounter;
@@ -176,13 +217,13 @@ protected:
 	stChanNote		m_cnDelayed;
 
 	// Vibrato & tremolo
-	unsigned int	m_iVibratoDepth,
-					m_iVibratoSpeed,
-					m_iVibratoPhase;
+	unsigned int	m_iVibratoDepth;
+	unsigned int	m_iVibratoSpeed;
+	unsigned int	m_iVibratoPhase;
 
-	unsigned int	m_iTremoloDepth, 
-					m_iTremoloSpeed, 
-					m_iTremoloPhase;
+	unsigned int	m_iTremoloDepth;
+	unsigned int	m_iTremoloSpeed;
+	unsigned int	m_iTremoloPhase;
 
 	unsigned char	m_iEffect;						// arpeggio & portamento
 	unsigned char	m_iArpeggio;
@@ -197,7 +238,6 @@ protected:
 
 	// Misc 
 	CAPU			*m_pAPU;
-	//CFamiTrackerDoc	*m_pDocument;
 	CSoundGen		*m_pSoundGen;
 
 	unsigned int	*m_pNoteLookupTable;			// Note->period table
@@ -205,20 +245,9 @@ protected:
 
 	int				m_iPitch;						// Used by the pitch wheel
 
-	int				m_iStatePeriod;
-	int				m_iStateVolume;
-
-	// Sequence variables
-protected:
-	seq_state_t		m_iSeqState[SEQ_COUNT];
-	int				m_iSeqPointer[SEQ_COUNT];
-	int				m_iSeqIndex[SEQ_COUNT];
-
-	unsigned int	m_iSeqVolume;					// Current sequence volume
-
 	// Private variables
 private:
-	int				m_iMaxPeriod;					// Used to limit period register
+	int				m_iMaxPeriod;					// Period register limit
 	int				m_iMaxVolume;					// Max channel volume
 
 };
@@ -226,6 +255,7 @@ private:
 // Channel handler for channels with frequency registers
 class CChannelHandlerInverted : public CChannelHandler {
 protected:
+	CChannelHandlerInverted(int MaxPeriod, int MaxVolume) : CChannelHandler(MaxPeriod, MaxVolume) {}
 	virtual void SetupSlide(int Type, int EffParam);
 	virtual int CalculatePeriod() const;
 };

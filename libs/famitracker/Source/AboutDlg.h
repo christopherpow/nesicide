@@ -20,6 +20,9 @@
 
 #pragma once
 
+
+// CAboutDlg, about dialog
+
 class CLinkLabel : public CStatic
 {
 public:
@@ -33,6 +36,17 @@ public:
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnMouseLeave();
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+};
+
+
+class CHead : public CStatic
+{
+public:
+	CHead();
+protected:
+	DECLARE_MESSAGE_MAP()
+public:
+   virtual void DrawItem(LPDRAWITEMSTRUCT);
 };
 
 
@@ -52,6 +66,7 @@ protected:
 	CToolTipCtrl m_wndToolTip;
 	
 	CFont *m_pLinkFont, *m_pBoldFont, *m_pTitleFont;
+	CHead *m_pHead;
 
 // Implementation
 protected:

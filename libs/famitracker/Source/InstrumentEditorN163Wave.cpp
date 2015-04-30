@@ -18,11 +18,11 @@
 ** must bear this legend.
 */
 
+#include <string>
 #include <iterator> 
 #include <string>
 #include <sstream>
 #include <cmath>
-
 #include "stdafx.h"
 #include "FamiTracker.h"
 #include "FamiTrackerDoc.h"
@@ -31,6 +31,7 @@
 #include "InstrumentEditorN163Wave.h"
 #include "MainFrm.h"
 #include "SoundGen.h"
+#include "Clipboard.h"
 
 using namespace std;
 
@@ -69,15 +70,9 @@ void CInstrumentEditorN163Wave::SelectInstrument(int Instrument)
 	CComboBox *pSizeBox = static_cast<CComboBox*>(GetDlgItem(IDC_WAVE_SIZE));
 	CComboBox *pPosBox = static_cast<CComboBox*>(GetDlgItem(IDC_WAVE_POS));
 
-	CString SizeStr;
-	SizeStr.Format(_T("%i"), m_pInstrument->GetWaveSize());
-	pSizeBox->SelectString(0, SizeStr);
-
+	pSizeBox->SelectString(0, MakeIntString(m_pInstrument->GetWaveSize()));
 	FillPosBox(m_pInstrument->GetWaveSize());
-
-	CString PosStr;
-	PosStr.Format(_T("%i"), m_pInstrument->GetWavePos());
-	pPosBox->SetWindowText(PosStr);
+	pPosBox->SetWindowText(MakeIntString(m_pInstrument->GetWavePos()));
 
 	/*
 	if (m_pInstrument->GetAutoWavePos()) {
@@ -146,10 +141,8 @@ BOOL CInstrumentEditorN163Wave::OnInitDialog()
 	CComboBox *pWaveSize = static_cast<CComboBox*>(GetDlgItem(IDC_WAVE_SIZE));
 
 	for (int i = 0; i < CInstrumentN163::MAX_WAVE_SIZE; i += 4) {
-		CString txt;
-		txt.Format(_T("%i"), i + 4);
-		pWaveSize->AddString(txt);
-	}
+		pWaveSize->AddString(MakeIntString(i + 4));
+	} 
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
@@ -224,54 +217,40 @@ void CInstrumentEditorN163Wave::OnPresetSawtooth()
 void CInstrumentEditorN163Wave::OnBnClickedCopy()
 {
 	CString Str;
-
 	int len = m_pInstrument->GetWaveSize();
-
-	//Str.Format(_T("%i, "), m_pInstrument->GetSamplePos());
 
 	// Assemble a MML string
 	for (int i = 0; i < len; ++i)
-		Str.AppendFormat(_T("%i "), m_pInstrument->GetSample(m_iWaveIndex,i));
+		Str.AppendFormat(_T("%i "), m_pInstrument->GetSample(m_iWaveIndex, i));
 
-	if (!OpenClipboard()) {
+	CClipboard Clipboard(this, CF_TEXT);
+
+	if (!Clipboard.IsOpened()) {
 		AfxMessageBox(IDS_CLIPBOARD_OPEN_ERROR);
 		return;
 	}
 
-	::EmptyClipboard();
-
-	int size = Str.GetLength() + 1;
-	HANDLE hMem = ::GlobalAlloc(GMEM_MOVEABLE, size);
-	if (hMem != NULL) {
-		LPTSTR lptstrCopy = (LPTSTR)::GlobalLock(hMem);  
-		if (lptstrCopy != NULL)
-			strcpy_s(lptstrCopy, size, Str.GetBuffer());
-		::GlobalUnlock(hMem);
-		::SetClipboardData(CF_TEXT, hMem);
-	}
-
-	::CloseClipboard();
+	Clipboard.SetDataPointer(Str.GetBuffer(), Str.GetLength() + 1);
 }
 
 void CInstrumentEditorN163Wave::OnBnClickedPaste()
 {
 	// Copy from clipboard
-	if (!OpenClipboard()) {
+	CClipboard Clipboard(this, CF_TEXT);
+
+	if (!Clipboard.IsOpened()) {
 		AfxMessageBox(IDS_CLIPBOARD_OPEN_ERROR);
 		return;
 	}
 
-	HANDLE hMem = GetClipboardData(CF_TEXT);
-	if (hMem != NULL) {
-		LPTSTR lptstrCopy = (LPTSTR)GlobalLock(hMem);
-		if (lptstrCopy != NULL)
-			ParseString(lptstrCopy);
-		GlobalUnlock(hMem);
+	if (Clipboard.IsDataAvailable()) {
+		LPTSTR text = (LPTSTR)Clipboard.GetDataPointer();
+		if (text != NULL)
+			ParseString(text);
 	}
-	CloseClipboard();
 }
 
-void CInstrumentEditorN163Wave::ParseString(LPTSTR pString)
+void CInstrumentEditorN163Wave::ParseString(LPCTSTR pString)
 {
 	string str(pString);
 
@@ -279,8 +258,8 @@ void CInstrumentEditorN163Wave::ParseString(LPTSTR pString)
 	istringstream values(str);
 	istream_iterator<int> begin(values);
 	istream_iterator<int> end;
-	int i;
 
+	int i;
 	for (i = 0; (i < CInstrumentN163::MAX_WAVE_SIZE) && (begin != end); ++i) {
 		int value = *begin++;
 		if (value >= 0 && value <= 15)
@@ -292,9 +271,7 @@ void CInstrumentEditorN163Wave::ParseString(LPTSTR pString)
 		size = 4;
 	m_pInstrument->SetWaveSize(size);
 
-	CString SizeStr;
-	SizeStr.Format(_T("%i"), size);
-	static_cast<CComboBox*>(GetDlgItem(IDC_WAVE_SIZE))->SelectString(0, SizeStr);
+	static_cast<CComboBox*>(GetDlgItem(IDC_WAVE_SIZE))->SelectString(0, MakeIntString(size));
 
 	FillPosBox(size);
 
@@ -317,7 +294,7 @@ void CInstrumentEditorN163Wave::OnWaveSizeChange()
 {
 	BOOL trans;
 	int size = GetDlgItemInt(IDC_WAVE_SIZE, &trans, FALSE);
-	size = size & 0xFC;//(size / 4) * 4;
+	size = size & 0xFC;
 	
 	if (size > CInstrumentN163::MAX_WAVE_SIZE)
 		size = CInstrumentN163::MAX_WAVE_SIZE;
@@ -366,10 +343,8 @@ void CInstrumentEditorN163Wave::FillPosBox(int size)
 	CComboBox *pPosBox = static_cast<CComboBox*>(GetDlgItem(IDC_WAVE_POS));
 	pPosBox->ResetContent();
 
-	CString str;
 	for (int i = 0; i < 128; i += size) {
-		str.Format(_T("%i"), i);
-		pPosBox->AddString(str);
+		pPosBox->AddString(MakeIntString(i));
 	}
 }
 /*
@@ -419,7 +394,7 @@ void CInstrumentEditorN163Wave::OnIndexChange()
 void CInstrumentEditorN163Wave::OnKeyReturn()
 {
 	// Parse MML string
-	TCHAR text[256];
-	GetDlgItemText(IDC_MML, text, 256);
+	CString text;
+	GetDlgItemText(IDC_MML, text);
 	ParseString(text);
 }

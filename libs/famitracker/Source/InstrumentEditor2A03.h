@@ -20,8 +20,7 @@
 
 #pragma once
 
-#include "InstrumentEditPanel.h"
-#include "SequenceEditor.h"
+class CSequenceEditor;
 
 class CInstrumentEditor2A03 : public CSequenceInstrumentEditPanel
 {
@@ -43,19 +42,15 @@ public:
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	virtual void OnKeyReturn();
-
-	void SelectSequence(int Sequence, int Type);
+	
 	void TranslateMML(CString String, int Max, int Min);
+	void SelectSequence(int Sequence, int Type);
 
 protected:
-	static LPCTSTR INST_SETTINGS[CInstrument2A03::SEQUENCE_COUNT];
+	static LPCTSTR INST_SETTINGS_2A03[CInstrument2A03::SEQUENCE_COUNT];
 
 protected:
-	CWnd				*m_pParentWin;
-	CSequenceEditor		*m_pSequenceEditor;
-	CInstrument2A03		*m_pInstrument;
-
-	unsigned int		m_iSelectedSetting;	 // In settings list
+	CInstrument2A03	*m_pInstrument;
 
 	DECLARE_MESSAGE_MAP()
 public:

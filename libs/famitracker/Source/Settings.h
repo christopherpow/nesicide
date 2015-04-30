@@ -20,6 +20,7 @@
 
 #pragma once
 
+
 // CSettings command target
 
 enum EDIT_STYLES {

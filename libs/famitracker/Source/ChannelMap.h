@@ -18,6 +18,10 @@
 ** must bear this legend.
 */
 
+#pragma once
+
+
+// CChannelMap
 
 class CChannelMap
 {
@@ -31,13 +35,14 @@ public:
 	int			GetChipIdent(int Index) const;
 	int			GetChipIndex(int Ident) const;
 	CInstrument	*GetChipInstrument(int Chip) const;
-/*
+
+	// Active channel map
 	void			ResetChannels();
 	void			RegisterChannel(CTrackerChannel *pChannel, int ChannelType, int ChipType);
 	CTrackerChannel	*GetChannel(int Index) const;
 	int				GetChannelType(int Channel) const;
 	int				GetChipType(int Channel) const;
-*/
+
 public:
 	static const int CHIP_COUNT = 8;	// Number of allowed expansion chips
 
@@ -50,11 +55,11 @@ protected:
 	int				m_iChipIdents[CHIP_COUNT];
 	LPCTSTR			m_pChipNames[CHIP_COUNT];
 	CInstrument		*m_pChipInst[CHIP_COUNT];
-/*
+
 	// Current set
 	CTrackerChannel	*m_pChannels[CHANNELS];
 	int				m_iRegisteredChannels;
 	int				m_iChannelTypes[CHANNELS];
 	int				m_iChannelChip[CHANNELS];
-*/
+
 };

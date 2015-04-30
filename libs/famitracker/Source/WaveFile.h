@@ -18,8 +18,8 @@
 ** must bear this legend.
 */
 
-#ifndef _WAVEFILE_H_
-#define _WAVEFILE_H_
+#pragma once
+
 
 #include <mmsystem.h>
 
@@ -38,4 +38,3 @@ class CWaveFile
 
 };
 
-#endif /* _WAVEFILE_H_ */

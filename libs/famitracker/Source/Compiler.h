@@ -42,23 +42,9 @@ struct stNSFHeader {
 	unsigned char	Reserved[4];
 };
 
-const int BANK_SIZE = 0x1000;	// As specified by the NSF specification
-
-/*
- * NSF file bank
- */
-class CFileBank
-{
-public:
-	CFileBank();
-
-	char m_data[BANK_SIZE];		// Bank data
-	int	 m_iSize;				// Size of current bank
-	int	 m_iLocation;			// Location in memory of this bank
-	int	 m_iOffset;				// Start offset
-};
-
 struct driver_t;
+class CChunk;
+enum chunk_type_t;
 
 /*
  * Logger class
@@ -87,46 +73,44 @@ public:
 	void	ExportASM(LPCTSTR lpszFileName);
 
 private:
+	bool	OpenFile(LPCTSTR lpszFileName, CFile &file) const;
+
 	void	CreateHeader(stNSFHeader *pHeader, int MachineType) const;
-	void	SetDriverSongAddress(unsigned char *pDriver, unsigned short Address) const;
+	void	SetDriverSongAddress(char *pDriver, unsigned short Address) const;
+#if 0
+	void	WriteChannelMap();
+	void	WriteChannelTypes();
+#endif
 
-	void	PatchVibratoTable(unsigned char *pDriver) const;
+	void	PatchVibratoTable(char *pDriver) const;
 
-	unsigned char *LoadDriver(const driver_t *pDriver, unsigned short Origin) const;
-
-	// NSF banks
-	void	CopyData(const char *pData, int iSize);
-	void	FillData(char data, int size);
-	void	AllocateBank(int Location);
+	char*	LoadDriver(const driver_t *pDriver, unsigned short Origin) const;
 
 	// Compiler
 	bool	CompileData();
 	void	ResolveLabels();
 	bool	ResolveLabelsBankswitched();
-	void	CollectLabels(CMap<CStringA, LPCSTR, int, int> &labelMap);
+	void	CollectLabels(CMap<CStringA, LPCSTR, int, int> &labelMap) const;
+	bool	CollectLabelsBankswitched(CMap<CStringA, LPCSTR, int, int> &labelMap);
 	void	AssignLabels(CMap<CStringA, LPCSTR, int, int> &labelMap);
 	void	AddBankswitching();
 	void	Cleanup();
 
 	void	ScanSong();
 	int		GetSampleIndex(int SampleNumber);
-	bool	IsPatternAddressed(int Track, int Pattern, int Channel);
+	bool	IsPatternAddressed(unsigned int Track, int Pattern, int Channel) const;
 	bool	IsInstrumentInPattern(int index) const;
 
 	void	CreateMainHeader();
 	void	CreateSequenceList();
 	void	CreateInstrumentList();
 	void	CreateSampleList();
-	void	CreateFrameList(int Track, int &iFrameSize, int &iFrameCount);
+	void	CreateFrameList(unsigned int Track);
 
 	int		StoreSequence(CSequence *pSeq, CStringA &label);
 	void	StoreSamples();
 	void	StoreSongs();
-	void	StorePatterns(unsigned int Track, int &iPatternSize, int &iPatternCount);
-
-	void	WriteSamplesAssembly(CFile *pFile);
-	void	WriteSamplesBinary(CFile *pFile);
-	void	WriteSamplesToBanks(unsigned int Address);
+	void	StorePatterns(unsigned int Track);
 
 	// Bankswitching functions
 	void	UpdateSamplePointers(unsigned int Origin);
@@ -135,16 +119,13 @@ private:
 	void	ClearSongBanks();
 	void	EnableBankswitching();
 
-	unsigned int AdjustSampleAddress(unsigned int Address) const;
-
 	// FDS
 	void	AddWavetable(CInstrumentFDS *pInstrument, CChunk *pChunk);
 
 	// File writing
 	void	WriteAssembly(CFile *pFile);
 	void	WriteBinary(CFile *pFile);
-	void	WriteBinaryFlat();
-	void	WriteBinaryBankswitched();
+	void	WriteSamplesBinary(CFile *pFile);
 
 	// Object list functions
 	CChunk	*CreateChunk(chunk_type_t Type, CStringA label);
@@ -156,6 +137,8 @@ private:
 	void	ClearLog() const;
 
 public:
+	static const int PATTERN_CHUNK_INDEX;
+
 	static const int PAGE_SIZE;
 	static const int PAGE_START;
 	static const int PAGE_BANKED;
@@ -167,15 +150,6 @@ public:
 	static const int DPCM_SWITCH_ADDRESS;
 
 	static const bool LAST_BANK_FIXED;
-
-	// Channel order lists
-	static const int CHAN_ORDER_DEFAULT[];
-	static const int CHAN_ORDER_VRC6[];
-	static const int CHAN_ORDER_MMC5[];
-	static const int CHAN_ORDER_VRC7[];
-	static const int CHAN_ORDER_FDS[];
-	static const int CHAN_ORDER_N163[];
-	static const int CHAN_ORDER_S5B[];
 
 	// Labels
 	static const char LABEL_SONG_LIST[];
@@ -204,6 +178,8 @@ protected:
 
 public:
 	static CCompiler *GetCompiler();		// Get the active CCompiler object, NULL otherwise
+
+	static unsigned int AdjustSampleAddress(unsigned int Address);
 
 private:
 	CFamiTrackerDoc *m_pDocument;
@@ -247,6 +223,7 @@ private:
 	unsigned int	m_iSampleStart;
 	unsigned int	m_iSamplesUsed;
 
+	// General
 	unsigned int	m_iMusicDataSize;		// All music data
 	unsigned int	m_iDriverSize;			// Size of selected music driver
 	unsigned int	m_iSamplesSize;
@@ -257,19 +234,16 @@ private:
 
 	unsigned int	m_iTrackFrameSize[MAX_TRACKS];	// Cached song frame sizes
 
-	unsigned int	m_iDuplicatePatterns;	// Number of duplicated patterns removed
-
 	unsigned int	m_iHeaderFlagOffset;	// Offset to flag location in main header
-
 	unsigned int	m_iSongBankReference;	// Offset to bank value in song header
 
-	int				m_iChanOrder[MAX_CHANNELS]; // Channel order list
+	unsigned int	m_iDuplicatePatterns;	// Number of duplicated patterns removed
+
+	std::vector<int> m_vChanOrder;			// Channel order list
 
 	// NSF banks
-	CFileBank		*m_pFileBanks[256];		// All banks
-	CFileBank		*m_pCurrentBank;		// Pointer to current bank
-	unsigned int	m_iBanksUsed;			// Number of banks allocated
 	unsigned int	m_iFirstSampleBank;		// Bank number with the first DPCM sample
+	unsigned int	m_iLastBank;			// Last bank in the NSF file
 
 	unsigned int	m_iSamplePointerBank;
 	unsigned int	m_iSamplePointerOffset;

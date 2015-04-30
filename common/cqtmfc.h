@@ -2566,9 +2566,6 @@ SHORT WINAPI GetKeyState(
 BOOL WINAPI IsClipboardFormatAvailable(
   UINT format
 );
-BOOL WINAPI OpenClipboard(
-//  HWND hWndNewOwner = 0
-);
 BOOL WINAPI EmptyClipboard(void);
 BOOL WINAPI CloseClipboard(void);
 HANDLE WINAPI SetClipboardData(
@@ -3530,6 +3527,9 @@ public:
       int x2,
       int y2
    );
+   virtual BOOL RectVisible(
+      LPCRECT lpRect
+   ) const;
    BOOL Rectangle(
       LPCRECT lpRect
    );
@@ -3876,6 +3876,8 @@ public:
    ) const;
    BOOL EnableToolTips(
       BOOL bEnable = TRUE
+   );
+   BOOL OpenClipboard(
    );
    virtual LRESULT SendMessage(
       UINT message,
@@ -6276,39 +6278,59 @@ class CArray :
    public CObject
 {
 public:
+   CArray()
+   {
+      _count = 0;
+      _plist = (TYPE*)calloc(1,sizeof(TYPE));
+   }
+
    INT_PTR GetCount( ) const
    {
-      return _qlist.count();
+//      return _qlist.count();
    }
 
    TYPE& operator[](
       INT_PTR nIndex
    )
    {
-      return _qlist[nIndex];
+//      return _qlist[nIndex];
    }
+
    const TYPE& operator[](
       INT_PTR nIndex
    ) const
    {
-      return _qlist.at(nIndex);
+//      return _qlist.at(nIndex);
    }
+
    void RemoveAll( )
    {
-      _qlist.clear();
+//      _qlist.clear();
    }
+
+   void SetSize(
+      INT_PTR nNewSize,
+      INT_PTR nGrowBy = -1
+   )
+   {
+//      _qlist.reserve(nNewSize-_qlist.count());
+   }
+
    void FreeExtra( )
    {
    }
+
    INT_PTR Add(
       ARG_TYPE newElement
    )
    {
-      _qlist.append(newElement);
-      return _qlist.count()-1;
+//      _qlist.append(newElement);
+//      return _qlist.count()-1;
    }
 protected:
-   QList<TYPE> _qlist;
+//   QList<TYPE> _qlist;
+   TYPE* _plist;
+   int _count;
 };
 
 template< class KEY, class ARG_KEY, class VALUE, class ARG_VALUE >

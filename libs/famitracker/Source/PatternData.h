@@ -20,6 +20,7 @@
 
 #pragma once
 
+
 // Channel note struct, holds the data for each row in patterns
 struct stChanNote {
 	unsigned char Note;
@@ -120,6 +121,10 @@ public:
 	unsigned int GetFramePattern(unsigned int Frame, unsigned int Channel) const;
 	void SetFramePattern(unsigned int Frame, unsigned int Channel, unsigned int Pattern);
 
+	void SetHighlight(unsigned int First, unsigned int Second);
+	unsigned int GetFirstRowHighlight() const;
+	unsigned int GetSecondRowHighlight() const;
+
 private:
 	stChanNote *GetPatternData(unsigned int Channel, unsigned int Pattern, unsigned int Row) const;
 	void AllocatePattern(unsigned int Channel, unsigned int Patterns);
@@ -133,9 +138,9 @@ private:
 	unsigned int m_iSongSpeed;				// Song speed
 	unsigned int m_iSongTempo;				// Song tempo
 
-	// TODO use these here
-	//unsigned int m_iRowHighlight1;
-	//unsigned int m_iRowHighlight2;
+	// Row highlight settings
+	unsigned int m_iRowHighlight1;
+	unsigned int m_iRowHighlight2;
 
 	// Number of visible effect columns for each channel
 	unsigned char m_iEffectColumns[MAX_CHANNELS];

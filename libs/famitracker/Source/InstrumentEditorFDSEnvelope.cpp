@@ -18,7 +18,7 @@
 ** must bear this legend.
 */
 
-
+#include <string>
 #include "stdafx.h"
 #include <cmath>
 #include "FamiTracker.h"
@@ -32,8 +32,7 @@
 IMPLEMENT_DYNAMIC(CInstrumentEditorFDSEnvelope, CSequenceInstrumentEditPanel)
 
 CInstrumentEditorFDSEnvelope::CInstrumentEditorFDSEnvelope(CWnd* pParent) : CSequenceInstrumentEditPanel(CInstrumentEditorFDSEnvelope::IDD, pParent),
-	m_pInstrument(NULL), 
-	m_pSequenceEditor(NULL),
+	m_pInstrument(NULL),
 	m_iSelectedType(0)
 {
 }
@@ -121,14 +120,16 @@ void CInstrumentEditorFDSEnvelope::OnKeyReturn()
 
 	GetDlgItemText(IDC_SEQUENCE_STRING, string);
 
-	if (m_iSelectedType == SEQ_VOLUME) {
-		TranslateMML(string, m_pInstrument->GetVolumeSeq(), MAX_VOLUME, 0);
-	}
-	else if (m_iSelectedType == SEQ_ARPEGGIO) {
-		TranslateMML(string, m_pInstrument->GetArpSeq(), 96, -96);
-	}
-	else if (m_iSelectedType == SEQ_PITCH) {
-		TranslateMML(string, m_pInstrument->GetPitchSeq(), 126, -127);
+	switch (m_iSelectedType) {
+		case SEQ_VOLUME:
+			TranslateMML(string, m_pInstrument->GetVolumeSeq(), MAX_VOLUME, 0);
+			break;
+		case SEQ_ARPEGGIO:
+			TranslateMML(string, m_pInstrument->GetArpSeq(), 96, -96);
+			break;
+		case SEQ_PITCH:
+			TranslateMML(string, m_pInstrument->GetPitchSeq(), 126, -127);
+			break;
 	}
 
 	// Update editor

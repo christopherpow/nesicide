@@ -22,6 +22,7 @@
  * The sequence setting button. Used only by arpeggio at the moment
  */
 
+#include <string>
 #include "stdafx.h"
 #include "FamiTracker.h"
 #include "FamiTrackerDoc.h"

@@ -544,7 +544,7 @@ unsigned int CPatternCompiler::FindSample(int Instrument, int Octave, int Key) c
 	return (*m_pDPCMList)[Instrument][Octave][Key - 1];
 }
 
-stSpacingInfo CPatternCompiler::ScanNoteLengths(int Track, unsigned int StartRow, int Pattern, int Channel)
+CPatternCompiler::stSpacingInfo CPatternCompiler::ScanNoteLengths(int Track, unsigned int StartRow, int Pattern, int Channel)
 {
 	stChanNote NoteData;
 	int StartSpace = -1, Space = 0, SpaceCount = 0;
@@ -776,47 +776,27 @@ void CPatternCompiler::Print(LPCTSTR text) const
 		m_pLogger->WriteLog(text);
 }
 
-bool CPatternCompiler::CompareData(unsigned char *pArray, int Size) const
+bool CPatternCompiler::CompareData(const std::vector<char> &data) const
 {
-	// Return true if both patterns are identical
-	if (Size != m_vData.size())
-		return false;
-
-	int index = 0;
-	for (std::vector<unsigned char>::const_iterator it = m_vData.begin(); it != m_vData.end(); ++it) {
-		if (*it != pArray[index++])
-			return false;
-	}
-
-	return true;
+	return m_vData == data;
 }
 
-unsigned int CPatternCompiler::GetStringSize() const
+const std::vector<char> &CPatternCompiler::GetData() const
+{
+	return m_vData;
+}
+
+const std::vector<char> &CPatternCompiler::GetCompressedData() const
+{
+	return m_vCompressedData;
+}
+
+unsigned int CPatternCompiler::GetDataSize() const
 {
 	return m_vData.size();
 }
 
-unsigned char *CPatternCompiler::GetString() const
-{
-	int size = m_vData.size();
-	unsigned char *pData = new unsigned char[size];
-qFatal("stdext::checked_array_iterator NEEDS IMPLEMENTING");
-//   stdext::checked_array_iterator<unsigned char*> checked_array(pData, size);
-//	std::copy(m_vData.begin(), m_vData.end(), checked_array);
-	return pData;
-}
-
-unsigned int CPatternCompiler::GetCompressedStringSize() const
+unsigned int CPatternCompiler::GetCompressedDataSize() const
 {
 	return m_vCompressedData.size();
-}
-
-unsigned char *CPatternCompiler::GetCompressedString() const
-{
-	int size = m_vCompressedData.size();
-   qFatal("stdext::checked_array_iterator NEEDS IMPLEMENTING");
-   unsigned char *pData = new unsigned char[size];
-//	stdext::checked_array_iterator<unsigned char*> checked_array(pData, size);
-//	std::copy(m_vCompressedData.begin(), m_vCompressedData.end(), checked_array);
-	return pData;
 }

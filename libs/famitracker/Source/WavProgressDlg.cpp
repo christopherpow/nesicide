@@ -106,38 +106,41 @@ void CWavProgressDlg::OnTimer(UINT_PTR nIDEvent)
 {
 	// Update progress status
 	CString Text;
-	int Frame, PercentDone;
-	int RenderedTime;
-	int FramesToRender;
-	bool Done;
 	DWORD Time = (GetTickCount() - m_dwStartTime) / 1000;
 	
 	CProgressCtrl *pProgressBar = static_cast<CProgressCtrl*>(GetDlgItem(IDC_PROGRESS_BAR));
 	CSoundGen *pSoundGen = theApp.GetSoundGenerator();
 
-	pSoundGen->GetRenderStat(Frame, RenderedTime, Done, FramesToRender);
+	bool Rendering = pSoundGen->IsRendering();
 
-	if (m_iSongEndType == SONG_LOOP_LIMIT) {
+	int Frame, RenderedTime, FramesToRender, RowCount, Row;
+	bool Done;
+	pSoundGen->GetRenderStat(Frame, RenderedTime, Done, FramesToRender, Row, RowCount);
+
+	if (!Rendering)
+		Row = RowCount;	// Force 100%
+
+	CString str1, str2;
+	int PercentDone;
+	switch (m_iSongEndType) {
+	case SONG_LOOP_LIMIT:
 		if (Frame > FramesToRender)
 			Frame = FramesToRender;
-		PercentDone = (Frame * 100) / FramesToRender;
-		CString str1, str2;
+		PercentDone = (Row * 100) / RowCount;
 		str1.Format(_T("%i / %i"), Frame, FramesToRender);
-		str2.Format(_T("%i%%"), PercentDone);
+		str2.Format(_T("%i%%"), PercentDone, Row, RowCount);
 		AfxFormatString2(Text, IDS_WAVE_PROGRESS_FRAME_FORMAT, str1, str2);
-	}
-	else if (m_iSongEndType == SONG_TIME_LIMIT) {
-		int TotalSec, TotalMin;
-		int CurrSec, CurrMin;
-		TotalSec = m_iSongEndParam % 60;
-		TotalMin = m_iSongEndParam / 60;
-		CurrSec = RenderedTime % 60;
-		CurrMin = RenderedTime / 60;
+		break;
+	case SONG_TIME_LIMIT:
+		int TotalSec = m_iSongEndParam % 60;
+		int TotalMin = m_iSongEndParam / 60;
+		int CurrSec = RenderedTime % 60;
+		int CurrMin = RenderedTime / 60;
 		PercentDone = (RenderedTime * 100) / m_iSongEndParam;
-		CString str1, str2;
 		str1.Format(_T("%02i:%02i / %02i:%02i"), CurrMin, CurrSec, TotalMin, TotalSec);
 		str2.Format(_T("%i%%"), PercentDone);
 		AfxFormatString2(Text, IDS_WAVE_PROGRESS_TIME_FORMAT, str1, str2);
+		break;
 	}
 
 	SetDlgItemText(IDC_PROGRESS_LBL, Text);
@@ -149,7 +152,7 @@ void CWavProgressDlg::OnTimer(UINT_PTR nIDEvent)
 
 	pProgressBar->SetPos(PercentDone);
 
-	if (!pSoundGen->IsRendering()) {
+	if (!Rendering) {
 		SetDlgItemText(IDC_CANCEL, CString(MAKEINTRESOURCE(IDS_WAVE_EXPORT_DONE)));
 		CString title;
 		GetWindowText(title);

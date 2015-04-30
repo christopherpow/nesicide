@@ -18,15 +18,13 @@
 ** must bear this legend.
 */
 
-// FamiTracker.h : main header file for the FamiTracker application
-//
-
 #pragma once
 
-#include "version.h"
-
 #include "SoundGen.h"
-#include "cqtmfc.h"
+
+// FamiTracker.h : main header file for the FamiTracker application
+
+#include "version.h"
 
 // Support DLL translations
 #define SUPPORT_TRANSLATIONS
@@ -46,10 +44,10 @@ enum {
 	IPC_LOAD_PLAY
 };
 
-#ifdef SVN_BUILD
+#ifdef RELEASE_BUILD
 // Always disable export test for release builds
 #undef EXPORT_TEST
-#endif
+#endif /* RELEASE_BUILD */
 
 // Custom command line reader
 class CFTCommandLineInfo : public CCommandLineInfo
@@ -187,5 +185,5 @@ extern CFamiTrackerApp theApp;
 CString LoadDefaultFilter(LPCTSTR Name, LPCTSTR Ext);
 CString LoadDefaultFilter(UINT nID, LPCTSTR Ext);
 void AfxFormatString3(CString &rString, UINT nIDS, LPCTSTR lpsz1, LPCTSTR lpsz2, LPCTSTR lpsz3);
-CString MakeIntString(int val);
-CString MakeFloatString(float val);
+CString MakeIntString(int val, LPCTSTR format = _T("%i"));
+CString MakeFloatString(float val, LPCTSTR format = _T("%g"));

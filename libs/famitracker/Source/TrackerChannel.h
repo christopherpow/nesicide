@@ -20,6 +20,11 @@
 
 #pragma once
 
+
+// CTrackerChannel
+
+//#include <afxmt.h>	// For CMutex
+
 enum note_prio_t {
 	NOTE_PRIO_0, 
 	NOTE_PRIO_1, 

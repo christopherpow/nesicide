@@ -20,8 +20,6 @@
 
 #pragma once
 
-#include "cqtmfc.h"
-
 #include "CustomExporterInterfaces.h"
 
 // Instrument types

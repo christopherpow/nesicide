@@ -98,6 +98,9 @@ private:
 	inline void	Clock_60Hz();
 	inline void	ClockSequence();
 
+	inline void RunAPU1(uint32 Time);
+	inline void RunAPU2(uint32 Time);
+
 	void EndFrame();
 	
 	void LogExternalWrite(uint16 Address, uint8 Value);

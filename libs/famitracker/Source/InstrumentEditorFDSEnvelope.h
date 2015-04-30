@@ -49,7 +49,6 @@ protected:
 	static const int MAX_VOLUME = 32;
 
 protected:
-	CSequenceEditor *m_pSequenceEditor;
 	CInstrumentFDS	*m_pInstrument;
 	int				m_iSelectedType;
 

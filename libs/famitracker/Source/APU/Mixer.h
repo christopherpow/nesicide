@@ -51,20 +51,15 @@ public:
 	void	ClearBuffer();
 	int		FinishBuffer(int t);
 	int		SamplesAvail() const;
-
 	void	MixSamples(blip_sample_t *pBuffer, uint32 Count);
 	uint32	GetMixSampleCount(int t) const;
 
 	void	AddSample(int ChanID, int Value);
-
 	int		ReadBuffer(int Size, void *Buffer, bool Stereo);
 
 	int32	GetChanOutput(uint8 Chan) const;
-
 	void	SetChipLevel(chip_level_t Chip, float Level);
-
 	uint32	ResampleDuration(uint32 Time) const;
-
 	void	SetNamcoVolume(float fVol);
 
 private:
@@ -84,6 +79,7 @@ private:
 
 	float GetAttenuation() const;
 
+private:
 	// Blip buffer synths
 	Blip_Synth<blip_good_quality, -500>		Synth2A03SS;
 	Blip_Synth<blip_good_quality, -500>		Synth2A03TND;
@@ -93,12 +89,11 @@ private:
 	Blip_Synth<blip_good_quality, -3500>	SynthFDS;
 	Blip_Synth<blip_good_quality, -2000>	SynthS5B;
 	
-
 	// Blip buffer object
 	Blip_Buffer	BlipBuffer;
 
-	// Random variables
-//		int32		*m_pSampleBuffer;
+	double		m_dSumSS;
+	double		m_dSumTND;
 
 	int32		m_iChannels[CHANNELS];
 	uint8		m_iExternalChip;

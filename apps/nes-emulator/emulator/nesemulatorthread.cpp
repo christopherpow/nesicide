@@ -470,15 +470,18 @@ bool NESEmulatorThread::serialize(QDomDocument& doc, QDomNode& node)
 
 bool NESEmulatorThread::serializeContent(QFile& fileOut)
 {
-   QByteArray bytes;
+   QByteArray bytesToWrite;
+   qint64     bytesWritten;
    int idx;
 
    for ( idx = 0; idx < MEM_64KB; idx++ )
    {
-      bytes += nesGetSRAMDataPhysical(idx);
+      bytesToWrite += nesGetSRAMDataPhysical(idx);
    }
 
-   fileOut.write(bytes);
+   bytesWritten = fileOut.write(bytesToWrite);
+
+   return bytesWritten > 0;
 }
 
 bool NESEmulatorThread::deserialize(QDomDocument& doc, QDomNode& node, QString& errors)

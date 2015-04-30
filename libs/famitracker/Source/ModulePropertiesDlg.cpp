@@ -137,7 +137,7 @@ void CModulePropertiesDlg::OnBnClickedOk()
 	if (m_pDocument->GetExpansionChip() != iExpansionChip || m_pDocument->GetNamcoChannels() != iChannels) {
 		m_pDocument->SetNamcoChannels(iChannels);
 		m_pDocument->SelectExpansionChip(iExpansionChip);
-		m_pDocument->UpdateAllViews(NULL, CHANGED_CHANNEL_COUNT);
+		m_pDocument->UpdateAllViews(NULL, UPDATE_PROPERTIES);
 	}
 
 	// Vibrato 
@@ -147,7 +147,9 @@ void CModulePropertiesDlg::OnBnClickedOk()
 	if (pMainFrame->GetSelectedTrack() != m_iSelectedSong)
 		pMainFrame->SelectTrack(m_iSelectedSong);
 
-	theApp.GetSoundGenerator()->DocumentPropertiesChange(m_pDocument);
+	pMainFrame->UpdateControls();
+
+	theApp.GetSoundGenerator()->DocumentPropertiesChanged(m_pDocument);
 
 	OnOK();
 }
@@ -162,6 +164,8 @@ void CModulePropertiesDlg::OnBnClickedSongAdd()
 	if (NewTrack == -1)
 		return;
 	
+	m_pDocument->UpdateAllViews(NULL, UPDATE_TRACK);
+
 	TrackTitle.Format(TRACK_FORMAT, NewTrack, m_pDocument->GetTrackTitle(NewTrack).GetString());
 	static_cast<CListCtrl*>(GetDlgItem(IDC_SONGLIST))->InsertItem(NewTrack, TrackTitle);
 
@@ -186,6 +190,7 @@ void CModulePropertiesDlg::OnBnClickedSongRemove()
 
 	pSongList->DeleteItem(m_iSelectedSong);
 	m_pDocument->RemoveTrack(m_iSelectedSong);
+	m_pDocument->UpdateAllViews(NULL, UPDATE_TRACK);
 
 	Count = m_pDocument->GetTrackCount();	// Get new track count
 
@@ -211,6 +216,7 @@ void CModulePropertiesDlg::OnBnClickedSongUp()
 		return;
 
 	m_pDocument->MoveTrackUp(Song);
+	m_pDocument->UpdateAllViews(NULL, UPDATE_TRACK);
 
 	Text.Format(TRACK_FORMAT, Song + 1, m_pDocument->GetTrackTitle(Song).GetString());
 	pSongList->SetItemText(Song, 0, Text);
@@ -230,6 +236,7 @@ void CModulePropertiesDlg::OnBnClickedSongDown()
 		return;
 
 	m_pDocument->MoveTrackDown(Song);
+	m_pDocument->UpdateAllViews(NULL, UPDATE_TRACK);
 
 	Text.Format(TRACK_FORMAT, Song + 1, m_pDocument->GetTrackTitle(Song).GetString());
 	pSongList->SetItemText(Song, 0, Text);
@@ -254,6 +261,7 @@ void CModulePropertiesDlg::OnEnChangeSongname()
 
 	pSongList->SetItemText(m_iSelectedSong, 0, Title);
 	m_pDocument->SetTrackTitle(m_iSelectedSong, Text);
+	m_pDocument->UpdateAllViews(NULL, UPDATE_TRACK);
 }
 
 void CModulePropertiesDlg::SelectSong(int Song)
@@ -280,6 +288,7 @@ void CModulePropertiesDlg::OnBnClickedSongImport()
 {
 	CModuleImportDlg importDlg(m_pDocument);
 
+	// TODO use string table
 	CFileDialog OpenFileDlg(TRUE, _T("ftm"), 0, OFN_HIDEREADONLY, _T("FamiTracker files (*.ftm)|*.ftm|All files (*.*)|*.*||"), theApp.GetMainWnd(), 0);
 
 	if (OpenFileDlg.DoModal() == IDCANCEL)

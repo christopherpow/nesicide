@@ -22,7 +22,6 @@
 #include <string>
 #include <sstream>
 #include <cmath>
-
 #include "stdafx.h"
 #include "FamiTracker.h"
 #include "FamiTrackerDoc.h"
@@ -31,8 +30,7 @@
 #include "InstrumentEditorFDS.h"
 #include "MainFrm.h"
 #include "SoundGen.h"
-
-using namespace std;
+#include "Clipboard.h"
 
 // CInstrumentEditorFDS dialog
 
@@ -240,7 +238,8 @@ void CInstrumentEditorFDS::OnModRateChange()
 {
 	if (m_pInstrument) {
 		int ModSpeed = GetDlgItemInt(IDC_MOD_RATE);
-		LIMIT(ModSpeed, 4095, 0);
+		ModSpeed = std::max(ModSpeed, 0);
+		ModSpeed = std::min(ModSpeed, 4095);
 		m_pInstrument->SetModulationSpeed(ModSpeed);
 	}
 	theApp.GetSoundGenerator()->WaveChanged();
@@ -250,7 +249,8 @@ void CInstrumentEditorFDS::OnModDepthChange()
 {
 	if (m_pInstrument) {
 		int ModDepth = GetDlgItemInt(IDC_MOD_DEPTH);
-		LIMIT(ModDepth, 63, 0);
+		ModDepth = std::max(ModDepth, 0);
+		ModDepth = std::min(ModDepth, 63);
 		m_pInstrument->SetModulationDepth(ModDepth);
 	}
 	theApp.GetSoundGenerator()->WaveChanged();
@@ -260,7 +260,8 @@ void CInstrumentEditorFDS::OnModDelayChange()
 {
 	if (m_pInstrument) {
 		int ModDelay = GetDlgItemInt(IDC_MOD_DELAY);
-		LIMIT(ModDelay, 255, 0);
+		ModDelay = std::max(ModDelay, 0);
+		ModDelay = std::min(ModDelay, 255);
 		m_pInstrument->SetModulationDelay(ModDelay);
 	}
 	theApp.GetSoundGenerator()->WaveChanged();
@@ -279,61 +280,46 @@ void CInstrumentEditorFDS::OnBnClickedCopyWave()
 	for (int i = 0; i < 64; ++i)
 		Str.AppendFormat(_T("%i "), m_pInstrument->GetSample(i));
 
-	if (!OpenClipboard()) {
+	CClipboard Clipboard(this, CF_TEXT);
+
+	if (!Clipboard.IsOpened()) {
 		AfxMessageBox(IDS_CLIPBOARD_OPEN_ERROR);
 		return;
 	}
 
-	::EmptyClipboard();
-
-	int size = Str.GetLength() + 1;
-
-	HANDLE hMem = ::GlobalAlloc(GMEM_MOVEABLE, size);
-	if (hMem != NULL) {
-		LPTSTR lptstrCopy = (LPTSTR)::GlobalLock(hMem);
-		if (lptstrCopy)
-			strcpy_s(lptstrCopy, size, Str.GetBuffer());
-		::GlobalUnlock(hMem);
-		::SetClipboardData(CF_TEXT, hMem);
-	}
-
-	::CloseClipboard();	
+	Clipboard.SetDataPointer(Str.GetBuffer(), Str.GetLength() + 1);
 }
 
 void CInstrumentEditorFDS::OnBnClickedPasteWave()
 {
 	// Paste from clipboard
-	if (!OpenClipboard()) {
+	CClipboard Clipboard(this, CF_TEXT);
+
+	if (!Clipboard.IsOpened()) {
 		AfxMessageBox(IDS_CLIPBOARD_OPEN_ERROR);
 		return;
 	}
 
-	if (::IsClipboardFormatAvailable(CF_TEXT)) {
-		HANDLE hMem = ::GetClipboardData(CF_TEXT);
-		if (hMem != NULL) {
-			LPTSTR lptstrCopy = (LPTSTR)::GlobalLock(hMem);
-			if (lptstrCopy != NULL)
-				ParseWaveString(lptstrCopy);
-			::GlobalUnlock(hMem);
-		}
+	if (Clipboard.IsDataAvailable()) {
+		LPCTSTR text = (LPCTSTR)Clipboard.GetDataPointer();
+		if (text != NULL)
+			ParseWaveString(text);
 	}
-
-	::CloseClipboard();
 }
 
-void CInstrumentEditorFDS::ParseWaveString(LPTSTR pString)
+void CInstrumentEditorFDS::ParseWaveString(LPCTSTR pString)
 {
-	string str(pString);
+	std::string str(pString);
 
 	// Convert to register values
-	istringstream values(str);
-	istream_iterator<int> begin(values);
-	istream_iterator<int> end;
+	std::istringstream values(str);
+	std::istream_iterator<std::string> begin(values);
+	std::istream_iterator<std::string> end;
 
 	for (int i = 0; (i < 64) && (begin != end); ++i) {
-		int value = *begin++;
-		if (value >= 0 && value <= 63)
-			m_pInstrument->SetSample(i, value);
+		int value = CSequenceInstrumentEditPanel::ReadStringValue(*begin++);
+		value = std::min<int>(std::max<int>(value, 0), 63);
+		m_pInstrument->SetSample(i, value);
 	}
 
 	m_pWaveEditor->RedrawWindow();
@@ -348,61 +334,46 @@ void CInstrumentEditorFDS::OnBnClickedCopyTable()
 	for (int i = 0; i < 32; ++i)
 		Str.AppendFormat(_T("%i "), m_pInstrument->GetModulation(i));
 
-	if (!OpenClipboard()) {
+	CClipboard Clipboard(this, CF_TEXT);
+
+	if (!Clipboard.IsOpened()) {
 		AfxMessageBox(IDS_CLIPBOARD_OPEN_ERROR);
 		return;
 	}
 
-	::EmptyClipboard();
-
-	int size = Str.GetLength() + 1;
-	
-	HANDLE hMem = ::GlobalAlloc(GMEM_MOVEABLE, size);
-
-	if (hMem != NULL) {
-		LPTSTR lptstrCopy = (LPTSTR)::GlobalLock(hMem);
-		if (lptstrCopy != NULL)
-			strcpy_s(lptstrCopy, size, Str.GetBuffer());
-		::GlobalUnlock(hMem);
-		::SetClipboardData(CF_TEXT, hMem);
-	}
-
-	::CloseClipboard();
+	Clipboard.SetDataPointer(Str.GetBuffer(), Str.GetLength() + 1);
 }
 
 void CInstrumentEditorFDS::OnBnClickedPasteTable()
 {
 	// Paste from clipboard
-	if (!OpenClipboard()) {
+	CClipboard Clipboard(this, CF_TEXT);
+
+	if (!Clipboard.IsOpened()) {
 		AfxMessageBox(IDS_CLIPBOARD_OPEN_ERROR);
 		return;
 	}
 
-	HANDLE hMem = ::GetClipboardData(CF_TEXT);
-
-	if (hMem != NULL) {
-		LPTSTR lptstrCopy = (LPTSTR)::GlobalLock(hMem);
-		if (lptstrCopy != NULL)
-			ParseTableString(lptstrCopy);
-		::GlobalUnlock(hMem);
+	if (Clipboard.IsDataAvailable()) {
+		LPCTSTR text = (LPCTSTR)Clipboard.GetDataPointer();
+		if (text != NULL)
+			ParseTableString(text);
 	}
-
-	::CloseClipboard();
 }
 
-void CInstrumentEditorFDS::ParseTableString(LPTSTR pString)
+void CInstrumentEditorFDS::ParseTableString(LPCTSTR pString)
 {
-	string str(pString);
+	std::string str(pString);
 
 	// Convert to register values
-	istringstream values(str);
-	istream_iterator<int> begin(values);
-	istream_iterator<int> end;
+	std::istringstream values(str);
+	std::istream_iterator<std::string> begin(values);
+	std::istream_iterator<std::string> end;
 
 	for (int i = 0; (i < 32) && (begin != end); ++i) {
-		int value = *begin++;
-		if (value >= 0 && value <= 7)
-			m_pInstrument->SetModulation(i, value);
+		int value = CSequenceInstrumentEditPanel::ReadStringValue(*begin++);
+		value = std::min<int>(std::max<int>(value, 0), 7);
+		m_pInstrument->SetModulation(i, value);
 	}
 
 	m_pModSequenceEditor->RedrawWindow();

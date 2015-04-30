@@ -20,6 +20,8 @@
 
 #pragma once
 
+// std::string is required by this header file
+
 // List control states
 #define LCTRL_CHECKBOX_STATE		0x3000
 #define LCTRL_CHECKBOX_CHECKED		0x2000
@@ -30,30 +32,23 @@ class CSequence;
 class CInstrumentEditPanel : public CDialog
 {
 	DECLARE_DYNAMIC(CInstrumentEditPanel)
-
 public:
 	CInstrumentEditPanel(UINT nIDTemplate, CWnd* pParent = NULL);   // standard constructor
 	virtual ~CInstrumentEditPanel();
 	virtual int GetIDD() const = 0;
 	virtual TCHAR *GetTitle() const = 0;
 
-	// These must be implemented
+	// Select instrument for the editing
 	virtual void SelectInstrument(int Instrument) = 0;
-
-public:
-	bool m_bShow;
 
 protected:
 	CFamiTrackerDoc *GetDocument() const;
 
 	virtual void PreviewNote(unsigned char Key);
 	virtual void PreviewRelease(unsigned char Key);
+	virtual void OnKeyReturn();
 
-protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-
-	// Virtual but not pure
-	virtual void OnKeyReturn();		// Called when return is pressed
 
 	DECLARE_MESSAGE_MAP()
 public:
@@ -64,27 +59,39 @@ public:
 	afx_msg void OnSetFocus(CWnd* pOldWnd);
 };
 
+class CSequenceEditor;
+
 // Adds some functions for sequences
 class CSequenceInstrumentEditPanel : public CInstrumentEditPanel 
 {
 	DECLARE_DYNAMIC(CSequenceInstrumentEditPanel)
-
 public:
 	CSequenceInstrumentEditPanel(UINT nIDTemplate, CWnd* pParent);
 	virtual ~CSequenceInstrumentEditPanel();
 
 	virtual void SetSequenceString(CString Sequence, bool Changed) = 0;
 
-	virtual void TranslateMML(CString String, CSequence *pSequence, int Max, int Min);
+	// Static methods
+public:
+	static int ReadStringValue(const std::string &str);
+
+	// Member variables
+protected:
+	CSequenceEditor	*m_pSequenceEditor;
+	CSequence *m_pSequence;
+	CWnd *m_pParentWin;
+
+	unsigned int m_iSelectedSetting;
 
 protected:
+	// Setup default sequence dialog
+	void SetupDialog(LPCTSTR *pListItems);
+	
+	// Virtual methods
+	virtual void TranslateMML(CString String, CSequence *pSequence, int Max, int Min) const;
 	virtual void PreviewNote(unsigned char Key);
 	virtual void PreviewRelease(unsigned char Key);
 
-protected:
-	CSequence *m_pSequence;
-
-protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
 	DECLARE_MESSAGE_MAP()

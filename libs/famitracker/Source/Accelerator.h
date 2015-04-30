@@ -20,6 +20,9 @@
 
 #pragma once
 
+
+// Key accelerator class
+
 #define MOD_NONE 0
 
 struct stAccelEntry {

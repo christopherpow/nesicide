@@ -30,9 +30,8 @@
 
 const int CChannelHandlerMMC5::SEQ_TYPES[] = {SEQ_VOLUME, SEQ_ARPEGGIO, SEQ_PITCH, SEQ_HIPITCH, SEQ_DUTYCYCLE};
 
-CChannelHandlerMMC5::CChannelHandlerMMC5() : CChannelHandler()
+CChannelHandlerMMC5::CChannelHandlerMMC5() : CChannelHandler(0x7FF, 0x0F)
 {
-	SetMaxPeriod(0x7FF);	// same as 2A03
 }
 
 void CChannelHandlerMMC5::HandleNoteData(stChanNote *pNoteData, int EffColumns)
@@ -83,10 +82,12 @@ bool CChannelHandlerMMC5::HandleInstrument(int Instrument, bool Trigger, bool Ne
 		return false;
 
 	for (int i = 0; i < CInstrument2A03::SEQUENCE_COUNT; ++i) {
-		if (m_iSeqIndex[i] != pInstrument->GetSeqIndex(i) || pInstrument->GetSeqEnable(i) > m_iSeqState[i] || Trigger) {
-			m_iSeqState[i]   = pInstrument->GetSeqEnable(i) == 1 ? SEQ_STATE_RUNNING : SEQ_STATE_DISABLED;
-			m_iSeqIndex[i]	 = pInstrument->GetSeqIndex(i);
-			m_iSeqPointer[i] = 0;
+		const CSequence *pSequence = pDocument->GetSequence(SNDCHIP_NONE, pInstrument->GetSeqIndex(i), i);
+		if (Trigger || !IsSequenceEqual(i, pSequence) || pInstrument->GetSeqEnable(i) > GetSequenceState(i)) {
+			if (pInstrument->GetSeqEnable(i) == 1)
+				SetupSequence(i, pSequence);
+			else 
+				ClearSequence(i);
 		}
 	}
 
@@ -106,7 +107,7 @@ void CChannelHandlerMMC5::HandleRelease()
 {
 	if (!m_bRelease) {
 		ReleaseNote();
-		ReleaseSequences(SNDCHIP_NONE);
+		ReleaseSequences();
 	}
 }
 
@@ -126,7 +127,7 @@ void CChannelHandlerMMC5::ProcessChannel()
 
 	// Sequences
 	for (int i = 0; i < SEQUENCES; ++i)
-		RunSequence(i, pDocument->GetSequence(unsigned(m_iSeqIndex[i]), SEQ_TYPES[i]));
+		RunSequence(i);
 }
 
 void CChannelHandlerMMC5::ResetChannel()

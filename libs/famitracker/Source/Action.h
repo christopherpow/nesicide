@@ -20,12 +20,12 @@
 
 #pragma once
 
+
+// Undo / redo helper class
+
 //
 // Change MAX_LEVELS in the class CActionHandler if you want more undo levels
 //
-
-#include "PatternEditor.h"
-#include "FrameEditor.h"
 
 // Base class for action commands
 class CAction
@@ -61,14 +61,31 @@ public:
 	CActionHandler();
 	~CActionHandler();
 
+	// Clear the undo list
 	void Clear();
+
+	// Add new action to undo list
 	void Push(CAction *pAction);
+
+	// Get first undo action object in queue
 	CAction *PopUndo();
+
+	// Get first redo action object in queue
 	CAction *PopRedo();
+
+	// Return last action in queue without changing the queue
 	CAction *GetLastAction() const;
+
+	// Get number of undo levels available
 	int GetUndoLevel() const;
+
+	// Get number of redo levels available
 	int GetRedoLevel() const;
+
+	// Returns true if there are undo objects available
 	bool CanUndo() const;
+
+	// Returns true if there are redo objects available
 	bool CanRedo() const;
 
 public:

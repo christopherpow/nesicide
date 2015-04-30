@@ -172,7 +172,6 @@ void CSoundGen::CreateChannels()
 	for (int i = 0; i < CHANNELS; ++i) {
 		m_pChannels[i] = NULL;
 		m_pTrackerChannels[i] = NULL;
-		m_bMuteChannels[i] = false;
 	}
 
 	// 2A03/2A07
@@ -343,13 +342,13 @@ CChannelHandler *CSoundGen::GetChannel(int Index) const
 	return m_pChannels[Index];
 }
 
-void CSoundGen::DocumentPropertiesChange(CFamiTrackerDoc *pDocument)
+void CSoundGen::DocumentPropertiesChanged(CFamiTrackerDoc *pDocument)
 {
 	ASSERT(pDocument != NULL);
 
 	for (int i = 0; i < CHANNELS; ++i) {
 		if (m_pChannels[i])
-			m_pChannels[i]->DocumentPropertiesChange(pDocument);
+			m_pChannels[i]->DocumentPropertiesChanged(pDocument);
 	}
 	
 	m_iSpeedSplitPoint = pDocument->GetSpeedSplitPoint();
@@ -545,11 +544,11 @@ bool CSoundGen::ResetAudioDevice()
 	m_iBufSizeSamples = m_iBufSizeBytes / (SampleSize / 8);
 
 	// Temp. audio buffer
-	SAFE_RELEASE(m_pAccumBuffer);
+	SAFE_RELEASE_ARRAY(m_pAccumBuffer);
 	m_pAccumBuffer = new char[m_iBufSizeBytes];
 
 	// Sample graph buffer
-	SAFE_RELEASE(m_iGraphBuffer);
+	SAFE_RELEASE_ARRAY(m_iGraphBuffer);
 	m_iGraphBuffer = new short[m_iBufSizeSamples];
 
 	// Sample graph rate
@@ -918,6 +917,10 @@ void CSoundGen::HaltPlayer()
 	if (m_bExportTesting)
 		EndExportTest();
 #endif
+
+	// Signal that playback has stopped
+	if (m_pTrackerView != NULL)
+		m_pTrackerView->PostMessage(WM_USER_PLAYER, m_iPlayFrame, m_iPlayRow);
 }
 
 void CSoundGen::ResetAPU()
@@ -946,6 +949,11 @@ void CSoundGen::AddCycles(int Count)
 	// Add APU cycles
 	m_iConsumedCycles += Count;
 	m_pAPU->AddTime(Count);
+}
+
+uint8 CSoundGen::GetReg(int Chip, int Reg) const
+{ 
+	return m_pAPU->GetReg(Chip, Reg);
 }
 
 void CSoundGen::MakeSilent()
@@ -980,12 +988,18 @@ void CSoundGen::ResetTempo()
 
 	m_iSpeed = m_pDocument->GetSongSpeed(m_iPlayTrack);
 	m_iTempo = m_pDocument->GetSongTempo(m_iPlayTrack);
-
+	
+	SetupSpeed();
 	m_iTempoAccum = 0;
 	m_iTempoFrames = 0;
-	m_iTempoDecrement = (m_iTempo * 24) / m_iSpeed;
 
 	m_bUpdateRow = false;
+}
+
+void CSoundGen::SetupSpeed()
+{
+	m_iTempoDecrement = (m_iTempo * 24) / m_iSpeed;
+	m_iTempoRemainder = (m_iTempo * 24) % m_iSpeed;
 }
 
 // Return current tempo setting in BPM
@@ -1000,8 +1014,6 @@ void CSoundGen::RunFrame()
 //	ASSERT(GetCurrentThreadId() == m_nThreadID);
 	ASSERT(m_pDocument != NULL);
 	ASSERT(m_pTrackerView != NULL);
-
-	int TicksPerSec = m_pDocument->GetFrameRate();
 
 	// View callback
 	m_pTrackerView->PlayerTick();
@@ -1037,15 +1049,12 @@ void CSoundGen::RunFrame()
 		if (m_iTempoAccum <= 0) {
 			// Enable this to skip rows on high tempos
 //			while (m_iTempoAccum <= 0)  {
-	//			TRACE2("tempo accum: %i (%i frames/row)\n", m_iTempoAccum, m_iTempoFrames);
-//				if (m_iTempoAccum > -100)
-//					m_iTempoAccum = -100;
-				m_iTempoAccum += (60 * TicksPerSec);
 				m_iStepRows++;
 				m_iTempoFrames = 0;
 //			}
 			m_bUpdateRow = true;
 			ReadPatternRow();
+			++m_iRenderRow;
 		}
 		else {
 			m_bUpdateRow = false;
@@ -1094,7 +1103,7 @@ void CSoundGen::CheckControl()
 	if (m_bDirty) {
 		m_bDirty = false;
 		if (!m_bRendering)
-			m_pTrackerView->PostMessage(WM_USER_PLAYER);
+			m_pTrackerView->PostMessage(WM_USER_PLAYER, m_iPlayFrame, m_iPlayRow);
 	}
 }
 
@@ -1378,7 +1387,7 @@ void CSoundGen::EvaluateGlobalEffects(stChanNote *NoteData, int EffColumns)
 					m_iTempo = EffParam;
 				else
 					m_iSpeed = EffParam;
-				m_iTempoDecrement = (m_iTempo * 24) / m_iSpeed;  // 24 = 6 * 4
+				SetupSpeed();
 				break;
 
 			// Bxx: Jump to pattern xx
@@ -1420,13 +1429,16 @@ bool CSoundGen::RenderToFile(LPTSTR pFile, render_end_t SongEndType, int SongEnd
 
 	m_iRenderEndWhen = SongEndType;
 	m_iRenderEndParam = SongEndParam;
+	m_iRenderTrack = Track;
+	m_iRenderRowCount = 0;
+	m_iRenderRow = 0;
 
 	if (m_iRenderEndWhen == SONG_TIME_LIMIT) {
 		// This variable is stored in seconds, convert to frames
 		m_iRenderEndParam *= m_pDocument->GetFrameRate();
 	}
 	else if (m_iRenderEndWhen == SONG_LOOP_LIMIT) {
-		m_iRenderEndParam = m_pDocument->ScanActualLength(Track, m_iRenderEndParam);
+		m_iRenderEndParam = m_pDocument->ScanActualLength(Track, m_iRenderEndParam, m_iRenderRowCount);
 	}
 
 	if (!m_wfWaveFile.OpenFile(pFile, theApp.GetSettings()->Sound.iSampleRate, theApp.GetSettings()->Sound.iSampleSize, 1)) {
@@ -1458,12 +1470,14 @@ void CSoundGen::StopRendering()
 	ResetBuffer();
 }
 
-void CSoundGen::GetRenderStat(int &Frame, int &Time, bool &Done, int &FramesToRender) const
+void CSoundGen::GetRenderStat(int &Frame, int &Time, bool &Done, int &FramesToRender, int &Row, int &RowCount) const
 {
 	Frame = m_iFramesPlayed;
 	Time = m_iPlayTicks / m_pDocument->GetFrameRate();
 	Done = m_bRendering;
 	FramesToRender = m_iRenderEndParam;
+	RowCount = m_iRenderRowCount;
+	Row = m_iRenderRow;
 }
 
 bool CSoundGen::IsRendering() const
@@ -1654,7 +1668,7 @@ BOOL CSoundGen::OnIdle(LONG lCount)
 	if (m_iDelayedStart > 0) {
 		--m_iDelayedStart;
 		if (!m_iDelayedStart) {
-			PostThreadMessage(WM_USER_PLAY, MODE_PLAY_START, 0);
+			PostThreadMessage(WM_USER_PLAY, MODE_PLAY_START, m_iRenderTrack);
 		}
 	}
 
@@ -1670,18 +1684,17 @@ BOOL CSoundGen::OnIdle(LONG lCount)
 void CSoundGen::PlayChannelNotes()
 {
 	// Feed queued notes into channels
-	int Channels = m_pDocument->GetChannelCount();
+	const int Channels = m_pDocument->GetChannelCount();
 
 	// Read notes
 	for (int i = 0; i < Channels; ++i) {
 		int Channel = m_pDocument->GetChannelType(i);
 		
-		// TODO: clean up!
-		if (m_pTrackerView->Arpeggiate[i] > 0) {
-			m_pChannels[Channel]->Arpeggiate(m_pTrackerView->Arpeggiate[i]);
-			m_pTrackerView->Arpeggiate[i] = 0;
+		// Run auto-arpeggio, if enabled
+		int Arpeggio = m_pTrackerView->GetAutoArpeggio(i);
+		if (Arpeggio > 0) {
+			m_pChannels[Channel]->Arpeggiate(Arpeggio);
 		}
-		// !!!
 
 		// Check if new note data has been queued for playing
 		if (m_pTrackerChannels[Channel]->NewNoteData()) {
@@ -1712,6 +1725,10 @@ void CSoundGen::UpdatePlayer()
 		CheckControl();
 
 	if (m_bPlaying) {
+		if (m_iTempoAccum <= 0) {
+			int TicksPerSec = m_pDocument->GetFrameRate();
+			m_iTempoAccum += (60 * TicksPerSec) - m_iTempoRemainder;
+		}
 		m_iTempoAccum -= m_iTempoDecrement;
 		++m_iTempoFrames;
 	}
@@ -1899,48 +1916,18 @@ bool CSoundGen::HasWaveChanged() const
 
 void CSoundGen::ReadPatternRow()
 {
-	int Channels = m_pDocument->GetChannelCount();
+	const int Channels = m_pDocument->GetChannelCount();
 	stChanNote NoteData;
 
 	for (int i = 0; i < Channels; ++i) {
-		m_pDocument->GetNoteData(m_iPlayTrack, m_iPlayFrame, i, m_iPlayRow, &NoteData);
-		
-		if (!m_bMuteChannels[i]) {
-			// Let view know what is about to play
-			m_pTrackerView->PlayerPlayNote(i, &NoteData);
+		if (m_pTrackerView->PlayerGetNote(m_iPlayTrack, m_iPlayFrame, i, m_iPlayRow, NoteData))
 			QueueNote(i, NoteData, NOTE_PRIO_1);
-		}
-		else {
-			// These effects will pass even if the channel is muted
-			const int PASS_EFFECTS[] = {EF_HALT, EF_JUMP, EF_SPEED, EF_SKIP};
-			int Columns = m_pDocument->GetEffColumns(m_iPlayTrack, i) + 1;
-			bool ValidCommand = false;
-			
-			NoteData.Note		= HALT;
-			NoteData.Octave		= 0;
-			NoteData.Instrument = 0;
-
-			for (int j = 0; j < Columns; ++j) {
-				bool Clear = true;
-				for (int k = 0; k < 4; ++k) {
-					if (NoteData.EffNumber[j] == PASS_EFFECTS[k]) {
-						ValidCommand = true;
-						Clear = false;
-					}
-				}
-				if (Clear)
-					NoteData.EffNumber[j] = EF_NONE;
-			}
-
-			if (ValidCommand)
-				QueueNote(i, NoteData, NOTE_PRIO_1);
-		}
 	}
 }
 
 void CSoundGen::PlayerStepRow()
 {
-	int PatternLen = m_pDocument->GetPatternLength(m_iPlayTrack);
+	const int PatternLen = m_pDocument->GetPatternLength(m_iPlayTrack);
 
 	if (++m_iPlayRow >= PatternLen) {
 		m_iPlayRow = 0;
@@ -1953,7 +1940,7 @@ void CSoundGen::PlayerStepRow()
 
 void CSoundGen::PlayerStepFrame()
 {
-	int Frames = m_pDocument->GetFrameCount(m_iPlayTrack);
+	const int Frames = m_pDocument->GetFrameCount(m_iPlayTrack);
 
 	m_bFramePlayed[m_iPlayFrame] = true;
 
@@ -1973,7 +1960,7 @@ void CSoundGen::PlayerStepFrame()
 
 void CSoundGen::PlayerJumpTo(int Frame)
 {
-	int Frames = m_pDocument->GetFrameCount(m_iPlayTrack);
+	const int Frames = m_pDocument->GetFrameCount(m_iPlayTrack);
 
 	m_bFramePlayed[m_iPlayFrame] = true;
 
@@ -1991,8 +1978,8 @@ void CSoundGen::PlayerJumpTo(int Frame)
 
 void CSoundGen::PlayerSkipTo(int Row)
 {
-	int Frames = m_pDocument->GetFrameCount(m_iPlayTrack);
-	int Rows = m_pDocument->GetPatternLength(m_iPlayTrack);
+	const int Frames = m_pDocument->GetFrameCount(m_iPlayTrack);
+	const int Rows = m_pDocument->GetPatternLength(m_iPlayTrack);
 	
 	m_bFramePlayed[m_iPlayFrame] = true;
 
@@ -2017,11 +2004,6 @@ void CSoundGen::QueueNote(int Channel, stChanNote &NoteData, note_prio_t Priorit
 	// Queue a note for play
 	m_pDocument->GetChannel(Channel)->SetNote(NoteData, Priority);
 //	theApp.GetMIDI()->WriteNote(Channel, NoteData.Note, NoteData.Octave, NoteData.Vol);
-}
-
-void CSoundGen::SetMuteChannel(int Channel, bool bMute)
-{
-	m_bMuteChannels[Channel] = bMute;
 }
 
 int	CSoundGen::GetPlayerRow() const
@@ -2176,4 +2158,9 @@ int CSoundGen::GetSequencePlayPos(const CSequence *pSequence)
 	int Ret = m_iSequencePlayPos;
 	m_pSequencePlayPos = pSequence;
 	return Ret;
+}
+
+int CSoundGen::GetDefaultInstrument() const
+{
+	return ((CMainFrame*)theApp.m_pMainWnd)->GetSelectedInstrument();
 }

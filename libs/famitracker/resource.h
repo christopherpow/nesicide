@@ -81,9 +81,11 @@
 #define ID_DELETE_ROW                   143
 #define IDS_SOUNDGEN_ERROR              144
 #define ID_BLOCK_START                  144
+#define IDS_INFO_TITLE                  144
 #define IDD_PERFORMANCE                 145
 #define IDS_SOUNDGEN_CLOSE_ERR          145
 #define ID_BLOCK_END                    145
+#define IDS_INFO_AUTHOR                 145
 #define IDD_SPEED                       146
 #define IDS_OUT_OF_SLOTS                146
 #define IDD_PCMIMPORT                   147
@@ -94,6 +96,7 @@
 #define IDS_INVALID_RIFF                149
 #define IDS_OPEN_FILE_ERROR             149
 #define IDS_INCLUDE_INSTRUMENTS         150
+#define IDS_INFO_COPYRIGHT              150
 #define IDS_IMPORT_FAILED               151
 #define IDS_IMPORT_CHIP_MISMATCH        152
 #define IDS_IMPORT_INSTRUMENT_COUNT     153
@@ -598,6 +601,7 @@
 #define ID_INSTRUMENT_LOADFROMFILE      33121
 #define ID_HELP_FAQ                     33122
 #define ID_POPUP_CLONESEQUENCE          33125
+#define ID_TRACKER_DISPLAYREGISTERSTATE 33126
 #define ID_INSTRUMENT_ADD_2A03          36864
 #define ID_INSTRUMENT_ADD_FDS           36865
 #define ID_INSTRUMENT_ADD_MMC5          36866
@@ -618,7 +622,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        320
-#define _APS_NEXT_COMMAND_VALUE         33126
+#define _APS_NEXT_COMMAND_VALUE         33127
 #define _APS_NEXT_CONTROL_VALUE         1280
 #define _APS_NEXT_SYMED_VALUE           179
 #endif

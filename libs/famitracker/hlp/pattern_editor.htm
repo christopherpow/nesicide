@@ -8,7 +8,7 @@
     <span class="topic">Pattern editor</span><hr />
     
     <p class="text">
-        The pattern editor consists of all channels and works like this:</p>
+        The pattern editor consists of all channels and has the following layout:</p>
     
     <img id="Img4" src="img/pattern.PNG" alt="" /><br />
     
@@ -36,22 +36,21 @@
             <b>Instrument column</b><br />
             Instrument to use. The selected 
             instrument is automatically inserted unless the instrument mask option is
-            enabled (Edit menu). If cleared then the last instrument will be used.<br />
-            <i>Note:</i> Missing or incompatible instruments are displayed in red color!<br />
+            enabled (Edit menu). If cleared then the previous instrument will be used.<br />
+            <i>Note:</i> Missing or incompatible instruments will be displayed with a red color!<br />
             <br />
         </li>
         <li>
             <b>Volume column</b><br />
-            Sets the volume for the channel, range 0 - F. Works only 
-            in square and noise-channels, triangle and DPCM have no volume 
-            control.<br />
+            Sets the volume for the channel, range 0 - F. Only functional for channels that support volume control,
+            which are pulse and noise channels for 2A03.<br />
             <br />
         </li>
         <li>
             <b>Channel effects</b><br />
             Used for channel effects. Format is 
             <b>Yxx</b>, where <b>Y</b>
-            = effect letter and <b>xx</b> = effect parameter.
+            = effect type and <b>xx</b> = effect parameter.
             <br />Additional effect-columns can be used by clicking the arrows in the channel header.<br />
             <a href="effect_list.htm">See this page for available effects.</a>
             <br />
@@ -59,21 +58,22 @@
     </ul>
     
     <p class="text">
-        Use insert-key to insert rows and delete-key to delete rows. Backspace removes
-        a row. Every field can be cleared by using the '-' (dash) key.</p>
+        Use insert-key to insert rows and delete-key to delete rows. Backspace will remove the previous row. 
+        Each field can be cleared by using the '-' (dash) key.</p>
     
     <p class="text">
         Channels can be muted by clicking it's name in the channel header, double clicking
         makes it play solo. Shortcuts for these 
-        commands are Alt+F9 &amp; Alt+F10.</p>
+        commands are <b>Alt+F9</b> &amp; <b>Alt+F10</b>.</p>
     
     <p class="text">
-        Selection and drag-n-drop is supported in this area.<br />
-        Ctrl+A (first time) = select whole channel, Ctrl+A (second time) = select all 
+        Selections can be done in this area with support for drag and drop operations. For selections, these commands are available:<br />
+        <b>Ctrl+A</b> (first time) = select whole channel, <b>Ctrl+A</b> (second time) = select all 
         channels<br />
-        Ctrl+C = copy, Ctrl+X = cut, Ctrl+V = paste<br />
-        Selection+mouse wheel = transpose<br />
-        Special commands: Use Shift+Copy to copy volume column as text.</p>
+        <b>Ctrl+C</b> = copy, <b>Ctrl+X</b> = cut, <b>Ctrl+V</b> = paste<br />
+        <b>Ctrl+mouse wheel</b> = transpose<br />
+        <b>Shift+mouse wheel</b> = shift instrument/volume/effect values up/down<br />
+        Special commands: Use <b>Shift+Copy</b> to copy volume column as text.</p>
     
     <p class="text">
         Additional keys can be found in <a href="shortcuts.htm">key command-section</a>.</p>

@@ -38,20 +38,16 @@ public:
 	// Public
 	virtual void SelectInstrument(int Instrument);
 
-// Dialog Data
+	// Dialog Data
 	enum { IDD = IDD_INSTRUMENT_FDS };
 
 protected:
-	//void WaveChanged();
-	//void ReadWaveString();
-	//void ReadModString();
-
 	virtual	void PreviewNote(unsigned char Key);
 
 	void EnableModControls(bool enable);
 
-	void ParseWaveString(LPTSTR pString);
-	void ParseTableString(LPTSTR pString);
+	void ParseWaveString(LPCTSTR pString);
+	void ParseTableString(LPCTSTR pString);
 
 protected:
 	CInstrumentFDS		*m_pInstrument;

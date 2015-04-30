@@ -215,7 +215,7 @@ void qtMfcInitMenuResource_IDR_MAINFRAME(CMenu* parent)
 //        MENUITEM "&Stop\tReturn",               ID_TRACKER_STOP
    subMenu->AppendMenu(MF_STRING,ID_TRACKER_STOP,"&Stop\tReturn");
 //        MENUITEM "&Edit\tSpace",                ID_TRACKER_EDIT
-   subMenu->AppendMenu(MF_STRING,ID_TRACKER_EDIT,"&Edit\tSpace");
+   subMenu->AppendMenu(MF_STRING,ID_TRACKER_EDIT,"Toggle &Edit mode\tSpace");
 //        MENUITEM SEPARATOR
    subMenu->AppendMenu(MF_SEPARATOR);
 //        MENUITEM "Toggle channel\tAlt+F9",      ID_TRACKER_TOGGLECHANNEL
@@ -226,6 +226,10 @@ void qtMfcInitMenuResource_IDR_MAINFRAME(CMenu* parent)
    subMenu->AppendMenu(MF_SEPARATOR);
 //        MENUITEM "Switch to track instrument",  ID_TRACKER_SWITCHTOTRACKINSTRUMENT
    subMenu->AppendMenu(MF_STRING,ID_TRACKER_SWITCHTOTRACKINSTRUMENT,"Switch to track instrument");
+//   MENUITEM SEPARATOR
+   subMenu->AppendMenu(MF_SEPARATOR);
+//   MENUITEM "Display register state",      ID_TRACKER_DISPLAYREGISTERSTATE
+   subMenu->AppendMenu(MF_STRING,ID_TRACKER_DISPLAYREGISTERSTATE,"Display register state");
 //        MENUITEM "&Display DPCM state",         ID_TRACKER_DPCM
    subMenu->AppendMenu(MF_STRING,ID_TRACKER_DPCM,"&Display DPCM state");
 //        MENUITEM SEPARATOR
@@ -835,7 +839,6 @@ void qtMfcInitStringResources()
 //   BEGIN
       qtMfcStringResources.insert(IDS_FILE_LOAD_ERROR,"Couldn't load file properly. Make sure you have the latest version of FamiTracker.");
       qtMfcStringResources.insert(IDS_CONFIG_WINDOW,"FamiTracker configuration");
-      qtMfcStringResources.insert(IDS_WELCOME,"Welcome to FamiTracker, press F1 for help");
 //   END
 
 //   STRINGTABLE
@@ -878,15 +881,15 @@ void qtMfcInitStringResources()
 
 //   STRINGTABLE
 //   BEGIN
-      qtMfcStringResources.insert(IDS_SOUNDGEN_ERROR,"Couldn't start sound generator thread, default settings has been restored. Please restart the program.");
-      qtMfcStringResources.insert(IDS_SOUNDGEN_CLOSE_ERR,"Could not close sound generator thread!");
+      qtMfcStringResources.insert(IDS_INFO_TITLE,"(title)");
+      qtMfcStringResources.insert(IDS_INFO_AUTHOR,"(author)");
       qtMfcStringResources.insert(IDS_OUT_OF_SLOTS,"Out of sample slots");
       qtMfcStringResources.insert(IDS_OUT_OF_SAMPLEMEM_FORMAT,
                                "Couldn't load sample, out of sample memory (max %1 kB is avaliable)");
       qtMfcStringResources.insert(IDS_DPCM_IMPORT_GAIN_FORMAT,"Gain: %1 dB");
-      qtMfcStringResources.insert(IDS_OPEN_FILE_ERROR,"Could not open file:");
-      qtMfcStringResources.insert(IDS_INCLUDE_INSTRUMENTS,"Do you want to include instruments?");
-      qtMfcStringResources.insert(IDS_IMPORT_FAILED,"Import failed");
+      qtMfcStringResources.insert(IDS_OPEN_FILE_ERROR,"Could not open file: %1");
+      qtMfcStringResources.insert(IDS_INFO_COPYRIGHT,"(copyright)");
+      qtMfcStringResources.insert(IDS_IMPORT_FAILED,"Import module failed");
       qtMfcStringResources.insert(IDS_IMPORT_CHIP_MISMATCH,
                                "Imported file must be of the same expansion chip type as current file.");
       qtMfcStringResources.insert(IDS_IMPORT_INSTRUMENT_COUNT,"Can't import file, out of instrument slots!");
@@ -989,18 +992,17 @@ void qtMfcInitStringResources()
 //   STRINGTABLE
 //   BEGIN
       qtMfcStringResources.insert(IDS_CLEARPATTERN,"Do you want to reset all patterns and frames? There is no undo for this command.");
-      qtMfcStringResources.insert(IDS_CLIPBOARD_COPY_ERROR,"An error occured while trying to copy data.");
-      qtMfcStringResources.insert(IDS_CLIPBOARD_PASTE_ERROR,"An error occured while trying to paste data.");
+      qtMfcStringResources.insert(IDS_CLIPBOARD_COPY_ERROR,"An error occured while trying to copy data to the clipboard.");
+      qtMfcStringResources.insert(IDS_CLIPBOARD_PASTE_ERROR,"An error occured while trying to paste data from the clipboard.");
       qtMfcStringResources.insert(IDS_DPCM_SPACE_FORMAT,"Space used %1 kB, left %2 kB (%3 kB available)");
       qtMfcStringResources.insert(IDS_FILE_VERSION_TOO_NEW,
                                "This file was created in a newer version of FamiTracker. Please download the most recent version to open this file.");
       qtMfcStringResources.insert(IDS_INSTRUMENT_EDITOR_TITLE,"Instrument editor - %1");
       qtMfcStringResources.insert(IDS_INST_VERSION_UNSUPPORTED,"File version not supported!");
       qtMfcStringResources.insert(IDS_FILE_SAVED,"File saved (%1 bytes)");
-      qtMfcStringResources.insert(IDS_INVALID_INST_FILE,"Could not open instrument file");
       qtMfcStringResources.insert(IDS_MIDI_ERR_INPUT,"MIDI Error: Could not open MIDI input device!");
       qtMfcStringResources.insert(IDS_MIDI_ERR_OUTPUT,"MIDI Error: Could not open MIDI output device!");
-      qtMfcStringResources.insert(IDS_NEW_SOUND_CONFIG,"New sound configuration loaded");
+      qtMfcStringResources.insert(IDS_NEW_SOUND_CONFIG,"New sound configuration has been loaded");
 //   END
 
 //   STRINGTABLE
@@ -1008,7 +1010,7 @@ void qtMfcInitStringResources()
       qtMfcStringResources.insert(IDS_REMOVE_INSTRUMENTS,"Do you want to remove all unused instruments? There is no undo for this action.");
       qtMfcStringResources.insert(IDS_REMOVE_PATTERNS,"Do you want to remove all unused patterns? There is no undo for this action.");
       qtMfcStringResources.insert(IDS_SONG_DELETE,"Do you want to delete this song? There is no undo for this action.");
-      qtMfcStringResources.insert(IDS_SOUND_FAIL,"It appears the current sound settings aren't working, change settings and try again!");
+      qtMfcStringResources.insert(IDS_SOUND_FAIL,"It appears the current sound settings aren't working, change settings and try again.");
       qtMfcStringResources.insert(IDS_UNDERRUN_MESSAGE,"Warning: Audio buffer underrun, increase the audio buffer size!");
       qtMfcStringResources.insert(IDS_WELCOME_VER_FORMAT,"Welcome to FamiTracker %s, press F1 for help");
       qtMfcStringResources.insert(IDS_DPCM_IMPORT_INVALID_WAVEFILE,
@@ -1027,8 +1029,8 @@ void qtMfcInitStringResources()
 //   STRINGTABLE
 //   BEGIN
       qtMfcStringResources.insert(ID_INDICATOR_CHIP,"No expansion chip");
-      qtMfcStringResources.insert(ID_INDICATOR_INSTRUMENT,"Instrument: 00");
-      qtMfcStringResources.insert(ID_INDICATOR_OCTAVE,"Octave: 0");
+      qtMfcStringResources.insert(ID_INDICATOR_INSTRUMENT,"Instrument: %1");
+      qtMfcStringResources.insert(ID_INDICATOR_OCTAVE,"Octave: %1");
       qtMfcStringResources.insert(ID_INDICATOR_RATE,"000 Hz");
       qtMfcStringResources.insert(ID_INDICATOR_TEMPO,"000.00 BPM");
       qtMfcStringResources.insert(ID_INDICATOR_TIME,"00:00:00 ");
@@ -1038,6 +1040,8 @@ void qtMfcInitStringResources()
 //   STRINGTABLE
 //   BEGIN
       qtMfcStringResources.insert(ID_HELP_FAQ,"Open help window with the FAQ");
+      qtMfcStringResources.insert(ID_TRACKER_DISPLAYREGISTERSTATE,
+                              "Display channel register values and tuning information");
 //   END
 
 //   STRINGTABLE
@@ -1073,7 +1077,7 @@ void qtMfcInitStringResources()
       qtMfcStringResources.insert(IDS_ABOUT_TOOLTIP_WEB,"Go to http://www.famitracker.com");
       qtMfcStringResources.insert(IDS_ABOUT_VERSION_FORMAT,"FamiTracker version %1");
       qtMfcStringResources.insert(IDS_PROPERTIES_CHANNELS,"Channels:");
-      qtMfcStringResources.insert(IDS_LOADING_DONE,"Done");
+      qtMfcStringResources.insert(IDS_LOADING_DONE,"File loaded");
       qtMfcStringResources.insert(IDS_DPCM_IMPORT_SIZE_FORMAT,"Converted size: %1 bytes");
       qtMfcStringResources.insert(IDS_INSTRUMENT_FOLDER,"Choose a folder where you have instrument files");
 //   END
@@ -1190,8 +1194,8 @@ void qtInitIconResources()
    qtIconResources.insert(IDI_INST_N163,new QIcon(":/resources/Inst_N163.ico"));
 //   IDI_INST_FDS            ICON                    "res\\Inst_FDS.ico"
    qtIconResources.insert(IDI_INST_FDS,new QIcon(":/resources/Inst_FDS.ico"));
-//   IDI_INST_5B             ICON                    "res\\Inst_S5B.ico"
-   qtIconResources.insert(IDI_INST_5B,new QIcon(":/resources/Inst_S5B.ico"));
+//   IDI_INST_S5B             ICON                    "res\\Inst_S5B.ico"
+   qtIconResources.insert(IDI_INST_S5B,new QIcon(":/resources/Inst_S5B.ico"));
 //   IDI_INST_2A07           ICON                    "res\\Inst_2A07.ico"
    qtIconResources.insert(IDI_INST_2A07,new QIcon(":/resources/Inst_2A07.ico"));
 //   IDI_LEFT                ICON                    "res\\LeftArrow.ico"
@@ -1222,7 +1226,7 @@ void qtMfcInitDialogResource_IDD_ABOUTBOX(CDialog* parent1)
       parent->MapDialogRect(&r1);
       mfc1->Create(_T("FamiTracker Version x.x.x.x"),SS_NOPREFIX | WS_VISIBLE,r1,parent,IDC_ABOUT1);
       mfcToQtWidget->insert(IDC_ABOUT1,mfc1);
-//    LTEXT           "Copyright (C) 2005 - 2013 jsr",IDC_ABOUT3,54,38,167,11
+//    LTEXT           "Copyright (C) 2005 - 2015 jsr",IDC_ABOUT3,54,38,167,11
       CStatic* mfc2 = new CStatic(parent);
       CRect r2(CPoint(54,38),CSize(167,11));
       parent->MapDialogRect(&r2);
@@ -1697,6 +1701,7 @@ void qtMfcInitDialogResource_IDD_PCMIMPORT(CDialog* parent1)
 //   END
 }
 
+#include "InstrumentEditPanel.h"
 #include "InstrumentEditor2A03.h"
 #include "InstrumentEditorN163.h"
 #include "InstrumentEditorS5B.h"
@@ -2738,11 +2743,11 @@ void qtMfcInitDialogResource_IDD_OCTAVE(CDialog* parent)
    parent->MapDialogRect(&r3);
    mfc3->Create(_T("Follow-mode"),BS_AUTOCHECKBOX | BS_PUSHLIKE | WS_TABSTOP | WS_VISIBLE,r3,parent,IDC_FOLLOW);
    mfcToQtWidget->insert(IDC_FOLLOW,mfc3);
-//       CONTROL         "Row highlight",IDC_STATIC,"Static",SS_LEFTNOWORDWRAP | WS_GROUP,129,1,61,8
+//   CONTROL         "Row highlight, 1:st",IDC_STATIC,"Static",SS_LEFTNOWORDWRAP | WS_GROUP,129,1,58,8
    CStatic *mfc4 = new CStatic(parent);
-   CRect r4(CPoint(129,1),CSize(61,8));
+   CRect r4(CPoint(129,1),CSize(58,8));
    parent->MapDialogRect(&r4);
-   mfc4->Create(_T("Row highlight"),SS_LEFTNOWORDWRAP | WS_GROUP | WS_VISIBLE,r4,parent,IDC_STATIC);
+   mfc4->Create(_T("Row highlight, 1:st"),SS_LEFTNOWORDWRAP | WS_GROUP | WS_VISIBLE,r4,parent,IDC_STATIC);
    // IDC_STATIC do not get added to MFC-to-Qt map.
 //       EDITTEXT        IDC_HIGHLIGHT1,191,0,27,12,ES_AUTOHSCROLL | ES_NUMBER
    CEdit* mfc5 = new CEdit(parent);
@@ -2756,9 +2761,9 @@ void qtMfcInitDialogResource_IDD_OCTAVE(CDialog* parent)
    parent->MapDialogRect(&r6);
    mfc6->Create(UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_HOTTRACK | WS_VISIBLE,r6,parent,IDC_HIGHLIGHTSPIN1);
    mfcToQtWidget->insert(IDC_HIGHLIGHTSPIN1,mfc6);
-//       CONTROL         "2:nd",IDC_STATIC,"Static",SS_LEFTNOWORDWRAP | WS_GROUP,225,1,16,8
+//       CONTROL         "2:nd",IDC_STATIC,"Static",SS_LEFTNOWORDWRAP | WS_GROUP,225,1,13,8
    CStatic *mfc7 = new CStatic(parent);
-   CRect r7(CPoint(225,1),CSize(16,8));
+   CRect r7(CPoint(225,1),CSize(13,8));
    parent->MapDialogRect(&r7);
    mfc7->Create(_T("2:nd"),SS_LEFTNOWORDWRAP | WS_GROUP | WS_VISIBLE,r7,parent,IDC_STATIC);
    // IDC_STATIC do not get added to MFC-to-Qt map.
@@ -3184,8 +3189,8 @@ void qtMfcInitDialogResource_IDD_CREATEWAV(CDialog* parent1)
    CCreateWaveDlg* parent = dynamic_cast<CCreateWaveDlg*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
 
-//   IDD_CREATEWAV DIALOGEX 0, 0, 151, 173
-   CRect rect(CPoint(0,0),CSize(151,173));
+//   IDD_CREATEWAV DIALOGEX 0, 0, 151, 208
+   CRect rect(CPoint(0,0),CSize(151,208));
    parent->MapDialogRect(&rect);
    parent->setFixedSize(rect.Width(),rect.Height());
    
@@ -3195,15 +3200,15 @@ void qtMfcInitDialogResource_IDD_CREATEWAV(CDialog* parent1)
    parent->SetWindowText("Create wave file");
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
 //   BEGIN
-//       DEFPUSHBUTTON   "Begin",IDC_BEGIN,37,152,52,14
+//       DEFPUSHBUTTON   "Begin",IDC_BEGIN,37,187,52,14
    CButton* mfc1 = new CButton(parent);
-   CRect r1(CPoint(37,152),CSize(52,14));
+   CRect r1(CPoint(37,187),CSize(52,14));
    parent->MapDialogRect(&r1);
    mfc1->Create(_T("Begin"),BS_DEFPUSHBUTTON | WS_VISIBLE,r1,parent,IDC_BEGIN);
    mfcToQtWidget->insert(IDC_BEGIN,mfc1);
-//       PUSHBUTTON      "Cancel",IDCANCEL,92,152,52,14
+//       PUSHBUTTON      "Cancel",IDCANCEL,92,187,52,14
    CButton* mfc2 = new CButton(parent);
-   CRect r2(CPoint(92,152),CSize(52,14));
+   CRect r2(CPoint(92,187),CSize(52,14));
    parent->MapDialogRect(&r2);
    mfc2->Create(_T("Cancel"),WS_VISIBLE,r2,parent,IDCANCEL);
    mfcToQtWidget->insert(IDCANCEL,mfc2);
@@ -3261,18 +3266,30 @@ void qtMfcInitDialogResource_IDD_CREATEWAV(CDialog* parent1)
    parent->MapDialogRect(&r11);
    mfc11->Create(_T("mm:ss"),WS_VISIBLE,r11,parent,IDC_STATIC);
    // IDC_STATIC do not get added to MFC-to-Qt map.
-//       GROUPBOX        "Channels",IDC_STATIC,7,60,137,87
+//       GROUPBOX        "Channels",IDC_STATIC,7,96,137,87
    CButton* mfc12 = new CButton(parent);
-   CRect r12(CPoint(7,60),CSize(137,87));
+   CRect r12(CPoint(7,96),CSize(137,87));
    parent->MapDialogRect(&r12);
    mfc12->Create(_T("Channels"),BS_GROUPBOX | WS_VISIBLE,r12,parent,IDC_STATIC);
    // IDC_STATIC do not get added to MFC-to-Qt map.
-//       LISTBOX         IDC_CHANNELS,14,71,124,70,LBS_OWNERDRAWFIXED | LBS_HASSTRINGS | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+//       LISTBOX         IDC_CHANNELS,14,107,124,70,LBS_OWNERDRAWFIXED | LBS_HASSTRINGS | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
    CListBox* mfc13 = new CListBox(parent);
-   CRect r13(CPoint(14,71),CSize(124,70));
+   CRect r13(CPoint(14,107),CSize(124,70));
    parent->MapDialogRect(&r13);
    mfc13->Create(LBS_OWNERDRAWFIXED | LBS_HASSTRINGS | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r13,parent,IDC_CHANNELS);
    mfcToQtWidget->insert(IDC_CHANNELS,mfc13);
+//   GROUPBOX        "Song",IDC_STATIC,7,60,137,30
+   CButton* mfc14 = new CButton(parent);
+   CRect r14(CPoint(7,60),CSize(137,30));
+   parent->MapDialogRect(&r14);
+   mfc14->Create(_T("Song"),BS_GROUPBOX | WS_VISIBLE,r14,parent,IDC_STATIC);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
+//   COMBOBOX        IDC_TRACKS,14,72,124,30,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+   CComboBox* mfc15 = new CComboBox(parent);
+   CRect r15(CPoint(14,72),CSize(124,30));
+   parent->MapDialogRect(&r15);
+   mfc15->Create(CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r15,parent,IDC_TRACKS);
+   mfcToQtWidget->insert(IDC_TRACKS,mfc15);
 //   END
 }
 

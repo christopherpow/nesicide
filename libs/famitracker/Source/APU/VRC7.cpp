@@ -23,7 +23,7 @@
 #include "APU.h"
 #include "VRC7.h"
 
-const float  CVRC7::AMPLIFY	  = 2.88f;		// Mixing amplification, VRC7 patch 14 is 4,88 times stronger than a 50% square @ v=15
+const float  CVRC7::AMPLIFY	  = 4.6f;		// Mixing amplification, VRC7 patch 14 is 4,88 times stronger than a 50% square @ v=15
 const uint32 CVRC7::OPL_CLOCK = 3579545;	// Clock frequency
 
 CVRC7::CVRC7(CMixer *pMixer) : CExternal(pMixer), m_pBuffer(NULL), m_pOPLLInt(NULL), m_fVolume(1.0f), m_iMaxSamples(0), m_iSoundReg(0)
@@ -96,11 +96,22 @@ void CVRC7::EndFrame()
 
 	// Generate VRC7 samples
 	while (m_iBufferPtr < WantSamples) {
-		int32 Sample = int(float(OPLL_calc(m_pOPLLInt)) * m_fVolume);
+		int32 RawSample = OPLL_calc(m_pOPLLInt);
+		
+		// Clipping is slightly asymmetric
+		if (RawSample > 3600)
+			RawSample = 3600;
+		if (RawSample < -3200)
+			RawSample = -3200;
+
+		// Apply volume
+		int32 Sample = int(float(RawSample) * m_fVolume);
+
 		if (Sample > 32767)
 			Sample = 32767;
 		if (Sample < -32768)
 			Sample = -32768;
+
 		m_pBuffer[m_iBufferPtr++] = int16((Sample + LastSample) >> 1);
 		LastSample = Sample;
 	}

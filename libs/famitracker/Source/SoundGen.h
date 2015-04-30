@@ -35,7 +35,7 @@
 
 #include "WaveFile.h"
 #include "Common.h"
-#include "APU/APU.h"
+#include "TrackerChannel.h"
 
 const int VIBRATO_LENGTH = 256;
 const int TREMOLO_LENGTH = 256;
@@ -75,7 +75,7 @@ enum render_end_t {
 
 struct stChanNote;
 
-#include "TrackerChannel.h" //enum note_prio_t;
+enum note_prio_t;
 
 class CChannelHandler;
 class CFamiTrackerView;
@@ -135,7 +135,7 @@ public:
 
 	CChannelHandler *GetChannel(int Index) const;
 
-	void		DocumentPropertiesChange(CFamiTrackerDoc *pDocument);
+	void		DocumentPropertiesChanged(CFamiTrackerDoc *pDocument);
 
 public:
 	// Vibrato
@@ -170,7 +170,7 @@ public:
 	// Rendering
 	bool		 RenderToFile(LPTSTR pFile, render_end_t SongEndType, int SongEndParam, int Track);
 	void		 StopRendering();
-	void		 GetRenderStat(int &Frame, int &Time, bool &Done, int &FramesToRender) const;
+	void		 GetRenderStat(int &Frame, int &Time, bool &Done, int &FramesToRender, int &Row, int &RowCount) const;
 	bool		 IsRendering() const;	
 	bool		 IsBackgroundTask() const;
 
@@ -185,7 +185,7 @@ public:
 	void		AddCycles(int Count);
 
 	// Other
-	uint8		GetReg(int Chip, int Reg) const { return m_pAPU->GetReg(Chip, Reg); };
+	uint8		GetReg(int Chip, int Reg) const;
 
 	// FDS & N163 wave preview
 	void		WaveChanged();
@@ -196,9 +196,6 @@ public:
 	void		WriteExternalRegister(uint16 Reg, uint8 Value);
 
 	void		RegisterKeyState(int Channel, int Note);
-
-	// Channels
-	void		SetMuteChannel(int Channel, bool bMute);
 
 	// Player
 	int			GetPlayerRow() const;
@@ -220,6 +217,8 @@ public:
 	// Sequence play position
 	void SetSequencePlayPos(const CSequence *pSequence, int Pos);
 	int GetSequencePlayPos(const CSequence *pSequence);
+
+	int GetDefaultInstrument() const;
 
 	// 
 	// Private functions
@@ -250,6 +249,7 @@ private:
 	void		BeginPlayer(play_mode_t Mode, int Track);
 	void		HaltPlayer();
 	void		MakeSilent();
+	void		SetupSpeed();
 
 	// Misc
 	void		PlaySample(const CDSample *pSample, int Offset, int Pitch);
@@ -357,8 +357,12 @@ private:
 	unsigned int		m_iRenderEndParam;
 	int					m_iDelayedStart;
 	int					m_iDelayedEnd;
+	int					m_iRenderTrack;
+	unsigned int		m_iRenderRowCount;
+	int					m_iRenderRow;
 
 	int					m_iTempoDecrement;
+	int					m_iTempoRemainder;
 	bool				m_bUpdateRow;
 
 	CWaveFile			m_wfWaveFile;
@@ -373,10 +377,9 @@ private:
 	int					m_iPlayFrame;					// Current frame to play
 	int					m_iPlayRow;						// Current row to play
 	bool				m_bDirty;						// Row/frame has changed
-	unsigned int		m_iFramesPlayed;				// Number of frames played since start
+	unsigned int		m_iFramesPlayed;				// Total number of frames played since start
+	unsigned int		m_iRowsPlayed;					// Total number of rows played since start
 	bool				m_bFramePlayed[MAX_FRAMES];		// true for each frame played
-
-	bool				m_bMuteChannels[CHANNELS];
 
 	// Sequence play visualization
 	const CSequence		*m_pSequencePlayPos;

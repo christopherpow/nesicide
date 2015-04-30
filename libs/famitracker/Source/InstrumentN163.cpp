@@ -25,6 +25,7 @@
 #include "DocumentFile.h"
 #include "Instrument.h"
 #include "Compiler.h"
+#include "Chunk.h"
 
 const int CInstrumentN163::SEQUENCE_TYPES[] = {SEQ_VOLUME, SEQ_ARPEGGIO, SEQ_PITCH, SEQ_HIPITCH, SEQ_DUTYCYCLE};
 

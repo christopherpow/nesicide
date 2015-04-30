@@ -20,6 +20,9 @@
 
 #pragma once
 
+
+// Various custom controls
+
 class CMainFrame;
 
 // The instrument list
@@ -31,7 +34,7 @@ public:
 	CInstrumentList(CMainFrame *pMainFrame);
 
 	int GetInstrumentIndex(int Selection) const;
-	int FindInstrument(int Index);
+	int FindInstrument(int Index) const;
 	void SelectInstrument(int Index);
 	void SelectNextItem();
 	void SelectPreviousItem();
@@ -41,6 +44,11 @@ public:
 
 private:
 	CMainFrame *m_pMainFrame;
+	CImageList *m_pDragImage;
+	UINT m_nDragIndex;
+	UINT m_nDropIndex;
+	bool m_bDragging;
+
 public:
 	afx_msg void OnContextMenu(CWnd*, CPoint);
 	afx_msg void OnAddInstrument();
@@ -50,6 +58,9 @@ public:
 	afx_msg void OnLvnEndlabeledit(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnLvnItemchanged(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnNMDblclk(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnLvnBegindrag(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 };
 
 // Edit controls that can be enabled by double clicking
@@ -82,7 +93,7 @@ class CBannerEdit : public CEdit {
 protected:
 	DECLARE_MESSAGE_MAP()
 public:
-	CBannerEdit(const CString &txt) : CEdit(), m_strText(txt) {};
+	CBannerEdit(UINT nID) : CEdit() { m_strText.LoadString(nID); };
 protected:
 	CString m_strText;
 protected:

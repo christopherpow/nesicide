@@ -153,3 +153,4 @@ void Fft::Transform ()
         step *= 2;
     }
 }
+

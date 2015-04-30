@@ -27,8 +27,7 @@
 #include "FamiTrackerView.h"
 #include "InstrumentEditPanel.h"
 #include "InstrumentEditorVRC7.h"
-
-using namespace std;
+#include "Clipboard.h"
 
 static unsigned char default_inst[(16+3)*16] = 
 {
@@ -446,66 +445,46 @@ void CInstrumentEditorVRC7::OnCopy()
 	for (int i = 0; i < 8; ++i)
 		MML.AppendFormat(_T("$%02X "), (patch == 0) ? (unsigned char)(m_pInstrument->GetCustomReg(i)) : default_inst[patch * 16 + i]);
 	
-	if (!OpenClipboard()) {
+	CClipboard Clipboard(this, CF_TEXT);
+
+	if (!Clipboard.IsOpened()) {
 		AfxMessageBox(IDS_CLIPBOARD_OPEN_ERROR);
 		return;
 	}
 
-	::EmptyClipboard();
-
-	int size = MML.GetLength() + 1;
-	
-	HANDLE hMem = ::GlobalAlloc(GMEM_MOVEABLE, size);
-	if (hMem != NULL) {
-		LPTSTR lptstrCopy = (LPTSTR)::GlobalLock(hMem);  
-		if (lptstrCopy != NULL)
-			_tcscpy_s(lptstrCopy, size, MML.GetBuffer());
-		::GlobalUnlock(hMem);
-		::SetClipboardData(CF_TEXT, hMem);
-	}
-
-	::CloseClipboard();
+	Clipboard.SetDataPointer(MML.GetBuffer(), MML.GetLength() + 1);
 }
 
 void CInstrumentEditorVRC7::OnPaste()
 {
 	// Copy from clipboard
-	if (!OpenClipboard()) {
+	CClipboard Clipboard(this, CF_TEXT);
+
+	if (!Clipboard.IsOpened()) {
 		AfxMessageBox(IDS_CLIPBOARD_OPEN_ERROR);
 		return;
 	}
 
-	if (::IsClipboardFormatAvailable(CF_TEXT)) {
-		HANDLE hMem = ::GetClipboardData(CF_TEXT);
-		if (hMem != NULL) {
-			LPTSTR lptstrCopy = (LPTSTR)::GlobalLock(hMem);
-			if (lptstrCopy != NULL)
-				PasteSettings(lptstrCopy);
-			::GlobalUnlock(hMem);
-		}
+	if (Clipboard.IsDataAvailable()) {
+		LPCTSTR text = (LPCTSTR)Clipboard.GetDataPointer();
+		if (text != NULL)
+			PasteSettings(text);
 	}
-
-	::CloseClipboard();
 }
 
-void CInstrumentEditorVRC7::PasteSettings(LPTSTR pString)
+void CInstrumentEditorVRC7::PasteSettings(LPCTSTR pString)
 {
-	string str(pString);
+	std::string str(pString);
 
 	// Convert to register values
-	istringstream values(str);
-	istream_iterator<string> begin(values);
-	istream_iterator<string> end;
+	std::istringstream values(str);
+	std::istream_iterator<std::string> begin(values);
+	std::istream_iterator<std::string> end;
 
 	for (int i = 0; (i < 8) && (begin != end); ++i) {
-		string number = *begin++;
-		if (number[0] == '$') {
-			int value;
-			sscanf_s(number.c_str(), "$%X", &value);
-			if (value >= 0 && value <= 0xFF) {
-				m_pInstrument->SetCustomReg(i, value);
-			}
-		}
+		int value = CSequenceInstrumentEditPanel::ReadStringValue(*begin++);
+		value = std::min<int>(std::max<int>(value, 0x00), 0xFF);
+		m_pInstrument->SetCustomReg(i, value);
 	}
 
 	LoadCustomPatch();

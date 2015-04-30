@@ -41,10 +41,9 @@ public:
 	enum { IDD = IDD_INSTRUMENT_N163_WAVE };
 
 protected:
-//	virtual	void PreviewNote(unsigned char Key);
 	virtual void OnKeyReturn();
 
-	void ParseString(LPTSTR pString);
+	void ParseString(LPCTSTR pString);
 	void FillPosBox(int size);
 
 protected:

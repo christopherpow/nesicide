@@ -102,9 +102,9 @@ void CChunk::StoreBankReference(CStringA refName, int bank)
 	m_vChunkData.push_back(new CChunkDataBank(refName, bank));
 }
 
-void CChunk::StoreString(unsigned char *pString, int len)
+void CChunk::StoreString(const std::vector<char> &data)
 {
-	m_vChunkData.push_back(new CChunkDataString(pString, len));
+	m_vChunkData.push_back(new CChunkDataString(data));
 }
 
 void CChunk::ChangeByte(int index, unsigned char data)
@@ -121,17 +121,12 @@ void CChunk::SetupBankData(int index, unsigned char bank)
 
 unsigned char CChunk::GetStringData(int index, int pos) const
 {
-	return static_cast<CChunkDataString*>(m_vChunkData[index])->m_str[pos];
+	return static_cast<CChunkDataString*>(m_vChunkData[index])->m_vData[pos];
 }
 
-unsigned int CChunk::GetStringLength(int index) const
+const std::vector<char> &CChunk::GetStringData(int index) const
 {
-	return static_cast<CChunkDataString*>(m_vChunkData[index])->m_iLen;
-}
-
-unsigned char *CChunk::GetStringData(int index) const
-{
-	return (unsigned char*)(static_cast<CChunkDataString*>(m_vChunkData[index]))->m_str;
+	return (static_cast<CChunkDataString*>(m_vChunkData[index]))->m_vData;
 }
 
 LPCSTR CChunk::GetDataRefName(int index) const

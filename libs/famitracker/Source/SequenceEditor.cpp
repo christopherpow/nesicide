@@ -18,6 +18,7 @@
 ** must bear this legend.
 */
 
+#include <string>
 #include "stdafx.h"
 #include "FamiTracker.h"
 #include "FamiTrackerDoc.h"
@@ -207,7 +208,6 @@ void CSequenceEditor::SequenceChangedMessage(bool Changed)
 	}
 
 	static_cast<CSequenceInstrumentEditPanel*>(m_pParent)->SetSequenceString(Text, Changed);
-	//((CSequenceInstrumentEditPanel*)m_pParent)->SetSequenceString(Text, Changed);
 
 	// Set flag in document
 	if (Changed) {

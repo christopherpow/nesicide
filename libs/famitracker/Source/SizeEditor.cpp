@@ -69,9 +69,6 @@ void CSizeEditor::OnPaint()
 
 	CFont *pOldFont = dc.SelectObject(&Font);
 
-	CString Value;
-	Value.Format(_T("%i"), m_iValue);
-
 	CRect rect;
 	GetClientRect(rect);
 
@@ -115,7 +112,7 @@ void CSizeEditor::OnPaint()
 	// Text
 	dc.SetBkMode(TRANSPARENT);
 	dc.SetTextColor(0xFFFFFF);
-	dc.DrawText(Value, &textRect, DT_RIGHT);
+	dc.DrawText(MakeIntString(m_iValue), &textRect, DT_RIGHT);
 	dc.SetTextColor(0);
 	dc.TextOut(6, 1 + ((m_iButtonPressed == 1) ? 1 : 0), _T("-"));
 	dc.TextOut(rect.right - 14, 1 + ((m_iButtonPressed == 2) ? 1 : 0), _T("+"));

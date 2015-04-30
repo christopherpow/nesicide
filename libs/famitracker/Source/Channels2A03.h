@@ -41,14 +41,13 @@ protected:
 
 protected:
 	unsigned char m_cSweep;			// Sweep, used by pulse channels
-	bool		  m_bArpEffDone;	// Currently not used
 
-	bool	m_bManualVolume;
-	int		m_iInitVolume;
-	bool	m_bSweeping;
+	bool	m_bManualVolume;		// Flag for Exx
+	int		m_iInitVolume;			// Initial volume
+	bool	m_bSweeping;			// Flag for HW sweep
 	int		m_iSweep;
-	int		m_iPostEffect, 
-			m_iPostEffectParam;
+	int		m_iPostEffect;
+	int		m_iPostEffectParam;
 };
 
 // Square 1
@@ -88,7 +87,7 @@ protected:
 	virtual void HandleNote(int Note, int Octave);
 	virtual void SetupSlide(int Type, int EffParam);
 
-	unsigned int TriggerNote(int Note);
+	int TriggerNote(int Note);
 };
 
 // DPCM

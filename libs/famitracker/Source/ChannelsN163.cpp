@@ -28,15 +28,14 @@
 
 const int N163_PITCH_SLIDE_SHIFT = 2;	// Increase amplitude of pitch slides
 
-CChannelHandlerN163::CChannelHandlerN163() : CChannelHandlerInverted(), 
+CChannelHandlerN163::CChannelHandlerN163() : 
+	CChannelHandlerInverted(0xFFFF, 0x0F), 
 	m_bLoadWave(false),
 	m_bResetPhase(false),
 	m_iWaveLen(0),
 	m_iWaveIndex(0),
 	m_iWaveCount(0)
 {
-	//SetMaxPeriod(0x3FFFF);
-	SetMaxPeriod(0xFFFF);
 	m_iDutyPeriod = 0;
 }
 
@@ -108,10 +107,12 @@ bool CChannelHandlerN163::HandleInstrument(int Instrument, bool Trigger, bool Ne
 		return false;
 
 	for (int i = 0; i < SEQ_COUNT; ++i) {
-		if (pInstrument->GetSeqIndex(i) != m_iSeqIndex[i] || pInstrument->GetSeqEnable(i) > m_iSeqState[i] || Trigger) {
-			m_iSeqState[i]   = pInstrument->GetSeqEnable(i) == 1 ? SEQ_STATE_RUNNING : SEQ_STATE_DISABLED;
-			m_iSeqIndex[i]	 = pInstrument->GetSeqIndex(i);
-			m_iSeqPointer[i] = 0;
+		const CSequence *pSequence = pDocument->GetSequence(SNDCHIP_N163, pInstrument->GetSeqIndex(i), i);
+		if (Trigger || !IsSequenceEqual(i, pSequence) || pInstrument->GetSeqEnable(i) > GetSequenceState(i)) {
+			if (pInstrument->GetSeqEnable(i) == 1)
+				SetupSequence(i, pSequence);
+			else
+				ClearSequence(i);
 		}
 	}
 
@@ -142,7 +143,7 @@ void CChannelHandlerN163::HandleRelease()
 {
 	if (!m_bRelease) {
 		ReleaseNote();
-		ReleaseSequences(SNDCHIP_N163);
+		ReleaseSequences();
 	}
 }
 
@@ -163,13 +164,13 @@ void CChannelHandlerN163::ProcessChannel()
 	// Default effects
 	CChannelHandler::ProcessChannel();
 
-	bool bUpdateWave = m_iSeqState[SEQ_DUTYCYCLE] != SEQ_STATE_DISABLED;
+	bool bUpdateWave = GetSequenceState(SEQ_DUTYCYCLE) != SEQ_STATE_DISABLED;
 
 	m_iChannels = pDocument->GetNamcoChannels() - 1;
 
 	// Sequences
 	for (int i = 0; i < CInstrumentN163::SEQUENCE_COUNT; ++i)
-		RunSequence(i, pDocument->GetSequenceN163(m_iSeqIndex[i], i));
+		RunSequence(i);
 
 	if (bUpdateWave) {
 		m_iWaveIndex = m_iDutyPeriod;
@@ -183,7 +184,7 @@ void CChannelHandlerN163::RefreshChannel()
 
 	int Channel = 7 - GetIndex();		// Channel #
 	int WaveSize = 256 - (m_iWaveLen >> 2);
-	int Frequency = LimitPeriod(m_iPeriod - ((GetVibrato() + GetFinePitch() + GetPitch()) << 4)) << 2;
+	int Frequency = LimitPeriod(GetPeriod() - ((GetVibrato() + GetFinePitch() + GetPitch()) << 4)) << 2;
 
 	// Compensate for shorter waves
 //	Frequency >>= 5 - int(log(double(m_iWaveLen)) / log(2.0));

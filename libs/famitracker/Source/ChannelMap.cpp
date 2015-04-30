@@ -118,15 +118,16 @@ CInstrument* CChannelMap::GetChipInstrument(int Chip) const
 
 // Todo move enabled module channels here
 
-/*
 int CChannelMap::GetChannelType(int Channel) const
 {
+	// Return channel type form channel index
 	ASSERT(m_iRegisteredChannels != 0);
 	return m_iChannelTypes[Channel];
 }
 
 int CChannelMap::GetChipType(int Channel) const
 {
+	// Return chip type from channel index
 	ASSERT(m_iRegisteredChannels != 0);
 	ASSERT(Channel < m_iRegisteredChannels);
 	return m_pChannels[Channel]->GetChip();
@@ -134,23 +135,23 @@ int CChannelMap::GetChipType(int Channel) const
 
 void CChannelMap::ResetChannels()
 {
-	// Clears all channels from the document
+	// Clears all channels from the channel map
 	m_iRegisteredChannels = 0;
 }
 
 void CChannelMap::RegisterChannel(CTrackerChannel *pChannel, int ChannelType, int ChipType)
 {
-	// Adds a channel to the document
+	// Adds a channel to the channel map
 	m_pChannels[m_iRegisteredChannels] = pChannel;
 	m_iChannelTypes[m_iRegisteredChannels] = ChannelType;
 	m_iChannelChip[m_iRegisteredChannels] = ChipType;
-	m_iRegisteredChannels++;
+	++m_iRegisteredChannels;
 }
 
 CTrackerChannel *CChannelMap::GetChannel(int Index) const
 {
+	// Return channel from index
 	ASSERT(m_iRegisteredChannels != 0);
 	ASSERT(m_pChannels[Index] != NULL);
 	return m_pChannels[Index];
 }
-*/

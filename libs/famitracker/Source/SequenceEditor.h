@@ -20,8 +20,6 @@
 
 #pragma once
 
-#include "FamiTrackerDoc.h"
-
 enum {
 	WM_SIZE_CHANGE = WM_USER, 
 	WM_CURSOR_CHANGE, 

@@ -29,17 +29,9 @@
 #include "SoundGen.h"
 
 CChannelHandlerFDS::CChannelHandlerFDS() : 
-	CChannelHandlerInverted(), 
-	m_pVolumeSeq(NULL),
-	m_pArpeggioSeq(NULL),
-	m_pPitchSeq(NULL)
+	CChannelHandlerInverted(0xFFF, 32)
 { 
-	SetMaxPeriod(0xFFF);
-	SetMaxVolume(32);
-
-	m_iSeqState[SEQ_VOLUME] = SEQ_STATE_DISABLED;
-	m_iSeqState[SEQ_ARPEGGIO] = SEQ_STATE_DISABLED;
-	m_iSeqState[SEQ_PITCH] = SEQ_STATE_DISABLED;
+	ClearSequences();
 
 	memset(m_iModTable, 0, 32);
 	memset(m_iWaveTable, 0, 64);
@@ -122,18 +114,13 @@ bool CChannelHandlerFDS::HandleInstrument(int Instrument, bool Trigger, bool New
 	}
 
 	if (Trigger) {
-		m_pVolumeSeq = pInstrument->GetVolumeSeq();
-		m_pArpeggioSeq = pInstrument->GetArpSeq();
-		m_pPitchSeq = pInstrument->GetPitchSeq();
+		CSequence *pVolSeq = pInstrument->GetVolumeSeq();
+		CSequence *pArpSeq = pInstrument->GetArpSeq();
+		CSequence *pPitchSeq = pInstrument->GetPitchSeq();
 
-		m_iSeqState[SEQ_VOLUME] = (m_pVolumeSeq->GetItemCount() > 0) ? SEQ_STATE_RUNNING : SEQ_STATE_DISABLED;
-		m_iSeqPointer[SEQ_VOLUME] = 0;
-
-		m_iSeqState[SEQ_ARPEGGIO] = (m_pArpeggioSeq->GetItemCount() > 0) ? SEQ_STATE_RUNNING : SEQ_STATE_DISABLED;
-		m_iSeqPointer[SEQ_ARPEGGIO] = 0;
-
-		m_iSeqState[SEQ_PITCH] = (m_pPitchSeq->GetItemCount() > 0) ? SEQ_STATE_RUNNING : SEQ_STATE_DISABLED;
-		m_iSeqPointer[SEQ_PITCH] = 0;
+		(pVolSeq->GetItemCount() > 0) ? SetupSequence(SEQ_VOLUME, pVolSeq) : ClearSequence(SEQ_VOLUME);
+		(pArpSeq->GetItemCount() > 0) ? SetupSequence(SEQ_ARPEGGIO, pArpSeq) : ClearSequence(SEQ_ARPEGGIO);
+		(pPitchSeq->GetItemCount() > 0) ? SetupSequence(SEQ_PITCH, pPitchSeq) : ClearSequence(SEQ_PITCH);
 
 //			if (pInstrument->GetModulationEnable()) {
 			m_iModulationSpeed = pInstrument->GetModulationSpeed();
@@ -158,13 +145,7 @@ void CChannelHandlerFDS::HandleRelease()
 {
 	if (!m_bRelease) {
 		ReleaseNote();
-
-		if (m_iSeqState[SEQ_VOLUME] != SEQ_STATE_DISABLED)
-			CChannelHandler::ReleaseSequence(SEQ_VOLUME, m_pVolumeSeq);
-		if (m_iSeqState[SEQ_ARPEGGIO] != SEQ_STATE_DISABLED)
-			CChannelHandler::ReleaseSequence(SEQ_ARPEGGIO, m_pArpeggioSeq);
-		if (m_iSeqState[SEQ_PITCH] != SEQ_STATE_DISABLED)
-			CChannelHandler::ReleaseSequence(SEQ_PITCH, m_pPitchSeq);
+		ReleaseSequences();
 	}
 }
 
@@ -184,14 +165,14 @@ void CChannelHandlerFDS::ProcessChannel()
 	CChannelHandler::ProcessChannel();	
 
 	// Sequences
-	if (m_iSeqState[SEQ_VOLUME] != SEQ_STATE_DISABLED)
-		RunSequence(SEQ_VOLUME, m_pVolumeSeq);
+	if (GetSequenceState(SEQ_VOLUME) != SEQ_STATE_DISABLED)
+		RunSequence(SEQ_VOLUME);
 
-	if (m_iSeqState[SEQ_ARPEGGIO] != SEQ_STATE_DISABLED)
-		RunSequence(SEQ_ARPEGGIO, m_pArpeggioSeq);
+	if (GetSequenceState(SEQ_ARPEGGIO) != SEQ_STATE_DISABLED)
+		RunSequence(SEQ_ARPEGGIO);
 
-	if (m_iSeqState[SEQ_PITCH] != SEQ_STATE_DISABLED)
-		RunSequence(SEQ_PITCH, m_pPitchSeq);
+	if (GetSequenceState(SEQ_PITCH) != SEQ_STATE_DISABLED)
+		RunSequence(SEQ_PITCH);
 }
 
 void CChannelHandlerFDS::RefreshChannel()

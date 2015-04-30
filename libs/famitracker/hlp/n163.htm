@@ -21,7 +21,7 @@
         The chip has 128 bytes of RAM for wave storage, but the last 64 bytes is shared 
         with the audio registers so the wave area is practically limited to 64 bytes (or 
         128 wave steps). Each channel can use a wave size from 4 to 256 steps, but most 
-        NSF players supports only 32 steps as the largest size so this is the limitation 
+        NSF players supports only 32 steps as the largest size. This is also the limitation 
         in the tracker at the moment.</p>
         
     <table class="noteFrame" cellpadding="5px"><tr><td>
@@ -31,7 +31,7 @@
             because all channels are clocked sequentally by the chip, so the pitch range 
             will depend on the channel count: a lower number of channels allows an extended 
             top pitch range. More channels will also increase the effects of aliasing (since 
-            this chip uses a phase accumulator for tone generation).</p>
+            this chip uses phase accumulation for tone generation).</p>
             
         <p class="text">
             What is even more important is that the DAC is also shared by 

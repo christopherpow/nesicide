@@ -47,10 +47,9 @@ protected:
 	virtual void HandleCut();
 	virtual void HandleRelease();
 	virtual void HandleNote(int Note, int Octave);
-
-	unsigned int TriggerNote(int Note);
-
 	virtual int CalculateVolume() const;
+
+	int TriggerNote(int Note);
 
 protected:
 	unsigned int GetFnum(int Note) const;

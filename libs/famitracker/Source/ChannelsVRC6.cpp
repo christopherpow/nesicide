@@ -27,9 +27,8 @@
 #include "ChannelsVRC6.h"
 #include "SoundGen.h"
 
-CChannelHandlerVRC6::CChannelHandlerVRC6() : CChannelHandler() 
+CChannelHandlerVRC6::CChannelHandlerVRC6() : CChannelHandler(0xFFF, 0x0F)
 {
-	SetMaxPeriod(0xFFF);
 }
 
 void CChannelHandlerVRC6::HandleNoteData(stChanNote *pNoteData, int EffColumns)
@@ -75,10 +74,12 @@ bool CChannelHandlerVRC6::HandleInstrument(int Instrument, bool Trigger, bool Ne
 
 	// Setup instrument
 	for (int i = 0; i < CInstrumentVRC6::SEQUENCE_COUNT; ++i) {
-		if (pInstrument->GetSeqIndex(i) != m_iSeqIndex[i] || pInstrument->GetSeqEnable(i) > m_iSeqState[i] || Trigger) {
-			m_iSeqState[i]   = pInstrument->GetSeqEnable(i) == 1 ? SEQ_STATE_RUNNING : SEQ_STATE_DISABLED;
-			m_iSeqIndex[i]	 = pInstrument->GetSeqIndex(i);
-			m_iSeqPointer[i] = 0;
+		const CSequence *pSequence = pDocument->GetSequence(SNDCHIP_VRC6, pInstrument->GetSeqIndex(i), i);
+		if (Trigger || !IsSequenceEqual(i, pSequence) || pInstrument->GetSeqEnable(i) > GetSequenceState(i)) {
+			if (pInstrument->GetSeqEnable(i) == 1)
+				SetupSequence(i, pSequence);
+			else
+				ClearSequence(i);
 		}
 	}
 
@@ -98,7 +99,7 @@ void CChannelHandlerVRC6::HandleRelease()
 {
 	if (!m_bRelease) {
 		ReleaseNote();
-		ReleaseSequences(SNDCHIP_VRC6);
+		ReleaseSequences();
 	}
 }
 
@@ -118,10 +119,7 @@ void CChannelHandlerVRC6::ProcessChannel()
 
 	// Sequences
 	for (int i = 0; i < CInstrumentVRC6::SEQUENCE_COUNT; ++i)
-		RunSequence(i, pDocument->GetSequence(SNDCHIP_VRC6, m_iSeqIndex[i], CInstrumentVRC6::SEQUENCE_TYPES[i]));
-
-	if (m_bGate && m_iSeqState[SEQ_VOLUME] != SEQ_STATE_DISABLED)
-		m_bGate = !(m_iSeqState[SEQ_VOLUME] == SEQ_STATE_DISABLED);
+		RunSequence(i);
 }
 
 void CChannelHandlerVRC6::ResetChannel()

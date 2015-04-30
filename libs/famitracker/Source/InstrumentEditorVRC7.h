@@ -47,10 +47,9 @@ protected:
 	void SetSliderVal(int Slider, int Value);
 	void EnableControls(bool bEnable);
 	void SelectPatch(int Patch);
-	void PasteSettings(LPTSTR pString);
+	void PasteSettings(LPCTSTR pString);
 
 protected:
-	//unsigned int m_iInstrument;
 	CInstrumentVRC7 *m_pInstrument;
 
 	DECLARE_MESSAGE_MAP()

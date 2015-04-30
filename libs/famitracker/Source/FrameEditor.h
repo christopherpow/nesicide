@@ -20,11 +20,6 @@
 
 #pragma once
 
-#include "cqtmfc.h"
-#include "MainFrm.h"
-
-// TODO clean up in this class
-
 class CFamiTrackerDoc;
 class CFamiTrackerView;
 class CFrameEditor;
@@ -81,8 +76,8 @@ class CFrameEditorDropTarget : public COleDropTarget
 {
 public:
 	CFrameEditorDropTarget(CFrameEditor *pParent) 
-		: m_pParent(pParent), m_nDropEffect(DROPEFFECT_NONE), m_iClipBoard(0), m_bCopyNewPatterns(false) {};
-	void SetClipBoardFormat(UINT iClipBoard);
+		: m_iClipboard(0), m_nDropEffect(DROPEFFECT_NONE), m_bCopyNewPatterns(false), m_pParent(pParent) {};
+	void SetClipBoardFormat(UINT iClipboard);
 	DROPEFFECT OnDragEnter(CWnd* pWnd, COleDataObject* pDataObject, DWORD dwKeyState, CPoint point);
 	DROPEFFECT OnDragOver(CWnd* pWnd, COleDataObject* pDataObject, DWORD dwKeyState, CPoint point);
 	BOOL OnDrop(CWnd* pWnd, COleDataObject* pDataObject, DROPEFFECT dropEffect, CPoint point);
@@ -92,7 +87,7 @@ public:
 	bool CopyToNewPatterns() const;
 
 private:
-	UINT m_iClipBoard;
+	UINT m_iClipboard;
 	int m_nDropEffect;
 	bool m_bCopyNewPatterns;
 	CFrameEditor *m_pParent;
@@ -102,119 +97,128 @@ private:
 
 class CFrameEditor : public CWnd
 {
-   Q_OBJECT
-   // Qt interfaces
-protected:
-   void dragEnterEvent(QDragEnterEvent *event);
-   void dragMoveEvent(QDragMoveEvent *event);
-   void dropEvent(QDropEvent *event);
-   void dragLeaveEvent(QDragLeaveEvent *event);
-public: // For some reason MOC doesn't like the protection specification inside DECLARE_DYNAMIC
-
 	DECLARE_DYNAMIC(CFrameEditor)
 public:
 	CFrameEditor(CMainFrame *pMainFrm);
 	virtual ~CFrameEditor();
 
+	// General
 	void AssignDocument(CFamiTrackerDoc *pDoc, CFamiTrackerView *pView);
+
+	// Drawing
+	void RedrawFrameEditor();
+	void InvalidateFrameData();
+	void SetupColors();
+
+	// Input
+	bool Translate(HWND hWnd, MSG *pMsg) const;
 	void EnableInput();
 	bool InputEnabled() const;
 
-	bool Translate(HWND hWnd, MSG *pMsg) const;
-
-	bool IsCopyValid(COleDataObject* pDataObject);
-	void UpdateDrag(CPoint &point);
-	BOOL DropData(COleDataObject* pDataObject, DROPEFFECT dropEffect);
-	void PerformDragOperation(unsigned int Track, CFrameClipData *pClipData, int DragTarget, bool bDelete, bool bNewPatterns);
-
-	void Clear();
-
-	void Paste(unsigned int Track, CFrameClipData *pClipData);
-	void PasteNew(unsigned int Track, CFrameClipData *pClipData);
-
-	unsigned int CalcWidth(int Channels) const;
-
+	// Selection, copy & paste, drag & drop
+	void CancelSelection();
 	void GetSelectInfo(stSelectInfo &Info) const;
 	void SetSelectInfo(stSelectInfo &Info);
 
 	bool IsClipboardAvailable() const;
+	bool IsCopyValid(COleDataObject* pDataObject) const;
+	void UpdateDrag(const CPoint &point);
+	BOOL DropData(COleDataObject* pDataObject, DROPEFFECT dropEffect);
+	void PerformDragOperation(unsigned int Track, CFrameClipData *pClipData, int DragTarget, bool bDelete, bool bNewPatterns);
 
-	bool NeedUpdate() const;
+	// Commands
+	void Paste(unsigned int Track, CFrameClipData *pClipData);
+	void PasteNew(unsigned int Track, CFrameClipData *pClipData);
+
+	// Return window width in pixels
+	unsigned int CalcWidth(int Channels) const;
 
 private:
-	void CreateGdiObjects();
+	// Drawing
+	void DrawFrameEditor(CDC *pDC);
+	bool NeedUpdate() const;
 
-	int GetRowFromPoint(CPoint &point, bool DropTarget) const;
-	int GetChannelFromPoint(CPoint &point) const;
+	// Translation
+	int GetRowFromPoint(const CPoint &point, bool DropTarget) const;
+	int GetChannelFromPoint(const CPoint &point) const;
 
+	// Drag & drop
 	void InitiateDrag();
 
-	void AutoScroll(CPoint point);
-
+	void AutoScroll(const CPoint &point);
 
 public:
 	// Window layout
-	static const int ROW_COLUMN_WIDTH = 26;		// The left-most column width
-	static const int FRAME_ITEM_WIDTH = 20;		// Pattern item width 
-	static const int ROW_HEIGHT = 15;			// Height of rows
-	static const int TOP_OFFSET = 3;			// Top offset
-
-	static const int DEFAULT_HEIGHT	= 161;
+	static const int ROW_COLUMN_WIDTH	= 26;	// The left-most column width
+	static const int FRAME_ITEM_WIDTH	= 20;	// Pattern item width 
+	static const int ROW_HEIGHT			= 15;	// Height of rows
+	static const int TOP_OFFSET			= 3;	// Top offset
+	static const int DEFAULT_HEIGHT		= 161;	// Window height at top position
+	static const int CURSOR_WIDTH		= 8;	// Cursor box width
 
 	static const TCHAR DEFAULT_FONT[];
-	
 	static const TCHAR CLIPBOARD_ID[];
 
 private:
+	// Object pointers
+	CMainFrame		 *m_pMainFrame;
+	CFamiTrackerDoc  *m_pDocument;
+	CFamiTrackerView *m_pView;
+
 	// GDI objects
 	CFont	m_Font;
 	CBitmap m_bmpBack;
 	CDC		m_dcBack;
 
-	CMainFrame		 *m_pMainFrame;
-	CFamiTrackerDoc  *m_pDocument;
-	CFamiTrackerView *m_pView;
+	UINT	m_iClipboard;
 
-	UINT m_iClipBoard;
+	// Window size
+	int		m_iWinWidth;
+	int		m_iWinHeight;
 
-	int m_iHiglightLine;
-	int m_iFirstChannel;
-	int m_iCursorPos;
-	int m_iNewPattern;
-	bool m_bInputEnable;
-	bool m_bCursor;
-	int m_iCopiedValues[MAX_CHANNELS];
-	int m_iRowsVisible;
-	int m_iMiddleRow;
+	// Cursor
+	int		m_iHiglightLine;
+	int		m_iFirstChannel;
+	int		m_iCursorPos;
+	int		m_iNewPattern;
+	int		m_iRowsVisible;
+	int		m_iMiddleRow;
+	bool	m_bInputEnable;
+	bool	m_bCursor;
 
 	// Draw info
-	int m_iLastCursorFrame;
-	int m_iLastCursorChannel;
-	int m_iLastPlayFrame;
+	bool	m_bInvalidated;
+	int		m_iLastCursorFrame;
+	int		m_iLastCursorChannel;
+	int		m_iLastPlayFrame;
 
 	// Accelerator table
-	HACCEL m_hAccel;
+	HACCEL	m_hAccel;
 
 	// Select/drag
-	bool m_bSelecting;
-	bool m_bStartDrag;
-	bool m_bDeletedRows;
-	int m_iSelStartRow;
-	int m_iSelEndRow;
-	int m_iSelStartChan;
-	int m_iSelEndChan;
-	int m_iDragRow;
+	bool	m_bSelecting;
+	bool	m_bStartDrag;
+	bool	m_bDeletedRows;
+	int		m_iSelStartRow;
+	int		m_iSelEndRow;
+	int		m_iSelStartChan;
+	int		m_iSelEndChan;
+	int		m_iDragRow;
 
-	int m_iTopScrollArea;
-	int m_iBottomScrollArea;
+	int		m_iTopScrollArea;
+	int		m_iBottomScrollArea;
 
-	CPoint m_ButtonPoint;
+	CPoint	m_ButtonPoint;
 
 	CFrameEditorDropTarget m_DropTarget;
 
 	// Numbers of pixels until selection is initiated
-	int m_iDragThresholdX;
-	int m_iDragThresholdY;
+	int		m_iDragThresholdX;
+	int		m_iDragThresholdY;
+
+	// Benchmark
+	mutable int m_iUpdates;
+	mutable int m_iPaints;
 
 protected:
 	DECLARE_MESSAGE_MAP()
