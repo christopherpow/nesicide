@@ -82,16 +82,17 @@ void MainWindow::showEvent(QShowEvent *)
 
       // Initialize the app...
       qtMfcInit(this);
-      theApp.InitInstance();
+      AfxGetApp()->InitInstance();
 
-      setCentralWidget(theApp.m_pMainWnd->toQWidget());
-      theApp.m_pMainWnd->toQWidget()->setAcceptDrops(true);
+      CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
+      setCentralWidget(pMainFrame->toQWidget());
+      pMainFrame->toQWidget()->setAcceptDrops(true);
 
       QObject::connect(theApp.m_pMainWnd,SIGNAL(addToolBarWidget(QToolBar*)),this,SLOT(addToolBarWidget(QToolBar*)));
       QObject::connect(theApp.m_pMainWnd,SIGNAL(removeToolBarWidget(QToolBar*)),this,SLOT(removeToolBarWidget(QToolBar*)));
       QObject::connect(theApp.m_pMainWnd,SIGNAL(editor_modificationChanged(bool)),this,SLOT(editor_modificationChanged(bool)));
 
-      CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
+      pMainFrame->toQWidget()->installEventFilter(this);
 
       restoreGeometry(settings.value("FamiTrackerWindowGeometry").toByteArray());
       restoreState(settings.value("FamiTrackerWindowState").toByteArray());

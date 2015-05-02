@@ -6281,31 +6281,32 @@ public:
    CArray()
    {
       _count = 0;
-      _plist = (TYPE*)calloc(1,sizeof(TYPE));
+      _growBy = 1;
+      _plist = NULL;
    }
 
    INT_PTR GetCount( ) const
    {
-//      return _qlist.count();
+      return _count;
    }
 
    TYPE& operator[](
       INT_PTR nIndex
    )
    {
-//      return _qlist[nIndex];
+      return (_plist[nIndex]);
    }
 
    const TYPE& operator[](
       INT_PTR nIndex
    ) const
    {
-//      return _qlist.at(nIndex);
+      return (_plist[nIndex]);
    }
 
    void RemoveAll( )
    {
-//      _qlist.clear();
+      _count = 0;
    }
 
    void SetSize(
@@ -6313,7 +6314,19 @@ public:
       INT_PTR nGrowBy = -1
    )
    {
-//      _qlist.reserve(nNewSize-_qlist.count());
+      if ( nGrowBy > 0 )
+      {
+         _growBy = nGrowBy;
+      }
+      if ( !_plist )
+      {
+         _plist = (TYPE*)malloc(nNewSize*sizeof(TYPE));
+      }
+      else
+      {
+         _plist = (TYPE*)realloc(_plist,nNewSize*sizeof(TYPE));
+      }
+      _count = nNewSize;
    }
 
    void FreeExtra( )
@@ -6324,13 +6337,20 @@ public:
       ARG_TYPE newElement
    )
    {
-//      _qlist.append(newElement);
-//      return _qlist.count()-1;
+      int l_growBy = 1;
+      if ( _growBy > 0 )
+      {
+         l_growBy = _growBy;
+      }
+      _plist = (TYPE*)realloc(_plist,(_count+l_growBy)*sizeof(TYPE));
+      _plist[_count] = (TYPE)newElement;
+      _count++;
+      return _count-1;
    }
 protected:
-//   QList<TYPE> _qlist;
    TYPE* _plist;
-   int _count;
+   unsigned int _count;
+   unsigned int _growBy;
 };
 
 template< class KEY, class ARG_KEY, class VALUE, class ARG_VALUE >

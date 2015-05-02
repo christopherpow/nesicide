@@ -323,6 +323,7 @@ void MainWindow::onIdleSlot()
    CFamiTrackerDoc* pDoc = (CFamiTrackerDoc*)pMainFrame->GetActiveDocument();
    CFamiTrackerView* pView = (CFamiTrackerView*)pMainFrame->GetActiveView();
    static int lastFrame = -1;
+   unsigned int rowCount;
 
    ui->sampleWindow->update();
 
@@ -355,7 +356,7 @@ void MainWindow::onIdleSlot()
          m_pTimer->start(500);
       }
       else if ( m_bLoopLimited &&
-                m_iFramesPlayed > pDoc->ScanActualLength(pMainFrame->GetSelectedTrack(),m_pWndMFC->GetFrameLoopCount()) )
+                m_iFramesPlayed > pDoc->ScanActualLength(pMainFrame->GetSelectedTrack(),m_pWndMFC->GetFrameLoopCount(),rowCount) )
       {
          // Force stop...
          m_bPlaying = false;
@@ -391,11 +392,11 @@ void MainWindow::onIdleSlot()
    {
       // FF/RW
       pView->SelectFrame(ui->position->value()/pDoc->GetPatternLength(pMainFrame->GetSelectedTrack()));
-      pView->SelectRow(ui->position->value()%pDoc->GetPatternLength(pMainFrame->GetSelectedTrack()));
+//      pView->SelectRow(ui->position->value()%pDoc->GetPatternLength(pMainFrame->GetSelectedTrack()));
    }
    else
    {
-      ui->frames->setText(QString::number(m_iFramesPlayed)+"/"+QString::number(pDoc->ScanActualLength(pMainFrame->GetSelectedTrack(),m_pWndMFC->GetFrameLoopCount())));
+      ui->frames->setText(QString::number(m_iFramesPlayed)+"/"+QString::number(pDoc->ScanActualLength(pMainFrame->GetSelectedTrack(),m_pWndMFC->GetFrameLoopCount(),rowCount)));
       ui->position->setValue((pApp->GetSoundGenerator()->GetPlayerFrame()*pDoc->GetPatternLength(pMainFrame->GetSelectedTrack()))+pApp->GetSoundGenerator()->GetPlayerRow());
    }
 }
@@ -793,7 +794,7 @@ void MainWindow::on_subtune_currentIndexChanged(int index)
       }
       
       pView->SelectFrame(0);
-      pView->SelectRow(0);
+//      pView->SelectRow(0);
       
       m_iFramesPlayed = 0;     
       

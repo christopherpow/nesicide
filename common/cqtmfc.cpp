@@ -3547,7 +3547,7 @@ BOOL CComboBox::Create(
 #if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
    _qtd->setFont(QFont("MS Shell Dlg",8));
 #else
-   _qtd->setFont(QFont("MS Shell Dlg",11));
+   _qtd->setFont(QFont("MS Shell Dlg",9));
 #endif
    
    SetParent(pParentWnd);
@@ -3793,7 +3793,7 @@ BOOL CListBox::Create(
 #if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
    _qtd->setFont(QFont("MS Shell Dlg",8));
 #else
-   _qtd->setFont(QFont("MS Shell Dlg",11));
+   _qtd->setFont(QFont("MS Shell Dlg",9));
 #endif
    _qtd->setEditTriggers(QAbstractItemView::NoEditTriggers);
    _qtd->setMouseTracking(true);
@@ -4170,7 +4170,7 @@ BOOL CListCtrl::Create(
 #if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
       _qtd_table->setFont(QFont("MS Shell Dlg",8));
 #else
-      _qtd_table->setFont(QFont("MS Shell Dlg",11));
+      _qtd_table->setFont(QFont("MS Shell Dlg",9));
 #endif
       _qtd_table->horizontalHeader()->setStretchLastSection(true);
       _qtd_table->verticalHeader()->hide();
@@ -4226,7 +4226,7 @@ BOOL CListCtrl::Create(
 #if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
       _qtd_list->setFont(QFont("MS Shell Dlg",8));
 #else
-      _qtd_list->setFont(QFont("MS Shell Dlg",11));
+      _qtd_list->setFont(QFont("MS Shell Dlg",9));
 #endif
       _qtd_list->setEditTriggers(QAbstractItemView::NoEditTriggers);
       _qtd_list->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -5263,7 +5263,7 @@ CTreeCtrl::CTreeCtrl(CWnd* parent)
 #if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
    _qtd->setFont(QFont("MS Shell Dlg",8));
 #else
-   _qtd->setFont(QFont("MS Shell Dlg",11));
+   _qtd->setFont(QFont("MS Shell Dlg",9));
 #endif
    _qtd->setEditTriggers(QAbstractItemView::NoEditTriggers);
    _qtd->setHeaderHidden(true);
@@ -5317,7 +5317,7 @@ BOOL CTreeCtrl::Create(
 #if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
    _qtd->setFont(QFont("MS Shell Dlg",8));
 #else
-   _qtd->setFont(QFont("MS Shell Dlg",11));
+   _qtd->setFont(QFont("MS Shell Dlg",9));
 #endif
 
    SetParent(pParentWnd);
@@ -6265,7 +6265,7 @@ CWnd::CWnd(CWnd *parent)
 #if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
    _qt->setFont(QFont("MS Shell Dlg",8));
 #else
-   _qt->setFont(QFont("MS Shell Dlg",11));
+   _qt->setFont(QFont("MS Shell Dlg",9));
 #endif
 
    _qtd = dynamic_cast<QFrame*>(_qt);
@@ -7660,7 +7660,7 @@ BOOL CWnd::CreateEx(
 #if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
    _qtd->setFont(QFont("MS Shell Dlg",8));
 #else
-   _qtd->setFont(QFont("MS Shell Dlg",11));
+   _qtd->setFont(QFont("MS Shell Dlg",9));
 #endif
    if ( createStruct.dwExStyle&WS_EX_STATICEDGE )
    {
@@ -9246,7 +9246,7 @@ BOOL CReBarCtrl::Create(
 #if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
    _qtd->setFont(QFont("MS Shell Dlg",8));
 #else
-   _qtd->setFont(QFont("MS Shell Dlg",11));
+   _qtd->setFont(QFont("MS Shell Dlg",9));
 #endif
 
    _qtd->setMouseTracking(true);
@@ -9872,7 +9872,7 @@ BOOL CDialog::Create(
 #if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
    _qtd->setFont(QFont("MS Shell Dlg",8));
 #else
-   _qtd->setFont(QFont("MS Shell Dlg",11));
+   _qtd->setFont(QFont("MS Shell Dlg",9));
 #endif
 
    BOOL result = OnInitDialog();
@@ -11504,7 +11504,7 @@ BOOL CMenu::CreatePopupMenu()
 #if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
    _qtd->setFont(QFont("MS Shell Dlg",8));
 #else
-   _qtd->setFont(QFont("MS Shell Dlg",11));
+   _qtd->setFont(QFont("MS Shell Dlg",9));
 #endif
    mfcToQtMenu.clear();
    qtToMfcMenu.clear();
@@ -12026,7 +12026,7 @@ BOOL CTabCtrl::Create(
 #if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
    _qtd->setFont(QFont("MS Shell Dlg",8));
 #else
-   _qtd->setFont(QFont("MS Shell Dlg",11));
+   _qtd->setFont(QFont("MS Shell Dlg",9));
 #endif
 
    SetParent(pParentWnd);
@@ -12345,7 +12345,7 @@ BOOL CEdit::Create(
 #if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
       _qtd_ptedit->setFont(QFont("MS Shell Dlg",8));
 #else
-      _qtd_ptedit->setFont(QFont("MS Shell Dlg",11));
+      _qtd_ptedit->setFont(QFont("MS Shell Dlg",9));
 #endif
 
       if ( dwStyle&ES_NUMBER )
@@ -12375,7 +12375,7 @@ BOOL CEdit::Create(
 #if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
       _qtd_ledit->setFont(QFont("MS Shell Dlg",8));
 #else
-      _qtd_ledit->setFont(QFont("MS Shell Dlg",11));
+      _qtd_ledit->setFont(QFont("MS Shell Dlg",9));
 #endif
 
       if ( dwStyle&ES_NUMBER )
@@ -12836,7 +12836,7 @@ BOOL CButton::Create(
 #if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
       _qtd_check->setFont(QFont("MS Shell Dlg",8));
 #else
-      _qtd_check->setFont(QFont("MS Shell Dlg",11));
+      _qtd_check->setFont(QFont("MS Shell Dlg",9));
 #endif
 
       // Pass-through signals
@@ -12866,7 +12866,7 @@ BOOL CButton::Create(
 #if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
       _qtd_check->setFont(QFont("MS Shell Dlg",8));
 #else
-      _qtd_check->setFont(QFont("MS Shell Dlg",11));
+      _qtd_check->setFont(QFont("MS Shell Dlg",9));
 #endif
 
       // Pass-through signals
@@ -12895,7 +12895,7 @@ BOOL CButton::Create(
 #if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
       _qtd_radio->setFont(QFont("MS Shell Dlg",8));
 #else
-      _qtd_radio->setFont(QFont("MS Shell Dlg",11));
+      _qtd_radio->setFont(QFont("MS Shell Dlg",9));
 #endif
 
       // Pass-through signals
@@ -12925,7 +12925,7 @@ BOOL CButton::Create(
 #if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
       _qtd_push->setFont(QFont("MS Shell Dlg",8));
 #else
-      _qtd_push->setFont(QFont("MS Shell Dlg",11));
+      _qtd_push->setFont(QFont("MS Shell Dlg",9));
 #endif
 
       // Pass-through signals
@@ -12954,7 +12954,7 @@ BOOL CButton::Create(
 #if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
       _qtd_groupbox->setFont(QFont("MS Shell Dlg",8));
 #else
-      _qtd_groupbox->setFont(QFont("MS Shell Dlg",11));
+      _qtd_groupbox->setFont(QFont("MS Shell Dlg",9));
 #endif
 
       // Pass-through signals
@@ -13516,7 +13516,7 @@ BOOL CSpinButtonCtrl::Create(
 #if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
    _qtd->setFont(QFont("MS Shell Dlg",8));
 #else
-   _qtd->setFont(QFont("MS Shell Dlg",11));
+   _qtd->setFont(QFont("MS Shell Dlg",9));
 #endif
    _qtd->setVisible(dwStyle&WS_VISIBLE);
 
@@ -13863,7 +13863,7 @@ BOOL CSliderCtrl::Create(
 #if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
    _qtd->setFont(QFont("MS Shell Dlg",8));
 #else
-   _qtd->setFont(QFont("MS Shell Dlg",11));
+   _qtd->setFont(QFont("MS Shell Dlg",9));
 #endif
 
    qtToMfcWindow.insert(_qtd,this);
@@ -14032,7 +14032,7 @@ BOOL CProgressCtrl::Create(
 #if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
    _qtd->setFont(QFont("MS Shell Dlg",8));
 #else
-   _qtd->setFont(QFont("MS Shell Dlg",11));
+   _qtd->setFont(QFont("MS Shell Dlg",9));
 #endif
 
    // Pass-through signals
@@ -14156,7 +14156,7 @@ BOOL CStatic::Create(
 #if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
    _qtd->setFont(QFont("MS Shell Dlg",8));
 #else
-   _qtd->setFont(QFont("MS Shell Dlg",11));
+   _qtd->setFont(QFont("MS Shell Dlg",9));
 #endif
 
    if ( dwStyle&SS_SUNKEN )
