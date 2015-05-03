@@ -56,10 +56,12 @@ void MainWindow::documentClosed()
 
 bool MainWindow::eventFilter(QObject *object, QEvent *event)
 {
-   if ( event->type() == QEvent::Paint )
-   {
-      CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
+   CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
 
+   if ( (event->type() == QEvent::Paint) &&
+        pMainFrame &&
+        (object == pMainFrame->GetVisualizerWindow()) )
+   {
       QPainter p;
       QRect rect = pMainFrame->GetVisualizerWindow()->toQWidget()->rect().adjusted(3,2,-3,-3);
       QPixmap pixmap(rect.size());
@@ -87,12 +89,11 @@ void MainWindow::showEvent(QShowEvent *)
       CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
       setCentralWidget(pMainFrame->toQWidget());
       pMainFrame->toQWidget()->setAcceptDrops(true);
+      pMainFrame->GetVisualizerWindow()->toQWidget()->installEventFilter(this);
 
       QObject::connect(theApp.m_pMainWnd,SIGNAL(addToolBarWidget(QToolBar*)),this,SLOT(addToolBarWidget(QToolBar*)));
       QObject::connect(theApp.m_pMainWnd,SIGNAL(removeToolBarWidget(QToolBar*)),this,SLOT(removeToolBarWidget(QToolBar*)));
       QObject::connect(theApp.m_pMainWnd,SIGNAL(editor_modificationChanged(bool)),this,SLOT(editor_modificationChanged(bool)));
-
-      pMainFrame->toQWidget()->installEventFilter(this);
 
       restoreGeometry(settings.value("FamiTrackerWindowGeometry").toByteArray());
       restoreState(settings.value("FamiTrackerWindowState").toByteArray());

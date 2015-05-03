@@ -4234,7 +4234,6 @@ public:
    void addControlBar(int area,QWidget* bar);
    void addView(QWidget* view);
 public slots:
-   void menuAction_triggered(int id);
    void focusChanged(QWidget* old, QWidget* now);
    void setModified(bool modified);
    

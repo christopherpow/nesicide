@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "cqtmfc.h"
+#include "resource.h"
 
 // CMainFrame, the main window class
 

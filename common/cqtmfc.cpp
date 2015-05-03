@@ -3258,7 +3258,7 @@ BOOL CDC::RectVisible(
    LPCRECT lpRect
 ) const
 {
-   qDebug("RectVisible needs work..");
+   // CP: Could be smart here...but do we need to be?
    return TRUE;
 }
 
@@ -8401,11 +8401,6 @@ void CFrameWnd::setModified(bool modified)
 {
 }
 
-void CFrameWnd::menuAction_triggered(int id)
-{
-   SendMessage(WM_COMMAND,id);
-}
-
 void CFrameWnd::focusChanged(QWidget *old, QWidget *now)
 {
    CWnd* pOldWnd = qtToMfcWindow.value(old);
@@ -8470,9 +8465,9 @@ BOOL CFrameWnd::Create(
       if ( !backgroundedFamiTracker )
       {
          QMenu* pMenu = m_pMenu->GetSubMenu(idx)->toQMenu();
+         pMenu->menuAction()->setMenuRole(QAction::NoRole);
          ptrToTheApp->qtMainWindow->menuBar()->addMenu(pMenu);
       }
-      QObject::connect(m_pMenu->GetSubMenu(idx),SIGNAL(menuAction_triggered(int)),this,SLOT(menuAction_triggered(int)));
    }
 
    // Get focus changes...
@@ -11405,7 +11400,14 @@ void CMenu::menuAction_triggered()
       }
       return;
    }
-   emit menuAction_triggered(qtToMfcMenu.value((QAction*)sender()));
+   if ( m_pOwnerWnd )
+   {
+      m_pOwnerWnd->SendMessage(WM_COMMAND,qtToMfcMenu.value((QAction*)sender()));
+   }
+   else
+   {
+      ptrToTheApp->GetMainWnd()->SendMessage(WM_COMMAND,qtToMfcMenu.value((QAction*)sender()));
+   }
 }
 
 void CMenu::menu_aboutToShow()
@@ -11530,7 +11532,6 @@ BOOL CMenu::AppendMenu(
 #else
       pMenu->toQMenu()->setTitle(QString::fromLatin1(lpszNewItem));
 #endif
-      QObject::connect(pMenu,SIGNAL(menuAction_triggered(int)),this,SIGNAL(menuAction_triggered(int)));
    }
    else if ( nFlags&MF_SEPARATOR )
    {
@@ -11598,7 +11599,6 @@ BOOL CMenu::InsertMenu(
 #else
          pMenu->toQMenu()->setTitle(QString::fromLatin1(lpszNewItem));
 #endif
-         QObject::connect(pMenu,SIGNAL(menuAction_triggered(int)),this,SIGNAL(menuAction_triggered(int)));
       }
       else if ( nFlags&MF_SEPARATOR )
       {
@@ -11853,6 +11853,7 @@ BOOL CMenu::CheckMenuRadioItem(
 {
    QAction* action;
    UINT prevState = (UINT)-1;
+   UINT id;
    QActionGroup* group = _groups.value(nIDFirst);
    int idx;
 
@@ -11876,24 +11877,16 @@ BOOL CMenu::CheckMenuRadioItem(
    }
    else
    {
-      QAction* groupMember = findMenuItemByID(nIDFirst);
-      do
+      for ( id = nIDFirst; id < nIDLast; id++ )
       {
+         QAction* groupMember = findMenuItemByID(id);
          group->addAction(groupMember);
          groupMember->setActionGroup(group);
-         if ( groupMember == findMenuItemByID(nIDLast) )
-         {
-            groupMember = NULL;
-         }
-         else if ( groupMember == findMenuItemByID(nIDItem) )
+         if ( id == nIDItem )
          {
             action = groupMember;
          }
-         else
-         {
-            groupMember = groupMember->menu()->actions().at(groupMember->menu()->actions().indexOf(groupMember)+1);
-         }
-      } while ( groupMember );
+      }
    }
    if ( action )
    {
@@ -11923,7 +11916,7 @@ BOOL CMenu::TrackPopupMenu(
    }
    else if ( action )
    {
-      m_pOwnerWnd->SendMessage(WM_COMMAND,findMenuID(action));
+//      m_pOwnerWnd->SendMessage(WM_COMMAND,findMenuID(action));
       result = 1;
    }
    return result;
@@ -12128,8 +12121,6 @@ void QLineEdit_MFC::paintEvent(QPaintEvent *event)
       ctlColor.nCtlType = 0;
       _mfc->SendMessage(WM_ERASEBKGND,(WPARAM)(HDC)pDC);
       _mfc->SendMessage(WM_CTLCOLOR,0,(LPARAM)&ctlColor);
-      style.sprintf("QLabel { color: #%02x%02x%02x; }",GetRValue(pDC->GetTextColor()),GetGValue(pDC->GetTextColor()),GetBValue(pDC->GetTextColor()));
-      setStyleSheet(style);
    }
    QLineEdit::paintEvent(event);      
    if ( _mfc )
