@@ -11851,7 +11851,7 @@ BOOL CMenu::CheckMenuRadioItem(
    UINT nFlags
 )
 {
-   QAction* action;
+   QAction* action = NULL;
    UINT prevState = (UINT)-1;
    UINT id;
    QActionGroup* group = _groups.value(nIDFirst);
@@ -11877,7 +11877,7 @@ BOOL CMenu::CheckMenuRadioItem(
    }
    else
    {
-      for ( id = nIDFirst; id < nIDLast; id++ )
+      for ( id = nIDFirst; id <= nIDLast; id++ )
       {
          QAction* groupMember = findMenuItemByID(id);
          group->addAction(groupMember);
@@ -11892,7 +11892,7 @@ BOOL CMenu::CheckMenuRadioItem(
    {
       prevState = action->isChecked();
       action->setCheckable(true);
-      action->setChecked(nFlags&(~MF_BYPOSITION));
+      action->setChecked(true);
    }
    return prevState;
 }
