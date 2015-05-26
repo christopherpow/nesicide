@@ -3493,22 +3493,9 @@ BEGIN_MESSAGE_MAP(CComboBox,CWnd)
 END_MESSAGE_MAP()
 
 CComboBox::CComboBox(CWnd *parent)
-   : CWnd(parent)
+   : CWnd(parent),
+     _qtd(NULL)
 {
-   if ( _qt )
-      delete _qt;
-
-   _grid = NULL;
-
-   _qt = new QComboBox(parent->toQWidget());
-
-   // Downcast to save having to do it all over the place...
-   _qtd = dynamic_cast<QComboBox*>(_qt);
-
-   _qtd->setMouseTracking(true);
-
-   // Pass-through signals
-   QObject::connect(_qtd,SIGNAL(currentIndexChanged(int)),this,SLOT(currentIndexChanged(int)));
 }
 
 CComboBox::~CComboBox()
@@ -3538,8 +3525,26 @@ BOOL CComboBox::Create(
    m_hWnd = (HWND)this;
    _id = nID;
 
+   if ( _qt )
+      delete _qt;
+
+   _grid = NULL;
+
+   if ( pParentWnd )
+      _qt = new QComboBox(pParentWnd->toQWidget());
+   else
+      _qt = new QComboBox();
+
+   // Downcast to save having to do it all over the place...
+   _qtd = dynamic_cast<QComboBox*>(_qt);
+
+   _qtd->setMouseTracking(true);
+
+   // Pass-through signals
+   QObject::connect(_qtd,SIGNAL(currentIndexChanged(int)),this,SLOT(currentIndexChanged(int)));
+
    _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left),_qtd->sizeHint().height());
-   _qtd->setVisible(dwStyle&WS_VISIBLE);
+//   _qtd->setVisible(dwStyle&WS_VISIBLE);
 
    QFontMetrics fm(_qtd->font());
 
@@ -6219,6 +6224,10 @@ MFCWidget::MFCWidget(QWidget *parent)
    setContextMenuPolicy(Qt::PreventContextMenu);
 }
 
+MFCWidget::~MFCWidget()
+{
+}
+
 CWnd* CWnd::focusWnd = NULL;
 QHash<QWidget*,CWnd*> CWnd::qtToMfcWindow;
 CFrameWnd* CWnd::m_pFrameWnd = NULL;
@@ -8524,7 +8533,7 @@ BOOL CFrameWnd::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle,
 	// attempt to create the window
 	LPCTSTR lpszClass;// = GetIconWndClass(dwDefaultStyle, nIDResource);
 	CString strTitle = m_strTitle;
-	if (!Create(lpszClass, strTitle, dwDefaultStyle, rectDefault,
+   if (!Create(lpszClass, strTitle, dwDefaultStyle, rectDefault,
 	  pParentWnd, ATL_MAKEINTRESOURCE(nIDResource), 0L, pContext))
 	{
 		return FALSE;   // will self destruct on failure normally

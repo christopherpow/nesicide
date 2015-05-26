@@ -2335,7 +2335,7 @@ struct AFX_NOTIFY
 	NMHDR* pNMHDR;
 };
 
-#define ATL_MAKEINTRESOURCE(x) CString(QString::number(x))
+#define ATL_MAKEINTRESOURCE(x) CString(QString::number(x)) //((LPSTR)((ULONG_PTR)((WORD)(x))))
 #undef MAKEINTRESOURCE
 #define MAKEINTRESOURCE(x) ATL_MAKEINTRESOURCE(x)
 
@@ -3838,6 +3838,7 @@ class MFCWidget : public QWidget
 {
 public:
    MFCWidget(QWidget* parent=0);
+   virtual ~MFCWidget();
 };
 
 typedef struct _AFX_THREAD_STATE
