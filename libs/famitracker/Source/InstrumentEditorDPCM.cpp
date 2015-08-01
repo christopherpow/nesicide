@@ -263,7 +263,7 @@ bool CInstrumentEditorDPCM::LoadSample(const CString &FilePath, const CString &F
 	int AddSize = 0;
 	
 	// Clip file if too large
-//   Size = std::min(Size, CDSample::MAX_SIZE);
+   Size = std::min<ULONGLONG>(Size, CDSample::MAX_SIZE);
 	
 	// Make sure size is compatible with DPCM hardware
 	if ((Size & 0xF) != 1) {

@@ -482,8 +482,8 @@ private:
 	unsigned int	m_iSecondHighlight;
 
 	// Things below are for compability with older files
-   CArray<stSequence> m_vTmpSequences;
-   CArray<stSequence[SEQ_COUNT]> m_vSequences;
+	CArray<stSequence> m_vTmpSequences;
+	CArray<stSequence[SEQ_COUNT]> m_vSequences;
 
 	//
 	// End of document data
