@@ -18,6 +18,7 @@
 ** must bear this legend.
 */
 
+#include <algorithm>
 #include "stdafx.h"
 #include "FamiTracker.h"
 #include "FamiTrackerDoc.h"

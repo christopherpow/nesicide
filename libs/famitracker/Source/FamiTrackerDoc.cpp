@@ -40,6 +40,7 @@
 */
 
 #include "stdafx.h"
+#include <algorithm>
 #include "FamiTracker.h"
 #include "FamiTrackerDoc.h"
 #include "TrackerChannel.h"
