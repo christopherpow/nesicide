@@ -3145,12 +3145,13 @@ BOOL CDC::BitBlt(
 )
 {
    QPixmap* pixmap = pSrcDC->pixmap();
+   QPixmap tempPixmap = pixmap->copy();
    QSize pixmapSize = pSrcDC->pixmapSize();
    pixmapSize = pixmapSize.boundedTo(QSize(nWidth,nHeight));
    if ( pixmap && (pixmapSize.width() >= 0) )
-      _qpainter.drawPixmap(x,y,pixmapSize.width(),pixmapSize.height(),*pixmap,xSrc,ySrc,pixmapSize.width(),pixmapSize.height());
+      _qpainter.drawPixmap(x,y,pixmapSize.width(),pixmapSize.height(),tempPixmap,xSrc,ySrc,pixmapSize.width(),pixmapSize.height());
    else
-      _qpainter.drawPixmap(x,y,nWidth,nHeight,*pixmap,xSrc,ySrc,nWidth,nHeight);
+      _qpainter.drawPixmap(x,y,nWidth,nHeight,tempPixmap,xSrc,ySrc,nWidth,nHeight);
    return TRUE;
 }
 
