@@ -7383,6 +7383,7 @@ void CWnd::timerEvent(QTimerEvent *event)
 void CWnd::paintEvent(QPaintEvent *event)
 {
    static QSize currentSize = _qt->size();
+   static bool firstCall = true;
    gInPaintEvent = true;
    CDC* pDC = _myDC;
    AFX_CTLCOLOR ctlColor;
@@ -7390,8 +7391,11 @@ void CWnd::paintEvent(QPaintEvent *event)
    ctlColor.hDC = (HDC)pDC;
    ctlColor.nCtlType = 0;
    SendMessage(WM_CTLCOLOR,0,(LPARAM)&ctlColor);
-   if ( _qt->size() != currentSize )
+   if ( firstCall ||
+        _qt->size() != currentSize )
    {
+      // MUST erase the background on the first call!
+      firstCall = false;
       SendMessage(WM_ERASEBKGND,(WPARAM)(HDC)pDC);
       currentSize = _qt->size();
    }
@@ -11148,7 +11152,15 @@ LONG CWinApp::DelRegTree(
    const CString& strKeyName
 )
 {
-   qDebug("reg: %s",(char*)hParentKey);
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
+   QString key;
+#ifdef UNICODE
+   key = QString::fromWCharArray((LPCTSTR)strKeyName);
+#else
+   key = QString::fromLatin1((LPCTSTR)strKeyName);
+#endif
+   qDebug("Unregistering app...");
+   settings.remove(key);
 }
 
 BOOL CWinApp::WriteProfileInt(

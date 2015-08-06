@@ -84,7 +84,12 @@ void MainWindow::showEvent(QShowEvent *)
 
       // Initialize the app...
       qtMfcInit(this);
-      AfxGetApp()->InitInstance();
+      bool start = AfxGetApp()->InitInstance();
+      // Failed to initial
+      if ( !start )
+      {
+         exit(0);
+      }
 
       CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
       setCentralWidget(pMainFrame->toQWidget());
@@ -155,9 +160,12 @@ void MainWindow::closeEvent(QCloseEvent *event)
    // can't synchronize to disk if we wait for that.
    settings.sync();
 
-   AfxGetMainWnd()->OnClose();
+   if ( AfxGetMainWnd() )
+   {
+      AfxGetMainWnd()->OnClose();
 
-   // Ignore the close event.  "MFC" will close the document which will trigger app closure.
-   event->ignore();
+      // Ignore the close event.  "MFC" will close the document which will trigger app closure.
+      event->ignore();
+   }
 }
 
