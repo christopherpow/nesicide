@@ -10944,9 +10944,22 @@ void CCommandLineInfo::ParseParam(
    BOOL bLast
 )
 {
+   m_nShellCommand = FileNew;
    if ( !bFlag )
    {
-      m_strFileName = pszParam;   
+      m_strFileName = pszParam;
+      m_nShellCommand = FileOpen;
+   }
+   else
+   {
+      if ( stricmp(pszParam,"Unregister") == 0 )
+      {
+         m_nShellCommand = AppUnregister;
+      }
+      else if ( stricmp(pszParam,"Unregserver") == 0 )
+      {
+         m_nShellCommand = AppUnregister;
+      }
    }
 }
 
@@ -11107,17 +11120,35 @@ BOOL CWinApp::ProcessShellCommand(
    CCommandLineInfo& rCmdInfo
 )
 {
-   if ( rCmdInfo.m_strFileName.IsEmpty() )
+   if ( rCmdInfo.m_nShellCommand == CCommandLineInfo::FileNew )
    {
       // New file...
       OpenDocumentFile(NULL);
+      return TRUE;
    }
-   else
+   else if ( rCmdInfo.m_nShellCommand == CCommandLineInfo::FileOpen )
    {
       // Open file...
       OpenDocumentFile(rCmdInfo.m_strFileName);
+      return TRUE;
    }
-   return TRUE;
+   return FALSE;
+}
+
+HKEY CWinApp::GetAppRegistryKey(
+   CAtlTransactionManager* pTM
+)
+{
+   static QSettings settingsStatic(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
+   return (HKEY)settingsStatic.fileName().toLatin1().constData();
+}
+
+LONG CWinApp::DelRegTree(
+   HKEY hParentKey,
+   const CString& strKeyName
+)
+{
+   qDebug("reg: %s",(char*)hParentKey);
 }
 
 BOOL CWinApp::WriteProfileInt(

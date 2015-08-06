@@ -208,8 +208,8 @@ void CSettings::DefaultSettings()
 void CSettings::DeleteSettings()
 {
 	// Delete all settings from registry
-//	HKEY hKey = theApp.GetAppRegistryKey();
-//	theApp.DelRegTree(hKey, _T(""));
+	HKEY hKey = theApp.GetAppRegistryKey();
+	theApp.DelRegTree(hKey, _T(""));
 }
 
 void CSettings::SetWindowPos(int Left, int Top, int Right, int Bottom, int State)

@@ -5845,6 +5845,10 @@ protected:
    QStringList _recentFiles;
 };
 
+class CAtlTransactionManager
+{
+};
+
 class CWinApp : public CWinThread
 {
    DECLARE_DYNCREATE(CWinApp)
@@ -5865,6 +5869,13 @@ public:
    );
    void LoadStdProfileSettings( 
       UINT nMaxMRU = _AFX_MRU_COUNT  
+   );
+   HKEY GetAppRegistryKey(
+      CAtlTransactionManager* pTM = NULL
+   );
+   LONG DelRegTree(
+      HKEY hParentKey,
+      const CString& strKeyName
    );
    BOOL WriteProfileInt(
       LPCTSTR lpszSection,
