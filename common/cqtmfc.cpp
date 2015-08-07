@@ -10272,6 +10272,7 @@ int CWinThread::Run( )
       OnIdle(0);
       ptrToTheApp->m_pMainWnd->SendMessageToDescendants(WM_IDLEUPDATECMDUI,
                                                         (WPARAM)TRUE, 0, TRUE, TRUE);
+      ptrToTheApp->m_pMainWnd->toQWidget()->update();
    }
    return 0;
 }
