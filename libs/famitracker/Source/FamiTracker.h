@@ -69,7 +69,7 @@ public:
 };
 
 
-//class CMIDI;
+class CMIDI;
 class CSoundGen;
 class CSettings;
 class CAccelerator;
@@ -113,7 +113,7 @@ public:
 	// Get-functions
 	CAccelerator	*GetAccelerator() const		{ ASSERT(m_pAccel); return m_pAccel; }
 	CSoundGen		*GetSoundGenerator() const	{ ASSERT(m_pSoundGenerator); return m_pSoundGenerator; }
-//	CMIDI			*GetMIDI() const			{ ASSERT(m_pMIDI); return m_pMIDI; }
+   CMIDI			*GetMIDI() const			{ ASSERT(m_pMIDI); return m_pMIDI; }
 	CSettings		*GetSettings() const		{ ASSERT(m_pSettings); return m_pSettings; }
 	CChannelMap		*GetChannelMap() const		{ ASSERT(m_pChannelMap); return m_pChannelMap; }
 	
@@ -143,7 +143,7 @@ protected:
 	// Private variables and objects
 private:
 	// Objects
-//	CMIDI			*m_pMIDI;
+   CMIDI			*m_pMIDI;
 	CAccelerator	*m_pAccel;					// Keyboard accelerator
 	CSoundGen		*m_pSoundGenerator;			// Sound synth & player
 	CSettings		*m_pSettings;				// Program settings

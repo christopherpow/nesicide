@@ -7,6 +7,7 @@ extern QHash<int,CString> qtMfcStringResources;
 
 extern QHash<int,CBitmap*> qtMfcBitmapResources;
 
+extern QHash<int,QString> qtIconNames;
 extern QHash<int,QIcon*> qtIconResources;
 
 void qtMfcInit(QMainWindow* parent);

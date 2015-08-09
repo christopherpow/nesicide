@@ -4001,6 +4001,9 @@ public:
       int nPos,
       BOOL bRedraw = TRUE
    );
+   virtual void DrawItem(
+      LPDRAWITEMSTRUCT lpDrawItemStruct
+   ) {}
    virtual afx_msg int OnCreate(
       LPCREATESTRUCT lpCreateStruct
    );
@@ -4011,6 +4014,10 @@ public:
    ) {}
    afx_msg void OnGetMinMaxInfo(
       MINMAXINFO* /*lpMMI*/
+   ) {}
+   void OnDrawItem(
+      int nIDCtl,
+      LPDRAWITEMSTRUCT lpDrawItemStruct
    ) {}
    void OnMouseMove(UINT,CPoint) {}
    void OnMouseLeave() {}
@@ -4929,6 +4936,14 @@ public:
    ) const;
    
    DECLARE_MESSAGE_MAP()
+
+   virtual void DrawItem(
+      LPDRAWITEMSTRUCT lpDrawItemStruct
+   );
+   afx_msg void OnDrawItem(
+      int nIDCtl,
+      LPDRAWITEMSTRUCT lpDrawItemStruct
+   );
 };
 
 class CSliderCtrl : public CWnd
@@ -5250,6 +5265,14 @@ public:
    );
    
    DECLARE_MESSAGE_MAP()
+
+   virtual void DrawItem(
+      LPDRAWITEMSTRUCT lpDrawItemStruct
+   );
+   afx_msg void OnDrawItem(
+      int nIDCtl,
+      LPDRAWITEMSTRUCT lpDrawItemStruct
+   );
 };
 
 class CTabCtrl : public CWnd
@@ -6745,6 +6768,7 @@ CString qtMfcStringResource(int id);
 CBitmap* qtMfcBitmapResource(int id);
 
 QIcon* qtIconResource(int id);
+QString qtIconName(int id);
 
 CDocument* openFile(QString fileName);
 

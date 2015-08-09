@@ -33,7 +33,7 @@
 #include "TextExporter.h"
 #include "ConfigGeneral.h"
 #include "ConfigAppearance.h"
-//#include "ConfigMIDI.h"
+#include "ConfigMIDI.h"
 #include "ConfigSound.h"
 #include "ConfigShortcuts.h"
 #include "ConfigWindow.h"
@@ -41,7 +41,7 @@
 #include "Settings.h"
 #include "Accelerator.h"
 #include "SoundGen.h"
-//#include "MIDI.h"
+#include "MIDI.h"
 #include "TrackerChannel.h"
 #include "CommentsDlg.h"
 #include "InstrumentFileTree.h"
@@ -1654,7 +1654,7 @@ void CMainFrame::OnFileGeneralsettings()
 	CConfigGeneral		TabGeneral;
 	CConfigAppearance	TabAppearance;
    qDebug("NO MIDI SUPPORT YET...");
-//	CConfigMIDI			TabMIDI;
+   CConfigMIDI			TabMIDI;
 	CConfigSound		TabSound;
 	CConfigShortcuts	TabShortcuts;
 	CConfigMixer		TabMixer;
@@ -1669,7 +1669,7 @@ void CMainFrame::OnFileGeneralsettings()
 
 	ConfigWindow.AddPage(&TabGeneral);
 	ConfigWindow.AddPage(&TabAppearance);
-//	ConfigWindow.AddPage(&TabMIDI);
+   ConfigWindow.AddPage(&TabMIDI);
 	ConfigWindow.AddPage(&TabSound);
 	ConfigWindow.AddPage(&TabShortcuts);
 	ConfigWindow.AddPage(&TabMixer);

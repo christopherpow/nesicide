@@ -24,7 +24,7 @@
 #include "FamiTrackerDoc.h"
 #include "FamiTrackerView.h"
 #include "MainFrm.h"
-//#include "MIDI.h"
+#include "MIDI.h"
 #include "InstrumentEditDlg.h"
 #include "SpeedDlg.h"
 #include "SoundGen.h"
@@ -2892,75 +2892,74 @@ void CFamiTrackerView::PreviewRelease(unsigned char Key)
 
 void CFamiTrackerView::TranslateMidiMessage()
 {
-	qDebug("TranslateMidiMessage");
-//	// Check and handle MIDI messages
-//
-//	CMIDI *pMIDI = theApp.GetMIDI();
-//	CFamiTrackerDoc* pDoc = GetDocument();
-//	CString Status;
-//
-//	if (!pMIDI || !pDoc)
-//		return;
-//
-//	unsigned char Message, Channel, Data1, Data2;
-//	while (pMIDI->ReadMessage(Message, Channel, Data1, Data2)) {
-//
-//		if (Message != 0x0F) {
-//			if (!theApp.GetSettings()->Midi.bMidiChannelMap)
-//				Channel = m_pPatternEditor->GetChannel();
-//			if (Channel > pDoc->GetAvailableChannels() - 1)
-//				Channel = pDoc->GetAvailableChannels() - 1;
-//		}
-//
-//		// Translate key releases to note off messages
-//		if (Message == MIDI_MSG_NOTE_ON && Data2 == 0) {
-//			Message = MIDI_MSG_NOTE_OFF;
-//		}
-//
-//		if (Message == MIDI_MSG_NOTE_ON || Message == MIDI_MSG_NOTE_OFF) {
-//			// Remove two octaves from MIDI notes
-//			Data1 -= 24;
-//			if (Data1 > 127)
-//				return;
-//		}
-//
-//		switch (Message) {
-//			case MIDI_MSG_NOTE_ON:
-//				TriggerMIDINote(Channel, Data1, Data2, true);
-//				AfxFormatString3(Status, IDS_MIDI_MESSAGE_ON_FORMAT, 
-//					MakeIntString(Data1 % 12), 
-//					MakeIntString(Data1 / 12),
-//					MakeIntString(Data2));
-//				break;
-//
-//			case MIDI_MSG_NOTE_OFF:
-//				// MIDI key is released, don't input note break into pattern
-//				if (DoRelease())
-//					ReleaseMIDINote(Channel, Data1, false);
-//				else
-//					CutMIDINote(Channel, Data1, false);
-//				Status.Format(IDS_MIDI_MESSAGE_OFF);
-//				break;
-//			
-//			case MIDI_MSG_PITCH_WHEEL: 
-//				{
-//					CTrackerChannel *pChannel = pDoc->GetChannel(Channel);
-//					int PitchValue = 0x2000 - ((Data1 & 0x7F) | ((Data2 & 0x7F) << 7));
-//					pChannel->SetPitch(-PitchValue / 0x10);
-//				}
-//				break;
-//
-//			case 0x0F:
-//				if (Channel == 0x08) {
-//					m_pPatternEditor->MoveDown(m_iInsertKeyStepping);
-//					InvalidateCursor();
-//				}
-//				break;
-//		}
-//	}
-//
-//	if (Status.GetLength() > 0)
-//		GetParentFrame()->SetMessageText(Status);
+   // Check and handle MIDI messages
+
+   CMIDI *pMIDI = theApp.GetMIDI();
+   CFamiTrackerDoc* pDoc = GetDocument();
+   CString Status;
+
+   if (!pMIDI || !pDoc)
+      return;
+
+   unsigned char Message, Channel, Data1, Data2;
+   while (pMIDI->ReadMessage(Message, Channel, Data1, Data2)) {
+
+      if (Message != 0x0F) {
+         if (!theApp.GetSettings()->Midi.bMidiChannelMap)
+            Channel = m_pPatternEditor->GetChannel();
+         if (Channel > pDoc->GetAvailableChannels() - 1)
+            Channel = pDoc->GetAvailableChannels() - 1;
+      }
+
+      // Translate key releases to note off messages
+      if (Message == MIDI_MSG_NOTE_ON && Data2 == 0) {
+         Message = MIDI_MSG_NOTE_OFF;
+      }
+
+      if (Message == MIDI_MSG_NOTE_ON || Message == MIDI_MSG_NOTE_OFF) {
+         // Remove two octaves from MIDI notes
+         Data1 -= 24;
+         if (Data1 > 127)
+            return;
+      }
+
+      switch (Message) {
+         case MIDI_MSG_NOTE_ON:
+            TriggerMIDINote(Channel, Data1, Data2, true);
+            AfxFormatString3(Status, IDS_MIDI_MESSAGE_ON_FORMAT,
+               MakeIntString(Data1 % 12),
+               MakeIntString(Data1 / 12),
+               MakeIntString(Data2));
+            break;
+
+         case MIDI_MSG_NOTE_OFF:
+            // MIDI key is released, don't input note break into pattern
+            if (DoRelease())
+               ReleaseMIDINote(Channel, Data1, false);
+            else
+               CutMIDINote(Channel, Data1, false);
+            Status.Format(IDS_MIDI_MESSAGE_OFF);
+            break;
+
+         case MIDI_MSG_PITCH_WHEEL:
+            {
+               CTrackerChannel *pChannel = pDoc->GetChannel(Channel);
+               int PitchValue = 0x2000 - ((Data1 & 0x7F) | ((Data2 & 0x7F) << 7));
+               pChannel->SetPitch(-PitchValue / 0x10);
+            }
+            break;
+
+         case 0x0F:
+            if (Channel == 0x08) {
+               m_pPatternEditor->MoveDown(m_iInsertKeyStepping);
+               InvalidateCursor();
+            }
+            break;
+      }
+   }
+
+   if (Status.GetLength() > 0)
+      GetParentFrame()->SetMessageText(Status);
 }
 
 //

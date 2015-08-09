@@ -1175,33 +1175,34 @@ void qtInitIconResources()
    //
    // Bitmap
    //
+   qtIconNames.clear();
    qtIconResources.clear();
 
    // Icon with lowest ID value placed first to ensure application icon
    // remains consistent on all systems.
 
 //   IDR_MAINFRAME           ICON                    "res\\Application.ico"
-   qtIconResources.insert(IDR_MAINFRAME,new QIcon(":/resources/Application.ico"));
+   qtIconNames.insert(IDR_MAINFRAME,":/resources/Application.ico");
 //   IDI_INST_2A03           ICON                    "res\\Inst_2A03.ico"
-   qtIconResources.insert(IDI_INST_2A03,new QIcon(":/resources/Inst_2A03.ico"));
+   qtIconNames.insert(IDI_INST_2A03,":/resources/Inst_2A03.ico");
 //   IDI_INST_VRC6           ICON                    "res\\Inst_VRC6.ico"
-   qtIconResources.insert(IDI_INST_VRC6,new QIcon(":/resources/Inst_VRC6.ico"));
+   qtIconNames.insert(IDI_INST_VRC6,":/resources/Inst_VRC6.ico");
 //   IDI_INST_VRC7           ICON                    "res\\Inst_VRC7.ico"
-   qtIconResources.insert(IDI_INST_VRC7,new QIcon(":/resources/Inst_VRC7.ico"));
+   qtIconNames.insert(IDI_INST_VRC7,":/resources/Inst_VRC7.ico");
 //   IDR_FamiTrackerTYPE     ICON                    "res\\Document.ico"
-   qtIconResources.insert(IDR_FamiTrackerTYPE,new QIcon(":/resources/Document.ico"));
+   qtIconNames.insert(IDR_FamiTrackerTYPE,":/resources/Document.ico");
 //   IDI_INST_N163           ICON                    "res\\Inst_N163.ico"
-   qtIconResources.insert(IDI_INST_N163,new QIcon(":/resources/Inst_N163.ico"));
+   qtIconNames.insert(IDI_INST_N163,":/resources/Inst_N163.ico");
 //   IDI_INST_FDS            ICON                    "res\\Inst_FDS.ico"
-   qtIconResources.insert(IDI_INST_FDS,new QIcon(":/resources/Inst_FDS.ico"));
+   qtIconNames.insert(IDI_INST_FDS,":/resources/Inst_FDS.ico");
 //   IDI_INST_S5B             ICON                    "res\\Inst_S5B.ico"
-   qtIconResources.insert(IDI_INST_S5B,new QIcon(":/resources/Inst_S5B.ico"));
+   qtIconNames.insert(IDI_INST_S5B,":/resources/Inst_S5B.ico");
 //   IDI_INST_2A07           ICON                    "res\\Inst_2A07.ico"
-   qtIconResources.insert(IDI_INST_2A07,new QIcon(":/resources/Inst_2A07.ico"));
+   qtIconNames.insert(IDI_INST_2A07,":/resources/Inst_2A07.ico");
 //   IDI_LEFT                ICON                    "res\\LeftArrow.ico"
-   qtIconResources.insert(IDI_LEFT,new QIcon(":/resources/LeftArrow.ico"));
+   qtIconNames.insert(IDI_LEFT,":/resources/LeftArrow.ico");
 //   IDI_RIGHT               ICON                    "res\\RightArrow.ico"
-   qtIconResources.insert(IDI_RIGHT,new QIcon(":/resources/RightArrow.ico"));
+   qtIconNames.insert(IDI_RIGHT,":/resources/RightArrow.ico");
 }
 
 #include "AboutDlg.h"
@@ -1210,151 +1211,156 @@ void qtMfcInitDialogResource_IDD_ABOUTBOX(CDialog* parent1)
    CAboutDlg* parent = dynamic_cast<CAboutDlg*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
 
-//IDD_ABOUTBOX DIALOGEX 0, 0, 285, 282
+//IDD_ABOUTBOX DIALOGEX 0, 0, 285, 336
 //STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
    parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags()|Qt::CustomizeWindowHint|Qt::WindowCloseButtonHint|Qt::WindowTitleHint);
 //CAPTION "About FamiTracker"
    parent->SetWindowText("About FamiTracker");
 //FONT 8, "MS Shell Dlg", 0, 0, 0x1
-      CRect rect(CPoint(0,0),CSize(285,282));
+      CRect rect(CPoint(0,0),CSize(285,336));
       parent->MapDialogRect(&rect);
       parent->setFixedSize(rect.Width(),rect.Height());
 //BEGIN
-//    LTEXT           "FamiTracker Version x.x.x",IDC_ABOUT1,54,7,167,11,SS_NOPREFIX
-      CStatic* mfc1 = new CStatic(parent);
-      CRect r1(CPoint(54,7),CSize(167,11));
-      parent->MapDialogRect(&r1);
-      mfc1->Create(_T("FamiTracker Version x.x.x.x"),SS_NOPREFIX | WS_VISIBLE,r1,parent,IDC_ABOUT1);
-      mfcToQtWidget->insert(IDC_ABOUT1,mfc1);
-//    LTEXT           "Copyright (C) 2005 - 2015 jsr",IDC_ABOUT3,54,38,167,11
+//      LTEXT           "Copyright (C) 2005 - 2015 jsr",IDC_ABOUT3,54,92,167,11
       CStatic* mfc2 = new CStatic(parent);
-      CRect r2(CPoint(54,38),CSize(167,11));
+      CRect r2(CPoint(54,92),CSize(167,11));
       parent->MapDialogRect(&r2);
-      mfc2->Create(_T("Copyright (C) 2005 - 2013 jsr"),SS_NOPREFIX | WS_VISIBLE,r2,parent,IDC_ABOUT3);
+      mfc2->Create(_T("Copyright (C) 2005 - 2015 jsr"),SS_NOPREFIX | WS_VISIBLE,r2,parent,IDC_ABOUT3);
       mfcToQtWidget->insert(IDC_ABOUT3,mfc2);
-//    DEFPUSHBUTTON   "OK",IDOK,228,14,50,16,WS_GROUP
+//      DEFPUSHBUTTON   "OK",IDOK,228,64,50,16,WS_GROUP
       CButton* mfc3 = new CButton(parent);
-      CRect r3(CPoint(228,14),CSize(50,16));
+      CRect r3(CPoint(228,64),CSize(50,16));
       parent->MapDialogRect(&r3);
       mfc3->Create(_T("OK"),BS_DEFPUSHBUTTON | WS_GROUP | WS_VISIBLE,r3,parent,IDOK);
-      mfcToQtWidget->insert(IDOK,mfc1);
-//    LTEXT           "• FDS sound emulator from nezplug (including a fix by rainwarrior)",IDC_STATIC,54,261,224,8
+      mfcToQtWidget->insert(IDOK,mfc3);
+//      LTEXT           "? FDS sound emulator from nezplug (including a fix by rainwarrior)",IDC_STATIC,54,313,224,8
       CStatic* mfc4 = new CStatic(parent);
-      CRect r4(CPoint(54,261),CSize(224,8));
+      CRect r4(CPoint(54,313),CSize(224,8));
       parent->MapDialogRect(&r4);
-      mfc4->Create(_T("• FDS sound emulator from nezplug (including a fix by rainwarrior)"),WS_VISIBLE,r4,parent,IDC_STATIC);
+      mfc4->Create(_T("? FDS sound emulator from nezplug (including a fix by rainwarrior)"),WS_VISIBLE,r4,parent,IDC_STATIC);
       // IDC_STATIC do not get added to MFC-to-Qt map.
-//    LTEXT           "E-mail:",IDC_STATIC,54,55,24,10
+//      LTEXT           "E-mail:",IDC_STATIC,54,108,24,10
       CStatic* mfc5 = new CStatic(parent);
-      CRect r5(CPoint(54,55),CSize(24,10));
+      CRect r5(CPoint(54,108),CSize(24,10));
       parent->MapDialogRect(&r5);
       mfc5->Create(_T("E-mail:"),WS_VISIBLE,r5,parent,IDC_STATIC);
       // IDC_STATIC do not get added to MFC-to-Qt map.
-//    LTEXT           "This software is licensed under the GNU General Public\n License. Source is available on the webpage.",IDC_STATIC,54,114,224,17
+//      LTEXT           "This software is licensed under the GNU General Public\n License. Source is available on the webpage.",IDC_STATIC,54,167,224,17
       CStatic* mfc6 = new CStatic(parent);
-      CRect r6(CPoint(54,114),CSize(224,17));
+      CRect r6(CPoint(54,167),CSize(224,17));
       parent->MapDialogRect(&r6);
       mfc6->Create(_T("This software is licensed under the GNU General Public\n License. Source is available on the webpage."),WS_VISIBLE,r6,parent,IDC_STATIC);
       // IDC_STATIC do not get added to MFC-to-Qt map.
-//    ICON            IDR_MAINFRAME,IDC_STATIC,7,15,21,20,SS_REALSIZEIMAGE
-      CStatic* mfc7 = new CStatic(parent);
-      CRect r7(CPoint(7,15),CSize(21,20));
+//      ICON            IDR_MAINFRAME,IDC_STATIC,7,63,20,20,SS_REALSIZEIMAGE
+      CBitmap* mfc7 = new CBitmap(qtIconName(IDR_MAINFRAME));
+      CRect r7(CPoint(7,63),CSize(20,20));
       parent->MapDialogRect(&r7);
-      mfc7->Create(_T("IDR_MAINFRAME"),SS_REALSIZEIMAGE | WS_VISIBLE,r7,parent,IDC_STATIC);
-      mfc7->SetBitmap((HBITMAP)qtMfcBitmapResource(IDR_MAINFRAME));
+      CStatic* mfc0 = new CStatic(parent);
+      CRect r0(CPoint(7,63),CSize(20,20));
+      parent->MapDialogRect(&r0);
+      mfc0->Create(_T(""),SS_REALSIZEIMAGE | WS_VISIBLE,r0,parent,IDC_STATIC);
+      mfc0->SetBitmap((HBITMAP)mfc7);
       // IDC_STATIC do not get added to MFC-to-Qt map.
-//    LTEXT           "Contributions:",IDC_STATIC,54,137,224,9
+//      LTEXT           "Contributions:",IDC_STATIC,54,191,224,9
       CStatic* mfc8 = new CStatic(parent);
-      CRect r8(CPoint(54,137),CSize(224,9));
+      CRect r8(CPoint(54,191),CSize(224,9));
       parent->MapDialogRect(&r8);
       mfc8->Create(_T("Contributions:"),WS_VISIBLE,r8,parent,IDC_STATIC);
       // IDC_STATIC do not get added to MFC-to-Qt map.
-//    LTEXT           "All comments and feedback are welcome\nGreets to everyone at the 2A03.org forum and everyone who has contributed with bug reports and suggestions!",IDC_STATIC,54,84,224,26
+//      LTEXT           "All comments and feedback are welcome\nGreets to everyone at the 2A03.org forum and everyone who has contributed with bug reports and suggestions!",IDC_STATIC,54,137,224,26
       CStatic* mfc9 = new CStatic(parent);
-      CRect r9(CPoint(54,84),CSize(224,26));
+      CRect r9(CPoint(54,137),CSize(224,26));
       parent->MapDialogRect(&r9);
       mfc9->Create(_T("All comments and feedback are welcome\nGreets to everyone at the 2A03.org forum and everyone who has contributed with bug reports and suggestions!"),WS_VISIBLE,r9,parent,IDC_STATIC);
       // IDC_STATIC do not get added to MFC-to-Qt map.
-//    LTEXT           "jsr@famitracker.com",IDC_MAIL,84,55,104,10,SS_NOTIFY
+//      LTEXT           "jsr@famitracker.com",IDC_MAIL,84,108,70,10,SS_NOTIFY
       CStatic* mfc10 = new CStatic(parent);
-      CRect r10(CPoint(84,55),CSize(104,10));
+      CRect r10(CPoint(84,108),CSize(70,10));
       parent->MapDialogRect(&r10);
       mfc10->Create(_T("jsr@famitracker.com"),SS_NOTIFY | WS_VISIBLE,r10,parent,IDC_MAIL);
       mfcToQtWidget->insert(IDC_MAIL,mfc10);
-//    LTEXT           "http://www.famitracker.com",IDC_WEBPAGE,84,68,103,9,SS_NOTIFY
+//      LTEXT           "http://www.famitracker.com",IDC_WEBPAGE,84,121,95,9,SS_NOTIFY
       CStatic* mfc11 = new CStatic(parent);
-      CRect r11(CPoint(84,68),CSize(103,9));
+      CRect r11(CPoint(84,121),CSize(95,9));
       parent->MapDialogRect(&r11);
       mfc11->Create(_T("http://www.famitracker.com"),SS_NOTIFY | WS_VISIBLE,r11,parent,IDC_WEBPAGE);
       mfcToQtWidget->insert(IDC_WEBPAGE,mfc11);
-//    LTEXT           "Web:",IDC_STATIC,54,68,24,9
+//      LTEXT           "Web:",IDC_STATIC,54,121,24,9
       CStatic* mfc12 = new CStatic(parent);
-      CRect r12(CPoint(54,68),CSize(24,9));
+      CRect r12(CPoint(54,121),CSize(24,9));
       parent->MapDialogRect(&r12);
       mfc12->Create(_T("Web:"),WS_VISIBLE,r12,parent,IDC_STATIC);
       // IDC_STATIC do not get added to MFC-to-Qt map.
-//    LTEXT           "Libraries:",IDC_STATIC,54,207,224,8
+//      LTEXT           "Libraries:",IDC_STATIC,54,260,224,8
       CStatic* mfc13 = new CStatic(parent);
-      CRect r13(CPoint(54,207),CSize(224,8));
+      CRect r13(CPoint(54,260),CSize(224,8));
       parent->MapDialogRect(&r13);
       mfc13->Create(_T("Libraries:"),WS_VISIBLE,r13,parent,IDC_STATIC);
       // IDC_STATIC do not get added to MFC-to-Qt map.
-//    LTEXT           "• Blip_buffer 0.4.0 is Copyright (C) blargg (http://www.slack.net/~ant/nes-emu/)\n",IDC_STATIC,54,220,224,16
+//      LTEXT           "? Blip_buffer 0.4.0 is Copyright (C) blargg (http://www.slack.net/~ant/nes-emu/)\n",IDC_STATIC,54,273,224,16
       CStatic* mfc14 = new CStatic(parent);
-      CRect r14(CPoint(54,220),CSize(224,16));
+      CRect r14(CPoint(54,273),CSize(224,16));
       parent->MapDialogRect(&r14);
-      mfc14->Create(_T("• Blip_buffer 0.4.0 is Copyright (C) blargg (http://www.slack.net/~ant/nes-emu/)\n"),WS_VISIBLE,r14,parent,IDC_STATIC);
+      mfc14->Create(_T("? Blip_buffer 0.4.0 is Copyright (C) blargg (http://www.slack.net/~ant/nes-emu/)\n"),WS_VISIBLE,r14,parent,IDC_STATIC);
       // IDC_STATIC do not get added to MFC-to-Qt map.
-//    LTEXT           "• Fast Fourier Transform code is (C) Reliable Software",IDC_STATIC,54,239,224,8
+//      LTEXT           "? Fast Fourier Transform code is (C) Reliable Software",IDC_STATIC,54,292,224,8
       CStatic* mfc15 = new CStatic(parent);
-      CRect r15(CPoint(54,239),CSize(224,8));
+      CRect r15(CPoint(54,292),CSize(224,8));
       parent->MapDialogRect(&r15);
       mfc15->Create(_T("• Fast Fourier Transform code is (C) Reliable Software"),WS_VISIBLE,r15,parent,IDC_STATIC);
       // IDC_STATIC do not get added to MFC-to-Qt map.
-//    LTEXT           "• YM2413 && YM2149 emulators are written by Mitsutaka Okazaki",IDC_STATIC,54,250,224,8
+//      LTEXT           "? YM2413 && YM2149 emulators are written by Mitsutaka Okazaki",IDC_STATIC,54,303,224,8
       CStatic* mfc16 = new CStatic(parent);
-      CRect r16(CPoint(54,250),CSize(224,8));
+      CRect r16(CPoint(54,303),CSize(224,8));
       parent->MapDialogRect(&r16);
       mfc16->Create(_T("• YM2413 && YM2149 emulators are written by Mitsutaka Okazaki"),WS_VISIBLE,r16,parent,IDC_STATIC);
       // IDC_STATIC do not get added to MFC-to-Qt map.
-//    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,54,217,217,1
-//    LTEXT           "• Export plugin support by Gradualore",IDC_STATIC,54,151,224,9
+//      CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,54,271,215,1
+//      LTEXT           "? Export plugin support by Gradualore",IDC_STATIC,54,204,224,9
       CStatic* mfc18 = new CStatic(parent);
-      CRect r18(CPoint(54,151),CSize(224,9));
+      CRect r18(CPoint(54,204),CSize(224,9));
       parent->MapDialogRect(&r18);
-      mfc18->Create(_T("• Export plugin support by Gradualore"),WS_VISIBLE,r18,parent,IDC_STATIC);
+      mfc18->Create(_T("? Export plugin support by Gradualore"),WS_VISIBLE,r18,parent,IDC_STATIC);
       // IDC_STATIC do not get added to MFC-to-Qt map.
-//    LTEXT           "• Icon is made by Kuhneghetz",IDC_STATIC,54,161,224,9
+//      LTEXT           "? Icon is made by Kuhneghetz",IDC_STATIC,54,214,224,9
       CStatic* mfc19 = new CStatic(parent);
-      CRect r19(CPoint(54,161),CSize(224,9));
+      CRect r19(CPoint(54,214),CSize(224,9));
       parent->MapDialogRect(&r19);
-      mfc19->Create(_T("• Icon is made by Kuhneghetz"),WS_VISIBLE,r19,parent,IDC_STATIC);
+      mfc19->Create(_T("? Icon is made by Kuhneghetz"),WS_VISIBLE,r19,parent,IDC_STATIC);
       // IDC_STATIC do not get added to MFC-to-Qt map.
-//    LTEXT           "• Toolbar icons are made by ilkke",IDC_STATIC,54,171,224,9
+//      LTEXT           "? Toolbar icons are made by ilkke",IDC_STATIC,54,223,224,9
       CStatic* mfc20 = new CStatic(parent);
-      CRect r20(CPoint(54,171),CSize(224,9));
+      CRect r20(CPoint(54,223),CSize(224,9));
       parent->MapDialogRect(&r20);
-      mfc20->Create(_T("• Toolbar icons are made by ilkke"),WS_VISIBLE,r20,parent,IDC_STATIC);
+      mfc20->Create(_T("? Toolbar icons are made by ilkke"),WS_VISIBLE,r20,parent,IDC_STATIC);
       // IDC_STATIC do not get added to MFC-to-Qt map.
-//    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,54,147,213,1
-//    LTEXT           "• DPCM import resampler by Jarhmander",IDC_STATIC,54,181,224,9
+//      CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,54,201,211,1
+//      LTEXT           "? DPCM import resampler by Jarhmander",IDC_STATIC,54,233,224,9
       CStatic* mfc22 = new CStatic(parent);
-      CRect r22(CPoint(54,181),CSize(224,9));
+      CRect r22(CPoint(54,233),CSize(224,9));
       parent->MapDialogRect(&r22);
-      mfc22->Create(_T("• DPCM import resampler by Jarhmander"),WS_VISIBLE,r22,parent,IDC_STATIC);
+      mfc22->Create(_T("? DPCM import resampler by Jarhmander"),WS_VISIBLE,r22,parent,IDC_STATIC);
       // IDC_STATIC do not get added to MFC-to-Qt map.
-//    LTEXT           "A Famicom/NES music tracker",IDC_ABOUT2,54,23,167,11,SS_NOPREFIX
+//      LTEXT           "A Famicom/NES music tracker",IDC_ABOUT2,54,76,167,11,SS_NOPREFIX
       CStatic* mfc23 = new CStatic(parent);
-      CRect r23(CPoint(54,23),CSize(167,11));
+      CRect r23(CPoint(54,76),CSize(167,11));
       parent->MapDialogRect(&r23);
       mfc23->Create(_T("A Famicom/NES music tracker"),SS_NOPREFIX | WS_VISIBLE,r23,parent,IDC_STATIC);
       // IDC_STATIC do not get added to MFC-to-Qt map.
-//    LTEXT           "• Text import/export by rainwarrior",IDC_STATIC,54,191,224,9
+//      LTEXT           "? Module text import/export by rainwarrior",IDC_STATIC,54,244,224,9
       CStatic* mfc24 = new CStatic(parent);
-      CRect r24(CPoint(54,191),CSize(224,9));
+      CRect r24(CPoint(54,244),CSize(224,9));
       parent->MapDialogRect(&r24);
-      mfc24->Create(_T("• Text import/export by rainwarrior"),WS_VISIBLE,r24,parent,IDC_STATIC);
+      mfc24->Create(_T("? Module text import/export by rainwarrior"),WS_VISIBLE,r24,parent,IDC_STATIC);
       // IDC_STATIC do not get added to MFC-to-Qt map.
+//      CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,0,49,287,1
+//      CONTROL         "",IDC_HEAD,"Static",SS_OWNERDRAW,0,0,287,49
+      CStatic* mfc25 = new CStatic(parent);
+      CRect r25(CPoint(0,0),CSize(287,49));
+      parent->MapDialogRect(&r25);
+      mfc25->Create(_T(""),SS_OWNERDRAW | WS_VISIBLE,r25,parent,IDC_HEAD);
+      mfcToQtWidget->insert(IDC_HEAD,mfc25);
+//      LTEXT           "A Famicom/NES music tracker",IDC_ABOUT1,54,58,167,11,SS_NOPREFIX
 //END
 }
 
@@ -2428,27 +2434,82 @@ void qtMfcInitDialogResource_IDD_PROPERTIES(CDialog* parent1)
 //   END
 }
 
-//#include "dialog-file"
-void qtMfcInitDialogResource_IDD_CONFIG_MIDI(CDialog* parent)
+#include "ConfigMIDI.h"
+void qtMfcInitDialogResource_IDD_CONFIG_MIDI(CDialog* parent1)
 {
-//  dialog-type* parent = dynamic_cast<dialog-type*>(parent1);
+   CConfigMIDI* parent = dynamic_cast<CConfigMIDI*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
 
 //   IDD_CONFIG_MIDI DIALOGEX 0, 0, 280, 167
+   CRect rect(CPoint(0,0),CSize(280,167));
+   parent->MapDialogRect(&rect);
+   parent->setFixedSize(rect.Width(),rect.Height());
 //   STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+   parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags()|Qt::CustomizeWindowHint|Qt::WindowCloseButtonHint|Qt::WindowTitleHint);
 //   CAPTION "MIDI"
+   parent->SetWindowText("MIDI");
 //   FONT 8, "MS Shell Dlg", 400, 0, 0x1
 //   BEGIN
-//       GROUPBOX        "Input Device",IDC_STATIC,7,7,266,35
-//       COMBOBOX        IDC_INDEVICES,13,20,253,50,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-//       GROUPBOX        "Output Device",IDC_STATIC,7,48,266,35
-//       COMBOBOX        IDC_OUTDEVICES,13,61,253,50,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-//       CONTROL         "Receive sync ticks",IDC_MASTER_SYNC,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,102,173,10
-//       CONTROL         "Skip key releases",IDC_KEY_RELEASE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,112,173,10
-//       CONTROL         "Map MIDI channels to NES channels",IDC_CHANMAP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,122,173,10
-//       CONTROL         "Record velocities",IDC_VELOCITY,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,132,173,10
-//       CONTROL         "Auto arpeggiate chords",IDC_ARPEGGIATE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,142,173,10
 //       GROUPBOX        "Options",IDC_STATIC,7,89,266,71
+   CButton* mfc10 = new CButton(parent);
+   CRect r10(CPoint(7,89),CSize(266,71));
+   parent->MapDialogRect(&r10);
+   mfc10->Create(_T("Options"),BS_GROUPBOX | WS_VISIBLE,r10,parent,IDC_STATIC);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
+//       GROUPBOX        "Input Device",IDC_STATIC,7,7,266,35
+   CButton* mfc1 = new CButton(parent);
+   CRect r1(CPoint(7,7),CSize(266,35));
+   parent->MapDialogRect(&r1);
+   mfc1->Create(_T("Input Device"),BS_GROUPBOX | WS_VISIBLE,r1,parent,IDC_STATIC);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
+//       COMBOBOX        IDC_INDEVICES,13,20,253,50,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+   CComboBox* mfc2 = new CComboBox(parent);
+   CRect r2(CPoint(13,20),CSize(253,50));
+   parent->MapDialogRect(&r2);
+   mfc2->Create(CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r2,parent,IDC_INDEVICES);
+   mfcToQtWidget->insert(IDC_INDEVICES,mfc2);
+//       GROUPBOX        "Output Device",IDC_STATIC,7,48,266,35
+   CButton* mfc3 = new CButton(parent);
+   CRect r3(CPoint(7,48),CSize(266,35));
+   parent->MapDialogRect(&r3);
+   mfc3->Create(_T("Output Device"),BS_GROUPBOX | WS_VISIBLE,r3,parent,IDC_STATIC);
+   // IDC_STATIC do not get added to MFC-to-Qt map.
+//       COMBOBOX        IDC_OUTDEVICES,13,61,253,50,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+   CComboBox* mfc4 = new CComboBox(parent);
+   CRect r4(CPoint(13,61),CSize(253,50));
+   parent->MapDialogRect(&r4);
+   mfc4->Create(CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP | WS_VISIBLE,r4,parent,IDC_OUTDEVICES);
+   mfcToQtWidget->insert(IDC_OUTDEVICES,mfc4);
+//       CONTROL         "Receive sync ticks",IDC_MASTER_SYNC,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,102,173,10
+   CButton* mfc5 = new CButton(parent);
+   CRect r5(CPoint(13,102),CSize(173,10));
+   parent->MapDialogRect(&r5);
+   mfc5->Create(_T("Receive sync ticks"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r5,parent,IDC_MASTER_SYNC);
+   mfcToQtWidget->insert(IDC_MASTER_SYNC,mfc5);
+//       CONTROL         "Skip key releases",IDC_KEY_RELEASE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,112,173,10
+   CButton* mfc6 = new CButton(parent);
+   CRect r6(CPoint(13,112),CSize(173,10));
+   parent->MapDialogRect(&r6);
+   mfc6->Create(_T("Skip key releases"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r6,parent,IDC_KEY_RELEASE);
+   mfcToQtWidget->insert(IDC_KEY_RELEASE,mfc6);
+//       CONTROL         "Map MIDI channels to NES channels",IDC_CHANMAP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,122,173,10
+   CButton* mfc7 = new CButton(parent);
+   CRect r7(CPoint(13,122),CSize(173,10));
+   parent->MapDialogRect(&r7);
+   mfc7->Create(_T("Map MIDI channels to NES channels"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r7,parent,IDC_CHANMAP);
+   mfcToQtWidget->insert(IDC_CHANMAP,mfc7);
+//       CONTROL         "Record velocities",IDC_VELOCITY,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,132,173,10
+   CButton* mfc8 = new CButton(parent);
+   CRect r8(CPoint(13,132),CSize(173,10));
+   parent->MapDialogRect(&r8);
+   mfc8->Create(_T("Record velocities"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r8,parent,IDC_VELOCITY);
+   mfcToQtWidget->insert(IDC_VELOCITY,mfc8);
+//       CONTROL         "Auto arpeggiate chords",IDC_ARPEGGIATE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,13,142,173,10
+   CButton* mfc9 = new CButton(parent);
+   CRect r9(CPoint(13,142),CSize(173,10));
+   parent->MapDialogRect(&r9);
+   mfc9->Create(_T("Auto arpeggiate chords"),BS_AUTOCHECKBOX | WS_TABSTOP | WS_VISIBLE,r9,parent,IDC_ARPEGGIATE);
+   mfcToQtWidget->insert(IDC_ARPEGGIATE,mfc9);
 //   END
 }
 

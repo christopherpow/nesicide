@@ -48,7 +48,7 @@
 #include "SoundGen.h"
 #include "Settings.h"
 #include "TrackerChannel.h"
-//#include "MIDI.h"
+#include "MIDI.h"
 
 #ifdef EXPORT_TEST
 #include "ExportTest/ExportTest.h"

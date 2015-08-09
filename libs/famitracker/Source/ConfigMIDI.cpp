@@ -21,7 +21,7 @@
 #include "stdafx.h"
 #include "FamiTracker.h"
 #include "ConfigMIDI.h"
-//#include "MIDI.h"
+#include "MIDI.h"
 #include "Settings.h"
 
 

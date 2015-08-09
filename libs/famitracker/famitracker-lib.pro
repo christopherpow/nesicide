@@ -44,15 +44,18 @@ INCLUDEPATH += \
    Source \
    $$TOP/common
 
+RTMIDI_LIBS = -L$$TOP/libs/rtmidi/$$DESTDIR -lrtmidi
+RTMIDI_CXXFLAGS = -I$$TOP/libs/rtmidi
+
 win32 {
 	DEPENDENCYPATH = $$TOP/deps/Windows
 }
 mac {
 	DEPENDENCYPATH = $$TOP/deps/osx
 }
-#unix:mac {
-#	DEPENDENCYPATH = $$TOP/deps/linux
-#}
+unix:!mac {
+   DEPENDENCYPATH = $$TOP/deps/linux
+}
 
 win32 {
    SDL_CXXFLAGS = -I$$DEPENDENCYPATH/SDL
@@ -62,6 +65,10 @@ win32 {
 mac {
    SDL_CXXFLAGS = -I$$DEPENDENCYPATH/SDL.framework/Headers
    SDL_LIBS = -F$$DEPENDENCYPATH -framework SDL
+
+   QMAKE_POST_LINK += install_name_tool -change librtmidi.1.dylib \
+       $$TOP/../../../../libs/rtmidi/$${DESTDIR}/librtmidi.1.0.0.dylib \
+       $${DESTDIR}/libfamitracker.dylib $$escape_expand(\n\t)
 }
 
 unix:!mac {
@@ -92,9 +99,9 @@ unix:!mac {
 # Boost is (thankfully) a generic dependency.
 BOOST_CXXFLAGS=-I$$DEPENDENCYPATH/../boost_1_58_0
 
-QMAKE_CXXFLAGS += $$SDL_CXXFLAGS $$BOOST_CXXFLAGS
-QMAKE_CFLAGS += $$SDL_CFLAGS
-LIBS += $$SDL_LIBS
+QMAKE_CXXFLAGS += $$SDL_CXXFLAGS $$BOOST_CXXFLAGS $$RTMIDI_CXXFLAGS
+QMAKE_CFLAGS += $$SDL_CFLAGS $$BOOST_CFLAGS $$RTMIDI_CFLAGS
+LIBS += $$SDL_LIBS $$RTMIDI_LIBS
 
 SOURCES += \
     cqtmfc_famitracker.cpp \
@@ -211,7 +218,9 @@ SOURCES += \
     Source/ChunkRenderText.cpp \
     Source/Clipboard.cpp \
     Source/InstrumentListCtrl.cpp \
-    Source/PatternEditorTypes.cpp
+    Source/PatternEditorTypes.cpp \
+    Source/MIDI.cpp \
+    Source/ConfigMIDI.cpp
 
 HEADERS += \
     cqtmfc_famitracker.h \
@@ -342,7 +351,8 @@ HEADERS += \
     Source/ChunkRenderBinary.h \
     Source/ChunkRenderText.h \
     Source/Clipboard.h \
-    Source/PatternEditorTypes.h
+    Source/PatternEditorTypes.h \
+    Source/MIDI.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN

@@ -26,7 +26,7 @@
 #include "MainFrm.h"
 #include "AboutDlg.h"
 #include "TrackerChannel.h"
-//#include "MIDI.h"
+#include "MIDI.h"
 #include "SoundGen.h"
 #include "Accelerator.h"
 #include "Settings.h"
@@ -74,7 +74,7 @@ END_MESSAGE_MAP()
 
 CFamiTrackerApp::CFamiTrackerApp() :
 //   m_bThemeActive(false),
-//	m_pMIDI(NULL),
+   m_pMIDI(NULL),
 	m_pAccel(NULL),
 	m_pSettings(NULL),
 	m_pSoundGenerator(NULL),
@@ -157,9 +157,8 @@ BOOL CFamiTrackerApp::InitInstance()
 	m_pAccel->LoadShortcuts(m_pSettings);
 	m_pAccel->Setup();
 
-   qDebug("NO MIDI SUPPORT YET...");
-//	// Create the MIDI interface
-//	m_pMIDI = new CMIDI();
+   // Create the MIDI interface
+   m_pMIDI = new CMIDI();
 
 	// Create sound generator
 	m_pSoundGenerator = new CSoundGen();
@@ -270,9 +269,8 @@ BOOL CFamiTrackerApp::InitInstance()
 		return FALSE;
 	}
 
-   qDebug("NO MIDI SUPPORT YET...");
-//	// Initialize midi unit
-//	m_pMIDI->Init();
+   // Initialize midi unit
+   m_pMIDI->Init();
 	
 	if (cmdInfo.m_bPlay)
 		theApp.StartPlayer(MODE_PLAY);
@@ -314,12 +312,11 @@ int CFamiTrackerApp::ExitInstance()
 
 	ShutDownSynth();
 
-   qDebug("NO MIDI SUPPORT YET...");
-//	if (m_pMIDI) {
-//		m_pMIDI->Shutdown();
-//		delete m_pMIDI;
-//		m_pMIDI = NULL;
-//	}
+   if (m_pMIDI) {
+      m_pMIDI->Shutdown();
+      delete m_pMIDI;
+      m_pMIDI = NULL;
+   }
 
 	if (m_pAccel) {
 		m_pAccel->SaveShortcuts(m_pSettings);
@@ -672,8 +669,7 @@ void CFamiTrackerApp::StopPlayer()
 	if (m_pSoundGenerator)
 		m_pSoundGenerator->StopPlayer();
 
-   qDebug("No MIDI support yet...");
-//	m_pMIDI->ResetOutput();
+   m_pMIDI->ResetOutput();
 }
 
 void CFamiTrackerApp::StopPlayerAndWait()
@@ -683,8 +679,7 @@ void CFamiTrackerApp::StopPlayerAndWait()
 		m_pSoundGenerator->StopPlayer();
 		m_pSoundGenerator->WaitForStop();
 	}
-   qDebug("No MIDI support yet...");
-//	m_pMIDI->ResetOutput();
+   m_pMIDI->ResetOutput();
 }
 
 void CFamiTrackerApp::TogglePlayer()

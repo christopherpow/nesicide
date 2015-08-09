@@ -190,7 +190,7 @@ CDSoundChannel *CDSound::OpenChannel(int SampleRate, int SampleSize, int Channel
 
    SDL_OpenAudio ( &sdlAudioSpecIn, &sdlAudioSpecOut );
 
-   qDebug("Adjusting audio: %d",memcmp(&sdlAudioSpecIn,&sdlAudioSpecOut,sizeof(sdlAudioSpecIn)));
+//   qDebug("Adjusting audio: %d",memcmp(&sdlAudioSpecIn,&sdlAudioSpecOut,sizeof(sdlAudioSpecIn)));
    SoundBufferSize = sdlAudioSpecOut.samples*sdlAudioSpecOut.channels*((sdlAudioSpecOut.format==AUDIO_U8?8:16)>>3);
    BlockSize = SoundBufferSize / Blocks;
    

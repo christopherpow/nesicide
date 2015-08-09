@@ -11,6 +11,7 @@
 #include <QUuid>
 #include <QDateTime>
 #include <QPaintEngine>
+#include <QProcess>
 
 #include "cqtmfc.h"
 #include "resource.h"
@@ -58,11 +59,27 @@ CBitmap* qtMfcBitmapResource(int id)
    return qtMfcBitmapResources.value(id);
 }
 
+QHash<int,QString> qtIconNames;
 QHash<int,QIcon*> qtIconResources;
 
 QIcon* qtIconResource(int id)
 {
-   return qtIconResources.value(id);
+   QIcon* ret = NULL;
+   if ( qtIconResources.contains(id) )
+   {
+      ret = qtIconResources.value(id);
+   }
+   else
+   {
+      ret = new QIcon(qtIconNames.value(id));
+      qtIconResources.insert(id,ret);
+   }
+   return ret;
+}
+
+QString qtIconName(int id)
+{
+   return qtIconNames.value(id);
 }
 
 CWinApp* AfxGetApp()
@@ -2937,8 +2954,7 @@ void CDC::flush()
    if ( gInPaintEvent && _qwidget && _doFlush )
    {
       QPainter p;
-      p.begin(_qwidget);
-      if ( p.isActive() )
+      if ( p.begin(_qwidget) )
       {
          if ( m_pWnd )
          {
@@ -2974,7 +2990,7 @@ void CDC::attach(QWidget* qtParent, CWnd* mfcParent, bool transparent)
    if ( transparent )
       _qpixmap.fill(QColor(0,0,0,0));
    else
-      _qpixmap.fill(_qwidget->palette().color(QPalette::Window)); // CP: paint over an existing widget
+      _qpixmap.fill(mfcParent->toQWidget()->palette().color(QPalette::Window)); // CP: paint over an existing widget
    _qpainter.begin(&_qpixmap);
    m_hDC = (HDC)this;
    m_pWnd = mfcParent;
@@ -5907,7 +5923,7 @@ union MessageMapFunctions
 //	void    (AFX_MSG_CALL CWnd::*pfn_vwwW)(UINT, UINT, CWnd*);
 //	void    (AFX_MSG_CALL CWnd::*pfn_vwwx)(UINT, UINT);
 //	void    (AFX_MSG_CALL CWnd::*pfn_vs)(LPTSTR);
-//	void    (AFX_MSG_CALL CWnd::*pfn_vOWNER)(int, LPTSTR);   // force return TRUE
+   void    (AFX_MSG_CALL CWnd::*pfn_vOWNER)(int, LPTSTR);   // force return TRUE
 //	int     (AFX_MSG_CALL CWnd::*pfn_iis)(int, LPTSTR);
 //	UINT    (AFX_MSG_CALL CWnd::*pfn_wp)(CPoint);
 //	UINT    (AFX_MSG_CALL CWnd::*pfn_wv)(void);
@@ -7400,6 +7416,9 @@ void CWnd::paintEvent(QPaintEvent *event)
       currentSize = _qt->size();
    }
    SendMessage(WM_PAINT);
+   DRAWITEMSTRUCT di;
+   di.hDC = (HDC)pDC;
+   SendMessage(WM_DRAWITEM,_id,(LPARAM)&di);
    gInPaintEvent = false;
 }
 
@@ -12809,6 +12828,7 @@ int CEdit::GetDlgItemText(
 IMPLEMENT_DYNAMIC(CButton,CWnd)
 
 BEGIN_MESSAGE_MAP(CButton,CWnd)
+   ON_WM_DRAWITEM()
 END_MESSAGE_MAP()
 
 CButton::CButton(CWnd* parent)
@@ -13010,6 +13030,20 @@ BOOL CButton::Create(
    SetParent(pParentWnd);
 
    return TRUE;
+}
+
+void CButton::DrawItem(
+   LPDRAWITEMSTRUCT lpDrawItemStruct
+)
+{
+}
+
+void CButton::OnDrawItem(
+   int nIDCtl,
+   LPDRAWITEMSTRUCT lpDrawItemStruct
+)
+{
+   DrawItem(lpDrawItemStruct);
 }
 
 HICON CButton::SetIcon(
@@ -14144,6 +14178,7 @@ void QLabel_MFC::paintEvent(QPaintEvent *event)
 IMPLEMENT_DYNAMIC(CStatic,CWnd)
 
 BEGIN_MESSAGE_MAP(CStatic,CWnd)
+   ON_WM_DRAWITEM()
 END_MESSAGE_MAP()
 
 CStatic::CStatic(CWnd *parent)
@@ -14246,6 +14281,20 @@ BOOL CStatic::Create(
    qtToMfcWindow.insert(_qtd,this);
 
    return TRUE;
+}
+
+void CStatic::DrawItem(
+   LPDRAWITEMSTRUCT lpDrawItemStruct
+)
+{
+}
+
+void CStatic::OnDrawItem(
+   int nIDCtl,
+   LPDRAWITEMSTRUCT lpDrawItemStruct
+)
+{
+   DrawItem(lpDrawItemStruct);
 }
 
 HBITMAP CStatic::SetBitmap(
@@ -15917,7 +15966,25 @@ HINSTANCE ShellExecute(
    INT nShowCmd
 )
 {
-   qDebug("ShellExecute");
+   QString operation;
+   QString file;
+   QString parameters;
+   QString directory;
+#if UNICODE
+   operation = QString::fromWCharArray(lpOperation);
+   file = QString::fromWCharArray(lpFile);
+   parameters = QString::fromWCharArray(lpParameters);
+   directory = QString::fromWCharArray(lpDirectory);
+#else
+   operation = QString::fromLatin1(lpOperation);
+   file = QString::fromLatin1(lpFile);
+   parameters = QString::fromLatin1(lpParameters);
+   directory = QString::fromLatin1(lpDirectory);
+#endif
+   QStringList args = parameters.split(" ");
+   args.prepend(file);
+   qDebug("ShellExecute: %s %s %s",operation.toLatin1().data(),args.join(" ").toLatin1().data(),directory.toLatin1().data());
+   QProcess::startDetached(operation,args,directory);
 }
 
 BOOL WINAPI MoveFileEx(

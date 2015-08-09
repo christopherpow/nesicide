@@ -22,6 +22,8 @@
 
 #include <mmsystem.h>
 
+#include "RtMidi.h"
+
 const int MIDI_MSG_NOTE_OFF			= 0x08;
 const int MIDI_MSG_NOTE_ON			= 0x09;
 const int MIDI_MSG_AFTER_TOUCH		= 0x0A;
@@ -78,8 +80,9 @@ private:
 
 	// Static functions & variables
 private:
-	static void CALLBACK MidiInProc(HMIDIIN hMidiIn, UINT wMsg, DWORD dwInstance, DWORD dwParam1, DWORD dwParam2);
-	static CMIDI *m_pInstance;
+//   static void CALLBACK MidiInProc(HMIDIIN hMidiIn, UINT wMsg, DWORD dwInstance, DWORD dwParam1, DWORD dwParam2);
+   static void CALLBACK RtMidiInProc( double timeStamp, std::vector<unsigned char> *message, void *userData);
+   static CMIDI *m_pInstance;
 
 	// Private variables
 private:
@@ -109,4 +112,7 @@ private:
 
 	// Thread sync
 	CCriticalSection m_csQueue;
+
+   RtMidiIn  *midiin;
+   RtMidiOut *midiout;
 };

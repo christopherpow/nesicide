@@ -50,6 +50,9 @@ TEMPLATE = app
 # set platform specific cxxflags and libs
 #########################################
 
+RTMIDI_LIBS = -L$$TOP/libs/rtmidi/$$DESTDIR -lrtmidi
+RTMIDI_CXXFLAGS = -I$$TOP/libs/rtmidi
+
 FAMITRACKER_LIBS = -L$$TOP/libs/famitracker/$$DESTDIR -lfamitracker
 FAMITRACKER_CXXFLAGS = -I$$TOP/libs/famitracker
 
@@ -66,13 +69,17 @@ mac {
 
    ICON = $$TOP/common/resources/controller.icns
 
-   QMAKE_POST_LINK += mkdir -p $${DESTDIR}/$${TARGET}.app/Contents/Frameworks $$escape_expand(\n\t)
-
    QMAKE_POST_LINK += install_name_tool -change libfamitracker.1.dylib \
        $$TOP/../../../../libs/famitracker/$$DESTDIR/libfamitracker.1.0.0.dylib \
        $${DESTDIR}/$${TARGET}.app/Contents/MacOS/famitracker $$escape_expand(\n\t)
 
+   QMAKE_POST_LINK += install_name_tool -change librtmidi.1.dylib \
+       $$TOP/../../../../libs/rtmidi/$${DESTDIR}/librtmidi.1.0.0.dylib \
+       $${DESTDIR}/$${TARGET}.app/Contents/MacOS/famitracker $$escape_expand(\n\t)
+
    # SDL
+   QMAKE_POST_LINK += mkdir -p $${DESTDIR}/$${TARGET}.app/Contents/Frameworks $$escape_expand(\n\t)
+
    QMAKE_POST_LINK += cp -r $$DEPENDENCYPATH/SDL.framework \
       $${DESTDIR}/$${TARGET}.app/Contents/Frameworks/ $$escape_expand(\n\t)
    QMAKE_POST_LINK += install_name_tool -add_rpath @loader_path/../Frameworks $${DESTDIR}/$${TARGET}.app/Contents/MacOS/famitracker $$escape_expand(\n\t)
@@ -108,10 +115,12 @@ unix:!mac {
 }
 
 QMAKE_CXXFLAGS += $$FAMITRACKER_CXXFLAGS \
-                  $$SDL_CXXFLAGS
+                  $$SDL_CXXFLAGS \
+                  $$RTMIDI_CXXFLAGS
 QMAKE_LFLAGS += $$FAMITRACKER_LFLAGS
 LIBS += $$FAMITRACKER_LIBS \
-        $$SDL_LIBS
+        $$SDL_LIBS \
+        $$RTMIDI_LIBS
 
 unix:mac {
 	QMAKE_CFLAGS += -I $$DEPENDENCYPATH/wine/include -DWINE_UNICODE_NATIVE
