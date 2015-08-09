@@ -4259,8 +4259,9 @@ BOOL CListCtrl::Create(
       QObject::connect(_qtd_list,SIGNAL(itemSelectionChanged()),this,SLOT(itemSelectionChanged()));
       QObject::connect(_qtd_list,SIGNAL(clicked(QModelIndex)),this,SLOT(clicked(QModelIndex)));
       QObject::connect(_qtd_list,SIGNAL(doubleClicked(QModelIndex)),this,SLOT(doubleClicked(QModelIndex)));
-      QObject::connect(_qtd_list,SIGNAL(pressed(QModelIndex)),this,SLOT(clicked(QModelIndex)));
-      QObject::connect(_qtd_list,SIGNAL(entered(QModelIndex)),this,SLOT(clicked(QModelIndex)));
+// CP: These cause problems for CInstrumentList...
+//      QObject::connect(_qtd_list,SIGNAL(pressed(QModelIndex)),this,SLOT(clicked(QModelIndex)));
+//      QObject::connect(_qtd_list,SIGNAL(entered(QModelIndex)),this,SLOT(clicked(QModelIndex)));
 
       _qtd_list->setFlow(QListView::TopToBottom);
       _qtd_list->setWrapping(true);
@@ -7406,7 +7407,7 @@ void CWnd::paintEvent(QPaintEvent *event)
    ctlColor.hWnd = m_hWnd;
    ctlColor.hDC = (HDC)pDC;
    ctlColor.nCtlType = 0;
-   SendMessage(WM_CTLCOLOR,0,(LPARAM)&ctlColor);
+   SendMessage(WM_CTLCOLOR+WM_REFLECT_BASE,0,(LPARAM)&ctlColor);
    if ( firstCall ||
         _qt->size() != currentSize )
    {
@@ -14162,7 +14163,7 @@ void QLabel_MFC::paintEvent(QPaintEvent *event)
       ctlColor.hDC = (HDC)pDC;
       ctlColor.nCtlType = 0;
       _mfc->SendMessage(WM_ERASEBKGND,(WPARAM)(HDC)pDC);
-      _mfc->SendMessage(WM_CTLCOLOR,0,(LPARAM)&ctlColor);
+      _mfc->SendMessage(WM_CTLCOLOR+WM_REFLECT_BASE,0,(LPARAM)&ctlColor);
       style.sprintf("QLabel { color: #%02x%02x%02x; }",GetRValue(pDC->GetTextColor()),GetGValue(pDC->GetTextColor()),GetBValue(pDC->GetTextColor()));
       setStyleSheet(style);
    }
