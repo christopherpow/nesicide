@@ -2990,7 +2990,7 @@ void CDC::attach(QWidget* qtParent, CWnd* mfcParent, bool transparent)
    if ( transparent )
       _qpixmap.fill(QColor(0,0,0,0));
    else
-      _qpixmap.fill(mfcParent->toQWidget()->palette().color(QPalette::Window)); // CP: paint over an existing widget
+      _qpixmap.fill(_qwidget()->palette().color(QPalette::Window)); // CP: paint over an existing widget
    _qpainter.begin(&_qpixmap);
    m_hDC = (HDC)this;
    m_pWnd = mfcParent;
@@ -6344,11 +6344,10 @@ BOOL CWnd::PreTranslateMessage(
    MSG* pMsg
 )
 {
-   BOOL processed = FALSE;
    switch ( pMsg->message )
    {
    case WM_NULL:
-      processed = TRUE;
+      return TRUE;
       break;
    }
    return ptrToTheApp->PreTranslateMessage(pMsg);
@@ -7780,23 +7779,21 @@ void CWnd::UpdateDialogControls(
       		if (bDisableTemp)
       		{
                if ( !dynamic_cast<CButton*>(pWnd) )               
-//      			if ((wndTemp.SendMessage(WM_GETDLGCODE) & DLGC_BUTTON) == 0)
-//      			{
-//      				// non-button controls don't get automagically disabled
+               {
+                  // non-button controls don't get automagically disabled
       				bDisableTemp = FALSE;
-//      			}
-//      			else
-//      			{
-//      				// only certain button controls get automagically disabled
-//      				UINT nStyle = (UINT)(wndTemp.GetStyle() & 0x0F);
-//      				if (nStyle == (UINT)BS_AUTOCHECKBOX ||
-//      					nStyle == (UINT)BS_AUTO3STATE ||
-//      					nStyle == (UINT)BS_GROUPBOX ||
-//      					nStyle == (UINT)BS_AUTORADIOBUTTON)
-//      				{
-//      					bDisableTemp = FALSE;
-//      				}
-//      			}
+               }
+               else
+               {
+                  // only certain button controls get automagically disabled
+                  if ( (pWnd->GetStyle()&0x0F) == (UINT)BS_AUTOCHECKBOX ||
+                     (pWnd->GetStyle()&0x0F) == (UINT)BS_AUTO3STATE ||
+                     (pWnd->GetStyle()&0x0F) == (UINT)BS_GROUPBOX ||
+                     (pWnd->GetStyle()&0x0F) == (UINT)BS_AUTORADIOBUTTON )
+                  {
+                     bDisableTemp = FALSE;
+                  }
+               }
       		}
 		// check for handlers in the target (owner)
 		state.DoUpdate(pTarget, bDisableTemp);
@@ -9166,8 +9163,8 @@ LRESULT CControlBar::OnIdleUpdateCmdUI(WPARAM wParam,LPARAM)
 		CFrameWnd* pTarget = (CFrameWnd*)GetOwner();
 		if (pTarget == NULL || !pTarget->IsFrameWnd())
 			pTarget = GetParentFrame();
-		if (pTarget != NULL)
-			OnUpdateCmdUI(pTarget, (BOOL)wParam);
+      if (pTarget != NULL)
+         OnUpdateCmdUI(pTarget, (BOOL)wParam);
 	}
 	return 0L;
 }
@@ -9951,12 +9948,12 @@ BOOL CDialog::OnCmdMsg(UINT nID, int nCode, void* pExtra,
 	if (CWnd::OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
 		return TRUE;
 
-//	if ((nCode != CN_COMMAND && nCode != CN_UPDATE_COMMAND_UI) ||
-//			!IS_COMMAND_ID(nID) || nID >= 0xf000)
-//	{
-//		// control notification or non-command button or system command
-//		return FALSE;       // not routed any further
-//	}
+//   if ((nCode != CN_COMMAND && nCode != CN_UPDATE_COMMAND_UI) ||
+//         !IS_COMMAND_ID(nID) || nID >= 0xf000)
+//   {
+//      // control notification or non-command button or system command
+//      return FALSE;       // not routed any further
+//   }
 
 	// if we have an owner window, give it second crack
 	CWnd* pOwner = GetParent();
