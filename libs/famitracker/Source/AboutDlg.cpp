@@ -98,16 +98,16 @@ CHead::CHead()
 
 void CHead::DrawItem(LPDRAWITEMSTRUCT lpDraw)
 {
-	CDC *pDC = CDC::FromHandle(lpDraw->hDC);
+//   CDC *pDC = CDC::FromHandle(lpDraw->hDC);
 
-	CBitmap bmp;
-	bmp.LoadBitmap(IDB_ABOUT);
+//   CBitmap bmp;
+//   bmp.LoadBitmap(IDB_ABOUT);
 
-	CDC dcImage;
-	dcImage.CreateCompatibleDC(pDC);
-	dcImage.SelectObject(bmp);
+//   CDC dcImage;
+//   dcImage.CreateCompatibleDC(pDC);
+//   dcImage.SelectObject(bmp);
 
-	pDC->BitBlt(0, 0, 434, 80, &dcImage, 0, 0, SRCCOPY);
+//   pDC->BitBlt(0, 0, 434, 80, &dcImage, 0, 0, SRCCOPY);
 }
 
 // CAboutDlg
@@ -160,8 +160,8 @@ BOOL CAboutDlg::OnInitDialog()
 	m_pMail->SubclassDlgItem(IDC_MAIL, this);
 	m_pWeb->SubclassDlgItem(IDC_WEBPAGE, this);
 
-	m_pHead = new CHead();
-	m_pHead->SubclassDlgItem(IDC_HEAD, this);
+   m_pHead = new CHead();
+   m_pHead->SubclassDlgItem(IDC_HEAD, this);
 
 	LOGFONT LogFont;
 	CFont *pFont;
@@ -174,29 +174,29 @@ BOOL CAboutDlg::OnInitDialog()
 	m_wndToolTip.AddTool(m_pMail, IDS_ABOUT_TOOLTIP_MAIL);
 	m_wndToolTip.AddTool(m_pWeb, IDS_ABOUT_TOOLTIP_WEB);
 
-//	pFont = m_pMail->GetFont();
-//	pFont->GetLogFont(&LogFont);
-//	LogFont.lfUnderline = 1;
-//	m_pLinkFont = new CFont();
-//	m_pLinkFont->CreateFontIndirect(&LogFont);
-//	m_pMail->SetFont(m_pLinkFont);
-//	m_pWeb->SetFont(m_pLinkFont);
+   pFont = m_pMail->GetFont();
+   pFont->GetLogFont(&LogFont);
+   LogFont.lfUnderline = 1;
+   m_pLinkFont = new CFont();
+   m_pLinkFont->CreateFontIndirect(&LogFont);
+   m_pMail->SetFont(m_pLinkFont);
+   m_pWeb->SetFont(m_pLinkFont);
 
 	
-//	CStatic *pStatic = static_cast<CStatic*>(GetDlgItem(IDC_ABOUT1));
-//	CFont *pOldFont = pStatic->GetFont();
-//	LOGFONT NewLogFont;
-//	pOldFont->GetLogFont(&NewLogFont);
-//	NewLogFont.lfWeight = FW_BOLD;
-//	m_pBoldFont = new CFont();
-//	m_pTitleFont = new CFont();
-//	m_pBoldFont->CreateFontIndirect(&NewLogFont);
-//	NewLogFont.lfHeight = 18;
-////	NewLogFont.lfUnderline = TRUE;
-//	m_pTitleFont->CreateFontIndirect(&NewLogFont);
-//	static_cast<CStatic*>(GetDlgItem(IDC_ABOUT1))->SetFont(m_pTitleFont);
-//	static_cast<CStatic*>(GetDlgItem(IDC_ABOUT2))->SetFont(m_pBoldFont);
-//	static_cast<CStatic*>(GetDlgItem(IDC_ABOUT3))->SetFont(m_pBoldFont);
+   CStatic *pStatic = static_cast<CStatic*>(GetDlgItem(IDC_ABOUT1));
+   CFont *pOldFont = pStatic->GetFont();
+   LOGFONT NewLogFont;
+   pOldFont->GetLogFont(&NewLogFont);
+   NewLogFont.lfWeight = FW_BOLD;
+   m_pBoldFont = new CFont();
+   m_pTitleFont = new CFont();
+   m_pBoldFont->CreateFontIndirect(&NewLogFont);
+   NewLogFont.lfHeight = 18;
+//	NewLogFont.lfUnderline = TRUE;
+   m_pTitleFont->CreateFontIndirect(&NewLogFont);
+   static_cast<CStatic*>(GetDlgItem(IDC_ABOUT1))->SetFont(m_pTitleFont);
+   static_cast<CStatic*>(GetDlgItem(IDC_ABOUT2))->SetFont(m_pBoldFont);
+   static_cast<CStatic*>(GetDlgItem(IDC_ABOUT3))->SetFont(m_pBoldFont);
 	
 	return TRUE;
 }

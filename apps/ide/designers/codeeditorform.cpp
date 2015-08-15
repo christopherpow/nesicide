@@ -1404,25 +1404,23 @@ void CodeEditorForm::applyEnvironmentSettingsToTab()
    if ( m_language == Language_C )
    {
       m_lexer = new QsciLexerCC65(m_scintilla);
-
-      m_scintilla->setLexer(m_lexer);
    }
    else if ( m_language == Language_Assembly )
    {
       m_lexer = new QsciLexerCA65(m_scintilla);
-
-      m_scintilla->setLexer(m_lexer);
    }
    else
    {
       m_lexer = new QsciLexerDefault(m_scintilla);
-
-      m_scintilla->setLexer(m_lexer);
    }
+   m_scintilla->setLexer(m_lexer);
 
    m_lexer->readSettings(settings,"CodeEditor");
    
    m_scintilla->setMarginsFont(m_lexer->font(QsciLexerCA65::CA65_Default));
+
+   qDebug("rgb: %d %d %d",EnvironmentSettingsDialog::caretColor().red(),EnvironmentSettingsDialog::caretColor().green(),EnvironmentSettingsDialog::caretColor().blue());
+   m_scintilla->setCaretForegroundColor(EnvironmentSettingsDialog::caretColor());
 
    restyleText();
    annotateText();

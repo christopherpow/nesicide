@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>639</width>
-    <height>520</height>
+    <width>792</width>
+    <height>535</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -91,11 +91,20 @@
    <item row="1" column="1">
     <widget class="QStackedWidget" name="stackedWidget">
      <property name="currentIndex">
-      <number>2</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="general">
       <layout class="QGridLayout" name="gridLayout_14">
-       <property name="margin">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
         <number>0</number>
        </property>
        <item row="0" column="0">
@@ -190,13 +199,22 @@
      </widget>
      <widget class="QWidget" name="codeeditor">
       <layout class="QGridLayout" name="gridLayout">
-       <property name="margin">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
         <number>0</number>
        </property>
        <item row="0" column="0">
         <widget class="QTabWidget" name="tabWidget_2">
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="general">
           <attribute name="title">
@@ -368,38 +386,10 @@
                 <string>Coloring</string>
                </property>
                <layout class="QGridLayout" name="gridLayout_16">
-                <item row="0" column="1">
-                 <widget class="QPushButton" name="backgroundColor">
+                <item row="1" column="0">
+                 <widget class="QLabel" name="label_2">
                   <property name="text">
-                   <string>Color</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="1">
-                 <widget class="QPushButton" name="highlightBarColor">
-                  <property name="text">
-                   <string>Background</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="1">
-                 <widget class="QPushButton" name="marginBackgroundColor">
-                  <property name="text">
-                   <string>Background</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="3">
-                 <widget class="QCheckBox" name="showLineNumberMargin">
-                  <property name="text">
-                   <string>Line Numbers</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="2">
-                 <widget class="QPushButton" name="marginForegroundColor">
-                  <property name="text">
-                   <string>Foreground</string>
+                   <string>Highlights:</string>
                   </property>
                  </widget>
                 </item>
@@ -410,6 +400,13 @@
                   </property>
                  </widget>
                 </item>
+                <item row="0" column="1">
+                 <widget class="QPushButton" name="backgroundColor">
+                  <property name="text">
+                   <string>Color</string>
+                  </property>
+                 </widget>
+                </item>
                 <item row="2" column="0">
                  <widget class="QLabel" name="label">
                   <property name="text">
@@ -417,10 +414,24 @@
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="0">
-                 <widget class="QLabel" name="label_2">
+                <item row="2" column="2">
+                 <widget class="QPushButton" name="marginForegroundColor">
                   <property name="text">
-                   <string>Highlights:</string>
+                   <string>Foreground</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="2">
+                 <widget class="QLabel" name="label_20">
+                  <property name="text">
+                   <string>Caret:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1">
+                 <widget class="QPushButton" name="marginBackgroundColor">
+                  <property name="text">
+                   <string>Background</string>
                   </property>
                  </widget>
                 </item>
@@ -428,6 +439,27 @@
                  <widget class="QLabel" name="label_3">
                   <property name="text">
                    <string>Paper:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QPushButton" name="highlightBarColor">
+                  <property name="text">
+                   <string>Background</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="4">
+                 <widget class="QCheckBox" name="showLineNumberMargin">
+                  <property name="text">
+                   <string>Line Numbers</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="3" colspan="2">
+                 <widget class="QPushButton" name="caretColor">
+                  <property name="text">
+                   <string>Color</string>
                   </property>
                  </widget>
                 </item>
@@ -645,7 +677,16 @@
      </widget>
      <widget class="QWidget" name="compiler">
       <layout class="QGridLayout" name="gridLayout_9">
-       <property name="margin">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
         <number>0</number>
        </property>
        <item row="0" column="0">
@@ -757,7 +798,16 @@
      </widget>
      <widget class="QWidget" name="nesemulator">
       <layout class="QGridLayout" name="gridLayout_3">
-       <property name="margin">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
         <number>0</number>
        </property>
        <item row="1" column="0">

@@ -27,3 +27,5 @@ compiler/pasm_asm.tab.h
 lua/*.a
 lua/*.o
 lua/*.dll
+.DS_Store
+.qmake.stash

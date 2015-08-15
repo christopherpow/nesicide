@@ -2742,6 +2742,17 @@ BOOL CBrush::CreateSolidBrush(
    return TRUE;
 }
 
+int CFont::GetLogFont(
+   LOGFONT * pLogFont
+)
+{
+   strncpy(pLogFont->lfFaceName,_qfont.family().toLatin1().data(),32);
+   pLogFont->lfHeight = _qfont.pointSize()/.75;
+   pLogFont->lfItalic = _qfont.italic();
+   pLogFont->lfWeight = (_qfont.bold()?FW_BOLD:FW_NORMAL);
+   return 1;
+}
+
 BOOL CFont::CreateFont(
    int nHeight,
    int nWidth,
@@ -2874,7 +2885,7 @@ BOOL CBitmap::LoadBitmap(
 CDC::CDC()
 {
    LOGFONT lf;
-   m_hDC = NULL;
+   m_hDC = (HDC)NULL;
    m_pWnd = NULL;
    _qwidget = NULL;
    _pen = NULL;
@@ -2908,7 +2919,7 @@ CDC::CDC()
 CDC::CDC(CWnd* parent)
 {
    LOGFONT lf;
-   m_hDC = (HDC)this;
+   m_hDC = (HDC)NULL;
    m_pWnd = parent;
    _qwidget = parent->toQWidget();
    _pen = NULL;
@@ -2990,7 +3001,7 @@ void CDC::attach(QWidget* qtParent, CWnd* mfcParent, bool transparent)
    if ( transparent )
       _qpixmap.fill(QColor(0,0,0,0));
    else
-      _qpixmap.fill(_qwidget()->palette().color(QPalette::Window)); // CP: paint over an existing widget
+      _qpixmap.fill(_qwidget->palette().color(QPalette::Window)); // CP: paint over an existing widget
    _qpainter.begin(&_qpixmap);
    m_hDC = (HDC)this;
    m_pWnd = mfcParent;
@@ -6260,8 +6271,10 @@ END_MESSAGE_MAP()
 _AFX_THREAD_STATE CWnd::_afxThreadState;
 
 CWnd::CWnd(CWnd *parent)
-   : m_pParentWnd(parent),
+   : firstPaintEvent(true),
+     m_pParentWnd(parent),
      m_pOwnerWnd(parent),
+     m_pFont(NULL),
      mfcVerticalScrollBar(NULL),
      mfcHorizontalScrollBar(NULL),
      m_hWnd((HWND)NULL),
@@ -7399,26 +7412,26 @@ void CWnd::timerEvent(QTimerEvent *event)
 void CWnd::paintEvent(QPaintEvent *event)
 {
    static QSize currentSize = _qt->size();
-   static bool firstCall = true;
    gInPaintEvent = true;
    CDC* pDC = _myDC;
    AFX_CTLCOLOR ctlColor;
    ctlColor.hWnd = m_hWnd;
    ctlColor.hDC = (HDC)pDC;
    ctlColor.nCtlType = 0;
-   SendMessage(WM_CTLCOLOR+WM_REFLECT_BASE,0,(LPARAM)&ctlColor);
-   if ( firstCall ||
-        _qt->size() != currentSize )
-   {
-      // MUST erase the background on the first call!
-      firstCall = false;
-      SendMessage(WM_ERASEBKGND,(WPARAM)(HDC)pDC);
-      currentSize = _qt->size();
-   }
-   SendMessage(WM_PAINT);
    DRAWITEMSTRUCT di;
    di.hDC = (HDC)pDC;
-   SendMessage(WM_DRAWITEM,_id,(LPARAM)&di);
+
+   if ( firstPaintEvent ||
+        _qt->size() != currentSize )
+   {
+      SendMessage(WM_CTLCOLOR+WM_REFLECT_BASE,0,(LPARAM)&ctlColor);
+      // MUST erase the background on the first call!
+      firstPaintEvent = false;
+      SendMessage(WM_ERASEBKGND,(WPARAM)(HDC)pDC);
+      currentSize = _qt->size();
+      SendMessage(WM_PAINT);
+      SendMessage(WM_DRAWITEM,_id,(LPARAM)&di);
+   }
    gInPaintEvent = false;
 }
 
@@ -7449,11 +7462,11 @@ void CWnd::resizeEvent(QResizeEvent *event)
 
    if ( _dwStyle&WS_VSCROLL )
    {
-      size.setWidth(size.width()-(GetSystemMetrics(SM_CXVSCROLL)+1));
+      size.setWidth(size.width()-1-(GetSystemMetrics(SM_CXVSCROLL)+1));
    }
    if ( _dwStyle&WS_HSCROLL )
    {
-      size.setHeight(size.height()-(GetSystemMetrics(SM_CYHSCROLL)+1));
+      size.setHeight(size.height()-1-(GetSystemMetrics(SM_CYHSCROLL)+1));
    }
 //   qDebug("size %dx%d",size.width(),size.height());
    SendMessage(WM_SIZE,SIZE_RESTORED,(size.height()<<16)|(size.width()));
@@ -7846,11 +7859,21 @@ void CWnd::RepositionBars(
    }
 }
 
+CFont* CWnd::GetFont( )
+{
+   if ( !m_pFont )
+   {
+      m_pFont = new CFont(_qt->font());
+   }
+   return m_pFont;
+}
+
 void CWnd::SetFont(
    CFont* pFont,
    BOOL bRedraw
 )
 {
+   m_pFont = pFont;
    _qt->setFont((QFont)*pFont);
 }
 
@@ -8713,6 +8736,12 @@ void CFrameWnd::OnSize(UINT nType, int cx, int cy)
 	CWnd::OnSize(nType, cx, cy);    // important for MDI Children
 	if (nType != SIZE_MINIMIZED)
 		RecalcLayout();
+}
+
+void CFrameWnd::OnDestroy( )
+{
+   // main window is being destroyed...make sure we can't refer to it
+   ptrToTheApp->m_pMainWnd = NULL;
 }
 
 void CFrameWnd::RecalcLayout(
@@ -10287,9 +10316,12 @@ int CWinThread::Run( )
    if ( pThread->thread() == QApplication::instance()->thread() )
    {
       OnIdle(0);
-      ptrToTheApp->m_pMainWnd->SendMessageToDescendants(WM_IDLEUPDATECMDUI,
-                                                        (WPARAM)TRUE, 0, TRUE, TRUE);
-      ptrToTheApp->m_pMainWnd->toQWidget()->update();
+      if ( ptrToTheApp && ptrToTheApp->m_pMainWnd )
+      {
+         ptrToTheApp->m_pMainWnd->SendMessageToDescendants(WM_IDLEUPDATECMDUI,
+                                                           (WPARAM)TRUE, 0, TRUE, TRUE);
+         ptrToTheApp->m_pMainWnd->toQWidget()->update();
+      }
    }
    return 0;
 }
@@ -10420,7 +10452,7 @@ void CDocument::SetPathName(
    
    if ( bAddToMRU )
    {
-      AfxGetApp()->AddToRecentFileList(lpszPathName);
+      ptrToTheApp->AddToRecentFileList(lpszPathName);
    }
 }
 
@@ -14164,7 +14196,7 @@ void QLabel_MFC::paintEvent(QPaintEvent *event)
       style.sprintf("QLabel { color: #%02x%02x%02x; }",GetRValue(pDC->GetTextColor()),GetGValue(pDC->GetTextColor()),GetBValue(pDC->GetTextColor()));
       setStyleSheet(style);
    }
-   QLabel::paintEvent(event);      
+   QLabel::paintEvent(event);
    if ( _mfc )
    {
       _mfc->ReleaseDC(pDC);

@@ -57,6 +57,7 @@ public:
    static QString highlightAsASM() { return m_highlightAsASM; }
    static int eolMode() { return m_eolMode; }
    static bool eolForceConsistent() { return m_eolForceConsistent; }
+   static QColor caretColor() { return m_caretColor; }
 
    // Modifiers (only provided for settings that are also found in menus not just in this dialog)
 
@@ -111,6 +112,7 @@ private:
    static QString m_highlightAsASM;
    static int m_eolMode;
    static bool m_eolForceConsistent;
+   static QColor m_caretColor;
 
 private slots:
    void on_buttonBox_accepted();
@@ -137,6 +139,7 @@ private slots:
    void on_GameDatabasePathButton_clicked();
    void on_useInternalDB_toggled(bool checked);
    void on_PluginPathButton_clicked();
+   void on_caretColor_clicked();
 };
 
 #endif // ENVIRONMENTSETTINGSDIALOG_H

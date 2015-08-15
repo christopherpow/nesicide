@@ -6,7 +6,7 @@
 
 QsciLexerDefault::QsciLexerDefault(QObject */*parent*/)
 {
-#ifdef Q_WS_MAC
+#if defined(Q_OS_MAC) || defined(Q_OS_MACX) || defined(Q_OS_MAC64)
    setDefaultFont(QFont("Monaco", 11));
 #endif
 #ifdef Q_WS_X11
@@ -83,7 +83,7 @@ QColor QsciLexerDefault::paper(int /*style*/) const
 
 QFont QsciLexerDefault::defaultFont() const
 {
-#ifdef Q_WS_MAC
+#if defined(Q_OS_MAC) || defined(Q_OS_MACX) || defined(Q_OS_MAC64)
    return QFont("Monaco", 11);
 #endif
 #ifdef Q_WS_X11

@@ -34,7 +34,17 @@ MOC_DIR = $$DESTDIR
 RCC_DIR = $$DESTDIR
 UI_DIR = $$DESTDIR
 
-QMAKE_CXXFLAGS_WARN_ON += -Wno-reorder -Wno-unused
+win32 {
+   DEPENDENCYPATH = $$TOP/deps/Windows
+}
+mac {
+   DEPENDENCYPATH = $$TOP/deps/osx
+}
+unix:!mac {
+   DEPENDENCYPATH = $$TOP/deps/linux
+}
+
+QMAKE_CXXFLAGS_WARN_ON += -Wno-reorder -Wno-unused -Wno-unused-parameter -Wno-macro-redefined -Wno-overloaded-virtual
 
 DEFINES -= UNICODE
 DEFINES += NOMINMAX NULL=0
@@ -44,18 +54,8 @@ INCLUDEPATH += \
    Source \
    $$TOP/common
 
-RTMIDI_LIBS = -L$$TOP/libs/rtmidi/$$DESTDIR -lrtmidi
 RTMIDI_CXXFLAGS = -I$$TOP/libs/rtmidi
-
-win32 {
-	DEPENDENCYPATH = $$TOP/deps/Windows
-}
-mac {
-	DEPENDENCYPATH = $$TOP/deps/osx
-}
-unix:!mac {
-   DEPENDENCYPATH = $$TOP/deps/linux
-}
+RTMIDI_LIBS = -L$$TOP/libs/rtmidi/$$DESTDIR -lrtmidi
 
 win32 {
    SDL_CXXFLAGS = -I$$DEPENDENCYPATH/SDL
@@ -65,6 +65,8 @@ win32 {
 mac {
    SDL_CXXFLAGS = -I$$DEPENDENCYPATH/SDL.framework/Headers
    SDL_LIBS = -F$$DEPENDENCYPATH -framework SDL
+
+   WINE_CXXFLAGS = -I $$DEPENDENCYPATH/wine/include -DWINE_UNICODE_NATIVE -I $$DEPENDENCYPATH -I $$DEPENDENCYPATH/stdafxhack
 
    QMAKE_POST_LINK += install_name_tool -change librtmidi.1.dylib \
        $$TOP/../../../../libs/rtmidi/$${DESTDIR}/librtmidi.1.0.0.dylib \
@@ -76,8 +78,7 @@ unix:!mac {
        SDL_CXXFLAGS = $$system(sdl-config --cflags)
     }
 
-    SDL_CXXFLAGS += -I/usr/include/wine/windows/ -DUSE_WS_PREFIX -DWINE_UNICODE_NATIVE
-    SDL_CFLAGS += -I/usr/include/wine/windows/
+    WINE_CXXFLAGS = -I/usr/include/wine/windows/ -DUSE_WS_PREFIX -DWINE_UNICODE_NATIVE
 
     isEmpty (SDL_LIBS) {
             SDL_LIBS = $$system(sdl-config --libs)
@@ -99,8 +100,8 @@ unix:!mac {
 # Boost is (thankfully) a generic dependency.
 BOOST_CXXFLAGS=-I$$DEPENDENCYPATH/../boost_1_58_0
 
-QMAKE_CXXFLAGS += $$SDL_CXXFLAGS $$BOOST_CXXFLAGS $$RTMIDI_CXXFLAGS
-QMAKE_CFLAGS += $$SDL_CFLAGS $$BOOST_CFLAGS $$RTMIDI_CFLAGS
+QMAKE_CXXFLAGS += $$SDL_CXXFLAGS $$BOOST_CXXFLAGS $$RTMIDI_CXXFLAGS $$WINE_CXXFLAGS
+QMAKE_CFLAGS += $$SDL_CXXFLAGS $$BOOST_CXXFLAGS $$RTMIDI_CXXFLAGS $$WINE_CXXFLAGS
 LIBS += $$SDL_LIBS $$RTMIDI_LIBS
 
 SOURCES += \
@@ -375,19 +376,6 @@ unix:!symbian {
         target.path = /usr/lib
     }
     INSTALLS += target
-}
-
-unix:mac {
-	# windows.h and co.
-   NIX_CFLAGS = -I $$DEPENDENCYPATH/wine/include -DWINE_UNICODE_NATIVE
-
-	# stdafx.h
-	NIX_CFLAGS += -I $$DEPENDENCYPATH
-	NIX_CFLAGS += -I $$DEPENDENCYPATH/stdafxhack
-    #HEADERS += $$DEPENDENCYPATH/stdafx.h
-
-	QMAKE_CFLAGS   += $$NIX_CFLAGS
-	QMAKE_CXXFLAGS += $$NIX_CFLAGS
 }
 
 OTHER_FILES += \

@@ -100,8 +100,8 @@ mac {
    C64_CXXFLAGS = -I$$TOP/libs/c64 -I$$TOP/libs/c64/emulator -I$$TOP/libs/c64/common
    FAMITRACKER_CXXFLAGS = -I$$TOP/libs/famitracker
 
-   SCINTILLA_CXXFLAGS = -I$$DEPENDENCYPATH/Qscintilla
-   SCINTILLA_LIBS = -L$$DEPENDENCYPATH/Qscintilla -lqscintilla2
+   SCINTILLA_CXXFLAGS = -I$$TOP/libs/qscintilla2/Qt4Qt5
+   SCINTILLA_LIBS = -L$$TOP/libs/qscintilla2/Qt4Qt5 -lqscintilla2
 
    SDL_CXXFLAGS = -I $$DEPENDENCYPATH/SDL.framework/Headers
    SDL_LIBS = -F $$DEPENDENCYPATH -framework SDL
@@ -135,7 +135,7 @@ mac {
       @executable_path/../Frameworks/libfamitracker.1.dylib \
       $${DESTDIR}/$${TARGET}.app/Contents/MacOS/nesicide $$escape_expand(\n\t)
 
-   QMAKE_POST_LINK += cp $$DEPENDENCYPATH/Qscintilla/libqscintilla2.12.0.0.dylib \
+   QMAKE_POST_LINK += cp $$TOP/libs/qscintilla2/Qt4Qt5/libqscintilla2.12.0.0.dylib \
       $${DESTDIR}/$${TARGET}.app/Contents/Frameworks/libqscintilla2.12.dylib $$escape_expand(\n\t)
    QMAKE_POST_LINK += install_name_tool -change libqscintilla2.12.dylib \
       @executable_path/../Frameworks/libqscintilla2.12.dylib \

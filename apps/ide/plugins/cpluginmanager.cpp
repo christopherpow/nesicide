@@ -1,6 +1,6 @@
 #include "cpluginmanager.h"
 
-#ifdef Q_WS_MAC
+#if defined(Q_OS_MAC) || defined(Q_OS_MACX) || defined(Q_OS_MAC64)
 #include <sys/stat.h>
 #endif
 
@@ -28,7 +28,7 @@ void CPluginManager::doInitScript()
 #endif
    int status;
    QString result;
-#ifdef Q_WS_MAC
+#if defined(Q_OS_MAC) || defined(Q_OS_MACX) || defined(Q_OS_MAC64)
    struct stat stFileInfo;
    QString filePath = initScriptPath;
 
@@ -68,7 +68,7 @@ void CPluginManager::loadPlugins()
    const char* pluginPath   = "plugins/";
 #endif
 
-#ifdef Q_WS_MAC
+#if defined(Q_OS_MAC) || defined(Q_OS_MACX) || defined(Q_OS_MAC64)
    struct stat stFileInfo;
    QString filePath = pluginPath;
 

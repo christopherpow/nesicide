@@ -3414,8 +3414,13 @@ private:
 class CFont : public CGdiObject
 {
 public:
+   LOGFONT lf; // For GetLogFont only...
    CFont() {}
+   CFont(QFont qfont) { _qfont = qfont; }
    virtual ~CFont() {}
+   int GetLogFont(
+      LOGFONT * pLogFont
+   );
    BOOL CreateFont(
       int nHeight,
       int nWidth,
@@ -3443,6 +3448,12 @@ public:
    {
       return (HFONT)this;
    }
+   CFont& operator=(const CFont& r)
+   {
+      this->_qfont = r._qfont;
+      return *this;
+   }
+
 private:
    QFont _qfont;
 };
@@ -4067,6 +4078,7 @@ public:
    void SetCapture(CWnd* p=0) { /* CP: DANGEROUS: grabMouse();*/ }
    void ReleaseCapture() { /* CP: DANGEROUS: releaseMouse();*/ }
    CFrameWnd* GetParentFrame( ) const { return m_pFrameWnd; }
+   CFont* GetFont( );
    void SetFont(
       CFont* pFont,
       BOOL bRedraw = TRUE
@@ -4164,6 +4176,7 @@ public:
 
    // MFC-to-Qt conversions
 protected:
+   bool firstPaintEvent;
    QHash<UINT_PTR,int> mfcToQtTimer;
    QHash<int,UINT_PTR> qtToMfcTimer;
    QHash<int,CWnd*> mfcToQtWidget;
@@ -4179,6 +4192,7 @@ protected:
    CDC* _myDC;
    UINT _id;
    DWORD _dwStyle;
+   CFont* m_pFont; // for GetFont
 
    // Qt interfaces
 public:
@@ -4287,6 +4301,7 @@ public:
    );
    void OnSize(UINT nType, int cx, int cy);
    void OnSetFocus(CWnd* pOldWnd);
+   void OnDestroy( );
    virtual void OnUpdateFrameTitle(BOOL /*bAddToTitle*/) {}
    virtual void SetMessageText(LPCTSTR fmt,...);
    void SetMessageText(
@@ -5667,7 +5682,7 @@ protected:
 public slots:
    void runSlot();
 public: // For some reason Qt won't recognize the public in the DECLARE_DYNCREATE...
-   bool wait(unsigned long time = ULONG_MAX) { pThread->wait(time); }
+   bool wait(unsigned long time = ULONG_MAX) { pThread->wait(time); return true; }
    
    DECLARE_DYNCREATE(CWinThread)
 public:

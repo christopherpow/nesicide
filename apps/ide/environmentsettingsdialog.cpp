@@ -40,6 +40,7 @@ QString EnvironmentSettingsDialog::m_highlightAsC;
 QString EnvironmentSettingsDialog::m_highlightAsASM;
 int EnvironmentSettingsDialog::m_eolMode;
 bool EnvironmentSettingsDialog::m_eolForceConsistent;
+QColor EnvironmentSettingsDialog::m_caretColor;
 
 static const char* sourceExtensionListC = ".c .c65";
 static const char* sourceExtensionListAsm = ".a .asm .a65 .s .s65";
@@ -254,16 +255,24 @@ void EnvironmentSettingsDialog::readSettings()
    m_highlightAsC = settings.value("HighlightAsC",QVariant(highlightAsCList)).toString();
    m_highlightAsASM = settings.value("HighlightAsASM",QVariant(highlightAsASMList)).toString();
 
-#ifdef Q_WS_WIN
-   m_eolMode = settings.value("EOLMode",QVariant(QsciScintilla::EolWindows)).toInt();
-#endif
-#ifdef Q_WS_MAC
+#if defined(Q_OS_MAC) || defined(Q_OS_MACX) || defined(Q_OS_MAC64)
    m_eolMode = settings.value("EOLMode",QVariant(QsciScintilla::EolMac)).toInt();
 #endif
 #ifdef Q_WS_X11
    m_eolMode = settings.value("EOLMode",QVariant(QsciScintilla::EolUnix)).toInt();
 #endif
+#ifdef Q_WS_WIN
+   m_eolMode = settings.value("EOLMode",QVariant(QsciScintilla::EolWindows)).toInt();
+#endif
    m_eolForceConsistent = settings.value("EOLForceConsistent",QVariant(true)).toBool();
+   if ( settings.contains("CaretColor") )
+   {
+      m_caretColor = settings.value("CaretColor").value<QColor>();
+   }
+   else
+   {
+      m_caretColor = QColor(0,0,0);
+   }
 
 //   m_lastActiveTab = settings.value("LastActiveTab",QVariant(0)).toInt();
    settings.endGroup();
@@ -356,6 +365,7 @@ void EnvironmentSettingsDialog::writeSettings()
    settings.setValue("HighlightAsASM",m_highlightAsASM);
    settings.setValue("EOLMode",m_eolMode);
    settings.setValue("EOLForceConsistent",m_eolForceConsistent);
+   settings.setValue("CaretColor",m_caretColor);
 
 //   settings.setValue("LastActiveTab",m_lastActiveTab);
    settings.endGroup();
@@ -383,20 +393,15 @@ void EnvironmentSettingsDialog::setupCodeEditor(int index)
    {
    case 0:
       m_lexer = m_defaultLexer;
-
-      m_scintilla->setLexer(m_lexer);
       break;
    case 1:
       m_lexer = m_ca65Lexer;
-
-      m_scintilla->setLexer(m_lexer);
       break;
    case 2:
       m_lexer = m_cc65Lexer;
-
-      m_scintilla->setLexer(m_lexer);
       break;
    }
+   m_scintilla->setLexer(m_lexer);
 
    for ( style = 0; style < (1<<m_lexer->styleBitsNeeded()); style++ )
    {
@@ -467,6 +472,8 @@ void EnvironmentSettingsDialog::setupCodeEditor(int index)
 
    m_scintilla->markerAdd(1,Marker_Execution);
    m_scintilla->markerAdd(1,Marker_Highlight);
+
+   m_scintilla->setCaretForegroundColor(m_caretColor);
 }
 
 
@@ -748,6 +755,21 @@ void EnvironmentSettingsDialog::on_backgroundColor_clicked()
       QColor chosenColor = dlg.selectedColor();
       m_lexer->setDefaultPaper(chosenColor);
       m_lexer->setPaper(chosenColor,-1);
+   }
+}
+
+void EnvironmentSettingsDialog::on_caretColor_clicked()
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+   QColorDialog dlg;
+
+   dlg.setCurrentColor(m_lexer->defaultPaper());
+
+   if (dlg.exec() == QColorDialog::Accepted)
+   {
+      QColor chosenColor = dlg.selectedColor();
+      m_scintilla->setCaretForegroundColor(chosenColor);
+      m_caretColor = chosenColor;
    }
 }
 

@@ -189,7 +189,7 @@ QsciLexerCA65::QsciLexerCA65(QObject */*parent*/)
    QString regex;
    int rc;
 
-#ifdef Q_WS_MAC
+#if defined(Q_OS_MAC) || defined(Q_OS_MACX) || defined(Q_OS_MAC64)
    setDefaultFont(QFont("Monaco", 11));
 #endif
 #ifdef Q_WS_X11
@@ -323,7 +323,7 @@ void QsciLexerCA65::styleText(int start, int end)
 
    // Break the text into line chunks.
    text = chars.constData();
-   lines = text.split(QRegExp("(\r\n|\n)"));
+   lines = text.split(QRegExp("(\r|\n)"));
 
    // Style the lines.
    foreach ( const QString& line, lines )
@@ -475,7 +475,7 @@ QColor QsciLexerCA65::paper(int /*style*/) const
 
 QFont QsciLexerCA65::defaultFont() const
 {
-#ifdef Q_WS_MAC
+#if defined(Q_OS_MAC) || defined(Q_OS_MACX) || defined(Q_OS_MAC64)
    return QFont("Monaco", 11);
 #endif
 #ifdef Q_WS_X11
