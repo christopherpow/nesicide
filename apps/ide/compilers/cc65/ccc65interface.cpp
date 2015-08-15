@@ -244,14 +244,14 @@ bool CCC65Interface::createMakefile()
 void CCC65Interface::clean()
 {
    QProcess                     make;
-   QProcessEnvironment          env = QProcessEnvironment::systemEnvironment();
+   QStringList                  env = QProcess::systemEnvironment();
    QString                      invocationStr;
    QString                      stdioStr;
    QStringList                  stdioList;
    int                          exitCode;
 
    // Copy the system environment to the child process.
-   make.setProcessEnvironment(env);
+   make.setEnvironment(env);
    make.setWorkingDirectory(QDir::currentPath());
 
    // Clear the error storage.
@@ -287,7 +287,7 @@ void CCC65Interface::clean()
 bool CCC65Interface::assemble()
 {
    QProcess                     make;
-   QProcessEnvironment          env = QProcessEnvironment::systemEnvironment();
+   QStringList                  env = QProcess::systemEnvironment();
    QString                      invocationStr;
    QString                      stdioStr;
    QStringList                  stdioList;
@@ -307,7 +307,7 @@ bool CCC65Interface::assemble()
    buildTextLogger->write("<b>Building: "+outputName+"</b>");
 
    // Copy the system environment to the child process.
-   make.setProcessEnvironment(env);
+   make.setEnvironment(env);
    make.setWorkingDirectory(QDir::currentPath());
 
    // Clear the error storage.

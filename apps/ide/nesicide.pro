@@ -70,8 +70,8 @@ win32 {
    SDL_CXXFLAGS = -I$$DEPENDENCYPATH/SDL
    SDL_LIBS =  -L$$DEPENDENCYPATH/SDL/ -lsdl
 
-   SCINTILLA_CXXFLAGS = -I$$TOP/libs/qscintilla2/Qt4Qt5
-   SCINTILLA_LIBS = -L$$TOP/libs/qscintilla2/Qt4Qt5 -lqscintilla2
+   SCINTILLA_CXXFLAGS = -I$$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5
+   SCINTILLA_LIBS = -L$$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5 -lqscintilla2
 
    LUA_CXXFLAGS = -I$$DEPENDENCYPATH/Lua
    LUA_LIBS = $$DEPENDENCYPATH/Lua/liblua.a
@@ -102,8 +102,8 @@ mac {
    C64_CXXFLAGS = -I$$TOP/libs/c64 -I$$TOP/libs/c64/emulator -I$$TOP/libs/c64/common
    FAMITRACKER_CXXFLAGS = -I$$TOP/libs/famitracker
 
-   SCINTILLA_CXXFLAGS = -I$$TOP/libs/qscintilla2/Qt4Qt5
-   SCINTILLA_LIBS = -L$$TOP/libs/qscintilla2/Qt4Qt5 -lqscintilla2
+   SCINTILLA_CXXFLAGS = -I$$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5
+   SCINTILLA_LIBS = -L$$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5 -lqscintilla2
 
    SDL_CXXFLAGS = -I $$DEPENDENCYPATH/SDL.framework/Headers
    SDL_LIBS = -F $$DEPENDENCYPATH -framework SDL
@@ -137,7 +137,7 @@ mac {
       @executable_path/../Frameworks/libfamitracker.1.dylib \
       $${DESTDIR}/$${TARGET}.app/Contents/MacOS/nesicide $$escape_expand(\n\t)
 
-   QMAKE_POST_LINK += cp $$TOP/libs/qscintilla2/Qt4Qt5/libqscintilla2.12.0.0.dylib \
+   QMAKE_POST_LINK += cp $$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5/libqscintilla2.12.0.0.dylib \
       $${DESTDIR}/$${TARGET}.app/Contents/Frameworks/libqscintilla2.12.dylib $$escape_expand(\n\t)
    QMAKE_POST_LINK += install_name_tool -change libqscintilla2.12.dylib \
       @executable_path/../Frameworks/libqscintilla2.12.dylib \
@@ -230,7 +230,11 @@ QMAKE_LFLAGS += $$FAMITRACKER_LFLAGS \
 
 QMAKE_EXTRA_TARGETS += cc65
 PRE_TARGETDEPS += cc65
-cc65.commands = make -C $$DEPENDENCYROOTPATH/cc65
+cc65.commands = "( cd $$DEPENDENCYROOTPATH/cc65; make )"
+
+QMAKE_EXTRA_TARGETS += qscintilla2
+PRE_TARGETDEPS += qscintilla2
+qscintilla2.commands = "( cd $$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5; qmake; make )"
 
 LIBS += $$NES_LIBS \
         $$C64_LIBS \
