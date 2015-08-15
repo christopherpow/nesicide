@@ -377,7 +377,6 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
 
 MainWindow::~MainWindow()
 {
-   qDebug("~MainWindow ENTERED");
    BreakpointWatcherThread* breakpointWatcher = dynamic_cast<BreakpointWatcherThread*>(CObjectRegistry::getObject("Breakpoint Watcher"));
    CompilerThread* compiler = dynamic_cast<CompilerThread*>(CObjectRegistry::getObject("Compiler"));
    SearcherThread* searcher = dynamic_cast<SearcherThread*>(CObjectRegistry::getObject("Searcher"));
@@ -408,7 +407,6 @@ MainWindow::~MainWindow()
    
    m_pNESEmulatorThread->kill();
    m_pNESEmulatorThread->wait();
-   qDebug("~MainWindow EXITED");
 }
 
 void MainWindow::applicationActivationChanged(bool activated)

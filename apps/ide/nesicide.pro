@@ -38,10 +38,12 @@ TOP = ../..
 TARGET = "nesicide"
 
 win32 {
-	DEPENDENCYPATH = $$TOP/deps/Windows
+   DEPENDENCYROOTPATH = $$TOP/deps
+   DEPENDENCYPATH = $$DEPENDENCYROOTPATH/Windows
 }
 mac {
-	DEPENDENCYPATH = $$TOP/deps/osx
+   DEPENDENCYROOTPATH = $$TOP/deps
+   DEPENDENCYPATH = $$DEPENDENCYROOTPATH/osx
 }
 #unix:mac {
 #	DEPENDENCYPATH = $$TOP/deps/linux
@@ -68,8 +70,8 @@ win32 {
    SDL_CXXFLAGS = -I$$DEPENDENCYPATH/SDL
    SDL_LIBS =  -L$$DEPENDENCYPATH/SDL/ -lsdl
 
-   SCINTILLA_CXXFLAGS = -I$$DEPENDENCYPATH/Qscintilla
-   SCINTILLA_LIBS = -L$$DEPENDENCYPATH/Qscintilla -lqscintilla2
+   SCINTILLA_CXXFLAGS = -I$$TOP/libs/qscintilla2/Qt4Qt5
+   SCINTILLA_LIBS = -L$$TOP/libs/qscintilla2/Qt4Qt5 -lqscintilla2
 
    LUA_CXXFLAGS = -I$$DEPENDENCYPATH/Lua
    LUA_LIBS = $$DEPENDENCYPATH/Lua/liblua.a
@@ -225,6 +227,11 @@ QMAKE_CXXFLAGS += -DIDE \
                   $$SCINTILLA_CXXFLAGS
 QMAKE_LFLAGS += $$FAMITRACKER_LFLAGS \
                 $$NES_LFLAGS
+
+QMAKE_EXTRA_TARGETS += cc65
+PRE_TARGETDEPS += cc65
+cc65.commands = make -C $$DEPENDENCYROOTPATH/cc65
+
 LIBS += $$NES_LIBS \
         $$C64_LIBS \
         $$FAMITRACKER_LIBS \
