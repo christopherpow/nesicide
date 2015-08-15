@@ -85,7 +85,7 @@ void MainWindow::showEvent(QShowEvent *)
       // Initialize the app...
       qtMfcInit(this);
       bool start = AfxGetApp()->InitInstance();
-      // Failed to initial
+      // Failed to initialize
       if ( !start )
       {
          exit(0);

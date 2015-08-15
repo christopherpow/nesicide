@@ -30,8 +30,10 @@ MusicEditorForm::MusicEditorForm(QString fileName,QByteArray musicData,IProjectT
    qtMfcInit(this);
    AfxGetApp()->InitInstance();   
    
-   setCentralWidget(AfxGetMainWnd()->toQWidget());
-   
+   CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
+   setCentralWidget(pMainFrame->toQWidget());
+   pMainFrame->toQWidget()->setAcceptDrops(true);
+
    QObject::connect(AfxGetApp()->m_pMainWnd,SIGNAL(addToolBarWidget(QToolBar*)),this,SIGNAL(addToolBarWidget(QToolBar*)));
    QObject::connect(AfxGetApp()->m_pMainWnd,SIGNAL(removeToolBarWidget(QToolBar*)),this,SIGNAL(removeToolBarWidget(QToolBar*)));
    QObject::connect(AfxGetApp()->m_pMainWnd,SIGNAL(editor_modificationChanged(bool)),this,SLOT(editor_modificationChanged(bool)));
@@ -64,7 +66,7 @@ void MusicEditorForm::onSave()
 
 void MusicEditorForm::onClose()
 {   
-   openFile("");
+   openFile(NULL);
 }
 
 QMessageBox::StandardButton MusicEditorForm::onCloseQuery()
