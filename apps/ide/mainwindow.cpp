@@ -43,7 +43,6 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
       QSettings::setPath(QSettings::IniFormat, QSettings::SystemScope, QCoreApplication::applicationDirPath());
    }
    
-#if defined(Q_WS_WIN) || defined(Q_WS_WIN32)
    if ( QCoreApplication::applicationDirPath().contains("apps/ide") )
    {
       // Developer build?  Set environment assuming deps/ is at top level.
@@ -101,7 +100,6 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
       envdat += "/cc65-master/include";
       qputenv("CC65_INC",envdat.toLatin1());
    }
-#endif
    
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
 
