@@ -1419,7 +1419,6 @@ void CodeEditorForm::applyEnvironmentSettingsToTab()
    
    m_scintilla->setMarginsFont(m_lexer->font(QsciLexerCA65::CA65_Default));
 
-   qDebug("rgb: %d %d %d",EnvironmentSettingsDialog::caretColor().red(),EnvironmentSettingsDialog::caretColor().green(),EnvironmentSettingsDialog::caretColor().blue());
    m_scintilla->setCaretForegroundColor(EnvironmentSettingsDialog::caretColor());
 
    restyleText();
