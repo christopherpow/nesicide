@@ -35,13 +35,16 @@ RCC_DIR = $$DESTDIR
 UI_DIR = $$DESTDIR
 
 win32 {
-   DEPENDENCYPATH = $$TOP/deps/Windows
+   DEPENDENCYROOTPATH = $$TOP/deps
+   DEPENDENCYPATH = $$DEPENDENCYROOTPATH/Windows
 }
 mac {
-   DEPENDENCYPATH = $$TOP/deps/osx
+   DEPENDENCYROOTPATH = $$TOP/deps
+   DEPENDENCYPATH = $$DEPENDENCYROOTPATH/osx
 }
 unix:!mac {
-   DEPENDENCYPATH = $$TOP/deps/linux
+   DEPENDENCYROOTPATH = $$TOP/deps
+   DEPENDENCYPATH = $$DEPENDENCYROOTPATH/linux
 }
 
 QMAKE_CXXFLAGS_WARN_ON += -Wno-reorder -Wno-unused -Wno-unused-parameter -Wno-macro-redefined -Wno-overloaded-virtual
@@ -54,8 +57,8 @@ INCLUDEPATH += \
    Source \
    $$TOP/common
 
-RTMIDI_CXXFLAGS = -I$$TOP/libs/rtmidi
-RTMIDI_LIBS = -L$$TOP/libs/rtmidi/$$DESTDIR -lrtmidi
+RTMIDI_CXXFLAGS = -I$$DEPENDENCYROOTPATH/rtmidi
+RTMIDI_LIBS = -L$$DEPENDENCYROOTPATH/rtmidi/$$DESTDIR -lrtmidi
 
 win32 {
    SDL_CXXFLAGS = -I$$DEPENDENCYPATH/SDL
@@ -69,8 +72,8 @@ mac {
    WINE_CXXFLAGS = -I $$DEPENDENCYPATH/wine/include -DWINE_UNICODE_NATIVE -I $$DEPENDENCYPATH -I $$DEPENDENCYPATH/stdafxhack
 
    QMAKE_POST_LINK += install_name_tool -change librtmidi.1.dylib \
-       $$TOP/../../../../libs/rtmidi/$${DESTDIR}/librtmidi.1.0.0.dylib \
-       $${DESTDIR}/libfamitracker.dylib $$escape_expand(\n\t)
+       @executable_path/../Frameworks/librtmidi.1.dylib \
+       $$DESTDIR/libfamitracker.dylib $$escape_expand(\n\t)
 }
 
 unix:!mac {
@@ -103,6 +106,10 @@ BOOST_CXXFLAGS=-I$$DEPENDENCYPATH/../boost_1_58_0
 QMAKE_CXXFLAGS += $$SDL_CXXFLAGS $$BOOST_CXXFLAGS $$RTMIDI_CXXFLAGS $$WINE_CXXFLAGS
 QMAKE_CFLAGS += $$SDL_CXXFLAGS $$BOOST_CXXFLAGS $$RTMIDI_CXXFLAGS $$WINE_CXXFLAGS
 LIBS += $$SDL_LIBS $$RTMIDI_LIBS
+
+QMAKE_EXTRA_TARGETS += rtmidi
+PRE_TARGETDEPS += rtmidi
+rtmidi.commands = "( cd $$DEPENDENCYROOTPATH/rtmidi; qmake; make )"
 
 SOURCES += \
     cqtmfc_famitracker.cpp \

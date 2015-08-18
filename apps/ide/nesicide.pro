@@ -45,112 +45,86 @@ mac {
    DEPENDENCYROOTPATH = $$TOP/deps
    DEPENDENCYPATH = $$DEPENDENCYROOTPATH/osx
 }
-#unix:mac {
-#	DEPENDENCYPATH = $$TOP/deps/linux
-#}
+unix:!mac {
+   DEPENDENCYROOTPATH = $$TOP/deps
+   DEPENDENCYPATH = $$DEPENDENCYROOTPATH/linux
+}
 
 # Remove crap we don't need!
 CONFIG -= exceptions
 
-isEmpty (SCINTILLA_LIBS) {
-   SCINTILLA_LIBS = -lqscintilla2
-}
+SCINTILLA_CXXFLAGS = -I$$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5
+SCINTILLA_LIBS = -L$$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5 -lqscintilla2
 
-# set platform specific cxxflags and libs
-#########################################
+NES_CXXFLAGS = -I$$TOP/libs/nes -I$$TOP/libs/nes/emulator -I$$TOP/libs/nes/common
+NES_LIBS = -L$$TOP/libs/nes/$$DESTDIR -lnes-emulator
 
-CONFIG(release, debug|release) {
-   LIB_BUILD_TYPE_DIR = release
-} else {
-   LIB_BUILD_TYPE_DIR = debug
-}
+C64_CXXFLAGS = -I$$TOP/libs/c64 -I$$TOP/libs/c64/emulator -I$$TOP/libs/c64/common
+C64_LIBS = -L$$TOP/libs/c64/$$DESTDIR -lc64-emulator
+
+FAMITRACKER_CXXFLAGS = -I$$TOP/libs/famitracker
+FAMITRACKER_LIBS = -L$$TOP/libs/famitracker/$$DESTDIR -lfamitracker
 
 win32 {
-
    SDL_CXXFLAGS = -I$$DEPENDENCYPATH/SDL
    SDL_LIBS =  -L$$DEPENDENCYPATH/SDL/ -lsdl
-
-   SCINTILLA_CXXFLAGS = -I$$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5
-   SCINTILLA_LIBS = -L$$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5 -lqscintilla2
 
    LUA_CXXFLAGS = -I$$DEPENDENCYPATH/Lua
    LUA_LIBS = $$DEPENDENCYPATH/Lua/liblua.a
 
-   NES_CXXFLAGS = -I$$TOP/libs/nes -I$$TOP/libs/nes/emulator -I$$TOP/libs/nes/common
-   C64_CXXFLAGS = -I$$TOP/libs/c64 -I$$TOP/libs/c64/emulator -I$$TOP/libs/c64/common
-   FAMITRACKER_CXXFLAGS = -I$$TOP/libs/famitracker
-
    QMAKE_LFLAGS += -static-libgcc
-
-   NES_LIBS = -L$$TOP/libs/nes/$${LIB_BUILD_TYPE_DIR} -lnes-emulator
-   C64_LIBS = -L$$TOP/libs/c64/$${LIB_BUILD_TYPE_DIR} -lc64-emulator
-   FAMITRACKER_LIBS = -L$$TOP/libs/famitracker/$${LIB_BUILD_TYPE_DIR} -lfamitracker
 }
 
 mac {
-   #use "qmake -config release -spec macx-g++" to specify release build
-   CONFIG(release, debug|release) {
-      DESTDIR = release
-      OBJECTS_DIR = release
-      QMAKE_CXXFLAGS_RELEASE -= -O2
-      QMAKE_CXXFLAGS_RELEASE += -Os
-   } else {
-      DESTDIR = debug
-      OBJECTS_DIR = debug
-   }
-   NES_CXXFLAGS = -I $$TOP/libs/nes -I $$TOP/libs/nes/emulator -I $$TOP/libs/nes/common
-   C64_CXXFLAGS = -I$$TOP/libs/c64 -I$$TOP/libs/c64/emulator -I$$TOP/libs/c64/common
-   FAMITRACKER_CXXFLAGS = -I$$TOP/libs/famitracker
-
-   SCINTILLA_CXXFLAGS = -I$$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5
-   SCINTILLA_LIBS = -L$$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5 -lqscintilla2
-
    SDL_CXXFLAGS = -I $$DEPENDENCYPATH/SDL.framework/Headers
    SDL_LIBS = -F $$DEPENDENCYPATH -framework SDL
 
    LUA_CXXFLAGS = -I $$DEPENDENCYPATH/Lua.framework/Headers
    LUA_LIBS = -F $$DEPENDENCYPATH -framework Lua
 
-   NES_LIBS = -L$$TOP/libs/nes/$${LIB_BUILD_TYPE_DIR} -lnes-emulator
-   C64_LIBS = -L$$TOP/libs/c64/$${LIB_BUILD_TYPE_DIR} -lc64-emulator
-   FAMITRACKER_LIBS = -L$$TOP/libs/famitracker/$${LIB_BUILD_TYPE_DIR} -lfamitracker
+   QMAKE_PRE_LINK += mkdir -p $$DESTDIR/$${TARGET}.app/Contents/Frameworks $$escape_expand(\n\t)
 
-   ICON = mac/resources/nesicide.icns
-
-   QMAKE_POST_LINK += mkdir -p $${DESTDIR}/$${TARGET}.app/Contents/Frameworks $$escape_expand(\n\t)
-
-   QMAKE_POST_LINK += cp $$TOP/libs/nes/$${LIB_BUILD_TYPE_DIR}/libnes-emulator.1.0.0.dylib \
-      $${DESTDIR}/$${TARGET}.app/Contents/Frameworks/libnes-emulator.1.dylib $$escape_expand(\n\t)
-   QMAKE_POST_LINK += install_name_tool -change libnes-emulator.1.dylib \
-      @executable_path/../Frameworks/libnes-emulator.1.dylib \
-      $${DESTDIR}/$${TARGET}.app/Contents/MacOS/nesicide $$escape_expand(\n\t)
-
-   QMAKE_POST_LINK += cp $$TOP/libs/c64/$${LIB_BUILD_TYPE_DIR}/libc64-emulator.1.0.0.dylib \
-      $${DESTDIR}/$${TARGET}.app/Contents/Frameworks/libc64-emulator.1.dylib $$escape_expand(\n\t)
-   QMAKE_POST_LINK += install_name_tool -change libc64-emulator.1.dylib \
-      @executable_path/../Frameworks/libc64-emulator.1.dylib \
-      $${DESTDIR}/$${TARGET}.app/Contents/MacOS/nesicide $$escape_expand(\n\t)
-
-   QMAKE_POST_LINK += cp $$TOP/libs/famitracker/$${LIB_BUILD_TYPE_DIR}/libfamitracker.1.0.0.dylib \
-      $${DESTDIR}/$${TARGET}.app/Contents/Frameworks/libfamitracker.1.dylib $$escape_expand(\n\t)
+   QMAKE_PRE_LINK += cp $$TOP/libs/famitracker/$$DESTDIR/*.dylib \
+      $$DESTDIR/$${TARGET}.app/Contents/Frameworks/ $$escape_expand(\n\t)
    QMAKE_POST_LINK += install_name_tool -change libfamitracker.1.dylib \
-      @executable_path/../Frameworks/libfamitracker.1.dylib \
-      $${DESTDIR}/$${TARGET}.app/Contents/MacOS/nesicide $$escape_expand(\n\t)
+       @executable_path/../Frameworks/libfamitracker.1.dylib \
+       $$DESTDIR/$${TARGET}.app/Contents/MacOS/nesicide $$escape_expand(\n\t)
 
-   QMAKE_POST_LINK += cp $$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5/libqscintilla2.12.0.0.dylib \
-      $${DESTDIR}/$${TARGET}.app/Contents/Frameworks/libqscintilla2.12.dylib $$escape_expand(\n\t)
+   QMAKE_PRE_LINK += cp $$DEPENDENCYROOTPATH/rtmidi/$$DESTDIR/*.dylib \
+      $$DESTDIR/$${TARGET}.app/Contents/Frameworks/ $$escape_expand(\n\t)
+   QMAKE_POST_LINK += install_name_tool -change librtmidi.1.dylib \
+       @executable_path/../Frameworks/librtmidi.1.dylib \
+       $$DESTDIR/$${TARGET}.app/Contents/MacOS/nesicide $$escape_expand(\n\t)
+
+   QMAKE_PRE_LINK += cp $$TOP/libs/nes/$$DESTDIR/*.dylib \
+      $$DESTDIR/$${TARGET}.app/Contents/Frameworks/ $$escape_expand(\n\t)
+   QMAKE_POST_LINK += install_name_tool -change libnes-emulator.1.dylib \
+       @executable_path/../Frameworks/libnes-emulator.1.dylib \
+       $$DESTDIR/$${TARGET}.app/Contents/MacOS/nesicide $$escape_expand(\n\t)
+
+   QMAKE_PRE_LINK += cp $$TOP/libs/c64/$$DESTDIR/*.dylib \
+      $$DESTDIR/$${TARGET}.app/Contents/Frameworks/ $$escape_expand(\n\t)
+   QMAKE_POST_LINK += install_name_tool -change libc64-emulator.1.dylib \
+       @executable_path/../Frameworks/libc64-emulator.1.dylib \
+       $$DESTDIR/$${TARGET}.app/Contents/MacOS/nesicide $$escape_expand(\n\t)
+
+   QMAKE_PRE_LINK += cp -r $$DEPENDENCYPATH/SDL.framework \
+      $$DESTDIR/$${TARGET}.app/Contents/Frameworks/ $$escape_expand(\n\t)
+
+   QMAKE_PRE_LINK += cp -r $$DEPENDENCYPATH/Lua.framework \
+      $$DESTDIR/$${TARGET}.app/Contents/Frameworks/ $$escape_expand(\n\t)
+
+   QMAKE_PRE_LINK += cp $$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5/libqscintilla2.12.0.0.dylib \
+      $$DESTDIR/$${TARGET}.app/Contents/Frameworks/libqscintilla2.12.dylib $$escape_expand(\n\t)
    QMAKE_POST_LINK += install_name_tool -change libqscintilla2.12.dylib \
       @executable_path/../Frameworks/libqscintilla2.12.dylib \
-      $${DESTDIR}/$${TARGET}.app/Contents/MacOS/nesicide $$escape_expand(\n\t)
+      $$DESTDIR/$${TARGET}.app/Contents/MacOS/nesicide $$escape_expand(\n\t)
 
-   # SDL
-   QMAKE_POST_LINK += cp -r $$DEPENDENCYPATH/SDL.framework \
-      $${DESTDIR}/$${TARGET}.app/Contents/Frameworks/ $$escape_expand(\n\t)
+   QMAKE_POST_LINK += install_name_tool -add_rpath @loader_path/../Frameworks $$DESTDIR/$${TARGET}.app/Contents/MacOS/nesicide $$escape_expand(\n\t)
 
-   QMAKE_POST_LINK += cp -r $$DEPENDENCYPATH/Lua.framework \
-      $${DESTDIR}/$${TARGET}.app/Contents/Frameworks/ $$escape_expand(\n\t)
+#   QMAKE_POST_LINK += cp -r $$DEPENDENCYROOTPATH/cc65 $$DESTDIR/$${TARGET}.app/Contents/Frameworks/
 
-   QMAKE_POST_LINK += install_name_tool -add_rpath @loader_path/../Frameworks $${DESTDIR}/$${TARGET}.app/Contents/MacOS/nesicide $$escape_expand(\n\t)
+   ICON = mac/resources/nesicide.icns
 }
 
 unix:!mac {

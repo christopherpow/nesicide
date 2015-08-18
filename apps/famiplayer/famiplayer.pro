@@ -33,17 +33,20 @@ UI_DIR = $$DESTDIR
 
 DEFINES -= UNICODE
 
-TARGET = "famiplayer"
+TARGET = "famitracker"
 
 win32 {
-	DEPENDENCYPATH = $$TOP/deps/Windows
+   DEPENDENCYROOTPATH = $$TOP/deps
+   DEPENDENCYPATH = $$DEPENDENCYROOTPATH/Windows
 }
 mac {
-	DEPENDENCYPATH = $$TOP/deps/osx
+   DEPENDENCYROOTPATH = $$TOP/deps
+   DEPENDENCYPATH = $$DEPENDENCYROOTPATH/osx
 }
-#unix:mac {
-#	DEPENDENCYPATH = $$TOP/deps/linux
-#}
+unix:!mac {
+   DEPENDENCYROOTPATH = $$TOP/deps
+   DEPENDENCYPATH = $$DEPENDENCYROOTPATH/linux
+}
 
 TEMPLATE = app
 
@@ -66,35 +69,30 @@ mac {
 
    ICON = $$TOP/common/resources/controller.icns
 
-   QMAKE_POST_LINK += mkdir -p $${DESTDIR}/$${TARGET}.app/Contents/Frameworks $$escape_expand(\n\t)
+   QMAKE_PRE_LINK += mkdir -p $$DESTDIR/$${TARGET}.app/Contents/Frameworks $$escape_expand(\n\t)
 
-   # copy lib from debug/release or base
-#   QMAKE_POST_LINK += cp $$TOP/libs/famitracker/$$DESTDIR/libfamitracker.1.0.0.dylib \
-#      $${DESTDIR}/$${TARGET}.app/Contents/Frameworks/libfamitracker.1.dylib || true $$escape_expand(\n\t)
-
-#   QMAKE_POST_LINK += ln -s $$TOP/libs/famitracker/$$DESTDIR/libfamitracker.1.0.0.dylib \
-#                      $${DESTDIR}/$${TARGET}.app/Contents/Frameworks/libfamitracker.1.dylib || true $$escape_expand(\n\t)
-
+   QMAKE_PRE_LINK += cp $$TOP/libs/famitracker/$$DESTDIR/*.dylib \
+      $$DESTDIR/$${TARGET}.app/Contents/Frameworks/ $$escape_expand(\n\t)
    QMAKE_POST_LINK += install_name_tool -change libfamitracker.1.dylib \
-       $$TOP/../../../../libs/famitracker/$$DESTDIR/libfamitracker.1.0.0.dylib \
-       $${DESTDIR}/$${TARGET}.app/Contents/MacOS/famiplayer $$escape_expand(\n\t)
+       @executable_path/../Frameworks/libfamitracker.1.dylib \
+       $$DESTDIR/$${TARGET}.app/Contents/MacOS/famitracker $$escape_expand(\n\t)
 
-#   QMAKE_POST_LINK += install_name_tool -change libfamitracker.1.dylib \
-#      @executable_path/../Frameworks/libfamitracker.1.dylib \
-#      $${DESTDIR}/$${TARGET}.app/Contents/MacOS/famitracker $$escape_expand(\n\t)
+   QMAKE_PRE_LINK += cp $$DEPENDENCYROOTPATH/rtmidi/$$DESTDIR/*.dylib \
+      $$DESTDIR/$${TARGET}.app/Contents/Frameworks/ $$escape_expand(\n\t)
+   QMAKE_POST_LINK += install_name_tool -change librtmidi.1.dylib \
+       @executable_path/../Frameworks/librtmidi.1.dylib \
+       $$DESTDIR/$${TARGET}.app/Contents/MacOS/famitracker $$escape_expand(\n\t)
 
-   # SDL
-   QMAKE_POST_LINK += cp -r $$DEPENDENCYPATH/SDL.framework \
-      $${DESTDIR}/$${TARGET}.app/Contents/Frameworks/ $$escape_expand(\n\t)
-   QMAKE_POST_LINK += install_name_tool -add_rpath @loader_path/../Frameworks $${DESTDIR}/$${TARGET}.app/Contents/MacOS/famiplayer $$escape_expand(\n\t)
-   #QMAKE_POST_LINK += install_name_tool -change SDL \
-   #   @executable_path/../Frameworks/SDL.framework/SDL \
-   #   $${DESTDIR}/$${TARGET}.app/Contents/MacOS/famitracker $$escape_expand(\n\t)
+   QMAKE_PRE_LINK += cp -r $$DEPENDENCYPATH/SDL.framework \
+      $$DESTDIR/$${TARGET}.app/Contents/Frameworks/ $$escape_expand(\n\t)
+
+   QMAKE_POST_LINK += install_name_tool -add_rpath @loader_path/../Frameworks $$DESTDIR/$${TARGET}.app/Contents/MacOS/famitracker $$escape_expand(\n\t)
 }
 
 unix:!mac {
-   FAMITRACKER_CXXFLAGS += -I/usr/include/wine/windows/
-   FAMITRACKER_LFLAGS = -Wl,-rpath=\"$$PWD/$$TOP/libs/famitracker\"
+   FAMITRACKER_CXXFLAGS = -I/usr/include/wine/windows/
+   FAMITRACKER_LFLAGS  = -Wl,-rpath=\"$$PWD/$$TOP/libs/famitracker\"
+
 
     # if the user didnt set cxxflags and libs then use defaults
     ###########################################################
@@ -121,14 +119,16 @@ unix:!mac {
 }
 
 QMAKE_CXXFLAGS += $$FAMITRACKER_CXXFLAGS \
-                  $$SDL_CXXFLAGS
-QMAKE_LFLAGS = $$FAMITRACKER_LFLAGS
+                  $$SDL_CXXFLAGS \
+                  $$RTMIDI_CXXFLAGS
+QMAKE_LFLAGS += $$FAMITRACKER_LFLAGS
 LIBS += $$FAMITRACKER_LIBS \
-        $$SDL_LIBS
+        $$SDL_LIBS \
+        $$RTMIDI_LIBS
 
 unix:mac {
-	QMAKE_CFLAGS += -I $$DEPENDENCYPATH/wine/include -DWINE_UNICODE_NATIVE
-	QMAKE_CXXFLAGS += -I $$DEPENDENCYPATH/wine/include -DWINE_UNICODE_NATIVE
+   QMAKE_CFLAGS += -I $$DEPENDENCYPATH/wine/include -DWINE_UNICODE_NATIVE
+   QMAKE_CXXFLAGS += -I $$DEPENDENCYPATH/wine/include -DWINE_UNICODE_NATIVE
 }
 
 unix:!mac {

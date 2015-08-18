@@ -4,7 +4,8 @@
 #
 #-------------------------------------------------
 
-TARGET = nes-emulator
+TARGET = "nes-emulator"
+
 TEMPLATE = lib
 
 # Remove Qt libraries
@@ -20,22 +21,31 @@ macx {
     macx:QMAKE_MAC_SDK = macosx10.10
 }
 
-# Build static library
-#CONFIG += staticlib
+CONFIG(release, debug|release) {
+   DESTDIR = release
+} else {
+   DESTDIR = debug
+}
 
 # Remove crap we don't need!
 CONFIG -= rtti exceptions
 
+OBJECTS_DIR = $$DESTDIR
+MOC_DIR = $$DESTDIR
+RCC_DIR = $$DESTDIR
+UI_DIR = $$DESTDIR
+
+win32 {
+   DEPENDENCYROOTPATH = $$TOP/deps
+   DEPENDENCYPATH = $$DEPENDENCYROOTPATH/Windows
+}
 mac {
-   CONFIG(release, debug|release) {
-      DESTDIR = release
-      OBJECTS_DIR = release
-      QMAKE_CXXFLAGS_RELEASE -= -O2
-      QMAKE_CXXFLAGS_RELEASE += -Os
-   } else {
-      DESTDIR = debug
-      OBJECTS_DIR = debug
-   }
+   DEPENDENCYROOTPATH = $$TOP/deps
+   DEPENDENCYPATH = $$DEPENDENCYROOTPATH/osx
+}
+unix:!mac {
+   DEPENDENCYROOTPATH = $$TOP/deps
+   DEPENDENCYPATH = $$DEPENDENCYROOTPATH/linux
 }
 
 unix:!mac {

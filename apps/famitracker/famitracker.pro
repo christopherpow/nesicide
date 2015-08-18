@@ -36,29 +36,29 @@ DEFINES -= UNICODE
 TARGET = "famitracker"
 
 win32 {
-	DEPENDENCYPATH = $$TOP/deps/Windows
+   DEPENDENCYROOTPATH = $$TOP/deps
+   DEPENDENCYPATH = $$DEPENDENCYROOTPATH/Windows
 }
 mac {
-	DEPENDENCYPATH = $$TOP/deps/osx
+   DEPENDENCYROOTPATH = $$TOP/deps
+   DEPENDENCYPATH = $$DEPENDENCYROOTPATH/osx
 }
-#unix:mac {
-#	DEPENDENCYPATH = $$TOP/deps/linux
-#}
+unix:!mac {
+   DEPENDENCYROOTPATH = $$TOP/deps
+   DEPENDENCYPATH = $$DEPENDENCYROOTPATH/linux
+}
 
 TEMPLATE = app
 
 # set platform specific cxxflags and libs
 #########################################
 
-RTMIDI_LIBS = -L$$TOP/libs/rtmidi/$$DESTDIR -lrtmidi
-RTMIDI_CXXFLAGS = -I$$TOP/libs/rtmidi
-
 FAMITRACKER_LIBS = -L$$TOP/libs/famitracker/$$DESTDIR -lfamitracker
 FAMITRACKER_CXXFLAGS = -I$$TOP/libs/famitracker
 
 win32 {
-   SDL_CXXFLAGS = -I$$TOP/deps/Windows/SDL
-   SDL_LIBS =  -L$$TOP/deps/Windows/SDL/ -lsdl
+   SDL_CXXFLAGS = -I$$DEPENDENCYPATH/SDL
+   SDL_LIBS =  -L$$DEPENDENCYPATH/SDL/ -lsdl
 
    QMAKE_LFLAGS += -static-libgcc
 }
@@ -69,20 +69,24 @@ mac {
 
    ICON = $$TOP/common/resources/controller.icns
 
+   QMAKE_PRE_LINK += mkdir -p $$DESTDIR/$${TARGET}.app/Contents/Frameworks $$escape_expand(\n\t)
+
+   QMAKE_PRE_LINK += cp $$TOP/libs/famitracker/$$DESTDIR/*.dylib \
+      $$DESTDIR/$${TARGET}.app/Contents/Frameworks/ $$escape_expand(\n\t)
    QMAKE_POST_LINK += install_name_tool -change libfamitracker.1.dylib \
-       $$TOP/../../../../libs/famitracker/$$DESTDIR/libfamitracker.1.0.0.dylib \
-       $${DESTDIR}/$${TARGET}.app/Contents/MacOS/famitracker $$escape_expand(\n\t)
+       @executable_path/../Frameworks/libfamitracker.1.dylib \
+       $$DESTDIR/$${TARGET}.app/Contents/MacOS/famitracker $$escape_expand(\n\t)
 
+   QMAKE_PRE_LINK += cp $$DEPENDENCYROOTPATH/rtmidi/$$DESTDIR/*.dylib \
+      $$DESTDIR/$${TARGET}.app/Contents/Frameworks/ $$escape_expand(\n\t)
    QMAKE_POST_LINK += install_name_tool -change librtmidi.1.dylib \
-       $$TOP/../../../../libs/rtmidi/$${DESTDIR}/librtmidi.1.0.0.dylib \
-       $${DESTDIR}/$${TARGET}.app/Contents/MacOS/famitracker $$escape_expand(\n\t)
+       @executable_path/../Frameworks/librtmidi.1.dylib \
+       $$DESTDIR/$${TARGET}.app/Contents/MacOS/famitracker $$escape_expand(\n\t)
 
-   # SDL
-   QMAKE_POST_LINK += mkdir -p $${DESTDIR}/$${TARGET}.app/Contents/Frameworks $$escape_expand(\n\t)
+   QMAKE_PRE_LINK += cp -r $$DEPENDENCYPATH/SDL.framework \
+      $$DESTDIR/$${TARGET}.app/Contents/Frameworks/ $$escape_expand(\n\t)
 
-   QMAKE_POST_LINK += cp -r $$DEPENDENCYPATH/SDL.framework \
-      $${DESTDIR}/$${TARGET}.app/Contents/Frameworks/ $$escape_expand(\n\t)
-   QMAKE_POST_LINK += install_name_tool -add_rpath @loader_path/../Frameworks $${DESTDIR}/$${TARGET}.app/Contents/MacOS/famitracker $$escape_expand(\n\t)
+   QMAKE_POST_LINK += install_name_tool -add_rpath @loader_path/../Frameworks $$DESTDIR/$${TARGET}.app/Contents/MacOS/famitracker $$escape_expand(\n\t)
 }
 
 unix:!mac {
