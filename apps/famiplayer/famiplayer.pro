@@ -33,7 +33,7 @@ UI_DIR = $$DESTDIR
 
 DEFINES -= UNICODE
 
-TARGET = "famitracker"
+TARGET = "famiplayer"
 
 win32 {
    DEPENDENCYROOTPATH = $$TOP/deps
@@ -75,18 +75,18 @@ mac {
       $$DESTDIR/$${TARGET}.app/Contents/Frameworks/ $$escape_expand(\n\t)
    QMAKE_POST_LINK += install_name_tool -change libfamitracker.1.dylib \
        @executable_path/../Frameworks/libfamitracker.1.dylib \
-       $$DESTDIR/$${TARGET}.app/Contents/MacOS/famitracker $$escape_expand(\n\t)
+       $$DESTDIR/$${TARGET}.app/Contents/MacOS/famiplayer $$escape_expand(\n\t)
 
-   QMAKE_PRE_LINK += cp $$DEPENDENCYROOTPATH/rtmidi/$$DESTDIR/*.dylib \
+   QMAKE_PRE_LINK += cp $$DEPENDENCYROOTPATH/rtmidi/*.dylib \
       $$DESTDIR/$${TARGET}.app/Contents/Frameworks/ $$escape_expand(\n\t)
    QMAKE_POST_LINK += install_name_tool -change librtmidi.1.dylib \
        @executable_path/../Frameworks/librtmidi.1.dylib \
-       $$DESTDIR/$${TARGET}.app/Contents/MacOS/famitracker $$escape_expand(\n\t)
+       $$DESTDIR/$${TARGET}.app/Contents/MacOS/famiplayer $$escape_expand(\n\t)
 
    QMAKE_PRE_LINK += cp -r $$DEPENDENCYPATH/SDL.framework \
       $$DESTDIR/$${TARGET}.app/Contents/Frameworks/ $$escape_expand(\n\t)
 
-   QMAKE_POST_LINK += install_name_tool -add_rpath @loader_path/../Frameworks $$DESTDIR/$${TARGET}.app/Contents/MacOS/famitracker $$escape_expand(\n\t)
+   QMAKE_POST_LINK += install_name_tool -add_rpath @loader_path/../Frameworks $$DESTDIR/$${TARGET}.app/Contents/MacOS/famiplayer $$escape_expand(\n\t)
 }
 
 unix:!mac {

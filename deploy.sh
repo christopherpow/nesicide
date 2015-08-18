@@ -1,0 +1,13 @@
+#!/bin/bash
+
+export PATH=/Users/christopher/Qt-5.4/5.4/clang_64/bin/:$PATH
+
+echo Deploying NESICIDE...
+macdeployqt apps/ide/release/nesicide.app -dmg
+echo Deploying FamiTracker...
+macdeployqt apps/famitracker/release/famitracker.app -dmg
+echo Deploying FamiPlayer...
+macdeployqt apps/famiplayer/release/famiplayer.app -dmg
+echo Deploying NES Emulator...
+macdeployqt apps/nes-emulator/release/nes-emulator.app -dmg
+
