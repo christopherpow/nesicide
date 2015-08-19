@@ -2003,7 +2003,7 @@ void CSoundGen::QueueNote(int Channel, stChanNote &NoteData, note_prio_t Priorit
 
 	// Queue a note for play
 	m_pDocument->GetChannel(Channel)->SetNote(NoteData, Priority);
-//	theApp.GetMIDI()->WriteNote(Channel, NoteData.Note, NoteData.Octave, NoteData.Vol);
+   theApp.GetMIDI()->WriteNote(Channel, NoteData.Note, NoteData.Octave, NoteData.Vol);
 }
 
 int	CSoundGen::GetPlayerRow() const

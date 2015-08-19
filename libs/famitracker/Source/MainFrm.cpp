@@ -1653,7 +1653,6 @@ void CMainFrame::OnFileGeneralsettings()
 
 	CConfigGeneral		TabGeneral;
 	CConfigAppearance	TabAppearance;
-   qDebug("NO MIDI SUPPORT YET...");
    CConfigMIDI			TabMIDI;
 	CConfigSound		TabSound;
 	CConfigShortcuts	TabShortcuts;
@@ -2111,15 +2110,13 @@ CVisualizerWnd *CMainFrame::GetVisualizerWindow() const
 
 void CMainFrame::OnEditEnableMIDI()
 {
-   qDebug("No MIDI support...");
-//	theApp.GetMIDI()->ToggleInput();
+   theApp.GetMIDI()->ToggleInput();
 }
 
 void CMainFrame::OnUpdateEditEnablemidi(CCmdUI *pCmdUI)
 {
-   qDebug("No MIDI support...");
-//	pCmdUI->Enable(theApp.GetMIDI()->IsAvailable());
-//	pCmdUI->SetCheck(theApp.GetMIDI()->IsOpened());
+   pCmdUI->Enable(theApp.GetMIDI()->IsAvailable());
+   pCmdUI->SetCheck(theApp.GetMIDI()->IsOpened());
 }
 
 void CMainFrame::OnShowWindow(BOOL bShow, UINT nStatus)

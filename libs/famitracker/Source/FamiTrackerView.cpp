@@ -1646,14 +1646,13 @@ void CFamiTrackerView::InsertNote(int Note, int Octave, int Channel, int Velocit
 	}	
 
 	// Quantization
-   qDebug("quantization");
-//	if (theApp.GetSettings()->Midi.bMidiMasterSync) {
-//		int Delay = theApp.GetMIDI()->GetQuantization();
-//		if (Delay > 0) {
-//			Cell.EffNumber[0] = EF_DELAY;
-//			Cell.EffParam[0] = Delay;
-//		}
-//	}
+   if (theApp.GetSettings()->Midi.bMidiMasterSync) {
+      int Delay = theApp.GetMIDI()->GetQuantization();
+      if (Delay > 0) {
+         Cell.EffNumber[0] = EF_DELAY;
+         Cell.EffParam[0] = Delay;
+      }
+   }
 	
 	if (m_bEditEnable) {
 		if (Note == HALT)
