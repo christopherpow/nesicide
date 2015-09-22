@@ -14,11 +14,11 @@ QT =
 TOP = ../..
 
 macx {
-    MAC_SDK  = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk
+    MAC_SDK  = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk
     if( !exists( $$MAC_SDK) ) {
         error("The selected Mac OSX SDK does not exist at $$MAC_SDK!")
     }
-    macx:QMAKE_MAC_SDK = macosx10.10
+    macx:QMAKE_MAC_SDK = macosx10.11
 }
 
 CONFIG(release, debug|release) {
