@@ -109,6 +109,8 @@ QMAKE_EXTRA_TARGETS += rtmidi
 PRE_TARGETDEPS += rtmidi
 rtmidi.commands = "( cd $$DEPENDENCYROOTPATH/rtmidi; qmake; make )"
 
+INCLUDEPATH += Source/APU
+
 SOURCES += \
     cqtmfc_famitracker.cpp \
     Source/TrackerChannel.cpp \
@@ -247,7 +249,6 @@ HEADERS += \
     Source/DocumentFile.h \
     Source/CustomExporterInterfaces.h \
     Source/Compiler.h \
-    Source/Common.h \
     Source/ColorScheme.h \
     Source/Chunk.h \
     Source/ChannelsVRC7.h \
@@ -358,7 +359,8 @@ HEADERS += \
     Source/ChunkRenderText.h \
     Source/Clipboard.h \
     Source/PatternEditorTypes.h \
-    Source/MIDI.h
+    Source/MIDI.h \
+    Source/Common.h
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN
