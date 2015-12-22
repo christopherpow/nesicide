@@ -7429,9 +7429,9 @@ void CWnd::paintEvent(QPaintEvent *event)
       firstPaintEvent = false;
       SendMessage(WM_ERASEBKGND,(WPARAM)(HDC)pDC);
       currentSize = _qt->size();
-      SendMessage(WM_PAINT);
-      SendMessage(WM_DRAWITEM,_id,(LPARAM)&di);
    }
+   SendMessage(WM_PAINT);
+   SendMessage(WM_DRAWITEM,_id,(LPARAM)&di);
    gInPaintEvent = false;
 }
 
