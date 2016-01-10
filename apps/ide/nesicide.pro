@@ -90,7 +90,7 @@ mac {
        @executable_path/../Frameworks/libfamitracker.1.dylib \
        $$DESTDIR/$${TARGET}.app/Contents/MacOS/nesicide $$escape_expand(\n\t)
 
-   QMAKE_PRE_LINK += cp $$DEPENDENCYROOTPATH/rtmidi/*.dylib \
+   QMAKE_PRE_LINK += cp $$DEPENDENCYROOTPATH/rtmidi/$$DESTDIR/*.dylib \
       $$DESTDIR/$${TARGET}.app/Contents/Frameworks/ $$escape_expand(\n\t)
    QMAKE_POST_LINK += install_name_tool -change librtmidi.1.dylib \
        @executable_path/../Frameworks/librtmidi.1.dylib \
