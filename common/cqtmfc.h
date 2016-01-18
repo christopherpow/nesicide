@@ -2302,9 +2302,13 @@ enum
 #include <windows.h>
 #include <prsht.h>
 
-#if defined(Q_OS_WIN) || defined (Q_OS_WIN32)
+#if !(defined(Q_OS_WIN) || defined(Q_OS_WIN32))
 #define max(a,b) (((a) > (b)) ? (a) : (b))
 #define min(a,b) (((a) > (b)) ? (b) : (a))
+#endif
+
+#if defined(Q_OS_WIN) || defined(Q_OS_WIN32)
+#define CALLBACK
 #endif
 
 #define stricmp strcasecmp
@@ -5669,6 +5673,15 @@ public:
 
 typedef UINT (*AFX_THREADPROC)(LPVOID lpParameter);
 
+HANDLE WINAPI CreateThread(
+   LPSECURITY_ATTRIBUTES  lpThreadAttributes,
+   SIZE_T                 dwStackSize,
+   LPTHREAD_START_ROUTINE lpStartAddress,
+   LPVOID                 lpParameter,
+   DWORD                  dwCreationFlags,
+   LPDWORD                lpThreadId
+);
+
 class CWinThread : public QObject, public CCmdTarget
 {
    Q_OBJECT
@@ -6724,9 +6737,11 @@ MMRESULT mmioClose(
   UINT wFlags
 );
 
+#if !(defined(Q_OS_WIN) || defined(Q_OS_WIN32))
 VOID WINAPI Sleep(
   DWORD dwMilliseconds
 );
+#endif
 
 VOID WINAPI ExitProcess(
   UINT uExitCode
@@ -6795,5 +6810,8 @@ void ideifyFamiTracker();
 
 extern bool backgroundedFamiTracker;
 void backgroundifyFamiTracker(QString applicationName);
+
+extern bool invisibleFamiTracker;
+void hideFamiTracker(QString applicationName);
 
 #endif // CQTMFC_H

@@ -6,6 +6,9 @@ QT += network \
       webkitwidgets \
       xml
 
+# Qt 5.5 requires this?!
+LIBS += -lopengl32
+
 greaterThan(QT_MAJOR_VERSION,4) {
     QT += widgets
 }
@@ -54,7 +57,7 @@ unix:!mac {
 CONFIG -= exceptions
 
 SCINTILLA_CXXFLAGS = -I$$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5
-SCINTILLA_LIBS = -L$$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5 -lqscintilla2
+SCINTILLA_LIBS = -L$$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5/release -lqscintilla2
 
 NES_CXXFLAGS = -I$$TOP/libs/nes -I$$TOP/libs/nes/emulator -I$$TOP/libs/nes/common
 NES_LIBS = -L$$TOP/libs/nes/$$DESTDIR -lnes-emulator
@@ -64,6 +67,8 @@ C64_LIBS = -L$$TOP/libs/c64/$$DESTDIR -lc64-emulator
 
 FAMITRACKER_CXXFLAGS = -I$$TOP/libs/famitracker
 FAMITRACKER_LIBS = -L$$TOP/libs/famitracker/$$DESTDIR -lfamitracker
+
+RTMIDI_LIBS = -L$$DEPENDENCYROOTPATH/rtmidi/$$DESTDIR -lrtmidi
 
 win32 {
    SDL_CXXFLAGS = -I$$DEPENDENCYPATH/SDL
@@ -202,20 +207,13 @@ QMAKE_CXXFLAGS += -DIDE \
 QMAKE_LFLAGS += $$FAMITRACKER_LFLAGS \
                 $$NES_LFLAGS
 
-QMAKE_EXTRA_TARGETS += cc65
-PRE_TARGETDEPS += cc65
-cc65.commands = "( cd $$DEPENDENCYROOTPATH/cc65; make )"
-
-QMAKE_EXTRA_TARGETS += qscintilla2
-PRE_TARGETDEPS += qscintilla2
-qscintilla2.commands = "( cd $$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5; qmake; make )"
-
 LIBS += $$NES_LIBS \
         $$C64_LIBS \
         $$FAMITRACKER_LIBS \
         $$SDL_LIBS \
         $$LUA_LIBS \
-        $$SCINTILLA_LIBS
+        $$SCINTILLA_LIBS \
+        $$RTMIDI_LIBS
 
 INCLUDEPATH += \
    $$TOP/common \

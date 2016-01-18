@@ -46,7 +46,7 @@ void CCustomExporters::FindCustomExporters( CString PluginPath )
 
 #if defined(Q_OS_WIN32)
    // Windows
-   path = PluginPath + _T("\\*.dll");
+   path = PluginPath + _T("\\ftmx_*.dll");
    bWorking = finder.FindFile( path );
    while (bWorking)
 	{

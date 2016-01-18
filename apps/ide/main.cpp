@@ -28,6 +28,7 @@ int main(int argc, char* argv[])
    MainWindow* nesicideWindow;
 
    QApplication nesicideApplication(argc, argv);
+
    AppEventFilter nesicideEventFilter;
    nesicideApplication.installEventFilter(&nesicideEventFilter); // Installing the event filter
 

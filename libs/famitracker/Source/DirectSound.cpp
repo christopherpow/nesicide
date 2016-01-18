@@ -62,10 +62,13 @@ static unsigned char* m_pSoundBuffer = NULL;
 static unsigned int   m_iSoundProducer = 0;
 static unsigned int   m_iSoundConsumer = 0;
 static unsigned int   m_iSoundBufferSize = 0;
+static unsigned int   m_iTotalSamples = 0;
 
 QSemaphore ftmAudioSemaphore(0);
 
 QList<SDL_Callback> sdlHooks;
+
+extern bool invisibleFamiTracker;
 
 extern "C" void SDL_FamiTracker(void* userdata, uint8_t* stream, int32_t len)
 {
@@ -83,11 +86,21 @@ extern "C" void SDL_FamiTracker(void* userdata, uint8_t* stream, int32_t len)
    qDebug(str.toLatin1().constData());
 #endif
    
-   if ( m_pSoundBuffer )
-      SDL_MixAudio(stream,m_pSoundBuffer,len,SDL_MIX_MAXVOLUME);
+   if ( invisibleFamiTracker )
+   {
+       memset(stream,0,len);
+       if ( m_pSoundBuffer &&
+            m_iTotalSamples )
+          memcpy(stream,m_pSoundBuffer,len);
+   }
+   else
+   {
+       if ( m_pSoundBuffer )
+          SDL_MixAudio(stream,m_pSoundBuffer,len,SDL_MIX_MAXVOLUME);
+   }
    m_iSoundConsumer += len;
    m_iSoundConsumer %= m_iSoundBufferSize;
-   
+
    foreach ( SDL_Callback cb, sdlHooks )
    {
       if ( cb._valid )
@@ -172,33 +185,42 @@ CDSoundChannel *CDSound::OpenChannel(int SampleRate, int SampleSize, int Channel
 	int SoundBufferSize = CalculateBufferLength(BufferLength, SampleRate, SampleSize, Channels);
 	int BlockSize = SoundBufferSize / Blocks;
 
-   sdlAudioSpecIn.callback = SDL_FamiTracker;
-   sdlAudioSpecIn.userdata = NULL;
-   sdlAudioSpecIn.channels = Channels;
-   if ( SampleSize == 8 )
-   {
-      sdlAudioSpecIn.format = AUDIO_U8;
-   }
-   else 
-   {
-      sdlAudioSpecIn.format = AUDIO_S16SYS;
-   }
-   sdlAudioSpecIn.freq = SampleRate;
+    if ( !invisibleFamiTracker )
+    {
+       sdlAudioSpecIn.callback = SDL_FamiTracker;
+       sdlAudioSpecIn.userdata = NULL;
+       sdlAudioSpecIn.channels = Channels;
+       if ( SampleSize == 8 )
+       {
+          sdlAudioSpecIn.format = AUDIO_U8;
+       }
+       else
+       {
+          sdlAudioSpecIn.format = AUDIO_S16SYS;
+       }
+       sdlAudioSpecIn.freq = SampleRate;
 
-   // Set up audio sample rate for video mode...
-   sdlAudioSpecIn.samples = (BlockSize/(SampleSize>>3));
+       // Set up audio sample rate for video mode...
+       sdlAudioSpecIn.samples = (BlockSize/(SampleSize>>3));
 
-   SDL_OpenAudio ( &sdlAudioSpecIn, &sdlAudioSpecOut );
+       SDL_OpenAudio ( &sdlAudioSpecIn, &sdlAudioSpecOut );
 
-//   qDebug("Adjusting audio: %d",memcmp(&sdlAudioSpecIn,&sdlAudioSpecOut,sizeof(sdlAudioSpecIn)));
-   SoundBufferSize = sdlAudioSpecOut.samples*sdlAudioSpecOut.channels*((sdlAudioSpecOut.format==AUDIO_U8?8:16)>>3);
-   BlockSize = SoundBufferSize / Blocks;
+       //   qDebug("Adjusting audio: %d",memcmp(&sdlAudioSpecIn,&sdlAudioSpecOut,sizeof(sdlAudioSpecIn)));
+       SoundBufferSize = sdlAudioSpecOut.samples*sdlAudioSpecOut.channels*((sdlAudioSpecOut.format==AUDIO_U8?8:16)>>3);
+       BlockSize = SoundBufferSize / Blocks;
+    }
+    else
+    {
+        SoundBufferSize = 1152;
+        BlockSize = 1152;
+    }
    
    if ( m_pSoundBuffer )
       delete m_pSoundBuffer;
    m_pSoundBuffer = new unsigned char[SoundBufferSize];
    memset(m_pSoundBuffer,0,SoundBufferSize);
    m_iSoundProducer = 0;
+   m_iTotalSamples = 0;
    m_iSoundConsumer = 0;
    m_iSoundBufferSize = SoundBufferSize;
    
@@ -214,20 +236,26 @@ CDSoundChannel *CDSound::OpenChannel(int SampleRate, int SampleSize, int Channel
 
 	pChannel->ClearBuffer();
 
-   // SDL...
-   pChannel->Play();
-   
-   SDL_PauseAudio(0);
-   
+    // SDL...
+    pChannel->Play();
+
+    if ( !invisibleFamiTracker )
+    {
+        SDL_PauseAudio(0);
+    }
+
 	return pChannel;
 }
 
 void CDSound::CloseChannel(CDSoundChannel *pChannel)
 {
-   SDL_PauseAudio ( 1 );
-   
-   SDL_CloseAudio ();
-   
+    if ( !invisibleFamiTracker )
+    {
+       SDL_PauseAudio ( 1 );
+
+       SDL_CloseAudio ();
+    }
+
 	if (pChannel == NULL)
 		return;
 
@@ -248,8 +276,9 @@ CDSoundChannel::~CDSoundChannel()
 
 bool CDSoundChannel::Play()
 {
+    m_iTotalSamples = 0;
+    m_bPaused = false;
    ftmAudioSemaphore.release();
-   m_bPaused = false;
 }
 
 bool CDSoundChannel::Stop()
@@ -273,6 +302,7 @@ bool CDSoundChannel::WriteBuffer(char *pBuffer, unsigned int Samples)
 {   
    memcpy(m_pSoundBuffer+m_iSoundProducer,pBuffer,Samples);
    m_iSoundProducer += Samples;
+   m_iTotalSamples = 1;
    m_iSoundProducer %= m_iSoundBufferSize;
 }
 

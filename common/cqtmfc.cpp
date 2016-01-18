@@ -167,9 +167,9 @@ int AfxMessageBox(
    UINT nIDHelp
 )
 {
-   QString button1;
-   QString button2;
-   QString button3;
+   QString button1 = "";
+   QString button2 = "";
+   QString button3 = "";
    int buttons = nType&0xF;
    int icon = nType&0xF0;
    int ret;
@@ -8642,9 +8642,9 @@ void CFrameWnd::InitialUpdateFrame(
 		}
 	}
 
-	if (bMakeVisible)
+    if (bMakeVisible)
 	{
-		// send initial update to all views (and other controls) in the frame
+        // send initial update to all views (and other controls) in the frame
 		SendMessageToDescendants(WM_INITIALUPDATE, 0, 0, TRUE, TRUE);
 
 //		// give view a chance to save the focus (CFormView needs this)
@@ -10201,6 +10201,27 @@ bool CWinThread::event(QEvent *event)
    return proc;
 }
 
+HANDLE WINAPI CreateThread(
+   LPSECURITY_ATTRIBUTES  lpThreadAttributes,
+   SIZE_T                 dwStackSize,
+   LPTHREAD_START_ROUTINE lpStartAddress,
+   LPVOID                 lpParameter,
+   DWORD                  dwCreationFlags,
+   LPDWORD                lpThreadId
+)
+{
+    CWinThread* pThread = new CWinThread();
+
+    pThread->m_pfnThreadProc = (AFX_THREADPROC)lpStartAddress;
+    pThread->m_pParam = lpParameter;
+
+    pThread->CreateThread(dwCreationFlags,dwStackSize,lpThreadAttributes);
+
+    (*lpThreadId) = pThread->m_nThreadID;
+
+    return (HANDLE)pThread;
+}
+
 BOOL CWinThread::CreateThread(
    DWORD dwCreateFlags,
    UINT nStackSize,
@@ -10310,6 +10331,10 @@ int CWinThread::Run( )
    if ( m_pfnThreadProc )
    {
       m_pfnThreadProc(m_pParam);
+      pTimer->stop();
+      QObject::disconnect(pTimer,SIGNAL(timeout()),this,SLOT(runSlot()));
+      m_pfnThreadProc = NULL;
+      ExitInstance();
       return 0;
    }
 
@@ -10870,35 +10895,35 @@ CDocument* CSingleDocTemplate::OpenDocumentFile(
 	if (m_pOnlyDoc != NULL)
 	{
 		// already have a document - reinit it
-		pDocument = m_pOnlyDoc;
+        pDocument = m_pOnlyDoc;
 		if (!pDocument->SaveModified())
 		{
-			// set a flag to indicate that the document being opened should not
+            // set a flag to indicate that the document being opened should not
 			// be removed from the MRU list, if it was being opened from there
 //			g_bRemoveFromMRU = FALSE;
 			return NULL;        // leave the original one
 		}
 
-		pFrame = (CFrameWnd*)AfxGetMainWnd();
+        pFrame = (CFrameWnd*)AfxGetMainWnd();
 		ASSERT(pFrame != NULL);
 		ASSERT_KINDOF(CFrameWnd, pFrame);
 		ASSERT_VALID(pFrame);
-	}
+    }
 	else
 	{
 		// create a new document
-		pDocument = CreateNewDocument();
+        pDocument = CreateNewDocument();
 		ASSERT(pFrame == NULL);     // will be created below
-		bCreated = TRUE;
+        bCreated = TRUE;
 	}
 
-	if (pDocument == NULL)
+    if (pDocument == NULL)
 	{
 		AfxMessageBox(AFX_IDP_FAILED_TO_CREATE_DOC);
 		return NULL;
 	}
 	ASSERT(pDocument == m_pOnlyDoc);
-	if (pFrame == NULL)
+    if (pFrame == NULL)
 	{
 		ASSERT(bCreated);
 
@@ -10975,13 +11000,15 @@ CDocument* CSingleDocTemplate::OpenDocumentFile(
 
 	CWinThread* pThread = AfxGetThread();
 	ASSERT(pThread);
-	if (bCreated && pThread->m_pMainWnd == NULL)
+
+    if (bCreated && pThread->m_pMainWnd == NULL)
 	{
 		// set as main frame (InitialUpdateFrame will show the window)
-		pThread->m_pMainWnd = pFrame;
+        pThread->m_pMainWnd = pFrame;
 	}
-	InitialUpdateFrame(pFrame, pDocument, bMakeVisible);
-   
+
+    InitialUpdateFrame(pFrame, pDocument, bMakeVisible);
+
 	return pDocument;
 }
 
@@ -10990,6 +11017,7 @@ IMPLEMENT_DYNAMIC(CCommandLineInfo,CObject)
 CCommandLineInfo::CCommandLineInfo( )
 {
    _args = QCoreApplication::arguments();
+   m_nShellCommand = FileNew;
 }
 
 void CCommandLineInfo::ParseParam(
@@ -10998,7 +11026,6 @@ void CCommandLineInfo::ParseParam(
    BOOL bLast
 )
 {
-   m_nShellCommand = FileNew;
    if ( !bFlag )
    {
       m_strFileName = pszParam;
@@ -11155,6 +11182,7 @@ void CWinApp::ParseCommandLine(
    QString localArg;
    BOOL bLast = FALSE;
    BOOL bFlag;
+
    for ( arg = 1; arg < rCmdInfo._args.count(); arg++ )
    {
       if ( arg == rCmdInfo._args.count()-1 ) bLast = TRUE;
@@ -14837,6 +14865,10 @@ DWORD WINAPI WaitForSingleObject(
          return WAIT_OBJECT_0;
       }
    }
+   else
+   {
+      MessageBox(NULL,"BOo!","WaitForSingleObject not thread or event",MB_OK);
+   }
    return WAIT_FAILED;
 }
 
@@ -15966,12 +15998,14 @@ MMRESULT mmioClose(
    return MMSYSERR_INVALHANDLE;
 }
 
+#if !(defined(Q_OS_WIN) || defined(Q_OS_WIN32))
 VOID WINAPI Sleep(
   DWORD dwMilliseconds
 )
 {
    QThread::currentThread()->msleep(dwMilliseconds);
 }
+#endif
 
 VOID WINAPI ExitProcess(
   UINT uExitCode
@@ -17125,4 +17159,13 @@ void backgroundifyFamiTracker(QString applicationName)
 {
    gApplicationName = applicationName;
    backgroundedFamiTracker = true;
+}
+
+bool invisibleFamiTracker = false;
+
+void hideFamiTracker(QString applicationName)
+{
+   gApplicationName = applicationName;
+   backgroundedFamiTracker = true;
+   invisibleFamiTracker = true;
 }
