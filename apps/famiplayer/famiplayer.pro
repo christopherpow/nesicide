@@ -56,6 +56,8 @@ TEMPLATE = app
 FAMITRACKER_LIBS = -L$$TOP/libs/famitracker/$$DESTDIR -lfamitracker
 FAMITRACKER_CXXFLAGS = -I$$TOP/libs/famitracker
 
+RTMIDI_LIBS = -L$$DEPENDENCYROOTPATH/rtmidi/$$DESTDIR -lrtmidi
+
 win32 {
    SDL_CXXFLAGS = -I$$TOP/deps/Windows/SDL
    SDL_LIBS =  -L$$TOP/deps/Windows/SDL/ -lsdl

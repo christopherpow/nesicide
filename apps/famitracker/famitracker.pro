@@ -56,6 +56,8 @@ TEMPLATE = app
 FAMITRACKER_LIBS = -L$$TOP/libs/famitracker/$$DESTDIR -lfamitracker
 FAMITRACKER_CXXFLAGS = -I$$TOP/libs/famitracker
 
+RTMIDI_LIBS = -L$$DEPENDENCYROOTPATH/rtmidi/$$DESTDIR -lrtmidi
+
 win32 {
    SDL_CXXFLAGS = -I$$DEPENDENCYPATH/SDL
    SDL_LIBS =  -L$$DEPENDENCYPATH/SDL/ -lsdl
@@ -119,8 +121,8 @@ unix:!mac {
 }
 
 QMAKE_CXXFLAGS += $$FAMITRACKER_CXXFLAGS \
-                  $$SDL_CXXFLAGS \
-                  $$RTMIDI_CXXFLAGS
+                  $$SDL_CXXFLAGS
+
 QMAKE_LFLAGS += $$FAMITRACKER_LFLAGS
 LIBS += $$FAMITRACKER_LIBS \
         $$SDL_LIBS \
