@@ -10,7 +10,7 @@ QT += core \
    xml
 
 # Qt 5.5 requires this?!
-LIBS += -lopengl32
+win32: LIBS += -lopengl32
 
 greaterThan(QT_MAJOR_VERSION,4) {
     QT += widgets

@@ -10217,7 +10217,7 @@ HANDLE WINAPI CreateThread(
 
     pThread->CreateThread(dwCreationFlags,dwStackSize,lpThreadAttributes);
 
-    (*lpThreadId) = pThread->m_nThreadID;
+//    (*lpThreadId) = pThread->m_nThreadID;
 
     return (HANDLE)pThread;
 }
@@ -14867,7 +14867,7 @@ DWORD WINAPI WaitForSingleObject(
    }
    else
    {
-      MessageBox(NULL,"BOo!","WaitForSingleObject not thread or event",MB_OK);
+      qDebug("WaitForSingleObject not thread or event");
    }
    return WAIT_FAILED;
 }

@@ -7,7 +7,7 @@ QT += network \
       xml
 
 # Qt 5.5 requires this?!
-LIBS += -lopengl32
+win32: LIBS += -lopengl32
 
 greaterThan(QT_MAJOR_VERSION,4) {
     QT += widgets
@@ -57,7 +57,7 @@ unix:!mac {
 CONFIG -= exceptions
 
 SCINTILLA_CXXFLAGS = -I$$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5
-SCINTILLA_LIBS = -L$$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5/release -lqscintilla2
+SCINTILLA_LIBS = -L$$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5 -lqscintilla2
 
 NES_CXXFLAGS = -I$$TOP/libs/nes -I$$TOP/libs/nes/emulator -I$$TOP/libs/nes/common
 NES_LIBS = -L$$TOP/libs/nes/$$DESTDIR -lnes-emulator

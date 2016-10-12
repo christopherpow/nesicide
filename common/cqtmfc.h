@@ -2302,7 +2302,7 @@ enum
 #include <windows.h>
 #include <prsht.h>
 
-#if !(defined(Q_OS_WIN) || defined(Q_OS_WIN32))
+#if !(defined(Q_OS_WIN) || defined(Q_OS_WIN32) || defined(Q_OS_MAC) || defined(Q_OS_MACX) || defined(Q_OS_MAC64))
 #define max(a,b) (((a) > (b)) ? (a) : (b))
 #define min(a,b) (((a) > (b)) ? (b) : (a))
 #endif
