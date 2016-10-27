@@ -2437,9 +2437,9 @@ typedef int* POSITION;
 #define ASSERT_VALID(y) { if (!(y)) { QString str; str.sprintf("%p ASSERT_VALID: %s(%d)",QThread::currentThreadId(),__FILE__,__LINE__); qDebug(str.toLatin1().constData()); qFatal("DUMPING");  } }
 #define ASSERT_KINDOF(y,z) { if ( !dynamic_cast<y*>(z) ) { QString str; str.sprintf("%p ASSERT_KINDOF: %s(%d)",QThread::currentThreadId(),__FILE__,__LINE__); qDebug(str.toLatin1().constData()); qFatal("DUMPING");  } }
 #else
-#define ASSERT(y) { if (!(y)) { QString str; str.sprintf("%d ASSERT: %s(%d)",(int)QThread::currentThreadId(),__FILE__,__LINE__); qDebug(str.toLatin1().constData()); qFatal("DUMPING"); } }
-#define ASSERT_VALID(y) { if (!(y)) { QString str; str.sprintf("%d ASSERT_VALID: %s(%d)",(int)QThread::currentThreadId(),__FILE__,__LINE__); qDebug(str.toLatin1().constData()); qFatal("DUMPING");  } }
-#define ASSERT_KINDOF(y,z) { if ( !dynamic_cast<y*>(z) ) { QString str; str.sprintf("%d ASSERT_KINDOF: %s(%d)",(int)QThread::currentThreadId(),__FILE__,__LINE__); qDebug(str.toLatin1().constData()); qFatal("DUMPING");  } }
+#define ASSERT(y) { if (!(y)) { QString str; str.sprintf("%p ASSERT: %s(%d)",QThread::currentThreadId(),__FILE__,__LINE__); qDebug(str.toLatin1().constData()); qFatal("DUMPING"); } }
+#define ASSERT_VALID(y) { if (!(y)) { QString str; str.sprintf("%p ASSERT_VALID: %s(%d)",QThread::currentThreadId(),__FILE__,__LINE__); qDebug(str.toLatin1().constData()); qFatal("DUMPING");  } }
+#define ASSERT_KINDOF(y,z) { if ( !dynamic_cast<y*>(z) ) { QString str; str.sprintf("%p ASSERT_KINDOF: %s(%d)",QThread::currentThreadId(),__FILE__,__LINE__); qDebug(str.toLatin1().constData()); qFatal("DUMPING");  } }
 #endif
 #endif
 
@@ -5728,7 +5728,7 @@ public:
 #ifdef Q_OS_MAC
    HANDLE m_nThreadID;
 #else
-   DWORD m_nThreadID;
+   quint64 m_nThreadID;
 #endif
    CFrameWnd* m_pMainWnd;
    AFX_THREADPROC m_pfnThreadProc;

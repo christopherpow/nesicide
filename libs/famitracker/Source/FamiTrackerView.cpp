@@ -18,7 +18,7 @@
 ** must bear this legend.
 */
 
-#include <boost/scoped_ptr.hpp>
+#include <boost/smart_ptr/scoped_ptr.hpp>
 #include <cmath>
 #include "FamiTracker.h"
 #include "FamiTrackerDoc.h"

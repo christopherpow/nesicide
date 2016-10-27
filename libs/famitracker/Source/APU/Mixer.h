@@ -23,7 +23,7 @@
 
 #include "Types.h"
 #include "../Common.h"
-#include "../Blip_Buffer/blip_buffer.h"
+#include "../Blip_Buffer/Blip_Buffer.h"
 
 enum chip_level_t {
 	CHIP_LEVEL_APU1,
