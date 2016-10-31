@@ -20,6 +20,9 @@
 
 #pragma once
 
+#undef __cdecl
+#define __cdecl
+
 
 #include "FamiTrackerTypes.h"
 #include "PatternData.h"

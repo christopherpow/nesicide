@@ -56,6 +56,9 @@ INCLUDEPATH += \
    Source \
    $$TOP/common
 
+# Boost is (thankfully) a generic dependency.
+BOOST_CXXFLAGS=-I$$DEPENDENCYPATH/../boost_1_58_0
+
 win32 {
    SDL_CXXFLAGS = -I$$DEPENDENCYPATH/SDL
    SDL_LIBS =  -L$$DEPENDENCYPATH/SDL/ -lsdl
@@ -85,6 +88,9 @@ unix:!mac {
     RTMIDI_CXXFLAGS = $$system(rtmidi-config --cflags)
     RTMIDI_LIBS = $$system(rtmidi-config --libs)
 
+    # Boost is (thankfully) a generic dependency.
+    BOOST_CXXFLAGS=-I/usr/include/boost
+
     WINE_CXXFLAGS = -I/usr/include/wine/windows/ -DUSE_WS_PREFIX -DWINE_UNICODE_NATIVE
 
    PREFIX = $$(PREFIX)
@@ -99,9 +105,6 @@ unix:!mac {
    target.path = $$BINDIR
    INSTALLS += target
 }
-
-# Boost is (thankfully) a generic dependency.
-BOOST_CXXFLAGS=-I$$DEPENDENCYPATH/../boost_1_58_0
 
 QMAKE_CXXFLAGS += $$SDL_CXXFLAGS $$BOOST_CXXFLAGS $$RTMIDI_CXXFLAGS $$WINE_CXXFLAGS
 QMAKE_CFLAGS += $$SDL_CXXFLAGS $$BOOST_CXXFLAGS $$RTMIDI_CXXFLAGS $$WINE_CXXFLAGS
