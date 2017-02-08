@@ -1285,6 +1285,7 @@ void CodeEditorForm::snapTo(QString item)
          if ( splits.count() == 3 )
          {
             highlightLine(splits.at(2).toInt());
+            editor_cursorPositionChanged(splits.at(2).toInt()-1,0);
          }
          else
          {
@@ -1377,7 +1378,7 @@ void CodeEditorForm::applyEnvironmentSettingsToTab()
    }
 
    m_language = Language_Default;
-   m_scintilla->setLexer(NULL);
+   m_scintilla->setLexer();
    if ( m_lexer )
    {
       delete m_lexer;

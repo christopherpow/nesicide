@@ -227,7 +227,7 @@ void EmulatorPrefsDialog::readSettings()
    viceIPAddress = settings.value("VICEIPAddress",QVariant("127.0.0.1")).toString();
    viceMonitorPort = settings.value("VICEMonitorPort",QVariant(6510)).toInt();
    viceOptions = settings.value("VICEOptions",QVariant()).toString();
-#if defined(Q_WS_WIN)
+#if defined(Q_OS_WIN)
    c64KernalROM = settings.value("C64KernalROM").toString();
    if ( c64KernalROM.isEmpty() )
    {

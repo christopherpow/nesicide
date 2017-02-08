@@ -9,10 +9,10 @@ QsciLexerDefault::QsciLexerDefault(QObject */*parent*/)
 #if defined(Q_OS_MAC) || defined(Q_OS_MACX) || defined(Q_OS_MAC64)
    setDefaultFont(QFont("Monaco", 11));
 #endif
-#ifdef Q_WS_X11
+#ifdef Q_OS_LINUX
    setDefaultFont(QFont("Monospace", 10));
 #endif
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
    setDefaultFont(QFont("Consolas", 11));
 #endif
 }
@@ -86,10 +86,10 @@ QFont QsciLexerDefault::defaultFont() const
 #if defined(Q_OS_MAC) || defined(Q_OS_MACX) || defined(Q_OS_MAC64)
    return QFont("Monaco", 11);
 #endif
-#ifdef Q_WS_X11
+#ifdef Q_OS_LINUX
    return QFont("Monospace", 10);
 #endif
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
    return QFont("Consolas", 11);
 #endif
 }

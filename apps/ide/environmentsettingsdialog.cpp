@@ -258,10 +258,10 @@ void EnvironmentSettingsDialog::readSettings()
 #if defined(Q_OS_MAC) || defined(Q_OS_MACX) || defined(Q_OS_MAC64)
    m_eolMode = settings.value("EOLMode",QVariant(QsciScintilla::EolMac)).toInt();
 #endif
-#ifdef Q_WS_X11
+#ifdef Q_OS_LINUX
    m_eolMode = settings.value("EOLMode",QVariant(QsciScintilla::EolUnix)).toInt();
 #endif
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
    m_eolMode = settings.value("EOLMode",QVariant(QsciScintilla::EolWindows)).toInt();
 #endif
    m_eolForceConsistent = settings.value("EOLForceConsistent",QVariant(true)).toBool();

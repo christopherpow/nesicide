@@ -54,7 +54,7 @@
 #include <QEvent>
 #include <QFocusEvent>
 
-#if defined(Q_WS_WIN)
+#if defined(Q_OS_WIN)
 #  if !defined(QT_QTCOLORPICKER_EXPORT) && !defined(QT_QTCOLORPICKER_IMPORT)
 #    define QT_QTCOLORPICKER_EXPORT
 #  elif defined(QT_QTCOLORPICKER_IMPORT)

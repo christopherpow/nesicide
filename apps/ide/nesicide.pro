@@ -16,11 +16,11 @@ greaterThan(QT_MAJOR_VERSION,4) {
 TOP = ../..
 
 macx {
-    MAC_SDK  = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk
+    MAC_SDK  = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk
     if( !exists( $$MAC_SDK) ) {
         error("The selected Mac OSX SDK does not exist at $$MAC_SDK!")
     }
-    macx:QMAKE_MAC_SDK = macosx10.11
+    macx:QMAKE_MAC_SDK = macosx10.12
 }
 
 CONFIG(release, debug|release) {
@@ -57,7 +57,7 @@ unix:!mac {
 CONFIG -= exceptions
 
 SCINTILLA_CXXFLAGS = -I$$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5
-SCINTILLA_LIBS = -L$$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5 -lqscintilla2
+SCINTILLA_LIBS = -L$$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5 -lqscintilla2_qt5
 
 NES_CXXFLAGS = -I$$TOP/libs/nes -I$$TOP/libs/nes/emulator -I$$TOP/libs/nes/common
 NES_LIBS = -L$$TOP/libs/nes/$$DESTDIR -lnes-emulator
@@ -119,10 +119,10 @@ mac {
    QMAKE_PRE_LINK += cp -r $$DEPENDENCYPATH/Lua.framework \
       $$DESTDIR/$${TARGET}.app/Contents/Frameworks/ $$escape_expand(\n\t)
 
-   QMAKE_PRE_LINK += cp $$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5/libqscintilla2.12.0.0.dylib \
-      $$DESTDIR/$${TARGET}.app/Contents/Frameworks/libqscintilla2.12.dylib $$escape_expand(\n\t)
-   QMAKE_POST_LINK += install_name_tool -change libqscintilla2.12.dylib \
-      @executable_path/../Frameworks/libqscintilla2.12.dylib \
+   QMAKE_PRE_LINK += cp $$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5/libqscintilla2_qt5.13.0.0.dylib \
+      $$DESTDIR/$${TARGET}.app/Contents/Frameworks/libqscintilla2_qt5.13.dylib $$escape_expand(\n\t)
+   QMAKE_POST_LINK += install_name_tool -change libqscintilla2_qt5.13.dylib \
+      @executable_path/../Frameworks/libqscintilla2_qt5.13.dylib \
       $$DESTDIR/$${TARGET}.app/Contents/MacOS/nesicide $$escape_expand(\n\t)
 
    QMAKE_POST_LINK += install_name_tool -add_rpath @loader_path/../Frameworks $$DESTDIR/$${TARGET}.app/Contents/MacOS/nesicide $$escape_expand(\n\t)

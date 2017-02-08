@@ -21,7 +21,7 @@ CPluginManager::CPluginManager()
 
 void CPluginManager::doInitScript()
 {
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
    const char* initScriptPath   = "../plugins/init.lua";
 #else
    const char* initScriptPath   = "plugins/init.lua";
@@ -62,7 +62,7 @@ void CPluginManager::doInitScript()
 
 void CPluginManager::loadPlugins()
 {
-#ifdef Q_WS_WIN
+#ifdef Q_OS_WIN
    const char* pluginPath   = "../plugins/";
 #else
    const char* pluginPath   = "plugins/";

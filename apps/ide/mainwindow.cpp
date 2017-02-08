@@ -43,7 +43,7 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
       QSettings::setPath(QSettings::IniFormat, QSettings::SystemScope, QCoreApplication::applicationDirPath());
    }
    
-#if defined(Q_WS_WIN) || defined(Q_WS_WIN32)
+#if defined(Q_OS_WIN)
    if ( QCoreApplication::applicationDirPath().contains("apps/ide") )
    {
       // Developer build?  Set environment assuming deps/ is at top level.
@@ -101,6 +101,28 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
       envdat += "/cc65/include";
       qputenv("CC65_INC",envdat.toLatin1());
    }
+#elif defined(Q_OS_MAC) || defined(Q_OS_MAC64) || defined(Q_OS_MACX)
+   // Set environment.
+   QString envvar = qgetenv("PATH");
+   QString envdat;
+   envdat = "/usr/local/bin:";
+   qputenv("PATH",QString(envdat+envvar).toLatin1());
+
+   envdat = "/usr/local/opt/cc65/share";
+   envdat += "/cc65";
+   qputenv("CC65_HOME",envdat.toLatin1());
+
+   envdat = "/usr/local/opt/cc65/share";
+   envdat += "/cc65/lib";
+   qputenv("LD65_LIB",envdat.toLatin1());
+
+   envdat = "/usr/local/opt/cc65/share";
+   envdat += "/cc65/asminc";
+   qputenv("CA65_INC",envdat.toLatin1());
+
+   envdat = "/usr/local/opt/cc65/share";
+   envdat += "/cc65/include";
+   qputenv("CC65_INC",envdat.toLatin1());
 #else
    if ( QCoreApplication::applicationDirPath().contains("apps/ide") )
    {
