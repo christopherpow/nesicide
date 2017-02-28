@@ -29,7 +29,7 @@ static const char* clangTargetRuleFmt =
 static const char* asmTargetRuleFmt =
       "vpath %<!extension!> $(foreach <!extension!>,$(SOURCES),$(dir $<!extension!>))\r\n\r\n"
       "$(OBJDIR)/%.o: %.<!extension!>\r\n"
-      "\t$(ASSEMBLE) --create-dep $(ASFLAGS) -o $@ $<\r\n\r\n"
+      "\t$(ASSEMBLE) $(ASFLAGS) -o $@ $<\r\n\r\n"
       ;
 
 CCC65Interface::CCC65Interface()
