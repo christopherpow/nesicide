@@ -561,6 +561,7 @@ void MainWindow::createNesUi()
    {
       return;
    }
+
    // If we're set up for some other UI, tear it down.
    if ( !m_targetLoaded.compare("c64",Qt::CaseInsensitive) )
    {
@@ -1270,6 +1271,7 @@ void MainWindow::destroyNesUi()
    delete menuI_O_Inspectors;
    delete menuCartridge_Inspectors;
    delete menuSystem;
+   delete menuVideo;
    delete menuAudioVRC6;
    delete menuAudioN106;
    delete menuAudio;
