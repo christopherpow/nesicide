@@ -12,6 +12,7 @@
 #include <QDateTime>
 #include <QPaintEngine>
 #include <QProcess>
+#include <QWaitCondition>
 
 #include "cqtmfc.h"
 #include "resource.h"
@@ -10319,7 +10320,7 @@ void CWinThread::runSlot()
 #ifdef Q_OS_MAC
       m_nThreadID = QThread::currentThreadId();
 #else
-      m_nThreadID = (DWORD)QThread::currentThreadId();
+//      m_nThreadID = QThread::currentThreadId();
 #endif
 
    pThread->setPriority(_priority);
@@ -16003,7 +16004,10 @@ VOID WINAPI Sleep(
   DWORD dwMilliseconds
 )
 {
-   QThread::currentThread()->msleep(dwMilliseconds);
+   QMutex dummy;
+   dummy.lock();
+   QWaitCondition waitCondition;
+   waitCondition.wait(&dummy, dwMilliseconds);
 }
 #endif
 

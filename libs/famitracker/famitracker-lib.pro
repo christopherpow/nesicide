@@ -11,6 +11,7 @@ QT += core gui
 
 greaterThan(QT_MAJOR_VERSION,4) {
     QT += widgets
+    CONFIG += c++11
 }
 
 TOP = ../..
@@ -55,17 +56,23 @@ INCLUDEPATH += \
    Source \
    $$TOP/common
 
-RTMIDI_CXXFLAGS = -I$$DEPENDENCYROOTPATH/rtmidi
-RTMIDI_LIBS = -L$$DEPENDENCYROOTPATH/rtmidi/$$DESTDIR -lrtmidi
+# Boost is (thankfully) a generic dependency.
+BOOST_CXXFLAGS=-I$$DEPENDENCYPATH/../boost_1_58_0
 
 win32 {
    SDL_CXXFLAGS = -I$$DEPENDENCYPATH/SDL
    SDL_LIBS =  -L$$DEPENDENCYPATH/SDL/ -lsdl
+
+   RTMIDI_CXXFLAGS = -I$$DEPENDENCYROOTPATH/rtmidi
+   RTMIDI_LIBS = -L$$DEPENDENCYROOTPATH/rtmidi/$$DESTDIR -lrtmidi
 }
 
 mac {
    SDL_CXXFLAGS = -I$$DEPENDENCYPATH/SDL.framework/Headers
    SDL_LIBS = -F$$DEPENDENCYPATH -framework SDL
+
+   RTMIDI_CXXFLAGS = -I$$DEPENDENCYROOTPATH/rtmidi
+   RTMIDI_LIBS = -L$$DEPENDENCYROOTPATH/rtmidi/$$DESTDIR -lrtmidi
 
    WINE_CXXFLAGS = -I $$DEPENDENCYPATH/wine/include -DWINE_UNICODE_NATIVE -I $$DEPENDENCYPATH -I $$DEPENDENCYPATH/stdafxhack
 
@@ -75,15 +82,16 @@ mac {
 }
 
 unix:!mac {
-    isEmpty (SDL_CXXFLAGS) {
-       SDL_CXXFLAGS = $$system(sdl-config --cflags)
-    }
+    SDL_CXXFLAGS = $$system(sdl-config --cflags)
+    SDL_LIBS = $$system(sdl-config --libs)
+
+    RTMIDI_CXXFLAGS = $$system(rtmidi-config --cflags)
+    RTMIDI_LIBS = $$system(rtmidi-config --libs)
+
+    # Boost is (thankfully) a generic dependency.
+    BOOST_CXXFLAGS=-I/usr/include/boost
 
     WINE_CXXFLAGS = -I/usr/include/wine/windows/ -DUSE_WS_PREFIX -DWINE_UNICODE_NATIVE
-
-    isEmpty (SDL_LIBS) {
-            SDL_LIBS = $$system(sdl-config --libs)
-    }
 
    PREFIX = $$(PREFIX)
    isEmpty (PREFIX) {
@@ -97,9 +105,6 @@ unix:!mac {
    target.path = $$BINDIR
    INSTALLS += target
 }
-
-# Boost is (thankfully) a generic dependency.
-BOOST_CXXFLAGS=-I$$DEPENDENCYPATH/../boost_1_58_0
 
 QMAKE_CXXFLAGS += $$SDL_CXXFLAGS $$BOOST_CXXFLAGS $$RTMIDI_CXXFLAGS $$WINE_CXXFLAGS
 QMAKE_CFLAGS += $$SDL_CXXFLAGS $$BOOST_CXXFLAGS $$RTMIDI_CXXFLAGS $$WINE_CXXFLAGS
