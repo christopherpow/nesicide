@@ -24,6 +24,8 @@ macx {
     macx:QMAKE_MAC_SDK = macosx10.12
 }
 
+CONFIG += warn_off
+
 CONFIG(release, debug|release) {
    DESTDIR = release
 } else {
@@ -57,7 +59,7 @@ INCLUDEPATH += \
    $$TOP/common
 
 # Boost is (thankfully) a generic dependency.
-BOOST_CXXFLAGS=-I$$DEPENDENCYPATH/../boost_1_58_0
+BOOST_CXXFLAGS=-I$$DEPENDENCYPATH/../boost_1_64_0
 
 win32 {
    SDL_CXXFLAGS = -I$$DEPENDENCYPATH/SDL
