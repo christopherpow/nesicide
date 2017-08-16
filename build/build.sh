@@ -1,11 +1,12 @@
 #!/bin/bash
 
+# add CONFIG+=debug to qmake to build debug.
 echo Building NESICIDE...
-( cd ide; qmake CONFIG+=debug; make )
+( cd ide; qmake; make )
 echo Building FamiTracker...
-( cd famitracker; qmake CONFIG+=debug; make )
+( cd famitracker; qmake; make )
 echo Building FamiPlayer...
-( cd famiplayer; qmake CONFIG+=debug; make )
+( cd famiplayer; qmake; make )
 echo Building NES Emulator...
-( cd nes-emulator; qmake CONFIG+=debug; make )
+( cd nes-emulator; qmake; make )
 

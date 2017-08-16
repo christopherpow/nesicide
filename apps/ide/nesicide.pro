@@ -56,8 +56,11 @@ unix:!mac {
 # Remove crap we don't need!
 CONFIG -= exceptions
 
+debug: QSCINTILLA_NAME=qscintilla2_qt5_debug
+release: QSCINTILLA_NAME=qscintilla2_qt5
+
 SCINTILLA_CXXFLAGS = -I$$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5
-SCINTILLA_LIBS = -L$$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5 -lqscintilla2_qt5_$$DESTDIR
+SCINTILLA_LIBS = -L$$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5 -l$$QSCINTILLA_NAME
 
 NES_CXXFLAGS = -I$$TOP/libs/nes -I$$TOP/libs/nes/emulator -I$$TOP/libs/nes/common
 NES_LIBS = -L$$TOP/libs/nes/$$DESTDIR -lnes-emulator
@@ -119,15 +122,15 @@ mac {
    QMAKE_PRE_LINK += cp -r $$DEPENDENCYPATH/Lua.framework \
       $$DESTDIR/$${TARGET}.app/Contents/Frameworks/ $$escape_expand(\n\t)
 
-   QMAKE_PRE_LINK += cp $$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5/libqscintilla2_qt5_$${DESTDIR}.13.0.0.dylib \
-      $$DESTDIR/$${TARGET}.app/Contents/Frameworks/libqscintilla2_qt5_$${DESTDIR}.13.dylib $$escape_expand(\n\t)
-   QMAKE_POST_LINK += install_name_tool -change libqscintilla2_qt5_$${DESTDIR}.13.dylib \
-      @executable_path/../Frameworks/libqscintilla2_qt5_$${DESTDIR}.13.dylib \
+   QMAKE_PRE_LINK += cp $$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5/lib$${QSCINTILLA_NAME}.13.0.0.dylib \
+      $$DESTDIR/$${TARGET}.app/Contents/Frameworks/lib$${QSCINTILLA_NAME}.13.dylib $$escape_expand(\n\t)
+   QMAKE_POST_LINK += install_name_tool -change lib$${QSCINTILLA_NAME}.13.dylib \
+      @executable_path/../Frameworks/lib$${QSCINTILLA_NAME}.13.dylib \
       $$DESTDIR/$${TARGET}.app/Contents/MacOS/nesicide $$escape_expand(\n\t)
 
    QMAKE_POST_LINK += install_name_tool -add_rpath @loader_path/../Frameworks $$DESTDIR/$${TARGET}.app/Contents/MacOS/nesicide $$escape_expand(\n\t)
 
-#   QMAKE_POST_LINK += cp -r $$DEPENDENCYROOTPATH/cc65 $$DESTDIR/$${TARGET}.app/Contents/Frameworks/
+   QMAKE_POST_LINK += make -C $$DEPENDENCYROOTPATH/cc65 prefix=$$DESTDIR/$${TARGET}.app/Contents/Frameworks/cc65 install $$escape_expand(\n\t) 
 
    ICON = mac/resources/nesicide.icns
 }

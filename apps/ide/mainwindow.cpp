@@ -105,24 +105,26 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    // Set environment.
    QString envvar = qgetenv("PATH");
    QString envdat;
-   envdat = "/opt/cc65/bin:";
+   envdat = QCoreApplication::applicationDirPath();
+   envdat += "/cc65/bin;";
    qputenv("PATH",QString(envdat+envvar).toLatin1());
 
-   envdat = "/opt/cc65/share";
+   envdat = QCoreApplication::applicationDirPath();
    envdat += "/cc65";
    qputenv("CC65_HOME",envdat.toLatin1());
 
-   envdat = "/opt/cc65/share";
+   envdat = QCoreApplication::applicationDirPath();
    envdat += "/cc65/lib";
    qputenv("LD65_LIB",envdat.toLatin1());
 
-   envdat = "/opt/cc65/share";
+   envdat = QCoreApplication::applicationDirPath();
    envdat += "/cc65/asminc";
    qputenv("CA65_INC",envdat.toLatin1());
 
-   envdat = "/opt/cc65/share";
+   envdat = QCoreApplication::applicationDirPath();
    envdat += "/cc65/include";
    qputenv("CC65_INC",envdat.toLatin1());
+
 #else
    if ( QCoreApplication::applicationDirPath().contains("apps/ide") )
    {
