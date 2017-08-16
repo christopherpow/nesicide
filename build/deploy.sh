@@ -1,11 +1,18 @@
 #!/bin/bash
 
+TARGET=$(basename `echo $0 | cut -d'-' -f 1`)
+TARGARGS=
+
+if [ "$TARGET" == 'mac' ]; then
+   TARGARGS+=-dmg
+fi
+
 echo Deploying NESICIDE...
-macdeployqt apps/ide/release/nesicide.app -dmg
+${TARGET}deployqt ../apps/ide/release/nesicide.app ${TARGARGS} 
 echo Deploying FamiTracker...
-macdeployqt apps/famitracker/release/famitracker.app -dmg
+${TARGET}deployqt ../apps/famitracker/release/famitracker.app ${TARGARGS}
 echo Deploying FamiPlayer...
-macdeployqt apps/famiplayer/release/famiplayer.app -dmg
+${TARGET}deployqt ../apps/famiplayer/release/famiplayer.app ${TARGARGS}
 echo Deploying NES Emulator...
-macdeployqt apps/nes-emulator/release/nes-emulator.app -dmg
+${TARGET}deployqt ../apps/nes-emulator/release/nes-emulator.app ${TARGARGS}
 
