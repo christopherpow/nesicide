@@ -106,7 +106,7 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    QString envvar = qgetenv("PATH");
    QString envdat;
    envdat = QCoreApplication::applicationDirPath();
-   envdat += "/cc65/bin;";
+   envdat += "/cc65/bin:";
    qputenv("PATH",QString(envdat+envvar).toLatin1());
 
    envdat = QCoreApplication::applicationDirPath();
@@ -114,15 +114,15 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    qputenv("CC65_HOME",envdat.toLatin1());
 
    envdat = QCoreApplication::applicationDirPath();
-   envdat += "/cc65/lib";
+   envdat += "/cc65/share/cc65/lib";
    qputenv("LD65_LIB",envdat.toLatin1());
 
    envdat = QCoreApplication::applicationDirPath();
-   envdat += "/cc65/asminc";
+   envdat += "/cc65/share/cc65/asminc";
    qputenv("CA65_INC",envdat.toLatin1());
 
    envdat = QCoreApplication::applicationDirPath();
-   envdat += "/cc65/include";
+   envdat += "/cc65/share/cc65/include";
    qputenv("CC65_INC",envdat.toLatin1());
 
 #else

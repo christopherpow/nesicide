@@ -22,7 +22,7 @@ bool fileNamesAreIdentical(QString file1, QString file2)
 static const char* clangTargetRuleFmt =
       "vpath %<!extension!> $(foreach <!extension!>,$(SOURCES),$(dir $<!extension!>))\r\n\r\n"
       "$(OBJDIR)/%.o: %.<!extension!>\r\n"
-      "\t$(COMPILE) --create-dep -S $(CFLAGS) -o $(@:.o=.s) $<\r\n"
+      "\t$(COMPILE) --create-dep $(@:.o=.d) -S $(CFLAGS) -o $(@:.o=.s) $<\r\n"
       "\t$(ASSEMBLE) $(ASFLAGS) -o $@ $(@:.o=.s)\r\n\r\n"
       ;
 
