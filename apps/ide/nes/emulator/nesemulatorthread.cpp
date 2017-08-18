@@ -145,7 +145,8 @@ void NESEmulatorThread::kill()
    m_isTerminating = true;
 
    start();
-   
+   quit();
+
    while ( !isFinished() )
    {
       nesBreakpointSemaphore->release();
