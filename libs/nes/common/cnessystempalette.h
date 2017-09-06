@@ -113,8 +113,8 @@ public:
    };
 
 protected:
-   static uint32_t m_paletteBase [ 64 ];
-   static uint32_t m_paletteVariants [ 8 ] [ 64 ];
+   static int32_t m_paletteBase [ 64 ];
+   static int32_t m_paletteVariants [ 8 ] [ 64 ];
    static int8_t   m_paletteRGBs [ 8 ] [ 64 ] [ 3 ];
 };
 

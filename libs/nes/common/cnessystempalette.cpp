@@ -37,7 +37,7 @@ inline uint8_t blue(uint32_t rgb)
    return (rgb>>8)&0xFF;
 }
 
-uint32_t CBasePalette::m_paletteBase [ 64 ] =
+int32_t CBasePalette::m_paletteBase [ 64 ] =
 {
    RGB_VALUE ( 102, 102, 102 ),
    RGB_VALUE ( 0, 42, 136 ),
@@ -105,7 +105,7 @@ uint32_t CBasePalette::m_paletteBase [ 64 ] =
    RGB_VALUE ( 0, 0, 0 )
 };
 
-uint32_t CBasePalette::m_paletteVariants [ 8 ] [ 64 ];
+int32_t CBasePalette::m_paletteVariants [ 8 ] [ 64 ];
 
 int8_t   CBasePalette::m_paletteRGBs [ 8 ] [ 64 ] [ 3 ];
 
