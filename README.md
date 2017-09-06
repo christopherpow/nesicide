@@ -19,7 +19,7 @@ Getting the source
 
 1. Fetch dependencies package:
 
-   wget https://knob.phreneticapps.com/nesicide/nesicide-deps.tar.bz2
+   wget https://knob.phreneticappsllc.com/nesicide/nesicide-deps.tar.bz2
 
 Building
 ========
