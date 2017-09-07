@@ -8,6 +8,11 @@ Prerequisites
 0. Install Qt open source from:
 
    https://info.qt.io/download-qt-for-application-development
+   
+   NOTE: The latest kit that was verified to build NESICIDE properly with no errors is Qt 5.6.2. Please do not 
+         use a kit later than this, or if you do, please create a pull request with necessary changes. Known issues:
+         
+         . C++11 support required
 
 1. Install git
 

@@ -3,14 +3,19 @@
 # -------------------------------------------------
 QT += network \
       opengl \
-      webenginewidgets \
       xml
 
-# Qt 5.5 requires this?!
-win32: LIBS += -lopengl32
+greaterThan(QT_MAJOR_VERSION,5) {
+    win32: LIBS += -lopengl32
+    QT += webenginewidgets
+}
 
 greaterThan(QT_MAJOR_VERSION,4) {
-    QT += widgets
+    QT += widgets \
+}
+
+lessThan(QT_MAJOR_VERSION,5) {
+    QT += webkitwidgets
 }
 
 TOP = ../..
