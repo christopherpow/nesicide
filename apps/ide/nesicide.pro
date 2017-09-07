@@ -3,7 +3,7 @@
 # -------------------------------------------------
 QT += network \
       opengl \
-      webkitwidgets \
+      webenginewidgets \
       xml
 
 # Qt 5.5 requires this?!

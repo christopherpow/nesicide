@@ -11,10 +11,10 @@ CBinaryFileModel::CBinaryFileModel()
 
 QList<QUuid> CBinaryFileModel::getUuids() const
 {
-   if (m_pProject == NULL)
+   if (m_pNesicideProject == NULL)
        return QList<QUuid>();
 
-   return ProjectSearcher::findUuidsOfType<CBinaryFile>(m_pProject);
+   return ProjectSearcher::findUuidsOfType<CBinaryFile>(m_pNesicideProject);
 }
 
 QString CBinaryFileModel::getName(const QUuid &uuid) const
@@ -25,19 +25,19 @@ QString CBinaryFileModel::getName(const QUuid &uuid) const
 
 QString CBinaryFileModel::getFileName(const QUuid &uuid) const
 {
-   CBinaryFile* file = ProjectSearcher::findItemByUuid<CBinaryFile>(m_pProject, uuid);
+   CBinaryFile* file = ProjectSearcher::findItemByUuid<CBinaryFile>(m_pNesicideProject, uuid);
    return file->caption();
 }
 
 
 QUuid CBinaryFileModel::addExistingBinaryFile(const QString &path)
 {
-   if (m_pProject == NULL)
+   if (m_pNesicideProject == NULL)
       return QUuid();
 
    QDir dir(QDir::currentPath());
 
-   CBinaryFiles* binaryFiles = m_pProject->getProject()->getBinaryFiles();
+   CBinaryFiles* binaryFiles = m_pNesicideProject->getProject()->getBinaryFiles();
 
    CBinaryFile* pBinaryFile = new CBinaryFile(binaryFiles);
    pBinaryFile->setName(dir.fromNativeSeparators(dir.relativeFilePath(path)));
@@ -53,17 +53,17 @@ QUuid CBinaryFileModel::addExistingBinaryFile(const QString &path)
 
 void CBinaryFileModel::removeBinaryFile(const QUuid &uuid)
 {
-   if (m_pProject == NULL)
+   if (m_pNesicideProject == NULL)
       return;
 
-   CBinaryFile* file = ProjectSearcher::findItemByUuid<CBinaryFile>(m_pProject, uuid);
+   CBinaryFile* file = ProjectSearcher::findItemByUuid<CBinaryFile>(m_pNesicideProject, uuid);
    if (file == NULL)
       return;
 
-   CBinaryFiles* binaryFiles = m_pProject->getProject()->getBinaryFiles();
+   CBinaryFiles* binaryFiles = m_pNesicideProject->getProject()->getBinaryFiles();
    binaryFiles->removeChild(file);
    binaryFiles->getBinaryFileList().removeAll(file);
-   m_pProject->setDirty(true);
+   m_pNesicideProject->setDirty(true);
    delete file;
 
    emit binaryFileRemoved(uuid);

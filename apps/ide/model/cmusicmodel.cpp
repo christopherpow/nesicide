@@ -13,11 +13,11 @@ CMusicModel::CMusicModel()
 
 QUuid CMusicModel::newMusicFile(const QString& path)
 {
-   if (m_pProject == NULL || path.isNull())
+   if (m_pNesicideProject == NULL || path.isNull())
       return QUuid();
 
-   CMusicItem *file = m_pProject->getProject()->getSounds()->getMusics()->addMusicFile(path);
-   m_pProject->setDirty(true);
+   CMusicItem *file = m_pNesicideProject->getProject()->getSounds()->getMusics()->addMusicFile(path);
+   m_pNesicideProject->setDirty(true);
 
    emit musicFileAdded(file->uuid());
    return file->uuid();
@@ -25,12 +25,12 @@ QUuid CMusicModel::newMusicFile(const QString& path)
 
 QUuid CMusicModel::addExistingMusicFile(const QString &path)
 {
-   if (m_pProject == NULL || path.isNull())
+   if (m_pNesicideProject == NULL || path.isNull())
       return QUuid();
 
    // TODO Does this work?
-   CMusicItem *file = m_pProject->getProject()->getSounds()->getMusics()->addMusicFile(path);
-   m_pProject->setDirty(true);
+   CMusicItem *file = m_pNesicideProject->getProject()->getSounds()->getMusics()->addMusicFile(path);
+   m_pNesicideProject->setDirty(true);
 
    emit musicFileAdded(file->uuid());
    return file->uuid();
@@ -38,26 +38,26 @@ QUuid CMusicModel::addExistingMusicFile(const QString &path)
 
 void CMusicModel::removeMusicFile(const QUuid &uuid)
 {
-   if (m_pProject == NULL)
+   if (m_pNesicideProject == NULL)
       return;
 
    // Make sure item has correct type before doing anything.
-   CMusicItem* item = ProjectSearcher::findItemByUuid<CMusicItem>(m_pProject, uuid);
+   CMusicItem* item = ProjectSearcher::findItemByUuid<CMusicItem>(m_pNesicideProject, uuid);
    if (item == NULL)
       return;
 
-   m_pProject->getProject()->getSounds()->getMusics()->removeMusicFile(item);
-   m_pProject->setDirty(true);
+   m_pNesicideProject->getProject()->getSounds()->getMusics()->removeMusicFile(item);
+   m_pNesicideProject->setDirty(true);
 
    emit musicFileRemoved(uuid);
 }
 
 QList<QUuid> CMusicModel::getUuids() const
 {
-   if (m_pProject == NULL)
+   if (m_pNesicideProject == NULL)
       return QList<QUuid>();
 
-   QList<CMusicItem*> files = ProjectSearcher::findItemsOfType<CMusicItem>(m_pProject);
+   QList<CMusicItem*> files = ProjectSearcher::findItemsOfType<CMusicItem>(m_pNesicideProject);
 
    QList<QUuid> uuids;
    foreach(CMusicItem* file, files)
@@ -74,37 +74,37 @@ QString CMusicModel::getName(const QUuid &uuid) const
 
 QByteArray CMusicModel::getMusicData(const QUuid &uuid) const
 {
-   if (m_pProject == NULL)
+   if (m_pNesicideProject == NULL)
       return QByteArray();
 
-   CMusicItem* file = ProjectSearcher::findItemByUuid<CMusicItem>(m_pProject, uuid);
+   CMusicItem* file = ProjectSearcher::findItemByUuid<CMusicItem>(m_pNesicideProject, uuid);
    return file != NULL ? file->musicData() : QByteArray();
 }
 
 QString CMusicModel::getRelativePath(const QUuid &uuid) const
 {
-   if (m_pProject == NULL)
+   if (m_pNesicideProject == NULL)
       return QString();
 
-   CMusicItem* file = ProjectSearcher::findItemByUuid<CMusicItem>(m_pProject, uuid);
+   CMusicItem* file = ProjectSearcher::findItemByUuid<CMusicItem>(m_pNesicideProject, uuid);
    return file != NULL ? file->path() : QString();
 }
 
 QString CMusicModel::getFileName(const QUuid &uuid) const
 {
-   if (m_pProject == NULL)
+   if (m_pNesicideProject == NULL)
       return QString();
 
-   CMusicItem* file = ProjectSearcher::findItemByUuid<CMusicItem>(m_pProject, uuid);
+   CMusicItem* file = ProjectSearcher::findItemByUuid<CMusicItem>(m_pNesicideProject, uuid);
    return file != NULL ? file->caption() : QString();
 }
 
 void CMusicModel::setMusicData(const QUuid &uuid, const QByteArray &data)
 {
-   if (m_pProject == NULL)
+   if (m_pNesicideProject == NULL)
       return;
 
-   CMusicItem* file = ProjectSearcher::findItemByUuid<CMusicItem>(m_pProject, uuid);
+   CMusicItem* file = ProjectSearcher::findItemByUuid<CMusicItem>(m_pNesicideProject, uuid);
    if (file == NULL)
       return;
 
@@ -114,10 +114,10 @@ void CMusicModel::setMusicData(const QUuid &uuid, const QByteArray &data)
 
 void CMusicModel::setRelativePath(const QUuid &uuid, const QString &path)
 {
-   if (m_pProject == NULL)
+   if (m_pNesicideProject == NULL)
       return;
 
-   CMusicItem* file = ProjectSearcher::findItemByUuid<CMusicItem>(m_pProject, uuid);
+   CMusicItem* file = ProjectSearcher::findItemByUuid<CMusicItem>(m_pNesicideProject, uuid);
    if (file == NULL)
       return;
 
@@ -129,7 +129,7 @@ void CMusicModel::setRelativePath(const QUuid &uuid, const QString &path)
 CDesignerEditorBase *CMusicModel::createEditorWidget(const QUuid &uuid) const
 {
    MusicEditorForm* editor = MusicEditorForm::instance();
-   CMusicItem* file = ProjectSearcher::findItemByUuid<CMusicItem>(m_pProject, uuid);
+   CMusicItem* file = ProjectSearcher::findItemByUuid<CMusicItem>(m_pNesicideProject, uuid);
    if (file == NULL)
       return NULL;
 

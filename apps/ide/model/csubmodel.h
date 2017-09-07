@@ -26,15 +26,15 @@ public:
    virtual CDesignerEditorBase* createEditorWidget(const QUuid& uuid) const=0;
 
 protected:
-   CNesicideProject* m_pProject;
+   CNesicideProject* m_pNesicideProject;
 
    friend class CProjectModel;
 
-   CSubModel() : m_pProject(NULL) { }
+   CSubModel() : m_pNesicideProject(NULL) { }
 
    void setProject(CNesicideProject *project)
    {
-      m_pProject = project;
+      m_pNesicideProject = project;
       emit reset();
    }
 };

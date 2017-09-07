@@ -11,11 +11,11 @@ CSourceFileModel::CSourceFileModel()
 
 QUuid CSourceFileModel::newSourceFile(const QString& path)
 {
-   if (m_pProject == NULL || path.isNull())
+   if (m_pNesicideProject == NULL || path.isNull())
       return QUuid();
 
-   CSourceItem *file = m_pProject->getProject()->getSources()->addSourceFile(path);
-   m_pProject->setDirty(true);
+   CSourceItem *file = m_pNesicideProject->getProject()->getSources()->addSourceFile(path);
+   m_pNesicideProject->setDirty(true);
 
    emit sourceFileAdded(file->uuid());
    return file->uuid();
@@ -23,12 +23,12 @@ QUuid CSourceFileModel::newSourceFile(const QString& path)
 
 QUuid CSourceFileModel::addExistingSourceFile(const QString &path)
 {
-   if (m_pProject == NULL || path.isNull())
+   if (m_pNesicideProject == NULL || path.isNull())
       return QUuid();
 
    // TODO Does this work?
-   CSourceItem *file = m_pProject->getProject()->getSources()->addSourceFile(path);
-   m_pProject->setDirty(true);
+   CSourceItem *file = m_pNesicideProject->getProject()->getSources()->addSourceFile(path);
+   m_pNesicideProject->setDirty(true);
 
    emit sourceFileAdded(file->uuid());
    return file->uuid();
@@ -36,26 +36,26 @@ QUuid CSourceFileModel::addExistingSourceFile(const QString &path)
 
 void CSourceFileModel::removeSourceFile(const QUuid &uuid)
 {
-   if (m_pProject == NULL)
+   if (m_pNesicideProject == NULL)
       return;
 
    // Make sure item has correct type before doing anything.
-   CSourceItem* item = ProjectSearcher::findItemByUuid<CSourceItem>(m_pProject, uuid);
+   CSourceItem* item = ProjectSearcher::findItemByUuid<CSourceItem>(m_pNesicideProject, uuid);
    if (item == NULL)
       return;
 
-   m_pProject->getProject()->getSources()->removeSourceFile(item);
-   m_pProject->setDirty(true);
+   m_pNesicideProject->getProject()->getSources()->removeSourceFile(item);
+   m_pNesicideProject->setDirty(true);
 
    emit sourceFileRemoved(uuid);
 }
 
 QList<QUuid> CSourceFileModel::getUuids() const
 {
-   if (m_pProject == NULL)
+   if (m_pNesicideProject == NULL)
       return QList<QUuid>();
 
-   QList<CSourceItem*> files = ProjectSearcher::findItemsOfType<CSourceItem>(m_pProject);
+   QList<CSourceItem*> files = ProjectSearcher::findItemsOfType<CSourceItem>(m_pNesicideProject);
 
    QList<QUuid> uuids;
    foreach(CSourceItem* file, files)
@@ -72,37 +72,37 @@ QString CSourceFileModel::getName(const QUuid &uuid) const
 
 QString CSourceFileModel::getSourceCode(const QUuid &uuid) const
 {
-   if (m_pProject == NULL)
+   if (m_pNesicideProject == NULL)
       return QString();
 
-   CSourceItem* file = ProjectSearcher::findItemByUuid<CSourceItem>(m_pProject, uuid);
+   CSourceItem* file = ProjectSearcher::findItemByUuid<CSourceItem>(m_pNesicideProject, uuid);
    return file != NULL ? file->sourceCode() : QString();
 }
 
 QString CSourceFileModel::getRelativePath(const QUuid &uuid) const
 {
-   if (m_pProject == NULL)
+   if (m_pNesicideProject == NULL)
       return QString();
 
-   CSourceItem* file = ProjectSearcher::findItemByUuid<CSourceItem>(m_pProject, uuid);
+   CSourceItem* file = ProjectSearcher::findItemByUuid<CSourceItem>(m_pNesicideProject, uuid);
    return file != NULL ? file->path() : QString();
 }
 
 QString CSourceFileModel::getFileName(const QUuid &uuid) const
 {
-   if (m_pProject == NULL)
+   if (m_pNesicideProject == NULL)
       return QString();
 
-   CSourceItem* file = ProjectSearcher::findItemByUuid<CSourceItem>(m_pProject, uuid);
+   CSourceItem* file = ProjectSearcher::findItemByUuid<CSourceItem>(m_pNesicideProject, uuid);
    return file != NULL ? file->caption() : QString();
 }
 
 void CSourceFileModel::setSourceCode(const QUuid &uuid, const QString &source)
 {
-   if (m_pProject == NULL)
+   if (m_pNesicideProject == NULL)
       return;
 
-   CSourceItem* file = ProjectSearcher::findItemByUuid<CSourceItem>(m_pProject, uuid);
+   CSourceItem* file = ProjectSearcher::findItemByUuid<CSourceItem>(m_pNesicideProject, uuid);
    if (file == NULL)
       return;
 
@@ -112,10 +112,10 @@ void CSourceFileModel::setSourceCode(const QUuid &uuid, const QString &source)
 
 void CSourceFileModel::setRelativePath(const QUuid &uuid, const QString &path)
 {
-   if (m_pProject == NULL)
+   if (m_pNesicideProject == NULL)
       return;
 
-   CSourceItem* file = ProjectSearcher::findItemByUuid<CSourceItem>(m_pProject, uuid);
+   CSourceItem* file = ProjectSearcher::findItemByUuid<CSourceItem>(m_pNesicideProject, uuid);
    if (file == NULL)
       return;
 
@@ -126,7 +126,7 @@ void CSourceFileModel::setRelativePath(const QUuid &uuid, const QString &path)
 
 CDesignerEditorBase *CSourceFileModel::createEditorWidget(const QUuid &uuid) const
 {
-   CSourceItem* file = ProjectSearcher::findItemByUuid<CSourceItem>(m_pProject, uuid);
+   CSourceItem* file = ProjectSearcher::findItemByUuid<CSourceItem>(m_pNesicideProject, uuid);
    if (file == NULL)
       return NULL;
 
