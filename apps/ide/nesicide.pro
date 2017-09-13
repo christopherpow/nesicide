@@ -5,17 +5,18 @@ QT += network \
       opengl \
       xml
 
-greaterThan(QT_MAJOR_VERSION,5) {
-    win32: LIBS += -lopengl32
-    QT += webenginewidgets
-}
-
 greaterThan(QT_MAJOR_VERSION,4) {
-    QT += widgets \
+   win32: LIBS += -lopengl32
+   QT += webenginewidgets \
+         widgets
+   CONFIG += c++11
+   QMAKE_CXXFLAGS += -stdlib=libc++
+   QMAKE_CFLAGS += -mmacosx-version-min=10.7
+   QMAKE_LFLAGS += -mmacosx-version-min=10.7
 }
 
 lessThan(QT_MAJOR_VERSION,5) {
-    QT += webkitwidgets
+   QT += webkitwidgets
 }
 
 TOP = ../..

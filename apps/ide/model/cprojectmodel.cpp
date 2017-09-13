@@ -19,7 +19,7 @@
 //--------------------------------------------------------------------------------------
 CProjectModel::CProjectModel()
 {
-   m_pProject = NULL;
+   m_pNesicideProject = NULL;
 
    m_pAttributeModel    = new CAttributeModel();
    m_pBinaryFileModel   = new CBinaryFileModel();
@@ -59,7 +59,7 @@ CProjectModel::~CProjectModel()
 
 void CProjectModel::setProject(CNesicideProject *project)
 {
-   m_pProject = project;
+   m_pNesicideProject = project;
 
    // Propagate data changes through all child models.
    m_pAttributeModel->setProject(project);
@@ -77,20 +77,20 @@ void CProjectModel::setProject(CNesicideProject *project)
 QList<QUuid> CProjectModel::getUuids() const
 {
    QList<QUuid> uuids;
-   if (m_pProject == NULL)
+   if (m_pNesicideProject == NULL)
       return uuids;
 
    // Extract the uuids of all project items, but
    // exclude "Filters" like CSourceFiles, CGraphicsBanks, etc.
-   uuids.append(ProjectSearcher::findUuidsOfType<CAttributeTable>(m_pProject));
-   uuids.append(ProjectSearcher::findUuidsOfType<CBinaryFile>(m_pProject));
-   uuids.append(ProjectSearcher::findUuidsOfType<CGraphicsBank>(m_pProject));
-   uuids.append(ProjectSearcher::findUuidsOfType<CSourceItem>(m_pProject));
-   uuids.append(ProjectSearcher::findUuidsOfType<CTileStamp>(m_pProject));
-   uuids.append(ProjectSearcher::findUuidsOfType<CMusicItem>(m_pProject));
+   uuids.append(ProjectSearcher::findUuidsOfType<CAttributeTable>(m_pNesicideProject));
+   uuids.append(ProjectSearcher::findUuidsOfType<CBinaryFile>(m_pNesicideProject));
+   uuids.append(ProjectSearcher::findUuidsOfType<CGraphicsBank>(m_pNesicideProject));
+   uuids.append(ProjectSearcher::findUuidsOfType<CSourceItem>(m_pNesicideProject));
+   uuids.append(ProjectSearcher::findUuidsOfType<CTileStamp>(m_pNesicideProject));
+   uuids.append(ProjectSearcher::findUuidsOfType<CMusicItem>(m_pNesicideProject));
 
-   uuids.append(ProjectSearcher::findUuidsOfType<CCHRROMBank>(m_pProject));
-   uuids.append(ProjectSearcher::findUuidsOfType<CPRGROMBank>(m_pProject));
+   uuids.append(ProjectSearcher::findUuidsOfType<CCHRROMBank>(m_pNesicideProject));
+   uuids.append(ProjectSearcher::findUuidsOfType<CPRGROMBank>(m_pNesicideProject));
 
    // Add filters; they're not present in the Project right now.
    uuids.append(m_pFilterModel->getUuids());
@@ -100,7 +100,7 @@ QList<QUuid> CProjectModel::getUuids() const
 
 void CProjectModel::visitDataItem(const QUuid &uuid, IUuidVisitor &visitor)
 {
-   if (m_pProject == NULL)
+   if (m_pNesicideProject == NULL)
       return;
 
    // If a filter, not in the project tree; search for it first.
@@ -112,7 +112,7 @@ void CProjectModel::visitDataItem(const QUuid &uuid, IUuidVisitor &visitor)
    }
 
    // Find project item with target uuid
-   IProjectTreeViewItemIterator iter(m_pProject);
+   IProjectTreeViewItemIterator iter(m_pNesicideProject);
    while ( iter.current() != NULL )
    {
       if (iter.current()->uuid() == uuid.toString())
@@ -172,12 +172,12 @@ void CProjectModel::visitDataItem(const QUuid &uuid, IUuidVisitor &visitor)
 
 void CProjectModel::onItemAdded(const QUuid &item)
 {
-   m_pProject->setDirty(true);
+   m_pNesicideProject->setDirty(true);
    emit itemAdded(item);
 }
 
 void CProjectModel::onItemRemoved(const QUuid &item)
 {
-   m_pProject->setDirty(true);
+   m_pNesicideProject->setDirty(true);
    emit itemRemoved(item);
 }

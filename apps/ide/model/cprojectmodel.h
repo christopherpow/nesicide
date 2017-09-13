@@ -51,7 +51,7 @@ public:
    CMusicModel*         getMusicModel()         { return m_pMusicModel; }
 
 private:
-   CNesicideProject*    m_pProject;
+   CNesicideProject*    m_pNesicideProject;
 
    CAttributeModel*     m_pAttributeModel;
    CBinaryFileModel*    m_pBinaryFileModel;

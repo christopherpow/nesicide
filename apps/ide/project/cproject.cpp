@@ -1,6 +1,7 @@
 #include <stdint.h>
 
 #include "cproject.h"
+#include "main.h"
 
 CProject::CProject(IProjectTreeViewItem* parent)
 {
@@ -230,5 +231,5 @@ bool CProject::deserialize(QDomDocument& doc, QDomNode& node, QString& errors)
 
 QString CProject::caption() const
 {
-   return "Project";
+   return nesicideProject->getProjectTitle()+" Project";
 }
