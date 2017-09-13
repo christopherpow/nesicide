@@ -11,11 +11,10 @@ QT += core gui
 
 greaterThan(QT_MAJOR_VERSION,4) {
    QT += widgets
+   CONFIG += c++11
    QMAKE_CXXFLAGS += -stdlib=libc++
-   QMAKE_CFLAGS += -std=c++11
-#   QMAKE_CFLAGS += -std=c11
    QMAKE_CFLAGS += -mmacosx-version-min=10.7
-#   QMAKE_LFLAGS += -mmacosx-version-min=10.7
+   QMAKE_LFLAGS += -mmacosx-version-min=10.7
 }
 
 TOP = ../..
