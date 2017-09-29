@@ -25,7 +25,6 @@
 #include <QStringList>
 #include <QMessageBox>
 #include <QSettings>
-#include <QWebView>
 
 OutputPaneDockWidget* output = NULL;
 ProjectBrowserDockWidget* m_pProjectBrowser = NULL;
@@ -341,7 +340,7 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    if ( EnvironmentSettingsDialog::showWelcomeOnStart() )
    {
       tabWidget->addTab(tab,"Welcome Page");
-      webView->setUrl(QUrl( "http://www.nesicide.com"));
+      //webView->setUrl(QUrl( "http://www.nesicide.com"));
    }
    else
    {
@@ -2753,7 +2752,7 @@ bool MainWindow::closeProject()
       if ( EnvironmentSettingsDialog::showWelcomeOnStart() )
       {
          tabWidget->addTab(tab,"Welcome Page");
-         webView->setUrl(QUrl( "http://www.nesicide.com"));
+         //webView->setUrl(QUrl( "http://www.nesicide.com"));
       }
    
       // Clear output
@@ -3308,7 +3307,7 @@ void MainWindow::actionPreferences_triggered()
 void MainWindow::on_actionOnline_Help_triggered()
 {
    tabWidget->addTab(tab,"Welcome Page");
-   webView->setUrl(QUrl( "http://www.nesicide.com"));
+   //webView->setUrl(QUrl( "http://www.nesicide.com"));
 }
 
 void MainWindow::on_actionLoad_In_Emulator_triggered()
