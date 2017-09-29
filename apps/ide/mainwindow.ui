@@ -117,7 +117,7 @@
          <number>0</number>
         </property>
         <item row="0" column="0">
-         <widget class="QWebView" name="webView" native="true">
+         <widget class="QWidget" name="webView" native="true">
           <property name="acceptDrops">
            <bool>false</bool>
           </property>
@@ -140,7 +140,7 @@
      <x>0</x>
      <y>0</y>
      <width>950</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_View">
@@ -572,11 +572,6 @@
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
-  <customwidget>
-   <class>QWebView</class>
-   <extends>QWidget</extends>
-   <header>QtWebEngineWidgets/QWebView</header>
-  </customwidget>
   <customwidget>
    <class>CProjectTabWidget</class>
    <extends>QTabWidget</extends>

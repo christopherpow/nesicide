@@ -3,20 +3,14 @@
 # -------------------------------------------------
 QT += network \
       opengl \
-      xml
+      xml \
+      widgets
 
-greaterThan(QT_MAJOR_VERSION,4) {
-   win32: LIBS += -lopengl32
-   QT += webenginewidgets \
-         widgets
-   CONFIG += c++11
-   QMAKE_CXXFLAGS += -stdlib=libc++
-   QMAKE_CFLAGS += -mmacosx-version-min=10.7
-   QMAKE_LFLAGS += -mmacosx-version-min=10.7
-}
-
-lessThan(QT_MAJOR_VERSION,5) {
-   QT += webkitwidgets
+win32: LIBS += -lopengl32
+macx {
+  CONFIG += c++11
+  QMAKE_CFLAGS += -mmacosx-version-min=10.7
+  QMAKE_LFLAGS += -mmacosx-version-min=10.7
 }
 
 TOP = ../..
@@ -62,11 +56,14 @@ unix:!mac {
 # Remove crap we don't need!
 CONFIG -= exceptions
 
-debug: QSCINTILLA_NAME=qscintilla2_qt5_debug
-release: QSCINTILLA_NAME=qscintilla2_qt5
+CONFIG(release, debug|release) {
+    QSCINTILLA_NAME=qscintilla2_qt5
+} else {
+    QSCINTILLA_NAME=qscintilla2_qt5d
+}
 
 SCINTILLA_CXXFLAGS = -I$$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5
-SCINTILLA_LIBS = -L$$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5 -l$$QSCINTILLA_NAME
+SCINTILLA_LIBS = -L$$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5/$$DESTDIR -l$$QSCINTILLA_NAME
 
 NES_CXXFLAGS = -I$$TOP/libs/nes -I$$TOP/libs/nes/emulator -I$$TOP/libs/nes/common
 NES_LIBS = -L$$TOP/libs/nes/$$DESTDIR -lnes-emulator
