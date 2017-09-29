@@ -192,7 +192,7 @@ void CPluginManager::lua_compiler_logger_print(QString text)
 
 QString CPluginManager::getVersionInfo()
 {
-   return QString(LUA_VERSION" "LUA_COPYRIGHT);
+   return QString(LUA_VERSION " " LUA_COPYRIGHT);
 }
 
 // ========================================================================

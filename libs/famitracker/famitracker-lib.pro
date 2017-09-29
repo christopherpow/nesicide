@@ -12,19 +12,19 @@ QT += core gui
 greaterThan(QT_MAJOR_VERSION,4) {
    QT += widgets
    CONFIG += c++11
-   QMAKE_CXXFLAGS += -stdlib=libc++
-   QMAKE_CFLAGS += -mmacosx-version-min=10.7
-   QMAKE_LFLAGS += -mmacosx-version-min=10.7
+#   QMAKE_CXXFLAGS += -stdlib=libc++
+#   QMAKE_CFLAGS += -mmacosx-version-min=10.7
+#   QMAKE_LFLAGS += -mmacosx-version-min=10.7
 }
 
 TOP = ../..
 
 macx {
-    MAC_SDK  = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.12.sdk
+    MAC_SDK  = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk
     if( !exists( $$MAC_SDK) ) {
         error("The selected Mac OSX SDK does not exist at $$MAC_SDK!")
     }
-    macx:QMAKE_MAC_SDK = macosx10.12
+    macx:QMAKE_MAC_SDK = macosx10.13
 }
 
 CONFIG += warn_off
@@ -148,12 +148,12 @@ SOURCES += \
     Source/ChannelMap.cpp \
     Source/ChannelHandler.cpp \
     Source/Action.cpp \
-    Source/APU/VRC6.CPP \
-    Source/APU/N163.CPP \
-    Source/APU/MMC5.CPP \
-    Source/APU/FDS.CPP \
-    Source/APU/DPCM.CPP \
-    Source/APU/APU.CPP \
+    Source/APU/VRC6.cpp \
+    Source/APU/N163.cpp \
+    Source/APU/MMC5.cpp \
+    Source/APU/FDS.cpp \
+    Source/APU/DPCM.cpp \
+    Source/APU/APU.cpp \
     Source/APU/VRC7.cpp \
     Source/APU/Triangle.cpp \
     Source/APU/Square.cpp \
