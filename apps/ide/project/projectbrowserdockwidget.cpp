@@ -63,7 +63,7 @@ struct SortTopLevelItems
 // Class methods
 //--------------------------------------------------------------------------------------
 ProjectBrowserDockWidget::ProjectBrowserDockWidget(CProjectTabWidget* pTarget, QWidget *parent)
-   : QDockWidget(parent), ui(new Ui::ProjectBrowserDockWidget), m_pProject(NULL)
+   : QDockWidget(parent), ui(new Ui::ProjectBrowserDockWidget), m_pProjectModel(NULL)
 {
    ui->setupUi(this);
 
@@ -97,7 +97,7 @@ ProjectBrowserDockWidget::~ProjectBrowserDockWidget()
 
 void ProjectBrowserDockWidget::layoutChangedEvent()
 {
-   setProjectModel(m_pProject);
+   setProjectModel(m_pProjectModel);
 }
 
 void ProjectBrowserDockWidget::enableNavigation()
@@ -112,26 +112,26 @@ void ProjectBrowserDockWidget::disableNavigation()
 
 void ProjectBrowserDockWidget::setProjectModel(CProjectModel *model)
 {
-   if (m_pProject)
+   if (m_pProjectModel)
    {
-      QObject::disconnect(m_pProject, SIGNAL(itemAdded(QUuid)), this, SLOT(projectTreeChanged(QUuid)));
-      QObject::disconnect(m_pProject, SIGNAL(itemRemoved(QUuid)), this, SLOT(projectTreeChanged(QUuid)));
+      QObject::disconnect(m_pProjectModel, SIGNAL(itemAdded(QUuid)), this, SLOT(projectTreeChanged(QUuid)));
+      QObject::disconnect(m_pProjectModel, SIGNAL(itemRemoved(QUuid)), this, SLOT(projectTreeChanged(QUuid)));
    }
 
-   m_pProject = model;
+   m_pProjectModel = model;
    rebuildProjectTree();
 
    if (model)
    {
-      QObject::connect(m_pProject, SIGNAL(itemAdded(QUuid)), this, SLOT(projectTreeChanged(QUuid)));
-      QObject::connect(m_pProject, SIGNAL(itemRemoved(QUuid)), this, SLOT(projectTreeChanged(QUuid)));
+      QObject::connect(m_pProjectModel, SIGNAL(itemAdded(QUuid)), this, SLOT(projectTreeChanged(QUuid)));
+      QObject::connect(m_pProjectModel, SIGNAL(itemRemoved(QUuid)), this, SLOT(projectTreeChanged(QUuid)));
    }
 }
 
 void ProjectBrowserDockWidget::itemOpened(QUuid /*uuid*/)
 {
    // Add to list of open items
-   //ui->openFilesTreeWidget->addItem(m_pProject, uuid, QUuid());
+   //ui->openFilesTreeWidget->addItem(m_pProjectModel, uuid, QUuid());
    rebuildProjectTree();
 }
 
@@ -204,23 +204,23 @@ void ProjectBrowserDockWidget::treeWidgetContextMenuRequested(QPoint pos)
    // Temporarily listen to newly added project items. If this slot is invoked,
    // the project browser opens the item (which must have been
    // created via the context menu just now)
-   QObject::connect(m_pProject, SIGNAL(itemAdded(QUuid)), this, SLOT(openNewProjectItem(QUuid)));
+   QObject::connect(m_pProjectModel, SIGNAL(itemAdded(QUuid)), this, SLOT(openNewProjectItem(QUuid)));
 
    // Invoke context menu.
    QUuid uuid = ui->projectTreeWidget->getUuidAt(pos);
    QPoint screenPos = ui->projectTreeWidget->mapToGlobal(pos);
-   CProjectTreeContextMenu contextMenu(this, screenPos, m_pProject);
-   m_pProject->visitDataItem(uuid, contextMenu);
+   CProjectTreeContextMenu contextMenu(this, screenPos, m_pProjectModel);
+   m_pProjectModel->visitDataItem(uuid, contextMenu);
 
    // Remove listening again, so changing projects doesn't open all project items immediately.
-   QObject::disconnect(m_pProject, SIGNAL(itemAdded(QUuid)), this, SLOT(openNewProjectItem(QUuid)));
+   QObject::disconnect(m_pProjectModel, SIGNAL(itemAdded(QUuid)), this, SLOT(openNewProjectItem(QUuid)));
 }
 
 void ProjectBrowserDockWidget::openNewProjectItem(QUuid uuid)
 {
    int oldOpenItemCount = ui->openProjectItems->topLevelItemCount();
-   CProjectTreeOpenAction action(m_pTarget, ui->openProjectItems, m_pProject);
-   m_pProject->visitDataItem(uuid, action);
+   CProjectTreeOpenAction action(m_pTarget, ui->openProjectItems, m_pProjectModel);
+   m_pProjectModel->visitDataItem(uuid, action);
 
    // If a new item has been opened, select it.
    if (ui->openProjectItems->topLevelItemCount() > oldOpenItemCount)
@@ -238,17 +238,17 @@ void ProjectBrowserDockWidget::buildProjectTree()
    ui->projectTreeWidget->clear();
 
    // If no tree to construct, nothing more to do.
-   if (m_pProject == NULL)
+   if (m_pProjectModel == NULL)
       return;
 
    // Create a node for each uuid.
-   foreach(QUuid uuid, m_pProject->getUuids())
+   foreach(QUuid uuid, m_pProjectModel->getUuids())
    {
-      ui->projectTreeWidget->addItem(m_pProject, uuid, QUuid());
+      ui->projectTreeWidget->addItem(m_pProjectModel, uuid, QUuid());
    }
 
    // Connect child items to CFilter parents.
-   CFilterModel* pFilters = m_pProject->getFilterModel();
+   CFilterModel* pFilters = m_pProjectModel->getFilterModel();
    foreach(QUuid filterUuid, pFilters->getUuids())
    {
       foreach(QUuid childUuid, pFilters->getFilteredItems(filterUuid))
@@ -264,14 +264,14 @@ void ProjectBrowserDockWidget::buildProjectTree()
       topLevelItems.append(ui->projectTreeWidget->takeTopLevelItem(0));
    }
 
-   qSort(topLevelItems.begin(), topLevelItems.end(), SortTopLevelItems(ui->projectTreeWidget, m_pProject));
+   qSort(topLevelItems.begin(), topLevelItems.end(), SortTopLevelItems(ui->projectTreeWidget, m_pProjectModel));
 
    ui->projectTreeWidget->addTopLevelItems(topLevelItems);
 
    // Recursively sort filter contents.
    foreach(QTreeWidgetItem* item, topLevelItems)
    {
-      sortChildrenOf(item, ui->projectTreeWidget, m_pProject);
+      sortChildrenOf(item, ui->projectTreeWidget, m_pProjectModel);
    }
 }
 

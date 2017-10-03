@@ -42,7 +42,7 @@ public slots:
 private:
    Ui::ProjectBrowserDockWidget *ui;
    CProjectTabWidget* m_pTarget;
-   CProjectModel* m_pProject;
+   CProjectModel* m_pProjectModel;
 
    void buildProjectTree();
    void rebuildProjectTree();
