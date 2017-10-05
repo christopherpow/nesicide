@@ -26,6 +26,10 @@ Getting the source
 
    wget https://knob.phreneticappsllc.com/nesicide/nesicide-deps.tar.bz2
 
+2. For Linux, make sure the following packages are installed:
+
+   sudo apt-get install build-essential libsdl1.2-dev libgl1-mesa-dev
+
 Building
 ========
 0. Extract dependencies into top level (nesicide/) folder:
