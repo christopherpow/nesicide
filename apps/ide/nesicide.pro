@@ -58,8 +58,10 @@ CONFIG -= exceptions
 
 CONFIG(release, debug|release) {
     QSCINTILLA_NAME=qscintilla2_qt5
-} else {
-    QSCINTILLA_NAME=qscintilla2_qt5d
+} else {   
+   macx: QSCINTILLA_NAME=qscintilla2_qt5_debug
+   else: QSCINTILLA_NAME=qscintilla2_qt5d
+
 }
 
 SCINTILLA_CXXFLAGS = -I$$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5
