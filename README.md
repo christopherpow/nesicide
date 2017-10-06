@@ -28,7 +28,7 @@ Getting the source
 
 2. For Linux, make sure the following packages are installed:
 
-   sudo apt-get install build-essential liblua5.3-dev libsdl1.2-dev libgl1-mesa-dev wine-dev
+   sudo apt-get install build-essential liblua5.1-dev libsdl1.2-dev libgl1-mesa-dev wine-dev
 
 Building
 ========
