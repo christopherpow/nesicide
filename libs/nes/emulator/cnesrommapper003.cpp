@@ -75,7 +75,8 @@ uint32_t CROMMapper003::DEBUGINFO ( uint32_t addr )
 
 void CROMMapper003::HMAPPER ( uint32_t addr, uint8_t data )
 {
-   m_reg = data;
+   m_reg = data&0x3; // avoid latch diode protection bits
+                     // https://wiki.nesdev.com/w/index.php/CNROM
 
    m_pCHRmemory [ 0 ] = m_CHRmemory [ (m_reg<<3)+0 ];
    m_pCHRmemory [ 1 ] = m_CHRmemory [ (m_reg<<3)+1 ];
