@@ -74,7 +74,7 @@ mac {
    SDL_CXXFLAGS = -I$$DEPENDENCYPATH/SDL.framework/Headers
    SDL_LIBS = -F$$DEPENDENCYPATH -framework SDL
 
-   WINE_CXXFLAGS = -I $$DEPENDENCYPATH/wine/include -DWINE_UNICODE_NATIVE -I $$DEPENDENCYPATH -I $$DEPENDENCYPATH/stdafxhack
+   WINE_CXXFLAGS = -I $$DEPENDENCYROOTPATH/wine/include -DWINE_UNICODE_NATIVE -I $$DEPENDENCYPATH -I $$DEPENDENCYPATH/stdafxhack
 
    QMAKE_POST_LINK += install_name_tool -change librtmidi.1.dylib \
        @executable_path/../Frameworks/librtmidi.1.dylib \
@@ -85,7 +85,7 @@ unix:!mac {
     SDL_CXXFLAGS = $$system(sdl-config --cflags)
     SDL_LIBS = $$system(sdl-config --libs)
 
-    WINE_CXXFLAGS = -I/usr/include/wine/windows/ -DUSE_WS_PREFIX -DWINE_UNICODE_NATIVE
+    WINE_CXXFLAGS = -I $$DEPENDENCYROOTPATH/wine/include -DUSE_WS_PREFIX -DWINE_UNICODE_NATIVE
 
    PREFIX = $$(PREFIX)
    isEmpty (PREFIX) {
