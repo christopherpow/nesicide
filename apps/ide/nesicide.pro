@@ -68,7 +68,10 @@ SCINTILLA_CXXFLAGS = -I$$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5
 macx {
     SCINTILLA_LIBS = -L$$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5 -l$$QSCINTILLA_NAME
 }
-!macx {
+unix {
+    SCINTILLA_LIBS = -L$$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5 -l$$QSCINTILLA_NAME
+}
+else {
     SCINTILLA_LIBS = -L$$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5/$$DESTDIR -l$$QSCINTILLA_NAME
 }
 NES_CXXFLAGS = -I$$TOP/libs/nes -I$$TOP/libs/nes/emulator -I$$TOP/libs/nes/common
@@ -146,14 +149,9 @@ mac {
 }
 
 unix:!mac {
-   NES_CXXFLAGS = -I $$TOP/libs/nes -I $$TOP/libs/nes/emulator -I $$TOP/libs/nes/common -I/usr/include/wine/windows/
-   C64_CXXFLAGS = -I $$TOP/libs/c64 -I $$TOP/libs/c64/emulator -I $$TOP/libs/c64/common -I/usr/include/wine/windows/
-   FAMITRACKER_CXXFLAGS = -I$$TOP/libs/famitracker
-   NES_LIBS = -L$$TOP/libs/nes -lnes-emulator
-   C64_LIBS = -L$$TOP/libs/c64 -lc64-emulator
-   FAMITRACKER_LIBS += -L$$TOP/libs/famitracker -lfamitracker
    FAMITRACKER_LFLAGS = -Wl,-rpath=\"$$PWD/$$TOP/libs/famitracker\"
    NES_LFLAGS = -Wl,-rpath=\"$$PWD/$$TOP/libs/nes\"
+   C64_LFLAGS = -Wl,-rpath=\"$$PWD/$$TOP/libs/nes\"
 
     # if the user didnt set cxxflags and libs then use defaults
     ###########################################################
@@ -219,7 +217,8 @@ QMAKE_CXXFLAGS += -DIDE \
                   $$SCINTILLA_CXXFLAGS \
                   $$RTMIDI_CXXFLAGS
 QMAKE_LFLAGS += $$FAMITRACKER_LFLAGS \
-                $$NES_LFLAGS
+                $$NES_LFLAGS \
+                $$C64_LFLAGS
 
 LIBS += $$NES_LIBS \
         $$C64_LIBS \
