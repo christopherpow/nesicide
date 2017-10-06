@@ -81,6 +81,7 @@ FAMITRACKER_CXXFLAGS = -I$$TOP/libs/famitracker
 FAMITRACKER_LIBS = -L$$TOP/libs/famitracker/$$DESTDIR -lfamitracker
 
 RTMIDI_LIBS = -L$$DEPENDENCYROOTPATH/rtmidi/$$DESTDIR -lrtmidi
+RTMIDI_CXXFLAGS = -I$$DEPENDENCYROOTPATH/rtmidi
 
 win32 {
    SDL_CXXFLAGS = -I$$DEPENDENCYPATH/SDL
@@ -150,7 +151,7 @@ unix:!mac {
    FAMITRACKER_CXXFLAGS = -I$$TOP/libs/famitracker
    NES_LIBS = -L$$TOP/libs/nes -lnes-emulator
    C64_LIBS = -L$$TOP/libs/c64 -lc64-emulator
-   FAMITRACKER_LIBS = -L$$TOP/libs/famitracker -lfamitracker
+   FAMITRACKER_LIBS += -L$$TOP/libs/famitracker -lfamitracker
    FAMITRACKER_LFLAGS = -Wl,-rpath=\"$$PWD/$$TOP/libs/famitracker\"
    NES_LFLAGS = -Wl,-rpath=\"$$PWD/$$TOP/libs/nes\"
 
@@ -172,11 +173,11 @@ unix:!mac {
     }
 
     isEmpty (LUA_CXXFLAGS) {
-            LUA_CXXFLAGS = $$system(pkg-config --silence-errors --cflags lua5.1)
+            LUA_CXXFLAGS = $$system(pkg-config --silence-errors --cflags lua5.3)
     }
 
     isEmpty (LUA_CXXFLAGS) {
-       LUA_CXXFLAGS = $$system(pkg-config --silence-errors --cflags lua-5.1)
+       LUA_CXXFLAGS = $$system(pkg-config --silence-errors --cflags lua-5.3)
     }
 
     isEmpty (LUA_LIBS) {
@@ -184,11 +185,11 @@ unix:!mac {
     }
 
     isEmpty (LUA_LIBS) {
-            LUA_LIBS = $$system(pkg-config --silence-errors --libs lua5.1)
+            LUA_LIBS = $$system(pkg-config --silence-errors --libs lua5.3)
     }
 
     isEmpty (LUA_LIBS) {
-       LUA_LIBS = $$system(pkg-config --silence-errors --libs lua-5.1)
+       LUA_LIBS = $$system(pkg-config --silence-errors --libs lua-5.3)
     }
 
    PREFIX = $$(PREFIX)
@@ -215,7 +216,8 @@ QMAKE_CXXFLAGS += -DIDE \
                   $$FAMITRACKER_CXXFLAGS \
                   $$SDL_CXXFLAGS \
                   $$LUA_CXXFLAGS \
-                  $$SCINTILLA_CXXFLAGS
+                  $$SCINTILLA_CXXFLAGS \
+                  $$RTMIDI_CXXFLAGS
 QMAKE_LFLAGS += $$FAMITRACKER_LFLAGS \
                 $$NES_LFLAGS
 

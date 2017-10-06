@@ -92,7 +92,7 @@ mac {
 }
 
 unix:!mac {
-   FAMITRACKER_CXXFLAGS = -I/usr/include/wine/windows/
+   FAMITRACKER_CXXFLAGS += -I/usr/include/wine/windows/
    FAMITRACKER_LFLAGS  = -Wl,-rpath=\"$$PWD/$$TOP/libs/famitracker\"
 
 
