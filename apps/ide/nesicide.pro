@@ -173,11 +173,11 @@ unix:!mac {
     }
 
     isEmpty (LUA_CXXFLAGS) {
-            LUA_CXXFLAGS = $$system(pkg-config --silence-errors --cflags lua5.3)
+            LUA_CXXFLAGS = $$system(pkg-config --silence-errors --cflags lua5.1)
     }
 
     isEmpty (LUA_CXXFLAGS) {
-       LUA_CXXFLAGS = $$system(pkg-config --silence-errors --cflags lua-5.3)
+       LUA_CXXFLAGS = $$system(pkg-config --silence-errors --cflags lua-5.1)
     }
 
     isEmpty (LUA_LIBS) {
@@ -185,11 +185,11 @@ unix:!mac {
     }
 
     isEmpty (LUA_LIBS) {
-            LUA_LIBS = $$system(pkg-config --silence-errors --libs lua5.3)
+            LUA_LIBS = $$system(pkg-config --silence-errors --libs lua5.1)
     }
 
     isEmpty (LUA_LIBS) {
-       LUA_LIBS = $$system(pkg-config --silence-errors --libs lua-5.3)
+       LUA_LIBS = $$system(pkg-config --silence-errors --libs lua-5.1)
     }
 
    PREFIX = $$(PREFIX)
