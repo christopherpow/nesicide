@@ -2096,11 +2096,11 @@ void MainWindow::on_actionCreate_Project_from_File_triggered()
       return;
    }
 
-   if ( selectedFilter.contains("*.nes") )
+   if ( fileName.endsWith(".nes") )
    {
       openNesROM(fileName);
    }
-   else if ( selectedFilter.contains("*.d64") || selectedFilter.contains("*.prg") || selectedFilter.contains("*.c64") )
+   else if ( fileName.endsWith(".d64") || fileName.endsWith(".prg") || fileName.endsWith(".c64") )
    {
       openC64File(fileName);
    }
