@@ -523,7 +523,7 @@ void C64EmulatorThread::processResponses(QStringList requests,QStringList respon
    int32_t a;
    int bp;
 
-#if 0
+#if 1
    for ( int resp = 0; resp < requests.count(); resp++ )
    {
       QString str;
@@ -891,7 +891,7 @@ void TcpClient::sendRequests(QStringList requests,QList<int> expectings)
         (pSocket->state() == QAbstractSocket::ConnectedState) )
    {
       // Kick off if nothing going on.
-//      qDebug(m_requests.at(0).toLatin1().constData());
+      qDebug(m_requests.at(0).toLatin1().constData());
       pSocket->write(m_requests.at(0).toLatin1());
       debugTextLogger->write("> "+m_requests.at(0));      
       m_requestSent.replace(0,true);
@@ -941,14 +941,14 @@ void TcpClient::readyRead()
       m_request++;
       if ( m_requests.at(m_request) != "END" )
       {
-//         qDebug(m_requests.at(m_request).toLatin1().constData());
+         qDebug(m_requests.at(m_request).toLatin1().constData());
          pSocket->write(m_requests.at(m_request).toLatin1());
          debugTextLogger->write("> "+m_requests.at(0));
          m_requestSent.replace(m_request,true);
       }
       else
       {
-//         qDebug("FINISHED");
+         qDebug("FINISHED");
          // Remove the "END" marker.
          m_requests.removeAt(m_request);
          m_responses.removeAt(m_request);
@@ -974,7 +974,7 @@ void TcpClient::readyRead()
          // they'll be processed by the next bundle's arrival.
          if ( m_requests.count() )
          {
-//            qDebug(m_requests.at(0).toLatin1().constData());
+            qDebug(m_requests.at(0).toLatin1().constData());
             pSocket->write("> "+m_requests.at(0).toLatin1());
          }
       }
