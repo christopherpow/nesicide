@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=nesicide
+Exec=nesicide
+Icon=nesicide
+Comment=IDE for 8-bit NES
+Terminal=true
+Categories=Development

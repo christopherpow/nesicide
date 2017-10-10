@@ -2,17 +2,54 @@
 
 TARGET=$(basename `echo $0 | cut -d'-' -f 1`)
 TARGARGS=
+LIBDIRECT=
+
+DEPLOYS="../apps/ide/release/nesicide \
+        ../apps/famitracker/release/famitracker \
+        ../apps/famiplayer/release/famiplayer \
+        ../apps/nes-emulator/release/nes-emulator"
+
+LIBDEPS="../deps/rtmidi/release/librtmidi \
+     ../deps/qscintilla2/Qt4Qt5/libqscintilla2_qt5 \
+     ../libs/nes/release/libnes-emulator \
+     ../libs/c64/release/libc64-emulator \
+     ../libs/famitracker/release/libfamitracker"
 
 if [ "$TARGET" == 'mac' ]; then
    TARGARGS+=-dmg
+   DEPLOYS=$(DEPLOYS:%=%.app)
 fi
 
-echo Deploying NESICIDE...
-${TARGET}deployqt ../apps/ide/release/nesicide.app ${TARGARGS} 
-echo Deploying FamiTracker...
-${TARGET}deployqt ../apps/famitracker/release/famitracker.app ${TARGARGS}
-echo Deploying FamiPlayer...
-${TARGET}deployqt ../apps/famiplayer/release/famiplayer.app ${TARGARGS}
-echo Deploying NES Emulator...
-${TARGET}deployqt ../apps/nes-emulator/release/nes-emulator.app ${TARGARGS}
+if [ "$TARGET" == 'linux' ]; then
+   TARGARGS+="-verbose=0 -appimage"
+fi
 
+if [ "$TARGET" == 'linux' ]; then
+   for DEPLOY in ${DEPLOYS}
+   do
+      DIST=$(basename $DEPLOY) 
+      echo Deploying ${DIST}
+      mkdir -pv ./dist
+      cp -v ${DEPLOY} ./dist/
+      for f in ${LIBDEPS}
+      do 
+         cp -v ${f}* ./dist/
+      done
+      cp -v ${DIST}.desktop ./dist
+      cp -v ${DIST}.png ./dist
+      cp -v ${DIST}.ico ./dist
+      LD_LIBRARY_PATH+=./dist ${TARGET}deployqt ${DIST}.desktop ${TARGARGS}
+      cp -v dist/*AppImage .
+      rmdir ./dist
+   done
+else
+   for DEPLOY in ${DEPLOYS}
+   do
+      echo Deploying ${DEPLOY}
+      ${TARGET}deployqt ${DEPLOY} ${TARGARGS}
+   done
+fi
+
+
+( cd dist; export LD_LIBRARY_PATH+=.; ${TARGET}deployqt nesicide ${TARGARGS}; )
+#( cd dist; for DEPLOY in ${DEPLOYS}; do echo Deploying ${DEPLOY}; export LD_LIBRARY_PATH+=.; ${TARGET}deployqt ${DEPLOY} ${TARGARGS}; done )

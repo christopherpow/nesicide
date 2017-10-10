@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=famitracker
+Exec=famitracker
+Icon=famitracker
+Comment=Qt port of FamiTracker
+Terminal=true
+Categories=Development

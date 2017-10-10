@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=famiplayer
+Exec=famiplayer
+Icon=famiplayer
+Comment=Standalone player app for FamiTracker modules
+Terminal=true
+Categories=Development
