@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/christopherpow/nesicide.svg?branch=master)](https://travis-ci.org/christopherpow/nesicide)
+
 nesicide
 ========
 
