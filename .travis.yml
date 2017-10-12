@@ -1,0 +1,17 @@
+language: cpp
+compiler: gcc
+sudo: require
+dist: trusty
+
+before_install:
+    - sudo add-apt-repository ppa:beineri/opt-qt59-trusty -y
+    - sudo apt-get update -qq
+
+install:
+    - sudo apt-get -y install qt59base
+    - source /opt/qt*/bin/qt*-env.sh
+
+script:
+  - qmake CONFIG+=release PREFIX=/usr
+  - make -j$(nproc)
+  - make INSTALL_ROOT=appdir -j$(nproc) install ; find appdir/
