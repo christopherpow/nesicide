@@ -12,6 +12,6 @@ install:
     - source /opt/qt*/bin/qt*-env.sh
 
 script:
-  - qmake CONFIG+=release PREFIX=/usr
-  - make -j$(nproc)
-  - make INSTALL_ROOT=appdir -j$(nproc) install ; find appdir/
+  - cd build
+  - build.sh
+  - linux-deploy.sh
