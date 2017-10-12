@@ -8,7 +8,7 @@ before_install:
     - sudo apt-get update -qq
 
 install:
-    - sudo apt-get -y install qt562base
+    - sudo apt-get -y install qt56base
     - source /opt/qt*/bin/qt*-env.sh
 
 script:
