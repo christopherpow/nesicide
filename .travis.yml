@@ -13,5 +13,5 @@ install:
 
 script:
   - cd build
-  - build.sh
-  - linux-deploy.sh
+  - ./build.sh
+  - ./linux-deploy.sh
