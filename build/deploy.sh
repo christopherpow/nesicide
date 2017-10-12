@@ -38,7 +38,7 @@ if [ "$TARGET" == 'linux' ]; then
       cp -v ${DIST}.desktop ./dist
       cp -v ${DIST}.png ./dist
       cp -v ${DIST}.ico ./dist
-      LD_LIBRARY_PATH+=./dist ${TARGET}deployqt ${DIST}.desktop ${TARGARGS}
+      LD_LIBRARY_PATH+=./dist ./${TARGET}deployqt ${DIST}.desktop ${TARGARGS}
       cp -v dist/*AppImage .
       rmdir ./dist
    done
