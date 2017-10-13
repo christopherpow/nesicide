@@ -33,7 +33,7 @@ if [ "$TARGET" == 'linux' ]; then
       cp -v ${DEPLOY} ./dist/
       for f in ${LIBDEPS}
       do 
-         cp -v ${f}* ./dist/
+         cp -v ${f}* /usr/lib/x86_64-linux-gnu/
       done
       cp -v ${DIST}.desktop ./dist
       cp -v ${DIST}.png ./dist
