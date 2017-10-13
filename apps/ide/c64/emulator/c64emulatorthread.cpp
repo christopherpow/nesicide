@@ -210,13 +210,14 @@ void C64EmulatorThread::resetEmulator()
 {
    // Force hard-reset of the machine...
    c64EnableBreakpoints(false);
-
+qDebug("C64EmulatorThread::resetEmulator\n");
    if ( nesicideProject->isInitialized() )
    {
       QDir dirProject(nesicideProject->getProjectOutputBasePath());
       QString fileName = dirProject.toNativeSeparators(dirProject.absoluteFilePath(nesicideProject->getProjectLinkerOutputName()));
       QString request;
       int addr;
+      qDebug("C64EmulatorThread::resetEmulator %s\n",fileName.toLatin1().data());
 
       if ( fileName.endsWith(".c64",Qt::CaseInsensitive) ||
            fileName.endsWith(".prg",Qt::CaseInsensitive) )
@@ -856,10 +857,10 @@ void TcpClient::connected()
    if ( m_requests.count() )
    {
       // Kick off writing anything that's been queued.
-//      qDebug(m_requests.at(0).toLatin1().constData());
+      qDebug(m_requests.at(0).toLatin1().constData());
       pSocket->write("> "+m_requests.at(0).toLatin1());
       debugTextLogger->write(m_requests.at(0));
-//      qDebug("requests were pending");
+      qDebug("requests were pending");
    }
    m_clientMutex->unlock();
    qDebug("SOCKET CONNECTED!");
@@ -983,10 +984,10 @@ void TcpClient::readyRead()
    }
 }
 
-void TcpClient::bytesWritten(qint64 /*bytes*/)
+void TcpClient::bytesWritten(qint64 bytes)
 {
-//   qDebug("bytesWritten");
-//   qDebug(QString::number(bytes).toLatin1().constData());
+   qDebug("bytesWritten");
+   qDebug(QString::number(bytes).toLatin1().constData());
 }
 
 bool C64EmulatorThread::serialize(QDomDocument& /*doc*/, QDomNode& /*node*/)

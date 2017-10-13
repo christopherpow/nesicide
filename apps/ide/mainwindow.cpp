@@ -378,7 +378,7 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
          argv.append(settings.value("LastProject").toString());
       }
    }
-
+qDebug("argv %s\n",argv.at(1).toLatin1().data());
    // Filter for supported files to open.
    QStringList argv_nesproject = argv.filter ( QRegExp(".*[.]nesproject$",Qt::CaseInsensitive) );
    QStringList argv_nes = argv.filter ( QRegExp(".*[.]nes$",Qt::CaseInsensitive) );
@@ -420,6 +420,7 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    }
    else if ( argv_c64.count() >= 1 )
    {
+      qDebug("argv_c64.at(0) %s\n",argv_c64.at(0).toLatin1().data());
       openC64File(argv_c64.at(0));
 
       if ( argv_c64.count() > 1 )
@@ -2029,6 +2030,7 @@ void MainWindow::openC64File(QString fileName)
 
    createC64Ui();
 
+   qDebug("openC64File %s\n",fileName.toLatin1().data());
    output->showPane(OutputPaneDockWidget::Output_General);
 
    // Remove any lingering project content
@@ -2069,7 +2071,7 @@ void MainWindow::openC64File(QString fileName)
    nesicideProject->setProjectCartridgeSaveStateName("");
 
    m_pProjectBrowser->enableNavigation();
-
+qDebug("emitting reset/prime Emulator signals...\n");
    emit resetEmulator();
    emit primeEmulator();
 

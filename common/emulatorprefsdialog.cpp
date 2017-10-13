@@ -690,7 +690,11 @@ QString EmulatorPrefsDialog::getViceInvocation()
    QString viceStartup;
    
    dir.setPath(EmulatorPrefsDialog::getVICEExecutable());
+#if defined(Q_OS_MAC) || defined(Q_OS_MACX) || defined(Q_OS_MAC64)
+   viceStartup = dir.toNativeSeparators(dir.absoluteFilePath("x64sc.app"));
+#else
    viceStartup = dir.toNativeSeparators(dir.absoluteFilePath("x64sc"));
+#endif
    viceStartup += " -remotemonitor ";
 
    viceStartup += " -remotemonitoraddress ip4://127.0.0.1:";
