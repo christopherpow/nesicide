@@ -24,11 +24,18 @@ else
 fi
 
 if [ "$TARGET" == 'linux' ]; then
+   if [ ! -f "./linuxdeployqt-continuous-x86_64.AppImage" ]; then
+      wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
+      chmod a+x linuxdeployqt*.AppImage
+   fi
+   unset QTDIR; unset QT_PLUGIN_PATH; unset LD_LIBRARY_PATH
+
    TARGARGS+="-verbose=0 -appimage"
    for DEPLOY in ${DEPLOYS}
    do
       DIST=$(basename $DEPLOY) 
       echo Deploying ${DIST}
+      rm -rf ./dist
       mkdir -pv ./dist
       cp -v ${DEPLOY} ./dist/
       for f in ${LIBDEPS}
@@ -38,9 +45,8 @@ if [ "$TARGET" == 'linux' ]; then
       cp -v ${DIST}.desktop ./dist
       cp -v ${DIST}.png ./dist
       cp -v ${DIST}.ico ./dist
-      LD_LIBRARY_PATH+=./dist ./${TARGET}deployqt ${DIST}.desktop ${TARGARGS}
+      ./linuxdeployqt-continuous-x86_64.AppImage ${DIST}.desktop ${TARGARGS}
       cp -v dist/*AppImage .
-      rmdir ./dist
    done
 else
    for DEPLOY in ${DEPLOYS}
