@@ -51,6 +51,10 @@ Building
    b. For Windows:
 
       win-deploy.sh
+	  
+3. Build cc65 toolchain:
+
+   ( cd deps/cc65; make )
 
 Running
 =======
