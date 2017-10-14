@@ -75,7 +75,7 @@ void TestSuiteExecutiveDialog::loadTestSuite(QString testSuiteFileName)
 
    testSuiteFolder.cdUp();
 
-   ui->testSuiteFileName->setText(testSuiteFolder.fromNativeSeparators(testSuiteFolder.absoluteFilePath(testSuiteFileName)));
+   ui->testSuiteFileName->setText(testSuiteFolder.toNativeSeparators(testSuiteFolder.absoluteFilePath(testSuiteFileName)));
 
    if ( !testSuiteFileName.isEmpty() )
    {
@@ -83,7 +83,7 @@ void TestSuiteExecutiveDialog::loadTestSuite(QString testSuiteFileName)
 
       if ( testSuiteFile.exists() && testSuiteFile.open(QIODevice::ReadOnly|QIODevice::Text) )
       {
-         settings.setValue("TestSuiteFile",testSuiteFolder.fromNativeSeparators(testSuiteFolder.absoluteFilePath(testSuiteFileName)));
+         settings.setValue("TestSuiteFile",testSuiteFolder.toNativeSeparators(testSuiteFolder.absoluteFilePath(testSuiteFileName)));
          testSuiteDoc.setContent(&testSuiteFile);
          testSuiteFile.close();
       }
@@ -211,8 +211,9 @@ void TestSuiteExecutiveDialog::doTestPhase()
       ui->tableWidget->setCurrentCell(testRunning,4);
 
       ui->suiteProgress->setValue(testRunning+1);
-
-      ui->testROM->setText(testSuiteFolder.fromNativeSeparators(testSuiteFolder.absoluteFilePath(testFileName)));
+      qDebug(testSuiteFolder.absoluteFilePath(testFileName).toLatin1().data());
+      qDebug(testSuiteFolder.fromNativeSeparators(testSuiteFolder.absoluteFilePath(testFileName)).toLatin1().data());
+      ui->testROM->setText(testSuiteFolder.toNativeSeparators(testSuiteFolder.absoluteFilePath(testFileName)));
 
       ui->testProgress->setMaximum(testFrames.toInt());
       ui->testProgress->setValue(0);
@@ -253,7 +254,7 @@ void TestSuiteExecutiveDialog::doTestPhase()
          nesSetSystemMode(MODE_PAL);
       }
 
-      emit openNesROM(testSuiteFolder.fromNativeSeparators(testSuiteFolder.absoluteFilePath(testFileName)),false);
+      emit openNesROM(testSuiteFolder.toNativeSeparators(testSuiteFolder.absoluteFilePath(testFileName)),false);
 
       emit pauseEmulationAfter(framesRun);
 
@@ -440,7 +441,7 @@ void TestSuiteExecutiveDialog::on_save_clicked()
 
    testSuiteFolder.cdUp();
 
-   ui->testSuiteFileName->setText(testSuiteFolder.fromNativeSeparators(testSuiteFolder.absoluteFilePath(testSuiteFileName)));
+   ui->testSuiteFileName->setText(testSuiteFolder.toNativeSeparators(testSuiteFolder.absoluteFilePath(testSuiteFileName)));
 
    if ( !testSuiteFileName.isEmpty() )
    {
@@ -448,7 +449,7 @@ void TestSuiteExecutiveDialog::on_save_clicked()
 
       if ( testSuiteFile.open(QIODevice::ReadWrite|QIODevice::Text|QIODevice::Truncate) )
       {
-         settings.setValue("TestSuiteFile",testSuiteFolder.fromNativeSeparators(testSuiteFolder.absoluteFilePath(testSuiteFileName)));
+         settings.setValue("TestSuiteFile",testSuiteFolder.toNativeSeparators(testSuiteFolder.absoluteFilePath(testSuiteFileName)));
 
          testSuiteElement = addElement(testSuiteDoc,testSuiteDoc,"testsuite");
          for ( test = 0; test < numTests; test++ )

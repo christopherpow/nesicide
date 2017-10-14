@@ -92,6 +92,8 @@ void C64EmulatorThread::viceStarted()
    m_pClient = new TcpClient(EmulatorPrefsDialog::getVICEIPAddress(),EmulatorPrefsDialog::getVICEMonitorPort());
    m_pClient->moveToThread(this);
 
+   qRegisterMetaType<QList<int>>("QList<int>");
+
    QObject::connect(m_pClient,SIGNAL(responses(QStringList,QStringList)),this,SLOT(processResponses(QStringList,QStringList)));
    QObject::connect(this,SIGNAL(sendRequests(QStringList,QList<int>)),m_pClient,SLOT(sendRequests(QStringList,QList<int>)));
    QObject::connect(m_pClient,SIGNAL(traps(QString)),this,SLOT(processTraps(QString)));
@@ -99,6 +101,7 @@ void C64EmulatorThread::viceStarted()
    QObject::connect(m_pClient,SIGNAL(clientDisconnected()),this,SIGNAL(emulatorDisconnected()));
 
    qDebug("VICE started, starting thread in 2sec.");
+   runRequestQueue(); // clear any pending requests
 
    sleep(2);
    
@@ -124,7 +127,7 @@ void C64EmulatorThread::viceError(QProcess::ProcessError error)
    switch ( error )
    {
    case QProcess::FailedToStart:
-      result = QMessageBox::warning(0,"VICE not found!","The VICE Commodore 64 emulator, x64sc, could not be found.\n"
+      result = QMessageBox::warning(0,"VICE not found!","The VICE Commodore 64 emulator, x64sc, failed to start.\n"
                            "Please set the path to it in NESICIDE's Emulator Preferences dialog.","Exit","Fix","",1,-1);
 
       if ( result == 1 )
@@ -210,14 +213,14 @@ void C64EmulatorThread::resetEmulator()
 {
    // Force hard-reset of the machine...
    c64EnableBreakpoints(false);
-qDebug("C64EmulatorThread::resetEmulator\n");
+
    if ( nesicideProject->isInitialized() )
    {
       QDir dirProject(nesicideProject->getProjectOutputBasePath());
       QString fileName = dirProject.toNativeSeparators(dirProject.absoluteFilePath(nesicideProject->getProjectLinkerOutputName()));
       QString request;
       int addr;
-      qDebug("C64EmulatorThread::resetEmulator %s\n",fileName.toLatin1().data());
+      qDebug("C64EmulatorThread::resetEmulator ...%s...\n",fileName.toLatin1().data());
 
       if ( fileName.endsWith(".c64",Qt::CaseInsensitive) ||
            fileName.endsWith(".prg",Qt::CaseInsensitive) )
@@ -252,8 +255,9 @@ qDebug("C64EmulatorThread::resetEmulator\n");
          addToRequestQueue(request.toLatin1(),true);
          addToRequestQueue("r",true);
          addToRequestQueue("io",true);
-         addToRequestQueue("m $0 $cfff",true);
-         addToRequestQueue("break",true);
+//         addToRequestQueue("m $0 $cfff",true);
+//         addToRequestQueue("break",true);
+         addToRequestQueue("until $ffff",false);
          runRequestQueue();
          unlockRequestQueue();
       }
@@ -524,7 +528,7 @@ void C64EmulatorThread::processResponses(QStringList requests,QStringList respon
    int32_t a;
    int bp;
 
-#if 1
+#if 0
    for ( int resp = 0; resp < requests.count(); resp++ )
    {
       QString str;
@@ -986,8 +990,8 @@ void TcpClient::readyRead()
 
 void TcpClient::bytesWritten(qint64 bytes)
 {
-   qDebug("bytesWritten");
-   qDebug(QString::number(bytes).toLatin1().constData());
+//   qDebug("bytesWritten");
+//   qDebug(QString::number(bytes).toLatin1().constData());
 }
 
 bool C64EmulatorThread::serialize(QDomDocument& /*doc*/, QDomNode& /*node*/)

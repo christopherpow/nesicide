@@ -44,7 +44,6 @@ if [ "$TARGET" == 'linux' ]; then
       done
       cp -v ${DIST}.desktop ./dist
       cp -v ${DIST}.png ./dist
-      cp -v ${DIST}.ico ./dist
       ./linuxdeployqt-continuous-x86_64.AppImage ${DIST}.desktop ${TARGARGS}
       cp -v dist/*AppImage .
    done

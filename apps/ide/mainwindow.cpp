@@ -2064,6 +2064,7 @@ void MainWindow::openC64File(QString fileName)
    else if ( !fileInfo.suffix().compare("d64",Qt::CaseInsensitive) )
    {
       nesicideProject->setProjectOutputName(fileInfo.completeBaseName()+".d64");
+      nesicideProject->setProjectLinkerOutputName(fileInfo.completeBaseName()+".d64");
    }
 
    nesicideProject->setProjectCHRROMOutputName("");
