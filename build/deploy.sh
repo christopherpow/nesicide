@@ -45,7 +45,6 @@ if [ "$TARGET" == 'linux' ]; then
       cp -v ${DIST}.desktop ./dist
       cp -v ${DIST}.png ./dist
       ./linuxdeployqt-continuous-x86_64.AppImage ${DIST}.desktop ${TARGARGS}
-      cp -v dist/*AppImage .
    done
 else
    for DEPLOY in ${DEPLOYS}
