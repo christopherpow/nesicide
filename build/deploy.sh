@@ -45,6 +45,8 @@ if [ "$TARGET" == 'linux' ]; then
       cp -v ${DIST}.desktop ./dist
       cp -v ${DIST}.png ./dist
       ./linuxdeployqt-continuous-x86_64.AppImage ${DIST}.desktop ${TARGARGS}
+      tar cjvf nesicide-linux.tar.bz2 fami*.AppImage nes*.AppImage
+      curl --upload-file nesicide-linux.tar.bz2 https://knob.phreneticappsllc.com/nesicide/
    done
 else
    for DEPLOY in ${DEPLOYS}
