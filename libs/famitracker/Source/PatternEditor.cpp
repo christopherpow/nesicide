@@ -56,37 +56,37 @@ const int CPatternEditor::DEFAULT_FONT_SIZE			= 12;
 const int CPatternEditor::DEFAULT_HEADER_FONT_SIZE	= 11;
 
 // Channel layout
-static const int COLUMN_SPACING = 4;
-static const int CHAR_WIDTH		= 10;
+static const int COLUMN_SPACING   = 4;
+static const int CHARACTER_WIDTH = 10;
 
 static const unsigned int COLUMN_SPACE[] = {
-	CHAR_WIDTH * 3 + COLUMN_SPACING,
-	CHAR_WIDTH, CHAR_WIDTH + COLUMN_SPACING, 
-	CHAR_WIDTH + COLUMN_SPACING,  
-	CHAR_WIDTH, CHAR_WIDTH, CHAR_WIDTH + COLUMN_SPACING,
-	CHAR_WIDTH, CHAR_WIDTH, CHAR_WIDTH + COLUMN_SPACING,
-	CHAR_WIDTH, CHAR_WIDTH, CHAR_WIDTH + COLUMN_SPACING,
-	CHAR_WIDTH, CHAR_WIDTH, CHAR_WIDTH + COLUMN_SPACING
+	CHARACTER_WIDTH * 3 + COLUMN_SPACING,
+	CHARACTER_WIDTH, CHARACTER_WIDTH + COLUMN_SPACING, 
+	CHARACTER_WIDTH + COLUMN_SPACING,  
+	CHARACTER_WIDTH, CHARACTER_WIDTH, CHARACTER_WIDTH + COLUMN_SPACING,
+	CHARACTER_WIDTH, CHARACTER_WIDTH, CHARACTER_WIDTH + COLUMN_SPACING,
+	CHARACTER_WIDTH, CHARACTER_WIDTH, CHARACTER_WIDTH + COLUMN_SPACING,
+	CHARACTER_WIDTH, CHARACTER_WIDTH, CHARACTER_WIDTH + COLUMN_SPACING
 };
 
 static const unsigned int COLUMN_WIDTH[] = {
-	CHAR_WIDTH * 3,
-	CHAR_WIDTH, CHAR_WIDTH, 
-	CHAR_WIDTH,
-	CHAR_WIDTH, CHAR_WIDTH, CHAR_WIDTH,
-	CHAR_WIDTH, CHAR_WIDTH, CHAR_WIDTH,
-	CHAR_WIDTH, CHAR_WIDTH, CHAR_WIDTH,
-	CHAR_WIDTH, CHAR_WIDTH, CHAR_WIDTH
+	CHARACTER_WIDTH * 3,
+	CHARACTER_WIDTH, CHARACTER_WIDTH, 
+	CHARACTER_WIDTH,
+	CHARACTER_WIDTH, CHARACTER_WIDTH, CHARACTER_WIDTH,
+	CHARACTER_WIDTH, CHARACTER_WIDTH, CHARACTER_WIDTH,
+	CHARACTER_WIDTH, CHARACTER_WIDTH, CHARACTER_WIDTH,
+	CHARACTER_WIDTH, CHARACTER_WIDTH, CHARACTER_WIDTH
 };
 
 static const unsigned int SELECT_WIDTH[] = {
-	CHAR_WIDTH * 3 + COLUMN_SPACING,
-	CHAR_WIDTH + COLUMN_SPACING, CHAR_WIDTH,
-	CHAR_WIDTH + COLUMN_SPACING,  
-	CHAR_WIDTH + COLUMN_SPACING, CHAR_WIDTH, CHAR_WIDTH,
-	CHAR_WIDTH + COLUMN_SPACING, CHAR_WIDTH, CHAR_WIDTH,
-	CHAR_WIDTH + COLUMN_SPACING, CHAR_WIDTH, CHAR_WIDTH,
-	CHAR_WIDTH + COLUMN_SPACING, CHAR_WIDTH, CHAR_WIDTH
+	CHARACTER_WIDTH * 3 + COLUMN_SPACING,
+	CHARACTER_WIDTH + COLUMN_SPACING, CHARACTER_WIDTH,
+	CHARACTER_WIDTH + COLUMN_SPACING,  
+	CHARACTER_WIDTH + COLUMN_SPACING, CHARACTER_WIDTH, CHARACTER_WIDTH,
+	CHARACTER_WIDTH + COLUMN_SPACING, CHARACTER_WIDTH, CHARACTER_WIDTH,
+	CHARACTER_WIDTH + COLUMN_SPACING, CHARACTER_WIDTH, CHARACTER_WIDTH,
+	CHARACTER_WIDTH + COLUMN_SPACING, CHARACTER_WIDTH, CHARACTER_WIDTH
 };
 
 
@@ -620,7 +620,7 @@ bool CPatternEditor::CalculatePatternLayout()
 	// Calculate channel widths
 	int Offset = 0;
 	for (int i = 0; i < ChannelCount; ++i) {
-		int Width = CHAR_WIDTH * 9 + COLUMN_SPACING * 4 + m_pDocument->GetEffColumns(Track, i) * (3 * CHAR_WIDTH + COLUMN_SPACING);
+		int Width = CHARACTER_WIDTH * 9 + COLUMN_SPACING * 4 + m_pDocument->GetEffColumns(Track, i) * (3 * CHARACTER_WIDTH + COLUMN_SPACING);
 		m_iChannelWidths[i] = Width + 1;
 		m_iColumns[i] = GetChannelColumns(i);
 		m_iChannelOffsets[i] = Offset;
@@ -1313,7 +1313,7 @@ void CPatternEditor::DrawCell(CDC *pDC, int PosX, int Column, int Channel, bool 
 	int PosY = -2;
 	PosX -= 1;
 
-#define BAR(x, y) pDC->FillSolidRect((x) + 3, (y) + (m_iRowHeight / 2) + 1, CHAR_WIDTH - 7, 1, pColorInfo->Shaded)
+#define BAR(x, y) pDC->FillSolidRect((x) + 3, (y) + (m_iRowHeight / 2) + 1, CHARACTER_WIDTH - 7, 1, pColorInfo->Shaded)
 
 	switch (Column) {
 		case 0:
@@ -1321,31 +1321,31 @@ void CPatternEditor::DrawCell(CDC *pDC, int PosX, int Column, int Channel, bool 
 			switch (pNoteData->Note) {
 				case NONE:
 					BAR(PosX, PosY);
-					BAR(PosX + CHAR_WIDTH, PosY);
-					BAR(PosX + CHAR_WIDTH * 2, PosY);
+					BAR(PosX + CHARACTER_WIDTH, PosY);
+					BAR(PosX + CHARACTER_WIDTH * 2, PosY);
 					return;
 				case HALT:
 					// Note stop
-					GradientBar(pDC, PosX + 5, (m_iRowHeight / 2) - 2, CHAR_WIDTH * 3 - 11, m_iRowHeight / 4, pColorInfo->Note, pColorInfo->Back);
+					GradientBar(pDC, PosX + 5, (m_iRowHeight / 2) - 2, CHARACTER_WIDTH * 3 - 11, m_iRowHeight / 4, pColorInfo->Note, pColorInfo->Back);
 					return;
 				case RELEASE:
 					// Note release
-					pDC->FillSolidRect(PosX + 5, 3, CHAR_WIDTH * 3 - 11, 2, pColorInfo->Note);
-					pDC->FillSolidRect(PosX + 5, 7, CHAR_WIDTH * 3 - 11, 2, pColorInfo->Note);
+					pDC->FillSolidRect(PosX + 5, 3, CHARACTER_WIDTH * 3 - 11, 2, pColorInfo->Note);
+					pDC->FillSolidRect(PosX + 5, 7, CHARACTER_WIDTH * 3 - 11, 2, pColorInfo->Note);
 					return;
 				default:
 					if (pTrackerChannel->GetID() == CHANID_NOISE) {
 						// Noise
 						char NoiseFreq = (pNoteData->Note - 1 + pNoteData->Octave * 12) & 0x0F;
 						DrawChar(pDC, PosX, PosY, HEX[NoiseFreq], pColorInfo->Note);
-						DrawChar(pDC, PosX + CHAR_WIDTH, PosY, '-', pColorInfo->Note);
-						DrawChar(pDC, PosX + CHAR_WIDTH * 2, PosY, '#', pColorInfo->Note);
+						DrawChar(pDC, PosX + CHARACTER_WIDTH, PosY, '-', pColorInfo->Note);
+						DrawChar(pDC, PosX + CHARACTER_WIDTH * 2, PosY, '#', pColorInfo->Note);
 					}
 					else {
 						// The rest
 						DrawChar(pDC, PosX, PosY, NOTES_A[pNoteData->Note - 1], pColorInfo->Note);
-						DrawChar(pDC, PosX + CHAR_WIDTH, PosY, NOTES_B[pNoteData->Note - 1], pColorInfo->Note);
-						DrawChar(pDC, PosX + CHAR_WIDTH * 2, PosY, NOTES_C[pNoteData->Octave], pColorInfo->Note);
+						DrawChar(pDC, PosX + CHARACTER_WIDTH, PosY, NOTES_B[pNoteData->Note - 1], pColorInfo->Note);
+						DrawChar(pDC, PosX + CHARACTER_WIDTH * 2, PosY, NOTES_C[pNoteData->Octave], pColorInfo->Note);
 					}
 					return;
 			}
@@ -1458,9 +1458,9 @@ void CPatternEditor::DrawHeader(CDC *pDC)
 		if (m_pDocument->GetEffColumns(Track, Channel) > 0)
 			pDC->TextOut(Offset + CHANNEL_WIDTH + COLUMN_SPACING + 6, HEADER_CHAN_START + HEADER_CHAN_HEIGHT - 17, _T("fx2"));
 		if (m_pDocument->GetEffColumns(Track, Channel) > 1)
-			pDC->TextOut(Offset + CHANNEL_WIDTH + COLUMN_SPACING * 2 + CHAR_WIDTH * 3 + 6, HEADER_CHAN_START + HEADER_CHAN_HEIGHT - 17, _T("fx3"));
+			pDC->TextOut(Offset + CHANNEL_WIDTH + COLUMN_SPACING * 2 + CHARACTER_WIDTH * 3 + 6, HEADER_CHAN_START + HEADER_CHAN_HEIGHT - 17, _T("fx3"));
 		if (m_pDocument->GetEffColumns(Track, Channel) > 2)
-			pDC->TextOut(Offset + CHANNEL_WIDTH + COLUMN_SPACING * 3 + (CHAR_WIDTH * 2) * 3 + 6, HEADER_CHAN_START + HEADER_CHAN_HEIGHT - 17, _T("fx4"));
+			pDC->TextOut(Offset + CHANNEL_WIDTH + COLUMN_SPACING * 3 + (CHARACTER_WIDTH * 2) * 3 + 6, HEADER_CHAN_START + HEADER_CHAN_HEIGHT - 17, _T("fx4"));
 
 		// Arrows for expanding/removing fx columns
 		if (m_pDocument->GetEffColumns(Track, Channel) > 0) {
