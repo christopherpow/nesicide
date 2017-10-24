@@ -8,10 +8,12 @@ sudo: require
 dist: trusty
 
 before_install:
-  - ( cd build; ./${TRAVIS_OS_NAME}-travis-setup.sh before_install )
+  - ./build/${TRAVIS_OS_NAME}-travis-setup.sh before_install
 
 install:
-  - ( cd build; ./${TRAVIS_OS_NAME}-travis-setup.sh install )
+  - ./build/${TRAVIS_OS_NAME}-travis-setup.sh install
 
 script:
-  - ( cd build; ./build.sh; ./${TRAVIS_OS_NAME}-deploy.sh )
+  - cd build
+  - ./build.sh; 
+  - ./${TRAVIS_OS_NAME}-deploy.sh
