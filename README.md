@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/christopherpow/nesicide.svg?branch=master)](https://travis-ci.org/christopherpow/nesicide)
+Travis Linux/OSX [![Build Status](https://travis-ci.org/christopherpow/nesicide.svg?branch=master)](https://travis-ci.org/christopherpow/nesicide)
 
 nesicide
 ========
