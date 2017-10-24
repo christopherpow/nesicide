@@ -248,6 +248,8 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
 
    QObject::connect(menuEdit,SIGNAL(aboutToShow()),this,SLOT(menuEdit_aboutToShow()));
 
+   QObject::connect(menuWindow,SIGNAL(aboutToShow()),this,SLOT(menuWindow_aboutToShow()));
+
    menuWindow->setEnabled(false);
 
    // Start with no target loaded.
@@ -632,7 +634,7 @@ void MainWindow::createNesUi()
    actionMapperInformation_Inspector->setObjectName(QString::fromUtf8("actionMapperInformation_Inspector"));
    actionAPUInformation_Inspector = new QAction("Information",this);
    actionAPUInformation_Inspector->setObjectName(QString::fromUtf8("actionAPUInformation_Inspector"));
-   actionPreferences = new QAction("Preferences...",this);
+   actionPreferences = new QAction("Configure...",this);
    actionPreferences->setObjectName(QString::fromUtf8("actionPreferences"));
    actionNTSC = new QAction("NTSC",this);
    actionNTSC->setObjectName(QString::fromUtf8("actionNTSC"));
@@ -859,7 +861,10 @@ void MainWindow::createNesUi()
 
    // Add menu for emulator control.  The emulator control provides menu for itself!  =]
    QAction* firstEmuMenuAction = menuEmulator->actions().at(0);
-   menuEmulator->insertActions(firstEmuMenuAction,m_pNESEmulatorControl->menu());
+   foreach ( QAction* action, m_pNESEmulatorControl->menu() )
+   {
+      menuEmulator->insertAction(firstEmuMenuAction,action);
+   }
    menuEmulator->insertSeparator(firstEmuMenuAction);
 
    m_pBreakpointInspector = new BreakpointDockWidget(nesGetBreakpointDatabase());
@@ -1314,7 +1319,7 @@ void MainWindow::createC64Ui()
    actionBinCPURegister_Inspector->setObjectName(QString::fromUtf8("actionBinCPURegister_Inspector"));
    actionBinSIDRegister_Inspector = new QAction("Registers",this);
    actionBinSIDRegister_Inspector->setObjectName(QString::fromUtf8("actionBinSIDRegister_Inspector"));
-   actionPreferences = new QAction("Preferences...",this);
+   actionPreferences = new QAction("Configure...",this);
    actionPreferences->setObjectName(QString::fromUtf8("actionPreferences"));
 
    menuCPU_Inspectors = new QMenu("CPU",menuDebugger);
@@ -2072,7 +2077,7 @@ void MainWindow::openC64File(QString fileName)
    nesicideProject->setProjectCartridgeSaveStateName("");
 
    m_pProjectBrowser->enableNavigation();
-qDebug("emitting reset/prime Emulator signals...\n");
+
    emit resetEmulator();
    emit primeEmulator();
 
@@ -2099,11 +2104,11 @@ void MainWindow::on_actionCreate_Project_from_File_triggered()
       return;
    }
 
-   if ( fileName.endsWith(".nes") )
+   if ( fileName.endsWith(".nes",Qt::CaseInsensitive) )
    {
       openNesROM(fileName);
    }
-   else if ( fileName.endsWith(".d64") || fileName.endsWith(".prg") || fileName.endsWith(".c64") )
+   else if ( fileName.endsWith(".d64",Qt::CaseInsensitive) || fileName.endsWith(".prg",Qt::CaseInsensitive) || fileName.endsWith(".c64",Qt::CaseInsensitive) )
    {
       openC64File(fileName);
    }
@@ -2160,42 +2165,31 @@ void MainWindow::windowMenu_triggered()
 
 void MainWindow::tabWidget_tabAdded(int tab)
 {
-   QList<QAction*> actions = menuWindow->actions();
-   QString label = tabWidget->tabText(tab);
-   QAction* action;
-   bool found = false;
+   menuWindow->clear();
 
-   foreach ( action, actions )
+   for ( tab = 0; tab < tabWidget->count(); tab++ )
    {
-      if ( label == action->text() )
-      {
-         found = true;
-      }
-   }
-   if ( !found )
-   {
-      action = menuWindow->addAction(label);
+      QAction* action = menuWindow->addAction(tabWidget->tabText(tab));
+      action->setCheckable(true);
       QObject::connect(action,SIGNAL(triggered()),this,SLOT(windowMenu_triggered()));
    }
-   menuWindow->setEnabled(menuWindow->actions().count()>0);
+   menuWindow->setEnabled(true);
 }
 
 void MainWindow::on_tabWidget_tabCloseRequested(int index)
 {
    ICenterWidgetItem* projectItem = dynamic_cast<ICenterWidgetItem*>(tabWidget->widget(index));
-   QList<QAction*> actions = menuWindow->actions();
-   QString label = tabWidget->tabText(index);
-   QAction* action;
+   int tab;
 
-   foreach ( action, actions )
+   menuWindow->clear();
+
+   for ( tab = 0; tab < tabWidget->count(); tab++ )
    {
-      if ( label == action->text() )
-      {
-         QObject::disconnect(action,SIGNAL(triggered()),this,SLOT(windowMenu_triggered()));
-         menuWindow->removeAction(action);
-      }
+      QAction* action = menuWindow->addAction(tabWidget->tabText(tab));
+      action->setCheckable(true);
+      QObject::connect(action,SIGNAL(triggered()),this,SLOT(windowMenu_triggered()));
    }
-   menuWindow->setEnabled(menuWindow->actions().count()>0);
+   menuWindow->setEnabled(tabWidget->count()>0);
 
    if (projectItem)
    {
@@ -3423,6 +3417,23 @@ void MainWindow::actionFullscreen_toggled(bool value)
 void MainWindow::focusEmulator()
 {
    m_pNESEmulator->setFocus();
+}
+
+void MainWindow::menuWindow_aboutToShow()
+{
+   int tab;
+
+   for ( tab = 0; tab < tabWidget->count(); tab++ )
+   {
+      if ( tab == tabWidget->currentIndex() )
+      {
+         menuWindow->actions().at(tab)->setChecked(true);
+      }
+      else
+      {
+         menuWindow->actions().at(tab)->setChecked(false);
+      }
+   }
 }
 
 void MainWindow::menuEdit_aboutToShow()

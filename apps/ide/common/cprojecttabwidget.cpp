@@ -79,7 +79,7 @@ void CProjectTabWidget::tabBar_contextMenuEvent(QContextMenuEvent *event)
    {
       foreach ( QString ext, extensions )
       {
-         if ( fileName.endsWith(ext) )
+         if ( fileName.endsWith(ext,Qt::CaseInsensitive) )
          {
             nesicideProject->getProject()->getSources()->addSourceFile(fileName);
             break;

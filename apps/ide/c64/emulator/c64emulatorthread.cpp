@@ -178,7 +178,7 @@ void C64EmulatorThread::kill()
 {
    lockRequestQueue();
    clearRequestQueue();
-   addToRequestQueue("until $ffff",false); // using "exit" doesn't seem to work.
+   addToRequestQueue("until $ffff",0); // using "exit" doesn't seem to work.
    runRequestQueue();
    unlockRequestQueue();
 
@@ -193,12 +193,12 @@ void C64EmulatorThread::breakpointsChanged()
 {
    lockRequestQueue();
    clearRequestQueue();
-   addToRequestQueue("break",true); // Get/update breakpoints on emulated machine.
+   addToRequestQueue("break",1); // Get/update breakpoints on emulated machine.
 
    // If the emulator is running, restart it after this interruption.
    if ( m_isRunning )
    {
-      addToRequestQueue("until $ffff",false);
+      addToRequestQueue("until $ffff",0);
    }
    runRequestQueue();
    unlockRequestQueue();
@@ -229,18 +229,18 @@ void C64EmulatorThread::resetEmulator()
 
          lockRequestQueue();
          clearRequestQueue();
-         addToRequestQueue("until $a474",false);
-         addToRequestQueue("reset",true);
+         addToRequestQueue("until $a474",0);
+         addToRequestQueue("reset",1);
          if ( addr > 0 )
          {
             request = "load \"" + fileName + "\" 0";
-            addToRequestQueue(request.toLatin1(),true);
+            addToRequestQueue(request.toLatin1(),1);
             request = "r pc = $" + QString::number(addr,16);
-            addToRequestQueue(request,false);
-            addToRequestQueue("r",true);
-            addToRequestQueue("io",true);
-            addToRequestQueue("m $0 $cfff",true);
-            addToRequestQueue("break",true);
+            addToRequestQueue(request,0);
+            addToRequestQueue("r",1);
+            addToRequestQueue("io",1);
+            addToRequestQueue("m $0 $ffff",1);
+            addToRequestQueue("break",1);
          }
          runRequestQueue();
          unlockRequestQueue();
@@ -249,15 +249,15 @@ void C64EmulatorThread::resetEmulator()
       {
          lockRequestQueue();
          clearRequestQueue();
-         addToRequestQueue("until $a474",false);
-         addToRequestQueue("reset",true);
+         addToRequestQueue("until $a474",0);
+         addToRequestQueue("reset",1);
          request = "autostart \"" + fileName + "\"";
-         addToRequestQueue(request.toLatin1(),true);
-         addToRequestQueue("r",true);
-         addToRequestQueue("io",true);
-//         addToRequestQueue("m $0 $cfff",true);
-//         addToRequestQueue("break",true);
-         addToRequestQueue("until $ffff",false);
+         addToRequestQueue(request.toLatin1(),2);
+         addToRequestQueue("r",1);
+         addToRequestQueue("io",1);
+//         addToRequestQueue("m $0 $ffff",1);
+         addToRequestQueue("break",1);
+         addToRequestQueue("until $ffff",0);
          runRequestQueue();
          unlockRequestQueue();
       }
@@ -270,7 +270,7 @@ void C64EmulatorThread::startEmulation ()
 
    lockRequestQueue();
    clearRequestQueue();
-   addToRequestQueue("until $ffff",false); // using "exit" doesn't seem to work.
+   addToRequestQueue("until $ffff",0); // using "exit" doesn't seem to work.
    runRequestQueue();
    unlockRequestQueue();
 }
@@ -305,18 +305,18 @@ void C64EmulatorThread::stepCPUEmulation ()
       clearRequestQueue();
       if ( endAddr == absAddr )
       {
-         addToRequestQueue("step",true);
+         addToRequestQueue("step",1);
       }
       else
       {
          request = "until $" + QString::number(endAddr,16);
-         addToRequestQueue(request,true);
-         addToRequestQueue("until $ffff",false); // using "exit" doesn't seem to work.
-         addToRequestQueue("step",true);
+         addToRequestQueue(request,1);
+         addToRequestQueue("until $ffff",0); // using "exit" doesn't seem to work.
+         addToRequestQueue("step",1);
       }
-      addToRequestQueue("r",true);
-      addToRequestQueue("io",true);
-      addToRequestQueue("m $0 $cfff",true);
+      addToRequestQueue("r",1);
+      addToRequestQueue("io",1);
+      addToRequestQueue("m $0 $ffff",1);
       runRequestQueue();
       unlockRequestQueue();
    }
@@ -324,10 +324,10 @@ void C64EmulatorThread::stepCPUEmulation ()
    {
       lockRequestQueue();
       clearRequestQueue();
-      addToRequestQueue("step",true);
-      addToRequestQueue("r",true);
-      addToRequestQueue("io",true);
-      addToRequestQueue("m $0 $cfff",true);
+      addToRequestQueue("step",1);
+      addToRequestQueue("r",1);
+      addToRequestQueue("io",1);
+      addToRequestQueue("m $0 $ffff",1);
       runRequestQueue();
       unlockRequestQueue();
    }
@@ -389,11 +389,11 @@ void C64EmulatorThread::stepOverCPUEmulation ()
       lockRequestQueue();
       clearRequestQueue();
       request = "until $" + QString::number(endAddr+1,16);
-      addToRequestQueue(request,true);
-      addToRequestQueue("until $ffff",false); // using "exit" doesn't seem to work.
-      addToRequestQueue("r",true);
-      addToRequestQueue("io",true);
-      addToRequestQueue("m $0 $cfff",true);
+      addToRequestQueue(request,1);
+      addToRequestQueue("until $ffff",0); // using "exit" doesn't seem to work.
+      addToRequestQueue("r",1);
+      addToRequestQueue("io",1);
+      addToRequestQueue("m $0 $ffff",1);
       runRequestQueue();
       unlockRequestQueue();
    }
@@ -407,10 +407,10 @@ void C64EmulatorThread::stepOutCPUEmulation ()
 {
    lockRequestQueue();
    clearRequestQueue();
-   addToRequestQueue("next",true);
-   addToRequestQueue("r",true);
-   addToRequestQueue("io",true);
-   addToRequestQueue("m $0 $cfff",true);
+   addToRequestQueue("next",1);
+   addToRequestQueue("r",1);
+   addToRequestQueue("io",1);
+   addToRequestQueue("m $0 $ffff",1);
    runRequestQueue();
    unlockRequestQueue();
 }
@@ -422,9 +422,9 @@ void C64EmulatorThread::pauseEmulation (bool show)
 
    lockRequestQueue();
    clearRequestQueue();
-   addToRequestQueue("r",true);
-   addToRequestQueue("io",true);
-   addToRequestQueue("m $0 $cfff",true);
+   addToRequestQueue("r",1);
+   addToRequestQueue("io",1);
+   addToRequestQueue("m $0 $ffff",1);
    runRequestQueue();
    unlockRequestQueue();
 }
@@ -436,7 +436,7 @@ void C64EmulatorThread::clearRequestQueue()
    m_responseExpected.clear();
 }
 
-void C64EmulatorThread::addToRequestQueue(QString request,bool expecting)
+void C64EmulatorThread::addToRequestQueue(QString request,int expecting)
 {
    request.append('\n');
    m_requests.append(request);
@@ -448,7 +448,7 @@ void C64EmulatorThread::runRequestQueue()
    if ( m_requests.count() )
    {
       m_requests.append("END");
-      m_responseExpected.append(false);
+      m_responseExpected.append(0);
 
       emit sendRequests(m_requests,m_responseExpected);
    }
@@ -511,9 +511,9 @@ void C64EmulatorThread::processTraps(QString traps)
    {
       lockRequestQueue();
       clearRequestQueue();
-      addToRequestQueue("r",true);
-      addToRequestQueue("io",true);
-      addToRequestQueue("m $0 $cfff",true);
+      addToRequestQueue("r",1);
+      addToRequestQueue("io",1);
+      addToRequestQueue("m $0 $ffff",1);
       runRequestQueue();
       unlockRequestQueue();
 
@@ -581,7 +581,7 @@ void C64EmulatorThread::processResponses(QStringList requests,QStringList respon
          {
             bpText = "delete ";
             bpText += bpIterator;
-            addToRequestQueue(bpText,false);
+            addToRequestQueue(bpText,0);
          }
 
          // Add all enabled breakpoints...
@@ -613,7 +613,7 @@ void C64EmulatorThread::processResponses(QStringList requests,QStringList respon
                   bpText += " $";
                   bpText += QString::number(pBreakpoint->item2,16);
                }
-               addToRequestQueue(bpText,false);
+               addToRequestQueue(bpText,0);
             }
          }
          runRequestQueue();
@@ -861,10 +861,8 @@ void TcpClient::connected()
    if ( m_requests.count() )
    {
       // Kick off writing anything that's been queued.
-      qDebug(m_requests.at(0).toLatin1().constData());
-      pSocket->write("> "+m_requests.at(0).toLatin1());
-      debugTextLogger->write(m_requests.at(0));
-      qDebug("requests were pending");
+      pSocket->write(m_requests.at(0).toLatin1());
+      debugTextLogger->write("<pre>\nrequest: "+m_requests.at(0)+"</pre>");
    }
    m_clientMutex->unlock();
    qDebug("SOCKET CONNECTED!");
@@ -896,9 +894,8 @@ void TcpClient::sendRequests(QStringList requests,QList<int> expectings)
         (pSocket->state() == QAbstractSocket::ConnectedState) )
    {
       // Kick off if nothing going on.
-      qDebug(m_requests.at(0).toLatin1().constData());
       pSocket->write(m_requests.at(0).toLatin1());
-      debugTextLogger->write("> "+m_requests.at(0));      
+      debugTextLogger->write("<pre>\nrequest: "+m_requests.at(0)+"</pre>");
       m_requestSent.replace(0,true);
    }
    m_clientMutex->unlock();
@@ -912,10 +909,9 @@ void TcpClient::readyRead()
    QRegExp     regex("([\n][(]C:[$][0-9a-f]+[)]) ");
    int count;
    int currentRequest;
-   bool expecting;
 
    receivedData = pSocket->readAll();
-   debugTextLogger->write("< "+receivedData);
+   debugTextLogger->write("<pre>\nresponse: "+receivedData+"</pre>");
    responseMessage.append(receivedData);
 
    emit traps(receivedData);
@@ -923,14 +919,7 @@ void TcpClient::readyRead()
    m_clientMutex->lock();
    count = m_requests.count();
    currentRequest = m_request;
-   if ( currentRequest < m_requests.count() )
-   {
-      expecting = m_expectDataInResponse.at(currentRequest);
-   }
-   else
-   {
-      expecting = false;
-   }
+
    m_clientMutex->unlock();
 
    if ( currentRequest >= (count-1) )
@@ -939,21 +928,32 @@ void TcpClient::readyRead()
       return;
    }
 
-   if ( (!expecting) || (responseMessage.lastIndexOf(regex) > 0) )
+   if ( (!m_expectDataInResponse.at(currentRequest)) || (responseMessage.lastIndexOf(regex) > 0) )
    {
       m_clientMutex->lock();
       m_responses.append(responseMessage);
+
+      if ( m_expectDataInResponse.at(currentRequest) )
+      {
+         m_expectDataInResponse.replace(currentRequest,m_expectDataInResponse.takeAt(currentRequest)-1);
+         if ( m_expectDataInResponse.at(currentRequest) != 0 )
+         {
+            return;
+         }
+      }
+
       m_request++;
+
       if ( m_requests.at(m_request) != "END" )
       {
-         qDebug(m_requests.at(m_request).toLatin1().constData());
+//         qDebug(m_requests.at(m_request).toLatin1().constData());
          pSocket->write(m_requests.at(m_request).toLatin1());
-         debugTextLogger->write("> "+m_requests.at(0));
+         debugTextLogger->write("<pre>\nrequest: "+m_requests.at(0)+"</pre>");
          m_requestSent.replace(m_request,true);
       }
       else
       {
-         qDebug("FINISHED");
+//         qDebug("FINISHED");
          // Remove the "END" marker.
          m_requests.removeAt(m_request);
          m_responses.removeAt(m_request);
@@ -979,7 +979,7 @@ void TcpClient::readyRead()
          // they'll be processed by the next bundle's arrival.
          if ( m_requests.count() )
          {
-            qDebug(m_requests.at(0).toLatin1().constData());
+//            qDebug(m_requests.at(0).toLatin1().constData());
             pSocket->write("> "+m_requests.at(0).toLatin1());
          }
       }

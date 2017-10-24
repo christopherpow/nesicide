@@ -10,7 +10,7 @@ LIBDEPS="../deps/rtmidi/release/librtmidi \
      ../libs/c64/release/libc64-emulator \
      ../libs/famitracker/release/libfamitracker"
 
-if [ "$TARGET" == 'mac' ]; then
+if [ "$TARGET" == 'osx' ]; then
    DEPLOYS="../apps/ide/release/nesicide.app \
         ../apps/famitracker/release/famitracker.app \
         ../apps/famiplayer/release/famiplayer.app \
@@ -48,11 +48,11 @@ if [ "$TARGET" == 'linux' ]; then
    done
    tar cjvf nesicide-linux.tar.bz2 fami*.AppImage nes*.AppImage
    curl --upload-file nesicide-linux.tar.bz2 https://knob.phreneticappsllc.com/nesicide/
-elif [ "$TARGET" == 'mac' ]; then
+elif [ "$TARGET" == 'osx' ]; then
    for DEPLOY in ${DEPLOYS}
    do
       echo Deploying ${DEPLOY}
-      ${TARGET}deployqt ${DEPLOY} ${TARGARGS}
+      macdeployqt ${DEPLOY} ${TARGARGS}
    done
    tar cjvf nesicide-osx.tar.bz2 fami*.App nes*.App
    curl --upload-file nesicide-osx.tar.bz2 https://knob.phreneticappsllc.com/nesicide/
@@ -60,7 +60,7 @@ else
    for DEPLOY in ${DEPLOYS}
    do
       echo Deploying ${DEPLOY}
-      ${TARGET}deployqt ${DEPLOY} ${TARGARGS}
+      macdeployqt ${DEPLOY} ${TARGARGS}
    done
    tar cjvf nesicide-${TARGET}.tar.bz2 famitracker famiplayer nesicide nes-emulator
    curl --upload-file nesicide-${TARGET}.tar.bz2 https://knob.phreneticappsllc.com/nesicide/

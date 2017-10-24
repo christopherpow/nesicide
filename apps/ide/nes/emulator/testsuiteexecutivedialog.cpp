@@ -211,8 +211,6 @@ void TestSuiteExecutiveDialog::doTestPhase()
       ui->tableWidget->setCurrentCell(testRunning,4);
 
       ui->suiteProgress->setValue(testRunning+1);
-      qDebug(testSuiteFolder.absoluteFilePath(testFileName).toLatin1().data());
-      qDebug(testSuiteFolder.fromNativeSeparators(testSuiteFolder.absoluteFilePath(testFileName)).toLatin1().data());
       ui->testROM->setText(testSuiteFolder.toNativeSeparators(testSuiteFolder.absoluteFilePath(testFileName)));
 
       ui->testProgress->setMaximum(testFrames.toInt());
@@ -254,7 +252,7 @@ void TestSuiteExecutiveDialog::doTestPhase()
          nesSetSystemMode(MODE_PAL);
       }
 
-      emit openNesROM(testSuiteFolder.toNativeSeparators(testSuiteFolder.absoluteFilePath(testFileName)),false);
+      emit openNesROM(ui->testROM->text(),false);
 
       emit pauseEmulationAfter(framesRun);
 

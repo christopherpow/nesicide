@@ -99,7 +99,7 @@ signals:
 protected:
    void lockRequestQueue();
    void clearRequestQueue();
-   void addToRequestQueue(QString command,bool expecting);
+   void addToRequestQueue(QString command,int expecting);
    void runRequestQueue();
    void unlockRequestQueue();
 

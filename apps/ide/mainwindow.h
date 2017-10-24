@@ -149,7 +149,9 @@ protected:
    QAction *actionExecution_Visualizer_Inspector;
    QAction *actionMapperInformation_Inspector;
    QAction *actionAPUInformation_Inspector;
+   int boo;
    QAction *actionPreferences;
+   int yah;
    QAction *actionNTSC;
    QAction *actionPAL;
    QAction *actionDendy;
@@ -234,6 +236,7 @@ private slots:
    void openC64File(QString fileName);
    void on_actionAbout_Qt_triggered();
    void menuEdit_aboutToShow();
+   void menuWindow_aboutToShow();
    void focusEmulator();
    void windowMenu_triggered();
    void markProjectDirty(bool dirty);
