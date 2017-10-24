@@ -1,6 +1,6 @@
 os:
-    - linux
     - osx
+    - linux
 
 language: cpp
 compiler: gcc
