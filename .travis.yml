@@ -15,5 +15,5 @@ install:
 
 script:
   - cd build
-  - ./build.sh; 
+  - ./build.sh 
   - ./${TRAVIS_OS_NAME}-deploy.sh

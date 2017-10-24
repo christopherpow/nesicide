@@ -1,5 +1,5 @@
 #!/bin/bash
-set -ev
+set -v
 
 if [ "$1" == "before_install" ]; then
   sudo add-apt-repository ppa:beineri/opt-qt591-trusty -y
