@@ -12,13 +12,11 @@ This project contains:
 
 Prerequisites
 =============
-To be able to build NESICIDE you need to install:
+To be able to build NESICIDE you need to do the following:
 
-0. Install git 
+0. Install `git`
 
-1. Install Qt 5.6.2 as it was the latest kit to be verified to build NESICIDE properly with not errors. Please do not use a kit later than this, or if you do, please create a pull request with nexessary changes. 
-
-[https://download.qt.io/official_releases/qt/5.6/5.6.2/](https://download.qt.io/official_releases/qt/5.6/5.6.2/)
+1. Install `Qt 5.6.2` [https://download.qt.io/official_releases/qt/5.6/5.6.2/](https://download.qt.io/official_releases/qt/5.6/5.6.2/) as it was the latest kit to be verified to build NESICIDE properly with not errors. Please do not use a kit later than this, or if you do, please create a pull request with nexessary changes. 
 
 Known issues:
     * C++11 support required
@@ -29,8 +27,6 @@ Known issues:
 
 ## Arch-Linux
 `sudo pacman -S lua sdl mesa wine`
-
-3. `git clone https://github.com/christopherpow/nesicide.git`
 
 Building
 ========
