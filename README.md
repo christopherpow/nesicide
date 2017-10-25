@@ -2,77 +2,79 @@
 
 nesicide
 ========
+nesicide is an Integrated Development Environment (IDE) for the 8-bit Nintendo Entertainment System (NES).
 
-Integrated Development Environment for the 8-bit Nintendo Entertainment System
+This project contains:
+* NESICIDE (the IDE itself)
+* A NES emulator (standalone package of the emulator used in the IDE)
+* FamiTrackerQT (a fork of jsr's FamiTracker)
+* FamiPlayer (a music player for .ftm files)
 
 Prerequisites
 =============
-0. Install Qt open source from:
+To be able to build NESICIDE you need to install:
 
-   https://info.qt.io/download-qt-for-application-development
-   
-   NOTE: The latest kit that was verified to build NESICIDE properly with no errors is Qt 5.6.2. Please do not 
-         use a kit later than this, or if you do, please create a pull request with necessary changes. Known issues:
-         
-         . C++11 support required
+0. Install git 
 
-1. Install git
+1. Install Qt 5.6.2 as it was the latest kit to be verified to build NESICIDE properly with not errors. Please do not use a kit later than this, or if you do, please create a pull request with nexessary changes. 
 
-Getting the source
-==================
-0. Clone the git repository:
+[https://download.qt.io/official_releases/qt/5.6/5.6.2/](https://download.qt.io/official_releases/qt/5.6/5.6.2/)
 
-   git clone https://github.com/christopherpow/nesicide.git
+Known issues:
+    * C++11 support required
 
-1. Fetch dependencies package:
+2. For linux, make sure the following packages are installed
+## Debian
+`sudo apt-get install build-essential libasound2-dev liblua5.1-dev libsdl1.2-dev libgl1-mesa-dev wine-dev`
 
-   wget https://knob.phreneticappsllc.com/nesicide/nesicide-deps.tar.bz2
+## Arch-Linux
+`sudo pacman -S lua sdl mesa wine`
 
-2. For Linux, make sure the following packages are installed:
-
-   sudo apt-get install build-essential patchelf libasound2-dev liblua5.1-dev libsdl1.2-dev libgl1-mesa-dev wine-dev
+3. `git clone https://github.com/christopherpow/nesicide.git`
 
 Building
 ========
-0. Extract dependencies into top level (nesicide/) folder:
+To build the project follow the instructions below:
 
-   tar xjvf nesicide-deps.tar.bz2
+NOTE: The build process takes a while, so grab a snack while you wait. ;)
 
-1. Build nesicide using the build scripts:
+## Linux
+0. `cd build`
 
-   ( cd build && ./build.sh )
+1. `./build.sh`
 
-2. Create deployments:
+2. Once the build process is complete run: 
+`./linux-deploy.sh`
 
-   a. For OSX (Mac):
-      
-      mac-deploy.sh
+## MacOSX
+0. `cd build`
 
-   b. For Windows:
+1. `./build.sh`
 
-      win-deploy.sh
-	  
-3. Build cc65 toolchain:
+2. Once the build process is complete run: 
+`./osx-deploy.sh`
 
-   ( cd deps/cc65; make )
+## Windows
+0. `cd build`
+
+1. `./build.sh`
+
+2. Once the build process is complete run: 
+`./win-deploy.sh`
 
 Running
 =======
-The applications can be found at the following locations:
+The `deploy.sh` creates executables for all platforms at the following locations:
 
-   a. NESICIDE:
+* NESICIDE:
+`apps/ide/release/nesicide`
 
-      apps/ide/release/
+* NES Emulator:
+`apps/nes-emulator/release/nes-emulator`
 
-   b. NES Emulator (stand alone package of the emulator used in the IDE):
+* FamiTrackerQT:
+`apps/famitracker/release/famitracker`
 
-      apps/nes-emulator/release/
-
-   c. FamiTracker:
-
-      apps/famitracker/release/
-
-   d. FamiPlayer:
-
-      apps/famiplayer/release/
+* FamiPlayer:
+`apps/famiplayer/release/famiplayer`
 
