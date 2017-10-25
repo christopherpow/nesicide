@@ -10,12 +10,12 @@ sudo: require
 dist: trusty
 
 before_install:
-  - travis_wait ./build/${TRAVIS_OS_NAME}-travis-setup.sh before_install
+  - travis_wait 40 ./build/${TRAVIS_OS_NAME}-travis-setup.sh before_install
 
 install:
-  - travis_wait ./build/${TRAVIS_OS_NAME}-travis-setup.sh install
+  - travis_wait 40 ./build/${TRAVIS_OS_NAME}-travis-setup.sh install
 
 script:
   - cd build
-  - travis_wait ./build.sh 
-  - travis_wait ./${TRAVIS_OS_NAME}-deploy.sh
+  - travis_wait 40 ./build.sh 
+  - travis_wait 40 ./${TRAVIS_OS_NAME}-deploy.sh
