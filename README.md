@@ -21,11 +21,10 @@ To be able to build NESICIDE you need to do the following:
 Known issues:
     * C++11 support required
 
-2. For linux, make sure the following packages are installed
-## Debian
+### Debian prerequisites
 `sudo apt-get install build-essential libasound2-dev liblua5.1-dev libsdl1.2-dev libgl1-mesa-dev wine-dev`
 
-## Arch-Linux
+### Arch-Linux prerequisites
 `sudo pacman -S lua sdl mesa wine`
 
 Building
@@ -39,24 +38,21 @@ NOTE: The build process takes a while, so grab a snack while you wait. ;)
 
 1. `./build.sh`
 
-2. Once the build process is complete run: 
-`./linux-deploy.sh`
+2. Once the build process is complete run: `./linux-deploy.sh`
 
 ## MacOSX
 0. `cd build`
 
 1. `./build.sh`
 
-2. Once the build process is complete run: 
-`./osx-deploy.sh`
+2. Once the build process is complete run: `./osx-deploy.sh`
 
 ## Windows
 0. `cd build`
 
 1. `./build.sh`
 
-2. Once the build process is complete run: 
-`./win-deploy.sh`
+2. Once the build process is complete run: `./win-deploy.sh`
 
 Running
 =======
