@@ -12,19 +12,19 @@ This project contains:
 
 Prerequisites
 =============
-To be able to build NESICIDE you need to do the following:
+To be able to build nesicide you need to do the following:
 
 0. Install `git`
 
-1. Install `Qt 5.6.2` [https://download.qt.io/official_releases/qt/5.6/5.6.2/](https://download.qt.io/official_releases/qt/5.6/5.6.2/) as it was the latest kit to be verified to build NESICIDE properly with not errors. Please do not use a kit later than this, or if you do, please create a pull request with nexessary changes. 
+1. Install `Qt 5.6.2` [https://download.qt.io/official_releases/qt/5.6/5.6.2/](https://download.qt.io/official_releases/qt/5.6/5.6.2/) as it was the latest kit to be verified to build NESICIDE properly with not errors. Please do not use a kit later than this, or if you do, please create a pull request with necessary changes. 
 
 Known issues:
     * C++11 support required
 
-### Debian prerequisites
+## Debian prerequisites
 `sudo apt-get install build-essential libasound2-dev liblua5.1-dev libsdl1.2-dev libgl1-mesa-dev wine-dev`
 
-### Arch-Linux prerequisites
+## Arch-Linux prerequisites
 `sudo pacman -S lua sdl mesa wine`
 
 Building
@@ -58,7 +58,7 @@ Running
 =======
 The `deploy.sh` creates executables for all platforms at the following locations:
 
-* NESICIDE:
+* nesicide:
 `apps/ide/release/nesicide`
 
 * NES Emulator:
