@@ -15,7 +15,7 @@
 
 #include "common/cnessystempalette.h"
 
-static char __emu_version__ [] = "V1.004"
+static char __emu_version__ [] = "v2.0.0"
 #if defined ( QT_NO_DEBUG )
 " RELEASE";
 #else

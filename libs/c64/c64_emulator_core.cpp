@@ -3,7 +3,7 @@
 #include "cc646502.h"
 #include "cc64sid.h"
 
-static char __emu_version__ [] = "V1.000"
+static char __emu_version__ [] = "v2.0.0"
 #if defined ( QT_NO_DEBUG )
 " RELEASE";
 #else
