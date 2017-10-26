@@ -47,15 +47,13 @@ if [ "$TARGET" == 'linux' ]; then
       ./linuxdeployqt-continuous-x86_64.AppImage ${DIST}.desktop ${TARGARGS}
    done
    tar cjvf nesicide-linux.tar.bz2 fami*.AppImage nes*.AppImage
-   curl --upload-file nesicide-linux.tar.bz2 https://knob.phreneticappsllc.com/nesicide/
 elif [ "$TARGET" == 'osx' ]; then
    for DEPLOY in ${DEPLOYS}
    do
       echo Deploying ${DEPLOY}
       macdeployqt ${DEPLOY} ${TARGARGS}
    done
-   tar cjvf nesicide-osx.tar.bz2 fami*.App nes*.App
-   curl --upload-file nesicide-osx.tar.bz2 https://knob.phreneticappsllc.com/nesicide/
+   tar cjvf nesicide-osx.tar.bz2 fami*.app nes*.app
 else
    for DEPLOY in ${DEPLOYS}
    do
@@ -63,6 +61,4 @@ else
       macdeployqt ${DEPLOY} ${TARGARGS}
    done
    tar cjvf nesicide-${TARGET}.tar.bz2 famitracker famiplayer nesicide nes-emulator
-   curl --upload-file nesicide-${TARGET}.tar.bz2 https://knob.phreneticappsllc.com/nesicide/
 fi
-
