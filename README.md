@@ -12,14 +12,11 @@ This project contains:
 
 Prerequisites
 -------------------------------------------------------------------------------
-To be able to build nesicide you need to do the following:
+The following steps are required prior to building this project on any platform.
 
 0. Install `git`
 
 1. Install `Qt 5.6.2` [https://download.qt.io/official_releases/qt/5.6/5.6.2/](https://download.qt.io/official_releases/qt/5.6/5.6.2/) as it was the latest kit to be verified to build NESICIDE properly with not errors. Please do not use a kit later than this, or if you do, please create a pull request with necessary changes. 
-
-Known issues:
-* C++11 support required
 
 Debian prerequisites
 -------------------------------------------------------------------------------
@@ -29,13 +26,18 @@ Arch-Linux prerequisites
 -------------------------------------------------------------------------------
 `sudo pacman -S lua sdl mesa wine`
 
+Windows prerequisites
+-------------------------------------------------------------------------------
+Install MinGW and GnuWin32. Make sure mingw32-make and wget are on your path.
+
 Building
 ===============================================================================
-To build the project follow the instructions below:
+This project builds for Windows, Linux, and OSX. To perform a build for any supported platform follow the instructions for the platform below.
 
 NOTE: The build process takes a while, so grab a snack while you wait. ;)
 
 Linux
+-------------------------------------------------------------------------------
 0. `cd build`
 
 1. `./build.sh`
