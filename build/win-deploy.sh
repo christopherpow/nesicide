@@ -31,6 +31,6 @@ for DEPLOY in ${DEPLOYS_DEST}
 do
    DIST=$(basename $DEPLOY) 
    echo Deploying ${DIST}
-   windeployqt ${DEPLOY} ${TARGARGS}
+   windeployqt ${DEPLOY} ${TARGARGS} -printsupport
 done
 tar cjvf nesicide-win.tar.bz2 dist
