@@ -7,14 +7,19 @@ LIBDEPS="../deps/rtmidi/release/rtmidi \
      ../libs/c64/release/c64-emulator \
      ../libs/famitracker/release/famitracker"
 
-DEPLOYS="../apps/ide/release/nesicide.exe \
+DEPLOYS_SRC="../apps/ide/release/nesicide.exe \
         ../apps/famitracker/release/famitracker.exe \
         ../apps/famiplayer/release/famiplayer.exe \
         ../apps/nes-emulator/release/nes-emulator.exe"
 
+DEPLOYS_DEST="./dist/nesicide.exe \
+        ./dist/famitracker.exe \
+        ./dist/famiplayer.exe \
+        ./dist/nes-emulator.exe"
+
 rm -rf ./dist
 mkdir -pv ./dist
-for DEPLOY in ${DEPLOYS}
+for DEPLOY in ${DEPLOYS_SRC}
 do
    cp -v ${DEPLOY} ./dist/
 done
@@ -22,7 +27,7 @@ for f in ${LIBDEPS}
 do 
    cp -v ${f}* dist/ 
 done
-for DEPLOY in ${DEPLOYS}
+for DEPLOY in ${DEPLOYS_DEST}
 do
    DIST=$(basename $DEPLOY) 
    echo Deploying ${DIST}
