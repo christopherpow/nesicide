@@ -30,8 +30,10 @@ do
    do 
       sudo cp -v ${f}* /usr/lib/x86_64-linux-gnu/
    done
+   if [ "$DEPLOY" == "../apps/ide/release/nesicide" ]; then
+      make -C ../deps/cc65; make -C ../deps/cc65 install prefix=$PWD/dist/cc65
+   fi
    cp -v ${DIST}.desktop ./dist
    cp -v ${DIST}.png ./dist
    ./linuxdeployqt-continuous-x86_64.AppImage ${DIST}.desktop ${TARGARGS}
 done
-tar cjvf nesicide-linux.tar.bz2 fami*.AppImage nes*.AppImage

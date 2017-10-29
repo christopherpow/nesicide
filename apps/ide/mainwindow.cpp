@@ -159,6 +159,7 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
       QString envdat;
       envdat += QCoreApplication::applicationDirPath();
       envdat += "/cc65/bin:";
+qDebug("envdat %s\n",envdat.toLatin1().data());
       qputenv("PATH",QString(envdat+envvar).toLatin1());
 
       envdat = QCoreApplication::applicationDirPath();
