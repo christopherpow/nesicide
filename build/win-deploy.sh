@@ -1,5 +1,8 @@
 #!/bin/bash
 
+PATH=../deps/Windows/GnuWin32/bin:$PATH
+
+
 LIBDEPS="../deps/rtmidi/release/rtmidi \
      ../deps/qscintilla2/Qt4Qt5/release/qscintilla2_qt5 \
      ../deps/Windows/SDL/SDL.dll \

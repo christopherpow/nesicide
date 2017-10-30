@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set PATH=..\deps\Windows\GnuWin32\bin;%PATH%
+PATH=../deps/Windows/GnuWin32/bin:$PATH
 
 echo Cleaning NESICIDE...
 ( cd ide; make distclean )

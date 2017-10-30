@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set PATH=..\deps\Windows\GnuWin32\bin;%PATH%
+PATH=../deps/Windows/GnuWin32/bin:$PATH
 
 # check for deps
 echo -n "Checking for dependencies package..."
