@@ -6,16 +6,26 @@ LIBDEPS="../deps/rtmidi/release/librtmidi \
      ../libs/c64/release/libc64-emulator \
      ../libs/famitracker/release/libfamitracker"
 
-DEPLOYS="../apps/ide/release/nesicide.app \
+DEPLOYS_SRC="../apps/ide/release/nesicide.app \
         ../apps/famitracker/release/famitracker.app \
         ../apps/famiplayer/release/famiplayer.app \
         ../apps/nes-emulator/release/nes-emulator.app"
 
+DEPLOYS_DEST="./dist/nesicide.app \
+        ./dist/famitracker.app \
+        ./dist/famiplayer.app \
+        ./dist/nes-emulator.app"
+
 TARGARGS=-dmg
 
-for DEPLOY in ${DEPLOYS}
+rm -rf ./dist
+mkdir ./dist
+for DEPLOY in ${DEPLOYS_SRC}
+do
+   cp -vr ${DEPLOY} ./dist/
+done
+for DEPLOY in ${DEPLOYS_DEST}
 do
    echo Deploying ${DEPLOY}
    macdeployqt ${DEPLOY} ${TARGARGS}
 done
-tar cjvf nesicide-osx.tar.bz2 fami*.app nes*.app
