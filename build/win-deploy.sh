@@ -27,10 +27,11 @@ for f in ${LIBDEPS}
 do 
    cp -v ${f}* dist/ 
 done
+make -C ../deps/cc65; make -C ../deps/cc65 install prefix=$PWD/dist/cc65
 for DEPLOY in ${DEPLOYS_DEST}
 do
    DIST=$(basename $DEPLOY) 
    echo Deploying ${DIST}
    windeployqt ${DEPLOY} ${TARGARGS} -printsupport
 done
-tar cjvf nesicide-win.tar.bz2 dist
+tar cjvf nesicide-win-x64.tar.bz2 dist

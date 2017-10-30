@@ -1,13 +1,15 @@
 #!/bin/bash
 
+set PATH=..\deps\Windows\GnuWin32\bin;%PATH%
+
 echo Cleaning NESICIDE...
-( cd ide; mingw32-make distclean )
+( cd ide; make distclean )
 echo Cleaning FamiTracker...
-( cd famitracker; mingw32-make distclean )
+( cd famitracker; make distclean )
 echo Cleaning FamiPlayer...
-( cd famiplayer; mingw32-make distclean )
+( cd famiplayer; make distclean )
 echo Cleaning NES Emulator...
-( cd nes-emulator; mingw32-make distclean )
+( cd nes-emulator; make distclean )
 echo Removing deps...
 if [ "$1" == "deps" ]; then
   ( cd ..; rm -rf deps )

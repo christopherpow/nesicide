@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set PATH=..\deps\Windows\GnuWin32\bin;%PATH%
+
 # check for deps
 echo -n "Checking for dependencies package..."
 if [ ! -d "../deps" ]; then
@@ -13,11 +15,11 @@ else
 fi
 # add CONFIG+=debug to qmake to build debug.
 echo Building NESICIDE...
-( cd ide; qmake; mingw32-make )
+( cd ide; qmake; make )
 echo Building FamiTracker...
-( cd famitracker; qmake; mingw32-make )
+( cd famitracker; qmake; make )
 echo Building FamiPlayer...
-( cd famiplayer; qmake; mingw32-make )
+( cd famiplayer; qmake; make )
 echo Building NES Emulator...
-( cd nes-emulator; qmake; mingw32-make )
+( cd nes-emulator; qmake; make )
 
