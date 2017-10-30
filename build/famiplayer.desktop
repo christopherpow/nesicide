@@ -5,4 +5,4 @@ Exec=famiplayer
 Icon=famiplayer
 Comment=Standalone player app for FamiTracker modules
 Terminal=true
-Categories=Development
+Categories=Audio;AudioVideo;

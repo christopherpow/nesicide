@@ -5,4 +5,4 @@ Exec=nes-emulator
 Icon=nes-emulator
 Comment=Stand-alone NES emulator from NESICIDE
 Terminal=true
-Categories=Development
+Categories=Game;Emulator;
