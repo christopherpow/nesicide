@@ -2468,6 +2468,12 @@ HCURSOR WINAPI SetCursor(
    HCURSOR hCursor
 );
 
+int WINAPI GetClassName(
+   HWND   hWnd,
+   LPTSTR lpClassName,
+   int    nMaxCount
+);
+
 BOOL WINAPI GetWindowRect(
    HWND hWnd,
    LPRECT lpRect

@@ -381,6 +381,26 @@ HCURSOR WINAPI SetCursor(
    return (HCURSOR)0;
 }
 
+int WINAPI GetClassName(
+   HWND   hWnd,
+   LPTSTR lpClassName,
+   int    nMaxCount
+)
+{
+   CWnd* pWnd = CWnd::FromHandle(hWnd);
+   if ( pWnd )
+   {
+#if UNICODE
+   wcsncpy(lpClassName,"Edit",nMaxCount);
+   return wcslen(lpClassName);
+#else
+   strncpy(lpClassName,"Edit",nMaxCount);
+   return strlen(lpClassName);
+#endif
+
+   }
+}
+
 BOOL WINAPI GetWindowRect(
    HWND hWnd,
    LPRECT lpRect
@@ -6426,6 +6446,7 @@ LRESULT CWnd::SendMessage(
       post->msg.message = message;
       post->msg.wParam = wParam;
       post->msg.lParam = lParam;
+      post->msg.hwnd = m_hWnd;
 
       if ( backgroundedFamiTracker )
       {
@@ -6449,6 +6470,7 @@ LRESULT CWnd::SendMessage(
       post.msg.message = message;
       post.msg.wParam = wParam;
       post.msg.lParam = lParam;
+      post.msg.hwnd = m_hWnd;
 
       _afxThreadState.m_lastSentMsg = post.msg;
 
@@ -7930,6 +7952,7 @@ BOOL CWnd::PostMessage(
    post->msg.message = message;
    post->msg.wParam = wParam;
    post->msg.lParam = lParam;
+   post->msg.hwnd = m_hWnd;
    
    if ( backgroundedFamiTracker )
    {

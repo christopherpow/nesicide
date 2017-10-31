@@ -111,14 +111,13 @@ BOOL CInstrumentEditPanel::PreTranslateMessage(MSG* pMsg)
 					break;
 				default:	// Note keys
 					// Make sure the dialog is selected when previewing
-               qFatal("GetClassName support!");
-//					GetClassName(pMsg->hwnd, ClassName, 256);
-//					if (_tcscmp(ClassName, _T("Edit"))) {
-//						// Remove repeated keys
-//						if ((pMsg->lParam & (1 << 30)) == 0)
-//							PreviewNote((unsigned char)pMsg->wParam);
-//						return TRUE;
-//					}
+               GetClassName(pMsg->hwnd, ClassName, 256);
+               if (_tcscmp(ClassName, _T("Edit"))) {
+                  // Remove repeated keys
+                  if ((pMsg->lParam & (1 << 30)) == 0)
+                     PreviewNote((unsigned char)pMsg->wParam);
+                  return TRUE;
+               }
 			}
 			break;
 		case WM_KEYUP:
