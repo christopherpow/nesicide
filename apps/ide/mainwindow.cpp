@@ -381,68 +381,46 @@ qDebug("envdat %s\n",envdat.toLatin1().data());
          argv.append(settings.value("LastProject").toString());
       }
    }
-qDebug("argv %s\n",argv.at(1).toLatin1().data());
+
    // Filter for supported files to open.
    QStringList argv_nesproject = argv.filter ( QRegExp(".*[.]nesproject$",Qt::CaseInsensitive) );
    QStringList argv_nes = argv.filter ( QRegExp(".*[.]nes$",Qt::CaseInsensitive) );
    QStringList argv_c64project = argv.filter ( QRegExp(".*[.]c64project$",Qt::CaseInsensitive) );
    QStringList argv_c64 = argv.filter ( QRegExp(".*[.](c64|prg|d64)$",Qt::CaseInsensitive) );
+   QStringList argv_ftm = argv.filter ( QRegExp(".*[.](ftm)$",Qt::CaseInsensitive) );
 
-   if ( (argv_nes.count() >= 1) &&
-        (argv_nesproject.count() >= 1) )
+   // Only one file can be specified.
+   if ( argv_nes.count()
+        +argv_nesproject.count()
+        +argv_c64.count()
+        +argv_c64project.count() > 1 )
    {
-      QMessageBox::information ( 0, "Command Line Error", "Cannot specify a .nes and a .nesproject file to open.\n" );
-   }
-   if ( (argv_c64.count() >= 1) &&
-        (argv_c64project.count() >= 1) )
-   {
-      QMessageBox::information ( 0, "Command Line Error", "Cannot specify a .c64 and a .c64project file to open.\n" );
+      QString error = "Conflicting command line arguments:\n\n"+argv.join(" ");
+      QMessageBox::information ( 0, "Command Line Error", error );
+      QApplication::exit(-1);
    }
 
    if ( argv_nes.count() >= 1 )
    {
       openNesROM(argv_nes.at(0));
-
-      if ( argv_nes.count() > 1 )
-      {
-         QMessageBox::information ( 0, "Command Line Error", "Too many NES ROM files were specified on the command\n"
-                                    "line.  Only the first NES ROM was opened, all others\n"
-                                    "were ignored." );
-      }
    }
    else if ( argv_nesproject.count() >= 1 )
    {
       openNesProject(argv_nesproject.at(0));
 
-      if ( argv_nesproject.count() > 1 )
+      foreach ( QString ftm, argv_ftm )
       {
-         QMessageBox::information ( 0, "Command Line Error", "Too many NES project files were specified on the command\n"
-                                    "line.  Only the first NES project was opened, all others\n"
-                                    "were ignored." );
+         qDebug("ftm: %s\n",ftm.toLatin1().data());
+         m_pProjectModel->getMusicModel()->addExistingMusicFile(ftm);
       }
    }
    else if ( argv_c64.count() >= 1 )
    {
-      qDebug("argv_c64.at(0) %s\n",argv_c64.at(0).toLatin1().data());
       openC64File(argv_c64.at(0));
-
-      if ( argv_c64.count() > 1 )
-      {
-         QMessageBox::information ( 0, "Command Line Error", "Too many C64 files were specified on the command\n"
-                                    "line.  Only the first C64 file was opened, all others\n"
-                                    "were ignored." );
-      }
    }
    else if ( argv_c64project.count() >= 1 )
    {
       openC64Project(argv_c64project.at(0));
-
-      if ( argv_c64project.count() > 1 )
-      {
-         QMessageBox::information ( 0, "Command Line Error", "Too many C64 project files were specified on the command\n"
-                                    "line.  Only the first C64 project was opened, all others\n"
-                                    "were ignored." );
-      }
    }
 
    projectDataChangesEvent();

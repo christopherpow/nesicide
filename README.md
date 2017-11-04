@@ -28,7 +28,7 @@ Arch-Linux prerequisites
 
 Windows prerequisites
 -------------------------------------------------------------------------------
-Install MinGW and GnuWin32. Make sure mingw32-make and wget are on your path.
+Install GnuWin32 and wget.
 
 Building
 ===============================================================================

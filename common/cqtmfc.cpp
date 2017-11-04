@@ -390,11 +390,12 @@ int WINAPI GetClassName(
    CWnd* pWnd = CWnd::FromHandle(hWnd);
    if ( pWnd )
    {
+      qDebug("className: %s",pWnd->GetRuntimeClass()->m_lpszClassName);
 #if UNICODE
-   wcsncpy(lpClassName,"Edit",nMaxCount);
+   wcsncpy(lpClassName,pWnd->GetRuntimeClass()->m_lpszClassName,nMaxCount);
    return wcslen(lpClassName);
 #else
-   strncpy(lpClassName,"Edit",nMaxCount);
+   strncpy(lpClassName,pWnd->GetRuntimeClass()->m_lpszClassName,nMaxCount);
    return strlen(lpClassName);
 #endif
 
@@ -10369,7 +10370,7 @@ int CWinThread::Run( )
       {
          ptrToTheApp->m_pMainWnd->SendMessageToDescendants(WM_IDLEUPDATECMDUI,
                                                            (WPARAM)TRUE, 0, TRUE, TRUE);
-         ptrToTheApp->m_pMainWnd->toQWidget()->update();
+//         ptrToTheApp->m_pMainWnd->toQWidget()->update();
       }
    }
    return 0;
