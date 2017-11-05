@@ -3488,7 +3488,6 @@ private:
 };
 
 class CWnd;
-
 class CDC : public CObject
 {
 public:

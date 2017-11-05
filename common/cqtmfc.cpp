@@ -23,7 +23,7 @@ CWinApp* ptrToTheApp;
 
 CBrush nullBrush;
 
-bool gInPaintEvent = false;
+int gInPaintEvent = 0;
 QString gApplicationName = "FamiTracker";
 
 using namespace qtmfc_workaround;
@@ -2999,7 +2999,7 @@ void CDC::flush()
    }
 }
 
-CDC* PASCAL CDC::FromHandle( 
+CDC* PASCAL CDC::FromHandle(
    HDC hDC  
 )
 {
@@ -6432,7 +6432,7 @@ CDC* CWnd::GetDC()
 void CWnd::ReleaseDC(CDC* pDC)
 {
    pDC->doFlush(true);
-   pDC->flush();
+   toQWidget()->update();
 }
 
 LRESULT CWnd::SendMessage(
@@ -7436,7 +7436,7 @@ void CWnd::timerEvent(QTimerEvent *event)
 void CWnd::paintEvent(QPaintEvent *event)
 {
    static QSize currentSize = _qt->size();
-   gInPaintEvent = true;
+   gInPaintEvent = 1;
    CDC* pDC = _myDC;
    AFX_CTLCOLOR ctlColor;
    ctlColor.hWnd = m_hWnd;
@@ -7456,7 +7456,7 @@ void CWnd::paintEvent(QPaintEvent *event)
    }
    SendMessage(WM_PAINT);
    SendMessage(WM_DRAWITEM,_id,(LPARAM)&di);
-   gInPaintEvent = false;
+   gInPaintEvent = 0;
 }
 
 void CWnd::contextMenuEvent(QContextMenuEvent *event)
@@ -7659,6 +7659,8 @@ BOOL CWnd::DestroyWindow()
    {
       _qt->killTimer(timerID);
    }
+   mfcToQtTimer.clear();
+   qtToMfcTimer.clear();
 
    if ( focusWnd == this )
    {
@@ -10370,9 +10372,11 @@ int CWinThread::Run( )
       {
          ptrToTheApp->m_pMainWnd->SendMessageToDescendants(WM_IDLEUPDATECMDUI,
                                                            (WPARAM)TRUE, 0, TRUE, TRUE);
-//         ptrToTheApp->m_pMainWnd->toQWidget()->update();
+
+         ptrToTheApp->m_pMainWnd->toQWidget()->update();
       }
    }
+
    return 0;
 }
 
@@ -12236,7 +12240,7 @@ QPlainTextEdit_MFC::~QPlainTextEdit_MFC()
 
 void QPlainTextEdit_MFC::paintEvent(QPaintEvent *event)
 {
-   gInPaintEvent = true;
+   gInPaintEvent = 2;
    CDC* pDC = _mfc?_mfc->GetDC():NULL;
    if ( _mfc )
    {
@@ -12256,7 +12260,7 @@ void QPlainTextEdit_MFC::paintEvent(QPaintEvent *event)
       _mfc->ReleaseDC(pDC);
       _mfc->SendMessage(WM_PAINT);
    }
-   gInPaintEvent = false;
+   gInPaintEvent = 0;
 }
 
 QLineEdit_MFC::~QLineEdit_MFC()
@@ -12266,7 +12270,7 @@ QLineEdit_MFC::~QLineEdit_MFC()
 
 void QLineEdit_MFC::paintEvent(QPaintEvent *event)
 {
-   gInPaintEvent = true;
+   gInPaintEvent = 3;
    CDC* pDC = _mfc?_mfc->GetDC():NULL;
    if ( _mfc )
    {
@@ -12284,7 +12288,7 @@ void QLineEdit_MFC::paintEvent(QPaintEvent *event)
       _mfc->ReleaseDC(pDC);
       _mfc->SendMessage(WM_PAINT);
    }
-   gInPaintEvent = false;
+   gInPaintEvent = 0;
 }
 
 void QLineEdit_MFC::keyPressEvent(QKeyEvent *event)
@@ -14235,7 +14239,7 @@ QLabel_MFC::~QLabel_MFC()
 
 void QLabel_MFC::paintEvent(QPaintEvent *event)
 {
-   gInPaintEvent = true;
+   gInPaintEvent = 4;
    CDC* pDC = _mfc?_mfc->GetDC():NULL;
    if ( _mfc )
    {
@@ -14255,7 +14259,7 @@ void QLabel_MFC::paintEvent(QPaintEvent *event)
       _mfc->ReleaseDC(pDC);
       _mfc->SendMessage(WM_PAINT);
    }
-   gInPaintEvent = false;
+   gInPaintEvent = 0;
 }
 
 IMPLEMENT_DYNAMIC(CStatic,CWnd)
