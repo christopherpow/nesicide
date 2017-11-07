@@ -2997,6 +2997,7 @@ void CDC::flush()
          p.end();
       }
    }
+   _doFlush = false;
 }
 
 CDC* PASCAL CDC::FromHandle(
@@ -6432,7 +6433,8 @@ CDC* CWnd::GetDC()
 void CWnd::ReleaseDC(CDC* pDC)
 {
    pDC->doFlush(true);
-   toQWidget()->update();
+   pDC->flush();
+//   toQWidget()->update();
 }
 
 LRESULT CWnd::SendMessage(
@@ -12841,10 +12843,6 @@ void CEdit::SetDlgItemText(
    LPCTSTR lpszString
 )
 {
-   if ( QThread::currentThread() != QApplication::instance()->thread() )
-   {
-      qFatal("doing stuff in non-UI %x %x", QThread::currentThread(),QApplication::instance()->thread());
-   }
    if ( _dwStyle&ES_MULTILINE )
    {
 #if UNICODE
