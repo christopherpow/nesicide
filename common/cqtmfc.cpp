@@ -2976,7 +2976,6 @@ CDC::CDC(CWnd* parent)
 
 CDC::~CDC()
 {
-   flush();
    detach();
    delete _defaultFont;
 }
@@ -2984,7 +2983,7 @@ CDC::~CDC()
 void CDC::flush()
 {
    int offset = 0;
-   if ( gInPaintEvent && _qwidget && _doFlush )
+   if ( _qwidget && _doFlush )
    {
       QPainter p;
       if ( p.begin(_qwidget) )
@@ -2997,7 +2996,7 @@ void CDC::flush()
          p.end();
       }
    }
-   _doFlush = false;
+//   _doFlush = false;
 }
 
 CDC* PASCAL CDC::FromHandle(
@@ -3039,6 +3038,10 @@ void CDC::detach()
       if ( _qpainter.isActive() )
          _qpainter.end();
    }
+   QObject sig;
+   if ( m_pWnd )
+      QObject::connect(&sig,SIGNAL(destroyed(QObject*)),this,SLOT(flush()));
+
    attached = false;
 }
 
@@ -6332,6 +6335,8 @@ CWnd::CWnd(CWnd *parent)
 #endif
 
    _qtd = dynamic_cast<QFrame*>(_qt);
+   this->moveToThread(QApplication::instance()->thread());
+   QObject::connect(this,SIGNAL(update()),_qtd,SLOT(update()));
 }
 
 CWnd::~CWnd()
@@ -6433,8 +6438,6 @@ CDC* CWnd::GetDC()
 void CWnd::ReleaseDC(CDC* pDC)
 {
    pDC->doFlush(true);
-   pDC->flush();
-//   toQWidget()->update();
 }
 
 LRESULT CWnd::SendMessage(
@@ -7256,7 +7259,7 @@ bool CWnd::event(QEvent *event)
          if ( proc )
          {
             event->accept();
-            update();
+            emit update();
          }
          else
          {
@@ -7266,7 +7269,7 @@ bool CWnd::event(QEvent *event)
       else
       {
          event->accept();
-         update();
+         emit update();
       }
    }
    return proc;
@@ -7931,7 +7934,7 @@ void CWnd::MoveWindow(LPCRECT lpRect, BOOL bRepaint)
       setBaseSize(rectOrig.Width(),rectOrig.Height());
    }
    if ( bRepaint )
-      update();
+      emit update();
 }
 
 void CWnd::DragAcceptFiles(
@@ -7971,7 +7974,7 @@ BOOL CWnd::PostMessage(
    _afxThreadState.m_lastSentMsg = post->msg;
 
    QApplication::postEvent(this,post);
-   update();
+   emit update();
 
    return true;
 }
@@ -10375,7 +10378,8 @@ int CWinThread::Run( )
          ptrToTheApp->m_pMainWnd->SendMessageToDescendants(WM_IDLEUPDATECMDUI,
                                                            (WPARAM)TRUE, 0, TRUE, TRUE);
 
-         ptrToTheApp->m_pMainWnd->toQWidget()->update();
+         if ( m_pMainWnd )
+            m_pMainWnd->Invalidate();
       }
    }
 

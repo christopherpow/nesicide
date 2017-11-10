@@ -38,7 +38,6 @@
 #include <QTimerEvent>
 #include <QWheelEvent>
 #include <QResizeEvent>
-#include <QObject>
 #include <QThread>
 #include <QFile>
 #include <QMutex>
@@ -3488,8 +3487,13 @@ private:
 };
 
 class CWnd;
-class CDC : public CObject
+class CDC : public QObject, CObject
 {
+   Q_OBJECT
+
+public slots:
+   void flush();
+
 public:
    CDC();
    CDC(CWnd* parent);
@@ -3502,7 +3506,6 @@ public:
    void attach();
    void attach(QWidget* qtParent, CWnd* mfcParent, bool transparent = false);
    void detach();
-   void flush();
    void doFlush(bool doIt) { _doFlush = doIt; }
    QPainter* painter() { return &_qpainter; }
    QPixmap* pixmap() { return &_qpixmap; }
@@ -4082,8 +4085,8 @@ public:
    void OnKillFocus(CWnd*) {}
    void OnVScroll(UINT,UINT,CScrollBar*) {}
    void OnHScroll(UINT,UINT,CScrollBar*) {}
-   void Invalidate(BOOL bErase = TRUE) { _qt->update(); }
-   void RedrawWindow(LPCRECT rect=0,CRgn* rgn=0,UINT f=0) { _qt->update(); }
+   void Invalidate(BOOL bErase = TRUE) { emit update(); }
+   void RedrawWindow(LPCRECT rect=0,CRgn* rgn=0,UINT f=0) { emit update(); }
    CWnd* SetFocus();
    CWnd* GetFocus();
    void SetCapture(CWnd* p=0) { /* CP: DANGEROUS: grabMouse();*/ }
@@ -4102,7 +4105,7 @@ public:
    CDC* GetDC();
    void ReleaseDC(CDC* pDC);
    void ShowWindow(int code);
-   void UpdateWindow( ) { _qt->update(); }
+   void UpdateWindow( ) { emit update(); }
    virtual BOOL PostMessage(
       UINT message,
       WPARAM wParam = 0,
@@ -4249,7 +4252,9 @@ protected:
    QGridLayout* _grid;
 public:
    HWND m_hWnd;
-   
+signals:
+   void update();
+
    DECLARE_MESSAGE_MAP()
 };
 
@@ -4437,7 +4442,7 @@ public:
       void* pExtra,
       AFX_CMDHANDLERINFO* pHandlerInfo
    );
-   virtual void OnUpdate(CView* /*pSender*/, LPARAM /*lHint*/, CObject* /*pHint*/) { update(); }
+   virtual void OnUpdate(CView* /*pSender*/, LPARAM /*lHint*/, CObject* /*pHint*/) { emit update(); }
    void OnKeyDown(UINT /*nChar*/, UINT /*nRepCnt*/, UINT /*nFlags*/) {}
    void OnKeyUp(UINT /*nChar*/, UINT /*nRepCnt*/, UINT /*nFlags*/) {}
    void OnSysKeyDown(UINT /*nChar*/, UINT /*nRepCnt*/, UINT /*nFlags*/) {}
@@ -5699,6 +5704,8 @@ protected:
    virtual bool event(QEvent *event);
    QTimer* pTimer;
    QThread* pThread;
+signals:
+   void update();
 public slots:
    void runSlot();
 public: // For some reason Qt won't recognize the public in the DECLARE_DYNCREATE...
