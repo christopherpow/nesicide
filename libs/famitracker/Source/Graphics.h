@@ -30,7 +30,7 @@
 #define BLUE(x)	 ((x >> 16) & 255)
 #define ALPHA(x) ((x >> 24) & 255)
 
-#define COMBINE(r, g, b) (((b) << 16) | ((g) << 8) | r)
+#define COMBINE(r, g, b) ( (0xff<<24) | ((b) << 16) | ((g) << 8) | r)
 
 #define DIM(c, l) (COMBINE((RED(c) * l) / 100, (GREEN(c) * l) / 100, (BLUE(c) * l) / 100))
 
