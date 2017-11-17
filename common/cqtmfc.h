@@ -3505,8 +3505,7 @@ public:
    
    void attach();
    void attach(QWidget* qtParent, CWnd* mfcParent, bool transparent = false);
-   void detach();
-   void doFlush(bool doIt) { _doFlush = doIt; }
+   void detach(bool silent = false);
    QPainter* painter() { return &_qpainter; }
    QPixmap* pixmap() { return &_qpixmap; }
    QSize pixmapSize() { return _bitmapSize; }
@@ -3751,7 +3750,6 @@ public:
 private:
    CDC(CDC& orig);
    bool attached;
-   bool _doFlush;
    QWidget*    _qwidget;
    QPixmap    _qpixmap;
    QPainter   _qpainter;

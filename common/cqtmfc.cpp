@@ -23,7 +23,6 @@ CWinApp* ptrToTheApp;
 
 CBrush nullBrush;
 
-int gInPaintEvent = 0;
 QString gApplicationName = "FamiTracker";
 
 using namespace qtmfc_workaround;
@@ -1719,7 +1718,31 @@ void CString::FormatV(LPCTSTR fmt, va_list ap)
    _qstr.clear();
    _qstr = QString::fromWCharArray(local);
 #else
-   vsprintf(local,fmt,ap);
+   // First replace placement-specifiers in format
+   va_list ap_copy;
+   va_copy(ap_copy,ap);
+   int m = 1;
+   QString str = fmt;
+   int count = 0;
+   do
+   {
+      QString pat = "%"+QString::number(m);
+      if ( str.contains(pat) )
+      {
+         str.replace(pat,va_arg(ap_copy,LPCTSTR));
+         count++;
+      }
+      else
+      {
+         break;
+      }
+   } while ( 1 );
+   // If we did any placement-specific replacements, use the updated format str
+   if ( count )
+      vsprintf(local,str.toLatin1().constData(),ap);
+   // Otherwise, use the original fmt format string
+   else
+      vsprintf(local,fmt,ap);
    _qstr.clear();
    _qstr = QString::fromLatin1(local);
 #endif
@@ -1762,10 +1785,33 @@ void CString::AppendFormatV(LPCTSTR fmt, va_list ap)
    wvsprintf(local,fmt,ap);
    _qstr += QString::fromWCharArray(local);
 #else
-   vsprintf(local,fmt,ap);
+   // First replace placement-specifiers in format
+   va_list ap_copy;
+   va_copy(ap_copy,ap);
+   int m = 1;
+   QString str = fmt;
+   int count = 0;
+   do
+   {
+      QString pat = "%"+QString::number(m);
+      if ( str.contains(pat) )
+      {
+         str.replace(pat,va_arg(ap_copy,LPCTSTR));
+         count++;
+      }
+      else
+      {
+         break;
+      }
+   } while ( 1 );
+   // If we did any placement-specific replacements, use the updated format str
+   if ( count )
+      vsprintf(local,str.toLatin1().constData(),ap);
+   // Otherwise, use the original fmt format string
+   else
+      vsprintf(local,fmt,ap);
    _qstr += QString::fromLatin1(local);
 #endif
-//   _qstr.vsprintf((const char*)fmt,ap);
    UpdateScratch();
 }
 
@@ -2935,7 +2981,6 @@ CDC::CDC()
    _windowOrg.x = 0;
    _windowOrg.y = 0;
    attached = false;
-   _doFlush = false;
 }
 
 CDC::CDC(CWnd* parent)
@@ -2969,7 +3014,6 @@ CDC::CDC(CWnd* parent)
    _windowOrg.x = 0;
    _windowOrg.y = 0;
    attached = false;
-   _doFlush = false;
 
    attach(parent->toQWidget(),parent);
 }
@@ -2978,25 +3022,6 @@ CDC::~CDC()
 {
    detach();
    delete _defaultFont;
-}
-
-void CDC::flush()
-{
-   int offset = 0;
-   if ( _qwidget && _doFlush )
-   {
-      QPainter p;
-      if ( p.begin(_qwidget) )
-      {
-         if ( m_pWnd )
-         {
-            offset = m_pWnd->getFrameWidth();
-         }
-         p.drawPixmap(offset,offset,_qpixmap);
-         p.end();
-      }
-   }
-//   _doFlush = false;
 }
 
 CDC* PASCAL CDC::FromHandle(
@@ -3028,21 +3053,37 @@ void CDC::attach(QWidget* qtParent, CWnd* mfcParent, bool transparent)
    m_hDC = (HDC)this;
    m_pWnd = mfcParent;
    attached = true;
-   _doFlush = true;
 }
 
-void CDC::detach()
+void CDC::detach(bool silent)
 {
+   QObject sig;
    if ( attached )
-   {
+   {      
+      attached = false;
       if ( _qpainter.isActive() )
          _qpainter.end();
+      if ( m_pWnd && !silent )
+         QObject::connect(&sig,SIGNAL(destroyed(QObject*)),this,SLOT(flush()));
    }
-   QObject sig;
-   if ( m_pWnd )
-      QObject::connect(&sig,SIGNAL(destroyed(QObject*)),this,SLOT(flush()));
+}
 
-   attached = false;
+void CDC::flush()
+{
+   int offset = 0;
+   if ( _qwidget )
+   {
+      QPainter p;
+      if ( p.begin(_qwidget) )
+      {
+         if ( m_pWnd )
+         {
+            offset = m_pWnd->getFrameWidth();
+         }
+         p.drawPixmap(0,0,_qpixmap);
+         p.end();
+      }
+   }
 }
 
 BOOL CDC::CreateCompatibleDC(
@@ -6324,7 +6365,6 @@ CWnd::CWnd(CWnd *parent)
    _grid->setSpacing(0);
    _qt->setLayout(_grid);
    _myDC = new CDC(this);
-   _myDC->doFlush(false);
 
    _qt->setMouseTracking(true);
    _qt->installEventFilter(this);
@@ -6348,15 +6388,13 @@ CWnd::~CWnd()
    mfcVerticalScrollBar = NULL;
    mfcHorizontalScrollBar = NULL;
 
-   _myDC->doFlush(false);
+   _myDC->detach(true);
    delete _myDC;
 
    if ( _qt )
       delete _qt;
    _qt = NULL;
    _qtd = NULL;
-//   if ( _grid )
-//      delete _grid;
 }
 
 CWnd* PASCAL CWnd::FromHandle( 
@@ -6437,7 +6475,6 @@ CDC* CWnd::GetDC()
 
 void CWnd::ReleaseDC(CDC* pDC)
 {
-   pDC->doFlush(true);
 }
 
 LRESULT CWnd::SendMessage(
@@ -7441,7 +7478,6 @@ void CWnd::timerEvent(QTimerEvent *event)
 void CWnd::paintEvent(QPaintEvent *event)
 {
    static QSize currentSize = _qt->size();
-   gInPaintEvent = 1;
    CDC* pDC = _myDC;
    AFX_CTLCOLOR ctlColor;
    ctlColor.hWnd = m_hWnd;
@@ -7461,7 +7497,6 @@ void CWnd::paintEvent(QPaintEvent *event)
    }
    SendMessage(WM_PAINT);
    SendMessage(WM_DRAWITEM,_id,(LPARAM)&di);
-   gInPaintEvent = 0;
 }
 
 void CWnd::contextMenuEvent(QContextMenuEvent *event)
@@ -9950,7 +9985,7 @@ BOOL CDialog::Create(
    SetParent(pParentWnd);
    if ( pParentWnd == m_pFrameWnd )
    {
-      _qtd->setWindowFlags(_qtd->windowFlags()|Qt::Dialog);
+      _qtd->setWindowFlags(_qtd->windowFlags()|Qt::Dialog|Qt::WindowStaysOnTopHint);
    }
    else
    {
@@ -10370,16 +10405,13 @@ int CWinThread::Run( )
       return 0;
    }
 
+   OnIdle(0);
    if ( pThread->thread() == QApplication::instance()->thread() )
    {
-      OnIdle(0);
       if ( ptrToTheApp && ptrToTheApp->m_pMainWnd )
       {
          ptrToTheApp->m_pMainWnd->SendMessageToDescendants(WM_IDLEUPDATECMDUI,
                                                            (WPARAM)TRUE, 0, TRUE, TRUE);
-
-         if ( m_pMainWnd )
-            m_pMainWnd->Invalidate();
       }
    }
 
@@ -12246,7 +12278,6 @@ QPlainTextEdit_MFC::~QPlainTextEdit_MFC()
 
 void QPlainTextEdit_MFC::paintEvent(QPaintEvent *event)
 {
-   gInPaintEvent = 2;
    CDC* pDC = _mfc?_mfc->GetDC():NULL;
    if ( _mfc )
    {
@@ -12266,7 +12297,6 @@ void QPlainTextEdit_MFC::paintEvent(QPaintEvent *event)
       _mfc->ReleaseDC(pDC);
       _mfc->SendMessage(WM_PAINT);
    }
-   gInPaintEvent = 0;
 }
 
 QLineEdit_MFC::~QLineEdit_MFC()
@@ -12276,7 +12306,6 @@ QLineEdit_MFC::~QLineEdit_MFC()
 
 void QLineEdit_MFC::paintEvent(QPaintEvent *event)
 {
-   gInPaintEvent = 3;
    CDC* pDC = _mfc?_mfc->GetDC():NULL;
    if ( _mfc )
    {
@@ -12294,7 +12323,6 @@ void QLineEdit_MFC::paintEvent(QPaintEvent *event)
       _mfc->ReleaseDC(pDC);
       _mfc->SendMessage(WM_PAINT);
    }
-   gInPaintEvent = 0;
 }
 
 void QLineEdit_MFC::keyPressEvent(QKeyEvent *event)
@@ -14241,7 +14269,6 @@ QLabel_MFC::~QLabel_MFC()
 
 void QLabel_MFC::paintEvent(QPaintEvent *event)
 {
-   gInPaintEvent = 4;
    CDC* pDC = _mfc?_mfc->GetDC():NULL;
    if ( _mfc )
    {
@@ -14261,7 +14288,6 @@ void QLabel_MFC::paintEvent(QPaintEvent *event)
       _mfc->ReleaseDC(pDC);
       _mfc->SendMessage(WM_PAINT);
    }
-   gInPaintEvent = 0;
 }
 
 IMPLEMENT_DYNAMIC(CStatic,CWnd)
@@ -14335,6 +14361,10 @@ BOOL CStatic::Create(
       _qtd->setLineWidth(1);
       _frameWidth = 1;
    }
+//   if ( dwStyle&SS_OWNERDRAW )
+//   {
+//      _qtd->setAttribute(Qt::WA_OpaquePaintEvent, true);
+//   }
    if ( (dwStyle&SS_LEFTNOWORDWRAP) != SS_LEFTNOWORDWRAP )
    {
       _qtd->setWordWrap(true);      
@@ -15346,6 +15376,13 @@ CPropertyPage::CPropertyPage(
 
 CPropertyPage::~CPropertyPage()
 {
+   if ( _qt )
+   {
+      if ( _qtd )
+         delete _qtd;
+      _qtd = NULL;
+      _qt = NULL;
+   }
 }
 
 void CPropertyPage::SetModified(
