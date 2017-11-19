@@ -4250,10 +4250,9 @@ protected:
    QGridLayout* _grid;
 public:
    HWND m_hWnd;
+   DECLARE_MESSAGE_MAP()
 signals:
    void update();
-
-   DECLARE_MESSAGE_MAP()
 };
 
 typedef void (AFX_MSG_CALL CWnd::*AFX_PMSGW)(void);
