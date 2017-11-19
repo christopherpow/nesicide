@@ -15273,6 +15273,7 @@ void CPropertySheet::_commonConstruct(CString title,CWnd* parent,UINT selectedPa
    _qbuttons->button(QDialogButtonBox::Apply)->setEnabled(false);
 
    // Pass-through signals
+   QObject::connect(this,SIGNAL(update()),_qtd,SLOT(update()));
 }
 
 void CPropertySheet::tabWidget_currentChanged(int idx)
@@ -15374,6 +15375,7 @@ CPropertyPage::CPropertyPage(
    _qtd->installEventFilter(this);
 
    // Pass-through signals
+   QObject::connect(this,SIGNAL(update()),_qtd,SLOT(update()));
 }
 
 CPropertyPage::~CPropertyPage()
