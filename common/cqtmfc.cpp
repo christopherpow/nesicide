@@ -9921,6 +9921,7 @@ CDialog::CDialog()
    _qtd->installEventFilter(this);
 
    // Pass-through signals
+   QObject::connect(this,SIGNAL(update()),_qtd,SLOT(update()));
 }
 
 CDialog::CDialog(int dlgID, CWnd *parent)
@@ -9947,6 +9948,7 @@ CDialog::CDialog(int dlgID, CWnd *parent)
    _qtd->installEventFilter(this);
 
    // Pass-through signals
+   QObject::connect(this,SIGNAL(update()),_qtd,SLOT(update()));
 }
 
 CDialog::~CDialog()
