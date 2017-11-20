@@ -37,3 +37,4 @@ do
    cp -v ${DIST}.png ./dist
    ./linuxdeployqt-continuous-x86_64.AppImage ${DIST}.desktop ${TARGARGS}
 done
+ls -al ./dist/

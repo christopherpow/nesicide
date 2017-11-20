@@ -29,3 +29,4 @@ do
    echo Deploying ${DEPLOY}
    macdeployqt ${DEPLOY} ${TARGARGS}
 done
+ls -al ./dist/

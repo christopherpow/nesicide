@@ -26,3 +26,5 @@ deploy:
     - build/dist/famiplayer.dmg
   on:
     repo: christopherpow/nesicide
+    tags: true
+    overwrite: true
