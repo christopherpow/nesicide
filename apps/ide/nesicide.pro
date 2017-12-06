@@ -144,7 +144,7 @@ mac {
 
    QMAKE_POST_LINK += install_name_tool -add_rpath @loader_path/../Frameworks $$DESTDIR/$${TARGET}.app/Contents/MacOS/nesicide $$escape_expand(\n\t)
 
-   QMAKE_POST_LINK += ( cd $$DEPENDENCYROOTPATH/cc65; make prefix=$$_PRO_FILE_PWD_/$$DESTDIR/$${TARGET}.app/Contents/MacOS/cc65 install ) $$escape_expand(\n\t) 
+   QMAKE_POST_LINK += ( cd $$DEPENDENCYROOTPATH/cc65; make all; make prefix=$$_PRO_FILE_PWD_/$$DESTDIR/$${TARGET}.app/Contents/MacOS/cc65 install ) $$escape_expand(\n\t) 
 
    ICON = mac/resources/nesicide.icns
 }

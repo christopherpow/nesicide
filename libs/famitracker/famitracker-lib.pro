@@ -35,6 +35,7 @@ CONFIG(release, debug|release) {
    DESTDIR = release
 } else {
    DESTDIR = debug
+   DEFINES += _DEBUG
 }
 
 OBJECTS_DIR = $$DESTDIR

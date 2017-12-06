@@ -143,14 +143,23 @@
      <height>22</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menu_View">
+   <widget class="QMenu" name="menuProject">
     <property name="title">
      <string>Project</string>
     </property>
+    <widget class="QMenu" name="menuRecent_Projects_Files">
+     <property name="title">
+      <string>Recent Projects/Files...</string>
+     </property>
+     <addaction name="separator"/>
+    </widget>
     <addaction name="actionNew_Project"/>
     <addaction name="actionCreate_Project_from_File"/>
     <addaction name="separator"/>
     <addaction name="actionOpen_Project"/>
+    <addaction name="separator"/>
+    <addaction name="menuRecent_Projects_Files"/>
+    <addaction name="separator"/>
     <addaction name="actionSave_Project"/>
     <addaction name="actionSave_Project_As"/>
     <addaction name="action_Close_Project"/>
@@ -183,7 +192,7 @@
      <string>Emulator</string>
     </property>
    </widget>
-   <widget class="QMenu" name="menu_File">
+   <widget class="QMenu" name="menuNESICIDE">
     <property name="title">
      <string>NESICIDE</string>
     </property>
@@ -215,8 +224,8 @@
     <addaction name="actionCoding_Mode"/>
     <addaction name="actionDebugging_Mode"/>
    </widget>
-   <addaction name="menu_File"/>
-   <addaction name="menu_View"/>
+   <addaction name="menuNESICIDE"/>
+   <addaction name="menuProject"/>
    <addaction name="menuView"/>
    <addaction name="menuEdit"/>
    <addaction name="menuEmulator"/>

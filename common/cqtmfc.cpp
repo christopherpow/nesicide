@@ -161,6 +161,143 @@ AFX_STATIC void AFXAPI _AfxAppendFilterSuffix(CString& filter, OPENFILENAME& ofn
 	}
 }
 
+int WINAPI MessageBox(
+   HWND    hWnd,
+   LPCTSTR lpText,
+   LPCTSTR lpCaption,
+   UINT    uType
+)
+{
+   QString button1 = "";
+   QString button2 = "";
+   QString button3 = "";
+   int buttons = uType&0xF;
+   int icon = uType&0xF0;
+   int ret;
+#if UNICODE
+   QString text = QString::fromWCharArray(lpText);
+   QString caption = QString::fromWCharArray(lpCaption);
+#else
+   QString text = QString::fromLatin1(lpText);
+   QString caption = QString::fromLatin1(lpCaption);
+#endif
+
+   if ( buttons == MB_ABORTRETRYIGNORE )
+   {
+      button1 = "Abort";
+      button2 = "Retry";
+      button3 = "Ignore";
+   }
+   else if ( buttons == MB_CANCELTRYCONTINUE )
+   {
+      button1 = "Cancel";
+      button2 = "Try Again";
+      button3 = "Continue";
+   }
+   else if ( buttons == MB_OKCANCEL )
+   {
+      button1 = "OK";
+      button2 = "Cancel";
+   }
+   else if ( buttons == MB_RETRYCANCEL )
+   {
+      button1 = "Retry";
+      button2 = "Cancel";
+   }
+   else if ( buttons == MB_YESNO )
+   {
+      button1 = "Yes";
+      button2 = "No";
+   }
+   else if ( buttons == MB_YESNOCANCEL )
+   {
+      button1 = "Yes";
+      button2 = "No";
+      button3 = "Cancel";
+   }
+   else
+   {
+      button1 = "OK";
+   }
+
+   switch ( icon )
+   {
+   case MB_ICONERROR:
+      ret = QMessageBox::critical(0,caption,text,button1,button2,button3);
+      break;
+   case MB_ICONEXCLAMATION:
+      ret = QMessageBox::warning(0,caption,text,button1,button2,button3);
+      break;
+   case MB_ICONQUESTION:
+      ret = QMessageBox::question(0,caption,text,button1,button2,button3);
+      break;
+   default:
+      ret = QMessageBox::information(0,caption,text,button1,button2,button3);
+      break;
+   }
+   switch ( ret )
+   {
+   case 0:
+      // First button.
+      if ( button1 == "Abort" )
+      {
+         ret = IDABORT;
+      }
+      else if ( button1 == "Cancel" )
+      {
+         ret = IDCANCEL;
+      }
+      else if ( button1 == "OK" )
+      {
+         ret = IDOK;
+      }
+      else if ( button1 == "Retry" )
+      {
+         ret = IDRETRY;
+      }
+      else if ( button1 == "Yes" )
+      {
+         ret = IDYES;
+      }
+      break;
+   case 1:
+      // Second button.
+      if ( button2 == "Retry" )
+      {
+         ret = IDRETRY;
+      }
+      else if ( button2 == "Try Again" )
+      {
+         ret = IDRETRY;
+      }
+      else if ( button2 == "Cancel" )
+      {
+         ret = IDCANCEL;
+      }
+      else if ( button2 == "No" )
+      {
+         ret = IDNO;
+      }
+      break;
+   case 2:
+      // Third button.
+      if ( button2 == "Continue" )
+      {
+         ret = IDCONTINUE;
+      }
+      else if ( button2 == "Ignore" )
+      {
+         ret = IDIGNORE;
+      }
+      else if ( button2 == "Cancel" )
+      {
+         ret = IDCANCEL;
+      }
+      break;
+   }
+   return ret;
+}
+
 int AfxMessageBox(
    LPCTSTR lpszText,
    UINT nType,
@@ -4057,10 +4194,6 @@ bool CListCtrl::event(QEvent *event)
    MFCMessageEvent* msgEvent = dynamic_cast<MFCMessageEvent*>(event);
    if ( msgEvent )
    {
-      if ( CWnd::event(event) )
-      {
-         return true;
-      }
       if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
       {
          switch ( msgEvent->msg.message )
@@ -4105,7 +4238,7 @@ bool CListCtrl::event(QEvent *event)
       }
       return true;
    }
-   return false;
+   return CWnd::event(event);
 }
 
 bool CListCtrl::eventFilter(QObject *object, QEvent *event)
@@ -6429,7 +6562,7 @@ BOOL CWnd::PreTranslateMessage(
       return TRUE;
       break;
    }
-   return ptrToTheApp->PreTranslateMessage(pMsg);
+   return FALSE;
 }
 
 CWnd* CWnd::GetFocus()
@@ -7289,7 +7422,7 @@ bool CWnd::event(QEvent *event)
    bool proc = false;
    if ( msgEvent )
    {
-      proc = PreTranslateMessage(&msgEvent->msg);
+      proc = ptrToTheApp->PreTranslateMessage(&msgEvent->msg);
       if ( !proc )
       {
          proc = WindowProc(msgEvent->msg.message,msgEvent->msg.wParam,msgEvent->msg.lParam);
@@ -11419,6 +11552,12 @@ BOOL CWinApp::PreTranslateMessage(
    MSG* pMsg
 )
 {
+   CWnd* pWnd = CWnd::FromHandle(pMsg->hwnd);
+   for ( ; pWnd ; pWnd = pWnd->GetParent() )
+   {
+      if ( pWnd->PreTranslateMessage(pMsg) )
+         return TRUE;
+   }
    return FALSE;
 }
 
@@ -12414,10 +12553,6 @@ bool CEdit::event(QEvent *event)
    MFCMessageEvent* msgEvent = dynamic_cast<MFCMessageEvent*>(event);
    if ( msgEvent )
    {
-      if ( CWnd::event(event) )
-      {
-         return true;
-      }
       switch ( msgEvent->msg.message )
       {
       case EM_SETREADONLY:
@@ -12450,7 +12585,7 @@ bool CEdit::event(QEvent *event)
       }
       return false;
    }
-   return false;
+   return CWnd::event(event);
 }
 
 //void CEdit::keyPressEvent(QKeyEvent *event)

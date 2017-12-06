@@ -117,6 +117,9 @@
     </property>
     <addaction name="actionOpen"/>
     <addaction name="separator"/>
+    <addaction name="actionRecent_Files_START"/>
+    <addaction name="actionRecent_Files_STOP"/>
+    <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuEmulator">
@@ -182,7 +185,7 @@
     <addaction name="menuVideo"/>
     <addaction name="menuAudio"/>
     <addaction name="separator"/>
-    <addaction name="actionPreferences"/>
+    <addaction name="actionConfigure"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -230,9 +233,15 @@
     <string>&amp;About NESICIDE</string>
    </property>
   </action>
-  <action name="actionPreferences">
+  <action name="actionConfigure">
    <property name="text">
-    <string>Preferences...</string>
+    <string>Set up</string>
+   </property>
+   <property name="iconText">
+    <string>Configure...</string>
+   </property>
+   <property name="toolTip">
+    <string>Configure...</string>
    </property>
   </action>
   <action name="actionSquare_1">
@@ -468,6 +477,16 @@
    </property>
    <property name="text">
     <string>Wave 8</string>
+   </property>
+  </action>
+  <action name="actionRecent_Files_START">
+   <property name="text">
+    <string>Recent Files START</string>
+   </property>
+  </action>
+  <action name="actionRecent_Files_STOP">
+   <property name="text">
+    <string>Recent Files STOP</string>
    </property>
   </action>
  </widget>

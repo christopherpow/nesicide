@@ -6438,6 +6438,11 @@ public:
       return _qmap[key];
    }
 
+   int GetCount( ) const
+   {
+      return _qmap.count();
+   }
+
 protected:
    QMap<KEY,VALUE> _qmap;
 };
@@ -6635,6 +6640,13 @@ void AfxDebugBreak();
 #endif
 
 #define IDCONTINUE 11
+
+int WINAPI MessageBox(
+   HWND    hWnd,
+   LPCTSTR lpText,
+   LPCTSTR lpCaption,
+   UINT    uType
+);
 
 int AfxMessageBox(
    LPCTSTR lpszText,
