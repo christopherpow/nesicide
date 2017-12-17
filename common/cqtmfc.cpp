@@ -4214,6 +4214,7 @@ bool CListCtrl::event(QEvent *event)
             }
             break;
          }
+         return true;
       }
       else if ( (_dwStyle&LVS_TYPEMASK) == LVS_LIST )
       {
@@ -4235,8 +4236,8 @@ bool CListCtrl::event(QEvent *event)
             }
             break;
          }
+         return true;
       }
-      return true;
    }
    return CWnd::event(event);
 }
@@ -6556,12 +6557,6 @@ BOOL CWnd::PreTranslateMessage(
    MSG* pMsg
 )
 {
-   switch ( pMsg->message )
-   {
-   case WM_NULL:
-      return TRUE;
-      break;
-   }
    return FALSE;
 }
 
@@ -8898,6 +8893,15 @@ void CFrameWnd::SetMessageText(
 {
    CString message = qtMfcStringResource(nID);
    SetMessageText(message);
+}
+
+BOOL CFrameWnd::PreTranslateMessage(
+   MSG* pMsg
+)
+{
+//
+   return FALSE;
+//
 }
 
 BOOL CFrameWnd::OnCmdMsg(UINT nID, int nCode, void* pExtra,
@@ -12583,48 +12587,52 @@ bool CEdit::event(QEvent *event)
          return true;
          break;
       }
-      return false;
    }
    return CWnd::event(event);
 }
 
-//void CEdit::keyPressEvent(QKeyEvent *event)
-//{
-//   if ( mfcBuddy() )
-//   {
-//      if ( event->key() == Qt::Key_Up || 
-//           event->key() == Qt::Key_Down ||
-//           event->key() == Qt::Key_PageUp ||
-//           event->key() == Qt::Key_PageDown )
-//      {
-//         QApplication::sendEvent(mfcBuddy()->toQWidget(),event);
-//         CWnd::keyPressEvent(event);
-//      }
-//   }
-//   else
-//   {
-//      CWnd::keyPressEvent(event);
-//   }
-//}
+void CEdit::keyPressEvent(QKeyEvent *event)
+{
+   if ( mfcBuddy() )
+   {
+      if ( event->key() == Qt::Key_Up ||
+           event->key() == Qt::Key_Down ||
+           event->key() == Qt::Key_PageUp ||
+           event->key() == Qt::Key_PageDown )
+      {
+         QApplication::sendEvent(mfcBuddy()->toQWidget(),event);
+         //CWnd::keyPressEvent(event);
+      }
+      else if ( event->key() == Qt::Key_Enter ||
+                event->key() == Qt::Key_Return )
+      {
+         toQWidget()->clearFocus();
+      }
+   }
+   else
+   {
+      CWnd::keyPressEvent(event);
+   }
+}
 
-//void CEdit::keyReleaseEvent(QKeyEvent *event)
-//{
-//   if ( mfcBuddy() )
-//   {
-//      if ( event->key() == Qt::Key_Up || 
-//           event->key() == Qt::Key_Down ||
-//           event->key() == Qt::Key_PageUp ||
-//           event->key() == Qt::Key_PageDown )
-//      {
-//         QApplication::sendEvent(mfcBuddy()->toQWidget(),event);
-//         CWnd::keyReleaseEvent(event);
-//      }
-//   }
-//   else
-//   {
-//      CWnd::keyReleaseEvent(event);
-//   }
-//}
+void CEdit::keyReleaseEvent(QKeyEvent *event)
+{
+   if ( mfcBuddy() )
+   {
+      if ( event->key() == Qt::Key_Up ||
+           event->key() == Qt::Key_Down ||
+           event->key() == Qt::Key_PageUp ||
+           event->key() == Qt::Key_PageDown )
+      {
+         QApplication::sendEvent(mfcBuddy()->toQWidget(),event);
+         //CWnd::keyReleaseEvent(event);
+      }
+   }
+   else
+   {
+      CWnd::keyReleaseEvent(event);
+   }
+}
 
 void CEdit::focusInEvent(QFocusEvent *event)
 {
@@ -15029,7 +15037,8 @@ DWORD WINAPI WaitForSingleObject(
 )
 {
    CObject* pObject = (CObject*)hHandle;
-   CWinThread* pWinThread = dynamic_cast<CWinThread*>(pObject);
+   CCmdTarget* pCmdTarget = dynamic_cast<CCmdTarget*>(pObject);
+   CWinThread* pWinThread = dynamic_cast<CWinThread*>(pCmdTarget);
    CEvent* pEvent = dynamic_cast<CEvent*>(pObject);
    static QSemaphore* waitingSem = NULL;
    bool timedOut;

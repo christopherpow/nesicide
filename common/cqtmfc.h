@@ -4306,6 +4306,9 @@ public:
       CDocument* pDoc,
       BOOL bMakeVisible
    );
+   virtual BOOL PreTranslateMessage(
+      MSG* pMsg
+   );
    virtual BOOL OnCmdMsg(
       UINT nID,
       int nCode,
@@ -4819,8 +4822,8 @@ public:
    virtual void updateFromBuddy();
 protected:
    virtual bool event(QEvent *event);
-//   virtual void keyPressEvent(QKeyEvent *event);
-//   virtual void keyReleaseEvent(QKeyEvent *event);
+   virtual void keyPressEvent(QKeyEvent *event);
+   virtual void keyReleaseEvent(QKeyEvent *event);
    virtual void focusInEvent(QFocusEvent *event);
    QPlainTextEdit_MFC* _qtd_ptedit;
    QLineEdit_MFC* _qtd_ledit;
