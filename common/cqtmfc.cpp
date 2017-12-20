@@ -8895,15 +8895,6 @@ void CFrameWnd::SetMessageText(
    SetMessageText(message);
 }
 
-BOOL CFrameWnd::PreTranslateMessage(
-   MSG* pMsg
-)
-{
-//
-   return FALSE;
-//
-}
-
 BOOL CFrameWnd::OnCmdMsg(UINT nID, int nCode, void* pExtra,
 	AFX_CMDHANDLERINFO* pHandlerInfo)
 {

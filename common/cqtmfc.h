@@ -4306,9 +4306,6 @@ public:
       CDocument* pDoc,
       BOOL bMakeVisible
    );
-   virtual BOOL PreTranslateMessage(
-      MSG* pMsg
-   );
    virtual BOOL OnCmdMsg(
       UINT nID,
       int nCode,
