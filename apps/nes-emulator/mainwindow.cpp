@@ -95,7 +95,7 @@ MainWindow::MainWindow(QWidget* parent) :
    ui->actionRecent_Files_STOP->setVisible(false);
    for ( idx = 0; idx < MAX_RECENT_FILES; idx++ )
    {
-      QAction* action = new QAction("Recent File "+QString::number(idx+1));
+      QAction* action = new QAction("Recent File "+QString::number(idx+1), nullptr);
       QObject::connect(action,SIGNAL(triggered(bool)),this,SLOT(openRecentFile()));
       ui->menuFile->insertAction(ui->actionRecent_Files_START,action);
       m_recentFileActions.append(action);
