@@ -372,7 +372,7 @@ qDebug("envdat %s\n",envdat.toLatin1().data());
    m_menuRecentFiles = new QMenu("Recent Projects/Files...",menuProject);
    for ( idx = 0; idx < MAX_RECENT_FILES; idx++ )
    {
-      QAction* action = new QAction("Recent File "+QString::number(idx+1));
+      QAction* action = new QAction("Recent File "+QString::number(idx+1), nullptr);
       QObject::connect(action,SIGNAL(triggered(bool)),this,SLOT(openRecentFile()));
       m_menuRecentFiles->addAction(action);
    }
