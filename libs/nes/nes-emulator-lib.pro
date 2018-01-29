@@ -63,6 +63,8 @@ unix:!mac {
    INSTALLS += target
 }
 
+DEFINES += XML_SAVE_STATE
+
 INCLUDEPATH += . \
                ./common \
                ./emulator \

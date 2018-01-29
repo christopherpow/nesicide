@@ -499,7 +499,6 @@ bool NESEmulatorThread::deserialize(QDomDocument& doc, QDomNode& node, QString& 
 
    do
    {
-#if 0
 // CPTODO: For now we save lots of crap in serialize but only
 //         restore the SRAM content on deserialize.  Having a
 //         cycle-perfect "pick up where i left off" option just
@@ -581,12 +580,25 @@ bool NESEmulatorThread::deserialize(QDomDocument& doc, QDomNode& node, QString& 
       }
       else if (child.nodeName() == "apu")
       {
+         childsChild = child.firstChild();
+         do
+         {
+            if ( childsChild.nodeName() == "registers" )
+            {
+               cdataNode = childsChild.firstChild();
+               cdataSection = cdataNode.toCDATASection();
+               cdataString = cdataSection.data();
+               for ( idx = 0; idx < MEM_32B; idx++ )
+               {
+                  byte = cdataString.left(2).toInt(0,16);
+                  cdataString = cdataString.right(cdataString.length()-2);
+                  nesSetAPURegister(0x4000+idx,byte);
+               }
+            }
+         }
+         while (!(childsChild = childsChild.nextSibling()).isNull());
       }
       else if (child.nodeName() == "cartridge")
-      {
-      }
-#endif
-      if (child.nodeName() == "cartridge")
       {
          childsChild = child.firstChild();
          do

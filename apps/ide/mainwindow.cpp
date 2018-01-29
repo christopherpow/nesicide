@@ -35,6 +35,8 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    m_pNESEmulatorThread(NULL),
    m_pC64EmulatorThread(NULL)
 {   
+   int idx;
+
    if ( !((QCoreApplication::applicationDirPath().contains("Program Files")) ||
         (QCoreApplication::applicationDirPath().contains("apps/ide"))) ) // Developer builds
    {
@@ -366,6 +368,16 @@ qDebug("envdat %s\n",envdat.toLatin1().data());
       restoreState(settings.value("CodingModeIDEState").toByteArray());
    }
 
+   QObject::connect(menuProject,SIGNAL(aboutToShow()),this,SLOT(updateRecentFiles()));
+   m_menuRecentFiles = new QMenu("Recent Projects/Files...",menuProject);
+   for ( idx = 0; idx < MAX_RECENT_FILES; idx++ )
+   {
+      QAction* action = new QAction("Recent File "+QString::number(idx+1), nullptr);
+      QObject::connect(action,SIGNAL(triggered(bool)),this,SLOT(openRecentFile()));
+      m_menuRecentFiles->addAction(action);
+   }
+   menuRecent_Projects_Files->addActions(m_menuRecentFiles->actions());
+
    CDockWidgetRegistry::hideAll();
    QWidget* widget = CDockWidgetRegistry::getWidget("Project Browser");
 
@@ -465,6 +477,46 @@ MainWindow::~MainWindow()
    
    m_pNESEmulatorThread->kill();
    m_pNESEmulatorThread->wait();
+}
+
+void MainWindow::openRecentFile()
+{
+   QAction* action = dynamic_cast<QAction*>(sender());
+   QString fileName = action->text();
+
+   openAnyFile(fileName);
+}
+
+void MainWindow::updateRecentFiles()
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+   int idx;
+
+   QStringList recentFiles = settings.value("RecentFiles").toStringList();
+
+   for ( idx = 0; idx < recentFiles.count(); idx++ )
+   {
+      m_menuRecentFiles->actions().at(idx)->setText(recentFiles[idx]);
+      m_menuRecentFiles->actions().at(idx)->setVisible(true);
+   }
+   for ( ; idx < MAX_RECENT_FILES; idx++ )
+   {
+      m_menuRecentFiles->actions().at(idx)->setVisible(false);
+   }
+}
+
+void MainWindow::saveRecentFiles(QString fileName)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   QStringList recentFiles = settings.value("RecentFiles").toStringList();
+   recentFiles.removeAll(fileName);
+   recentFiles.insert(0,fileName);
+   if ( recentFiles.count() > MAX_RECENT_FILES )
+   {
+      recentFiles.removeLast();
+   }
+   settings.setValue("RecentFiles",recentFiles);
 }
 
 void MainWindow::applicationActivationChanged(bool activated)
@@ -613,8 +665,8 @@ void MainWindow::createNesUi()
    actionMapperInformation_Inspector->setObjectName(QString::fromUtf8("actionMapperInformation_Inspector"));
    actionAPUInformation_Inspector = new QAction("Information",this);
    actionAPUInformation_Inspector->setObjectName(QString::fromUtf8("actionAPUInformation_Inspector"));
-   actionPreferences = new QAction("Configure...",this);
-   actionPreferences->setObjectName(QString::fromUtf8("actionPreferences"));
+   actionConfigure = new QAction("Set up",this);
+   actionConfigure->setObjectName(QString::fromUtf8("actionConfigure"));
    actionNTSC = new QAction("NTSC",this);
    actionNTSC->setObjectName(QString::fromUtf8("actionNTSC"));
    actionNTSC->setCheckable(true);
@@ -778,7 +830,7 @@ void MainWindow::createNesUi()
    menuEmulator->addSeparator();
    menuEmulator->addAction(actionRun_Test_Suite);
    menuEmulator->addSeparator();
-   menuEmulator->addAction(actionPreferences);
+   menuEmulator->addAction(actionConfigure);
    menuSystem->addAction(actionNTSC);
    menuSystem->addAction(actionPAL);
    menuSystem->addAction(actionDendy);
@@ -1069,7 +1121,7 @@ void MainWindow::createNesUi()
    QObject::connect(actionBreakpoint_Inspector,SIGNAL(triggered()),this,SLOT(actionBreakpoint_Inspector_triggered()));
    QObject::connect(actionEmulation_Window,SIGNAL(triggered()),this,SLOT(actionEmulation_Window_triggered()));
    QObject::connect(actionRun_Test_Suite,SIGNAL(triggered()),this,SLOT(actionRun_Test_Suite_triggered()));
-   QObject::connect(actionPreferences,SIGNAL(triggered()),this,SLOT(actionPreferences_triggered()));
+   QObject::connect(actionConfigure,SIGNAL(triggered()),this,SLOT(actionConfigure_triggered()));
    QObject::connect(actionCodeDataLogger_Inspector,SIGNAL(triggered()),this,SLOT(actionCodeDataLogger_Inspector_triggered()));
    QObject::connect(actionExecution_Visualizer_Inspector,SIGNAL(triggered()),this,SLOT(actionExecution_Visualizer_Inspector_triggered()));
    QObject::connect(actionGfxCHRMemory_Inspector,SIGNAL(triggered()),this,SLOT(actionGfxCHRMemory_Inspector_triggered()));
@@ -1230,7 +1282,7 @@ void MainWindow::destroyNesUi()
    delete actionExecution_Visualizer_Inspector;
    delete actionMapperInformation_Inspector;
    delete actionAPUInformation_Inspector;
-   delete actionPreferences;
+   delete actionConfigure;
    delete actionNTSC;
    delete actionPAL;
    delete actionDendy;
@@ -1298,8 +1350,8 @@ void MainWindow::createC64Ui()
    actionBinCPURegister_Inspector->setObjectName(QString::fromUtf8("actionBinCPURegister_Inspector"));
    actionBinSIDRegister_Inspector = new QAction("Registers",this);
    actionBinSIDRegister_Inspector->setObjectName(QString::fromUtf8("actionBinSIDRegister_Inspector"));
-   actionPreferences = new QAction("Configure...",this);
-   actionPreferences->setObjectName(QString::fromUtf8("actionPreferences"));
+   actionConfigure = new QAction("Set up",this);
+   actionConfigure->setObjectName(QString::fromUtf8("actionConfigure"));
 
    menuCPU_Inspectors = new QMenu("CPU",menuDebugger);
    menuCPU_Inspectors->setObjectName(QString::fromUtf8("menuCPU_Inspectors"));
@@ -1319,7 +1371,7 @@ void MainWindow::createC64Ui()
    menuDebugger->addAction(menuCPU_Inspectors->menuAction());
    menuDebugger->addAction(menuSID_Inspectors->menuAction());
 
-   menuEmulator->addAction(actionPreferences);
+   menuEmulator->addAction(actionConfigure);
 
    debuggerToolBar = new QToolBar("Emulator Control",this);
    debuggerToolBar->setObjectName(QString::fromUtf8("debuggerToolBar"));
@@ -1390,7 +1442,7 @@ void MainWindow::createC64Ui()
    CDockWidgetRegistry::addWidget ( "SID Register Inspector", m_pBinSIDRegisterInspector );
 
    // Connect slots for new UI elements.
-   QObject::connect(actionPreferences,SIGNAL(triggered()),this,SLOT(actionPreferences_triggered()));
+   QObject::connect(actionConfigure,SIGNAL(triggered()),this,SLOT(actionConfigure_triggered()));
    QObject::connect(actionBinCPURegister_Inspector,SIGNAL(triggered()),this,SLOT(actionBinCPURegister_Inspector_triggered()));
    QObject::connect(actionBinCPURAM_Inspector,SIGNAL(triggered()),this,SLOT(actionBinCPURAM_Inspector_triggered()));
    QObject::connect(actionBinSIDRegister_Inspector,SIGNAL(triggered()),this,SLOT(actionBinSIDRegister_Inspector_triggered()));
@@ -1434,7 +1486,7 @@ void MainWindow::destroyC64Ui()
    delete actionBinCPURAM_Inspector;
    delete actionBinCPURegister_Inspector;
    delete actionBinSIDRegister_Inspector;
-   delete actionPreferences;
+   delete actionConfigure;
    delete menuCPU_Inspectors;
    delete menuSID_Inspectors;
    delete debuggerToolBar;
@@ -1481,12 +1533,64 @@ void MainWindow::dragMoveEvent(QDragMoveEvent* event)
    }
 }
 
+bool MainWindow::openAnyFile(QString fileName)
+{
+   QFileInfo fileInfo;
+   bool opened = false;
+
+   fileInfo.setFile(fileName);
+
+   if ( !fileInfo.suffix().compare("nesproject",Qt::CaseInsensitive) )
+   {
+      if ( nesicideProject->isInitialized() )
+      {
+         closeProject();
+      }
+      openNesProject(fileName);
+   }
+   else if ( !fileInfo.suffix().compare("nes",Qt::CaseInsensitive) )
+   {
+      if ( nesicideProject->isInitialized() )
+      {
+         closeProject();
+      }
+      openNesROM(fileName);
+   }
+   else if ( !fileInfo.suffix().compare("c64project",Qt::CaseInsensitive) )
+   {
+      if ( nesicideProject->isInitialized() )
+      {
+         closeProject();
+      }
+      openC64Project(fileName);
+   }
+   else if ( !fileInfo.suffix().compare("c64",Qt::CaseInsensitive) ||
+             !fileInfo.suffix().compare("prg",Qt::CaseInsensitive) ||
+             !fileInfo.suffix().compare("d64",Qt::CaseInsensitive) )
+   {
+      if ( nesicideProject->isInitialized() )
+      {
+         closeProject();
+      }
+      openC64File(fileName);
+   }
+   else if ( !fileInfo.suffix().compare("ftm",Qt::CaseInsensitive) )
+   {
+      m_pProjectModel->getMusicModel()->addExistingMusicFile(fileName);
+   }
+   else
+   {
+      openFile(fileName);
+   }
+
+   return opened;
+}
+
 void MainWindow::dropEvent(QDropEvent* event)
 {
    QList<QUrl> fileUrls;
    QString     fileName;
-   QFileInfo   fileInfo;
-   QStringList extensions;
+   bool        opened;
 
    if ( event->mimeData()->hasUrls() )
    {
@@ -1498,60 +1602,9 @@ void MainWindow::dropEvent(QDropEvent* event)
       {
          fileName = fileUrl.toLocalFile();
 
-         fileInfo.setFile(fileName);
-
-         if ( !fileInfo.suffix().compare("nesproject",Qt::CaseInsensitive) )
+         opened = openAnyFile(fileName);
+         if ( opened )
          {
-            if ( nesicideProject->isInitialized() )
-            {
-               closeProject();
-            }
-            openNesProject(fileName);
-
-            event->acceptProposedAction();
-         }
-         else if ( !fileInfo.suffix().compare("nes",Qt::CaseInsensitive) )
-         {
-            if ( nesicideProject->isInitialized() )
-            {
-               closeProject();
-            }
-            openNesROM(fileName);
-
-            event->acceptProposedAction();
-         }
-         else if ( !fileInfo.suffix().compare("c64project",Qt::CaseInsensitive) )
-         {
-            if ( nesicideProject->isInitialized() )
-            {
-               closeProject();
-            }
-            openC64Project(fileName);
-
-            event->acceptProposedAction();
-         }
-         else if ( !fileInfo.suffix().compare("c64",Qt::CaseInsensitive) ||
-                   !fileInfo.suffix().compare("prg",Qt::CaseInsensitive) ||
-                   !fileInfo.suffix().compare("d64",Qt::CaseInsensitive) )
-         {
-            if ( nesicideProject->isInitialized() )
-            {
-               closeProject();
-            }
-            openC64File(fileName);
-
-            event->acceptProposedAction();
-         }
-         else if ( !fileInfo.suffix().compare("ftm",Qt::CaseInsensitive) )
-         {
-            m_pProjectModel->getMusicModel()->addExistingMusicFile(fileName);
-
-            event->acceptProposedAction();
-         }
-         else
-         {
-            openFile(fileName);
-
             event->acceptProposedAction();
          }
       }
@@ -1947,6 +2000,9 @@ void MainWindow::openNesROM(QString fileName,bool runRom)
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
 
+   // Keep recent file list updated.
+   saveRecentFiles(fileName);
+
    createNesUi();
 
    output->showPane(OutputPaneDockWidget::Output_General);
@@ -2011,6 +2067,9 @@ void MainWindow::openNesROM(QString fileName,bool runRom)
 void MainWindow::openC64File(QString fileName)
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   // Keep recent file list updated.
+   saveRecentFiles(fileName);
 
    createC64Ui();
 
@@ -2249,6 +2308,9 @@ void MainWindow::openNesProject(QString fileName,bool runRom)
 
    if (QFile::exists(fileName))
    {
+      // Keep recent file list updated.
+      saveRecentFiles(fileName);
+
       QDomDocument doc;
       QFile file( fileName );
 
@@ -2340,6 +2402,9 @@ void MainWindow::openC64Project(QString fileName,bool run)
 
    if (QFile::exists(fileName))
    {
+      // Keep recent file list updated.
+      saveRecentFiles(fileName);
+
       QDomDocument doc;
       QFile file( fileName );
 
@@ -3268,7 +3333,7 @@ void MainWindow::updateFromEmulatorPrefs(bool initial)
    }
 }
 
-void MainWindow::actionPreferences_triggered()
+void MainWindow::actionConfigure_triggered()
 {
    EmulatorPrefsDialog dlg(nesicideProject->getProjectTarget());
 

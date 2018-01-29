@@ -4306,6 +4306,9 @@ public:
       CDocument* pDoc,
       BOOL bMakeVisible
    );
+   virtual BOOL PreTranslateMessage(
+      MSG* pMsg
+   );
    virtual BOOL OnCmdMsg(
       UINT nID,
       int nCode,
@@ -4819,8 +4822,8 @@ public:
    virtual void updateFromBuddy();
 protected:
    virtual bool event(QEvent *event);
-//   virtual void keyPressEvent(QKeyEvent *event);
-//   virtual void keyReleaseEvent(QKeyEvent *event);
+   virtual void keyPressEvent(QKeyEvent *event);
+   virtual void keyReleaseEvent(QKeyEvent *event);
    virtual void focusInEvent(QFocusEvent *event);
    QPlainTextEdit_MFC* _qtd_ptedit;
    QLineEdit_MFC* _qtd_ledit;
@@ -6438,6 +6441,11 @@ public:
       return _qmap[key];
    }
 
+   int GetCount( ) const
+   {
+      return _qmap.count();
+   }
+
 protected:
    QMap<KEY,VALUE> _qmap;
 };
@@ -6635,6 +6643,13 @@ void AfxDebugBreak();
 #endif
 
 #define IDCONTINUE 11
+
+int WINAPI MessageBox(
+   HWND    hWnd,
+   LPCTSTR lpText,
+   LPCTSTR lpCaption,
+   UINT    uType
+);
 
 int AfxMessageBox(
    LPCTSTR lpszText,

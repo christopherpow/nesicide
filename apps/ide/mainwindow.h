@@ -40,6 +40,8 @@
 
 #include "ui_mainwindow.h"
 
+#define MAX_RECENT_FILES 8
+
 class CProjectModel;
 
 namespace Ui
@@ -149,9 +151,7 @@ protected:
    QAction *actionExecution_Visualizer_Inspector;
    QAction *actionMapperInformation_Inspector;
    QAction *actionAPUInformation_Inspector;
-   int boo;
-   QAction *actionPreferences;
-   int yah;
+   QAction *actionConfigure;
    QAction *actionNTSC;
    QAction *actionPAL;
    QAction *actionDendy;
@@ -187,6 +187,8 @@ protected:
    RegisterInspectorDockWidget* m_pBinSIDRegisterInspector;
    QMenu *menuSID_Inspectors;
    QAction *actionBinSIDRegister_Inspector;
+   QStringList m_recentFiles;
+   QMenu *m_menuRecentFiles;
 
    // Other
    int m_periodicTimer;
@@ -195,6 +197,7 @@ protected:
    CProjectModel* m_pProjectModel;
 
 private:
+   bool openAnyFile(QString fileName);
    void openNesProject(QString fileName,bool runRom=true);
    void openC64Project(QString fileName,bool run=true);
    void saveProject(QString fileName);
@@ -222,6 +225,9 @@ signals:
    void clean();
 
 private slots:
+   void openRecentFile();
+   void saveRecentFiles(QString fileName);
+   void updateRecentFiles();
    void on_actionExit_triggered();
    void applicationActivationChanged(bool activated);
    void createTarget(QString target);
@@ -273,7 +279,7 @@ private slots:
    // Common/reused UI elements.
    void actionBreakpoint_Inspector_triggered();
    void actionAssembly_Inspector_triggered();
-   void actionPreferences_triggered();
+   void actionConfigure_triggered();
 
    // NES-specific UI elements.
    void actionFullscreen_toggled(bool value);

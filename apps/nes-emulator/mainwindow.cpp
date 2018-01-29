@@ -18,6 +18,8 @@ MainWindow::MainWindow(QWidget* parent) :
    QMainWindow(parent),
    ui(new Ui::MainWindow)
 {
+   int idx;
+
    if ( !((QCoreApplication::applicationDirPath().contains("Program Files")) ||
         (QCoreApplication::applicationDirPath().contains("apps/nes-emulator"))) ) // Developer builds
    {
@@ -88,6 +90,17 @@ MainWindow::MainWindow(QWidget* parent) :
       }
    }
 
+   QObject::connect(ui->menuFile,SIGNAL(aboutToShow()),this,SLOT(updateRecentFiles()));
+   ui->actionRecent_Files_START->setVisible(false);
+   ui->actionRecent_Files_STOP->setVisible(false);
+   for ( idx = 0; idx < MAX_RECENT_FILES; idx++ )
+   {
+      QAction* action = new QAction("Recent File "+QString::number(idx+1), nullptr);
+      QObject::connect(action,SIGNAL(triggered(bool)),this,SLOT(openRecentFile()));
+      ui->menuFile->insertAction(ui->actionRecent_Files_START,action);
+      m_recentFileActions.append(action);
+   }
+
    if ( settings.value("Environment/rememberWindowSettings").toBool() )
    {
       restoreGeometry(settings.value("EmulatorGeometry").toByteArray());
@@ -98,6 +111,58 @@ MainWindow::MainWindow(QWidget* parent) :
 MainWindow::~MainWindow()
 {
    delete ui;
+}
+
+void MainWindow::openRecentFile()
+{
+   QAction* action = dynamic_cast<QAction*>(sender());
+   QString fileName = action->text();
+
+   QFileInfo fileInfo(fileName);
+   QDir::setCurrent(fileInfo.path());
+
+   emit pauseEmulation(false);
+
+   loadCartridge(fileName);
+
+   // set up emulator if it needs to be...
+   emit primeEmulator ( cartridge );
+
+   emit resetEmulator();
+   emit startEmulation();
+
+}
+
+void MainWindow::updateRecentFiles()
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+   int idx;
+
+   QStringList recentFiles = settings.value("RecentFiles").toStringList();
+
+   for ( idx = 0; idx < recentFiles.count(); idx++ )
+   {
+      m_recentFileActions[idx]->setText(recentFiles[idx]);
+      m_recentFileActions[idx]->setVisible(true);
+   }
+   for ( ; idx < MAX_RECENT_FILES; idx++ )
+   {
+      m_recentFileActions[idx]->setVisible(false);
+   }
+}
+
+void MainWindow::saveRecentFiles(QString fileName)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   QStringList recentFiles = settings.value("RecentFiles").toStringList();
+   recentFiles.removeAll(fileName);
+   recentFiles.insert(0,fileName);
+   if ( recentFiles.count() > MAX_RECENT_FILES )
+   {
+      recentFiles.removeLast();
+   }
+   settings.setValue("RecentFiles",recentFiles);
 }
 
 void MainWindow::applicationActivationChanged(bool activated)
@@ -156,7 +221,7 @@ void MainWindow::saveEmulatorState(QString fileName)
       QDomProcessingInstruction instr = doc.createProcessingInstruction("xml", "version='1.0' encoding='UTF-8'");
       doc.appendChild(instr);
 
-      if (!emulator->serialize(doc, doc))
+      if (!m_pNESEmulatorThread->serialize(doc, doc))
       {
          QMessageBox::critical(this, "Error", "An error occured while trying to serialize the save state data.");
          file.close();
@@ -196,6 +261,9 @@ void MainWindow::loadCartridge ( QString fileName )
 
    if (fileIn.exists() && fileIn.open(QIODevice::ReadOnly))
    {
+      // Keep recent files updated.
+      saveRecentFiles(fileName);
+
       QDataStream fs(&fileIn);
 
       // Check the NES header
@@ -660,7 +728,7 @@ void MainWindow::updateFromEmulatorPrefs(bool initial)
    }
 }
 
-void MainWindow::on_actionPreferences_triggered()
+void MainWindow::on_actionConfigure_triggered()
 {
    EmulatorPrefsDialog dlg("nes");
 

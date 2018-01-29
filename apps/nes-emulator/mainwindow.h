@@ -8,6 +8,8 @@
 #include "emulatorprefsdialog.h"
 #include "emulatorcontrol.h"
 
+#define MAX_RECENT_FILES 8
+
 namespace Ui
 {
 class MainWindow;
@@ -40,6 +42,8 @@ private:
    EmulatorControl* m_pEmulatorControl;
    NESEmulatorThread* m_pNESEmulatorThread;
    QRect ncRect;
+   QStringList m_recentFiles;
+   QList<QAction*> m_recentFileActions;
 
 private:
    void updateFromEmulatorPrefs(bool initial);
@@ -51,6 +55,9 @@ signals:
    void resetEmulator();
 
 private slots:
+   void openRecentFile();
+   void saveRecentFiles(QString fileName);
+   void updateRecentFiles();
    void on_action4_3_Aspect_toggled(bool );
    void on_actionLinear_Interpolation_toggled(bool );
    void on_action3x_triggered();
@@ -67,7 +74,7 @@ private slots:
    void on_actionTriangle_toggled(bool );
    void on_actionSquare_2_toggled(bool );
    void on_actionSquare_1_toggled(bool );
-   void on_actionPreferences_triggered();
+   void on_actionConfigure_triggered();
    void on_actionAbout_triggered();
    void on_actionPAL_triggered();
    void on_actionNTSC_triggered();
