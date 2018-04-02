@@ -12,3 +12,4 @@ echo Removing deps...
 if [ "$1" == "deps" ]; then
   ( cd ..; rm -rf deps )
 fi
+find .. -name 'Makefile.*' -exec rm {} ';'

@@ -153,7 +153,6 @@
         <file>resources/Toolbar.bmp</file>
         <file>resources/toolbar1.bmp</file>
         <file>resources/Toolbar-d5.bmp</file>
-        <file>resources/Makefile.template</file>
         <file>resources/FamiTracker-Exe.ico</file>
         <file>resources/Actions-arrow-left-double-icon.png</file>
         <file>resources/Actions-arrow-right-double-icon.png</file>
@@ -177,5 +176,6 @@
         <file>resources/MainToolbar-16.bmp</file>
         <file>resources/MainToolbar-256.bmp</file>
         <file>resources/RightArrow.ico</file>
+        <file>resources/NESICIDE.mk_in</file>
     </qresource>
 </RCC>

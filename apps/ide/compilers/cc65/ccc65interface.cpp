@@ -161,7 +161,7 @@ bool CCC65Interface::createMakefile()
 {
    QDir outputDir(QDir::currentPath());
    QString outputName = outputDir.fromNativeSeparators(outputDir.filePath("nesicide.mk"));
-   QFile res(":/resources/Makefile.template");
+   QFile res(":/resources/NESICIDE.mk_in");
    QFile makeFile(outputName);
    QString targetRules;
    QString targetRule;
