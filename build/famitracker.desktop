@@ -4,5 +4,4 @@ Name=famitracker
 Exec=famitracker
 Icon=famitracker
 Comment=Qt port of FamiTracker
-Terminal=true
 Categories=Audio;AudioVideo;Development;Music;

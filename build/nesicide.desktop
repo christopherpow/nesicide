@@ -4,5 +4,4 @@ Name=nesicide
 Exec=nesicide
 Icon=nesicide
 Comment=IDE for 8-bit NES
-Terminal=true
 Categories=Development;Building;Debugger;IDE;Game;Emulator;
