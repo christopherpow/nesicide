@@ -736,12 +736,12 @@ void MainWindow::loadFile(QString file)
    else
    {
       QString str = "Could not find file:\n\n"+file;
-      int result = QMessageBox::warning(this,"File load error!",str,"Next Track","Previous Track",0);
-      if ( result == 0 )
+      int result = QMessageBox::warning(this,"File load error!",str,"Cancel","Next Track","Previous Track",0);
+      if ( result == 1 )
       {
          on_next_clicked();
       }
-      else
+      else if ( result == 2 )
       {
          on_previous_clicked();
       }
