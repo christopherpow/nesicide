@@ -373,7 +373,7 @@ symbian {
 }
 
 win32 {
-    HEADERS += stdafx.h
+#    HEADERS += stdafx.h
 }
 
 unix:!symbian {

@@ -2367,7 +2367,7 @@ typedef char TCHAR;
 #define TRACE(x) { QString __str; __str.sprintf("TRACE: %s(%d): %s",__FILE__,__LINE__, (x)); qDebug(__str.toLatin1().constData()); }
 #endif
 #if !defined(ATLTRACE2)
-#define ATLTRACE2(a,b,str,q...) qDebug(str,##q)
+#define ATLTRACE2(a,b,str,...) qDebug(str,##__VA_ARGS__)
 #endif
 #else
 #if !defined(TRACE0)
