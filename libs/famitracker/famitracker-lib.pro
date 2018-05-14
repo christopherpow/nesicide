@@ -373,7 +373,13 @@ symbian {
 }
 
 win32 {
-#    HEADERS += stdafx.h
+QMAKE_CXXFLAGS += "-Zc:strictStrings-"
+QMAKE_CXXFLAGS -= "-Zc:strictStrings"
+QMAKE_CXXFLAGS_WARN_ON += "-Zc:strictStrings-"
+QMAKE_CXXFLAGS_WARN_OFF += "-Zc:strictStrings-"
+
+message($$QMAKE_CXXFLAGS)
+message($$QMAKE_CXXFLAGS_DEBUG)
 }
 
 unix:!symbian {
