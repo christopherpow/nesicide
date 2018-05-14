@@ -2312,7 +2312,7 @@ enum
 #define CALLBACK
 #endif
 
-#define stricmp strcasecmp
+//#define stricmp strcasecmp
 
 #if !defined(Q_OS_WIN32)
 #define _MAX_PATH 256

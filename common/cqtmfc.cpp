@@ -104,61 +104,61 @@ void AfxDebugBreak()
 }
 
 AFX_STATIC void AFXAPI _AfxAppendFilterSuffix(CString& filter, OPENFILENAME& ofn,
-	CDocTemplate* pTemplate, CString* pstrDefaultExt)
+    CDocTemplate* pTemplate, CString* pstrDefaultExt)
 {
-	ENSURE_VALID(pTemplate);
-	ASSERT_KINDOF(CDocTemplate, pTemplate);
+    ENSURE_VALID(pTemplate);
+    ASSERT_KINDOF(CDocTemplate, pTemplate);
 
-	CString strFilterExt, strFilterName;
-	if (pTemplate->GetDocString(strFilterExt, CDocTemplate::filterExt) &&
-		!strFilterExt.IsEmpty() &&
-		pTemplate->GetDocString(strFilterName, CDocTemplate::filterName) &&
-		!strFilterName.IsEmpty())
-	{
-		if (pstrDefaultExt != NULL)
-			pstrDefaultExt->Empty();
+    CString strFilterExt, strFilterName;
+    if (pTemplate->GetDocString(strFilterExt, CDocTemplate::filterExt) &&
+        !strFilterExt.IsEmpty() &&
+        pTemplate->GetDocString(strFilterName, CDocTemplate::filterName) &&
+        !strFilterName.IsEmpty())
+    {
+        if (pstrDefaultExt != NULL)
+            pstrDefaultExt->Empty();
 
-		// add to filter
-		filter += strFilterName;
-		ASSERT(!filter.IsEmpty());  // must have a file type name
-		filter += (TCHAR)'\0';  // next string please
+        // add to filter
+        filter += strFilterName;
+        ASSERT(!filter.IsEmpty());  // must have a file type name
+        filter += (TCHAR)'\0';  // next string please
 
-		int iStart = 0;
-		do
-		{
-			CString strExtension = strFilterExt.Tokenize( _T( ";" ), iStart );
+        int iStart = 0;
+        do
+        {
+            CString strExtension = strFilterExt.Tokenize( _T( ";" ), iStart );
 
-			if (iStart != -1)
-			{
-				// a file based document template - add to filter list
+            if (iStart != -1)
+            {
+                // a file based document template - add to filter list
 
-				// If you hit the following ASSERT, your document template
-				// string is formatted incorrectly.  The section of your
-				// document template string that specifies the allowable file
-				// extensions should be formatted as follows:
-				//    .<ext1>;.<ext2>;.<ext3>
-				// Extensions may contain wildcards (e.g. '?', '*'), but must
-				// begin with a '.' and be separated from one another by a ';'.
-				// Example:
-				//    .jpg;.jpeg
-				ASSERT(strExtension[0] == '.');
-				if ((pstrDefaultExt != NULL) && pstrDefaultExt->IsEmpty())
-				{
-					// set the default extension
-					*pstrDefaultExt = strExtension.Mid( 1 );  // skip the '.'
-					ofn.lpstrDefExt = const_cast< LPTSTR >((LPCTSTR)(*pstrDefaultExt));
-					ofn.nFilterIndex = ofn.nMaxCustFilter + 1;  // 1 based number
-				}
+                // If you hit the following ASSERT, your document template
+                // string is formatted incorrectly.  The section of your
+                // document template string that specifies the allowable file
+                // extensions should be formatted as follows:
+                //    .<ext1>;.<ext2>;.<ext3>
+                // Extensions may contain wildcards (e.g. '?', '*'), but must
+                // begin with a '.' and be separated from one another by a ';'.
+                // Example:
+                //    .jpg;.jpeg
+                ASSERT(strExtension[0] == '.');
+                if ((pstrDefaultExt != NULL) && pstrDefaultExt->IsEmpty())
+                {
+                    // set the default extension
+                    *pstrDefaultExt = strExtension.Mid( 1 );  // skip the '.'
+                    ofn.lpstrDefExt = const_cast< LPTSTR >((LPCTSTR)(*pstrDefaultExt));
+                    ofn.nFilterIndex = ofn.nMaxCustFilter + 1;  // 1 based number
+                }
 
-				filter += (TCHAR)'*';
-				filter += strExtension;
-				filter += (TCHAR)';';  // Always append a ';'.  The last ';' will get replaced with a '\0' later.
-			}
-		} while (iStart != -1);
+                filter += (TCHAR)'*';
+                filter += strExtension;
+                filter += (TCHAR)';';  // Always append a ';'.  The last ';' will get replaced with a '\0' later.
+            }
+        } while (iStart != -1);
 
-		filter.SetAt( filter.GetLength()-1, '\0' );;  // Replace the last ';' with a '\0'
-		ofn.nMaxCustFilter++;
-	}
+        filter.SetAt( filter.GetLength()-1, '\0' );;  // Replace the last ';' with a '\0'
+        ofn.nMaxCustFilter++;
+    }
 }
 
 int WINAPI MessageBox(
@@ -1162,7 +1162,7 @@ BOOL WINAPI FreeLibrary(
    QLibrary* pLib = (QLibrary*)hModule;
    return pLib->unload();
 }
-#endif
+//#endif
 
 HANDLE WINAPI CreateEvent(
    LPSECURITY_ATTRIBUTES lpEventAttributes,
@@ -1174,6 +1174,7 @@ HANDLE WINAPI CreateEvent(
    return (HANDLE)new CEvent(bInitialState,bManualReset,lpName,lpEventAttributes);
 }
 
+//#ifndef _MSC_VER
 BOOL WINAPI SetEvent(
    HANDLE hEvent
 )
@@ -1189,6 +1190,7 @@ BOOL WINAPI ResetEvent(
    CEvent* pEvent = (CEvent*)hEvent;
    return pEvent->ResetEvent();
 }
+#endif
 
 BOOL WINAPI PulseEvent(
    HANDLE hEvent
@@ -1587,6 +1589,7 @@ HGLOBAL WINAPI GlobalFree(
 {
    QSharedMemory* pMem = (QSharedMemory*)hMem;
    delete pMem;
+   return NULL;
 }
 
 
@@ -1694,7 +1697,7 @@ UINT WINAPI MapVirtualKey(
 }
 
 //IMPLEMENT_DYNAMIC(CObject,NULL) <- CObject is base...treat it special.
-CRuntimeClass CObject::classCObject = 
+CRuntimeClass CObject::classCObject =
 {
 "CObject",
 sizeof(CObject),
@@ -1714,8 +1717,8 @@ CObject* CRuntimeClass::CreateObject()
    return m_pfnCreateObject();
 }
 
-BOOL CObject::IsKindOf( 
-   const CRuntimeClass* pClass  
+BOOL CObject::IsKindOf(
+   const CRuntimeClass* pClass
 ) const
 {
    CRuntimeClass* pMyClass = GetRuntimeClass();
@@ -2484,8 +2487,8 @@ IMPLEMENT_DYNAMIC(CStdioFile,CFile)
 BEGIN_MESSAGE_MAP(CStdioFile,CFile)
 END_MESSAGE_MAP()
 
-void CStdioFile::WriteString( 
-   LPCTSTR lpsz  
+void CStdioFile::WriteString(
+   LPCTSTR lpsz
 )
 {
 #if UNICODE
@@ -2495,9 +2498,9 @@ void CStdioFile::WriteString(
 #endif
 }
 
-LPTSTR CStdioFile::ReadString( 
-   LPTSTR lpsz, 
-   UINT nMax  
+LPTSTR CStdioFile::ReadString(
+   LPTSTR lpsz,
+   UINT nMax
 )
 {
    qint64 bytes = _qfile.readLine(lpsz,nMax);
@@ -2515,8 +2518,8 @@ LPTSTR CStdioFile::ReadString(
    }
 }
 
-BOOL CStdioFile::ReadString( 
-   CString& rString 
+BOOL CStdioFile::ReadString(
+   CString& rString
 )
 {
    rString = _qfile.readLine().constData();
@@ -2715,9 +2718,9 @@ void CRect::InflateRect(
    bottom += b;
 }
 
-void CRect::OffsetRect( 
-   int x, 
-   int y  
+void CRect::OffsetRect(
+   int x,
+   int y
 )
 {
    left += x;
@@ -2726,8 +2729,8 @@ void CRect::OffsetRect(
    bottom += y;
 }
 
-void CRect::OffsetRect( 
-   POINT point  
+void CRect::OffsetRect(
+   POINT point
 )
 {
    left += point.x;
@@ -2736,8 +2739,8 @@ void CRect::OffsetRect(
    bottom += point.y;
 }
 
-void CRect::OffsetRect( 
-   SIZE size  
+void CRect::OffsetRect(
+   SIZE size
 )
 {
    left += size.cx;
@@ -3162,7 +3165,7 @@ CDC::~CDC()
 }
 
 CDC* PASCAL CDC::FromHandle(
-   HDC hDC  
+   HDC hDC
 )
 {
    return (CDC*)hDC;
@@ -3196,7 +3199,7 @@ void CDC::detach(bool silent)
 {
    QObject sig;
    if ( attached )
-   {      
+   {
       attached = false;
       if ( _qpainter.isActive() )
          _qpainter.end();
@@ -3426,6 +3429,7 @@ BOOL WINAPI GetFileVersionInfo(
    LPVOID lpData
 )
 {
+    return TRUE;
 }
 
 DWORD WINAPI GetFileVersionInfoSize(
@@ -3433,6 +3437,7 @@ DWORD WINAPI GetFileVersionInfoSize(
    LPDWORD lpdwHandle
 )
 {
+    return 99999999;
 }
 
 BOOL WINAPI VerQueryValue(
@@ -3442,6 +3447,7 @@ BOOL WINAPI VerQueryValue(
    PUINT puLen
 )
 {
+    return TRUE;
 }
 
 int StretchDIBits(
@@ -4021,7 +4027,7 @@ BOOL CListBox::Create(
 
    if ( pParentWnd )
       _qt = new QListWidget(pParentWnd->toQWidget());
-   else      
+   else
       _qt = new QListWidget();
 
    // Downcast to save having to do it all over the place...
@@ -4074,8 +4080,8 @@ void CListBox::ResetContent( )
    _qtd->clear();
 }
 
-int CListBox::AddString( 
-   LPCTSTR lpszItem  
+int CListBox::AddString(
+   LPCTSTR lpszItem
 )
 {
 #if UNICODE
@@ -4110,7 +4116,7 @@ void CCheckListBox::subclassWidget(int nID,CWnd* widget)
 }
 
 int CCheckListBox::GetCheck(
-   int nIndex 
+   int nIndex
 )
 {
    QListWidgetItem* lwi;
@@ -4126,7 +4132,7 @@ int CCheckListBox::GetCheck(
 
 void CCheckListBox::SetCheck(
    int nIndex,
-   int nCheck 
+   int nCheck
 )
 {
    QListWidgetItem* lwi;
@@ -4139,8 +4145,8 @@ void CCheckListBox::SetCheck(
    }
 }
 
-void CCheckListBox::SetCheckStyle( 
-   UINT nStyle  
+void CCheckListBox::SetCheckStyle(
+   UINT nStyle
 )
 {
    switch ( nStyle )
@@ -4509,7 +4515,7 @@ void CListCtrl::itemSelectionChanged()
    nmlv.hdr.code = LVN_ITEMCHANGED;
    nmlv.uChanged = LVIF_STATE;
    if ( (_dwStyle&LVS_TYPEMASK) == LVS_REPORT )
-   {   
+   {
       nmlv.iItem = _qtd_table->currentIndex().row();
       nmlv.iSubItem = _qtd_table->currentIndex().column();
       if ( _qtd_table->currentItem() )
@@ -5904,16 +5910,16 @@ void CScrollBar::actionTriggered(int action)
    // CP: these values don't match Qt apparently...
    switch ( action )
    {
-   case QAbstractSlider::SliderSingleStepAdd: 
+   case QAbstractSlider::SliderSingleStepAdd:
       action = SB_LINEDOWN;
       break;
-   case QAbstractSlider::SliderSingleStepSub: 
+   case QAbstractSlider::SliderSingleStepSub:
       action = SB_LINEUP;
       break;
-   case QAbstractSlider::SliderPageStepAdd: 
+   case QAbstractSlider::SliderPageStepAdd:
       action = SB_PAGEDOWN;
       break;
-   case QAbstractSlider::SliderPageStepSub: 
+   case QAbstractSlider::SliderPageStepSub:
       action = SB_PAGEUP;
       break;
    case QAbstractSlider::SliderToMinimum:
@@ -6007,100 +6013,100 @@ IMPLEMENT_DYNCREATE(CCmdTarget,CObject)
 // End-of-the-line entry for message maps.
 // Instead of auto-creating using the BEGIN_MESSAGE_MAP/END_MESSAGE_MAP,
 // we need to create a NULL-terminator.
-const AFX_MSGMAP* CCmdTarget::GetMessageMap() const 
-   { return GetThisMessageMap(); } 
-const AFX_MSGMAP* PASCAL CCmdTarget::GetThisMessageMap() 
-{ 
-   static const AFX_MSGMAP_ENTRY _messageEntries[] =  
+const AFX_MSGMAP* CCmdTarget::GetMessageMap() const
+   { return GetThisMessageMap(); }
+const AFX_MSGMAP* PASCAL CCmdTarget::GetThisMessageMap()
+{
+   static const AFX_MSGMAP_ENTRY _messageEntries[] =
    {
-      {0, 0, 0, 0, AfxSig_end, (AFX_PMSG)0 } 
-	}; 
-   static const AFX_MSGMAP messageMap = 
-   { NULL, &_messageEntries[0] }; 
-   return &messageMap; 
+      {0, 0, 0, 0, AfxSig_end, (AFX_PMSG)0 }
+    };
+   static const AFX_MSGMAP messageMap =
+   { NULL, &_messageEntries[0] };
+   return &messageMap;
 }
 
 // From afximpl.h
 union MessageMapFunctions
 {
-	AFX_PMSG pfn;   // generic member function pointer
+    AFX_PMSG pfn;   // generic member function pointer
 
-	BOOL (AFX_MSG_CALL CCmdTarget::*pfn_b_D)(CDC*);
-	BOOL (AFX_MSG_CALL CCmdTarget::*pfn_b_b)(BOOL);
-	BOOL (AFX_MSG_CALL CCmdTarget::*pfn_b_u)(UINT);
-	BOOL (AFX_MSG_CALL CCmdTarget::*pfn_b_h)(HANDLE);
-	BOOL (AFX_MSG_CALL CCmdTarget::*pfn_b_W_u_u)(CWnd*, UINT, UINT);
-	BOOL (AFX_MSG_CALL CCmdTarget::*pfn_b_W_COPYDATASTRUCT)(CWnd*, COPYDATASTRUCT*);
-	BOOL (AFX_MSG_CALL CCmdTarget::*pfn_b_HELPINFO)(LPHELPINFO);
-	HBRUSH (AFX_MSG_CALL CCmdTarget::*pfn_B_D_W_u)(CDC*, CWnd*, UINT);
-	HBRUSH (AFX_MSG_CALL CCmdTarget::*pfn_B_D_u)(CDC*, UINT);
-	int (AFX_MSG_CALL CCmdTarget::*pfn_i_u_W_u)(UINT, CWnd*, UINT);
-	int (AFX_MSG_CALL CCmdTarget::*pfn_i_u_u)(UINT, UINT);
-	int (AFX_MSG_CALL CCmdTarget::*pfn_i_W_u_u)(CWnd*, UINT, UINT);
-	int (AFX_MSG_CALL CCmdTarget::*pfn_i_s)(LPTSTR); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	LRESULT (AFX_MSG_CALL CCmdTarget::*pfn_l_w_l)(WPARAM, LPARAM); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	LRESULT (AFX_MSG_CALL CCmdTarget::*pfn_l_u_u_M)(UINT, UINT, CMenu*); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	void (AFX_MSG_CALL CCmdTarget::*pfn_v_b_h)(BOOL, HANDLE); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	void (AFX_MSG_CALL CCmdTarget::*pfn_v_h)(HANDLE); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	void (AFX_MSG_CALL CCmdTarget::*pfn_v_h_h)(HANDLE,HANDLE); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	void (AFX_MSG_CALL CCmdTarget::*pfn_v_v)(); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	int (AFX_MSG_CALL CCmdTarget::*pfn_i_u)(UINT); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	HCURSOR (AFX_MSG_CALL CCmdTarget::*pfn_C_v)(); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	UINT (AFX_MSG_CALL CCmdTarget::*pfn_u_u)(UINT); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	BOOL (AFX_MSG_CALL CCmdTarget::*pfn_b_v)(); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	void (AFX_MSG_CALL CCmdTarget::*pfn_v_u)(UINT); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	void (AFX_MSG_CALL CCmdTarget::*pfn_v_u_u)(UINT, UINT); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	void (AFX_MSG_CALL CCmdTarget::*pfn_v_i_i)(int, int); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	void (AFX_MSG_CALL CCmdTarget::*pfn_v_u_u_u)(UINT, UINT, UINT); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	void (AFX_MSG_CALL CCmdTarget::*pfn_v_u_i_i)(UINT, int, int); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	void (AFX_MSG_CALL CCmdTarget::*pfn_v_w_l)(WPARAM, LPARAM); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	void (AFX_MSG_CALL CCmdTarget::*pfn_v_b_W_W)(BOOL, CWnd*, CWnd*); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	void (AFX_MSG_CALL CCmdTarget::*pfn_v_D)(CDC*); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	void (AFX_MSG_CALL CCmdTarget::*pfn_v_M)(CMenu*); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	void (AFX_MSG_CALL CCmdTarget::*pfn_v_M_u_b)(CMenu*, UINT, BOOL); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	void (AFX_MSG_CALL CCmdTarget::*pfn_v_W)(CWnd*); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	void (AFX_MSG_CALL CCmdTarget::*pfn_v_W_u_u)(CWnd*, UINT, UINT); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	void (AFX_MSG_CALL CCmdTarget::*pfn_v_W_p)(CWnd*, CPoint); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	void (AFX_MSG_CALL CCmdTarget::*pfn_v_W_h)(CWnd*, HANDLE); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	void (AFX_MSG_CALL CCmdTarget::*pfn_v_u_W)(UINT, CWnd*); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	void (AFX_MSG_CALL CCmdTarget::*pfn_v_u_W_b)(UINT, CWnd*, BOOL); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	void (AFX_MSG_CALL CCmdTarget::*pfn_v_u_u_W)(UINT, UINT, CWnd*); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	void (AFX_MSG_CALL CCmdTarget::*pfn_v_s)(LPTSTR); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	void (AFX_MSG_CALL CCmdTarget::*pfn_v_u_cs)(UINT, LPCTSTR); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	void (AFX_MSG_CALL CCmdTarget::*pfn_v_i_s)(int, LPTSTR); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	int (AFX_MSG_CALL CCmdTarget::*pfn_i_i_s)(int, LPTSTR); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	UINT (AFX_MSG_CALL CCmdTarget::*pfn_u_p)(CPoint); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	LRESULT (AFX_MSG_CALL CCmdTarget::*pfn_l_p)(CPoint); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	UINT (AFX_MSG_CALL CCmdTarget::*pfn_u_v)(); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	void (AFX_MSG_CALL CCmdTarget::*pfn_v_b_NCCALCSIZEPARAMS)(BOOL, NCCALCSIZE_PARAMS*); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	void (AFX_MSG_CALL CCmdTarget::*pfn_v_v_WINDOWPOS)(WINDOWPOS*); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	void (AFX_MSG_CALL CCmdTarget::*pfn_v_u_u_M)(UINT, UINT, HMENU); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	void (AFX_MSG_CALL CCmdTarget::*pfn_v_u_p)(UINT, CPoint); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	void (AFX_MSG_CALL CCmdTarget::*pfn_v_u_pr)(UINT, LPRECT); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	BOOL (AFX_MSG_CALL CCmdTarget::*pfn_b_u_s_p)(UINT, short, CPoint); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	LRESULT (AFX_MSG_CALL CCmdTarget::*pfn_l_v)(); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    BOOL (AFX_MSG_CALL CCmdTarget::*pfn_b_D)(CDC*);
+    BOOL (AFX_MSG_CALL CCmdTarget::*pfn_b_b)(BOOL);
+    BOOL (AFX_MSG_CALL CCmdTarget::*pfn_b_u)(UINT);
+    BOOL (AFX_MSG_CALL CCmdTarget::*pfn_b_h)(HANDLE);
+    BOOL (AFX_MSG_CALL CCmdTarget::*pfn_b_W_u_u)(CWnd*, UINT, UINT);
+    BOOL (AFX_MSG_CALL CCmdTarget::*pfn_b_W_COPYDATASTRUCT)(CWnd*, COPYDATASTRUCT*);
+    BOOL (AFX_MSG_CALL CCmdTarget::*pfn_b_HELPINFO)(LPHELPINFO);
+    HBRUSH (AFX_MSG_CALL CCmdTarget::*pfn_B_D_W_u)(CDC*, CWnd*, UINT);
+    HBRUSH (AFX_MSG_CALL CCmdTarget::*pfn_B_D_u)(CDC*, UINT);
+    int (AFX_MSG_CALL CCmdTarget::*pfn_i_u_W_u)(UINT, CWnd*, UINT);
+    int (AFX_MSG_CALL CCmdTarget::*pfn_i_u_u)(UINT, UINT);
+    int (AFX_MSG_CALL CCmdTarget::*pfn_i_W_u_u)(CWnd*, UINT, UINT);
+    int (AFX_MSG_CALL CCmdTarget::*pfn_i_s)(LPTSTR); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    LRESULT (AFX_MSG_CALL CCmdTarget::*pfn_l_w_l)(WPARAM, LPARAM); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    LRESULT (AFX_MSG_CALL CCmdTarget::*pfn_l_u_u_M)(UINT, UINT, CMenu*); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    void (AFX_MSG_CALL CCmdTarget::*pfn_v_b_h)(BOOL, HANDLE); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    void (AFX_MSG_CALL CCmdTarget::*pfn_v_h)(HANDLE); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    void (AFX_MSG_CALL CCmdTarget::*pfn_v_h_h)(HANDLE,HANDLE); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    void (AFX_MSG_CALL CCmdTarget::*pfn_v_v)(); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    int (AFX_MSG_CALL CCmdTarget::*pfn_i_u)(UINT); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    HCURSOR (AFX_MSG_CALL CCmdTarget::*pfn_C_v)(); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    UINT (AFX_MSG_CALL CCmdTarget::*pfn_u_u)(UINT); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    BOOL (AFX_MSG_CALL CCmdTarget::*pfn_b_v)(); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    void (AFX_MSG_CALL CCmdTarget::*pfn_v_u)(UINT); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    void (AFX_MSG_CALL CCmdTarget::*pfn_v_u_u)(UINT, UINT); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    void (AFX_MSG_CALL CCmdTarget::*pfn_v_i_i)(int, int); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    void (AFX_MSG_CALL CCmdTarget::*pfn_v_u_u_u)(UINT, UINT, UINT); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    void (AFX_MSG_CALL CCmdTarget::*pfn_v_u_i_i)(UINT, int, int); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    void (AFX_MSG_CALL CCmdTarget::*pfn_v_w_l)(WPARAM, LPARAM); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    void (AFX_MSG_CALL CCmdTarget::*pfn_v_b_W_W)(BOOL, CWnd*, CWnd*); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    void (AFX_MSG_CALL CCmdTarget::*pfn_v_D)(CDC*); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    void (AFX_MSG_CALL CCmdTarget::*pfn_v_M)(CMenu*); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    void (AFX_MSG_CALL CCmdTarget::*pfn_v_M_u_b)(CMenu*, UINT, BOOL); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    void (AFX_MSG_CALL CCmdTarget::*pfn_v_W)(CWnd*); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    void (AFX_MSG_CALL CCmdTarget::*pfn_v_W_u_u)(CWnd*, UINT, UINT); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    void (AFX_MSG_CALL CCmdTarget::*pfn_v_W_p)(CWnd*, CPoint); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    void (AFX_MSG_CALL CCmdTarget::*pfn_v_W_h)(CWnd*, HANDLE); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    void (AFX_MSG_CALL CCmdTarget::*pfn_v_u_W)(UINT, CWnd*); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    void (AFX_MSG_CALL CCmdTarget::*pfn_v_u_W_b)(UINT, CWnd*, BOOL); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    void (AFX_MSG_CALL CCmdTarget::*pfn_v_u_u_W)(UINT, UINT, CWnd*); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    void (AFX_MSG_CALL CCmdTarget::*pfn_v_s)(LPTSTR); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    void (AFX_MSG_CALL CCmdTarget::*pfn_v_u_cs)(UINT, LPCTSTR); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    void (AFX_MSG_CALL CCmdTarget::*pfn_v_i_s)(int, LPTSTR); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    int (AFX_MSG_CALL CCmdTarget::*pfn_i_i_s)(int, LPTSTR); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    UINT (AFX_MSG_CALL CCmdTarget::*pfn_u_p)(CPoint); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    LRESULT (AFX_MSG_CALL CCmdTarget::*pfn_l_p)(CPoint); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    UINT (AFX_MSG_CALL CCmdTarget::*pfn_u_v)(); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    void (AFX_MSG_CALL CCmdTarget::*pfn_v_b_NCCALCSIZEPARAMS)(BOOL, NCCALCSIZE_PARAMS*); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    void (AFX_MSG_CALL CCmdTarget::*pfn_v_v_WINDOWPOS)(WINDOWPOS*); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    void (AFX_MSG_CALL CCmdTarget::*pfn_v_u_u_M)(UINT, UINT, HMENU); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    void (AFX_MSG_CALL CCmdTarget::*pfn_v_u_p)(UINT, CPoint); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    void (AFX_MSG_CALL CCmdTarget::*pfn_v_u_pr)(UINT, LPRECT); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    BOOL (AFX_MSG_CALL CCmdTarget::*pfn_b_u_s_p)(UINT, short, CPoint); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    LRESULT (AFX_MSG_CALL CCmdTarget::*pfn_l_v)(); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
 
-	// type safe variant for thread messages
+    // type safe variant for thread messages
    void (AFX_MSG_CALL CCmdTarget::*pfn_THREAD)(WPARAM, LPARAM); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
 
-	// specific type safe variants for WM_COMMAND and WM_NOTIFY messages
-	void (AFX_MSG_CALL CCmdTarget::*pfnCmd_v_v)();
-	BOOL (AFX_MSG_CALL CCmdTarget::*pfnCmd_b_v)();
-	void (AFX_MSG_CALL CCmdTarget::*pfnCmd_v_u)(UINT);
-	BOOL (AFX_MSG_CALL CCmdTarget::*pfnCmd_b_u)(UINT);
+    // specific type safe variants for WM_COMMAND and WM_NOTIFY messages
+    void (AFX_MSG_CALL CCmdTarget::*pfnCmd_v_v)();
+    BOOL (AFX_MSG_CALL CCmdTarget::*pfnCmd_b_v)();
+    void (AFX_MSG_CALL CCmdTarget::*pfnCmd_v_u)(UINT);
+    BOOL (AFX_MSG_CALL CCmdTarget::*pfnCmd_b_u)(UINT);
 
-	void (AFX_MSG_CALL CCmdTarget::*pfnNotify_v_NMHDR_pl)(NMHDR*, LRESULT*);
-	BOOL (AFX_MSG_CALL CCmdTarget::*pfnNotify_b_NMHDR_pl)(NMHDR*, LRESULT*);
-	void (AFX_MSG_CALL CCmdTarget::*pfnNotify_v_u_NMHDR_pl)(UINT, NMHDR*, LRESULT*);
-	BOOL (AFX_MSG_CALL CCmdTarget::*pfnNotify_b_u_NMHDR_pl)(UINT, NMHDR*, LRESULT*);
-	void (AFX_MSG_CALL CCmdTarget::*pfnCmdUI_v_C)(CCmdUI*);
-	void (AFX_MSG_CALL CCmdTarget::*pfnCmdUI_v_C_u)(CCmdUI*, UINT);
+    void (AFX_MSG_CALL CCmdTarget::*pfnNotify_v_NMHDR_pl)(NMHDR*, LRESULT*);
+    BOOL (AFX_MSG_CALL CCmdTarget::*pfnNotify_b_NMHDR_pl)(NMHDR*, LRESULT*);
+    void (AFX_MSG_CALL CCmdTarget::*pfnNotify_v_u_NMHDR_pl)(UINT, NMHDR*, LRESULT*);
+    BOOL (AFX_MSG_CALL CCmdTarget::*pfnNotify_b_u_NMHDR_pl)(UINT, NMHDR*, LRESULT*);
+    void (AFX_MSG_CALL CCmdTarget::*pfnCmdUI_v_C)(CCmdUI*);
+    void (AFX_MSG_CALL CCmdTarget::*pfnCmdUI_v_C_u)(CCmdUI*, UINT);
 
-	void (AFX_MSG_CALL CCmdTarget::*pfnCmd_v_pv)(void*);
-	BOOL (AFX_MSG_CALL CCmdTarget::*pfnCmd_b_pv)(void*);
+    void (AFX_MSG_CALL CCmdTarget::*pfnCmd_v_pv)(void*);
+    BOOL (AFX_MSG_CALL CCmdTarget::*pfnCmd_b_pv)(void*);
 
 //OLD
-	// specific type safe variants for WM-style messages
+    // specific type safe variants for WM-style messages
 //	BOOL    (AFX_MSG_CALL CWnd::*pfn_bD)(CDC*);
 //	BOOL    (AFX_MSG_CALL CWnd::*pfn_bb)(BOOL);
 //	BOOL    (AFX_MSG_CALL CWnd::*pfn_bWww)(CWnd*, UINT, UINT);
@@ -6140,11 +6146,11 @@ union MessageMapFunctions
 //	int     (AFX_MSG_CALL CWnd::*pfn_iis)(int, LPTSTR);
 //	UINT    (AFX_MSG_CALL CWnd::*pfn_wp)(CPoint);
 //	UINT    (AFX_MSG_CALL CWnd::*pfn_wv)(void);
-	void    (AFX_MSG_CALL CCmdTarget::*pfn_vPOS)(WINDOWPOS*); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	void    (AFX_MSG_CALL CCmdTarget::*pfn_vCALC)(BOOL, NCCALCSIZE_PARAMS*); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	void    (AFX_MSG_CALL CCmdTarget::*pfn_vwp)(UINT, CPoint); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	void    (AFX_MSG_CALL CCmdTarget::*pfn_vwwh)(UINT, UINT, HANDLE); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
-	BOOL    (AFX_MSG_CALL CCmdTarget::*pfn_bwsp)(UINT, short, CPoint); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    void    (AFX_MSG_CALL CCmdTarget::*pfn_vPOS)(WINDOWPOS*); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    void    (AFX_MSG_CALL CCmdTarget::*pfn_vCALC)(BOOL, NCCALCSIZE_PARAMS*); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    void    (AFX_MSG_CALL CCmdTarget::*pfn_vwp)(UINT, CPoint); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    void    (AFX_MSG_CALL CCmdTarget::*pfn_vwwh)(UINT, UINT, HANDLE); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
+    BOOL    (AFX_MSG_CALL CCmdTarget::*pfn_bwsp)(UINT, short, CPoint); // CP: Originally was CWnd:: but this breaks mingw's member function pointer
 //	void    (AFX_MSG_CALL CWnd::*pfn_vws)(UINT, LPCTSTR);
 };
 
@@ -6156,256 +6162,256 @@ INT_PTR _AfxGetDlgCtrlID(HWND hWnd)
 
 const AFX_MSGMAP_ENTRY* AFXAPI
 AfxFindMessageEntry(const AFX_MSGMAP_ENTRY* lpEntry,
-	UINT nMsg, UINT nCode, UINT nID)
+    UINT nMsg, UINT nCode, UINT nID)
 {
-	// C version of search routine
-	while (lpEntry->nSig != AfxSig_end)
-	{
+    // C version of search routine
+    while (lpEntry->nSig != AfxSig_end)
+    {
       if (lpEntry->nMessage == nMsg && lpEntry->nCode == nCode &&
-			nID >= lpEntry->nID && nID <= lpEntry->nLastID)
-		{
-			return lpEntry;
-		}
-		lpEntry++;
-	}
-	return NULL;    // not found
+            nID >= lpEntry->nID && nID <= lpEntry->nLastID)
+        {
+            return lpEntry;
+        }
+        lpEntry++;
+    }
+    return NULL;    // not found
 }
 
 AFX_STATIC BOOL AFXAPI _AfxDispatchCmdMsg(CCmdTarget* pTarget, UINT nID, int nCode,
-	AFX_PMSG pfn, void* pExtra, UINT_PTR nSig, AFX_CMDHANDLERINFO* pHandlerInfo)
-		// return TRUE to stop routing
+    AFX_PMSG pfn, void* pExtra, UINT_PTR nSig, AFX_CMDHANDLERINFO* pHandlerInfo)
+        // return TRUE to stop routing
 {
-	ENSURE_VALID(pTarget);
-	UNUSED(nCode);   // unused in release builds
+    ENSURE_VALID(pTarget);
+    UNUSED(nCode);   // unused in release builds
 
-	union MessageMapFunctions mmf;
-	mmf.pfn = pfn;
-	BOOL bResult = TRUE; // default is ok
+    union MessageMapFunctions mmf;
+    mmf.pfn = pfn;
+    BOOL bResult = TRUE; // default is ok
 
-	if (pHandlerInfo != NULL)
-	{
-		// just fill in the information, don't do it
-		pHandlerInfo->pTarget = pTarget;
+    if (pHandlerInfo != NULL)
+    {
+        // just fill in the information, don't do it
+        pHandlerInfo->pTarget = pTarget;
 //		pHandlerInfo->pmf = mmf.pfn;
-		return TRUE;
-	}
+        return TRUE;
+    }
 
-	switch (nSig)
-	{
-	default:    // illegal
-		ASSERT(FALSE);
-		return 0;
-		break;
+    switch (nSig)
+    {
+    default:    // illegal
+        ASSERT(FALSE);
+        return 0;
+        break;
 
-	case AfxSigCmd_v:
-		// normal command or control notification
-		ASSERT(CN_COMMAND == 0);        // CN_COMMAND same as BN_CLICKED
-		ASSERT(pExtra == NULL);
-		(pTarget->*mmf.pfnCmd_v_v)();
-		break;
+    case AfxSigCmd_v:
+        // normal command or control notification
+        ASSERT(CN_COMMAND == 0);        // CN_COMMAND same as BN_CLICKED
+        ASSERT(pExtra == NULL);
+        (pTarget->*mmf.pfnCmd_v_v)();
+        break;
 
-	case AfxSigCmd_b:
-		// normal command or control notification
-		ASSERT(CN_COMMAND == 0);        // CN_COMMAND same as BN_CLICKED
-		ASSERT(pExtra == NULL);
-		bResult = (pTarget->*mmf.pfnCmd_b_v)();
-		break;
+    case AfxSigCmd_b:
+        // normal command or control notification
+        ASSERT(CN_COMMAND == 0);        // CN_COMMAND same as BN_CLICKED
+        ASSERT(pExtra == NULL);
+        bResult = (pTarget->*mmf.pfnCmd_b_v)();
+        break;
 
-	case AfxSigCmd_RANGE:
-		// normal command or control notification in a range
-		ASSERT(CN_COMMAND == 0);        // CN_COMMAND same as BN_CLICKED
-		ASSERT(pExtra == NULL);
-		(pTarget->*mmf.pfnCmd_v_u)(nID);
-		break;
+    case AfxSigCmd_RANGE:
+        // normal command or control notification in a range
+        ASSERT(CN_COMMAND == 0);        // CN_COMMAND same as BN_CLICKED
+        ASSERT(pExtra == NULL);
+        (pTarget->*mmf.pfnCmd_v_u)(nID);
+        break;
 
-	case AfxSigCmd_EX:
-		// extended command (passed ID, returns bContinue)
-		ASSERT(pExtra == NULL);
-		bResult = (pTarget->*mmf.pfnCmd_b_u)(nID);
-		break;
+    case AfxSigCmd_EX:
+        // extended command (passed ID, returns bContinue)
+        ASSERT(pExtra == NULL);
+        bResult = (pTarget->*mmf.pfnCmd_b_u)(nID);
+        break;
 
-	case AfxSigNotify_v:
-		{
-			AFX_NOTIFY* pNotify = (AFX_NOTIFY*)pExtra;
-			ENSURE(pNotify != NULL);
-			ASSERT(pNotify->pResult != NULL);
-			ASSERT(pNotify->pNMHDR != NULL);
-			(pTarget->*mmf.pfnNotify_v_NMHDR_pl)(pNotify->pNMHDR, pNotify->pResult);
-		}
-		break;
+    case AfxSigNotify_v:
+        {
+            AFX_NOTIFY* pNotify = (AFX_NOTIFY*)pExtra;
+            ENSURE(pNotify != NULL);
+            ASSERT(pNotify->pResult != NULL);
+            ASSERT(pNotify->pNMHDR != NULL);
+            (pTarget->*mmf.pfnNotify_v_NMHDR_pl)(pNotify->pNMHDR, pNotify->pResult);
+        }
+        break;
 
-	case AfxSigNotify_b:
-		{
-			AFX_NOTIFY* pNotify = (AFX_NOTIFY*)pExtra;
-			ENSURE(pNotify != NULL);
-			ASSERT(pNotify->pResult != NULL);
-			ASSERT(pNotify->pNMHDR != NULL);
-			bResult = (pTarget->*mmf.pfnNotify_b_NMHDR_pl)(pNotify->pNMHDR, pNotify->pResult);
-		}
-		break;
+    case AfxSigNotify_b:
+        {
+            AFX_NOTIFY* pNotify = (AFX_NOTIFY*)pExtra;
+            ENSURE(pNotify != NULL);
+            ASSERT(pNotify->pResult != NULL);
+            ASSERT(pNotify->pNMHDR != NULL);
+            bResult = (pTarget->*mmf.pfnNotify_b_NMHDR_pl)(pNotify->pNMHDR, pNotify->pResult);
+        }
+        break;
 
-	case AfxSigNotify_RANGE:
-		{
-			AFX_NOTIFY* pNotify = (AFX_NOTIFY*)pExtra;
-			ENSURE(pNotify != NULL);
-			ASSERT(pNotify->pResult != NULL);
-			ASSERT(pNotify->pNMHDR != NULL);
-			(pTarget->*mmf.pfnNotify_v_u_NMHDR_pl)(nID, pNotify->pNMHDR,
-				pNotify->pResult);
-		}
-		break;
+    case AfxSigNotify_RANGE:
+        {
+            AFX_NOTIFY* pNotify = (AFX_NOTIFY*)pExtra;
+            ENSURE(pNotify != NULL);
+            ASSERT(pNotify->pResult != NULL);
+            ASSERT(pNotify->pNMHDR != NULL);
+            (pTarget->*mmf.pfnNotify_v_u_NMHDR_pl)(nID, pNotify->pNMHDR,
+                pNotify->pResult);
+        }
+        break;
 
-	case AfxSigNotify_EX:
-		{
-			AFX_NOTIFY* pNotify = (AFX_NOTIFY*)pExtra;
-			ENSURE(pNotify != NULL);
-			ASSERT(pNotify->pResult != NULL);
-			ASSERT(pNotify->pNMHDR != NULL);
-			bResult = (pTarget->*mmf.pfnNotify_b_u_NMHDR_pl)(nID, pNotify->pNMHDR,
-				pNotify->pResult);
-		}
-		break;
+    case AfxSigNotify_EX:
+        {
+            AFX_NOTIFY* pNotify = (AFX_NOTIFY*)pExtra;
+            ENSURE(pNotify != NULL);
+            ASSERT(pNotify->pResult != NULL);
+            ASSERT(pNotify->pNMHDR != NULL);
+            bResult = (pTarget->*mmf.pfnNotify_b_u_NMHDR_pl)(nID, pNotify->pNMHDR,
+                pNotify->pResult);
+        }
+        break;
 
-	case AfxSigCmdUI:
-		{
-			// ON_UPDATE_COMMAND_UI or ON_UPDATE_COMMAND_UI_REFLECT case
-			ASSERT(CN_UPDATE_COMMAND_UI == (UINT)-1);
-			ASSERT(nCode == CN_UPDATE_COMMAND_UI || nCode == 0xFFFF);
-			ENSURE_ARG(pExtra != NULL);
-			CCmdUI* pCmdUI = (CCmdUI*)pExtra;
-			ASSERT(!pCmdUI->m_bContinueRouting);    // idle - not set
-			(pTarget->*mmf.pfnCmdUI_v_C)(pCmdUI);
-			bResult = !pCmdUI->m_bContinueRouting;
-			pCmdUI->m_bContinueRouting = FALSE;     // go back to idle
-		}
-		break;
+    case AfxSigCmdUI:
+        {
+            // ON_UPDATE_COMMAND_UI or ON_UPDATE_COMMAND_UI_REFLECT case
+            ASSERT(CN_UPDATE_COMMAND_UI == (UINT)-1);
+            ASSERT(nCode == CN_UPDATE_COMMAND_UI || nCode == 0xFFFF);
+            ENSURE_ARG(pExtra != NULL);
+            CCmdUI* pCmdUI = (CCmdUI*)pExtra;
+            ASSERT(!pCmdUI->m_bContinueRouting);    // idle - not set
+            (pTarget->*mmf.pfnCmdUI_v_C)(pCmdUI);
+            bResult = !pCmdUI->m_bContinueRouting;
+            pCmdUI->m_bContinueRouting = FALSE;     // go back to idle
+        }
+        break;
 
-	case AfxSigCmdUI_RANGE:
-		{
-			// ON_UPDATE_COMMAND_UI case
-			ASSERT(nCode == CN_UPDATE_COMMAND_UI);
-			ENSURE_ARG(pExtra != NULL);
-			CCmdUI* pCmdUI = (CCmdUI*)pExtra;
-			ASSERT(pCmdUI->m_nID == nID);           // sanity assert
-			ASSERT(!pCmdUI->m_bContinueRouting);    // idle - not set
-			(pTarget->*mmf.pfnCmdUI_v_C_u)(pCmdUI, nID);
-			bResult = !pCmdUI->m_bContinueRouting;
-			pCmdUI->m_bContinueRouting = FALSE;     // go back to idle
-		}
-		break;
+    case AfxSigCmdUI_RANGE:
+        {
+            // ON_UPDATE_COMMAND_UI case
+            ASSERT(nCode == CN_UPDATE_COMMAND_UI);
+            ENSURE_ARG(pExtra != NULL);
+            CCmdUI* pCmdUI = (CCmdUI*)pExtra;
+            ASSERT(pCmdUI->m_nID == nID);           // sanity assert
+            ASSERT(!pCmdUI->m_bContinueRouting);    // idle - not set
+            (pTarget->*mmf.pfnCmdUI_v_C_u)(pCmdUI, nID);
+            bResult = !pCmdUI->m_bContinueRouting;
+            pCmdUI->m_bContinueRouting = FALSE;     // go back to idle
+        }
+        break;
 
-	// general extensibility hooks
-	case AfxSigCmd_v_pv:
-		(pTarget->*mmf.pfnCmd_v_pv)(pExtra);
-		break;
-	case AfxSigCmd_b_pv:
-		bResult = (pTarget->*mmf.pfnCmd_b_pv)(pExtra);
-		break;
-	/*
-	case AfxSig_vv:
-		// normal command or control notification
-		ASSERT(CN_COMMAND == 0);        // CN_COMMAND same as BN_CLICKED
-		ASSERT(pExtra == NULL);
-		(pTarget->*mmf.pfn_COMMAND)();
-		break;
+    // general extensibility hooks
+    case AfxSigCmd_v_pv:
+        (pTarget->*mmf.pfnCmd_v_pv)(pExtra);
+        break;
+    case AfxSigCmd_b_pv:
+        bResult = (pTarget->*mmf.pfnCmd_b_pv)(pExtra);
+        break;
+    /*
+    case AfxSig_vv:
+        // normal command or control notification
+        ASSERT(CN_COMMAND == 0);        // CN_COMMAND same as BN_CLICKED
+        ASSERT(pExtra == NULL);
+        (pTarget->*mmf.pfn_COMMAND)();
+        break;
 
-	case AfxSig_bv:
-		// normal command or control notification
-		ASSERT(CN_COMMAND == 0);        // CN_COMMAND same as BN_CLICKED
-		ASSERT(pExtra == NULL);
-		bResult = (pTarget->*mmf.pfn_bCOMMAND)();
-		break;
+    case AfxSig_bv:
+        // normal command or control notification
+        ASSERT(CN_COMMAND == 0);        // CN_COMMAND same as BN_CLICKED
+        ASSERT(pExtra == NULL);
+        bResult = (pTarget->*mmf.pfn_bCOMMAND)();
+        break;
 
-	case AfxSig_vw:
-		// normal command or control notification in a range
-		ASSERT(CN_COMMAND == 0);        // CN_COMMAND same as BN_CLICKED
-		ASSERT(pExtra == NULL);
-		(pTarget->*mmf.pfn_COMMAND_RANGE)(nID);
-		break;
+    case AfxSig_vw:
+        // normal command or control notification in a range
+        ASSERT(CN_COMMAND == 0);        // CN_COMMAND same as BN_CLICKED
+        ASSERT(pExtra == NULL);
+        (pTarget->*mmf.pfn_COMMAND_RANGE)(nID);
+        break;
 
-	case AfxSig_bw:
-		// extended command (passed ID, returns bContinue)
-		ASSERT(pExtra == NULL);
-		bResult = (pTarget->*mmf.pfn_COMMAND_EX)(nID);
-		break;
+    case AfxSig_bw:
+        // extended command (passed ID, returns bContinue)
+        ASSERT(pExtra == NULL);
+        bResult = (pTarget->*mmf.pfn_COMMAND_EX)(nID);
+        break;
 
-	case AfxSig_vNMHDRpl:
-		{
-			AFX_NOTIFY* pNotify = (AFX_NOTIFY*)pExtra;
-			ENSURE(pNotify != NULL);
-			ASSERT(pNotify->pResult != NULL);
-			ASSERT(pNotify->pNMHDR != NULL);
-			(pTarget->*mmf.pfn_NOTIFY)(pNotify->pNMHDR, pNotify->pResult);
-		}
-		break;
-	case AfxSig_bNMHDRpl:
-		{
-			AFX_NOTIFY* pNotify = (AFX_NOTIFY*)pExtra;
-			ENSURE(pNotify != NULL);
-			ASSERT(pNotify->pResult != NULL);
-			ASSERT(pNotify->pNMHDR != NULL);
-			bResult = (pTarget->*mmf.pfn_bNOTIFY)(pNotify->pNMHDR, pNotify->pResult);
-		}
-		break;
-	case AfxSig_vwNMHDRpl:
-		{
-			AFX_NOTIFY* pNotify = (AFX_NOTIFY*)pExtra;
-			ENSURE(pNotify != NULL);
-			ASSERT(pNotify->pResult != NULL);
-			ASSERT(pNotify->pNMHDR != NULL);
-			(pTarget->*mmf.pfn_NOTIFY_RANGE)(nID, pNotify->pNMHDR,
-				pNotify->pResult);
-		}
-		break;
-	case AfxSig_bwNMHDRpl:
-		{
-			AFX_NOTIFY* pNotify = (AFX_NOTIFY*)pExtra;
-			ENSURE(pNotify != NULL);
-			ASSERT(pNotify->pResult != NULL);
-			ASSERT(pNotify->pNMHDR != NULL);
-			bResult = (pTarget->*mmf.pfn_NOTIFY_EX)(nID, pNotify->pNMHDR,
-				pNotify->pResult);
-		}
-		break;
-	case AfxSig_cmdui:
-		{
-			// ON_UPDATE_COMMAND_UI or ON_UPDATE_COMMAND_UI_REFLECT case
-			ASSERT(CN_UPDATE_COMMAND_UI == (UINT)-1);
-			ASSERT(nCode == CN_UPDATE_COMMAND_UI || nCode == 0xFFFF);
-			ENSURE_ARG(pExtra != NULL);
-			CCmdUI* pCmdUI = (CCmdUI*)pExtra;
-			ASSERT(!pCmdUI->m_bContinueRouting);    // idle - not set
-			(pTarget->*mmf.pfn_UPDATE_COMMAND_UI)(pCmdUI);
-			bResult = !pCmdUI->m_bContinueRouting;
-			pCmdUI->m_bContinueRouting = FALSE;     // go back to idle
-		}
-		break;
+    case AfxSig_vNMHDRpl:
+        {
+            AFX_NOTIFY* pNotify = (AFX_NOTIFY*)pExtra;
+            ENSURE(pNotify != NULL);
+            ASSERT(pNotify->pResult != NULL);
+            ASSERT(pNotify->pNMHDR != NULL);
+            (pTarget->*mmf.pfn_NOTIFY)(pNotify->pNMHDR, pNotify->pResult);
+        }
+        break;
+    case AfxSig_bNMHDRpl:
+        {
+            AFX_NOTIFY* pNotify = (AFX_NOTIFY*)pExtra;
+            ENSURE(pNotify != NULL);
+            ASSERT(pNotify->pResult != NULL);
+            ASSERT(pNotify->pNMHDR != NULL);
+            bResult = (pTarget->*mmf.pfn_bNOTIFY)(pNotify->pNMHDR, pNotify->pResult);
+        }
+        break;
+    case AfxSig_vwNMHDRpl:
+        {
+            AFX_NOTIFY* pNotify = (AFX_NOTIFY*)pExtra;
+            ENSURE(pNotify != NULL);
+            ASSERT(pNotify->pResult != NULL);
+            ASSERT(pNotify->pNMHDR != NULL);
+            (pTarget->*mmf.pfn_NOTIFY_RANGE)(nID, pNotify->pNMHDR,
+                pNotify->pResult);
+        }
+        break;
+    case AfxSig_bwNMHDRpl:
+        {
+            AFX_NOTIFY* pNotify = (AFX_NOTIFY*)pExtra;
+            ENSURE(pNotify != NULL);
+            ASSERT(pNotify->pResult != NULL);
+            ASSERT(pNotify->pNMHDR != NULL);
+            bResult = (pTarget->*mmf.pfn_NOTIFY_EX)(nID, pNotify->pNMHDR,
+                pNotify->pResult);
+        }
+        break;
+    case AfxSig_cmdui:
+        {
+            // ON_UPDATE_COMMAND_UI or ON_UPDATE_COMMAND_UI_REFLECT case
+            ASSERT(CN_UPDATE_COMMAND_UI == (UINT)-1);
+            ASSERT(nCode == CN_UPDATE_COMMAND_UI || nCode == 0xFFFF);
+            ENSURE_ARG(pExtra != NULL);
+            CCmdUI* pCmdUI = (CCmdUI*)pExtra;
+            ASSERT(!pCmdUI->m_bContinueRouting);    // idle - not set
+            (pTarget->*mmf.pfn_UPDATE_COMMAND_UI)(pCmdUI);
+            bResult = !pCmdUI->m_bContinueRouting;
+            pCmdUI->m_bContinueRouting = FALSE;     // go back to idle
+        }
+        break;
 
-	case AfxSig_cmduiw:
-		{
-			// ON_UPDATE_COMMAND_UI case
-			ASSERT(nCode == CN_UPDATE_COMMAND_UI);
-			ENSURE_ARG(pExtra != NULL);
-			CCmdUI* pCmdUI = (CCmdUI*)pExtra;
-			ASSERT(pCmdUI->m_nID == nID);           // sanity assert
-			ASSERT(!pCmdUI->m_bContinueRouting);    // idle - not set
-			(pTarget->*mmf.pfn_UPDATE_COMMAND_UI_RANGE)(pCmdUI, nID);
-			bResult = !pCmdUI->m_bContinueRouting;
-			pCmdUI->m_bContinueRouting = FALSE;     // go back to idle
-		}
-		break;
+    case AfxSig_cmduiw:
+        {
+            // ON_UPDATE_COMMAND_UI case
+            ASSERT(nCode == CN_UPDATE_COMMAND_UI);
+            ENSURE_ARG(pExtra != NULL);
+            CCmdUI* pCmdUI = (CCmdUI*)pExtra;
+            ASSERT(pCmdUI->m_nID == nID);           // sanity assert
+            ASSERT(!pCmdUI->m_bContinueRouting);    // idle - not set
+            (pTarget->*mmf.pfn_UPDATE_COMMAND_UI_RANGE)(pCmdUI, nID);
+            bResult = !pCmdUI->m_bContinueRouting;
+            pCmdUI->m_bContinueRouting = FALSE;     // go back to idle
+        }
+        break;
 
-	// general extensibility hooks
-	case AfxSig_vpv:
-		(pTarget->*mmf.pfn_OTHER)(pExtra);
-		break;
-	case AfxSig_bpv:
-		bResult = (pTarget->*mmf.pfn_OTHER_EX)(pExtra);
-		break;
-	*/
+    // general extensibility hooks
+    case AfxSig_vpv:
+        (pTarget->*mmf.pfn_OTHER)(pExtra);
+        break;
+    case AfxSig_bpv:
+        bResult = (pTarget->*mmf.pfn_OTHER_EX)(pExtra);
+        break;
+    */
 
-	}
-	return bResult;
+    }
+    return bResult;
 }
 
 BOOL CCmdTarget::OnCmdMsg(
@@ -6415,37 +6421,37 @@ BOOL CCmdTarget::OnCmdMsg(
    AFX_CMDHANDLERINFO* pHandlerInfo
 )
 {
-	// determine the message number and code (packed into nCode)
-	const AFX_MSGMAP* pMessageMap;
-	const AFX_MSGMAP_ENTRY* lpEntry;
-	UINT nMsg = 0;
+    // determine the message number and code (packed into nCode)
+    const AFX_MSGMAP* pMessageMap;
+    const AFX_MSGMAP_ENTRY* lpEntry;
+    UINT nMsg = 0;
 
-	if (nCode != CN_UPDATE_COMMAND_UI)
-	{
-		nMsg = HIWORD(nCode);
-		nCode = LOWORD(nCode);
-	}
+    if (nCode != CN_UPDATE_COMMAND_UI)
+    {
+        nMsg = HIWORD(nCode);
+        nCode = LOWORD(nCode);
+    }
 
-	// for backward compatibility HIWORD(nCode)==0 is WM_COMMAND
-	if (nMsg == 0)
-		nMsg = WM_COMMAND;
+    // for backward compatibility HIWORD(nCode)==0 is WM_COMMAND
+    if (nMsg == 0)
+        nMsg = WM_COMMAND;
 
-	// look through message map to see if it applies to us
+    // look through message map to see if it applies to us
 
-	for (pMessageMap = GetMessageMap(); pMessageMap->pfnGetBaseMap != NULL;
-	  pMessageMap = (*pMessageMap->pfnGetBaseMap)())
-	{
-		// Note: catches BEGIN_MESSAGE_MAP(CMyClass, CMyClass)!
-		ASSERT(pMessageMap != (*pMessageMap->pfnGetBaseMap)());
-		lpEntry = AfxFindMessageEntry(pMessageMap->lpEntries, nMsg, nCode, nID);
-		if (lpEntry != NULL)
-		{
-			// found it
-			return _AfxDispatchCmdMsg(this, nID, nCode,
-				lpEntry->pfn, pExtra, lpEntry->nSig, pHandlerInfo);
-		}
-	}
-	return FALSE;   // not handled
+    for (pMessageMap = GetMessageMap(); pMessageMap->pfnGetBaseMap != NULL;
+      pMessageMap = (*pMessageMap->pfnGetBaseMap)())
+    {
+        // Note: catches BEGIN_MESSAGE_MAP(CMyClass, CMyClass)!
+        ASSERT(pMessageMap != (*pMessageMap->pfnGetBaseMap)());
+        lpEntry = AfxFindMessageEntry(pMessageMap->lpEntries, nMsg, nCode, nID);
+        if (lpEntry != NULL)
+        {
+            // found it
+            return _AfxDispatchCmdMsg(this, nID, nCode,
+                lpEntry->pfn, pExtra, lpEntry->nSig, pHandlerInfo);
+        }
+    }
+    return FALSE;   // not handled
 }
 
 MFCWidget::MFCWidget(QWidget *parent)
@@ -6531,15 +6537,15 @@ CWnd::~CWnd()
    _qtd = NULL;
 }
 
-CWnd* PASCAL CWnd::FromHandle( 
-   HWND hWnd  
+CWnd* PASCAL CWnd::FromHandle(
+   HWND hWnd
 )
 {
    return (CWnd*)hWnd;
 }
 
 CWnd* PASCAL CWnd::FromHandlePermanent(
-   HWND hWnd 
+   HWND hWnd
 )
 {
    return (CWnd*)hWnd;
@@ -6569,12 +6575,12 @@ void CWnd::SetOwner(
    CWnd* pOwnerWnd
 )
 {
-   m_pOwnerWnd = pOwnerWnd; // Messages will go here.  
+   m_pOwnerWnd = pOwnerWnd; // Messages will go here.
 }
 
-CWnd* CWnd::GetDescendantWindow( 
-   int nID, 
-   BOOL bOnlyPerm 
+CWnd* CWnd::GetDescendantWindow(
+   int nID,
+   BOOL bOnlyPerm
 ) const
 {
    foreach ( CWnd* pWnd, mfcToQtWidget )
@@ -6671,50 +6677,50 @@ void CWnd::SendMessageToDescendants(
 
 LRESULT CWnd::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
 {
-	// OnWndMsg does most of the work, except for DefWindowProc call
-	LRESULT lResult = 0;
+    // OnWndMsg does most of the work, except for DefWindowProc call
+    LRESULT lResult = 0;
 //	if (!OnWndMsg(message, wParam, lParam, &lResult))
 //		lResult = DefWindowProc(message, wParam, lParam);
    // CP: We just need OnWndMsg...
    OnWndMsg(message, wParam, lParam, &lResult);
    
-	return lResult;
+    return lResult;
 }
 
 struct AFX_MSG_CACHE
 {
-	UINT nMsg;
-	const AFX_MSGMAP_ENTRY* lpEntry;
-	const AFX_MSGMAP* pMessageMap;
+    UINT nMsg;
+    const AFX_MSGMAP_ENTRY* lpEntry;
+    const AFX_MSGMAP* pMessageMap;
 };
 
 AFX_MSG_CACHE _afxMsgCache;
 
 BOOL CWnd::OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, LRESULT* pResult)
 {
-	LRESULT lResult = 0;
-	union MessageMapFunctions mmf;
-	mmf.pfn = 0;
+    LRESULT lResult = 0;
+    union MessageMapFunctions mmf;
+    mmf.pfn = 0;
 //	CInternalGlobalLock winMsgLock;
-	// special case for commands
-	if (message == WM_COMMAND)
-	{
-		if (OnCommand(wParam, lParam))
-		{
-			lResult = 1;
-			goto LReturnTrue;
-		}
-		return FALSE;
-	}
+    // special case for commands
+    if (message == WM_COMMAND)
+    {
+        if (OnCommand(wParam, lParam))
+        {
+            lResult = 1;
+            goto LReturnTrue;
+        }
+        return FALSE;
+    }
 
-	// special case for notifies
+    // special case for notifies
    if (message == WM_NOTIFY)
-	{
-		NMHDR* pNMHDR = (NMHDR*)lParam;
-		if (pNMHDR->hwndFrom != NULL && OnNotify(wParam, lParam, &lResult))
-			goto LReturnTrue;
-		return FALSE;
-	}
+    {
+        NMHDR* pNMHDR = (NMHDR*)lParam;
+        if (pNMHDR->hwndFrom != NULL && OnNotify(wParam, lParam, &lResult))
+            goto LReturnTrue;
+        return FALSE;
+    }
    
 //   qDebug("WM_ACTIVATE or WM_SETCURSOR or ActiveX not handled");
 //	// special case for activation
@@ -6780,7 +6786,7 @@ BOOL CWnd::OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, LRESULT* pResult
 //		break;
 //	}
    
-	const AFX_MSGMAP* pMessageMap; pMessageMap = GetMessageMap();
+    const AFX_MSGMAP* pMessageMap; pMessageMap = GetMessageMap();
 //   AFX_MSG_CACHE* pMsgCache; pMsgCache = &_afxMsgCache;
    const AFX_MSGMAP_ENTRY* lpEntry;
 //   if (message == pMsgCache->nMsg && pMessageMap == pMsgCache->pMessageMap)
@@ -6798,8 +6804,8 @@ BOOL CWnd::OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, LRESULT* pResult
 //         goto LDispatchRegistered;
 //   }
 //   else
-	{
-		// not in cache, look for it
+    {
+        // not in cache, look for it
 //		pMsgCache->nMsg = message;
 //		pMsgCache->pMessageMap = pMessageMap;
 
@@ -6843,397 +6849,397 @@ BOOL CWnd::OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, LRESULT* pResult
    }
 
 LDispatch:
-	ASSERT(message < 0xC000);
+    ASSERT(message < 0xC000);
 
-	mmf.pfn = lpEntry->pfn;
+    mmf.pfn = lpEntry->pfn;
 
-	switch (lpEntry->nSig)
-	{
-	default:
-		ASSERT(FALSE);
-		break;
-	case AfxSig_l_p:
-		{
-			CPoint point(lParam);		
-			lResult = (this->*mmf.pfn_l_p)(point);
-			break;
-		}		
-	case AfxSig_b_D_v:
-		lResult = (this->*mmf.pfn_b_D)(CDC::FromHandle(reinterpret_cast<HDC>(wParam)));
-		break;
+    switch (lpEntry->nSig)
+    {
+    default:
+        ASSERT(FALSE);
+        break;
+    case AfxSig_l_p:
+        {
+            CPoint point(lParam);
+            lResult = (this->*mmf.pfn_l_p)(point);
+            break;
+        }
+    case AfxSig_b_D_v:
+        lResult = (this->*mmf.pfn_b_D)(CDC::FromHandle(reinterpret_cast<HDC>(wParam)));
+        break;
 
-	case AfxSig_b_b_v:
-		lResult = (this->*mmf.pfn_b_b)(static_cast<BOOL>(wParam));
-		break;
+    case AfxSig_b_b_v:
+        lResult = (this->*mmf.pfn_b_b)(static_cast<BOOL>(wParam));
+        break;
 
-	case AfxSig_b_u_v:
-		lResult = (this->*mmf.pfn_b_u)(static_cast<UINT>(wParam));
-		break;
+    case AfxSig_b_u_v:
+        lResult = (this->*mmf.pfn_b_u)(static_cast<UINT>(wParam));
+        break;
 
-	case AfxSig_b_h_v:
-		lResult = (this->*mmf.pfn_b_h)(reinterpret_cast<HANDLE>(wParam));
-		break;
+    case AfxSig_b_h_v:
+        lResult = (this->*mmf.pfn_b_h)(reinterpret_cast<HANDLE>(wParam));
+        break;
 
-	case AfxSig_i_u_v:
-		lResult = (this->*mmf.pfn_i_u)(static_cast<UINT>(wParam));
-		break;
+    case AfxSig_i_u_v:
+        lResult = (this->*mmf.pfn_i_u)(static_cast<UINT>(wParam));
+        break;
 
-	case AfxSig_C_v_v:
-		lResult = reinterpret_cast<LRESULT>((this->*mmf.pfn_C_v)());
-		break;
+    case AfxSig_C_v_v:
+        lResult = reinterpret_cast<LRESULT>((this->*mmf.pfn_C_v)());
+        break;
 
-	case AfxSig_v_u_W:
-		(this->*mmf.pfn_v_u_W)(static_cast<UINT>(wParam), 
-			CWnd::FromHandle(reinterpret_cast<HWND>(lParam)));
-		break;
+    case AfxSig_v_u_W:
+        (this->*mmf.pfn_v_u_W)(static_cast<UINT>(wParam),
+            CWnd::FromHandle(reinterpret_cast<HWND>(lParam)));
+        break;
 
-	case AfxSig_u_u_v:
-		lResult = (this->*mmf.pfn_u_u)(static_cast<UINT>(wParam));
-		break;
+    case AfxSig_u_u_v:
+        lResult = (this->*mmf.pfn_u_u)(static_cast<UINT>(wParam));
+        break;
 
-	case AfxSig_b_v_v:
-		lResult = (this->*mmf.pfn_b_v)();
-		break;
+    case AfxSig_b_v_v:
+        lResult = (this->*mmf.pfn_b_v)();
+        break;
 
-	case AfxSig_b_W_uu:
-		lResult = (this->*mmf.pfn_b_W_u_u)(CWnd::FromHandle(reinterpret_cast<HWND>(wParam)),
-			LOWORD(lParam), HIWORD(lParam));
-		break;
+    case AfxSig_b_W_uu:
+        lResult = (this->*mmf.pfn_b_W_u_u)(CWnd::FromHandle(reinterpret_cast<HWND>(wParam)),
+            LOWORD(lParam), HIWORD(lParam));
+        break;
 
-	case AfxSig_b_W_COPYDATASTRUCT:
-		lResult = (this->*mmf.pfn_b_W_COPYDATASTRUCT)(
-			CWnd::FromHandle(reinterpret_cast<HWND>(wParam)),
-			reinterpret_cast<COPYDATASTRUCT*>(lParam));
-		break;
+    case AfxSig_b_W_COPYDATASTRUCT:
+        lResult = (this->*mmf.pfn_b_W_COPYDATASTRUCT)(
+            CWnd::FromHandle(reinterpret_cast<HWND>(wParam)),
+            reinterpret_cast<COPYDATASTRUCT*>(lParam));
+        break;
 
-	case AfxSig_b_v_HELPINFO:
-		lResult = (this->*mmf.pfn_b_HELPINFO)(reinterpret_cast<LPHELPINFO>(lParam));
-		break;
+    case AfxSig_b_v_HELPINFO:
+        lResult = (this->*mmf.pfn_b_HELPINFO)(reinterpret_cast<LPHELPINFO>(lParam));
+        break;
 
-	case AfxSig_CTLCOLOR:
-		{
-			// special case for OnCtlColor to avoid too many temporary objects
-			ASSERT(message == WM_CTLCOLOR);
-			AFX_CTLCOLOR* pCtl = reinterpret_cast<AFX_CTLCOLOR*>(lParam);
-			CDC dcTemp; 
-			dcTemp.m_hDC = pCtl->hDC;
-			CWnd wndTemp; 
-			wndTemp.m_hWnd = pCtl->hWnd;
-			UINT nCtlType = pCtl->nCtlType;
-			// if not coming from a permanent window, use stack temporary
-			CWnd* pWnd = CWnd::FromHandlePermanent(wndTemp.m_hWnd);
-			if (pWnd == NULL)
-			{
-				pWnd = &wndTemp;
-			}
-			HBRUSH hbr = (this->*mmf.pfn_B_D_W_u)(&dcTemp, pWnd, nCtlType);
-			// fast detach of temporary objects
-			dcTemp.m_hDC = NULL;
-			wndTemp.m_hWnd = NULL;
-			lResult = reinterpret_cast<LRESULT>(hbr);
-		}
-		break;
+    case AfxSig_CTLCOLOR:
+        {
+            // special case for OnCtlColor to avoid too many temporary objects
+            ASSERT(message == WM_CTLCOLOR);
+            AFX_CTLCOLOR* pCtl = reinterpret_cast<AFX_CTLCOLOR*>(lParam);
+            CDC dcTemp;
+            dcTemp.m_hDC = pCtl->hDC;
+            CWnd wndTemp;
+            wndTemp.m_hWnd = pCtl->hWnd;
+            UINT nCtlType = pCtl->nCtlType;
+            // if not coming from a permanent window, use stack temporary
+            CWnd* pWnd = CWnd::FromHandlePermanent(wndTemp.m_hWnd);
+            if (pWnd == NULL)
+            {
+                pWnd = &wndTemp;
+            }
+            HBRUSH hbr = (this->*mmf.pfn_B_D_W_u)(&dcTemp, pWnd, nCtlType);
+            // fast detach of temporary objects
+            dcTemp.m_hDC = NULL;
+            wndTemp.m_hWnd = NULL;
+            lResult = reinterpret_cast<LRESULT>(hbr);
+        }
+        break;
 
-	case AfxSig_CTLCOLOR_REFLECT:
-		{
-			// special case for CtlColor to avoid too many temporary objects
-			ASSERT(message == WM_REFLECT_BASE+WM_CTLCOLOR);
-			AFX_CTLCOLOR* pCtl = reinterpret_cast<AFX_CTLCOLOR*>(lParam);
-			CDC dcTemp; 
-			dcTemp.m_hDC = pCtl->hDC;
-			UINT nCtlType = pCtl->nCtlType;
-			HBRUSH hbr = (this->*mmf.pfn_B_D_u)(&dcTemp, nCtlType);
-			// fast detach of temporary objects
-			dcTemp.m_hDC = NULL;
-			lResult = reinterpret_cast<LRESULT>(hbr);
-		}
-		break;
+    case AfxSig_CTLCOLOR_REFLECT:
+        {
+            // special case for CtlColor to avoid too many temporary objects
+            ASSERT(message == WM_REFLECT_BASE+WM_CTLCOLOR);
+            AFX_CTLCOLOR* pCtl = reinterpret_cast<AFX_CTLCOLOR*>(lParam);
+            CDC dcTemp;
+            dcTemp.m_hDC = pCtl->hDC;
+            UINT nCtlType = pCtl->nCtlType;
+            HBRUSH hbr = (this->*mmf.pfn_B_D_u)(&dcTemp, nCtlType);
+            // fast detach of temporary objects
+            dcTemp.m_hDC = NULL;
+            lResult = reinterpret_cast<LRESULT>(hbr);
+        }
+        break;
 
-	case AfxSig_i_u_W_u:
-		lResult = (this->*mmf.pfn_i_u_W_u)(LOWORD(wParam),
-			CWnd::FromHandle(reinterpret_cast<HWND>(lParam)), HIWORD(wParam));
-		break;
+    case AfxSig_i_u_W_u:
+        lResult = (this->*mmf.pfn_i_u_W_u)(LOWORD(wParam),
+            CWnd::FromHandle(reinterpret_cast<HWND>(lParam)), HIWORD(wParam));
+        break;
 
-	case AfxSig_i_uu_v:
-		lResult = (this->*mmf.pfn_i_u_u)(LOWORD(wParam), HIWORD(wParam));
-		break;
+    case AfxSig_i_uu_v:
+        lResult = (this->*mmf.pfn_i_u_u)(LOWORD(wParam), HIWORD(wParam));
+        break;
 
-	case AfxSig_i_W_uu:
-		lResult = (this->*mmf.pfn_i_W_u_u)(CWnd::FromHandle(reinterpret_cast<HWND>(wParam)),
-			LOWORD(lParam), HIWORD(lParam));
-		break;
+    case AfxSig_i_W_uu:
+        lResult = (this->*mmf.pfn_i_W_u_u)(CWnd::FromHandle(reinterpret_cast<HWND>(wParam)),
+            LOWORD(lParam), HIWORD(lParam));
+        break;
 
-	case AfxSig_i_v_s:
-		lResult = (this->*mmf.pfn_i_s)(reinterpret_cast<LPTSTR>(lParam));
-		break;
+    case AfxSig_i_v_s:
+        lResult = (this->*mmf.pfn_i_s)(reinterpret_cast<LPTSTR>(lParam));
+        break;
 
-	case AfxSig_l_w_l:
-		lResult = (this->*mmf.pfn_l_w_l)(wParam, lParam);
-		break;
+    case AfxSig_l_w_l:
+        lResult = (this->*mmf.pfn_l_w_l)(wParam, lParam);
+        break;
 
-	case AfxSig_l_uu_M:
-		lResult = (this->*mmf.pfn_l_u_u_M)(LOWORD(wParam), HIWORD(wParam), 
-			CMenu::FromHandle(reinterpret_cast<HMENU>(lParam)));
-		break;
+    case AfxSig_l_uu_M:
+        lResult = (this->*mmf.pfn_l_u_u_M)(LOWORD(wParam), HIWORD(wParam),
+            CMenu::FromHandle(reinterpret_cast<HMENU>(lParam)));
+        break;
 		
-	case AfxSig_v_b_h:
-	    (this->*mmf.pfn_v_b_h)(static_cast<BOOL>(wParam), 
-			reinterpret_cast<HANDLE>(lParam));
-		break;
+    case AfxSig_v_b_h:
+        (this->*mmf.pfn_v_b_h)(static_cast<BOOL>(wParam),
+            reinterpret_cast<HANDLE>(lParam));
+        break;
 
-	case AfxSig_v_h_v:
-	    (this->*mmf.pfn_v_h)(reinterpret_cast<HANDLE>(wParam));
-		break;
+    case AfxSig_v_h_v:
+        (this->*mmf.pfn_v_h)(reinterpret_cast<HANDLE>(wParam));
+        break;
 
-	case AfxSig_v_h_h:
-	    (this->*mmf.pfn_v_h_h)(reinterpret_cast<HANDLE>(wParam), 
-			reinterpret_cast<HANDLE>(lParam));
-		break;
+    case AfxSig_v_h_h:
+        (this->*mmf.pfn_v_h_h)(reinterpret_cast<HANDLE>(wParam),
+            reinterpret_cast<HANDLE>(lParam));
+        break;
 
-	case AfxSig_v_v_v:
-		(this->*mmf.pfn_v_v)();
-		break;
+    case AfxSig_v_v_v:
+        (this->*mmf.pfn_v_v)();
+        break;
 
-	case AfxSig_v_u_v:
-		(this->*mmf.pfn_v_u)(static_cast<UINT>(wParam));
-		break;
+    case AfxSig_v_u_v:
+        (this->*mmf.pfn_v_u)(static_cast<UINT>(wParam));
+        break;
 
-	case AfxSig_v_u_u:
-		(this->*mmf.pfn_v_u_u)(static_cast<UINT>(wParam), static_cast<UINT>(lParam));
-		break;
+    case AfxSig_v_u_u:
+        (this->*mmf.pfn_v_u_u)(static_cast<UINT>(wParam), static_cast<UINT>(lParam));
+        break;
 
-	case AfxSig_v_uu_v:
-		(this->*mmf.pfn_v_u_u)(LOWORD(wParam), HIWORD(wParam));
-		break;
+    case AfxSig_v_uu_v:
+        (this->*mmf.pfn_v_u_u)(LOWORD(wParam), HIWORD(wParam));
+        break;
 
-	case AfxSig_v_v_ii:
-		(this->*mmf.pfn_v_i_i)(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-		break;
+    case AfxSig_v_v_ii:
+        (this->*mmf.pfn_v_i_i)(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        break;
 
-	case AfxSig_v_u_uu:
-		(this->*mmf.pfn_v_u_u_u)(static_cast<UINT>(wParam), LOWORD(lParam), HIWORD(lParam));
-		break;
+    case AfxSig_v_u_uu:
+        (this->*mmf.pfn_v_u_u_u)(static_cast<UINT>(wParam), LOWORD(lParam), HIWORD(lParam));
+        break;
 
-	case AfxSig_v_u_ii:
-		(this->*mmf.pfn_v_u_i_i)(static_cast<UINT>(wParam), LOWORD(lParam), HIWORD(lParam));
-		break;
+    case AfxSig_v_u_ii:
+        (this->*mmf.pfn_v_u_i_i)(static_cast<UINT>(wParam), LOWORD(lParam), HIWORD(lParam));
+        break;
 
    case AfxSig_v_w_l:
-		(this->*mmf.pfn_v_w_l)(wParam, lParam);
-		break;
+        (this->*mmf.pfn_v_w_l)(wParam, lParam);
+        break;
 
-	case AfxSig_MDIACTIVATE:
-		(this->*mmf.pfn_v_b_W_W)(m_hWnd == reinterpret_cast<HWND>(lParam),
-			CWnd::FromHandle(reinterpret_cast<HWND>(lParam)),
-			CWnd::FromHandle(reinterpret_cast<HWND>(wParam)));
-		break;
+    case AfxSig_MDIACTIVATE:
+        (this->*mmf.pfn_v_b_W_W)(m_hWnd == reinterpret_cast<HWND>(lParam),
+            CWnd::FromHandle(reinterpret_cast<HWND>(lParam)),
+            CWnd::FromHandle(reinterpret_cast<HWND>(wParam)));
+        break;
 
-	case AfxSig_v_D_v:
-		(this->*mmf.pfn_v_D)(CDC::FromHandle(reinterpret_cast<HDC>(wParam)));
-		break;
+    case AfxSig_v_D_v:
+        (this->*mmf.pfn_v_D)(CDC::FromHandle(reinterpret_cast<HDC>(wParam)));
+        break;
 
-	case AfxSig_v_M_v:
-		(this->*mmf.pfn_v_M)(CMenu::FromHandle(reinterpret_cast<HMENU>(wParam)));
-		break;
+    case AfxSig_v_M_v:
+        (this->*mmf.pfn_v_M)(CMenu::FromHandle(reinterpret_cast<HMENU>(wParam)));
+        break;
 
-	case AfxSig_v_M_ub:
-		(this->*mmf.pfn_v_M_u_b)(CMenu::FromHandle(reinterpret_cast<HMENU>(wParam)),
-			GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-		break;
+    case AfxSig_v_M_ub:
+        (this->*mmf.pfn_v_M_u_b)(CMenu::FromHandle(reinterpret_cast<HMENU>(wParam)),
+            GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+        break;
 
-	case AfxSig_v_W_v:
-		(this->*mmf.pfn_v_W)(CWnd::FromHandle(reinterpret_cast<HWND>(wParam)));
-		break;
+    case AfxSig_v_W_v:
+        (this->*mmf.pfn_v_W)(CWnd::FromHandle(reinterpret_cast<HWND>(wParam)));
+        break;
 
-	case AfxSig_v_v_W:
-		(this->*mmf.pfn_v_W)(CWnd::FromHandle(reinterpret_cast<HWND>(lParam)));
-		break;
+    case AfxSig_v_v_W:
+        (this->*mmf.pfn_v_W)(CWnd::FromHandle(reinterpret_cast<HWND>(lParam)));
+        break;
 
-	case AfxSig_v_W_uu:
-		(this->*mmf.pfn_v_W_u_u)(CWnd::FromHandle(reinterpret_cast<HWND>(wParam)), LOWORD(lParam),
-			HIWORD(lParam));
-		break;
+    case AfxSig_v_W_uu:
+        (this->*mmf.pfn_v_W_u_u)(CWnd::FromHandle(reinterpret_cast<HWND>(wParam)), LOWORD(lParam),
+            HIWORD(lParam));
+        break;
 
-	case AfxSig_v_W_p:
-		{
-			CPoint point(lParam);
-			(this->*mmf.pfn_v_W_p)(CWnd::FromHandle(reinterpret_cast<HWND>(wParam)), point);
-		}
-		break;
+    case AfxSig_v_W_p:
+        {
+            CPoint point(lParam);
+            (this->*mmf.pfn_v_W_p)(CWnd::FromHandle(reinterpret_cast<HWND>(wParam)), point);
+        }
+        break;
 
-	case AfxSig_v_W_h:
-		(this->*mmf.pfn_v_W_h)(CWnd::FromHandle(reinterpret_cast<HWND>(wParam)),
-				reinterpret_cast<HANDLE>(lParam));
-		break;
+    case AfxSig_v_W_h:
+        (this->*mmf.pfn_v_W_h)(CWnd::FromHandle(reinterpret_cast<HWND>(wParam)),
+                reinterpret_cast<HANDLE>(lParam));
+        break;
 
-	case AfxSig_ACTIVATE:
-		(this->*mmf.pfn_v_u_W_b)(LOWORD(wParam),
-			CWnd::FromHandle(reinterpret_cast<HWND>(lParam)), HIWORD(wParam));
-		break;
+    case AfxSig_ACTIVATE:
+        (this->*mmf.pfn_v_u_W_b)(LOWORD(wParam),
+            CWnd::FromHandle(reinterpret_cast<HWND>(lParam)), HIWORD(wParam));
+        break;
 
-	case AfxSig_SCROLL:
-	case AfxSig_SCROLL_REFLECT:
-		{
-			// special case for WM_VSCROLL and WM_HSCROLL
-			ASSERT(message == WM_VSCROLL || message == WM_HSCROLL ||
-				message == WM_VSCROLL+WM_REFLECT_BASE || message == WM_HSCROLL+WM_REFLECT_BASE);
-			int nScrollCode = (short)LOWORD(wParam);
-			int nPos = (short)HIWORD(wParam);
-			if (lpEntry->nSig == AfxSig_SCROLL)
-				(this->*mmf.pfn_v_u_u_W)(nScrollCode, nPos,
-					CWnd::FromHandle(reinterpret_cast<HWND>(lParam)));
-			else
-				(this->*mmf.pfn_v_u_u)(nScrollCode, nPos);
-		}
-		break;
+    case AfxSig_SCROLL:
+    case AfxSig_SCROLL_REFLECT:
+        {
+            // special case for WM_VSCROLL and WM_HSCROLL
+            ASSERT(message == WM_VSCROLL || message == WM_HSCROLL ||
+                message == WM_VSCROLL+WM_REFLECT_BASE || message == WM_HSCROLL+WM_REFLECT_BASE);
+            int nScrollCode = (short)LOWORD(wParam);
+            int nPos = (short)HIWORD(wParam);
+            if (lpEntry->nSig == AfxSig_SCROLL)
+                (this->*mmf.pfn_v_u_u_W)(nScrollCode, nPos,
+                    CWnd::FromHandle(reinterpret_cast<HWND>(lParam)));
+            else
+                (this->*mmf.pfn_v_u_u)(nScrollCode, nPos);
+        }
+        break;
 
-	case AfxSig_v_v_s:
-		(this->*mmf.pfn_v_s)(reinterpret_cast<LPTSTR>(lParam));
-		break;
+    case AfxSig_v_v_s:
+        (this->*mmf.pfn_v_s)(reinterpret_cast<LPTSTR>(lParam));
+        break;
 
-	case AfxSig_v_u_cs:
-		(this->*mmf.pfn_v_u_cs)(static_cast<UINT>(wParam), reinterpret_cast<LPCTSTR>(lParam));
-		break;
+    case AfxSig_v_u_cs:
+        (this->*mmf.pfn_v_u_cs)(static_cast<UINT>(wParam), reinterpret_cast<LPCTSTR>(lParam));
+        break;
 
-	case AfxSig_OWNERDRAW:
-		(this->*mmf.pfn_v_i_s)(static_cast<int>(wParam), reinterpret_cast<LPTSTR>(lParam));
-		lResult = TRUE;
-		break;
+    case AfxSig_OWNERDRAW:
+        (this->*mmf.pfn_v_i_s)(static_cast<int>(wParam), reinterpret_cast<LPTSTR>(lParam));
+        lResult = TRUE;
+        break;
 
-	case AfxSig_i_i_s:
-		lResult = (this->*mmf.pfn_i_i_s)(static_cast<int>(wParam), reinterpret_cast<LPTSTR>(lParam));
-		break;
+    case AfxSig_i_i_s:
+        lResult = (this->*mmf.pfn_i_i_s)(static_cast<int>(wParam), reinterpret_cast<LPTSTR>(lParam));
+        break;
 
-	case AfxSig_u_v_p:
-		{
-			CPoint point(lParam);
-			lResult = (this->*mmf.pfn_u_p)(point);
-		}
-		break;
+    case AfxSig_u_v_p:
+        {
+            CPoint point(lParam);
+            lResult = (this->*mmf.pfn_u_p)(point);
+        }
+        break;
 
-	case AfxSig_u_v_v:
-		lResult = (this->*mmf.pfn_u_v)();
-		break;
+    case AfxSig_u_v_v:
+        lResult = (this->*mmf.pfn_u_v)();
+        break;
 
-	case AfxSig_v_b_NCCALCSIZEPARAMS:
-		(this->*mmf.pfn_v_b_NCCALCSIZEPARAMS)(static_cast<BOOL>(wParam), 
-			reinterpret_cast<NCCALCSIZE_PARAMS*>(lParam));
-		break;
+    case AfxSig_v_b_NCCALCSIZEPARAMS:
+        (this->*mmf.pfn_v_b_NCCALCSIZEPARAMS)(static_cast<BOOL>(wParam),
+            reinterpret_cast<NCCALCSIZE_PARAMS*>(lParam));
+        break;
 
-	case AfxSig_v_v_WINDOWPOS:
-		(this->*mmf.pfn_v_v_WINDOWPOS)(reinterpret_cast<WINDOWPOS*>(lParam));
-		break;
+    case AfxSig_v_v_WINDOWPOS:
+        (this->*mmf.pfn_v_v_WINDOWPOS)(reinterpret_cast<WINDOWPOS*>(lParam));
+        break;
 
-	case AfxSig_v_uu_M:
-		(this->*mmf.pfn_v_u_u_M)(LOWORD(wParam), HIWORD(wParam), reinterpret_cast<HMENU>(lParam));
-		break;
+    case AfxSig_v_uu_M:
+        (this->*mmf.pfn_v_u_u_M)(LOWORD(wParam), HIWORD(wParam), reinterpret_cast<HMENU>(lParam));
+        break;
 
-	case AfxSig_v_u_p:
-		{
-			CPoint point(lParam);
+    case AfxSig_v_u_p:
+        {
+            CPoint point(lParam);
          (this->*mmf.pfn_v_u_p)(static_cast<UINT>(wParam), point);
-		}
-		break;
+        }
+        break;
 
-	case AfxSig_SIZING:
-		(this->*mmf.pfn_v_u_pr)(static_cast<UINT>(wParam), reinterpret_cast<LPRECT>(lParam));
-		lResult = TRUE;
-		break;
+    case AfxSig_SIZING:
+        (this->*mmf.pfn_v_u_pr)(static_cast<UINT>(wParam), reinterpret_cast<LPRECT>(lParam));
+        lResult = TRUE;
+        break;
 
-	case AfxSig_MOUSEWHEEL:
-		lResult = (this->*mmf.pfn_b_u_s_p)(LOWORD(wParam), (short)HIWORD(wParam),
-			CPoint(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)));
-		if (!lResult)
-			return FALSE;
-		break;
-	case AfxSig_MOUSEHWHEEL:
+    case AfxSig_MOUSEWHEEL:
+        lResult = (this->*mmf.pfn_b_u_s_p)(LOWORD(wParam), (short)HIWORD(wParam),
+            CPoint(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)));
+        if (!lResult)
+            return FALSE;
+        break;
+    case AfxSig_MOUSEHWHEEL:
       qDebug("AfxSig_MOUSEWHEEL");
 //		(this->*mmf.pfn_MOUSEHWHEEL)(LOWORD(wParam), (short)HIWORD(wParam),
 //			CPoint(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)));
-		break;
-	case AfxSig_l:
-		lResult = (this->*mmf.pfn_l_v)();
-		if (lResult != 0)
-			return FALSE;
-		break;
-	case AfxSig_u_W_u:
+        break;
+    case AfxSig_l:
+        lResult = (this->*mmf.pfn_l_v)();
+        if (lResult != 0)
+            return FALSE;
+        break;
+    case AfxSig_u_W_u:
       qDebug("AfxSig_u_W_u");
 //		lResult = (this->*mmf.pfn_u_W_u)(CWnd::FromHandle(reinterpret_cast<HWND>(wParam)), static_cast<UINT>(lParam));
-		break;
-	case AfxSig_v_u_M:
+        break;
+    case AfxSig_v_u_M:
       qDebug("AfxSig_v_u_M");
 //		(this->*mmf.pfn_v_u_M)(static_cast<UINT>(wParam), CMenu::FromHandle(reinterpret_cast<HMENU>(lParam)));
-		break;
-	case AfxSig_u_u_M:
+        break;
+    case AfxSig_u_u_M:
       qDebug("AfxSig_u_u_M");
 //		lResult = (this->*mmf.pfn_u_u_M)(static_cast<UINT>(wParam), CMenu::FromHandle(reinterpret_cast<HMENU>(lParam)));
-		break;
-	case AfxSig_u_v_MENUGETOBJECTINFO:
+        break;
+    case AfxSig_u_v_MENUGETOBJECTINFO:
       qDebug("AfxSig_u_v_MENUGETOBJECTINFO");
 //		lResult = (this->*mmf.pfn_u_v_MENUGETOBJECTINFO)(reinterpret_cast<MENUGETOBJECTINFO*>(lParam));
-		break;
-	case AfxSig_v_M_u:
+        break;
+    case AfxSig_v_M_u:
       qDebug("AfxSig_v_M_u");
 //		(this->*mmf.pfn_v_M_u)(CMenu::FromHandle(reinterpret_cast<HMENU>(wParam)), static_cast<UINT>(lParam));
-		break;
-	case AfxSig_v_u_LPMDINEXTMENU:
+        break;
+    case AfxSig_v_u_LPMDINEXTMENU:
       qDebug("AfxSig_v_u_LPMDINEXTMENU");
 //		(this->*mmf.pfn_v_u_LPMDINEXTMENU)(static_cast<UINT>(wParam), reinterpret_cast<LPMDINEXTMENU>(lParam));
-		break;
-	case AfxSig_APPCOMMAND:
+        break;
+    case AfxSig_APPCOMMAND:
       qDebug("AfxSig_APPCOMMAND");
 //		(this->*mmf.pfn_APPCOMMAND)(CWnd::FromHandle(reinterpret_cast<HWND>(wParam)), static_cast<UINT>(GET_APPCOMMAND_LPARAM(lParam)), static_cast<UINT>(GET_DEVICE_LPARAM(lParam)), static_cast<UINT>(GET_KEYSTATE_LPARAM(lParam)));
-		lResult = TRUE;
-		break;
-	case AfxSig_RAWINPUT:
+        lResult = TRUE;
+        break;
+    case AfxSig_RAWINPUT:
       qDebug("AfxSig_RAWINPUT");
 //		(this->*mmf.pfn_RAWINPUT)(static_cast<UINT>(GET_RAWINPUT_CODE_WPARAM(wParam)), reinterpret_cast<HRAWINPUT>(lParam));
-		break;
-	case AfxSig_u_u_u:
+        break;
+    case AfxSig_u_u_u:
       qDebug("AfxSig_u_u_u");
 //		lResult = (this->*mmf.pfn_u_u_u)(static_cast<UINT>(wParam), static_cast<UINT>(lParam));
-		break;
-	case AfxSig_MOUSE_XBUTTON:
+        break;
+    case AfxSig_MOUSE_XBUTTON:
       qDebug("AfxSig_MOUSE_XBUTTON");
 //		(this->*mmf.pfn_MOUSE_XBUTTON)(static_cast<UINT>(GET_KEYSTATE_WPARAM(wParam)), static_cast<UINT>(GET_XBUTTON_WPARAM(wParam)), CPoint(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)));
-		lResult = TRUE;
-		break;
-	case AfxSig_MOUSE_NCXBUTTON:
+        lResult = TRUE;
+        break;
+    case AfxSig_MOUSE_NCXBUTTON:
       qDebug("AfxSig_MOUSE_NCXBUTTON");
 //		(this->*mmf.pfn_MOUSE_NCXBUTTON)(static_cast<short>(GET_NCHITTEST_WPARAM(wParam)), static_cast<UINT>(GET_XBUTTON_WPARAM(wParam)), CPoint(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)));
-		lResult = TRUE;
-		break;
-	case AfxSig_INPUTLANGCHANGE:
+        lResult = TRUE;
+        break;
+    case AfxSig_INPUTLANGCHANGE:
       qDebug("AfxSig_INPUTLANGCHANGE");
 //		(this->*mmf.pfn_INPUTLANGCHANGE)(static_cast<UINT>(wParam), static_cast<UINT>(lParam));
-		lResult = TRUE;
-		break;
-	case AfxSig_INPUTDEVICECHANGE:
+        lResult = TRUE;
+        break;
+    case AfxSig_INPUTDEVICECHANGE:
       qDebug("AfxSig_INPUTDEVICECHANGE");
 //		(this->*mmf.pfn_INPUTDEVICECHANGE)(GET_DEVICE_CHANGE_LPARAM(wParam), reinterpret_cast<HANDLE>(lParam));
-		break;
-	case AfxSig_v_u_hkl:
+        break;
+    case AfxSig_v_u_hkl:
       qDebug("AfxSig_v_u_h");
 //		(this->*mmf.pfn_v_u_h)(static_cast<UINT>(wParam), reinterpret_cast<HKL>(lParam));
-		break;
-	}
-	goto LReturnTrue;
+        break;
+    }
+    goto LReturnTrue;
 
 LDispatchRegistered:    // for registered windows messages
-	ASSERT(message >= 0xC000);
-	ASSERT(sizeof(mmf) == sizeof(mmf.pfn));
-	mmf.pfn = lpEntry->pfn;
-	lResult = (this->*mmf.pfn_l_w_l)(wParam, lParam);
+    ASSERT(message >= 0xC000);
+    ASSERT(sizeof(mmf) == sizeof(mmf.pfn));
+    mmf.pfn = lpEntry->pfn;
+    lResult = (this->*mmf.pfn_l_w_l)(wParam, lParam);
 
 LReturnTrue:
-	if (pResult != NULL)
-		*pResult = lResult;
-	return TRUE;
+    if (pResult != NULL)
+        *pResult = lResult;
+    return TRUE;
 }
 
-BOOL CWnd::OnCommand( 
-   WPARAM wParam, 
-   LPARAM lParam  
+BOOL CWnd::OnCommand(
+   WPARAM wParam,
+   LPARAM lParam
 )
 // return TRUE if command invocation was attempted
 {
@@ -7387,13 +7393,13 @@ BOOL CWnd::ReflectChildNotify(UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT* 
 
 BOOL CWnd::OnNotify(WPARAM, LPARAM lParam, LRESULT* pResult)
 {
-	ASSERT(pResult != NULL);
-	NMHDR* pNMHDR = (NMHDR*)lParam;
-	HWND hWndCtrl = pNMHDR->hwndFrom;
+    ASSERT(pResult != NULL);
+    NMHDR* pNMHDR = (NMHDR*)lParam;
+    HWND hWndCtrl = pNMHDR->hwndFrom;
 
-	// get the child ID from the window itself
-	UINT_PTR nID = _AfxGetDlgCtrlID(hWndCtrl);
-	int nCode = pNMHDR->code;
+    // get the child ID from the window itself
+    UINT_PTR nID = _AfxGetDlgCtrlID(hWndCtrl);
+    int nCode = pNMHDR->code;
 
 //	ASSERT(hWndCtrl != NULL);
 //	ASSERT(::IsWindow(hWndCtrl));
@@ -7405,10 +7411,10 @@ BOOL CWnd::OnNotify(WPARAM, LPARAM lParam, LRESULT* pResult)
    if (ReflectLastMsg(hWndCtrl, pResult))
       return TRUE;        // eaten by child
 
-	AFX_NOTIFY notify;
-	notify.pResult = pResult;
-	notify.pNMHDR = pNMHDR;
-	return OnCmdMsg((UINT)nID, MAKELONG(nCode, WM_NOTIFY), &notify, NULL);
+    AFX_NOTIFY notify;
+    notify.pResult = pResult;
+    notify.pNMHDR = pNMHDR;
+    return OnCmdMsg((UINT)nID, MAKELONG(nCode, WM_NOTIFY), &notify, NULL);
 }
 
 bool CWnd::event(QEvent *event)
@@ -7462,7 +7468,7 @@ void CWnd::mousePressEvent(QMouseEvent *event)
    }
    if ( event->buttons()&Qt::RightButton )
    {
-      flags |= MK_RBUTTON;            
+      flags |= MK_RBUTTON;
    }
    if ( event->button() == Qt::LeftButton )
    {
@@ -7509,7 +7515,7 @@ void CWnd::mouseMoveEvent(QMouseEvent *event)
    }
    if ( event->buttons()&Qt::RightButton )
    {
-      flags |= MK_RBUTTON;            
+      flags |= MK_RBUTTON;
    }
    PostMessage(WM_MOUSEMOVE,flags,point.y<<16|point.x);
 }
@@ -7536,7 +7542,7 @@ void CWnd::mouseReleaseEvent(QMouseEvent *event)
    }
    if ( event->buttons()&Qt::RightButton )
    {
-      flags |= MK_RBUTTON;            
+      flags |= MK_RBUTTON;
    }
    if ( event->button() == Qt::LeftButton )
    {
@@ -7570,7 +7576,7 @@ void CWnd::mouseDoubleClickEvent(QMouseEvent *event)
    }
    if ( event->buttons()&Qt::RightButton )
    {
-      flags |= MK_RBUTTON;            
+      flags |= MK_RBUTTON;
    }
    if ( event->button() == Qt::LeftButton )
    {
@@ -7637,7 +7643,7 @@ void CWnd::contextMenuEvent(QContextMenuEvent *event)
    nmia.ptAction.x = QCursor::pos().x();
    nmia.ptAction.y = QCursor::pos().y();
 
-   if ( GetOwner() )   
+   if ( GetOwner() )
       GetOwner()->SendMessage(WM_NOTIFY,_id,(LPARAM)&nmia);
    PostMessage(WM_CONTEXTMENU,(WPARAM)m_hWnd,(LPARAM)((QCursor::pos().x()<<16)|(QCursor::pos().y())));
 }
@@ -7847,14 +7853,14 @@ BOOL CWnd::EnableWindow(
    return state;
 }
 
-BOOL CWnd::Create( 
-   LPCTSTR lpszClassName, 
-   LPCTSTR lpszWindowName, 
-   DWORD dwStyle, 
-   const RECT& rect, 
-   CWnd* pParentWnd, 
-   LPCTSTR lpszMenuName, 
-   DWORD dwExStyle, 
+BOOL CWnd::Create(
+   LPCTSTR lpszClassName,
+   LPCTSTR lpszWindowName,
+   DWORD dwStyle,
+   const RECT& rect,
+   CWnd* pParentWnd,
+   LPCTSTR lpszMenuName,
+   DWORD dwExStyle,
    CCreateContext* pContext
 )
 {
@@ -7953,9 +7959,9 @@ void CWnd::OnDestroy( )
 
 void CWnd::SetParent(CWnd *parent)
 {
-   _dwStyle |= WS_CHILD; 
-   m_pParentWnd = parent; 
-   m_pOwnerWnd = parent; 
+   _dwStyle |= WS_CHILD;
+   m_pParentWnd = parent;
+   m_pOwnerWnd = parent;
    _qt->setParent(parent->toQWidget());
 }
 
@@ -7970,25 +7976,25 @@ void CWnd::UpdateDialogControls(
    foreach ( pWnd, mfcToQtWidget )
    {
       state.m_nID = pWnd->GetDlgCtrlID();
-      state.m_pOther = pWnd;      
+      state.m_pOther = pWnd;
       
       // call it directly to disable any routing
       if (pWnd->CWnd::OnCmdMsg(0, MAKELONG(0xffff,
          WM_COMMAND+WM_REFLECT_BASE), &state, NULL))
          continue;
 
-		// check for handlers in the parent window
-		if (CWnd::OnCmdMsg((UINT)state.m_nID, CN_UPDATE_COMMAND_UI, &state, NULL))
-			continue;
+        // check for handlers in the parent window
+        if (CWnd::OnCmdMsg((UINT)state.m_nID, CN_UPDATE_COMMAND_UI, &state, NULL))
+            continue;
       
-      		// determine whether to disable when no handler exists
-      		BOOL bDisableTemp = bDisableIfNoHndler;
-      		if (bDisableTemp)
-      		{
-               if ( !dynamic_cast<CButton*>(pWnd) )               
+            // determine whether to disable when no handler exists
+            BOOL bDisableTemp = bDisableIfNoHndler;
+            if (bDisableTemp)
+            {
+               if ( !dynamic_cast<CButton*>(pWnd) )
                {
                   // non-button controls don't get automagically disabled
-      				bDisableTemp = FALSE;
+                    bDisableTemp = FALSE;
                }
                else
                {
@@ -8001,9 +8007,9 @@ void CWnd::UpdateDialogControls(
                      bDisableTemp = FALSE;
                   }
                }
-      		}
-		// check for handlers in the target (owner)
-		state.DoUpdate(pTarget, bDisableTemp);
+            }
+        // check for handlers in the target (owner)
+        state.DoUpdate(pTarget, bDisableTemp);
    }
 }
 
@@ -8021,7 +8027,7 @@ void CWnd::RepositionBars(
    CWnd* pWndExtra = GetDlgItem(nIDLeftOver);
 
    layout.bStretch = bStretch;
-	layout.sizeTotal.cx = layout.sizeTotal.cy = 0;
+    layout.sizeTotal.cx = layout.sizeTotal.cy = 0;
 //   if ( lpRectParam )
 //   {
 //      layout.rect = *lpRectParam;
@@ -8285,7 +8291,7 @@ void CWnd::MapWindowPoints(
 
 void CWnd::CalcWindowRect(
    LPRECT lpClientRect,
-   UINT nAdjustType 
+   UINT nAdjustType
 )
 {
 }
@@ -8692,14 +8698,14 @@ void CFrameWnd::addView(QWidget *view)
    RecalcLayout();
 }
 
-BOOL CFrameWnd::Create( 
-   LPCTSTR lpszClassName, 
-   LPCTSTR lpszWindowName, 
-   DWORD dwStyle, 
-   const RECT& rect, 
-   CWnd* pParentWnd, 
-   LPCTSTR lpszMenuName, 
-   DWORD dwExStyle, 
+BOOL CFrameWnd::Create(
+   LPCTSTR lpszClassName,
+   LPCTSTR lpszWindowName,
+   DWORD dwStyle,
+   const RECT& rect,
+   CWnd* pParentWnd,
+   LPCTSTR lpszMenuName,
+   DWORD dwExStyle,
    CCreateContext* pContext
 )
 {
@@ -8729,7 +8735,7 @@ BOOL CFrameWnd::Create(
    m_pDocument = pContext->m_pCurrentDoc;
    
    // The view is actually created in CFrameWnd::CreateView but I'm being lazy...
-   pView = (CView*)pContext->m_pNewViewClass->CreateObject();   
+   pView = (CView*)pContext->m_pNewViewClass->CreateObject();
    
    mfcToQtWidgetMap()->insert(AFX_IDW_PANE_FIRST,pView);
    
@@ -8756,7 +8762,7 @@ BOOL CFrameWnd::Create(
 }
 
 BOOL CFrameWnd::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle,
-	CWnd* pParentWnd, CCreateContext* pContext)
+    CWnd* pParentWnd, CCreateContext* pContext)
 {
 //	// only do this once
 //	ASSERT_VALID_IDR(nIDResource);
@@ -8770,14 +8776,14 @@ BOOL CFrameWnd::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle,
    
 //	VERIFY(AfxDeferRegisterClass(AFX_WNDFRAMEORVIEW_REG));
 
-	// attempt to create the window
-	LPCTSTR lpszClass;// = GetIconWndClass(dwDefaultStyle, nIDResource);
-	CString strTitle = m_strTitle;
+    // attempt to create the window
+    LPCTSTR lpszClass;// = GetIconWndClass(dwDefaultStyle, nIDResource);
+    CString strTitle = m_strTitle;
    if (!Create(lpszClass, strTitle, dwDefaultStyle, rectDefault,
-	  pParentWnd, ATL_MAKEINTRESOURCE(nIDResource), 0L, pContext))
-	{
-		return FALSE;   // will self destruct on failure normally
-	}
+      pParentWnd, ATL_MAKEINTRESOURCE(nIDResource), 0L, pContext))
+    {
+        return FALSE;   // will self destruct on failure normally
+    }
 
 //	// save the default menu handle
 //	ASSERT(m_hWnd != NULL);
@@ -8786,10 +8792,10 @@ BOOL CFrameWnd::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle,
 //	// load accelerator resource
 //	LoadAccelTable(ATL_MAKEINTRESOURCE(nIDResource));
 
-	if (pContext == NULL)   // send initial update
-		SendMessageToDescendants(WM_INITIALUPDATE, 0, 0, TRUE, TRUE);
+    if (pContext == NULL)   // send initial update
+        SendMessageToDescendants(WM_INITIALUPDATE, 0, 0, TRUE, TRUE);
 
-	return TRUE;
+    return TRUE;
 }
 
 void CFrameWnd::GetMessageString(
@@ -8826,21 +8832,21 @@ void CFrameWnd::InitialUpdateFrame(
 )
 {
    // if the frame does not have an active view, set to first pane
-	CView* pView = NULL;
-	if (GetActiveView() == NULL)
-	{
-		CWnd* pWnd = GetDescendantWindow(AFX_IDW_PANE_FIRST, TRUE);
-		if (pWnd != NULL && pWnd->IsKindOf(RUNTIME_CLASS(CView)))
-		{
-			pView = (CView*)pWnd;
-			SetActiveView(pView, FALSE);
-		}
-	}
+    CView* pView = NULL;
+    if (GetActiveView() == NULL)
+    {
+        CWnd* pWnd = GetDescendantWindow(AFX_IDW_PANE_FIRST, TRUE);
+        if (pWnd != NULL && pWnd->IsKindOf(RUNTIME_CLASS(CView)))
+        {
+            pView = (CView*)pWnd;
+            SetActiveView(pView, FALSE);
+        }
+    }
 
     if (bMakeVisible)
-	{
+    {
         // send initial update to all views (and other controls) in the frame
-		SendMessageToDescendants(WM_INITIALUPDATE, 0, 0, TRUE, TRUE);
+        SendMessageToDescendants(WM_INITIALUPDATE, 0, 0, TRUE, TRUE);
 
 //		// give view a chance to save the focus (CFormView needs this)
 //		if (pView != NULL)
@@ -8862,7 +8868,7 @@ void CFrameWnd::InitialUpdateFrame(
       }
 //		if (pView != NULL)
 //			pView->OnActivateView(TRUE, pView, pView);
-	}
+    }
 
 //	// update frame counts and frame title (may already have been visible)
 //	if (pDoc != NULL)
@@ -8896,41 +8902,41 @@ void CFrameWnd::SetMessageText(
 }
 
 BOOL CFrameWnd::OnCmdMsg(UINT nID, int nCode, void* pExtra,
-	AFX_CMDHANDLERINFO* pHandlerInfo)
+    AFX_CMDHANDLERINFO* pHandlerInfo)
 {
 // CP: probably don't need this...
 //	CPushRoutingFrame push(this);
 
-	// pump through current view FIRST
-	CView* pView = GetActiveView();
-	if (pView != NULL && pView->OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
-		return TRUE;
+    // pump through current view FIRST
+    CView* pView = GetActiveView();
+    if (pView != NULL && pView->OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
+        return TRUE;
 
-	// then pump through frame
-	if (CWnd::OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
-		return TRUE;
+    // then pump through frame
+    if (CWnd::OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
+        return TRUE;
 
-	// last but not least, pump through app
-	CWinApp* pApp = AfxGetApp();
-	if (pApp != NULL && pApp->OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
-		return TRUE;
+    // last but not least, pump through app
+    CWinApp* pApp = AfxGetApp();
+    if (pApp != NULL && pApp->OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
+        return TRUE;
 
-	return FALSE;
+    return FALSE;
 }
 
 void CFrameWnd::OnSetFocus(CWnd *pOldWnd)
 {
    if (m_pViewActive != NULL)
-		m_pViewActive->SetFocus();
-	else
-		CWnd::OnSetFocus(pOldWnd);
+        m_pViewActive->SetFocus();
+    else
+        CWnd::OnSetFocus(pOldWnd);
 }
 
 void CFrameWnd::OnSize(UINT nType, int cx, int cy)
 {
-	CWnd::OnSize(nType, cx, cy);    // important for MDI Children
-	if (nType != SIZE_MINIMIZED)
-		RecalcLayout();
+    CWnd::OnSize(nType, cx, cy);    // important for MDI Children
+    if (nType != SIZE_MINIMIZED)
+        RecalcLayout();
 }
 
 void CFrameWnd::OnDestroy( )
@@ -8944,9 +8950,9 @@ void CFrameWnd::RecalcLayout(
 )
 {
    if (m_bInRecalcLayout)
-		return;
+        return;
 
-	m_bInRecalcLayout = TRUE;
+    m_bInRecalcLayout = TRUE;
 //	// clear idle flags for recalc layout if called elsewhere
 //	if (m_nIdleFlags & idleNotify)
 //		bNotify = TRUE;
@@ -8971,24 +8977,24 @@ void CFrameWnd::RecalcLayout(
 //			SWP_NOACTIVATE|SWP_NOMOVE|SWP_NOZORDER);
 //	}
 //	else
-		RepositionBars(0, 0xffff, AFX_IDW_PANE_FIRST, reposExtra, &m_rectBorder);
-	m_bInRecalcLayout = FALSE;
+        RepositionBars(0, 0xffff, AFX_IDW_PANE_FIRST, reposExtra, &m_rectBorder);
+    m_bInRecalcLayout = FALSE;
 }
 
 void CFrameWnd::OnInitMenuPopup(CMenu* pMenu, UINT nIndex, BOOL bSysMenu)
 {
 //	AfxCancelModes(m_hWnd);
 
-	if (bSysMenu)
-		return;     // don't support system menu
+    if (bSysMenu)
+        return;     // don't support system menu
 
-	ENSURE_VALID(pMenu);
+    ENSURE_VALID(pMenu);
 	
-	// check the enabled state of various menu items
+    // check the enabled state of various menu items
 
-	CCmdUI state;
-	state.m_pMenu = pMenu;
-	ASSERT(state.m_pOther == NULL);
+    CCmdUI state;
+    state.m_pMenu = pMenu;
+    ASSERT(state.m_pOther == NULL);
 //	ASSERT(state.m_pParentMenu == NULL);
 
 //	// determine if menu is popup in top-level menu and set m_pOther to
@@ -9016,64 +9022,64 @@ void CFrameWnd::OnInitMenuPopup(CMenu* pMenu, UINT nIndex, BOOL bSysMenu)
 //		}
 //	}
 
-	state.m_nIndexMax = pMenu->GetMenuItemCount();
-	for (state.m_nIndex = 0; state.m_nIndex < state.m_nIndexMax;
-	  state.m_nIndex++)
-	{
-		state.m_nID = pMenu->GetMenuItemID(state.m_nIndex);
-		if (state.m_nID == 0)
-			continue; // menu separator or invalid cmd - ignore it
+    state.m_nIndexMax = pMenu->GetMenuItemCount();
+    for (state.m_nIndex = 0; state.m_nIndex < state.m_nIndexMax;
+      state.m_nIndex++)
+    {
+        state.m_nID = pMenu->GetMenuItemID(state.m_nIndex);
+        if (state.m_nID == 0)
+            continue; // menu separator or invalid cmd - ignore it
 
-		ASSERT(state.m_pOther == NULL);
-		ASSERT(state.m_pMenu != NULL);
-		if (state.m_nID == (UINT)-1)
-		{
-			// possibly a popup menu, route to first item of that popup
-			state.m_pSubMenu = pMenu->GetSubMenu(state.m_nIndex);
-			if (state.m_pSubMenu == NULL ||
-				(state.m_nID = state.m_pSubMenu->GetMenuItemID(0)) == 0 ||
-				state.m_nID == (UINT)-1)
-			{
-				continue;       // first item of popup can't be routed to
-			}
-			state.DoUpdate(this, FALSE);    // popups are never auto disabled
-		}
-		else
-		{
-			// normal menu item
-			// Auto enable/disable if frame window has 'm_bAutoMenuEnable'
-			//    set and command is _not_ a system command.
-			state.m_pSubMenu = NULL;
-			state.DoUpdate(this, m_bAutoMenuEnable && state.m_nID < 0xF000);
-		}
+        ASSERT(state.m_pOther == NULL);
+        ASSERT(state.m_pMenu != NULL);
+        if (state.m_nID == (UINT)-1)
+        {
+            // possibly a popup menu, route to first item of that popup
+            state.m_pSubMenu = pMenu->GetSubMenu(state.m_nIndex);
+            if (state.m_pSubMenu == NULL ||
+                (state.m_nID = state.m_pSubMenu->GetMenuItemID(0)) == 0 ||
+                state.m_nID == (UINT)-1)
+            {
+                continue;       // first item of popup can't be routed to
+            }
+            state.DoUpdate(this, FALSE);    // popups are never auto disabled
+        }
+        else
+        {
+            // normal menu item
+            // Auto enable/disable if frame window has 'm_bAutoMenuEnable'
+            //    set and command is _not_ a system command.
+            state.m_pSubMenu = NULL;
+            state.DoUpdate(this, m_bAutoMenuEnable && state.m_nID < 0xF000);
+        }
 
-		// adjust for menu deletions and additions
-		UINT nCount = pMenu->GetMenuItemCount();
-		if (nCount < state.m_nIndexMax)
-		{
-			state.m_nIndex -= (state.m_nIndexMax - nCount);
-			while (state.m_nIndex < nCount &&
-				pMenu->GetMenuItemID(state.m_nIndex) == state.m_nID)
-			{
-				state.m_nIndex++;
-			}
-		}
-		state.m_nIndexMax = nCount;
-	}
+        // adjust for menu deletions and additions
+        UINT nCount = pMenu->GetMenuItemCount();
+        if (nCount < state.m_nIndexMax)
+        {
+            state.m_nIndex -= (state.m_nIndexMax - nCount);
+            while (state.m_nIndex < nCount &&
+                pMenu->GetMenuItemID(state.m_nIndex) == state.m_nID)
+            {
+                state.m_nIndex++;
+            }
+        }
+        state.m_nIndexMax = nCount;
+    }
 }
 
 void CFrameWnd::OnClose()
 {
    // Note: only queries the active document
-	CDocument* pDocument = GetActiveDocument();
-	if (pDocument != NULL && !pDocument->CanCloseFrame(this))
-	{
-		// document can't close right now -- don't close it
-		return;
-	}
-	CWinApp* pApp = AfxGetApp();
-	if (pApp != NULL && pApp->m_pMainWnd == this)
-	{
+    CDocument* pDocument = GetActiveDocument();
+    if (pDocument != NULL && !pDocument->CanCloseFrame(this))
+    {
+        // document can't close right now -- don't close it
+        return;
+    }
+    CWinApp* pApp = AfxGetApp();
+    if (pApp != NULL && pApp->m_pMainWnd == this)
+    {
       pDocument->OnCloseDocument();
    }
 }
@@ -9243,7 +9249,7 @@ CWnd* CView::SetFocus()
 
 void CView::OnSetFocus(CWnd *)
 {
-   _qt->setFocus(); 
+   _qt->setFocus();
    focusWnd = this;
 }
 
@@ -9254,17 +9260,17 @@ void CView::OnPaint()
    OnDraw(&dc);
 }
 
-BOOL CView::Create( 
-   LPCTSTR lpszClassName, 
-   LPCTSTR lpszWindowName, 
-   DWORD dwStyle, 
-   const RECT& rect, 
-   CWnd* pParentWnd, 
-   LPCTSTR lpszMenuName, 
-   DWORD dwExStyle, 
+BOOL CView::Create(
+   LPCTSTR lpszClassName,
+   LPCTSTR lpszWindowName,
+   DWORD dwStyle,
+   const RECT& rect,
+   CWnd* pParentWnd,
+   LPCTSTR lpszMenuName,
+   DWORD dwExStyle,
    CCreateContext* pContext
 )
-{    
+{
    if ( !CWnd::Create(lpszClassName,lpszWindowName,dwStyle,rect,pParentWnd,lpszMenuName,dwExStyle,pContext) )
       return FALSE;
 
@@ -9291,22 +9297,22 @@ BOOL CView::Create(
 }
 
 BOOL CView::OnCmdMsg(UINT nID, int nCode, void* pExtra,
-	AFX_CMDHANDLERINFO* pHandlerInfo)
+    AFX_CMDHANDLERINFO* pHandlerInfo)
 {
-	// first pump through pane
-	if (CWnd::OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
-		return TRUE;
+    // first pump through pane
+    if (CWnd::OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
+        return TRUE;
 
-	// then pump through document
-	if (m_pDocument != NULL)
-	{
-		// special state for saving view before routing to document
+    // then pump through document
+    if (m_pDocument != NULL)
+    {
+        // special state for saving view before routing to document
 // CP: probably don't need this...
 //		CPushRoutingView push(this);
-		return m_pDocument->OnCmdMsg(nID, nCode, pExtra, pHandlerInfo);
-	}
+        return m_pDocument->OnCmdMsg(nID, nCode, pExtra, pHandlerInfo);
+    }
 
-	return FALSE;
+    return FALSE;
 }
 
 IMPLEMENT_DYNAMIC(CControlBar,CWnd)
@@ -9320,27 +9326,27 @@ LRESULT CControlBar::WindowProc(UINT nMsg, WPARAM wParam, LPARAM lParam)
 {
    ASSERT_VALID(this);
 
-	LRESULT lResult;
-	switch (nMsg)
-	{
-	case WM_NOTIFY:
-	case WM_COMMAND:
-	case WM_DRAWITEM:
-	case WM_MEASUREITEM:
-	case WM_DELETEITEM:
-	case WM_COMPAREITEM:
-	case WM_VKEYTOITEM:
-	case WM_CHARTOITEM:
-		// send these messages to the owner if not handled
-		if (OnWndMsg(nMsg, wParam, lParam, &lResult))
-			return lResult;
-		else
-		{
+    LRESULT lResult;
+    switch (nMsg)
+    {
+    case WM_NOTIFY:
+    case WM_COMMAND:
+    case WM_DRAWITEM:
+    case WM_MEASUREITEM:
+    case WM_DELETEITEM:
+    case WM_COMPAREITEM:
+    case WM_VKEYTOITEM:
+    case WM_CHARTOITEM:
+        // send these messages to the owner if not handled
+        if (OnWndMsg(nMsg, wParam, lParam, &lResult))
+            return lResult;
+        else
+        {
 
 //			if (m_pInPlaceOwner && nMsg == WM_COMMAND)
 //				lResult = m_pInPlaceOwner->SendMessage(nMsg, wParam, lParam);
 //			else
-				lResult = GetOwner()->SendMessage(nMsg, wParam, lParam);
+                lResult = GetOwner()->SendMessage(nMsg, wParam, lParam);
 
 //			// special case for TTN_NEEDTEXTA and TTN_NEEDTEXTW
 //			if(nMsg == WM_NOTIFY)
@@ -9368,29 +9374,29 @@ LRESULT CControlBar::WindowProc(UINT nMsg, WPARAM wParam, LPARAM lParam)
 //					}
 //				}
 //			}
-			return lResult;
-		}
-	}
+            return lResult;
+        }
+    }
 
-	// otherwise, just handle in default way
-	lResult = CWnd::WindowProc(nMsg, wParam, lParam);
-	return lResult;
+    // otherwise, just handle in default way
+    lResult = CWnd::WindowProc(nMsg, wParam, lParam);
+    return lResult;
 }
 
 LRESULT CControlBar::OnIdleUpdateCmdUI(WPARAM wParam,LPARAM)
 {
    // the style must be visible and if it is docked
-	// the dockbar style must also be visible
-	if ((GetStyle() & WS_VISIBLE) /*&&
-		(m_pDockBar == NULL || (m_pDockBar->GetStyle() & WS_VISIBLE))*/)
-	{
-		CFrameWnd* pTarget = (CFrameWnd*)GetOwner();
-		if (pTarget == NULL || !pTarget->IsFrameWnd())
-			pTarget = GetParentFrame();
+    // the dockbar style must also be visible
+    if ((GetStyle() & WS_VISIBLE) /*&&
+        (m_pDockBar == NULL || (m_pDockBar->GetStyle() & WS_VISIBLE))*/)
+    {
+        CFrameWnd* pTarget = (CFrameWnd*)GetOwner();
+        if (pTarget == NULL || !pTarget->IsFrameWnd())
+            pTarget = GetParentFrame();
       if (pTarget != NULL)
          OnUpdateCmdUI(pTarget, (BOOL)wParam);
-	}
-	return 0L;
+    }
+    return 0L;
 }
 
 LRESULT CControlBar::OnSizeParent(WPARAM, LPARAM lParam)
@@ -9435,8 +9441,8 @@ CSize CControlBar::CalcFixedLayout(
    if (bStretch) // if not docked stretch to fit
       return CSize(bHorz ? 32767 : m_sizeDefault.cx,
                    bHorz ? m_sizeDefault.cy : 32767);
-	else
-		return m_sizeDefault;
+    else
+        return m_sizeDefault;
 }
 
 void CControlBar::SetBarStyle(
@@ -9530,7 +9536,7 @@ BOOL CReBarCtrl::InsertBand(
       _qtd->setIconSize(toolBar->iconSize());
       pWnd->toQWidget()->setVisible(false);
       
-      mfcToQtWidgetMap()->insert(pWnd->GetDlgCtrlID(),pWnd);   
+      mfcToQtWidgetMap()->insert(pWnd->GetDlgCtrlID(),pWnd);
    }
    else
    {
@@ -9582,7 +9588,7 @@ BOOL CReBar::Create(
    CRect rect;
    pParentWnd->GetClientRect(&rect);
    m_pReBarCtrl->Create(dwStyle,rect,this,nID);
-   SetParent(pParentWnd);   
+   SetParent(pParentWnd);
 
    if ( !backgroundedFamiTracker )
    {
@@ -9594,18 +9600,18 @@ BOOL CReBar::Create(
 
 LRESULT CReBar::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
 {
-	// special handling for certain messages (forwarding to owner/parent)
-	switch (message)
-	{
-	case WM_POPMESSAGESTRING:
-	case WM_SETMESSAGESTRING:
-		{
-			CWnd* pOwner=GetOwner();
-			ENSURE(pOwner);
-			return pOwner->SendMessage(message, wParam, lParam);
-		}
-	}
-	return CControlBar::WindowProc(message, wParam, lParam);
+    // special handling for certain messages (forwarding to owner/parent)
+    switch (message)
+    {
+    case WM_POPMESSAGESTRING:
+    case WM_SETMESSAGESTRING:
+        {
+            CWnd* pOwner=GetOwner();
+            ENSURE(pOwner);
+            return pOwner->SendMessage(message, wParam, lParam);
+        }
+    }
+    return CControlBar::WindowProc(message, wParam, lParam);
 }
 
 IMPLEMENT_DYNAMIC(CToolBar,CControlBar)
@@ -9647,9 +9653,9 @@ void CToolBar::subclassWidget(int nID,CWnd* widget)
    widget->setParent(NULL);
 }
 
-BOOL CToolBar::Create( 
-   CWnd* pParentWnd, 
-   DWORD dwStyle, 
+BOOL CToolBar::Create(
+   CWnd* pParentWnd,
+   DWORD dwStyle,
    UINT nID
 )
 {
@@ -9732,40 +9738,40 @@ void CToolBar::SetButtonStyle(
 
 void CToolBar::OnUpdateCmdUI(CFrameWnd* pTarget, BOOL bDisableIfNoHndler)
 {
-	CToolCmdUI state;
-	state.m_pOther = this;
+    CToolCmdUI state;
+    state.m_pOther = this;
 
 //	state.m_nIndexMax = (UINT)DefWindowProc(TB_BUTTONCOUNT, 0, 0);
    state.m_nIndexMax = _qtd->actions().count();
-	for (state.m_nIndex = 0; state.m_nIndex < state.m_nIndexMax; state.m_nIndex++)
-	{
+    for (state.m_nIndex = 0; state.m_nIndex < state.m_nIndexMax; state.m_nIndex++)
+    {
 //		// get buttons state
 //		TBBUTTON button;
 //		_GetButton(state.m_nIndex, &button);
 //		state.m_nID = button.idCommand;
       state.m_nID = _qtd->actions().at(state.m_nIndex)->data().toInt();
 
-		// ignore separators
+        // ignore separators
 //		if (!(button.fsStyle & TBSTYLE_SEP))
       if ( !_qtd->actions().at(state.m_nIndex)->isSeparator() )
-		{
-			// allow reflections
-			if (CWnd::OnCmdMsg(0, 
-				MAKELONG(CN_UPDATE_COMMAND_UI&0xffff, WM_COMMAND+WM_REFLECT_BASE), 
-				&state, NULL))
-				continue;
+        {
+            // allow reflections
+            if (CWnd::OnCmdMsg(0,
+                MAKELONG(CN_UPDATE_COMMAND_UI&0xffff, WM_COMMAND+WM_REFLECT_BASE),
+                &state, NULL))
+                continue;
 
-			// allow the toolbar itself to have update handlers
-			if (CWnd::OnCmdMsg(state.m_nID, CN_UPDATE_COMMAND_UI, &state, NULL))
-				continue;
+            // allow the toolbar itself to have update handlers
+            if (CWnd::OnCmdMsg(state.m_nID, CN_UPDATE_COMMAND_UI, &state, NULL))
+                continue;
 
-			// allow the owner to process the update
-			state.DoUpdate(pTarget, bDisableIfNoHndler);
-		}
-	}
+            // allow the owner to process the update
+            state.DoUpdate(pTarget, bDisableIfNoHndler);
+        }
+    }
 
-	// update the dialog controls added to the toolbar
-	UpdateDialogControls(pTarget, bDisableIfNoHndler);
+    // update the dialog controls added to the toolbar
+    UpdateDialogControls(pTarget, bDisableIfNoHndler);
 }
 
 void CToolBar::toolBarAction_triggered()
@@ -9892,23 +9898,23 @@ BOOL CStatusBar::SetPaneText(
 void CStatusBar::OnUpdateCmdUI(CFrameWnd* pTarget, BOOL bDisableIfNoHndler)
 {
    CStatusCmdUI state;
-	state.m_pOther = this;
+    state.m_pOther = this;
    state.m_nIndexMax = (UINT)_panes.count();
-	for (state.m_nIndex = 0; state.m_nIndex < state.m_nIndexMax;
-		state.m_nIndex++)
-	{
-		state.m_nID = _panes.value(state.m_nIndex)->GetDlgCtrlID();
+    for (state.m_nIndex = 0; state.m_nIndex < state.m_nIndexMax;
+        state.m_nIndex++)
+    {
+        state.m_nID = _panes.value(state.m_nIndex)->GetDlgCtrlID();
 
-		// allow the statusbar itself to have update handlers
-		if (CWnd::OnCmdMsg(state.m_nID, CN_UPDATE_COMMAND_UI, &state, NULL))
-			continue;
+        // allow the statusbar itself to have update handlers
+        if (CWnd::OnCmdMsg(state.m_nID, CN_UPDATE_COMMAND_UI, &state, NULL))
+            continue;
 
-		// allow target (owner) to handle the remaining updates
-		state.DoUpdate(pTarget, FALSE);
-	}
+        // allow target (owner) to handle the remaining updates
+        state.DoUpdate(pTarget, FALSE);
+    }
 
-	// update the dialog controls added to the status bar
-	UpdateDialogControls(pTarget, bDisableIfNoHndler);
+    // update the dialog controls added to the status bar
+    UpdateDialogControls(pTarget, bDisableIfNoHndler);
 }
 
 IMPLEMENT_DYNAMIC(CDialogBar,CControlBar)
@@ -9989,7 +9995,7 @@ BOOL CDialogBar::Create(
    }
    
    CRect rect;
-	GetWindowRect(&rect);
+    GetWindowRect(&rect);
    m_sizeDefault = rect.Size();//CSize(_mfcd->rect().size());    // set fixed size
    
    ShowWindow(SW_SHOW);
@@ -10005,13 +10011,13 @@ CSize CDialogBar::CalcFixedLayout(
    if (bStretch) // if not docked stretch to fit
       return CSize(bHorz ? 32767 : m_sizeDefault.cx,
                    bHorz ? m_sizeDefault.cy : 32767);
-	else
-		return m_sizeDefault;
+    else
+        return m_sizeDefault;
 }
 
 void CDialogBar::OnUpdateCmdUI(CFrameWnd* pTarget, BOOL bDisableIfNoHndler)
 {
-	UpdateDialogControls(pTarget, bDisableIfNoHndler);
+    UpdateDialogControls(pTarget, bDisableIfNoHndler);
 }
 
 void QDialog_MFC::keyPressEvent(QKeyEvent *event)
@@ -10138,14 +10144,14 @@ BOOL CDialog::Create(
 BOOL CDialog::PreTranslateMessage(MSG* pMsg)
 {
    return CWnd::PreTranslateMessage(pMsg);
-	// for modeless processing (or modal)
-	ASSERT(m_hWnd != NULL);
+    // for modeless processing (or modal)
+    ASSERT(m_hWnd != NULL);
 
-	// allow tooltip messages to be filtered
+    // allow tooltip messages to be filtered
 //	if (CWnd::PreTranslateMessage(pMsg))
 //		return TRUE;
 
-	// don't translate dialog messages when in Shift+F1 help mode
+    // don't translate dialog messages when in Shift+F1 help mode
 //	CFrameWnd* pFrameWnd = GetTopLevelFrame();
 //	if (pFrameWnd != NULL && pFrameWnd->m_bHelpMode)
 //		return FALSE;
@@ -10169,10 +10175,10 @@ BOOL CDialog::PreTranslateMessage(MSG* pMsg)
 }
 
 BOOL CDialog::OnCmdMsg(UINT nID, int nCode, void* pExtra,
-	AFX_CMDHANDLERINFO* pHandlerInfo)
+    AFX_CMDHANDLERINFO* pHandlerInfo)
 {
-	if (CWnd::OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
-		return TRUE;
+    if (CWnd::OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
+        return TRUE;
 
 //   if ((nCode != CN_COMMAND && nCode != CN_UPDATE_COMMAND_UI) ||
 //         !IS_COMMAND_ID(nID) || nID >= 0xf000)
@@ -10181,31 +10187,31 @@ BOOL CDialog::OnCmdMsg(UINT nID, int nCode, void* pExtra,
 //      return FALSE;       // not routed any further
 //   }
 
-	// if we have an owner window, give it second crack
-	CWnd* pOwner = GetParent();
-	if (pOwner != NULL)
-	{
+    // if we have an owner window, give it second crack
+    CWnd* pOwner = GetParent();
+    if (pOwner != NULL)
+    {
 //		TRACE(traceCmdRouting, 1, "Routing command id 0x%04X to owner window.\n", nID);
 
-		ASSERT(pOwner != this);
-		if (pOwner->OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
-			return TRUE;
-	}
+        ASSERT(pOwner != this);
+        if (pOwner->OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
+            return TRUE;
+    }
 
-	// last crack goes to the current CWinThread object
-	CWinThread* pThread = AfxGetThread();
-	if (pThread != NULL)
-	{
+    // last crack goes to the current CWinThread object
+    CWinThread* pThread = AfxGetThread();
+    if (pThread != NULL)
+    {
 //		TRACE(traceCmdRouting, 1, "Routing command id 0x%04X to app.\n", nID);
 
-		if (pThread->OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
-			return TRUE;
-	}
+        if (pThread->OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
+            return TRUE;
+    }
 
 //	TRACE(traceCmdRouting, 1, "IGNORING command id 0x%04X sent to %hs dialog.\n", nID,
 //			GetRuntimeClass()->m_lpszClassName);
 
-	return FALSE;
+    return FALSE;
 }
 
 INT_PTR CDialog::DoModal()
@@ -10309,7 +10315,7 @@ IMPLEMENT_DYNCREATE(CWinThread,CCmdTarget)
 BEGIN_MESSAGE_MAP(CWinThread,CCmdTarget)
 END_MESSAGE_MAP()
 
-CWinThread::CWinThread() : 
+CWinThread::CWinThread() :
    _priority(QThread::NormalPriority),
    pTimer(NULL),
    pThread(NULL),
@@ -10431,7 +10437,7 @@ BOOL CWinThread::CreateThread(
    moveToThread(pThread);
 
    if ( !(dwCreateFlags&CREATE_SUSPENDED) )
-   {      
+   {
       ResumeThread();
    }
 
@@ -10548,12 +10554,12 @@ int CWinThread::Run( )
    return 0;
 }
 
-CWinThread* AfxBeginThread( 
-   AFX_THREADPROC pfnThreadProc, 
-   LPVOID pParam, 
-   int nPriority, 
-   UINT nStackSize, 
-   DWORD dwCreateFlags, 
+CWinThread* AfxBeginThread(
+   AFX_THREADPROC pfnThreadProc,
+   LPVOID pParam,
+   int nPriority,
+   UINT nStackSize,
+   DWORD dwCreateFlags,
    LPSECURITY_ATTRIBUTES lpSecurityAttrs
 )
 {
@@ -10562,18 +10568,20 @@ CWinThread* AfxBeginThread(
    
    pThread->m_pfnThreadProc = pfnThreadProc;
    pThread->m_pParam = pParam;
+   return pThread;
 }
 
-CWinThread* AfxBeginThread( 
-   CRuntimeClass* pThreadClass, 
-   int nPriority, 
-   UINT nStackSize, 
-   DWORD dwCreateFlags, 
-   LPSECURITY_ATTRIBUTES lpSecurityAttrs  
+CWinThread* AfxBeginThread(
+   CRuntimeClass* pThreadClass,
+   int nPriority,
+   UINT nStackSize,
+   DWORD dwCreateFlags,
+   LPSECURITY_ATTRIBUTES lpSecurityAttrs
 )
 {
    CWinThread* pThread = (CWinThread*)pThreadClass->CreateObject();
    pThread->CreateThread(dwCreateFlags,nStackSize,lpSecurityAttrs);
+   return pThread;
 }
 
 IMPLEMENT_DYNCREATE(CDocument,CCmdTarget)
@@ -10589,30 +10597,30 @@ CDocument::CDocument()
 }
 
 void CDocument::OnCloseDocument()
-{ 
-   emit documentClosed(); 
+{
+   emit documentClosed();
    ptrToTheApp->GetMainWnd()->DestroyWindow();
 }
 
 void CDocument::UpdateAllViews(CView* pSender, LPARAM lHint, CObject* pHint)
 {
    ASSERT(pSender == NULL || !_views.count());
-		// must have views if sent by one of them
+        // must have views if sent by one of them
 
-	POSITION pos = GetFirstViewPosition();
-	while (pos != NULL)
-	{
-		CView* pView = GetNextView(pos);
-		ASSERT_VALID(pView);
-		if (pView != pSender)
+    POSITION pos = GetFirstViewPosition();
+    while (pos != NULL)
+    {
+        CView* pView = GetNextView(pos);
+        ASSERT_VALID(pView);
+        if (pView != pSender)
       {
-			pView->OnUpdate(pSender, lHint, pHint);
+            pView->OnUpdate(pSender, lHint, pHint);
       }
-	}
+    }
 }
 
-void CDocument::AddView( 
-   CView* pView  
+void CDocument::AddView(
+   CView* pView
 )
 {
    _views.append(pView);
@@ -10644,8 +10652,8 @@ POSITION CDocument::GetFirstViewPosition() const
    return pos;
 }
 
-CView* CDocument::GetNextView( 
-   POSITION& rPosition  
+CView* CDocument::GetNextView(
+   POSITION& rPosition
 ) const
 {
    if ( !rPosition )
@@ -10682,53 +10690,53 @@ BOOL CDocument::CanCloseFrame(
    CFrameWnd* pFrame
 )
 {
-	return SaveModified();
+    return SaveModified();
 }
 
 BOOL CDocument::DoFileSave()
 {
-	DWORD dwAttrib = GetFileAttributes(m_strPathName);
-	if (dwAttrib & FILE_ATTRIBUTE_READONLY)
-	{
-		// we do not have read-write access or the file does not (now) exist
-		if (!DoSave(NULL))
-		{
-			return FALSE;
-		}
-	}
-	else
-	{
-		if (!DoSave(m_strPathName))
-		{
-			return FALSE;
-		}
-	}
-	return TRUE;
+    DWORD dwAttrib = GetFileAttributes(m_strPathName);
+    if (dwAttrib & FILE_ATTRIBUTE_READONLY)
+    {
+        // we do not have read-write access or the file does not (now) exist
+        if (!DoSave(NULL))
+        {
+            return FALSE;
+        }
+    }
+    else
+    {
+        if (!DoSave(m_strPathName))
+        {
+            return FALSE;
+        }
+    }
+    return TRUE;
 }
 
 BOOL CDocument::DoSave(LPCTSTR lpszPathName, BOOL bReplace)
-	// Save the document data to a file
-	// lpszPathName = path name where to save document file
-	// if lpszPathName is NULL then the user will be prompted (SaveAs)
-	// note: lpszPathName can be different than 'm_strPathName'
-	// if 'bReplace' is TRUE will change file name if successful (SaveAs)
-	// if 'bReplace' is FALSE will not change path name (SaveCopyAs)
+    // Save the document data to a file
+    // lpszPathName = path name where to save document file
+    // if lpszPathName is NULL then the user will be prompted (SaveAs)
+    // note: lpszPathName can be different than 'm_strPathName'
+    // if 'bReplace' is TRUE will change file name if successful (SaveAs)
+    // if 'bReplace' is FALSE will not change path name (SaveCopyAs)
 {
-	CString newName = lpszPathName;
+    CString newName = lpszPathName;
 
-	if (newName.IsEmpty())
-	{
-		CDocTemplate* pTemplate = GetDocTemplate();
-		ASSERT(pTemplate != NULL);
+    if (newName.IsEmpty())
+    {
+        CDocTemplate* pTemplate = GetDocTemplate();
+        ASSERT(pTemplate != NULL);
 
-		newName = m_strPathName;
-		if (bReplace && newName.IsEmpty())
-		{
-			newName = m_strTitle;
-			// check for dubious filename
-			int iBad = newName.FindOneOf(_T(":/\\"));
-			if (iBad != -1)
-				newName.ReleaseBuffer(iBad);
+        newName = m_strPathName;
+        if (bReplace && newName.IsEmpty())
+        {
+            newName = m_strTitle;
+            // check for dubious filename
+            int iBad = newName.FindOneOf(_T(":/\\"));
+            if (iBad != -1)
+                newName.ReleaseBuffer(iBad);
 
 //			if (AfxGetApp() && AfxGetApp()->GetDataRecoveryHandler())
 //			{
@@ -10738,56 +10746,56 @@ BOOL CDocument::DoSave(LPCTSTR lpszPathName, BOOL bReplace)
 //					newName = strNormalTitle;
 //			}
 
-			// append the default suffix if there is one
-			CString strExt;
-			if (pTemplate->GetDocString(strExt, CDocTemplate::filterExt) && !strExt.IsEmpty())
-			{
-				ASSERT(strExt[0] == '.');
-				int iStart = 0;
-				newName += strExt.Tokenize(_T(";"), iStart);
-			}
-		}
+            // append the default suffix if there is one
+            CString strExt;
+            if (pTemplate->GetDocString(strExt, CDocTemplate::filterExt) && !strExt.IsEmpty())
+            {
+                ASSERT(strExt[0] == '.');
+                int iStart = 0;
+                newName += strExt.Tokenize(_T(";"), iStart);
+            }
+        }
 
-		if (!AfxGetApp()->DoPromptFileName(newName,
-		  bReplace ? AFX_IDS_SAVEFILE : AFX_IDS_SAVEFILECOPY,
-		  OFN_HIDEREADONLY | OFN_PATHMUSTEXIST, FALSE, pTemplate))
-			return FALSE;       // don't even attempt to save
-	}
+        if (!AfxGetApp()->DoPromptFileName(newName,
+          bReplace ? AFX_IDS_SAVEFILE : AFX_IDS_SAVEFILECOPY,
+          OFN_HIDEREADONLY | OFN_PATHMUSTEXIST, FALSE, pTemplate))
+            return FALSE;       // don't even attempt to save
+    }
 
 //	CWaitCursor wait;
 
-	if (!OnSaveDocument(newName))
-	{
-		if (lpszPathName == NULL)
-		{
+    if (!OnSaveDocument(newName))
+    {
+        if (lpszPathName == NULL)
+        {
 //			// be sure to delete the file
 //			TRY
 //			{
-				CFile::Remove(newName);
+                CFile::Remove(newName);
 //			}
 //			CATCH_ALL(e)
 //			{
 //				DELETE_EXCEPTION(e);
 //			}
 //			END_CATCH_ALL
-		}
-		return FALSE;
-	}
+        }
+        return FALSE;
+    }
 
-	// reset the title and change the document name
-	if (bReplace)
-	{
-		SetPathName(newName);
+    // reset the title and change the document name
+    if (bReplace)
+    {
+        SetPathName(newName);
 //		OnDocumentEvent(onAfterSaveDocument);
-	}
+    }
 
-	return TRUE;        // success
+    return TRUE;        // success
 }
 
 BOOL CDocument::SaveModified()
 {
-	if (!IsModified())
-		return TRUE;        // ok to continue
+    if (!IsModified())
+        return TRUE;        // ok to continue
 
 //	CDataRecoveryHandler *pHandler = NULL;
 //	if (AfxGetApp())
@@ -10802,12 +10810,12 @@ BOOL CDocument::SaveModified()
 //		}
 //	}
 
-	// get name/title of document
-	CString name;
-	if (m_strPathName.IsEmpty())
-	{
-		// get name based on caption
-		name = m_strTitle;
+    // get name/title of document
+    CString name;
+    if (m_strPathName.IsEmpty())
+    {
+        // get name based on caption
+        name = m_strTitle;
 
 //		if (pHandler != NULL)
 //		{
@@ -10817,19 +10825,19 @@ BOOL CDocument::SaveModified()
 //				name = strNormalTitle;
 //		}
 
-		if (name.IsEmpty())
-			ENSURE(name.LoadString(AFX_IDS_UNTITLED));
-	}
-	else
-	{
-		// get name based on file title of path name
-		name = m_strPathName;
-		AfxGetFileTitle(m_strPathName, name.GetBuffer(_MAX_PATH), _MAX_PATH);
-		name.ReleaseBuffer();
-	}
+        if (name.IsEmpty())
+            ENSURE(name.LoadString(AFX_IDS_UNTITLED));
+    }
+    else
+    {
+        // get name based on file title of path name
+        name = m_strPathName;
+        AfxGetFileTitle(m_strPathName, name.GetBuffer(_MAX_PATH), _MAX_PATH);
+        name.ReleaseBuffer();
+    }
 
-	CString prompt;
-	AfxFormatString1(prompt, AFX_IDP_ASK_TO_SAVE, name);
+    CString prompt;
+    AfxFormatString1(prompt, AFX_IDP_ASK_TO_SAVE, name);
    
    // CP: HACK to get rid of unsupportable 'cancel' option in IDEified FamiTracker
    UINT nType = MB_YESNOCANCEL;
@@ -10838,26 +10846,26 @@ BOOL CDocument::SaveModified()
       nType = MB_YESNO;
    }
    
-	switch (AfxMessageBox(prompt, nType, AFX_IDP_ASK_TO_SAVE))
-	{
-	case IDCANCEL:
-		return FALSE;       // don't continue
+    switch (AfxMessageBox(prompt, nType, AFX_IDP_ASK_TO_SAVE))
+    {
+    case IDCANCEL:
+        return FALSE;       // don't continue
 
-	case IDYES:
-		// If so, either Save or Update, as appropriate
-		if (!DoFileSave())
-			return FALSE;       // don't continue
-		break;
+    case IDYES:
+        // If so, either Save or Update, as appropriate
+        if (!DoFileSave())
+            return FALSE;       // don't continue
+        break;
 
-	case IDNO:
-		// If not saving changes, revert the document
-		break;
+    case IDNO:
+        // If not saving changes, revert the document
+        break;
 
-	default:
-		ASSERT(FALSE);
-		break;
-	}
-	return TRUE;    // keep going
+    default:
+        ASSERT(FALSE);
+        break;
+    }
+    return TRUE;    // keep going
 }
 
 IMPLEMENT_DYNAMIC(CDocTemplate,CCmdTarget)
@@ -10930,82 +10938,82 @@ BOOL CDocTemplate::GetDocString(
 
 void CDocTemplate::AddDocument(CDocument* pDoc)
 {
-	ASSERT_VALID(pDoc);
-	ASSERT(pDoc->m_pDocTemplate == NULL);   // no template attached yet
-	pDoc->m_pDocTemplate = this;
+    ASSERT_VALID(pDoc);
+    ASSERT(pDoc->m_pDocTemplate == NULL);   // no template attached yet
+    pDoc->m_pDocTemplate = this;
 }
 
 void CDocTemplate::RemoveDocument(CDocument* pDoc)
 {
-	ASSERT_VALID(pDoc);
-	ASSERT(pDoc->m_pDocTemplate == this);   // must be attached to us
-	pDoc->m_pDocTemplate = NULL;
+    ASSERT_VALID(pDoc);
+    ASSERT(pDoc->m_pDocTemplate == this);   // must be attached to us
+    pDoc->m_pDocTemplate = NULL;
 }
 
 CDocument* CDocTemplate::CreateNewDocument()
 {
-	// default implementation constructs one from CRuntimeClass
-	if (m_pDocClass == NULL)
-	{
+    // default implementation constructs one from CRuntimeClass
+    if (m_pDocClass == NULL)
+    {
 //		TRACE(traceAppMsg, 0, "Error: you must override CDocTemplate::CreateNewDocument.\n");
-		ASSERT(FALSE);
-		return NULL;
-	}
-	CDocument* pDocument = (CDocument*)m_pDocClass->CreateObject();
-	if (pDocument == NULL)
-	{
+        ASSERT(FALSE);
+        return NULL;
+    }
+    CDocument* pDocument = (CDocument*)m_pDocClass->CreateObject();
+    if (pDocument == NULL)
+    {
 //		TRACE(traceAppMsg, 0, "Warning: Dynamic create of document type %hs failed.\n",
 //			m_pDocClass->m_lpszClassName);
-		return NULL;
-	}
-	ASSERT_KINDOF(CDocument, pDocument);
-	AddDocument(pDocument);
-	return pDocument;
+        return NULL;
+    }
+    ASSERT_KINDOF(CDocument, pDocument);
+    AddDocument(pDocument);
+    return pDocument;
 }
 
 CFrameWnd* CDocTemplate::CreateNewFrame(CDocument* pDoc, CFrameWnd* pOther)
 {
-	if (pDoc != NULL)
-		ASSERT_VALID(pDoc);
-	// create a frame wired to the specified document
+    if (pDoc != NULL)
+        ASSERT_VALID(pDoc);
+    // create a frame wired to the specified document
 
-	ASSERT(m_nIDResource != 0); // must have a resource ID to load from
-	CCreateContext context;
-	context.m_pCurrentFrame = pOther;
-	context.m_pCurrentDoc = pDoc;
-	context.m_pNewViewClass = m_pViewClass;
-	context.m_pNewDocTemplate = this;
+    ASSERT(m_nIDResource != 0); // must have a resource ID to load from
+    CCreateContext context;
+    context.m_pCurrentFrame = pOther;
+    context.m_pCurrentDoc = pDoc;
+    context.m_pNewViewClass = m_pViewClass;
+    context.m_pNewDocTemplate = this;
 
-	if (m_pFrameClass == NULL)
-	{
+    if (m_pFrameClass == NULL)
+    {
 //		TRACE(traceAppMsg, 0, "Error: you must override CDocTemplate::CreateNewFrame.\n");
-		ASSERT(FALSE);
-		return NULL;
-	}
-	CFrameWnd* pFrame = (CFrameWnd*)m_pFrameClass->CreateObject();
-	if (pFrame == NULL)
-	{
+        ASSERT(FALSE);
+        return NULL;
+    }
+    CFrameWnd* pFrame = (CFrameWnd*)m_pFrameClass->CreateObject();
+    if (pFrame == NULL)
+    {
 //		TRACE(traceAppMsg, 0, "Warning: Dynamic create of frame %hs failed.\n",
 //			m_pFrameClass->m_lpszClassName);
-		return NULL;
-	}
-	ASSERT_KINDOF(CFrameWnd, pFrame);
+        return NULL;
+    }
+    ASSERT_KINDOF(CFrameWnd, pFrame);
 
 //	if (context.m_pNewViewClass == NULL)
 //		TRACE(traceAppMsg, 0, "Warning: creating frame with no default view.\n");
 
-	// create new from resource
-	if (!pFrame->LoadFrame(m_nIDResource,
-			WS_OVERLAPPEDWINDOW | FWS_ADDTOTITLE,   // default frame styles
-			NULL, &context))
-	{
+    // create new from resource
+    if (!pFrame->LoadFrame(m_nIDResource,
+            WS_OVERLAPPEDWINDOW | FWS_ADDTOTITLE,   // default frame styles
+            NULL, &context))
+    {
 //		TRACE(traceAppMsg, 0, "Warning: CDocTemplate couldn't create a frame.\n");
-		// frame will be deleted in PostNcDestroy cleanup
-		return NULL;
-	}
+        // frame will be deleted in PostNcDestroy cleanup
+        return NULL;
+    }
 
-	// it worked !
-	return pFrame;
+    // it worked !
+    return pFrame;
 }
 
 IMPLEMENT_DYNAMIC(CSingleDocTemplate,CDocTemplate)
@@ -11019,8 +11027,8 @@ CSingleDocTemplate::CSingleDocTemplate(UINT f,CRuntimeClass* pDocClass,CRuntimeC
    m_pOnlyDoc = NULL;
 }
 
-void CSingleDocTemplate::SetDefaultTitle( 
-   CDocument* pDocument  
+void CSingleDocTemplate::SetDefaultTitle(
+   CDocument* pDocument
 )
 {
    CString title;
@@ -11030,20 +11038,20 @@ void CSingleDocTemplate::SetDefaultTitle(
 
 void CSingleDocTemplate::AddDocument(CDocument* pDoc)
 {
-	ASSERT(m_pOnlyDoc == NULL);     // one at a time please
-	ASSERT_VALID(pDoc);
+    ASSERT(m_pOnlyDoc == NULL);     // one at a time please
+    ASSERT_VALID(pDoc);
 
-	CDocTemplate::AddDocument(pDoc);
-	m_pOnlyDoc = pDoc;
+    CDocTemplate::AddDocument(pDoc);
+    m_pOnlyDoc = pDoc;
 }
 
 void CSingleDocTemplate::RemoveDocument(CDocument* pDoc)
 {
-	ASSERT(m_pOnlyDoc == pDoc);     // must be this one
-	ASSERT_VALID(pDoc);
+    ASSERT(m_pOnlyDoc == pDoc);     // must be this one
+    ASSERT_VALID(pDoc);
 
-	CDocTemplate::RemoveDocument(pDoc);
-	m_pOnlyDoc = NULL;
+    CDocTemplate::RemoveDocument(pDoc);
+    m_pOnlyDoc = NULL;
 }
 
 POSITION CSingleDocTemplate::GetFirstDocPosition( ) const
@@ -11075,7 +11083,7 @@ CDocument* CSingleDocTemplate::GetNextDoc(
 
 CDocument* CSingleDocTemplate::OpenDocumentFile(LPCTSTR lpszPathName, BOOL bMakeVisible)
 {
-	return OpenDocumentFile(lpszPathName, TRUE, bMakeVisible);
+    return OpenDocumentFile(lpszPathName, TRUE, bMakeVisible);
 }
 
 CDocument* CSingleDocTemplate::OpenDocumentFile(
@@ -11085,128 +11093,128 @@ CDocument* CSingleDocTemplate::OpenDocumentFile(
 )
 {
    CDocument* pDocument = NULL;
-	CFrameWnd* pFrame = NULL;
-	BOOL bCreated = FALSE;      // => doc and frame created
-	BOOL bWasModified = FALSE;
+    CFrameWnd* pFrame = NULL;
+    BOOL bCreated = FALSE;      // => doc and frame created
+    BOOL bWasModified = FALSE;
 
-	if (m_pOnlyDoc != NULL)
-	{
-		// already have a document - reinit it
+    if (m_pOnlyDoc != NULL)
+    {
+        // already have a document - reinit it
         pDocument = m_pOnlyDoc;
-		if (!pDocument->SaveModified())
-		{
+        if (!pDocument->SaveModified())
+        {
             // set a flag to indicate that the document being opened should not
-			// be removed from the MRU list, if it was being opened from there
+            // be removed from the MRU list, if it was being opened from there
 //			g_bRemoveFromMRU = FALSE;
-			return NULL;        // leave the original one
-		}
+            return NULL;        // leave the original one
+        }
 
         pFrame = (CFrameWnd*)AfxGetMainWnd();
-		ASSERT(pFrame != NULL);
-		ASSERT_KINDOF(CFrameWnd, pFrame);
-		ASSERT_VALID(pFrame);
+        ASSERT(pFrame != NULL);
+        ASSERT_KINDOF(CFrameWnd, pFrame);
+        ASSERT_VALID(pFrame);
     }
-	else
-	{
-		// create a new document
+    else
+    {
+        // create a new document
         pDocument = CreateNewDocument();
-		ASSERT(pFrame == NULL);     // will be created below
+        ASSERT(pFrame == NULL);     // will be created below
         bCreated = TRUE;
-	}
+    }
 
     if (pDocument == NULL)
-	{
-		AfxMessageBox(AFX_IDP_FAILED_TO_CREATE_DOC);
-		return NULL;
-	}
-	ASSERT(pDocument == m_pOnlyDoc);
+    {
+        AfxMessageBox(AFX_IDP_FAILED_TO_CREATE_DOC);
+        return NULL;
+    }
+    ASSERT(pDocument == m_pOnlyDoc);
     if (pFrame == NULL)
-	{
-		ASSERT(bCreated);
+    {
+        ASSERT(bCreated);
 
-		// create frame - set as main document frame
-		BOOL bAutoDelete = pDocument->m_bAutoDelete;
-		pDocument->m_bAutoDelete = FALSE;
-					// don't destroy if something goes wrong
-		pFrame = CreateNewFrame(pDocument, NULL);
-		pDocument->m_bAutoDelete = bAutoDelete;
-		if (pFrame == NULL)
-		{
-			AfxMessageBox(AFX_IDP_FAILED_TO_CREATE_DOC);
-			delete pDocument;       // explicit delete on error
-			return NULL;
-		}
-	}
+        // create frame - set as main document frame
+        BOOL bAutoDelete = pDocument->m_bAutoDelete;
+        pDocument->m_bAutoDelete = FALSE;
+                    // don't destroy if something goes wrong
+        pFrame = CreateNewFrame(pDocument, NULL);
+        pDocument->m_bAutoDelete = bAutoDelete;
+        if (pFrame == NULL)
+        {
+            AfxMessageBox(AFX_IDP_FAILED_TO_CREATE_DOC);
+            delete pDocument;       // explicit delete on error
+            return NULL;
+        }
+    }
 
-	if (lpszPathName == NULL)
-	{
-		// create a new document
-		SetDefaultTitle(pDocument);
+    if (lpszPathName == NULL)
+    {
+        // create a new document
+        SetDefaultTitle(pDocument);
 
-		// avoid creating temporary compound file when starting up invisible
-		if (!bMakeVisible)
-			pDocument->m_bEmbedded = TRUE;
+        // avoid creating temporary compound file when starting up invisible
+        if (!bMakeVisible)
+            pDocument->m_bEmbedded = TRUE;
 
-		if (!pDocument->OnNewDocument())
-		{
-			// user has been alerted to what failed in OnNewDocument
+        if (!pDocument->OnNewDocument())
+        {
+            // user has been alerted to what failed in OnNewDocument
 //			TRACE(traceAppMsg, 0, "CDocument::OnNewDocument returned FALSE.\n");
-			if (bCreated)
-				pFrame->DestroyWindow();    // will destroy document
-			return NULL;
-		}
-	}
-	else
-	{
+            if (bCreated)
+                pFrame->DestroyWindow();    // will destroy document
+            return NULL;
+        }
+    }
+    else
+    {
 //		CWaitCursor wait;
 
-		// open an existing document
-		bWasModified = pDocument->IsModified();
-		pDocument->SetModifiedFlag(FALSE);  // not dirty for open
+        // open an existing document
+        bWasModified = pDocument->IsModified();
+        pDocument->SetModifiedFlag(FALSE);  // not dirty for open
 
-		if (!pDocument->OnOpenDocument(lpszPathName))
-		{
-			// user has been alerted to what failed in OnOpenDocument
+        if (!pDocument->OnOpenDocument(lpszPathName))
+        {
+            // user has been alerted to what failed in OnOpenDocument
 //			TRACE(traceAppMsg, 0, "CDocument::OnOpenDocument returned FALSE.\n");
-			if (bCreated)
-			{
-				pFrame->DestroyWindow();    // will destroy document
-			}
-			else if (!pDocument->IsModified())
-			{
-				// original document is untouched
-				pDocument->SetModifiedFlag(bWasModified);
-			}
-			else
-			{
-				// we corrupted the original document
-				SetDefaultTitle(pDocument);
+            if (bCreated)
+            {
+                pFrame->DestroyWindow();    // will destroy document
+            }
+            else if (!pDocument->IsModified())
+            {
+                // original document is untouched
+                pDocument->SetModifiedFlag(bWasModified);
+            }
+            else
+            {
+                // we corrupted the original document
+                SetDefaultTitle(pDocument);
 
-				if (!pDocument->OnNewDocument())
-				{
+                if (!pDocument->OnNewDocument())
+                {
 //					TRACE(traceAppMsg, 0, "Error: OnNewDocument failed after trying "
 //						"to open a document - trying to continue.\n");
-					// assume we can continue
-				}
-			}
-			return NULL;        // open failed
-		}
-		pDocument->SetPathName(lpszPathName, bAddToMRU);
+                    // assume we can continue
+                }
+            }
+            return NULL;        // open failed
+        }
+        pDocument->SetPathName(lpszPathName, bAddToMRU);
 //		pDocument->OnDocumentEvent(CDocument::onAfterOpenDocument);
-	}
+    }
 
-	CWinThread* pThread = AfxGetThread();
-	ASSERT(pThread);
+    CWinThread* pThread = AfxGetThread();
+    ASSERT(pThread);
 
     if (bCreated && pThread->m_pMainWnd == NULL)
-	{
-		// set as main frame (InitialUpdateFrame will show the window)
+    {
+        // set as main frame (InitialUpdateFrame will show the window)
         pThread->m_pMainWnd = pFrame;
-	}
+    }
 
     InitialUpdateFrame(pFrame, pDocument, bMakeVisible);
 
-	return pDocument;
+    return pDocument;
 }
 
 IMPLEMENT_DYNAMIC(CCommandLineInfo,CObject)
@@ -11249,8 +11257,8 @@ BEGIN_MESSAGE_MAP(CWinApp,CWinThread)
    ON_COMMAND(ID_APP_EXIT, OnAppExit)
 END_MESSAGE_MAP()
 
-CWinApp::CWinApp() 
-   : m_pRecentFileList(NULL) 
+CWinApp::CWinApp()
+   : m_pRecentFileList(NULL)
 {
    ptrToTheApp = this;
 }
@@ -11262,7 +11270,7 @@ CWinApp::~CWinApp()
 
 void CWinApp::OnAppExit()
 {
-   m_pMainWnd->OnClose();   
+   m_pMainWnd->OnClose();
 }
 
 void CWinApp::OnUpdateRecentFileList(CCmdUI *pCmdUI)
@@ -11320,55 +11328,55 @@ void CWinApp::OnUpdateRecentFileList(CCmdUI *pCmdUI)
 }
 
 BOOL CWinApp::DoPromptFileName(CString& fileName, UINT nIDSTitle, DWORD lFlags,
-	BOOL bOpenFileDialog, CDocTemplate* pTemplate)
-		// if pTemplate==NULL => all document templates
+    BOOL bOpenFileDialog, CDocTemplate* pTemplate)
+        // if pTemplate==NULL => all document templates
 {
    CFileDialog dlgFile(bOpenFileDialog, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, 0);
 
-	CString title;
-	ENSURE(title.LoadString(nIDSTitle));
+    CString title;
+    ENSURE(title.LoadString(nIDSTitle));
 
-	dlgFile.m_ofn.Flags |= lFlags;
+    dlgFile.m_ofn.Flags |= lFlags;
 
-	CString strFilter;
-	CString strDefault;
-	if (pTemplate != NULL)
-	{
-		ASSERT_VALID(pTemplate);
-		_AfxAppendFilterSuffix(strFilter, dlgFile.m_ofn, pTemplate, &strDefault);
-	}
-	else
-	{
-		// do for all doc template
+    CString strFilter;
+    CString strDefault;
+    if (pTemplate != NULL)
+    {
+        ASSERT_VALID(pTemplate);
+        _AfxAppendFilterSuffix(strFilter, dlgFile.m_ofn, pTemplate, &strDefault);
+    }
+    else
+    {
+        // do for all doc template
 //		POSITION pos = m_templateList.GetHeadPosition();
       POSITION pos = GetFirstDocTemplatePosition();
-		BOOL bFirst = TRUE;
-		while (pos != NULL)
-		{
+        BOOL bFirst = TRUE;
+        while (pos != NULL)
+        {
 //			pTemplate = (CDocTemplate*)m_templateList.GetNext(pos);
          pTemplate = GetNextDocTemplate(pos);
-			_AfxAppendFilterSuffix(strFilter, dlgFile.m_ofn, pTemplate,
-				bFirst ? &strDefault : NULL);
-			bFirst = FALSE;
-		}
-	}
+            _AfxAppendFilterSuffix(strFilter, dlgFile.m_ofn, pTemplate,
+                bFirst ? &strDefault : NULL);
+            bFirst = FALSE;
+        }
+    }
 
-	// append the "*.*" all files filter
-	CString allFilter;
-	VERIFY(allFilter.LoadString(AFX_IDS_ALLFILTER));
-	strFilter += allFilter;
-	strFilter += (TCHAR)'\0';   // next string please
-	strFilter += _T("*.*");
-	strFilter += (TCHAR)'\0';   // last string
-	dlgFile.m_ofn.nMaxCustFilter++;
+    // append the "*.*" all files filter
+    CString allFilter;
+    VERIFY(allFilter.LoadString(AFX_IDS_ALLFILTER));
+    strFilter += allFilter;
+    strFilter += (TCHAR)'\0';   // next string please
+    strFilter += _T("*.*");
+    strFilter += (TCHAR)'\0';   // last string
+    dlgFile.m_ofn.nMaxCustFilter++;
 
-	dlgFile.m_ofn.lpstrFilter = strFilter;
-	dlgFile.m_ofn.lpstrTitle = title;
-	dlgFile.m_ofn.lpstrFile = fileName.GetBuffer(_MAX_PATH);
+    dlgFile.m_ofn.lpstrFilter = strFilter;
+    dlgFile.m_ofn.lpstrTitle = title;
+    dlgFile.m_ofn.lpstrFile = fileName.GetBuffer(_MAX_PATH);
 
-	INT_PTR nResult = dlgFile.DoModal();
-	fileName.ReleaseBuffer();
-	return nResult == IDOK;
+    INT_PTR nResult = dlgFile.DoModal();
+    fileName.ReleaseBuffer();
+    return nResult == IDOK;
 }
 
 void CWinApp::ParseCommandLine(
@@ -11436,6 +11444,7 @@ LONG CWinApp::DelRegTree(
 #endif
    qDebug("Unregistering app...");
    settings.remove(key);
+   return ERROR_SUCCESS;
 }
 
 BOOL CWinApp::WriteProfileInt(
@@ -11457,6 +11466,7 @@ BOOL CWinApp::WriteProfileInt(
 #endif
 
    settings.setValue(key,nValue);
+   return TRUE;
 }
 
 BOOL CWinApp::WriteProfileString(
@@ -11481,6 +11491,7 @@ BOOL CWinApp::WriteProfileString(
 #endif
 
    settings.setValue(key,value);
+   return TRUE;
 }
 
 UINT CWinApp::GetProfileInt(
@@ -11589,14 +11600,14 @@ void CWinApp::AddDocTemplate(CDocTemplate* pDocTemplate)
    _docTemplates.append(pDocTemplate);
 }
 
-void CWinApp::AddToRecentFileList( 
-   LPCTSTR lpszPathName  
+void CWinApp::AddToRecentFileList(
+   LPCTSTR lpszPathName
 )
 {
 }
 
-void CWinApp::LoadStdProfileSettings( 
-   UINT nMaxMRU 
+void CWinApp::LoadStdProfileSettings(
+   UINT nMaxMRU
 )
 {
    if ( m_pRecentFileList )
@@ -11699,8 +11710,8 @@ CMenu::~CMenu()
    delete _cmenu;
 }
 
-CMenu* PASCAL CMenu::FromHandle( 
-   HMENU hMenu  
+CMenu* PASCAL CMenu::FromHandle(
+   HMENU hMenu
 )
 {
    return (CMenu*)hMenu;
@@ -11902,10 +11913,10 @@ BOOL CMenu::AppendMenu(
    return TRUE;
 }
 
-BOOL CMenu::InsertMenu( 
-   UINT nPosition, 
-   UINT nFlags, 
-   UINT_PTR nIDNewItem, 
+BOOL CMenu::InsertMenu(
+   UINT nPosition,
+   UINT nFlags,
+   UINT_PTR nIDNewItem,
    LPCTSTR lpszNewItem
 )
 {
@@ -12325,11 +12336,11 @@ void CTabCtrl::currentChanged(int value)
    GetOwner()->SendMessage(WM_NOTIFY,_id,(LPARAM)&nmhdr);
 }
 
-BOOL CTabCtrl::Create( 
-  DWORD dwStyle, 
-  const RECT& rect, 
-  CWnd* pParentWnd, 
-  UINT nID  
+BOOL CTabCtrl::Create(
+  DWORD dwStyle,
+  const RECT& rect,
+  CWnd* pParentWnd,
+  UINT nID
 )
 {
    m_hWnd = (HWND)this;
@@ -12427,7 +12438,7 @@ void QPlainTextEdit_MFC::paintEvent(QPaintEvent *event)
       style.sprintf("QLabel { color: #%02x%02x%02x; }",GetRValue(pDC->GetTextColor()),GetGValue(pDC->GetTextColor()),GetBValue(pDC->GetTextColor()));
       setStyleSheet(style);
    }
-   QPlainTextEdit::paintEvent(event);      
+   QPlainTextEdit::paintEvent(event);
    if ( _mfc )
    {
       _mfc->ReleaseDC(pDC);
@@ -12453,7 +12464,7 @@ void QLineEdit_MFC::paintEvent(QPaintEvent *event)
       _mfc->SendMessage(WM_ERASEBKGND,(WPARAM)(HDC)pDC);
       _mfc->SendMessage(WM_CTLCOLOR,0,(LPARAM)&ctlColor);
    }
-   QLineEdit::paintEvent(event);      
+   QLineEdit::paintEvent(event);
    if ( _mfc )
    {
       _mfc->ReleaseDC(pDC);
@@ -13366,7 +13377,7 @@ void CButton::SetDlgItemInt(
    DWORD buttonStyle = _dwStyle&0xFFF0;
 
    if ( buttonType == BS_AUTOCHECKBOX )
-   {      
+   {
       _qtd_check->setText(QString::number(nValue));
    }
    else if ( buttonType == BS_AUTO3STATE )
@@ -13385,7 +13396,7 @@ void CButton::SetDlgItemInt(
    else if ( buttonType == BS_GROUPBOX )
    {
       _qtd_groupbox->setTitle(QString::number(nValue));
-   }   
+   }
 }
 
 UINT CButton::GetDlgItemInt(
@@ -13477,7 +13488,7 @@ void CButton::SetDlgItemText(
 #else
       _qtd_groupbox->setTitle(QString::fromLatin1(lpszString));
 #endif
-   }   
+   }
 }
 
 int CButton::GetDlgItemText(
@@ -13584,7 +13595,7 @@ void CButton::CheckDlgButton(
    DWORD buttonStyle = _dwStyle&0xFFF0;
 
    if ( buttonType == BS_AUTOCHECKBOX )
-   {      
+   {
       _qtd_check->setChecked(nCheck);
    }
    else if ( buttonType == BS_AUTO3STATE )
@@ -13603,7 +13614,7 @@ void CButton::CheckDlgButton(
    else if ( buttonType == BS_GROUPBOX )
    {
       _qtd_groupbox->setChecked(nCheck);
-   }   
+   }
 }
 
 UINT CButton::IsDlgButtonChecked(
@@ -14337,11 +14348,11 @@ void CProgressCtrl::subclassWidget(int nID,CWnd* widget)
    widget->setParent(NULL);
 }
 
-BOOL CProgressCtrl::Create( 
-   DWORD dwStyle, 
-   const RECT& rect, 
-   CWnd* pParentWnd, 
-   UINT nID  
+BOOL CProgressCtrl::Create(
+   DWORD dwStyle,
+   const RECT& rect,
+   CWnd* pParentWnd,
+   UINT nID
 )
 {
    if ( _qt )
@@ -14503,7 +14514,7 @@ BOOL CStatic::Create(
 //   }
    if ( (dwStyle&SS_LEFTNOWORDWRAP) != SS_LEFTNOWORDWRAP )
    {
-      _qtd->setWordWrap(true);      
+      _qtd->setWordWrap(true);
    }
    else if ( dwStyle&SS_RIGHT )
    {
@@ -14561,7 +14572,7 @@ HBITMAP CStatic::SetBitmap(
    if ( _dwStyle&SS_REALSIZEIMAGE )
    {
       _qtd->setFixedSize(pBitmap->toQPixmap()->size());
-   }      
+   }
    
    return (HBITMAP)0;
 }
@@ -14965,17 +14976,17 @@ IMPLEMENT_DYNAMIC(COleDataSource,CCmdTarget)
 BEGIN_MESSAGE_MAP(COleDataSource,CCmdTarget)
 END_MESSAGE_MAP()
 
-void COleDataSource::CacheGlobalData( 
-   CLIPFORMAT cfFormat, 
-   HGLOBAL hGlobal, 
+void COleDataSource::CacheGlobalData(
+   CLIPFORMAT cfFormat,
+   HGLOBAL hGlobal,
    LPFORMATETC lpFormatEtc
 )
 {
    qDebug("COleDataSource::CacheGlobalData?");
 }
 
-DROPEFFECT COleDataSource::DoDragDrop( 
-   DWORD dwEffects, 
+DROPEFFECT COleDataSource::DoDragDrop(
+   DWORD dwEffects,
    LPCRECT lpRectStartDrag,
    COleDropSource* pDropSource
 )
@@ -14983,7 +14994,7 @@ DROPEFFECT COleDataSource::DoDragDrop(
    DROPEFFECT eff = DROPEFFECT_NONE;
    if ( QApplication::mouseButtons()&Qt::LeftButton )
    {
-      eff = DROPEFFECT_COPY;      
+      eff = DROPEFFECT_COPY;
    }
    return eff;
 }
@@ -14998,24 +15009,24 @@ IMPLEMENT_DYNAMIC(COleDropTarget,CCmdTarget)
 BEGIN_MESSAGE_MAP(COleDropTarget,CCmdTarget)
 END_MESSAGE_MAP()
 
-BOOL COleDropTarget::Register( 
-   CWnd* pWnd  
+BOOL COleDropTarget::Register(
+   CWnd* pWnd
 )
 {
    pWnd->toQWidget()->setAcceptDrops(true);
    return TRUE;
 }
 
-BOOL COleDataObject::IsDataAvailable( 
-   CLIPFORMAT cfFormat, 
+BOOL COleDataObject::IsDataAvailable(
+   CLIPFORMAT cfFormat,
    LPFORMATETC lpFormatEtc
 )
 {
    return IsClipboardFormatAvailable(cfFormat);
 }
 
-HGLOBAL COleDataObject::GetGlobalData( 
-   CLIPFORMAT cfFormat, 
+HGLOBAL COleDataObject::GetGlobalData(
+   CLIPFORMAT cfFormat,
    LPFORMATETC lpFormatEtc
 )
 {
@@ -15070,6 +15081,7 @@ DWORD WINAPI WaitForSingleObject(
    return WAIT_FAILED;
 }
 
+#ifndef _MSC_VER
 BOOL WINAPI CloseHandle(
    HANDLE hObject
 )
@@ -15077,6 +15089,7 @@ BOOL WINAPI CloseHandle(
    // CP: Nothing to do here?
    return TRUE;
 }
+#endif
 
 IMPLEMENT_DYNAMIC(CSyncObject,CObject)
 
@@ -15158,7 +15171,7 @@ CEvent::~CEvent()
 BOOL CEvent::SetEvent()
 {
    _access.lock();
-   m_bSignalled = true;   
+   m_bSignalled = true;
    foreach ( QSemaphore* waiter, _waiters )
    {
       waiter->release();
@@ -15171,7 +15184,7 @@ BOOL CEvent::SetEvent()
 BOOL CEvent::ResetEvent()
 {
    _access.lock();
-   m_bSignalled = false;   
+   m_bSignalled = false;
    _access.unlock();
    return TRUE;
 }
@@ -15179,7 +15192,7 @@ BOOL CEvent::ResetEvent()
 BOOL CEvent::PulseEvent()
 {
    _access.lock();
-   m_bSignalled = true;   
+   m_bSignalled = true;
    foreach ( QSemaphore* waiter, _waiters )
    {
       waiter->release();
@@ -15187,15 +15200,15 @@ BOOL CEvent::PulseEvent()
    }
    _access.unlock();
    _access.lock();
-   m_bSignalled = false;   
+   m_bSignalled = false;
    _access.unlock();
    return TRUE;
 }
 
 void CEvent::addWaiter(QSemaphore *waiter)
-{ 
+{
    _access.lock();
-   _waiters.append(waiter); 
+   _waiters.append(waiter);
    _access.unlock();
 }
 
@@ -15625,26 +15638,26 @@ void CCmdUI::ContinueRouting( )
 
 BOOL CCmdUI::DoUpdate(CCmdTarget* pTarget, BOOL bDisableIfNoHndler)
 {
-	if (m_nID == 0 || LOWORD(m_nID) == 0xFFFF)
-		return TRUE;     // ignore invalid IDs
+    if (m_nID == 0 || LOWORD(m_nID) == 0xFFFF)
+        return TRUE;     // ignore invalid IDs
 
-	ENSURE_VALID(pTarget);
+    ENSURE_VALID(pTarget);
 
-	m_bEnableChanged = FALSE;
-	BOOL bResult = pTarget->OnCmdMsg(m_nID, CN_UPDATE_COMMAND_UI, this, NULL);
-	if (!bResult)
-		ASSERT(!m_bEnableChanged); // not routed
+    m_bEnableChanged = FALSE;
+    BOOL bResult = pTarget->OnCmdMsg(m_nID, CN_UPDATE_COMMAND_UI, this, NULL);
+    if (!bResult)
+        ASSERT(!m_bEnableChanged); // not routed
 
-	if (bDisableIfNoHndler && !m_bEnableChanged)
-	{
-		AFX_CMDHANDLERINFO info;
-		info.pTarget = NULL;
-		BOOL bHandler = pTarget->OnCmdMsg(m_nID, CN_COMMAND, this, &info);
+    if (bDisableIfNoHndler && !m_bEnableChanged)
+    {
+        AFX_CMDHANDLERINFO info;
+        info.pTarget = NULL;
+        BOOL bHandler = pTarget->OnCmdMsg(m_nID, CN_COMMAND, this, &info);
 
       // Enable or Disable based on whether there is a handler there
-		Enable(bHandler);
-	}
-	return bResult;
+        Enable(bHandler);
+    }
+    return bResult;
 }
 
 void CCmdUI::Enable(
@@ -15720,24 +15733,24 @@ void CCmdUI::SetText(
 
 void CToolCmdUI::Enable(BOOL bOn)
 {
-	m_bEnableChanged = TRUE;
-	CToolBar* pToolBar = (CToolBar*)m_pOther;
-	ASSERT(pToolBar != NULL);
-	ASSERT_KINDOF(CToolBar, pToolBar);
-	ASSERT(m_nIndex < m_nIndexMax);
+    m_bEnableChanged = TRUE;
+    CToolBar* pToolBar = (CToolBar*)m_pOther;
+    ASSERT(pToolBar != NULL);
+    ASSERT_KINDOF(CToolBar, pToolBar);
+    ASSERT(m_nIndex < m_nIndexMax);
 
-	UINT nNewStyle = pToolBar->GetButtonStyle(m_nIndex) & ~TBBS_DISABLED;
-	if (!bOn)
-	{
-		nNewStyle |= TBBS_DISABLED;
-		// If a button is currently pressed and then is disabled
-		// COMCTL32.DLL does not unpress the button, even after the mouse
-		// button goes up!  We work around this bug by forcing TBBS_PRESSED
-		// off when a button is disabled.
-		nNewStyle &= ~TBBS_PRESSED;
-	}
-	ASSERT(!(nNewStyle & TBBS_SEPARATOR));
-	pToolBar->SetButtonStyle(m_nIndex, nNewStyle);
+    UINT nNewStyle = pToolBar->GetButtonStyle(m_nIndex) & ~TBBS_DISABLED;
+    if (!bOn)
+    {
+        nNewStyle |= TBBS_DISABLED;
+        // If a button is currently pressed and then is disabled
+        // COMCTL32.DLL does not unpress the button, even after the mouse
+        // button goes up!  We work around this bug by forcing TBBS_PRESSED
+        // off when a button is disabled.
+        nNewStyle &= ~TBBS_PRESSED;
+    }
+    ASSERT(!(nNewStyle & TBBS_SEPARATOR));
+    pToolBar->SetButtonStyle(m_nIndex, nNewStyle);
 }
 
 void CToolCmdUI::SetCheck(int nCheck)
@@ -15760,7 +15773,7 @@ void CToolCmdUI::SetCheck(int nCheck)
 
 void CToolCmdUI::SetText(LPCTSTR)
 {
-	// ignore it
+    // ignore it
 }
 
 void CTestCmdUI::Enable(
@@ -15775,12 +15788,12 @@ BOOL CArchive::IsStoring( ) const
    return FALSE;
 }
 
-CRecentFileList::CRecentFileList( 
-   UINT nStart, 
-   LPCTSTR lpszSection, 
-   LPCTSTR lpszEntryFormat, 
-   int nSize, 
-   int nMaxDispLen  
+CRecentFileList::CRecentFileList(
+   UINT nStart,
+   LPCTSTR lpszSection,
+   LPCTSTR lpszEntryFormat,
+   int nSize,
+   int nMaxDispLen
 )
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", gApplicationName);
@@ -15817,8 +15830,8 @@ int CRecentFileList::GetSize() const
    return _recentFiles.count();
 }
 
-void CRecentFileList::Add( 
-   LPCTSTR lpszPathName  
+void CRecentFileList::Add(
+   LPCTSTR lpszPathName
 )
 {
 #if UNICODE
@@ -15845,16 +15858,16 @@ void CRecentFileList::Add(
          
       def.sprintf(_recentFiles.at(n).toLatin1().constData());
       
-      settings.setValue(key,def);   
+      settings.setValue(key,def);
    }
 }
 
-BOOL CRecentFileList::GetDisplayName( 
-   CString& strName, 
-   int nIndex, 
-   LPCTSTR lpszCurDir, 
-   int nCurDir, 
-   BOOL bAtLeastName 
+BOOL CRecentFileList::GetDisplayName(
+   CString& strName,
+   int nIndex,
+   LPCTSTR lpszCurDir,
+   int nCurDir,
+   BOOL bAtLeastName
 ) const
 {
    if ( nIndex < _recentFiles.count() )
@@ -16051,13 +16064,13 @@ MMRESULT mmioAscend(
          if ( lpck->dwFlags&MMIO_CREATERIFF )
          {
             pFile->seek(lpck->dwDataOffset-8);
-            pFile->write((const char*)&(chunkSize),4);         
+            pFile->write((const char*)&(chunkSize),4);
             pFile->seek(lpck->dwDataOffset+chunkSize+(chunkSize&1?1:0));
          }
          else
          {
             pFile->seek(lpck->dwDataOffset-4);
-            pFile->write((const char*)&(chunkSize),4);         
+            pFile->write((const char*)&(chunkSize),4);
             pFile->seek(lpck->dwDataOffset+chunkSize+(chunkSize&1?1:0));
          }
       }
@@ -16070,7 +16083,7 @@ MMRESULT mmioAscend(
 }
 
 MMRESULT mmioDescend(
-  HMMIO hmmio, 
+  HMMIO hmmio,
   LPMMCKINFO lpck,
   const MMCKINFO* lpckParent,
   UINT wFlags
@@ -16114,7 +16127,7 @@ LONG mmioSeek(
    }
    else
    {
-      return -1;            
+      return -1;
    }
 }
 
@@ -16159,7 +16172,7 @@ MMRESULT mmioGetInfo(
    
    if ( pFile && pFile->isOpen() )
    {
-      memcpy(lpmmioinfo,mmioInfos.value(pFile),sizeof(MMIOINFO));      
+      memcpy(lpmmioinfo,mmioInfos.value(pFile),sizeof(MMIOINFO));
    }
    else
    {
@@ -16229,6 +16242,7 @@ BOOL WINAPI TrackMouseEvent(
 )
 {
    // CP: Nothing to do here I think.
+    return TRUE;
 }
 
 HINSTANCE ShellExecute(
@@ -16258,7 +16272,8 @@ HINSTANCE ShellExecute(
    QStringList args = parameters.split(" ");
    args.prepend(file);
    qDebug("ShellExecute: %s %s %s",operation.toLatin1().data(),args.join(" ").toLatin1().data(),directory.toLatin1().data());
-   QProcess::startDetached(operation,args,directory);
+   return (HINSTANCE)(QProcess::startDetached(operation,args,directory) ? 64 : 0);
+
 }
 
 BOOL WINAPI MoveFileEx(
@@ -16275,8 +16290,8 @@ BOOL WINAPI MoveFileEx(
       file.setFileName(QString::fromWCharArray(lpNewFileName));
 #else
       file.setFileName(QString::fromLatin1(lpNewFileName));
-#endif   
-      file.remove();      
+#endif
+      file.remove();
    }
    
 #if UNICODE
@@ -16285,7 +16300,7 @@ BOOL WINAPI MoveFileEx(
 #else
    file.setFileName(QString::fromLatin1(lpExistingFileName));
    return file.rename(QString::fromLatin1(lpNewFileName));
-#endif   
+#endif
 }
 
 BOOL WINAPI DeleteFile(
@@ -16298,8 +16313,8 @@ BOOL WINAPI DeleteFile(
    file.setFileName(QString::fromWCharArray(lpFileName));
 #else
    file.setFileName(QString::fromLatin1(lpFileName));
-#endif   
-   return file.remove();   
+#endif
+   return file.remove();
 }
 
 DWORD WINAPI GetTempPath(
@@ -16334,7 +16349,7 @@ UINT WINAPI GetTempFileName(
    dir.setPath(QString::fromWCharArray(lpPathName));
 #else
    dir.setPath(QString::fromLatin1(lpPathName));
-#endif   
+#endif
    
    do
    {
@@ -17351,7 +17366,7 @@ UINT mfcToQtKeycode(UINT mfc)
       break;
    default:
       qDebug("mfcToQtKeycode...not sure what to do here yet mfc=%x.",mfc);
-      break;      
+      break;
    }
    return qt;
 }
