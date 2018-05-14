@@ -59,9 +59,16 @@ FAMITRACKER_CXXFLAGS = -I$$TOP/libs/famitracker
 
 RTMIDI_LIBS = -L$$DEPENDENCYROOTPATH/rtmidi/$$DESTDIR -lrtmidi
 
+# fixme duplication (https://wiki.qt.io/Including_.pro_Files)
 win32 {
+    contains(QT_ARCH, i386) {
+        arch = x86
+    } else {
+        arch = x64
+    }
+
    SDL_CXXFLAGS = -I$$DEPENDENCYPATH/SDL
-   SDL_LIBS =  -L$$DEPENDENCYPATH/SDL/ -lsdl
+   SDL_LIBS =  -L$$DEPENDENCYPATH/SDL/$$arch -lsdl
 
    QMAKE_LFLAGS += -static-libgcc
 }
