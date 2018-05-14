@@ -379,14 +379,13 @@ symbian {
 }
 
 win32 {
-QMAKE_CXXFLAGS += "-Zc:strictStrings-"
-QMAKE_CXXFLAGS -= "-Zc:strictStrings"
-QMAKE_CXXFLAGS_WARN_ON += "-Zc:strictStrings-"
-QMAKE_CXXFLAGS_WARN_OFF += "-Zc:strictStrings-"
-
-message($$QMAKE_CXXFLAGS)
-message($$QMAKE_CXXFLAGS_DEBUG)
+    QMAKE_CXXFLAGS += "-Zc:strictStrings-"
+    QMAKE_CXXFLAGS -= "-Zc:strictStrings"
+    #message($$QMAKE_CXXFLAGS)
+    #message($$QMAKE_CXXFLAGS_DEBUG)
 }
+
+include($$TOP/common/export_symbols.pri)
 
 unix:!symbian {
     maemo5 {
