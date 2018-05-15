@@ -151,3 +151,8 @@ FORMS    += mainwindow.ui
 
 RESOURCES += \
     $$TOP/common/resource.qrc
+
+win32-msvc* {
+QMAKE_LFLAGS_EXE -= \"/MANIFESTDEPENDENCY:type=\'win32\' name=\'Microsoft.Windows.Common-Controls\' version=\'6.0.0.0\' publicKeyToken=\'6595b64144ccf1df\' language=\'*\' processorArchitecture=\'*\'\"
+# link.exe includes 32-bit by default. this loads 64-bit styles, causing SXS conflict.
+}

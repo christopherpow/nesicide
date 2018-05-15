@@ -3,15 +3,13 @@ win32-msvc* {
     # Also behaves like MinGW.
 
     EXPORT = ""
-#    EXPORT += cd & cd & cd & cd & cd & cd & cd
-#    C:\Users\jimbo1qaz\src\nesicide\deps\build-rtmidi-Desktop_Qt_5_10_1_MSVC2017_64bit-Debug\debug
-
 #    EXPORT += "dir $$DESTDIR\*.obj"
 #2018-05-14  05:28           697,546 RtMidi.obj
 
     EXPORT += \
 cd $$DESTDIR &\
 del $${TARGET}.lib &\
+dir *.obj &\
 lib -out:$${TARGET}.lib *.obj
 
 #    QMAKE_POST_LINK += $$EXPORT
