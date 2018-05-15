@@ -32,3 +32,6 @@ lua/*.dll
 *.dylib
 
 /build/nesicide-deps.tar.bz2
+
+/apps/famitracker/Makefile*
+/libs/famitracker/Makefile*
