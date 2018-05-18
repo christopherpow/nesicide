@@ -1162,7 +1162,7 @@ BOOL WINAPI FreeLibrary(
    QLibrary* pLib = (QLibrary*)hModule;
    return pLib->unload();
 }
-//#endif
+#endif
 
 HANDLE WINAPI CreateEvent(
    LPSECURITY_ATTRIBUTES lpEventAttributes,
@@ -1174,7 +1174,6 @@ HANDLE WINAPI CreateEvent(
    return (HANDLE)new CEvent(bInitialState,bManualReset,lpName,lpEventAttributes);
 }
 
-//#ifndef _MSC_VER
 BOOL WINAPI SetEvent(
    HANDLE hEvent
 )
@@ -1190,7 +1189,6 @@ BOOL WINAPI ResetEvent(
    CEvent* pEvent = (CEvent*)hEvent;
    return pEvent->ResetEvent();
 }
-#endif
 
 BOOL WINAPI PulseEvent(
    HANDLE hEvent
@@ -15081,7 +15079,6 @@ DWORD WINAPI WaitForSingleObject(
    return WAIT_FAILED;
 }
 
-#ifndef _MSC_VER
 BOOL WINAPI CloseHandle(
    HANDLE hObject
 )
@@ -15089,7 +15086,6 @@ BOOL WINAPI CloseHandle(
    // CP: Nothing to do here?
    return TRUE;
 }
-#endif
 
 IMPLEMENT_DYNAMIC(CSyncObject,CObject)
 
