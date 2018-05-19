@@ -2301,20 +2301,12 @@ enum
 #include <windows.h>
 #include <prsht.h>
 
-#if 0 // CP: No longer needed since all use std::max and std::min
-#if !(defined(Q_OS_WIN) || defined(Q_OS_WIN32) || defined(Q_OS_MAC) || defined(Q_OS_MACX) || defined(Q_OS_MAC64))
-#define max(a,b) (((a) > (b)) ? (a) : (b))
-#define min(a,b) (((a) > (b)) ? (b) : (a))
-#endif
-#endif
-
 #if defined(Q_OS_WIN) || defined(Q_OS_WIN32)
 #define CALLBACK
 #endif
 
-//#define stricmp strcasecmp
-
-#if !defined(Q_OS_WIN32)
+#if !(defined(Q_OS_WIN) || defined(Q_OS_WIN32))
+#define stricmp strcasecmp
 #define _MAX_PATH 256
 #endif
 
