@@ -3427,7 +3427,7 @@ BOOL WINAPI GetFileVersionInfo(
    LPVOID lpData
 )
 {
-    return TRUE;
+    return FALSE;
 }
 
 DWORD WINAPI GetFileVersionInfoSize(
@@ -3435,7 +3435,7 @@ DWORD WINAPI GetFileVersionInfoSize(
    LPDWORD lpdwHandle
 )
 {
-    return 99999999;
+    return 0;
 }
 
 BOOL WINAPI VerQueryValue(
