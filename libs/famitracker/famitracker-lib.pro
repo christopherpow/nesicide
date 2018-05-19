@@ -68,8 +68,14 @@ INCLUDEPATH += \
 BOOST_CXXFLAGS=-I$$DEPENDENCYROOTPATH/boost_1_64_0
 
 win32 {
+    contains(QT_ARCH, i386) {
+        arch = x86
+    } else {
+        arch = x64
+    }
+
    SDL_CXXFLAGS = -I$$DEPENDENCYPATH/SDL
-   SDL_LIBS =  -L$$DEPENDENCYPATH/SDL/ -lsdl
+   SDL_LIBS =  -L$$DEPENDENCYPATH/SDL/$$arch -lsdl
 }
 
 mac {
@@ -373,8 +379,13 @@ symbian {
 }
 
 win32 {
-    HEADERS += stdafx.h
+    QMAKE_CXXFLAGS += "-Zc:strictStrings-"
+    QMAKE_CXXFLAGS -= "-Zc:strictStrings"
+    #message($$QMAKE_CXXFLAGS)
+    #message($$QMAKE_CXXFLAGS_DEBUG)
 }
+
+include($$TOP/common/export_symbols.pri)
 
 unix:!symbian {
     maemo5 {

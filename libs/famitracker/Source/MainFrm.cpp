@@ -2321,6 +2321,7 @@ void CMainFrame::SelectInstrumentFolder()
 BOOL CMainFrame::OnCopyData(CWnd* pWnd, COPYDATASTRUCT* pCopyDataStruct)
 {
    qDebug("CMainFrame::OnCopyData");
+   return TRUE;
 //	switch (pCopyDataStruct->dwData) {
 //		case IPC_LOAD:
 //			// Load file

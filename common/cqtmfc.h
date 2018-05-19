@@ -2301,20 +2301,12 @@ enum
 #include <windows.h>
 #include <prsht.h>
 
-#if 0 // CP: No longer needed since all use std::max and std::min
-#if !(defined(Q_OS_WIN) || defined(Q_OS_WIN32) || defined(Q_OS_MAC) || defined(Q_OS_MACX) || defined(Q_OS_MAC64))
-#define max(a,b) (((a) > (b)) ? (a) : (b))
-#define min(a,b) (((a) > (b)) ? (b) : (a))
-#endif
-#endif
-
 #if defined(Q_OS_WIN) || defined(Q_OS_WIN32)
 #define CALLBACK
 #endif
 
+#if !(defined(Q_OS_WIN) || defined(Q_OS_WIN32))
 #define stricmp strcasecmp
-
-#if !defined(Q_OS_WIN32)
 #define _MAX_PATH 256
 #endif
 
@@ -2367,7 +2359,7 @@ typedef char TCHAR;
 #define TRACE(x) { QString __str; __str.sprintf("TRACE: %s(%d): %s",__FILE__,__LINE__, (x)); qDebug(__str.toLatin1().constData()); }
 #endif
 #if !defined(ATLTRACE2)
-#define ATLTRACE2(a,b,str,q...) qDebug(str,##q)
+#define ATLTRACE2(a,b,str,...) qDebug(str,##__VA_ARGS__)
 #endif
 #else
 #if !defined(TRACE0)

@@ -279,6 +279,7 @@ bool CDSoundChannel::Play()
     m_iTotalSamples = 0;
     m_bPaused = false;
    ftmAudioSemaphore.release();
+   return true;
 }
 
 bool CDSoundChannel::Stop()
@@ -295,7 +296,7 @@ bool CDSoundChannel::IsPlaying() const
 bool CDSoundChannel::ClearBuffer()
 {
 	if (IsPlaying())
-		Stop();
+        return Stop();
 }
 
 bool CDSoundChannel::WriteBuffer(char *pBuffer, unsigned int Samples)
@@ -304,6 +305,7 @@ bool CDSoundChannel::WriteBuffer(char *pBuffer, unsigned int Samples)
    m_iSoundProducer += Samples;
    m_iTotalSamples = 1;
    m_iSoundProducer %= m_iSoundBufferSize;
+   return true;
 }
 
 buffer_event_t CDSoundChannel::WaitForSyncEvent(DWORD dwTimeout) const
