@@ -378,11 +378,14 @@ symbian {
     DEPLOYMENT += addFiles
 }
 
-win32 {
-    QMAKE_CXXFLAGS += "-Zc:strictStrings-"
-    QMAKE_CXXFLAGS -= "-Zc:strictStrings"
-    #message($$QMAKE_CXXFLAGS)
-    #message($$QMAKE_CXXFLAGS_DEBUG)
+win32:msvc {
+   contains(QMAKE_CC, cl) {
+      # Visual Studio
+      QMAKE_CXXFLAGS += "-Zc:strictStrings-"
+      QMAKE_CXXFLAGS -= "-Zc:strictStrings"
+   }
+   #message($$QMAKE_CXXFLAGS)
+   #message($$QMAKE_CXXFLAGS_DEBUG)
 }
 
 include($$TOP/common/export_symbols.pri)
