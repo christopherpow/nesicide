@@ -378,7 +378,7 @@ symbian {
     DEPLOYMENT += addFiles
 }
 
-win32:msvc {
+win32 {
    contains(QMAKE_CC, cl) {
       # Visual Studio
       QMAKE_CXXFLAGS += "-Zc:strictStrings-"

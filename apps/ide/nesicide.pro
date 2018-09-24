@@ -59,7 +59,7 @@ CONFIG -= exceptions
 
 CONFIG(release, debug|release) {
     QSCINTILLA_NAME=qscintilla2_qt5
-} else {   
+} else {
    macx: QSCINTILLA_NAME=qscintilla2_qt5_debug
    else: QSCINTILLA_NAME=qscintilla2_qt5d
 
@@ -88,11 +88,17 @@ RTMIDI_LIBS = -L$$DEPENDENCYROOTPATH/rtmidi/$$DESTDIR -lrtmidi
 RTMIDI_CXXFLAGS = -I$$DEPENDENCYROOTPATH/rtmidi
 
 win32 {
-   SDL_CXXFLAGS = -I$$DEPENDENCYPATH/SDL
-   SDL_LIBS =  -L$$DEPENDENCYPATH/SDL/ -lsdl
+    contains(QT_ARCH, i386) {
+        arch = x86
+    } else {
+        arch = x64
+    }
 
-   LUA_CXXFLAGS = -I$$DEPENDENCYPATH/Lua
-   LUA_LIBS = $$DEPENDENCYPATH/Lua/liblua.a
+   SDL_CXXFLAGS = -I$$DEPENDENCYPATH/SDL
+   SDL_LIBS =  -L$$DEPENDENCYPATH/SDL/$$arch -lsdl
+
+   LUA_CXXFLAGS = -I $$DEPENDENCYPATH/Lua
+   LUA_LIBS = -L$$DEPENDENCYPATH/Lua -llua51
 
    QMAKE_LFLAGS += -static-libgcc
 }
@@ -144,7 +150,7 @@ mac {
 
    QMAKE_POST_LINK += install_name_tool -add_rpath @loader_path/../Frameworks $$DESTDIR/$${TARGET}.app/Contents/MacOS/nesicide $$escape_expand(\n\t)
 
-   QMAKE_POST_LINK += ( cd $$DEPENDENCYROOTPATH/cc65; make all; make prefix=$$_PRO_FILE_PWD_/$$DESTDIR/$${TARGET}.app/Contents/MacOS/cc65 install ) $$escape_expand(\n\t) 
+   QMAKE_POST_LINK += ( cd $$DEPENDENCYROOTPATH/cc65; make all; make prefix=$$_PRO_FILE_PWD_/$$DESTDIR/$${TARGET}.app/Contents/MacOS/cc65 install ) $$escape_expand(\n\t)
 
    ICON = mac/resources/nesicide.icns
 }
@@ -205,8 +211,8 @@ unix:!mac {
 }
 
 unix {
-	QMAKE_CFLAGS += -I $$DEPENDENCYROOTPATH/wine/include -DWINE_UNICODE_NATIVE
-	QMAKE_CXXFLAGS += -I $$DEPENDENCYROOTPATH/wine/include -DWINE_UNICODE_NATIVE
+   QMAKE_CFLAGS += -I $$DEPENDENCYROOTPATH/wine/include -DWINE_UNICODE_NATIVE
+   QMAKE_CXXFLAGS += -I $$DEPENDENCYROOTPATH/wine/include -DWINE_UNICODE_NATIVE
 }
 
 QMAKE_CXXFLAGS += -DIDE \
