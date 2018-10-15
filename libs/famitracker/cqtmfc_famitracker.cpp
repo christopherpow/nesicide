@@ -1205,10 +1205,8 @@ void qtInitIconResources()
    qtIconNames.insert(IDI_RIGHT,":/resources/RightArrow.ico");
 }
 
-#include "AboutDlg.h"
-void qtMfcInitDialogResource_IDD_ABOUTBOX(CDialog* parent1)
+void qtMfcInitDialogResource_IDD_ABOUTBOX(CDialog* parent)
 {
-   CAboutDlg* parent = dynamic_cast<CAboutDlg*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
 
 //IDD_ABOUTBOX DIALOGEX 0, 0, 285, 336
@@ -1369,10 +1367,8 @@ void qtMfcInitDialogResource_IDD_ABOUTBOX(CDialog* parent1)
 //END
 }
 
-#include "ControlPanelDlg.h"
-void qtMfcInitDialogResource_IDD_MAINFRAME(CDialog* parent1)
+void qtMfcInitDialogResource_IDD_MAINFRAME(CDialog* parent)
 {
-   CControlPanelDlg* parent = dynamic_cast<CControlPanelDlg*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
 
 //   IDD_MAINFRAME DIALOGEX 0, 0, 413, 126
@@ -1542,7 +1538,6 @@ void qtMfcInitDialogResource_IDD_MAINFRAME(CDialog* parent1)
 //   END
 }
 
-//#include "dialog-file"
 void qtMfcInitDialogResource_IDD_PERFORMANCE(CDialog* parent)
 {
 //  dialog-type* parent = dynamic_cast<dialog-type*>(parent1);
@@ -1565,10 +1560,8 @@ void qtMfcInitDialogResource_IDD_PERFORMANCE(CDialog* parent)
 //   END
 }
 
-#include "SpeedDlg.h"
-void qtMfcInitDialogResource_IDD_SPEED(CDialog* parent1)
+void qtMfcInitDialogResource_IDD_SPEED(CDialog* parent)
 {
-   CSpeedDlg* parent = dynamic_cast<CSpeedDlg*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
 
 //   IDD_SPEED DIALOGEX 0, 0, 196, 44
@@ -1608,10 +1601,8 @@ void qtMfcInitDialogResource_IDD_SPEED(CDialog* parent1)
 //   END
 }
 
-#include "PCMImport.h"
-void qtMfcInitDialogResource_IDD_PCMIMPORT(CDialog* parent1)
+void qtMfcInitDialogResource_IDD_PCMIMPORT(CDialog* parent)
 {
-   CPCMImport* parent = dynamic_cast<CPCMImport*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
 
 //   IDD_PCMIMPORT DIALOGEX 0, 0, 211, 144
@@ -1712,28 +1703,8 @@ void qtMfcInitDialogResource_IDD_PCMIMPORT(CDialog* parent1)
 //   END
 }
 
-#include "InstrumentEditPanel.h"
-#include "InstrumentEditor2A03.h"
-#include "InstrumentEditorN163.h"
-#include "InstrumentEditorS5B.h"
-#include "InstrumentEditorVRC6.h"
-void qtMfcInitDialogResource_IDD_INSTRUMENT_INTERNAL(CDialog* parent1)
+void qtMfcInitDialogResource_IDD_INSTRUMENT_INTERNAL(CDialog* parent)
 {
-   CInstrumentEditor2A03* parent2A03 = dynamic_cast<CInstrumentEditor2A03*>(parent1);
-   CInstrumentEditorN163* parentN163 = dynamic_cast<CInstrumentEditorN163*>(parent1);
-   CInstrumentEditorS5B* parentS5B = dynamic_cast<CInstrumentEditorS5B*>(parent1);
-   CInstrumentEditorVRC6* parentVRC6 = dynamic_cast<CInstrumentEditorVRC6*>(parent1);
-   CDialog* parent = NULL;
-   if ( parent2A03 )
-      parent = parent2A03;
-   else if ( parentN163 )
-      parent = parentN163;
-   else if ( parentS5B )
-      parent = parentS5B;
-   else if ( parentVRC6 )
-      parent = parentVRC6;
-   else
-      qFatal("no parent for dialog?!");
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
 
 //   IDD_INSTRUMENT_INTERNAL DIALOGEX 0, 0, 372, 172
@@ -1794,10 +1765,8 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_INTERNAL(CDialog* parent1)
 //   END
 }
 
-#include "InstrumentEditorDPCM.h"
-void qtMfcInitDialogResource_IDD_INSTRUMENT_DPCM(CDialog* parent1)
+void qtMfcInitDialogResource_IDD_INSTRUMENT_DPCM(CDialog* parent)
 {
-   CInstrumentEditorDPCM* parent = dynamic_cast<CInstrumentEditorDPCM*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
 
 //   IDD_INSTRUMENT_DPCM DIALOGEX 0, 0, 372, 174
@@ -1942,10 +1911,8 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_DPCM(CDialog* parent1)
 //   END
 }
 
-#include "InstrumentEditDlg.h"
-void qtMfcInitDialogResource_IDD_INSTRUMENT(CDialog* parent1)
+void qtMfcInitDialogResource_IDD_INSTRUMENT(CDialog* parent)
 {
-   CInstrumentEditDlg* parent = dynamic_cast<CInstrumentEditDlg*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
 
 //   IDD_INSTRUMENT DIALOGEX 0, 0, 389, 242
@@ -1973,10 +1940,8 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT(CDialog* parent1)
 //   END
 }
 
-#include "ConfigAppearance.h"
-void qtMfcInitDialogResource_IDD_CONFIG_APPEARANCE(CDialog* parent1)
+void qtMfcInitDialogResource_IDD_CONFIG_APPEARANCE(CDialog* parent)
 {
-   CConfigAppearance* parent = dynamic_cast<CConfigAppearance*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
 
 //   IDD_CONFIG_APPEARANCE DIALOGEX 0, 0, 280, 167
@@ -2076,10 +2041,8 @@ void qtMfcInitDialogResource_IDD_CONFIG_APPEARANCE(CDialog* parent1)
 //   END
 }
 
-#include "ConfigGeneral.h"
-void qtMfcInitDialogResource_IDD_CONFIG_GENERAL(CDialog* parent1)
+void qtMfcInitDialogResource_IDD_CONFIG_GENERAL(CDialog* parent)
 {
-   CConfigGeneral* parent = dynamic_cast<CConfigGeneral*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
 
 //   IDD_CONFIG_GENERAL DIALOGEX 0, 0, 280, 167
@@ -2300,10 +2263,8 @@ void qtMfcInitDialogResource_IDD_CONFIG_GENERAL(CDialog* parent1)
 //   END
 }
 
-#include "ModulePropertiesDlg.h"
-void qtMfcInitDialogResource_IDD_PROPERTIES(CDialog* parent1)
+void qtMfcInitDialogResource_IDD_PROPERTIES(CDialog* parent)
 {
-   CModulePropertiesDlg* parent = dynamic_cast<CModulePropertiesDlg*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
 
 //   IDD_PROPERTIES DIALOGEX 0, 0, 213, 259
@@ -2439,10 +2400,8 @@ void qtMfcInitDialogResource_IDD_PROPERTIES(CDialog* parent1)
 //   END
 }
 
-#include "ConfigMIDI.h"
-void qtMfcInitDialogResource_IDD_CONFIG_MIDI(CDialog* parent1)
+void qtMfcInitDialogResource_IDD_CONFIG_MIDI(CDialog* parent)
 {
-   CConfigMIDI* parent = dynamic_cast<CConfigMIDI*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
 
 //   IDD_CONFIG_MIDI DIALOGEX 0, 0, 280, 167
@@ -2518,10 +2477,8 @@ void qtMfcInitDialogResource_IDD_CONFIG_MIDI(CDialog* parent1)
 //   END
 }
 
-#include "ConfigSound.h"
-void qtMfcInitDialogResource_IDD_CONFIG_SOUND(CDialog* parent1)
+void qtMfcInitDialogResource_IDD_CONFIG_SOUND(CDialog* parent)
 {
-   CConfigSound* parent = dynamic_cast<CConfigSound*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
 
 //   IDD_CONFIG_SOUND DIALOGEX 0, 0, 280, 167
@@ -2701,10 +2658,8 @@ void qtMfcInitDialogResource_IDD_CONFIG_SOUND(CDialog* parent1)
 //   END
 }
 
-#include "ConfigShortcuts.h"
-void qtMfcInitDialogResource_IDD_CONFIG_SHORTCUTS(CDialog* parent1)
+void qtMfcInitDialogResource_IDD_CONFIG_SHORTCUTS(CDialog* parent)
 {
-   CConfigShortcuts* parent = dynamic_cast<CConfigShortcuts*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
 
 //   IDD_CONFIG_SHORTCUTS DIALOGEX 0, 0, 280, 167
@@ -2752,7 +2707,6 @@ void qtMfcInitDialogResource_IDD_CONFIG_SHORTCUTS(CDialog* parent1)
 
 void qtMfcInitDialogResource_IDD_OCTAVE(CDialog* parent)
 {
-//   CDialog* parent = dynamic_cast<CDialog*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
 
 //   IDD_OCTAVE DIALOGEX 0, 0, 276, 12
@@ -2848,10 +2802,8 @@ void qtMfcInitDialogResource_IDD_OCTAVE(CDialog* parent)
 //   END
 }
 
-#include "ExportDialog.h"
-void qtMfcInitDialogResource_IDD_EXPORT(CDialog* parent1)
+void qtMfcInitDialogResource_IDD_EXPORT(CDialog* parent)
 {
-   CExportDialog* parent = dynamic_cast<CExportDialog*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
 
 //   IDD_EXPORT DIALOGEX 0, 0, 247, 283
@@ -2969,10 +2921,8 @@ void qtMfcInitDialogResource_IDD_EXPORT(CDialog* parent1)
 //   END
 }
 
-#include "InstrumentEditorVRC7.h"
-void qtMfcInitDialogResource_IDD_INSTRUMENT_VRC7(CDialog* parent1)
+void qtMfcInitDialogResource_IDD_INSTRUMENT_VRC7(CDialog* parent)
 {
-   CInstrumentEditorVRC7* parent = dynamic_cast<CInstrumentEditorVRC7*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
 
 //   IDD_INSTRUMENT_VRC7 DIALOGEX 0, 0, 372, 172
@@ -3249,10 +3199,8 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_VRC7(CDialog* parent1)
 //   END
 }
 
-#include "CreateWaveDlg.h"
-void qtMfcInitDialogResource_IDD_CREATEWAV(CDialog* parent1)
+void qtMfcInitDialogResource_IDD_CREATEWAV(CDialog* parent)
 {
-   CCreateWaveDlg* parent = dynamic_cast<CCreateWaveDlg*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
 
 //   IDD_CREATEWAV DIALOGEX 0, 0, 151, 208
@@ -3359,10 +3307,8 @@ void qtMfcInitDialogResource_IDD_CREATEWAV(CDialog* parent1)
 //   END
 }
 
-#include "WavProgressDlg.h"
-void qtMfcInitDialogResource_IDD_WAVE_PROGRESS(CDialog* parent1)
+void qtMfcInitDialogResource_IDD_WAVE_PROGRESS(CDialog* parent)
 {
-   CWavProgressDlg* parent = dynamic_cast<CWavProgressDlg*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
 
 //   IDD_WAVE_PROGRESS DIALOGEX 0, 0, 220, 111
@@ -3419,9 +3365,8 @@ void qtMfcInitDialogResource_IDD_WAVE_PROGRESS(CDialog* parent1)
 //   END
 }
 
-void qtMfcInitDialogResource_IDD_MAINBAR(CDialog* parent1)
+void qtMfcInitDialogResource_IDD_MAINBAR(CDialog* parent)
 {
-   CDialog* parent = dynamic_cast<CDialog*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
 
 //   IDD_MAINBAR DIALOGEX 0, 0, 111, 128
@@ -3435,10 +3380,8 @@ void qtMfcInitDialogResource_IDD_MAINBAR(CDialog* parent1)
 //   END
 }
 
-#include "InstrumentEditorFDS.h"
-void qtMfcInitDialogResource_IDD_INSTRUMENT_FDS(CDialog* parent1)
+void qtMfcInitDialogResource_IDD_INSTRUMENT_FDS(CDialog* parent)
 {
-   CInstrumentEditorFDS* parent = dynamic_cast<CInstrumentEditorFDS*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
 
 //   IDD_INSTRUMENT_FDS DIALOGEX 0, 0, 372, 172
@@ -3583,9 +3526,8 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_FDS(CDialog* parent1)
 //   END
 }
 
-void qtMfcInitDialogResource_IDD_FRAMECONTROLS(CDialog* parent1)
+void qtMfcInitDialogResource_IDD_FRAMECONTROLS(CDialog* parent)
 {
-   CControlPanelDlg* parent = dynamic_cast<CControlPanelDlg*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
 
 //   IDD_FRAMECONTROLS DIALOGEX 0, 0, 107, 12
@@ -3616,10 +3558,8 @@ void qtMfcInitDialogResource_IDD_FRAMECONTROLS(CDialog* parent1)
 //   END
 }
 
-#include "SampleEditorDlg.h"
-void qtMfcInitDialogResource_IDD_SAMPLE_EDITOR(CDialog* parent1)
+void qtMfcInitDialogResource_IDD_SAMPLE_EDITOR(CDialog* parent)
 {
-   CSampleEditorDlg* parent = dynamic_cast<CSampleEditorDlg*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
 
 //   IDD_SAMPLE_EDITOR DIALOGEX 0, 0, 481, 255
@@ -3707,10 +3647,8 @@ void qtMfcInitDialogResource_IDD_SAMPLE_EDITOR(CDialog* parent1)
 //   END
 }
 
-#include "InstrumentEditorFDSEnvelope.h"
-void qtMfcInitDialogResource_IDD_INSTRUMENT_FDS_ENVELOPE(CDialog* parent1)
+void qtMfcInitDialogResource_IDD_INSTRUMENT_FDS_ENVELOPE(CDialog* parent)
 {
-   CInstrumentEditorFDSEnvelope* parent = dynamic_cast<CInstrumentEditorFDSEnvelope*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
 
 //   IDD_INSTRUMENT_FDS_ENVELOPE DIALOGEX 0, 0, 372, 172
@@ -3748,10 +3686,8 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_FDS_ENVELOPE(CDialog* parent1)
 //   END
 }
 
-#include "ChannelsDlg.h"
-void qtMfcInitDialogResource_IDD_CHANNELS(CDialog* parent1)
+void qtMfcInitDialogResource_IDD_CHANNELS(CDialog* parent)
 {
-   CChannelsDlg* parent = dynamic_cast<CChannelsDlg*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
 
 //   IDD_CHANNELS DIALOGEX 0, 0, 303, 236
@@ -3821,10 +3757,8 @@ void qtMfcInitDialogResource_IDD_CHANNELS(CDialog* parent1)
 //   END
 }
 
-#include "CommentsDlg.h"
-void qtMfcInitDialogResource_IDD_COMMENTS(CDialog* parent1)
+void qtMfcInitDialogResource_IDD_COMMENTS(CDialog* parent)
 {
-   CCommentsDlg* parent = dynamic_cast<CCommentsDlg*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
 
 //   IDD_COMMENTS DIALOGEX 0, 0, 358, 230
@@ -3864,10 +3798,8 @@ void qtMfcInitDialogResource_IDD_COMMENTS(CDialog* parent1)
 //   END
 }
 
-#include "ConfigMixer.h"
-void qtMfcInitDialogResource_IDD_CONFIG_MIXER(CDialog* parent1)
+void qtMfcInitDialogResource_IDD_CONFIG_MIXER(CDialog* parent)
 {
-   CConfigMixer* parent = dynamic_cast<CConfigMixer*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
 
 //IDD_CONFIG_MIXER DIALOGEX 0, 0, 280, 167
@@ -4033,10 +3965,8 @@ void qtMfcInitDialogResource_IDD_CONFIG_MIXER(CDialog* parent1)
 //END
 }
 
-#include "InstrumentEditorN163Wave.h"
-void qtMfcInitDialogResource_IDD_INSTRUMENT_N163_WAVE(CDialog* parent1)
+void qtMfcInitDialogResource_IDD_INSTRUMENT_N163_WAVE(CDialog* parent)
 {
-   CInstrumentEditorN163Wave* parent = dynamic_cast<CInstrumentEditorN163Wave*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
 
 //   IDD_INSTRUMENT_N163_WAVE DIALOGEX 0, 0, 372, 172
@@ -4175,10 +4105,8 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_N163_WAVE(CDialog* parent1)
 //   END
 }
 
-#include "ModuleImportDlg.h"
-void qtMfcInitDialogResource_IDD_IMPORT(CDialog* parent1)
+void qtMfcInitDialogResource_IDD_IMPORT(CDialog* parent)
 {
-   CModuleImportDlg* parent = dynamic_cast<CModuleImportDlg*>(parent1);
    QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
 
 //   IDD_IMPORT DIALOGEX 0, 0, 161, 209
