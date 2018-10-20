@@ -3019,7 +3019,7 @@ CBitmap::CBitmap(QString resource)
 
 CBitmap::CBitmap(QPixmap pixmap)
 {
-   if ( _owned )
+   if ( _owned && _qpixmap )
       delete _qpixmap;
    _qpixmap = new QPixmap(pixmap);
    _owned = true;
