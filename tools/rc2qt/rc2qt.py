@@ -16,18 +16,19 @@ class rcBitmap(object):
 
 class rcBitmapList(object):
    bitmaps = []
-   BitmapsHeader = """
-   void qtMfcInitBitmapResources()
-   {
-      qtMfcBitmapResources.clear();
-   """
-   BitmapItemFormat = """
-      // {0} BITMAP {1}
-      qtMfcBitmapResources.insert({0},new CBitmap({1}));
-   """
-   BitmapsFooter = """
-   }
-   """
+   BitmapsHeader = \
+"""
+void qtMfcInitBitmapResources()
+{
+   qtMfcBitmapResources.clear();
+"""
+   BitmapItemFormat = \
+"""   // {0} BITMAP {1}
+   qtMfcBitmapResources.insert({0},new CBitmap({1}));
+"""
+   BitmapsFooter = \
+"""}
+"""
    
    def add(self,bitmap):
       self.bitmaps.append(bitmap)
@@ -48,22 +49,23 @@ class rcIcon(object):
 
 class rcIconList(object):
    icons = []
-   IconsHeader = """
-   void qtInitIconResources()
-   {
-      qtIconNames.clear();
-      qtIconResources.clear();
+   IconsHeader = \
+"""
+void qtInitIconResources()
+{
+   qtIconNames.clear();
+   qtIconResources.clear();
 
-      // Icon with lowest ID value placed first to ensure application icon
-      // remains consistent on all systems.
-   """
-   IconItemFormat = """
-      // {0} ICON {1}
-      qtIconNames.insert({0},{1});
-   """
-   IconsFooter = """
-   }
-   """
+   // Icon with lowest ID value placed first to ensure application icon
+   // remains consistent on all systems.
+"""
+   IconItemFormat = \
+"""   // {0} ICON {1}
+   qtIconNames.insert({0},{1});
+"""
+   IconsFooter = \
+"""}
+"""
    
    def add(self,icon):
       self.icons.append(icon)
@@ -75,9 +77,8 @@ class rcIconList(object):
       print self.IconsFooter
 
 class rcStringTable(object):
-   StringTableItemFormat = """
-      qtMfcStringResources.insert({0},{1});
-   """
+   StringTableItemFormat = \
+"""   qtMfcStringResources.insert({0},{1});"""
    table = None
    
    def __init__(self,table):
@@ -91,29 +92,31 @@ class rcStringTable(object):
 
 class rcStringTableList(object):
    stringTables = []
-   StringTablesHeader = """
-   void qtMfcInitStringResources()
-   {
-      qtMfcStringResources.clear();
-   """
-   StringTableHeader = """
-      // STRINGTABLE
-      // BEGIN
-   """
-   StringTableFooter = """
-      // END
-   """
-   StringTablesFooter = """
-      // AFX resources
-      qtMfcStringResources.insert(AFX_IDS_ALLFILTER,"All files|");
-      qtMfcStringResources.insert(AFX_IDS_OPENFILE,"Open");
-      qtMfcStringResources.insert(AFX_IDS_SAVEFILE,"Save As");
-      qtMfcStringResources.insert(AFX_IDS_SAVEFILECOPY,"Save As");
-      qtMfcStringResources.insert(AFX_IDS_UNTITLED,"Untitled");
-      qtMfcStringResources.insert(AFX_IDP_ASK_TO_SAVE,"Save changes to %s?");
-      qtMfcStringResources.insert(AFX_IDP_FAILED_TO_CREATE_DOC,"Failed to create empty document.");
-   }
-   """
+   StringTablesHeader = \
+"""
+void qtMfcInitStringResources()
+{
+   qtMfcStringResources.clear();
+"""
+   StringTableHeader = \
+"""
+   // STRINGTABLE
+   // BEGIN"""
+   StringTableFooter = \
+"""   // END
+"""
+   StringTablesFooter = \
+"""
+   // AFX resources
+   qtMfcStringResources.insert(AFX_IDS_ALLFILTER,"All files|");
+   qtMfcStringResources.insert(AFX_IDS_OPENFILE,"Open");
+   qtMfcStringResources.insert(AFX_IDS_SAVEFILE,"Save As");
+   qtMfcStringResources.insert(AFX_IDS_SAVEFILECOPY,"Save As");
+   qtMfcStringResources.insert(AFX_IDS_UNTITLED,"Untitled");
+   qtMfcStringResources.insert(AFX_IDP_ASK_TO_SAVE,"Save changes to %s?");
+   qtMfcStringResources.insert(AFX_IDP_FAILED_TO_CREATE_DOC,"Failed to create empty document.");
+}
+"""
    
    def add(self,stringTable):
       self.stringTables.append(stringTable)
@@ -127,67 +130,65 @@ class rcStringTableList(object):
       print self.StringTablesFooter
          
 class rcToolbar(object):
-   ToolbarsImplHeaderFormat = """
-   void qtMfcInitToolBarResource_{0}(UINT dlgID,CToolBar* parent)
+   ToolbarsImplHeaderFormat = \
+"""
+void qtMfcInitToolBarResource_{0}(UINT dlgID,CToolBar* parent)
+{{
+   QImage toolBarImage = qtMfcBitmapResource({0})->toQPixmap()->toImage();
+   QToolBar* toolBar = dynamic_cast<QToolBar*>(parent->toQWidget());
+   QPixmap toolBarActionPixmap;
+   QAction* toolBarAction;
+   QRgb pixel00;
+   int x,y;
+
+   toolBarImage = toolBarImage.convertToFormat(QImage::Format_ARGB32);
+   pixel00 = toolBarImage.pixel(0,0);
+   for ( y = 0; y < toolBarImage.height(); y++ )
    {{
-      QImage toolBarImage = qtMfcBitmapResource({0})->toQPixmap()->toImage();
-      QToolBar* toolBar = dynamic_cast<QToolBar*>(parent->toQWidget());
-      QPixmap toolBarActionPixmap;
-      QAction* toolBarAction;
-      QRgb pixel00;
-      int x,y;
-   
-      toolBarImage = toolBarImage.convertToFormat(QImage::Format_ARGB32);
-      pixel00 = toolBarImage.pixel(0,0);
-      for ( y = 0; y < toolBarImage.height(); y++ )
+      for ( x = 0; x < toolBarImage.width(); x++ )
       {{
-         for ( x = 0; x < toolBarImage.width(); x++ )
+         if ( toolBarImage.pixel(x,y) == pixel00 )
          {{
-            if ( toolBarImage.pixel(x,y) == pixel00 )
-            {{
-               toolBarImage.setPixel(x,y,qRgba(0,0,0,0));
-            }}
+            toolBarImage.setPixel(x,y,qRgba(0,0,0,0));
          }}
       }}
+   }}
    
    // {0} TOOLBAR {1}, {2}
       toolBar->setIconSize(QSize({1},{2}));
-   // BEGIN
-   """
+   // BEGIN"""
    ToolbarsImplItemFormat = [
-   """
-      // BUTTON {1}
-      toolBarAction = new QAction(parent);
-      toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy({0}*{2},0,{2},{3}));
-      toolBarAction->setIcon(QIcon(toolBarActionPixmap));
-      toolBarAction->setData({1});
-      QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
-      toolBar->addAction(toolBarAction);
-   """,
-   """
-      // SEPARATOR
-      toolBar->addSeparator();
-   """
+"""   // BUTTON {1}
+   toolBarAction = new QAction(parent);
+   toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy({0}*{2},0,{2},{3}));
+   toolBarAction->setIcon(QIcon(toolBarActionPixmap));
+   toolBarAction->setData({1});
+   QObject::connect(toolBarAction,SIGNAL(triggered()),parent,SLOT(toolBarAction_triggered()));
+   toolBar->addAction(toolBarAction);
+""",
+"""   // SEPARATOR
+   toolBar->addSeparator();
+"""
    ]
-   ToolbarsImplFooter = """
-   // END
-   
-      for ( x = 0; x < toolBar->actions().count(); x++ )
+   ToolbarsImplFooter = \
+"""   // END
+
+   for ( x = 0; x < toolBar->actions().count(); x++ )
+   {
+      CString toolTipCString = qtMfcStringResource(toolBar->actions().at(x)->data().toInt());
+      QString toolTip = toolTipCString;
+      if ( toolTip.indexOf('\\n') >= 0 )
       {
-         CString toolTipCString = qtMfcStringResource(toolBar->actions().at(x)->data().toInt());
-         QString toolTip = toolTipCString;
-         if ( toolTip.indexOf('\\n') >= 0 )
-         {
-            toolBar->actions().value(x)->setToolTip(toolTip.right(toolTip.length()-toolTip.indexOf('\\n')-1));
-         }
+         toolBar->actions().value(x)->setToolTip(toolTip.right(toolTip.length()-toolTip.indexOf('\\n')-1));
       }
    }
-   """
-   ToolbarsDeclItemFormat = """
-      case {0}:
-         qtMfcInitToolBarResource_{0}(dlgID,parent);
-         break;
-   """
+}
+"""
+   ToolbarsDeclItemFormat = \
+"""   case {0}:
+      qtMfcInitToolBarResource_{0}(dlgID,parent);
+      break;
+"""
    BUTTON = 0
    SEPARATOR = 1
    X = 0
@@ -210,22 +211,22 @@ class rcToolbar(object):
       for item in self.table:
          if item.BUTTON():
             print self.ToolbarsImplItemFormat[self.BUTTON].format(idx,item.ID().getText(),self.numbers[self.X],self.numbers[self.Y])
+            idx += 1
          else:
             print self.ToolbarsImplItemFormat[self.SEPARATOR]
-         idx += 1
       print self.ToolbarsImplFooter
 
 class rcToolbarList(object):
-   ToolbarsDeclHeader = """
-   void qtMfcInitToolBarResource(UINT dlgID,CToolBar* parent)
-   {
-      switch ( dlgID )
-      {
-   """
-   ToolbarsDeclFooter = """
-      }
-   }
-   """
+   ToolbarsDeclHeader = \
+"""
+void qtMfcInitToolBarResource(UINT dlgID,CToolBar* parent)
+{
+   switch ( dlgID )
+   {"""
+   ToolbarsDeclFooter = \
+"""   }
+}
+"""
    toolbars = []
    
    def add(self,toolbar):
@@ -241,26 +242,26 @@ class rcToolbarList(object):
       print self.ToolbarsDeclFooter
             
 class rcAcceleratorTable(object):
-   AcceleratorTablesImplHeaderFormat = """
-   // {0} ACCELERATORS
-   ACCEL ACCEL_{0}[] = 
-   {{
-      // BEGIN
-   """
-   AcceleratorTablesImplItemFormat = """
-      // {1}, {0}, {2}
-      {{ {2}, {1}, {0} }},
-   """
-   AcceleratorTablesImplFooter = """
-      // END
-      { 0, 0, 0 },
-   };
-   """
-   AcceleratorTablesDeclItemFormat = """
-      case {0}:
+   AcceleratorTablesImplHeaderFormat = \
+"""
+// {0} ACCELERATORS
+ACCEL ACCEL_{0}[] = 
+{{
+   // BEGIN"""
+   AcceleratorTablesImplItemFormat = \
+"""   // {1}, {0}, {2}
+   {{ {2}, {1}, {0} }},
+"""
+   AcceleratorTablesImplFooter = \
+"""   // END
+   { 0, 0, 0 },
+};
+"""
+   AcceleratorTablesDeclItemFormat = \
+"""      case {0}:
          return ACCEL_{0};
          break;
-   """
+"""
    table = None
    id = ""
    
@@ -295,17 +296,17 @@ class rcAcceleratorTable(object):
       print self.AcceleratorTablesImplFooter
 
 class rcAcceleratorTableList(object):
-   AcceleratorTablesDeclHeader = """
-   ACCEL* qtMfcAcceleratorResource(UINT id)
-   {
-      switch ( id )
-      {
-   """
-   AcceleratorTablesDeclFooter = """
-      }
-      return NULL;
-   }
-   """
+   AcceleratorTablesDeclHeader = \
+"""
+ACCEL* qtMfcAcceleratorResource(UINT id)
+{
+   switch ( id )
+   {"""
+   AcceleratorTablesDeclFooter = \
+"""   }
+   return NULL;
+}
+"""
    accleratorTables = []
    
    def add(self,acceleratorTable):
@@ -322,48 +323,50 @@ class rcAcceleratorTableList(object):
 
 
 class rcMenu(object):
-   MenusImplHeaderFormat = """
-   void qtMfcInitMenuResource_{0}(CMenu* parent)
-   {{
-      QAction* menuAction;
+   MenusImplHeaderFormat = \
+"""
+void qtMfcInitMenuResource_{0}(CMenu* parent)
+{{
+   QAction* menuAction;
 
-      // {0} MENU
-      // BEGIN
-      QList<CMenu*> subMenuTree;
-      CMenu* subMenu;
-   """
-   MenusImplFooter = """
-      // END
-   }
-   """
-   MenusDeclItemFormat = """
-      case {0}:
+   // {0} MENU
+   // BEGIN
+   QList<CMenu*> subMenuTree;
+   CMenu* subMenu;
+"""
+   MenusImplFooter = \
+"""   // END
+}
+"""
+   MenusDeclItemFormat = \
+"""      case {0}:
          qtMfcInitMenuResource_{0}(parent);
          break;
-   """
-   PopupsImplHeaderFormat = """
-      // POPUP {0}
-      subMenuTree.append(new CMenu);
-      subMenu = subMenuTree.at(subMenuTree.count()-1);
-      QObject::connect(subMenu->toQMenu(),SIGNAL(aboutToShow()),subMenu,SLOT(menu_aboutToShow()));
+"""
+   PopupsImplHeaderFormat = \
+"""
+   // POPUP {0}
+   subMenu = new CMenu;
+   subMenuTree.append(subMenu);
+   QObject::connect(subMenu->toQMenu(),SIGNAL(aboutToShow()),subMenu,SLOT(menu_aboutToShow()));
+   if ( subMenuTree.count() == 1 )
+      parent->AppendMenu(MF_POPUP|MF_STRING,(UINT_PTR)subMenu->m_hMenu,{0});
+   else
       subMenuTree.at(subMenuTree.count()-2)->AppendMenu(MF_POPUP|MF_STRING,(UINT_PTR)subMenu->m_hMenu,{0});
-      // BEGIN
-   """
-   PopupsImplFooter = """
-      // END
-      subMenuTree.removeLast();
-      subMenu = subMenuTree.at(subMenuTree.count()-1);
-   """
+      
+   // BEGIN"""
+   PopupsImplFooter = \
+"""   // END
+   subMenu = subMenuTree.takeLast();
+"""
    MenuItemFormat = [
-      """
-         // MENUITEM {1}, {0}
-         subMenu->AppendMenu({2},{0},{1});
-      """,
-      """
-         // MENUITEM SEPARATOR
-         subMenu->AppendMenu({0});
-      """
-   ]
+"""   // MENUITEM {1}, {0}
+   subMenu->AppendMenu({2},{0},{1});
+""",
+"""   // MENUITEM SEPARATOR
+   subMenu->AppendMenu({0});
+"""
+]
    id = ""
    MENUITEM = 0
    SEPARATOR = 1
@@ -409,32 +412,32 @@ class rcMenu(object):
 
 
 class rcMenuList(object):
-   MenusDeclHeader = """
-   void qtMfcInitMenuResource(UINT menuID,CMenu* parent)
-   {
-      switch ( menuID )
-      {
-   """
-   MenusDeclFooter = """
-      }
+   MenusDeclHeader = \
+"""
+void qtMfcInitMenuResource(UINT menuID,CMenu* parent)
+{
+   switch ( menuID )
+   {"""
+   MenusDeclFooter = \
+"""   }
 
-      // Fixup shortcuts
-      int menu = 0;
-      CMenu* subMenu = parent->GetSubMenu(menu);
-      while ( subMenu )
+   // Fixup shortcuts
+   int menu = 0;
+   CMenu* subMenu = parent->GetSubMenu(menu);
+   while ( subMenu )
+   {
+      foreach ( QAction* action, subMenu->toQMenu()->actions() )
       {
-         foreach ( QAction* action, subMenu->toQMenu()->actions() )
+         if ( action->text().contains("\\t") )
          {
-            if ( action->text().contains("\\t") )
-            {
-               action->setShortcut(QKeySequence(action->text().split("\\t").at(1)));
-            }
+            action->setShortcut(QKeySequence(action->text().split("\\t").at(1)));
          }
-         menu++;
-         subMenu = parent->GetSubMenu(menu);
       }
+      menu++;
+      subMenu = parent->GetSubMenu(menu);
    }
-   """
+}
+"""
    menus = []
 
    def add(self, menu):
@@ -451,39 +454,39 @@ class rcMenuList(object):
 
 
 class rcDialogEx(object):
-   DialogExImplHeaderStartFormat = """
-   void qtMfcInitDialogResource_{0}(CDialog* parent)
-   {{
-      QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
-
-      // {0} DIALOGEX {1}, {2}, {3}, {4}
-      CRect rect(CPoint({1},{2}),CSize({3},{4}));
-      parent->MapDialogRect(&rect);
-      parent->setFixedSize(rect.Width(),rect.Height());
-   """
-   CaptionFormat = """
-      // CAPTION {0}
-      parent->SetWindowText({0});
-   """
-   StyleFormat = """
-      // STYLE {0}
-      parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags(){1});
-   """
-   FontFormat = """
-      // FONT {0}, {1}, {2}, {3}, {4}
-   """
-   DialogExImplHeaderEnd = """
-      // BEGIN
-   """
-   DialogExDeclItemFormat = """
-      case {0}:
+   DialogExImplHeaderStartFormat = \
+"""
+void qtMfcInitDialogResource_{0}(CDialog* parent)
+{{
+   QHash<int,CWnd*>* mfcToQtWidget = parent->mfcToQtWidgetMap();
+   
+   // {0} DIALOGEX {1}, {2}, {3}, {4}
+   CRect rect(CPoint({1},{2}),CSize({3},{4}));
+   parent->MapDialogRect(&rect);
+   parent->setFixedSize(rect.Width(),rect.Height());
+"""
+   CaptionFormat = \
+"""   // CAPTION {0}
+   parent->SetWindowText({0});
+"""
+   StyleFormat = \
+"""   // STYLE {0}
+   parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags(){1});
+"""
+   FontFormat = \
+"""   // FONT {0}, {1}, {2}, {3}, {4}
+"""
+   DialogExImplHeaderEnd = \
+"""   // BEGIN"""
+   DialogExDeclItemFormat = \
+"""      case {0}:
          qtMfcInitDialogResource_{0}(parent);
          break;
-   """
-   DialogExImplFooter = """
-      //   END
-   }
-   """
+"""
+   DialogExImplFooter = \
+"""   // END
+}
+"""
    id = ""
    items = None
    x = y = dx = dy = 0
@@ -516,32 +519,38 @@ class rcDialogEx(object):
    def get_styles(self,stylelist,styles):
       if stylelist:
          if stylelist.stylelist():
-            self.get_styles(stylelist.stylelist(),styles)
-         if stylelist.NOT():
-            return styles
-         if styles != "":
-            styles += "|"
-         styles += stylelist.any_style().getText()
+            styles = self.get_styles(stylelist.stylelist(),styles)
+         if stylelist.NOT() == None:
+            if styles != "":
+               styles += "|"
+            styles += stylelist.any_style().getText()
+         elif "|"+stylelist.any_style().getText() in styles:
+            styles = styles.replace("|"+stylelist.any_style().getText(), '')
+         elif stylelist.any_style().getText()+"|" in styles:
+            styles = styles.replace(stylelist.any_style().getText()+"|", '')
+         elif stylelist.any_style().getText() in styles:
+            styles = styles.replace(stylelist.any_style().getText(), '')
+
       return styles
 
    def output_generic_control_statement(self,idx,item):
-      ItemFormat = """
-          // CONTROL {3}, {1}, {4}, BS_AUTORADIOBUTTON, {6}, {7}, {8}, {9}
-          {5}* mfc{0} = new {5}(parent);
-          CRect r{0}(CPoint({6}, {7}), CSize({8}, {9}));
-          parent->MapDialogRect(&r{0});
-          mfc{0}->Create(_T({3}), {2}, r{0}, parent, {1});
-          mfcToQtWidget->insert({1}, mfc{0});
-      """
-      ItemFormatNoTitle = """
-          // CONTROL {3}, {1}, {4}, BS_AUTORADIOBUTTON, {6}, {7}, {8}, {9}
-          {5}* mfc{0} = new {5}(parent);
-          CRect r{0}(CPoint({6}, {7}), CSize({8}, {9}));
-          parent->MapDialogRect(&r{0});
-          mfc{0}->Create({2}, r{0}, parent, {1});
-          mfcToQtWidget->insert({1}, mfc{0});
-      """
-      styles = self.get_styles(item.stylelist(),"0")
+      ItemFormat = \
+"""   // CONTROL {3}, {1}, {4}, {2}, {6}, {7}, {8}, {9}
+   {5}* mfc{0} = new {5}(parent);
+   CRect r{0}(CPoint({6}, {7}), CSize({8}, {9}));
+   parent->MapDialogRect(&r{0});
+   mfc{0}->Create(_T({3}), {2}, r{0}, parent, {1});
+   mfcToQtWidget->insert({1}, mfc{0});
+"""
+      ItemFormatNoTitle = \
+"""   // CONTROL {3}, {1}, {4}, {2}, {6}, {7}, {8}, {9}
+   {5}* mfc{0} = new {5}(parent);
+   CRect r{0}(CPoint({6}, {7}), CSize({8}, {9}));
+   parent->MapDialogRect(&r{0});
+   mfc{0}->Create({2}, r{0}, parent, {1});
+   mfcToQtWidget->insert({1}, mfc{0});
+"""
+      styles = self.get_styles(item.stylelist(),"WS_VISIBLE|WS_BORDER")
       ItemFormatInUse = ItemFormatNoTitle
       mfcClass = ""
       if item.String(1).getText().lower() == '"button"':
@@ -576,15 +585,15 @@ class rcDialogEx(object):
                               )
 
    def output_static_control_statement(self,idx,item):
-      ItemFormat = """
-         // {3} {4},{1},{5},{6},{7},{8}
-         CStatic* mfc{0} = new CStatic(parent);
-         CRect r{0}(CPoint({5},{6}),CSize({7},{8}));
-         parent->MapDialogRect(&r{0});
-         mfc{0}->Create(_T({4}),{2},r{0},parent,{1});
-         // IDC_STATIC do not get added to MFC-to-Qt map.
-      """
-      styles = self.get_styles(item.stylelist(),"0")
+      ItemFormat = \
+"""   // {3} {4},{1},{5},{6},{7},{8}
+   CStatic* mfc{0} = new CStatic(parent);
+   CRect r{0}(CPoint({5},{6}),CSize({7},{8}));
+   parent->MapDialogRect(&r{0});
+   mfc{0}->Create(_T({4}),{2},r{0},parent,{1});
+   // IDC_STATIC do not get added to MFC-to-Qt map.
+"""
+      styles = self.get_styles(item.stylelist(),"WS_VISIBLE|WS_BORDER")
 
       print ItemFormat.format(idx, \
                               item.ID().getText(), \
@@ -598,15 +607,15 @@ class rcDialogEx(object):
                               )
 
    def output_groupbox_control_statement(self,idx,item):
-      ItemFormat = """
-         // GROUPBOX {3},{1},{4},{5},{6},{7}
-         CButton* mfc{0} = new CButton(parent);
-         CRect r{0}(CPoint({4},{5}),CSize({6},{7}));
-         parent->MapDialogRect(&r{0});
-         mfc{0}->Create(_T({3}),{2},r{0},parent,{1});
-         // IDC_STATIC do not get added to MFC-to-Qt map.
-       """
-      styles = self.get_styles(item.stylelist(),"0")
+      ItemFormat = \
+"""   // GROUPBOX {3},{1},{4},{5},{6},{7}
+   CButton* mfc{0} = new CButton(parent);
+   CRect r{0}(CPoint({4},{5}),CSize({6},{7}));
+   parent->MapDialogRect(&r{0});
+   mfc{0}->Create(_T({3}),{2},r{0},parent,{1});
+   // IDC_STATIC do not get added to MFC-to-Qt map.
+"""
+      styles = self.get_styles(item.stylelist(),"BS_GROUPBOX|WS_VISIBLE|WS_BORDER")
 
       print ItemFormat.format(idx, \
                               item.ID().getText(), \
@@ -619,15 +628,15 @@ class rcDialogEx(object):
                               )
 
    def output_combobox_control_statement(self,idx,item):
-      ItemFormat = """
-         // COMBOBOX {1},{3},{4},{5},{6},{2}
-         CComboBox* mfc{0} = new CComboBox(parent);
-         CRect r{0}(CPoint({3},{4}),CSize({5},{6}));
-         parent->MapDialogRect(&r{0});
-         mfc{0}->Create({2},r{0},parent,{1});
-         mfcToQtWidget->insert({1},mfc{0});
-       """
-      styles = self.get_styles(item.stylelist(),"0")
+      ItemFormat = \
+"""   // COMBOBOX {1},{3},{4},{5},{6},{2}
+   CComboBox* mfc{0} = new CComboBox(parent);
+   CRect r{0}(CPoint({3},{4}),CSize({5},{6}));
+   parent->MapDialogRect(&r{0});
+   mfc{0}->Create({2},r{0},parent,{1});
+   mfcToQtWidget->insert({1},mfc{0});
+"""
+      styles = self.get_styles(item.stylelist(),"WS_VISIBLE|WS_BORDER")
 
       print ItemFormat.format(idx, \
                               item.ID().getText(), \
@@ -639,15 +648,15 @@ class rcDialogEx(object):
                               )
 
    def output_listbox_control_statement(self,idx,item):
-      ItemFormat = """
-         // LISTBOX {1},{3},{4},{5},{6},{2}
-         CListBox* mfc{0} = new CListBox(parent);
-         CRect r{0}(CPoint({3},{4}),CSize({5},{6}));
-         parent->MapDialogRect(&r{0});
-         mfc{0}->Create({2},r{0},parent,{1});
-         mfcToQtWidget->insert({1},mfc{0});
-       """
-      styles = self.get_styles(item.stylelist(),"0")
+      ItemFormat = \
+"""   // LISTBOX {1},{3},{4},{5},{6},{2}
+   CListBox* mfc{0} = new CListBox(parent);
+   CRect r{0}(CPoint({3},{4}),CSize({5},{6}));
+   parent->MapDialogRect(&r{0});
+   mfc{0}->Create({2},r{0},parent,{1});
+   mfcToQtWidget->insert({1},mfc{0});
+"""
+      styles = self.get_styles(item.stylelist(),"WS_VISIBLE|WS_BORDER")
 
       print ItemFormat.format(idx, \
                               item.ID().getText(), \
@@ -659,15 +668,15 @@ class rcDialogEx(object):
                               )
 
    def output_defpushbutton_control_statement(self,idx,item):
-      ItemFormat = """
-         // DEFPUSHBUTTON {3},{2},{4},{5},{6},{7}
-         CButton* mfc{0} = new CButton(parent);
-         CRect r{0}(CPoint({4},{5}),CSize({6},{7}));
-         parent->MapDialogRect(&r{0});
-         mfc{0}->Create(_T({3}),{2},r{0},parent,{1});
-         mfcToQtWidget->insert({1},mfc{0});
-       """
-      styles = self.get_styles(item.stylelist(),"0")
+      ItemFormat = \
+"""   // DEFPUSHBUTTON {3},{2},{4},{5},{6},{7}
+   CButton* mfc{0} = new CButton(parent);
+   CRect r{0}(CPoint({4},{5}),CSize({6},{7}));
+   parent->MapDialogRect(&r{0});
+   mfc{0}->Create(_T({3}),{2},r{0},parent,{1});
+   mfcToQtWidget->insert({1},mfc{0});
+"""
+      styles = self.get_styles(item.stylelist(),"BS_DEFPUSHBUTTON|WS_VISIBLE|WS_BORDER")
 
       print ItemFormat.format(idx, \
                               item.ID().getText(), \
@@ -680,15 +689,15 @@ class rcDialogEx(object):
                               )
 
    def output_edit_control_statement(self,idx,item):
-      ItemFormat = """
-         // {1} {2},{4},{5},{6},{7},{3}
-         CEdit* mfc{0} = new CEdit(parent);
-         CRect r{0}(CPoint({4},{5}),CSize({6},{7}));
-         parent->MapDialogRect(&r{0});
-         mfc{0}->Create({3},r{0},parent,{2});
-         mfcToQtWidget->insert({2},mfc{0});
-       """
-      styles = self.get_styles(item.stylelist(),"0")
+      ItemFormat = \
+"""   // {1} {2},{4},{5},{6},{7},{3}
+   CEdit* mfc{0} = new CEdit(parent);
+   CRect r{0}(CPoint({4},{5}),CSize({6},{7}));
+   parent->MapDialogRect(&r{0});
+   mfc{0}->Create({3},r{0},parent,{2});
+   mfcToQtWidget->insert({2},mfc{0});
+"""
+      styles = self.get_styles(item.stylelist(),"WS_VISIBLE|WS_BORDER")
 
       print ItemFormat.format(idx, \
                               item.edit_class_identifier().getText(),
@@ -701,15 +710,15 @@ class rcDialogEx(object):
                               )
 
    def output_button_control_statement(self,idx,item):
-      ItemFormat = """
-         // {1} {4},{2},{5},{6},{7},{8},{3}
-         CButton* mfc{0} = new CButton(parent);
-         CRect r{0}(CPoint({5},{6}),CSize({7},{8}));
-         parent->MapDialogRect(&r{0});
-         mfc{0}->Create(_T({4}),{3},r{0},parent,{2});
-         mfcToQtWidget->insert({2},mfc{0});
-       """
-      styles = self.get_styles(item.stylelist(),"0")
+      ItemFormat = \
+"""   // {1} {4},{2},{5},{6},{7},{8},{3}
+   CButton* mfc{0} = new CButton(parent);
+   CRect r{0}(CPoint({5},{6}),CSize({7},{8}));
+   parent->MapDialogRect(&r{0});
+   mfc{0}->Create(_T({4}),{3},r{0},parent,{2});
+   mfcToQtWidget->insert({2},mfc{0});
+"""
+      styles = self.get_styles(item.stylelist(),"WS_VISIBLE|WS_BORDER")
 
       print ItemFormat.format(idx, \
                               item.button_class_identifier().getText(),
@@ -758,21 +767,22 @@ class rcDialogEx(object):
 
 
 class rcDialogExList(object):
-   DialogExsDeclHeader = """
-   void qtMfcInitDialogResource(UINT dlgID,CDialog* parent)
-   {
-      switch ( dlgID )
-      {
-   """
-   DialogExsDeclFooter = """
-      case 0:
-         // CP: Allow blank dialogs.
-         break;
-      default:
-         qFatal("dialog resource not implemented...");
-      }
+   DialogExsDeclHeader = \
+"""
+void qtMfcInitDialogResource(UINT dlgID,CDialog* parent)
+{
+   switch ( dlgID )
+   {"""
+   DialogExsDeclFooter = \
+"""
+   case 0:
+      // CP: Allow blank dialogs.
+      break;
+   default:
+      qFatal("dialog resource not implemented...");
    }
-   """
+}
+"""
    dialogs = []
 
    def add(self, dialog):
@@ -821,18 +831,17 @@ acceleratorTableList = rcAcceleratorTableList()
 menuList = rcMenuList()
 dialogExList = rcDialogExList()
 
-FileHeader = """
-#include "cqtmfc.h"
+FileHeader = \
+"""#include "cqtmfc.h"
 #include "cqtmfc_famitracker.h"
 #include "resource.h"
 
 #include "stdafx.h"
 
 #include "FamiTrackerDoc.h"
-
 """
-FileFooter = """
-
+FileFooter = \
+"""
 void qtMfcInit(QMainWindow* parent)
 {
    // Hook Qt to this MFC app...

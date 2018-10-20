@@ -3017,10 +3017,31 @@ CBitmap::CBitmap(QString resource)
    _owned = false;
 }
 
+CBitmap::CBitmap(QPixmap pixmap)
+{
+   if ( _owned )
+      delete _qpixmap;
+   _qpixmap = new QPixmap(pixmap);
+   _owned = true;
+}
+
 CBitmap::~CBitmap()
 {
    if ( _owned )
       delete _qpixmap;
+}
+
+BOOL CBitmap::Attach(HGDIOBJ hObject)
+{
+   CGdiObject::Attach(hObject);
+   CBitmap* pBitmap = (CBitmap*)hObject;
+   this->_qpixmap = pBitmap->toQPixmap();
+   this->_owned = FALSE;
+}
+
+HGDIOBJ CBitmap::Detach()
+{
+   return CGdiObject::Detach();
 }
 
 BOOL CBitmap::CreateCompatibleBitmap(
@@ -9612,6 +9633,27 @@ LRESULT CReBar::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
     return CControlBar::WindowProc(message, wParam, lParam);
 }
 
+CImageList* CToolBarCtrl::SetImageList(CImageList* pImageList)
+{
+   int i,j;
+   QToolBar* pToolBar = m_pToolBar->toQToolBar();
+   for ( i = 0, j = 0; i < pToolBar->actions().count(); i++ )
+   {
+      QAction* pAction = pToolBar->actions().at(i);
+      if ( pAction->isSeparator() ) continue;
+      pAction->setIcon(QIcon(*((CBitmap*)(pImageList->ExtractIcon(j)))->toQPixmap()));
+      j++;
+   }
+   return NULL;
+}
+
+DWORD CToolBarCtrl::SetExtendedStyle(DWORD dwExStyle)
+{
+
+   return 0;
+}
+
+
 IMPLEMENT_DYNAMIC(CToolBar,CControlBar)
 
 BEGIN_MESSAGE_MAP(CToolBar,CControlBar)
@@ -9634,6 +9676,8 @@ CToolBar::CToolBar(CWnd* parent)
 
    _qtd->setMouseTracking(true);
    _qtd->setMovable(false);
+
+   m_pToolBarCtrl = new CToolBarCtrl(this);
 }
 
 CToolBar::~CToolBar()
@@ -15296,8 +15340,37 @@ BOOL CImageList::Create(
    int nGrow
 )
 {
-   // Nothing to do here really...
+   this->cx = cx;
+   this->cy = cy;
    return TRUE;
+}
+
+void CImageList::commonAdd(CBitmap* pbmImage, CBitmap* pbmMask, COLORREF crMask)
+{
+   QImage toolBarImage = pbmImage->toQPixmap()->toImage();
+   QPixmap toolBarActionPixmap;
+   QRgb pixel00;
+   int x,y;
+
+   toolBarImage = toolBarImage.convertToFormat(QImage::Format_ARGB32);
+   pixel00 = toolBarImage.pixel(0,0);
+   for ( y = 0; y < toolBarImage.height(); y++ )
+   {
+      for ( x = 0; x < toolBarImage.width(); x++ )
+      {
+         if ( toolBarImage.pixel(x,y) == pixel00 )
+         {
+            toolBarImage.setPixel(x,y,qRgba(0,0,0,0));
+         }
+      }
+   }
+
+   for ( x = 0; x < pbmImage->GetBitmapDimension().cx/this->cx; x++ )
+   {
+      toolBarActionPixmap = QPixmap::fromImage(toolBarImage.copy(x*cx,0,cx,cy));
+      CBitmap* bitmap = new CBitmap(toolBarActionPixmap);
+      _images.append(bitmap);
+   }
 }
 
 int CImageList::Add(
@@ -15305,9 +15378,8 @@ int CImageList::Add(
    CBitmap* pbmMask
 )
 {
-   int ret = _images.count();
-   _images.append(pbmImage);
-   return ret;
+   commonAdd(pbmImage,pbmMask,0);
+   return _images.count();
    // Not sure what to do with mask yet.
 }
 
@@ -15316,9 +15388,8 @@ int CImageList::Add(
    COLORREF crMask
 )
 {
-   int ret = _images.count();
-   _images.append(pbmImage);
-   return ret;
+   commonAdd(pbmImage,0,crMask);
+   return _images.count();
    // Not sure what to do with mask yet.
 }
 
@@ -15326,10 +15397,8 @@ int CImageList::Add(
    HICON hIcon
 )
 {
-   int ret = _images.count();
-   CBitmap* pBitmap = (CBitmap*)hIcon;
-   _images.append(pBitmap);
-   return ret;
+   _images.append((CBitmap*)hIcon);
+   return _images.count();
 }
 
 HICON CImageList::ExtractIcon(
@@ -15337,6 +15406,11 @@ HICON CImageList::ExtractIcon(
 )
 {
    return (HICON)_images.at(nImage);
+}
+
+int CImageList::GetImageCount() const
+{
+   return _images.count();
 }
 
 IMPLEMENT_DYNAMIC(CPropertySheet,CWnd)
@@ -16370,6 +16444,25 @@ UINT WINAPI GetTempFileName(
 #endif
    
    return value;
+}
+
+HANDLE LoadImage(
+  HINSTANCE hinst,
+  LPCTSTR lpszName,
+  UINT uType,
+  int cxDesired,
+  int cyDesired,
+  UINT fuLoad
+)
+{
+   QString str = lpszName;
+   bool ok;
+   int resourceId = str.toInt(&ok);
+   if ( ok )
+   {
+      return (HANDLE)qtMfcBitmapResource(resourceId);
+   }
+   return (HANDLE)0;
 }
 
 CDocument* openFile(QString fileName)
