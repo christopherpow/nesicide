@@ -3019,16 +3019,16 @@ CBitmap::CBitmap(QString resource)
 
 CBitmap::CBitmap(QPixmap pixmap)
 {
-   if ( _owned && _qpixmap )
-      delete _qpixmap;
    _qpixmap = new QPixmap(pixmap);
-   _owned = true;
+   _owned = false;
 }
 
 CBitmap::~CBitmap()
 {
    if ( _owned )
       delete _qpixmap;
+   _qpixmap = 0;
+   _owned = false;
 }
 
 BOOL CBitmap::Attach(HGDIOBJ hObject)
@@ -3036,11 +3036,13 @@ BOOL CBitmap::Attach(HGDIOBJ hObject)
    CGdiObject::Attach(hObject);
    CBitmap* pBitmap = (CBitmap*)hObject;
    this->_qpixmap = pBitmap->toQPixmap();
-   this->_owned = FALSE;
+   this->_owned = false;
 }
 
 HGDIOBJ CBitmap::Detach()
 {
+   this->_qpixmap = 0;
+   _owned = false;
    return CGdiObject::Detach();
 }
 

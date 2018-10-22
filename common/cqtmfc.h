@@ -3296,9 +3296,9 @@ class CGdiObject : public CObject
 {
 public:
    CGdiObject() : m_hObject((HGDIOBJ)this) {}
-   virtual ~CGdiObject() {}
+   virtual ~CGdiObject() { m_hObject = 0; }
    BOOL Attach(HGDIOBJ hObject) { m_hObject = hObject; }
-   HGDIOBJ Detach() {};
+   HGDIOBJ Detach() { m_hObject = 0; }
    operator HGDIOBJ() const
    {
       return m_hObject;
