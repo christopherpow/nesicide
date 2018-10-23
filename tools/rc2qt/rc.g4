@@ -2,7 +2,7 @@ grammar rc;
 
 rc:	statement* ;
 
-statement: bitmap_statement 
+statement: bitmap_statement
          | toolbar_statement
          | menu_statement
          | accelerator_statement
@@ -11,14 +11,14 @@ statement: bitmap_statement
          | dialoginit_statement
          | stringtable_statement
          ;
-          
+
 bitmap_statement: ID BITMAP String ;
 
 BUTTON: 'BUTTON' ;
 SEPARATOR: 'SEPARATOR' ;
 toolbar_statement: ID TOOLBAR Number ',' Number BEGIN toolbar_item* END ;
-toolbar_item: BUTTON ID 
-            | SEPARATOR 
+toolbar_item: BUTTON ID
+            | SEPARATOR
             ;
 
 menu_statement: ID MENU BEGIN popup_item+ END ;
@@ -58,7 +58,7 @@ NOT: 'NOT' ;
 stylelist: stylelist '|' NOT? any_style
                 | NOT? any_style
                 ;
-window_exstylelist: window_exstylelist '|' 'NOT'? window_exstyles 
+window_exstylelist: window_exstylelist '|' 'NOT'? window_exstyles
                     | 'NOT'? window_exstyles
                     ;
 dialog_item: generic_control_statement
@@ -71,7 +71,7 @@ dialog_item: generic_control_statement
            | defpushbutton_control_statement
            | icon_control_statement
            ;
-                      
+
 generic_control_statement: CONTROL String ',' ID ',' String ',' stylelist ',' Number ',' Number ',' Number ',' Number (',' window_exstylelist)? ;
 
 static_control_statement: static_class_identifier String ',' ID ',' Number ',' Number ',' Number ',' Number (',' stylelist (',' window_exstylelist)?)? ;
@@ -79,7 +79,7 @@ static_class_identifier: 'LTEXT'
                        | 'RTEXT'
                        | 'CTEXT'
                        ;
-                         
+
 button_control_statement: button_class_identifier String ',' ID ',' Number ',' Number ',' Number ',' Number (',' stylelist (',' window_exstylelist)?)? ;
 button_class_identifier: 'AUTO3STATE'
                        | 'AUTOCHECKBOX'
@@ -91,7 +91,7 @@ button_class_identifier: 'AUTO3STATE'
                        | 'STATE3'
                        | 'USERBUTTON'
                        ;
-                       
+
 defpushbutton_control_statement: 'DEFPUSHBUTTON' String ',' ID ',' Number ',' Number ',' Number ',' Number (',' stylelist (',' window_exstylelist)?)? ;
 
 edit_control_statement: edit_class_identifier ID ',' Number ',' Number ',' Number ',' Number (',' stylelist (',' window_exstylelist)?)? ;
@@ -100,7 +100,7 @@ edit_class_identifier: 'EDITTEXT'
                      | 'HEDIT'
                      | 'IEDIT'
                      ;
-                     
+
 groupbox_control_statement: 'GROUPBOX' String ',' ID ',' Number ',' Number ',' Number ',' Number (',' stylelist (',' window_exstylelist)?)? ;
 
 combobox_control_statement: 'COMBOBOX' ID ',' Number ',' Number ',' Number ',' Number (',' stylelist (',' window_exstylelist)?)? ;
@@ -108,10 +108,11 @@ combobox_control_statement: 'COMBOBOX' ID ',' Number ',' Number ',' Number ',' N
 listbox_control_statement: 'LISTBOX' ID ',' Number ',' Number ',' Number ',' Number (',' stylelist (',' window_exstylelist)?)? ;
 
 dialoginit_statement: ID DLGINIT BEGIN dialoginit_item* END ;
-dialoginit_item: ID ',' '0x403' ',' Number ',' Number ((String | Number) ','?)+ ;
+dialoginit_data: ((String | Number) ','?) ;
+dialoginit_item: ID ',' '0x403' ',' Number ',' Number dialoginit_data+ ;
 
 icon_control_statement: ICON ( ID | String ) ',' ID ',' Number ',' Number (',' Number ',' Number ',' stylelist (',' window_exstylelist)?)? ;
-                     
+
 accelerator_statement: ID ACCELERATORS BEGIN accelerator_item+ END ;
 accelerator_item: accelerator_event ',' ID (',' ACCELERATOR_TYPE)? (',' (ACCELERATOR_OPTIONS|CONTROL))* ;
 accelerator_event: ID
@@ -130,7 +131,7 @@ Number  : ( Integer Integer* | ( '0x' | '0X' ) HexInteger HexInteger* ) ;
 
 fragment Valid_id_start: [A-Za-z] ;
 fragment Valid_id_char: [A-Za-z0-9_] ;
-   
+
 BITMAP: 'BITMAP' ;
 TOOLBAR: 'TOOLBAR' ;
 CONTROL: 'CONTROL' ;
@@ -143,7 +144,7 @@ ACCELERATOR_OPTIONS: 'NOINVERT'
                    | 'SHIFT'
                    | 'CONTROL'
                    ;
-                   
+
 ICON: 'ICON' ;
 
 STRINGTABLE: 'STRINGTABLE' ;
@@ -420,9 +421,9 @@ progressbar_styles: 'PBS_MARQUEE'
                   | 'PBS_VERTICAL'
                   ;
 any_style: Number
-         | window_styles 
+         | window_styles
          | dialog_styles
-         | button_styles 
+         | button_styles
          | static_styles
          | edit_styles
          | listbox_styles
