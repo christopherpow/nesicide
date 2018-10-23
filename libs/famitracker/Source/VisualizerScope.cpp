@@ -65,7 +65,7 @@ void CVisualizerScope::SetSampleRate(int SampleRate)
 void CVisualizerScope::ClearBackground()
 {
 	for (int y = 0; y < m_iHeight; ++y) {
-		memset(m_pBlitBuffer + y * m_iWidth, int(sinf((float(y) * 3.14f) / float(m_iHeight)) * 40.0f), sizeof(COLORREF) * m_iWidth);
+      memset(m_pBlitBuffer + y * m_iWidth, int(sinf((float(y) * 3.14f) / float(m_iHeight)) * 40.0f), sizeof(COLORREF) * m_iWidth);
 	}
 }
 
@@ -73,8 +73,8 @@ void CVisualizerScope::RenderBuffer()
 {
 	const float SAMPLE_SCALING	= 1200.0f;
 
-	const COLORREF LINE_COL1 = 0xFFFFFF;
-	const COLORREF LINE_COL2 = 0x808080;
+   const COLORREF LINE_COL1 = 0xFFFFFF;
+   const COLORREF LINE_COL2 = 0x808080;
 
 	const int BLUR_COLORS[] = {3, 12, 12};
 

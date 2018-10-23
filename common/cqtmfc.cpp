@@ -3488,7 +3488,7 @@ int StretchDIBits(
 )
 {
    CDC* pDC = (CDC*)hDC;
-   QImage image((const uchar*)lpBits,nSrcWidth,nSrcHeight,QImage::Format_RGB32);
+   QImage image((const uchar*)lpBits,nSrcWidth,nSrcHeight,QImage::Format_ARGB32);
    image = image.scaled(nDestWidth,nDestHeight);
    pDC->painter()->drawImage(XDest,YDest,image);
    return 0;

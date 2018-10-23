@@ -1676,11 +1676,11 @@ void qtMfcInitDialogResource_IDD_ABOUTBOX(CDialog* parent)
 	mfc1->Create(_T("OK"),BS_DEFPUSHBUTTON|WS_VISIBLE|WS_BORDER|WS_GROUP,r1,parent,IDOK);
 	mfcToQtWidget->insert(IDOK,mfc1);
 
-   // LTEXT " FDS sound emulator from nezplug (including a fix by rainwarrior)",IDC_STATIC,54,313,224,8
+   // LTEXT "* FDS sound emulator from nezplug (including a fix by rainwarrior)",IDC_STATIC,54,313,224,8
 	CStatic* mfc2 = new CStatic(parent);
 	CRect r2(CPoint(54,313),CSize(224,8));
 	parent->MapDialogRect(&r2);
-	mfc2->Create(_T(" FDS sound emulator from nezplug (including a fix by rainwarrior)"),WS_VISIBLE|WS_BORDER,r2,parent,IDC_STATIC);
+	mfc2->Create(_T("* FDS sound emulator from nezplug (including a fix by rainwarrior)"),WS_VISIBLE|WS_BORDER,r2,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // LTEXT "E-mail:",IDC_STATIC,54,108,24,10
@@ -1739,25 +1739,25 @@ void qtMfcInitDialogResource_IDD_ABOUTBOX(CDialog* parent)
 	mfc11->Create(_T("Libraries:"),WS_VISIBLE|WS_BORDER,r11,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
-   // LTEXT " Blip_buffer 0.4.0 is Copyright (C) blargg (http://www.slack.net/~ant/nes-emu/)\n",IDC_STATIC,54,273,224,16
+   // LTEXT "* Blip_buffer 0.4.0 is Copyright (C) blargg (http://www.slack.net/~ant/nes-emu/)\n",IDC_STATIC,54,273,224,16
 	CStatic* mfc12 = new CStatic(parent);
 	CRect r12(CPoint(54,273),CSize(224,16));
 	parent->MapDialogRect(&r12);
-	mfc12->Create(_T(" Blip_buffer 0.4.0 is Copyright (C) blargg (http://www.slack.net/~ant/nes-emu/)\n"),WS_VISIBLE|WS_BORDER,r12,parent,IDC_STATIC);
+	mfc12->Create(_T("* Blip_buffer 0.4.0 is Copyright (C) blargg (http://www.slack.net/~ant/nes-emu/)\n"),WS_VISIBLE|WS_BORDER,r12,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
-   // LTEXT " Fast Fourier Transform code is (C) Reliable Software",IDC_STATIC,54,292,224,8
+   // LTEXT "* Fast Fourier Transform code is (C) Reliable Software",IDC_STATIC,54,292,224,8
 	CStatic* mfc13 = new CStatic(parent);
 	CRect r13(CPoint(54,292),CSize(224,8));
 	parent->MapDialogRect(&r13);
-	mfc13->Create(_T(" Fast Fourier Transform code is (C) Reliable Software"),WS_VISIBLE|WS_BORDER,r13,parent,IDC_STATIC);
+	mfc13->Create(_T("* Fast Fourier Transform code is (C) Reliable Software"),WS_VISIBLE|WS_BORDER,r13,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
-   // LTEXT " YM2413 && YM2149 emulators are written by Mitsutaka Okazaki",IDC_STATIC,54,303,224,8
+   // LTEXT "* YM2413 && YM2149 emulators are written by Mitsutaka Okazaki",IDC_STATIC,54,303,224,8
 	CStatic* mfc14 = new CStatic(parent);
 	CRect r14(CPoint(54,303),CSize(224,8));
 	parent->MapDialogRect(&r14);
-	mfc14->Create(_T(" YM2413 && YM2149 emulators are written by Mitsutaka Okazaki"),WS_VISIBLE|WS_BORDER,r14,parent,IDC_STATIC);
+	mfc14->Create(_T("* YM2413 && YM2149 emulators are written by Mitsutaka Okazaki"),WS_VISIBLE|WS_BORDER,r14,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // CONTROL "", IDC_STATIC, "Static", WS_VISIBLE|WS_BORDER|SS_ETCHEDHORZ, 54, 271, 215, 1
@@ -1767,25 +1767,25 @@ void qtMfcInitDialogResource_IDD_ABOUTBOX(CDialog* parent)
 	mfc15->Create(_T(""), WS_VISIBLE|WS_BORDER|SS_ETCHEDHORZ, r15, parent, IDC_STATIC);
 	mfcToQtWidget->insert(IDC_STATIC, mfc15);
 
-   // LTEXT " Export plugin support by Gradualore",IDC_STATIC,54,204,224,9
+   // LTEXT "* Export plugin support by Gradualore",IDC_STATIC,54,204,224,9
 	CStatic* mfc16 = new CStatic(parent);
 	CRect r16(CPoint(54,204),CSize(224,9));
 	parent->MapDialogRect(&r16);
-	mfc16->Create(_T(" Export plugin support by Gradualore"),WS_VISIBLE|WS_BORDER,r16,parent,IDC_STATIC);
+	mfc16->Create(_T("* Export plugin support by Gradualore"),WS_VISIBLE|WS_BORDER,r16,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
-   // LTEXT " Icon is made by Kuhneghetz",IDC_STATIC,54,214,224,9
+   // LTEXT "* Icon is made by Kuhneghetz",IDC_STATIC,54,214,224,9
 	CStatic* mfc17 = new CStatic(parent);
 	CRect r17(CPoint(54,214),CSize(224,9));
 	parent->MapDialogRect(&r17);
-	mfc17->Create(_T(" Icon is made by Kuhneghetz"),WS_VISIBLE|WS_BORDER,r17,parent,IDC_STATIC);
+	mfc17->Create(_T("* Icon is made by Kuhneghetz"),WS_VISIBLE|WS_BORDER,r17,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
-   // LTEXT " Toolbar icons are made by ilkke",IDC_STATIC,54,223,224,9
+   // LTEXT "* Toolbar icons are made by ilkke",IDC_STATIC,54,223,224,9
 	CStatic* mfc18 = new CStatic(parent);
 	CRect r18(CPoint(54,223),CSize(224,9));
 	parent->MapDialogRect(&r18);
-	mfc18->Create(_T(" Toolbar icons are made by ilkke"),WS_VISIBLE|WS_BORDER,r18,parent,IDC_STATIC);
+	mfc18->Create(_T("* Toolbar icons are made by ilkke"),WS_VISIBLE|WS_BORDER,r18,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // CONTROL "", IDC_STATIC, "Static", WS_VISIBLE|WS_BORDER|SS_ETCHEDHORZ, 54, 201, 211, 1
@@ -1795,11 +1795,11 @@ void qtMfcInitDialogResource_IDD_ABOUTBOX(CDialog* parent)
 	mfc19->Create(_T(""), WS_VISIBLE|WS_BORDER|SS_ETCHEDHORZ, r19, parent, IDC_STATIC);
 	mfcToQtWidget->insert(IDC_STATIC, mfc19);
 
-   // LTEXT " DPCM import resampler by Jarhmander",IDC_STATIC,54,233,224,9
+   // LTEXT "* DPCM import resampler by Jarhmander",IDC_STATIC,54,233,224,9
 	CStatic* mfc20 = new CStatic(parent);
 	CRect r20(CPoint(54,233),CSize(224,9));
 	parent->MapDialogRect(&r20);
-	mfc20->Create(_T(" DPCM import resampler by Jarhmander"),WS_VISIBLE|WS_BORDER,r20,parent,IDC_STATIC);
+	mfc20->Create(_T("* DPCM import resampler by Jarhmander"),WS_VISIBLE|WS_BORDER,r20,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // LTEXT "A Famicom/NES music tracker",IDC_ABOUT2,54,76,167,11
@@ -1809,11 +1809,11 @@ void qtMfcInitDialogResource_IDD_ABOUTBOX(CDialog* parent)
 	mfc21->Create(_T("A Famicom/NES music tracker"),WS_VISIBLE|WS_BORDER|SS_NOPREFIX,r21,parent,IDC_ABOUT2);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
-   // LTEXT " Module text import/export by rainwarrior",IDC_STATIC,54,244,224,9
+   // LTEXT "* Module text import/export by rainwarrior",IDC_STATIC,54,244,224,9
 	CStatic* mfc22 = new CStatic(parent);
 	CRect r22(CPoint(54,244),CSize(224,9));
 	parent->MapDialogRect(&r22);
-	mfc22->Create(_T(" Module text import/export by rainwarrior"),WS_VISIBLE|WS_BORDER,r22,parent,IDC_STATIC);
+	mfc22->Create(_T("* Module text import/export by rainwarrior"),WS_VISIBLE|WS_BORDER,r22,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // CONTROL "", IDC_STATIC, "Static", WS_VISIBLE|WS_BORDER|SS_ETCHEDHORZ, 0, 49, 287, 1
@@ -1861,180 +1861,180 @@ void qtMfcInitDialogResource_IDD_MAINFRAME(CDialog* parent)
 	mfc0->Create(_T("Song settings"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r0,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
-   // LTEXT "Speed",IDC_STATIC,13,17,29,10
-	CStatic* mfc1 = new CStatic(parent);
-	CRect r1(CPoint(13,17),CSize(29,10));
+   // GROUPBOX "Edit settings",IDC_STATIC,7,78,78,43
+	CButton* mfc1 = new CButton(parent);
+	CRect r1(CPoint(7,78),CSize(78,43));
 	parent->MapDialogRect(&r1);
-	mfc1->Create(_T("Speed"),WS_VISIBLE|WS_BORDER,r1,parent,IDC_STATIC);
+	mfc1->Create(_T("Edit settings"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER|0,r1,parent,IDC_STATIC);
+	// IDC_STATIC do not get added to MFC-to-Qt map.
+
+   // GROUPBOX "Song information",IDC_STATIC,91,5,96,61
+	CButton* mfc2 = new CButton(parent);
+	CRect r2(CPoint(91,5),CSize(96,61));
+	parent->MapDialogRect(&r2);
+	mfc2->Create(_T("Song information"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r2,parent,IDC_STATIC);
+	// IDC_STATIC do not get added to MFC-to-Qt map.
+
+   // GROUPBOX "Songs",IDC_STATIC,91,94,96,27
+	CButton* mfc3 = new CButton(parent);
+	CRect r3(CPoint(91,94),CSize(96,27));
+	parent->MapDialogRect(&r3);
+	mfc3->Create(_T("Songs"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r3,parent,IDC_STATIC);
+	// IDC_STATIC do not get added to MFC-to-Qt map.
+
+   // LTEXT "Speed",IDC_STATIC,13,17,29,10
+	CStatic* mfc5 = new CStatic(parent);
+	CRect r5(CPoint(13,17),CSize(29,10));
+	parent->MapDialogRect(&r5);
+	mfc5->Create(_T("Speed"),WS_VISIBLE|WS_BORDER,r5,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // EDITTEXT IDC_SPEED,43,15,38,12,WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_READONLY|ES_NUMBER
-	CEdit* mfc2 = new CEdit(parent);
-	CRect r2(CPoint(43,15),CSize(38,12));
-	parent->MapDialogRect(&r2);
-	mfc2->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_READONLY|ES_NUMBER,r2,parent,IDC_SPEED);
-	mfcToQtWidget->insert(IDC_SPEED,mfc2);
+	CEdit* mfc6 = new CEdit(parent);
+	CRect r6(CPoint(43,15),CSize(38,12));
+	parent->MapDialogRect(&r6);
+	mfc6->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_READONLY|ES_NUMBER,r6,parent,IDC_SPEED);
+	mfcToQtWidget->insert(IDC_SPEED,mfc6);
 
    // CONTROL "", IDC_SPEED_SPIN, "msctls_updown32", WS_VISIBLE|WS_BORDER|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, 81, 15, 11, 13
-	CSpinButtonCtrl* mfc3 = new CSpinButtonCtrl(parent);
-	CRect r3(CPoint(81, 15), CSize(11, 13));
-	parent->MapDialogRect(&r3);
-	mfc3->Create(WS_VISIBLE|WS_BORDER|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, r3, parent, IDC_SPEED_SPIN);
-	mfcToQtWidget->insert(IDC_SPEED_SPIN, mfc3);
+	CSpinButtonCtrl* mfc7 = new CSpinButtonCtrl(parent);
+	CRect r7(CPoint(81, 15), CSize(11, 13));
+	parent->MapDialogRect(&r7);
+	mfc7->Create(WS_VISIBLE|WS_BORDER|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, r7, parent, IDC_SPEED_SPIN);
+	mfcToQtWidget->insert(IDC_SPEED_SPIN, mfc7);
 
    // LTEXT "Tempo",IDC_STATIC,13,31,29,10
-	CStatic* mfc4 = new CStatic(parent);
-	CRect r4(CPoint(13,31),CSize(29,10));
-	parent->MapDialogRect(&r4);
-	mfc4->Create(_T("Tempo"),WS_VISIBLE|WS_BORDER,r4,parent,IDC_STATIC);
+	CStatic* mfc8 = new CStatic(parent);
+	CRect r8(CPoint(13,31),CSize(29,10));
+	parent->MapDialogRect(&r8);
+	mfc8->Create(_T("Tempo"),WS_VISIBLE|WS_BORDER,r8,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // EDITTEXT IDC_TEMPO,43,29,38,12,WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_READONLY
-	CEdit* mfc5 = new CEdit(parent);
-	CRect r5(CPoint(43,29),CSize(38,12));
-	parent->MapDialogRect(&r5);
-	mfc5->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_READONLY,r5,parent,IDC_TEMPO);
-	mfcToQtWidget->insert(IDC_TEMPO,mfc5);
+	CEdit* mfc9 = new CEdit(parent);
+	CRect r9(CPoint(43,29),CSize(38,12));
+	parent->MapDialogRect(&r9);
+	mfc9->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_READONLY,r9,parent,IDC_TEMPO);
+	mfcToQtWidget->insert(IDC_TEMPO,mfc9);
 
    // CONTROL "", IDC_TEMPO_SPIN, "msctls_updown32", WS_VISIBLE|WS_BORDER|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, 81, 28, 11, 13
-	CSpinButtonCtrl* mfc6 = new CSpinButtonCtrl(parent);
-	CRect r6(CPoint(81, 28), CSize(11, 13));
-	parent->MapDialogRect(&r6);
-	mfc6->Create(WS_VISIBLE|WS_BORDER|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, r6, parent, IDC_TEMPO_SPIN);
-	mfcToQtWidget->insert(IDC_TEMPO_SPIN, mfc6);
+	CSpinButtonCtrl* mfc10 = new CSpinButtonCtrl(parent);
+	CRect r10(CPoint(81, 28), CSize(11, 13));
+	parent->MapDialogRect(&r10);
+	mfc10->Create(WS_VISIBLE|WS_BORDER|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, r10, parent, IDC_TEMPO_SPIN);
+	mfcToQtWidget->insert(IDC_TEMPO_SPIN, mfc10);
 
    // LTEXT "Rows",IDC_STATIC,13,45,29,10
-	CStatic* mfc7 = new CStatic(parent);
-	CRect r7(CPoint(13,45),CSize(29,10));
-	parent->MapDialogRect(&r7);
-	mfc7->Create(_T("Rows"),WS_VISIBLE|WS_BORDER,r7,parent,IDC_STATIC);
+	CStatic* mfc11 = new CStatic(parent);
+	CRect r11(CPoint(13,45),CSize(29,10));
+	parent->MapDialogRect(&r11);
+	mfc11->Create(_T("Rows"),WS_VISIBLE|WS_BORDER,r11,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // EDITTEXT IDC_ROWS,43,43,38,12,WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_READONLY|ES_WANTRETURN
-	CEdit* mfc8 = new CEdit(parent);
-	CRect r8(CPoint(43,43),CSize(38,12));
-	parent->MapDialogRect(&r8);
-	mfc8->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_READONLY|ES_WANTRETURN,r8,parent,IDC_ROWS);
-	mfcToQtWidget->insert(IDC_ROWS,mfc8);
+	CEdit* mfc12 = new CEdit(parent);
+	CRect r12(CPoint(43,43),CSize(38,12));
+	parent->MapDialogRect(&r12);
+	mfc12->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_READONLY|ES_WANTRETURN,r12,parent,IDC_ROWS);
+	mfcToQtWidget->insert(IDC_ROWS,mfc12);
 
    // CONTROL "", IDC_ROWS_SPIN, "msctls_updown32", WS_VISIBLE|WS_BORDER|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, 81, 43, 11, 13
-	CSpinButtonCtrl* mfc9 = new CSpinButtonCtrl(parent);
-	CRect r9(CPoint(81, 43), CSize(11, 13));
-	parent->MapDialogRect(&r9);
-	mfc9->Create(WS_VISIBLE|WS_BORDER|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, r9, parent, IDC_ROWS_SPIN);
-	mfcToQtWidget->insert(IDC_ROWS_SPIN, mfc9);
+	CSpinButtonCtrl* mfc13 = new CSpinButtonCtrl(parent);
+	CRect r13(CPoint(81, 43), CSize(11, 13));
+	parent->MapDialogRect(&r13);
+	mfc13->Create(WS_VISIBLE|WS_BORDER|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, r13, parent, IDC_ROWS_SPIN);
+	mfcToQtWidget->insert(IDC_ROWS_SPIN, mfc13);
 
    // LTEXT "Frames",IDC_STATIC,13,59,29,10
-	CStatic* mfc10 = new CStatic(parent);
-	CRect r10(CPoint(13,59),CSize(29,10));
-	parent->MapDialogRect(&r10);
-	mfc10->Create(_T("Frames"),WS_VISIBLE|WS_BORDER,r10,parent,IDC_STATIC);
+	CStatic* mfc14 = new CStatic(parent);
+	CRect r14(CPoint(13,59),CSize(29,10));
+	parent->MapDialogRect(&r14);
+	mfc14->Create(_T("Frames"),WS_VISIBLE|WS_BORDER,r14,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // EDITTEXT IDC_FRAMES,43,57,38,12,WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_READONLY
-	CEdit* mfc11 = new CEdit(parent);
-	CRect r11(CPoint(43,57),CSize(38,12));
-	parent->MapDialogRect(&r11);
-	mfc11->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_READONLY,r11,parent,IDC_FRAMES);
-	mfcToQtWidget->insert(IDC_FRAMES,mfc11);
+	CEdit* mfc15 = new CEdit(parent);
+	CRect r15(CPoint(43,57),CSize(38,12));
+	parent->MapDialogRect(&r15);
+	mfc15->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_READONLY,r15,parent,IDC_FRAMES);
+	mfcToQtWidget->insert(IDC_FRAMES,mfc15);
 
    // CONTROL "", IDC_FRAME_SPIN, "msctls_updown32", WS_VISIBLE|WS_BORDER|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, 81, 58, 11, 13
-	CSpinButtonCtrl* mfc12 = new CSpinButtonCtrl(parent);
-	CRect r12(CPoint(81, 58), CSize(11, 13));
-	parent->MapDialogRect(&r12);
-	mfc12->Create(WS_VISIBLE|WS_BORDER|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, r12, parent, IDC_FRAME_SPIN);
-	mfcToQtWidget->insert(IDC_FRAME_SPIN, mfc12);
-
-   // GROUPBOX "Edit settings",IDC_STATIC,7,78,78,43
-	CButton* mfc13 = new CButton(parent);
-	CRect r13(CPoint(7,78),CSize(78,43));
-	parent->MapDialogRect(&r13);
-	mfc13->Create(_T("Edit settings"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER|0,r13,parent,IDC_STATIC);
-	// IDC_STATIC do not get added to MFC-to-Qt map.
+	CSpinButtonCtrl* mfc16 = new CSpinButtonCtrl(parent);
+	CRect r16(CPoint(81, 58), CSize(11, 13));
+	parent->MapDialogRect(&r16);
+	mfc16->Create(WS_VISIBLE|WS_BORDER|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, r16, parent, IDC_FRAME_SPIN);
+	mfcToQtWidget->insert(IDC_FRAME_SPIN, mfc16);
 
    // LTEXT "Step",IDC_STATIC,13,91,29,10
-	CStatic* mfc14 = new CStatic(parent);
-	CRect r14(CPoint(13,91),CSize(29,10));
-	parent->MapDialogRect(&r14);
-	mfc14->Create(_T("Step"),WS_VISIBLE|WS_BORDER|0,r14,parent,IDC_STATIC);
+	CStatic* mfc18 = new CStatic(parent);
+	CRect r18(CPoint(13,91),CSize(29,10));
+	parent->MapDialogRect(&r18);
+	mfc18->Create(_T("Step"),WS_VISIBLE|WS_BORDER|0,r18,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // EDITTEXT IDC_KEYSTEP,43,90,38,12,WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_READONLY
-	CEdit* mfc15 = new CEdit(parent);
-	CRect r15(CPoint(43,90),CSize(38,12));
-	parent->MapDialogRect(&r15);
-	mfc15->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_READONLY,r15,parent,IDC_KEYSTEP);
-	mfcToQtWidget->insert(IDC_KEYSTEP,mfc15);
+	CEdit* mfc19 = new CEdit(parent);
+	CRect r19(CPoint(43,90),CSize(38,12));
+	parent->MapDialogRect(&r19);
+	mfc19->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_READONLY,r19,parent,IDC_KEYSTEP);
+	mfcToQtWidget->insert(IDC_KEYSTEP,mfc19);
 
    // CONTROL "", IDC_KEYSTEP_SPIN, "msctls_updown32", WS_VISIBLE|WS_BORDER|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, 81, 88, 11, 13
-	CSpinButtonCtrl* mfc16 = new CSpinButtonCtrl(parent);
-	CRect r16(CPoint(81, 88), CSize(11, 13));
-	parent->MapDialogRect(&r16);
-	mfc16->Create(WS_VISIBLE|WS_BORDER|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, r16, parent, IDC_KEYSTEP_SPIN);
-	mfcToQtWidget->insert(IDC_KEYSTEP_SPIN, mfc16);
+	CSpinButtonCtrl* mfc20 = new CSpinButtonCtrl(parent);
+	CRect r20(CPoint(81, 88), CSize(11, 13));
+	parent->MapDialogRect(&r20);
+	mfc20->Create(WS_VISIBLE|WS_BORDER|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, r20, parent, IDC_KEYSTEP_SPIN);
+	mfcToQtWidget->insert(IDC_KEYSTEP_SPIN, mfc20);
 
    // CONTROL "Key repetition", IDC_KEYREPEAT, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 13, 105, 68, 9
-	CButton* mfc17 = new CButton(parent);
-	CRect r17(CPoint(13, 105), CSize(68, 9));
-	parent->MapDialogRect(&r17);
-	mfc17->Create(_T("Key repetition"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r17, parent, IDC_KEYREPEAT);
-	mfcToQtWidget->insert(IDC_KEYREPEAT, mfc17);
-
-   // GROUPBOX "Song information",IDC_STATIC,91,5,96,61
-	CButton* mfc18 = new CButton(parent);
-	CRect r18(CPoint(91,5),CSize(96,61));
-	parent->MapDialogRect(&r18);
-	mfc18->Create(_T("Song information"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r18,parent,IDC_STATIC);
-	// IDC_STATIC do not get added to MFC-to-Qt map.
+	CButton* mfc21 = new CButton(parent);
+	CRect r21(CPoint(13, 105), CSize(68, 9));
+	parent->MapDialogRect(&r21);
+	mfc21->Create(_T("Key repetition"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r21, parent, IDC_KEYREPEAT);
+	mfcToQtWidget->insert(IDC_KEYREPEAT, mfc21);
 
    // EDITTEXT IDC_SONG_NAME,97,18,83,12,WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL
-	CEdit* mfc19 = new CEdit(parent);
-	CRect r19(CPoint(97,18),CSize(83,12));
-	parent->MapDialogRect(&r19);
-	mfc19->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL,r19,parent,IDC_SONG_NAME);
-	mfcToQtWidget->insert(IDC_SONG_NAME,mfc19);
+	CEdit* mfc23 = new CEdit(parent);
+	CRect r23(CPoint(97,18),CSize(83,12));
+	parent->MapDialogRect(&r23);
+	mfc23->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL,r23,parent,IDC_SONG_NAME);
+	mfcToQtWidget->insert(IDC_SONG_NAME,mfc23);
 
    // EDITTEXT IDC_SONG_ARTIST,97,33,83,12,WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL
-	CEdit* mfc20 = new CEdit(parent);
-	CRect r20(CPoint(97,33),CSize(83,12));
-	parent->MapDialogRect(&r20);
-	mfc20->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL,r20,parent,IDC_SONG_ARTIST);
-	mfcToQtWidget->insert(IDC_SONG_ARTIST,mfc20);
+	CEdit* mfc24 = new CEdit(parent);
+	CRect r24(CPoint(97,33),CSize(83,12));
+	parent->MapDialogRect(&r24);
+	mfc24->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL,r24,parent,IDC_SONG_ARTIST);
+	mfcToQtWidget->insert(IDC_SONG_ARTIST,mfc24);
 
    // EDITTEXT IDC_SONG_COPYRIGHT,97,49,83,12,WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL
-	CEdit* mfc21 = new CEdit(parent);
-	CRect r21(CPoint(97,49),CSize(83,12));
-	parent->MapDialogRect(&r21);
-	mfc21->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL,r21,parent,IDC_SONG_COPYRIGHT);
-	mfcToQtWidget->insert(IDC_SONG_COPYRIGHT,mfc21);
-
-   // GROUPBOX "Songs",IDC_STATIC,91,94,96,27
-	CButton* mfc22 = new CButton(parent);
-	CRect r22(CPoint(91,94),CSize(96,27));
-	parent->MapDialogRect(&r22);
-	mfc22->Create(_T("Songs"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r22,parent,IDC_STATIC);
-	// IDC_STATIC do not get added to MFC-to-Qt map.
+	CEdit* mfc25 = new CEdit(parent);
+	CRect r25(CPoint(97,49),CSize(83,12));
+	parent->MapDialogRect(&r25);
+	mfc25->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL,r25,parent,IDC_SONG_COPYRIGHT);
+	mfcToQtWidget->insert(IDC_SONG_COPYRIGHT,mfc25);
 
    // COMBOBOX IDC_SUBTUNE,97,104,84,85,WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP
-	CComboBox* mfc23 = new CComboBox(parent);
-	CRect r23(CPoint(97,104),CSize(84,85));
-	parent->MapDialogRect(&r23);
-	mfc23->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP,r23,parent,IDC_SUBTUNE);
-	mfcToQtWidget->insert(IDC_SUBTUNE,mfc23);
+	CComboBox* mfc27 = new CComboBox(parent);
+	CRect r27(CPoint(97,104),CSize(84,85));
+	parent->MapDialogRect(&r27);
+	mfc27->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP,r27,parent,IDC_SUBTUNE);
+	mfcToQtWidget->insert(IDC_SUBTUNE,mfc27);
 
    // CONTROL "", IDC_INSTRUMENTS, "SysListView32", WS_VISIBLE|WS_BORDER|LVS_LIST|LVS_SINGLESEL|LVS_SHOWSELALWAYS|LVS_EDITLABELS|LVS_ALIGNLEFT|LVS_NOCOLUMNHEADER|LVS_NOSORTHEADER|WS_BORDER|WS_TABSTOP, 193, 5, 202, 103
-	CListCtrl* mfc24 = new CListCtrl(parent);
-	CRect r24(CPoint(193, 5), CSize(202, 103));
-	parent->MapDialogRect(&r24);
-	mfc24->Create(WS_VISIBLE|WS_BORDER|LVS_LIST|LVS_SINGLESEL|LVS_SHOWSELALWAYS|LVS_EDITLABELS|LVS_ALIGNLEFT|LVS_NOCOLUMNHEADER|LVS_NOSORTHEADER|WS_BORDER|WS_TABSTOP, r24, parent, IDC_INSTRUMENTS);
-	mfcToQtWidget->insert(IDC_INSTRUMENTS, mfc24);
+	CListCtrl* mfc28 = new CListCtrl(parent);
+	CRect r28(CPoint(193, 5), CSize(202, 103));
+	parent->MapDialogRect(&r28);
+	mfc28->Create(WS_VISIBLE|WS_BORDER|LVS_LIST|LVS_SINGLESEL|LVS_SHOWSELALWAYS|LVS_EDITLABELS|LVS_ALIGNLEFT|LVS_NOCOLUMNHEADER|LVS_NOSORTHEADER|WS_BORDER|WS_TABSTOP, r28, parent, IDC_INSTRUMENTS);
+	mfcToQtWidget->insert(IDC_INSTRUMENTS, mfc28);
 
    // EDITTEXT IDC_INSTNAME,324,109,71,12,WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL
-	CEdit* mfc25 = new CEdit(parent);
-	CRect r25(CPoint(324,109),CSize(71,12));
-	parent->MapDialogRect(&r25);
-	mfc25->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL,r25,parent,IDC_INSTNAME);
-	mfcToQtWidget->insert(IDC_INSTNAME,mfc25);
+	CEdit* mfc29 = new CEdit(parent);
+	CRect r29(CPoint(324,109),CSize(71,12));
+	parent->MapDialogRect(&r29);
+	mfc29->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL,r29,parent,IDC_INSTNAME);
+	mfcToQtWidget->insert(IDC_INSTNAME,mfc29);
 
    // END
 }
@@ -2062,102 +2062,102 @@ void qtMfcInitDialogResource_IDD_PCMIMPORT(CDialog* parent)
 	mfc0->Create(_T("Quality: 0"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r0,parent,IDC_QUALITY_FRM);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
-   // LTEXT "Low",IDC_STATIC,15,21,15,10
-	CStatic* mfc1 = new CStatic(parent);
-	CRect r1(CPoint(15,21),CSize(15,10));
-	parent->MapDialogRect(&r1);
-	mfc1->Create(_T("Low"),WS_VISIBLE|WS_BORDER,r1,parent,IDC_STATIC);
-	// IDC_STATIC do not get added to MFC-to-Qt map.
-
-   // CONTROL "", IDC_QUALITY, "msctls_trackbar32", WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, 30, 19, 90, 15
-	CSliderCtrl* mfc2 = new CSliderCtrl(parent);
-	CRect r2(CPoint(30, 19), CSize(90, 15));
-	parent->MapDialogRect(&r2);
-	mfc2->Create(WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, r2, parent, IDC_QUALITY);
-	mfcToQtWidget->insert(IDC_QUALITY, mfc2);
-
-   // LTEXT "High",IDC_STATIC,123,21,16,10
-	CStatic* mfc3 = new CStatic(parent);
-	CRect r3(CPoint(123,21),CSize(16,10));
-	parent->MapDialogRect(&r3);
-	mfc3->Create(_T("High"),WS_VISIBLE|WS_BORDER,r3,parent,IDC_STATIC);
-	// IDC_STATIC do not get added to MFC-to-Qt map.
-
    // GROUPBOX "Gain: +0dB",IDC_VOLUME_FRM,7,47,136,35
-	CButton* mfc4 = new CButton(parent);
-	CRect r4(CPoint(7,47),CSize(136,35));
-	parent->MapDialogRect(&r4);
-	mfc4->Create(_T("Gain: +0dB"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r4,parent,IDC_VOLUME_FRM);
-	// IDC_STATIC do not get added to MFC-to-Qt map.
-
-   // LTEXT "Low",IDC_STATIC,15,61,15,10
-	CStatic* mfc5 = new CStatic(parent);
-	CRect r5(CPoint(15,61),CSize(15,10));
-	parent->MapDialogRect(&r5);
-	mfc5->Create(_T("Low"),WS_VISIBLE|WS_BORDER,r5,parent,IDC_STATIC);
-	// IDC_STATIC do not get added to MFC-to-Qt map.
-
-   // CONTROL "", IDC_VOLUME, "msctls_trackbar32", WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, 30, 59, 90, 15
-	CSliderCtrl* mfc6 = new CSliderCtrl(parent);
-	CRect r6(CPoint(30, 59), CSize(90, 15));
-	parent->MapDialogRect(&r6);
-	mfc6->Create(WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, r6, parent, IDC_VOLUME);
-	mfcToQtWidget->insert(IDC_VOLUME, mfc6);
-
-   // LTEXT "High",IDC_STATIC,123,61,16,10
-	CStatic* mfc7 = new CStatic(parent);
-	CRect r7(CPoint(123,61),CSize(16,10));
-	parent->MapDialogRect(&r7);
-	mfc7->Create(_T("High"),WS_VISIBLE|WS_BORDER,r7,parent,IDC_STATIC);
+	CButton* mfc1 = new CButton(parent);
+	CRect r1(CPoint(7,47),CSize(136,35));
+	parent->MapDialogRect(&r1);
+	mfc1->Create(_T("Gain: +0dB"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r1,parent,IDC_VOLUME_FRM);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // GROUPBOX "File info",IDC_STATIC,7,86,136,51
-	CButton* mfc8 = new CButton(parent);
-	CRect r8(CPoint(7,86),CSize(136,51));
+	CButton* mfc2 = new CButton(parent);
+	CRect r2(CPoint(7,86),CSize(136,51));
+	parent->MapDialogRect(&r2);
+	mfc2->Create(_T("File info"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r2,parent,IDC_STATIC);
+	// IDC_STATIC do not get added to MFC-to-Qt map.
+
+   // LTEXT "Low",IDC_STATIC,15,21,15,10
+	CStatic* mfc4 = new CStatic(parent);
+	CRect r4(CPoint(15,21),CSize(15,10));
+	parent->MapDialogRect(&r4);
+	mfc4->Create(_T("Low"),WS_VISIBLE|WS_BORDER,r4,parent,IDC_STATIC);
+	// IDC_STATIC do not get added to MFC-to-Qt map.
+
+   // CONTROL "", IDC_QUALITY, "msctls_trackbar32", WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, 30, 19, 90, 15
+	CSliderCtrl* mfc5 = new CSliderCtrl(parent);
+	CRect r5(CPoint(30, 19), CSize(90, 15));
+	parent->MapDialogRect(&r5);
+	mfc5->Create(WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, r5, parent, IDC_QUALITY);
+	mfcToQtWidget->insert(IDC_QUALITY, mfc5);
+
+   // LTEXT "High",IDC_STATIC,123,21,16,10
+	CStatic* mfc6 = new CStatic(parent);
+	CRect r6(CPoint(123,21),CSize(16,10));
+	parent->MapDialogRect(&r6);
+	mfc6->Create(_T("High"),WS_VISIBLE|WS_BORDER,r6,parent,IDC_STATIC);
+	// IDC_STATIC do not get added to MFC-to-Qt map.
+
+   // LTEXT "Low",IDC_STATIC,15,61,15,10
+	CStatic* mfc8 = new CStatic(parent);
+	CRect r8(CPoint(15,61),CSize(15,10));
 	parent->MapDialogRect(&r8);
-	mfc8->Create(_T("File info"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r8,parent,IDC_STATIC);
+	mfc8->Create(_T("Low"),WS_VISIBLE|WS_BORDER,r8,parent,IDC_STATIC);
+	// IDC_STATIC do not get added to MFC-to-Qt map.
+
+   // CONTROL "", IDC_VOLUME, "msctls_trackbar32", WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, 30, 59, 90, 15
+	CSliderCtrl* mfc9 = new CSliderCtrl(parent);
+	CRect r9(CPoint(30, 59), CSize(90, 15));
+	parent->MapDialogRect(&r9);
+	mfc9->Create(WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, r9, parent, IDC_VOLUME);
+	mfcToQtWidget->insert(IDC_VOLUME, mfc9);
+
+   // LTEXT "High",IDC_STATIC,123,61,16,10
+	CStatic* mfc10 = new CStatic(parent);
+	CRect r10(CPoint(123,61),CSize(16,10));
+	parent->MapDialogRect(&r10);
+	mfc10->Create(_T("High"),WS_VISIBLE|WS_BORDER,r10,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // LTEXT "Static",IDC_SAMPLE_RATE,15,99,118,8
-	CStatic* mfc9 = new CStatic(parent);
-	CRect r9(CPoint(15,99),CSize(118,8));
-	parent->MapDialogRect(&r9);
-	mfc9->Create(_T("Static"),WS_VISIBLE|WS_BORDER,r9,parent,IDC_SAMPLE_RATE);
+	CStatic* mfc12 = new CStatic(parent);
+	CRect r12(CPoint(15,99),CSize(118,8));
+	parent->MapDialogRect(&r12);
+	mfc12->Create(_T("Static"),WS_VISIBLE|WS_BORDER,r12,parent,IDC_SAMPLE_RATE);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // LTEXT "Static",IDC_RESAMPLING,15,110,118,8
-	CStatic* mfc10 = new CStatic(parent);
-	CRect r10(CPoint(15,110),CSize(118,8));
-	parent->MapDialogRect(&r10);
-	mfc10->Create(_T("Static"),WS_VISIBLE|WS_BORDER,r10,parent,IDC_RESAMPLING);
+	CStatic* mfc13 = new CStatic(parent);
+	CRect r13(CPoint(15,110),CSize(118,8));
+	parent->MapDialogRect(&r13);
+	mfc13->Create(_T("Static"),WS_VISIBLE|WS_BORDER,r13,parent,IDC_RESAMPLING);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // PUSHBUTTON "Preview",IDC_PREVIEW,154,7,50,14,WS_VISIBLE|WS_BORDER
-	CButton* mfc11 = new CButton(parent);
-	CRect r11(CPoint(154,7),CSize(50,14));
-	parent->MapDialogRect(&r11);
-	mfc11->Create(_T("Preview"),WS_VISIBLE|WS_BORDER,r11,parent,IDC_PREVIEW);
-	mfcToQtWidget->insert(IDC_PREVIEW,mfc11);
+	CButton* mfc14 = new CButton(parent);
+	CRect r14(CPoint(154,7),CSize(50,14));
+	parent->MapDialogRect(&r14);
+	mfc14->Create(_T("Preview"),WS_VISIBLE|WS_BORDER,r14,parent,IDC_PREVIEW);
+	mfcToQtWidget->insert(IDC_PREVIEW,mfc14);
 
    // DEFPUSHBUTTON "OK",BS_DEFPUSHBUTTON|WS_VISIBLE|WS_BORDER,154,24,50,14
-	CButton* mfc12 = new CButton(parent);
-	CRect r12(CPoint(154,24),CSize(50,14));
-	parent->MapDialogRect(&r12);
-	mfc12->Create(_T("OK"),BS_DEFPUSHBUTTON|WS_VISIBLE|WS_BORDER,r12,parent,IDOK);
-	mfcToQtWidget->insert(IDOK,mfc12);
+	CButton* mfc15 = new CButton(parent);
+	CRect r15(CPoint(154,24),CSize(50,14));
+	parent->MapDialogRect(&r15);
+	mfc15->Create(_T("OK"),BS_DEFPUSHBUTTON|WS_VISIBLE|WS_BORDER,r15,parent,IDOK);
+	mfcToQtWidget->insert(IDOK,mfc15);
 
    // PUSHBUTTON "Cancel",IDCANCEL,154,41,50,14,WS_VISIBLE|WS_BORDER
-	CButton* mfc13 = new CButton(parent);
-	CRect r13(CPoint(154,41),CSize(50,14));
-	parent->MapDialogRect(&r13);
-	mfc13->Create(_T("Cancel"),WS_VISIBLE|WS_BORDER,r13,parent,IDCANCEL);
-	mfcToQtWidget->insert(IDCANCEL,mfc13);
+	CButton* mfc16 = new CButton(parent);
+	CRect r16(CPoint(154,41),CSize(50,14));
+	parent->MapDialogRect(&r16);
+	mfc16->Create(_T("Cancel"),WS_VISIBLE|WS_BORDER,r16,parent,IDCANCEL);
+	mfcToQtWidget->insert(IDCANCEL,mfc16);
 
    // LTEXT "Static",IDC_SAMPLESIZE,15,121,118,8
-	CStatic* mfc14 = new CStatic(parent);
-	CRect r14(CPoint(15,121),CSize(118,8));
-	parent->MapDialogRect(&r14);
-	mfc14->Create(_T("Static"),WS_VISIBLE|WS_BORDER,r14,parent,IDC_SAMPLESIZE);
+	CStatic* mfc17 = new CStatic(parent);
+	CRect r17(CPoint(15,121),CSize(118,8));
+	parent->MapDialogRect(&r17);
+	mfc17->Create(_T("Static"),WS_VISIBLE|WS_BORDER,r17,parent,IDC_SAMPLESIZE);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // END
@@ -2177,61 +2177,61 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_INTERNAL(CDialog* parent)
 
 
    // BEGIN
-   // CONTROL "", IDC_INSTSETTINGS, "SysListView32", WS_VISIBLE|WS_BORDER|LVS_REPORT|LVS_SINGLESEL|LVS_SHOWSELALWAYS|LVS_ALIGNLEFT|LVS_NOSORTHEADER|WS_BORDER|WS_TABSTOP, 12, 18, 96, 109
-	CListCtrl* mfc0 = new CListCtrl(parent);
-	CRect r0(CPoint(12, 18), CSize(96, 109));
-	parent->MapDialogRect(&r0);
-	mfc0->Create(WS_VISIBLE|WS_BORDER|LVS_REPORT|LVS_SINGLESEL|LVS_SHOWSELALWAYS|LVS_ALIGNLEFT|LVS_NOSORTHEADER|WS_BORDER|WS_TABSTOP, r0, parent, IDC_INSTSETTINGS);
-	mfcToQtWidget->insert(IDC_INSTSETTINGS, mfc0);
-
-   // PUSHBUTTON "Select next empty slot",IDC_FREE_SEQ,12,129,96,15,WS_VISIBLE|WS_BORDER
-	CButton* mfc1 = new CButton(parent);
-	CRect r1(CPoint(12,129),CSize(96,15));
-	parent->MapDialogRect(&r1);
-	mfc1->Create(_T("Select next empty slot"),WS_VISIBLE|WS_BORDER,r1,parent,IDC_FREE_SEQ);
-	mfcToQtWidget->insert(IDC_FREE_SEQ,mfc1);
-
-   // CONTROL "Sequence #", IDC_STATIC, "Static", WS_VISIBLE|WS_BORDER|SS_LEFTNOWORDWRAP|SS_CENTERIMAGE|WS_GROUP, 12, 149, 53, 10
-	CStatic* mfc2 = new CStatic(parent);
-	CRect r2(CPoint(12, 149), CSize(53, 10));
-	parent->MapDialogRect(&r2);
-	mfc2->Create(_T("Sequence #"), WS_VISIBLE|WS_BORDER|SS_LEFTNOWORDWRAP|SS_CENTERIMAGE|WS_GROUP, r2, parent, IDC_STATIC);
-	mfcToQtWidget->insert(IDC_STATIC, mfc2);
-
-   // EDITTEXT IDC_SEQ_INDEX,69,147,39,12,WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_NUMBER
-	CEdit* mfc3 = new CEdit(parent);
-	CRect r3(CPoint(69,147),CSize(39,12));
-	parent->MapDialogRect(&r3);
-	mfc3->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_NUMBER,r3,parent,IDC_SEQ_INDEX);
-	mfcToQtWidget->insert(IDC_SEQ_INDEX,mfc3);
-
-   // CONTROL "", IDC_SEQUENCE_SPIN, "msctls_updown32", WS_VISIBLE|WS_BORDER|UDS_SETBUDDYINT|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, 66, 153, 11, 9
-	CSpinButtonCtrl* mfc4 = new CSpinButtonCtrl(parent);
-	CRect r4(CPoint(66, 153), CSize(11, 9));
-	parent->MapDialogRect(&r4);
-	mfc4->Create(WS_VISIBLE|WS_BORDER|UDS_SETBUDDYINT|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, r4, parent, IDC_SEQUENCE_SPIN);
-	mfcToQtWidget->insert(IDC_SEQUENCE_SPIN, mfc4);
-
-   // EDITTEXT IDC_SEQUENCE_STRING,126,149,232,13,WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL
-	CEdit* mfc5 = new CEdit(parent);
-	CRect r5(CPoint(126,149),CSize(232,13));
-	parent->MapDialogRect(&r5);
-	mfc5->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL,r5,parent,IDC_SEQUENCE_STRING);
-	mfcToQtWidget->insert(IDC_SEQUENCE_STRING,mfc5);
-
    // GROUPBOX "Sequence editor",IDC_STATIC,120,7,245,158
-	CButton* mfc6 = new CButton(parent);
-	CRect r6(CPoint(120,7),CSize(245,158));
-	parent->MapDialogRect(&r6);
-	mfc6->Create(_T("Sequence editor"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r6,parent,IDC_STATIC);
+	CButton* mfc0 = new CButton(parent);
+	CRect r0(CPoint(120,7),CSize(245,158));
+	parent->MapDialogRect(&r0);
+	mfc0->Create(_T("Sequence editor"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r0,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // GROUPBOX "Instrument settings",IDC_STATIC,7,7,107,158
-	CButton* mfc7 = new CButton(parent);
-	CRect r7(CPoint(7,7),CSize(107,158));
-	parent->MapDialogRect(&r7);
-	mfc7->Create(_T("Instrument settings"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER|0,r7,parent,IDC_STATIC);
+	CButton* mfc1 = new CButton(parent);
+	CRect r1(CPoint(7,7),CSize(107,158));
+	parent->MapDialogRect(&r1);
+	mfc1->Create(_T("Instrument settings"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER|0,r1,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
+
+   // CONTROL "", IDC_INSTSETTINGS, "SysListView32", WS_VISIBLE|WS_BORDER|LVS_REPORT|LVS_SINGLESEL|LVS_SHOWSELALWAYS|LVS_ALIGNLEFT|LVS_NOSORTHEADER|WS_BORDER|WS_TABSTOP, 12, 18, 96, 109
+	CListCtrl* mfc2 = new CListCtrl(parent);
+	CRect r2(CPoint(12, 18), CSize(96, 109));
+	parent->MapDialogRect(&r2);
+	mfc2->Create(WS_VISIBLE|WS_BORDER|LVS_REPORT|LVS_SINGLESEL|LVS_SHOWSELALWAYS|LVS_ALIGNLEFT|LVS_NOSORTHEADER|WS_BORDER|WS_TABSTOP, r2, parent, IDC_INSTSETTINGS);
+	mfcToQtWidget->insert(IDC_INSTSETTINGS, mfc2);
+
+   // PUSHBUTTON "Select next empty slot",IDC_FREE_SEQ,12,129,96,15,WS_VISIBLE|WS_BORDER
+	CButton* mfc3 = new CButton(parent);
+	CRect r3(CPoint(12,129),CSize(96,15));
+	parent->MapDialogRect(&r3);
+	mfc3->Create(_T("Select next empty slot"),WS_VISIBLE|WS_BORDER,r3,parent,IDC_FREE_SEQ);
+	mfcToQtWidget->insert(IDC_FREE_SEQ,mfc3);
+
+   // CONTROL "Sequence #", IDC_STATIC, "Static", WS_VISIBLE|WS_BORDER|SS_LEFTNOWORDWRAP|SS_CENTERIMAGE|WS_GROUP, 12, 149, 53, 10
+	CStatic* mfc4 = new CStatic(parent);
+	CRect r4(CPoint(12, 149), CSize(53, 10));
+	parent->MapDialogRect(&r4);
+	mfc4->Create(_T("Sequence #"), WS_VISIBLE|WS_BORDER|SS_LEFTNOWORDWRAP|SS_CENTERIMAGE|WS_GROUP, r4, parent, IDC_STATIC);
+	mfcToQtWidget->insert(IDC_STATIC, mfc4);
+
+   // EDITTEXT IDC_SEQ_INDEX,69,147,39,12,WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_NUMBER
+	CEdit* mfc5 = new CEdit(parent);
+	CRect r5(CPoint(69,147),CSize(39,12));
+	parent->MapDialogRect(&r5);
+	mfc5->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_NUMBER,r5,parent,IDC_SEQ_INDEX);
+	mfcToQtWidget->insert(IDC_SEQ_INDEX,mfc5);
+
+   // CONTROL "", IDC_SEQUENCE_SPIN, "msctls_updown32", WS_VISIBLE|WS_BORDER|UDS_SETBUDDYINT|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, 66, 153, 11, 9
+	CSpinButtonCtrl* mfc6 = new CSpinButtonCtrl(parent);
+	CRect r6(CPoint(66, 153), CSize(11, 9));
+	parent->MapDialogRect(&r6);
+	mfc6->Create(WS_VISIBLE|WS_BORDER|UDS_SETBUDDYINT|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, r6, parent, IDC_SEQUENCE_SPIN);
+	mfcToQtWidget->insert(IDC_SEQUENCE_SPIN, mfc6);
+
+   // EDITTEXT IDC_SEQUENCE_STRING,126,149,232,13,WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL
+	CEdit* mfc7 = new CEdit(parent);
+	CRect r7(CPoint(126,149),CSize(232,13));
+	parent->MapDialogRect(&r7);
+	mfc7->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL,r7,parent,IDC_SEQUENCE_STRING);
+	mfcToQtWidget->insert(IDC_SEQUENCE_STRING,mfc7);
 
    // END
 }
@@ -2257,151 +2257,151 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_DPCM(CDialog* parent)
 	mfc0->Create(_T("Assigned samples"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r0,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
-   // CONTROL "", IDC_TABLE, "SysListView32", WS_VISIBLE|WS_BORDER|LVS_REPORT|LVS_SHOWSELALWAYS|LVS_ALIGNLEFT|LVS_NOSORTHEADER|WS_BORDER|WS_TABSTOP, 15, 19, 117, 125
-	CListCtrl* mfc1 = new CListCtrl(parent);
-	CRect r1(CPoint(15, 19), CSize(117, 125));
+   // GROUPBOX "Loaded samples",IDC_STATIC,192,7,173,160
+	CButton* mfc1 = new CButton(parent);
+	CRect r1(CPoint(192,7),CSize(173,160));
 	parent->MapDialogRect(&r1);
-	mfc1->Create(WS_VISIBLE|WS_BORDER|LVS_REPORT|LVS_SHOWSELALWAYS|LVS_ALIGNLEFT|LVS_NOSORTHEADER|WS_BORDER|WS_TABSTOP, r1, parent, IDC_TABLE);
-	mfcToQtWidget->insert(IDC_TABLE, mfc1);
+	mfc1->Create(_T("Loaded samples"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r1,parent,IDC_STATIC);
+	// IDC_STATIC do not get added to MFC-to-Qt map.
+
+   // CONTROL "", IDC_TABLE, "SysListView32", WS_VISIBLE|WS_BORDER|LVS_REPORT|LVS_SHOWSELALWAYS|LVS_ALIGNLEFT|LVS_NOSORTHEADER|WS_BORDER|WS_TABSTOP, 15, 19, 117, 125
+	CListCtrl* mfc3 = new CListCtrl(parent);
+	CRect r3(CPoint(15, 19), CSize(117, 125));
+	parent->MapDialogRect(&r3);
+	mfc3->Create(WS_VISIBLE|WS_BORDER|LVS_REPORT|LVS_SHOWSELALWAYS|LVS_ALIGNLEFT|LVS_NOSORTHEADER|WS_BORDER|WS_TABSTOP, r3, parent, IDC_TABLE);
+	mfcToQtWidget->insert(IDC_TABLE, mfc3);
 
    // COMBOBOX IDC_SAMPLES,15,148,117,125,WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|CBS_SORT|WS_VSCROLL|WS_TABSTOP
-	CComboBox* mfc2 = new CComboBox(parent);
-	CRect r2(CPoint(15,148),CSize(117,125));
-	parent->MapDialogRect(&r2);
-	mfc2->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|CBS_SORT|WS_VSCROLL|WS_TABSTOP,r2,parent,IDC_SAMPLES);
-	mfcToQtWidget->insert(IDC_SAMPLES,mfc2);
+	CComboBox* mfc4 = new CComboBox(parent);
+	CRect r4(CPoint(15,148),CSize(117,125));
+	parent->MapDialogRect(&r4);
+	mfc4->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|CBS_SORT|WS_VSCROLL|WS_TABSTOP,r4,parent,IDC_SAMPLES);
+	mfcToQtWidget->insert(IDC_SAMPLES,mfc4);
 
    // LTEXT "Octave",IDC_STATIC,138,19,30,9
-	CStatic* mfc3 = new CStatic(parent);
-	CRect r3(CPoint(138,19),CSize(30,9));
-	parent->MapDialogRect(&r3);
-	mfc3->Create(_T("Octave"),WS_VISIBLE|WS_BORDER,r3,parent,IDC_STATIC);
+	CStatic* mfc5 = new CStatic(parent);
+	CRect r5(CPoint(138,19),CSize(30,9));
+	parent->MapDialogRect(&r5);
+	mfc5->Create(_T("Octave"),WS_VISIBLE|WS_BORDER,r5,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // COMBOBOX IDC_OCTAVE,138,29,42,53,WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP
-	CComboBox* mfc4 = new CComboBox(parent);
-	CRect r4(CPoint(138,29),CSize(42,53));
-	parent->MapDialogRect(&r4);
-	mfc4->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP,r4,parent,IDC_OCTAVE);
-	mfcToQtWidget->insert(IDC_OCTAVE,mfc4);
+	CComboBox* mfc6 = new CComboBox(parent);
+	CRect r6(CPoint(138,29),CSize(42,53));
+	parent->MapDialogRect(&r6);
+	mfc6->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP,r6,parent,IDC_OCTAVE);
+	mfcToQtWidget->insert(IDC_OCTAVE,mfc6);
 
    // LTEXT "Pitch",IDC_STATIC,138,44,30,8
-	CStatic* mfc5 = new CStatic(parent);
-	CRect r5(CPoint(138,44),CSize(30,8));
-	parent->MapDialogRect(&r5);
-	mfc5->Create(_T("Pitch"),WS_VISIBLE|WS_BORDER,r5,parent,IDC_STATIC);
+	CStatic* mfc7 = new CStatic(parent);
+	CRect r7(CPoint(138,44),CSize(30,8));
+	parent->MapDialogRect(&r7);
+	mfc7->Create(_T("Pitch"),WS_VISIBLE|WS_BORDER,r7,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // COMBOBOX IDC_PITCH,138,54,42,53,WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP
-	CComboBox* mfc6 = new CComboBox(parent);
-	CRect r6(CPoint(138,54),CSize(42,53));
-	parent->MapDialogRect(&r6);
-	mfc6->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP,r6,parent,IDC_PITCH);
-	mfcToQtWidget->insert(IDC_PITCH,mfc6);
+	CComboBox* mfc8 = new CComboBox(parent);
+	CRect r8(CPoint(138,54),CSize(42,53));
+	parent->MapDialogRect(&r8);
+	mfc8->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP,r8,parent,IDC_PITCH);
+	mfcToQtWidget->insert(IDC_PITCH,mfc8);
 
    // CONTROL "Loop", IDC_LOOP, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 138, 71, 42, 9
-	CButton* mfc7 = new CButton(parent);
-	CRect r7(CPoint(138, 71), CSize(42, 9));
-	parent->MapDialogRect(&r7);
-	mfc7->Create(_T("Loop"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r7, parent, IDC_LOOP);
-	mfcToQtWidget->insert(IDC_LOOP, mfc7);
+	CButton* mfc9 = new CButton(parent);
+	CRect r9(CPoint(138, 71), CSize(42, 9));
+	parent->MapDialogRect(&r9);
+	mfc9->Create(_T("Loop"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r9, parent, IDC_LOOP);
+	mfcToQtWidget->insert(IDC_LOOP, mfc9);
 
    // EDITTEXT IDC_DELTA_COUNTER,138,97,42,14,WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL
-	CEdit* mfc8 = new CEdit(parent);
-	CRect r8(CPoint(138,97),CSize(42,14));
-	parent->MapDialogRect(&r8);
-	mfc8->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL,r8,parent,IDC_DELTA_COUNTER);
-	mfcToQtWidget->insert(IDC_DELTA_COUNTER,mfc8);
+	CEdit* mfc10 = new CEdit(parent);
+	CRect r10(CPoint(138,97),CSize(42,14));
+	parent->MapDialogRect(&r10);
+	mfc10->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL,r10,parent,IDC_DELTA_COUNTER);
+	mfcToQtWidget->insert(IDC_DELTA_COUNTER,mfc10);
 
    // CONTROL "", IDC_DELTA_SPIN, "msctls_updown32", WS_VISIBLE|WS_BORDER|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, 170, 106, 11, 14
-	CSpinButtonCtrl* mfc9 = new CSpinButtonCtrl(parent);
-	CRect r9(CPoint(170, 106), CSize(11, 14));
-	parent->MapDialogRect(&r9);
-	mfc9->Create(WS_VISIBLE|WS_BORDER|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, r9, parent, IDC_DELTA_SPIN);
-	mfcToQtWidget->insert(IDC_DELTA_SPIN, mfc9);
+	CSpinButtonCtrl* mfc11 = new CSpinButtonCtrl(parent);
+	CRect r11(CPoint(170, 106), CSize(11, 14));
+	parent->MapDialogRect(&r11);
+	mfc11->Create(WS_VISIBLE|WS_BORDER|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, r11, parent, IDC_DELTA_SPIN);
+	mfcToQtWidget->insert(IDC_DELTA_SPIN, mfc11);
 
    // PUSHBUTTON "",IDC_ADD,138,130,42,14,WS_VISIBLE|WS_BORDER|BS_ICON
-	CButton* mfc10 = new CButton(parent);
-	CRect r10(CPoint(138,130),CSize(42,14));
-	parent->MapDialogRect(&r10);
-	mfc10->Create(_T(""),WS_VISIBLE|WS_BORDER|BS_ICON,r10,parent,IDC_ADD);
-	mfcToQtWidget->insert(IDC_ADD,mfc10);
+	CButton* mfc12 = new CButton(parent);
+	CRect r12(CPoint(138,130),CSize(42,14));
+	parent->MapDialogRect(&r12);
+	mfc12->Create(_T(""),WS_VISIBLE|WS_BORDER|BS_ICON,r12,parent,IDC_ADD);
+	mfcToQtWidget->insert(IDC_ADD,mfc12);
 
    // PUSHBUTTON "",IDC_REMOVE,138,148,42,14,WS_VISIBLE|WS_BORDER|BS_ICON
-	CButton* mfc11 = new CButton(parent);
-	CRect r11(CPoint(138,148),CSize(42,14));
-	parent->MapDialogRect(&r11);
-	mfc11->Create(_T(""),WS_VISIBLE|WS_BORDER|BS_ICON,r11,parent,IDC_REMOVE);
-	mfcToQtWidget->insert(IDC_REMOVE,mfc11);
-
-   // GROUPBOX "Loaded samples",IDC_STATIC,192,7,173,160
-	CButton* mfc12 = new CButton(parent);
-	CRect r12(CPoint(192,7),CSize(173,160));
-	parent->MapDialogRect(&r12);
-	mfc12->Create(_T("Loaded samples"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r12,parent,IDC_STATIC);
-	// IDC_STATIC do not get added to MFC-to-Qt map.
+	CButton* mfc13 = new CButton(parent);
+	CRect r13(CPoint(138,148),CSize(42,14));
+	parent->MapDialogRect(&r13);
+	mfc13->Create(_T(""),WS_VISIBLE|WS_BORDER|BS_ICON,r13,parent,IDC_REMOVE);
+	mfcToQtWidget->insert(IDC_REMOVE,mfc13);
 
    // CONTROL "", IDC_SAMPLE_LIST, "SysListView32", WS_VISIBLE|WS_BORDER|LVS_REPORT|LVS_SHOWSELALWAYS|LVS_ALIGNLEFT|LVS_NOSORTHEADER|WS_BORDER|WS_TABSTOP, 198, 19, 108, 125
-	CListCtrl* mfc13 = new CListCtrl(parent);
-	CRect r13(CPoint(198, 19), CSize(108, 125));
-	parent->MapDialogRect(&r13);
-	mfc13->Create(WS_VISIBLE|WS_BORDER|LVS_REPORT|LVS_SHOWSELALWAYS|LVS_ALIGNLEFT|LVS_NOSORTHEADER|WS_BORDER|WS_TABSTOP, r13, parent, IDC_SAMPLE_LIST);
-	mfcToQtWidget->insert(IDC_SAMPLE_LIST, mfc13);
+	CListCtrl* mfc15 = new CListCtrl(parent);
+	CRect r15(CPoint(198, 19), CSize(108, 125));
+	parent->MapDialogRect(&r15);
+	mfc15->Create(WS_VISIBLE|WS_BORDER|LVS_REPORT|LVS_SHOWSELALWAYS|LVS_ALIGNLEFT|LVS_NOSORTHEADER|WS_BORDER|WS_TABSTOP, r15, parent, IDC_SAMPLE_LIST);
+	mfcToQtWidget->insert(IDC_SAMPLE_LIST, mfc15);
 
    // LTEXT "Space used 16 / 16 kb",IDC_SPACE,198,151,166,9
-	CStatic* mfc14 = new CStatic(parent);
-	CRect r14(CPoint(198,151),CSize(166,9));
-	parent->MapDialogRect(&r14);
-	mfc14->Create(_T("Space used 16 / 16 kb"),WS_VISIBLE|WS_BORDER,r14,parent,IDC_SPACE);
+	CStatic* mfc16 = new CStatic(parent);
+	CRect r16(CPoint(198,151),CSize(166,9));
+	parent->MapDialogRect(&r16);
+	mfc16->Create(_T("Space used 16 / 16 kb"),WS_VISIBLE|WS_BORDER,r16,parent,IDC_SPACE);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // DEFPUSHBUTTON "Load",BS_DEFPUSHBUTTON|WS_VISIBLE|WS_BORDER,312,19,47,14
-	CButton* mfc15 = new CButton(parent);
-	CRect r15(CPoint(312,19),CSize(47,14));
-	parent->MapDialogRect(&r15);
-	mfc15->Create(_T("Load"),BS_DEFPUSHBUTTON|WS_VISIBLE|WS_BORDER,r15,parent,IDC_LOAD);
-	mfcToQtWidget->insert(IDC_LOAD,mfc15);
+	CButton* mfc17 = new CButton(parent);
+	CRect r17(CPoint(312,19),CSize(47,14));
+	parent->MapDialogRect(&r17);
+	mfc17->Create(_T("Load"),BS_DEFPUSHBUTTON|WS_VISIBLE|WS_BORDER,r17,parent,IDC_LOAD);
+	mfcToQtWidget->insert(IDC_LOAD,mfc17);
 
    // PUSHBUTTON "Unload",IDC_UNLOAD,312,35,47,14,WS_VISIBLE|WS_BORDER
-	CButton* mfc16 = new CButton(parent);
-	CRect r16(CPoint(312,35),CSize(47,14));
-	parent->MapDialogRect(&r16);
-	mfc16->Create(_T("Unload"),WS_VISIBLE|WS_BORDER,r16,parent,IDC_UNLOAD);
-	mfcToQtWidget->insert(IDC_UNLOAD,mfc16);
+	CButton* mfc18 = new CButton(parent);
+	CRect r18(CPoint(312,35),CSize(47,14));
+	parent->MapDialogRect(&r18);
+	mfc18->Create(_T("Unload"),WS_VISIBLE|WS_BORDER,r18,parent,IDC_UNLOAD);
+	mfcToQtWidget->insert(IDC_UNLOAD,mfc18);
 
    // PUSHBUTTON "Save",IDC_SAVE,312,51,47,14,WS_VISIBLE|WS_BORDER
-	CButton* mfc17 = new CButton(parent);
-	CRect r17(CPoint(312,51),CSize(47,14));
-	parent->MapDialogRect(&r17);
-	mfc17->Create(_T("Save"),WS_VISIBLE|WS_BORDER,r17,parent,IDC_SAVE);
-	mfcToQtWidget->insert(IDC_SAVE,mfc17);
+	CButton* mfc19 = new CButton(parent);
+	CRect r19(CPoint(312,51),CSize(47,14));
+	parent->MapDialogRect(&r19);
+	mfc19->Create(_T("Save"),WS_VISIBLE|WS_BORDER,r19,parent,IDC_SAVE);
+	mfcToQtWidget->insert(IDC_SAVE,mfc19);
 
    // PUSHBUTTON "Import",IDC_IMPORT,312,67,47,14,WS_VISIBLE|WS_BORDER
-	CButton* mfc18 = new CButton(parent);
-	CRect r18(CPoint(312,67),CSize(47,14));
-	parent->MapDialogRect(&r18);
-	mfc18->Create(_T("Import"),WS_VISIBLE|WS_BORDER,r18,parent,IDC_IMPORT);
-	mfcToQtWidget->insert(IDC_IMPORT,mfc18);
+	CButton* mfc20 = new CButton(parent);
+	CRect r20(CPoint(312,67),CSize(47,14));
+	parent->MapDialogRect(&r20);
+	mfc20->Create(_T("Import"),WS_VISIBLE|WS_BORDER,r20,parent,IDC_IMPORT);
+	mfcToQtWidget->insert(IDC_IMPORT,mfc20);
 
    // PUSHBUTTON "Edit",IDC_EDIT,312,83,47,14,WS_VISIBLE|WS_BORDER
-	CButton* mfc19 = new CButton(parent);
-	CRect r19(CPoint(312,83),CSize(47,14));
-	parent->MapDialogRect(&r19);
-	mfc19->Create(_T("Edit"),WS_VISIBLE|WS_BORDER,r19,parent,IDC_EDIT);
-	mfcToQtWidget->insert(IDC_EDIT,mfc19);
+	CButton* mfc21 = new CButton(parent);
+	CRect r21(CPoint(312,83),CSize(47,14));
+	parent->MapDialogRect(&r21);
+	mfc21->Create(_T("Edit"),WS_VISIBLE|WS_BORDER,r21,parent,IDC_EDIT);
+	mfcToQtWidget->insert(IDC_EDIT,mfc21);
 
    // PUSHBUTTON "Preview",IDC_PREVIEW,312,99,47,14,WS_VISIBLE|WS_BORDER
-	CButton* mfc20 = new CButton(parent);
-	CRect r20(CPoint(312,99),CSize(47,14));
-	parent->MapDialogRect(&r20);
-	mfc20->Create(_T("Preview"),WS_VISIBLE|WS_BORDER,r20,parent,IDC_PREVIEW);
-	mfcToQtWidget->insert(IDC_PREVIEW,mfc20);
+	CButton* mfc22 = new CButton(parent);
+	CRect r22(CPoint(312,99),CSize(47,14));
+	parent->MapDialogRect(&r22);
+	mfc22->Create(_T("Preview"),WS_VISIBLE|WS_BORDER,r22,parent,IDC_PREVIEW);
+	mfcToQtWidget->insert(IDC_PREVIEW,mfc22);
 
    // LTEXT "D-counter",IDC_STATIC,138,86,33,8
-	CStatic* mfc21 = new CStatic(parent);
-	CRect r21(CPoint(138,86),CSize(33,8));
-	parent->MapDialogRect(&r21);
-	mfc21->Create(_T("D-counter"),WS_VISIBLE|WS_BORDER,r21,parent,IDC_STATIC);
+	CStatic* mfc23 = new CStatic(parent);
+	CRect r23(CPoint(138,86),CSize(33,8));
+	parent->MapDialogRect(&r23);
+	mfc23->Create(_T("D-counter"),WS_VISIBLE|WS_BORDER,r23,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // END
@@ -2463,96 +2463,96 @@ void qtMfcInitDialogResource_IDD_CONFIG_APPEARANCE(CDialog* parent)
 	mfc0->Create(_T("Color schemes"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r0,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
-   // COMBOBOX IDC_SCHEME,15,22,135,126,WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|CBS_SORT|WS_VSCROLL|WS_TABSTOP
-	CComboBox* mfc1 = new CComboBox(parent);
-	CRect r1(CPoint(15,22),CSize(135,126));
-	parent->MapDialogRect(&r1);
-	mfc1->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|CBS_SORT|WS_VSCROLL|WS_TABSTOP,r1,parent,IDC_SCHEME);
-	mfcToQtWidget->insert(IDC_SCHEME,mfc1);
-
    // GROUPBOX "Colors",IDC_STATIC,7,54,149,65
-	CButton* mfc2 = new CButton(parent);
-	CRect r2(CPoint(7,54),CSize(149,65));
-	parent->MapDialogRect(&r2);
-	mfc2->Create(_T("Colors"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r2,parent,IDC_STATIC);
+	CButton* mfc1 = new CButton(parent);
+	CRect r1(CPoint(7,54),CSize(149,65));
+	parent->MapDialogRect(&r1);
+	mfc1->Create(_T("Colors"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r1,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
-   // LTEXT "Item",IDC_STATIC,15,68,16,8
-	CStatic* mfc3 = new CStatic(parent);
-	CRect r3(CPoint(15,68),CSize(16,8));
+   // GROUPBOX "Pattern font and size",IDC_STATIC,7,126,149,34
+	CButton* mfc2 = new CButton(parent);
+	CRect r2(CPoint(7,126),CSize(149,34));
+	parent->MapDialogRect(&r2);
+	mfc2->Create(_T("Pattern font and size"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r2,parent,IDC_STATIC);
+	// IDC_STATIC do not get added to MFC-to-Qt map.
+
+   // GROUPBOX "Preview",IDC_STATIC,166,7,107,153
+	CButton* mfc3 = new CButton(parent);
+	CRect r3(CPoint(166,7),CSize(107,153));
 	parent->MapDialogRect(&r3);
-	mfc3->Create(_T("Item"),WS_VISIBLE|WS_BORDER,r3,parent,IDC_STATIC);
+	mfc3->Create(_T("Preview"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r3,parent,IDC_STATIC);
+	// IDC_STATIC do not get added to MFC-to-Qt map.
+
+   // COMBOBOX IDC_SCHEME,15,22,135,126,WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|CBS_SORT|WS_VSCROLL|WS_TABSTOP
+	CComboBox* mfc5 = new CComboBox(parent);
+	CRect r5(CPoint(15,22),CSize(135,126));
+	parent->MapDialogRect(&r5);
+	mfc5->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|CBS_SORT|WS_VSCROLL|WS_TABSTOP,r5,parent,IDC_SCHEME);
+	mfcToQtWidget->insert(IDC_SCHEME,mfc5);
+
+   // LTEXT "Item",IDC_STATIC,15,68,16,8
+	CStatic* mfc7 = new CStatic(parent);
+	CRect r7(CPoint(15,68),CSize(16,8));
+	parent->MapDialogRect(&r7);
+	mfc7->Create(_T("Item"),WS_VISIBLE|WS_BORDER,r7,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // COMBOBOX IDC_COL_ITEM,35,66,115,172,WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP
-	CComboBox* mfc4 = new CComboBox(parent);
-	CRect r4(CPoint(35,66),CSize(115,172));
-	parent->MapDialogRect(&r4);
-	mfc4->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP,r4,parent,IDC_COL_ITEM);
-	mfcToQtWidget->insert(IDC_COL_ITEM,mfc4);
+	CComboBox* mfc8 = new CComboBox(parent);
+	CRect r8(CPoint(35,66),CSize(115,172));
+	parent->MapDialogRect(&r8);
+	mfc8->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP,r8,parent,IDC_COL_ITEM);
+	mfcToQtWidget->insert(IDC_COL_ITEM,mfc8);
 
    // CONTROL "", IDC_COL_PREVIEW, "Static", WS_VISIBLE|WS_BORDER|SS_OWNERDRAW, 15, 85, 69, 15
-	CStatic* mfc5 = new CStatic(parent);
-	CRect r5(CPoint(15, 85), CSize(69, 15));
-	parent->MapDialogRect(&r5);
-	mfc5->Create(_T(""), WS_VISIBLE|WS_BORDER|SS_OWNERDRAW, r5, parent, IDC_COL_PREVIEW);
-	mfcToQtWidget->insert(IDC_COL_PREVIEW, mfc5);
+	CStatic* mfc9 = new CStatic(parent);
+	CRect r9(CPoint(15, 85), CSize(69, 15));
+	parent->MapDialogRect(&r9);
+	mfc9->Create(_T(""), WS_VISIBLE|WS_BORDER|SS_OWNERDRAW, r9, parent, IDC_COL_PREVIEW);
+	mfcToQtWidget->insert(IDC_COL_PREVIEW, mfc9);
 
    // PUSHBUTTON "Pick color",IDC_PICK_COL,96,85,54,15,WS_VISIBLE|WS_BORDER
-	CButton* mfc6 = new CButton(parent);
-	CRect r6(CPoint(96,85),CSize(54,15));
-	parent->MapDialogRect(&r6);
-	mfc6->Create(_T("Pick color"),WS_VISIBLE|WS_BORDER,r6,parent,IDC_PICK_COL);
-	mfcToQtWidget->insert(IDC_PICK_COL,mfc6);
+	CButton* mfc10 = new CButton(parent);
+	CRect r10(CPoint(96,85),CSize(54,15));
+	parent->MapDialogRect(&r10);
+	mfc10->Create(_T("Pick color"),WS_VISIBLE|WS_BORDER,r10,parent,IDC_PICK_COL);
+	mfcToQtWidget->insert(IDC_PICK_COL,mfc10);
 
    // CONTROL "Pattern colors", IDC_PATTERNCOLORS, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 15, 105, 58, 9
-	CButton* mfc7 = new CButton(parent);
-	CRect r7(CPoint(15, 105), CSize(58, 9));
-	parent->MapDialogRect(&r7);
-	mfc7->Create(_T("Pattern colors"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r7, parent, IDC_PATTERNCOLORS);
-	mfcToQtWidget->insert(IDC_PATTERNCOLORS, mfc7);
-
-   // GROUPBOX "Pattern font and size",IDC_STATIC,7,126,149,34
-	CButton* mfc8 = new CButton(parent);
-	CRect r8(CPoint(7,126),CSize(149,34));
-	parent->MapDialogRect(&r8);
-	mfc8->Create(_T("Pattern font and size"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r8,parent,IDC_STATIC);
-	// IDC_STATIC do not get added to MFC-to-Qt map.
+	CButton* mfc11 = new CButton(parent);
+	CRect r11(CPoint(15, 105), CSize(58, 9));
+	parent->MapDialogRect(&r11);
+	mfc11->Create(_T("Pattern colors"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r11, parent, IDC_PATTERNCOLORS);
+	mfcToQtWidget->insert(IDC_PATTERNCOLORS, mfc11);
 
    // COMBOBOX IDC_FONT,15,139,102,93,WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|CBS_SORT|WS_VSCROLL|WS_TABSTOP
-	CComboBox* mfc9 = new CComboBox(parent);
-	CRect r9(CPoint(15,139),CSize(102,93));
-	parent->MapDialogRect(&r9);
-	mfc9->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|CBS_SORT|WS_VSCROLL|WS_TABSTOP,r9,parent,IDC_FONT);
-	mfcToQtWidget->insert(IDC_FONT,mfc9);
+	CComboBox* mfc13 = new CComboBox(parent);
+	CRect r13(CPoint(15,139),CSize(102,93));
+	parent->MapDialogRect(&r13);
+	mfc13->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|CBS_SORT|WS_VSCROLL|WS_TABSTOP,r13,parent,IDC_FONT);
+	mfcToQtWidget->insert(IDC_FONT,mfc13);
 
    // COMBOBOX IDC_FONT_SIZE,122,139,28,30,WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP
-	CComboBox* mfc10 = new CComboBox(parent);
-	CRect r10(CPoint(122,139),CSize(28,30));
-	parent->MapDialogRect(&r10);
-	mfc10->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP,r10,parent,IDC_FONT_SIZE);
-	mfcToQtWidget->insert(IDC_FONT_SIZE,mfc10);
-
-   // GROUPBOX "Preview",IDC_STATIC,166,7,107,153
-	CButton* mfc11 = new CButton(parent);
-	CRect r11(CPoint(166,7),CSize(107,153));
-	parent->MapDialogRect(&r11);
-	mfc11->Create(_T("Preview"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r11,parent,IDC_STATIC);
-	// IDC_STATIC do not get added to MFC-to-Qt map.
+	CComboBox* mfc14 = new CComboBox(parent);
+	CRect r14(CPoint(122,139),CSize(28,30));
+	parent->MapDialogRect(&r14);
+	mfc14->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP,r14,parent,IDC_FONT_SIZE);
+	mfcToQtWidget->insert(IDC_FONT_SIZE,mfc14);
 
    // CONTROL "", IDC_PREVIEW, "Static", WS_VISIBLE|WS_BORDER|SS_OWNERDRAW, 176, 18, 90, 135
-	CStatic* mfc12 = new CStatic(parent);
-	CRect r12(CPoint(176, 18), CSize(90, 135));
-	parent->MapDialogRect(&r12);
-	mfc12->Create(_T(""), WS_VISIBLE|WS_BORDER|SS_OWNERDRAW, r12, parent, IDC_PREVIEW);
-	mfcToQtWidget->insert(IDC_PREVIEW, mfc12);
+	CStatic* mfc16 = new CStatic(parent);
+	CRect r16(CPoint(176, 18), CSize(90, 135));
+	parent->MapDialogRect(&r16);
+	mfc16->Create(_T(""), WS_VISIBLE|WS_BORDER|SS_OWNERDRAW, r16, parent, IDC_PREVIEW);
+	mfcToQtWidget->insert(IDC_PREVIEW, mfc16);
 
    // CONTROL "Display flats", IDC_DISPLAYFLATS, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 83, 105, 58, 9
-	CButton* mfc13 = new CButton(parent);
-	CRect r13(CPoint(83, 105), CSize(58, 9));
-	parent->MapDialogRect(&r13);
-	mfc13->Create(_T("Display flats"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r13, parent, IDC_DISPLAYFLATS);
-	mfcToQtWidget->insert(IDC_DISPLAYFLATS, mfc13);
+	CButton* mfc17 = new CButton(parent);
+	CRect r17(CPoint(83, 105), CSize(58, 9));
+	parent->MapDialogRect(&r17);
+	mfc17->Create(_T("Display flats"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r17, parent, IDC_DISPLAYFLATS);
+	mfcToQtWidget->insert(IDC_DISPLAYFLATS, mfc17);
 
    // END
 }
@@ -2580,227 +2580,227 @@ void qtMfcInitDialogResource_IDD_CONFIG_GENERAL(CDialog* parent)
 	mfc0->Create(_T("General settings"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r0,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
-   // CONTROL "Wrap cursor", IDC_OPT_WRAPCURSOR, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 13, 18, 113, 9
-	CButton* mfc1 = new CButton(parent);
-	CRect r1(CPoint(13, 18), CSize(113, 9));
-	parent->MapDialogRect(&r1);
-	mfc1->Create(_T("Wrap cursor"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r1, parent, IDC_OPT_WRAPCURSOR);
-	mfcToQtWidget->insert(IDC_OPT_WRAPCURSOR, mfc1);
-
-   // CONTROL "Wrap across frames", IDC_OPT_WRAPFRAMES, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 13, 28, 113, 9
-	CButton* mfc2 = new CButton(parent);
-	CRect r2(CPoint(13, 28), CSize(113, 9));
-	parent->MapDialogRect(&r2);
-	mfc2->Create(_T("Wrap across frames"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r2, parent, IDC_OPT_WRAPFRAMES);
-	mfcToQtWidget->insert(IDC_OPT_WRAPFRAMES, mfc2);
-
-   // CONTROL "Free cursor edit", IDC_OPT_FREECURSOR, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 13, 38, 113, 9
-	CButton* mfc3 = new CButton(parent);
-	CRect r3(CPoint(13, 38), CSize(113, 9));
-	parent->MapDialogRect(&r3);
-	mfc3->Create(_T("Free cursor edit"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r3, parent, IDC_OPT_FREECURSOR);
-	mfcToQtWidget->insert(IDC_OPT_FREECURSOR, mfc3);
-
-   // CONTROL "Preview wave-files", IDC_OPT_WAVEPREVIEW, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 13, 48, 113, 9
-	CButton* mfc4 = new CButton(parent);
-	CRect r4(CPoint(13, 48), CSize(113, 9));
-	parent->MapDialogRect(&r4);
-	mfc4->Create(_T("Preview wave-files"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r4, parent, IDC_OPT_WAVEPREVIEW);
-	mfcToQtWidget->insert(IDC_OPT_WAVEPREVIEW, mfc4);
-
-   // CONTROL "Key repeat", IDC_OPT_KEYREPEAT, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 13, 58, 113, 9
-	CButton* mfc5 = new CButton(parent);
-	CRect r5(CPoint(13, 58), CSize(113, 9));
-	parent->MapDialogRect(&r5);
-	mfc5->Create(_T("Key repeat"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r5, parent, IDC_OPT_KEYREPEAT);
-	mfcToQtWidget->insert(IDC_OPT_KEYREPEAT, mfc5);
-
-   // CONTROL "Show row numbers in hex", IDC_OPT_HEXROW, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 13, 68, 113, 9
-	CButton* mfc6 = new CButton(parent);
-	CRect r6(CPoint(13, 68), CSize(113, 9));
-	parent->MapDialogRect(&r6);
-	mfc6->Create(_T("Show row numbers in hex"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r6, parent, IDC_OPT_HEXROW);
-	mfcToQtWidget->insert(IDC_OPT_HEXROW, mfc6);
-
-   // CONTROL "Preview next/previous frame", IDC_OPT_FRAMEPREVIEW, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 13, 78, 113, 9
-	CButton* mfc7 = new CButton(parent);
-	CRect r7(CPoint(13, 78), CSize(113, 9));
-	parent->MapDialogRect(&r7);
-	mfc7->Create(_T("Preview next/previous frame"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r7, parent, IDC_OPT_FRAMEPREVIEW);
-	mfcToQtWidget->insert(IDC_OPT_FRAMEPREVIEW, mfc7);
-
-   // CONTROL "Don't reset DPCM on note stop", IDC_OPT_NODPCMRESET, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 13, 88, 113, 9
-	CButton* mfc8 = new CButton(parent);
-	CRect r8(CPoint(13, 88), CSize(113, 9));
-	parent->MapDialogRect(&r8);
-	mfc8->Create(_T("Don't reset DPCM on note stop"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r8, parent, IDC_OPT_NODPCMRESET);
-	mfcToQtWidget->insert(IDC_OPT_NODPCMRESET, mfc8);
-
-   // CONTROL "Ignore Step when moving", IDC_OPT_NOSTEPMOVE, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 13, 98, 113, 9
-	CButton* mfc9 = new CButton(parent);
-	CRect r9(CPoint(13, 98), CSize(113, 9));
-	parent->MapDialogRect(&r9);
-	mfc9->Create(_T("Ignore Step when moving"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r9, parent, IDC_OPT_NOSTEPMOVE);
-	mfcToQtWidget->insert(IDC_OPT_NOSTEPMOVE, mfc9);
-
-   // CONTROL "Delete-key pulls up rows", IDC_OPT_PULLUPDELETE, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 13, 108, 113, 9
-	CButton* mfc10 = new CButton(parent);
-	CRect r10(CPoint(13, 108), CSize(113, 9));
-	parent->MapDialogRect(&r10);
-	mfc10->Create(_T("Delete-key pulls up rows"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r10, parent, IDC_OPT_PULLUPDELETE);
-	mfcToQtWidget->insert(IDC_OPT_PULLUPDELETE, mfc10);
-
-   // CONTROL "Backup files", IDC_OPT_BACKUPS, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 13, 118, 113, 9
-	CButton* mfc11 = new CButton(parent);
-	CRect r11(CPoint(13, 118), CSize(113, 9));
-	parent->MapDialogRect(&r11);
-	mfc11->Create(_T("Backup files"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r11, parent, IDC_OPT_BACKUPS);
-	mfcToQtWidget->insert(IDC_OPT_BACKUPS, mfc11);
-
-   // CONTROL "Single instance", IDC_OPT_SINGLEINSTANCE, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 13, 128, 113, 9
-	CButton* mfc12 = new CButton(parent);
-	CRect r12(CPoint(13, 128), CSize(113, 9));
-	parent->MapDialogRect(&r12);
-	mfc12->Create(_T("Single instance"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r12, parent, IDC_OPT_SINGLEINSTANCE);
-	mfcToQtWidget->insert(IDC_OPT_SINGLEINSTANCE, mfc12);
-
    // GROUPBOX "Pattern edit style",IDC_STATIC,138,7,135,48
-	CButton* mfc13 = new CButton(parent);
-	CRect r13(CPoint(138,7),CSize(135,48));
-	parent->MapDialogRect(&r13);
-	mfc13->Create(_T("Pattern edit style"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r13,parent,IDC_STATIC);
+	CButton* mfc1 = new CButton(parent);
+	CRect r1(CPoint(138,7),CSize(135,48));
+	parent->MapDialogRect(&r1);
+	mfc1->Create(_T("Pattern edit style"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r1,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
-
-   // CONTROL "FastTracker 2", IDC_STYLE1, "Button", WS_VISIBLE|WS_BORDER|BS_AUTORADIOBUTTON, 144, 18, 120, 8
-	CButton* mfc14 = new CButton(parent);
-	CRect r14(CPoint(144, 18), CSize(120, 8));
-	parent->MapDialogRect(&r14);
-	mfc14->Create(_T("FastTracker 2"), WS_VISIBLE|WS_BORDER|BS_AUTORADIOBUTTON, r14, parent, IDC_STYLE1);
-	mfcToQtWidget->insert(IDC_STYLE1, mfc14);
-
-   // CONTROL "ModPlug tracker", IDC_STYLE2, "Button", WS_VISIBLE|WS_BORDER|BS_AUTORADIOBUTTON, 144, 30, 120, 8
-	CButton* mfc15 = new CButton(parent);
-	CRect r15(CPoint(144, 30), CSize(120, 8));
-	parent->MapDialogRect(&r15);
-	mfc15->Create(_T("ModPlug tracker"), WS_VISIBLE|WS_BORDER|BS_AUTORADIOBUTTON, r15, parent, IDC_STYLE2);
-	mfcToQtWidget->insert(IDC_STYLE2, mfc15);
-
-   // CONTROL "Impulse Tracker", IDC_STYLE3, "Button", WS_VISIBLE|WS_BORDER|BS_AUTORADIOBUTTON, 144, 42, 120, 8
-	CButton* mfc16 = new CButton(parent);
-	CRect r16(CPoint(144, 42), CSize(120, 8));
-	parent->MapDialogRect(&r16);
-	mfc16->Create(_T("Impulse Tracker"), WS_VISIBLE|WS_BORDER|BS_AUTORADIOBUTTON, r16, parent, IDC_STYLE3);
-	mfcToQtWidget->insert(IDC_STYLE3, mfc16);
 
    // GROUPBOX "Edit settings",IDC_STATIC,137,57,135,30
-	CButton* mfc17 = new CButton(parent);
-	CRect r17(CPoint(137,57),CSize(135,30));
-	parent->MapDialogRect(&r17);
-	mfc17->Create(_T("Edit settings"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r17,parent,IDC_STATIC);
+	CButton* mfc2 = new CButton(parent);
+	CRect r2(CPoint(137,57),CSize(135,30));
+	parent->MapDialogRect(&r2);
+	mfc2->Create(_T("Edit settings"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r2,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
-   // LTEXT "Page jump length",IDC_STATIC,143,70,56,9
-	CStatic* mfc18 = new CStatic(parent);
-	CRect r18(CPoint(143,70),CSize(56,9));
+   // GROUPBOX "Keys",IDC_STATIC,138,89,135,71
+	CButton* mfc3 = new CButton(parent);
+	CRect r3(CPoint(138,89),CSize(135,71));
+	parent->MapDialogRect(&r3);
+	mfc3->Create(_T("Keys"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r3,parent,IDC_STATIC);
+	// IDC_STATIC do not get added to MFC-to-Qt map.
+
+   // CONTROL "Wrap cursor", IDC_OPT_WRAPCURSOR, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 13, 18, 113, 9
+	CButton* mfc5 = new CButton(parent);
+	CRect r5(CPoint(13, 18), CSize(113, 9));
+	parent->MapDialogRect(&r5);
+	mfc5->Create(_T("Wrap cursor"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r5, parent, IDC_OPT_WRAPCURSOR);
+	mfcToQtWidget->insert(IDC_OPT_WRAPCURSOR, mfc5);
+
+   // CONTROL "Wrap across frames", IDC_OPT_WRAPFRAMES, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 13, 28, 113, 9
+	CButton* mfc6 = new CButton(parent);
+	CRect r6(CPoint(13, 28), CSize(113, 9));
+	parent->MapDialogRect(&r6);
+	mfc6->Create(_T("Wrap across frames"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r6, parent, IDC_OPT_WRAPFRAMES);
+	mfcToQtWidget->insert(IDC_OPT_WRAPFRAMES, mfc6);
+
+   // CONTROL "Free cursor edit", IDC_OPT_FREECURSOR, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 13, 38, 113, 9
+	CButton* mfc7 = new CButton(parent);
+	CRect r7(CPoint(13, 38), CSize(113, 9));
+	parent->MapDialogRect(&r7);
+	mfc7->Create(_T("Free cursor edit"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r7, parent, IDC_OPT_FREECURSOR);
+	mfcToQtWidget->insert(IDC_OPT_FREECURSOR, mfc7);
+
+   // CONTROL "Preview wave-files", IDC_OPT_WAVEPREVIEW, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 13, 48, 113, 9
+	CButton* mfc8 = new CButton(parent);
+	CRect r8(CPoint(13, 48), CSize(113, 9));
+	parent->MapDialogRect(&r8);
+	mfc8->Create(_T("Preview wave-files"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r8, parent, IDC_OPT_WAVEPREVIEW);
+	mfcToQtWidget->insert(IDC_OPT_WAVEPREVIEW, mfc8);
+
+   // CONTROL "Key repeat", IDC_OPT_KEYREPEAT, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 13, 58, 113, 9
+	CButton* mfc9 = new CButton(parent);
+	CRect r9(CPoint(13, 58), CSize(113, 9));
+	parent->MapDialogRect(&r9);
+	mfc9->Create(_T("Key repeat"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r9, parent, IDC_OPT_KEYREPEAT);
+	mfcToQtWidget->insert(IDC_OPT_KEYREPEAT, mfc9);
+
+   // CONTROL "Show row numbers in hex", IDC_OPT_HEXROW, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 13, 68, 113, 9
+	CButton* mfc10 = new CButton(parent);
+	CRect r10(CPoint(13, 68), CSize(113, 9));
+	parent->MapDialogRect(&r10);
+	mfc10->Create(_T("Show row numbers in hex"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r10, parent, IDC_OPT_HEXROW);
+	mfcToQtWidget->insert(IDC_OPT_HEXROW, mfc10);
+
+   // CONTROL "Preview next/previous frame", IDC_OPT_FRAMEPREVIEW, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 13, 78, 113, 9
+	CButton* mfc11 = new CButton(parent);
+	CRect r11(CPoint(13, 78), CSize(113, 9));
+	parent->MapDialogRect(&r11);
+	mfc11->Create(_T("Preview next/previous frame"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r11, parent, IDC_OPT_FRAMEPREVIEW);
+	mfcToQtWidget->insert(IDC_OPT_FRAMEPREVIEW, mfc11);
+
+   // CONTROL "Don't reset DPCM on note stop", IDC_OPT_NODPCMRESET, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 13, 88, 113, 9
+	CButton* mfc12 = new CButton(parent);
+	CRect r12(CPoint(13, 88), CSize(113, 9));
+	parent->MapDialogRect(&r12);
+	mfc12->Create(_T("Don't reset DPCM on note stop"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r12, parent, IDC_OPT_NODPCMRESET);
+	mfcToQtWidget->insert(IDC_OPT_NODPCMRESET, mfc12);
+
+   // CONTROL "Ignore Step when moving", IDC_OPT_NOSTEPMOVE, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 13, 98, 113, 9
+	CButton* mfc13 = new CButton(parent);
+	CRect r13(CPoint(13, 98), CSize(113, 9));
+	parent->MapDialogRect(&r13);
+	mfc13->Create(_T("Ignore Step when moving"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r13, parent, IDC_OPT_NOSTEPMOVE);
+	mfcToQtWidget->insert(IDC_OPT_NOSTEPMOVE, mfc13);
+
+   // CONTROL "Delete-key pulls up rows", IDC_OPT_PULLUPDELETE, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 13, 108, 113, 9
+	CButton* mfc14 = new CButton(parent);
+	CRect r14(CPoint(13, 108), CSize(113, 9));
+	parent->MapDialogRect(&r14);
+	mfc14->Create(_T("Delete-key pulls up rows"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r14, parent, IDC_OPT_PULLUPDELETE);
+	mfcToQtWidget->insert(IDC_OPT_PULLUPDELETE, mfc14);
+
+   // CONTROL "Backup files", IDC_OPT_BACKUPS, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 13, 118, 113, 9
+	CButton* mfc15 = new CButton(parent);
+	CRect r15(CPoint(13, 118), CSize(113, 9));
+	parent->MapDialogRect(&r15);
+	mfc15->Create(_T("Backup files"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r15, parent, IDC_OPT_BACKUPS);
+	mfcToQtWidget->insert(IDC_OPT_BACKUPS, mfc15);
+
+   // CONTROL "Single instance", IDC_OPT_SINGLEINSTANCE, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 13, 128, 113, 9
+	CButton* mfc16 = new CButton(parent);
+	CRect r16(CPoint(13, 128), CSize(113, 9));
+	parent->MapDialogRect(&r16);
+	mfc16->Create(_T("Single instance"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r16, parent, IDC_OPT_SINGLEINSTANCE);
+	mfcToQtWidget->insert(IDC_OPT_SINGLEINSTANCE, mfc16);
+
+   // CONTROL "FastTracker 2", IDC_STYLE1, "Button", WS_VISIBLE|WS_BORDER|BS_AUTORADIOBUTTON, 144, 18, 120, 8
+	CButton* mfc18 = new CButton(parent);
+	CRect r18(CPoint(144, 18), CSize(120, 8));
 	parent->MapDialogRect(&r18);
-	mfc18->Create(_T("Page jump length"),WS_VISIBLE|WS_BORDER,r18,parent,IDC_STATIC);
+	mfc18->Create(_T("FastTracker 2"), WS_VISIBLE|WS_BORDER|BS_AUTORADIOBUTTON, r18, parent, IDC_STYLE1);
+	mfcToQtWidget->insert(IDC_STYLE1, mfc18);
+
+   // CONTROL "ModPlug tracker", IDC_STYLE2, "Button", WS_VISIBLE|WS_BORDER|BS_AUTORADIOBUTTON, 144, 30, 120, 8
+	CButton* mfc19 = new CButton(parent);
+	CRect r19(CPoint(144, 30), CSize(120, 8));
+	parent->MapDialogRect(&r19);
+	mfc19->Create(_T("ModPlug tracker"), WS_VISIBLE|WS_BORDER|BS_AUTORADIOBUTTON, r19, parent, IDC_STYLE2);
+	mfcToQtWidget->insert(IDC_STYLE2, mfc19);
+
+   // CONTROL "Impulse Tracker", IDC_STYLE3, "Button", WS_VISIBLE|WS_BORDER|BS_AUTORADIOBUTTON, 144, 42, 120, 8
+	CButton* mfc20 = new CButton(parent);
+	CRect r20(CPoint(144, 42), CSize(120, 8));
+	parent->MapDialogRect(&r20);
+	mfc20->Create(_T("Impulse Tracker"), WS_VISIBLE|WS_BORDER|BS_AUTORADIOBUTTON, r20, parent, IDC_STYLE3);
+	mfcToQtWidget->insert(IDC_STYLE3, mfc20);
+
+   // LTEXT "Page jump length",IDC_STATIC,143,70,56,9
+	CStatic* mfc22 = new CStatic(parent);
+	CRect r22(CPoint(143,70),CSize(56,9));
+	parent->MapDialogRect(&r22);
+	mfc22->Create(_T("Page jump length"),WS_VISIBLE|WS_BORDER,r22,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // COMBOBOX IDC_PAGELENGTH,215,68,48,65,WS_VISIBLE|WS_BORDER|CBS_DROPDOWN|WS_VSCROLL|WS_TABSTOP
-	CComboBox* mfc19 = new CComboBox(parent);
-	CRect r19(CPoint(215,68),CSize(48,65));
-	parent->MapDialogRect(&r19);
-	mfc19->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWN|WS_VSCROLL|WS_TABSTOP,r19,parent,IDC_PAGELENGTH);
-	mfcToQtWidget->insert(IDC_PAGELENGTH,mfc19);
+	CComboBox* mfc23 = new CComboBox(parent);
+	CRect r23(CPoint(215,68),CSize(48,65));
+	parent->MapDialogRect(&r23);
+	mfc23->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWN|WS_VSCROLL|WS_TABSTOP,r23,parent,IDC_PAGELENGTH);
+	mfcToQtWidget->insert(IDC_PAGELENGTH,mfc23);
 
 
-	mfc19->AddString(_T("2"));
+	mfc23->AddString(_T("2"));
 	
 
-	mfc19->AddString(_T("4"));
+	mfc23->AddString(_T("4"));
 	
 
-	mfc19->AddString(_T("8"));
+	mfc23->AddString(_T("8"));
 	
 
-	mfc19->AddString(_T("16"));
+	mfc23->AddString(_T("16"));
 	
-   // GROUPBOX "Keys",IDC_STATIC,138,89,135,71
-	CButton* mfc20 = new CButton(parent);
-	CRect r20(CPoint(138,89),CSize(135,71));
-	parent->MapDialogRect(&r20);
-	mfc20->Create(_T("Keys"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r20,parent,IDC_STATIC);
-	// IDC_STATIC do not get added to MFC-to-Qt map.
-
    // LTEXT "Note cut",IDC_STATIC,144,100,50,11
-	CStatic* mfc21 = new CStatic(parent);
-	CRect r21(CPoint(144,100),CSize(50,11));
-	parent->MapDialogRect(&r21);
-	mfc21->Create(_T("Note cut"),WS_VISIBLE|WS_BORDER,r21,parent,IDC_STATIC);
+	CStatic* mfc25 = new CStatic(parent);
+	CRect r25(CPoint(144,100),CSize(50,11));
+	parent->MapDialogRect(&r25);
+	mfc25->Create(_T("Note cut"),WS_VISIBLE|WS_BORDER,r25,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // EDITTEXT IDC_KEY_NOTE_CUT,204,99,60,13,WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_READONLY
-	CEdit* mfc22 = new CEdit(parent);
-	CRect r22(CPoint(204,99),CSize(60,13));
-	parent->MapDialogRect(&r22);
-	mfc22->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_READONLY,r22,parent,IDC_KEY_NOTE_CUT);
-	mfcToQtWidget->insert(IDC_KEY_NOTE_CUT,mfc22);
+	CEdit* mfc26 = new CEdit(parent);
+	CRect r26(CPoint(204,99),CSize(60,13));
+	parent->MapDialogRect(&r26);
+	mfc26->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_READONLY,r26,parent,IDC_KEY_NOTE_CUT);
+	mfcToQtWidget->insert(IDC_KEY_NOTE_CUT,mfc26);
 
    // LTEXT "Clear field",IDC_STATIC,144,115,50,11
-	CStatic* mfc23 = new CStatic(parent);
-	CRect r23(CPoint(144,115),CSize(50,11));
-	parent->MapDialogRect(&r23);
-	mfc23->Create(_T("Clear field"),WS_VISIBLE|WS_BORDER,r23,parent,IDC_STATIC);
+	CStatic* mfc27 = new CStatic(parent);
+	CRect r27(CPoint(144,115),CSize(50,11));
+	parent->MapDialogRect(&r27);
+	mfc27->Create(_T("Clear field"),WS_VISIBLE|WS_BORDER,r27,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // EDITTEXT IDC_KEY_CLEAR,204,114,60,13,WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_READONLY
-	CEdit* mfc24 = new CEdit(parent);
-	CRect r24(CPoint(204,114),CSize(60,13));
-	parent->MapDialogRect(&r24);
-	mfc24->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_READONLY,r24,parent,IDC_KEY_CLEAR);
-	mfcToQtWidget->insert(IDC_KEY_CLEAR,mfc24);
+	CEdit* mfc28 = new CEdit(parent);
+	CRect r28(CPoint(204,114),CSize(60,13));
+	parent->MapDialogRect(&r28);
+	mfc28->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_READONLY,r28,parent,IDC_KEY_CLEAR);
+	mfcToQtWidget->insert(IDC_KEY_CLEAR,mfc28);
 
    // LTEXT "Repeat",IDC_STATIC,144,129,50,11
-	CStatic* mfc25 = new CStatic(parent);
-	CRect r25(CPoint(144,129),CSize(50,11));
-	parent->MapDialogRect(&r25);
-	mfc25->Create(_T("Repeat"),WS_VISIBLE|WS_BORDER,r25,parent,IDC_STATIC);
+	CStatic* mfc29 = new CStatic(parent);
+	CRect r29(CPoint(144,129),CSize(50,11));
+	parent->MapDialogRect(&r29);
+	mfc29->Create(_T("Repeat"),WS_VISIBLE|WS_BORDER,r29,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // EDITTEXT IDC_KEY_REPEAT,204,128,60,13,WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_READONLY
-	CEdit* mfc26 = new CEdit(parent);
-	CRect r26(CPoint(204,128),CSize(60,13));
-	parent->MapDialogRect(&r26);
-	mfc26->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_READONLY,r26,parent,IDC_KEY_REPEAT);
-	mfcToQtWidget->insert(IDC_KEY_REPEAT,mfc26);
+	CEdit* mfc30 = new CEdit(parent);
+	CRect r30(CPoint(204,128),CSize(60,13));
+	parent->MapDialogRect(&r30);
+	mfc30->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_READONLY,r30,parent,IDC_KEY_REPEAT);
+	mfcToQtWidget->insert(IDC_KEY_REPEAT,mfc30);
 
    // LTEXT "Note release",IDC_STATIC,144,143,50,11
-	CStatic* mfc27 = new CStatic(parent);
-	CRect r27(CPoint(144,143),CSize(50,11));
-	parent->MapDialogRect(&r27);
-	mfc27->Create(_T("Note release"),WS_VISIBLE|WS_BORDER,r27,parent,IDC_STATIC);
+	CStatic* mfc31 = new CStatic(parent);
+	CRect r31(CPoint(144,143),CSize(50,11));
+	parent->MapDialogRect(&r31);
+	mfc31->Create(_T("Note release"),WS_VISIBLE|WS_BORDER,r31,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // EDITTEXT IDC_KEY_NOTE_RELEASE,204,142,60,13,WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_READONLY
-	CEdit* mfc28 = new CEdit(parent);
-	CRect r28(CPoint(204,142),CSize(60,13));
-	parent->MapDialogRect(&r28);
-	mfc28->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_READONLY,r28,parent,IDC_KEY_NOTE_RELEASE);
-	mfcToQtWidget->insert(IDC_KEY_NOTE_RELEASE,mfc28);
+	CEdit* mfc32 = new CEdit(parent);
+	CRect r32(CPoint(204,142),CSize(60,13));
+	parent->MapDialogRect(&r32);
+	mfc32->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_READONLY,r32,parent,IDC_KEY_NOTE_RELEASE);
+	mfcToQtWidget->insert(IDC_KEY_NOTE_RELEASE,mfc32);
 
    // CONTROL "Preview full row", IDC_OPT_PREVIEWFULLROW, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 13, 138, 113, 9
-	CButton* mfc29 = new CButton(parent);
-	CRect r29(CPoint(13, 138), CSize(113, 9));
-	parent->MapDialogRect(&r29);
-	mfc29->Create(_T("Preview full row"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r29, parent, IDC_OPT_PREVIEWFULLROW);
-	mfcToQtWidget->insert(IDC_OPT_PREVIEWFULLROW, mfc29);
+	CButton* mfc33 = new CButton(parent);
+	CRect r33(CPoint(13, 138), CSize(113, 9));
+	parent->MapDialogRect(&r33);
+	mfc33->Create(_T("Preview full row"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r33, parent, IDC_OPT_PREVIEWFULLROW);
+	mfcToQtWidget->insert(IDC_OPT_PREVIEWFULLROW, mfc33);
 
    // CONTROL "Don't select on double-click", IDC_OPT_DOUBLECLICK, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 13, 148, 113, 9
-	CButton* mfc30 = new CButton(parent);
-	CRect r30(CPoint(13, 148), CSize(113, 9));
-	parent->MapDialogRect(&r30);
-	mfc30->Create(_T("Don't select on double-click"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r30, parent, IDC_OPT_DOUBLECLICK);
-	mfcToQtWidget->insert(IDC_OPT_DOUBLECLICK, mfc30);
+	CButton* mfc34 = new CButton(parent);
+	CRect r34(CPoint(13, 148), CSize(113, 9));
+	parent->MapDialogRect(&r34);
+	mfc34->Create(_T("Don't select on double-click"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r34, parent, IDC_OPT_DOUBLECLICK);
+	mfcToQtWidget->insert(IDC_OPT_DOUBLECLICK, mfc34);
 
    // END
 }
@@ -2828,68 +2828,68 @@ void qtMfcInitDialogResource_IDD_CONFIG_MIDI(CDialog* parent)
 	mfc0->Create(_T("Input Device"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r0,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
-   // COMBOBOX IDC_INDEVICES,13,20,253,50,WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP
-	CComboBox* mfc1 = new CComboBox(parent);
-	CRect r1(CPoint(13,20),CSize(253,50));
-	parent->MapDialogRect(&r1);
-	mfc1->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP,r1,parent,IDC_INDEVICES);
-	mfcToQtWidget->insert(IDC_INDEVICES,mfc1);
-
    // GROUPBOX "Output Device",IDC_STATIC,7,48,266,35
-	CButton* mfc2 = new CButton(parent);
-	CRect r2(CPoint(7,48),CSize(266,35));
-	parent->MapDialogRect(&r2);
-	mfc2->Create(_T("Output Device"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r2,parent,IDC_STATIC);
+	CButton* mfc1 = new CButton(parent);
+	CRect r1(CPoint(7,48),CSize(266,35));
+	parent->MapDialogRect(&r1);
+	mfc1->Create(_T("Output Device"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r1,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
-
-   // COMBOBOX IDC_OUTDEVICES,13,61,253,50,WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP
-	CComboBox* mfc3 = new CComboBox(parent);
-	CRect r3(CPoint(13,61),CSize(253,50));
-	parent->MapDialogRect(&r3);
-	mfc3->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP,r3,parent,IDC_OUTDEVICES);
-	mfcToQtWidget->insert(IDC_OUTDEVICES,mfc3);
-
-   // CONTROL "Receive sync ticks", IDC_MASTER_SYNC, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 13, 102, 173, 10
-	CButton* mfc4 = new CButton(parent);
-	CRect r4(CPoint(13, 102), CSize(173, 10));
-	parent->MapDialogRect(&r4);
-	mfc4->Create(_T("Receive sync ticks"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r4, parent, IDC_MASTER_SYNC);
-	mfcToQtWidget->insert(IDC_MASTER_SYNC, mfc4);
-
-   // CONTROL "Skip key releases", IDC_KEY_RELEASE, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 13, 112, 173, 10
-	CButton* mfc5 = new CButton(parent);
-	CRect r5(CPoint(13, 112), CSize(173, 10));
-	parent->MapDialogRect(&r5);
-	mfc5->Create(_T("Skip key releases"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r5, parent, IDC_KEY_RELEASE);
-	mfcToQtWidget->insert(IDC_KEY_RELEASE, mfc5);
-
-   // CONTROL "Map MIDI channels to NES channels", IDC_CHANMAP, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 13, 122, 173, 10
-	CButton* mfc6 = new CButton(parent);
-	CRect r6(CPoint(13, 122), CSize(173, 10));
-	parent->MapDialogRect(&r6);
-	mfc6->Create(_T("Map MIDI channels to NES channels"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r6, parent, IDC_CHANMAP);
-	mfcToQtWidget->insert(IDC_CHANMAP, mfc6);
-
-   // CONTROL "Record velocities", IDC_VELOCITY, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 13, 132, 173, 10
-	CButton* mfc7 = new CButton(parent);
-	CRect r7(CPoint(13, 132), CSize(173, 10));
-	parent->MapDialogRect(&r7);
-	mfc7->Create(_T("Record velocities"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r7, parent, IDC_VELOCITY);
-	mfcToQtWidget->insert(IDC_VELOCITY, mfc7);
-
-   // CONTROL "Auto arpeggiate chords", IDC_ARPEGGIATE, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 13, 142, 173, 10
-	CButton* mfc8 = new CButton(parent);
-	CRect r8(CPoint(13, 142), CSize(173, 10));
-	parent->MapDialogRect(&r8);
-	mfc8->Create(_T("Auto arpeggiate chords"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r8, parent, IDC_ARPEGGIATE);
-	mfcToQtWidget->insert(IDC_ARPEGGIATE, mfc8);
 
    // GROUPBOX "Options",IDC_STATIC,7,89,266,71
-	CButton* mfc9 = new CButton(parent);
-	CRect r9(CPoint(7,89),CSize(266,71));
-	parent->MapDialogRect(&r9);
-	mfc9->Create(_T("Options"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r9,parent,IDC_STATIC);
+	CButton* mfc2 = new CButton(parent);
+	CRect r2(CPoint(7,89),CSize(266,71));
+	parent->MapDialogRect(&r2);
+	mfc2->Create(_T("Options"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r2,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
+
+   // COMBOBOX IDC_INDEVICES,13,20,253,50,WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP
+	CComboBox* mfc4 = new CComboBox(parent);
+	CRect r4(CPoint(13,20),CSize(253,50));
+	parent->MapDialogRect(&r4);
+	mfc4->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP,r4,parent,IDC_INDEVICES);
+	mfcToQtWidget->insert(IDC_INDEVICES,mfc4);
+
+   // COMBOBOX IDC_OUTDEVICES,13,61,253,50,WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP
+	CComboBox* mfc6 = new CComboBox(parent);
+	CRect r6(CPoint(13,61),CSize(253,50));
+	parent->MapDialogRect(&r6);
+	mfc6->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP,r6,parent,IDC_OUTDEVICES);
+	mfcToQtWidget->insert(IDC_OUTDEVICES,mfc6);
+
+   // CONTROL "Receive sync ticks", IDC_MASTER_SYNC, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 13, 102, 173, 10
+	CButton* mfc7 = new CButton(parent);
+	CRect r7(CPoint(13, 102), CSize(173, 10));
+	parent->MapDialogRect(&r7);
+	mfc7->Create(_T("Receive sync ticks"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r7, parent, IDC_MASTER_SYNC);
+	mfcToQtWidget->insert(IDC_MASTER_SYNC, mfc7);
+
+   // CONTROL "Skip key releases", IDC_KEY_RELEASE, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 13, 112, 173, 10
+	CButton* mfc8 = new CButton(parent);
+	CRect r8(CPoint(13, 112), CSize(173, 10));
+	parent->MapDialogRect(&r8);
+	mfc8->Create(_T("Skip key releases"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r8, parent, IDC_KEY_RELEASE);
+	mfcToQtWidget->insert(IDC_KEY_RELEASE, mfc8);
+
+   // CONTROL "Map MIDI channels to NES channels", IDC_CHANMAP, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 13, 122, 173, 10
+	CButton* mfc9 = new CButton(parent);
+	CRect r9(CPoint(13, 122), CSize(173, 10));
+	parent->MapDialogRect(&r9);
+	mfc9->Create(_T("Map MIDI channels to NES channels"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r9, parent, IDC_CHANMAP);
+	mfcToQtWidget->insert(IDC_CHANMAP, mfc9);
+
+   // CONTROL "Record velocities", IDC_VELOCITY, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 13, 132, 173, 10
+	CButton* mfc10 = new CButton(parent);
+	CRect r10(CPoint(13, 132), CSize(173, 10));
+	parent->MapDialogRect(&r10);
+	mfc10->Create(_T("Record velocities"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r10, parent, IDC_VELOCITY);
+	mfcToQtWidget->insert(IDC_VELOCITY, mfc10);
+
+   // CONTROL "Auto arpeggiate chords", IDC_ARPEGGIATE, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 13, 142, 173, 10
+	CButton* mfc11 = new CButton(parent);
+	CRect r11(CPoint(13, 142), CSize(173, 10));
+	parent->MapDialogRect(&r11);
+	mfc11->Create(_T("Auto arpeggiate chords"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r11, parent, IDC_ARPEGGIATE);
+	mfcToQtWidget->insert(IDC_ARPEGGIATE, mfc11);
 
    // END
 }
@@ -2917,179 +2917,179 @@ void qtMfcInitDialogResource_IDD_CONFIG_SOUND(CDialog* parent)
 	mfc0->Create(_T("Device"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r0,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
-   // COMBOBOX IDC_DEVICES,13,20,253,12,WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP
-	CComboBox* mfc1 = new CComboBox(parent);
-	CRect r1(CPoint(13,20),CSize(253,12));
-	parent->MapDialogRect(&r1);
-	mfc1->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP,r1,parent,IDC_DEVICES);
-	mfcToQtWidget->insert(IDC_DEVICES,mfc1);
-
    // GROUPBOX "Sample rate",IDC_STATIC,7,48,113,33
-	CButton* mfc2 = new CButton(parent);
-	CRect r2(CPoint(7,48),CSize(113,33));
-	parent->MapDialogRect(&r2);
-	mfc2->Create(_T("Sample rate"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r2,parent,IDC_STATIC);
+	CButton* mfc1 = new CButton(parent);
+	CRect r1(CPoint(7,48),CSize(113,33));
+	parent->MapDialogRect(&r1);
+	mfc1->Create(_T("Sample rate"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r1,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
-   // COMBOBOX IDC_SAMPLE_RATE,13,61,101,62,WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|CBS_SORT|WS_VSCROLL|WS_TABSTOP
-	CComboBox* mfc3 = new CComboBox(parent);
-	CRect r3(CPoint(13,61),CSize(101,62));
-	parent->MapDialogRect(&r3);
-	mfc3->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|CBS_SORT|WS_VSCROLL|WS_TABSTOP,r3,parent,IDC_SAMPLE_RATE);
-	mfcToQtWidget->insert(IDC_SAMPLE_RATE,mfc3);
-
-
-	mfc3->AddString(_T("11 025 Hz"));
-	
-
-	mfc3->AddString(_T("22 050 Hz"));
-	
-
-	mfc3->AddString(_T("44 100 Hz"));
-	
-
-	mfc3->AddString(_T("48 000 Hz"));
-	
-
-	mfc3->AddString(_T("96 000 Hz"));
-	
    // GROUPBOX "Sample size",IDC_STATIC,7,90,113,33
-	CButton* mfc4 = new CButton(parent);
-	CRect r4(CPoint(7,90),CSize(113,33));
-	parent->MapDialogRect(&r4);
-	mfc4->Create(_T("Sample size"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r4,parent,IDC_STATIC);
+	CButton* mfc2 = new CButton(parent);
+	CRect r2(CPoint(7,90),CSize(113,33));
+	parent->MapDialogRect(&r2);
+	mfc2->Create(_T("Sample size"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r2,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
-   // COMBOBOX IDC_SAMPLE_SIZE,13,102,101,62,WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|CBS_SORT|WS_VSCROLL|WS_TABSTOP
-	CComboBox* mfc5 = new CComboBox(parent);
-	CRect r5(CPoint(13,102),CSize(101,62));
-	parent->MapDialogRect(&r5);
-	mfc5->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|CBS_SORT|WS_VSCROLL|WS_TABSTOP,r5,parent,IDC_SAMPLE_SIZE);
-	mfcToQtWidget->insert(IDC_SAMPLE_SIZE,mfc5);
-
-
-	mfc5->AddString(_T("16 bit"));
-	
-
-	mfc5->AddString(_T("8 bit"));
-	
    // GROUPBOX "Buffer length",IDC_STATIC,7,129,113,31
-	CButton* mfc6 = new CButton(parent);
-	CRect r6(CPoint(7,129),CSize(113,31));
-	parent->MapDialogRect(&r6);
-	mfc6->Create(_T("Buffer length"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r6,parent,IDC_STATIC);
-	// IDC_STATIC do not get added to MFC-to-Qt map.
-
-   // CONTROL "", IDC_BUF_LENGTH, "msctls_trackbar32", WS_VISIBLE|WS_BORDER|TBS_BOTH|TBS_NOTICKS|WS_TABSTOP, 13, 141, 69, 12
-	CSliderCtrl* mfc7 = new CSliderCtrl(parent);
-	CRect r7(CPoint(13, 141), CSize(69, 12));
-	parent->MapDialogRect(&r7);
-	mfc7->Create(WS_VISIBLE|WS_BORDER|TBS_BOTH|TBS_NOTICKS|WS_TABSTOP, r7, parent, IDC_BUF_LENGTH);
-	mfcToQtWidget->insert(IDC_BUF_LENGTH, mfc7);
-
-   // CTEXT "20 ms",IDC_BUF_LEN,83,142,31,11
-	CStatic* mfc8 = new CStatic(parent);
-	CRect r8(CPoint(83,142),CSize(31,11));
-	parent->MapDialogRect(&r8);
-	mfc8->Create(_T("20 ms"),WS_VISIBLE|WS_BORDER,r8,parent,IDC_BUF_LEN);
+	CButton* mfc3 = new CButton(parent);
+	CRect r3(CPoint(7,129),CSize(113,31));
+	parent->MapDialogRect(&r3);
+	mfc3->Create(_T("Buffer length"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r3,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // GROUPBOX "Bass filtering",IDC_STATIC,126,48,147,33
-	CButton* mfc9 = new CButton(parent);
-	CRect r9(CPoint(126,48),CSize(147,33));
-	parent->MapDialogRect(&r9);
-	mfc9->Create(_T("Bass filtering"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r9,parent,IDC_STATIC);
-	// IDC_STATIC do not get added to MFC-to-Qt map.
-
-   // LTEXT "Frequency",IDC_STATIC,132,63,36,11
-	CStatic* mfc10 = new CStatic(parent);
-	CRect r10(CPoint(132,63),CSize(36,11));
-	parent->MapDialogRect(&r10);
-	mfc10->Create(_T("Frequency"),WS_VISIBLE|WS_BORDER,r10,parent,IDC_STATIC);
-	// IDC_STATIC do not get added to MFC-to-Qt map.
-
-   // CONTROL "", IDC_BASS_FREQ, "msctls_trackbar32", WS_VISIBLE|WS_BORDER|TBS_BOTH|TBS_NOTICKS|WS_TABSTOP, 174, 63, 55, 12
-	CSliderCtrl* mfc11 = new CSliderCtrl(parent);
-	CRect r11(CPoint(174, 63), CSize(55, 12));
-	parent->MapDialogRect(&r11);
-	mfc11->Create(WS_VISIBLE|WS_BORDER|TBS_BOTH|TBS_NOTICKS|WS_TABSTOP, r11, parent, IDC_BASS_FREQ);
-	mfcToQtWidget->insert(IDC_BASS_FREQ, mfc11);
-
-   // CTEXT "16 Hz",IDC_BASS_FREQ_T,234,64,32,10
-	CStatic* mfc12 = new CStatic(parent);
-	CRect r12(CPoint(234,64),CSize(32,10));
-	parent->MapDialogRect(&r12);
-	mfc12->Create(_T("16 Hz"),WS_VISIBLE|WS_BORDER,r12,parent,IDC_BASS_FREQ_T);
+	CButton* mfc4 = new CButton(parent);
+	CRect r4(CPoint(126,48),CSize(147,33));
+	parent->MapDialogRect(&r4);
+	mfc4->Create(_T("Bass filtering"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r4,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // GROUPBOX "Treble filtering",IDC_STATIC,126,86,147,43
-	CButton* mfc13 = new CButton(parent);
-	CRect r13(CPoint(126,86),CSize(147,43));
-	parent->MapDialogRect(&r13);
-	mfc13->Create(_T("Treble filtering"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r13,parent,IDC_STATIC);
+	CButton* mfc5 = new CButton(parent);
+	CRect r5(CPoint(126,86),CSize(147,43));
+	parent->MapDialogRect(&r5);
+	mfc5->Create(_T("Treble filtering"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r5,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
-   // LTEXT "Damping",IDC_STATIC,132,99,36,10
-	CStatic* mfc14 = new CStatic(parent);
-	CRect r14(CPoint(132,99),CSize(36,10));
+   // GROUPBOX "Volume",IDC_STATIC,126,133,147,27
+	CButton* mfc6 = new CButton(parent);
+	CRect r6(CPoint(126,133),CSize(147,27));
+	parent->MapDialogRect(&r6);
+	mfc6->Create(_T("Volume"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r6,parent,IDC_STATIC);
+	// IDC_STATIC do not get added to MFC-to-Qt map.
+
+   // COMBOBOX IDC_DEVICES,13,20,253,12,WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP
+	CComboBox* mfc8 = new CComboBox(parent);
+	CRect r8(CPoint(13,20),CSize(253,12));
+	parent->MapDialogRect(&r8);
+	mfc8->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP,r8,parent,IDC_DEVICES);
+	mfcToQtWidget->insert(IDC_DEVICES,mfc8);
+
+   // COMBOBOX IDC_SAMPLE_RATE,13,61,101,62,WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|CBS_SORT|WS_VSCROLL|WS_TABSTOP
+	CComboBox* mfc10 = new CComboBox(parent);
+	CRect r10(CPoint(13,61),CSize(101,62));
+	parent->MapDialogRect(&r10);
+	mfc10->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|CBS_SORT|WS_VSCROLL|WS_TABSTOP,r10,parent,IDC_SAMPLE_RATE);
+	mfcToQtWidget->insert(IDC_SAMPLE_RATE,mfc10);
+
+
+	mfc10->AddString(_T("11 025 Hz"));
+	
+
+	mfc10->AddString(_T("22 050 Hz"));
+	
+
+	mfc10->AddString(_T("44 100 Hz"));
+	
+
+	mfc10->AddString(_T("48 000 Hz"));
+	
+
+	mfc10->AddString(_T("96 000 Hz"));
+	
+   // COMBOBOX IDC_SAMPLE_SIZE,13,102,101,62,WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|CBS_SORT|WS_VSCROLL|WS_TABSTOP
+	CComboBox* mfc12 = new CComboBox(parent);
+	CRect r12(CPoint(13,102),CSize(101,62));
+	parent->MapDialogRect(&r12);
+	mfc12->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|CBS_SORT|WS_VSCROLL|WS_TABSTOP,r12,parent,IDC_SAMPLE_SIZE);
+	mfcToQtWidget->insert(IDC_SAMPLE_SIZE,mfc12);
+
+
+	mfc12->AddString(_T("16 bit"));
+	
+
+	mfc12->AddString(_T("8 bit"));
+	
+   // CONTROL "", IDC_BUF_LENGTH, "msctls_trackbar32", WS_VISIBLE|WS_BORDER|TBS_BOTH|TBS_NOTICKS|WS_TABSTOP, 13, 141, 69, 12
+	CSliderCtrl* mfc14 = new CSliderCtrl(parent);
+	CRect r14(CPoint(13, 141), CSize(69, 12));
 	parent->MapDialogRect(&r14);
-	mfc14->Create(_T("Damping"),WS_VISIBLE|WS_BORDER,r14,parent,IDC_STATIC);
-	// IDC_STATIC do not get added to MFC-to-Qt map.
+	mfc14->Create(WS_VISIBLE|WS_BORDER|TBS_BOTH|TBS_NOTICKS|WS_TABSTOP, r14, parent, IDC_BUF_LENGTH);
+	mfcToQtWidget->insert(IDC_BUF_LENGTH, mfc14);
 
-   // CONTROL "", IDC_TREBLE_DAMP, "msctls_trackbar32", WS_VISIBLE|WS_BORDER|TBS_BOTH|TBS_NOTICKS|WS_TABSTOP, 174, 99, 55, 12
-	CSliderCtrl* mfc15 = new CSliderCtrl(parent);
-	CRect r15(CPoint(174, 99), CSize(55, 12));
+   // CTEXT "20 ms",IDC_BUF_LEN,83,142,31,11
+	CStatic* mfc15 = new CStatic(parent);
+	CRect r15(CPoint(83,142),CSize(31,11));
 	parent->MapDialogRect(&r15);
-	mfc15->Create(WS_VISIBLE|WS_BORDER|TBS_BOTH|TBS_NOTICKS|WS_TABSTOP, r15, parent, IDC_TREBLE_DAMP);
-	mfcToQtWidget->insert(IDC_TREBLE_DAMP, mfc15);
-
-   // CTEXT "-24 dB",IDC_TREBLE_DAMP_T,234,99,32,9
-	CStatic* mfc16 = new CStatic(parent);
-	CRect r16(CPoint(234,99),CSize(32,9));
-	parent->MapDialogRect(&r16);
-	mfc16->Create(_T("-24 dB"),WS_VISIBLE|WS_BORDER,r16,parent,IDC_TREBLE_DAMP_T);
+	mfc15->Create(_T("20 ms"),WS_VISIBLE|WS_BORDER,r15,parent,IDC_BUF_LEN);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
-   // LTEXT "Frequency",IDC_STATIC,132,112,36,10
+   // LTEXT "Frequency",IDC_STATIC,132,63,36,11
 	CStatic* mfc17 = new CStatic(parent);
-	CRect r17(CPoint(132,112),CSize(36,10));
+	CRect r17(CPoint(132,63),CSize(36,11));
 	parent->MapDialogRect(&r17);
 	mfc17->Create(_T("Frequency"),WS_VISIBLE|WS_BORDER,r17,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
-   // CONTROL "", IDC_TREBLE_FREQ, "msctls_trackbar32", WS_VISIBLE|WS_BORDER|TBS_BOTH|TBS_NOTICKS|WS_TABSTOP, 174, 112, 55, 12
+   // CONTROL "", IDC_BASS_FREQ, "msctls_trackbar32", WS_VISIBLE|WS_BORDER|TBS_BOTH|TBS_NOTICKS|WS_TABSTOP, 174, 63, 55, 12
 	CSliderCtrl* mfc18 = new CSliderCtrl(parent);
-	CRect r18(CPoint(174, 112), CSize(55, 12));
+	CRect r18(CPoint(174, 63), CSize(55, 12));
 	parent->MapDialogRect(&r18);
-	mfc18->Create(WS_VISIBLE|WS_BORDER|TBS_BOTH|TBS_NOTICKS|WS_TABSTOP, r18, parent, IDC_TREBLE_FREQ);
-	mfcToQtWidget->insert(IDC_TREBLE_FREQ, mfc18);
+	mfc18->Create(WS_VISIBLE|WS_BORDER|TBS_BOTH|TBS_NOTICKS|WS_TABSTOP, r18, parent, IDC_BASS_FREQ);
+	mfcToQtWidget->insert(IDC_BASS_FREQ, mfc18);
 
-   // CTEXT "12000 Hz",IDC_TREBLE_FREQ_T,234,110,32,11
+   // CTEXT "16 Hz",IDC_BASS_FREQ_T,234,64,32,10
 	CStatic* mfc19 = new CStatic(parent);
-	CRect r19(CPoint(234,110),CSize(32,11));
+	CRect r19(CPoint(234,64),CSize(32,10));
 	parent->MapDialogRect(&r19);
-	mfc19->Create(_T("12000 Hz"),WS_VISIBLE|WS_BORDER,r19,parent,IDC_TREBLE_FREQ_T);
+	mfc19->Create(_T("16 Hz"),WS_VISIBLE|WS_BORDER,r19,parent,IDC_BASS_FREQ_T);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
-   // GROUPBOX "Volume",IDC_STATIC,126,133,147,27
-	CButton* mfc20 = new CButton(parent);
-	CRect r20(CPoint(126,133),CSize(147,27));
-	parent->MapDialogRect(&r20);
-	mfc20->Create(_T("Volume"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r20,parent,IDC_STATIC);
+   // LTEXT "Damping",IDC_STATIC,132,99,36,10
+	CStatic* mfc21 = new CStatic(parent);
+	CRect r21(CPoint(132,99),CSize(36,10));
+	parent->MapDialogRect(&r21);
+	mfc21->Create(_T("Damping"),WS_VISIBLE|WS_BORDER,r21,parent,IDC_STATIC);
+	// IDC_STATIC do not get added to MFC-to-Qt map.
+
+   // CONTROL "", IDC_TREBLE_DAMP, "msctls_trackbar32", WS_VISIBLE|WS_BORDER|TBS_BOTH|TBS_NOTICKS|WS_TABSTOP, 174, 99, 55, 12
+	CSliderCtrl* mfc22 = new CSliderCtrl(parent);
+	CRect r22(CPoint(174, 99), CSize(55, 12));
+	parent->MapDialogRect(&r22);
+	mfc22->Create(WS_VISIBLE|WS_BORDER|TBS_BOTH|TBS_NOTICKS|WS_TABSTOP, r22, parent, IDC_TREBLE_DAMP);
+	mfcToQtWidget->insert(IDC_TREBLE_DAMP, mfc22);
+
+   // CTEXT "-24 dB",IDC_TREBLE_DAMP_T,234,99,32,9
+	CStatic* mfc23 = new CStatic(parent);
+	CRect r23(CPoint(234,99),CSize(32,9));
+	parent->MapDialogRect(&r23);
+	mfc23->Create(_T("-24 dB"),WS_VISIBLE|WS_BORDER,r23,parent,IDC_TREBLE_DAMP_T);
+	// IDC_STATIC do not get added to MFC-to-Qt map.
+
+   // LTEXT "Frequency",IDC_STATIC,132,112,36,10
+	CStatic* mfc24 = new CStatic(parent);
+	CRect r24(CPoint(132,112),CSize(36,10));
+	parent->MapDialogRect(&r24);
+	mfc24->Create(_T("Frequency"),WS_VISIBLE|WS_BORDER,r24,parent,IDC_STATIC);
+	// IDC_STATIC do not get added to MFC-to-Qt map.
+
+   // CONTROL "", IDC_TREBLE_FREQ, "msctls_trackbar32", WS_VISIBLE|WS_BORDER|TBS_BOTH|TBS_NOTICKS|WS_TABSTOP, 174, 112, 55, 12
+	CSliderCtrl* mfc25 = new CSliderCtrl(parent);
+	CRect r25(CPoint(174, 112), CSize(55, 12));
+	parent->MapDialogRect(&r25);
+	mfc25->Create(WS_VISIBLE|WS_BORDER|TBS_BOTH|TBS_NOTICKS|WS_TABSTOP, r25, parent, IDC_TREBLE_FREQ);
+	mfcToQtWidget->insert(IDC_TREBLE_FREQ, mfc25);
+
+   // CTEXT "12000 Hz",IDC_TREBLE_FREQ_T,234,110,32,11
+	CStatic* mfc26 = new CStatic(parent);
+	CRect r26(CPoint(234,110),CSize(32,11));
+	parent->MapDialogRect(&r26);
+	mfc26->Create(_T("12000 Hz"),WS_VISIBLE|WS_BORDER,r26,parent,IDC_TREBLE_FREQ_T);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // CONTROL "", IDC_VOLUME, "msctls_trackbar32", WS_VISIBLE|WS_BORDER|TBS_BOTH|TBS_NOTICKS|WS_TABSTOP, 132, 144, 96, 12
-	CSliderCtrl* mfc21 = new CSliderCtrl(parent);
-	CRect r21(CPoint(132, 144), CSize(96, 12));
-	parent->MapDialogRect(&r21);
-	mfc21->Create(WS_VISIBLE|WS_BORDER|TBS_BOTH|TBS_NOTICKS|WS_TABSTOP, r21, parent, IDC_VOLUME);
-	mfcToQtWidget->insert(IDC_VOLUME, mfc21);
+	CSliderCtrl* mfc28 = new CSliderCtrl(parent);
+	CRect r28(CPoint(132, 144), CSize(96, 12));
+	parent->MapDialogRect(&r28);
+	mfc28->Create(WS_VISIBLE|WS_BORDER|TBS_BOTH|TBS_NOTICKS|WS_TABSTOP, r28, parent, IDC_VOLUME);
+	mfcToQtWidget->insert(IDC_VOLUME, mfc28);
 
    // CTEXT "100 %",IDC_VOLUME_T,234,144,31,8
-	CStatic* mfc22 = new CStatic(parent);
-	CRect r22(CPoint(234,144),CSize(31,8));
-	parent->MapDialogRect(&r22);
-	mfc22->Create(_T("100 %"),WS_VISIBLE|WS_BORDER,r22,parent,IDC_VOLUME_T);
+	CStatic* mfc29 = new CStatic(parent);
+	CRect r29(CPoint(234,144),CSize(31,8));
+	parent->MapDialogRect(&r29);
+	mfc29->Create(_T("100 %"),WS_VISIBLE|WS_BORDER,r29,parent,IDC_VOLUME_T);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // END
@@ -3269,124 +3269,124 @@ void qtMfcInitDialogResource_IDD_EXPORT(CDialog* parent)
 
 
    // BEGIN
-   // DEFPUSHBUTTON "&Export",BS_DEFPUSHBUTTON|WS_VISIBLE|WS_BORDER,187,7,53,14
-	CButton* mfc0 = new CButton(parent);
-	CRect r0(CPoint(187,7),CSize(53,14));
-	parent->MapDialogRect(&r0);
-	mfc0->Create(_T("&Export"),BS_DEFPUSHBUTTON|WS_VISIBLE|WS_BORDER,r0,parent,IDC_EXPORT);
-	mfcToQtWidget->insert(IDC_EXPORT,mfc0);
-
-   // PUSHBUTTON "&Close",IDC_CLOSE,187,23,53,14,WS_VISIBLE|WS_BORDER
-	CButton* mfc1 = new CButton(parent);
-	CRect r1(CPoint(187,23),CSize(53,14));
-	parent->MapDialogRect(&r1);
-	mfc1->Create(_T("&Close"),WS_VISIBLE|WS_BORDER,r1,parent,IDC_CLOSE);
-	mfcToQtWidget->insert(IDC_CLOSE,mfc1);
-
-   // EDITTEXT IDC_NAME,60,18,114,13,WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL
-	CEdit* mfc2 = new CEdit(parent);
-	CRect r2(CPoint(60,18),CSize(114,13));
-	parent->MapDialogRect(&r2);
-	mfc2->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL,r2,parent,IDC_NAME);
-	mfcToQtWidget->insert(IDC_NAME,mfc2);
-
-   // EDITTEXT IDC_ARTIST,60,33,114,13,WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL
-	CEdit* mfc3 = new CEdit(parent);
-	CRect r3(CPoint(60,33),CSize(114,13));
-	parent->MapDialogRect(&r3);
-	mfc3->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL,r3,parent,IDC_ARTIST);
-	mfcToQtWidget->insert(IDC_ARTIST,mfc3);
-
-   // EDITTEXT IDC_COPYRIGHT,60,49,114,13,WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL
-	CEdit* mfc4 = new CEdit(parent);
-	CRect r4(CPoint(60,49),CSize(114,13));
-	parent->MapDialogRect(&r4);
-	mfc4->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL,r4,parent,IDC_COPYRIGHT);
-	mfcToQtWidget->insert(IDC_COPYRIGHT,mfc4);
-
-   // CONTROL "NTSC", IDC_NTSC, "Button", WS_VISIBLE|WS_BORDER|BS_AUTORADIOBUTTON, 16, 67, 33, 10
-	CButton* mfc5 = new CButton(parent);
-	CRect r5(CPoint(16, 67), CSize(33, 10));
-	parent->MapDialogRect(&r5);
-	mfc5->Create(_T("NTSC"), WS_VISIBLE|WS_BORDER|BS_AUTORADIOBUTTON, r5, parent, IDC_NTSC);
-	mfcToQtWidget->insert(IDC_NTSC, mfc5);
-
-   // CONTROL "PAL", IDC_PAL, "Button", WS_VISIBLE|WS_BORDER|BS_AUTORADIOBUTTON, 54, 67, 28, 10
-	CButton* mfc6 = new CButton(parent);
-	CRect r6(CPoint(54, 67), CSize(28, 10));
-	parent->MapDialogRect(&r6);
-	mfc6->Create(_T("PAL"), WS_VISIBLE|WS_BORDER|BS_AUTORADIOBUTTON, r6, parent, IDC_PAL);
-	mfcToQtWidget->insert(IDC_PAL, mfc6);
-
-   // CONTROL "Dual", IDC_DUAL, "Button", WS_VISIBLE|WS_BORDER|BS_AUTORADIOBUTTON, 88, 67, 30, 10
-	CButton* mfc7 = new CButton(parent);
-	CRect r7(CPoint(88, 67), CSize(30, 10));
-	parent->MapDialogRect(&r7);
-	mfc7->Create(_T("Dual"), WS_VISIBLE|WS_BORDER|BS_AUTORADIOBUTTON, r7, parent, IDC_DUAL);
-	mfcToQtWidget->insert(IDC_DUAL, mfc7);
-
-   // COMBOBOX IDC_TYPE,16,97,218,100,WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP
-	CComboBox* mfc8 = new CComboBox(parent);
-	CRect r8(CPoint(16,97),CSize(218,100));
-	parent->MapDialogRect(&r8);
-	mfc8->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP,r8,parent,IDC_TYPE);
-	mfcToQtWidget->insert(IDC_TYPE,mfc8);
-
    // GROUPBOX "NSF file options",IDC_STATIC,7,7,173,75
-	CButton* mfc9 = new CButton(parent);
-	CRect r9(CPoint(7,7),CSize(173,75));
-	parent->MapDialogRect(&r9);
-	mfc9->Create(_T("NSF file options"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r9,parent,IDC_STATIC);
-	// IDC_STATIC do not get added to MFC-to-Qt map.
-
-   // LTEXT "Name",IDC_STATIC,16,20,38,11
-	CStatic* mfc10 = new CStatic(parent);
-	CRect r10(CPoint(16,20),CSize(38,11));
-	parent->MapDialogRect(&r10);
-	mfc10->Create(_T("Name"),WS_VISIBLE|WS_BORDER,r10,parent,IDC_STATIC);
-	// IDC_STATIC do not get added to MFC-to-Qt map.
-
-   // LTEXT "Artist",IDC_STATIC,16,35,38,11
-	CStatic* mfc11 = new CStatic(parent);
-	CRect r11(CPoint(16,35),CSize(38,11));
-	parent->MapDialogRect(&r11);
-	mfc11->Create(_T("Artist"),WS_VISIBLE|WS_BORDER,r11,parent,IDC_STATIC);
-	// IDC_STATIC do not get added to MFC-to-Qt map.
-
-   // LTEXT "Copyright",IDC_STATIC,16,51,38,11
-	CStatic* mfc12 = new CStatic(parent);
-	CRect r12(CPoint(16,51),CSize(38,11));
-	parent->MapDialogRect(&r12);
-	mfc12->Create(_T("Copyright"),WS_VISIBLE|WS_BORDER,r12,parent,IDC_STATIC);
+	CButton* mfc0 = new CButton(parent);
+	CRect r0(CPoint(7,7),CSize(173,75));
+	parent->MapDialogRect(&r0);
+	mfc0->Create(_T("NSF file options"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r0,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // GROUPBOX "Progress",IDC_STATIC,7,120,233,156
-	CButton* mfc13 = new CButton(parent);
-	CRect r13(CPoint(7,120),CSize(233,156));
+	CButton* mfc1 = new CButton(parent);
+	CRect r1(CPoint(7,120),CSize(233,156));
+	parent->MapDialogRect(&r1);
+	mfc1->Create(_T("Progress"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r1,parent,IDC_STATIC);
+	// IDC_STATIC do not get added to MFC-to-Qt map.
+
+   // GROUPBOX "Type of file",IDC_STATIC,7,87,233,29
+	CButton* mfc2 = new CButton(parent);
+	CRect r2(CPoint(7,87),CSize(233,29));
+	parent->MapDialogRect(&r2);
+	mfc2->Create(_T("Type of file"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r2,parent,IDC_STATIC);
+	// IDC_STATIC do not get added to MFC-to-Qt map.
+
+   // DEFPUSHBUTTON "&Export",BS_DEFPUSHBUTTON|WS_VISIBLE|WS_BORDER,187,7,53,14
+	CButton* mfc3 = new CButton(parent);
+	CRect r3(CPoint(187,7),CSize(53,14));
+	parent->MapDialogRect(&r3);
+	mfc3->Create(_T("&Export"),BS_DEFPUSHBUTTON|WS_VISIBLE|WS_BORDER,r3,parent,IDC_EXPORT);
+	mfcToQtWidget->insert(IDC_EXPORT,mfc3);
+
+   // PUSHBUTTON "&Close",IDC_CLOSE,187,23,53,14,WS_VISIBLE|WS_BORDER
+	CButton* mfc4 = new CButton(parent);
+	CRect r4(CPoint(187,23),CSize(53,14));
+	parent->MapDialogRect(&r4);
+	mfc4->Create(_T("&Close"),WS_VISIBLE|WS_BORDER,r4,parent,IDC_CLOSE);
+	mfcToQtWidget->insert(IDC_CLOSE,mfc4);
+
+   // EDITTEXT IDC_NAME,60,18,114,13,WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL
+	CEdit* mfc5 = new CEdit(parent);
+	CRect r5(CPoint(60,18),CSize(114,13));
+	parent->MapDialogRect(&r5);
+	mfc5->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL,r5,parent,IDC_NAME);
+	mfcToQtWidget->insert(IDC_NAME,mfc5);
+
+   // EDITTEXT IDC_ARTIST,60,33,114,13,WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL
+	CEdit* mfc6 = new CEdit(parent);
+	CRect r6(CPoint(60,33),CSize(114,13));
+	parent->MapDialogRect(&r6);
+	mfc6->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL,r6,parent,IDC_ARTIST);
+	mfcToQtWidget->insert(IDC_ARTIST,mfc6);
+
+   // EDITTEXT IDC_COPYRIGHT,60,49,114,13,WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL
+	CEdit* mfc7 = new CEdit(parent);
+	CRect r7(CPoint(60,49),CSize(114,13));
+	parent->MapDialogRect(&r7);
+	mfc7->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL,r7,parent,IDC_COPYRIGHT);
+	mfcToQtWidget->insert(IDC_COPYRIGHT,mfc7);
+
+   // CONTROL "NTSC", IDC_NTSC, "Button", WS_VISIBLE|WS_BORDER|BS_AUTORADIOBUTTON, 16, 67, 33, 10
+	CButton* mfc8 = new CButton(parent);
+	CRect r8(CPoint(16, 67), CSize(33, 10));
+	parent->MapDialogRect(&r8);
+	mfc8->Create(_T("NTSC"), WS_VISIBLE|WS_BORDER|BS_AUTORADIOBUTTON, r8, parent, IDC_NTSC);
+	mfcToQtWidget->insert(IDC_NTSC, mfc8);
+
+   // CONTROL "PAL", IDC_PAL, "Button", WS_VISIBLE|WS_BORDER|BS_AUTORADIOBUTTON, 54, 67, 28, 10
+	CButton* mfc9 = new CButton(parent);
+	CRect r9(CPoint(54, 67), CSize(28, 10));
+	parent->MapDialogRect(&r9);
+	mfc9->Create(_T("PAL"), WS_VISIBLE|WS_BORDER|BS_AUTORADIOBUTTON, r9, parent, IDC_PAL);
+	mfcToQtWidget->insert(IDC_PAL, mfc9);
+
+   // CONTROL "Dual", IDC_DUAL, "Button", WS_VISIBLE|WS_BORDER|BS_AUTORADIOBUTTON, 88, 67, 30, 10
+	CButton* mfc10 = new CButton(parent);
+	CRect r10(CPoint(88, 67), CSize(30, 10));
+	parent->MapDialogRect(&r10);
+	mfc10->Create(_T("Dual"), WS_VISIBLE|WS_BORDER|BS_AUTORADIOBUTTON, r10, parent, IDC_DUAL);
+	mfcToQtWidget->insert(IDC_DUAL, mfc10);
+
+   // COMBOBOX IDC_TYPE,16,97,218,100,WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP
+	CComboBox* mfc11 = new CComboBox(parent);
+	CRect r11(CPoint(16,97),CSize(218,100));
+	parent->MapDialogRect(&r11);
+	mfc11->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP,r11,parent,IDC_TYPE);
+	mfcToQtWidget->insert(IDC_TYPE,mfc11);
+
+   // LTEXT "Name",IDC_STATIC,16,20,38,11
+	CStatic* mfc13 = new CStatic(parent);
+	CRect r13(CPoint(16,20),CSize(38,11));
 	parent->MapDialogRect(&r13);
-	mfc13->Create(_T("Progress"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r13,parent,IDC_STATIC);
+	mfc13->Create(_T("Name"),WS_VISIBLE|WS_BORDER,r13,parent,IDC_STATIC);
+	// IDC_STATIC do not get added to MFC-to-Qt map.
+
+   // LTEXT "Artist",IDC_STATIC,16,35,38,11
+	CStatic* mfc14 = new CStatic(parent);
+	CRect r14(CPoint(16,35),CSize(38,11));
+	parent->MapDialogRect(&r14);
+	mfc14->Create(_T("Artist"),WS_VISIBLE|WS_BORDER,r14,parent,IDC_STATIC);
+	// IDC_STATIC do not get added to MFC-to-Qt map.
+
+   // LTEXT "Copyright",IDC_STATIC,16,51,38,11
+	CStatic* mfc15 = new CStatic(parent);
+	CRect r15(CPoint(16,51),CSize(38,11));
+	parent->MapDialogRect(&r15);
+	mfc15->Create(_T("Copyright"),WS_VISIBLE|WS_BORDER,r15,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // EDITTEXT IDC_OUTPUT,16,132,218,139,WS_VISIBLE|ES_MULTILINE|ES_AUTOHSCROLL|ES_READONLY|WS_VSCROLL
-	CEdit* mfc14 = new CEdit(parent);
-	CRect r14(CPoint(16,132),CSize(218,139));
-	parent->MapDialogRect(&r14);
-	mfc14->Create(WS_VISIBLE|ES_MULTILINE|ES_AUTOHSCROLL|ES_READONLY|WS_VSCROLL,r14,parent,IDC_OUTPUT);
-	mfcToQtWidget->insert(IDC_OUTPUT,mfc14);
-
-   // GROUPBOX "Type of file",IDC_STATIC,7,87,233,29
-	CButton* mfc15 = new CButton(parent);
-	CRect r15(CPoint(7,87),CSize(233,29));
-	parent->MapDialogRect(&r15);
-	mfc15->Create(_T("Type of file"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r15,parent,IDC_STATIC);
-	// IDC_STATIC do not get added to MFC-to-Qt map.
+	CEdit* mfc17 = new CEdit(parent);
+	CRect r17(CPoint(16,132),CSize(218,139));
+	parent->MapDialogRect(&r17);
+	mfc17->Create(WS_VISIBLE|ES_MULTILINE|ES_AUTOHSCROLL|ES_READONLY|WS_VSCROLL,r17,parent,IDC_OUTPUT);
+	mfcToQtWidget->insert(IDC_OUTPUT,mfc17);
 
    // PUSHBUTTON "&Play",IDC_PLAY,187,68,53,14,WS_BORDER
-	CButton* mfc16 = new CButton(parent);
-	CRect r16(CPoint(187,68),CSize(53,14));
-	parent->MapDialogRect(&r16);
-	mfc16->Create(_T("&Play"),WS_BORDER,r16,parent,IDC_PLAY);
-	mfcToQtWidget->insert(IDC_PLAY,mfc16);
+	CButton* mfc19 = new CButton(parent);
+	CRect r19(CPoint(187,68),CSize(53,14));
+	parent->MapDialogRect(&r19);
+	mfc19->Create(_T("&Play"),WS_BORDER,r19,parent,IDC_PLAY);
+	mfcToQtWidget->insert(IDC_PLAY,mfc19);
 
    // END
 }
@@ -3412,306 +3412,306 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_VRC7(CDialog* parent)
 	mfc0->Create(_T("Patch"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r0,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
-   // COMBOBOX IDC_PATCH,15,18,295,128,WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP
-	CComboBox* mfc1 = new CComboBox(parent);
-	CRect r1(CPoint(15,18),CSize(295,128));
-	parent->MapDialogRect(&r1);
-	mfc1->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP,r1,parent,IDC_PATCH);
-	mfcToQtWidget->insert(IDC_PATCH,mfc1);
-
-   // PUSHBUTTON "Copy",IDC_COPY,322,7,43,14,WS_VISIBLE|WS_BORDER
-	CButton* mfc2 = new CButton(parent);
-	CRect r2(CPoint(322,7),CSize(43,14));
-	parent->MapDialogRect(&r2);
-	mfc2->Create(_T("Copy"),WS_VISIBLE|WS_BORDER,r2,parent,IDC_COPY);
-	mfcToQtWidget->insert(IDC_COPY,mfc2);
-
-   // PUSHBUTTON "Paste",IDC_PASTE,322,23,43,14,WS_VISIBLE|WS_BORDER
-	CButton* mfc3 = new CButton(parent);
-	CRect r3(CPoint(322,23),CSize(43,14));
-	parent->MapDialogRect(&r3);
-	mfc3->Create(_T("Paste"),WS_VISIBLE|WS_BORDER,r3,parent,IDC_PASTE);
-	mfcToQtWidget->insert(IDC_PASTE,mfc3);
-
    // GROUPBOX "Modulator settings",IDC_STATIC,7,42,153,123
-	CButton* mfc4 = new CButton(parent);
-	CRect r4(CPoint(7,42),CSize(153,123));
-	parent->MapDialogRect(&r4);
-	mfc4->Create(_T("Modulator settings"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r4,parent,IDC_STATIC);
+	CButton* mfc1 = new CButton(parent);
+	CRect r1(CPoint(7,42),CSize(153,123));
+	parent->MapDialogRect(&r1);
+	mfc1->Create(_T("Modulator settings"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r1,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
-   // CONTROL "Amplitude modulation", IDC_M_AM, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 14, 54, 84, 10
+   // GROUPBOX "Carrier settings",IDC_STATIC,166,42,152,123
+	CButton* mfc2 = new CButton(parent);
+	CRect r2(CPoint(166,42),CSize(152,123));
+	parent->MapDialogRect(&r2);
+	mfc2->Create(_T("Carrier settings"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r2,parent,IDC_STATIC);
+	// IDC_STATIC do not get added to MFC-to-Qt map.
+
+   // COMBOBOX IDC_PATCH,15,18,295,128,WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP
+	CComboBox* mfc4 = new CComboBox(parent);
+	CRect r4(CPoint(15,18),CSize(295,128));
+	parent->MapDialogRect(&r4);
+	mfc4->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP,r4,parent,IDC_PATCH);
+	mfcToQtWidget->insert(IDC_PATCH,mfc4);
+
+   // PUSHBUTTON "Copy",IDC_COPY,322,7,43,14,WS_VISIBLE|WS_BORDER
 	CButton* mfc5 = new CButton(parent);
-	CRect r5(CPoint(14, 54), CSize(84, 10));
+	CRect r5(CPoint(322,7),CSize(43,14));
 	parent->MapDialogRect(&r5);
-	mfc5->Create(_T("Amplitude modulation"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r5, parent, IDC_M_AM);
-	mfcToQtWidget->insert(IDC_M_AM, mfc5);
+	mfc5->Create(_T("Copy"),WS_VISIBLE|WS_BORDER,r5,parent,IDC_COPY);
+	mfcToQtWidget->insert(IDC_COPY,mfc5);
+
+   // PUSHBUTTON "Paste",IDC_PASTE,322,23,43,14,WS_VISIBLE|WS_BORDER
+	CButton* mfc6 = new CButton(parent);
+	CRect r6(CPoint(322,23),CSize(43,14));
+	parent->MapDialogRect(&r6);
+	mfc6->Create(_T("Paste"),WS_VISIBLE|WS_BORDER,r6,parent,IDC_PASTE);
+	mfcToQtWidget->insert(IDC_PASTE,mfc6);
+
+   // CONTROL "Amplitude modulation", IDC_M_AM, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 14, 54, 84, 10
+	CButton* mfc8 = new CButton(parent);
+	CRect r8(CPoint(14, 54), CSize(84, 10));
+	parent->MapDialogRect(&r8);
+	mfc8->Create(_T("Amplitude modulation"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r8, parent, IDC_M_AM);
+	mfcToQtWidget->insert(IDC_M_AM, mfc8);
 
    // CONTROL "Vibrato", IDC_M_VIB, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 109, 54, 39, 10
-	CButton* mfc6 = new CButton(parent);
-	CRect r6(CPoint(109, 54), CSize(39, 10));
-	parent->MapDialogRect(&r6);
-	mfc6->Create(_T("Vibrato"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r6, parent, IDC_M_VIB);
-	mfcToQtWidget->insert(IDC_M_VIB, mfc6);
+	CButton* mfc9 = new CButton(parent);
+	CRect r9(CPoint(109, 54), CSize(39, 10));
+	parent->MapDialogRect(&r9);
+	mfc9->Create(_T("Vibrato"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r9, parent, IDC_M_VIB);
+	mfcToQtWidget->insert(IDC_M_VIB, mfc9);
 
    // CONTROL "Sustained", IDC_M_EG, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 14, 70, 47, 10
-	CButton* mfc7 = new CButton(parent);
-	CRect r7(CPoint(14, 70), CSize(47, 10));
-	parent->MapDialogRect(&r7);
-	mfc7->Create(_T("Sustained"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r7, parent, IDC_M_EG);
-	mfcToQtWidget->insert(IDC_M_EG, mfc7);
+	CButton* mfc10 = new CButton(parent);
+	CRect r10(CPoint(14, 70), CSize(47, 10));
+	parent->MapDialogRect(&r10);
+	mfc10->Create(_T("Sustained"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r10, parent, IDC_M_EG);
+	mfcToQtWidget->insert(IDC_M_EG, mfc10);
 
    // CONTROL "Key scaling", IDC_M_KSR2, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 14, 86, 51, 10
-	CButton* mfc8 = new CButton(parent);
-	CRect r8(CPoint(14, 86), CSize(51, 10));
-	parent->MapDialogRect(&r8);
-	mfc8->Create(_T("Key scaling"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r8, parent, IDC_M_KSR2);
-	mfcToQtWidget->insert(IDC_M_KSR2, mfc8);
+	CButton* mfc11 = new CButton(parent);
+	CRect r11(CPoint(14, 86), CSize(51, 10));
+	parent->MapDialogRect(&r11);
+	mfc11->Create(_T("Key scaling"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r11, parent, IDC_M_KSR2);
+	mfcToQtWidget->insert(IDC_M_KSR2, mfc11);
 
    // CONTROL "Wave rectification", IDC_M_DM, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 74, 70, 74, 10
-	CButton* mfc9 = new CButton(parent);
-	CRect r9(CPoint(74, 70), CSize(74, 10));
-	parent->MapDialogRect(&r9);
-	mfc9->Create(_T("Wave rectification"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r9, parent, IDC_M_DM);
-	mfcToQtWidget->insert(IDC_M_DM, mfc9);
+	CButton* mfc12 = new CButton(parent);
+	CRect r12(CPoint(74, 70), CSize(74, 10));
+	parent->MapDialogRect(&r12);
+	mfc12->Create(_T("Wave rectification"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r12, parent, IDC_M_DM);
+	mfcToQtWidget->insert(IDC_M_DM, mfc12);
 
    // LTEXT "Level",IDC_STATIC,69,87,18,8
-	CStatic* mfc10 = new CStatic(parent);
-	CRect r10(CPoint(69,87),CSize(18,8));
-	parent->MapDialogRect(&r10);
-	mfc10->Create(_T("Level"),WS_VISIBLE|WS_BORDER,r10,parent,IDC_STATIC);
+	CStatic* mfc13 = new CStatic(parent);
+	CRect r13(CPoint(69,87),CSize(18,8));
+	parent->MapDialogRect(&r13);
+	mfc13->Create(_T("Level"),WS_VISIBLE|WS_BORDER,r13,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // CONTROL "", IDC_M_KSL, "msctls_trackbar32", WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, 90, 86, 58, 11
-	CSliderCtrl* mfc11 = new CSliderCtrl(parent);
-	CRect r11(CPoint(90, 86), CSize(58, 11));
-	parent->MapDialogRect(&r11);
-	mfc11->Create(WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, r11, parent, IDC_M_KSL);
-	mfcToQtWidget->insert(IDC_M_KSL, mfc11);
+	CSliderCtrl* mfc14 = new CSliderCtrl(parent);
+	CRect r14(CPoint(90, 86), CSize(58, 11));
+	parent->MapDialogRect(&r14);
+	mfc14->Create(WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, r14, parent, IDC_M_KSL);
+	mfcToQtWidget->insert(IDC_M_KSL, mfc14);
 
    // LTEXT "Mult. factor",IDC_STATIC,14,108,38,8
-	CStatic* mfc12 = new CStatic(parent);
-	CRect r12(CPoint(14,108),CSize(38,8));
-	parent->MapDialogRect(&r12);
-	mfc12->Create(_T("Mult. factor"),WS_VISIBLE|WS_BORDER,r12,parent,IDC_STATIC);
+	CStatic* mfc15 = new CStatic(parent);
+	CRect r15(CPoint(14,108),CSize(38,8));
+	parent->MapDialogRect(&r15);
+	mfc15->Create(_T("Mult. factor"),WS_VISIBLE|WS_BORDER,r15,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // CONTROL "", IDC_M_MUL, "msctls_trackbar32", WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, 51, 107, 105, 11
-	CSliderCtrl* mfc13 = new CSliderCtrl(parent);
-	CRect r13(CPoint(51, 107), CSize(105, 11));
-	parent->MapDialogRect(&r13);
-	mfc13->Create(WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, r13, parent, IDC_M_MUL);
-	mfcToQtWidget->insert(IDC_M_MUL, mfc13);
+	CSliderCtrl* mfc16 = new CSliderCtrl(parent);
+	CRect r16(CPoint(51, 107), CSize(105, 11));
+	parent->MapDialogRect(&r16);
+	mfc16->Create(WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, r16, parent, IDC_M_MUL);
+	mfcToQtWidget->insert(IDC_M_MUL, mfc16);
 
    // LTEXT "Attack",IDC_STATIC,14,127,22,8
-	CStatic* mfc14 = new CStatic(parent);
-	CRect r14(CPoint(14,127),CSize(22,8));
-	parent->MapDialogRect(&r14);
-	mfc14->Create(_T("Attack"),WS_VISIBLE|WS_BORDER,r14,parent,IDC_STATIC);
+	CStatic* mfc17 = new CStatic(parent);
+	CRect r17(CPoint(14,127),CSize(22,8));
+	parent->MapDialogRect(&r17);
+	mfc17->Create(_T("Attack"),WS_VISIBLE|WS_BORDER,r17,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // CONTROL "", IDC_M_AR, "msctls_trackbar32", WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, 40, 126, 42, 11
-	CSliderCtrl* mfc15 = new CSliderCtrl(parent);
-	CRect r15(CPoint(40, 126), CSize(42, 11));
-	parent->MapDialogRect(&r15);
-	mfc15->Create(WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, r15, parent, IDC_M_AR);
-	mfcToQtWidget->insert(IDC_M_AR, mfc15);
+	CSliderCtrl* mfc18 = new CSliderCtrl(parent);
+	CRect r18(CPoint(40, 126), CSize(42, 11));
+	parent->MapDialogRect(&r18);
+	mfc18->Create(WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, r18, parent, IDC_M_AR);
+	mfcToQtWidget->insert(IDC_M_AR, mfc18);
 
    // LTEXT "Decay",IDC_STATIC,87,127,21,8
-	CStatic* mfc16 = new CStatic(parent);
-	CRect r16(CPoint(87,127),CSize(21,8));
-	parent->MapDialogRect(&r16);
-	mfc16->Create(_T("Decay"),WS_VISIBLE|WS_BORDER,r16,parent,IDC_STATIC);
+	CStatic* mfc19 = new CStatic(parent);
+	CRect r19(CPoint(87,127),CSize(21,8));
+	parent->MapDialogRect(&r19);
+	mfc19->Create(_T("Decay"),WS_VISIBLE|WS_BORDER,r19,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // CONTROL "", IDC_M_DR, "msctls_trackbar32", WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, 114, 126, 42, 11
-	CSliderCtrl* mfc17 = new CSliderCtrl(parent);
-	CRect r17(CPoint(114, 126), CSize(42, 11));
-	parent->MapDialogRect(&r17);
-	mfc17->Create(WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, r17, parent, IDC_M_DR);
-	mfcToQtWidget->insert(IDC_M_DR, mfc17);
+	CSliderCtrl* mfc20 = new CSliderCtrl(parent);
+	CRect r20(CPoint(114, 126), CSize(42, 11));
+	parent->MapDialogRect(&r20);
+	mfc20->Create(WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, r20, parent, IDC_M_DR);
+	mfcToQtWidget->insert(IDC_M_DR, mfc20);
 
    // LTEXT "Sustain",IDC_STATIC,14,144,24,8
-	CStatic* mfc18 = new CStatic(parent);
-	CRect r18(CPoint(14,144),CSize(24,8));
-	parent->MapDialogRect(&r18);
-	mfc18->Create(_T("Sustain"),WS_VISIBLE|WS_BORDER,r18,parent,IDC_STATIC);
+	CStatic* mfc21 = new CStatic(parent);
+	CRect r21(CPoint(14,144),CSize(24,8));
+	parent->MapDialogRect(&r21);
+	mfc21->Create(_T("Sustain"),WS_VISIBLE|WS_BORDER,r21,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // CONTROL "", IDC_M_SL, "msctls_trackbar32", WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, 39, 143, 42, 11
-	CSliderCtrl* mfc19 = new CSliderCtrl(parent);
-	CRect r19(CPoint(39, 143), CSize(42, 11));
-	parent->MapDialogRect(&r19);
-	mfc19->Create(WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, r19, parent, IDC_M_SL);
-	mfcToQtWidget->insert(IDC_M_SL, mfc19);
+	CSliderCtrl* mfc22 = new CSliderCtrl(parent);
+	CRect r22(CPoint(39, 143), CSize(42, 11));
+	parent->MapDialogRect(&r22);
+	mfc22->Create(WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, r22, parent, IDC_M_SL);
+	mfcToQtWidget->insert(IDC_M_SL, mfc22);
 
    // LTEXT "Release",IDC_STATIC,85,144,26,8
-	CStatic* mfc20 = new CStatic(parent);
-	CRect r20(CPoint(85,144),CSize(26,8));
-	parent->MapDialogRect(&r20);
-	mfc20->Create(_T("Release"),WS_VISIBLE|WS_BORDER,r20,parent,IDC_STATIC);
+	CStatic* mfc23 = new CStatic(parent);
+	CRect r23(CPoint(85,144),CSize(26,8));
+	parent->MapDialogRect(&r23);
+	mfc23->Create(_T("Release"),WS_VISIBLE|WS_BORDER,r23,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // CONTROL "", IDC_M_RR, "msctls_trackbar32", WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, 114, 143, 42, 11
-	CSliderCtrl* mfc21 = new CSliderCtrl(parent);
-	CRect r21(CPoint(114, 143), CSize(42, 11));
-	parent->MapDialogRect(&r21);
-	mfc21->Create(WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, r21, parent, IDC_M_RR);
-	mfcToQtWidget->insert(IDC_M_RR, mfc21);
-
-   // GROUPBOX "Carrier settings",IDC_STATIC,166,42,152,123
-	CButton* mfc22 = new CButton(parent);
-	CRect r22(CPoint(166,42),CSize(152,123));
-	parent->MapDialogRect(&r22);
-	mfc22->Create(_T("Carrier settings"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r22,parent,IDC_STATIC);
-	// IDC_STATIC do not get added to MFC-to-Qt map.
+	CSliderCtrl* mfc24 = new CSliderCtrl(parent);
+	CRect r24(CPoint(114, 143), CSize(42, 11));
+	parent->MapDialogRect(&r24);
+	mfc24->Create(WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, r24, parent, IDC_M_RR);
+	mfcToQtWidget->insert(IDC_M_RR, mfc24);
 
    // CONTROL "Amplitude modulation", IDC_C_AM, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 171, 54, 84, 10
-	CButton* mfc23 = new CButton(parent);
-	CRect r23(CPoint(171, 54), CSize(84, 10));
-	parent->MapDialogRect(&r23);
-	mfc23->Create(_T("Amplitude modulation"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r23, parent, IDC_C_AM);
-	mfcToQtWidget->insert(IDC_C_AM, mfc23);
+	CButton* mfc26 = new CButton(parent);
+	CRect r26(CPoint(171, 54), CSize(84, 10));
+	parent->MapDialogRect(&r26);
+	mfc26->Create(_T("Amplitude modulation"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r26, parent, IDC_C_AM);
+	mfcToQtWidget->insert(IDC_C_AM, mfc26);
 
    // CONTROL "Vibrato", IDC_C_VIB, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 267, 54, 39, 10
-	CButton* mfc24 = new CButton(parent);
-	CRect r24(CPoint(267, 54), CSize(39, 10));
-	parent->MapDialogRect(&r24);
-	mfc24->Create(_T("Vibrato"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r24, parent, IDC_C_VIB);
-	mfcToQtWidget->insert(IDC_C_VIB, mfc24);
+	CButton* mfc27 = new CButton(parent);
+	CRect r27(CPoint(267, 54), CSize(39, 10));
+	parent->MapDialogRect(&r27);
+	mfc27->Create(_T("Vibrato"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r27, parent, IDC_C_VIB);
+	mfcToQtWidget->insert(IDC_C_VIB, mfc27);
 
    // CONTROL "Sustained", IDC_C_EG, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 171, 70, 47, 10
-	CButton* mfc25 = new CButton(parent);
-	CRect r25(CPoint(171, 70), CSize(47, 10));
-	parent->MapDialogRect(&r25);
-	mfc25->Create(_T("Sustained"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r25, parent, IDC_C_EG);
-	mfcToQtWidget->insert(IDC_C_EG, mfc25);
+	CButton* mfc28 = new CButton(parent);
+	CRect r28(CPoint(171, 70), CSize(47, 10));
+	parent->MapDialogRect(&r28);
+	mfc28->Create(_T("Sustained"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r28, parent, IDC_C_EG);
+	mfcToQtWidget->insert(IDC_C_EG, mfc28);
 
    // CONTROL "Key scaling", IDC_C_KSR, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 171, 86, 51, 10
-	CButton* mfc26 = new CButton(parent);
-	CRect r26(CPoint(171, 86), CSize(51, 10));
-	parent->MapDialogRect(&r26);
-	mfc26->Create(_T("Key scaling"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r26, parent, IDC_C_KSR);
-	mfcToQtWidget->insert(IDC_C_KSR, mfc26);
+	CButton* mfc29 = new CButton(parent);
+	CRect r29(CPoint(171, 86), CSize(51, 10));
+	parent->MapDialogRect(&r29);
+	mfc29->Create(_T("Key scaling"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r29, parent, IDC_C_KSR);
+	mfcToQtWidget->insert(IDC_C_KSR, mfc29);
 
    // CONTROL "Wave rectification", IDC_C_DM, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 232, 70, 74, 10
-	CButton* mfc27 = new CButton(parent);
-	CRect r27(CPoint(232, 70), CSize(74, 10));
-	parent->MapDialogRect(&r27);
-	mfc27->Create(_T("Wave rectification"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r27, parent, IDC_C_DM);
-	mfcToQtWidget->insert(IDC_C_DM, mfc27);
+	CButton* mfc30 = new CButton(parent);
+	CRect r30(CPoint(232, 70), CSize(74, 10));
+	parent->MapDialogRect(&r30);
+	mfc30->Create(_T("Wave rectification"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r30, parent, IDC_C_DM);
+	mfcToQtWidget->insert(IDC_C_DM, mfc30);
 
    // LTEXT "Level",IDC_STATIC,226,87,18,8
-	CStatic* mfc28 = new CStatic(parent);
-	CRect r28(CPoint(226,87),CSize(18,8));
-	parent->MapDialogRect(&r28);
-	mfc28->Create(_T("Level"),WS_VISIBLE|WS_BORDER,r28,parent,IDC_STATIC);
+	CStatic* mfc31 = new CStatic(parent);
+	CRect r31(CPoint(226,87),CSize(18,8));
+	parent->MapDialogRect(&r31);
+	mfc31->Create(_T("Level"),WS_VISIBLE|WS_BORDER,r31,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // CONTROL "", IDC_C_KSL, "msctls_trackbar32", WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, 247, 86, 59, 11
-	CSliderCtrl* mfc29 = new CSliderCtrl(parent);
-	CRect r29(CPoint(247, 86), CSize(59, 11));
-	parent->MapDialogRect(&r29);
-	mfc29->Create(WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, r29, parent, IDC_C_KSL);
-	mfcToQtWidget->insert(IDC_C_KSL, mfc29);
+	CSliderCtrl* mfc32 = new CSliderCtrl(parent);
+	CRect r32(CPoint(247, 86), CSize(59, 11));
+	parent->MapDialogRect(&r32);
+	mfc32->Create(WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, r32, parent, IDC_C_KSL);
+	mfcToQtWidget->insert(IDC_C_KSL, mfc32);
 
    // LTEXT "Mult. factor",IDC_STATIC,171,108,38,8
-	CStatic* mfc30 = new CStatic(parent);
-	CRect r30(CPoint(171,108),CSize(38,8));
-	parent->MapDialogRect(&r30);
-	mfc30->Create(_T("Mult. factor"),WS_VISIBLE|WS_BORDER,r30,parent,IDC_STATIC);
+	CStatic* mfc33 = new CStatic(parent);
+	CRect r33(CPoint(171,108),CSize(38,8));
+	parent->MapDialogRect(&r33);
+	mfc33->Create(_T("Mult. factor"),WS_VISIBLE|WS_BORDER,r33,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // CONTROL "", IDC_C_MUL, "msctls_trackbar32", WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, 208, 107, 106, 11
-	CSliderCtrl* mfc31 = new CSliderCtrl(parent);
-	CRect r31(CPoint(208, 107), CSize(106, 11));
-	parent->MapDialogRect(&r31);
-	mfc31->Create(WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, r31, parent, IDC_C_MUL);
-	mfcToQtWidget->insert(IDC_C_MUL, mfc31);
+	CSliderCtrl* mfc34 = new CSliderCtrl(parent);
+	CRect r34(CPoint(208, 107), CSize(106, 11));
+	parent->MapDialogRect(&r34);
+	mfc34->Create(WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, r34, parent, IDC_C_MUL);
+	mfcToQtWidget->insert(IDC_C_MUL, mfc34);
 
    // LTEXT "Attack",IDC_STATIC,171,127,22,8
-	CStatic* mfc32 = new CStatic(parent);
-	CRect r32(CPoint(171,127),CSize(22,8));
-	parent->MapDialogRect(&r32);
-	mfc32->Create(_T("Attack"),WS_VISIBLE|WS_BORDER,r32,parent,IDC_STATIC);
+	CStatic* mfc35 = new CStatic(parent);
+	CRect r35(CPoint(171,127),CSize(22,8));
+	parent->MapDialogRect(&r35);
+	mfc35->Create(_T("Attack"),WS_VISIBLE|WS_BORDER,r35,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // CONTROL "", IDC_C_AR, "msctls_trackbar32", WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, 199, 126, 42, 11
-	CSliderCtrl* mfc33 = new CSliderCtrl(parent);
-	CRect r33(CPoint(199, 126), CSize(42, 11));
-	parent->MapDialogRect(&r33);
-	mfc33->Create(WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, r33, parent, IDC_C_AR);
-	mfcToQtWidget->insert(IDC_C_AR, mfc33);
+	CSliderCtrl* mfc36 = new CSliderCtrl(parent);
+	CRect r36(CPoint(199, 126), CSize(42, 11));
+	parent->MapDialogRect(&r36);
+	mfc36->Create(WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, r36, parent, IDC_C_AR);
+	mfcToQtWidget->insert(IDC_C_AR, mfc36);
 
    // LTEXT "Decay",IDC_STATIC,247,127,21,8
-	CStatic* mfc34 = new CStatic(parent);
-	CRect r34(CPoint(247,127),CSize(21,8));
-	parent->MapDialogRect(&r34);
-	mfc34->Create(_T("Decay"),WS_VISIBLE|WS_BORDER,r34,parent,IDC_STATIC);
+	CStatic* mfc37 = new CStatic(parent);
+	CRect r37(CPoint(247,127),CSize(21,8));
+	parent->MapDialogRect(&r37);
+	mfc37->Create(_T("Decay"),WS_VISIBLE|WS_BORDER,r37,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // CONTROL "", IDC_C_DR, "msctls_trackbar32", WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, 271, 126, 43, 11
-	CSliderCtrl* mfc35 = new CSliderCtrl(parent);
-	CRect r35(CPoint(271, 126), CSize(43, 11));
-	parent->MapDialogRect(&r35);
-	mfc35->Create(WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, r35, parent, IDC_C_DR);
-	mfcToQtWidget->insert(IDC_C_DR, mfc35);
+	CSliderCtrl* mfc38 = new CSliderCtrl(parent);
+	CRect r38(CPoint(271, 126), CSize(43, 11));
+	parent->MapDialogRect(&r38);
+	mfc38->Create(WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, r38, parent, IDC_C_DR);
+	mfcToQtWidget->insert(IDC_C_DR, mfc38);
 
    // LTEXT "Sustain",IDC_STATIC,171,144,24,8
-	CStatic* mfc36 = new CStatic(parent);
-	CRect r36(CPoint(171,144),CSize(24,8));
-	parent->MapDialogRect(&r36);
-	mfc36->Create(_T("Sustain"),WS_VISIBLE|WS_BORDER,r36,parent,IDC_STATIC);
+	CStatic* mfc39 = new CStatic(parent);
+	CRect r39(CPoint(171,144),CSize(24,8));
+	parent->MapDialogRect(&r39);
+	mfc39->Create(_T("Sustain"),WS_VISIBLE|WS_BORDER,r39,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // CONTROL "", IDC_C_SL, "msctls_trackbar32", WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, 199, 143, 42, 11
-	CSliderCtrl* mfc37 = new CSliderCtrl(parent);
-	CRect r37(CPoint(199, 143), CSize(42, 11));
-	parent->MapDialogRect(&r37);
-	mfc37->Create(WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, r37, parent, IDC_C_SL);
-	mfcToQtWidget->insert(IDC_C_SL, mfc37);
+	CSliderCtrl* mfc40 = new CSliderCtrl(parent);
+	CRect r40(CPoint(199, 143), CSize(42, 11));
+	parent->MapDialogRect(&r40);
+	mfc40->Create(WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, r40, parent, IDC_C_SL);
+	mfcToQtWidget->insert(IDC_C_SL, mfc40);
 
    // LTEXT "Release",IDC_STATIC,245,144,26,8
-	CStatic* mfc38 = new CStatic(parent);
-	CRect r38(CPoint(245,144),CSize(26,8));
-	parent->MapDialogRect(&r38);
-	mfc38->Create(_T("Release"),WS_VISIBLE|WS_BORDER,r38,parent,IDC_STATIC);
+	CStatic* mfc41 = new CStatic(parent);
+	CRect r41(CPoint(245,144),CSize(26,8));
+	parent->MapDialogRect(&r41);
+	mfc41->Create(_T("Release"),WS_VISIBLE|WS_BORDER,r41,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // CONTROL "", IDC_C_RR, "msctls_trackbar32", WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, 271, 143, 43, 11
-	CSliderCtrl* mfc39 = new CSliderCtrl(parent);
-	CRect r39(CPoint(271, 143), CSize(43, 11));
-	parent->MapDialogRect(&r39);
-	mfc39->Create(WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, r39, parent, IDC_C_RR);
-	mfcToQtWidget->insert(IDC_C_RR, mfc39);
+	CSliderCtrl* mfc42 = new CSliderCtrl(parent);
+	CRect r42(CPoint(271, 143), CSize(43, 11));
+	parent->MapDialogRect(&r42);
+	mfc42->Create(WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, r42, parent, IDC_C_RR);
+	mfcToQtWidget->insert(IDC_C_RR, mfc42);
 
    // CTEXT "Modulator\nlevel",IDC_STATIC,322,42,36,17
-	CStatic* mfc40 = new CStatic(parent);
-	CRect r40(CPoint(322,42),CSize(36,17));
-	parent->MapDialogRect(&r40);
-	mfc40->Create(_T("Modulator\nlevel"),WS_VISIBLE|WS_BORDER,r40,parent,IDC_STATIC);
+	CStatic* mfc43 = new CStatic(parent);
+	CRect r43(CPoint(322,42),CSize(36,17));
+	parent->MapDialogRect(&r43);
+	mfc43->Create(_T("Modulator\nlevel"),WS_VISIBLE|WS_BORDER,r43,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // CONTROL "", IDC_TL, "msctls_trackbar32", WS_VISIBLE|WS_BORDER|TBS_VERT|TBS_BOTH|TBS_NOTICKS|WS_TABSTOP, 329, 59, 16, 53
-	CSliderCtrl* mfc41 = new CSliderCtrl(parent);
-	CRect r41(CPoint(329, 59), CSize(16, 53));
-	parent->MapDialogRect(&r41);
-	mfc41->Create(WS_VISIBLE|WS_BORDER|TBS_VERT|TBS_BOTH|TBS_NOTICKS|WS_TABSTOP, r41, parent, IDC_TL);
-	mfcToQtWidget->insert(IDC_TL, mfc41);
+	CSliderCtrl* mfc44 = new CSliderCtrl(parent);
+	CRect r44(CPoint(329, 59), CSize(16, 53));
+	parent->MapDialogRect(&r44);
+	mfc44->Create(WS_VISIBLE|WS_BORDER|TBS_VERT|TBS_BOTH|TBS_NOTICKS|WS_TABSTOP, r44, parent, IDC_TL);
+	mfcToQtWidget->insert(IDC_TL, mfc44);
 
    // CTEXT "Feedback",IDC_STATIC,322,112,36,9
-	CStatic* mfc42 = new CStatic(parent);
-	CRect r42(CPoint(322,112),CSize(36,9));
-	parent->MapDialogRect(&r42);
-	mfc42->Create(_T("Feedback"),WS_VISIBLE|WS_BORDER,r42,parent,IDC_STATIC);
+	CStatic* mfc45 = new CStatic(parent);
+	CRect r45(CPoint(322,112),CSize(36,9));
+	parent->MapDialogRect(&r45);
+	mfc45->Create(_T("Feedback"),WS_VISIBLE|WS_BORDER,r45,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // CONTROL "", IDC_FB, "msctls_trackbar32", WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|TBS_VERT|TBS_BOTH|WS_TABSTOP, 325, 124, 25, 41
-	CSliderCtrl* mfc43 = new CSliderCtrl(parent);
-	CRect r43(CPoint(325, 124), CSize(25, 41));
-	parent->MapDialogRect(&r43);
-	mfc43->Create(WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|TBS_VERT|TBS_BOTH|WS_TABSTOP, r43, parent, IDC_FB);
-	mfcToQtWidget->insert(IDC_FB, mfc43);
+	CSliderCtrl* mfc46 = new CSliderCtrl(parent);
+	CRect r46(CPoint(325, 124), CSize(25, 41));
+	parent->MapDialogRect(&r46);
+	mfc46->Create(WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|TBS_VERT|TBS_BOTH|WS_TABSTOP, r46, parent, IDC_FB);
+	mfcToQtWidget->insert(IDC_FB, mfc46);
 
    // END
 }
@@ -3732,110 +3732,110 @@ void qtMfcInitDialogResource_IDD_CREATEWAV(CDialog* parent)
 
 
    // BEGIN
-   // DEFPUSHBUTTON "Begin",BS_DEFPUSHBUTTON|WS_VISIBLE|WS_BORDER,37,187,52,14
-	CButton* mfc0 = new CButton(parent);
-	CRect r0(CPoint(37,187),CSize(52,14));
-	parent->MapDialogRect(&r0);
-	mfc0->Create(_T("Begin"),BS_DEFPUSHBUTTON|WS_VISIBLE|WS_BORDER,r0,parent,IDC_BEGIN);
-	mfcToQtWidget->insert(IDC_BEGIN,mfc0);
-
-   // PUSHBUTTON "Cancel",IDCANCEL,92,187,52,14,WS_VISIBLE|WS_BORDER
-	CButton* mfc1 = new CButton(parent);
-	CRect r1(CPoint(92,187),CSize(52,14));
-	parent->MapDialogRect(&r1);
-	mfc1->Create(_T("Cancel"),WS_VISIBLE|WS_BORDER,r1,parent,IDCANCEL);
-	mfcToQtWidget->insert(IDCANCEL,mfc1);
-
    // GROUPBOX "Song length",IDC_STATIC,7,7,137,47
-	CButton* mfc2 = new CButton(parent);
-	CRect r2(CPoint(7,7),CSize(137,47));
-	parent->MapDialogRect(&r2);
-	mfc2->Create(_T("Song length"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r2,parent,IDC_STATIC);
-	// IDC_STATIC do not get added to MFC-to-Qt map.
-
-   // CONTROL "Play the song", IDC_RADIO_LOOP, "Button", WS_VISIBLE|WS_BORDER|BS_AUTORADIOBUTTON, 14, 20, 59, 10
-	CButton* mfc3 = new CButton(parent);
-	CRect r3(CPoint(14, 20), CSize(59, 10));
-	parent->MapDialogRect(&r3);
-	mfc3->Create(_T("Play the song"), WS_VISIBLE|WS_BORDER|BS_AUTORADIOBUTTON, r3, parent, IDC_RADIO_LOOP);
-	mfcToQtWidget->insert(IDC_RADIO_LOOP, mfc3);
-
-   // CONTROL "Play for", IDC_RADIO_TIME, "Button", WS_VISIBLE|WS_BORDER|BS_AUTORADIOBUTTON, 14, 38, 41, 10
-	CButton* mfc4 = new CButton(parent);
-	CRect r4(CPoint(14, 38), CSize(41, 10));
-	parent->MapDialogRect(&r4);
-	mfc4->Create(_T("Play for"), WS_VISIBLE|WS_BORDER|BS_AUTORADIOBUTTON, r4, parent, IDC_RADIO_TIME);
-	mfcToQtWidget->insert(IDC_RADIO_TIME, mfc4);
-
-   // EDITTEXT IDC_TIMES,73,19,36,12,WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL
-	CEdit* mfc5 = new CEdit(parent);
-	CRect r5(CPoint(73,19),CSize(36,12));
-	parent->MapDialogRect(&r5);
-	mfc5->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL,r5,parent,IDC_TIMES);
-	mfcToQtWidget->insert(IDC_TIMES,mfc5);
-
-   // CONTROL "", IDC_SPIN_LOOP, "msctls_updown32", WS_VISIBLE|WS_BORDER|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, 105, 17, 11, 17
-	CSpinButtonCtrl* mfc6 = new CSpinButtonCtrl(parent);
-	CRect r6(CPoint(105, 17), CSize(11, 17));
-	parent->MapDialogRect(&r6);
-	mfc6->Create(WS_VISIBLE|WS_BORDER|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, r6, parent, IDC_SPIN_LOOP);
-	mfcToQtWidget->insert(IDC_SPIN_LOOP, mfc6);
-
-   // LTEXT "time(s)",IDC_STATIC,115,20,21,10
-	CStatic* mfc7 = new CStatic(parent);
-	CRect r7(CPoint(115,20),CSize(21,10));
-	parent->MapDialogRect(&r7);
-	mfc7->Create(_T("time(s)"),WS_VISIBLE|WS_BORDER|SS_CENTERIMAGE,r7,parent,IDC_STATIC);
-	// IDC_STATIC do not get added to MFC-to-Qt map.
-
-   // EDITTEXT IDC_SECONDS,53,37,44,12,WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL
-	CEdit* mfc8 = new CEdit(parent);
-	CRect r8(CPoint(53,37),CSize(44,12));
-	parent->MapDialogRect(&r8);
-	mfc8->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL,r8,parent,IDC_SECONDS);
-	mfcToQtWidget->insert(IDC_SECONDS,mfc8);
-
-   // CONTROL "", IDC_SPIN_TIME, "msctls_updown32", WS_VISIBLE|WS_BORDER|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, 93, 36, 11, 14
-	CSpinButtonCtrl* mfc9 = new CSpinButtonCtrl(parent);
-	CRect r9(CPoint(93, 36), CSize(11, 14));
-	parent->MapDialogRect(&r9);
-	mfc9->Create(WS_VISIBLE|WS_BORDER|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, r9, parent, IDC_SPIN_TIME);
-	mfcToQtWidget->insert(IDC_SPIN_TIME, mfc9);
-
-   // LTEXT "mm:ss",IDC_STATIC,106,38,21,10
-	CStatic* mfc10 = new CStatic(parent);
-	CRect r10(CPoint(106,38),CSize(21,10));
-	parent->MapDialogRect(&r10);
-	mfc10->Create(_T("mm:ss"),WS_VISIBLE|WS_BORDER|SS_CENTERIMAGE,r10,parent,IDC_STATIC);
+	CButton* mfc0 = new CButton(parent);
+	CRect r0(CPoint(7,7),CSize(137,47));
+	parent->MapDialogRect(&r0);
+	mfc0->Create(_T("Song length"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r0,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // GROUPBOX "Channels",IDC_STATIC,7,96,137,87
-	CButton* mfc11 = new CButton(parent);
-	CRect r11(CPoint(7,96),CSize(137,87));
+	CButton* mfc1 = new CButton(parent);
+	CRect r1(CPoint(7,96),CSize(137,87));
+	parent->MapDialogRect(&r1);
+	mfc1->Create(_T("Channels"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r1,parent,IDC_STATIC);
+	// IDC_STATIC do not get added to MFC-to-Qt map.
+
+   // GROUPBOX "Song",IDC_STATIC,7,60,137,30
+	CButton* mfc2 = new CButton(parent);
+	CRect r2(CPoint(7,60),CSize(137,30));
+	parent->MapDialogRect(&r2);
+	mfc2->Create(_T("Song"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r2,parent,IDC_STATIC);
+	// IDC_STATIC do not get added to MFC-to-Qt map.
+
+   // DEFPUSHBUTTON "Begin",BS_DEFPUSHBUTTON|WS_VISIBLE|WS_BORDER,37,187,52,14
+	CButton* mfc3 = new CButton(parent);
+	CRect r3(CPoint(37,187),CSize(52,14));
+	parent->MapDialogRect(&r3);
+	mfc3->Create(_T("Begin"),BS_DEFPUSHBUTTON|WS_VISIBLE|WS_BORDER,r3,parent,IDC_BEGIN);
+	mfcToQtWidget->insert(IDC_BEGIN,mfc3);
+
+   // PUSHBUTTON "Cancel",IDCANCEL,92,187,52,14,WS_VISIBLE|WS_BORDER
+	CButton* mfc4 = new CButton(parent);
+	CRect r4(CPoint(92,187),CSize(52,14));
+	parent->MapDialogRect(&r4);
+	mfc4->Create(_T("Cancel"),WS_VISIBLE|WS_BORDER,r4,parent,IDCANCEL);
+	mfcToQtWidget->insert(IDCANCEL,mfc4);
+
+   // CONTROL "Play the song", IDC_RADIO_LOOP, "Button", WS_VISIBLE|WS_BORDER|BS_AUTORADIOBUTTON, 14, 20, 59, 10
+	CButton* mfc6 = new CButton(parent);
+	CRect r6(CPoint(14, 20), CSize(59, 10));
+	parent->MapDialogRect(&r6);
+	mfc6->Create(_T("Play the song"), WS_VISIBLE|WS_BORDER|BS_AUTORADIOBUTTON, r6, parent, IDC_RADIO_LOOP);
+	mfcToQtWidget->insert(IDC_RADIO_LOOP, mfc6);
+
+   // CONTROL "Play for", IDC_RADIO_TIME, "Button", WS_VISIBLE|WS_BORDER|BS_AUTORADIOBUTTON, 14, 38, 41, 10
+	CButton* mfc7 = new CButton(parent);
+	CRect r7(CPoint(14, 38), CSize(41, 10));
+	parent->MapDialogRect(&r7);
+	mfc7->Create(_T("Play for"), WS_VISIBLE|WS_BORDER|BS_AUTORADIOBUTTON, r7, parent, IDC_RADIO_TIME);
+	mfcToQtWidget->insert(IDC_RADIO_TIME, mfc7);
+
+   // EDITTEXT IDC_TIMES,73,19,36,12,WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL
+	CEdit* mfc8 = new CEdit(parent);
+	CRect r8(CPoint(73,19),CSize(36,12));
+	parent->MapDialogRect(&r8);
+	mfc8->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL,r8,parent,IDC_TIMES);
+	mfcToQtWidget->insert(IDC_TIMES,mfc8);
+
+   // CONTROL "", IDC_SPIN_LOOP, "msctls_updown32", WS_VISIBLE|WS_BORDER|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, 105, 17, 11, 17
+	CSpinButtonCtrl* mfc9 = new CSpinButtonCtrl(parent);
+	CRect r9(CPoint(105, 17), CSize(11, 17));
+	parent->MapDialogRect(&r9);
+	mfc9->Create(WS_VISIBLE|WS_BORDER|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, r9, parent, IDC_SPIN_LOOP);
+	mfcToQtWidget->insert(IDC_SPIN_LOOP, mfc9);
+
+   // LTEXT "time(s)",IDC_STATIC,115,20,21,10
+	CStatic* mfc10 = new CStatic(parent);
+	CRect r10(CPoint(115,20),CSize(21,10));
+	parent->MapDialogRect(&r10);
+	mfc10->Create(_T("time(s)"),WS_VISIBLE|WS_BORDER|SS_CENTERIMAGE,r10,parent,IDC_STATIC);
+	// IDC_STATIC do not get added to MFC-to-Qt map.
+
+   // EDITTEXT IDC_SECONDS,53,37,44,12,WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL
+	CEdit* mfc11 = new CEdit(parent);
+	CRect r11(CPoint(53,37),CSize(44,12));
 	parent->MapDialogRect(&r11);
-	mfc11->Create(_T("Channels"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r11,parent,IDC_STATIC);
+	mfc11->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL,r11,parent,IDC_SECONDS);
+	mfcToQtWidget->insert(IDC_SECONDS,mfc11);
+
+   // CONTROL "", IDC_SPIN_TIME, "msctls_updown32", WS_VISIBLE|WS_BORDER|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, 93, 36, 11, 14
+	CSpinButtonCtrl* mfc12 = new CSpinButtonCtrl(parent);
+	CRect r12(CPoint(93, 36), CSize(11, 14));
+	parent->MapDialogRect(&r12);
+	mfc12->Create(WS_VISIBLE|WS_BORDER|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, r12, parent, IDC_SPIN_TIME);
+	mfcToQtWidget->insert(IDC_SPIN_TIME, mfc12);
+
+   // LTEXT "mm:ss",IDC_STATIC,106,38,21,10
+	CStatic* mfc13 = new CStatic(parent);
+	CRect r13(CPoint(106,38),CSize(21,10));
+	parent->MapDialogRect(&r13);
+	mfc13->Create(_T("mm:ss"),WS_VISIBLE|WS_BORDER|SS_CENTERIMAGE,r13,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // LISTBOX IDC_CHANNELS,14,107,124,70,WS_VISIBLE|WS_BORDER|LBS_OWNERDRAWFIXED|LBS_HASSTRINGS|LBS_NOINTEGRALHEIGHT|WS_VSCROLL|WS_TABSTOP
-	CListBox* mfc12 = new CListBox(parent);
-	CRect r12(CPoint(14,107),CSize(124,70));
-	parent->MapDialogRect(&r12);
-	mfc12->Create(WS_VISIBLE|WS_BORDER|LBS_OWNERDRAWFIXED|LBS_HASSTRINGS|LBS_NOINTEGRALHEIGHT|WS_VSCROLL|WS_TABSTOP,r12,parent,IDC_CHANNELS);
-	mfcToQtWidget->insert(IDC_CHANNELS,mfc12);
-
-   // GROUPBOX "Song",IDC_STATIC,7,60,137,30
-	CButton* mfc13 = new CButton(parent);
-	CRect r13(CPoint(7,60),CSize(137,30));
-	parent->MapDialogRect(&r13);
-	mfc13->Create(_T("Song"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r13,parent,IDC_STATIC);
-	// IDC_STATIC do not get added to MFC-to-Qt map.
+	CListBox* mfc15 = new CListBox(parent);
+	CRect r15(CPoint(14,107),CSize(124,70));
+	parent->MapDialogRect(&r15);
+	mfc15->Create(WS_VISIBLE|WS_BORDER|LBS_OWNERDRAWFIXED|LBS_HASSTRINGS|LBS_NOINTEGRALHEIGHT|WS_VSCROLL|WS_TABSTOP,r15,parent,IDC_CHANNELS);
+	mfcToQtWidget->insert(IDC_CHANNELS,mfc15);
 
    // COMBOBOX IDC_TRACKS,14,72,124,30,WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|CBS_SORT|WS_VSCROLL|WS_TABSTOP
-	CComboBox* mfc14 = new CComboBox(parent);
-	CRect r14(CPoint(14,72),CSize(124,30));
-	parent->MapDialogRect(&r14);
-	mfc14->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|CBS_SORT|WS_VSCROLL|WS_TABSTOP,r14,parent,IDC_TRACKS);
-	mfcToQtWidget->insert(IDC_TRACKS,mfc14);
+	CComboBox* mfc17 = new CComboBox(parent);
+	CRect r17(CPoint(14,72),CSize(124,30));
+	parent->MapDialogRect(&r17);
+	mfc17->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|CBS_SORT|WS_VSCROLL|WS_TABSTOP,r17,parent,IDC_TRACKS);
+	mfcToQtWidget->insert(IDC_TRACKS,mfc17);
 
    // END
 }
@@ -3878,152 +3878,152 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_FDS(CDialog* parent)
 	mfc0->Create(_T("Wave editor"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r0,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
-   // PUSHBUTTON "Sine",IDC_PRESET_SINE,14,101,41,12,WS_VISIBLE|WS_BORDER
+   // GROUPBOX "Frequency modulation",IDC_STATIC,240,7,124,79
 	CButton* mfc1 = new CButton(parent);
-	CRect r1(CPoint(14,101),CSize(41,12));
+	CRect r1(CPoint(240,7),CSize(124,79));
 	parent->MapDialogRect(&r1);
-	mfc1->Create(_T("Sine"),WS_VISIBLE|WS_BORDER,r1,parent,IDC_PRESET_SINE);
-	mfcToQtWidget->insert(IDC_PRESET_SINE,mfc1);
+	mfc1->Create(_T("Frequency modulation"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r1,parent,IDC_STATIC);
+	// IDC_STATIC do not get added to MFC-to-Qt map.
+
+   // PUSHBUTTON "Sine",IDC_PRESET_SINE,14,101,41,12,WS_VISIBLE|WS_BORDER
+	CButton* mfc3 = new CButton(parent);
+	CRect r3(CPoint(14,101),CSize(41,12));
+	parent->MapDialogRect(&r3);
+	mfc3->Create(_T("Sine"),WS_VISIBLE|WS_BORDER,r3,parent,IDC_PRESET_SINE);
+	mfcToQtWidget->insert(IDC_PRESET_SINE,mfc3);
 
    // PUSHBUTTON "Triangle",IDC_PRESET_TRIANGLE,57,101,41,12,WS_VISIBLE|WS_BORDER
-	CButton* mfc2 = new CButton(parent);
-	CRect r2(CPoint(57,101),CSize(41,12));
-	parent->MapDialogRect(&r2);
-	mfc2->Create(_T("Triangle"),WS_VISIBLE|WS_BORDER,r2,parent,IDC_PRESET_TRIANGLE);
-	mfcToQtWidget->insert(IDC_PRESET_TRIANGLE,mfc2);
+	CButton* mfc4 = new CButton(parent);
+	CRect r4(CPoint(57,101),CSize(41,12));
+	parent->MapDialogRect(&r4);
+	mfc4->Create(_T("Triangle"),WS_VISIBLE|WS_BORDER,r4,parent,IDC_PRESET_TRIANGLE);
+	mfcToQtWidget->insert(IDC_PRESET_TRIANGLE,mfc4);
 
    // PUSHBUTTON "Sawtooth",IDC_PRESET_SAWTOOTH,100,101,41,12,WS_VISIBLE|WS_BORDER
-	CButton* mfc3 = new CButton(parent);
-	CRect r3(CPoint(100,101),CSize(41,12));
-	parent->MapDialogRect(&r3);
-	mfc3->Create(_T("Sawtooth"),WS_VISIBLE|WS_BORDER,r3,parent,IDC_PRESET_SAWTOOTH);
-	mfcToQtWidget->insert(IDC_PRESET_SAWTOOTH,mfc3);
+	CButton* mfc5 = new CButton(parent);
+	CRect r5(CPoint(100,101),CSize(41,12));
+	parent->MapDialogRect(&r5);
+	mfc5->Create(_T("Sawtooth"),WS_VISIBLE|WS_BORDER,r5,parent,IDC_PRESET_SAWTOOTH);
+	mfcToQtWidget->insert(IDC_PRESET_SAWTOOTH,mfc5);
 
    // LTEXT "Modulation rate",IDC_STATIC,246,24,51,8
-	CStatic* mfc4 = new CStatic(parent);
-	CRect r4(CPoint(246,24),CSize(51,8));
-	parent->MapDialogRect(&r4);
-	mfc4->Create(_T("Modulation rate"),WS_VISIBLE|WS_BORDER,r4,parent,IDC_STATIC);
+	CStatic* mfc6 = new CStatic(parent);
+	CRect r6(CPoint(246,24),CSize(51,8));
+	parent->MapDialogRect(&r6);
+	mfc6->Create(_T("Modulation rate"),WS_VISIBLE|WS_BORDER,r6,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // EDITTEXT IDC_MOD_RATE,318,22,37,14,WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_NUMBER
-	CEdit* mfc5 = new CEdit(parent);
-	CRect r5(CPoint(318,22),CSize(37,14));
-	parent->MapDialogRect(&r5);
-	mfc5->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_NUMBER,r5,parent,IDC_MOD_RATE);
-	mfcToQtWidget->insert(IDC_MOD_RATE,mfc5);
+	CEdit* mfc7 = new CEdit(parent);
+	CRect r7(CPoint(318,22),CSize(37,14));
+	parent->MapDialogRect(&r7);
+	mfc7->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_NUMBER,r7,parent,IDC_MOD_RATE);
+	mfcToQtWidget->insert(IDC_MOD_RATE,mfc7);
 
    // CONTROL "", IDC_MOD_RATE_SPIN, "msctls_updown32", WS_VISIBLE|WS_BORDER|UDS_SETBUDDYINT|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS|UDS_NOTHOUSANDS, 344, 25, 11, 14
-	CSpinButtonCtrl* mfc6 = new CSpinButtonCtrl(parent);
-	CRect r6(CPoint(344, 25), CSize(11, 14));
-	parent->MapDialogRect(&r6);
-	mfc6->Create(WS_VISIBLE|WS_BORDER|UDS_SETBUDDYINT|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS|UDS_NOTHOUSANDS, r6, parent, IDC_MOD_RATE_SPIN);
-	mfcToQtWidget->insert(IDC_MOD_RATE_SPIN, mfc6);
+	CSpinButtonCtrl* mfc8 = new CSpinButtonCtrl(parent);
+	CRect r8(CPoint(344, 25), CSize(11, 14));
+	parent->MapDialogRect(&r8);
+	mfc8->Create(WS_VISIBLE|WS_BORDER|UDS_SETBUDDYINT|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS|UDS_NOTHOUSANDS, r8, parent, IDC_MOD_RATE_SPIN);
+	mfcToQtWidget->insert(IDC_MOD_RATE_SPIN, mfc8);
 
    // LTEXT "Modulation depth",IDC_STATIC,246,46,56,8
-	CStatic* mfc7 = new CStatic(parent);
-	CRect r7(CPoint(246,46),CSize(56,8));
-	parent->MapDialogRect(&r7);
-	mfc7->Create(_T("Modulation depth"),WS_VISIBLE|WS_BORDER,r7,parent,IDC_STATIC);
+	CStatic* mfc9 = new CStatic(parent);
+	CRect r9(CPoint(246,46),CSize(56,8));
+	parent->MapDialogRect(&r9);
+	mfc9->Create(_T("Modulation depth"),WS_VISIBLE|WS_BORDER,r9,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // EDITTEXT IDC_MOD_DEPTH,318,43,37,14,WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_NUMBER
-	CEdit* mfc8 = new CEdit(parent);
-	CRect r8(CPoint(318,43),CSize(37,14));
-	parent->MapDialogRect(&r8);
-	mfc8->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_NUMBER,r8,parent,IDC_MOD_DEPTH);
-	mfcToQtWidget->insert(IDC_MOD_DEPTH,mfc8);
+	CEdit* mfc10 = new CEdit(parent);
+	CRect r10(CPoint(318,43),CSize(37,14));
+	parent->MapDialogRect(&r10);
+	mfc10->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_NUMBER,r10,parent,IDC_MOD_DEPTH);
+	mfcToQtWidget->insert(IDC_MOD_DEPTH,mfc10);
 
    // CONTROL "", IDC_MOD_DEPTH_SPIN, "msctls_updown32", WS_VISIBLE|WS_BORDER|UDS_SETBUDDYINT|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, 344, 43, 11, 14
-	CSpinButtonCtrl* mfc9 = new CSpinButtonCtrl(parent);
-	CRect r9(CPoint(344, 43), CSize(11, 14));
-	parent->MapDialogRect(&r9);
-	mfc9->Create(WS_VISIBLE|WS_BORDER|UDS_SETBUDDYINT|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, r9, parent, IDC_MOD_DEPTH_SPIN);
-	mfcToQtWidget->insert(IDC_MOD_DEPTH_SPIN, mfc9);
+	CSpinButtonCtrl* mfc11 = new CSpinButtonCtrl(parent);
+	CRect r11(CPoint(344, 43), CSize(11, 14));
+	parent->MapDialogRect(&r11);
+	mfc11->Create(WS_VISIBLE|WS_BORDER|UDS_SETBUDDYINT|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, r11, parent, IDC_MOD_DEPTH_SPIN);
+	mfcToQtWidget->insert(IDC_MOD_DEPTH_SPIN, mfc11);
 
    // LTEXT "Modulation delay",IDC_STATIC,246,68,55,8
-	CStatic* mfc10 = new CStatic(parent);
-	CRect r10(CPoint(246,68),CSize(55,8));
-	parent->MapDialogRect(&r10);
-	mfc10->Create(_T("Modulation delay"),WS_VISIBLE|WS_BORDER,r10,parent,IDC_STATIC);
+	CStatic* mfc12 = new CStatic(parent);
+	CRect r12(CPoint(246,68),CSize(55,8));
+	parent->MapDialogRect(&r12);
+	mfc12->Create(_T("Modulation delay"),WS_VISIBLE|WS_BORDER,r12,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // EDITTEXT IDC_MOD_DELAY,318,65,37,14,WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_NUMBER
-	CEdit* mfc11 = new CEdit(parent);
-	CRect r11(CPoint(318,65),CSize(37,14));
-	parent->MapDialogRect(&r11);
-	mfc11->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_NUMBER,r11,parent,IDC_MOD_DELAY);
-	mfcToQtWidget->insert(IDC_MOD_DELAY,mfc11);
+	CEdit* mfc13 = new CEdit(parent);
+	CRect r13(CPoint(318,65),CSize(37,14));
+	parent->MapDialogRect(&r13);
+	mfc13->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_NUMBER,r13,parent,IDC_MOD_DELAY);
+	mfcToQtWidget->insert(IDC_MOD_DELAY,mfc13);
 
    // CONTROL "", IDC_MOD_DELAY_SPIN, "msctls_updown32", WS_VISIBLE|WS_BORDER|UDS_SETBUDDYINT|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, 344, 63, 11, 14
-	CSpinButtonCtrl* mfc12 = new CSpinButtonCtrl(parent);
-	CRect r12(CPoint(344, 63), CSize(11, 14));
-	parent->MapDialogRect(&r12);
-	mfc12->Create(WS_VISIBLE|WS_BORDER|UDS_SETBUDDYINT|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, r12, parent, IDC_MOD_DELAY_SPIN);
-	mfcToQtWidget->insert(IDC_MOD_DELAY_SPIN, mfc12);
+	CSpinButtonCtrl* mfc14 = new CSpinButtonCtrl(parent);
+	CRect r14(CPoint(344, 63), CSize(11, 14));
+	parent->MapDialogRect(&r14);
+	mfc14->Create(WS_VISIBLE|WS_BORDER|UDS_SETBUDDYINT|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, r14, parent, IDC_MOD_DELAY_SPIN);
+	mfcToQtWidget->insert(IDC_MOD_DELAY_SPIN, mfc14);
 
    // PUSHBUTTON "Flat",IDC_MOD_PRESET_FLAT,318,131,46,12,WS_VISIBLE|WS_BORDER
-	CButton* mfc13 = new CButton(parent);
-	CRect r13(CPoint(318,131),CSize(46,12));
-	parent->MapDialogRect(&r13);
-	mfc13->Create(_T("Flat"),WS_VISIBLE|WS_BORDER,r13,parent,IDC_MOD_PRESET_FLAT);
-	mfcToQtWidget->insert(IDC_MOD_PRESET_FLAT,mfc13);
+	CButton* mfc15 = new CButton(parent);
+	CRect r15(CPoint(318,131),CSize(46,12));
+	parent->MapDialogRect(&r15);
+	mfc15->Create(_T("Flat"),WS_VISIBLE|WS_BORDER,r15,parent,IDC_MOD_PRESET_FLAT);
+	mfcToQtWidget->insert(IDC_MOD_PRESET_FLAT,mfc15);
 
    // PUSHBUTTON "Sine",IDC_MOD_PRESET_SINE,318,148,46,12,WS_VISIBLE|WS_BORDER
-	CButton* mfc14 = new CButton(parent);
-	CRect r14(CPoint(318,148),CSize(46,12));
-	parent->MapDialogRect(&r14);
-	mfc14->Create(_T("Sine"),WS_VISIBLE|WS_BORDER,r14,parent,IDC_MOD_PRESET_SINE);
-	mfcToQtWidget->insert(IDC_MOD_PRESET_SINE,mfc14);
-
-   // GROUPBOX "Frequency modulation",IDC_STATIC,240,7,124,79
-	CButton* mfc15 = new CButton(parent);
-	CRect r15(CPoint(240,7),CSize(124,79));
-	parent->MapDialogRect(&r15);
-	mfc15->Create(_T("Frequency modulation"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r15,parent,IDC_STATIC);
-	// IDC_STATIC do not get added to MFC-to-Qt map.
+	CButton* mfc16 = new CButton(parent);
+	CRect r16(CPoint(318,148),CSize(46,12));
+	parent->MapDialogRect(&r16);
+	mfc16->Create(_T("Sine"),WS_VISIBLE|WS_BORDER,r16,parent,IDC_MOD_PRESET_SINE);
+	mfcToQtWidget->insert(IDC_MOD_PRESET_SINE,mfc16);
 
    // PUSHBUTTON "Copy wave",IDC_COPY_WAVE,240,90,52,14,WS_VISIBLE|WS_BORDER
-	CButton* mfc16 = new CButton(parent);
-	CRect r16(CPoint(240,90),CSize(52,14));
-	parent->MapDialogRect(&r16);
-	mfc16->Create(_T("Copy wave"),WS_VISIBLE|WS_BORDER,r16,parent,IDC_COPY_WAVE);
-	mfcToQtWidget->insert(IDC_COPY_WAVE,mfc16);
+	CButton* mfc18 = new CButton(parent);
+	CRect r18(CPoint(240,90),CSize(52,14));
+	parent->MapDialogRect(&r18);
+	mfc18->Create(_T("Copy wave"),WS_VISIBLE|WS_BORDER,r18,parent,IDC_COPY_WAVE);
+	mfcToQtWidget->insert(IDC_COPY_WAVE,mfc18);
 
    // PUSHBUTTON "Paste wave",IDC_PASTE_WAVE,240,104,52,14,WS_VISIBLE|WS_BORDER
-	CButton* mfc17 = new CButton(parent);
-	CRect r17(CPoint(240,104),CSize(52,14));
-	parent->MapDialogRect(&r17);
-	mfc17->Create(_T("Paste wave"),WS_VISIBLE|WS_BORDER,r17,parent,IDC_PASTE_WAVE);
-	mfcToQtWidget->insert(IDC_PASTE_WAVE,mfc17);
+	CButton* mfc19 = new CButton(parent);
+	CRect r19(CPoint(240,104),CSize(52,14));
+	parent->MapDialogRect(&r19);
+	mfc19->Create(_T("Paste wave"),WS_VISIBLE|WS_BORDER,r19,parent,IDC_PASTE_WAVE);
+	mfcToQtWidget->insert(IDC_PASTE_WAVE,mfc19);
 
    // PUSHBUTTON "Copy table",IDC_COPY_TABLE,305,90,50,14,WS_VISIBLE|WS_BORDER
-	CButton* mfc18 = new CButton(parent);
-	CRect r18(CPoint(305,90),CSize(50,14));
-	parent->MapDialogRect(&r18);
-	mfc18->Create(_T("Copy table"),WS_VISIBLE|WS_BORDER,r18,parent,IDC_COPY_TABLE);
-	mfcToQtWidget->insert(IDC_COPY_TABLE,mfc18);
+	CButton* mfc20 = new CButton(parent);
+	CRect r20(CPoint(305,90),CSize(50,14));
+	parent->MapDialogRect(&r20);
+	mfc20->Create(_T("Copy table"),WS_VISIBLE|WS_BORDER,r20,parent,IDC_COPY_TABLE);
+	mfcToQtWidget->insert(IDC_COPY_TABLE,mfc20);
 
    // PUSHBUTTON "Paste table",IDC_PASTE_TABLE,305,104,50,14,WS_VISIBLE|WS_BORDER
-	CButton* mfc19 = new CButton(parent);
-	CRect r19(CPoint(305,104),CSize(50,14));
-	parent->MapDialogRect(&r19);
-	mfc19->Create(_T("Paste table"),WS_VISIBLE|WS_BORDER,r19,parent,IDC_PASTE_TABLE);
-	mfcToQtWidget->insert(IDC_PASTE_TABLE,mfc19);
+	CButton* mfc21 = new CButton(parent);
+	CRect r21(CPoint(305,104),CSize(50,14));
+	parent->MapDialogRect(&r21);
+	mfc21->Create(_T("Paste table"),WS_VISIBLE|WS_BORDER,r21,parent,IDC_PASTE_TABLE);
+	mfcToQtWidget->insert(IDC_PASTE_TABLE,mfc21);
 
    // PUSHBUTTON "50% pulse",IDC_PRESET_PULSE_50,143,101,41,12,WS_VISIBLE|WS_BORDER
-	CButton* mfc20 = new CButton(parent);
-	CRect r20(CPoint(143,101),CSize(41,12));
-	parent->MapDialogRect(&r20);
-	mfc20->Create(_T("50% pulse"),WS_VISIBLE|WS_BORDER,r20,parent,IDC_PRESET_PULSE_50);
-	mfcToQtWidget->insert(IDC_PRESET_PULSE_50,mfc20);
+	CButton* mfc22 = new CButton(parent);
+	CRect r22(CPoint(143,101),CSize(41,12));
+	parent->MapDialogRect(&r22);
+	mfc22->Create(_T("50% pulse"),WS_VISIBLE|WS_BORDER,r22,parent,IDC_PRESET_PULSE_50);
+	mfcToQtWidget->insert(IDC_PRESET_PULSE_50,mfc22);
 
    // PUSHBUTTON "25% pulse",IDC_PRESET_PULSE_25,186,101,41,12,WS_VISIBLE|WS_BORDER
-	CButton* mfc21 = new CButton(parent);
-	CRect r21(CPoint(186,101),CSize(41,12));
-	parent->MapDialogRect(&r21);
-	mfc21->Create(_T("25% pulse"),WS_VISIBLE|WS_BORDER,r21,parent,IDC_PRESET_PULSE_25);
-	mfcToQtWidget->insert(IDC_PRESET_PULSE_25,mfc21);
+	CButton* mfc23 = new CButton(parent);
+	CRect r23(CPoint(186,101),CSize(41,12));
+	parent->MapDialogRect(&r23);
+	mfc23->Create(_T("25% pulse"),WS_VISIBLE|WS_BORDER,r23,parent,IDC_PRESET_PULSE_25);
+	mfcToQtWidget->insert(IDC_PRESET_PULSE_25,mfc23);
 
    // END
 }
@@ -4122,68 +4122,68 @@ void qtMfcInitDialogResource_IDD_CHANNELS(CDialog* parent)
 
 
    // BEGIN
-   // DEFPUSHBUTTON "OK",BS_DEFPUSHBUTTON|WS_VISIBLE|WS_BORDER,194,215,50,14
-	CButton* mfc0 = new CButton(parent);
-	CRect r0(CPoint(194,215),CSize(50,14));
-	parent->MapDialogRect(&r0);
-	mfc0->Create(_T("OK"),BS_DEFPUSHBUTTON|WS_VISIBLE|WS_BORDER,r0,parent,IDOK);
-	mfcToQtWidget->insert(IDOK,mfc0);
-
-   // PUSHBUTTON "Cancel",IDCANCEL,246,215,50,14,WS_VISIBLE|WS_BORDER
-	CButton* mfc1 = new CButton(parent);
-	CRect r1(CPoint(246,215),CSize(50,14));
-	parent->MapDialogRect(&r1);
-	mfc1->Create(_T("Cancel"),WS_VISIBLE|WS_BORDER,r1,parent,IDCANCEL);
-	mfcToQtWidget->insert(IDCANCEL,mfc1);
-
-   // PUSHBUTTON "Move up",IDC_MOVE_UP,7,215,50,14,WS_VISIBLE|WS_BORDER
-	CButton* mfc2 = new CButton(parent);
-	CRect r2(CPoint(7,215),CSize(50,14));
-	parent->MapDialogRect(&r2);
-	mfc2->Create(_T("Move up"),WS_VISIBLE|WS_BORDER,r2,parent,IDC_MOVE_UP);
-	mfcToQtWidget->insert(IDC_MOVE_UP,mfc2);
-
-   // PUSHBUTTON "Move down",IDC_MOVE_DOWN,62,215,50,14,WS_VISIBLE|WS_BORDER
-	CButton* mfc3 = new CButton(parent);
-	CRect r3(CPoint(62,215),CSize(50,14));
-	parent->MapDialogRect(&r3);
-	mfc3->Create(_T("Move down"),WS_VISIBLE|WS_BORDER,r3,parent,IDC_MOVE_DOWN);
-	mfcToQtWidget->insert(IDC_MOVE_DOWN,mfc3);
-
-   // CONTROL "", IDC_ADDED_LIST, "SysListView32", WS_VISIBLE|WS_BORDER|LVS_REPORT|LVS_SINGLESEL|LVS_SHOWSELALWAYS|LVS_ALIGNLEFT|LVS_NOCOLUMNHEADER|WS_BORDER|WS_TABSTOP, 159, 17, 129, 181
-	CListCtrl* mfc4 = new CListCtrl(parent);
-	CRect r4(CPoint(159, 17), CSize(129, 181));
-	parent->MapDialogRect(&r4);
-	mfc4->Create(WS_VISIBLE|WS_BORDER|LVS_REPORT|LVS_SINGLESEL|LVS_SHOWSELALWAYS|LVS_ALIGNLEFT|LVS_NOCOLUMNHEADER|WS_BORDER|WS_TABSTOP, r4, parent, IDC_ADDED_LIST);
-	mfcToQtWidget->insert(IDC_ADDED_LIST, mfc4);
-
-   // CONTROL "", IDC_STATIC, "Static", WS_VISIBLE|WS_BORDER|SS_ETCHEDHORZ, 7, 209, 289, 1
-	CStatic* mfc5 = new CStatic(parent);
-	CRect r5(CPoint(7, 209), CSize(289, 1));
-	parent->MapDialogRect(&r5);
-	mfc5->Create(_T(""), WS_VISIBLE|WS_BORDER|SS_ETCHEDHORZ, r5, parent, IDC_STATIC);
-	mfcToQtWidget->insert(IDC_STATIC, mfc5);
-
    // GROUPBOX "Available channels",IDC_STATIC,7,7,138,197
-	CButton* mfc6 = new CButton(parent);
-	CRect r6(CPoint(7,7),CSize(138,197));
-	parent->MapDialogRect(&r6);
-	mfc6->Create(_T("Available channels"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r6,parent,IDC_STATIC);
+	CButton* mfc0 = new CButton(parent);
+	CRect r0(CPoint(7,7),CSize(138,197));
+	parent->MapDialogRect(&r0);
+	mfc0->Create(_T("Available channels"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r0,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // GROUPBOX "Added channels",IDC_STATIC,151,7,145,197
-	CButton* mfc7 = new CButton(parent);
-	CRect r7(CPoint(151,7),CSize(145,197));
-	parent->MapDialogRect(&r7);
-	mfc7->Create(_T("Added channels"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r7,parent,IDC_STATIC);
+	CButton* mfc1 = new CButton(parent);
+	CRect r1(CPoint(151,7),CSize(145,197));
+	parent->MapDialogRect(&r1);
+	mfc1->Create(_T("Added channels"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r1,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
+   // DEFPUSHBUTTON "OK",BS_DEFPUSHBUTTON|WS_VISIBLE|WS_BORDER,194,215,50,14
+	CButton* mfc2 = new CButton(parent);
+	CRect r2(CPoint(194,215),CSize(50,14));
+	parent->MapDialogRect(&r2);
+	mfc2->Create(_T("OK"),BS_DEFPUSHBUTTON|WS_VISIBLE|WS_BORDER,r2,parent,IDOK);
+	mfcToQtWidget->insert(IDOK,mfc2);
+
+   // PUSHBUTTON "Cancel",IDCANCEL,246,215,50,14,WS_VISIBLE|WS_BORDER
+	CButton* mfc3 = new CButton(parent);
+	CRect r3(CPoint(246,215),CSize(50,14));
+	parent->MapDialogRect(&r3);
+	mfc3->Create(_T("Cancel"),WS_VISIBLE|WS_BORDER,r3,parent,IDCANCEL);
+	mfcToQtWidget->insert(IDCANCEL,mfc3);
+
+   // PUSHBUTTON "Move up",IDC_MOVE_UP,7,215,50,14,WS_VISIBLE|WS_BORDER
+	CButton* mfc4 = new CButton(parent);
+	CRect r4(CPoint(7,215),CSize(50,14));
+	parent->MapDialogRect(&r4);
+	mfc4->Create(_T("Move up"),WS_VISIBLE|WS_BORDER,r4,parent,IDC_MOVE_UP);
+	mfcToQtWidget->insert(IDC_MOVE_UP,mfc4);
+
+   // PUSHBUTTON "Move down",IDC_MOVE_DOWN,62,215,50,14,WS_VISIBLE|WS_BORDER
+	CButton* mfc5 = new CButton(parent);
+	CRect r5(CPoint(62,215),CSize(50,14));
+	parent->MapDialogRect(&r5);
+	mfc5->Create(_T("Move down"),WS_VISIBLE|WS_BORDER,r5,parent,IDC_MOVE_DOWN);
+	mfcToQtWidget->insert(IDC_MOVE_DOWN,mfc5);
+
+   // CONTROL "", IDC_ADDED_LIST, "SysListView32", WS_VISIBLE|WS_BORDER|LVS_REPORT|LVS_SINGLESEL|LVS_SHOWSELALWAYS|LVS_ALIGNLEFT|LVS_NOCOLUMNHEADER|WS_BORDER|WS_TABSTOP, 159, 17, 129, 181
+	CListCtrl* mfc6 = new CListCtrl(parent);
+	CRect r6(CPoint(159, 17), CSize(129, 181));
+	parent->MapDialogRect(&r6);
+	mfc6->Create(WS_VISIBLE|WS_BORDER|LVS_REPORT|LVS_SINGLESEL|LVS_SHOWSELALWAYS|LVS_ALIGNLEFT|LVS_NOCOLUMNHEADER|WS_BORDER|WS_TABSTOP, r6, parent, IDC_ADDED_LIST);
+	mfcToQtWidget->insert(IDC_ADDED_LIST, mfc6);
+
+   // CONTROL "", IDC_STATIC, "Static", WS_VISIBLE|WS_BORDER|SS_ETCHEDHORZ, 7, 209, 289, 1
+	CStatic* mfc7 = new CStatic(parent);
+	CRect r7(CPoint(7, 209), CSize(289, 1));
+	parent->MapDialogRect(&r7);
+	mfc7->Create(_T(""), WS_VISIBLE|WS_BORDER|SS_ETCHEDHORZ, r7, parent, IDC_STATIC);
+	mfcToQtWidget->insert(IDC_STATIC, mfc7);
+
    // CONTROL "", IDC_AVAILABLE_TREE, "SysTreeView32", WS_VISIBLE|WS_BORDER|TVS_HASBUTTONS|TVS_HASLINES|TVS_LINESATROOT|WS_BORDER|WS_HSCROLL|WS_TABSTOP, 14, 17, 122, 181
-	CTreeCtrl* mfc8 = new CTreeCtrl(parent);
-	CRect r8(CPoint(14, 17), CSize(122, 181));
-	parent->MapDialogRect(&r8);
-	mfc8->Create(WS_VISIBLE|WS_BORDER|TVS_HASBUTTONS|TVS_HASLINES|TVS_LINESATROOT|WS_BORDER|WS_HSCROLL|WS_TABSTOP, r8, parent, IDC_AVAILABLE_TREE);
-	mfcToQtWidget->insert(IDC_AVAILABLE_TREE, mfc8);
+	CTreeCtrl* mfc10 = new CTreeCtrl(parent);
+	CRect r10(CPoint(14, 17), CSize(122, 181));
+	parent->MapDialogRect(&r10);
+	mfc10->Create(WS_VISIBLE|WS_BORDER|TVS_HASBUTTONS|TVS_HASLINES|TVS_LINESATROOT|WS_BORDER|WS_HSCROLL|WS_TABSTOP, r10, parent, IDC_AVAILABLE_TREE);
+	mfcToQtWidget->insert(IDC_AVAILABLE_TREE, mfc10);
 
    // END
 }
@@ -4467,152 +4467,152 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_N163_WAVE(CDialog* parent)
 	mfc0->Create(_T("Wave editor"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r0,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
-   // PUSHBUTTON "Sine",IDC_PRESET_SINE,14,104,41,14,WS_VISIBLE|WS_BORDER
-	CButton* mfc1 = new CButton(parent);
-	CRect r1(CPoint(14,104),CSize(41,14));
-	parent->MapDialogRect(&r1);
-	mfc1->Create(_T("Sine"),WS_VISIBLE|WS_BORDER,r1,parent,IDC_PRESET_SINE);
-	mfcToQtWidget->insert(IDC_PRESET_SINE,mfc1);
-
-   // PUSHBUTTON "Triangle",IDC_PRESET_TRIANGLE,57,104,41,14,WS_VISIBLE|WS_BORDER
-	CButton* mfc2 = new CButton(parent);
-	CRect r2(CPoint(57,104),CSize(41,14));
-	parent->MapDialogRect(&r2);
-	mfc2->Create(_T("Triangle"),WS_VISIBLE|WS_BORDER,r2,parent,IDC_PRESET_TRIANGLE);
-	mfcToQtWidget->insert(IDC_PRESET_TRIANGLE,mfc2);
-
-   // PUSHBUTTON "Sawtooth",IDC_PRESET_SAWTOOTH,100,104,41,14,WS_VISIBLE|WS_BORDER
-	CButton* mfc3 = new CButton(parent);
-	CRect r3(CPoint(100,104),CSize(41,14));
-	parent->MapDialogRect(&r3);
-	mfc3->Create(_T("Sawtooth"),WS_VISIBLE|WS_BORDER,r3,parent,IDC_PRESET_SAWTOOTH);
-	mfcToQtWidget->insert(IDC_PRESET_SAWTOOTH,mfc3);
-
-   // PUSHBUTTON "50% pulse",IDC_PRESET_PULSE_50,143,104,41,14,WS_VISIBLE|WS_BORDER
-	CButton* mfc4 = new CButton(parent);
-	CRect r4(CPoint(143,104),CSize(41,14));
-	parent->MapDialogRect(&r4);
-	mfc4->Create(_T("50% pulse"),WS_VISIBLE|WS_BORDER,r4,parent,IDC_PRESET_PULSE_50);
-	mfcToQtWidget->insert(IDC_PRESET_PULSE_50,mfc4);
-
-   // PUSHBUTTON "25% pulse",IDC_PRESET_PULSE_25,186,104,41,14,WS_VISIBLE|WS_BORDER
-	CButton* mfc5 = new CButton(parent);
-	CRect r5(CPoint(186,104),CSize(41,14));
-	parent->MapDialogRect(&r5);
-	mfc5->Create(_T("25% pulse"),WS_VISIBLE|WS_BORDER,r5,parent,IDC_PRESET_PULSE_25);
-	mfcToQtWidget->insert(IDC_PRESET_PULSE_25,mfc5);
-
    // GROUPBOX "MML string",IDC_STATIC,7,132,358,33
-	CButton* mfc6 = new CButton(parent);
-	CRect r6(CPoint(7,132),CSize(358,33));
-	parent->MapDialogRect(&r6);
-	mfc6->Create(_T("MML string"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r6,parent,IDC_STATIC);
+	CButton* mfc1 = new CButton(parent);
+	CRect r1(CPoint(7,132),CSize(358,33));
+	parent->MapDialogRect(&r1);
+	mfc1->Create(_T("MML string"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r1,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
-   // EDITTEXT IDC_MML,16,145,342,14,WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL
-	CEdit* mfc7 = new CEdit(parent);
-	CRect r7(CPoint(16,145),CSize(342,14));
+   // GROUPBOX "Wave RAM settings",IDC_STATIC,244,45,121,52
+	CButton* mfc2 = new CButton(parent);
+	CRect r2(CPoint(244,45),CSize(121,52));
+	parent->MapDialogRect(&r2);
+	mfc2->Create(_T("Wave RAM settings"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r2,parent,IDC_STATIC);
+	// IDC_STATIC do not get added to MFC-to-Qt map.
+
+   // GROUPBOX "Wave #",IDC_STATIC,244,7,121,35
+	CButton* mfc3 = new CButton(parent);
+	CRect r3(CPoint(244,7),CSize(121,35));
+	parent->MapDialogRect(&r3);
+	mfc3->Create(_T("Wave #"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r3,parent,IDC_STATIC);
+	// IDC_STATIC do not get added to MFC-to-Qt map.
+
+   // PUSHBUTTON "Sine",IDC_PRESET_SINE,14,104,41,14,WS_VISIBLE|WS_BORDER
+	CButton* mfc5 = new CButton(parent);
+	CRect r5(CPoint(14,104),CSize(41,14));
+	parent->MapDialogRect(&r5);
+	mfc5->Create(_T("Sine"),WS_VISIBLE|WS_BORDER,r5,parent,IDC_PRESET_SINE);
+	mfcToQtWidget->insert(IDC_PRESET_SINE,mfc5);
+
+   // PUSHBUTTON "Triangle",IDC_PRESET_TRIANGLE,57,104,41,14,WS_VISIBLE|WS_BORDER
+	CButton* mfc6 = new CButton(parent);
+	CRect r6(CPoint(57,104),CSize(41,14));
+	parent->MapDialogRect(&r6);
+	mfc6->Create(_T("Triangle"),WS_VISIBLE|WS_BORDER,r6,parent,IDC_PRESET_TRIANGLE);
+	mfcToQtWidget->insert(IDC_PRESET_TRIANGLE,mfc6);
+
+   // PUSHBUTTON "Sawtooth",IDC_PRESET_SAWTOOTH,100,104,41,14,WS_VISIBLE|WS_BORDER
+	CButton* mfc7 = new CButton(parent);
+	CRect r7(CPoint(100,104),CSize(41,14));
 	parent->MapDialogRect(&r7);
-	mfc7->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL,r7,parent,IDC_MML);
-	mfcToQtWidget->insert(IDC_MML,mfc7);
+	mfc7->Create(_T("Sawtooth"),WS_VISIBLE|WS_BORDER,r7,parent,IDC_PRESET_SAWTOOTH);
+	mfcToQtWidget->insert(IDC_PRESET_SAWTOOTH,mfc7);
+
+   // PUSHBUTTON "50% pulse",IDC_PRESET_PULSE_50,143,104,41,14,WS_VISIBLE|WS_BORDER
+	CButton* mfc8 = new CButton(parent);
+	CRect r8(CPoint(143,104),CSize(41,14));
+	parent->MapDialogRect(&r8);
+	mfc8->Create(_T("50% pulse"),WS_VISIBLE|WS_BORDER,r8,parent,IDC_PRESET_PULSE_50);
+	mfcToQtWidget->insert(IDC_PRESET_PULSE_50,mfc8);
+
+   // PUSHBUTTON "25% pulse",IDC_PRESET_PULSE_25,186,104,41,14,WS_VISIBLE|WS_BORDER
+	CButton* mfc9 = new CButton(parent);
+	CRect r9(CPoint(186,104),CSize(41,14));
+	parent->MapDialogRect(&r9);
+	mfc9->Create(_T("25% pulse"),WS_VISIBLE|WS_BORDER,r9,parent,IDC_PRESET_PULSE_25);
+	mfcToQtWidget->insert(IDC_PRESET_PULSE_25,mfc9);
+
+   // EDITTEXT IDC_MML,16,145,342,14,WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL
+	CEdit* mfc11 = new CEdit(parent);
+	CRect r11(CPoint(16,145),CSize(342,14));
+	parent->MapDialogRect(&r11);
+	mfc11->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL,r11,parent,IDC_MML);
+	mfcToQtWidget->insert(IDC_MML,mfc11);
 
    // PUSHBUTTON "Copy wave",IDC_COPY,249,105,50,14,WS_VISIBLE|WS_BORDER
-	CButton* mfc8 = new CButton(parent);
-	CRect r8(CPoint(249,105),CSize(50,14));
-	parent->MapDialogRect(&r8);
-	mfc8->Create(_T("Copy wave"),WS_VISIBLE|WS_BORDER,r8,parent,IDC_COPY);
-	mfcToQtWidget->insert(IDC_COPY,mfc8);
+	CButton* mfc12 = new CButton(parent);
+	CRect r12(CPoint(249,105),CSize(50,14));
+	parent->MapDialogRect(&r12);
+	mfc12->Create(_T("Copy wave"),WS_VISIBLE|WS_BORDER,r12,parent,IDC_COPY);
+	mfcToQtWidget->insert(IDC_COPY,mfc12);
 
    // PUSHBUTTON "Paste wave",IDC_PASTE,308,105,50,14,WS_VISIBLE|WS_BORDER
-	CButton* mfc9 = new CButton(parent);
-	CRect r9(CPoint(308,105),CSize(50,14));
-	parent->MapDialogRect(&r9);
-	mfc9->Create(_T("Paste wave"),WS_VISIBLE|WS_BORDER,r9,parent,IDC_PASTE);
-	mfcToQtWidget->insert(IDC_PASTE,mfc9);
+	CButton* mfc13 = new CButton(parent);
+	CRect r13(CPoint(308,105),CSize(50,14));
+	parent->MapDialogRect(&r13);
+	mfc13->Create(_T("Paste wave"),WS_VISIBLE|WS_BORDER,r13,parent,IDC_PASTE);
+	mfcToQtWidget->insert(IDC_PASTE,mfc13);
 
    // EDITTEXT IDC_INDEX,253,20,39,12,WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_READONLY
-	CEdit* mfc10 = new CEdit(parent);
-	CRect r10(CPoint(253,20),CSize(39,12));
-	parent->MapDialogRect(&r10);
-	mfc10->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_READONLY,r10,parent,IDC_INDEX);
-	mfcToQtWidget->insert(IDC_INDEX,mfc10);
+	CEdit* mfc14 = new CEdit(parent);
+	CRect r14(CPoint(253,20),CSize(39,12));
+	parent->MapDialogRect(&r14);
+	mfc14->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_READONLY,r14,parent,IDC_INDEX);
+	mfcToQtWidget->insert(IDC_INDEX,mfc14);
 
    // CONTROL "", IDC_INDEX_SPIN, "msctls_updown32", WS_VISIBLE|WS_BORDER|UDS_SETBUDDYINT|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, 281, 26, 11, 14
-	CSpinButtonCtrl* mfc11 = new CSpinButtonCtrl(parent);
-	CRect r11(CPoint(281, 26), CSize(11, 14));
-	parent->MapDialogRect(&r11);
-	mfc11->Create(WS_VISIBLE|WS_BORDER|UDS_SETBUDDYINT|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, r11, parent, IDC_INDEX_SPIN);
-	mfcToQtWidget->insert(IDC_INDEX_SPIN, mfc11);
+	CSpinButtonCtrl* mfc15 = new CSpinButtonCtrl(parent);
+	CRect r15(CPoint(281, 26), CSize(11, 14));
+	parent->MapDialogRect(&r15);
+	mfc15->Create(WS_VISIBLE|WS_BORDER|UDS_SETBUDDYINT|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, r15, parent, IDC_INDEX_SPIN);
+	mfcToQtWidget->insert(IDC_INDEX_SPIN, mfc15);
 
    // LTEXT "of",IDC_STATIC,300,22,8,8
-	CStatic* mfc12 = new CStatic(parent);
-	CRect r12(CPoint(300,22),CSize(8,8));
-	parent->MapDialogRect(&r12);
-	mfc12->Create(_T("of"),WS_VISIBLE|WS_BORDER,r12,parent,IDC_STATIC);
+	CStatic* mfc16 = new CStatic(parent);
+	CRect r16(CPoint(300,22),CSize(8,8));
+	parent->MapDialogRect(&r16);
+	mfc16->Create(_T("of"),WS_VISIBLE|WS_BORDER,r16,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // EDITTEXT IDC_WAVES,316,20,37,12,WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_READONLY
-	CEdit* mfc13 = new CEdit(parent);
-	CRect r13(CPoint(316,20),CSize(37,12));
-	parent->MapDialogRect(&r13);
-	mfc13->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_READONLY,r13,parent,IDC_WAVES);
-	mfcToQtWidget->insert(IDC_WAVES,mfc13);
+	CEdit* mfc17 = new CEdit(parent);
+	CRect r17(CPoint(316,20),CSize(37,12));
+	parent->MapDialogRect(&r17);
+	mfc17->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL|ES_READONLY,r17,parent,IDC_WAVES);
+	mfcToQtWidget->insert(IDC_WAVES,mfc17);
 
    // CONTROL "", IDC_WAVES_SPIN, "msctls_updown32", WS_VISIBLE|WS_BORDER|UDS_SETBUDDYINT|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, 342, 19, 11, 14
-	CSpinButtonCtrl* mfc14 = new CSpinButtonCtrl(parent);
-	CRect r14(CPoint(342, 19), CSize(11, 14));
-	parent->MapDialogRect(&r14);
-	mfc14->Create(WS_VISIBLE|WS_BORDER|UDS_SETBUDDYINT|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, r14, parent, IDC_WAVES_SPIN);
-	mfcToQtWidget->insert(IDC_WAVES_SPIN, mfc14);
-
-   // GROUPBOX "Wave RAM settings",IDC_STATIC,244,45,121,52
-	CButton* mfc15 = new CButton(parent);
-	CRect r15(CPoint(244,45),CSize(121,52));
-	parent->MapDialogRect(&r15);
-	mfc15->Create(_T("Wave RAM settings"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r15,parent,IDC_STATIC);
-	// IDC_STATIC do not get added to MFC-to-Qt map.
+	CSpinButtonCtrl* mfc18 = new CSpinButtonCtrl(parent);
+	CRect r18(CPoint(342, 19), CSize(11, 14));
+	parent->MapDialogRect(&r18);
+	mfc18->Create(WS_VISIBLE|WS_BORDER|UDS_SETBUDDYINT|UDS_ALIGNRIGHT|UDS_AUTOBUDDY|UDS_ARROWKEYS, r18, parent, IDC_WAVES_SPIN);
+	mfcToQtWidget->insert(IDC_WAVES_SPIN, mfc18);
 
    // LTEXT "Wave size",IDC_STATIC,253,59,34,8
-	CStatic* mfc16 = new CStatic(parent);
-	CRect r16(CPoint(253,59),CSize(34,8));
-	parent->MapDialogRect(&r16);
-	mfc16->Create(_T("Wave size"),WS_VISIBLE|WS_BORDER,r16,parent,IDC_STATIC);
+	CStatic* mfc20 = new CStatic(parent);
+	CRect r20(CPoint(253,59),CSize(34,8));
+	parent->MapDialogRect(&r20);
+	mfc20->Create(_T("Wave size"),WS_VISIBLE|WS_BORDER,r20,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // COMBOBOX IDC_WAVE_SIZE,305,57,48,30,WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP
-	CComboBox* mfc17 = new CComboBox(parent);
-	CRect r17(CPoint(305,57),CSize(48,30));
-	parent->MapDialogRect(&r17);
-	mfc17->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP,r17,parent,IDC_WAVE_SIZE);
-	mfcToQtWidget->insert(IDC_WAVE_SIZE,mfc17);
+	CComboBox* mfc21 = new CComboBox(parent);
+	CRect r21(CPoint(305,57),CSize(48,30));
+	parent->MapDialogRect(&r21);
+	mfc21->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP,r21,parent,IDC_WAVE_SIZE);
+	mfcToQtWidget->insert(IDC_WAVE_SIZE,mfc21);
 
    // LTEXT "Wave position",IDC_STATIC,253,78,46,8
-	CStatic* mfc18 = new CStatic(parent);
-	CRect r18(CPoint(253,78),CSize(46,8));
-	parent->MapDialogRect(&r18);
-	mfc18->Create(_T("Wave position"),WS_VISIBLE|WS_BORDER,r18,parent,IDC_STATIC);
+	CStatic* mfc22 = new CStatic(parent);
+	CRect r22(CPoint(253,78),CSize(46,8));
+	parent->MapDialogRect(&r22);
+	mfc22->Create(_T("Wave position"),WS_VISIBLE|WS_BORDER,r22,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // COMBOBOX IDC_WAVE_POS,305,75,48,30,WS_VISIBLE|WS_BORDER|CBS_DROPDOWN|WS_VSCROLL|WS_TABSTOP
-	CComboBox* mfc19 = new CComboBox(parent);
-	CRect r19(CPoint(305,75),CSize(48,30));
-	parent->MapDialogRect(&r19);
-	mfc19->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWN|WS_VSCROLL|WS_TABSTOP,r19,parent,IDC_WAVE_POS);
-	mfcToQtWidget->insert(IDC_WAVE_POS,mfc19);
+	CComboBox* mfc23 = new CComboBox(parent);
+	CRect r23(CPoint(305,75),CSize(48,30));
+	parent->MapDialogRect(&r23);
+	mfc23->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWN|WS_VSCROLL|WS_TABSTOP,r23,parent,IDC_WAVE_POS);
+	mfcToQtWidget->insert(IDC_WAVE_POS,mfc23);
 
 
-	mfc19->AddString(_T("32"));
+	mfc23->AddString(_T("32"));
 	
 
-	mfc19->AddString(_T("16"));
+	mfc23->AddString(_T("16"));
 	
-   // GROUPBOX "Wave #",IDC_STATIC,244,7,121,35
-	CButton* mfc20 = new CButton(parent);
-	CRect r20(CPoint(244,7),CSize(121,35));
-	parent->MapDialogRect(&r20);
-	mfc20->Create(_T("Wave #"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r20,parent,IDC_STATIC);
-	// IDC_STATIC do not get added to MFC-to-Qt map.
-
    // END
 }
 
@@ -4632,54 +4632,54 @@ void qtMfcInitDialogResource_IDD_IMPORT(CDialog* parent)
 
 
    // BEGIN
-   // DEFPUSHBUTTON "OK",BS_DEFPUSHBUTTON|WS_VISIBLE|WS_BORDER,51,188,50,14
-	CButton* mfc0 = new CButton(parent);
-	CRect r0(CPoint(51,188),CSize(50,14));
-	parent->MapDialogRect(&r0);
-	mfc0->Create(_T("OK"),BS_DEFPUSHBUTTON|WS_VISIBLE|WS_BORDER,r0,parent,IDOK);
-	mfcToQtWidget->insert(IDOK,mfc0);
-
-   // PUSHBUTTON "Cancel",IDCANCEL,104,188,50,14,WS_VISIBLE|WS_BORDER
-	CButton* mfc1 = new CButton(parent);
-	CRect r1(CPoint(104,188),CSize(50,14));
-	parent->MapDialogRect(&r1);
-	mfc1->Create(_T("Cancel"),WS_VISIBLE|WS_BORDER,r1,parent,IDCANCEL);
-	mfcToQtWidget->insert(IDCANCEL,mfc1);
-
    // GROUPBOX "Tracks",IDC_STATIC,7,7,147,137
-	CButton* mfc2 = new CButton(parent);
-	CRect r2(CPoint(7,7),CSize(147,137));
-	parent->MapDialogRect(&r2);
-	mfc2->Create(_T("Tracks"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r2,parent,IDC_STATIC);
+	CButton* mfc0 = new CButton(parent);
+	CRect r0(CPoint(7,7),CSize(147,137));
+	parent->MapDialogRect(&r0);
+	mfc0->Create(_T("Tracks"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r0,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
-
-   // CONTROL "Include instruments", IDC_INSTRUMENTS, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 14, 161, 116, 10
-	CButton* mfc3 = new CButton(parent);
-	CRect r3(CPoint(14, 161), CSize(116, 10));
-	parent->MapDialogRect(&r3);
-	mfc3->Create(_T("Include instruments"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r3, parent, IDC_INSTRUMENTS);
-	mfcToQtWidget->insert(IDC_INSTRUMENTS, mfc3);
-
-   // CONTROL "", IDC_STATIC, "Static", WS_VISIBLE|WS_BORDER|SS_ETCHEDHORZ, 7, 183, 147, 1
-	CStatic* mfc4 = new CStatic(parent);
-	CRect r4(CPoint(7, 183), CSize(147, 1));
-	parent->MapDialogRect(&r4);
-	mfc4->Create(_T(""), WS_VISIBLE|WS_BORDER|SS_ETCHEDHORZ, r4, parent, IDC_STATIC);
-	mfcToQtWidget->insert(IDC_STATIC, mfc4);
 
    // GROUPBOX "Options",IDC_STATIC,7,148,147,29
-	CButton* mfc5 = new CButton(parent);
-	CRect r5(CPoint(7,148),CSize(147,29));
-	parent->MapDialogRect(&r5);
-	mfc5->Create(_T("Options"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r5,parent,IDC_STATIC);
+	CButton* mfc1 = new CButton(parent);
+	CRect r1(CPoint(7,148),CSize(147,29));
+	parent->MapDialogRect(&r1);
+	mfc1->Create(_T("Options"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r1,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
-   // LISTBOX IDC_TRACKS,14,18,133,120,WS_VISIBLE|WS_BORDER|LBS_OWNERDRAWFIXED|LBS_HASSTRINGS|LBS_NOINTEGRALHEIGHT|WS_VSCROLL|WS_TABSTOP
-	CListBox* mfc6 = new CListBox(parent);
-	CRect r6(CPoint(14,18),CSize(133,120));
+   // DEFPUSHBUTTON "OK",BS_DEFPUSHBUTTON|WS_VISIBLE|WS_BORDER,51,188,50,14
+	CButton* mfc2 = new CButton(parent);
+	CRect r2(CPoint(51,188),CSize(50,14));
+	parent->MapDialogRect(&r2);
+	mfc2->Create(_T("OK"),BS_DEFPUSHBUTTON|WS_VISIBLE|WS_BORDER,r2,parent,IDOK);
+	mfcToQtWidget->insert(IDOK,mfc2);
+
+   // PUSHBUTTON "Cancel",IDCANCEL,104,188,50,14,WS_VISIBLE|WS_BORDER
+	CButton* mfc3 = new CButton(parent);
+	CRect r3(CPoint(104,188),CSize(50,14));
+	parent->MapDialogRect(&r3);
+	mfc3->Create(_T("Cancel"),WS_VISIBLE|WS_BORDER,r3,parent,IDCANCEL);
+	mfcToQtWidget->insert(IDCANCEL,mfc3);
+
+   // CONTROL "Include instruments", IDC_INSTRUMENTS, "Button", WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, 14, 161, 116, 10
+	CButton* mfc5 = new CButton(parent);
+	CRect r5(CPoint(14, 161), CSize(116, 10));
+	parent->MapDialogRect(&r5);
+	mfc5->Create(_T("Include instruments"), WS_VISIBLE|WS_BORDER|BS_AUTOCHECKBOX|WS_TABSTOP, r5, parent, IDC_INSTRUMENTS);
+	mfcToQtWidget->insert(IDC_INSTRUMENTS, mfc5);
+
+   // CONTROL "", IDC_STATIC, "Static", WS_VISIBLE|WS_BORDER|SS_ETCHEDHORZ, 7, 183, 147, 1
+	CStatic* mfc6 = new CStatic(parent);
+	CRect r6(CPoint(7, 183), CSize(147, 1));
 	parent->MapDialogRect(&r6);
-	mfc6->Create(WS_VISIBLE|WS_BORDER|LBS_OWNERDRAWFIXED|LBS_HASSTRINGS|LBS_NOINTEGRALHEIGHT|WS_VSCROLL|WS_TABSTOP,r6,parent,IDC_TRACKS);
-	mfcToQtWidget->insert(IDC_TRACKS,mfc6);
+	mfc6->Create(_T(""), WS_VISIBLE|WS_BORDER|SS_ETCHEDHORZ, r6, parent, IDC_STATIC);
+	mfcToQtWidget->insert(IDC_STATIC, mfc6);
+
+   // LISTBOX IDC_TRACKS,14,18,133,120,WS_VISIBLE|WS_BORDER|LBS_OWNERDRAWFIXED|LBS_HASSTRINGS|LBS_NOINTEGRALHEIGHT|WS_VSCROLL|WS_TABSTOP
+	CListBox* mfc8 = new CListBox(parent);
+	CRect r8(CPoint(14,18),CSize(133,120));
+	parent->MapDialogRect(&r8);
+	mfc8->Create(WS_VISIBLE|WS_BORDER|LBS_OWNERDRAWFIXED|LBS_HASSTRINGS|LBS_NOINTEGRALHEIGHT|WS_VSCROLL|WS_TABSTOP,r8,parent,IDC_TRACKS);
+	mfcToQtWidget->insert(IDC_TRACKS,mfc8);
 
    // END
 }
@@ -4700,68 +4700,68 @@ void qtMfcInitDialogResource_IDD_PERFORMANCE(CDialog* parent)
 
 
    // BEGIN
-   // DEFPUSHBUTTON "Close",BS_DEFPUSHBUTTON|WS_VISIBLE|WS_BORDER,58,74,60,14
-	CButton* mfc0 = new CButton(parent);
-	CRect r0(CPoint(58,74),CSize(60,14));
-	parent->MapDialogRect(&r0);
-	mfc0->Create(_T("Close"),BS_DEFPUSHBUTTON|WS_VISIBLE|WS_BORDER,r0,parent,IDOK);
-	mfcToQtWidget->insert(IDOK,mfc0);
-
    // GROUPBOX "CPU usage",IDC_STATIC,7,7,68,53
-	CButton* mfc1 = new CButton(parent);
-	CRect r1(CPoint(7,7),CSize(68,53));
-	parent->MapDialogRect(&r1);
-	mfc1->Create(_T("CPU usage"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r1,parent,IDC_STATIC);
+	CButton* mfc0 = new CButton(parent);
+	CRect r0(CPoint(7,7),CSize(68,53));
+	parent->MapDialogRect(&r0);
+	mfc0->Create(_T("CPU usage"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r0,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
-
-   // CTEXT "--%",IDC_CPU,43,30,29,10
-	CStatic* mfc2 = new CStatic(parent);
-	CRect r2(CPoint(43,30),CSize(29,10));
-	parent->MapDialogRect(&r2);
-	mfc2->Create(_T("--%"),WS_VISIBLE|WS_BORDER,r2,parent,IDC_CPU);
-	// IDC_STATIC do not get added to MFC-to-Qt map.
-
-   // CONTROL "", IDC_CPU_BAR, "msctls_progress32", WS_VISIBLE|WS_BORDER|PBS_SMOOTH|PBS_VERTICAL|WS_BORDER, 18, 19, 18, 34
-	CProgressCtrl* mfc3 = new CProgressCtrl(parent);
-	CRect r3(CPoint(18, 19), CSize(18, 34));
-	parent->MapDialogRect(&r3);
-	mfc3->Create(WS_VISIBLE|WS_BORDER|PBS_SMOOTH|PBS_VERTICAL|WS_BORDER, r3, parent, IDC_CPU_BAR);
-	mfcToQtWidget->insert(IDC_CPU_BAR, mfc3);
-
-   // LTEXT "Frame rate: 0 Hz",IDC_FRAMERATE,89,18,72,8
-	CStatic* mfc4 = new CStatic(parent);
-	CRect r4(CPoint(89,18),CSize(72,8));
-	parent->MapDialogRect(&r4);
-	mfc4->Create(_T("Frame rate: 0 Hz"),WS_VISIBLE|WS_BORDER,r4,parent,IDC_FRAMERATE);
-	// IDC_STATIC do not get added to MFC-to-Qt map.
-
-   // LTEXT "Underruns: 0",IDC_UNDERRUN,89,45,66,8
-	CStatic* mfc5 = new CStatic(parent);
-	CRect r5(CPoint(89,45),CSize(66,8));
-	parent->MapDialogRect(&r5);
-	mfc5->Create(_T("Underruns: 0"),WS_VISIBLE|WS_BORDER,r5,parent,IDC_UNDERRUN);
-	// IDC_STATIC do not get added to MFC-to-Qt map.
-
-   // CONTROL "", IDC_STATIC, "Static", WS_VISIBLE|WS_BORDER|SS_ETCHEDHORZ, 7, 67, 162, 1
-	CStatic* mfc6 = new CStatic(parent);
-	CRect r6(CPoint(7, 67), CSize(162, 1));
-	parent->MapDialogRect(&r6);
-	mfc6->Create(_T(""), WS_VISIBLE|WS_BORDER|SS_ETCHEDHORZ, r6, parent, IDC_STATIC);
-	mfcToQtWidget->insert(IDC_STATIC, mfc6);
 
    // GROUPBOX "Other",IDC_STATIC,81,7,88,26
-	CButton* mfc7 = new CButton(parent);
-	CRect r7(CPoint(81,7),CSize(88,26));
-	parent->MapDialogRect(&r7);
-	mfc7->Create(_T("Other"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r7,parent,IDC_STATIC);
+	CButton* mfc1 = new CButton(parent);
+	CRect r1(CPoint(81,7),CSize(88,26));
+	parent->MapDialogRect(&r1);
+	mfc1->Create(_T("Other"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r1,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // GROUPBOX "Audio",IDC_STATIC,81,34,88,26
-	CButton* mfc8 = new CButton(parent);
-	CRect r8(CPoint(81,34),CSize(88,26));
-	parent->MapDialogRect(&r8);
-	mfc8->Create(_T("Audio"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r8,parent,IDC_STATIC);
+	CButton* mfc2 = new CButton(parent);
+	CRect r2(CPoint(81,34),CSize(88,26));
+	parent->MapDialogRect(&r2);
+	mfc2->Create(_T("Audio"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r2,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
+
+   // DEFPUSHBUTTON "Close",BS_DEFPUSHBUTTON|WS_VISIBLE|WS_BORDER,58,74,60,14
+	CButton* mfc3 = new CButton(parent);
+	CRect r3(CPoint(58,74),CSize(60,14));
+	parent->MapDialogRect(&r3);
+	mfc3->Create(_T("Close"),BS_DEFPUSHBUTTON|WS_VISIBLE|WS_BORDER,r3,parent,IDOK);
+	mfcToQtWidget->insert(IDOK,mfc3);
+
+   // CTEXT "--%",IDC_CPU,43,30,29,10
+	CStatic* mfc5 = new CStatic(parent);
+	CRect r5(CPoint(43,30),CSize(29,10));
+	parent->MapDialogRect(&r5);
+	mfc5->Create(_T("--%"),WS_VISIBLE|WS_BORDER,r5,parent,IDC_CPU);
+	// IDC_STATIC do not get added to MFC-to-Qt map.
+
+   // CONTROL "", IDC_CPU_BAR, "msctls_progress32", WS_VISIBLE|WS_BORDER|PBS_SMOOTH|PBS_VERTICAL|WS_BORDER, 18, 19, 18, 34
+	CProgressCtrl* mfc6 = new CProgressCtrl(parent);
+	CRect r6(CPoint(18, 19), CSize(18, 34));
+	parent->MapDialogRect(&r6);
+	mfc6->Create(WS_VISIBLE|WS_BORDER|PBS_SMOOTH|PBS_VERTICAL|WS_BORDER, r6, parent, IDC_CPU_BAR);
+	mfcToQtWidget->insert(IDC_CPU_BAR, mfc6);
+
+   // LTEXT "Frame rate: 0 Hz",IDC_FRAMERATE,89,18,72,8
+	CStatic* mfc7 = new CStatic(parent);
+	CRect r7(CPoint(89,18),CSize(72,8));
+	parent->MapDialogRect(&r7);
+	mfc7->Create(_T("Frame rate: 0 Hz"),WS_VISIBLE|WS_BORDER,r7,parent,IDC_FRAMERATE);
+	// IDC_STATIC do not get added to MFC-to-Qt map.
+
+   // LTEXT "Underruns: 0",IDC_UNDERRUN,89,45,66,8
+	CStatic* mfc8 = new CStatic(parent);
+	CRect r8(CPoint(89,45),CSize(66,8));
+	parent->MapDialogRect(&r8);
+	mfc8->Create(_T("Underruns: 0"),WS_VISIBLE|WS_BORDER,r8,parent,IDC_UNDERRUN);
+	// IDC_STATIC do not get added to MFC-to-Qt map.
+
+   // CONTROL "", IDC_STATIC, "Static", WS_VISIBLE|WS_BORDER|SS_ETCHEDHORZ, 7, 67, 162, 1
+	CStatic* mfc9 = new CStatic(parent);
+	CRect r9(CPoint(7, 67), CSize(162, 1));
+	parent->MapDialogRect(&r9);
+	mfc9->Create(_T(""), WS_VISIBLE|WS_BORDER|SS_ETCHEDHORZ, r9, parent, IDC_STATIC);
+	mfcToQtWidget->insert(IDC_STATIC, mfc9);
 
    // END
 }
@@ -4836,130 +4836,130 @@ void qtMfcInitDialogResource_IDD_PROPERTIES(CDialog* parent)
 	mfc0->Create(_T("Song editor"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r0,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
-   // CONTROL "", IDC_SONGLIST, "SysListView32", WS_VISIBLE|WS_BORDER|LVS_REPORT|LVS_SINGLESEL|LVS_SHOWSELALWAYS|LVS_ALIGNLEFT|LVS_NOCOLUMNHEADER|WS_BORDER|WS_TABSTOP, 14, 18, 124, 114
-	CListCtrl* mfc1 = new CListCtrl(parent);
-	CRect r1(CPoint(14, 18), CSize(124, 114));
+   // GROUPBOX "Expansion sound",IDC_STATIC,7,162,131,30
+	CButton* mfc1 = new CButton(parent);
+	CRect r1(CPoint(7,162),CSize(131,30));
 	parent->MapDialogRect(&r1);
-	mfc1->Create(WS_VISIBLE|WS_BORDER|LVS_REPORT|LVS_SINGLESEL|LVS_SHOWSELALWAYS|LVS_ALIGNLEFT|LVS_NOCOLUMNHEADER|WS_BORDER|WS_TABSTOP, r1, parent, IDC_SONGLIST);
-	mfcToQtWidget->insert(IDC_SONGLIST, mfc1);
+	mfc1->Create(_T("Expansion sound"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r1,parent,IDC_STATIC);
+	// IDC_STATIC do not get added to MFC-to-Qt map.
+
+   // GROUPBOX "Vibrato",IDC_STATIC,7,194,199,31
+	CButton* mfc2 = new CButton(parent);
+	CRect r2(CPoint(7,194),CSize(199,31));
+	parent->MapDialogRect(&r2);
+	mfc2->Create(_T("Vibrato"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r2,parent,IDC_STATIC);
+	// IDC_STATIC do not get added to MFC-to-Qt map.
+
+   // GROUPBOX "Channels: 0",IDC_CHANNELS_NR,141,162,65,30
+	CButton* mfc3 = new CButton(parent);
+	CRect r3(CPoint(141,162),CSize(65,30));
+	parent->MapDialogRect(&r3);
+	mfc3->Create(_T("Channels: 0"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r3,parent,IDC_CHANNELS_NR);
+	// IDC_STATIC do not get added to MFC-to-Qt map.
+
+   // CONTROL "", IDC_SONGLIST, "SysListView32", WS_VISIBLE|WS_BORDER|LVS_REPORT|LVS_SINGLESEL|LVS_SHOWSELALWAYS|LVS_ALIGNLEFT|LVS_NOCOLUMNHEADER|WS_BORDER|WS_TABSTOP, 14, 18, 124, 114
+	CListCtrl* mfc5 = new CListCtrl(parent);
+	CRect r5(CPoint(14, 18), CSize(124, 114));
+	parent->MapDialogRect(&r5);
+	mfc5->Create(WS_VISIBLE|WS_BORDER|LVS_REPORT|LVS_SINGLESEL|LVS_SHOWSELALWAYS|LVS_ALIGNLEFT|LVS_NOCOLUMNHEADER|WS_BORDER|WS_TABSTOP, r5, parent, IDC_SONGLIST);
+	mfcToQtWidget->insert(IDC_SONGLIST, mfc5);
 
    // PUSHBUTTON "Add",IDC_SONG_ADD,144,18,54,14,WS_VISIBLE|WS_BORDER
-	CButton* mfc2 = new CButton(parent);
-	CRect r2(CPoint(144,18),CSize(54,14));
-	parent->MapDialogRect(&r2);
-	mfc2->Create(_T("Add"),WS_VISIBLE|WS_BORDER,r2,parent,IDC_SONG_ADD);
-	mfcToQtWidget->insert(IDC_SONG_ADD,mfc2);
+	CButton* mfc6 = new CButton(parent);
+	CRect r6(CPoint(144,18),CSize(54,14));
+	parent->MapDialogRect(&r6);
+	mfc6->Create(_T("Add"),WS_VISIBLE|WS_BORDER,r6,parent,IDC_SONG_ADD);
+	mfcToQtWidget->insert(IDC_SONG_ADD,mfc6);
 
    // PUSHBUTTON "Remove",IDC_SONG_REMOVE,144,35,54,14,WS_VISIBLE|WS_BORDER
-	CButton* mfc3 = new CButton(parent);
-	CRect r3(CPoint(144,35),CSize(54,14));
-	parent->MapDialogRect(&r3);
-	mfc3->Create(_T("Remove"),WS_VISIBLE|WS_BORDER,r3,parent,IDC_SONG_REMOVE);
-	mfcToQtWidget->insert(IDC_SONG_REMOVE,mfc3);
+	CButton* mfc7 = new CButton(parent);
+	CRect r7(CPoint(144,35),CSize(54,14));
+	parent->MapDialogRect(&r7);
+	mfc7->Create(_T("Remove"),WS_VISIBLE|WS_BORDER,r7,parent,IDC_SONG_REMOVE);
+	mfcToQtWidget->insert(IDC_SONG_REMOVE,mfc7);
 
    // PUSHBUTTON "Move up",IDC_SONG_UP,144,52,54,14,WS_VISIBLE|WS_BORDER
-	CButton* mfc4 = new CButton(parent);
-	CRect r4(CPoint(144,52),CSize(54,14));
-	parent->MapDialogRect(&r4);
-	mfc4->Create(_T("Move up"),WS_VISIBLE|WS_BORDER,r4,parent,IDC_SONG_UP);
-	mfcToQtWidget->insert(IDC_SONG_UP,mfc4);
+	CButton* mfc8 = new CButton(parent);
+	CRect r8(CPoint(144,52),CSize(54,14));
+	parent->MapDialogRect(&r8);
+	mfc8->Create(_T("Move up"),WS_VISIBLE|WS_BORDER,r8,parent,IDC_SONG_UP);
+	mfcToQtWidget->insert(IDC_SONG_UP,mfc8);
 
    // PUSHBUTTON "Move down",IDC_SONG_DOWN,144,69,54,14,WS_VISIBLE|WS_BORDER
-	CButton* mfc5 = new CButton(parent);
-	CRect r5(CPoint(144,69),CSize(54,14));
-	parent->MapDialogRect(&r5);
-	mfc5->Create(_T("Move down"),WS_VISIBLE|WS_BORDER,r5,parent,IDC_SONG_DOWN);
-	mfcToQtWidget->insert(IDC_SONG_DOWN,mfc5);
+	CButton* mfc9 = new CButton(parent);
+	CRect r9(CPoint(144,69),CSize(54,14));
+	parent->MapDialogRect(&r9);
+	mfc9->Create(_T("Move down"),WS_VISIBLE|WS_BORDER,r9,parent,IDC_SONG_DOWN);
+	mfcToQtWidget->insert(IDC_SONG_DOWN,mfc9);
 
    // PUSHBUTTON "Import file",IDC_SONG_IMPORT,144,86,54,14,WS_VISIBLE|WS_BORDER
-	CButton* mfc6 = new CButton(parent);
-	CRect r6(CPoint(144,86),CSize(54,14));
-	parent->MapDialogRect(&r6);
-	mfc6->Create(_T("Import file"),WS_VISIBLE|WS_BORDER,r6,parent,IDC_SONG_IMPORT);
-	mfcToQtWidget->insert(IDC_SONG_IMPORT,mfc6);
+	CButton* mfc10 = new CButton(parent);
+	CRect r10(CPoint(144,86),CSize(54,14));
+	parent->MapDialogRect(&r10);
+	mfc10->Create(_T("Import file"),WS_VISIBLE|WS_BORDER,r10,parent,IDC_SONG_IMPORT);
+	mfcToQtWidget->insert(IDC_SONG_IMPORT,mfc10);
 
    // LTEXT " Title",IDC_STATIC,14,135,17,12
-	CStatic* mfc7 = new CStatic(parent);
-	CRect r7(CPoint(14,135),CSize(17,12));
-	parent->MapDialogRect(&r7);
-	mfc7->Create(_T(" Title"),WS_VISIBLE|WS_BORDER|SS_CENTERIMAGE,r7,parent,IDC_STATIC);
+	CStatic* mfc11 = new CStatic(parent);
+	CRect r11(CPoint(14,135),CSize(17,12));
+	parent->MapDialogRect(&r11);
+	mfc11->Create(_T(" Title"),WS_VISIBLE|WS_BORDER|SS_CENTERIMAGE,r11,parent,IDC_STATIC);
 	// IDC_STATIC do not get added to MFC-to-Qt map.
 
    // EDITTEXT IDC_SONGNAME,38,135,100,12,WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL
-	CEdit* mfc8 = new CEdit(parent);
-	CRect r8(CPoint(38,135),CSize(100,12));
-	parent->MapDialogRect(&r8);
-	mfc8->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL,r8,parent,IDC_SONGNAME);
-	mfcToQtWidget->insert(IDC_SONGNAME,mfc8);
-
-   // GROUPBOX "Expansion sound",IDC_STATIC,7,162,131,30
-	CButton* mfc9 = new CButton(parent);
-	CRect r9(CPoint(7,162),CSize(131,30));
-	parent->MapDialogRect(&r9);
-	mfc9->Create(_T("Expansion sound"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r9,parent,IDC_STATIC);
-	// IDC_STATIC do not get added to MFC-to-Qt map.
+	CEdit* mfc12 = new CEdit(parent);
+	CRect r12(CPoint(38,135),CSize(100,12));
+	parent->MapDialogRect(&r12);
+	mfc12->Create(WS_VISIBLE|WS_BORDER|ES_AUTOHSCROLL,r12,parent,IDC_SONGNAME);
+	mfcToQtWidget->insert(IDC_SONGNAME,mfc12);
 
    // COMBOBOX IDC_EXPANSION,14,173,113,61,WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP
-	CComboBox* mfc10 = new CComboBox(parent);
-	CRect r10(CPoint(14,173),CSize(113,61));
-	parent->MapDialogRect(&r10);
-	mfc10->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP,r10,parent,IDC_EXPANSION);
-	mfcToQtWidget->insert(IDC_EXPANSION,mfc10);
-
-   // GROUPBOX "Vibrato",IDC_STATIC,7,194,199,31
-	CButton* mfc11 = new CButton(parent);
-	CRect r11(CPoint(7,194),CSize(199,31));
-	parent->MapDialogRect(&r11);
-	mfc11->Create(_T("Vibrato"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r11,parent,IDC_STATIC);
-	// IDC_STATIC do not get added to MFC-to-Qt map.
+	CComboBox* mfc14 = new CComboBox(parent);
+	CRect r14(CPoint(14,173),CSize(113,61));
+	parent->MapDialogRect(&r14);
+	mfc14->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP,r14,parent,IDC_EXPANSION);
+	mfcToQtWidget->insert(IDC_EXPANSION,mfc14);
 
    // COMBOBOX IDC_VIBRATO,14,204,184,61,WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP
-	CComboBox* mfc12 = new CComboBox(parent);
-	CRect r12(CPoint(14,204),CSize(184,61));
-	parent->MapDialogRect(&r12);
-	mfc12->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP,r12,parent,IDC_VIBRATO);
-	mfcToQtWidget->insert(IDC_VIBRATO,mfc12);
+	CComboBox* mfc16 = new CComboBox(parent);
+	CRect r16(CPoint(14,204),CSize(184,61));
+	parent->MapDialogRect(&r16);
+	mfc16->Create(WS_VISIBLE|WS_BORDER|CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP,r16,parent,IDC_VIBRATO);
+	mfcToQtWidget->insert(IDC_VIBRATO,mfc16);
 
 
-	mfc12->AddString(_T("New style (bend up & down)"));
+	mfc16->AddString(_T("New style (bend up & down)"));
 	
 
-	mfc12->AddString(_T("Old style (bend up)"));
+	mfc16->AddString(_T("Old style (bend up)"));
 	
    // CONTROL "", IDC_STATIC, "Static", WS_VISIBLE|WS_BORDER|SS_ETCHEDHORZ, 7, 231, 199, 1
-	CStatic* mfc13 = new CStatic(parent);
-	CRect r13(CPoint(7, 231), CSize(199, 1));
-	parent->MapDialogRect(&r13);
-	mfc13->Create(_T(""), WS_VISIBLE|WS_BORDER|SS_ETCHEDHORZ, r13, parent, IDC_STATIC);
-	mfcToQtWidget->insert(IDC_STATIC, mfc13);
+	CStatic* mfc17 = new CStatic(parent);
+	CRect r17(CPoint(7, 231), CSize(199, 1));
+	parent->MapDialogRect(&r17);
+	mfc17->Create(_T(""), WS_VISIBLE|WS_BORDER|SS_ETCHEDHORZ, r17, parent, IDC_STATIC);
+	mfcToQtWidget->insert(IDC_STATIC, mfc17);
 
    // DEFPUSHBUTTON "OK",BS_DEFPUSHBUTTON|WS_VISIBLE|WS_BORDER,95,238,53,14
-	CButton* mfc14 = new CButton(parent);
-	CRect r14(CPoint(95,238),CSize(53,14));
-	parent->MapDialogRect(&r14);
-	mfc14->Create(_T("OK"),BS_DEFPUSHBUTTON|WS_VISIBLE|WS_BORDER,r14,parent,IDOK);
-	mfcToQtWidget->insert(IDOK,mfc14);
+	CButton* mfc18 = new CButton(parent);
+	CRect r18(CPoint(95,238),CSize(53,14));
+	parent->MapDialogRect(&r18);
+	mfc18->Create(_T("OK"),BS_DEFPUSHBUTTON|WS_VISIBLE|WS_BORDER,r18,parent,IDOK);
+	mfcToQtWidget->insert(IDOK,mfc18);
 
    // PUSHBUTTON "Cancel",IDCANCEL,153,238,53,14,WS_VISIBLE|WS_BORDER
-	CButton* mfc15 = new CButton(parent);
-	CRect r15(CPoint(153,238),CSize(53,14));
-	parent->MapDialogRect(&r15);
-	mfc15->Create(_T("Cancel"),WS_VISIBLE|WS_BORDER,r15,parent,IDCANCEL);
-	mfcToQtWidget->insert(IDCANCEL,mfc15);
-
-   // GROUPBOX "Channels: 0",IDC_CHANNELS_NR,141,162,65,30
-	CButton* mfc16 = new CButton(parent);
-	CRect r16(CPoint(141,162),CSize(65,30));
-	parent->MapDialogRect(&r16);
-	mfc16->Create(_T("Channels: 0"),BS_GROUPBOX|WS_VISIBLE|WS_BORDER,r16,parent,IDC_CHANNELS_NR);
-	// IDC_STATIC do not get added to MFC-to-Qt map.
+	CButton* mfc19 = new CButton(parent);
+	CRect r19(CPoint(153,238),CSize(53,14));
+	parent->MapDialogRect(&r19);
+	mfc19->Create(_T("Cancel"),WS_VISIBLE|WS_BORDER,r19,parent,IDCANCEL);
+	mfcToQtWidget->insert(IDCANCEL,mfc19);
 
    // CONTROL "", IDC_CHANNELS, "msctls_trackbar32", WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, 147, 173, 51, 13
-	CSliderCtrl* mfc17 = new CSliderCtrl(parent);
-	CRect r17(CPoint(147, 173), CSize(51, 13));
-	parent->MapDialogRect(&r17);
-	mfc17->Create(WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, r17, parent, IDC_CHANNELS);
-	mfcToQtWidget->insert(IDC_CHANNELS, mfc17);
+	CSliderCtrl* mfc21 = new CSliderCtrl(parent);
+	CRect r21(CPoint(147, 173), CSize(51, 13));
+	parent->MapDialogRect(&r21);
+	mfc21->Create(WS_VISIBLE|WS_BORDER|TBS_AUTOTICKS|WS_TABSTOP, r21, parent, IDC_CHANNELS);
+	mfcToQtWidget->insert(IDC_CHANNELS, mfc21);
 
    // END
 }

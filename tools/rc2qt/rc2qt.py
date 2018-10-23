@@ -739,14 +739,17 @@ void qtMfcInitDialogResource_{0}(CDialog* parent)
 										)
 		return item.ID().getText()
 
-	def output_dialog_item(self,idx,item):
+	def output_dialog_item(self,idx,item,groupboxPriority):
+		if groupboxPriority == True:
+			if item.groupbox_control_statement():
+				_ = self.output_groupbox_control_statement(idx, item.groupbox_control_statement())
+				return 1
+			return 0
 		subId = None
 		if item.generic_control_statement():
 			subId = self.output_generic_control_statement(idx,item.generic_control_statement())
 		elif item.static_control_statement():
 			subId = self.output_static_control_statement(idx,item.static_control_statement())
-		elif item.groupbox_control_statement():
-			subId = self.output_groupbox_control_statement(idx, item.groupbox_control_statement())
 		elif item.combobox_control_statement():
 			subId = self.output_combobox_control_statement(idx, item.combobox_control_statement())
 		elif item.listbox_control_statement():
@@ -759,6 +762,7 @@ void qtMfcInitDialogResource_{0}(CDialog* parent)
 			subId = self.output_defpushbutton_control_statement(idx, item.defpushbutton_control_statement())
 		if subId:
 			dialogInitList.output(self.id, subId, idx)
+		return 1
 
 	def output_impl(self):
 		print self.DialogExImplHeaderStartFormat.format(self.id,
@@ -772,8 +776,9 @@ void qtMfcInitDialogResource_{0}(CDialog* parent)
 		print self.DialogExImplHeaderEnd
 		idx = 0
 		for item in self.items:
-			self.output_dialog_item(idx,item)
-			idx += 1
+			idx += self.output_dialog_item(idx,item,True)
+		for item in self.items:
+			idx += self.output_dialog_item(idx,item,False)
 		print self.DialogExImplFooter
 
 
