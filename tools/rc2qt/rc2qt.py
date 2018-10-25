@@ -508,10 +508,22 @@ void qtMfcInitDialogResource_{0}(CDialog* parent)
 			if option.FONT():
 				pass
 			if option.STYLE():
-				#   DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-				#  | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint | Qt::WindowTitleHint
-				pass
-
+				stylesOrig = self.get_styles(option.stylelist(), "")
+				if stylesOrig:
+					styles = stylesOrig
+					styles = styles.replace("WS_CAPTION","Qt::WindowTitleHint")
+					styles = styles.replace("WS_POPUP","Qt::Popup")
+					styles = styles.replace("WS_SYSMENU","Qt::WindowSystemMenuHint")
+					styles = styles.replace("WS_MAXIMIZEBOX","Qt::WindowMaximizeButtonHint")
+					styles = styles.replace("WS_MINIMIZEBOX","Qt::WindowMinimizeButtonHint")
+				if styles:
+					styles = styles.split("|")
+					styles = [ x for x in styles if x.startswith("Qt::") ]
+				if styles:
+					styles = "|".join(styles)
+					if styles != "":
+						styles = "|"+styles
+						self.style = self.StyleFormat.format(stylesOrig,styles)
 
 	def output_decl(self):
 		print self.DialogExDeclItemFormat.format(self.id)

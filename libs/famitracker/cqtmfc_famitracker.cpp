@@ -1659,6 +1659,8 @@ void qtMfcInitDialogResource_IDD_ABOUTBOX(CDialog* parent)
    // CAPTION "About FamiTracker"
 	parent->SetWindowText("About FamiTracker");
 
+   // STYLE DS_SETFONT|DS_MODALFRAME|DS_FIXEDSYS|DS_CENTER|WS_POPUP|WS_CAPTION|WS_SYSMENU
+	parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags()|Qt::Popup|Qt::WindowTitleHint|Qt::WindowSystemMenuHint);
 
 
    // BEGIN
@@ -2052,6 +2054,8 @@ void qtMfcInitDialogResource_IDD_PCMIMPORT(CDialog* parent)
    // CAPTION "PCM import"
 	parent->SetWindowText("PCM import");
 
+   // STYLE DS_SETFONT|DS_MODALFRAME|DS_FIXEDSYS|WS_POPUP|WS_CAPTION|WS_SYSMENU
+	parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags()|Qt::Popup|Qt::WindowTitleHint|Qt::WindowSystemMenuHint);
 
 
    // BEGIN
@@ -2420,6 +2424,8 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT(CDialog* parent)
    // CAPTION "Instrument editor"
 	parent->SetWindowText("Instrument editor");
 
+   // STYLE DS_SETFONT|DS_MODALFRAME|DS_FIXEDSYS|DS_CENTER|WS_POPUP|WS_CAPTION|WS_SYSMENU
+	parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags()|Qt::Popup|Qt::WindowTitleHint|Qt::WindowSystemMenuHint);
 
 
    // BEGIN
@@ -2453,6 +2459,8 @@ void qtMfcInitDialogResource_IDD_CONFIG_APPEARANCE(CDialog* parent)
    // CAPTION "Appearance"
 	parent->SetWindowText("Appearance");
 
+   // STYLE DS_SETFONT|DS_MODALFRAME|DS_FIXEDSYS|WS_POPUP|WS_CAPTION|WS_SYSMENU
+	parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags()|Qt::Popup|Qt::WindowTitleHint|Qt::WindowSystemMenuHint);
 
 
    // BEGIN
@@ -2570,6 +2578,8 @@ void qtMfcInitDialogResource_IDD_CONFIG_GENERAL(CDialog* parent)
    // CAPTION "General"
 	parent->SetWindowText("General");
 
+   // STYLE DS_SETFONT|DS_MODALFRAME|DS_FIXEDSYS|WS_POPUP|WS_CAPTION|WS_SYSMENU
+	parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags()|Qt::Popup|Qt::WindowTitleHint|Qt::WindowSystemMenuHint);
 
 
    // BEGIN
@@ -2818,6 +2828,8 @@ void qtMfcInitDialogResource_IDD_CONFIG_MIDI(CDialog* parent)
    // CAPTION "MIDI"
 	parent->SetWindowText("MIDI");
 
+   // STYLE DS_SETFONT|DS_MODALFRAME|DS_FIXEDSYS|WS_POPUP|WS_CAPTION|WS_SYSMENU
+	parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags()|Qt::Popup|Qt::WindowTitleHint|Qt::WindowSystemMenuHint);
 
 
    // BEGIN
@@ -2907,6 +2919,8 @@ void qtMfcInitDialogResource_IDD_CONFIG_SOUND(CDialog* parent)
    // CAPTION "Sound"
 	parent->SetWindowText("Sound");
 
+   // STYLE DS_SETFONT|DS_MODALFRAME|DS_FIXEDSYS|WS_POPUP|WS_CAPTION|WS_SYSMENU
+	parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags()|Qt::Popup|Qt::WindowTitleHint|Qt::WindowSystemMenuHint);
 
 
    // BEGIN
@@ -3108,6 +3122,8 @@ void qtMfcInitDialogResource_IDD_CONFIG_SHORTCUTS(CDialog* parent)
    // CAPTION "Shortcuts"
 	parent->SetWindowText("Shortcuts");
 
+   // STYLE DS_SETFONT|DS_MODALFRAME|DS_FIXEDSYS|WS_POPUP|WS_CAPTION|WS_SYSMENU
+	parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags()|Qt::Popup|Qt::WindowTitleHint|Qt::WindowSystemMenuHint);
 
 
    // BEGIN
@@ -3266,6 +3282,8 @@ void qtMfcInitDialogResource_IDD_EXPORT(CDialog* parent)
    // CAPTION "Export file"
 	parent->SetWindowText("Export file");
 
+   // STYLE DS_SETFONT|DS_MODALFRAME|DS_FIXEDSYS|WS_POPUP|WS_CAPTION|WS_SYSMENU
+	parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags()|Qt::Popup|Qt::WindowTitleHint|Qt::WindowSystemMenuHint);
 
 
    // BEGIN
@@ -3729,6 +3747,8 @@ void qtMfcInitDialogResource_IDD_CREATEWAV(CDialog* parent)
    // CAPTION "Create wave file"
 	parent->SetWindowText("Create wave file");
 
+   // STYLE DS_SETFONT|DS_MODALFRAME|DS_FIXEDSYS|WS_POPUP|WS_CAPTION|WS_SYSMENU
+	parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags()|Qt::Popup|Qt::WindowTitleHint|Qt::WindowSystemMenuHint);
 
 
    // BEGIN
@@ -4039,6 +4059,8 @@ void qtMfcInitDialogResource_IDD_FRAMECONTROLS(CDialog* parent)
 	parent->setFixedSize(rect.Width(),rect.Height());
 
 
+   // STYLE DS_SETFONT|DS_FIXEDSYS|DS_CONTROL|WS_CHILD|WS_SYSMENU
+	parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags()|Qt::WindowSystemMenuHint);
 
 
    // BEGIN
@@ -4119,6 +4141,8 @@ void qtMfcInitDialogResource_IDD_CHANNELS(CDialog* parent)
    // CAPTION "Channels"
 	parent->SetWindowText("Channels");
 
+   // STYLE DS_SETFONT|DS_MODALFRAME|DS_FIXEDSYS|WS_POPUP|WS_CAPTION|WS_SYSMENU
+	parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags()|Qt::Popup|Qt::WindowTitleHint|Qt::WindowSystemMenuHint);
 
 
    // BEGIN
@@ -4199,6 +4223,8 @@ void qtMfcInitDialogResource_IDD_HEADER(CDialog* parent)
 	parent->setFixedSize(rect.Width(),rect.Height());
 
 
+   // STYLE DS_SETFONT|DS_FIXEDSYS|WS_CHILD|WS_SYSMENU
+	parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags()|Qt::WindowSystemMenuHint);
 
 
    // BEGIN
@@ -4218,6 +4244,8 @@ void qtMfcInitDialogResource_IDD_COMMENTS(CDialog* parent)
    // CAPTION "Module comments"
 	parent->SetWindowText("Module comments");
 
+   // STYLE DS_SETFONT|DS_FIXEDSYS|WS_MINIMIZEBOX|WS_MAXIMIZEBOX|WS_POPUP|WS_CAPTION|WS_SYSMENU|WS_THICKFRAME
+	parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags()|Qt::WindowMinimizeButtonHint|Qt::WindowMaximizeButtonHint|Qt::Popup|Qt::WindowTitleHint|Qt::WindowSystemMenuHint);
 
 
    // BEGIN
@@ -4265,6 +4293,8 @@ void qtMfcInitDialogResource_IDD_CONFIG_MIXER(CDialog* parent)
    // CAPTION "Mixer"
 	parent->SetWindowText("Mixer");
 
+   // STYLE DS_SETFONT|DS_MODALFRAME|DS_FIXEDSYS|WS_POPUP|WS_CAPTION|WS_SYSMENU
+	parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags()|Qt::Popup|Qt::WindowTitleHint|Qt::WindowSystemMenuHint);
 
 
    // BEGIN
@@ -4457,6 +4487,8 @@ void qtMfcInitDialogResource_IDD_INSTRUMENT_N163_WAVE(CDialog* parent)
 	parent->setFixedSize(rect.Width(),rect.Height());
 
 
+   // STYLE DS_SETFONT|DS_FIXEDSYS|WS_CHILD|WS_SYSMENU
+	parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags()|Qt::WindowSystemMenuHint);
 
 
    // BEGIN
@@ -4629,6 +4661,8 @@ void qtMfcInitDialogResource_IDD_IMPORT(CDialog* parent)
    // CAPTION "Import options"
 	parent->SetWindowText("Import options");
 
+   // STYLE DS_SETFONT|DS_MODALFRAME|DS_FIXEDSYS|WS_POPUP|WS_CAPTION|WS_SYSMENU
+	parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags()|Qt::Popup|Qt::WindowTitleHint|Qt::WindowSystemMenuHint);
 
 
    // BEGIN
@@ -4697,6 +4731,8 @@ void qtMfcInitDialogResource_IDD_PERFORMANCE(CDialog* parent)
    // CAPTION "Performance"
 	parent->SetWindowText("Performance");
 
+   // STYLE DS_SETFONT|DS_MODALFRAME|DS_FIXEDSYS|DS_CENTER|WS_POPUP|WS_CAPTION|WS_SYSMENU
+	parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags()|Qt::Popup|Qt::WindowTitleHint|Qt::WindowSystemMenuHint);
 
 
    // BEGIN
@@ -4779,6 +4815,8 @@ void qtMfcInitDialogResource_IDD_SPEED(CDialog* parent)
    // CAPTION "Custom speed"
 	parent->SetWindowText("Custom speed");
 
+   // STYLE DS_SETFONT|DS_MODALFRAME|DS_FIXEDSYS|WS_POPUP|WS_CAPTION|WS_SYSMENU
+	parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags()|Qt::Popup|Qt::WindowTitleHint|Qt::WindowSystemMenuHint);
 
 
    // BEGIN
@@ -4826,6 +4864,8 @@ void qtMfcInitDialogResource_IDD_PROPERTIES(CDialog* parent)
    // CAPTION "Module properties"
 	parent->SetWindowText("Module properties");
 
+   // STYLE DS_SETFONT|DS_MODALFRAME|DS_FIXEDSYS|WS_POPUP|WS_CAPTION|WS_SYSMENU
+	parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags()|Qt::Popup|Qt::WindowTitleHint|Qt::WindowSystemMenuHint);
 
 
    // BEGIN
@@ -4977,6 +5017,8 @@ void qtMfcInitDialogResource_IDD_WAVE_PROGRESS(CDialog* parent)
    // CAPTION "Creating WAV..."
 	parent->SetWindowText("Creating WAV...");
 
+   // STYLE DS_SETFONT|DS_MODALFRAME|DS_FIXEDSYS|DS_CENTER|WS_POPUP|WS_CAPTION|WS_SYSMENU
+	parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags()|Qt::Popup|Qt::WindowTitleHint|Qt::WindowSystemMenuHint);
 
 
    // BEGIN
@@ -5045,6 +5087,8 @@ void qtMfcInitDialogResource_IDD_SAMPLE_EDITOR(CDialog* parent)
    // CAPTION "DPCM sample editor"
 	parent->SetWindowText("DPCM sample editor");
 
+   // STYLE DS_SETFONT|DS_FIXEDSYS|WS_MAXIMIZEBOX|WS_POPUP|WS_CAPTION|WS_SYSMENU|WS_THICKFRAME
+	parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags()|Qt::WindowMaximizeButtonHint|Qt::Popup|Qt::WindowTitleHint|Qt::WindowSystemMenuHint);
 
 
    // BEGIN
@@ -5148,6 +5192,8 @@ void qtMfcInitDialogResource_IDD_EXPORT_TEST(CDialog* parent)
    // CAPTION "Export test report"
 	parent->SetWindowText("Export test report");
 
+   // STYLE DS_SETFONT|DS_FIXEDSYS|WS_POPUP|WS_CAPTION|WS_SYSMENU|WS_THICKFRAME
+	parent->toQWidget()->setWindowFlags(parent->toQWidget()->windowFlags()|Qt::Popup|Qt::WindowTitleHint|Qt::WindowSystemMenuHint);
 
 
    // BEGIN
