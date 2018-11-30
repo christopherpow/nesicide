@@ -15,7 +15,16 @@
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QGridLayout" name="gridLayout">
-    <property name="margin">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
      <number>0</number>
     </property>
     <property name="spacing">
@@ -39,7 +48,16 @@
        <enum>QFrame::Sunken</enum>
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
-       <property name="margin">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
         <number>0</number>
        </property>
        <property name="spacing">
@@ -80,7 +98,7 @@
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="../resource.qrc">
+         <iconset resource="../../../../common/resource.qrc">
           <normaloff>:/resources/22_document-save.png</normaloff>:/resources/22_document-save.png</iconset>
         </property>
         <property name="iconSize">
@@ -100,7 +118,8 @@
   </widget>
  </widget>
  <resources>
-  <include location="../resource.qrc"/>
+  <include location="../../../../common/resource.qrc"/>
+  <include location="../../../../common/resource.qrc"/>
  </resources>
  <connections/>
 </ui>

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>792</width>
+    <width>802</width>
     <height>535</height>
    </rect>
   </property>
@@ -214,7 +214,7 @@
        <item row="0" column="0">
         <widget class="QTabWidget" name="tabWidget_2">
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="general">
           <attribute name="title">
@@ -1057,6 +1057,7 @@
   </layout>
  </widget>
  <resources>
+  <include location="../../common/resource.qrc"/>
   <include location="../../common/resource.qrc"/>
  </resources>
  <connections>

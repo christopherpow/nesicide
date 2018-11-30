@@ -414,7 +414,6 @@ void CodeEditorForm::external_breakpointsChanged()
    unsigned int addr;
    unsigned int absAddr;
    int line;
-   int index;
    int idx;
    int asmcount;
    int asmline;
@@ -427,8 +426,6 @@ void CodeEditorForm::external_breakpointsChanged()
    {
       m_pBreakpoints = c64GetBreakpointDatabase();
    }
-
-   m_scintilla->getCursorPosition(&line,&index);
 
    m_scintilla->markerDeleteAll(Marker_Breakpoint);
    m_scintilla->markerDeleteAll(Marker_BreakpointDisabled);
@@ -1142,6 +1139,7 @@ void CodeEditorForm::replaceText(QString from, QString to, bool replaceAll)
    int      index;
    bool     found = false;
 
+   qDebug("from: %s to: %s",from.toLatin1().data(),to.toLatin1().data());
    if ( from.startsWith("SearchBar,") )
    {
       if ( isVisible() )

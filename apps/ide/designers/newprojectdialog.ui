@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>433</width>
-    <height>260</height>
+    <height>317</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -60,7 +60,7 @@
              <string>Browse...</string>
             </property>
             <property name="icon">
-             <iconset resource="../resource.qrc">
+             <iconset resource="../../../common/resource.qrc">
               <normaloff>:/resources/document-open.png</normaloff>:/resources/document-open.png</iconset>
             </property>
            </widget>
@@ -125,7 +125,8 @@
   </layout>
  </widget>
  <resources>
-  <include location="../resource.qrc"/>
+  <include location="../../../common/resource.qrc"/>
+  <include location="../../../common/resource.qrc"/>
  </resources>
  <connections>
   <connection>

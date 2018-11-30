@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>205</width>
-    <height>30</height>
+    <width>226</width>
+    <height>34</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -23,7 +23,16 @@
    <property name="spacing">
     <number>0</number>
    </property>
-   <property name="margin">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
     <number>0</number>
    </property>
    <item>
@@ -34,16 +43,13 @@
      <property name="sizeConstraint">
       <enum>QLayout::SetDefaultConstraint</enum>
      </property>
-     <property name="margin">
-      <number>0</number>
-     </property>
      <item>
       <widget class="QToolButton" name="debugButton">
        <property name="text">
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../resource.qrc">
+        <iconset resource="../../../../common/resource.qrc">
          <normaloff>:/resources/RR_bug.png</normaloff>:/resources/RR_bug.png</iconset>
        </property>
        <property name="iconSize">
@@ -72,7 +78,7 @@
         <string>Run</string>
        </property>
        <property name="icon">
-        <iconset resource="../../resource.qrc">
+        <iconset resource="../../../../common/resource.qrc">
          <normaloff>:/resources/stock_media-play.png</normaloff>:/resources/stock_media-play.png</iconset>
        </property>
        <property name="iconSize">
@@ -101,7 +107,7 @@
         <string>Pause</string>
        </property>
        <property name="icon">
-        <iconset resource="../../resource.qrc">
+        <iconset resource="../../../../common/resource.qrc">
          <normaloff>:/resources/stock_media-pause.png</normaloff>:/resources/stock_media-pause.png</iconset>
        </property>
        <property name="iconSize">
@@ -133,7 +139,7 @@
         <string>Step CPU</string>
        </property>
        <property name="icon">
-        <iconset resource="../../resource.qrc">
+        <iconset resource="../../../../common/resource.qrc">
          <normaloff>:/resources/stepinto_6.png</normaloff>:/resources/stepinto_6.png</iconset>
        </property>
        <property name="iconSize">
@@ -165,7 +171,7 @@
         <string>Step CPU Over</string>
        </property>
        <property name="icon">
-        <iconset resource="../../resource.qrc">
+        <iconset resource="../../../../common/resource.qrc">
          <normaloff>:/resources/stepover_6.png</normaloff>:/resources/stepover_6.png</iconset>
        </property>
        <property name="iconSize">
@@ -191,7 +197,7 @@
         <string>Step CPU Out</string>
        </property>
        <property name="icon">
-        <iconset resource="../../resource.qrc">
+        <iconset resource="../../../../common/resource.qrc">
          <normaloff>:/resources/stepreturn_6.png</normaloff>:/resources/stepreturn_6.png</iconset>
        </property>
        <property name="iconSize">
@@ -223,7 +229,7 @@
         <string>Reset</string>
        </property>
        <property name="icon">
-        <iconset resource="../../resource.qrc">
+        <iconset resource="../../../../common/resource.qrc">
          <normaloff>:/resources/stock_exit.png</normaloff>:/resources/stock_exit.png</iconset>
        </property>
        <property name="iconSize">
@@ -344,7 +350,8 @@
   </action>
  </widget>
  <resources>
-  <include location="../../resource.qrc"/>
+  <include location="../../../../common/resource.qrc"/>
+  <include location="../../../../common/resource.qrc"/>
  </resources>
  <connections/>
 </ui>

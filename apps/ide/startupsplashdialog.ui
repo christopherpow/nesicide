@@ -197,14 +197,23 @@ border: solid 1px rgb(40,40,40);</string>
    <bool>true</bool>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <property name="leftMargin">
+    <number>1</number>
+   </property>
+   <property name="topMargin">
+    <number>1</number>
+   </property>
+   <property name="rightMargin">
+    <number>1</number>
+   </property>
+   <property name="bottomMargin">
+    <number>1</number>
+   </property>
    <property name="horizontalSpacing">
     <number>1</number>
    </property>
    <property name="verticalSpacing">
     <number>0</number>
-   </property>
-   <property name="margin">
-    <number>1</number>
    </property>
    <item row="0" column="0">
     <widget class="QFrame" name="frame">
@@ -233,7 +242,7 @@ border: solid 1px rgb(40,40,40);</string>
        <string/>
       </property>
       <property name="pixmap">
-       <pixmap resource="resource.qrc">:/resources/gplv3.png</pixmap>
+       <pixmap resource="../../common/resource.qrc">:/resources/gplv3.png</pixmap>
       </property>
      </widget>
      <widget class="QLabel" name="label">
@@ -249,7 +258,7 @@ border: solid 1px rgb(40,40,40);</string>
        <string/>
       </property>
       <property name="pixmap">
-       <pixmap resource="resource.qrc">:/resources/logo.png</pixmap>
+       <pixmap resource="../../common/resource.qrc">:/resources/logo.png</pixmap>
       </property>
      </widget>
      <widget class="QFrame" name="frame_2">
@@ -305,7 +314,8 @@ border: solid 1px rgb(40,40,40);</string>
   </layout>
  </widget>
  <resources>
-  <include location="resource.qrc"/>
+  <include location="../../common/resource.qrc"/>
+  <include location="../../common/resource.qrc"/>
  </resources>
  <connections/>
 </ui>

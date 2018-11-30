@@ -11,3 +11,6 @@ ide.file = ../../apps/ide/nesicide.pro
 
 famitracker.depends = rtmidi
 ide.depends = c64 nes famitracker qscintilla2
+
+RESOURCES += \
+    ../../apps/ide/resource.qrc

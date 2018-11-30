@@ -18,7 +18,16 @@
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QGridLayout" name="gridLayout">
-    <property name="margin">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
      <number>0</number>
     </property>
     <property name="spacing">
@@ -110,7 +119,7 @@
          <string>Clear</string>
         </property>
         <property name="icon">
-         <iconset resource="../resource.qrc">
+         <iconset resource="../../../common/resource.qrc">
           <normaloff>:/resources/22_edit-clear.png</normaloff>:/resources/22_edit-clear.png</iconset>
         </property>
         <property name="autoRaise">
@@ -124,7 +133,8 @@
   </widget>
  </widget>
  <resources>
-  <include location="../resource.qrc"/>
+  <include location="../../../common/resource.qrc"/>
+  <include location="../../../common/resource.qrc"/>
  </resources>
  <connections/>
 </ui>
