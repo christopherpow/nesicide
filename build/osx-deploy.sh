@@ -22,11 +22,11 @@ rm -rf ./dist
 mkdir ./dist
 for DEPLOY in ${DEPLOYS_SRC}
 do
-   cp -vr ${DEPLOY} ./dist/
+   cp -r ${DEPLOY} ./dist/
 done
 for DEPLOY in ${DEPLOYS_DEST}
 do
    echo Deploying ${DEPLOY}
-   macdeployqt ${DEPLOY} ${TARGARGS}
+   macdeployqt ${DEPLOY} -verbose=2 ${TARGARGS}
 done
 ls -al ./dist/

@@ -3,9 +3,11 @@ os:
 - osx
 osx_image: xcode10.1
 language: cpp
-compiler: gcc
+compiler: 
+- clang
+- gcc
 sudo: require
-dist: trusty
+dist: xenial
 before_install:
 - travis_wait 40 ./build/${TRAVIS_OS_NAME}-travis-setup.sh before_install
 install:
