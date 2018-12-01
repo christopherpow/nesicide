@@ -398,7 +398,8 @@ SOURCES += \
     nes/project/csounds.cpp \
     nes/project/cmusicitem.cpp \
     designers/newfiledialog.cpp \
-    appsettings.cpp
+    appsettings.cpp \
+    designers/qsciapisca65.cpp
 
 HEADERS += \
    aboutdialog.h \
@@ -554,7 +555,8 @@ HEADERS += \
     nes/project/csounds.h \
     nes/project/cmusicitem.h \
     designers/newfiledialog.h \
-    appsettings.h
+    appsettings.h \
+    designers/qsciapisca65.h
 
 FORMS += \
    aboutdialog.ui \

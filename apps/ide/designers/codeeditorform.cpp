@@ -28,7 +28,8 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    CDesignerEditorBase(link,parent),
    ui(new Ui::CodeEditorForm),
    m_lexer(NULL),
-   m_scintilla(NULL)
+   m_scintilla(NULL),
+   m_apis(NULL)
 {
    QDockWidget* codeBrowser = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Assembly Browser"));
    QDockWidget* breakpoints = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Breakpoints"));
@@ -62,6 +63,12 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
 
    // Use a timer to do periodic checks for tooltips since mouse tracking doesn't seem to work.
    m_toolTipTimer = startTimer(50);
+
+   m_scintilla->setAutoCompletionSource(QsciScintilla::AcsAll);
+   m_scintilla->setAutoCompletionThreshold(2);
+   m_scintilla->setAutoCompletionCaseSensitivity(false);
+   m_scintilla->setAutoCompletionReplaceWord(false);
+   m_scintilla->setAutoCompletionUseSingle(QsciScintilla::AcusAlways);
 
    m_scintilla->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
    m_scintilla->setMarginWidth(4,0);
@@ -1347,6 +1354,7 @@ void CodeEditorForm::applyAppSettingsToTab()
 void CodeEditorForm::applyEnvironmentSettingsToTab()
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+   int op;
    
    if ( EnvironmentSettingsDialog::foldSource() )
    {
@@ -1407,6 +1415,17 @@ void CodeEditorForm::applyEnvironmentSettingsToTab()
    else if ( m_language == Language_Assembly )
    {
       m_lexer = new QsciLexerCA65(m_scintilla);
+
+      if ( m_apis )
+         delete m_apis;
+      m_apis = new QsciAPIsCA65(m_lexer);
+      for ( op = 0; op < 256; op++ )
+      {
+         QString opcodeTooltipText = OPCODEINFO(op);
+         opcodeTooltipText = opcodeTooltipText.split(":")[0];
+         m_apis->add(opcodeTooltipText);
+      }
+      m_apis->prepare();
    }
    else
    {
@@ -1415,7 +1434,7 @@ void CodeEditorForm::applyEnvironmentSettingsToTab()
    m_scintilla->setLexer(m_lexer);
 
    m_lexer->readSettings(settings,"CodeEditor");
-   
+
    m_scintilla->setMarginsFont(m_lexer->font(QsciLexerCA65::CA65_Default));
 
    m_scintilla->setCaretForegroundColor(EnvironmentSettingsDialog::caretColor());
