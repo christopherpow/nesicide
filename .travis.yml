@@ -4,7 +4,7 @@ os:
 osx_image: xcode10.1
 language: cpp
 compiler: 
-- clang
+- gcc
 sudo: require
 dist: xenial
 before_install:
