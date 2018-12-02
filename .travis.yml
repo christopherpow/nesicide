@@ -2,9 +2,6 @@ os:
 - linux
 - osx
 osx_image: xcode10.1
-language: cpp
-compiler: 
-- gcc
 sudo: require
 dist: xenial
 before_install:
