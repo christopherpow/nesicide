@@ -5,13 +5,13 @@ osx_image: xcode10.1
 sudo: require
 dist: xenial
 before_install:
-- travis_wait 40 ./build/${TRAVIS_OS_NAME}-travis-setup.sh before_install
+- travis_wait 80 ./build/${TRAVIS_OS_NAME}-travis-setup.sh before_install
 install:
-- travis_wait 40 ./build/${TRAVIS_OS_NAME}-travis-setup.sh install
+- travis_wait 80 ./build/${TRAVIS_OS_NAME}-travis-setup.sh install
 script:
 - cd build
-- travis_wait 40 ./build.sh
-- travis_wait 40 ./${TRAVIS_OS_NAME}-deploy.sh
+- travis_wait 80 ./build.sh
+- travis_wait 80 ./${TRAVIS_OS_NAME}-deploy.sh
 deploy:
   provider: releases
   skip_cleanup: true
@@ -23,3 +23,10 @@ deploy:
     repo: christopherpow/nesicide
     tags: true
     overwrite: true
+notifications:
+  irc:
+    channels:
+      - "chat.freenode.net#nesicide"
+    template:
+      - "%{repository_slug} (%{commit}) : %{message}"
+      - "Build details: %{build_url}"
