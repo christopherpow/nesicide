@@ -138,7 +138,7 @@ mac {
    QMAKE_PRE_LINK += cp -r $$DEPENDENCYPATH/Lua.framework \
       $$DESTDIR/$${TARGET}.app/Contents/Frameworks/ $$escape_expand(\n\t)
 
-   QMAKE_PRE_LINK += cp $$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5/lib$${QSCINTILLA_NAME}.13.0.0.dylib \
+   QMAKE_PRE_LINK += cp $$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5/lib$${QSCINTILLA_NAME}.13.2.1.dylib \
       $$DESTDIR/$${TARGET}.app/Contents/Frameworks/lib$${QSCINTILLA_NAME}.13.dylib $$escape_expand(\n\t)
    QMAKE_POST_LINK += install_name_tool -change lib$${QSCINTILLA_NAME}.13.dylib \
       @executable_path/../Frameworks/lib$${QSCINTILLA_NAME}.13.dylib \
