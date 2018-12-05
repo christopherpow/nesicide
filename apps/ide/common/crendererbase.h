@@ -3,14 +3,14 @@
 
 #include <QWidget>
 #include <QMouseEvent>
-#include <QGLWidget>
+#include <QOpenGLWidget>
 #if defined ( __APPLE__ )
 #include <OpenGL/glext.h>
 #else
 #include <GL/glext.h>
 #endif
 
-class CRendererBase : public QGLWidget
+class CRendererBase : public QOpenGLWidget
 {
    Q_OBJECT
 public:

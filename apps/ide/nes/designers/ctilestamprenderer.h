@@ -2,14 +2,14 @@
 #define CTILESTAMPRENDERER_H
 
 #include <QWidget>
-#include <QGLWidget>
+#include <QOpenGLWidget>
 #if defined ( __APPLE__ )
 #include <OpenGL/glext.h>
 #else
 #include <GL/glext.h>
 #endif
 
-class CTileStampRenderer : public QGLWidget
+class CTileStampRenderer : public QOpenGLWidget
 {
 public:
    CTileStampRenderer(QWidget* parent, char* data);

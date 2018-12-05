@@ -2,14 +2,14 @@
 #define CNESEMULATORRENDERER_H
 
 #include <QWidget>
-#include <QGLWidget>
+#include <QOpenGLWidget>
 #if defined ( __APPLE__ )
 #include <OpenGL/glext.h>
 #else
 #include <GL/glext.h>
 #endif
 
-class CNESEmulatorRenderer : public QGLWidget
+class CNESEmulatorRenderer : public QOpenGLWidget
 {
 public:
    CNESEmulatorRenderer(QWidget* parent, char* imgData);
