@@ -3,7 +3,7 @@
 #include "main.h"
 
 CNESEmulatorRenderer::CNESEmulatorRenderer(QWidget* parent, char* imgData)
-   : QOpenGLWidget(parent)
+   : QGLWidget(parent)
 {
    imageData = imgData;
    scrollX = 0;

@@ -1,7 +1,7 @@
 #include "crendererbase.h"
 
 CRendererBase::CRendererBase(int sizeX,int sizeY,int textureSizeXY,int maxZoom,char* imageData,QWidget *parent) :
-      QOpenGLWidget(parent),
+      QGLWidget(parent),
       _sizeX(sizeX),
       _sizeY(sizeY),
       _scrollX(0),
@@ -17,7 +17,7 @@ CRendererBase::CRendererBase(int sizeX,int sizeY,int textureSizeXY,int maxZoom,c
 }
 
 CRendererBase::CRendererBase(int sizeX,int sizeY,int maxZoom,char* imageData,QWidget *parent) :
-    QOpenGLWidget(parent),
+    QGLWidget(parent),
     _sizeX(sizeX),
     _sizeY(sizeY),
     _scrollX(0),

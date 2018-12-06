@@ -1,7 +1,7 @@
 #include "ctilestamprenderer.h"
 
 CTileStampRenderer::CTileStampRenderer(QWidget* parent, char* data)
-   : QOpenGLWidget(parent)
+   : QGLWidget(parent)
 {
    imageData = data;
    scrollX = 0;
