@@ -12,9 +12,8 @@ before_install:
 install:
 - travis_wait 80 ./build/${TRAVIS_OS_NAME}-travis-setup.sh install
 script:
-- cd build
-- travis_wait 80 ./build.sh
-- travis_wait 80 ./${TRAVIS_OS_NAME}-deploy.sh
+- travis_wait 80 ./build/build.sh
+- travis_wait 80 ./build/${TRAVIS_OS_NAME}-deploy.sh
 deploy:
   provider: releases
   skip_cleanup: true
