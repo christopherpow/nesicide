@@ -15,6 +15,7 @@ elif [ "$1" == "install" ]; then
 #  sudo apt-get -y install qt5-default qttools5-dev-tools
   sudo apt-get -qy install qt510base qt510xmlpatterns
   export QMAKESPEC=linux-g++
+  ls -al /opt/qt*
   . /opt/qt510/bin/qt510-env.sh
   export QT_SELECT=qt5
   exit 0
