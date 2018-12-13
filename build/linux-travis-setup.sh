@@ -13,7 +13,7 @@ elif [ "$1" == "install" ]; then
   sudo apt-get -y install qt5-default qttools5-dev-tools
   sudo apt-get -y install build-essential libasound2-dev liblua5.1-dev libsdl1.2-dev libgl1-mesa-dev wine-dev
 #  sudo apt-get -y install qt510base
-  ls -al /opt/qt*
-  source /opt/qt510/bin/qt510-env.sh
+  ls -al /opt/
+  export QT_SELECT=qt5
   exit 0
 fi
