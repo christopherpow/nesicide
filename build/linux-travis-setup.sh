@@ -16,8 +16,4 @@ elif [ "$1" == "install" ]; then
   sudo apt-get -qy install qt510base qt510xmlpatterns
   export QMAKESPEC=linux-g++
   . /opt/qt510/bin/qt510-env.sh
-  echo $PATH
-  which qmake
-  export QT_SELECT=qt5
-  exit 0
 fi
