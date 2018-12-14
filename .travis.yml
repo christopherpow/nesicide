@@ -1,5 +1,5 @@
 os:
-- linux
+#- linux
 - osx
 osx_image: xcode10.1
 #sudo: require
