@@ -2,22 +2,22 @@
 
 # check for deps
 echo -n "Checking for dependencies package..."
-if [ ! -d "../deps" ]; then
+if [ ! -d "deps" ]; then
    echo "Fetching dependencies package..."
    wget https://knob.phreneticappsllc.com/nesicide/nesicide-deps.tar.bz2
    echo "Extracting dependencies package..."
-   tar xjf nesicide-deps.tar.bz2 -C ..
+   tar xjf nesicide-deps.tar.bz2 
    rm -f nesicide-deps.tar.bz2
 else
    echo "found."
 fi
+
 # add CONFIG+=debug to qmake to build debug.
 echo Building NESICIDE...
-( cd ide; qmake -qt=qt5 -v; make )
+qmake build/ide/ide.pro; make -C build/ide
 echo Building FamiTracker...
-( cd famitracker; qmake; make )
+qmake build/famitracker/famitracker.pro; make -C build/famitracker
 echo Building FamiPlayer...
-( cd famiplayer; qmake; make )
+qmake build/famiplayer/famiplayer.pro; make -C build/famiplayer
 echo Building NES Emulator...
-( cd nes-emulator; qmake; make )
-
+qmake build/nes-emulator/nes-emulator.pro; make -C build/nes-emulator
