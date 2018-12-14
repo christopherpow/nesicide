@@ -13,9 +13,7 @@ else
 fi
 # add CONFIG+=debug to qmake to build debug.
 echo Building NESICIDE...
-echo $PATH
-which qmake
-( cd ide; qmake; make )
+( cd ide; qmake -qt=qt5 -v; make )
 echo Building FamiTracker...
 ( cd famitracker; qmake; make )
 echo Building FamiPlayer...
