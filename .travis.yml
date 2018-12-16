@@ -8,12 +8,12 @@ language:
 - cpp
 - clang
 before_install:
-- travis_wait 80 ./build/${TRAVIS_OS_NAME}-travis-setup.sh before_install
+- travis_wait 10 ./build/${TRAVIS_OS_NAME}-travis-setup.sh before_install
 install:
-- travis_wait 80 ./build/${TRAVIS_OS_NAME}-travis-setup.sh install
+- travis_wait 10 ./build/${TRAVIS_OS_NAME}-travis-setup.sh install
 script:
-- travis_wait 80 ./build/${TRAVIS_OS_NAME}-build.sh
-- travis_wait 80 ./build/${TRAVIS_OS_NAME}-deploy.sh
+- travis_wait 15 ./build/${TRAVIS_OS_NAME}-build.sh
+- travis_wait 15 ./build/${TRAVIS_OS_NAME}-deploy.sh
 deploy:
   provider: releases
   skip_cleanup: true
