@@ -1,15 +1,15 @@
 #!/bin/bash
 
-LIBDEPS="../deps/rtmidi/release/librtmidi \
-     ../deps/qscintilla2/Qt4Qt5/libqscintilla2_qt5 \
-     ../libs/nes/release/libnes-emulator \
-     ../libs/c64/release/libc64-emulator \
-     ../libs/famitracker/release/libfamitracker"
+LIBDEPS="deps/rtmidi/release/librtmidi \
+     deps/qscintilla2/Qt4Qt5/libqscintilla2_qt5 \
+     libs/nes/release/libnes-emulator \
+     libs/c64/release/libc64-emulator \
+     libs/famitracker/release/libfamitracker"
 
-DEPLOYS="../apps/ide/release/nesicide \
-        ../apps/famitracker/release/famitracker \
-        ../apps/famiplayer/release/famiplayer \
-        ../apps/nes-emulator/release/nes-emulator"
+DEPLOYS="apps/ide/release/nesicide \
+        apps/famitracker/release/famitracker \
+        apps/famiplayer/release/famiplayer \
+        apps/nes-emulator/release/nes-emulator"
 
 TARGARGS="-verbose=0 -appimage"
 
@@ -30,8 +30,8 @@ do
    do 
       sudo cp -v ${f}* /usr/lib/x86_64-linux-gnu/
    done
-   if [ "$DEPLOY" == "../apps/ide/release/nesicide" ]; then
-      make -C ../deps/cc65; make -C ../deps/cc65 install prefix=$PWD/dist/cc65
+   if [ "$DEPLOY" == "apps/ide/release/nesicide" ]; then
+      make -C deps/cc65; make -C deps/cc65 install prefix=$PWD/dist/cc65
    fi
    cp -v ${DIST}.desktop ./dist
    cp -v ${DIST}.png ./dist
