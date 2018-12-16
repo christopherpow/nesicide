@@ -12,7 +12,7 @@ before_install:
 install:
 - travis_wait 10 ./build/${TRAVIS_OS_NAME}-travis-setup.sh install
 script:
-- travis_wait 15 ./build/${TRAVIS_OS_NAME}-build.sh
+- travis_wait 60 ./build/${TRAVIS_OS_NAME}-build.sh
 - travis_wait 15 ./build/${TRAVIS_OS_NAME}-deploy.sh
 deploy:
   provider: releases
