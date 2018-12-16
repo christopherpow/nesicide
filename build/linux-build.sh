@@ -17,10 +17,10 @@ fi
 
 # add CONFIG+=debug to qmake to build debug.
 echo Building NESICIDE...
-qmake build/ide/ide.pro; make -C build/ide -f Makefile
+qmake build/ide/ide.pro; make -C build/ide/release -f Makefile
 echo Building FamiTracker...
-qmake build/famitracker/famitracker.pro; make -C build/famitracker -f Makefile
+qmake build/famitracker/famitracker.pro; make -C build/famitracker/release -f Makefile
 echo Building FamiPlayer...
-qmake build/famiplayer/famiplayer.pro; make -C build/famiplayer -f Makefile
+qmake build/famiplayer/famiplayer.pro; make -C build/famiplayer/release -f Makefile
 echo Building NES Emulator...
-qmake build/nes-emulator/nes-emulator.pro; make -C build/nes-emulator -f Makefile
+qmake build/nes-emulator/nes-emulator.pro; make -C build/nes-emulator/release -f Makefile
