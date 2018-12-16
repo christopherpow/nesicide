@@ -35,6 +35,6 @@ do
    fi
    cp -v build/${DIST}.desktop ./dist
    cp -v build/${DIST}.png ./dist
-   ./linuxdeployqt-continuous-x86_64.AppImage ${DIST}.desktop ${TARGARGS}
+   ./linuxdeployqt-continuous-x86_64.AppImage ./dist/${DIST}.desktop ${TARGARGS}
 done
 ls -al ./dist/
