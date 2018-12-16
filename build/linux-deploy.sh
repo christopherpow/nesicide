@@ -33,8 +33,8 @@ do
    if [ "$DEPLOY" == "apps/ide/release/nesicide" ]; then
       make -C deps/cc65; make -C deps/cc65 install prefix=$PWD/dist/cc65
    fi
-   cp -v ${DIST}.desktop ./dist
-   cp -v ${DIST}.png ./dist
+   cp -v build/${DIST}.desktop ./dist
+   cp -v build/${DIST}.png ./dist
    ./linuxdeployqt-continuous-x86_64.AppImage ${DIST}.desktop ${TARGARGS}
 done
 ls -al ./dist/
