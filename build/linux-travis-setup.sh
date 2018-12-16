@@ -14,6 +14,4 @@ elif [ "$1" == "install" ]; then
 #  sudo apt-get -y install qtbase5-dev qtdeclarative5-dev libqt5webkit5-dev libsqlite3-dev
 #  sudo apt-get -y install qt5-default qttools5-dev-tools
   sudo apt-get -qy install qt510base qt510xmlpatterns
-  export QMAKESPEC=linux-g++
-  . /opt/qt510/bin/qt510-env.sh
 fi
