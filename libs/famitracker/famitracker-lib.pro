@@ -19,6 +19,9 @@ greaterThan(QT_MAJOR_VERSION,4) {
    }
 }
 
+QMAKE_CFLAGS += -w
+QMAKE_CXXFLAGS += -w
+
 TOP = ../..
 
 macx {
