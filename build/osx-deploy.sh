@@ -30,6 +30,6 @@ done
 for DEPLOY in ${DEPLOYS_DEST}
 do
    echo Deploying ${DEPLOY}
-   macdeployqt ${DEPLOY} -verbose=2 ${TARGARGS}
+   macdeployqt ${DEPLOY} ${TARGARGS}
 done
 ls -al ./dist/
