@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Find Qt
+. /opt/qt510/bin/qt510-env.sh
+
 LIBDEPS="deps/rtmidi/release/librtmidi \
      deps/qscintilla2/Qt4Qt5/libqscintilla2_qt5 \
      libs/nes/release/libnes-emulator \
