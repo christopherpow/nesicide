@@ -14,7 +14,7 @@ DEPLOYS="apps/ide/release/nesicide \
         apps/famiplayer/release/famiplayer \
         apps/nes-emulator/release/nes-emulator"
 
-TARGARGS="-verbose=0 -appimage"
+TARGARGS="-verbose=0 -appimage -qmake=/opt/qt510/bin/qmake
 
 if [ ! -f "./linuxdeployqt-continuous-x86_64.AppImage" ]; then
    wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
