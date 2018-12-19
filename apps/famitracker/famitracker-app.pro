@@ -122,6 +122,9 @@ unix:!mac {
    INSTALLS += target
 }
 
+QMAKE_CFLAGS += -w
+QMAKE_CXXFLAGS += -w
+
 QMAKE_CXXFLAGS += $$FAMITRACKER_CXXFLAGS \
                   $$SDL_CXXFLAGS
 

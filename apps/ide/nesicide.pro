@@ -211,6 +211,9 @@ unix {
    QMAKE_CXXFLAGS += -I $$DEPENDENCYROOTPATH/wine/include -DWINE_UNICODE_NATIVE
 }
 
+QMAKE_CFLAGS += -w
+QMAKE_CXXFLAGS += -w
+
 QMAKE_CXXFLAGS += -DIDE \
                   $$NES_CXXFLAGS \
                   $$C64_CXXFLAGS \
