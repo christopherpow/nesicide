@@ -23,9 +23,6 @@ mkdir ./dist
 for DEPLOY in ${DEPLOYS_SRC}
 do
    cp -r ${DEPLOY} ./dist/
-   if [ "$DEPLOY" == "apps/ide/release/nesicide.app" ]; then
-      make -C deps/cc65; make -C deps/cc65 install prefix=$PWD/dist/cc65
-   fi
 done
 for DEPLOY in ${DEPLOYS_DEST}
 do
