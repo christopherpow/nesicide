@@ -1,30 +1,38 @@
 os:
-- linux
-- osx
+  - linux
+  - osx
 osx_image: xcode10.1
-#sudo: require
 dist: xenial
 language: 
-- cpp
-- clang
+  - cpp
+  - clang
 before_install:
-- travis_wait 10 ./build/${TRAVIS_OS_NAME}-travis-setup.sh before_install
+  - travis_wait 10 ./build/${TRAVIS_OS_NAME}-travis-setup.sh before_install
 install:
-- travis_wait 10 ./build/${TRAVIS_OS_NAME}-travis-setup.sh install
+  - travis_wait 10 ./build/${TRAVIS_OS_NAME}-travis-setup.sh install
 script:
-- travis_wait 60 ./build/${TRAVIS_OS_NAME}-build.sh
-- travis_wait 15 ./build/${TRAVIS_OS_NAME}-deploy.sh
+  - travis_wait 60 ./build/${TRAVIS_OS_NAME}-build.sh
+  - travis_wait 15 ./build/${TRAVIS_OS_NAME}-deploy.sh
+before_deploy:
+  # Set up git user name and tag this commit
+  - git config --local user.name "Christopher Pow"
+  - git config --local user.email "christopher.s.pow@gmail.com"
+  - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
+  - git tag $TRAVIS_TAG
+
 deploy:
   provider: releases
   skip_cleanup: true
   api_key:
     secure: YKOQvA6I7BVqTqq8UoYpDGhGw6c286L9XZ3bOcaeQY59oSFn9L5X+Io22BjQ04Ay3IdpUhIsCLg1RyJe52Idxe22LnhsB/cHg0mqhXKOGb6xghIjOWxG3G3yQmJmqGoVXv/7+WMruD027Jr2EIwsoXA3D8hnbJYW+f23tRwYORT649hQwAf/gruVe3DnKGK4Zx6+w3F7J+NBTCVO51Tdq3w+WHdx5felOvesAO47NoiHYJQ+RyaBNu/wfxhe/2tLK7zy+LawcgD8371cny+CNtoJq242czWvuqjbCzH3H+xLfXNOh2NlH5zv4DACS88hilR8OhVZP8ERXtpGbrOeoWdrsZZEzuuBuRyU8lD6qunFVxqF37k2T4lt4zZGNsdwrJ77+gEiZfvHeT6LIzeLh9DvThxYVuns9CP2vydQ0XPsZs+F+O5goWkscsEgQ83lbUoWEnXnYDIpRXGNh2Xs1XOFD0hDHAirLeyAp3tU9nIAFtnPOs2Avf2UPSClhG3c0u38IMNikqG2wsqcEx4r1X1+ZyZcKEdoY1SXyDV2r+gcG+IAMoIGRf3Nrq6d7hvKyx96VgKGG3lYvVpeeGB1lB5XgBgoSCDiZYIwt1bx1K0yL0O9PfyDHVbLw4luPPwhdZFwyErET1Bjj1FLB8SghqGhIihPzIfhcnLzQUUh2bQ=
+  overwrite: true
   file_glob: true
-  file: build/dist/*.dmg
+  file: 
+    - build/dist/*.dmg
+    - build/dist/*.AppImage  
   on:
     repo: christopherpow/nesicide
     tags: true
-    overwrite: true
 notifications:
   irc:
     channels:
