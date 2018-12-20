@@ -17,8 +17,8 @@ before_deploy:
   # Set up git user name and tag this commit
   - git config --local user.name "Christopher Pow"
   - git config --local user.email "christopher.s.pow@gmail.com"
-  - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
-  - git tag $TRAVIS_TAG
+  - export TRAVIS_BRANCH=${TRAVIS_BRANCH:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
+  - git tag $TRAVIS_BRANCH
 
 deploy:
   provider: releases
@@ -32,6 +32,7 @@ deploy:
     - build/dist/*.AppImage  
   on:
     repo: christopherpow/nesicide
+    branch: master
     tags: true
 notifications:
   irc:
