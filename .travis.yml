@@ -18,6 +18,7 @@ before_deploy:
   - git config --local user.name "Christopher Pow"
   - git config --local user.email "christopher.s.pow@gmail.com"
   - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
+  - echo "Deploying to: " $TRAVIS_TAG
   - git tag $TRAVIS_TAG
 
 deploy:
