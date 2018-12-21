@@ -15,9 +15,9 @@ script:
   - travis_wait 15 ./build/${TRAVIS_OS_NAME}-deploy.sh
 before_deploy:
   # Set up git user name and tag this commit
-  - git config --local user.name "Christopher Pow"
-  - git config --local user.email "christopher.s.pow@gmail.com"
-  - git tag build-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)
+  #- git config --local user.name "Christopher Pow"
+  #- git config --local user.email "christopher.s.pow@gmail.com"
+  #- git tag build-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)
 
 deploy:
   provider: releases
