@@ -1,24 +1,21 @@
 os:
-  - linux
-  - osx
+- linux
+- osx
 osx_image: xcode10.1
 dist: xenial
-language: 
-  - cpp
-  - clang
+language:
+- cpp
+- clang
 before_install:
-  - travis_wait 10 ./build/${TRAVIS_OS_NAME}-travis-setup.sh before_install
+- openssl aes-256-cbc -K $encrypted_c3ea658420f4_key -iv $encrypted_c3ea658420f4_iv
+  -in deploy_rsa.enc -out deploy_rsa -d
+- travis_wait 10 ./build/${TRAVIS_OS_NAME}-travis-setup.sh before_install
 install:
-  - travis_wait 10 ./build/${TRAVIS_OS_NAME}-travis-setup.sh install
+- travis_wait 10 ./build/${TRAVIS_OS_NAME}-travis-setup.sh install
 script:
-  - travis_wait 60 ./build/${TRAVIS_OS_NAME}-build.sh
-  - travis_wait 15 ./build/${TRAVIS_OS_NAME}-deploy.sh
-before_deploy:
-  # Set up git user name and tag this commit
-  #- git config --local user.name "Christopher Pow"
-  #- git config --local user.email "christopher.s.pow@gmail.com"
-  #- git tag build-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)
-
+- travis_wait 60 ./build/${TRAVIS_OS_NAME}-build.sh
+- travis_wait 15 ./build/${TRAVIS_OS_NAME}-deploy.sh
+before_deploy: 
 deploy:
   provider: releases
   skip_cleanup: true
@@ -26,16 +23,17 @@ deploy:
     secure: YKOQvA6I7BVqTqq8UoYpDGhGw6c286L9XZ3bOcaeQY59oSFn9L5X+Io22BjQ04Ay3IdpUhIsCLg1RyJe52Idxe22LnhsB/cHg0mqhXKOGb6xghIjOWxG3G3yQmJmqGoVXv/7+WMruD027Jr2EIwsoXA3D8hnbJYW+f23tRwYORT649hQwAf/gruVe3DnKGK4Zx6+w3F7J+NBTCVO51Tdq3w+WHdx5felOvesAO47NoiHYJQ+RyaBNu/wfxhe/2tLK7zy+LawcgD8371cny+CNtoJq242czWvuqjbCzH3H+xLfXNOh2NlH5zv4DACS88hilR8OhVZP8ERXtpGbrOeoWdrsZZEzuuBuRyU8lD6qunFVxqF37k2T4lt4zZGNsdwrJ77+gEiZfvHeT6LIzeLh9DvThxYVuns9CP2vydQ0XPsZs+F+O5goWkscsEgQ83lbUoWEnXnYDIpRXGNh2Xs1XOFD0hDHAirLeyAp3tU9nIAFtnPOs2Avf2UPSClhG3c0u38IMNikqG2wsqcEx4r1X1+ZyZcKEdoY1SXyDV2r+gcG+IAMoIGRf3Nrq6d7hvKyx96VgKGG3lYvVpeeGB1lB5XgBgoSCDiZYIwt1bx1K0yL0O9PfyDHVbLw4luPPwhdZFwyErET1Bjj1FLB8SghqGhIihPzIfhcnLzQUUh2bQ=
   overwrite: true
   file_glob: true
-  file: 
-    - build/dist/*.dmg
-    - build/dist/*.AppImage  
+  file:
+  - build/dist/*.dmg
+  - build/dist/*.AppImage
   on:
+    tags: true
     repo: christopherpow/nesicide
     branch: master
 notifications:
   irc:
     channels:
-      - "chat.freenode.net#nesicide"
+    - chat.freenode.net#nesicide
     template:
-      - "%{repository_slug} (%{commit}) : %{message}"
-      - "Build details: %{build_url}"
+    - "%{repository_slug} (%{commit}) : %{message}"
+    - 'Build details: %{build_url}'
