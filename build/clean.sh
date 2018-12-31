@@ -1,15 +1,15 @@
 #!/bin/bash
 
 echo Cleaning NESICIDE...
-( cd ide; make distclean )
+( cd build/ide; make distclean )
 echo Cleaning FamiTracker...
-( cd famitracker; make distclean )
+( cd build/famitracker; make distclean )
 echo Cleaning FamiPlayer...
-( cd famiplayer; make distclean )
+( cd build/famiplayer; make distclean )
 echo Cleaning NES Emulator...
-( cd nes-emulator; make distclean )
-echo Removing deps...
+( cd build/nes-emulator; make distclean )
 if [ "$1" == "deps" ]; then
-  ( cd ..; rm -rf deps )
+  echo Removing deps...
+  rm -rf deps
 fi
-find .. -name 'Makefile.*' -exec rm {} ';'
+find . -name 'Makefile.*' -exec rm {} ';'
