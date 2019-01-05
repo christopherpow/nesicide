@@ -18,15 +18,19 @@ DEPLOYS_DEST="./dist/nesicide.app \
 
 TARGARGS=-dmg
 
-rm -rf ./dist
-mkdir ./dist
-for DEPLOY in ${DEPLOYS_SRC}
-do
-   cp -r ${DEPLOY} ./dist/
-done
-for DEPLOY in ${DEPLOYS_DEST}
-do
-   echo Deploying ${DEPLOY}
-   macdeployqt ${DEPLOY} ${TARGARGS}
-done
-ls -al ./dist/
+if [ "$1" == "local" ]; then
+  rm -rf ./dist
+  mkdir ./dist
+  for DEPLOY in ${DEPLOYS_SRC}
+  do
+    cp -r ${DEPLOY} ./dist/
+  done
+  for DEPLOY in ${DEPLOYS_DEST}
+  do
+    echo Deploying ${DEPLOY}
+    macdeployqt ${DEPLOY} ${TARGARGS}
+  done
+elif [ "$1" == "remote" ]; then
+  rsync $TRAVIS_BUILD_DIR/dist/*.dmg cpow@162.243.126.83:/var/www/html/nesicide/
+fi
+

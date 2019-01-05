@@ -16,27 +16,33 @@ DEPLOYS="apps/ide/release/nesicide \
 
 TARGARGS="-verbose=0 -appimage -qmake=/opt/qt510/bin/qmake"
 
-if [ ! -f "./linuxdeployqt-continuous-x86_64.AppImage" ]; then
-   wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
-   chmod a+x linuxdeployqt*.AppImage
-fi
 unset QTDIR; unset QT_PLUGIN_PATH; unset LD_LIBRARY_PATH
 
-for DEPLOY in ${DEPLOYS}
-do
-   DIST=$(basename $DEPLOY) 
-   echo Deploying ${DIST}
-   rm -rf ./dist
-   mkdir -pv ./dist
-   cp -v ${DEPLOY} ./dist/
-   for f in ${LIBDEPS}
-   do 
+if [ "$1" == "local" ]; then
+  if [ ! -f "./linuxdeployqt-continuous-x86_64.AppImage" ]; then
+    wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
+    chmod a+x linuxdeployqt*.AppImage
+  fi
+
+  for DEPLOY in ${DEPLOYS}
+  do
+    DIST=$(basename $DEPLOY) 
+    echo Deploying ${DIST}
+    rm -rf ./dist
+    mkdir -pv ./dist
+    cp -v ${DEPLOY} ./dist/
+    for f in ${LIBDEPS}
+    do 
       sudo cp -v ${f}* /usr/lib/x86_64-linux-gnu/
-   done
-   if [ "$DEPLOY" == "apps/ide/release/nesicide" ]; then
+    done
+    if [ "$DEPLOY" == "apps/ide/release/nesicide" ]; then
       make -C deps/cc65; make -C deps/cc65 install prefix=$PWD/dist/cc65
-   fi
-   cp -v build/${DIST}.desktop ./dist
-   cp -v build/${DIST}.png ./dist
-   ./linuxdeployqt-continuous-x86_64.AppImage ./dist/${DIST}.desktop ${TARGARGS}
-done
+    fi
+    cp -v build/${DIST}.desktop ./dist
+    cp -v build/${DIST}.png ./dist
+    ./linuxdeployqt-continuous-x86_64.AppImage ./dist/${DIST}.desktop ${TARGARGS}
+  done
+elif [ "$1" == "remote" ]; then
+  rsync $TRAVIS_BUILD_DIR/{fami,nes}*.AppImage cpow@162.243.126.83:/var/www/html/nesicide/
+fi
+
