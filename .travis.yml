@@ -1,6 +1,7 @@
 os:
 - linux
 - osx
+- windows
 osx_image: xcode10.1
 dist: xenial
 language:
