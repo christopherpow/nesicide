@@ -1,5 +1,5 @@
-if "%1" == "before_install" ( 
+if "%1" == "before_install"; then
 
-) else if "%1" == "install" (
+elif "%1" == "install"; then
   choco install qtcreator
-)
+fi
