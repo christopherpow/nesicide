@@ -1,8 +1,8 @@
 #!/bin/bash
 set -v
 
-if [ "$1" == "before_install" ]; then
+if "%1" == "before_install" ( 
 
-elif [ "$1" == "install" ]; then
+) else if "%1" == "install" (
   choco install qtcreator
-fi
+)
