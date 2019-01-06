@@ -1,5 +1,3 @@
-#!/bin/bash
-
 PATH=deps/Windows/GnuWin32/bin:$PATH
 
 LIBDEPS="deps/rtmidi/release/rtmidi \
