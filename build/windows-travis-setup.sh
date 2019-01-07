@@ -1,5 +1,3 @@
-#!/bin/bash
-
 if "%1"=="install" goto :install
 goto :done
 
@@ -8,3 +6,4 @@ goto :done
 
 :done
   exit 0
+
