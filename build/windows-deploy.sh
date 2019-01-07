@@ -17,7 +17,7 @@ DEPLOYS_DEST="./dist/nesicide.exe \
         ./dist/famiplayer.exe \
         ./dist/nes-emulator.exe"
 
-if "%1" == "local" (
+if [ "$1" == "local" ]; then
   rm -rf ./dist
   mkdir -pv ./dist
   for DEPLOY in ${DEPLOYS_SRC}
@@ -36,6 +36,6 @@ if "%1" == "local" (
     windeployqt ${DEPLOY} ${TARGARGS} -printsupport
   done
   tar cjvf nesicide-win-x64.tar.bz2 dist
-) else (
+elif [ "$1" == "remote" ]; then
   rsync $TRAVIS_BUILD_DIR/nesicide-win-x64.tar.bz2 cpow@162.243.126.83:/var/www/html/nesicide/
-)
+fi
