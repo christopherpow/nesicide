@@ -1,9 +1,5 @@
-if "%1"=="install" goto :install
-goto :done
+#!/bin/bash
 
-:install 
+if "$1"=="install"
   choco install qtcreator
-
-:done
-  exit 0
-
+fi
