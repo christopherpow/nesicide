@@ -47,7 +47,7 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    m_pBreakpoints = NULL;
 
    m_scintilla = new QsciScintilla();
-   
+
    setCentralWidget(m_scintilla);
    setWindowFlags(Qt::Widget);
 
@@ -55,7 +55,9 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
 
    m_fileName = fileName;
    m_searchText = "";
-   
+
+   m_scintilla->setAutoCompletionSource(QsciScintilla::AcsAll);
+
    m_scintilla->installEventFilter(this);
    m_scintilla->setContextMenuPolicy(Qt::CustomContextMenu);
    QObject::connect(m_scintilla,SIGNAL(customContextMenuRequested(const QPoint&)),this,SLOT(customContextMenuRequested(const QPoint&)));
@@ -71,7 +73,7 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    m_scintilla->setMarginType(3,QsciScintilla::SymbolMargin);
    m_scintilla->setMarginSensitivity(3,true);
    m_scintilla->setMarginMarkerMask(3,0x00000FF0);
-   
+
    m_scintilla->setMarginWidth(Margin_Decorations,22);
    m_scintilla->setMarginMarkerMask(Margin_Decorations,0x0000000F);
    m_scintilla->setMarginType(Margin_Decorations,QsciScintilla::SymbolMargin);
@@ -100,7 +102,7 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    m_scintilla->setMarkerForegroundColor(QColor(255,255,0),Marker_Error);
    m_scintilla->setMarkerBackgroundColor(QColor(255,0,0),Marker_Error);
    m_scintilla->markerDefine(QsciScintilla::Background,Marker_Highlight);
-   
+
    m_scintilla->setAnnotationDisplay ( QsciScintilla::AnnotationBoxed );
 
    applyEnvironmentSettingsToTab();
@@ -1101,7 +1103,7 @@ void CodeEditorForm::annotateText()
                   }
                }
             }
-            
+
             // Short circuit to prevent crash...
             if ( pAnnotationBuffer-annotationBuffer > 1536 )
             {
@@ -1349,7 +1351,7 @@ void CodeEditorForm::applyAppSettingsToTab()
 void CodeEditorForm::applyEnvironmentSettingsToTab()
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
-   
+
    if ( EnvironmentSettingsDialog::foldSource() )
    {
       m_scintilla->setMarginType(Margin_Folding,QsciScintilla::SymbolMargin);
@@ -1366,7 +1368,7 @@ void CodeEditorForm::applyEnvironmentSettingsToTab()
 
    m_scintilla->setMarginsBackgroundColor(EnvironmentSettingsDialog::marginBackgroundColor());
    m_scintilla->setMarginsForegroundColor(EnvironmentSettingsDialog::marginForegroundColor());
-   
+
    if ( EnvironmentSettingsDialog::highlightBarEnabled() )
    {
       m_scintilla->setMarkerBackgroundColor(EnvironmentSettingsDialog::highlightBarColor(),Marker_Highlight);
@@ -1417,7 +1419,7 @@ void CodeEditorForm::applyEnvironmentSettingsToTab()
    m_scintilla->setLexer(m_lexer);
 
    m_lexer->readSettings(settings,"CodeEditor");
-   
+
    m_scintilla->setMarginsFont(m_lexer->font(QsciLexerCA65::CA65_Default));
 
    m_scintilla->setCaretForegroundColor(EnvironmentSettingsDialog::caretColor());
