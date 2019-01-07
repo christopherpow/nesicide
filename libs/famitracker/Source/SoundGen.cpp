@@ -748,7 +748,7 @@ bool CSoundGen::PlayBuffer()
 //					// Buffer underrun detected
 //					m_iAudioUnderruns++;
 //					m_bBufferUnderrun = true;
-//					break;
+//					break; }
 		}
 
 		// Write audio to buffer

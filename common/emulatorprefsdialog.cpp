@@ -590,7 +590,7 @@ void EmulatorPrefsDialog::updateUi()
       ui->triggerKeyVaus->setText(triggerVausKeySequence.toString());
       ui->mouseFiresVaus->setChecked(vausArkanoidMouseMap[port][IO_Vaus_FIRE]);
       ui->trimPotVaus->setValue(vausArkanoidTrimPot[port]);
-      on_trimPotVaus_dialMoved(vausArkanoidTrimPot[port]);
+      on_trimPotVaus_sliderMoved(vausArkanoidTrimPot[port]);
    }
 }
 
@@ -1138,13 +1138,6 @@ void EmulatorPrefsDialog::set43Aspect(bool enabled)
    settings.endGroup();
 }
 
-void EmulatorPrefsDialog::on_trimPotVaus_dialMoved(int value)
-{
-   QString str;
-   str.sprintf("$%02X-$%02X",value,value+0xA0);
-   ui->trimPotValueVaus->setText(str);
-}
-
 QString EmulatorPrefsDialog::getVICEExecutable()
 {
    return viceExecutable;
@@ -1237,4 +1230,11 @@ void EmulatorPrefsDialog::on_viceC64MonitorIPAddress_textChanged(const QString &
 void EmulatorPrefsDialog::on_viceC64MonitorPort_textChanged(const QString &arg1)
 {
    updateViceInvocation();
+}
+
+void EmulatorPrefsDialog::on_trimPotVaus_sliderMoved(int position)
+{
+   QString str;
+   str.sprintf("$%02X-$%02X",position,position+0xA0);
+   ui->trimPotValueVaus->setText(str);
 }

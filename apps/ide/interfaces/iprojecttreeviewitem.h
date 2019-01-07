@@ -105,6 +105,8 @@ public:
    virtual bool onNameChanged(QString newValue) = 0;
    virtual bool exportData() = 0;
 
+   virtual ~IProjectTreeViewItem() {};
+
 private:
    QList<IProjectTreeViewItem*> childItems;
    IProjectTreeViewItem* parentItem;

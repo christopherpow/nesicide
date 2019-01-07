@@ -1,15 +1,15 @@
 #!/bin/bash
 
-LIBDEPS="../deps/rtmidi/release/librtmidi \
-     ../deps/qscintilla2/Qt4Qt5/libqscintilla2_qt5 \
-     ../libs/nes/release/libnes-emulator \
-     ../libs/c64/release/libc64-emulator \
-     ../libs/famitracker/release/libfamitracker"
+LIBDEPS="deps/rtmidi/release/librtmidi \
+     deps/qscintilla2/Qt4Qt5/libqscintilla2_qt5 \
+     libs/nes/release/libnes-emulator \
+     libs/c64/release/libc64-emulator \
+     libs/famitracker/release/libfamitracker"
 
-DEPLOYS_SRC="../apps/ide/release/nesicide.app \
-        ../apps/famitracker/release/famitracker.app \
-        ../apps/famiplayer/release/famiplayer.app \
-        ../apps/nes-emulator/release/nes-emulator.app"
+DEPLOYS_SRC="apps/ide/release/nesicide.app \
+        apps/famitracker/release/famitracker.app \
+        apps/famiplayer/release/famiplayer.app \
+        apps/nes-emulator/release/nes-emulator.app"
 
 DEPLOYS_DEST="./dist/nesicide.app \
         ./dist/famitracker.app \
@@ -18,15 +18,19 @@ DEPLOYS_DEST="./dist/nesicide.app \
 
 TARGARGS=-dmg
 
-rm -rf ./dist
-mkdir ./dist
-for DEPLOY in ${DEPLOYS_SRC}
-do
-   cp -vr ${DEPLOY} ./dist/
-done
-for DEPLOY in ${DEPLOYS_DEST}
-do
-   echo Deploying ${DEPLOY}
-   macdeployqt ${DEPLOY} ${TARGARGS}
-done
-ls -al ./dist/
+if [ "$1" == "local" ]; then
+  rm -rf ./dist
+  mkdir ./dist
+  for DEPLOY in ${DEPLOYS_SRC}
+  do
+    cp -r ${DEPLOY} ./dist/
+  done
+  for DEPLOY in ${DEPLOYS_DEST}
+  do
+    echo Deploying ${DEPLOY}
+    macdeployqt ${DEPLOY} ${TARGARGS}
+  done
+elif [ "$1" == "remote" ]; then
+  rsync $TRAVIS_BUILD_DIR/dist/*.dmg cpow@162.243.126.83:/var/www/html/nesicide/
+fi
+

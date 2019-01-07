@@ -30,7 +30,14 @@ lua/*.dll
 .DS_Store
 .qmake.stash
 *.dylib
-
+**/.idea/
+*.interp
+*.tokens
+*.pyc
+rcLexer*
+rcParser*
+rcVisitor*
+rcListener*
 /build/nesicide-deps.tar.bz2
 
 /apps/famitracker/Makefile*

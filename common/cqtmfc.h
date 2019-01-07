@@ -3296,7 +3296,9 @@ class CGdiObject : public CObject
 {
 public:
    CGdiObject() : m_hObject((HGDIOBJ)this) {}
-   virtual ~CGdiObject() {}
+   virtual ~CGdiObject() { m_hObject = 0; }
+   BOOL Attach(HGDIOBJ hObject) { m_hObject = hObject; }
+   HGDIOBJ Detach() { m_hObject = 0; }
    operator HGDIOBJ() const
    {
       return m_hObject;
@@ -3345,6 +3347,7 @@ class CBitmap : public CGdiObject
    // Qt interfaces
 public:
    CBitmap(QString resource);
+   CBitmap(QPixmap pixmap);
    QPixmap* toQPixmap() { return _qpixmap; }
 
    // MFC interfaces
@@ -3354,6 +3357,8 @@ public:
    BOOL LoadBitmap(
       UINT nIDResource
    );
+   BOOL Attach(HGDIOBJ hObject);
+   HGDIOBJ Detach();
    BOOL CreateBitmap(
       int nWidth,
       int nHeight,
@@ -6126,6 +6131,19 @@ protected:
 #define TBBS_DISABLED 0x100
 #define TBBS_PRESSED  0x200
 
+class CToolBar;
+
+class CToolBarCtrl : public CWnd
+{
+public:
+   // hackstructor
+   CToolBarCtrl(CToolBar* pToolBar) { m_pToolBar = pToolBar; }
+   CImageList* SetImageList(CImageList* pImageList);
+   DWORD SetExtendedStyle(DWORD dwExStyle);
+
+   CToolBar* m_pToolBar;
+};
+
 class CToolBar : public CControlBar
 {
    Q_OBJECT
@@ -6134,6 +6152,7 @@ class CToolBar : public CControlBar
 public:
    virtual void subclassWidget(int nID,CWnd* widget);
    QList<QObject*>* toolBarActions() { return &_toolBarActions; }
+   QToolBar* toQToolBar() { return _qtd; }
 protected:
    QToolBar* _qtd;
    QList<QObject*> _toolBarActions;
@@ -6162,6 +6181,7 @@ public:
    ),
       UINT nID = AFX_IDW_TOOLBAR
    );
+   CToolBarCtrl& GetToolBarCtrl() const { return *m_pToolBarCtrl; }
    BOOL LoadToolBar(
       UINT nIDResource
    );
@@ -6172,6 +6192,8 @@ public:
    UINT GetButtonStyle(
       int nIndex
    );
+
+   CToolBarCtrl* m_pToolBarCtrl;
    
    virtual void OnUpdateCmdUI(CFrameWnd* pTarget, BOOL bDisableIfNoHndler);
    
@@ -6479,6 +6501,7 @@ public:
       int nInitial,
       int nGrow
    );
+   int GetImageCount() const;
    int Add(
       CBitmap* pbmImage,
       CBitmap* pbmMask
@@ -6495,6 +6518,10 @@ public:
    );
 protected:
    QList<CBitmap*> _images;
+   int cx;
+   int cy;
+private:
+   void commonAdd(CBitmap* pbmImage, CBitmap* pbmMask, COLORREF crMask);
 };
 
 class CPropertyPage : public CDialog
@@ -6806,6 +6833,15 @@ UINT WINAPI GetTempFileName(
   LPCTSTR lpPrefixString,
   UINT uUnique,
   LPTSTR lpTempFileName
+);
+
+HANDLE LoadImage(
+  HINSTANCE hinst,
+  LPCTSTR lpszName,
+  UINT uType,
+  int cxDesired,
+  int cyDesired,
+  UINT fuLoad
 );
 
 CString qtMfcStringResource(int id);

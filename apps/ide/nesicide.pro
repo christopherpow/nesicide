@@ -57,7 +57,7 @@ CONFIG(release, debug|release) {
     QSCINTILLA_NAME=qscintilla2_qt5
 } else {
    macx: QSCINTILLA_NAME=qscintilla2_qt5_debug
-   else: QSCINTILLA_NAME=qscintilla2_qt5d
+   else: QSCINTILLA_NAME=qscintilla2_qt5
 
 }
 
@@ -138,7 +138,7 @@ mac {
    QMAKE_PRE_LINK += cp -r $$DEPENDENCYPATH/Lua.framework \
       $$DESTDIR/$${TARGET}.app/Contents/Frameworks/ $$escape_expand(\n\t)
 
-   QMAKE_PRE_LINK += cp $$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5/lib$${QSCINTILLA_NAME}.13.0.0.dylib \
+   QMAKE_PRE_LINK += cp $$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5/lib$${QSCINTILLA_NAME}.13.2.1.dylib \
       $$DESTDIR/$${TARGET}.app/Contents/Frameworks/lib$${QSCINTILLA_NAME}.13.dylib $$escape_expand(\n\t)
    QMAKE_POST_LINK += install_name_tool -change lib$${QSCINTILLA_NAME}.13.dylib \
       @executable_path/../Frameworks/lib$${QSCINTILLA_NAME}.13.dylib \
@@ -210,6 +210,9 @@ unix {
    QMAKE_CFLAGS += -I $$DEPENDENCYROOTPATH/wine/include -DWINE_UNICODE_NATIVE
    QMAKE_CXXFLAGS += -I $$DEPENDENCYROOTPATH/wine/include -DWINE_UNICODE_NATIVE
 }
+
+QMAKE_CFLAGS += -w
+QMAKE_CXXFLAGS += -w
 
 QMAKE_CXXFLAGS += -DIDE \
                   $$NES_CXXFLAGS \
@@ -398,7 +401,8 @@ SOURCES += \
     nes/project/csounds.cpp \
     nes/project/cmusicitem.cpp \
     designers/newfiledialog.cpp \
-    appsettings.cpp
+    appsettings.cpp \
+    designers/qsciapisca65.cpp
 
 HEADERS += \
    aboutdialog.h \
@@ -554,7 +558,8 @@ HEADERS += \
     nes/project/csounds.h \
     nes/project/cmusicitem.h \
     designers/newfiledialog.h \
-    appsettings.h
+    appsettings.h \
+    designers/qsciapisca65.h
 
 FORMS += \
    aboutdialog.ui \

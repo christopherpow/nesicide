@@ -157,7 +157,6 @@ private slots:
    void on_c64CharROMBrowse_clicked();
    void on_c64BasicROMBrowse_clicked();
    void on_c64KernalROMBrowse_clicked();
-   void on_trimPotVaus_dialMoved(int value);
    void on_controllerTypeComboBox_highlighted(int index);
    void on_controllerPortComboBox_highlighted(int index);
    void on_buttonBox_accepted();
@@ -167,6 +166,7 @@ private slots:
    void on_viceOptions_textChanged();
    void on_viceC64MonitorIPAddress_textChanged(const QString &arg1);
    void on_viceC64MonitorPort_textChanged(const QString &arg1);
+   void on_trimPotVaus_sliderMoved(int position);
 };
 
 #endif // EMULATORPREFSDIALOG_H

@@ -441,13 +441,12 @@ bool CMainFrame::CreateToolbars()
 
 	m_wndToolBarReBar.GetReBarCtrl().MinimizeBand(0);
 
-   qDebug("ToolBar setup...");
-//	HBITMAP hbm = (HBITMAP)::LoadImage(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDB_TOOLBAR_256), IMAGE_BITMAP, 0,0, LR_CREATEDIBSECTION /*| LR_LOADMAP3DCOLORS*/);
-//	m_bmToolbar.Attach(hbm);
+   HBITMAP hbm = (HBITMAP)::LoadImage(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDB_TOOLBAR_256), IMAGE_BITMAP, 0,0, LR_CREATEDIBSECTION /*| LR_LOADMAP3DCOLORS*/);
+   m_bmToolbar.Attach(hbm);
 
-//	m_ilToolBar.Create(16, 15, ILC_COLOR8 | ILC_MASK, 4, 4);
-//	m_ilToolBar.Add(&m_bmToolbar, RGB(192, 192, 192));
-//	m_wndToolBar.GetToolBarCtrl().SetImageList(&m_ilToolBar);
+   m_ilToolBar.Create(16, 15, ILC_COLOR8 | ILC_MASK, 4, 4);
+   m_ilToolBar.Add(&m_bmToolbar, RGB(192, 192, 192));
+   m_wndToolBar.GetToolBarCtrl().SetImageList(&m_ilToolBar);
 
 	return true;
 }
@@ -607,15 +606,14 @@ bool CMainFrame::CreateInstrumentToolbar()
 	if (!m_wndInstToolBar.CreateEx(&m_wndInstToolReBar, TBSTYLE_FLAT | TBSTYLE_TRANSPARENT, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC) || !m_wndInstToolBar.LoadToolBar(IDT_INSTRUMENT))
 		return false;
 
-   qDebug("ToolBar setup");
-//	m_wndInstToolBar.GetToolBarCtrl().SetExtendedStyle(TBSTYLE_EX_DRAWDDARROWS);
+   m_wndInstToolBar.GetToolBarCtrl().SetExtendedStyle(TBSTYLE_EX_DRAWDDARROWS);
 
-//	// Set 24-bit icons
-//	HBITMAP hbm = (HBITMAP)::LoadImage(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDB_TOOLBAR_INST_256), IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION);
-//	m_bmInstToolbar.Attach(hbm);
-//	m_ilInstToolBar.Create(16, 16, ILC_COLOR24 | ILC_MASK, 4, 4);
-//	m_ilInstToolBar.Add(&m_bmInstToolbar, RGB(255, 0, 255));
-//	m_wndInstToolBar.GetToolBarCtrl().SetImageList(&m_ilInstToolBar);
+   // Set 24-bit icons
+   HBITMAP hbm = (HBITMAP)::LoadImage(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDB_TOOLBAR_INST_256), IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION);
+   m_bmInstToolbar.Attach(hbm);
+   m_ilInstToolBar.Create(16, 16, ILC_COLOR24 | ILC_MASK, 4, 4);
+   m_ilInstToolBar.Add(&m_bmInstToolbar, RGB(255, 0, 255));
+   m_wndInstToolBar.GetToolBarCtrl().SetImageList(&m_ilInstToolBar);
 
 	rbi.cbSize		= sizeof(REBARBANDINFO);
 	rbi.fMask		= RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_STYLE | RBBIM_TEXT;

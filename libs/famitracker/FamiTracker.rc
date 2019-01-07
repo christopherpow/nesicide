@@ -1278,7 +1278,7 @@ FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
     LTEXT           "Copyright (C) 2005 - 2015 jsr",IDC_ABOUT3,54,92,167,11
     DEFPUSHBUTTON   "OK",IDOK,228,64,50,16,WS_GROUP
-    LTEXT           "• FDS sound emulator from nezplug (including a fix by rainwarrior)",IDC_STATIC,54,313,224,8
+    LTEXT           "* FDS sound emulator from nezplug (including a fix by rainwarrior)",IDC_STATIC,54,313,224,8
     LTEXT           "E-mail:",IDC_STATIC,54,108,24,10
     LTEXT           "This software is licensed under the GNU General Public\n License. Source is available on the webpage.",IDC_STATIC,54,167,224,17
     ICON            IDR_MAINFRAME,IDC_STATIC,7,63,20,20,SS_REALSIZEIMAGE
@@ -1288,17 +1288,17 @@ BEGIN
     LTEXT           "http://www.famitracker.com",IDC_WEBPAGE,84,121,95,9,SS_NOTIFY
     LTEXT           "Web:",IDC_STATIC,54,121,24,9
     LTEXT           "Libraries:",IDC_STATIC,54,260,224,8
-    LTEXT           "• Blip_buffer 0.4.0 is Copyright (C) blargg (http://www.slack.net/~ant/nes-emu/)\n",IDC_STATIC,54,273,224,16
-    LTEXT           "• Fast Fourier Transform code is (C) Reliable Software",IDC_STATIC,54,292,224,8
-    LTEXT           "• YM2413 && YM2149 emulators are written by Mitsutaka Okazaki",IDC_STATIC,54,303,224,8
+    LTEXT           "* Blip_buffer 0.4.0 is Copyright (C) blargg (http://www.slack.net/~ant/nes-emu/)\n",IDC_STATIC,54,273,224,16
+    LTEXT           "* Fast Fourier Transform code is (C) Reliable Software",IDC_STATIC,54,292,224,8
+    LTEXT           "* YM2413 && YM2149 emulators are written by Mitsutaka Okazaki",IDC_STATIC,54,303,224,8
     CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,54,271,215,1
-    LTEXT           "• Export plugin support by Gradualore",IDC_STATIC,54,204,224,9
-    LTEXT           "• Icon is made by Kuhneghetz",IDC_STATIC,54,214,224,9
-    LTEXT           "• Toolbar icons are made by ilkke",IDC_STATIC,54,223,224,9
+    LTEXT           "* Export plugin support by Gradualore",IDC_STATIC,54,204,224,9
+    LTEXT           "* Icon is made by Kuhneghetz",IDC_STATIC,54,214,224,9
+    LTEXT           "* Toolbar icons are made by ilkke",IDC_STATIC,54,223,224,9
     CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,54,201,211,1
-    LTEXT           "• DPCM import resampler by Jarhmander",IDC_STATIC,54,233,224,9
+    LTEXT           "* DPCM import resampler by Jarhmander",IDC_STATIC,54,233,224,9
     LTEXT           "A Famicom/NES music tracker",IDC_ABOUT2,54,76,167,11,SS_NOPREFIX
-    LTEXT           "• Module text import/export by rainwarrior",IDC_STATIC,54,244,224,9
+    LTEXT           "* Module text import/export by rainwarrior",IDC_STATIC,54,244,224,9
     CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,0,49,287,1
     LTEXT           "A Famicom/NES music tracker",IDC_ABOUT1,54,58,167,11,SS_NOPREFIX
     CONTROL         "",IDC_HEAD,"Static",SS_OWNERDRAW,0,0,287,49

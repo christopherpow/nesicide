@@ -22,7 +22,7 @@ The following steps are required prior to building this project on any platform.
 sudo apt-get install build-essential libasound2-dev liblua5.1-dev libsdl1.2-dev libgl1-mesa-dev wine-dev
 ```
 
-### Arch-Linux prerequisites
+### Arch Linux prerequisites
 
 ```sh
 sudo pacman -S lua sdl mesa wine
@@ -30,13 +30,13 @@ sudo pacman -S lua sdl mesa wine
 
 ### Windows prerequisites
 
-Install GnuWin32 and wget.
+Install [GnuWin32](https://sourceforge.net/projects/getgnuwin32/) and [wget](http://gnuwin32.sourceforge.net/packages/wget.htm).
 
 ## Building
 
-This project builds for Windows, Linux, and OSX. To perform a build for any supported platform follow the instructions for the platform below.
+This project builds for Linux, macOS, and Windows. To perform a build for any supported platform follow the instructions for the platform below.
 
-NOTE: The build process takes a while, so grab a snack while you wait. ;)
+> NOTE: The build process takes a while, so grab a snack while you wait. ;)
 
 ### Linux
 
@@ -44,7 +44,7 @@ NOTE: The build process takes a while, so grab a snack while you wait. ;)
 1. `./build.sh`
 2. Once the build process is complete run: `./linux-deploy.sh`
 
-### MacOSX
+### macOS
 
 0. `cd build`
 1. `./build.sh`
@@ -54,7 +54,7 @@ NOTE: The build process takes a while, so grab a snack while you wait. ;)
 
 0. `cd build`
 
-NOTE: The build process uses GnuWin32 tools and MinGW tools. Install these and make sure that mingw32-make and wget are on your path.
+NOTE: The build process uses GnuWin32 tools and MinGW tools. Install these and make sure that `mingw32-make` and `wget` are on your path.
 
 1. `./win-build.sh`
 
