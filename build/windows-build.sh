@@ -9,7 +9,7 @@ if [ ! -d "deps" ]; then
    echo "Fetching dependencies package..."
    wget https://knob.phreneticappsllc.com/nesicide/nesicide-deps.tar.bz2
    echo "Extracting dependencies package..."
-   tar xjvf nesicide-deps.tar.bz2
+   tar xjf --checkpoint-action='echo -n .' nesicide-deps.tar.bz2
    rm -f nesicide-deps.tar.bz2
 else
    echo "found."
