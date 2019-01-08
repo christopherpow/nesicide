@@ -1,12 +1,12 @@
 os:
-        #- linux
-        #- osx
+#- linux
+#- osx
 - windows
 osx_image: xcode10.1
 dist: xenial
 language:
 - cpp
-- clang
+#- clang
 before_install:
 - travis_wait 60 bash ./build/${TRAVIS_OS_NAME}-travis-setup.sh before_install
 install:
