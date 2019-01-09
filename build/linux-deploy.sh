@@ -20,7 +20,7 @@ unset QTDIR; unset QT_PLUGIN_PATH; unset LD_LIBRARY_PATH
 
 if [ "$1" == "local" ]; then
   if [ ! -f "./linuxdeployqt-continuous-x86_64.AppImage" ]; then
-    wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
+    wget -q -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
     chmod a+x linuxdeployqt*.AppImage
   fi
 
