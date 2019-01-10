@@ -42,7 +42,7 @@ deploy:
   provider: script
   skip_cleanup: true
   overwrite: true
-  script: if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then travis_wait 60 bash ./build/${TRAVIS_OS_NAME}-deploy.sh remote; else travis_wait 60 ./build/${TRAVIS_OS_NAME}-deploy.sh remote; fi
+  script: if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then bash ./build/${TRAVIS_OS_NAME}-deploy.sh remote; else ./build/${TRAVIS_OS_NAME}-deploy.sh remote; fi
   on:
     branch: master
     repo: christopherpow/nesicide
