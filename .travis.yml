@@ -42,7 +42,7 @@ deploy:
   provider: script
   skip_cleanup: true
   overwrite: true
-  script: bash ./build/${TRAVIS_OS_NAME}-deploy.sh remote; else ./build/${TRAVIS_OS_NAME}-deploy.sh remote; fi
+  script: bash ./build/${TRAVIS_OS_NAME}-deploy.sh remote
   on:
     branch: master
     repo: christopherpow/nesicide
