@@ -1,4 +1,5 @@
 #!/bin/bash
+set -ev
 
 # Find Qt
 . /opt/qt510/bin/qt510-env.sh
@@ -48,3 +49,4 @@ elif [ "$1" == "remote" ]; then
   rsync $TRAVIS_BUILD_DIR/{fami,nes}*.AppImage cpow@162.243.126.83:/var/www/html/nesicide/
 fi
 
+exit 0
