@@ -7,16 +7,12 @@ dist: xenial
 language:
 - cpp
 before_install:
-- if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then travis_wait 60 bash ./build/${TRAVIS_OS_NAME}-travis-setup.sh before_install; fi
-- if [[ "$TRAVIS_OS_NAME" != "windows" ]]; then travis_wait 60 ./build/${TRAVIS_OS_NAME}-travis-setup.sh before_install; fi
+- travis_wait 60 ./build/${TRAVIS_OS_NAME}-travis-setup.sh before_install
 install:
-- if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then travis_wait 60 bash ./build/${TRAVIS_OS_NAME}-travis-setup.sh install; fi
-- if [[ "$TRAVIS_OS_NAME" != "windows" ]]; then travis_wait 60 ./build/${TRAVIS_OS_NAME}-travis-setup.sh install; fi
+- travis_wait 60 ./build/${TRAVIS_OS_NAME}-travis-setup.sh install
 script:
-- if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then travis_wait 60 bash ./build/${TRAVIS_OS_NAME}-build.sh; fi
-- if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then travis_wait 60 bash ./build/${TRAVIS_OS_NAME}-deploy.sh local; fi
-- if [[ "$TRAVIS_OS_NAME" != "windows" ]]; then travis_wait 60 ./build/${TRAVIS_OS_NAME}-build.sh; fi
-- if [[ "$TRAVIS_OS_NAME" != "windows" ]]; then travis_wait 60 ./build/${TRAVIS_OS_NAME}-deploy.sh local; fi
+- travis_wait 60 ./build/${TRAVIS_OS_NAME}-build.sh
+- travis_wait 60 ./build/${TRAVIS_OS_NAME}-deploy.sh local
 addons:
   ssh_known_hosts: 162.243.126.83
 before_deploy: 
@@ -43,8 +39,7 @@ deploy:
   skip_cleanup: true
   overwrite: true
   script: 
-- if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then travis_wait 60 bash ./build/${TRAVIS_OS_NAME}-deploy.sh remote; fi
-- if [[ "$TRAVIS_OS_NAME" != "windows" ]]; then travis_wait 60 ./build/${TRAVIS_OS_NAME}-deploy.sh remote; fi
+- ./build/${TRAVIS_OS_NAME}-deploy.sh remote
   on:
     branch: master
     repo: christopherpow/nesicide
