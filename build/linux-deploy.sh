@@ -20,7 +20,7 @@ unset QTDIR; unset QT_PLUGIN_PATH; unset LD_LIBRARY_PATH
 
 if [ "$1" == "local" ]; then
   if [ ! -f "./linuxdeployqt-continuous-x86_64.AppImage" ]; then
-    wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
+    wget -q -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
     chmod a+x linuxdeployqt*.AppImage
   fi
 
@@ -36,7 +36,9 @@ if [ "$1" == "local" ]; then
       sudo cp -v ${f}* /usr/lib/x86_64-linux-gnu/
     done
     if [ "$DEPLOY" == "apps/ide/release/nesicide" ]; then
-      make -C deps/cc65; make -C deps/cc65 install prefix=$PWD/dist/cc65
+      make -C deps/cc65/src all
+      make -C deps/cc65/libsrc TARGETS="nes c64"
+      make -C deps/cc65 install prefix=$PWD/dist/cc65
     fi
     cp -v build/${DIST}.desktop ./dist
     cp -v build/${DIST}.png ./dist

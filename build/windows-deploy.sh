@@ -28,7 +28,9 @@ if [ "$1" == "local" ]; then
   do 
     cp -v ${f}* dist/ 
   done
-  make -C deps/cc65; make -C deps/cc65 install prefix=$PWD/dist/cc65
+  make -C deps/cc65/src all
+  make -C deps/cc65/libsrc TARGETS="nes c64"
+  make -C deps/cc65 install prefix=$PWD/dist/cc65
   for DEPLOY in ${DEPLOYS_DEST}
   do
     DIST=$(basename $DEPLOY) 
