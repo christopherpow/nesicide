@@ -38,7 +38,7 @@ if [ "$1" == "local" ]; then
     if [ "$DEPLOY" == "apps/ide/release/nesicide" ]; then
       make -C deps/cc65/src all
       make -C deps/cc65/libsrc TARGETS="nes c64"
-      make -C deps/cc65 install prefix=$PWD/dist/cc65
+      make -C deps/cc65 install prefix=$TRAVIS_BUILD_DIR/dist/cc65
     fi
     cp -v build/${DIST}.desktop ./dist
     cp -v build/${DIST}.png ./dist
