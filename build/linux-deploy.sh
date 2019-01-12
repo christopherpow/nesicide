@@ -1,5 +1,4 @@
 #!/bin/bash
-set -v
 
 # Find Qt
 . /opt/qt510/bin/qt510-env.sh

@@ -1,5 +1,4 @@
 #!/bin/bash
-set -ev
 
 PATH=deps/Windows/GnuWin32/bin:$PATH
 

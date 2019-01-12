@@ -1,5 +1,4 @@
 #!/bin/bash
-set -ev
 
 if [ "$1" == "before_install" ]; then
   brew update

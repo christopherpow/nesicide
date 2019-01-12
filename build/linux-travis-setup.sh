@@ -1,5 +1,4 @@
 #!/bin/bash
-set -v
 
 if [ "$1" == "before_install" ]; then
   sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 762E3157
