@@ -2,5 +2,7 @@
 set -v
 
 if [ "$1" == "install" ]; then
-  choco install qtcreator -rvy
+  choco install qtcreator -ry
+  ls -al c:/tools/qtcreator
+
 fi
