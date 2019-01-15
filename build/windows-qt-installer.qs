@@ -75,7 +75,12 @@ Controller.prototype.StartMenuDirectoryPageCallback = function() {
 
 Controller.prototype.ReadyForInstallationPageCallback = function() {
     console.log("Step: " + gui.currentPageWidget());
-    gui.clickButton(buttons.NextButton);
+    gui.clickButton(buttons.CommitButton);
+};
+
+Controller.prototype.PerformInstallationPageCallback = function() {
+    console.log("Step: " + gui.currentPageWidget());
+    gui.clickButton(buttons.CommitButton);
 };
 
 Controller.prototype.FinishedPageCallback = function() {
