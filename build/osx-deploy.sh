@@ -16,6 +16,8 @@ DEPLOYS_DEST="./dist/nesicide.app \
         ./dist/famiplayer.app \
         ./dist/nes-emulator.app"
 
+GIT_REV=`git rev-parse --short HEAD`
+
 TARGARGS=-dmg
 
 if [ "$1" == "local" ]; then
@@ -34,6 +36,7 @@ if [ "$1" == "local" ]; then
       make -C deps/cc65 install prefix=${DEPLOY}/Contents/MacOS/cc65 
     fi
     macdeployqt ${DEPLOY} ${TARGARGS}
+    mv -v ${DEPLOY/%.app/.dmg} ${DEPLOY/%.app}-${GIT_REV}.dmg
   done
 elif [ "$1" == "remote" ]; then
   rsync $TRAVIS_BUILD_DIR/dist/*.dmg cpow@162.243.126.83:/var/www/html/nesicide/
