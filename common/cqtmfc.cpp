@@ -10496,7 +10496,7 @@ DWORD CWinThread::ResumeThread( )
 
       pTimer = new QTimer;
 
-      pTimer->start();
+      pTimer->start(10);
       pTimer->moveToThread(pThread);
 
       QObject::connect(pTimer,SIGNAL(timeout()),this,SLOT(runSlot()));
