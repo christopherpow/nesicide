@@ -7,11 +7,11 @@ LIBDEPS="deps/rtmidi/release/rtmidi \
      libs/famitracker/release/famitracker"
 
 OSTYPE=`wmic os get osarchitecture`
-if [[ $OSTYPE =~ .*64*. ]]; then
-	LIBDEPS+=" deps/Windows/SDL/x64/SDL.dll"
-else
+#if [[ $OSTYPE =~ .*64*. ]]; then
+#	LIBDEPS+=" deps/Windows/SDL/x64/SDL.dll"
+#else
 	LIBDEPS+=" deps/Windows/SDL/x86/SDL.dll"
-fi
+#fi
 
 DEPLOYS_SRC="apps/ide/release/nesicide.exe \
         apps/famitracker/release/famitracker.exe \
