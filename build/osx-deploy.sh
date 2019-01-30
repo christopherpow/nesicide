@@ -32,7 +32,7 @@ if [ "$1" == "local" ]; then
     echo Deploying ${DEPLOY}
     if [ "$DEPLOY" == "./dist/nesicide.app" ]; then
       make -C deps/cc65/src all
-      make -C deps/cc65/libsrc TARGETS="nes c64"
+      make -C deps/cc65/libsrc nes c64
       make -C deps/cc65 install prefix=${DEPLOY}/Contents/MacOS/cc65 
     fi
     macdeployqt ${DEPLOY} ${TARGARGS}

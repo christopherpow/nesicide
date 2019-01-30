@@ -2,6 +2,7 @@ PATH=deps/Windows/GnuWin32/bin:$PATH
 
 LIBDEPS="deps/rtmidi/release/rtmidi \
      deps/qscintilla2/Qt4Qt5/release/qscintilla2_qt5 \
+     deps/Windows/Lua/lua51.dll \
      libs/nes/release/nes-emulator \
      libs/c64/release/c64-emulator \
      libs/famitracker/release/famitracker"
@@ -35,7 +36,7 @@ if [ "$1" == "local" ]; then
     cp -v ${f}* dist/ 
   done
   make -C deps/cc65/src all
-  make -C deps/cc65/libsrc TARGETS="nes c64"
+  make -C deps/cc65/libsrc nes c64
   make -C deps/cc65 install prefix=$PWD/dist/cc65
   for DEPLOY in ${DEPLOYS_DEST}
   do
