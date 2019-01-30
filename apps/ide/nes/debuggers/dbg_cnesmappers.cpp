@@ -189,6 +189,7 @@ MapperInfo mapper[] =
    { "VS Unisystem", 99 },
    { "Debugging Mapper", 100 },
    { "Nintendo World Championship", 105 },
+   { "GTROM", 111 },
    { "HES-Mapper #113", 113 },
    { "TKSROM", 118 },
    { "TLSROM", 118 },

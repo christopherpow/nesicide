@@ -255,10 +255,11 @@ void EnvironmentSettingsDialog::readSettings()
    m_highlightAsC = settings.value("HighlightAsC",QVariant(highlightAsCList)).toString();
    m_highlightAsASM = settings.value("HighlightAsASM",QVariant(highlightAsASMList)).toString();
 
-#if defined(Q_OS_MAC) || defined(Q_OS_MACX) || defined(Q_OS_MAC64)
-   m_eolMode = settings.value("EOLMode",QVariant(QsciScintilla::EolMac)).toInt();
-#endif
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_MAC) || defined(Q_OS_MACX) || defined(Q_OS_MAC64) || defined(Q_OS_LINUX)
+//#if defined(Q_OS_MAC) || defined(Q_OS_MACX) || defined(Q_OS_MAC64)
+//   m_eolMode = settings.value("EOLMode",QVariant(QsciScintilla::EolMac)).toInt();
+//#endif
+//#ifdef Q_OS_LINUX
    m_eolMode = settings.value("EOLMode",QVariant(QsciScintilla::EolUnix)).toInt();
 #endif
 #ifdef Q_OS_WIN

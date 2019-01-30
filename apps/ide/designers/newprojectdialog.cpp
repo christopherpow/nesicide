@@ -1,6 +1,9 @@
 #include "newprojectdialog.h"
 #include "ui_newprojectdialog.h"
 
+#include "projectpropertiesdialog.h"
+#include "main.h"
+
 #include <QFileDialog>
 #include <QSettings>
 
@@ -17,6 +20,7 @@ NewProjectDialog::NewProjectDialog(QString windowTitle,QString defName,QString d
 
    QDir templatesDir(":/templates/NES");
    QStringList templates = templatesDir.entryList();
+   templates.removeAll("header.s_in");
 
    ui->templateProject->addItem("Empty Project");
    ui->templateProject->addItems(templates);
@@ -80,7 +84,7 @@ void NewProjectDialog::on_pathBrowse_clicked()
 
       QFileInfo fileInfo(value);
 
-      settings.setValue("LastProjectBasePath",fileInfo.path());
+      settings.setValue("LastProjectBasePath",fileInfo.absoluteFilePath());
    }
 }
 
@@ -119,12 +123,40 @@ bool NewProjectDialog::checkValidity()
 
 void NewProjectDialog::on_buttonBox_accepted()
 {
+   // If they hit Project Properties button then we're all set except for the project name may have changed.
+   if ( !nesicideProject->isInitialized() )
+   {
+      setupProject();
+   }
+   else
+   {
+      nesicideProject->setProjectTitle(getName());
+   }
+}
+
+void NewProjectDialog::setupProject()
+{
    QDir check(ui->path->text());
 
    if ( !check.exists() )
    {
       check.mkpath(ui->path->text());
    }
+
+   QDir::setCurrent(getPath());
+
+   // Set project target before initializing project...
+   if ( getTarget() == "Commodore 64" )
+   {
+      nesicideProject->setProjectTarget("c64");
+   }
+   else if ( getTarget() == "Nintendo Entertainment System" )
+   {
+      nesicideProject->setProjectTarget("nes");
+   }
+   nesicideProject->initializeProject();
+   nesicideProject->setDirty(true);
+   nesicideProject->setProjectTitle(getName());
 }
 
 void NewProjectDialog::on_target_currentIndexChanged(QString target)
@@ -136,11 +168,31 @@ void NewProjectDialog::on_target_currentIndexChanged(QString target)
    {
       QDir templatesDir(":/templates/NES");
       templates = templatesDir.entryList();
+      templates.removeAll("header.s_in");
    }
    else if ( target == "Commodore 64" )
    {
       QDir templatesDir(":/templates/C64");
       templates = templatesDir.entryList();
+      templates.removeAll("header.s_in");
    }
    ui->templateProject->addItems(templates);
+}
+
+void NewProjectDialog::on_projectProperties_clicked()
+{
+   ProjectPropertiesDialog* dlg;
+
+   setupProject();
+
+   dlg = new ProjectPropertiesDialog();
+
+   if (dlg->exec() == QDialog::Accepted)
+   {
+      nesicideProject->setDirty(true);
+      // They might have changed the project name...
+      ui->name->setText(nesicideProject->getProjectTitle());
+   }
+
+   delete dlg;
 }

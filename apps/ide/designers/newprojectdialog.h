@@ -26,6 +26,7 @@ protected:
 
 private:
    Ui::NewProjectDialog* ui;
+   void setupProject();
 
 private slots:
     void on_target_currentIndexChanged(QString target);
@@ -33,6 +34,7 @@ private slots:
     void on_name_textChanged(QString text);
     void on_path_textChanged(QString text);
     void on_pathBrowse_clicked();
+    void on_projectProperties_clicked();
 };
 
 #endif // NEWPROJECTDIALOG_H

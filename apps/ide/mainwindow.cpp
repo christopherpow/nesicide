@@ -1900,27 +1900,71 @@ void MainWindow::explodeTemplate(int level,QString templateName,QString projectN
          // Save the file locally.
          QFile templateFile(fileInfo.filePath());
          QFile localFile(localDirTemp);
+         QString templateFileContent;
 
          if ( templateFile.open(QIODevice::ReadOnly) &&
               localFile.open(QIODevice::ReadWrite|QIODevice::Truncate) )
          {
-            localFile.write(templateFile.readAll());
-         }
+            templateFileContent = templateFile.readAll();
 
-         // If this is the project file, spit out the name.
-         if ( !fileInfo.suffix().compare("nesproject",Qt::CaseInsensitive) )
-         {
-            (*projectFileName) = localFile.fileName();
-         }
-         else if ( !fileInfo.suffix().compare("c64project",Qt::CaseInsensitive) )
-         {
-            (*projectFileName) = localFile.fileName();
+            // If this is the project file, spit out the name and replace <!...!>'s.
+            if ( !fileInfo.suffix().compare("nesproject",Qt::CaseInsensitive) )
+            {
+               templateFileContent.replace("<!project-title!>",nesicideProject->getProjectTitle());
+               templateFileContent.replace("<!project-mapper!>",QString::number(nesicideProject->getCartridge()->getMapperNumber()));
+               (*projectFileName) = localFile.fileName();
+            }
+            else if ( !fileInfo.suffix().compare("c64project",Qt::CaseInsensitive) )
+            {
+               templateFileContent.replace("<!project-title!>",nesicideProject->getProjectTitle());
+               templateFileContent.replace("<!project-mapper!>",QString::number(nesicideProject->getCartridge()->getMapperNumber()));
+               (*projectFileName) = localFile.fileName();
+            }
+
+            localFile.write(templateFileContent.toUtf8());
          }
 
          templateFile.close();
          localFile.close();
       }
    }
+}
+
+void MainWindow::explodeINESHeaderTemplate(QString templateName,QString projectName,QString templateDirName,QString localDirName)
+{
+   QFileInfo fileInfo = QFileInfo(":/templates/NES/header.s_in");
+   QDir localDir;
+   QString localDirTemp;
+
+   localDirTemp = localDirName;
+   localDirTemp += "/";
+   localDirTemp += projectName;
+   localDirTemp += "/";
+   localDir.mkpath(localDirTemp);
+   localDirTemp += fileInfo.fileName().replace("_in","");
+
+   localDirTemp.replace(templateName,projectName);
+
+   // Save the file locally.
+   QFile templateFile(fileInfo.filePath());
+   QFile localFile(localDirTemp);
+   QString templateFileContent;
+
+   if ( templateFile.open(QIODevice::ReadOnly) &&
+        localFile.open(QIODevice::ReadWrite|QIODevice::Truncate) )
+   {
+      templateFileContent = templateFile.readAll();
+
+      templateFileContent.replace("<!prg-banks!>",QString::number(nesicideProject->getCartridge()->getPrgRomBanks()->childCount(),16));
+      templateFileContent.replace("<!chr-banks!>",QString::number(nesicideProject->getCartridge()->getChrRomBanks()->childCount(),16));
+      templateFileContent.replace("<!mapper-low!>",QString::number((nesicideProject->getCartridge()->getMapperNumber()&0x0F)<<4,16));
+      templateFileContent.replace("<!mapper-high!>",QString::number(nesicideProject->getCartridge()->getMapperNumber()&0xF0,16));
+
+      localFile.write(templateFileContent.toUtf8());
+   }
+
+   templateFile.close();
+   localFile.close();
 }
 
 void MainWindow::on_actionNew_Project_triggered()
@@ -1946,17 +1990,12 @@ void MainWindow::on_actionNew_Project_triggered()
          // Set project target before initializing project...
          if ( dlg.getTarget() == "Commodore 64" )
          {
-            nesicideProject->setProjectTarget("c64");
             createC64Ui();
          }
          else if ( dlg.getTarget() == "Nintendo Entertainment System" )
          {
-            nesicideProject->setProjectTarget("nes");
             createNesUi();
          }
-         nesicideProject->initializeProject();
-         nesicideProject->setDirty(true);
-         nesicideProject->setProjectTitle(dlg.getName());
       }
       else
       {
@@ -1985,11 +2024,13 @@ void MainWindow::on_actionNew_Project_triggered()
 
             // Recursively copy the project content to the local location.
             explodeTemplate(0,dlg.getTemplate(),dlg.getName(),templateDirName,dlg.getPath(),&projectFileName);
+            explodeINESHeaderTemplate(dlg.getTemplate(),dlg.getName(),templateDirName,dlg.getPath());
 
             openNesProject(projectFileName);
          }
-         nesicideProject->setProjectTitle(dlg.getName());
       }
+
+      emit applyProjectProperties();
 
       m_pProjectBrowser->enableNavigation();
       projectDataChangesEvent();

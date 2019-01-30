@@ -366,7 +366,7 @@ bool CNesicideProject::deserialize(QDomDocument& doc, QDomNode& /*node*/, QStrin
 
    // Load our properties. Note that the default value is returned if an attribute is missing.
    // This is the expected behavior.
-   m_projectTitle = projectElement.attribute("title","Untitled Project");
+   m_projectTitle = projectElement.attribute("title","Untitled");
 
    // Initialize the palette.
    if ( !m_projectTarget.compare("nes",Qt::CaseInsensitive) )

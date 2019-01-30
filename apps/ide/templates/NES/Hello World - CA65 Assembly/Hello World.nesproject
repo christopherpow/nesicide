@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<nesicideproject title="NROM Hello World - C" version="0.3" target="nes">
- <properties outputname="hello_world" linkeradditionaldependencies="" linkeroutputbasepath="obj/nes" linkerconfigfile="nes.ini" customrulesfile="" chrromoutputbasepath="obj/nes" headerfilename="project_data.h" chrromoutputname="hello_world.chr" debuginfoname="hello_world.dbg" compilerincludepaths="-I ." chrrom="1" outputbasepath="obj/nes" assemblerincludepaths="-I ." sourcefilename="project_data.s" linkeroutputname="hello_world.prg" compileradditionaloptions="" assemblerdefinedsymbols="" assembleradditionaloptions="" cartridgesavestatename="" sourcesearchpaths="" compilerdefinedsymbols="" cartridgeoutputname="hello_world.nes" linkeradditionaloptions="">
+<nesicideproject title="<!project-title!>" version="0.3" target="nes">
+ <properties outputname="hello_world" linkeradditionaldependencies="" linkeroutputbasepath="obj/nes" linkerconfigfile="nes.ini" chrromoutputbasepath="obj/nes" headerfilename="project_data.h" chrromoutputname="hello_world.chr" debuginfoname="hello_world.dbg" compilerincludepaths="-I ." chrrom="1" outputbasepath="obj/nes" assemblerincludepaths="-I ." sourcefilename="project_data.s" linkeroutputname="hello_world.prg" compileradditionaloptions="" assemblerdefinedsymbols="" assembleradditionaloptions="" cartridgesavestatename="" sourcesearchpaths="" compilerdefinedsymbols="" cartridgeoutputname="hello_world.nes" linkeradditionaloptions="">
   <tileproperties/>
   <palette>
    <entry g="102" index="0" r="102" b="102"/>
@@ -72,36 +72,27 @@
  <inspectors>
   <symbolinspector/>
   <breakpoints/>
-  <markers>
-   <marker startaddr="0" endabsaddr="0" index="0" state="0" startabsaddr="0" endaddr="0"/>
-   <marker startaddr="0" endabsaddr="0" index="1" state="0" startabsaddr="0" endaddr="0"/>
-   <marker startaddr="0" endabsaddr="0" index="2" state="0" startabsaddr="0" endaddr="0"/>
-   <marker startaddr="0" endabsaddr="0" index="3" state="0" startabsaddr="0" endaddr="0"/>
-   <marker startaddr="0" endabsaddr="0" index="4" state="0" startabsaddr="0" endaddr="0"/>
-   <marker startaddr="0" endabsaddr="0" index="5" state="0" startabsaddr="0" endaddr="0"/>
-   <marker startaddr="0" endabsaddr="0" index="6" state="0" startabsaddr="0" endaddr="0"/>
-   <marker startaddr="0" endabsaddr="0" index="7" state="0" startabsaddr="0" endaddr="0"/>
-  </markers>
+  <markers/>
  </inspectors>
- <cartridge mirrorMode="1" mapperNumber="0" hasBatteryBackedRam="0"/>
+ <cartridge fourScreen="0" hasBatteryBackedRam="0" mapperNumber="<!project-mapper!>" mirrorMode="0"/>
  <project>
   <primitives>
    <attributetables/>
    <tiles/>
   </primitives>
   <sources>
-   <source path="src/crt0.s" uuid="{4f1ed9db-0bec-43b2-b775-bd6bfee5e2cf}" name="src/crt0.s"/>
-   <source path="src/main.c" uuid="{ca22befe-3de9-4e1f-abbc-b81d76cf07bb}" name="src/main.c"/>
-   <source path="src/memmap.inc" uuid="{d18d42e1-6ffb-4d41-a7d8-15a8f458632c}" name="src/memmap.inc"/>
+   <source path="src/main.s" uuid="{85df0f74-f09f-439c-8488-3e00605a5140}" name="src/main.s"/>
+   <source path="src/nes.h" uuid="{5da23e19-d3ce-4ed5-8923-41a2b561b40d}" name="src/nes.h"/>
+   <source path="header.s" uuid="{98802cd6-243e-11e9-ab14-d663bd873d93}" name="header.s"/>
   </sources>
   <binaryfiles>
-   <binaryfile xsize="128" ysize="128" path="tilesets/gamegfx.png" uuid="{047c9cf0-2c50-46c7-8f1c-cf678dac38fe}" name="tilesets/gamegfx.png"/>
-   <binaryfile xsize="128" ysize="128" path="tilesets/titlegfx.png" uuid="{bb0dd7d3-340a-49b4-b1ac-26fb9edb54e7}" name="tilesets/titlegfx.png"/>
+   <binaryfile xsize="128" ysize="128" path="tilesets/gamegfx.png" uuid="{b2dc5fc9-a56d-4e66-97bf-6b3cc3668587}" name="tilesets/gamegfx.png"/>
+   <binaryfile xsize="128" ysize="128" path="tilesets/titlegfx.png" uuid="{bdb3ec5c-e001-4f0d-9bbb-296914f99997}" name="tilesets/titlegfx.png"/>
   </binaryfiles>
   <graphicsbanks>
-   <graphicsbank uuid="{597023c1-14a0-428b-808f-498368614b55}" name="bank0">
-    <graphicitem uuid="{bb0dd7d3-340a-49b4-b1ac-26fb9edb54e7}"/>
-    <graphicitem uuid="{047c9cf0-2c50-46c7-8f1c-cf678dac38fe}"/>
+   <graphicsbank uuid="{cb39773a-0926-42ac-814f-9b3f12664f16}" name="bank0">
+    <graphicitem uuid="{bdb3ec5c-e001-4f0d-9bbb-296914f99997}"/>
+    <graphicitem uuid="{b2dc5fc9-a56d-4e66-97bf-6b3cc3668587}"/>
    </graphicsbank>
   </graphicsbanks>
  </project>

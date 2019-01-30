@@ -1,4 +1,5 @@
 ;
+; Template based on
 ; Russian Roulette game for NES
 ; Copyright 2010 Damian Yerrick
 ;
@@ -11,13 +12,6 @@
 .p02
 
 .segment "ZEROPAGE"
-
-.segment "INESHDR"
-  .byt "NES",$1A
-  .byt 1  ; 16 KiB PRG ROM
-  .byt 1  ; 8 KiB CHR ROM
-  .byt 1  ; vertical mirroring; low mapper nibble: 0
-  .byt 0  ; high mapper nibble: 0
 
 .segment "VECTORS"
   .addr nmi, reset, irq
