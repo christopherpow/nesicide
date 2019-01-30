@@ -2,10 +2,16 @@ PATH=deps/Windows/GnuWin32/bin:$PATH
 
 LIBDEPS="deps/rtmidi/release/rtmidi \
      deps/qscintilla2/Qt4Qt5/release/qscintilla2_qt5 \
-     deps/Windows/SDL/SDL.dll \
      libs/nes/release/nes-emulator \
      libs/c64/release/c64-emulator \
      libs/famitracker/release/famitracker"
+
+OSTYPE=`wmic os get osarchitecture`
+if [[ $OSTYPE =~ .*64*. ]]; then
+	LIBDEPS+=" deps/Windows/SDL/x64/SDL.dll"
+else
+	LIBDEPS+=" deps/Windows/SDL/x86/SDL.dll"
+fi
 
 DEPLOYS_SRC="apps/ide/release/nesicide.exe \
         apps/famitracker/release/famitracker.exe \
