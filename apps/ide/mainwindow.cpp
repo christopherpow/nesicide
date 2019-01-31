@@ -1886,7 +1886,7 @@ void MainWindow::explodeTemplate(int level,QString templateName,QString projectN
          localDirTemp += "/";
       }
       localDir.mkpath(localDirTemp);
-      localDirTemp += fileInfo.fileName();
+      localDirTemp += fileInfo.fileName().replace(QRegExp("_in$"),"");
 
       localDirTemp.replace(templateName,projectName);
 
@@ -1899,7 +1899,7 @@ void MainWindow::explodeTemplate(int level,QString templateName,QString projectN
          // Save the file locally.
          QFile templateFile(fileInfo.filePath());
          QFile localFile(localDirTemp);
-         QString templateFileContent;
+         QByteArray templateFileContent;
 
          if ( templateFile.open(QIODevice::ReadOnly) &&
               localFile.open(QIODevice::ReadWrite|QIODevice::Truncate) )
@@ -1907,20 +1907,20 @@ void MainWindow::explodeTemplate(int level,QString templateName,QString projectN
             templateFileContent = templateFile.readAll();
 
             // If this is the project file, spit out the name and replace <!...!>'s.
-            if ( !fileInfo.suffix().compare("nesproject",Qt::CaseInsensitive) )
+            if ( !fileInfo.suffix().compare("nesproject_in",Qt::CaseInsensitive) )
             {
-               templateFileContent.replace("<!project-title!>",nesicideProject->getProjectTitle());
-               templateFileContent.replace("<!project-mapper!>",QString::number(nesicideProject->getCartridge()->getMapperNumber()));
+               templateFileContent.replace("<!project-title!>",nesicideProject->getProjectTitle().toUtf8());
+               templateFileContent.replace("<!project-mapper!>",QString::number(nesicideProject->getCartridge()->getMapperNumber()).toUtf8());
                (*projectFileName) = localFile.fileName();
             }
-            else if ( !fileInfo.suffix().compare("c64project",Qt::CaseInsensitive) )
+            else if ( !fileInfo.suffix().compare("c64project_in",Qt::CaseInsensitive) )
             {
-               templateFileContent.replace("<!project-title!>",nesicideProject->getProjectTitle());
-               templateFileContent.replace("<!project-mapper!>",QString::number(nesicideProject->getCartridge()->getMapperNumber()));
+               templateFileContent.replace("<!project-title!>",nesicideProject->getProjectTitle().toUtf8());
+               templateFileContent.replace("<!project-mapper!>",QString::number(nesicideProject->getCartridge()->getMapperNumber()).toUtf8());
                (*projectFileName) = localFile.fileName();
             }
 
-            localFile.write(templateFileContent.toUtf8());
+            localFile.write(templateFileContent);
          }
 
          templateFile.close();
@@ -1931,7 +1931,8 @@ void MainWindow::explodeTemplate(int level,QString templateName,QString projectN
 
 void MainWindow::explodeINESHeaderTemplate(QString templateName,QString projectName,QString templateDirName,QString localDirName)
 {
-   QFileInfo fileInfo = QFileInfo(":/templates/NES/header.s_in");
+   QString templateFileName = ":/templates/NES/"+templateName+"/header.s_in";
+   QFileInfo fileInfo = QFileInfo(templateFileName);
    QDir localDir;
    QString localDirTemp;
 
@@ -1941,8 +1942,6 @@ void MainWindow::explodeINESHeaderTemplate(QString templateName,QString projectN
    localDirTemp += "/";
    localDir.mkpath(localDirTemp);
    localDirTemp += fileInfo.fileName().replace("_in","");
-
-   localDirTemp.replace(templateName,projectName);
 
    // Save the file locally.
    QFile templateFile(fileInfo.filePath());
@@ -2596,6 +2595,7 @@ void MainWindow::on_actionCompile_Project_triggered()
          }
       }
    }
+
    emit compile();
 }
 

@@ -28,8 +28,8 @@
 ;    +--------+------+------------------------------------------+
 
 .byte $4e,$45,$53,$1a	; "NES"^Z
-.byte $<!prg-banks!>    ; ines prg  - Specifies the number of 16k prg banks.
-.byte $<!chr-banks!>   	; ines chr  - Specifies the number of 8k chr banks.
+.byte $01               ; ines prg  - Specifies the number of 16k prg banks.
+.byte $01            	; ines chr  - Specifies the number of 8k chr banks.
 .byte $<!mapper-low!>  	; ines mir  - Specifies VRAM mirroring of the banks.
 .byte $<!mapper-high!>  ; ines map  - Specifies the NES mapper used.
 .byte 0,0,0,0,0,0,0,0   ; 8 zeroes
