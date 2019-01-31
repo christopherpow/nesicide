@@ -30,11 +30,11 @@ OutputPaneDockWidget* output = NULL;
 ProjectBrowserDockWidget* m_pProjectBrowser = NULL;
 
 MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
-   QMainWindow(parent), 
+   QMainWindow(parent),
    m_pProjectModel(projectModel),
    m_pNESEmulatorThread(NULL),
    m_pC64EmulatorThread(NULL)
-{   
+{
    int idx;
 
    if ( !((QCoreApplication::applicationDirPath().contains("Program Files")) ||
@@ -43,7 +43,7 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
       QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, QCoreApplication::applicationDirPath());
       QSettings::setPath(QSettings::IniFormat, QSettings::SystemScope, QCoreApplication::applicationDirPath());
    }
-   
+
 #if defined(Q_OS_WIN)
    if ( QCoreApplication::applicationDirPath().contains("apps/ide") )
    {
@@ -91,15 +91,15 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
       qputenv("CC65_HOME",envdat.toLatin1());
 
       envdat = QCoreApplication::applicationDirPath();
-      envdat += "/cc65/lib";
+      envdat += "/cc65/share/cc65/lib";
       qputenv("LD65_LIB",envdat.toLatin1());
 
       envdat = QCoreApplication::applicationDirPath();
-      envdat += "/cc65/asminc";
+      envdat += "/cc65/share/cc65/asminc";
       qputenv("CA65_INC",envdat.toLatin1());
 
       envdat = QCoreApplication::applicationDirPath();
-      envdat += "/cc65/include";
+      envdat += "/cc65/share/cc65/include";
       qputenv("CC65_INC",envdat.toLatin1());
    }
 #elif defined(Q_OS_MAC) || defined(Q_OS_MAC64) || defined(Q_OS_MACX)
@@ -161,7 +161,6 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
       QString envdat;
       envdat += QCoreApplication::applicationDirPath();
       envdat += "/cc65/bin:";
-qDebug("envdat %s\n",envdat.toLatin1().data());
       qputenv("PATH",QString(envdat+envvar).toLatin1());
 
       envdat = QCoreApplication::applicationDirPath();
@@ -186,7 +185,7 @@ qDebug("envdat %s\n",envdat.toLatin1().data());
 
    // Create application [transient] settings bucket.
    appSettings = new AppSettings();
-   
+
    // Initialize Environment settings.
    EnvironmentSettingsDialog::readSettings();
 
@@ -355,10 +354,10 @@ qDebug("envdat %s\n",envdat.toLatin1().data());
    // Load all plugins.
    pluginManager->doInitScript();
    pluginManager->loadPlugins();
-   
+
    // Instantiate music editor form single instance...
    MusicEditorForm::instance();
-   
+
    // Set up UI in "Coding" mode.
    appSettings->setAppMode(AppSettings::CodingMode);
    actionCoding_Mode->setChecked(true);
@@ -452,7 +451,7 @@ MainWindow::~MainWindow()
    SearcherThread* searcher = dynamic_cast<SearcherThread*>(CObjectRegistry::getObject("Searcher"));
 
    killTimer(m_periodicTimer);
-   
+
    // Destroy music editor form single instance...
    delete MusicEditorForm::instance();
 
@@ -474,7 +473,7 @@ MainWindow::~MainWindow()
 
    delete nesicideProject;
    delete pluginManager;
-   
+
    m_pNESEmulatorThread->kill();
    m_pNESEmulatorThread->wait();
 }
@@ -566,7 +565,7 @@ void MainWindow::applicationActivationChanged(bool activated)
    else
    {
       // Only embedded emulators pause when task switching...
-      if ( nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) && 
+      if ( nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) &&
            EmulatorPrefsDialog::getPauseOnTaskSwitch() )
       {
          emit pauseEmulation(false);
@@ -872,7 +871,7 @@ void MainWindow::createNesUi()
       m_pNESEmulatorThread = new NESEmulatorThread();
    }
    CObjectRegistry::addObject("Emulator",m_pNESEmulatorThread);
-   
+
    QObject::connect(this,SIGNAL(startEmulation()),m_pNESEmulatorThread,SLOT(startEmulation()));
    QObject::connect(this,SIGNAL(pauseEmulation(bool)),m_pNESEmulatorThread,SLOT(pauseEmulation(bool)));
    QObject::connect(this,SIGNAL(primeEmulator()),m_pNESEmulatorThread,SLOT(primeEmulator()));
@@ -1875,8 +1874,8 @@ void MainWindow::explodeTemplate(int level,QString templateName,QString projectN
    QDir templateDir(templateDirName);
    QDir localDir;
    QString localDirTemp;
-   QFileInfoList templateFileInfos = templateDir.entryInfoList();   
-   
+   QFileInfoList templateFileInfos = templateDir.entryInfoList();
+
    foreach ( QFileInfo fileInfo, templateFileInfos )
    {
       localDirTemp = localDirName;
@@ -1884,13 +1883,13 @@ void MainWindow::explodeTemplate(int level,QString templateName,QString projectN
       if ( level == 0 )
       {
          localDirTemp += projectName;
-         localDirTemp += "/";      
+         localDirTemp += "/";
       }
       localDir.mkpath(localDirTemp);
       localDirTemp += fileInfo.fileName();
-      
+
       localDirTemp.replace(templateName,projectName);
-      
+
       if ( fileInfo.isDir() )
       {
          explodeTemplate(level+1,templateName,projectName,fileInfo.filePath(),localDirTemp,projectFileName);
@@ -1970,12 +1969,12 @@ void MainWindow::explodeINESHeaderTemplate(QString templateName,QString projectN
 void MainWindow::on_actionNew_Project_triggered()
 {
    on_action_Close_Project_triggered();
-   
+
    if ( nesicideProject->isInitialized() )
    {
       return;
    }
-   
+
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    NewProjectDialog dlg("New Project","Untitled",settings.value("LastProjectBasePath").toString());
 
@@ -2013,7 +2012,7 @@ void MainWindow::on_actionNew_Project_triggered()
 
             // Recursively copy the project content to the local location.
             explodeTemplate(0,dlg.getTemplate(),dlg.getName(),templateDirName,dlg.getPath(),&projectFileName);
-            
+
             openC64Project(projectFileName);
          }
          else if ( dlg.getTarget() == "Nintendo Entertainment System" )
@@ -2168,12 +2167,12 @@ void MainWindow::openC64File(QString fileName)
 void MainWindow::on_actionCreate_Project_from_File_triggered()
 {
    on_action_Close_Project_triggered();
-   
+
    if ( nesicideProject->isInitialized() )
    {
       return;
    }
-   
+
    QString romPath = EnvironmentSettingsDialog::romPath();
    QString selectedFilter;
    QString fileName = QFileDialog::getOpenFileName(this, "Open ROM", romPath, "All Files (*.*);;iNES ROM (*.nes);;Commodore 64 Program (*.c64 *.prg);;Commodore 64 Disk Image (*.d64)",&selectedFilter);
@@ -2511,12 +2510,12 @@ void MainWindow::openC64Project(QString fileName,bool run)
 void MainWindow::on_actionOpen_Project_triggered()
 {
    on_action_Close_Project_triggered();
-   
+
    if ( nesicideProject->isInitialized() )
    {
       return;
    }
-   
+
    QString fileName = QFileDialog::getOpenFileName(this, "Open Project", "", "NES Project (*.nesproject);;Commodore 64 Project (*.c64project)");
 
    if (fileName.isEmpty())
@@ -2799,12 +2798,12 @@ bool MainWindow::closeProject()
    {
       // Close all inspectors
       CDockWidgetRegistry::hideAll();
-   
+
       m_pSourceNavigator->shutdown();
-   
+
       // Stop the emulator if it is running
       emit pauseEmulation(false);
-   
+
       // Now save the emulator state if a save state file is specified.
       if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
       {
@@ -2813,36 +2812,36 @@ bool MainWindow::closeProject()
             saveEmulatorState(nesicideProject->getProjectCartridgeSaveStateName());
          }
       }
-   
+
       // Terminate the project and let the IDE know
       m_pProjectBrowser->disableNavigation();
-   
+
       foreach ( action, actions )
       {
          QObject::disconnect(action,SIGNAL(triggered()),this,SLOT(windowMenu_triggered()));
          menuWindow->removeAction(action);
       }
       menuWindow->setEnabled(menuWindow->actions().count()>0);
-   
+
       CCC65Interface::clear();
-   
+
       nesicideProject->terminateProject();
-   
+
       emit primeEmulator();
       emit resetEmulator();
-   
+
       if ( EnvironmentSettingsDialog::showWelcomeOnStart() )
       {
          tabWidget->addTab(tab,"Welcome Page");
          //webView->setUrl(QUrl( "http://www.nesicide.com"));
       }
-   
+
       // Clear output
       output->clearAllPanes();
-   
+
       // Let the UI know what's up
       projectDataChangesEvent();
-   
+
       if ( !m_targetLoaded.compare("nes",Qt::CaseInsensitive) )
       {
          destroyNesUi();
@@ -2852,7 +2851,7 @@ bool MainWindow::closeProject()
          destroyC64Ui();
       }
    }
-   
+
    return cancel;
 }
 
