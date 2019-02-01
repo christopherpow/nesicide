@@ -42,6 +42,7 @@ MapperInformationDockWidget::MapperInformationDockWidget(QWidget *parent) :
    internalPageMap.insert(19,ui->mapper19);
    internalPageMap.insert(28,ui->mapper28);
    internalPageMap.insert(69,ui->mapper69);
+   internalPageMap.insert(111,ui->mapper111);
    internalPageMap.insert(159,ui->mapper16);
 
    // Force UI update so it doesn't look uninitialized completely.
@@ -124,6 +125,7 @@ void MapperInformationDockWidget::updateInformation()
    nesMapper028Info mapper028Info;
    nesMapper069Info mapper069Info;
    uint16_t mirroring[4];
+   uint8_t reg;
 
    // Show mirroring...
    nesGetMirroring(&(mirroring[0]),&(mirroring[1]),&(mirroring[2]),&(mirroring[3]));
@@ -307,6 +309,28 @@ void MapperInformationDockWidget::updateInformation()
       ui->regSelected69->setText(buffer);
       sprintf ( buffer, "%02X", mapper069Info.regValue );
       ui->regValue69->setText(buffer);
+      break;
+   case 111:
+      reg = nesMapperLowRead(0x5000);
+      // red LED
+      if ( reg&0x40 )
+      {
+         ui->redLED->setStyleSheet("");
+      }
+      else
+      {
+         ui->redLED->setStyleSheet("QLabel { background-color: red; }");
+      }
+      // green LED
+      if ( reg&0x80 )
+      {
+         ui->greenLED->setStyleSheet("");
+      }
+      else
+      {
+         ui->greenLED->setStyleSheet("QLabel { background-color: green; }");
+      }
+      ui->nameTableMapping->setText(QString::number((reg&0x20)>>5));
       break;
    }
 

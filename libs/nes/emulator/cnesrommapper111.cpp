@@ -30,7 +30,7 @@ static CBitfieldData* tbl5000_5FFFBitfields [] =
 
 static CRegisterData* tblRegisters [] =
 {
-   new CRegisterData(0x5000, "Bank Select", nesMapperHighRead, nesMapperHighWrite, 1, tbl5000_5FFFBitfields)
+   new CRegisterData(0x5000, "Bank Select", nesMapperHighRead, nesMapperHighWrite, 5, tbl5000_5FFFBitfields)
 };
 
 static const char* rowHeadings [] =
@@ -65,8 +65,8 @@ void CROMMapper111::RESET ( bool soft )
 
    m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 0 ];
    m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ 1 ];
-   m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ m_numPrgBanks-2 ];
-   m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ m_numPrgBanks-1 ];
+   m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ 2 ];
+   m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ 3 ];
 
    // CHR ROM/RAM already set up in CROM::RESET()...
 }
@@ -78,6 +78,28 @@ uint32_t CROMMapper111::DEBUGINFO ( uint32_t addr )
 
 void CROMMapper111::LMAPPER ( uint32_t addr, uint8_t data )
 {
+   uint8_t bank;
+
+   m_reg = data;
+
+   bank = (m_reg&0x0f)<<2;
+
+   m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ bank ];
+   m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ bank+1 ];
+   m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ bank+2 ];
+   m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ bank+3 ];
+
+   bank = (m_reg&0x10)>>1;
+
+   m_pCHRmemory [ 0 ] = m_CHRmemory [ bank+0 ];
+   m_pCHRmemory [ 1 ] = m_CHRmemory [ bank+1 ];
+   m_pCHRmemory [ 2 ] = m_CHRmemory [ bank+2 ];
+   m_pCHRmemory [ 3 ] = m_CHRmemory [ bank+3 ];
+   m_pCHRmemory [ 4 ] = m_CHRmemory [ bank+4 ];
+   m_pCHRmemory [ 5 ] = m_CHRmemory [ bank+5 ];
+   m_pCHRmemory [ 6 ] = m_CHRmemory [ bank+6 ];
+   m_pCHRmemory [ 7 ] = m_CHRmemory [ bank+7 ];
+
    if ( nesIsDebuggable() )
    {
       // Check mapper state breakpoints...
