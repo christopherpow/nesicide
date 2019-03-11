@@ -133,7 +133,8 @@ void MemoryInspectorDockWidget::updateMemory ()
                      ((pBreakpoint->target == eBreakInPPU) &&
                       ((memoryType == eMemory_PPU) ||
                        (memoryType == eMemory_PPUpalette) ||
-                       (memoryType == eMemory_cartCHRMEM))) )
+                       (memoryType == eMemory_cartCHRMEM) ||
+                       (memoryType == eMemory_cartVRAM))) )
                {
                   // Change memory address into row/column of display...
                   itemActual = pBreakpoint->itemActual - model->memoryBottom();

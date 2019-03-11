@@ -293,7 +293,7 @@ public:
    static void MIRROR ( int32_t oneScreen = -1, bool vert = true, bool extraVRAM = false );
    static void MIRRORVERT ( void );
    static void MIRRORHORIZ ( void );
-   static void MIRROR ( int32_t nt1, int32_t nt2, int32_t nt3, int32_t nt4 );
+   static void MIRROR ( int32_t b0, int32_t b1, int32_t b2, int32_t b3 );
    static inline bool FOURSCREEN ( void )
    {
       return m_extraVRAM;
@@ -503,12 +503,9 @@ public:
 
    // Accessor method used by some ROM mappers that can remap the
    // nametable memory in a more complicated fashion than straight mirroring.
-   static inline void Move1KBank ( int32_t bank, uint8_t* point )
+   static inline void REMAPVRAM ( int32_t bank, uint8_t* point )
    {
-      if ( bank >= 8 )
-      {
-         m_pPPUmemory[bank-8] = point;
-      }
+      m_pPPUmemory[bank] = point;
    }
 
    // Accessor method to retrieve the database managed by the PPU

@@ -728,7 +728,7 @@ protected:
 typedef struct _CNES6502_opcode
 {
    // Self-referential index.
-   int32_t op;
+   uint8_t op;
 
    // Instruction printable name.
    const char* name;
@@ -737,16 +737,16 @@ typedef struct _CNES6502_opcode
    void (*pFn)(void);
 
    // Addressing mode of this particular entry.
-   int32_t amode;
+   uint8_t amode;
 
    // Number of CPU cycles required to execute this particular entry.
-   int32_t cycles;
+   uint8_t cycles;
 
    // Is the instruction part of the documented 6502 ISA?
-   bool documented;
+   uint8_t documented;
 
    // Do we force an extra cycle for this instruction variant?
-   bool forceExtraCycle;
+   uint8_t forceExtraCycle;
 
    // Which cycles of the instruction do interrupts get checked on?
    // NOTE: This is a bitmap to save space since instructions are never > 8 cycles.

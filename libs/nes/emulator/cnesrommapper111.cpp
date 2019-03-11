@@ -100,6 +100,17 @@ void CROMMapper111::LMAPPER ( uint32_t addr, uint8_t data )
    m_pCHRmemory [ 6 ] = m_CHRmemory [ bank+6 ];
    m_pCHRmemory [ 7 ] = m_CHRmemory [ bank+7 ];
 
+   bank = (m_reg&0x20)>>2;
+
+   m_pVRAMmemory [ 0 ] = m_VRAMmemory+((bank+0)*MEM_1KB);
+   m_pVRAMmemory [ 1 ] = m_VRAMmemory+((bank+1)*MEM_1KB);
+   m_pVRAMmemory [ 2 ] = m_VRAMmemory+((bank+2)*MEM_1KB);
+   m_pVRAMmemory [ 3 ] = m_VRAMmemory+((bank+3)*MEM_1KB);
+   m_pVRAMmemory [ 4 ] = m_VRAMmemory+((bank+4)*MEM_1KB);
+   m_pVRAMmemory [ 5 ] = m_VRAMmemory+((bank+5)*MEM_1KB);
+   m_pVRAMmemory [ 6 ] = m_VRAMmemory+((bank+6)*MEM_1KB);
+   m_pVRAMmemory [ 7 ] = m_VRAMmemory+((bank+7)*MEM_1KB);
+
    if ( nesIsDebuggable() )
    {
       // Check mapper state breakpoints...

@@ -14,6 +14,7 @@
 #define eMemory_cartSRAM 4
 #define eMemory_cartEXRAM 5
 #define eMemory_cartCHRMEM 6
+#define eMemory_cartVRAM 7
 
 typedef void (*setMemFunc)(uint32_t,uint32_t);
 typedef uint32_t (*getMemFunc)(uint32_t);

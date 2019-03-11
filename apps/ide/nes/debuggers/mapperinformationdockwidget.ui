@@ -18,7 +18,7 @@
     <item row="0" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>3</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="prgBanking">
        <attribute name="title">
@@ -266,7 +266,7 @@
       </widget>
       <widget class="QWidget" name="mirroring">
        <attribute name="title">
-        <string>Mirroring</string>
+        <string>PPU-to-VRAM Mapping (Mirroring)</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_7">
         <item row="0" column="0">

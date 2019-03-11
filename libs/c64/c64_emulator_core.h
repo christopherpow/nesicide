@@ -67,6 +67,7 @@ typedef enum
 #define CYCLE_TO_VISY(c) (c/PPU_CYCLES_PER_SCANLINE)
 #define VISY_VISX_TO_CYCLE(y,x) ((y*PPU_CYCLES_PER_SCANLINE)+x)
 
+#define MEM_0B 0x0
 #define MEM_8B 0x8
 #define MASK_8B 0x7
 #define MEM_32B 0x20

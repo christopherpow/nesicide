@@ -161,16 +161,16 @@ void CROMMapper068::HMAPPER ( uint32_t addr, uint8_t data )
          switch ( m_reg[6]&0x01 )
          {
          case 0:
-            CPPU::Move1KBank ( 0x8, m_CHRmemory [ m_reg[4] ] );
-            CPPU::Move1KBank ( 0x9, m_CHRmemory [ m_reg[5] ] );
-            CPPU::Move1KBank ( 0xA, m_CHRmemory [ m_reg[4] ] );
-            CPPU::Move1KBank ( 0xB, m_CHRmemory [ m_reg[5] ] );
+            CPPU::REMAPVRAM ( 0x0, m_CHRmemory [ m_reg[4] ] );
+            CPPU::REMAPVRAM ( 0x1, m_CHRmemory [ m_reg[5] ] );
+            CPPU::REMAPVRAM ( 0x2, m_CHRmemory [ m_reg[4] ] );
+            CPPU::REMAPVRAM ( 0x3, m_CHRmemory [ m_reg[5] ] );
             break;
          case 1:
-            CPPU::Move1KBank ( 0x8, m_CHRmemory [ m_reg[4] ] );
-            CPPU::Move1KBank ( 0x9, m_CHRmemory [ m_reg[4] ] );
-            CPPU::Move1KBank ( 0xA, m_CHRmemory [ m_reg[5] ] );
-            CPPU::Move1KBank ( 0xB, m_CHRmemory [ m_reg[5] ] );
+            CPPU::REMAPVRAM ( 0x0, m_CHRmemory [ m_reg[4] ] );
+            CPPU::REMAPVRAM ( 0x1, m_CHRmemory [ m_reg[4] ] );
+            CPPU::REMAPVRAM ( 0x2, m_CHRmemory [ m_reg[5] ] );
+            CPPU::REMAPVRAM ( 0x3, m_CHRmemory [ m_reg[5] ] );
             break;
          }
       }
@@ -196,16 +196,16 @@ void CROMMapper068::HMAPPER ( uint32_t addr, uint8_t data )
          switch ( m_reg[6]&0x01 )
          {
          case 0:
-            CPPU::Move1KBank ( 0x8, m_CHRmemory [ m_reg[4] ] );
-            CPPU::Move1KBank ( 0x9, m_CHRmemory [ m_reg[5] ] );
-            CPPU::Move1KBank ( 0xA, m_CHRmemory [ m_reg[4] ] );
-            CPPU::Move1KBank ( 0xB, m_CHRmemory [ m_reg[5] ] );
+            CPPU::REMAPVRAM ( 0x0, m_CHRmemory [ m_reg[4] ] );
+            CPPU::REMAPVRAM ( 0x1, m_CHRmemory [ m_reg[5] ] );
+            CPPU::REMAPVRAM ( 0x0, m_CHRmemory [ m_reg[4] ] );
+            CPPU::REMAPVRAM ( 0x1, m_CHRmemory [ m_reg[5] ] );
             break;
          case 1:
-            CPPU::Move1KBank ( 0x8, m_CHRmemory [ m_reg[4] ] );
-            CPPU::Move1KBank ( 0x9, m_CHRmemory [ m_reg[4] ] );
-            CPPU::Move1KBank ( 0xA, m_CHRmemory [ m_reg[5] ] );
-            CPPU::Move1KBank ( 0xB, m_CHRmemory [ m_reg[5] ] );
+            CPPU::REMAPVRAM ( 0x0, m_CHRmemory [ m_reg[4] ] );
+            CPPU::REMAPVRAM ( 0x1, m_CHRmemory [ m_reg[4] ] );
+            CPPU::REMAPVRAM ( 0x0, m_CHRmemory [ m_reg[5] ] );
+            CPPU::REMAPVRAM ( 0x1, m_CHRmemory [ m_reg[5] ] );
             break;
          }
       }
@@ -231,16 +231,16 @@ void CROMMapper068::HMAPPER ( uint32_t addr, uint8_t data )
          switch ( m_reg[6]&0x01 )
          {
          case 0:
-            CPPU::Move1KBank ( 0x8, m_CHRmemory [ m_reg[4] ] );
-            CPPU::Move1KBank ( 0x9, m_CHRmemory [ m_reg[5] ] );
-            CPPU::Move1KBank ( 0xA, m_CHRmemory [ m_reg[4] ] );
-            CPPU::Move1KBank ( 0xB, m_CHRmemory [ m_reg[5] ] );
+            CPPU::REMAPVRAM ( 0x0, m_CHRmemory [ m_reg[4] ] );
+            CPPU::REMAPVRAM ( 0x1, m_CHRmemory [ m_reg[5] ] );
+            CPPU::REMAPVRAM ( 0x0, m_CHRmemory [ m_reg[4] ] );
+            CPPU::REMAPVRAM ( 0x1, m_CHRmemory [ m_reg[5] ] );
             break;
          case 1:
-            CPPU::Move1KBank ( 0x8, m_CHRmemory [ m_reg[4] ] );
-            CPPU::Move1KBank ( 0x9, m_CHRmemory [ m_reg[4] ] );
-            CPPU::Move1KBank ( 0xA, m_CHRmemory [ m_reg[5] ] );
-            CPPU::Move1KBank ( 0xB, m_CHRmemory [ m_reg[5] ] );
+            CPPU::REMAPVRAM ( 0x0, m_CHRmemory [ m_reg[4] ] );
+            CPPU::REMAPVRAM ( 0x1, m_CHRmemory [ m_reg[4] ] );
+            CPPU::REMAPVRAM ( 0x0, m_CHRmemory [ m_reg[5] ] );
+            CPPU::REMAPVRAM ( 0x1, m_CHRmemory [ m_reg[5] ] );
             break;
          }
       }

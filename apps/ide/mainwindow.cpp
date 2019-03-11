@@ -651,6 +651,8 @@ void MainWindow::createNesUi()
    actionBinMapperMemory_Inspector->setObjectName(QString::fromUtf8("actionBinMapperMemory_Inspector"));
    actionBinROM_Inspector = new QAction("PRG-ROM Memory",this);
    actionBinROM_Inspector->setObjectName(QString::fromUtf8("actionBinROM_Inspector"));
+   actionBinCartVRAMMemory_Inspector = new QAction("Extra VRAM Memory",this);
+   actionBinCartVRAMMemory_Inspector->setObjectName(QString::fromUtf8("actionBinCartVRAMMemory_Inspector"));
    actionPPUInformation_Inspector = new QAction("Information",this);
    actionPPUInformation_Inspector->setObjectName(QString::fromUtf8("actionPPUInformation_Inspector"));
    actionJoypadLogger_Inspector = new QAction("Joypad Logger",this);
@@ -821,6 +823,7 @@ void MainWindow::createNesUi()
    menuCartridge_Inspectors->addAction(actionBinEXRAMMemory_Inspector);
    menuCartridge_Inspectors->addAction(actionBinSRAMMemory_Inspector);
    menuCartridge_Inspectors->addAction(actionBinROM_Inspector);
+   menuCartridge_Inspectors->addAction(actionBinCartVRAMMemory_Inspector);
    menuCartridge_Inspectors->addSeparator();
    menuCartridge_Inspectors->addAction(actionGfxCHRMemory_Inspector);
    menuEmulator->addAction(menuSystem->menuAction());
@@ -986,6 +989,15 @@ void MainWindow::createNesUi()
    QObject::connect(m_pBinROMInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    CDockWidgetRegistry::addWidget ( "PRG-ROM Inspector", m_pBinROMInspector );
 
+   m_pBinCartVRAMMemoryInspector = new MemoryInspectorDockWidget(nesGetCartridgeVRAMMemoryDatabase,nesGetBreakpointDatabase());
+   QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinCartVRAMMemoryInspector,SLOT(updateTargetMachine(QString)));
+   m_pBinCartVRAMMemoryInspector->setObjectName("cartVRAMMemoryInspector");
+   m_pBinCartVRAMMemoryInspector->setWindowTitle("Cartridge VRAM Inspector");
+   addDockWidget(Qt::BottomDockWidgetArea, m_pBinCartVRAMMemoryInspector );
+   m_pBinCartVRAMMemoryInspector->hide();
+   QObject::connect(m_pBinCartVRAMMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
+   CDockWidgetRegistry::addWidget ( "Cartridge VRAM Inspector", m_pBinCartVRAMMemoryInspector );
+
    m_pBinNameTableMemoryInspector = new MemoryInspectorDockWidget(nesGetPpuNameTableMemoryDatabase,nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinNameTableMemoryInspector,SLOT(updateTargetMachine(QString)));
    m_pBinNameTableMemoryInspector->setObjectName("ppuNameTableMemoryInspector");
@@ -1129,6 +1141,7 @@ void MainWindow::createNesUi()
    QObject::connect(actionBinCPURegister_Inspector,SIGNAL(triggered()),this,SLOT(actionBinCPURegister_Inspector_triggered()));
    QObject::connect(actionBinCPURAM_Inspector,SIGNAL(triggered()),this,SLOT(actionBinCPURAM_Inspector_triggered()));
    QObject::connect(actionBinROM_Inspector,SIGNAL(triggered()),this,SLOT(actionBinROM_Inspector_triggered()));
+   QObject::connect(actionBinCartVRAMMemory_Inspector,SIGNAL(triggered()),this,SLOT(actionBinCartVRAMMemory_Inspector_triggered()));
    QObject::connect(actionBinNameTableNESMemory_Inspector,SIGNAL(triggered()),this,SLOT(actionBinNameTableNESMemory_Inspector_triggered()));
    QObject::connect(actionBinCHRMemory_Inspector,SIGNAL(triggered()),this,SLOT(actionBinCHRMemory_Inspector_triggered()));
    QObject::connect(actionBinOAMMemory_Inspector,SIGNAL(triggered()),this,SLOT(actionBinOAMMemory_Inspector_triggered()));
@@ -1223,6 +1236,8 @@ void MainWindow::destroyNesUi()
    delete m_pBinCPURAMInspector;
    removeDockWidget(m_pBinROMInspector);
    delete m_pBinROMInspector;
+   removeDockWidget(m_pBinCartVRAMMemoryInspector);
+   delete m_pBinCartVRAMMemoryInspector;
    removeDockWidget(m_pBinNameTableMemoryInspector);
    delete m_pBinNameTableMemoryInspector;
    removeDockWidget(m_pBinPPURegisterInspector);
@@ -1275,6 +1290,7 @@ void MainWindow::destroyNesUi()
    delete actionBinCPURegister_Inspector;
    delete actionBinMapperMemory_Inspector;
    delete actionBinROM_Inspector;
+   delete actionBinCartVRAMMemory_Inspector;
    delete actionPPUInformation_Inspector;
    delete actionJoypadLogger_Inspector;
    delete actionCodeDataLogger_Inspector;
@@ -2666,6 +2682,11 @@ void MainWindow::actionBinCPURAM_Inspector_triggered()
 void MainWindow::actionBinROM_Inspector_triggered()
 {
    m_pBinROMInspector->setVisible(true);
+}
+
+void MainWindow::actionBinCartVRAMMemory_Inspector_triggered()
+{
+   m_pBinCartVRAMMemoryInspector->setVisible(true);
 }
 
 void MainWindow::actionBinNameTableNESMemory_Inspector_triggered()

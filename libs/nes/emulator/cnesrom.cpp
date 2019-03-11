@@ -57,6 +57,18 @@ static CMemoryDatabase* dbEXRAMMemory = new CMemoryDatabase(eMemory_cartEXRAM,
 
 CMemoryDatabase* CROM::m_dbEXRAMMemory = dbEXRAMMemory;
 
+static CMemoryDatabase* dbVRAMMemory = new CMemoryDatabase(eMemory_cartVRAM,
+                                                            VRAM_START,
+                                                            MEM_16KB,
+                                                            16,
+                                                            "Cartridge VRAM Memory",
+                                                            nesGetVRAMData,
+                                                            nesSetVRAMData,
+                                                            nesGetPrintableAddress,
+                                                            true);
+
+CMemoryDatabase* CROM::m_dbVRAMMemory = dbVRAMMemory;
+
 bool returnFalse() { return false; }
 
 static CMemoryDatabase* dbPRGROMMemory = new CMemoryDatabase(eMemory_cartROM,
@@ -96,8 +108,10 @@ int32_t                CROM::m_numBreakpointEvents = NUM_MAPPER_EVENTS;
 
 uint8_t** CROM::m_PRGROMmemory = NULL;
 uint8_t** CROM::m_CHRmemory = NULL;
+uint8_t*  CROM::m_VRAMmemory = NULL;
 uint8_t*  CROM::m_pPRGROMmemory [] = { NULL, NULL, NULL, NULL };
 uint8_t*  CROM::m_pCHRmemory [] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
+uint8_t*  CROM::m_pVRAMmemory [] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
 uint8_t** CROM::m_SRAMmemory = NULL;
 uint8_t*  CROM::m_pSRAMmemory [] = { NULL, NULL, NULL, NULL, NULL };
 uint8_t*  CROM::m_EXRAMmemory = NULL;
@@ -217,6 +231,8 @@ CROM::CROM()
       m_EXRAMaddr2sloc[addr] = 0;
    }
 
+   m_VRAMmemory = new uint8_t[MEM_16KB]; // GTROM mapper 111 has 16KB remappable here
+
    m_CHRmemory = new uint8_t*[NUM_CHR_BANKS];
    for ( bank = 0; bank < NUM_CHR_BANKS; bank++ )
    {
@@ -289,6 +305,8 @@ CROM::~CROM()
    delete [] m_SRAMsloc2addr;
    delete [] m_SRAMaddr2sloc;
    delete [] m_SRAMsloc;
+
+   delete [] m_VRAMmemory;
 
    for ( addr = 0; addr < MEM_1KB; addr++ )
    {
@@ -406,6 +424,12 @@ void CROM::RESET ( uint32_t mapper, bool soft )
    for ( bank = 0; bank < 8; bank++ )
    {
       m_pCHRmemory [ bank ] = m_CHRmemory [ bank ];
+   }
+
+   // Default VRAM map...
+   for ( bank = 0; bank < 8; bank++ )
+   {
+      m_pVRAMmemory [ bank ] = m_VRAMmemory+(bank*MEM_1KB);
    }
 
    // Assume identity-mapped SRAM...

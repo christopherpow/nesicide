@@ -25,6 +25,8 @@ typedef struct _MapperFuncs
    SOUNDENAFUNC soundenable;
    bool     remapPrg;
    bool     remapChr;
+   bool     remapVram;
+   uint32_t vramSize;
 } MapperFuncs;
 
 extern MapperFuncs _mapperfunc[];

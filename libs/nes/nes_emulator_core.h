@@ -254,18 +254,18 @@ enum
 #define OAM_SIZE     4
 #define NUM_OAM_REGS (NUM_SPRITES*OAM_SIZE)
 
-// Samples per video frame for 22.05KHz audio output.
+// Samples per video frame for 44.1KHz audio output.
 // NTSC is 60Hz, PAL is 50Hz.  The number of samples
 // drives the rate at which the SDL library will invoke
 // the callback method to retrieve more audio samples to
 // play.
-#define APU_SAMPLES           (4096)
+#define APU_SAMPLES           (1024)
 
 #define SDL_SAMPLE_RATE       (44100)
 
-#define APU_SAMPLE_SPACE_NTSC  (89341.5/3.0/(SDL_SAMPLE_RATE/60.0))
-#define APU_SAMPLE_SPACE_PAL   (106392.0/3.2/(SDL_SAMPLE_RATE/50.0))
-#define APU_SAMPLE_SPACE_DENDY (106392.0/3.0/(SDL_SAMPLE_RATE/50.0))
+#define APU_SAMPLE_SPACE_NTSC  ((89341.5/3.0)/(SDL_SAMPLE_RATE/60.0))
+#define APU_SAMPLE_SPACE_PAL   ((106392.0/3.2)/(SDL_SAMPLE_RATE/50.0))
+#define APU_SAMPLE_SPACE_DENDY ((106392.0/3.0)/(SDL_SAMPLE_RATE/50.0))
 
 #define APU_BUFFER_PRERENDER           (APU_SAMPLES*2)   // How much rendering to do
 
@@ -284,6 +284,7 @@ typedef struct
 } iNES_header_struct;
 #pragma pack()
 
+#define MEM_0B 0x0
 #define MEM_8B 0x8
 #define MASK_8B 0x7
 #define MEM_32B 0x20
@@ -319,6 +320,7 @@ typedef struct
 
 #define EXRAM_START 0x5C00
 #define SRAM_START 0x6000
+#define VRAM_START 0x2000
 #define PPUMEM_START 0x2000
 #define PPUPAL_START 0x3F00
 #define PPUREG_START 0x2000
@@ -540,6 +542,7 @@ CMemoryDatabase* nesGetCartridgeEXRAMMemoryDatabase ( void );
 CMemoryDatabase* nesGetCartridgeSRAMMemoryDatabase ( void );
 CMemoryDatabase* nesGetCartridgePRGROMMemoryDatabase ( void );
 CMemoryDatabase* nesGetCartridgeCHRMemoryDatabase ( void );
+CMemoryDatabase* nesGetCartridgeVRAMMemoryDatabase ( void );
 
 CRegisterDatabase* nesGetCpuRegisterDatabase ( void );
 CRegisterDatabase* nesGetPpuRegisterDatabase ( void );
@@ -689,9 +692,12 @@ bool nesIsSRAMDirty ();
 uint32_t nesGetEXRAMAbsoluteAddress ( uint32_t addr );
 uint32_t nesGetEXRAMData ( uint32_t addr );
 void nesSetEXRAMData ( uint32_t addr, uint32_t data );
+uint32_t nesGetVRAMData ( uint32_t addr );
+void nesSetVRAMData ( uint32_t addr, uint32_t data );
 bool nesMapperRemapsPRGROM ( void );
 bool nesMapperRemapsCHRMEM ( void );
-
+bool nesMapperRemapsVMEM ( void );
+uint32_t nesMapperRemappedVMEMSize ( void );
 typedef struct
 {
    uint32_t cycle;

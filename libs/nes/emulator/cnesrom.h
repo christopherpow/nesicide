@@ -136,6 +136,18 @@ public:
    {
       *(m_EXRAMmemory+(addr-EXRAM_START)) = data;
    }
+   static inline uint32_t VRAM ( uint32_t addr )
+   {
+      return *(m_VRAMmemory+(addr-VRAM_START));
+   }
+   static inline void VRAM ( uint32_t addr, uint8_t data )
+   {
+      *(m_VRAMmemory+(addr-VRAM_START)) = data;
+   }
+   static inline void REMAPVRAM ( uint32_t bank, uint32_t newBank )
+   {
+      m_pVRAMmemory[bank] = m_VRAMmemory+(newBank*MEM_1KB);
+   }
 
    // Mapper interfaces [called by emulator through mapperfunc array]
    static void RESET ( bool soft );
@@ -317,6 +329,11 @@ public:
       return m_dbEXRAMMemory;
    }
 
+   static inline CMemoryDatabase* VRAMMEMORY ( void )
+   {
+      return m_dbVRAMMemory;
+   }
+
    static inline CMemoryDatabase* CHRMEMORY ( void )
    {
       return m_dbCHRMemory;
@@ -327,6 +344,7 @@ protected:
    static uint8_t**  m_CHRmemory;
    static uint8_t**  m_SRAMmemory;
    static uint8_t*   m_EXRAMmemory;
+   static uint8_t*   m_VRAMmemory;
 
    // Mapper stuff...
    static uint32_t           m_mapper;
@@ -335,6 +353,7 @@ protected:
    static uint8_t* m_pPRGROMmemory [ 4 ];
    static uint8_t* m_pCHRmemory [ 8 ];
    static uint8_t* m_pSRAMmemory [ 5 ];
+   static uint8_t* m_pVRAMmemory [ 8 ];
 
    static CCodeDataLogger* m_pLogger [ NUM_ROM_BANKS ];
    static CCodeDataLogger* m_pEXRAMLogger;
@@ -345,6 +364,7 @@ protected:
    static CMemoryDatabase* m_dbPRGROMMemory;
    static CMemoryDatabase* m_dbSRAMMemory;
    static CMemoryDatabase* m_dbEXRAMMemory;
+   static CMemoryDatabase* m_dbVRAMMemory;
    static CMemoryDatabase* m_dbCHRMemory;
 
    static CBreakpointEventInfo** m_tblBreakpointEvents;

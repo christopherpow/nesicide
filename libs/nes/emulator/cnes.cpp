@@ -897,10 +897,6 @@ void CNES::RUN ( uint32_t* joy )
    if ( m_bRecord )
    {
       CIOStandardJoypad::LOGGER(0)->AddSample ( C6502::_CYCLES(), *(ljoy+CONTROLLER1) );
-   }
-
-   if ( m_bRecord )
-   {
       CIOStandardJoypad::LOGGER(1)->AddSample ( C6502::_CYCLES(), *(ljoy+CONTROLLER2) );
    }
 

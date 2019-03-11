@@ -301,6 +301,11 @@ CMemoryDatabase* nesGetCartridgeCHRMemoryDatabase ( void )
    return CROM::CHRMEMORY();
 }
 
+CMemoryDatabase* nesGetCartridgeVRAMMemoryDatabase ( void )
+{
+   return CROM::VRAMMEMORY();
+}
+
 int32_t nesGetSizeOfCpuBreakpointEventDatabase ( void )
 {
    return C6502::NUMBREAKPOINTEVENTS();
@@ -971,6 +976,16 @@ void nesSetEXRAMData ( uint32_t addr, uint32_t data )
    CROM::EXRAM(addr,data);
 }
 
+uint32_t nesGetVRAMData ( uint32_t addr )
+{
+   return CROM::VRAM(addr);
+}
+
+void nesSetVRAMData ( uint32_t addr, uint32_t data )
+{
+   CROM::VRAM(addr,data);
+}
+
 bool nesMapperRemapsPRGROM ( void )
 {
    return MAPPERFUNC->remapPrg;
@@ -979,6 +994,16 @@ bool nesMapperRemapsPRGROM ( void )
 bool nesMapperRemapsCHRMEM ( void )
 {
    return MAPPERFUNC->remapChr;
+}
+
+bool nesMapperRemapsVMEM ( void )
+{
+   return MAPPERFUNC->remapVram;
+}
+
+uint32_t nesMapperRemappedVMEMSize ( void )
+{
+   return MAPPERFUNC->vramSize;
 }
 
 uint32_t nesGetPaletteRedComponent(uint32_t idx)

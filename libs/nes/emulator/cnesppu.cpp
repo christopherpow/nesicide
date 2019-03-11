@@ -565,7 +565,7 @@ CMemoryDatabase* CPPU::m_dbPaletteMemory = dbPaletteMemory;
 
 static CMemoryDatabase* dbNameTableMemory = new CMemoryDatabase(eMemory_PPU,
                                                                 0x2000,
-                                                                MEM_4KB,
+                                                                MEM_2KB,
                                                                 32,
                                                                 "NameTable",
                                                                 nesGetPPUMemory,
@@ -737,7 +737,7 @@ CPPU::CPPU()
       m_2005y[idx] = new uint16_t[240];
    }
 
-   m_PPUmemory = new uint8_t[MEM_4KB];
+   m_PPUmemory = new uint8_t[MEM_2KB];
 
    // Set up default mapping.
    for ( idx = 0; idx < 8; idx++ )
@@ -913,25 +913,29 @@ uint32_t CPPU::LOAD ( uint32_t addr, int8_t source, int8_t type, bool trace )
       return data;
    }
 
-   if ( addr >= 0x3000 )
+   if ( addr >= 0x3F00 )
    {
-      if ( addr >= 0x3F00 )
+      data = *(m_PALETTEmemory+(addr&0x1F));
+
+      // Add Tracer sample...
+      if ( nesIsDebuggable() && trace )
       {
-         data = *(m_PALETTEmemory+(addr&0x1F));
-
-         // Add Tracer sample...
-         if ( nesIsDebuggable() && trace )
-         {
-            CNES::TRACER()->AddSample ( m_cycles, type, source, eTarget_Palette, addr, data );
-         }
-
-         return data;
+         CNES::TRACER()->AddSample ( m_cycles, type, source, eTarget_Palette, addr, data );
       }
 
-      addr &= 0xEFFF;
+      return data;
    }
 
-   data = *((*(m_pPPUmemory+((addr&0x1FFF)>>10)))+(addr&0x3FF));
+   addr &= 0x1FFF;
+
+   if ( nesMapperRemapsVMEM() )
+   {
+      data = CROM::VRAM(addr);
+   }
+   else
+   {
+      data = *((*(m_pPPUmemory+((addr&0x1FFF)>>10)))+(addr&0x3FF));
+   }
 
    // Add Tracer sample...
    if ( nesIsDebuggable() && trace )
@@ -969,31 +973,28 @@ void CPPU::STORE ( uint32_t addr, uint8_t data, int8_t source, int8_t type, bool
       return;
    }
 
-   if ( addr >= 0x3000 )
+   if ( addr >= 0x3F00 )
    {
-      if ( addr >= 0x3F00 )
+      // Add Tracer sample...
+      if ( nesIsDebuggable() && trace )
       {
-         // Add Tracer sample...
-         if ( nesIsDebuggable() && trace )
-         {
-            CNES::TRACER()->AddSample ( m_cycles, type, source, eTarget_Palette, addr, data );
-         }
-
-         if ( !(addr&0xF) )
-         {
-            *(m_PALETTEmemory+0x00) = data;
-            *(m_PALETTEmemory+0x10) = data;
-         }
-         else
-         {
-            *(m_PALETTEmemory+(addr&0x1F)) = data;
-         }
-
-         return;
+         CNES::TRACER()->AddSample ( m_cycles, type, source, eTarget_Palette, addr, data );
       }
 
-      addr &= 0xEFFF;
+      if ( !(addr&0xF) )
+      {
+         *(m_PALETTEmemory+0x00) = data;
+         *(m_PALETTEmemory+0x10) = data;
+      }
+      else
+      {
+         *(m_PALETTEmemory+(addr&0x1F)) = data;
+      }
+
+      return;
    }
+
+   addr &= 0x1FFF;
 
    // Add Tracer sample...
    if ( nesIsDebuggable() && trace )
@@ -1008,7 +1009,14 @@ void CPPU::STORE ( uint32_t addr, uint8_t data, int8_t source, int8_t type, bool
       }
    }
 
-   *((*(m_pPPUmemory+((addr&0x1FFF)>>10)))+(addr&0x3FF)) = data;
+   if ( nesMapperRemapsVMEM() )
+   {
+      CROM::VRAM(addr,data);
+   }
+   else
+   {
+      *((*(m_pPPUmemory+((addr&0x1FFF)>>10)))+(addr&0x3FF)) = data;
+   }
 }
 
 uint32_t CPPU::RENDER ( uint32_t addr, int8_t target )
@@ -1085,6 +1093,8 @@ void CPPU::EXTRA ()
 
 void CPPU::RESET ( bool soft )
 {
+   int idx;
+
    startVblank = (CNES::VIDEOMODE()==MODE_NTSC)?PPU_CYCLE_START_VBLANK_NTSC:(CNES::VIDEOMODE()==MODE_PAL)?PPU_CYCLE_START_VBLANK_PAL:PPU_CYCLE_START_VBLANK_DENDY;
    quietScanlines = (CNES::VIDEOMODE()==MODE_NTSC)?SCANLINES_QUIET_NTSC:(CNES::VIDEOMODE()==MODE_PAL)?SCANLINES_QUIET_PAL:SCANLINES_QUIET_DENDY;
    vblankScanlines = (CNES::VIDEOMODE()==MODE_NTSC)?SCANLINES_VBLANK_NTSC:(CNES::VIDEOMODE()==MODE_PAL)?SCANLINES_VBLANK_PAL:SCANLINES_VBLANK_DENDY;
@@ -1126,6 +1136,12 @@ void CPPU::RESET ( bool soft )
 
    m_lastSprite0HitX = 0;
    m_lastSprite0HitY = 0;
+
+   // Set up default mapping.
+   for ( idx = 0; idx < 8; idx++ )
+   {
+      m_pPPUmemory[idx] = m_PPUmemory+((idx&1)<<UPSHIFT_1KB);
+   }
 
    // Set up default palette in a way that passes the default palette test.
    PALETTESET ( tblDefaultPalette );
@@ -1397,10 +1413,6 @@ void CPPU::MIRROR ( int32_t oneScreen, bool vert, bool extraVRAM )
    {
       MIRROR ( m_oneScreen, m_oneScreen, m_oneScreen, m_oneScreen );
    }
-   else if ( m_extraVRAM )
-   {
-      MIRROR ( 0, 1, 2, 3 );
-   }
    else if ( vert )
    {
       MIRRORVERT ();
@@ -1408,6 +1420,17 @@ void CPPU::MIRROR ( int32_t oneScreen, bool vert, bool extraVRAM )
    else
    {
       MIRRORHORIZ ();
+   }
+   if ( m_extraVRAM )
+   {
+      CROM::REMAPVRAM ( 0x0, 0x0 );
+      CROM::REMAPVRAM ( 0x1, 0x1 );
+      CROM::REMAPVRAM ( 0x2, 0x2 );
+      CROM::REMAPVRAM ( 0x3, 0x3 );
+      CROM::REMAPVRAM ( 0x4, 0x4 );
+      CROM::REMAPVRAM ( 0x5, 0x5 );
+      CROM::REMAPVRAM ( 0x6, 0x6 );
+      CROM::REMAPVRAM ( 0x7, 0x7 );
    }
 }
 
@@ -1421,27 +1444,31 @@ void CPPU::MIRRORHORIZ ( void )
    MIRROR ( 0, 0, 1, 1 );
 }
 
-void CPPU::MIRROR ( int32_t nt1, int32_t nt2, int32_t nt3, int32_t nt4 )
+void CPPU::MIRROR ( int32_t b0, int32_t b1, int32_t b2, int32_t b3 )
 {
-   if ( nt1 >= 0 )
+   if ( b0 >= 0 )
    {
-      nt1 &= 0x3;
-      Move1KBank ( 0x8, &(m_PPUmemory[(nt1<<UPSHIFT_1KB)]) );
+      b0 &= 0x3;
+      REMAPVRAM ( 0x0, &(m_PPUmemory[(b0<<UPSHIFT_1KB)]) );
+      REMAPVRAM ( 0x4, &(m_PPUmemory[(b0<<UPSHIFT_1KB)]) );
    }
-   if ( nt2 >= 0 )
+   if ( b1 >= 0 )
    {
-      nt2 &= 0x3;
-      Move1KBank ( 0x9, &(m_PPUmemory[(nt2<<UPSHIFT_1KB)]) );
+      b1 &= 0x3;
+      REMAPVRAM ( 0x1, &(m_PPUmemory[(b1<<UPSHIFT_1KB)]) );
+      REMAPVRAM ( 0x5, &(m_PPUmemory[(b1<<UPSHIFT_1KB)]) );
    }
-   if ( nt3 >= 0 )
+   if ( b2 >= 0 )
    {
-      nt3 &= 0x3;
-      Move1KBank ( 0xA, &(m_PPUmemory[(nt3<<UPSHIFT_1KB)]) );
+      b2 &= 0x3;
+      REMAPVRAM ( 0x2, &(m_PPUmemory[(b2<<UPSHIFT_1KB)]) );
+      REMAPVRAM ( 0x6, &(m_PPUmemory[(b2<<UPSHIFT_1KB)]) );
    }
-   if ( nt4 >= 0 )
+   if ( b3 >= 0 )
    {
-      nt4 &= 0x3;
-      Move1KBank ( 0xB, &(m_PPUmemory[(nt4<<UPSHIFT_1KB)]) );
+      b3 &= 0x3;
+      REMAPVRAM ( 0x3, &(m_PPUmemory[(b3<<UPSHIFT_1KB)]) );
+      REMAPVRAM ( 0x7, &(m_PPUmemory[(b3<<UPSHIFT_1KB)]) );
    }
 }
 

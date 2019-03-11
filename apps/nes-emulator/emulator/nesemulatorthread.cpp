@@ -35,9 +35,9 @@ static void audioHook ( void )
 extern "C" void SDL_GetMoreData(void* userdata, uint8_t* stream, int32_t len)
 {
 #if 0
-   LARGE_INTEGER t;
-   static LARGE_INTEGER to;
-   LARGE_INTEGER f;
+   uint64_t t;
+   static uint64_t to;
+   uint64_t f;
    QueryPerformanceFrequency(&f);
    QueryPerformanceCounter(&t);
    QString str;
@@ -45,6 +45,9 @@ extern "C" void SDL_GetMoreData(void* userdata, uint8_t* stream, int32_t len)
    to = t;
    qDebug(str.toLatin1().constData());
 #endif
+//   QDateTime dt = QDateTime::currentDateTime();
+//   static int ctr = 0;
+//   qDebug("%d %d:%03d",ctr++,dt.time().second(),dt.time().msec());
    if ( nesGetAudioSamplesAvailable() >= (len>>1) )
    {
       memcpy(stream,nesGetAudioSamples(len>>1),len);
@@ -84,7 +87,8 @@ NESEmulatorThread::NESEmulatorThread(QObject*)
    // Set up audio sample rate for video mode...
    sdlAudioSpec.samples = APU_SAMPLES;
 
-   SDL_OpenAudio ( &sdlAudioSpec, NULL );
+   SDL_AudioSpec sdlAudioSpecOut;
+   SDL_OpenAudio ( &sdlAudioSpec, &sdlAudioSpecOut );
 
    SDL_PauseAudio ( 0 );
 

@@ -112,6 +112,7 @@ protected:
    MemoryInspectorDockWidget* m_pBinCHRMemoryInspector;
    MemoryInspectorDockWidget* m_pBinSRAMMemoryInspector;
    MemoryInspectorDockWidget* m_pBinEXRAMMemoryInspector;
+   MemoryInspectorDockWidget* m_pBinCartVRAMMemoryInspector;
    RegisterInspectorDockWidget* m_pBinPPURegisterInspector;
    RegisterInspectorDockWidget* m_pBinAPURegisterInspector;
    RegisterInspectorDockWidget* m_pBinOAMMemoryInspector;
@@ -145,6 +146,7 @@ protected:
    QAction *actionBinEXRAMMemory_Inspector;
    QAction *actionBinMapperMemory_Inspector;
    QAction *actionBinROM_Inspector;
+   QAction *actionBinCartVRAMMemory_Inspector;
    QAction *actionPPUInformation_Inspector;
    QAction *actionJoypadLogger_Inspector;
    QAction *actionCodeDataLogger_Inspector;
@@ -319,6 +321,7 @@ private slots:
    void actionBinCPURegister_Inspector_triggered();
    void actionBinCPURAM_Inspector_triggered();
    void actionBinROM_Inspector_triggered();
+   void actionBinCartVRAMMemory_Inspector_triggered();
    void actionBinNameTableNESMemory_Inspector_triggered();
    void actionBinCHRMemory_Inspector_triggered();
    void actionBinOAMMemory_Inspector_triggered();

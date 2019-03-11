@@ -445,7 +445,7 @@ void CROMMapper019::HMAPPER ( uint32_t addr, uint8_t data )
       m_reg[11] = data;
       if ( data < 0xE0 )
       {
-         CPPU::Move1KBank(0x8,m_CHRmemory[m_reg[11]]);
+         CPPU::REMAPVRAM(0x0,m_CHRmemory[m_reg[11]]);
       }
       else
       {
@@ -457,7 +457,7 @@ void CROMMapper019::HMAPPER ( uint32_t addr, uint8_t data )
       m_reg[12] = data;
       if ( data < 0xE0 )
       {
-         CPPU::Move1KBank(0x9,m_CHRmemory[m_reg[12]]);
+         CPPU::REMAPVRAM(0x1,m_CHRmemory[m_reg[12]]);
       }
       else
       {
@@ -469,7 +469,7 @@ void CROMMapper019::HMAPPER ( uint32_t addr, uint8_t data )
       m_reg[13] = data;
       if ( data < 0xE0 )
       {
-         CPPU::Move1KBank(0xA,m_CHRmemory[m_reg[13]]);
+         CPPU::REMAPVRAM(0x2,m_CHRmemory[m_reg[13]]);
       }
       else
       {
@@ -481,7 +481,7 @@ void CROMMapper019::HMAPPER ( uint32_t addr, uint8_t data )
       m_reg[14] = data;
       if ( data < 0xE0 )
       {
-         CPPU::Move1KBank(0xB,m_CHRmemory[m_reg[14]]);
+         CPPU::REMAPVRAM(0x3,m_CHRmemory[m_reg[14]]);
       }
       else
       {
