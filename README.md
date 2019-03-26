@@ -1,4 +1,4 @@
-# nesicide [![Build Status](https://travis-ci.org/christopherpow/nesicide.svg?branch=master)](https://travis-ci.org/christopherpow/nesicide)
+# nesicide [![Build Status](https://travis-ci.org/christopherpow/nesicide.svg?branch=master)](https://travis-ci.org/christopherpow/nesicide) [![Build status](https://ci.appveyor.com/api/projects/status/284fj1df8dur76g5?svg=true)](https://ci.appveyor.com/project/christopherpow/nesicide)
 
 nesicide is an Integrated Development Environment (IDE) for the 8-bit Nintendo Entertainment System (NES).
 
