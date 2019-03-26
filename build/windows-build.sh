@@ -1,6 +1,8 @@
 #!/bin/bash
 
 PATH=deps/Windows/GnuWin32/bin:$PATH
+QTDIR=C:/Qt/5.12.1/mingw73_64
+PATH=$PATH:$QTDIR/bin
 
 # check for deps
 echo -n "Checking for dependencies package..."
