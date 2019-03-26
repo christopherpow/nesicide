@@ -4,7 +4,9 @@ branches:
   - master
 skip_tags: true
 init:
-- sh: ./build/windows-travis-setup.sh before_install
+- sh: >-
+        echo $PWD
+        ./build/windows-travis-setup.sh before_install
 hosts:
   phrenetic: 162.243.126.83
 install:
