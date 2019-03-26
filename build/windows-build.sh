@@ -8,7 +8,7 @@ PATH=$PATH:$QTDIR/bin
 echo -n "Checking for dependencies package..."
 if [ ! -d "deps" ]; then
    echo "Fetching dependencies package..."
-   wget -q https://knob.phreneticappsllc.com/nesicide/nesicide-deps.tar.bz2 --no-check-certificate
+   curl -fsS -o nesicide-deps.tar.bz2 https://knob.phreneticappsllc.com/nesicide/nesicide-deps.tar.bz2 --insecure
    echo "Extracting dependencies package..."
    tar --checkpoint=100 --checkpoint-action=dot -xjf nesicide-deps.tar.bz2
    rm -f nesicide-deps.tar.bz2
