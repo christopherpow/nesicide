@@ -6,18 +6,24 @@ skip_tags: true
 hosts:
   phrenetic: 162.243.126.83
 install:
-- cmd: >-
-        ./build/windows-travis-setup.sh before_install
-        ./build/windows-travis-setup.sh install
+- sh: >-
+    ./build/windows-travis-setup.sh before_install
+
+    ./build/windows-travis-setup.sh install
 build_script:
-- cmd: >-
+- sh: >-
     ./build/windows-build.sh
+
     ./build/windows-deploy.sh local
 test: off
 deploy_script:
-- cmd: >-
+- sh: >-
     openssl aes-256-cbc -K $encrypted_c3ea658420f4_key -iv $encrypted_c3ea658420f4_iv -in deploy_rsa.enc -out /tmp/deploy_rsa -d
+
     eval "$(ssh-agent -s)"
+
     chmod 600 /tmp/deploy_rsa
+
     ssh-add /tmp/deploy_rsa
+
     ./build/windows-deploy.sh remote
