@@ -2,7 +2,7 @@
 
 PATH=deps/Windows/GnuWin32/bin:$PATH
 QTDIR=/c/Qt/5.12.1/mingw73_64
-PATH=$PATH:$QTDIR/bin:/c/mingw/bin
+PATH=$PATH:$QTDIR/bin:/c/MinGW/bin
 
 # check for deps
 echo -n "Checking for dependencies package..."
@@ -17,10 +17,10 @@ else
 fi
 # add CONFIG+=debug to qmake to build debug.
 echo Building NESICIDE...
-( cd build/ide; qmake; mingw64-make )
+( cd build/ide; qmake; mingw32-make )
 echo Building FamiTracker...
-( cd build/famitracker; qmake; mingw64-make )
+( cd build/famitracker; qmake; mingw32-make )
 echo Building FamiPlayer...
-( cd build/famiplayer; qmake; mingw64-make )
+( cd build/famiplayer; qmake; mingw32-make )
 echo Building NES Emulator...
-( cd build/nes-emulator; qmake; mingw64-make )
+( cd build/nes-emulator; qmake; mingw32-make )
