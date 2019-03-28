@@ -162,11 +162,20 @@
       <addaction name="actionWave_7N106"/>
       <addaction name="actionWave_8N106"/>
      </widget>
+     <widget class="QMenu" name="menuMMC5">
+      <property name="title">
+       <string>MMC5</string>
+      </property>
+      <addaction name="actionSquare_1MMC5"/>
+      <addaction name="actionSquare_2MMC5"/>
+      <addaction name="actionDMCMMC5"/>
+     </widget>
      <addaction name="actionSquare_1"/>
      <addaction name="actionSquare_2"/>
      <addaction name="actionTriangle"/>
      <addaction name="actionNoise"/>
      <addaction name="actionDelta_Modulation"/>
+     <addaction name="menuMMC5"/>
      <addaction name="menuVRC6"/>
      <addaction name="menuN106"/>
     </widget>
@@ -490,6 +499,21 @@
   <action name="actionRecent_Files_STOP">
    <property name="text">
     <string>Recent Files STOP</string>
+   </property>
+  </action>
+  <action name="actionSquare_1MMC5">
+   <property name="text">
+    <string>Square 1</string>
+   </property>
+  </action>
+  <action name="actionSquare_2MMC5">
+   <property name="text">
+    <string>Square 2</string>
+   </property>
+  </action>
+  <action name="actionDMCMMC5">
+   <property name="text">
+    <string>DMC</string>
    </property>
   </action>
  </widget>

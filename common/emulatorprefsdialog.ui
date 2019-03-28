@@ -27,7 +27,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>4</number>
      </property>
      <widget class="QWidget" name="general">
       <attribute name="title">
@@ -1026,7 +1026,7 @@
           <item row="0" column="0">
            <widget class="QGroupBox" name="groupBox_2">
             <property name="title">
-             <string>APU</string>
+             <string>NES Internal Channels</string>
             </property>
             <layout class="QGridLayout" name="gridLayout_4">
              <item row="0" column="0">
@@ -1067,10 +1067,10 @@
             </layout>
            </widget>
           </item>
-          <item row="1" column="0">
+          <item row="2" column="0">
            <widget class="QGroupBox" name="groupBox_10">
             <property name="title">
-             <string>VRC6</string>
+             <string>VRC6 Cartridge Channels</string>
             </property>
             <layout class="QGridLayout" name="gridLayout_5">
              <item row="0" column="0">
@@ -1097,10 +1097,10 @@
             </layout>
            </widget>
           </item>
-          <item row="2" column="0">
+          <item row="3" column="0">
            <widget class="QGroupBox" name="groupBox_12">
             <property name="title">
-             <string>Namco 106</string>
+             <string>Namco 106 Cartridge Channels</string>
             </property>
             <layout class="QGridLayout" name="gridLayout_16">
              <item row="0" column="0">
@@ -1156,6 +1156,36 @@
               <widget class="QCheckBox" name="wave8N106">
                <property name="text">
                 <string>Wave 8</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QGroupBox" name="groupBox_8">
+            <property name="title">
+             <string>MMC5 Cartridge</string>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_2">
+             <item>
+              <widget class="QCheckBox" name="square1MMC5">
+               <property name="text">
+                <string>Square 1</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="square2MMC5">
+               <property name="text">
+                <string>Square 2</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="dmcMMC5">
+               <property name="text">
+                <string>DMC</string>
                </property>
               </widget>
              </item>
@@ -1375,6 +1405,7 @@
   </customwidget>
  </customwidgets>
  <resources>
+  <include location="resource.qrc"/>
   <include location="resource.qrc"/>
   <include location="resource.qrc"/>
  </resources>

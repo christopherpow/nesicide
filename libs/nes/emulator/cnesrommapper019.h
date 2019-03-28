@@ -85,39 +85,36 @@ struct N106WaveChannel
 
 class CROMMapper019 : public CROM
 {
-public:
+private:
    CROMMapper019();
+public:
+   static inline CROMMapper019* CARTFACTORY() { return new CROMMapper019(); }
    ~CROMMapper019();
 
-   static void RESET ( bool soft );
-   static uint32_t LMAPPER ( uint32_t addr );
-   static void LMAPPER ( uint32_t addr, uint8_t data );
-   static void HMAPPER ( uint32_t addr, uint8_t data );
-   static void SYNCCPU ( void );
-   static uint32_t DEBUGINFO ( uint32_t addr );
-   static uint16_t AMPLITUDE ( void );
-   static void SOUNDENABLE ( uint32_t mask )
-   {
-      uint8_t bit;
-      for ( bit = 0; bit < 8; bit++ )
-      {
-         m_wave[bit].muted = !(mask&(0x01<<bit));
-      }
-   }
+   void RESET ( bool soft );
+   uint32_t LMAPPER ( uint32_t addr );
+   void LMAPPER ( uint32_t addr, uint8_t data );
+   void HMAPPER ( uint32_t addr, uint8_t data );
+   void SYNCCPU ( void );
+   uint32_t DEBUGINFO ( uint32_t addr );
+   uint16_t AMPLITUDE ( void );
+   static void SOUNDENABLE ( uint32_t mask ) { m_soundEnableMask = mask; }
 
 protected:
    // N106
-   static uint8_t  m_reg [ 19 ];
-   static uint8_t  m_chr [ 8 ];
-   static uint16_t m_irqCounter;
-   static bool     m_irqEnabled;
+   uint8_t  m_reg [ 19 ];
+   uint8_t  m_chr [ 8 ];
+   uint16_t m_irqCounter;
+   bool     m_irqEnabled;
 
    // N106 sound
-   static N106WaveChannel m_wave[8];
+   N106WaveChannel m_wave[8];
 
-   static uint8_t m_soundRAM[128];
-   static uint8_t m_soundRAMAddr;
-   static uint8_t m_soundChansEnabled;
+   static uint32_t  m_soundEnableMask;
+
+   uint8_t m_soundRAM[128];
+   uint8_t m_soundRAMAddr;
+   uint8_t m_soundChansEnabled;
 };
 
 #endif

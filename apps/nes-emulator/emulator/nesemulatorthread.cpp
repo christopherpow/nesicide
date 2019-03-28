@@ -129,8 +129,8 @@ void NESEmulatorThread::loadCartridge()
 {
    int32_t b;
 
-   // Clear emulator's cartridge ROMs...
-   nesUnloadROM();
+   // Prepare (frontload) cartridge...
+   nesFrontload(m_pCartridge->getMapperNumber());
 
    // Load cartridge PRG-ROM banks into emulator...
    for ( b = 0; b < m_pCartridge->getNumPrgRomBanks(); b++ )
@@ -162,7 +162,7 @@ void NESEmulatorThread::loadCartridge()
    }
 
    // Initialize NES...
-   nesResetInitial(m_pCartridge->getMapperNumber());
+   nesResetInitial();
 
    if ( !m_pCartridge->getSaveStateFile().isEmpty() )
    {

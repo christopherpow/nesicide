@@ -81,7 +81,6 @@ SOURCES += \
    emulator/cnesrommapper001.cpp \
    emulator/cnesrom.cpp \
    emulator/cnesppu.cpp \
-   emulator/cnesmappers.cpp \
    emulator/cnesio.cpp \
    emulator/cnesapu.cpp \
    emulator/cnes.cpp \
@@ -110,7 +109,8 @@ SOURCES += \
     emulator/cnesrommapper018.cpp \
     emulator/cnesrommapper073.cpp \
     emulator/cnesrommapper016.cpp \
-    emulator/cnesrommapper111.cpp
+    emulator/cnesrommapper111.cpp \
+    emulator/cmemory.cpp
 
 HEADERS +=\
    emulator/cnesrommapper068.h \
@@ -126,7 +126,6 @@ HEADERS +=\
    emulator/cnesrommapper001.h \
    emulator/cnesrom.h \
    emulator/cnesppu.h \
-   emulator/cnesmappers.h \
    emulator/cnesio.h \
    emulator/cnesapu.h \
    emulator/cnes.h \
@@ -155,4 +154,5 @@ HEADERS +=\
     emulator/cnesrommapper018.h \
     emulator/cnesrommapper073.h \
     emulator/cnesrommapper016.h \
-    emulator/cnesrommapper111.h
+    emulator/cnesrommapper111.h \
+    emulator/cmemory.h

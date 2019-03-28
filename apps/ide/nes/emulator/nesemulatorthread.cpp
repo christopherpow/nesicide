@@ -400,11 +400,11 @@ void NESEmulatorThread::loadCartridge()
    int32_t b;
    int32_t a;
 
-   // Clear emulator's cartridge ROMs...
-   nesUnloadROM();
-
    if ( m_pCartridge->getPrgRomBanks()->getPrgRomBanks().count() )
    {
+      // Prepare (frontload) cartridge...
+      nesFrontload(m_pCartridge->getMapperNumber());
+
       // Load cartridge PRG-ROM banks into emulator...
       for ( b = 0; b < m_pCartridge->getPrgRomBanks()->getPrgRomBanks().count(); b++ )
       {
@@ -431,7 +431,7 @@ void NESEmulatorThread::loadCartridge()
       }
 
       // Perform any necessary fixup from the ROM loading...
-      nesLoadROM();
+      nesFinalizeLoad();
 
       // Set up PPU with iNES header information...
       if ( m_pCartridge->getMirrorMode() == HorizontalMirroring )
@@ -448,7 +448,7 @@ void NESEmulatorThread::loadCartridge()
       }
 
       // Initialize NES...
-      nesResetInitial(m_pCartridge->getMapperNumber());
+      nesResetInitial();
 
       if ( !nesicideProject->getProjectCartridgeSaveStateName().isEmpty() )
       {

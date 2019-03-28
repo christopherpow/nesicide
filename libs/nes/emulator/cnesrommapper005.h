@@ -6,46 +6,50 @@
 
 class CROMMapper005 : public CROM
 {
-public:
+private:
    CROMMapper005();
+public:
+   static inline CROMMapper005* CARTFACTORY() { return new CROMMapper005(); }
    ~CROMMapper005();
 
-   static void RESET ( bool soft );
-   static uint32_t HMAPPER ( uint32_t addr );
-   static void HMAPPER ( uint32_t addr, uint8_t data );
-   static uint32_t LMAPPER ( uint32_t addr );
-   static void LMAPPER ( uint32_t addr, uint8_t data );
-   static void SYNCPPU ( uint32_t ppuCycle, uint32_t ppuAddr );
-   static void SYNCCPU ( void );
-   static void SETCPU ( void );
-   static void SETPPU ( void );
-   static uint32_t DEBUGINFO ( uint32_t addr );
-   static uint16_t AMPLITUDE ( void );
-   static void SOUNDENABLE ( uint32_t mask );
+   void RESET ( bool soft );
+   uint32_t HMAPPER ( uint32_t addr );
+   void HMAPPER ( uint32_t addr, uint8_t data );
+   uint32_t LMAPPER ( uint32_t addr );
+   void LMAPPER ( uint32_t addr, uint8_t data );
+   void SYNCPPU ( uint32_t ppuCycle, uint32_t ppuAddr );
+   void SYNCCPU ( void );
+   void SETCPU ( void );
+   void SETPPU ( void );
+   uint32_t DEBUGINFO ( uint32_t addr );
+   uint16_t AMPLITUDE ( void );
+   static void SOUNDENABLE ( uint32_t mask ) { m_soundEnableMask = mask; }
 
 protected:
    // MMC5
-   static uint8_t m_prgMode;
-   static uint8_t m_chrMode;
-   static uint8_t m_chrHigh;
-   static uint8_t m_irqScanline;
-   static uint8_t m_irqEnabled;
-   static uint8_t m_irqStatus;
-   static bool          m_prgRAM [ 3 ];
-   static bool          m_wp;
-   static uint32_t m_ppuCycle;
-   static uint8_t m_chr[12];
-   static uint8_t m_wp1;
-   static uint8_t m_wp2;
-   static uint8_t  m_mult1;
-   static uint8_t  m_mult2;
-   static uint16_t m_prod;
-   static uint8_t  m_fillTile;
-   static uint8_t  m_fillAttr;
-   static uint8_t  m_reg[44];
+   uint8_t m_prgMode;
+   uint8_t m_chrMode;
+   uint8_t m_chrHigh;
+   uint8_t m_irqScanline;
+   uint8_t m_irqEnabled;
+   uint8_t m_irqStatus;
+   bool          m_prgRAM [ 3 ];
+   bool          m_wp;
+   uint32_t m_ppuCycle;
+   uint8_t m_chr[12];
+   uint8_t m_wp1;
+   uint8_t m_wp2;
+   uint8_t  m_mult1;
+   uint8_t  m_mult2;
+   uint16_t m_prod;
+   uint8_t  m_fillTile;
+   uint8_t  m_fillAttr;
+   uint8_t  m_reg[44];
 
-   static CAPUSquare m_square[2];
-   static CAPUDMC    m_dmc;
+   CAPUSquare m_square[2];
+   CAPUDMC    m_dmc;
+
+   static uint32_t  m_soundEnableMask;
 };
 
 #endif

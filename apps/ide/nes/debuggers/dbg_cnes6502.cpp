@@ -3008,4 +3008,3 @@ void C6502DBG::RENDEREXECUTIONVISUALIZER ( void )
       }
    }
 }
-

@@ -5,8 +5,6 @@
 #include "cjoypadlogger.h"
 #include "cnesbreakpointinfo.h"
 
-#include "nes_emulator_core.h"
-
 // The CNES class is the implementation of the NES as a complete
 // emulatable machine.  It contains a RUN method which is used
 // to drive the other objects (CPPU, C6502, CAPU, CROM) through
@@ -35,35 +33,61 @@
 //
 // The NES object also contains information regarding the replay
 // mode, which is used to record input sequences for testing.
+class C6502;
+class CPPU;
+class CROM;
+class CAPU;
+
 class CNES
-{
-public:
+{   
+private:
    CNES();
+   static CNES* self;
+public:
+   static inline CNES* NES()
+   {
+      return self;
+   }
    ~CNES();
 
+   inline CPPU* PPU() const
+   {
+      return m_ppu;
+   }
+
+   inline C6502* CPU() const
+   {
+      return m_cpu;
+   }
+
+   inline CROM* CART() const
+   {
+      return m_cart;
+   }
+
    // Accessor methods to get/set the current video mode.
-   static inline void VIDEOMODE ( int32_t mode )
+   inline void VIDEOMODE ( int32_t mode )
    {
       m_videoMode = mode;
    }
-   static inline int32_t VIDEOMODE ( void )
+   inline int32_t VIDEOMODE ( void )
    {
       return m_videoMode;
    }
 
    // Accessor methods to get/set the controller type.
-   static inline void CONTROLLER ( int32_t port, int32_t type )
+   inline void CONTROLLER ( int32_t port, int32_t type )
    {
       m_controllerType[port] = type;
    }
-   static inline int32_t CONTROLLER ( int32_t port )
+   inline int32_t CONTROLLER ( int32_t port )
    {
       return m_controllerType[port];
    }
 
    // Accessor method to set the controller's screen coordinates
    // for controllers that are screen-relative such as Zapper.
-   static inline void CONTROLLERPOSITION ( int32_t port, int32_t px, int32_t py, int32_t wx1, int32_t wy1, int32_t wx2, int32_t wy2 )
+   inline void CONTROLLERPOSITION ( int32_t port, int32_t px, int32_t py, int32_t wx1, int32_t wy1, int32_t wx2, int32_t wy2 )
    {
       m_controllerPositionX[port] = px;
       m_controllerPositionY[port] = py;
@@ -72,7 +96,7 @@ public:
       m_windowX2 = wx2;
       m_windowY2 = wy2;
    }
-   static inline void CONTROLLERPOSITION ( int32_t port, int32_t* px, int32_t* py, int32_t* wx1, int32_t* wy1, int32_t* wx2, int32_t* wy2 )
+   inline void CONTROLLERPOSITION ( int32_t port, int32_t* px, int32_t* py, int32_t* wx1, int32_t* wy1, int32_t* wx2, int32_t* wy2 )
    {
       (*px) = m_controllerPositionX[port];
       (*py) = m_controllerPositionY[port];
@@ -82,26 +106,29 @@ public:
       (*wy2) = m_windowY2;
    }
 
+   // This method initializes the cartridge object.
+   void FRONTLOAD ( uint32_t mapper );
+
    // This method performs a full NES reset and initializes
    // the ROM object with the appropriate mapper index.
-   static void RESET ( uint32_t mapper, bool soft );
+   void RESET ( bool soft );
 
    // This method emulates a NES video frame and passes the
    // current state of the joypad to the emulation engine.
    // The current state of the joypad is constructed from
    // intercepted keypress/keyrelease events in the UI.
-   static void RUN ( uint32_t* joy );
+   void RUN ( uint32_t* joy );
 
    // Accessor methods to get/set whether or not the emulation
    // engine is in replay mode.  In replay mode the emulation runs
    // as normal but the joypad inputs are fed in from previously
    // recorded emulation runs.  At present this only works "sort of well"
    // for emulation runs that start from NES reset.
-   static void REPLAY ( bool enable )
+   void REPLAY ( bool enable )
    {
       m_bReplay = enable;
    }
-   static bool REPLAY ()
+   bool REPLAY ()
    {
       return m_bReplay;
    }
@@ -110,18 +137,18 @@ public:
    // engine is in input record mode.  If input is being recorded,
    // it can be played back on a subsequent emulation run by using
    // the REPLAY API.
-   static void RECORD ( bool enable )
+   void RECORD ( bool enable )
    {
       m_bRecord = enable;
    }
-   static bool RECORD ()
+   bool RECORD ()
    {
       return m_bRecord;
    }
 
    // Accessor method to retrieve the NES object's frame counter.
    // This is used by some debugger inspectors.
-   static uint32_t FRAME ()
+   uint32_t FRAME ()
    {
       return m_frame;
    }
@@ -129,7 +156,7 @@ public:
    // Accessor method to retrieve the execution tracer database.  Other
    // elements of the NES use this method to add entries to the database
    // during emulation.
-   static inline CTracer* TRACER ( void )
+   inline CTracer* TRACER ( void )
    {
       return m_tracer;
    }
@@ -138,13 +165,13 @@ public:
    // during an emulation hard-reset (which is caused whenever a new
    // ROM image is loaded) to prevent the emulation engine from getting
    // hung up on a set breakpoint during the ROM image switchover.
-   static void BREAKPOINTS ( bool enable ) { m_bBreakpointsEnabled = enable; }
+   void BREAKPOINTS ( bool enable ) { m_bBreakpointsEnabled = enable; }
 
    // This method retrieves the database of currently active breakpoints.
    // It is used by the debugger inspectors to determine whether or not
    // they need to show themselves upon hitting a particular breakpoint type.
    // It is also used by the NES object in evaluating breakpoints for hits.
-   static CBreakpointInfo* BREAKPOINTS ( void )
+   CBreakpointInfo* BREAKPOINTS ( void )
    {
       return m_breakpoints;
    }
@@ -152,20 +179,20 @@ public:
    // This method is invoked by objects within the emulation engine (CNES,
    // C6502, CPPU, CAPU, CROM) to allow the emulation engine to halt itself
    // if a breakpoint is encountered.
-   static void CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type = (eBreakpointType)-1, int32_t data = 0, int32_t event = 0 );
+   void CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type = (eBreakpointType)-1, int32_t data = 0, int32_t event = 0 );
 
    // This method forces the emulation engine into breakpoint territory;
    // the emulation is halted, a breakpoint-watching thread is released,
    // and the UI is updated (by the newly released thread).
-   static void FORCEBREAKPOINT ( void );
+   void FORCEBREAKPOINT ( void );
 
    // These methods get/set breakpoint flags within the NES object that indicate
    // whether or not the machine is currently at a breakpoint.
-   static bool ATBREAKPOINT ( void )
+   bool ATBREAKPOINT ( void )
    {
       return m_bAtBreakpoint;
    }
-   static void CLEARBREAKPOINT ( void )
+   void CLEARBREAKPOINT ( void )
    {
       m_bAtBreakpoint = false;
    }
@@ -173,65 +200,69 @@ public:
    // These methods set a flag within the NES object indicating that a
    // breakpoint should be taken either a)after execution of the next
    // instruction by the CPU, or b)after a PPU cycle has elapsed.
-   static void STEPCPUBREAKPOINT ( void );
-   static void STEPPPUBREAKPOINT ( bool goFrame = false );
+   void STEPCPUBREAKPOINT ( void );
+   void STEPPPUBREAKPOINT ( bool goFrame = false );
 
    // These methods are wrapper methods around the similar methods
-   // declared in the CPU and ROM objects.  These wrapper
+   // declared in the CMEMORY objects inside CPU and ROM objects.  These wrapper
    // methods contain the logic to determine which of the sub-object
    // methods to invoke based on the passed parameters.
-   static char* DISASSEMBLY ( uint32_t addr );
-   static uint32_t SLOC2ADDR ( uint16_t sloc );
-   static uint16_t ADDR2SLOC ( uint32_t addr );
-   static uint32_t SLOC ( uint32_t addr );
-   static uint8_t _MEM ( uint32_t addr );
-   static void DISASSEMBLE ( void );
-   static uint32_t ABSADDR ( uint32_t addr );
+   char* DISASSEMBLY ( uint32_t addr );
+   uint32_t SLOC2ADDR ( uint16_t sloc );
+   uint16_t ADDR2SLOC ( uint32_t addr );
+   uint32_t SLOC ( uint32_t addr );
+   uint8_t _MEM ( uint32_t addr );
+   void DISASSEMBLE ( void );
+   uint32_t ABSADDR ( uint32_t addr );
 
    // This method turns a 6502-based address into a printable representation
    // based on the underlying addressing scheme of the targeted memory/device.
-   static void PRINTABLEADDR ( char* buffer, uint32_t addr );
-   static void PRINTABLEADDR ( char* buffer, uint32_t addr, uint32_t absAddr );
+   void PRINTABLEADDR ( char* buffer, uint32_t addr );
+   void PRINTABLEADDR ( char* buffer, uint32_t addr, uint32_t absAddr );
 
 protected:
+   C6502* m_cpu;
+   CPPU*  m_ppu;
+   CROM*  m_cart;
+
    // Whether or not joypad input is being fed from the user or from
    // previously recorded emulation runs.
-   static bool         m_bReplay;
+   bool         m_bReplay;
 
    // Whether or not joypad input is being recorded during this emulation run.
-   static bool         m_bRecord;
+   bool         m_bRecord;
 
    // NTSC, or PAL?
-   static int32_t             m_videoMode;
+   int32_t             m_videoMode;
 
    // Controller type information
-   static int32_t  m_controllerType [ NUM_CONTROLLERS ];
+   int32_t  m_controllerType [ NUM_CONTROLLERS ];
 
    // Controller screen position information (for things like zapper)
-   static int32_t  m_controllerPositionX [ NUM_CONTROLLERS ];
-   static int32_t  m_controllerPositionY [ NUM_CONTROLLERS ];
-   static int32_t  m_windowX1;
-   static int32_t  m_windowY1;
-   static int32_t  m_windowX2;
-   static int32_t  m_windowY2;
+   int32_t  m_controllerPositionX [ NUM_CONTROLLERS ];
+   int32_t  m_controllerPositionY [ NUM_CONTROLLERS ];
+   int32_t  m_windowX1;
+   int32_t  m_windowY1;
+   int32_t  m_windowX2;
+   int32_t  m_windowY2;
 
    // The execution tracer database.
-   static CTracer*         m_tracer;
+   CTracer*         m_tracer;
 
    // This is the database of active breakpoints.
-   static CBreakpointInfo* m_breakpoints;
-   static bool m_bBreakpointsEnabled;
+   CBreakpointInfo* m_breakpoints;
+   bool m_bBreakpointsEnabled;
 
    // These flags determine the breakpoint state and behavior
    // of the emulation engine.
-   static bool            m_bAtBreakpoint;
-   static bool            m_bStepCPUBreakpoint;
-   static bool            m_bStepPPUBreakpoint;
-   static int32_t         m_ppuCycleToStepTo;
-   static uint32_t        m_ppuFrameToStepTo;
+   bool            m_bAtBreakpoint;
+   bool            m_bStepCPUBreakpoint;
+   bool            m_bStepPPUBreakpoint;
+   int32_t         m_ppuCycleToStepTo;
+   uint32_t        m_ppuFrameToStepTo;
 
    // Emulation frame counter...a copy of CPPU::m_frame;
-   static uint32_t m_frame;
+   uint32_t m_frame;
 };
 
 #endif

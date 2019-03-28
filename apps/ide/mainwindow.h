@@ -129,6 +129,7 @@ protected:
    QMenu *menuCartridge_Inspectors;
    QMenu *menuSystem;
    QMenu *menuAudio;
+   QMenu *menuAudioMMC5;
    QMenu *menuAudioVRC6;
    QMenu *menuAudioN106;
    QMenu *menuVideo;
@@ -165,6 +166,9 @@ protected:
    QAction *actionPulse_1VRC6;
    QAction *actionPulse_2VRC6;
    QAction *actionSawtoothVRC6;
+   QAction *actionSquare_1MMC5;
+   QAction *actionSquare_2MMC5;
+   QAction *actionDMCMMC5;
    QAction *actionWave_1N106;
    QAction *actionWave_2N106;
    QAction *actionWave_3N106;
@@ -301,6 +305,9 @@ private slots:
    void actionPulse_1VRC6_toggled(bool );
    void actionPulse_2VRC6_toggled(bool );
    void actionSawtoothVRC6_toggled(bool );
+   void actionSquare_1MMC5_toggled(bool );
+   void actionSquare_2MMC5_toggled(bool );
+   void actionDMCMMC5_toggled(bool );
    void actionWave_1N106_toggled(bool );
    void actionWave_2N106_toggled(bool );
    void actionWave_3N106_toggled(bool );

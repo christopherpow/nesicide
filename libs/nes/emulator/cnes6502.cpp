@@ -22,194 +22,6 @@
 #include "cnesio.h"
 #include "cnesmappers.h"
 
-#include "nes_emulator_core.h"
-
-// CPU Registers
-static CBitfieldData* tblCPUPCBitfields [] =
-{
-   new CBitfieldData("Instruction Pointer", 0, 16, "%04X", 0),
-};
-
-static CBitfieldData* tblCPUABitfields [] =
-{
-   new CBitfieldData("Accumulator", 0, 8, "%02X", 0),
-};
-
-static CBitfieldData* tblCPUXBitfields [] =
-{
-   new CBitfieldData("X Index", 0, 8, "%02X", 0),
-};
-
-static CBitfieldData* tblCPUYBitfields [] =
-{
-   new CBitfieldData("Y Index", 0, 8, "%02X", 0),
-};
-
-static CBitfieldData* tblCPUSPBitfields [] =
-{
-   new CBitfieldData("Stack Pointer", 0, 12, "%03X", 0),
-};
-
-static CBitfieldData* tblCPUFBitfields [] =
-{
-   new CBitfieldData("Negative", 7, 1, "%X", 2, "No", "Yes"),
-   new CBitfieldData("Overflow", 6, 1, "%X", 2, "No", "Yes"),
-   new CBitfieldData("Break", 4, 1, "%X", 2, "No", "Yes"),
-   new CBitfieldData("Decimal Mode", 3, 1, "%X", 2, "No", "Yes"),
-   new CBitfieldData("Interrupt", 2, 1, "%X", 2, "No", "Yes"),
-   new CBitfieldData("Zero", 1, 1, "%X", 2, "No", "Yes"),
-   new CBitfieldData("Carry", 0, 1, "%X", 2, "No", "Yes")
-};
-
-static CBitfieldData* tblCPUNMIVectorBitfields [] =
-{
-   new CBitfieldData("NMI Vector", 0, 16, "%04X", 0),
-};
-
-static CBitfieldData* tblCPUIRQVectorBitfields [] =
-{
-   new CBitfieldData("IRQ Vector", 0, 16, "%04X", 0),
-};
-
-static CBitfieldData* tblCPURESETVectorBitfields [] =
-{
-   new CBitfieldData("RESET Vector", 0, 16, "%04X", 0),
-};
-
-static CRegisterData* tblCPURegisters [] =
-{
-   new CRegisterData(CPU_PC, "Program Counter", nesGetCPURegister, nesSetCPURegister, 1, tblCPUPCBitfields),
-   new CRegisterData(CPU_A, "Accumulator", nesGetCPURegister, nesSetCPURegister, 1, tblCPUABitfields),
-   new CRegisterData(CPU_X, "X Index", nesGetCPURegister, nesSetCPURegister, 1, tblCPUXBitfields),
-   new CRegisterData(CPU_Y, "Y Index", nesGetCPURegister, nesSetCPURegister, 1, tblCPUYBitfields),
-   new CRegisterData(CPU_SP, "Stack Pointer", nesGetCPURegister, nesSetCPURegister, 1, tblCPUSPBitfields),
-   new CRegisterData(CPU_F, "Flags", nesGetCPURegister, nesSetCPURegister, 7, tblCPUFBitfields),
-   new CRegisterData(VECTOR_NMI, "NMI Vector", nesGetCPURegister, nesSetCPURegister, 1, tblCPUNMIVectorBitfields),
-   new CRegisterData(VECTOR_RESET, "RESET Vector", nesGetCPURegister, nesSetCPURegister, 1, tblCPURESETVectorBitfields),
-   new CRegisterData(VECTOR_IRQ, "IRQ Vector", nesGetCPURegister, nesSetCPURegister, 1, tblCPUIRQVectorBitfields)
-};
-
-static const char* rowHeadings [] =
-{
-   "CPU"
-};
-
-static const char* columnHeadings [] =
-{
-   "PC","A","X","Y","SP","F","NMI","RESET","IRQ"
-};
-
-static CRegisterDatabase* dbRegisters = new CRegisterDatabase(eMemory_CPUregs,1,9,9,tblCPURegisters,rowHeadings,columnHeadings);
-
-CRegisterDatabase* C6502::m_dbRegisters = dbRegisters;
-
-static CMemoryDatabase* dbMemory = new CMemoryDatabase(eMemory_CPU,
-                                                       0x0000,
-                                                       MEM_2KB,
-                                                       16,
-                                                       "CPU RAM",
-                                                       nesGetCPUMemory,
-                                                       nesSetCPUMemory,
-                                                       nesGetPrintableAddress,
-                                                       true);
-
-CMemoryDatabase* C6502::m_dbMemory = dbMemory;
-
-// CPU Event breakpoints
-bool cpuAlwaysFireEvent(BreakpointInfo* pBreakpoint,int data)
-{
-   // This breakpoint is checked in the right place
-   // so if this breakpoint is enabled it should always fire when called.
-   return true;
-}
-
-bool cpuUndocumentedExactEvent(BreakpointInfo* pBreakpoint,int data)
-{
-   // If opcode executing is one specified, break...
-   if ( pBreakpoint->item1 == data )
-   {
-      return true;
-   }
-
-   return false;
-}
-
-bool cpuExecuteExactEvent(BreakpointInfo* pBreakpoint,int data)
-{
-   // If opcode executing is one specified, break...
-   if ( pBreakpoint->item1 == data )
-   {
-      return true;
-   }
-
-   return false;
-}
-
-static CBreakpointEventInfo* tblCPUEvents [] =
-{
-   new CBreakpointEventInfo("Specific Instruction Execution", cpuExecuteExactEvent, 1, "Break if opcode %02X is executed", 16, "Opcode:"),
-   new CBreakpointEventInfo("Any Undocumented Instruction Execution", cpuAlwaysFireEvent, 0, "Break if any undocumented opcode is executed", 16),
-   new CBreakpointEventInfo("Specific Undocumented Instruction Execution", cpuUndocumentedExactEvent, 1, "Break if undocumented opcode %02X is executed", 16, "Opcode:"),
-   new CBreakpointEventInfo("Reset", cpuAlwaysFireEvent, 0, "Break if CPU is reset", 10),
-   new CBreakpointEventInfo("IRQ Fires", cpuAlwaysFireEvent, 0, "Break if CPU IRQ fires", 10),
-   new CBreakpointEventInfo("IRQ Handler Entered", cpuAlwaysFireEvent, 0, "Break if CPU IRQ handler entered", 10),
-   new CBreakpointEventInfo("NMI Fires", cpuAlwaysFireEvent, 0, "Break if CPU NMI fires", 10),
-   new CBreakpointEventInfo("NMI Handler Entered", cpuAlwaysFireEvent, 0, "Break if CPU NMI handler entered", 10),
-   new CBreakpointEventInfo("Cycle Stolen by PPU or APU", cpuAlwaysFireEvent, 0, "Break if PPU or APU steals a CPU cycle", 10)
-};
-
-CBreakpointEventInfo** C6502::m_tblBreakpointEvents = tblCPUEvents;
-int32_t                C6502::m_numBreakpointEvents = NUM_CPU_EVENTS;
-
-bool            C6502::m_killed = false;              // KIL opcode not executed.
-bool            C6502::m_breakOnKIL = false;          // IDE sets this for us.
-bool            C6502::m_irqAsserted = false;
-int32_t         C6502::m_instrCycle = 0;
-bool            C6502::m_irqPending = false;
-bool            C6502::m_nmiAsserted = false;
-bool            C6502::m_nmiPending = false;
-uint8_t         C6502::m_openBusData = 0x00;
-uint8_t*  C6502::m_6502memory = NULL;
-uint8_t   C6502::m_a = 0x00;
-uint8_t   C6502::m_x = 0x00;
-uint8_t   C6502::m_y = 0x00;
-uint8_t   C6502::m_f = FLAG_MISC;
-uint16_t  C6502::m_pc = VECTOR_RESET;
-uint16_t  C6502::m_pcSync = VECTOR_RESET;
-bool      C6502::m_pcSyncSet = false;
-uint32_t    C6502::m_ea = 0;
-uint32_t            C6502::m_pcGoto = 0xFFFFFFFF;
-uint8_t   C6502::m_sp = 0x00;
-
-uint32_t    C6502::m_cycles = 0;
-int32_t         C6502::m_curCycles = 0;
-
-uint16_t C6502::m_writeDmaAddr = 0x0000;
-int32_t  C6502::m_writeDmaCounter = 0;
-uint16_t C6502::m_readDmaAddr = 0x0000;
-int32_t     C6502::m_dmaRequest = -1;
-int32_t  C6502::m_readDmaCounter = 0;
-
-int32_t         C6502::amode;
-uint8_t*  C6502::data = NULL;
-uint8_t   C6502::opcodeData [ 4 ]; // 3 opcode bytes and 1 byte for operand return data [extra cycle]
-struct _CNES6502_opcode* C6502::pOpcodeStruct = NULL;
-int32_t         C6502::opcodeSize;
-bool            C6502::m_write = false;
-int8_t            C6502::m_phase = 0;
-
-TracerInfo*      C6502::pDisassemblySample = NULL;
-
-CMarker*         C6502::m_marker = NULL;
-
-CCodeDataLogger* C6502::m_logger = NULL;
-
-uint8_t*   C6502::m_RAMopcodeMask = NULL;
-char**     C6502::m_RAMdisassembly = NULL;
-uint16_t*  C6502::m_RAMsloc2addr = NULL;
-uint16_t*  C6502::m_RAMaddr2sloc = NULL;
-uint32_t   C6502::m_RAMsloc = 0;
-
 static int32_t opcode_size [ NUM_ADDRESSING_MODES ] =
 {
    1, // AM_IMPLIED
@@ -244,305 +56,310 @@ static const char* operandFmt [ NUM_ADDRESSING_MODES ] =
    " $%02X"  // AM_RELATIVE
 };
 
-static CNES6502_opcode m_6502opcode [ 256 ] =
+CNES6502_opcode C6502::m_6502opcode [ 256 ] =
 {
-   { 0x00, "BRK", C6502::BRK, AM_IMPLIED, 7, true, false, 0x0 }, // BRK
-   { 0x01, "ORA", C6502::ORA, AM_PREINDEXED_INDIRECT, 6, true, false, 0x20 }, // ORA - (Indirect,X)
-   { 0x02, "KIL", C6502::KIL, AM_IMPLIED, 0, false, false, 0x0 }, // KIL - Implied (processor lock up!)
-   { 0x03, "ASO", C6502::ASO, AM_PREINDEXED_INDIRECT, 8, false, false, 0x80 }, // ASO - (Indirect,X) (undocumented)
-   { 0x04, "DOP", C6502::DOP, AM_ZEROPAGE, 3, false, false, 0x4 }, // DOP (undocumented)
-   { 0x05, "ORA", C6502::ORA, AM_ZEROPAGE, 3, true, false, 0x4 }, // ORA - Zero Page
-   { 0x06, "ASL", C6502::ASL, AM_ZEROPAGE, 5, true, false, 0x10 }, // ASL - Zero Page
-   { 0x07, "ASO", C6502::ASO, AM_ZEROPAGE, 5, false, false, 0x10 }, // ASO - Zero Page (undocumented)
-   { 0x08, "PHP", C6502::PHP, AM_IMPLIED, 3, true, false, 0x4 }, // PHP
-   { 0x09, "ORA", C6502::ORA, AM_IMMEDIATE, 2, true, false, 0x2 }, // ORA - Immediate
-   { 0x0A, "ASL", C6502::ASL, AM_ACCUMULATOR, 2, true, false, 0x2 }, // ASL - Accumulator
-   { 0x0B, "ANC", C6502::ANC, AM_IMMEDIATE, 2, false, false, 0x2 }, // ANC - Immediate (undocumented)
-   { 0x0C, "TOP", C6502::TOP, AM_ABSOLUTE, 4, false, false, 0x8 }, // TOP (undocumented)
-   { 0x0D, "ORA", C6502::ORA, AM_ABSOLUTE, 4, true, false, 0x8 }, // ORA - Absolute
-   { 0x0E, "ASL", C6502::ASL, AM_ABSOLUTE, 6, true, false, 0x20 }, // ASL - Absolute
-   { 0x0F, "ASO", C6502::ASO, AM_ABSOLUTE, 6, false, false, 0x20 }, // ASO - Absolute (undocumented)
-   { 0x10, "BPL", C6502::BPL, AM_RELATIVE, 2, true, false, 0xA }, // BPL
-   { 0x11, "ORA", C6502::ORA, AM_POSTINDEXED_INDIRECT, 5, true, false, 0x10 }, // ORA - (Indirect),Y
-   { 0x12, "KIL", C6502::KIL, AM_IMPLIED, 0, false, false, 0x0 }, // KIL - Implied (processor lock up!)
-   { 0x13, "ASO", C6502::ASO, AM_POSTINDEXED_INDIRECT, 8, false, true, 0x80 }, // ASO - (Indirect),Y (undocumented)
-   { 0x14, "DOP", C6502::DOP, AM_ZEROPAGE_INDEXED_X, 4, false, false, 0x8 }, // DOP (undocumented)
-   { 0x15, "ORA", C6502::ORA, AM_ZEROPAGE_INDEXED_X, 4, true, false, 0x8 }, // ORA - Zero Page,X
-   { 0x16, "ASL", C6502::ASL, AM_ZEROPAGE_INDEXED_X, 6, true, false, 0x20 }, // ASL - Zero Page,X
-   { 0x17, "ASO", C6502::ASO, AM_ZEROPAGE_INDEXED_X, 6, false, false, 0x20 }, // ASO - Zero Page,X (undocumented)
-   { 0x18, "CLC", C6502::CLC, AM_IMPLIED, 2, true, false, 0x2 }, // CLC
-   { 0x19, "ORA", C6502::ORA, AM_ABSOLUTE_INDEXED_Y, 4, true, false, 0x8 }, // ORA - Absolute,Y
-   { 0x1A, "NOP", C6502::NOP, AM_IMPLIED, 2, false, false, 0x2 }, // NOP (undocumented)
-   { 0x1B, "ASO", C6502::ASO, AM_ABSOLUTE_INDEXED_Y, 7, false, true, 0x40 }, // ASO - Absolute,Y (undocumented)
-   { 0x1C, "TOP", C6502::TOP, AM_ABSOLUTE_INDEXED_X, 4, false, false, 0x8 }, // TOP (undocumented)
-   { 0x1D, "ORA", C6502::ORA, AM_ABSOLUTE_INDEXED_X, 4, true, false, 0x8 }, // ORA - Absolute,X
-   { 0x1E, "ASL", C6502::ASL, AM_ABSOLUTE_INDEXED_X, 7, true, true, 0x40 }, // ASL - Absolute,X
-   { 0x1F, "ASO", C6502::ASO, AM_ABSOLUTE_INDEXED_X, 7, false, true, 0x40 }, // ASO - Absolute,X (undocumented)
-   { 0x20, "JSR", C6502::JSR, AM_ABSOLUTE, 6, true, false, 0x20 }, // JSR
-   { 0x21, "AND", C6502::AND, AM_PREINDEXED_INDIRECT, 6, true, false, 0x20 }, // AND - (Indirect,X)
-   { 0x22, "KIL", C6502::KIL, AM_IMPLIED, 0, false, false, 0x0 }, // KIL - Implied (processor lock up!)
-   { 0x23, "RLA", C6502::RLA, AM_PREINDEXED_INDIRECT, 8, false, false, 0x80 }, // RLA - (Indirect,X) (undocumented)
-   { 0x24, "BIT", C6502::BIT, AM_ZEROPAGE, 3, true, false, 0x4 }, // BIT - Zero Page
-   { 0x25, "AND", C6502::AND, AM_ZEROPAGE, 3, true, false, 0x4 }, // AND - Zero Page
-   { 0x26, "ROL", C6502::ROL, AM_ZEROPAGE, 5, true, false, 0x10 }, // ROL - Zero Page
-   { 0x27, "RLA", C6502::RLA, AM_ZEROPAGE, 5, false, false, 0x10 }, // RLA - Zero Page (undocumented)
-   { 0x28, "PLP", C6502::PLP, AM_IMPLIED, 4, true, false, 0x8 }, // PLP
-   { 0x29, "AND", C6502::AND, AM_IMMEDIATE, 2, true, false, 0x2 }, // AND - Immediate
-   { 0x2A, "ROL", C6502::ROL, AM_ACCUMULATOR, 2, true, false, 0x2 }, // ROL - Accumulator
-   { 0x2B, "ANC", C6502::ANC, AM_IMMEDIATE, 2, false, false, 0x2 }, // ANC - Immediate (undocumented)
-   { 0x2C, "BIT", C6502::BIT, AM_ABSOLUTE, 4, true, false, 0x8 }, // BIT - Absolute
-   { 0x2D, "AND", C6502::AND, AM_ABSOLUTE, 4, true, false, 0x8 }, // AND - Absolute
-   { 0x2E, "ROL", C6502::ROL, AM_ABSOLUTE, 6, true, false, 0x20 }, // ROL - Absolute
-   { 0x2F, "RLA", C6502::RLA, AM_ABSOLUTE, 6, false, false, 0x20 }, // RLA - Absolute (undocumented)
-   { 0x30, "BMI", C6502::BMI, AM_RELATIVE, 2, true, false, 0x2 }, // BMI
-   { 0x31, "AND", C6502::AND, AM_POSTINDEXED_INDIRECT, 5, true, false, 0x10 }, // AND - (Indirect),Y
-   { 0x32, "KIL", C6502::KIL, AM_IMPLIED, 0, false, false, 0x0 }, // KIL - Implied (processor lock up!)
-   { 0x33, "RLA", C6502::RLA, AM_POSTINDEXED_INDIRECT, 8, false, true, 0x80 }, // RLA - (Indirect),Y (undocumented)
-   { 0x34, "DOP", C6502::DOP, AM_ZEROPAGE_INDEXED_X, 4, false, false, 0x8 }, // DOP (undocumented)
-   { 0x35, "AND", C6502::AND, AM_ZEROPAGE_INDEXED_X, 4, true, false, 0x8 }, // AND - Zero Page,X
-   { 0x36, "ROL", C6502::ROL, AM_ZEROPAGE_INDEXED_X, 6, true, false, 0x20 }, // ROL - Zero Page,X
-   { 0x37, "RLA", C6502::RLA, AM_ZEROPAGE_INDEXED_X, 6, false, false, 0x20 }, // RLA - Zero Page,X (undocumented)
-   { 0x38, "SEC", C6502::SEC, AM_IMPLIED, 2, true, false, 0x2 }, // SEC
-   { 0x39, "AND", C6502::AND, AM_ABSOLUTE_INDEXED_Y, 4, true, false, 0x8 }, // AND - Absolute,Y
-   { 0x3A, "NOP", C6502::NOP, AM_IMPLIED, 2, false, false, 0x2 }, // NOP (undocumented)
-   { 0x3B, "RLA", C6502::RLA, AM_ABSOLUTE_INDEXED_Y, 7, false, true, 0x40 }, // RLA - Absolute,Y (undocumented)
-   { 0x3C, "TOP", C6502::TOP, AM_ABSOLUTE_INDEXED_X, 4, false, false, 0x8 }, // TOP (undocumented)
-   { 0x3D, "AND", C6502::AND, AM_ABSOLUTE_INDEXED_X, 4, true, false, 0x8 }, // AND - Absolute,X
-   { 0x3E, "ROL", C6502::ROL, AM_ABSOLUTE_INDEXED_X, 7, true, false, 0x40 }, // ROL - Absolute,X
-   { 0x3F, "RLA", C6502::RLA, AM_ABSOLUTE_INDEXED_X, 7, false, true, 0x40 }, // RLA - Absolute,X (undocumented)
-   { 0x40, "RTI", C6502::RTI, AM_IMPLIED, 6, true, false, 0x20 }, // RTI
-   { 0x41, "EOR", C6502::EOR, AM_PREINDEXED_INDIRECT, 6, true, false, 0x20 }, // EOR - (Indirect,X)
-   { 0x42, "KIL", C6502::KIL, AM_IMPLIED, 0, false, false, 0x0 }, // KIL - Implied (processor lock up!)
-   { 0x43, "LSE", C6502::LSE, AM_PREINDEXED_INDIRECT, 8, false, false, 0x80 }, // LSE - (Indirect,X) (undocumented)
-   { 0x44, "DOP", C6502::DOP, AM_ZEROPAGE, 3, false, false, 0x4 }, // DOP (undocumented)
-   { 0x45, "EOR", C6502::EOR, AM_ZEROPAGE, 3, true, false, 0x4 }, // EOR - Zero Page
-   { 0x46, "LSR", C6502::LSR, AM_ZEROPAGE, 5, true, false, 0x10 }, // LSR - Zero Page
-   { 0x47, "LSE", C6502::LSE, AM_ZEROPAGE, 5, false, false, 0x10 }, // LSE - Zero Page (undocumented)
-   { 0x48, "PHA", C6502::PHA, AM_IMPLIED, 3, true, false, 0x4 }, // PHA
-   { 0x49, "EOR", C6502::EOR, AM_IMMEDIATE, 2, true, false, 0x2 }, // EOR - Immediate
-   { 0x4A, "LSR", C6502::LSR, AM_ACCUMULATOR, 2, true, false, 0x2 }, // LSR - Accumulator
-   { 0x4B, "ALR", C6502::ALR, AM_IMMEDIATE, 2, false, false, 0x2 }, // ALR - Immediate (undocumented)
-   { 0x4C, "JMP", C6502::JMP, AM_ABSOLUTE, 3, true, false, 0x4 }, // JMP - Absolute
-   { 0x4D, "EOR", C6502::EOR, AM_ABSOLUTE, 4, true, false, 0x8 }, // EOR - Absolute
-   { 0x4E, "LSR", C6502::LSR, AM_ABSOLUTE, 6, true, false, 0x20 }, // LSR - Absolute
-   { 0x4F, "LSE", C6502::LSE, AM_ABSOLUTE, 6, false, false, 0x20 }, // LSE - Absolute (undocumented)
-   { 0x50, "BVC", C6502::BVC, AM_RELATIVE, 2, true, false, 0xA }, // BVC
-   { 0x51, "EOR", C6502::EOR, AM_POSTINDEXED_INDIRECT, 5, true, false, 0x10 }, // EOR - (Indirect),Y
-   { 0x52, "KIL", C6502::KIL, AM_IMPLIED, 0, false, false, 0x0 }, // KIL - Implied (processor lock up!)
-   { 0x53, "LSE", C6502::LSE, AM_POSTINDEXED_INDIRECT, 8, false, true, 0x80 }, // LSE - (Indirect),Y
-   { 0x54, "DOP", C6502::DOP, AM_ZEROPAGE_INDEXED_X, 4, false, false, 0x8 }, // DOP (undocumented)
-   { 0x55, "EOR", C6502::EOR, AM_ZEROPAGE_INDEXED_X, 4, true, false, 0x8 }, // EOR - Zero Page,X
-   { 0x56, "LSR", C6502::LSR, AM_ZEROPAGE_INDEXED_X, 6, true, false, 0x20 }, // LSR - Zero Page,X
-   { 0x57, "LSE", C6502::LSE, AM_ZEROPAGE_INDEXED_X, 6, false, false, 0x20 }, // LSE - Zero Page,X (undocumented)
-   { 0x58, "CLI", C6502::CLI, AM_IMPLIED, 2, true, false, 0x2 }, // CLI
-   { 0x59, "EOR", C6502::EOR, AM_ABSOLUTE_INDEXED_Y, 4, true, false, 0x8 }, // EOR - Absolute,Y
-   { 0x5A, "NOP", C6502::NOP, AM_IMPLIED, 2, false, false, 0x2 }, // NOP (undocumented)
-   { 0x5B, "LSE", C6502::LSE, AM_ABSOLUTE_INDEXED_Y, 7, false, true, 0x40 }, // LSE - Absolute,Y (undocumented)
-   { 0x5C, "TOP", C6502::TOP, AM_ABSOLUTE_INDEXED_X, 4, false, false, 0x8 }, // TOP (undocumented)
-   { 0x5D, "EOR", C6502::EOR, AM_ABSOLUTE_INDEXED_X, 4, true, false, 0x8 }, // EOR - Absolute,X
-   { 0x5E, "LSR", C6502::LSR, AM_ABSOLUTE_INDEXED_X, 7, true, true, 0x40 }, // LSR - Absolute,X
-   { 0x5F, "LSE", C6502::LSE, AM_ABSOLUTE_INDEXED_X, 7, false, true, 0x40 }, // LSE - Absolute,X (undocumented)
-   { 0x60, "RTS", C6502::RTS, AM_IMPLIED, 6, true, false, 0x20 }, // RTS
-   { 0x61, "ADC", C6502::ADC, AM_PREINDEXED_INDIRECT, 6, true, false, 0x20 }, // ADC - (Indirect,X)
-   { 0x62, "KIL", C6502::KIL, AM_IMPLIED, 0, false, false, 0x0 }, // KIL - Implied (processor lock up!)
-   { 0x63, "RRA", C6502::RRA, AM_PREINDEXED_INDIRECT, 8, false, false, 0x80 }, // RRA - (Indirect,X) (undocumented)
-   { 0x64, "DOP", C6502::DOP, AM_ZEROPAGE, 3, false, false, 0x4 }, // DOP (undocumented)
-   { 0x65, "ADC", C6502::ADC, AM_ZEROPAGE, 3, true, false, 0x4 }, // ADC - Zero Page
-   { 0x66, "ROR", C6502::ROR, AM_ZEROPAGE, 5, true, false, 0x10 }, // ROR - Zero Page
-   { 0x67, "RRA", C6502::RRA, AM_ZEROPAGE, 5, false, false, 0x10 }, // RRA - Zero Page (undocumented)
-   { 0x68, "PLA", C6502::PLA, AM_IMPLIED, 4, true, false, 0x8 }, // PLA
-   { 0x69, "ADC", C6502::ADC, AM_IMMEDIATE, 2, true, false, 0x2 }, // ADC - Immediate
-   { 0x6A, "ROR", C6502::ROR, AM_ACCUMULATOR, 2, true, false, 0x2 }, // ROR - Accumulator
-   { 0x6B, "ARR", C6502::ARR, AM_IMMEDIATE, 2, false, false, 0x2 }, // ARR - Immediate (undocumented)
-   { 0x6C, "JMP", C6502::JMP, AM_INDIRECT, 5, true, false, 0x10 }, // JMP - Indirect
-   { 0x6D, "ADC", C6502::ADC, AM_ABSOLUTE, 4, true, false, 0x8 }, // ADC - Absolute
-   { 0x6E, "ROR", C6502::ROR, AM_ABSOLUTE, 6, true, false, 0x20 }, // ROR - Absolute
-   { 0x6F, "RRA", C6502::RRA, AM_ABSOLUTE, 6, false, false, 0x20 }, // RRA - Absolute (undocumented)
-   { 0x70, "BVS", C6502::BVS, AM_RELATIVE, 2, true, false, 0xA }, // BVS
-   { 0x71, "ADC", C6502::ADC, AM_POSTINDEXED_INDIRECT, 5, true, false, 0x10 }, // ADC - (Indirect),Y
-   { 0x72, "KIL", C6502::KIL, AM_IMPLIED, 0, false, false, 0x0 }, // KIL - Implied (processor lock up!)
-   { 0x73, "RRA", C6502::RRA, AM_POSTINDEXED_INDIRECT, 8, false, true, 0x80 }, // RRA - (Indirect),Y (undocumented)
-   { 0x74, "DOP", C6502::DOP, AM_ZEROPAGE_INDEXED_X, 4, false, false, 0x8 }, // DOP (undocumented)
-   { 0x75, "ADC", C6502::ADC, AM_ZEROPAGE_INDEXED_X, 4, true, false, 0x8 }, // ADC - Zero Page,X
-   { 0x76, "ROR", C6502::ROR, AM_ZEROPAGE_INDEXED_X, 6, true, false, 0x20 }, // ROR - Zero Page,X
-   { 0x77, "RRA", C6502::RRA, AM_ZEROPAGE_INDEXED_X, 6, false, false, 0x20 }, // RRA - Zero Page,X (undocumented)
-   { 0x78, "SEI", C6502::SEI, AM_IMPLIED, 2, true, false, 0x2 }, // SEI
-   { 0x79, "ADC", C6502::ADC, AM_ABSOLUTE_INDEXED_Y, 4, true, false, 0x8 }, // ADC - Absolute,Y
-   { 0x7A, "NOP", C6502::NOP, AM_IMPLIED, 2, false, false, 0x2 }, // NOP (undocumented)
-   { 0x7B, "RRA", C6502::RRA, AM_ABSOLUTE_INDEXED_Y, 7, false, true, 0x40 }, // RRA - Absolute,Y (undocumented)
-   { 0x7C, "TOP", C6502::TOP, AM_ABSOLUTE_INDEXED_X, 4, false, false, 0x8 }, // TOP (undocumented)
-   { 0x7D, "ADC", C6502::ADC, AM_ABSOLUTE_INDEXED_X, 4, true, false, 0x8 }, // ADC - Absolute,X
-   { 0x7E, "ROR", C6502::ROR, AM_ABSOLUTE_INDEXED_X, 7, true, true, 0x40 }, // ROR - Absolute,X
-   { 0x7F, "RRA", C6502::RRA, AM_ABSOLUTE_INDEXED_X, 7, false, true, 0x40 }, // RRA - Absolute,X (undocumented)
-   { 0x80, "DOP", C6502::DOP, AM_IMMEDIATE, 2, false, false, 0x2 }, // DOP (undocumented)
-   { 0x81, "STA", C6502::STA, AM_PREINDEXED_INDIRECT, 6, true, false, 0x20 }, // STA - (Indirect,X)
-   { 0x82, "DOP", C6502::DOP, AM_IMMEDIATE, 2, false, false, 0x2 }, // DOP (undocumented)
-   { 0x83, "AXS", C6502::AXS, AM_PREINDEXED_INDIRECT, 6, false, false, 0x20 }, // AXS - (Indirect,X) (undocumented)
-   { 0x84, "STY", C6502::STY, AM_ZEROPAGE, 3, true, false, 0x4 }, // STY - Zero Page
-   { 0x85, "STA", C6502::STA, AM_ZEROPAGE, 3, true, false, 0x4 }, // STA - Zero Page
-   { 0x86, "STX", C6502::STX, AM_ZEROPAGE, 3, true, false, 0x4 }, // STX - Zero Page
-   { 0x87, "AXS", C6502::AXS, AM_ZEROPAGE, 3, false, false, 0x4 }, // AXS - Zero Page (undocumented)
-   { 0x88, "DEY", C6502::DEY, AM_IMPLIED, 2, true, false, 0x2 }, // DEY
-   { 0x89, "DOP", C6502::DOP, AM_IMMEDIATE, 2, false, false, 0x2 }, // DOP (undocumented)
-   { 0x8A, "TXA", C6502::TXA, AM_IMPLIED, 2, true, false, 0x2 }, // TXA
-   { 0x8B, "XAA", C6502::XAA, AM_IMMEDIATE, 2, false, false, 0x2 }, // XAA - Immediate (undocumented)
-   { 0x8C, "STY", C6502::STY, AM_ABSOLUTE, 4, true, false, 0x8 }, // STY - Absolute
-   { 0x8D, "STA", C6502::STA, AM_ABSOLUTE, 4, true, false, 0x8 }, // STA - Absolute
-   { 0x8E, "STX", C6502::STX, AM_ABSOLUTE, 4, true, false, 0x8 }, // STX - Absolute
-   { 0x8F, "AXS", C6502::AXS, AM_ABSOLUTE, 4, false, false, 0x8 }, // AXS - Absolulte (undocumented)
-   { 0x90, "BCC", C6502::BCC, AM_RELATIVE, 2, true, false, 0xA }, // BCC
-   { 0x91, "STA", C6502::STA, AM_POSTINDEXED_INDIRECT, 6, true, true, 0x20 }, // STA - (Indirect),Y
-   { 0x92, "KIL", C6502::KIL, AM_IMPLIED, 0, false, false, 0x0 }, // KIL - Implied (processor lock up!)
-   { 0x93, "AXA", C6502::AXA, AM_POSTINDEXED_INDIRECT, 6, false, true, 0x20 }, // AXA - (Indirect),Y
-   { 0x94, "STY", C6502::STY, AM_ZEROPAGE_INDEXED_X, 4, true, false, 0x8 }, // STY - Zero Page,X
-   { 0x95, "STA", C6502::STA, AM_ZEROPAGE_INDEXED_X, 4, true, false, 0x8 }, // STA - Zero Page,X
-   { 0x96, "STX", C6502::STX, AM_ZEROPAGE_INDEXED_Y, 4, true, false, 0x8 }, // STX - Zero Page,Y
-   { 0x97, "AXS", C6502::AXS, AM_ZEROPAGE_INDEXED_Y, 4, false, false, 0x8 }, // AXS - Zero Page,Y
-   { 0x98, "TYA", C6502::TYA, AM_IMPLIED, 2, true, false, 0x2 }, // TYA
-   { 0x99, "STA", C6502::STA, AM_ABSOLUTE_INDEXED_Y, 5, true, true, 0x10 }, // STA - Absolute,Y
-   { 0x9A, "TXS", C6502::TXS, AM_IMPLIED, 2, true, false, 0x2 }, // TXS
-   { 0x9B, "TAS", C6502::TAS, AM_ABSOLUTE_INDEXED_Y, 5, false, true, 0x10 }, // TAS - Absolute,Y (undocumented)
-   { 0x9C, "SAY", C6502::SAY, AM_ABSOLUTE_INDEXED_X, 5, false, true, 0x10 }, // SAY - Absolute,X (undocumented)
-   { 0x9D, "STA", C6502::STA, AM_ABSOLUTE_INDEXED_X, 5, true, true, 0x10 }, // STA - Absolute,X
-   { 0x9E, "XAS", C6502::XAS, AM_ABSOLUTE_INDEXED_Y, 5, false, true, 0x10 }, // XAS - Absolute,Y (undocumented)
-   { 0x9F, "AXA", C6502::AXA, AM_ABSOLUTE_INDEXED_Y, 5, false, true, 0x10 }, // AXA - Absolute,Y (undocumented)
-   { 0xA0, "LDY", C6502::LDY, AM_IMMEDIATE, 2, true, false, 0x2 }, // LDY - Immediate
-   { 0xA1, "LDA", C6502::LDA, AM_PREINDEXED_INDIRECT, 6, true, false, 0x20 }, // LDA - (Indirect,X)
-   { 0xA2, "LDX", C6502::LDX, AM_IMMEDIATE, 2, true, false, 0x2 }, // LDX - Immediate
-   { 0xA3, "LAX", C6502::LAX, AM_PREINDEXED_INDIRECT, 6, false, false, 0x20 }, // LAX - (Indirect,X) (undocumented)
-   { 0xA4, "LDY", C6502::LDY, AM_ZEROPAGE, 3, true, false, 0x4 }, // LDY - Zero Page
-   { 0xA5, "LDA", C6502::LDA, AM_ZEROPAGE, 3, true, false, 0x4 }, // LDA - Zero Page
-   { 0xA6, "LDX", C6502::LDX, AM_ZEROPAGE, 3, true, false, 0x4 }, // LDX - Zero Page
-   { 0xA7, "LAX", C6502::LAX, AM_ZEROPAGE, 3, false, false, 0x4 }, // LAX - Zero Page (undocumented)
-   { 0xA8, "TAY", C6502::TAY, AM_IMPLIED, 2, true, false, 0x2 }, // TAY
-   { 0xA9, "LDA", C6502::LDA, AM_IMMEDIATE, 2, true, false, 0x2 }, // LDA - Immediate
-   { 0xAA, "TAX", C6502::TAX, AM_IMPLIED, 2, true, false, 0x2 }, // TAX
-   { 0xAB, "OAL", C6502::OAL, AM_IMMEDIATE, 2, false, false, 0x2 }, // OAL - Immediate
-   { 0xAC, "LDY", C6502::LDY, AM_ABSOLUTE, 4, true, false, 0x8 }, // LDY - Absolute
-   { 0xAD, "LDA", C6502::LDA, AM_ABSOLUTE, 4, true, false, 0x8 }, // LDA - Absolute
-   { 0xAE, "LDX", C6502::LDX, AM_ABSOLUTE, 4, true, false, 0x8 }, // LDX - Absolute
-   { 0xAF, "LAX", C6502::LAX, AM_ABSOLUTE, 4, false, false, 0x8 }, // LAX - Absolute (undocumented)
-   { 0xB0, "BCS", C6502::BCS, AM_RELATIVE, 2, true, false, 0xA }, // BCS
-   { 0xB1, "LDA", C6502::LDA, AM_POSTINDEXED_INDIRECT, 5, true, false, 0x10 }, // LDA - (Indirect),Y
-   { 0xB2, "KIL", C6502::KIL, AM_IMPLIED, 0, false, false, 0x0 }, // KIL - Implied (processor lock up!)
-   { 0xB3, "LAX", C6502::LAX, AM_POSTINDEXED_INDIRECT, 5, false, false, 0x10 }, // LAX - (Indirect),Y (undocumented)
-   { 0xB4, "LDY", C6502::LDY, AM_ZEROPAGE_INDEXED_X, 4, true, false, 0x8 }, // LDY - Zero Page,X
-   { 0xB5, "LDA", C6502::LDA, AM_ZEROPAGE_INDEXED_X, 4, true, false, 0x8 }, // LDA - Zero Page,X
-   { 0xB6, "LDX", C6502::LDX, AM_ZEROPAGE_INDEXED_Y, 4, true, false, 0x8 }, // LDX - Zero Page,Y
-   { 0xB7, "LAX", C6502::LAX, AM_ZEROPAGE_INDEXED_Y, 4, false, false, 0x8 }, // LAX - Zero Page,X (undocumented)
-   { 0xB8, "CLV", C6502::CLV, AM_IMPLIED, 2, true, false, 0x2 }, // CLV
-   { 0xB9, "LDA", C6502::LDA, AM_ABSOLUTE_INDEXED_Y, 4, true, false, 0x8 }, // LDA - Absolute,Y
-   { 0xBA, "TSX", C6502::TSX, AM_IMPLIED, 2, true, false, 0x2 }, // TSX
-   { 0xBB, "LAS", C6502::LAS, AM_ABSOLUTE_INDEXED_Y, 4, false, false, 0x8 }, // LAS - Absolute,Y (undocumented)
-   { 0xBC, "LDY", C6502::LDY, AM_ABSOLUTE_INDEXED_X, 4, true, false, 0x8 }, // LDY - Absolute,X
-   { 0xBD, "LDA", C6502::LDA, AM_ABSOLUTE_INDEXED_X, 4, true, false, 0x8 }, // LDA - Absolute,X
-   { 0xBE, "LDX", C6502::LDX, AM_ABSOLUTE_INDEXED_Y, 4, true, false, 0x8 }, // LDX - Absolute,Y
-   { 0xBF, "LAX", C6502::LAX, AM_ABSOLUTE_INDEXED_Y, 4, false, false, 0x8 }, // LAX - Absolute,Y (undocumented)
-   { 0xC0, "CPY", C6502::CPY, AM_IMMEDIATE, 2, true, false, 0x2 }, // CPY - Immediate
-   { 0xC1, "CMP", C6502::CMP, AM_PREINDEXED_INDIRECT, 6, true, false, 0x20 }, // CMP - (Indirect,X)
-   { 0xC2, "DOP", C6502::DOP, AM_IMMEDIATE, 2, false, false, 0x2 }, // DOP (undocumented)
-   { 0xC3, "DCM", C6502::DCM, AM_PREINDEXED_INDIRECT, 8, false, false, 0x80 }, // DCM - (Indirect,X) (undocumented)
-   { 0xC4, "CPY", C6502::CPY, AM_ZEROPAGE, 3, true, false, 0x4 }, // CPY - Zero Page
-   { 0xC5, "CMP", C6502::CMP, AM_ZEROPAGE, 3, true, false, 0x4 }, // CMP - Zero Page
-   { 0xC6, "DEC", C6502::DEC, AM_ZEROPAGE, 5, true, false, 0x10 }, // DEC - Zero Page
-   { 0xC7, "DCM", C6502::DCM, AM_ZEROPAGE, 5, true, false, 0x10 }, // DCM - Zero Page (undocumented)
-   { 0xC8, "INY", C6502::INY, AM_IMPLIED, 2, true, false, 0x2 }, // INY
-   { 0xC9, "CMP", C6502::CMP, AM_IMMEDIATE, 2, true, false, 0x2 }, // CMP - Immediate
-   { 0xCA, "DEX", C6502::DEX, AM_IMPLIED, 2, true, false, 0x2 }, // DEX
-   { 0xCB, "SAX", C6502::SAX, AM_IMMEDIATE, 2, false, false, 0x2 }, // SAX - Immediate (undocumented)
-   { 0xCC, "CPY", C6502::CPY, AM_ABSOLUTE, 4, true, false, 0x8 }, // CPY - Absolute
-   { 0xCD, "CMP", C6502::CMP, AM_ABSOLUTE, 4, true, false, 0x8 }, // CMP - Absolute
-   { 0xCE, "DEC", C6502::DEC, AM_ABSOLUTE, 6, true, false, 0x20 }, // DEC - Absolute
-   { 0xCF, "DCM", C6502::DCM, AM_ABSOLUTE, 6, false, false, 0x20 }, // DCM - Absolute (undocumented)
-   { 0xD0, "BNE", C6502::BNE, AM_RELATIVE, 2, true, false, 0xA }, // BNE
-   { 0xD1, "CMP", C6502::CMP, AM_POSTINDEXED_INDIRECT, 5, true, false, 0x10 }, // CMP   (Indirect),Y
-   { 0xD2, "KIL", C6502::KIL, AM_IMPLIED, 0, false, false, 0x0 }, // KIL - Implied (processor lock up!)
-   { 0xD3, "DCM", C6502::DCM, AM_POSTINDEXED_INDIRECT, 8, false, true, 0x80 }, // DCM - (Indirect),Y (undocumented)
-   { 0xD4, "DOP", C6502::DOP, AM_ZEROPAGE_INDEXED_X, 4, false, false, 0x8 }, // DOP (undocumented)
-   { 0xD5, "CMP", C6502::CMP, AM_ZEROPAGE_INDEXED_X, 4, true, false, 0x8 }, // CMP - Zero Page,X
-   { 0xD6, "DEC", C6502::DEC, AM_ZEROPAGE_INDEXED_X, 6, true, false, 0x20 }, // DEC - Zero Page,X
-   { 0xD7, "DCM", C6502::DCM, AM_ZEROPAGE_INDEXED_X, 6, false, false, 0x20 }, // DCM - Zero Page,X (undocumented)
-   { 0xD8, "CLD", C6502::CLD, AM_IMPLIED, 2, true, false, 0x2 }, // CLD
-   { 0xD9, "CMP", C6502::CMP, AM_ABSOLUTE_INDEXED_Y, 4, true, false, 0x8 }, // CMP - Absolute,Y
-   { 0xDA, "NOP", C6502::NOP, AM_IMPLIED, 2, false, false, 0x2 }, // NOP (undocumented)
-   { 0xDB, "DCM", C6502::DCM, AM_ABSOLUTE_INDEXED_Y, 7, false, true, 0x40 }, // DCM - Absolute,Y (undocumented)
-   { 0xDC, "TOP", C6502::TOP, AM_ABSOLUTE_INDEXED_X, 4, false, false, 0x8 }, // TOP (undocumented)
-   { 0xDD, "CMP", C6502::CMP, AM_ABSOLUTE_INDEXED_X, 4, true, false, 0x8 }, // CMP - Absolute,X
-   { 0xDE, "DEC", C6502::DEC, AM_ABSOLUTE_INDEXED_X, 7, true, true, 0x40 }, // DEC - Absolute,X
-   { 0xDF, "DCM", C6502::DCM, AM_ABSOLUTE_INDEXED_X, 7, false, true, 0x40 }, // DCM - Absolute,X (undocumented)
-   { 0xE0, "CPX", C6502::CPX, AM_IMMEDIATE, 2, true, false, 0x2 }, // CPX - Immediate
-   { 0xE1, "SBC", C6502::SBC, AM_PREINDEXED_INDIRECT, 6, true, false, 0x20 }, // SBC - (Indirect,X)
-   { 0xE2, "DOP", C6502::DOP, AM_IMMEDIATE, 2, false, false, 0x2 }, // DOP (undocumented)
-   { 0xE3, "INS", C6502::INS, AM_PREINDEXED_INDIRECT, 8, false, false, 0x80 }, // INS - (Indirect,X) (undocumented)
-   { 0xE4, "CPX", C6502::CPX, AM_ZEROPAGE, 3, true, false, 0x4 }, // CPX - Zero Page
-   { 0xE5, "SBC", C6502::SBC, AM_ZEROPAGE, 3, true, false, 0x4 }, // SBC - Zero Page
-   { 0xE6, "INC", C6502::INC, AM_ZEROPAGE, 5, true, false, 0x10 }, // INC - Zero Page
-   { 0xE7, "INS", C6502::INS, AM_ZEROPAGE, 5, false, false, 0x10 }, // INS - Zero Page (undocumented)
-   { 0xE8, "INX", C6502::INX, AM_IMPLIED, 2, true, false, 0x2 }, // INX
-   { 0xE9, "SBC", C6502::SBC, AM_IMMEDIATE, 2, true, false, 0x2 }, // SBC - Immediate
-   { 0xEA, "NOP", C6502::NOP, AM_IMPLIED, 2, true, false, 0x2 }, // NOP
-   { 0xEB, "SBC", C6502::SBC, AM_IMMEDIATE, 2, false, false, 0x2 }, // SBC - Immediate (undocumented)
-   { 0xEC, "CPX", C6502::CPX, AM_ABSOLUTE, 4, true, false, 0x8 }, // CPX - Absolute
-   { 0xED, "SBC", C6502::SBC, AM_ABSOLUTE, 4, true, false, 0x8 }, // SBC - Absolute
-   { 0xEE, "INC", C6502::INC, AM_ABSOLUTE, 6, true, false, 0x20 }, // INC - Absolute
-   { 0xEF, "INS", C6502::INS, AM_ABSOLUTE, 6, false, false, 0x20 }, // INS - Absolute (undocumented)
-   { 0xF0, "BEQ", C6502::BEQ, AM_RELATIVE, 2, true, false, 0xA }, // BEQ
-   { 0xF1, "SBC", C6502::SBC, AM_POSTINDEXED_INDIRECT, 5, true, false, 0x10 }, // SBC - (Indirect),Y
-   { 0xF2, "KIL", C6502::KIL, AM_IMPLIED, 0, false, false, 0x0 }, // KIL - Implied (processor lock up!)
-   { 0xF3, "INS", C6502::INS, AM_POSTINDEXED_INDIRECT, 8, false, true, 0x80 }, // INS - (Indirect),Y (undocumented)
-   { 0xF4, "DOP", C6502::DOP, AM_ZEROPAGE_INDEXED_X, 4, false, false, 0x8 }, // DOP (undocumented)
-   { 0xF5, "SBC", C6502::SBC, AM_ZEROPAGE_INDEXED_X, 4, true, false, 0x8 }, // SBC - Zero Page,X
-   { 0xF6, "INC", C6502::INC, AM_ZEROPAGE_INDEXED_X, 6, true, false, 0x20 }, // INC - Zero Page,X
-   { 0xF7, "INS", C6502::INS, AM_ZEROPAGE_INDEXED_X, 6, false, false, 0x20 }, // INS - Zero Page,X (undocumented)
-   { 0xF8, "SED", C6502::SED, AM_IMPLIED, 2, true, false, 0x2 }, // SED
-   { 0xF9, "SBC", C6502::SBC, AM_ABSOLUTE_INDEXED_Y, 4, true, false, 0x8 }, // SBC - Absolute,Y
-   { 0xFA, "NOP", C6502::NOP, AM_IMPLIED, 2, false, false, 0x2 }, // NOP (undocumented)
-   { 0xFB, "INS", C6502::INS, AM_ABSOLUTE_INDEXED_Y, 7, false, true, 0x40 }, // INS - Absolute,Y (undocumented)
-   { 0xFC, "TOP", C6502::TOP, AM_ABSOLUTE_INDEXED_X, 4, false, false, 0x8 }, // TOP (undocumented)
-   { 0xFD, "SBC", C6502::SBC, AM_ABSOLUTE_INDEXED_X, 4, true, false, 0x8 }, // SBC - Absolute,X
-   { 0xFE, "INC", C6502::INC, AM_ABSOLUTE_INDEXED_X, 7, true, true, 0x40 }, // INC - Absolute,X
-   { 0xFF, "INS", C6502::INS, AM_ABSOLUTE_INDEXED_X, 7, false, true, 0x40 }  // INS - Absolute,X (undocumented)
+   { 0x00, "BRK", &C6502::BRK, AM_IMPLIED, 7, true, false, 0x0 }, // BRK
+   { 0x01, "ORA", &C6502::ORA, AM_PREINDEXED_INDIRECT, 6, true, false, 0x20 }, // ORA - (Indirect,X)
+   { 0x02, "KIL", &C6502::KIL, AM_IMPLIED, 0, false, false, 0x0 }, // KIL - Implied (processor lock up!)
+   { 0x03, "ASO", &C6502::ASO, AM_PREINDEXED_INDIRECT, 8, false, false, 0x80 }, // ASO - (Indirect,X) (undocumented)
+   { 0x04, "DOP", &C6502::DOP, AM_ZEROPAGE, 3, false, false, 0x4 }, // DOP (undocumented)
+   { 0x05, "ORA", &C6502::ORA, AM_ZEROPAGE, 3, true, false, 0x4 }, // ORA - Zero Page
+   { 0x06, "ASL", &C6502::ASL, AM_ZEROPAGE, 5, true, false, 0x10 }, // ASL - Zero Page
+   { 0x07, "ASO", &C6502::ASO, AM_ZEROPAGE, 5, false, false, 0x10 }, // ASO - Zero Page (undocumented)
+   { 0x08, "PHP", &C6502::PHP, AM_IMPLIED, 3, true, false, 0x4 }, // PHP
+   { 0x09, "ORA", &C6502::ORA, AM_IMMEDIATE, 2, true, false, 0x2 }, // ORA - Immediate
+   { 0x0A, "ASL", &C6502::ASL, AM_ACCUMULATOR, 2, true, false, 0x2 }, // ASL - Accumulator
+   { 0x0B, "ANC", &C6502::ANC, AM_IMMEDIATE, 2, false, false, 0x2 }, // ANC - Immediate (undocumented)
+   { 0x0C, "TOP", &C6502::TOP, AM_ABSOLUTE, 4, false, false, 0x8 }, // TOP (undocumented)
+   { 0x0D, "ORA", &C6502::ORA, AM_ABSOLUTE, 4, true, false, 0x8 }, // ORA - Absolute
+   { 0x0E, "ASL", &C6502::ASL, AM_ABSOLUTE, 6, true, false, 0x20 }, // ASL - Absolute
+   { 0x0F, "ASO", &C6502::ASO, AM_ABSOLUTE, 6, false, false, 0x20 }, // ASO - Absolute (undocumented)
+   { 0x10, "BPL", &C6502::BPL, AM_RELATIVE, 2, true, false, 0xA }, // BPL
+   { 0x11, "ORA", &C6502::ORA, AM_POSTINDEXED_INDIRECT, 5, true, false, 0x10 }, // ORA - (Indirect),Y
+   { 0x12, "KIL", &C6502::KIL, AM_IMPLIED, 0, false, false, 0x0 }, // KIL - Implied (processor lock up!)
+   { 0x13, "ASO", &C6502::ASO, AM_POSTINDEXED_INDIRECT, 8, false, true, 0x80 }, // ASO - (Indirect),Y (undocumented)
+   { 0x14, "DOP", &C6502::DOP, AM_ZEROPAGE_INDEXED_X, 4, false, false, 0x8 }, // DOP (undocumented)
+   { 0x15, "ORA", &C6502::ORA, AM_ZEROPAGE_INDEXED_X, 4, true, false, 0x8 }, // ORA - Zero Page,X
+   { 0x16, "ASL", &C6502::ASL, AM_ZEROPAGE_INDEXED_X, 6, true, false, 0x20 }, // ASL - Zero Page,X
+   { 0x17, "ASO", &C6502::ASO, AM_ZEROPAGE_INDEXED_X, 6, false, false, 0x20 }, // ASO - Zero Page,X (undocumented)
+   { 0x18, "CLC", &C6502::CLC, AM_IMPLIED, 2, true, false, 0x2 }, // CLC
+   { 0x19, "ORA", &C6502::ORA, AM_ABSOLUTE_INDEXED_Y, 4, true, false, 0x8 }, // ORA - Absolute,Y
+   { 0x1A, "NOP", &C6502::NOP, AM_IMPLIED, 2, false, false, 0x2 }, // NOP (undocumented)
+   { 0x1B, "ASO", &C6502::ASO, AM_ABSOLUTE_INDEXED_Y, 7, false, true, 0x40 }, // ASO - Absolute,Y (undocumented)
+   { 0x1C, "TOP", &C6502::TOP, AM_ABSOLUTE_INDEXED_X, 4, false, false, 0x8 }, // TOP (undocumented)
+   { 0x1D, "ORA", &C6502::ORA, AM_ABSOLUTE_INDEXED_X, 4, true, false, 0x8 }, // ORA - Absolute,X
+   { 0x1E, "ASL", &C6502::ASL, AM_ABSOLUTE_INDEXED_X, 7, true, true, 0x40 }, // ASL - Absolute,X
+   { 0x1F, "ASO", &C6502::ASO, AM_ABSOLUTE_INDEXED_X, 7, false, true, 0x40 }, // ASO - Absolute,X (undocumented)
+   { 0x20, "JSR", &C6502::JSR, AM_ABSOLUTE, 6, true, false, 0x20 }, // JSR
+   { 0x21, "AND", &C6502::AND, AM_PREINDEXED_INDIRECT, 6, true, false, 0x20 }, // AND - (Indirect,X)
+   { 0x22, "KIL", &C6502::KIL, AM_IMPLIED, 0, false, false, 0x0 }, // KIL - Implied (processor lock up!)
+   { 0x23, "RLA", &C6502::RLA, AM_PREINDEXED_INDIRECT, 8, false, false, 0x80 }, // RLA - (Indirect,X) (undocumented)
+   { 0x24, "BIT", &C6502::BIT, AM_ZEROPAGE, 3, true, false, 0x4 }, // BIT - Zero Page
+   { 0x25, "AND", &C6502::AND, AM_ZEROPAGE, 3, true, false, 0x4 }, // AND - Zero Page
+   { 0x26, "ROL", &C6502::ROL, AM_ZEROPAGE, 5, true, false, 0x10 }, // ROL - Zero Page
+   { 0x27, "RLA", &C6502::RLA, AM_ZEROPAGE, 5, false, false, 0x10 }, // RLA - Zero Page (undocumented)
+   { 0x28, "PLP", &C6502::PLP, AM_IMPLIED, 4, true, false, 0x8 }, // PLP
+   { 0x29, "AND", &C6502::AND, AM_IMMEDIATE, 2, true, false, 0x2 }, // AND - Immediate
+   { 0x2A, "ROL", &C6502::ROL, AM_ACCUMULATOR, 2, true, false, 0x2 }, // ROL - Accumulator
+   { 0x2B, "ANC", &C6502::ANC, AM_IMMEDIATE, 2, false, false, 0x2 }, // ANC - Immediate (undocumented)
+   { 0x2C, "BIT", &C6502::BIT, AM_ABSOLUTE, 4, true, false, 0x8 }, // BIT - Absolute
+   { 0x2D, "AND", &C6502::AND, AM_ABSOLUTE, 4, true, false, 0x8 }, // AND - Absolute
+   { 0x2E, "ROL", &C6502::ROL, AM_ABSOLUTE, 6, true, false, 0x20 }, // ROL - Absolute
+   { 0x2F, "RLA", &C6502::RLA, AM_ABSOLUTE, 6, false, false, 0x20 }, // RLA - Absolute (undocumented)
+   { 0x30, "BMI", &C6502::BMI, AM_RELATIVE, 2, true, false, 0x2 }, // BMI
+   { 0x31, "AND", &C6502::AND, AM_POSTINDEXED_INDIRECT, 5, true, false, 0x10 }, // AND - (Indirect),Y
+   { 0x32, "KIL", &C6502::KIL, AM_IMPLIED, 0, false, false, 0x0 }, // KIL - Implied (processor lock up!)
+   { 0x33, "RLA", &C6502::RLA, AM_POSTINDEXED_INDIRECT, 8, false, true, 0x80 }, // RLA - (Indirect),Y (undocumented)
+   { 0x34, "DOP", &C6502::DOP, AM_ZEROPAGE_INDEXED_X, 4, false, false, 0x8 }, // DOP (undocumented)
+   { 0x35, "AND", &C6502::AND, AM_ZEROPAGE_INDEXED_X, 4, true, false, 0x8 }, // AND - Zero Page,X
+   { 0x36, "ROL", &C6502::ROL, AM_ZEROPAGE_INDEXED_X, 6, true, false, 0x20 }, // ROL - Zero Page,X
+   { 0x37, "RLA", &C6502::RLA, AM_ZEROPAGE_INDEXED_X, 6, false, false, 0x20 }, // RLA - Zero Page,X (undocumented)
+   { 0x38, "SEC", &C6502::SEC, AM_IMPLIED, 2, true, false, 0x2 }, // SEC
+   { 0x39, "AND", &C6502::AND, AM_ABSOLUTE_INDEXED_Y, 4, true, false, 0x8 }, // AND - Absolute,Y
+   { 0x3A, "NOP", &C6502::NOP, AM_IMPLIED, 2, false, false, 0x2 }, // NOP (undocumented)
+   { 0x3B, "RLA", &C6502::RLA, AM_ABSOLUTE_INDEXED_Y, 7, false, true, 0x40 }, // RLA - Absolute,Y (undocumented)
+   { 0x3C, "TOP", &C6502::TOP, AM_ABSOLUTE_INDEXED_X, 4, false, false, 0x8 }, // TOP (undocumented)
+   { 0x3D, "AND", &C6502::AND, AM_ABSOLUTE_INDEXED_X, 4, true, false, 0x8 }, // AND - Absolute,X
+   { 0x3E, "ROL", &C6502::ROL, AM_ABSOLUTE_INDEXED_X, 7, true, false, 0x40 }, // ROL - Absolute,X
+   { 0x3F, "RLA", &C6502::RLA, AM_ABSOLUTE_INDEXED_X, 7, false, true, 0x40 }, // RLA - Absolute,X (undocumented)
+   { 0x40, "RTI", &C6502::RTI, AM_IMPLIED, 6, true, false, 0x20 }, // RTI
+   { 0x41, "EOR", &C6502::EOR, AM_PREINDEXED_INDIRECT, 6, true, false, 0x20 }, // EOR - (Indirect,X)
+   { 0x42, "KIL", &C6502::KIL, AM_IMPLIED, 0, false, false, 0x0 }, // KIL - Implied (processor lock up!)
+   { 0x43, "LSE", &C6502::LSE, AM_PREINDEXED_INDIRECT, 8, false, false, 0x80 }, // LSE - (Indirect,X) (undocumented)
+   { 0x44, "DOP", &C6502::DOP, AM_ZEROPAGE, 3, false, false, 0x4 }, // DOP (undocumented)
+   { 0x45, "EOR", &C6502::EOR, AM_ZEROPAGE, 3, true, false, 0x4 }, // EOR - Zero Page
+   { 0x46, "LSR", &C6502::LSR, AM_ZEROPAGE, 5, true, false, 0x10 }, // LSR - Zero Page
+   { 0x47, "LSE", &C6502::LSE, AM_ZEROPAGE, 5, false, false, 0x10 }, // LSE - Zero Page (undocumented)
+   { 0x48, "PHA", &C6502::PHA, AM_IMPLIED, 3, true, false, 0x4 }, // PHA
+   { 0x49, "EOR", &C6502::EOR, AM_IMMEDIATE, 2, true, false, 0x2 }, // EOR - Immediate
+   { 0x4A, "LSR", &C6502::LSR, AM_ACCUMULATOR, 2, true, false, 0x2 }, // LSR - Accumulator
+   { 0x4B, "ALR", &C6502::ALR, AM_IMMEDIATE, 2, false, false, 0x2 }, // ALR - Immediate (undocumented)
+   { 0x4C, "JMP", &C6502::JMP, AM_ABSOLUTE, 3, true, false, 0x4 }, // JMP - Absolute
+   { 0x4D, "EOR", &C6502::EOR, AM_ABSOLUTE, 4, true, false, 0x8 }, // EOR - Absolute
+   { 0x4E, "LSR", &C6502::LSR, AM_ABSOLUTE, 6, true, false, 0x20 }, // LSR - Absolute
+   { 0x4F, "LSE", &C6502::LSE, AM_ABSOLUTE, 6, false, false, 0x20 }, // LSE - Absolute (undocumented)
+   { 0x50, "BVC", &C6502::BVC, AM_RELATIVE, 2, true, false, 0xA }, // BVC
+   { 0x51, "EOR", &C6502::EOR, AM_POSTINDEXED_INDIRECT, 5, true, false, 0x10 }, // EOR - (Indirect),Y
+   { 0x52, "KIL", &C6502::KIL, AM_IMPLIED, 0, false, false, 0x0 }, // KIL - Implied (processor lock up!)
+   { 0x53, "LSE", &C6502::LSE, AM_POSTINDEXED_INDIRECT, 8, false, true, 0x80 }, // LSE - (Indirect),Y
+   { 0x54, "DOP", &C6502::DOP, AM_ZEROPAGE_INDEXED_X, 4, false, false, 0x8 }, // DOP (undocumented)
+   { 0x55, "EOR", &C6502::EOR, AM_ZEROPAGE_INDEXED_X, 4, true, false, 0x8 }, // EOR - Zero Page,X
+   { 0x56, "LSR", &C6502::LSR, AM_ZEROPAGE_INDEXED_X, 6, true, false, 0x20 }, // LSR - Zero Page,X
+   { 0x57, "LSE", &C6502::LSE, AM_ZEROPAGE_INDEXED_X, 6, false, false, 0x20 }, // LSE - Zero Page,X (undocumented)
+   { 0x58, "CLI", &C6502::CLI, AM_IMPLIED, 2, true, false, 0x2 }, // CLI
+   { 0x59, "EOR", &C6502::EOR, AM_ABSOLUTE_INDEXED_Y, 4, true, false, 0x8 }, // EOR - Absolute,Y
+   { 0x5A, "NOP", &C6502::NOP, AM_IMPLIED, 2, false, false, 0x2 }, // NOP (undocumented)
+   { 0x5B, "LSE", &C6502::LSE, AM_ABSOLUTE_INDEXED_Y, 7, false, true, 0x40 }, // LSE - Absolute,Y (undocumented)
+   { 0x5C, "TOP", &C6502::TOP, AM_ABSOLUTE_INDEXED_X, 4, false, false, 0x8 }, // TOP (undocumented)
+   { 0x5D, "EOR", &C6502::EOR, AM_ABSOLUTE_INDEXED_X, 4, true, false, 0x8 }, // EOR - Absolute,X
+   { 0x5E, "LSR", &C6502::LSR, AM_ABSOLUTE_INDEXED_X, 7, true, true, 0x40 }, // LSR - Absolute,X
+   { 0x5F, "LSE", &C6502::LSE, AM_ABSOLUTE_INDEXED_X, 7, false, true, 0x40 }, // LSE - Absolute,X (undocumented)
+   { 0x60, "RTS", &C6502::RTS, AM_IMPLIED, 6, true, false, 0x20 }, // RTS
+   { 0x61, "ADC", &C6502::ADC, AM_PREINDEXED_INDIRECT, 6, true, false, 0x20 }, // ADC - (Indirect,X)
+   { 0x62, "KIL", &C6502::KIL, AM_IMPLIED, 0, false, false, 0x0 }, // KIL - Implied (processor lock up!)
+   { 0x63, "RRA", &C6502::RRA, AM_PREINDEXED_INDIRECT, 8, false, false, 0x80 }, // RRA - (Indirect,X) (undocumented)
+   { 0x64, "DOP", &C6502::DOP, AM_ZEROPAGE, 3, false, false, 0x4 }, // DOP (undocumented)
+   { 0x65, "ADC", &C6502::ADC, AM_ZEROPAGE, 3, true, false, 0x4 }, // ADC - Zero Page
+   { 0x66, "ROR", &C6502::ROR, AM_ZEROPAGE, 5, true, false, 0x10 }, // ROR - Zero Page
+   { 0x67, "RRA", &C6502::RRA, AM_ZEROPAGE, 5, false, false, 0x10 }, // RRA - Zero Page (undocumented)
+   { 0x68, "PLA", &C6502::PLA, AM_IMPLIED, 4, true, false, 0x8 }, // PLA
+   { 0x69, "ADC", &C6502::ADC, AM_IMMEDIATE, 2, true, false, 0x2 }, // ADC - Immediate
+   { 0x6A, "ROR", &C6502::ROR, AM_ACCUMULATOR, 2, true, false, 0x2 }, // ROR - Accumulator
+   { 0x6B, "ARR", &C6502::ARR, AM_IMMEDIATE, 2, false, false, 0x2 }, // ARR - Immediate (undocumented)
+   { 0x6C, "JMP", &C6502::JMP, AM_INDIRECT, 5, true, false, 0x10 }, // JMP - Indirect
+   { 0x6D, "ADC", &C6502::ADC, AM_ABSOLUTE, 4, true, false, 0x8 }, // ADC - Absolute
+   { 0x6E, "ROR", &C6502::ROR, AM_ABSOLUTE, 6, true, false, 0x20 }, // ROR - Absolute
+   { 0x6F, "RRA", &C6502::RRA, AM_ABSOLUTE, 6, false, false, 0x20 }, // RRA - Absolute (undocumented)
+   { 0x70, "BVS", &C6502::BVS, AM_RELATIVE, 2, true, false, 0xA }, // BVS
+   { 0x71, "ADC", &C6502::ADC, AM_POSTINDEXED_INDIRECT, 5, true, false, 0x10 }, // ADC - (Indirect),Y
+   { 0x72, "KIL", &C6502::KIL, AM_IMPLIED, 0, false, false, 0x0 }, // KIL - Implied (processor lock up!)
+   { 0x73, "RRA", &C6502::RRA, AM_POSTINDEXED_INDIRECT, 8, false, true, 0x80 }, // RRA - (Indirect),Y (undocumented)
+   { 0x74, "DOP", &C6502::DOP, AM_ZEROPAGE_INDEXED_X, 4, false, false, 0x8 }, // DOP (undocumented)
+   { 0x75, "ADC", &C6502::ADC, AM_ZEROPAGE_INDEXED_X, 4, true, false, 0x8 }, // ADC - Zero Page,X
+   { 0x76, "ROR", &C6502::ROR, AM_ZEROPAGE_INDEXED_X, 6, true, false, 0x20 }, // ROR - Zero Page,X
+   { 0x77, "RRA", &C6502::RRA, AM_ZEROPAGE_INDEXED_X, 6, false, false, 0x20 }, // RRA - Zero Page,X (undocumented)
+   { 0x78, "SEI", &C6502::SEI, AM_IMPLIED, 2, true, false, 0x2 }, // SEI
+   { 0x79, "ADC", &C6502::ADC, AM_ABSOLUTE_INDEXED_Y, 4, true, false, 0x8 }, // ADC - Absolute,Y
+   { 0x7A, "NOP", &C6502::NOP, AM_IMPLIED, 2, false, false, 0x2 }, // NOP (undocumented)
+   { 0x7B, "RRA", &C6502::RRA, AM_ABSOLUTE_INDEXED_Y, 7, false, true, 0x40 }, // RRA - Absolute,Y (undocumented)
+   { 0x7C, "TOP", &C6502::TOP, AM_ABSOLUTE_INDEXED_X, 4, false, false, 0x8 }, // TOP (undocumented)
+   { 0x7D, "ADC", &C6502::ADC, AM_ABSOLUTE_INDEXED_X, 4, true, false, 0x8 }, // ADC - Absolute,X
+   { 0x7E, "ROR", &C6502::ROR, AM_ABSOLUTE_INDEXED_X, 7, true, true, 0x40 }, // ROR - Absolute,X
+   { 0x7F, "RRA", &C6502::RRA, AM_ABSOLUTE_INDEXED_X, 7, false, true, 0x40 }, // RRA - Absolute,X (undocumented)
+   { 0x80, "DOP", &C6502::DOP, AM_IMMEDIATE, 2, false, false, 0x2 }, // DOP (undocumented)
+   { 0x81, "STA", &C6502::STA, AM_PREINDEXED_INDIRECT, 6, true, false, 0x20 }, // STA - (Indirect,X)
+   { 0x82, "DOP", &C6502::DOP, AM_IMMEDIATE, 2, false, false, 0x2 }, // DOP (undocumented)
+   { 0x83, "AXS", &C6502::AXS, AM_PREINDEXED_INDIRECT, 6, false, false, 0x20 }, // AXS - (Indirect,X) (undocumented)
+   { 0x84, "STY", &C6502::STY, AM_ZEROPAGE, 3, true, false, 0x4 }, // STY - Zero Page
+   { 0x85, "STA", &C6502::STA, AM_ZEROPAGE, 3, true, false, 0x4 }, // STA - Zero Page
+   { 0x86, "STX", &C6502::STX, AM_ZEROPAGE, 3, true, false, 0x4 }, // STX - Zero Page
+   { 0x87, "AXS", &C6502::AXS, AM_ZEROPAGE, 3, false, false, 0x4 }, // AXS - Zero Page (undocumented)
+   { 0x88, "DEY", &C6502::DEY, AM_IMPLIED, 2, true, false, 0x2 }, // DEY
+   { 0x89, "DOP", &C6502::DOP, AM_IMMEDIATE, 2, false, false, 0x2 }, // DOP (undocumented)
+   { 0x8A, "TXA", &C6502::TXA, AM_IMPLIED, 2, true, false, 0x2 }, // TXA
+   { 0x8B, "XAA", &C6502::XAA, AM_IMMEDIATE, 2, false, false, 0x2 }, // XAA - Immediate (undocumented)
+   { 0x8C, "STY", &C6502::STY, AM_ABSOLUTE, 4, true, false, 0x8 }, // STY - Absolute
+   { 0x8D, "STA", &C6502::STA, AM_ABSOLUTE, 4, true, false, 0x8 }, // STA - Absolute
+   { 0x8E, "STX", &C6502::STX, AM_ABSOLUTE, 4, true, false, 0x8 }, // STX - Absolute
+   { 0x8F, "AXS", &C6502::AXS, AM_ABSOLUTE, 4, false, false, 0x8 }, // AXS - Absolulte (undocumented)
+   { 0x90, "BCC", &C6502::BCC, AM_RELATIVE, 2, true, false, 0xA }, // BCC
+   { 0x91, "STA", &C6502::STA, AM_POSTINDEXED_INDIRECT, 6, true, true, 0x20 }, // STA - (Indirect),Y
+   { 0x92, "KIL", &C6502::KIL, AM_IMPLIED, 0, false, false, 0x0 }, // KIL - Implied (processor lock up!)
+   { 0x93, "AXA", &C6502::AXA, AM_POSTINDEXED_INDIRECT, 6, false, true, 0x20 }, // AXA - (Indirect),Y
+   { 0x94, "STY", &C6502::STY, AM_ZEROPAGE_INDEXED_X, 4, true, false, 0x8 }, // STY - Zero Page,X
+   { 0x95, "STA", &C6502::STA, AM_ZEROPAGE_INDEXED_X, 4, true, false, 0x8 }, // STA - Zero Page,X
+   { 0x96, "STX", &C6502::STX, AM_ZEROPAGE_INDEXED_Y, 4, true, false, 0x8 }, // STX - Zero Page,Y
+   { 0x97, "AXS", &C6502::AXS, AM_ZEROPAGE_INDEXED_Y, 4, false, false, 0x8 }, // AXS - Zero Page,Y
+   { 0x98, "TYA", &C6502::TYA, AM_IMPLIED, 2, true, false, 0x2 }, // TYA
+   { 0x99, "STA", &C6502::STA, AM_ABSOLUTE_INDEXED_Y, 5, true, true, 0x10 }, // STA - Absolute,Y
+   { 0x9A, "TXS", &C6502::TXS, AM_IMPLIED, 2, true, false, 0x2 }, // TXS
+   { 0x9B, "TAS", &C6502::TAS, AM_ABSOLUTE_INDEXED_Y, 5, false, true, 0x10 }, // TAS - Absolute,Y (undocumented)
+   { 0x9C, "SAY", &C6502::SAY, AM_ABSOLUTE_INDEXED_X, 5, false, true, 0x10 }, // SAY - Absolute,X (undocumented)
+   { 0x9D, "STA", &C6502::STA, AM_ABSOLUTE_INDEXED_X, 5, true, true, 0x10 }, // STA - Absolute,X
+   { 0x9E, "XAS", &C6502::XAS, AM_ABSOLUTE_INDEXED_Y, 5, false, true, 0x10 }, // XAS - Absolute,Y (undocumented)
+   { 0x9F, "AXA", &C6502::AXA, AM_ABSOLUTE_INDEXED_Y, 5, false, true, 0x10 }, // AXA - Absolute,Y (undocumented)
+   { 0xA0, "LDY", &C6502::LDY, AM_IMMEDIATE, 2, true, false, 0x2 }, // LDY - Immediate
+   { 0xA1, "LDA", &C6502::LDA, AM_PREINDEXED_INDIRECT, 6, true, false, 0x20 }, // LDA - (Indirect,X)
+   { 0xA2, "LDX", &C6502::LDX, AM_IMMEDIATE, 2, true, false, 0x2 }, // LDX - Immediate
+   { 0xA3, "LAX", &C6502::LAX, AM_PREINDEXED_INDIRECT, 6, false, false, 0x20 }, // LAX - (Indirect,X) (undocumented)
+   { 0xA4, "LDY", &C6502::LDY, AM_ZEROPAGE, 3, true, false, 0x4 }, // LDY - Zero Page
+   { 0xA5, "LDA", &C6502::LDA, AM_ZEROPAGE, 3, true, false, 0x4 }, // LDA - Zero Page
+   { 0xA6, "LDX", &C6502::LDX, AM_ZEROPAGE, 3, true, false, 0x4 }, // LDX - Zero Page
+   { 0xA7, "LAX", &C6502::LAX, AM_ZEROPAGE, 3, false, false, 0x4 }, // LAX - Zero Page (undocumented)
+   { 0xA8, "TAY", &C6502::TAY, AM_IMPLIED, 2, true, false, 0x2 }, // TAY
+   { 0xA9, "LDA", &C6502::LDA, AM_IMMEDIATE, 2, true, false, 0x2 }, // LDA - Immediate
+   { 0xAA, "TAX", &C6502::TAX, AM_IMPLIED, 2, true, false, 0x2 }, // TAX
+   { 0xAB, "OAL", &C6502::OAL, AM_IMMEDIATE, 2, false, false, 0x2 }, // OAL - Immediate
+   { 0xAC, "LDY", &C6502::LDY, AM_ABSOLUTE, 4, true, false, 0x8 }, // LDY - Absolute
+   { 0xAD, "LDA", &C6502::LDA, AM_ABSOLUTE, 4, true, false, 0x8 }, // LDA - Absolute
+   { 0xAE, "LDX", &C6502::LDX, AM_ABSOLUTE, 4, true, false, 0x8 }, // LDX - Absolute
+   { 0xAF, "LAX", &C6502::LAX, AM_ABSOLUTE, 4, false, false, 0x8 }, // LAX - Absolute (undocumented)
+   { 0xB0, "BCS", &C6502::BCS, AM_RELATIVE, 2, true, false, 0xA }, // BCS
+   { 0xB1, "LDA", &C6502::LDA, AM_POSTINDEXED_INDIRECT, 5, true, false, 0x10 }, // LDA - (Indirect),Y
+   { 0xB2, "KIL", &C6502::KIL, AM_IMPLIED, 0, false, false, 0x0 }, // KIL - Implied (processor lock up!)
+   { 0xB3, "LAX", &C6502::LAX, AM_POSTINDEXED_INDIRECT, 5, false, false, 0x10 }, // LAX - (Indirect),Y (undocumented)
+   { 0xB4, "LDY", &C6502::LDY, AM_ZEROPAGE_INDEXED_X, 4, true, false, 0x8 }, // LDY - Zero Page,X
+   { 0xB5, "LDA", &C6502::LDA, AM_ZEROPAGE_INDEXED_X, 4, true, false, 0x8 }, // LDA - Zero Page,X
+   { 0xB6, "LDX", &C6502::LDX, AM_ZEROPAGE_INDEXED_Y, 4, true, false, 0x8 }, // LDX - Zero Page,Y
+   { 0xB7, "LAX", &C6502::LAX, AM_ZEROPAGE_INDEXED_Y, 4, false, false, 0x8 }, // LAX - Zero Page,X (undocumented)
+   { 0xB8, "CLV", &C6502::CLV, AM_IMPLIED, 2, true, false, 0x2 }, // CLV
+   { 0xB9, "LDA", &C6502::LDA, AM_ABSOLUTE_INDEXED_Y, 4, true, false, 0x8 }, // LDA - Absolute,Y
+   { 0xBA, "TSX", &C6502::TSX, AM_IMPLIED, 2, true, false, 0x2 }, // TSX
+   { 0xBB, "LAS", &C6502::LAS, AM_ABSOLUTE_INDEXED_Y, 4, false, false, 0x8 }, // LAS - Absolute,Y (undocumented)
+   { 0xBC, "LDY", &C6502::LDY, AM_ABSOLUTE_INDEXED_X, 4, true, false, 0x8 }, // LDY - Absolute,X
+   { 0xBD, "LDA", &C6502::LDA, AM_ABSOLUTE_INDEXED_X, 4, true, false, 0x8 }, // LDA - Absolute,X
+   { 0xBE, "LDX", &C6502::LDX, AM_ABSOLUTE_INDEXED_Y, 4, true, false, 0x8 }, // LDX - Absolute,Y
+   { 0xBF, "LAX", &C6502::LAX, AM_ABSOLUTE_INDEXED_Y, 4, false, false, 0x8 }, // LAX - Absolute,Y (undocumented)
+   { 0xC0, "CPY", &C6502::CPY, AM_IMMEDIATE, 2, true, false, 0x2 }, // CPY - Immediate
+   { 0xC1, "CMP", &C6502::CMP, AM_PREINDEXED_INDIRECT, 6, true, false, 0x20 }, // CMP - (Indirect,X)
+   { 0xC2, "DOP", &C6502::DOP, AM_IMMEDIATE, 2, false, false, 0x2 }, // DOP (undocumented)
+   { 0xC3, "DCM", &C6502::DCM, AM_PREINDEXED_INDIRECT, 8, false, false, 0x80 }, // DCM - (Indirect,X) (undocumented)
+   { 0xC4, "CPY", &C6502::CPY, AM_ZEROPAGE, 3, true, false, 0x4 }, // CPY - Zero Page
+   { 0xC5, "CMP", &C6502::CMP, AM_ZEROPAGE, 3, true, false, 0x4 }, // CMP - Zero Page
+   { 0xC6, "DEC", &C6502::DEC, AM_ZEROPAGE, 5, true, false, 0x10 }, // DEC - Zero Page
+   { 0xC7, "DCM", &C6502::DCM, AM_ZEROPAGE, 5, true, false, 0x10 }, // DCM - Zero Page (undocumented)
+   { 0xC8, "INY", &C6502::INY, AM_IMPLIED, 2, true, false, 0x2 }, // INY
+   { 0xC9, "CMP", &C6502::CMP, AM_IMMEDIATE, 2, true, false, 0x2 }, // CMP - Immediate
+   { 0xCA, "DEX", &C6502::DEX, AM_IMPLIED, 2, true, false, 0x2 }, // DEX
+   { 0xCB, "SAX", &C6502::SAX, AM_IMMEDIATE, 2, false, false, 0x2 }, // SAX - Immediate (undocumented)
+   { 0xCC, "CPY", &C6502::CPY, AM_ABSOLUTE, 4, true, false, 0x8 }, // CPY - Absolute
+   { 0xCD, "CMP", &C6502::CMP, AM_ABSOLUTE, 4, true, false, 0x8 }, // CMP - Absolute
+   { 0xCE, "DEC", &C6502::DEC, AM_ABSOLUTE, 6, true, false, 0x20 }, // DEC - Absolute
+   { 0xCF, "DCM", &C6502::DCM, AM_ABSOLUTE, 6, false, false, 0x20 }, // DCM - Absolute (undocumented)
+   { 0xD0, "BNE", &C6502::BNE, AM_RELATIVE, 2, true, false, 0xA }, // BNE
+   { 0xD1, "CMP", &C6502::CMP, AM_POSTINDEXED_INDIRECT, 5, true, false, 0x10 }, // CMP   (Indirect),Y
+   { 0xD2, "KIL", &C6502::KIL, AM_IMPLIED, 0, false, false, 0x0 }, // KIL - Implied (processor lock up!)
+   { 0xD3, "DCM", &C6502::DCM, AM_POSTINDEXED_INDIRECT, 8, false, true, 0x80 }, // DCM - (Indirect),Y (undocumented)
+   { 0xD4, "DOP", &C6502::DOP, AM_ZEROPAGE_INDEXED_X, 4, false, false, 0x8 }, // DOP (undocumented)
+   { 0xD5, "CMP", &C6502::CMP, AM_ZEROPAGE_INDEXED_X, 4, true, false, 0x8 }, // CMP - Zero Page,X
+   { 0xD6, "DEC", &C6502::DEC, AM_ZEROPAGE_INDEXED_X, 6, true, false, 0x20 }, // DEC - Zero Page,X
+   { 0xD7, "DCM", &C6502::DCM, AM_ZEROPAGE_INDEXED_X, 6, false, false, 0x20 }, // DCM - Zero Page,X (undocumented)
+   { 0xD8, "CLD", &C6502::CLD, AM_IMPLIED, 2, true, false, 0x2 }, // CLD
+   { 0xD9, "CMP", &C6502::CMP, AM_ABSOLUTE_INDEXED_Y, 4, true, false, 0x8 }, // CMP - Absolute,Y
+   { 0xDA, "NOP", &C6502::NOP, AM_IMPLIED, 2, false, false, 0x2 }, // NOP (undocumented)
+   { 0xDB, "DCM", &C6502::DCM, AM_ABSOLUTE_INDEXED_Y, 7, false, true, 0x40 }, // DCM - Absolute,Y (undocumented)
+   { 0xDC, "TOP", &C6502::TOP, AM_ABSOLUTE_INDEXED_X, 4, false, false, 0x8 }, // TOP (undocumented)
+   { 0xDD, "CMP", &C6502::CMP, AM_ABSOLUTE_INDEXED_X, 4, true, false, 0x8 }, // CMP - Absolute,X
+   { 0xDE, "DEC", &C6502::DEC, AM_ABSOLUTE_INDEXED_X, 7, true, true, 0x40 }, // DEC - Absolute,X
+   { 0xDF, "DCM", &C6502::DCM, AM_ABSOLUTE_INDEXED_X, 7, false, true, 0x40 }, // DCM - Absolute,X (undocumented)
+   { 0xE0, "CPX", &C6502::CPX, AM_IMMEDIATE, 2, true, false, 0x2 }, // CPX - Immediate
+   { 0xE1, "SBC", &C6502::SBC, AM_PREINDEXED_INDIRECT, 6, true, false, 0x20 }, // SBC - (Indirect,X)
+   { 0xE2, "DOP", &C6502::DOP, AM_IMMEDIATE, 2, false, false, 0x2 }, // DOP (undocumented)
+   { 0xE3, "INS", &C6502::INS, AM_PREINDEXED_INDIRECT, 8, false, false, 0x80 }, // INS - (Indirect,X) (undocumented)
+   { 0xE4, "CPX", &C6502::CPX, AM_ZEROPAGE, 3, true, false, 0x4 }, // CPX - Zero Page
+   { 0xE5, "SBC", &C6502::SBC, AM_ZEROPAGE, 3, true, false, 0x4 }, // SBC - Zero Page
+   { 0xE6, "INC", &C6502::INC, AM_ZEROPAGE, 5, true, false, 0x10 }, // INC - Zero Page
+   { 0xE7, "INS", &C6502::INS, AM_ZEROPAGE, 5, false, false, 0x10 }, // INS - Zero Page (undocumented)
+   { 0xE8, "INX", &C6502::INX, AM_IMPLIED, 2, true, false, 0x2 }, // INX
+   { 0xE9, "SBC", &C6502::SBC, AM_IMMEDIATE, 2, true, false, 0x2 }, // SBC - Immediate
+   { 0xEA, "NOP", &C6502::NOP, AM_IMPLIED, 2, true, false, 0x2 }, // NOP
+   { 0xEB, "SBC", &C6502::SBC, AM_IMMEDIATE, 2, false, false, 0x2 }, // SBC - Immediate (undocumented)
+   { 0xEC, "CPX", &C6502::CPX, AM_ABSOLUTE, 4, true, false, 0x8 }, // CPX - Absolute
+   { 0xED, "SBC", &C6502::SBC, AM_ABSOLUTE, 4, true, false, 0x8 }, // SBC - Absolute
+   { 0xEE, "INC", &C6502::INC, AM_ABSOLUTE, 6, true, false, 0x20 }, // INC - Absolute
+   { 0xEF, "INS", &C6502::INS, AM_ABSOLUTE, 6, false, false, 0x20 }, // INS - Absolute (undocumented)
+   { 0xF0, "BEQ", &C6502::BEQ, AM_RELATIVE, 2, true, false, 0xA }, // BEQ
+   { 0xF1, "SBC", &C6502::SBC, AM_POSTINDEXED_INDIRECT, 5, true, false, 0x10 }, // SBC - (Indirect),Y
+   { 0xF2, "KIL", &C6502::KIL, AM_IMPLIED, 0, false, false, 0x0 }, // KIL - Implied (processor lock up!)
+   { 0xF3, "INS", &C6502::INS, AM_POSTINDEXED_INDIRECT, 8, false, true, 0x80 }, // INS - (Indirect),Y (undocumented)
+   { 0xF4, "DOP", &C6502::DOP, AM_ZEROPAGE_INDEXED_X, 4, false, false, 0x8 }, // DOP (undocumented)
+   { 0xF5, "SBC", &C6502::SBC, AM_ZEROPAGE_INDEXED_X, 4, true, false, 0x8 }, // SBC - Zero Page,X
+   { 0xF6, "INC", &C6502::INC, AM_ZEROPAGE_INDEXED_X, 6, true, false, 0x20 }, // INC - Zero Page,X
+   { 0xF7, "INS", &C6502::INS, AM_ZEROPAGE_INDEXED_X, 6, false, false, 0x20 }, // INS - Zero Page,X (undocumented)
+   { 0xF8, "SED", &C6502::SED, AM_IMPLIED, 2, true, false, 0x2 }, // SED
+   { 0xF9, "SBC", &C6502::SBC, AM_ABSOLUTE_INDEXED_Y, 4, true, false, 0x8 }, // SBC - Absolute,Y
+   { 0xFA, "NOP", &C6502::NOP, AM_IMPLIED, 2, false, false, 0x2 }, // NOP (undocumented)
+   { 0xFB, "INS", &C6502::INS, AM_ABSOLUTE_INDEXED_Y, 7, false, true, 0x40 }, // INS - Absolute,Y (undocumented)
+   { 0xFC, "TOP", &C6502::TOP, AM_ABSOLUTE_INDEXED_X, 4, false, false, 0x8 }, // TOP (undocumented)
+   { 0xFD, "SBC", &C6502::SBC, AM_ABSOLUTE_INDEXED_X, 4, true, false, 0x8 }, // SBC - Absolute,X
+   { 0xFE, "INC", &C6502::INC, AM_ABSOLUTE_INDEXED_X, 7, true, true, 0x40 }, // INC - Absolute,X
+   { 0xFF, "INS", &C6502::INS, AM_ABSOLUTE_INDEXED_X, 7, false, true, 0x40 }  // INS - Absolute,X (undocumented)
 };
 
-static C6502 __init __attribute__((unused));
-
 C6502::C6502()
+   : m_6502memory(CMEMORY(0x0000, MEM_2KB)),
+     m_apu(new CAPU())
 {
-   int32_t addr;
+   m_killed = false;              // KIL opcode not executed.
+   m_breakOnKIL = false;          // IDE sets this for us.
+   m_irqAsserted = false;
+   m_instrCycle = 0;
+   m_irqPending = false;
+   m_nmiAsserted = false;
+   m_nmiPending = false;
+   m_openBusData = 0x00;
+   m_a = 0x00;
+   m_x = 0x00;
+   m_y = 0x00;
+   m_f = FLAG_MISC;
+   m_pc = VECTOR_RESET;
+   m_pcSync = VECTOR_RESET;
+   m_pcSyncSet = false;
+   m_ea = 0;
+   m_pcGoto = 0xFFFFFFFF;
+   m_sp = 0x00;
 
-   m_RAMdisassembly = new char*[MEM_2KB];
-   for ( addr = 0; addr < MEM_2KB; addr++ )
-   {
-      m_RAMdisassembly[addr] = new char [ 16 ];
-   }
-   m_RAMopcodeMask = new uint8_t[MEM_2KB];
-   m_RAMsloc2addr = new uint16_t[MEM_2KB];
-   m_RAMaddr2sloc = new uint16_t[MEM_2KB];
+   m_cycles = 0;
+   m_curCycles = 0;
 
-   m_6502memory = new uint8_t[MEM_2KB];
+   m_writeDmaAddr = 0x0000;
+   m_writeDmaCounter = 0;
+   m_readDmaAddr = 0x0000;
+   m_dmaRequest = -1;
+   m_readDmaCounter = 0;
 
-   m_logger = new CCodeDataLogger ( MEM_32KB, MASK_32KB );
+   data = NULL;
+   pOpcodeStruct = NULL;
+   m_write = false;
+   m_phase = 0;
+
+   pDisassemblySample = NULL;
 
    m_marker = new CMarker;
 }
 
 C6502::~C6502()
 {
-   int32_t addr;
-
-   for ( addr = 0; addr < MEM_2KB; addr++ )
-   {
-      delete m_RAMdisassembly[addr];
-   }
-   delete [] m_RAMdisassembly;
-   delete [] m_RAMopcodeMask;
-   delete [] m_RAMsloc2addr;
-   delete [] m_RAMaddr2sloc;
-
-   delete [] m_6502memory;
-
-   delete m_logger;
-
    delete m_marker;
 }
 
@@ -578,16 +395,16 @@ void C6502::EMULATE ( int32_t cycles )
                   nmiPending = m_nmiPending;
                   (*opcodeData) = FETCH ();
 
-                  CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUExecution, (*opcodeData) );
+                  CNES::NES()->CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUExecution, (*opcodeData) );
 
                   // Save the pointer to where to put the disassembly of
                   // the current opcode now.  This might be the last fetch
                   // for an instruction and the disassembly should be placed there.
-                  pDisassemblySample = CNES::TRACER()->GetLastCPUSample ();
+                  pDisassemblySample = CNES::NES()->TRACER()->GetLastCPUSample ();
 
                   // Check flags breakpoint.  Do it here instead of everywhere flags are
                   // changed so as to limit the number of calls to check the breakpoint.
-                  CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,CPU_F);
+                  CNES::NES()->CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,CPU_F);
 
                   // Check for KIL opcodes...
                   if ( (((*opcodeData) == 0x02) ||
@@ -606,13 +423,13 @@ void C6502::EMULATE ( int32_t cycles )
                      // KIL opcodes halt PC dead!  Force break if desired...
                      if ( m_breakOnKIL )
                      {
-                        CNES::FORCEBREAKPOINT ();
+                        CNES::NES()->FORCEBREAKPOINT ();
                      }
                   }
 
                   if ( rPC() == m_pcGoto )
                   {
-                     CNES::STEPCPUBREAKPOINT();
+                     CNES::NES()->STEPCPUBREAKPOINT();
                      m_pcGoto = 0xFFFFFFFF;
                   }
 
@@ -655,7 +472,7 @@ void C6502::EMULATE ( int32_t cycles )
 
                      if ( rPC() == m_pcGoto )
                      {
-                        CNES::STEPCPUBREAKPOINT();
+                        CNES::NES()->STEPCPUBREAKPOINT();
                         m_pcGoto = 0xFFFFFFFF;
                      }
 
@@ -673,7 +490,7 @@ void C6502::EMULATE ( int32_t cycles )
 
                      if ( rPC() == m_pcGoto )
                      {
-                        CNES::STEPCPUBREAKPOINT();
+                        CNES::NES()->STEPCPUBREAKPOINT();
                         m_pcGoto = 0xFFFFFFFF;
                      }
 
@@ -706,7 +523,7 @@ void C6502::EMULATE ( int32_t cycles )
 
                   if ( rPC() == m_pcGoto )
                   {
-                     CNES::STEPCPUBREAKPOINT();
+                     CNES::NES()->STEPCPUBREAKPOINT();
                      m_pcGoto = 0xFFFFFFFF;
                   }
 
@@ -720,32 +537,32 @@ void C6502::EMULATE ( int32_t cycles )
                   if ( nesIsDebuggable() )
                   {
                      // Update Tracer
-                     CNES::TRACER()->SetRegisters ( pDisassemblySample, rA(), rX(), rY(), rSP(), rF() );
+                     CNES::NES()->TRACER()->SetRegisters ( pDisassemblySample, rA(), rX(), rY(), rSP(), rF() );
                   }
 
                   if ( rPC() == m_pcGoto )
                   {
-                     CNES::STEPCPUBREAKPOINT();
+                     CNES::NES()->STEPCPUBREAKPOINT();
                      m_pcGoto = 0xFFFFFFFF;
                   }
 
                   // Execute
-                  pOpcodeStruct->pFn();
+                  (this->*pOpcodeStruct->pFn)();
 
                   if ( nesIsDebuggable() )
                   {
                      // Update Tracer
-                     CNES::TRACER()->SetDisassembly ( pDisassemblySample, opcodeData );
+                     CNES::NES()->TRACER()->SetDisassembly ( pDisassemblySample, opcodeData );
 
                      // Check for undocumented breakpoint...
                      if ( !pOpcodeStruct->documented )
                      {
-                        CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUEvent, 0, CPU_EVENT_UNDOCUMENTED );
-                        CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUEvent, (*opcodeData), CPU_EVENT_UNDOCUMENTED_EXACT );
+                        CNES::NES()->CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUEvent, 0, CPU_EVENT_UNDOCUMENTED );
+                        CNES::NES()->CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUEvent, (*opcodeData), CPU_EVENT_UNDOCUMENTED_EXACT );
                      }
                      else
                      {
-                        CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUEvent, (*opcodeData), CPU_EVENT_EXECUTE_EXACT );
+                        CNES::NES()->CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUEvent, (*opcodeData), CPU_EVENT_EXECUTE_EXACT );
                      }
                   }
 
@@ -766,7 +583,7 @@ void C6502::EMULATE ( int32_t cycles )
       // Run APU for cycles...
       while ( cycles )
       {
-         CAPU::EMULATE ();
+         CNES::NES()->CPU()->APU()->EMULATE ();
          cycles--;
       }
    }
@@ -815,10 +632,10 @@ void C6502::ADVANCE ( bool stealing )
    }
 
    // Tell mappers that look at CPU cycles that a CPU cycle has whisked by...
-   MAPPERFUNC->sync_cpu();
+   CNES::NES()->CART()->SYNCCPU();
 
    // Run APU for one cycle...
-   CAPU::EMULATE ();
+   CNES::NES()->CPU()->APU()->EMULATE ();
 
    // Increment running cycle counters...
    m_cycles++;
@@ -896,14 +713,14 @@ bool C6502::DMA( void )
       // If we're ready to do the DMC DMA read, do it.
       if ( m_readDmaCounter == 2 )
       {
-         CAPU::DMASAMPLE ( DMA(m_readDmaAddr) );
+         CNES::NES()->CPU()->APU()->DMASAMPLE ( DMA(m_readDmaAddr) );
          m_readDmaCounter--;
          doCycle = false;
 
          if ( nesIsDebuggable() )
          {
             // Check for APU DMC channel DMA breakpoint event...
-            CNES::CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUEvent,0,APU_EVENT_DMC_DMA);
+            CNES::NES()->CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUEvent,0,APU_EVENT_DMC_DMA);
          }
 
          goto done;
@@ -924,7 +741,7 @@ bool C6502::DMA( void )
          if ( nesIsDebuggable() )
          {
             // Check for PPU cycle breakpoint...
-            CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, (512-m_writeDmaCounter)>>1, PPU_EVENT_SPRITE_DMA );
+            CNES::NES()->CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, (512-m_writeDmaCounter)>>1, PPU_EVENT_SPRITE_DMA );
          }
 
          m_writeDmaCounter--;
@@ -1015,7 +832,7 @@ bool C6502::DMA( void )
    }
    else if ( m_readDmaCounter == 1 && (!m_writeDmaCounter) )
    {
-      CAPU::DMASAMPLE ( DMA(m_readDmaAddr) );
+      CNES::NES()->CPU()->APU()->DMASAMPLE ( DMA(m_readDmaAddr) );
       m_readDmaCounter--;
       doCycle = false;
    }
@@ -1023,7 +840,7 @@ bool C6502::DMA( void )
    {
       if ( _CYCLES()&1 )
       {
-         CAPU::DMASAMPLE ( DMA(m_readDmaAddr) );
+         CNES::NES()->CPU()->APU()->DMASAMPLE ( DMA(m_readDmaAddr) );
          doCycle = false;
       }
       else
@@ -1083,7 +900,7 @@ bool C6502::DMA( void )
    {
       if ( (m_readDmaCounter == 1) && ((m_writeDmaCounter == 0) || (!(m_writeDmaCounter&1))) )
       {
-         CAPU::DMASAMPLE ( DMA(m_readDmaAddr) );
+         CNES::NES()->CPU()->APU()->DMASAMPLE ( DMA(m_readDmaAddr) );
          m_readDmaCounter = 0;
          doCycle = false;
       }
@@ -1583,7 +1400,7 @@ void C6502::BPL ( void )
 
       if ( rPC() == m_pcGoto )
       {
-         CNES::STEPCPUBREAKPOINT();
+         CNES::NES()->STEPCPUBREAKPOINT();
          m_pcGoto = 0xFFFFFFFF;
       }
    }
@@ -1632,7 +1449,7 @@ void C6502::JSR ( void )
 
    if ( rPC() == m_pcGoto )
    {
-      CNES::STEPCPUBREAKPOINT();
+      CNES::NES()->STEPCPUBREAKPOINT();
       m_pcGoto = 0xFFFFFFFF;
    }
 
@@ -1816,7 +1633,7 @@ void C6502::BMI ( void )
 
       if ( rPC() == m_pcGoto )
       {
-         CNES::STEPCPUBREAKPOINT();
+         CNES::NES()->STEPCPUBREAKPOINT();
          m_pcGoto = 0xFFFFFFFF;
       }
    }
@@ -1870,7 +1687,7 @@ void C6502::RTI ( void )
 
    if ( rPC() == m_pcGoto )
    {
-      CNES::STEPCPUBREAKPOINT();
+      CNES::NES()->STEPCPUBREAKPOINT();
       m_pcGoto = 0xFFFFFFFF;
    }
 
@@ -2053,7 +1870,7 @@ void C6502::JMP ( void )
 
    if ( rPC() == m_pcGoto )
    {
-      CNES::STEPCPUBREAKPOINT();
+      CNES::NES()->STEPCPUBREAKPOINT();
       m_pcGoto = 0xFFFFFFFF;
    }
 
@@ -2094,7 +1911,7 @@ void C6502::BVC ( void )
 
       if ( rPC() == m_pcGoto )
       {
-         CNES::STEPCPUBREAKPOINT();
+         CNES::NES()->STEPCPUBREAKPOINT();
          m_pcGoto = 0xFFFFFFFF;
       }
    }
@@ -2146,7 +1963,7 @@ void C6502::RTS ( void )
 
    if ( rPC() == m_pcGoto )
    {
-      CNES::STEPCPUBREAKPOINT();
+      CNES::NES()->STEPCPUBREAKPOINT();
       m_pcGoto = 0xFFFFFFFF;
    }
 
@@ -2395,7 +2212,7 @@ void C6502::BVS ( void )
 
       if ( rPC() == m_pcGoto )
       {
-         CNES::STEPCPUBREAKPOINT();
+         CNES::NES()->STEPCPUBREAKPOINT();
          m_pcGoto = 0xFFFFFFFF;
       }
    }
@@ -2559,7 +2376,7 @@ void C6502::BCC ( void )
 
       if ( rPC() == m_pcGoto )
       {
-         CNES::STEPCPUBREAKPOINT();
+         CNES::NES()->STEPCPUBREAKPOINT();
          m_pcGoto = 0xFFFFFFFF;
       }
    }
@@ -2820,7 +2637,7 @@ void C6502::BCS ( void )
 
       if ( rPC() == m_pcGoto )
       {
-         CNES::STEPCPUBREAKPOINT();
+         CNES::NES()->STEPCPUBREAKPOINT();
          m_pcGoto = 0xFFFFFFFF;
       }
    }
@@ -3081,7 +2898,7 @@ void C6502::BNE ( void )
 
       if ( rPC() == m_pcGoto )
       {
-         CNES::STEPCPUBREAKPOINT();
+         CNES::NES()->STEPCPUBREAKPOINT();
          m_pcGoto = 0xFFFFFFFF;
       }
    }
@@ -3351,7 +3168,7 @@ void C6502::BEQ ( void )
 
       if ( rPC() == m_pcGoto )
       {
-         CNES::STEPCPUBREAKPOINT();
+         CNES::NES()->STEPCPUBREAKPOINT();
          m_pcGoto = 0xFFFFFFFF;
       }
    }
@@ -3430,14 +3247,14 @@ void C6502::BRK ( void )
 
                if ( rPC() == m_pcGoto )
                {
-                  CNES::STEPCPUBREAKPOINT();
+                  CNES::NES()->STEPCPUBREAKPOINT();
                   m_pcGoto = 0xFFFFFFFF;
                }
 
                if ( nesIsDebuggable() )
                {
                   // Check for NMI breakpoint...
-                  CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,0,CPU_EVENT_NMI_ENTERED);
+                  CNES::NES()->CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,0,CPU_EVENT_NMI_ENTERED);
                }
 
                sI();
@@ -3459,14 +3276,14 @@ void C6502::BRK ( void )
 
                if ( rPC() == m_pcGoto )
                {
-                  CNES::STEPCPUBREAKPOINT();
+                  CNES::NES()->STEPCPUBREAKPOINT();
                   m_pcGoto = 0xFFFFFFFF;
                }
 
                if ( nesIsDebuggable() )
                {
                   // Check for IRQ breakpoint...
-                  CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,0,CPU_EVENT_IRQ_ENTERED);
+                  CNES::NES()->CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,0,CPU_EVENT_IRQ_ENTERED);
                }
 
                sI();
@@ -3488,15 +3305,15 @@ void C6502::ASSERTIRQ ( int8_t source )
    {
       if ( source == eNESSource_Mapper )
       {
-         CNES::TRACER()->AddIRQ ( m_cycles, source );
+         CNES::NES()->TRACER()->AddIRQ ( m_cycles, source );
       }
       else
       {
-         CNES::TRACER()->AddIRQ ( CAPU::CYCLES(), source );
+         CNES::NES()->TRACER()->AddIRQ ( CNES::NES()->CPU()->APU()->CYCLES(), source );
       }
 
       // Check for IRQ breakpoint...
-      CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,0,CPU_EVENT_IRQ_FIRES);
+      CNES::NES()->CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,0,CPU_EVENT_IRQ_FIRES);
    }
 }
 
@@ -3506,11 +3323,11 @@ void C6502::RELEASEIRQ ( int8_t source )
    {
       if ( source == eNESSource_Mapper )
       {
-         CNES::TRACER()->AddIRQRelease ( m_cycles, source );
+         CNES::NES()->TRACER()->AddIRQRelease ( m_cycles, source );
       }
       else
       {
-         CNES::TRACER()->AddIRQRelease ( CAPU::CYCLES(), source );
+         CNES::NES()->TRACER()->AddIRQRelease ( CNES::NES()->CPU()->APU()->CYCLES(), source );
       }
    }
    m_irqAsserted = false;
@@ -3522,10 +3339,10 @@ void C6502::ASSERTNMI ()
 
    if ( nesIsDebuggable() )
    {
-      CNES::TRACER()->AddNMI ( CPPU::_CYCLES(), eNESSource_PPU );
+      CNES::NES()->TRACER()->AddNMI ( CNES::NES()->PPU()->_CYCLES(), eNESSource_PPU );
 
       // Check for NMI breakpoint...
-      CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,0,CPU_EVENT_NMI_FIRES);
+      CNES::NES()->CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,0,CPU_EVENT_NMI_FIRES);
    }
 }
 
@@ -3533,11 +3350,11 @@ void C6502::RESET ( bool soft )
 {
    m_killed = false;
 
-   CAPU::RESET ();
+   CNES::NES()->CPU()->APU()->RESET ();
 
    if ( nesIsDebuggable() )
    {
-      CNES::TRACER()->AddRESET ();
+      CNES::NES()->TRACER()->AddRESET ();
    }
 
    m_cycles = 0;
@@ -3592,13 +3409,13 @@ void C6502::RESET ( bool soft )
    // Clear memory...
    if ( !soft )
    {
-      MEMCLR ();
+      m_6502memory.MEMCLR ();
    }
 
    if ( nesIsDebuggable() )
    {
       // Check for RESET breakpoint...
-      CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,0,CPU_EVENT_RESET);
+      CNES::NES()->CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,0,CPU_EVENT_RESET);
    }
 }
 
@@ -3609,33 +3426,32 @@ uint8_t C6502::LOAD ( uint32_t addr, int8_t* pTarget )
    if ( addr >= 0x8000 )
    {
       (*pTarget) = eTarget_Mapper;
-      data = MAPPERFUNC->highread(addr);
+      data = CNES::NES()->CART()->HMAPPER(addr);
    }
    else if ( addr < 0x2000 )
    {
       (*pTarget) = eTarget_RAM;
-      addr &= 0x7FF; // RAM mirrored...
-      data = m_6502memory[addr];
+      data = m_6502memory.MEM(addr);
    }
    else if ( addr < 0x4000 )
    {
       (*pTarget) = eTarget_PPURegister;
-      data = CPPU::PPU ( addr );
+      data = CNES::NES()->PPU()->PPU ( addr );
    }
    else if ( addr >= 0x6000 )
    {
       (*pTarget) = eTarget_SRAM;
-      data = MAPPERFUNC->lowread ( addr );
+      data = CNES::NES()->CART()->LMAPPER(addr);
    }
    else if ( addr >= 0x5C00 )
    {
       (*pTarget) = eTarget_EXRAM;
-      data = MAPPERFUNC->lowread ( addr );
+      data = CNES::NES()->CART()->LMAPPER(addr);
    }
    else if ( addr >= 0x4018 )
    {
       (*pTarget) = eTarget_Mapper;
-      data = MAPPERFUNC->lowread ( addr );
+      data = CNES::NES()->CART()->LMAPPER(addr);
    }
    else
    {
@@ -3649,18 +3465,18 @@ uint8_t C6502::LOAD ( uint32_t addr, int8_t* pTarget )
       if ( addr == 0x4016 )
       {
          (*pTarget) = eTarget_IORegister;
-         data = iofunc[CNES::CONTROLLER(CONTROLLER1)].emuread(addr);
+         data = iofunc[CNES::NES()->CONTROLLER(CONTROLLER1)].emuread(addr);
       }
       else if ( addr == 0x4017 )
       {
          (*pTarget) = eTarget_IORegister;
-         data = iofunc[CNES::CONTROLLER(CONTROLLER2)].emuread(addr);
+         data = iofunc[CNES::NES()->CONTROLLER(CONTROLLER2)].emuread(addr);
       }
       // Otherwise if not accessing a controller port, use default...
       else
       {
          (*pTarget) = eTarget_APURegister;
-         data = CAPU::APU ( addr );
+         data = CNES::NES()->CPU()->APU()->APU ( addr );
       }
    }
 
@@ -3673,12 +3489,12 @@ void C6502::STORE ( uint32_t addr, uint8_t data, int8_t* pTarget )
    {
       (*pTarget) = eTarget_RAM;
       addr &= 0x7FF; // RAM mirrored...
-      m_6502memory[addr] = data&0xFF;
+      m_6502memory.MEM(addr,data&0xFF);
    }
    else if ( addr < 0x4000 )
    {
       (*pTarget) = eTarget_PPURegister;
-      CPPU::PPU ( addr, data );
+      CNES::NES()->PPU()->PPU ( addr, data );
    }
    else if ( addr < 0x4018 )
    {
@@ -3688,8 +3504,8 @@ void C6502::STORE ( uint32_t addr, uint8_t data, int8_t* pTarget )
          (*pTarget) = eTarget_IORegister;
 
          // Writes to $4016 need to be given to all controllers.
-         iofunc[CNES::CONTROLLER(CONTROLLER1)].emuwrite(addr,data);
-         iofunc[CNES::CONTROLLER(CONTROLLER2)].emuwrite(addr,data);
+         iofunc[CNES::NES()->CONTROLLER(CONTROLLER1)].emuwrite(addr,data);
+         iofunc[CNES::NES()->CONTROLLER(CONTROLLER2)].emuwrite(addr,data);
       }
       else if ( addr == 0x4014 )
       {
@@ -3708,28 +3524,28 @@ void C6502::STORE ( uint32_t addr, uint8_t data, int8_t* pTarget )
       else
       {
          (*pTarget) = eTarget_APURegister;
-         CAPU::APU ( addr, data );
+         CNES::NES()->CPU()->APU()->APU ( addr, data );
       }
    }
    else if ( addr < 0x5C00 )
    {
       (*pTarget) = eTarget_Mapper;
-      MAPPERFUNC->lowwrite ( addr, data );
+      CNES::NES()->CART()->LMAPPER(addr,data);
    }
    else if ( addr < 0x6000 )
    {
       (*pTarget) = eTarget_EXRAM;
-      MAPPERFUNC->lowwrite ( addr, data );
+      CNES::NES()->CART()->LMAPPER(addr,data);
    }
    else if ( addr < 0x8000 )
    {
       (*pTarget) = eTarget_SRAM;
-      MAPPERFUNC->lowwrite ( addr, data );
+      CNES::NES()->CART()->LMAPPER(addr,data);
    }
    else
    {
       (*pTarget) = eTarget_Mapper;
-      MAPPERFUNC->highwrite ( addr, data );
+      CNES::NES()->CART()->HMAPPER(addr,data);
    }
 }
 
@@ -3746,7 +3562,7 @@ uint8_t C6502::FETCH ()
    wEA ( rPC() );
    if ( nesIsDebuggable() )
    {
-      CNES::TRACER()->SetEffectiveAddress ( CNES::TRACER()->GetLastCPUSample(), rEA() );
+      CNES::NES()->TRACER()->SetEffectiveAddress ( CNES::NES()->TRACER()->GetLastCPUSample(), rEA() );
    }
 
    // Synchronize CPU and APU...
@@ -3762,11 +3578,11 @@ uint8_t C6502::FETCH ()
       // Add Tracer sample...
       if ( instrCycle == 0 )
       {
-         CNES::TRACER()->AddSample ( m_cycles, eTracer_InstructionFetch, eNESSource_CPU, target, rPC(), data );
+         CNES::NES()->TRACER()->AddSample ( m_cycles, eTracer_InstructionFetch, eNESSource_CPU, target, rPC(), data );
       }
       else
       {
-         CNES::TRACER()->AddSample ( m_cycles, eTracer_OperandFetch, eNESSource_CPU, target, rPC(), data );
+         CNES::NES()->TRACER()->AddSample ( m_cycles, eTracer_OperandFetch, eNESSource_CPU, target, rPC(), data );
       }
 
       // If ROM is being accessed, log code/data logger...
@@ -3774,7 +3590,7 @@ uint8_t C6502::FETCH ()
            (rPC() >= MEM_32KB) )
       {
          // Log to Code/Data Logger...
-         CCodeDataLogger* pLogger = CROM::LOGGERVIRT ( rPC() );
+         CCodeDataLogger* pLogger = CNES::NES()->CART()->LOGGERVIRT ( rPC() );
          if ( instrCycle == 0 )
          {
             pLogger->LogAccess ( m_cycles, rPC(), data, eLogger_InstructionFetch, eNESSource_CPU );
@@ -3785,15 +3601,15 @@ uint8_t C6502::FETCH ()
          }
 
          // Update Markers...
-         m_marker->UpdateMarkers ( CROM::PRGROMABSADDR(rPC()), C6502::_CYCLES(), CPPU::_FRAME(), CPPU::_CYCLES() );
+         m_marker->UpdateMarkers ( CNES::NES()->CART()->PRGROMABSADDR(rPC()), C6502::_CYCLES(), CNES::NES()->PPU()->_FRAME(), CNES::NES()->PPU()->_CYCLES() );
 
          // ... and update opcode masking for disassembler...
-         CROM::PRGROMOPCODEMASK ( rPC(), (uint8_t)(instrCycle==0) );
+         CNES::NES()->CART()->PRGROMOPCODEMASK ( rPC(), (uint8_t)(instrCycle==0) );
       }
       else if ( target == eTarget_SRAM )
       {
          // Log to Code/Data Logger...
-         CCodeDataLogger* pLogger = CROM::SRAMLOGGERVIRT ( rPC() );
+         CCodeDataLogger* pLogger = CNES::NES()->CART()->SRAMLOGGERVIRT ( rPC() );
          if ( instrCycle == 0 )
          {
             pLogger->LogAccess ( m_cycles, rPC(), data, eLogger_InstructionFetch, eNESSource_CPU );
@@ -3804,12 +3620,12 @@ uint8_t C6502::FETCH ()
          }
 
          // Update opcode masking for disassembler...
-         CROM::SRAMOPCODEMASK ( rPC(), (uint8_t)(instrCycle==0) );
+         CNES::NES()->CART()->SRAMOPCODEMASK ( rPC(), (uint8_t)(instrCycle==0) );
       }
       else if ( target == eTarget_EXRAM )
       {
          // Log to Code/Data Logger...
-         CCodeDataLogger* pLogger = CROM::EXRAMLOGGER ();
+         CCodeDataLogger* pLogger = CNES::NES()->CART()->EXRAMLOGGER ();
          if ( instrCycle == 0 )
          {
             pLogger->LogAccess ( m_cycles, rPC(), data, eLogger_InstructionFetch, eNESSource_CPU );
@@ -3820,17 +3636,17 @@ uint8_t C6502::FETCH ()
          }
 
          // Update opcode masking for disassembler...
-         CROM::EXRAMOPCODEMASK ( rPC(), (uint8_t)(instrCycle==0) );
+         CNES::NES()->CART()->EXRAMOPCODEMASK ( rPC(), (uint8_t)(instrCycle==0) );
       }
       else if ( target == eTarget_RAM )
       {
          if ( instrCycle == 0 )
          {
-            m_logger->LogAccess ( m_cycles, rPC(), data, eLogger_InstructionFetch, eNESSource_CPU );
+            m_6502memory.LOGGER()->LogAccess ( m_cycles, rPC(), data, eLogger_InstructionFetch, eNESSource_CPU );
          }
          else
          {
-            m_logger->LogAccess ( m_cycles, rPC(), data, eLogger_OperandFetch, eNESSource_CPU );
+            m_6502memory.LOGGER()->LogAccess ( m_cycles, rPC(), data, eLogger_OperandFetch, eNESSource_CPU );
          }
 
          // ... and update opcode masking for disassembler...
@@ -3853,7 +3669,7 @@ uint8_t C6502::EXTRAFETCH ()
    wEA ( rPC() );
    if ( nesIsDebuggable() )
    {
-      CNES::TRACER()->SetEffectiveAddress ( CNES::TRACER()->GetLastCPUSample(), rEA() );
+      CNES::NES()->TRACER()->SetEffectiveAddress ( CNES::NES()->TRACER()->GetLastCPUSample(), rEA() );
    }
 
    // Synchronize CPU and APU...
@@ -3864,30 +3680,30 @@ uint8_t C6502::EXTRAFETCH ()
    if ( nesIsDebuggable() )
    {
       // Add Tracer sample...
-      CNES::TRACER()->AddSample ( m_cycles, eTracer_OperandFetch, eNESSource_CPU, target, rPC(), data );
+      CNES::NES()->TRACER()->AddSample ( m_cycles, eTracer_OperandFetch, eNESSource_CPU, target, rPC(), data );
 
 #if 0
       // If ROM is being accessed, log code/data logger...
       if ( target == eTarget_Mapper )
       {
-         CCodeDataLogger* pLogger = CROM::LOGGERVIRT ( rPC() );
+         CCodeDataLogger* pLogger = CNES::NES()->CART()->LOGGERVIRT ( rPC() );
          pLogger->LogAccess ( m_cycles, rPC(), data, eLogger_OperandFetch, eNESSource_CPU );
       }
       else if ( target == eTarget_SRAM )
       {
          // Log to Code/Data Logger...
-         CCodeDataLogger* pLogger = CROM::SRAMLOGGERVIRT ( rPC() );
+         CCodeDataLogger* pLogger = CNES::NES()->CART()->SRAMLOGGERVIRT ( rPC() );
          pLogger->LogAccess ( m_cycles, rPC(), data, eLogger_OperandFetch, eNESSource_CPU );
       }
       else if ( target == eTarget_EXRAM )
       {
          // Log to Code/Data Logger...
-         CCodeDataLogger* pLogger = CROM::EXRAMLOGGER ();
+         CCodeDataLogger* pLogger = CNES::NES()->CART()->EXRAMLOGGER ();
          pLogger->LogAccess ( m_cycles, rPC(), data, eLogger_OperandFetch, eNESSource_CPU );
       }
       else if ( target == eTarget_RAM )
       {
-         m_logger->LogAccess ( m_cycles, rPC(), data, eLogger_OperandFetch, eNESSource_CPU );
+         m_6502memory.LOGGER()->LogAccess ( m_cycles, rPC(), data, eLogger_OperandFetch, eNESSource_CPU );
       }
 #endif
    }
@@ -3911,22 +3727,22 @@ uint8_t C6502::DMA ( uint32_t addr )
    if ( nesIsDebuggable() )
    {
       // Add Tracer sample...
-      CNES::TRACER()->AddSample ( m_cycles, eTracer_DMA, eNESSource_CPU, target, addr, data );
+      CNES::NES()->TRACER()->AddSample ( m_cycles, eTracer_DMA, eNESSource_CPU, target, addr, data );
 
       // If ROM or RAM is being accessed, log code/data logger...
       if ( (target == eTarget_Mapper) &&
            (addr >= MEM_32KB) )
       {
-         CCodeDataLogger* pLogger = CROM::LOGGERVIRT ( addr );
+         CCodeDataLogger* pLogger = CNES::NES()->CART()->LOGGERVIRT ( addr );
          pLogger->LogAccess ( m_cycles, addr, data, eLogger_DMA, eNESSource_APU );
       }
       else if ( target == eTarget_RAM )
       {
-         m_logger->LogAccess ( m_cycles, addr, data, eLogger_DMA, eNESSource_APU );
+         m_6502memory.LOGGER()->LogAccess ( m_cycles, addr, data, eLogger_DMA, eNESSource_APU );
       }
 
       // Check for breakpoint...
-      CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryRead, data );
+      CNES::NES()->CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryRead, data );
    }
 
    return data;
@@ -3946,7 +3762,7 @@ void C6502::DMA ( uint32_t srcAddr, uint32_t dstAddr, uint8_t data )
    if ( nesIsDebuggable() )
    {
       // Store unknown target because otherwise the trace will be out of order...
-      pSample = CNES::TRACER()->AddSample ( m_cycles, eTracer_DMA, eNESSource_CPU, target, dstAddr, data );
+      pSample = CNES::NES()->TRACER()->AddSample ( m_cycles, eTracer_DMA, eNESSource_CPU, target, dstAddr, data );
    }
 
    STORE ( dstAddr, data, &target );
@@ -3956,12 +3772,12 @@ void C6502::DMA ( uint32_t srcAddr, uint32_t dstAddr, uint8_t data )
       // If ROM or RAM is being accessed, log code/data logger...
       if ( srcAddr >= MEM_32KB )
       {
-         CCodeDataLogger* pLogger = CROM::LOGGERVIRT ( srcAddr );
+         CCodeDataLogger* pLogger = CNES::NES()->CART()->LOGGERVIRT ( srcAddr );
          pLogger->LogAccess ( m_cycles, srcAddr, data, eLogger_DMA, eNESSource_PPU );
       }
       else if ( srcAddr < MEM_8KB )
       {
-         m_logger->LogAccess ( m_cycles, srcAddr, data, eLogger_DMA, eNESSource_PPU );
+         m_6502memory.LOGGER()->LogAccess ( m_cycles, srcAddr, data, eLogger_DMA, eNESSource_PPU );
       }
    }
 
@@ -3974,7 +3790,7 @@ void C6502::DMA ( uint32_t srcAddr, uint32_t dstAddr, uint8_t data )
    if ( nesIsDebuggable() )
    {
       // Check for breakpoint...
-      CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryWrite, data );
+      CNES::NES()->CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryWrite, data );
    }
 }
 
@@ -3990,7 +3806,7 @@ uint8_t C6502::MEM ( uint32_t addr )
    wEA ( addr );
    if ( nesIsDebuggable() )
    {
-      CNES::TRACER()->SetEffectiveAddress ( CNES::TRACER()->GetLastCPUSample(), rEA() );
+      CNES::NES()->TRACER()->SetEffectiveAddress ( CNES::NES()->TRACER()->GetLastCPUSample(), rEA() );
    }
 
    // Synchronize CPU and APU...
@@ -4001,41 +3817,41 @@ uint8_t C6502::MEM ( uint32_t addr )
    if ( nesIsDebuggable() )
    {
       // Add Tracer sample...
-      CNES::TRACER()->AddSample ( m_cycles, eTracer_DataRead, eNESSource_CPU, target, addr, data );
+      CNES::NES()->TRACER()->AddSample ( m_cycles, eTracer_DataRead, eNESSource_CPU, target, addr, data );
 
       // If ROM or RAM is being accessed, log code/data logger...
       if ( (target == eTarget_Mapper) &&
            (addr >= MEM_32KB) )
       {
-         CCodeDataLogger* pLogger = CROM::LOGGERVIRT ( addr );
+         CCodeDataLogger* pLogger = CNES::NES()->CART()->LOGGERVIRT ( addr );
          pLogger->LogAccess ( m_cycles, addr, data, eLogger_DataRead, eNESSource_CPU );
       }
       else if ( target == eTarget_SRAM )
       {
          // Log to Code/Data Logger...
-         CCodeDataLogger* pLogger = CROM::SRAMLOGGERVIRT ( addr );
+         CCodeDataLogger* pLogger = CNES::NES()->CART()->SRAMLOGGERVIRT ( addr );
          pLogger->LogAccess ( m_cycles, addr, data, eLogger_DataRead, eNESSource_CPU );
       }
       else if ( target == eTarget_EXRAM )
       {
          // Log to Code/Data Logger...
-         CCodeDataLogger* pLogger = CROM::EXRAMLOGGER ();
+         CCodeDataLogger* pLogger = CNES::NES()->CART()->EXRAMLOGGER ();
          pLogger->LogAccess ( m_cycles, addr, data, eLogger_DataRead, eNESSource_CPU );
       }
       else if ( target == eTarget_RAM )
       {
          // Log to Code/Data Logger...
-         m_logger->LogAccess ( m_cycles, addr, data, eLogger_DataRead, eNESSource_CPU );
+         m_6502memory.LOGGER()->LogAccess ( m_cycles, addr, data, eLogger_DataRead, eNESSource_CPU );
       }
       else
       {
          // Registers...
          // Log to Code/Data Logger...
-         m_logger->LogAccess ( m_cycles, addr, data, eLogger_DataRead, eNESSource_CPU );
+         m_6502memory.LOGGER()->LogAccess ( m_cycles, addr, data, eLogger_DataRead, eNESSource_CPU );
       }
 
       // Check for breakpoint...
-      CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryRead, data );
+      CNES::NES()->CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryRead, data );
    }
 
    return data;
@@ -4053,7 +3869,7 @@ void C6502::MEM ( uint32_t addr, uint8_t data )
    wEA ( addr );
    if ( nesIsDebuggable() )
    {
-      CNES::TRACER()->SetEffectiveAddress ( CNES::TRACER()->GetLastCPUSample(), rEA() );
+      CNES::NES()->TRACER()->SetEffectiveAddress ( CNES::NES()->TRACER()->GetLastCPUSample(), rEA() );
    }
 
    // Synchronize CPU and APU...
@@ -4062,7 +3878,7 @@ void C6502::MEM ( uint32_t addr, uint8_t data )
    if ( nesIsDebuggable() )
    {
       // Store unknown target because otherwise the trace will be out of order...
-      pSample = CNES::TRACER()->AddSample ( m_cycles, eTracer_DataWrite, eNESSource_CPU, 0, addr, data );
+      pSample = CNES::NES()->TRACER()->AddSample ( m_cycles, eTracer_DataWrite, eNESSource_CPU, 0, addr, data );
    }
 
    STORE ( addr, data, &target );
@@ -4073,30 +3889,30 @@ void C6502::MEM ( uint32_t addr, uint8_t data )
       if ( (target == eTarget_Mapper) &&
            (addr >= MEM_32KB) )
       {
-         CCodeDataLogger* pLogger = CROM::LOGGERVIRT ( addr );
+         CCodeDataLogger* pLogger = CNES::NES()->CART()->LOGGERVIRT ( addr );
          pLogger->LogAccess ( m_cycles, addr, data, eLogger_DataWrite, eNESSource_CPU );
       }
       else if ( target == eTarget_SRAM )
       {
          // Log to Code/Data Logger...
-         CCodeDataLogger* pLogger = CROM::SRAMLOGGERVIRT ( addr );
+         CCodeDataLogger* pLogger = CNES::NES()->CART()->SRAMLOGGERVIRT ( addr );
          pLogger->LogAccess ( m_cycles, addr, data, eLogger_DataWrite, eNESSource_CPU );
       }
       else if ( target == eTarget_EXRAM )
       {
          // Log to Code/Data Logger...
-         CCodeDataLogger* pLogger = CROM::EXRAMLOGGER ();
+         CCodeDataLogger* pLogger = CNES::NES()->CART()->EXRAMLOGGER ();
          pLogger->LogAccess ( m_cycles, addr, data, eLogger_DataWrite, eNESSource_CPU );
       }
       else if ( target == eTarget_RAM )
       {
-         m_logger->LogAccess ( m_cycles, addr, data, eLogger_DataWrite, eNESSource_CPU );
+         m_6502memory.LOGGER()->LogAccess ( m_cycles, addr, data, eLogger_DataWrite, eNESSource_CPU );
       }
       else
       {
          // Registers...
          // Log to Code/Data Logger...
-         m_logger->LogAccess ( m_cycles, addr, data, eLogger_DataWrite, eNESSource_CPU );
+         m_6502memory.LOGGER()->LogAccess ( m_cycles, addr, data, eLogger_DataWrite, eNESSource_CPU );
       }
    }
 
@@ -4109,7 +3925,7 @@ void C6502::MEM ( uint32_t addr, uint8_t data )
    if ( nesIsDebuggable() )
    {
       // Check for breakpoint...
-      CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryWrite, data );
+      CNES::NES()->CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryWrite, data );
    }
 }
 
@@ -4125,7 +3941,7 @@ uint8_t C6502::STEAL ( uint32_t addr, uint8_t source )
    wEA ( addr );
    if ( nesIsDebuggable() )
    {
-      CNES::TRACER()->SetEffectiveAddress ( CNES::TRACER()->GetLastCPUSample(), rEA() );
+      CNES::NES()->TRACER()->SetEffectiveAddress ( CNES::NES()->TRACER()->GetLastCPUSample(), rEA() );
    }
 
    // Synchronize CPU and APU...
@@ -4136,44 +3952,44 @@ uint8_t C6502::STEAL ( uint32_t addr, uint8_t source )
    if ( nesIsDebuggable() )
    {
       // Add Tracer sample...
-      CNES::TRACER()->AddStolenCycle ( m_cycles, source );
+      CNES::NES()->TRACER()->AddStolenCycle ( m_cycles, source );
 
       // If ROM or RAM is being accessed, log code/data logger...
       if ( (target == eTarget_Mapper) &&
            (addr >= MEM_32KB) )
       {
-         CCodeDataLogger* pLogger = CROM::LOGGERVIRT ( addr );
+         CCodeDataLogger* pLogger = CNES::NES()->CART()->LOGGERVIRT ( addr );
          pLogger->LogAccess ( m_cycles, addr, data, eLogger_DataRead, eNESSource_CPU );
       }
       else if ( target == eTarget_SRAM )
       {
          // Log to Code/Data Logger...
-         CCodeDataLogger* pLogger = CROM::SRAMLOGGERVIRT ( addr );
+         CCodeDataLogger* pLogger = CNES::NES()->CART()->SRAMLOGGERVIRT ( addr );
          pLogger->LogAccess ( m_cycles, addr, data, eLogger_DataRead, eNESSource_CPU );
       }
       else if ( target == eTarget_EXRAM )
       {
          // Log to Code/Data Logger...
-         CCodeDataLogger* pLogger = CROM::EXRAMLOGGER ();
+         CCodeDataLogger* pLogger = CNES::NES()->CART()->EXRAMLOGGER ();
          pLogger->LogAccess ( m_cycles, addr, data, eLogger_DataRead, eNESSource_CPU );
       }
       else if ( target == eTarget_RAM )
       {
          // Log to Code/Data Logger...
-         m_logger->LogAccess ( m_cycles, addr, data, eLogger_DataRead, eNESSource_CPU );
+         m_6502memory.LOGGER()->LogAccess ( m_cycles, addr, data, eLogger_DataRead, eNESSource_CPU );
       }
       else
       {
          // Registers...
          // Log to Code/Data Logger...
-         m_logger->LogAccess ( m_cycles, addr, data, eLogger_DataRead, eNESSource_CPU );
+         m_6502memory.LOGGER()->LogAccess ( m_cycles, addr, data, eLogger_DataRead, eNESSource_CPU );
       }
 
       // Check stolen cycles breakpoint.
-      CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,0,CPU_EVENT_STOLEN_CYCLE);
+      CNES::NES()->CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,0,CPU_EVENT_STOLEN_CYCLE);
 
       // Check for breakpoint...
-      CNES::CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryRead, data );
+      CNES::NES()->CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryRead, data );
    }
 
    return data;
@@ -4268,13 +4084,7 @@ void C6502::DISASSEMBLE ()
 {
    if ( __PCSYNC() < 0x800 )
    {
-      DISASSEMBLE ( m_RAMdisassembly,
-                    m_6502memory,
-                    MEM_2KB,
-                    m_RAMopcodeMask,
-                    m_RAMsloc2addr,
-                    m_RAMaddr2sloc,
-                    &(m_RAMsloc) );
+      m_6502memory.DISASSEMBLE();
    }
 }
 
@@ -4362,10 +4172,20 @@ void C6502::DISASSEMBLE ( char** disassembly, uint8_t* binary, int32_t binaryLen
    }
 }
 
-char* C6502::Disassemble ( uint8_t* pOpcode, char* buffer )
+void C6502::PRINTABLEADDR ( char* buffer, uint32_t addr )
+{
+   m_6502memory.PRINTABLEADDR(buffer,addr);
+}
+
+void C6502::PRINTABLEADDR ( char* buffer, uint32_t addr, uint32_t absAddr )
+{
+   m_6502memory.PRINTABLEADDR(buffer,addr,absAddr);
+}
+
+char* DISASSEMBLE ( uint8_t* pOpcode, char* buffer )
 {
    char* lbuffer = buffer;
-   CNES6502_opcode* pOp = m_6502opcode+(*pOpcode);
+   CNES6502_opcode* pOp = C6502::m_6502opcode+(*pOpcode);
 
    if ( pOp->documented )
    {

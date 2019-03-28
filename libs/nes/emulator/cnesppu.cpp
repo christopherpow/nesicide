@@ -34,695 +34,41 @@ static uint8_t tblDefaultPalette [] =
    0x09,0x01,0x34,0x03,0x00,0x04,0x00,0x14,0x08,0x3A,0x00,0x02,0x00,0x20,0x2C,0x08
 };
 
-// PPU Registers
-static CBitfieldData* tblPPUCTRLBitfields [] =
-{
-   new CBitfieldData("Generate NMI", 7, 1, "%X", 2, "No", "Yes"),
-   new CBitfieldData("PPU Master/Slave", 6, 1, "%X", 2, "Master", "Slave"),
-   new CBitfieldData("Sprite Size", 5, 1, "%X", 2, "8x8", "8x16"),
-   new CBitfieldData("Playfield Pattern Table", 4, 1, "%X", 2, "0000", "1000"),
-   new CBitfieldData("Sprite Pattern Table", 3, 1, "%X", 2, "0000", "1000"),
-   new CBitfieldData("VRAM Address Increment", 2, 1, "%X", 2, "+1", "+32"),
-   new CBitfieldData("NameTable", 0, 2, "%X", 4, "NT1", "NT2", "NT3", "NT4")
-};
-
-static CBitfieldData* tblPPUMASKBitfields [] =
-{
-   new CBitfieldData("Blue Emphasis", 7, 1, "%X", 2, "Off", "On"),
-   new CBitfieldData("Green Emphasis", 6, 1, "%X", 2, "Off", "On"),
-   new CBitfieldData("Red Emphasis", 5, 1, "%X", 2, "Off", "On"),
-   new CBitfieldData("Sprite Rendering", 4, 1, "%X", 2, "Off", "On"),
-   new CBitfieldData("Playfield Rendering", 3, 1, "%X", 2, "Off", "On"),
-   new CBitfieldData("Sprite Clipping", 2, 1, "%X", 2, "Yes", "No"),
-   new CBitfieldData("Playfield Clipping", 1, 1, "%X", 2, "Yes", "No"),
-   new CBitfieldData("Greyscale", 0, 1, "%X", 2, "No", "Yes")
-};
-
-static CBitfieldData* tblPPUSTATUSBitfields [] =
-{
-   new CBitfieldData("Vertical Blank", 7, 1, "%X", 2, "No", "Yes"),
-   new CBitfieldData("Sprite 0 Hit", 6, 1, "%X", 2, "No", "Yes"),
-   new CBitfieldData("Sprite Overflow", 5, 1, "%X", 2, "No", "Yes")
-};
-
-static CBitfieldData* tblOAMADDRBitfields [] =
-{
-   new CBitfieldData("OAM Address", 0, 8, "%02X", 0)
-};
-
-static CBitfieldData* tblOAMDATABitfields [] =
-{
-   new CBitfieldData("OAM Data", 0, 8, "%02X", 0)
-};
-
-static CBitfieldData* tblPPUSCROLLBitfields [] =
-{
-   new CBitfieldData("PPU Scroll", 0, 8, "%02X", 0)
-};
-
-static CBitfieldData* tblPPUADDRBitfields [] =
-{
-   new CBitfieldData("PPU Address", 0, 8, "%02X", 0)
-};
-
-static CBitfieldData* tblPPUDATABitfields [] =
-{
-   new CBitfieldData("PPU Data", 0, 8, "%02X", 0)
-};
-
-static CRegisterData* tblPPURegisters [] =
-{
-   new CRegisterData(0x2000, "PPUCTRL", nesGetPPURegister, nesSetPPURegister, 7, tblPPUCTRLBitfields),
-   new CRegisterData(0x2001, "PPUMASK", nesGetPPURegister, nesSetPPURegister, 8, tblPPUMASKBitfields),
-   new CRegisterData(0x2002, "PPUSTATUS", nesGetPPURegister, nesSetPPURegister, 3, tblPPUSTATUSBitfields),
-   new CRegisterData(0x2003, "OAMADDR", nesGetPPURegister, nesSetPPURegister, 1, tblOAMADDRBitfields),
-   new CRegisterData(0x2004, "OAMDATA", nesGetPPURegister, nesSetPPURegister, 1, tblOAMDATABitfields),
-   new CRegisterData(0x2005, "PPUSCROLL", nesGetPPURegister, nesSetPPURegister, 1, tblPPUSCROLLBitfields),
-   new CRegisterData(0x2006, "PPUADDR", nesGetPPURegister, nesSetPPURegister, 1, tblPPUADDRBitfields),
-   new CRegisterData(0x2007, "PPUDATA", nesGetPPURegister, nesSetPPURegister, 1, tblPPUDATABitfields)
-};
-
-static const char* rowHeadings [] =
-{
-   "2000"
-};
-
-static const char* columnHeadings [] =
-{
-   "x0","x1","x2","x3","x4","x5","x6","x7"
-};
-
-static CRegisterDatabase* dbRegisters = new CRegisterDatabase(eMemory_PPUregs,1,8,8,tblPPURegisters,rowHeadings,columnHeadings);
-
-CRegisterDatabase* CPPU::m_dbRegisters = dbRegisters;
-
-// OAM 'Registers'
-static CBitfieldData* tblOAMYBitfields [] =
-{
-   new CBitfieldData("Y Position", 0, 8, "%02X", 0),
-};
-
-static CBitfieldData* tblOAMPATBitfields [] =
-{
-   new CBitfieldData("Tile Index", 0, 8, "%02X", 0),
-};
-
-static CBitfieldData* tblOAMATTBitfields [] =
-{
-   new CBitfieldData("Flip Vertical", 7, 1, "%X", 2, "No", "Yes"),
-   new CBitfieldData("Flip Horizontal", 6, 1, "%X", 2, "No", "Yes"),
-   new CBitfieldData("Priority", 5, 1, "%X", 2, "In-front of Playfield", "Behind Playfield"),
-   new CBitfieldData("Palette Index", 0, 2, "%X", 4, "3F10", "3F14", "3F18", "3F1C")
-};
-
-static CBitfieldData* tblOAMXBitfields [] =
-{
-   new CBitfieldData("X Position", 0, 8, "%02X", 0),
-};
-
-static CRegisterData* tblOAMRegisters [] =
-{
-   // Sprite 0
-   new CRegisterData(0x00, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0x01, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0x02, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0x03, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 1
-   new CRegisterData(0x04, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0x05, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0x06, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0x07, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 2
-   new CRegisterData(0x08, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0x09, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0x0A, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0x0B, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 3
-   new CRegisterData(0x0C, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0x0D, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0x0E, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0x0F, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 4
-   new CRegisterData(0x10, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0x11, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0x12, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0x13, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 5
-   new CRegisterData(0x14, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0x15, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0x16, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0x17, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 6
-   new CRegisterData(0x18, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0x19, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0x1A, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0x1B, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 7
-   new CRegisterData(0x1C, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0x1D, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0x1E, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0x1F, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 8
-   new CRegisterData(0x20, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0x21, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0x22, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0x23, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 9
-   new CRegisterData(0x24, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0x25, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0x26, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0x27, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 10
-   new CRegisterData(0x28, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0x29, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0x2A, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0x2B, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 11
-   new CRegisterData(0x2C, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0x2D, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0x2E, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0x2F, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 12
-   new CRegisterData(0x30, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0x31, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0x32, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0x33, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 13
-   new CRegisterData(0x34, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0x35, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0x36, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0x37, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 14
-   new CRegisterData(0x38, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0x39, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0x3A, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0x3B, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 15
-   new CRegisterData(0x3C, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0x3D, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0x3E, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0x3F, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 16
-   new CRegisterData(0x40, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0x41, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0x42, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0x43, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 17
-   new CRegisterData(0x44, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0x45, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0x46, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0x47, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 18
-   new CRegisterData(0x48, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0x49, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0x4A, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0x4B, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 19
-   new CRegisterData(0x4C, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0x4D, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0x4E, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0x4F, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 20
-   new CRegisterData(0x50, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0x51, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0x52, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0x53, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 21
-   new CRegisterData(0x54, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0x55, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0x56, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0x57, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 22
-   new CRegisterData(0x58, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0x59, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0x5A, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0x5B, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 23
-   new CRegisterData(0x5C, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0x5D, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0x5E, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0x5F, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 24
-   new CRegisterData(0x60, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0x61, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0x62, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0x63, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 25
-   new CRegisterData(0x64, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0x65, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0x66, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0x67, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 26
-   new CRegisterData(0x68, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0x69, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0x6A, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0x6B, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 27
-   new CRegisterData(0x6C, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0x6D, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0x6E, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0x6F, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 28
-   new CRegisterData(0x70, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0x71, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0x72, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0x73, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 29
-   new CRegisterData(0x74, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0x75, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0x76, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0x77, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 30
-   new CRegisterData(0x78, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0x79, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0x7A, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0x7B, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 31
-   new CRegisterData(0x7C, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0x7D, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0x7E, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0x7F, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 32
-   new CRegisterData(0x80, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0x81, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0x82, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0x83, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 33
-   new CRegisterData(0x84, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0x85, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0x86, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0x87, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 34
-   new CRegisterData(0x88, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0x89, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0x8A, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0x8B, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 35
-   new CRegisterData(0x8C, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0x8D, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0x8E, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0x8F, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 36
-   new CRegisterData(0x90, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0x91, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0x92, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0x93, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 37
-   new CRegisterData(0x94, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0x95, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0x96, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0x97, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 38
-   new CRegisterData(0x98, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0x99, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0x9A, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0x9B, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 39
-   new CRegisterData(0x9C, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0x9D, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0x9E, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0x9F, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 40
-   new CRegisterData(0xA0, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0xA1, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0xA2, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0xA3, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 41
-   new CRegisterData(0xA4, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0xA5, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0xA6, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0xA7, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 42
-   new CRegisterData(0xA8, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0xA9, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0xAA, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0xAB, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 43
-   new CRegisterData(0xAC, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0xAD, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0xAE, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0xAF, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 44
-   new CRegisterData(0xB0, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0xB1, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0xB2, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0xB3, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 45
-   new CRegisterData(0xB4, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0xB5, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0xB6, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0xB7, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 46
-   new CRegisterData(0xB8, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0xB9, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0xBA, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0xBB, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 47
-   new CRegisterData(0xBC, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0xBD, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0xBE, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0xBF, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 48
-   new CRegisterData(0xC0, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0xC1, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0xC2, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0xC3, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 49
-   new CRegisterData(0xC4, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0xC5, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0xC6, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0xC7, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 50
-   new CRegisterData(0xC8, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0xC9, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0xCA, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0xCB, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 51
-   new CRegisterData(0xCC, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0xCD, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0xCE, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0xCF, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 52
-   new CRegisterData(0xD0, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0xD1, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0xD2, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0xD3, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 53
-   new CRegisterData(0xD4, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0xD5, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0xD6, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0xD7, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 54
-   new CRegisterData(0xD8, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0xD9, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0xDA, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0xDB, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 55
-   new CRegisterData(0xDC, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0xDD, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0xDE, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0xDF, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 56
-   new CRegisterData(0xE0, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0xE1, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0xE2, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0xE3, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 57
-   new CRegisterData(0xE4, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0xE5, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0xE6, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0xE7, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 58
-   new CRegisterData(0xE8, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0xE9, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0xEA, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0xEB, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 59
-   new CRegisterData(0xEC, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0xED, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0xEE, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0xEF, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 60
-   new CRegisterData(0xF0, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0xF1, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0xF2, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0xF3, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 61
-   new CRegisterData(0xF4, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0xF5, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0xF6, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0xF7, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 62
-   new CRegisterData(0xF8, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0xF9, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0xFA, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0xFB, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-
-   // Sprite 63
-   new CRegisterData(0xFC, "OAMY", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMYBitfields),
-   new CRegisterData(0xFD, "OAMPAT", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMPATBitfields),
-   new CRegisterData(0xFE, "OAMATT", nesGetPPUOAM, nesSetPPUOAM, 4, tblOAMATTBitfields),
-   new CRegisterData(0xFF, "OAMX", nesGetPPUOAM, nesSetPPUOAM, 1, tblOAMXBitfields),
-};
-
-static const char* oamRowHeadings [] =
-{
-   "0","1","2","3","4","5","6","7",
-   "8","9","10","11","12","13","14","15",
-   "16","17","18","19","20","21","22","23",
-   "24","25","26","27","28","29","30","31",
-   "32","33","34","35","36","37","38","39",
-   "40","41","42","43","44","45","46","47",
-   "48","49","50","51","52","53","54","55",
-   "56","57","58","59","60","61","62","63"
-};
-
-static const char* oamColumnHeadings [] =
-{
-   "x0","x1","x2","x3"
-};
-
-static CRegisterDatabase* dbOamRegisters = new CRegisterDatabase(eMemory_PPUoam,64,4,256,tblOAMRegisters,oamRowHeadings,oamColumnHeadings);
-
-CRegisterDatabase* CPPU::m_dbOamRegisters = dbOamRegisters;
-
-static CMemoryDatabase* dbPaletteMemory = new CMemoryDatabase(eMemory_PPUpalette,
-                                                              0x3F00,
-                                                              MEM_32B,
-                                                              4,
-                                                              "Palette",
-                                                              nesGetPPUMemory,
-                                                              nesSetPPUMemory,
-                                                              nesGetPrintableAddress,
-                                                              false,
-                                                              nesGetPaletteRedComponent,
-                                                              nesGetPaletteGreenComponent,
-                                                              nesGetPaletteBlueComponent);
-
-CMemoryDatabase* CPPU::m_dbPaletteMemory = dbPaletteMemory;
-
-static CMemoryDatabase* dbNameTableMemory = new CMemoryDatabase(eMemory_PPU,
-                                                                0x2000,
-                                                                MEM_2KB,
-                                                                32,
-                                                                "NameTable",
-                                                                nesGetPPUMemory,
-                                                                nesSetPPUMemory,
-                                                                nesGetPrintableAddress,
-                                                                true);
-
-CMemoryDatabase* CPPU::m_dbNameTableMemory = dbNameTableMemory;
-
-// PPU Event breakpoints
-bool ppuAlwaysFireEvent(BreakpointInfo* pBreakpoint,int data)
-{
-   // This breakpoint is checked in the right place for each scanline
-   // so if this breakpoint is enabled it should always fire when called.
-   return true;
-}
-
-bool ppuRasterPositionEvent(BreakpointInfo* pBreakpoint,int data)
-{
-   if ( (pBreakpoint->item1 == CPPU::_X()) &&
-         (pBreakpoint->item2 == CPPU::_Y()) )
-   {
-      return true;
-   }
-
-   return false;
-}
-
-bool ppuSpriteDmaEvent(BreakpointInfo* pBreakpoint,int data)
-{
-   if ( pBreakpoint->item1 == C6502::WRITEDMAADDR() )
-   {
-      return true;
-   }
-
-   return false;
-}
-
-bool ppuSpriteInMultiplexerEvent(BreakpointInfo* pBreakpoint,int data)
-{
-   if ( data == pBreakpoint->item1 )
-   {
-      return true;
-   }
-
-   return false;
-}
-
-bool ppuSpriteSelectedEvent(BreakpointInfo* pBreakpoint,int data)
-{
-   if ( data == pBreakpoint->item1 )
-   {
-      return true;
-   }
-
-   return false;
-}
-
-bool ppuSpriteRenderingEvent(BreakpointInfo* pBreakpoint,int data)
-{
-   if ( data == pBreakpoint->item1 )
-   {
-      return true;
-   }
-
-   return false;
-}
-
-bool ppuAddressEqualsEvent(BreakpointInfo* pBreakpoint,int data)
-{
-   if ( data == pBreakpoint->item1 )
-   {
-      return true;
-   }
-
-   return false;
-}
-
-static CBreakpointEventInfo* tblPPUEvents [] =
-{
-   new CBreakpointEventInfo("NMI", ppuAlwaysFireEvent, 0, "Break if PPU asserts NMI", 10),
-   new CBreakpointEventInfo("Raster Position", ppuRasterPositionEvent, 2, "Break at pixel (%d,%d)", 10, "X:", "Y:"),
-   new CBreakpointEventInfo("PPU Address Equals", ppuAddressEqualsEvent, 1, "Break if PPU address is %04X", 16, "PPU Address:"),
-   new CBreakpointEventInfo("Pre-render Scanline Start (X=0,Y=-1)", ppuAlwaysFireEvent, 0, "Break at start of pre-render scanline", 10),
-   new CBreakpointEventInfo("Pre-render Scanline End (X=256,Y=-1)", ppuAlwaysFireEvent, 0, "Break at end of pre-render scanline", 10),
-   new CBreakpointEventInfo("Scanline Start (X=0,Y=[0,239])", ppuAlwaysFireEvent, 0, "Break at start of scanline", 10),
-   new CBreakpointEventInfo("Scanline End (X=256,Y=[0,239])", ppuAlwaysFireEvent, 0, "Break at end of scanline", 10),
-   new CBreakpointEventInfo("X Scroll Updated", ppuAlwaysFireEvent, 0, "Break if PPU's X scroll is updated", 10),
-   new CBreakpointEventInfo("Y Scroll Updated", ppuAlwaysFireEvent, 0, "Break if PPU's Y scroll is updated", 10),
-   new CBreakpointEventInfo("Sprite DMA", ppuSpriteDmaEvent, 1, "Break on sprite DMA at byte %d", 10, "Addr:"),
-   new CBreakpointEventInfo("Sprite 0 Hit", ppuAlwaysFireEvent, 0, "Break on sprite 0 hit", 10),
-   new CBreakpointEventInfo("Sprite enters multiplexer", ppuSpriteInMultiplexerEvent, 1, "Break if sprite %d enters multiplexer", 10, "Sprite:"),
-   new CBreakpointEventInfo("Sprite selected by multiplexer", ppuSpriteSelectedEvent, 1, "Break if sprite %d is selected by multiplexer", 10, "Sprite:"),
-   new CBreakpointEventInfo("Sprite rendering", ppuSpriteRenderingEvent, 1, "Break if rendering sprite %d on scanline", 10, "Sprite:"),
-   new CBreakpointEventInfo("Sprite overflow", ppuAlwaysFireEvent, 0, "Break on sprite-per-scanline overflow", 10)
-};
-
-CBreakpointEventInfo** CPPU::m_tblBreakpointEvents = tblPPUEvents;
-int32_t                CPPU::m_numBreakpointEvents = NUM_PPU_EVENTS;
-
-uint8_t* CPPU::m_PPUmemory = NULL;
-uint8_t  CPPU::m_PALETTEmemory [] = { 0, };
-uint8_t* CPPU::m_pPPUmemory [] = { NULL, };
-uint8_t  CPPU::m_oamAddr = 0x00;
-int32_t  CPPU::m_ppuRegByte = 0;
-uint16_t CPPU::m_ppuAddr = 0x0000;
-uint8_t  CPPU::m_ppuAddrIncrement = 1;
-uint16_t CPPU::m_ppuAddrLatch = 0x0000;
-uint8_t  CPPU::m_ppuReadLatch = 0x00;
-uint8_t  CPPU::m_ppuIOLatch = 0x00;
-uint8_t  CPPU::m_ppuIOLatchDecayFrames [] = { 0, };
-uint8_t  CPPU::m_PPUreg [] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-uint8_t  CPPU::m_PPUoam [] = { 0x00, };
-uint8_t  CPPU::m_ppuScrollX = 0x00;
-int32_t        CPPU::m_oneScreen = -1;
-bool           CPPU::m_extraVRAM = false;
-
-uint32_t   CPPU::m_cycles = 0;
-
-uint32_t CPPU::startVblank;
-uint32_t CPPU::quietScanlines;
-uint32_t CPPU::vblankScanlines;
-uint32_t CPPU::vblankEndCycle;
-uint32_t CPPU::prerenderScanline;
-uint32_t CPPU::cycleRatio;
-uint32_t CPPU::memoryDecayFrames;
-
-bool           CPPU::m_vblankChoked = false;
-bool           CPPU::m_nmiChoked = false;
-bool           CPPU::m_nmiReenabled = false;
-
-int8_t*          CPPU::m_pTV = NULL;
-
-uint32_t       CPPU::m_frame = 0;
-int32_t         CPPU::m_curCycles = 0;
-
-SpriteTemporaryMemory CPPU::m_spriteTemporaryMemory;
-SpriteBuffer          CPPU::m_spriteBuffer;
-
-BackgroundBuffer CPPU::m_bkgndBuffer;
-
-CCodeDataLogger* CPPU::m_logger = NULL;
-
-uint8_t  CPPU::m_last2005x = 0;
-uint8_t  CPPU::m_last2005y = 0;
-uint16_t** CPPU::m_2005x = NULL;
-uint16_t** CPPU::m_2005y = NULL;
-uint8_t  CPPU::m_lastSprite0HitX = 0;
-uint8_t  CPPU::m_lastSprite0HitY = 0;
-uint8_t  CPPU::m_x = 0xFF;
-uint8_t  CPPU::m_y = 0xFF;
-
-static CPPU __init __attribute__((unused));
-
 CPPU::CPPU()
+   : m_PPUmemory(CMEMORY(0x2000,MEM_1KB,2,8))
 {
    int idx;
+
+   m_oamAddr = 0x00;
+   m_ppuRegByte = 0;
+   m_ppuAddr = 0x0000;
+   m_ppuAddrIncrement = 1;
+   m_ppuAddrLatch = 0x0000;
+   m_ppuReadLatch = 0x00;
+   m_ppuIOLatch = 0x00;
+   memset(m_ppuIOLatchDecayFrames,0,sizeof(m_ppuIOLatchDecayFrames));
+   memset(m_PPUreg,0,sizeof(m_PPUreg));
+   memset(m_PPUoam,0,sizeof(m_PPUoam));
+   m_ppuScrollX = 0x00;
+   m_oneScreen = -1;
+
+   m_cycles = 0;
+
+   m_vblankChoked = false;
+   m_nmiChoked = false;
+   m_nmiReenabled = false;
+
+   m_pTV = NULL;
+
+   m_frame = 0;
+   m_curCycles = 0;
+
+   m_last2005x = 0;
+   m_last2005y = 0;
+   m_lastSprite0HitX = 0;
+   m_lastSprite0HitY = 0;
+   m_x = 0xFF;
+   m_y = 0xFF;
 
    m_logger = new CCodeDataLogger ( MEM_16KB, MASK_16KB );
 
@@ -735,14 +81,6 @@ CPPU::CPPU()
    for ( idx = 0; idx < 256; idx++ )
    {
       m_2005y[idx] = new uint16_t[240];
-   }
-
-   m_PPUmemory = new uint8_t[MEM_2KB];
-
-   // Set up default mapping.
-   for ( idx = 0; idx < 8; idx++ )
-   {
-      m_pPPUmemory[idx] = m_PPUmemory+((idx&1)<<UPSHIFT_1KB);
    }
 }
 
@@ -761,8 +99,6 @@ CPPU::~CPPU()
       delete [] m_2005y[idx];
    }
    delete [] m_2005y;
-
-   delete [] m_PPUmemory;
 }
 
 void CPPU::EMULATE(uint32_t cycles)
@@ -846,7 +182,7 @@ void CPPU::EMULATE(uint32_t cycles)
       }
 
       // Run 0 or 1 CPU cycles...
-      C6502::EMULATE ( m_curCycles/cycleRatio );
+      CNES::NES()->CPU()->EMULATE ( m_curCycles/cycleRatio );
 
       // Adjust current cycle count...
       m_curCycles %= cycleRatio;
@@ -866,17 +202,17 @@ void CPPU::EMULATE(uint32_t cycles)
       if ( nesIsDebuggable() )
       {
          // Check for breakpoints...
-         CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUCycle );
+         CNES::NES()->CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUCycle );
       }
 
       if ( (rPPU(PPUCTRL)&PPUCTRL_GENERATE_NMI) &&
             (((!NMICHOKED()) && (idxy == 0) && (idxx == 1)) ||
              ((NMIREENABLED()) && (idxy <= vblankScanlines-1) && (idxx < PPU_CYCLES_PER_SCANLINE-1))) )
       {
-         C6502::ASSERTNMI ();
+         CNES::NES()->CPU()->ASSERTNMI ();
 
          // Check for PPU NMI breakpoint...
-         CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, 0, PPU_EVENT_NMI );
+         CNES::NES()->CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, 0, PPU_EVENT_NMI );
       }
 
       // Clear OAM at appropriate point...
@@ -902,12 +238,12 @@ uint32_t CPPU::LOAD ( uint32_t addr, int8_t source, int8_t type, bool trace )
 
    if ( addr < 0x2000 )
    {
-      data = CROM::CHRMEM ( addr );
+      data = CNES::NES()->CART()->CHRMEM ( addr );
 
       // Add Tracer sample...
       if ( nesIsDebuggable() && trace )
       {
-         CNES::TRACER()->AddSample ( m_cycles, type, source, eTarget_PatternMemory, addr, data );
+         CNES::NES()->TRACER()->AddSample ( m_cycles, type, source, eTarget_PatternMemory, addr, data );
       }
 
       return data;
@@ -920,21 +256,17 @@ uint32_t CPPU::LOAD ( uint32_t addr, int8_t source, int8_t type, bool trace )
       // Add Tracer sample...
       if ( nesIsDebuggable() && trace )
       {
-         CNES::TRACER()->AddSample ( m_cycles, type, source, eTarget_Palette, addr, data );
+         CNES::NES()->TRACER()->AddSample ( m_cycles, type, source, eTarget_Palette, addr, data );
       }
 
       return data;
    }
 
-   addr &= 0x1FFF;
-
-   if ( nesMapperRemapsVMEM() )
+   uint32_t tryCart = CNES::NES()->CART()->VRAM(addr);
+   data = tryCart&0xFF;
+   if ( tryCart == CART_UNCLAIMED )
    {
-      data = CROM::VRAM(addr);
-   }
-   else
-   {
-      data = *((*(m_pPPUmemory+((addr&0x1FFF)>>10)))+(addr&0x3FF));
+      data = m_PPUmemory.MEM(addr);
    }
 
    // Add Tracer sample...
@@ -942,11 +274,11 @@ uint32_t CPPU::LOAD ( uint32_t addr, int8_t source, int8_t type, bool trace )
    {
       if ( (addr&0x3FF) < 0x3C0 )
       {
-         CNES::TRACER()->AddSample ( m_cycles, type, source, eTarget_NameTable, addr, data );
+         CNES::NES()->TRACER()->AddSample ( m_cycles, type, source, eTarget_NameTable, addr, data );
       }
       else
       {
-         CNES::TRACER()->AddSample ( m_cycles, type, source, eTarget_AttributeTable, addr, data );
+         CNES::NES()->TRACER()->AddSample ( m_cycles, type, source, eTarget_AttributeTable, addr, data );
       }
    }
 
@@ -962,12 +294,12 @@ void CPPU::STORE ( uint32_t addr, uint8_t data, int8_t source, int8_t type, bool
       // Add Tracer sample...
       if ( nesIsDebuggable() && trace )
       {
-         CNES::TRACER()->AddSample ( m_cycles, type, source, eTarget_PatternMemory, addr, data );
+         CNES::NES()->TRACER()->AddSample ( m_cycles, type, source, eTarget_PatternMemory, addr, data );
       }
 
-      if ( CROM::IsWriteProtected() == false )
+      if ( CNES::NES()->CART()->IsWriteProtected() == false )
       {
-         CROM::CHRMEM ( addr, data );
+         CNES::NES()->CART()->CHRMEM ( addr, data );
       }
 
       return;
@@ -978,7 +310,7 @@ void CPPU::STORE ( uint32_t addr, uint8_t data, int8_t source, int8_t type, bool
       // Add Tracer sample...
       if ( nesIsDebuggable() && trace )
       {
-         CNES::TRACER()->AddSample ( m_cycles, type, source, eTarget_Palette, addr, data );
+         CNES::NES()->TRACER()->AddSample ( m_cycles, type, source, eTarget_Palette, addr, data );
       }
 
       if ( !(addr&0xF) )
@@ -994,28 +326,23 @@ void CPPU::STORE ( uint32_t addr, uint8_t data, int8_t source, int8_t type, bool
       return;
    }
 
-   addr &= 0x1FFF;
-
    // Add Tracer sample...
    if ( nesIsDebuggable() && trace )
    {
       if ( (addr&0x3FF) < 0x3C0 )
       {
-         CNES::TRACER()->AddSample ( m_cycles, type, source, eTarget_NameTable, addr, data );
+         CNES::NES()->TRACER()->AddSample ( m_cycles, type, source, eTarget_NameTable, addr, data );
       }
       else
       {
-         CNES::TRACER()->AddSample ( m_cycles, type, source, eTarget_AttributeTable, addr, data );
+         CNES::NES()->TRACER()->AddSample ( m_cycles, type, source, eTarget_AttributeTable, addr, data );
       }
    }
 
-   if ( nesMapperRemapsVMEM() )
+   uint32_t tryCart = CNES::NES()->CART()->VRAM(addr,data);
+   if ( tryCart == CART_UNCLAIMED )
    {
-      CROM::VRAM(addr,data);
-   }
-   else
-   {
-      *((*(m_pPPUmemory+((addr&0x1FFF)>>10)))+(addr&0x3FF)) = data;
+      m_PPUmemory.MEM(addr,data);
    }
 }
 
@@ -1027,11 +354,11 @@ uint32_t CPPU::RENDER ( uint32_t addr, int8_t target )
 
    if ( nesIsDebuggable() )
    {
-      m_logger->LogAccess ( C6502::_CYCLES()/*m_cycles*/, addr, data, eLogger_DataRead, eNESSource_PPU );
+      m_logger->LogAccess ( CNES::NES()->CPU()->_CYCLES()/*m_cycles*/, addr, data, eLogger_DataRead, eNESSource_PPU );
    }
 
    // Provide PPU cycle and address to mappers that watch such things!
-   MAPPERFUNC->sync_ppu(m_cycles,addr);
+   CNES::NES()->CART()->SYNCPPU(m_cycles,addr);
 
    // Address/Data bus multiplexed thus 2 cycles required per access...
    EMULATE(1);
@@ -1039,10 +366,10 @@ uint32_t CPPU::RENDER ( uint32_t addr, int8_t target )
    if ( nesIsDebuggable() )
    {
       // Check for PPU address breakpoint...
-      CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, rPPUADDR(), PPU_EVENT_ADDRESS_EQUALS );
+      CNES::NES()->CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, rPPUADDR(), PPU_EVENT_ADDRESS_EQUALS );
 
       // Check for breakpoint...
-      CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUFetch, data );
+      CNES::NES()->CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUFetch, data );
    }
 
    return data;
@@ -1052,11 +379,11 @@ void CPPU::GARBAGE ( uint32_t addr, int8_t target )
 {
    if ( nesIsDebuggable() )
    {
-      CNES::TRACER()->AddGarbageFetch ( m_cycles, target, addr );
+      CNES::NES()->TRACER()->AddGarbageFetch ( m_cycles, target, addr );
    }
 
    // Provide PPU cycle and address to mappers that watch such things!
-   MAPPERFUNC->sync_ppu(m_cycles,addr);
+   CNES::NES()->CART()->SYNCPPU(m_cycles,addr);
 
    // Address/Data bus multiplexed thus 2 cycles required per access...
    EMULATE(1);
@@ -1064,10 +391,10 @@ void CPPU::GARBAGE ( uint32_t addr, int8_t target )
    if ( nesIsDebuggable() )
    {
       // Check for PPU address breakpoint...
-      CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, rPPUADDR(), PPU_EVENT_ADDRESS_EQUALS );
+      CNES::NES()->CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, rPPUADDR(), PPU_EVENT_ADDRESS_EQUALS );
 
       // Check for breakpoint...
-      CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUFetch );
+      CNES::NES()->CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUFetch );
    }
 }
 
@@ -1075,7 +402,7 @@ void CPPU::EXTRA ()
 {
    if ( nesIsDebuggable() )
    {
-      CNES::TRACER()->AddGarbageFetch ( m_cycles, eTarget_ExtraCycle, 0 );
+      CNES::NES()->TRACER()->AddGarbageFetch ( m_cycles, eTarget_ExtraCycle, 0 );
    }
 
    // Idle cycle...
@@ -1084,10 +411,10 @@ void CPPU::EXTRA ()
    if ( nesIsDebuggable() )
    {
       // Check for PPU address breakpoint...
-      CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, rPPUADDR(), PPU_EVENT_ADDRESS_EQUALS );
+      CNES::NES()->CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, rPPUADDR(), PPU_EVENT_ADDRESS_EQUALS );
 
       // Check for breakpoint...
-      CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUFetch );
+      CNES::NES()->CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUFetch );
    }
 }
 
@@ -1095,13 +422,13 @@ void CPPU::RESET ( bool soft )
 {
    int idx;
 
-   startVblank = (CNES::VIDEOMODE()==MODE_NTSC)?PPU_CYCLE_START_VBLANK_NTSC:(CNES::VIDEOMODE()==MODE_PAL)?PPU_CYCLE_START_VBLANK_PAL:PPU_CYCLE_START_VBLANK_DENDY;
-   quietScanlines = (CNES::VIDEOMODE()==MODE_NTSC)?SCANLINES_QUIET_NTSC:(CNES::VIDEOMODE()==MODE_PAL)?SCANLINES_QUIET_PAL:SCANLINES_QUIET_DENDY;
-   vblankScanlines = (CNES::VIDEOMODE()==MODE_NTSC)?SCANLINES_VBLANK_NTSC:(CNES::VIDEOMODE()==MODE_PAL)?SCANLINES_VBLANK_PAL:SCANLINES_VBLANK_DENDY;
-   vblankEndCycle = (CNES::VIDEOMODE()==MODE_NTSC)?PPU_CYCLE_END_VBLANK_NTSC:(CNES::VIDEOMODE()==MODE_PAL)?PPU_CYCLE_END_VBLANK_PAL:PPU_CYCLE_END_VBLANK_DENDY;
-   prerenderScanline = (CNES::VIDEOMODE()==MODE_NTSC)?SCANLINE_PRERENDER_NTSC:(CNES::VIDEOMODE()==MODE_PAL)?SCANLINE_PRERENDER_PAL:SCANLINE_PRERENDER_DENDY;
-   cycleRatio = (CNES::VIDEOMODE()==MODE_NTSC)?PPU_CPU_RATIO_NTSC:(CNES::VIDEOMODE()==MODE_PAL)?PPU_CPU_RATIO_PAL:PPU_CPU_RATIO_DENDY;
-   memoryDecayFrames = (CNES::VIDEOMODE()==MODE_NTSC)?PPU_DECAY_FRAME_COUNT_NTSC:(CNES::VIDEOMODE()==MODE_PAL)?PPU_DECAY_FRAME_COUNT_PAL:PPU_DECAY_FRAME_COUNT_DENDY;
+   startVblank = (CNES::NES()->VIDEOMODE()==MODE_NTSC)?PPU_CYCLE_START_VBLANK_NTSC:(CNES::NES()->VIDEOMODE()==MODE_PAL)?PPU_CYCLE_START_VBLANK_PAL:PPU_CYCLE_START_VBLANK_DENDY;
+   quietScanlines = (CNES::NES()->VIDEOMODE()==MODE_NTSC)?SCANLINES_QUIET_NTSC:(CNES::NES()->VIDEOMODE()==MODE_PAL)?SCANLINES_QUIET_PAL:SCANLINES_QUIET_DENDY;
+   vblankScanlines = (CNES::NES()->VIDEOMODE()==MODE_NTSC)?SCANLINES_VBLANK_NTSC:(CNES::NES()->VIDEOMODE()==MODE_PAL)?SCANLINES_VBLANK_PAL:SCANLINES_VBLANK_DENDY;
+   vblankEndCycle = (CNES::NES()->VIDEOMODE()==MODE_NTSC)?PPU_CYCLE_END_VBLANK_NTSC:(CNES::NES()->VIDEOMODE()==MODE_PAL)?PPU_CYCLE_END_VBLANK_PAL:PPU_CYCLE_END_VBLANK_DENDY;
+   prerenderScanline = (CNES::NES()->VIDEOMODE()==MODE_NTSC)?SCANLINE_PRERENDER_NTSC:(CNES::NES()->VIDEOMODE()==MODE_PAL)?SCANLINE_PRERENDER_PAL:SCANLINE_PRERENDER_DENDY;
+   cycleRatio = (CNES::NES()->VIDEOMODE()==MODE_NTSC)?PPU_CPU_RATIO_NTSC:(CNES::NES()->VIDEOMODE()==MODE_PAL)?PPU_CPU_RATIO_PAL:PPU_CPU_RATIO_DENDY;
+   memoryDecayFrames = (CNES::NES()->VIDEOMODE()==MODE_NTSC)?PPU_DECAY_FRAME_COUNT_NTSC:(CNES::NES()->VIDEOMODE()==MODE_PAL)?PPU_DECAY_FRAME_COUNT_PAL:PPU_DECAY_FRAME_COUNT_DENDY;
 
    m_PPUreg [ 0 ] = 0x00;
    m_PPUreg [ 1 ] = 0x00;
@@ -1136,12 +463,6 @@ void CPPU::RESET ( bool soft )
 
    m_lastSprite0HitX = 0;
    m_lastSprite0HitY = 0;
-
-   // Set up default mapping.
-   for ( idx = 0; idx < 8; idx++ )
-   {
-      m_pPPUmemory[idx] = m_PPUmemory+((idx&1)<<UPSHIFT_1KB);
-   }
 
    // Set up default palette in a way that passes the default palette test.
    PALETTESET ( tblDefaultPalette );
@@ -1199,7 +520,7 @@ uint32_t CPPU::PPU ( uint32_t addr )
       if ( nesIsDebuggable() )
       {
          // Check for breakpoint...
-         CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnOAMPortalRead, data );
+         CNES::NES()->CHECKBREAKPOINT ( eBreakInPPU, eBreakOnOAMPortalRead, data );
       }
    }
    else if ( fixAddr == PPUDATA_REG )
@@ -1232,20 +553,21 @@ uint32_t CPPU::PPU ( uint32_t addr )
          m_ppuIOLatch |= (data&0x3F);
 
          // Shadow palette/VRAM read, don't use regular LOAD or it will be logged in Tracer...
-         m_ppuReadLatch = *((*(m_pPPUmemory+(((oldPpuAddr&(~0x1000))&0x1FFF)>>10)))+((oldPpuAddr&(~0x1000))&0x3FF));
+         m_ppuReadLatch = m_PPUmemory.MEM(oldPpuAddr);
+//         m_ppuReadLatch = *((*(m_pPPUmemory+(((oldPpuAddr&(~0x1000))&0x1FFF)>>10)))+((oldPpuAddr&(~0x1000))&0x3FF));
       }
 
       if ( nesIsDebuggable() )
       {
          // Check for breakpoint...
-         CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUPortalRead, data );
+         CNES::NES()->CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUPortalRead, data );
 
          // Log Code/Data logger...
-         m_logger->LogAccess ( C6502::_CYCLES()/*m_cycles*/, oldPpuAddr, data, eLogger_DataRead, eNESSource_CPU );
+         m_logger->LogAccess ( CNES::NES()->CPU()->_CYCLES()/*m_cycles*/, oldPpuAddr, data, eLogger_DataRead, eNESSource_CPU );
       }
 
       // Toggling A12 causes IRQ count in some mappers...
-      MAPPERFUNC->sync_ppu(m_cycles,m_ppuAddr);
+      CNES::NES()->CART()->SYNCPPU(m_cycles,m_ppuAddr);
    }
    else
    {
@@ -1255,7 +577,7 @@ uint32_t CPPU::PPU ( uint32_t addr )
    if ( nesIsDebuggable() )
    {
       // Check for breakpoint...
-      CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUState, fixAddr );
+      CNES::NES()->CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUState, fixAddr );
    }
 
    return data;
@@ -1320,7 +642,7 @@ void CPPU::PPU ( uint32_t addr, uint8_t data )
       if ( nesIsDebuggable() )
       {
          // Check for breakpoint...
-         CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnOAMPortalWrite, data );
+         CNES::NES()->CHECKBREAKPOINT ( eBreakInPPU, eBreakOnOAMPortalWrite, data );
       }
 
       m_oamAddr++;
@@ -1337,7 +659,7 @@ void CPPU::PPU ( uint32_t addr, uint8_t data )
          if ( nesIsDebuggable() )
          {
             // Check for PPU Y scroll update breakpoint...
-            CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, 0, PPU_EVENT_YSCROLL_UPDATE );
+            CNES::NES()->CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, 0, PPU_EVENT_YSCROLL_UPDATE );
          }
       }
       else
@@ -1350,7 +672,7 @@ void CPPU::PPU ( uint32_t addr, uint8_t data )
          if ( nesIsDebuggable() )
          {
             // Check for PPU X scroll update breakpoint...
-            CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, 0, PPU_EVENT_XSCROLL_UPDATE );
+            CNES::NES()->CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, 0, PPU_EVENT_XSCROLL_UPDATE );
          }
       }
 
@@ -1366,7 +688,7 @@ void CPPU::PPU ( uint32_t addr, uint8_t data )
          m_ppuAddr = m_ppuAddrLatch;
 
          // Toggling A12 causes IRQ count in some mappers...
-         MAPPERFUNC->sync_ppu(m_cycles,m_ppuAddr);
+         CNES::NES()->CART()->SYNCPPU(m_cycles,m_ppuAddr);
       }
       else
       {
@@ -1384,30 +706,29 @@ void CPPU::PPU ( uint32_t addr, uint8_t data )
 
       if ( nesIsDebuggable() )
       {
-         m_logger->LogAccess ( C6502::_CYCLES()/*m_cycles*/, oldPpuAddr, data, eLogger_DataWrite, eNESSource_CPU );
+         m_logger->LogAccess ( CNES::NES()->CPU()->_CYCLES()/*m_cycles*/, oldPpuAddr, data, eLogger_DataWrite, eNESSource_CPU );
 
          // Check for breakpoint...
-         CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUPortalWrite, data );
+         CNES::NES()->CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUPortalWrite, data );
       }
 
       // Increment PPUADDR
       m_ppuAddr += m_ppuAddrIncrement;
 
       // Toggling A12 causes IRQ count in some mappers...
-      MAPPERFUNC->sync_ppu(m_cycles,m_ppuAddr);
+      CNES::NES()->CART()->SYNCPPU(m_cycles,m_ppuAddr);
    }
 
    if ( nesIsDebuggable() )
    {
       // Check for breakpoint...
-      CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUState, fixAddr );
+      CNES::NES()->CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUState, fixAddr );
    }
 }
 
-void CPPU::MIRROR ( int32_t oneScreen, bool vert, bool extraVRAM )
+void CPPU::MIRROR ( int32_t oneScreen, bool vert )
 {
    m_oneScreen = oneScreen;
-   m_extraVRAM = extraVRAM;
 
    if ( m_oneScreen >= 0 )
    {
@@ -1420,17 +741,6 @@ void CPPU::MIRROR ( int32_t oneScreen, bool vert, bool extraVRAM )
    else
    {
       MIRRORHORIZ ();
-   }
-   if ( m_extraVRAM )
-   {
-      CROM::REMAPVRAM ( 0x0, 0x0 );
-      CROM::REMAPVRAM ( 0x1, 0x1 );
-      CROM::REMAPVRAM ( 0x2, 0x2 );
-      CROM::REMAPVRAM ( 0x3, 0x3 );
-      CROM::REMAPVRAM ( 0x4, 0x4 );
-      CROM::REMAPVRAM ( 0x5, 0x5 );
-      CROM::REMAPVRAM ( 0x6, 0x6 );
-      CROM::REMAPVRAM ( 0x7, 0x7 );
    }
 }
 
@@ -1449,26 +759,26 @@ void CPPU::MIRROR ( int32_t b0, int32_t b1, int32_t b2, int32_t b3 )
    if ( b0 >= 0 )
    {
       b0 &= 0x3;
-      REMAPVRAM ( 0x0, &(m_PPUmemory[(b0<<UPSHIFT_1KB)]) );
-      REMAPVRAM ( 0x4, &(m_PPUmemory[(b0<<UPSHIFT_1KB)]) );
+      m_PPUmemory.REMAP(0,b0);
+      m_PPUmemory.REMAP(4,b0);
    }
    if ( b1 >= 0 )
    {
       b1 &= 0x3;
-      REMAPVRAM ( 0x1, &(m_PPUmemory[(b1<<UPSHIFT_1KB)]) );
-      REMAPVRAM ( 0x5, &(m_PPUmemory[(b1<<UPSHIFT_1KB)]) );
+      m_PPUmemory.REMAP(1,b1);
+      m_PPUmemory.REMAP(5,b1);
    }
    if ( b2 >= 0 )
    {
       b2 &= 0x3;
-      REMAPVRAM ( 0x2, &(m_PPUmemory[(b2<<UPSHIFT_1KB)]) );
-      REMAPVRAM ( 0x6, &(m_PPUmemory[(b2<<UPSHIFT_1KB)]) );
+      m_PPUmemory.REMAP(2,b2);
+      m_PPUmemory.REMAP(6,b2);
    }
    if ( b3 >= 0 )
    {
       b3 &= 0x3;
-      REMAPVRAM ( 0x3, &(m_PPUmemory[(b3<<UPSHIFT_1KB)]) );
-      REMAPVRAM ( 0x7, &(m_PPUmemory[(b3<<UPSHIFT_1KB)]) );
+      m_PPUmemory.REMAP(3,b3);
+      m_PPUmemory.REMAP(7,b3);
    }
 }
 
@@ -1583,11 +893,11 @@ void CPPU::RENDERSCANLINE ( int32_t scanlines )
          // Check for start-of-scanline breakpoints...
          if ( scanline == -1 )
          {
-            CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,0,PPU_EVENT_PRE_RENDER_SCANLINE_START);
+            CNES::NES()->CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,0,PPU_EVENT_PRE_RENDER_SCANLINE_START);
          }
          else
          {
-            CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,0,PPU_EVENT_SCANLINE_START);
+            CNES::NES()->CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,0,PPU_EVENT_SCANLINE_START);
          }
       }
 
@@ -1612,7 +922,7 @@ void CPPU::RENDERSCANLINE ( int32_t scanlines )
                *(*(m_2005y+m_x)+m_y) = m_last2005y+(((rPPU(PPUCTRL)&0x2)>>1)*240);
 
                // Check for PPU pixel-at breakpoint...
-               CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,0,PPU_EVENT_PIXEL_XY);
+               CNES::NES()->CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,0,PPU_EVENT_PIXEL_XY);
             }
 
             // Run sprite multiplexer to figure out what, if any,
@@ -1633,7 +943,7 @@ void CPPU::RENDERSCANLINE ( int32_t scanlines )
                   if ( nesIsDebuggable() )
                   {
                      // Check for sprite-in-multiplexer event breakpoint...
-                     CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,pSpriteTemp->spriteIdx,PPU_EVENT_SPRITE_IN_MULTIPLEXER);
+                     CNES::NES()->CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,pSpriteTemp->spriteIdx,PPU_EVENT_SPRITE_IN_MULTIPLEXER);
                   }
 
                   if ( pSprite->spriteFlipHoriz )
@@ -1663,7 +973,7 @@ void CPPU::RENDERSCANLINE ( int32_t scanlines )
                      if ( nesIsDebuggable() )
                      {
                         // Check for sprite selected event breakpoint...
-                        CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,pSpriteTemp->spriteIdx,PPU_EVENT_SPRITE_SELECTED);
+                        CNES::NES()->CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,pSpriteTemp->spriteIdx,PPU_EVENT_SPRITE_SELECTED);
                      }
 
                      // Save rendered sprite for multiplexing with background...
@@ -1700,7 +1010,7 @@ void CPPU::RENDERSCANLINE ( int32_t scanlines )
                   if ( nesIsDebuggable() )
                   {
                      // Check for sprite rendering event breakpoint...
-                     CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,pSelectedSpriteTemp->spriteIdx,PPU_EVENT_SPRITE_RENDERING);
+                     CNES::NES()->CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,pSelectedSpriteTemp->spriteIdx,PPU_EVENT_SPRITE_RENDERING);
                   }
 
                   // Draw sprite...
@@ -1741,10 +1051,10 @@ void CPPU::RENDERSCANLINE ( int32_t scanlines )
                         m_lastSprite0HitY = scanline;
 
                         // Add trace tag for Sprice 0 hit...
-                        CNES::TRACER()->AddSample ( m_cycles, eTracer_Sprite0Hit, eNESSource_PPU, 0, 0, 0 );
+                        CNES::NES()->TRACER()->AddSample ( m_cycles, eTracer_Sprite0Hit, eNESSource_PPU, 0, 0, 0 );
 
                         // Check for Sprite 0 Hit breakpoint...
-                        CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,0,PPU_EVENT_SPRITE0_HIT);
+                        CNES::NES()->CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,0,PPU_EVENT_SPRITE0_HIT);
                      }
                   }
                }
@@ -1783,11 +1093,11 @@ void CPPU::RENDERSCANLINE ( int32_t scanlines )
          // Check for end-of-scanline breakpoints...
          if ( scanline == -1 )
          {
-            CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,0,PPU_EVENT_PRE_RENDER_SCANLINE_END);
+            CNES::NES()->CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,0,PPU_EVENT_PRE_RENDER_SCANLINE_END);
          }
          else
          {
-            CNES::CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,0,PPU_EVENT_SCANLINE_END);
+            CNES::NES()->CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,0,PPU_EVENT_SCANLINE_END);
          }
       }
 
@@ -1830,7 +1140,7 @@ void CPPU::RENDERSCANLINE ( int32_t scanlines )
       // 340 dots for NTSC odd frames and 341 dots for NTSC even frames if rendering is off, 341 dots for all frames otherwise
       else
       {
-         if ( (CNES::VIDEOMODE() == MODE_DENDY) || (CNES::VIDEOMODE() == MODE_PAL) || ((CNES::VIDEOMODE() == MODE_NTSC) && ((!(m_frame&1)) || (!(rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND))))) )
+         if ( (CNES::NES()->VIDEOMODE() == MODE_DENDY) || (CNES::NES()->VIDEOMODE() == MODE_PAL) || ((CNES::NES()->VIDEOMODE() == MODE_NTSC) && ((!(m_frame&1)) || (!(rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND))))) )
          {
             // account for extra clock (341)
             EXTRA ();
@@ -2112,7 +1422,7 @@ void CPPU::BUILDSPRITELIST ( int32_t scanline, int32_t cycle )
                      if ( nesIsDebuggable() )
                      {
                         // Check for breakpoint...
-                        CNES::CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, 0, PPU_EVENT_SPRITE_OVERFLOW );
+                        CNES::NES()->CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, 0, PPU_EVENT_SPRITE_OVERFLOW );
                      }
                   }
                }

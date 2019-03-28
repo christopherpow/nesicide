@@ -81,13 +81,13 @@ static const char* columnHeadings [] =
 
 static CRegisterDatabase* dbRegisters = new CRegisterDatabase(eMemory_cartMapper,1,7,7,tblRegisters,rowHeadings,columnHeadings);
 
-uint8_t  CROMMapper073::m_reg [] = { 0x00, };
-uint16_t CROMMapper073::m_irqReload = 0;
-uint16_t CROMMapper073::m_irqCounter = 0;
-bool     CROMMapper073::m_irqEnabled = false;
-
 CROMMapper073::CROMMapper073()
+   : CROM(73)
 {
+   memset(m_reg,0,sizeof(m_reg));
+   m_irqReload = 0;
+   m_irqCounter = 0;
+   m_irqEnabled = false;
 }
 
 CROMMapper073::~CROMMapper073()
@@ -98,20 +98,16 @@ void CROMMapper073::RESET ( bool soft )
 {
    int32_t idx;
 
-   m_mapper = 73;
+   m_dbCartRegisters = dbRegisters;
 
-   m_dbRegisters = dbRegisters;
-
-   CROM::RESET ( m_mapper, soft );
+   CROM::RESET ( soft );
 
    m_irqReload = 0;
    m_irqCounter = 0;
    m_irqEnabled = false;
 
-   m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 0 ];
-   m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ 1 ];
-   m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ m_numPrgBanks-2 ];
-   m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ m_numPrgBanks-1 ];
+   m_PRGROMmemory.REMAP(2,m_numPrgBanks-2);
+   m_PRGROMmemory.REMAP(3,m_numPrgBanks-1);
 
    // CHR ROM/RAM already set up in CROM::RESET()...
 }
@@ -146,12 +142,12 @@ void CROMMapper073::SYNCCPU ( void )
          m_irqCounter &= (~counterMask);
          m_irqCounter |= m_irqReload&counterMask;
 
-         C6502::ASSERTIRQ(eNESSource_Mapper);
+         CNES::NES()->CPU()->ASSERTIRQ(eNESSource_Mapper);
 
          if ( nesIsDebuggable() )
          {
             // Check for IRQ breakpoint...
-            CNES::CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperEvent,0,MAPPER_EVENT_IRQ);
+            CNES::NES()->CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperEvent,0,MAPPER_EVENT_IRQ);
          }
       }
    }
@@ -220,7 +216,7 @@ void CROMMapper073::HMAPPER ( uint32_t addr, uint8_t data )
       m_reg[4] = data;
       m_irqCounter = m_irqReload;
       m_irqEnabled = data&0x02;
-      C6502::RELEASEIRQ(eNESSource_Mapper);
+      CNES::NES()->CPU()->RELEASEIRQ(eNESSource_Mapper);
       break;
    case 0xD000:
       reg = 5;
@@ -235,19 +231,19 @@ void CROMMapper073::HMAPPER ( uint32_t addr, uint8_t data )
       {
          m_irqEnabled = false;
       }
-      C6502::RELEASEIRQ(eNESSource_Mapper);
+      CNES::NES()->CPU()->RELEASEIRQ(eNESSource_Mapper);
       break;
    case 0xF000:
       reg = 6;
       m_reg[6] = data;
-      m_pPRGROMmemory[0] = m_PRGROMmemory[((data<<1)%m_numPrgBanks)+0];
-      m_pPRGROMmemory[1] = m_PRGROMmemory[((data<<1)%m_numPrgBanks)+1];
+      m_PRGROMmemory.REMAP(0,((data<<1)&(m_numPrgBanks-1))+0);
+      m_PRGROMmemory.REMAP(1,((data<<1)&(m_numPrgBanks-1))+1);
       break;
    }
 
    if ( nesIsDebuggable() )
    {
       // Check mapper state breakpoints...
-      CNES::CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperState,reg);
+      CNES::NES()->CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperState,reg);
    }
 }

@@ -306,29 +306,29 @@ static const char* columnHeadings [] =
 
 static CRegisterDatabase* dbRegisters = new CRegisterDatabase(eMemory_cartMapper,1,44,44,tblRegisters,rowHeadings,columnHeadings);
 
-uint8_t  CROMMapper005::m_prgMode = 0;
-uint8_t  CROMMapper005::m_chrMode = 0;
-uint8_t  CROMMapper005::m_chrHigh = 0;
-uint8_t  CROMMapper005::m_irqScanline = 0;
-uint8_t  CROMMapper005::m_irqEnabled = 0;
-uint8_t  CROMMapper005::m_irqStatus = 0;
-bool           CROMMapper005::m_prgRAM [] = { false, false, false };
-bool           CROMMapper005::m_wp = false;
-uint8_t  CROMMapper005::m_wp1 = 0;
-uint8_t  CROMMapper005::m_wp2 = 0;
-uint8_t  CROMMapper005::m_mult1 = 0;
-uint8_t  CROMMapper005::m_mult2 = 0;
-uint16_t CROMMapper005::m_prod = 0;
-uint8_t  CROMMapper005::m_fillTile = 0;
-uint8_t  CROMMapper005::m_fillAttr = 0;
-uint32_t CROMMapper005::m_ppuCycle = 0;
-uint8_t  CROMMapper005::m_chr[] = { 0, };
-uint8_t  CROMMapper005::m_reg[] = { 0, };
-CAPUSquare CROMMapper005::m_square[2];
-CAPUDMC    CROMMapper005::m_dmc;
+uint32_t CROMMapper005::m_soundEnableMask = 0xffffffff;
 
 CROMMapper005::CROMMapper005()
+   : CROM(5)
 {
+   m_prgMode = 0;
+   m_chrMode = 0;
+   m_chrHigh = 0;
+   m_irqScanline = 0;
+   m_irqEnabled = 0;
+   m_irqStatus = 0;
+   memset(m_prgRAM,false,sizeof(m_prgRAM));
+   m_wp = false;
+   m_wp1 = 0;
+   m_wp2 = 0;
+   m_mult1 = 0;
+   m_mult2 = 0;
+   m_prod = 0;
+   m_fillTile = 0;
+   m_fillAttr = 0;
+   m_ppuCycle = 0;
+   memset(m_reg,0,sizeof(m_reg));
+   memset(m_chr,0,sizeof(m_chr));
 }
 
 CROMMapper005::~CROMMapper005()
@@ -337,15 +337,13 @@ CROMMapper005::~CROMMapper005()
 
 void CROMMapper005::RESET ( bool soft )
 {
-   m_mapper = 5;
-
-   m_dbRegisters = dbRegisters;
+   m_dbCartRegisters = dbRegisters;
 
    m_square[0].RESET();
    m_square[1].RESET();
    m_dmc.RESET();
 
-   CROM::RESET ( m_mapper, soft );
+   CROM::RESET ( soft );
 
    m_prgMode = 0;
    m_chrMode = 0;
@@ -353,21 +351,19 @@ void CROMMapper005::RESET ( bool soft )
    m_irqScanline = 0;
    m_irqStatus = 0;
 
-   m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 0 ];
    m_prgRAM [ 0 ] = false;
-   m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ 1 ];
    m_prgRAM [ 1 ] = false;
    if ( m_numPrgBanks == 2 )
    {
-      m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ 0 ];
+      m_PRGROMmemory.REMAP(2,0);
       m_prgRAM [ 2 ] = false;
    }
    else
    {
-      m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ 2 ];
+      m_PRGROMmemory.REMAP(2,2);
       m_prgRAM [ 2 ] = false;
    }
-   m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ m_numPrgBanks-1 ];
+   m_PRGROMmemory.REMAP(3,m_numPrgBanks-1);
 
    // CHR ROM/RAM already set up in CROM::RESET()...
 }
@@ -390,7 +386,7 @@ void CROMMapper005::SYNCPPU ( uint32_t ppuCycle, uint32_t ppuAddr )
    if ( scanline < 239 )
    {
       m_irqStatus = 0x40;
-      C6502::RELEASEIRQ(eNESSource_Mapper);
+      CNES::NES()->CPU()->RELEASEIRQ(eNESSource_Mapper);
    }
 
    if ( scanline == 239 )
@@ -405,12 +401,12 @@ void CROMMapper005::SYNCPPU ( uint32_t ppuCycle, uint32_t ppuAddr )
 
    if ( m_irqEnabled && (m_irqStatus&0x80) )
    {
-      C6502::ASSERTIRQ ( eNESSource_Mapper );
+      CNES::NES()->CPU()->ASSERTIRQ ( eNESSource_Mapper );
 
       if ( nesIsDebuggable() )
       {
          // Check for IRQ breakpoint...
-         CNES::CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperEvent,0,MAPPER_EVENT_IRQ);
+         CNES::NES()->CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperEvent,0,MAPPER_EVENT_IRQ);
       }
    }
 }
@@ -427,26 +423,26 @@ void CROMMapper005::SETPPU ( void )
         (rasterX < 320) )
    {
       // Sprite fetches
-      m_pCHRmemory [ 0 ] = m_CHRmemory [ (m_chrHigh<<8)|m_chr[0] ];
-      m_pCHRmemory [ 1 ] = m_CHRmemory [ (m_chrHigh<<8)|m_chr[1] ];
-      m_pCHRmemory [ 2 ] = m_CHRmemory [ (m_chrHigh<<8)|m_chr[2] ];
-      m_pCHRmemory [ 3 ] = m_CHRmemory [ (m_chrHigh<<8)|m_chr[3] ];
-      m_pCHRmemory [ 4 ] = m_CHRmemory [ (m_chrHigh<<8)|m_chr[4] ];
-      m_pCHRmemory [ 5 ] = m_CHRmemory [ (m_chrHigh<<8)|m_chr[5] ];
-      m_pCHRmemory [ 6 ] = m_CHRmemory [ (m_chrHigh<<8)|m_chr[6] ];
-      m_pCHRmemory [ 7 ] = m_CHRmemory [ (m_chrHigh<<8)|m_chr[7] ];
+      m_CHRmemory.REMAP(0,(m_chrHigh<<8)|m_chr[0]);
+      m_CHRmemory.REMAP(1,(m_chrHigh<<8)|m_chr[1]);
+      m_CHRmemory.REMAP(2,(m_chrHigh<<8)|m_chr[2]);
+      m_CHRmemory.REMAP(3,(m_chrHigh<<8)|m_chr[3]);
+      m_CHRmemory.REMAP(4,(m_chrHigh<<8)|m_chr[4]);
+      m_CHRmemory.REMAP(5,(m_chrHigh<<8)|m_chr[5]);
+      m_CHRmemory.REMAP(6,(m_chrHigh<<8)|m_chr[6]);
+      m_CHRmemory.REMAP(7,(m_chrHigh<<8)|m_chr[7]);
    }
    else
    {
       // Background fetches
-      m_pCHRmemory [ 0 ] = m_CHRmemory [ (m_chrHigh<<8)|m_chr[8] ];
-      m_pCHRmemory [ 1 ] = m_CHRmemory [ (m_chrHigh<<8)|m_chr[9] ];
-      m_pCHRmemory [ 2 ] = m_CHRmemory [ (m_chrHigh<<8)|m_chr[10] ];
-      m_pCHRmemory [ 3 ] = m_CHRmemory [ (m_chrHigh<<8)|m_chr[11] ];
-      m_pCHRmemory [ 4 ] = m_CHRmemory [ (m_chrHigh<<8)|m_chr[8] ];
-      m_pCHRmemory [ 5 ] = m_CHRmemory [ (m_chrHigh<<8)|m_chr[9] ];
-      m_pCHRmemory [ 6 ] = m_CHRmemory [ (m_chrHigh<<8)|m_chr[10] ];
-      m_pCHRmemory [ 7 ] = m_CHRmemory [ (m_chrHigh<<8)|m_chr[11] ];
+      m_CHRmemory.REMAP(0,(m_chrHigh<<8)|m_chr[8]);
+      m_CHRmemory.REMAP(1,(m_chrHigh<<8)|m_chr[9]);
+      m_CHRmemory.REMAP(2,(m_chrHigh<<8)|m_chr[10]);
+      m_CHRmemory.REMAP(3,(m_chrHigh<<8)|m_chr[11]);
+      m_CHRmemory.REMAP(4,(m_chrHigh<<8)|m_chr[8]);
+      m_CHRmemory.REMAP(5,(m_chrHigh<<8)|m_chr[9]);
+      m_CHRmemory.REMAP(6,(m_chrHigh<<8)|m_chr[10]);
+      m_CHRmemory.REMAP(7,(m_chrHigh<<8)|m_chr[11]);
    }
 }
 
@@ -639,7 +635,7 @@ uint32_t CROMMapper005::LMAPPER ( uint32_t addr )
          case 0x5204:
             data = m_irqStatus;
             m_irqStatus &= ~(0x80);
-            C6502::RELEASEIRQ ( eNESSource_Mapper );
+            CNES::NES()->CPU()->RELEASEIRQ ( eNESSource_Mapper );
             break;
          case 0x5205:
             data = m_prod&0xFF;
@@ -755,7 +751,7 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
          break;
       case 0x5105:
          m_reg[16] = data;
-         CPPU::MIRROR ( data&0x03, (data&0x0C)>>2, (data&0x30)>>4, (data&0xC0)>>6 );
+         CNES::NES()->PPU()->MIRROR ( data&0x03, (data&0x0C)>>2, (data&0x30)>>4, (data&0xC0)>>6 );
          break;
       case 0x5106:
          m_reg[17] = data;
@@ -789,7 +785,7 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
             }
             else
             {
-               m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ data ];
+               m_PRGROMmemory.REMAP(0,data);
             }
          }
 
@@ -815,8 +811,8 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
             }
             else
             {
-               m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ (data&0xFE)+0 ];
-               m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ (data&0xFE)+1 ];
+               m_PRGROMmemory.REMAP(0,(data&0xFE)+0);
+               m_PRGROMmemory.REMAP(1,(data&0xFE)+1);
             }
          }
          else if ( m_prgMode == 3 )
@@ -828,7 +824,7 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
             }
             else
             {
-               m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ data ];
+               m_PRGROMmemory.REMAP(1,data);
             }
          }
 
@@ -852,7 +848,7 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
             }
             else
             {
-               m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ data ];
+               m_PRGROMmemory.REMAP(2,data);
             }
          }
 
@@ -861,19 +857,19 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
          m_reg[23] = data;
          if ( m_prgMode == 0 )
          {
-            m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ (data&0xFC)+0 ];
-            m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ (data&0xFC)+1 ];
-            m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ (data&0xFC)+2 ];
-            m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ (data&0xFC)+3 ];
+            m_PRGROMmemory.REMAP(0,(data&0xFC)+0);
+            m_PRGROMmemory.REMAP(1,(data&0xFC)+1);
+            m_PRGROMmemory.REMAP(2,(data&0xFC)+2);
+            m_PRGROMmemory.REMAP(3,(data&0xFC)+3);
          }
          else if ( m_prgMode == 1 )
          {
-            m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ (data&0xFE)+0 ];
-            m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ (data&0xFE)+1 ];
+            m_PRGROMmemory.REMAP(2,(data&0xFE)+0);
+            m_PRGROMmemory.REMAP(3,(data&0xFE)+1);
          }
          else if ( (m_prgMode == 2) || (m_prgMode == 3) )
          {
-            m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ data ];
+            m_PRGROMmemory.REMAP(3,data);
          }
 
          break;
@@ -1072,6 +1068,10 @@ uint16_t CROMMapper005::AMPLITUDE ( void )
    uint8_t* dmcDacSamples = m_dmc.GETDACSAMPLES();
    static int32_t outDownsampled = 0;
 
+   m_square[0].MUTE(!(m_soundEnableMask&0x01));
+   m_square[1].MUTE(!(m_soundEnableMask&0x02));
+   m_dmc.MUTE(!(m_soundEnableMask&0x04));
+
    for ( sample = 0; sample < m_square[0].GETDACSAMPLECOUNT(); sample++ )
    {
 //      output = square_out + tnd_out
@@ -1120,11 +1120,4 @@ uint16_t CROMMapper005::AMPLITUDE ( void )
    m_dmc.CLEARDACAVG();
 
    return outDownsampled;
-}
-
-void CROMMapper005::SOUNDENABLE(uint32_t mask)
-{
-   m_square[0].MUTE(0);//!(mask&0x01));
-   m_square[1].MUTE(0);//!(mask&0x02));
-   m_dmc.MUTE(0);//!(mask&0x04));
 }

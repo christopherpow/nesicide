@@ -699,8 +699,17 @@ void MainWindow::createNesUi()
    actionPulse_2VRC6->setObjectName(QString::fromUtf8("actionPulse_2VRC6"));
    actionPulse_2VRC6->setCheckable(true);
    actionSawtoothVRC6 = new QAction("Sawtooth",this);
-   actionSawtoothVRC6->setObjectName(QString::fromUtf8("actionTriangle"));
+   actionSawtoothVRC6->setObjectName(QString::fromUtf8("actionSawtoothVRC6"));
    actionSawtoothVRC6->setCheckable(true);
+   actionSquare_1MMC5 = new QAction("Square 1",this);
+   actionSquare_1MMC5->setObjectName(QString::fromUtf8("actionSquare_1MMC5"));
+   actionSquare_1MMC5->setCheckable(true);
+   actionSquare_2MMC5 = new QAction("Square 2",this);
+   actionSquare_2MMC5->setObjectName(QString::fromUtf8("actionSquare_2MMC5"));
+   actionSquare_2MMC5->setCheckable(true);
+   actionDMCMMC5 = new QAction("DMC",this);
+   actionDMCMMC5->setObjectName(QString::fromUtf8("actionDMCMMC5"));
+   actionDMCMMC5->setCheckable(true);
    actionWave_1N106 = new QAction("Wave 1",this);
    actionWave_1N106->setObjectName(QString::fromUtf8("actionWave_1N106"));
    actionWave_1N106->setCheckable(true);
@@ -774,6 +783,8 @@ void MainWindow::createNesUi()
    menuSystem->setObjectName(QString::fromUtf8("menuSystem"));
    menuAudio = new QMenu("Audio",menuEmulator);
    menuAudio->setObjectName(QString::fromUtf8("menuAudio"));
+   menuAudioMMC5 = new QMenu("MMC5",menuAudio);
+   menuAudioMMC5->setObjectName(QString::fromUtf8("menuAudioMMC5"));
    menuAudioVRC6 = new QMenu("VRC6",menuAudio);
    menuAudioVRC6->setObjectName(QString::fromUtf8("menuAudioVRC6"));
    menuAudioN106 = new QMenu("Namco 106",menuAudio);
@@ -841,8 +852,12 @@ void MainWindow::createNesUi()
    menuAudio->addAction(actionTriangle);
    menuAudio->addAction(actionNoise);
    menuAudio->addAction(actionDelta_Modulation);
+   menuAudio->addAction(menuAudioMMC5->menuAction());
    menuAudio->addAction(menuAudioVRC6->menuAction());
    menuAudio->addAction(menuAudioN106->menuAction());
+   menuAudioMMC5->addAction(actionSquare_1MMC5);
+   menuAudioMMC5->addAction(actionSquare_2MMC5);
+   menuAudioMMC5->addAction(actionDMCMMC5);
    menuAudioVRC6->addAction(actionPulse_1VRC6);
    menuAudioVRC6->addAction(actionPulse_2VRC6);
    menuAudioVRC6->addAction(actionSawtoothVRC6);
@@ -1117,6 +1132,9 @@ void MainWindow::createNesUi()
    QObject::connect(actionPulse_1VRC6,SIGNAL(toggled(bool)),this,SLOT(actionPulse_1VRC6_toggled(bool)));
    QObject::connect(actionPulse_2VRC6,SIGNAL(toggled(bool)),this,SLOT(actionPulse_2VRC6_toggled(bool)));
    QObject::connect(actionSawtoothVRC6,SIGNAL(toggled(bool)),this,SLOT(actionSawtoothVRC6_toggled(bool)));
+   QObject::connect(actionSquare_1MMC5,SIGNAL(toggled(bool)),this,SLOT(actionSquare_1MMC5_toggled(bool)));
+   QObject::connect(actionSquare_2MMC5,SIGNAL(toggled(bool)),this,SLOT(actionSquare_2MMC5_toggled(bool)));
+   QObject::connect(actionDMCMMC5,SIGNAL(toggled(bool)),this,SLOT(actionDMCMMC5_toggled(bool)));
    QObject::connect(actionWave_1N106,SIGNAL(toggled(bool)),this,SLOT(actionWave_1N106_toggled(bool)));
    QObject::connect(actionWave_2N106,SIGNAL(toggled(bool)),this,SLOT(actionWave_2N106_toggled(bool)));
    QObject::connect(actionWave_3N106,SIGNAL(toggled(bool)),this,SLOT(actionWave_3N106_toggled(bool)));
@@ -1309,6 +1327,9 @@ void MainWindow::destroyNesUi()
    delete actionPulse_1VRC6;
    delete actionPulse_2VRC6;
    delete actionSawtoothVRC6;
+   delete actionSquare_1MMC5;
+   delete actionSquare_2MMC5;
+   delete actionDMCMMC5;
    delete actionWave_1N106;
    delete actionWave_2N106;
    delete actionWave_3N106;
@@ -3069,6 +3090,54 @@ void MainWindow::actionPulse_1VRC6_toggled(bool value)
    }
 }
 
+void MainWindow::actionDMCMMC5_toggled(bool value)
+{
+   EmulatorPrefsDialog::setDMCMMC5Enabled(value);
+   if ( value )
+   {
+      nesSetMMC5AudioChannelMask(EmulatorPrefsDialog::getSquare1MMC5Enabled()|
+                                 0x04|
+                                 (EmulatorPrefsDialog::getDMCMMC5Enabled()<<2));
+   }
+   else
+   {
+      nesSetMMC5AudioChannelMask(EmulatorPrefsDialog::getSquare1MMC5Enabled()|
+                                 (EmulatorPrefsDialog::getDMCMMC5Enabled()<<2));
+   }
+}
+
+void MainWindow::actionSquare_2MMC5_toggled(bool value)
+{
+   EmulatorPrefsDialog::setSquare2MMC5Enabled(value);
+   if ( value )
+   {
+      nesSetMMC5AudioChannelMask(EmulatorPrefsDialog::getSquare1MMC5Enabled()|
+                                 (EmulatorPrefsDialog::getSquare2MMC5Enabled()<<1)|
+                                 0x04);
+   }
+   else
+   {
+      nesSetMMC5AudioChannelMask(EmulatorPrefsDialog::getSquare1MMC5Enabled()|
+                                 (EmulatorPrefsDialog::getSquare2MMC5Enabled()<<1));
+   }
+}
+
+void MainWindow::actionSquare_1MMC5_toggled(bool value)
+{
+   EmulatorPrefsDialog::setSquare1MMC5Enabled(value);
+   if ( value )
+   {
+      nesSetMMC5AudioChannelMask(0x01|
+                                 (EmulatorPrefsDialog::getSquare2MMC5Enabled()<<1)|
+                                 (EmulatorPrefsDialog::getDMCMMC5Enabled()<<2));
+   }
+   else
+   {
+      nesSetMMC5AudioChannelMask((EmulatorPrefsDialog::getSquare2MMC5Enabled()<<1)|
+                                 (EmulatorPrefsDialog::getDMCMMC5Enabled()<<2));
+   }
+}
+
 void MainWindow::actionWave_8N106_toggled(bool value)
 {
    EmulatorPrefsDialog::setWave8N106Enabled(value);
@@ -3330,6 +3399,16 @@ void MainWindow::updateFromEmulatorPrefs(bool initial)
       actionPulse_2VRC6->setChecked(pulse2VRC6);
       actionSawtoothVRC6->setChecked(sawtoothVRC6);
       nesSetVRC6AudioChannelMask(mask);
+
+      bool square1MMC5 = EmulatorPrefsDialog::getSquare1MMC5Enabled();
+      bool square2MMC5 = EmulatorPrefsDialog::getSquare2MMC5Enabled();
+      bool dmcMMC5 = EmulatorPrefsDialog::getDMCMMC5Enabled();
+      mask = ((square1MMC5<<0)|(square2MMC5<<1)|(dmcMMC5<<2));
+
+      actionSquare_1MMC5->setChecked(square1MMC5);
+      actionSquare_2MMC5->setChecked(square2MMC5);
+      actionDMCMMC5->setChecked(dmcMMC5);
+      nesSetMMC5AudioChannelMask(mask);
 
       bool wave1N106 = EmulatorPrefsDialog::getWave1N106Enabled();
       bool wave2N106 = EmulatorPrefsDialog::getWave2N106Enabled();

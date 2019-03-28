@@ -65,10 +65,10 @@ static const char* columnHeadings [] =
 static CRegisterDatabase* dbRegisters = new CRegisterDatabase(eMemory_cartMapper,1,8,8,tblRegisters,rowHeadings,columnHeadings);
 
 // Sunsoft Mapper #4 stuff
-uint8_t  CROMMapper068::m_reg [] = { 0x00, };
-
 CROMMapper068::CROMMapper068()
+   : CROM(68)
 {
+   memset(m_reg,0,sizeof(m_reg));
 }
 
 CROMMapper068::~CROMMapper068()
@@ -79,21 +79,17 @@ void CROMMapper068::RESET ( bool soft )
 {
    int32_t idx;
 
-   m_mapper = 68;
+   m_dbCartRegisters = dbRegisters;
 
-   m_dbRegisters = dbRegisters;
-
-   CROM::RESET ( m_mapper, soft );
+   CROM::RESET ( soft );
 
    for ( idx = 0; idx < 4; idx++ )
    {
       m_reg [ idx ] = 0x00;
    }
 
-   m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 0 ];
-   m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ 1 ];
-   m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ m_numPrgBanks-2 ];
-   m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ m_numPrgBanks-1 ];
+   m_PRGROMmemory.REMAP(2,m_numPrgBanks-2);
+   m_PRGROMmemory.REMAP(3,m_numPrgBanks-1);
 
    // CHR ROM/RAM already set up in CROM::RESET()...
 }
@@ -135,23 +131,23 @@ void CROMMapper068::HMAPPER ( uint32_t addr, uint8_t data )
    {
    case 0x8000:
       m_reg[0] = data;
-      m_pCHRmemory [ 0 ] = m_CHRmemory [ (data<<1)+0 ];
-      m_pCHRmemory [ 1 ] = m_CHRmemory [ (data<<1)+1 ];
+      m_CHRmemory.REMAP(0,(data<<1)+0);
+      m_CHRmemory.REMAP(1,(data<<1)+1);
       break;
    case 0x9000:
       m_reg[1] = data;
-      m_pCHRmemory [ 2 ] = m_CHRmemory [ (data<<1)+0 ];
-      m_pCHRmemory [ 3 ] = m_CHRmemory [ (data<<1)+1 ];
+      m_CHRmemory.REMAP(2,(data<<1)+0);
+      m_CHRmemory.REMAP(3,(data<<1)+1);
       break;
    case 0xA000:
       m_reg[2] = data;
-      m_pCHRmemory [ 4 ] = m_CHRmemory [ (data<<1)+0 ];
-      m_pCHRmemory [ 5 ] = m_CHRmemory [ (data<<1)+1 ];
+      m_CHRmemory.REMAP(4,(data<<1)+0);
+      m_CHRmemory.REMAP(5,(data<<1)+1);
       break;
    case 0xB000:
       m_reg[3] = data;
-      m_pCHRmemory [ 6 ] = m_CHRmemory [ (data<<1)+0 ];
-      m_pCHRmemory [ 7 ] = m_CHRmemory [ (data<<1)+1 ];
+      m_CHRmemory.REMAP(6,(data<<1)+0);
+      m_CHRmemory.REMAP(7,(data<<1)+1);
       break;
    case 0xC000:
       m_reg [ 4 ] = data|0x80;
@@ -161,16 +157,16 @@ void CROMMapper068::HMAPPER ( uint32_t addr, uint8_t data )
          switch ( m_reg[6]&0x01 )
          {
          case 0:
-            CPPU::REMAPVRAM ( 0x0, m_CHRmemory [ m_reg[4] ] );
-            CPPU::REMAPVRAM ( 0x1, m_CHRmemory [ m_reg[5] ] );
-            CPPU::REMAPVRAM ( 0x2, m_CHRmemory [ m_reg[4] ] );
-            CPPU::REMAPVRAM ( 0x3, m_CHRmemory [ m_reg[5] ] );
+            m_VRAMmemory.REMAPEXT ( 0x0, m_CHRmemory.PHYSBANK(m_reg[4]) );
+            m_VRAMmemory.REMAPEXT ( 0x1, m_CHRmemory.PHYSBANK(m_reg[5]) );
+            m_VRAMmemory.REMAPEXT ( 0x2, m_CHRmemory.PHYSBANK(m_reg[4]) );
+            m_VRAMmemory.REMAPEXT ( 0x3, m_CHRmemory.PHYSBANK(m_reg[5]) );
             break;
          case 1:
-            CPPU::REMAPVRAM ( 0x0, m_CHRmemory [ m_reg[4] ] );
-            CPPU::REMAPVRAM ( 0x1, m_CHRmemory [ m_reg[4] ] );
-            CPPU::REMAPVRAM ( 0x2, m_CHRmemory [ m_reg[5] ] );
-            CPPU::REMAPVRAM ( 0x3, m_CHRmemory [ m_reg[5] ] );
+            m_VRAMmemory.REMAPEXT ( 0x0, m_CHRmemory.PHYSBANK(m_reg[4]) );
+            m_VRAMmemory.REMAPEXT ( 0x1, m_CHRmemory.PHYSBANK(m_reg[4]) );
+            m_VRAMmemory.REMAPEXT ( 0x2, m_CHRmemory.PHYSBANK(m_reg[5]) );
+            m_VRAMmemory.REMAPEXT ( 0x3, m_CHRmemory.PHYSBANK(m_reg[5]) );
             break;
          }
       }
@@ -179,10 +175,10 @@ void CROMMapper068::HMAPPER ( uint32_t addr, uint8_t data )
          switch ( m_reg[6]&0x01 )
          {
             case 0:
-               CPPU::MIRRORVERT ();
+               CNES::NES()->PPU()->MIRRORVERT ();
                break;
             case 1:
-               CPPU::MIRRORHORIZ ();
+               CNES::NES()->PPU()->MIRRORHORIZ ();
                break;
          }
       }
@@ -196,16 +192,16 @@ void CROMMapper068::HMAPPER ( uint32_t addr, uint8_t data )
          switch ( m_reg[6]&0x01 )
          {
          case 0:
-            CPPU::REMAPVRAM ( 0x0, m_CHRmemory [ m_reg[4] ] );
-            CPPU::REMAPVRAM ( 0x1, m_CHRmemory [ m_reg[5] ] );
-            CPPU::REMAPVRAM ( 0x0, m_CHRmemory [ m_reg[4] ] );
-            CPPU::REMAPVRAM ( 0x1, m_CHRmemory [ m_reg[5] ] );
+            m_VRAMmemory.REMAPEXT ( 0x0, m_CHRmemory.PHYSBANK(m_reg[4]) );
+            m_VRAMmemory.REMAPEXT ( 0x1, m_CHRmemory.PHYSBANK(m_reg[5]) );
+            m_VRAMmemory.REMAPEXT ( 0x0, m_CHRmemory.PHYSBANK(m_reg[4]) );
+            m_VRAMmemory.REMAPEXT ( 0x1, m_CHRmemory.PHYSBANK(m_reg[5]) );
             break;
          case 1:
-            CPPU::REMAPVRAM ( 0x0, m_CHRmemory [ m_reg[4] ] );
-            CPPU::REMAPVRAM ( 0x1, m_CHRmemory [ m_reg[4] ] );
-            CPPU::REMAPVRAM ( 0x0, m_CHRmemory [ m_reg[5] ] );
-            CPPU::REMAPVRAM ( 0x1, m_CHRmemory [ m_reg[5] ] );
+            m_VRAMmemory.REMAPEXT ( 0x0, m_CHRmemory.PHYSBANK(m_reg[4]) );
+            m_VRAMmemory.REMAPEXT ( 0x1, m_CHRmemory.PHYSBANK(m_reg[4]) );
+            m_VRAMmemory.REMAPEXT ( 0x0, m_CHRmemory.PHYSBANK(m_reg[5]) );
+            m_VRAMmemory.REMAPEXT ( 0x1, m_CHRmemory.PHYSBANK(m_reg[5]) );
             break;
          }
       }
@@ -214,10 +210,10 @@ void CROMMapper068::HMAPPER ( uint32_t addr, uint8_t data )
          switch ( m_reg[6]&0x01 )
          {
             case 0:
-               CPPU::MIRRORVERT ();
+               CNES::NES()->PPU()->MIRRORVERT ();
                break;
             case 1:
-               CPPU::MIRRORHORIZ ();
+               CNES::NES()->PPU()->MIRRORHORIZ ();
                break;
          }
       }
@@ -231,16 +227,16 @@ void CROMMapper068::HMAPPER ( uint32_t addr, uint8_t data )
          switch ( m_reg[6]&0x01 )
          {
          case 0:
-            CPPU::REMAPVRAM ( 0x0, m_CHRmemory [ m_reg[4] ] );
-            CPPU::REMAPVRAM ( 0x1, m_CHRmemory [ m_reg[5] ] );
-            CPPU::REMAPVRAM ( 0x0, m_CHRmemory [ m_reg[4] ] );
-            CPPU::REMAPVRAM ( 0x1, m_CHRmemory [ m_reg[5] ] );
+            m_VRAMmemory.REMAPEXT ( 0x0, m_CHRmemory.PHYSBANK(m_reg[4]) );
+            m_VRAMmemory.REMAPEXT ( 0x1, m_CHRmemory.PHYSBANK(m_reg[5]) );
+            m_VRAMmemory.REMAPEXT ( 0x0, m_CHRmemory.PHYSBANK(m_reg[4]) );
+            m_VRAMmemory.REMAPEXT ( 0x1, m_CHRmemory.PHYSBANK(m_reg[5]) );
             break;
          case 1:
-            CPPU::REMAPVRAM ( 0x0, m_CHRmemory [ m_reg[4] ] );
-            CPPU::REMAPVRAM ( 0x1, m_CHRmemory [ m_reg[4] ] );
-            CPPU::REMAPVRAM ( 0x0, m_CHRmemory [ m_reg[5] ] );
-            CPPU::REMAPVRAM ( 0x1, m_CHRmemory [ m_reg[5] ] );
+            m_VRAMmemory.REMAPEXT ( 0x0, m_CHRmemory.PHYSBANK(m_reg[4]) );
+            m_VRAMmemory.REMAPEXT ( 0x1, m_CHRmemory.PHYSBANK(m_reg[4]) );
+            m_VRAMmemory.REMAPEXT ( 0x0, m_CHRmemory.PHYSBANK(m_reg[5]) );
+            m_VRAMmemory.REMAPEXT ( 0x1, m_CHRmemory.PHYSBANK(m_reg[5]) );
             break;
          }
       }
@@ -249,10 +245,10 @@ void CROMMapper068::HMAPPER ( uint32_t addr, uint8_t data )
          switch ( m_reg[6]&0x01 )
          {
             case 0:
-               CPPU::MIRRORVERT ();
+               CNES::NES()->PPU()->MIRRORVERT ();
                break;
             case 1:
-               CPPU::MIRRORHORIZ ();
+               CNES::NES()->PPU()->MIRRORHORIZ ();
                break;
          }
       }
@@ -260,8 +256,8 @@ void CROMMapper068::HMAPPER ( uint32_t addr, uint8_t data )
       break;
    case 0xF000:
       m_reg[7] = data;
-      m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ (data<<1)+0 ];
-      m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ (data<<1)+1 ];
+      m_PRGROMmemory.REMAP(0,(data<<1)+0);
+      m_PRGROMmemory.REMAP(1,(data<<1)+1);
       break;
    }
 }

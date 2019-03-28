@@ -47,6 +47,9 @@ public:
    static bool getPulse1VRC6Enabled() { return pulse1VRC6Enabled; }
    static bool getPulse2VRC6Enabled() { return pulse2VRC6Enabled; }
    static bool getSawtoothVRC6Enabled() { return sawtoothVRC6Enabled; }
+   static bool getSquare1MMC5Enabled() { return square1MMC5Enabled; }
+   static bool getSquare2MMC5Enabled() { return square2MMC5Enabled; }
+   static bool getDMCMMC5Enabled() { return dmcMMC5Enabled; }
    static bool getWave1N106Enabled() { return wave1N106Enabled; }
    static bool getWave2N106Enabled() { return wave2N106Enabled; }
    static bool getWave3N106Enabled() { return wave3N106Enabled; }
@@ -79,6 +82,9 @@ public:
    static void setPulse1VRC6Enabled(bool enabled);
    static void setPulse2VRC6Enabled(bool enabled);
    static void setSawtoothVRC6Enabled(bool enabled);
+   static void setSquare1MMC5Enabled(bool enabled);
+   static void setSquare2MMC5Enabled(bool enabled);
+   static void setDMCMMC5Enabled(bool enabled);
    static void setWave1N106Enabled(bool enabled);
    static void setWave2N106Enabled(bool enabled);
    static void setWave3N106Enabled(bool enabled);
@@ -122,6 +128,9 @@ private:
    static bool pulse1VRC6Enabled;
    static bool pulse2VRC6Enabled;
    static bool sawtoothVRC6Enabled;
+   static bool square1MMC5Enabled;
+   static bool square2MMC5Enabled;
+   static bool dmcMMC5Enabled;
    static bool wave1N106Enabled;
    static bool wave2N106Enabled;
    static bool wave3N106Enabled;

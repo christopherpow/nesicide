@@ -51,214 +51,6 @@ wavHdr wavOutHdr;
 wavChunkHdr wavChunk;
 wavFmtChunk wavFmt;
 
-// APU Event breakpoints
-bool apuIRQEvent(BreakpointInfo* pBreakpoint,int data)
-{
-   // This breakpoint is checked in the right place
-   // so if this breakpoint is enabled it should always fire when called.
-   return true;
-}
-
-bool apuLengthCounterClockedEvent(BreakpointInfo* pBreakpoint,int data)
-{
-   // This breakpoint is checked in the right place
-   // so if this breakpoint is enabled it should always fire when called.
-   return true;
-}
-
-bool apuDMAEvent(BreakpointInfo* pBreakpoint,int data)
-{
-   // This breakpoint is checked in the right place
-   // so if this breakpoint is enabled it should always fire when called.
-   return true;
-}
-
-bool apuDACEvent(BreakpointInfo* pBreakpoint,int data)
-{
-   if ( data == pBreakpoint->item1 )
-      return true;
-   return false;
-}
-
-static CBreakpointEventInfo* tblAPUEvents [] =
-{
-   new CBreakpointEventInfo("IRQ", apuIRQEvent, 0, "Break if APU asserts IRQ", 10),
-   new CBreakpointEventInfo("DMC channel DMA", apuDMAEvent, 0, "Break if APU DMC channel DMA occurs", 10),
-   new CBreakpointEventInfo("Length Counter Clocked", apuLengthCounterClockedEvent, 0, "Break if APU sequencer clocks Length Counter", 10),
-   new CBreakpointEventInfo("Square 1 DAC value", apuDACEvent, 1, "Break if APU square 1 channel DAC equals %d",10,"DAC value"),
-   new CBreakpointEventInfo("Square 2 DAC value", apuDACEvent, 1, "Break if APU square 2 channel DAC equals %d",10,"DAC value"),
-   new CBreakpointEventInfo("Triangle DAC value", apuDACEvent, 1, "Break if APU triangle channel DAC equals %d",10,"DAC value"),
-   new CBreakpointEventInfo("Noise DAC value", apuDACEvent, 1, "Break if APU noise channel DAC equals %d",10,"DAC value"),
-   new CBreakpointEventInfo("DMC DAC value", apuDACEvent, 1, "Break if APU DMC channel DAC equals %d",10,"DAC value")
-};
-
-// APU Registers
-static CBitfieldData* tblAPUSQCTRLBitfields [] =
-{
-   new CBitfieldData("Duty Cycle", 6, 2, "%X", 4, "25%", "50%", "75%", "12.5%"),
-   new CBitfieldData("Channel State", 5, 1, "%X", 2, "Running", "Halted"),
-   new CBitfieldData("Envelope Disabled", 4, 1, "%X", 2, "No", "Yes"),
-   new CBitfieldData("Volume/Envelope", 0, 4, "%X", 0)
-};
-
-static CBitfieldData* tblAPUSQSWEEPBitfields [] =
-{
-   new CBitfieldData("Sweep Enabled", 7, 1, "%X", 2, "No", "Yes"),
-   new CBitfieldData("Sweep Divider", 4, 3, "%X", 0),
-   new CBitfieldData("Sweep Direction", 3, 1, "%X", 2, "Down", "Up"),
-   new CBitfieldData("Sweep Shift", 0, 3, "%X", 0)
-};
-
-static CBitfieldData* tblAPUPERIODLOBitfields [] =
-{
-   new CBitfieldData("Period Low-bits", 0, 8, "%02X", 0)
-};
-
-static CBitfieldData* tblAPUPERIODLENBitfields [] =
-{
-   new CBitfieldData("Length", 3, 5, "%X", 32, "0A","FE","14","02","28","04","50","06","A0","08","3C","0A","0E","0C","1A","0E","0C","10","18","12","30","14","60","16","C0","18","48","1A","10","1C","20","1E"),
-   new CBitfieldData("Period High-bits", 0, 3, "%X", 0)
-};
-
-static CBitfieldData* tblAPUTRICTRLBitfields [] =
-{
-   new CBitfieldData("Channel State", 7, 1, "%X", 2, "Running", "Halted"),
-   new CBitfieldData("Linear Counter Reload", 0, 6, "%X", 0)
-};
-
-static CBitfieldData* tblAPUDMZBitfields [] =
-{
-   new CBitfieldData("Unused", 0, 8, "%02X", 0),
-};
-
-static CBitfieldData* tblAPUNZCTRLBitfields [] =
-{
-   new CBitfieldData("Channel State", 5, 1, "%X", 2, "Running", "Halted"),
-   new CBitfieldData("Envelope Disabled", 4, 1, "%X", 2, "No", "Yes"),
-   new CBitfieldData("Volume/Envelope", 0, 4, "%X", 0)
-};
-
-static CBitfieldData* tblAPUNZPERIODBitfields [] =
-{
-   new CBitfieldData("Mode", 7, 1, "%X", 2, "32,767 samples", "93 samples"),
-   new CBitfieldData("Period", 0, 4, "%X", 16, "004","008","010","020","040","060","080","0A0","0CA","0FE","17C","1FC","2FA","3F8","7F2","FE4")
-};
-
-static CBitfieldData* tblAPUNZLENBitfields [] =
-{
-   new CBitfieldData("Length", 3, 5, "%X", 32, "0A","FE","14","02","28","04","50","06","A0","08","3C","0A","0E","0C","1A","0E","0C","10","18","12","30","14","60","16","C0","18","48","1A","10","1C","20","1E")
-};
-
-static CBitfieldData* tblAPUDMCCTRLBitfields [] =
-{
-   new CBitfieldData("IRQ Enabled", 7, 1, "%X", 2, "No", "Yes"),
-   new CBitfieldData("Loop", 6, 1, "%X", 2, "No", "Yes"),
-   new CBitfieldData("Period", 0, 4, "%X", 16, "1AC","17C","154","140","11E","0FE","0E2","0D6","0BE","0A0","08E","080","06A","054","048","036")
-};
-
-static CBitfieldData* tblAPUDMCVOLBitfields [] =
-{
-   new CBitfieldData("Volume", 0, 7, "%02X", 0)
-};
-
-static CBitfieldData* tblAPUDMCADDRBitfields [] =
-{
-   new CBitfieldData("Sample Address", 0, 8, "%02X", 0)
-};
-
-static CBitfieldData* tblAPUDMCLENBitfields [] =
-{
-   new CBitfieldData("Sample Length", 0, 8, "%02X", 0)
-};
-
-static CBitfieldData* tblAPUCTRLBitfields [] =
-{
-   new CBitfieldData("DMC IRQ", 7, 1, "%X", 2, "Not Asserted", "Asserted"),
-   new CBitfieldData("Frame IRQ", 6, 1, "%X", 2, "Not Asserted", "Asserted"),
-   new CBitfieldData("Delta Modulation Channel", 4, 1, "%X", 2, "Disabled", "Enabled"),
-   new CBitfieldData("Noise Channel", 3, 1, "%X", 2, "Disabled", "Enabled"),
-   new CBitfieldData("Triangle Channel", 2, 1, "%X", 2, "Disabled", "Enabled"),
-   new CBitfieldData("Square2 Channel", 1, 1, "%X", 2, "Disabled", "Enabled"),
-   new CBitfieldData("Square1 Channel", 0, 1, "%X", 2, "Disabled", "Enabled"),
-};
-
-static CBitfieldData* tblAPUMASKBitfields [] =
-{
-   new CBitfieldData("Sequencer Mode", 7, 1, "%X", 2, "4-step", "5-step"),
-   new CBitfieldData("IRQ", 6, 1, "%X", 2, "Enabled", "Disabled")
-};
-
-static CRegisterData* tblAPURegisters [] =
-{
-   new CRegisterData(0x4000, "Square1 Control", nesGetAPURegister, nesSetAPURegister, 4, tblAPUSQCTRLBitfields),
-   new CRegisterData(0x4001, "Square1 Sweep", nesGetAPURegister, nesSetAPURegister, 4, tblAPUSQSWEEPBitfields),
-   new CRegisterData(0x4002, "Square1 Period LSB", nesGetAPURegister, nesSetAPURegister, 1, tblAPUPERIODLOBitfields),
-   new CRegisterData(0x4003, "Square1 Length", nesGetAPURegister, nesSetAPURegister, 2, tblAPUPERIODLENBitfields),
-   new CRegisterData(0x4004, "Square2 Control", nesGetAPURegister, nesSetAPURegister, 4, tblAPUSQCTRLBitfields),
-   new CRegisterData(0x4005, "Square2 Sweep", nesGetAPURegister, nesSetAPURegister, 4, tblAPUSQSWEEPBitfields),
-   new CRegisterData(0x4006, "Square2 Period LSB", nesGetAPURegister, nesSetAPURegister, 1, tblAPUPERIODLOBitfields),
-   new CRegisterData(0x4007, "Square2 Length", nesGetAPURegister, nesSetAPURegister, 2, tblAPUPERIODLENBitfields),
-   new CRegisterData(0x4008, "Triangle Control", nesGetAPURegister, nesSetAPURegister, 2, tblAPUTRICTRLBitfields),
-   new CRegisterData(0x4009, "Unused", nesGetAPURegister, nesSetAPURegister, 1, tblAPUDMZBitfields),
-   new CRegisterData(0x400A, "Triangle Period LSB", nesGetAPURegister, nesSetAPURegister, 1, tblAPUPERIODLOBitfields),
-   new CRegisterData(0x400B, "Triangle Length", nesGetAPURegister, nesSetAPURegister, 2, tblAPUPERIODLENBitfields),
-   new CRegisterData(0x400C, "Noise Control", nesGetAPURegister, nesSetAPURegister, 3, tblAPUNZCTRLBitfields),
-   new CRegisterData(0x400D, "Unused", nesGetAPURegister, nesSetAPURegister, 1, tblAPUDMZBitfields),
-   new CRegisterData(0x400E, "Noise Period", nesGetAPURegister, nesSetAPURegister, 2, tblAPUNZPERIODBitfields),
-   new CRegisterData(0x400F, "Noise Length", nesGetAPURegister, nesSetAPURegister, 1, tblAPUNZLENBitfields),
-   new CRegisterData(0x4010, "DMC Control", nesGetAPURegister, nesSetAPURegister, 3, tblAPUDMCCTRLBitfields),
-   new CRegisterData(0x4011, "DMC DAC", nesGetAPURegister, nesSetAPURegister, 1, tblAPUDMCVOLBitfields),
-   new CRegisterData(0x4012, "DMC Address", nesGetAPURegister, nesSetAPURegister, 1, tblAPUDMCADDRBitfields),
-   new CRegisterData(0x4013, "DMC Length", nesGetAPURegister, nesSetAPURegister, 1, tblAPUDMCLENBitfields),
-   new CRegisterData(0x4014, "Unused", nesGetAPURegister, nesSetAPURegister, 1, tblAPUDMZBitfields),
-   new CRegisterData(0x4015, "APU Control", nesGetAPURegister, nesSetAPURegister, 7, tblAPUCTRLBitfields),
-   new CRegisterData(0x4016, "Unused", nesGetAPURegister, nesSetAPURegister, 1, tblAPUDMZBitfields),
-   new CRegisterData(0x4017, "APU Mask", nesGetAPURegister, nesSetAPURegister, 2, tblAPUMASKBitfields),
-};
-
-static const char* rowHeadings [] =
-{
-   "4000","4004","4008","400C","4010","4014"
-};
-
-static const char* columnHeadings [] =
-{
-   "x0","x1","x2","x3"
-};
-
-static CRegisterDatabase* dbRegisters = new CRegisterDatabase(eMemory_IOregs,6,4,24,tblAPURegisters,rowHeadings,columnHeadings);
-
-CRegisterDatabase* CAPU::m_dbRegisters = dbRegisters;
-
-CBreakpointEventInfo** CAPU::m_tblBreakpointEvents = tblAPUEvents;
-int32_t                CAPU::m_numBreakpointEvents = NUM_APU_EVENTS;
-
-uint8_t CAPU::m_APUreg [] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-uint8_t CAPU::m_APUregDirty [] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-bool          CAPU::m_irqEnabled = false;
-bool          CAPU::m_irqAsserted = false;
-CAPUSquare    CAPU::m_square[2];
-CAPUTriangle  CAPU::m_triangle;
-CAPUNoise     CAPU::m_noise;
-CAPUDMC       CAPU::m_dmc;
-
-uint16_t*      CAPU::m_waveBuf = NULL;
-int32_t        CAPU::m_waveBufProduce = 0;
-int32_t        CAPU::m_waveBufConsume = 0;
-
-uint32_t CAPU::m_cycles = 0;
-
-float        CAPU::m_sampleSpacer = 0.0;
-
-int32_t CAPU::m_sampleBufferSize = APU_BUFFER_SIZE;
-
-int32_t CAPU::m_sequencerMode = 0;
-int32_t CAPU::m_newSequencerMode = 0;
-// Cycles to wait before changing sequencer modes...0 or 1 are valid values
-// on a mode-change.
-int32_t CAPU::m_changeModes = -1;
-int32_t CAPU::m_sequenceStep = 0;
-
 // Events that can occur during the APU sequence stepping
 enum
 {
@@ -322,10 +114,30 @@ static uint8_t m_lengthLUT [ 32 ] =
 
 int32_t apuDataAvailable = 0;
 
-static CAPU __init __attribute__((unused));
-
 CAPU::CAPU()
 {
+   memset(m_APUreg,0,sizeof(m_APUreg));
+   memset(m_APUregDirty,1,sizeof(m_APUreg));
+   m_irqEnabled = false;
+   m_irqAsserted = false;
+
+   m_waveBuf = NULL;
+   m_waveBufProduce = 0;
+   m_waveBufConsume = 0;
+
+   m_cycles = 0;
+
+   m_sampleSpacer = 0.0;
+
+   m_sampleBufferSize = APU_BUFFER_SIZE;
+
+   m_sequencerMode = 0;
+   m_newSequencerMode = 0;
+   // Cycles to wait before changing sequencer modes...0 or 1 are valid values
+   // on a mode-change.
+   m_changeModes = -1;
+   m_sequenceStep = 0;
+
    m_square[0].SetChannel ( 0 );
    m_square[1].SetChannel ( 1 );
    m_triangle.SetChannel ( 2 );
@@ -411,7 +223,7 @@ uint16_t CAPU::AMPLITUDE ( void )
    outDownsampled = (int32_t)((float)outDownsampled/((float)m_square[0].GETDACSAMPLECOUNT()));
 
    // Add mapper audio if any.
-   outDownsampled += MAPPERFUNC->amplitude();
+   outDownsampled += CNES::NES()->CART()->AMPLITUDE();
 
    delta = outDownsampled - outLast;
    outDownsampled = outLast+((delta*65371)/65536); // 65371/65536 is 0.9975 adjusted to 16-bit fixed point.
@@ -478,12 +290,12 @@ void CAPU::SEQTICK ( int32_t sequence )
          if ( m_irqEnabled )
          {
             m_irqAsserted = true;
-            C6502::ASSERTIRQ ( eNESSource_APU );
+            CNES::NES()->CPU()->ASSERTIRQ ( eNESSource_APU );
 
             if ( nesIsDebuggable() )
             {
                // Check for IRQ breakpoint...
-               CNES::CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUEvent,0,APU_EVENT_IRQ);
+               CNES::NES()->CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUEvent,0,APU_EVENT_IRQ);
             }
          }
       }
@@ -494,7 +306,7 @@ void CAPU::SEQTICK ( int32_t sequence )
    {
       if ( clockedLengthCounter )
       {
-         CNES::CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUEvent,0,APU_EVENT_LENGTH_COUNTER_CLOCKED);
+         CNES::NES()->CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUEvent,0,APU_EVENT_LENGTH_COUNTER_CLOCKED);
       }
    }
 }
@@ -551,7 +363,7 @@ void CAPU::RESET ( void )
 
    m_irqEnabled = true;
    m_irqAsserted = false;
-   C6502::RELEASEIRQ ( eNESSource_APU );
+   CNES::NES()->CPU()->RELEASEIRQ ( eNESSource_APU );
    m_sequencerMode = 0;
    m_sequenceStep = 0;
 
@@ -560,11 +372,11 @@ void CAPU::RESET ( void )
 
    memset( m_waveBuf, 0, APU_BUFFER_SIZE * sizeof m_waveBuf[ 0 ] );
 
-   if ( CNES::VIDEOMODE() == MODE_NTSC )
+   if ( CNES::NES()->VIDEOMODE() == MODE_NTSC )
    {
       m_sampleSpacer = APU_SAMPLE_SPACE_NTSC;
    }
-   else if ( CNES::VIDEOMODE() == MODE_DENDY )
+   else if ( CNES::NES()->VIDEOMODE() == MODE_DENDY )
    {
       m_sampleSpacer = APU_SAMPLE_SPACE_DENDY;
    }
@@ -825,38 +637,38 @@ void CAPUSquare::APU ( uint32_t addr, uint8_t data )
    {
       if ( m_enabled )
       {
-         if ( (CNES::VIDEOMODE() == MODE_NTSC) || (CNES::VIDEOMODE() == MODE_DENDY) )
+         if ( (CNES::NES()->VIDEOMODE() == MODE_NTSC) || (CNES::NES()->VIDEOMODE() == MODE_DENDY) )
          {
-            if ( CAPU::SEQUENCERMODE() == 0 )
+            if ( CNES::NES()->CPU()->APU()->SEQUENCERMODE() == 0 )
             {
-               if ( (CAPU::CYCLES() == 14915) && (m_lengthCounter == 0) )
+               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 14915) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( (CAPU::CYCLES() == 29831) && (m_lengthCounter == 0) )
+               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 29831) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( ((CAPU::CYCLES() != 14915) && (CAPU::CYCLES() != 29831)) || (m_lengthCounter == 0) )
+               if ( ((CNES::NES()->CPU()->APU()->CYCLES() != 14915) && (CNES::NES()->CPU()->APU()->CYCLES() != 29831)) || (m_lengthCounter == 0) )
                {
                   m_lengthCounter = *(m_lengthLUT+(data>>3));
                }
             }
             else
             {
-               if ( (CAPU::CYCLES() == 1) && (m_lengthCounter == 0) )
+               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 1) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( (CAPU::CYCLES() == 14915) && (m_lengthCounter == 0) )
+               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 14915) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( ((CAPU::CYCLES() != 1) && (CAPU::CYCLES() != 14915)) || (m_lengthCounter == 0) )
+               if ( ((CNES::NES()->CPU()->APU()->CYCLES() != 1) && (CNES::NES()->CPU()->APU()->CYCLES() != 14915)) || (m_lengthCounter == 0) )
                {
                   m_lengthCounter = *(m_lengthLUT+(data>>3));
                }
@@ -864,36 +676,36 @@ void CAPUSquare::APU ( uint32_t addr, uint8_t data )
          }
          else
          {
-            if ( CAPU::SEQUENCERMODE() == 0 )
+            if ( CNES::NES()->CPU()->APU()->SEQUENCERMODE() == 0 )
             {
-               if ( (CAPU::CYCLES() == 16629) && (m_lengthCounter == 0) )
+               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 16629) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( (CAPU::CYCLES() == 33255) && (m_lengthCounter == 0) )
+               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 33255) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( ((CAPU::CYCLES() != 16629) && (CAPU::CYCLES() != 33255)) || (m_lengthCounter == 0) )
+               if ( ((CNES::NES()->CPU()->APU()->CYCLES() != 16629) && (CNES::NES()->CPU()->APU()->CYCLES() != 33255)) || (m_lengthCounter == 0) )
                {
                   m_lengthCounter = *(m_lengthLUT+(data>>3));
                }
             }
             else
             {
-               if ( (CAPU::CYCLES() == 1) && (m_lengthCounter == 0) )
+               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 1) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( (CAPU::CYCLES() == 16629) && (m_lengthCounter == 0) )
+               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 16629) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( ((CAPU::CYCLES() != 1) && (CAPU::CYCLES() != 16629)) || (m_lengthCounter == 0) )
+               if ( ((CNES::NES()->CPU()->APU()->CYCLES() != 1) && (CNES::NES()->CPU()->APU()->CYCLES() != 16629)) || (m_lengthCounter == 0) )
                {
                   m_lengthCounter = *(m_lengthLUT+(data>>3));
                }
@@ -964,38 +776,38 @@ void CAPUTriangle::APU ( uint32_t addr, uint8_t data )
    {
       if ( m_enabled )
       {
-         if ( (CNES::VIDEOMODE() == MODE_NTSC) || (CNES::VIDEOMODE() == MODE_DENDY) )
+         if ( (CNES::NES()->VIDEOMODE() == MODE_NTSC) || (CNES::NES()->VIDEOMODE() == MODE_DENDY) )
          {
-            if ( CAPU::SEQUENCERMODE() == 0 )
+            if ( CNES::NES()->CPU()->APU()->SEQUENCERMODE() == 0 )
             {
-               if ( (CAPU::CYCLES() == 14915) && (m_lengthCounter == 0) )
+               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 14915) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( (CAPU::CYCLES() == 29831) && (m_lengthCounter == 0) )
+               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 29831) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( ((CAPU::CYCLES() != 14915) && (CAPU::CYCLES() != 29831)) || (m_lengthCounter == 0) )
+               if ( ((CNES::NES()->CPU()->APU()->CYCLES() != 14915) && (CNES::NES()->CPU()->APU()->CYCLES() != 29831)) || (m_lengthCounter == 0) )
                {
                   m_lengthCounter = *(m_lengthLUT+(data>>3));
                }
             }
             else
             {
-               if ( (CAPU::CYCLES() == 1) && (m_lengthCounter == 0) )
+               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 1) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( (CAPU::CYCLES() == 14915) && (m_lengthCounter == 0) )
+               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 14915) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( ((CAPU::CYCLES() != 1) && (CAPU::CYCLES() != 14915)) || (m_lengthCounter == 0) )
+               if ( ((CNES::NES()->CPU()->APU()->CYCLES() != 1) && (CNES::NES()->CPU()->APU()->CYCLES() != 14915)) || (m_lengthCounter == 0) )
                {
                   m_lengthCounter = *(m_lengthLUT+(data>>3));
                }
@@ -1003,36 +815,36 @@ void CAPUTriangle::APU ( uint32_t addr, uint8_t data )
          }
          else
          {
-            if ( CAPU::SEQUENCERMODE() == 0 )
+            if ( CNES::NES()->CPU()->APU()->SEQUENCERMODE() == 0 )
             {
-               if ( (CAPU::CYCLES() == 16629) && (m_lengthCounter == 0) )
+               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 16629) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( (CAPU::CYCLES() == 33255) && (m_lengthCounter == 0) )
+               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 33255) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( ((CAPU::CYCLES() != 16629) && (CAPU::CYCLES() != 33255)) || (m_lengthCounter == 0) )
+               if ( ((CNES::NES()->CPU()->APU()->CYCLES() != 16629) && (CNES::NES()->CPU()->APU()->CYCLES() != 33255)) || (m_lengthCounter == 0) )
                {
                   m_lengthCounter = *(m_lengthLUT+(data>>3));
                }
             }
             else
             {
-               if ( (CAPU::CYCLES() == 1) && (m_lengthCounter == 0) )
+               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 1) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( (CAPU::CYCLES() == 16629) && (m_lengthCounter == 0) )
+               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 16629) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( ((CAPU::CYCLES() != 1) && (CAPU::CYCLES() != 16629)) || (m_lengthCounter == 0) )
+               if ( ((CNES::NES()->CPU()->APU()->CYCLES() != 1) && (CNES::NES()->CPU()->APU()->CYCLES() != 16629)) || (m_lengthCounter == 0) )
                {
                   m_lengthCounter = *(m_lengthLUT+(data>>3));
                }
@@ -1103,44 +915,44 @@ void CAPUNoise::APU ( uint32_t addr, uint8_t data )
    else if ( addr == 2 )
    {
       m_mode = data&0x80;
-      m_period = *(*(m_noisePeriod+CNES::VIDEOMODE())+(data&0xF));
+      m_period = *(*(m_noisePeriod+CNES::NES()->VIDEOMODE())+(data&0xF));
    }
    else if ( addr == 3 )
    {
       if ( m_enabled )
       {
-         if ( (CNES::VIDEOMODE() == MODE_NTSC) || (CNES::VIDEOMODE() == MODE_DENDY) )
+         if ( (CNES::NES()->VIDEOMODE() == MODE_NTSC) || (CNES::NES()->VIDEOMODE() == MODE_DENDY) )
          {
-            if ( CAPU::SEQUENCERMODE() == 0 )
+            if ( CNES::NES()->CPU()->APU()->SEQUENCERMODE() == 0 )
             {
-               if ( (CAPU::CYCLES() == 14915) && (m_lengthCounter == 0) )
+               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 14915) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( (CAPU::CYCLES() == 29831) && (m_lengthCounter == 0) )
+               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 29831) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( ((CAPU::CYCLES() != 14915) && (CAPU::CYCLES() != 29831)) || (m_lengthCounter == 0) )
+               if ( ((CNES::NES()->CPU()->APU()->CYCLES() != 14915) && (CNES::NES()->CPU()->APU()->CYCLES() != 29831)) || (m_lengthCounter == 0) )
                {
                   m_lengthCounter = *(m_lengthLUT+(data>>3));
                }
             }
             else
             {
-               if ( (CAPU::CYCLES() == 1) && (m_lengthCounter == 0) )
+               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 1) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( (CAPU::CYCLES() == 14915) && (m_lengthCounter == 0) )
+               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 14915) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( ((CAPU::CYCLES() != 1) && (CAPU::CYCLES() != 14915)) || (m_lengthCounter == 0) )
+               if ( ((CNES::NES()->CPU()->APU()->CYCLES() != 1) && (CNES::NES()->CPU()->APU()->CYCLES() != 14915)) || (m_lengthCounter == 0) )
                {
                   m_lengthCounter = *(m_lengthLUT+(data>>3));
                }
@@ -1148,36 +960,36 @@ void CAPUNoise::APU ( uint32_t addr, uint8_t data )
          }
          else
          {
-            if ( CAPU::SEQUENCERMODE() == 0 )
+            if ( CNES::NES()->CPU()->APU()->SEQUENCERMODE() == 0 )
             {
-               if ( (CAPU::CYCLES() == 16629) && (m_lengthCounter == 0) )
+               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 16629) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( (CAPU::CYCLES() == 33255) && (m_lengthCounter == 0) )
+               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 33255) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( ((CAPU::CYCLES() != 16629) && (CAPU::CYCLES() != 33255)) || (m_lengthCounter == 0) )
+               if ( ((CNES::NES()->CPU()->APU()->CYCLES() != 16629) && (CNES::NES()->CPU()->APU()->CYCLES() != 33255)) || (m_lengthCounter == 0) )
                {
                   m_lengthCounter = *(m_lengthLUT+(data>>3));
                }
             }
             else
             {
-               if ( (CAPU::CYCLES() == 1) && (m_lengthCounter == 0) )
+               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 1) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( (CAPU::CYCLES() == 16629) && (m_lengthCounter == 0) )
+               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 16629) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( ((CAPU::CYCLES() != 1) && (CAPU::CYCLES() != 16629)) || (m_lengthCounter == 0) )
+               if ( ((CNES::NES()->CPU()->APU()->CYCLES() != 1) && (CNES::NES()->CPU()->APU()->CYCLES() != 16629)) || (m_lengthCounter == 0) )
                {
                   m_lengthCounter = *(m_lengthLUT+(data>>3));
                }
@@ -1256,7 +1068,7 @@ void CAPUDMC::RESET ( void )
    m_silence = true;
    m_dmaSource = NULL;
    m_dmaSourcePtr = NULL;
-   m_period = (*(*(m_dmcPeriod+CNES::VIDEOMODE())));
+   m_period = (*(*(m_dmcPeriod+CNES::NES()->VIDEOMODE())));
 }
 
 void CAPUDMC::APU ( uint32_t addr, uint8_t data )
@@ -1270,11 +1082,11 @@ void CAPUDMC::APU ( uint32_t addr, uint8_t data )
       if ( !m_dmcIrqEnabled )
       {
          m_dmcIrqAsserted = false;
-         CAPU::RELEASEIRQ ();
+         CNES::NES()->CPU()->APU()->RELEASEIRQ ();
       }
 
       m_loop = data&0x40;
-      m_period = (*(*(m_dmcPeriod+CNES::VIDEOMODE())+(data&0xF)));
+      m_period = (*(*(m_dmcPeriod+CNES::NES()->VIDEOMODE())+(data&0xF)));
    }
    else if ( addr == 1 )
    {
@@ -1296,7 +1108,7 @@ void CAPUDMC::ENABLE ( bool enabled )
    CAPUOscillator::ENABLE(enabled);
 
    m_dmcIrqAsserted = false;
-   CAPU::RELEASEIRQ ();
+   CNES::NES()->CPU()->APU()->RELEASEIRQ ();
 
    if ( enabled )
    {
@@ -1345,7 +1157,7 @@ void CAPUDMC::DMASAMPLE ( uint8_t data )
    if ( (!m_lengthCounter) && m_dmcIrqEnabled && (!m_loop) )
    {
       m_dmcIrqAsserted = true;
-      C6502::ASSERTIRQ ( eNESSource_APU );
+      CNES::NES()->CPU()->ASSERTIRQ ( eNESSource_APU );
    }
 
    if ( (!m_lengthCounter) && m_loop )
@@ -1375,7 +1187,7 @@ void CAPUDMC::DMAREADER ( void )
          }
          else
          {
-            C6502::APUDMAREQ ( m_dmaReaderAddrPtr );
+            CNES::NES()->CPU()->APUDMAREQ ( m_dmaReaderAddrPtr );
          }
       }
    }
@@ -1460,7 +1272,7 @@ void CAPU::EMULATE ( void )
       if ( nesIsDebuggable() )
       {
          // Emit frame-start indication to Tracer...
-         CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_StartAPUFrame, eNESSource_APU, 0, 0, 0 );
+         CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_StartAPUFrame, eNESSource_APU, 0, 0, 0 );
       }
    }
 
@@ -1471,7 +1283,7 @@ void CAPU::EMULATE ( void )
 
    // Clock the 240Hz sequencer.
    // NTSC APU
-   if ( (CNES::VIDEOMODE() == MODE_NTSC) || (CNES::VIDEOMODE() == MODE_DENDY) )
+   if ( (CNES::NES()->VIDEOMODE() == MODE_NTSC) || (CNES::NES()->VIDEOMODE() == MODE_DENDY) )
    {
       // APU sequencer mode 1
       if ( m_sequencerMode )
@@ -1481,7 +1293,7 @@ void CAPU::EMULATE ( void )
             if ( nesIsDebuggable() )
             {
                // Emit frame-end indication to Tracer...
-               CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
+               CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
             }
 
             SEQTICK ( 0 );
@@ -1491,7 +1303,7 @@ void CAPU::EMULATE ( void )
             if ( nesIsDebuggable() )
             {
                // Emit frame-end indication to Tracer...
-               CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
+               CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
             }
 
             SEQTICK ( 1 );
@@ -1501,7 +1313,7 @@ void CAPU::EMULATE ( void )
             if ( nesIsDebuggable() )
             {
                // Emit frame-end indication to Tracer...
-               CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
+               CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
             }
 
             SEQTICK ( 2 );
@@ -1511,7 +1323,7 @@ void CAPU::EMULATE ( void )
             if ( nesIsDebuggable() )
             {
                // Emit frame-end indication to Tracer...
-               CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
+               CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
             }
 
             SEQTICK ( 3 );
@@ -1521,7 +1333,7 @@ void CAPU::EMULATE ( void )
             if ( nesIsDebuggable() )
             {
                // Emit frame-end indication to Tracer...
-               CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
+               CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
             }
 
             // Nothing to do this "tick"...
@@ -1535,7 +1347,7 @@ void CAPU::EMULATE ( void )
             if ( nesIsDebuggable() )
             {
                // Emit frame-end indication to Tracer...
-               CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
+               CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
             }
 
             SEQTICK ( 0 );
@@ -1545,7 +1357,7 @@ void CAPU::EMULATE ( void )
             if ( nesIsDebuggable() )
             {
                // Emit frame-end indication to Tracer...
-               CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
+               CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
             }
 
             SEQTICK ( 1 );
@@ -1555,7 +1367,7 @@ void CAPU::EMULATE ( void )
             if ( nesIsDebuggable() )
             {
                // Emit frame-end indication to Tracer...
-               CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
+               CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
             }
 
             SEQTICK ( 2 );
@@ -1566,12 +1378,12 @@ void CAPU::EMULATE ( void )
             if ( m_irqEnabled )
             {
                m_irqAsserted = true;
-               C6502::ASSERTIRQ(eNESSource_APU);
+               CNES::NES()->CPU()->ASSERTIRQ(eNESSource_APU);
 
                if ( nesIsDebuggable() )
                {
                   // Check for IRQ breakpoint...
-                  CNES::CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUEvent,0,APU_EVENT_IRQ);
+                  CNES::NES()->CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUEvent,0,APU_EVENT_IRQ);
                }
             }
          }
@@ -1580,7 +1392,7 @@ void CAPU::EMULATE ( void )
             if ( nesIsDebuggable() )
             {
                // Emit frame-end indication to Tracer...
-               CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
+               CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
             }
 
             // IRQ asserted inside SEQTICK...
@@ -1599,7 +1411,7 @@ void CAPU::EMULATE ( void )
             if ( nesIsDebuggable() )
             {
                // Emit frame-end indication to Tracer...
-               CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
+               CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
             }
 
             SEQTICK ( 0 );
@@ -1609,7 +1421,7 @@ void CAPU::EMULATE ( void )
             if ( nesIsDebuggable() )
             {
                // Emit frame-end indication to Tracer...
-               CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
+               CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
             }
 
             SEQTICK ( 1 );
@@ -1619,7 +1431,7 @@ void CAPU::EMULATE ( void )
             if ( nesIsDebuggable() )
             {
                // Emit frame-end indication to Tracer...
-               CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
+               CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
             }
 
             SEQTICK ( 2 );
@@ -1629,7 +1441,7 @@ void CAPU::EMULATE ( void )
             if ( nesIsDebuggable() )
             {
                // Emit frame-end indication to Tracer...
-               CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
+               CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
             }
 
             SEQTICK ( 3 );
@@ -1639,7 +1451,7 @@ void CAPU::EMULATE ( void )
             if ( nesIsDebuggable() )
             {
                // Emit frame-end indication to Tracer...
-               CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
+               CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
             }
 
             // Nothing to do this "tick"...
@@ -1653,7 +1465,7 @@ void CAPU::EMULATE ( void )
             if ( nesIsDebuggable() )
             {
                // Emit frame-end indication to Tracer...
-               CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
+               CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
             }
 
             SEQTICK ( 0 );
@@ -1663,7 +1475,7 @@ void CAPU::EMULATE ( void )
             if ( nesIsDebuggable() )
             {
                // Emit frame-end indication to Tracer...
-               CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
+               CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
             }
 
             SEQTICK ( 1 );
@@ -1673,7 +1485,7 @@ void CAPU::EMULATE ( void )
             if ( nesIsDebuggable() )
             {
                // Emit frame-end indication to Tracer...
-               CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
+               CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
             }
 
             SEQTICK ( 2 );
@@ -1684,12 +1496,12 @@ void CAPU::EMULATE ( void )
             if ( m_irqEnabled )
             {
                m_irqAsserted = true;
-               C6502::ASSERTIRQ(eNESSource_APU);
+               CNES::NES()->CPU()->ASSERTIRQ(eNESSource_APU);
 
                if ( nesIsDebuggable() )
                {
                   // Check for IRQ breakpoint...
-                  CNES::CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUEvent,0,APU_EVENT_IRQ);
+                  CNES::NES()->CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUEvent,0,APU_EVENT_IRQ);
                }
             }
          }
@@ -1698,7 +1510,7 @@ void CAPU::EMULATE ( void )
             if ( nesIsDebuggable() )
             {
                // Emit frame-end indication to Tracer...
-               CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
+               CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
             }
 
             // IRQ asserted inside SEQTICK...
@@ -1728,7 +1540,7 @@ void CAPU::EMULATE ( void )
 if ( wavOut )
 {
 //   uint8_t s1,s2,t,n,d;
-//   CAPU::GETDACS(&s1,&s2,&t,&n,&d);
+//   GETDACS(&s1,&s2,&t,&n,&d);
 //   fwrite(&s1,1,1,wavOut);
 //   fwrite(&s2,1,1,wavOut);
 //   fwrite(&t,1,1,wavOut);
@@ -1759,14 +1571,14 @@ if ( wavOut )
    // Go to next cycle and restart if necessary...
    m_cycles++;
 
-   if ( (CNES::VIDEOMODE() == MODE_NTSC) || (CNES::VIDEOMODE() == MODE_DENDY) )
+   if ( (CNES::NES()->VIDEOMODE() == MODE_NTSC) || (CNES::NES()->VIDEOMODE() == MODE_DENDY) )
    {
       if ( (m_sequencerMode) && (m_cycles >= 37283) )
       {
          if ( nesIsDebuggable() )
          {
             // Emit frame-end indication to Tracer...
-            CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_EndAPUFrame, eNESSource_APU, 0, 0, 0 );
+            CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_EndAPUFrame, eNESSource_APU, 0, 0, 0 );
          }
 
          RESETCYCLECOUNTER(1);
@@ -1774,7 +1586,7 @@ if ( wavOut )
          if ( nesIsDebuggable() )
          {
             // Emit frame-start indication to Tracer...
-            CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_StartAPUFrame, eNESSource_APU, 0, 0, 0 );
+            CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_StartAPUFrame, eNESSource_APU, 0, 0, 0 );
          }
       }
       else if ( (!m_sequencerMode) && (m_cycles >= 37289) )
@@ -1782,7 +1594,7 @@ if ( wavOut )
          if ( nesIsDebuggable() )
          {
             // Emit frame-end indication to Tracer...
-            CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_EndAPUFrame, eNESSource_APU, 0, 0, 0 );
+            CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_EndAPUFrame, eNESSource_APU, 0, 0, 0 );
          }
 
          RESETCYCLECOUNTER(7459);
@@ -1790,7 +1602,7 @@ if ( wavOut )
          if ( nesIsDebuggable() )
          {
             // Emit frame-start indication to Tracer...
-            CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_StartAPUFrame, eNESSource_APU, 0, 0, 0 );
+            CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_StartAPUFrame, eNESSource_APU, 0, 0, 0 );
          }
       }
    }
@@ -1801,7 +1613,7 @@ if ( wavOut )
          if ( nesIsDebuggable() )
          {
             // Emit frame-end indication to Tracer...
-            CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_EndAPUFrame, eNESSource_APU, 0, 0, 0 );
+            CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_EndAPUFrame, eNESSource_APU, 0, 0, 0 );
          }
 
          RESETCYCLECOUNTER(1);
@@ -1809,7 +1621,7 @@ if ( wavOut )
          if ( nesIsDebuggable() )
          {
             // Emit frame-start indication to Tracer...
-            CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_StartAPUFrame, eNESSource_APU, 0, 0, 0 );
+            CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_StartAPUFrame, eNESSource_APU, 0, 0, 0 );
          }
       }
       else if ( (!m_sequencerMode) && (m_cycles >= 41569) )
@@ -1817,7 +1629,7 @@ if ( wavOut )
          if ( nesIsDebuggable() )
          {
             // Emit frame-end indication to Tracer...
-            CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_EndAPUFrame, eNESSource_APU, 0, 0, 0 );
+            CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_EndAPUFrame, eNESSource_APU, 0, 0, 0 );
          }
 
          RESETCYCLECOUNTER(8315);
@@ -1825,7 +1637,7 @@ if ( wavOut )
          if ( nesIsDebuggable() )
          {
             // Emit frame-start indication to Tracer...
-            CNES::TRACER()->AddSample ( CAPU::CYCLES(), eTracer_StartAPUFrame, eNESSource_APU, 0, 0, 0 );
+            CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_StartAPUFrame, eNESSource_APU, 0, 0, 0 );
          }
       }
    }
@@ -1835,7 +1647,7 @@ void CAPU::RELEASEIRQ ( void )
 {
    if ( (!m_irqAsserted) && (!m_dmc.IRQASSERTED()) )
    {
-      C6502::RELEASEIRQ ( eNESSource_APU );
+      CNES::NES()->CPU()->RELEASEIRQ ( eNESSource_APU );
    }
 }
 
@@ -1854,11 +1666,11 @@ uint32_t CAPU::APU ( uint32_t addr )
       data |= (m_dmc.IRQASSERTED()?0x80:0x00);
 
       m_irqAsserted = false;
-      CAPU::RELEASEIRQ ();
+      RELEASEIRQ ();
 
       if ( nesIsDebuggable() )
       {
-         CNES::CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUState, addr&0x1F);
+         CNES::NES()->CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUState, addr&0x1F);
       }
    }
    else
@@ -1919,16 +1731,16 @@ void CAPU::APU ( uint32_t addr, uint8_t data )
       {
          m_irqAsserted = false;
          m_dmc.IRQASSERTED(false);
-         CAPU::RELEASEIRQ ();
+         RELEASEIRQ ();
       }
 
       // Change modes on even cycle...
-      m_changeModes = C6502::_CYCLES()&1;
+      m_changeModes = CNES::NES()->CPU()->_CYCLES()&1;
    }
 
    if ( nesIsDebuggable() )
    {
-      CNES::CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUState,addr&0x1F);
+      CNES::NES()->CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUState,addr&0x1F);
    }
 }
 
