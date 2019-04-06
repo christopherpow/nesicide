@@ -12,26 +12,13 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(bool usePPU,qint8* data,IProjectTreeVie
    CDesignerEditorBase(link,parent),
    ui(new Ui::CHRROMDisplayDialog)
 {
-   int i;
-
    ui->setupUi(this);
 
    info = new QLabel(this);
 
-   imgData = new char[256*256*4];
-
-   // Clear image...
-   for ( i = 0; i < 256*256*4; i+=4 )
-   {
-      imgData[i] = 0;
-      imgData[i+1] = 0;
-      imgData[i+2] = 0;
-      imgData[i+3] = 0xFF;
-   }
-
    m_usePPU = usePPU;
 
-   renderer = new PanZoomRenderer(256,128,2000,imgData,true,ui->frame);
+   renderer = new PanZoomRenderer(256,128,2000,CHRMEMTV(),true,ui->frame);
    ui->frame->layout()->addWidget(renderer);
    ui->frame->layout()->update();
    setCentralWidget(ui->window);
@@ -40,13 +27,12 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(bool usePPU,qint8* data,IProjectTreeVie
 
    if ( m_usePPU )
    {
-      CPPUDBG::CHRMEMInspectorTV ( (int8_t*)imgData );
-      CPPUDBG::SetCHRMEMInspectorColor(0,renderer->getColor(0));
-      CPPUDBG::SetCHRMEMInspectorColor(1,renderer->getColor(1));
-      CPPUDBG::SetCHRMEMInspectorColor(2,renderer->getColor(2));
-      CPPUDBG::SetCHRMEMInspectorColor(3,renderer->getColor(3));
+      SetCHRMEMInspectorColor(0,renderer->getColor(0));
+      SetCHRMEMInspectorColor(1,renderer->getColor(1));
+      SetCHRMEMInspectorColor(2,renderer->getColor(2));
+      SetCHRMEMInspectorColor(3,renderer->getColor(3));
 
-      pThread = new DebuggerUpdateThread(&CPPUDBG::RENDERCHRMEM);
+      pThread = new DebuggerUpdateThread(&RENDERCHRMEM);
       QObject::connect(pThread,SIGNAL(updateComplete()),this,SLOT(renderData()));
    }
    else
@@ -74,8 +60,11 @@ CHRROMDisplayDialog::~CHRROMDisplayDialog()
    {
       delete pThread;
    }
+   else
+   {
+      delete imgData;
+   }
    delete ui;
-   delete imgData;
    delete renderer;
 }
 
@@ -228,10 +217,10 @@ void CHRROMDisplayDialog::repaintNeeded()
 {
    if ( m_usePPU )
    {
-      CPPUDBG::SetCHRMEMInspectorColor(0,renderer->getColor(0));
-      CPPUDBG::SetCHRMEMInspectorColor(1,renderer->getColor(1));
-      CPPUDBG::SetCHRMEMInspectorColor(2,renderer->getColor(2));
-      CPPUDBG::SetCHRMEMInspectorColor(3,renderer->getColor(3));
+      SetCHRMEMInspectorColor(0,renderer->getColor(0));
+      SetCHRMEMInspectorColor(1,renderer->getColor(1));
+      SetCHRMEMInspectorColor(2,renderer->getColor(2));
+      SetCHRMEMInspectorColor(3,renderer->getColor(3));
 
       pThread->updateDebuggers();
    }
@@ -292,7 +281,7 @@ void CHRROMDisplayDialog::renderData()
 
 void CHRROMDisplayDialog::on_updateScanline_editingFinished()
 {
-   CPPUDBG::SetPPUViewerScanline ( ui->updateScanline->text().toInt() );
+   SetPPUViewerScanline ( ui->updateScanline->text().toInt() );
 }
 
 void CHRROMDisplayDialog::on_exportPushButton_clicked()

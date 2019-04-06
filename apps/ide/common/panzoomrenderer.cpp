@@ -3,7 +3,7 @@
 
 #include "nes_emulator_core.h"
 
-PanZoomRenderer::PanZoomRenderer(int sizeX,int sizeY,int textureSizeXY,int maxZoom,char* imageData,bool showPalette,QWidget *parent) :
+PanZoomRenderer::PanZoomRenderer(int sizeX,int sizeY,int textureSizeXY,int maxZoom,int8_t* imageData,bool showPalette,QWidget *parent) :
       QWidget(parent),
       _sizeX(sizeX),
       _sizeY(sizeY),
@@ -19,7 +19,7 @@ PanZoomRenderer::PanZoomRenderer(int sizeX,int sizeY,int textureSizeXY,int maxZo
    commonConstructor(showPalette);
 }
 
-PanZoomRenderer::PanZoomRenderer(int sizeX,int sizeY,int maxZoom,char* imageData,bool showPalette,QWidget *parent) :
+PanZoomRenderer::PanZoomRenderer(int sizeX,int sizeY,int maxZoom,int8_t* imageData,bool showPalette,QWidget *parent) :
     QWidget(parent),
     _sizeX(sizeX),
     _sizeY(sizeY),

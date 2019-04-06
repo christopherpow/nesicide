@@ -34,7 +34,6 @@ private slots:
 
 private:
    Ui::OAMVisualizerDockWidget *ui;
-   char* imgData;
    PanZoomRenderer* renderer;
    DebuggerUpdateThread* pThread;
    QPoint pressPos;

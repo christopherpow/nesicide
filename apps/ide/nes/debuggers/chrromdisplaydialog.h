@@ -40,7 +40,7 @@ protected:
 private:
    Ui::CHRROMDisplayDialog* ui;
    QLabel* info;
-   char* imgData;
+   int8_t* imgData;
    bool m_usePPU;
    DebuggerUpdateThread* pThread;
    PanZoomRenderer* renderer;

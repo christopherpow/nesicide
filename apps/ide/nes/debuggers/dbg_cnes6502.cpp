@@ -25,10 +25,6 @@
 
 #include <QColor>
 
-int8_t*          C6502DBG::m_pCodeDataLoggerInspectorTV = NULL;
-
-int8_t*          C6502DBG::m_pExecutionVisualizerInspectorTV = NULL;
-
 static int32_t opcode_size [ NUM_ADDRESSING_MODES ] =
 {
    1, // AM_IMPLIED
@@ -2608,14 +2604,6 @@ uint8_t OPCODESIZE ( uint8_t op )
    return *(opcode_size+pOp->amode);
 }
 
-C6502DBG::C6502DBG()
-{
-}
-
-C6502DBG::~C6502DBG()
-{
-}
-
 static QColor color [] =
 {
    QColor(255,0,0),  // eLogger_InstructionFetch,
@@ -2634,7 +2622,23 @@ static QColor dmaColor [] =
    QColor(0,0,0)      // eNESSource_Mapper -- not a valid target.
 };
 
-void C6502DBG::RENDERCODEDATALOGGER ( void )
+static int8_t* CodeDataLoggerTV = NULL;
+
+int8_t* CPUCODEDATALOGGERTV() { return CodeDataLoggerTV; }
+
+void CLEARCPUCODEDATALOGGER ()
+{
+   int i;
+
+   // Clear image...
+   memset(CodeDataLoggerTV,0,sizeof(CodeDataLoggerTV));
+   for ( i = 3; i < 256*256*4; i+=4 )
+   {
+      CodeDataLoggerTV[i] = 0xFF;
+   }
+}
+
+void RENDERCPUCODEDATALOGGER ()
 {
    uint32_t idxx, idxy;
    uint32_t cycleDiff;
@@ -2644,10 +2648,24 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
    LoggerInfo* pLogEntry;
    int8_t* pTV;
 
+   if ( !CodeDataLoggerTV )
+   {
+      int i;
+
+      CodeDataLoggerTV = new int8_t[256*256*4];
+
+      // Clear image...
+      memset(CodeDataLoggerTV,0,sizeof(CodeDataLoggerTV));
+      for ( i = 3; i < 256*256*4; i+=4 )
+      {
+         CodeDataLoggerTV[i] = 0xFF;
+      }
+   }
+
    // Show CPU RAM...
    pLogger = nesGetCpuCodeDataLoggerDatabase();
 
-   pTV = (int8_t*)m_pCodeDataLoggerInspectorTV;
+   pTV = CodeDataLoggerTV;
 
    for ( idxx = 0; idxx < MEM_2KB; idxx++ )
    {
@@ -2701,67 +2719,67 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
       pTV += 4;
    }
 
-   // Show I/O region...
-   pLogger = nesGetCpuCodeDataLoggerDatabase();
+//   // Show I/O region...
+//   pLogger = nesGetCpuCodeDataLoggerDatabase();
 
-   pTV = (int8_t*)(m_pCodeDataLoggerInspectorTV+(MEM_8KB<<2));
+//   pTV = CodeDataLoggerTV + (MEM_8KB<<2);
 
-   for ( idxx = MEM_8KB; idxx < 0x5C00; idxx++ )
-   {
-      pLogEntry = pLogger->GetLogEntry(idxx);
+//   for ( idxx = MEM_8KB; idxx < 0x5C00; idxx++ )
+//   {
+//      pLogEntry = pLogger->GetLogEntry(idxx);
 
-      if ( pLogEntry->count )
-      {
-         cycleDiff = (curCycle-pLogEntry->cycle)/30000;
-         if ( cycleDiff > 220 )
-         {
-            cycleDiff = 220;
-         }
+//      if ( pLogEntry->count )
+//      {
+//         cycleDiff = (curCycle-pLogEntry->cycle)/30000;
+//         if ( cycleDiff > 220 )
+//         {
+//            cycleDiff = 220;
+//         }
 
-         cycleDiff = 255-cycleDiff;
+//         cycleDiff = 255-cycleDiff;
 
-         if ( pLogEntry->type == eLogger_DMA )
-         {
-            lcolor = dmaColor[(int)pLogEntry->source];
-         }
-         else
-         {
-            lcolor = color[(int)pLogEntry->type];
-         }
+//         if ( pLogEntry->type == eLogger_DMA )
+//         {
+//            lcolor = dmaColor[(int)pLogEntry->source];
+//         }
+//         else
+//         {
+//            lcolor = color[(int)pLogEntry->type];
+//         }
 
-         if ( lcolor.red() )
-         {
-            lcolor.setRed(cycleDiff);
-         }
+//         if ( lcolor.red() )
+//         {
+//            lcolor.setRed(cycleDiff);
+//         }
 
-         if ( lcolor.green() )
-         {
-            lcolor.setGreen(cycleDiff);
-         }
+//         if ( lcolor.green() )
+//         {
+//            lcolor.setGreen(cycleDiff);
+//         }
 
-         if ( lcolor.blue() )
-         {
-            lcolor.setBlue(cycleDiff);
-         }
+//         if ( lcolor.blue() )
+//         {
+//            lcolor.setBlue(cycleDiff);
+//         }
 
-         *pTV = lcolor.red();
-         *(pTV+1) = lcolor.green();
-         *(pTV+2) = lcolor.blue();
-      }
-      else
-      {
-         *pTV = 0;
-         *(pTV+1) = 0;
-         *(pTV+2) = 0;
-      }
+//         *pTV = lcolor.red();
+//         *(pTV+1) = lcolor.green();
+//         *(pTV+2) = lcolor.blue();
+//      }
+//      else
+//      {
+//         *pTV = 0;
+//         *(pTV+1) = 0;
+//         *(pTV+2) = 0;
+//      }
 
-      pTV += 4;
-   }
+//      pTV += 4;
+//   }
 
    // Show cartrige EXRAM memory...
    pLogger = nesGetEXRAMCodeDataLoggerDatabase();
 
-   pTV = (int8_t*)(m_pCodeDataLoggerInspectorTV+(0x5C00<<2));
+   pTV = CodeDataLoggerTV + (0x5C00<<2);
 
    for ( idxx = 0; idxx < MEM_1KB; idxx++ )
    {
@@ -2816,7 +2834,7 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
    }
 
    // Show cartrige SRAM memory...
-   pTV = (int8_t*)(m_pCodeDataLoggerInspectorTV+(0x6000<<2));
+   pTV = CodeDataLoggerTV + (0x6000<<2);
 
    for ( idxx = 0; idxx < MEM_8KB; idxx++ )
    {
@@ -2873,7 +2891,7 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
    }
 
    // Show cartrige PRG-ROM memory...
-   pTV = (int8_t*)(m_pCodeDataLoggerInspectorTV+(MEM_32KB<<2));
+   pTV = CodeDataLoggerTV + (MEM_32KB<<2);
 
    for ( idxy = 0; idxy < 4; idxy++ )
    {
@@ -2933,16 +2951,48 @@ void C6502DBG::RENDERCODEDATALOGGER ( void )
    }
 }
 
-void C6502DBG::RENDEREXECUTIONVISUALIZER ( void )
+static int8_t* ExecutionVisualizerTV = NULL;
+
+int8_t* CPUEXECUTIONVISUALIZERTV() { return ExecutionVisualizerTV; }
+
+void CLEARCPUEXECUTIONVISUALIZER ()
+{
+   int i;
+
+   // Clear image...
+   memset(ExecutionVisualizerTV,0,sizeof(ExecutionVisualizerTV));
+   for ( i = 3; i < 512*512*4; i+=4 )
+   {
+      ExecutionVisualizerTV[i] = 0xFF;
+   }
+}
+
+void RENDERCPUEXECUTIONVISUALIZER ()
 {
    uint32_t idxx, idxy;
    MarkerSetInfo* pMarker;
    int32_t marker;
    int32_t frameDiff;
    int8_t marked;
-   uint32_t numScanlines = CPPUDBG::SCANLINES();
-   int8_t* pTV = (int8_t*)m_pExecutionVisualizerInspectorTV;
+   uint32_t numScanlines = SCANLINES();
    int8_t* pNESTV = nesGetTVOut();
+   int8_t* pTV;
+
+   if ( !ExecutionVisualizerTV )
+   {
+      int i;
+
+      ExecutionVisualizerTV = new int8_t[512*512*4];
+
+      // Clear image...
+      memset(ExecutionVisualizerTV,0,sizeof(ExecutionVisualizerTV));
+      for ( i = 3; i < 512*512*4; i+=4 )
+      {
+         ExecutionVisualizerTV[i] = 0xFF;
+      }
+   }
+
+   pTV = ExecutionVisualizerTV;
 
    for ( idxy = 0; idxy < 512; idxy++ )
    {

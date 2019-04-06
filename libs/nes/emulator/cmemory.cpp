@@ -56,7 +56,7 @@ void CMEMORYBANK::INITIALIZE(uint32_t physBaseAddress,
 
    m_memory = new uint8_t[m_size];
    m_disassembly = new char*[m_size];
-   m_opcodeMaskDirty = new bool[m_size];
+   m_opcodeMaskDirty = true;
    m_opcodeMask = new uint8_t[m_size];
    m_sloc2addr = new uint16_t[m_size];
    m_addr2sloc = new uint16_t[m_size];
@@ -67,6 +67,7 @@ void CMEMORYBANK::INITIALIZE(uint32_t physBaseAddress,
    for ( addr = 0; addr < m_size; addr++ )
    {
       m_disassembly[addr] = new char [ 16 ];
+      m_disassembly[addr][0] = '\0';
       m_opcodeMask[addr] = 0;
       m_sloc2addr[addr] = 0;
       m_addr2sloc[addr] = 0;
@@ -136,11 +137,12 @@ CMEMORY::CMEMORY(uint32_t physBaseAddress,
                               m_bankSize,
                               m_bankSizeMask);
    }
-   for ( bank = 0, physBank = 0; bank < m_numVirtBanks; bank++, physBank++ )
+   for ( bank = 0, physBank = 0; bank < m_numVirtBanks; bank++ )
    {
       // Start with identity mapping.
       m_pBank[bank] = &m_bank[physBank];
       // Make sure if there's more virtual than physical that we don't go in weeds.
+      physBank++;
       physBank %= m_numPhysBanks;
    }
 }
@@ -186,32 +188,38 @@ void CMEMORY::DISASSEMBLE ()
 
 uint32_t CMEMORY::SLOC2ADDR ( uint16_t sloc )
 {
-   uint32_t slocSoFar = m_bank[0].SLOC();
-   uint32_t addr = m_physBaseAddress;
+   uint32_t slocSoFar = 0;
+   uint32_t addr = 0;
    uint32_t bank;
 
-   for ( bank = 1; bank < m_numPhysBanks; bank++ )
+   for ( bank = 0; bank < m_numVirtBanks; bank++ )
    {
-      if ( sloc < slocSoFar )
+      addr = m_pBank[bank]->BASEADDR();
+      slocSoFar += m_pBank[bank]->SLOC();
+      if ( sloc <= slocSoFar )
       {
          break;
       }
-      slocSoFar += m_bank[bank].SLOC();
-      addr += m_bankSize;
-   }
-   if ( bank > 1 )
-   {
-      sloc -= slocSoFar;
    }
 
-   return addr+m_bank[bank-1].SLOC2ADDR(sloc);
+   slocSoFar -= m_pBank[bank]->SLOC();
+   sloc -= slocSoFar;
+
+   return addr+m_pBank[bank]->SLOC2ADDR(sloc);
 }
 
 uint16_t CMEMORY::ADDR2SLOC ( uint32_t addr )
 {
-   uint32_t bank = physBankFromVirtAddr(addr);
-   uint32_t offset = offsetInBank(addr);
-   return m_bank[bank].ADDR2SLOC(offset);
+   uint32_t virtBank = virtBankFromPhysAddr(addr);
+   uint32_t slocSoFar = 0;
+   uint32_t bank;
+
+   for ( bank = 0; bank < virtBank; bank++ )
+   {
+      slocSoFar += m_pBank[bank]->SLOC();
+   }
+
+   return slocSoFar+m_pBank[virtBank]->ADDR2SLOC(offsetInBank(addr));
 }
 
 void CMEMORY::PRINTABLEADDR(char* buffer, uint32_t addr)

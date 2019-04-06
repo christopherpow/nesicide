@@ -144,8 +144,8 @@ void NESEmulatorThread::loadCartridge()
       nesLoadCHRROMBank(b,(uint8_t*)m_pCartridge->getPointerToChrRomBank(b));
    }
 
-   // Perform any necessary fixup on from the ROM loading...
-   nesLoadROM();
+   // Perform any necessary fixup from the ROM loading...
+   nesFinalizeLoad();
 
    // Set up PPU with iNES header information...
    if ( m_pCartridge->getMirrorMode() == HorizontalMirroring )

@@ -18,9 +18,9 @@
 #include "cnesppu.h"
 #include "cnesrom.h"
 #include "cnesapu.h"
-#include "cnesios.h"
 #include "cnesio.h"
 #include "cnesmappers.h"
+#include "cnesios.h"
 
 static int32_t opcode_size [ NUM_ADDRESSING_MODES ] =
 {
@@ -317,7 +317,7 @@ CNES6502_opcode C6502::m_6502opcode [ 256 ] =
 };
 
 C6502::C6502()
-   : m_6502memory(CMEMORY(0x0000, MEM_2KB)),
+   : m_6502memory(CMEMORY(0x0000, MEM_2KB, 1, 4)),
      m_apu(new CAPU())
 {
    m_killed = false;              // KIL opcode not executed.
@@ -3380,16 +3380,16 @@ void C6502::RESET ( bool soft )
 
    m_pcGoto = 0xFFFFFFFF;
 
+   wF ( 0 );
+   sI ();
+   sB ();
+
    // Fake cycle -- stuff is being cleared
    MEM(0xFF);
 
    // Fake opcode reads
    MEM(0xFF);
    MEM(0xFF);
-
-   wF ( 0 );
-   sI ();
-   sB ();
 
    wA ( 0 );
    wX ( 0 );
@@ -3488,7 +3488,6 @@ void C6502::STORE ( uint32_t addr, uint8_t data, int8_t* pTarget )
    if ( addr < 0x2000 )
    {
       (*pTarget) = eTarget_RAM;
-      addr &= 0x7FF; // RAM mirrored...
       m_6502memory.MEM(addr,data&0xFF);
    }
    else if ( addr < 0x4000 )

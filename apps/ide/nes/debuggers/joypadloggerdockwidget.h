@@ -28,16 +28,12 @@ public slots:
    void renderData();
    void updateTargetMachine(QString target);
 
-private slots:
-   void on_showVisible_toggled(bool checked);
-   void on_updateScanline_editingFinished();
-
 private:
    Ui::JoypadLoggerDockWidget *ui;
-   char* imgData;
-   PanZoomRenderer* renderer;
-   DebuggerUpdateThread* pThread;
-   QPoint pressPos;
+//   char* imgData;
+//   PanZoomRenderer* renderer;
+//   DebuggerUpdateThread* pThread;
+//   QPoint pressPos;
 };
 
 #endif // JOYPADLOGGERDOCKWIDGET_H

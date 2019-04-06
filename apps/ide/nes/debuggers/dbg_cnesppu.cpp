@@ -22,30 +22,53 @@
 
 #include <QColor>
 
-int8_t*          CPPUDBG::m_pCodeDataLoggerInspectorTV = NULL;
+static PpuStateSnapshot m_ppuState;
 
-int8_t*          CPPUDBG::m_pCHRMEMInspectorTV = NULL;
-QColor         CPPUDBG::m_chrMemColor[4];
-int8_t*          CPPUDBG::m_pOAMInspectorTV = NULL;
-int8_t*          CPPUDBG::m_pNameTableInspectorTV = NULL;
+// Flag indicating whether or not to decorate invisible sprites.
+static bool           m_bOAMViewerShowVisible = false;
 
-uint32_t CPPUDBG::m_iPPUViewerScanline = 0;
-uint32_t CPPUDBG::m_iOAMViewerScanline = 0;
-bool CPPUDBG::m_bPPUViewerShowVisible = true;
-bool CPPUDBG::m_bOAMViewerShowVisible = false;
+// Flag indicating whether or not to decorate invisible TV region(s).
+static bool           m_bPPUViewerShowVisible = true;
 
-PpuStateSnapshot CPPUDBG::m_ppuState;
-
-CPPUDBG::CPPUDBG()
+// This accessor method sets the flag indicating whether or not
+// visible or invisible sprites should be decorated by the OAM viewer.
+void SetOAMViewerShowVisible ( bool visible )
 {
+   m_bOAMViewerShowVisible = visible;
 }
 
-CPPUDBG::~CPPUDBG()
+// This accessor method sets the flag indicating whether or not
+// visible or invisible regions of the TV screen should be decorated by
+// the NameTable viewer.
+void SetPPUViewerShowVisible ( bool visible )
 {
-   m_pCodeDataLoggerInspectorTV = NULL;
-   m_pCHRMEMInspectorTV = NULL;
-   m_pOAMInspectorTV = NULL;
-   m_pNameTableInspectorTV = NULL;
+   m_bPPUViewerShowVisible = visible;
+}
+
+// These are the current scanlines on which the visualizer
+// debugger inspectors that are scanline-triggered are to be updated.
+static uint32_t           m_iPPUViewerScanline;
+static uint32_t           m_iOAMViewerScanline;
+
+// The CHR memory visualization inspector and the OAM visualization
+// inspector are triggered on a user-defined scanline.  These accessor
+// methods allow the UI to change the scanline-of-interest for the
+// debugger inspectors.
+void SetPPUViewerScanline ( uint32_t scanline )
+{
+   m_iPPUViewerScanline = scanline;
+}
+uint32_t GetPPUViewerScanline ( void )
+{
+   return m_iPPUViewerScanline;
+}
+void SetOAMViewerScanline ( uint32_t scanline )
+{
+   m_iOAMViewerScanline = scanline;
+}
+uint32_t GetOAMViewerScanline ( void )
+{
+   return m_iOAMViewerScanline;
 }
 
 static QColor color [] =
@@ -59,7 +82,23 @@ static QColor color [] =
 
 static QColor renderColor = QColor(0,0,255);
 
-void CPPUDBG::RENDERCODEDATALOGGER ( void )
+static int8_t* CodeDataLoggerTV = NULL;
+
+int8_t* PPUCODEDATALOGGERTV() { return CodeDataLoggerTV; }
+
+void CLEARPPUCODEDATALOGGER ()
+{
+   int i;
+
+   // Clear image...
+   memset(CodeDataLoggerTV,0,sizeof(CodeDataLoggerTV));
+   for ( i = 3; i < 256*256*4; i+=4 )
+   {
+      CodeDataLoggerTV[i] = 0xFF;
+   }
+}
+
+void RENDERPPUCODEDATALOGGER ( void )
 {
    uint32_t idxx;
    uint32_t cycleDiff;
@@ -69,8 +108,21 @@ void CPPUDBG::RENDERCODEDATALOGGER ( void )
    LoggerInfo* pLogEntry;
    int8_t* pTV;
 
-   pTV = (int8_t*)m_pCodeDataLoggerInspectorTV;
-   if ( !pTV ) return;
+   if ( !CodeDataLoggerTV )
+   {
+      int i;
+
+      CodeDataLoggerTV = new int8_t[256*256*4];
+
+      // Clear image...
+      memset(CodeDataLoggerTV,0,sizeof(CodeDataLoggerTV));
+      for ( i = 3; i < 256*256*4; i+=4 )
+      {
+         CodeDataLoggerTV[i] = 0xFF;
+      }
+   }
+
+   pTV = CodeDataLoggerTV;
 
    // Show PPU memory...
    pLogger = nesGetPpuCodeDataLoggerDatabase();
@@ -128,7 +180,30 @@ void CPPUDBG::RENDERCODEDATALOGGER ( void )
    }
 }
 
-void CPPUDBG::RENDERCHRMEM ( void )
+static int8_t* _CHRMEMTV = NULL;
+
+int8_t* CHRMEMTV() { return _CHRMEMTV; }
+
+void CLEARCHRMEMTV()
+{
+   int i;
+
+   // Clear image...
+   memset(_CHRMEMTV,0,sizeof(_CHRMEMTV));
+   for ( i = 3; i < 256*256*4; i+=4 )
+   {
+      _CHRMEMTV[i] = 0xFF;
+   }
+}
+
+static QColor         m_chrMemColor [ 4 ];
+
+void SetCHRMEMInspectorColor ( int32_t idx, QColor color )
+{
+   m_chrMemColor[idx] = color;
+}
+
+void RENDERCHRMEM ( void )
 {
    uint32_t ppuAddr = 0x0000;
    uint8_t patternData1;
@@ -138,8 +213,21 @@ void CPPUDBG::RENDERCHRMEM ( void )
    int32_t color[4][3];
    int8_t* pTV;
 
-   pTV = (int8_t*)m_pCHRMEMInspectorTV;
-   if ( !pTV ) return;
+   if ( !_CHRMEMTV )
+   {
+      int i;
+
+      _CHRMEMTV = new int8_t[256*256*4];
+
+      // Clear image...
+      memset(_CHRMEMTV,0,sizeof(_CHRMEMTV));
+      for ( i = 3; i < 256*256*4; i+=4 )
+      {
+         _CHRMEMTV[i] = 0xFF;
+      }
+   }
+
+   pTV = _CHRMEMTV;
 
    nesGetPpuSnapshot(&m_ppuState);
 
@@ -185,7 +273,23 @@ void CPPUDBG::RENDERCHRMEM ( void )
    }
 }
 
-void CPPUDBG::RENDEROAM ( void )
+static int8_t* _OAMTV = NULL;
+
+int8_t* OAMTV() { return _OAMTV; }
+
+void CLEAROAMTV()
+{
+   int i;
+
+   // Clear image...
+   memset(_OAMTV,0,sizeof(_OAMTV));
+   for ( i = 3; i < 256*256*4; i+=4 )
+   {
+      _OAMTV[i] = 0xFF;
+   }
+}
+
+void RENDEROAM ( void )
 {
    int32_t x, xf, y, yf;
    uint16_t spritePatBase = 0x0000;
@@ -204,8 +308,21 @@ void CPPUDBG::RENDEROAM ( void )
    QColor color[4];
    int8_t* pTV;
 
-   pTV = (int8_t*)m_pOAMInspectorTV;
-   if ( !pTV ) return;
+   if ( !_OAMTV )
+   {
+      int i;
+
+      _OAMTV = new int8_t[256*256*4];
+
+      // Clear image...
+      memset(_OAMTV,0,sizeof(_OAMTV));
+      for ( i = 3; i < 256*256*4; i+=4 )
+      {
+         _OAMTV[i] = 0xFF;
+      }
+   }
+
+   pTV = _OAMTV;
 
    nesGetPpuSnapshot(&m_ppuState);
 
@@ -299,7 +416,23 @@ void CPPUDBG::RENDEROAM ( void )
    }
 }
 
-void CPPUDBG::RENDERNAMETABLE ( void )
+static int8_t* NameTableTV = NULL;
+
+int8_t* NAMETABLETV() { return NameTableTV; }
+
+void CLEARNAMETABLETV()
+{
+   int i;
+
+   // Clear image...
+   memset(NameTableTV,0,sizeof(NameTableTV));
+   for ( i = 3; i < 512*512*4; i+=4 )
+   {
+      NameTableTV[i] = 0xFF;
+   }
+}
+
+void RENDERNAMETABLE ( void )
 {
    int32_t x, xf, y;
    int32_t lbx, ubx, lby, uby;
@@ -318,8 +451,21 @@ void CPPUDBG::RENDERNAMETABLE ( void )
    uint8_t colorIdx;
    int8_t* pTV;
 
-   pTV = (int8_t*)m_pNameTableInspectorTV;
-   if ( !pTV ) return;
+   if ( !NameTableTV )
+   {
+      int i;
+
+      NameTableTV = new int8_t[512*512*4];
+
+      // Clear image...
+      memset(NameTableTV,0,sizeof(NameTableTV));
+      for ( i = 3; i < 512*512*4; i+=4 )
+      {
+         NameTableTV[i] = 0xFF;
+      }
+   }
+
+   pTV = NameTableTV;
 
    nesGetPpuSnapshot(&m_ppuState);
 
@@ -426,4 +572,10 @@ void CPPUDBG::RENDERNAMETABLE ( void )
          ppuAddr += 0x1000;
       }
    }
+}
+
+uint32_t SCANLINES ( void )
+{
+   uint32_t mode = nesGetSystemMode();
+   return mode==MODE_NTSC?SCANLINES_TOTAL_NTSC:mode==MODE_PAL?SCANLINES_TOTAL_PAL:SCANLINES_TOTAL_DENDY;
 }

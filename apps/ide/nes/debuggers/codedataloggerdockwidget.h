@@ -33,7 +33,6 @@ protected:
 
 private:
    Ui::CodeDataLoggerDockWidget *ui;
-   char* imgData;
    PanZoomRenderer* renderer;
    DebuggerUpdateThread* pThread;
    QPoint pressPos;

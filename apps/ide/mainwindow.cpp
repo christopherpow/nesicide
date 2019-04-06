@@ -26,6 +26,8 @@
 #include <QMessageBox>
 #include <QSettings>
 
+#include "SDL.h"
+
 OutputPaneDockWidget* output = NULL;
 ProjectBrowserDockWidget* m_pProjectBrowser = NULL;
 
@@ -474,8 +476,11 @@ MainWindow::~MainWindow()
    delete nesicideProject;
    delete pluginManager;
 
-   m_pNESEmulatorThread->kill();
-   m_pNESEmulatorThread->wait();
+   if ( m_pNESEmulatorThread )
+   {
+      m_pNESEmulatorThread->kill();
+      m_pNESEmulatorThread->wait();
+   }
 }
 
 void MainWindow::openRecentFile()
@@ -597,7 +602,7 @@ void MainWindow::createNesUi()
    }
 
    // If we're set up for some other UI, tear it down.
-   if ( !m_targetLoaded.compare("c64",Qt::CaseInsensitive) )
+    if ( !m_targetLoaded.compare("c64",Qt::CaseInsensitive) )
    {
       destroyC64Ui();
    }
@@ -1186,6 +1191,8 @@ void MainWindow::createNesUi()
 
    m_targetLoaded = "nes";
 
+   SDL_PauseAudio(0);
+
    emit updateTargetMachine(m_targetLoaded);
 }
 
@@ -1196,6 +1203,8 @@ void MainWindow::destroyNesUi()
    {
       return;
    }
+
+   SDL_PauseAudio(1);
 
    CDockWidgetRegistry::removeWidget ( "Assembly Browser" );
    CDockWidgetRegistry::removeWidget ( "Breakpoints" );
@@ -1223,11 +1232,12 @@ void MainWindow::destroyNesUi()
    CDockWidgetRegistry::removeWidget ( "Joypad Logger" );
 
    // Properly kill and destroy the thread we created above.
-//   m_pNESEmulatorThread->kill();
-//   m_pNESEmulatorThread->wait();
+   //m_pNESEmulatorThread->blockSignals(true);
+   m_pNESEmulatorThread->kill();
+   m_pNESEmulatorThread->wait();
 
-//   delete m_pNESEmulatorThread;
-//   m_pNESEmulatorThread = NULL;
+   delete m_pNESEmulatorThread;
+   m_pNESEmulatorThread = NULL;
 
    CObjectRegistry::removeObject ( "Emulator" );
 

@@ -1,6 +1,6 @@
 #include "crendererbase.h"
 
-CRendererBase::CRendererBase(int sizeX,int sizeY,int textureSizeXY,int maxZoom,char* imageData,QWidget *parent) :
+CRendererBase::CRendererBase(int sizeX,int sizeY,int textureSizeXY,int maxZoom,int8_t* imageData,QWidget *parent) :
       QGLWidget(parent),
       _sizeX(sizeX),
       _sizeY(sizeY),
@@ -16,7 +16,7 @@ CRendererBase::CRendererBase(int sizeX,int sizeY,int textureSizeXY,int maxZoom,c
    setCursor(QCursor(Qt::CrossCursor));
 }
 
-CRendererBase::CRendererBase(int sizeX,int sizeY,int maxZoom,char* imageData,QWidget *parent) :
+CRendererBase::CRendererBase(int sizeX,int sizeY,int maxZoom,int8_t* imageData,QWidget *parent) :
     QGLWidget(parent),
     _sizeX(sizeX),
     _sizeY(sizeY),
@@ -100,7 +100,7 @@ void CRendererBase::initializeGL()
    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _textureSizeXY, _textureSizeXY, 0, GL_RGBA, GL_UNSIGNED_BYTE, _imageData);
 }
 
-void CRendererBase::reloadData(char* imageData)
+void CRendererBase::reloadData(int8_t* imageData)
 {
    _imageData = imageData;
 

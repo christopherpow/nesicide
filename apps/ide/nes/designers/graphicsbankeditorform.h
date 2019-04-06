@@ -46,7 +46,7 @@ private:
    CChrRomItemTableDisplayModel* model;
    PanZoomRenderer* renderer;
    CChrRomBankItemDelegate* delegate;
-   char* imgData;
+   int8_t* imgData;
    TilificationThread* pThread;
    QByteArray tilifiedData;
 

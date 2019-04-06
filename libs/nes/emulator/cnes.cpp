@@ -18,7 +18,6 @@
 
 #include "cnes6502.h"
 #include "cnesppu.h"
-#include "cnesios.h"
 #include "cnesio.h"
 #include "cnesapu.h"
 

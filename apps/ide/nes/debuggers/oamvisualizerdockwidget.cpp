@@ -13,29 +13,16 @@ OAMVisualizerDockWidget::OAMVisualizerDockWidget(QWidget *parent) :
     CDebuggerBase(parent),
     ui(new Ui::OAMVisualizerDockWidget)
 {
-   int i;
-
    ui->setupUi(this);
-   imgData = new char[256*256*4];
 
-   // Clear image...
-   for ( i = 0; i < 256*256*4; i+=4 )
-   {
-      imgData[i] = 0;
-      imgData[i+1] = 0;
-      imgData[i+2] = 0;
-      imgData[i+3] = 0xFF;
-   }
-   CPPUDBG::OAMInspectorTV ( (int8_t*)imgData );
-
-   renderer = new PanZoomRenderer(256,32,2000,imgData,false,ui->frame);
+   renderer = new PanZoomRenderer(256,32,2000,OAMTV(),false,ui->frame);
    ui->frame->layout()->addWidget(renderer);
    ui->frame->layout()->update();
 
    ui->updateScanline->setText ( "0" );
    ui->showVisible->setChecked ( false );
 
-   pThread = new DebuggerUpdateThread(&CPPUDBG::RENDEROAM);
+   pThread = new DebuggerUpdateThread(&RENDEROAM);
    QObject::connect(pThread,SIGNAL(updateComplete()),this,SLOT(renderData()));
 }
 
@@ -43,7 +30,6 @@ OAMVisualizerDockWidget::~OAMVisualizerDockWidget()
 {
    delete pThread;
    delete ui;
-   delete imgData;
    delete renderer;
 }
 
@@ -98,17 +84,17 @@ void OAMVisualizerDockWidget::renderData()
     ui->sprite0HitX->setText(str);
     str.sprintf("%d",y);
     ui->sprite0HitY->setText(str);
-   renderer->reloadData(imgData);
+    renderer->reloadData(OAMTV());
 }
 
 void OAMVisualizerDockWidget::on_updateScanline_editingFinished()
 {
-   CPPUDBG::SetOAMViewerScanline ( ui->updateScanline->text().toInt() );
+   SetOAMViewerScanline ( ui->updateScanline->text().toInt() );
    renderer->update();
 }
 
 void OAMVisualizerDockWidget::on_showVisible_toggled(bool checked)
 {
-   CPPUDBG::SetOAMViewerShowVisible ( checked );
+   SetOAMViewerShowVisible ( checked );
    renderer->update();
 }

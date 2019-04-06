@@ -437,9 +437,9 @@ public:
    inline void _MIRROR(uint16_t* sc1, uint16_t* sc2, uint16_t* sc3, uint16_t* sc4)
    {
       (*sc1) = m_PPUmemory.VIRTBANK(0)->BASEADDR();
-      (*sc1) = m_PPUmemory.VIRTBANK(1)->BASEADDR();
-      (*sc1) = m_PPUmemory.VIRTBANK(2)->BASEADDR();
-      (*sc1) = m_PPUmemory.VIRTBANK(3)->BASEADDR();
+      (*sc2) = m_PPUmemory.VIRTBANK(1)->BASEADDR();
+      (*sc3) = m_PPUmemory.VIRTBANK(2)->BASEADDR();
+      (*sc4) = m_PPUmemory.VIRTBANK(3)->BASEADDR();
    }
 
    // Accessor functions for the database of scroll values indexed by pixel

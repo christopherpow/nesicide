@@ -111,8 +111,6 @@ protected:
    uint32_t m_sizeMask;
 
    uint32_t m_physBaseAddress;
-   uint32_t m_virtToPhysAddrMask;
-   uint32_t m_virtToPhysAddrShift;
 
    // Database used by the Code/Data Logger debugger inspector.  The data structure
    // is maintained by the CPU core as it performs fetches, reads,

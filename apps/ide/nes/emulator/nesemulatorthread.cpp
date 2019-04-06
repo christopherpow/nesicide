@@ -535,12 +535,11 @@ void NESEmulatorThread::run ()
             // This internally causes a NES reset.
             loadCartridge();
             m_pCartridge = NULL;
+
+            // Trigger inspector updates...
+            nesDisassemble();
+            emit updateDebuggers();
          }
-
-         // Trigger inspector updates...
-         nesDisassemble();
-         emit updateDebuggers();
-
          // Trigger UI updates...
          emit emulatorReset();
 

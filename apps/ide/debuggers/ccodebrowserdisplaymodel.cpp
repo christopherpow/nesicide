@@ -63,7 +63,6 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex& index, int role) cons
       operand2 = c64GetMemory(addr+2);
       pc = c64GetCPURegister(CPU_PC);
    }
-   qDebug("%04X %08X: %02X",addr,absAddr,opcode);
 
    if ( role == Qt::ToolTipRole )
    {
