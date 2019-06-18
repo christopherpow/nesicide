@@ -8,6 +8,7 @@ hosts:
 install:
 - cmd: >-
        bash ./build/windows-appveyor-setup.sh before_install
+
        bash ./build/windows-appveyor-setup.sh install
 build_script:
 - cmd: >-
