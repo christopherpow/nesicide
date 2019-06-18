@@ -1,7 +1,7 @@
 #!/bin/bash
 
 PATH=deps/Windows/GnuWin32/bin:$PATH
-QTDIR=/c/Qt/5.12.1/mingw73_64
+QTDIR=/c/Qt/5.12.2/mingw73_64
 PATH=$PATH:$QTDIR/bin:/c/MinGW/bin
 
 # check for deps
