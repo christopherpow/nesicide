@@ -97,7 +97,7 @@ win32 {
    LUA_CXXFLAGS = -I $$DEPENDENCYPATH/Lua
    LUA_LIBS = -L$$DEPENDENCYPATH/Lua -llua51
 
-   QMAKE_LFLAGS += -static-libgcc
+#   QMAKE_LFLAGS += -static-libgcc
 }
 
 mac {
