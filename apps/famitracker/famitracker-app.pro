@@ -67,7 +67,7 @@ win32 {
    SDL_CXXFLAGS = -I$$DEPENDENCYPATH/SDL
    SDL_LIBS =  -L$$DEPENDENCYPATH/SDL/$$arch -lsdl
 
-#   QMAKE_LFLAGS += -static-libgcc
+   QMAKE_LFLAGS += -static-libgcc
 }
 
 mac {
