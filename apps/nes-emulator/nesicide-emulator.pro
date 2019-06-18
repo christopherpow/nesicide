@@ -63,11 +63,12 @@ NESICIDE_CXXFLAGS = -I$$TOP/libs/nes -I$$TOP/libs/nes/emulator
 NESICIDE_LIBS = -L$$TOP/libs/nes/$$DESTDIR -lnes-emulator
 
 win32 {
-    contains(QT_ARCH, i386) {
-        arch = x86
-    } else {
-        arch = x64
-    }
+#    contains(QT_ARCH, i386) {
+#        arch = x86
+#    } else {
+#        arch = x64
+#    }
+   arch = x86
 
    SDL_CXXFLAGS = -I$$DEPENDENCYPATH/SDL
    SDL_LIBS =  -L$$DEPENDENCYPATH/SDL/$$arch -lsdl
