@@ -5,10 +5,10 @@ branches:
 skip_tags: true
 hosts:
   phrenetic: 162.243.126.83
-#install:
-#- cmd: >-
-#       bash ./build/windows-travis-setup.sh before_install
-#       bash ./build/windows-travis-setup.sh install
+install:
+- cmd: >-
+       bash ./build/windows-appveyor-setup.sh before_install
+       bash ./build/windows-appveyor-setup.sh install
 build_script:
 - cmd: >-
     bash ./build/windows-build.sh
