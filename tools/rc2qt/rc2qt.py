@@ -78,7 +78,7 @@ void qtInitIconResources()
 
 class rcStringTable(object):
 	StringTableItemFormat = \
-"""   qtMfcStringResources.insert({0},{1});"""
+"""   qtMfcStringResources.insert({0},"{1}");"""
 	table = None
 
 	def __init__(self,table):
@@ -88,7 +88,7 @@ class rcStringTable(object):
 		for i in range(len(self.table)):
 			print(self.StringTableItemFormat.format(\
 				self.table[i].ID().getText(),\
-				self.table[i].String().getText().replace('""','\"')))
+				self.table[i].String().getText()[1:-1].replace('""','\\\"')))
 
 class rcStringTableList(object):
 	stringTables = []
