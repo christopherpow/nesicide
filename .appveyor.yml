@@ -2,6 +2,10 @@ version: 1.0.{build}
 image: Visual Studio 2017
 platform: x64
 
+branches:
+  only:
+  - appveyor
+  
 environment:
   QTDIR: C:\Qt\5.11\mingw53_32
 
@@ -10,9 +14,6 @@ install:
   - set CC=C:\Qt\Tools\mingw530_32\bin\gcc.exe
   - set CXX=C:\Qt\Tools\mingw530_32\bin\g++.exe
   
-branches:
-  only:
-  - appveyor
 skip_tags: true
 hosts:
   phrenetic: 162.243.126.83
