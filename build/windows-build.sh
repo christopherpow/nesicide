@@ -6,6 +6,8 @@ PATH=$PATH:$QTDIR/bin
 
 ls -al /c/Qt/
 ls -al /c/Qt/5.11.3/
+ls -al /c/Qt/5.11.3/mingw53_32
+ls -al /c/Qt/5.11.3/mingw53_32/bin
 
 # check for deps
 echo -n "Checking for dependencies package..."
