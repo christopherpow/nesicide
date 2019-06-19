@@ -2,9 +2,9 @@ version: 1.0.{build}
 image: Visual Studio 2017
 platform: x64
 
-branches:
-  only:
-  - appveyor
+#branches:
+#  only:
+#  - appveyor
   
 environment:
   QTDIR: C:\Qt\5.11\mingw53_32
