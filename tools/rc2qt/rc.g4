@@ -440,7 +440,7 @@ ID      : Number
         | Valid_id_start Valid_id_char*
         ;
 
-String  : '"' (~[\r\n"])* '"' ;
+String : '"' (~[\r\n"] | '""')* '"' ;
 WS : (' ' | '\t')+ -> channel(HIDDEN) ;
 NEWLINE: ('\r' | '\n') -> channel(HIDDEN) ;
 Comment: '//' (~[\r\n])* -> channel(HIDDEN) ;

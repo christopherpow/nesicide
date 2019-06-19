@@ -34,10 +34,10 @@ void qtMfcInitBitmapResources()
 		self.bitmaps.append(bitmap)
 
 	def output(self):
-		print self.BitmapsHeader
+		print(self.BitmapsHeader)
 		for bitmap in self.bitmaps:
-			print self.BitmapItemFormat.format(bitmap.id,bitmap.file)
-		print self.BitmapsFooter
+			print(self.BitmapItemFormat.format(bitmap.id,bitmap.file))
+		print(self.BitmapsFooter)
 
 class rcIcon(object):
 	id = None
@@ -71,10 +71,10 @@ void qtInitIconResources()
 		self.icons.append(icon)
 
 	def output(self):
-		print self.IconsHeader
+		print(self.IconsHeader)
 		for icon in self.icons:
-			print self.IconItemFormat.format(icon.id,icon.file)
-		print self.IconsFooter
+			print(self.IconItemFormat.format(icon.id,icon.file))
+		print(self.IconsFooter)
 
 class rcStringTable(object):
 	StringTableItemFormat = \
@@ -86,9 +86,9 @@ class rcStringTable(object):
 
 	def output(self):
 		for i in range(len(self.table)):
-			print self.StringTableItemFormat.format(\
+			print(self.StringTableItemFormat.format(\
 				self.table[i].ID().getText(),\
-				self.table[i].String().getText())
+				self.table[i].String().getText().replace('""','\"')))
 
 class rcStringTableList(object):
 	stringTables = []
@@ -122,12 +122,12 @@ void qtMfcInitStringResources()
 		self.stringTables.append(stringTable)
 
 	def output(self):
-		print self.StringTablesHeader
+		print(self.StringTablesHeader)
 		for stringTable in self.stringTables:
-			print self.StringTableHeader
+			print(self.StringTableHeader)
 			stringTable.output()
-			print self.StringTableFooter
-		print self.StringTablesFooter
+			print(self.StringTableFooter)
+		print(self.StringTablesFooter)
 
 class rcToolbar(object):
 	ToolbarsImplHeaderFormat = \
@@ -203,18 +203,18 @@ void qtMfcInitToolBarResource_{0}(UINT dlgID,CToolBar* parent)
 		self.table = table
 
 	def output_decl(self):
-		print self.ToolbarsDeclItemFormat.format(self.id,self.numbers[self.X],self.numbers[self.Y])
+		print(self.ToolbarsDeclItemFormat.format(self.id,self.numbers[self.X],self.numbers[self.Y]))
 
 	def output_impl(self):
-		print self.ToolbarsImplHeaderFormat.format(self.id,self.numbers[self.X],self.numbers[self.Y])
+		print(self.ToolbarsImplHeaderFormat.format(self.id,self.numbers[self.X],self.numbers[self.Y]))
 		idx = 0
 		for item in self.table:
 			if item.BUTTON():
-				print self.ToolbarsImplItemFormat[self.BUTTON].format(idx,item.ID().getText(),self.numbers[self.X],self.numbers[self.Y])
+				print(self.ToolbarsImplItemFormat[self.BUTTON].format(idx,item.ID().getText(),self.numbers[self.X],self.numbers[self.Y]))
 				idx += 1
 			else:
-				print self.ToolbarsImplItemFormat[self.SEPARATOR]
-		print self.ToolbarsImplFooter
+				print(self.ToolbarsImplItemFormat[self.SEPARATOR])
+		print(self.ToolbarsImplFooter)
 
 class rcToolbarList(object):
 	ToolbarsDeclHeader = \
@@ -236,10 +236,10 @@ void qtMfcInitToolBarResource(UINT dlgID,CToolBar* parent)
 		for toolbar in self.toolbars:
 			toolbar.output_impl()
 
-		print self.ToolbarsDeclHeader
+		print(self.ToolbarsDeclHeader)
 		for toolbar in self.toolbars:
 			toolbar.output_decl()
-		print self.ToolbarsDeclFooter
+		print(self.ToolbarsDeclFooter)
 
 class rcAcceleratorTable(object):
 	AcceleratorTablesImplHeaderFormat = \
@@ -270,10 +270,10 @@ ACCEL ACCEL_{0}[] =
 		self.table = table
 
 	def output_decl(self):
-		print self.AcceleratorTablesDeclItemFormat.format(self.id)
+		print(self.AcceleratorTablesDeclItemFormat.format(self.id))
 
 	def output_impl(self):
-		print self.AcceleratorTablesImplHeaderFormat.format(self.id)
+		print(self.AcceleratorTablesImplHeaderFormat.format(self.id))
 		for item in self.table:
 			optionString = "F"+item.ACCELERATOR_TYPE().getText()+"|"
 			if item.ACCELERATOR_OPTIONS():
@@ -292,8 +292,8 @@ ACCEL ACCEL_{0}[] =
 				eventString = item.accelerator_event().ID().getText()
 			elif item.accelerator_event().Number():
 				eventString = item.accelerator_event().Number().getText()
-			print self.AcceleratorTablesImplItemFormat.format(item.ID().getText(),eventString,optionString)
-		print self.AcceleratorTablesImplFooter
+			print(self.AcceleratorTablesImplItemFormat.format(item.ID().getText(),eventString,optionString))
+		print(self.AcceleratorTablesImplFooter)
 
 class rcAcceleratorTableList(object):
 	AcceleratorTablesDeclHeader = \
@@ -316,10 +316,10 @@ ACCEL* qtMfcAcceleratorResource(UINT id)
 		for acceleratorTable in self.accleratorTables:
 			acceleratorTable.output_impl()
 
-		print self.AcceleratorTablesDeclHeader
+		print(self.AcceleratorTablesDeclHeader)
 		for acceleratorTable in self.accleratorTables:
 			acceleratorTable.output_decl()
-		print self.AcceleratorTablesDeclFooter
+		print(self.AcceleratorTablesDeclFooter)
 
 
 class rcMenu(object):
@@ -377,10 +377,10 @@ void qtMfcInitMenuResource_{0}(CMenu* parent)
 		self.table = table
 
 	def output_decl(self):
-		print self.MenusDeclItemFormat.format(self.id)
+		print(self.MenusDeclItemFormat.format(self.id))
 
 	def output_popup(self, popup):
-		print self.PopupsImplHeaderFormat.format(popup.String().getText())
+		print(self.PopupsImplHeaderFormat.format(popup.String().getText()))
 		for child in popup.children:
 			if type(child) is rcParser.Menu_itemContext:
 				optionString = ""
@@ -393,22 +393,22 @@ void qtMfcInitMenuResource_{0}(CMenu* parent)
 					if optionString != "":
 						optionString += "|"
 					optionString += "MF_SEPARATOR"
-					print self.MenuItemFormat[self.SEPARATOR].format(optionString)
+					print(self.MenuItemFormat[self.SEPARATOR].format(optionString))
 				elif child.MENUITEM():
 					if optionString != "":
 						optionString += "|"
 					optionString += "MF_STRING"
-					print self.MenuItemFormat[self.MENUITEM].format(child.ID().getText(), child.String().getText(),
-																					optionString)
+					print(self.MenuItemFormat[self.MENUITEM].format(child.ID().getText(), child.String().getText(),
+																					optionString))
 			elif type(child) is rcParser.Popup_itemContext:
 				self.output_popup(child)
-		print self.PopupsImplFooter
+		print(self.PopupsImplFooter)
 
 	def output_impl(self):
-		print self.MenusImplHeaderFormat.format(self.id, "?????")
+		print(self.MenusImplHeaderFormat.format(self.id, "?????"))
 		for item in self.table:
 			self.output_popup(item)
-		print self.MenusImplFooter
+		print(self.MenusImplFooter)
 
 
 class rcMenuList(object):
@@ -447,10 +447,10 @@ void qtMfcInitMenuResource(UINT menuID,CMenu* parent)
 		for menu in self.menus:
 			menu.output_impl()
 
-		print self.MenusDeclHeader
+		print(self.MenusDeclHeader)
 		for menu in self.menus:
 			menu.output_decl()
-		print self.MenusDeclFooter
+		print(self.MenusDeclFooter)
 
 
 class rcDialogEx(object):
@@ -526,7 +526,7 @@ void qtMfcInitDialogResource_{0}(CDialog* parent)
 						self.style = self.StyleFormat.format(stylesOrig,styles)
 
 	def output_decl(self):
-		print self.DialogExDeclItemFormat.format(self.id)
+		print(self.DialogExDeclItemFormat.format(self.id))
 
 	def get_styles(self,stylelist,styles):
 		if stylelist:
@@ -584,7 +584,7 @@ void qtMfcInitDialogResource_{0}(CDialog* parent)
 		elif item.String(1).getText().lower() == '"systreeview32"':
 			mfcClass = "CTreeCtrl"
 
-		print ItemFormatInUse.format(idx, \
+		print(ItemFormatInUse.format(idx, \
 										item.ID().getText(), \
 										styles,
 										item.String(0).getText(), \
@@ -594,7 +594,7 @@ void qtMfcInitDialogResource_{0}(CDialog* parent)
 										item.Number(1).getText(), \
 										item.Number(2).getText(), \
 										item.Number(3).getText() \
-										)
+										))
 		return item.ID().getText()
 
 	def output_static_control_statement(self,idx,item):
@@ -608,7 +608,7 @@ void qtMfcInitDialogResource_{0}(CDialog* parent)
 """
 		styles = self.get_styles(item.stylelist(),"WS_VISIBLE|WS_BORDER")
 
-		print ItemFormat.format(idx, \
+		print(ItemFormat.format(idx, \
 										item.ID().getText(), \
 										styles, \
 										item.static_class_identifier().getText(), \
@@ -617,7 +617,7 @@ void qtMfcInitDialogResource_{0}(CDialog* parent)
 										item.Number(1).getText(), \
 										item.Number(2).getText(), \
 										item.Number(3).getText(), \
-										)
+										))
 		return item.ID().getText()
 
 	def output_groupbox_control_statement(self,idx,item):
@@ -631,7 +631,7 @@ void qtMfcInitDialogResource_{0}(CDialog* parent)
 """
 		styles = self.get_styles(item.stylelist(),"BS_GROUPBOX|WS_VISIBLE|WS_BORDER")
 
-		print ItemFormat.format(idx, \
+		print(ItemFormat.format(idx, \
 										item.ID().getText(), \
 										styles, \
 										item.String().getText(), \
@@ -639,7 +639,7 @@ void qtMfcInitDialogResource_{0}(CDialog* parent)
 										item.Number(1).getText(), \
 										item.Number(2).getText(), \
 										item.Number(3).getText(), \
-										)
+										))
 		return item.ID().getText()
 
 	def output_combobox_control_statement(self,idx,item):
@@ -653,14 +653,14 @@ void qtMfcInitDialogResource_{0}(CDialog* parent)
 """
 		styles = self.get_styles(item.stylelist(),"WS_VISIBLE|WS_BORDER")
 
-		print ItemFormat.format(idx, \
+		print(ItemFormat.format(idx, \
 										item.ID().getText(), \
 										styles, \
 										item.Number(0).getText(), \
 										item.Number(1).getText(), \
 										item.Number(2).getText(), \
 										item.Number(3).getText(), \
-										)
+										))
 		return item.ID().getText()
 
 	def output_listbox_control_statement(self,idx,item):
@@ -674,14 +674,14 @@ void qtMfcInitDialogResource_{0}(CDialog* parent)
 """
 		styles = self.get_styles(item.stylelist(),"WS_VISIBLE|WS_BORDER")
 
-		print ItemFormat.format(idx, \
+		print(ItemFormat.format(idx, \
 										item.ID().getText(), \
 										styles, \
 										item.Number(0).getText(), \
 										item.Number(1).getText(), \
 										item.Number(2).getText(), \
 										item.Number(3).getText(), \
-										)
+										))
 		return item.ID().getText()
 
 	def output_defpushbutton_control_statement(self,idx,item):
@@ -695,7 +695,7 @@ void qtMfcInitDialogResource_{0}(CDialog* parent)
 """
 		styles = self.get_styles(item.stylelist(),"BS_DEFPUSHBUTTON|WS_VISIBLE|WS_BORDER")
 
-		print ItemFormat.format(idx, \
+		print(ItemFormat.format(idx, \
 										item.ID().getText(), \
 										styles, \
 										item.String().getText(), \
@@ -703,7 +703,7 @@ void qtMfcInitDialogResource_{0}(CDialog* parent)
 										item.Number(1).getText(), \
 										item.Number(2).getText(), \
 										item.Number(3).getText(), \
-										)
+										))
 		return item.ID().getText()
 
 	def output_edit_control_statement(self,idx,item):
@@ -717,7 +717,7 @@ void qtMfcInitDialogResource_{0}(CDialog* parent)
 """
 		styles = self.get_styles(item.stylelist(),"WS_VISIBLE|WS_BORDER")
 
-		print ItemFormat.format(idx, \
+		print(ItemFormat.format(idx, \
 										item.edit_class_identifier().getText(),
 										item.ID().getText(), \
 										styles, \
@@ -725,7 +725,7 @@ void qtMfcInitDialogResource_{0}(CDialog* parent)
 										item.Number(1).getText(), \
 										item.Number(2).getText(), \
 										item.Number(3).getText(), \
-										)
+										))
 		return item.ID().getText()
 
 	def output_button_control_statement(self,idx,item):
@@ -739,7 +739,7 @@ void qtMfcInitDialogResource_{0}(CDialog* parent)
 """
 		styles = self.get_styles(item.stylelist(),"WS_VISIBLE|WS_BORDER")
 
-		print ItemFormat.format(idx, \
+		print(ItemFormat.format(idx, \
 										item.button_class_identifier().getText(),
 										item.ID().getText(), \
 										styles, \
@@ -748,7 +748,7 @@ void qtMfcInitDialogResource_{0}(CDialog* parent)
 										item.Number(1).getText(), \
 										item.Number(2).getText(), \
 										item.Number(3).getText(), \
-										)
+										))
 		return item.ID().getText()
 
 	def output_dialog_item(self,idx,item,groupboxPriority):
@@ -777,21 +777,21 @@ void qtMfcInitDialogResource_{0}(CDialog* parent)
 		return 1
 
 	def output_impl(self):
-		print self.DialogExImplHeaderStartFormat.format(self.id,
+		print(self.DialogExImplHeaderStartFormat.format(self.id,
 																 self.x,
 																 self.y,
 																 self.dx,
-																 self.dy)
-		print self.caption
-		print self.style
-		print self.font
-		print self.DialogExImplHeaderEnd
+																 self.dy))
+		print(self.caption)
+		print(self.style)
+		print(self.font)
+		print(self.DialogExImplHeaderEnd)
 		idx = 0
 		for item in self.items:
 			idx += self.output_dialog_item(idx,item,True)
 		for item in self.items:
 			idx += self.output_dialog_item(idx,item,False)
-		print self.DialogExImplFooter
+		print(self.DialogExImplFooter)
 
 
 class rcDialogExList(object):
@@ -820,10 +820,10 @@ void qtMfcInitDialogResource(UINT dlgID,CDialog* parent)
 		for dialog in self.dialogs:
 			dialog.output_impl()
 
-		print self.DialogExsDeclHeader
+		print(self.DialogExsDeclHeader)
 		for dialog in self.dialogs:
 			dialog.output_decl()
-		print self.DialogExsDeclFooter
+		print(self.DialogExsDeclFooter)
 
 
 class rcDialogInitList(object):
@@ -849,7 +849,7 @@ class rcDialogInitList(object):
 					for item in items:
 						if len(item)%2:
 							item += "0"
-						print self.DialogInitItemFormat.format(mfc,item.decode('hex'))
+						print(self.DialogInitItemFormat.format(mfc,item))#.decode('hex')))
 
 class myRcVisitor(rcVisitor):
 	def visitToolbar_statement(self, ctx):
@@ -928,8 +928,6 @@ void qtMfcInit(QMainWindow* parent)
 """
 
 def main(argv):
-	reload(sys)
-	sys.setdefaultencoding('utf8')
 	output = io.StringIO()
 
 	input = FileStream(argv[1])
@@ -940,7 +938,7 @@ def main(argv):
 	visitor = myRcVisitor()
 	traverseResult = visitor.visit(tree)
 
-	print FileHeader
+	print(FileHeader)
 	menuList.output()
 	stringTableList.output()
 	acceleratorTableList.output()
@@ -948,7 +946,7 @@ def main(argv):
 	iconList.output()
 	dialogExList.output()
 	toolbarList.output()
-	print FileFooter
+	print(FileFooter)
 
 if __name__ == '__main__':
 	 main(sys.argv)

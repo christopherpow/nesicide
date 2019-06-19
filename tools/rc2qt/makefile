@@ -2,7 +2,7 @@ JAVA=java
 #JAVAC=/usr/bin/javac
 GRAMMAR=rc.g4
 ANTLR_JAR=antlr-4.7.2-complete.jar
-GEN_LANGUAGE=Python2
+GEN_LANGUAGE=Python3
 
 all: antlr4_python 
 
