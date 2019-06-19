@@ -17,10 +17,10 @@ else
 fi
 # add CONFIG+=debug to qmake to build debug.
 echo Building NESICIDE...
-( cd build/ide; qmake; mingw64-make )
+( cd build/ide; qmake; mingw32-make )
 echo Building FamiTracker...
-( cd build/famitracker; qmake; mingw64-make )
+( cd build/famitracker; qmake; mingw32-make )
 echo Building FamiPlayer...
-( cd build/famiplayer; qmake; mingw64-make )
+( cd build/famiplayer; qmake; mingw32-make )
 echo Building NES Emulator...
-( cd build/nes-emulator; qmake; mingw64-make )
+( cd build/nes-emulator; qmake; mingw32-make )
