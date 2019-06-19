@@ -2,13 +2,11 @@
 
 #PATH=deps/Windows/GnuWin32/bin:$PATH
 QTDIR=/c/Qt/5.11.3/mingw53_32
-PATH=$PATH:$QTDIR/bin
+MINGWDIR=/c/mingw-w64
+PATH=$PATH:$QTDIR/bin:$MINGWDIR/bin
 
-ls -al /c/
-ls -al /c/Qt/
-ls -al /c/Qt/5.11.3/
-ls -al /c/Qt/5.11.3/mingw53_32
-ls -al /c/Qt/5.11.3/mingw53_32/bin
+ls -al /c/mingw-w64
+ls -al /c/mingw-w64/bin
 
 # check for deps
 echo -n "Checking for dependencies package..."
