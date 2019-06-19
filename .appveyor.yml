@@ -30,6 +30,8 @@ build_script:
 test: off
 deploy_script:
 - cmd: >-
+    bash ./build/windows-deploy.sh remote
+
 #    openssl aes-256-cbc -K $encrypted_c3ea658420f4_key -iv $encrypted_c3ea658420f4_iv -in deploy_rsa.enc -out deploy_rsa -d
 #
 #    eval "$(ssh-agent -s)"
@@ -38,4 +40,3 @@ deploy_script:
 #
 #    ssh-add deploy_rsa
 #
-    bash ./build/windows-deploy.sh remote
