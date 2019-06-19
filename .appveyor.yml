@@ -3,7 +3,7 @@ image: Visual Studio 2017
 
 branches:
   only:
-  - master
+  - appveyor
 skip_tags: true
 hosts:
   phrenetic: 162.243.126.83
