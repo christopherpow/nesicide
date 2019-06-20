@@ -14,16 +14,16 @@ statement: bitmap_statement
 
 language: 'LANGUAGE' ID ',' ID ;
 
-version: Number ',' Number ',' Number ',' Number ;
-file_version: 'FILEVERSION' version ;
-product_version: 'PRODUCTVERSION' version ;
-values: 'VALUE' String ',' String ;
-vs_version_statement: 'VS_VERSION_INFO' 'VERSIONINFO' file_version product_version (BEGIN BLOCK String BEGIN BLOCK String BEGIN values+ END END)+ END ;
-Ignore_1: 'FILEFLAGSMASK' (~[\r\n])* -> channel(HIDDEN) ;
-Ignore_2: 'FILEFLAGS' (~[\r\n])* -> channel(HIDDEN) ;
-Ignore_3: 'FILEOS' (~[\r\n])* -> channel(HIDDEN) ;
-Ignore_4: 'FILETYPE' (~[\r\n])* -> channel(HIDDEN) ;
-Ignore_5: 'FILESUBTYPE' (~[\r\n])* -> channel(HIDDEN) ;
+//version: Number ',' Number ',' Number ',' Number ;
+//file_version: 'FILEVERSION' version ;
+//product_version: 'PRODUCTVERSION' version ;
+//values: 'VALUE' String ',' String ;
+//vs_version_statement: 'VS_VERSION_INFO' 'VERSIONINFO' file_version product_version (BEGIN BLOCK String BEGIN BLOCK String BEGIN values+ END END)+ END ;
+//Ignore_1: 'FILEFLAGSMASK' (~[\r\n])* -> channel(HIDDEN) ;
+//Ignore_2: 'FILEFLAGS' (~[\r\n])* -> channel(HIDDEN) ;
+//Ignore_3: 'FILEOS' (~[\r\n])* -> channel(HIDDEN) ;
+//Ignore_4: 'FILETYPE' (~[\r\n])* -> channel(HIDDEN) ;
+//Ignore_5: 'FILESUBTYPE' (~[\r\n])* -> channel(HIDDEN) ;
 					
 bitmap_statement: ID BITMAP String ;
 
@@ -459,4 +459,4 @@ String : '"' (~[\r\n"] | '""')* '"' ;
 WS : (' ' | '\t')+ -> channel(HIDDEN) ;
 NEWLINE: ('\r' | '\n') -> channel(HIDDEN) ;
 Comment: '//' (~[\r\n])* -> channel(HIDDEN) ;
-Preprocessor: '#' (~[\r\n])* -> channel(HIDDEN) ;
+//Preprocessor: '#' (~[\r\n])* -> channel(HIDDEN) ;
