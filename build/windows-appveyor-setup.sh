@@ -2,9 +2,7 @@
 set -v
 
 if [ "$1" == "before_install" ]; then
-  echo "Running vcvars..."
-  "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
+  echo "Nothing to do for before_install..."
 elif [ "$1" == "install" ]; then
-  echo "Getting make..."
-  choco install make -y
+  choco install rsync
 fi
