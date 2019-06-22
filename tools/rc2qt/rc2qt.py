@@ -4,7 +4,7 @@ from rcVisitor import rcVisitor
 from rcParser import rcParser
 import sys
 import io
-import codecs
+from binascii import unhexlify
 
 class rcBitmap(object):
 	id = None
@@ -849,7 +849,7 @@ class rcDialogInitList(object):
 					for item in items:
 						if len(item)%2:
 							item += "0"
-						print(self.DialogInitItemFormat.format(mfc,item))#.decode('hex')))
+						print(self.DialogInitItemFormat.format(mfc, unhexlify(item)))
 
 class myRcVisitor(rcVisitor):
 	def visitToolbar_statement(self, ctx):
