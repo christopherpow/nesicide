@@ -826,6 +826,11 @@ void qtMfcInitDialogResource(UINT dlgID,CDialog* parent)
 		print(self.DialogExsDeclFooter)
 
 
+def bytes_to_cpp_literal(b: bytes) -> str:
+	"""Converts bytes into a C++ hex-escaped string (without double-quotes)."""
+	return str(b)[2:-1]
+
+
 class rcDialogInitList(object):
 	DialogInitItemFormat = """
 	mfc{0}->AddString(_T("{1}"));
@@ -847,9 +852,12 @@ class rcDialogInitList(object):
 				items = itemsForId[str(subId)]
 				if items:
 					for item in items:
+						# If odd number of hex-digits, pad with 0.
 						if len(item)%2:
 							item += "0"
-						print(self.DialogInitItemFormat.format(mfc, unhexlify(item)))
+
+						cpp_literal = bytes_to_cpp_literal(unhexlify(item))
+						print(self.DialogInitItemFormat.format(mfc, cpp_literal))
 
 class myRcVisitor(rcVisitor):
 	def visitToolbar_statement(self, ctx):
