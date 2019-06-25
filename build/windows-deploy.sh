@@ -46,6 +46,6 @@ if [ "$1" == "local" ]; then
   done
   tar cjvf nesicide-win-x64.tar.bz2 dist
 elif [ "$1" == "remote" ]; then
-  rsync --help
-  rsync $TRAVIS_BUILD_DIR/nesicide-win-x64.tar.bz2 cpow@162.243.126.83:/var/www/html/nesicide/
+#  rsync $TRAVIS_BUILD_DIR/nesicide-win-x64.tar.bz2 cpow@162.243.126.83:/var/www/html/nesicide/
+  scp -r $TRAVIS_BUILD_DIR/nesicide-win-x64.tar.bz2 cpow@162.243.126.83:/var/www/html/nesicide/
 fi
