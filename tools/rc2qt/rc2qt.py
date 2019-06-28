@@ -849,7 +849,7 @@ class rcDialogInitList(object):
 					for item in items:
 						if len(item)%2:
 							item += "0"
-						print(self.DialogInitItemFormat.format(mfc, unhexlify(item)))
+						print(self.DialogInitItemFormat.format(mfc, bytearray.fromhex(item).decode()))
 
 class myRcVisitor(rcVisitor):
 	def visitToolbar_statement(self, ctx):
