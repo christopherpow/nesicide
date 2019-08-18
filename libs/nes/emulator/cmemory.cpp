@@ -60,7 +60,7 @@ void CMEMORYBANK::INITIALIZE(uint32_t physBaseAddress,
    m_opcodeMask = new uint8_t[m_size];
    m_sloc2addr = new uint16_t[m_size];
    m_addr2sloc = new uint16_t[m_size];
-   m_sloc = 0;
+   m_sloc = m_size; // assume 1:1 map until otherwise known
 
    m_pLogger = new CCodeDataLogger ( m_size, m_sizeMask );
 
@@ -69,8 +69,8 @@ void CMEMORYBANK::INITIALIZE(uint32_t physBaseAddress,
       m_disassembly[addr] = new char [ 16 ];
       m_disassembly[addr][0] = '\0';
       m_opcodeMask[addr] = 0;
-      m_sloc2addr[addr] = 0;
-      m_addr2sloc[addr] = 0;
+      m_sloc2addr[addr] = addr; // assume 1:1 map until otherwise known
+      m_addr2sloc[addr] = addr; // assume 1:1 map until otherwise known
    }
 }
 
@@ -194,16 +194,16 @@ uint32_t CMEMORY::SLOC2ADDR ( uint16_t sloc )
 
    for ( bank = 0; bank < m_numVirtBanks; bank++ )
    {
-      addr = m_pBank[bank]->BASEADDR();
       slocSoFar += m_pBank[bank]->SLOC();
       if ( sloc <= slocSoFar )
       {
+         slocSoFar -= m_pBank[bank]->SLOC();
+
+         addr = m_pBank[bank]->BASEADDR();
+         sloc -= slocSoFar;
          break;
       }
    }
-
-   slocSoFar -= m_pBank[bank]->SLOC();
-   sloc -= slocSoFar;
 
    return addr+m_pBank[bank]->SLOC2ADDR(sloc);
 }

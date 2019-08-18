@@ -576,7 +576,7 @@ void NESEmulatorThread::run ()
          nesEnableBreakpoints(true);
 
          // Make sure breakpoint semaphore is on the precipice...
-         nesBreakpointSemaphore->tryAcquire();
+         nesBreakpointSemaphore->tryAcquire(1,1);
 
          // Run emulator for one frame...
          if ( emulatorWidget )

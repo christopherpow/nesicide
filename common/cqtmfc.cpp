@@ -13925,6 +13925,7 @@ BOOL CSpinButtonCtrl::Create(
                
                QRect wndRect = pWnd->toQWidget()->geometry();
                _qtd->lineEdit()->setValidator(NULL);
+               _qtd->lineEdit()->setVisible(false);
                _qtd->setGeometry(wndRect.adjusted(wndRect.width()-((rect.right-rect.left)+1),0,0,0));
                pWnd->setGeometry(pWnd->geometry().adjusted(0,0,-(rect.right-rect.left),0));
             }
@@ -16295,10 +16296,11 @@ VOID WINAPI Sleep(
   DWORD dwMilliseconds
 )
 {
-   QMutex dummy;
-   dummy.lock();
-   QWaitCondition waitCondition;
-   waitCondition.wait(&dummy, dwMilliseconds);
+   QThread::msleep(dwMilliseconds);
+//   QMutex dummy;
+//   dummy.lock();
+//   QWaitCondition waitCondition;
+//   waitCondition.wait(&dummy, dwMilliseconds);
 }
 #endif
 
