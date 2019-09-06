@@ -1,7 +1,12 @@
 #!/bin/bash
 
+if [[ $EUID -ne 0 ]]; then
+   echo "This script must be run as root" 
+   exit 1
+fi
+
 # Find Qt
-. /opt/qt510/bin/qt510-env.sh
+#. /opt/qt510/bin/qt510-env.sh
 
 LIBDEPS="deps/rtmidi/release/librtmidi \
      deps/qscintilla2/Qt4Qt5/libqscintilla2_qt5 \
@@ -14,10 +19,10 @@ DEPLOYS="apps/ide/release/nesicide \
         apps/famiplayer/release/famiplayer \
         apps/nes-emulator/release/nes-emulator"
 
-TARGARGS="-verbose=0 -appimage -qmake=/opt/qt510/bin/qmake"
+TARGARGS="-verbose=0 -appimage -qmake=/usr/bin/qmake -unsupported-allow-new-glibc"
 
 unset QTDIR; unset QT_PLUGIN_PATH; unset LD_LIBRARY_PATH
-
+echo 'OI! - pass "local" for a local install'
 if [ "$1" == "local" ]; then
   if [ ! -f "./linuxdeployqt-continuous-x86_64.AppImage" ]; then
     wget -q -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
@@ -48,4 +53,5 @@ elif [ "$1" == "remote" ]; then
   rsync $TRAVIS_BUILD_DIR/{fami,nes}*.AppImage cpow@162.243.126.83:/var/www/html/nesicide/media/downloads/
 fi
 
+echo 'done'
 exit 0
