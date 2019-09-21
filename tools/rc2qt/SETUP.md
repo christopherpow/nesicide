@@ -2,4 +2,4 @@
 
 - `pip3 install --user antlr4-python3-runtime` (`from antlr4 import *`)
 - in dir: `make`
-- `python path/to/rc2qt.py path/to/file.rc`
+- `python3 path/to/rc2qt.py path/to/file.rc`
