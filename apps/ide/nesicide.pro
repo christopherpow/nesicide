@@ -15,10 +15,6 @@ macx {
 
 TOP = ../..
 
-macx {
-    QMAKE_MAC_SDK = macosx10.14
-}
-
 CONFIG(release, debug|release) {
    DESTDIR = release
 } else {

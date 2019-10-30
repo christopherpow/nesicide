@@ -32,7 +32,7 @@
    <bool>true</bool>
   </property>
   <property name="windowTitle">
-   <string>Nesicide Emulator</string>
+   <string>NESICIDE Emulator</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../../common/resource.qrc">

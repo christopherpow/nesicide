@@ -91,6 +91,10 @@ extern "C" void SDL_Emulator(void* userdata, uint8_t* stream, int32_t len)
 SDL_Callback nesSDLCallback;
 
 NESEmulatorThread::NESEmulatorThread(QObject*)
+   : nesBreakpointSemaphore(NULL),
+     nesAudioSemaphore(NULL),
+     pThread(NULL),
+     pTimer(NULL)
 {
    m_joy [ CONTROLLER1 ] = 0;
    m_joy [ CONTROLLER2 ] = 0;
@@ -103,7 +107,7 @@ NESEmulatorThread::NESEmulatorThread(QObject*)
    m_isResetting = false;
    m_debugFrame = 0;
    m_pCartridge = NULL;
-   
+
    nesBreakpointSemaphore = new QSemaphore(0);
    nesAudioSemaphore = new QSemaphore(0);
 
@@ -120,10 +124,20 @@ NESEmulatorThread::NESEmulatorThread(QObject*)
 
    BreakpointWatcherThread* breakpointWatcher = dynamic_cast<BreakpointWatcherThread*>(CObjectRegistry::getObject("Breakpoint Watcher"));
    QObject::connect(this,SIGNAL(breakpoint()),breakpointWatcher,SLOT(breakpoint()));
+
+   pThread = new QThread();
+   moveToThread(pThread);
+   pThread->start();
+
+   pTimer = new QTimer();
+   QObject::connect(pTimer,SIGNAL(timeout()),this,SLOT(process()));
+   pTimer->start(10);
 }
 
 NESEmulatorThread::~NESEmulatorThread()
-{
+{   
+   delete pThread;
+
    nesSDLCallback._valid = false;
    nesBreakpointSemaphore->release();
    delete nesBreakpointSemaphore;
@@ -144,10 +158,9 @@ void NESEmulatorThread::kill()
    m_showOnPause = false;
    m_isTerminating = true;
 
-   start();
-   quit();
+   pThread->quit();
 
-   while ( !isFinished() )
+   while ( !pThread->isFinished() )
    {
       nesBreakpointSemaphore->release();
       nesAudioSemaphore->release();
@@ -192,7 +205,6 @@ void NESEmulatorThread::softResetEmulator()
    {
       nesBreakpointSemaphore->release();
    }
-   start();
 }
 
 void NESEmulatorThread::resetEmulator()
@@ -212,7 +224,6 @@ void NESEmulatorThread::resetEmulator()
    {
       nesBreakpointSemaphore->release();
    }
-   start();
 }
 
 void NESEmulatorThread::startEmulation ()
@@ -224,7 +235,6 @@ void NESEmulatorThread::startEmulation ()
    {
       nesBreakpointSemaphore->release();
    }
-   start();
 }
 
 void NESEmulatorThread::stepCPUEmulation ()
@@ -251,7 +261,6 @@ void NESEmulatorThread::stepCPUEmulation ()
       {
          nesBreakpointSemaphore->release();
       }
-      start();
    }
    else
    {
@@ -266,7 +275,6 @@ void NESEmulatorThread::stepCPUEmulation ()
       {
          nesBreakpointSemaphore->release();
       }
-      start();
    }
 }
 
@@ -330,7 +338,6 @@ void NESEmulatorThread::stepOverCPUEmulation ()
       {
          nesBreakpointSemaphore->release();
       }
-      start();
    }
    else
    {
@@ -349,7 +356,6 @@ void NESEmulatorThread::stepOutCPUEmulation ()
    {
       nesBreakpointSemaphore->release();
    }
-   start();
 }
 
 void NESEmulatorThread::stepPPUEmulation ()
@@ -365,7 +371,6 @@ void NESEmulatorThread::stepPPUEmulation ()
    {
       nesBreakpointSemaphore->release();
    }
-   start();
 }
 
 void NESEmulatorThread::advanceFrame ()
@@ -381,16 +386,15 @@ void NESEmulatorThread::advanceFrame ()
    {
       nesBreakpointSemaphore->release();
    }
-   start();
 }
 
 void NESEmulatorThread::pauseEmulation (bool show)
 {
+   qDebug("pauseEmulation %d",show);
    m_isStarting = false;
    m_isRunning = false;
    m_isPaused = true;
    m_showOnPause = show;
-   start();
 }
 
 void NESEmulatorThread::loadCartridge()
@@ -468,7 +472,7 @@ void NESEmulatorThread::loadCartridge()
    }
 }
 
-void NESEmulatorThread::run ()
+void NESEmulatorThread::process ()
 {
    QWidget* emulatorWidget = CDockWidgetRegistry::getWidget("Emulator");
    int scaleX;
@@ -492,14 +496,14 @@ void NESEmulatorThread::run ()
       }
    }
 
-   while ( m_isStarting || m_isRunning || m_isResetting || m_isPaused )
+//   while ( m_isStarting || m_isRunning || m_isResetting || m_isPaused )
    {
       // Allow thread exit...
-      if ( m_isTerminating )
-      {
-         m_isTerminating = false;
-         break;
-      }
+//      if ( m_isTerminating )
+//      {
+//         m_isTerminating = false;
+//         break;
+//      }
 
       // Allow thread to keep going...
       if ( m_isStarting )

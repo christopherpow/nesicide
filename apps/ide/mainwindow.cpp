@@ -476,11 +476,7 @@ MainWindow::~MainWindow()
    delete nesicideProject;
    delete pluginManager;
 
-   if ( m_pNESEmulatorThread )
-   {
-      m_pNESEmulatorThread->kill();
-      m_pNESEmulatorThread->wait();
-   }
+   delete m_pNESEmulatorThread;
 }
 
 void MainWindow::openRecentFile()
@@ -1232,9 +1228,7 @@ void MainWindow::destroyNesUi()
    CDockWidgetRegistry::removeWidget ( "Joypad Logger" );
 
    // Properly kill and destroy the thread we created above.
-   //m_pNESEmulatorThread->blockSignals(true);
-   m_pNESEmulatorThread->kill();
-   m_pNESEmulatorThread->wait();
+   m_pNESEmulatorThread->blockSignals(true);
 
    delete m_pNESEmulatorThread;
    m_pNESEmulatorThread = NULL;

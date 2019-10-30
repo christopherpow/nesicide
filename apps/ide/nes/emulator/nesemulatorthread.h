@@ -10,7 +10,7 @@
 
 #include "ccartridge.h"
 
-class NESEmulatorThread : public QThread, public IXMLSerializable
+class NESEmulatorThread : public QObject, public IXMLSerializable
 {
    Q_OBJECT
 public:
@@ -29,7 +29,8 @@ public:
    QSemaphore* nesAudioSemaphore;   
    
 public slots:
-   void breakpointsChanged (); // unused
+   void process();
+   void breakpointsChanged ();
    void primeEmulator ();
    void resetEmulator ();
    void softResetEmulator ();
@@ -61,8 +62,10 @@ signals:
    void debugMessage(char* message);
 
 protected:
-   virtual void run ();
    void loadCartridge ();
+
+   QThread* pThread;
+   QTimer* pTimer;
 
    CCartridge*   m_pCartridge;
 
