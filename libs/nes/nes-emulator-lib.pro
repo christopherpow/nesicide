@@ -13,6 +13,8 @@ QT =
 
 TOP = ../..
 
+QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter
+
 macx {
     QMAKE_MAC_SDK = macosx10.14
 }
@@ -25,6 +27,7 @@ CONFIG(release, debug|release) {
 
 # Remove crap we don't need!
 CONFIG -= rtti exceptions
+CONFIG += c++11
 
 OBJECTS_DIR = $$DESTDIR
 MOC_DIR = $$DESTDIR

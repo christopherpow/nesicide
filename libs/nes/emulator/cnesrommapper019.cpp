@@ -240,11 +240,12 @@ uint32_t CROMMapper019::DEBUGINFO ( uint32_t addr )
       return m_reg[18];
       break;
    }
+   return 0xA1; // garbage
 }
 
 uint32_t CROMMapper019::LMAPPER ( uint32_t addr )
 {
-   uint32_t reg;
+   uint32_t reg = 0;
    uint8_t data = C6502::OPENBUS();
 
    switch ( addr )
@@ -281,7 +282,7 @@ uint32_t CROMMapper019::LMAPPER ( uint32_t addr )
 
 void CROMMapper019::LMAPPER ( uint32_t addr, uint8_t data )
 {
-   uint32_t reg;
+   uint32_t reg = 0;
 
    switch ( addr )
    {
@@ -332,7 +333,7 @@ void CROMMapper019::LMAPPER ( uint32_t addr, uint8_t data )
 
 void CROMMapper019::HMAPPER ( uint32_t addr, uint8_t data )
 {
-   uint32_t reg;
+   uint32_t reg = 0;
 
    switch ( addr )
    {

@@ -146,8 +146,6 @@ CROMMapper018::~CROMMapper018()
 
 void CROMMapper018::RESET ( bool soft )
 {
-   int32_t idx;
-
    m_mapper = 18;
 
    m_dbRegisters = dbRegisters;
@@ -308,11 +306,12 @@ uint32_t CROMMapper018::DEBUGINFO ( uint32_t addr )
       return m_reg[28];
       break;
    }
+   return 0xA1; // garbage
 }
 
 void CROMMapper018::HMAPPER ( uint32_t addr, uint8_t data )
 {
-   uint32_t reg;
+   uint32_t reg = 0;
 
    switch ( addr )
    {
@@ -322,18 +321,21 @@ void CROMMapper018::HMAPPER ( uint32_t addr, uint8_t data )
       m_prg[0] &= 0xF0;
       m_prg[0] |= (data&0x0F);
       m_pPRGROMmemory[0] = m_PRGROMmemory[m_prg[0]%m_numPrgBanks];
+      break;
    case 0x8001:
       reg = 1;
       m_reg[1] = data;
       m_prg[0] &= 0x0F;
       m_prg[0] |= (data<<4);
       m_pPRGROMmemory[0] = m_PRGROMmemory[m_prg[0]%m_numPrgBanks];
+      break;
    case 0x8002:
       reg = 2;
       m_reg[2] = data;
       m_prg[1] &= 0xF0;
       m_prg[1] |= (data&0x0F);
       m_pPRGROMmemory[1] = m_PRGROMmemory[m_prg[1]%m_numPrgBanks];
+      break;
    case 0x8003:
       reg = 3;
       m_reg[3] = data;
@@ -347,6 +349,7 @@ void CROMMapper018::HMAPPER ( uint32_t addr, uint8_t data )
       m_prg[2] &= 0xF0;
       m_prg[2] |= (data&0x0F);
       m_pPRGROMmemory[2] = m_PRGROMmemory[m_prg[2]%m_numPrgBanks];
+      break;
    case 0x9001:
       reg = 5;
       m_reg[5] = data;

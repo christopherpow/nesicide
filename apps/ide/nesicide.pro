@@ -84,12 +84,11 @@ RTMIDI_LIBS = -L$$DEPENDENCYROOTPATH/rtmidi/$$DESTDIR -lrtmidi
 RTMIDI_CXXFLAGS = -I$$DEPENDENCYROOTPATH/rtmidi
 
 win32 {
-#    contains(QT_ARCH, i386) {
-#        arch = x86
-#    } else {
-#        arch = x64
-#    }
-   arch = x86
+    contains(QT_ARCH, i386) {
+        arch = x86
+    } else {
+        arch = x64
+    }
 
    SDL_CXXFLAGS = -I$$DEPENDENCYPATH/SDL
    SDL_LIBS =  -L$$DEPENDENCYPATH/SDL/$$arch -lsdl

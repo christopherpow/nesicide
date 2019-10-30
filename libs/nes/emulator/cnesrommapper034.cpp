@@ -98,6 +98,7 @@ uint32_t CROMMapper034::LMAPPER ( uint32_t addr )
    {
       return CROM::SRAMVIRT(addr);
    }
+   return 0xA1; // garbage
 }
 
 void CROMMapper034::LMAPPER ( uint32_t addr, uint8_t data )

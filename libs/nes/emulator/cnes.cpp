@@ -317,8 +317,8 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
    BreakpointInfo* pBreakpoint;
    CRegisterData* pRegister;
    CBitfieldData* pBitfield;
-   int32_t addr = 0;
-   int32_t absAddr = 0;
+   uint32_t addr = 0;
+   uint32_t absAddr = 0;
    int32_t value = 0;
    bool force = false;
 
@@ -334,7 +334,7 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
              (target == eBreakInPPU) &&
              (type == eBreakOnPPUCycle) &&
              ((m_ppuCycleToStepTo == -1) ||
-             ((m_ppuCycleToStepTo == CPPU::_CYCLES()) &&
+             (((uint32_t)m_ppuCycleToStepTo == CPPU::_CYCLES()) &&
              (m_ppuFrameToStepTo == CPPU::_FRAME()))) )
    {
       m_bStepPPUBreakpoint = false;
@@ -389,7 +389,7 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
 
                         if ( pBreakpoint->item1 == pBreakpoint->item2 )
                         {
-                           if ( ((absAddr == -1) || (absAddr == pBreakpoint->item1Absolute)) &&
+                           if ( ((absAddr == (uint32_t)-1) || (absAddr == pBreakpoint->item1Absolute)) &&
                                 (addr >= pBreakpoint->item1) &&
                                 (addr <= pBreakpoint->item2) &&
                                 (((!pBreakpoint->itemMaskExclusive) && (addr&pBreakpoint->itemMask)) ||
@@ -473,7 +473,7 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
                      case eBreakOnCPUState:
 
                         // Is the breakpoint on this register?
-                        if ( pBreakpoint->item1 == data )
+                        if ( pBreakpoint->item1 == (uint32_t)data )
                         {
                            pRegister = C6502::REGISTERS()->GetRegister(pBreakpoint->item1);
                            pBitfield = pRegister->GetBitfield(pBreakpoint->item2);
@@ -664,7 +664,7 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
                      case eBreakOnPPUState:
 
                         // Is the breakpoint on this register?
-                        if ( pBreakpoint->item1 == data )
+                        if ( pBreakpoint->item1 == (uint32_t)data )
                         {
                            pRegister = CPPU::REGISTERS()->GetRegister(pBreakpoint->item1);
                            pBitfield = pRegister->GetBitfield(pBreakpoint->item2);
@@ -720,7 +720,7 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
                      case eBreakOnAPUState:
 
                         // Is the breakpoint on this register?
-                        if ( pBreakpoint->item1 == data )
+                        if ( pBreakpoint->item1 == (uint32_t)data )
                         {
                            pRegister = CAPU::REGISTERS()->GetRegister(pBreakpoint->item1);
                            pBitfield = pRegister->GetBitfield(pBreakpoint->item2);
@@ -776,7 +776,7 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
                      case eBreakOnMapperState:
 
                         // Is the breakpoint on this register?
-                        if ( pBreakpoint->item1 == data )
+                        if ( pBreakpoint->item1 == (uint32_t)data )
                         {
                            pRegister = CROM::REGISTERS()->GetRegister(pBreakpoint->item1);
                            pBitfield = pRegister->GetBitfield(pBreakpoint->item2);

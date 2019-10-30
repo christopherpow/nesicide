@@ -25,10 +25,10 @@ int CBreakpointInfo::FindExactMatch ( int type, eBreakpointItemType itemType, in
       if ( (m_breakpoint[bp].type == type) &&
            (m_breakpoint[bp].itemType == itemType) &&
            (m_breakpoint[bp].event == event) &&
-           (m_breakpoint[bp].item1 == item1) &&
-           (m_breakpoint[bp].item1Absolute == item1Absolute) &&
-           (m_breakpoint[bp].item2 == item2) &&
-           (m_breakpoint[bp].itemMask == mask) &&
+           (m_breakpoint[bp].item1 == (uint32_t)item1) &&
+           (m_breakpoint[bp].item1Absolute == (uint32_t)item1Absolute) &&
+           (m_breakpoint[bp].item2 == (uint32_t)item2) &&
+           (m_breakpoint[bp].itemMask == (uint32_t)mask) &&
            (m_breakpoint[bp].itemMaskExclusive == maskExclusive) &&
            (m_breakpoint[bp].conditionType == conditionType) &&
            (m_breakpoint[bp].condition == condition) &&

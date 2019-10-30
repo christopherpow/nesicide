@@ -107,8 +107,6 @@ CROMMapper016::~CROMMapper016()
 
 void CROMMapper016::RESET016 ( bool soft )
 {
-   int32_t idx;
-
    m_mapper = 16;
 
    m_dbRegisters = dbRegisters;
@@ -132,8 +130,6 @@ void CROMMapper016::RESET016 ( bool soft )
 
 void CROMMapper016::RESET159 ( bool soft )
 {
-   int32_t idx;
-
    m_mapper = 159;
 
    m_dbRegisters = dbRegisters;
@@ -221,6 +217,7 @@ uint32_t CROMMapper016::DEBUGINFO ( uint32_t addr )
       return m_reg[13];
       break;
    }
+   return 0xA1; // garbage
 }
 
 uint32_t CROMMapper016::LMAPPER ( uint32_t addr )
@@ -244,6 +241,7 @@ uint32_t CROMMapper016::LMAPPER ( uint32_t addr )
          }
          data = 0x00;
       }
+      break;
    case 2:
       // Only need to ack.
       if ( m_eepromBitCounter == 9 )
@@ -283,7 +281,7 @@ uint32_t CROMMapper016::LMAPPER ( uint32_t addr )
 
 void CROMMapper016::HMAPPER ( uint32_t addr, uint8_t data )
 {
-   uint32_t reg;
+   uint32_t reg = 0;
 
    switch ( addr&0x000F )
    {

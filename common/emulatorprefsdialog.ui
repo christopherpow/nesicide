@@ -27,7 +27,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>5</number>
      </property>
      <widget class="QWidget" name="general">
       <attribute name="title">
@@ -1221,7 +1221,7 @@
           <widget class="QLineEdit" name="viceC64MonitorPort"/>
          </item>
          <item row="2" column="0">
-          <widget class="QLabel" name="label_22">
+          <widget class="QLabel" name="label_24">
            <property name="text">
             <string>Other VICE command line options:</string>
            </property>
@@ -1375,6 +1375,7 @@
   </customwidget>
  </customwidgets>
  <resources>
+  <include location="resource.qrc"/>
   <include location="resource.qrc"/>
   <include location="resource.qrc"/>
  </resources>

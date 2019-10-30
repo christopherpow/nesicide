@@ -75,7 +75,7 @@ bool apuDMAEvent(BreakpointInfo* pBreakpoint,int data)
 
 bool apuDACEvent(BreakpointInfo* pBreakpoint,int data)
 {
-   if ( data == pBreakpoint->item1 )
+   if ( (uint32_t)data == pBreakpoint->item1 )
       return true;
    return false;
 }
@@ -345,7 +345,7 @@ CAPU::CAPU()
 uint8_t* CAPU::PLAY ( uint16_t samples )
 {
    uint16_t* waveBuf;
-   
+
    m_sampleBufferSize = samples*NUM_APU_BUFS;
 
    waveBuf = m_waveBuf + m_waveBufConsume;
@@ -911,7 +911,6 @@ void CAPUSquare::APU ( uint32_t addr, uint8_t data )
 void CAPUSquare::TIMERTICK ( void )
 {
    uint32_t clockIt = CLKDIVIDER ();
-   uint32_t seqTicks;
 
    // divide timer by 2...
    m_seqTick -= clockIt;

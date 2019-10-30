@@ -237,7 +237,6 @@ void NESEmulatorThread::run ()
    int scale;
    int emuX;
    int emuY;
-   int32_t samplesAvailable;
 
    while ( m_isStarting || m_isRunning || m_isResetting || m_isPaused )
    {
@@ -659,4 +658,6 @@ bool NESEmulatorThread::deserializeContent(QFile& fileIn)
    {
       nesSetSRAMDataPhysical(idx,bytes.at(idx));
    }
+
+   return true;
 }

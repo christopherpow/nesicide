@@ -11,6 +11,10 @@ CNESBreakpointInfo::CNESBreakpointInfo()
 {
 }
 
+CNESBreakpointInfo::~CNESBreakpointInfo()
+{
+}
+
 void CNESBreakpointInfo::ModifyBreakpoint ( BreakpointInfo* pBreakpoint, int type, eBreakpointItemType itemType, int event, int item1, int item1Absolute, int item2, int mask, bool maskExclusive, eBreakpointConditionType conditionType, int condition, eBreakpointDataType dataType, int data, bool enabled )
 {
    pBreakpoint->hit = false;

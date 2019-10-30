@@ -94,7 +94,7 @@ static CRegisterData* tblRegisters [] =
    new CRegisterData(0xB001, "Sawtooth Frequency LSB", nesMapperHighRead, nesMapperHighWrite, 1, tbl9001Bitfields),
    new CRegisterData(0xB002, "Sawtooth Frequency MSN", nesMapperHighRead, nesMapperHighWrite, 2, tbl9002Bitfields),
    new CRegisterData(0xB003, "Mirroring", nesMapperHighRead, nesMapperHighWrite, 1, tblB003Bitfields),
-   new CRegisterData(0xC000, "PRG Control 1", nesMapperHighRead, nesMapperHighWrite, 1, tbl8000Bitfields),
+   new CRegisterData(0xC000, "PRG Control 1", nesMapperHighRead, nesMapperHighWrite, 1, tblC000Bitfields),
    new CRegisterData(0xD000, "CHR Control 0", nesMapperHighRead, nesMapperHighWrite, 1, tblD000Bitfields),
    new CRegisterData(0xD001, "CHR Control 1", nesMapperHighRead, nesMapperHighWrite, 1, tblD000Bitfields),
    new CRegisterData(0xD002, "CHR Control 2", nesMapperHighRead, nesMapperHighWrite, 1, tblD000Bitfields),
@@ -147,8 +147,6 @@ CROMMapper024::~CROMMapper024()
 
 void CROMMapper024::RESET ( bool soft )
 {
-   int32_t idx;
-
    m_mapper = 24;
 
    m_dbRegisters = dbRegisters;
@@ -312,6 +310,7 @@ uint32_t CROMMapper024::DEBUGINFO ( uint32_t addr )
       return m_reg[22];
       break;
    }
+   return 0xA1; // garbage
 }
 
 void CROMMapper024::HMAPPER ( uint32_t addr, uint8_t data )

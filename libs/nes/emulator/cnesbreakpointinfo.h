@@ -7,6 +7,7 @@ class CNESBreakpointInfo : public CBreakpointInfo
 {
 public:
    CNESBreakpointInfo();
+   virtual ~CNESBreakpointInfo();
    void GetPrintable ( int idx, char* msg );
    void GetHitPrintable ( int idx, char* hmsg );
 

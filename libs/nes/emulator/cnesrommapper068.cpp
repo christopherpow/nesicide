@@ -127,6 +127,7 @@ uint32_t CROMMapper068::DEBUGINFO ( uint32_t addr )
       return m_reg[7];
       break;
    }
+   return 0xA1; // garbage
 }
 
 void CROMMapper068::HMAPPER ( uint32_t addr, uint8_t data )

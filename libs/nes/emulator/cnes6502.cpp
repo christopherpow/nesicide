@@ -126,7 +126,7 @@ bool cpuAlwaysFireEvent(BreakpointInfo* pBreakpoint,int data)
 bool cpuUndocumentedExactEvent(BreakpointInfo* pBreakpoint,int data)
 {
    // If opcode executing is one specified, break...
-   if ( pBreakpoint->item1 == data )
+   if ( pBreakpoint->item1 == (uint32_t)data )
    {
       return true;
    }
@@ -137,7 +137,7 @@ bool cpuUndocumentedExactEvent(BreakpointInfo* pBreakpoint,int data)
 bool cpuExecuteExactEvent(BreakpointInfo* pBreakpoint,int data)
 {
    // If opcode executing is one specified, break...
-   if ( pBreakpoint->item1 == data )
+   if ( pBreakpoint->item1 == (uint32_t)data )
    {
       return true;
    }
@@ -3291,9 +3291,7 @@ void C6502::NOP ( void )
 
 void C6502::DOP ( void )
 {
-   uint16_t addr;
-
-   addr = MAKEADDR ( amode, data );
+   /*uint16_t addr = */MAKEADDR ( amode, data );
 
    if ( amode != AM_IMMEDIATE )
    {
@@ -3307,9 +3305,7 @@ void C6502::DOP ( void )
 
 void C6502::TOP ( void )
 {
-   uint16_t addr;
-
-   addr = MAKEADDR ( amode, data );
+   /*uint16_t addr = */MAKEADDR ( amode, data );
 
    // A missing memory cycle here?
    // Synchronize CPU and APU...

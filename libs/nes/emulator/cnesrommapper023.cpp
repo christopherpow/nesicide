@@ -144,8 +144,6 @@ CROMMapper023::~CROMMapper023()
 
 void CROMMapper023::RESET ( bool soft )
 {
-   int32_t idx;
-
    m_mapper = 23;
 
    m_dbRegisters = dbRegisters;
@@ -328,11 +326,12 @@ uint32_t CROMMapper023::DEBUGINFO ( uint32_t addr )
       return m_reg[22];
       break;
    }
+   return 0xA1; // garbage
 }
 
 void CROMMapper023::HMAPPER ( uint32_t addr, uint8_t data )
 {
-   uint32_t reg;
+   uint32_t reg = 0;
 
    switch ( addr )
    {

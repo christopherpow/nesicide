@@ -606,7 +606,7 @@ bool ppuSpriteDmaEvent(BreakpointInfo* pBreakpoint,int data)
 
 bool ppuSpriteInMultiplexerEvent(BreakpointInfo* pBreakpoint,int data)
 {
-   if ( data == pBreakpoint->item1 )
+   if ( (uint32_t)data == pBreakpoint->item1 )
    {
       return true;
    }
@@ -616,7 +616,7 @@ bool ppuSpriteInMultiplexerEvent(BreakpointInfo* pBreakpoint,int data)
 
 bool ppuSpriteSelectedEvent(BreakpointInfo* pBreakpoint,int data)
 {
-   if ( data == pBreakpoint->item1 )
+   if ( (uint32_t)data == pBreakpoint->item1 )
    {
       return true;
    }
@@ -626,7 +626,7 @@ bool ppuSpriteSelectedEvent(BreakpointInfo* pBreakpoint,int data)
 
 bool ppuSpriteRenderingEvent(BreakpointInfo* pBreakpoint,int data)
 {
-   if ( data == pBreakpoint->item1 )
+   if ( (uint32_t)data == pBreakpoint->item1 )
    {
       return true;
    }
@@ -636,7 +636,7 @@ bool ppuSpriteRenderingEvent(BreakpointInfo* pBreakpoint,int data)
 
 bool ppuAddressEqualsEvent(BreakpointInfo* pBreakpoint,int data)
 {
-   if ( data == pBreakpoint->item1 )
+   if ( (uint32_t)data == pBreakpoint->item1 )
    {
       return true;
    }
@@ -882,7 +882,7 @@ void CPPU::EMULATE(uint32_t cycles)
       // Clear OAM at appropriate point...
       // Note the appropriate point comes from blargg's discussion on nesdev forum:
       // http://nesdev.parodius.com/bbs/viewtopic.php?t=1366&highlight=sprite+address+clear
-      if ( (rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES) == (PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES)) &&
+      if ( ((rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES)) == (PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES)) &&
            (idxy == 19) && (idxx == 316) )
       {
          m_oamAddr = 0x00;
