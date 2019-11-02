@@ -16,7 +16,7 @@ macx {
 TOP = ../..
 
 macx {
-    QMAKE_MAC_SDK = macosx10.14
+    QMAKE_MAC_SDK = macosx10.15
 }
 
 CONFIG(release, debug|release) {
