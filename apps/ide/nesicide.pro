@@ -57,7 +57,7 @@ CONFIG(release, debug|release) {
     QSCINTILLA_NAME=qscintilla2_qt5
 } else {
    macx: QSCINTILLA_NAME=qscintilla2_qt5_debug
-   else: QSCINTILLA_NAME=qscintilla2_qt5
+   else: QSCINTILLA_NAME=qscintilla2_qt5d
 
 }
 
