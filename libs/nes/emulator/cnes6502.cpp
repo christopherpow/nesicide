@@ -3379,6 +3379,9 @@ void C6502::RESET ( bool soft )
    wEA ( 0 );
 
    m_pcGoto = 0xFFFFFFFF;
+   m_pc = VECTOR_RESET;
+   m_pcSync = m_pc;
+   m_pcSyncSet = false;
 
    wF ( 0 );
    sI ();
