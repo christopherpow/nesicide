@@ -19,7 +19,7 @@ greaterThan(QT_MAJOR_VERSION,4) {
 TOP = ../..
 
 macx {
-    QMAKE_MAC_SDK = macosx10.14
+    QMAKE_MAC_SDK = macosx10.15
 }
 
 CONFIG(release, debug|release) {

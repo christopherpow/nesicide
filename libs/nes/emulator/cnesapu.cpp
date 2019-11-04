@@ -549,7 +549,7 @@ void CAPU::RESET ( void )
    m_noise.CLEARDACAVG();
    m_dmc.CLEARDACAVG();
 
-   m_irqEnabled = true;
+   m_irqEnabled = false;
    m_irqAsserted = false;
    C6502::RELEASEIRQ ( eNESSource_APU );
    m_sequencerMode = 0;
