@@ -334,7 +334,7 @@ C6502::C6502()
    m_f = FLAG_MISC;
    m_pc = VECTOR_RESET;
    m_pcSync = VECTOR_RESET;
-   m_pcSyncSet = false;
+   m_pcSyncSet = true;
    m_ea = 0;
    m_pcGoto = 0xFFFFFFFF;
    m_sp = 0x00;
@@ -3379,9 +3379,6 @@ void C6502::RESET ( bool soft )
    wEA ( 0 );
 
    m_pcGoto = 0xFFFFFFFF;
-   m_pc = VECTOR_RESET;
-   m_pcSync = m_pc;
-   m_pcSyncSet = false;
 
    wF ( 0 );
    sI ();

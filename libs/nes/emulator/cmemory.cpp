@@ -205,7 +205,11 @@ uint32_t CMEMORY::SLOC2ADDR ( uint16_t sloc )
       }
    }
 
-   return addr+m_pBank[bank]->SLOC2ADDR(sloc);
+   if ( bank < m_numVirtBanks )
+   {
+      return addr+m_pBank[bank]->SLOC2ADDR(sloc);
+   }
+   return 0;
 }
 
 uint16_t CMEMORY::ADDR2SLOC ( uint32_t addr )

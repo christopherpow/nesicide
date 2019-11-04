@@ -1223,6 +1223,7 @@ void MainWindow::destroyNesUi()
    CDockWidgetRegistry::removeWidget ( "Palette Memory Inspector" );
    CDockWidgetRegistry::removeWidget ( "Cartridge SRAM Memory Inspector" );
    CDockWidgetRegistry::removeWidget ( "Cartridge EXRAM Memory Inspector" );
+   CDockWidgetRegistry::removeWidget ( "Cartridge VRAM Inspector" );
    CDockWidgetRegistry::removeWidget ( "Cartridge Mapper Information" );
    CDockWidgetRegistry::removeWidget ( "Cartridge Mapper Register Inspector" );
    CDockWidgetRegistry::removeWidget ( "Joypad Logger" );

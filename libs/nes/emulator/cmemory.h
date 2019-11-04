@@ -52,8 +52,11 @@ public:
    }
    uint32_t SLOC2ADDR ( uint16_t sloc )
    {
-      // sloc is enforced within bounds of this bank by caller
-      return *(m_sloc2addr+sloc);
+      if ( sloc < m_size )
+      {
+         return *(m_sloc2addr+sloc);
+      }
+      return 0;
    }
    uint16_t ADDR2SLOC ( uint32_t addr )
    {

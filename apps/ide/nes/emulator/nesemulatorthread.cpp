@@ -136,7 +136,9 @@ NESEmulatorThread::NESEmulatorThread(QObject*)
 
 NESEmulatorThread::~NESEmulatorThread()
 {   
-   delete pThread;
+   pThread->quit();
+   pThread->deleteLater();
+   pThread = NULL;
 
    nesSDLCallback._valid = false;
    nesBreakpointSemaphore->release();
