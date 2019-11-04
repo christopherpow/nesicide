@@ -5,6 +5,10 @@ CBreakpointInfo::CBreakpointInfo()
 {
 }
 
+CBreakpointInfo::~CBreakpointInfo()
+{
+}
+
 void CBreakpointInfo::ToggleEnabled ( int bp )
 {
    m_breakpoint [ bp ].enabled = !m_breakpoint [ bp ].enabled;

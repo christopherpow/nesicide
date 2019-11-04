@@ -157,6 +157,7 @@ class CBreakpointInfo
 {
 public:
    CBreakpointInfo();
+   virtual ~CBreakpointInfo();
    void ConstructBreakpoint ( BreakpointInfo* pBreakpoint, int type, eBreakpointItemType itemType, int event, int item1, int item1Absolute, int item2, int mask, bool maskExclusive, eBreakpointConditionType conditionType, int condition, eBreakpointDataType dataType, int data, bool enabled );
    int AddBreakpoint ( BreakpointInfo* pBreakpoint );
    int AddBreakpoint ( int type, eBreakpointItemType itemType, int event, int item1, int item1Absolute, int item2, int mask, bool maskExclusive, eBreakpointConditionType conditionType, int condition, eBreakpointDataType dataType, int data, bool enabled );
