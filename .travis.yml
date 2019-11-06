@@ -1,7 +1,7 @@
 os:
 - linux
 - osx
-osx_image: xcode10.1
+osx_image: xcode11.2
 dist: xenial
 language: cpp
 before_install:
