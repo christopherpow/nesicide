@@ -31,6 +31,7 @@ if [ "$1" == "local" ]; then
   do
     echo Deploying ${DEPLOY}
     if [ "$DEPLOY" == "./dist/nesicide.app" ]; then
+      mkdir -p ${DEPLOY}/Contents/MacOS/cc65
       make -C deps/cc65/src all
       make -C deps/cc65/libsrc nes c64
       make -C deps/cc65 install PREFIX=${DEPLOY}/Contents/MacOS/cc65 
