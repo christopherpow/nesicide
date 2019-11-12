@@ -109,22 +109,27 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    envdat = QCoreApplication::applicationDirPath();
    envdat += "/cc65/bin:";
    qputenv("PATH",QString(envdat+envvar).toLatin1());
+   qDebug(QString("PATH="+qgetenv("PATH")).toUtf8().data());
 
    envdat = QCoreApplication::applicationDirPath();
    envdat += "/cc65";
    qputenv("CC65_HOME",envdat.toLatin1());
+   qDebug(QString("CC65_HOME="+qgetenv("CC65_HOME")).toUtf8().data());
 
    envdat = QCoreApplication::applicationDirPath();
    envdat += "/cc65/share/cc65/lib";
    qputenv("LD65_LIB",envdat.toLatin1());
+   qDebug(QString("LD65_LIB="+qgetenv("LD65_LIB")).toUtf8().data());
 
    envdat = QCoreApplication::applicationDirPath();
    envdat += "/cc65/share/cc65/asminc";
    qputenv("CA65_INC",envdat.toLatin1());
+   qDebug(QString("CA65_INC="+qgetenv("CA65_INC")).toUtf8().data());
 
    envdat = QCoreApplication::applicationDirPath();
    envdat += "/cc65/share/cc65/include";
    qputenv("CC65_INC",envdat.toLatin1());
+   qDebug(QString("CC65_INC="+qgetenv("CC65_INC")).toUtf8().data());
 
 #else
    if ( QCoreApplication::applicationDirPath().contains("apps/ide") )
