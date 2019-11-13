@@ -737,7 +737,7 @@ CPPU::CPPU()
       m_2005y[idx] = new uint16_t[240];
    }
 
-   m_PPUmemory = new uint8_t[MEM_2KB];
+   m_PPUmemory = new uint8_t[MEM_4KB];
 
    // Set up default mapping.
    for ( idx = 0; idx < 8; idx++ )
