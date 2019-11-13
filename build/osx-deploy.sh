@@ -21,20 +21,19 @@ GIT_REV=`git rev-parse --short HEAD`
 TARGARGS=-dmg
 
 if [ "$1" == "local" ]; then
-  rm -rf ./dist
-  mkdir ./dist
+  rm -rf $TRAVIS_BUILD_DIR/dist
+  mkdir $TRAVIS_BUILD_DIR/dist
   for DEPLOY in ${DEPLOYS_SRC}
   do
-    cp -r ${DEPLOY} ./dist/
+    cp -r ${DEPLOY} $TRAVIS_BUILD_DIR/dist/
   done
   for DEPLOY in ${DEPLOYS_DEST}
   do
     echo Deploying ${DEPLOY}
     if [ "$DEPLOY" == "./dist/nesicide.app" ]; then
-      mkdir -p ${DEPLOY}/Contents/MacOS/cc65
       make -C deps/cc65/src all
       make -C deps/cc65/libsrc nes c64
-      make -C deps/cc65 install PREFIX=${DEPLOY}/Contents/MacOS/cc65 
+      make -C deps/cc65 install PREFIX=$TRAVIS_BUILD_DIR/${DEPLOY}/Contents/MacOS/cc65 
     fi
     macdeployqt ${DEPLOY} ${TARGARGS}
     mv -v ${DEPLOY/%.app/.dmg} ${DEPLOY/%.app}-${GIT_REV}.dmg

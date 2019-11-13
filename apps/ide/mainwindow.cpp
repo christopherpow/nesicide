@@ -168,18 +168,24 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
       qputenv("CC65_HOME",envdat.toLatin1());
 
       envdat = QCoreApplication::applicationDirPath();
-      envdat += "/cc65/lib";
+      envdat += "/cc65/share/cc65/lib";
       qputenv("LD65_LIB",envdat.toLatin1());
 
       envdat = QCoreApplication::applicationDirPath();
-      envdat += "/cc65/asminc";
+      envdat += "/cc65/share/cc65/asminc";
       qputenv("CA65_INC",envdat.toLatin1());
 
       envdat = QCoreApplication::applicationDirPath();
-      envdat += "/cc65/include";
+      envdat += "/cc65/share/cc65/include";
       qputenv("CC65_INC",envdat.toLatin1());
    }
 #endif
+
+   qDebug(QString("PATH="+qgetenv("PATH")).toUtf8().data());
+   qDebug(QString("CC65_HOME="+qgetenv("CC65_HOME")).toUtf8().data());
+   qDebug(QString("LD65_LIB="+qgetenv("LD65_LIB")).toUtf8().data());
+   qDebug(QString("CA65_INC="+qgetenv("CA65_INC")).toUtf8().data());
+   qDebug(QString("CC65_INC="+qgetenv("CC65_INC")).toUtf8().data());
 
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
 
