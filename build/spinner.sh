@@ -2,8 +2,8 @@
 
 if [ "$1" == "start" ]; then
 
-    if [ -n "$MB_SPINNER_PID" ]; then
-        return
+    if [ -f "spinning" ]; then
+       exit -1;
     fi
 
     >&2 echo "Starting SPINNER..."
@@ -13,19 +13,19 @@ if [ "$1" == "start" ]; then
         sleep 60
         >&2 echo "SPINNING..."
     done) &
-    MB_SPINNER_PID=$!
+    echo -n $! > spinning
     disown
 
 fi
 
 if [ "$1" == "stop" ]; then
 
-    if [ ! -n "$MB_SPINNER_PID" ]; then
-        return
+    if [ ! -f "spinning" ]; then
+       exit -1; 
     fi
     
-    kill $MB_SPINNER_PID
-    unset MB_SPINNER_PID
+    kill `cat spinning`
+    rm spinning
 
     >&2 echo "SPINNER stopped..."
 
