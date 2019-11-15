@@ -35,7 +35,7 @@ deploy:
   subject: christopherpow
   repo: nesicide
   package: nesicide
-  artifact: dist/nesicide-win32.tar.bz2
+  artifact: dist/nesicide-win-x86.tar.bz2
   publish: true
   on:
     branch: master
