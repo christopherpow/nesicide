@@ -4,6 +4,7 @@
 #include <QHash>
 #include <QString>
 #include <QObject>
+#include <QMutex>
 
 class CObjectRegistry
 {

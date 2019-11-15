@@ -4,6 +4,7 @@
 #include <QHash>
 #include <QString>
 #include <QDockWidget>
+#include <QMutex>
 
 class CDockWidgetRegistry
 {
