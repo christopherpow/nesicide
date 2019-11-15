@@ -12,7 +12,7 @@ QObject* CObjectRegistry::getObject(const QString& name)
    {
       object = objects[name];
    }
-   mutex.lock();
+   mutex.unlock();
 
    return object;
 }
