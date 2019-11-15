@@ -1,11 +1,10 @@
 version: 1.0.{build}
+branches:
+  only:
+  - master
 image: Visual Studio 2017
 platform: x64
 
-branches:
-  only:
-  - appveyor
-  
 environment:
   QTDIR: C:\Qt\5.11\mingw53_32
 
@@ -28,15 +27,15 @@ build_script:
 
     bash ./build/windows-deploy.sh local
 test: off
-deploy_script:
-- cmd: >-
-    bash ./build/windows-deploy.sh remote
-
-#    openssl aes-256-cbc -K $encrypted_c3ea658420f4_key -iv $encrypted_c3ea658420f4_iv -in deploy_rsa.enc -out deploy_rsa -d
-#
-#    eval "$(ssh-agent -s)"
-#
-#    chmod 600 deploy_rsa
-#
-#    ssh-add deploy_rsa
-#
+deploy:
+- provider: BinTray
+  username: christopherpow
+  api_key:
+    secure: /fEZkCdGFMVIrc9weubw2n9CqZmSW6Ezt44sTtadO4yf+pyCOV2tHR1Fk4FZled3
+  subject: christopherpow
+  repo: nesicide
+  package: nesicide
+  artifact: dist/nesicide-win32.tar.bz2
+  publish: true
+  on:
+    branch: master
