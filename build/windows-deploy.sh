@@ -46,5 +46,5 @@ if [ "$1" == "local" ]; then
   done
   tar cjvf nesicide-win-x64.tar.bz2 dist
 elif [ "$1" == "remote" ]; then
-  rsync nesicide-win-x64.tar.bz2 cpow@162.243.126.83:/var/www/html/nesicide/
+  echo "BinTray"
 fi
