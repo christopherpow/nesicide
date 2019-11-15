@@ -2944,6 +2944,9 @@ void C6502DBG::RENDEREXECUTIONVISUALIZER ( void )
    int8_t* pTV = (int8_t*)m_pExecutionVisualizerInspectorTV;
    int8_t* pNESTV = nesGetTVOut();
 
+   // closing?
+   if ( !(pNESTV && pTV) ) return;
+
    for ( idxy = 0; idxy < 512; idxy++ )
    {
       for ( idxx = 0; idxx < 512; idxx++ )

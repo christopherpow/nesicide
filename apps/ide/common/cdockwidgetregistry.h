@@ -29,6 +29,7 @@ public:
 
 private:
    static QHash<QString,CDockWidgetManager*> widgets;
+   static QMutex mutex;
 };
 
 #endif // CDOCKWIDGETREGISTRY_H

@@ -15,6 +15,7 @@ public:
    static void     removeObject(const QString& name);
 private:
    static QHash<QString,QObject*> objects;
+   static QMutex mutex;
 };
 
 #endif // COBJECTREGISTRY_H

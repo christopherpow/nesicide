@@ -1208,6 +1208,7 @@ void MainWindow::destroyNesUi()
    CDockWidgetRegistry::removeWidget ( "Cartridge EXRAM Memory Inspector" );
    CDockWidgetRegistry::removeWidget ( "Cartridge Mapper Information" );
    CDockWidgetRegistry::removeWidget ( "Cartridge Mapper Register Inspector" );
+   CDockWidgetRegistry::removeWidget ( "Cartridge VRAM Inspector" );
    CDockWidgetRegistry::removeWidget ( "Joypad Logger" );
 
    // Properly kill and destroy the thread we created above.
@@ -2344,6 +2345,14 @@ void MainWindow::closeEvent ( QCloseEvent* event )
 
    if (nesicideProject->isInitialized())
    {
+      CDockWidgetRegistry::removeWidget ( "Source Navigator" );
+      CDockWidgetRegistry::removeWidget ( "Search Bar" );
+      CDockWidgetRegistry::removeWidget ( "Project Browser" );
+      CDockWidgetRegistry::removeWidget ( "Output" );
+      CDockWidgetRegistry::removeWidget ( "Execution Inspector" );
+      CDockWidgetRegistry::removeWidget ( "Symbol Inspector" );
+      CDockWidgetRegistry::removeWidget ( "Code Profiler" );
+
       cancel = closeProject();
    }
 

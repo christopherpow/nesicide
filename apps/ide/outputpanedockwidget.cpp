@@ -63,6 +63,7 @@ OutputPaneDockWidget::OutputPaneDockWidget(QWidget *parent) :
 
 OutputPaneDockWidget::~OutputPaneDockWidget()
 {
+   CDockWidgetRegistry::removeWidget ( "Search" );
    delete ui;
 }
 

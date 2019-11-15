@@ -48,9 +48,10 @@ NESEmulatorDockWidget::NESEmulatorDockWidget(QWidget *parent) :
 
 NESEmulatorDockWidget::~NESEmulatorDockWidget()
 {
-    delete ui;
-    delete renderer;
-    delete imgData;
+   nesSetTVOut(NULL);
+   delete ui;
+   delete renderer;
+   delete imgData;
 }
 
 void NESEmulatorDockWidget::setScalingFactor(float factor)
