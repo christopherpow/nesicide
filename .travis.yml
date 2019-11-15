@@ -1,7 +1,6 @@
 os:
 - linux
 - osx
-- windows
 osx_image: xcode11.2
 dist: xenial
 language: cpp

@@ -44,7 +44,7 @@ if [ "$1" == "local" ]; then
     echo Deploying ${DIST}
     windeployqt ${DEPLOY} ${TARGARGS} -printsupport
   done
-  tar cjvf nesicide-win-x64.tar.bz2 dist
+  tar cjvf nesicide-win-x86.tar.bz2 dist
 elif [ "$1" == "remote" ]; then
   echo "BinTray"
 fi
