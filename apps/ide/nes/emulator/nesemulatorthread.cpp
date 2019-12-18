@@ -47,7 +47,7 @@ static void breakpointHook ( void )
       emulator->_breakpointHook();
 
    // Put my thread to sleep.
-   if ( emulator )
+   if ( emulator && emulator->nesBreakpointSemaphore )
       emulator->nesBreakpointSemaphore->acquire();
 }
 
@@ -59,7 +59,8 @@ void NESEmulatorThread::_breakpointHook()
 static void audioHook ( void )
 {
    NESEmulatorThread* emulator = dynamic_cast<NESEmulatorThread*>(CObjectRegistry::getObject("Emulator"));
-   emulator->nesAudioSemaphore->acquire();
+   if ( emulator && emulator->nesAudioSemaphore )
+      emulator->nesAudioSemaphore->acquire();
 }
 
 extern "C" void SDL_Emulator(void* userdata, uint8_t* stream, int32_t len)
