@@ -16,7 +16,6 @@ class NESEmulatorThread : public QObject, public IXMLSerializable
 public:
    NESEmulatorThread ( QObject* parent = 0 );
    virtual ~NESEmulatorThread ();
-   void kill();
 
    // IXMLSerializable Interface Implementation
    virtual bool serialize(QDomDocument& doc, QDomNode& node);

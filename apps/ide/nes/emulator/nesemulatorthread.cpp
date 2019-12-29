@@ -132,14 +132,20 @@ NESEmulatorThread::NESEmulatorThread(QObject*)
 
    pTimer = new QTimer();
    QObject::connect(pTimer,SIGNAL(timeout()),this,SLOT(process()));
-   pTimer->start(10);
+   pTimer->start();
 }
 
 NESEmulatorThread::~NESEmulatorThread()
 {   
+   pTimer->stop();
    pThread->quit();
    pThread->deleteLater();
-   pThread = NULL;
+
+   while ( !pThread->isFinished() )
+   {
+      nesBreakpointSemaphore->release();
+      nesAudioSemaphore->release();
+   }
 
    nesSDLCallback._valid = false;
    nesBreakpointSemaphore->release();
@@ -148,26 +154,6 @@ NESEmulatorThread::~NESEmulatorThread()
    nesAudioSemaphore->release();
    delete nesAudioSemaphore;
    nesAudioSemaphore = NULL;
-}
-
-void NESEmulatorThread::kill()
-{
-   // Force hard-reset of the machine...
-   nesEnableBreakpoints(false);
-
-   m_isStarting = false;
-   m_isRunning = false;
-   m_isPaused = false;
-   m_showOnPause = false;
-   m_isTerminating = true;
-
-   pThread->quit();
-
-   while ( !pThread->isFinished() )
-   {
-      nesBreakpointSemaphore->release();
-      nesAudioSemaphore->release();
-   }
 }
 
 void NESEmulatorThread::adjustAudio(int32_t bufferDepth)
