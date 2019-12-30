@@ -10,12 +10,12 @@
 
 #include "ccartridge.h"
 
-class NESEmulatorThread : public QObject, public IXMLSerializable
+class NESEmulatorWorker : public QObject, public IXMLSerializable
 {
    Q_OBJECT
 public:
-   NESEmulatorThread ( QObject* parent = 0 );
-   virtual ~NESEmulatorThread ();
+   NESEmulatorWorker ( QObject* parent = 0 );
+   virtual ~NESEmulatorWorker ();
 
    // IXMLSerializable Interface Implementation
    virtual bool serialize(QDomDocument& doc, QDomNode& node);
@@ -24,11 +24,11 @@ public:
    virtual bool serializeContent(QFile& fileOut);
    virtual bool deserializeContent(QFile& fileIn);
 
+   void _breakpointHook();
+
    QSemaphore* nesBreakpointSemaphore;
-   QSemaphore* nesAudioSemaphore;   
-   
-public slots:
-   void process();
+   QSemaphore* nesAudioSemaphore;
+
    void breakpointsChanged ();
    void primeEmulator ();
    void resetEmulator ();
@@ -47,8 +47,8 @@ public slots:
       m_joy[CONTROLLER1] = joy[CONTROLLER1];
       m_joy[CONTROLLER2] = joy[CONTROLLER2];
    }
+   void loadCartridge ();
 
-   void _breakpointHook();
 signals:
    void breakpoint ();
    void emulatedFrame ();
@@ -60,10 +60,10 @@ signals:
    void emulatorStarted();
    void debugMessage(char* message);
 
-protected:
-   void loadCartridge ();
+public slots:
+   void process();
 
-   QThread* pThread;
+protected:
    QTimer* pTimer;
 
    CCartridge*   m_pCartridge;
@@ -78,6 +78,53 @@ protected:
    bool          m_isStarting;
    int           m_debugFrame;
    uint32_t      m_joy [ NUM_CONTROLLERS ];
+};
+
+class NESEmulatorThread : public QObject, public IXMLSerializable
+{
+   Q_OBJECT
+public:
+   NESEmulatorThread ( QObject* parent = 0 );
+   virtual ~NESEmulatorThread ();
+
+   // IXMLSerializable Interface Implementation
+   virtual bool serialize(QDomDocument& doc, QDomNode& node);
+   virtual bool deserialize(QDomDocument& doc, QDomNode& node, QString& errors);
+
+   virtual bool serializeContent(QFile& fileOut);
+   virtual bool deserializeContent(QFile& fileIn);
+
+   NESEmulatorWorker* worker() { return pWorker; }
+   
+public slots:
+   void breakpointsChanged ();
+   void primeEmulator ();
+   void resetEmulator ();
+   void softResetEmulator ();
+   void startEmulation ();
+   void pauseEmulation (bool show);
+   void pauseEmulationAfter (int32_t frames) { pWorker->pauseEmulationAfter(frames); }
+   void stepCPUEmulation ();
+   void stepOverCPUEmulation ();
+   void stepOutCPUEmulation ();
+   void stepPPUEmulation ();
+   void advanceFrame ();
+   void adjustAudio ( int32_t bufferDepth );
+   void controllerInput ( uint32_t* joy ) { pWorker->controllerInput(joy); }
+signals:
+   void breakpoint ();
+   void emulatedFrame ();
+   void updateDebuggers ();
+   void machineReady ();
+   void emulatorPaused(bool show);
+   void emulatorPausedAfter();
+   void emulatorReset();
+   void emulatorStarted();
+   void debugMessage(char* message);
+
+protected:
+   QThread* pThread;
+   NESEmulatorWorker* pWorker;
 };
 
 #endif // NESEMULATORTHREAD_H

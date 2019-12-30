@@ -9,14 +9,13 @@
 #include "nes_emulator_core.h"
 
 #include "ccartridge.h"
-// EMU
-class NESEmulatorThread : public QThread, public IXMLSerializable
+
+class NESEmulatorWorker : public QThread, public IXMLSerializable
 {
    Q_OBJECT
 public:
-   NESEmulatorThread ( QObject* parent = 0 );
-   virtual ~NESEmulatorThread ();
-   void kill();
+   NESEmulatorWorker ( QObject* parent = 0 );
+   virtual ~NESEmulatorWorker ();
 
    // IXMLSerializable Interface Implementation
    virtual bool serialize(QDomDocument& doc, QDomNode& node);
@@ -25,7 +24,6 @@ public:
    virtual bool serializeContent(QFile& fileOut);
    virtual bool deserializeContent(QFile& fileIn);
 
-public slots:
    void resetEmulator ();
    void softResetEmulator ();
    void startEmulation ();
@@ -44,8 +42,10 @@ signals:
    void emulatorReset();
    void emulatorStarted();
 
+public slots:
+   void process();
+
 protected:
-   virtual void run ();
    void loadCartridge ();
 
    CCartridge*   m_pCartridge;
@@ -58,6 +58,42 @@ protected:
    bool          m_isSoftReset;
    bool          m_isStarting;
    uint32_t      m_joy [ NUM_CONTROLLERS ];
+
+   QTimer* pTimer;
+};
+
+class NESEmulatorThread : public QThread, public IXMLSerializable
+{
+   Q_OBJECT
+public:
+   NESEmulatorThread ( QObject* parent = 0 );
+   virtual ~NESEmulatorThread ();
+
+   // IXMLSerializable Interface Implementation
+   virtual bool serialize(QDomDocument& doc, QDomNode& node);
+   virtual bool deserialize(QDomDocument& doc, QDomNode& node, QString& errors);
+
+   virtual bool serializeContent(QFile& fileOut);
+   virtual bool deserializeContent(QFile& fileIn);
+
+public slots:
+   void resetEmulator ();
+   void softResetEmulator ();
+   void startEmulation ();
+   void pauseEmulation (bool show);
+   void controllerInput ( uint32_t* joy ) { pWorker->controllerInput(joy); }
+   void primeEmulator ( CCartridge* pCartridge );
+
+signals:
+   void emulatedFrame ();
+   void cartridgeLoaded ();
+   void emulatorPaused (bool show);
+   void emulatorReset();
+   void emulatorStarted();
+
+protected:
+   QThread* pThread;
+   NESEmulatorWorker* pWorker;
 };
 
 #endif // NESEMULATORTHREAD_H

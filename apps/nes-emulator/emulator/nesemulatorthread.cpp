@@ -62,17 +62,9 @@ extern "C" void SDL_GetMoreData(void* userdata, uint8_t* stream, int32_t len)
 }
 
 NESEmulatorThread::NESEmulatorThread(QObject*)
+   : pWorker(new NESEmulatorWorker()),
+     pThread(NULL)
 {
-   m_joy [ CONTROLLER1 ] = 0;
-   m_joy [ CONTROLLER2 ] = 0;
-   m_isRunning = false;
-   m_isPaused = false;
-   m_showOnPause = false;
-   m_isStarting = false;
-   m_isTerminating = false;
-   m_isResetting = false;
-   m_pCartridge = NULL;
-
    // Enable callbacks from the external emulator library.
    nesSetAudioHook(audioHook);
 
@@ -93,39 +85,100 @@ NESEmulatorThread::NESEmulatorThread(QObject*)
    SDL_PauseAudio ( 0 );
 
    nesClearAudioSamplesAvailable();
+
+   pThread = new QThread();
+   pWorker->moveToThread(pThread);
+   pThread->start();
+
+   QObject::connect(pWorker,SIGNAL(emulatedFrame()),this,SIGNAL(emulatedFrame()));
+   QObject::connect(pWorker,SIGNAL(cartridgeLoaded()),this,SIGNAL(cartridgeLoaded()));
+   QObject::connect(pWorker,SIGNAL(emulatorPaused(bool)),this,SIGNAL(emulatorPaused(bool)));
+   QObject::connect(pWorker,SIGNAL(emulatorReset()),this,SIGNAL(emulatorReset()));
+   QObject::connect(pWorker,SIGNAL(emulatorStarted()),this,SIGNAL(emulatorStarted()));
 }
 
 NESEmulatorThread::~NESEmulatorThread()
 {
-}
-
-void NESEmulatorThread::kill()
-{
-   m_isRunning = false;
-   m_isPaused = false;
-   m_showOnPause = false;
-   m_isTerminating = true;
-
    SDL_PauseAudio ( 1 );
 
    SDL_CloseAudio ();
 
    SDL_Quit();
-
-   start();
-
-   while ( !isFinished() )
-   {
-      nesAudioSemaphore.release();
-   }
 }
 
 void NESEmulatorThread::primeEmulator(CCartridge* pCartridge)
 {
+   pWorker->primeEmulator(pCartridge);
+}
+
+void NESEmulatorThread::softResetEmulator()
+{
+   pWorker->softResetEmulator();
+}
+
+void NESEmulatorThread::resetEmulator()
+{
+   pWorker->resetEmulator();
+}
+
+void NESEmulatorThread::startEmulation ()
+{
+   pWorker->startEmulation();
+}
+
+void NESEmulatorThread::pauseEmulation (bool show)
+{
+   pWorker->pauseEmulation(show);
+}
+
+bool NESEmulatorThread::serialize(QDomDocument& doc, QDomNode& node)
+{
+   return pWorker->serialize(doc,node);
+}
+
+bool NESEmulatorThread::serializeContent(QFile& fileOut)
+{
+   return pWorker->serializeContent(fileOut);
+}
+
+bool NESEmulatorThread::deserialize(QDomDocument& doc, QDomNode& node, QString& errors)
+{
+   return pWorker->deserialize(doc,node,errors);
+}
+
+bool NESEmulatorThread::deserializeContent(QFile& fileIn)
+{
+   return pWorker->deserializeContent(fileIn);
+}
+
+NESEmulatorWorker::NESEmulatorWorker(QObject*)
+{
+   m_joy [ CONTROLLER1 ] = 0;
+   m_joy [ CONTROLLER2 ] = 0;
+   m_isRunning = false;
+   m_isPaused = false;
+   m_showOnPause = false;
+   m_isStarting = false;
+   m_isTerminating = false;
+   m_isResetting = false;
+   m_pCartridge = NULL;
+
+   pTimer = new QTimer();
+   QObject::connect(pTimer,SIGNAL(timeout()),this,SLOT(process()));
+   pTimer->start(10);
+}
+
+NESEmulatorWorker::~NESEmulatorWorker()
+{
+   pTimer->stop();
+}
+
+void NESEmulatorWorker::primeEmulator(CCartridge* pCartridge)
+{
    m_pCartridge = pCartridge;
 }
 
-void NESEmulatorThread::loadCartridge()
+void NESEmulatorWorker::loadCartridge()
 {
    int32_t b;
 
@@ -192,7 +245,7 @@ void NESEmulatorThread::loadCartridge()
    emit cartridgeLoaded();
 }
 
-void NESEmulatorThread::softResetEmulator()
+void NESEmulatorWorker::softResetEmulator()
 {
    m_isResetting = true;
    m_isSoftReset = true;
@@ -200,10 +253,9 @@ void NESEmulatorThread::softResetEmulator()
    m_isRunning = false;
    m_isPaused = true;
    m_showOnPause = false;
-   start();
 }
 
-void NESEmulatorThread::resetEmulator()
+void NESEmulatorWorker::resetEmulator()
 {
    m_isResetting = true;
    m_isSoftReset = false;
@@ -211,25 +263,22 @@ void NESEmulatorThread::resetEmulator()
    m_isRunning = false;
    m_isPaused = true;
    m_showOnPause = false;
-   start();
 }
 
-void NESEmulatorThread::startEmulation ()
+void NESEmulatorWorker::startEmulation ()
 {
    m_isStarting = true;
-   start();
 }
 
-void NESEmulatorThread::pauseEmulation (bool show)
+void NESEmulatorWorker::pauseEmulation (bool show)
 {
    m_isStarting = false;
    m_isRunning = false;
    m_isPaused = true;
    m_showOnPause = show;
-   start();
 }
 
-void NESEmulatorThread::run ()
+void NESEmulatorWorker::process ()
 {
    QWidget* emulatorWidget = MainWindow::me(); // Hacky, but works for now.
    int scaleX;
@@ -239,13 +288,13 @@ void NESEmulatorThread::run ()
    int emuY;
    int32_t samplesAvailable;
 
-   while ( m_isStarting || m_isRunning || m_isResetting || m_isPaused )
+//   while ( m_isStarting || m_isRunning || m_isResetting || m_isPaused )
    {
       // Allow thread exit...
-      if ( m_isTerminating )
-      {
-         break;
-      }
+//      if ( m_isTerminating )
+//      {
+//         break;
+//      }
 
       // Allow thread to keep going...
       if ( m_isStarting )
@@ -339,13 +388,12 @@ void NESEmulatorThread::run ()
          m_isPaused = false;
          m_isRunning = false;
       }
-
    }
 
    return;
 }
 
-bool NESEmulatorThread::serialize(QDomDocument& doc, QDomNode& node)
+bool NESEmulatorWorker::serialize(QDomDocument& doc, QDomNode& node)
 {
    QString cartMem;
    QString ppuMem;
@@ -472,7 +520,7 @@ bool NESEmulatorThread::serialize(QDomDocument& doc, QDomNode& node)
    return true;
 }
 
-bool NESEmulatorThread::serializeContent(QFile& fileOut)
+bool NESEmulatorWorker::serializeContent(QFile& fileOut)
 {
    QByteArray bytesToWrite;
    qint64     bytesWritten;
@@ -488,7 +536,7 @@ bool NESEmulatorThread::serializeContent(QFile& fileOut)
    return bytesWritten > 0;
 }
 
-bool NESEmulatorThread::deserialize(QDomDocument& doc, QDomNode& node, QString& errors)
+bool NESEmulatorWorker::deserialize(QDomDocument& doc, QDomNode& node, QString& errors)
 {
    // Loop through the child elements and process the ones we find
    QDomElement saveStateElement = doc.documentElement();
@@ -628,7 +676,7 @@ bool NESEmulatorThread::deserialize(QDomDocument& doc, QDomNode& node, QString& 
    return true;
 }
 
-bool NESEmulatorThread::deserializeContent(QFile& fileIn)
+bool NESEmulatorWorker::deserializeContent(QFile& fileIn)
 {
    QByteArray bytes;
    int idx;
@@ -660,3 +708,6 @@ bool NESEmulatorThread::deserializeContent(QFile& fileIn)
       nesSetSRAMDataPhysical(idx,bytes.at(idx));
    }
 }
+
+
+
