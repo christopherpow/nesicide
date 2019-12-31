@@ -4,6 +4,9 @@ os:
 osx_image: xcode11.2
 dist: xenial
 language: cpp
+branches:
+  only:
+    - master
 before_install:
 - ./build/spinner.sh start
 - travis_wait 60 ./build/${TRAVIS_OS_NAME}-travis-setup.sh before_install
