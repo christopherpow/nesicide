@@ -41,13 +41,13 @@ This project builds for Linux, macOS, and Windows. To perform a build for any su
 ### Linux
 
 0. `cd build`
-1. `./build.sh`
+1. `./linux-build.sh`
 2. Once the build process is complete run: `./linux-deploy.sh`
 
 ### macOS
 
 0. `cd build`
-1. `./build.sh`
+1. `./osx-build.sh`
 2. Once the build process is complete run: `./osx-deploy.sh`
 
 ### Windows
