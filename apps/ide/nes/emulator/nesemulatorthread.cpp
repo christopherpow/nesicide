@@ -86,7 +86,7 @@ extern "C" void SDL_Emulator(void* userdata, uint8_t* stream, int32_t len)
    {
 //      qDebug("UNDERRUN");
    }
-   if ( emulator && emulator->worker() )
+   if ( emulator && emulator->worker() && emulator->worker()->nesAudioSemaphore )
       emulator->worker()->nesAudioSemaphore->release();
 }
 
@@ -131,6 +131,8 @@ NESEmulatorThread::~NESEmulatorThread()
    pThread->deleteLater();
 
    nesSDLCallback._valid = false;
+
+   pWorker = NULL;
 }
 
 void NESEmulatorThread::adjustAudio(int32_t bufferDepth)

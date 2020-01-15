@@ -146,7 +146,7 @@ void CROM::SetCHRBank ( int32_t bank, uint8_t* data )
    {
       m_CHRmemory.PHYSBANK((bank<<3)+ibank)->MEMSET(data+(ibank*MEM_1KB));
    }
-   m_numChrBanks = bank + 1;
+   m_numChrBanks += 8;
 }
 
 void CROM::DoneLoadingBanks ()

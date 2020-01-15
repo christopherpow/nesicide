@@ -583,7 +583,7 @@ void C6502::EMULATE ( int32_t cycles )
       // Run APU for cycles...
       while ( cycles )
       {
-         CNES::NES()->CPU()->APU()->EMULATE ();
+         APU()->EMULATE ();
          cycles--;
       }
    }
@@ -635,7 +635,7 @@ void C6502::ADVANCE ( bool stealing )
    CNES::NES()->CART()->SYNCCPU();
 
    // Run APU for one cycle...
-   CNES::NES()->CPU()->APU()->EMULATE ();
+   APU()->EMULATE ();
 
    // Increment running cycle counters...
    m_cycles++;
@@ -713,7 +713,7 @@ bool C6502::DMA( void )
       // If we're ready to do the DMC DMA read, do it.
       if ( m_readDmaCounter == 2 )
       {
-         CNES::NES()->CPU()->APU()->DMASAMPLE ( DMA(m_readDmaAddr) );
+         APU()->DMASAMPLE ( DMA(m_readDmaAddr) );
          m_readDmaCounter--;
          doCycle = false;
 
@@ -832,7 +832,7 @@ bool C6502::DMA( void )
    }
    else if ( m_readDmaCounter == 1 && (!m_writeDmaCounter) )
    {
-      CNES::NES()->CPU()->APU()->DMASAMPLE ( DMA(m_readDmaAddr) );
+      APU()->DMASAMPLE ( DMA(m_readDmaAddr) );
       m_readDmaCounter--;
       doCycle = false;
    }
@@ -840,7 +840,7 @@ bool C6502::DMA( void )
    {
       if ( _CYCLES()&1 )
       {
-         CNES::NES()->CPU()->APU()->DMASAMPLE ( DMA(m_readDmaAddr) );
+         APU()->DMASAMPLE ( DMA(m_readDmaAddr) );
          doCycle = false;
       }
       else
@@ -900,7 +900,7 @@ bool C6502::DMA( void )
    {
       if ( (m_readDmaCounter == 1) && ((m_writeDmaCounter == 0) || (!(m_writeDmaCounter&1))) )
       {
-         CNES::NES()->CPU()->APU()->DMASAMPLE ( DMA(m_readDmaAddr) );
+         APU()->DMASAMPLE ( DMA(m_readDmaAddr) );
          m_readDmaCounter = 0;
          doCycle = false;
       }
@@ -3309,7 +3309,7 @@ void C6502::ASSERTIRQ ( int8_t source )
       }
       else
       {
-         CNES::NES()->TRACER()->AddIRQ ( CNES::NES()->CPU()->APU()->CYCLES(), source );
+         CNES::NES()->TRACER()->AddIRQ ( APU()->CYCLES(), source );
       }
 
       // Check for IRQ breakpoint...
@@ -3327,7 +3327,7 @@ void C6502::RELEASEIRQ ( int8_t source )
       }
       else
       {
-         CNES::NES()->TRACER()->AddIRQRelease ( CNES::NES()->CPU()->APU()->CYCLES(), source );
+         CNES::NES()->TRACER()->AddIRQRelease ( APU()->CYCLES(), source );
       }
    }
    m_irqAsserted = false;
@@ -3350,7 +3350,7 @@ void C6502::RESET ( bool soft )
 {
    m_killed = false;
 
-   CNES::NES()->CPU()->APU()->RESET ();
+   APU()->RESET ();
 
    if ( nesIsDebuggable() )
    {
@@ -3476,7 +3476,7 @@ uint8_t C6502::LOAD ( uint32_t addr, int8_t* pTarget )
       else
       {
          (*pTarget) = eTarget_APURegister;
-         data = CNES::NES()->CPU()->APU()->APU ( addr );
+         data = APU()->APU ( addr );
       }
    }
 
@@ -3523,7 +3523,7 @@ void C6502::STORE ( uint32_t addr, uint8_t data, int8_t* pTarget )
       else
       {
          (*pTarget) = eTarget_APURegister;
-         CNES::NES()->CPU()->APU()->APU ( addr, data );
+         APU()->APU ( addr, data );
       }
    }
    else if ( addr < 0x5C00 )

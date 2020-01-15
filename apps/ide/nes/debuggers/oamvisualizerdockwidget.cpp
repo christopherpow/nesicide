@@ -15,6 +15,8 @@ OAMVisualizerDockWidget::OAMVisualizerDockWidget(QWidget *parent) :
 {
    ui->setupUi(this);
 
+   RENDEROAM();
+
    renderer = new PanZoomRenderer(256,32,2000,OAMTV(),false,ui->frame);
    ui->frame->layout()->addWidget(renderer);
    ui->frame->layout()->update();

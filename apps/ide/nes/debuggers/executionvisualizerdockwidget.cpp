@@ -25,6 +25,8 @@ ExecutionVisualizerDockWidget::ExecutionVisualizerDockWidget(QWidget *parent) :
    
    QObject::connect(ui->tableView->selectionModel(),SIGNAL(currentChanged(QModelIndex,QModelIndex)),this,SLOT(tableView_currentChanged(QModelIndex,QModelIndex)));
 
+   RENDERCPUEXECUTIONVISUALIZER();
+
    renderer = new PanZoomRenderer(341,312,512,10000,CPUEXECUTIONVISUALIZERTV(),false,ui->frame);
    ui->frame->layout()->addWidget(renderer);
    ui->frame->layout()->update();

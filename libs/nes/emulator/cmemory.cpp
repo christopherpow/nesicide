@@ -137,13 +137,13 @@ CMEMORY::CMEMORY(uint32_t physBaseAddress,
                               m_bankSize,
                               m_bankSizeMask);
    }
-   for ( bank = 0, physBank = 0; bank < m_numVirtBanks; bank++ )
+   for ( bank = 0, physBank = 0; bank < m_numVirtBanks; bank++, physBank++ )
    {
+      // Make sure if there's more virtual than physical that we don't go in weeds.
+      physBank %= m_numPhysBanks;
+
       // Start with identity mapping.
       m_pBank[bank] = &m_bank[physBank];
-      // Make sure if there's more virtual than physical that we don't go in weeds.
-      physBank++;
-      physBank %= m_numPhysBanks;
    }
 }
 
@@ -169,10 +169,11 @@ void CMEMORY::RESET ( bool soft )
 
    for ( bank = 0, physBank = 0; bank < m_numVirtBanks; bank++, physBank++ )
    {
-      // Start with identity mapping.
-      m_pBank[bank] = &m_bank[physBank];
       // Make sure if there's more virtual than physical that we don't go in weeds.
       physBank %= m_numPhysBanks;
+
+      // Start with identity mapping.
+      m_pBank[bank] = &m_bank[physBank];
    }
 }
 

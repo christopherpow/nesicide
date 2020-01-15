@@ -42,12 +42,12 @@ int main(int argc, char* argv[])
    delete splash;
 
    // Set up default OpenGL format.
-   QGLFormat fmt = QGLFormat::defaultFormat();
+   QSurfaceFormat fmt = QSurfaceFormat::defaultFormat();
 
    // Disable VSYNC waiting.
    fmt.setSwapInterval(0);
 
-   QGLFormat::setDefaultFormat(fmt);
+   QSurfaceFormat::setDefaultFormat(fmt);
 
    // Create the project model.
    CProjectModel projectModel;

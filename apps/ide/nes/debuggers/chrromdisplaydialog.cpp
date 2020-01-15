@@ -18,15 +18,14 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(bool usePPU,qint8* data,IProjectTreeVie
 
    m_usePPU = usePPU;
 
-   renderer = new PanZoomRenderer(256,128,2000,CHRMEMTV(),true,ui->frame);
-   ui->frame->layout()->addWidget(renderer);
-   ui->frame->layout()->update();
-   setCentralWidget(ui->window);
+   RENDERCHRMEM();
 
-   QObject::connect(renderer,SIGNAL(repaintNeeded()),this,SLOT(repaintNeeded()));
+   imgData = new int8_t[256*128*4];
 
    if ( m_usePPU )
    {
+      renderer = new PanZoomRenderer(256,128,2000,CHRMEMTV(),true,ui->frame);
+
       SetCHRMEMInspectorColor(0,renderer->getColor(0));
       SetCHRMEMInspectorColor(1,renderer->getColor(1));
       SetCHRMEMInspectorColor(2,renderer->getColor(2));
@@ -37,6 +36,8 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(bool usePPU,qint8* data,IProjectTreeVie
    }
    else
    {
+      renderer = new PanZoomRenderer(256,128,2000,imgData,true,ui->frame);
+
       // No thread necessary.
       pThread = NULL;
 
@@ -45,7 +46,13 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(bool usePPU,qint8* data,IProjectTreeVie
       renderData();
    }
 
+   ui->frame->layout()->addWidget(renderer);
+   ui->frame->layout()->update();
+   setCentralWidget(ui->window);
+
    renderer->installEventFilter(this);
+
+   QObject::connect(renderer,SIGNAL(repaintNeeded()),this,SLOT(repaintNeeded()));
 
    ui->updateScanline->setText ( "0" );
 }

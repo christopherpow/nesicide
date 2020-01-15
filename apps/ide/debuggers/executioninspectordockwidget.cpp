@@ -117,12 +117,14 @@ void ExecutionInspectorDockWidget::on_showCPU_toggled(bool checked)
 {
    model->showCPU ( checked );
    model->update();
+   ui->tableView->resizeColumnsToContents();
 }
 
 void ExecutionInspectorDockWidget::on_showPPU_toggled(bool checked)
 {
    model->showPPU ( checked );
    model->update();
+   ui->tableView->resizeColumnsToContents();
 }
 
 void ExecutionInspectorDockWidget::on_actionBreak_on_CPU_execution_here_triggered()

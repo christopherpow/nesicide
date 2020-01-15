@@ -115,11 +115,7 @@ void RENDERPPUCODEDATALOGGER ( void )
       CodeDataLoggerTV = new int8_t[256*256*4];
 
       // Clear image...
-      memset(CodeDataLoggerTV,0,sizeof(CodeDataLoggerTV));
-      for ( i = 3; i < 256*256*4; i+=4 )
-      {
-         CodeDataLoggerTV[i] = 0xFF;
-      }
+      CLEARPPUCODEDATALOGGER();
    }
 
    pTV = CodeDataLoggerTV;
@@ -220,11 +216,7 @@ void RENDERCHRMEM ( void )
       _CHRMEMTV = new int8_t[256*256*4];
 
       // Clear image...
-      memset(_CHRMEMTV,0,sizeof(_CHRMEMTV));
-      for ( i = 3; i < 256*256*4; i+=4 )
-      {
-         _CHRMEMTV[i] = 0xFF;
-      }
+      CLEARCHRMEMTV();
    }
 
    pTV = _CHRMEMTV;
@@ -310,16 +302,10 @@ void RENDEROAM ( void )
 
    if ( !_OAMTV )
    {
-      int i;
-
       _OAMTV = new int8_t[256*256*4];
 
       // Clear image...
-      memset(_OAMTV,0,sizeof(_OAMTV));
-      for ( i = 3; i < 256*256*4; i+=4 )
-      {
-         _OAMTV[i] = 0xFF;
-      }
+      CLEAROAMTV();
    }
 
    pTV = _OAMTV;
@@ -453,16 +439,10 @@ void RENDERNAMETABLE ( void )
 
    if ( !NameTableTV )
    {
-      int i;
-
       NameTableTV = new int8_t[512*512*4];
 
       // Clear image...
-      memset(NameTableTV,0,sizeof(NameTableTV));
-      for ( i = 3; i < 512*512*4; i+=4 )
-      {
-         NameTableTV[i] = 0xFF;
-      }
+      CLEARNAMETABLETV();
    }
 
    pTV = NameTableTV;

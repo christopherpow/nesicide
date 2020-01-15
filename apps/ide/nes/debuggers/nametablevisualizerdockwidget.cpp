@@ -13,6 +13,8 @@ NameTableVisualizerDockWidget::NameTableVisualizerDockWidget(QWidget *parent) :
 {
    ui->setupUi(this);
 
+   RENDERNAMETABLE();
+
    renderer = new PanZoomRenderer(512,480,2000,NAMETABLETV(),false,ui->frame);
    ui->frame->layout()->addWidget(renderer);
    ui->frame->layout()->update();

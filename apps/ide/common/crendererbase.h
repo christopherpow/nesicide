@@ -2,6 +2,7 @@
 #define CRENDERERBASE_H
 
 #include <QWidget>
+#include <QOpenGLWidget>
 #include <QMouseEvent>
 #include <QGLWidget>
 #if defined ( __APPLE__ )
@@ -10,7 +11,7 @@
 #include <GL/glext.h>
 #endif
 
-class CRendererBase : public QGLWidget
+class CRendererBase : public QOpenGLWidget
 {
    Q_OBJECT
 public:

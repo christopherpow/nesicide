@@ -1,33 +1,32 @@
 #include "crendererbase.h"
 
 CRendererBase::CRendererBase(int sizeX,int sizeY,int textureSizeXY,int maxZoom,int8_t* imageData,QWidget *parent) :
-      QGLWidget(parent),
+      QOpenGLWidget(parent),
       _sizeX(sizeX),
       _sizeY(sizeY),
       _scrollX(0),
       _scrollY(0),
       _textureSizeXY(textureSizeXY),
-      _imageData(imageData),
       _zoomFactor(100),
       _maxZoom(maxZoom)
 {
    setBackgroundRole(QPalette::Dark);
-
    setCursor(QCursor(Qt::CrossCursor));
+
+   _imageData = new int8_t[textureSizeXY*textureSizeXY*4];
+   memcpy(_imageData,imageData,textureSizeXY*textureSizeXY*4);
 }
 
 CRendererBase::CRendererBase(int sizeX,int sizeY,int maxZoom,int8_t* imageData,QWidget *parent) :
-    QGLWidget(parent),
+    QOpenGLWidget(parent),
     _sizeX(sizeX),
     _sizeY(sizeY),
     _scrollX(0),
     _scrollY(0),
-    _imageData(imageData),
     _zoomFactor(100),
     _maxZoom(maxZoom)
 {
    setBackgroundRole(QPalette::Dark);
-
    setCursor(QCursor(Qt::CrossCursor));
 
    if ( _sizeX > sizeY )
@@ -42,6 +41,9 @@ CRendererBase::CRendererBase(int sizeX,int sizeY,int maxZoom,int8_t* imageData,Q
    {
       _textureSizeXY = _sizeX;
    }
+
+   _imageData = new int8_t[_textureSizeXY*_textureSizeXY*4];
+   memcpy(_imageData,imageData,_sizeX*_sizeY*4);
 }
 
 CRendererBase::~CRendererBase()
@@ -102,7 +104,7 @@ void CRendererBase::initializeGL()
 
 void CRendererBase::reloadData(int8_t* imageData)
 {
-   _imageData = imageData;
+   memcpy(_imageData,imageData,_sizeX*_sizeY*4);
 
    update();
 }
