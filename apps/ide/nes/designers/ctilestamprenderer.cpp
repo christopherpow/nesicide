@@ -1,7 +1,7 @@
 #include "ctilestamprenderer.h"
 
 CTileStampRenderer::CTileStampRenderer(QWidget* parent, char* data)
-   : QGLWidget(parent)
+   : QOpenGLWidget(parent)
 {
    imageData = data;
    scrollX = 0;
@@ -22,6 +22,8 @@ CTileStampRenderer::~CTileStampRenderer()
 
 void CTileStampRenderer::initializeGL()
 {
+   initializeOpenGLFunctions();
+
    glGenTextures(1,(GLuint*)&textureID);
    zoom = 100;
 

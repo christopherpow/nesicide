@@ -3,15 +3,10 @@
 
 #include <QWidget>
 #include <QOpenGLWidget>
+#include <QOpenGLFunctions>
 #include <QMouseEvent>
-#include <QGLWidget>
-#if defined ( __APPLE__ )
-#include <OpenGL/glext.h>
-#else
-#include <GL/glext.h>
-#endif
 
-class CRendererBase : public QOpenGLWidget
+class CRendererBase : public QOpenGLWidget, protected QOpenGLFunctions
 {
    Q_OBJECT
 public:
@@ -28,8 +23,6 @@ public:
    void setScrollX(int scrollX) { _scrollX = scrollX; }
    void setScrollY(int scrollY) { _scrollY = scrollY; }
    bool pointToPixel(int ptx,int pty,int* pixx,int* pixy);
-
-public slots:
 
 protected:
    int _sizeX;

@@ -14,6 +14,7 @@ CodeDataLoggerDockWidget::CodeDataLoggerDockWidget(QWidget *parent) :
    ui->setupUi(this);
 
    RENDERCPUCODEDATALOGGER();
+   RENDERPPUCODEDATALOGGER();
 
    renderer = new PanZoomRenderer(256,256,10000,CPUCODEDATALOGGERTV(),false,ui->frame);
    ui->frame->layout()->addWidget(renderer);

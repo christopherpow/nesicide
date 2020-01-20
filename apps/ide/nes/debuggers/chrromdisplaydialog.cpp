@@ -18,12 +18,12 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(bool usePPU,qint8* data,IProjectTreeVie
 
    m_usePPU = usePPU;
 
-   RENDERCHRMEM();
-
    imgData = new int8_t[256*128*4];
 
    if ( m_usePPU )
    {
+      RENDERCHRMEM();
+
       renderer = new PanZoomRenderer(256,128,2000,CHRMEMTV(),true,ui->frame);
 
       SetCHRMEMInspectorColor(0,renderer->getColor(0));
@@ -35,15 +35,16 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(bool usePPU,qint8* data,IProjectTreeVie
       QObject::connect(pThread,SIGNAL(updateComplete()),this,SLOT(renderData()));
    }
    else
-   {
+   {      
+      // show CHR-ROM bank data...
+      memcpy(chrrom,data,MEM_8KB);
+
       renderer = new PanZoomRenderer(256,128,2000,imgData,true,ui->frame);
+      renderData();
+      update();
 
       // No thread necessary.
       pThread = NULL;
-
-      // show CHR-ROM bank data...
-      memcpy(chrrom,data,MEM_8KB);
-      renderData();
    }
 
    ui->frame->layout()->addWidget(renderer);
@@ -262,7 +263,6 @@ void CHRROMDisplayDialog::renderData()
          for (int x = 0; x < 256; x += 8)
          {
             ppuAddr = ((y>>3)<<8)+((x%128)<<1)+(y&0x7);
-
             if ( x >= 128 )
             {
                ppuAddr += 0x1000;

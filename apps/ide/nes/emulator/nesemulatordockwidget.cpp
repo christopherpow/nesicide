@@ -440,5 +440,5 @@ void NESEmulatorDockWidget::keyReleaseEvent(QKeyEvent* event)
 
 void NESEmulatorDockWidget::renderData()
 {
-   renderer->updateGL();
+   renderer->update();
 }
