@@ -407,7 +407,5 @@ void NESEmulatorDockWidget::keyReleaseEvent(QKeyEvent* event)
 
 void NESEmulatorDockWidget::renderData()
 {
-   static int i = 0;
-   qDebug("update %d\n",i++);
    renderer->update();
 }

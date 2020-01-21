@@ -183,6 +183,7 @@ void CRendererBase::changeZoom(int newZoom)
    makeCurrent();
    _zoomFactor = newZoom;
    resizeGL(width(),height());
+   doneCurrent();
    update();
 }
 

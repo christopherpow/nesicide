@@ -105,29 +105,58 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
       qputenv("CC65_INC",envdat.toLatin1());
    }
 #elif defined(Q_OS_MAC) || defined(Q_OS_MAC64) || defined(Q_OS_MACX)
-   // Set environment.
-   QString envvar = qgetenv("PATH");
-   QString envdat;
-   envdat = QCoreApplication::applicationDirPath();
-   envdat += "/cc65/bin:";
-   qputenv("PATH",QString(envdat+envvar).toLatin1());
+   if ( QCoreApplication::applicationDirPath().contains("apps/ide") )
+   {
+      // Developer build?  Set environment assuming deps/ is at top level.
+      QString envvar = qgetenv("PATH");
+      QString envdat;
+      QDir dir;
+      dir.setPath("../../../../../../deps");
+      envdat += dir.absolutePath();
+      envdat += "/cc65/bin:";
+      qputenv("PATH",QString(envdat+envvar).toLatin1());
 
-   envdat = QCoreApplication::applicationDirPath();
-   envdat += "/cc65";
-   qputenv("CC65_HOME",envdat.toLatin1());
+      envdat = dir.absolutePath();
+      envdat += "/cc65";
+      qputenv("CC65_HOME",envdat.toLatin1());
 
-   envdat = QCoreApplication::applicationDirPath();
-   envdat += "/cc65/share/cc65/lib";
-   qputenv("LD65_LIB",envdat.toLatin1());
+      envdat = dir.absolutePath();
+      envdat += "/cc65/lib";
+      qputenv("LD65_LIB",envdat.toLatin1());
 
-   envdat = QCoreApplication::applicationDirPath();
-   envdat += "/cc65/share/cc65/asminc";
-   qputenv("CA65_INC",envdat.toLatin1());
+      envdat = dir.absolutePath();
+      envdat += "/cc65/asminc";
+      qputenv("CA65_INC",envdat.toLatin1());
 
-   envdat = QCoreApplication::applicationDirPath();
-   envdat += "/cc65/share/cc65/include";
-   qputenv("CC65_INC",envdat.toLatin1());
+      envdat = dir.absolutePath();
+      envdat += "/cc65/include";
+      qputenv("CC65_INC",envdat.toLatin1());
+   }
+   else
+   {
+      // Set environment.
+      QString envvar = qgetenv("PATH");
+      QString envdat;
+      envdat = QCoreApplication::applicationDirPath();
+      envdat += "/cc65/bin:";
+      qputenv("PATH",QString(envdat+envvar).toLatin1());
 
+      envdat = QCoreApplication::applicationDirPath();
+      envdat += "/cc65";
+      qputenv("CC65_HOME",envdat.toLatin1());
+
+      envdat = QCoreApplication::applicationDirPath();
+      envdat += "/cc65/share/cc65/lib";
+      qputenv("LD65_LIB",envdat.toLatin1());
+
+      envdat = QCoreApplication::applicationDirPath();
+      envdat += "/cc65/share/cc65/asminc";
+      qputenv("CA65_INC",envdat.toLatin1());
+
+      envdat = QCoreApplication::applicationDirPath();
+      envdat += "/cc65/share/cc65/include";
+      qputenv("CC65_INC",envdat.toLatin1());
+   }
 #else
    if ( QCoreApplication::applicationDirPath().contains("apps/ide") )
    {
