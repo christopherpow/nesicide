@@ -1,10 +1,11 @@
 version: 1.0.{build}
-branches:
-  only:
-  - master
 image: Visual Studio 2017
 platform: x64
 
+branches:
+  only:
+  - master
+skip_tags: true
 environment:
   QTDIR: C:\Qt\5.11\mingw53_32
 
@@ -38,7 +39,7 @@ deploy:
   subject: christopherpow
   repo: nesicide
   package: nesicide
-  artifact: nesicide
+  artifact: nesicide-win-x86.tar.bz2
   publish: true
   on:
     branch: master
