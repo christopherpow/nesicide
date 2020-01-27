@@ -9,8 +9,6 @@ skip_tags: true
 environment:
   QTDIR: C:\Qt\5.11\mingw53_32
 
-skip_tags: true
-
 hosts:
   phrenetic: 162.243.126.83
   
