@@ -36,7 +36,10 @@ CRendererBase::CRendererBase(int sizeX,int sizeY,int maxZoom,int8_t* imageData,Q
 
 CRendererBase::~CRendererBase()
 {
-   glDeleteTextures(1,(GLuint*)&_textureID);
+   if ( _initialized )
+   {
+      glDeleteTextures(1,(GLuint*)&_textureID);
+   }
 }
 
 void CRendererBase::initializeGL()

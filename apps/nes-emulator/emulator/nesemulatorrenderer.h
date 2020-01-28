@@ -25,6 +25,7 @@ public:
    GLuint textureID;
    bool linearInterpolation;
    bool aspect43;
+   bool initialized;
 };
 
 #endif // CNESEMULATORRENDERER_H

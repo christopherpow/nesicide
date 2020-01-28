@@ -211,8 +211,6 @@ void RENDERCHRMEM ( void )
 
    if ( !_CHRMEMTV )
    {
-      int i;
-
       _CHRMEMTV = new int8_t[256*256*4];
 
       // Clear image...

@@ -19,6 +19,13 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(bool usePPU,qint8* data,IProjectTreeVie
    m_usePPU = usePPU;
 
    imgData = new int8_t[256*128*4];
+   memset(imgData,0,sizeof(imgData));
+
+   int i;
+   for ( i = 3; i < (256*128*4); i += 4 )
+   {
+      imgData[i] = 0xff;
+   }
 
    if ( m_usePPU )
    {
@@ -35,19 +42,20 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(bool usePPU,qint8* data,IProjectTreeVie
       QObject::connect(pThread,SIGNAL(updateComplete()),this,SLOT(renderData()));
    }
    else
-   {      
+   {
       // show CHR-ROM bank data...
       memcpy(chrrom,data,MEM_8KB);
 
       renderer = new PanZoomRenderer(256,128,2000,imgData,true,ui->frame);
+      renderData();
 
       // No thread necessary.
       pThread = NULL;
    }
 
+   setCentralWidget(ui->window);
    ui->frame->layout()->addWidget(renderer);
    ui->frame->layout()->update();
-   setCentralWidget(ui->window);
 
    renderer->installEventFilter(this);
 
@@ -247,7 +255,7 @@ void CHRROMDisplayDialog::renderData()
 
    if ( m_usePPU )
    {
-      renderer->reloadData(imgData);
+      renderer->reloadData(CHRMEMTV());
    }
    else
    {

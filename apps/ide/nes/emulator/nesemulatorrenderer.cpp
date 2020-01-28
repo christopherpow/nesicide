@@ -14,7 +14,10 @@ CNESEmulatorRenderer::CNESEmulatorRenderer(QWidget* parent, char* imgData)
 
 CNESEmulatorRenderer::~CNESEmulatorRenderer()
 {
-   glDeleteTextures(1,&textureID);
+   if ( initialized )
+   {
+      glDeleteTextures(1,(GLuint*)&textureID);
+   }
 }
 
 void CNESEmulatorRenderer::initializeGL()

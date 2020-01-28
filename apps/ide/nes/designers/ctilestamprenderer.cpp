@@ -18,7 +18,10 @@ CTileStampRenderer::CTileStampRenderer(QWidget* parent, char* data)
 
 CTileStampRenderer::~CTileStampRenderer()
 {
-   glDeleteTextures(1,(GLuint*)&textureID);
+   if ( initialized )
+   {
+      glDeleteTextures(1,(GLuint*)&textureID);
+   }
 }
 
 void CTileStampRenderer::initializeGL()

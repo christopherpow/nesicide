@@ -13,12 +13,20 @@ CNESEmulatorRenderer::CNESEmulatorRenderer(QWidget* parent, char* imgData)
 
 CNESEmulatorRenderer::~CNESEmulatorRenderer()
 {
-   glDeleteTextures(1,&textureID);
+   if ( initialized )
+   {
+      glDeleteTextures(1,(GLuint*)&textureID);
+   }
 }
 
 void CNESEmulatorRenderer::initializeGL()
 {
    initializeOpenGLFunctions();
+
+   if ( initialized )
+   {
+      glDeleteTextures(1,(GLuint*)&textureID);
+   }
 
    glGenTextures(1,&textureID);
 
@@ -77,6 +85,8 @@ void CNESEmulatorRenderer::initializeGL()
 
    // Load the actual texture
    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
+
+   initialized = true;
 }
 
 void CNESEmulatorRenderer::setBGColor(QColor clr)
