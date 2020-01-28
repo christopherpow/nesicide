@@ -40,7 +40,7 @@ private:
    CDebuggerMemoryDisplayModel* model;
    CDebuggerNumericItemDelegate* delegate;
    CBreakpointInfo* m_pBreakpoints;
-   memDBFunc m_memDB;
+   CMemoryDatabase* m_memDB;
 
 private slots:
    void on_actionBreak_on_CPU_write_here_triggered();

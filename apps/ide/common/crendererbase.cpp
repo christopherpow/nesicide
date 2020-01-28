@@ -3,48 +3,34 @@
 CRendererBase::CRendererBase(int sizeX,int sizeY,int textureSizeXY,int maxZoom,int8_t* imageData,QWidget *parent) :
       QOpenGLWidget(parent),
       _sizeX(sizeX),
+      _trueSizeX(textureSizeXY),
       _sizeY(sizeY),
       _scrollX(0),
       _scrollY(0),
-      _textureSizeXY(textureSizeXY),
       _zoomFactor(100),
-      _maxZoom(maxZoom)
+      _maxZoom(maxZoom),
+      _initialized(false)
 {
    setBackgroundRole(QPalette::Dark);
    setCursor(QCursor(Qt::CrossCursor));
 
-//   _imageData = new int8_t[textureSizeXY*textureSizeXY*4];
-//   memcpy(_imageData,imageData,textureSizeXY*textureSizeXY*4);
    _imageData = imageData;
 }
 
 CRendererBase::CRendererBase(int sizeX,int sizeY,int maxZoom,int8_t* imageData,QWidget *parent) :
     QOpenGLWidget(parent),
     _sizeX(sizeX),
+    _trueSizeX(sizeX),
     _sizeY(sizeY),
     _scrollX(0),
     _scrollY(0),
     _zoomFactor(100),
-    _maxZoom(maxZoom)
+    _maxZoom(maxZoom),
+    _initialized(false)
 {
    setBackgroundRole(QPalette::Dark);
    setCursor(QCursor(Qt::CrossCursor));
 
-   if ( _sizeX > sizeY )
-   {
-      _textureSizeXY = _sizeX;
-   }
-   else if ( _sizeY > sizeX )
-   {
-      _textureSizeXY = _sizeY;
-   }
-   else
-   {
-      _textureSizeXY = _sizeX;
-   }
-
-//   _imageData = new int8_t[_textureSizeXY*_textureSizeXY*4];
-//   memcpy(_imageData,imageData,_sizeX*_sizeY*4);
    _imageData = imageData;
 }
 
@@ -56,6 +42,11 @@ CRendererBase::~CRendererBase()
 void CRendererBase::initializeGL()
 {
    initializeOpenGLFunctions();
+
+   if ( _initialized )
+   {
+      glDeleteTextures(1,(GLuint*)&_textureID);
+   }
 
    glGenTextures(1,(GLuint*)&_textureID);
 
@@ -84,16 +75,14 @@ void CRendererBase::initializeGL()
    // Enable textures
    glEnable(GL_TEXTURE_2D);
 
-   resizeGL(width(),height());
-
    // Create the texture we will be rendering onto
    glBindTexture(GL_TEXTURE_2D, _textureID);
 
    // We want it to be RGBA formatted
    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
    glPixelStorei(GL_PACK_ALIGNMENT, 4);
-   glPixelStorei(GL_UNPACK_ROW_LENGTH, _textureSizeXY);
-   glPixelStorei(GL_PACK_ROW_LENGTH, _textureSizeXY);
+   glPixelStorei(GL_UNPACK_ROW_LENGTH, _trueSizeX);
+   glPixelStorei(GL_PACK_ROW_LENGTH, _trueSizeX);
 
    // Set our texture parameters
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
@@ -103,13 +92,14 @@ void CRendererBase::initializeGL()
    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
 
    // Load the actual texture
-   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _textureSizeXY, _textureSizeXY, 0, GL_RGBA, GL_UNSIGNED_BYTE, _imageData);
+   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _sizeX, _sizeY, 0, GL_RGBA, GL_UNSIGNED_BYTE, _imageData);
+
+   _initialized = true;
 }
 
 void CRendererBase::reloadData(int8_t* imageData)
 {
    _imageData = imageData;
-//   memcpy(_imageData,imageData,_sizeX*_sizeY*4);
 
    update();
 }
@@ -122,6 +112,8 @@ void CRendererBase::setBGColor(QColor clr)
 void CRendererBase::resizeGL(int width, int height)
 {
    QSize actualSize;
+
+   QOpenGLWidget::resizeGL(width,height);
 
    // Force integral scaling factors. TODO: Add to environment settings.
    int zf  = _zoomFactor / 100;
@@ -161,19 +153,17 @@ void CRendererBase::resizeGL(int width, int height)
 
 void CRendererBase::paintGL()
 {
-   float scaleX = (float)_sizeX/(float)_textureSizeXY;
-   float scaleY = (float)_sizeY/(float)_textureSizeXY;
-   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
    glBindTexture (GL_TEXTURE_2D, _textureID);
-   glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, _textureSizeXY, _textureSizeXY, GL_RGBA, GL_UNSIGNED_BYTE, _imageData);
+   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+   glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, _sizeX, _sizeY, GL_RGBA, GL_UNSIGNED_BYTE, _imageData);
    glBegin(GL_QUADS);
    glTexCoord2f (0.0, 0.0);
    glVertex3f(000.0f - _scrollX, 000.0f - _scrollY, 0.0f);
-   glTexCoord2f (scaleX, 0.0);
+   glTexCoord2f (1.0, 0.0);
    glVertex3f(_sizeX - _scrollX, 000.0f - _scrollY, 0.0f);
-   glTexCoord2f (scaleX, scaleY);
+   glTexCoord2f (1.0, 1.0);
    glVertex3f(_sizeX - _scrollX, _sizeY - _scrollY, 0.0f);
-   glTexCoord2f (0.0, scaleY);
+   glTexCoord2f (0.0, 1.0);
    glVertex3f(000.0f - _scrollX, _sizeY - _scrollY, 0.0f);
    glEnd();
 }

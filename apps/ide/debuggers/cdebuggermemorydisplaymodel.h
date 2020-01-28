@@ -29,7 +29,7 @@ public slots:
    void update(void);
 
 private:
-   memDBFunc m_memDB;
+   CMemoryDatabase* m_memDB;
 };
 
 #endif // CDEBUGGERMEMORYDISPLAYMODEL_H

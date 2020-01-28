@@ -90,7 +90,7 @@ private:
    CBreakpointInfo* m_pBreakpoints;
    QsciScintilla* m_scintilla;
    QsciLexer* m_lexer;
-   QsciAPIsCA65* m_apis;
+   QsciAPIs* m_apis;
    int m_breakpointIndex;
    int m_contextMenuLine;
    int m_toolTipTimer;

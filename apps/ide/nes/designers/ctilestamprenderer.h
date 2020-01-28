@@ -37,6 +37,7 @@ protected:
    int boxY1;
    int boxX2;
    int boxY2;
+   bool initialized;
 };
 
 #endif // CTILESTAMPRENDERER_H

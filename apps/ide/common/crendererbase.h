@@ -26,10 +26,11 @@ public:
 
 protected:
    int _sizeX;
+   int _trueSizeX;
    int _sizeY;
    int _scrollX;
    int _scrollY;
-   int _textureSizeXY;
+   bool _initialized;
    int8_t* _imageData;
    int _zoomFactor;
    int _maxZoom;

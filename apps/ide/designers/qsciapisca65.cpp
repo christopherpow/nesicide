@@ -6,6 +6,11 @@ QsciAPIsCA65::QsciAPIsCA65(QsciLexer *lexer)
 
 }
 
+QsciAPIsCA65::~QsciAPIsCA65()
+{
+
+}
+
 //! \reimp
 void QsciAPIsCA65::updateAutoCompletionList(const QStringList &context,
         QStringList &list)

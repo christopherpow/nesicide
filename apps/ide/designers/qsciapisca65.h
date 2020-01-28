@@ -7,10 +7,9 @@
 
 class QsciAPIsCA65 : public QsciAPIs
 {
-   Q_OBJECT
-
 public:
    QsciAPIsCA65(QsciLexer *lexer);
+   virtual ~QsciAPIsCA65();
 
    //! \reimp
    virtual void updateAutoCompletionList(const QStringList &context,

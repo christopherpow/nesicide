@@ -3,7 +3,8 @@
 #include "main.h"
 
 CNESEmulatorRenderer::CNESEmulatorRenderer(QWidget* parent, char* imgData)
-   : QOpenGLWidget(parent)
+   : QOpenGLWidget(parent),
+     initialized(false)
 {
    imageData = imgData;
    scrollX = 0;
@@ -19,6 +20,11 @@ CNESEmulatorRenderer::~CNESEmulatorRenderer()
 void CNESEmulatorRenderer::initializeGL()
 {
    initializeOpenGLFunctions();
+
+   if ( initialized )
+   {
+      glDeleteTextures(1,(GLuint*)&textureID);
+   }
 
    glGenTextures(1,&textureID);
 
@@ -49,8 +55,6 @@ void CNESEmulatorRenderer::initializeGL()
    // Enable textures
    glEnable(GL_TEXTURE_2D);
 
-   resizeGL(this->width(), this->height());
-
    // Create the texture we will be rendering onto
    glBindTexture(GL_TEXTURE_2D, textureID);
 
@@ -77,6 +81,8 @@ void CNESEmulatorRenderer::initializeGL()
 
    // Load the actual texture
    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
+
+   initialized = true;
 }
 
 void CNESEmulatorRenderer::setBGColor(QColor clr)
@@ -89,6 +95,8 @@ void CNESEmulatorRenderer::resizeGL(int width, int height)
    QSize actualSize;
    QPoint offset;
    int realWidth;
+
+   QOpenGLWidget::resizeGL(width,height);
 
    // Force .5x step scaling factors.
    if ( aspect43 )
@@ -154,8 +162,8 @@ void CNESEmulatorRenderer::resizeGL(int width, int height)
 
 void CNESEmulatorRenderer::paintGL()
 {
-   glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
    glBindTexture (GL_TEXTURE_2D, textureID);
+   glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
    if ( linearInterpolation )
    {

@@ -1,7 +1,8 @@
 #include "ctilestamprenderer.h"
 
 CTileStampRenderer::CTileStampRenderer(QWidget* parent, char* data)
-   : QOpenGLWidget(parent)
+   : QOpenGLWidget(parent),
+     initialized(false)
 {
    imageData = data;
    scrollX = 0;
@@ -23,6 +24,11 @@ CTileStampRenderer::~CTileStampRenderer()
 void CTileStampRenderer::initializeGL()
 {
    initializeOpenGLFunctions();
+
+   if ( initialized )
+   {
+      glDeleteTextures(1,(GLuint*)&textureID);
+   }
 
    glGenTextures(1,(GLuint*)&textureID);
    zoom = 100;
@@ -52,8 +58,6 @@ void CTileStampRenderer::initializeGL()
    // Enable textures
    glEnable(GL_TEXTURE_2D);
 
-   resizeGL(width(),height());
-
    // Create the texture we will be rendering onto
    glBindTexture(GL_TEXTURE_2D, textureID);
 
@@ -72,6 +76,8 @@ void CTileStampRenderer::initializeGL()
 
    // Load the actual texture
    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
+
+   initialized = true;
 }
 
 void CTileStampRenderer::setBGColor(QColor clr)
@@ -82,6 +88,8 @@ void CTileStampRenderer::setBGColor(QColor clr)
 void CTileStampRenderer::resizeGL(int width, int height)
 {
    QSize actualSize;
+
+   QOpenGLWidget::resizeGL(width,height);
 
    // Width cannot be 0 or the system will freak out
    if (width == 0)

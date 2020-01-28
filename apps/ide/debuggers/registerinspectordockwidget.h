@@ -38,7 +38,8 @@ private:
    CDebuggerBitfieldComboBoxDelegate* bitfieldDelegate;
    CDebuggerNumericItemDelegate* binaryDelegate;
    CBreakpointInfo* m_pBreakpoints;
-   regDBFunc m_regDB;
+   regDBFunc m_regDBFunc;
+   CRegisterDatabase* m_regDB;
    int       m_register;
 
 private slots:

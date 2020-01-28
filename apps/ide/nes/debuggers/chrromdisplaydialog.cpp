@@ -40,8 +40,6 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(bool usePPU,qint8* data,IProjectTreeVie
       memcpy(chrrom,data,MEM_8KB);
 
       renderer = new PanZoomRenderer(256,128,2000,imgData,true,ui->frame);
-      renderData();
-      update();
 
       // No thread necessary.
       pThread = NULL;
