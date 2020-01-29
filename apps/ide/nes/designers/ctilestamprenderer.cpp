@@ -92,6 +92,8 @@ void CTileStampRenderer::resizeGL(int width, int height)
 {
    QSize actualSize;
 
+   initializeOpenGLFunctions();
+
    QOpenGLWidget::resizeGL(width,height);
 
    // Width cannot be 0 or the system will freak out
@@ -102,6 +104,9 @@ void CTileStampRenderer::resizeGL(int width, int height)
 
    // Initialize our viewpoint using the actual size so 1 point should = 1 pixel.
    glViewport(0, 0, width, height);
+
+   // Slightly offset the view to ensure proper pixel alignment
+   glTranslatef(0.5,0.5,0);
 }
 
 void CTileStampRenderer::paintGL()

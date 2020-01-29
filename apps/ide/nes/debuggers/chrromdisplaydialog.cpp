@@ -53,9 +53,9 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(bool usePPU,qint8* data,IProjectTreeVie
       pThread = NULL;
    }
 
-   setCentralWidget(ui->window);
    ui->frame->layout()->addWidget(renderer);
    ui->frame->layout()->update();
+   setCentralWidget(ui->window);
 
    renderer->installEventFilter(this);
 

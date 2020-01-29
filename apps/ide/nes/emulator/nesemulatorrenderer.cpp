@@ -99,6 +99,8 @@ void CNESEmulatorRenderer::resizeGL(int width, int height)
    QPoint offset;
    int realWidth;
 
+   initializeOpenGLFunctions();
+
    QOpenGLWidget::resizeGL(width,height);
 
    // Force .5x step scaling factors.

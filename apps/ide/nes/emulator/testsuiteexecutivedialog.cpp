@@ -31,12 +31,13 @@ TestSuiteExecutiveDialog::~TestSuiteExecutiveDialog()
    delete ui;
 }
 
-void TestSuiteExecutiveDialog::updateTargetMachine(QString /*target*/)
+void TestSuiteExecutiveDialog::showEvent(QShowEvent *)
 {
    QObject* emulator = CObjectRegistry::getObject("Emulator");
 
    if ( emulator )
    {
+      QObject::connect(emulator,SIGNAL(machineReady()),this,SLOT(machineReady()));
       QObject::connect(emulator,SIGNAL(emulatedFrame()),this,SLOT(updateProgress()));
       QObject::connect(this,SIGNAL(startEmulation()),emulator,SLOT(startEmulation()));
       QObject::connect(this,SIGNAL(pauseEmulationAfter(int32_t)),emulator,SLOT(pauseEmulationAfter(int32_t)));
@@ -44,7 +45,26 @@ void TestSuiteExecutiveDialog::updateTargetMachine(QString /*target*/)
    }
 }
 
+void TestSuiteExecutiveDialog::hideEvent(QHideEvent *)
+{
+   QObject* emulator = CObjectRegistry::getObject("Emulator");
+
+   if ( emulator )
+   {
+      QObject::disconnect(emulator,SIGNAL(machineReady()),this,SLOT(machineReady()));
+      QObject::disconnect(emulator,SIGNAL(emulatedFrame()),this,SLOT(updateProgress()));
+      QObject::disconnect(this,SIGNAL(startEmulation()),emulator,SLOT(startEmulation()));
+      QObject::disconnect(this,SIGNAL(pauseEmulationAfter(int32_t)),emulator,SLOT(pauseEmulationAfter(int32_t)));
+      QObject::disconnect(emulator,SIGNAL(emulatorPausedAfter()),this,SLOT(emulatorPausedAfter()));
+   }
+}
+
 void TestSuiteExecutiveDialog::emulatorPausedAfter()
+{
+   doTestPhase();
+}
+
+void TestSuiteExecutiveDialog::machineReady()
 {
    doTestPhase();
 }
