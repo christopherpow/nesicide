@@ -126,13 +126,18 @@ NESEmulatorThread::NESEmulatorThread(QObject*)
 }
 
 NESEmulatorThread::~NESEmulatorThread()
-{   
-   pThread->quit();
-   pThread->deleteLater();
-
+{      
    nesSDLCallback._valid = false;
+   int idx = sdlHooks.indexOf(nesSDLCallback);
+   if ( idx >= 0 )
+   {
+      sdlHooks.removeAt(idx);
+   }
 
    pWorker = NULL;
+
+   pThread->quit();
+   pThread->deleteLater();
 }
 
 void NESEmulatorThread::adjustAudio(int32_t bufferDepth)

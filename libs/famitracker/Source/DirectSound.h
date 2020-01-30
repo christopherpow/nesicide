@@ -93,12 +93,15 @@ private:
 
 typedef void (*SDL_Callback_Function)(void* userdata,uint8_t* stream,int32_t len);
 
-typedef struct _SDL_Callback
+struct SDL_Callback
 {
+public:
+   bool operator==(const SDL_Callback &other) const;
+   int                   _id;
    SDL_Callback_Function _func;
    void*                 _user;
    bool                  _valid;
-} SDL_Callback;
+};
 
 extern QList<SDL_Callback> sdlHooks;
 

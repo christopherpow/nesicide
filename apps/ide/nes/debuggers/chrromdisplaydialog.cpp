@@ -29,6 +29,7 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(bool usePPU,qint8* data,IProjectTreeVie
 
    if ( m_usePPU )
    {
+      setCentralWidget(ui->window);
       RENDERCHRMEM();
 
       renderer = new PanZoomRenderer(256,128,2000,CHRMEMTV(),true,ui->frame);
@@ -44,6 +45,7 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(bool usePPU,qint8* data,IProjectTreeVie
    else
    {
       // show CHR-ROM bank data...
+      setCentralWidget(ui->windowEx);
       memcpy(chrrom,data,MEM_8KB);
 
       renderer = new PanZoomRenderer(256,128,2000,imgData,true,ui->frame);
@@ -55,7 +57,6 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(bool usePPU,qint8* data,IProjectTreeVie
 
    ui->frame->layout()->addWidget(renderer);
    ui->frame->layout()->update();
-   setCentralWidget(ui->window);
 
    renderer->installEventFilter(this);
 

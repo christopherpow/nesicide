@@ -106,7 +106,7 @@ void CTileStampRenderer::resizeGL(int width, int height)
    glViewport(0, 0, width, height);
 
    // Slightly offset the view to ensure proper pixel alignment
-   glTranslatef(0.5,0.5,0);
+   //glTranslatef(0.5,0.5,0);
 }
 
 void CTileStampRenderer::paintGL()

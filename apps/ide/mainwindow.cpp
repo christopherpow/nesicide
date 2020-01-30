@@ -899,7 +899,6 @@ void MainWindow::createNesUi()
    menuAudioN106->addAction(actionWave_6N106);
    menuAudioN106->addAction(actionWave_7N106);
    menuAudioN106->addAction(actionWave_8N106);
-   menuView->addSeparator();
    menuView->addAction(actionEmulation_Window);
 
    debuggerToolBar = new QToolBar("Emulator Control",this);
@@ -912,7 +911,6 @@ void MainWindow::createNesUi()
    addToolBar(Qt::TopToolBarArea, debuggerToolBar);
 
    toolToolbar->addAction(actionEmulation_Window);
-   toolToolbar->addSeparator();
 
    if ( !m_pNESEmulatorThread )
    {
@@ -1316,6 +1314,10 @@ void MainWindow::destroyNesUi()
    delete m_pBinMapperMemoryInspector;
    removeDockWidget(m_pJoypadLoggerInspector);
    delete m_pJoypadLoggerInspector;
+
+   menuView->removeAction(actionEmulation_Window);
+   toolToolbar->removeAction(actionEmulation_Window);
+
    delete action1x;
    delete action1_5x;
    delete action2x;
