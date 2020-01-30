@@ -37,6 +37,7 @@ deploy:
   subject: christopherpow
   repo: nesicide
   package: nesicide
+  artifact: nesicide
   publish: true
   override: true
   on:
