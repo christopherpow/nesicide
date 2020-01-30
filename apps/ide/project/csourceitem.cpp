@@ -60,7 +60,11 @@ bool CSourceItem::serializeContent()
 
       if ( fileOut.open(QIODevice::ReadWrite|QIODevice::Truncate|QIODevice::Text) )
       {
-         fileOut.write(sourceCode().toLatin1());
+         QTextStream out(&fileOut);
+         out.setCodec(QTextCodec::codecForName(EnvironmentSettingsDialog::textEncodingString().toUtf8()));
+         out << sourceCode();
+
+         fileOut.close();
       }
 
       m_editor->setModified(false);
@@ -112,7 +116,9 @@ bool CSourceItem::deserializeContent()
 
    if ( fileIn.exists() && fileIn.open(QIODevice::ReadOnly|QIODevice::Text) )
    {
-      setSourceCode(QString(fileIn.readAll()));
+      QTextStream in(&fileIn);
+      in.setCodec(QTextCodec::codecForName(EnvironmentSettingsDialog::textEncodingString().toUtf8()));
+      setSourceCode(in.readAll());
       fileIn.close();
    }
    else
@@ -138,7 +144,7 @@ void CSourceItem::openItemEvent(CProjectTabWidget* tabWidget)
    {
       // Load before displaying...
       deserializeContent();
-      
+
       m_editor = new CodeEditorForm(path(),m_sourceCode,this);
       tabWidget->addTab(m_editor, path());
       tabWidget->setCurrentWidget(m_editor);

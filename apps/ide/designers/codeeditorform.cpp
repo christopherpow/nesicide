@@ -1358,7 +1358,7 @@ void CodeEditorForm::applyEnvironmentSettingsToTab()
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    int op;
-   
+
    if ( EnvironmentSettingsDialog::foldSource() )
    {
       m_scintilla->setMarginType(Margin_Folding,QsciScintilla::SymbolMargin);
@@ -1370,6 +1370,8 @@ void CodeEditorForm::applyEnvironmentSettingsToTab()
       m_scintilla->setMarginWidth(Margin_Folding,0);
       m_scintilla->setFolding(QsciScintilla::NoFoldStyle,Margin_Folding);
    }
+
+   m_scintilla->setUtf8(EnvironmentSettingsDialog::textEncodingIsUtf8());
 
    m_scintilla->setEolMode((QsciScintilla::EolMode)EnvironmentSettingsDialog::eolMode());
 

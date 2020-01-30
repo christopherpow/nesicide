@@ -32,6 +32,7 @@ bool EnvironmentSettingsDialog::m_tabReplacementEnabled;
 int EnvironmentSettingsDialog::m_spacesForTabs;
 bool EnvironmentSettingsDialog::m_annotateSource;
 bool EnvironmentSettingsDialog::m_foldSource;
+bool EnvironmentSettingsDialog::m_textEncodingIsUtf8;
 QString EnvironmentSettingsDialog::m_cSourceExtensions;
 QString EnvironmentSettingsDialog::m_asmSourceExtensions;
 QString EnvironmentSettingsDialog::m_headerExtensions;
@@ -89,14 +90,14 @@ EnvironmentSettingsDialog::EnvironmentSettingsDialog(QWidget* parent) :
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
 
    ui->settingsLocation->setText(QString("Currently reading settings from: ")+settings.fileName());
-   
+
    QFileInfo toolchainInfo(qgetenv("CC65_HOME"));
    if ( toolchainInfo.exists() &&
         toolchainInfo.isDir() )
    {
      ui->toolchainLocation->setText(qgetenv("CC65_HOME"));
    }
-   
+
    m_scintilla = new QsciScintilla();
    m_defaultLexer = new QsciLexerDefault();
    m_cc65Lexer = new QsciLexerCC65();
@@ -152,8 +153,9 @@ EnvironmentSettingsDialog::EnvironmentSettingsDialog(QWidget* parent) :
    ui->spacesForTab->setValue(m_spacesForTabs);
 
    ui->annotate->setChecked(m_annotateSource);
-   
+
    ui->fold->setChecked(m_foldSource);
+   ui->textEncoding->setCurrentIndex(m_textEncodingIsUtf8);
 
    ui->showSymbolTips->setChecked(m_showSymbolTips);
    ui->showOpcodeTips->setChecked(m_showOpcodeTips);
@@ -248,6 +250,7 @@ void EnvironmentSettingsDialog::readSettings()
    m_spacesForTabs = settings.value("spacesPerTab",QVariant(3)).toInt();
    m_annotateSource = settings.value("annotateSource",QVariant(true)).toBool();
    m_foldSource = settings.value("foldSource",QVariant(true)).toBool();
+   m_textEncodingIsUtf8 = settings.value("textEncodingIsUtf8",QVariant(false)).toBool();
    m_cSourceExtensions = settings.value("SourceExtensionsC",QVariant(sourceExtensionListC)).toString();
    m_asmSourceExtensions = settings.value("SourceExtensionsAsm",QVariant(sourceExtensionListAsm)).toString();
    m_headerExtensions = settings.value("HeaderExtensions",QVariant(headerExtensionList)).toString();
@@ -315,6 +318,7 @@ void EnvironmentSettingsDialog::writeSettings()
    m_spacesForTabs = ui->spacesForTab->value();
    m_annotateSource = ui->annotate->isChecked();
    m_foldSource = ui->fold->isChecked();
+   m_textEncodingIsUtf8 = ui->textEncoding->currentIndex();
    m_cSourceExtensions = ui->sourceExtensionsC->text();
    m_asmSourceExtensions = ui->sourceExtensionsAsm->text();
    m_headerExtensions = ui->headerExtensions->text();
@@ -357,6 +361,7 @@ void EnvironmentSettingsDialog::writeSettings()
    settings.setValue("spacesPerTab",m_spacesForTabs);
    settings.setValue("annotateSource",m_annotateSource);
    settings.setValue("foldSource",m_foldSource);
+   settings.setValue("textEncodingIsUtf8",m_textEncodingIsUtf8);
 
    settings.setValue("SourceExtensionsC",m_cSourceExtensions);
    settings.setValue("SourceExtensionsAsm",m_asmSourceExtensions);
@@ -443,6 +448,7 @@ void EnvironmentSettingsDialog::setupCodeEditor(int index)
    {
       m_scintilla->setMarginWidth(Margin_LineNumbers,0);
    }
+   m_scintilla->setUtf8(m_textEncodingIsUtf8);
 
    m_scintilla->setSelectionBackgroundColor(QColor(215,215,215));
    m_scintilla->setSelectionToEol(true);
@@ -897,4 +903,21 @@ void EnvironmentSettingsDialog::on_treeWidget_itemSelectionChanged()
 void EnvironmentSettingsDialog::on_buttonBox_accepted()
 {
    writeSettings();
+}
+
+void EnvironmentSettingsDialog::on_textEncoding_currentIndexChanged(int index)
+{
+    m_scintilla->setUtf8(index);
+}
+
+QString EnvironmentSettingsDialog::textEncodingString()
+{
+   if ( m_textEncodingIsUtf8 )
+   {
+      return "UTF-8";
+   }
+   else
+   {
+      return "ISO 8859";
+   }
 }
