@@ -152,7 +152,7 @@ void CRendererBase::resizeGL(int width, int height)
    glScalef( actualSize.width() / float( width )/_sizeX, actualSize.height() / float( height )/_sizeY, 1 );
 
    // Slightly offset the view to ensure proper pixel alignment
-    glTranslatef(0.5,0.5,0);
+   //glTranslatef(0.5,0.5,0);
 }
 
 

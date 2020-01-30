@@ -1316,6 +1316,9 @@ void MainWindow::destroyNesUi()
    delete m_pBinMapperMemoryInspector;
    removeDockWidget(m_pJoypadLoggerInspector);
    delete m_pJoypadLoggerInspector;
+
+   toolToolbar->removeAction(actionEmulation_Window);
+
    delete action1x;
    delete action1_5x;
    delete action2x;

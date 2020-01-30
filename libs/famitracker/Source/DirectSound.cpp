@@ -68,6 +68,13 @@ QSemaphore ftmAudioSemaphore(0);
 
 QList<SDL_Callback> sdlHooks;
 
+bool SDL_Callback::operator==(const SDL_Callback &other) const
+{
+   if ( other._id == this->_id ) return true;
+   return false;
+}
+
+
 extern bool invisibleFamiTracker;
 
 extern "C" void SDL_FamiTracker(void* userdata, uint8_t* stream, int32_t len)
