@@ -12,9 +12,7 @@ moc_*
 *.moc
 qrc_*
 *.exe
-Makefile.Debug
-Makefile
-Makefile.Release
+**/Makefile*
 */.directory
 deps/
 compiler/lex.asm.c
@@ -39,6 +37,3 @@ rcParser*
 rcVisitor*
 rcListener*
 /build/nesicide-deps.tar.bz2
-
-/apps/famitracker/Makefile*
-/libs/famitracker/Makefile*
