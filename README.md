@@ -14,7 +14,13 @@ This project contains:
 The following steps are required prior to building this project on any platform.
 
 0. Install `git`
-1. Install [Qt 5.6.2](https://download.qt.io/official_releases/qt/5.6/5.6.2/) as it was the latest kit to be verified to build NESICIDE properly with not errors. Please do not use a kit later than this, or if you do, please create a pull request with necessary changes.
+1. Install [Qt 5.6.2](https://download.qt.io/official_releases/qt/5.6/5.6.2/) as it was verified to build NESICIDE properly with not errors. Please do not use a kit later than this, or if you do, please create a pull request with necessary changes.
+
+   At the time of writing this Mac OS Homewbrew contains Qt 5.14.1 and NESICIDE can also be built with that version of Qt. So, alternatively, you can install Qt using
+
+   ```
+   brew intall qt5
+   ```
 
 ### Debian prerequisites
 
@@ -49,6 +55,12 @@ This project builds for Linux, macOS, and Windows. To perform a build for any su
 0. `cd build`
 1. `./osx-build.sh`
 2. Once the build process is complete run: `./osx-deploy.sh`
+
+If you installed Qt from Homebrew you need to set the following environment variable so that the build process can find qmake (the qt5 Homebrew formulat is keg-only):
+
+```
+PATH="/usr/local/opt/qt/bin:$PATH"
+```
 
 ### Windows
 
