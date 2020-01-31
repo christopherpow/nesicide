@@ -14,7 +14,7 @@ This project contains:
 The following steps are required prior to building this project on any platform.
 
 0. Install `git`
-1. Install [Qt 5.6.2](https://download.qt.io/official_releases/qt/5.6/5.6.2/) as it was the latest kit to be verified to build NESICIDE properly with not errors. Please do not use a kit later than this, or if you do, please create a pull request with necessary changes.
+1. Install [Qt 5.6.2](http://download.qt.io/archive/qt/5.6/5.6.2/) as it was the latest kit to be verified to build NESICIDE properly with not errors. Please do not use a kit later than this, or if you do, please create a pull request with necessary changes.
 
 ### Debian prerequisites
 
