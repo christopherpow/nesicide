@@ -40,25 +40,21 @@ This project builds for Linux, macOS, and Windows. To perform a build for any su
 
 ### Linux
 
-0. `cd build`
-1. `./linux-build.sh`
-2. Once the build process is complete run: `./linux-deploy.sh`
+1. `./build/linux-build.sh`
+2. Once the build process is complete run: `./build/linux-deploy.sh`
 
 ### macOS
 
-0. `cd build`
-1. `./osx-build.sh`
-2. Once the build process is complete run: `./osx-deploy.sh`
+1. `./build/osx-build.sh`
+2. Once the build process is complete run: `./build/osx-deploy.sh`
 
 ### Windows
 
-0. `cd build`
-
 NOTE: The build process uses GnuWin32 tools and MinGW tools. Install these and make sure that `mingw32-make` and `wget` are on your path.
 
-1. `./win-build.sh`
+1. `./build/win-build.sh`
 
-2. Once the build process is complete run: `./win-deploy.sh`
+2. Once the build process is complete run: `./build/win-deploy.sh`
 
 ## Running
 
