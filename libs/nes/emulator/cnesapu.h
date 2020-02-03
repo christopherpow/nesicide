@@ -1,11 +1,6 @@
 #if !defined ( APU_H )
 #define APU_H
 
-#include "nes_emulator_core.h"
-
-#include "cregisterdata.h"
-#include "cbreakpointinfo.h"
-
 #include "cnes.h"
 
 #define NUM_APU_BUFS 16
@@ -115,7 +110,7 @@ public:
       m_dacSamples++;
       if ( dac != oldDac )
       {
-         CNES::CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUEvent,dac,APU_EVENT_SQUARE1_DAC_VALUE+m_channel);
+         CNES::NES()->CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUEvent,dac,APU_EVENT_SQUARE1_DAC_VALUE+m_channel);
       }
    }
    inline uint8_t GETDAC ( void )
@@ -585,28 +580,30 @@ protected:
    uint8_t* m_dmaSourcePtr;
 };
 
+class C6502;
+
 class CAPU
 {
 public:
    CAPU();
 
-   static void RESET ( void );
-   static uint32_t APU ( uint32_t addr );
-   static void APU ( uint32_t addr, uint8_t data );
-   static void EMULATE ( void );
-   static uint8_t* PLAY ( uint16_t samples );
+   void RESET ( void );
+   uint32_t APU ( uint32_t addr );
+   void APU ( uint32_t addr, uint8_t data );
+   void EMULATE ( void );
+   uint8_t* PLAY ( uint16_t samples );
 
-   static void DMASOURCE ( uint8_t* source )
+   void DMASOURCE ( uint8_t* source )
    {
       m_dmc.DMASOURCE ( source );
    }
 
-   static void DMASAMPLE ( uint8_t data )
+   void DMASAMPLE ( uint8_t data )
    {
       m_dmc.DMASAMPLE ( data );
    }
 
-   static uint8_t MUTED ( void )
+   uint8_t MUTED ( void )
    {
       return ( (!m_square[0].MUTED())|
                ((!m_square[1].MUTED())<<1)|
@@ -614,7 +611,7 @@ public:
                ((!m_noise.MUTED())<<3)|
                ((!m_dmc.MUTED())<<4) );
    }
-   static void MUTE ( uint8_t mask )
+   void MUTE ( uint8_t mask )
    {
       m_square[0].MUTE(!(mask&0x01));
       m_square[1].MUTE(!(mask&0x02));
@@ -623,42 +620,42 @@ public:
       m_dmc.MUTE(!(mask&0x10));
    }
 
-   static uint32_t _APU ( uint32_t addr )
+   uint32_t _APU ( uint32_t addr )
    {
       return *(m_APUreg+(addr&0x1F));
    }
-   static void _APU ( uint32_t addr, uint8_t data )
+   void _APU ( uint32_t addr, uint8_t data )
    {
       *(m_APUreg+(addr&0x1F)) = data;
    }
-   static inline uint8_t DIRTY ( uint32_t addr )
+   inline uint8_t DIRTY ( uint32_t addr )
    {
       uint8_t updated = *(m_APUregDirty+(addr&0x1F));
       *(m_APUregDirty+(addr&0x1F))=0;
       return updated;
    }
 
-   static void RELEASEIRQ ( void );
-   static inline void SEQTICK ( int32_t sequence );
-   static inline uint16_t AMPLITUDE ( void );
+   void RELEASEIRQ ( void );
+   inline void SEQTICK ( int32_t sequence );
+   inline uint16_t AMPLITUDE ( void );
 
-   static inline void RESETCYCLECOUNTER ( uint32_t cycle )
+   inline void RESETCYCLECOUNTER ( uint32_t cycle )
    {
       m_cycles = cycle;
    }
-   static inline uint32_t CYCLES ( void )
+   inline uint32_t CYCLES ( void )
    {
       return m_cycles;
    }
 
-   static int32_t SEQUENCERMODE ( void )
+   int32_t SEQUENCERMODE ( void )
    {
       return m_sequencerMode;
    }
 
    // INTERNAL ACCESSOR FUNCTIONS
    // These are called directly.
-   static void LENGTHCOUNTERS ( uint16_t* sq1, uint16_t* sq2, uint16_t* triangle, uint16_t* noise, uint16_t* dmc )
+   void LENGTHCOUNTERS ( uint16_t* sq1, uint16_t* sq2, uint16_t* triangle, uint16_t* noise, uint16_t* dmc )
    {
       (*sq1) = m_square[0].LENGTHCOUNTER();
       (*sq2) = m_square[1].LENGTHCOUNTER();
@@ -666,11 +663,11 @@ public:
       (*noise) = m_noise.LENGTHCOUNTER();
       (*dmc) = m_dmc.LENGTHCOUNTER();
    }
-   static void LINEARCOUNTER ( uint8_t* triangle )
+   void LINEARCOUNTER ( uint8_t* triangle )
    {
       (*triangle) = m_triangle.LINEARCOUNTER();
    }
-   static void GETDACS ( uint8_t* square1,
+   void GETDACS ( uint8_t* square1,
                          uint8_t* square2,
                          uint8_t* triangle,
                          uint8_t* noise,
@@ -682,67 +679,48 @@ public:
       (*noise) = m_noise.GETDAC();
       (*dmc) = m_dmc.GETDAC();
    }
-   static void DMCIRQ ( bool* enabled, bool* asserted )
+   void DMCIRQ ( bool* enabled, bool* asserted )
    {
       (*enabled) = m_dmc.IRQENABLED();
       (*asserted) = m_dmc.IRQASSERTED();
    }
-   static void SAMPLEINFO ( uint16_t* addr, uint16_t* length, uint16_t* pos )
+   void SAMPLEINFO ( uint16_t* addr, uint16_t* length, uint16_t* pos )
    {
       (*addr) = m_dmc.SAMPLEADDR();
       (*length) = m_dmc.SAMPLELENGTH();
       (*pos) = m_dmc.SAMPLEPOS();
    }
-   static void DMAINFO ( uint8_t* buffer, bool* full )
+   void DMAINFO ( uint8_t* buffer, bool* full )
    {
       (*buffer) = m_dmc.SAMPLEBUFFER();
       (*full) = m_dmc.SAMPLEBUFFERFULL();
    }
 
-   static CRegisterDatabase* REGISTERS()
-   {
-      return m_dbRegisters;
-   }
-
-   static CBreakpointEventInfo** BREAKPOINTEVENTS()
-   {
-      return m_tblBreakpointEvents;
-   }
-   static int32_t NUMBREAKPOINTEVENTS()
-   {
-      return m_numBreakpointEvents;
-   }
-
 protected:
-   static uint8_t m_APUreg [ 32 ];
-   static uint8_t m_APUregDirty [ 32 ];
-   static bool m_irqEnabled;
-   static bool m_irqAsserted;
+   uint8_t m_APUreg [ 32 ];
+   uint8_t m_APUregDirty [ 32 ];
+   bool m_irqEnabled;
+   bool m_irqAsserted;
 
-   static int32_t m_sequencerMode;
-   static int32_t m_newSequencerMode;
-   static int32_t m_changeModes;
-   static int32_t m_sequenceStep;
+   int32_t m_sequencerMode;
+   int32_t m_newSequencerMode;
+   int32_t m_changeModes;
+   int32_t m_sequenceStep;
 
-   static CAPUSquare m_square[2];
-   static CAPUTriangle m_triangle;
-   static CAPUNoise m_noise;
-   static CAPUDMC m_dmc;
+   CAPUSquare m_square[2];
+   CAPUTriangle m_triangle;
+   CAPUNoise m_noise;
+   CAPUDMC m_dmc;
 
-   static uint16_t* m_waveBuf;
-   static int32_t m_waveBufProduce;
-   static int32_t m_waveBufConsume;
+   uint16_t* m_waveBuf;
+   int32_t m_waveBufProduce;
+   int32_t m_waveBufConsume;
 
-   static uint32_t   m_cycles;
+   uint32_t   m_cycles;
 
-   static float m_sampleSpacer;
+   float m_sampleSpacer;
    
-   static int32_t m_sampleBufferSize;
-
-   static CRegisterDatabase* m_dbRegisters;
-
-   static CBreakpointEventInfo** m_tblBreakpointEvents;
-   static int32_t                    m_numBreakpointEvents;
+   int32_t m_sampleBufferSize;
 };
 
 #endif

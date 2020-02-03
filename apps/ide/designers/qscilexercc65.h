@@ -13,6 +13,9 @@ class QsciLexerCC65 : public QsciLexerCPP
 public:
    QsciLexerCC65(QObject *parent = 0);
    virtual ~QsciLexerCC65();
+
+   virtual QFont defaultFont() const;
+   virtual QFont defaultFont(int style) const;
 };
 
 #endif // QSCILEXERCC65_H

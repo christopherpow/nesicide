@@ -62,10 +62,10 @@ static const char* columnHeadings [] =
 
 static CRegisterDatabase* dbRegisters = new CRegisterDatabase(eMemory_cartMapper,1,4,4,tblRegisters,rowHeadings,columnHeadings);
 
-uint8_t  CROMMapper034::m_reg[] = { 0x00, };
-
 CROMMapper034::CROMMapper034()
+   : CROM(34)
 {
+   memset(m_reg,0,sizeof(m_reg));
 }
 
 CROMMapper034::~CROMMapper034()
@@ -74,17 +74,11 @@ CROMMapper034::~CROMMapper034()
 
 void CROMMapper034::RESET ( bool soft )
 {
-   m_mapper = 34;
+   m_dbCartRegisters = dbRegisters;
 
-   m_dbRegisters = dbRegisters;
+   CROM::RESET ( soft );
 
-   CROM::RESET ( m_mapper, soft );
-
-   m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 0 ];
-   m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ 1 ];
-   m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ 2 ];
-   m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ 3 ];
-
+   // PRG ROM already set up in CROM::RESET()...
    // CHR ROM/RAM already set up in CROM::RESET()...
 }
 
@@ -114,33 +108,33 @@ void CROMMapper034::LMAPPER ( uint32_t addr, uint8_t data )
       case 0x7ffd:
          bank = (m_reg[0]&(m_numPrgBanks-1))<<2;
 
-         m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ bank+0 ];
-         m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ bank+1 ];
-         m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ bank+2 ];
-         m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ bank+3 ];
+         m_PRGROMmemory.REMAP(0,bank+0);
+         m_PRGROMmemory.REMAP(1,bank+1);
+         m_PRGROMmemory.REMAP(2,bank+2);
+         m_PRGROMmemory.REMAP(3,bank+3);
          break;
       case 0x7ffe:
          bank = (m_reg[1]&((m_numChrBanks<<1)-1));
 
-         m_pCHRmemory [ 0 ] = m_CHRmemory [ (bank<<2)+0 ];
-         m_pCHRmemory [ 1 ] = m_CHRmemory [ (bank<<2)+1 ];
-         m_pCHRmemory [ 2 ] = m_CHRmemory [ (bank<<2)+2 ];
-         m_pCHRmemory [ 3 ] = m_CHRmemory [ (bank<<2)+3 ];
+         m_CHRmemory.REMAP(0,(bank<<2)+0);
+         m_CHRmemory.REMAP(1,(bank<<2)+1);
+         m_CHRmemory.REMAP(2,(bank<<2)+2);
+         m_CHRmemory.REMAP(3,(bank<<2)+3);
          break;
       case 0x7fff:
          bank = (m_reg[2]&((m_numChrBanks<<1)-1));
 
-         m_pCHRmemory [ 4 ] = m_CHRmemory [ (bank<<2)+0 ];
-         m_pCHRmemory [ 5 ] = m_CHRmemory [ (bank<<2)+1 ];
-         m_pCHRmemory [ 6 ] = m_CHRmemory [ (bank<<2)+2 ];
-         m_pCHRmemory [ 7 ] = m_CHRmemory [ (bank<<2)+3 ];
+         m_CHRmemory.REMAP(4,(bank<<2)+0);
+         m_CHRmemory.REMAP(5,(bank<<2)+1);
+         m_CHRmemory.REMAP(6,(bank<<2)+2);
+         m_CHRmemory.REMAP(7,(bank<<2)+3);
          break;
       }
 
       if ( nesIsDebuggable() )
       {
          // Check mapper state breakpoints...
-         CNES::CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperState,0);
+         CNES::NES()->CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperState,0);
       }
    }
    else if ( addr >= 0x6000 )
@@ -162,14 +156,14 @@ void CROMMapper034::HMAPPER ( uint32_t addr, uint8_t data )
 
    bank = m_reg[3]<<2;
 
-   m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ bank ];
-   m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ bank+1 ];
-   m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ bank+2 ];
-   m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ bank+3 ];
+   m_PRGROMmemory.REMAP(0,bank+0);
+   m_PRGROMmemory.REMAP(1,bank+1);
+   m_PRGROMmemory.REMAP(2,bank+2);
+   m_PRGROMmemory.REMAP(3,bank+3);
 
    if ( nesIsDebuggable() )
    {
       // Check mapper state breakpoints...
-      CNES::CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperState,0);
+      CNES::NES()->CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperState,0);
    }
 }

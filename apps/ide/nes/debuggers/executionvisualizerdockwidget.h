@@ -49,7 +49,6 @@ signals:
 private:
    Ui::ExecutionVisualizerDockWidget *ui;
    CExecutionMarkerDisplayModel *model;
-   char* imgData;
    PanZoomRenderer* renderer;
    DebuggerUpdateThread* pThread;
    QPoint pressPos;

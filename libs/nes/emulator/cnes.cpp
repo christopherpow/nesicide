@@ -18,37 +18,37 @@
 
 #include "cnes6502.h"
 #include "cnesppu.h"
-#include "cnesios.h"
 #include "cnesio.h"
 #include "cnesapu.h"
 
-int32_t  CNES::m_videoMode = MODE_NTSC;
-int32_t  CNES::m_controllerType [] = { IO_StandardJoypad, IO_Zapper };
-int32_t  CNES::m_controllerPositionX [] = { 0, };
-int32_t  CNES::m_controllerPositionY [] = { 0, };
-int32_t  CNES::m_windowX1 = 0;
-int32_t  CNES::m_windowY1 = 0;
-int32_t  CNES::m_windowX2 = 0;
-int32_t  CNES::m_windowY2 = 0;
-
-bool     CNES::m_bReplay = false;
-bool     CNES::m_bRecord = true;
-uint32_t CNES::m_frame = 0;
-
-CTracer*         CNES::m_tracer = NULL;
-
-CBreakpointInfo* CNES::m_breakpoints;
-bool            CNES::m_bBreakpointsEnabled = true;
-bool            CNES::m_bAtBreakpoint = false;
-bool            CNES::m_bStepCPUBreakpoint = false;
-bool            CNES::m_bStepPPUBreakpoint = false;
-int32_t         CNES::m_ppuCycleToStepTo = -1;
-uint32_t        CNES::m_ppuFrameToStepTo = -1;
-
-static CNES __init __attribute__((unused));
+CNES* CNES::self = new CNES();
 
 CNES::CNES()
+   : m_cpu(new C6502()),
+     m_ppu(new CPPU()),
+     m_cart(CARTFACTORY(0))
 {
+   m_videoMode = MODE_NTSC;
+   m_controllerType[0] = IO_StandardJoypad;
+   m_controllerType[1] = IO_Zapper;
+   memset(m_controllerPositionX,0,sizeof(m_controllerPositionX));
+   memset(m_controllerPositionY,0,sizeof(m_controllerPositionY));
+   m_windowX1 = 0;
+   m_windowY1 = 0;
+   m_windowX2 = 0;
+   m_windowY2 = 0;
+
+   m_bReplay = false;
+   m_bRecord = true;
+   m_frame = 0;
+
+   m_bBreakpointsEnabled = true;
+   m_bAtBreakpoint = false;
+   m_bStepCPUBreakpoint = false;
+   m_bStepPPUBreakpoint = false;
+   m_ppuCycleToStepTo = -1;
+   m_ppuFrameToStepTo = -1;
+
    m_breakpoints = new CNESBreakpointInfo();
 
    m_tracer = new CTracer();
@@ -65,23 +65,23 @@ uint8_t CNES::_MEM ( uint32_t addr )
 {
    if ( addr < 0x800 )
    {
-      return C6502::_MEM ( addr );
+      return CPU()->_MEM ( addr );
    }
    else if ( addr < 0x5C00 )
    {
-      return C6502::OPENBUS();
+      return CPU()->OPENBUS();
    }
    else if ( addr < 0x6000 )
    {
-      return CROM::EXRAM ( addr );
+      return CART()->EXRAM ( addr );
    }
    else if ( addr < 0x8000 )
    {
-      return CROM::SRAMVIRT ( addr );
+      return CART()->SRAMVIRT ( addr );
    }
    else
    {
-      return CROM::PRGROM ( addr );
+      return CART()->PRGROM ( addr );
    }
 }
 
@@ -89,7 +89,7 @@ char* CNES::DISASSEMBLY ( uint32_t addr )
 {
    if ( addr < 0x800 )
    {
-      return C6502::DISASSEMBLY ( addr );
+      return CPU()->DISASSEMBLY ( addr );
    }
    else if ( addr < 0x5C00 )
    {
@@ -97,41 +97,33 @@ char* CNES::DISASSEMBLY ( uint32_t addr )
    }
    else if ( addr < 0x6000 )
    {
-      return CROM::EXRAMDISASSEMBLY ( addr );
+      return CART()->EXRAMDISASSEMBLY ( addr );
    }
    else if ( addr < 0x8000 )
    {
-      return CROM::SRAMDISASSEMBLY ( addr );
+      return CART()->SRAMDISASSEMBLY ( addr );
    }
    else
    {
-      return CROM::PRGROMDISASSEMBLY ( addr );
+      return CART()->PRGROMDISASSEMBLY ( addr );
    }
 }
 
 void CNES::DISASSEMBLE ( void )
 {
-   C6502::DISASSEMBLE();
-   CROM::DISASSEMBLE();
+   CPU()->DISASSEMBLE();
+   CART()->DISASSEMBLE();
 }
 
 void CNES::PRINTABLEADDR ( char* buffer, uint32_t addr )
 {
    if ( addr < 0x5C00 )
    {
-      sprintf ( buffer, "%04X", addr );
-   }
-   else if ( addr < 0x6000 )
-   {
-      sprintf ( buffer, "%04X(%04X)", addr&MASK_1KB, addr );
-   }
-   else if ( addr < 0x8000 )
-   {
-      sprintf ( buffer, "%02X:%04X(%04X)", SRAMBANK_ABSBANK(CROM::SRAMABSADDR(addr)), SRAMBANK_OFF(addr), addr );
+      CPU()->PRINTABLEADDR(buffer,addr);
    }
    else
    {
-      sprintf ( buffer, "%02X:%04X(%04X)", PRGBANK_ABSBANK(CROM::PRGROMABSADDR(addr)), PRGBANK_OFF(addr), addr );
+      CART()->PRINTABLEADDR(buffer,addr);
    }
 }
 
@@ -139,57 +131,35 @@ void CNES::PRINTABLEADDR ( char* buffer, uint32_t addr, uint32_t absAddr )
 {
    if ( addr < 0x5C00 )
    {
-      sprintf ( buffer, "%04X", addr );
-   }
-   else if ( addr < 0x6000 )
-   {
-      sprintf ( buffer, "%04X(%04X)", addr&MASK_1KB, addr );
-   }
-   else if ( addr < 0x8000 )
-   {
-      if ( absAddr != 0xFFFFFFFF )
-      {
-         sprintf ( buffer, "%02X:%04X(%04X)", SRAMBANK_ABSBANK(absAddr), SRAMBANK_OFF(addr), addr );
-      }
-      else
-      {
-         sprintf ( buffer, "??:%04X(%04X)", SRAMBANK_OFF(addr), addr );
-      }
+      CPU()->PRINTABLEADDR(buffer,addr,absAddr);
    }
    else
    {
-      if ( absAddr != 0xFFFFFFFF )
-      {
-         sprintf ( buffer, "%02X:%04X(%04X)", PRGBANK_ABSBANK(absAddr), PRGBANK_OFF(addr), addr );
-      }
-      else
-      {
-         sprintf ( buffer, "??:%04X(%04X)", PRGBANK_OFF(addr), addr );
-      }
+      CART()->PRINTABLEADDR(buffer,addr,absAddr);
    }
 }
 
 uint32_t CNES::SLOC2ADDR ( uint16_t sloc )
 {
-   if ( C6502::__PC() < 0x800 )
+   if ( CPU()->__PC() < 0x800 )
    {
-      return C6502::SLOC2ADDR ( sloc );
+      return CPU()->SLOC2ADDR ( sloc );
    }
-   else if ( C6502::__PC() < 0x5C00 )
+   else if ( CPU()->__PC() < 0x5C00 )
    {
       return 0;
    }
-   else if ( C6502::__PC() < 0x6000 )
+   else if ( CPU()->__PC() < 0x6000 )
    {
-      return CROM::EXRAMSLOC2ADDR ( sloc );
+      return CART()->EXRAMSLOC2ADDR ( sloc );
    }
-   else if ( C6502::__PC() < 0x8000 )
+   else if ( CPU()->__PC() < 0x8000 )
    {
-      return CROM::SRAMSLOC2ADDR ( sloc );
+      return CART()->SRAMSLOC2ADDR ( sloc );
    }
    else
    {
-      return CROM::PRGROMSLOC2ADDR ( sloc );
+      return CART()->PRGROMSLOC2ADDR ( sloc );
    }
 }
 
@@ -197,7 +167,7 @@ uint16_t CNES::ADDR2SLOC ( uint32_t addr )
 {
    if ( addr < 0x800 )
    {
-      return C6502::ADDR2SLOC ( addr );
+      return CPU()->ADDR2SLOC ( addr );
    }
    else if ( addr < 0x5C00 )
    {
@@ -205,15 +175,15 @@ uint16_t CNES::ADDR2SLOC ( uint32_t addr )
    }
    else if ( addr < 0x6000 )
    {
-      return CROM::EXRAMADDR2SLOC ( addr );
+      return CART()->EXRAMADDR2SLOC ( addr );
    }
    else if ( addr < 0x8000 )
    {
-      return CROM::SRAMADDR2SLOC ( addr );
+      return CART()->SRAMADDR2SLOC ( addr );
    }
    else
    {
-      return CROM::PRGROMADDR2SLOC ( addr );
+      return CART()->PRGROMADDR2SLOC ( addr );
    }
 }
 
@@ -221,7 +191,7 @@ uint32_t CNES::SLOC ( uint32_t addr )
 {
    if ( addr < 0x800 )
    {
-      return C6502::SLOC ();
+      return CPU()->SLOC ();
    }
    else if ( addr < 0x5C00 )
    {
@@ -229,15 +199,15 @@ uint32_t CNES::SLOC ( uint32_t addr )
    }
    else if ( addr < 0x6000 )
    {
-      return CROM::EXRAMSLOC ();
+      return CART()->EXRAMSLOC ();
    }
    else if ( addr < 0x8000 )
    {
-      return CROM::SRAMSLOC ( addr );
+      return CART()->SRAMSLOC ( addr );
    }
    else
    {
-      return CROM::PRGROMSLOC(0x8000)+CROM::PRGROMSLOC(0xA000)+CROM::PRGROMSLOC(0xC000)+CROM::PRGROMSLOC(0xE000);
+      return CART()->PRGROMSLOC(0x8000)+CART()->PRGROMSLOC(0xA000)+CART()->PRGROMSLOC(0xC000)+CART()->PRGROMSLOC(0xE000);
    }
 }
 
@@ -253,19 +223,28 @@ uint32_t CNES::ABSADDR ( uint32_t addr )
    }
    else if ( addr < 0x6000 )
    {
-      return CROM::EXRAMABSADDR ( addr );
+      return CART()->EXRAMABSADDR ( addr );
    }
    else if ( addr < 0x8000 )
    {
-      return CROM::SRAMABSADDR ( addr );
+      return CART()->SRAMABSADDR ( addr );
    }
    else
    {
-      return CROM::PRGROMABSADDR ( addr );
+      return CART()->PRGROMABSADDR ( addr );
    }
 }
 
-void CNES::RESET ( uint32_t mapper, bool soft )
+void CNES::FRONTLOAD ( uint32_t mapper )
+{
+   CROM* cartSave = m_cart;
+
+   // Create cartridge space.   
+   m_cart = CARTFACTORY(mapper);
+   delete cartSave;
+}
+
+void CNES::RESET ( bool soft )
 {
    if ( nesIsDebuggable() )
    {
@@ -273,20 +252,19 @@ void CNES::RESET ( uint32_t mapper, bool soft )
       m_tracer->ClearSampleBuffer ();
 
       // Zero visualizer markers...
-      C6502::MARKERS()->ZeroAllMarkers();
+      CPU()->MARKERS()->ZeroAllMarkers();
    }
 
    // Reset mapper and set up quick access pointer to mapper function table.
-   MAPPERFUNC = &(_mapperfunc[mapper]);
-   MAPPERFUNC->reset ( soft );
+   m_cart->RESET ( soft );
 
    // Reset emulated PPU...
-   CPPU::RESET ( soft );
+   m_ppu->RESET ( soft );
 
    // Reset emulated 6502 and APU [APU reset internal to 6502]...
    // The APU reset will trigger the SDL callback by initializing SDL;
    // The SDL callback triggers emulation...
-   C6502::RESET ( soft );
+   m_cpu->RESET ( soft );
 
    m_frame = 0;
 }
@@ -301,8 +279,8 @@ void CNES::STEPPPUBREAKPOINT ( bool goFrame )
    m_bStepPPUBreakpoint = true;
    if ( goFrame )
    {
-      m_ppuFrameToStepTo = CPPU::_FRAME()+1;
-      m_ppuCycleToStepTo = CPPU::_CYCLES();
+      m_ppuFrameToStepTo = PPU()->_FRAME()+1;
+      m_ppuCycleToStepTo = PPU()->_CYCLES();
    }
    else
    {
@@ -334,8 +312,8 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
              (target == eBreakInPPU) &&
              (type == eBreakOnPPUCycle) &&
              ((m_ppuCycleToStepTo == -1) ||
-             (((uint32_t)m_ppuCycleToStepTo == CPPU::_CYCLES()) &&
-             (m_ppuFrameToStepTo == CPPU::_FRAME()))) )
+             ((m_ppuCycleToStepTo == PPU()->_CYCLES()) &&
+             (m_ppuFrameToStepTo == PPU()->_FRAME()))) )
    {
       m_bStepPPUBreakpoint = false;
       force = true;
@@ -384,8 +362,8 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
                         // Nothing to do here; make the warning go away...
                         break;
                      case eBreakOnCPUExecution:
-                        addr = C6502::__PCSYNC();
-                        absAddr = CNES::ABSADDR(C6502::__PCSYNC());
+                        addr = CPU()->__PCSYNC();
+                        absAddr = ABSADDR(CPU()->__PCSYNC());
 
                         if ( pBreakpoint->item1 == pBreakpoint->item2 )
                         {
@@ -416,7 +394,7 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
                      case eBreakOnCPUMemoryAccess:
                      case eBreakOnCPUMemoryRead:
                      case eBreakOnCPUMemoryWrite:
-                        addr = C6502::_EA();
+                        addr = CPU()->_EA();
 
                         if ( (addr >= pBreakpoint->item1) &&
                              (addr <= pBreakpoint->item2) &&
@@ -475,29 +453,29 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
                         // Is the breakpoint on this register?
                         if ( pBreakpoint->item1 == (uint32_t)data )
                         {
-                           pRegister = C6502::REGISTERS()->GetRegister(pBreakpoint->item1);
+                           pRegister = nesGetCpuRegisterDatabase()->GetRegister(pBreakpoint->item1);
                            pBitfield = pRegister->GetBitfield(pBreakpoint->item2);
 
                            // Get actual register data...
                            switch ( pBreakpoint->item1 )
                            {
                               case CPU_PC:
-                                 value = C6502::__PC();
+                                 value = CPU()->__PC();
                                  break;
                               case CPU_A:
-                                 value = C6502::_A();
+                                 value = CPU()->_A();
                                  break;
                               case CPU_X:
-                                 value = C6502::_X();
+                                 value = CPU()->_X();
                                  break;
                               case CPU_Y:
-                                 value = C6502::_Y();
+                                 value = CPU()->_Y();
                                  break;
                               case CPU_SP:
-                                 value = C6502::_SP();
+                                 value = CPU()->_SP();
                                  break;
                               case CPU_F:
-                                 value = C6502::_F();
+                                 value = CPU()->_F();
                                  break;
                            }
 
@@ -549,7 +527,7 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
                      case eBreakOnOAMPortalAccess:
                      case eBreakOnOAMPortalRead:
                      case eBreakOnOAMPortalWrite:
-                        addr = CPPU::_OAMADDR();
+                        addr = PPU()->_OAMADDR();
 
                         if ( (addr >= pBreakpoint->item1) &&
                              (addr <= pBreakpoint->item2) &&
@@ -607,7 +585,7 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
                      case eBreakOnPPUPortalAccess:
                      case eBreakOnPPUPortalRead:
                      case eBreakOnPPUPortalWrite:
-                        addr = CPPU::_PPUADDR();
+                        addr = PPU()->_PPUADDR();
 
                         if ( (addr >= pBreakpoint->item1) &&
                              (addr <= pBreakpoint->item2) &&
@@ -666,11 +644,11 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
                         // Is the breakpoint on this register?
                         if ( pBreakpoint->item1 == (uint32_t)data )
                         {
-                           pRegister = CPPU::REGISTERS()->GetRegister(pBreakpoint->item1);
+                           pRegister = nesGetPpuRegisterDatabase()->GetRegister(pBreakpoint->item1);
                            pBitfield = pRegister->GetBitfield(pBreakpoint->item2);
 
                            // Get actual register data...
-                           value = CPPU::_PPU(pRegister->GetAddr());
+                           value = PPU()->_PPU(pRegister->GetAddr());
 
                            if ( pBreakpoint->condition == eBreakIfAnything )
                            {
@@ -722,11 +700,11 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
                         // Is the breakpoint on this register?
                         if ( pBreakpoint->item1 == (uint32_t)data )
                         {
-                           pRegister = CAPU::REGISTERS()->GetRegister(pBreakpoint->item1);
+                           pRegister = nesGetApuRegisterDatabase()->GetRegister(pBreakpoint->item1);
                            pBitfield = pRegister->GetBitfield(pBreakpoint->item2);
 
                            // Get actual register data...
-                           value = CAPU::_APU(pRegister->GetAddr());
+                           value = CPU()->APU()->_APU(pRegister->GetAddr());
 
                            if ( pBreakpoint->condition == eBreakIfAnything )
                            {
@@ -778,17 +756,17 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
                         // Is the breakpoint on this register?
                         if ( pBreakpoint->item1 == (uint32_t)data )
                         {
-                           pRegister = CROM::REGISTERS()->GetRegister(pBreakpoint->item1);
+                           pRegister = nesGetCartridgeRegisterDatabase()->GetRegister(pBreakpoint->item1);
                            pBitfield = pRegister->GetBitfield(pBreakpoint->item2);
 
                            // Get actual register data...
                            if ( pRegister->GetAddr() >= MEM_32KB )
                            {
-                              value = MAPPERFUNC->debuginfo(pRegister->GetAddr());
+                              value = CART()->DEBUGINFO(pRegister->GetAddr());
                            }
                            else
                            {
-                              value = MAPPERFUNC->debuginfo(pRegister->GetAddr());
+                              value = CART()->DEBUGINFO(pRegister->GetAddr());
                            }
 
                            if ( pBreakpoint->condition == eBreakIfAnything )
@@ -896,8 +874,8 @@ void CNES::RUN ( uint32_t* joy )
 
    if ( m_bRecord )
    {
-      CIOStandardJoypad::LOGGER(0)->AddSample ( C6502::_CYCLES(), *(ljoy+CONTROLLER1) );
-      CIOStandardJoypad::LOGGER(1)->AddSample ( C6502::_CYCLES(), *(ljoy+CONTROLLER2) );
+      CIOStandardJoypad::LOGGER(0)->AddSample ( CPU()->_CYCLES(), *(ljoy+CONTROLLER1) );
+      CIOStandardJoypad::LOGGER(1)->AddSample ( CPU()->_CYCLES(), *(ljoy+CONTROLLER2) );
    }
 
    if ( CONTROLLER(0) == IO_StandardJoypad )
@@ -963,34 +941,34 @@ void CNES::RUN ( uint32_t* joy )
    }
 
    // PPU cycles repeat...
-   CPPU::RESETCYCLECOUNTER ();
+   PPU()->RESETCYCLECOUNTER ();
 
-   m_frame = CPPU::_FRAME();
+   m_frame = PPU()->_FRAME();
 
    if ( nesIsDebuggable() )
    {
       m_tracer->SetFrame ( m_frame );
 
       // Emit start-of-frame indication to Tracer...
-      m_tracer->AddSample ( CPPU::_CYCLES(), eTracer_StartPPUFrame, eNESSource_PPU, 0, 0, 0 );
+      m_tracer->AddSample ( PPU()->_CYCLES(), eTracer_StartPPUFrame, eNESSource_PPU, 0, 0, 0 );
    }
 
    // Do scanline processing for scanlines 0 - 239 (the screen!)...
-   CPPU::RENDERSCANLINE ( SCANLINES_VISIBLE );
+   PPU()->RENDERSCANLINE ( SCANLINES_VISIBLE );
 
 #if 0
 
 // CPTODO: move this to ide...
       // Update CHR memory inspector at appropriate scanline...
-      if ( idx == CPPU::GetPPUViewerScanline() )
+      if ( idx == PPU()->GetPPUViewerScanline() )
       {
-         CPPU::RENDERCHRMEM ();
+         PPU()->RENDERCHRMEM ();
       }
 
       // Update OAM inspector at appropriate scanline...
-      if ( idx == CPPU::GetOAMViewerScanline() )
+      if ( idx == PPU()->GetOAMViewerScanline() )
       {
-         CPPU::RENDEROAM ();
+         PPU()->RENDEROAM ();
       }
 
 #endif
@@ -998,43 +976,43 @@ void CNES::RUN ( uint32_t* joy )
    if ( nesIsDebuggable() )
    {
       // Emit start-of-quiet scanline indication to Tracer...
-      m_tracer->AddSample ( CPPU::_CYCLES(), eTracer_QuietStart, eNESSource_PPU, 0, 0, 0 );
+      m_tracer->AddSample ( PPU()->_CYCLES(), eTracer_QuietStart, eNESSource_PPU, 0, 0, 0 );
    }
 
    // Emulate PPU resting scanlines...
-   CPPU::QUIETSCANLINES ();
+   PPU()->QUIETSCANLINES ();
 
    if ( nesIsDebuggable() )
    {
       // Emit end-of-quiet scanline indication to Tracer...
-      m_tracer->AddSample ( CPPU::_CYCLES(), eTracer_QuietEnd, eNESSource_PPU, 0, 0, 0 );
+      m_tracer->AddSample ( PPU()->_CYCLES(), eTracer_QuietEnd, eNESSource_PPU, 0, 0, 0 );
 
       // Do VBLANK processing (scanlines 0-19 NTSC or 0-69 PAL)...
       // Emit start-VBLANK indication to Tracer...
-      m_tracer->AddSample ( CPPU::_CYCLES(), eTracer_VBLANKStart, eNESSource_PPU, 0, 0, 0 );
+      m_tracer->AddSample ( PPU()->_CYCLES(), eTracer_VBLANKStart, eNESSource_PPU, 0, 0, 0 );
    }
 
    // Emulate VBLANK non-render scanlines...
-   CPPU::VBLANKSCANLINES ();
+   PPU()->VBLANKSCANLINES ();
 
    if ( nesIsDebuggable() )
    {
       // Emit end-VBLANK indication to Tracer...
-      m_tracer->AddSample ( CPPU::_CYCLES(), eTracer_VBLANKEnd, eNESSource_PPU, 0, 0, 0 );
+      m_tracer->AddSample ( PPU()->_CYCLES(), eTracer_VBLANKEnd, eNESSource_PPU, 0, 0, 0 );
 
       // Emit start-of-prerender scanline indication to Tracer...
-      m_tracer->AddSample ( CPPU::_CYCLES(), eTracer_PreRenderStart, eNESSource_PPU, 0, 0, 0 );
+      m_tracer->AddSample ( PPU()->_CYCLES(), eTracer_PreRenderStart, eNESSource_PPU, 0, 0, 0 );
    }
 
    // Pre-render scanline...
-   CPPU::RENDERSCANLINE ( -1 );
+   PPU()->RENDERSCANLINE ( -1 );
 
    if ( nesIsDebuggable() )
    {
       // Emit end-of-prerender scanline indication to Tracer...
-      m_tracer->AddSample ( CPPU::_CYCLES(), eTracer_PreRenderEnd, eNESSource_PPU, 0, 0, 0 );
+      m_tracer->AddSample ( PPU()->_CYCLES(), eTracer_PreRenderEnd, eNESSource_PPU, 0, 0, 0 );
 
       // Emit end-of-frame indication to Tracer...
-      m_tracer->AddSample ( CPPU::_CYCLES(), eTracer_EndPPUFrame, eNESSource_PPU, 0, 0, 0 );
+      m_tracer->AddSample ( PPU()->_CYCLES(), eTracer_EndPPUFrame, eNESSource_PPU, 0, 0, 0 );
    }
 }

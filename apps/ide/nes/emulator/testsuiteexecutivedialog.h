@@ -19,6 +19,10 @@ public:
     explicit TestSuiteExecutiveDialog(QWidget *parent = 0);
     virtual ~TestSuiteExecutiveDialog();
 
+
+protected:
+   void showEvent(QShowEvent *);
+   void hideEvent(QHideEvent *);
 private:
     Ui::TestSuiteExecutiveDialog *ui;
     bool aborted;
@@ -44,8 +48,8 @@ private slots:
     void on_executeSelection_clicked();
     void on_abort_clicked();
     void updateProgress();
+    void machineReady();
     void emulatorPausedAfter();
-    void updateTargetMachine(QString target);
 };
 
 #endif // TESTSUITEEXECUTIVEDIALOG_H

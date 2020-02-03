@@ -4,13 +4,12 @@
 #include "nes_emulator_core.h"
 
 #include "cnes.h"
+#include "cnesapu.h"
 
+#include "cmemory.h"
 #include "cmarker.h"
 #include "ctracer.h"
 #include "ccodedatalogger.h"
-#include "cregisterdata.h"
-#include "cmemorydata.h"
-#include "cbreakpointinfo.h"
 
 // CPU flags register bit definitions.
 #define FLAG_C    0x01
@@ -43,14 +42,14 @@
 
 // CPU program counter manipulation macros.
 #define rPC() (uint32_t)(m_pc)
-#define wPC(pc) { m_pc = (pc); CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,CPU_PC); }
-#define INCPC() { m_pc++; CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,CPU_PC); }
+#define wPC(pc) { m_pc = (pc); CNES::NES()->CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,CPU_PC); }
+#define INCPC() { m_pc++; CNES::NES()->CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,CPU_PC); }
 
 // CPU stack pointer manipulation macros.
 #define rSP() (m_sp)
 #define wSP(sp) { m_sp = (sp); }
-#define DECSP() { m_sp--;  CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,CPU_SP); }
-#define INCSP() { m_sp++;  CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,CPU_SP); }
+#define DECSP() { m_sp--;  CNES::NES()->CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,CPU_SP); }
+#define INCSP() { m_sp++;  CNES::NES()->CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,CPU_SP); }
 #define PUSH(data) { MEM(GETSTACKADDR(),(data)); DECSP(); }
 
 // The effective address is the calculated address for a
@@ -68,9 +67,9 @@
 #define rA() (m_a)
 #define rX() (m_x)
 #define rY() (m_y)
-#define wA(a) { m_a = (a); CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,CPU_A); }
-#define wX(x) { m_x = (x); CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,CPU_X); }
-#define wY(y) { m_y = (y); CNES::CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,CPU_Y); }
+#define wA(a) { m_a = (a); CNES::NES()->CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,CPU_A); }
+#define wX(x) { m_x = (x); CNES::NES()->CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,CPU_X); }
+#define wY(y) { m_y = (y); CNES::NES()->CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,CPU_Y); }
 
 // CPU flags register manipulation macros.  Used by instructions
 // that manipulate the flags register as a complete set rather than
@@ -111,12 +110,14 @@
 #define wZ(set) { m_f&=(~(FLAG_Z)); m_f|=((!!(set))<<FLAG_Z_SHIFT); }
 #define wC(set) { m_f&=(~(FLAG_C)); m_f|=((!!(set))<<FLAG_C_SHIFT); }
 
+class CMEMORY;
+class CNES;
+
 // The C6502 class is the implementation of the core CPU of the NES.
 // It provides CPU-fetch-cycle granular emulation of the CPU core, including
 // undocumented and illegal instructions.  It handles vectoring to
 // the three interrupt sources (reset, NMI, IRQ) at the appropriate
-// times.  It is implemented as a static object so that accesses to its
-// internal data via accessor functions does not require a class object.
+// times.
 //
 // The class internally maintains the state of the CPU's registers
 // and of the 2KB of RAM that is on the NES mainboard, dedicated to the CPU.
@@ -148,156 +149,154 @@ public:
    C6502();
    ~C6502();
 
+   inline CAPU*  APU() const { return m_apu; }
+
    // Emulation routines.
-   static void EMULATE ( int32_t cycles );
-   static void GOTO ( uint32_t pcGoto )
+   void EMULATE ( int32_t cycles );
+   void GOTO ( uint32_t pcGoto )
    {
       m_pcGoto = pcGoto;
    }
-   static void GOTO ()
+   void GOTO ()
    {
       m_pcGoto = 0xFFFFFFFF;
    }
 
    // CPU reset vector routine.
-   static void RESET ( bool soft );
+   void RESET ( bool soft );
 
    // Routines to manipulate the IRQ/NMI inputs to the CPU core.
-   static void ASSERTIRQ ( int8_t source );
-   static void RELEASEIRQ ( int8_t source );
-   static void ASSERTNMI ();
+   void ASSERTIRQ ( int8_t source );
+   void RELEASEIRQ ( int8_t source );
+   void ASSERTNMI ();
 
    // NMI may be choked by the PPU if the CPU interacts with the
    // PPU in a specific fashion on a PPU cycle too close to the
    // assertion of NMI to the CPU.
-   static void CHOKENMI ()
+   void CHOKENMI ()
    {
       m_nmiAsserted = false;
    }
+
+   static struct _CNES6502_opcode m_6502opcode[256];
 
    // The CPU BRK instruction and also the handler routines for
    // NMI and IRQ interrupts, since the behavior of BRK, IRQ, and NMI
    // is very similar.  (A NMI or IRQ is actually treated like an
    // instruction [BRK] in the instruction stream.)
-   static void BRK ( void );
+   void BRK ( void );
 
    // CPU instruction execution routines.  Each routine
    // contains the logic to execute all addressing mode
    // variants of the particular instruction.
    // The documented opcodes:
-   static void ADC ( void );
-   static void AND ( void );
-   static void ASL ( void );
-   static void BCC ( void );
-   static void BCS ( void );
-   static void BEQ ( void );
-   static void BIT ( void );
-   static void BMI ( void );
-   static void BNE ( void );
-   static void BPL ( void );
-   static void BVC ( void );
-   static void BVS ( void );
-   static void CLC ( void );
-   static void CLD ( void );
-   static void CLI ( void );
-   static void CLV ( void );
-   static void CMP ( void );
-   static void CPX ( void );
-   static void CPY ( void );
-   static void DEC ( void );
-   static void DEX ( void );
-   static void DEY ( void );
-   static void EOR ( void );
-   static void INC ( void );
-   static void INX ( void );
-   static void INY ( void );
-   static void JMP ( void );
-   static void JSR ( void );
-   static void LDA ( void );
-   static void LDY ( void );
-   static void LDX ( void );
-   static void LSR ( void );
-   static void NOP ( void );
-   static void ORA ( void );
-   static void PHA ( void );
-   static void PHP ( void );
-   static void PLA ( void );
-   static void PLP ( void );
-   static void ROL ( void );
-   static void ROR ( void );
-   static void RTI ( void );
-   static void RTS ( void );
-   static void SBC ( void );
-   static void SEC ( void );
-   static void SED ( void );
-   static void SEI ( void );
-   static void STA ( void );
-   static void STX ( void );
-   static void STY ( void );
-   static void TAX ( void );
-   static void TAY ( void );
-   static void TSX ( void );
-   static void TXA ( void );
-   static void TXS ( void );
-   static void TYA ( void );
+   void ADC ( void );
+   void AND ( void );
+   void ASL ( void );
+   void BCC ( void );
+   void BCS ( void );
+   void BEQ ( void );
+   void BIT ( void );
+   void BMI ( void );
+   void BNE ( void );
+   void BPL ( void );
+   void BVC ( void );
+   void BVS ( void );
+   void CLC ( void );
+   void CLD ( void );
+   void CLI ( void );
+   void CLV ( void );
+   void CMP ( void );
+   void CPX ( void );
+   void CPY ( void );
+   void DEC ( void );
+   void DEX ( void );
+   void DEY ( void );
+   void EOR ( void );
+   void INC ( void );
+   void INX ( void );
+   void INY ( void );
+   void JMP ( void );
+   void JSR ( void );
+   void LDA ( void );
+   void LDY ( void );
+   void LDX ( void );
+   void LSR ( void );
+   void NOP ( void );
+   void ORA ( void );
+   void PHA ( void );
+   void PHP ( void );
+   void PLA ( void );
+   void PLP ( void );
+   void ROL ( void );
+   void ROR ( void );
+   void RTI ( void );
+   void RTS ( void );
+   void SBC ( void );
+   void SEC ( void );
+   void SED ( void );
+   void SEI ( void );
+   void STA ( void );
+   void STX ( void );
+   void STY ( void );
+   void TAX ( void );
+   void TAY ( void );
+   void TSX ( void );
+   void TXA ( void );
+   void TXS ( void );
+   void TYA ( void );
 
    // The undocumented opcodes:
-   static void ASO ( void );
-   static void AXS ( void );
-   static void ANC ( void );
-   static void ALR ( void );
-   static void ARR ( void );
-   static void DCM ( void );
-   static void INS ( void );
-   static void LAX ( void );
-   static void LSE ( void );
-   static void DOP ( void );
-   static void TOP ( void );
-   static void RLA ( void );
-   static void RRA ( void );
-   static void XAA ( void );
-   static void AXA ( void );
-   static void TAS ( void );
-   static void SAY ( void );
-   static void XAS ( void );
-   static void OAL ( void );
-   static void LAS ( void );
-   static void SAX ( void );
+   void ASO ( void );
+   void AXS ( void );
+   void ANC ( void );
+   void ALR ( void );
+   void ARR ( void );
+   void DCM ( void );
+   void INS ( void );
+   void LAX ( void );
+   void LSE ( void );
+   void DOP ( void );
+   void TOP ( void );
+   void RLA ( void );
+   void RRA ( void );
+   void XAA ( void );
+   void AXA ( void );
+   void TAS ( void );
+   void SAY ( void );
+   void XAS ( void );
+   void OAL ( void );
+   void LAS ( void );
+   void SAX ( void );
 
    // The illegal opcodes:
-   static void KIL ( void );
+   void KIL ( void );
 
    // Accessor methods for retrieving information from or about
    // the managed entities within the CPU core object.
    // These routines are used by the debugger, not the emulator core.
    // Return the currently calculated effective address.
-   static uint32_t _EA ( void )
+   uint32_t _EA ( void )
    {
       return m_ea;
    }
 
    // Return the contents of a memory location visible to the CPU.
-   static uint8_t _MEM ( uint32_t addr );
+   uint8_t _MEM ( uint32_t addr );
 
    // Modify the contents of a memory location visible to the CPU.
-   static void _MEM ( uint32_t addr, uint8_t data );
-
-   // Retrieve a pointer to the whole memory.
-   static uint8_t* _MEMPTR ( void )
-   {
-      return m_6502memory;
-   }
+   void _MEM ( uint32_t addr, uint8_t data );
 
    // Return whether or not the CPU is currently in the middle of
    // the first cycle of an instruction fetch (the opcode fetch).
-   static bool _SYNC ( void )
+   bool _SYNC ( void )
    {
       return (m_instrCycle==0);
    }
 
    // Return whether or not the CPU is currently in the middle of
    // a write memory cycle.
-   static bool _WRITING ( void )
+   bool _WRITING ( void )
    {
       return m_write;
    }
@@ -306,37 +305,26 @@ public:
    // The cycle index is a free-running counter of executed CPU cycles.
    // It will roll-over after approximately 40 minutes of emulation.
    // But, roll-over of this counter is not a significant event.
-   static inline uint32_t _CYCLES ( void )
+   inline uint32_t _CYCLES ( void )
    {
       return m_cycles;
    }
 
-   // Accessor methods to set up or clear the state of the RAM
-   // maintained internally by the CPU core object.
-   static void MEMSET ( uint32_t addr, uint8_t* data, uint32_t length )
-   {
-      memcpy(m_6502memory+addr,data,length);
-   };
-   static void MEMCLR ( void )
-   {
-      memset(m_6502memory,0,MEM_2KB);
-   }
-
    // Method to return the current open bus data.
-   static uint8_t OPENBUS () { return m_openBusData; }
+   uint8_t OPENBUS () { return m_openBusData; }
 
    // DMA driver method.
-   static bool DMA ( void );
+   bool DMA ( void );
 
    // Accessor methods for supporting DMA between the CPU and APU/PPU.
-   static uint8_t DMA ( uint32_t addr );
-   static void DMA ( uint32_t srcAddr, uint32_t dstAddr, uint8_t data );
+   uint8_t DMA ( uint32_t addr );
+   void DMA ( uint32_t srcAddr, uint32_t dstAddr, uint8_t data );
 
    // The APU can request a DMA.
-   static void APUDMAREQ ( uint16_t addr );
+   void APUDMAREQ ( uint16_t addr );
 
    // Accessor method for stack popping.
-   static inline uint32_t POP ( void )
+   inline uint32_t POP ( void )
    {
       INCSP();
       return GETSTACKDATA();
@@ -345,11 +333,11 @@ public:
    // Accessor methods for manipulating CPU core registers.
    // These routines are used by the debugger, not by the
    // emulator core.
-   static uint32_t __PC ( void )
+   uint32_t __PC ( void )
    {
       return m_pc;
    }
-   static uint32_t __PCSYNC ( void )
+   uint32_t __PCSYNC ( void )
    {
       if ( m_pcSyncSet )
       {
@@ -360,109 +348,109 @@ public:
          return m_pc;
       }
    }
-   static void __PC ( uint16_t pc )
+   void __PC ( uint16_t pc )
    {
       m_pc = pc;
    }
-   static uint32_t _SP ( void )
+   uint32_t _SP ( void )
    {
       return m_sp;
    }
-   static void _SP ( uint8_t sp )
+   void _SP ( uint8_t sp )
    {
       m_sp = sp;
    }
-   static uint32_t _A ( void )
+   uint32_t _A ( void )
    {
       return m_a;
    }
-   static void _A ( uint8_t a )
+   void _A ( uint8_t a )
    {
       m_a = a;
    }
-   static uint32_t _X ( void )
+   uint32_t _X ( void )
    {
       return m_x;
    }
-   static void _X ( uint8_t x )
+   void _X ( uint8_t x )
    {
       m_x = x;
    }
-   static uint32_t _Y ( void )
+   uint32_t _Y ( void )
    {
       return m_y;
    }
-   static void _Y ( uint8_t y )
+   void _Y ( uint8_t y )
    {
       m_y = y;
    }
-   static uint32_t _F ( void )
+   uint32_t _F ( void )
    {
       return m_f;
    }
-   static void _F ( uint8_t f )
+   void _F ( uint8_t f )
    {
       m_f = f;
    }
-   static uint32_t _N ( void )
+   uint32_t _N ( void )
    {
       return (!!(m_f&FLAG_N));   // Negative
    }
-   static uint32_t _V ( void )
+   uint32_t _V ( void )
    {
       return (!!(m_f&FLAG_V));   // Overflow
    }
-   static uint32_t _B ( void )
+   uint32_t _B ( void )
    {
       return (!!(m_f&FLAG_B));   // Break command
    }
-   static uint32_t _D ( void )
+   uint32_t _D ( void )
    {
       return (!!(m_f&FLAG_D));   // Decimal mode
    }
-   static uint32_t _I ( void )
+   uint32_t _I ( void )
    {
       return (!!(m_f&FLAG_I));   // Interrupt disable
    }
-   static uint32_t _Z ( void )
+   uint32_t _Z ( void )
    {
       return (!!(m_f&FLAG_Z));   // Zero
    }
-   static uint32_t _C ( void )
+   uint32_t _C ( void )
    {
       return (!!(m_f&FLAG_C));   // Carry
    }
-   static void _N ( uint32_t set )
+   void _N ( uint32_t set )
    {
       m_f&=~(FLAG_N);
       m_f|=((!!set)<<FLAG_N_SHIFT);
    }
-   static void _V ( uint32_t set )
+   void _V ( uint32_t set )
    {
       m_f&=~(FLAG_V);
       m_f|=((!!set)<<FLAG_V_SHIFT);
    }
-   static void _B ( uint32_t set )
+   void _B ( uint32_t set )
    {
       m_f&=~(FLAG_B);
       m_f|=((!!set)<<FLAG_B_SHIFT);
    }
-   static void _D ( uint32_t set )
+   void _D ( uint32_t set )
    {
       m_f&=~(FLAG_D);
       m_f|=((!!set)<<FLAG_D_SHIFT);
    }
-   static void _I ( uint32_t set )
+   void _I ( uint32_t set )
    {
       m_f&=~(FLAG_I);
       m_f|=((!!set)<<FLAG_I_SHIFT);
    }
-   static void _Z ( uint32_t set )
+   void _Z ( uint32_t set )
    {
       m_f&=~(FLAG_Z);
       m_f|=((!!set)<<FLAG_Z_SHIFT);
    }
-   static void _C ( uint32_t set )
+   void _C ( uint32_t set )
    {
       m_f&=~(FLAG_C);
       m_f|=((!!set)<<FLAG_C_SHIFT);
@@ -475,60 +463,24 @@ public:
    // a marked section of code, it updates the database of markers.
    // The Execution Visualizer debugger inspector displays this
    // database visually.
-   static CMarker* MARKERS()
+   CMarker* MARKERS()
    {
       return m_marker;
    }
 
    // Disassembly routines for display.
-   static void DISASSEMBLE ();
-   static void DISASSEMBLE ( char** disassembly, uint8_t* binary, int32_t binaryLength, uint8_t* opcodeMask, uint16_t* sloc2addr, uint16_t* addr2sloc, uint32_t* sourceLength );
-   static char* Disassemble ( uint8_t* pOpcode, char* buffer );
+   void DISASSEMBLE ();
 
-   static inline CCodeDataLogger* LOGGER ( void )
+   inline CCodeDataLogger* LOGGER ( void )
    {
-      return m_logger;
-   }
-
-   // Interface to retrieve the database defining the registers
-   // of the CPU core in a "human readable" form that is used by
-   // the Register-type debugger inspector.  The hexadecimal world
-   // of the CPU core registers is transformed into textual description
-   // and manipulatable bitfield texts by means of this database.
-   // CPU registers are declared in the source file.
-   static CRegisterDatabase* REGISTERS()
-   {
-      return m_dbRegisters;
-   }
-
-   // Interface to retrieve the database defining the RAM
-   // of the CPU core in a "human readable" form that is used by
-   // the Memory-type debugger inspector.
-   static CMemoryDatabase* MEMORY()
-   {
-      return m_dbMemory;
+      return m_6502memory.LOGGER(0);
    }
 
    // This API tells the emulator core whether or not to force a
    // breakpoint if a KIL opcode is executed.
-   static void BREAKONKIL(bool breakOnKIL)
+   void BREAKONKIL(bool breakOnKIL)
    {
       m_breakOnKIL = breakOnKIL;
-   }
-
-   // Interface to retrieve the database of CPU core-specific
-   // breakpoint events.  A breakpoint event is an event that
-   // is typically internal to the CPU core that the user would
-   // like to trigger a program halt on for inspection of the emulated
-   // machine.  CPU breakpoint events are declared in the source
-   // file.
-   static CBreakpointEventInfo** BREAKPOINTEVENTS()
-   {
-      return m_tblBreakpointEvents;
-   }
-   static int32_t NUMBREAKPOINTEVENTS()
-   {
-      return m_numBreakpointEvents;
    }
 
    // The following routines are support for the runtime
@@ -541,101 +493,103 @@ public:
    // need to display disassembly of a memory location they
    // retrieve it from the database generated by the runtime
    // disassembler.
-   static inline void OPCODEMASK ( uint32_t addr, uint8_t mask )
+   inline void OPCODEMASK ( uint32_t addr, uint8_t mask )
    {
-      *(m_RAMopcodeMask+(addr&MEM_2KB)) = mask;
+      m_6502memory.OPCODEMASK(addr,mask);
    }
-   static inline void OPCODEMASKCLR ( void )
+   inline void OPCODEMASKCLR ( void )
    {
-      int32_t idx;
-      for ( idx = 0; idx < MEM_2KB; idx++ )
-      {
-         m_RAMopcodeMask[idx] = 0;
-      }
+      m_6502memory.OPCODEMASKCLR();
    }
-   static inline char* DISASSEMBLY ( uint32_t addr )
+   inline char* DISASSEMBLY ( uint32_t addr )
    {
-      return *(m_RAMdisassembly+addr);
+      return m_6502memory.DISASSEMBLY(addr);
    }
-   static uint32_t SLOC2ADDR ( uint16_t sloc )
+   uint32_t SLOC2ADDR ( uint16_t sloc )
    {
-      return *(m_RAMsloc2addr+sloc);
+      return m_6502memory.SLOC2ADDR(sloc);
    }
-   static uint16_t ADDR2SLOC ( uint32_t addr )
+   uint16_t ADDR2SLOC ( uint32_t addr )
    {
-      return *(m_RAMaddr2sloc+addr);
+      return m_6502memory.ADDR2SLOC(addr);
    }
-   static inline uint16_t SLOC ()
+   inline uint16_t SLOC ()
    {
-      return m_RAMsloc;
+      return m_6502memory.SLOC(0);
    }
 
-   static inline uint32_t WRITEDMAADDR()
+   inline uint32_t WRITEDMAADDR()
    {
       return (512-m_writeDmaCounter)>>1;
    }
 
+   void DISASSEMBLE ( char** disassembly, uint8_t* binary, int32_t binaryLength, uint8_t* opcodeMask, uint16_t* sloc2addr, uint16_t* addr2sloc, uint32_t* sourceLength );
+   void PRINTABLEADDR ( char* buffer, uint32_t addr );
+   void PRINTABLEADDR ( char* buffer, uint32_t addr, uint32_t absAddr );
+
 protected:
+   CAPU* m_apu;
+
    // Routine to calculate the effective address of a particular
    // instruction addressing mode based on the internal state of the CPU.
-   static inline uint32_t MAKEADDR ( int32_t amode, uint8_t* data );
+   inline uint32_t MAKEADDR ( int32_t amode, uint8_t* data );
 
    // Routine to drive APU and CPU synchronization by cycles.
-   static void ADVANCE ( bool stealing = false );
+   void ADVANCE ( bool stealing = false );
 
    // Routines to access the RAM maintained by the CPU core object.
    // These are used internally by the CPU core during emulation.
-   static uint8_t MEM ( uint32_t addr );
-   static void MEM ( uint32_t addr, uint8_t data );
-   static uint8_t FETCH ();
-   static uint8_t EXTRAFETCH ();
-   static uint8_t STEAL ( uint32_t addr, uint8_t source );
-   static uint8_t LOAD ( uint32_t addr, int8_t* pTarget );
-   static void STORE ( uint32_t addr, uint8_t data, int8_t* pTarget );
+   uint8_t MEM ( uint32_t addr );
+   void MEM ( uint32_t addr, uint8_t data );
+   uint8_t FETCH ();
+   uint8_t EXTRAFETCH ();
+   uint8_t STEAL ( uint32_t addr, uint8_t source );
+   uint8_t LOAD ( uint32_t addr, int8_t* pTarget );
+   void STORE ( uint32_t addr, uint8_t data, int8_t* pTarget );
 
    // Is the CPU currently locked due to execution of an
    // illegal instruction?  Illegal instructions are all KIL opcodes.
-   static bool            m_killed;
+   bool            m_killed;
 
    // Has an IRQ been asserted to the CPU core?
-   static bool            m_irqAsserted;
+   bool            m_irqAsserted;
 
    // Was IRQ asserted when checked?
-   static bool            m_irqPending;
+   bool            m_irqPending;
 
    // Has NMI been asserted to the CPU core?
-   static bool            m_nmiAsserted;
+   bool            m_nmiAsserted;
 
    // Was NMI asserted when checked?
-   static bool            m_nmiPending;
+   bool            m_nmiPending;
 
    // The CPU core maintains the 2KB of RAM visible to the CPU.
-   static uint8_t*  m_6502memory;
+   CMEMORY  m_6502memory;
 
    // The CPU core registers.
-   static uint8_t   m_a;
-   static uint8_t   m_x;
-   static uint8_t   m_y;
-   static uint8_t   m_f;
-   static uint16_t  m_pc;
-   static uint16_t  m_pcSync;
-   static bool      m_pcSyncSet;
-   static uint8_t   m_sp;
+   uint8_t   m_a;
+   uint8_t   m_x;
+   uint8_t   m_y;
+   uint8_t   m_f;
+   uint16_t  m_pc;
+   uint16_t  m_pcSync;
+   bool      m_pcSyncSet;
+   uint8_t   m_sp;
 
    // The effective address calculated by the CPU core.
-   static uint32_t    m_ea;
+   uint32_t    m_ea;
 
    // The address to break at on a "run to here" go.
-   static uint32_t            m_pcGoto;
+   uint32_t            m_pcGoto;
 
    // Running counter of CPU cycles executed.  Will roll over in
    // approximately 40 minutes of emulation.
-   static uint32_t    m_cycles;
-   static int32_t     m_instrCycle;
+   uint32_t    m_cycles;
+   int32_t     m_instrCycle;
 
    // The current number of CPU cycles ready to be executed by
    // the CPU core.
-   static int32_t             m_curCycles; // must be allowed to go negative!
+   int32_t             m_curCycles; // must be allowed to go negative!
 
    // The following data is used internally by the CPU core
    // during instruction execution.  As opcodes are fetched and
@@ -644,84 +598,61 @@ protected:
    // on the stack frame during instruction execution via
    // function-pointer invocation.
    // The current opcode's addressing mode.
-   static int32_t             amode;
+   int32_t             amode;
 
    // DMC DMA request active flag.
-   static int32_t m_dmaRequest;
+   int32_t m_dmaRequest;
 
    // DMA address for DMA write transfers.  The CPU sets this on a DMA
    // request from a write to $4014, then begins its DMA transfer at the
    // appropriate time.  When not DMAing the counter will be 0.
-   static uint16_t m_writeDmaAddr;
-   static int32_t m_writeDmaCounter;
+   uint16_t m_writeDmaAddr;
+   int32_t m_writeDmaCounter;
 
    // DMA address for DMA read transfers.  The APU sets this on a DMA
    // request for a DMC channel sample, then begins its DMA transfer at the
    // appropriate time.  When not DMAing the counter will be 0.
-   static uint16_t m_readDmaAddr;
-   static int32_t m_readDmaCounter;
+   uint16_t m_readDmaAddr;
+   int32_t m_readDmaCounter;
 
    // The current opcode's full 1-, 2-, or 3-byte instruction data.
-   static uint8_t*  data;
-   static uint8_t   opcodeData [ 4 ]; // 3 opcode bytes and 1 byte for operand return data [extra cycle]
+   uint8_t*  data;
+   uint8_t   opcodeData [ 4 ]; // 3 opcode bytes and 1 byte for operand return data [extra cycle]
 
    // The current opcode's table entry (see struct _CNES6502_opcode below).
-   static struct _CNES6502_opcode* pOpcodeStruct;
+   struct _CNES6502_opcode* pOpcodeStruct;
 
    // The size of the current opcode in bytes (1, 2, or 3).
-   static int32_t             opcodeSize;
+   int32_t             opcodeSize;
 
    // Whether or not the CPU is in a write memory cycle.
-   static bool            m_write;
+   bool            m_write;
 
    // Open bus data to be returned if reading an unconnected memory region.
-   static uint8_t m_openBusData;
+   uint8_t m_openBusData;
 
    // Which phase of instruction fetching is the CPU core in?
    // m_phase will be 0 during the opcode fetch.  m_phase will go
    // up to 1 if the fetched opcode is 1-byte (extra fetch cycle) or 2-bytes.
    // m_phase will go up to 3 if the fetched opcode is 3-byte.
    // Then m_phase goes to -1 for the instruction execution.
-   static int8_t            m_phase;
+   int8_t            m_phase;
 
    // This points to the last execution tracer tag that
    // is where the disassembly of the instruction should
    // be placed.
-   static TracerInfo* pDisassemblySample;
+   TracerInfo* pDisassemblySample;
 
    // Database used by the Execution Visualizer debugger inspector.
    // The data structure is maintained by the CPU core as it executes
    // instructions that are marked.
-   static CMarker*         m_marker;
-
-   // Database used by the Code/Data Logger debugger inspector.  The data structure
-   // is maintained by the CPU core as it performs fetches, reads,
-   // writes, and DMA transfers to/from its managed RAM.  The
-   // Code/Data Logger displays the collected information graphically.
-   static CCodeDataLogger* m_logger;
-
-   // The database for CPU core registers.  Declaration
-   // is in source file.
-   static CRegisterDatabase* m_dbRegisters;
-
-   // The database for CPU RAM.  Declaration is in source file.
-   static CMemoryDatabase* m_dbMemory;
+   CMarker*         m_marker;
 
    // Configuration from EmulatorPrefs.
-   static bool m_breakOnKIL;
-
-   // The database for CPU core breakpoint events.  Declaration
-   // is in source file.
-   static CBreakpointEventInfo** m_tblBreakpointEvents;
-   static int32_t                    m_numBreakpointEvents;
-
-   // The data structures that support runtime disassembly of executed code.
-   static uint8_t*   m_RAMopcodeMask;
-   static char**           m_RAMdisassembly;
-   static uint16_t*  m_RAMsloc2addr;
-   static uint16_t*  m_RAMaddr2sloc;
-   static uint32_t    m_RAMsloc;
+   bool m_breakOnKIL;
 };
+
+char* DISASSEMBLE ( uint8_t* pOpcode, char* buffer );
 
 // Structure representing each instruction and
 // addressing mode possible within the CPU core.
@@ -734,7 +665,7 @@ typedef struct _CNES6502_opcode
    const char* name;
 
    // Instruction execution function.
-   void (*pFn)(void);
+   void (C6502::*pFn)(void);
 
    // Addressing mode of this particular entry.
    uint8_t amode;

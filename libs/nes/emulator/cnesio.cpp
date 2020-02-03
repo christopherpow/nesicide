@@ -170,14 +170,14 @@ void CIOTurboJoypad::IO ( uint32_t addr, uint8_t data )
             *(m_ioJoyLatch+CONTROLLER2) = (uint8_t)(*(m_ioJoy+CONTROLLER2))&0xFF;
 
             // Alternate for turbos if necessary.
-            if ( m_lastFrame != CNES::FRAME() )
+            if ( m_lastFrame != CNES::NES()->FRAME() )
             {
                m_alternator[CONTROLLER1][0] = !m_alternator[CONTROLLER1][0];
                m_alternator[CONTROLLER1][1] = !m_alternator[CONTROLLER1][1];
                m_alternator[CONTROLLER2][0] = !m_alternator[CONTROLLER2][0];
                m_alternator[CONTROLLER2][1] = !m_alternator[CONTROLLER2][1];
             }
-            m_lastFrame = CNES::FRAME();
+            m_lastFrame = CNES::NES()->FRAME();
 
             if ( m_ioJoy[CONTROLLER1]&JOY_ATURBO )
             {
@@ -266,7 +266,7 @@ uint32_t CIOZapper::IO ( uint32_t addr )
    switch ( addr )
    {
       case IOJOY1:
-         CNES::CONTROLLERPOSITION(CONTROLLER1,&px,&py,&wx1,&wy1,&wx2,&wy2);
+         CNES::NES()->CONTROLLERPOSITION(CONTROLLER1,&px,&py,&wx1,&wy1,&wx2,&wy2);
          if ( (py > wy1) && (py < wy2) &&
               (px > wx1) && (px < wx2) )
          {
@@ -283,7 +283,7 @@ uint32_t CIOZapper::IO ( uint32_t addr )
             {
                for ( pys = py; pys < py+8; pys++ )
                {
-                  CPPU::PIXELRGB(pxs,pys,&r,&g,&b);
+                  CNES::NES()->PPU()->PIXELRGB(pxs,pys,&r,&g,&b);
                   if ( (r>0) || (g>0) || (b>0) )
                   {
                      nonBlacks++;
@@ -307,7 +307,7 @@ uint32_t CIOZapper::IO ( uint32_t addr )
          break;
 
       case IOJOY2:
-         CNES::CONTROLLERPOSITION(CONTROLLER2,&px,&py,&wx1,&wy1,&wx2,&wy2);
+         CNES::NES()->CONTROLLERPOSITION(CONTROLLER2,&px,&py,&wx1,&wy1,&wx2,&wy2);
          if ( (py > wy1) && (py < wy2) &&
               (px > wx1) && (px < wx2) )
          {
@@ -324,7 +324,7 @@ uint32_t CIOZapper::IO ( uint32_t addr )
             {
                for ( pys = py; pys < py+8; pys++ )
                {
-                  CPPU::PIXELRGB(pxs,pys,&r,&g,&b);
+                  CNES::NES()->PPU()->PIXELRGB(pxs,pys,&r,&g,&b);
                   if ( (r>0) || (g>0) || (b>0) )
                   {
                      nonBlacks++;
@@ -406,8 +406,8 @@ void CIOVaus::IO ( uint32_t addr, uint8_t data )
    switch ( addr )
    {
       case IOJOY1:
-         CNES::CONTROLLERPOSITION(CONTROLLER1,&px1,&py1,&wx1,&wy1,&wx2,&wy2);
-         CNES::CONTROLLERPOSITION(CONTROLLER2,&px2,&py2,&wx1,&wy1,&wx2,&wy2);
+         CNES::NES()->CONTROLLERPOSITION(CONTROLLER1,&px1,&py1,&wx1,&wy1,&wx2,&wy2);
+         CNES::NES()->CONTROLLERPOSITION(CONTROLLER2,&px2,&py2,&wx1,&wy1,&wx2,&wy2);
 
          if ( (m_last4016&1) && (!(data&1)) ) // latch on negative edge
          {
@@ -455,8 +455,8 @@ void CIOVaus::_IO ( uint32_t addr, uint8_t data )
    switch ( addr )
    {
       case IOJOY1:
-         CNES::CONTROLLERPOSITION(CONTROLLER1,&px1,&py1,&wx1,&wy1,&wx2,&wy2);
-         CNES::CONTROLLERPOSITION(CONTROLLER2,&px2,&py2,&wx1,&wy1,&wx2,&wy2);
+         CNES::NES()->CONTROLLERPOSITION(CONTROLLER1,&px1,&py1,&wx1,&wy1,&wx2,&wy2);
+         CNES::NES()->CONTROLLERPOSITION(CONTROLLER2,&px2,&py2,&wx1,&wy1,&wx2,&wy2);
 
          if ( (m_last4016&1) && (!(data&1)) ) // latch on negative edge
          {

@@ -11,27 +11,18 @@ CodeDataLoggerDockWidget::CodeDataLoggerDockWidget(QWidget *parent) :
     CDebuggerBase(parent),
     ui(new Ui::CodeDataLoggerDockWidget)
 {
-   int i;
-
    ui->setupUi(this);
-   imgData = new char[256*256*4];
 
-   // Clear image...
-   for ( i = 0; i < 256*256*4; i+=4 )
-   {
-      imgData[i] = 0;
-      imgData[i+1] = 0;
-      imgData[i+2] = 0;
-      imgData[i+3] = 0xFF;
-   }
-   C6502DBG::CodeDataLoggerInspectorTV ( (int8_t*)imgData );
-   CPPUDBG::CodeDataLoggerInspectorTV ( (int8_t*)imgData );
+   RENDERCPUCODEDATALOGGER();
+   RENDERPPUCODEDATALOGGER();
 
-   renderer = new PanZoomRenderer(256,256,10000,imgData,false,ui->frame);
+   renderer = new PanZoomRenderer(256,256,10000,CPUCODEDATALOGGERTV(),false,ui->frame);
    ui->frame->layout()->addWidget(renderer);
    ui->frame->layout()->update();
 
-   pThread = new DebuggerUpdateThread(&C6502DBG::RENDERCODEDATALOGGER);
+   renderer->installEventFilter(this);
+
+   pThread = new DebuggerUpdateThread(&RENDERCPUCODEDATALOGGER);
    QObject::connect(pThread,SIGNAL(updateComplete()),this,SLOT(renderData()));
 }
 
@@ -39,7 +30,6 @@ CodeDataLoggerDockWidget::~CodeDataLoggerDockWidget()
 {
    delete pThread;
    delete ui;
-   delete imgData;
    delete renderer;
 }
 
@@ -68,6 +58,84 @@ void CodeDataLoggerDockWidget::changeEvent(QEvent* e)
    }
 }
 
+bool CodeDataLoggerDockWidget::eventFilter(QObject* obj,QEvent* event)
+{
+   if ( obj == renderer )
+   {
+      if ( event->type() == QEvent::MouseMove )
+      {
+         QMouseEvent* mouseEvent = dynamic_cast<QMouseEvent*>(event);
+         renderer_mouseMoveEvent(mouseEvent);
+      }
+      else if ( event->type() == QEvent::Enter )
+      {
+         QEvent* enterEvent = dynamic_cast<QEvent*>(event);
+         renderer_enterEvent(enterEvent);
+      }
+      else if ( event->type() == QEvent::Leave )
+      {
+         QEvent* leaveEvent = dynamic_cast<QEvent*>(event);
+         renderer_leaveEvent(leaveEvent);
+      }
+   }
+   return false;
+}
+
+void CodeDataLoggerDockWidget::renderer_enterEvent(QEvent */*event*/)
+{
+   int pixx;
+   int pixy;
+   bool visible;
+
+   visible = renderer->pointToPixel(QCursor::pos().x(),QCursor::pos().y(),&pixx,&pixy);
+
+   if ( visible )
+   {
+      updateInfoText(pixx,pixy);
+   }
+}
+
+void CodeDataLoggerDockWidget::renderer_leaveEvent(QEvent */*event*/)
+{
+   updateInfoText();
+}
+
+void CodeDataLoggerDockWidget::renderer_mouseMoveEvent(QMouseEvent */*event*/)
+{
+   int pixx;
+   int pixy;
+   bool visible;
+
+   visible = renderer->pointToPixel(QCursor::pos().x(),QCursor::pos().y(),&pixx,&pixy);
+
+   if ( visible )
+   {
+      updateInfoText(pixx,pixy);
+   }
+}
+
+void CodeDataLoggerDockWidget::updateInfoText(int x, int y)
+{
+   int addr;
+
+   if ( (x >= 0) && (y >= 0) )
+   {
+      QString str;
+
+      addr = x;
+      addr |= (y<<8);
+
+      str.sprintf("$%04X",
+                  addr);
+
+      ui->address->setText(str);
+   }
+   else
+   {
+      ui->address->clear();
+   }
+}
+
 void CodeDataLoggerDockWidget::showEvent(QShowEvent* /*event*/)
 {
    QObject* emulator = CObjectRegistry::getObject("Emulator");
@@ -89,34 +157,27 @@ void CodeDataLoggerDockWidget::renderData()
    switch ( ui->displaySelect->currentIndex() )
    {
       case CodeDataLogger_CPU:
-         renderer->reloadData(imgData);
+         renderer->reloadData(CPUCODEDATALOGGERTV());
          break;
       case CodeDataLogger_PPU:
-         renderer->reloadData(imgData);
+         renderer->reloadData(PPUCODEDATALOGGERTV());
          break;
    }
 }
 
 void CodeDataLoggerDockWidget::on_displaySelect_currentIndexChanged(int index)
 {
-   int i;
-
    // Clear image...
-   for ( i = 0; i < 256*256*4; i+=4 )
-   {
-      imgData[i] = 0;
-      imgData[i+1] = 0;
-      imgData[i+2] = 0;
-      imgData[i+3] = 0xFF;
-   }
+   CLEARCPUCODEDATALOGGER();
+   CLEARPPUCODEDATALOGGER();
 
    switch ( index )
    {
       case CodeDataLogger_CPU:
-         pThread->changeFunction(&C6502DBG::RENDERCODEDATALOGGER);
+         pThread->changeFunction(&RENDERCPUCODEDATALOGGER);
          break;
       case CodeDataLogger_PPU:
-         pThread->changeFunction(&CPPUDBG::RENDERCODEDATALOGGER);
+         pThread->changeFunction(&RENDERPPUCODEDATALOGGER);
          break;
    }
 

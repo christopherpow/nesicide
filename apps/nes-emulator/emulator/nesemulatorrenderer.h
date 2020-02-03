@@ -2,15 +2,12 @@
 #define CNESEMULATORRENDERER_H
 
 #include <QWidget>
-#include <QGLWidget>
-#if defined ( __APPLE__ )
-#include <OpenGL/glext.h>
-#else
-#include <GL/glext.h>
-#endif
+#include <QOpenGLWidget>
+#include <QOpenGLFunctions>
 
-class CNESEmulatorRenderer : public QGLWidget
+class CNESEmulatorRenderer : public QOpenGLWidget, protected QOpenGLFunctions
 {
+   Q_OBJECT
 public:
    CNESEmulatorRenderer(QWidget* parent, char* imgData);
    virtual ~CNESEmulatorRenderer();
@@ -26,9 +23,9 @@ public:
    int scrollY;
    char* imageData;
    GLuint textureID;
-   QRect renderRect;
    bool linearInterpolation;
    bool aspect43;
+   bool initialized;
 };
 
 #endif // CNESEMULATORRENDERER_H

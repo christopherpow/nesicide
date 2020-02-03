@@ -34,6 +34,9 @@ bool EmulatorPrefsDialog::dmcEnabled;
 bool EmulatorPrefsDialog::pulse1VRC6Enabled;
 bool EmulatorPrefsDialog::pulse2VRC6Enabled;
 bool EmulatorPrefsDialog::sawtoothVRC6Enabled;
+bool EmulatorPrefsDialog::square1MMC5Enabled;
+bool EmulatorPrefsDialog::square2MMC5Enabled;
+bool EmulatorPrefsDialog::dmcMMC5Enabled;
 bool EmulatorPrefsDialog::wave1N106Enabled;
 bool EmulatorPrefsDialog::wave2N106Enabled;
 bool EmulatorPrefsDialog::wave3N106Enabled;
@@ -88,6 +91,9 @@ EmulatorPrefsDialog::EmulatorPrefsDialog(QString target,QWidget* parent) :
    ui->pulse1VRC6->setChecked(pulse1VRC6Enabled);
    ui->pulse2VRC6->setChecked(pulse2VRC6Enabled);
    ui->sawtoothVRC6->setChecked(sawtoothVRC6Enabled);
+   ui->square1MMC5->setChecked(square1MMC5Enabled);
+   ui->square2MMC5->setChecked(square2MMC5Enabled);
+   ui->dmcMMC5->setChecked(dmcMMC5Enabled);
    ui->wave1N106->setChecked(wave1N106Enabled);
    ui->wave2N106->setChecked(wave2N106Enabled);
    ui->wave3N106->setChecked(wave3N106Enabled);
@@ -190,6 +196,11 @@ void EmulatorPrefsDialog::readSettings()
    pulse1VRC6Enabled = settings.value("Pulse1",QVariant(true)).toBool();
    pulse2VRC6Enabled = settings.value("Pulse2",QVariant(true)).toBool();
    sawtoothVRC6Enabled = settings.value("Sawtooth",QVariant(true)).toBool();
+   settings.endGroup();
+   settings.beginGroup("MMC5");
+   square1MMC5Enabled = settings.value("Square1",QVariant(true)).toBool();
+   square2MMC5Enabled = settings.value("Square2",QVariant(true)).toBool();
+   dmcMMC5Enabled = settings.value("DMC",QVariant(true)).toBool();
    settings.endGroup();
    settings.beginGroup("N106");
    wave1N106Enabled = settings.value("Wave1",QVariant(true)).toBool();
@@ -311,6 +322,12 @@ void EmulatorPrefsDialog::writeSettings()
    {
       audioUpdated = true;
    }
+   if ( (square1MMC5Enabled != ui->square1MMC5->isChecked()) ||
+        (square2MMC5Enabled != ui->square2MMC5->isChecked()) ||
+        (dmcMMC5Enabled != ui->dmcMMC5->isChecked()) )
+   {
+      audioUpdated = true;
+   }
    if ( (wave1N106Enabled != ui->wave1N106->isChecked()) ||
         (wave2N106Enabled != ui->wave2N106->isChecked()) ||
         (wave3N106Enabled != ui->wave3N106->isChecked()) ||
@@ -410,6 +427,9 @@ void EmulatorPrefsDialog::writeSettings()
    pulse1VRC6Enabled = ui->pulse1VRC6->isChecked();
    pulse2VRC6Enabled = ui->pulse2VRC6->isChecked();
    sawtoothVRC6Enabled = ui->sawtoothVRC6->isChecked();
+   square1MMC5Enabled = ui->square1MMC5->isChecked();
+   square2MMC5Enabled = ui->square2MMC5->isChecked();
+   dmcMMC5Enabled = ui->dmcMMC5->isChecked();
    wave1N106Enabled = ui->wave1N106->isChecked();
    wave2N106Enabled = ui->wave2N106->isChecked();
    wave3N106Enabled = ui->wave3N106->isChecked();
@@ -480,6 +500,11 @@ void EmulatorPrefsDialog::writeSettings()
    settings.setValue("Pulse1",pulse1VRC6Enabled);
    settings.setValue("Pulse2",pulse2VRC6Enabled);
    settings.setValue("Sawtooth",sawtoothVRC6Enabled);
+   settings.endGroup();
+   settings.beginGroup("MMC5");
+   settings.setValue("Square1",square1MMC5Enabled);
+   settings.setValue("Square2",square2MMC5Enabled);
+   settings.setValue("DMC",dmcMMC5Enabled);
    settings.endGroup();
    settings.beginGroup("N106");
    settings.setValue("Wave1",wave1N106Enabled);
@@ -969,6 +994,45 @@ void EmulatorPrefsDialog::setSawtoothVRC6Enabled(bool enabled)
    // Now write to QSettings.
    settings.beginGroup("EmulatorPreferences/NES/Audio/VRC6");
    settings.setValue("Sawtooth",sawtoothVRC6Enabled);
+   settings.endGroup();
+}
+
+void EmulatorPrefsDialog::setSquare1MMC5Enabled(bool enabled)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   // Update local storage first.
+   square1MMC5Enabled = enabled;
+
+   // Now write to QSettings.
+   settings.beginGroup("EmulatorPreferences/NES/Audio/MMC5");
+   settings.setValue("Pulse1",square1MMC5Enabled);
+   settings.endGroup();
+}
+
+void EmulatorPrefsDialog::setSquare2MMC5Enabled(bool enabled)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   // Update local storage first.
+   square2MMC5Enabled = enabled;
+
+   // Now write to QSettings.
+   settings.beginGroup("EmulatorPreferences/NES/Audio/MMC5");
+   settings.setValue("Square2",square2MMC5Enabled);
+   settings.endGroup();
+}
+
+void EmulatorPrefsDialog::setDMCMMC5Enabled(bool enabled)
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+
+   // Update local storage first.
+   dmcMMC5Enabled = enabled;
+
+   // Now write to QSettings.
+   settings.beginGroup("EmulatorPreferences/NES/Audio/MMC5");
+   settings.setValue("DMC",dmcMMC5Enabled);
    settings.endGroup();
 }
 

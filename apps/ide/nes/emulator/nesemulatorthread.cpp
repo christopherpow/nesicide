@@ -43,15 +43,16 @@ static void breakpointHook ( void )
 {
    // Tell the world.
    NESEmulatorThread* emulator = dynamic_cast<NESEmulatorThread*>(CObjectRegistry::getObject("Emulator"));
-   if ( emulator )
-      emulator->_breakpointHook();
+   if ( emulator && emulator->worker() )
+   {
+      emulator->worker()->_breakpointHook();
 
-   // Put my thread to sleep.
-   if ( emulator )
-      emulator->nesBreakpointSemaphore->acquire();
+      // Put my thread to sleep.
+      emulator->worker()->nesBreakpointSemaphore->acquire();
+   }
 }
 
-void NESEmulatorThread::_breakpointHook()
+void NESEmulatorWorker::_breakpointHook()
 {
    emit breakpoint();
 }
@@ -59,7 +60,8 @@ void NESEmulatorThread::_breakpointHook()
 static void audioHook ( void )
 {
    NESEmulatorThread* emulator = dynamic_cast<NESEmulatorThread*>(CObjectRegistry::getObject("Emulator"));
-   emulator->nesAudioSemaphore->acquire();
+   if ( emulator && emulator->worker() )
+      emulator->worker()->nesAudioSemaphore->acquire();
 }
 
 extern "C" void SDL_Emulator(void* userdata, uint8_t* stream, int32_t len)
@@ -84,29 +86,16 @@ extern "C" void SDL_Emulator(void* userdata, uint8_t* stream, int32_t len)
    {
 //      qDebug("UNDERRUN");
    }
-   if ( emulator && emulator->nesAudioSemaphore )
-      emulator->nesAudioSemaphore->release();
+   if ( emulator && emulator->worker() && emulator->worker()->nesAudioSemaphore )
+      emulator->worker()->nesAudioSemaphore->release();
 }
 
 SDL_Callback nesSDLCallback;
 
 NESEmulatorThread::NESEmulatorThread(QObject*)
+   : pWorker(new NESEmulatorWorker()),
+     pThread(NULL)
 {
-   m_joy [ CONTROLLER1 ] = 0;
-   m_joy [ CONTROLLER2 ] = 0;
-   m_isRunning = false;
-   m_isPaused = false;
-   m_showOnPause = false;
-   m_pauseAfterFrames = -1;
-   m_isStarting = false;
-   m_isTerminating = false;
-   m_isResetting = false;
-   m_debugFrame = 0;
-   m_pCartridge = NULL;
-   
-   nesBreakpointSemaphore = new QSemaphore(0);
-   nesAudioSemaphore = new QSemaphore(0);
-
    // Enable callbacks from the external emulator library.
    nesSetBreakpointHook(breakpointHook);
    nesSetAudioHook(audioHook);
@@ -120,51 +109,158 @@ NESEmulatorThread::NESEmulatorThread(QObject*)
 
    BreakpointWatcherThread* breakpointWatcher = dynamic_cast<BreakpointWatcherThread*>(CObjectRegistry::getObject("Breakpoint Watcher"));
    QObject::connect(this,SIGNAL(breakpoint()),breakpointWatcher,SLOT(breakpoint()));
+
+   pThread = new QThread();
+   pWorker->moveToThread(pThread);
+   pThread->start();
+
+   QObject::connect(pWorker,SIGNAL(breakpoint()),this,SIGNAL(breakpoint()));
+   QObject::connect(pWorker,SIGNAL(emulatedFrame()),this,SIGNAL(emulatedFrame()));
+   QObject::connect(pWorker,SIGNAL(updateDebuggers()),this,SIGNAL(updateDebuggers()));
+   QObject::connect(pWorker,SIGNAL(machineReady()),this,SIGNAL(machineReady()));
+   QObject::connect(pWorker,SIGNAL(emulatorPaused(bool)),this,SIGNAL(emulatorPaused(bool)));
+   QObject::connect(pWorker,SIGNAL(emulatorPausedAfter()),this,SIGNAL(emulatorPausedAfter()));
+   QObject::connect(pWorker,SIGNAL(emulatorReset()),this,SIGNAL(emulatorReset()));
+   QObject::connect(pWorker,SIGNAL(emulatorStarted()),this,SIGNAL(emulatorStarted()));
+   QObject::connect(pWorker,SIGNAL(debugMessage(char*)),this,SIGNAL(debugMessage(char*)));
 }
 
 NESEmulatorThread::~NESEmulatorThread()
-{
+{      
    nesSDLCallback._valid = false;
-   nesBreakpointSemaphore->release();
-   delete nesBreakpointSemaphore;
-   nesBreakpointSemaphore = NULL;
-   nesAudioSemaphore->release();
-   delete nesAudioSemaphore;
-   nesAudioSemaphore = NULL;
-}
-
-void NESEmulatorThread::kill()
-{
-   // Force hard-reset of the machine...
-   nesEnableBreakpoints(false);
-
-   m_isStarting = false;
-   m_isRunning = false;
-   m_isPaused = false;
-   m_showOnPause = false;
-   m_isTerminating = true;
-
-   start();
-   quit();
-
-   while ( !isFinished() )
+   int idx = sdlHooks.indexOf(nesSDLCallback);
+   if ( idx >= 0 )
    {
-      nesBreakpointSemaphore->release();
-      nesAudioSemaphore->release();
+      sdlHooks.removeAt(idx);
    }
+
+   pWorker = NULL;
+
+   pThread->quit();
+   pThread->deleteLater();
 }
 
 void NESEmulatorThread::adjustAudio(int32_t bufferDepth)
 {
-   nesClearAudioSamplesAvailable();
+   pWorker->adjustAudio(bufferDepth);
 }
 
 void NESEmulatorThread::breakpointsChanged()
 {
-   // unused
+   pWorker->breakpointsChanged();
 }
 
 void NESEmulatorThread::primeEmulator()
+{
+   pWorker->primeEmulator();
+}
+
+void NESEmulatorThread::softResetEmulator()
+{
+   pWorker->softResetEmulator();
+}
+
+void NESEmulatorThread::resetEmulator()
+{
+   pWorker->resetEmulator();
+}
+
+void NESEmulatorThread::startEmulation ()
+{
+   pWorker->startEmulation();
+}
+
+void NESEmulatorThread::stepCPUEmulation ()
+{
+   pWorker->stepCPUEmulation();
+}
+
+void NESEmulatorThread::stepOverCPUEmulation ()
+{
+   pWorker->stepOverCPUEmulation();
+}
+
+void NESEmulatorThread::stepOutCPUEmulation ()
+{
+   pWorker->stepOutCPUEmulation();
+}
+
+void NESEmulatorThread::stepPPUEmulation ()
+{
+   pWorker->stepPPUEmulation();
+}
+
+void NESEmulatorThread::advanceFrame ()
+{
+   pWorker->advanceFrame();
+}
+
+void NESEmulatorThread::pauseEmulation (bool show)
+{
+   pWorker->pauseEmulation(show);
+}
+
+bool NESEmulatorThread::serialize(QDomDocument& doc, QDomNode& node)
+{
+   return pWorker->serialize(doc,node);
+}
+
+bool NESEmulatorThread::serializeContent(QFile& fileOut)
+{
+   return pWorker->serializeContent(fileOut);
+}
+
+bool NESEmulatorThread::deserialize(QDomDocument& doc, QDomNode& node, QString& errors)
+{
+   return pWorker->deserialize(doc,node,errors);
+}
+
+bool NESEmulatorThread::deserializeContent(QFile& fileIn)
+{
+   return pWorker->deserializeContent(fileIn);
+}
+
+NESEmulatorWorker::NESEmulatorWorker(QObject*)
+   : nesBreakpointSemaphore(NULL),
+     nesAudioSemaphore(NULL),
+     pTimer(NULL)
+{
+   m_joy [ CONTROLLER1 ] = 0;
+   m_joy [ CONTROLLER2 ] = 0;
+   m_isRunning = false;
+   m_isPaused = false;
+   m_showOnPause = false;
+   m_pauseAfterFrames = -1;
+   m_isStarting = false;
+   m_isTerminating = false;
+   m_isResetting = false;
+   m_debugFrame = 0;
+   m_pCartridge = NULL;
+
+   nesBreakpointSemaphore = new QSemaphore(0);
+   nesAudioSemaphore = new QSemaphore(0);
+
+   pTimer = new QTimer();
+   QObject::connect(pTimer,SIGNAL(timeout()),this,SLOT(process()));
+   pTimer->start(10);
+}
+
+NESEmulatorWorker::~NESEmulatorWorker()
+{
+   pTimer->stop();
+}
+
+void NESEmulatorWorker::adjustAudio(int32_t bufferDepth)
+{
+   nesClearAudioSamplesAvailable();
+}
+
+void NESEmulatorWorker::breakpointsChanged()
+{
+   // unused
+}
+
+void NESEmulatorWorker::primeEmulator()
 {
    if ( (nesicideProject) &&
         (nesicideProject->getCartridge()) )
@@ -175,7 +271,7 @@ void NESEmulatorThread::primeEmulator()
    }
 }
 
-void NESEmulatorThread::softResetEmulator()
+void NESEmulatorWorker::softResetEmulator()
 {
    // Force hard-reset of the machine...
    nesEnableBreakpoints(false);
@@ -192,10 +288,9 @@ void NESEmulatorThread::softResetEmulator()
    {
       nesBreakpointSemaphore->release();
    }
-   start();
 }
 
-void NESEmulatorThread::resetEmulator()
+void NESEmulatorWorker::resetEmulator()
 {
    // Force hard-reset of the machine...
    nesEnableBreakpoints(false);
@@ -212,10 +307,9 @@ void NESEmulatorThread::resetEmulator()
    {
       nesBreakpointSemaphore->release();
    }
-   start();
 }
 
-void NESEmulatorThread::startEmulation ()
+void NESEmulatorWorker::startEmulation ()
 {
    m_isStarting = true;
 
@@ -224,10 +318,9 @@ void NESEmulatorThread::startEmulation ()
    {
       nesBreakpointSemaphore->release();
    }
-   start();
 }
 
-void NESEmulatorThread::stepCPUEmulation ()
+void NESEmulatorWorker::stepCPUEmulation ()
 {
    uint32_t endAddr;
    uint32_t addr;
@@ -251,7 +344,6 @@ void NESEmulatorThread::stepCPUEmulation ()
       {
          nesBreakpointSemaphore->release();
       }
-      start();
    }
    else
    {
@@ -266,11 +358,10 @@ void NESEmulatorThread::stepCPUEmulation ()
       {
          nesBreakpointSemaphore->release();
       }
-      start();
    }
 }
 
-void NESEmulatorThread::stepOverCPUEmulation ()
+void NESEmulatorWorker::stepOverCPUEmulation ()
 {
    uint32_t endAddr;
    uint32_t addr;
@@ -330,7 +421,6 @@ void NESEmulatorThread::stepOverCPUEmulation ()
       {
          nesBreakpointSemaphore->release();
       }
-      start();
    }
    else
    {
@@ -338,7 +428,7 @@ void NESEmulatorThread::stepOverCPUEmulation ()
    }
 }
 
-void NESEmulatorThread::stepOutCPUEmulation ()
+void NESEmulatorWorker::stepOutCPUEmulation ()
 {
 //CPTODO: FINISH THIS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    m_isStarting = true;
@@ -349,10 +439,9 @@ void NESEmulatorThread::stepOutCPUEmulation ()
    {
       nesBreakpointSemaphore->release();
    }
-   start();
 }
 
-void NESEmulatorThread::stepPPUEmulation ()
+void NESEmulatorWorker::stepPPUEmulation ()
 {
    // If during the last run we were stopped at a breakpoint, clear it...
    // But ensure we come right back...
@@ -365,10 +454,9 @@ void NESEmulatorThread::stepPPUEmulation ()
    {
       nesBreakpointSemaphore->release();
    }
-   start();
 }
 
-void NESEmulatorThread::advanceFrame ()
+void NESEmulatorWorker::advanceFrame ()
 {
    // If during the last run we were stopped at a breakpoint, clear it...
    // But ensure we come right back...
@@ -381,30 +469,28 @@ void NESEmulatorThread::advanceFrame ()
    {
       nesBreakpointSemaphore->release();
    }
-   start();
 }
 
-void NESEmulatorThread::pauseEmulation (bool show)
+void NESEmulatorWorker::pauseEmulation (bool show)
 {
    m_isStarting = false;
    m_isRunning = false;
    m_isPaused = true;
    m_showOnPause = show;
-   start();
 }
 
-void NESEmulatorThread::loadCartridge()
+void NESEmulatorWorker::loadCartridge()
 {
    QFile saveState;
    QString errors;
    int32_t b;
    int32_t a;
 
-   // Clear emulator's cartridge ROMs...
-   nesUnloadROM();
-
    if ( m_pCartridge->getPrgRomBanks()->getPrgRomBanks().count() )
    {
+      // Prepare (frontload) cartridge...
+      nesFrontload(m_pCartridge->getMapperNumber());
+
       // Load cartridge PRG-ROM banks into emulator...
       for ( b = 0; b < m_pCartridge->getPrgRomBanks()->getPrgRomBanks().count(); b++ )
       {
@@ -431,7 +517,7 @@ void NESEmulatorThread::loadCartridge()
       }
 
       // Perform any necessary fixup from the ROM loading...
-      nesLoadROM();
+      nesFinalizeLoad();
 
       // Set up PPU with iNES header information...
       if ( m_pCartridge->getMirrorMode() == HorizontalMirroring )
@@ -448,7 +534,7 @@ void NESEmulatorThread::loadCartridge()
       }
 
       // Initialize NES...
-      nesResetInitial(m_pCartridge->getMapperNumber());
+      nesResetInitial();
 
       if ( !nesicideProject->getProjectCartridgeSaveStateName().isEmpty() )
       {
@@ -468,7 +554,7 @@ void NESEmulatorThread::loadCartridge()
    }
 }
 
-void NESEmulatorThread::run ()
+void NESEmulatorWorker::process ()
 {
    QWidget* emulatorWidget = CDockWidgetRegistry::getWidget("Emulator");
    int scaleX;
@@ -492,14 +578,14 @@ void NESEmulatorThread::run ()
       }
    }
 
-   while ( m_isStarting || m_isRunning || m_isResetting || m_isPaused )
+//   while ( m_isStarting || m_isRunning || m_isResetting || m_isPaused )
    {
       // Allow thread exit...
-      if ( m_isTerminating )
-      {
-         m_isTerminating = false;
-         break;
-      }
+//      if ( m_isTerminating )
+//      {
+//         m_isTerminating = false;
+//         break;
+//      }
 
       // Allow thread to keep going...
       if ( m_isStarting )
@@ -535,12 +621,11 @@ void NESEmulatorThread::run ()
             // This internally causes a NES reset.
             loadCartridge();
             m_pCartridge = NULL;
+
+            // Trigger inspector updates...
+            nesDisassemble();
+            emit updateDebuggers();
          }
-
-         // Trigger inspector updates...
-         nesDisassemble();
-         emit updateDebuggers();
-
          // Trigger UI updates...
          emit emulatorReset();
 
@@ -577,7 +662,7 @@ void NESEmulatorThread::run ()
          nesEnableBreakpoints(true);
 
          // Make sure breakpoint semaphore is on the precipice...
-         nesBreakpointSemaphore->tryAcquire();
+         nesBreakpointSemaphore->tryAcquire(1,1);
 
          // Run emulator for one frame...
          if ( emulatorWidget )
@@ -646,7 +731,7 @@ void NESEmulatorThread::run ()
    return;
 }
 
-bool NESEmulatorThread::serialize(QDomDocument& doc, QDomNode& node)
+bool NESEmulatorWorker::serialize(QDomDocument& doc, QDomNode& node)
 {
    QString cartMem;
    QString ppuMem;
@@ -773,7 +858,7 @@ bool NESEmulatorThread::serialize(QDomDocument& doc, QDomNode& node)
    return true;
 }
 
-bool NESEmulatorThread::serializeContent(QFile& fileOut)
+bool NESEmulatorWorker::serializeContent(QFile& fileOut)
 {
    QByteArray bytesToWrite;
    qint64     bytesWritten;
@@ -789,7 +874,7 @@ bool NESEmulatorThread::serializeContent(QFile& fileOut)
    return bytesWritten > 0;
 }
 
-bool NESEmulatorThread::deserialize(QDomDocument& doc, QDomNode& /*node*/, QString& /*errors*/)
+bool NESEmulatorWorker::deserialize(QDomDocument& doc, QDomNode& /*node*/, QString& /*errors*/)
 {
    // Loop through the child elements and process the ones we find
    QDomElement saveStateElement = doc.documentElement();
@@ -919,7 +1004,7 @@ bool NESEmulatorThread::deserialize(QDomDocument& doc, QDomNode& /*node*/, QStri
    return true;
 }
 
-bool NESEmulatorThread::deserializeContent(QFile& fileIn)
+bool NESEmulatorWorker::deserializeContent(QFile& fileIn)
 {
    QByteArray bytes;
    int idx;
@@ -951,3 +1036,4 @@ bool NESEmulatorThread::deserializeContent(QFile& fileIn)
       nesSetSRAMDataPhysical(idx,bytes.at(idx));
    }
 }
+

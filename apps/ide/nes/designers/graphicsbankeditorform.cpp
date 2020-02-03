@@ -24,7 +24,7 @@ GraphicsBankEditorForm::GraphicsBankEditorForm(QList<IChrRomBankItem*> bankItems
    QObject::connect(this,SIGNAL(tilify()),pThread,SLOT(tilify()));
    QObject::connect(pThread,SIGNAL(tilificationComplete(QByteArray)),this,SLOT(renderData(QByteArray)));
 
-   imgData = new char[256*256*4];
+   imgData = new int8_t[256*256*4];
 
    // Clear image...
    for ( i = 0; i < 256*256*4; i+=4 )

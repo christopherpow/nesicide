@@ -68,16 +68,16 @@ void CNESBreakpointInfo::ModifyBreakpoint ( BreakpointInfo* pBreakpoint, int typ
       switch ( pBreakpoint->target )
       {
          case eBreakInCPU:
-            pBreakpoint->pEvent = C6502::BREAKPOINTEVENTS()[event];
+            pBreakpoint->pEvent = nesGetCpuBreakpointEventDatabase()[event];
             break;
          case eBreakInPPU:
-            pBreakpoint->pEvent = CPPU::BREAKPOINTEVENTS()[event];
+            pBreakpoint->pEvent = nesGetPpuBreakpointEventDatabase()[event];
             break;
          case eBreakInAPU:
-            pBreakpoint->pEvent = CAPU::BREAKPOINTEVENTS()[event];
+            pBreakpoint->pEvent = nesGetApuBreakpointEventDatabase()[event];
             break;
          case eBreakInMapper:
-            pBreakpoint->pEvent = CROM::BREAKPOINTEVENTS()[event];
+            pBreakpoint->pEvent = nesGetCartridgeBreakpointEventDatabase()[event];
             break;
       }
    }
@@ -1237,7 +1237,7 @@ void CNESBreakpointInfo::GetPrintable ( int idx, char* msg )
 
          break;
       case eBreakOnCPUState:
-         pRegister = C6502::REGISTERS()->GetRegister(m_breakpoint[idx].item1);
+         pRegister = nesGetCpuRegisterDatabase()->GetRegister(m_breakpoint[idx].item1);
          pBitfield = pRegister->GetBitfield(m_breakpoint[idx].item2);
 
          switch ( m_breakpoint[idx].dataType )
@@ -1482,7 +1482,7 @@ void CNESBreakpointInfo::GetPrintable ( int idx, char* msg )
 
          break;
       case eBreakOnPPUState:
-         pRegister = CPPU::REGISTERS()->GetRegister(m_breakpoint[idx].item1);
+         pRegister = nesGetPpuRegisterDatabase()->GetRegister(m_breakpoint[idx].item1);
          pBitfield = pRegister->GetBitfield(m_breakpoint[idx].item2);
 
          switch ( m_breakpoint[idx].dataType )
@@ -1600,7 +1600,7 @@ void CNESBreakpointInfo::GetPrintable ( int idx, char* msg )
                    m_breakpoint[idx].item2 );
          break;
       case eBreakOnAPUState:
-         pRegister = CAPU::REGISTERS()->GetRegister(m_breakpoint[idx].item1);
+         pRegister = nesGetApuRegisterDatabase()->GetRegister(m_breakpoint[idx].item1);
          pBitfield = pRegister->GetBitfield(m_breakpoint[idx].item2);
 
          switch ( m_breakpoint[idx].dataType )
@@ -1719,9 +1719,9 @@ void CNESBreakpointInfo::GetPrintable ( int idx, char* msg )
          break;
       case eBreakOnMapperState:
 
-         if ( CROM::REGISTERS() )
+         if ( nesGetCartridgeRegisterDatabase() )
          {
-            pRegister = CROM::REGISTERS()->GetRegister(m_breakpoint[idx].item1);
+            pRegister = nesGetCartridgeRegisterDatabase()->GetRegister(m_breakpoint[idx].item1);
             pBitfield = pRegister->GetBitfield(m_breakpoint[idx].item2);
 
             switch ( m_breakpoint[idx].dataType )
@@ -1846,6 +1846,6 @@ void CNESBreakpointInfo::GetHitPrintable ( int idx, char* hmsg )
 {
    char*          msg = hmsg;
 
-   msg += sprintf ( msg, "[PPU(frame=%d,cycle=%d),CPU(cycle=%d),APU(cycle=%d)] BREAK: ", CPPU::_FRAME(), CPPU::_CYCLES(), C6502::_CYCLES(), CAPU::CYCLES() );
+   msg += sprintf ( msg, "[PPU(frame=%d,cycle=%d),CPU(cycle=%d),APU(cycle=%d)] BREAK: ", CNES::NES()->PPU()->_FRAME(), CNES::NES()->PPU()->_CYCLES(), CNES::NES()->CPU()->_CYCLES(), CNES::NES()->CPU()->APU()->CYCLES() );
    GetPrintable(idx,msg);
 }

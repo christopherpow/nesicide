@@ -19,17 +19,20 @@
 #include "cnes6502.h"
 #include "cnesppu.h"
 
-uint8_t CROMMapper028::m_reg_sel = 0x00;
-uint8_t CROMMapper028::m_chr_bank = 0x00;
-uint8_t CROMMapper028::m_prg_inner_bank = 0x00;
-uint8_t CROMMapper028::m_prg_size = 0x00;
-uint8_t CROMMapper028::m_prg_mode = 0x00;
-uint8_t CROMMapper028::m_mirror = 0x00;
-uint8_t CROMMapper028::m_prg_outer_bank = 0x00;
-uint8_t CROMMapper028::m_bank_size_mask[4] = { 0x1, 0x3, 0x7, 0xF };
-
 CROMMapper028::CROMMapper028()
+   : CROM(28)
 {
+   m_reg_sel = 0x00;
+   m_chr_bank = 0x00;
+   m_prg_inner_bank = 0x00;
+   m_prg_size = 0x00;
+   m_prg_mode = 0x00;
+   m_mirror = 0x00;
+   m_prg_outer_bank = 0x00;
+   m_bank_size_mask[0] = 0x1;
+   m_bank_size_mask[1] = 0x3;
+   m_bank_size_mask[2] = 0x7;
+   m_bank_size_mask[3] = 0xF;
 }
 
 CROMMapper028::~CROMMapper028()
@@ -38,11 +41,9 @@ CROMMapper028::~CROMMapper028()
 
 void CROMMapper028::RESET ( bool soft )
 {
-   m_mapper = 28;
-
    if ( !soft )
    {
-      CROM::RESET ( m_mapper, soft );
+      CROM::RESET ( soft );
 
       m_reg_sel = 0x00;
       m_chr_bank = 0x00;
@@ -52,20 +53,20 @@ void CROMMapper028::RESET ( bool soft )
       m_mirror = 0x00;
       m_prg_outer_bank = 0x00;
 
-      m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ m_numPrgBanks-4 ];
-      m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ m_numPrgBanks-3 ];
+      m_PRGROMmemory.REMAP(0,m_numPrgBanks-4);
+      m_PRGROMmemory.REMAP(1,m_numPrgBanks-3);
 
       // If the ROM contains only one 16KB PRG-ROM bank then it needs to be replicated
       // to the second PRG-ROM bank slot...
       if ( m_numPrgBanks == 2 )
       {
-         m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ m_numPrgBanks-4 ];
-         m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ m_numPrgBanks-3 ];
+         m_PRGROMmemory.REMAP(2,m_numPrgBanks-4);
+         m_PRGROMmemory.REMAP(3,m_numPrgBanks-3);
       }
       else
       {
-         m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ m_numPrgBanks-2 ];
-         m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ m_numPrgBanks-1 ];
+         m_PRGROMmemory.REMAP(2,m_numPrgBanks-2);
+         m_PRGROMmemory.REMAP(3,m_numPrgBanks-1);
       }
 
       // CHR ROM/RAM already set up in CROM::RESET()...
@@ -117,39 +118,39 @@ void CROMMapper028::SETCPU ( void )
    bank[0] <<= 1;
    bank[1] <<= 1;
 
-   m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ bank[0]+0 ];
-   m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ bank[0]+1 ];
-   m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ bank[1]+0 ];
-   m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ bank[1]+1 ];
+   m_PRGROMmemory.REMAP(0,bank[0]+0);
+   m_PRGROMmemory.REMAP(1,bank[0]+1);
+   m_PRGROMmemory.REMAP(2,bank[1]+0);
+   m_PRGROMmemory.REMAP(3,bank[1]+1);
 }
 
 void CROMMapper028::SETPPU ( void )
 {
    if ( m_mirror == 0 )
    {
-      CPPU::MIRROR(0,0,0,0);
+      CNES::NES()->PPU()->MIRROR(0,0,0,0);
    }
    else if ( m_mirror == 1 )
    {
-      CPPU::MIRROR(1,1,1,1);
+      CNES::NES()->PPU()->MIRROR(1,1,1,1);
    }
    else if ( m_mirror == 2 )
    {
-      CPPU::MIRRORVERT();
+      CNES::NES()->PPU()->MIRRORVERT();
    }
    else if ( m_mirror == 3 )
    {
-      CPPU::MIRRORHORIZ();
+      CNES::NES()->PPU()->MIRRORHORIZ();
    }
 
-   m_pCHRmemory [ 0 ] = m_CHRmemory [ ((m_chr_bank)<<3)+0 ];
-   m_pCHRmemory [ 1 ] = m_CHRmemory [ ((m_chr_bank)<<3)+1 ];
-   m_pCHRmemory [ 2 ] = m_CHRmemory [ ((m_chr_bank)<<3)+2 ];
-   m_pCHRmemory [ 3 ] = m_CHRmemory [ ((m_chr_bank)<<3)+3 ];
-   m_pCHRmemory [ 4 ] = m_CHRmemory [ ((m_chr_bank)<<3)+4 ];
-   m_pCHRmemory [ 5 ] = m_CHRmemory [ ((m_chr_bank)<<3)+5 ];
-   m_pCHRmemory [ 6 ] = m_CHRmemory [ ((m_chr_bank)<<3)+6 ];
-   m_pCHRmemory [ 7 ] = m_CHRmemory [ ((m_chr_bank)<<3)+7 ];
+   m_CHRmemory.REMAP(0,((m_chr_bank)<<3)+0);
+   m_CHRmemory.REMAP(0,((m_chr_bank)<<3)+1);
+   m_CHRmemory.REMAP(0,((m_chr_bank)<<3)+2);
+   m_CHRmemory.REMAP(0,((m_chr_bank)<<3)+3);
+   m_CHRmemory.REMAP(0,((m_chr_bank)<<3)+4);
+   m_CHRmemory.REMAP(0,((m_chr_bank)<<3)+5);
+   m_CHRmemory.REMAP(0,((m_chr_bank)<<3)+6);
+   m_CHRmemory.REMAP(0,((m_chr_bank)<<3)+7);
 }
 
 uint32_t CROMMapper028::DEBUGINFO ( uint32_t addr )

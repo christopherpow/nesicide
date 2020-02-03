@@ -14,6 +14,15 @@ NESEmulatorDockWidget::NESEmulatorDockWidget(QWidget *parent) :
 
    imgData = new char[256*256*4];
 
+   // Clear image to set alpha channel...
+   for ( i = 0; i < 256*256*4; i+=4 )
+   {
+      imgData[i] = 0;
+      imgData[i+1] = 0;
+      imgData[i+2] = 0;
+      imgData[i+3] = 0xFF;
+   }
+
    ui->setupUi(this);
 
    QObject* emulator = CObjectRegistry::getObject("Emulator");
@@ -29,21 +38,13 @@ NESEmulatorDockWidget::NESEmulatorDockWidget(QWidget *parent) :
    ui->frame->layout()->addWidget(renderer);
    ui->frame->layout()->update();
 
+   nesSetTVOut((int8_t*)imgData);
+
    QObject::connect(emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()));
    QObject::connect(this,SIGNAL(controllerInput(uint32_t*)),emulator,SLOT(controllerInput(uint32_t*)));
 
    m_joy [ CONTROLLER1 ] = 0;
    m_joy [ CONTROLLER2 ] = 0;
-
-   // Clear image to set alpha channel...
-   for ( i = 0; i < 256*256*4; i+=4 )
-   {
-      imgData[i] = 0;
-      imgData[i+1] = 0;
-      imgData[i+2] = 0;
-      imgData[i+3] = 0xFF;
-   }
-   nesSetTVOut((int8_t*)imgData);
 }
 
 NESEmulatorDockWidget::~NESEmulatorDockWidget()
@@ -406,5 +407,5 @@ void NESEmulatorDockWidget::keyReleaseEvent(QKeyEvent* event)
 
 void NESEmulatorDockWidget::renderData()
 {
-   renderer->updateGL();
+   renderer->update();
 }

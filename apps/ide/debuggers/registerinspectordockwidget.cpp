@@ -22,7 +22,8 @@ RegisterInspectorDockWidget::RegisterInspectorDockWidget(regDBFunc regDB,CBreakp
    ui->bitfieldView->setModel(bitfieldModel);
    ui->bitfieldView->setItemDelegate(bitfieldDelegate);
 
-   m_regDB = regDB;
+   m_regDBFunc = regDB;
+   m_regDB = regDB();
    m_register = 0;
    m_pBreakpoints = pBreakpoints;
 
@@ -117,13 +118,13 @@ void RegisterInspectorDockWidget::updateMemory ()
 
    ui->binaryView->resizeColumnsToContents();
 
-   if ( m_regDB() )
+   if ( m_regDB )
    {
-      sprintf ( buffer, "%04X: %s", m_regDB()->GetRegister(m_register)->GetAddr(), m_regDB()->GetRegister(m_register)->GetName() );
+      sprintf ( buffer, "%04X: %s", m_regDB->GetRegister(m_register)->GetAddr(), m_regDB->GetRegister(m_register)->GetName() );
       ui->label->setText ( buffer );
    }
 
-   if ( m_regDB == nesGetCartridgeRegisterDatabase )
+   if ( m_regDBFunc == nesGetCartridgeRegisterDatabase )
    {
       sprintf ( buffer, "Mapper %d: %s Register Inspector", nesGetMapper(), mapperNameFromID(nesGetMapper()) );
       setWindowTitle ( buffer );
@@ -193,9 +194,9 @@ void RegisterInspectorDockWidget::updateMemory ()
                   (pBreakpoint->type == eBreakOnCPUMemoryWrite) )
          {
             // Change register into row/column of display...
-            if ( m_regDB() )
+            if ( m_regDB )
             {
-               reg = m_regDB()->GetRegisterAt(pBreakpoint->itemActual);
+               reg = m_regDB->GetRegisterAt(pBreakpoint->itemActual);
                if ( reg >= 0 )
                {
                   row = reg/binaryModel->columnCount();
@@ -225,9 +226,9 @@ void RegisterInspectorDockWidget::binaryView_currentChanged(QModelIndex index, Q
     int cols = index.model()->columnCount();
     m_register = (index.row()*cols)+index.column();
 
-    if ( m_regDB() )
+    if ( m_regDB )
     {
-       sprintf ( buffer, "%04X: %s", m_regDB()->GetRegister(m_register)->GetAddr(), m_regDB()->GetRegister(m_register)->GetName() );
+       sprintf ( buffer, "%04X: %s", m_regDB->GetRegister(m_register)->GetAddr(), m_regDB->GetRegister(m_register)->GetName() );
        ui->label->setText ( buffer );
     }
 
@@ -241,9 +242,9 @@ void RegisterInspectorDockWidget::on_binaryView_clicked(QModelIndex index)
    int cols = index.model()->columnCount();
    m_register = (index.row()*cols)+index.column();
 
-   if ( m_regDB() )
+   if ( m_regDB )
    {
-      sprintf ( buffer, "%04X: %s", m_regDB()->GetRegister(m_register)->GetAddr(), m_regDB()->GetRegister(m_register)->GetName() );
+      sprintf ( buffer, "%04X: %s", m_regDB->GetRegister(m_register)->GetAddr(), m_regDB->GetRegister(m_register)->GetName() );
       ui->label->setText ( buffer );
    }
 
@@ -257,9 +258,9 @@ void RegisterInspectorDockWidget::on_binaryView_doubleClicked(QModelIndex index)
    int cols = index.model()->columnCount();
    m_register = (index.row()*cols)+index.column();
 
-   if ( m_regDB() )
+   if ( m_regDB )
    {
-      sprintf ( buffer, "%04X: %s", m_regDB()->GetRegister(m_register)->GetAddr(), m_regDB()->GetRegister(m_register)->GetName() );
+      sprintf ( buffer, "%04X: %s", m_regDB->GetRegister(m_register)->GetAddr(), m_regDB->GetRegister(m_register)->GetName() );
       ui->label->setText ( buffer );
    }
 
@@ -273,9 +274,9 @@ void RegisterInspectorDockWidget::on_binaryView_pressed(QModelIndex index)
    int cols = index.model()->columnCount();
    m_register = (index.row()*cols)+index.column();
 
-   if ( m_regDB() )
+   if ( m_regDB )
    {
-      sprintf ( buffer, "%04X: %s", m_regDB()->GetRegister(m_register)->GetAddr(), m_regDB()->GetRegister(m_register)->GetName() );
+      sprintf ( buffer, "%04X: %s", m_regDB->GetRegister(m_register)->GetAddr(), m_regDB->GetRegister(m_register)->GetName() );
       ui->label->setText ( buffer );
    }
 
@@ -289,9 +290,9 @@ void RegisterInspectorDockWidget::on_binaryView_activated(QModelIndex index)
    int cols = index.model()->columnCount();
    m_register = (index.row()*cols)+index.column();
 
-   if ( m_regDB() )
+   if ( m_regDB )
    {
-      sprintf ( buffer, "%04X: %s", m_regDB()->GetRegister(m_register)->GetAddr(), m_regDB()->GetRegister(m_register)->GetName() );
+      sprintf ( buffer, "%04X: %s", m_regDB->GetRegister(m_register)->GetAddr(), m_regDB->GetRegister(m_register)->GetName() );
       ui->label->setText ( buffer );
    }
 
@@ -305,9 +306,9 @@ void RegisterInspectorDockWidget::on_binaryView_entered(QModelIndex index)
    int cols = index.model()->columnCount();
    m_register = (index.row()*cols)+index.column();
 
-   if ( m_regDB() )
+   if ( m_regDB )
    {
-      sprintf ( buffer, "%04X: %s", m_regDB()->GetRegister(m_register)->GetAddr(), m_regDB()->GetRegister(m_register)->GetName() );
+      sprintf ( buffer, "%04X: %s", m_regDB->GetRegister(m_register)->GetAddr(), m_regDB->GetRegister(m_register)->GetName() );
       ui->label->setText ( buffer );
    }
 
@@ -317,12 +318,18 @@ void RegisterInspectorDockWidget::on_binaryView_entered(QModelIndex index)
 
 void RegisterInspectorDockWidget::on_bitfieldView_clicked(QModelIndex index)
 {
-   bitfieldDelegate->setBitfield ( m_regDB()->GetRegister(m_register)->GetBitfield(index.row()) );
-   binaryModel->update();
+   if ( m_regDB )
+   {
+      bitfieldDelegate->setBitfield ( m_regDB->GetRegister(m_register)->GetBitfield(index.row()) );
+      binaryModel->update();
+   }
 }
 
 void RegisterInspectorDockWidget::on_bitfieldView_doubleClicked(QModelIndex index)
 {
-   bitfieldDelegate->setBitfield ( m_regDB()->GetRegister(m_register)->GetBitfield(index.row()) );
-   binaryModel->update();
+   if ( m_regDB )
+   {
+      bitfieldDelegate->setBitfield ( m_regDB->GetRegister(m_register)->GetBitfield(index.row()) );
+      binaryModel->update();
+   }
 }

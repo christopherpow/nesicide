@@ -14,11 +14,11 @@ class PanZoomRenderer : public QWidget
 {
     Q_OBJECT
 public:
-   PanZoomRenderer(int sizeX,int sizeY,int maxZoom,char* imageData,bool showPalette,QWidget *parent = 0);
-   PanZoomRenderer(int sizeX,int sizeY,int textureSizeXY,int maxZoom,char* imageData,bool showPalette,QWidget *parent = 0);
+   PanZoomRenderer(int sizeX,int sizeY,int maxZoom,int8_t* imageData,bool showPalette,QWidget *parent = 0);
+   PanZoomRenderer(int sizeX,int sizeY,int textureSizeXY,int maxZoom,int8_t* imageData,bool showPalette,QWidget *parent = 0);
    void commonConstructor(bool showPalette);
    virtual ~PanZoomRenderer();
-   void reloadData(char* imageData) { renderer->reloadData(imageData); }
+   void reloadData(int8_t* imageData) { renderer->reloadData(imageData); }
    QColor getColor(int idx);
    void showPalette(bool show);
    bool pointToPixel(int ptx,int pty,int* pixx,int* pixy) { return renderer->pointToPixel(ptx,pty,pixx,pixy); }

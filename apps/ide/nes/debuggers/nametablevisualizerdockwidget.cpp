@@ -11,28 +11,17 @@ NameTableVisualizerDockWidget::NameTableVisualizerDockWidget(QWidget *parent) :
     CDebuggerBase(parent),
     ui(new Ui::NameTableVisualizerDockWidget)
 {
-   int i;
-
    ui->setupUi(this);
-   imgData = new char[512*512*4];
 
-   // Clear image...
-   for ( i = 0; i < 512*512*4; i+=4 )
-   {
-      imgData[i] = 0;
-      imgData[i+1] = 0;
-      imgData[i+2] = 0;
-      imgData[i+3] = 0xFF;
-   }
-   CPPUDBG::NameTableInspectorTV((int8_t*)imgData);
+   RENDERNAMETABLE();
 
-   renderer = new PanZoomRenderer(512,480,2000,imgData,false,ui->frame);
+   renderer = new PanZoomRenderer(512,480,2000,NAMETABLETV(),false,ui->frame);
    ui->frame->layout()->addWidget(renderer);
    ui->frame->layout()->update();
 
    ui->showVisible->setChecked ( true );
 
-   pThread = new DebuggerUpdateThread(&CPPUDBG::RENDERNAMETABLE);
+   pThread = new DebuggerUpdateThread(&RENDERNAMETABLE);
    QObject::connect(pThread,SIGNAL(updateComplete()),this,SLOT(renderData()));
 }
 
@@ -40,7 +29,6 @@ NameTableVisualizerDockWidget::~NameTableVisualizerDockWidget()
 {
    delete pThread;
    delete ui;
-   delete imgData;
    delete renderer;
 }
 
@@ -87,10 +75,10 @@ void NameTableVisualizerDockWidget::changeEvent(QEvent* e)
 
 void NameTableVisualizerDockWidget::renderData()
 {
-   renderer->reloadData(imgData);
+   renderer->reloadData(NAMETABLETV());
 }
 
 void NameTableVisualizerDockWidget::on_showVisible_toggled(bool checked)
 {
-   CPPUDBG::SetPPUViewerShowVisible ( checked );
+   SetPPUViewerShowVisible ( checked );
 }

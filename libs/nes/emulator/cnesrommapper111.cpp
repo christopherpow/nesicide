@@ -45,10 +45,11 @@ static const char* columnHeadings [] =
 
 static CRegisterDatabase* dbRegisters = new CRegisterDatabase(eMemory_cartMapper,1,1,1,tblRegisters,rowHeadings,columnHeadings);
 
-uint8_t  CROMMapper111::m_reg = 0x00;
 
 CROMMapper111::CROMMapper111()
+   : CROM(111)
 {
+   m_reg = 0x00;
 }
 
 CROMMapper111::~CROMMapper111()
@@ -57,16 +58,9 @@ CROMMapper111::~CROMMapper111()
 
 void CROMMapper111::RESET ( bool soft )
 {
-   m_mapper = 111;
+   m_dbCartRegisters = dbRegisters;
 
-   m_dbRegisters = dbRegisters;
-
-   CROM::RESET ( m_mapper, soft );
-
-   m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 0 ];
-   m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ 1 ];
-   m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ 2 ];
-   m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ 3 ];
+   CROM::RESET ( soft );
 
    // CHR ROM/RAM already set up in CROM::RESET()...
 }
@@ -84,36 +78,36 @@ void CROMMapper111::LMAPPER ( uint32_t addr, uint8_t data )
 
    bank = (m_reg&0x0f)<<2;
 
-   m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ bank ];
-   m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ bank+1 ];
-   m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ bank+2 ];
-   m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ bank+3 ];
+   m_PRGROMmemory.REMAP(0,bank+0);
+   m_PRGROMmemory.REMAP(1,bank+1);
+   m_PRGROMmemory.REMAP(2,bank+2);
+   m_PRGROMmemory.REMAP(3,bank+3);
 
    bank = (m_reg&0x10)>>1;
 
-   m_pCHRmemory [ 0 ] = m_CHRmemory [ bank+0 ];
-   m_pCHRmemory [ 1 ] = m_CHRmemory [ bank+1 ];
-   m_pCHRmemory [ 2 ] = m_CHRmemory [ bank+2 ];
-   m_pCHRmemory [ 3 ] = m_CHRmemory [ bank+3 ];
-   m_pCHRmemory [ 4 ] = m_CHRmemory [ bank+4 ];
-   m_pCHRmemory [ 5 ] = m_CHRmemory [ bank+5 ];
-   m_pCHRmemory [ 6 ] = m_CHRmemory [ bank+6 ];
-   m_pCHRmemory [ 7 ] = m_CHRmemory [ bank+7 ];
+   m_CHRmemory.REMAP(0,bank+0);
+   m_CHRmemory.REMAP(1,bank+1);
+   m_CHRmemory.REMAP(2,bank+2);
+   m_CHRmemory.REMAP(3,bank+3);
+   m_CHRmemory.REMAP(4,bank+4);
+   m_CHRmemory.REMAP(5,bank+5);
+   m_CHRmemory.REMAP(6,bank+6);
+   m_CHRmemory.REMAP(7,bank+7);
 
    bank = (m_reg&0x20)>>2;
 
-   m_pVRAMmemory [ 0 ] = m_VRAMmemory+((bank+0)*MEM_1KB);
-   m_pVRAMmemory [ 1 ] = m_VRAMmemory+((bank+1)*MEM_1KB);
-   m_pVRAMmemory [ 2 ] = m_VRAMmemory+((bank+2)*MEM_1KB);
-   m_pVRAMmemory [ 3 ] = m_VRAMmemory+((bank+3)*MEM_1KB);
-   m_pVRAMmemory [ 4 ] = m_VRAMmemory+((bank+4)*MEM_1KB);
-   m_pVRAMmemory [ 5 ] = m_VRAMmemory+((bank+5)*MEM_1KB);
-   m_pVRAMmemory [ 6 ] = m_VRAMmemory+((bank+6)*MEM_1KB);
-   m_pVRAMmemory [ 7 ] = m_VRAMmemory+((bank+7)*MEM_1KB);
+   m_VRAMmemory.REMAP(0,bank+0);
+   m_VRAMmemory.REMAP(1,bank+1);
+   m_VRAMmemory.REMAP(2,bank+2);
+   m_VRAMmemory.REMAP(3,bank+3);
+   m_VRAMmemory.REMAP(4,bank+4);
+   m_VRAMmemory.REMAP(5,bank+5);
+   m_VRAMmemory.REMAP(6,bank+6);
+   m_VRAMmemory.REMAP(7,bank+7);
 
    if ( nesIsDebuggable() )
    {
       // Check mapper state breakpoints...
-      CNES::CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperState,0);
+      CNES::NES()->CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperState,0);
    }
 }

@@ -5,6 +5,7 @@
 #include <QMenu>
 #include <QAction>
 #include <QPixmap>
+#include <QStringList>
 
 #include "Qsci/qsciscintillabase.h"
 
@@ -70,7 +71,7 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    m_scintilla->setAutoCompletionThreshold(2);
    m_scintilla->setAutoCompletionCaseSensitivity(false);
    m_scintilla->setAutoCompletionReplaceWord(false);
-   m_scintilla->setAutoCompletionUseSingle(QsciScintilla::AcusAlways);
+   m_scintilla->setAutoCompletionUseSingle(QsciScintilla::AcusNever);
 
    m_scintilla->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
    m_scintilla->setMarginWidth(4,0);
@@ -1357,7 +1358,7 @@ void CodeEditorForm::applyEnvironmentSettingsToTab()
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    int op;
-   
+
    if ( EnvironmentSettingsDialog::foldSource() )
    {
       m_scintilla->setMarginType(Margin_Folding,QsciScintilla::SymbolMargin);
@@ -1369,6 +1370,8 @@ void CodeEditorForm::applyEnvironmentSettingsToTab()
       m_scintilla->setMarginWidth(Margin_Folding,0);
       m_scintilla->setFolding(QsciScintilla::NoFoldStyle,Margin_Folding);
    }
+
+   m_scintilla->setUtf8(EnvironmentSettingsDialog::textEncodingIsUtf8());
 
    m_scintilla->setEolMode((QsciScintilla::EolMode)EnvironmentSettingsDialog::eolMode());
 
@@ -1385,53 +1388,58 @@ void CodeEditorForm::applyEnvironmentSettingsToTab()
       m_scintilla->setMarkerBackgroundColor(m_lexer->defaultPaper(),Marker_Highlight);
    }
 
-   m_language = Language_Default;
-   m_scintilla->setLexer();
-   if ( m_lexer )
+   if ( m_lexer == NULL )
    {
-      delete m_lexer;
-   }
+      m_language = Language_Default;
+      m_scintilla->setLexer();
 
-   foreach ( QString ext, EnvironmentSettingsDialog::highlightAsC().split(" ") )
-   {
-      if ( m_fileName.endsWith(ext,Qt::CaseInsensitive) )
-      {
-         m_language = Language_C;
-      }
-   }
-   if ( m_language == Language_Default )
-   {
-      foreach ( QString ext, EnvironmentSettingsDialog::highlightAsASM().split(" ") )
+      foreach ( QString ext, EnvironmentSettingsDialog::highlightAsC().split(" ") )
       {
          if ( m_fileName.endsWith(ext,Qt::CaseInsensitive) )
          {
-            m_language = Language_Assembly;
+            m_language = Language_C;
          }
       }
-   }
-
-   if ( m_language == Language_C )
-   {
-      m_lexer = new QsciLexerCC65(m_scintilla);
-   }
-   else if ( m_language == Language_Assembly )
-   {
-      m_lexer = new QsciLexerCA65(m_scintilla);
-
-      if ( m_apis )
-         delete m_apis;
-      m_apis = new QsciAPIsCA65(m_lexer);
-      for ( op = 0; op < 256; op++ )
+      if ( m_language == Language_Default )
       {
-         QString opcodeTooltipText = OPCODEINFO(op);
-         opcodeTooltipText = opcodeTooltipText.split(":")[0];
-         m_apis->add(opcodeTooltipText);
+         foreach ( QString ext, EnvironmentSettingsDialog::highlightAsASM().split(" ") )
+         {
+            if ( m_fileName.endsWith(ext,Qt::CaseInsensitive) )
+            {
+               m_language = Language_Assembly;
+            }
+         }
       }
-      m_apis->prepare();
-   }
-   else
-   {
-      m_lexer = new QsciLexerDefault(m_scintilla);
+
+      if ( m_language == Language_C )
+      {
+         m_lexer = new QsciLexerCC65(m_scintilla);
+      }
+      else if ( m_language == Language_Assembly )
+      {
+         m_lexer = new QsciLexerCA65(m_scintilla);
+         m_apis = new QsciAPIsCA65(m_lexer);
+
+         QStringList opcodes;
+         for ( op = 0; op < 256; op++ )
+         {
+            QString opcodeTooltipText = OPCODEINFO(op);
+            opcodeTooltipText = opcodeTooltipText.split(":")[0];
+            if ( !(opcodeTooltipText.isEmpty() || opcodes.contains(opcodeTooltipText)) )
+            {
+               opcodes += opcodeTooltipText;
+            }
+         }
+         foreach ( QString opcode, opcodes )
+         {
+            m_apis->add(opcode);
+         }
+         m_apis->prepare();
+      }
+      else
+      {
+         m_lexer = new QsciLexerDefault(m_scintilla);
+      }
    }
    m_scintilla->setLexer(m_lexer);
 

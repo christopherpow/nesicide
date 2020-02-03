@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>802</width>
-    <height>535</height>
+    <width>801</width>
+    <height>527</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -221,31 +221,14 @@
            <string>General</string>
           </attribute>
           <layout class="QGridLayout" name="gridLayout_20">
-           <item row="0" column="0">
-            <widget class="QGroupBox" name="groupBox_7">
-             <property name="title">
-              <string>Tips</string>
-             </property>
-             <layout class="QGridLayout" name="gridLayout_11">
-              <item row="0" column="0">
-               <widget class="QCheckBox" name="showSymbolTips">
-                <property name="text">
-                 <string>Symbols</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1">
-               <widget class="QCheckBox" name="showOpcodeTips">
-                <property name="text">
-                 <string>Opcodes</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
            <item row="1" column="0">
             <widget class="QGroupBox" name="groupBox_10">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
              <property name="title">
               <string>Mixed-mode debug annotations (C/assembly)</string>
              </property>
@@ -260,7 +243,61 @@
              </layout>
             </widget>
            </item>
-           <item row="2" column="0">
+           <item row="0" column="1">
+            <widget class="QGroupBox" name="groupBox_14">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="title">
+              <string>Folding</string>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_19">
+              <item row="0" column="0">
+               <widget class="QCheckBox" name="fold">
+                <property name="text">
+                 <string>Enabled</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QGroupBox" name="groupBox_15">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="title">
+              <string>Encoding</string>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_21">
+              <property name="sizeConstraint">
+               <enum>QLayout::SetDefaultConstraint</enum>
+              </property>
+              <item row="0" column="0">
+               <widget class="QComboBox" name="textEncoding">
+                <item>
+                 <property name="text">
+                  <string>Latin-1</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>UTF-8</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="2" column="0" colspan="2">
             <widget class="QGroupBox" name="groupBox_13">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -320,16 +357,29 @@
              </layout>
             </widget>
            </item>
-           <item row="3" column="0">
-            <widget class="QGroupBox" name="groupBox_14">
-             <property name="title">
-              <string>Folding</string>
+           <item row="0" column="0">
+            <widget class="QGroupBox" name="groupBox_7">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
              </property>
-             <layout class="QGridLayout" name="gridLayout_19">
-              <item row="0" column="0">
-               <widget class="QCheckBox" name="fold">
+             <property name="title">
+              <string>Tips</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout">
+              <item>
+               <widget class="QCheckBox" name="showOpcodeTips">
                 <property name="text">
-                 <string>Enabled</string>
+                 <string>Opcodes</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="showSymbolTips">
+                <property name="text">
+                 <string>Symbols</string>
                 </property>
                </widget>
               </item>
@@ -1057,6 +1107,7 @@
   </layout>
  </widget>
  <resources>
+  <include location="../../common/resource.qrc"/>
   <include location="../../common/resource.qrc"/>
   <include location="../../common/resource.qrc"/>
  </resources>

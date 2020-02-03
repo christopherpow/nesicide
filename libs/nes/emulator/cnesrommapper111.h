@@ -5,16 +5,18 @@
 
 class CROMMapper111 : public CROM
 {
-public:
+private:
    CROMMapper111();
+public:
+   static inline CROMMapper111* CARTFACTORY() { return new CROMMapper111(); }
    ~CROMMapper111();
 
-   static void RESET ( bool soft );
-   static void LMAPPER ( uint32_t addr, uint8_t data );
-   static uint32_t DEBUGINFO ( uint32_t addr );
+   void RESET ( bool soft );
+   void LMAPPER ( uint32_t addr, uint8_t data );
+   uint32_t DEBUGINFO ( uint32_t addr );
 
 protected:
-   static uint8_t  m_reg;
+   uint8_t  m_reg;
 };
 
 #endif

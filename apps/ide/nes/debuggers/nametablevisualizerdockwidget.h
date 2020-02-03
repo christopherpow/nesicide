@@ -33,7 +33,6 @@ private slots:
 
 private:
    Ui::NameTableVisualizerDockWidget *ui;
-   char* imgData;
    PanZoomRenderer* renderer;
    DebuggerUpdateThread* pThread;
    QPoint pressPos;

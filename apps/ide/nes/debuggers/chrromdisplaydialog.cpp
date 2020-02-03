@@ -12,54 +12,55 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(bool usePPU,qint8* data,IProjectTreeVie
    CDesignerEditorBase(link,parent),
    ui(new Ui::CHRROMDisplayDialog)
 {
-   int i;
-
    ui->setupUi(this);
 
    info = new QLabel(this);
 
-   imgData = new char[256*256*4];
-
-   // Clear image...
-   for ( i = 0; i < 256*256*4; i+=4 )
-   {
-      imgData[i] = 0;
-      imgData[i+1] = 0;
-      imgData[i+2] = 0;
-      imgData[i+3] = 0xFF;
-   }
-
    m_usePPU = usePPU;
 
-   renderer = new PanZoomRenderer(256,128,2000,imgData,true,ui->frame);
-   ui->frame->layout()->addWidget(renderer);
-   ui->frame->layout()->update();
-   setCentralWidget(ui->window);
+   imgData = new int8_t[256*128*4];
+   memset(imgData,0,sizeof(imgData));
 
-   QObject::connect(renderer,SIGNAL(repaintNeeded()),this,SLOT(repaintNeeded()));
+   int i;
+   for ( i = 3; i < (256*128*4); i += 4 )
+   {
+      imgData[i] = 0xff;
+   }
 
    if ( m_usePPU )
    {
-      CPPUDBG::CHRMEMInspectorTV ( (int8_t*)imgData );
-      CPPUDBG::SetCHRMEMInspectorColor(0,renderer->getColor(0));
-      CPPUDBG::SetCHRMEMInspectorColor(1,renderer->getColor(1));
-      CPPUDBG::SetCHRMEMInspectorColor(2,renderer->getColor(2));
-      CPPUDBG::SetCHRMEMInspectorColor(3,renderer->getColor(3));
+      setCentralWidget(ui->window);
+      RENDERCHRMEM();
 
-      pThread = new DebuggerUpdateThread(&CPPUDBG::RENDERCHRMEM);
+      renderer = new PanZoomRenderer(256,128,2000,CHRMEMTV(),true,ui->frame);
+
+      SetCHRMEMInspectorColor(0,renderer->getColor(0));
+      SetCHRMEMInspectorColor(1,renderer->getColor(1));
+      SetCHRMEMInspectorColor(2,renderer->getColor(2));
+      SetCHRMEMInspectorColor(3,renderer->getColor(3));
+
+      pThread = new DebuggerUpdateThread(&RENDERCHRMEM);
       QObject::connect(pThread,SIGNAL(updateComplete()),this,SLOT(renderData()));
    }
    else
    {
+      // show CHR-ROM bank data...
+      setCentralWidget(ui->windowEx);
+      memcpy(chrrom,data,MEM_8KB);
+
+      renderer = new PanZoomRenderer(256,128,2000,imgData,true,ui->frame);
+      renderData();
+
       // No thread necessary.
       pThread = NULL;
-
-      // show CHR-ROM bank data...
-      memcpy(chrrom,data,MEM_8KB);
-      renderData();
    }
 
+   ui->frame->layout()->addWidget(renderer);
+   ui->frame->layout()->update();
+
    renderer->installEventFilter(this);
+
+   QObject::connect(renderer,SIGNAL(repaintNeeded()),this,SLOT(repaintNeeded()));
 
    ui->updateScanline->setText ( "0" );
 }
@@ -74,8 +75,11 @@ CHRROMDisplayDialog::~CHRROMDisplayDialog()
    {
       delete pThread;
    }
+   else
+   {
+      delete imgData;
+   }
    delete ui;
-   delete imgData;
    delete renderer;
 }
 
@@ -228,10 +232,10 @@ void CHRROMDisplayDialog::repaintNeeded()
 {
    if ( m_usePPU )
    {
-      CPPUDBG::SetCHRMEMInspectorColor(0,renderer->getColor(0));
-      CPPUDBG::SetCHRMEMInspectorColor(1,renderer->getColor(1));
-      CPPUDBG::SetCHRMEMInspectorColor(2,renderer->getColor(2));
-      CPPUDBG::SetCHRMEMInspectorColor(3,renderer->getColor(3));
+      SetCHRMEMInspectorColor(0,renderer->getColor(0));
+      SetCHRMEMInspectorColor(1,renderer->getColor(1));
+      SetCHRMEMInspectorColor(2,renderer->getColor(2));
+      SetCHRMEMInspectorColor(3,renderer->getColor(3));
 
       pThread->updateDebuggers();
    }
@@ -252,7 +256,7 @@ void CHRROMDisplayDialog::renderData()
 
    if ( m_usePPU )
    {
-      renderer->reloadData(imgData);
+      renderer->reloadData(CHRMEMTV());
    }
    else
    {
@@ -266,7 +270,6 @@ void CHRROMDisplayDialog::renderData()
          for (int x = 0; x < 256; x += 8)
          {
             ppuAddr = ((y>>3)<<8)+((x%128)<<1)+(y&0x7);
-
             if ( x >= 128 )
             {
                ppuAddr += 0x1000;
@@ -292,7 +295,7 @@ void CHRROMDisplayDialog::renderData()
 
 void CHRROMDisplayDialog::on_updateScanline_editingFinished()
 {
-   CPPUDBG::SetPPUViewerScanline ( ui->updateScanline->text().toInt() );
+   SetPPUViewerScanline ( ui->updateScanline->text().toInt() );
 }
 
 void CHRROMDisplayDialog::on_exportPushButton_clicked()

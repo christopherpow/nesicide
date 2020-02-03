@@ -135,16 +135,16 @@ static const char* columnHeadings [] =
 
 static CRegisterDatabase* dbRegisters = new CRegisterDatabase(eMemory_cartMapper,2,24,48,tblRegisters,rowHeadings,columnHeadings);
 
-uint8_t  CROMMapper025::m_reg [] = { 0x00, };
-uint8_t  CROMMapper025::m_chr [] = { 0, };
-uint8_t  CROMMapper025::m_irqReload = 0;
-uint8_t  CROMMapper025::m_irqCounter = 0;
-uint8_t  CROMMapper025::m_irqPrescaler = 0;
-uint8_t  CROMMapper025::m_irqPrescalerPhase = 0;
-bool     CROMMapper025::m_irqEnabled = false;
-
 CROMMapper025::CROMMapper025()
+   : CROM(25)
 {
+   memset(m_reg,0,sizeof(m_reg));
+   memset(m_chr,0,sizeof(m_chr));
+   m_irqReload = 0;
+   m_irqCounter = 0;
+   m_irqPrescaler = 0;
+   m_irqPrescalerPhase = 0;
+   m_irqEnabled = false;
 }
 
 CROMMapper025::~CROMMapper025()
@@ -155,9 +155,9 @@ void CROMMapper025::RESET ( bool soft )
 {
    m_mapper = 25;
 
-   m_dbRegisters = dbRegisters;
+   m_dbCartRegisters = dbRegisters;
 
-   CROM::RESET ( m_mapper, soft );
+   CROM::RESET ( soft );
 
    m_irqReload = 0;
    m_irqCounter = 0;
@@ -165,10 +165,8 @@ void CROMMapper025::RESET ( bool soft )
    m_irqPrescalerPhase = 0;
    m_irqEnabled = false;
 
-   m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 0 ];
-   m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ 1 ];
-   m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ m_numPrgBanks-2 ];
-   m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ m_numPrgBanks-1 ];
+   m_PRGROMmemory.REMAP(2,m_numPrgBanks-2);
+   m_PRGROMmemory.REMAP(3,m_numPrgBanks-1);
 
    // CHR ROM/RAM already set up in CROM::RESET()...
 }
@@ -185,12 +183,12 @@ void CROMMapper025::SYNCCPU ( void )
          if ( m_irqCounter == 0xFF )
          {
             m_irqCounter = m_irqReload;
-            C6502::ASSERTIRQ(eNESSource_Mapper);
+            CNES::NES()->CPU()->ASSERTIRQ(eNESSource_Mapper);
 
             if ( nesIsDebuggable() )
             {
                // Check for IRQ breakpoint...
-               CNES::CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperEvent,0,MAPPER_EVENT_IRQ);
+               CNES::NES()->CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperEvent,0,MAPPER_EVENT_IRQ);
             }
          }
          else
@@ -211,12 +209,12 @@ void CROMMapper025::SYNCCPU ( void )
             if ( m_irqCounter == 0xFF )
             {
                m_irqCounter = m_irqReload;
-               C6502::ASSERTIRQ(eNESSource_Mapper);
+               CNES::NES()->CPU()->ASSERTIRQ(eNESSource_Mapper);
 
                if ( nesIsDebuggable() )
                {
                   // Check for IRQ breakpoint...
-                  CNES::CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperEvent,0,MAPPER_EVENT_IRQ);
+                  CNES::NES()->CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperEvent,0,MAPPER_EVENT_IRQ);
                }
             }
             else
@@ -357,13 +355,13 @@ void CROMMapper025::HMAPPER ( uint32_t addr, uint8_t data )
       m_reg[0] = data;
       if ( m_reg[2]&0x02 )
       {
-         m_pPRGROMmemory[0] = m_PRGROMmemory[m_numPrgBanks-2];
-         m_pPRGROMmemory[2] = m_PRGROMmemory[data%m_numPrgBanks];
+         m_PRGROMmemory.REMAP(0,m_numPrgBanks-2);
+         m_PRGROMmemory.REMAP(2,data&(m_numPrgBanks-1));
       }
       else
       {
-         m_pPRGROMmemory[0] = m_PRGROMmemory[data%m_numPrgBanks];
-         m_pPRGROMmemory[2] = m_PRGROMmemory[m_numPrgBanks-2];
+         m_PRGROMmemory.REMAP(2,m_numPrgBanks-2);
+         m_PRGROMmemory.REMAP(0,data&(m_numPrgBanks-1));
       }
       break;
    case 0x9000:
@@ -374,16 +372,16 @@ void CROMMapper025::HMAPPER ( uint32_t addr, uint8_t data )
       switch ( data&0x03 )
       {
       case 0:
-         CPPU::MIRRORVERT();
+         CNES::NES()->PPU()->MIRRORVERT();
          break;
       case 1:
-         CPPU::MIRRORHORIZ();
+         CNES::NES()->PPU()->MIRRORHORIZ();
          break;
       case 2:
-         CPPU::MIRROR(0,0,0,0);
+         CNES::NES()->PPU()->MIRROR(0,0,0,0);
          break;
       case 3:
-         CPPU::MIRROR(1,1,1,1);
+         CNES::NES()->PPU()->MIRROR(1,1,1,1);
          break;
       }
       break;
@@ -395,11 +393,11 @@ void CROMMapper025::HMAPPER ( uint32_t addr, uint8_t data )
       m_reg[2] = data;
       if ( m_reg[2]&0x02 )
       {
-         m_pPRGROMmemory[0] = m_PRGROMmemory[m_numPrgBanks-2];
+         m_PRGROMmemory.REMAP(0,m_numPrgBanks-2);
       }
       else
       {
-         m_pPRGROMmemory[2] = m_PRGROMmemory[m_numPrgBanks-2];
+         m_PRGROMmemory.REMAP(2,m_numPrgBanks-2);
       }
       break;
    case 0xA000:
@@ -411,14 +409,14 @@ void CROMMapper025::HMAPPER ( uint32_t addr, uint8_t data )
    case 0xA00C:
       reg = 3;
       m_reg[3] = data;
-      m_pPRGROMmemory[1] = m_PRGROMmemory[data%m_numPrgBanks];
+      m_PRGROMmemory.REMAP(1,data&(m_numPrgBanks-1));
       break;
    case 0xB000:
       reg = 4;
       m_reg[4] = data;
       m_chr[0] &= 0xF0;
       m_chr[0] |= (data&0x0F);
-      m_pCHRmemory[0] = m_CHRmemory[m_chr[0]];
+      m_CHRmemory.REMAP(0,m_chr[0]);
       break;
    case 0xB001:
    case 0xB004:
@@ -426,7 +424,7 @@ void CROMMapper025::HMAPPER ( uint32_t addr, uint8_t data )
       m_reg[5] = data;
       m_chr[1] &= 0xF0;
       m_chr[1] |= (data&0x0F);
-      m_pCHRmemory[1] = m_CHRmemory[m_chr[1]];
+      m_CHRmemory.REMAP(1,m_chr[1]);
       break;
    case 0xB002:
    case 0xB008:
@@ -434,7 +432,7 @@ void CROMMapper025::HMAPPER ( uint32_t addr, uint8_t data )
       m_reg[6] = data;
       m_chr[0] &= 0x0F;
       m_chr[0] |= (data<<4);
-      m_pCHRmemory[0] = m_CHRmemory[m_chr[0]];
+      m_CHRmemory.REMAP(0,m_chr[0]);
       break;
    case 0xB003:
    case 0xB00C:
@@ -442,14 +440,14 @@ void CROMMapper025::HMAPPER ( uint32_t addr, uint8_t data )
       m_reg[7] = data;
       m_chr[1] &= 0x0F;
       m_chr[1] |= (data<<4);
-      m_pCHRmemory[1] = m_CHRmemory[m_chr[1]];
+      m_CHRmemory.REMAP(1,m_chr[1]);
       break;
    case 0xC000:
       reg = 8;
       m_reg[8] = data;
       m_chr[2] &= 0xF0;
       m_chr[2] |= (data&0x0F);
-      m_pCHRmemory[2] = m_CHRmemory[m_chr[2]];
+      m_CHRmemory.REMAP(2,m_chr[2]);
       break;
    case 0xC001:
    case 0xC004:
@@ -457,7 +455,7 @@ void CROMMapper025::HMAPPER ( uint32_t addr, uint8_t data )
       m_reg[9] = data;
       m_chr[3] &= 0xF0;
       m_chr[3] |= (data&0x0F);
-      m_pCHRmemory[3] = m_CHRmemory[m_chr[3]];
+      m_CHRmemory.REMAP(3,m_chr[3]);
       break;
    case 0xC002:
    case 0xC008:
@@ -465,7 +463,7 @@ void CROMMapper025::HMAPPER ( uint32_t addr, uint8_t data )
       m_reg[10] = data;
       m_chr[2] &= 0x0F;
       m_chr[2] |= (data<<4);
-      m_pCHRmemory[2] = m_CHRmemory[m_chr[2]];
+      m_CHRmemory.REMAP(2,m_chr[2]);
       break;
    case 0xC003:
    case 0xC00C:
@@ -473,14 +471,14 @@ void CROMMapper025::HMAPPER ( uint32_t addr, uint8_t data )
       m_reg[11] = data;
       m_chr[3] &= 0x0F;
       m_chr[3] |= (data<<4);
-      m_pCHRmemory[3] = m_CHRmemory[m_chr[3]];
+      m_CHRmemory.REMAP(3,m_chr[3]);
       break;
    case 0xD000:
       reg = 12;
       m_reg[12] = data;
       m_chr[4] &= 0xF0;
       m_chr[4] |= (data&0x0F);
-      m_pCHRmemory[4] = m_CHRmemory[m_chr[4]];
+      m_CHRmemory.REMAP(4,m_chr[4]);
       break;
    case 0xD001:
    case 0xD004:
@@ -488,7 +486,7 @@ void CROMMapper025::HMAPPER ( uint32_t addr, uint8_t data )
       m_reg[13] = data;
       m_chr[5] &= 0xF0;
       m_chr[5] |= (data&0x0F);
-      m_pCHRmemory[5] = m_CHRmemory[m_chr[5]];
+      m_CHRmemory.REMAP(5,m_chr[5]);
       break;
    case 0xD002:
    case 0xD008:
@@ -496,7 +494,7 @@ void CROMMapper025::HMAPPER ( uint32_t addr, uint8_t data )
       m_reg[14] = data;
       m_chr[4] &= 0x0F;
       m_chr[4] |= (data<<4);
-      m_pCHRmemory[4] = m_CHRmemory[m_chr[4]];
+      m_CHRmemory.REMAP(4,m_chr[4]);
       break;
    case 0xD003:
    case 0xD00C:
@@ -504,14 +502,14 @@ void CROMMapper025::HMAPPER ( uint32_t addr, uint8_t data )
       m_reg[15] = data;
       m_chr[5] &= 0x0F;
       m_chr[5] |= (data<<4);
-      m_pCHRmemory[5] = m_CHRmemory[m_chr[5]];
+      m_CHRmemory.REMAP(5,m_chr[5]);
       break;
    case 0xE000:
       reg = 16;
       m_reg[16] = data;
       m_chr[6] &= 0xF0;
       m_chr[6] |= (data&0x0F);
-      m_pCHRmemory[6] = m_CHRmemory[m_chr[6]];
+      m_CHRmemory.REMAP(6,m_chr[6]);
       break;
    case 0xE001:
    case 0xE004:
@@ -519,7 +517,7 @@ void CROMMapper025::HMAPPER ( uint32_t addr, uint8_t data )
       m_reg[17] = data;
       m_chr[7] &= 0xF0;
       m_chr[7] |= (data&0x0F);
-      m_pCHRmemory[7] = m_CHRmemory[m_chr[7]];
+      m_CHRmemory.REMAP(7,m_chr[7]);
       break;
    case 0xE002:
    case 0xE008:
@@ -527,7 +525,7 @@ void CROMMapper025::HMAPPER ( uint32_t addr, uint8_t data )
       m_reg[18] = data;
       m_chr[6] &= 0x0F;
       m_chr[6] |= (data<<4);
-      m_pCHRmemory[6] = m_CHRmemory[m_chr[6]];
+      m_CHRmemory.REMAP(6,m_chr[6]);
       break;
    case 0xE003:
    case 0xE00C:
@@ -535,7 +533,7 @@ void CROMMapper025::HMAPPER ( uint32_t addr, uint8_t data )
       m_reg[19] = data;
       m_chr[7] &= 0x0F;
       m_chr[7] |= (data<<4);
-      m_pCHRmemory[7] = m_CHRmemory[m_chr[7]];
+      m_CHRmemory.REMAP(7,m_chr[7]);
       break;
    case 0xF000:
       reg = 20;
@@ -547,7 +545,7 @@ void CROMMapper025::HMAPPER ( uint32_t addr, uint8_t data )
    case 0xF004:
       reg = 21;
       m_reg[21] = data;
-      C6502::RELEASEIRQ(eNESSource_Mapper);
+      CNES::NES()->CPU()->RELEASEIRQ(eNESSource_Mapper);
       if ( m_reg[21]&0x02 )
       {
          m_irqCounter = m_irqReload;
@@ -571,7 +569,7 @@ void CROMMapper025::HMAPPER ( uint32_t addr, uint8_t data )
    case 0xF00C:
       reg = 23;
       m_reg[23] = data;
-      C6502::RELEASEIRQ(eNESSource_Mapper);
+      CNES::NES()->CPU()->RELEASEIRQ(eNESSource_Mapper);
       m_reg[21] &= 0xFD;
       m_reg[21] |= ((m_reg[21]&0x01)<<1);
       if ( m_reg[21]&0x02 )
@@ -588,6 +586,6 @@ void CROMMapper025::HMAPPER ( uint32_t addr, uint8_t data )
    if ( nesIsDebuggable() )
    {
       // Check mapper state breakpoints...
-      CNES::CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperState,reg);
+      CNES::NES()->CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperState,reg);
    }
 }

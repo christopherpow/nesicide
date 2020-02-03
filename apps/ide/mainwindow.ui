@@ -223,6 +223,7 @@
     <addaction name="separator"/>
     <addaction name="actionCoding_Mode"/>
     <addaction name="actionDebugging_Mode"/>
+    <addaction name="separator"/>
    </widget>
    <addaction name="menuNESICIDE"/>
    <addaction name="menuProject"/>
@@ -292,6 +293,7 @@
    <addaction name="actionOutput_Window"/>
    <addaction name="separator"/>
    <addaction name="actionProject_Properties"/>
+   <addaction name="separator"/>
   </widget>
   <widget class="QStatusBar" name="appStatusBar">
    <property name="sizeGripEnabled">
@@ -589,7 +591,6 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../common/resource.qrc"/>
   <include location="../../common/resource.qrc"/>
  </resources>
  <connections>

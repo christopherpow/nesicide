@@ -49,6 +49,8 @@ public:
    static int spacesPerTab() { return m_spacesForTabs; }
    static bool annotateSource() { return m_annotateSource; }
    static bool foldSource() { return m_foldSource; }
+   static bool textEncodingIsUtf8() { return m_textEncodingIsUtf8; }
+   static QString textEncodingString();
    static QString sourceExtensionsForC() { return m_cSourceExtensions; }
    static QString sourceExtensionsForAssembly() { return m_asmSourceExtensions; }
    static QString headerExtensions() { return m_headerExtensions; }
@@ -104,6 +106,7 @@ private:
    static int m_spacesForTabs;
    static bool m_annotateSource;
    static bool m_foldSource;
+   static bool m_textEncodingIsUtf8;
    static QString m_cSourceExtensions;
    static QString m_asmSourceExtensions;
    static QString m_headerExtensions;
@@ -140,6 +143,7 @@ private slots:
    void on_useInternalDB_toggled(bool checked);
    void on_PluginPathButton_clicked();
    void on_caretColor_clicked();
+   void on_textEncoding_currentIndexChanged(int index);
 };
 
 #endif // ENVIRONMENTSETTINGSDIALOG_H

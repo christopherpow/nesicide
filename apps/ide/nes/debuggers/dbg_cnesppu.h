@@ -15,136 +15,53 @@
 #define CYCLE_TO_VISY(c) (c/PPU_CYCLES_PER_SCANLINE)
 #define VISY_VISX_TO_CYCLE(y,x) ((y*PPU_CYCLES_PER_SCANLINE)+x)
 
-// The CPPUDBG class is a container for all debug elements
-// relevant to the NES' PPU.
-class CPPUDBG
-{
-public:
-   CPPUDBG();
-   virtual ~CPPUDBG();
+void RENDERPPUCODEDATALOGGER ();
+int8_t* PPUCODEDATALOGGERTV ();
+void CLEARPPUCODEDATALOGGER ();
 
-   // NTSC/PAL-dependent interfaces.
-   // NTSC: 262 scanlines
-   // PAL: 312 scanlines
-   // Dendy: 312 scanlines
-   static inline uint32_t SCANLINES ( void )
-   {
-      uint32_t mode = nesGetSystemMode();
-      return mode==MODE_NTSC?SCANLINES_TOTAL_NTSC:mode==MODE_PAL?SCANLINES_TOTAL_PAL:SCANLINES_TOTAL_DENDY;
-   }
+void RENDERNAMETABLE ();
+int8_t* NAMETABLETV ();
+void CLEARNAMETABLETV ();
 
-   // The CHR memory rendering is performed by the PPU.  The CHR
-   // memory is maintained by the ROM object (see CROM).  However,
-   // the PPU is the portal through which access to this memory is made.
-   // The CHR memory visualization inspector allocates the memory to be
-   // rendered to, and passes it to the PPU.  If the CHR memory
-   // visualization inspector is not visible the rendering is disabled
-   // to save host CPU cycles.
-   static inline void CHRMEMInspectorTV ( int8_t* pTV )
-   {
-      m_pCHRMEMInspectorTV = pTV;
-   }
-   static inline void SetCHRMEMInspectorColor ( int32_t idx, QColor color )
-   {
-      m_chrMemColor[idx] = color;
-   }
+void RENDEROAM ();
+int8_t* OAMTV ();
+void CLEAROAMTV ();
 
-   // The OAM memory rendering is performed by the PPU.  The OAM
-   // visualization inspector allocates the memory to be rendered to,
-   // and passes it to the PPU.  If the OAM visualization inspector is
-   // not visible the rendering is disabled to save host CPU cycles.
-   static inline void OAMInspectorTV ( int8_t* pTV )
-   {
-      m_pOAMInspectorTV = pTV;
-   }
+// This accessor method sets the flag indicating whether or not
+// visible or invisible sprites should be decorated by the OAM viewer.
+void SetOAMViewerShowVisible ( bool visible );
 
-   // The nametable memory rendering is performed by the PPU.  The nametable
-   // visualization inspector allocates the memory to be rendered to,
-   // and passes it to the PPU.  If the nametable visualization inspector
-   // is not visible the rendering is disabled to save host CPU cycles.
-   static inline void NameTableInspectorTV ( int8_t* pTV )
-   {
-      m_pNameTableInspectorTV = pTV;
-   }
+// This accessor method sets the flag indicating whether or not
+// visible or invisible regions of the TV screen should be decorated by
+// the NameTable viewer.
+void SetPPUViewerShowVisible ( bool visible );
 
-   // These functions are invoked at appropriate points in the PPU
-   // rendering frame to cause the PPU to render the current state
-   // of the CHR, OAM, and nametable memories.  For example, an emulated
-   // game might change the CHR memory map in mid PPU frame.  The CHR
-   // memory inspector allows visualization of the CHR memory at a
-   // specified scanline, thus showing the state of the CHR memory
-   // before or after the change.
-   static void RENDERCHRMEM ( void );
-   static void RENDEROAM ( void );
-   static void RENDERNAMETABLE ( void );
+// The CHR memory visualization inspector and the OAM visualization
+// inspector are triggered on a user-defined scanline.  These accessor
+// methods allow the UI to change the scanline-of-interest for the
+// debugger inspectors.
+void SetPPUViewerScanline ( uint32_t scanline );
+uint32_t GetPPUViewerScanline ( void );
+void SetOAMViewerScanline ( uint32_t scanline );
+uint32_t GetOAMViewerScanline ( void );
 
-   // The CHR memory visualization inspector and the OAM visualization
-   // inspector are triggered on a user-defined scanline.  These accessor
-   // methods allow the UI to change the scanline-of-interest for the
-   // debugger inspectors.
-   static void SetPPUViewerScanline ( uint32_t scanline )
-   {
-      m_iPPUViewerScanline = scanline;
-   }
-   static uint32_t GetPPUViewerScanline ( void )
-   {
-      return m_iPPUViewerScanline;
-   }
-   static void SetOAMViewerScanline ( uint32_t scanline )
-   {
-      m_iOAMViewerScanline = scanline;
-   }
-   static uint32_t GetOAMViewerScanline ( void )
-   {
-      return m_iOAMViewerScanline;
-   }
+void SetCHRMEMInspectorColor ( int32_t idx, QColor color );
 
-   // This accessor method sets the flag indicating whether or not
-   // visible or invisible sprites should be decorated by the OAM viewer.
-   static void SetOAMViewerShowVisible ( bool visible )
-   {
-      m_bOAMViewerShowVisible = visible;
-   }
+// These functions are invoked at appropriate points in the PPU
+// rendering frame to cause the PPU to render the current state
+// of the CHR, OAM, and nametable memories.  For example, an emulated
+// game might change the CHR memory map in mid PPU frame.  The CHR
+// memory inspector allows visualization of the CHR memory at a
+// specified scanline, thus showing the state of the CHR memory
+// before or after the change.
+void RENDERCHRMEM ( void );
+int8_t* CHRMEMTV ();
+void CLEARCHRMEMTV ();
 
-   // This accessor method sets the flag indicating whether or not
-   // visible or invisible regions of the TV screen should be decorated by
-   // the NameTable viewer.
-   static void SetPPUViewerShowVisible ( bool visible )
-   {
-      m_bPPUViewerShowVisible = visible;
-   }
-
-   // The PPU's Code/Data Logger display is generated by the PPU core
-   // because the PPU core maintains all of the information necessary
-   // to generate it.
-   static inline void CodeDataLoggerInspectorTV ( int8_t* pTV )
-   {
-      m_pCodeDataLoggerInspectorTV = pTV;
-   }
-   static void RENDERCODEDATALOGGER ( void );
-
-   static QColor         m_chrMemColor [ 4 ];
-
-   // These are the rendering surfaces on which the PPU draws
-   // the data to be visualized by the various debugger inspectors
-   // that provide visual information on the state of the NES.
-   static int8_t*          m_pCHRMEMInspectorTV;
-   static int8_t*          m_pOAMInspectorTV;
-   static int8_t*          m_pNameTableInspectorTV;
-   static int8_t*          m_pCodeDataLoggerInspectorTV;
-
-   // These are the current scanlines on which the visualizer
-   // debugger inspectors that are scanline-triggered are to be updated.
-   static uint32_t           m_iPPUViewerScanline;
-   static uint32_t           m_iOAMViewerScanline;
-
-   // Flag indicating whether or not to decorate invisible sprites.
-   static bool           m_bOAMViewerShowVisible;
-
-   // Flag indicating whether or not to decorate invisible TV region(s).
-   static bool           m_bPPUViewerShowVisible;
-
-   static PpuStateSnapshot m_ppuState;
-};
+// NTSC/PAL-dependent interfaces.
+// NTSC: 262 scanlines
+// PAL: 312 scanlines
+// Dendy: 312 scanlines
+uint32_t SCANLINES ( void );
 
 #endif

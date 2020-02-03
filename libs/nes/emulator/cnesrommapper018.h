@@ -5,22 +5,24 @@
 
 class CROMMapper018 : public CROM
 {
-public:
+private:
    CROMMapper018();
+public:
+   static inline CROMMapper018* CARTFACTORY() { return new CROMMapper018(); }
    ~CROMMapper018();
 
-   static void RESET ( bool soft );
-   static void HMAPPER ( uint32_t addr, uint8_t data );
-   static void SYNCCPU ( void );
-   static uint32_t DEBUGINFO ( uint32_t addr );
+   void RESET ( bool soft );
+   void HMAPPER ( uint32_t addr, uint8_t data );
+   void SYNCCPU ( void );
+   uint32_t DEBUGINFO ( uint32_t addr );
 
 protected:
-   static uint8_t  m_reg [ 29 ];
-   static uint8_t  m_prg [ 3 ];
-   static uint8_t  m_chr [ 8 ];
-   static uint16_t m_irqReload;
-   static uint16_t m_irqCounter;
-   static bool     m_irqEnabled;
+   uint8_t  m_reg [ 29 ];
+   uint8_t  m_prg [ 3 ];
+   uint8_t  m_chr [ 8 ];
+   uint16_t m_irqReload;
+   uint16_t m_irqCounter;
+   bool     m_irqEnabled;
 };
 
 #endif

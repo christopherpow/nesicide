@@ -70,17 +70,17 @@ static const char* columnHeadings [] =
 
 static CRegisterDatabase* dbRegisters = new CRegisterDatabase(eMemory_cartMapper,1,6,6,tblRegisters,rowHeadings,columnHeadings);
 
-// MMC2 stuff
-uint8_t  CROMMapper010::m_reg [] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-uint8_t  CROMMapper010::m_latch0 = 0xFE;
-uint8_t  CROMMapper010::m_latch1 = 0xFE;
-uint8_t  CROMMapper010::m_latch0FD = 0;
-uint8_t  CROMMapper010::m_latch0FE = 1;
-uint8_t  CROMMapper010::m_latch1FD = 0;
-uint8_t  CROMMapper010::m_latch1FE = 0;
-
 CROMMapper010::CROMMapper010()
+   : CROM(10)
 {
+   // MMC2 stuff
+   memset(m_reg,0,sizeof(m_reg));
+   m_latch0 = 0xFE;
+   m_latch1 = 0xFE;
+   m_latch0FD = 0;
+   m_latch0FE = 1;
+   m_latch1FD = 0;
+   m_latch1FE = 0;
 }
 
 CROMMapper010::~CROMMapper010()
@@ -89,16 +89,12 @@ CROMMapper010::~CROMMapper010()
 
 void CROMMapper010::RESET ( bool soft )
 {
-   m_mapper = 10;
+   m_dbCartRegisters = dbRegisters;
 
-   m_dbRegisters = dbRegisters;
+   CROM::RESET ( soft );
 
-   CROM::RESET ( m_mapper, soft );
-
-   m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 0 ];
-   m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ 1 ];
-   m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ m_numPrgBanks-2 ];
-   m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ m_numPrgBanks-1 ];
+   m_PRGROMmemory.REMAP(2,m_numPrgBanks-2);
+   m_PRGROMmemory.REMAP(3,m_numPrgBanks-1);
 
    m_latch0 = 0xFE;
    m_latch1 = 0xFE;
@@ -107,14 +103,14 @@ void CROMMapper010::RESET ( bool soft )
    m_latch1FD = 0;
    m_latch1FE = 0;
 
-   m_pCHRmemory [ 0 ] = m_CHRmemory [ (m_latch0FE<<2)+0 ];
-   m_pCHRmemory [ 1 ] = m_CHRmemory [ (m_latch0FE<<2)+1 ];
-   m_pCHRmemory [ 2 ] = m_CHRmemory [ (m_latch0FE<<2)+2 ];
-   m_pCHRmemory [ 3 ] = m_CHRmemory [ (m_latch0FE<<2)+3 ];
-   m_pCHRmemory [ 4 ] = m_CHRmemory [ (m_latch1FE<<2)+0 ];
-   m_pCHRmemory [ 5 ] = m_CHRmemory [ (m_latch1FE<<2)+1 ];
-   m_pCHRmemory [ 6 ] = m_CHRmemory [ (m_latch1FE<<2)+2 ];
-   m_pCHRmemory [ 7 ] = m_CHRmemory [ (m_latch1FE<<2)+3 ];
+   m_CHRmemory.REMAP(0,(m_latch0FE<<2)+0);
+   m_CHRmemory.REMAP(1,(m_latch0FE<<2)+1);
+   m_CHRmemory.REMAP(2,(m_latch0FE<<2)+2);
+   m_CHRmemory.REMAP(3,(m_latch0FE<<2)+3);
+   m_CHRmemory.REMAP(4,(m_latch1FE<<2)+0);
+   m_CHRmemory.REMAP(5,(m_latch1FE<<2)+1);
+   m_CHRmemory.REMAP(6,(m_latch1FE<<2)+2);
+   m_CHRmemory.REMAP(7,(m_latch1FE<<2)+3);
 }
 
 uint32_t CROMMapper010::DEBUGINFO ( uint32_t addr )
@@ -153,8 +149,8 @@ void CROMMapper010::HMAPPER ( uint32_t addr, uint8_t data )
       case 0xA000:
          reg = 0;
          m_reg [ 0 ] = data;
-         m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ (data<<1)+0 ];
-         m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ (data<<1)+1 ];
+         m_PRGROMmemory.REMAP(0,(data<<1)+0);
+         m_PRGROMmemory.REMAP(0,(data<<1)+1);
          break;
       case 0xB000:
          reg = 1;
@@ -163,10 +159,10 @@ void CROMMapper010::HMAPPER ( uint32_t addr, uint8_t data )
 
          if ( m_latch0 == 0xFD )
          {
-            m_pCHRmemory [ 0 ] = m_CHRmemory [ (m_latch0FD<<2)+0 ];
-            m_pCHRmemory [ 1 ] = m_CHRmemory [ (m_latch0FD<<2)+1 ];
-            m_pCHRmemory [ 2 ] = m_CHRmemory [ (m_latch0FD<<2)+2 ];
-            m_pCHRmemory [ 3 ] = m_CHRmemory [ (m_latch0FD<<2)+3 ];
+            m_CHRmemory.REMAP(0,(m_latch0FD<<2)+0);
+            m_CHRmemory.REMAP(1,(m_latch0FD<<2)+1);
+            m_CHRmemory.REMAP(2,(m_latch0FD<<2)+2);
+            m_CHRmemory.REMAP(3,(m_latch0FD<<2)+3);
          }
 
          break;
@@ -177,10 +173,10 @@ void CROMMapper010::HMAPPER ( uint32_t addr, uint8_t data )
 
          if ( m_latch0 == 0xFE )
          {
-            m_pCHRmemory [ 0 ] = m_CHRmemory [ (m_latch0FE<<2)+0 ];
-            m_pCHRmemory [ 1 ] = m_CHRmemory [ (m_latch0FE<<2)+1 ];
-            m_pCHRmemory [ 2 ] = m_CHRmemory [ (m_latch0FE<<2)+2 ];
-            m_pCHRmemory [ 3 ] = m_CHRmemory [ (m_latch0FE<<2)+3 ];
+            m_CHRmemory.REMAP(0,(m_latch0FE<<2)+0);
+            m_CHRmemory.REMAP(1,(m_latch0FE<<2)+1);
+            m_CHRmemory.REMAP(2,(m_latch0FE<<2)+2);
+            m_CHRmemory.REMAP(3,(m_latch0FE<<2)+3);
          }
 
          break;
@@ -191,10 +187,10 @@ void CROMMapper010::HMAPPER ( uint32_t addr, uint8_t data )
 
          if ( m_latch1 == 0xFD )
          {
-            m_pCHRmemory [ 4 ] = m_CHRmemory [ (m_latch1FD<<2)+0 ];
-            m_pCHRmemory [ 5 ] = m_CHRmemory [ (m_latch1FD<<2)+1 ];
-            m_pCHRmemory [ 6 ] = m_CHRmemory [ (m_latch1FD<<2)+2 ];
-            m_pCHRmemory [ 7 ] = m_CHRmemory [ (m_latch1FD<<2)+3 ];
+            m_CHRmemory.REMAP(4,(m_latch1FD<<2)+0);
+            m_CHRmemory.REMAP(5,(m_latch1FD<<2)+1);
+            m_CHRmemory.REMAP(6,(m_latch1FD<<2)+2);
+            m_CHRmemory.REMAP(7,(m_latch1FD<<2)+3);
          }
 
          break;
@@ -205,10 +201,10 @@ void CROMMapper010::HMAPPER ( uint32_t addr, uint8_t data )
 
          if ( m_latch1 == 0xFE )
          {
-            m_pCHRmemory [ 4 ] = m_CHRmemory [ (m_latch1FE<<2)+0 ];
-            m_pCHRmemory [ 5 ] = m_CHRmemory [ (m_latch1FE<<2)+1 ];
-            m_pCHRmemory [ 6 ] = m_CHRmemory [ (m_latch1FE<<2)+2 ];
-            m_pCHRmemory [ 7 ] = m_CHRmemory [ (m_latch1FE<<2)+3 ];
+            m_CHRmemory.REMAP(4,(m_latch1FE<<2)+0);
+            m_CHRmemory.REMAP(5,(m_latch1FE<<2)+1);
+            m_CHRmemory.REMAP(6,(m_latch1FE<<2)+2);
+            m_CHRmemory.REMAP(7,(m_latch1FE<<2)+3);
          }
 
          break;
@@ -216,16 +212,13 @@ void CROMMapper010::HMAPPER ( uint32_t addr, uint8_t data )
          reg = 5;
          m_reg [ 5 ] = data;
 
-         if ( !(CPPU::FOURSCREEN()) )
+         if ( data&0x01 )
          {
-            if ( data&0x01 )
-            {
-               CPPU::MIRRORHORIZ ();
-            }
-            else
-            {
-               CPPU::MIRRORVERT ();
-            }
+            CNES::NES()->PPU()->MIRRORHORIZ ();
+         }
+         else
+         {
+            CNES::NES()->PPU()->MIRRORVERT ();
          }
 
          break;
@@ -234,7 +227,7 @@ void CROMMapper010::HMAPPER ( uint32_t addr, uint8_t data )
    if ( nesIsDebuggable() )
    {
       // Check mapper state breakpoints...
-      CNES::CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperState,reg);
+      CNES::NES()->CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperState,reg);
    }
 }
 
@@ -243,33 +236,33 @@ void CROMMapper010::SYNCPPU ( uint32_t ppuCycle, uint32_t ppuAddr )
    if ( (ppuAddr&0x1FF0) == 0x0FD0 )
    {
       m_latch0 = 0xFD;
-      m_pCHRmemory [ 0 ] = m_CHRmemory [ (m_latch0FD<<2)+0 ];
-      m_pCHRmemory [ 1 ] = m_CHRmemory [ (m_latch0FD<<2)+1 ];
-      m_pCHRmemory [ 2 ] = m_CHRmemory [ (m_latch0FD<<2)+2 ];
-      m_pCHRmemory [ 3 ] = m_CHRmemory [ (m_latch0FD<<2)+3 ];
+      m_CHRmemory.REMAP(0,(m_latch0FD<<2)+0);
+      m_CHRmemory.REMAP(1,(m_latch0FD<<2)+1);
+      m_CHRmemory.REMAP(2,(m_latch0FD<<2)+2);
+      m_CHRmemory.REMAP(3,(m_latch0FD<<2)+3);
    }
    else if ( (ppuAddr&0x1FF0) == 0x0FE0 )
    {
       m_latch0 = 0xFE;
-      m_pCHRmemory [ 0 ] = m_CHRmemory [ (m_latch0FE<<2)+0 ];
-      m_pCHRmemory [ 1 ] = m_CHRmemory [ (m_latch0FE<<2)+1 ];
-      m_pCHRmemory [ 2 ] = m_CHRmemory [ (m_latch0FE<<2)+2 ];
-      m_pCHRmemory [ 3 ] = m_CHRmemory [ (m_latch0FE<<2)+3 ];
+      m_CHRmemory.REMAP(0,(m_latch0FE<<2)+0);
+      m_CHRmemory.REMAP(1,(m_latch0FE<<2)+1);
+      m_CHRmemory.REMAP(2,(m_latch0FE<<2)+2);
+      m_CHRmemory.REMAP(3,(m_latch0FE<<2)+3);
    }
    else if ( (ppuAddr&0x1FF0) == 0x1FD0 )
    {
       m_latch1 = 0xFD;
-      m_pCHRmemory [ 4 ] = m_CHRmemory [ (m_latch1FD<<2)+0 ];
-      m_pCHRmemory [ 5 ] = m_CHRmemory [ (m_latch1FD<<2)+1 ];
-      m_pCHRmemory [ 6 ] = m_CHRmemory [ (m_latch1FD<<2)+2 ];
-      m_pCHRmemory [ 7 ] = m_CHRmemory [ (m_latch1FD<<2)+3 ];
+      m_CHRmemory.REMAP(4,(m_latch1FD<<2)+0);
+      m_CHRmemory.REMAP(5,(m_latch1FD<<2)+1);
+      m_CHRmemory.REMAP(6,(m_latch1FD<<2)+2);
+      m_CHRmemory.REMAP(7,(m_latch1FD<<2)+3);
    }
    else if ( (ppuAddr&0x1FF0) == 0x1FE0 )
    {
       m_latch1 = 0xFE;
-      m_pCHRmemory [ 4 ] = m_CHRmemory [ (m_latch1FE<<2)+0 ];
-      m_pCHRmemory [ 5 ] = m_CHRmemory [ (m_latch1FE<<2)+1 ];
-      m_pCHRmemory [ 6 ] = m_CHRmemory [ (m_latch1FE<<2)+2 ];
-      m_pCHRmemory [ 7 ] = m_CHRmemory [ (m_latch1FE<<2)+3 ];
+      m_CHRmemory.REMAP(4,(m_latch1FE<<2)+0);
+      m_CHRmemory.REMAP(5,(m_latch1FE<<2)+1);
+      m_CHRmemory.REMAP(6,(m_latch1FE<<2)+2);
+      m_CHRmemory.REMAP(7,(m_latch1FE<<2)+3);
    }
 }

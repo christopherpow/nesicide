@@ -84,7 +84,6 @@ SOURCES += \
    emulator/cnesrommapper001.cpp \
    emulator/cnesrom.cpp \
    emulator/cnesppu.cpp \
-   emulator/cnesmappers.cpp \
    emulator/cnesio.cpp \
    emulator/cnesapu.cpp \
    emulator/cnes.cpp \
@@ -96,7 +95,6 @@ SOURCES += \
    emulator/ccodedatalogger.cpp \
    emulator/ctracer.cpp \
    emulator/cnesbreakpointinfo.cpp \
-   emulator/cnesios.cpp \
    emulator/cnesrommapper033.cpp \
    emulator/cnesrommapper069.cpp \
    emulator/cnesrommapper075.cpp \
@@ -113,7 +111,9 @@ SOURCES += \
     emulator/cnesrommapper018.cpp \
     emulator/cnesrommapper073.cpp \
     emulator/cnesrommapper016.cpp \
-    emulator/cnesrommapper111.cpp
+    emulator/cnesrommapper111.cpp \
+    emulator/cmemory.cpp \
+    emulator/cnesios.cpp
 
 HEADERS +=\
    emulator/cnesrommapper068.h \
@@ -129,7 +129,6 @@ HEADERS +=\
    emulator/cnesrommapper001.h \
    emulator/cnesrom.h \
    emulator/cnesppu.h \
-   emulator/cnesmappers.h \
    emulator/cnesio.h \
    emulator/cnesapu.h \
    emulator/cnes.h \
@@ -140,7 +139,6 @@ HEADERS +=\
    emulator/cjoypadlogger.h \
    emulator/ccodedatalogger.h \
    emulator/ctracer.h \
-   emulator/cnesios.h \
    emulator/cnesrommapper033.h \
    emulator/cnesrommapper069.h \
    emulator/cnesrommapper075.h \
@@ -158,4 +156,6 @@ HEADERS +=\
     emulator/cnesrommapper018.h \
     emulator/cnesrommapper073.h \
     emulator/cnesrommapper016.h \
-    emulator/cnesrommapper111.h
+    emulator/cnesrommapper111.h \
+    emulator/cmemory.h \
+    emulator/cnesios.h

@@ -18,309 +18,124 @@
 #include "cnesppu.h"
 #include "cnes6502.h"
 
-// Mapper Event breakpoints
-bool mapperIRQEvent(BreakpointInfo* pBreakpoint,int data)
+#include "cnesrommapper001.h"
+#include "cnesrommapper002.h"
+#include "cnesrommapper003.h"
+#include "cnesrommapper004.h"
+#include "cnesrommapper005.h"
+#include "cnesrommapper007.h"
+#include "cnesrommapper009.h"
+#include "cnesrommapper010.h"
+#include "cnesrommapper011.h"
+#include "cnesrommapper013.h"
+#include "cnesrommapper016.h"
+#include "cnesrommapper018.h"
+#include "cnesrommapper019.h"
+#include "cnesrommapper021.h"
+#include "cnesrommapper022.h"
+#include "cnesrommapper023.h"
+#include "cnesrommapper024.h"
+#include "cnesrommapper025.h"
+#include "cnesrommapper026.h"
+#include "cnesrommapper028.h"
+#include "cnesrommapper033.h"
+#include "cnesrommapper034.h"
+#include "cnesrommapper065.h"
+#include "cnesrommapper068.h"
+#include "cnesrommapper069.h"
+#include "cnesrommapper073.h"
+#include "cnesrommapper075.h"
+#include "cnesrommapper111.h"
+
+CROM* CARTFACTORY(uint32_t mapper)
 {
-   // This breakpoint is checked in the right place for each scanline
-   // so if this breakpoint is enabled it should always fire when called.
-   return true;
+   switch ( mapper )
+   {
+   default:
+      return CROM::CARTFACTORY();
+   case 1:
+      return CROMMapper001::CARTFACTORY();
+   case 2:
+      return CROMMapper002::CARTFACTORY();
+   case 3:
+      return CROMMapper003::CARTFACTORY();
+   case 4:
+      return CROMMapper004::CARTFACTORY();
+   case 5:
+      return CROMMapper005::CARTFACTORY();
+   case 7:
+      return CROMMapper007::CARTFACTORY();
+   case 9:
+      return CROMMapper009::CARTFACTORY();
+   case 10:
+      return CROMMapper010::CARTFACTORY();
+   case 11:
+      return CROMMapper011::CARTFACTORY();
+   case 13:
+      return CROMMapper013::CARTFACTORY();
+   case 16:
+      return CROMMapper016::CARTFACTORY();
+   case 18:
+      return CROMMapper018::CARTFACTORY();
+   case 19:
+      return CROMMapper019::CARTFACTORY();
+   case 21:
+      return CROMMapper021::CARTFACTORY();
+   case 22:
+      return CROMMapper022::CARTFACTORY();
+   case 23:
+      return CROMMapper023::CARTFACTORY();
+   case 24:
+      return CROMMapper024::CARTFACTORY();
+   case 25:
+      return CROMMapper025::CARTFACTORY();
+   case 26:
+      return CROMMapper026::CARTFACTORY();
+   case 28:
+      return CROMMapper028::CARTFACTORY();
+   case 33:
+      return CROMMapper033::CARTFACTORY();
+   case 34:
+      return CROMMapper034::CARTFACTORY();
+   case 65:
+      return CROMMapper065::CARTFACTORY();
+   case 68:
+      return CROMMapper068::CARTFACTORY();
+   case 69:
+      return CROMMapper069::CARTFACTORY();
+   case 73:
+      return CROMMapper073::CARTFACTORY();
+   case 75:
+      return CROMMapper075::CARTFACTORY();
+   case 111:
+      return CROMMapper111::CARTFACTORY();
+   }
 }
 
-static CBreakpointEventInfo* tblMapperEvents [] =
-{
-   new CBreakpointEventInfo("IRQ", mapperIRQEvent, 0, "Break if mapper asserts IRQ", 10),
-};
-
-CRegisterDatabase*  CROM::m_dbRegisters = NULL;
-
-static CMemoryDatabase* dbSRAMMemory = new CMemoryDatabase(eMemory_cartSRAM,
-                                                           SRAM_START,
-                                                           MEM_8KB,
-                                                           16,
-                                                           "Cartridge SRAM Memory",
-                                                           nesGetSRAMDataVirtual,
-                                                           nesSetSRAMDataVirtual,
-                                                           nesGetPrintableAddress,
-                                                           true);
-
-CMemoryDatabase* CROM::m_dbSRAMMemory = dbSRAMMemory;
-
-static CMemoryDatabase* dbEXRAMMemory = new CMemoryDatabase(eMemory_cartEXRAM,
-                                                            EXRAM_START,
-                                                            MEM_1KB,
-                                                            16,
-                                                            "Cartridge EXRAM Memory",
-                                                            nesGetEXRAMData,
-                                                            nesSetEXRAMData,
-                                                            nesGetPrintableAddress,
-                                                            true);
-
-CMemoryDatabase* CROM::m_dbEXRAMMemory = dbEXRAMMemory;
-
-static CMemoryDatabase* dbVRAMMemory = new CMemoryDatabase(eMemory_cartVRAM,
-                                                            VRAM_START,
-                                                            MEM_16KB,
-                                                            16,
-                                                            "Cartridge VRAM Memory",
-                                                            nesGetVRAMData,
-                                                            nesSetVRAMData,
-                                                            nesGetPrintableAddress,
-                                                            true);
-
-CMemoryDatabase* CROM::m_dbVRAMMemory = dbVRAMMemory;
-
-bool returnFalse() { return false; }
-
-static CMemoryDatabase* dbPRGROMMemory = new CMemoryDatabase(eMemory_cartROM,
-                                                             MEM_32KB,
-                                                             MEM_32KB,
-                                                             16,
-                                                             "Cartridge PRGROM Memory",
-                                                             nesGetPRGROMData,
-                                                             NULL,
-                                                             nesGetPrintableAddress,
-                                                             true,
-                                                             NULL,
-                                                             NULL,
-                                                             NULL,
-                                                             returnFalse);
-
-CMemoryDatabase* CROM::m_dbPRGROMMemory = dbPRGROMMemory;
-
-static CMemoryDatabase* dbCHRMemory = new CMemoryDatabase(eMemory_cartCHRMEM,
-                                                          0,
-                                                          MEM_8KB,
-                                                          16,
-                                                          "Cartridge CHR Memory",
-                                                          nesGetCHRMEMData,
-                                                          nesSetCHRMEMData,
-                                                          nesGetPrintableAddress,
-                                                          true,
-                                                          NULL,
-                                                          NULL,
-                                                          NULL,
-                                                          nesIsCHRRAM);
-
-CMemoryDatabase* CROM::m_dbCHRMemory = dbCHRMemory;
-
-CBreakpointEventInfo** CROM::m_tblBreakpointEvents = tblMapperEvents;
-int32_t                CROM::m_numBreakpointEvents = NUM_MAPPER_EVENTS;
-
-uint8_t** CROM::m_PRGROMmemory = NULL;
-uint8_t** CROM::m_CHRmemory = NULL;
-uint8_t*  CROM::m_VRAMmemory = NULL;
-uint8_t*  CROM::m_pPRGROMmemory [] = { NULL, NULL, NULL, NULL };
-uint8_t*  CROM::m_pCHRmemory [] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
-uint8_t*  CROM::m_pVRAMmemory [] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
-uint8_t** CROM::m_SRAMmemory = NULL;
-uint8_t*  CROM::m_pSRAMmemory [] = { NULL, NULL, NULL, NULL, NULL };
-uint8_t*  CROM::m_EXRAMmemory = NULL;
-
-uint32_t           CROM::m_mapper = 0;
-uint32_t           CROM::m_numPrgBanks = 0;
-uint32_t           CROM::m_numChrBanks = 0;
-
-CCodeDataLogger* CROM::m_pLogger [] = { NULL, };
-CCodeDataLogger* CROM::m_pEXRAMLogger = NULL;
-CCodeDataLogger* CROM::m_pSRAMLogger [] = { NULL, };
-
-uint8_t**  CROM::m_PRGROMopcodeMask = NULL;
-bool*      CROM::m_PRGROMopcodeMaskDirty  = NULL;
-char***    CROM::m_PRGROMdisassembly = NULL;
-uint16_t** CROM::m_PRGROMsloc2addr = NULL;
-uint16_t** CROM::m_PRGROMaddr2sloc = NULL;
-uint32_t*  CROM::m_PRGROMsloc = NULL;
-uint8_t**  CROM::m_SRAMopcodeMask = NULL;
-bool*      CROM::m_SRAMopcodeMaskDirty = NULL;
-char***    CROM::m_SRAMdisassembly = NULL;
-uint16_t** CROM::m_SRAMsloc2addr = NULL;
-uint16_t** CROM::m_SRAMaddr2sloc = NULL;
-uint32_t*  CROM::m_SRAMsloc = NULL;
-bool       CROM::m_SRAMdirty = false;
-uint8_t*   CROM::m_EXRAMopcodeMask = NULL;
-bool       CROM::m_EXRAMopcodeMaskDirty = false;
-char**     CROM::m_EXRAMdisassembly = NULL;
-uint16_t*  CROM::m_EXRAMsloc2addr = NULL;
-uint16_t*  CROM::m_EXRAMaddr2sloc = NULL;
-uint32_t   CROM::m_EXRAMsloc = 0;
-
-static CROM __init __attribute__((unused));
-
-CROM::CROM()
+CROM::CROM(uint32_t mapper)
+   : m_PRGROMmemory(CMEMORY(0x8000,MEM_8KB,NUM_ROM_BANKS,4)),
+     m_SRAMmemory(CMEMORY(0x6000,MEM_8KB,8,5)),
+     m_EXRAMmemory(CMEMORY(0x5C00,MEM_1KB)),
+     m_VRAMmemory(CMEMORY(0x2000,MEM_8KB,2)),
+     m_CHRmemory(CMEMORY(0,MEM_1KB,NUM_CHR_BANKS,8))
 {
    int32_t bank;
    int32_t addr;
 
-   m_PRGROMmemory = new uint8_t*[NUM_ROM_BANKS];
-   m_PRGROMdisassembly = new char**[NUM_ROM_BANKS];
-   m_PRGROMopcodeMaskDirty = new bool[NUM_ROM_BANKS];
-   m_PRGROMopcodeMask = new uint8_t*[NUM_ROM_BANKS];
-   m_PRGROMsloc2addr = new uint16_t*[NUM_ROM_BANKS];
-   m_PRGROMaddr2sloc = new uint16_t*[NUM_ROM_BANKS];
-   m_PRGROMsloc = new uint32_t[NUM_ROM_BANKS];
-   for ( bank = 0; bank < NUM_ROM_BANKS; bank++ )
-   {
-      m_PRGROMmemory[bank] = new uint8_t[MEM_8KB+1]; // Leave room for bank ID.
-      m_PRGROMdisassembly[bank] = new char*[MEM_8KB];
-      m_PRGROMopcodeMaskDirty[bank] = true;
-      m_PRGROMopcodeMask[bank] = new uint8_t[MEM_8KB];
-      m_PRGROMsloc2addr[bank] = new uint16_t[MEM_8KB];
-      m_PRGROMaddr2sloc[bank] = new uint16_t[MEM_8KB];
-      m_PRGROMsloc[bank] = 0;
-      m_pLogger [ bank ] = new CCodeDataLogger ( MEM_8KB, MASK_8KB );
-
-      for ( addr = 0; addr < MEM_8KB; addr++ )
-      {
-         m_PRGROMdisassembly[bank][addr] = new char [ 16 ];
-         m_PRGROMopcodeMask[bank][addr] = 0;
-         m_PRGROMsloc2addr[bank][addr] = 0;
-         m_PRGROMaddr2sloc[bank][addr] = 0;
-      }
-
-      // Store bank ID in bank data at the end.  This is used only
-      // by code that needs to calculate absolute address stuff.
-      // Since the banks are stored non-contiguously this is a cheap
-      // way to get the bank ID without having to implement a structure.
-      m_PRGROMmemory[bank][MEM_8KB] = bank;
-   }
-
-   m_SRAMmemory = new uint8_t*[NUM_SRAM_BANKS];
-   m_SRAMdisassembly = new char**[NUM_SRAM_BANKS];
-   m_SRAMopcodeMaskDirty = new bool[NUM_SRAM_BANKS];
-   m_SRAMopcodeMask = new uint8_t*[NUM_SRAM_BANKS];
-   m_SRAMsloc2addr = new uint16_t*[NUM_SRAM_BANKS];
-   m_SRAMaddr2sloc = new uint16_t*[NUM_SRAM_BANKS];
-   m_SRAMsloc = new uint32_t[NUM_SRAM_BANKS];
-   for ( bank = 0; bank < NUM_SRAM_BANKS; bank++ )
-   {
-      m_SRAMmemory[bank] = new uint8_t[MEM_8KB+1]; // Leave room for bank ID.
-      m_SRAMdisassembly[bank] = new char*[MEM_8KB];
-      m_SRAMopcodeMaskDirty[bank] = true;
-      m_SRAMopcodeMask[bank] = new uint8_t[MEM_8KB];
-      m_SRAMsloc2addr[bank] = new uint16_t[MEM_8KB];
-      m_SRAMaddr2sloc[bank] = new uint16_t[MEM_8KB];
-      m_SRAMsloc[bank] = 0;
-      m_pSRAMLogger [ bank ] = new CCodeDataLogger ( MEM_8KB, MASK_8KB );
-
-      for ( addr = 0; addr < MEM_8KB; addr++ )
-      {
-         m_SRAMdisassembly[bank][addr] = new char [ 16 ];
-         m_SRAMopcodeMask[bank][addr] = 0;
-         m_SRAMsloc2addr[bank][addr] = 0;
-         m_SRAMaddr2sloc[bank][addr] = 0;
-      }
-
-      // Store bank ID in bank data at the end.  This is used only
-      // by code that needs to calculate absolute address stuff.
-      // Since the banks are stored non-contiguously this is a cheap
-      // way to get the bank ID without having to implement a structure.
-      m_SRAMmemory[bank][MEM_8KB] = bank;
-   }
-
-   m_EXRAMmemory = new uint8_t[MEM_1KB];
-   m_EXRAMdisassembly = new char*[MEM_1KB];
-   m_EXRAMopcodeMask = new uint8_t[MEM_1KB];
-   m_EXRAMsloc2addr = new uint16_t[MEM_1KB];
-   m_EXRAMaddr2sloc = new uint16_t[MEM_1KB];
-   m_pEXRAMLogger = new CCodeDataLogger ( MEM_1KB, MASK_1KB );
-   for ( addr = 0; addr < MEM_1KB; addr++ )
-   {
-      m_EXRAMdisassembly[addr] = new char [ 16 ];
-      m_EXRAMopcodeMask[addr] = 0;
-      m_EXRAMsloc2addr[addr] = 0;
-      m_EXRAMaddr2sloc[addr] = 0;
-   }
-
-   m_VRAMmemory = new uint8_t[MEM_16KB]; // GTROM mapper 111 has 16KB remappable here
-
-   m_CHRmemory = new uint8_t*[NUM_CHR_BANKS];
-   for ( bank = 0; bank < NUM_CHR_BANKS; bank++ )
-   {
-      m_CHRmemory[bank] = new uint8_t[MEM_1KB+1]; // Leave room for bank ID.
-
-      // Store bank ID in bank data at the end.  This is used only
-      // by code that needs to calculate absolute address stuff.
-      // Since the banks are stored non-contiguously this is a cheap
-      // way to get the bank ID without having to implement a structure.
-      m_CHRmemory[bank][MEM_1KB] = bank;
-   }
-
-   // Assume identity-mapped SRAM...
-   // There are five possible concurrently-visible 8KB
-   // SRAM banks in MMC5: (0x6000 - 0xFFFF).  Other
-   // cartridges with 8KB of SRAM will leave this mapping alone.
-   for ( bank = 0; bank < 5; bank++ )
-   {
-      m_pSRAMmemory [ bank ] = *(m_SRAMmemory+bank);
-   }
+   m_mapper = mapper;
+   m_numPrgBanks = 0;
+   m_numChrBanks = 0;
 
    CROM::RESET ( false );
 }
 
 CROM::~CROM()
 {
-   int32_t bank;
-   int32_t addr;
-
-   for ( bank = 0; bank < NUM_ROM_BANKS; bank++ )
-   {
-      delete m_pLogger [ bank ];
-
-      for ( addr = 0; addr < MEM_8KB; addr++ )
-      {
-         delete m_PRGROMdisassembly[bank][addr];
-      }
-      delete [] m_PRGROMmemory[bank];
-      delete [] m_PRGROMopcodeMask[bank];
-      delete [] m_PRGROMsloc2addr[bank];
-      delete [] m_PRGROMaddr2sloc[bank];
-   }
-   delete [] m_PRGROMopcodeMaskDirty;
-   delete [] m_PRGROMmemory;
-   delete [] m_PRGROMopcodeMask;
-   delete [] m_PRGROMsloc2addr;
-   delete [] m_PRGROMaddr2sloc;
-   delete [] m_PRGROMsloc;
-
-   for ( bank = 0; bank < NUM_CHR_BANKS; bank++ )
-   {
-      delete [] m_CHRmemory[bank];
-   }
-   delete [] m_CHRmemory;
-
-   for ( bank = 0; bank < NUM_SRAM_BANKS; bank++ )
-   {
-      for ( addr = 0; addr < MEM_8KB; addr++ )
-      {
-         delete m_SRAMdisassembly[bank][addr];
-      }
-      delete [] m_SRAMmemory[bank];
-      delete [] m_SRAMopcodeMask[bank];
-      delete [] m_SRAMsloc2addr[bank];
-      delete [] m_SRAMaddr2sloc[bank];
-   }
-   delete [] m_SRAMopcodeMaskDirty;
-   delete [] m_SRAMmemory;
-   delete [] m_SRAMopcodeMask;
-   delete [] m_SRAMsloc2addr;
-   delete [] m_SRAMaddr2sloc;
-   delete [] m_SRAMsloc;
-
-   delete [] m_VRAMmemory;
-
-   for ( addr = 0; addr < MEM_1KB; addr++ )
-   {
-      delete m_EXRAMdisassembly[addr];
-   }
-   delete [] m_EXRAMmemory;
-   delete [] m_EXRAMopcodeMask;
-   delete [] m_EXRAMsloc2addr;
-   delete [] m_EXRAMaddr2sloc;
 }
 
 void CROM::SetPRGBank ( int32_t bank, uint8_t* data )
 {
-   memcpy ( m_PRGROMmemory[m_numPrgBanks], data, MEM_8KB );
+   m_PRGROMmemory.PHYSBANK(bank)->MEMSET(data);
    m_numPrgBanks++;
 }
 
@@ -329,21 +144,21 @@ void CROM::SetCHRBank ( int32_t bank, uint8_t* data )
    uint8_t ibank;
    for ( ibank = 0; ibank < 8; ibank++ )
    {
-      memcpy ( m_CHRmemory[(bank<<3)+ibank], data+(ibank*MEM_1KB), MEM_1KB );
+      m_CHRmemory.PHYSBANK((bank<<3)+ibank)->MEMSET(data+(ibank*MEM_1KB));
    }
-   m_numChrBanks = bank + 1;
+   m_numChrBanks += 8;
 }
 
 void CROM::DoneLoadingBanks ()
 {
    // This is called when the ROM loader is done so that fixup can be done...
-   if ( m_numPrgBanks == 2 )
-   {
-      // If the ROM contains only one 16KB PRG-ROM bank then it needs to be replicated
-      // to the second PRG-ROM bank slot...
-      m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ 0 ];
-      m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ 1 ];
-   }
+//   if ( m_numPrgBanks == 2 )
+//   {
+//      // If the ROM contains only one 16KB PRG-ROM bank then it needs to be replicated
+//      // to the second PRG-ROM bank slot...
+//      SetPRGBank(2,m_PRGROMmemory.PHYSBANK(0)->MEMPTR(0));
+//      SetPRGBank(3,m_PRGROMmemory.PHYSBANK(1)->MEMPTR(0));
+//   }
 
    if ( nesIsDebuggable() )
    {
@@ -357,28 +172,17 @@ void CROM::DoneLoadingBanks ()
 
 void CROM::RESET ( bool soft )
 {
-   RESET ( 0, soft );
-}
-
-void CROM::RESET ( uint32_t mapper, bool soft )
-{
    int32_t bank;
 
-   m_mapper = mapper;
-
-   if ( mapper == 0 )
+   if ( m_mapper == 0 )
    {
-      m_dbRegisters = NULL;
+      m_dbCartRegisters = NULL;
    }
 
-   if ( nesIsDebuggable() )
-   {
-      // Clear Code/Data Logger info...
-      for ( bank = 0; bank < NUM_ROM_BANKS; bank++ )
-      {
-         m_pLogger [ bank ]->ClearData ();
-      }
-   }
+   m_PRGROMmemory.RESET(soft);
+   m_CHRmemory.RESET(soft);
+   m_SRAMmemory.RESET(soft);
+   m_VRAMmemory.RESET(soft);
 
    // Support for NROM-368 for Shiru and crew.
    if ( (m_mapper == 0) && (m_numPrgBanks > 4) )
@@ -395,61 +199,39 @@ void CROM::RESET ( uint32_t mapper, bool soft )
       // so that the CPU sees the upper end of the linear memory there.  The lower end
       // from $4000-$7fff will be mapped in by the existing mapper "low read" APIs called
       // whenever the CPU reads from $4018-$7fff.
-      m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 2 ];
-      m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ 3 ];
+      m_PRGROMmemory.REMAP(0,2);
+      m_PRGROMmemory.REMAP(1,3);
 
-      m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ 4 ];
-      m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ 5 ];
+      m_PRGROMmemory.REMAP(2,4);
+      m_PRGROMmemory.REMAP(3,5);
    }
    else
    {
-      m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 0 ];
-      m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ 1 ];
+      m_PRGROMmemory.REMAP(0,0);
+      m_PRGROMmemory.REMAP(1,1);
 
       // If the ROM contains only one 16KB PRG-ROM bank then it needs to be replicated
       // to the second PRG-ROM bank slot...
       if ( m_numPrgBanks == 2 )
       {
-         m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ 0 ];
-         m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ 1 ];
+         m_PRGROMmemory.REMAP(2,0);
+         m_PRGROMmemory.REMAP(3,1);
       }
       else
       {
-         m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ 2 ];
-         m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ 3 ];
+         m_PRGROMmemory.REMAP(2,2);
+         m_PRGROMmemory.REMAP(3,3);
       }
-   }
-
-   // Default CHR map...
-   for ( bank = 0; bank < 8; bank++ )
-   {
-      m_pCHRmemory [ bank ] = m_CHRmemory [ bank ];
-   }
-
-   // Default VRAM map...
-   for ( bank = 0; bank < 8; bank++ )
-   {
-      m_pVRAMmemory [ bank ] = m_VRAMmemory+(bank*MEM_1KB);
-   }
-
-   // Assume identity-mapped SRAM...
-   // There are five possible concurrently-visible 8KB
-   // SRAM banks in MMC5: (0x6000 - 0xFFFF).  Other
-   // cartridges with 8KB of SRAM will leave this mapping alone.
-   for ( bank = 0; bank < 5; bank++ )
-   {
-      m_pSRAMmemory [ bank ] = *(m_SRAMmemory+bank);
    }
 }
 
 uint32_t CROM::LMAPPER ( uint32_t addr )
 {
-   uint8_t data = C6502::OPENBUS();
+   uint8_t data = CNES::NES()->CPU()->OPENBUS();
 
    if ( (m_mapper == 0) && (m_numPrgBanks > 4) )
    {
-      addr -= MEM_16KB;
-      return *(*(m_PRGROMmemory+(PRGBANK_VIRT(addr)))+(PRGBANK_OFF(addr)));
+      return m_PRGROMmemory.MEM(addr);
    }
    else
    {
@@ -472,135 +254,74 @@ void CROM::LMAPPER ( uint32_t addr, uint8_t data )
 
 void CROM::DISASSEMBLE ()
 {
-   uint32_t bank;
-
    // Disassemble PRG-ROM banks...
-   for ( bank = 0; bank < m_numPrgBanks; bank++ )
-   {
-      if ( *(m_PRGROMopcodeMaskDirty+bank) )
-      {
-         C6502::DISASSEMBLE ( m_PRGROMdisassembly[bank],
-                              m_PRGROMmemory[bank],
-                              MEM_8KB,
-                              m_PRGROMopcodeMask[bank],
-                              m_PRGROMsloc2addr[bank],
-                              m_PRGROMaddr2sloc[bank],
-                              &(m_PRGROMsloc[bank]) );
-
-         *(m_PRGROMopcodeMaskDirty+bank) = false;
-      }
-   }
+   m_PRGROMmemory.DISASSEMBLE();
 
    // Disassemble SRAM...
-   for ( bank = 0; bank < NUM_SRAM_BANKS; bank++ )
-   {
-      if ( *(m_SRAMopcodeMaskDirty+bank) )
-      {
-         C6502::DISASSEMBLE ( m_SRAMdisassembly[bank],
-                              m_SRAMmemory[bank],
-                              MEM_8KB,
-                              m_SRAMopcodeMask[bank],
-                              m_SRAMsloc2addr[bank],
-                              m_SRAMaddr2sloc[bank],
-                              &(m_SRAMsloc[bank]) );
-
-         *(m_SRAMopcodeMaskDirty+bank) = false;
-      }
-   }
+   m_SRAMmemory.DISASSEMBLE();
 
    // Disassemble EXRAM...
-   if ( m_EXRAMopcodeMaskDirty )
-   {
-      C6502::DISASSEMBLE ( m_EXRAMdisassembly,
-                           m_EXRAMmemory,
-                           MEM_1KB,
-                           m_EXRAMopcodeMask,
-                           m_EXRAMsloc2addr,
-                           m_EXRAMaddr2sloc,
-                           &(m_EXRAMsloc) );
+   m_EXRAMmemory.DISASSEMBLE();
+}
 
-      m_EXRAMopcodeMaskDirty = false;
+void CROM::PRINTABLEADDR ( char* buffer, uint32_t addr )
+{
+   if ( addr >= 0x8000 )
+   {
+      m_PRGROMmemory.PRINTABLEADDR(buffer,addr);
+   }
+   else if ( addr >= 0x6000 )
+   {
+      m_SRAMmemory.PRINTABLEADDR(buffer,addr);
+   }
+   else
+   {
+      m_EXRAMmemory.PRINTABLEADDR(buffer,addr);
+   }
+}
+
+void CROM::PRINTABLEADDR ( char* buffer, uint32_t addr, uint32_t absAddr )
+{
+   if ( addr >= 0x8000 )
+   {
+      m_PRGROMmemory.PRINTABLEADDR(buffer,addr,absAddr);
+   }
+   else if ( addr >= 0x6000 )
+   {
+      m_SRAMmemory.PRINTABLEADDR(buffer,addr,absAddr);
+   }
+   else
+   {
+      m_EXRAMmemory.PRINTABLEADDR(buffer,addr,absAddr);
    }
 }
 
 uint32_t CROM::PRGROMSLOC2ADDR ( uint16_t sloc )
 {
-   int32_t sloc8000 = PRGROMSLOC(0x8000);
-   int32_t slocA000 = sloc8000+PRGROMSLOC(0xA000);
-   int32_t slocC000 = slocA000+PRGROMSLOC(0xC000);
-   int32_t slocE000 = slocC000+PRGROMSLOC(0xE000);
-   int32_t addr = 0;
-
-   if ( sloc < sloc8000 )
-   {
-      addr = 0x8000;
-   }
-   else if ( sloc < slocA000 )
-   {
-      addr = 0xA000;
-      sloc -= sloc8000;
-   }
-   else if ( sloc < slocC000 )
-   {
-      addr = 0xC000;
-      sloc -= slocA000;
-   }
-   else if ( sloc < slocE000 )
-   {
-      addr = 0xE000;
-      sloc -= slocC000;
-   }
-
-   return addr+(*(*(m_PRGROMsloc2addr+PRGBANK_PHYS(addr))+sloc));
+   return m_PRGROMmemory.SLOC2ADDR(sloc);
 }
 
 uint32_t CROM::SRAMSLOC2ADDR ( uint16_t sloc )
 {
-   int32_t addr = 0x6000;
-
-   return addr+(*(*(m_SRAMsloc2addr+SRAMBANK_PHYS(addr))+sloc));
+   return m_SRAMmemory.SLOC2ADDR(sloc);
 }
 
 uint32_t CROM::EXRAMSLOC2ADDR ( uint16_t sloc )
 {
-   return 0x5C00+(*(m_EXRAMsloc2addr+sloc));
+   return m_EXRAMmemory.SLOC2ADDR(sloc);
 }
 
 uint16_t CROM::PRGROMADDR2SLOC ( uint32_t addr )
 {
-   int32_t sloc8000 = PRGROMSLOC(0x8000);
-   int32_t slocA000 = sloc8000+PRGROMSLOC(0xA000);
-   int32_t slocC000 = slocA000+PRGROMSLOC(0xC000);
-   int32_t sloc;
-
-   if ( addr < 0xA000 )
-   {
-      sloc = 0;
-   }
-   else if ( addr < 0xC000 )
-   {
-      sloc = sloc8000;
-   }
-   else if ( addr < 0xE000 )
-   {
-      sloc = slocA000;
-   }
-   else
-   {
-      sloc = slocC000;
-   }
-
-   return sloc+(*(*(m_PRGROMaddr2sloc+PRGBANK_PHYS(addr))+PRGBANK_OFF(addr)));
+   return m_PRGROMmemory.ADDR2SLOC(addr);
 }
 
 uint16_t CROM::SRAMADDR2SLOC ( uint32_t addr )
 {
-   int32_t sloc = 0;
-
-   return sloc+(*(*(m_SRAMaddr2sloc+SRAMBANK_PHYS(addr))+SRAMBANK_OFF(addr)));
+   return m_SRAMmemory.ADDR2SLOC(addr);
 }
 
 uint16_t CROM::EXRAMADDR2SLOC ( uint32_t addr )
 {
-   return *(m_EXRAMaddr2sloc+(addr-0x5C00));
+   return m_EXRAMmemory.ADDR2SLOC(addr);
 }

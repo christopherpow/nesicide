@@ -22,7 +22,7 @@ MemoryInspectorDockWidget::MemoryInspectorDockWidget(memDBFunc memDB,CBreakpoint
    ui->tableView->setModel(model);
    ui->tableView->setItemDelegate(delegate);
 
-   m_memDB = memDB;
+   m_memDB = memDB();
 }
 
 MemoryInspectorDockWidget::~MemoryInspectorDockWidget()
@@ -157,7 +157,7 @@ void MemoryInspectorDockWidget::on_actionBreak_on_CPU_access_here_triggered()
    QModelIndex index = ui->tableView->currentIndex();
    int row = index.row();
    int col = index.column();
-   int addr = m_memDB()->GetBase()+(row*m_memDB()->GetNumColumns())+col;
+   int addr = m_memDB->GetBase()+(row*m_memDB->GetNumColumns())+col;
    int bpIdx;
 
    bpIdx = m_pBreakpoints->AddBreakpoint ( eBreakOnCPUMemoryAccess,
@@ -187,7 +187,7 @@ void MemoryInspectorDockWidget::on_actionBreak_on_CPU_read_here_triggered()
    QModelIndex index = ui->tableView->currentIndex();
    int row = index.row();
    int col = index.column();
-   int addr = m_memDB()->GetBase()+(row*m_memDB()->GetNumColumns())+col;
+   int addr = m_memDB->GetBase()+(row*m_memDB->GetNumColumns())+col;
    int bpIdx;
 
    bpIdx = m_pBreakpoints->AddBreakpoint ( eBreakOnCPUMemoryRead,
@@ -217,7 +217,7 @@ void MemoryInspectorDockWidget::on_actionBreak_on_CPU_write_here_triggered()
    QModelIndex index = ui->tableView->currentIndex();
    int row = index.row();
    int col = index.column();
-   int addr = m_memDB()->GetBase()+(row*m_memDB()->GetNumColumns())+col;
+   int addr = m_memDB->GetBase()+(row*m_memDB->GetNumColumns())+col;
    int bpIdx;
 
    bpIdx = m_pBreakpoints->AddBreakpoint ( eBreakOnCPUMemoryWrite,

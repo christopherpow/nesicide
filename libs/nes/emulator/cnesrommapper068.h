@@ -5,17 +5,19 @@
 
 class CROMMapper068 : public CROM
 {
-public:
+private:
    CROMMapper068();
+public:
+   static inline CROMMapper068* CARTFACTORY() { return new CROMMapper068(); }
    ~CROMMapper068();
 
-   static void RESET ( bool soft );
-   static void HMAPPER ( uint32_t addr, uint8_t data );
-   static uint32_t DEBUGINFO ( uint32_t addr );
+   void RESET ( bool soft );
+   void HMAPPER ( uint32_t addr, uint8_t data );
+   uint32_t DEBUGINFO ( uint32_t addr );
 
 protected:
    // Sunsoft Mapper #4
-   static uint8_t  m_reg [ 8 ];
+   uint8_t  m_reg [ 8 ];
 };
 
 #endif

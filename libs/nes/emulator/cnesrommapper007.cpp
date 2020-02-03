@@ -44,10 +44,10 @@ static const char* columnHeadings [] =
 
 static CRegisterDatabase* dbRegisters = new CRegisterDatabase(eMemory_cartMapper,1,1,1,tblRegisters,rowHeadings,columnHeadings);
 
-uint8_t  CROMMapper007::m_reg = 0x00;
-
 CROMMapper007::CROMMapper007()
+   : CROM(7)
 {
+   m_reg = 0x00;
 }
 
 CROMMapper007::~CROMMapper007()
@@ -56,18 +56,14 @@ CROMMapper007::~CROMMapper007()
 
 void CROMMapper007::RESET ( bool soft )
 {
-   m_mapper = 7;
+   m_dbCartRegisters = dbRegisters;
 
-   m_dbRegisters = dbRegisters;
+   CROM::RESET ( soft );
 
-   CROM::RESET ( m_mapper, soft );
+   m_PRGROMmemory.REMAP(2,m_numPrgBanks-2);
+   m_PRGROMmemory.REMAP(3,m_numPrgBanks-1);
 
-   m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ 0 ];
-   m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ 1 ];
-   m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ m_numPrgBanks-2 ];
-   m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ m_numPrgBanks-1 ];
-
-   CPPU::MIRROR ( 0 );
+   CNES::NES()->PPU()->MIRROR ( 0 );
 
    // CHR ROM/RAM already set up in CROM::RESET()...
 }
@@ -85,16 +81,16 @@ void CROMMapper007::HMAPPER ( uint32_t addr, uint8_t data )
 
    bank = (m_reg&0xF)<<2;
 
-   m_pPRGROMmemory [ 0 ] = m_PRGROMmemory [ bank ];
-   m_pPRGROMmemory [ 1 ] = m_PRGROMmemory [ bank+1 ];
-   m_pPRGROMmemory [ 2 ] = m_PRGROMmemory [ bank+2 ];
-   m_pPRGROMmemory [ 3 ] = m_PRGROMmemory [ bank+3 ];
+   m_PRGROMmemory.REMAP(0,bank);
+   m_PRGROMmemory.REMAP(1,bank+1);
+   m_PRGROMmemory.REMAP(2,bank+2);
+   m_PRGROMmemory.REMAP(3,bank+3);
 
-   CPPU::MIRROR ( (m_reg&0x10)>>4 );
+   CNES::NES()->PPU()->MIRROR ( (m_reg&0x10)>>4 );
 
    if ( nesIsDebuggable() )
    {
       // Check mapper state breakpoints...
-      CNES::CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperState,0);
+      CNES::NES()->CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperState,0);
    }
 }

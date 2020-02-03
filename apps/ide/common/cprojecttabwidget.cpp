@@ -350,7 +350,7 @@ void CProjectTabWidget::snapToTab(QString item)
       {
          QString str;
          str.sprintf("Locate %s...",file.toLatin1().constData());
-         QString newDir = QFileDialog::getOpenFileName(0,str,QDir::currentPath());
+         QString newDir = QFileDialog::getOpenFileName(0,str,QDir::currentPath(),QString(),NULL,QFileDialog::DontUseNativeDialog);
          if ( !newDir.isEmpty() )
          {
             QFileInfo fileInfo(newDir);

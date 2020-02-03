@@ -85,6 +85,9 @@ enum
    NUM_MAPPER_EVENTS
 };
 
+// This will be set by a cartridge mapper that has registers
+extern CRegisterDatabase*  m_dbCartRegisters;
+
 // Video modes.  The emulator supports both NTSC and PAL.
 #define MODE_NTSC  0
 #define MODE_PAL   1
@@ -476,7 +479,7 @@ char* nesGetVersion();
 // 1. Set the NES system mode to MODE_NTSC or MODE_PAL using nesSetSystemMode().
 // 2. Provide a 256x256x3-byte chunk of memory to the emulator core for it to
 //    render the NES TV surface onto, using nesSetTVOut().
-// 3. Clear any emulation state by using nesUnloadROM().
+// 3. Clear any emulation state by using nesUnload().
 // 4. Pass 16KB PRG-ROM banks in order and 8KB CHR-ROM banks in order to the emulation
 //    core by using nesLoadPRGROMBank() and nesLoadCHRROMBank() respectively.  If no
 //    CHR-ROM banks are present, do not call nesLoadCHRROMBank().
@@ -501,14 +504,14 @@ char* nesGetVersion();
 void nesSetSystemMode ( uint32_t mode );
 uint32_t nesGetSystemMode ( void );
 void nesSetTVOut ( int8_t* tv );
-void nesUnloadROM ( void );
+void nesFrontload ( uint32_t mapper );
 void nesLoadPRGROMBank ( uint32_t bank, uint8_t* bankData );
 void nesLoadCHRROMBank ( uint32_t bank, uint8_t* bankData );
 void nesSetHorizontalMirroring ( void );
 void nesSetVerticalMirroring ( void );
 void nesSetFourScreen ( void );
-void nesLoadROM ( void );
-void nesResetInitial ( uint32_t mapper );
+void nesFinalizeLoad ( void );
+void nesResetInitial ();
 void nesReset ( bool soft );
 void nesRun ( uint32_t* joypads );
 int32_t nesGetAudioSamplesAvailable ( void );
@@ -564,6 +567,7 @@ void    nesSetPaletteGreenComponent(uint32_t idx,uint32_t g);
 void    nesSetPaletteBlueComponent(uint32_t idx,uint32_t b);
 void nesSetBreakOnKIL ( bool breakOnKIL );
 int8_t* nesGetTVOut ( void );
+void nesSetMMC5AudioChannelMask ( uint32_t mask );
 void nesSetVRC6AudioChannelMask ( uint32_t mask );
 void nesSetN106AudioChannelMask ( uint32_t mask );
 void nesSetAudioChannelMask ( uint8_t mask );
@@ -598,7 +602,6 @@ bool nesCPUIsFetchingOpcode ( void );
 bool nesCPUIsWritingMemory ( void );
 uint32_t nesGetCPUEffectiveAddress ( void );
 uint32_t nesGetCPUMemory ( uint32_t addr );
-uint8_t* nesGetCPUMemoryPtr ( void );
 void nesSetCPUMemory ( uint32_t addr, uint32_t data );
 uint32_t nesGetCPURegister ( uint32_t addr );
 void nesSetCPURegister ( uint32_t addr, uint32_t data );
@@ -696,7 +699,6 @@ uint32_t nesGetVRAMData ( uint32_t addr );
 void nesSetVRAMData ( uint32_t addr, uint32_t data );
 bool nesMapperRemapsPRGROM ( void );
 bool nesMapperRemapsCHRMEM ( void );
-bool nesMapperRemapsVMEM ( void );
 uint32_t nesMapperRemappedVMEMSize ( void );
 typedef struct
 {
@@ -717,7 +719,7 @@ typedef struct
 {
    uint32_t frame;
    uint32_t cycle;
-   uint8_t memory[MEM_32KB];
+   uint8_t memory[MEM_16KB];
    uint8_t oamMemory[MEM_256B];
    uint8_t paletteMemory[MEM_32B];
    uint8_t reg[NUM_PPU_REGS];

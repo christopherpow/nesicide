@@ -29,7 +29,7 @@ public slots:
    void update(void);
 
 private:
-   regDBFunc m_regDB;
+   CRegisterDatabase* m_regDB;
 };
 
 #endif // CDEBUGGERREGISTERDISPLAYMODEL_H

@@ -5,7 +5,8 @@
 #include "main.h"
 
 DebuggerUpdateThread::DebuggerUpdateThread(void (*func)(),QObject */*parent*/) :
-    QObject(),_func(func)
+    QObject(),
+    _func(func)
 {
    pThread = new QThread();
 
@@ -25,7 +26,7 @@ DebuggerUpdateThread::~DebuggerUpdateThread()
 void DebuggerUpdateThread::updateDebuggers()
 {
    if ( _func )
-      _func();
+         _func();
 
    emit updateComplete();
 }

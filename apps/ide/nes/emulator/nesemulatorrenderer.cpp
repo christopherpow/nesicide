@@ -3,7 +3,8 @@
 #include "main.h"
 
 CNESEmulatorRenderer::CNESEmulatorRenderer(QWidget* parent, char* imgData)
-   : QGLWidget(parent)
+   : QOpenGLWidget(parent),
+     initialized(false)
 {
    imageData = imgData;
    scrollX = 0;
@@ -13,11 +14,21 @@ CNESEmulatorRenderer::CNESEmulatorRenderer(QWidget* parent, char* imgData)
 
 CNESEmulatorRenderer::~CNESEmulatorRenderer()
 {
-   glDeleteTextures(1,&textureID);
+   if ( initialized )
+   {
+      glDeleteTextures(1,(GLuint*)&textureID);
+   }
 }
 
 void CNESEmulatorRenderer::initializeGL()
 {
+   initializeOpenGLFunctions();
+
+   if ( initialized )
+   {
+      glDeleteTextures(1,(GLuint*)&textureID);
+   }
+
    glGenTextures(1,&textureID);
 
    zoom = 100;
@@ -47,8 +58,6 @@ void CNESEmulatorRenderer::initializeGL()
    // Enable textures
    glEnable(GL_TEXTURE_2D);
 
-   resizeGL(this->width(), this->height());
-
    // Create the texture we will be rendering onto
    glBindTexture(GL_TEXTURE_2D, textureID);
 
@@ -75,6 +84,8 @@ void CNESEmulatorRenderer::initializeGL()
 
    // Load the actual texture
    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
+
+   initialized = true;
 }
 
 void CNESEmulatorRenderer::setBGColor(QColor clr)
@@ -87,6 +98,10 @@ void CNESEmulatorRenderer::resizeGL(int width, int height)
    QSize actualSize;
    QPoint offset;
    int realWidth;
+
+   initializeOpenGLFunctions();
+
+   QOpenGLWidget::resizeGL(width,height);
 
    // Force .5x step scaling factors.
    if ( aspect43 )
@@ -152,6 +167,7 @@ void CNESEmulatorRenderer::resizeGL(int width, int height)
 
 void CNESEmulatorRenderer::paintGL()
 {
+   glBindTexture (GL_TEXTURE_2D, textureID);
    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
    if ( linearInterpolation )
@@ -164,6 +180,7 @@ void CNESEmulatorRenderer::paintGL()
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
    }
+
    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, 256, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
    glBegin(GL_QUADS);
    glTexCoord2f (0.0, 240.f/256);

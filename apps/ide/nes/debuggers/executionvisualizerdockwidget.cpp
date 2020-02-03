@@ -16,8 +16,6 @@ ExecutionVisualizerDockWidget::ExecutionVisualizerDockWidget(QWidget *parent) :
     CDebuggerBase(parent),
     ui(new Ui::ExecutionVisualizerDockWidget)
 {
-   int i;
-
    ui->setupUi(this);
 
    model = new CExecutionMarkerDisplayModel();
@@ -27,19 +25,9 @@ ExecutionVisualizerDockWidget::ExecutionVisualizerDockWidget(QWidget *parent) :
    
    QObject::connect(ui->tableView->selectionModel(),SIGNAL(currentChanged(QModelIndex,QModelIndex)),this,SLOT(tableView_currentChanged(QModelIndex,QModelIndex)));
 
-   imgData = new char[512*512*4];
+   RENDERCPUEXECUTIONVISUALIZER();
 
-   // Clear image...
-   for ( i = 0; i < 512*512*4; i+=4 )
-   {
-      imgData[i] = 0;
-      imgData[i+1] = 0;
-      imgData[i+2] = 0;
-      imgData[i+3] = 0xFF;
-   }
-   C6502DBG::ExecutionVisualizerInspectorTV ( (int8_t*)imgData );
-
-   renderer = new PanZoomRenderer(341,312,512,10000,imgData,false,ui->frame);
+   renderer = new PanZoomRenderer(341,312,512,10000,CPUEXECUTIONVISUALIZERTV(),false,ui->frame);
    ui->frame->layout()->addWidget(renderer);
    ui->frame->layout()->update();
 
@@ -48,7 +36,7 @@ ExecutionVisualizerDockWidget::ExecutionVisualizerDockWidget(QWidget *parent) :
    sizes.append(200);
    ui->splitter->setSizes(sizes);
 
-   pThread = new DebuggerUpdateThread(&C6502DBG::RENDEREXECUTIONVISUALIZER);
+   pThread = new DebuggerUpdateThread(&RENDERCPUEXECUTIONVISUALIZER);
    QObject::connect(pThread,SIGNAL(updateComplete()),this,SLOT(renderData()));
 }
 
@@ -56,7 +44,6 @@ ExecutionVisualizerDockWidget::~ExecutionVisualizerDockWidget()
 {
    delete pThread;
    delete ui;
-   delete imgData;
    delete renderer;
    delete model;
 }
@@ -134,7 +121,7 @@ void ExecutionVisualizerDockWidget::contextMenuEvent(QContextMenuEvent *event)
 
 void ExecutionVisualizerDockWidget::renderData()
 {
-   renderer->reloadData(imgData);
+   renderer->reloadData(CPUEXECUTIONVISUALIZERTV());
    model->update();
 }
 

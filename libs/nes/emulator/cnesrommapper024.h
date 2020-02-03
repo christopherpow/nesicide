@@ -145,35 +145,35 @@ struct VRC6SawtoothChannel
 
 class CROMMapper024 : public CROM
 {
-public:
+protected:
    CROMMapper024();
+public:
+   static inline CROMMapper024* CARTFACTORY() { return new CROMMapper024(); }
    ~CROMMapper024();
 
-   static void RESET ( bool soft );
-   static void HMAPPER ( uint32_t addr, uint8_t data );
-   static void SYNCCPU ( void );
-   static uint32_t DEBUGINFO ( uint32_t addr );
-   static uint16_t AMPLITUDE ( void );
-   static void SOUNDENABLE ( uint32_t mask )
-   {
-      m_pulse[0].muted = !(mask&0x01);
-      m_pulse[1].muted = !(mask&0x02);
-      m_sawtooth.muted = !(mask&0x04);
-   }
+   void RESET ( bool soft );
+   void HMAPPER ( uint32_t addr, uint8_t data );
+   void SYNCCPU ( void );
+   uint32_t DEBUGINFO ( uint32_t addr );
+   uint16_t AMPLITUDE ( void );
+
+   static void SOUNDENABLE(uint32_t mask) { m_soundEnableMask = mask; }
 
 protected:
    // VRC6
-   static uint8_t  m_reg [ 23 ];
-   static uint8_t  m_chr [ 8 ];
-   static uint8_t  m_irqReload;
-   static uint8_t  m_irqCounter;
-   static uint8_t  m_irqPrescaler;
-   static uint8_t  m_irqPrescalerPhase;
-   static bool     m_irqEnabled;
+   uint8_t  m_reg [ 23 ];
+   uint8_t  m_chr [ 8 ];
+   uint8_t  m_irqReload;
+   uint8_t  m_irqCounter;
+   uint8_t  m_irqPrescaler;
+   uint8_t  m_irqPrescalerPhase;
+   bool     m_irqEnabled;
+
+   static uint32_t  m_soundEnableMask;
 
    // VRC6 sound
-   static VRC6PulseChannel m_pulse[2];
-   static VRC6SawtoothChannel m_sawtooth;
+   VRC6PulseChannel m_pulse[2];
+   VRC6SawtoothChannel m_sawtooth;
 };
 
 #endif
