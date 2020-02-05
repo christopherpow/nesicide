@@ -69,6 +69,7 @@ private slots:
    void on_addSearchPath_clicked();
    void on_removeSearchPath_clicked();
    void on_sourceSearchPathBrowse_clicked();
+   void on_linkerConfigFileNew_clicked();
 };
 
 #endif // PROJECTPROPERTIESDIALOG_H

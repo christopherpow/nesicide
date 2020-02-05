@@ -18,11 +18,17 @@ CNESEmulatorRenderer::~CNESEmulatorRenderer()
    {
       glDeleteTextures(1,(GLuint*)&textureID);
    }
+   DeleteFunctions();
 }
 
 void CNESEmulatorRenderer::initializeGL()
 {
-   initializeOpenGLFunctions();
+   QOpenGLWidget::initializeGL();
+
+   connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &CNESEmulatorRenderer::DeleteFunctions);
+
+   m_pFunctions = new QOpenGLFunctions();
+   m_pFunctions->initializeOpenGLFunctions();
 
    if ( initialized )
    {
@@ -90,7 +96,9 @@ void CNESEmulatorRenderer::initializeGL()
 
 void CNESEmulatorRenderer::setBGColor(QColor clr)
 {
+   makeCurrent();
    glClearColor((float)clr.red() / 255.0f, (float)clr.green() / 255.0f, (float)clr.blue() / 255.0f, 0.5f);
+   doneCurrent();
 }
 
 void CNESEmulatorRenderer::resizeGL(int width, int height)
@@ -98,8 +106,6 @@ void CNESEmulatorRenderer::resizeGL(int width, int height)
    QSize actualSize;
    QPoint offset;
    int realWidth;
-
-   initializeOpenGLFunctions();
 
    QOpenGLWidget::resizeGL(width,height);
 
@@ -167,6 +173,8 @@ void CNESEmulatorRenderer::resizeGL(int width, int height)
 
 void CNESEmulatorRenderer::paintGL()
 {
+   QOpenGLWidget::paintGL();
+
    glBindTexture (GL_TEXTURE_2D, textureID);
    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 

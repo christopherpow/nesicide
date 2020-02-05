@@ -111,7 +111,7 @@
       <enum>QFrame::NoFrame</enum>
      </property>
      <property name="currentIndex">
-      <number>7</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="project">
       <layout class="QGridLayout" name="gridLayout_8">
@@ -473,6 +473,17 @@
           <widget class="QLineEdit" name="linkerConfigFile">
            <property name="readOnly">
             <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="linkerConfigFileNew">
+           <property name="text">
+            <string>New</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../common/resource.qrc">
+             <normaloff>:/resources/22_document-new.png</normaloff>:/resources/22_document-new.png</iconset>
            </property>
           </widget>
          </item>
@@ -1304,8 +1315,6 @@
   </layout>
  </widget>
  <resources>
-  <include location="../../../common/resource.qrc"/>
-  <include location="../../../common/resource.qrc"/>
   <include location="../../../common/resource.qrc"/>
  </resources>
  <connections>

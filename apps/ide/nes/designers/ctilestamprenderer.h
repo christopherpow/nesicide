@@ -5,7 +5,7 @@
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions>
 
-class CTileStampRenderer : public QOpenGLWidget, protected QOpenGLFunctions
+class CTileStampRenderer : public QOpenGLWidget
 {
 public:
    CTileStampRenderer(QWidget* parent, char* data);
@@ -23,6 +23,9 @@ public:
    void setBox(int x1=-1,int y1=-1,int x2=-1,int y2=-1) { boxX1 = x1; boxY1 = y1; boxX2 = x2; boxY2 = y2; }
    void getBox(int* x1,int* y1,int* x2,int* y2) { (*x1) = boxX1; (*y1) = boxY1; (*x2) = boxX2; (*y2) = boxY2; }
 protected:
+   void DeleteFunctions() {delete(m_pFunctions); m_pFunctions = nullptr;}
+
+   QOpenGLFunctions * m_pFunctions = nullptr;
    int xSize;
    int ySize;
    int zoom;

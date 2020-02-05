@@ -571,7 +571,7 @@ void ProjectPropertiesDialog::on_projectNameLineEdit_textEdited(QString )
 
 void ProjectPropertiesDialog::on_linkerConfigFileBrowse_clicked()
 {
-   QString value = QFileDialog::getSaveFileName(this,"Linker Config File",QDir::currentPath());
+   QString value = QFileDialog::getOpenFileName(this,"Linker Config File",QDir::currentPath());
    QDir dir(QDir::currentPath());
 
    if ( !value.isEmpty() )
@@ -857,4 +857,19 @@ void ProjectPropertiesDialog::on_sourceSearchPathBrowse_clicked()
 
    ui->sourceSearchPath->setText(value);
    ui->addSearchPath->setEnabled(!value.isEmpty());
+}
+
+void ProjectPropertiesDialog::on_linkerConfigFileNew_clicked()
+{
+   QString value = QFileDialog::getSaveFileName(this,"Linker Config File",QDir::currentPath());
+   QDir dir(QDir::currentPath());
+
+   if ( !value.isEmpty() )
+   {
+      ui->linkerConfigFile->setText(dir.fromNativeSeparators(dir.relativeFilePath(value)));
+      ui->linkerConfig->setEnabled(true);
+      ui->linkerConfig->setText("");
+   }
+   deserializeLinkerConfig();
+
 }

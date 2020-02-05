@@ -6,7 +6,7 @@
 #include <QOpenGLFunctions>
 #include <QMouseEvent>
 
-class CRendererBase : public QOpenGLWidget, protected QOpenGLFunctions
+class CRendererBase : public QOpenGLWidget
 {
    Q_OBJECT
 public:
@@ -25,6 +25,9 @@ public:
    bool pointToPixel(int ptx,int pty,int* pixx,int* pixy);
 
 protected:
+   void DeleteFunctions() {delete(m_pFunctions); m_pFunctions = nullptr;}
+
+   QOpenGLFunctions * m_pFunctions = nullptr;
    int _sizeX;
    int _trueSizeX;
    int _sizeY;

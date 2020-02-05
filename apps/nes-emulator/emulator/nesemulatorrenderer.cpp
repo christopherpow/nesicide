@@ -17,11 +17,17 @@ CNESEmulatorRenderer::~CNESEmulatorRenderer()
    {
       glDeleteTextures(1,(GLuint*)&textureID);
    }
+   DeleteFunctions();
 }
 
 void CNESEmulatorRenderer::initializeGL()
 {
-   initializeOpenGLFunctions();
+   QOpenGLWidget::initializeGL();
+
+   connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &CNESEmulatorRenderer::DeleteFunctions);
+
+   m_pFunctions = new QOpenGLFunctions();
+   m_pFunctions->initializeOpenGLFunctions();
 
    if ( initialized )
    {
@@ -100,6 +106,8 @@ void CNESEmulatorRenderer::resizeGL(int width, int height)
    QPoint offset;
    int realWidth;
 
+   QOpenGLWidget::resizeGL(width, height);
+
    // Force .5x step scaling factors.
    if ( aspect43 )
    {
@@ -164,6 +172,8 @@ void CNESEmulatorRenderer::resizeGL(int width, int height)
 
 void CNESEmulatorRenderer::paintGL()
 {
+   QOpenGLWidget::paintGL();
+
    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
    glBindTexture (GL_TEXTURE_2D, textureID);
 

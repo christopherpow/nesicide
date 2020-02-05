@@ -16,17 +16,6 @@ void QsciAPIsCA65::updateAutoCompletionList(const QStringList &context,
         QStringList &list)
 {
    QsciAPIs::updateAutoCompletionList(context,list);
-   qDebug("updateAutoCompletionList: context=[");
-   foreach ( QString str, context )
-   {
-      qDebug(str.toUtf8().data());
-   }
-   qDebug("], list=[");
-   foreach ( QString str, list )
-   {
-      qDebug(str.toUtf8().data());
-   }
-   qDebug("]");
 }
 
 //! \reimp

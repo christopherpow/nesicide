@@ -5,7 +5,7 @@
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions>
 
-class CNESEmulatorRenderer : public QOpenGLWidget, protected QOpenGLFunctions
+class CNESEmulatorRenderer : public QOpenGLWidget
 {
    Q_OBJECT
 public:
@@ -26,6 +26,10 @@ public:
    bool linearInterpolation;
    bool aspect43;
    bool initialized;
+protected:
+   void DeleteFunctions() {delete(m_pFunctions); m_pFunctions = nullptr;}
+
+   QOpenGLFunctions * m_pFunctions = nullptr;
 };
 
 #endif // CNESEMULATORRENDERER_H

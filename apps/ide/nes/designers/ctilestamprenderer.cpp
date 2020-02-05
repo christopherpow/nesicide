@@ -22,11 +22,17 @@ CTileStampRenderer::~CTileStampRenderer()
    {
       glDeleteTextures(1,(GLuint*)&textureID);
    }
+   DeleteFunctions();
 }
 
 void CTileStampRenderer::initializeGL()
 {
-   initializeOpenGLFunctions();
+   QOpenGLWidget::initializeGL();
+
+   connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &CTileStampRenderer::DeleteFunctions);
+
+   m_pFunctions = new QOpenGLFunctions();
+   m_pFunctions->initializeOpenGLFunctions();
 
    if ( initialized )
    {
@@ -92,8 +98,6 @@ void CTileStampRenderer::resizeGL(int width, int height)
 {
    QSize actualSize;
 
-   initializeOpenGLFunctions();
-
    QOpenGLWidget::resizeGL(width,height);
 
    // Width cannot be 0 or the system will freak out
@@ -114,6 +118,8 @@ void CTileStampRenderer::paintGL()
    int idxx;
    int idxy;
    QSize actualSize;
+
+   QOpenGLWidget::paintGL();
 
    // Force integral scaling factors. TODO: Add to environment settings.
    int zf  = zoom / 100;

@@ -40,11 +40,17 @@ CRendererBase::~CRendererBase()
    {
       glDeleteTextures(1,(GLuint*)&_textureID);
    }
+   DeleteFunctions();
 }
 
 void CRendererBase::initializeGL()
 {
-   initializeOpenGLFunctions();
+   QOpenGLWidget::initializeGL();
+
+   connect(context(), &QOpenGLContext::aboutToBeDestroyed, this, &CRendererBase::DeleteFunctions);
+
+   m_pFunctions = new QOpenGLFunctions();
+   m_pFunctions->initializeOpenGLFunctions();
 
    if ( _initialized )
    {
@@ -116,8 +122,6 @@ void CRendererBase::resizeGL(int width, int height)
 {
    QSize actualSize;
 
-   initializeOpenGLFunctions();
-
    QOpenGLWidget::resizeGL(width,height);
 
    // Force integral scaling factors. TODO: Add to environment settings.
@@ -158,6 +162,8 @@ void CRendererBase::resizeGL(int width, int height)
 
 void CRendererBase::paintGL()
 {
+   QOpenGLWidget::paintGL();
+
    glBindTexture (GL_TEXTURE_2D, _textureID);
    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, _sizeX, _sizeY, GL_RGBA, GL_UNSIGNED_BYTE, _imageData);
