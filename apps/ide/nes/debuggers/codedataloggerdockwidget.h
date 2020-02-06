@@ -40,7 +40,6 @@ private:
    Ui::CodeDataLoggerDockWidget *ui;
    PanZoomRenderer* renderer;
    DebuggerUpdateThread* pThread;
-   QPoint pressPos;
 
 public slots:
    void renderData();

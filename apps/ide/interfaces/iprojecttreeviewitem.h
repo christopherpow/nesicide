@@ -159,8 +159,7 @@ public:
    void reset(IProjectTreeViewItem* pTVI)
    {
       m_pBase = pTVI;
-      m_pAt = pTVI;
-      m_nodeIndex = 0;
+      reset();
    }
 
    void next()

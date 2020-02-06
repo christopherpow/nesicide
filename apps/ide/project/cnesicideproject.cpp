@@ -73,7 +73,7 @@ void CNesicideProject::initializeProject()
 {
    QString cc65home = qgetenv("CC65_HOME");
    QDir dir = m_projectOutputBasePath;
-   
+
    // Initialize this node's attributes
    m_projectPaletteEntries.clear();
    m_sourceSearchPaths.clear();

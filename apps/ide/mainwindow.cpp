@@ -2077,6 +2077,8 @@ void MainWindow::on_actionNew_Project_triggered()
       }
       else
       {
+         nesicideProject->terminateProject();
+
          QString templateDirName = ":/templates/";
          QString projectFileName;
          QDir projectDir;

@@ -2,6 +2,7 @@
 #define DEBUGGERUPDATETHREAD_H
 
 #include <QThread>
+#include <QMutex>
 
 class DebuggerUpdateThread : public QObject
 {
@@ -20,7 +21,9 @@ public slots:
 
 private:
    void (*_func)();
-   QThread* pThread;
+   static QThread *pThread;
+   static QMutex *pMutex;
+   static int resourceCount;
 };
 
 #endif // DEBUGGERUPDATETHREAD_H

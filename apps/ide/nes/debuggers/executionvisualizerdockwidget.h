@@ -51,7 +51,6 @@ private:
    CExecutionMarkerDisplayModel *model;
    PanZoomRenderer* renderer;
    DebuggerUpdateThread* pThread;
-   QPoint pressPos;
 };
 
 #endif // EXECUTIONVISUALIZERDOCKWIDGET_H

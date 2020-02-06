@@ -58,7 +58,7 @@ bool CSourceItem::serializeContent()
       QDir dir(QDir::currentPath());
       QFile fileOut(dir.relativeFilePath(m_path));
 
-      if ( fileOut.open(QIODevice::ReadWrite|QIODevice::Truncate|QIODevice::Text) )
+      if ( fileOut.open(QIODevice::ReadWrite|QIODevice::Truncate) )
       {
          QTextStream out(&fileOut);
          out.setCodec(QTextCodec::codecForName(EnvironmentSettingsDialog::textEncodingString().toUtf8()));
@@ -114,7 +114,7 @@ bool CSourceItem::deserializeContent()
    QDir dir(QDir::currentPath());
    QFile fileIn(dir.relativeFilePath(m_path));
 
-   if ( fileIn.exists() && fileIn.open(QIODevice::ReadOnly|QIODevice::Text) )
+   if ( fileIn.exists() && fileIn.open(QIODevice::ReadOnly) )
    {
       QTextStream in(&fileIn);
       in.setCodec(QTextCodec::codecForName(EnvironmentSettingsDialog::textEncodingString().toUtf8()));

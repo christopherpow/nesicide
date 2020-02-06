@@ -33,7 +33,6 @@ private:
 //   char* imgData;
 //   PanZoomRenderer* renderer;
 //   DebuggerUpdateThread* pThread;
-//   QPoint pressPos;
 };
 
 #endif // JOYPADLOGGERDOCKWIDGET_H

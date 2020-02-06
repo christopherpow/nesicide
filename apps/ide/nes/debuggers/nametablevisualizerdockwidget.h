@@ -35,7 +35,6 @@ private:
    Ui::NameTableVisualizerDockWidget *ui;
    PanZoomRenderer* renderer;
    DebuggerUpdateThread* pThread;
-   QPoint pressPos;
 };
 
 #endif // NAMETABLEVISUALIZERDOCKWIDGET_H

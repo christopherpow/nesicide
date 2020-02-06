@@ -36,7 +36,6 @@ private:
    Ui::OAMVisualizerDockWidget *ui;
    PanZoomRenderer* renderer;
    DebuggerUpdateThread* pThread;
-   QPoint pressPos;
 };
 
 #endif // OAMVISUALIZERDOCKWIDGET_H
