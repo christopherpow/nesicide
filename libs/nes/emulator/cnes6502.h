@@ -146,10 +146,11 @@ class CNES;
 class C6502
 {
 public:
-   C6502();
+   C6502(CNES *pNES);
    ~C6502();
 
-   inline CAPU*  APU() const { return m_apu; }
+   inline CNES *NES() const { return m_nes; }
+   inline CAPU *APU() const { return m_apu; }
 
    // Emulation routines.
    void EMULATE ( int32_t cycles );
@@ -529,6 +530,7 @@ public:
 
 protected:
    CAPU* m_apu;
+   CNES* m_nes;
 
    // Routine to calculate the effective address of a particular
    // instruction addressing mode based on the internal state of the CPU.

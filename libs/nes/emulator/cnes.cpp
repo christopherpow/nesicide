@@ -24,7 +24,7 @@
 CNES* CNES::self = new CNES();
 
 CNES::CNES()
-   : m_cpu(new C6502()),
+   : m_cpu(new C6502(this)),
      m_ppu(new CPPU()),
      m_cart(CARTFACTORY(0))
 {

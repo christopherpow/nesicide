@@ -316,8 +316,9 @@ CNES6502_opcode C6502::m_6502opcode [ 256 ] =
    { 0xFF, "INS", &C6502::INS, AM_ABSOLUTE_INDEXED_X, 7, false, true, 0x40 }  // INS - Absolute,X (undocumented)
 };
 
-C6502::C6502()
-   : m_6502memory(CMEMORY(0x0000, MEM_2KB, 1, 4)),
+C6502::C6502(CNES *pNES)
+   : m_nes(pNES),
+     m_6502memory(CMEMORY(0x0000, MEM_2KB, 1, 4)),
      m_apu(new CAPU())
 {
    m_killed = false;              // KIL opcode not executed.
@@ -395,16 +396,16 @@ void C6502::EMULATE ( int32_t cycles )
                   nmiPending = m_nmiPending;
                   (*opcodeData) = FETCH ();
 
-                  CNES::NES()->CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUExecution, (*opcodeData) );
+                  NES()->CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUExecution, (*opcodeData) );
 
                   // Save the pointer to where to put the disassembly of
                   // the current opcode now.  This might be the last fetch
                   // for an instruction and the disassembly should be placed there.
-                  pDisassemblySample = CNES::NES()->TRACER()->GetLastCPUSample ();
+                  pDisassemblySample = NES()->TRACER()->GetLastCPUSample ();
 
                   // Check flags breakpoint.  Do it here instead of everywhere flags are
                   // changed so as to limit the number of calls to check the breakpoint.
-                  CNES::NES()->CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,CPU_F);
+                  NES()->CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,CPU_F);
 
                   // Check for KIL opcodes...
                   if ( (((*opcodeData) == 0x02) ||
@@ -423,13 +424,13 @@ void C6502::EMULATE ( int32_t cycles )
                      // KIL opcodes halt PC dead!  Force break if desired...
                      if ( m_breakOnKIL )
                      {
-                        CNES::NES()->FORCEBREAKPOINT ();
+                        NES()->FORCEBREAKPOINT ();
                      }
                   }
 
                   if ( rPC() == m_pcGoto )
                   {
-                     CNES::NES()->STEPCPUBREAKPOINT();
+                     NES()->STEPCPUBREAKPOINT();
                      m_pcGoto = 0xFFFFFFFF;
                   }
 
@@ -472,7 +473,7 @@ void C6502::EMULATE ( int32_t cycles )
 
                      if ( rPC() == m_pcGoto )
                      {
-                        CNES::NES()->STEPCPUBREAKPOINT();
+                        NES()->STEPCPUBREAKPOINT();
                         m_pcGoto = 0xFFFFFFFF;
                      }
 
@@ -490,7 +491,7 @@ void C6502::EMULATE ( int32_t cycles )
 
                      if ( rPC() == m_pcGoto )
                      {
-                        CNES::NES()->STEPCPUBREAKPOINT();
+                        NES()->STEPCPUBREAKPOINT();
                         m_pcGoto = 0xFFFFFFFF;
                      }
 
@@ -523,7 +524,7 @@ void C6502::EMULATE ( int32_t cycles )
 
                   if ( rPC() == m_pcGoto )
                   {
-                     CNES::NES()->STEPCPUBREAKPOINT();
+                     NES()->STEPCPUBREAKPOINT();
                      m_pcGoto = 0xFFFFFFFF;
                   }
 
@@ -537,12 +538,12 @@ void C6502::EMULATE ( int32_t cycles )
                   if ( nesIsDebuggable )
                   {
                      // Update Tracer
-                     CNES::NES()->TRACER()->SetRegisters ( pDisassemblySample, rA(), rX(), rY(), rSP(), rF() );
+                     NES()->TRACER()->SetRegisters ( pDisassemblySample, rA(), rX(), rY(), rSP(), rF() );
                   }
 
                   if ( rPC() == m_pcGoto )
                   {
-                     CNES::NES()->STEPCPUBREAKPOINT();
+                     NES()->STEPCPUBREAKPOINT();
                      m_pcGoto = 0xFFFFFFFF;
                   }
 
@@ -552,17 +553,17 @@ void C6502::EMULATE ( int32_t cycles )
                   if ( nesIsDebuggable )
                   {
                      // Update Tracer
-                     CNES::NES()->TRACER()->SetDisassembly ( pDisassemblySample, opcodeData );
+                     NES()->TRACER()->SetDisassembly ( pDisassemblySample, opcodeData );
 
                      // Check for undocumented breakpoint...
                      if ( !pOpcodeStruct->documented )
                      {
-                        CNES::NES()->CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUEvent, 0, CPU_EVENT_UNDOCUMENTED );
-                        CNES::NES()->CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUEvent, (*opcodeData), CPU_EVENT_UNDOCUMENTED_EXACT );
+                        NES()->CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUEvent, 0, CPU_EVENT_UNDOCUMENTED );
+                        NES()->CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUEvent, (*opcodeData), CPU_EVENT_UNDOCUMENTED_EXACT );
                      }
                      else
                      {
-                        CNES::NES()->CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUEvent, (*opcodeData), CPU_EVENT_EXECUTE_EXACT );
+                        NES()->CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUEvent, (*opcodeData), CPU_EVENT_EXECUTE_EXACT );
                      }
                   }
 
@@ -632,7 +633,7 @@ void C6502::ADVANCE ( bool stealing )
    }
 
    // Tell mappers that look at CPU cycles that a CPU cycle has whisked by...
-   CNES::NES()->CART()->SYNCCPU();
+   NES()->CART()->SYNCCPU();
 
    // Run APU for one cycle...
    APU()->EMULATE ();
@@ -720,7 +721,7 @@ bool C6502::DMA( void )
          if ( nesIsDebuggable )
          {
             // Check for APU DMC channel DMA breakpoint event...
-            CNES::NES()->CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUEvent,0,APU_EVENT_DMC_DMA);
+            NES()->CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUEvent,0,APU_EVENT_DMC_DMA);
          }
 
          goto done;
@@ -741,7 +742,7 @@ bool C6502::DMA( void )
          if ( nesIsDebuggable )
          {
             // Check for PPU cycle breakpoint...
-            CNES::NES()->CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, (512-m_writeDmaCounter)>>1, PPU_EVENT_SPRITE_DMA );
+            NES()->CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, (512-m_writeDmaCounter)>>1, PPU_EVENT_SPRITE_DMA );
          }
 
          m_writeDmaCounter--;
@@ -1400,7 +1401,7 @@ void C6502::BPL ( void )
 
       if ( rPC() == m_pcGoto )
       {
-         CNES::NES()->STEPCPUBREAKPOINT();
+         NES()->STEPCPUBREAKPOINT();
          m_pcGoto = 0xFFFFFFFF;
       }
    }
@@ -1449,7 +1450,7 @@ void C6502::JSR ( void )
 
    if ( rPC() == m_pcGoto )
    {
-      CNES::NES()->STEPCPUBREAKPOINT();
+      NES()->STEPCPUBREAKPOINT();
       m_pcGoto = 0xFFFFFFFF;
    }
 
@@ -1633,7 +1634,7 @@ void C6502::BMI ( void )
 
       if ( rPC() == m_pcGoto )
       {
-         CNES::NES()->STEPCPUBREAKPOINT();
+         NES()->STEPCPUBREAKPOINT();
          m_pcGoto = 0xFFFFFFFF;
       }
    }
@@ -1687,7 +1688,7 @@ void C6502::RTI ( void )
 
    if ( rPC() == m_pcGoto )
    {
-      CNES::NES()->STEPCPUBREAKPOINT();
+      NES()->STEPCPUBREAKPOINT();
       m_pcGoto = 0xFFFFFFFF;
    }
 
@@ -1870,7 +1871,7 @@ void C6502::JMP ( void )
 
    if ( rPC() == m_pcGoto )
    {
-      CNES::NES()->STEPCPUBREAKPOINT();
+      NES()->STEPCPUBREAKPOINT();
       m_pcGoto = 0xFFFFFFFF;
    }
 
@@ -1911,7 +1912,7 @@ void C6502::BVC ( void )
 
       if ( rPC() == m_pcGoto )
       {
-         CNES::NES()->STEPCPUBREAKPOINT();
+         NES()->STEPCPUBREAKPOINT();
          m_pcGoto = 0xFFFFFFFF;
       }
    }
@@ -1963,7 +1964,7 @@ void C6502::RTS ( void )
 
    if ( rPC() == m_pcGoto )
    {
-      CNES::NES()->STEPCPUBREAKPOINT();
+      NES()->STEPCPUBREAKPOINT();
       m_pcGoto = 0xFFFFFFFF;
    }
 
@@ -2212,7 +2213,7 @@ void C6502::BVS ( void )
 
       if ( rPC() == m_pcGoto )
       {
-         CNES::NES()->STEPCPUBREAKPOINT();
+         NES()->STEPCPUBREAKPOINT();
          m_pcGoto = 0xFFFFFFFF;
       }
    }
@@ -2376,7 +2377,7 @@ void C6502::BCC ( void )
 
       if ( rPC() == m_pcGoto )
       {
-         CNES::NES()->STEPCPUBREAKPOINT();
+         NES()->STEPCPUBREAKPOINT();
          m_pcGoto = 0xFFFFFFFF;
       }
    }
@@ -2637,7 +2638,7 @@ void C6502::BCS ( void )
 
       if ( rPC() == m_pcGoto )
       {
-         CNES::NES()->STEPCPUBREAKPOINT();
+         NES()->STEPCPUBREAKPOINT();
          m_pcGoto = 0xFFFFFFFF;
       }
    }
@@ -2898,7 +2899,7 @@ void C6502::BNE ( void )
 
       if ( rPC() == m_pcGoto )
       {
-         CNES::NES()->STEPCPUBREAKPOINT();
+         NES()->STEPCPUBREAKPOINT();
          m_pcGoto = 0xFFFFFFFF;
       }
    }
@@ -3164,7 +3165,7 @@ void C6502::BEQ ( void )
 
       if ( rPC() == m_pcGoto )
       {
-         CNES::NES()->STEPCPUBREAKPOINT();
+         NES()->STEPCPUBREAKPOINT();
          m_pcGoto = 0xFFFFFFFF;
       }
    }
@@ -3243,14 +3244,14 @@ void C6502::BRK ( void )
 
                if ( rPC() == m_pcGoto )
                {
-                  CNES::NES()->STEPCPUBREAKPOINT();
+                  NES()->STEPCPUBREAKPOINT();
                   m_pcGoto = 0xFFFFFFFF;
                }
 
                if ( nesIsDebuggable )
                {
                   // Check for NMI breakpoint...
-                  CNES::NES()->CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,0,CPU_EVENT_NMI_ENTERED);
+                  NES()->CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,0,CPU_EVENT_NMI_ENTERED);
                }
 
                sI();
@@ -3272,14 +3273,14 @@ void C6502::BRK ( void )
 
                if ( rPC() == m_pcGoto )
                {
-                  CNES::NES()->STEPCPUBREAKPOINT();
+                  NES()->STEPCPUBREAKPOINT();
                   m_pcGoto = 0xFFFFFFFF;
                }
 
                if ( nesIsDebuggable )
                {
                   // Check for IRQ breakpoint...
-                  CNES::NES()->CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,0,CPU_EVENT_IRQ_ENTERED);
+                  NES()->CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,0,CPU_EVENT_IRQ_ENTERED);
                }
 
                sI();
@@ -3301,15 +3302,15 @@ void C6502::ASSERTIRQ ( int8_t source )
    {
       if ( source == eNESSource_Mapper )
       {
-         CNES::NES()->TRACER()->AddIRQ ( m_cycles, source );
+         NES()->TRACER()->AddIRQ ( m_cycles, source );
       }
       else
       {
-         CNES::NES()->TRACER()->AddIRQ ( APU()->CYCLES(), source );
+         NES()->TRACER()->AddIRQ ( APU()->CYCLES(), source );
       }
 
       // Check for IRQ breakpoint...
-      CNES::NES()->CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,0,CPU_EVENT_IRQ_FIRES);
+      NES()->CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,0,CPU_EVENT_IRQ_FIRES);
    }
 }
 
@@ -3319,11 +3320,11 @@ void C6502::RELEASEIRQ ( int8_t source )
    {
       if ( source == eNESSource_Mapper )
       {
-         CNES::NES()->TRACER()->AddIRQRelease ( m_cycles, source );
+         NES()->TRACER()->AddIRQRelease ( m_cycles, source );
       }
       else
       {
-         CNES::NES()->TRACER()->AddIRQRelease ( APU()->CYCLES(), source );
+         NES()->TRACER()->AddIRQRelease ( APU()->CYCLES(), source );
       }
    }
    m_irqAsserted = false;
@@ -3335,10 +3336,10 @@ void C6502::ASSERTNMI ()
 
    if ( nesIsDebuggable )
    {
-      CNES::NES()->TRACER()->AddNMI ( CNES::NES()->PPU()->_CYCLES(), eNESSource_PPU );
+      NES()->TRACER()->AddNMI ( NES()->PPU()->_CYCLES(), eNESSource_PPU );
 
       // Check for NMI breakpoint...
-      CNES::NES()->CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,0,CPU_EVENT_NMI_FIRES);
+      NES()->CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,0,CPU_EVENT_NMI_FIRES);
    }
 }
 
@@ -3350,7 +3351,7 @@ void C6502::RESET ( bool soft )
 
 // CP ALWAYS DO   if ( nesIsDebuggable )
    {
-      CNES::NES()->TRACER()->AddRESET ();
+      NES()->TRACER()->AddRESET ();
    }
 
    m_cycles = 0;
@@ -3411,7 +3412,7 @@ void C6502::RESET ( bool soft )
    if ( nesIsDebuggable )
    {
       // Check for RESET breakpoint...
-      CNES::NES()->CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,0,CPU_EVENT_RESET);
+      NES()->CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,0,CPU_EVENT_RESET);
    }
 }
 
@@ -3422,7 +3423,7 @@ uint8_t C6502::LOAD ( uint32_t addr, int8_t* pTarget )
    if ( addr >= 0x8000 )
    {
       (*pTarget) = eTarget_Mapper;
-      data = CNES::NES()->CART()->HMAPPER(addr);
+      data = NES()->CART()->HMAPPER(addr);
    }
    else if ( addr < 0x2000 )
    {
@@ -3432,22 +3433,22 @@ uint8_t C6502::LOAD ( uint32_t addr, int8_t* pTarget )
    else if ( addr < 0x4000 )
    {
       (*pTarget) = eTarget_PPURegister;
-      data = CNES::NES()->PPU()->PPU ( addr );
+      data = NES()->PPU()->PPU ( addr );
    }
    else if ( addr >= 0x6000 )
    {
       (*pTarget) = eTarget_SRAM;
-      data = CNES::NES()->CART()->LMAPPER(addr);
+      data = NES()->CART()->LMAPPER(addr);
    }
    else if ( addr >= 0x5C00 )
    {
       (*pTarget) = eTarget_EXRAM;
-      data = CNES::NES()->CART()->LMAPPER(addr);
+      data = NES()->CART()->LMAPPER(addr);
    }
    else if ( addr >= 0x4018 )
    {
       (*pTarget) = eTarget_Mapper;
-      data = CNES::NES()->CART()->LMAPPER(addr);
+      data = NES()->CART()->LMAPPER(addr);
    }
    else
    {
@@ -3461,12 +3462,12 @@ uint8_t C6502::LOAD ( uint32_t addr, int8_t* pTarget )
       if ( addr == 0x4016 )
       {
          (*pTarget) = eTarget_IORegister;
-         data = iofunc[CNES::NES()->CONTROLLER(CONTROLLER1)].emuread(addr);
+         data = iofunc[NES()->CONTROLLER(CONTROLLER1)].emuread(addr);
       }
       else if ( addr == 0x4017 )
       {
          (*pTarget) = eTarget_IORegister;
-         data = iofunc[CNES::NES()->CONTROLLER(CONTROLLER2)].emuread(addr);
+         data = iofunc[NES()->CONTROLLER(CONTROLLER2)].emuread(addr);
       }
       // Otherwise if not accessing a controller port, use default...
       else
@@ -3489,7 +3490,7 @@ void C6502::STORE ( uint32_t addr, uint8_t data, int8_t* pTarget )
    else if ( addr < 0x4000 )
    {
       (*pTarget) = eTarget_PPURegister;
-      CNES::NES()->PPU()->PPU ( addr, data );
+      NES()->PPU()->PPU ( addr, data );
    }
    else if ( addr < 0x4018 )
    {
@@ -3499,8 +3500,8 @@ void C6502::STORE ( uint32_t addr, uint8_t data, int8_t* pTarget )
          (*pTarget) = eTarget_IORegister;
 
          // Writes to $4016 need to be given to all controllers.
-         iofunc[CNES::NES()->CONTROLLER(CONTROLLER1)].emuwrite(addr,data);
-         iofunc[CNES::NES()->CONTROLLER(CONTROLLER2)].emuwrite(addr,data);
+         iofunc[NES()->CONTROLLER(CONTROLLER1)].emuwrite(addr,data);
+         iofunc[NES()->CONTROLLER(CONTROLLER2)].emuwrite(addr,data);
       }
       else if ( addr == 0x4014 )
       {
@@ -3525,22 +3526,22 @@ void C6502::STORE ( uint32_t addr, uint8_t data, int8_t* pTarget )
    else if ( addr < 0x5C00 )
    {
       (*pTarget) = eTarget_Mapper;
-      CNES::NES()->CART()->LMAPPER(addr,data);
+      NES()->CART()->LMAPPER(addr,data);
    }
    else if ( addr < 0x6000 )
    {
       (*pTarget) = eTarget_EXRAM;
-      CNES::NES()->CART()->LMAPPER(addr,data);
+      NES()->CART()->LMAPPER(addr,data);
    }
    else if ( addr < 0x8000 )
    {
       (*pTarget) = eTarget_SRAM;
-      CNES::NES()->CART()->LMAPPER(addr,data);
+      NES()->CART()->LMAPPER(addr,data);
    }
    else
    {
       (*pTarget) = eTarget_Mapper;
-      CNES::NES()->CART()->HMAPPER(addr,data);
+      NES()->CART()->HMAPPER(addr,data);
    }
 }
 
@@ -3557,7 +3558,7 @@ uint8_t C6502::FETCH ()
    wEA ( rPC() );
    if ( nesIsDebuggable )
    {
-      CNES::NES()->TRACER()->SetEffectiveAddress ( CNES::NES()->TRACER()->GetLastCPUSample(), rEA() );
+      NES()->TRACER()->SetEffectiveAddress ( NES()->TRACER()->GetLastCPUSample(), rEA() );
    }
 
    // Synchronize CPU and APU...
@@ -3573,11 +3574,11 @@ uint8_t C6502::FETCH ()
       // Add Tracer sample...
       if ( instrCycle == 0 )
       {
-         CNES::NES()->TRACER()->AddSample ( m_cycles, eTracer_InstructionFetch, eNESSource_CPU, target, rPC(), data );
+         NES()->TRACER()->AddSample ( m_cycles, eTracer_InstructionFetch, eNESSource_CPU, target, rPC(), data );
       }
       else
       {
-         CNES::NES()->TRACER()->AddSample ( m_cycles, eTracer_OperandFetch, eNESSource_CPU, target, rPC(), data );
+         NES()->TRACER()->AddSample ( m_cycles, eTracer_OperandFetch, eNESSource_CPU, target, rPC(), data );
       }
 
       // If ROM is being accessed, log code/data logger...
@@ -3585,7 +3586,7 @@ uint8_t C6502::FETCH ()
            (rPC() >= MEM_32KB) )
       {
          // Log to Code/Data Logger...
-         CCodeDataLogger* pLogger = CNES::NES()->CART()->LOGGERVIRT ( rPC() );
+         CCodeDataLogger* pLogger = NES()->CART()->LOGGERVIRT ( rPC() );
          if ( instrCycle == 0 )
          {
             pLogger->LogAccess ( m_cycles, rPC(), data, eLogger_InstructionFetch, eNESSource_CPU );
@@ -3596,15 +3597,15 @@ uint8_t C6502::FETCH ()
          }
 
          // Update Markers...
-         m_marker->UpdateMarkers ( CNES::NES()->CART()->PRGROMABSADDR(rPC()), C6502::_CYCLES(), CNES::NES()->PPU()->_FRAME(), CNES::NES()->PPU()->_CYCLES() );
+         m_marker->UpdateMarkers ( NES()->CART()->PRGROMABSADDR(rPC()), C6502::_CYCLES(), NES()->PPU()->_FRAME(), NES()->PPU()->_CYCLES() );
 
          // ... and update opcode masking for disassembler...
-         CNES::NES()->CART()->PRGROMOPCODEMASK ( rPC(), (uint8_t)(instrCycle==0) );
+         NES()->CART()->PRGROMOPCODEMASK ( rPC(), (uint8_t)(instrCycle==0) );
       }
       else if ( target == eTarget_SRAM )
       {
          // Log to Code/Data Logger...
-         CCodeDataLogger* pLogger = CNES::NES()->CART()->SRAMLOGGERVIRT ( rPC() );
+         CCodeDataLogger* pLogger = NES()->CART()->SRAMLOGGERVIRT ( rPC() );
          if ( instrCycle == 0 )
          {
             pLogger->LogAccess ( m_cycles, rPC(), data, eLogger_InstructionFetch, eNESSource_CPU );
@@ -3615,12 +3616,12 @@ uint8_t C6502::FETCH ()
          }
 
          // Update opcode masking for disassembler...
-         CNES::NES()->CART()->SRAMOPCODEMASK ( rPC(), (uint8_t)(instrCycle==0) );
+         NES()->CART()->SRAMOPCODEMASK ( rPC(), (uint8_t)(instrCycle==0) );
       }
       else if ( target == eTarget_EXRAM )
       {
          // Log to Code/Data Logger...
-         CCodeDataLogger* pLogger = CNES::NES()->CART()->EXRAMLOGGER ();
+         CCodeDataLogger* pLogger = NES()->CART()->EXRAMLOGGER ();
          if ( instrCycle == 0 )
          {
             pLogger->LogAccess ( m_cycles, rPC(), data, eLogger_InstructionFetch, eNESSource_CPU );
@@ -3631,7 +3632,7 @@ uint8_t C6502::FETCH ()
          }
 
          // Update opcode masking for disassembler...
-         CNES::NES()->CART()->EXRAMOPCODEMASK ( rPC(), (uint8_t)(instrCycle==0) );
+         NES()->CART()->EXRAMOPCODEMASK ( rPC(), (uint8_t)(instrCycle==0) );
       }
       else if ( target == eTarget_RAM )
       {
@@ -3664,7 +3665,7 @@ uint8_t C6502::EXTRAFETCH ()
    wEA ( rPC() );
    if ( nesIsDebuggable )
    {
-      CNES::NES()->TRACER()->SetEffectiveAddress ( CNES::NES()->TRACER()->GetLastCPUSample(), rEA() );
+      NES()->TRACER()->SetEffectiveAddress ( NES()->TRACER()->GetLastCPUSample(), rEA() );
    }
 
    // Synchronize CPU and APU...
@@ -3675,25 +3676,25 @@ uint8_t C6502::EXTRAFETCH ()
    if ( nesIsDebuggable )
    {
       // Add Tracer sample...
-      CNES::NES()->TRACER()->AddSample ( m_cycles, eTracer_OperandFetch, eNESSource_CPU, target, rPC(), data );
+      NES()->TRACER()->AddSample ( m_cycles, eTracer_OperandFetch, eNESSource_CPU, target, rPC(), data );
 
 #if 0
       // If ROM is being accessed, log code/data logger...
       if ( target == eTarget_Mapper )
       {
-         CCodeDataLogger* pLogger = CNES::NES()->CART()->LOGGERVIRT ( rPC() );
+         CCodeDataLogger* pLogger = NES()->CART()->LOGGERVIRT ( rPC() );
          pLogger->LogAccess ( m_cycles, rPC(), data, eLogger_OperandFetch, eNESSource_CPU );
       }
       else if ( target == eTarget_SRAM )
       {
          // Log to Code/Data Logger...
-         CCodeDataLogger* pLogger = CNES::NES()->CART()->SRAMLOGGERVIRT ( rPC() );
+         CCodeDataLogger* pLogger = NES()->CART()->SRAMLOGGERVIRT ( rPC() );
          pLogger->LogAccess ( m_cycles, rPC(), data, eLogger_OperandFetch, eNESSource_CPU );
       }
       else if ( target == eTarget_EXRAM )
       {
          // Log to Code/Data Logger...
-         CCodeDataLogger* pLogger = CNES::NES()->CART()->EXRAMLOGGER ();
+         CCodeDataLogger* pLogger = NES()->CART()->EXRAMLOGGER ();
          pLogger->LogAccess ( m_cycles, rPC(), data, eLogger_OperandFetch, eNESSource_CPU );
       }
       else if ( target == eTarget_RAM )
@@ -3722,13 +3723,13 @@ uint8_t C6502::DMA ( uint32_t addr )
    if ( nesIsDebuggable )
    {
       // Add Tracer sample...
-      CNES::NES()->TRACER()->AddSample ( m_cycles, eTracer_DMA, eNESSource_CPU, target, addr, data );
+      NES()->TRACER()->AddSample ( m_cycles, eTracer_DMA, eNESSource_CPU, target, addr, data );
 
       // If ROM or RAM is being accessed, log code/data logger...
       if ( (target == eTarget_Mapper) &&
            (addr >= MEM_32KB) )
       {
-         CCodeDataLogger* pLogger = CNES::NES()->CART()->LOGGERVIRT ( addr );
+         CCodeDataLogger* pLogger = NES()->CART()->LOGGERVIRT ( addr );
          pLogger->LogAccess ( m_cycles, addr, data, eLogger_DMA, eNESSource_APU );
       }
       else if ( target == eTarget_RAM )
@@ -3737,7 +3738,7 @@ uint8_t C6502::DMA ( uint32_t addr )
       }
 
       // Check for breakpoint...
-      CNES::NES()->CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryRead, data );
+      NES()->CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryRead, data );
    }
 
    return data;
@@ -3757,7 +3758,7 @@ void C6502::DMA ( uint32_t srcAddr, uint32_t dstAddr, uint8_t data )
    if ( nesIsDebuggable )
    {
       // Store unknown target because otherwise the trace will be out of order...
-      pSample = CNES::NES()->TRACER()->AddSample ( m_cycles, eTracer_DMA, eNESSource_CPU, target, dstAddr, data );
+      pSample = NES()->TRACER()->AddSample ( m_cycles, eTracer_DMA, eNESSource_CPU, target, dstAddr, data );
    }
 
    STORE ( dstAddr, data, &target );
@@ -3767,7 +3768,7 @@ void C6502::DMA ( uint32_t srcAddr, uint32_t dstAddr, uint8_t data )
       // If ROM or RAM is being accessed, log code/data logger...
       if ( srcAddr >= MEM_32KB )
       {
-         CCodeDataLogger* pLogger = CNES::NES()->CART()->LOGGERVIRT ( srcAddr );
+         CCodeDataLogger* pLogger = NES()->CART()->LOGGERVIRT ( srcAddr );
          pLogger->LogAccess ( m_cycles, srcAddr, data, eLogger_DMA, eNESSource_PPU );
       }
       else if ( srcAddr < MEM_8KB )
@@ -3785,7 +3786,7 @@ void C6502::DMA ( uint32_t srcAddr, uint32_t dstAddr, uint8_t data )
    if ( nesIsDebuggable )
    {
       // Check for breakpoint...
-      CNES::NES()->CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryWrite, data );
+      NES()->CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryWrite, data );
    }
 }
 
@@ -3801,7 +3802,7 @@ uint8_t C6502::MEM ( uint32_t addr )
    wEA ( addr );
    if ( nesIsDebuggable )
    {
-      CNES::NES()->TRACER()->SetEffectiveAddress ( CNES::NES()->TRACER()->GetLastCPUSample(), rEA() );
+      NES()->TRACER()->SetEffectiveAddress ( NES()->TRACER()->GetLastCPUSample(), rEA() );
    }
 
    // Synchronize CPU and APU...
@@ -3812,25 +3813,25 @@ uint8_t C6502::MEM ( uint32_t addr )
    if ( nesIsDebuggable )
    {
       // Add Tracer sample...
-      CNES::NES()->TRACER()->AddSample ( m_cycles, eTracer_DataRead, eNESSource_CPU, target, addr, data );
+      NES()->TRACER()->AddSample ( m_cycles, eTracer_DataRead, eNESSource_CPU, target, addr, data );
 
       // If ROM or RAM is being accessed, log code/data logger...
       if ( (target == eTarget_Mapper) &&
            (addr >= MEM_32KB) )
       {
-         CCodeDataLogger* pLogger = CNES::NES()->CART()->LOGGERVIRT ( addr );
+         CCodeDataLogger* pLogger = NES()->CART()->LOGGERVIRT ( addr );
          pLogger->LogAccess ( m_cycles, addr, data, eLogger_DataRead, eNESSource_CPU );
       }
       else if ( target == eTarget_SRAM )
       {
          // Log to Code/Data Logger...
-         CCodeDataLogger* pLogger = CNES::NES()->CART()->SRAMLOGGERVIRT ( addr );
+         CCodeDataLogger* pLogger = NES()->CART()->SRAMLOGGERVIRT ( addr );
          pLogger->LogAccess ( m_cycles, addr, data, eLogger_DataRead, eNESSource_CPU );
       }
       else if ( target == eTarget_EXRAM )
       {
          // Log to Code/Data Logger...
-         CCodeDataLogger* pLogger = CNES::NES()->CART()->EXRAMLOGGER ();
+         CCodeDataLogger* pLogger = NES()->CART()->EXRAMLOGGER ();
          pLogger->LogAccess ( m_cycles, addr, data, eLogger_DataRead, eNESSource_CPU );
       }
       else if ( target == eTarget_RAM )
@@ -3846,7 +3847,7 @@ uint8_t C6502::MEM ( uint32_t addr )
       }
 
       // Check for breakpoint...
-      CNES::NES()->CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryRead, data );
+      NES()->CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryRead, data );
    }
 
    return data;
@@ -3864,7 +3865,7 @@ void C6502::MEM ( uint32_t addr, uint8_t data )
    wEA ( addr );
    if ( nesIsDebuggable )
    {
-      CNES::NES()->TRACER()->SetEffectiveAddress ( CNES::NES()->TRACER()->GetLastCPUSample(), rEA() );
+      NES()->TRACER()->SetEffectiveAddress ( NES()->TRACER()->GetLastCPUSample(), rEA() );
    }
 
    // Synchronize CPU and APU...
@@ -3873,7 +3874,7 @@ void C6502::MEM ( uint32_t addr, uint8_t data )
    if ( nesIsDebuggable )
    {
       // Store unknown target because otherwise the trace will be out of order...
-      pSample = CNES::NES()->TRACER()->AddSample ( m_cycles, eTracer_DataWrite, eNESSource_CPU, 0, addr, data );
+      pSample = NES()->TRACER()->AddSample ( m_cycles, eTracer_DataWrite, eNESSource_CPU, 0, addr, data );
    }
 
    STORE ( addr, data, &target );
@@ -3884,19 +3885,19 @@ void C6502::MEM ( uint32_t addr, uint8_t data )
       if ( (target == eTarget_Mapper) &&
            (addr >= MEM_32KB) )
       {
-         CCodeDataLogger* pLogger = CNES::NES()->CART()->LOGGERVIRT ( addr );
+         CCodeDataLogger* pLogger = NES()->CART()->LOGGERVIRT ( addr );
          pLogger->LogAccess ( m_cycles, addr, data, eLogger_DataWrite, eNESSource_CPU );
       }
       else if ( target == eTarget_SRAM )
       {
          // Log to Code/Data Logger...
-         CCodeDataLogger* pLogger = CNES::NES()->CART()->SRAMLOGGERVIRT ( addr );
+         CCodeDataLogger* pLogger = NES()->CART()->SRAMLOGGERVIRT ( addr );
          pLogger->LogAccess ( m_cycles, addr, data, eLogger_DataWrite, eNESSource_CPU );
       }
       else if ( target == eTarget_EXRAM )
       {
          // Log to Code/Data Logger...
-         CCodeDataLogger* pLogger = CNES::NES()->CART()->EXRAMLOGGER ();
+         CCodeDataLogger* pLogger = NES()->CART()->EXRAMLOGGER ();
          pLogger->LogAccess ( m_cycles, addr, data, eLogger_DataWrite, eNESSource_CPU );
       }
       else if ( target == eTarget_RAM )
@@ -3920,7 +3921,7 @@ void C6502::MEM ( uint32_t addr, uint8_t data )
    if ( nesIsDebuggable )
    {
       // Check for breakpoint...
-      CNES::NES()->CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryWrite, data );
+      NES()->CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryWrite, data );
    }
 }
 
@@ -3936,7 +3937,7 @@ uint8_t C6502::STEAL ( uint32_t addr, uint8_t source )
    wEA ( addr );
    if ( nesIsDebuggable )
    {
-      CNES::NES()->TRACER()->SetEffectiveAddress ( CNES::NES()->TRACER()->GetLastCPUSample(), rEA() );
+      NES()->TRACER()->SetEffectiveAddress ( NES()->TRACER()->GetLastCPUSample(), rEA() );
    }
 
    // Synchronize CPU and APU...
@@ -3947,25 +3948,25 @@ uint8_t C6502::STEAL ( uint32_t addr, uint8_t source )
    if ( nesIsDebuggable )
    {
       // Add Tracer sample...
-      CNES::NES()->TRACER()->AddStolenCycle ( m_cycles, source );
+      NES()->TRACER()->AddStolenCycle ( m_cycles, source );
 
       // If ROM or RAM is being accessed, log code/data logger...
       if ( (target == eTarget_Mapper) &&
            (addr >= MEM_32KB) )
       {
-         CCodeDataLogger* pLogger = CNES::NES()->CART()->LOGGERVIRT ( addr );
+         CCodeDataLogger* pLogger = NES()->CART()->LOGGERVIRT ( addr );
          pLogger->LogAccess ( m_cycles, addr, data, eLogger_DataRead, eNESSource_CPU );
       }
       else if ( target == eTarget_SRAM )
       {
          // Log to Code/Data Logger...
-         CCodeDataLogger* pLogger = CNES::NES()->CART()->SRAMLOGGERVIRT ( addr );
+         CCodeDataLogger* pLogger = NES()->CART()->SRAMLOGGERVIRT ( addr );
          pLogger->LogAccess ( m_cycles, addr, data, eLogger_DataRead, eNESSource_CPU );
       }
       else if ( target == eTarget_EXRAM )
       {
          // Log to Code/Data Logger...
-         CCodeDataLogger* pLogger = CNES::NES()->CART()->EXRAMLOGGER ();
+         CCodeDataLogger* pLogger = NES()->CART()->EXRAMLOGGER ();
          pLogger->LogAccess ( m_cycles, addr, data, eLogger_DataRead, eNESSource_CPU );
       }
       else if ( target == eTarget_RAM )
@@ -3981,10 +3982,10 @@ uint8_t C6502::STEAL ( uint32_t addr, uint8_t source )
       }
 
       // Check stolen cycles breakpoint.
-      CNES::NES()->CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,0,CPU_EVENT_STOLEN_CYCLE);
+      NES()->CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,0,CPU_EVENT_STOLEN_CYCLE);
 
       // Check for breakpoint...
-      CNES::NES()->CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryRead, data );
+      NES()->CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryRead, data );
    }
 
    return data;

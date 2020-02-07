@@ -15,7 +15,7 @@ LIBDEPS="deps/rtmidi/release/rtmidi \
      libs/nes/release/nes-emulator \
      libs/c64/release/c64-emulator \
      libs/famitracker/release/famitracker"
-exit -1
+
 OSTYPE=`wmic os get osarchitecture`
 #if [[ $OSTYPE =~ .*64*. ]]; then
 #	LIBDEPS+=" deps/Windows/SDL/x64/SDL.dll"
@@ -32,10 +32,6 @@ DEPLOYS_DEST="$DISTPATH/nesicide.exe \
         $DISTPATH/famitracker.exe \
         $DISTPATH/famiplayer.exe \
         $DISTPATH/nes-emulator.exe"
-
-echo $DEPLOYS_DEST
-echo $REMOTE_PATH
-exit -1
 
 if [ "$1" == "local" ]; then
   rm -rf $DISTPATH
