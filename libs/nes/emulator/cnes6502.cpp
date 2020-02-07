@@ -534,7 +534,7 @@ void C6502::EMULATE ( int32_t cycles )
                }
                else if (  m_phase == -1 )
                {
-                  if ( nesIsDebuggable() )
+                  if ( nesIsDebuggable )
                   {
                      // Update Tracer
                      CNES::NES()->TRACER()->SetRegisters ( pDisassemblySample, rA(), rX(), rY(), rSP(), rF() );
@@ -549,7 +549,7 @@ void C6502::EMULATE ( int32_t cycles )
                   // Execute
                   (this->*pOpcodeStruct->pFn)();
 
-                  if ( nesIsDebuggable() )
+                  if ( nesIsDebuggable )
                   {
                      // Update Tracer
                      CNES::NES()->TRACER()->SetDisassembly ( pDisassemblySample, opcodeData );
@@ -717,7 +717,7 @@ bool C6502::DMA( void )
          m_readDmaCounter--;
          doCycle = false;
 
-         if ( nesIsDebuggable() )
+         if ( nesIsDebuggable )
          {
             // Check for APU DMC channel DMA breakpoint event...
             CNES::NES()->CHECKBREAKPOINT(eBreakInAPU,eBreakOnAPUEvent,0,APU_EVENT_DMC_DMA);
@@ -738,7 +738,7 @@ bool C6502::DMA( void )
       {
          databuf = DMA(m_writeDmaAddr|(((512-m_writeDmaCounter)>>1)&0xFF));
 
-         if ( nesIsDebuggable() )
+         if ( nesIsDebuggable )
          {
             // Check for PPU cycle breakpoint...
             CNES::NES()->CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, (512-m_writeDmaCounter)>>1, PPU_EVENT_SPRITE_DMA );
@@ -3247,7 +3247,7 @@ void C6502::BRK ( void )
                   m_pcGoto = 0xFFFFFFFF;
                }
 
-               if ( nesIsDebuggable() )
+               if ( nesIsDebuggable )
                {
                   // Check for NMI breakpoint...
                   CNES::NES()->CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,0,CPU_EVENT_NMI_ENTERED);
@@ -3276,7 +3276,7 @@ void C6502::BRK ( void )
                   m_pcGoto = 0xFFFFFFFF;
                }
 
-               if ( nesIsDebuggable() )
+               if ( nesIsDebuggable )
                {
                   // Check for IRQ breakpoint...
                   CNES::NES()->CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,0,CPU_EVENT_IRQ_ENTERED);
@@ -3297,7 +3297,7 @@ void C6502::ASSERTIRQ ( int8_t source )
 {
    m_irqAsserted = true;
 
-   if ( nesIsDebuggable() )
+   if ( nesIsDebuggable )
    {
       if ( source == eNESSource_Mapper )
       {
@@ -3315,7 +3315,7 @@ void C6502::ASSERTIRQ ( int8_t source )
 
 void C6502::RELEASEIRQ ( int8_t source )
 {
-   if ( nesIsDebuggable() )
+   if ( nesIsDebuggable )
    {
       if ( source == eNESSource_Mapper )
       {
@@ -3333,7 +3333,7 @@ void C6502::ASSERTNMI ()
 {
    m_nmiAsserted = true;
 
-   if ( nesIsDebuggable() )
+   if ( nesIsDebuggable )
    {
       CNES::NES()->TRACER()->AddNMI ( CNES::NES()->PPU()->_CYCLES(), eNESSource_PPU );
 
@@ -3348,7 +3348,7 @@ void C6502::RESET ( bool soft )
 
    APU()->RESET ();
 
-   if ( nesIsDebuggable() )
+// CP ALWAYS DO   if ( nesIsDebuggable )
    {
       CNES::NES()->TRACER()->AddRESET ();
    }
@@ -3408,7 +3408,7 @@ void C6502::RESET ( bool soft )
       m_6502memory.MEMCLR ();
    }
 
-   if ( nesIsDebuggable() )
+   if ( nesIsDebuggable )
    {
       // Check for RESET breakpoint...
       CNES::NES()->CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUEvent,0,CPU_EVENT_RESET);
@@ -3555,7 +3555,7 @@ uint8_t C6502::FETCH ()
 
    // Set effective address.
    wEA ( rPC() );
-   if ( nesIsDebuggable() )
+   if ( nesIsDebuggable )
    {
       CNES::NES()->TRACER()->SetEffectiveAddress ( CNES::NES()->TRACER()->GetLastCPUSample(), rEA() );
    }
@@ -3568,7 +3568,7 @@ uint8_t C6502::FETCH ()
    // Store data to return as open-bus.
    m_openBusData = data;
 
-   if ( nesIsDebuggable() )
+   if ( nesIsDebuggable )
    {
       // Add Tracer sample...
       if ( instrCycle == 0 )
@@ -3662,7 +3662,7 @@ uint8_t C6502::EXTRAFETCH ()
 
    // Set effective address.
    wEA ( rPC() );
-   if ( nesIsDebuggable() )
+   if ( nesIsDebuggable )
    {
       CNES::NES()->TRACER()->SetEffectiveAddress ( CNES::NES()->TRACER()->GetLastCPUSample(), rEA() );
    }
@@ -3672,7 +3672,7 @@ uint8_t C6502::EXTRAFETCH ()
 
    data = LOAD ( rPC(), &target );
 
-   if ( nesIsDebuggable() )
+   if ( nesIsDebuggable )
    {
       // Add Tracer sample...
       CNES::NES()->TRACER()->AddSample ( m_cycles, eTracer_OperandFetch, eNESSource_CPU, target, rPC(), data );
@@ -3719,7 +3719,7 @@ uint8_t C6502::DMA ( uint32_t addr )
 
    data = LOAD ( addr, &target );
 
-   if ( nesIsDebuggable() )
+   if ( nesIsDebuggable )
    {
       // Add Tracer sample...
       CNES::NES()->TRACER()->AddSample ( m_cycles, eTracer_DMA, eNESSource_CPU, target, addr, data );
@@ -3754,7 +3754,7 @@ void C6502::DMA ( uint32_t srcAddr, uint32_t dstAddr, uint8_t data )
    // Synchronize CPU and APU...
    ADVANCE ( true );
 
-   if ( nesIsDebuggable() )
+   if ( nesIsDebuggable )
    {
       // Store unknown target because otherwise the trace will be out of order...
       pSample = CNES::NES()->TRACER()->AddSample ( m_cycles, eTracer_DMA, eNESSource_CPU, target, dstAddr, data );
@@ -3762,7 +3762,7 @@ void C6502::DMA ( uint32_t srcAddr, uint32_t dstAddr, uint8_t data )
 
    STORE ( dstAddr, data, &target );
 
-   if ( nesIsDebuggable() )
+   if ( nesIsDebuggable )
    {
       // If ROM or RAM is being accessed, log code/data logger...
       if ( srcAddr >= MEM_32KB )
@@ -3782,7 +3782,7 @@ void C6502::DMA ( uint32_t srcAddr, uint32_t dstAddr, uint8_t data )
       pSample->target = target;
    }
 
-   if ( nesIsDebuggable() )
+   if ( nesIsDebuggable )
    {
       // Check for breakpoint...
       CNES::NES()->CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryWrite, data );
@@ -3799,7 +3799,7 @@ uint8_t C6502::MEM ( uint32_t addr )
 
    // Set effective address.
    wEA ( addr );
-   if ( nesIsDebuggable() )
+   if ( nesIsDebuggable )
    {
       CNES::NES()->TRACER()->SetEffectiveAddress ( CNES::NES()->TRACER()->GetLastCPUSample(), rEA() );
    }
@@ -3809,7 +3809,7 @@ uint8_t C6502::MEM ( uint32_t addr )
 
    data = LOAD ( addr, &target );
 
-   if ( nesIsDebuggable() )
+   if ( nesIsDebuggable )
    {
       // Add Tracer sample...
       CNES::NES()->TRACER()->AddSample ( m_cycles, eTracer_DataRead, eNESSource_CPU, target, addr, data );
@@ -3862,7 +3862,7 @@ void C6502::MEM ( uint32_t addr, uint8_t data )
 
    // Set effective address.
    wEA ( addr );
-   if ( nesIsDebuggable() )
+   if ( nesIsDebuggable )
    {
       CNES::NES()->TRACER()->SetEffectiveAddress ( CNES::NES()->TRACER()->GetLastCPUSample(), rEA() );
    }
@@ -3870,7 +3870,7 @@ void C6502::MEM ( uint32_t addr, uint8_t data )
    // Synchronize CPU and APU...
    ADVANCE ();
 
-   if ( nesIsDebuggable() )
+   if ( nesIsDebuggable )
    {
       // Store unknown target because otherwise the trace will be out of order...
       pSample = CNES::NES()->TRACER()->AddSample ( m_cycles, eTracer_DataWrite, eNESSource_CPU, 0, addr, data );
@@ -3878,7 +3878,7 @@ void C6502::MEM ( uint32_t addr, uint8_t data )
 
    STORE ( addr, data, &target );
 
-   if ( nesIsDebuggable() )
+   if ( nesIsDebuggable )
    {
       // If ROM or RAM is being accessed, log code/data logger...
       if ( (target == eTarget_Mapper) &&
@@ -3917,7 +3917,7 @@ void C6502::MEM ( uint32_t addr, uint8_t data )
       pSample->target = target;
    }
 
-   if ( nesIsDebuggable() )
+   if ( nesIsDebuggable )
    {
       // Check for breakpoint...
       CNES::NES()->CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUMemoryWrite, data );
@@ -3934,7 +3934,7 @@ uint8_t C6502::STEAL ( uint32_t addr, uint8_t source )
 
    // Set effective address.
    wEA ( addr );
-   if ( nesIsDebuggable() )
+   if ( nesIsDebuggable )
    {
       CNES::NES()->TRACER()->SetEffectiveAddress ( CNES::NES()->TRACER()->GetLastCPUSample(), rEA() );
    }
@@ -3944,7 +3944,7 @@ uint8_t C6502::STEAL ( uint32_t addr, uint8_t source )
 
    data = LOAD ( addr, &target );
 
-   if ( nesIsDebuggable() )
+   if ( nesIsDebuggable )
    {
       // Add Tracer sample...
       CNES::NES()->TRACER()->AddStolenCycle ( m_cycles, source );

@@ -88,7 +88,7 @@ void CROMMapper007::HMAPPER ( uint32_t addr, uint8_t data )
 
    CNES::NES()->PPU()->MIRROR ( (m_reg&0x10)>>4 );
 
-   if ( nesIsDebuggable() )
+   if ( nesIsDebuggable )
    {
       // Check mapper state breakpoints...
       CNES::NES()->CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperState,0);

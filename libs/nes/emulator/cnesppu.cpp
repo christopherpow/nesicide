@@ -199,7 +199,7 @@ void CPPU::EMULATE(uint32_t cycles)
          NMIREENABLED ( false );
       }
 
-      if ( nesIsDebuggable() )
+      if ( nesIsDebuggable )
       {
          // Check for breakpoints...
          CNES::NES()->CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUCycle );
@@ -241,7 +241,7 @@ uint32_t CPPU::LOAD ( uint32_t addr, int8_t source, int8_t type, bool trace )
       data = CNES::NES()->CART()->CHRMEM ( addr );
 
       // Add Tracer sample...
-      if ( nesIsDebuggable() && trace )
+      if ( nesIsDebuggable && trace )
       {
          CNES::NES()->TRACER()->AddSample ( m_cycles, type, source, eTarget_PatternMemory, addr, data );
       }
@@ -254,7 +254,7 @@ uint32_t CPPU::LOAD ( uint32_t addr, int8_t source, int8_t type, bool trace )
       data = *(m_PALETTEmemory+(addr&0x1F));
 
       // Add Tracer sample...
-      if ( nesIsDebuggable() && trace )
+      if ( nesIsDebuggable && trace )
       {
          CNES::NES()->TRACER()->AddSample ( m_cycles, type, source, eTarget_Palette, addr, data );
       }
@@ -272,7 +272,7 @@ uint32_t CPPU::LOAD ( uint32_t addr, int8_t source, int8_t type, bool trace )
    }
 
    // Add Tracer sample...
-   if ( nesIsDebuggable() && trace )
+   if ( nesIsDebuggable && trace )
    {
       if ( (addr&0x3FF) < 0x3C0 )
       {
@@ -294,7 +294,7 @@ void CPPU::STORE ( uint32_t addr, uint8_t data, int8_t source, int8_t type, bool
    if ( addr < 0x2000 )
    {
       // Add Tracer sample...
-      if ( nesIsDebuggable() && trace )
+      if ( nesIsDebuggable && trace )
       {
          CNES::NES()->TRACER()->AddSample ( m_cycles, type, source, eTarget_PatternMemory, addr, data );
       }
@@ -310,7 +310,7 @@ void CPPU::STORE ( uint32_t addr, uint8_t data, int8_t source, int8_t type, bool
    if ( addr >= 0x3F00 )
    {
       // Add Tracer sample...
-      if ( nesIsDebuggable() && trace )
+      if ( nesIsDebuggable && trace )
       {
          CNES::NES()->TRACER()->AddSample ( m_cycles, type, source, eTarget_Palette, addr, data );
       }
@@ -331,7 +331,7 @@ void CPPU::STORE ( uint32_t addr, uint8_t data, int8_t source, int8_t type, bool
    addr -= 0x2000;
 
    // Add Tracer sample...
-   if ( nesIsDebuggable() && trace )
+   if ( nesIsDebuggable && trace )
    {
       if ( (addr&0x3FF) < 0x3C0 )
       {
@@ -356,7 +356,7 @@ uint32_t CPPU::RENDER ( uint32_t addr, int8_t target )
 
    data = LOAD ( addr, eNESSource_PPU, target );
 
-   if ( nesIsDebuggable() )
+   if ( nesIsDebuggable )
    {
       m_logger->LogAccess ( CNES::NES()->CPU()->_CYCLES()/*m_cycles*/, addr, data, eLogger_DataRead, eNESSource_PPU );
    }
@@ -367,7 +367,7 @@ uint32_t CPPU::RENDER ( uint32_t addr, int8_t target )
    // Address/Data bus multiplexed thus 2 cycles required per access...
    EMULATE(1);
 
-   if ( nesIsDebuggable() )
+   if ( nesIsDebuggable )
    {
       // Check for PPU address breakpoint...
       CNES::NES()->CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, rPPUADDR(), PPU_EVENT_ADDRESS_EQUALS );
@@ -381,7 +381,7 @@ uint32_t CPPU::RENDER ( uint32_t addr, int8_t target )
 
 void CPPU::GARBAGE ( uint32_t addr, int8_t target )
 {
-   if ( nesIsDebuggable() )
+   if ( nesIsDebuggable )
    {
       CNES::NES()->TRACER()->AddGarbageFetch ( m_cycles, target, addr );
    }
@@ -392,7 +392,7 @@ void CPPU::GARBAGE ( uint32_t addr, int8_t target )
    // Address/Data bus multiplexed thus 2 cycles required per access...
    EMULATE(1);
 
-   if ( nesIsDebuggable() )
+   if ( nesIsDebuggable )
    {
       // Check for PPU address breakpoint...
       CNES::NES()->CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, rPPUADDR(), PPU_EVENT_ADDRESS_EQUALS );
@@ -404,7 +404,7 @@ void CPPU::GARBAGE ( uint32_t addr, int8_t target )
 
 void CPPU::EXTRA ()
 {
-   if ( nesIsDebuggable() )
+   if ( nesIsDebuggable )
    {
       CNES::NES()->TRACER()->AddGarbageFetch ( m_cycles, eTarget_ExtraCycle, 0 );
    }
@@ -412,7 +412,7 @@ void CPPU::EXTRA ()
    // Idle cycle...
    EMULATE(1);
 
-   if ( nesIsDebuggable() )
+   if ( nesIsDebuggable )
    {
       // Check for PPU address breakpoint...
       CNES::NES()->CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, rPPUADDR(), PPU_EVENT_ADDRESS_EQUALS );
@@ -521,7 +521,7 @@ uint32_t CPPU::PPU ( uint32_t addr )
       // Refresh I/O latch...
       m_ppuIOLatch = data;
 
-      if ( nesIsDebuggable() )
+      if ( nesIsDebuggable )
       {
          // Check for breakpoint...
          CNES::NES()->CHECKBREAKPOINT ( eBreakInPPU, eBreakOnOAMPortalRead, data );
@@ -561,7 +561,7 @@ uint32_t CPPU::PPU ( uint32_t addr )
 //         m_ppuReadLatch = *((*(m_pPPUmemory+(((oldPpuAddr&(~0x1000))&0x1FFF)>>10)))+((oldPpuAddr&(~0x1000))&0x3FF));
       }
 
-      if ( nesIsDebuggable() )
+      if ( nesIsDebuggable )
       {
          // Check for breakpoint...
          CNES::NES()->CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUPortalRead, data );
@@ -578,7 +578,7 @@ uint32_t CPPU::PPU ( uint32_t addr )
       data = m_ppuIOLatch;
    }
 
-   if ( nesIsDebuggable() )
+   if ( nesIsDebuggable )
    {
       // Check for breakpoint...
       CNES::NES()->CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUState, fixAddr );
@@ -643,7 +643,7 @@ void CPPU::PPU ( uint32_t addr, uint8_t data )
    {
       *(m_PPUoam+m_oamAddr) = data;
 
-      if ( nesIsDebuggable() )
+      if ( nesIsDebuggable )
       {
          // Check for breakpoint...
          CNES::NES()->CHECKBREAKPOINT ( eBreakInPPU, eBreakOnOAMPortalWrite, data );
@@ -660,7 +660,7 @@ void CPPU::PPU ( uint32_t addr, uint8_t data )
          m_ppuAddrLatch |= ((((uint16_t)data&0xF8))<<2);
          m_ppuAddrLatch |= ((((uint16_t)data&0x07))<<12);
 
-         if ( nesIsDebuggable() )
+         if ( nesIsDebuggable )
          {
             // Check for PPU Y scroll update breakpoint...
             CNES::NES()->CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, 0, PPU_EVENT_YSCROLL_UPDATE );
@@ -673,7 +673,7 @@ void CPPU::PPU ( uint32_t addr, uint8_t data )
          m_ppuAddrLatch &= 0xFFE0;
          m_ppuAddrLatch |= ((((uint16_t)data&0xF8))>>3);
 
-         if ( nesIsDebuggable() )
+         if ( nesIsDebuggable )
          {
             // Check for PPU X scroll update breakpoint...
             CNES::NES()->CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, 0, PPU_EVENT_XSCROLL_UPDATE );
@@ -708,7 +708,7 @@ void CPPU::PPU ( uint32_t addr, uint8_t data )
 
       oldPpuAddr = m_ppuAddr;
 
-      if ( nesIsDebuggable() )
+      if ( nesIsDebuggable )
       {
          m_logger->LogAccess ( CNES::NES()->CPU()->_CYCLES()/*m_cycles*/, oldPpuAddr, data, eLogger_DataWrite, eNESSource_CPU );
 
@@ -723,7 +723,7 @@ void CPPU::PPU ( uint32_t addr, uint8_t data )
       CNES::NES()->CART()->SYNCPPU(m_cycles,m_ppuAddr);
    }
 
-   if ( nesIsDebuggable() )
+   if ( nesIsDebuggable )
    {
       // Check for breakpoint...
       CNES::NES()->CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUState, fixAddr );
@@ -892,7 +892,7 @@ void CPPU::RENDERSCANLINE ( int32_t scanlines )
       m_x = 0;
       m_y = scanline;
 
-      if ( nesIsDebuggable() )
+      if ( nesIsDebuggable )
       {
          // Check for start-of-scanline breakpoints...
          if ( scanline == -1 )
@@ -917,7 +917,7 @@ void CPPU::RENDERSCANLINE ( int32_t scanlines )
          // Only render to the screen on the visible scanlines...
          if ( scanline >= 0 )
          {
-            if ( nesIsDebuggable() )
+            if ( nesIsDebuggable )
             {
                m_x = idxx;
 
@@ -944,7 +944,7 @@ void CPPU::RENDERSCANLINE ( int32_t scanlines )
                      (pSpriteTemp->spriteX+idx2 >= startSprite) &&
                      (pSpriteTemp->spriteX+idx2 >= startBkgnd) )
                {
-                  if ( nesIsDebuggable() )
+                  if ( nesIsDebuggable )
                   {
                      // Check for sprite-in-multiplexer event breakpoint...
                      CNES::NES()->CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,pSpriteTemp->spriteIdx,PPU_EVENT_SPRITE_IN_MULTIPLEXER);
@@ -974,7 +974,7 @@ void CPPU::RENDERSCANLINE ( int32_t scanlines )
 
                   if ( spriteColorIdx&0x3 )
                   {
-                     if ( nesIsDebuggable() )
+                     if ( nesIsDebuggable )
                      {
                         // Check for sprite selected event breakpoint...
                         CNES::NES()->CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,pSpriteTemp->spriteIdx,PPU_EVENT_SPRITE_SELECTED);
@@ -1011,7 +1011,7 @@ void CPPU::RENDERSCANLINE ( int32_t scanlines )
                       ((bkgndColorIdx == 0) &&
                        (spriteColorIdx != 0))) )
                {
-                  if ( nesIsDebuggable() )
+                  if ( nesIsDebuggable )
                   {
                      // Check for sprite rendering event breakpoint...
                      CNES::NES()->CHECKBREAKPOINT(eBreakInPPU,eBreakOnPPUEvent,pSelectedSpriteTemp->spriteIdx,PPU_EVENT_SPRITE_RENDERING);
@@ -1048,7 +1048,7 @@ void CPPU::RENDERSCANLINE ( int32_t scanlines )
                   {
                      wPPU ( PPUSTATUS, rPPU(PPUSTATUS)|PPUSTATUS_SPRITE_0_HIT );
 
-                     if ( nesIsDebuggable() )
+                     if ( nesIsDebuggable )
                      {
                         // Save last sprite 0 hit coords for OAM viewer...
                         m_lastSprite0HitX = p;
@@ -1092,7 +1092,7 @@ void CPPU::RENDERSCANLINE ( int32_t scanlines )
          GATHERBKGND ( idxx%8 );
       }
 
-      if ( nesIsDebuggable() )
+      if ( nesIsDebuggable )
       {
          // Check for end-of-scanline breakpoints...
          if ( scanline == -1 )
@@ -1423,7 +1423,7 @@ void CPPU::BUILDSPRITELIST ( int32_t scanline, int32_t cycle )
                   {
                      wPPU(PPUSTATUS,rPPU(PPUSTATUS)|PPUSTATUS_SPRITE_OVFLO );
 
-                     if ( nesIsDebuggable() )
+                     if ( nesIsDebuggable )
                      {
                         // Check for breakpoint...
                         CNES::NES()->CHECKBREAKPOINT ( eBreakInPPU, eBreakOnPPUEvent, 0, PPU_EVENT_SPRITE_OVERFLOW );

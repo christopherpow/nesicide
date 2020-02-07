@@ -131,7 +131,7 @@ void CROMMapper034::LMAPPER ( uint32_t addr, uint8_t data )
          break;
       }
 
-      if ( nesIsDebuggable() )
+      if ( nesIsDebuggable )
       {
          // Check mapper state breakpoints...
          CNES::NES()->CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperState,0);
@@ -161,7 +161,7 @@ void CROMMapper034::HMAPPER ( uint32_t addr, uint8_t data )
    m_PRGROMmemory.REMAP(2,bank+2);
    m_PRGROMmemory.REMAP(3,bank+3);
 
-   if ( nesIsDebuggable() )
+   if ( nesIsDebuggable )
    {
       // Check mapper state breakpoints...
       CNES::NES()->CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperState,0);

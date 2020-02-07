@@ -160,7 +160,7 @@ void CMEMORY::RESET ( bool soft )
    uint32_t bank;
    uint32_t physBank;
 
-   if ( nesIsDebuggable() )
+// CP ALWAYS DO   if ( nesIsDebuggable )
    {
       // Clear Code/Data Logger info...
       for ( bank = 0; bank < m_numPhysBanks; bank++ )

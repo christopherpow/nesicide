@@ -125,7 +125,7 @@ void CROMMapper065::SYNCCPU ( void )
          m_irqEnable = false;
          CNES::NES()->CPU()->ASSERTIRQ ( eNESSource_Mapper );
 
-         if ( nesIsDebuggable() )
+         if ( nesIsDebuggable )
          {
             // Check for IRQ breakpoint...
             CNES::NES()->CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperEvent,0,MAPPER_EVENT_IRQ);

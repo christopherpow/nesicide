@@ -105,7 +105,7 @@ void CROMMapper111::LMAPPER ( uint32_t addr, uint8_t data )
    m_VRAMmemory.REMAP(6,bank+6);
    m_VRAMmemory.REMAP(7,bank+7);
 
-   if ( nesIsDebuggable() )
+   if ( nesIsDebuggable )
    {
       // Check mapper state breakpoints...
       CNES::NES()->CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperState,0);

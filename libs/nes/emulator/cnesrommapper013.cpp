@@ -77,7 +77,7 @@ void CROMMapper013::HMAPPER ( uint32_t addr, uint8_t data )
    m_CHRmemory.REMAP(6,((m_reg&0x3)<<2)+2);
    m_CHRmemory.REMAP(7,((m_reg&0x3)<<2)+3);
 
-   if ( nesIsDebuggable() )
+   if ( nesIsDebuggable )
    {
       // Check mapper state breakpoints...
       CNES::NES()->CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperState,0);

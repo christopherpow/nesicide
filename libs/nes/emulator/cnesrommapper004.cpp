@@ -194,7 +194,7 @@ void CROMMapper004::SYNCPPU ( uint32_t ppuCycle, uint32_t ppuAddr )
          CNES::NES()->CPU()->ASSERTIRQ ( eNESSource_Mapper );
          m_irqAsserted = true;
 
-         if ( nesIsDebuggable() )
+         if ( nesIsDebuggable )
          {
             // Check for IRQ breakpoint...
             CNES::NES()->CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperEvent,0,MAPPER_EVENT_IRQ);
@@ -333,7 +333,7 @@ void CROMMapper004::HMAPPER ( uint32_t addr, uint8_t data )
          break;
    }
 
-   if ( nesIsDebuggable() )
+   if ( nesIsDebuggable )
    {
       // Check mapper state breakpoints...
       CNES::NES()->CHECKBREAKPOINT(eBreakInMapper,eBreakOnMapperState,reg);

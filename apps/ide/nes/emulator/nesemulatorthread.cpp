@@ -720,7 +720,7 @@ void NESEmulatorWorker::process ()
          if ( (!m_debugFrame) && (debuggerUpdateRate) )
          {
             m_debugFrame = debuggerUpdateRate;
-            if ( nesIsDebuggable() )
+            if ( nesIsDebuggable )
             {
                emit updateDebuggers();
             }

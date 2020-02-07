@@ -246,7 +246,7 @@ void CNES::FRONTLOAD ( uint32_t mapper )
 
 void CNES::RESET ( bool soft )
 {
-   if ( nesIsDebuggable() )
+// CP ALWAYS DO   if ( nesIsDebuggable )
    {
       // Clear execution tracer sample buffer...
       m_tracer->ClearSampleBuffer ();
@@ -945,7 +945,7 @@ void CNES::RUN ( uint32_t* joy )
 
    m_frame = PPU()->_FRAME();
 
-   if ( nesIsDebuggable() )
+   if ( nesIsDebuggable )
    {
       m_tracer->SetFrame ( m_frame );
 
@@ -973,7 +973,7 @@ void CNES::RUN ( uint32_t* joy )
 
 #endif
 
-   if ( nesIsDebuggable() )
+   if ( nesIsDebuggable )
    {
       // Emit start-of-quiet scanline indication to Tracer...
       m_tracer->AddSample ( PPU()->_CYCLES(), eTracer_QuietStart, eNESSource_PPU, 0, 0, 0 );
@@ -982,7 +982,7 @@ void CNES::RUN ( uint32_t* joy )
    // Emulate PPU resting scanlines...
    PPU()->QUIETSCANLINES ();
 
-   if ( nesIsDebuggable() )
+   if ( nesIsDebuggable )
    {
       // Emit end-of-quiet scanline indication to Tracer...
       m_tracer->AddSample ( PPU()->_CYCLES(), eTracer_QuietEnd, eNESSource_PPU, 0, 0, 0 );
@@ -995,7 +995,7 @@ void CNES::RUN ( uint32_t* joy )
    // Emulate VBLANK non-render scanlines...
    PPU()->VBLANKSCANLINES ();
 
-   if ( nesIsDebuggable() )
+   if ( nesIsDebuggable )
    {
       // Emit end-VBLANK indication to Tracer...
       m_tracer->AddSample ( PPU()->_CYCLES(), eTracer_VBLANKEnd, eNESSource_PPU, 0, 0, 0 );
@@ -1007,7 +1007,7 @@ void CNES::RUN ( uint32_t* joy )
    // Pre-render scanline...
    PPU()->RENDERSCANLINE ( -1 );
 
-   if ( nesIsDebuggable() )
+   if ( nesIsDebuggable )
    {
       // Emit end-of-prerender scanline indication to Tracer...
       m_tracer->AddSample ( PPU()->_CYCLES(), eTracer_PreRenderEnd, eNESSource_PPU, 0, 0, 0 );

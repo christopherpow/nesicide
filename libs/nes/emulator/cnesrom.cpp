@@ -160,7 +160,7 @@ void CROM::DoneLoadingBanks ()
 //      SetPRGBank(3,m_PRGROMmemory.PHYSBANK(1)->MEMPTR(0));
 //   }
 
-   if ( nesIsDebuggable() )
+   if ( nesIsDebuggable )
    {
       // Initial disassembly will be 'crap' but do it anyway...
       DISASSEMBLE();

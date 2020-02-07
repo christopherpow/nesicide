@@ -524,7 +524,7 @@ bool nesROMIsLoaded ( void );
 
 // Internal debug interfaces.
 extern bool __nesdebug;
-#define nesIsDebuggable() ( __nesdebug )
+#define nesIsDebuggable ( __nesdebug )
 void nesBreak ( void );
 void nesBreakAudio ( void );
 

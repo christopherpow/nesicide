@@ -262,7 +262,7 @@ void CROMMapper001::HMAPPER ( uint32_t addr, uint8_t data )
                break;
          }
 
-         if ( nesIsDebuggable() )
+         if ( nesIsDebuggable )
          {
             // Check mapper state breakpoints...
             // m_sel is convenient register number...
