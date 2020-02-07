@@ -27,8 +27,10 @@ build_script:
     bash ./build/windows-deploy.sh local
 test: off
 artifacts:
-- path: nesicide-win-x86.tar.bz2
+- path: nesicide-win-x86-{version}.tar.bz2
   name: nesicide
+before_deploy:
+- sh: mv -v nesicide-win-x86.tar.bz2 nesicide-win-x86-{version}.tar.bz2
 deploy:
 - provider: BinTray
   username: christopherpow
@@ -37,13 +39,8 @@ deploy:
   subject: christopherpow
   repo: nesicide
   package: nesicide
-<<<<<<< HEAD
   artifact: nesicide
   publish: true
   override: true
-=======
-  artifact: nesicide-win-x86.tar.bz2
-  publish: true
->>>>>>> reworkemucore
   on:
     branch: master
