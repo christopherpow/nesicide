@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>559</width>
-    <height>155</height>
+    <width>758</width>
+    <height>194</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -116,17 +116,16 @@
    </item>
    <item row="1" column="0">
     <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="0">
-      <widget class="QCheckBox" name="projectFolder">
+     <item row="1" column="3">
+      <widget class="QPushButton" name="find">
        <property name="text">
-        <string>Limit search to Project folders</string>
+        <string>Find...</string>
        </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QCheckBox" name="subfolders">
-       <property name="text">
-        <string>Include Subfolders</string>
+       <property name="autoDefault">
+        <bool>true</bool>
+       </property>
+       <property name="default">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -144,6 +143,13 @@
        </property>
       </widget>
      </item>
+     <item row="0" column="0">
+      <widget class="QCheckBox" name="projectFolder">
+       <property name="text">
+        <string>Limit search to Project folders</string>
+       </property>
+      </widget>
+     </item>
      <item row="0" column="2">
       <widget class="QCheckBox" name="sourceSearchPaths">
        <property name="text">
@@ -151,16 +157,10 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="3">
-      <widget class="QPushButton" name="find">
+     <item row="0" column="1">
+      <widget class="QCheckBox" name="subfolders">
        <property name="text">
-        <string>Find...</string>
-       </property>
-       <property name="autoDefault">
-        <bool>true</bool>
-       </property>
-       <property name="default">
-        <bool>true</bool>
+        <string>Include Subfolders</string>
        </property>
       </widget>
      </item>

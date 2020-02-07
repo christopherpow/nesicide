@@ -15146,13 +15146,14 @@ CMutex::CMutex(
    LPSECURITY_ATTRIBUTES lpsaAttribute
 )
 {
-   _qtd = new QMutex(QMutex::Recursive);
+   _qtd = new QMutex(/*QMutex::Recursive*/);
    if ( bInitiallyOwn )
       Lock();
 }
 
 CMutex::~CMutex()
 {
+   _qtd->unlock();
    delete _qtd;
 }
 

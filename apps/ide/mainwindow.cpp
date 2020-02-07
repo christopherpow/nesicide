@@ -633,7 +633,7 @@ void MainWindow::createNesUi()
    }
 
    // If we're set up for some other UI, tear it down.
-    if ( !m_targetLoaded.compare("c64",Qt::CaseInsensitive) )
+   if ( !m_targetLoaded.compare("c64",Qt::CaseInsensitive) )
    {
       destroyC64Ui();
    }
@@ -2404,6 +2404,8 @@ void MainWindow::closeEvent ( QCloseEvent* event )
 
    if (nesicideProject->isInitialized())
    {
+      cancel = closeProject();
+
       CDockWidgetRegistry::removeWidget ( "Source Navigator" );
       CDockWidgetRegistry::removeWidget ( "Search Bar" );
       CDockWidgetRegistry::removeWidget ( "Project Browser" );
@@ -2411,8 +2413,6 @@ void MainWindow::closeEvent ( QCloseEvent* event )
       CDockWidgetRegistry::removeWidget ( "Execution Inspector" );
       CDockWidgetRegistry::removeWidget ( "Symbol Inspector" );
       CDockWidgetRegistry::removeWidget ( "Code Profiler" );
-
-      cancel = closeProject();
    }
 
    if ( cancel )

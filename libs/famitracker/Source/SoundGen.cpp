@@ -308,7 +308,8 @@ void CSoundGen::RegisterChannels(int Chip, CFamiTrackerDoc *pDoc)
 //	ASSERT(GetCurrentThreadId() == theApp.m_nThreadID);
 
 	// This affects the sound channel interface so it must be synchronized
-	pDoc->LockDocument();
+   // CP: ALREADY LOCKED HERE
+   //pDoc->LockDocument();
 
 	// Clear all registered channels
 	pDoc->ResetChannels();
@@ -321,7 +322,8 @@ void CSoundGen::RegisterChannels(int Chip, CFamiTrackerDoc *pDoc)
 		}
 	}
 
-	pDoc->UnlockDocument();
+   // CP: ALREADY LOCKED HERE
+   //pDoc->UnlockDocument();
 }
 
 void CSoundGen::SelectChip(int Chip)
