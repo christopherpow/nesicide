@@ -2,7 +2,7 @@ PATH=deps/Windows/GnuWin32/bin:$PATH
 
 DISTPATH=./nesicide-local
 REMOTEPATH=nesicide-win-x86
-if [[ $APPVEYOR_REPO_COMMIT != "" ]]; then
+if [ "$APPVEYOR_REPO_COMMIT" != "" ]; then
      DISTPATH=./nesicide-$APPVEYOR_REPO_COMMIT
      REMOTEPATH+=-$APPVEYOR_REPO_COMMIT
 fi
@@ -16,7 +16,7 @@ LIBDEPS="deps/rtmidi/release/rtmidi \
      libs/c64/release/c64-emulator \
      libs/famitracker/release/famitracker"
 
-OSTYPE=`wmic os get osarchitecture`
+#OSTYPE=`wmic os get osarchitecture`
 #if [[ $OSTYPE =~ .*64*. ]]; then
 #	LIBDEPS+=" deps/Windows/SDL/x64/SDL.dll"
 #else
@@ -55,4 +55,5 @@ if [ "$1" == "local" ]; then
   done
   tar cjvf $REMOTEPATH $DISTPATH
 elif [ "$1" == "remote" ]; then
+  echo "Nothing to do here. Plese disperse!"
 fi
