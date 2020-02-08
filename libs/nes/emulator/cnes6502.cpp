@@ -408,18 +408,9 @@ void C6502::EMULATE ( int32_t cycles )
                   NES()->CHECKBREAKPOINT(eBreakInCPU,eBreakOnCPUState,CPU_F);
 
                   // Check for KIL opcodes...
-                  if ( (((*opcodeData) == 0x02) ||
-                        ((*opcodeData) == 0x12) ||
-                        ((*opcodeData) == 0x22) ||
-                        ((*opcodeData) == 0x32) ||
-                        ((*opcodeData) == 0x42) ||
-                        ((*opcodeData) == 0x52) ||
-                        ((*opcodeData) == 0x62) ||
-                        ((*opcodeData) == 0x72) ||
-                        ((*opcodeData) == 0x92) ||
-                        ((*opcodeData) == 0xB2) ||
-                        ((*opcodeData) == 0xD2) ||
-                        ((*opcodeData) == 0xF2)) )
+                  // Get information about current opcode...
+                  pOpcodeStruct = m_6502opcode+(*opcodeData);
+                  if ( pOpcodeStruct->pFn == &C6502::KIL )
                   {
                      // KIL opcodes halt PC dead!  Force break if desired...
                      if ( m_breakOnKIL )
@@ -556,14 +547,14 @@ void C6502::EMULATE ( int32_t cycles )
                      NES()->TRACER()->SetDisassembly ( pDisassemblySample, opcodeData );
 
                      // Check for undocumented breakpoint...
-                     if ( !pOpcodeStruct->documented )
+                     if ( pOpcodeStruct->documented )
                      {
-                        NES()->CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUEvent, 0, CPU_EVENT_UNDOCUMENTED );
-                        NES()->CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUEvent, (*opcodeData), CPU_EVENT_UNDOCUMENTED_EXACT );
+                        NES()->CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUEvent, (*opcodeData), CPU_EVENT_EXECUTE_EXACT );
                      }
                      else
                      {
-                        NES()->CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUEvent, (*opcodeData), CPU_EVENT_EXECUTE_EXACT );
+                        NES()->CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUEvent, 0, CPU_EVENT_UNDOCUMENTED );
+                        NES()->CHECKBREAKPOINT ( eBreakInCPU, eBreakOnCPUEvent, (*opcodeData), CPU_EVENT_UNDOCUMENTED_EXACT );
                      }
                   }
 

@@ -41,6 +41,9 @@ class CAPUOscillator
 public:
    CAPUOscillator(uint8_t periodAdjust);
 
+   inline CAPU *PARENT() const { return m_apu; }
+   void PARENT(CAPU *pAPU) { m_apu = pAPU; }
+
    // An APU channel should know what channel ID it has.  This isn't
    // useful in the APU itself but is needed by the debugger inspectors
    // and designers that need to do specific things to specific APU channels.
@@ -172,6 +175,8 @@ public:
    }
 
 protected:
+   CAPU *m_apu;
+
    // Whether or not the UI has muted this channel.
    bool m_muted;
 

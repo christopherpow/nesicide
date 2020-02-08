@@ -138,6 +138,12 @@ CAPU::CAPU()
    m_changeModes = -1;
    m_sequenceStep = 0;
 
+   m_square[0].PARENT(this);
+   m_square[1].PARENT(this);
+   m_triangle.PARENT(this);
+   m_noise.PARENT(this);
+   m_dmc.PARENT(this);
+
    m_square[0].SetChannel ( 0 );
    m_square[1].SetChannel ( 1 );
    m_triangle.SetChannel ( 2 );
@@ -395,8 +401,9 @@ void CAPU::RESET ( void )
    apuDataAvailable = 0;
 }
 
-CAPUOscillator::CAPUOscillator (uint8_t periodAdjust) :
-      m_periodAdjust(periodAdjust)
+CAPUOscillator::CAPUOscillator(uint8_t periodAdjust) :
+   m_apu(NULL),
+   m_periodAdjust(periodAdjust)
 {
    int32_t idx;
 
@@ -645,36 +652,36 @@ void CAPUSquare::APU ( uint32_t addr, uint8_t data )
       {
          if ( (CNES::NES()->VIDEOMODE() == MODE_NTSC) || (CNES::NES()->VIDEOMODE() == MODE_DENDY) )
          {
-            if ( CNES::NES()->CPU()->APU()->SEQUENCERMODE() == 0 )
+            if ( PARENT()->SEQUENCERMODE() == 0 )
             {
-               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 14915) && (m_lengthCounter == 0) )
+               if ( (PARENT()->CYCLES() == 14915) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 29831) && (m_lengthCounter == 0) )
+               if ( (PARENT()->CYCLES() == 29831) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( ((CNES::NES()->CPU()->APU()->CYCLES() != 14915) && (CNES::NES()->CPU()->APU()->CYCLES() != 29831)) || (m_lengthCounter == 0) )
+               if ( ((PARENT()->CYCLES() != 14915) && (PARENT()->CYCLES() != 29831)) || (m_lengthCounter == 0) )
                {
                   m_lengthCounter = *(m_lengthLUT+(data>>3));
                }
             }
             else
             {
-               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 1) && (m_lengthCounter == 0) )
+               if ( (PARENT()->CYCLES() == 1) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 14915) && (m_lengthCounter == 0) )
+               if ( (PARENT()->CYCLES() == 14915) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( ((CNES::NES()->CPU()->APU()->CYCLES() != 1) && (CNES::NES()->CPU()->APU()->CYCLES() != 14915)) || (m_lengthCounter == 0) )
+               if ( ((PARENT()->CYCLES() != 1) && (PARENT()->CYCLES() != 14915)) || (m_lengthCounter == 0) )
                {
                   m_lengthCounter = *(m_lengthLUT+(data>>3));
                }
@@ -682,36 +689,36 @@ void CAPUSquare::APU ( uint32_t addr, uint8_t data )
          }
          else
          {
-            if ( CNES::NES()->CPU()->APU()->SEQUENCERMODE() == 0 )
+            if ( PARENT()->SEQUENCERMODE() == 0 )
             {
-               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 16629) && (m_lengthCounter == 0) )
+               if ( (PARENT()->CYCLES() == 16629) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 33255) && (m_lengthCounter == 0) )
+               if ( (PARENT()->CYCLES() == 33255) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( ((CNES::NES()->CPU()->APU()->CYCLES() != 16629) && (CNES::NES()->CPU()->APU()->CYCLES() != 33255)) || (m_lengthCounter == 0) )
+               if ( ((PARENT()->CYCLES() != 16629) && (PARENT()->CYCLES() != 33255)) || (m_lengthCounter == 0) )
                {
                   m_lengthCounter = *(m_lengthLUT+(data>>3));
                }
             }
             else
             {
-               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 1) && (m_lengthCounter == 0) )
+               if ( (PARENT()->CYCLES() == 1) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 16629) && (m_lengthCounter == 0) )
+               if ( (PARENT()->CYCLES() == 16629) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( ((CNES::NES()->CPU()->APU()->CYCLES() != 1) && (CNES::NES()->CPU()->APU()->CYCLES() != 16629)) || (m_lengthCounter == 0) )
+               if ( ((PARENT()->CYCLES() != 1) && (PARENT()->CYCLES() != 16629)) || (m_lengthCounter == 0) )
                {
                   m_lengthCounter = *(m_lengthLUT+(data>>3));
                }
@@ -783,36 +790,36 @@ void CAPUTriangle::APU ( uint32_t addr, uint8_t data )
       {
          if ( (CNES::NES()->VIDEOMODE() == MODE_NTSC) || (CNES::NES()->VIDEOMODE() == MODE_DENDY) )
          {
-            if ( CNES::NES()->CPU()->APU()->SEQUENCERMODE() == 0 )
+            if ( PARENT()->SEQUENCERMODE() == 0 )
             {
-               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 14915) && (m_lengthCounter == 0) )
+               if ( (PARENT()->CYCLES() == 14915) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 29831) && (m_lengthCounter == 0) )
+               if ( (PARENT()->CYCLES() == 29831) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( ((CNES::NES()->CPU()->APU()->CYCLES() != 14915) && (CNES::NES()->CPU()->APU()->CYCLES() != 29831)) || (m_lengthCounter == 0) )
+               if ( ((PARENT()->CYCLES() != 14915) && (PARENT()->CYCLES() != 29831)) || (m_lengthCounter == 0) )
                {
                   m_lengthCounter = *(m_lengthLUT+(data>>3));
                }
             }
             else
             {
-               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 1) && (m_lengthCounter == 0) )
+               if ( (PARENT()->CYCLES() == 1) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 14915) && (m_lengthCounter == 0) )
+               if ( (PARENT()->CYCLES() == 14915) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( ((CNES::NES()->CPU()->APU()->CYCLES() != 1) && (CNES::NES()->CPU()->APU()->CYCLES() != 14915)) || (m_lengthCounter == 0) )
+               if ( ((PARENT()->CYCLES() != 1) && (PARENT()->CYCLES() != 14915)) || (m_lengthCounter == 0) )
                {
                   m_lengthCounter = *(m_lengthLUT+(data>>3));
                }
@@ -820,36 +827,36 @@ void CAPUTriangle::APU ( uint32_t addr, uint8_t data )
          }
          else
          {
-            if ( CNES::NES()->CPU()->APU()->SEQUENCERMODE() == 0 )
+            if ( PARENT()->SEQUENCERMODE() == 0 )
             {
-               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 16629) && (m_lengthCounter == 0) )
+               if ( (PARENT()->CYCLES() == 16629) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 33255) && (m_lengthCounter == 0) )
+               if ( (PARENT()->CYCLES() == 33255) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( ((CNES::NES()->CPU()->APU()->CYCLES() != 16629) && (CNES::NES()->CPU()->APU()->CYCLES() != 33255)) || (m_lengthCounter == 0) )
+               if ( ((PARENT()->CYCLES() != 16629) && (PARENT()->CYCLES() != 33255)) || (m_lengthCounter == 0) )
                {
                   m_lengthCounter = *(m_lengthLUT+(data>>3));
                }
             }
             else
             {
-               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 1) && (m_lengthCounter == 0) )
+               if ( (PARENT()->CYCLES() == 1) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 16629) && (m_lengthCounter == 0) )
+               if ( (PARENT()->CYCLES() == 16629) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( ((CNES::NES()->CPU()->APU()->CYCLES() != 1) && (CNES::NES()->CPU()->APU()->CYCLES() != 16629)) || (m_lengthCounter == 0) )
+               if ( ((PARENT()->CYCLES() != 1) && (PARENT()->CYCLES() != 16629)) || (m_lengthCounter == 0) )
                {
                   m_lengthCounter = *(m_lengthLUT+(data>>3));
                }
@@ -928,36 +935,36 @@ void CAPUNoise::APU ( uint32_t addr, uint8_t data )
       {
          if ( (CNES::NES()->VIDEOMODE() == MODE_NTSC) || (CNES::NES()->VIDEOMODE() == MODE_DENDY) )
          {
-            if ( CNES::NES()->CPU()->APU()->SEQUENCERMODE() == 0 )
+            if ( PARENT()->SEQUENCERMODE() == 0 )
             {
-               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 14915) && (m_lengthCounter == 0) )
+               if ( (PARENT()->CYCLES() == 14915) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 29831) && (m_lengthCounter == 0) )
+               if ( (PARENT()->CYCLES() == 29831) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( ((CNES::NES()->CPU()->APU()->CYCLES() != 14915) && (CNES::NES()->CPU()->APU()->CYCLES() != 29831)) || (m_lengthCounter == 0) )
+               if ( ((PARENT()->CYCLES() != 14915) && (PARENT()->CYCLES() != 29831)) || (m_lengthCounter == 0) )
                {
                   m_lengthCounter = *(m_lengthLUT+(data>>3));
                }
             }
             else
             {
-               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 1) && (m_lengthCounter == 0) )
+               if ( (PARENT()->CYCLES() == 1) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 14915) && (m_lengthCounter == 0) )
+               if ( (PARENT()->CYCLES() == 14915) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( ((CNES::NES()->CPU()->APU()->CYCLES() != 1) && (CNES::NES()->CPU()->APU()->CYCLES() != 14915)) || (m_lengthCounter == 0) )
+               if ( ((PARENT()->CYCLES() != 1) && (PARENT()->CYCLES() != 14915)) || (m_lengthCounter == 0) )
                {
                   m_lengthCounter = *(m_lengthLUT+(data>>3));
                }
@@ -965,36 +972,36 @@ void CAPUNoise::APU ( uint32_t addr, uint8_t data )
          }
          else
          {
-            if ( CNES::NES()->CPU()->APU()->SEQUENCERMODE() == 0 )
+            if ( PARENT()->SEQUENCERMODE() == 0 )
             {
-               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 16629) && (m_lengthCounter == 0) )
+               if ( (PARENT()->CYCLES() == 16629) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 33255) && (m_lengthCounter == 0) )
+               if ( (PARENT()->CYCLES() == 33255) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( ((CNES::NES()->CPU()->APU()->CYCLES() != 16629) && (CNES::NES()->CPU()->APU()->CYCLES() != 33255)) || (m_lengthCounter == 0) )
+               if ( ((PARENT()->CYCLES() != 16629) && (PARENT()->CYCLES() != 33255)) || (m_lengthCounter == 0) )
                {
                   m_lengthCounter = *(m_lengthLUT+(data>>3));
                }
             }
             else
             {
-               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 1) && (m_lengthCounter == 0) )
+               if ( (PARENT()->CYCLES() == 1) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( (CNES::NES()->CPU()->APU()->CYCLES() == 16629) && (m_lengthCounter == 0) )
+               if ( (PARENT()->CYCLES() == 16629) && (m_lengthCounter == 0) )
                {
                   m_clockLengthCounter = false;
                }
 
-               if ( ((CNES::NES()->CPU()->APU()->CYCLES() != 1) && (CNES::NES()->CPU()->APU()->CYCLES() != 16629)) || (m_lengthCounter == 0) )
+               if ( ((PARENT()->CYCLES() != 1) && (PARENT()->CYCLES() != 16629)) || (m_lengthCounter == 0) )
                {
                   m_lengthCounter = *(m_lengthLUT+(data>>3));
                }
@@ -1087,7 +1094,7 @@ void CAPUDMC::APU ( uint32_t addr, uint8_t data )
       if ( !m_dmcIrqEnabled )
       {
          m_dmcIrqAsserted = false;
-         CNES::NES()->CPU()->APU()->RELEASEIRQ ();
+         PARENT()->RELEASEIRQ ();
       }
 
       m_loop = data&0x40;
@@ -1113,7 +1120,7 @@ void CAPUDMC::ENABLE ( bool enabled )
    CAPUOscillator::ENABLE(enabled);
 
    m_dmcIrqAsserted = false;
-   CNES::NES()->CPU()->APU()->RELEASEIRQ ();
+   PARENT()->RELEASEIRQ ();
 
    if ( enabled )
    {
@@ -1259,6 +1266,7 @@ void CAPU::EMULATE ( void )
 {
    static float takeSample = 0.0f;
    uint16_t* pWaveBuf;
+   CTracer* pTracer = CNES::NES()->TRACER();
 
    // Handle APU clock jitter.  Mode changes occur
    // only on even APU clocks.  On a mode change write
@@ -1277,7 +1285,7 @@ void CAPU::EMULATE ( void )
       if ( nesIsDebuggable )
       {
          // Emit frame-start indication to Tracer...
-         CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_StartAPUFrame, eNESSource_APU, 0, 0, 0 );
+         pTracer->AddSample ( CYCLES(), eTracer_StartAPUFrame, eNESSource_APU, 0, 0, 0 );
       }
    }
 
@@ -1298,7 +1306,7 @@ void CAPU::EMULATE ( void )
             if ( nesIsDebuggable )
             {
                // Emit frame-end indication to Tracer...
-               CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
+               pTracer->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
             }
 
             SEQTICK ( 0 );
@@ -1308,7 +1316,7 @@ void CAPU::EMULATE ( void )
             if ( nesIsDebuggable )
             {
                // Emit frame-end indication to Tracer...
-               CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
+               pTracer->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
             }
 
             SEQTICK ( 1 );
@@ -1318,7 +1326,7 @@ void CAPU::EMULATE ( void )
             if ( nesIsDebuggable )
             {
                // Emit frame-end indication to Tracer...
-               CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
+               pTracer->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
             }
 
             SEQTICK ( 2 );
@@ -1328,7 +1336,7 @@ void CAPU::EMULATE ( void )
             if ( nesIsDebuggable )
             {
                // Emit frame-end indication to Tracer...
-               CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
+               pTracer->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
             }
 
             SEQTICK ( 3 );
@@ -1338,7 +1346,7 @@ void CAPU::EMULATE ( void )
             if ( nesIsDebuggable )
             {
                // Emit frame-end indication to Tracer...
-               CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
+               pTracer->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
             }
 
             // Nothing to do this "tick"...
@@ -1352,7 +1360,7 @@ void CAPU::EMULATE ( void )
             if ( nesIsDebuggable )
             {
                // Emit frame-end indication to Tracer...
-               CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
+               pTracer->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
             }
 
             SEQTICK ( 0 );
@@ -1362,7 +1370,7 @@ void CAPU::EMULATE ( void )
             if ( nesIsDebuggable )
             {
                // Emit frame-end indication to Tracer...
-               CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
+               pTracer->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
             }
 
             SEQTICK ( 1 );
@@ -1372,7 +1380,7 @@ void CAPU::EMULATE ( void )
             if ( nesIsDebuggable )
             {
                // Emit frame-end indication to Tracer...
-               CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
+               pTracer->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
             }
 
             SEQTICK ( 2 );
@@ -1397,7 +1405,7 @@ void CAPU::EMULATE ( void )
             if ( nesIsDebuggable )
             {
                // Emit frame-end indication to Tracer...
-               CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
+               pTracer->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
             }
 
             // IRQ asserted inside SEQTICK...
@@ -1416,7 +1424,7 @@ void CAPU::EMULATE ( void )
             if ( nesIsDebuggable )
             {
                // Emit frame-end indication to Tracer...
-               CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
+               pTracer->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
             }
 
             SEQTICK ( 0 );
@@ -1426,7 +1434,7 @@ void CAPU::EMULATE ( void )
             if ( nesIsDebuggable )
             {
                // Emit frame-end indication to Tracer...
-               CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
+               pTracer->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
             }
 
             SEQTICK ( 1 );
@@ -1436,7 +1444,7 @@ void CAPU::EMULATE ( void )
             if ( nesIsDebuggable )
             {
                // Emit frame-end indication to Tracer...
-               CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
+               pTracer->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
             }
 
             SEQTICK ( 2 );
@@ -1446,7 +1454,7 @@ void CAPU::EMULATE ( void )
             if ( nesIsDebuggable )
             {
                // Emit frame-end indication to Tracer...
-               CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
+               pTracer->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
             }
 
             SEQTICK ( 3 );
@@ -1456,7 +1464,7 @@ void CAPU::EMULATE ( void )
             if ( nesIsDebuggable )
             {
                // Emit frame-end indication to Tracer...
-               CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
+               pTracer->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
             }
 
             // Nothing to do this "tick"...
@@ -1470,7 +1478,7 @@ void CAPU::EMULATE ( void )
             if ( nesIsDebuggable )
             {
                // Emit frame-end indication to Tracer...
-               CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
+               pTracer->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
             }
 
             SEQTICK ( 0 );
@@ -1480,7 +1488,7 @@ void CAPU::EMULATE ( void )
             if ( nesIsDebuggable )
             {
                // Emit frame-end indication to Tracer...
-               CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
+               pTracer->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
             }
 
             SEQTICK ( 1 );
@@ -1490,7 +1498,7 @@ void CAPU::EMULATE ( void )
             if ( nesIsDebuggable )
             {
                // Emit frame-end indication to Tracer...
-               CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
+               pTracer->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
             }
 
             SEQTICK ( 2 );
@@ -1515,7 +1523,7 @@ void CAPU::EMULATE ( void )
             if ( nesIsDebuggable )
             {
                // Emit frame-end indication to Tracer...
-               CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
+               pTracer->AddSample ( CYCLES(), eTracer_SequencerStep, eNESSource_APU, 0, 0, 0 );
             }
 
             // IRQ asserted inside SEQTICK...
@@ -1582,7 +1590,7 @@ if ( wavOut )
          if ( nesIsDebuggable )
          {
             // Emit frame-end indication to Tracer...
-            CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_EndAPUFrame, eNESSource_APU, 0, 0, 0 );
+            pTracer->AddSample ( CYCLES(), eTracer_EndAPUFrame, eNESSource_APU, 0, 0, 0 );
          }
 
          RESETCYCLECOUNTER(1);
@@ -1590,7 +1598,7 @@ if ( wavOut )
          if ( nesIsDebuggable )
          {
             // Emit frame-start indication to Tracer...
-            CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_StartAPUFrame, eNESSource_APU, 0, 0, 0 );
+            pTracer->AddSample ( CYCLES(), eTracer_StartAPUFrame, eNESSource_APU, 0, 0, 0 );
          }
       }
       else if ( (!m_sequencerMode) && (m_cycles >= 37289) )
@@ -1598,7 +1606,7 @@ if ( wavOut )
          if ( nesIsDebuggable )
          {
             // Emit frame-end indication to Tracer...
-            CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_EndAPUFrame, eNESSource_APU, 0, 0, 0 );
+            pTracer->AddSample ( CYCLES(), eTracer_EndAPUFrame, eNESSource_APU, 0, 0, 0 );
          }
 
          RESETCYCLECOUNTER(7459);
@@ -1606,7 +1614,7 @@ if ( wavOut )
          if ( nesIsDebuggable )
          {
             // Emit frame-start indication to Tracer...
-            CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_StartAPUFrame, eNESSource_APU, 0, 0, 0 );
+            pTracer->AddSample ( CYCLES(), eTracer_StartAPUFrame, eNESSource_APU, 0, 0, 0 );
          }
       }
    }
@@ -1617,7 +1625,7 @@ if ( wavOut )
          if ( nesIsDebuggable )
          {
             // Emit frame-end indication to Tracer...
-            CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_EndAPUFrame, eNESSource_APU, 0, 0, 0 );
+            pTracer->AddSample ( CYCLES(), eTracer_EndAPUFrame, eNESSource_APU, 0, 0, 0 );
          }
 
          RESETCYCLECOUNTER(1);
@@ -1625,7 +1633,7 @@ if ( wavOut )
          if ( nesIsDebuggable )
          {
             // Emit frame-start indication to Tracer...
-            CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_StartAPUFrame, eNESSource_APU, 0, 0, 0 );
+            pTracer->AddSample ( CYCLES(), eTracer_StartAPUFrame, eNESSource_APU, 0, 0, 0 );
          }
       }
       else if ( (!m_sequencerMode) && (m_cycles >= 41569) )
@@ -1633,7 +1641,7 @@ if ( wavOut )
          if ( nesIsDebuggable )
          {
             // Emit frame-end indication to Tracer...
-            CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_EndAPUFrame, eNESSource_APU, 0, 0, 0 );
+            pTracer->AddSample ( CYCLES(), eTracer_EndAPUFrame, eNESSource_APU, 0, 0, 0 );
          }
 
          RESETCYCLECOUNTER(8315);
@@ -1641,7 +1649,7 @@ if ( wavOut )
          if ( nesIsDebuggable )
          {
             // Emit frame-start indication to Tracer...
-            CNES::NES()->TRACER()->AddSample ( CYCLES(), eTracer_StartAPUFrame, eNESSource_APU, 0, 0, 0 );
+            pTracer->AddSample ( CYCLES(), eTracer_StartAPUFrame, eNESSource_APU, 0, 0, 0 );
          }
       }
    }

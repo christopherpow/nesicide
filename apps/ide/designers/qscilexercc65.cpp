@@ -47,3 +47,15 @@ QFont QsciLexerCC65::defaultFont(int style) const
 #endif
 }
 
+QFont QsciLexerCC65::font(int style) const
+{
+#if defined(Q_OS_MAC) || defined(Q_OS_MACX) || defined(Q_OS_MAC64)
+   return QFont("Monaco", 11);
+#endif
+#ifdef Q_OS_LINUX
+   return QFont("Monospace", 10);
+#endif
+#ifdef Q_OS_WIN
+   return QFont("Consolas", 11);
+#endif
+}

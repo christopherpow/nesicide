@@ -16,6 +16,8 @@ public:
 
    virtual QFont defaultFont() const;
    virtual QFont defaultFont(int style) const;
+
+   virtual QFont font(int style) const;
 };
 
 #endif // QSCILEXERCC65_H

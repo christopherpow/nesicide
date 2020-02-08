@@ -339,6 +339,10 @@ void CROMMapper005::RESET ( bool soft )
 {
    m_dbCartRegisters = dbRegisters;
 
+   m_square[0].PARENT(CNES::NES()->CPU()->APU());
+   m_square[1].PARENT(CNES::NES()->CPU()->APU());
+   m_dmc.PARENT(CNES::NES()->CPU()->APU());
+
    m_square[0].RESET();
    m_square[1].RESET();
    m_dmc.RESET();
