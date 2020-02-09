@@ -151,15 +151,6 @@ void CROM::SetCHRBank ( int32_t bank, uint8_t* data )
 
 void CROM::DoneLoadingBanks ()
 {
-   // This is called when the ROM loader is done so that fixup can be done...
-//   if ( m_numPrgBanks == 2 )
-//   {
-//      // If the ROM contains only one 16KB PRG-ROM bank then it needs to be replicated
-//      // to the second PRG-ROM bank slot...
-//      SetPRGBank(2,m_PRGROMmemory.PHYSBANK(0)->MEMPTR(0));
-//      SetPRGBank(3,m_PRGROMmemory.PHYSBANK(1)->MEMPTR(0));
-//   }
-
    if ( nesIsDebuggable )
    {
       // Initial disassembly will be 'crap' but do it anyway...
