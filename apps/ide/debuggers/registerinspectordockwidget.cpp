@@ -29,6 +29,19 @@ RegisterInspectorDockWidget::RegisterInspectorDockWidget(regDBFunc regDB,CBreakp
 
    ui->label->setText ( "" );
 
+#if defined(Q_OS_MAC) || defined(Q_OS_MACX) || defined(Q_OS_MAC64)
+   ui->binaryView->setFont(QFont("Monaco", 11));
+   ui->bitfieldView->setFont(QFont("Monaco", 11));
+#endif
+#ifdef Q_OS_LINUX
+   ui->binaryView->setFont(QFont("Monospace", 10));
+   ui->bitfieldView->setFont(QFont("Monospace", 10));
+#endif
+#ifdef Q_OS_WIN
+   ui->binaryView->setFont(QFont("Monospace", 10));
+   ui->bitfieldView->setFont(QFont("Monospace", 10));
+#endif
+
    // Connect inter-model signals so the models can update each other.
    QObject::connect ( bitfieldModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), binaryModel, SLOT(update()) );
    QObject::connect ( binaryModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), bitfieldModel, SLOT(update()) );

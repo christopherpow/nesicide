@@ -225,7 +225,7 @@ void CProjectTabWidget::snapToTab(QString item)
          addr = splits.at(3).toInt(NULL,16);
          absAddr = (splits.at(1).toInt(NULL,16)*MEM_8KB)+splits.at(2).toInt(NULL,16);
       }
-      file = CCC65Interface::getSourceFileFromAbsoluteAddress(addr,absAddr);
+      file = CCC65Interface::getSourceFileFromPhysicalAddress(addr,absAddr);
    }
    else if ( item.startsWith("SourceNavigatorFile,") )
    {

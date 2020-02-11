@@ -40,7 +40,7 @@ QModelIndex CDebuggerCodeProfilerModel::index(int row, int column, const QModelI
       unsigned int absAddr;
 
       addr = CCC65Interface::getSymbolAddress(m_items.at(row).symbol);
-      absAddr = CCC65Interface::getSymbolAbsoluteAddress(m_items.at(row).symbol);
+      absAddr = CCC65Interface::getSymbolPhysicalAddress(m_items.at(row).symbol);
 
       if ( addr >= MEM_32KB )
       {
@@ -142,7 +142,7 @@ void CDebuggerCodeProfilerModel::update()
       if ( !symbol.startsWith('@') )
       {
          addr = CCC65Interface::getSymbolAddress(symbol);
-         absAddr = CCC65Interface::getSymbolAbsoluteAddress(symbol);
+         absAddr = CCC65Interface::getSymbolPhysicalAddress(symbol);
 
          if ( absAddr != -1 )
          {
@@ -174,7 +174,7 @@ void CDebuggerCodeProfilerModel::update()
                   item.file = CCC65Interface::getSourceFileFromSymbol(symbol);
                   fileInfo.setFile(item.file);
 
-                  nesGetPrintableAddressWithAbsolute(modelStringBuffer,addr,absAddr);
+                  nesGetPrintablePhysicalAddress(modelStringBuffer,addr,absAddr);
                   item.address = modelStringBuffer;
                   item.count = pLogger->GetCount(addr&mask);
                   if ( !m_items.contains(item) )

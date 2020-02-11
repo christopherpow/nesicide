@@ -114,14 +114,11 @@ CROM* CARTFACTORY(uint32_t mapper)
 
 CROM::CROM(uint32_t mapper)
    : m_PRGROMmemory(CMEMORY(0x8000,MEM_8KB,NUM_ROM_BANKS,4)),
+     m_CHRmemory(CMEMORY(0,MEM_1KB,NUM_CHR_BANKS,8)),
      m_SRAMmemory(CMEMORY(0x6000,MEM_8KB,8,5)),
      m_EXRAMmemory(CMEMORY(0x5C00,MEM_1KB)),
-     m_VRAMmemory(CMEMORY(0x2000,MEM_8KB,2)),
-     m_CHRmemory(CMEMORY(0,MEM_1KB,NUM_CHR_BANKS,8))
+     m_VRAMmemory(CMEMORY(0x2000,MEM_8KB,2))
 {
-   int32_t bank;
-   int32_t addr;
-
    m_mapper = mapper;
    m_numPrgBanks = 0;
    m_numChrBanks = 0;
@@ -163,8 +160,6 @@ void CROM::DoneLoadingBanks ()
 
 void CROM::RESET ( bool soft )
 {
-   int32_t bank;
-
    if ( m_mapper == 0 )
    {
       m_dbCartRegisters = NULL;
@@ -287,19 +282,19 @@ void CROM::PRINTABLEADDR ( char* buffer, uint32_t addr, uint32_t absAddr )
    }
 }
 
-uint32_t CROM::PRGROMSLOC2ADDR ( uint16_t sloc )
+uint32_t CROM::PRGROMSLOC2VIRTADDR ( uint16_t sloc )
 {
-   return m_PRGROMmemory.SLOC2ADDR(sloc);
+   return m_PRGROMmemory.SLOC2VIRTADDR(sloc);
 }
 
-uint32_t CROM::SRAMSLOC2ADDR ( uint16_t sloc )
+uint32_t CROM::SRAMSLOC2VIRTADDR ( uint16_t sloc )
 {
-   return m_SRAMmemory.SLOC2ADDR(sloc);
+   return m_SRAMmemory.SLOC2VIRTADDR(sloc);
 }
 
-uint32_t CROM::EXRAMSLOC2ADDR ( uint16_t sloc )
+uint32_t CROM::EXRAMSLOC2VIRTADDR ( uint16_t sloc )
 {
-   return m_EXRAMmemory.SLOC2ADDR(sloc);
+   return m_EXRAMmemory.SLOC2VIRTADDR(sloc);
 }
 
 uint16_t CROM::PRGROMADDR2SLOC ( uint32_t addr )

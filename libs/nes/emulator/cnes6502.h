@@ -506,9 +506,9 @@ public:
    {
       return m_6502memory.DISASSEMBLY(addr);
    }
-   uint32_t SLOC2ADDR ( uint16_t sloc )
+   uint32_t SLOC2VIRTADDR ( uint16_t sloc )
    {
-      return m_6502memory.SLOC2ADDR(sloc);
+      return m_6502memory.SLOC2VIRTADDR(sloc);
    }
    uint16_t ADDR2SLOC ( uint32_t addr )
    {

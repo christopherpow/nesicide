@@ -157,7 +157,8 @@ CAPU::CAPU()
    m_dmc.MUTE(false);
 
    m_waveBuf = new uint16_t [ APU_BUFFER_SIZE ];
-   memset( m_waveBuf, 0, sizeof(m_waveBuf) );
+   m_waveBufDepth = APU_BUFFER_SIZE;
+   memset( m_waveBuf, 0, m_waveBufDepth*sizeof(uint16_t) );
 }
 
 uint8_t* CAPU::PLAY ( uint16_t samples )
@@ -168,7 +169,8 @@ uint8_t* CAPU::PLAY ( uint16_t samples )
    {
       delete [] m_waveBuf;
       m_waveBuf = new uint16_t [ samples*NUM_APU_BUFS ];
-      memset( m_waveBuf, 0, sizeof(m_waveBuf) );
+      m_waveBufDepth = samples*NUM_APU_BUFS;
+      memset( m_waveBuf, 0, m_waveBufDepth*sizeof(uint16_t) );
    }
    m_sampleBufferSize = samples*NUM_APU_BUFS;
 
@@ -382,7 +384,7 @@ void CAPU::RESET ( void )
    m_waveBufProduce = 0;
    m_waveBufConsume = 0;
 
-   memset( m_waveBuf, 0, sizeof(m_waveBuf) );
+   memset( m_waveBuf, 0, m_waveBufDepth*sizeof(uint16_t) );
 
    if ( CNES::NES()->VIDEOMODE() == MODE_NTSC )
    {

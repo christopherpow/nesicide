@@ -111,18 +111,18 @@ void SourceNavigator::emulator_emulatorPaused(bool show)
       if ( !m_loadedTarget.compare("nes",Qt::CaseInsensitive) )
       {
          addr = nesGetCPUProgramCounterOfLastSync();
-         absAddr = nesGetAbsoluteAddressFromAddress(addr);
+         absAddr = nesGetPhysicalAddressFromAddress(addr);
       }
       else if ( !m_loadedTarget.compare("c64",Qt::CaseInsensitive) )
       {
          addr = c64GetCPURegister(CPU_PC);
-         absAddr = c64GetAbsoluteAddressFromAddress(addr);
+         absAddr = c64GetPhysicalAddressFromAddress(addr);
       }
 
-      file = CCC65Interface::getSourceFileFromAbsoluteAddress(addr,absAddr);
+      file = CCC65Interface::getSourceFileFromPhysicalAddress(addr,absAddr);
       if ( !file.isEmpty() )
       {
-         linenumber = CCC65Interface::getSourceLineFromAbsoluteAddress(addr,absAddr);
+         linenumber = CCC65Interface::getSourceLineFromPhysicalAddress(addr,absAddr);
          emit snapTo("SourceNavigatorFile,"+file+","+QString::number(linenumber));
       }
    }

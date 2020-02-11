@@ -215,10 +215,10 @@ void CHRROMDisplayDialog::updateInfoText(int x, int y)
          side = 0;
       }
 
-      str.sprintf("Cursor:Pixel(%d,%d) Tile(%d,%d) %s",
+      str.sprintf("Pixel(%d,%d) Tile(%d,%d) $%04X",
                   x,y,
                   tileX,tileY,
-                  sideStr[side]);
+                  (side*0x1000)+(((tileY*16)+tileX)<<4));
 
       info->setText(str);
    }

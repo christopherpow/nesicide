@@ -35,6 +35,19 @@ SymbolWatchDockWidget::SymbolWatchDockWidget(QWidget *parent) :
    ram->setItemDelegateForColumn(SymbolWatchCol_Value,ramValueDelegate);
    ram->resizeColumnsToContents();
 
+#if defined(Q_OS_MAC) || defined(Q_OS_MACX) || defined(Q_OS_MAC64)
+   watch->setFont(QFont("Monaco", 11));
+   ram->setFont(QFont("Monaco", 11));
+#endif
+#ifdef Q_OS_LINUX
+   watch->setFont(QFont("Monospace", 10));
+   ram->setFont(QFont("Monospace", 10));
+#endif
+#ifdef Q_OS_WIN
+   watch->setFont(QFont("Consolas", 11));
+   ram->setFont(QFont("Consolas", 11));
+#endif
+
    QObject::connect(watch->horizontalHeader(),SIGNAL(sortIndicatorChanged(int,Qt::SortOrder)),watchModel,SLOT(sort(int,Qt::SortOrder)));
    QObject::connect(watchModel,SIGNAL(rowsInserted(QModelIndex,int,int)),this,SLOT(updateUi()));
    QObject::connect(ram->horizontalHeader(),SIGNAL(sortIndicatorChanged(int,Qt::SortOrder)),ramModel,SLOT(sort(int,Qt::SortOrder)));
@@ -127,6 +140,19 @@ void SymbolWatchDockWidget::createNesUi()
    exram->setModel(exramModel);
    exram->setItemDelegateForColumn(SymbolWatchCol_Value,exramValueDelegate);
    exram->resizeColumnsToContents();
+
+#if defined(Q_OS_MAC) || defined(Q_OS_MACX) || defined(Q_OS_MAC64)
+   sram->setFont(QFont("Monaco", 11));
+   exram->setFont(QFont("Monaco", 11));
+#endif
+#ifdef Q_OS_LINUX
+   sram->setFont(QFont("Monospace", 10));
+   exram->setFont(QFont("Monospace", 10));
+#endif
+#ifdef Q_OS_WIN
+   sram->setFont(QFont("Consolas", 11));
+   exram->setFont(QFont("Consolas", 11));
+#endif
 
    QObject::connect(sram->horizontalHeader(),SIGNAL(sortIndicatorChanged(int,Qt::SortOrder)),sramModel,SLOT(sort(int,Qt::SortOrder)));
    QObject::connect(exram->horizontalHeader(),SIGNAL(sortIndicatorChanged(int,Qt::SortOrder)),exramModel,SLOT(sort(int,Qt::SortOrder)));

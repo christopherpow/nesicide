@@ -36,7 +36,7 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex& index, int role) cons
 {
    // FIXME: 64-bit support
    int32_t addr = (long)index.internalPointer();
-   int32_t absAddr;
+   int32_t physAddr;
    //uint32_t addr = (uint32_t)index.internalPointer();
    unsigned char opSize;
    CMarker* markers = nesGetExecutionMarkerDatabase();
@@ -49,7 +49,7 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex& index, int role) cons
 
    if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
    {
-      absAddr = nesGetAbsoluteAddressFromAddress(addr);
+      physAddr = nesGetPhysicalAddressFromAddress(addr);
       opcode = nesGetMemory(addr);
       operand1 = nesGetMemory(addr+1);
       operand2 = nesGetMemory(addr+2);
@@ -57,7 +57,7 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex& index, int role) cons
    }
    else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
    {
-      absAddr = c64GetAbsoluteAddressFromAddress(addr);
+      physAddr = c64GetPhysicalAddressFromAddress(addr);
       opcode = c64GetMemory(addr);
       operand1 = c64GetMemory(addr+1);
       operand2 = c64GetMemory(addr+2);
@@ -112,8 +112,8 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex& index, int role) cons
          if ( (pMarker->state == eMarkerSet_Started) ||
                (pMarker->state == eMarkerSet_Complete) )
          {
-            if ( (absAddr >= pMarker->startAbsAddr) &&
-                  (absAddr <= pMarker->endAbsAddr) )
+            if ( (physAddr >= pMarker->startAbsAddr) &&
+                  (physAddr <= pMarker->endAbsAddr) )
             {
                return QColor(pMarker->red,pMarker->green,pMarker->blue);
             }
@@ -132,7 +132,7 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex& index, int role) cons
          if ( (pBreakpoint->enabled) &&
                (pBreakpoint->type == eBreakOnCPUExecution) &&
                (pBreakpoint->item1 <= addr) &&
-               ((absAddr == -1) || (absAddr == pBreakpoint->item1Absolute)) &&
+               ((physAddr == -1) || (physAddr == pBreakpoint->item1Physical)) &&
                (pBreakpoint->item2 >= addr) )
          {
             if ( addr == pc )
@@ -147,7 +147,7 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex& index, int role) cons
          else if ( (!pBreakpoint->enabled) &&
                    (pBreakpoint->type == eBreakOnCPUExecution) &&
                    (pBreakpoint->item1 <= addr) &&
-                   ((absAddr == -1) || (absAddr == pBreakpoint->item1Absolute)) &&
+                   ((physAddr == -1) || (physAddr == pBreakpoint->item1Physical)) &&
                    (pBreakpoint->item2 >= addr) )
          {
             if ( addr == pc )
@@ -310,20 +310,20 @@ QVariant CCodeBrowserDisplayModel::headerData(int section, Qt::Orientation orien
 
 QModelIndex CCodeBrowserDisplayModel::index(int row, int column, const QModelIndex&) const
 {
-   int addr;
+   int physAddr;
 
    if ( (row >= 0) && (column >= 0) )
    {
       if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
       {
-         addr = nesGetAddressFromSLOC(row);
+         physAddr = nesGetVirtualAddressFromSLOC(row);
       }
       else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
       {
-         addr = c64GetAddressFromSLOC(row);
+         physAddr = c64GetAddressFromSLOC(row);
       }
 
-      return createIndex(row, column, addr);
+      return createIndex(row, column, physAddr);
    }
 
    return QModelIndex();

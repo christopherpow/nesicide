@@ -609,20 +609,20 @@ unsigned int CCC65Interface::getSymbolAddress(QString symbol, int index)
    return addr;
 }
 
-unsigned int CCC65Interface::getSymbolAbsoluteAddress(QString symbol, int index)
+unsigned int CCC65Interface::getSymbolPhysicalAddress(QString symbol, int index)
 {
    // Dispatch to appropriate target machine handler.
    if ( !targetMachine.compare("nes",Qt::CaseInsensitive) )
    {
-      return nesGetSymbolAbsoluteAddress(symbol,index);
+      return nesGetSymbolPhysicalAddress(symbol,index);
    }
    else if ( !targetMachine.compare("c64",Qt::CaseInsensitive) )
    {
-      return c64GetSymbolAbsoluteAddress(symbol,index);
+      return c64GetSymbolPhysicalAddress(symbol,index);
    }
 }
 
-unsigned int CCC65Interface::nesGetSymbolAbsoluteAddress(QString symbol, int index)
+unsigned int CCC65Interface::nesGetSymbolPhysicalAddress(QString symbol, int index)
 {
    const cc65_symbolinfo* dbgSymbols;
    const cc65_segmentinfo* dbgSegments;
@@ -679,7 +679,7 @@ unsigned int CCC65Interface::nesGetSymbolAbsoluteAddress(QString symbol, int ind
    return absAddr;
 }
 
-unsigned int CCC65Interface::c64GetSymbolAbsoluteAddress(QString symbol, int index)
+unsigned int CCC65Interface::c64GetSymbolPhysicalAddress(QString symbol, int index)
 {
    const cc65_symbolinfo* dbgSymbols;
    const cc65_segmentinfo* dbgSegments;
@@ -911,20 +911,20 @@ int CCC65Interface::getSymbolMatchCount(QString symbol)
    return count;
 }
 
-QString CCC65Interface::getSourceFileFromAbsoluteAddress(uint32_t addr,uint32_t absAddr)
+QString CCC65Interface::getSourceFileFromPhysicalAddress(uint32_t addr,uint32_t absAddr)
 {
    // Dispatch to appropriate target machine handler.
    if ( !targetMachine.compare("nes",Qt::CaseInsensitive) )
    {
-      return QDir::fromNativeSeparators(nesGetSourceFileFromAbsoluteAddress(addr,absAddr));
+      return QDir::fromNativeSeparators(nesGetSourceFileFromPhysicalAddress(addr,absAddr));
    }
    else if ( !targetMachine.compare("c64",Qt::CaseInsensitive) )
    {
-      return QDir::fromNativeSeparators(c64GetSourceFileFromAbsoluteAddress(addr,absAddr));
+      return QDir::fromNativeSeparators(c64GetSourceFileFromPhysicalAddress(addr,absAddr));
    }
 }
 
-QString CCC65Interface::nesGetSourceFileFromAbsoluteAddress(uint32_t addr,uint32_t absAddr)
+QString CCC65Interface::nesGetSourceFileFromPhysicalAddress(uint32_t addr,uint32_t absAddr)
 {
    const cc65_spaninfo* dbgSpans;
    const cc65_segmentinfo* dbgSegments;
@@ -1017,7 +1017,7 @@ QString CCC65Interface::nesGetSourceFileFromAbsoluteAddress(uint32_t addr,uint32
    return QDir::fromNativeSeparators(file);
 }
 
-QString CCC65Interface::c64GetSourceFileFromAbsoluteAddress(uint32_t addr,uint32_t absAddr)
+QString CCC65Interface::c64GetSourceFileFromPhysicalAddress(uint32_t addr,uint32_t absAddr)
 {
    const cc65_spaninfo* dbgSpans;
    const cc65_segmentinfo* dbgSegments;
@@ -1092,20 +1092,20 @@ QString CCC65Interface::c64GetSourceFileFromAbsoluteAddress(uint32_t addr,uint32
    return QDir::fromNativeSeparators(file);
 }
 
-int CCC65Interface::getSourceLineFromAbsoluteAddress(uint32_t addr,uint32_t absAddr)
+int CCC65Interface::getSourceLineFromPhysicalAddress(uint32_t addr,uint32_t absAddr)
 {
    // Dispatch to appropriate target machine handler.
    if ( !targetMachine.compare("nes",Qt::CaseInsensitive) )
    {
-      return nesGetSourceLineFromAbsoluteAddress(addr,absAddr);
+      return nesGetSourceLineFromPhysicalAddress(addr,absAddr);
    }
    else if ( !targetMachine.compare("c64",Qt::CaseInsensitive) )
    {
-      return c64GetSourceLineFromAbsoluteAddress(addr,absAddr);
+      return c64GetSourceLineFromPhysicalAddress(addr,absAddr);
    }
 }
 
-int CCC65Interface::nesGetSourceLineFromAbsoluteAddress(uint32_t addr,uint32_t absAddr)
+int CCC65Interface::nesGetSourceLineFromPhysicalAddress(uint32_t addr,uint32_t absAddr)
 {
    const cc65_spaninfo* dbgSpans;
    const cc65_lineinfo* dbgLines;
@@ -1191,7 +1191,7 @@ int CCC65Interface::nesGetSourceLineFromAbsoluteAddress(uint32_t addr,uint32_t a
    return source_line;
 }
 
-int CCC65Interface::c64GetSourceLineFromAbsoluteAddress(uint32_t addr,uint32_t absAddr)
+int CCC65Interface::c64GetSourceLineFromPhysicalAddress(uint32_t addr,uint32_t absAddr)
 {
    const cc65_spaninfo* dbgSpans;
    const cc65_lineinfo* dbgLines;
@@ -1503,20 +1503,20 @@ unsigned int CCC65Interface::getAddressFromFileAndLine(QString file,int source_l
    return addr;
 }
 
-unsigned int CCC65Interface::getAbsoluteAddressFromFileAndLine(QString file,int source_line,int entry)
+unsigned int CCC65Interface::getPhysicalAddressFromFileAndLine(QString file,int source_line,int entry)
 {
    // Dispatch to appropriate target machine handler.
    if ( !targetMachine.compare("nes",Qt::CaseInsensitive) )
    {
-      return nesGetAbsoluteAddressFromFileAndLine(file,source_line,entry);
+      return nesGetPhysicalAddressFromFileAndLine(file,source_line,entry);
    }
    else if ( !targetMachine.compare("c64",Qt::CaseInsensitive) )
    {
-      return c64GetAbsoluteAddressFromFileAndLine(file,source_line,entry);
+      return c64GetPhysicalAddressFromFileAndLine(file,source_line,entry);
    }
 }
 
-unsigned int CCC65Interface::nesGetAbsoluteAddressFromFileAndLine(QString file,int source_line,int entry)
+unsigned int CCC65Interface::nesGetPhysicalAddressFromFileAndLine(QString file,int source_line,int entry)
 {
    const cc65_sourceinfo* dbgSources;
    const cc65_lineinfo* dbgLines;
@@ -1609,7 +1609,7 @@ unsigned int CCC65Interface::nesGetAbsoluteAddressFromFileAndLine(QString file,i
    return absAddr;
 }
 
-unsigned int CCC65Interface::c64GetAbsoluteAddressFromFileAndLine(QString file,int source_line,int entry)
+unsigned int CCC65Interface::c64GetPhysicalAddressFromFileAndLine(QString file,int source_line,int entry)
 {
    const cc65_sourceinfo* dbgSources;
    const cc65_lineinfo* dbgLines;
@@ -1695,20 +1695,20 @@ unsigned int CCC65Interface::c64GetAbsoluteAddressFromFileAndLine(QString file,i
    return absAddr;
 }
 
-unsigned int CCC65Interface::getEndAddressFromAbsoluteAddress(uint32_t addr,uint32_t absAddr)
+unsigned int CCC65Interface::getEndAddressFromPhysicalAddress(uint32_t addr,uint32_t absAddr)
 {
    // Dispatch to appropriate target machine handler.
    if ( !targetMachine.compare("nes",Qt::CaseInsensitive) )
    {
-      return nesGetEndAddressFromAbsoluteAddress(addr,absAddr);
+      return nesGetEndAddressFromPhysicalAddress(addr,absAddr);
    }
    else if ( !targetMachine.compare("c64",Qt::CaseInsensitive) )
    {
-      return c64GetEndAddressFromAbsoluteAddress(addr,absAddr);
+      return c64GetEndAddressFromPhysicalAddress(addr,absAddr);
    }
 }
 
-unsigned int CCC65Interface::nesGetEndAddressFromAbsoluteAddress(uint32_t addr,uint32_t absAddr)
+unsigned int CCC65Interface::nesGetEndAddressFromPhysicalAddress(uint32_t addr,uint32_t absAddr)
 {
    const cc65_lineinfo* dbgLines;
    const cc65_spaninfo* dbgSpans;
@@ -1792,7 +1792,7 @@ unsigned int CCC65Interface::nesGetEndAddressFromAbsoluteAddress(uint32_t addr,u
    return endAddr;
 }
 
-unsigned int CCC65Interface::c64GetEndAddressFromAbsoluteAddress(uint32_t addr,uint32_t absAddr)
+unsigned int CCC65Interface::c64GetEndAddressFromPhysicalAddress(uint32_t addr,uint32_t absAddr)
 {
    const cc65_lineinfo* dbgLines;
    const cc65_spaninfo* dbgSpans;
@@ -1858,21 +1858,21 @@ unsigned int CCC65Interface::c64GetEndAddressFromAbsoluteAddress(uint32_t addr,u
    return endAddr;
 }
 
-bool CCC65Interface::isAbsoluteAddressAnOpcode(uint32_t absAddr)
+bool CCC65Interface::isPhysicalAddressAnOpcode(uint32_t absAddr)
 {
    // Dispatch to appropriate target machine handler.
    if ( !targetMachine.compare("nes",Qt::CaseInsensitive) )
    {
-      return nesIsAbsoluteAddressAnOpcode(absAddr);
+      return nesIsPhysicalAddressAnOpcode(absAddr);
    }
    else if ( !targetMachine.compare("c64",Qt::CaseInsensitive) )
    {
-      return c64IsAbsoluteAddressAnOpcode(absAddr);
+      return c64IsPhysicalAddressAnOpcode(absAddr);
    }
    return false;
 }
 
-bool CCC65Interface::nesIsAbsoluteAddressAnOpcode(uint32_t absAddr)
+bool CCC65Interface::nesIsPhysicalAddressAnOpcode(uint32_t absAddr)
 {
    const cc65_spaninfo* dbgSpans;
    const cc65_segmentinfo* dbgSegments;
@@ -1926,7 +1926,7 @@ bool CCC65Interface::nesIsAbsoluteAddressAnOpcode(uint32_t absAddr)
    return opcode;
 }
 
-bool CCC65Interface::c64IsAbsoluteAddressAnOpcode(uint32_t absAddr)
+bool CCC65Interface::c64IsPhysicalAddressAnOpcode(uint32_t absAddr)
 {
    const cc65_spaninfo* dbgSpans;
    const cc65_segmentinfo* dbgSegments;

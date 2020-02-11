@@ -720,6 +720,7 @@ protected:
    uint16_t* m_waveBuf;
    int32_t m_waveBufProduce;
    int32_t m_waveBufConsume;
+   int32_t m_waveBufDepth;
 
    uint32_t   m_cycles;
 

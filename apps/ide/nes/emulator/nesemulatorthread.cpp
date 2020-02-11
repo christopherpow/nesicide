@@ -329,8 +329,8 @@ void NESEmulatorWorker::stepCPUEmulation ()
    // Check if we have an end address to stop at from a debug information file.
    // If we do, it'll be the valid end of a C statement or an assembly instruction.
    addr = nesGetCPURegister(CPU_PC);
-   absAddr = nesGetAbsoluteAddressFromAddress(addr);
-   endAddr = CCC65Interface::getEndAddressFromAbsoluteAddress(addr,absAddr);
+   absAddr = nesGetPhysicalAddressFromAddress(addr);
+   endAddr = CCC65Interface::getEndAddressFromPhysicalAddress(addr,absAddr);
 
    if ( endAddr != 0xFFFFFFFF )
    {
@@ -373,8 +373,8 @@ void NESEmulatorWorker::stepOverCPUEmulation ()
    // Check if we have an end address to stop at from a debug information file.
    // If we do, it'll be the valid end of a C statement or an assembly instruction.
    addr = nesGetCPURegister(CPU_PC);
-   absAddr = nesGetAbsoluteAddressFromAddress(addr);
-   endAddr = CCC65Interface::getEndAddressFromAbsoluteAddress(addr,absAddr);
+   absAddr = nesGetPhysicalAddressFromAddress(addr);
+   endAddr = CCC65Interface::getEndAddressFromPhysicalAddress(addr,absAddr);
 
    if ( endAddr != 0xFFFFFFFF )
    {
@@ -384,8 +384,8 @@ void NESEmulatorWorker::stepOverCPUEmulation ()
          // Check if last instruction on line is JSR...
          // This is fairly typical of if conditions with function calls on the same line.
          instr = nesGetPRGROMData(endAddr-2);
-         instAbsAddr = nesGetAbsoluteAddressFromAddress(endAddr-2);
-         isInstr = CCC65Interface::isAbsoluteAddressAnOpcode(instAbsAddr);
+         instAbsAddr = nesGetPhysicalAddressFromAddress(endAddr-2);
+         isInstr = CCC65Interface::isPhysicalAddressAnOpcode(instAbsAddr);
          if ( !isInstr )
          {
             instr = nesGetPRGROMData(addr);
@@ -499,7 +499,7 @@ void NESEmulatorWorker::loadCartridge()
          // Update opcode masks to show proper disassembly...
          for ( a = 0; a < MEM_8KB; a++ )
          {
-            if ( CCC65Interface::isAbsoluteAddressAnOpcode((b*MEM_8KB)+a) )
+            if ( CCC65Interface::isPhysicalAddressAnOpcode((b*MEM_8KB)+a) )
             {
                nesSetOpcodeMask((b*MEM_8KB)+a,1);
             }

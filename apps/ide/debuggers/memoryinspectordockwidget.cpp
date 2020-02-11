@@ -22,6 +22,16 @@ MemoryInspectorDockWidget::MemoryInspectorDockWidget(memDBFunc memDB,CBreakpoint
    ui->tableView->setModel(model);
    ui->tableView->setItemDelegate(delegate);
 
+#if defined(Q_OS_MAC) || defined(Q_OS_MACX) || defined(Q_OS_MAC64)
+   ui->tableView->setFont(QFont("Monaco", 11));
+#endif
+#ifdef Q_OS_LINUX
+   ui->tableView->setFont(QFont("Monospace", 10));
+#endif
+#ifdef Q_OS_WIN
+   ui->tableView->setFont(QFont("Consolas", 11));
+#endif
+
    m_memDB = memDB();
 }
 

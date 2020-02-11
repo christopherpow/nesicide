@@ -49,28 +49,28 @@ public:
    static bool isStringASymbol(QString string);
 
    // Target-dependent launchpads.
-   static QString getSourceFileFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
-   static int getSourceLineFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
-   static unsigned int getAbsoluteAddressFromFileAndLine(QString file,int source_line,int entry = -1);
-   static unsigned int getEndAddressFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
-   static bool isAbsoluteAddressAnOpcode(uint32_t absAddr);
-   static unsigned int getSymbolAbsoluteAddress(QString symbol,int index = 0);
+   static QString getSourceFileFromPhysicalAddress(uint32_t addr,uint32_t absAddr);
+   static int getSourceLineFromPhysicalAddress(uint32_t addr,uint32_t absAddr);
+   static unsigned int getPhysicalAddressFromFileAndLine(QString file,int source_line,int entry = -1);
+   static unsigned int getEndAddressFromPhysicalAddress(uint32_t addr,uint32_t absAddr);
+   static bool isPhysicalAddressAnOpcode(uint32_t absAddr);
+   static unsigned int getSymbolPhysicalAddress(QString symbol,int index = 0);
 
    // NES target-dependent APIs.
-   static QString nesGetSourceFileFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
-   static int nesGetSourceLineFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
-   static unsigned int nesGetAbsoluteAddressFromFileAndLine(QString file,int source_line,int entry = -1);
-   static unsigned int nesGetEndAddressFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
-   static bool nesIsAbsoluteAddressAnOpcode(uint32_t absAddr);
-   static unsigned int nesGetSymbolAbsoluteAddress(QString symbol,int index = 0);
+   static QString nesGetSourceFileFromPhysicalAddress(uint32_t addr,uint32_t absAddr);
+   static int nesGetSourceLineFromPhysicalAddress(uint32_t addr,uint32_t absAddr);
+   static unsigned int nesGetPhysicalAddressFromFileAndLine(QString file,int source_line,int entry = -1);
+   static unsigned int nesGetEndAddressFromPhysicalAddress(uint32_t addr,uint32_t absAddr);
+   static bool nesIsPhysicalAddressAnOpcode(uint32_t absAddr);
+   static unsigned int nesGetSymbolPhysicalAddress(QString symbol,int index = 0);
 
    // C64 target-dependent APIs.
-   static QString c64GetSourceFileFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
-   static int c64GetSourceLineFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
-   static unsigned int c64GetAbsoluteAddressFromFileAndLine(QString file,int source_line,int entry = -1);
-   static unsigned int c64GetEndAddressFromAbsoluteAddress(uint32_t addr,uint32_t absAddr);
-   static bool c64IsAbsoluteAddressAnOpcode(uint32_t absAddr);
-   static unsigned int c64GetSymbolAbsoluteAddress(QString symbol,int index = 0);
+   static QString c64GetSourceFileFromPhysicalAddress(uint32_t addr,uint32_t absAddr);
+   static int c64GetSourceLineFromPhysicalAddress(uint32_t addr,uint32_t absAddr);
+   static unsigned int c64GetPhysicalAddressFromFileAndLine(QString file,int source_line,int entry = -1);
+   static unsigned int c64GetEndAddressFromPhysicalAddress(uint32_t addr,uint32_t absAddr);
+   static bool c64IsPhysicalAddressAnOpcode(uint32_t absAddr);
+   static unsigned int c64GetSymbolPhysicalAddress(QString symbol,int index = 0);
 
 protected:
    static cc65_dbginfo        dbgInfo;

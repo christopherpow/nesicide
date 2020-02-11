@@ -202,11 +202,11 @@ public:
    {
       return *(m_RAMdisassembly+addr);
    }
-   static inline char* DISASSEMBLYATABSADDR ( uint32_t absAddr, char* buffer )
+   static inline char* DISASSEMBLYATPHYSADDR ( uint32_t absAddr, char* buffer )
    {
       return CC646502::Disassemble(m_6502memory+absAddr,buffer);
    }
-   static uint16_t SLOC2ADDR ( uint32_t sloc )
+   static uint16_t SLOC2VIRTADDR ( uint32_t sloc )
    {
       return *(m_RAMsloc2addr+sloc);
    }

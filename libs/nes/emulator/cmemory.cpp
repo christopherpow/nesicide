@@ -19,10 +19,10 @@
 
 CMEMORYBANK::CMEMORYBANK() :
    m_memory(NULL),
-   m_physBaseAddress(0),
    m_bankNum(0),
    m_size(0),
-   m_sizeMask(0)
+   m_sizeMask(0),
+   m_physBaseAddress(0)
 {}
 
 CMEMORYBANK::~CMEMORYBANK()
@@ -106,7 +106,7 @@ uint32_t intLog(uint32_t a)
    return p;
 }
 
-CMEMORY::CMEMORY(uint32_t physBaseAddress,
+CMEMORY::CMEMORY(uint32_t virtBaseAddress,
                  uint32_t bankSize,
                  uint32_t numPhysBanks,
                  uint32_t numVirtBanks) :
@@ -117,7 +117,7 @@ CMEMORY::CMEMORY(uint32_t physBaseAddress,
    m_numPhysBanksMask(numPhysBanks-1),
    m_numVirtBanks(numVirtBanks),
    m_numVirtBanksMask(numVirtBanks-1),
-   m_physBaseAddress(physBaseAddress),
+   m_virtBaseAddress(virtBaseAddress),
    m_totalPhysSize(bankSize*numPhysBanks),
    m_totalPhysSizeMask(m_totalPhysSize-1),
    m_totalVirtSize(bankSize*numVirtBanks),
@@ -134,7 +134,7 @@ CMEMORY::CMEMORY(uint32_t physBaseAddress,
    for ( bank = 0; bank < m_numPhysBanks; bank++ )
    {
       // Set up bank...
-      m_bank[bank].INITIALIZE(m_physBaseAddress+(bank*m_bankSize),
+      m_bank[bank].INITIALIZE(bank*m_bankSize,
                               bank,
                               m_bankSize,
                               m_bankSizeMask);
@@ -189,20 +189,21 @@ void CMEMORY::DISASSEMBLE ()
    }
 }
 
-uint32_t CMEMORY::SLOC2ADDR ( uint16_t sloc )
+uint32_t CMEMORY::SLOC2VIRTADDR ( uint16_t sloc )
 {
    uint32_t slocSoFar = 0;
-   uint32_t addr = 0;
+   uint32_t addr = m_virtBaseAddress;
    uint32_t bank;
 
    for ( bank = 0; bank < m_numVirtBanks; bank++ )
    {
       slocSoFar += m_pBank[bank]->SLOC();
+      addr += m_bankSize;
       if ( sloc <= slocSoFar )
       {
+         addr -= m_bankSize;
          slocSoFar -= m_pBank[bank]->SLOC();
 
-         addr = m_pBank[bank]->BASEADDR();
          sloc -= slocSoFar;
          break;
       }
@@ -210,14 +211,14 @@ uint32_t CMEMORY::SLOC2ADDR ( uint16_t sloc )
 
    if ( bank < m_numVirtBanks )
    {
-      return addr+m_pBank[bank]->SLOC2ADDR(sloc);
+      return addr+m_pBank[bank]->SLOC2VIRTADDR(sloc);
    }
    return 0;
 }
 
-uint16_t CMEMORY::ADDR2SLOC ( uint32_t addr )
+uint16_t CMEMORY::ADDR2SLOC ( uint32_t virtAddr )
 {
-   uint32_t virtBank = virtBankFromPhysAddr(addr);
+   uint32_t virtBank = virtBankFromVirtAddr(virtAddr);
    uint32_t slocSoFar = 0;
    uint32_t bank;
 
@@ -226,36 +227,29 @@ uint16_t CMEMORY::ADDR2SLOC ( uint32_t addr )
       slocSoFar += m_pBank[bank]->SLOC();
    }
 
-   return slocSoFar+m_pBank[virtBank]->ADDR2SLOC(offsetInBank(addr));
+   return slocSoFar+m_pBank[virtBank]->ADDR2SLOC(offsetInBank(virtAddr));
 }
 
-void CMEMORY::PRINTABLEADDR(char* buffer, uint32_t addr)
+void CMEMORY::PRINTABLEADDR(char* buffer, uint32_t virtAddr)
 {
    if ( m_numPhysBanks == 1 )
    {
-      sprintf ( buffer, "%04X", addr );
+      sprintf ( buffer, "%04X", virtAddr );
    }
    else
    {
-      sprintf ( buffer, "%02X:%04X(%04X)", physBankFromVirtAddr(addr), offsetInBank(addr), physAddrFromVirtAddr(addr) );
+      sprintf ( buffer, "%02X:%04X(%04X)", physBankFromVirtAddr(virtAddr), offsetInBank(virtAddr), virtAddr );
    }
 }
 
-void CMEMORY::PRINTABLEADDR(char* buffer, uint32_t addr, uint32_t absAddr)
+void CMEMORY::PRINTABLEADDR(char* buffer, uint32_t virtAddr, uint32_t physAddr)
 {
    if ( m_numPhysBanks == 1 )
    {
-      sprintf ( buffer, "%04X", addr );
+      sprintf ( buffer, "%04X", virtAddr );
    }
    else
    {
-      if ( absAddr != 0xFFFFFFFF )
-      {
-         sprintf ( buffer, "%02X:%04X(%04X)", physBankFromPhysAddr(absAddr), offsetInBank(addr), addr );
-      }
-      else
-      {
-         sprintf ( buffer, "??:%04X(%04X)", offsetInBank(addr), physAddrFromVirtAddr(absAddr) );
-      }
+      sprintf ( buffer, "%02X:%04X(%04X)", physBankFromPhysAddr(physAddr), offsetInBank(virtAddr), virtAddr );
    }
 }

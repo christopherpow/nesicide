@@ -139,11 +139,11 @@ void CNES::PRINTABLEADDR ( char* buffer, uint32_t addr, uint32_t absAddr )
    }
 }
 
-uint32_t CNES::SLOC2ADDR ( uint16_t sloc )
+uint32_t CNES::SLOC2VIRTADDR ( uint16_t sloc )
 {
    if ( CPU()->__PC() < 0x800 )
    {
-      return CPU()->SLOC2ADDR ( sloc );
+      return CPU()->SLOC2VIRTADDR ( sloc );
    }
    else if ( CPU()->__PC() < 0x5C00 )
    {
@@ -151,15 +151,15 @@ uint32_t CNES::SLOC2ADDR ( uint16_t sloc )
    }
    else if ( CPU()->__PC() < 0x6000 )
    {
-      return CART()->EXRAMSLOC2ADDR ( sloc );
+      return CART()->EXRAMSLOC2VIRTADDR ( sloc );
    }
    else if ( CPU()->__PC() < 0x8000 )
    {
-      return CART()->SRAMSLOC2ADDR ( sloc );
+      return CART()->SRAMSLOC2VIRTADDR ( sloc );
    }
    else
    {
-      return CART()->PRGROMSLOC2ADDR ( sloc );
+      return CART()->PRGROMSLOC2VIRTADDR ( sloc );
    }
 }
 
@@ -211,7 +211,7 @@ uint32_t CNES::SLOC ( uint32_t addr )
    }
 }
 
-uint32_t CNES::ABSADDR ( uint32_t addr )
+uint32_t CNES::PHYSADDR ( uint32_t addr )
 {
    if ( addr < 0x800 )
    {
@@ -223,15 +223,15 @@ uint32_t CNES::ABSADDR ( uint32_t addr )
    }
    else if ( addr < 0x6000 )
    {
-      return CART()->EXRAMABSADDR ( addr );
+      return CART()->EXRAMPHYSADDR ( addr );
    }
    else if ( addr < 0x8000 )
    {
-      return CART()->SRAMABSADDR ( addr );
+      return CART()->SRAMPHYSADDR ( addr );
    }
    else
    {
-      return CART()->PRGROMABSADDR ( addr );
+      return CART()->PRGROMPHYSADDR ( addr );
    }
 }
 
@@ -363,11 +363,11 @@ void CNES::CHECKBREAKPOINT ( eBreakpointTarget target, eBreakpointType type, int
                         break;
                      case eBreakOnCPUExecution:
                         addr = CPU()->__PCSYNC();
-                        absAddr = ABSADDR(CPU()->__PCSYNC());
+                        absAddr = PHYSADDR(CPU()->__PCSYNC());
 
                         if ( pBreakpoint->item1 == pBreakpoint->item2 )
                         {
-                           if ( ((absAddr == (uint32_t)-1) || (absAddr == pBreakpoint->item1Absolute)) &&
+                           if ( ((absAddr == (uint32_t)-1) || (absAddr == pBreakpoint->item1Physical)) &&
                                 (addr >= pBreakpoint->item1) &&
                                 (addr <= pBreakpoint->item2) &&
                                 (((!pBreakpoint->itemMaskExclusive) && (addr&pBreakpoint->itemMask)) ||

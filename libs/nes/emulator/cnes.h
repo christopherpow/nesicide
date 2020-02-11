@@ -208,12 +208,12 @@ public:
    // methods contain the logic to determine which of the sub-object
    // methods to invoke based on the passed parameters.
    char* DISASSEMBLY ( uint32_t addr );
-   uint32_t SLOC2ADDR ( uint16_t sloc );
+   uint32_t SLOC2VIRTADDR ( uint16_t sloc );
    uint16_t ADDR2SLOC ( uint32_t addr );
    uint32_t SLOC ( uint32_t addr );
    uint8_t _MEM ( uint32_t addr );
    void DISASSEMBLE ( void );
-   uint32_t ABSADDR ( uint32_t addr );
+   uint32_t PHYSADDR ( uint32_t addr );
 
    // This method turns a 6502-based address into a printable representation
    // based on the underlying addressing scheme of the targeted memory/device.

@@ -118,7 +118,7 @@ QVariant CExecutionMarkerDisplayModel::data(const QModelIndex& index, int role) 
    case ExecutionVisualizerCol_StartAddr:
       if ( pMarker->state >= eMarkerSet_Started )
       {
-         nesGetPrintableAddressWithAbsolute(modelStringBuffer,
+         nesGetPrintablePhysicalAddress(modelStringBuffer,
                                             pMarker->startAddr,
                                             pMarker->startAbsAddr);
          return QVariant(modelStringBuffer);
@@ -131,7 +131,7 @@ QVariant CExecutionMarkerDisplayModel::data(const QModelIndex& index, int role) 
    case ExecutionVisualizerCol_EndAddr:
       if ( pMarker->state >= eMarkerSet_Complete )
       {
-         nesGetPrintableAddressWithAbsolute(modelStringBuffer,
+         nesGetPrintablePhysicalAddress(modelStringBuffer,
                                             pMarker->endAddr,
                                             pMarker->endAbsAddr);
          return QVariant(modelStringBuffer);

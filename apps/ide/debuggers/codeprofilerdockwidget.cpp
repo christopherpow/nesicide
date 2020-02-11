@@ -20,8 +20,17 @@ CodeProfilerDockWidget::CodeProfilerDockWidget(QWidget *parent) :
 
    ui->tableView->sortByColumn(CodeProfilerCol_Calls,Qt::DescendingOrder);
 
-   QObject::connect(ui->tableView->horizontalHeader(),SIGNAL(sortIndicatorChanged(int,Qt::SortOrder)),model,SLOT(sort(int,Qt::SortOrder)));
+#if defined(Q_OS_MAC) || defined(Q_OS_MACX) || defined(Q_OS_MAC64)
+   ui->tableView->setFont(QFont("Monaco", 11));
+#endif
+#ifdef Q_OS_LINUX
+   ui->tableView->setFont(QFont("Monospace", 10));
+#endif
+#ifdef Q_OS_WIN
+   ui->tableView->setFont(QFont("Consolas", 11));
+#endif
 
+   QObject::connect(ui->tableView->horizontalHeader(),SIGNAL(sortIndicatorChanged(int,Qt::SortOrder)),model,SLOT(sort(int,Qt::SortOrder)));
    QObject::connect(model,SIGNAL(layoutChanged()),this,SLOT(updateUi()));
 }
 

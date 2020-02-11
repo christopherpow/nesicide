@@ -450,7 +450,7 @@ void CodeEditorForm::external_breakpointsChanged()
       for ( asmline = 0; asmline < asmcount; asmline++ )
       {
          addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1,asmline);
-         absAddr = CCC65Interface::getAbsoluteAddressFromFileAndLine(m_fileName,line+1,asmline);
+         absAddr = CCC65Interface::getPhysicalAddressFromFileAndLine(m_fileName,line+1,asmline);
 
          if ( addr != (unsigned int)-1 )
          {
@@ -478,14 +478,14 @@ void CodeEditorForm::external_breakpointsChanged()
                   if ( (pBreakpoint->enabled) &&
                        (pBreakpoint->type == eBreakOnCPUExecution) &&
                        (pBreakpoint->item1 <= addr) &&
-                       ((absAddr == (unsigned int)-1) || (absAddr == pBreakpoint->item1Absolute)) )
+                       ((absAddr == (unsigned int)-1) || (absAddr == pBreakpoint->item1Physical)) )
                   {
                      m_scintilla->markerAdd(line,Marker_Breakpoint);
                   }
                   else if ( (!pBreakpoint->enabled) &&
                             (pBreakpoint->type == eBreakOnCPUExecution) &&
                             (pBreakpoint->item1 <= addr) &&
-                            ((absAddr == (unsigned int)-1) || (absAddr == pBreakpoint->item1Absolute)) )
+                            ((absAddr == (unsigned int)-1) || (absAddr == pBreakpoint->item1Physical)) )
                   {
                      m_scintilla->markerAdd(line,Marker_BreakpointDisabled);
                   }
@@ -708,14 +708,14 @@ void CodeEditorForm::updateToolTip(QString symbol)
 
          if ( addr != 0xFFFFFFFF )
          {
-            absAddr = CCC65Interface::getSymbolAbsoluteAddress(symbol);
+            absAddr = CCC65Interface::getSymbolPhysicalAddress(symbol);
             if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
             {
-               nesGetPrintableAddressWithAbsolute(address,addr,absAddr);
+               nesGetPrintablePhysicalAddress(address,addr,absAddr);
             }
             else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
             {
-               c64GetPrintableAddressWithAbsolute(address,addr,absAddr);
+               c64GetPrintablePhysicalAddress(address,addr,absAddr);
             }
 
             file = CCC65Interface::getSourceFileFromSymbol(symbol);
@@ -981,17 +981,17 @@ void CodeEditorForm::resolveLineAddress(int line, int *addr, int *absAddr)
       for ( asmline = 0; asmline < asmcount; asmline++ )
       {
          (*addr) = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1,asmline);
-         (*absAddr) = CCC65Interface::getAbsoluteAddressFromFileAndLine(m_fileName,line+1,asmline);
+         (*absAddr) = CCC65Interface::getPhysicalAddressFromFileAndLine(m_fileName,line+1,asmline);
 
          if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
          {
-            nesGetPrintableAddressWithAbsolute(resolutionBuffer,(*addr),(*absAddr));
-            nesGetDisassemblyAtAbsoluteAddress((*absAddr),resolutionBuffer);
+            nesGetPrintablePhysicalAddress(resolutionBuffer,(*addr),(*absAddr));
+            nesGetDisassemblyAtPhysicalAddress((*absAddr),resolutionBuffer);
          }
          else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
          {
-            c64GetPrintableAddressWithAbsolute(resolutionBuffer,(*addr),(*absAddr));
-            c64GetDisassemblyAtAbsoluteAddress((*absAddr),resolutionBuffer);
+            c64GetPrintablePhysicalAddress(resolutionBuffer,(*addr),(*absAddr));
+            c64GetDisassemblyAtPhysicalAddress((*absAddr),resolutionBuffer);
          }
          asmChunk = resolutionBuffer;
          asmChunk += ":";
@@ -1021,7 +1021,7 @@ void CodeEditorForm::resolveLineAddress(int line, int *addr, int *absAddr)
    else
    {
       (*addr) = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1);
-      (*absAddr) = CCC65Interface::getAbsoluteAddressFromFileAndLine(m_fileName,line+1);
+      (*absAddr) = CCC65Interface::getPhysicalAddressFromFileAndLine(m_fileName,line+1);
    }
 }
 
@@ -1056,8 +1056,8 @@ void CodeEditorForm::annotateText()
          for ( asmline = 0; asmline < asmcount; asmline++ )
          {
             addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1,asmline);
-            absAddr = CCC65Interface::getAbsoluteAddressFromFileAndLine(m_fileName,line+1,asmline);
-            endAddr = CCC65Interface::getEndAddressFromAbsoluteAddress(addr,absAddr);
+            absAddr = CCC65Interface::getPhysicalAddressFromFileAndLine(m_fileName,line+1,asmline);
+            endAddr = CCC65Interface::getEndAddressFromPhysicalAddress(addr,absAddr);
 
             if ( (addr != -1) && (absAddr != -1) && (endAddr != -1) )
             {
@@ -1069,15 +1069,15 @@ void CodeEditorForm::annotateText()
 
                for ( ; addr <= endAddr; addr++, absAddr++ )
                {
-                  if ( CCC65Interface::isAbsoluteAddressAnOpcode(absAddr) )
+                  if ( CCC65Interface::isPhysicalAddressAnOpcode(absAddr) )
                   {
                      if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
                      {
-                        nesGetDisassemblyAtAbsoluteAddress(absAddr,disassembly);
+                        nesGetDisassemblyAtPhysicalAddress(absAddr,disassembly);
                      }
                      else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
                      {
-                        c64GetDisassemblyAtAbsoluteAddress(absAddr,disassembly);
+                        c64GetDisassemblyAtPhysicalAddress(absAddr,disassembly);
                      }
                      if ( disassembly[0] )
                      {
@@ -1089,11 +1089,11 @@ void CodeEditorForm::annotateText()
 
                         if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
                         {
-                           nesGetPrintableAddressWithAbsolute(address,addr,absAddr);
+                           nesGetPrintablePhysicalAddress(address,addr,absAddr);
                         }
                         else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
                         {
-                           c64GetPrintableAddressWithAbsolute(address,addr,absAddr);
+                           c64GetPrintablePhysicalAddress(address,addr,absAddr);
                         }
                         pAnnotationBuffer += sprintf(pAnnotationBuffer,"%s:",address);
                         pAnnotationBuffer += sprintf(pAnnotationBuffer,disassembly);
@@ -1221,10 +1221,10 @@ void CodeEditorForm::snapTo(QString item)
          addr = splits.at(3).toInt(NULL,16);
          absAddr = (splits.at(1).toInt(NULL,16)*MEM_8KB)+splits.at(2).toInt(NULL,16);
       }
-      fileName = CCC65Interface::getSourceFileFromAbsoluteAddress(addr,absAddr);
+      fileName = CCC65Interface::getSourceFileFromPhysicalAddress(addr,absAddr);
       if ( fileName == m_fileName )
       {
-         line = CCC65Interface::getSourceLineFromAbsoluteAddress(addr,absAddr);
+         line = CCC65Interface::getSourceLineFromPhysicalAddress(addr,absAddr);
          highlightLine(line);
       }
    }

@@ -66,10 +66,10 @@ QVariant CSymbolWatchModel::data(const QModelIndex& index, int role) const
          case SymbolWatchCol_Address:
             // Get symbol's information based on its name and index.
             addr = CCC65Interface::getSymbolAddress(m_items.at(index.row()).symbol,symbolIdx);
-            absAddr = CCC65Interface::getSymbolAbsoluteAddress(m_items.at(index.row()).symbol,symbolIdx);
+            absAddr = CCC65Interface::getSymbolPhysicalAddress(m_items.at(index.row()).symbol,symbolIdx);
             if ( addr != -1 )
             {
-               nesGetPrintableAddressWithAbsolute(modelStringBuffer,addr,absAddr);
+               nesGetPrintablePhysicalAddress(modelStringBuffer,addr,absAddr);
                return QVariant(modelStringBuffer);
             }
             else
@@ -326,12 +326,12 @@ int CSymbolWatchModel::resolveSymbol(QString text,int addr)
             selIdx = idx;
             break;
          }
-         absAddr = CCC65Interface::getSymbolAbsoluteAddress(text,idx);
+         absAddr = CCC65Interface::getSymbolPhysicalAddress(text,idx);
          symbolFile = CCC65Interface::getSourceFileFromSymbol(text);
 
          symbol = text;
          symbol += " @";
-         nesGetPrintableAddressWithAbsolute(modelStringBuffer,checkAddr,absAddr);
+         nesGetPrintablePhysicalAddress(modelStringBuffer,checkAddr,absAddr);
          symbol += modelStringBuffer;
          symbol += " in ";
          symbol += symbolFile;

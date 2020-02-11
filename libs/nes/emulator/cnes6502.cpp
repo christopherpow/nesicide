@@ -317,9 +317,9 @@ CNES6502_opcode C6502::m_6502opcode [ 256 ] =
 };
 
 C6502::C6502(CNES *pNES)
-   : m_nes(pNES),
-     m_6502memory(CMEMORY(0x0000, MEM_2KB, 1, 4)),
-     m_apu(new CAPU())
+   : m_apu(new CAPU()),
+     m_nes(pNES),
+     m_6502memory(CMEMORY(0x0000, MEM_2KB, 1, 4))
 {
    m_killed = false;              // KIL opcode not executed.
    m_breakOnKIL = false;          // IDE sets this for us.
@@ -3588,7 +3588,7 @@ uint8_t C6502::FETCH ()
          }
 
          // Update Markers...
-         m_marker->UpdateMarkers ( NES()->CART()->PRGROMABSADDR(rPC()), C6502::_CYCLES(), NES()->PPU()->_FRAME(), NES()->PPU()->_CYCLES() );
+         m_marker->UpdateMarkers ( NES()->CART()->PRGROMPHYSADDR(rPC()), C6502::_CYCLES(), NES()->PPU()->_FRAME(), NES()->PPU()->_CYCLES() );
 
          // ... and update opcode masking for disassembler...
          NES()->CART()->PRGROMOPCODEMASK ( rPC(), (uint8_t)(instrCycle==0) );
@@ -3738,7 +3738,7 @@ uint8_t C6502::DMA ( uint32_t addr )
 void C6502::DMA ( uint32_t srcAddr, uint32_t dstAddr, uint8_t data )
 {
    TracerInfo* pSample = NULL;
-   int8_t target;
+   int8_t target = -1;
 
    // Writing...
    m_write = true;

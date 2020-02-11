@@ -29,6 +29,16 @@ CodeBrowserDockWidget::CodeBrowserDockWidget(CBreakpointInfo* pBreakpoints,QWidg
    assemblyViewModel = new CCodeBrowserDisplayModel(pBreakpoints,this);
    ui->tableView->setModel(assemblyViewModel);
 
+#if defined(Q_OS_MAC) || defined(Q_OS_MACX) || defined(Q_OS_MAC64)
+   setFont(QFont("Monaco", 11));
+#endif
+#ifdef Q_OS_LINUX
+   setFont(QFont("Monospace", 10));
+#endif
+#ifdef Q_OS_WIN
+   setFont(QFont("Consolas", 11));
+#endif
+
    QObject::connect ( this, SIGNAL(breakpointsChanged()), assemblyViewModel, SLOT(update()) );
 }
 
@@ -104,18 +114,18 @@ void CodeBrowserDockWidget::contextMenuEvent(QContextMenuEvent* e)
    QMenu menu;
    int bp;
    int addr = 0;
-   int absAddr = 0;
+   int physAddr = 0;
    QModelIndex index = ui->tableView->currentIndex();
 
    if ( !m_loadedTarget.compare("nes",Qt::CaseInsensitive) )
    {
-      addr = nesGetAddressFromSLOC(index.row());
-      absAddr = nesGetAbsoluteAddressFromAddress(addr);
+      addr = nesGetVirtualAddressFromSLOC(index.row());
+      physAddr = nesGetPhysicalAddressFromAddress(addr);
    }
    else if ( !m_loadedTarget.compare("c64",Qt::CaseInsensitive) )
    {
       addr = c64GetAddressFromSLOC(index.row());
-      absAddr = c64GetAbsoluteAddressFromAddress(addr);
+      physAddr = c64GetPhysicalAddressFromAddress(addr);
    }
 
    if ( addr != -1 )
@@ -127,7 +137,7 @@ void CodeBrowserDockWidget::contextMenuEvent(QContextMenuEvent* e)
                                             eBreakpointItemAddress,
                                             0,
                                             addr,
-                                            absAddr,
+                                            physAddr,
                                             addr,
                                             0xFFFF,
                                             true,
@@ -222,7 +232,7 @@ void CodeBrowserDockWidget::snapTo(QString item)
       {
          ui->tableView->setCurrentIndex(assemblyViewModel->index(c64GetSLOCFromAddress(addr),0));
       }
-      ui->tableView->scrollTo(ui->tableView->currentIndex());
+      ui->tableView->scrollTo(ui->tableView->currentIndex(),QAbstractItemView::PositionAtTop);
       ui->tableView->resizeColumnsToContents();
    }
 }
@@ -286,17 +296,17 @@ void CodeBrowserDockWidget::on_actionBreak_on_CPU_execution_here_triggered()
    QModelIndex index = ui->tableView->currentIndex();
    int bpIdx;
    int addr = 0;
-   int absAddr = 0;
+   int physAddr = 0;
 
    if ( !m_loadedTarget.compare("nes",Qt::CaseInsensitive) )
    {
-      addr = nesGetAddressFromSLOC(index.row());
-      absAddr = nesGetAbsoluteAddressFromAddress(addr);
+      addr = nesGetVirtualAddressFromSLOC(index.row());
+      physAddr = nesGetPhysicalAddressFromAddress(addr);
    }
    else if ( !m_loadedTarget.compare("c64",Qt::CaseInsensitive) )
    {
       addr = c64GetAddressFromSLOC(index.row());
-      absAddr = c64GetAbsoluteAddressFromAddress(addr);
+      physAddr = c64GetPhysicalAddressFromAddress(addr);
    }
 
    if ( addr != -1 )
@@ -305,10 +315,10 @@ void CodeBrowserDockWidget::on_actionBreak_on_CPU_execution_here_triggered()
                                               eBreakpointItemAddress,
                                               0,
                                               addr,
-                                              absAddr,
+                                              physAddr,
                                               addr,
                                               0xFFFF,
-                                              false,
+                                              true,
                                               eBreakpointConditionNone,
                                               0,
                                               eBreakpointDataNone,
@@ -333,12 +343,12 @@ void CodeBrowserDockWidget::on_actionRun_to_here_triggered()
 {
    QModelIndex index = ui->tableView->currentIndex();
    int addr = 0;
-   int absAddr = 0;
+   int physAddr = 0;
 
    if ( !m_loadedTarget.compare("nes",Qt::CaseInsensitive) )
    {
-      addr = nesGetAddressFromSLOC(index.row());
-      absAddr = nesGetAbsoluteAddressFromAddress(addr);
+      addr = nesGetVirtualAddressFromSLOC(index.row());
+      physAddr = nesGetPhysicalAddressFromAddress(addr);
       if ( addr != -1 )
       {
          nesSetGotoAddress(addr);
@@ -347,7 +357,7 @@ void CodeBrowserDockWidget::on_actionRun_to_here_triggered()
    else if ( !m_loadedTarget.compare("c64",Qt::CaseInsensitive) )
    {
       addr = c64GetAddressFromSLOC(index.row());
-      absAddr = c64GetAbsoluteAddressFromAddress(addr);
+      physAddr = c64GetPhysicalAddressFromAddress(addr);
       if ( addr != -1 )
       {
          c64SetGotoAddress(addr);
@@ -399,7 +409,7 @@ void CodeBrowserDockWidget::on_actionStart_marker_here_triggered()
    {
       if ( !m_loadedTarget.compare("nes",Qt::CaseInsensitive) )
       {
-         addr = nesGetAddressFromSLOC(index.row());
+         addr = nesGetVirtualAddressFromSLOC(index.row());
       }
       else if ( !m_loadedTarget.compare("c64",Qt::CaseInsensitive) )
       {
@@ -411,11 +421,11 @@ void CodeBrowserDockWidget::on_actionStart_marker_here_triggered()
          // Find unused Marker entry...
          if ( !m_loadedTarget.compare("nes",Qt::CaseInsensitive) )
          {
-            marker = markers->AddMarker(addr,nesGetAbsoluteAddressFromAddress(addr));
+            marker = markers->AddMarker(addr,nesGetPhysicalAddressFromAddress(addr));
          }
          else if ( !m_loadedTarget.compare("c64",Qt::CaseInsensitive) )
          {
-            marker = markers->AddMarker(addr,c64GetAbsoluteAddressFromAddress(addr));
+            marker = markers->AddMarker(addr,c64GetPhysicalAddressFromAddress(addr));
          }
 
          emit breakpointsChanged();
@@ -435,7 +445,7 @@ void CodeBrowserDockWidget::on_actionEnd_marker_here_triggered()
    {
       if ( !m_loadedTarget.compare("nes",Qt::CaseInsensitive) )
       {
-         addr = nesGetAddressFromSLOC(index.row());
+         addr = nesGetVirtualAddressFromSLOC(index.row());
       }
       else if ( !m_loadedTarget.compare("c64",Qt::CaseInsensitive) )
       {
@@ -446,11 +456,11 @@ void CodeBrowserDockWidget::on_actionEnd_marker_here_triggered()
       {
          if ( !m_loadedTarget.compare("nes",Qt::CaseInsensitive) )
          {
-            markers->CompleteMarker(marker,addr,nesGetAbsoluteAddressFromAddress(addr));
+            markers->CompleteMarker(marker,addr,nesGetPhysicalAddressFromAddress(addr));
          }
          else if ( !m_loadedTarget.compare("c64",Qt::CaseInsensitive) )
          {
-            markers->CompleteMarker(marker,addr,c64GetAbsoluteAddressFromAddress(addr));
+            markers->CompleteMarker(marker,addr,c64GetPhysicalAddressFromAddress(addr));
          }
 
          emit breakpointsChanged();
@@ -472,7 +482,7 @@ void CodeBrowserDockWidget::on_tableView_pressed(QModelIndex index)
 {
    int bp;
    int addr = 0;
-   int absAddr = 0;
+   int physAddr = 0;
 
    if ( QApplication::mouseButtons() == Qt::LeftButton )
    {
@@ -480,13 +490,13 @@ void CodeBrowserDockWidget::on_tableView_pressed(QModelIndex index)
       {
          if ( !m_loadedTarget.compare("nes",Qt::CaseInsensitive) )
          {
-            addr = nesGetAddressFromSLOC(index.row());
-            absAddr = nesGetAbsoluteAddressFromAddress(addr);
+            addr = nesGetVirtualAddressFromSLOC(index.row());
+            physAddr = nesGetPhysicalAddressFromAddress(addr);
          }
          else if ( !m_loadedTarget.compare("c64",Qt::CaseInsensitive) )
          {
             addr = c64GetAddressFromSLOC(index.row());
-            absAddr = c64GetAbsoluteAddressFromAddress(addr);
+            physAddr = c64GetPhysicalAddressFromAddress(addr);
          }
 
          if ( addr != -1 )
@@ -495,7 +505,7 @@ void CodeBrowserDockWidget::on_tableView_pressed(QModelIndex index)
                                                   eBreakpointItemAddress,
                                                   0,
                                                   addr,
-                                                  absAddr,
+                                                  physAddr,
                                                   addr,
                                                   0xFFFF,
                                                   true,

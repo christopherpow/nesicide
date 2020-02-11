@@ -134,7 +134,7 @@ typedef struct _BreakpointInfo
    int event;
    CBreakpointEventInfo* pEvent;
    uint32_t item1;
-   uint32_t item1Absolute;
+   uint32_t item1Physical;
    uint32_t item2;
    uint32_t itemActual;
    uint32_t itemMask;
@@ -158,12 +158,12 @@ class CBreakpointInfo
 public:
    CBreakpointInfo();
    virtual ~CBreakpointInfo();
-   void ConstructBreakpoint ( BreakpointInfo* pBreakpoint, int type, eBreakpointItemType itemType, int event, int item1, int item1Absolute, int item2, int mask, bool maskExclusive, eBreakpointConditionType conditionType, int condition, eBreakpointDataType dataType, int data, bool enabled );
+   void ConstructBreakpoint ( BreakpointInfo* pBreakpoint, int type, eBreakpointItemType itemType, int event, int item1, int item1Physical, int item2, int mask, bool maskExclusive, eBreakpointConditionType conditionType, int condition, eBreakpointDataType dataType, int data, bool enabled );
    int AddBreakpoint ( BreakpointInfo* pBreakpoint );
-   int AddBreakpoint ( int type, eBreakpointItemType itemType, int event, int item1, int item1Absolute, int item2, int mask, bool maskExclusive, eBreakpointConditionType conditionType, int condition, eBreakpointDataType dataType, int data, bool enabled );
+   int AddBreakpoint ( int type, eBreakpointItemType itemType, int event, int item1, int item1Physical, int item2, int mask, bool maskExclusive, eBreakpointConditionType conditionType, int condition, eBreakpointDataType dataType, int data, bool enabled );
    void ModifyBreakpoint ( int bp, BreakpointInfo* pBreakpoint );
    void RemoveBreakpoint ( int index );
-   int FindExactMatch ( int type, eBreakpointItemType itemType, int event, int item1, int item1Absolute, int item2, int mask, bool maskExclusive, eBreakpointConditionType conditionType, int condition, eBreakpointDataType dataType, int data );
+   int FindExactMatch ( int type, eBreakpointItemType itemType, int event, int item1, int item1Physical, int item2, int mask, bool maskExclusive, eBreakpointConditionType conditionType, int condition, eBreakpointDataType dataType, int data );
    void ToggleEnabled ( int bp );
    void SetEnabled ( int bp, bool enabled );
    BreakpointStatus GetStatus ( int idx );
@@ -180,7 +180,7 @@ public:
 
 protected:
    // Must be provided by subclass.
-   virtual void ModifyBreakpoint ( BreakpointInfo* pBreakpoint, int type, eBreakpointItemType itemType, int event, int item1, int item1Absolute, int item2, int mask, bool maskExclusive, eBreakpointConditionType conditionType, int condition, eBreakpointDataType dataType, int data, bool enabled ) = 0;
+   virtual void ModifyBreakpoint ( BreakpointInfo* pBreakpoint, int type, eBreakpointItemType itemType, int event, int item1, int item1Physical, int item2, int mask, bool maskExclusive, eBreakpointConditionType conditionType, int condition, eBreakpointDataType dataType, int data, bool enabled ) = 0;
 
 protected:
    BreakpointInfo m_breakpoint [ NUM_BREAKPOINTS ];

@@ -54,7 +54,7 @@ void c64GetPrintableAddress ( char* buffer, uint32_t addr )
    sprintf(buffer,"%04X",addr);
 }
 
-void c64GetPrintableAddressWithAbsolute ( char* buffer, uint32_t addr, uint32_t absAddr )
+void c64GetPrintablePhysicalAddress ( char* buffer, uint32_t addr, uint32_t absAddr )
 {
    sprintf(buffer,"%04X",addr);
 }
@@ -97,19 +97,19 @@ char* c64GetDisassemblyAtAddress ( uint32_t addr )
    return CC646502::DISASSEMBLY(addr);
 }
 
-void c64GetDisassemblyAtAbsoluteAddress ( uint32_t absAddr, char* buffer )
+void c64GetDisassemblyAtPhysicalAddress ( uint32_t absAddr, char* buffer )
 {
-   CC646502::DISASSEMBLYATABSADDR(absAddr,buffer);
+   CC646502::DISASSEMBLYATPHYSADDR(absAddr,buffer);
 }
 
-uint32_t c64GetAbsoluteAddressFromAddress ( uint32_t addr )
+uint32_t c64GetPhysicalAddressFromAddress ( uint32_t addr )
 {
    return addr;
 }
 
 uint32_t c64GetAddressFromSLOC ( uint16_t sloc )
 {
-   return CC646502::SLOC2ADDR(sloc);
+   return CC646502::SLOC2VIRTADDR(sloc);
 }
 
 uint16_t c64GetSLOCFromAddress ( uint32_t addr )

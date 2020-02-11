@@ -292,7 +292,7 @@ void BreakpointDockWidget::on_tableView_pressed(QModelIndex index)
       if ( (index.row() < m_pBreakpoints->GetNumBreakpoints()) &&
            (m_pBreakpoints->GetBreakpoint(index.row())->type == eBreakOnCPUExecution) )
       {
-         nesGetPrintableAddressWithAbsolute(buffer,m_pBreakpoints->GetBreakpoint(index.row())->item1,m_pBreakpoints->GetBreakpoint(index.row())->item1Absolute);
+         nesGetPrintablePhysicalAddress(buffer,m_pBreakpoints->GetBreakpoint(index.row())->item1,m_pBreakpoints->GetBreakpoint(index.row())->item1Physical);
          emit snapTo(QString("Address,")+QString(buffer));
       }
 
@@ -442,7 +442,7 @@ bool BreakpointDockWidget::serialize(QDomDocument& doc, QDomNode& node)
       breakpointElement.setAttribute("itemtype",pBreakpoint->itemType);
       breakpointElement.setAttribute("event",pBreakpoint->event);
       breakpointElement.setAttribute("item1",pBreakpoint->item1);
-      breakpointElement.setAttribute("item1absolute",pBreakpoint->item1Absolute);
+      breakpointElement.setAttribute("item1absolute",pBreakpoint->item1Physical);
       breakpointElement.setAttribute("item2",pBreakpoint->item2);
       breakpointElement.setAttribute("itemMask",pBreakpoint->itemMask);
       breakpointElement.setAttribute("itemMaskExclusive",pBreakpoint->itemMaskExclusive);
@@ -488,7 +488,7 @@ bool BreakpointDockWidget::deserialize(QDomDocument& /*doc*/, QDomNode& node, QS
                breakpoint.itemType = (eBreakpointItemType)element.attribute("itemtype").toInt();
                breakpoint.event = element.attribute("event").toInt();
                breakpoint.item1 = element.attribute("item1").toInt();
-               breakpoint.item1Absolute = element.attribute("item1absolute").toInt();
+               breakpoint.item1Physical = element.attribute("item1absolute").toInt();
                breakpoint.item2 = element.attribute("item2").toInt();
                breakpoint.itemMask = element.attribute("itemMask").toInt();
                breakpoint.itemMaskExclusive = element.attribute("itemMaskExclusive").toInt();

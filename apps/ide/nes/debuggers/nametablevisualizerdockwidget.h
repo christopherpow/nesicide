@@ -23,6 +23,11 @@ protected:
    void showEvent(QShowEvent* event);
    void hideEvent(QHideEvent* event);
    void changeEvent(QEvent* e);
+   void updateInfoText(int x=-1,int y=-1);
+   bool eventFilter(QObject *obj, QEvent *event);
+   void renderer_enterEvent(QEvent* event);
+   void renderer_leaveEvent(QEvent* event);
+   void renderer_mouseMoveEvent(QMouseEvent *event);
 
 public slots:
    void renderData();

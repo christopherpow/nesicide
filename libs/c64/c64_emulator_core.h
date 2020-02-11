@@ -163,18 +163,18 @@ uint32_t c64GetPaletteBlueComponent(uint32_t idx);
 void c64Disassemble ();
 void c64DisassembleSingle ( uint8_t* pOpcode, char* buffer );
 char* c64GetDisassemblyAtAddress ( uint32_t addr );
-void c64GetDisassemblyAtAbsoluteAddress ( uint32_t absAddr, char* buffer );
+void c64GetDisassemblyAtPhysicalAddress ( uint32_t absAddr, char* buffer );
 uint32_t c64GetAddressFromSLOC ( uint16_t sloc );
 uint16_t c64GetSLOCFromAddress ( uint32_t addr );
 uint32_t c64GetSLOC ( uint32_t addr );
-uint32_t c64GetAbsoluteAddressFromAddress ( uint32_t addr );
+uint32_t c64GetPhysicalAddressFromAddress ( uint32_t addr );
 void c64ClearOpcodeMasks ( void );
 void c64SetOpcodeMask ( uint32_t addr, uint8_t mask );
 void c64SetBreakpointHook ( void (*hook)(void) );
 void c64EnableBreakpoints ( bool enable );
 void c64StepCpu ( void );
 void c64GetPrintableAddress ( char* buffer, uint32_t addr );
-void c64GetPrintableAddressWithAbsolute ( char* buffer, uint32_t addr, uint32_t absAddr );
+void c64GetPrintablePhysicalAddress ( char* buffer, uint32_t addr, uint32_t absAddr );
 
 // 6502 debug interfaces.
 void c64SetGotoAddress ( uint32_t addr );

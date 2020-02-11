@@ -22,6 +22,16 @@ CodeDataLoggerDockWidget::CodeDataLoggerDockWidget(QWidget *parent) :
 
    renderer->installEventFilter(this);
 
+#if defined(Q_OS_MAC) || defined(Q_OS_MACX) || defined(Q_OS_MAC64)
+   ui->address->setFont(QFont("Monaco", 11));
+#endif
+#ifdef Q_OS_LINUX
+   ui->address->setFont(QFont("Monospace", 10));
+#endif
+#ifdef Q_OS_WIN
+   ui->address->setFont(QFont("Consolas", 11));
+#endif
+
    pThread = new DebuggerUpdateThread(&RENDERCPUCODEDATALOGGER);
    QObject::connect(pThread,SIGNAL(updateComplete()),this,SLOT(renderData()));
 }

@@ -1100,14 +1100,14 @@ uint32_t nesGetSystemMode ( void )
    return CNES::NES()->VIDEOMODE();
 }
 
-void nesGetPrintableAddress ( char* buffer, uint32_t addr )
+void nesGetPrintableAddress ( char* buffer, uint32_t virtAddr )
 {
-   CNES::NES()->PRINTABLEADDR(buffer,addr);
+   CNES::NES()->PRINTABLEADDR(buffer,virtAddr);
 }
 
-void nesGetPrintableAddressWithAbsolute ( char* buffer, uint32_t addr, uint32_t absAddr )
+void nesGetPrintablePhysicalAddress ( char* buffer, uint32_t virtAddr, uint32_t physAddr )
 {
-   CNES::NES()->PRINTABLEADDR(buffer,addr,absAddr);
+   CNES::NES()->PRINTABLEADDR(buffer,virtAddr,physAddr);
 }
 
 void nesSetControllerType ( int32_t port, int32_t type )
@@ -1369,14 +1369,14 @@ char* nesGetDisassemblyAtAddress ( uint32_t addr )
    return CNES::NES()->DISASSEMBLY(addr);
 }
 
-void nesGetDisassemblyAtAbsoluteAddress ( uint32_t absAddr, char* buffer )
+void nesGetDisassemblyAtPhysicalAddress ( uint32_t physAddr, char* buffer )
 {
-   CNES::NES()->CART()->PRGROMDISASSEMBLYATABSADDR(absAddr,buffer);
+   CNES::NES()->CART()->PRGROMDISASSEMBLYATPHYSADDR(physAddr,buffer);
 }
 
-uint32_t nesGetAddressFromSLOC ( uint16_t sloc )
+uint32_t nesGetVirtualAddressFromSLOC ( uint16_t sloc )
 {
-   return CNES::NES()->SLOC2ADDR(sloc);
+   return CNES::NES()->SLOC2VIRTADDR(sloc);
 }
 
 uint16_t nesGetSLOCFromAddress ( uint32_t addr )
@@ -1389,9 +1389,9 @@ uint32_t nesGetSLOC ( uint32_t addr )
    return CNES::NES()->SLOC(addr);
 }
 
-uint32_t nesGetAbsoluteAddressFromAddress ( uint32_t addr )
+uint32_t nesGetPhysicalAddressFromAddress ( uint32_t addr )
 {
-   return CNES::NES()->ABSADDR(addr);
+   return CNES::NES()->PHYSADDR(addr);
 }
 
 void nesClearOpcodeMasks ( void )
@@ -1404,7 +1404,7 @@ void nesClearOpcodeMasks ( void )
 
 void nesSetOpcodeMask ( uint32_t addr, uint8_t mask )
 {
-   CNES::NES()->CART()->PRGROMOPCODEMASKATABSADDR(addr, mask);
+   CNES::NES()->CART()->PRGROMOPCODEMASKATPHYSADDR(addr, mask);
 }
 
 void nesSetTVOut ( int8_t* tv )
@@ -1912,14 +1912,14 @@ int32_t nesGetPPUFlipFlop ( void )
    return CNES::NES()->PPU()->_PPUFLIPFLOP();
 }
 
-uint32_t nesGetPRGROMAbsoluteAddress ( uint32_t addr )
+uint32_t nesGetPRGROMPhysicalAddress ( uint32_t addr )
 {
-   return CNES::NES()->CART()->PRGROMABSADDR(addr);
+   return CNES::NES()->CART()->PRGROMPHYSADDR(addr);
 }
 
-uint32_t nesGetCHRMEMAbsoluteAddress ( uint32_t addr )
+uint32_t nesGetCHRMEMPhysicalAddress ( uint32_t addr )
 {
-   return CNES::NES()->CART()->CHRMEMABSADDR(addr);
+   return CNES::NES()->CART()->CHRMEMPHYSADDR(addr);
 }
 
 uint32_t nesGetPRGROMData ( uint32_t addr )
@@ -1937,9 +1937,9 @@ void nesSetCHRMEMData ( uint32_t addr, uint32_t data )
    CNES::NES()->CART()->CHRMEM(addr,data);
 }
 
-uint32_t nesGetSRAMAbsoluteAddress ( uint32_t addr )
+uint32_t nesGetSRAMPhysicalAddress ( uint32_t addr )
 {
-   return CNES::NES()->CART()->SRAMABSADDR(addr);
+   return CNES::NES()->CART()->SRAMPHYSADDR(addr);
 }
 
 uint32_t nesGetSRAMDataVirtual ( uint32_t addr )
@@ -1972,9 +1972,9 @@ bool nesIsSRAMDirty ()
    return CNES::NES()->CART()->SRAMDIRTY();
 }
 
-uint32_t nesGetEXRAMAbsoluteAddress ( uint32_t addr )
+uint32_t nesGetEXRAMPhysicalAddress ( uint32_t addr )
 {
-   return CNES::NES()->CART()->EXRAMABSADDR(addr);
+   return CNES::NES()->CART()->EXRAMPHYSADDR(addr);
 }
 
 uint32_t nesGetEXRAMData ( uint32_t addr )

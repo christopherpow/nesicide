@@ -285,15 +285,15 @@ void C64EmulatorThread::stepCPUEmulation ()
    // Check if we have an end address to stop at from a debug information file.
    // If we do, it'll be the valid end of a C statement or an assembly instruction.
    addr = c64GetCPURegister(CPU_PC);
-   absAddr = c64GetAbsoluteAddressFromAddress(addr);
-   endAddr = CCC65Interface::getEndAddressFromAbsoluteAddress(addr,absAddr);
+   absAddr = c64GetPhysicalAddressFromAddress(addr);
+   endAddr = CCC65Interface::getEndAddressFromPhysicalAddress(addr,absAddr);
 
    if ( endAddr != 0xFFFFFFFF )
    {
       // Find the last opcode in the C-statement.
       for ( ; endAddr > absAddr; endAddr-- )
       {
-         if ( CCC65Interface::isAbsoluteAddressAnOpcode(endAddr) )
+         if ( CCC65Interface::isPhysicalAddressAnOpcode(endAddr) )
          {
             break;
          }
@@ -346,8 +346,8 @@ void C64EmulatorThread::stepOverCPUEmulation ()
    // Check if we have an end address to stop at from a debug information file.
    // If we do, it'll be the valid end of a C statement or an assembly instruction.
    addr = c64GetCPURegister(CPU_PC);
-   absAddr = c64GetAbsoluteAddressFromAddress(addr);
-   endAddr = CCC65Interface::getEndAddressFromAbsoluteAddress(addr,absAddr);
+   absAddr = c64GetPhysicalAddressFromAddress(addr);
+   endAddr = CCC65Interface::getEndAddressFromPhysicalAddress(addr,absAddr);
 
    if ( endAddr != 0xFFFFFFFF )
    {
@@ -357,8 +357,8 @@ void C64EmulatorThread::stepOverCPUEmulation ()
          // Check if last instruction on line is JSR...
          // This is fairly typical of if conditions with function calls on the same line.
          instr = c64GetMemory(endAddr-2);
-         instAbsAddr = c64GetAbsoluteAddressFromAddress(endAddr-2);
-         isInstr = CCC65Interface::isAbsoluteAddressAnOpcode(instAbsAddr);
+         instAbsAddr = c64GetPhysicalAddressFromAddress(endAddr-2);
+         isInstr = CCC65Interface::isPhysicalAddressAnOpcode(instAbsAddr);
          if ( !isInstr )
          {
             instr = c64GetMemory(addr);
@@ -634,7 +634,7 @@ void C64EmulatorThread::processResponses(QStringList requests,QStringList respon
          // Update opcode masks to show proper disassembly...
          for ( a = 0; a < MEM_64KB; a++ )
          {
-            if ( CCC65Interface::isAbsoluteAddressAnOpcode(a) )
+            if ( CCC65Interface::isPhysicalAddressAnOpcode(a) )
             {
                c64SetOpcodeMask(a,1);
             }

@@ -468,14 +468,14 @@ void BreakpointDialog::DisplayResolutions(BreakpointInfo* pBreakpoint)
       {
          if ( compiler->assembledOk() )
          {
-            source = CCC65Interface::getSourceFileFromAbsoluteAddress(originalAddr,maskedAddr);
+            source = CCC65Interface::getSourceFileFromPhysicalAddress(originalAddr,maskedAddr);
             if ( !source.isEmpty() )
             {
                fileInfo.setFile(source);
                source = fileInfo.fileName();
 
                text = "put something";//pasm_get_source_file_text_by_addr(maskedAddr);
-               linenum = CCC65Interface::getSourceLineFromAbsoluteAddress(originalAddr,maskedAddr);
+               linenum = CCC65Interface::getSourceLineFromPhysicalAddress(originalAddr,maskedAddr);
 //               textSplit = text.split(QRegExp("[\r\n]"));
 //               text = textSplit.at(linenum-1);
                item.sprintf("%s:%d:",
@@ -488,13 +488,13 @@ void BreakpointDialog::DisplayResolutions(BreakpointInfo* pBreakpoint)
          }
          else
          {
-            nesGetDisassemblyAtAbsoluteAddress(maskedAddr,disassembly);
-            nesGetPrintableAddressWithAbsolute(address,originalAddr,maskedAddr);
+            nesGetDisassemblyAtPhysicalAddress(maskedAddr,disassembly);
+            nesGetPrintablePhysicalAddress(address,originalAddr,maskedAddr);
             item.sprintf("%s:%s",address,disassembly);
             ui->resolutions->addItem(item);
             ui->resolutions->setItemData(ui->resolutions->count()-1,maskedAddr);
          }
-         if ( pBreakpoint && pBreakpoint->item1Absolute == maskedAddr )
+         if ( pBreakpoint && pBreakpoint->item1Physical == maskedAddr )
          {
             ui->resolutions->setCurrentIndex(ui->resolutions->count()-1);
          }
@@ -529,7 +529,7 @@ void BreakpointDialog::DisplayBreakpoint ( int idx )
    // Only do this for NES platform until it is known whether it is needed
    // for other platforms.
    if ( (!nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive)) && 
-        (pBreakpoint->item1Absolute >= 0) )
+        (pBreakpoint->item1Physical >= 0) )
    {
       ui->resolve->setChecked(true);
    }
@@ -629,7 +629,7 @@ void BreakpointDialog::on_cancel_clicked()
 void BreakpointDialog::on_addBreakpoint_clicked()
 {
    int  item1 = 0;
-   int  item1Absolute = 0;
+   int  item1Physical = 0;
    int  item2 = 0;
    int  mask = 0;
    int  data = 0;
@@ -689,7 +689,7 @@ void BreakpointDialog::on_addBreakpoint_clicked()
 
    if ( ui->resolve->isChecked() )
    {
-      item1Absolute = ui->resolutions->itemData(ui->resolutions->currentIndex()).toInt();
+      item1Physical = ui->resolutions->itemData(ui->resolutions->currentIndex()).toInt();
    }
    else
    {
@@ -704,23 +704,23 @@ void BreakpointDialog::on_addBreakpoint_clicked()
          {
             // If there's more than 16KB of PRG-ROM then the
             // physical address is simply the offset into the PRG-ROM.
-            item1Absolute = (item1-MEM_32KB)%nesGetPRGROMSize();
+            item1Physical = (item1-MEM_32KB)%nesGetPRGROMSize();
          }
          else if ( item1 >= 0x6000 )
          {
             // CPTODO: For now assume identity mapped SRAM.
-            item1Absolute = (item1-0x6000);
+            item1Physical = (item1-0x6000);
          }
          else
          {
             // Virtual is physical if address is less than $8000.
-            item1Absolute = item1;
+            item1Physical = item1;
          }         
       }
       else
       {
          // Virtual is physical for now.  Might need to revisit.
-         item1Absolute = item1;
+         item1Physical = item1;
       }
    }
 
@@ -729,7 +729,7 @@ void BreakpointDialog::on_addBreakpoint_clicked()
                                        (eBreakpointItemType)ui->itemWidget->currentIndex(),
                                        event,
                                        item1,
-                                       item1Absolute,
+                                       item1Physical,
                                        item2,
                                        mask,
                                        maskExclusive,

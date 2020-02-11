@@ -9,7 +9,7 @@ CC64BreakpointInfo::CC64BreakpointInfo()
 {
 }
 
-void CC64BreakpointInfo::ModifyBreakpoint ( BreakpointInfo* pBreakpoint, int type, eBreakpointItemType itemType, int event, int item1, int item1Absolute, int item2, int mask, bool maskExclusive, eBreakpointConditionType conditionType, int condition, eBreakpointDataType dataType, int data, bool enabled )
+void CC64BreakpointInfo::ModifyBreakpoint ( BreakpointInfo* pBreakpoint, int type, eBreakpointItemType itemType, int event, int item1, int item1Physical, int item2, int mask, bool maskExclusive, eBreakpointConditionType conditionType, int condition, eBreakpointDataType dataType, int data, bool enabled )
 {
    pBreakpoint->hit = false;
    pBreakpoint->enabled = enabled;
@@ -36,7 +36,7 @@ void CC64BreakpointInfo::ModifyBreakpoint ( BreakpointInfo* pBreakpoint, int typ
    pBreakpoint->pEvent = NULL;
 
    pBreakpoint->item1 = item1;
-   pBreakpoint->item1Absolute = item1Absolute;
+   pBreakpoint->item1Physical = item1Physical;
    pBreakpoint->item2 = item2;
    pBreakpoint->itemMask = mask;
    pBreakpoint->itemMaskExclusive = maskExclusive;
@@ -51,9 +51,9 @@ void CC64BreakpointInfo::GetPrintable ( int idx, char* msg )
    switch ( m_breakpoint[idx].type )
    {
       case eBreakOnCPUExecution:
-         c64GetPrintableAddressWithAbsolute(printableAddress,
+         c64GetPrintablePhysicalAddress(printableAddress,
                                             m_breakpoint[idx].item1,
-                                            m_breakpoint[idx].item1Absolute);
+                                            m_breakpoint[idx].item1Physical);
 
          if ( m_breakpoint[idx].item1 == m_breakpoint[idx].item2 )
          {

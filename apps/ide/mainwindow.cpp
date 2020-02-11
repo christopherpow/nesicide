@@ -917,6 +917,7 @@ void MainWindow::createNesUi()
    addToolBar(Qt::TopToolBarArea, debuggerToolBar);
 
    toolToolbar->addAction(actionEmulation_Window);
+   addToolBar(toolToolbar);
 
    if ( !m_pNESEmulatorThread )
    {

@@ -19,7 +19,7 @@ protected:
    CROM(uint32_t mapper);
 public:
    static inline CROM* CARTFACTORY() { return new CROM(0); }
-   ~CROM();
+   virtual ~CROM();
 
    // Priming interfaces (data setup/initialization)
    void ClearPRGBanks ()
@@ -47,7 +47,7 @@ public:
    {
       return (m_numChrBanks>0);
    }
-   inline uint32_t PRGROMABSADDR ( uint32_t addr )
+   inline uint32_t PRGROMPHYSADDR ( uint32_t addr )
    {
       return (m_PRGROMmemory.physBankFromVirtAddr(addr)*m_PRGROMmemory.bankSize())+m_PRGROMmemory.offsetInBank(addr);
    }
@@ -58,9 +58,9 @@ public:
    inline void PRGROM ( uint32_t, uint8_t ) {}
    inline uint32_t PRGROMPHYS ( uint32_t addr )
    {
-      return m_PRGROMmemory.MEMATABSADDR(addr);
+      return m_PRGROMmemory.MEMATPHYSADDR(addr);
    }
-   uint32_t CHRMEMABSADDR ( uint32_t addr )
+   uint32_t CHRMEMPHYSADDR ( uint32_t addr )
    {
       return (m_CHRmemory.physBankFromVirtAddr(addr)*m_CHRmemory.bankSize())+m_CHRmemory.offsetInBank(addr);
    }
@@ -72,7 +72,7 @@ public:
    {
       return m_CHRmemory.MEM(addr);
    }
-   inline uint32_t SRAMABSADDR ( uint32_t addr )
+   inline uint32_t SRAMPHYSADDR ( uint32_t addr )
    {
       return (m_SRAMmemory.physBankFromVirtAddr(addr)*m_SRAMmemory.bankSize())+m_SRAMmemory.offsetInBank(addr);
    }
@@ -87,21 +87,21 @@ public:
    }
    inline uint32_t SRAMPHYS ( uint32_t addr )
    {
-      return m_SRAMmemory.MEMATABSADDR(addr);
+      return m_SRAMmemory.MEMATPHYSADDR(addr);
    }
    inline void SRAMPHYS ( uint32_t addr, uint8_t data, bool setDirty = true )
    {
-      m_SRAMmemory.MEMATABSADDR(addr,data);
+      m_SRAMmemory.MEMATPHYSADDR(addr,data);
       if ( setDirty )
       {
          m_SRAMdirty = true;
       }
    }
-   inline void REMAPSRAM ( uint32_t addr, uint8_t bank )
+   inline void REMAPSRAM ( uint32_t virtAddr, uint8_t bank )
    {
-      m_SRAMmemory.REMAP(m_SRAMmemory.virtBankFromPhysAddr(addr),bank);
+      m_SRAMmemory.REMAP(m_SRAMmemory.virtBankFromVirtAddr(virtAddr),bank);
    }
-   inline uint32_t EXRAMABSADDR ( uint32_t addr )
+   inline uint32_t EXRAMPHYSADDR ( uint32_t addr )
    {
       return m_EXRAMmemory.offsetInBank(addr);
    }
@@ -169,11 +169,11 @@ public:
    }
    inline CCodeDataLogger* LOGGERPHYS ( uint32_t absAddr )
    {
-      return m_PRGROMmemory.LOGGERATABSADDR(absAddr);
+      return m_PRGROMmemory.LOGGERATPHYSADDR(absAddr);
    }
    inline CCodeDataLogger* SRAMLOGGERPHYS ( uint32_t absAddr )
    {
-      return m_SRAMmemory.LOGGERATABSADDR(absAddr);
+      return m_SRAMmemory.LOGGERATPHYSADDR(absAddr);
    }
    inline CCodeDataLogger* EXRAMLOGGER ()
    {
@@ -185,9 +185,9 @@ public:
    {
       m_PRGROMmemory.OPCODEMASK(addr,mask);
    }
-   inline void PRGROMOPCODEMASKATABSADDR ( uint32_t absAddr, uint8_t mask )
+   inline void PRGROMOPCODEMASKATPHYSADDR ( uint32_t absAddr, uint8_t mask )
    {
-      m_PRGROMmemory.OPCODEMASKATABSADDR(absAddr,mask);
+      m_PRGROMmemory.OPCODEMASKATPHYSADDR(absAddr,mask);
    }
    inline void PRGROMOPCODEMASKCLR ( void )
    {
@@ -197,11 +197,11 @@ public:
    {
       return m_PRGROMmemory.DISASSEMBLY(addr);
    }
-   inline char* PRGROMDISASSEMBLYATABSADDR ( uint32_t absAddr, char* buffer )
+   inline char* PRGROMDISASSEMBLYATPHYSADDR ( uint32_t physAddr, char* buffer )
    {
-      return m_PRGROMmemory.DISASSEMBLYATABSADDR(absAddr,buffer);
+      return m_PRGROMmemory.DISASSEMBLYATPHYSADDR(physAddr,buffer);
    }
-   uint32_t PRGROMSLOC2ADDR ( uint16_t sloc );
+   uint32_t PRGROMSLOC2VIRTADDR ( uint16_t sloc );
    uint16_t PRGROMADDR2SLOC ( uint32_t addr );
    inline uint32_t PRGROMSLOC ( uint32_t addr )
    {
@@ -219,7 +219,7 @@ public:
    {
       return m_SRAMmemory.DISASSEMBLY(addr);
    }
-   uint32_t SRAMSLOC2ADDR ( uint16_t sloc );
+   uint32_t SRAMSLOC2VIRTADDR ( uint16_t sloc );
    uint16_t SRAMADDR2SLOC ( uint32_t addr );
    inline uint32_t SRAMSLOC ( uint32_t addr)
    {
@@ -238,7 +238,7 @@ public:
    {
       return m_EXRAMmemory.DISASSEMBLY(addr);
    }
-   uint32_t EXRAMSLOC2ADDR ( uint16_t sloc );
+   uint32_t EXRAMSLOC2VIRTADDR ( uint16_t sloc );
    uint16_t EXRAMADDR2SLOC ( uint32_t addr );
    inline uint32_t EXRAMSLOC ()
    {
