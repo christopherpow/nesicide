@@ -488,24 +488,7 @@ void CPatternEditor::DrawScreen(CDC *pDC, CFamiTrackerView *pView)
 #ifndef RELEASE_BUILD
 	pDC->SetBkColor(DEFAULT_COLOR_SCHEME.CURSOR);
 	pDC->SetTextColor(DEFAULT_COLOR_SCHEME.TEXT_HILITE);
-
-   CString Text;
-   int PosY = 100;
-   const int LINE_BREAK = 18;
-
-#define PUT_TEXT(x) pDC->TextOut(m_iWinWidth - x, PosY, Text); PosY += LINE_BREAK
-
-   Text.Format(_T("%i redraws"), m_iRedraws); PUT_TEXT(160);
-   Text.Format(_T("%i paints"), m_iPaints); PUT_TEXT(160);
-   Text.Format(_T("%i quick redraws"), m_iQuickRedraws); PUT_TEXT(160);
-   Text.Format(_T("%i full redraws"), m_iFullRedraws); PUT_TEXT(160);
-   Text.Format(_T("%i header redraws"), m_iHeaderRedraws); PUT_TEXT(160);
-   Text.Format(_T("%i erases"), m_iErases); PUT_TEXT(160);
-   Text.Format(_T("%i new buffers"), m_iBuffers); PUT_TEXT(160);
-   Text.Format(_T("%i chars drawn"), m_iCharsDrawn); PUT_TEXT(160);
-   Text.Format(_T("%i rows visible"), m_iLinesVisible); PUT_TEXT(160);
-   Text.Format(_T("%i full rows visible"), m_iLinesFullVisible); PUT_TEXT(160);
-//	pDC->TextOut(m_iWinWidth - 110, m_iWinHeight - 20 * Line++, _T("Release build"));
+   pDC->TextOut(m_iWinWidth - 110, m_iWinHeight - 20 * Line++, _T("Release build"));
 #endif
 #endif
 #ifdef BENCHMARK
