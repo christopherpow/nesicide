@@ -28,7 +28,7 @@ MusicEditorForm::MusicEditorForm(QString fileName,QByteArray musicData,IProjectT
    // Initialize FamiTracker...
    ideifyFamiTracker();
    qtMfcInit(this);
-   AfxGetApp()->InitInstance();   
+   AfxGetApp()->InitInstance();
    
    CMainFrame* pMainFrame = (CMainFrame*)AfxGetMainWnd();
    setCentralWidget(pMainFrame->toQWidget());

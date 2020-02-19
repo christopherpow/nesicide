@@ -9,14 +9,23 @@
 class CObjectRegistry
 {
 public:
-   CObjectRegistry() {};
-   static QObject* getObject(const QString& name);
-   static void     addObject(const QString& name,
+   static CObjectRegistry *instance;
+   static CObjectRegistry *getInstance()
+   {
+      if ( !instance )
+      {
+         instance = new CObjectRegistry();
+      }
+      return instance;
+   }
+   QObject* getObject(const QString& name);
+   void     addObject(const QString& name,
                              QObject* object);
-   static void     removeObject(const QString& name);
+   void     removeObject(const QString& name);
 private:
-   static QHash<QString,QObject*> objects;
-   static QMutex mutex;
+   CObjectRegistry();
+   QHash<QString,QObject*> objects;
+   QMutex *mutex;
 };
 
 #endif // COBJECTREGISTRY_H

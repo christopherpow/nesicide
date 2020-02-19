@@ -53,10 +53,10 @@ or because they were pulled in by the build.
 - [ ] Mixed-mode assembly updates in real-time (requires background quiet compilation)
 - [ ] Attribute Table and Tile/Stamp data should *not* be in project file as they are thus inaccessible to the project source to reference
 - [ ] Editors should be detachable
-- [ ] Some glitches in long term use, probably related to OpenGL misuse. Find an OpenGL debugger?
+- [X] Some glitches in long term use, probably related to OpenGL misuse. Find an OpenGL debugger?
 This included some weird switching of contexts from one widget to another, such as from exevis to emu, etc.
 - [ ] Should have option to set both start/end of execution visualization markers with one command
-- [ ] Should have option to remove ALL breakpoints
+- [X] Should have option to remove ALL breakpoints
 - [ ] Removing execution visualizer markers by line(s) of selected code only, not just ALL
 - [ ] Alpha-blend of execution markers on visual instead of replace
-- [ ] Fix linker config file browser -- shouldn't be looking to SAVE a file
+- [X] Fix linker config file browser -- shouldn't be looking to SAVE a file

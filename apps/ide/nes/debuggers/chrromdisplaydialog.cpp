@@ -87,8 +87,8 @@ void CHRROMDisplayDialog::updateTargetMachine(QString /*target*/)
 {
    if ( m_usePPU )
    {
-      QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
-      QObject* emulator = CObjectRegistry::getObject("Emulator");
+      QObject* breakpointWatcher = CObjectRegistry::getInstance()->getObject("Breakpoint Watcher");
+      QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
 
       QObject::connect(emulator,SIGNAL(machineReady()),pThread,SLOT(updateDebuggers()));
       QObject::connect(emulator,SIGNAL(emulatorReset()),pThread,SLOT(updateDebuggers()));
@@ -101,7 +101,7 @@ void CHRROMDisplayDialog::showEvent(QShowEvent* /*event*/)
 {
    if ( m_usePPU )
    {
-      QObject* emulator = CObjectRegistry::getObject("Emulator");
+      QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
 
       QObject::connect(emulator,SIGNAL(updateDebuggers()),pThread,SLOT(updateDebuggers()));
 
@@ -114,7 +114,7 @@ void CHRROMDisplayDialog::hideEvent(QHideEvent* /*event*/)
 {
    if ( m_usePPU )
    {
-      QObject* emulator = CObjectRegistry::getObject("Emulator");
+      QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
 
       QObject::disconnect(emulator,SIGNAL(updateDebuggers()),pThread,SLOT(updateDebuggers()));
    }

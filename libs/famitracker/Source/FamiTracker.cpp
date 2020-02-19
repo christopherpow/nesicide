@@ -225,7 +225,7 @@ BOOL CFamiTrackerApp::InitInstance()
 //		AfxRegSetValue(HKEY_CLASSES_ROOT, strTemp, REG_SZ, strOpenCommandLine, lstrlen(strOpenCommandLine) * sizeof(TCHAR));
 //	}
 //#endif
-	
+
 	// Handle command line export
 	if (cmdInfo.m_bExport) {
 		CCommandLineExport exporter;

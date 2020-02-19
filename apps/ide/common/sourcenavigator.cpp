@@ -22,8 +22,8 @@ SourceNavigator::SourceNavigator(QWidget *parent) :
 
    m_loadedTarget = "none";
 
-   QObject* compiler = CObjectRegistry::getObject("Compiler");
-   QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
+   QObject* compiler = CObjectRegistry::getInstance()->getObject("Compiler");
+   QObject* breakpointWatcher = CObjectRegistry::getInstance()->getObject("Breakpoint Watcher");
    QObject::connect(compiler,SIGNAL(compileDone(bool)),this,SLOT(compiler_compileDone(bool)));
    QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),this,SLOT(emulator_emulatorPaused()));
 }
@@ -35,7 +35,7 @@ SourceNavigator::~SourceNavigator()
 
 void SourceNavigator::updateTargetMachine(QString target)
 {
-   QObject* emulator = CObjectRegistry::getObject("Emulator");
+   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
 
    m_loadedTarget = target;
 

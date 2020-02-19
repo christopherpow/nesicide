@@ -6,8 +6,8 @@
 CDesignerEditorBase::CDesignerEditorBase(IProjectTreeViewItem* link,QWidget *parent) :
     QMainWindow(parent)
 {
-   QWidget* searchBar = CDockWidgetRegistry::getWidget("Search Bar");
-   QWidget* search = CDockWidgetRegistry::getWidget("Search");
+   QWidget* searchBar = CDockWidgetRegistry::getInstance()->getWidget("Search Bar");
+   QWidget* search = CDockWidgetRegistry::getInstance()->getWidget("Search");
 
    InitTabItem(link);
 

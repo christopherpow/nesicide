@@ -24,7 +24,16 @@
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QGridLayout" name="gridLayout">
-    <property name="margin">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
      <number>0</number>
     </property>
     <property name="spacing">
@@ -51,7 +60,7 @@
        <bool>false</bool>
       </property>
       <property name="selectionMode">
-       <enum>QAbstractItemView::SingleSelection</enum>
+       <enum>QAbstractItemView::ContiguousSelection</enum>
       </property>
       <property name="selectionBehavior">
        <enum>QAbstractItemView::SelectRows</enum>
@@ -83,11 +92,11 @@
       <attribute name="horizontalHeaderCascadingSectionResizes">
        <bool>false</bool>
       </attribute>
-      <attribute name="horizontalHeaderDefaultSectionSize">
-       <number>50</number>
-      </attribute>
       <attribute name="horizontalHeaderMinimumSectionSize">
        <number>26</number>
+      </attribute>
+      <attribute name="horizontalHeaderDefaultSectionSize">
+       <number>50</number>
       </attribute>
       <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
        <bool>false</bool>
@@ -98,10 +107,10 @@
       <attribute name="verticalHeaderVisible">
        <bool>false</bool>
       </attribute>
-      <attribute name="verticalHeaderDefaultSectionSize">
+      <attribute name="verticalHeaderMinimumSectionSize">
        <number>23</number>
       </attribute>
-      <attribute name="verticalHeaderMinimumSectionSize">
+      <attribute name="verticalHeaderDefaultSectionSize">
        <number>23</number>
       </attribute>
      </widget>
@@ -178,6 +187,14 @@
    </property>
    <property name="toolTip">
     <string>Go to Source</string>
+   </property>
+  </action>
+  <action name="actionStart_End_marker_here">
+   <property name="text">
+    <string>Set Visualization Marker on selected region</string>
+   </property>
+   <property name="toolTip">
+    <string>Set Visualization Marker on selected region</string>
    </property>
   </action>
  </widget>

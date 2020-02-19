@@ -55,6 +55,7 @@ private slots:
    void on_actionRun_to_here_triggered();
    void on_actionBreak_on_CPU_execution_here_triggered();
    void on_actionStart_marker_here_triggered();
+   void on_actionStart_End_marker_here_triggered();
    void on_actionEnd_marker_here_triggered();
    void on_actionClear_marker_triggered();
 };

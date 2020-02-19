@@ -44,8 +44,8 @@ MemoryInspectorDockWidget::~MemoryInspectorDockWidget()
 
 void MemoryInspectorDockWidget::updateTargetMachine(QString /*target*/)
 {
-   QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
-   QObject* emulator = CObjectRegistry::getObject("Emulator");
+   QObject* breakpointWatcher = CObjectRegistry::getInstance()->getObject("Breakpoint Watcher");
+   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
 
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateMemory()) );
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), model, SLOT(update()) );
@@ -59,7 +59,7 @@ void MemoryInspectorDockWidget::updateTargetMachine(QString /*target*/)
 
 void MemoryInspectorDockWidget::showEvent(QShowEvent* /*e*/)
 {
-   QObject* emulator = CObjectRegistry::getObject("Emulator");
+   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
 
    if ( emulator )
    {
@@ -71,7 +71,7 @@ void MemoryInspectorDockWidget::showEvent(QShowEvent* /*e*/)
 
 void MemoryInspectorDockWidget::hideEvent(QHideEvent* /*e*/)
 {
-   QObject* emulator = CObjectRegistry::getObject("Emulator");
+   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
 
    if ( emulator )
    {

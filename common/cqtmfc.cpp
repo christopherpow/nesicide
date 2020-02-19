@@ -3237,10 +3237,10 @@ void CDC::flush()
       QPainter p;
       if ( p.begin(_qwidget) )
       {
-         if ( m_pWnd )
-         {
-            offset = m_pWnd->getFrameWidth();
-         }
+//         if ( m_pWnd )
+//         {
+//            offset = m_pWnd->getFrameWidth();
+//         }
          p.drawPixmap(0,0,_qpixmap);
          p.end();
       }
@@ -4212,7 +4212,7 @@ void CListCtrl::subclassWidget(int nID,CWnd* widget)
    CRect rect;
    widget->GetWindowRect(&rect);
    Create(widget->GetStyle(),rect,widget->GetParent(),nID);
-   _qt->installEventFilter(dynamic_cast<CListCtrl*>(this));
+//   _qt->installEventFilter(dynamic_cast<CListCtrl*>(this));
    widget->setParent(NULL);
 }
 
@@ -4269,119 +4269,146 @@ bool CListCtrl::event(QEvent *event)
    return CWnd::event(event);
 }
 
+int e0[24] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
+int e1[24] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
+int e2[24] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
+int e3[24] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
+
 bool CListCtrl::eventFilter(QObject *object, QEvent *event)
 {
    if ( object == _qt )
    {
       if ( event->type() == QEvent::Close )
       {
+         e0[0]++;
          closeEvent(dynamic_cast<QCloseEvent*>(event));
-         return false;
+         return true;
       }
-      if ( event->type() == QEvent::Show )
+      else if ( event->type() == QEvent::Show )
       {
+         e0[1]++;
          showEvent(dynamic_cast<QShowEvent*>(event));
-         return false;
+         return true;
       }
-      if ( event->type() == QEvent::Hide )
+      else if ( event->type() == QEvent::Hide )
       {
+         e0[2]++;
          hideEvent(dynamic_cast<QHideEvent*>(event));
-         return false;
+         return true;
       }
-      if ( event->type() == QEvent::Move )
+      else if ( event->type() == QEvent::Move )
       {
+         e0[3]++;
          moveEvent(dynamic_cast<QMoveEvent*>(event));
-         return false;
+         return true;
       }
-      if ( event->type() == QEvent::Paint )
+      else if ( event->type() == QEvent::Paint )
       {
+         e0[4]++;
          paintEvent(dynamic_cast<QPaintEvent*>(event));
-         return false;
+         return true;
       }
-      if ( event->type() == QEvent::FocusIn )
+      else if ( event->type() == QEvent::FocusIn )
       {
+         e0[5]++;
          focusInEvent(dynamic_cast<QFocusEvent*>(event));
          return false;
       }
-      if ( event->type() == QEvent::FocusOut )
+      else if ( event->type() == QEvent::FocusOut )
       {
+         e0[6]++;
          focusOutEvent(dynamic_cast<QFocusEvent*>(event));
          return false;
       }
-      if ( event->type() == QEvent::Leave )
+      else if ( event->type() == QEvent::Leave )
       {
+         e0[7]++;
          leaveEvent(event);
-         return false;
+         return true;
       }
-      if ( event->type() == QEvent::MouseButtonPress )
+      else if ( event->type() == QEvent::MouseButtonPress )
       {
+         e0[8]++;
          mousePressEvent(dynamic_cast<QMouseEvent*>(event));
          return false;
       }
-      if ( event->type() == QEvent::MouseButtonRelease )
+      else if ( event->type() == QEvent::MouseButtonRelease )
       {
+         e0[9]++;
          mouseReleaseEvent(dynamic_cast<QMouseEvent*>(event));
          return false;
       }
-      if ( event->type() == QEvent::MouseButtonDblClick )
+      else if ( event->type() == QEvent::MouseButtonDblClick )
       {
+         e0[10]++;
          mouseDoubleClickEvent(dynamic_cast<QMouseEvent*>(event));
          return false;
       }
-      if ( event->type() == QEvent::MouseMove )
+      else if ( event->type() == QEvent::MouseMove )
       {
+         e0[11]++;
          mouseMoveEvent(dynamic_cast<QMouseEvent*>(event));
          return false;
       }
-      if ( event->type() == QEvent::Wheel )
+      else if ( event->type() == QEvent::Wheel )
       {
+         e0[12]++;
          wheelEvent(dynamic_cast<QWheelEvent*>(event));
          return false;
       }
-      if ( event->type() == QEvent::Resize )
+      else if ( event->type() == QEvent::Resize )
       {
+         e0[13]++;
          resizeEvent(dynamic_cast<QResizeEvent*>(event));
-         return false;
+         return true;
       }
-      if ( event->type() == QEvent::KeyPress )
+      else if ( event->type() == QEvent::KeyPress )
       {
+         e0[14]++;
          keyPressEvent(dynamic_cast<QKeyEvent*>(event));
          return false;
       }
-      if ( event->type() == QEvent::KeyRelease )
+      else if ( event->type() == QEvent::KeyRelease )
       {
+         e0[15]++;
          keyReleaseEvent(dynamic_cast<QKeyEvent*>(event));
          return false;
       }
-      if ( event->type() == QEvent::ContextMenu )
+      else if ( event->type() == QEvent::ContextMenu )
       {
+         e0[16]++;
          contextMenuEvent(dynamic_cast<QContextMenuEvent*>(event));
          return true;
       }
-      if ( event->type() == QEvent::DragEnter )
+      else if ( event->type() == QEvent::DragEnter )
       {
+         e0[17]++;
          dragEnterEvent(dynamic_cast<QDragEnterEvent*>(event));
          return true;
       }
-      if ( event->type() == QEvent::DragMove )
+      else if ( event->type() == QEvent::DragMove )
       {
+         e0[18]++;
          dragMoveEvent(dynamic_cast<QDragMoveEvent*>(event));
          return true;
       }
-      if ( event->type() == QEvent::Drop )
+      else if ( event->type() == QEvent::Drop )
       {
+         e0[19]++;
          dropEvent(dynamic_cast<QDropEvent*>(event));
          return true;
       }
-      if ( event->type() == QEvent::DragLeave )
+      else if ( event->type() == QEvent::DragLeave )
       {
+         e0[20]++;
          dragLeaveEvent(dynamic_cast<QDragLeaveEvent*>(event));
          return true;
       }
-      if ( event->type() == QEvent::Timer )
+      else if ( event->type() == QEvent::Timer )
       {
+         e0[21]++;
          timerEvent(dynamic_cast<QTimerEvent*>(event));
-         return true;
+         return false;
       }
    }
 //   qDebug("eventFilter: unhandled %d object %s", event->type(), object->objectName().toLatin1().constData());
@@ -7627,12 +7654,14 @@ void CWnd::keyReleaseEvent(QKeyEvent *event)
 void CWnd::timerEvent(QTimerEvent *event)
 {
    int mfcId = mfcTimerId(event->timerId());
-   PostMessage(WM_TIMER,mfcId);
+   if ( mfcId >= 0 )
+   {
+      PostMessage(WM_TIMER,mfcId);
+   }
 }
 
 void CWnd::paintEvent(QPaintEvent *event)
 {
-   static QSize currentSize = _qt->size();
    CDC* pDC = _myDC;
    AFX_CTLCOLOR ctlColor;
    ctlColor.hWnd = m_hWnd;
@@ -7641,8 +7670,9 @@ void CWnd::paintEvent(QPaintEvent *event)
    DRAWITEMSTRUCT di;
    di.hDC = (HDC)pDC;
 
+   //QObject::disconnect(this,SIGNAL(update()),_qt,SLOT(update()));
    if ( firstPaintEvent ||
-        _qt->size() != currentSize )
+        (_qt->size() != currentSize) )
    {
       SendMessage(WM_CTLCOLOR+WM_REFLECT_BASE,0,(LPARAM)&ctlColor);
       // MUST erase the background on the first call!
@@ -7652,6 +7682,7 @@ void CWnd::paintEvent(QPaintEvent *event)
    }
    SendMessage(WM_PAINT);
    SendMessage(WM_DRAWITEM,_id,(LPARAM)&di);
+   //QObject::connect(this,SIGNAL(update()),_qt,SLOT(update()));
 }
 
 void CWnd::contextMenuEvent(QContextMenuEvent *event)
@@ -7688,6 +7719,7 @@ void CWnd::resizeEvent(QResizeEvent *event)
       size.setHeight(size.height()-1-(GetSystemMetrics(SM_CYHSCROLL)+1));
    }
 //   qDebug("size %dx%d",size.width(),size.height());
+   currentSize = size;
    SendMessage(WM_SIZE,SIZE_RESTORED,(size.height()<<16)|(size.width()));
 }
 
@@ -7723,113 +7755,135 @@ bool CWnd::eventFilter(QObject *object, QEvent *event)
    {
       if ( event->type() == QEvent::Close )
       {
+         e1[0]++;
          closeEvent(dynamic_cast<QCloseEvent*>(event));
-         return false;
+         return true;
       }
-      if ( event->type() == QEvent::Show )
+      else if ( event->type() == QEvent::Show )
       {
+         e1[1]++;
          showEvent(dynamic_cast<QShowEvent*>(event));
-         return false;
+         return true;
       }
-      if ( event->type() == QEvent::Hide )
+      else if ( event->type() == QEvent::Hide )
       {
+         e1[2]++;
          hideEvent(dynamic_cast<QHideEvent*>(event));
-         return false;
+         return true;
       }
-      if ( event->type() == QEvent::Move )
+      else if ( event->type() == QEvent::Move )
       {
+         e1[3]++;
          moveEvent(dynamic_cast<QMoveEvent*>(event));
-         return false;
+         return true;
       }
-      if ( event->type() == QEvent::Paint )
+      else if ( event->type() == QEvent::Paint )
       {
+         e1[4]++;
          paintEvent(dynamic_cast<QPaintEvent*>(event));
          return false;
       }
-      if ( event->type() == QEvent::FocusIn )
+      else if ( event->type() == QEvent::FocusIn )
       {
+         e1[5]++;
          focusInEvent(dynamic_cast<QFocusEvent*>(event));
          return false;
       }
-      if ( event->type() == QEvent::FocusOut )
+      else if ( event->type() == QEvent::FocusOut )
       {
+         e1[6]++;
          focusOutEvent(dynamic_cast<QFocusEvent*>(event));
          return false;
       }
-      if ( event->type() == QEvent::Leave )
+      else if ( event->type() == QEvent::Leave )
       {
+         e1[7]++;
          leaveEvent(event);
-         return false;
+         return true;
       }
-      if ( event->type() == QEvent::MouseButtonPress )
+      else if ( event->type() == QEvent::MouseButtonPress )
       {
+         e1[8]++;
          mousePressEvent(dynamic_cast<QMouseEvent*>(event));
          return false;
       }
-      if ( event->type() == QEvent::MouseButtonRelease )
+      else if ( event->type() == QEvent::MouseButtonRelease )
       {
+         e1[9]++;
          mouseReleaseEvent(dynamic_cast<QMouseEvent*>(event));
          return false;
       }
-      if ( event->type() == QEvent::MouseButtonDblClick )
+      else if ( event->type() == QEvent::MouseButtonDblClick )
       {
+         e1[10]++;
          mouseDoubleClickEvent(dynamic_cast<QMouseEvent*>(event));
          return false;
       }
-      if ( event->type() == QEvent::MouseMove )
+      else if ( event->type() == QEvent::MouseMove )
       {
+         e1[11]++;
          mouseMoveEvent(dynamic_cast<QMouseEvent*>(event));
          return false;
       }
-      if ( event->type() == QEvent::Wheel )
+      else if ( event->type() == QEvent::Wheel )
       {
+         e1[12]++;
          wheelEvent(dynamic_cast<QWheelEvent*>(event));
          return false;
       }
-      if ( event->type() == QEvent::Resize )
+      else if ( event->type() == QEvent::Resize )
       {
+         e1[13]++;
          resizeEvent(dynamic_cast<QResizeEvent*>(event));
-         return false;
+         return true;
       }
-      if ( event->type() == QEvent::KeyPress )
+      else if ( event->type() == QEvent::KeyPress )
       {
+         e1[14]++;
          keyPressEvent(dynamic_cast<QKeyEvent*>(event));
          return false;
       }
-      if ( event->type() == QEvent::KeyRelease )
+      else if ( event->type() == QEvent::KeyRelease )
       {
+         e1[15]++;
          keyReleaseEvent(dynamic_cast<QKeyEvent*>(event));
          return false;
       }
-      if ( event->type() == QEvent::ContextMenu )
+      else if ( event->type() == QEvent::ContextMenu )
       {
+         e1[16]++;
          contextMenuEvent(dynamic_cast<QContextMenuEvent*>(event));
          return true;
       }
-      if ( event->type() == QEvent::DragEnter )
+      else if ( event->type() == QEvent::DragEnter )
       {
+         e1[17]++;
          dragEnterEvent(dynamic_cast<QDragEnterEvent*>(event));
          return true;
       }
-      if ( event->type() == QEvent::DragMove )
+      else if ( event->type() == QEvent::DragMove )
       {
+         e1[18]++;
          dragMoveEvent(dynamic_cast<QDragMoveEvent*>(event));
          return true;
       }
-      if ( event->type() == QEvent::Drop )
+      else if ( event->type() == QEvent::Drop )
       {
+         e1[19]++;
          dropEvent(dynamic_cast<QDropEvent*>(event));
          return true;
       }
-      if ( event->type() == QEvent::DragLeave )
+      else if ( event->type() == QEvent::DragLeave )
       {
+         e1[20]++;
          dragLeaveEvent(dynamic_cast<QDragLeaveEvent*>(event));
          return true;
       }
-      if ( event->type() == QEvent::Timer )
+      else if ( event->type() == QEvent::Timer )
       {
+         e1[21]++;
          timerEvent(dynamic_cast<QTimerEvent*>(event));
-         return true;
+         return false;
       }
    }
 //   qDebug("eventFilter: unhandled %d object %s", event->type(), object->objectName().toLatin1().constData());
@@ -8123,7 +8177,7 @@ void CWnd::MoveWindow(LPCRECT lpRect, BOOL bRepaint)
       setGeometry(rectOrig.left,rectOrig.top,rectOrig.Width(),rectOrig.Height());
       setBaseSize(rectOrig.Width(),rectOrig.Height());
    }
-   if ( bRepaint )
+   //if ( bRepaint )
       emit update();
 }
 
@@ -8164,7 +8218,8 @@ BOOL CWnd::PostMessage(
    _afxThreadState.m_lastSentMsg = post->msg;
 
    QApplication::postEvent(this,post);
-   emit update();
+   if ( message != WM_PAINT )
+      emit update();
 
    return true;
 }
@@ -9130,113 +9185,135 @@ bool CView::eventFilter(QObject *object, QEvent *event)
    {
       if ( event->type() == QEvent::Close )
       {
+         e2[0]++;
          closeEvent(dynamic_cast<QCloseEvent*>(event));
-         return event->isAccepted();
+         return true;
       }
-      if ( event->type() == QEvent::Show )
+      else if ( event->type() == QEvent::Show )
       {
+         e2[1]++;
          showEvent(dynamic_cast<QShowEvent*>(event));
-         return event->isAccepted();
+         return true;
       }
-      if ( event->type() == QEvent::Hide )
+      else if ( event->type() == QEvent::Hide )
       {
+         e2[2]++;
          hideEvent(dynamic_cast<QHideEvent*>(event));
-         return event->isAccepted();
+         return true;
       }
-      if ( event->type() == QEvent::Move )
+      else if ( event->type() == QEvent::Move )
       {
+         e2[3]++;
          moveEvent(dynamic_cast<QMoveEvent*>(event));
-         return event->isAccepted();
+         return true;
       }
-      if ( event->type() == QEvent::Paint )
+      else if ( event->type() == QEvent::Paint )
       {
+         e2[4]++;
          paintEvent(dynamic_cast<QPaintEvent*>(event));
-         return false; // always propagate
+         return true;
       }
-      if ( event->type() == QEvent::FocusIn )
+      else if ( event->type() == QEvent::FocusIn )
       {
+         e2[5]++;
          focusInEvent(dynamic_cast<QFocusEvent*>(event));
-         return event->isAccepted();
+         return false;
       }
-      if ( event->type() == QEvent::FocusOut )
+      else if ( event->type() == QEvent::FocusOut )
       {
+         e2[6]++;
          focusOutEvent(dynamic_cast<QFocusEvent*>(event));
-         return event->isAccepted();
+         return false;
       }
-      if ( event->type() == QEvent::Leave )
+      else if ( event->type() == QEvent::Leave )
       {
+         e2[7]++;
          leaveEvent(event);
-         return event->isAccepted();
+         return true;
       }
-      if ( event->type() == QEvent::MouseButtonPress )
+      else if ( event->type() == QEvent::MouseButtonPress )
       {
+         e2[8]++;
          mousePressEvent(dynamic_cast<QMouseEvent*>(event));
-         return event->isAccepted();
+         return false;
       }
-      if ( event->type() == QEvent::MouseButtonRelease )
+      else if ( event->type() == QEvent::MouseButtonRelease )
       {
+         e2[9]++;
          mouseReleaseEvent(dynamic_cast<QMouseEvent*>(event));
-         return event->isAccepted();
+         return false;
       }
-      if ( event->type() == QEvent::MouseButtonDblClick )
+      else if ( event->type() == QEvent::MouseButtonDblClick )
       {
+         e2[10]++;
          mouseDoubleClickEvent(dynamic_cast<QMouseEvent*>(event));
-         return event->isAccepted();
+         return false;
       }
-      if ( event->type() == QEvent::MouseMove )
+      else if ( event->type() == QEvent::MouseMove )
       {
+         e2[11]++;
          mouseMoveEvent(dynamic_cast<QMouseEvent*>(event));
-         return event->isAccepted();
+         return false;
       }
-      if ( event->type() == QEvent::Wheel )
+      else if ( event->type() == QEvent::Wheel )
       {
+         e2[12]++;
          wheelEvent(dynamic_cast<QWheelEvent*>(event));
-         return event->isAccepted();
+         return false;
       }
-      if ( event->type() == QEvent::Resize )
+      else if ( event->type() == QEvent::Resize )
       {
+         e2[13]++;
          resizeEvent(dynamic_cast<QResizeEvent*>(event));
-         return event->isAccepted();
+         return true;
       }
-      if ( event->type() == QEvent::KeyPress )
+      else if ( event->type() == QEvent::KeyPress )
       {
+         e2[14]++;
          keyPressEvent(dynamic_cast<QKeyEvent*>(event));
-         return event->isAccepted();
+         return false;
       }
-      if ( event->type() == QEvent::KeyRelease )
+      else if ( event->type() == QEvent::KeyRelease )
       {
+         e2[15]++;
          keyReleaseEvent(dynamic_cast<QKeyEvent*>(event));
-         return event->isAccepted();
+         return false;
       }
-      if ( event->type() == QEvent::ContextMenu )
+      else if ( event->type() == QEvent::ContextMenu )
       {
+         e2[16]++;
          contextMenuEvent(dynamic_cast<QContextMenuEvent*>(event));
-         return event->isAccepted();
+         return true;
       }
-      if ( event->type() == QEvent::DragEnter )
+      else if ( event->type() == QEvent::DragEnter )
       {
+         e2[17]++;
          dragEnterEvent(dynamic_cast<QDragEnterEvent*>(event));
-         return event->isAccepted();
+         return true;
       }
-      if ( event->type() == QEvent::DragMove )
+      else if ( event->type() == QEvent::DragMove )
       {
+         e2[18]++;
          dragMoveEvent(dynamic_cast<QDragMoveEvent*>(event));
-         return event->isAccepted();
+         return true;
       }
-      if ( event->type() == QEvent::Drop )
+      else if ( event->type() == QEvent::Drop )
       {
+         e2[19]++;
          dropEvent(dynamic_cast<QDropEvent*>(event));
-         return event->isAccepted();
+         return true;
       }
-      if ( event->type() == QEvent::DragLeave )
+      else if ( event->type() == QEvent::DragLeave )
       {
+         e2[20]++;
          dragLeaveEvent(dynamic_cast<QDragLeaveEvent*>(event));
-         return event->isAccepted();
+         return true;
       }
-      if ( event->type() == QEvent::Timer )
+      else if ( event->type() == QEvent::Timer )
       {
+         e2[21]++;
          timerEvent(dynamic_cast<QTimerEvent*>(event));
-         return event->isAccepted();
+         return false;
       }
    }
 //   qDebug("eventFilter: unhandled %d object %s", event->type(), object->objectName().toLatin1().constData());
@@ -10362,6 +10439,7 @@ END_MESSAGE_MAP()
 CWinThread::CWinThread() :
    _priority(QThread::NormalPriority),
    pTimer(NULL),
+   pIdleTimer(NULL),
    pThread(NULL),
    _initialized(false)
 {
@@ -10383,6 +10461,14 @@ CWinThread::~CWinThread()
       pTimer->stop();
 
       delete pTimer;
+   }
+   if ( pIdleTimer )
+   {
+      QObject::disconnect(pIdleTimer,SIGNAL(timeout()),this,SLOT(idleSlot()));
+
+      pIdleTimer->stop();
+
+      delete pIdleTimer;
    }
 }
 
@@ -10495,11 +10581,16 @@ DWORD CWinThread::ResumeThread( )
       InitInstance();
 
       pTimer = new QTimer;
+      pIdleTimer = new QTimer;
 
       pTimer->start(10);
       pTimer->moveToThread(pThread);
 
+      pIdleTimer->start(10);
+      pIdleTimer->moveToThread(pThread);
+
       QObject::connect(pTimer,SIGNAL(timeout()),this,SLOT(runSlot()));
+      QObject::connect(pIdleTimer,SIGNAL(timeout()),this,SLOT(idleSlot()));
 
       _initialized = true;
    }
@@ -10561,6 +10652,20 @@ BOOL CWinThread::PostThreadMessage(
    return true;
 }
 
+void CWinThread::idleSlot()
+{
+   OnIdle(0);
+
+   if ( pThread->thread() == QApplication::instance()->thread() )
+   {
+      if ( ptrToTheApp && ptrToTheApp->m_pMainWnd )
+      {
+         ptrToTheApp->m_pMainWnd->SendMessageToDescendants(WM_IDLEUPDATECMDUI,
+                                                           (WPARAM)TRUE, 0, TRUE, TRUE);
+      }
+   }
+}
+
 void CWinThread::runSlot()
 {
 #ifdef Q_OS_MAC
@@ -10575,24 +10680,14 @@ void CWinThread::runSlot()
 
 int CWinThread::Run( )
 {
+   QObject::disconnect(pTimer,SIGNAL(timeout()),this,SLOT(runSlot()));
    if ( m_pfnThreadProc )
    {
       m_pfnThreadProc(m_pParam);
       pTimer->stop();
-      QObject::disconnect(pTimer,SIGNAL(timeout()),this,SLOT(runSlot()));
       m_pfnThreadProc = NULL;
       ExitInstance();
       return 0;
-   }
-
-   OnIdle(0);
-   if ( pThread->thread() == QApplication::instance()->thread() )
-   {
-      if ( ptrToTheApp && ptrToTheApp->m_pMainWnd )
-      {
-         ptrToTheApp->m_pMainWnd->SendMessageToDescendants(WM_IDLEUPDATECMDUI,
-                                                           (WPARAM)TRUE, 0, TRUE, TRUE);
-      }
    }
 
    return 0;
@@ -13727,113 +13822,135 @@ bool CSpinButtonCtrl::eventFilter(QObject *object, QEvent *event)
    {
       if ( event->type() == QEvent::Close )
       {
+         e3[0]++;
          closeEvent(dynamic_cast<QCloseEvent*>(event));
          return true;
       }
-      if ( event->type() == QEvent::Show )
+      else if ( event->type() == QEvent::Show )
       {
+         e3[1]++;
          showEvent(dynamic_cast<QShowEvent*>(event));
          return true;
       }
-      if ( event->type() == QEvent::Hide )
+      else if ( event->type() == QEvent::Hide )
       {
+         e3[2]++;
          hideEvent(dynamic_cast<QHideEvent*>(event));
          return true;
       }
-      if ( event->type() == QEvent::Move )
+      else if ( event->type() == QEvent::Move )
       {
+         e3[3]++;
          moveEvent(dynamic_cast<QMoveEvent*>(event));
          return true;
       }
-      if ( event->type() == QEvent::Paint )
+      else if ( event->type() == QEvent::Paint )
       {
+         e3[4]++;
          paintEvent(dynamic_cast<QPaintEvent*>(event));
          return false;
       }
-      if ( event->type() == QEvent::FocusIn )
+      else if ( event->type() == QEvent::FocusIn )
       {
+         e3[5]++;
          focusInEvent(dynamic_cast<QFocusEvent*>(event));
          return false;
       }
-      if ( event->type() == QEvent::FocusOut )
+      else if ( event->type() == QEvent::FocusOut )
       {
+         e3[6]++;
          focusOutEvent(dynamic_cast<QFocusEvent*>(event));
          return false;
       }
-      if ( event->type() == QEvent::Leave )
+      else if ( event->type() == QEvent::Leave )
       {
+         e3[7]++;
          leaveEvent(event);
          return true;
       }
-      if ( event->type() == QEvent::MouseButtonPress )
+      else if ( event->type() == QEvent::MouseButtonPress )
       {
+         e3[8]++;
          mousePressEvent(dynamic_cast<QMouseEvent*>(event));
          return false;
       }
-      if ( event->type() == QEvent::MouseButtonRelease )
+      else if ( event->type() == QEvent::MouseButtonRelease )
       {
+         e3[9]++;
          mouseReleaseEvent(dynamic_cast<QMouseEvent*>(event));
          return false;
       }
-      if ( event->type() == QEvent::MouseButtonDblClick )
+      else if ( event->type() == QEvent::MouseButtonDblClick )
       {
+         e3[10]++;
          mouseDoubleClickEvent(dynamic_cast<QMouseEvent*>(event));
          return false;
       }
-      if ( event->type() == QEvent::MouseMove )
+      else if ( event->type() == QEvent::MouseMove )
       {
+         e3[11]++;
          mouseMoveEvent(dynamic_cast<QMouseEvent*>(event));
          return false;
       }
-      if ( event->type() == QEvent::Wheel )
+      else if ( event->type() == QEvent::Wheel )
       {
+         e3[12]++;
          wheelEvent(dynamic_cast<QWheelEvent*>(event));
          return false;
       }
-      if ( event->type() == QEvent::Resize )
+      else if ( event->type() == QEvent::Resize )
       {
+         e3[13]++;
          resizeEvent(dynamic_cast<QResizeEvent*>(event));
          return true;
       }
-      if ( event->type() == QEvent::KeyPress )
+      else if ( event->type() == QEvent::KeyPress )
       {
+         e3[14]++;
          keyPressEvent(dynamic_cast<QKeyEvent*>(event));
          return false;
       }
-      if ( event->type() == QEvent::KeyRelease )
+      else if ( event->type() == QEvent::KeyRelease )
       {
+         e3[15]++;
          keyReleaseEvent(dynamic_cast<QKeyEvent*>(event));
          return false;
       }
-      if ( event->type() == QEvent::ContextMenu )
+      else if ( event->type() == QEvent::ContextMenu )
       {
+         e3[16]++;
          contextMenuEvent(dynamic_cast<QContextMenuEvent*>(event));
          return true;
       }
-      if ( event->type() == QEvent::DragEnter )
+      else if ( event->type() == QEvent::DragEnter )
       {
+         e3[17]++;
          dragEnterEvent(dynamic_cast<QDragEnterEvent*>(event));
          return true;
       }
-      if ( event->type() == QEvent::DragMove )
+      else if ( event->type() == QEvent::DragMove )
       {
+         e3[18]++;
          dragMoveEvent(dynamic_cast<QDragMoveEvent*>(event));
          return true;
       }
-      if ( event->type() == QEvent::Drop )
+      else if ( event->type() == QEvent::Drop )
       {
+         e3[19]++;
          dropEvent(dynamic_cast<QDropEvent*>(event));
          return true;
       }
-      if ( event->type() == QEvent::DragLeave )
+      else if ( event->type() == QEvent::DragLeave )
       {
+         e3[20]++;
          dragLeaveEvent(dynamic_cast<QDragLeaveEvent*>(event));
          return true;
       }
-      if ( event->type() == QEvent::Timer )
+      else if ( event->type() == QEvent::Timer )
       {
+         e3[21]++;
          timerEvent(dynamic_cast<QTimerEvent*>(event));
-         return true;
+         return false;
       }
    }
 //   qDebug("eventFilter: unhandled %d object %s", event->type(), object->objectName().toLatin1().constData());
@@ -13900,6 +14017,7 @@ BOOL CSpinButtonCtrl::Create(
    _qtd->setKeyboardTracking(false);
    _qtd->setGeometry(rect.left,rect.top,(rect.right-rect.left),(rect.bottom-rect.top));
    _qtd->setRange(-65535,65536);
+   //_qtd->installEventFilter(this);
 #if (defined(Q_OS_WIN)||defined(Q_OS_WIN32))
    _qtd->setFont(QFont("MS Shell Dlg",8));
 #else
@@ -15146,7 +15264,7 @@ CMutex::CMutex(
    LPSECURITY_ATTRIBUTES lpsaAttribute
 )
 {
-   _qtd = new QMutex(/*QMutex::Recursive*/);
+   _qtd = new QMutex(QMutex::Recursive);
    if ( bInitiallyOwn )
       Lock();
 }

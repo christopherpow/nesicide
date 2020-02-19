@@ -32,10 +32,10 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    m_scintilla(NULL),
    m_apis(NULL)
 {
-   QDockWidget* codeBrowser = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Assembly Browser"));
-   QDockWidget* breakpoints = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Breakpoints"));
-   QDockWidget* symbolWatch = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Symbol Inspector"));
-   QDockWidget* executionVisualizer = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Execution Visualizer"));
+   QDockWidget* codeBrowser = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getInstance()->getWidget("Assembly Browser"));
+   QDockWidget* breakpoints = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getInstance()->getWidget("Breakpoints"));
+   QDockWidget* symbolWatch = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getInstance()->getWidget("Symbol Inspector"));
+   QDockWidget* executionVisualizer = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getInstance()->getWidget("Execution Visualizer"));
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    CMarker* markers = nesGetExecutionMarkerDatabase();
    MarkerSetInfo* pMarker;
@@ -134,9 +134,9 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
       QObject::connect ( executionVisualizer, SIGNAL(breakpointsChanged()), this, SLOT(external_breakpointsChanged()) );
    }
 
-   QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
-   QObject* emulator = CObjectRegistry::getObject("Emulator");
-   QObject* compiler = CObjectRegistry::getObject("Compiler");
+   QObject* breakpointWatcher = CObjectRegistry::getInstance()->getObject("Breakpoint Watcher");
+   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
+   QObject* compiler = CObjectRegistry::getInstance()->getObject("Compiler");
 
    QObject::connect ( compiler, SIGNAL(compileStarted()), this, SLOT(compiler_compileStarted()) );
    QObject::connect ( compiler, SIGNAL(compileDone(bool)), this, SLOT(compiler_compileDone(bool)) );
@@ -241,6 +241,7 @@ void CodeEditorForm::customContextMenuRequested(const QPoint &pos)
 
          menu.addAction(ui->actionStart_marker_here);
          menu.addAction(ui->actionEnd_marker_here);
+         menu.addAction(ui->actionStart_End_marker_here);
          menu.addSeparator();
 
          m_breakpointIndex = bp;
@@ -842,6 +843,45 @@ void CodeEditorForm::on_actionEnable_breakpoint_triggered()
 
       emit breakpointsChanged();
       emit markProjectDirty(true);
+   }
+}
+
+void CodeEditorForm::on_actionStart_End_marker_here_triggered()
+{
+   CMarker* markers = nesGetExecutionMarkerDatabase();
+   int marker = -1;
+   int line, lineFrom, lineTo, indexFrom, indexTo;
+   int addr = 0;
+   int absAddr = 0;
+
+   m_scintilla->getSelection(&lineFrom,&indexFrom,&lineTo,&indexTo);
+   if ( lineFrom != -1 )
+   {
+      resolveLineAddress(lineFrom,&addr,&absAddr);
+
+      if ( addr != -1 )
+      {
+         // Find unused Marker entry...
+         marker = markers->AddMarker(addr,absAddr);
+
+         emit breakpointsChanged();
+         emit markProjectDirty(true);
+      }
+   }
+   if ( lineTo != -1 )
+   {
+      if ( marker >= 0 )
+      {
+         resolveLineAddress(lineTo,&addr,&absAddr);
+
+         if ( addr != -1 )
+         {
+            markers->CompleteMarker(marker,addr,absAddr);
+
+            emit breakpointsChanged();
+            emit markProjectDirty(true);
+         }
+      }
    }
 }
 

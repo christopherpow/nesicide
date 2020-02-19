@@ -71,8 +71,8 @@ void SymbolWatchDockWidget::createNesUi()
       return;
    }
 
-   QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
-   QObject* emulator = CObjectRegistry::getObject("Emulator");
+   QObject* breakpointWatcher = CObjectRegistry::getInstance()->getObject("Breakpoint Watcher");
+   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
 
    sramTab = new QWidget();
    sramTab->setObjectName(QString::fromUtf8("sramTab"));
@@ -210,9 +210,9 @@ void SymbolWatchDockWidget::destroyC64Ui()
 
 void SymbolWatchDockWidget::updateTargetMachine(QString target)
 {
-   QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
-   QObject* emulator = CObjectRegistry::getObject("Emulator");
-   QObject* compiler = CObjectRegistry::getObject("Compiler");
+   QObject* breakpointWatcher = CObjectRegistry::getInstance()->getObject("Breakpoint Watcher");
+   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
+   QObject* compiler = CObjectRegistry::getInstance()->getObject("Compiler");
 
    if ( !target.compare("nes",Qt::CaseInsensitive) )
    {
@@ -406,7 +406,7 @@ void SymbolWatchDockWidget::contextMenuEvent(QContextMenuEvent *event)
 
 void SymbolWatchDockWidget::showEvent(QShowEvent*)
 {
-   QObject* emulator = CObjectRegistry::getObject("Emulator");
+   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
 
    if ( emulator )
    {
@@ -441,7 +441,7 @@ void SymbolWatchDockWidget::showEvent(QShowEvent*)
 
 void SymbolWatchDockWidget::hideEvent(QHideEvent */*event*/)
 {
-   QObject* emulator = CObjectRegistry::getObject("Emulator");
+   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
 
    if ( emulator )
    {
@@ -787,7 +787,7 @@ void SymbolWatchDockWidget::exram_doubleClicked(const QModelIndex &index)
 
 void SymbolWatchDockWidget::on_tabWidget_currentChanged(int index)
 {
-   QObject* emulator = CObjectRegistry::getObject("Emulator");
+   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
 
    if ( emulator )
    {

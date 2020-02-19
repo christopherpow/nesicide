@@ -9,6 +9,15 @@
 class CDockWidgetRegistry
 {
 public:
+   static CDockWidgetRegistry *instance;
+   static CDockWidgetRegistry *getInstance()
+   {
+      if ( !instance )
+      {
+         instance = new CDockWidgetRegistry();
+      }
+      return instance;
+   }
    typedef struct
    {
       QWidget* widget;
@@ -16,21 +25,21 @@ public:
       bool     enabled;
       bool     permanent;
    } CDockWidgetManager;
-   CDockWidgetRegistry() {};
-   static QWidget* getWidget(const QString& name);
-   static void     addWidget(const QString& name,
+   QWidget* getWidget(const QString& name);
+   void     addWidget(const QString& name,
                              QWidget* widget,
                              bool visible = false,
                              bool permanent = false);
-   static void     removeWidget(const QString& name);
-   static void         hideAll();
-   static void         saveVisibility();
-   static bool         visible(const QString& name);
-   static void         restoreVisibility();
+   void     removeWidget(const QString& name);
+   void     hideAll();
+   void     saveVisibility();
+   bool     visible(const QString& name);
+   void     restoreVisibility();
 
 private:
-   static QHash<QString,CDockWidgetManager*> widgets;
-   static QMutex mutex;
+   CDockWidgetRegistry();
+   QHash<QString,CDockWidgetManager*> widgets;
+   QMutex *mutex;
 };
 
 #endif // CDOCKWIDGETREGISTRY_H

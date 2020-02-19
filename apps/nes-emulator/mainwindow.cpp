@@ -34,7 +34,7 @@ MainWindow::MainWindow(QWidget* parent) :
    ui->setupUi(this);
 
    m_pNESEmulatorThread = new NESEmulatorThread();
-   CObjectRegistry::addObject("Emulator",m_pNESEmulatorThread);
+   CObjectRegistry::getInstance()->addObject("Emulator",m_pNESEmulatorThread);
 
    m_pEmulator = new NESEmulatorDockWidget();
    m_pEmulator->setVisible(true);

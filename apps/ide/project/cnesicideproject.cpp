@@ -272,14 +272,14 @@ bool CNesicideProject::serialize(QDomDocument& doc, QDomNode& node)
    QDomElement inspectorsElement = addElement(doc,projectElement,"inspectors");
 
    // These are target-independent inspectors.
-   SymbolWatchDockWidget* pSymbolInspector = dynamic_cast<SymbolWatchDockWidget*>(CDockWidgetRegistry::getWidget("Symbol Inspector"));
+   SymbolWatchDockWidget* pSymbolInspector = dynamic_cast<SymbolWatchDockWidget*>(CDockWidgetRegistry::getInstance()->getWidget("Symbol Inspector"));
    pSymbolInspector->serialize(doc,inspectorsElement);
 
-   BreakpointDockWidget* pBreakpointInspector = dynamic_cast<BreakpointDockWidget*>(CDockWidgetRegistry::getWidget("Breakpoints"));
+   BreakpointDockWidget* pBreakpointInspector = dynamic_cast<BreakpointDockWidget*>(CDockWidgetRegistry::getInstance()->getWidget("Breakpoints"));
    pBreakpointInspector->serialize(doc,inspectorsElement);
 
    // This is a NES-specific inspector.  So it may not be part of the current UI.
-   ExecutionVisualizerDockWidget* pExecutionVisualizer = dynamic_cast<ExecutionVisualizerDockWidget*>(CDockWidgetRegistry::getWidget("Execution Visualizer"));
+   ExecutionVisualizerDockWidget* pExecutionVisualizer = dynamic_cast<ExecutionVisualizerDockWidget*>(CDockWidgetRegistry::getInstance()->getWidget("Execution Visualizer"));
    if ( pExecutionVisualizer )
    {
       pExecutionVisualizer->serialize(doc,inspectorsElement);
@@ -395,14 +395,14 @@ bool CNesicideProject::deserialize(QDomDocument& doc, QDomNode& /*node*/, QStrin
    {
       if (child.nodeName() == "inspectors")
       {
-         SymbolWatchDockWidget* pSymbolInspector = dynamic_cast<SymbolWatchDockWidget*>(CDockWidgetRegistry::getWidget("Symbol Inspector"));
+         SymbolWatchDockWidget* pSymbolInspector = dynamic_cast<SymbolWatchDockWidget*>(CDockWidgetRegistry::getInstance()->getWidget("Symbol Inspector"));
          pSymbolInspector->deserialize(doc,child,errors);
 
-         BreakpointDockWidget* pBreakpointInspector = dynamic_cast<BreakpointDockWidget*>(CDockWidgetRegistry::getWidget("Breakpoints"));
+         BreakpointDockWidget* pBreakpointInspector = dynamic_cast<BreakpointDockWidget*>(CDockWidgetRegistry::getInstance()->getWidget("Breakpoints"));
          pBreakpointInspector->deserialize(doc,child,errors);
 
          // This is a NES-specific inspector.  So it may not be part of the current UI.
-         ExecutionVisualizerDockWidget* pExecutionVisualizer = dynamic_cast<ExecutionVisualizerDockWidget*>(CDockWidgetRegistry::getWidget("Execution Visualizer"));
+         ExecutionVisualizerDockWidget* pExecutionVisualizer = dynamic_cast<ExecutionVisualizerDockWidget*>(CDockWidgetRegistry::getInstance()->getWidget("Execution Visualizer"));
          if ( pExecutionVisualizer )
          {
             pExecutionVisualizer->deserialize(doc,child,errors);

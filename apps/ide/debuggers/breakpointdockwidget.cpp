@@ -45,8 +45,8 @@ BreakpointDockWidget::~BreakpointDockWidget()
 
 void BreakpointDockWidget::updateTargetMachine(QString /*target*/)
 {
-   QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
-   QObject* emulator = CObjectRegistry::getObject("Emulator");
+   QObject* breakpointWatcher = CObjectRegistry::getInstance()->getObject("Breakpoint Watcher");
+   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
 
    QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),this,SLOT(updateData()) );
    QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),model,SLOT(update()));
@@ -102,23 +102,23 @@ void BreakpointDockWidget::changeEvent(QEvent* e)
 
 void BreakpointDockWidget::showEvent(QShowEvent*)
 {
-   QDockWidget* codeBrowser = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Assembly Browser"));
-   QDockWidget* symbolInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Symbol Inspector"));
+   QDockWidget* codeBrowser = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getInstance()->getWidget("Assembly Browser"));
+   QDockWidget* symbolInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getInstance()->getWidget("Symbol Inspector"));
    QDockWidget* memoryInspector;
-   QObject*     emulator = CObjectRegistry::getObject("Emulator");
+   QObject*     emulator = CObjectRegistry::getInstance()->getObject("Emulator");
 
    QObject::connect(codeBrowser,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
    QObject::connect(symbolInspector,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
 
-   memoryInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("CPU RAM Inspector"));
+   memoryInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getInstance()->getWidget("CPU RAM Inspector"));
    QObject::connect(memoryInspector,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
    if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
    {
-      memoryInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Cartridge EXRAM Memory Inspector"));
+      memoryInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getInstance()->getWidget("Cartridge EXRAM Memory Inspector"));
       QObject::connect(memoryInspector,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
-      memoryInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Cartridge SRAM Memory Inspector"));
+      memoryInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getInstance()->getWidget("Cartridge SRAM Memory Inspector"));
       QObject::connect(memoryInspector,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
-      memoryInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("PRG-ROM Inspector"));
+      memoryInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getInstance()->getWidget("PRG-ROM Inspector"));
       QObject::connect(memoryInspector,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
    }
 
@@ -127,15 +127,15 @@ void BreakpointDockWidget::showEvent(QShowEvent*)
       QObject::connect(codeBrowser,SIGNAL(breakpointsChanged()),emulator, SLOT(breakpointsChanged()) );
       QObject::connect(symbolInspector,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
 
-      memoryInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("CPU RAM Inspector"));
+      memoryInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getInstance()->getWidget("CPU RAM Inspector"));
       QObject::connect(memoryInspector,SIGNAL(breakpointsChanged()),emulator, SLOT(breakpointsChanged()) );
       if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
       {
-         memoryInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Cartridge EXRAM Memory Inspector"));
+         memoryInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getInstance()->getWidget("Cartridge EXRAM Memory Inspector"));
          QObject::connect(memoryInspector,SIGNAL(breakpointsChanged()),emulator, SLOT(breakpointsChanged()) );
-         memoryInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Cartridge SRAM Memory Inspector"));
+         memoryInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getInstance()->getWidget("Cartridge SRAM Memory Inspector"));
          QObject::connect(memoryInspector,SIGNAL(breakpointsChanged()),emulator, SLOT(breakpointsChanged()) );
-         memoryInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("PRG-ROM Inspector"));
+         memoryInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getInstance()->getWidget("PRG-ROM Inspector"));
          QObject::connect(memoryInspector,SIGNAL(breakpointsChanged()),emulator, SLOT(breakpointsChanged()) );
       }
    }
@@ -170,6 +170,7 @@ void BreakpointDockWidget::contextMenuEvent(QContextMenuEvent *e)
    if ( m_pBreakpoints->GetNumBreakpoints() > 0 )
    {
       menu.addAction(ui->actionRemove_Breakpoint);
+      menu.addAction(ui->actionRemove_All_Breakpoints);
       menu.addAction(ui->actionEnable_All_Breakpoints);
       menu.addAction(ui->actionDisable_All_Breakpoints);
    }
@@ -364,6 +365,17 @@ void BreakpointDockWidget::on_actionRemove_Breakpoint_triggered()
       emit breakpointsChanged();
       emit markProjectDirty(true);
    }
+}
+
+void BreakpointDockWidget::on_actionRemove_All_Breakpoints_triggered()
+{
+   int idx = m_pBreakpoints->GetNumBreakpoints()-1;
+   for ( ; idx >= 0; idx-- )
+   {
+      m_pBreakpoints->RemoveBreakpoint(idx);
+   }
+   emit breakpointsChanged();
+   emit markProjectDirty(true);
 }
 
 void BreakpointDockWidget::on_actionEdit_Breakpoint_triggered()

@@ -84,8 +84,8 @@ void NESEmulatorDockWidget::setScalingFactor(float factor)
 
 void NESEmulatorDockWidget::updateTargetMachine(QString target)
 {
-   QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
-   QObject* emulator = CObjectRegistry::getObject("Emulator");
+   QObject* breakpointWatcher = CObjectRegistry::getInstance()->getObject("Breakpoint Watcher");
+   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
 
    if ( !target.compare("nes") )
    {

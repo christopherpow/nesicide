@@ -91,10 +91,10 @@ void CProjectTabWidget::tabBar_contextMenuEvent(QContextMenuEvent *event)
    }
 }
 
-int CProjectTabWidget::addTab(QWidget *widget, const QIcon &/*icon*/, const QString &label)
+int CProjectTabWidget::addTab(QWidget *page, const QIcon &icon, const QString &label)
 {
-   CDesignerEditorBase* editor = dynamic_cast<CDesignerEditorBase*>(widget);
-   QDockWidget* codeBrowser = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Assembly Browser"));
+   CDesignerEditorBase* editor = dynamic_cast<CDesignerEditorBase*>(page);
+   QDockWidget* codeBrowser = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getInstance()->getWidget("Assembly Browser"));
    QIcon myIcon;
    int tabIdx;
 
@@ -119,15 +119,23 @@ int CProjectTabWidget::addTab(QWidget *widget, const QIcon &/*icon*/, const QStr
       QObject::connect(this,SIGNAL(updateTargetMachine(QString)),editor,SLOT(updateTargetMachine(QString)));
    }
 
-   if ( editor && editor->treeLink() )
-   {
-      myIcon = editor->treeLink()->icon();
-   }
-   else
-   {
-      myIcon = QIcon(":/resources/add_file.png");
-   }
-   tabIdx = QTabWidget::addTab(widget,myIcon,label);
+   myIcon = icon;
+// Having a custom icon causes unnecessary and weird text eliding.
+//   if ( editor && editor->treeLink() )
+//   {
+//      myIcon = editor->treeLink()->icon();
+//   }
+//   else
+//   {
+//      myIcon = QIcon(":/resources/icons8-file.png");
+//   }
+   tabIdx = QTabWidget::addTab(page,myIcon,label);
+//   QToolButton *pButton = new QToolButton();
+//   pButton->setObjectName(label);
+//   pButton->setMaximumSize(16,16);
+//   pButton->setIcon(QIcon(":/resources/icons8-pin.png"));
+//   QObject::connect(pButton,SIGNAL(pressed()),this,SLOT(unDockTab()));
+//   tabBar()->setTabButton(tabIdx,QTabBar::RightSide,pButton);
 
 //   QToolButton* closeButton = new QToolButton;
 //   QStyle* closeButtonStyle = closeButton->style();
@@ -142,9 +150,48 @@ int CProjectTabWidget::addTab(QWidget *widget, const QIcon &/*icon*/, const QStr
    return tabIdx;
 }
 
-int CProjectTabWidget::addTab(QWidget *widget, const QString &label)
+void CProjectTabWidget::unDockTab()
 {
-   return addTab(widget,QIcon(),label);
+   QToolButton *pButton = dynamic_cast<QToolButton*>(sender());
+   QString      name = pButton->objectName();
+   int tab;
+
+   for ( tab = 0; tab < count(); tab++ )
+   {
+      if ( tabBar()->tabText(tab) == name )
+      {
+         QWidget *detach = new QWidget(nullptr);
+         detach->setWindowTitle(name);
+         detach->setGeometry(widget(tab)->geometry());
+         blockSignals(true);
+         QGridLayout *layout = new QGridLayout();
+         layout->addWidget(widget(tab));
+         detach->setLayout(layout);
+         blockSignals(false);
+         detach->show();
+         tearOffs.insert(name,detach);
+         break;
+      }
+   }
+}
+
+void CProjectTabWidget::reDockTab()
+{
+   QWidget *attach = dynamic_cast<QWidget*>(sender());
+   if ( attach )
+   {
+      tearOffs.remove(attach->windowTitle());
+      blockSignals(true);
+      int tab = addTab(attach,attach->windowTitle());
+      blockSignals(false);
+      attach->close();
+      attach->deleteLater();
+   }
+}
+
+int CProjectTabWidget::addTab(QWidget *page, const QString &label)
+{
+   return addTab(page,QIcon(),label);
 }
 
 void CProjectTabWidget::removeTab(int index)
@@ -256,6 +303,17 @@ void CProjectTabWidget::snapToTab(QString item)
          }
       }
 
+      for ( tab = 0; tab < tearOffs.count(); tab++ )
+      {
+         if ( file == tearOffs.keys().at(tab) )
+         {
+            tearOffs.values().at(tab)->show();
+            found = true;
+            open = true;
+            break;
+         }
+      }
+
       // File is not open, search the project.
       if ( !found )
       {
@@ -274,6 +332,17 @@ void CProjectTabWidget::snapToTab(QString item)
          if ( file == tabBar()->tabText(tab) )
          {
             setCurrentIndex(tab);
+            found = true;
+            open = true;
+            break;
+         }
+      }
+
+      for ( tab = 0; tab < tearOffs.count(); tab++ )
+      {
+         if ( file == tearOffs.keys().at(tab) )
+         {
+            tearOffs.values().at(tab)->show();
             found = true;
             open = true;
             break;
@@ -334,6 +403,17 @@ void CProjectTabWidget::snapToTab(QString item)
                   setCurrentWidget(widget(tab));
                   found = true;
                   open = true;
+               }
+            }
+
+            for ( int tab = 0; tab < tearOffs.count(); tab++ )
+            {
+               if ( filePath == tearOffs.keys().at(tab) )
+               {
+                  tearOffs.values().at(tab)->show();
+                  found = true;
+                  open = true;
+                  break;
                }
             }
 

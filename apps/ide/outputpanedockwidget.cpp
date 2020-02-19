@@ -50,7 +50,7 @@ OutputPaneDockWidget::OutputPaneDockWidget(QWidget *parent) :
    debugInfo->setMaximumWidth(150);
 
    m_pSearch = new SearchWidget();
-   CDockWidgetRegistry::addWidget ( "Search", m_pSearch, true, true );
+   CDockWidgetRegistry::getInstance()->addWidget ( "Search", m_pSearch, true, true );
    
    ui->searchStackedWidget->insertWidget(0,m_pSearch);
 
@@ -63,7 +63,7 @@ OutputPaneDockWidget::OutputPaneDockWidget(QWidget *parent) :
 
 OutputPaneDockWidget::~OutputPaneDockWidget()
 {
-   CDockWidgetRegistry::removeWidget ( "Search" );
+   CDockWidgetRegistry::getInstance()->removeWidget ( "Search" );
    delete ui;
 }
 

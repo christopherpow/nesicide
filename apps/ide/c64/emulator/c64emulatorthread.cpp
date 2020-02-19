@@ -34,7 +34,7 @@
 static void breakpointHook ( void )
 {
    // Tell the world.
-   C64EmulatorThread* emulator = dynamic_cast<C64EmulatorThread*>(CObjectRegistry::getObject("Emulator"));
+   C64EmulatorThread* emulator = dynamic_cast<C64EmulatorThread*>(CObjectRegistry::getInstance()->getObject("Emulator"));
    emulator->_breakpointHook();
 }
 
@@ -59,7 +59,7 @@ C64EmulatorThread::C64EmulatorThread(QObject*)
    // Enable breakpoint callbacks from the external emulator library.
    c64SetBreakpointHook(breakpointHook);
    
-   BreakpointWatcherThread* breakpointWatcher = dynamic_cast<BreakpointWatcherThread*>(CObjectRegistry::getObject("Breakpoint Watcher"));
+   BreakpointWatcherThread* breakpointWatcher = dynamic_cast<BreakpointWatcherThread*>(CObjectRegistry::getInstance()->getObject("Breakpoint Watcher"));
    QObject::connect(this,SIGNAL(breakpoint()),breakpointWatcher,SLOT(breakpoint()));
 
    m_requestMutex = new QMutex();

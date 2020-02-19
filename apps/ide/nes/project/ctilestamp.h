@@ -34,7 +34,9 @@ public:
 
    // IXMLSerializable Interface Implementation
    virtual bool serialize(QDomDocument& doc, QDomNode& node);
+   virtual bool serializeContent();
    virtual bool deserialize(QDomDocument& doc, QDomNode& node, QString& errors);
+   virtual bool deserializeContent();
 
    // IProjectTreeViewItem Interface Implmentation
    virtual void openItemEvent(CProjectTabWidget* parent);

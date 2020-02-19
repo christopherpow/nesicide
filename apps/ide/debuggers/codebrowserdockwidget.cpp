@@ -50,8 +50,8 @@ CodeBrowserDockWidget::~CodeBrowserDockWidget()
 
 void CodeBrowserDockWidget::updateTargetMachine(QString target)
 {
-   QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
-   QObject* emulator = CObjectRegistry::getObject("Emulator");
+   QObject* breakpointWatcher = CObjectRegistry::getInstance()->getObject("Breakpoint Watcher");
+   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
 
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), assemblyViewModel, SLOT(update()) );
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(breakpointHit()) );
@@ -70,9 +70,9 @@ void CodeBrowserDockWidget::updateTargetMachine(QString target)
 
 void CodeBrowserDockWidget::showEvent(QShowEvent* /*e*/)
 {
-   QDockWidget* breakpointInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Breakpoints"));
-   QDockWidget* executionVisualizer = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Execution Visualizer"));
-   QObject* emulator = CObjectRegistry::getObject("Emulator");
+   QDockWidget* breakpointInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getInstance()->getWidget("Breakpoints"));
+   QDockWidget* executionVisualizer = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getInstance()->getWidget("Execution Visualizer"));
+   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
 
    // Specifically not connecting to updateDebuggers signal here since it doesn't make much sense to
    // update the code position until a pause/breakpoint.
@@ -101,7 +101,7 @@ void CodeBrowserDockWidget::showEvent(QShowEvent* /*e*/)
 
 void CodeBrowserDockWidget::hideEvent(QHideEvent* /*e*/)
 {
-   QObject* emulator = CObjectRegistry::getObject("Emulator");
+   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
 
    if ( emulator )
    {
@@ -175,6 +175,8 @@ void CodeBrowserDockWidget::contextMenuEvent(QContextMenuEvent* e)
 
       menu.addAction(ui->actionStart_marker_here);
       menu.addAction(ui->actionEnd_marker_here);
+
+      menu.addAction(ui->actionStart_End_marker_here);
 
       // Run the context menu...
       // CPTODO: Hokey trick to provide the breakpoint-of-interest to action handlers...
@@ -395,6 +397,48 @@ void CodeBrowserDockWidget::on_actionEnable_breakpoint_triggered()
 
       emit breakpointsChanged();
       emit markProjectDirty(true);
+   }
+}
+
+void CodeBrowserDockWidget::on_actionStart_End_marker_here_triggered()
+{
+   CMarker* markers = nesGetExecutionMarkerDatabase();
+   QModelIndexList indexes = ui->tableView->selectionModel()->selectedRows();
+   int marker = -1;
+   int line, lineFrom, lineTo, indexFrom, indexTo;
+   int addr = 0;
+   int absAddr = 0;
+
+   lineFrom = indexes[0].row();
+   lineTo = indexes[indexes.count()-1].row();
+
+   if ( lineFrom != -1 )
+   {
+//      nesGetAddrFromSLOC(lineFrom);
+
+//      if ( addr != -1 )
+//      {
+//         // Find unused Marker entry...
+//         marker = markers->AddMarker(addr,absAddr);
+
+//         emit breakpointsChanged();
+//         emit markProjectDirty(true);
+//      }
+   }
+   if ( lineTo != -1 )
+   {
+//      if ( marker >= 0 )
+//      {
+//         resolveLineAddress(lineTo,&addr,&absAddr);
+
+//         if ( addr != -1 )
+//         {
+//            markers->CompleteMarker(marker,addr,absAddr);
+
+//            emit breakpointsChanged();
+//            emit markProjectDirty(true);
+//         }
+//      }
    }
 }
 

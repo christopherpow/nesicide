@@ -177,5 +177,6 @@
         <file>resources/MainToolbar-256.bmp</file>
         <file>resources/RightArrow.ico</file>
         <file>resources/NESICIDE.mk_in</file>
+        <file>resources/icons8-pin.png</file>
     </qresource>
 </RCC>

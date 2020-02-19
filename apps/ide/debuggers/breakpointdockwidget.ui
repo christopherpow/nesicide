@@ -30,11 +30,17 @@
     <bool>false</bool>
    </property>
    <layout class="QGridLayout" name="gridLayout">
-    <property name="margin">
+    <property name="leftMargin">
      <number>0</number>
     </property>
-    <property name="spacing">
-     <number>6</number>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
     </property>
     <item row="0" column="0">
      <widget class="QTableView" name="tableView">
@@ -86,10 +92,10 @@
       <attribute name="verticalHeaderVisible">
        <bool>false</bool>
       </attribute>
-      <attribute name="verticalHeaderDefaultSectionSize">
+      <attribute name="verticalHeaderMinimumSectionSize">
        <number>23</number>
       </attribute>
-      <attribute name="verticalHeaderMinimumSectionSize">
+      <attribute name="verticalHeaderDefaultSectionSize">
        <number>23</number>
       </attribute>
      </widget>
@@ -132,6 +138,14 @@
   <action name="actionDisable_All_Breakpoints">
    <property name="text">
     <string>Disable All Breakpoints</string>
+   </property>
+  </action>
+  <action name="actionRemove_All_Breakpoints">
+   <property name="text">
+    <string>Remove All Breakpoints</string>
+   </property>
+   <property name="toolTip">
+    <string>Remove All Breakpoints</string>
    </property>
   </action>
  </widget>

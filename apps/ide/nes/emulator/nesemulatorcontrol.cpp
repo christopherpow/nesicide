@@ -16,8 +16,8 @@ NESEmulatorControl::NESEmulatorControl(QWidget *parent) :
 {
    ui->setupUi(this);
 
-   QObject* emulator = CObjectRegistry::getObject("Emulator");
-   QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
+   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
+   QObject* breakpointWatcher = CObjectRegistry::getInstance()->getObject("Breakpoint Watcher");
 
    QObject::connect(breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(internalPause()));
    QObject::connect(emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(internalPause()));

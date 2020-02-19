@@ -33,7 +33,7 @@ TestSuiteExecutiveDialog::~TestSuiteExecutiveDialog()
 
 void TestSuiteExecutiveDialog::showEvent(QShowEvent *)
 {
-   QObject* emulator = CObjectRegistry::getObject("Emulator");
+   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
 
    if ( emulator )
    {
@@ -47,7 +47,7 @@ void TestSuiteExecutiveDialog::showEvent(QShowEvent *)
 
 void TestSuiteExecutiveDialog::hideEvent(QHideEvent *)
 {
-   QObject* emulator = CObjectRegistry::getObject("Emulator");
+   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
 
    if ( emulator )
    {

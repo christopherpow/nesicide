@@ -37,8 +37,8 @@ ExecutionInspectorDockWidget::~ExecutionInspectorDockWidget()
 
 void ExecutionInspectorDockWidget::updateTargetMachine(QString /*target*/)
 {
-   QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
-   QObject* emulator = CObjectRegistry::getObject("Emulator");
+   QObject* breakpointWatcher = CObjectRegistry::getInstance()->getObject("Breakpoint Watcher");
+   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
 
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateTracer()) );
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), model, SLOT(update()) );
@@ -52,7 +52,7 @@ void ExecutionInspectorDockWidget::updateTargetMachine(QString /*target*/)
 
 void ExecutionInspectorDockWidget::showEvent(QShowEvent* /*e*/)
 {
-   QObject* emulator = CObjectRegistry::getObject("Emulator");
+   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
 
    if ( emulator )
    {
@@ -64,7 +64,7 @@ void ExecutionInspectorDockWidget::showEvent(QShowEvent* /*e*/)
 
 void ExecutionInspectorDockWidget::hideEvent(QHideEvent* /*e*/)
 {
-   QObject* emulator = CObjectRegistry::getObject("Emulator");
+   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
 
    if ( emulator )
    {

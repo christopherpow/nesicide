@@ -91,7 +91,7 @@
    <item row="1" column="1">
     <widget class="QStackedWidget" name="stackedWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>4</number>
      </property>
      <widget class="QWidget" name="general">
       <layout class="QGridLayout" name="gridLayout_14">
@@ -106,6 +106,9 @@
        </property>
        <property name="bottomMargin">
         <number>0</number>
+       </property>
+       <property name="spacing">
+        <number>6</number>
        </property>
        <item row="0" column="0">
         <widget class="QCheckBox" name="rememberWindowSettings">
@@ -210,6 +213,9 @@
        </property>
        <property name="bottomMargin">
         <number>0</number>
+       </property>
+       <property name="spacing">
+        <number>6</number>
        </property>
        <item row="0" column="0">
         <widget class="QTabWidget" name="tabWidget_2">
@@ -739,43 +745,22 @@
        <property name="bottomMargin">
         <number>0</number>
        </property>
+       <property name="spacing">
+        <number>6</number>
+       </property>
        <item row="0" column="0">
         <widget class="QGroupBox" name="groupBox_8">
          <property name="title">
           <string>File Extensions</string>
          </property>
-         <layout class="QFormLayout" name="formLayout_2">
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_5">
-            <property name="text">
-             <string>C:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QLineEdit" name="sourceExtensionsC"/>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_6">
-            <property name="text">
-             <string>Assembly:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QLineEdit" name="sourceExtensionsAsm"/>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="label_13">
-            <property name="text">
-             <string>Headers:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QLineEdit" name="headerExtensions"/>
-          </item>
-          <item row="0" column="0" colspan="2">
+         <layout class="QGridLayout" name="gridLayout_11" columnstretch="0,1">
+          <property name="sizeConstraint">
+           <enum>QLayout::SetDefaultConstraint</enum>
+          </property>
+          <property name="spacing">
+           <number>6</number>
+          </property>
+          <item row="0" column="1">
            <widget class="QLabel" name="label_10">
             <property name="text">
              <string>File extensions in these lists should each be preceded by a period and separated by spaces.  These values are used by the Makefile generator to determine what source files to include in a build.</string>
@@ -785,14 +770,85 @@
             </property>
            </widget>
           </item>
-          <item row="6" column="0">
-           <widget class="QLabel" name="label_18">
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_5">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="text">
-             <string>Custom:</string>
+             <string>C:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
-          <item row="4" column="0" colspan="2">
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="sourceExtensionsC">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_6">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Assembly:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLineEdit" name="sourceExtensionsAsm">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_13">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Headers:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLineEdit" name="headerExtensions">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
            <widget class="QLabel" name="label_19">
             <property name="text">
              <string>Note: Include file extensions in Custom for all file types that are processed by custom rules specified in your project configuration.</string>
@@ -805,8 +861,31 @@
             </property>
            </widget>
           </item>
-          <item row="6" column="1">
-           <widget class="QLineEdit" name="customExtensions"/>
+          <item row="5" column="0">
+           <widget class="QLabel" name="label_18">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Custom:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1">
+           <widget class="QLineEdit" name="customExtensions">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -859,6 +938,9 @@
        </property>
        <property name="bottomMargin">
         <number>0</number>
+       </property>
+       <property name="spacing">
+        <number>6</number>
        </property>
        <item row="1" column="0">
         <widget class="QGroupBox" name="groupBox_6">
@@ -1029,6 +1111,9 @@
      </widget>
      <widget class="QWidget" name="nesdebugger">
       <layout class="QGridLayout" name="gridLayout_6">
+       <property name="spacing">
+        <number>6</number>
+       </property>
        <item row="0" column="0" colspan="2">
         <widget class="QGroupBox" name="groupBox_5">
          <property name="title">
@@ -1093,6 +1178,9 @@
      </widget>
      <widget class="QWidget" name="c64emulator">
       <layout class="QGridLayout" name="gridLayout_15">
+       <property name="spacing">
+        <number>6</number>
+       </property>
        <item row="0" column="0">
         <widget class="QLabel" name="label_9">
          <property name="text">
@@ -1107,8 +1195,6 @@
   </layout>
  </widget>
  <resources>
-  <include location="../../common/resource.qrc"/>
-  <include location="../../common/resource.qrc"/>
   <include location="../../common/resource.qrc"/>
  </resources>
  <connections>

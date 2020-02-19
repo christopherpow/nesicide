@@ -25,7 +25,7 @@ NESEmulatorDockWidget::NESEmulatorDockWidget(QWidget *parent) :
 
    ui->setupUi(this);
 
-   QObject* emulator = CObjectRegistry::getObject("Emulator");
+   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
 
    fakeTitleBar = new QWidget();
    fakeTitleBar->setMaximumHeight(0);

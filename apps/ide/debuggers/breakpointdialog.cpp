@@ -447,7 +447,7 @@ void BreakpointDialog::DisplayResolutions(BreakpointInfo* pBreakpoint)
    QString  text;
    QStringList textSplit;
    QFileInfo   fileInfo;
-   CompilerThread* compiler = dynamic_cast<CompilerThread*>(CObjectRegistry::getObject("Compiler"));
+   CompilerThread* compiler = dynamic_cast<CompilerThread*>(CObjectRegistry::getInstance()->getObject("Compiler"));
 
    // Get address from UI
    originalAddr = ui->addr1->text().toInt(0,16);

@@ -4178,7 +4178,7 @@ public:
    static _AFX_THREAD_STATE _afxThreadState;
 
    // This method only for Qt glue
-   UINT_PTR mfcTimerId(int qtTimerId) { return qtToMfcTimer.value(qtTimerId); }
+   UINT_PTR mfcTimerId(int qtTimerId) { return qtToMfcTimer.value(qtTimerId,-1); }
    void setMfcBuddy(CWnd* buddy) { _mfcBuddy = buddy; }
    virtual void updateFromBuddy() {}
    CWnd* mfcBuddy() const { return _mfcBuddy; } 
@@ -4186,6 +4186,7 @@ public:
    // MFC-to-Qt conversions
 protected:
    bool firstPaintEvent;
+   QSize currentSize;
    QHash<UINT_PTR,int> mfcToQtTimer;
    QHash<int,UINT_PTR> qtToMfcTimer;
    QHash<int,CWnd*> mfcToQtWidget;
@@ -5697,11 +5698,13 @@ protected:
    bool _initialized;
    virtual bool event(QEvent *event);
    QTimer* pTimer;
+   QTimer* pIdleTimer;
    QThread* pThread;
 signals:
    void update();
 public slots:
    void runSlot();
+   void idleSlot();
 public: // For some reason Qt won't recognize the public in the DECLARE_DYNCREATE...
    bool wait(unsigned long time = ULONG_MAX) { pThread->wait(time); return true; }
    

@@ -84,6 +84,15 @@
       <property name="currentIndex">
        <number>0</number>
       </property>
+      <property name="iconSize">
+       <size>
+        <width>25</width>
+        <height>25</height>
+       </size>
+      </property>
+      <property name="elideMode">
+       <enum>Qt::ElideNone</enum>
+      </property>
       <property name="usesScrollButtons">
        <bool>true</bool>
       </property>
@@ -96,7 +105,7 @@
       <property name="movable">
        <bool>true</bool>
       </property>
-      <widget class="QWidget" name="tab">
+      <widget class="QWidget" name="welcome">
        <attribute name="title">
         <string>Welcome</string>
        </attribute>
@@ -123,7 +132,7 @@
           </property>
           <property name="url" stdset="0">
            <url>
-            <string>about:blank</string>
+            <string>https://nesicide.com</string>
            </url>
           </property>
          </widget>

@@ -56,6 +56,7 @@ private slots:
     void on_actionEnable_Breakpoint_triggered();
     void on_actionEdit_Breakpoint_triggered();
     void on_actionRemove_Breakpoint_triggered();
+    void on_actionRemove_All_Breakpoints_triggered();
     void on_actionAdd_Breakpoint_triggered();
 };
 

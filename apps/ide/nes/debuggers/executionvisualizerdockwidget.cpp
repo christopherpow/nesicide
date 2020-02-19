@@ -60,8 +60,8 @@ ExecutionVisualizerDockWidget::~ExecutionVisualizerDockWidget()
 
 void ExecutionVisualizerDockWidget::updateTargetMachine(QString /*target*/)
 {
-   QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
-   QObject* emulator = CObjectRegistry::getObject("Emulator");
+   QObject* breakpointWatcher = CObjectRegistry::getInstance()->getObject("Breakpoint Watcher");
+   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
 
    QObject::connect(emulator,SIGNAL(machineReady()),pThread,SLOT(updateDebuggers()));
    QObject::connect(emulator,SIGNAL(emulatorReset()),pThread,SLOT(updateDebuggers()));
@@ -85,9 +85,9 @@ void ExecutionVisualizerDockWidget::changeEvent(QEvent* event)
 
 void ExecutionVisualizerDockWidget::showEvent(QShowEvent* /*event*/)
 {
-   QObject* emulator = CObjectRegistry::getObject("Emulator");
-   QDockWidget* breakpointInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Breakpoints"));
-   QDockWidget* codeBrowser = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getWidget("Assembly Browser"));
+   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
+   QDockWidget* breakpointInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getInstance()->getWidget("Breakpoints"));
+   QDockWidget* codeBrowser = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getInstance()->getWidget("Assembly Browser"));
 
    QObject::connect(codeBrowser,SIGNAL(breakpointsChanged()),pThread,SLOT(updateDebuggers()));
    QObject::connect(breakpointInspector,SIGNAL(breakpointsChanged()),pThread,SLOT(updateDebuggers()));
@@ -99,7 +99,7 @@ void ExecutionVisualizerDockWidget::showEvent(QShowEvent* /*event*/)
 
 void ExecutionVisualizerDockWidget::hideEvent(QHideEvent* /*event*/)
 {
-   QObject* emulator = CObjectRegistry::getObject("Emulator");
+   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
 
    QObject::disconnect(emulator,SIGNAL(updateDebuggers()),pThread,SLOT(updateDebuggers()));
 }

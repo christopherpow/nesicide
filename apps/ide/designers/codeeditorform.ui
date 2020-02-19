@@ -86,6 +86,14 @@
     <string>Clear Visualization Markers</string>
    </property>
   </action>
+  <action name="actionStart_End_marker_here">
+   <property name="text">
+    <string>Set Visualization Marker on selected region</string>
+   </property>
+   <property name="toolTip">
+    <string>Set Visualization Marker on selected region</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

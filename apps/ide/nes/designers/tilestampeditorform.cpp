@@ -486,8 +486,8 @@ void TileStampEditorForm::keyPressEvent(QKeyEvent *event)
             m_selection = true;
             renderer->repaint();
             previewer->repaint();
-            emit markProjectDirty(true);
             setModified(true);
+            emit markProjectDirty(true);
          }
       }
       else if ( event->key() == Qt::Key_X )
@@ -504,8 +504,8 @@ void TileStampEditorForm::keyPressEvent(QKeyEvent *event)
             renderer->setBox();
             renderer->repaint();
             previewer->repaint();
-            emit markProjectDirty(true);
             setModified(true);
+            emit markProjectDirty(true);
          }
       }
       else if ( event->key() == Qt::Key_Z )
@@ -757,8 +757,8 @@ void TileStampEditorForm::xSize_currentIndexChanged(int /*index*/)
    renderer->repaint();
    previewer->setSize(m_xSize,m_ySize);
    previewer->repaint();
-   emit markProjectDirty(true);
    setModified(true);
+   emit markProjectDirty(true);
 }
 
 void TileStampEditorForm::ySize_currentIndexChanged(int /*index*/)
@@ -772,8 +772,8 @@ void TileStampEditorForm::ySize_currentIndexChanged(int /*index*/)
    renderer->repaint();
    previewer->setSize(m_xSize,m_ySize);
    previewer->repaint();
-   emit markProjectDirty(true);
    setModified(true);
+   emit markProjectDirty(true);
 }
 
 void TileStampEditorForm::attributeTable_currentIndexChanged(int index)
@@ -812,8 +812,8 @@ void TileStampEditorForm::attributeTable_currentIndexChanged(int index)
    renderer->repaint();
    previewer->repaint();
 
-   emit markProjectDirty(true);
    setModified(true);
+   emit markProjectDirty(true);
 }
 
 void TileStampEditorForm::grid_toggled(bool checked)
@@ -822,8 +822,8 @@ void TileStampEditorForm::grid_toggled(bool checked)
    renderer->setGrid(m_gridEnabled);
    renderer->repaint();
 
-   emit markProjectDirty(true);
    setModified(true);
+   emit markProjectDirty(true);
 }
 
 void TileStampEditorForm::on_clear_clicked()
@@ -848,8 +848,8 @@ void TileStampEditorForm::on_clear_clicked()
    renderer->repaint();
    previewer->repaint();
 
-   emit markProjectDirty(true);
    setModified(true);
+   emit markProjectDirty(true);
 }
 
 void TileStampEditorForm::on_selectionTool_clicked()
@@ -1161,8 +1161,8 @@ void TileStampEditorForm::on_cwRotate_clicked()
    paintNormal();
    m_undoStack.push(new TileStampPaintCommand(this,oldTileData,oldAttributeData));
    renderer->setBox();
-   emit markProjectDirty(true);
    setModified(true);
+   emit markProjectDirty(true);
 
    // Lastly, swap the x/y sizes.
    swap = ui->ySize->currentIndex();
@@ -1200,8 +1200,8 @@ void TileStampEditorForm::on_ccwRotate_clicked()
    paintNormal();
    m_undoStack.push(new TileStampPaintCommand(this,oldTileData,oldAttributeData));
    renderer->setBox();
-   emit markProjectDirty(true);
    setModified(true);
+   emit markProjectDirty(true);
 
    // Lastly, swap the x/y sizes.
    swap = ui->ySize->currentIndex();
@@ -1238,8 +1238,8 @@ void TileStampEditorForm::on_flipHorizontal_clicked()
    paintNormal();
    m_undoStack.push(new TileStampPaintCommand(this,oldTileData,oldAttributeData));
    renderer->setBox();
-   emit markProjectDirty(true);
    setModified(true);
+   emit markProjectDirty(true);
 }
 
 void TileStampEditorForm::on_flipVertical_clicked()
@@ -1269,8 +1269,8 @@ void TileStampEditorForm::on_flipVertical_clicked()
    paintNormal();
    m_undoStack.push(new TileStampPaintCommand(this,oldTileData,oldAttributeData));
    renderer->setBox();
-   emit markProjectDirty(true);
    setModified(true);
+   emit markProjectDirty(true);
 }
 
 void TileStampEditorForm::updateScrollbars()
@@ -2806,8 +2806,8 @@ void TileStampEditorForm::paintTool(QMouseEvent *event)
          m_undoStack.push(new TileStampPaintCommand(this,oldTileData,oldAttributeData));
          renderer->repaint();
          previewer->repaint();
-         emit markProjectDirty(true);
          setModified(true);
+         emit markProjectDirty(true);
          break;
       default:
          // Stupid warnings.
@@ -2911,8 +2911,8 @@ void TileStampEditorForm::pencilTool(QMouseEvent *event)
          m_undoStack.push(new TileStampPaintCommand(this,oldTileData,oldAttributeData));
          renderer->repaint();
          previewer->repaint();
-         emit markProjectDirty(true);
          setModified(true);
+         emit markProjectDirty(true);
          break;
       default:
          // Stupid warnings.
@@ -3000,8 +3000,8 @@ void TileStampEditorForm::boxTool(QMouseEvent *event,OverlayType overlayType)
          renderer->setBox();
          renderer->repaint();
          previewer->repaint();
-         emit markProjectDirty(true);
          setModified(true);
+         emit markProjectDirty(true);
          break;
       default:
          // Stupid warnings.
@@ -3065,8 +3065,8 @@ void TileStampEditorForm::lineTool(QMouseEvent *event)
          m_undoStack.push(new TileStampPaintCommand(this,oldTileData,oldAttributeData));
          renderer->repaint();
          previewer->repaint();
-         emit markProjectDirty(true);
          setModified(true);
+         emit markProjectDirty(true);
          break;
       default:
          // Stupid warnings.
@@ -3197,8 +3197,8 @@ void TileStampEditorForm::tileTool(QMouseEvent *event)
       renderer->setBox();
       renderer->repaint();
       previewer->repaint();
-      emit markProjectDirty(true);
       setModified(true);
+      emit markProjectDirty(true);
       break;
    default:
       // Stupid warnings.
@@ -3262,8 +3262,8 @@ int TileStampEditorForm::getSelectedColor()
 void TileStampEditorForm::tilePropertyListModel_dataChanged(QModelIndex /*topLeft*/,QModelIndex /*bottomRight*/)
 {
    m_tileProperties = tilePropertyListModel->getItems();
-   emit markProjectDirty(true);
    setModified(true);
+   emit markProjectDirty(true);
 }
 
 TileStampPaintCommand::TileStampPaintCommand(TileStampEditorForm *pEditor,

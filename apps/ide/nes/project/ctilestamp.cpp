@@ -110,6 +110,28 @@ bool CTileStamp::serialize(QDomDocument& doc, QDomNode& node)
    attrDataSect = doc.createCDATASection(attrDataMem);
    attrElement.appendChild(attrDataSect);
 
+   return serializeContent();
+}
+
+bool CTileStamp::serializeContent()
+{
+   if ( m_editor && m_editor->isModified() )
+   {
+      QDir dir(QDir::currentPath());
+      QFile fileOut(dir.relativeFilePath(m_path));
+
+      if ( fileOut.open(QIODevice::ReadWrite|QIODevice::Truncate) )
+      {
+         QTextStream out(&fileOut);
+         out.setCodec(QTextCodec::codecForName(EnvironmentSettingsDialog::textEncodingString().toUtf8()));
+//         out << sourceCode();
+
+         fileOut.close();
+      }
+
+      m_editor->setModified(false);
+   }
+
    return true;
 }
 
@@ -217,6 +239,26 @@ bool CTileStamp::deserialize(QDomDocument&, QDomNode& node, QString& errors)
       }
    }
    while (!(child = child.nextSibling()).isNull());
+
+   return deserializeContent();
+}
+
+bool CTileStamp::deserializeContent()
+{
+   QDir dir(QDir::currentPath());
+   QFile fileIn(dir.relativeFilePath(m_path));
+
+   if ( fileIn.exists() && fileIn.open(QIODevice::ReadOnly) )
+   {
+      QTextStream in(&fileIn);
+      in.setCodec(QTextCodec::codecForName(EnvironmentSettingsDialog::textEncodingString().toUtf8()));
+//      setSourceCode(in.readAll());
+      fileIn.close();
+   }
+   else
+   {
+      // CPTODO: provide a file dialog for finding the source
+   }
 
    return true;
 }

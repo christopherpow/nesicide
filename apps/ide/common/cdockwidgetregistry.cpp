@@ -1,17 +1,21 @@
 #include "cdockwidgetregistry.h"
 
-QHash<QString,CDockWidgetRegistry::CDockWidgetManager*> CDockWidgetRegistry::widgets;
-QMutex CDockWidgetRegistry::mutex;
+CDockWidgetRegistry *CDockWidgetRegistry::instance = NULL;
+
+CDockWidgetRegistry::CDockWidgetRegistry()
+{
+   mutex = new QMutex(QMutex::Recursive);
+}
 
 QWidget* CDockWidgetRegistry::getWidget(const QString& name)
 {
    QWidget* widget = NULL;
-   mutex.lock();
+   mutex->lock();
    if ( widgets.contains(name) )
    {
       widget = widgets[name]->widget;
    }
-   mutex.unlock();
+   mutex->unlock();
 
    return widget;
 }
@@ -24,23 +28,23 @@ void CDockWidgetRegistry::addWidget(const QString& name, QWidget* widget, bool v
    pDockWidgetManager->enabled = false;
    pDockWidgetManager->permanent = permanent;
 
-   mutex.lock();
+   mutex->lock();
    widgets.insert ( name, pDockWidgetManager );
-   mutex.unlock();
+   mutex->unlock();
 }
 
 void CDockWidgetRegistry::removeWidget(const QString &name)
 {
-   mutex.lock();
+   mutex->lock();
    widgets.remove(name);
-   mutex.unlock();
+   mutex->unlock();
 }
 
 void CDockWidgetRegistry::hideAll()
 {
    QHash<QString,CDockWidgetManager*>::const_iterator i;
 
-   mutex.lock();
+   mutex->lock();
    for (i = widgets.begin(); i != widgets.end(); ++i)
    {
       if ( !i.value()->permanent )
@@ -49,26 +53,26 @@ void CDockWidgetRegistry::hideAll()
          i.value()->visible = false;
       }
    }
-   mutex.unlock();
+   mutex->unlock();
 }
 
 void CDockWidgetRegistry::saveVisibility()
 {
    QHash<QString,CDockWidgetManager*>::const_iterator i;
 
-   mutex.lock();
+   mutex->lock();
    for (i = widgets.begin(); i != widgets.end(); ++i)
    {
       i.value()->visible = i.value()->widget->isVisible();
    }
-   mutex.unlock();
+   mutex->unlock();
 }
 
 void CDockWidgetRegistry::restoreVisibility()
 {
    QHash<QString,CDockWidgetManager*>::const_iterator i;
 
-   mutex.lock();
+   mutex->lock();
    for (i = widgets.begin(); i != widgets.end(); ++i)
    {
       if ( i.value()->visible )
@@ -76,16 +80,16 @@ void CDockWidgetRegistry::restoreVisibility()
          i.value()->widget->show();
       }
    }
-   mutex.unlock();
+   mutex->unlock();
 }
 
 bool CDockWidgetRegistry::visible(const QString& name)
 {
    bool visible = false;
 
-   mutex.lock();
+   mutex->lock();
    visible = widgets.find(name).value()->visible;
-   mutex.unlock();
+   mutex->unlock();
 
    return visible;
 }

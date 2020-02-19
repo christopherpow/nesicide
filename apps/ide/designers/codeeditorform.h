@@ -126,6 +126,7 @@ public slots:
    void on_actionClear_marker_triggered();
    void on_actionEnd_marker_here_triggered();
    void on_actionStart_marker_here_triggered();
+   void on_actionStart_End_marker_here_triggered();
    void on_actionEnable_breakpoint_triggered();
    void on_actionRemove_breakpoint_triggered();
    void on_actionDisable_breakpoint_triggered();

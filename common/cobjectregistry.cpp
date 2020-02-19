@@ -1,32 +1,36 @@
 #include "cobjectregistry.h"
 
-QHash<QString,QObject*> CObjectRegistry::objects;
-QMutex CObjectRegistry::mutex;
+CObjectRegistry *CObjectRegistry::instance = NULL;
+
+CObjectRegistry::CObjectRegistry()
+{
+   mutex = new QMutex(QMutex::Recursive);
+}
 
 QObject* CObjectRegistry::getObject(const QString& name)
 {
    QObject* object = NULL;
 
-   mutex.lock();
+   mutex->lock();
    if ( objects.contains(name) )
    {
       object = objects[name];
    }
-   mutex.unlock();
+   mutex->unlock();
 
    return object;
 }
 
 void CObjectRegistry::addObject(const QString& name, QObject* object)
 {
-   mutex.lock();
+   mutex->lock();
    objects.insert ( name, object );
-   mutex.unlock();
+   mutex->unlock();
 }
 
 void CObjectRegistry::removeObject(const QString &name)
 {
-   mutex.lock();
+   mutex->lock();
    objects.remove(name);
-   mutex.unlock();
+   mutex->unlock();
 }

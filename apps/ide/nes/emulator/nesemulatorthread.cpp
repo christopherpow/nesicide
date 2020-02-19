@@ -42,7 +42,7 @@ SDL_AudioSpec sdlAudioSpec;
 static void breakpointHook ( void )
 {
    // Tell the world.
-   NESEmulatorThread* emulator = dynamic_cast<NESEmulatorThread*>(CObjectRegistry::getObject("Emulator"));
+   NESEmulatorThread* emulator = dynamic_cast<NESEmulatorThread*>(CObjectRegistry::getInstance()->getObject("Emulator"));
    if ( emulator && emulator->worker() )
    {
       emulator->worker()->_breakpointHook();
@@ -59,7 +59,7 @@ void NESEmulatorWorker::_breakpointHook()
 
 static void audioHook ( void )
 {
-   NESEmulatorThread* emulator = dynamic_cast<NESEmulatorThread*>(CObjectRegistry::getObject("Emulator"));
+   NESEmulatorThread* emulator = dynamic_cast<NESEmulatorThread*>(CObjectRegistry::getInstance()->getObject("Emulator"));
    if ( emulator && emulator->worker() )
       emulator->worker()->nesAudioSemaphore->acquire();
 }
@@ -107,7 +107,7 @@ NESEmulatorThread::NESEmulatorThread(QObject*)
 
    nesClearAudioSamplesAvailable();
 
-   BreakpointWatcherThread* breakpointWatcher = dynamic_cast<BreakpointWatcherThread*>(CObjectRegistry::getObject("Breakpoint Watcher"));
+   BreakpointWatcherThread* breakpointWatcher = dynamic_cast<BreakpointWatcherThread*>(CObjectRegistry::getInstance()->getObject("Breakpoint Watcher"));
    QObject::connect(this,SIGNAL(breakpoint()),breakpointWatcher,SLOT(breakpoint()));
 
    pThread = new QThread();
@@ -556,7 +556,7 @@ void NESEmulatorWorker::loadCartridge()
 
 void NESEmulatorWorker::process ()
 {
-   QWidget* emulatorWidget = CDockWidgetRegistry::getWidget("Emulator");
+   QWidget* emulatorWidget = CDockWidgetRegistry::getInstance()->getWidget("Emulator");
    int scaleX;
    int scaleY;
    int scale;

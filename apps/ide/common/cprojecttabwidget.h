@@ -4,6 +4,7 @@
 #include <QTabWidget>
 #include <QDateTime>
 #include <QToolBar>
+#include <QDockWidget>
 
 // The IDE uses a system of signals named "snapTo" and "snapToTab" to
 // communicate information between various debuggers, IDE elements, or
@@ -71,8 +72,8 @@ class CProjectTabWidget : public QTabWidget
 public:
    explicit CProjectTabWidget(QWidget *parent = 0);
 
-   int addTab(QWidget *widget, const QIcon &icon, const QString &label);
-   int addTab(QWidget *widget, const QString &label);
+   int addTab(QWidget *page, const QString &label);
+   int addTab(QWidget *page, const QIcon &icon, const QString &label);
    void removeTab(int index);
 
 protected:
@@ -100,6 +101,8 @@ signals:
    void checkOpenFile(QDateTime lastActivationTime);
 
 public slots:
+   void unDockTab();
+   void reDockTab();
    void checkOpenFiles(QDateTime lastActivationTime);
    void tabModified(bool modified);
    void projectDirtied(bool dirtied);
@@ -108,6 +111,9 @@ public slots:
    void applyProjectProperties();
    void applyEnvironmentSettings();
    void applyAppSettings();
+
+protected:
+   QMap<QString,QWidget*> tearOffs;
 };
 
 #endif // CPROJECTTABWIDGET_H

@@ -56,8 +56,8 @@ MapperInformationDockWidget::~MapperInformationDockWidget()
 
 void MapperInformationDockWidget::updateTargetMachine(QString /*target*/)
 {
-   QObject* breakpointWatcher = CObjectRegistry::getObject("Breakpoint Watcher");
-   QObject* emulator = CObjectRegistry::getObject("Emulator");
+   QObject* breakpointWatcher = CObjectRegistry::getInstance()->getObject("Breakpoint Watcher");
+   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
 
    QObject::connect ( emulator, SIGNAL(machineReady()), this, SLOT(machineReady()) );
    QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateInformation()) );
@@ -81,7 +81,7 @@ void MapperInformationDockWidget::changeEvent(QEvent* e)
 
 void MapperInformationDockWidget::showEvent(QShowEvent* /*e*/)
 {
-   QObject* emulator = CObjectRegistry::getObject("Emulator");
+   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
 
    QObject::connect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(updateInformation()) );
    updateInformation();
@@ -89,7 +89,7 @@ void MapperInformationDockWidget::showEvent(QShowEvent* /*e*/)
 
 void MapperInformationDockWidget::hideEvent(QHideEvent* /*e*/)
 {
-   QObject* emulator = CObjectRegistry::getObject("Emulator");
+   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
 
    QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(updateInformation()) );
 }

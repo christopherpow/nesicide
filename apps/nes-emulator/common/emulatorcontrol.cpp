@@ -9,7 +9,7 @@ EmulatorControl::EmulatorControl(QWidget *parent) :
 {
    ui->setupUi(this);
 
-   QObject* emulator = CObjectRegistry::getObject("Emulator");
+   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
 
    QObject::connect(emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(internalPause()));
    QObject::connect(emulator, SIGNAL(emulatorStarted()), this, SLOT(internalPlay()));
