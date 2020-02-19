@@ -95,7 +95,7 @@ TileStampEditorForm::TileStampEditorForm(QByteArray data,QByteArray attr,QString
 
    QObject::connect(tilePropertyListModel,SIGNAL(dataChanged(QModelIndex,QModelIndex)),this,SLOT(tilePropertyListModel_dataChanged(QModelIndex,QModelIndex)));
    QObject::connect(ui->propertyTableView->selectionModel(),SIGNAL(currentChanged(QModelIndex,QModelIndex)),this,SLOT(propertyTableView_currentChanged(QModelIndex,QModelIndex)));
-   
+
    imgData = new char[256*256*4];
    colorData = new char[256*256];
    colorDataOverlay = new char[256*256];
@@ -354,7 +354,7 @@ TileStampEditorForm::TileStampEditorForm(QByteArray data,QByteArray attr,QString
    QObject::connect(ui->ySize,SIGNAL(currentIndexChanged(int)),this,SLOT(ySize_currentIndexChanged(int)));
    QObject::connect(ui->attributeTable,SIGNAL(currentIndexChanged(int)),this,SLOT(attributeTable_currentIndexChanged(int)));
    QObject::connect(ui->grid,SIGNAL(toggled(bool)),this,SLOT(grid_toggled(bool)));
-   
+
    setCentralWidget(ui->window);
 }
 
@@ -466,8 +466,8 @@ void TileStampEditorForm::keyPressEvent(QKeyEvent *event)
          {
             paintOverlay(Overlay_PasteSelection,0,m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
             copyOverlayToNormal();
-            renderer->repaint();
-            previewer->repaint();
+            renderer->update();
+            previewer->update();
             copySelectionToClipboard(m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
          }
       }
@@ -484,8 +484,8 @@ void TileStampEditorForm::keyPressEvent(QKeyEvent *event)
             m_selectionRect = QRect(image.rect().left(),image.rect().top(),image.rect().width()+1,image.rect().height()+1);
             renderer->setBox(m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
             m_selection = true;
-            renderer->repaint();
-            previewer->repaint();
+            renderer->update();
+            previewer->update();
             setModified(true);
             emit markProjectDirty(true);
          }
@@ -502,8 +502,8 @@ void TileStampEditorForm::keyPressEvent(QKeyEvent *event)
             m_undoStack.push(new TileStampPaintCommand(this,oldTileData,oldAttributeData));
             m_selection = false;
             renderer->setBox();
-            renderer->repaint();
-            previewer->repaint();
+            renderer->update();
+            previewer->update();
             setModified(true);
             emit markProjectDirty(true);
          }
@@ -512,8 +512,8 @@ void TileStampEditorForm::keyPressEvent(QKeyEvent *event)
       {
          clearSelection();
          m_undoStack.undo();
-         renderer->repaint();
-         previewer->repaint();
+         renderer->update();
+         previewer->update();
          if ( m_undoStack.isClean() )
          {
             setModified(false);
@@ -523,8 +523,8 @@ void TileStampEditorForm::keyPressEvent(QKeyEvent *event)
       {
          clearSelection();
          m_undoStack.redo();
-         renderer->repaint();
-         previewer->repaint();
+         renderer->update();
+         previewer->update();
          setModified(true);
          emit markProjectDirty(true);
       }
@@ -563,7 +563,7 @@ void TileStampEditorForm::renderer_leaveEvent(QEvent */*event*/)
         (m_activeTool == ui->paintAttr) )
    {
       renderer->setBox();
-      renderer->repaint();
+      renderer->update();
    }
 
    updateInfoText();
@@ -737,13 +737,13 @@ void TileStampEditorForm::on_zoomSlider_valueChanged(int value)
 void TileStampEditorForm::on_horizontalScrollBar_valueChanged(int /*value*/)
 {
    renderer->setScrollX(ui->horizontalScrollBar->value());
-   renderer->repaint();
+   renderer->update();
 }
 
 void TileStampEditorForm::on_verticalScrollBar_valueChanged(int /*value*/)
 {
    renderer->setScrollY(ui->verticalScrollBar->value());
-   renderer->repaint();
+   renderer->update();
 }
 
 void TileStampEditorForm::xSize_currentIndexChanged(int /*index*/)
@@ -754,9 +754,9 @@ void TileStampEditorForm::xSize_currentIndexChanged(int /*index*/)
    m_ySize = ui->ySize->itemData(ui->ySize->currentIndex()).toInt();
    m_undoStack.push(new TileStampResizeCommand(this,oldXSize,oldYSize));
    renderer->setSize(m_xSize,m_ySize);
-   renderer->repaint();
+   renderer->update();
    previewer->setSize(m_xSize,m_ySize);
-   previewer->repaint();
+   previewer->update();
    setModified(true);
    emit markProjectDirty(true);
 }
@@ -769,9 +769,9 @@ void TileStampEditorForm::ySize_currentIndexChanged(int /*index*/)
    m_ySize = ui->ySize->itemData(ui->ySize->currentIndex()).toInt();
    m_undoStack.push(new TileStampResizeCommand(this,oldXSize,oldYSize));
    renderer->setSize(m_xSize,m_ySize);
-   renderer->repaint();
+   renderer->update();
    previewer->setSize(m_xSize,m_ySize);
-   previewer->repaint();
+   previewer->update();
    setModified(true);
    emit markProjectDirty(true);
 }
@@ -796,7 +796,7 @@ void TileStampEditorForm::attributeTable_currentIndexChanged(int index)
          for ( idx = 0; idx < m_colors.count(); idx++ )
          {
             m_colors.at(idx)->setCurrentColor(QColor(nesGetPaletteRedComponent(pAttrTbl->getPalette().at(idx)),nesGetPaletteGreenComponent(pAttrTbl->getPalette().at(idx)),nesGetPaletteBlueComponent(pAttrTbl->getPalette().at(idx))));
-            m_colors.at(idx)->repaint();
+            m_colors.at(idx)->update();
          }
       }
    }
@@ -809,8 +809,8 @@ void TileStampEditorForm::attributeTable_currentIndexChanged(int index)
       imgData[idx+1] = color.green();
       imgData[idx+2] = color.blue();
    }
-   renderer->repaint();
-   previewer->repaint();
+   renderer->update();
+   previewer->update();
 
    setModified(true);
    emit markProjectDirty(true);
@@ -820,7 +820,7 @@ void TileStampEditorForm::grid_toggled(bool checked)
 {
    m_gridEnabled = checked;
    renderer->setGrid(m_gridEnabled);
-   renderer->repaint();
+   renderer->update();
 
    setModified(true);
    emit markProjectDirty(true);
@@ -845,8 +845,8 @@ void TileStampEditorForm::on_clear_clicked()
       imgData[idx+2] = color.blue();
       imgData[idx+3] = 0xFF;
    }
-   renderer->repaint();
-   previewer->repaint();
+   renderer->update();
+   previewer->update();
 
    setModified(true);
    emit markProjectDirty(true);
@@ -1304,8 +1304,8 @@ void TileStampEditorForm::paintNormal()
       // Reset overlay.
       colorDataOverlay[idx>>2] = colorData[idx>>2];
    }
-   renderer->repaint();
-   previewer->repaint();
+   renderer->update();
+   previewer->update();
 
 }
 
@@ -1317,8 +1317,8 @@ void TileStampEditorForm::clearSelection()
       paintNormal();
    }
    renderer->setBox();
-   renderer->repaint();
-   previewer->repaint();
+   renderer->update();
+   previewer->update();
 
    m_selection = false;
    m_selectionCaptured = false;
@@ -2250,7 +2250,7 @@ void TileStampEditorForm::applyChangesToTab(QString uuid)
    CAttributeTable* pAttrTbl;
    QColor color;
    int idx;
-   
+
    // Set up the attribute table list.
    iter.reset(nesicideProject->getProject()->getProjectPrimitives()->getAttributeTables());
    idx = 0;
@@ -2288,7 +2288,7 @@ void TileStampEditorForm::applyChangesToTab(QString uuid)
             for ( idx = 0; idx < m_colors.count(); idx++ )
             {
                m_colors.at(idx)->setCurrentColor(QColor(nesGetPaletteRedComponent(pAttrTbl->getPalette().at(idx)),nesGetPaletteGreenComponent(pAttrTbl->getPalette().at(idx)),nesGetPaletteBlueComponent(pAttrTbl->getPalette().at(idx))));
-               m_colors.at(idx)->repaint();
+               m_colors.at(idx)->update();
             }
          }
       }
@@ -2301,8 +2301,8 @@ void TileStampEditorForm::applyChangesToTab(QString uuid)
          imgData[idx+1] = color.green();
          imgData[idx+2] = color.blue();
       }
-      renderer->repaint();
-      previewer->repaint();
+      renderer->update();
+      previewer->update();
    }
 
    // Update tile list.
@@ -2548,8 +2548,8 @@ void TileStampEditorForm::selectionTool(QMouseEvent *event)
       if ( !m_selectionRect.contains(pixx,pixy) )
       {
          clearSelection();
-         renderer->repaint();
-         previewer->repaint();
+         renderer->update();
+         previewer->update();
       }
       else
       {
@@ -2608,7 +2608,7 @@ void TileStampEditorForm::selectionTool(QMouseEvent *event)
          m_anchor = QPoint(pixx,pixy);
          m_selectionRect = QRect(QPoint(m_anchor.x(),m_anchor.y()),QPoint(pixx+1,pixy+1));
          renderer->setBox(m_anchor.x(),m_anchor.y(),pixx+1,pixy+1);
-         renderer->repaint();
+         renderer->update();
       }
       break;
    case QEvent::MouseMove:
@@ -2704,7 +2704,7 @@ void TileStampEditorForm::selectionTool(QMouseEvent *event)
                   break;
                }
                renderer->setBox(m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
-               renderer->repaint();
+               renderer->update();
             }
             else
             {
@@ -2713,15 +2713,15 @@ void TileStampEditorForm::selectionTool(QMouseEvent *event)
                paintOverlay(Overlay_PasteSelection,0,m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
                m_anchor = QPoint(pixx,pixy);
                renderer->setBox(m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
-               renderer->repaint();
-               previewer->repaint();
+               renderer->update();
+               previewer->update();
             }
          }
          else
          {
             m_selectionRect = QRect(QPoint(m_anchor.x(),m_anchor.y()),QPoint(pixx+1,pixy+1));
             renderer->setBox(m_anchor.x(),m_anchor.y(),pixx+1,pixy+1);
-            renderer->repaint();
+            renderer->update();
          }
       }
       break;
@@ -2731,8 +2731,8 @@ void TileStampEditorForm::selectionTool(QMouseEvent *event)
          if ( m_resizeMode == Resize_None )
          {
             paintOverlay(Overlay_PasteSelection,0,m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
-            renderer->repaint();
-            previewer->repaint();
+            renderer->update();
+            previewer->update();
          }
          else
          {
@@ -2748,7 +2748,7 @@ void TileStampEditorForm::selectionTool(QMouseEvent *event)
          m_selectionRect = QRect(QPoint(boxX1,boxY1),QPoint(boxX2,boxY2));
          m_selectionRect = m_selectionRect.normalized();
          renderer->setBox(m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
-         renderer->repaint();
+         renderer->update();
          m_oldTileData = tileData();
          m_oldAttributeData = attributeData();
          copyNormalToSelection(m_selectionRect.left(),m_selectionRect.top(),m_selectionRect.right(),m_selectionRect.bottom());
@@ -2786,14 +2786,14 @@ void TileStampEditorForm::paintTool(QMouseEvent *event)
          if ( event->button() == Qt::LeftButton )
          {
             paintOverlay(Overlay_FloodFill,selectedColor,pixx,pixy,0,0);
-            renderer->repaint();
-            previewer->repaint();
+            renderer->update();
+            previewer->update();
          }
          else if ( event->button() == Qt::RightButton )
          {
             paintOverlay(Overlay_FloodFill,0,pixx,pixy,0,0);
-            renderer->repaint();
-            previewer->repaint();
+            renderer->update();
+            previewer->update();
          }
          break;
       case QEvent::MouseMove:
@@ -2804,8 +2804,8 @@ void TileStampEditorForm::paintTool(QMouseEvent *event)
          copyOverlayToNormal();
          paintNormal();
          m_undoStack.push(new TileStampPaintCommand(this,oldTileData,oldAttributeData));
-         renderer->repaint();
-         previewer->repaint();
+         renderer->update();
+         previewer->update();
          setModified(true);
          emit markProjectDirty(true);
          break;
@@ -2838,7 +2838,7 @@ void TileStampEditorForm::pencilTool(QMouseEvent *event)
    boxX2 = boxX1+16;
    boxY2 = boxY1+16;
    renderer->setBox(boxX1,boxY1,boxX2,boxY2);
-   renderer->repaint();
+   renderer->update();
 
    if ( selectedColor >= 0 )
    {
@@ -2860,14 +2860,14 @@ void TileStampEditorForm::pencilTool(QMouseEvent *event)
                }
                paintOverlay(selectedColor,pixx,pixy);
             }
-            renderer->repaint();
-            previewer->repaint();
+            renderer->update();
+            previewer->update();
          }
          else if ( event->button() == Qt::RightButton )
          {
             paintOverlay(0,pixx,pixy);
-            renderer->repaint();
-            previewer->repaint();
+            renderer->update();
+            previewer->update();
          }
          break;
       case QEvent::MouseMove:
@@ -2876,7 +2876,7 @@ void TileStampEditorForm::pencilTool(QMouseEvent *event)
          boxX2 = boxX1+16;
          boxY2 = boxY1+16;
          renderer->setBox(boxX1,boxY1,boxX2,boxY2);
-         renderer->repaint();
+         renderer->update();
 
          if ( event->buttons() == Qt::LeftButton )
          {
@@ -2892,14 +2892,14 @@ void TileStampEditorForm::pencilTool(QMouseEvent *event)
                }
                paintOverlay(selectedColor,pixx,pixy);
             }
-            renderer->repaint();
-            previewer->repaint();
+            renderer->update();
+            previewer->update();
          }
          else if ( event->buttons() == Qt::RightButton )
          {
             paintOverlay(0,pixx,pixy);
-            renderer->repaint();
-            previewer->repaint();
+            renderer->update();
+            previewer->update();
          }
          m_anchor = QPoint(pixx,pixy);
          break;
@@ -2909,8 +2909,8 @@ void TileStampEditorForm::pencilTool(QMouseEvent *event)
          copyOverlayToNormal();
          paintNormal();
          m_undoStack.push(new TileStampPaintCommand(this,oldTileData,oldAttributeData));
-         renderer->repaint();
-         previewer->repaint();
+         renderer->update();
+         previewer->update();
          setModified(true);
          emit markProjectDirty(true);
          break;
@@ -2964,15 +2964,15 @@ void TileStampEditorForm::boxTool(QMouseEvent *event,OverlayType overlayType)
          {
             paintOverlay(overlayType,selectedColor,m_anchor.x(),m_anchor.y(),pixx+1,pixy+1);
             renderer->setBox(m_anchor.x(),m_anchor.y(),pixx+1,pixy+1);
-            renderer->repaint();
-            previewer->repaint();
+            renderer->update();
+            previewer->update();
          }
          else if ( event->button() == Qt::RightButton )
          {
             paintOverlay(overlayType,0,m_anchor.x(),m_anchor.y(),pixx+1,pixy+1);
             renderer->setBox(m_anchor.x(),m_anchor.y(),pixx+1,pixy+1);
-            renderer->repaint();
-            previewer->repaint();
+            renderer->update();
+            previewer->update();
          }
          break;
       case QEvent::MouseMove:
@@ -2980,15 +2980,15 @@ void TileStampEditorForm::boxTool(QMouseEvent *event,OverlayType overlayType)
          {
             paintOverlay(overlayType,selectedColor,m_anchor.x(),m_anchor.y(),pixx+1,pixy+1);
             renderer->setBox(m_anchor.x(),m_anchor.y(),pixx+1,pixy+1);
-            renderer->repaint();
-            previewer->repaint();
+            renderer->update();
+            previewer->update();
          }
          else if ( event->buttons() == Qt::RightButton )
          {
             paintOverlay(overlayType,0,m_anchor.x(),m_anchor.y(),pixx+1,pixy+1);
             renderer->setBox(m_anchor.x(),m_anchor.y(),pixx+1,pixy+1);
-            renderer->repaint();
-            previewer->repaint();
+            renderer->update();
+            previewer->update();
          }
          break;
       case QEvent::MouseButtonRelease:
@@ -2998,8 +2998,8 @@ void TileStampEditorForm::boxTool(QMouseEvent *event,OverlayType overlayType)
          paintNormal();
          m_undoStack.push(new TileStampPaintCommand(this,oldTileData,oldAttributeData));
          renderer->setBox();
-         renderer->repaint();
-         previewer->repaint();
+         renderer->update();
+         previewer->update();
          setModified(true);
          emit markProjectDirty(true);
          break;
@@ -3033,28 +3033,28 @@ void TileStampEditorForm::lineTool(QMouseEvent *event)
          if ( event->button() == Qt::LeftButton )
          {
             paintOverlay(Overlay_Line,selectedColor,m_anchor.x(),m_anchor.y(),pixx+1,pixy+1);
-            renderer->repaint();
-            previewer->repaint();
+            renderer->update();
+            previewer->update();
          }
          else if ( event->button() == Qt::RightButton )
          {
             paintOverlay(Overlay_Line,0,m_anchor.x(),m_anchor.y(),pixx+1,pixy+1);
-            renderer->repaint();
-            previewer->repaint();
+            renderer->update();
+            previewer->update();
          }
          break;
       case QEvent::MouseMove:
          if ( event->buttons() == Qt::LeftButton )
          {
             paintOverlay(Overlay_Line,selectedColor,m_anchor.x(),m_anchor.y(),pixx+1,pixy+1);
-            renderer->repaint();
-            previewer->repaint();
+            renderer->update();
+            previewer->update();
          }
          else if ( event->buttons() == Qt::RightButton )
          {
             paintOverlay(Overlay_Line,0,m_anchor.x(),m_anchor.y(),pixx+1,pixy+1);
-            renderer->repaint();
-            previewer->repaint();
+            renderer->update();
+            previewer->update();
          }
          break;
       case QEvent::MouseButtonRelease:
@@ -3063,8 +3063,8 @@ void TileStampEditorForm::lineTool(QMouseEvent *event)
          copyOverlayToNormal();
          paintNormal();
          m_undoStack.push(new TileStampPaintCommand(this,oldTileData,oldAttributeData));
-         renderer->repaint();
-         previewer->repaint();
+         renderer->update();
+         previewer->update();
          setModified(true);
          emit markProjectDirty(true);
          break;
@@ -3120,8 +3120,8 @@ void TileStampEditorForm::tileTool(QMouseEvent *event)
          }
          paintOverlay(pSelectedTile->getTileData(),pSelectedTile->getAttributeData(),xSize,ySize,boxX1,boxY1,boxX2,boxY2);
          renderer->setBox(boxX1,boxY1,boxX2,boxY2);
-         renderer->repaint();
-         previewer->repaint();
+         renderer->update();
+         previewer->update();
       }
       else if ( pSelectedBinary )
       {
@@ -3146,8 +3146,8 @@ void TileStampEditorForm::tileTool(QMouseEvent *event)
          }
          paintOverlay(pSelectedBinary->getBinaryData(),QByteArray(),xSize,ySize,boxX1,boxY1,boxX2,boxY2);
          renderer->setBox(boxX1,boxY1,boxX2,boxY2);
-         renderer->repaint();
-         previewer->repaint();
+         renderer->update();
+         previewer->update();
       }
       break;
    case QEvent::MouseMove:
@@ -3163,8 +3163,8 @@ void TileStampEditorForm::tileTool(QMouseEvent *event)
             {
                paintOverlay(pSelectedTile->getTileData(),pSelectedTile->getAttributeData(),xSize,ySize,boxX1,boxY1,boxX2,boxY2);
                renderer->setBox(boxX1,boxY1,boxX2,boxY2);
-               renderer->repaint();
-               previewer->repaint();
+               renderer->update();
+               previewer->update();
             }
          }
          else if ( pSelectedBinary )
@@ -3177,15 +3177,15 @@ void TileStampEditorForm::tileTool(QMouseEvent *event)
             {
                paintOverlay(pSelectedBinary->getBinaryData(),QByteArray(),xSize,ySize,boxX1,boxY1,boxX2,boxY2);
                renderer->setBox(boxX1,boxY1,boxX2,boxY2);
-               renderer->repaint();
-               previewer->repaint();
+               renderer->update();
+               previewer->update();
             }
          }
       }
       else
       {
          renderer->setBox();
-         renderer->repaint();
+         renderer->update();
       }
       break;
    case QEvent::MouseButtonRelease:
@@ -3195,8 +3195,8 @@ void TileStampEditorForm::tileTool(QMouseEvent *event)
       paintNormal();
       m_undoStack.push(new TileStampPaintCommand(this,oldTileData,oldAttributeData));
       renderer->setBox();
-      renderer->repaint();
-      previewer->repaint();
+      renderer->update();
+      previewer->update();
       setModified(true);
       emit markProjectDirty(true);
       break;
