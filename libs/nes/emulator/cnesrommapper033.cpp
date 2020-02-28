@@ -88,6 +88,8 @@ static CRegisterDatabase* dbRegisters = new CRegisterDatabase(eMemory_cartMapper
 CROMMapper033::CROMMapper033()
    : CROM(33)
 {
+   m_prgRemappable = true;
+   m_chrRemappable = true;
    memset(m_reg,0,sizeof(m_reg));
 }
 
@@ -97,6 +99,8 @@ CROMMapper033::~CROMMapper033()
 
 void CROMMapper033::RESET ( bool soft )
 {
+   m_mapper = 33;
+
    m_dbCartRegisters = dbRegisters;
 
    CROM::RESET ( soft );

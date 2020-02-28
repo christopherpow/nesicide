@@ -241,6 +241,17 @@ static CBitfieldData* tbl5206Bitfields [] =
    new CBitfieldData("Multiplier & Result MSB", 0, 8, "%02X", 0)
 };
 
+static CBitfieldData* tbl5209Bitfields [] =
+{
+   new CBitfieldData("Timer IRQ", 7, 1, "%X", 2, "No", "Yes"),
+   new CBitfieldData("Timer LSB", 0, 8, "%02X", 0)
+};
+
+static CBitfieldData* tbl520ABitfields [] =
+{
+   new CBitfieldData("Timer MSB", 0, 8, "%02X", 0)
+};
+
 static CRegisterData* tblRegisters [] =
 {
    new CRegisterData(0x5000, "Square1 Control", nesMapperLowRead, nesMapperLowWrite, 4, tbl5000Bitfields),
@@ -287,6 +298,8 @@ static CRegisterData* tblRegisters [] =
    new CRegisterData(0x5204, "IRQ Control", nesMapperLowRead, nesMapperLowWrite, 2, tbl5204Bitfields),
    new CRegisterData(0x5205, "8*8 Multiplier", nesMapperLowRead, nesMapperLowWrite, 1, tbl5205Bitfields),
    new CRegisterData(0x5206, "8*8 Multiplier", nesMapperLowRead, nesMapperLowWrite, 1, tbl5206Bitfields),
+   new CRegisterData(0x5209, "Timer LSB", nesMapperLowRead, nesMapperLowWrite, 1, tbl5205Bitfields),
+   new CRegisterData(0x520A, "Timer MSB", nesMapperLowRead, nesMapperLowWrite, 1, tbl5206Bitfields),
 };
 
 static const char* rowHeadings [] =
@@ -301,16 +314,48 @@ static const char* columnHeadings [] =
    "5113", "5114", "5115", "5116", "5117",
    "5120", "5121", "5122", "5123", "5124", "5125", "5126", "5127", "5128", "5129", "512A", "512B",
    "5130",
-   "5200", "5201", "5202", "5203", "5204", "5205", "5206"
+   "5200", "5201", "5202", "5203", "5204", "5205", "5206",
+   "5209", "520A"
 };
 
-static CRegisterDatabase* dbRegisters = new CRegisterDatabase(eMemory_cartMapper,1,44,44,tblRegisters,rowHeadings,columnHeadings);
+static CRegisterDatabase* dbRegisters = new CRegisterDatabase(eMemory_cartMapper,1,46,46,tblRegisters,rowHeadings,columnHeadings);
 
 uint32_t CROMMapper005::m_soundEnableMask = 0xffffffff;
+
+uint8_t CNAMETABLEFILLER::MEM (uint32_t addr)
+{
+   if ( (addr&MEM_1KB) < 0x3C0 )
+   {
+      return m_tileFill;
+   }
+   else
+   {
+      return m_attrFill;
+   }
+}
+
+void CNAMETABLEFILLER::MEM (uint32_t addr, uint8_t data)
+{
+   if ( (addr&MEM_1KB) < 0x3C0 )
+   {
+      m_tileFill = data;
+   }
+   else
+   {
+      m_attrFill = data;
+   }
+}
 
 CROMMapper005::CROMMapper005()
    : CROM(5)
 {
+   delete m_pEXRAMmemory; // Remove open-bus default
+   m_pEXRAMmemory = new CMEMORY(0x5C00,MEM_1KB);
+   delete m_pSRAMmemory; // Remove open-bus default
+   m_pSRAMmemory = new CMEMORY(0x6000,MEM_64KB,8,4);
+   m_pFILLmemory = new CNAMETABLEFILLER();
+   m_prgRemappable = true;
+   m_chrRemappable = true;
    m_prgMode = 0;
    m_chrMode = 0;
    m_chrHigh = 0;
@@ -324,8 +369,6 @@ CROMMapper005::CROMMapper005()
    m_mult1 = 0;
    m_mult2 = 0;
    m_prod = 0;
-   m_fillTile = 0;
-   m_fillAttr = 0;
    m_ppuCycle = 0;
    memset(m_reg,0,sizeof(m_reg));
    memset(m_chr,0,sizeof(m_chr));
@@ -333,11 +376,16 @@ CROMMapper005::CROMMapper005()
 
 CROMMapper005::~CROMMapper005()
 {
+   delete m_pEXRAMmemory;
+   delete m_pSRAMmemory;
+   delete m_pFILLmemory;
 }
 
 void CROMMapper005::RESET ( bool soft )
-{
+{   
    m_dbCartRegisters = dbRegisters;
+
+   CROM::RESET ( soft );
 
    m_square[0].PARENT(CNES::NES()->CPU()->APU());
    m_square[1].PARENT(CNES::NES()->CPU()->APU());
@@ -347,33 +395,58 @@ void CROMMapper005::RESET ( bool soft )
    m_square[1].RESET();
    m_dmc.RESET();
 
-   CROM::RESET ( soft );
-
    m_prgMode = 0;
    m_chrMode = 0;
    m_chrHigh = 0;
    m_irqScanline = 0;
    m_irqStatus = 0;
 
+   m_mult1 = 0xFF;
+   m_mult2 = 0xFF;
+   m_prod = 0xFE01;
+
+   m_timer = 0x0000;
+   m_timerIrq = false;
+
+   m_reg[23] = 0xFF;
+
    m_prgRAM [ 0 ] = false;
    m_prgRAM [ 1 ] = false;
+   m_prgRAM [ 2 ] = false;
    if ( m_numPrgBanks == 2 )
    {
       m_PRGROMmemory.REMAP(2,0);
-      m_prgRAM [ 2 ] = false;
    }
    else
    {
       m_PRGROMmemory.REMAP(2,2);
-      m_prgRAM [ 2 ] = false;
    }
    m_PRGROMmemory.REMAP(3,m_numPrgBanks-1);
-
-   // CHR ROM/RAM already set up in CROM::RESET()...
 }
 
-void CROMMapper005::SYNCCPU ( void )
+void CROMMapper005::SYNCCPU ( bool write, uint16_t addr, uint8_t data )
 {
+   if ( write )
+   {
+      if ( addr == 0x2000 )
+      {
+         m_8x16z = !!(data&0x20);
+      }
+      else if ( addr == 0x2001 )
+      {
+         m_8x16e = (data>>3)&0x3;
+      }
+   }
+
+   if ( m_timer )
+   {
+      m_timer--;
+      if ( !m_timer )
+      {
+         CNES::NES()->CPU()->ASSERTIRQ(eNESSource_Mapper);
+      }
+   }
+
    m_square[0].TIMERTICK();
    m_square[1].TIMERTICK();
    m_dmc.TIMERTICK();
@@ -390,7 +463,6 @@ void CROMMapper005::SYNCPPU ( uint32_t ppuCycle, uint32_t ppuAddr )
    if ( scanline < 239 )
    {
       m_irqStatus = 0x40;
-      CNES::NES()->CPU()->RELEASEIRQ(eNESSource_Mapper);
    }
 
    if ( scanline == 239 )
@@ -423,30 +495,44 @@ void CROMMapper005::SETPPU ( void )
 {
    int32_t rasterX = CYCLE_TO_VISX(m_ppuCycle);
 
-   if ( (rasterX >= 256) &&
-        (rasterX < 320) )
+   if ( m_8x16z && m_8x16e )
    {
-      // Sprite fetches
-      m_CHRmemory.REMAP(0,(m_chrHigh<<8)|m_chr[0]);
-      m_CHRmemory.REMAP(1,(m_chrHigh<<8)|m_chr[1]);
-      m_CHRmemory.REMAP(2,(m_chrHigh<<8)|m_chr[2]);
-      m_CHRmemory.REMAP(3,(m_chrHigh<<8)|m_chr[3]);
-      m_CHRmemory.REMAP(4,(m_chrHigh<<8)|m_chr[4]);
-      m_CHRmemory.REMAP(5,(m_chrHigh<<8)|m_chr[5]);
-      m_CHRmemory.REMAP(6,(m_chrHigh<<8)|m_chr[6]);
-      m_CHRmemory.REMAP(7,(m_chrHigh<<8)|m_chr[7]);
+      if ( (rasterX >= 256) &&
+           (rasterX < 320) )
+      {
+         // Sprite fetches
+         m_CHRmemory.REMAP(0,m_chr[0]);
+         m_CHRmemory.REMAP(1,m_chr[1]);
+         m_CHRmemory.REMAP(2,m_chr[2]);
+         m_CHRmemory.REMAP(3,m_chr[3]);
+         m_CHRmemory.REMAP(4,m_chr[4]);
+         m_CHRmemory.REMAP(5,m_chr[5]);
+         m_CHRmemory.REMAP(6,m_chr[6]);
+         m_CHRmemory.REMAP(7,m_chr[7]);
+      }
+      else
+      {
+         // Background fetches
+         m_CHRmemory.REMAP(0,m_chr[8]);
+         m_CHRmemory.REMAP(1,m_chr[9]);
+         m_CHRmemory.REMAP(2,m_chr[10]);
+         m_CHRmemory.REMAP(3,m_chr[11]);
+         m_CHRmemory.REMAP(4,m_chr[8]);
+         m_CHRmemory.REMAP(5,m_chr[9]);
+         m_CHRmemory.REMAP(6,m_chr[10]);
+         m_CHRmemory.REMAP(7,m_chr[11]);
+      }
    }
    else
    {
-      // Background fetches
-      m_CHRmemory.REMAP(0,(m_chrHigh<<8)|m_chr[8]);
-      m_CHRmemory.REMAP(1,(m_chrHigh<<8)|m_chr[9]);
-      m_CHRmemory.REMAP(2,(m_chrHigh<<8)|m_chr[10]);
-      m_CHRmemory.REMAP(3,(m_chrHigh<<8)|m_chr[11]);
-      m_CHRmemory.REMAP(4,(m_chrHigh<<8)|m_chr[8]);
-      m_CHRmemory.REMAP(5,(m_chrHigh<<8)|m_chr[9]);
-      m_CHRmemory.REMAP(6,(m_chrHigh<<8)|m_chr[10]);
-      m_CHRmemory.REMAP(7,(m_chrHigh<<8)|m_chr[11]);
+      m_CHRmemory.REMAP(0,m_chr[0]);
+      m_CHRmemory.REMAP(1,m_chr[1]);
+      m_CHRmemory.REMAP(2,m_chr[2]);
+      m_CHRmemory.REMAP(3,m_chr[3]);
+      m_CHRmemory.REMAP(4,m_chr[4]);
+      m_CHRmemory.REMAP(5,m_chr[5]);
+      m_CHRmemory.REMAP(6,m_chr[6]);
+      m_CHRmemory.REMAP(7,m_chr[7]);
    }
 }
 
@@ -616,6 +702,12 @@ uint32_t CROMMapper005::DEBUGINFO ( uint32_t addr )
    case 0x5206:
       return m_reg[43];
       break;
+   case 0x5209:
+      return m_reg[44];
+      break;
+   case 0x520A:
+      return m_reg[45];
+      break;
    }
    return 0;
 }
@@ -636,17 +728,21 @@ uint32_t CROMMapper005::LMAPPER ( uint32_t addr )
    {
       switch ( addr )
       {
-         case 0x5204:
-            data = m_irqStatus;
-            m_irqStatus &= ~(0x80);
-            CNES::NES()->CPU()->RELEASEIRQ ( eNESSource_Mapper );
-            break;
-         case 0x5205:
-            data = m_prod&0xFF;
-            break;
-         case 0x5206:
-            data = (m_prod>>8)&0xFF;
-            break;
+      case 0x5204:
+         data = m_irqStatus;
+         m_irqStatus &= ~(0x80);
+         CNES::NES()->CPU()->RELEASEIRQ ( eNESSource_Mapper );
+         break;
+      case 0x5205:
+         data = m_prod&0xFF;
+         break;
+      case 0x5206:
+         data = (m_prod>>8)&0xFF;
+         break;
+      case 0x5209:
+         data = m_timerIrq?0x80:0x00;
+         CNES::NES()->CPU()->RELEASEIRQ ( eNESSource_Mapper );
+         break;
       }
    }
 
@@ -656,6 +752,7 @@ uint32_t CROMMapper005::LMAPPER ( uint32_t addr )
 void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
 {
    uint8_t prgRAM;
+   int32_t sc1 = -1, sc2 = -1, sc3 = -1, sc4 = -1;
 
    if ( addr >= 0x6000 )
    {
@@ -755,15 +852,63 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
          break;
       case 0x5105:
          m_reg[16] = data;
-         CNES::NES()->PPU()->MIRROR ( data&0x03, (data&0x0C)>>2, (data&0x30)>>4, (data&0xC0)>>6 );
+         sc1 = data&0x03;
+         sc2 = (data&0x0C)>>2;
+         sc3 = (data&0x30)>>4;
+         sc4 = (data&0xC0)>>6;
+         if ( sc1 == 0x2 )
+         {
+            sc1 = -1;
+            CNES::NES()->PPU()->VRAM()->REMAPEXT ( 0x0, m_pEXRAMmemory->PHYSBANK(0) );
+         }
+         else if ( sc1 == 0x3 )
+         {
+            sc1 = -1;
+            CNES::NES()->PPU()->VRAM()->REMAPEXT ( 0x0, m_pFILLmemory->PHYSBANK(0) );
+         }
+         if ( sc2 == 0x2 )
+         {
+            sc2 = -1;
+            CNES::NES()->PPU()->VRAM()->REMAPEXT ( 0x1, m_pEXRAMmemory->PHYSBANK(0) );
+         }
+         else if ( sc2 == 0x3 )
+         {
+            sc2 = -1;
+            CNES::NES()->PPU()->VRAM()->REMAPEXT ( 0x1, m_pFILLmemory->PHYSBANK(0) );
+         }
+         if ( sc3 == 0x2 )
+         {
+            sc3 = -1;
+            CNES::NES()->PPU()->VRAM()->REMAPEXT ( 0x2, m_pEXRAMmemory->PHYSBANK(0) );
+         }
+         else if ( sc3 == 0x3 )
+         {
+            sc3 = -1;
+            CNES::NES()->PPU()->VRAM()->REMAPEXT ( 0x2, m_pFILLmemory->PHYSBANK(0) );
+         }
+         if ( sc4 == 0x2 )
+         {
+            sc4 = -1;
+            CNES::NES()->PPU()->VRAM()->REMAPEXT ( 0x3, m_pEXRAMmemory->PHYSBANK(0) );
+         }
+         else if ( sc4 == 0x3 )
+         {
+            sc4 = -1;
+            CNES::NES()->PPU()->VRAM()->REMAPEXT ( 0x3, m_pFILLmemory->PHYSBANK(0) );
+         }
+         CNES::NES()->PPU()->MIRROR ( sc1, sc2, sc3, sc4 );
          break;
       case 0x5106:
          m_reg[17] = data;
-         m_fillTile = data;
+         // store tile filler
+         m_pFILLmemory->MEM(0x000,data);
          break;
       case 0x5107:
          m_reg[18] = data;
-         m_fillAttr = data&0x3;
+         // replicate attribute bits for retrieval
+         data = data|(data<<2)|(data<<4)|(data<<6);
+         // store attribute filler
+         m_pFILLmemory->MEM(0x3C0,data);
          break;
       case 0x5113:
          m_reg[19] = data;
@@ -773,7 +918,8 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
       case 0x5114:
          m_reg[20] = data;
          prgRAM = !(data&0x80);
-         data &= 0x7F;
+         data &= 0x7f;
+         data %= m_numPrgBanks;
 
          if ( prgRAM )
          {
@@ -792,12 +938,12 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
                m_PRGROMmemory.REMAP(0,data);
             }
          }
-
          break;
       case 0x5115:
          m_reg[21] = data;
          prgRAM = !(data&0x80);
-         data &= 0x7F;
+         data &= 0x7f;
+         data %= m_numPrgBanks;
 
          if ( prgRAM )
          {
@@ -824,19 +970,19 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
             m_prgRAM[1] = prgRAM;
             if ( prgRAM )
             {
-               CROM::REMAPSRAM ( 0x8000, data );
+               CROM::REMAPSRAM ( 0xA000, data );
             }
             else
             {
                m_PRGROMmemory.REMAP(1,data);
             }
          }
-
          break;
       case 0x5116:
          m_reg[22] = data;
          prgRAM = !(data&0x80);
-         data &= 0x7F;
+         data &= 0x7f;
+         data %= m_numPrgBanks;
 
          if ( prgRAM )
          {
@@ -855,10 +1001,10 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
                m_PRGROMmemory.REMAP(2,data);
             }
          }
-
          break;
       case 0x5117:
          m_reg[23] = data;
+         data %= m_numPrgBanks;
          if ( m_prgMode == 0 )
          {
             m_PRGROMmemory.REMAP(0,(data&0xFC)+0);
@@ -875,152 +1021,151 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
          {
             m_PRGROMmemory.REMAP(3,data);
          }
-
          break;
       case 0x5120:
          m_reg[24] = data;
          if ( m_chrMode == 3 )
          {
-            m_chr[0] = data;
+            m_chr[0] = (m_chrHigh<<8)|data;
          }
          break;
       case 0x5121:
          m_reg[25] = data;
          if ( m_chrMode == 3 )
          {
-            m_chr[1] = data;
+            m_chr[1] = (m_chrHigh<<8)|data;
          }
          else if ( m_chrMode == 2 )
          {
-            m_chr[0] = (data<<1)+0;
-            m_chr[1] = (data<<1)+1;
+            m_chr[0] = (m_chrHigh<<8)|((data<<1)+0);
+            m_chr[1] = (m_chrHigh<<8)|((data<<1)+1);
          }
          break;
       case 0x5122:
          m_reg[26] = data;
          if ( m_chrMode == 3 )
          {
-            m_chr[2] = data;
+            m_chr[2] = (m_chrHigh<<8)|data;
          }
          break;
       case 0x5123:
          m_reg[27] = data;
          if ( m_chrMode == 3 )
          {
-            m_chr[3] = data;
+            m_chr[3] = (m_chrHigh<<8)|data;
          }
          else if ( m_chrMode == 2 )
          {
-            m_chr[2] = (data<<1)+0;
-            m_chr[3] = (data<<1)+1;
+            m_chr[2] = (m_chrHigh<<8)|((data<<1)+0);
+            m_chr[3] = (m_chrHigh<<8)|((data<<1)+1);
          }
          else if ( m_chrMode == 1 )
          {
-            m_chr[0] = (data<<2)+0;
-            m_chr[1] = (data<<2)+1;
-            m_chr[2] = (data<<2)+2;
-            m_chr[3] = (data<<2)+3;
+            m_chr[0] = (m_chrHigh<<8)|((data<<2)+0);
+            m_chr[1] = (m_chrHigh<<8)|((data<<2)+1);
+            m_chr[2] = (m_chrHigh<<8)|((data<<2)+2);
+            m_chr[3] = (m_chrHigh<<8)|((data<<2)+3);
          }
          break;
       case 0x5124:
          m_reg[28] = data;
          if ( m_chrMode == 3 )
          {
-            m_chr[4] = data;
+            m_chr[4] = (m_chrHigh<<8)|data;
          }
          break;
       case 0x5125:
          m_reg[29] = data;
          if ( m_chrMode == 3 )
          {
-            m_chr[5] = data;
+            m_chr[5] = (m_chrHigh<<8)|data;
          }
          else if ( m_chrMode == 2 )
          {
-            m_chr[4] = (data<<1)+0;
-            m_chr[5] = (data<<1)+1;
+            m_chr[4] = (m_chrHigh<<8)|((data<<1)+0);
+            m_chr[5] = (m_chrHigh<<8)|((data<<1)+1);
          }
          break;
       case 0x5126:
          m_reg[30] = data;
          if ( m_chrMode == 3 )
          {
-            m_chr[6] = data;
+            m_chr[6] = (m_chrHigh<<8)|data;
          }
          break;
       case 0x5127:
          m_reg[31] = data;
          if ( m_chrMode == 3 )
          {
-            m_chr[7] = data;
+            m_chr[7] = (m_chrHigh<<8)|data;
          }
          else if ( m_chrMode == 2 )
          {
-            m_chr[6] = (data<<1)+0;
-            m_chr[7] = (data<<1)+1;
+            m_chr[6] = (m_chrHigh<<8)|((data<<1)+0);
+            m_chr[7] = (m_chrHigh<<8)|((data<<1)+1);
          }
          else if ( m_chrMode == 1 )
          {
-            m_chr[4] = (data<<2)+0;
-            m_chr[5] = (data<<2)+1;
-            m_chr[6] = (data<<2)+2;
-            m_chr[7] = (data<<2)+3;
+            m_chr[4] = (m_chrHigh<<8)|((data<<2)+0);
+            m_chr[5] = (m_chrHigh<<8)|((data<<2)+1);
+            m_chr[6] = (m_chrHigh<<8)|((data<<2)+2);
+            m_chr[7] = (m_chrHigh<<8)|((data<<2)+3);
          }
          else if ( m_chrMode == 0 )
          {
-            m_chr[0] = (data<<3)+0;
-            m_chr[1] = (data<<3)+1;
-            m_chr[2] = (data<<3)+2;
-            m_chr[3] = (data<<3)+3;
-            m_chr[4] = (data<<3)+4;
-            m_chr[5] = (data<<3)+5;
-            m_chr[6] = (data<<3)+6;
-            m_chr[7] = (data<<3)+7;
+            m_chr[0] = (m_chrHigh<<8)|((data<<3)+0);
+            m_chr[1] = (m_chrHigh<<8)|((data<<3)+1);
+            m_chr[2] = (m_chrHigh<<8)|((data<<3)+2);
+            m_chr[3] = (m_chrHigh<<8)|((data<<3)+3);
+            m_chr[4] = (m_chrHigh<<8)|((data<<3)+4);
+            m_chr[5] = (m_chrHigh<<8)|((data<<3)+5);
+            m_chr[6] = (m_chrHigh<<8)|((data<<3)+6);
+            m_chr[7] = (m_chrHigh<<8)|((data<<3)+7);
          }
          break;
       case 0x5128:
          m_reg[32] = data;
          if ( m_chrMode == 3 )
          {
-            m_chr[8] = data;
+            m_chr[8] = (m_chrHigh<<8)|data;
          }
          break;
       case 0x5129:
          m_reg[33] = data;
          if ( m_chrMode == 3 )
          {
-            m_chr[9] = data;
+            m_chr[9] = (m_chrHigh<<8)|data;
          }
          else if ( m_chrMode == 2 )
          {
-            m_chr[8] = (data<<1)+0;
-            m_chr[9] = (data<<1)+1;
+            m_chr[8] = (m_chrHigh<<8)|((data<<1)+0);
+            m_chr[9] = (m_chrHigh<<8)|((data<<1)+1);
          }
          break;
       case 0x512A:
          m_reg[34] = data;
          if ( m_chrMode == 3 )
          {
-            m_chr[10] = data;
+            m_chr[10] = (m_chrHigh<<8)|data;
          }
          break;
       case 0x512B:
          m_reg[35] = data;
          if ( m_chrMode == 3 )
          {
-            m_chr[11] = data;
+            m_chr[11] = (m_chrHigh<<8)|data;
          }
          else if ( m_chrMode == 2 )
          {
-            m_chr[10] = (data<<1)+0;
-            m_chr[11] = (data<<1)+1;
+            m_chr[10] = (m_chrHigh<<8)|((data<<1)+0);
+            m_chr[11] = (m_chrHigh<<8)|((data<<1)+1);
          }
          else if ( m_chrMode == 1 || m_chrMode == 0 )
          {
-            m_chr[8] = (data<<2)+0;
-            m_chr[9] = (data<<2)+1;
-            m_chr[10] = (data<<2)+2;
-            m_chr[11] = (data<<2)+3;
+            m_chr[8] = (m_chrHigh<<8)|((data<<2)+0);
+            m_chr[9] = (m_chrHigh<<8)|((data<<2)+1);
+            m_chr[10] = (m_chrHigh<<8)|((data<<2)+2);
+            m_chr[11] = (m_chrHigh<<8)|((data<<2)+3);
          }
          break;
       case 0x5130:
@@ -1053,6 +1198,16 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
          m_reg[43] = data;
          m_mult2 = data;
          m_prod = m_mult1*m_mult2;
+         break;
+      case 0x5209:
+         m_reg[44] = data;
+         m_timer &= 0x00FF;
+         m_timer |= data;
+         break;
+      case 0x520A:
+         m_reg[45] = data;
+         m_timer &= 0xFF00;
+         m_timer |= (data<<8);
          break;
       }
    }

@@ -90,6 +90,8 @@ static CRegisterDatabase* dbRegisters = new CRegisterDatabase(eMemory_cartMapper
 CROMMapper065::CROMMapper065()
    : CROM(65)
 {
+   m_prgRemappable = true;
+   m_chrRemappable = true;
    // Irem H-3001 stuff
    memset(m_reg,0,sizeof(m_reg));
    m_irqCounter = 0x00;
@@ -103,6 +105,8 @@ CROMMapper065::~CROMMapper065()
 
 void CROMMapper065::RESET ( bool soft )
 {
+   m_mapper = 65;
+
    m_dbCartRegisters = dbRegisters;
 
    CROM::RESET ( soft );
@@ -116,7 +120,7 @@ void CROMMapper065::RESET ( bool soft )
    // CHR ROM/RAM already set up in CROM::RESET()...
 }
 
-void CROMMapper065::SYNCCPU ( void )
+void CROMMapper065::SYNCCPU ( bool write, uint16_t addr, uint8_t data )
 {
    if ( m_irqEnable )
    {

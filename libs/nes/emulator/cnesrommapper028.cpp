@@ -22,6 +22,8 @@
 CROMMapper028::CROMMapper028()
    : CROM(28)
 {
+   m_prgRemappable = true;
+   m_chrRemappable = true;
    m_reg_sel = 0x00;
    m_chr_bank = 0x00;
    m_prg_inner_bank = 0x00;
@@ -41,6 +43,8 @@ CROMMapper028::~CROMMapper028()
 
 void CROMMapper028::RESET ( bool soft )
 {
+   m_mapper = 28;
+
    if ( !soft )
    {
       CROM::RESET ( soft );

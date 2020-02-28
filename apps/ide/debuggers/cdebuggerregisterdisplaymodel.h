@@ -29,6 +29,7 @@ public slots:
    void update(void);
 
 private:
+   regDBFunc          m_regDBFunc;
    CRegisterDatabase* m_regDB;
 };
 

@@ -1999,13 +1999,12 @@ void nesSetVRAMData ( uint32_t addr, uint32_t data )
 
 bool nesMapperRemapsPRGROM ( void )
 {
-
-   return true;//MAPPERFUNC->remapPrg;
+   return CNES::NES()->CART()->IsPRGRemappable();
 }
 
 bool nesMapperRemapsCHRMEM ( void )
 {
-   return true;//MAPPERFUNC->remapChr;
+   return CNES::NES()->CART()->IsCHRRemappable();
 }
 
 uint32_t nesMapperRemappedVMEMSize ( void )

@@ -109,6 +109,10 @@ uint32_t CROMMapper019::m_soundEnableMask = 0xffffffff;
 CROMMapper019::CROMMapper019()
    : CROM(19)
 {
+   delete m_pSRAMmemory; // Remove open-bus default
+   m_pSRAMmemory = new CMEMORY(0x6000,MEM_8KB);
+   m_prgRemappable = true;
+   m_chrRemappable = true;
    memset(m_reg,0,sizeof(m_reg));
    m_irqCounter = 0;
    m_irqEnabled = false;
@@ -117,6 +121,7 @@ CROMMapper019::CROMMapper019()
 
 CROMMapper019::~CROMMapper019()
 {
+   delete m_pSRAMmemory;
 }
 
 void CROMMapper019::RESET ( bool soft )
@@ -144,7 +149,7 @@ void CROMMapper019::RESET ( bool soft )
    // CHR ROM/RAM already set up in CROM::RESET()...
 }
 
-void CROMMapper019::SYNCCPU ( void )
+void CROMMapper019::SYNCCPU ( bool write, uint16_t addr, uint8_t data )
 {
    int32_t idx;
 
@@ -440,7 +445,7 @@ void CROMMapper019::HMAPPER ( uint32_t addr, uint8_t data )
       m_reg[11] = data;
       if ( data < 0xE0 )
       {
-         m_VRAMmemory.REMAPEXT(0x0,m_CHRmemory.PHYSBANK(m_reg[11]));
+         CNES::NES()->PPU()->VRAM()->REMAPEXT ( 0x0, m_CHRmemory.PHYSBANK(m_reg[11]) );
       }
       else
       {
@@ -452,7 +457,7 @@ void CROMMapper019::HMAPPER ( uint32_t addr, uint8_t data )
       m_reg[12] = data;
       if ( data < 0xE0 )
       {
-         m_VRAMmemory.REMAPEXT(0x1,m_CHRmemory.PHYSBANK(m_reg[12]));
+         CNES::NES()->PPU()->VRAM()->REMAPEXT ( 0x1, m_CHRmemory.PHYSBANK(m_reg[12]) );
       }
       else
       {
@@ -464,7 +469,7 @@ void CROMMapper019::HMAPPER ( uint32_t addr, uint8_t data )
       m_reg[13] = data;
       if ( data < 0xE0 )
       {
-         m_VRAMmemory.REMAPEXT(0x2,m_CHRmemory.PHYSBANK(m_reg[13]));
+         CNES::NES()->PPU()->VRAM()->REMAPEXT ( 0x2, m_CHRmemory.PHYSBANK(m_reg[13]) );
       }
       else
       {
@@ -476,7 +481,7 @@ void CROMMapper019::HMAPPER ( uint32_t addr, uint8_t data )
       m_reg[14] = data;
       if ( data < 0xE0 )
       {
-         m_VRAMmemory.REMAPEXT(0x3,m_CHRmemory.PHYSBANK(m_reg[14]));
+         CNES::NES()->PPU()->VRAM()->REMAPEXT ( 0x3, m_CHRmemory.PHYSBANK(m_reg[14]) );
       }
       else
       {

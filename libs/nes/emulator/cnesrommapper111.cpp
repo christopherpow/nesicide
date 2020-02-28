@@ -49,6 +49,8 @@ static CRegisterDatabase* dbRegisters = new CRegisterDatabase(eMemory_cartMapper
 CROMMapper111::CROMMapper111()
    : CROM(111)
 {
+   m_prgRemappable = true;
+   m_chrRemappable = true;
    m_reg = 0x00;
 }
 
@@ -58,6 +60,8 @@ CROMMapper111::~CROMMapper111()
 
 void CROMMapper111::RESET ( bool soft )
 {
+   m_mapper = 111;
+
    m_dbCartRegisters = dbRegisters;
 
    CROM::RESET ( soft );
@@ -96,14 +100,14 @@ void CROMMapper111::LMAPPER ( uint32_t addr, uint8_t data )
 
    bank = (m_reg&0x20)>>2;
 
-   m_VRAMmemory.REMAP(0,bank+0);
-   m_VRAMmemory.REMAP(1,bank+1);
-   m_VRAMmemory.REMAP(2,bank+2);
-   m_VRAMmemory.REMAP(3,bank+3);
-   m_VRAMmemory.REMAP(4,bank+4);
-   m_VRAMmemory.REMAP(5,bank+5);
-   m_VRAMmemory.REMAP(6,bank+6);
-   m_VRAMmemory.REMAP(7,bank+7);
+   CNES::NES()->PPU()->VRAM()->REMAP(0,bank+0);
+   CNES::NES()->PPU()->VRAM()->REMAP(1,bank+1);
+   CNES::NES()->PPU()->VRAM()->REMAP(2,bank+2);
+   CNES::NES()->PPU()->VRAM()->REMAP(3,bank+3);
+   CNES::NES()->PPU()->VRAM()->REMAP(4,bank+4);
+   CNES::NES()->PPU()->VRAM()->REMAP(5,bank+5);
+   CNES::NES()->PPU()->VRAM()->REMAP(6,bank+6);
+   CNES::NES()->PPU()->VRAM()->REMAP(7,bank+7);
 
    if ( nesIsDebuggable )
    {

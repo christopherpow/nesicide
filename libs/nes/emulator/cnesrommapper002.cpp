@@ -45,6 +45,8 @@ CROMMapper002::CROMMapper002()
    : CROM(2)
 {
    m_reg = 0x00;
+   m_prgRemappable = true;
+   m_chrRemappable = false;
 }
 
 CROMMapper002::~CROMMapper002()

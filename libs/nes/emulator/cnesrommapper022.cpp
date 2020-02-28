@@ -78,11 +78,16 @@ static CRegisterDatabase* dbRegisters = new CRegisterDatabase(eMemory_cartMapper
 CROMMapper022::CROMMapper022()
    : CROM(22)
 {
+   delete m_pSRAMmemory; // Remove open-bus default
+   m_pSRAMmemory = new CMEMORY(0x6000,MEM_8KB);
+   m_prgRemappable = true;
+   m_chrRemappable = true;
    memset(m_reg,0,sizeof(m_reg));
 }
 
 CROMMapper022::~CROMMapper022()
 {
+   delete m_pSRAMmemory;
 }
 
 void CROMMapper022::RESET ( bool soft )

@@ -46,6 +46,8 @@ CROMMapper011::CROMMapper011()
    : CROM(11)
 {
    m_reg = 0x00;
+   m_prgRemappable = true;
+   m_chrRemappable = true;
 }
 
 CROMMapper011::~CROMMapper011()

@@ -95,7 +95,7 @@ public:
    uint32_t LMAPPER ( uint32_t addr );
    void LMAPPER ( uint32_t addr, uint8_t data );
    void HMAPPER ( uint32_t addr, uint8_t data );
-   void SYNCCPU ( void );
+   void SYNCCPU ( bool write, uint16_t addr, uint8_t data );
    uint32_t DEBUGINFO ( uint32_t addr );
    uint16_t AMPLITUDE ( void );
    static void SOUNDENABLE ( uint32_t mask ) { m_soundEnableMask = mask; }

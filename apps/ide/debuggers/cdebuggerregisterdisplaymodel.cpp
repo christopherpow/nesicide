@@ -4,6 +4,7 @@ static char modelStringBuffer [ 2048 ];
 
 CDebuggerRegisterDisplayModel::CDebuggerRegisterDisplayModel(regDBFunc regDB,QObject*)
 {
+   m_regDBFunc = regDB;
    m_regDB = regDB();
 }
 
@@ -151,5 +152,6 @@ int CDebuggerRegisterDisplayModel::columnCount(const QModelIndex& /*parent*/) co
 
 void CDebuggerRegisterDisplayModel::update()
 {
+   m_regDB = m_regDBFunc();
    emit layoutChanged();
 }

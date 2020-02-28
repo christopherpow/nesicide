@@ -956,23 +956,6 @@ void CNES::RUN ( uint32_t* joy )
    // Do scanline processing for scanlines 0 - 239 (the screen!)...
    PPU()->RENDERSCANLINE ( SCANLINES_VISIBLE );
 
-#if 0
-
-// CPTODO: move this to ide...
-      // Update CHR memory inspector at appropriate scanline...
-      if ( idx == PPU()->GetPPUViewerScanline() )
-      {
-         PPU()->RENDERCHRMEM ();
-      }
-
-      // Update OAM inspector at appropriate scanline...
-      if ( idx == PPU()->GetOAMViewerScanline() )
-      {
-         PPU()->RENDEROAM ();
-      }
-
-#endif
-
    if ( nesIsDebuggable )
    {
       // Emit start-of-quiet scanline indication to Tracer...
@@ -987,11 +970,11 @@ void CNES::RUN ( uint32_t* joy )
       // Emit end-of-quiet scanline indication to Tracer...
       m_tracer->AddSample ( PPU()->_CYCLES(), eTracer_QuietEnd, eNESSource_PPU, 0, 0, 0 );
 
-      // Do VBLANK processing (scanlines 0-19 NTSC or 0-69 PAL)...
       // Emit start-VBLANK indication to Tracer...
       m_tracer->AddSample ( PPU()->_CYCLES(), eTracer_VBLANKStart, eNESSource_PPU, 0, 0, 0 );
    }
 
+   // Do VBLANK processing (scanlines 0-19 NTSC or 0-69 PAL)...
    // Emulate VBLANK non-render scanlines...
    PPU()->VBLANKSCANLINES ();
 

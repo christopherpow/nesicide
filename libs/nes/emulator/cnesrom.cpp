@@ -115,13 +115,15 @@ CROM* CARTFACTORY(uint32_t mapper)
 CROM::CROM(uint32_t mapper)
    : m_PRGROMmemory(CMEMORY(0x8000,MEM_8KB,NUM_ROM_BANKS,4)),
      m_CHRmemory(CMEMORY(0,MEM_1KB,NUM_CHR_BANKS,8)),
-     m_SRAMmemory(CMEMORY(0x6000,MEM_8KB,8,5)),
-     m_EXRAMmemory(CMEMORY(0x5C00,MEM_1KB)),
-     m_VRAMmemory(CMEMORY(0x2000,MEM_8KB,2))
+     m_pSRAMmemory(new COPENBUS()),
+     m_pEXRAMmemory(new COPENBUS()),
+     m_pVRAMmemory(new COPENBUS())
 {
    m_mapper = mapper;
    m_numPrgBanks = 0;
    m_numChrBanks = 0;
+   m_prgRemappable = false;
+   m_chrRemappable = false;
 
    CROM::RESET ( false );
 }
@@ -143,7 +145,7 @@ void CROM::SetCHRBank ( int32_t bank, uint8_t* data )
    {
       m_CHRmemory.PHYSBANK((bank<<3)+ibank)->MEMSET(data+(ibank*MEM_1KB));
    }
-   m_numChrBanks += 8;
+   m_numChrBanks += 1;
 }
 
 void CROM::DoneLoadingBanks ()
@@ -167,8 +169,8 @@ void CROM::RESET ( bool soft )
 
    m_PRGROMmemory.RESET(soft);
    m_CHRmemory.RESET(soft);
-   m_SRAMmemory.RESET(soft);
-   m_VRAMmemory.RESET(soft);
+   m_pSRAMmemory->RESET(soft);
+   m_pVRAMmemory->RESET(soft);
 
    // Support for NROM-368 for Shiru and crew.
    if ( (m_mapper == 0) && (m_numPrgBanks > 4) )
@@ -244,10 +246,13 @@ void CROM::DISASSEMBLE ()
    m_PRGROMmemory.DISASSEMBLE();
 
    // Disassemble SRAM...
-   m_SRAMmemory.DISASSEMBLE();
+   m_pSRAMmemory->DISASSEMBLE();
 
    // Disassemble EXRAM...
-   m_EXRAMmemory.DISASSEMBLE();
+   if ( m_pEXRAMmemory )
+   {
+      m_pEXRAMmemory->DISASSEMBLE();
+   }
 }
 
 void CROM::PRINTABLEADDR ( char* buffer, uint32_t addr )
@@ -258,11 +263,11 @@ void CROM::PRINTABLEADDR ( char* buffer, uint32_t addr )
    }
    else if ( addr >= 0x6000 )
    {
-      m_SRAMmemory.PRINTABLEADDR(buffer,addr);
+      m_pSRAMmemory->PRINTABLEADDR(buffer,addr);
    }
    else
    {
-      m_EXRAMmemory.PRINTABLEADDR(buffer,addr);
+      m_pEXRAMmemory->PRINTABLEADDR(buffer,addr);
    }
 }
 
@@ -274,11 +279,11 @@ void CROM::PRINTABLEADDR ( char* buffer, uint32_t addr, uint32_t absAddr )
    }
    else if ( addr >= 0x6000 )
    {
-      m_SRAMmemory.PRINTABLEADDR(buffer,addr,absAddr);
+      m_pSRAMmemory->PRINTABLEADDR(buffer,addr,absAddr);
    }
    else
    {
-      m_EXRAMmemory.PRINTABLEADDR(buffer,addr,absAddr);
+      m_pEXRAMmemory->PRINTABLEADDR(buffer,addr,absAddr);
    }
 }
 
@@ -289,12 +294,12 @@ uint32_t CROM::PRGROMSLOC2VIRTADDR ( uint16_t sloc )
 
 uint32_t CROM::SRAMSLOC2VIRTADDR ( uint16_t sloc )
 {
-   return m_SRAMmemory.SLOC2VIRTADDR(sloc);
+   return m_pSRAMmemory->SLOC2VIRTADDR(sloc);
 }
 
 uint32_t CROM::EXRAMSLOC2VIRTADDR ( uint16_t sloc )
 {
-   return m_EXRAMmemory.SLOC2VIRTADDR(sloc);
+   return m_pEXRAMmemory->SLOC2VIRTADDR(sloc);
 }
 
 uint16_t CROM::PRGROMADDR2SLOC ( uint32_t addr )
@@ -304,10 +309,10 @@ uint16_t CROM::PRGROMADDR2SLOC ( uint32_t addr )
 
 uint16_t CROM::SRAMADDR2SLOC ( uint32_t addr )
 {
-   return m_SRAMmemory.ADDR2SLOC(addr);
+   return m_pSRAMmemory->ADDR2SLOC(addr);
 }
 
 uint16_t CROM::EXRAMADDR2SLOC ( uint32_t addr )
 {
-   return m_EXRAMmemory.ADDR2SLOC(addr);
+   return m_pEXRAMmemory->ADDR2SLOC(addr);
 }

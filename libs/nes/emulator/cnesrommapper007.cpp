@@ -47,6 +47,8 @@ static CRegisterDatabase* dbRegisters = new CRegisterDatabase(eMemory_cartMapper
 CROMMapper007::CROMMapper007()
    : CROM(7)
 {
+   m_prgRemappable = true;
+   m_chrRemappable = false;
    m_reg = 0x00;
 }
 

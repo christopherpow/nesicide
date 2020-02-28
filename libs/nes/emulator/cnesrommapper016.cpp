@@ -90,6 +90,8 @@ CROMMapper016::CROMMapper016()
    : CROM(16)
 {
    memset(m_reg,0,sizeof(m_reg));
+   m_prgRemappable = true;
+   m_chrRemappable = true;
    m_irqCounter = 0;
    m_irqEnabled = false;
    m_irqAsserted = false;
@@ -142,7 +144,7 @@ void CROMMapper016::RESET159 ( bool soft )
    // CHR ROM/RAM already set up in CROM::RESET()...
 }
 
-void CROMMapper016::SYNCCPU ( void )
+void CROMMapper016::SYNCCPU ( bool write, uint16_t addr, uint8_t data )
 {
    if ( m_irqEnabled )
    {

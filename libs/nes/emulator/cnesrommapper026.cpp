@@ -130,7 +130,8 @@ static CRegisterDatabase* dbRegisters = new CRegisterDatabase(eMemory_cartMapper
 CROMMapper026::CROMMapper026()
 {
    m_mapper = 26;
-
+   m_prgRemappable = true;
+   m_chrRemappable = true;
    memset(m_reg,0,sizeof(m_reg));
    m_irqReload = 0;
    m_irqCounter = 0;
@@ -167,7 +168,7 @@ void CROMMapper026::RESET ( bool soft )
    // CHR ROM/RAM already set up in CROM::RESET()...
 }
 
-void CROMMapper026::SYNCCPU ( void )
+void CROMMapper026::SYNCCPU ( bool write, uint16_t addr, uint8_t data )
 {
    uint8_t phases[3] = { 114, 114, 113 };
 

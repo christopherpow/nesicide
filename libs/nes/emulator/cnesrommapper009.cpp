@@ -74,6 +74,10 @@ static CRegisterDatabase* dbRegisters = new CRegisterDatabase(eMemory_cartMapper
 CROMMapper009::CROMMapper009()
    : CROM(9)
 {
+   delete m_pSRAMmemory; // Remove open-bus default
+   m_pSRAMmemory = new CMEMORY(0x6000,MEM_8KB);
+   m_prgRemappable = true;
+   m_chrRemappable = true;
    // MMC2 stuff
    memset(m_reg,0,sizeof(m_reg));
    m_latch0 = 0xFE;
@@ -86,6 +90,7 @@ CROMMapper009::CROMMapper009()
 
 CROMMapper009::~CROMMapper009()
 {
+   delete m_pSRAMmemory;
 }
 
 void CROMMapper009::RESET ( bool soft )

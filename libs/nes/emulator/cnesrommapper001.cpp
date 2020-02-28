@@ -67,6 +67,10 @@ static CRegisterDatabase* dbRegisters = new CRegisterDatabase(eMemory_cartMapper
 CROMMapper001::CROMMapper001()
    : CROM(1)
 {
+   delete m_pSRAMmemory; // Remove open-bus default
+   m_pSRAMmemory = new CMEMORY(0x6000,MEM_8KB);
+   m_prgRemappable = true;
+   m_chrRemappable = true;
    memset(m_reg,0,sizeof(m_reg));
    memset(m_regdef,0,sizeof(m_regdef));
    m_reg[0] = 0x0C;
@@ -80,6 +84,7 @@ CROMMapper001::CROMMapper001()
 
 CROMMapper001::~CROMMapper001()
 {
+   delete m_pSRAMmemory;
 }
 
 void CROMMapper001::RESET ( bool soft )
@@ -107,7 +112,7 @@ void CROMMapper001::RESET ( bool soft )
    // CHR ROM/RAM already set up in CROM::RESET()...
 }
 
-void CROMMapper001::SYNCCPU()
+void CROMMapper001::SYNCCPU( bool write, uint16_t addr, uint8_t data )
 {
    // This may not be the actual CPU cycle but it doesn't matter.
    m_cpuCycle++;

@@ -68,16 +68,23 @@ static CRegisterDatabase* dbRegisters = new CRegisterDatabase(eMemory_cartMapper
 CROMMapper068::CROMMapper068()
    : CROM(68)
 {
+   delete m_pSRAMmemory; // Remove open-bus default
+   m_pSRAMmemory = new CMEMORY(0x6000,MEM_8KB);
+   m_prgRemappable = true;
+   m_chrRemappable = true;
    memset(m_reg,0,sizeof(m_reg));
 }
 
 CROMMapper068::~CROMMapper068()
 {
+   delete m_pSRAMmemory;
 }
 
 void CROMMapper068::RESET ( bool soft )
 {
    int32_t idx;
+
+   m_mapper = 68;
 
    m_dbCartRegisters = dbRegisters;
 
@@ -158,16 +165,16 @@ void CROMMapper068::HMAPPER ( uint32_t addr, uint8_t data )
          switch ( m_reg[6]&0x01 )
          {
          case 0:
-            m_VRAMmemory.REMAPEXT ( 0x0, m_CHRmemory.PHYSBANK(m_reg[4]) );
-            m_VRAMmemory.REMAPEXT ( 0x1, m_CHRmemory.PHYSBANK(m_reg[5]) );
-            m_VRAMmemory.REMAPEXT ( 0x2, m_CHRmemory.PHYSBANK(m_reg[4]) );
-            m_VRAMmemory.REMAPEXT ( 0x3, m_CHRmemory.PHYSBANK(m_reg[5]) );
+            CNES::NES()->PPU()->VRAM()->REMAPEXT ( 0x0, m_CHRmemory.PHYSBANK(m_reg[4]) );
+            CNES::NES()->PPU()->VRAM()->REMAPEXT ( 0x1, m_CHRmemory.PHYSBANK(m_reg[5]) );
+            CNES::NES()->PPU()->VRAM()->REMAPEXT ( 0x2, m_CHRmemory.PHYSBANK(m_reg[4]) );
+            CNES::NES()->PPU()->VRAM()->REMAPEXT ( 0x3, m_CHRmemory.PHYSBANK(m_reg[5]) );
             break;
          case 1:
-            m_VRAMmemory.REMAPEXT ( 0x0, m_CHRmemory.PHYSBANK(m_reg[4]) );
-            m_VRAMmemory.REMAPEXT ( 0x1, m_CHRmemory.PHYSBANK(m_reg[4]) );
-            m_VRAMmemory.REMAPEXT ( 0x2, m_CHRmemory.PHYSBANK(m_reg[5]) );
-            m_VRAMmemory.REMAPEXT ( 0x3, m_CHRmemory.PHYSBANK(m_reg[5]) );
+            CNES::NES()->PPU()->VRAM()->REMAPEXT ( 0x0, m_CHRmemory.PHYSBANK(m_reg[4]) );
+            CNES::NES()->PPU()->VRAM()->REMAPEXT ( 0x1, m_CHRmemory.PHYSBANK(m_reg[4]) );
+            CNES::NES()->PPU()->VRAM()->REMAPEXT ( 0x2, m_CHRmemory.PHYSBANK(m_reg[5]) );
+            CNES::NES()->PPU()->VRAM()->REMAPEXT ( 0x3, m_CHRmemory.PHYSBANK(m_reg[5]) );
             break;
          }
       }
@@ -193,16 +200,16 @@ void CROMMapper068::HMAPPER ( uint32_t addr, uint8_t data )
          switch ( m_reg[6]&0x01 )
          {
          case 0:
-            m_VRAMmemory.REMAPEXT ( 0x0, m_CHRmemory.PHYSBANK(m_reg[4]) );
-            m_VRAMmemory.REMAPEXT ( 0x1, m_CHRmemory.PHYSBANK(m_reg[5]) );
-            m_VRAMmemory.REMAPEXT ( 0x0, m_CHRmemory.PHYSBANK(m_reg[4]) );
-            m_VRAMmemory.REMAPEXT ( 0x1, m_CHRmemory.PHYSBANK(m_reg[5]) );
+            CNES::NES()->PPU()->VRAM()->REMAPEXT ( 0x0, m_CHRmemory.PHYSBANK(m_reg[4]) );
+            CNES::NES()->PPU()->VRAM()->REMAPEXT ( 0x1, m_CHRmemory.PHYSBANK(m_reg[5]) );
+            CNES::NES()->PPU()->VRAM()->REMAPEXT ( 0x0, m_CHRmemory.PHYSBANK(m_reg[4]) );
+            CNES::NES()->PPU()->VRAM()->REMAPEXT ( 0x1, m_CHRmemory.PHYSBANK(m_reg[5]) );
             break;
          case 1:
-            m_VRAMmemory.REMAPEXT ( 0x0, m_CHRmemory.PHYSBANK(m_reg[4]) );
-            m_VRAMmemory.REMAPEXT ( 0x1, m_CHRmemory.PHYSBANK(m_reg[4]) );
-            m_VRAMmemory.REMAPEXT ( 0x0, m_CHRmemory.PHYSBANK(m_reg[5]) );
-            m_VRAMmemory.REMAPEXT ( 0x1, m_CHRmemory.PHYSBANK(m_reg[5]) );
+            CNES::NES()->PPU()->VRAM()->REMAPEXT ( 0x0, m_CHRmemory.PHYSBANK(m_reg[4]) );
+            CNES::NES()->PPU()->VRAM()->REMAPEXT ( 0x1, m_CHRmemory.PHYSBANK(m_reg[4]) );
+            CNES::NES()->PPU()->VRAM()->REMAPEXT ( 0x0, m_CHRmemory.PHYSBANK(m_reg[5]) );
+            CNES::NES()->PPU()->VRAM()->REMAPEXT ( 0x1, m_CHRmemory.PHYSBANK(m_reg[5]) );
             break;
          }
       }
@@ -228,16 +235,16 @@ void CROMMapper068::HMAPPER ( uint32_t addr, uint8_t data )
          switch ( m_reg[6]&0x01 )
          {
          case 0:
-            m_VRAMmemory.REMAPEXT ( 0x0, m_CHRmemory.PHYSBANK(m_reg[4]) );
-            m_VRAMmemory.REMAPEXT ( 0x1, m_CHRmemory.PHYSBANK(m_reg[5]) );
-            m_VRAMmemory.REMAPEXT ( 0x0, m_CHRmemory.PHYSBANK(m_reg[4]) );
-            m_VRAMmemory.REMAPEXT ( 0x1, m_CHRmemory.PHYSBANK(m_reg[5]) );
+            CNES::NES()->PPU()->VRAM()->REMAPEXT ( 0x0, m_CHRmemory.PHYSBANK(m_reg[4]) );
+            CNES::NES()->PPU()->VRAM()->REMAPEXT ( 0x1, m_CHRmemory.PHYSBANK(m_reg[5]) );
+            CNES::NES()->PPU()->VRAM()->REMAPEXT ( 0x0, m_CHRmemory.PHYSBANK(m_reg[4]) );
+            CNES::NES()->PPU()->VRAM()->REMAPEXT ( 0x1, m_CHRmemory.PHYSBANK(m_reg[5]) );
             break;
          case 1:
-            m_VRAMmemory.REMAPEXT ( 0x0, m_CHRmemory.PHYSBANK(m_reg[4]) );
-            m_VRAMmemory.REMAPEXT ( 0x1, m_CHRmemory.PHYSBANK(m_reg[4]) );
-            m_VRAMmemory.REMAPEXT ( 0x0, m_CHRmemory.PHYSBANK(m_reg[5]) );
-            m_VRAMmemory.REMAPEXT ( 0x1, m_CHRmemory.PHYSBANK(m_reg[5]) );
+            CNES::NES()->PPU()->VRAM()->REMAPEXT ( 0x0, m_CHRmemory.PHYSBANK(m_reg[4]) );
+            CNES::NES()->PPU()->VRAM()->REMAPEXT ( 0x1, m_CHRmemory.PHYSBANK(m_reg[4]) );
+            CNES::NES()->PPU()->VRAM()->REMAPEXT ( 0x0, m_CHRmemory.PHYSBANK(m_reg[5]) );
+            CNES::NES()->PPU()->VRAM()->REMAPEXT ( 0x1, m_CHRmemory.PHYSBANK(m_reg[5]) );
             break;
          }
       }

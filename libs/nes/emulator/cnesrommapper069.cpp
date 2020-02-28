@@ -64,6 +64,10 @@ static CRegisterDatabase* dbRegisters = new CRegisterDatabase(eMemory_cartMapper
 CROMMapper069::CROMMapper069()
    : CROM(69)
 {
+   delete m_pSRAMmemory; // Remove open-bus default
+   m_pSRAMmemory = new CMEMORY(0x6000,MEM_8KB);
+   m_prgRemappable = true;
+   m_chrRemappable = true;
    memset(m_reg,0,sizeof(m_reg));
    m_irqAsserted = false;
    m_irqCounter = 0x0000;
@@ -77,11 +81,14 @@ CROMMapper069::CROMMapper069()
 
 CROMMapper069::~CROMMapper069()
 {
+   delete m_pSRAMmemory;
 }
 
 void CROMMapper069::RESET ( bool soft )
 {
    int32_t idx;
+
+   m_mapper = 69;
 
    m_dbCartRegisters = dbRegisters;
 
@@ -114,7 +121,7 @@ void CROMMapper069::RESET ( bool soft )
    // CHR ROM/RAM already set up in CROM::RESET()...
 }
 
-void CROMMapper069::SYNCCPU ( void )
+void CROMMapper069::SYNCCPU ( bool write, uint16_t addr, uint8_t data )
 {
    uint32_t prevCounter = m_irqCounter;
 

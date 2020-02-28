@@ -458,9 +458,7 @@ public:
       m_sampleLength(0x0000),
       m_outputShift(0x00),
       m_outputShiftCounter(0),
-      m_silence(true),
-      m_dmaSource(NULL),
-      m_dmaSourcePtr(NULL)
+      m_silence(true)
    {};
 
    // This method sets data internal to the APU channel.  There is no
@@ -483,15 +481,6 @@ public:
    // sample data for playback when its internal sample buffer empties
    // into the output shift register.
    void DMAREADER ( void );
-
-   // The source of DMA can be set to the emulation engine or to the
-   // music designer.  In the latter case the APU is used by the music
-   // designer to play music being created in the designer.
-   void DMASOURCE ( uint8_t* source )
-   {
-      m_dmaSource = source;
-      m_dmaSourcePtr = source;
-   }
 
    void DMASAMPLE ( uint8_t data );
 
@@ -577,12 +566,6 @@ protected:
    // If no data is in the sample buffer the output shift register
    // will generate 'silence'.
    bool          m_silence;
-
-   // Current memory location for fetching samples from the music
-   // designer.  If this address is being used the m_dmaReaderAddrPtr
-   // is ignored.
-   uint8_t* m_dmaSource;
-   uint8_t* m_dmaSourcePtr;
 };
 
 class C6502;
@@ -596,12 +579,9 @@ public:
    uint32_t APU ( uint32_t addr );
    void APU ( uint32_t addr, uint8_t data );
    void EMULATE ( void );
+   void EMULATE_NTSC_DENDY ( void );
+   void EMULATE_PAL ( void );
    uint8_t* PLAY ( uint16_t samples );
-
-   void DMASOURCE ( uint8_t* source )
-   {
-      m_dmc.DMASOURCE ( source );
-   }
 
    void DMASAMPLE ( uint8_t data )
    {
@@ -716,6 +696,8 @@ protected:
    CAPUTriangle m_triangle;
    CAPUNoise m_noise;
    CAPUDMC m_dmc;
+
+   void (CAPU::*MACHINE_SPECIFIC_EMULATE)(void);
 
    uint16_t* m_waveBuf;
    int32_t m_waveBufProduce;

@@ -442,6 +442,8 @@ public:
       (*sc4) = m_PPUmemory.VIRTBANK(3)->BASEADDR();
    }
 
+   inline CMEMORY *VRAM() { return &m_PPUmemory; }
+
    // Accessor functions for the database of scroll values indexed by pixel
    // location.  At each PPU cycle that is rendering a visible pixel the scroll
    // register values are stored so that a representation of the visible portions

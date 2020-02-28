@@ -178,7 +178,7 @@ void NameTableVisualizerDockWidget::updateInfoText(int x, int y)
       str.sprintf("Pixel(%d,%d) Tile(%d,%d) $%04X",
                   x,y,
                   tileX,tileY,
-                  0x2000+sc[q]+((tileY*32)+tileX));
+                  sc[q]+((tileY*32)+tileX));
 
       ui->address->setText(str);
    }

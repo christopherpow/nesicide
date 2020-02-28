@@ -132,6 +132,8 @@ uint32_t CROMMapper024::m_soundEnableMask = 0xffffffff;
 CROMMapper024::CROMMapper024()
    : CROM(24)
 {
+   m_prgRemappable = true;
+   m_chrRemappable = true;
    memset(m_reg,0,sizeof(m_reg));
    m_irqReload = 0;
    m_irqCounter = 0;
@@ -168,7 +170,7 @@ void CROMMapper024::RESET ( bool soft )
    // CHR ROM/RAM already set up in CROM::RESET()...
 }
 
-void CROMMapper024::SYNCCPU ( void )
+void CROMMapper024::SYNCCPU ( bool write, uint16_t addr, uint8_t data )
 {
    uint8_t phases[3] = { 114, 114, 113 };
 

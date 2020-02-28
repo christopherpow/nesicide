@@ -171,7 +171,7 @@ public:
    // It is used by the debugger inspectors to determine whether or not
    // they need to show themselves upon hitting a particular breakpoint type.
    // It is also used by the NES object in evaluating breakpoints for hits.
-   CBreakpointInfo* BREAKPOINTS ( void )
+   inline CBreakpointInfo* BREAKPOINTS ( void )
    {
       return m_breakpoints;
    }

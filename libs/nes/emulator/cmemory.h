@@ -12,19 +12,23 @@
 
 extern char* DISASSEMBLE(uint8_t* pOpcode, char* buffer);
 
+class C6502;
+class CMEMORY;
+
 class CMEMORYBANK
 {
 public:
    CMEMORYBANK();
    ~CMEMORYBANK ();
 
-   void INITIALIZE(uint32_t physBaseAddress,
+   void INITIALIZE(CMEMORY *parent,
                    uint32_t bankNum,
                    uint32_t size,
                    uint32_t sizeMask);
 
    inline uint32_t BANKNUM() const { return m_bankNum; }
-   inline uint32_t BASEADDR() const { return m_physBaseAddress; }
+
+   uint32_t BASEADDR() const;
 
    // Support functions for inline disassembly
    inline void OPCODEMASK ( uint32_t addr, uint8_t mask )
@@ -108,12 +112,11 @@ public:
    }
 
 protected:
+   CMEMORY *m_parent;
    uint8_t* m_memory;
    uint32_t m_bankNum;
    uint32_t m_size;
    uint32_t m_sizeMask;
-
-   uint32_t m_physBaseAddress;
 
    // Database used by the Code/Data Logger debugger inspector.  The data structure
    // is maintained by the CPU core as it performs fetches, reads,
@@ -132,7 +135,7 @@ protected:
 class CMEMORY
 {
 public:
-   CMEMORY(uint32_t physBaseAddress,
+   CMEMORY(uint32_t virtBaseAddress,
            uint32_t bankSize,
            uint32_t numPhysBanks = 1,
            uint32_t numVirtBanks = 1);        // represent unity for no bankswitch
@@ -140,6 +143,8 @@ public:
 
    void PRINTABLEADDR(char* buffer, uint32_t virtAddr);
    void PRINTABLEADDR(char* buffer, uint32_t virtAddr, uint32_t physAddr);
+
+   uint32_t VIRTBASEADDR() const { return m_virtBaseAddress; }
 
    void RESET ( bool soft );
 
@@ -308,6 +313,20 @@ protected:
    uint32_t m_totalPhysSizeMask;
    uint32_t m_totalVirtSize;
    uint32_t m_totalVirtSizeMask;
+};
+
+class COPENBUS: public CMEMORY
+{
+public:
+   COPENBUS() : CMEMORY(0,1) {}
+   ~COPENBUS() {}
+
+   uint32_t TOTALSIZE() const { return 0; }
+
+   inline uint8_t MEM (uint32_t addr);
+   inline void MEM (uint32_t addr, uint8_t data);
+   inline uint8_t MEMATPHYSADDR (uint32_t absAddr);
+   inline void MEMATPHYSADDR (uint32_t absAddr, uint8_t data);
 };
 
 #endif // CMEMORY_H

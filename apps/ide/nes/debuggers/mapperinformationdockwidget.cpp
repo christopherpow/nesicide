@@ -139,9 +139,9 @@ void MapperInformationDockWidget::updateInformation()
    ui->nt3->setText ( buffer );
 
    // Show Bank information...
-   sprintf ( buffer, "%d (%dKB)", nesGetNumPRGROMBanks(), nesGetNumPRGROMBanks()*MEM_8KB  );
+   sprintf ( buffer, "%d (%dKB)", nesGetNumPRGROMBanks(), nesGetNumPRGROMBanks()<<3 );
    ui->numPrgBanks->setText ( buffer );
-   sprintf ( buffer, "%d (%dKB)", nesGetNumCHRROMBanks(), nesGetNumCHRROMBanks()*MEM_8KB );
+   sprintf ( buffer, "%d (%dKB)", nesGetNumCHRROMBanks(), nesGetNumCHRROMBanks()<<3 );
    ui->numChrBanks->setText ( buffer );
 
    // Show PRG-ROM absolute addresses...

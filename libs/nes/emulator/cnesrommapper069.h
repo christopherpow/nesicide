@@ -15,7 +15,7 @@ public:
    void HMAPPER ( uint32_t addr, uint8_t data );
    uint32_t LMAPPER ( uint32_t addr );
    void LMAPPER ( uint32_t addr, uint8_t data );
-   void SYNCCPU ( void );
+   void SYNCCPU ( bool write, uint16_t addr, uint8_t data );
    void SETCPU ( void );
    void SETPPU ( void );
    uint32_t DEBUGINFO ( uint32_t addr );

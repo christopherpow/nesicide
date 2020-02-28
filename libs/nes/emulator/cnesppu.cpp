@@ -105,9 +105,15 @@ void CPPU::EMULATE(uint32_t cycles)
 {
    uint32_t idxx = 0xffffffff;
    uint32_t idxy = 0xffffffff;
+   uint32_t cycleInScanline;
+   uint32_t scanlineInPlane;
 
    for ( ; cycles > 0; cycles-- )
    {
+      // Reduce some maths
+      cycleInScanline = m_cycles%PPU_CYCLES_PER_SCANLINE;
+      scanlineInPlane = m_cycles/PPU_CYCLES_PER_SCANLINE;
+
       // Get VBLANK raster position.
       if ( m_cycles >= startVblank )
       {
@@ -122,20 +128,14 @@ void CPPU::EMULATE(uint32_t cycles)
       // Re-latch PPU address...
       if ( rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES) )
       {
-         if ( ((m_cycles%PPU_CYCLES_PER_SCANLINE) == 257) &&
-               ((m_cycles/PPU_CYCLES_PER_SCANLINE) < SCANLINES_VISIBLE) )
+         if ( scanlineInPlane < SCANLINES_VISIBLE )
          {
-            m_ppuAddr &= 0xFBE0;
-            m_ppuAddr |= m_ppuAddrLatch&0x41F;
-         }
-         else if ( ((m_cycles%PPU_CYCLES_PER_SCANLINE) == 304) &&
-                   ((m_cycles/PPU_CYCLES_PER_SCANLINE) == prerenderScanline) )
-         {
-            m_ppuAddr = m_ppuAddrLatch;
-         }
-         else if ( (m_cycles/PPU_CYCLES_PER_SCANLINE) < SCANLINES_VISIBLE )
-         {
-            if ( (m_cycles%PPU_CYCLES_PER_SCANLINE) == 251 )
+            if ( cycleInScanline == 257 )
+            {
+               m_ppuAddr &= 0xFBE0;
+               m_ppuAddr |= m_ppuAddrLatch&0x41F;
+            }
+            else if ( cycleInScanline == 251 )
             {
                if ( (m_ppuAddr&0x7000) == 0x7000 )
                {
@@ -164,10 +164,10 @@ void CPPU::EMULATE(uint32_t cycles)
                }
             }
 
-            if ( (((m_cycles%PPU_CYCLES_PER_SCANLINE)%8) == 3) &&
-                  (((m_cycles%PPU_CYCLES_PER_SCANLINE) < 256) ||
-                   ((m_cycles%PPU_CYCLES_PER_SCANLINE) == 323) ||
-                   ((m_cycles%PPU_CYCLES_PER_SCANLINE) == 331)) )
+            if ( ((cycleInScanline&7) == 3) &&
+                  ((cycleInScanline < 256) ||
+                   (cycleInScanline == 323) ||
+                   (cycleInScanline == 331)) )
             {
                if ( (m_ppuAddr&0x001F) != 0x001F )
                {
@@ -178,6 +178,11 @@ void CPPU::EMULATE(uint32_t cycles)
                   m_ppuAddr ^= 0x041F;
                }
             }
+         }
+         else if ( (scanlineInPlane == prerenderScanline) &&
+                   (cycleInScanline == 304) )
+         {
+            m_ppuAddr = m_ppuAddrLatch;
          }
       }
 
@@ -872,6 +877,7 @@ void CPPU::RENDERSCANLINE ( int32_t scanlines )
    int32_t rasttv;
    int8_t* pTV;
    int32_t p;
+   int greyscale, intenser, intenseg, intenseb;
 
    if ( scanlines == SCANLINES_VISIBLE )
    {
@@ -1001,6 +1007,12 @@ void CPPU::RENDERSCANLINE ( int32_t scanlines )
                bkgndColorIdx = 0;
             }
 
+            // invariants
+            greyscale = !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE);
+            intenser = !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS);
+            intenseg = !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS);
+            intenseb = !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES);
+
             // Sprite/background pixel rendering determination...
             if ( rPPU(PPUMASK)&(PPUMASK_RENDER_BKGND|PPUMASK_RENDER_SPRITES) )
             {
@@ -1016,23 +1028,23 @@ void CPPU::RENDERSCANLINE ( int32_t scanlines )
                   }
 
                   // Draw sprite...
-                  *pTV = CBasePalette::GetPaletteR(rPALETTE(0x10+spriteColorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
-                  *(pTV+1) = CBasePalette::GetPaletteG(rPALETTE(0x10+spriteColorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
-                  *(pTV+2) = CBasePalette::GetPaletteB(rPALETTE(0x10+spriteColorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+                  *pTV++ = CBasePalette::GetPaletteR(rPALETTE(0x10+spriteColorIdx), greyscale, intenser, intenseg, intenseb);
+                  *pTV++ = CBasePalette::GetPaletteG(rPALETTE(0x10+spriteColorIdx), greyscale, intenser, intenseg, intenseb);
+                  *pTV++ = CBasePalette::GetPaletteB(rPALETTE(0x10+spriteColorIdx), greyscale, intenser, intenseg, intenseb);
                }
                else if ( p>=startBkgnd )
                {
                   // Draw background...
-                  *pTV = CBasePalette::GetPaletteR(rPALETTE(bkgndColorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
-                  *(pTV+1) = CBasePalette::GetPaletteG(rPALETTE(bkgndColorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
-                  *(pTV+2) = CBasePalette::GetPaletteB(rPALETTE(bkgndColorIdx), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+                  *pTV++ = CBasePalette::GetPaletteR(rPALETTE(bkgndColorIdx), greyscale, intenser, intenseg, intenseb);
+                  *pTV++ = CBasePalette::GetPaletteG(rPALETTE(bkgndColorIdx), greyscale, intenser, intenseg, intenseb);
+                  *pTV++ = CBasePalette::GetPaletteB(rPALETTE(bkgndColorIdx), greyscale, intenser, intenseg, intenseb);
                }
                else
                {
                   // Draw 'nothing'...
-                  *pTV = CBasePalette::GetPaletteR(rPALETTE(0), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
-                  *(pTV+1) = CBasePalette::GetPaletteG(rPALETTE(0), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
-                  *(pTV+2) = CBasePalette::GetPaletteB(rPALETTE(0), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+                  *pTV++ = CBasePalette::GetPaletteR(rPALETTE(0), greyscale, intenser, intenseg, intenseb);
+                  *pTV++ = CBasePalette::GetPaletteG(rPALETTE(0), greyscale, intenser, intenseg, intenseb);
+                  *pTV++ = CBasePalette::GetPaletteB(rPALETTE(0), greyscale, intenser, intenseg, intenseb);
                }
 
                // Sprite 0 hit checks...
@@ -1065,20 +1077,20 @@ void CPPU::RENDERSCANLINE ( int32_t scanlines )
             {
                if ( (m_ppuAddr&0x3F00) == 0x3F00 )
                {
-                  *pTV = CBasePalette::GetPaletteR(rPALETTE(m_ppuAddr&0x1F), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
-                  *(pTV+1) = CBasePalette::GetPaletteG(rPALETTE(m_ppuAddr&0x1F), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
-                  *(pTV+2) = CBasePalette::GetPaletteB(rPALETTE(m_ppuAddr&0x1F), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+                  *pTV++ = CBasePalette::GetPaletteR(rPALETTE(m_ppuAddr&0x1F), greyscale, intenser, intenseg, intenseb);
+                  *pTV++ = CBasePalette::GetPaletteG(rPALETTE(m_ppuAddr&0x1F), greyscale, intenser, intenseg, intenseb);
+                  *pTV++ = CBasePalette::GetPaletteB(rPALETTE(m_ppuAddr&0x1F), greyscale, intenser, intenseg, intenseb);
                }
                else
                {
-                  *pTV = CBasePalette::GetPaletteR(rPALETTE(0), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
-                  *(pTV+1) = CBasePalette::GetPaletteG(rPALETTE(0), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
-                  *(pTV+2) = CBasePalette::GetPaletteB(rPALETTE(0), !!(rPPU(PPUMASK)&PPUMASK_GREYSCALE), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_REDS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_GREENS), !!(rPPU(PPUMASK)&PPUMASK_INTENSIFY_BLUES));
+                  *pTV++ = CBasePalette::GetPaletteR(rPALETTE(0), greyscale, intenser, intenseg, intenseb);
+                  *pTV++ = CBasePalette::GetPaletteG(rPALETTE(0), greyscale, intenser, intenseg, intenseb);
+                  *pTV++ = CBasePalette::GetPaletteB(rPALETTE(0), greyscale, intenser, intenseg, intenseb);
                }
             }
 
             // Move to next pixel...
-            pTV += 4;
+            pTV++; // skip alpha
             p++;
          }
 
@@ -1086,8 +1098,12 @@ void CPPU::RENDERSCANLINE ( int32_t scanlines )
          if ( !(idxx&1) )
          {
             BUILDSPRITELIST ( scanline, idxx );
+            EMULATE(1);
          }
-         GATHERBKGND ( idxx%8 );
+         else
+         {
+            GATHERBKGND ( idxx&7 );
+         }
       }
 
       if ( nesIsDebuggable )
@@ -1111,8 +1127,9 @@ void CPPU::RENDERSCANLINE ( int32_t scanlines )
       m_bkgndBuffer.data[0].patternData1 = m_bkgndBuffer.data[1].patternData1;
       m_bkgndBuffer.data[0].patternData2 = m_bkgndBuffer.data[1].patternData2;
 
-      for ( p = 0; p < 8; p++ )
+      for ( p = 1; p < 9; p+=2 )
       {
+         EMULATE(1);
          GATHERBKGND ( p );
       }
 
@@ -1122,8 +1139,9 @@ void CPPU::RENDERSCANLINE ( int32_t scanlines )
       m_bkgndBuffer.data[0].patternData1 = m_bkgndBuffer.data[1].patternData1;
       m_bkgndBuffer.data[0].patternData2 = m_bkgndBuffer.data[1].patternData2;
 
-      for ( p = 0; p < 8; p++ )
+      for ( p = 1; p < 9; p+=2 )
       {
+         EMULATE(1);
          GATHERBKGND ( p );
       }
 
@@ -1198,12 +1216,6 @@ void CPPU::GATHERBKGND ( int8_t phase )
    uint8_t attribData = 0x00;
    int32_t bkgndPatBase = (!!(rPPU(PPUCTRL)&PPUCTRL_BKGND_PAT_TBL_ADDR))<<12;
    BackgroundBufferData* pBkgnd = m_bkgndBuffer.data + 1;
-
-   if ( !(phase&1) )
-   {
-      EMULATE(1);
-      return;
-   }
 
    if ( phase == 1 )
    {
@@ -1368,11 +1380,6 @@ void CPPU::BUILDSPRITELIST ( int32_t scanline, int32_t cycle )
       m_spriteTemporaryMemory.rolling = 0;
    }
 
-   // Loop invariants...
-   spriteSize = ((!!(rPPU(PPUCTRL)&PPUCTRL_SPRITE_SIZE))+1)<<3;
-
-   scanline++;
-
    // Secondary OAM is actually cleared during first 64 cycles of scanline...
    if ( cycle < 64 )
    {
@@ -1384,6 +1391,11 @@ void CPPU::BUILDSPRITELIST ( int32_t scanline, int32_t cycle )
    {
       return;
    }
+
+   // Loop invariants...
+   spriteSize = ((!!(rPPU(PPUCTRL)&PPUCTRL_SPRITE_SIZE))+1)<<3;
+
+   scanline++;
 
    if ( m_spriteTemporaryMemory.phase == 0 )
    {

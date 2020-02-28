@@ -21,8 +21,7 @@ CMEMORYBANK::CMEMORYBANK() :
    m_memory(NULL),
    m_bankNum(0),
    m_size(0),
-   m_sizeMask(0),
-   m_physBaseAddress(0)
+   m_sizeMask(0)
 {}
 
 CMEMORYBANK::~CMEMORYBANK()
@@ -42,14 +41,21 @@ CMEMORYBANK::~CMEMORYBANK()
    delete [] m_addr2sloc;
 }
 
-void CMEMORYBANK::INITIALIZE(uint32_t physBaseAddress,
+uint32_t CMEMORYBANK::BASEADDR() const
+{
+   return m_parent->VIRTBASEADDR()+(m_bankNum*m_size);
+}
+
+
+void CMEMORYBANK::INITIALIZE(CMEMORY *parent,
                         uint32_t bankNum,
                         uint32_t size,
                         uint32_t sizeMask)
 {
    uint32_t addr;
 
-   m_physBaseAddress = physBaseAddress;
+   m_parent = parent;
+
    m_bankNum = bankNum;
    m_size = size;
    m_sizeMask = sizeMask;
@@ -134,7 +140,7 @@ CMEMORY::CMEMORY(uint32_t virtBaseAddress,
    for ( bank = 0; bank < m_numPhysBanks; bank++ )
    {
       // Set up bank...
-      m_bank[bank].INITIALIZE(bank*m_bankSize,
+      m_bank[bank].INITIALIZE(this,
                               bank,
                               m_bankSize,
                               m_bankSizeMask);
@@ -252,4 +258,24 @@ void CMEMORY::PRINTABLEADDR(char* buffer, uint32_t virtAddr, uint32_t physAddr)
    {
       sprintf ( buffer, "%02X:%04X(%04X)", physBankFromPhysAddr(physAddr), offsetInBank(virtAddr), virtAddr );
    }
+}
+
+uint8_t COPENBUS::MEM (uint32_t addr)
+{
+   return CNES::NES()->CPU()->OPENBUS();
+}
+
+void COPENBUS::MEM (uint32_t addr, uint8_t data)
+{
+   return;
+}
+
+uint8_t COPENBUS::MEMATPHYSADDR (uint32_t absAddr)
+{
+   return CNES::NES()->CPU()->OPENBUS();
+}
+
+void COPENBUS::MEMATPHYSADDR (uint32_t absAddr, uint8_t data)
+{
+   return;
 }

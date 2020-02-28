@@ -153,7 +153,7 @@ public:
 
    void RESET ( bool soft );
    void HMAPPER ( uint32_t addr, uint8_t data );
-   void SYNCCPU ( void );
+   void SYNCCPU ( bool write, uint16_t addr, uint8_t data );
    uint32_t DEBUGINFO ( uint32_t addr );
    uint16_t AMPLITUDE ( void );
 

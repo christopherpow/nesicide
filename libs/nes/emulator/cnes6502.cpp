@@ -623,9 +623,6 @@ void C6502::ADVANCE ( bool stealing )
       }
    }
 
-   // Tell mappers that look at CPU cycles that a CPU cycle has whisked by...
-   NES()->CART()->SYNCCPU();
-
    // Run APU for one cycle...
    APU()->EMULATE ();
 
@@ -3468,6 +3465,9 @@ uint8_t C6502::LOAD ( uint32_t addr, int8_t* pTarget )
       }
    }
 
+   // Synchronize CPU and CART...
+   NES()->CART()->SYNCCPU(false,addr,data);
+
    return data;
 }
 
@@ -3534,6 +3534,9 @@ void C6502::STORE ( uint32_t addr, uint8_t data, int8_t* pTarget )
       (*pTarget) = eTarget_Mapper;
       NES()->CART()->HMAPPER(addr,data);
    }
+
+   // Synchronize CPU and CART...
+   NES()->CART()->SYNCCPU(true,addr,data);
 }
 
 uint8_t C6502::FETCH ()

@@ -32,6 +32,8 @@ public:
    }
    void SetCHRBank ( int32_t bank, uint8_t* data );
    void SetPRGBank ( int32_t bank, uint8_t* data );
+   bool IsPRGRemappable() const { return m_prgRemappable; }
+   bool IsCHRRemappable() const { return m_chrRemappable; }
    void DoneLoadingBanks ( void );
    uint32_t NUMPRGROMBANKS ( void )
    {
@@ -74,24 +76,24 @@ public:
    }
    inline uint32_t SRAMPHYSADDR ( uint32_t addr )
    {
-      return (m_SRAMmemory.physBankFromVirtAddr(addr)*m_SRAMmemory.bankSize())+m_SRAMmemory.offsetInBank(addr);
+      return (m_pSRAMmemory->physBankFromVirtAddr(addr)*m_pSRAMmemory->bankSize())+m_pSRAMmemory->offsetInBank(addr);
    }
    inline uint32_t SRAMVIRT ( uint32_t addr )
    {
-      return m_SRAMmemory.MEM(addr);
+      return m_pSRAMmemory->MEM(addr);
    }
    inline void SRAMVIRT ( uint32_t addr, uint8_t data )
    {
-      m_SRAMmemory.MEM(addr,data);
+      m_pSRAMmemory->MEM(addr,data);
       m_SRAMdirty = true;
    }
    inline uint32_t SRAMPHYS ( uint32_t addr )
    {
-      return m_SRAMmemory.MEMATPHYSADDR(addr);
+      return m_pSRAMmemory->MEMATPHYSADDR(addr);
    }
    inline void SRAMPHYS ( uint32_t addr, uint8_t data, bool setDirty = true )
    {
-      m_SRAMmemory.MEMATPHYSADDR(addr,data);
+      m_pSRAMmemory->MEMATPHYSADDR(addr,data);
       if ( setDirty )
       {
          m_SRAMdirty = true;
@@ -99,39 +101,36 @@ public:
    }
    inline void REMAPSRAM ( uint32_t virtAddr, uint8_t bank )
    {
-      m_SRAMmemory.REMAP(m_SRAMmemory.virtBankFromVirtAddr(virtAddr),bank);
+      m_pSRAMmemory->REMAP(m_pSRAMmemory->virtBankFromVirtAddr(virtAddr),bank);
    }
    inline uint32_t EXRAMPHYSADDR ( uint32_t addr )
    {
-      return m_EXRAMmemory.offsetInBank(addr);
+      return m_pEXRAMmemory->offsetInBank(addr);
    }
    inline uint8_t EXRAM ( uint32_t addr )
    {
-      return m_EXRAMmemory.MEM(addr);
+      return m_pEXRAMmemory->MEM(addr);
    }
    inline void EXRAM ( uint32_t addr, uint8_t data )
    {
-      m_EXRAMmemory.MEM(addr,data);
+      m_pEXRAMmemory->MEM(addr,data);
    }
    inline uint32_t VRAM ( uint32_t addr )
    {
-      if ( m_VRAMmemory.TOTALSIZE() && (addr&PPU_A13) )
+      if ( m_pVRAMmemory->TOTALSIZE() && (addr&PPU_A13) )
       {
-         return m_VRAMmemory.MEM(addr);
+         return m_pVRAMmemory->MEM(addr);
       }
       return CART_UNCLAIMED;
    }
    inline uint32_t VRAM ( uint32_t addr, uint8_t data )
    {
-      if ( m_VRAMmemory.TOTALSIZE() && (addr&PPU_A13) )
+      if ( m_pVRAMmemory->TOTALSIZE() && (addr&PPU_A13) )
       {
-         m_VRAMmemory.MEM(addr,data);
+         m_pVRAMmemory->MEM(addr,data);
+         return data;
       }
       return CART_UNCLAIMED;
-   }
-   inline void REMAPVRAM ( uint32_t bank, uint32_t newBank )
-   {
-      m_VRAMmemory.REMAP(bank,newBank);
    }
 
    // Mapper interfaces
@@ -148,7 +147,7 @@ public:
    virtual uint32_t LMAPPER ( uint32_t addr );
    virtual void LMAPPER ( uint32_t addr, uint8_t data);
    virtual void SYNCPPU ( uint32_t, uint32_t ) {}
-   virtual void SYNCCPU ( void ) {}
+   virtual void SYNCCPU ( bool write, uint16_t addr, uint8_t data ) {}
    virtual uint32_t DEBUGINFO ( uint32_t addr )
    {
       return PRGROM(addr);
@@ -165,7 +164,7 @@ public:
    }
    inline CCodeDataLogger* SRAMLOGGERVIRT ( uint32_t addr )
    {
-      return m_SRAMmemory.LOGGER(addr);
+      return m_pSRAMmemory->LOGGER(addr);
    }
    inline CCodeDataLogger* LOGGERPHYS ( uint32_t absAddr )
    {
@@ -173,11 +172,11 @@ public:
    }
    inline CCodeDataLogger* SRAMLOGGERPHYS ( uint32_t absAddr )
    {
-      return m_SRAMmemory.LOGGERATPHYSADDR(absAddr);
+      return m_pSRAMmemory->LOGGERATPHYSADDR(absAddr);
    }
    inline CCodeDataLogger* EXRAMLOGGER ()
    {
-      return m_EXRAMmemory.LOGGER(0);
+      return m_pEXRAMmemory->LOGGER(0);
    }
 
    // Support functions for inline disassembly in PRG-ROM, SRAM, and EXRAM
@@ -209,54 +208,57 @@ public:
    }
    inline void SRAMOPCODEMASK ( uint32_t addr, uint8_t mask )
    {
-      m_SRAMmemory.OPCODEMASK(addr,mask);
+      m_pSRAMmemory->OPCODEMASK(addr,mask);
    }
    inline void SRAMOPCODEMASKCLR ( void )
    {
-      m_SRAMmemory.OPCODEMASKCLR();
+      m_pSRAMmemory->OPCODEMASKCLR();
    }
    inline char* SRAMDISASSEMBLY ( uint32_t addr )
    {
-      return m_SRAMmemory.DISASSEMBLY(addr);
+      return m_pSRAMmemory->DISASSEMBLY(addr);
    }
    uint32_t SRAMSLOC2VIRTADDR ( uint16_t sloc );
    uint16_t SRAMADDR2SLOC ( uint32_t addr );
    inline uint32_t SRAMSLOC ( uint32_t addr)
    {
-      return m_SRAMmemory.SLOC(addr);
+      return m_pSRAMmemory->SLOC(addr);
    }
    bool SRAMDIRTY() { return m_SRAMdirty; }
    inline void EXRAMOPCODEMASK ( uint32_t addr, uint8_t mask )
    {
-      m_EXRAMmemory.OPCODEMASK(addr,mask);
+      m_pEXRAMmemory->OPCODEMASK(addr,mask);
    }
    inline void EXRAMOPCODEMASKCLR ( void )
    {
-      m_EXRAMmemory.OPCODEMASKCLR();
+      m_pEXRAMmemory->OPCODEMASKCLR();
    }
    inline char* EXRAMDISASSEMBLY ( uint32_t addr )
    {
-      return m_EXRAMmemory.DISASSEMBLY(addr);
+      return m_pEXRAMmemory->DISASSEMBLY(addr);
    }
    uint32_t EXRAMSLOC2VIRTADDR ( uint16_t sloc );
    uint16_t EXRAMADDR2SLOC ( uint32_t addr );
    inline uint32_t EXRAMSLOC ()
    {
-      return m_EXRAMmemory.SLOC(0);
+      return m_pEXRAMmemory->SLOC(0);
    }
    void DISASSEMBLE ();
    void PRINTABLEADDR ( char* buffer, uint32_t addr );
    void PRINTABLEADDR ( char* buffer, uint32_t addr, uint32_t absAddr );
 
-   CMEMORY* VRAMMEMORY() { return &m_VRAMmemory; }
+   CMEMORY* VRAMMEMORY() { return m_pVRAMmemory; }
 
 protected:
-   CMEMORY      m_PRGROMmemory;
-   CMEMORY      m_CHRmemory;
-   CMEMORY      m_SRAMmemory;
-   bool         m_SRAMdirty;
-   CMEMORY      m_EXRAMmemory;
-   CMEMORY      m_VRAMmemory;
+   CMEMORY     m_PRGROMmemory;
+   CMEMORY     m_CHRmemory;
+   CMEMORY    *m_pSRAMmemory;
+   bool        m_SRAMdirty;
+   CMEMORY    *m_pEXRAMmemory;
+   CMEMORY    *m_pVRAMmemory;
+
+   bool        m_prgRemappable;
+   bool        m_chrRemappable;
 
    // Mapper stuff...
    uint32_t m_mapper;
