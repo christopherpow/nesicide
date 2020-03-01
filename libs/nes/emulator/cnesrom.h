@@ -115,7 +115,7 @@ public:
    {
       m_pEXRAMmemory->MEM(addr,data);
    }
-   inline uint32_t VRAM ( uint32_t addr )
+   virtual uint32_t VRAM ( uint32_t addr )
    {
       if ( m_pVRAMmemory->TOTALSIZE() && (addr&PPU_A13) )
       {
@@ -123,7 +123,7 @@ public:
       }
       return CART_UNCLAIMED;
    }
-   inline uint32_t VRAM ( uint32_t addr, uint8_t data )
+   virtual uint32_t VRAM ( uint32_t addr, uint8_t data )
    {
       if ( m_pVRAMmemory->TOTALSIZE() && (addr&PPU_A13) )
       {

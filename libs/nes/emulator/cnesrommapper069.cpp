@@ -196,7 +196,7 @@ void CROMMapper069::HMAPPER ( uint32_t addr, uint8_t data )
                if ( m_sramAreaIsSram )
                {
                   m_prg[0] = (data&0x3F)%NUM_SRAM_BANKS;
-                  CROM::REMAPSRAM(0x6000,m_prg[0]);
+                  REMAPSRAM(0x6000,m_prg[0]);
                }
                else
                {

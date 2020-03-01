@@ -1,5 +1,7 @@
 #include "cdockwidgetregistry.h"
 
+#include <QSettings>
+
 CDockWidgetRegistry *CDockWidgetRegistry::instance = NULL;
 
 CDockWidgetRegistry::CDockWidgetRegistry()
@@ -58,28 +60,35 @@ void CDockWidgetRegistry::hideAll()
 
 void CDockWidgetRegistry::saveVisibility()
 {
-   QHash<QString,CDockWidgetManager*>::const_iterator i;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
 
    mutex->lock();
+
+   QHash<QString,CDockWidgetManager*>::const_iterator i;
+
    for (i = widgets.begin(); i != widgets.end(); ++i)
    {
-      i.value()->visible = i.value()->widget->isVisible();
+      settings.setValue(i.value()->widget->objectName(),i.value()->widget->isVisible());
    }
    mutex->unlock();
 }
 
 void CDockWidgetRegistry::restoreVisibility()
 {
-   QHash<QString,CDockWidgetManager*>::const_iterator i;
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
 
    mutex->lock();
+
+   QHash<QString,CDockWidgetManager*>::const_iterator i;
+
    for (i = widgets.begin(); i != widgets.end(); ++i)
    {
-      if ( i.value()->visible )
+      if ( settings.value(i.value()->widget->objectName()).toBool() )
       {
          i.value()->widget->show();
       }
    }
+
    mutex->unlock();
 }
 

@@ -389,6 +389,8 @@ void CROMMapper005::RESET ( bool soft )
    m_irqScanline = 0;
    m_irqStatus = 0;
 
+   m_exRamMode = 0;
+
    m_8x16e = 0;
    m_8x16z = 0;
 
@@ -504,28 +506,14 @@ void CROMMapper005::SETPPU ( void )
       }
       else if ( m_8x16e )
       {
-         if ( m_lastChr == 0 )
-         {
-            m_CHRmemory.REMAP(0,m_chr[0]);
-            m_CHRmemory.REMAP(1,m_chr[1]);
-            m_CHRmemory.REMAP(2,m_chr[2]);
-            m_CHRmemory.REMAP(3,m_chr[3]);
-            m_CHRmemory.REMAP(4,m_chr[4]);
-            m_CHRmemory.REMAP(5,m_chr[5]);
-            m_CHRmemory.REMAP(6,m_chr[6]);
-            m_CHRmemory.REMAP(7,m_chr[7]);
-         }
-         else
-         {
-            m_CHRmemory.REMAP(0,m_chr[8]);
-            m_CHRmemory.REMAP(1,m_chr[9]);
-            m_CHRmemory.REMAP(2,m_chr[10]);
-            m_CHRmemory.REMAP(3,m_chr[11]);
-            m_CHRmemory.REMAP(4,m_chr[8]);
-            m_CHRmemory.REMAP(5,m_chr[9]);
-            m_CHRmemory.REMAP(6,m_chr[10]);
-            m_CHRmemory.REMAP(7,m_chr[11]);
-         }
+         m_CHRmemory.REMAP(0,m_chr[0]);
+         m_CHRmemory.REMAP(1,m_chr[1]);
+         m_CHRmemory.REMAP(2,m_chr[2]);
+         m_CHRmemory.REMAP(3,m_chr[3]);
+         m_CHRmemory.REMAP(4,m_chr[4]);
+         m_CHRmemory.REMAP(5,m_chr[5]);
+         m_CHRmemory.REMAP(6,m_chr[6]);
+         m_CHRmemory.REMAP(7,m_chr[7]);
       }
    }
    // Background fetches
@@ -544,28 +532,14 @@ void CROMMapper005::SETPPU ( void )
       }
       else if ( m_8x16e )
       {
-         if ( m_lastChr == 0 )
-         {
-            m_CHRmemory.REMAP(0,m_chr[0]);
-            m_CHRmemory.REMAP(1,m_chr[1]);
-            m_CHRmemory.REMAP(2,m_chr[2]);
-            m_CHRmemory.REMAP(3,m_chr[3]);
-            m_CHRmemory.REMAP(4,m_chr[4]);
-            m_CHRmemory.REMAP(5,m_chr[5]);
-            m_CHRmemory.REMAP(6,m_chr[6]);
-            m_CHRmemory.REMAP(7,m_chr[7]);
-         }
-         else
-         {
-            m_CHRmemory.REMAP(0,m_chr[8]);
-            m_CHRmemory.REMAP(1,m_chr[9]);
-            m_CHRmemory.REMAP(2,m_chr[10]);
-            m_CHRmemory.REMAP(3,m_chr[11]);
-            m_CHRmemory.REMAP(4,m_chr[8]);
-            m_CHRmemory.REMAP(5,m_chr[9]);
-            m_CHRmemory.REMAP(6,m_chr[10]);
-            m_CHRmemory.REMAP(7,m_chr[11]);
-         }
+         m_CHRmemory.REMAP(0,m_chr[0]);
+         m_CHRmemory.REMAP(1,m_chr[1]);
+         m_CHRmemory.REMAP(2,m_chr[2]);
+         m_CHRmemory.REMAP(3,m_chr[3]);
+         m_CHRmemory.REMAP(4,m_chr[4]);
+         m_CHRmemory.REMAP(5,m_chr[5]);
+         m_CHRmemory.REMAP(6,m_chr[6]);
+         m_CHRmemory.REMAP(7,m_chr[7]);
       }
    }
 }
@@ -883,6 +857,7 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
          break;
       case 0x5104:
          m_reg[15] = data;
+         m_exRamMode = data&0x3;
          break;
       case 0x5105:
          m_reg[16] = data;
@@ -947,7 +922,7 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
       case 0x5113:
          m_reg[19] = data;
          data &= 0x7;
-         CROM::REMAPSRAM ( 0x6000, data );
+         REMAPSRAM ( 0x6000, data );
          break;
       case 0x5114:
          m_reg[20] = data;
@@ -965,7 +940,7 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
             m_prgRAM[0] = prgRAM;
             if ( m_prgRAM[0] )
             {
-               CROM::REMAPSRAM ( 0x8000, data );
+               REMAPSRAM ( 0x8000, data );
             }
             else
             {
@@ -990,8 +965,8 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
             m_prgRAM[1] = prgRAM;
             if ( prgRAM )
             {
-               CROM::REMAPSRAM ( 0x8000, (data&0xFE)+0 );
-               CROM::REMAPSRAM ( 0xA000, (data&0xFE)+1 );
+               REMAPSRAM ( 0x8000, (data&0xFE)+0 );
+               REMAPSRAM ( 0xA000, (data&0xFE)+1 );
             }
             else
             {
@@ -1004,7 +979,7 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
             m_prgRAM[1] = prgRAM;
             if ( prgRAM )
             {
-               CROM::REMAPSRAM ( 0xA000, data );
+               REMAPSRAM ( 0xA000, data );
             }
             else
             {
@@ -1028,7 +1003,7 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
             m_prgRAM[2] = prgRAM;
             if ( prgRAM )
             {
-               CROM::REMAPSRAM ( 0xC000, data );
+               REMAPSRAM ( 0xC000, data );
             }
             else
             {
@@ -1277,6 +1252,23 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
       }
    }
    SETPPU();
+}
+
+uint32_t CROMMapper005::VRAM ( uint32_t addr )
+{
+   if ( m_exRamMode == 1 )
+   {
+      if ( (addr&0x3C0) < 0x3C0 )
+      {
+         return CART_UNCLAIMED;
+      }
+      else
+      {
+         uint8_t data = m_pEXRAMmemory->MEM(addr&0x3C0);
+         return (data&0xC0)|((data&0xC0)>>2)|((data&0xC0)>>4)|((data&0xC0)>>6);
+      }
+   }
+   return CART_UNCLAIMED;
 }
 
 uint16_t CROMMapper005::AMPLITUDE ( void )

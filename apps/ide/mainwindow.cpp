@@ -2892,6 +2892,7 @@ bool MainWindow::closeProject()
    if ( !cancel )
    {
       // Close all inspectors
+      CDockWidgetRegistry::getInstance()->saveVisibility();
       CDockWidgetRegistry::getInstance()->hideAll();
 
       m_pSourceNavigator->shutdown();
@@ -3862,14 +3863,9 @@ void MainWindow::on_actionDebugging_Mode_triggered()
          restoreState(settings.value("DebuggingModeIDEState").toByteArray());
          show();
       }
-
-      widget = CDockWidgetRegistry::getInstance()->getWidget("Emulator");
-      if ( widget )
-      {
-         widget->show();
-      }
    }
 
+   CDockWidgetRegistry::getInstance()->restoreVisibility();
    actionDebugging_Mode->setChecked(true);
    actionCoding_Mode->setChecked(false);
    appSettings->setAppMode(AppSettings::DebuggingMode);
