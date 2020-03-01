@@ -129,6 +129,8 @@ void RegisterInspectorDockWidget::updateMemory ()
    int itemActual;
    char buffer [ 128 ];
 
+   m_regDB = m_regDBFunc();
+
    ui->binaryView->resizeColumnsToContents();
 
    if ( m_regDB )

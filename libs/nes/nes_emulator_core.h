@@ -777,6 +777,16 @@ typedef struct _nesMapper004Info
 } nesMapper004Info;
 void nesMapper004GetInformation ( nesMapper004Info* pInfo );
 
+typedef struct _nesMapper005Info
+{
+   uint32_t irqEnabled;
+   uint32_t irqAsserted;
+   uint32_t irqScanline;
+   uint32_t sprite8x16Mode;
+   uint32_t ppuCycle;
+} nesMapper005Info;
+void nesMapper005GetInformation ( nesMapper005Info* pInfo );
+
 typedef struct _nesMapper009010Info
 {
    uint32_t latch0FD;

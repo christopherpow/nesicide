@@ -18,7 +18,7 @@
     <item row="0" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>2</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="prgBanking">
        <attribute name="title">
@@ -354,7 +354,7 @@
            <number>0</number>
           </property>
           <property name="currentIndex">
-           <number>8</number>
+           <number>3</number>
           </property>
           <widget class="QWidget" name="noInternals"/>
           <widget class="QWidget" name="mapper1">
@@ -502,6 +502,57 @@
               </property>
               <property name="checkable">
                <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="mapper5">
+           <layout class="QGridLayout" name="gridLayout_15">
+            <item row="0" column="2">
+             <widget class="QCheckBox" name="irqEnabled5">
+              <property name="text">
+               <string>IRQ Enabled</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_43">
+              <property name="text">
+               <string>IRQ Scanline:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLineEdit" name="irqScanline5"/>
+            </item>
+            <item row="3" column="0" colspan="3">
+             <spacer name="verticalSpacer_10">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="1" column="2">
+             <widget class="QCheckBox" name="irqAsserted5">
+              <property name="text">
+               <string>IRQ Asserted</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QCheckBox" name="sprite8x16Mode5">
+              <property name="text">
+               <string>8x16 Sprite Mode</string>
               </property>
              </widget>
             </item>

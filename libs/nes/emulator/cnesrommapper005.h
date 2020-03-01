@@ -41,6 +41,29 @@ public:
    uint16_t AMPLITUDE ( void );
    static void SOUNDENABLE ( uint32_t mask ) { m_soundEnableMask = mask; }
 
+   // Internal accessors for mapper information inspector...
+   // Note: called directly!
+   uint32_t IRQENABLED ( void )
+   {
+      return m_irqEnabled;
+   }
+   uint32_t IRQASSERTED ( void )
+   {
+      return m_irqStatus;
+   }
+   uint32_t IRQSCANLINE ( void )
+   {
+      return m_irqScanline;
+   }
+   uint32_t SPRITEMODE ( void )
+   {
+      return m_sprite8x16Mode;
+   }
+   uint32_t PPUCYCLE ( void )
+   {
+      return m_ppuCycle;
+   }
+
 protected:
    // MMC5
    CNAMETABLEFILLER* m_pFILLmemory;
@@ -63,10 +86,14 @@ protected:
    uint16_t m_prod;
    uint8_t m_8x16e;
    uint8_t m_8x16z;
+   uint8_t m_lastChr;
    uint8_t  m_reg[46];
 
    CAPUSquare m_square[2];
    CAPUDMC    m_dmc;
+
+   uint32_t   m_sprite8x16Mode;
+   uint32_t   m_lastPPUCycle;
 
    static uint32_t  m_soundEnableMask;
 };

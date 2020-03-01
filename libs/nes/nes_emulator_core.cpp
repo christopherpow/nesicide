@@ -2061,6 +2061,16 @@ void nesMapper004GetInformation ( nesMapper004Info* pInfo )
    pInfo->ppuCycle = pCART->PPUCYCLE();
 }
 
+void nesMapper005GetInformation ( nesMapper005Info* pInfo )
+{
+   CROMMapper005* pCART = (CROMMapper005*)CNES::NES()->CART();
+   pInfo->irqAsserted = pCART->IRQASSERTED();
+   pInfo->irqScanline = pCART->IRQSCANLINE();
+   pInfo->irqEnabled = pCART->IRQENABLED();
+   pInfo->sprite8x16Mode = pCART->SPRITEMODE();
+   pInfo->ppuCycle = pCART->PPUCYCLE();
+}
+
 void nesMapper009GetInformation ( nesMapper009010Info* pInfo )
 {
    CROMMapper009* pCART = (CROMMapper009*)CNES::NES()->CART();

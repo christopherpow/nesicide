@@ -32,6 +32,7 @@ MemoryInspectorDockWidget::MemoryInspectorDockWidget(memDBFunc memDB,CBreakpoint
    ui->tableView->setFont(QFont("Consolas", 11));
 #endif
 
+   m_memDBFunc = memDB;
    m_memDB = memDB();
 }
 
@@ -113,6 +114,8 @@ void MemoryInspectorDockWidget::updateMemory ()
    int row = 0, col = 0;
    int low = 0, high = 0;
    int itemActual;
+
+   m_memDB = m_memDBFunc();
 
    // Check breakpoints for hits and highlight if necessary...
    for ( idx = 0; idx < m_pBreakpoints->GetNumBreakpoints(); idx++ )

@@ -7,6 +7,7 @@ static char modelStringBuffer [ 2048 ];
 
 CDebuggerMemoryDisplayModel::CDebuggerMemoryDisplayModel(memDBFunc memDB,QObject*)
 {
+   m_memDBFunc = memDB;
    m_memDB = memDB();
 }
 
@@ -184,5 +185,6 @@ int CDebuggerMemoryDisplayModel::columnCount(const QModelIndex& /*parent*/) cons
 
 void CDebuggerMemoryDisplayModel::update()
 {
+   m_memDB = m_memDBFunc();
    emit dataChanged(QModelIndex(),QModelIndex());
 }

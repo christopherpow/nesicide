@@ -298,8 +298,8 @@ static CRegisterData* tblRegisters [] =
    new CRegisterData(0x5204, "IRQ Control", nesMapperLowRead, nesMapperLowWrite, 2, tbl5204Bitfields),
    new CRegisterData(0x5205, "8*8 Multiplier", nesMapperLowRead, nesMapperLowWrite, 1, tbl5205Bitfields),
    new CRegisterData(0x5206, "8*8 Multiplier", nesMapperLowRead, nesMapperLowWrite, 1, tbl5206Bitfields),
-   new CRegisterData(0x5209, "Timer LSB", nesMapperLowRead, nesMapperLowWrite, 1, tbl5205Bitfields),
-   new CRegisterData(0x520A, "Timer MSB", nesMapperLowRead, nesMapperLowWrite, 1, tbl5206Bitfields),
+   new CRegisterData(0x5209, "Timer LSB", nesMapperLowRead, nesMapperLowWrite, 2, tbl5209Bitfields),
+   new CRegisterData(0x520A, "Timer MSB", nesMapperLowRead, nesMapperLowWrite, 1, tbl520ABitfields),
 };
 
 static const char* rowHeadings [] =
@@ -354,24 +354,11 @@ CROMMapper005::CROMMapper005()
    delete m_pSRAMmemory; // Remove open-bus default
    m_pSRAMmemory = new CMEMORY(0x6000,MEM_64KB,8,4);
    m_pFILLmemory = new CNAMETABLEFILLER();
-   m_prgRemappable = true;
-   m_chrRemappable = true;
-   m_prgMode = 0;
-   m_chrMode = 0;
-   m_chrHigh = 0;
-   m_irqScanline = 0;
-   m_irqEnabled = 0;
-   m_irqStatus = 0;
    memset(m_prgRAM,false,sizeof(m_prgRAM));
-   m_wp = false;
-   m_wp1 = 0;
-   m_wp2 = 0;
-   m_mult1 = 0;
-   m_mult2 = 0;
-   m_prod = 0;
-   m_ppuCycle = 0;
    memset(m_reg,0,sizeof(m_reg));
    memset(m_chr,0,sizeof(m_chr));
+   m_prgRemappable = true;
+   m_chrRemappable = true;
 }
 
 CROMMapper005::~CROMMapper005()
@@ -395,11 +382,15 @@ void CROMMapper005::RESET ( bool soft )
    m_square[1].RESET();
    m_dmc.RESET();
 
-   m_prgMode = 0;
+   m_prgMode = 3;
    m_chrMode = 0;
    m_chrHigh = 0;
+   m_lastChr = 0;
    m_irqScanline = 0;
    m_irqStatus = 0;
+
+   m_8x16e = 0;
+   m_8x16z = 0;
 
    m_mult1 = 0xFF;
    m_mult2 = 0xFF;
@@ -455,6 +446,7 @@ void CROMMapper005::SYNCCPU ( bool write, uint16_t addr, uint8_t data )
 void CROMMapper005::SYNCPPU ( uint32_t ppuCycle, uint32_t ppuAddr )
 {
    int32_t scanline = CYCLE_TO_VISY(ppuCycle);
+   int32_t rasterX = CYCLE_TO_VISX(ppuCycle);
 
    m_ppuCycle = ppuCycle;
 
@@ -475,7 +467,7 @@ void CROMMapper005::SYNCPPU ( uint32_t ppuCycle, uint32_t ppuAddr )
       m_irqStatus |= 0x80;
    }
 
-   if ( m_irqEnabled && (m_irqStatus&0x80) )
+   if ( m_irqEnabled && (m_irqStatus&0x80) && rasterX == 0 )
    {
       CNES::NES()->CPU()->ASSERTIRQ ( eNESSource_Mapper );
 
@@ -495,12 +487,12 @@ void CROMMapper005::SETPPU ( void )
 {
    int32_t rasterX = CYCLE_TO_VISX(m_ppuCycle);
 
-   if ( m_8x16z && m_8x16e )
+   // Sprite fetches
+   if ( (rasterX >= 256) &&
+        (rasterX < 320) )
    {
-      if ( (rasterX >= 256) &&
-           (rasterX < 320) )
+      if ( m_8x16z && m_8x16e )
       {
-         // Sprite fetches
          m_CHRmemory.REMAP(0,m_chr[0]);
          m_CHRmemory.REMAP(1,m_chr[1]);
          m_CHRmemory.REMAP(2,m_chr[2]);
@@ -510,9 +502,37 @@ void CROMMapper005::SETPPU ( void )
          m_CHRmemory.REMAP(6,m_chr[6]);
          m_CHRmemory.REMAP(7,m_chr[7]);
       }
-      else
+      else if ( m_8x16e )
       {
-         // Background fetches
+         if ( m_lastChr == 0 )
+         {
+            m_CHRmemory.REMAP(0,m_chr[0]);
+            m_CHRmemory.REMAP(1,m_chr[1]);
+            m_CHRmemory.REMAP(2,m_chr[2]);
+            m_CHRmemory.REMAP(3,m_chr[3]);
+            m_CHRmemory.REMAP(4,m_chr[4]);
+            m_CHRmemory.REMAP(5,m_chr[5]);
+            m_CHRmemory.REMAP(6,m_chr[6]);
+            m_CHRmemory.REMAP(7,m_chr[7]);
+         }
+         else
+         {
+            m_CHRmemory.REMAP(0,m_chr[8]);
+            m_CHRmemory.REMAP(1,m_chr[9]);
+            m_CHRmemory.REMAP(2,m_chr[10]);
+            m_CHRmemory.REMAP(3,m_chr[11]);
+            m_CHRmemory.REMAP(4,m_chr[8]);
+            m_CHRmemory.REMAP(5,m_chr[9]);
+            m_CHRmemory.REMAP(6,m_chr[10]);
+            m_CHRmemory.REMAP(7,m_chr[11]);
+         }
+      }
+   }
+   // Background fetches
+   else
+   {
+      if ( m_8x16z && m_8x16e )
+      {
          m_CHRmemory.REMAP(0,m_chr[8]);
          m_CHRmemory.REMAP(1,m_chr[9]);
          m_CHRmemory.REMAP(2,m_chr[10]);
@@ -522,17 +542,31 @@ void CROMMapper005::SETPPU ( void )
          m_CHRmemory.REMAP(6,m_chr[10]);
          m_CHRmemory.REMAP(7,m_chr[11]);
       }
-   }
-   else
-   {
-      m_CHRmemory.REMAP(0,m_chr[0]);
-      m_CHRmemory.REMAP(1,m_chr[1]);
-      m_CHRmemory.REMAP(2,m_chr[2]);
-      m_CHRmemory.REMAP(3,m_chr[3]);
-      m_CHRmemory.REMAP(4,m_chr[4]);
-      m_CHRmemory.REMAP(5,m_chr[5]);
-      m_CHRmemory.REMAP(6,m_chr[6]);
-      m_CHRmemory.REMAP(7,m_chr[7]);
+      else if ( m_8x16e )
+      {
+         if ( m_lastChr == 0 )
+         {
+            m_CHRmemory.REMAP(0,m_chr[0]);
+            m_CHRmemory.REMAP(1,m_chr[1]);
+            m_CHRmemory.REMAP(2,m_chr[2]);
+            m_CHRmemory.REMAP(3,m_chr[3]);
+            m_CHRmemory.REMAP(4,m_chr[4]);
+            m_CHRmemory.REMAP(5,m_chr[5]);
+            m_CHRmemory.REMAP(6,m_chr[6]);
+            m_CHRmemory.REMAP(7,m_chr[7]);
+         }
+         else
+         {
+            m_CHRmemory.REMAP(0,m_chr[8]);
+            m_CHRmemory.REMAP(1,m_chr[9]);
+            m_CHRmemory.REMAP(2,m_chr[10]);
+            m_CHRmemory.REMAP(3,m_chr[11]);
+            m_CHRmemory.REMAP(4,m_chr[8]);
+            m_CHRmemory.REMAP(5,m_chr[9]);
+            m_CHRmemory.REMAP(6,m_chr[10]);
+            m_CHRmemory.REMAP(7,m_chr[11]);
+         }
+      }
    }
 }
 
@@ -1024,6 +1058,8 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
          break;
       case 0x5120:
          m_reg[24] = data;
+         m_lastChr = 0;
+         data %= (m_numChrBanks<<m_chrMode);
          if ( m_chrMode == 3 )
          {
             m_chr[0] = (m_chrHigh<<8)|data;
@@ -1031,6 +1067,8 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
          break;
       case 0x5121:
          m_reg[25] = data;
+         m_lastChr = 0;
+         data %= (m_numChrBanks<<m_chrMode);
          if ( m_chrMode == 3 )
          {
             m_chr[1] = (m_chrHigh<<8)|data;
@@ -1043,6 +1081,8 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
          break;
       case 0x5122:
          m_reg[26] = data;
+         m_lastChr = 0;
+         data %= (m_numChrBanks<<m_chrMode);
          if ( m_chrMode == 3 )
          {
             m_chr[2] = (m_chrHigh<<8)|data;
@@ -1050,6 +1090,8 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
          break;
       case 0x5123:
          m_reg[27] = data;
+         m_lastChr = 0;
+         data %= (m_numChrBanks<<m_chrMode);
          if ( m_chrMode == 3 )
          {
             m_chr[3] = (m_chrHigh<<8)|data;
@@ -1069,6 +1111,8 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
          break;
       case 0x5124:
          m_reg[28] = data;
+         m_lastChr = 0;
+         data %= (m_numChrBanks<<m_chrMode);
          if ( m_chrMode == 3 )
          {
             m_chr[4] = (m_chrHigh<<8)|data;
@@ -1076,6 +1120,8 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
          break;
       case 0x5125:
          m_reg[29] = data;
+         m_lastChr = 0;
+         data %= (m_numChrBanks<<m_chrMode);
          if ( m_chrMode == 3 )
          {
             m_chr[5] = (m_chrHigh<<8)|data;
@@ -1088,6 +1134,8 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
          break;
       case 0x5126:
          m_reg[30] = data;
+         m_lastChr = 0;
+         data %= (m_numChrBanks<<m_chrMode);
          if ( m_chrMode == 3 )
          {
             m_chr[6] = (m_chrHigh<<8)|data;
@@ -1095,6 +1143,8 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
          break;
       case 0x5127:
          m_reg[31] = data;
+         m_lastChr = 0;
+         data %= (m_numChrBanks<<m_chrMode);
          if ( m_chrMode == 3 )
          {
             m_chr[7] = (m_chrHigh<<8)|data;
@@ -1125,6 +1175,8 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
          break;
       case 0x5128:
          m_reg[32] = data;
+         m_lastChr = 1;
+         data %= (m_numChrBanks<<m_chrMode);
          if ( m_chrMode == 3 )
          {
             m_chr[8] = (m_chrHigh<<8)|data;
@@ -1132,6 +1184,8 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
          break;
       case 0x5129:
          m_reg[33] = data;
+         m_lastChr = 1;
+         data %= (m_numChrBanks<<m_chrMode);
          if ( m_chrMode == 3 )
          {
             m_chr[9] = (m_chrHigh<<8)|data;
@@ -1144,6 +1198,8 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
          break;
       case 0x512A:
          m_reg[34] = data;
+         m_lastChr = 1;
+         data %= (m_numChrBanks<<m_chrMode);
          if ( m_chrMode == 3 )
          {
             m_chr[10] = (m_chrHigh<<8)|data;
@@ -1151,6 +1207,8 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
          break;
       case 0x512B:
          m_reg[35] = data;
+         m_lastChr = 1;
+         data %= (m_numChrBanks<<m_chrMode);
          if ( m_chrMode == 3 )
          {
             m_chr[11] = (m_chrHigh<<8)|data;
@@ -1160,12 +1218,19 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
             m_chr[10] = (m_chrHigh<<8)|((data<<1)+0);
             m_chr[11] = (m_chrHigh<<8)|((data<<1)+1);
          }
-         else if ( m_chrMode == 1 || m_chrMode == 0 )
+         else if ( m_chrMode == 1 )
          {
             m_chr[8] = (m_chrHigh<<8)|((data<<2)+0);
             m_chr[9] = (m_chrHigh<<8)|((data<<2)+1);
             m_chr[10] = (m_chrHigh<<8)|((data<<2)+2);
             m_chr[11] = (m_chrHigh<<8)|((data<<2)+3);
+         }
+         else if ( m_chrMode == 0 )
+         {
+            m_chr[8] = (m_chrHigh<<8)|((data<<3)+0);
+            m_chr[9] = (m_chrHigh<<8)|((data<<3)+1);
+            m_chr[10] = (m_chrHigh<<8)|((data<<3)+2);
+            m_chr[11] = (m_chrHigh<<8)|((data<<3)+3);
          }
          break;
       case 0x5130:

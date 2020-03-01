@@ -29,6 +29,7 @@ public slots:
    void update(void);
 
 private:
+   memDBFunc        m_memDBFunc;
    CMemoryDatabase* m_memDB;
 };
 

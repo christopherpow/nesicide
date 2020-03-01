@@ -36,6 +36,7 @@ MapperInformationDockWidget::MapperInformationDockWidget(QWidget *parent) :
    // Set up specific mapper internal info page maps.
    internalPageMap.insert(1,ui->mapper1);
    internalPageMap.insert(4,ui->mapper4);
+   internalPageMap.insert(5,ui->mapper5);
    internalPageMap.insert(9,ui->mapper9and10);
    internalPageMap.insert(10,ui->mapper9and10);
    internalPageMap.insert(16,ui->mapper16);
@@ -120,6 +121,7 @@ void MapperInformationDockWidget::updateInformation()
    char buffer [ 32 ];
    nesMapper001Info mapper001Info;
    nesMapper004Info mapper004Info;
+   nesMapper005Info mapper005Info;
    nesMapper009010Info mapper009010Info;
    nesMapper016Info mapper016Info;
    nesMapper028Info mapper028Info;
@@ -194,6 +196,15 @@ void MapperInformationDockWidget::updateInformation()
       sprintf ( buffer, "%d", mapper004Info.ppuCycle );
       ui->lastA12Cycle4->setText ( buffer );
       ui->irqReload4->setChecked ( mapper004Info.irqReload );
+      break;
+
+   case 5:
+      nesMapper005GetInformation(&mapper005Info);
+      ui->irqEnabled5->setChecked ( mapper005Info.irqEnabled );
+      ui->irqAsserted5->setChecked ( mapper005Info.irqAsserted );
+      ui->sprite8x16Mode5->setChecked ( mapper005Info.sprite8x16Mode );
+      sprintf ( buffer, "%02X", mapper005Info.irqScanline );
+      ui->irqScanline5->setText ( buffer );
       break;
 
    case 9:

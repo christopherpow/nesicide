@@ -241,6 +241,12 @@ uint32_t CPPU::LOAD ( uint32_t addr, int8_t source, int8_t type, bool trace )
 
    addr &= 0x3FFF;
 
+   if ( trace )
+   {
+      // Provide PPU cycle and address to mappers that watch such things!
+      CNES::NES()->CART()->SYNCPPU(m_cycles,addr);
+   }
+
    if ( addr < 0x2000 )
    {
       data = CNES::NES()->CART()->CHRMEM ( addr );
@@ -295,6 +301,12 @@ uint32_t CPPU::LOAD ( uint32_t addr, int8_t source, int8_t type, bool trace )
 void CPPU::STORE ( uint32_t addr, uint8_t data, int8_t source, int8_t type, bool trace )
 {
    addr &= 0x3FFF;
+
+   if ( trace )
+   {
+      // Provide PPU cycle and address to mappers that watch such things!
+      CNES::NES()->CART()->SYNCPPU(m_cycles,addr);
+   }
 
    if ( addr < 0x2000 )
    {
@@ -359,18 +371,15 @@ uint32_t CPPU::RENDER ( uint32_t addr, int8_t target )
 {
    uint32_t data;
 
+   // Address/Data bus multiplexed thus 2 cycles required per access...
+   EMULATE(1);
+
    data = LOAD ( addr, eNESSource_PPU, target );
 
    if ( nesIsDebuggable )
    {
-      m_logger->LogAccess ( CNES::NES()->CPU()->_CYCLES()/*m_cycles*/, addr, data, eLogger_DataRead, eNESSource_PPU );
+      m_logger->LogAccess ( m_cycles, addr, data, eLogger_DataRead, eNESSource_PPU );
    }
-
-   // Provide PPU cycle and address to mappers that watch such things!
-   CNES::NES()->CART()->SYNCPPU(m_cycles,addr);
-
-   // Address/Data bus multiplexed thus 2 cycles required per access...
-   EMULATE(1);
 
    if ( nesIsDebuggable )
    {
@@ -386,16 +395,17 @@ uint32_t CPPU::RENDER ( uint32_t addr, int8_t target )
 
 void CPPU::GARBAGE ( uint32_t addr, int8_t target )
 {
+   uint32_t data;
+
+   // Address/Data bus multiplexed thus 2 cycles required per access...
+   EMULATE(1);
+
+   data = LOAD ( addr, eNESSource_PPU, target );
+
    if ( nesIsDebuggable )
    {
       CNES::NES()->TRACER()->AddGarbageFetch ( m_cycles, target, addr );
    }
-
-   // Provide PPU cycle and address to mappers that watch such things!
-   CNES::NES()->CART()->SYNCPPU(m_cycles,addr);
-
-   // Address/Data bus multiplexed thus 2 cycles required per access...
-   EMULATE(1);
 
    if ( nesIsDebuggable )
    {
@@ -536,6 +546,9 @@ uint32_t CPPU::PPU ( uint32_t addr )
 
       m_ppuAddr += m_ppuAddrIncrement;
 
+      // Toggling A12 causes IRQ count in some mappers...
+      CNES::NES()->CART()->SYNCPPU(m_cycles,m_ppuAddr);
+
       if ( oldPpuAddr < 0x3F00 )
       {
          data = m_ppuReadLatch;
@@ -561,7 +574,6 @@ uint32_t CPPU::PPU ( uint32_t addr )
 
          // Shadow palette/VRAM read, don't use regular LOAD or it will be logged in Tracer...
          m_ppuReadLatch = m_PPUmemory.MEM(oldPpuAddr);
-//         m_ppuReadLatch = *((*(m_pPPUmemory+(((oldPpuAddr&(~0x1000))&0x1FFF)>>10)))+((oldPpuAddr&(~0x1000))&0x3FF));
       }
 
       if ( nesIsDebuggable )
@@ -572,9 +584,6 @@ uint32_t CPPU::PPU ( uint32_t addr )
          // Log Code/Data logger...
          m_logger->LogAccess ( CNES::NES()->CPU()->_CYCLES()/*m_cycles*/, oldPpuAddr, data, eLogger_DataRead, eNESSource_CPU );
       }
-
-      // Toggling A12 causes IRQ count in some mappers...
-      CNES::NES()->CART()->SYNCPPU(m_cycles,m_ppuAddr);
    }
    else
    {
@@ -767,25 +776,21 @@ void CPPU::MIRROR ( int32_t b0, int32_t b1, int32_t b2, int32_t b3 )
    {
       b0 &= 0x3;
       m_PPUmemory.REMAP(0,b0);
-      m_PPUmemory.REMAP(4,b0);
    }
    if ( b1 >= 0 )
    {
       b1 &= 0x3;
       m_PPUmemory.REMAP(1,b1);
-      m_PPUmemory.REMAP(5,b1);
    }
    if ( b2 >= 0 )
    {
       b2 &= 0x3;
       m_PPUmemory.REMAP(2,b2);
-      m_PPUmemory.REMAP(6,b2);
    }
    if ( b3 >= 0 )
    {
       b3 &= 0x3;
       m_PPUmemory.REMAP(3,b3);
-      m_PPUmemory.REMAP(7,b3);
    }
 }
 
