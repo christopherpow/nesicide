@@ -1,4 +1,4 @@
-version: 1.0.{build}
+version: %APPVEYOR_REPO_COMMIT:~0,7%
 image: Visual Studio 2017
 platform: x64
 
