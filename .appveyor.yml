@@ -1,4 +1,4 @@
-version: %COMMIT_SHORT%
+version: {COMMIT_SHORT}
 image: Visual Studio 2017
 platform: x64
 
