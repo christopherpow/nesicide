@@ -3,8 +3,11 @@ PATH=deps/Windows/GnuWin32/bin:$PATH
 DISTPATH=./nesicide-local
 REMOTEPATH=nesicide-win-x86
 if [ "$APPVEYOR_REPO_COMMIT" != "" ]; then
-     DISTPATH=./nesicide-$APPVEYOR_REPO_COMMIT
-     REMOTEPATH+=-$APPVEYOR_REPO_COMMIT
+     COMMIT_SHORT=${APPVEYOR_REPO_COMMIT:0:7}
+fi
+if [ "$COMMIT_SHORT" != "" ]; then
+     DISTPATH=./nesicide-$COMMIT_SHORT
+     REMOTEPATH+=-$COMMIT_SHORT
 fi
 
 REMOTEPATH+=.tar.bz2
