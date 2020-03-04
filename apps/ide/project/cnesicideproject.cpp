@@ -87,7 +87,7 @@ void CNesicideProject::initializeProject()
                                                nesGetPaletteGreenComponent(col),
                                                nesGetPaletteBlueComponent(col)));
       }
-      
+
       // Add default expected source search paths that are target-dependent.
       // Doing it here to prevent users with pre-existing projects from having
       // to add the paths manually.
@@ -101,13 +101,13 @@ void CNesicideProject::initializeProject()
                                                c64GetPaletteGreenComponent(col),
                                                c64GetPaletteBlueComponent(col)));
       }
-      
+
       // Add default expected source search paths that are target-dependent.
       // Doing it here to prevent users with pre-existing projects from having
       // to add the paths manually.
       addSourceSearchPath(QDir::fromNativeSeparators(cc65home+"/libsrc/c64"));
    }
-   
+
    // Add default expected source search paths that are target-independent.
    // Doing it here to prevent users with pre-existing projects from having
    // to add the paths manually.
@@ -219,7 +219,7 @@ bool CNesicideProject::serialize(QDomDocument& doc, QDomNode& node)
    QDomElement projectElement = addElement( doc, node, "nesicideproject" );
 
    // Set some variables as tags to this node.
-   projectElement.setAttribute("version", 0.3);
+   projectElement.setAttribute("version", "0.3");
    projectElement.setAttribute("target", m_projectTarget);
    projectElement.setAttribute("title", m_projectTitle);
 
