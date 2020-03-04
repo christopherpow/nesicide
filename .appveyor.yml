@@ -1,4 +1,4 @@
-version: %APPVEYOR_REPO_COMMIT:~0,7%
+version: %COMMIT_SHORT%
 image: Visual Studio 2017
 platform: x64
 
@@ -8,6 +8,7 @@ branches:
 skip_tags: true
 environment:
   QTDIR: C:\Qt\5.11\mingw53_32
+  COMMIT_SHORT: '%APPVEYOR_REPO_COMMIT:~0,7%'
 
 hosts:
   phrenetic: 162.243.126.83
