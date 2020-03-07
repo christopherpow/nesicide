@@ -34,7 +34,7 @@
 static void breakpointHook ( void )
 {
    // Tell the world.
-   C64EmulatorThread* emulator = dynamic_cast<C64EmulatorThread*>(CObjectRegistry::getInstance()->getObject("Emulator"));
+   C64EmulatorThread* emulator = dynamic_cast<C64EmulatorThread*>(CObjectRegistry::instance()->getObject("Emulator"));
    emulator->_breakpointHook();
 }
 
@@ -59,7 +59,7 @@ C64EmulatorThread::C64EmulatorThread(QObject*)
    // Enable breakpoint callbacks from the external emulator library.
    c64SetBreakpointHook(breakpointHook);
    
-   BreakpointWatcherThread* breakpointWatcher = dynamic_cast<BreakpointWatcherThread*>(CObjectRegistry::getInstance()->getObject("Breakpoint Watcher"));
+   BreakpointWatcherThread* breakpointWatcher = dynamic_cast<BreakpointWatcherThread*>(CObjectRegistry::instance()->getObject("Breakpoint Watcher"));
    QObject::connect(this,SIGNAL(breakpoint()),breakpointWatcher,SLOT(breakpoint()));
 
    m_requestMutex = new QMutex();
@@ -225,7 +225,7 @@ void C64EmulatorThread::resetEmulator()
       if ( fileName.endsWith(".c64",Qt::CaseInsensitive) ||
            fileName.endsWith(".prg",Qt::CaseInsensitive) )
       {
-         addr = CCC65Interface::getSegmentBase("STARTUP");
+         addr = CCC65Interface::instance()->getSegmentBase("STARTUP");
 
          lockRequestQueue();
          clearRequestQueue();
@@ -286,14 +286,14 @@ void C64EmulatorThread::stepCPUEmulation ()
    // If we do, it'll be the valid end of a C statement or an assembly instruction.
    addr = c64GetCPURegister(CPU_PC);
    absAddr = c64GetPhysicalAddressFromAddress(addr);
-   endAddr = CCC65Interface::getEndAddressFromPhysicalAddress(addr,absAddr);
+   endAddr = CCC65Interface::instance()->getEndAddressFromPhysicalAddress(addr,absAddr);
 
    if ( endAddr != 0xFFFFFFFF )
    {
       // Find the last opcode in the C-statement.
       for ( ; endAddr > absAddr; endAddr-- )
       {
-         if ( CCC65Interface::isPhysicalAddressAnOpcode(endAddr) )
+         if ( CCC65Interface::instance()->isPhysicalAddressAnOpcode(endAddr) )
          {
             break;
          }
@@ -347,7 +347,7 @@ void C64EmulatorThread::stepOverCPUEmulation ()
    // If we do, it'll be the valid end of a C statement or an assembly instruction.
    addr = c64GetCPURegister(CPU_PC);
    absAddr = c64GetPhysicalAddressFromAddress(addr);
-   endAddr = CCC65Interface::getEndAddressFromPhysicalAddress(addr,absAddr);
+   endAddr = CCC65Interface::instance()->getEndAddressFromPhysicalAddress(addr,absAddr);
 
    if ( endAddr != 0xFFFFFFFF )
    {
@@ -358,7 +358,7 @@ void C64EmulatorThread::stepOverCPUEmulation ()
          // This is fairly typical of if conditions with function calls on the same line.
          instr = c64GetMemory(endAddr-2);
          instAbsAddr = c64GetPhysicalAddressFromAddress(endAddr-2);
-         isInstr = CCC65Interface::isPhysicalAddressAnOpcode(instAbsAddr);
+         isInstr = CCC65Interface::instance()->isPhysicalAddressAnOpcode(instAbsAddr);
          if ( !isInstr )
          {
             instr = c64GetMemory(addr);
@@ -634,7 +634,7 @@ void C64EmulatorThread::processResponses(QStringList requests,QStringList respon
          // Update opcode masks to show proper disassembly...
          for ( a = 0; a < MEM_64KB; a++ )
          {
-            if ( CCC65Interface::isPhysicalAddressAnOpcode(a) )
+            if ( CCC65Interface::instance()->isPhysicalAddressAnOpcode(a) )
             {
                c64SetOpcodeMask(a,1);
             }

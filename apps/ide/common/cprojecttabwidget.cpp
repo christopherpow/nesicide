@@ -94,7 +94,7 @@ void CProjectTabWidget::tabBar_contextMenuEvent(QContextMenuEvent *event)
 int CProjectTabWidget::addTab(QWidget *page, const QIcon &icon, const QString &label)
 {
    CDesignerEditorBase* editor = dynamic_cast<CDesignerEditorBase*>(page);
-   QDockWidget* codeBrowser = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getInstance()->getWidget("Assembly Browser"));
+   QDockWidget* codeBrowser = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::instance()->getWidget("Assembly Browser"));
    QIcon myIcon;
    int tabIdx;
 
@@ -272,7 +272,7 @@ void CProjectTabWidget::snapToTab(QString item)
          addr = splits.at(3).toInt(NULL,16);
          absAddr = (splits.at(1).toInt(NULL,16)*MEM_8KB)+splits.at(2).toInt(NULL,16);
       }
-      file = CCC65Interface::getSourceFileFromPhysicalAddress(addr,absAddr);
+      file = CCC65Interface::instance()->getSourceFileFromPhysicalAddress(addr,absAddr);
    }
    else if ( item.startsWith("SourceNavigatorFile,") )
    {

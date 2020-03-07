@@ -243,17 +243,17 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
 
    // Create the search engine thread.
    SearcherThread* searcher = new SearcherThread();
-   CObjectRegistry::getInstance()->addObject ( "Searcher", searcher );
+   CObjectRegistry::instance()->addObject ( "Searcher", searcher );
 
    // Create the breakpoint watcher thread...
    BreakpointWatcherThread* breakpointWatcher = new BreakpointWatcherThread();
-   CObjectRegistry::getInstance()->addObject ( "Breakpoint Watcher", breakpointWatcher );
+   CObjectRegistry::instance()->addObject ( "Breakpoint Watcher", breakpointWatcher );
 
    // Create the compiler thread...
    CompilerThread* compiler = new CompilerThread();
    QObject::connect(this,SIGNAL(compile()),compiler,SLOT(compile()));
    QObject::connect(this,SIGNAL(clean()),compiler,SLOT(clean()));
-   CObjectRegistry::getInstance()->addObject ( "Compiler", compiler );
+   CObjectRegistry::instance()->addObject ( "Compiler", compiler );
 
    // Create the Test Suite executive modeless dialog...
    testSuiteExecutive = new TestSuiteExecutiveDialog(this);
@@ -298,19 +298,19 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    m_pSourceNavigator = new SourceNavigator();
    compilerToolbar->addWidget(m_pSourceNavigator);
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pSourceNavigator,SLOT(updateTargetMachine(QString)));
-   CDockWidgetRegistry::getInstance()->addWidget ( "Source Navigator", m_pSourceNavigator );
+   CDockWidgetRegistry::instance()->addWidget ( "Source Navigator", m_pSourceNavigator );
 
    m_pSearchBar = new SearchBar("SearchBar");
    m_pSearchBar->showCloseButton(true);
    centralWidget()->layout()->addWidget(m_pSearchBar);
    m_pSearchBar->hide();
-   CDockWidgetRegistry::getInstance()->addWidget ( "Search Bar", m_pSearchBar );
+   CDockWidgetRegistry::instance()->addWidget ( "Search Bar", m_pSearchBar );
 
    m_pProjectBrowser = new ProjectBrowserDockWidget(tabWidget);
    m_pProjectBrowser->setProjectModel(m_pProjectModel);
    addDockWidget(Qt::LeftDockWidgetArea, m_pProjectBrowser );
    m_pProjectBrowser->hide();
-   CDockWidgetRegistry::getInstance()->addWidget ( "Project Browser", m_pProjectBrowser );
+   CDockWidgetRegistry::instance()->addWidget ( "Project Browser", m_pProjectBrowser );
 
 //   expandableStatusBar = new CExpandableStatusBar();
 //   appStatusBar->insertWidget(0, expandableStatusBar, 100); // Stretch is big to allow it to stretch across app pane.
@@ -336,7 +336,7 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    QObject::connect(compiler,SIGNAL(cleanStarted()),output,SLOT(compiler_cleanStarted()));
    QObject::connect(compiler,SIGNAL(cleanDone(bool)),output,SLOT(compiler_cleanDone(bool)));
    QObject::connect(searcher,SIGNAL(searchDone(int)),output,SLOT(searcher_searchDone(int)));
-   CDockWidgetRegistry::getInstance()->addWidget ( "Output", output );
+   CDockWidgetRegistry::instance()->addWidget ( "Output", output );
    output->hide();
 
    generalTextLogger->write("<strong>NESICIDE</strong> Alpha Release");
@@ -347,20 +347,20 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    addDockWidget(Qt::BottomDockWidgetArea, m_pExecutionInspector );
    m_pExecutionInspector->hide();
    QObject::connect(m_pExecutionInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
-   CDockWidgetRegistry::getInstance()->addWidget ( "Execution Inspector", m_pExecutionInspector );
+   CDockWidgetRegistry::instance()->addWidget ( "Execution Inspector", m_pExecutionInspector );
 
    m_pSymbolInspector = new SymbolWatchDockWidget();
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pSymbolInspector,SLOT(updateTargetMachine(QString)));
    addDockWidget(Qt::BottomDockWidgetArea, m_pSymbolInspector );
    m_pSymbolInspector->hide();
    QObject::connect(m_pSymbolInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
-   CDockWidgetRegistry::getInstance()->addWidget ( "Symbol Inspector", m_pSymbolInspector );
+   CDockWidgetRegistry::instance()->addWidget ( "Symbol Inspector", m_pSymbolInspector );
 
    m_pCodeProfiler = new CodeProfilerDockWidget();
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pCodeProfiler,SLOT(updateTargetMachine(QString)));
    addDockWidget(Qt::LeftDockWidgetArea, m_pCodeProfiler );
    m_pCodeProfiler->hide();
-   CDockWidgetRegistry::getInstance()->addWidget ( "Code Profiler", m_pCodeProfiler );
+   CDockWidgetRegistry::instance()->addWidget ( "Code Profiler", m_pCodeProfiler );
 
    emit updateTargetMachine("none");
 
@@ -413,8 +413,8 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    }
    menuRecent_Projects_Files->addActions(m_menuRecentFiles->actions());
 
-   CDockWidgetRegistry::getInstance()->hideAll();
-   QWidget* widget = CDockWidgetRegistry::getInstance()->getWidget("Project Browser");
+   CDockWidgetRegistry::instance()->hideAll();
+   QWidget* widget = CDockWidgetRegistry::instance()->getWidget("Project Browser");
 
    widget->show();
 
@@ -482,9 +482,9 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
 
 MainWindow::~MainWindow()
 {
-   BreakpointWatcherThread* breakpointWatcher = dynamic_cast<BreakpointWatcherThread*>(CObjectRegistry::getInstance()->getObject("Breakpoint Watcher"));
-   CompilerThread* compiler = dynamic_cast<CompilerThread*>(CObjectRegistry::getInstance()->getObject("Compiler"));
-   SearcherThread* searcher = dynamic_cast<SearcherThread*>(CObjectRegistry::getInstance()->getObject("Searcher"));
+   BreakpointWatcherThread* breakpointWatcher = dynamic_cast<BreakpointWatcherThread*>(CObjectRegistry::instance()->getObject("Breakpoint Watcher"));
+   CompilerThread* compiler = dynamic_cast<CompilerThread*>(CObjectRegistry::instance()->getObject("Compiler"));
+   SearcherThread* searcher = dynamic_cast<SearcherThread*>(CObjectRegistry::instance()->getObject("Searcher"));
 
    killTimer(m_periodicTimer);
 
@@ -639,7 +639,7 @@ void MainWindow::createNesUi()
    }
 
    // Set up compiler for appropriate target.
-   CCC65Interface::updateTargetMachine("nes");
+   CCC65Interface::instance()->updateTargetMachine("nes");
 
    actionEmulation_Window = new QAction("Emulator",this);
    actionEmulation_Window->setObjectName(QString::fromUtf8("actionEmulation_Window"));
@@ -923,7 +923,7 @@ void MainWindow::createNesUi()
    {
       m_pNESEmulatorThread = new NESEmulatorThread();
    }
-   CObjectRegistry::getInstance()->addObject("Emulator",m_pNESEmulatorThread);
+   CObjectRegistry::instance()->addObject("Emulator",m_pNESEmulatorThread);
 
    QObject::connect(this,SIGNAL(startEmulation()),m_pNESEmulatorThread,SLOT(startEmulation()));
    QObject::connect(this,SIGNAL(pauseEmulation(bool)),m_pNESEmulatorThread,SLOT(pauseEmulation(bool)));
@@ -935,7 +935,7 @@ void MainWindow::createNesUi()
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pNESEmulator,SLOT(updateTargetMachine(QString)));
    addDockWidget(Qt::RightDockWidgetArea, m_pNESEmulator );
    m_pNESEmulator->hide();
-   CDockWidgetRegistry::getInstance()->addWidget ( "Emulator", m_pNESEmulator );
+   CDockWidgetRegistry::instance()->addWidget ( "Emulator", m_pNESEmulator );
 
    m_pNESEmulatorControl = new NESEmulatorControl();
    debuggerToolBar->addWidget(m_pNESEmulatorControl);
@@ -955,14 +955,14 @@ void MainWindow::createNesUi()
    addDockWidget(Qt::BottomDockWidgetArea, m_pBreakpointInspector );
    m_pBreakpointInspector->hide();
    QObject::connect(m_pBreakpointInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
-   CDockWidgetRegistry::getInstance()->addWidget ( "Breakpoints", m_pBreakpointInspector );
+   CDockWidgetRegistry::instance()->addWidget ( "Breakpoints", m_pBreakpointInspector );
 
    m_pAssemblyInspector = new CodeBrowserDockWidget(nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pAssemblyInspector,SLOT(updateTargetMachine(QString)));
    addDockWidget(Qt::RightDockWidgetArea, m_pAssemblyInspector );
    m_pAssemblyInspector->hide();
    QObject::connect(m_pAssemblyInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
-   CDockWidgetRegistry::getInstance()->addWidget ( "Assembly Browser", m_pAssemblyInspector );
+   CDockWidgetRegistry::instance()->addWidget ( "Assembly Browser", m_pAssemblyInspector );
 
    m_pGfxCHRMemoryInspector = new CHRMEMInspector ();
    m_pGfxCHRMemoryInspector->setFeatures(QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable);
@@ -975,42 +975,42 @@ void MainWindow::createNesUi()
    QObject::connect(m_pGfxCHRMemoryInspector,SIGNAL(setStatusBarMessage(QString)),this,SLOT(setStatusBarMessage(QString)));
    QObject::connect(m_pGfxCHRMemoryInspector,SIGNAL(addStatusBarWidget(QWidget*)),this,SLOT(addStatusBarWidget(QWidget*)));
    QObject::connect(m_pGfxCHRMemoryInspector,SIGNAL(removeStatusBarWidget(QWidget*)),this,SLOT(removeStatusBarWidget(QWidget*)));
-   CDockWidgetRegistry::getInstance()->addWidget ( "CHR Memory Visualizer", m_pGfxCHRMemoryInspector );
+   CDockWidgetRegistry::instance()->addWidget ( "CHR Memory Visualizer", m_pGfxCHRMemoryInspector );
 
    m_pGfxOAMMemoryInspector = new OAMVisualizerDockWidget ();
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pGfxOAMMemoryInspector,SLOT(updateTargetMachine(QString)));
    addDockWidget(Qt::BottomDockWidgetArea, m_pGfxOAMMemoryInspector );
    m_pGfxOAMMemoryInspector->hide();
    QObject::connect(m_pGfxOAMMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
-   CDockWidgetRegistry::getInstance()->addWidget ( "OAM Memory Visualizer", m_pGfxOAMMemoryInspector );
+   CDockWidgetRegistry::instance()->addWidget ( "OAM Memory Visualizer", m_pGfxOAMMemoryInspector );
 
    m_pGfxNameTableMemoryInspector = new NameTableVisualizerDockWidget ();
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pGfxNameTableMemoryInspector,SLOT(updateTargetMachine(QString)));
    addDockWidget(Qt::RightDockWidgetArea, m_pGfxNameTableMemoryInspector );
    m_pGfxNameTableMemoryInspector->hide();
    QObject::connect(m_pGfxNameTableMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
-   CDockWidgetRegistry::getInstance()->addWidget ( "Name Table Visualizer", m_pGfxNameTableMemoryInspector );
+   CDockWidgetRegistry::instance()->addWidget ( "Name Table Visualizer", m_pGfxNameTableMemoryInspector );
 
    m_pJoypadLoggerInspector = new JoypadLoggerDockWidget ();
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pJoypadLoggerInspector,SLOT(updateTargetMachine(QString)));
    addDockWidget(Qt::BottomDockWidgetArea, m_pJoypadLoggerInspector );
    m_pJoypadLoggerInspector->hide();
    QObject::connect(m_pJoypadLoggerInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
-   CDockWidgetRegistry::getInstance()->addWidget ( "Joypad Logger", m_pJoypadLoggerInspector );
+   CDockWidgetRegistry::instance()->addWidget ( "Joypad Logger", m_pJoypadLoggerInspector );
 
    m_pExecutionVisualizer = new ExecutionVisualizerDockWidget();
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pExecutionVisualizer,SLOT(updateTargetMachine(QString)));
    addDockWidget(Qt::BottomDockWidgetArea, m_pExecutionVisualizer );
    m_pExecutionVisualizer->hide();
    QObject::connect(m_pExecutionVisualizer,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
-   CDockWidgetRegistry::getInstance()->addWidget ( "Execution Visualizer", m_pExecutionVisualizer );
+   CDockWidgetRegistry::instance()->addWidget ( "Execution Visualizer", m_pExecutionVisualizer );
 
    m_pCodeDataLoggerInspector = new CodeDataLoggerDockWidget();
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pCodeDataLoggerInspector,SLOT(updateTargetMachine(QString)));
    addDockWidget(Qt::RightDockWidgetArea, m_pCodeDataLoggerInspector );
    m_pCodeDataLoggerInspector->hide();
    QObject::connect(m_pCodeDataLoggerInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
-   CDockWidgetRegistry::getInstance()->addWidget ( "Code/Data Logger Inspector", m_pCodeDataLoggerInspector );
+   CDockWidgetRegistry::instance()->addWidget ( "Code/Data Logger Inspector", m_pCodeDataLoggerInspector );
 
    m_pBinCPURegisterInspector = new RegisterInspectorDockWidget(nesGetCpuRegisterDatabase,nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinCPURegisterInspector,SLOT(updateTargetMachine(QString)));
@@ -1019,7 +1019,7 @@ void MainWindow::createNesUi()
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinCPURegisterInspector );
    m_pBinCPURegisterInspector->hide();
    QObject::connect(m_pBinCPURegisterInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
-   CDockWidgetRegistry::getInstance()->addWidget ( "CPU Register Inspector", m_pBinCPURegisterInspector );
+   CDockWidgetRegistry::instance()->addWidget ( "CPU Register Inspector", m_pBinCPURegisterInspector );
 
    m_pBinCPURAMInspector = new MemoryInspectorDockWidget(nesGetCpuMemoryDatabase,nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinCPURAMInspector,SLOT(updateTargetMachine(QString)));
@@ -1028,7 +1028,7 @@ void MainWindow::createNesUi()
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinCPURAMInspector );
    m_pBinCPURAMInspector->hide();
    QObject::connect(m_pBinCPURAMInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
-   CDockWidgetRegistry::getInstance()->addWidget ( "CPU RAM Inspector", m_pBinCPURAMInspector );
+   CDockWidgetRegistry::instance()->addWidget ( "CPU RAM Inspector", m_pBinCPURAMInspector );
 
    m_pBinROMInspector = new MemoryInspectorDockWidget(nesGetCartridgePRGROMMemoryDatabase,nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinROMInspector,SLOT(updateTargetMachine(QString)));
@@ -1037,7 +1037,7 @@ void MainWindow::createNesUi()
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinROMInspector );
    m_pBinROMInspector->hide();
    QObject::connect(m_pBinROMInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
-   CDockWidgetRegistry::getInstance()->addWidget ( "PRG-ROM Inspector", m_pBinROMInspector );
+   CDockWidgetRegistry::instance()->addWidget ( "PRG-ROM Inspector", m_pBinROMInspector );
 
    m_pBinCartVRAMMemoryInspector = new MemoryInspectorDockWidget(nesGetCartridgeVRAMMemoryDatabase,nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinCartVRAMMemoryInspector,SLOT(updateTargetMachine(QString)));
@@ -1046,7 +1046,7 @@ void MainWindow::createNesUi()
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinCartVRAMMemoryInspector );
    m_pBinCartVRAMMemoryInspector->hide();
    QObject::connect(m_pBinCartVRAMMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
-   CDockWidgetRegistry::getInstance()->addWidget ( "Cartridge VRAM Inspector", m_pBinCartVRAMMemoryInspector );
+   CDockWidgetRegistry::instance()->addWidget ( "Cartridge VRAM Inspector", m_pBinCartVRAMMemoryInspector );
 
    m_pBinNameTableMemoryInspector = new MemoryInspectorDockWidget(nesGetPpuNameTableMemoryDatabase,nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinNameTableMemoryInspector,SLOT(updateTargetMachine(QString)));
@@ -1055,7 +1055,7 @@ void MainWindow::createNesUi()
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinNameTableMemoryInspector );
    m_pBinNameTableMemoryInspector->hide();
    QObject::connect(m_pBinNameTableMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
-   CDockWidgetRegistry::getInstance()->addWidget ( "NameTable Inspector", m_pBinNameTableMemoryInspector );
+   CDockWidgetRegistry::instance()->addWidget ( "NameTable Inspector", m_pBinNameTableMemoryInspector );
 
    m_pBinPPURegisterInspector = new RegisterInspectorDockWidget(nesGetPpuRegisterDatabase,nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinPPURegisterInspector,SLOT(updateTargetMachine(QString)));
@@ -1064,14 +1064,14 @@ void MainWindow::createNesUi()
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinPPURegisterInspector );
    m_pBinPPURegisterInspector->hide();
    QObject::connect(m_pBinPPURegisterInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
-   CDockWidgetRegistry::getInstance()->addWidget ( "PPU Register Inspector", m_pBinPPURegisterInspector );
+   CDockWidgetRegistry::instance()->addWidget ( "PPU Register Inspector", m_pBinPPURegisterInspector );
 
    m_pPPUInformationInspector = new PPUInformationDockWidget();
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pPPUInformationInspector,SLOT(updateTargetMachine(QString)));
    addDockWidget(Qt::BottomDockWidgetArea, m_pPPUInformationInspector );
    m_pPPUInformationInspector->hide();
    QObject::connect(m_pPPUInformationInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
-   CDockWidgetRegistry::getInstance()->addWidget ( "PPU Information", m_pPPUInformationInspector );
+   CDockWidgetRegistry::instance()->addWidget ( "PPU Information", m_pPPUInformationInspector );
 
    m_pBinAPURegisterInspector = new RegisterInspectorDockWidget(nesGetApuRegisterDatabase,nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinAPURegisterInspector,SLOT(updateTargetMachine(QString)));
@@ -1080,14 +1080,14 @@ void MainWindow::createNesUi()
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinAPURegisterInspector );
    m_pBinAPURegisterInspector->hide();
    QObject::connect(m_pBinAPURegisterInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
-   CDockWidgetRegistry::getInstance()->addWidget ( "APU Register Inspector", m_pBinAPURegisterInspector );
+   CDockWidgetRegistry::instance()->addWidget ( "APU Register Inspector", m_pBinAPURegisterInspector );
 
    m_pAPUInformationInspector = new APUInformationDockWidget();
    addDockWidget(Qt::BottomDockWidgetArea, m_pAPUInformationInspector );
    m_pAPUInformationInspector->hide();
    QObject::connect(m_pAPUInformationInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pAPUInformationInspector,SLOT(updateTargetMachine(QString)));
-   CDockWidgetRegistry::getInstance()->addWidget ( "APU Information", m_pAPUInformationInspector );
+   CDockWidgetRegistry::instance()->addWidget ( "APU Information", m_pAPUInformationInspector );
 
    m_pBinCHRMemoryInspector = new MemoryInspectorDockWidget(nesGetCartridgeCHRMemoryDatabase,nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinCHRMemoryInspector,SLOT(updateTargetMachine(QString)));
@@ -1096,7 +1096,7 @@ void MainWindow::createNesUi()
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinCHRMemoryInspector );
    m_pBinCHRMemoryInspector->hide();
    QObject::connect(m_pBinCHRMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
-   CDockWidgetRegistry::getInstance()->addWidget ( "CHR Memory Inspector", m_pBinCHRMemoryInspector );
+   CDockWidgetRegistry::instance()->addWidget ( "CHR Memory Inspector", m_pBinCHRMemoryInspector );
 
    m_pBinOAMMemoryInspector = new RegisterInspectorDockWidget(nesGetPpuOamRegisterDatabase,nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinOAMMemoryInspector,SLOT(updateTargetMachine(QString)));
@@ -1105,7 +1105,7 @@ void MainWindow::createNesUi()
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinOAMMemoryInspector );
    m_pBinOAMMemoryInspector->hide();
    QObject::connect(m_pBinOAMMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
-   CDockWidgetRegistry::getInstance()->addWidget ( "OAM Memory Inspector", m_pBinOAMMemoryInspector );
+   CDockWidgetRegistry::instance()->addWidget ( "OAM Memory Inspector", m_pBinOAMMemoryInspector );
 
    m_pBinPaletteMemoryInspector = new MemoryInspectorDockWidget(nesGetPpuPaletteMemoryDatabase,nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinPaletteMemoryInspector,SLOT(updateTargetMachine(QString)));
@@ -1114,7 +1114,7 @@ void MainWindow::createNesUi()
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinPaletteMemoryInspector );
    m_pBinPaletteMemoryInspector->hide();
    QObject::connect(m_pBinPaletteMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
-   CDockWidgetRegistry::getInstance()->addWidget ( "Palette Memory Inspector", m_pBinPaletteMemoryInspector );
+   CDockWidgetRegistry::instance()->addWidget ( "Palette Memory Inspector", m_pBinPaletteMemoryInspector );
 
    m_pBinSRAMMemoryInspector = new MemoryInspectorDockWidget(nesGetCartridgeSRAMMemoryDatabase,nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinSRAMMemoryInspector,SLOT(updateTargetMachine(QString)));
@@ -1123,7 +1123,7 @@ void MainWindow::createNesUi()
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinSRAMMemoryInspector );
    m_pBinSRAMMemoryInspector->hide();
    QObject::connect(m_pBinSRAMMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
-   CDockWidgetRegistry::getInstance()->addWidget ( "Cartridge SRAM Memory Inspector", m_pBinSRAMMemoryInspector );
+   CDockWidgetRegistry::instance()->addWidget ( "Cartridge SRAM Memory Inspector", m_pBinSRAMMemoryInspector );
 
    m_pBinEXRAMMemoryInspector = new MemoryInspectorDockWidget(nesGetCartridgeEXRAMMemoryDatabase,nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinEXRAMMemoryInspector,SLOT(updateTargetMachine(QString)));
@@ -1132,14 +1132,14 @@ void MainWindow::createNesUi()
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinEXRAMMemoryInspector );
    m_pBinEXRAMMemoryInspector->hide();
    QObject::connect(m_pBinEXRAMMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
-   CDockWidgetRegistry::getInstance()->addWidget ( "Cartridge EXRAM Memory Inspector", m_pBinEXRAMMemoryInspector );
+   CDockWidgetRegistry::instance()->addWidget ( "Cartridge EXRAM Memory Inspector", m_pBinEXRAMMemoryInspector );
 
    m_pMapperInformationInspector = new MapperInformationDockWidget();
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pMapperInformationInspector,SLOT(updateTargetMachine(QString)));
    addDockWidget(Qt::BottomDockWidgetArea, m_pMapperInformationInspector );
    m_pMapperInformationInspector->hide();
    QObject::connect(m_pMapperInformationInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
-   CDockWidgetRegistry::getInstance()->addWidget ( "Cartridge Mapper Information", m_pMapperInformationInspector );
+   CDockWidgetRegistry::instance()->addWidget ( "Cartridge Mapper Information", m_pMapperInformationInspector );
 
    m_pBinMapperMemoryInspector = new RegisterInspectorDockWidget(nesGetCartridgeRegisterDatabase,nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinMapperMemoryInspector,SLOT(updateTargetMachine(QString)));
@@ -1148,7 +1148,7 @@ void MainWindow::createNesUi()
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinMapperMemoryInspector );
    m_pBinMapperMemoryInspector->hide();
    QObject::connect(m_pBinMapperMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
-   CDockWidgetRegistry::getInstance()->addWidget ( "Cartridge Mapper Register Inspector", m_pBinMapperMemoryInspector );
+   CDockWidgetRegistry::instance()->addWidget ( "Cartridge Mapper Register Inspector", m_pBinMapperMemoryInspector );
 
    // Connect slots for new UI elements.
    QObject::connect(action1x,SIGNAL(triggered()),this,SLOT(action1x_triggered()));
@@ -1236,32 +1236,32 @@ void MainWindow::destroyNesUi()
 
    SDL_PauseAudio(1);
 
-   CDockWidgetRegistry::getInstance()->removeWidget ( "Assembly Browser" );
-   CDockWidgetRegistry::getInstance()->removeWidget ( "Breakpoints" );
-   CDockWidgetRegistry::getInstance()->removeWidget ( "Emulator" );
-   CDockWidgetRegistry::getInstance()->removeWidget ( "CHR Memory Visualizer" );
-   CDockWidgetRegistry::getInstance()->removeWidget ( "OAM Memory Visualizer" );
-   CDockWidgetRegistry::getInstance()->removeWidget ( "Name Table Visualizer" );
-   CDockWidgetRegistry::getInstance()->removeWidget ( "Execution Visualizer" );
-   CDockWidgetRegistry::getInstance()->removeWidget ( "Code/Data Logger Inspector" );
-   CDockWidgetRegistry::getInstance()->removeWidget ( "CPU Register Inspector" );
-   CDockWidgetRegistry::getInstance()->removeWidget ( "CPU RAM Inspector" );
-   CDockWidgetRegistry::getInstance()->removeWidget ( "PRG-ROM Inspector" );
-   CDockWidgetRegistry::getInstance()->removeWidget ( "NameTable Inspector" );
-   CDockWidgetRegistry::getInstance()->removeWidget ( "PPU Register Inspector" );
-   CDockWidgetRegistry::getInstance()->removeWidget ( "PPU Information" );
-   CDockWidgetRegistry::getInstance()->removeWidget ( "APU Register Inspector" );
-   CDockWidgetRegistry::getInstance()->removeWidget ( "APU Information" );
-   CDockWidgetRegistry::getInstance()->removeWidget ( "CHR Memory Inspector" );
-   CDockWidgetRegistry::getInstance()->removeWidget ( "OAM Memory Inspector" );
-   CDockWidgetRegistry::getInstance()->removeWidget ( "Palette Memory Inspector" );
-   CDockWidgetRegistry::getInstance()->removeWidget ( "Cartridge SRAM Memory Inspector" );
-   CDockWidgetRegistry::getInstance()->removeWidget ( "Cartridge EXRAM Memory Inspector" );
-   CDockWidgetRegistry::getInstance()->removeWidget ( "Cartridge VRAM Inspector" );
-   CDockWidgetRegistry::getInstance()->removeWidget ( "Cartridge Mapper Information" );
-   CDockWidgetRegistry::getInstance()->removeWidget ( "Cartridge Mapper Register Inspector" );
-   CDockWidgetRegistry::getInstance()->removeWidget ( "Cartridge VRAM Inspector" );
-   CDockWidgetRegistry::getInstance()->removeWidget ( "Joypad Logger" );
+   CDockWidgetRegistry::instance()->removeWidget ( "Assembly Browser" );
+   CDockWidgetRegistry::instance()->removeWidget ( "Breakpoints" );
+   CDockWidgetRegistry::instance()->removeWidget ( "Emulator" );
+   CDockWidgetRegistry::instance()->removeWidget ( "CHR Memory Visualizer" );
+   CDockWidgetRegistry::instance()->removeWidget ( "OAM Memory Visualizer" );
+   CDockWidgetRegistry::instance()->removeWidget ( "Name Table Visualizer" );
+   CDockWidgetRegistry::instance()->removeWidget ( "Execution Visualizer" );
+   CDockWidgetRegistry::instance()->removeWidget ( "Code/Data Logger Inspector" );
+   CDockWidgetRegistry::instance()->removeWidget ( "CPU Register Inspector" );
+   CDockWidgetRegistry::instance()->removeWidget ( "CPU RAM Inspector" );
+   CDockWidgetRegistry::instance()->removeWidget ( "PRG-ROM Inspector" );
+   CDockWidgetRegistry::instance()->removeWidget ( "NameTable Inspector" );
+   CDockWidgetRegistry::instance()->removeWidget ( "PPU Register Inspector" );
+   CDockWidgetRegistry::instance()->removeWidget ( "PPU Information" );
+   CDockWidgetRegistry::instance()->removeWidget ( "APU Register Inspector" );
+   CDockWidgetRegistry::instance()->removeWidget ( "APU Information" );
+   CDockWidgetRegistry::instance()->removeWidget ( "CHR Memory Inspector" );
+   CDockWidgetRegistry::instance()->removeWidget ( "OAM Memory Inspector" );
+   CDockWidgetRegistry::instance()->removeWidget ( "Palette Memory Inspector" );
+   CDockWidgetRegistry::instance()->removeWidget ( "Cartridge SRAM Memory Inspector" );
+   CDockWidgetRegistry::instance()->removeWidget ( "Cartridge EXRAM Memory Inspector" );
+   CDockWidgetRegistry::instance()->removeWidget ( "Cartridge VRAM Inspector" );
+   CDockWidgetRegistry::instance()->removeWidget ( "Cartridge Mapper Information" );
+   CDockWidgetRegistry::instance()->removeWidget ( "Cartridge Mapper Register Inspector" );
+   CDockWidgetRegistry::instance()->removeWidget ( "Cartridge VRAM Inspector" );
+   CDockWidgetRegistry::instance()->removeWidget ( "Joypad Logger" );
 
    // Properly kill and destroy the thread we created above.
    m_pNESEmulatorThread->blockSignals(true);
@@ -1270,7 +1270,7 @@ void MainWindow::destroyNesUi()
    delete m_pNESEmulatorThread;
    m_pNESEmulatorThread = NULL;
 
-   CObjectRegistry::getInstance()->removeObject ( "Emulator" );
+   CObjectRegistry::instance()->removeObject ( "Emulator" );
 
    m_pNESEmulator->hide();
    removeDockWidget(m_pNESEmulator);
@@ -1413,7 +1413,7 @@ void MainWindow::createC64Ui()
    }
 
    // Set up compiler for appropriate target.
-   CCC65Interface::updateTargetMachine("c64");
+   CCC65Interface::instance()->updateTargetMachine("c64");
 
    actionAssembly_Inspector = new QAction("Assembly Browser",this);
    actionAssembly_Inspector->setObjectName(QString::fromUtf8("actionAssembly_Inspector"));
@@ -1464,7 +1464,7 @@ void MainWindow::createC64Ui()
    addToolBar(Qt::TopToolBarArea, debuggerToolBar);
 
    m_pC64EmulatorThread = new C64EmulatorThread();
-   CObjectRegistry::getInstance()->addObject("Emulator",m_pC64EmulatorThread);
+   CObjectRegistry::instance()->addObject("Emulator",m_pC64EmulatorThread);
    QObject::connect(m_pC64EmulatorThread,SIGNAL(emulatorWantsExit()),this,SLOT(close()));
 
    QObject::connect(this,SIGNAL(startEmulation()),m_pC64EmulatorThread,SLOT(startEmulation()));
@@ -1486,14 +1486,14 @@ void MainWindow::createC64Ui()
    addDockWidget(Qt::BottomDockWidgetArea, m_pBreakpointInspector );
    m_pBreakpointInspector->hide();
    QObject::connect(m_pBreakpointInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
-   CDockWidgetRegistry::getInstance()->addWidget ( "Breakpoints", m_pBreakpointInspector );
+   CDockWidgetRegistry::instance()->addWidget ( "Breakpoints", m_pBreakpointInspector );
 
    m_pAssemblyInspector = new CodeBrowserDockWidget(c64GetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pAssemblyInspector,SLOT(updateTargetMachine(QString)));
    addDockWidget(Qt::RightDockWidgetArea, m_pAssemblyInspector );
    m_pAssemblyInspector->hide();
    QObject::connect(m_pAssemblyInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
-   CDockWidgetRegistry::getInstance()->addWidget ( "Assembly Browser", m_pAssemblyInspector );
+   CDockWidgetRegistry::instance()->addWidget ( "Assembly Browser", m_pAssemblyInspector );
 
    m_pBinCPURegisterInspector = new RegisterInspectorDockWidget(c64GetCpuRegisterDatabase,c64GetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinCPURegisterInspector,SLOT(updateTargetMachine(QString)));
@@ -1502,7 +1502,7 @@ void MainWindow::createC64Ui()
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinCPURegisterInspector );
    m_pBinCPURegisterInspector->hide();
    QObject::connect(m_pBinCPURegisterInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
-   CDockWidgetRegistry::getInstance()->addWidget ( "CPU Register Inspector", m_pBinCPURegisterInspector );
+   CDockWidgetRegistry::instance()->addWidget ( "CPU Register Inspector", m_pBinCPURegisterInspector );
 
    m_pBinCPURAMInspector = new MemoryInspectorDockWidget(c64GetCpuMemoryDatabase,c64GetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinCPURAMInspector,SLOT(updateTargetMachine(QString)));
@@ -1511,7 +1511,7 @@ void MainWindow::createC64Ui()
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinCPURAMInspector );
    m_pBinCPURAMInspector->hide();
    QObject::connect(m_pBinCPURAMInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
-   CDockWidgetRegistry::getInstance()->addWidget ( "CPU RAM Inspector", m_pBinCPURAMInspector );
+   CDockWidgetRegistry::instance()->addWidget ( "CPU RAM Inspector", m_pBinCPURAMInspector );
 
    m_pBinSIDRegisterInspector = new RegisterInspectorDockWidget(c64GetSidRegisterDatabase,c64GetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinSIDRegisterInspector,SLOT(updateTargetMachine(QString)));
@@ -1520,7 +1520,7 @@ void MainWindow::createC64Ui()
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinSIDRegisterInspector );
    m_pBinSIDRegisterInspector->hide();
    QObject::connect(m_pBinSIDRegisterInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
-   CDockWidgetRegistry::getInstance()->addWidget ( "SID Register Inspector", m_pBinSIDRegisterInspector );
+   CDockWidgetRegistry::instance()->addWidget ( "SID Register Inspector", m_pBinSIDRegisterInspector );
 
    // Connect slots for new UI elements.
    QObject::connect(actionConfigure,SIGNAL(triggered()),this,SLOT(actionConfigure_triggered()));
@@ -1546,11 +1546,11 @@ void MainWindow::destroyC64Ui()
       return;
    }
 
-   CDockWidgetRegistry::getInstance()->removeWidget ( "Assembly Browser" );
-   CDockWidgetRegistry::getInstance()->removeWidget ( "Breakpoints" );
-   CDockWidgetRegistry::getInstance()->removeWidget ( "CPU Register Inspector" );
-   CDockWidgetRegistry::getInstance()->removeWidget ( "CPU RAM Inspector" );
-   CDockWidgetRegistry::getInstance()->removeWidget ( "SID Register Inspector" );
+   CDockWidgetRegistry::instance()->removeWidget ( "Assembly Browser" );
+   CDockWidgetRegistry::instance()->removeWidget ( "Breakpoints" );
+   CDockWidgetRegistry::instance()->removeWidget ( "CPU Register Inspector" );
+   CDockWidgetRegistry::instance()->removeWidget ( "CPU RAM Inspector" );
+   CDockWidgetRegistry::instance()->removeWidget ( "SID Register Inspector" );
 
    removeDockWidget(m_pAssemblyInspector);
    delete m_pAssemblyInspector;
@@ -1579,7 +1579,7 @@ void MainWindow::destroyC64Ui()
    delete m_pC64EmulatorThread;
    m_pC64EmulatorThread = NULL;
 
-   CObjectRegistry::getInstance()->removeObject ( "Emulator" );
+   CObjectRegistry::instance()->removeObject ( "Emulator" );
 
    m_targetLoaded = "none";
 }
@@ -1704,12 +1704,12 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 
 void MainWindow::hideEvent(QHideEvent */*event*/)
 {
-   CDockWidgetRegistry::getInstance()->saveVisibility();
+   CDockWidgetRegistry::instance()->saveVisibility();
 }
 
 void MainWindow::showEvent(QShowEvent */*event*/)
 {
-   CDockWidgetRegistry::getInstance()->restoreVisibility();
+   CDockWidgetRegistry::instance()->restoreVisibility();
 }
 
 void MainWindow::projectDataChangesEvent()
@@ -2154,7 +2154,7 @@ void MainWindow::openNesROM(QString fileName,bool runRom)
    nesicideProject->setProjectDebugInfoName(fileInfo.completeBaseName()+".dbg");
 
    // Load debugger info if we can find it.
-   CCC65Interface::captureDebugInfo();
+   CCC65Interface::instance()->captureDebugInfo();
 
    m_pProjectBrowser->enableNavigation();
 
@@ -2225,7 +2225,7 @@ void MainWindow::openC64File(QString fileName)
       nesicideProject->setProjectDebugInfoName(fileInfo.completeBaseName()+".dbg");
 
       // Load debugger info if we can find it.
-      CCC65Interface::captureDebugInfo();
+      CCC65Interface::instance()->captureDebugInfo();
    }
    else if ( !fileInfo.suffix().compare("d64",Qt::CaseInsensitive) )
    {
@@ -2408,13 +2408,13 @@ void MainWindow::closeEvent ( QCloseEvent* event )
    {
       cancel = closeProject();
 
-      CDockWidgetRegistry::getInstance()->removeWidget ( "Source Navigator" );
-      CDockWidgetRegistry::getInstance()->removeWidget ( "Search Bar" );
-      CDockWidgetRegistry::getInstance()->removeWidget ( "Project Browser" );
-      CDockWidgetRegistry::getInstance()->removeWidget ( "Output" );
-      CDockWidgetRegistry::getInstance()->removeWidget ( "Execution Inspector" );
-      CDockWidgetRegistry::getInstance()->removeWidget ( "Symbol Inspector" );
-      CDockWidgetRegistry::getInstance()->removeWidget ( "Code Profiler" );
+      CDockWidgetRegistry::instance()->removeWidget ( "Source Navigator" );
+      CDockWidgetRegistry::instance()->removeWidget ( "Search Bar" );
+      CDockWidgetRegistry::instance()->removeWidget ( "Project Browser" );
+      CDockWidgetRegistry::instance()->removeWidget ( "Output" );
+      CDockWidgetRegistry::instance()->removeWidget ( "Execution Inspector" );
+      CDockWidgetRegistry::instance()->removeWidget ( "Symbol Inspector" );
+      CDockWidgetRegistry::instance()->removeWidget ( "Code Profiler" );
    }
 
    if ( cancel )
@@ -2493,7 +2493,7 @@ void MainWindow::openNesProject(QString fileName,bool runRom)
          nesicideProject->createProjectFromRom(romName,true);
 
          // Load debugger info if we can find it.
-         CCC65Interface::captureDebugInfo();
+         CCC65Interface::instance()->captureDebugInfo();
 
          if ( !nesicideProject->getProjectCartridgeSaveStateName().isEmpty() )
          {
@@ -2585,7 +2585,7 @@ void MainWindow::openC64Project(QString fileName,bool run)
          c64Name = dir.fromNativeSeparators(dir.relativeFilePath(nesicideProject->getProjectLinkerOutputName()));
 
          // Load debugger info if we can find it.
-         CCC65Interface::captureDebugInfo();
+         CCC65Interface::instance()->captureDebugInfo();
 
          emit resetEmulator();
       }
@@ -2894,8 +2894,8 @@ bool MainWindow::closeProject()
    if ( !cancel )
    {
       // Close all inspectors
-      CDockWidgetRegistry::getInstance()->saveVisibility();
-      CDockWidgetRegistry::getInstance()->hideAll();
+      CDockWidgetRegistry::instance()->saveVisibility();
+      CDockWidgetRegistry::instance()->hideAll();
 
       m_pSourceNavigator->shutdown();
 
@@ -2921,7 +2921,7 @@ bool MainWindow::closeProject()
       }
       menuWindow->setEnabled(menuWindow->actions().count()>0);
 
-      CCC65Interface::clear();
+      CCC65Interface::instance()->clear();
 
       nesicideProject->terminateProject();
 
@@ -3547,7 +3547,7 @@ void MainWindow::on_actionOnline_Help_triggered()
 
 void MainWindow::on_actionLoad_In_Emulator_triggered()
 {
-   CompilerThread* compiler = dynamic_cast<CompilerThread*>(CObjectRegistry::getInstance()->getObject("Compiler"));
+   CompilerThread* compiler = dynamic_cast<CompilerThread*>(CObjectRegistry::instance()->getObject("Compiler"));
 
    output->showPane(OutputPaneDockWidget::Output_Build);
 
@@ -3559,13 +3559,13 @@ void MainWindow::on_actionLoad_In_Emulator_triggered()
       {
          buildTextLogger->write("<b>Loading ROM...</b>");
 
-         if ( !CCC65Interface::captureINESImage() )
+         if ( !CCC65Interface::instance()->captureINESImage() )
          {
             buildTextLogger->write("<font color='red'><b>Load NES failed.</b></font>");
             return;
          }
 
-         if ( !CCC65Interface::captureDebugInfo() )
+         if ( !CCC65Interface::instance()->captureDebugInfo() )
          {
              buildTextLogger->write("<font color='red'><b>Loading debug information failed.</b></font>");
          }
@@ -3582,7 +3582,7 @@ void MainWindow::on_actionLoad_In_Emulator_triggered()
       {
          buildTextLogger->write("<b>Loading C64...</b>");
 
-         if ( !CCC65Interface::captureDebugInfo() )
+         if ( !CCC65Interface::instance()->captureDebugInfo() )
          {
              buildTextLogger->write("<font color='red'><b>Loading debug information failed.</b></font>");
          }
@@ -3820,7 +3820,7 @@ void MainWindow::on_actionCoding_Mode_triggered()
    if ( actionDebugging_Mode->isChecked() )
    {
       QWidget* widget;
-      widget = CDockWidgetRegistry::getInstance()->getWidget("Output");
+      widget = CDockWidgetRegistry::instance()->getWidget("Output");
       widget->hide();
 
       settings.setValue("DebuggingModeIDEGeometry",saveGeometry());
@@ -3834,9 +3834,9 @@ void MainWindow::on_actionCoding_Mode_triggered()
          show();
       }
 
-      CDockWidgetRegistry::getInstance()->hideAll();
+      CDockWidgetRegistry::instance()->hideAll();
 
-      widget = CDockWidgetRegistry::getInstance()->getWidget("Project Browser");
+      widget = CDockWidgetRegistry::instance()->getWidget("Project Browser");
       widget->show();
    }
 
@@ -3852,12 +3852,12 @@ void MainWindow::on_actionDebugging_Mode_triggered()
    if ( actionCoding_Mode->isChecked() )
    {
       QWidget* widget;
-      widget = CDockWidgetRegistry::getInstance()->getWidget("Output");
+      widget = CDockWidgetRegistry::instance()->getWidget("Output");
       widget->hide();
 
       settings.setValue("CodingModeIDEGeometry",saveGeometry());
 
-      CDockWidgetRegistry::getInstance()->hideAll();
+      CDockWidgetRegistry::instance()->hideAll();
       if ( EnvironmentSettingsDialog::rememberWindowSettings() )
       {
          hide();
@@ -3867,7 +3867,7 @@ void MainWindow::on_actionDebugging_Mode_triggered()
       }
    }
 
-   CDockWidgetRegistry::getInstance()->restoreVisibility();
+   CDockWidgetRegistry::instance()->restoreVisibility();
    actionDebugging_Mode->setChecked(true);
    actionCoding_Mode->setChecked(false);
    appSettings->setAppMode(AppSettings::DebuggingMode);

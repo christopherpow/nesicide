@@ -21,11 +21,11 @@ APUInformationDockWidget::~APUInformationDockWidget()
 
 void APUInformationDockWidget::updateTargetMachine(QString /*target*/)
 {
-   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
+   QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
    QObject::connect ( emulator, SIGNAL(machineReady()), this, SLOT(updateInformation()) );
    QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateInformation()) );
    QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateInformation()) );
-   QObject* breakpointWatcher = CObjectRegistry::getInstance()->getObject("Breakpoint Watcher");
+   QObject* breakpointWatcher = CObjectRegistry::instance()->getObject("Breakpoint Watcher");
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateInformation()) );
 }
 
@@ -45,14 +45,14 @@ void APUInformationDockWidget::changeEvent(QEvent* e)
 
 void APUInformationDockWidget::showEvent(QShowEvent* /*e*/)
 {
-   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
+   QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
    QObject::connect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(updateInformation()) );
    updateInformation();
 }
 
 void APUInformationDockWidget::hideEvent(QHideEvent* /*e*/)
 {
-   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
+   QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
    QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(updateInformation()) );
 }
 

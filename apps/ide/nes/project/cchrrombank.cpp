@@ -79,7 +79,7 @@ void CCHRROMBank::exportAsPNG()
 
 void CCHRROMBank::importFromPNG()
 {
-   NESEmulatorThread* emulator = dynamic_cast<NESEmulatorThread*>(CObjectRegistry::getInstance()->getObject("Emulator"));
+   NESEmulatorThread* emulator = dynamic_cast<NESEmulatorThread*>(CObjectRegistry::instance()->getObject("Emulator"));
    QString fileName = QFileDialog::getOpenFileName(NULL,"Import CHR-ROM Bank from PNG",QDir::currentPath(),"PNG Files (*.png)");
    QByteArray chrData;
    QByteArray imgData;

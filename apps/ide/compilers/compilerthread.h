@@ -10,17 +10,16 @@ enum
    DoClean
 };
 
-class CompilerThread : public QObject
+class CompilerWorker : public QObject
 {
    Q_OBJECT
 public:
-   CompilerThread ( QObject* parent = 0 );
-   virtual ~CompilerThread ();
+   CompilerWorker ( QObject* parent = 0 );
+   virtual ~CompilerWorker ();
 
    bool assembledOk() { return m_assembledOk; }
    void reset() { m_assembledOk = false; }
 
-public slots:
    void compile();
    void clean();
 
@@ -33,8 +32,31 @@ signals:
 protected:
    bool m_assembledOk;
    int  m_operation;
+};
 
-   QThread* pThread;
+class CompilerThread : public QObject
+{
+   Q_OBJECT
+public:
+   CompilerThread ( QObject* parent = 0 );
+   virtual ~CompilerThread ();
+
+   bool assembledOk() { return pWorker->assembledOk(); }
+   void reset() { pWorker->reset(); }
+
+public slots:
+   void compile() { pWorker->compile(); }
+   void clean() { pWorker->clean(); }
+
+signals:
+   void compileStarted();
+   void compileDone(bool bOk);
+   void cleanStarted();
+   void cleanDone(bool bOk);
+
+protected:
+   CompilerWorker *pWorker;
+   QThread        *pThread;
 };
 
 #endif // COMPILERTHREAD_H

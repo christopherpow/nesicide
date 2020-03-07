@@ -16,8 +16,8 @@ C64EmulatorControl::C64EmulatorControl(QWidget *parent) :
 {
    ui->setupUi(this);
 
-   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
-   QObject* breakpointWatcher = CObjectRegistry::getInstance()->getObject("Breakpoint Watcher");
+   QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
+   QObject* breakpointWatcher = CObjectRegistry::instance()->getObject("Breakpoint Watcher");
 
    QObject::connect(breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(internalPause()));
    QObject::connect(emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(internalPause()));
@@ -98,7 +98,7 @@ void C64EmulatorControl::internalPause()
 
 void C64EmulatorControl::on_playButton_clicked()
 {
-   CCC65Interface::isBuildUpToDate();
+   CCC65Interface::instance()->isBuildUpToDate();
 
    emit startEmulation();
 }
@@ -110,28 +110,28 @@ void C64EmulatorControl::on_pauseButton_clicked()
 
 void C64EmulatorControl::on_stepCPUButton_clicked()
 {
-   CCC65Interface::isBuildUpToDate();
+   CCC65Interface::instance()->isBuildUpToDate();
 
    emit stepCPUEmulation();
 }
 
 void C64EmulatorControl::on_resetButton_clicked()
 {
-   CCC65Interface::isBuildUpToDate();
+   CCC65Interface::instance()->isBuildUpToDate();
 
    emit resetEmulator();
 }
 
 void C64EmulatorControl::on_stepOverButton_clicked()
 {
-   CCC65Interface::isBuildUpToDate();
+   CCC65Interface::instance()->isBuildUpToDate();
 
    emit stepOverCPUEmulation();
 }
 
 void C64EmulatorControl::on_stepOutButton_clicked()
 {
-   CCC65Interface::isBuildUpToDate();
+   CCC65Interface::instance()->isBuildUpToDate();
 
    emit stepOutCPUEmulation();
 }

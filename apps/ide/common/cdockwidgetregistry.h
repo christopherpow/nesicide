@@ -9,14 +9,14 @@
 class CDockWidgetRegistry
 {
 public:
-   static CDockWidgetRegistry *instance;
-   static CDockWidgetRegistry *getInstance()
+   static CDockWidgetRegistry *_instance;
+   static CDockWidgetRegistry *instance()
    {
-      if ( !instance )
+      if ( !_instance )
       {
-         instance = new CDockWidgetRegistry();
+         _instance = new CDockWidgetRegistry();
       }
-      return instance;
+      return _instance;
    }
    typedef struct
    {

@@ -2,25 +2,16 @@
 
 #include "main.h"
 
-SearcherThread::SearcherThread(QObject*)
+SearcherWorker::SearcherWorker(QObject*)
 {
    m_found = 0;
-
-   pThread = new QThread();
-
-   moveToThread(pThread);
-
-   pThread->start();
 }
 
-SearcherThread::~SearcherThread()
+SearcherWorker::~SearcherWorker()
 {
-   pThread->exit(0);
-   pThread->wait();
-   delete pThread;
 }
 
-void SearcherThread::search(QDir dir, QString searchText, QString pattern, bool subfolders, bool sourceSearchPaths, bool useRegex, bool caseSensitive)
+void SearcherWorker::search(QDir dir, QString searchText, QString pattern, bool subfolders, bool sourceSearchPaths, bool useRegex, bool caseSensitive)
 {
    m_dir = dir;
    m_searchText = searchText;
@@ -43,7 +34,7 @@ void SearcherThread::search(QDir dir, QString searchText, QString pattern, bool 
    emit searchDone(m_found);
 }
 
-void SearcherThread::doSearch(QDir dir,int* finds)
+void SearcherWorker::doSearch(QDir dir,int* finds)
 {
    QDir          base(QDir::currentPath());
    QFileInfoList entries = dir.entryInfoList(QDir::AllDirs|QDir::NoDotAndDotDot|QDir::NoSymLinks|QDir::Files);
@@ -97,4 +88,25 @@ void SearcherThread::doSearch(QDir dir,int* finds)
          }
       }
    }
+}
+
+SearcherThread::SearcherThread(QObject*)
+{
+   pWorker = new SearcherWorker();
+
+   QObject::connect(pWorker,SIGNAL(searchDone(int)),this,SIGNAL(searchDone(int)));
+
+   pThread = new QThread();
+
+   pWorker->moveToThread(pThread);
+
+   pThread->start();
+}
+
+SearcherThread::~SearcherThread()
+{
+   pThread->exit(0);
+   pThread->wait();
+   delete pThread;
+   delete pWorker;
 }

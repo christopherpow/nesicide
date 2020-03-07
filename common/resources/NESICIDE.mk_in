@@ -17,12 +17,12 @@ RM = rm
 
 ifeq ($(shell echo),)
   MKDIR = mkdir -p $1
-  RMDIR = rmdir $1
-  RMFILES = $(RM) $1
+  RMDIR = -rmdir $1
+  RMFILES = -$(RM) $1
 else
   MKDIR = mkdir $(subst /,\,$1)
-  RMDIR = rmdir $(subst /,\,$1)
-  RMFILES = $(if $1,del /f $(subst /,\,$1))
+  RMDIR = -rmdir $(subst /,\,$1)
+  RMFILES = -$(if $1,del /f $(subst /,\,$1))
 endif
 
 # Path(s) to additional libraries required for linking the program

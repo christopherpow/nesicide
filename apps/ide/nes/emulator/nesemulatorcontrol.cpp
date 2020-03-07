@@ -16,8 +16,8 @@ NESEmulatorControl::NESEmulatorControl(QWidget *parent) :
 {
    ui->setupUi(this);
 
-   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
-   QObject* breakpointWatcher = CObjectRegistry::getInstance()->getObject("Breakpoint Watcher");
+   QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
+   QObject* breakpointWatcher = CObjectRegistry::instance()->getObject("Breakpoint Watcher");
 
    QObject::connect(breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(internalPause()));
    QObject::connect(emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(internalPause()));
@@ -130,7 +130,7 @@ void NESEmulatorControl::internalPause()
 
 void NESEmulatorControl::on_playButton_clicked()
 {
-   CCC65Interface::isBuildUpToDate();
+   CCC65Interface::instance()->isBuildUpToDate();
 
    emit startEmulation();
 
@@ -144,49 +144,49 @@ void NESEmulatorControl::on_pauseButton_clicked()
 
 void NESEmulatorControl::on_stepCPUButton_clicked()
 {
-   CCC65Interface::isBuildUpToDate();
+   CCC65Interface::instance()->isBuildUpToDate();
 
    emit stepCPUEmulation();
 }
 
 void NESEmulatorControl::on_stepPPUButton_clicked()
 {
-   CCC65Interface::isBuildUpToDate();
+   CCC65Interface::instance()->isBuildUpToDate();
 
    emit stepPPUEmulation();
 }
 
 void NESEmulatorControl::on_resetButton_clicked()
 {
-   CCC65Interface::isBuildUpToDate();
+   CCC65Interface::instance()->isBuildUpToDate();
 
    emit resetEmulator();
 }
 
 void NESEmulatorControl::on_softButton_clicked()
 {
-   CCC65Interface::isBuildUpToDate();
+   CCC65Interface::instance()->isBuildUpToDate();
 
    emit softResetEmulator();
 }
 
 void NESEmulatorControl::on_frameAdvance_clicked()
 {
-   CCC65Interface::isBuildUpToDate();
+   CCC65Interface::instance()->isBuildUpToDate();
 
    emit advanceFrame();
 }
 
 void NESEmulatorControl::on_stepOverButton_clicked()
 {
-   CCC65Interface::isBuildUpToDate();
+   CCC65Interface::instance()->isBuildUpToDate();
 
    emit stepOverCPUEmulation();
 }
 
 void NESEmulatorControl::on_stepOutButton_clicked()
 {
-   CCC65Interface::isBuildUpToDate();
+   CCC65Interface::instance()->isBuildUpToDate();
 
    emit stepOutCPUEmulation();
 }

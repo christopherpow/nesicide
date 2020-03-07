@@ -15,9 +15,9 @@ void CMachineImageBuilder::clean()
    buildTextLogger->erase();
    buildTextLogger->write("<b>Project build started.</b>");
 
-   if ( (CCC65Interface::getCLanguageSourcesFromProject().count()) ||
-        (CCC65Interface::getAssemblerSourcesFromProject().count()) ||
-        (CCC65Interface::getCustomSourcesFromProject().count()) )
+   if ( (CCC65Interface::instance()->getCLanguageSourcesFromProject().count()) ||
+        (CCC65Interface::instance()->getAssemblerSourcesFromProject().count()) ||
+        (CCC65Interface::instance()->getCustomSourcesFromProject().count()) )
    {
       sourceAssembler.clean();
    }
@@ -37,9 +37,9 @@ bool CMachineImageBuilder::build()
    buildTextLogger->erase();
    buildTextLogger->write("<b>Project build started.</b>");
 
-   if ( (CCC65Interface::getCLanguageSourcesFromProject().count()) ||
-        (CCC65Interface::getAssemblerSourcesFromProject().count()) ||
-        (CCC65Interface::getCustomSourcesFromProject().count()) )
+   if ( (CCC65Interface::instance()->getCLanguageSourcesFromProject().count()) ||
+        (CCC65Interface::instance()->getAssemblerSourcesFromProject().count()) ||
+        (CCC65Interface::instance()->getCustomSourcesFromProject().count()) )
    {
       if ( !nesicideProject->getLinkerConfigFile().isEmpty() )
       {

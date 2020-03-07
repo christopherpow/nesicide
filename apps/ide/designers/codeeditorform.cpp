@@ -32,10 +32,10 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    m_scintilla(NULL),
    m_apis(NULL)
 {
-   QDockWidget* codeBrowser = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getInstance()->getWidget("Assembly Browser"));
-   QDockWidget* breakpoints = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getInstance()->getWidget("Breakpoints"));
-   QDockWidget* symbolWatch = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getInstance()->getWidget("Symbol Inspector"));
-   QDockWidget* executionVisualizer = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::getInstance()->getWidget("Execution Visualizer"));
+   QDockWidget* codeBrowser = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::instance()->getWidget("Assembly Browser"));
+   QDockWidget* breakpoints = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::instance()->getWidget("Breakpoints"));
+   QDockWidget* symbolWatch = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::instance()->getWidget("Symbol Inspector"));
+   QDockWidget* executionVisualizer = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::instance()->getWidget("Execution Visualizer"));
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    CMarker* markers = nesGetExecutionMarkerDatabase();
    MarkerSetInfo* pMarker;
@@ -134,9 +134,9 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
       QObject::connect ( executionVisualizer, SIGNAL(breakpointsChanged()), this, SLOT(external_breakpointsChanged()) );
    }
 
-   QObject* breakpointWatcher = CObjectRegistry::getInstance()->getObject("Breakpoint Watcher");
-   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
-   QObject* compiler = CObjectRegistry::getInstance()->getObject("Compiler");
+   QObject* breakpointWatcher = CObjectRegistry::instance()->getObject("Breakpoint Watcher");
+   QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
+   QObject* compiler = CObjectRegistry::instance()->getObject("Compiler");
 
    QObject::connect ( compiler, SIGNAL(compileStarted()), this, SLOT(compiler_compileStarted()) );
    QObject::connect ( compiler, SIGNAL(compileDone(bool)), this, SLOT(compiler_compileDone(bool)) );
@@ -249,7 +249,7 @@ void CodeEditorForm::customContextMenuRequested(const QPoint &pos)
    }
 
    if ( (!symbol.isEmpty()) &&
-        (CCC65Interface::isStringASymbol(symbol)) )
+        (CCC65Interface::instance()->isStringASymbol(symbol)) )
    {
       QString str = GO_TO_DEFINITION_TEXT;
       str += symbol;
@@ -264,7 +264,7 @@ void CodeEditorForm::customContextMenuRequested(const QPoint &pos)
 
    if ( (action) && (action->text().startsWith(GO_TO_DEFINITION_TEXT)) )
    {
-      QString file = CCC65Interface::getSourceFileFromSymbol(symbol);
+      QString file = CCC65Interface::instance()->getSourceFileFromSymbol(symbol);
       emit snapToTab("SourceNavigatorFile,"+file);
       emit snapToTab("SourceNavigatorSymbol,"+symbol);
    }
@@ -400,7 +400,7 @@ void CodeEditorForm::compiler_compileDone(bool ok)
 
    for ( line = 0; line < m_scintilla->lines(); line++ )
    {
-      if ( CCC65Interface::isErrorOnLineOfFile(m_fileName,line+1) )
+      if ( CCC65Interface::instance()->isErrorOnLineOfFile(m_fileName,line+1) )
       {
          m_scintilla->markerAdd(line,Marker_Error);
       }
@@ -447,11 +447,11 @@ void CodeEditorForm::external_breakpointsChanged()
 
    for ( line = 0; line < m_scintilla->lines(); line++ )
    {
-      asmcount = CCC65Interface::getLineMatchCount(m_fileName,line+1);
+      asmcount = CCC65Interface::instance()->getLineMatchCount(m_fileName,line+1);
       for ( asmline = 0; asmline < asmcount; asmline++ )
       {
-         addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1,asmline);
-         absAddr = CCC65Interface::getPhysicalAddressFromFileAndLine(m_fileName,line+1,asmline);
+         addr = CCC65Interface::instance()->getAddressFromFileAndLine(m_fileName,line+1,asmline);
+         absAddr = CCC65Interface::instance()->getPhysicalAddressFromFileAndLine(m_fileName,line+1,asmline);
 
          if ( addr != (unsigned int)-1 )
          {
@@ -697,19 +697,19 @@ void CodeEditorForm::updateToolTip(QString symbol)
    if ( EnvironmentSettingsDialog::showSymbolTips() )
    {
       // Look for C-language emitted symbols [prepended with underscore]...
-      if ( (CCC65Interface::getSymbolType(clangSymbol) == CC65_SYM_LABEL) ||
-           (CCC65Interface::getSymbolType(clangSymbol) == CC65_SYM_IMPORT) )
+      if ( (CCC65Interface::instance()->getSymbolType(clangSymbol) == CC65_SYM_LABEL) ||
+           (CCC65Interface::instance()->getSymbolType(clangSymbol) == CC65_SYM_IMPORT) )
       {
          symbol = clangSymbol;
       }
-      if ( (CCC65Interface::getSymbolType(symbol) == CC65_SYM_LABEL) ||
-           (CCC65Interface::getSymbolType(symbol) == CC65_SYM_IMPORT) )
+      if ( (CCC65Interface::instance()->getSymbolType(symbol) == CC65_SYM_LABEL) ||
+           (CCC65Interface::instance()->getSymbolType(symbol) == CC65_SYM_IMPORT) )
       {
-         addr = CCC65Interface::getSymbolAddress(symbol);
+         addr = CCC65Interface::instance()->getSymbolAddress(symbol);
 
          if ( addr != 0xFFFFFFFF )
          {
-            absAddr = CCC65Interface::getSymbolPhysicalAddress(symbol);
+            absAddr = CCC65Interface::instance()->getSymbolPhysicalAddress(symbol);
             if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
             {
                nesGetPrintablePhysicalAddress(address,addr,absAddr);
@@ -719,8 +719,8 @@ void CodeEditorForm::updateToolTip(QString symbol)
                c64GetPrintablePhysicalAddress(address,addr,absAddr);
             }
 
-            file = CCC65Interface::getSourceFileFromSymbol(symbol);
-            line = CCC65Interface::getSourceLineFromFileAndSymbol(file,symbol);
+            file = CCC65Interface::instance()->getSourceFileFromSymbol(symbol);
+            line = CCC65Interface::instance()->getSourceLineFromFileAndSymbol(file,symbol);
 
             if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
             {
@@ -733,9 +733,9 @@ void CodeEditorForm::updateToolTip(QString symbol)
             setToolTip(toolTipText);
          }
       }
-      else if ( CCC65Interface::getSymbolType(symbol) == CC65_SYM_EQUATE )
+      else if ( CCC65Interface::instance()->getSymbolType(symbol) == CC65_SYM_EQUATE )
       {
-         addr = CCC65Interface::getSymbolAddress(symbol);
+         addr = CCC65Interface::instance()->getSymbolAddress(symbol);
 
          sprintf(toolTipText,TOOLTIP_EQUATE,symbol.toLatin1().constData(),addr);
          setToolTip(toolTipText);
@@ -1015,13 +1015,13 @@ void CodeEditorForm::resolveLineAddress(int line, int *addr, int *absAddr)
    int asmline;
    bool ok;
 
-   asmcount = CCC65Interface::getLineMatchCount(m_fileName,line+1);
+   asmcount = CCC65Interface::instance()->getLineMatchCount(m_fileName,line+1);
    if ( asmcount > 1 )
    {
       for ( asmline = 0; asmline < asmcount; asmline++ )
       {
-         (*addr) = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1,asmline);
-         (*absAddr) = CCC65Interface::getPhysicalAddressFromFileAndLine(m_fileName,line+1,asmline);
+         (*addr) = CCC65Interface::instance()->getAddressFromFileAndLine(m_fileName,line+1,asmline);
+         (*absAddr) = CCC65Interface::instance()->getPhysicalAddressFromFileAndLine(m_fileName,line+1,asmline);
 
          if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
          {
@@ -1060,8 +1060,8 @@ void CodeEditorForm::resolveLineAddress(int line, int *addr, int *absAddr)
    }
    else
    {
-      (*addr) = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1);
-      (*absAddr) = CCC65Interface::getPhysicalAddressFromFileAndLine(m_fileName,line+1);
+      (*addr) = CCC65Interface::instance()->getAddressFromFileAndLine(m_fileName,line+1);
+      (*absAddr) = CCC65Interface::instance()->getPhysicalAddressFromFileAndLine(m_fileName,line+1);
    }
 }
 
@@ -1092,12 +1092,12 @@ void CodeEditorForm::annotateText()
          first = true;
          firstBlock = true;
 
-         asmcount = CCC65Interface::getLineMatchCount(m_fileName,line+1);
+         asmcount = CCC65Interface::instance()->getLineMatchCount(m_fileName,line+1);
          for ( asmline = 0; asmline < asmcount; asmline++ )
          {
-            addr = CCC65Interface::getAddressFromFileAndLine(m_fileName,line+1,asmline);
-            absAddr = CCC65Interface::getPhysicalAddressFromFileAndLine(m_fileName,line+1,asmline);
-            endAddr = CCC65Interface::getEndAddressFromPhysicalAddress(addr,absAddr);
+            addr = CCC65Interface::instance()->getAddressFromFileAndLine(m_fileName,line+1,asmline);
+            absAddr = CCC65Interface::instance()->getPhysicalAddressFromFileAndLine(m_fileName,line+1,asmline);
+            endAddr = CCC65Interface::instance()->getEndAddressFromPhysicalAddress(addr,absAddr);
 
             if ( (addr != -1) && (absAddr != -1) && (endAddr != -1) )
             {
@@ -1109,7 +1109,7 @@ void CodeEditorForm::annotateText()
 
                for ( ; addr <= endAddr; addr++, absAddr++ )
                {
-                  if ( CCC65Interface::isPhysicalAddressAnOpcode(absAddr) )
+                  if ( CCC65Interface::instance()->isPhysicalAddressAnOpcode(absAddr) )
                   {
                      if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
                      {
@@ -1261,10 +1261,10 @@ void CodeEditorForm::snapTo(QString item)
          addr = splits.at(3).toInt(NULL,16);
          absAddr = (splits.at(1).toInt(NULL,16)*MEM_8KB)+splits.at(2).toInt(NULL,16);
       }
-      fileName = CCC65Interface::getSourceFileFromPhysicalAddress(addr,absAddr);
+      fileName = CCC65Interface::instance()->getSourceFileFromPhysicalAddress(addr,absAddr);
       if ( fileName == m_fileName )
       {
-         line = CCC65Interface::getSourceLineFromPhysicalAddress(addr,absAddr);
+         line = CCC65Interface::instance()->getSourceLineFromPhysicalAddress(addr,absAddr);
          highlightLine(line);
       }
    }
@@ -1341,7 +1341,7 @@ void CodeEditorForm::snapTo(QString item)
    else if ( item.startsWith("SourceNavigatorSymbol,") )
    {
       splits = item.split(QRegExp("[,]"));
-      line = CCC65Interface::getSourceLineFromFileAndSymbol(m_fileName,splits.at(1));
+      line = CCC65Interface::instance()->getSourceLineFromFileAndSymbol(m_fileName,splits.at(1));
       if ( line >= 0 )
       {
          highlightLine(line);

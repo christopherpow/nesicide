@@ -4,6 +4,20 @@
 #include <QThread>
 #include <QSemaphore>
 
+class BreakpointWatcherWorker : public QObject
+{
+   Q_OBJECT
+public:
+   BreakpointWatcherWorker ( QObject* parent = 0 );
+   virtual ~BreakpointWatcherWorker ();
+
+   void breakpoint();
+
+signals:
+   void breakpointHit();
+   void showPane(int pane);
+};
+
 class BreakpointWatcherThread : public QObject
 {
    Q_OBJECT
@@ -16,10 +30,11 @@ signals:
    void showPane(int pane);
 
 public slots:
-   void breakpoint();
+   void breakpoint() { pWorker->breakpoint(); }
 
 protected:
-   QThread* pThread;
+   BreakpointWatcherWorker *pWorker;
+   QThread                 *pThread;
 };
 
 #endif // BREAKPOINTWATCHERTHREAD_H

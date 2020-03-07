@@ -447,7 +447,7 @@ void BreakpointDialog::DisplayResolutions(BreakpointInfo* pBreakpoint)
    QString  text;
    QStringList textSplit;
    QFileInfo   fileInfo;
-   CompilerThread* compiler = dynamic_cast<CompilerThread*>(CObjectRegistry::getInstance()->getObject("Compiler"));
+   CompilerThread* compiler = dynamic_cast<CompilerThread*>(CObjectRegistry::instance()->getObject("Compiler"));
 
    // Get address from UI
    originalAddr = ui->addr1->text().toInt(0,16);
@@ -468,14 +468,14 @@ void BreakpointDialog::DisplayResolutions(BreakpointInfo* pBreakpoint)
       {
          if ( compiler->assembledOk() )
          {
-            source = CCC65Interface::getSourceFileFromPhysicalAddress(originalAddr,maskedAddr);
+            source = CCC65Interface::instance()->getSourceFileFromPhysicalAddress(originalAddr,maskedAddr);
             if ( !source.isEmpty() )
             {
                fileInfo.setFile(source);
                source = fileInfo.fileName();
 
                text = "put something";//pasm_get_source_file_text_by_addr(maskedAddr);
-               linenum = CCC65Interface::getSourceLineFromPhysicalAddress(originalAddr,maskedAddr);
+               linenum = CCC65Interface::instance()->getSourceLineFromPhysicalAddress(originalAddr,maskedAddr);
 //               textSplit = text.split(QRegExp("[\r\n]"));
 //               text = textSplit.at(linenum-1);
                item.sprintf("%s:%d:",

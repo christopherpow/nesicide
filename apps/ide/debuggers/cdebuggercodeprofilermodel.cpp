@@ -39,8 +39,8 @@ QModelIndex CDebuggerCodeProfilerModel::index(int row, int column, const QModelI
       unsigned int addr;
       unsigned int absAddr;
 
-      addr = CCC65Interface::getSymbolAddress(m_items.at(row).symbol);
-      absAddr = CCC65Interface::getSymbolPhysicalAddress(m_items.at(row).symbol);
+      addr = CCC65Interface::instance()->getSymbolAddress(m_items.at(row).symbol);
+      absAddr = CCC65Interface::instance()->getSymbolPhysicalAddress(m_items.at(row).symbol);
 
       if ( addr >= MEM_32KB )
       {
@@ -128,7 +128,7 @@ int CDebuggerCodeProfilerModel::columnCount(const QModelIndex&) const
 
 void CDebuggerCodeProfilerModel::update()
 {
-   QStringList symbols = CCC65Interface::getSymbolsForSourceFile(""); // CPTODO: File doesn't matter (yet).
+   QStringList symbols = CCC65Interface::instance()->getSymbolsForSourceFile(""); // CPTODO: File doesn't matter (yet).
    CCodeDataLogger* pLogger;
    unsigned int addr;
    unsigned int absAddr;
@@ -141,8 +141,8 @@ void CDebuggerCodeProfilerModel::update()
       // CPTODO: Temporary hack to get around temporary labels.
       if ( !symbol.startsWith('@') )
       {
-         addr = CCC65Interface::getSymbolAddress(symbol);
-         absAddr = CCC65Interface::getSymbolPhysicalAddress(symbol);
+         addr = CCC65Interface::instance()->getSymbolAddress(symbol);
+         absAddr = CCC65Interface::instance()->getSymbolPhysicalAddress(symbol);
 
          if ( absAddr != -1 )
          {
@@ -170,8 +170,8 @@ void CDebuggerCodeProfilerModel::update()
                     (pLogger->GetType(addr&mask) == eLogger_InstructionFetch) )
                {
                   item.symbol = symbol;
-                  item.size = CCC65Interface::getSymbolSize(symbol);
-                  item.file = CCC65Interface::getSourceFileFromSymbol(symbol);
+                  item.size = CCC65Interface::instance()->getSymbolSize(symbol);
+                  item.file = CCC65Interface::instance()->getSourceFileFromSymbol(symbol);
                   fileInfo.setFile(item.file);
 
                   nesGetPrintablePhysicalAddress(modelStringBuffer,addr,absAddr);

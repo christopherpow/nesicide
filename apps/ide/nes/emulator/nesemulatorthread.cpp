@@ -42,7 +42,7 @@ SDL_AudioSpec sdlAudioSpec;
 static void breakpointHook ( void )
 {
    // Tell the world.
-   NESEmulatorThread* emulator = dynamic_cast<NESEmulatorThread*>(CObjectRegistry::getInstance()->getObject("Emulator"));
+   NESEmulatorThread* emulator = dynamic_cast<NESEmulatorThread*>(CObjectRegistry::instance()->getObject("Emulator"));
    if ( emulator && emulator->worker() )
    {
       emulator->worker()->_breakpointHook();
@@ -59,7 +59,7 @@ void NESEmulatorWorker::_breakpointHook()
 
 static void audioHook ( void )
 {
-   NESEmulatorThread* emulator = dynamic_cast<NESEmulatorThread*>(CObjectRegistry::getInstance()->getObject("Emulator"));
+   NESEmulatorThread* emulator = dynamic_cast<NESEmulatorThread*>(CObjectRegistry::instance()->getObject("Emulator"));
    if ( emulator && emulator->worker() )
       emulator->worker()->nesAudioSemaphore->acquire();
 }
@@ -107,7 +107,7 @@ NESEmulatorThread::NESEmulatorThread(QObject*)
 
    nesClearAudioSamplesAvailable();
 
-   BreakpointWatcherThread* breakpointWatcher = dynamic_cast<BreakpointWatcherThread*>(CObjectRegistry::getInstance()->getObject("Breakpoint Watcher"));
+   BreakpointWatcherThread* breakpointWatcher = dynamic_cast<BreakpointWatcherThread*>(CObjectRegistry::instance()->getObject("Breakpoint Watcher"));
    QObject::connect(this,SIGNAL(breakpoint()),breakpointWatcher,SLOT(breakpoint()));
 
    pThread = new QThread();
@@ -330,7 +330,7 @@ void NESEmulatorWorker::stepCPUEmulation ()
    // If we do, it'll be the valid end of a C statement or an assembly instruction.
    addr = nesGetCPURegister(CPU_PC);
    absAddr = nesGetPhysicalAddressFromAddress(addr);
-   endAddr = CCC65Interface::getEndAddressFromPhysicalAddress(addr,absAddr);
+   endAddr = CCC65Interface::instance()->getEndAddressFromPhysicalAddress(addr,absAddr);
 
    if ( endAddr != 0xFFFFFFFF )
    {
@@ -374,7 +374,7 @@ void NESEmulatorWorker::stepOverCPUEmulation ()
    // If we do, it'll be the valid end of a C statement or an assembly instruction.
    addr = nesGetCPURegister(CPU_PC);
    absAddr = nesGetPhysicalAddressFromAddress(addr);
-   endAddr = CCC65Interface::getEndAddressFromPhysicalAddress(addr,absAddr);
+   endAddr = CCC65Interface::instance()->getEndAddressFromPhysicalAddress(addr,absAddr);
 
    if ( endAddr != 0xFFFFFFFF )
    {
@@ -385,7 +385,7 @@ void NESEmulatorWorker::stepOverCPUEmulation ()
          // This is fairly typical of if conditions with function calls on the same line.
          instr = nesGetPRGROMData(endAddr-2);
          instAbsAddr = nesGetPhysicalAddressFromAddress(endAddr-2);
-         isInstr = CCC65Interface::isPhysicalAddressAnOpcode(instAbsAddr);
+         isInstr = CCC65Interface::instance()->isPhysicalAddressAnOpcode(instAbsAddr);
          if ( !isInstr )
          {
             instr = nesGetPRGROMData(addr);
@@ -499,7 +499,7 @@ void NESEmulatorWorker::loadCartridge()
          // Update opcode masks to show proper disassembly...
          for ( a = 0; a < MEM_8KB; a++ )
          {
-            if ( CCC65Interface::isPhysicalAddressAnOpcode((b*MEM_8KB)+a) )
+            if ( CCC65Interface::instance()->isPhysicalAddressAnOpcode((b*MEM_8KB)+a) )
             {
                nesSetOpcodeMask((b*MEM_8KB)+a,1);
             }
@@ -556,7 +556,7 @@ void NESEmulatorWorker::loadCartridge()
 
 void NESEmulatorWorker::process ()
 {
-   QWidget* emulatorWidget = CDockWidgetRegistry::getInstance()->getWidget("Emulator");
+   QWidget* emulatorWidget = CDockWidgetRegistry::instance()->getWidget("Emulator");
    int scaleX;
    int scaleY;
    int scale;

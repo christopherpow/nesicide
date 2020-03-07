@@ -71,8 +71,8 @@ void SymbolWatchDockWidget::createNesUi()
       return;
    }
 
-   QObject* breakpointWatcher = CObjectRegistry::getInstance()->getObject("Breakpoint Watcher");
-   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
+   QObject* breakpointWatcher = CObjectRegistry::instance()->getObject("Breakpoint Watcher");
+   QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
 
    sramTab = new QWidget();
    sramTab->setObjectName(QString::fromUtf8("sramTab"));
@@ -210,9 +210,9 @@ void SymbolWatchDockWidget::destroyC64Ui()
 
 void SymbolWatchDockWidget::updateTargetMachine(QString target)
 {
-   QObject* breakpointWatcher = CObjectRegistry::getInstance()->getObject("Breakpoint Watcher");
-   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
-   QObject* compiler = CObjectRegistry::getInstance()->getObject("Compiler");
+   QObject* breakpointWatcher = CObjectRegistry::instance()->getObject("Breakpoint Watcher");
+   QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
+   QObject* compiler = CObjectRegistry::instance()->getObject("Compiler");
 
    if ( !target.compare("nes",Qt::CaseInsensitive) )
    {
@@ -254,7 +254,7 @@ void SymbolWatchDockWidget::updateUi()
 
 void SymbolWatchDockWidget::updateVariables()
 {
-   QStringList symbols = CCC65Interface::getSymbolsForSourceFile("");
+   QStringList symbols = CCC65Interface::instance()->getSymbolsForSourceFile("");
    int addr;
 
    if ( !m_targetLoaded.compare("nes",Qt::CaseInsensitive) )
@@ -264,7 +264,7 @@ void SymbolWatchDockWidget::updateVariables()
       exramModel->removeRows(0,exramModel->rowCount());
       foreach ( QString symbol,symbols )
       {
-         addr = CCC65Interface::getSymbolAddress(symbol);
+         addr = CCC65Interface::instance()->getSymbolAddress(symbol);
          if ( addr < MEM_2KB )
          {
             // Symbol is in RAM...
@@ -290,7 +290,7 @@ void SymbolWatchDockWidget::updateVariables()
       ramModel->removeRows(0,ramModel->rowCount());
       foreach ( QString symbol,symbols )
       {
-         addr = CCC65Interface::getSymbolAddress(symbol);
+         addr = CCC65Interface::instance()->getSymbolAddress(symbol);
 
          // Symbol is in RAM...
          ramModel->insertRow(symbol,addr);
@@ -406,7 +406,7 @@ void SymbolWatchDockWidget::contextMenuEvent(QContextMenuEvent *event)
 
 void SymbolWatchDockWidget::showEvent(QShowEvent*)
 {
-   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
+   QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
 
    if ( emulator )
    {
@@ -441,7 +441,7 @@ void SymbolWatchDockWidget::showEvent(QShowEvent*)
 
 void SymbolWatchDockWidget::hideEvent(QHideEvent */*event*/)
 {
-   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
+   QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
 
    if ( emulator )
    {
@@ -743,7 +743,7 @@ void SymbolWatchDockWidget::on_actionGo_to_Definition_triggered()
    }
 
    symbol = index.data(Qt::DisplayRole).toString();
-   file = CCC65Interface::getSourceFileFromSymbol(symbol);
+   file = CCC65Interface::instance()->getSourceFileFromSymbol(symbol);
 
    emit snapTo("SourceNavigatorFile,"+file);
    emit snapTo("SourceNavigatorSymbol,"+symbol);
@@ -787,7 +787,7 @@ void SymbolWatchDockWidget::exram_doubleClicked(const QModelIndex &index)
 
 void SymbolWatchDockWidget::on_tabWidget_currentChanged(int index)
 {
-   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
+   QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
 
    if ( emulator )
    {

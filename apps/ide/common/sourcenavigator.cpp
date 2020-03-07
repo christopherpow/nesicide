@@ -22,8 +22,8 @@ SourceNavigator::SourceNavigator(QWidget *parent) :
 
    m_loadedTarget = "none";
 
-   QObject* compiler = CObjectRegistry::getInstance()->getObject("Compiler");
-   QObject* breakpointWatcher = CObjectRegistry::getInstance()->getObject("Breakpoint Watcher");
+   QObject* compiler = CObjectRegistry::instance()->getObject("Compiler");
+   QObject* breakpointWatcher = CObjectRegistry::instance()->getObject("Breakpoint Watcher");
    QObject::connect(compiler,SIGNAL(compileDone(bool)),this,SLOT(compiler_compileDone(bool)));
    QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),this,SLOT(emulator_emulatorPaused()));
 }
@@ -35,7 +35,7 @@ SourceNavigator::~SourceNavigator()
 
 void SourceNavigator::updateTargetMachine(QString target)
 {
-   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
+   QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
 
    m_loadedTarget = target;
 
@@ -60,7 +60,7 @@ void SourceNavigator::updateFiles(bool doIt)
    ui->files->clear();
    ui->symbols->clear();
 
-   QStringList files = CCC65Interface::getSourceFiles();
+   QStringList files = CCC65Interface::instance()->getSourceFiles();
    ui->files->addItems(files);
    
    if ( doIt )
@@ -86,7 +86,7 @@ void SourceNavigator::updateSymbolsForFile(QString file)
    blockSignals(true);
    ui->symbols->clear();
 
-   symbols = CCC65Interface::getSymbolsForSourceFile(file);
+   symbols = CCC65Interface::instance()->getSymbolsForSourceFile(file);
    ui->symbols->addItems(symbols);
 
    blockSignals(false);
@@ -119,10 +119,10 @@ void SourceNavigator::emulator_emulatorPaused(bool show)
          absAddr = c64GetPhysicalAddressFromAddress(addr);
       }
 
-      file = CCC65Interface::getSourceFileFromPhysicalAddress(addr,absAddr);
+      file = CCC65Interface::instance()->getSourceFileFromPhysicalAddress(addr,absAddr);
       if ( !file.isEmpty() )
       {
-         linenumber = CCC65Interface::getSourceLineFromPhysicalAddress(addr,absAddr);
+         linenumber = CCC65Interface::instance()->getSourceLineFromPhysicalAddress(addr,absAddr);
          emit snapTo("SourceNavigatorFile,"+file+","+QString::number(linenumber));
       }
    }
@@ -142,7 +142,7 @@ void SourceNavigator::on_files_activated(QString file)
 
 void SourceNavigator::on_symbols_activated(QString symbol)
 {
-   QString file = CCC65Interface::getSourceFileFromSymbol(symbol);
+   QString file = CCC65Interface::instance()->getSourceFileFromSymbol(symbol);
    emit snapTo("SourceNavigatorFile,"+file);
    emit snapTo("SourceNavigatorSymbol,"+symbol);
 }

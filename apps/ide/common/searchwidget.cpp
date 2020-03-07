@@ -35,7 +35,7 @@ SearchWidget::SearchWidget(QWidget *parent) :
    ui->location->completer()->setCompletionMode(QCompleter::PopupCompletion);
    ui->type->completer()->setCompletionMode(QCompleter::PopupCompletion);
 
-   QObject* searcher = CObjectRegistry::getInstance()->getObject("Searcher");
+   QObject* searcher = CObjectRegistry::instance()->getObject("Searcher");
    qRegisterMetaType<QDir>("QDir");
    QObject::connect(this,SIGNAL(search(QDir,QString,QString,bool,bool,bool,bool)),searcher,SLOT(search(QDir,QString,QString,bool,bool,bool,bool)));
    QObject::connect(searcher,SIGNAL(searchDone(int)),this,SLOT(searcher_searchDone(int)));
@@ -95,7 +95,7 @@ void SearchWidget::on_find_clicked()
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    QStringList items;
-   SearcherThread* searcher = dynamic_cast<SearcherThread*>(CObjectRegistry::getInstance()->getObject("Searcher"));
+   SearcherThread* searcher = dynamic_cast<SearcherThread*>(CObjectRegistry::instance()->getObject("Searcher"));
 
    if ( !ui->searchText->currentText().isEmpty() )
    {

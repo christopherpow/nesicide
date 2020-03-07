@@ -1,6 +1,6 @@
 #include "cobjectregistry.h"
 
-CObjectRegistry *CObjectRegistry::instance = NULL;
+CObjectRegistry *CObjectRegistry::_instance = NULL;
 
 CObjectRegistry::CObjectRegistry()
 {

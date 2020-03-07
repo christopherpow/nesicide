@@ -41,8 +41,8 @@ CodeProfilerDockWidget::~CodeProfilerDockWidget()
 
 void CodeProfilerDockWidget::updateTargetMachine(QString /*target*/)
 {
-   QObject* breakpointWatcher = CObjectRegistry::getInstance()->getObject("Breakpoint Watcher");
-   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
+   QObject* breakpointWatcher = CObjectRegistry::instance()->getObject("Breakpoint Watcher");
+   QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
 
    QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),model,SLOT(update()));
    if ( emulator )
@@ -55,7 +55,7 @@ void CodeProfilerDockWidget::updateTargetMachine(QString /*target*/)
 
 void CodeProfilerDockWidget::showEvent(QShowEvent */*event*/)
 {
-   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
+   QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
 
    if ( emulator )
    {
@@ -66,7 +66,7 @@ void CodeProfilerDockWidget::showEvent(QShowEvent */*event*/)
 
 void CodeProfilerDockWidget::hideEvent(QHideEvent */*event*/)
 {
-   QObject* emulator = CObjectRegistry::getInstance()->getObject("Emulator");
+   QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
 
    if ( emulator )
    {

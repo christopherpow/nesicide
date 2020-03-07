@@ -9,14 +9,14 @@
 class CObjectRegistry
 {
 public:
-   static CObjectRegistry *instance;
-   static CObjectRegistry *getInstance()
+   static CObjectRegistry *_instance;
+   static CObjectRegistry *instance()
    {
-      if ( !instance )
+      if ( !_instance )
       {
-         instance = new CObjectRegistry();
+         _instance = new CObjectRegistry();
       }
-      return instance;
+      return _instance;
    }
    QObject* getObject(const QString& name);
    void     addObject(const QString& name,

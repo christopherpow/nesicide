@@ -2,7 +2,7 @@
 
 #include <QSettings>
 
-CDockWidgetRegistry *CDockWidgetRegistry::instance = NULL;
+CDockWidgetRegistry *CDockWidgetRegistry::_instance = NULL;
 
 CDockWidgetRegistry::CDockWidgetRegistry()
 {

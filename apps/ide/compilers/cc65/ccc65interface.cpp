@@ -7,9 +7,7 @@
 
 #include "main.h"
 
-cc65_dbginfo        CCC65Interface::dbgInfo = NULL;
-QStringList         CCC65Interface::errors;
-QString             CCC65Interface::targetMachine = "none";
+CCC65Interface *CCC65Interface::_instance = NULL;
 
 // This utility compares two file paths regardless of original slashery.
 bool fileNamesAreIdentical(QString file1, QString file2)
@@ -33,7 +31,13 @@ static const char* asmTargetRuleFmt =
       ;
 
 CCC65Interface::CCC65Interface()
+   : dbgInfo(NULL),
+     targetMachine("none"),
+     process(NULL)
 {
+   qRegisterMetaType<QProcess::ExitStatus>("QProcess::ExitStatus");
+   qRegisterMetaType<QProcess::ProcessError>("QProcess::ProcessError");
+   qRegisterMetaType<QProcess::ProcessState>("QProcess::ProcessState");
 }
 
 CCC65Interface::~CCC65Interface()
@@ -241,18 +245,106 @@ bool CCC65Interface::createMakefile()
    return false;
 }
 
+void CCC65Interface::process_errorOccurred(QProcess::ProcessError error)
+{
+   //buildTextLogger->write("<b><font color='gray' style='bold'>ENV::ERROR: "+QString::number(error)+"</font></b>");
+}
+
+void CCC65Interface::process_finished(int exitCode, QProcess::ExitStatus exitStatus)
+{
+   QString                      stdioStr;
+   QStringList                  stdioList;
+
+   //buildTextLogger->write("<b><font color='gray' style='bold'>ENV::EXIT "+QString::number(exitCode)+", "+QString::number(exitStatus)+"</font></b>");
+
+   stdioStr = QString(process.readAllStandardError());
+   stdioList = stdioStr.split(QRegExp("[\r\n]"),QString::SkipEmptyParts);
+   errors.append(stdioList);
+   foreach ( const QString& str, stdioList )
+   {
+      buildTextLogger->write("<font color='red'>"+str+"</font>");
+   }
+}
+
+void CCC65Interface::process_readyReadStandardError()
+{
+   QString                      stdioStr;
+   QStringList                  stdioList;
+
+   if ( process.state() == QProcess::ProcessState::Running )
+   {
+      //buildTextLogger->write("<b><font color='gray' style='bold'>ENV::READ STDERR</font></b>");
+
+      stdioStr = QString(process.readAllStandardError());
+      stdioList = stdioStr.split(QRegExp("[\r\n]"),QString::SkipEmptyParts);
+      errors.append(stdioList);
+      foreach ( const QString& str, stdioList )
+      {
+         buildTextLogger->write("<font color='red'>"+str+"</font>");
+      }
+   }
+}
+
+void CCC65Interface::process_readyReadStandardOutput()
+{
+   QString     stdioStr;
+   QStringList stdioList;
+
+   if ( process.state() == QProcess::ProcessState::Running )
+   {
+      //buildTextLogger->write("<b><font color='gray' style='bold'>ENV::READ STDOUT</font></b>");
+
+      stdioStr = QString(process.readAllStandardOutput());
+      stdioList = stdioStr.split(QRegExp("[\r\n]"),QString::SkipEmptyParts);
+      foreach ( const QString& str, stdioList )
+      {
+         buildTextLogger->write("<font color='blue'>"+str+"</font>");
+      }
+   }
+}
+
+void CCC65Interface::process_started()
+{
+   QString     stdioStr;
+   QStringList stdioList;
+
+   //buildTextLogger->write("<b><font color='gray' style='bold'>ENV::STARTED</font></b>");
+
+   stdioStr = QString(process.readAllStandardOutput());
+   stdioList = stdioStr.split(QRegExp("[\r\n]"),QString::SkipEmptyParts);
+   foreach ( const QString& str, stdioList )
+   {
+      buildTextLogger->write("<font color='blue'>"+str+"</font>");
+   }
+}
+
+void CCC65Interface::process_stateChanged(QProcess::ProcessState newState)
+{
+   //buildTextLogger->write("<b><font color='gray' style='bold'>ENV::STATE: "+QString::number(newState)+"</font></b>");
+}
+
 void CCC65Interface::clean()
 {
-   QProcess                     make;
    QStringList                  env = QProcess::systemEnvironment();
    QString                      invocationStr;
    QString                      stdioStr;
    QStringList                  stdioList;
    int                          exitCode;
 
+   // Prevent overbuild
+   protect.lock();
+
+   process.moveToThread(QThread::currentThread());
+
    // Copy the system environment to the child process.
-   make.setEnvironment(env);
-   make.setWorkingDirectory(QDir::currentPath());
+   process.setEnvironment(env);
+   process.setWorkingDirectory(QDir::currentPath());
+   QObject::connect(&process,SIGNAL(started()),this,SLOT(process_started()));
+   QObject::connect(&process,SIGNAL(finished(int,QProcess::ExitStatus)),this,SLOT(process_finished(int,QProcess::ExitStatus)));
+   QObject::connect(&process,SIGNAL(errorOccurred(QProcess::ProcessError)),this,SLOT(process_errorOccurred(QProcess::ProcessError)));
+   QObject::connect(&process,SIGNAL(readyReadStandardError()),this,SLOT(process_readyReadStandardError()));
+   QObject::connect(&process,SIGNAL(readyReadStandardOutput()),this,SLOT(process_readyReadStandardOutput()));
+   QObject::connect(&process,SIGNAL(stateChanged(QProcess::ProcessState)),this,SLOT(process_stateChanged(QProcess::ProcessState)));
 
    // Clear the error storage.
    errors.clear();
@@ -263,30 +355,24 @@ void CCC65Interface::clean()
 
    buildTextLogger->write(invocationStr);
 
-   make.start(invocationStr);
-   make.waitForFinished();
-   make.waitForReadyRead();
-   exitCode = make.exitCode();
-   stdioStr = QString(make.readAllStandardOutput());
-   stdioList = stdioStr.split(QRegExp("[\r\n]"),QString::SkipEmptyParts);
-   foreach ( const QString& str, stdioList )
-   {
-      buildTextLogger->write("<font color='blue'>"+str+"</font>");
-   }
-   stdioStr = QString(make.readAllStandardError());
-   stdioList = stdioStr.split(QRegExp("[\r\n]"),QString::SkipEmptyParts);
-   errors.append(stdioList);
-   foreach ( const QString& str, stdioList )
-   {
-      buildTextLogger->write("<font color='red'>"+str+"</font>");
-   }
+   process.start(invocationStr);
+   process.waitForFinished();
+
+   QObject::disconnect(&process,SIGNAL(started()),this,SLOT(process_started()));
+   QObject::disconnect(&process,SIGNAL(finished(int,QProcess::ExitStatus)),this,SLOT(process_finished(int,QProcess::ExitStatus)));
+   QObject::disconnect(&process,SIGNAL(errorOccurred(QProcess::ProcessError)),this,SLOT(process_errorOccurred(QProcess::ProcessError)));
+   QObject::disconnect(&process,SIGNAL(readyReadStandardError()),this,SLOT(process_readyReadStandardError()));
+   QObject::disconnect(&process,SIGNAL(readyReadStandardOutput()),this,SLOT(process_readyReadStandardOutput()));
+   QObject::disconnect(&process,SIGNAL(stateChanged(QProcess::ProcessState)),this,SLOT(process_stateChanged(QProcess::ProcessState)));
+
+   // Prevent overbuild
+   protect.unlock();
 
    return;
 }
 
 bool CCC65Interface::assemble()
 {
-   QProcess                     make;
    QStringList                  env = QProcess::systemEnvironment();
    QString                      invocationStr;
    QString                      stdioStr;
@@ -295,6 +381,9 @@ bool CCC65Interface::assemble()
    QString                      outputName;
    int                          exitCode;
    bool                         ok = true;
+
+   // Prevent overbuild
+   protect.lock();
 
    if ( nesicideProject->getProjectLinkerOutputName().isEmpty() )
    {
@@ -307,8 +396,14 @@ bool CCC65Interface::assemble()
    buildTextLogger->write("<b>Building: "+outputName+"</b>");
 
    // Copy the system environment to the child process.
-   make.setEnvironment(env);
-   make.setWorkingDirectory(QDir::currentPath());
+   process.setEnvironment(env);
+   process.setWorkingDirectory(QDir::currentPath());
+   QObject::connect(&process,SIGNAL(started()),this,SLOT(process_started()));
+   QObject::connect(&process,SIGNAL(finished(int,QProcess::ExitStatus)),this,SLOT(process_finished(int,QProcess::ExitStatus)));
+   QObject::connect(&process,SIGNAL(errorOccurred(QProcess::ProcessError)),this,SLOT(process_errorOccurred(QProcess::ProcessError)));
+   QObject::connect(&process,SIGNAL(readyReadStandardError()),this,SLOT(process_readyReadStandardError()));
+   QObject::connect(&process,SIGNAL(readyReadStandardOutput()),this,SLOT(process_readyReadStandardOutput()));
+   QObject::connect(&process,SIGNAL(stateChanged(QProcess::ProcessState)),this,SLOT(process_stateChanged(QProcess::ProcessState)));
 
    // Clear the error storage.
    errors.clear();
@@ -319,27 +414,23 @@ bool CCC65Interface::assemble()
 
    buildTextLogger->write(invocationStr);
 
-   make.start(invocationStr);
-   make.waitForFinished();
-   make.waitForReadyRead();
-   exitCode = make.exitCode();
-   stdioStr = QString(make.readAllStandardOutput());
-   stdioList = stdioStr.split(QRegExp("[\r\n]"),QString::SkipEmptyParts);
-   foreach ( const QString& str, stdioList )
-   {
-      buildTextLogger->write("<font color='blue'>"+str+"</font>");
-   }
-   stdioStr = QString(make.readAllStandardError());
-   stdioList = stdioStr.split(QRegExp("[\r\n]"),QString::SkipEmptyParts);
-   errors.append(stdioList);
-   foreach ( const QString& str, stdioList )
-   {
-      buildTextLogger->write("<font color='red'>"+str+"</font>");
-   }
+   process.start(invocationStr);
+   process.waitForFinished();
+   exitCode = process.exitCode();
    if ( exitCode )
    {
       ok = false;
    }
+
+   QObject::disconnect(&process,SIGNAL(started()),this,SLOT(process_started()));
+   QObject::disconnect(&process,SIGNAL(finished(int,QProcess::ExitStatus)),this,SLOT(process_finished(int,QProcess::ExitStatus)));
+   QObject::disconnect(&process,SIGNAL(errorOccurred(QProcess::ProcessError)),this,SLOT(process_errorOccurred(QProcess::ProcessError)));
+   QObject::disconnect(&process,SIGNAL(readyReadStandardError()),this,SLOT(process_readyReadStandardError()));
+   QObject::disconnect(&process,SIGNAL(readyReadStandardOutput()),this,SLOT(process_readyReadStandardOutput()));
+   QObject::disconnect(&process,SIGNAL(stateChanged(QProcess::ProcessState)),this,SLOT(process_stateChanged(QProcess::ProcessState)));
+
+   // Prevent overbuild
+   protect.unlock();
 
    return ok;
 }
@@ -389,7 +480,6 @@ bool CCC65Interface::captureDebugInfo()
 
 bool CCC65Interface::isBuildUpToDate()
 {
-   QProcess                     make;
    QProcessEnvironment          env = QProcessEnvironment::systemEnvironment();
    QString                      invocationStr;
    QString                      stdioStr;
@@ -400,13 +490,22 @@ bool CCC65Interface::isBuildUpToDate()
                       "is rebuilt.\n\n";
    bool ok = true;
 
+   // Prevent overbuild
+   protect.lock();
+
    // 'Build' is up-to-date if no sources present.
    if ( (getCLanguageSourcesFromProject().count() ||
         (getAssemblerSourcesFromProject().count())) )
    {
       // Copy the system environment to the child process.
-      make.setProcessEnvironment(env);
-      make.setWorkingDirectory(QDir::currentPath());
+      process.setProcessEnvironment(env);
+      process.setWorkingDirectory(QDir::currentPath());
+      QObject::connect(&process,SIGNAL(started()),this,SLOT(process_started()));
+      QObject::connect(&process,SIGNAL(finished(int,QProcess::ExitStatus)),this,SLOT(process_finished(int,QProcess::ExitStatus)));
+      QObject::connect(&process,SIGNAL(errorOccurred(QProcess::ProcessError)),this,SLOT(process_errorOccurred(QProcess::ProcessError)));
+      QObject::connect(&process,SIGNAL(readyReadStandardError()),this,SLOT(process_readyReadStandardError()));
+      QObject::connect(&process,SIGNAL(readyReadStandardOutput()),this,SLOT(process_readyReadStandardOutput()));
+      QObject::connect(&process,SIGNAL(stateChanged(QProcess::ProcessState)),this,SLOT(process_stateChanged(QProcess::ProcessState)));
 
       // Clear the error storage.
       errors.clear();
@@ -415,16 +514,26 @@ bool CCC65Interface::isBuildUpToDate()
 
       invocationStr = "make -f nesicide.mk -q all";
 
-      make.start(invocationStr);
-      make.waitForFinished();
-      exitCode = make.exitCode();
+      process.start(invocationStr);
+      process.waitForFinished();
+      exitCode = process.exitCode();
 
       if ( exitCode == 1 )
       {
          QMessageBox::warning(NULL,"Consistency problem!",outdated);
          ok = false;
       }
+
+      QObject::disconnect(&process,SIGNAL(started()),this,SLOT(process_started()));
+      QObject::disconnect(&process,SIGNAL(finished(int,QProcess::ExitStatus)),this,SLOT(process_finished(int,QProcess::ExitStatus)));
+      QObject::disconnect(&process,SIGNAL(errorOccurred(QProcess::ProcessError)),this,SLOT(process_errorOccurred(QProcess::ProcessError)));
+      QObject::disconnect(&process,SIGNAL(readyReadStandardError()),this,SLOT(process_readyReadStandardError()));
+      QObject::disconnect(&process,SIGNAL(readyReadStandardOutput()),this,SLOT(process_readyReadStandardOutput()));
+      QObject::disconnect(&process,SIGNAL(stateChanged(QProcess::ProcessState)),this,SLOT(process_stateChanged(QProcess::ProcessState)));
    }
+
+   // Prevent overbuild
+   protect.unlock();
 
    return ok;
 }

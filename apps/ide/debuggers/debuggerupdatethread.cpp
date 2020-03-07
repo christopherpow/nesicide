@@ -4,13 +4,29 @@
 
 #include "main.h"
 
-QThread* DebuggerUpdateThread::pThread = NULL;
-int      DebuggerUpdateThread::resourceCount = -1;
-QMutex*  DebuggerUpdateThread::pMutex = NULL;
+QThread*               DebuggerUpdateThread::pThread = NULL;
+int                    DebuggerUpdateThread::resourceCount = -1;
+QMutex*                DebuggerUpdateThread::pMutex = NULL;
 
-DebuggerUpdateThread::DebuggerUpdateThread(void (*func)(),QObject */*parent*/) :
-    QObject(),
+DebuggerUpdateWorker::DebuggerUpdateWorker(void (*func)(),QObject */*parent*/) :
     _func(func)
+{
+}
+
+DebuggerUpdateWorker::~DebuggerUpdateWorker()
+{
+}
+
+void DebuggerUpdateWorker::updateDebuggers()
+{
+   if ( _func )
+   {
+      _func();
+      emit updateComplete();
+   }
+}
+
+DebuggerUpdateThread::DebuggerUpdateThread(void (*func)(),QObject */*parent*/)
 {
    if ( resourceCount == -1 )
    {
@@ -28,12 +44,18 @@ DebuggerUpdateThread::DebuggerUpdateThread(void (*func)(),QObject */*parent*/) :
       pMutex->unlock();
    }
 
-   moveToThread(pThread);
+   pWorker = new DebuggerUpdateWorker(func);
+
+   QObject::connect(pWorker,SIGNAL(updateComplete()),this,SIGNAL(updateComplete()));
+
+   pWorker->moveToThread(pThread);
 }
 
 DebuggerUpdateThread::~DebuggerUpdateThread()
 {
-   _func = NULL;
+   delete pWorker;
+   pWorker = NULL;
+
    pMutex->lock();
    resourceCount--;
    if ( resourceCount == 0 )
@@ -44,13 +66,4 @@ DebuggerUpdateThread::~DebuggerUpdateThread()
       delete pThread;
    }
    pMutex->unlock();
-}
-
-void DebuggerUpdateThread::updateDebuggers()
-{
-   if ( _func )
-   {
-      _func();
-      emit updateComplete();
-   }
 }

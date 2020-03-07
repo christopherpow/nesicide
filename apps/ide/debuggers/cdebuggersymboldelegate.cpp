@@ -23,7 +23,7 @@ void CDebuggerSymbolDelegate::setEditorData(QWidget* editor,
       const QModelIndex& index) const
 {
    QLineEdit* edit = static_cast<QLineEdit*>(editor);
-   QStringList symbols = CCC65Interface::getSymbolsForSourceFile("<CPTODO:fixme>");
+   QStringList symbols = CCC65Interface::instance()->getSymbolsForSourceFile("<CPTODO:fixme>");
    QCompleter* completer = new QCompleter(symbols);
    completer->setCompletionMode(QCompleter::PopupCompletion);
    completer->setCompletionPrefix(index.data(Qt::DisplayRole).toString());

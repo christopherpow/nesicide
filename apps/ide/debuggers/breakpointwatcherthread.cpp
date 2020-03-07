@@ -5,23 +5,15 @@
 
 #include "main.h"
 
-BreakpointWatcherThread::BreakpointWatcherThread(QObject*)
+BreakpointWatcherWorker::BreakpointWatcherWorker(QObject*)
 {
-   pThread = new QThread();
-
-   moveToThread(pThread);
-
-   pThread->start();
 }
 
-BreakpointWatcherThread::~BreakpointWatcherThread()
+BreakpointWatcherWorker::~BreakpointWatcherWorker()
 {
-   pThread->exit(0);
-   pThread->wait();
-   delete pThread;
 }
 
-void BreakpointWatcherThread::breakpoint()
+void BreakpointWatcherWorker::breakpoint()
 {
    CBreakpointInfo* pBreakpoints = NULL;
    int idx;
@@ -55,4 +47,26 @@ void BreakpointWatcherThread::breakpoint()
 
    // A breakpoint has occurred...
    emit breakpointHit();
+}
+
+BreakpointWatcherThread::BreakpointWatcherThread(QObject*)
+{
+   pWorker = new BreakpointWatcherWorker();
+
+   QObject::connect(pWorker,SIGNAL(breakpointHit()),this,SIGNAL(breakpointHit()));
+   QObject::connect(pWorker,SIGNAL(showPane(int)),this,SIGNAL(showPane(int)));
+
+   pThread = new QThread();
+
+   pWorker->moveToThread(pThread);
+
+   pThread->start();
+}
+
+BreakpointWatcherThread::~BreakpointWatcherThread()
+{
+   pThread->exit(0);
+   pThread->wait();
+   delete pThread;
+   delete pWorker;
 }

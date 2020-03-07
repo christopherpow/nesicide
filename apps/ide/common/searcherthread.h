@@ -5,22 +5,19 @@
 #include <QDir>
 #include <QSemaphore>
 
-class SearcherThread : public QObject
+class SearcherWorker : public QObject
 {
    Q_OBJECT
 public:
-   SearcherThread ( QObject* parent = 0 );
-   virtual ~SearcherThread ();
+   SearcherWorker ( QObject* parent = 0 );
+   virtual ~SearcherWorker ();
 
-public slots:
    void search(QDir dir, QString searchText, QString pattern, bool subfolders, bool sourceSearchPaths, bool useRegex, bool caseSensitive);
 
 signals:
    void searchDone(int found);
 
 protected:
-   QThread* pThread;
-
    void doSearch(QDir dir,int* finds);
    bool m_isTerminating;
    QDir m_dir;
@@ -31,6 +28,27 @@ protected:
    bool m_useRegex;
    bool m_caseSensitive;
    int m_found;
+};
+
+class SearcherThread : public QObject
+{
+   Q_OBJECT
+public:
+   SearcherThread ( QObject* parent = 0 );
+   virtual ~SearcherThread ();
+
+public slots:
+   void search(QDir dir, QString searchText, QString pattern, bool subfolders, bool sourceSearchPaths, bool useRegex, bool caseSensitive)
+   {
+      pWorker->search(dir,searchText,pattern,subfolders,sourceSearchPaths,useRegex,caseSensitive);
+   }
+
+signals:
+   void searchDone(int found);
+
+protected:
+   SearcherWorker *pWorker;
+   QThread        *pThread;
 };
 
 #endif // SEARCHERTHREAD_H

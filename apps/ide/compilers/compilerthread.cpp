@@ -5,25 +5,16 @@
 
 #include "main.h"
 
-CompilerThread::CompilerThread(QObject*)
+CompilerWorker::CompilerWorker(QObject*)
 {
    m_assembledOk = false;
-
-   pThread = new QThread();
-
-   moveToThread(pThread);
-
-   pThread->start();
 }
 
-CompilerThread::~CompilerThread()
+CompilerWorker::~CompilerWorker()
 {
-   pThread->exit(0);
-   pThread->wait();
-   delete pThread;
 }
 
-void CompilerThread::compile()
+void CompilerWorker::compile()
 {
    CCartridgeBuilder cartridgeBuilder;
    CMachineImageBuilder machineImageBuilder;
@@ -40,7 +31,7 @@ void CompilerThread::compile()
    emit compileDone(m_assembledOk);
 }
 
-void CompilerThread::clean()
+void CompilerWorker::clean()
 {
    CCartridgeBuilder cartridgeBuilder;
    CMachineImageBuilder machineImageBuilder;
@@ -55,4 +46,28 @@ void CompilerThread::clean()
       machineImageBuilder.clean();
    }
    emit cleanDone(true);
+}
+
+CompilerThread::CompilerThread(QObject*)
+{
+   pWorker = new CompilerWorker();
+
+   QObject::connect(pWorker,SIGNAL(cleanDone(bool)),this,SIGNAL(cleanDone(bool)));
+   QObject::connect(pWorker,SIGNAL(cleanStarted()),this,SIGNAL(cleanStarted()));
+   QObject::connect(pWorker,SIGNAL(compileDone(bool)),this,SIGNAL(compileDone(bool)));
+   QObject::connect(pWorker,SIGNAL(compileStarted()),this,SIGNAL(compileStarted()));
+
+   pThread = new QThread();
+
+   pWorker->moveToThread(pThread);
+
+   pThread->start();
+}
+
+CompilerThread::~CompilerThread()
+{
+   pThread->exit(0);
+   pThread->wait();
+   delete pThread;
+   delete pWorker;
 }

@@ -12,7 +12,7 @@ CSourceAssembler::CSourceAssembler()
 
 void CSourceAssembler::clean()
 {
-   return CCC65Interface::clean();
+   CCC65Interface::instance()->clean();
 }
 
 bool CSourceAssembler::assemble()
@@ -40,7 +40,7 @@ bool CSourceAssembler::assemble()
 
    if ( ok )
    {
-      ok = CCC65Interface::assemble();
+      ok = CCC65Interface::instance()->assemble();
    }
 
    return ok;
