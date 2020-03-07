@@ -27,9 +27,9 @@ LoggerInfo* CCodeDataLogger::m_pLastLoad = NULL;
 
 CCodeDataLogger::CCodeDataLogger(uint32_t size, uint32_t mask)
 {
-   m_pLogger = new LoggerInfo [ size ];
    m_size = size;
    m_mask = mask;
+   m_pLogger = new LoggerInfo [ size ];
    ClearData ();
 }
 
@@ -54,7 +54,7 @@ uint32_t CCodeDataLogger::GetLastLoadAddr ( uint32_t addr )
 {
    uint32_t laddr = 0xFFFFFFFF;
 
-   LoggerInfo* pLogger = (*(m_pLogger+addr)).pLastLoad;
+   LoggerInfo* pLogger = (*(m_pLogger+(addr&m_mask))).pLastLoad;
 
    if ( pLogger )
    {

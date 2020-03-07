@@ -451,6 +451,7 @@ void CROMMapper005::SYNCPPU ( uint32_t ppuCycle, uint32_t ppuAddr )
    int32_t rasterX = CYCLE_TO_VISX(ppuCycle);
 
    m_ppuCycle = ppuCycle;
+   m_ppuAddr = ppuAddr;
 
    SETPPU();
 
@@ -861,10 +862,10 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
          break;
       case 0x5105:
          m_reg[16] = data;
-         sc1 = data&0x03;
-         sc2 = (data&0x0C)>>2;
-         sc3 = (data&0x30)>>4;
-         sc4 = (data&0xC0)>>6;
+         m_sc1 = sc1 = data&0x03;
+         m_sc2 = sc2 = (data&0x0C)>>2;
+         m_sc3 = sc3 = (data&0x30)>>4;
+         m_sc4 = sc4 = (data&0xC0)>>6;
          if ( sc1 == 0x2 )
          {
             sc1 = -1;
@@ -914,8 +915,6 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
          break;
       case 0x5107:
          m_reg[18] = data;
-         // replicate attribute bits for retrieval
-         data = data|(data<<2)|(data<<4)|(data<<6);
          // store attribute filler
          m_pFILLmemory->MEM(0x3C0,data);
          break;
@@ -1254,18 +1253,48 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
    SETPPU();
 }
 
-uint32_t CROMMapper005::VRAM ( uint32_t addr )
+uint32_t CROMMapper005::CHRMEM ( uint32_t addr )
 {
    if ( m_exRamMode == 1 )
    {
-      if ( (addr&0x3C0) < 0x3C0 )
+      if ( m_sc1 == 2 || m_sc2 == 2 || m_sc3 == 2 || m_sc4 == 2 )
       {
-         return CART_UNCLAIMED;
+         return VRAM(addr&MASK_4KB);
       }
-      else
+   }
+   return m_CHRmemory.MEM(addr);
+}
+
+uint32_t CROMMapper005::VRAM ( uint32_t addr )
+{
+   if ( m_exRamMode == 0 )
+   {
+      if ( m_sc1 == 2 || m_sc2 == 2 || m_sc3 == 2 || m_sc4 == 2 )
       {
-         uint8_t data = m_pEXRAMmemory->MEM(addr&0x3C0);
-         return (data&0xC0)|((data&0xC0)>>2)|((data&0xC0)>>4)|((data&0xC0)>>6);
+         return m_pEXRAMmemory->MEM(addr&MASK_1KB);
+      }
+      else if ( m_sc1 == 3 || m_sc2 == 3 || m_sc3 == 3 || m_sc4 == 3 )
+      {
+         return m_pFILLmemory->MEM(addr&MASK_1KB);
+      }
+   }
+   else if ( m_exRamMode == 1 )
+   {
+      if ( m_sc1 == 2 || m_sc2 == 2 || m_sc3 == 2 || m_sc4 == 2 )
+      {
+         if ( (addr&0x3C0) < 0x3C0 )
+         {
+            return CART_UNCLAIMED;
+         }
+         else
+         {
+            uint8_t data = m_pEXRAMmemory->MEM(addr&0x3C0);
+            return (data&0xC0)|((data&0xC0)>>2)|((data&0xC0)>>4)|((data&0xC0)>>6);
+         }
+      }
+      else if ( m_sc1 == 3 || m_sc2 == 3 || m_sc3 == 3 || m_sc4 == 3 )
+      {
+         return m_pFILLmemory->MEM(addr&MASK_1KB);
       }
    }
    return CART_UNCLAIMED;

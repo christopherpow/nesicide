@@ -323,6 +323,10 @@ public:
 
    uint32_t TOTALSIZE() const { return 0; }
 
+   // Code/Data logger support functions
+   inline CCodeDataLogger* LOGGER (uint32_t virtAddr = 0);
+   inline CCodeDataLogger* LOGGERATPHYSADDR (uint32_t physAddr);
+
    inline uint8_t MEM (uint32_t addr);
    inline void MEM (uint32_t addr, uint8_t data);
    inline uint8_t MEMATPHYSADDR (uint32_t absAddr);

@@ -66,11 +66,11 @@ public:
    {
       return (m_CHRmemory.physBankFromVirtAddr(addr)*m_CHRmemory.bankSize())+m_CHRmemory.offsetInBank(addr);
    }
-   inline void CHRMEM ( uint32_t addr, uint8_t data )
+   virtual void CHRMEM ( uint32_t addr, uint8_t data )
    {
       m_CHRmemory.MEM(addr,data);
    }
-   inline uint32_t CHRMEM ( uint32_t addr )
+   virtual uint32_t CHRMEM ( uint32_t addr )
    {
       return m_CHRmemory.MEM(addr);
    }

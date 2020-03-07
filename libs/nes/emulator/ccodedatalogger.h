@@ -47,23 +47,23 @@ public:
    uint32_t GetMask() { return m_mask; }
    uint32_t GetCount ( uint32_t addr )
    {
-      return (*(m_pLogger+addr)).count;
+      return (*(m_pLogger+(addr&m_mask))).count;
    }
    uint32_t GetCycle ( uint32_t addr )
    {
-      return (*(m_pLogger+addr)).cycle;
+      return (*(m_pLogger+(addr&m_mask))).cycle;
    }
    uint32_t GetCPUAddr ( uint32_t addr )
    {
-      return (*(m_pLogger+addr)).cpuAddr;
+      return (*(m_pLogger+(addr&m_mask))).cpuAddr;
    }
    uint32_t GetType ( uint32_t addr )
    {
-      return (*(m_pLogger+addr)).type;
+      return (*(m_pLogger+(addr&m_mask))).type;
    }
    uint32_t GetSource ( uint32_t addr )
    {
-      return (*(m_pLogger+addr)).source;
+      return (*(m_pLogger+(addr&m_mask))).source;
    }
    uint32_t GetSize ( void )
    {
@@ -73,7 +73,7 @@ public:
    uint32_t GetLastLoadAddr ( uint32_t addr );
    LoggerInfo* GetLogEntry ( uint32_t addr )
    {
-      return (m_pLogger+addr);
+      return (m_pLogger+(addr&m_mask));
    }
 
    static inline uint32_t GetCurCycle ( void )

@@ -511,6 +511,7 @@ MainWindow::~MainWindow()
    delete pluginManager;
 
    delete m_pNESEmulatorThread;
+   delete m_pC64EmulatorThread;
 }
 
 void MainWindow::openRecentFile()
@@ -1264,6 +1265,7 @@ void MainWindow::destroyNesUi()
 
    // Properly kill and destroy the thread we created above.
    m_pNESEmulatorThread->blockSignals(true);
+   emit pauseEmulation(false);
 
    delete m_pNESEmulatorThread;
    m_pNESEmulatorThread = NULL;

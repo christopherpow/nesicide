@@ -64,6 +64,7 @@ public:
       return m_ppuCycle;
    }
    uint32_t VRAM ( uint32_t addr );
+   uint32_t CHRMEM ( uint32_t addr );
 
 protected:
    // MMC5
@@ -75,9 +76,14 @@ protected:
    uint8_t m_irqEnabled;
    uint8_t m_irqStatus;
    uint8_t m_exRamMode;
+   int32_t m_sc1;
+   int32_t m_sc2;
+   int32_t m_sc3;
+   int32_t m_sc4;
    bool          m_prgRAM [ 3 ];
    bool          m_wp;
    uint32_t m_ppuCycle;
+   uint32_t m_ppuAddr;
    uint16_t m_chr[12];
    uint8_t m_wp1;
    uint8_t m_wp2;

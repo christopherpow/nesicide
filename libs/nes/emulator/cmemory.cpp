@@ -260,6 +260,16 @@ void CMEMORY::PRINTABLEADDR(char* buffer, uint32_t virtAddr, uint32_t physAddr)
    }
 }
 
+CCodeDataLogger* COPENBUS::LOGGER (uint32_t virtAddr)
+{
+   return m_bank[0].LOGGER();
+}
+
+CCodeDataLogger* COPENBUS::LOGGERATPHYSADDR (uint32_t physAddr)
+{
+   return m_bank[0].LOGGER();
+}
+
 uint8_t COPENBUS::MEM (uint32_t addr)
 {
    return CNES::NES()->CPU()->OPENBUS();
