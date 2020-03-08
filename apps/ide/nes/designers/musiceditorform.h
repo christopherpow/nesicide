@@ -35,9 +35,11 @@ private:
    QString m_fileName;
    static MusicEditorForm* _instance;
 
-private slots:
+public slots:
    void updateTargetMachine(QString /*target*/) {}
    void editor_modificationChanged(bool m);
+   void documentSaved();
+   void documentClosed();
 };
 
 #endif // MUSICEDITORFORM_H

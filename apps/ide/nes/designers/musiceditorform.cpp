@@ -55,6 +55,23 @@ void MusicEditorForm::editor_modificationChanged(bool m)
    emit editor_modified(m);
 }
 
+void MusicEditorForm::documentSaved()
+{
+}
+
+void MusicEditorForm::documentClosed()
+{
+//   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "FamiTracker");
+
+//   settings.setValue("FamiTrackerWindowGeometry",saveGeometry());
+//   settings.setValue("FamiTrackerWindowState",saveState());
+
+//   // TODO: Handle unsaved documents or other pre-close stuffs
+//   theApp.ExitInstance();
+
+//   exit(0);
+}
+
 void MusicEditorForm::onSave()
 {
    CDesignerEditorBase::onSave();

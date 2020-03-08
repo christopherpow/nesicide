@@ -42,7 +42,7 @@ CProjectModel::CProjectModel()
    QObject::connect(m_pTileStampModel,    SIGNAL(tileStampAdded(QUuid)),      this, SLOT(onItemAdded(QUuid)));
    QObject::connect(m_pTileStampModel,    SIGNAL(tileStampRemoved(QUuid)),    this, SLOT(onItemRemoved(QUuid)));
    QObject::connect(m_pMusicModel,        SIGNAL(musicFileAdded(QUuid)),      this, SLOT(onItemAdded(QUuid)));
-   QObject::connect(m_pMusicModel,        SIGNAL(musicFileDeleted(QUuid)),    this, SLOT(onItemRemoved(QUuid)));
+   QObject::connect(m_pMusicModel,        SIGNAL(musicFileRemoved(QUuid)),    this, SLOT(onItemRemoved(QUuid)));
 }
 
 CProjectModel::~CProjectModel()

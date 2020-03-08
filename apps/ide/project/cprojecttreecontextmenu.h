@@ -57,7 +57,7 @@ private slots:
    void deleteTile();
    void removeBinaryFile();
    void removeSourceFile();
-
+   void removeMusicFile();
 };
 
 #endif // CPROJECTTREECONTEXTMENU_H

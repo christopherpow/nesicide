@@ -138,7 +138,7 @@ void CProjectTreeContextMenu::visit(CMusicFileUuid &data)
    m_targetUuid = data.uuid;
 
    QMenu menu(m_parent);
-   menu.addAction(DELETE_ACTION.arg(MUSIC_FILE), this, SLOT(deleteMusicFile()));
+   menu.addAction(REMOVE_ACTION.arg(MUSIC_FILE), this, SLOT(removeMusicFile()));
    appendGlobalMenuItems(&menu);
    menu.exec(m_position);
 }
@@ -345,6 +345,16 @@ void CProjectTreeContextMenu::deleteTile()
       return;
 
    m_project->getTileStampModel()->deleteTileStamp(m_targetUuid);
+}
+
+void CProjectTreeContextMenu::removeMusicFile()
+{
+   QString name = m_project->getMusicModel()->getName(m_targetUuid);
+
+   if (!confirmChoice(DELETE_ITEM_CAPTION.arg(TILE), DELETE_ITEM_TEXT.arg(name)))
+      return;
+
+   m_project->getMusicModel()->removeMusicFile(m_targetUuid);
 }
 
 void CProjectTreeContextMenu::removeBinaryFile()

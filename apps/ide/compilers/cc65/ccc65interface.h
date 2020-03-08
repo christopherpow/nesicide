@@ -56,7 +56,7 @@ public:
    bool isErrorOnLineOfFile(QString file,int source_line);
    bool isStringASymbol(QString string);
 
-   // Target-dependent launchpads.
+   // Target-independent launchpads.
    QString getSourceFileFromPhysicalAddress(uint32_t addr,uint32_t absAddr);
    int getSourceLineFromPhysicalAddress(uint32_t addr,uint32_t absAddr);
    unsigned int getPhysicalAddressFromFileAndLine(QString file,int source_line,int entry = -1);

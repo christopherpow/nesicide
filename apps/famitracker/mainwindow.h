@@ -27,7 +27,7 @@ private:
     Ui::MainWindow *ui;
     bool _initialized;
 
-private slots:
+public slots:
     void addToolBarWidget(QToolBar* toolBar);
     void removeToolBarWidget(QToolBar* toolBar);
     void editor_modificationChanged(bool m);
