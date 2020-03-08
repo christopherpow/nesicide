@@ -2,6 +2,7 @@
 #define CCC65INTERFACE_H
 
 #include <QProcess>
+#include <QMutex>
 
 #include "stdint.h"
 
