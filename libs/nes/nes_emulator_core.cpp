@@ -1436,7 +1436,7 @@ void nesFinalizeLoad ( void )
 
 bool nesROMIsLoaded ( void )
 {
-   return ( (CNES::NES()->CART()->NUMPRGROMBANKS()>0)?true:false );
+   return ( CNES::NES()->CART()?true:false );
 }
 
 void nesSetHorizontalMirroring ( void )

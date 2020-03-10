@@ -231,7 +231,7 @@ signals:
    void compile();
    void clean();
 
-private slots:
+public slots:
    void openRecentFile();
    void saveRecentFiles(QString fileName);
    void updateRecentFiles();

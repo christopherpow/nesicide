@@ -19,10 +19,10 @@ public:
     explicit TestSuiteExecutiveDialog(QWidget *parent = 0);
     virtual ~TestSuiteExecutiveDialog();
 
-
 protected:
    void showEvent(QShowEvent *);
    void hideEvent(QHideEvent *);
+   void closeEvent(QCloseEvent *);
 private:
     Ui::TestSuiteExecutiveDialog *ui;
     bool aborted;
@@ -42,14 +42,16 @@ signals:
 
 private slots:
     void on_save_clicked();
-    void on_clear_clicked();
+    void on_clearAll_clicked();
     void on_load_clicked();
     void on_execute_clicked();
     void on_executeSelection_clicked();
     void on_abort_clicked();
     void updateProgress();
+    void updateTargetMachine(QString machine);
     void machineReady();
     void emulatorPausedAfter();
+    void on_clear_clicked();
 };
 
 #endif // TESTSUITEEXECUTIVEDIALOG_H

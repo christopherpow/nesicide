@@ -14,17 +14,48 @@
    <string>Test Suite Executive</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="1" column="1" colspan="6">
+   <item row="1" column="1" colspan="7">
     <widget class="QLineEdit" name="testSuiteFileName">
      <property name="readOnly">
       <bool>true</bool>
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="label">
+   <item row="8" column="1">
+    <widget class="QPushButton" name="load">
      <property name="text">
-      <string>Test Suite XML File:</string>
+      <string>Load</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="6">
+    <widget class="QPushButton" name="save">
+     <property name="text">
+      <string>Save</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="5">
+    <widget class="QPushButton" name="executeSelection">
+     <property name="text">
+      <string>Execute Selection</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="3">
+    <widget class="QPushButton" name="clear">
+     <property name="text">
+      <string>Clear Selected</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="8">
+    <widget class="QTableWidget" name="tableWidget"/>
+   </item>
+   <item row="8" column="7">
+    <widget class="QPushButton" name="abort">
+     <property name="text">
+      <string>Abort</string>
      </property>
     </widget>
    </item>
@@ -35,7 +66,14 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="1" colspan="6">
+   <item row="8" column="4">
+    <widget class="QPushButton" name="execute">
+     <property name="text">
+      <string>Execute All</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="1" colspan="7">
     <widget class="QProgressBar" name="suiteProgress">
      <property name="value">
       <number>24</number>
@@ -51,69 +89,17 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="1" colspan="5">
+   <item row="1" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Test Suite XML File:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1" colspan="6">
     <widget class="QLineEdit" name="testROM">
      <property name="readOnly">
       <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="QLabel" name="label_4">
-     <property name="text">
-      <string>Test ROM:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="6">
-    <widget class="QPushButton" name="abort">
-     <property name="text">
-      <string>Abort</string>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="5">
-    <widget class="QPushButton" name="save">
-     <property name="text">
-      <string>Save</string>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="4">
-    <widget class="QPushButton" name="executeSelection">
-     <property name="text">
-      <string>Execute Selection</string>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="3">
-    <widget class="QPushButton" name="execute">
-     <property name="text">
-      <string>Execute All</string>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="2">
-    <widget class="QPushButton" name="clear">
-     <property name="text">
-      <string>Clear Results</string>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="1">
-    <widget class="QPushButton" name="load">
-     <property name="text">
-      <string>Load</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0" colspan="7">
-    <widget class="QTableWidget" name="tableWidget"/>
-   </item>
-   <item row="2" column="6">
-    <widget class="QCheckBox" name="recordInputs">
-     <property name="text">
-      <string>Record Inputs</string>
      </property>
     </widget>
    </item>
@@ -124,7 +110,7 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="1" colspan="6">
+   <item row="5" column="1" colspan="7">
     <layout class="QGridLayout" name="gridLayout_2">
      <item row="0" column="3">
       <widget class="QLabel" name="label_5">
@@ -154,6 +140,27 @@
       </widget>
      </item>
     </layout>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>Test ROM:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="7">
+    <widget class="QCheckBox" name="recordInputs">
+     <property name="text">
+      <string>Record Inputs</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="2">
+    <widget class="QPushButton" name="clearAll">
+     <property name="text">
+      <string>Clear All</string>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

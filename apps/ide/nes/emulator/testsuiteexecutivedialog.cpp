@@ -45,6 +45,20 @@ void TestSuiteExecutiveDialog::showEvent(QShowEvent *)
    }
 }
 
+void TestSuiteExecutiveDialog::closeEvent(QCloseEvent *)
+{
+   QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
+
+   if ( emulator )
+   {
+      QObject::disconnect(emulator,SIGNAL(machineReady()),this,SLOT(machineReady()));
+      QObject::disconnect(emulator,SIGNAL(emulatedFrame()),this,SLOT(updateProgress()));
+      QObject::disconnect(this,SIGNAL(startEmulation()),emulator,SLOT(startEmulation()));
+      QObject::disconnect(this,SIGNAL(pauseEmulationAfter(int32_t)),emulator,SLOT(pauseEmulationAfter(int32_t)));
+      QObject::disconnect(emulator,SIGNAL(emulatorPausedAfter()),this,SLOT(emulatorPausedAfter()));
+   }
+}
+
 void TestSuiteExecutiveDialog::hideEvent(QHideEvent *)
 {
    QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
@@ -67,6 +81,10 @@ void TestSuiteExecutiveDialog::emulatorPausedAfter()
 void TestSuiteExecutiveDialog::machineReady()
 {
    doTestPhase();
+}
+
+void TestSuiteExecutiveDialog::updateTargetMachine(QString machine)
+{
 }
 
 void TestSuiteExecutiveDialog::updateProgress()
@@ -130,8 +148,7 @@ void TestSuiteExecutiveDialog::loadTestSuite(QString testSuiteFileName)
    while ( !testNode.isNull() )
    {
       testElement = testNode.toElement();
-
-      testFileName = testElement.attribute("filename");
+      testFileName = testSuiteFolder.fromNativeSeparators(testElement.attribute("filename"));
       testFrames = testElement.attribute("runframes");
       testSystem = testElement.attribute("system");
       testResult = testElement.attribute("testresult");
@@ -274,15 +291,20 @@ void TestSuiteExecutiveDialog::doTestPhase()
 
       emit openNesROM(ui->testROM->text(),false);
 
-      emit pauseEmulationAfter(framesRun);
-
-      emit startEmulation();
-
       // Go to next phase.
       testPhase = 1;
       break;
 
    case 1:
+      emit pauseEmulationAfter(framesRun);
+
+      emit startEmulation();
+
+      // Go to next phase.
+      testPhase = 2;
+      break;
+
+   case 2:
       ui->testProgress->setValue(ui->testProgress->maximum());
 
       QCryptographicHash crypto(QCryptographicHash::Sha1);
@@ -420,16 +442,50 @@ void TestSuiteExecutiveDialog::on_abort_clicked()
    aborted = true;
 }
 
-void TestSuiteExecutiveDialog::on_clear_clicked()
+void TestSuiteExecutiveDialog::on_clearAll_clicked()
 {
+   int     startIdx = 0;
+   int     endIdx = ui->tableWidget->rowCount();
    int     test;
-   int     numTests = ui->tableWidget->rowCount();
 
-   ui->suiteProgress->setMaximum(numTests);
+   ui->suiteProgress->setMaximum(ui->tableWidget->rowCount());
    ui->suiteProgress->setValue(0);
    ui->testProgress->setValue(0);
 
-   for ( test = 0; test < numTests; test++ )
+   for ( test = startIdx; test < endIdx; test++ )
+   {
+      ui->tableWidget->item(test,3)->setText("none");
+      ui->tableWidget->item(test,4)->setText("");
+      ui->tableWidget->item(test,5)->setText("");
+      ui->tableWidget->item(test,6)->setText("");
+      ui->tableWidget->item(test,7)->setText("");
+   }
+}
+
+void TestSuiteExecutiveDialog::on_clear_clicked()
+{
+   int     startIdx = 0;
+   int     endIdx = ui->tableWidget->rowCount();
+   int     test;
+   QList<QTableWidgetItem*> items = ui->tableWidget->selectedItems();
+   QTableWidgetItem* start = items.first();
+   QTableWidgetItem* end = items.last();
+
+   if ( start && end && (start->row() >= 0) && (end->row() >= 0) )
+   {
+      startIdx = start->row();
+      endIdx = end->row();
+      if ( startIdx == endIdx )
+      {
+         endIdx++;
+      }
+   }
+
+   ui->suiteProgress->setMaximum(ui->tableWidget->rowCount());
+   ui->suiteProgress->setValue(0);
+   ui->testProgress->setValue(0);
+
+   for ( test = startIdx; test < endIdx; test++ )
    {
       ui->tableWidget->item(test,3)->setText("none");
       ui->tableWidget->item(test,4)->setText("");

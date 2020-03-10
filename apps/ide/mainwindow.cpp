@@ -526,8 +526,19 @@ void MainWindow::updateRecentFiles()
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    int idx;
+   bool updated = false;
 
    QStringList recentFiles = settings.value("RecentFiles").toStringList();
+
+   for ( idx = recentFiles.count()-1; idx >= 0; idx-- )
+   {
+      QFileInfo fi(recentFiles.at(idx));
+      if ( !fi.exists() )
+      {
+         recentFiles.removeAt(idx);
+         updated = true;
+      }
+   }
 
    for ( idx = 0; idx < recentFiles.count(); idx++ )
    {
@@ -537,6 +548,11 @@ void MainWindow::updateRecentFiles()
    for ( ; idx < MAX_RECENT_FILES; idx++ )
    {
       m_menuRecentFiles->actions().at(idx)->setVisible(false);
+   }
+
+   if ( updated )
+   {
+      settings.setValue("RecentFiles",recentFiles);
    }
 }
 
@@ -2122,6 +2138,9 @@ void MainWindow::on_actionNew_Project_triggered()
 void MainWindow::openNesROM(QString fileName,bool runRom)
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+   QFileInfo fi(fileName);
+
+   if ( !fi.exists() ) return;
 
    // Keep recent file list updated.
    saveRecentFiles(fileName);
