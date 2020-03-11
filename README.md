@@ -19,7 +19,7 @@ The following steps are required prior to building this project on any platform.
 1. Install [Qt 5.12.6](http://download.qt.io/archive/qt/5.12/5.12.6/) as it was the latest kit to be verified to build NESICIDE properly without errors. Please do not use a kit later than this, or if you do, please create a pull request with necessary changes.
 2. Make sure qmake is in your PATH.
 
-   At the time of writing this Mac OS Homewbrew contains Qt 5.14.1 and NESICIDE can also be built with that version of Qt. So, alternatively, you can install Qt using
+At the time of writing this Mac OS Homewbrew contains Qt 5.14.1 and NESICIDE can also be built with that version of Qt. So, alternatively, you can install Qt using
 
    ```
    brew intall qt5
@@ -50,12 +50,12 @@ This project builds for Linux, macOS, and Windows. To perform a build for any su
 ### Linux
 
 0. `./build/linux-build.sh`
-1. Once the build process is complete run: `./build/linux-deploy.sh local`
+1. `./build/linux-deploy.sh local`
 
 ### macOS
 
 0. `./build/osx-build.sh`
-1. Once the build process is complete run: `./build/osx-deploy.sh local`
+1. `./build/osx-deploy.sh local`
 
 If you installed Qt from Homebrew you need to set the following environment variable so that the build process can find qmake (the qt5 Homebrew formula is keg-only):
 
@@ -68,7 +68,7 @@ PATH="/usr/local/opt/qt/bin:$PATH"
 NOTE: The build process uses GnuWin32 tools and MinGW tools. Install these and make sure that `mingw32-make` and `wget` are on your path.
 
 0. `./build/win-build.sh`
-1. Once the build process is complete run: `./build/win-deploy.sh local`
+1. `./build/win-deploy.sh local`
 
 ## Running
 
