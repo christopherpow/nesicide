@@ -67,8 +67,8 @@ PATH="/usr/local/opt/qt/bin:$PATH"
 
 NOTE: The build process uses GnuWin32 tools and MinGW tools. Install these and make sure that `mingw32-make` and `wget` are on your path.
 
-0. `./build/win-build.sh`
-1. `./build/win-deploy.sh local`
+0. `./build/windows-build.sh`
+1. `./build/windows-deploy.sh local`
 
 ## Running
 
