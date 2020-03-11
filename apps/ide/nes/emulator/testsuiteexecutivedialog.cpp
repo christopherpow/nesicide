@@ -177,7 +177,17 @@ void TestSuiteExecutiveDialog::loadTestSuite(QString testSuiteFileName)
       ui->tableWidget->setItem(test,4,new QTableWidgetItem(testFailComment));
       ui->tableWidget->setItem(test,5,new QTableWidgetItem(testNotes));
       ui->tableWidget->setItem(test,6,new QTableWidgetItem(previousSha1));
-      ui->tableWidget->setItem(test,7,new QTableWidgetItem(testRecordedInput));
+      QTableWidgetItem *ptwi = new QTableWidgetItem("");
+      if ( testRecordedInput.isEmpty() )
+      {
+         ptwi->setData(Qt::DisplayRole,"No");
+      }
+      else
+      {
+         ptwi->setData(Qt::DisplayRole,"Yes");
+         ptwi->setData(Qt::UserRole,testRecordedInput);
+      }
+      ui->tableWidget->setItem(test,7,ptwi);
 
       testNode = testNode.nextSibling();
       test++;
@@ -240,7 +250,7 @@ void TestSuiteExecutiveDialog::doTestPhase()
    testResult = ui->tableWidget->item(testRunning,3)->text();
    testFailComment = ui->tableWidget->item(testRunning,4)->text();
    previousSha1 = ui->tableWidget->item(testRunning,6)->text();
-   testRecordedInput = ui->tableWidget->item(testRunning,7)->text();
+   testRecordedInput = ui->tableWidget->item(testRunning,7)->data(Qt::UserRole).toString();
 
    switch ( testPhase )
    {
@@ -539,7 +549,7 @@ void TestSuiteExecutiveDialog::on_save_clicked()
             dataSect = testSuiteDoc.createCDATASection(ui->tableWidget->item(test,6)->text());
             childElement.appendChild(dataSect);
             childElement = addElement(testSuiteDoc,testElement,"recordedinput");
-            dataSect = testSuiteDoc.createCDATASection(ui->tableWidget->item(test,7)->text());
+            dataSect = testSuiteDoc.createCDATASection(ui->tableWidget->item(test,7)->data(Qt::UserRole).toString());
             childElement.appendChild(dataSect);
          }
 

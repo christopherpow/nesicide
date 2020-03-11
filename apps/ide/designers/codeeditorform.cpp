@@ -1261,7 +1261,7 @@ void CodeEditorForm::snapTo(QString item)
          addr = splits.at(3).toInt(NULL,16);
          absAddr = (splits.at(1).toInt(NULL,16)*MEM_8KB)+splits.at(2).toInt(NULL,16);
       }
-      fileName = CCC65Interface::instance()->getSourceFileFromPhysicalAddress(addr,absAddr);
+      fileName = QDir::cleanPath(CCC65Interface::instance()->getSourceFileFromPhysicalAddress(addr,absAddr));
       if ( fileName == m_fileName )
       {
          line = CCC65Interface::instance()->getSourceLineFromPhysicalAddress(addr,absAddr);
@@ -1302,7 +1302,8 @@ void CodeEditorForm::snapTo(QString item)
    else if ( item.startsWith("SourceNavigatorFile,") )
    {
       splits = item.split(QRegExp("[,]"));
-      if ( m_fileName.endsWith(splits.at(1),Qt::CaseInsensitive) )
+      QString cleanPath = QDir::cleanPath(splits.at(1));
+      if ( m_fileName.endsWith(cleanPath,Qt::CaseInsensitive) )
       {
          if ( splits.count() == 3 )
          {
@@ -1321,7 +1322,8 @@ void CodeEditorForm::snapTo(QString item)
    else if ( item.startsWith("OutputPaneFile,") )
    {
       splits = item.split(QRegExp("[,]"));
-      if ( splits.at(1) == m_fileName )
+      QString cleanPath = QDir::cleanPath(splits.at(1));
+      if ( cleanPath == m_fileName )
       {
          if ( splits.count() == 3 )
          {
