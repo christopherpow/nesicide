@@ -2,7 +2,9 @@
 
 nesicide is an Integrated Development Environment (IDE) for the 8-bit Nintendo Entertainment System (NES).
 
-This project contains:
+## Products in Project
+
+This project contains the following products:
 
 * NESICIDE (the IDE itself)
 * A NES emulator (standalone package of the emulator used in the IDE)
@@ -15,6 +17,7 @@ The following steps are required prior to building this project on any platform.
 
 0. Install `git`
 1. Install [Qt 5.12.6](http://download.qt.io/archive/qt/5.12/5.12.6/) as it was the latest kit to be verified to build NESICIDE properly without errors. Please do not use a kit later than this, or if you do, please create a pull request with necessary changes.
+2. Make sure qmake is in your PATH.
 
    At the time of writing this Mac OS Homewbrew contains Qt 5.14.1 and NESICIDE can also be built with that version of Qt. So, alternatively, you can install Qt using
 
@@ -46,15 +49,15 @@ This project builds for Linux, macOS, and Windows. To perform a build for any su
 
 ### Linux
 
-1. `./build/linux-build.sh`
-2. Once the build process is complete run: `./build/linux-deploy.sh`
+0. `./build/linux-build.sh`
+1. Once the build process is complete run: `./build/linux-deploy.sh local`
 
 ### macOS
 
-1. `./build/osx-build.sh`
-2. Once the build process is complete run: `./build/osx-deploy.sh`
+0. `./build/osx-build.sh`
+1. Once the build process is complete run: `./build/osx-deploy.sh local`
 
-If you installed Qt from Homebrew you need to set the following environment variable so that the build process can find qmake (the qt5 Homebrew formulat is keg-only):
+If you installed Qt from Homebrew you need to set the following environment variable so that the build process can find qmake (the qt5 Homebrew formula is keg-only):
 
 ```
 PATH="/usr/local/opt/qt/bin:$PATH"
@@ -64,12 +67,23 @@ PATH="/usr/local/opt/qt/bin:$PATH"
 
 NOTE: The build process uses GnuWin32 tools and MinGW tools. Install these and make sure that `mingw32-make` and `wget` are on your path.
 
-1. `./build/win-build.sh`
-
-2. Once the build process is complete run: `./build/win-deploy.sh`
+0. `./build/win-build.sh`
+1. Once the build process is complete run: `./build/win-deploy.sh local`
 
 ## Running
 
-The `deploy.sh` creates a tarball containing all of the executables and dependent libraries. Extract the tarball to your location of choice and execute.
+The `deploy.sh` creates artifacts of the following form.
+
+### Linux
+
+Separate AppImage executables for each product of the project. See https://appimage.org/ for information on AppImage containers.
+
+### macOS
+
+Separate Apple Disk Images (DMGs) for each product of the project.
+
+### Windows
+
+Monolithic bzipped tarball containing all products of the project, extractable to anywhere.
 
 Enjoy!
