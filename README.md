@@ -45,7 +45,7 @@ Install [GnuWin32](https://sourceforge.net/projects/getgnuwin32/) and [wget](htt
 
 This project builds for Linux, macOS, and Windows. To perform a build for any supported platform follow the instructions for the platform below.
 
-> NOTE: The build process takes a while, so grab a snack while you wait. ;)
+`NOTE: The build process takes a while, so grab a snack while you wait. ;)`
 
 ### Linux
 
