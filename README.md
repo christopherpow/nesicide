@@ -54,14 +54,14 @@ This project builds for Linux, macOS, and Windows. To perform a build for any su
 
 ### macOS
 
-0. `./build/osx-build.sh`
-1. `./build/osx-deploy.sh local`
-
 If you installed Qt from Homebrew you need to set the following environment variable so that the build process can find qmake (the qt5 Homebrew formula is keg-only):
 
 ```
 PATH="/usr/local/opt/qt/bin:$PATH"
 ```
+
+0. `./build/osx-build.sh`
+1. `./build/osx-deploy.sh local`
 
 ### Windows
 
