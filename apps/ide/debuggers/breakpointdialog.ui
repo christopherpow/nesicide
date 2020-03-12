@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>330</width>
-    <height>222</height>
+    <width>541</width>
+    <height>320</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,20 +18,35 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>330</width>
-    <height>0</height>
+    <width>416</width>
+    <height>292</height>
    </size>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_3">
-   <item row="0" column="0" colspan="2">
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
     <layout class="QFormLayout" name="formLayout">
+     <property name="fieldGrowthPolicy">
+      <enum>QFormLayout::ExpandingFieldsGrow</enum>
+     </property>
+     <property name="labelAlignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+     <property name="formAlignment">
+      <set>Qt::AlignJustify|Qt::AlignTop</set>
+     </property>
+     <property name="horizontalSpacing">
+      <number>6</number>
+     </property>
+     <property name="verticalSpacing">
+      <number>6</number>
+     </property>
      <item row="0" column="0">
       <widget class="QLabel" name="label">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
@@ -46,6 +61,12 @@
      </item>
      <item row="0" column="1">
       <widget class="QComboBox" name="type">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="maxVisibleItems">
         <number>20</number>
        </property>
@@ -53,86 +74,225 @@
      </item>
     </layout>
    </item>
-   <item row="1" column="0" colspan="2">
+   <item>
     <widget class="QStackedWidget" name="itemWidget">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+      <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="lineWidth">
+      <number>1</number>
+     </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="addrpage">
       <layout class="QGridLayout" name="gridLayout_2">
-       <property name="margin">
+       <property name="leftMargin">
         <number>0</number>
        </property>
-       <item row="0" column="0">
-        <widget class="QLabel" name="addr1label">
-         <property name="text">
-          <string>Address 1:</string>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <property name="spacing">
+        <number>6</number>
+       </property>
+       <item row="2" column="0">
+        <layout class="QFormLayout" name="formLayout_8">
+         <property name="fieldGrowthPolicy">
+          <enum>QFormLayout::ExpandingFieldsGrow</enum>
          </property>
-        </widget>
+         <property name="labelAlignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+         <property name="formAlignment">
+          <set>Qt::AlignJustify|Qt::AlignTop</set>
+         </property>
+         <property name="horizontalSpacing">
+          <number>6</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>6</number>
+         </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_3">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Mask:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="mask">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>1</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
-       <item row="0" column="3">
-        <widget class="QLabel" name="addr2label">
-         <property name="text">
-          <string>Address 2:</string>
+       <item row="1" column="1">
+        <layout class="QFormLayout" name="formLayout_7">
+         <property name="fieldGrowthPolicy">
+          <enum>QFormLayout::ExpandingFieldsGrow</enum>
          </property>
-        </widget>
+         <property name="labelAlignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+         <property name="formAlignment">
+          <set>Qt::AlignJustify|Qt::AlignTop</set>
+         </property>
+         <property name="horizontalSpacing">
+          <number>6</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>6</number>
+         </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="addr2label">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Address 2:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="addr2">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>1</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maxLength">
+            <number>4</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
-       <item row="0" column="4">
-        <widget class="QLineEdit" name="addr2">
-         <property name="maxLength">
-          <number>4</number>
+       <item row="2" column="1">
+        <widget class="QComboBox" name="itemMaskScope">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLineEdit" name="addr1">
-         <property name="maxLength">
-          <number>4</number>
-         </property>
+         <item>
+          <property name="text">
+           <string>Exclusive (unmasked bits 0)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Inclusive (unmasked bits X)</string>
+          </property>
+         </item>
         </widget>
        </item>
        <item row="1" column="0">
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>Mask:</string>
+        <layout class="QFormLayout" name="formLayout_6">
+         <property name="fieldGrowthPolicy">
+          <enum>QFormLayout::ExpandingFieldsGrow</enum>
          </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QLineEdit" name="mask"/>
-       </item>
-       <item row="1" column="3" colspan="2">
-        <widget class="QComboBox" name="itemMaskScope">
-         <item>
-          <property name="text">
-           <string>Exclusive (unmasked bits must be zero)</string>
-          </property>
+         <property name="labelAlignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+         <property name="formAlignment">
+          <set>Qt::AlignJustify|Qt::AlignTop</set>
+         </property>
+         <property name="horizontalSpacing">
+          <number>6</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>6</number>
+         </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="addr1label">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Address 1:</string>
+           </property>
+          </widget>
          </item>
-         <item>
-          <property name="text">
-           <string>Inclusive (unmasked bits are ignored)</string>
-          </property>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="addr1">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>1</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maxLength">
+            <number>4</number>
+           </property>
+          </widget>
          </item>
-        </widget>
+        </layout>
        </item>
       </layout>
      </widget>
      <widget class="QWidget" name="regpage">
       <layout class="QFormLayout" name="formLayout_2">
        <property name="fieldGrowthPolicy">
-        <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+        <enum>QFormLayout::ExpandingFieldsGrow</enum>
        </property>
-       <property name="margin">
+       <property name="labelAlignment">
+        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+       </property>
+       <property name="horizontalSpacing">
+        <number>6</number>
+       </property>
+       <property name="verticalSpacing">
+        <number>6</number>
+       </property>
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
         <number>0</number>
        </property>
        <item row="0" column="0">
         <widget class="QLabel" name="registerlabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="text">
           <string>Register:</string>
          </property>
@@ -140,30 +300,73 @@
        </item>
        <item row="0" column="1">
         <widget class="QComboBox" name="reg">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>1</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="maxVisibleItems">
           <number>25</number>
+         </property>
+         <property name="sizeAdjustPolicy">
+          <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
          </property>
         </widget>
        </item>
        <item row="1" column="0">
         <widget class="QLabel" name="bitfieldlabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="text">
           <string>Bitfield:</string>
          </property>
         </widget>
        </item>
        <item row="1" column="1">
-        <widget class="QComboBox" name="bitfield"/>
+        <widget class="QComboBox" name="bitfield">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>1</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="sizeAdjustPolicy">
+          <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
      <widget class="QWidget" name="eventpage">
       <layout class="QGridLayout" name="gridLayout_4">
-       <property name="margin">
+       <property name="leftMargin">
         <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <property name="spacing">
+        <number>6</number>
        </property>
        <item row="0" column="0">
         <widget class="QLabel" name="label_2">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="text">
           <string>Event:</string>
          </property>
@@ -171,6 +374,12 @@
        </item>
        <item row="0" column="1" colspan="3">
         <widget class="QComboBox" name="event">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>1</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="maxVisibleItems">
           <number>100</number>
          </property>
@@ -178,33 +387,339 @@
        </item>
        <item row="1" column="0">
         <widget class="QLabel" name="item1label">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="text">
           <string>Data1:</string>
          </property>
         </widget>
        </item>
        <item row="1" column="1">
-        <widget class="QLineEdit" name="eventData1"/>
+        <widget class="QLineEdit" name="eventData1">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>1</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
        </item>
        <item row="1" column="2">
         <widget class="QLabel" name="item2label">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="text">
           <string>Data2:</string>
          </property>
         </widget>
        </item>
        <item row="1" column="3">
-        <widget class="QLineEdit" name="eventData2"/>
+        <widget class="QLineEdit" name="eventData2">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>1</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="emptypage"/>
+     <widget class="QWidget" name="emptypage">
+      <layout class="QGridLayout" name="gridLayout_10">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <property name="spacing">
+        <number>6</number>
+       </property>
+      </layout>
+     </widget>
     </widget>
    </item>
-   <item row="2" column="0">
-    <widget class="QStackedWidget" name="conditionWidget">
+   <item>
+    <layout class="QGridLayout" name="gridLayout_8">
+     <property name="horizontalSpacing">
+      <number>6</number>
+     </property>
+     <property name="verticalSpacing">
+      <number>0</number>
+     </property>
+     <item row="0" column="0">
+      <widget class="QStackedWidget" name="conditionWidget">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="currentIndex">
+        <number>1</number>
+       </property>
+       <widget class="QWidget" name="emptyCondition">
+        <layout class="QGridLayout" name="gridLayout_9">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <property name="horizontalSpacing">
+          <number>6</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>0</number>
+         </property>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="addrCondition">
+        <layout class="QFormLayout" name="formLayout_3">
+         <property name="fieldGrowthPolicy">
+          <enum>QFormLayout::ExpandingFieldsGrow</enum>
+         </property>
+         <property name="horizontalSpacing">
+          <number>6</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>0</number>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="conditionlabel">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Break if:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="condition">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>1</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="sizeAdjustPolicy">
+            <enum>QComboBox::AdjustToMinimumContentsLength</enum>
+           </property>
+           <item>
+            <property name="text">
+             <string>Anything</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Equals</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Does Not Equal</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Is Greater Than</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Is Less Than</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Exclusive Mask (unmasked bits 0)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Inclusive Mask (unmasked bits X)</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QStackedWidget" name="dataWidget">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="currentIndex">
+        <number>1</number>
+       </property>
+       <widget class="QWidget" name="emptyData">
+        <layout class="QGridLayout" name="gridLayout_7">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <property name="horizontalSpacing">
+          <number>6</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>0</number>
+         </property>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="editData">
+        <layout class="QFormLayout" name="formLayout_5">
+         <property name="fieldGrowthPolicy">
+          <enum>QFormLayout::ExpandingFieldsGrow</enum>
+         </property>
+         <property name="horizontalSpacing">
+          <number>6</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>0</number>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="data1label">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Condition:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="data1">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>1</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="comboData">
+        <layout class="QFormLayout" name="formLayout_4">
+         <property name="fieldGrowthPolicy">
+          <enum>QFormLayout::ExpandingFieldsGrow</enum>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="data2label">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Condition:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="data2">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="sizeAdjustPolicy">
+            <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QStackedWidget" name="resolverWidget">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
@@ -212,121 +727,69 @@
      <property name="currentIndex">
       <number>1</number>
      </property>
-     <widget class="QWidget" name="emptyCondition"/>
-     <widget class="QWidget" name="addrCondition">
-      <layout class="QFormLayout" name="formLayout_3">
+     <widget class="QWidget" name="emptyMap">
+      <layout class="QGridLayout" name="gridLayout_11">
+       <property name="spacing">
+        <number>6</number>
+       </property>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="useMap">
+      <layout class="QFormLayout" name="formLayout_9">
        <property name="fieldGrowthPolicy">
-        <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+        <enum>QFormLayout::ExpandingFieldsGrow</enum>
        </property>
-       <property name="margin">
-        <number>0</number>
+       <property name="horizontalSpacing">
+        <number>6</number>
+       </property>
+       <property name="verticalSpacing">
+        <number>6</number>
        </property>
        <item row="0" column="0">
-        <widget class="QLabel" name="conditionlabel">
+        <widget class="QCheckBox" name="resolve">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="text">
-          <string>Break if:</string>
+          <string>Resolve using Mapper</string>
          </property>
         </widget>
        </item>
        <item row="0" column="1">
-        <widget class="QComboBox" name="condition">
-         <item>
-          <property name="text">
-           <string>Anything</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Equals</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Does Not Equal</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Is Greater Than</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Is Less Than</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Exclusive Mask (unmasked bits must be zero)</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Inclusive Mask (unmasked bits are ignored)</string>
-          </property>
-         </item>
+        <widget class="QComboBox" name="resolutions">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>1</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
         </widget>
        </item>
       </layout>
      </widget>
     </widget>
    </item>
-   <item row="2" column="1">
-    <widget class="QStackedWidget" name="dataWidget">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
      </property>
-     <property name="currentIndex">
-      <number>2</number>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
      </property>
-     <widget class="QWidget" name="emptyData">
-      <layout class="QGridLayout" name="gridLayout_7">
-       <property name="margin">
-        <number>0</number>
-       </property>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="editData">
-      <layout class="QFormLayout" name="formLayout_5">
-       <property name="margin">
-        <number>0</number>
-       </property>
-       <item row="0" column="0">
-        <widget class="QLabel" name="data1label">
-         <property name="text">
-          <string>Condition:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLineEdit" name="data1"/>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="comboData">
-      <layout class="QFormLayout" name="formLayout_4">
-       <property name="margin">
-        <number>0</number>
-       </property>
-       <item row="0" column="0">
-        <widget class="QLabel" name="data2label">
-         <property name="text">
-          <string>Condition:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QComboBox" name="data2"/>
-       </item>
-      </layout>
-     </widget>
-    </widget>
+    </spacer>
    </item>
-   <item row="5" column="0" colspan="2">
-    <layout class="QHBoxLayout" name="horizontalLayout">
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,1,0">
+     <property name="spacing">
+      <number>6</number>
+     </property>
      <item>
       <widget class="QPushButton" name="cancel">
        <property name="text">
@@ -339,6 +802,9 @@
      </item>
      <item>
       <widget class="QCheckBox" name="enabled">
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
        <property name="text">
         <string>Enabled</string>
        </property>
@@ -356,35 +822,10 @@
      </item>
     </layout>
    </item>
-   <item row="4" column="0" colspan="2">
-    <widget class="QStackedWidget" name="resolverWidget">
-     <property name="currentIndex">
-      <number>1</number>
-     </property>
-     <widget class="QWidget" name="emptyMap"/>
-     <widget class="QWidget" name="useMap">
-      <layout class="QGridLayout" name="gridLayout">
-       <item row="1" column="1">
-        <widget class="QComboBox" name="resolutions"/>
-       </item>
-       <item row="0" column="1">
-        <widget class="QCheckBox" name="resolve">
-         <property name="text">
-          <string>Resolve using Mapper</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </widget>
-   </item>
   </layout>
  </widget>
  <tabstops>
   <tabstop>type</tabstop>
-  <tabstop>addr1</tabstop>
-  <tabstop>addr2</tabstop>
-  <tabstop>mask</tabstop>
   <tabstop>bitfield</tabstop>
   <tabstop>event</tabstop>
   <tabstop>eventData1</tabstop>
@@ -395,7 +836,6 @@
   <tabstop>cancel</tabstop>
   <tabstop>enabled</tabstop>
   <tabstop>addBreakpoint</tabstop>
-  <tabstop>resolutions</tabstop>
   <tabstop>resolve</tabstop>
   <tabstop>reg</tabstop>
  </tabstops>
