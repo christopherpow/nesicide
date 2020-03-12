@@ -17,6 +17,7 @@ bool EnvironmentSettingsDialog::m_rememberWindowSettings;
 bool EnvironmentSettingsDialog::m_trackRecentProjects;
 QString EnvironmentSettingsDialog::m_romPath;
 bool EnvironmentSettingsDialog::m_runRomOnLoad;
+bool EnvironmentSettingsDialog::m_useTabBarInEditorArea;
 bool EnvironmentSettingsDialog::m_followExecution;
 int EnvironmentSettingsDialog::m_debuggerUpdateRate;
 int EnvironmentSettingsDialog::m_soundBufferDepth;
@@ -124,6 +125,7 @@ EnvironmentSettingsDialog::EnvironmentSettingsDialog(QWidget* parent) :
    ui->ROMPath->setText(m_romPath);
    ui->runRom->setChecked(m_runRomOnLoad);
    ui->followExecution->setChecked(m_followExecution);
+   ui->useTabBarInEditorArea->setChecked(m_useTabBarInEditorArea);
 
    switch ( m_debuggerUpdateRate )
    {
@@ -214,6 +216,7 @@ void EnvironmentSettingsDialog::readSettings()
    m_trackRecentProjects = settings.value("trackRecentProjects",QVariant(true)).toBool();
    m_romPath = settings.value("romPath").toString();
    m_runRomOnLoad = settings.value("runRomOnLoad",QVariant(false)).toBool();
+   m_useTabBarInEditorArea = settings.value("useTabBarInEditorArea",QVariant(false)).toBool();
    m_followExecution = settings.value("followExecution",QVariant(true)).toBool();
    m_debuggerUpdateRate = settings.value("debuggerUpdateRate",QVariant(0)).toInt();
    m_soundBufferDepth = settings.value("soundBufferDepth",QVariant(1024)).toInt();
@@ -295,6 +298,7 @@ void EnvironmentSettingsDialog::writeSettings()
    m_trackRecentProjects = ui->trackRecentProjects->isChecked();
    m_romPath = ui->ROMPath->text();
    m_runRomOnLoad = ui->runRom->isChecked();
+   m_useTabBarInEditorArea = ui->useTabBarInEditorArea->isChecked();
    m_followExecution = ui->followExecution->isChecked();
    switch ( ui->debuggerUpdateRate->value() )
    {
@@ -344,6 +348,7 @@ void EnvironmentSettingsDialog::writeSettings()
 
    settings.setValue("runRomOnLoad",m_runRomOnLoad);
    settings.setValue("followExecution",m_followExecution);
+   settings.setValue("useTabBarInEditorArea",m_useTabBarInEditorArea);
 
    settings.setValue("debuggerUpdateRate",m_debuggerUpdateRate);
 

@@ -85,9 +85,10 @@ ProjectBrowserDockWidget::ProjectBrowserDockWidget(CProjectTabWidget* pTarget, Q
 
    // Connect open items to tab widget.
    // Main window intercepts this and closes the tab before we receive the signal.
-   QObject::connect( pTarget, SIGNAL(tabAdded(int)),       this, SLOT(itemOpened(int)) );
-   QObject::connect( pTarget, SIGNAL(tabRemoved(int)),     this, SLOT(itemClosed(int)) );
-   QObject::connect( pTarget, SIGNAL(currentChanged(int)), this, SLOT(itemSelected(int)) );
+   QObject::connect( pTarget, SIGNAL(tabAdded(int)),         this, SLOT(itemOpened(int)) );
+   QObject::connect( pTarget, SIGNAL(tabRemoved(int)),       this, SLOT(itemClosed(int)) );
+   QObject::connect( pTarget, SIGNAL(currentChanged(int)),   this, SLOT(itemSelected(int)) );
+   QObject::connect( pTarget, SIGNAL(tabModified(int,bool)), this, SLOT(itemModified(int,bool)));
 }
 
 ProjectBrowserDockWidget::~ProjectBrowserDockWidget()
@@ -178,6 +179,32 @@ void ProjectBrowserDockWidget::itemClosed(int tabId)
 {
    // Remove index tabId from list of open items.
    delete ui->openProjectItems->takeTopLevelItem(tabId);
+}
+
+void ProjectBrowserDockWidget::itemModified(int tabId, bool modified)
+{
+   // Indicate modification state of file with *.
+   QTreeWidgetItem* item = ui->openProjectItems->topLevelItem(tabId);
+   if ( item )
+   {
+      QString itemText = item->text(0);
+      if ( modified )
+      {
+         if ( !itemText.endsWith("*") )
+         {
+            itemText += "*";
+            item->setText(0, itemText);
+         }
+      }
+      else
+      {
+         if ( itemText.endsWith("*") )
+         {
+            itemText = itemText.left(itemText.length()-1);
+            item->setText(0, itemText);
+         }
+      }
+   }
 }
 
 void ProjectBrowserDockWidget::itemSelectionChanged()

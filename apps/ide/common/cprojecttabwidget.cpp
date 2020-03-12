@@ -13,6 +13,7 @@ CProjectTabWidget::CProjectTabWidget(QWidget *parent) :
 {
    tabBar()->installEventFilter(this);
    tabBar()->setMouseTracking(true);
+   tabBar()->setVisible(EnvironmentSettingsDialog::useTabBarInEditorArea());
 }
 
 bool CProjectTabWidget::eventFilter(QObject *object, QEvent *event)
@@ -152,41 +153,41 @@ int CProjectTabWidget::addTab(QWidget *page, const QIcon &icon, const QString &l
 
 void CProjectTabWidget::unDockTab()
 {
-   QToolButton *pButton = dynamic_cast<QToolButton*>(sender());
-   QString      name = pButton->objectName();
-   int tab;
+//   QToolButton *pButton = dynamic_cast<QToolButton*>(sender());
+//   QString      name = pButton->objectName();
+//   int tab;
 
-   for ( tab = 0; tab < count(); tab++ )
-   {
-      if ( tabBar()->tabText(tab) == name )
-      {
-         QWidget *detach = new QWidget(nullptr);
-         detach->setWindowTitle(name);
-         detach->setGeometry(widget(tab)->geometry());
-         blockSignals(true);
-         QGridLayout *layout = new QGridLayout();
-         layout->addWidget(widget(tab));
-         detach->setLayout(layout);
-         blockSignals(false);
-         detach->show();
-         tearOffs.insert(name,detach);
-         break;
-      }
-   }
+//   for ( tab = 0; tab < count(); tab++ )
+//   {
+//      if ( tabBar()->tabText(tab) == name )
+//      {
+//         QWidget *detach = new QWidget(nullptr);
+//         detach->setWindowTitle(name);
+//         detach->setGeometry(widget(tab)->geometry());
+//         blockSignals(true);
+//         QGridLayout *layout = new QGridLayout();
+//         layout->addWidget(widget(tab));
+//         detach->setLayout(layout);
+//         blockSignals(false);
+//         detach->show();
+//         tearOffs.insert(name,detach);
+//         break;
+//      }
+//   }
 }
 
 void CProjectTabWidget::reDockTab()
 {
-   QWidget *attach = dynamic_cast<QWidget*>(sender());
-   if ( attach )
-   {
-      tearOffs.remove(attach->windowTitle());
-      blockSignals(true);
-      int tab = addTab(attach,attach->windowTitle());
-      blockSignals(false);
-      attach->close();
-      attach->deleteLater();
-   }
+//   QWidget *attach = dynamic_cast<QWidget*>(sender());
+//   if ( attach )
+//   {
+//      tearOffs.remove(attach->windowTitle());
+//      blockSignals(true);
+//      int tab = addTab(attach,attach->windowTitle());
+//      blockSignals(false);
+//      attach->close();
+//      attach->deleteLater();
+//   }
 }
 
 int CProjectTabWidget::addTab(QWidget *page, const QString &label)
@@ -503,6 +504,7 @@ void CProjectTabWidget::applyProjectProperties()
 
 void CProjectTabWidget::applyEnvironmentSettings()
 {
+   tabBar()->setVisible(EnvironmentSettingsDialog::useTabBarInEditorArea());
    emit applyEnvironmentSettingsToTab();
 }
 

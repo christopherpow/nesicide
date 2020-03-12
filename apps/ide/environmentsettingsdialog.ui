@@ -91,7 +91,7 @@
    <item row="1" column="1">
     <widget class="QStackedWidget" name="stackedWidget">
      <property name="currentIndex">
-      <number>4</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="general">
       <layout class="QGridLayout" name="gridLayout_14">
@@ -110,6 +110,19 @@
        <property name="spacing">
         <number>6</number>
        </property>
+       <item row="7" column="0" colspan="2">
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>291</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
        <item row="0" column="0">
         <widget class="QCheckBox" name="rememberWindowSettings">
          <property name="text">
@@ -124,31 +137,7 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="0">
-        <widget class="QCheckBox" name="showWelcomeOnStart">
-         <property name="text">
-          <string>Show welcome page on startup</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QCheckBox" name="saveAllOnCompile">
-         <property name="text">
-          <string>Save all documents on compile</string>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="0" colspan="2">
-        <widget class="QLabel" name="label_12">
-         <property name="text">
-          <string>NESICIDE uses a portable installation paradigm.  All settings are stored in an .INI file located in the installation folder.</string>
-         </property>
-         <property name="wordWrap">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="0" colspan="2">
+       <item row="6" column="0" colspan="2">
         <widget class="QGroupBox" name="groupBox_2">
          <property name="title">
           <string>Plugin Path</string>
@@ -175,26 +164,44 @@
          </layout>
         </widget>
        </item>
-       <item row="6" column="0" colspan="2">
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>291</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="8" column="0" colspan="2">
+       <item row="9" column="0" colspan="2">
         <widget class="QLabel" name="settingsLocation">
          <property name="text">
           <string>TextLabel</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QCheckBox" name="showWelcomeOnStart">
+         <property name="text">
+          <string>Show welcome page on startup</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QCheckBox" name="saveAllOnCompile">
+         <property name="text">
+          <string>Save all documents on compile</string>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="0" colspan="2">
+        <widget class="QLabel" name="label_12">
+         <property name="text">
+          <string>NESICIDE uses a portable installation paradigm.  All settings are stored in an .INI file located in the installation folder.</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QCheckBox" name="useTabBarInEditorArea">
+         <property name="text">
+          <string>Use tab bar in editor area</string>
          </property>
         </widget>
        </item>

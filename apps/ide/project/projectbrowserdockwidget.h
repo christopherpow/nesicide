@@ -35,6 +35,7 @@ public slots:
    void itemOpened(int tabId);
    void itemSelected(int tabId);
    void itemClosed(int tabId);
+   void itemModified(int tabId, bool modified);
    void itemSelectionChanged();
 
    void projectTreeChanged(QUuid uuid);

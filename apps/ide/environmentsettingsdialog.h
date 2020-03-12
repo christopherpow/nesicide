@@ -35,6 +35,7 @@ public:
    static QString romPath() { return m_romPath; }
    static bool runRomOnLoad() { return m_runRomOnLoad; }
    static bool followExecution() { return m_followExecution; }
+   static bool useTabBarInEditorArea() { return m_useTabBarInEditorArea; }
    static int debuggerUpdateRate() { return m_debuggerUpdateRate; }
    static int soundBufferDepth() { return m_soundBufferDepth; }
    static QColor marginBackgroundColor() { return m_marginBackgroundColor; }
@@ -91,6 +92,7 @@ private:
    static bool m_trackRecentProjects;
    static QString m_romPath;
    static bool m_runRomOnLoad;
+   static bool m_useTabBarInEditorArea;
    static bool m_followExecution;
    static int m_debuggerUpdateRate;
    static int m_soundBufferDepth;
