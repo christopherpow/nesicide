@@ -46,6 +46,7 @@ void ExecutionInspectorDockWidget::updateTargetMachine(QString /*target*/)
    {
       QObject::connect ( emulator, SIGNAL(machineReady()), model, SLOT(update()));
       QObject::connect ( emulator, SIGNAL(emulatorReset()), model, SLOT(update()) );
+      QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateTracer()) );
       QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), model, SLOT(update()) );
    }
 }
@@ -109,7 +110,6 @@ void ExecutionInspectorDockWidget::updateTracer ()
       {
          // Update display...
          show();
-         ui->tableView->resizeColumnsToContents();
          ui->tableView->setCurrentIndex(model->index(0,0));
       }
       else if ( (pBreakpoint->type == eBreakOnPPUFetch) &&
@@ -117,10 +117,10 @@ void ExecutionInspectorDockWidget::updateTracer ()
       {
          // Update display...
          show();
-         ui->tableView->resizeColumnsToContents();
          ui->tableView->setCurrentIndex(model->index(0,0));
       }
    }
+   ui->tableView->resizeColumnsToContents();
 }
 
 void ExecutionInspectorDockWidget::on_showCPU_toggled(bool checked)
