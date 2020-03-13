@@ -71,8 +71,20 @@ ProjectBrowserDockWidget::ProjectBrowserDockWidget(CProjectTabWidget* pTarget, Q
 
    setProjectModel(NULL);
 
+   m_pItemDelegate = new ItemDelegate(NULL, 23);
+   ui->openProjectItems->setItemDelegate(m_pItemDelegate);
+
    ui->projectTreeWidget->setHeaderLabel("Project Items");
-   ui->openProjectItems->setHeaderLabel("Open Items");
+
+   ui->openProjectItems->installEventFilter(this);
+   ui->openProjectItems->header()->resizeSection(1,22);
+   ui->openProjectItems->installEventFilter(this);
+
+   QObject::connect(ui->openProjectItems, SIGNAL(itemEntered(QTreeWidgetItem*,int)), this, SLOT(openItems_itemEntered(QTreeWidgetItem*,int)));
+   QObject::connect(ui->openProjectItems, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(openItems_itemClicked(QTreeWidgetItem*,int)));
+
+   ui->openProjectItems->header()->setSectionResizeMode(0,QHeaderView::Stretch);
+   ui->openProjectItems->header()->setSectionResizeMode(1,QHeaderView::Fixed);
 
    // Respond to signals of our children.
    QObject::connect(ui->projectTreeWidget, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)),
@@ -101,6 +113,20 @@ void ProjectBrowserDockWidget::layoutChangedEvent()
    setProjectModel(m_pProjectModel);
 }
 
+bool ProjectBrowserDockWidget::eventFilter(QObject *watched, QEvent *event)
+{
+   if ( event->type() == QEvent::Enter ||
+        event->type() == QEvent::Leave )
+   {
+      int idx;
+      for ( idx = 0; idx < ui->openProjectItems->topLevelItemCount(); idx++ )
+      {
+         QTreeWidgetItem* item = ui->openProjectItems->topLevelItem(idx);
+         item->setIcon(1,QIcon());
+      }
+   }
+}
+
 void ProjectBrowserDockWidget::enableNavigation()
 {
 
@@ -109,6 +135,37 @@ void ProjectBrowserDockWidget::enableNavigation()
 void ProjectBrowserDockWidget::disableNavigation()
 {
 
+}
+
+void ProjectBrowserDockWidget::openItems_itemEntered(QTreeWidgetItem* item,int column)
+{
+   int idx;
+   int idx1 = ui->openProjectItems->indexOfTopLevelItem(item);
+   int idx2;
+
+   for ( idx = 0; idx < ui->openProjectItems->topLevelItemCount(); idx++ )
+   {
+      QTreeWidgetItem* item2 = ui->openProjectItems->topLevelItem(idx);
+      idx2 = ui->openProjectItems->indexOfTopLevelItem(item2);
+      if ( idx1 == idx2 )
+      {
+         item2->setIcon(1,QIcon(":/resources/edit_delete.png"));
+      }
+      else
+      {
+         item2->setIcon(1,QIcon());
+      }
+   }
+}
+
+void ProjectBrowserDockWidget::openItems_itemClicked(QTreeWidgetItem* item,int column)
+{
+   if ( column == 1 )
+   {
+      int idx = ui->openProjectItems->indexOfTopLevelItem(item);
+      m_pTarget->removeTab(idx);
+      itemSelectionChanged();
+   }
 }
 
 void ProjectBrowserDockWidget::setProjectModel(CProjectModel *model)
@@ -132,14 +189,12 @@ void ProjectBrowserDockWidget::setProjectModel(CProjectModel *model)
 void ProjectBrowserDockWidget::itemOpened(QUuid /*uuid*/)
 {
    // Add to list of open items
-   //ui->openFilesTreeWidget->addItem(m_pProjectModel, uuid, QUuid());
    rebuildProjectTree();
 }
 
 void ProjectBrowserDockWidget::itemClosed(QUuid /*uuid*/)
 {
    // Remove from list of open items
-   //ui->openFilesTreeWidget->removeItem(uuid);
    rebuildProjectTree();
 }
 
@@ -215,16 +270,13 @@ void ProjectBrowserDockWidget::itemSelectionChanged()
 
 void ProjectBrowserDockWidget::projectTreeChanged(QUuid /*uuid*/)
 {
-   std::cerr << "REBUILDING" << std::endl;
    rebuildProjectTree();
 }
-
 
 void ProjectBrowserDockWidget::openItemRequested(QTreeWidgetItem *item, int)
 {
    openNewProjectItem(ui->projectTreeWidget->getUuidOf(item));
 }
-
 
 void ProjectBrowserDockWidget::treeWidgetContextMenuRequested(QPoint pos)
 {
