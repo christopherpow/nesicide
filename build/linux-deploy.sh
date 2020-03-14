@@ -47,7 +47,7 @@ if [ "$1" == "local" ]; then
     ./linuxdeployqt-continuous-x86_64.AppImage $DISTPATH/${DIST}.desktop ${TARGARGS}
   done
 elif [ "$1" == "remote" ]; then
-  rsync $DISTPATH/{fami,nes}*.AppImage cpow@162.243.126.83:/var/www/html/nesicide/media/downloads/
+  rsync {fami,nes}*.AppImage cpow@162.243.126.83:/var/www/html/nesicide/media/downloads/
 fi
 
 exit 0
