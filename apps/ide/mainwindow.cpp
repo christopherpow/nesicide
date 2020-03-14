@@ -3897,6 +3897,9 @@ void MainWindow::on_actionDebugging_Mode_triggered()
    CDockWidgetRegistry::instance()->restoreVisibility();
    actionDebugging_Mode->setChecked(true);
    actionCoding_Mode->setChecked(false);
+
+   // Always show emulator
+   CDockWidgetRegistry::instance()->getWidget("Emulator")->show();
    appSettings->setAppMode(AppSettings::DebuggingMode);
 }
 
