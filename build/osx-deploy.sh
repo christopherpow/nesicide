@@ -1,5 +1,6 @@
 #!/bin/bash
 
+DISTPATH=$PWD/nesicide-local
 LIBDEPS="deps/rtmidi/release/librtmidi \
      deps/qscintilla2/Qt4Qt5/libqscintilla2_qt5 \
      libs/nes/release/libnes-emulator \
@@ -11,38 +12,35 @@ DEPLOYS_SRC="apps/ide/release/nesicide.app \
         apps/famiplayer/release/famiplayer.app \
         apps/nes-emulator/release/nes-emulator.app"
 
-DEPLOYS_DEST="dist/nesicide.app \
-        dist/famitracker.app \
-        dist/famiplayer.app \
-        dist/nes-emulator.app"
+DEPLOYS_DEST="$DISTPATH/nesicide.app \
+        $DISTPATH/famitracker.app \
+        $DISTPATH/famiplayer.app \
+        $DISTPATH/nes-emulator.app"
 
 GIT_REV=`git rev-parse --short HEAD`
 
 TARGARGS=-dmg
 
-if [ "$TRAVIS_BUILD_DIR" == "" ]; then
-  TRAVIS_BUILD_DIR=.
-fi
-
 if [ "$1" == "local" ]; then
-  rm -rf $TRAVIS_BUILD_DIR/dist
-  mkdir $TRAVIS_BUILD_DIR/dist
+  rm -rf $DISTPATH
+  mkdir $DISTPATH
   for DEPLOY in ${DEPLOYS_SRC}
   do
-    cp -r ${DEPLOY} $TRAVIS_BUILD_DIR/dist/
+    cp -r ${DEPLOY} $DISTPATH/
   done
   for DEPLOY in ${DEPLOYS_DEST}
   do
     echo Deploying ${DEPLOY}
-    if [ "$DEPLOY" == "dist/nesicide.app" ]; then
+    if [ "$DEPLOY" == "$DISTPATH/nesicide.app" ]; then
       make -C deps/cc65/src all
       make -C deps/cc65/libsrc nes c64
-      make -C deps/cc65 install PREFIX=$TRAVIS_BUILD_DIR/${DEPLOY}/Contents/MacOS/cc65 
+      make -C deps/cc65 install PREFIX=${DEPLOY}/Contents/MacOS/cc65 
+      cp -rv deps/uc65-release-0.5-rc6 ${DEPLOY}/Contents/MacOS/
     fi
     macdeployqt ${DEPLOY} ${TARGARGS}
     mv -v ${DEPLOY/%.app/.dmg} ${DEPLOY/%.app}-${GIT_REV}.dmg
   done
 elif [ "$1" == "remote" ]; then
-  rsync $TRAVIS_BUILD_DIR/dist/*.dmg cpow@162.243.126.83:/var/www/html/nesicide/media/downloads/
+  rsync $DISTPATH/*.dmg cpow@162.243.126.83:/var/www/html/nesicide/media/downloads/
 fi
 

@@ -3,6 +3,7 @@
 # Find Qt
 . /opt/qt510/bin/qt510-env.sh
 
+DISTPATH=$PWD/nesicide-local
 LIBDEPS="deps/rtmidi/release/librtmidi \
      deps/qscintilla2/Qt4Qt5/libqscintilla2_qt5 \
      libs/nes/release/libnes-emulator \
@@ -28,9 +29,9 @@ if [ "$1" == "local" ]; then
   do
     DIST=$(basename $DEPLOY) 
     echo Deploying ${DIST}
-    rm -rf ./dist
-    mkdir -pv ./dist
-    cp -v ${DEPLOY} ./dist/
+    rm -rf $DISTPATH
+    mkdir -pv $DISTPATH
+    cp -v ${DEPLOY} $DISTPATH/
     for f in ${LIBDEPS}
     do 
       sudo cp -v ${f}* /usr/lib/x86_64-linux-gnu/
@@ -38,14 +39,15 @@ if [ "$1" == "local" ]; then
     if [ "$DEPLOY" == "apps/ide/release/nesicide" ]; then
       make -C deps/cc65/src all
       make -C deps/cc65/libsrc nes c64
-      make -C deps/cc65 install PREFIX=$TRAVIS_BUILD_DIR/dist/cc65
+      make -C deps/cc65 install PREFIX=$DISTPATH/cc65
+      cp -rv deps/uc65-release-0.5-rc6 $DISTPATH/
     fi
-    cp -v build/${DIST}.desktop ./dist
-    cp -v build/${DIST}.png ./dist
-    ./linuxdeployqt-continuous-x86_64.AppImage ./dist/${DIST}.desktop ${TARGARGS}
+    cp -v build/${DIST}.desktop $DISTPATH
+    cp -v build/${DIST}.png $DISTPATH
+    ./linuxdeployqt-continuous-x86_64.AppImage $DISTPATH/${DIST}.desktop ${TARGARGS}
   done
 elif [ "$1" == "remote" ]; then
-  rsync $TRAVIS_BUILD_DIR/{fami,nes}*.AppImage cpow@162.243.126.83:/var/www/html/nesicide/media/downloads/
+  rsync $DISTPATH/{fami,nes}*.AppImage cpow@162.243.126.83:/var/www/html/nesicide/media/downloads/
 fi
 
 exit 0

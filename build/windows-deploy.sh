@@ -1,12 +1,12 @@
 PATH=deps/Windows/GnuWin32/bin:$PATH
 
-DISTPATH=./nesicide-local
+DISTPATH=$PWD/nesicide-local
 REMOTEPATH=nesicide-win-x86
 if [ "$APPVEYOR_REPO_COMMIT" != "" ]; then
      COMMIT_SHORT=${APPVEYOR_REPO_COMMIT:0:7}
 fi
 if [ "$COMMIT_SHORT" != "" ]; then
-     DISTPATH=./nesicide-$COMMIT_SHORT
+     DISTPATH=$PWD/nesicide-$COMMIT_SHORT
      REMOTEPATH+=-$COMMIT_SHORT
 fi
 
@@ -49,7 +49,8 @@ if [ "$1" == "local" ]; then
   done
   make -C deps/cc65/src all
   make -C deps/cc65/libsrc nes c64
-  make -C deps/cc65 install PREFIX=$PWD/$DISTPATH/cc65
+  make -C deps/cc65 install PREFIX=$DISTPATH/cc65
+  cp -rv deps/uc65-release-0.5-rc6 $DISTPATH/
   for DEPLOY in ${DEPLOYS_DEST}
   do
     DIST=$(basename $DEPLOY) 
