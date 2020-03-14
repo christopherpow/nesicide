@@ -1984,7 +1984,15 @@ void MainWindow::explodeTemplate(int level,QString templateName,QString projectN
          localDirTemp += "/";
       }
       localDir.mkpath(localDirTemp);
-      localDirTemp += fileInfo.fileName().replace(QRegExp("_in$"),"");
+      if ( fileInfo.fileName().contains("nesproject_in") )
+      {
+         localDirTemp += fileInfo.fileName().replace("template",projectName);
+      }
+      else
+      {
+         localDirTemp += fileInfo.fileName();
+      }
+      localDirTemp = localDirTemp.replace(QRegExp("_in$"),"");
 
       localDirTemp.replace(templateName,projectName);
 
@@ -2007,13 +2015,13 @@ void MainWindow::explodeTemplate(int level,QString templateName,QString projectN
             // If this is the project file, spit out the name and replace <!...!>'s.
             if ( !fileInfo.suffix().compare("nesproject_in",Qt::CaseInsensitive) )
             {
-               templateFileContent.replace("<!project-title!>",nesicideProject->getProjectTitle().toUtf8());
+               templateFileContent.replace("<!project-title!>",projectName.toUtf8());
                templateFileContent.replace("<!project-mapper!>",QString::number(nesicideProject->getCartridge()->getMapperNumber()).toUtf8());
                (*projectFileName) = localFile.fileName();
             }
             else if ( !fileInfo.suffix().compare("c64project_in",Qt::CaseInsensitive) )
             {
-               templateFileContent.replace("<!project-title!>",nesicideProject->getProjectTitle().toUtf8());
+               templateFileContent.replace("<!project-title!>",projectName.toUtf8());
                templateFileContent.replace("<!project-mapper!>",QString::number(nesicideProject->getCartridge()->getMapperNumber()).toUtf8());
                (*projectFileName) = localFile.fileName();
             }

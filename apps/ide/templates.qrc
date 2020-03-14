@@ -21,11 +21,11 @@
         <file>templates/NES/Hello World - UC/data/graphics.chr</file>
         <file>templates/NES/Hello World - UC/data/graphics.nam</file>
         <file>templates/NES/Hello World - UC/data/graphics.pal</file>
-        <file>templates/NES/Hello World - CA65 Assembly/Hello World.nesproject_in</file>
-        <file>templates/NES/Hello World - CC65 C/Hello World.nesproject_in</file>
-        <file>templates/NES/Hello World - UC/Hello World.nesproject_in</file>
         <file>templates/NES/Hello World - CA65 Assembly/header.s_in</file>
         <file>templates/NES/Hello World - CC65 C/header.s_in</file>
         <file>templates/NES/Hello World - UC/header.s_in</file>
+        <file>templates/NES/Hello World - CA65 Assembly/template.nesproject_in</file>
+        <file>templates/NES/Hello World - CC65 C/template.nesproject_in</file>
+        <file>templates/NES/Hello World - UC/template.nesproject_in</file>
     </qresource>
 </RCC>
