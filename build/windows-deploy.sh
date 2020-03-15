@@ -51,6 +51,9 @@ if [ "$1" == "local" ]; then
   make -C deps/cc65/libsrc nes c64
   make -C deps/cc65 install PREFIX=$DISTPATH/cc65
   cp -rv deps/uc65-release-0.5-rc6 $DISTPATH/
+  make -C tools/famitone2 all
+  make -C tools/famitone2 install PREFIX=$DISTPATH/famitone2
+
   for DEPLOY in ${DEPLOYS_DEST}
   do
     DIST=$(basename $DEPLOY) 

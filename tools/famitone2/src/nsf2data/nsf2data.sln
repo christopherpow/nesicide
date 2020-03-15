@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual C++ Express 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nsf2data", "nsf2data.vcproj", "{EC7F6809-074A-441D-8F57-8F89E98F7D5B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EC7F6809-074A-441D-8F57-8F89E98F7D5B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{EC7F6809-074A-441D-8F57-8F89E98F7D5B}.Debug|Win32.Build.0 = Debug|Win32
+		{EC7F6809-074A-441D-8F57-8F89E98F7D5B}.Release|Win32.ActiveCfg = Release|Win32
+		{EC7F6809-074A-441D-8F57-8F89E98F7D5B}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
