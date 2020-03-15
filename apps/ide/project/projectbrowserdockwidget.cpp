@@ -123,6 +123,8 @@ bool ProjectBrowserDockWidget::eventFilter(QObject *watched, QEvent *event)
       {
          QTreeWidgetItem* item = ui->openProjectItems->topLevelItem(idx);
          item->setIcon(1,QIcon());
+         item->setBackgroundColor(0,QColor(255,255,255,255));
+         item->setBackgroundColor(1,QColor(255,255,255,255));
       }
    }
 }
@@ -149,10 +151,14 @@ void ProjectBrowserDockWidget::openItems_itemEntered(QTreeWidgetItem* item,int c
       idx2 = ui->openProjectItems->indexOfTopLevelItem(item2);
       if ( idx1 == idx2 )
       {
+         item2->setBackgroundColor(0,QColor(248,248,248,255));
+         item2->setBackgroundColor(1,QColor(248,248,248,255));
          item2->setIcon(1,QIcon(":/resources/edit_delete.png"));
       }
       else
       {
+         item2->setBackgroundColor(0,QColor(255,255,255,255));
+         item2->setBackgroundColor(1,QColor(255,255,255,255));
          item2->setIcon(1,QIcon());
       }
    }

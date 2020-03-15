@@ -37,6 +37,7 @@ private:
    QsciLexer* m_lexer;
 
 private slots:
+   void linesChanged();
    void applyProjectPropertiesToTab();
    void updateTargetMachine(QString /*target*/) {}
 };

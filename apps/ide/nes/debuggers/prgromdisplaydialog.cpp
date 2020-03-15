@@ -34,6 +34,8 @@ PRGROMDisplayDialog::PRGROMDisplayDialog(uint8_t* bankData,IProjectTreeViewItem*
 
    m_scintilla = new QsciScintilla();
 
+   QObject::connect(m_scintilla, SIGNAL(linesChanged()), this, SLOT(linesChanged()));
+
    m_lexer = new QsciLexerBin(m_scintilla);
 
    m_scintilla->setLexer(m_lexer);
@@ -65,7 +67,7 @@ PRGROMDisplayDialog::PRGROMDisplayDialog(uint8_t* bankData,IProjectTreeViewItem*
    m_scintilla->setMarginLineNumbers(Margin_LineNumbers,true);
    m_scintilla->setMarginWidth(Margin_LineNumbers,0);
    m_scintilla->setMarginMarkerMask(Margin_LineNumbers,0x00000000);
-   m_scintilla->setMarginType(Margin_LineNumbers,QsciScintilla::NumberMargin);
+   m_scintilla->setMarginType(Margin_LineNumbers,QsciScintilla::TextMargin);
    m_scintilla->setMarginSensitivity(Margin_LineNumbers,false);
 
    m_scintilla->setSelectionBackgroundColor(QColor(215,215,215));
@@ -84,7 +86,7 @@ PRGROMDisplayDialog::PRGROMDisplayDialog(uint8_t* bankData,IProjectTreeViewItem*
 
    QString maxLineNum;
 
-   maxLineNum.sprintf("%d",m_scintilla->lines());
+   maxLineNum.sprintf("%d",m_scintilla->lines()<<4);
 
    m_scintilla->setMarginWidth(Margin_LineNumbers,maxLineNum);
    
@@ -110,6 +112,16 @@ void PRGROMDisplayDialog::changeEvent(QEvent* e)
          break;
       default:
          break;
+   }
+}
+
+void PRGROMDisplayDialog::linesChanged()
+{
+   int line;
+
+   for ( line = 0; line < m_scintilla->lines(); line++ )
+   {
+      m_scintilla->setMarginText(line,QString("%1").arg(line<<4,4,16,QChar('0')),QsciScintillaBase::STYLE_LINENUMBER);
    }
 }
 
