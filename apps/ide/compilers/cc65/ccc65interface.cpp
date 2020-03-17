@@ -5,6 +5,8 @@
 
 #include "dbg_cnes6502.h"
 
+#include "model/projectsearcher.h"
+
 #include "main.h"
 
 CCC65Interface *CCC65Interface::_instance = NULL;
@@ -58,47 +60,44 @@ void CCC65Interface::clear()
 
 QStringList CCC65Interface::getAssemblerSourcesFromProject()
 {
-   IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
-   QDir                         baseDir(QDir::currentPath());
-   CSourceItem*                 source;
-   QStringList                  sources;
-   QStringList                  extensions = EnvironmentSettingsDialog::sourceExtensionsForAssembly().split(" ", QString::SkipEmptyParts);
+   QDir                baseDir(QDir::currentPath());
+   QStringList         extensions = EnvironmentSettingsDialog::sourceExtensionsForAssembly().split(" ", QString::SkipEmptyParts);
+   QList<CSourceItem*> projectSources = ProjectSearcher::findItemsOfType<CSourceItem>(nesicideProject);
+   QStringList         includedSources;
 
    // For each source code object, compile it.
-   while ( iter.current() )
+   foreach ( CSourceItem* source, projectSources )
    {
-      source = dynamic_cast<CSourceItem*>(iter.current());
       foreach ( QString extension, extensions )
       {
-         if ( source && source->path().endsWith(extension,Qt::CaseInsensitive) )
+         if ( source->includeInBuild() &&
+              source->path().endsWith(extension,Qt::CaseInsensitive) )
          {
-            sources.append(baseDir.fromNativeSeparators(baseDir.relativeFilePath(source->path())));
+            includedSources.append(baseDir.fromNativeSeparators(baseDir.relativeFilePath(source->path())));
          }
       }
-      iter.next();
    }
 
-   return sources;
+   return includedSources;
 }
 
 QStringList CCC65Interface::getCLanguageSourcesFromProject()
 {
-   IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
-   QDir                         baseDir(QDir::currentPath());
-   CSourceItem*                 source;
-   QStringList                  sources;
-   QStringList                  extensions = EnvironmentSettingsDialog::sourceExtensionsForC().split(" ", QString::SkipEmptyParts);
-   QStringList                  headerExtensions = EnvironmentSettingsDialog::headerExtensions().split(" ", QString::SkipEmptyParts);
-   bool                         add;
+   QDir                baseDir(QDir::currentPath());
+   QStringList         extensions = EnvironmentSettingsDialog::sourceExtensionsForC().split(" ", QString::SkipEmptyParts);
+   QStringList         headerExtensions = EnvironmentSettingsDialog::headerExtensions().split(" ", QString::SkipEmptyParts);
+   bool                add;
+   QList<CSourceItem*> projectSources = ProjectSearcher::findItemsOfType<CSourceItem>(nesicideProject);
+   QStringList         includedSources;
 
    // For each source code object, compile it.
-   while ( iter.current() )
+   foreach ( CSourceItem* source, projectSources )
    {
-      source = dynamic_cast<CSourceItem*>(iter.current());
       add = true;
       foreach ( QString extension, extensions )
       {
-         if ( source && source->path().endsWith(extension,Qt::CaseInsensitive) )
+         if ( source->includeInBuild() &&
+              source->path().endsWith(extension,Qt::CaseInsensitive) )
          {
             foreach ( QString headerExtension, headerExtensions )
             {
@@ -111,34 +110,32 @@ QStringList CCC65Interface::getCLanguageSourcesFromProject()
 
             if ( add )
             {
-               sources.append(baseDir.fromNativeSeparators(baseDir.relativeFilePath(source->path())));
+               includedSources.append(baseDir.fromNativeSeparators(baseDir.relativeFilePath(source->path())));
             }
          }
       }
-      iter.next();
    }
 
-   return sources;
+   return includedSources;
 }
 
 QStringList CCC65Interface::getCustomSourcesFromProject()
 {
-   IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
-   QDir                         baseDir(QDir::currentPath());
-   CSourceItem*                 source;
-   QStringList                  sources;
-   QStringList                  extensions = EnvironmentSettingsDialog::customExtensions().split(" ", QString::SkipEmptyParts);
-   QStringList                  headerExtensions = EnvironmentSettingsDialog::headerExtensions().split(" ", QString::SkipEmptyParts);
-   bool                         add;
+   QDir                baseDir(QDir::currentPath());
+   QStringList         extensions = EnvironmentSettingsDialog::customExtensions().split(" ", QString::SkipEmptyParts);
+   QStringList         headerExtensions = EnvironmentSettingsDialog::headerExtensions().split(" ", QString::SkipEmptyParts);
+   bool                add;
+   QList<CSourceItem*> projectSources = ProjectSearcher::findItemsOfType<CSourceItem>(nesicideProject);
+   QStringList         includedSources;
 
    // For each source code object, compile it.
-   while ( iter.current() )
+   foreach ( CSourceItem* source, projectSources )
    {
-      source = dynamic_cast<CSourceItem*>(iter.current());
       add = true;
       foreach ( QString extension, extensions )
       {
-         if ( source && source->path().endsWith(extension,Qt::CaseInsensitive) )
+         if ( source->includeInBuild() &&
+              source->path().endsWith(extension,Qt::CaseInsensitive) )
          {
             foreach ( QString headerExtension, headerExtensions )
             {
@@ -151,14 +148,13 @@ QStringList CCC65Interface::getCustomSourcesFromProject()
 
             if ( add )
             {
-               sources.append(baseDir.fromNativeSeparators(baseDir.relativeFilePath(source->path())));
+               includedSources.append(baseDir.fromNativeSeparators(baseDir.relativeFilePath(source->path())));
             }
          }
       }
-      iter.next();
    }
 
-   return sources;
+   return includedSources;
 }
 
 bool CCC65Interface::createMakefile()

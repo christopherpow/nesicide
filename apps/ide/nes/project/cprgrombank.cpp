@@ -27,7 +27,7 @@ bool CPRGROMBank::deserialize(QDomDocument& /*doc*/, QDomNode& /*node*/, QString
 
 QString CPRGROMBank::caption() const
 {
-   return "PRG Bank " + QString::number(m_bankIndex, 10);
+   return "PRG Bank " + QString("%1").arg(m_bankIndex,2,16,QChar('0'));
 }
 
 void CPRGROMBank::openItemEvent(CProjectTabWidget* tabWidget)

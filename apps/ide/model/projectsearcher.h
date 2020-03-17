@@ -56,7 +56,6 @@ QList<T*> findItemsOfType(CNesicideProject* project)
    return items;
 }
 
-
 template<class T>
 T* findItemByUuid(CNesicideProject* project, const QUuid& uuid)
 {

@@ -24,6 +24,7 @@ CNesicideProject::CNesicideProject()
    m_isDirty = false;
 
    m_projectTitle = "(No project loaded)";
+   m_projectAddOns.clear();
    setProjectOutputBasePath(".");
    setProjectOutputName("");
    m_projectHeaderFileName = PROJECT_HEADER_FILE;
@@ -77,6 +78,7 @@ void CNesicideProject::initializeProject()
    // Initialize this node's attributes
    m_projectPaletteEntries.clear();
    m_sourceSearchPaths.clear();
+   m_projectAddOns.clear();
 
    // Palette is target-dependent!
    if ( !m_projectTarget.compare("nes",Qt::CaseInsensitive) )
@@ -188,6 +190,7 @@ void CNesicideProject::terminateProject()
    // Notify the fact that the project data is no longer valid
    m_projectFileName = "(unset)";
    m_projectTitle = "(No project loaded)";
+   m_projectAddOns.clear();
    setProjectOutputBasePath(".");
    setProjectOutputName("");
    m_projectHeaderFileName = PROJECT_HEADER_FILE;
@@ -222,6 +225,7 @@ bool CNesicideProject::serialize(QDomDocument& doc, QDomNode& node)
    projectElement.setAttribute("version", "0.3");
    projectElement.setAttribute("target", m_projectTarget);
    projectElement.setAttribute("title", m_projectTitle);
+   projectElement.setAttribute("addon-uris",m_projectAddOns.join(","));
 
    // Create the project configuration node.
    QDomElement propertiesElement = addElement(doc,projectElement,"properties");
@@ -367,6 +371,8 @@ bool CNesicideProject::deserialize(QDomDocument& doc, QDomNode& /*node*/, QStrin
    // Load our properties. Note that the default value is returned if an attribute is missing.
    // This is the expected behavior.
    m_projectTitle = projectElement.attribute("title","Untitled");
+
+   m_projectAddOns = projectElement.attribute("addon-uris").split(",");
 
    // Initialize the palette.
    if ( !m_projectTarget.compare("nes",Qt::CaseInsensitive) )

@@ -48,6 +48,11 @@ bool CSourceItem::serialize(QDomDocument& doc, QDomNode& node)
    element.setAttribute("path",m_path);
    element.setAttribute("uuid",uuid());
 
+   // Create the file configuration node.
+   QDomElement propertiesElement = addElement(doc,element,"properties");
+
+   propertiesElement.setAttribute("includeinbuild",m_includeInBuild);
+
    return serializeContent();
 }
 
@@ -105,6 +110,21 @@ bool CSourceItem::deserialize(QDomDocument&, QDomNode& node, QString& errors)
    m_path = element.attribute("path");
 
    setUuid(element.attribute("uuid"));
+
+   // Now loop through the child elements and process the ones we find
+   QDomNode child = element.firstChild();
+
+   do
+   {
+      if (child.nodeName() == "properties")
+      {
+         // Get the properties that are just attributes of the main node.
+         QDomElement propertiesElement = child.toElement();
+
+         m_includeInBuild = propertiesElement.attribute("includeinbuild").toInt();
+      }
+   }
+   while (!(child = child.nextSibling()).isNull());
 
    return deserializeContent();
 }

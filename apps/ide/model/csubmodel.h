@@ -20,7 +20,7 @@ public:
    virtual QList<QUuid> getUuids() const=0;
 
    // Get the name of an object.
-   virtual QString getName(const QUuid&)const=0;
+   virtual QString getName(const QUuid&) const=0;
 
    // Workaround methods.
    virtual CDesignerEditorBase* createEditorWidget(const QUuid& uuid) const=0;

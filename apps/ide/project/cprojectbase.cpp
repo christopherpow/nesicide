@@ -8,6 +8,7 @@ CProjectBase::CProjectBase()
    m_path = "";
    m_editor = NULL;
    m_deleted = false;
+   m_includeInBuild = true;
 }
 
 CProjectBase::~CProjectBase()

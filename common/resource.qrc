@@ -178,5 +178,6 @@
         <file>resources/RightArrow.ico</file>
         <file>resources/NESICIDE.mk_in</file>
         <file>resources/icons8-pin.png</file>
+        <file>resources/icons8-swiss_army_knife.png</file>
     </qresource>
 </RCC>

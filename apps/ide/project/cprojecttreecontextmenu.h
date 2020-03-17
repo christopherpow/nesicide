@@ -48,6 +48,8 @@ private slots:
    void newScreen();
    void newMusicFile();
 
+   void fileProperties();
+
    void addBinaryFile();
    void addSourceFile();
    void addMusicFile();

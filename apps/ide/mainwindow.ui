@@ -180,6 +180,7 @@
     <addaction name="actionLoad_In_Emulator"/>
     <addaction name="actionClean_Project"/>
     <addaction name="separator"/>
+    <addaction name="actionManage_Add_Ons"/>
     <addaction name="actionProject_Properties"/>
    </widget>
    <widget class="QMenu" name="menu_Help">
@@ -305,6 +306,7 @@
    <addaction name="actionOutput_Window"/>
    <addaction name="separator"/>
    <addaction name="actionProject_Properties"/>
+   <addaction name="actionManage_Add_Ons"/>
    <addaction name="separator"/>
   </widget>
   <widget class="QStatusBar" name="appStatusBar">
@@ -590,6 +592,15 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+D</string>
+   </property>
+  </action>
+  <action name="actionManage_Add_Ons">
+   <property name="icon">
+    <iconset resource="../../common/resource.qrc">
+     <normaloff>:/resources/icons8-swiss_army_knife.png</normaloff>:/resources/icons8-swiss_army_knife.png</iconset>
+   </property>
+   <property name="text">
+    <string>Manage Add-Ons...</string>
    </property>
   </action>
  </widget>

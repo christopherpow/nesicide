@@ -37,6 +37,7 @@ public:
    QString getProjectFileName() { return m_projectFileName; }
    QString getProjectTarget() { return m_projectTarget; }
    QString getProjectTitle() { return m_projectTitle; }
+   QStringList getProjectAddOns() { return m_projectAddOns; }
    QString getProjectOutputBasePath() { return m_projectOutputBasePath; }
    QString getProjectOutputName() { return m_projectOutputName; }
    QString getProjectHeaderFileName() { return m_projectHeaderFileName; }
@@ -93,6 +94,7 @@ public:
          m_projectCartridgeSaveStateName = "";
       }
    }
+   void setProjectAddOns(QStringList list) { m_projectAddOns = list; }
    void setProjectOutputBasePath(QString value)
    {
       if (!value.isEmpty()) m_projectOutputBasePath = value; else m_projectOutputBasePath=".";
@@ -148,6 +150,7 @@ private:
    QString m_projectFileName;
    QString m_projectTarget;
    QString m_projectTitle;
+   QStringList m_projectAddOns;
    QString m_projectOutputBasePath;
    QString m_projectOutputName;
    QString m_projectHeaderFileName;

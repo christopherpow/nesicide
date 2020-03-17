@@ -21,6 +21,9 @@ public:
    // Remove a source file from the project.
    void removeSourceFile(const QUuid& uuid);
 
+   // Properties handler.
+   void fileProperties(const QUuid& uuid);
+
    QList<QUuid> getUuids() const;
    QString      getName(const QUuid &uuid) const;
 

@@ -260,6 +260,7 @@ SOURCES += \
    aboutdialog.cpp \
    common/cbuildertextlogger.cpp \
    common/cdockwidgetregistry.cpp \
+   designers/filepropertiesdialog.cpp \
    nes/common/cgamedatabasehandler.cpp \
    common/checkboxlist.cpp \
    nes/common/chrbankitemstabwidget.cpp \
@@ -408,6 +409,7 @@ HEADERS += \
    common/cbuildertextlogger.h \
    common/cdesignercommon.h \
    common/cdockwidgetregistry.h \
+   designers/filepropertiesdialog.h \
    nes/common/cgamedatabasehandler.h \
    common/checkboxlist.h \
    nes/common/chrbankitemstabwidget.h \
@@ -561,6 +563,7 @@ HEADERS += \
 
 FORMS += \
    aboutdialog.ui \
+   designers/filepropertiesdialog.ui \
    nes/common/chrbankitemstabwidget.ui \
    nes/emulator/nesemulatorcontrol.ui \
    c64/emulator/c64emulatorcontrol.ui \
@@ -606,5 +609,6 @@ FORMS += \
     designers/newfiledialog.ui
 
 RESOURCES += \
+    addons.qrc \
     templates.qrc \
     ../../common/resource.qrc

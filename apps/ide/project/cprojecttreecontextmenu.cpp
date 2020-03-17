@@ -18,6 +18,7 @@
 #include <QInputDialog>
 #include <QFileDialog>
 
+#include "filepropertiesdialog.h"
 
 const int INVALID_ACTION = -1;
 
@@ -33,6 +34,7 @@ const QString ADD_EXISTING_ACTION         = "Add Existing";
 const QString ADD_ITEM_ACTION             = "Add %1...";
 const QString INSERT_FILTER_ACTION        = "Insert Filter here...";
 
+const QString FILE_PROPERTIES_ACTION      = "Properties of \"%1\"";
 
 const QString CONFIRM_REMOVE_CAPTION      = "Remove from Project";
 const QString CONFIRM_REMOVE_TEXT         = "Are you sure you want to remove \"%1\" from the project?";
@@ -118,6 +120,8 @@ void CProjectTreeContextMenu::visit(CSourceFileUuid &data)
    QString name = m_project->getSourceFileModel()->getFileName(data.uuid);
 
    QMenu menu(m_parent);
+   menu.addAction(FILE_PROPERTIES_ACTION.arg(name), this, SLOT(fileProperties()));
+   menu.addSeparator();
    menu.addAction(REMOVE_ACTION.arg(name), this, SLOT(removeSourceFile()));
    appendGlobalMenuItems(&menu);
    menu.exec(m_position);
@@ -303,6 +307,11 @@ void CProjectTreeContextMenu::addSourceFile()
          m_project->getSourceFileModel()->addExistingSourceFile(fileName);
       }
    }
+}
+
+void CProjectTreeContextMenu::fileProperties()
+{
+   m_project->getSourceFileModel()->fileProperties(m_targetUuid);
 }
 
 void CProjectTreeContextMenu::addMusicFile()

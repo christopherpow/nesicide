@@ -21,20 +21,25 @@ public:
       parentItem = parent;
       ident = new QUuid();
       (*ident) = QUuid::createUuid();
-      if ( iconResource.isEmpty() )
-      {
-         _icon = QIcon(":/resources/RR_page_white.png");
-      }
-      else
-      {
-         _icon = QIcon(iconResource);
-      }
+//      if ( iconResource.isEmpty() )
+//      {
+//         _icon = QIcon(":/resources/RR_page_white.png");
+//      }
+//      else
+//      {
+//         _icon = QIcon(iconResource);
+//      }
    }
 
-   QIcon icon()
-   {
-      return _icon;
-   }
+//   QIcon icon()
+//   {
+//      return _icon;
+//   }
+
+//   void setIcon(QString iconFile)
+//   {
+//      _icon = QIcon(iconFile);
+//   }
 
    QString uuid()
    {

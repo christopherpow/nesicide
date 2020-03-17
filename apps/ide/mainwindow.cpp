@@ -1740,6 +1740,7 @@ void MainWindow::projectDataChangesEvent()
    action_Project_Browser->setEnabled(nesicideProject->isInitialized());
    action_Close_Project->setEnabled(nesicideProject->isInitialized());
    actionCompile_Project->setEnabled(nesicideProject->isInitialized());
+   actionManage_Add_Ons->setEnabled(nesicideProject->isInitialized());
    actionSave_Project->setEnabled(nesicideProject->isInitialized());
    actionSave_Project_As->setEnabled(nesicideProject->isInitialized());
    actionClean_Project->setEnabled(nesicideProject->isInitialized());
@@ -1965,6 +1966,68 @@ void MainWindow::on_actionProject_Properties_triggered()
    }
 
    emit applyProjectProperties();
+}
+
+void MainWindow::explodeAddOn(int level,QString projectName,QString addonDirName,QString localDirName)
+{
+   QDir addonDir(addonDirName);
+   QDir localDir;
+   QString localDirTemp;
+   QFileInfoList addonFileInfos = addonDir.entryInfoList();
+
+   foreach ( QFileInfo fileInfo, addonFileInfos )
+   {
+      localDirTemp = localDirName;
+      // level 1 tells us what kind of object is being added
+      if ( level != 0 )
+      {
+         localDirTemp += "/";
+         localDirTemp += fileInfo.fileName();
+      }
+      localDirTemp = localDirTemp.replace(QRegExp("_in$"),"");
+      localDirTemp = localDirTemp.replace("_includeInBuild","");
+
+      if ( fileInfo.isDir() )
+      {
+         explodeAddOn(level+1,projectName,fileInfo.filePath(),localDirTemp);
+      }
+      else
+      {
+         if ( level > 0 )
+         {
+            // Save the file locally.
+            QFile addonFile(fileInfo.filePath());
+            QFile localFile(localDirTemp);
+            QByteArray addonFileContent;
+
+            if ( addonFile.open(QIODevice::ReadOnly) &&
+                 localFile.open(QIODevice::ReadWrite|QIODevice::Truncate) )
+            {
+               addonFileContent = addonFile.readAll();
+
+               addonFileContent.replace("<!project-title!>",projectName.toUtf8());
+
+               localFile.write(addonFileContent);
+
+               if ( fileInfo.filePath().contains("Source Code") )
+               {
+                  CSourceItem *source = nesicideProject->getProject()->getSources()->addSourceFile(localFile.fileName());
+                  if ( fileInfo.filePath().endsWith("_includeInBuild") )
+                  {
+                     source->setIncludeInBuild(false);
+                  }
+               }
+               else
+               {
+                  // what?
+               }
+            }
+
+            addonFile.close();
+            localFile.close();
+         }
+      }
+   }
 }
 
 void MainWindow::explodeTemplate(int level,QString templateName,QString projectName,QString templateDirName,QString localDirName,QString* projectFileName)
@@ -3907,4 +3970,31 @@ void MainWindow::on_actionExit_triggered()
 {
    // Closing the main window kills the app
    close();
+}
+
+void MainWindow::on_actionManage_Add_Ons_triggered()
+{
+   QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+   NewProjectDialog dlg("Add-Ons","Untitled",settings.value("LastProjectBasePath").toString(),true);
+   QStringList originalAddOns = nesicideProject->getProjectAddOns();
+
+   if (dlg.exec() == QDialog::Accepted)
+   {
+      m_pProjectBrowser->disableNavigation();
+
+      QStringList newAddOns = dlg.getAddOns();
+
+      if ( originalAddOns != newAddOns )
+      {
+         foreach ( QString addon_uri, newAddOns )
+         {
+            explodeAddOn(0,nesicideProject->getProjectTitle(),addon_uri,QDir::currentPath());
+         }
+      }
+
+      emit applyProjectProperties();
+
+      m_pProjectBrowser->enableNavigation();
+      projectDataChangesEvent();
+   }
 }

@@ -209,6 +209,7 @@ private:
    void saveProject(QString fileName);
    void saveEmulatorState(QString fileName);
    bool closeProject();
+   void explodeAddOn(int level,QString projectName,QString addonDirName,QString localDirName);
    void explodeTemplate(int level,QString templateName,QString projectName,QString templateDirName,QString localDirName,QString* projectFileName);
    void explodeINESHeaderTemplate(QString templateName,QString projectName,QString templateDirName,QString localDirName);
    void updateFromEmulatorPrefs(bool initial);
@@ -348,6 +349,8 @@ public slots:
    void actionBinSIDRegister_Inspector_triggered();
    void on_actionCoding_Mode_triggered();
    void on_actionDebugging_Mode_triggered();
+private slots:
+   void on_actionManage_Add_Ons_triggered();
 };
 
 #endif // MAINWINDOW_H

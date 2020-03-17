@@ -4,6 +4,8 @@
 #include "cdockwidgetregistry.h"
 #include "ccc65interface.h"
 
+#include "model/projectsearcher.h"
+
 #include "main.h"
 
 #include <QToolButton>
@@ -240,9 +242,7 @@ void CProjectTabWidget::snapToTab(QString item)
    QStringList splits;
    uint32_t addr;
    uint32_t absAddr;
-   IProjectTreeViewItemIterator iter;
-   IProjectTreeViewItem* treeItem;
-   CSourceItem* pSource;
+   QList<CSourceItem*> sources = ProjectSearcher::findItemsOfType<CSourceItem>(nesicideProject);
    bool found = false;
    bool open = false;
    QDir dir;
@@ -318,6 +318,7 @@ void CProjectTabWidget::snapToTab(QString item)
       // File is not open, search the project.
       if ( !found )
       {
+         IProjectTreeViewItem* treeItem;
          treeItem = findProjectItem(uuid);
          if ( treeItem )
          {
@@ -353,21 +354,15 @@ void CProjectTabWidget::snapToTab(QString item)
       // File is not open, search the project.
       if ( !found )
       {
-         iter.reset(nesicideProject->getProject()->getSources());
-         while ( iter.current() )
+         foreach ( CSourceItem* source, sources )
          {
-            pSource = dynamic_cast<CSourceItem*>(iter.current());
-            if ( pSource )
+            if ( source->path() == file )
             {
-               if ( pSource->path() == file )
-               {
-                  pSource->openItemEvent(this);
-                  found = true;
-                  open = true;
-                  break;
-               }
+               source->openItemEvent(this);
+               found = true;
+               open = true;
+               break;
             }
-            iter.next();
          }
       }
 

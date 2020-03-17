@@ -31,7 +31,7 @@ bool CCHRROMBank::deserialize(QDomDocument& /*doc*/, QDomNode& /*node*/, QString
 
 QString CCHRROMBank::caption() const
 {
-   return "CHR Bank " + QString::number(m_bankIndex, 10);
+   return "CHR Bank " + QString("%1").arg(m_bankIndex,2,16,QChar('0'));
 }
 
 // CPTODO: CHECK TO MAKE SURE THIS IS IN NEW INFRASTRUCTURE JSOLO

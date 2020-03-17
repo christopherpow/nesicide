@@ -21,6 +21,9 @@ public:
    void setEditor(CDesignerEditorBase* editor) { m_editor = editor; }
    CDesignerEditorBase* editor() { return m_editor; }
 
+   void setIncludeInBuild(bool include) { m_includeInBuild = include; }
+   bool includeInBuild() { return m_includeInBuild; }
+
    void markForDeletion() { m_deleted = true; }
 
    // IProjectTreeViewItem Interface Implmentation
@@ -36,6 +39,7 @@ protected:
    QString m_name;
    QString m_path;
    bool    m_deleted;
+   bool    m_includeInBuild;
    CDesignerEditorBase* m_editor;
 };
 

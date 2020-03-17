@@ -2,6 +2,7 @@
 #include "model/csourcefilemodel.h"
 #include "model/projectsearcher.h"
 #include "cnesicideproject.h"
+#include "filepropertiesdialog.h"
 
 CSourceFileModel::CSourceFileModel()
    : CSubModel()
@@ -32,6 +33,24 @@ QUuid CSourceFileModel::addExistingSourceFile(const QString &path)
 
    emit sourceFileAdded(file->uuid());
    return file->uuid();
+}
+
+void CSourceFileModel::fileProperties(const QUuid &uuid)
+{
+   if (m_pNesicideProject == NULL)
+      return;
+
+   // Make sure item has correct type before doing anything.
+   CSourceItem* item = ProjectSearcher::findItemByUuid<CSourceItem>(m_pNesicideProject, uuid);
+   if (item == NULL)
+      return;
+
+   FilePropertiesDialog fpd(item);
+   int ret = fpd.exec();
+   if ( ret == QDialog::Accepted )
+   {
+      m_pNesicideProject->setDirty(true);
+   }
 }
 
 void CSourceFileModel::removeSourceFile(const QUuid &uuid)
