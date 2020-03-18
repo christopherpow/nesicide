@@ -769,7 +769,7 @@ void ProjectPropertiesDialog::serializeCustomRules(QString rulesFile)
 {
    if ( rulesFile.isEmpty() )
    {
-      rulesFile = ui->customRuleFiles->currentText().isEmpty();
+      rulesFile = ui->customRuleFiles->currentText();
    }
    if ( !rulesFile.isEmpty() )
    {
