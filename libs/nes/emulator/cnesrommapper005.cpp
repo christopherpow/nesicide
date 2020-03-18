@@ -412,7 +412,7 @@ void CROMMapper005::RESET ( bool soft )
    }
    else
    {
-      m_PRGROMmemory.REMAP(2,2);
+      m_PRGROMmemory.REMAP(2,m_numPrgBanks-2);
    }
    m_PRGROMmemory.REMAP(3,m_numPrgBanks-1);
 }
