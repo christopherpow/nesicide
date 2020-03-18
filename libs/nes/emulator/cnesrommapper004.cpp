@@ -220,7 +220,7 @@ void CROMMapper004::SETCPU ( void )
    else
    {
       m_PRGROMmemory.REMAP(0,m_prg[0]);
-      m_PRGROMmemory.REMAP(1,m_prg[0]);
+      m_PRGROMmemory.REMAP(1,m_prg[1]);
       m_PRGROMmemory.REMAP(2,m_numPrgBanks-2);
       m_PRGROMmemory.REMAP(3,m_numPrgBanks-1);
    }
