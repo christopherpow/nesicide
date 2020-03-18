@@ -27,5 +27,6 @@
         <file>templates/NES/Hello World - CA65 Assembly/template.nesproject_in</file>
         <file>templates/NES/Hello World - CC65 C/template.nesproject_in</file>
         <file>templates/NES/Hello World - UC/template.nesproject_in</file>
+        <file>templates/NES/Hello World - CC65 C/c.mk</file>
     </qresource>
 </RCC>

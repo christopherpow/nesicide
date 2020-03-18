@@ -3,5 +3,6 @@
         <file>addons/NES/FamiTone2/Source Code/famitone2.inc</file>
         <file>addons/NES/FamiTone2/README.HTM</file>
         <file>addons/NES/FamiTone2/Source Code/famitone2.s_includeInBuild</file>
+        <file>addons/NES/FamiTone2/Custom Rules/famitone2.mk</file>
     </qresource>
 </RCC>

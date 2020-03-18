@@ -46,7 +46,7 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget* parent) :
    ui->linkerAdditionalDependencies->setText(nesicideProject->getLinkerAdditionalDependencies());
    ui->linkerConfigFile->setText(nesicideProject->getLinkerConfigFile());
    deserializeLinkerConfig();
-   ui->customRuleFile->setText(nesicideProject->getMakefileCustomRulesFile());
+   ui->customRuleFiles->addItems(nesicideProject->getMakefileCustomRuleFiles());
    deserializeCustomRules();
 
    ui->sourceSearchList->setModel(new QStringListModel(nesicideProject->getSourceSearchPaths()));
@@ -58,7 +58,7 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget* parent) :
       ui->linkerConfig->setText("Select a file to store linker configuration in, then modify it here.");
       ui->linkerConfig->setEnabled(false);
    }
-   if ( ui->customRuleFile->text().isEmpty() )
+   if ( ui->customRuleFiles->currentText().isEmpty() )
    {
       ui->customRules->setText("Select a file to store custom makefile rules in, then modify it here.");
       ui->customRules->setEnabled(false);
@@ -521,7 +521,13 @@ void ProjectPropertiesDialog::on_buttonBox_accepted()
    nesicideProject->setTileProperties(tilePropertyListModel->getItems());
    nesicideProject->setLinkerConfigFile(ui->linkerConfigFile->text());
    serializeLinkerConfig();
-   nesicideProject->setMakefileCustomRulesFile(ui->customRuleFile->text());
+   QStringList customRuleFiles;
+   int idx;
+   for ( idx = 0; idx < ui->customRuleFiles->count(); idx++ )
+   {
+      customRuleFiles += ui->customRuleFiles->itemText(idx);
+   }
+   nesicideProject->setMakefileCustomRuleFiles(customRuleFiles);
    serializeCustomRules();
 
    nesicideProject->getProjectPaletteEntries()->clear();
@@ -759,14 +765,18 @@ void ProjectPropertiesDialog::on_treeWidget_itemSelectionChanged()
    ui->stackedWidget->setCurrentWidget(pageMap[ui->treeWidget->currentItem()->text(0)]);
 }
 
-void ProjectPropertiesDialog::serializeCustomRules()
+void ProjectPropertiesDialog::serializeCustomRules(QString rulesFile)
 {
-   if ( !ui->customRuleFile->text().isEmpty() )
+   if ( rulesFile.isEmpty() )
+   {
+      rulesFile = ui->customRuleFiles->currentText().isEmpty();
+   }
+   if ( !rulesFile.isEmpty() )
    {
       if ( customRulesChanged )
       {
          QDir dir(QDir::currentPath());
-         QFile fileOut(dir.filePath(ui->customRuleFile->text()));
+         QFile fileOut(dir.filePath(ui->customRuleFiles->currentText()));
 
          fileOut.open(QIODevice::ReadWrite|QIODevice::Truncate|QIODevice::Text);
          if ( fileOut.isOpen() )
@@ -776,7 +786,7 @@ void ProjectPropertiesDialog::serializeCustomRules()
          }
          else
          {
-            QMessageBox::critical(0,"File I/O Error", "Could not write custom rules file:\n"+ui->customRuleFile->text());
+            QMessageBox::critical(0,"File I/O Error", "Could not write custom rules file:\n"+rulesFile);
          }
       }
 
@@ -788,9 +798,9 @@ void ProjectPropertiesDialog::deserializeCustomRules()
 {
    QDir dir(QDir::currentPath());
 
-   if ( !ui->customRuleFile->text().isEmpty() )
+   if ( !ui->customRuleFiles->currentText().isEmpty() )
    {
-      QFile fileIn(dir.filePath(ui->customRuleFile->text()));
+      QFile fileIn(dir.filePath(ui->customRuleFiles->currentText()));
 
       if ( fileIn.exists() )
       {
@@ -802,7 +812,7 @@ void ProjectPropertiesDialog::deserializeCustomRules()
          }
          else
          {
-            QMessageBox::critical(0,"File I/O Error", "Could not read custom rules file:\n"+ui->customRuleFile->text());
+            QMessageBox::critical(0,"File I/O Error", "Could not read custom rules file:\n"+ui->customRuleFiles->currentText());
          }
       }
 
@@ -818,12 +828,12 @@ void ProjectPropertiesDialog::on_customRules_textChanged()
 
 void ProjectPropertiesDialog::on_customRuleFileBrowse_clicked()
 {
-   QString value = QFileDialog::getSaveFileName(this,"Custom Rule File",QDir::currentPath());
+   QString value = QFileDialog::getOpenFileName(this,"Custom Rule File",QDir::currentPath());
    QDir dir(QDir::currentPath());
 
    if ( !value.isEmpty() )
    {
-      ui->customRuleFile->setText(dir.fromNativeSeparators(dir.relativeFilePath(value)));
+      ui->customRuleFiles->addItem(dir.fromNativeSeparators(dir.relativeFilePath(value)));
       ui->customRules->setEnabled(true);
       ui->customRules->setText("");
    }
@@ -872,4 +882,22 @@ void ProjectPropertiesDialog::on_linkerConfigFileNew_clicked()
    }
    deserializeLinkerConfig();
 
+}
+
+void ProjectPropertiesDialog::on_customRuleFiles_currentTextChanged(const QString &arg1)
+{
+   if ( customRulesChanged )
+   {
+      serializeCustomRules(currentCustomRulesFile);
+   }
+   currentCustomRulesFile = arg1;
+   deserializeCustomRules();
+}
+
+void ProjectPropertiesDialog::on_customRuleFileRemove_clicked()
+{
+   if ( ui->customRuleFiles->currentIndex() >= 0 )
+   {
+      ui->customRuleFiles->removeItem(ui->customRuleFiles->currentIndex());
+   }
 }

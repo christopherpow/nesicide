@@ -131,7 +131,7 @@ void CMusicItem::openItemEvent(CProjectTabWidget* tabWidget)
    {
       MusicEditorForm* editor = MusicEditorForm::instance();
 
-      // Source Item must know their editor widget due to current architecture.
+      // Music Item must know their editor widget due to current architecture.
       openFile(this->caption());
       editor->setFileName(this->caption());
       editor->setTreeLink(this);
@@ -139,6 +139,23 @@ void CMusicItem::openItemEvent(CProjectTabWidget* tabWidget)
       tabWidget->addTab(m_editor, this->caption());
       tabWidget->setCurrentWidget(m_editor);
    }
+}
+
+bool CMusicItem::exportData()
+{
+   MusicEditorForm* editor = MusicEditorForm::instance();
+
+   // Music Item must know their editor widget due to current architecture.
+   openFile(this->caption());
+   editor->setFileName(this->caption());
+   editor->setTreeLink(this);
+   m_editor = editor;
+
+   bool ok = editor->exportData();
+
+   openFile(NULL);
+
+   return ok;
 }
 
 bool CMusicItem::onNameChanged(QString newName)

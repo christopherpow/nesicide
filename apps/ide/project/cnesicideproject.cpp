@@ -44,32 +44,6 @@ CNesicideProject::~CNesicideProject()
    }
 }
 
-int CNesicideProject::findSource ( char* objname, char** objdata, int* size )
-{
-   IProjectTreeViewItemIterator iter(nesicideProject->getProject()->getSources());
-   CSourceItem* source;
-
-   (*objdata) = NULL;
-   (*size) = 0;
-
-   while ( iter.current() != NULL )
-   {
-      if ( iter.current()->caption() == objname )
-      {
-         source = dynamic_cast<CSourceItem*>(iter.current());
-         if ( source )
-         {
-            (*objdata) = strdup(source->sourceCode().toLatin1().constData());
-            (*size) = strlen((*objdata));
-         }
-         break;
-      }
-
-      iter.next();
-   }
-   return (*size);
-}
-
 void CNesicideProject::initializeProject()
 {
    QString cc65home = qgetenv("CC65_HOME");
@@ -129,7 +103,7 @@ void CNesicideProject::initializeProject()
    m_assemblerIncludePaths = "";
    m_assemblerAdditionalOptions = "";
    m_linkerConfigFile = "";
-   m_makefileCustomRulesFile = "";
+   m_makefileCustomRuleFiles.clear();
    m_linkerAdditionalOptions = "";
    m_linkerAdditionalDependencies = "";
 
@@ -202,7 +176,7 @@ void CNesicideProject::terminateProject()
    m_assemblerIncludePaths = "";
    m_assemblerAdditionalOptions = "";
    m_linkerConfigFile = "";
-   m_makefileCustomRulesFile = "";
+   m_makefileCustomRuleFiles.clear();
    m_linkerAdditionalOptions = "";
    m_linkerAdditionalDependencies = "";
    m_sourceSearchPaths.clear();
@@ -222,7 +196,7 @@ bool CNesicideProject::serialize(QDomDocument& doc, QDomNode& node)
    QDomElement projectElement = addElement( doc, node, "nesicideproject" );
 
    // Set some variables as tags to this node.
-   projectElement.setAttribute("version", "0.3");
+   projectElement.setAttribute("version", "0.4");
    projectElement.setAttribute("target", m_projectTarget);
    projectElement.setAttribute("title", m_projectTitle);
    projectElement.setAttribute("addon-uris",m_projectAddOns.join(","));
@@ -241,7 +215,7 @@ bool CNesicideProject::serialize(QDomDocument& doc, QDomNode& node)
    propertiesElement.setAttribute("assemblerincludepaths",m_assemblerIncludePaths);
    propertiesElement.setAttribute("assembleradditionaloptions",m_assemblerAdditionalOptions);
    propertiesElement.setAttribute("linkerconfigfile",m_linkerConfigFile);
-   propertiesElement.setAttribute("customrulesfile",m_makefileCustomRulesFile);
+   propertiesElement.setAttribute("customrulefiles",m_makefileCustomRuleFiles.join(","));
    propertiesElement.setAttribute("linkeradditionaloptions",m_linkerAdditionalOptions);
    propertiesElement.setAttribute("linkeradditionaldependencies",m_linkerAdditionalDependencies);
    propertiesElement.setAttribute("sourcesearchpaths",m_sourceSearchPaths.join(";"));
@@ -341,6 +315,8 @@ bool CNesicideProject::deserialize(QDomDocument& doc, QDomNode& /*node*/, QStrin
    // Read in the DOM element
    QDomElement projectElement = doc.documentElement();
    int numColors = 0;
+   QString projectVersion;
+   QString customRuleFileAttribute;
 
    m_isInitialized = false;
 
@@ -349,12 +325,24 @@ bool CNesicideProject::deserialize(QDomDocument& doc, QDomNode& /*node*/, QStrin
       return false;
    }
 
-   // For now, error out if the file version is not what we expect it to be. Eventually
-   // we need to split up the loader into versions for backwards compatibility.
-   if (projectElement.attribute("version", "") != "0.3")
+   // Project versioning for backward compatibility...
+   projectVersion = projectElement.attribute("version", "");
+   if ( !(projectVersion == "0.4" ||
+          projectVersion == "0.3") )
    {
-      errors.append("NESICIDE Project files must be version 0.3\n");
+      errors.append("NESICIDE Project file version is incorrect.\n");
       return false;
+   }
+
+   // Project versioning control.
+   // Version 0.3->0.4 switched customrulefile property to customrulesfile (multiple custom rule files).
+   if ( projectVersion == "0.3" )
+   {
+      customRuleFileAttribute = "customrulesfile";
+   }
+   else
+   {
+      customRuleFileAttribute = "customrulefiles";
    }
 
    // For now, error out if the target is not specified in the XML.
@@ -372,7 +360,7 @@ bool CNesicideProject::deserialize(QDomDocument& doc, QDomNode& /*node*/, QStrin
    // This is the expected behavior.
    m_projectTitle = projectElement.attribute("title","Untitled");
 
-   m_projectAddOns = projectElement.attribute("addon-uris").split(",");
+   m_projectAddOns = projectElement.attribute("addon-uris").split(",",QString::SkipEmptyParts);
 
    // Initialize the palette.
    if ( !m_projectTarget.compare("nes",Qt::CaseInsensitive) )
@@ -430,10 +418,11 @@ bool CNesicideProject::deserialize(QDomDocument& doc, QDomNode& /*node*/, QStrin
          m_assemblerIncludePaths = propertiesElement.attribute("assemblerincludepaths");
          m_assemblerAdditionalOptions = propertiesElement.attribute("assembleradditionaloptions");
          m_linkerConfigFile = propertiesElement.attribute("linkerconfigfile");
-         m_makefileCustomRulesFile = propertiesElement.attribute("customrulesfile");
+         m_makefileCustomRuleFiles = propertiesElement.attribute(customRuleFileAttribute,"").split(",",QString::SkipEmptyParts);
+         m_makefileCustomRuleFiles.removeDuplicates();
          m_linkerAdditionalOptions = propertiesElement.attribute("linkeradditionaloptions");
          m_linkerAdditionalDependencies = propertiesElement.attribute("linkeradditionaldependencies");
-         m_sourceSearchPaths.append(propertiesElement.attribute("sourcesearchpaths","").split(";",QString::SkipEmptyParts));
+         m_sourceSearchPaths = propertiesElement.attribute("sourcesearchpaths","").split(";",QString::SkipEmptyParts);
          m_sourceSearchPaths.removeDuplicates();
          m_projectOutputName = propertiesElement.attribute("outputname");
 
@@ -953,14 +942,14 @@ bool CNesicideProject::exportData()
    return ok;
 }
 
-QString CNesicideProject::getMakefileCustomRules()
+QString CNesicideProject::getMakefileCustomRules(QString rulesFile)
 {
    QDir dir(QDir::currentPath());
    QString rules;
 
-   if ( !m_makefileCustomRulesFile.isEmpty() )
+   if ( !rulesFile.isEmpty() )
    {
-      QFile fileIn(dir.filePath(m_makefileCustomRulesFile));
+      QFile fileIn(dir.filePath(rulesFile));
 
       if ( fileIn.exists() )
       {
@@ -972,7 +961,7 @@ QString CNesicideProject::getMakefileCustomRules()
          }
          else
          {
-            QMessageBox::critical(0,"File I/O Error", "Could not read custom rules file:\n"+m_makefileCustomRulesFile);
+            QMessageBox::critical(0,"File I/O Error", "Could not read custom rules file:\n"+rulesFile);
          }
       }
    }

@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<nesicideproject title="<!project-title!>" version="0.3" target="nes">
+<nesicideproject title="<!project-title!>" version="0.4" target="nes">
  <properties outputname="hello_world" linkeradditionaldependencies="" linkeroutputbasepath="obj/nes" linkerconfigfile="nes.ini" chrromoutputbasepath="obj/nes" headerfilename="project_data.h" chrromoutputname="hello_world.chr" debuginfoname="hello_world.dbg" compilerincludepaths="-I ." chrrom="1" outputbasepath="obj/nes" assemblerincludepaths="-I ." sourcefilename="project_data.s" linkeroutputname="hello_world.prg" compileradditionaloptions="" assemblerdefinedsymbols="" assembleradditionaloptions="" cartridgesavestatename="" sourcesearchpaths="" compilerdefinedsymbols="" cartridgeoutputname="hello_world.nes" linkeradditionaloptions="">
   <tileproperties/>
   <palette>

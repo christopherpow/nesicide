@@ -21,6 +21,7 @@ NewProjectDialog::NewProjectDialog(QString windowTitle,QString defName,QString d
    ui->target->setItemData(0,"NES",Qt::UserRole);
    ui->target->setItemData(1,"C64",Qt::UserRole);
 
+   ui->tabWidget->setCurrentIndex(0);
    if ( addOnsOnly )
    {
       ui->tabWidget->setTabEnabled(0,false);
@@ -76,6 +77,8 @@ void NewProjectDialog::changeEvent(QEvent* e)
 
 bool NewProjectDialog::eventFilter(QObject *obj, QEvent *event)
 {
+   int checkedCount = 0;
+
    if ( obj == ui->addOnsList )
    {
       if ( event->type() == QEvent::Enter ||
@@ -86,9 +89,14 @@ bool NewProjectDialog::eventFilter(QObject *obj, QEvent *event)
          {
             QListWidgetItem* item = ui->addOnsList->item(idx);
             item->setBackgroundColor(QColor(255,255,255,255));
+            if ( item->checkState() == Qt::Checked )
+            {
+               checkedCount++;
+            }
          }
 
-         if ( ui->addOnsList->selectedItems().count() == 0 )
+         if ( checkedCount == 0 ||
+              ui->addOnsList->selectedItems().count() == 0 )
          {
             ui->addOnReadme->setHtml("");
          }

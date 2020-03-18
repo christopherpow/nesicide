@@ -220,14 +220,12 @@ bool CCC65Interface::createMakefile()
       makeFileContent.replace("<!target-rules!>",targetRules);
       makeFileContent.replace("<!linker-dependencies!>",nesicideProject->getLinkerAdditionalDependencies());
 
-      if ( !nesicideProject->getMakefileCustomRulesFile().isEmpty() )
+      QString customRulesFiles;
+      foreach ( QString customRuleFile,nesicideProject->getMakefileCustomRuleFiles() )
       {
-         makeFileContent.replace("<!custom-rules!>",QString("-include ")+nesicideProject->getMakefileCustomRulesFile());
+         customRulesFiles += "-include "+customRuleFile+"\r\n";
       }
-      else
-      {
-         makeFileContent.replace("<!custom-rules!>","");
-      }
+      makeFileContent.replace("<!custom-rules!>",customRulesFiles);
 
       // Write the file to disk.
       makeFile.write(makeFileContent.toLatin1());

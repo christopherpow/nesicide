@@ -35,6 +35,9 @@ public:
    virtual bool canChangeName() { return true; }
    virtual bool onNameChanged(QString newName);
 
+   // CProjectBase Interface Implementation
+   virtual bool exportData();
+
 private:
    QByteArray m_musicData;
 };

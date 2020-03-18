@@ -209,6 +209,7 @@ private:
    void saveProject(QString fileName);
    void saveEmulatorState(QString fileName);
    bool closeProject();
+   void applyAddOns(QStringList addOns);
    void explodeAddOn(int level,QString projectName,QString addonDirName,QString localDirName);
    void explodeTemplate(int level,QString templateName,QString projectName,QString templateDirName,QString localDirName,QString* projectFileName);
    void explodeINESHeaderTemplate(QString templateName,QString projectName,QString templateDirName,QString localDirName);

@@ -92,6 +92,12 @@ OBJECTS := $(addsuffix .o,$(basename $(addprefix $(OBJDIR)/,$(notdir $(SOURCES))
 # Set DEPENDS to something like 'obj/foo.d obj/bar.d'.
 DEPENDS := $(OBJECTS:.o=.d)
 
+### START USER-SUPPLIED CUSTOM RULES SECTION
+
+<!custom-rules!>
+
+### END USER-SUPPLIED CUSTOM RULES SECTION
+
 .SUFFIXES:
 .PHONY: all clean
 	
@@ -108,12 +114,6 @@ $(OBJDIR):
 
 $(PROGRAM): $(CONFIG) $(OBJECTS) $(LIBS)
 	$(LINK) $(LDFLAGS) $(OBJECTS) $(LIBS) -o $@ <!linker-dependencies!>
-
-### START USER-SUPPLIED CUSTOM RULES SECTION
-
-<!custom-rules!>
-
-### END USER-SUPPLIED CUSTOM RULES SECTION
 
 clean:
 	-$(call RMFILES,$(OBJECTS))

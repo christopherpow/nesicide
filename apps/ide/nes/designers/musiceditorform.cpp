@@ -5,7 +5,12 @@
 
 #include "cqtmfc.h"
 
+#include "main.h"
+
 #include "Source/FamiTrackerDoc.h"
+#include "Source/TextExporter.h"
+
+#include <QDir>
 
 MusicEditorForm* MusicEditorForm::_instance = NULL;
 
@@ -100,4 +105,22 @@ QMessageBox::StandardButton MusicEditorForm::onCloseQuery()
    }
    
    return doSave;
+}
+
+bool MusicEditorForm::exportData()
+{
+//   AfxGetMainWnd()->SendMessage(ID_FILE_EXPORTTEXT);
+   CFamiTrackerDoc	*pDoc = static_cast<CFamiTrackerDoc*>(AfxGetMainWnd()->GetActiveDocument());
+   QDir exportDir(nesicideProject->getProjectOutputBasePath());
+   QString fileName = QString(pDoc->GetFileTitle().GetBuffer());
+   fileName += ".ftxt";
+   CString FileName(exportDir.absoluteFilePath(fileName));
+
+   CTextExport Exporter;
+   CString sResult = Exporter.ExportFile(FileName, pDoc);
+   if (sResult.GetLength() > 0)
+   {
+      return false;
+   }
+   return true;
 }

@@ -267,8 +267,10 @@
    <addaction name="separator"/>
    <addaction name="actionOpen_Project"/>
    <addaction name="actionSave_Project"/>
-   <addaction name="separator"/>
    <addaction name="action_Close_Project"/>
+   <addaction name="separator"/>
+   <addaction name="actionProject_Properties"/>
+   <addaction name="actionManage_Add_Ons"/>
   </widget>
   <widget class="QToolBar" name="compilerToolbar">
    <property name="sizePolicy">
@@ -286,9 +288,9 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionClean_Project"/>
    <addaction name="actionCompile_Project"/>
    <addaction name="actionLoad_In_Emulator"/>
-   <addaction name="actionClean_Project"/>
    <addaction name="separator"/>
   </widget>
   <widget class="QToolBar" name="toolToolbar">
@@ -304,9 +306,6 @@
    <addaction name="action_Project_Browser"/>
    <addaction name="separator"/>
    <addaction name="actionOutput_Window"/>
-   <addaction name="separator"/>
-   <addaction name="actionProject_Properties"/>
-   <addaction name="actionManage_Add_Ons"/>
    <addaction name="separator"/>
   </widget>
   <widget class="QStatusBar" name="appStatusBar">

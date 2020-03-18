@@ -37,7 +37,7 @@ if [ "$1" == "local" ]; then
       make -C deps/cc65 install PREFIX=${DEPLOY}/Contents/MacOS/cc65 
       cp -rv deps/uc65-release-0.5-rc6 ${DEPLOY}/Contents/MacOS/
       make -C tools/famitone2 all
-      make -C tools/famitone2 install PREFIX=$DEPLOY/Contents/MacOS/famitone2
+      make -C tools/famitone2 install PREFIX=$DEPLOY/Contents/MacOS/famitone2/bin
     fi
     macdeployqt ${DEPLOY} ${TARGARGS}
     mv -v ${DEPLOY/%.app/.dmg} ${DEPLOY/%.app}-${GIT_REV}.dmg

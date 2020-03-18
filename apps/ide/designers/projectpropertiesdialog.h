@@ -28,7 +28,7 @@ protected:
    void changeEvent(QEvent* e);
    void serializeLinkerConfig();
    void deserializeLinkerConfig();
-   void serializeCustomRules();
+   void serializeCustomRules(QString rulesFile = QString());
    void deserializeCustomRules();
 
 private:
@@ -37,6 +37,7 @@ private:
    QList<QColor> currentPalette;
    bool          linkerConfigChanged;
    bool          customRulesChanged;
+   QString       currentCustomRulesFile;
    CPropertyListModel* tilePropertyListModel;
    QMap<QString,QWidget*> pageMap;
 
@@ -70,6 +71,8 @@ private slots:
    void on_removeSearchPath_clicked();
    void on_sourceSearchPathBrowse_clicked();
    void on_linkerConfigFileNew_clicked();
+   void on_customRuleFiles_currentTextChanged(const QString &arg1);
+   void on_customRuleFileRemove_clicked();
 };
 
 #endif // PROJECTPROPERTIESDIALOG_H

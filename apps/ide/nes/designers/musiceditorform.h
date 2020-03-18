@@ -22,6 +22,7 @@ public:
    QString fileName() { return m_fileName; }
    void setFileName(QString fileName) { m_fileName = fileName; }
    void setTreeLink(IProjectTreeViewItem* link) { InitTabItem(link); }
+   bool exportData();
    virtual ~MusicEditorForm();
    
    // ICenterWidgetItem Interface Implmentation

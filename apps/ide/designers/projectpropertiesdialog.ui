@@ -111,7 +111,7 @@
       <enum>QFrame::NoFrame</enum>
      </property>
      <property name="currentIndex">
-      <number>6</number>
+      <number>5</number>
      </property>
      <widget class="QWidget" name="project">
       <layout class="QGridLayout" name="gridLayout_8">
@@ -620,44 +620,77 @@
        <property name="bottomMargin">
         <number>0</number>
        </property>
-       <item row="1" column="0" colspan="2">
+       <item row="3" column="0" colspan="2">
+        <widget class="QTextEdit" name="customRules"/>
+       </item>
+       <item row="2" column="0" colspan="2">
         <widget class="QLabel" name="label_31">
          <property name="text">
           <string>Build rules entered here will appear verbatim in the specified file.</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="0" colspan="2">
-        <widget class="QTextEdit" name="customRules"/>
-       </item>
-       <item row="0" column="1">
-        <layout class="QHBoxLayout" name="horizontalLayout_9">
-         <item>
-          <widget class="QLineEdit" name="customRuleFile">
-           <property name="readOnly">
-            <bool>true</bool>
+       <item row="0" column="0" colspan="2">
+        <layout class="QFormLayout" name="formLayout_6">
+         <property name="horizontalSpacing">
+          <number>6</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>6</number>
+         </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_32">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Custom rule file:</string>
            </property>
           </widget>
          </item>
-         <item>
-          <widget class="QPushButton" name="customRuleFileBrowse">
-           <property name="text">
-            <string>Browse...</string>
+         <item row="0" column="1">
+          <layout class="QHBoxLayout" name="horizontalLayout_9" stretch="1,0,0">
+           <property name="spacing">
+            <number>6</number>
            </property>
-           <property name="icon">
-            <iconset resource="../../../common/resource.qrc">
-             <normaloff>:/resources/document-open.png</normaloff>:/resources/document-open.png</iconset>
-           </property>
-          </widget>
+           <item>
+            <widget class="QComboBox" name="customRuleFiles">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="customRuleFileBrowse">
+             <property name="text">
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset resource="../../../common/resource.qrc">
+               <normaloff>:/resources/RR_page_white_add.png</normaloff>:/resources/RR_page_white_add.png</iconset>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="customRuleFileRemove">
+             <property name="text">
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset resource="../../../common/resource.qrc">
+               <normaloff>:/resources/RR_page_white_delete.png</normaloff>:/resources/RR_page_white_delete.png</iconset>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
         </layout>
-       </item>
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_32">
-         <property name="text">
-          <string>Custom rule file:</string>
-         </property>
-        </widget>
        </item>
       </layout>
      </widget>

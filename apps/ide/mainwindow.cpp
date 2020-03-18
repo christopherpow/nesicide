@@ -59,8 +59,14 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
       dir.setPath("../../deps");
       envdat += dir.absolutePath();
       envdat += "/cc65/bin;";
+      dir.setPath("../../tools");
+      envdat += dir.absolutePath();
+      envdat += "/famitone2/src/text2data;";
+      envdat += dir.absolutePath();
+      envdat += "/famitone2/src/nsf2data;";
       qputenv("PATH",QString(envdat+envvar).toLatin1());
 
+      dir.setPath("../../deps");
       envdat = dir.absolutePath();
       envdat += "/cc65";
       qputenv("CC65_HOME",envdat.toLatin1());
@@ -86,6 +92,8 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
       envdat += "/GnuWin32/bin;";
       envdat += QCoreApplication::applicationDirPath();
       envdat += "/cc65/bin;";
+      envdat += QCoreApplication::applicationDirPath();
+      envdat += "/famitone2/bin;";
       qputenv("PATH",QString(envdat+envvar).toLatin1());
 
       envdat = QCoreApplication::applicationDirPath();
@@ -114,8 +122,14 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
       dir.setPath("../../../../../../deps");
       envdat += dir.absolutePath();
       envdat += "/cc65/bin:";
+      dir.setPath("../../../../../../tools");
+      envdat += dir.absolutePath();
+      envdat += "/famitone2/src/text2data:";
+      envdat += dir.absolutePath();
+      envdat += "/famitone2/src/nsf2data:";
       qputenv("PATH",QString(envdat+envvar).toLatin1());
 
+      dir.setPath("../../../../../../deps");
       envdat = dir.absolutePath();
       envdat += "/cc65";
       qputenv("CC65_HOME",envdat.toLatin1());
@@ -139,6 +153,8 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
       QString envdat;
       envdat = QCoreApplication::applicationDirPath();
       envdat += "/cc65/bin:";
+      envdat = QCoreApplication::applicationDirPath();
+      envdat += "/famitone2/bin:";
       qputenv("PATH",QString(envdat+envvar).toLatin1());
 
       envdat = QCoreApplication::applicationDirPath();
@@ -167,8 +183,14 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
       dir.setPath("../../../../../../deps");
       envdat += dir.absolutePath();
       envdat += "/cc65/bin:";
+      dir.setPath("../../../../../../tools");
+      envdat += dir.absolutePath();
+      envdat += "/famitone2/src/text2data:";
+      envdat += dir.absolutePath();
+      envdat += "/famitone2/src/nsf2data:";
       qputenv("PATH",QString(envdat+envvar).toLatin1());
 
+      dir.setPath("../../../../../../deps");
       envdat = dir.absolutePath();
       envdat += "/cc65";
       qputenv("CC65_HOME",envdat.toLatin1());
@@ -192,6 +214,8 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
       QString envdat;
       envdat += QCoreApplication::applicationDirPath();
       envdat += "/cc65/bin:";
+      envdat += QCoreApplication::applicationDirPath();
+      envdat += "/famitone2/bin:";
       qputenv("PATH",QString(envdat+envvar).toLatin1());
 
       envdat = QCoreApplication::applicationDirPath();
@@ -1972,24 +1996,34 @@ void MainWindow::explodeAddOn(int level,QString projectName,QString addonDirName
 {
    QDir addonDir(addonDirName);
    QDir localDir;
-   QString localDirTemp;
+   QString localDirPath;
+   QString projectDirPath;
    QFileInfoList addonFileInfos = addonDir.entryInfoList();
 
    foreach ( QFileInfo fileInfo, addonFileInfos )
    {
-      localDirTemp = localDirName;
+      localDirPath = localDirName;
+      projectDirPath = "";
+
       // level 1 tells us what kind of object is being added
       if ( level != 0 )
       {
-         localDirTemp += "/";
-         localDirTemp += fileInfo.fileName();
+         localDirPath += "/";
+         localDirPath += fileInfo.fileName();
+         if ( level > 1 )
+         {
+            projectDirPath += "/";
+         }
+         projectDirPath += fileInfo.fileName();
       }
-      localDirTemp = localDirTemp.replace(QRegExp("_in$"),"");
-      localDirTemp = localDirTemp.replace("_includeInBuild","");
+      localDirPath = localDirPath.replace(QRegExp("_in$"),"");
+      localDirPath = localDirPath.replace("_includeInBuild","");
+      projectDirPath = projectDirPath.replace(QRegExp("_in$"),"");
+      projectDirPath = projectDirPath.replace("_includeInBuild","");
 
       if ( fileInfo.isDir() )
       {
-         explodeAddOn(level+1,projectName,fileInfo.filePath(),localDirTemp);
+         explodeAddOn(level+1,projectName,fileInfo.filePath(),localDirPath);
       }
       else
       {
@@ -1997,7 +2031,7 @@ void MainWindow::explodeAddOn(int level,QString projectName,QString addonDirName
          {
             // Save the file locally.
             QFile addonFile(fileInfo.filePath());
-            QFile localFile(localDirTemp);
+            QFile localFile(localDirPath);
             QByteArray addonFileContent;
 
             if ( addonFile.open(QIODevice::ReadOnly) &&
@@ -2011,11 +2045,18 @@ void MainWindow::explodeAddOn(int level,QString projectName,QString addonDirName
 
                if ( fileInfo.filePath().contains("Source Code") )
                {
-                  CSourceItem *source = nesicideProject->getProject()->getSources()->addSourceFile(localFile.fileName());
+                  CSourceItem *source = nesicideProject->getProject()->getSources()->addSourceFile(projectDirPath);
                   if ( fileInfo.filePath().endsWith("_includeInBuild") )
                   {
                      source->setIncludeInBuild(false);
                   }
+               }
+               else if ( fileInfo.filePath().contains("Custom Rules") )
+               {
+                  QStringList customRuleFiles = nesicideProject->getMakefileCustomRuleFiles();
+                  customRuleFiles += projectDirPath;
+                  customRuleFiles.removeDuplicates();
+                  nesicideProject->setMakefileCustomRuleFiles(customRuleFiles);
                }
                else
                {
@@ -2203,6 +2244,8 @@ void MainWindow::on_actionNew_Project_triggered()
 
       m_pProjectBrowser->enableNavigation();
       projectDataChangesEvent();
+
+      applyAddOns(nesicideProject->getProjectAddOns());
    }
 }
 
@@ -2211,18 +2254,18 @@ void MainWindow::openNesROM(QString fileName,bool runRom)
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    QFileInfo fi(fileName);
 
-   if ( !fi.exists() ) return;
+   // Remove any lingering project content
+   m_pProjectBrowser->disableNavigation();
+   nesicideProject->terminateProject();
 
-   // Keep recent file list updated.
-   saveRecentFiles(fileName);
+   if ( !fi.exists() ) return;
 
    createNesUi();
 
    output->showPane(OutputPaneDockWidget::Output_General);
 
-   // Remove any lingering project content
-   m_pProjectBrowser->disableNavigation();
-   nesicideProject->terminateProject();
+   // Keep recent file list updated.
+   saveRecentFiles(fileName);
 
    // Clear output
    output->clearAllPanes();
@@ -2280,18 +2323,20 @@ void MainWindow::openNesROM(QString fileName,bool runRom)
 void MainWindow::openC64File(QString fileName)
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
+   QFileInfo fi(fileName);
+
+   // Remove any lingering project content
+   m_pProjectBrowser->disableNavigation();
+   nesicideProject->terminateProject();
+
+   if ( !fi.exists() ) return;
 
    // Keep recent file list updated.
    saveRecentFiles(fileName);
 
    createC64Ui();
 
-   qDebug("openC64File %s\n",fileName.toLatin1().data());
    output->showPane(OutputPaneDockWidget::Output_General);
-
-   // Remove any lingering project content
-   m_pProjectBrowser->disableNavigation();
-   nesicideProject->terminateProject();
 
    // Clear output
    output->clearAllPanes();
@@ -2613,6 +2658,12 @@ void MainWindow::openNesProject(QString fileName,bool runRom)
 
       projectDataChangesEvent();
    }
+   else
+   {
+      nesicideProject->terminateProject();
+
+      projectDataChangesEvent();
+   }
 }
 
 void MainWindow::openC64Project(QString fileName,bool run)
@@ -2683,6 +2734,12 @@ void MainWindow::openC64Project(QString fileName,bool run)
       m_pProjectBrowser->enableNavigation();
 
       settings.setValue("LastProject",fileName);
+
+      projectDataChangesEvent();
+   }
+   else
+   {
+      nesicideProject->terminateProject();
 
       projectDataChangesEvent();
    }
@@ -3972,29 +4029,28 @@ void MainWindow::on_actionExit_triggered()
    close();
 }
 
+void MainWindow::applyAddOns(QStringList addOns)
+{
+   m_pProjectBrowser->disableNavigation();
+
+   foreach ( QString addon_uri, addOns )
+   {
+      explodeAddOn(0,nesicideProject->getProjectTitle(),addon_uri,QDir::currentPath());
+   }
+
+   emit applyProjectProperties();
+
+   m_pProjectBrowser->enableNavigation();
+   projectDataChangesEvent();
+}
+
 void MainWindow::on_actionManage_Add_Ons_triggered()
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
-   NewProjectDialog dlg("Add-Ons","Untitled",settings.value("LastProjectBasePath").toString(),true);
-   QStringList originalAddOns = nesicideProject->getProjectAddOns();
+   NewProjectDialog dlg("Add-Ons",nesicideProject->getProjectTitle(),settings.value("LastProjectBasePath").toString(),true);
 
    if (dlg.exec() == QDialog::Accepted)
    {
-      m_pProjectBrowser->disableNavigation();
-
-      QStringList newAddOns = dlg.getAddOns();
-
-      if ( originalAddOns != newAddOns )
-      {
-         foreach ( QString addon_uri, newAddOns )
-         {
-            explodeAddOn(0,nesicideProject->getProjectTitle(),addon_uri,QDir::currentPath());
-         }
-      }
-
-      emit applyProjectProperties();
-
-      m_pProjectBrowser->enableNavigation();
-      projectDataChangesEvent();
+      applyAddOns(dlg.getAddOns());
    }
 }
