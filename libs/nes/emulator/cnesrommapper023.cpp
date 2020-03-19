@@ -143,7 +143,6 @@ CROMMapper023::CROMMapper023()
 
 CROMMapper023::~CROMMapper023()
 {
-   delete m_pSRAMmemory;
 }
 
 void CROMMapper023::RESET ( bool soft )

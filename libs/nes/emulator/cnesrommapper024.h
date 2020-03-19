@@ -149,7 +149,7 @@ protected:
    CROMMapper024();
 public:
    static inline CROMMapper024* CARTFACTORY() { return new CROMMapper024(); }
-   ~CROMMapper024();
+   virtual ~CROMMapper024();
 
    void RESET ( bool soft );
    void HMAPPER ( uint32_t addr, uint8_t data );

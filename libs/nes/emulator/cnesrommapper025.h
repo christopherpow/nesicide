@@ -9,7 +9,7 @@ private:
    CROMMapper025();
 public:
    static inline CROMMapper025* CARTFACTORY() { return new CROMMapper025(); }
-   ~CROMMapper025();
+   virtual ~CROMMapper025();
 
    void RESET ( bool soft );
    void HMAPPER ( uint32_t addr, uint8_t data );

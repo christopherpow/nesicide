@@ -19,7 +19,7 @@ class CMEMORYBANK
 {
 public:
    CMEMORYBANK();
-   ~CMEMORYBANK ();
+   virtual ~CMEMORYBANK ();
 
    void INITIALIZE(CMEMORY *parent,
                    uint32_t bankNum,
@@ -139,7 +139,7 @@ public:
            uint32_t bankSize,
            uint32_t numPhysBanks = 1,
            uint32_t numVirtBanks = 1);        // represent unity for no bankswitch
-   ~CMEMORY();
+   virtual ~CMEMORY();
 
    void PRINTABLEADDR(char* buffer, uint32_t virtAddr);
    void PRINTABLEADDR(char* buffer, uint32_t virtAddr, uint32_t physAddr);
@@ -319,7 +319,7 @@ class COPENBUS: public CMEMORY
 {
 public:
    COPENBUS() : CMEMORY(0,1) {}
-   ~COPENBUS() {}
+   virtual ~COPENBUS() {}
 
    uint32_t TOTALSIZE() const { return 0; }
 

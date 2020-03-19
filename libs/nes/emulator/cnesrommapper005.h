@@ -8,7 +8,7 @@ class CNAMETABLEFILLER: public CMEMORY
 {
 public:
    CNAMETABLEFILLER() : CMEMORY(0x5106,1) {}
-   ~CNAMETABLEFILLER() {};
+   virtual ~CNAMETABLEFILLER() {};
 
    // Code/Data logger support functions
    CCodeDataLogger* LOGGER (uint32_t virtAddr = 0);
@@ -35,7 +35,7 @@ private:
    CROMMapper005();
 public:
    static inline CROMMapper005* CARTFACTORY() { return new CROMMapper005(); }
-   ~CROMMapper005();
+   virtual ~CROMMapper005();
 
    void RESET ( bool soft );
    uint32_t HMAPPER ( uint32_t addr );

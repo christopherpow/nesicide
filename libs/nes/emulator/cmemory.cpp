@@ -39,6 +39,7 @@ CMEMORYBANK::~CMEMORYBANK()
    delete [] m_opcodeMask;
    delete [] m_sloc2addr;
    delete [] m_addr2sloc;
+   delete [] m_disassembly;
 }
 
 uint32_t CMEMORYBANK::BASEADDR() const

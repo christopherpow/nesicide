@@ -77,7 +77,6 @@ CROMMapper068::CROMMapper068()
 
 CROMMapper068::~CROMMapper068()
 {
-   delete m_pSRAMmemory;
 }
 
 void CROMMapper068::RESET ( bool soft )

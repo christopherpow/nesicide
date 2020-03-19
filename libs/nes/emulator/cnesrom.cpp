@@ -130,6 +130,9 @@ CROM::CROM(uint32_t mapper)
 
 CROM::~CROM()
 {
+   delete m_pSRAMmemory;
+   delete m_pEXRAMmemory;
+   delete m_pVRAMmemory;
 }
 
 void CROM::SetPRGBank ( int32_t bank, uint8_t* data )

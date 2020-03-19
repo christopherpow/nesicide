@@ -84,7 +84,6 @@ CROMMapper001::CROMMapper001()
 
 CROMMapper001::~CROMMapper001()
 {
-   delete m_pSRAMmemory;
 }
 
 void CROMMapper001::RESET ( bool soft )

@@ -398,9 +398,6 @@ CROMMapper005::CROMMapper005()
 
 CROMMapper005::~CROMMapper005()
 {
-   delete m_pEXRAMmemory;
-   delete m_pSRAMmemory;
-   delete m_pFILLmemory;
 }
 
 void CROMMapper005::RESET ( bool soft )
