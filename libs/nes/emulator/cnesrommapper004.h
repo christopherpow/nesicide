@@ -58,7 +58,7 @@ protected:
    bool           m_irqEnable;
    bool           m_irqReload;
    uint8_t  m_prg [ 2 ];
-   uint8_t  m_chr [ 8 ];
+   uint8_t  m_chr [ 6 ];
 
    uint32_t   m_lastPPUAddrA12;
    uint32_t   m_lastPPUCycle;

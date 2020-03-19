@@ -230,25 +230,25 @@ void CROMMapper004::SETPPU ( void )
 {
    if ( m_reg[0]&0x80 )
    {
-      m_CHRmemory.REMAP(0,m_chr[4]);
-      m_CHRmemory.REMAP(1,m_chr[5]);
-      m_CHRmemory.REMAP(2,m_chr[6]);
-      m_CHRmemory.REMAP(3,m_chr[7]);
-      m_CHRmemory.REMAP(4,m_chr[0]);
-      m_CHRmemory.REMAP(5,m_chr[1]);
-      m_CHRmemory.REMAP(6,m_chr[2]);
-      m_CHRmemory.REMAP(7,m_chr[3]);
+      m_CHRmemory.REMAP(0,m_chr[2]);
+      m_CHRmemory.REMAP(1,m_chr[3]);
+      m_CHRmemory.REMAP(2,m_chr[4]);
+      m_CHRmemory.REMAP(3,m_chr[5]);
+      m_CHRmemory.REMAP(4,(m_chr[0]&0xFE)+0);
+      m_CHRmemory.REMAP(5,(m_chr[0]&0xFE)+1);
+      m_CHRmemory.REMAP(6,(m_chr[1]&0xFE)+0);
+      m_CHRmemory.REMAP(7,(m_chr[1]&0xFE)+1);
    }
    else
    {
-      m_CHRmemory.REMAP(0,m_chr[0]);
-      m_CHRmemory.REMAP(1,m_chr[1]);
-      m_CHRmemory.REMAP(2,m_chr[2]);
-      m_CHRmemory.REMAP(3,m_chr[3]);
-      m_CHRmemory.REMAP(4,m_chr[4]);
-      m_CHRmemory.REMAP(5,m_chr[5]);
-      m_CHRmemory.REMAP(6,m_chr[6]);
-      m_CHRmemory.REMAP(7,m_chr[7]);
+      m_CHRmemory.REMAP(0,(m_chr[0]&0xFE)+0);
+      m_CHRmemory.REMAP(1,(m_chr[0]&0xFE)+1);
+      m_CHRmemory.REMAP(2,(m_chr[1]&0xFE)+0);
+      m_CHRmemory.REMAP(3,(m_chr[1]&0xFE)+1);
+      m_CHRmemory.REMAP(4,m_chr[2]);
+      m_CHRmemory.REMAP(5,m_chr[3]);
+      m_CHRmemory.REMAP(6,m_chr[4]);
+      m_CHRmemory.REMAP(7,m_chr[5]);
    }
 }
 
@@ -273,29 +273,27 @@ void CROMMapper004::HMAPPER ( uint32_t addr, uint8_t data )
          switch ( m_reg[0]&0x7 )
          {
             case 0x00:
-               m_chr [ 0 ] = data&0xFE;
-               m_chr [ 1 ] = (data&0xFE)+1;
+               m_chr [ 0 ] = data;
                SETPPU ();
                break;
             case 0x01:
-               m_chr [ 2 ] = data&0xFE;
-               m_chr [ 3 ] = (data&0xFE)+1;
+               m_chr [ 1 ] = data;
                SETPPU ();
                break;
             case 0x02:
-               m_chr [ 4 ] = data;
+               m_chr [ 2 ] = data;
                SETPPU ();
                break;
             case 0x03:
-               m_chr [ 5 ] = data;
+               m_chr [ 3 ] = data;
                SETPPU ();
                break;
             case 0x04:
-               m_chr [ 6 ] = data;
+               m_chr [ 4 ] = data;
                SETPPU ();
                break;
             case 0x05:
-               m_chr [ 7 ] = data;
+               m_chr [ 5 ] = data;
                SETPPU ();
                break;
             case 0x06:
