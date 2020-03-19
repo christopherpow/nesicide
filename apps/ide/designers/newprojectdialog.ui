@@ -56,6 +56,31 @@
        <property name="spacing">
         <number>6</number>
        </property>
+       <item row="3" column="1">
+        <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,0">
+         <property name="spacing">
+          <number>6</number>
+         </property>
+         <item>
+          <widget class="QLineEdit" name="path">
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pathBrowse">
+           <property name="text">
+            <string>Browse...</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../common/resource.qrc">
+             <normaloff>:/resources/document-open.png</normaloff>:/resources/document-open.png</iconset>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
        <item row="1" column="1">
         <widget class="QComboBox" name="target">
          <item>
@@ -80,60 +105,41 @@
          </property>
         </widget>
        </item>
-       <item row="3" column="0" colspan="2">
-        <widget class="QGroupBox" name="pathGroup">
-         <property name="title">
-          <string>Path</string>
+       <item row="2" column="1">
+        <widget class="QComboBox" name="templateProject">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_2">
-          <item>
-           <widget class="QLineEdit" name="path">
-            <property name="readOnly">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pathBrowse">
-            <property name="text">
-             <string>Browse...</string>
-            </property>
-            <property name="icon">
-             <iconset resource="../../../common/resource.qrc">
-              <normaloff>:/resources/document-open.png</normaloff>:/resources/document-open.png</iconset>
-            </property>
-           </widget>
-          </item>
-         </layout>
         </widget>
        </item>
-       <item row="2" column="0" colspan="2">
-        <widget class="QGroupBox" name="templateGroup">
-         <property name="title">
-          <string>Template Project</string>
+       <item row="5" column="0" colspan="2">
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
          </property>
-         <layout class="QFormLayout" name="formLayout">
-          <property name="fieldGrowthPolicy">
-           <enum>QFormLayout::ExpandingFieldsGrow</enum>
-          </property>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_2">
-            <property name="text">
-             <string>Template:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QComboBox" name="templateProject">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-           </widget>
-          </item>
-         </layout>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Template Project:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>Project Path:</string>
+         </property>
         </widget>
        </item>
        <item row="0" column="0">
@@ -149,19 +155,6 @@
           <string>Target Machine:</string>
          </property>
         </widget>
-       </item>
-       <item row="4" column="0" colspan="2">
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
        </item>
       </layout>
      </widget>

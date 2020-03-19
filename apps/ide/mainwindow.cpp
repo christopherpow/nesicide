@@ -2242,10 +2242,7 @@ void MainWindow::on_actionNew_Project_triggered()
 
       emit applyProjectProperties();
 
-      m_pProjectBrowser->enableNavigation();
-      projectDataChangesEvent();
-
-      applyAddOns(nesicideProject->getProjectAddOns());
+      applyAddOns(dlg.getAddOns());
    }
 }
 

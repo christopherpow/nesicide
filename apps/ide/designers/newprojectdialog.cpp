@@ -95,8 +95,8 @@ bool NewProjectDialog::eventFilter(QObject *obj, QEvent *event)
             }
          }
 
-         if ( checkedCount == 0 ||
-              ui->addOnsList->selectedItems().count() == 0 )
+         if ( !((checkedCount > 0) ||
+              (ui->addOnsList->selectedItems().count() > 0)) )
          {
             ui->addOnReadme->setHtml("");
          }
@@ -204,23 +204,6 @@ void NewProjectDialog::on_buttonBox_accepted()
    else
    {
       nesicideProject->setProjectTitle(getName());
-      nesicideProject->setDirty(true);
-   }
-
-   QStringList originalAddOns = nesicideProject->getProjectAddOns();
-   QStringList addons;
-   int idx;
-   for ( idx = 0; idx < ui->addOnsList->count(); idx++ )
-   {
-      QListWidgetItem *pItem = ui->addOnsList->item(idx);
-      if ( pItem->checkState() == Qt::Checked )
-      {
-         addons << pItem->data(Qt::UserRole).toString();
-      }
-   }
-   if ( originalAddOns != addons )
-   {
-      nesicideProject->setProjectAddOns(addons);
       nesicideProject->setDirty(true);
    }
 }
