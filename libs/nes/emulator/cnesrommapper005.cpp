@@ -386,7 +386,7 @@ CROMMapper005::CROMMapper005()
    delete m_pEXRAMmemory; // Remove open-bus default
    m_pEXRAMmemory = new CMEMORY(0x5C00,MEM_1KB);
    delete m_pSRAMmemory; // Remove open-bus default
-   m_pSRAMmemory = new CMEMORY(0x6000,MEM_64KB,8,4);
+   m_pSRAMmemory = new CMEMORY(0x6000,MEM_8KB,8,4);
    m_pFILLmemory = new CNAMETABLEFILLER();
    memset(m_prgRAM,false,sizeof(m_prgRAM));
    memset(m_reg,0,sizeof(m_reg));
