@@ -10,10 +10,19 @@ public:
    CNAMETABLEFILLER() : CMEMORY(0x5106,1) {}
    ~CNAMETABLEFILLER() {};
 
-   uint32_t TOTALSIZE() const { return 0; }
+   // Code/Data logger support functions
+   CCodeDataLogger* LOGGER (uint32_t virtAddr = 0);
+   CCodeDataLogger* LOGGERATPHYSADDR (uint32_t physAddr);
 
-   inline uint8_t MEM (uint32_t addr);
-   inline void MEM (uint32_t addr, uint8_t data);
+   uint8_t MEM (uint32_t addr);
+   void MEM (uint32_t addr, uint8_t data);
+   uint8_t MEMATPHYSADDR (uint32_t absAddr);
+   void MEMATPHYSADDR (uint32_t absAddr, uint8_t data);
+
+   void REMAP(uint32_t virt, uint32_t phys) {}
+   void REMAPEXT(uint32_t virt, CMEMORYBANK* phys) {}
+
+   uint32_t TOTALSIZE() const { return 0; }
 
 protected:
    uint8_t m_tileFill;

@@ -322,6 +322,16 @@ static CRegisterDatabase* dbRegisters = new CRegisterDatabase(eMemory_cartMapper
 
 uint32_t CROMMapper005::m_soundEnableMask = 0xffffffff;
 
+CCodeDataLogger* CNAMETABLEFILLER::LOGGER (uint32_t virtAddr)
+{
+   return m_bank[0].LOGGER();
+}
+
+CCodeDataLogger* CNAMETABLEFILLER::LOGGERATPHYSADDR (uint32_t physAddr)
+{
+   return m_bank[0].LOGGER();
+}
+
 uint8_t CNAMETABLEFILLER::MEM (uint32_t addr)
 {
    if ( (addr&MEM_1KB) < 0x3C0 )
@@ -337,6 +347,30 @@ uint8_t CNAMETABLEFILLER::MEM (uint32_t addr)
 void CNAMETABLEFILLER::MEM (uint32_t addr, uint8_t data)
 {
    if ( (addr&MEM_1KB) < 0x3C0 )
+   {
+      m_tileFill = data;
+   }
+   else
+   {
+      m_attrFill = data;
+   }
+}
+
+uint8_t CNAMETABLEFILLER::MEMATPHYSADDR (uint32_t absAddr)
+{
+   if ( (absAddr&MEM_1KB) < 0x3C0 )
+   {
+      return m_tileFill;
+   }
+   else
+   {
+      return m_attrFill;
+   }
+}
+
+void CNAMETABLEFILLER::MEMATPHYSADDR (uint32_t absAddr, uint8_t data)
+{
+   if ( (absAddr&MEM_1KB) < 0x3C0 )
    {
       m_tileFill = data;
    }

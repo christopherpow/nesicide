@@ -154,11 +154,11 @@ public:
    inline uint32_t TOTALSIZE() const { return m_totalPhysSize; }
 
    // Code/Data logger support functions
-   inline CCodeDataLogger* LOGGER (uint32_t virtAddr = 0)
+   virtual CCodeDataLogger* LOGGER (uint32_t virtAddr = 0)
    {
       return ((*m_pBank+virtBankFromVirtAddr(virtAddr)))->LOGGER();
    }
-   inline CCodeDataLogger* LOGGERATPHYSADDR (uint32_t physAddr)
+   virtual CCodeDataLogger* LOGGERATPHYSADDR (uint32_t physAddr)
    {
       return (m_bank+physBankFromPhysAddr(physAddr))->LOGGER();
    }
@@ -222,32 +222,32 @@ public:
       return (*(m_pBank+virtBankFromVirtAddr(addr)))->MEMPTR(addr);
    }
 
-   inline uint8_t MEM (uint32_t addr)
+   virtual uint8_t MEM (uint32_t addr)
    {
       return (*(m_pBank+virtBankFromVirtAddr(addr)))->MEM(addr);
    }
 
-   inline void MEM (uint32_t addr, uint8_t data)
+   virtual void MEM (uint32_t addr, uint8_t data)
    {
       (*(m_pBank+virtBankFromVirtAddr(addr)))->MEM(addr,data);
    }
 
-   inline uint8_t MEMATPHYSADDR (uint32_t absAddr)
+   virtual uint8_t MEMATPHYSADDR (uint32_t absAddr)
    {
       return (m_bank+physBankFromPhysAddr(absAddr))->MEM(absAddr);
    }
 
-   inline void MEMATPHYSADDR (uint32_t absAddr, uint8_t data)
+   virtual void MEMATPHYSADDR (uint32_t absAddr, uint8_t data)
    {
       (m_bank+physBankFromPhysAddr(absAddr))->MEM(absAddr,data);
    }
 
-   inline void REMAP(uint32_t virt, uint32_t phys)
+   virtual void REMAP(uint32_t virt, uint32_t phys)
    {
       (*(m_pBank+virt)) = m_bank+phys;
    }
 
-   inline void REMAPEXT(uint32_t virt, CMEMORYBANK* phys)
+   virtual void REMAPEXT(uint32_t virt, CMEMORYBANK* phys)
    {
       (*(m_pBank+virt)) = phys;
    }
@@ -324,13 +324,16 @@ public:
    uint32_t TOTALSIZE() const { return 0; }
 
    // Code/Data logger support functions
-   inline CCodeDataLogger* LOGGER (uint32_t virtAddr = 0);
-   inline CCodeDataLogger* LOGGERATPHYSADDR (uint32_t physAddr);
+   CCodeDataLogger* LOGGER (uint32_t virtAddr = 0);
+   CCodeDataLogger* LOGGERATPHYSADDR (uint32_t physAddr);
 
-   inline uint8_t MEM (uint32_t addr);
-   inline void MEM (uint32_t addr, uint8_t data);
-   inline uint8_t MEMATPHYSADDR (uint32_t absAddr);
-   inline void MEMATPHYSADDR (uint32_t absAddr, uint8_t data);
+   uint8_t MEM (uint32_t addr);
+   void MEM (uint32_t addr, uint8_t data);
+   uint8_t MEMATPHYSADDR (uint32_t absAddr);
+   void MEMATPHYSADDR (uint32_t absAddr, uint8_t data);
+
+   void REMAP(uint32_t virt, uint32_t phys) {}
+   void REMAPEXT(uint32_t virt, CMEMORYBANK* phys) {}
 };
 
 #endif // CMEMORY_H
