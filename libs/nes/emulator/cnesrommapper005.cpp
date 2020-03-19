@@ -398,6 +398,7 @@ CROMMapper005::CROMMapper005()
 
 CROMMapper005::~CROMMapper005()
 {
+   delete m_pFILLmemory;
 }
 
 void CROMMapper005::RESET ( bool soft )
