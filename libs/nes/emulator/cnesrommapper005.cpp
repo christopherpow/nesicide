@@ -356,7 +356,8 @@ CROMMapper005::CROMMapper005()
    m_pFILLmemory = new CNAMETABLEFILLER();
    memset(m_prgRAM,false,sizeof(m_prgRAM));
    memset(m_reg,0,sizeof(m_reg));
-   memset(m_chr,0,sizeof(m_chr));
+   memset(m_chrReg_a,0,sizeof(m_chrReg_a));
+   memset(m_chrReg_b,0,sizeof(m_chrReg_b));
    m_prgRemappable = true;
    m_chrRemappable = true;
 }
@@ -406,15 +407,12 @@ void CROMMapper005::RESET ( bool soft )
    m_prgRAM [ 0 ] = false;
    m_prgRAM [ 1 ] = false;
    m_prgRAM [ 2 ] = false;
-   if ( m_numPrgBanks == 2 )
-   {
-      m_PRGROMmemory.REMAP(2,0);
-   }
-   else
-   {
-      m_PRGROMmemory.REMAP(2,m_numPrgBanks-2);
-   }
-   m_PRGROMmemory.REMAP(3,m_numPrgBanks-1);
+   m_prg[0] = 0x80;
+   m_prg[1] = 0x80;
+   m_prg[2] = 0x80;
+   m_prg[3] = 0xFF;
+   SETCPU();
+   SETPPU();
 }
 
 void CROMMapper005::SYNCCPU ( bool write, uint16_t addr, uint8_t data )
@@ -484,10 +482,185 @@ void CROMMapper005::SYNCPPU ( uint32_t ppuCycle, uint32_t ppuAddr )
 
 void CROMMapper005::SETCPU ( void )
 {
+   uint8_t bank;
+
+   switch ( m_prgMode )
+   {
+   case 3:
+      bank = m_prg[0]&0x7f;
+      bank %= m_numPrgBanks;
+      if ( m_prg[0]&0x80 )
+      {
+         m_PRGROMmemory.REMAP(0,bank);
+      }
+      else
+      {
+         bank &= 0x7;
+         REMAPSRAM ( 0x8000, bank );
+      }
+      bank = m_prg[1]&0x7f;
+      bank %= m_numPrgBanks;
+      if ( m_prg[1]&0x80 )
+      {
+         m_PRGROMmemory.REMAP(1,bank);
+      }
+      else
+      {
+         bank &= 0x7;
+         REMAPSRAM ( 0xA000, bank );
+      }
+      bank = m_prg[2]&0x7f;
+      bank %= m_numPrgBanks;
+      if ( m_prg[2]&0x80 )
+      {
+         m_PRGROMmemory.REMAP(2,bank);
+      }
+      else
+      {
+         bank &= 0x7;
+         REMAPSRAM ( 0xC000, bank );
+      }
+      bank = m_prg[3]&0x7f;
+      bank %= m_numPrgBanks;
+      m_PRGROMmemory.REMAP(3,bank);
+      break;
+   case 2:
+      bank = m_prg[1]&0x7f;
+      bank %= m_numPrgBanks;
+      if ( m_prg[1]&0x80 )
+      {
+         m_PRGROMmemory.REMAP(0,(bank&0xFE)+0);
+         m_PRGROMmemory.REMAP(1,(bank&0xFE)+1);
+      }
+      else
+      {
+         bank &= 0x7;
+         REMAPSRAM ( 0x8000, (bank&0xFE)+0 );
+         REMAPSRAM ( 0xA000, (bank&0xFE)+1 );
+      }
+      bank = m_prg[2]&0x7f;
+      bank %= m_numPrgBanks;
+      if ( m_prg[2]&0x80 )
+      {
+         m_PRGROMmemory.REMAP(2,bank);
+      }
+      else
+      {
+         bank &= 0x7;
+         REMAPSRAM ( 0xC000, bank );
+      }
+      bank = m_prg[3]&0x7f;
+      bank %= m_numPrgBanks;
+      m_PRGROMmemory.REMAP(3,bank);
+      break;
+   case 1:
+      bank = m_prg[1]&0x7f;
+      bank %= m_numPrgBanks;
+      if ( m_prg[1]&0x80 )
+      {
+         m_PRGROMmemory.REMAP(0,(bank&0xFE)+0);
+         m_PRGROMmemory.REMAP(1,(bank&0xFE)+1);
+      }
+      else
+      {
+         bank &= 0x7;
+         REMAPSRAM ( 0x8000, (bank&0xFE)+0 );
+         REMAPSRAM ( 0xA000, (bank&0xFE)+1 );
+      }
+      bank = m_prg[3]&0x7f;
+      bank %= m_numPrgBanks;
+      m_PRGROMmemory.REMAP(2,(bank&0xFE)+0);
+      m_PRGROMmemory.REMAP(3,(bank&0xFE)+1);
+      break;
+   case 0:
+      bank = m_prg[3]&0x7f;
+      bank %= m_numPrgBanks;
+      m_PRGROMmemory.REMAP(0,(bank&0xFC)+0);
+      m_PRGROMmemory.REMAP(1,(bank&0xFC)+1);
+      m_PRGROMmemory.REMAP(2,(bank&0xFC)+2);
+      m_PRGROMmemory.REMAP(3,(bank&0xFC)+3);
+      break;
+   }
 }
 
 void CROMMapper005::SETPPU ( void )
 {
+   switch ( m_chrMode )
+   {
+   case 3:
+      m_chrBank_a[0] = m_chrReg_a[0];
+      m_chrBank_a[1] = m_chrReg_a[1];
+      m_chrBank_a[2] = m_chrReg_a[2];
+      m_chrBank_a[3] = m_chrReg_a[3];
+      m_chrBank_a[4] = m_chrReg_a[4];
+      m_chrBank_a[5] = m_chrReg_a[5];
+      m_chrBank_a[6] = m_chrReg_a[6];
+      m_chrBank_a[7] = m_chrReg_a[7];
+      m_chrBank_b[0] = m_chrReg_b[0];
+      m_chrBank_b[1] = m_chrReg_b[1];
+      m_chrBank_b[2] = m_chrReg_b[2];
+      m_chrBank_b[3] = m_chrReg_b[3];
+      m_chrBank_b[4] = m_chrReg_b[0];
+      m_chrBank_b[5] = m_chrReg_b[1];
+      m_chrBank_b[6] = m_chrReg_b[2];
+      m_chrBank_b[7] = m_chrReg_b[3];
+      break;
+   case 2:
+      m_chrBank_a[0] = (m_chrReg_a[1]<<1)+0;
+      m_chrBank_a[1] = (m_chrReg_a[1]<<1)+1;
+      m_chrBank_a[2] = (m_chrReg_a[3]<<1)+0;
+      m_chrBank_a[3] = (m_chrReg_a[3]<<1)+1;
+      m_chrBank_a[4] = (m_chrReg_a[5]<<1)+0;
+      m_chrBank_a[5] = (m_chrReg_a[5]<<1)+1;
+      m_chrBank_a[6] = (m_chrReg_a[7]<<1)+0;
+      m_chrBank_a[7] = (m_chrReg_a[7]<<1)+1;
+      m_chrBank_b[0] = (m_chrReg_b[1]<<1)+0;
+      m_chrBank_b[1] = (m_chrReg_b[1]<<1)+1;
+      m_chrBank_b[2] = (m_chrReg_b[3]<<1)+0;
+      m_chrBank_b[3] = (m_chrReg_b[3]<<1)+1;
+      m_chrBank_b[4] = (m_chrReg_b[1]<<1)+0;
+      m_chrBank_b[5] = (m_chrReg_b[1]<<1)+1;
+      m_chrBank_b[6] = (m_chrReg_b[3]<<1)+0;
+      m_chrBank_b[7] = (m_chrReg_b[3]<<1)+1;
+      break;
+   case 1:
+      m_chrBank_a[0] = (m_chrReg_a[3]<<2)+0;
+      m_chrBank_a[1] = (m_chrReg_a[3]<<2)+1;
+      m_chrBank_a[2] = (m_chrReg_a[3]<<2)+2;
+      m_chrBank_a[3] = (m_chrReg_a[3]<<2)+3;
+      m_chrBank_a[4] = (m_chrReg_a[7]<<2)+0;
+      m_chrBank_a[5] = (m_chrReg_a[7]<<2)+1;
+      m_chrBank_a[6] = (m_chrReg_a[7]<<2)+2;
+      m_chrBank_a[7] = (m_chrReg_a[7]<<2)+3;
+      m_chrBank_b[0] = (m_chrReg_b[3]<<2)+0;
+      m_chrBank_b[1] = (m_chrReg_b[3]<<2)+1;
+      m_chrBank_b[2] = (m_chrReg_b[3]<<2)+2;
+      m_chrBank_b[3] = (m_chrReg_b[3]<<2)+3;
+      m_chrBank_b[4] = (m_chrReg_b[3]<<2)+0;
+      m_chrBank_b[5] = (m_chrReg_b[3]<<2)+1;
+      m_chrBank_b[6] = (m_chrReg_b[3]<<2)+2;
+      m_chrBank_b[7] = (m_chrReg_b[3]<<2)+3;
+      break;
+   case 0:
+      m_chrBank_a[0] = (m_chrReg_a[7]<<3)+0;
+      m_chrBank_a[1] = (m_chrReg_a[7]<<3)+1;
+      m_chrBank_a[2] = (m_chrReg_a[7]<<3)+2;
+      m_chrBank_a[3] = (m_chrReg_a[7]<<3)+3;
+      m_chrBank_a[4] = (m_chrReg_a[7]<<3)+4;
+      m_chrBank_a[5] = (m_chrReg_a[7]<<3)+5;
+      m_chrBank_a[6] = (m_chrReg_a[7]<<3)+6;
+      m_chrBank_a[7] = (m_chrReg_a[7]<<3)+7;
+      m_chrBank_b[0] = (m_chrReg_b[3]<<3)+0;
+      m_chrBank_b[1] = (m_chrReg_b[3]<<3)+1;
+      m_chrBank_b[2] = (m_chrReg_b[3]<<3)+2;
+      m_chrBank_b[3] = (m_chrReg_b[3]<<3)+3;
+      m_chrBank_b[4] = (m_chrReg_b[3]<<3)+4;
+      m_chrBank_b[5] = (m_chrReg_b[3]<<3)+5;
+      m_chrBank_b[6] = (m_chrReg_b[3]<<3)+6;
+      m_chrBank_b[7] = (m_chrReg_b[3]<<3)+7;
+      break;
+   }
+
    int32_t rasterX = CYCLE_TO_VISX(m_ppuCycle);
 
    // Sprite fetches
@@ -496,25 +669,25 @@ void CROMMapper005::SETPPU ( void )
    {
       if ( m_8x16z && m_8x16e )
       {
-         m_CHRmemory.REMAP(0,m_chr[0]);
-         m_CHRmemory.REMAP(1,m_chr[1]);
-         m_CHRmemory.REMAP(2,m_chr[2]);
-         m_CHRmemory.REMAP(3,m_chr[3]);
-         m_CHRmemory.REMAP(4,m_chr[4]);
-         m_CHRmemory.REMAP(5,m_chr[5]);
-         m_CHRmemory.REMAP(6,m_chr[6]);
-         m_CHRmemory.REMAP(7,m_chr[7]);
+         m_CHRmemory.REMAP(0,m_chrBank_a[0]);
+         m_CHRmemory.REMAP(1,m_chrBank_a[1]);
+         m_CHRmemory.REMAP(2,m_chrBank_a[2]);
+         m_CHRmemory.REMAP(3,m_chrBank_a[3]);
+         m_CHRmemory.REMAP(4,m_chrBank_a[4]);
+         m_CHRmemory.REMAP(5,m_chrBank_a[5]);
+         m_CHRmemory.REMAP(6,m_chrBank_a[6]);
+         m_CHRmemory.REMAP(7,m_chrBank_a[7]);
       }
       else if ( m_8x16e )
       {
-         m_CHRmemory.REMAP(0,m_chr[0]);
-         m_CHRmemory.REMAP(1,m_chr[1]);
-         m_CHRmemory.REMAP(2,m_chr[2]);
-         m_CHRmemory.REMAP(3,m_chr[3]);
-         m_CHRmemory.REMAP(4,m_chr[4]);
-         m_CHRmemory.REMAP(5,m_chr[5]);
-         m_CHRmemory.REMAP(6,m_chr[6]);
-         m_CHRmemory.REMAP(7,m_chr[7]);
+         m_CHRmemory.REMAP(0,m_chrBank_a[0]);
+         m_CHRmemory.REMAP(1,m_chrBank_a[1]);
+         m_CHRmemory.REMAP(2,m_chrBank_a[2]);
+         m_CHRmemory.REMAP(3,m_chrBank_a[3]);
+         m_CHRmemory.REMAP(4,m_chrBank_a[4]);
+         m_CHRmemory.REMAP(5,m_chrBank_a[5]);
+         m_CHRmemory.REMAP(6,m_chrBank_a[6]);
+         m_CHRmemory.REMAP(7,m_chrBank_a[7]);
       }
    }
    // Background fetches
@@ -522,25 +695,25 @@ void CROMMapper005::SETPPU ( void )
    {
       if ( m_8x16z && m_8x16e )
       {
-         m_CHRmemory.REMAP(0,m_chr[8]);
-         m_CHRmemory.REMAP(1,m_chr[9]);
-         m_CHRmemory.REMAP(2,m_chr[10]);
-         m_CHRmemory.REMAP(3,m_chr[11]);
-         m_CHRmemory.REMAP(4,m_chr[8]);
-         m_CHRmemory.REMAP(5,m_chr[9]);
-         m_CHRmemory.REMAP(6,m_chr[10]);
-         m_CHRmemory.REMAP(7,m_chr[11]);
+         m_CHRmemory.REMAP(0,m_chrBank_b[0]);
+         m_CHRmemory.REMAP(1,m_chrBank_b[1]);
+         m_CHRmemory.REMAP(2,m_chrBank_b[2]);
+         m_CHRmemory.REMAP(3,m_chrBank_b[3]);
+         m_CHRmemory.REMAP(4,m_chrBank_b[4]);
+         m_CHRmemory.REMAP(5,m_chrBank_b[5]);
+         m_CHRmemory.REMAP(6,m_chrBank_b[6]);
+         m_CHRmemory.REMAP(7,m_chrBank_b[7]);
       }
       else if ( m_8x16e )
       {
-         m_CHRmemory.REMAP(0,m_chr[0]);
-         m_CHRmemory.REMAP(1,m_chr[1]);
-         m_CHRmemory.REMAP(2,m_chr[2]);
-         m_CHRmemory.REMAP(3,m_chr[3]);
-         m_CHRmemory.REMAP(4,m_chr[4]);
-         m_CHRmemory.REMAP(5,m_chr[5]);
-         m_CHRmemory.REMAP(6,m_chr[6]);
-         m_CHRmemory.REMAP(7,m_chr[7]);
+         m_CHRmemory.REMAP(0,m_chrBank_a[0]);
+         m_CHRmemory.REMAP(1,m_chrBank_a[1]);
+         m_CHRmemory.REMAP(2,m_chrBank_a[2]);
+         m_CHRmemory.REMAP(3,m_chrBank_a[3]);
+         m_CHRmemory.REMAP(4,m_chrBank_a[4]);
+         m_CHRmemory.REMAP(5,m_chrBank_a[5]);
+         m_CHRmemory.REMAP(6,m_chrBank_a[6]);
+         m_CHRmemory.REMAP(7,m_chrBank_a[7]);
       }
    }
 }
@@ -823,10 +996,12 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
       case 0x5100:
          m_reg[11] = data;
          m_prgMode = data&0x3;
+         SETCPU();
          break;
       case 0x5101:
          m_reg[12] = data;
          m_chrMode = data&0x3;
+         SETPPU();
          break;
       case 0x5102:
          m_reg[13] = data;
@@ -925,287 +1100,96 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
          break;
       case 0x5114:
          m_reg[20] = data;
-         prgRAM = !(data&0x80);
-         data &= 0x7f;
-         data %= m_numPrgBanks;
-
-         if ( prgRAM )
-         {
-            data &= 0x7;
-         }
-
-         if ( m_prgMode == 3 )
-         {
-            m_prgRAM[0] = prgRAM;
-            if ( m_prgRAM[0] )
-            {
-               REMAPSRAM ( 0x8000, data );
-            }
-            else
-            {
-               m_PRGROMmemory.REMAP(0,data);
-            }
-         }
+         m_prg[0] = data;
+         SETCPU();
          break;
       case 0x5115:
          m_reg[21] = data;
-         prgRAM = !(data&0x80);
-         data &= 0x7f;
-         data %= m_numPrgBanks;
-
-         if ( prgRAM )
-         {
-            data &= 0x7;
-         }
-
-         if ( (m_prgMode == 1) || (m_prgMode == 2) )
-         {
-            m_prgRAM[0] = prgRAM;
-            m_prgRAM[1] = prgRAM;
-            if ( prgRAM )
-            {
-               REMAPSRAM ( 0x8000, (data&0xFE)+0 );
-               REMAPSRAM ( 0xA000, (data&0xFE)+1 );
-            }
-            else
-            {
-               m_PRGROMmemory.REMAP(0,(data&0xFE)+0);
-               m_PRGROMmemory.REMAP(1,(data&0xFE)+1);
-            }
-         }
-         else if ( m_prgMode == 3 )
-         {
-            m_prgRAM[1] = prgRAM;
-            if ( prgRAM )
-            {
-               REMAPSRAM ( 0xA000, data );
-            }
-            else
-            {
-               m_PRGROMmemory.REMAP(1,data);
-            }
-         }
+         m_prg[1] = data;
+         SETCPU();
          break;
       case 0x5116:
          m_reg[22] = data;
-         prgRAM = !(data&0x80);
-         data &= 0x7f;
-         data %= m_numPrgBanks;
-
-         if ( prgRAM )
-         {
-            data &= 0x7;
-         }
-
-         if ( (m_prgMode == 2) || (m_prgMode == 3) )
-         {
-            m_prgRAM[2] = prgRAM;
-            if ( prgRAM )
-            {
-               REMAPSRAM ( 0xC000, data );
-            }
-            else
-            {
-               m_PRGROMmemory.REMAP(2,data);
-            }
-         }
+         m_prg[2] = data;
+         SETCPU();
          break;
       case 0x5117:
+         data |= 0x80;
          m_reg[23] = data;
-         data %= m_numPrgBanks;
-         if ( m_prgMode == 0 )
-         {
-            m_PRGROMmemory.REMAP(0,(data&0xFC)+0);
-            m_PRGROMmemory.REMAP(1,(data&0xFC)+1);
-            m_PRGROMmemory.REMAP(2,(data&0xFC)+2);
-            m_PRGROMmemory.REMAP(3,(data&0xFC)+3);
-         }
-         else if ( m_prgMode == 1 )
-         {
-            m_PRGROMmemory.REMAP(2,(data&0xFE)+0);
-            m_PRGROMmemory.REMAP(3,(data&0xFE)+1);
-         }
-         else if ( (m_prgMode == 2) || (m_prgMode == 3) )
-         {
-            m_PRGROMmemory.REMAP(3,data);
-         }
+         m_prg[3] = data;
+         SETCPU();
          break;
       case 0x5120:
          m_reg[24] = data;
          m_lastChr = 0;
-         data %= (m_numChrBanks<<m_chrMode);
-         if ( m_chrMode == 3 )
-         {
-            m_chr[0] = (m_chrHigh<<8)|data;
-         }
+         m_chrReg_a[0] = (m_chrHigh<<8)|data;
+         SETPPU();
          break;
       case 0x5121:
          m_reg[25] = data;
          m_lastChr = 0;
-         data %= (m_numChrBanks<<m_chrMode);
-         if ( m_chrMode == 3 )
-         {
-            m_chr[1] = (m_chrHigh<<8)|data;
-         }
-         else if ( m_chrMode == 2 )
-         {
-            m_chr[0] = (m_chrHigh<<8)|((data<<1)+0);
-            m_chr[1] = (m_chrHigh<<8)|((data<<1)+1);
-         }
+         m_chrReg_a[1] = (m_chrHigh<<8)|data;
+         SETPPU();
          break;
       case 0x5122:
          m_reg[26] = data;
          m_lastChr = 0;
-         data %= (m_numChrBanks<<m_chrMode);
-         if ( m_chrMode == 3 )
-         {
-            m_chr[2] = (m_chrHigh<<8)|data;
-         }
+         m_chrReg_a[2] = (m_chrHigh<<8)|data;
+         SETPPU();
          break;
       case 0x5123:
          m_reg[27] = data;
          m_lastChr = 0;
-         data %= (m_numChrBanks<<m_chrMode);
-         if ( m_chrMode == 3 )
-         {
-            m_chr[3] = (m_chrHigh<<8)|data;
-         }
-         else if ( m_chrMode == 2 )
-         {
-            m_chr[2] = (m_chrHigh<<8)|((data<<1)+0);
-            m_chr[3] = (m_chrHigh<<8)|((data<<1)+1);
-         }
-         else if ( m_chrMode == 1 )
-         {
-            m_chr[0] = (m_chrHigh<<8)|((data<<2)+0);
-            m_chr[1] = (m_chrHigh<<8)|((data<<2)+1);
-            m_chr[2] = (m_chrHigh<<8)|((data<<2)+2);
-            m_chr[3] = (m_chrHigh<<8)|((data<<2)+3);
-         }
+         m_chrReg_a[3] = (m_chrHigh<<8)|data;
+         SETPPU();
          break;
       case 0x5124:
          m_reg[28] = data;
          m_lastChr = 0;
-         data %= (m_numChrBanks<<m_chrMode);
-         if ( m_chrMode == 3 )
-         {
-            m_chr[4] = (m_chrHigh<<8)|data;
-         }
+         m_chrReg_a[4] = (m_chrHigh<<8)|data;
+         SETPPU();
          break;
       case 0x5125:
          m_reg[29] = data;
          m_lastChr = 0;
-         data %= (m_numChrBanks<<m_chrMode);
-         if ( m_chrMode == 3 )
-         {
-            m_chr[5] = (m_chrHigh<<8)|data;
-         }
-         else if ( m_chrMode == 2 )
-         {
-            m_chr[4] = (m_chrHigh<<8)|((data<<1)+0);
-            m_chr[5] = (m_chrHigh<<8)|((data<<1)+1);
-         }
+         m_chrReg_a[5] = (m_chrHigh<<8)|data;
+         SETPPU();
          break;
       case 0x5126:
          m_reg[30] = data;
          m_lastChr = 0;
-         data %= (m_numChrBanks<<m_chrMode);
-         if ( m_chrMode == 3 )
-         {
-            m_chr[6] = (m_chrHigh<<8)|data;
-         }
+         m_chrReg_a[6] = (m_chrHigh<<8)|data;
+         SETPPU();
          break;
       case 0x5127:
          m_reg[31] = data;
          m_lastChr = 0;
-         data %= (m_numChrBanks<<m_chrMode);
-         if ( m_chrMode == 3 )
-         {
-            m_chr[7] = (m_chrHigh<<8)|data;
-         }
-         else if ( m_chrMode == 2 )
-         {
-            m_chr[6] = (m_chrHigh<<8)|((data<<1)+0);
-            m_chr[7] = (m_chrHigh<<8)|((data<<1)+1);
-         }
-         else if ( m_chrMode == 1 )
-         {
-            m_chr[4] = (m_chrHigh<<8)|((data<<2)+0);
-            m_chr[5] = (m_chrHigh<<8)|((data<<2)+1);
-            m_chr[6] = (m_chrHigh<<8)|((data<<2)+2);
-            m_chr[7] = (m_chrHigh<<8)|((data<<2)+3);
-         }
-         else if ( m_chrMode == 0 )
-         {
-            m_chr[0] = (m_chrHigh<<8)|((data<<3)+0);
-            m_chr[1] = (m_chrHigh<<8)|((data<<3)+1);
-            m_chr[2] = (m_chrHigh<<8)|((data<<3)+2);
-            m_chr[3] = (m_chrHigh<<8)|((data<<3)+3);
-            m_chr[4] = (m_chrHigh<<8)|((data<<3)+4);
-            m_chr[5] = (m_chrHigh<<8)|((data<<3)+5);
-            m_chr[6] = (m_chrHigh<<8)|((data<<3)+6);
-            m_chr[7] = (m_chrHigh<<8)|((data<<3)+7);
-         }
+         m_chrReg_a[7] = (m_chrHigh<<8)|data;
+         SETPPU();
          break;
       case 0x5128:
          m_reg[32] = data;
          m_lastChr = 1;
-         data %= (m_numChrBanks<<m_chrMode);
-         if ( m_chrMode == 3 )
-         {
-            m_chr[8] = (m_chrHigh<<8)|data;
-         }
+         m_chrReg_b[0] = (m_chrHigh<<8)|data;
+         SETPPU();
          break;
       case 0x5129:
          m_reg[33] = data;
          m_lastChr = 1;
-         data %= (m_numChrBanks<<m_chrMode);
-         if ( m_chrMode == 3 )
-         {
-            m_chr[9] = (m_chrHigh<<8)|data;
-         }
-         else if ( m_chrMode == 2 )
-         {
-            m_chr[8] = (m_chrHigh<<8)|((data<<1)+0);
-            m_chr[9] = (m_chrHigh<<8)|((data<<1)+1);
-         }
+         m_chrReg_b[1] = (m_chrHigh<<8)|data;
+         SETPPU();
          break;
       case 0x512A:
          m_reg[34] = data;
          m_lastChr = 1;
-         data %= (m_numChrBanks<<m_chrMode);
-         if ( m_chrMode == 3 )
-         {
-            m_chr[10] = (m_chrHigh<<8)|data;
-         }
+         m_chrReg_b[2] = (m_chrHigh<<8)|data;
+         SETPPU();
          break;
       case 0x512B:
          m_reg[35] = data;
          m_lastChr = 1;
-         data %= (m_numChrBanks<<m_chrMode);
-         if ( m_chrMode == 3 )
-         {
-            m_chr[11] = (m_chrHigh<<8)|data;
-         }
-         else if ( m_chrMode == 2 )
-         {
-            m_chr[10] = (m_chrHigh<<8)|((data<<1)+0);
-            m_chr[11] = (m_chrHigh<<8)|((data<<1)+1);
-         }
-         else if ( m_chrMode == 1 )
-         {
-            m_chr[8] = (m_chrHigh<<8)|((data<<2)+0);
-            m_chr[9] = (m_chrHigh<<8)|((data<<2)+1);
-            m_chr[10] = (m_chrHigh<<8)|((data<<2)+2);
-            m_chr[11] = (m_chrHigh<<8)|((data<<2)+3);
-         }
-         else if ( m_chrMode == 0 )
-         {
-            m_chr[8] = (m_chrHigh<<8)|((data<<3)+0);
-            m_chr[9] = (m_chrHigh<<8)|((data<<3)+1);
-            m_chr[10] = (m_chrHigh<<8)|((data<<3)+2);
-            m_chr[11] = (m_chrHigh<<8)|((data<<3)+3);
-         }
+         m_chrReg_b[3] = (m_chrHigh<<8)|data;
+         SETPPU();
          break;
       case 0x5130:
          m_reg[36] = data;
@@ -1250,7 +1234,6 @@ void CROMMapper005::LMAPPER ( uint32_t addr, uint8_t data )
          break;
       }
    }
-   SETPPU();
 }
 
 uint32_t CROMMapper005::CHRMEM ( uint32_t addr )

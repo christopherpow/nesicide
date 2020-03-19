@@ -84,7 +84,11 @@ protected:
    bool          m_wp;
    uint32_t m_ppuCycle;
    uint32_t m_ppuAddr;
-   uint16_t m_chr[12];
+   uint16_t m_chrReg_a[8];
+   uint16_t m_chrReg_b[4];
+   uint16_t m_chrBank_a[8];
+   uint16_t m_chrBank_b[8];
+   uint8_t  m_prg[4];
    uint8_t m_wp1;
    uint8_t m_wp2;
    uint8_t  m_mult1;
