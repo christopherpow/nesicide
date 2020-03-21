@@ -51,10 +51,10 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    {
       // Developer build?  Set environment assuming deps/ is at top level.
       QString envvar = qgetenv("PATH");
-      QString envdat;
+      QString envdat = "";
       QDir dir;
       dir.setPath("../../deps/Windows");
-      envdat = dir.absolutePath();
+      envdat += dir.absolutePath();
       envdat += "/GnuWin32/bin;";
       dir.setPath("../../deps");
       envdat += dir.absolutePath();
@@ -87,8 +87,8 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    {
       // Set environment.
       QString envvar = qgetenv("PATH");
-      QString envdat;
-      envdat = QCoreApplication::applicationDirPath();
+      QString envdat = "";
+      envdat += QCoreApplication::applicationDirPath();
       envdat += "/GnuWin32/bin;";
       envdat += QCoreApplication::applicationDirPath();
       envdat += "/cc65/bin;";
@@ -117,7 +117,7 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    {
       // Developer build?  Set environment assuming deps/ is at top level.
       QString envvar = qgetenv("PATH");
-      QString envdat;
+      QString envdat = "";
       QDir dir;
       dir.setPath("../../../../../../deps");
       envdat += dir.absolutePath();
@@ -150,10 +150,10 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    {
       // Set environment.
       QString envvar = qgetenv("PATH");
-      QString envdat;
-      envdat = QCoreApplication::applicationDirPath();
+      QString envdat = "";
+      envdat += QCoreApplication::applicationDirPath();
       envdat += "/cc65/bin:";
-      envdat = QCoreApplication::applicationDirPath();
+      envdat += QCoreApplication::applicationDirPath();
       envdat += "/famitone2/bin:";
       qputenv("PATH",QString(envdat+envvar).toLatin1());
 
@@ -178,7 +178,7 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    {
       // Developer build?  Set environment assuming deps/ is at top level.
       QString envvar = qgetenv("PATH");
-      QString envdat;
+      QString envdat = "";
       QDir dir;
       dir.setPath("../../../../../../deps");
       envdat += dir.absolutePath();
@@ -211,7 +211,7 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    {
       // Set environment.
       QString envvar = qgetenv("PATH");
-      QString envdat;
+      QString envdat = "";
       envdat += QCoreApplication::applicationDirPath();
       envdat += "/cc65/bin:";
       envdat += QCoreApplication::applicationDirPath();
