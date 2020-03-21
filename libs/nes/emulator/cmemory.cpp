@@ -49,9 +49,9 @@ uint32_t CMEMORYBANK::BASEADDR() const
 
 
 void CMEMORYBANK::INITIALIZE(CMEMORY *parent,
-                        uint32_t bankNum,
-                        uint32_t size,
-                        uint32_t sizeMask)
+                             uint32_t bankNum,
+                             uint32_t size,
+                             uint32_t sizeMask)
 {
    uint32_t addr;
 

@@ -123,6 +123,9 @@ void CROMMapper004::RESET ( bool soft )
    for ( idx = 0; idx < 8; idx++ )
    {
       m_reg [ idx ] = 0x00;
+   }
+   for ( idx = 0; idx < 6; idx++ )
+   {
       m_chr [ idx ] = 0;
    }
 

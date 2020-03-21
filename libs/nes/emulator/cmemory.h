@@ -164,11 +164,11 @@ public:
    }
 
    // Support functions for inline disassembly
-   inline void OPCODEMASK ( uint32_t virtAddr, uint8_t mask )
+   virtual void OPCODEMASK ( uint32_t virtAddr, uint8_t mask )
    {
       (*(m_pBank+virtBankFromVirtAddr(virtAddr)))->OPCODEMASK(virtAddr,mask);
    }
-   inline void OPCODEMASKATPHYSADDR ( uint32_t physAddr, uint8_t mask )
+   virtual void OPCODEMASKATPHYSADDR ( uint32_t physAddr, uint8_t mask )
    {
       (m_bank+physBankFromPhysAddr(physAddr))->OPCODEMASK(physAddr,mask);
    }
@@ -182,15 +182,15 @@ public:
    }
    uint32_t SLOC2VIRTADDR ( uint16_t sloc );
    uint16_t ADDR2SLOC ( uint32_t virtAddr );
-   inline uint32_t SLOC ( uint32_t virtAddr )
+   virtual uint32_t SLOC ( uint32_t virtAddr )
    {
       return (*(m_pBank+virtBankFromVirtAddr(virtAddr)))->SLOC();
    }
-   char* DISASSEMBLY ( uint32_t virtAddr )
+   virtual char* DISASSEMBLY ( uint32_t virtAddr )
    {
       return (*(m_pBank+virtBankFromVirtAddr(virtAddr)))->DISASSEMBLY(virtAddr);
    }
-   char* DISASSEMBLYATPHYSADDR ( uint32_t physAddr, char* buffer )
+   virtual char* DISASSEMBLYATPHYSADDR ( uint32_t physAddr, char* buffer )
    {
       return ::DISASSEMBLE((m_bank+physBankFromPhysAddr(physAddr))->MEMPTR(physAddr),buffer);
    }
@@ -217,7 +217,7 @@ public:
       }
    }
 
-   inline uint8_t* MEMPTR (uint32_t addr)
+   virtual uint8_t* MEMPTR (uint32_t addr)
    {
       return (*(m_pBank+virtBankFromVirtAddr(addr)))->MEMPTR(addr);
    }
@@ -321,19 +321,28 @@ public:
    COPENBUS() : CMEMORY(0,1) {}
    virtual ~COPENBUS() {}
 
-   uint32_t TOTALSIZE() const { return 0; }
-
    // Code/Data logger support functions
    CCodeDataLogger* LOGGER (uint32_t virtAddr = 0);
    CCodeDataLogger* LOGGERATPHYSADDR (uint32_t physAddr);
+
+   void OPCODEMASK ( uint32_t virtAddr, uint8_t mask ) {}
+   virtual void OPCODEMASKATPHYSADDR ( uint32_t physAddr, uint8_t mask ) {}
 
    uint8_t MEM (uint32_t addr);
    void MEM (uint32_t addr, uint8_t data);
    uint8_t MEMATPHYSADDR (uint32_t absAddr);
    void MEMATPHYSADDR (uint32_t absAddr, uint8_t data);
 
+   uint8_t* MEMPTR (uint32_t addr) { return m_pBank[0]->MEMPTR(0); }
+
    void REMAP(uint32_t virt, uint32_t phys) {}
    void REMAPEXT(uint32_t virt, CMEMORYBANK* phys) {}
+
+   uint32_t SLOC ( uint32_t virtAddr ) { return 1; }
+   char* DISASSEMBLY ( uint32_t virtAddr ) { return "???"; }
+   char* DISASSEMBLYATPHYSADDR ( uint32_t physAddr, char* buffer ) { return "???"; }
+
+   uint32_t TOTALSIZE() const { return 0; }
 };
 
 #endif // CMEMORY_H

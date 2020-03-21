@@ -17,7 +17,7 @@ The following steps are required prior to building this project on any platform.
 
 0. Install `git`
 1. Install [Qt 5.12.6](http://download.qt.io/archive/qt/5.12/5.12.6/) as it was the latest kit to be verified to build NESICIDE properly without errors. Please do not use a kit later than this, or if you do, please create a pull request with necessary changes.
-2. Make sure qmake is in your PATH.
+2. Make sure qmake and your Qt installation is in your PATH.
 
 At the time of writing this Mac OS Homewbrew contains Qt 5.14.1 and NESICIDE can also be built with that version of Qt. So, alternatively, you can install Qt using
 
@@ -28,7 +28,7 @@ At the time of writing this Mac OS Homewbrew contains Qt 5.14.1 and NESICIDE can
 ### Debian prerequisites
 
 ```sh
-sudo apt-get install build-essential libasound2-dev liblua5.1-dev libsdl1.2-dev libgl1-mesa-dev wine-dev
+sudo apt-get install qtchooser build-essential libasound2-dev liblua5.1-dev libsdl1.2-dev libgl1-mesa-dev 
 ```
 
 ### Arch Linux prerequisites

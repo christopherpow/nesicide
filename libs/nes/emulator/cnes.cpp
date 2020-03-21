@@ -237,11 +237,9 @@ uint32_t CNES::PHYSADDR ( uint32_t addr )
 
 void CNES::FRONTLOAD ( uint32_t mapper )
 {
-   CROM* cartSave = m_cart;
-
-   // Create cartridge space.   
+   delete m_cart;
+   // Create cartridge space.
    m_cart = CARTFACTORY(mapper);
-   delete cartSave;
 }
 
 void CNES::RESET ( bool soft )
