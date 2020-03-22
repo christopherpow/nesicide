@@ -15,7 +15,10 @@ DEPLOYS="apps/ide/release/nesicide \
         apps/famiplayer/release/famiplayer \
         apps/nes-emulator/release/nes-emulator"
 
-TARGARGS="-verbose=0 -appimage -qmake=/opt/qt510/bin/qmake"
+TARGARGS="-verbose=0 -appimage"
+if [ "$TRAVIS_BUILD_DIR" != "" ]; then
+  TARGARGS+="-qmake=/opt/qt510/bin/qmake"
+fi
 
 unset QTDIR; unset QT_PLUGIN_PATH; unset LD_LIBRARY_PATH
 
