@@ -1414,8 +1414,6 @@ void nesSetTVOut ( int8_t* tv )
 
 void nesFrontload ( uint32_t mapper )
 {
-   CNES::NES()->CART()->ClearCHRBanks();
-   CNES::NES()->CART()->ClearPRGBanks();
    CNES::NES()->FRONTLOAD(mapper);
 }
 
