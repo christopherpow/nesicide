@@ -176,7 +176,7 @@ public:
    }
    inline CCodeDataLogger* EXRAMLOGGER ()
    {
-      return m_pEXRAMmemory->LOGGER(0);
+      return m_pEXRAMmemory->LOGGER(0x5C00);
    }
 
    // Support functions for inline disassembly in PRG-ROM, SRAM, and EXRAM

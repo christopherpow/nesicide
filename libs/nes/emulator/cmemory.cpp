@@ -158,7 +158,7 @@ CMEMORY::CMEMORY(uint32_t virtBaseAddress,
 
 CMEMORY::~CMEMORY()
 {
-   delete m_pBank;
+   delete [] m_pBank;
    delete [] m_bank;
 }
 

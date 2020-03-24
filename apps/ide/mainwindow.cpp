@@ -3718,9 +3718,6 @@ void MainWindow::on_actionLoad_In_Emulator_triggered()
          emit resetEmulator();
 
          buildTextLogger->write("<b>Load complete.</b>");
-
-         // Switch to Debugging mode.
-         on_actionDebugging_Mode_triggered();
       }
       else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
       {
