@@ -64,7 +64,7 @@ public:
    }
    uint16_t ADDR2SLOC ( uint32_t addr )
    {
-      // addr is enforced within bounds of this bank by caller
+      addr &= m_sizeMask;
       return *(m_addr2sloc+addr);
    }
    inline uint32_t SLOC ()
@@ -151,7 +151,7 @@ public:
    inline CMEMORYBANK* PHYSBANK(uint32_t bank) const { return &m_bank[bank]; }
    inline CMEMORYBANK* VIRTBANK(uint32_t bank) const { return m_pBank[bank]; }
 
-   inline uint32_t TOTALSIZE() const { return m_totalPhysSize; }
+   virtual uint32_t TOTALSIZE() const { return m_totalPhysSize; }
 
    // Code/Data logger support functions
    virtual CCodeDataLogger* LOGGER (uint32_t virtAddr = 0)
@@ -264,6 +264,13 @@ public:
 
    inline uint32_t virtBankFromVirtAddr(uint32_t virtAddr) const
    {
+      int offsetMinusBase = offsetFromBase(virtAddr);
+      if ( offsetMinusBase < 0 )
+      {
+         printf("virtAddr: %x base: %x offsetMinusBase: %x\n",virtAddr,m_virtBaseAddress,offsetMinusBase);
+         int *p = 0;
+         *p = 1;
+      }
       // Return the bank within the physical constraint of the number
       // of virtual banks (bank slots in emulated machine) that the
       // address falls within.

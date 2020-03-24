@@ -273,8 +273,6 @@ uint32_t CPPU::LOAD ( uint32_t addr, int8_t source, int8_t type, bool trace )
       return data;
    }
 
-   addr -= 0x2000;
-
    uint32_t tryCart = CNES::NES()->CART()->VRAM(addr);
    data = tryCart&0xFF;
    if ( tryCart == CART_UNCLAIMED )
@@ -344,8 +342,6 @@ void CPPU::STORE ( uint32_t addr, uint8_t data, int8_t source, int8_t type, bool
 
       return;
    }
-
-   addr -= 0x2000;
 
    // Add Tracer sample...
    if ( nesIsDebuggable && trace )
