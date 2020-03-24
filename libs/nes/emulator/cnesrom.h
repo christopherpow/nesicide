@@ -241,7 +241,7 @@ public:
    uint16_t EXRAMADDR2SLOC ( uint32_t addr );
    inline uint32_t EXRAMSLOC ()
    {
-      return m_pEXRAMmemory->SLOC(0);
+      return m_pEXRAMmemory->SLOC(0x5C00);
    }
    void DISASSEMBLE ();
    void PRINTABLEADDR ( char* buffer, uint32_t addr );
