@@ -622,14 +622,13 @@ void MainWindow::applicationActivationChanged(bool activated)
 
             if ( result == QMessageBox::Yes )
             {
+               closeProject();
                if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
                {
-                  closeProject();
                   openNesProject(fileInfo.fileName());
                }
                else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
                {
-                  closeProject();
                   openC64Project(fileInfo.fileName());
                }
             }
@@ -969,6 +968,7 @@ void MainWindow::createNesUi()
    QObject::connect(this,SIGNAL(pauseEmulation(bool)),m_pNESEmulatorThread,SLOT(pauseEmulation(bool)));
    QObject::connect(this,SIGNAL(primeEmulator()),m_pNESEmulatorThread,SLOT(primeEmulator()));
    QObject::connect(this,SIGNAL(resetEmulator()),m_pNESEmulatorThread,SLOT(resetEmulator()));
+   QObject::connect(this,SIGNAL(exitEmulator()),m_pNESEmulatorThread,SLOT(exitEmulator()));
    QObject::connect(this,SIGNAL(adjustAudio(int32_t)),m_pNESEmulatorThread,SLOT(adjustAudio(int32_t)));
 
    m_pNESEmulator = new NESEmulatorDockWidget();
@@ -1282,11 +1282,27 @@ void MainWindow::destroyNesUi()
    // Silence all debuggers.
    DebuggerUpdateThread::silence(true);
 
-//   QObject::connect(emulator,SIGNAL(emulatorExited()),this,SLOT(finishDestroyNesUi()));
-//   QObject::connect(this,SIGNAL(exitEmulator()),emulator,SLOT(exitEmulator()));
-   emit exitEmulator();
-
    SDL_PauseAudio(1);
+
+   QEventLoop q;
+   QTimer t;
+
+   t.setSingleShot(true);
+   connect(&t, SIGNAL(timeout()), &q, SLOT(quit()));
+   connect(emulator, SIGNAL(emulatorExited()),
+           &q, SLOT(quit()));
+
+   t.start(5000); // 5s timeout
+   emit exitEmulator();
+   q.exec();
+
+   if(t.isActive()){
+      // download complete
+      t.stop();
+   } else {
+      // timeout
+      qFatal("Couldn't stop emulator.");
+   }
 
    CDockWidgetRegistry::instance()->removeWidget ( "Assembly Browser" );
    CDockWidgetRegistry::instance()->removeWidget ( "Breakpoints" );
@@ -1316,8 +1332,8 @@ void MainWindow::destroyNesUi()
    CDockWidgetRegistry::instance()->removeWidget ( "Joypad Logger" );
 
    // Properly kill and destroy the thread we created above.
-   delete m_pNESEmulatorThread;
-   m_pNESEmulatorThread = NULL;
+//   delete m_pNESEmulatorThread;
+//   m_pNESEmulatorThread = NULL;
 
    CObjectRegistry::instance()->removeObject ( "Emulator" );
 
@@ -3084,8 +3100,27 @@ bool MainWindow::closeProject()
 
       nesicideProject->terminateProject();
 
+      QEventLoop q;
+      QTimer t;
+      NESEmulatorThread* emulator = dynamic_cast<NESEmulatorThread*>(CObjectRegistry::instance()->getObject("Emulator"));
+
+      t.setSingleShot(true);
+      connect(&t, SIGNAL(timeout()), &q, SLOT(quit()));
+      connect(emulator, SIGNAL(emulatorReset()),
+              &q, SLOT(quit()));
+
+      t.start(5000); // 5s timeout
       emit primeEmulator();
       emit resetEmulator();
+      q.exec();
+
+      if(t.isActive()){
+         // download complete
+         t.stop();
+      } else {
+         // timeout
+         qFatal("Couldn't prime/reset emulator.");
+      }
 
       if ( EnvironmentSettingsDialog::showWelcomeOnStart() )
       {

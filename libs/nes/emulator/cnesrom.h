@@ -150,7 +150,7 @@ public:
    virtual void SYNCCPU ( bool write, uint16_t addr, uint8_t data ) {}
    virtual uint32_t DEBUGINFO ( uint32_t addr )
    {
-      return PRGROM(addr);
+      return 0; // OPENBUS DON'T CARE
    }
    virtual uint16_t AMPLITUDE ( void )
    {

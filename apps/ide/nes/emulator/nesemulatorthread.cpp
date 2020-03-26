@@ -564,7 +564,10 @@ void NESEmulatorWorker::loadCartridge()
 
       // Trigger inspector updates...
       nesDisassemble();
-      emit updateDebuggers();
+      if ( nesIsDebuggable && (!DebuggerUpdateThread::isSilenced()) )
+      {
+         emit updateDebuggers();
+      }
 
       // Trigger UI updates...
       emit machineReady();
@@ -593,6 +596,15 @@ void NESEmulatorWorker::process ()
       {
          debuggerUpdateRate = 50;
       }
+   }
+
+   // Exit?
+   if ( m_isExiting )
+   {
+      emit emulatorExited();
+      m_isRunning = false;
+      m_isExiting = false;
+      return;
    }
 
    // Allow thread to keep going...
@@ -632,7 +644,10 @@ void NESEmulatorWorker::process ()
 
          // Trigger inspector updates...
          nesDisassemble();
-         emit updateDebuggers();
+         if ( nesIsDebuggable && (!DebuggerUpdateThread::isSilenced()) )
+         {
+            emit updateDebuggers();
+         }
       }
       // Trigger UI updates...
       emit emulatorReset();
@@ -646,7 +661,10 @@ void NESEmulatorWorker::process ()
    {
       // Trigger inspector updates...
       nesDisassemble();
-      emit updateDebuggers();
+      if ( nesIsDebuggable && (!DebuggerUpdateThread::isSilenced()) )
+      {
+         emit updateDebuggers();
+      }
 
       // Trigger UI updates...
       emit emulatorPaused(m_showOnPause);
@@ -661,13 +679,6 @@ void NESEmulatorWorker::process ()
       }
 
       nesBreak();
-   }
-
-   // Exit?
-   if ( m_isExiting )
-   {
-      emit emulatorExited();
-      return;
    }
 
    // Run the NES...
@@ -1013,7 +1024,10 @@ bool NESEmulatorWorker::deserialize(QDomDocument& doc, QDomNode& /*node*/, QStri
    }
    while (!(child = child.nextSibling()).isNull());
 
-   emit updateDebuggers();
+   if ( nesIsDebuggable && (!DebuggerUpdateThread::isSilenced()) )
+   {
+      emit updateDebuggers();
+   }
 
    return true;
 }
