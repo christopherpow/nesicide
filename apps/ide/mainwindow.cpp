@@ -1284,24 +1284,27 @@ void MainWindow::destroyNesUi()
 
    SDL_PauseAudio(1);
 
-   QEventLoop q;
-   QTimer t;
+   if ( emulator )
+   {
+      QEventLoop q;
+      QTimer t;
 
-   t.setSingleShot(true);
-   connect(&t, SIGNAL(timeout()), &q, SLOT(quit()));
-   connect(emulator, SIGNAL(emulatorExited()),
-           &q, SLOT(quit()));
+      t.setSingleShot(true);
+      connect(&t, SIGNAL(timeout()), &q, SLOT(quit()));
+      connect(emulator, SIGNAL(emulatorExited()),
+              &q, SLOT(quit()));
 
-   t.start(5000); // 5s timeout
-   emit exitEmulator();
-   q.exec();
+      t.start(5000); // 5s timeout
+      emit exitEmulator();
+      q.exec();
 
-   if(t.isActive()){
-      // download complete
-      t.stop();
-   } else {
-      // timeout
-      qFatal("Couldn't stop emulator.");
+      if(t.isActive()){
+         // download complete
+         t.stop();
+      } else {
+         // timeout
+         qFatal("Couldn't stop emulator.");
+      }
    }
 
    CDockWidgetRegistry::instance()->removeWidget ( "Assembly Browser" );
@@ -3100,26 +3103,30 @@ bool MainWindow::closeProject()
 
       nesicideProject->terminateProject();
 
-      QEventLoop q;
-      QTimer t;
       NESEmulatorThread* emulator = dynamic_cast<NESEmulatorThread*>(CObjectRegistry::instance()->getObject("Emulator"));
 
-      t.setSingleShot(true);
-      connect(&t, SIGNAL(timeout()), &q, SLOT(quit()));
-      connect(emulator, SIGNAL(emulatorReset()),
-              &q, SLOT(quit()));
+      if ( emulator )
+      {
+         QEventLoop q;
+         QTimer t;
 
-      t.start(5000); // 5s timeout
-      emit primeEmulator();
-      emit resetEmulator();
-      q.exec();
+         t.setSingleShot(true);
+         connect(&t, SIGNAL(timeout()), &q, SLOT(quit()));
+         connect(emulator, SIGNAL(emulatorReset()),
+                 &q, SLOT(quit()));
 
-      if(t.isActive()){
-         // download complete
-         t.stop();
-      } else {
-         // timeout
-         qFatal("Couldn't prime/reset emulator.");
+         t.start(5000); // 5s timeout
+         emit primeEmulator();
+         emit resetEmulator();
+         q.exec();
+
+         if(t.isActive()){
+            // download complete
+            t.stop();
+         } else {
+            // timeout
+            qFatal("Couldn't prime/reset emulator.");
+         }
       }
 
       if ( EnvironmentSettingsDialog::showWelcomeOnStart() )
