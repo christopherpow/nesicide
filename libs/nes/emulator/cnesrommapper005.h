@@ -121,7 +121,7 @@ protected:
 
    CAPUSquare m_square[2];
    CAPUDMC    m_dmc;
-   int16_t    m_out[1000];
+   int16_t    m_out[1024];
 
    uint32_t   m_sprite8x16Mode;
    uint32_t   m_lastPPUCycle;
