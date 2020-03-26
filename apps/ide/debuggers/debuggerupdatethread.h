@@ -18,7 +18,7 @@ signals:
    void updateComplete();
 
 private:
-   void (*_func)();
+   void        (*_func)();
 };
 
 class DebuggerUpdateThread : public QObject
@@ -30,8 +30,11 @@ public:
 
    void changeFunction(void (*func)()) { pWorker->changeFunction(func); }
 
+   static void silence(bool silence) { silenced = silence; }
+   static bool isSilenced() { return silenced; }
+
 public slots:
-   void updateDebuggers() { pWorker->updateDebuggers(); }
+   void updateDebuggers();
 
 signals:
    void updateComplete();
@@ -40,7 +43,8 @@ private:
    DebuggerUpdateWorker *pWorker;
    static QThread       *pThread;
    static QMutex        *pMutex;
-   static int           resourceCount;
+   static int            resourceCount;
+   static bool           silenced;
 };
 
 #endif // DEBUGGERUPDATETHREAD_H

@@ -25,6 +25,7 @@ NESEmulatorControl::NESEmulatorControl(QWidget *parent) :
 
    // Buttons are disabled until a cartridge is loaded...then they go to the "pause-just-happened" state.
    QObject::connect(emulator, SIGNAL(machineReady()), this, SLOT(internalPause()));
+   QObject::connect(emulator, SIGNAL(emulatorExited()), this, SLOT(internalPause()));
 
    // Connect menu actions to slots.
    QObject::connect(ui->actionRun, SIGNAL(triggered()), this, SLOT(on_playButton_clicked()));

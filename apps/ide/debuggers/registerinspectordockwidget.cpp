@@ -63,27 +63,29 @@ void RegisterInspectorDockWidget::updateTargetMachine(QString /*target*/)
    QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
 
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateMemory()) );
-   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), binaryModel, SLOT(update()) );
-   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), bitfieldModel, SLOT(update()) );
    if ( emulator )
    {
-      QObject::connect ( emulator, SIGNAL(machineReady()), this, SLOT(updateMemory()) );
+      QObject::connect ( emulator, SIGNAL(machineReady()), this, SLOT(updateMemory()));
+      QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateMemory()) );
       QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateMemory()) );
+   }
+}
+
+void RegisterInspectorDockWidget::showEvent(QShowEvent* /*e*/)
+{
+   QObject* breakpointWatcher = CObjectRegistry::instance()->getObject("Breakpoint Watcher");
+   QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
+
+   if ( emulator )
+   {
+      QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), binaryModel, SLOT(update()) );
+      QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), bitfieldModel, SLOT(update()) );
       QObject::connect ( emulator, SIGNAL(machineReady()), binaryModel, SLOT(update()));
       QObject::connect ( emulator, SIGNAL(emulatorReset()), binaryModel, SLOT(update()) );
       QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), binaryModel, SLOT(update()) );
       QObject::connect ( emulator, SIGNAL(machineReady()), bitfieldModel, SLOT(update()));
       QObject::connect ( emulator, SIGNAL(emulatorReset()), bitfieldModel, SLOT(update()) );
       QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), bitfieldModel, SLOT(update()) );
-   }
-}
-
-void RegisterInspectorDockWidget::showEvent(QShowEvent* /*e*/)
-{
-   QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
-
-   if ( emulator )
-   {
       QObject::connect ( emulator, SIGNAL(updateDebuggers()), binaryModel, SLOT(update()));
       QObject::connect ( emulator, SIGNAL(updateDebuggers()), bitfieldModel, SLOT(update()));
    }
@@ -93,10 +95,19 @@ void RegisterInspectorDockWidget::showEvent(QShowEvent* /*e*/)
 
 void RegisterInspectorDockWidget::hideEvent(QHideEvent* /*e*/)
 {
+   QObject* breakpointWatcher = CObjectRegistry::instance()->getObject("Breakpoint Watcher");
    QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
 
    if ( emulator )
    {
+      QObject::disconnect ( breakpointWatcher, SIGNAL(breakpointHit()), binaryModel, SLOT(update()) );
+      QObject::disconnect ( breakpointWatcher, SIGNAL(breakpointHit()), bitfieldModel, SLOT(update()) );
+      QObject::disconnect ( emulator, SIGNAL(machineReady()), binaryModel, SLOT(update()));
+      QObject::disconnect ( emulator, SIGNAL(emulatorReset()), binaryModel, SLOT(update()) );
+      QObject::disconnect ( emulator, SIGNAL(emulatorPaused(bool)), binaryModel, SLOT(update()) );
+      QObject::disconnect ( emulator, SIGNAL(machineReady()), bitfieldModel, SLOT(update()));
+      QObject::disconnect ( emulator, SIGNAL(emulatorReset()), bitfieldModel, SLOT(update()) );
+      QObject::disconnect ( emulator, SIGNAL(emulatorPaused(bool)), bitfieldModel, SLOT(update()) );
       QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), binaryModel, SLOT(update()));
       QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), bitfieldModel, SLOT(update()));
    }

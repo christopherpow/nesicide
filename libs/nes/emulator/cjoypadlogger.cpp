@@ -28,14 +28,14 @@ CJoypadLogger::CJoypadLogger()
 
 CJoypadLogger::~CJoypadLogger()
 {
-   delete m_pSampleBuffer;
+   delete [] m_pSampleBuffer;
 }
 
 bool CJoypadLogger::ReallocateLoggerMemory(int newDepth)
 {
    bool ok = true;
 
-   delete m_pSampleBuffer;
+   delete [] m_pSampleBuffer;
 
    m_pSampleBuffer = new JoypadLoggerInfo [ newDepth ];
 

@@ -1263,16 +1263,28 @@ void MainWindow::createNesUi()
 
    SDL_PauseAudio(0);
 
+   // Un-silence all debuggers.
+   DebuggerUpdateThread::silence(false);
+
    emit updateTargetMachine(m_targetLoaded);
 }
 
 void MainWindow::destroyNesUi()
 {
+   NESEmulatorThread* emulator = dynamic_cast<NESEmulatorThread*>(CObjectRegistry::instance()->getObject("Emulator"));
+
    // If we're set up for NES, clear it.
    if ( m_targetLoaded.compare("nes",Qt::CaseInsensitive) )
    {
       return;
    }
+
+   // Silence all debuggers.
+   DebuggerUpdateThread::silence(true);
+
+//   QObject::connect(emulator,SIGNAL(emulatorExited()),this,SLOT(finishDestroyNesUi()));
+//   QObject::connect(this,SIGNAL(exitEmulator()),emulator,SLOT(exitEmulator()));
+   emit exitEmulator();
 
    SDL_PauseAudio(1);
 
@@ -1304,9 +1316,6 @@ void MainWindow::destroyNesUi()
    CDockWidgetRegistry::instance()->removeWidget ( "Joypad Logger" );
 
    // Properly kill and destroy the thread we created above.
-   m_pNESEmulatorThread->blockSignals(true);
-   emit pauseEmulation(false);
-
    delete m_pNESEmulatorThread;
    m_pNESEmulatorThread = NULL;
 
@@ -1575,6 +1584,9 @@ void MainWindow::createC64Ui()
 
    m_targetLoaded = "c64";
 
+   // Un-silence all debuggers.
+   DebuggerUpdateThread::silence(false);
+
    emit updateTargetMachine(m_targetLoaded);
 }
 
@@ -1585,6 +1597,9 @@ void MainWindow::destroyC64Ui()
    {
       return;
    }
+
+   // Silence all debuggers.
+   DebuggerUpdateThread::silence(true);
 
    CDockWidgetRegistry::instance()->removeWidget ( "Assembly Browser" );
    CDockWidgetRegistry::instance()->removeWidget ( "Breakpoints" );

@@ -41,6 +41,7 @@ public:
    void stepOutCPUEmulation ();
    void stepPPUEmulation ();
    void advanceFrame ();
+   void exitEmulator ();
    void adjustAudio ( int32_t bufferDepth );
    void controllerInput ( uint32_t* joy )
    {
@@ -58,6 +59,7 @@ signals:
    void emulatorPausedAfter();
    void emulatorReset();
    void emulatorStarted();
+   void emulatorExited();
    void debugMessage(char* message);
 
 public slots:
@@ -76,6 +78,7 @@ protected:
    bool          m_isResetting;
    bool          m_isSoftReset;
    bool          m_isStarting;
+   bool          m_isExiting;
    int           m_debugFrame;
    uint32_t      m_joy [ NUM_CONTROLLERS ];
 };
@@ -109,6 +112,7 @@ public slots:
    void stepOutCPUEmulation ();
    void stepPPUEmulation ();
    void advanceFrame ();
+   void exitEmulator ();
    void adjustAudio ( int32_t bufferDepth );
    void controllerInput ( uint32_t* joy ) { pWorker->controllerInput(joy); }
 signals:
@@ -118,6 +122,7 @@ signals:
    void machineReady ();
    void emulatorPaused(bool show);
    void emulatorPausedAfter();
+   void emulatorExited();
    void emulatorReset();
    void emulatorStarted();
    void debugMessage(char* message);

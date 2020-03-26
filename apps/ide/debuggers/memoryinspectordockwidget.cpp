@@ -49,21 +49,25 @@ void MemoryInspectorDockWidget::updateTargetMachine(QString /*target*/)
    QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
 
    QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateMemory()) );
-   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), model, SLOT(update()) );
    if ( emulator )
    {
-      QObject::connect ( emulator, SIGNAL(machineReady()), model, SLOT(update()));
-      QObject::connect ( emulator, SIGNAL(emulatorReset()), model, SLOT(update()) );
-      QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), model, SLOT(update()) );
+      QObject::connect ( emulator, SIGNAL(machineReady()), this, SLOT(updateMemory()));
+      QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateMemory()) );
+      QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateMemory()) );
    }
 }
 
 void MemoryInspectorDockWidget::showEvent(QShowEvent* /*e*/)
 {
+   QObject* breakpointWatcher = CObjectRegistry::instance()->getObject("Breakpoint Watcher");
    QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
 
    if ( emulator )
    {
+      QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), model, SLOT(update()) );
+      QObject::connect ( emulator, SIGNAL(machineReady()), model, SLOT(update()));
+      QObject::connect ( emulator, SIGNAL(emulatorReset()), model, SLOT(update()) );
+      QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), model, SLOT(update()) );
       QObject::connect ( emulator, SIGNAL(updateDebuggers()), model, SLOT(update()));
    }
    model->update();
@@ -72,10 +76,15 @@ void MemoryInspectorDockWidget::showEvent(QShowEvent* /*e*/)
 
 void MemoryInspectorDockWidget::hideEvent(QHideEvent* /*e*/)
 {
+   QObject* breakpointWatcher = CObjectRegistry::instance()->getObject("Breakpoint Watcher");
    QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
 
    if ( emulator )
    {
+      QObject::disconnect ( breakpointWatcher, SIGNAL(breakpointHit()), model, SLOT(update()) );
+      QObject::disconnect ( emulator, SIGNAL(machineReady()), model, SLOT(update()));
+      QObject::disconnect ( emulator, SIGNAL(emulatorReset()), model, SLOT(update()) );
+      QObject::disconnect ( emulator, SIGNAL(emulatorPaused(bool)), model, SLOT(update()) );
       QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), model, SLOT(update()));
    }
 }

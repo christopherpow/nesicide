@@ -78,7 +78,7 @@ void CodeBrowserDockWidget::showEvent(QShowEvent* /*e*/)
    // update the code position until a pause/breakpoint.
    if ( emulator )
    {
-      QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(emulatorPaused(bool)) );
+      QObject::connect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(updateDebuggers()) );
    }
    QObject::connect ( breakpointInspector, SIGNAL(breakpointsChanged()), assemblyViewModel, SLOT(update()) );
    QObject::connect ( breakpointInspector, SIGNAL(snapTo(QString)), this, SLOT(snapTo(QString)) );
@@ -105,7 +105,7 @@ void CodeBrowserDockWidget::hideEvent(QHideEvent* /*e*/)
 
    if ( emulator )
    {
-      QObject::disconnect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(emulatorPaused(bool)) );
+      QObject::disconnect ( emulator, SIGNAL(updateDebuggers()), this, SLOT(updateDebuggers()) );
    }
 }
 

@@ -30,7 +30,7 @@ CMEMORYBANK::~CMEMORYBANK()
 
    for ( addr = 0; addr < m_size; addr++ )
    {
-      delete m_disassembly[addr];
+      delete [] m_disassembly[addr];
    }
 
    delete m_pLogger;
@@ -73,7 +73,7 @@ void CMEMORYBANK::INITIALIZE(CMEMORY *parent,
 
    for ( addr = 0; addr < m_size; addr++ )
    {
-      m_disassembly[addr] = new char [ 16 ];
+      m_disassembly[addr] = new char [ 20 ];
       m_disassembly[addr][0] = '\0';
       m_opcodeMask[addr] = 0;
       m_sloc2addr[addr] = addr; // assume 1:1 map until otherwise known

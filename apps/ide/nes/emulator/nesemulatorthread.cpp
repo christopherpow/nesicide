@@ -123,6 +123,7 @@ NESEmulatorThread::NESEmulatorThread(QObject*)
    QObject::connect(pWorker,SIGNAL(emulatorReset()),this,SIGNAL(emulatorReset()));
    QObject::connect(pWorker,SIGNAL(emulatorStarted()),this,SIGNAL(emulatorStarted()));
    QObject::connect(pWorker,SIGNAL(debugMessage(char*)),this,SIGNAL(debugMessage(char*)));
+   QObject::connect(pWorker,SIGNAL(emulatorExited()),this,SIGNAL(emulatorExited()));
 }
 
 NESEmulatorThread::~NESEmulatorThread()
@@ -195,6 +196,11 @@ void NESEmulatorThread::advanceFrame ()
    pWorker->advanceFrame();
 }
 
+void NESEmulatorThread::exitEmulator()
+{
+   pWorker->exitEmulator();
+}
+
 void NESEmulatorThread::pauseEmulation (bool show)
 {
    pWorker->pauseEmulation(show);
@@ -234,6 +240,7 @@ NESEmulatorWorker::NESEmulatorWorker(QObject*)
    m_isStarting = false;
    m_isTerminating = false;
    m_isResetting = false;
+   m_isExiting = false;
    m_debugFrame = 0;
    m_pCartridge = NULL;
 
@@ -471,6 +478,16 @@ void NESEmulatorWorker::advanceFrame ()
    }
 }
 
+void NESEmulatorWorker::exitEmulator()
+{
+   m_isExiting = true;
+
+   if ( !(nesBreakpointSemaphore->available()) )
+   {
+      nesBreakpointSemaphore->release();
+   }
+}
+
 void NESEmulatorWorker::pauseEmulation (bool show)
 {
    m_isStarting = false;
@@ -578,152 +595,149 @@ void NESEmulatorWorker::process ()
       }
    }
 
-//   while ( m_isStarting || m_isRunning || m_isResetting || m_isPaused )
+   // Allow thread to keep going...
+   if ( m_isStarting )
    {
-      // Allow thread exit...
-//      if ( m_isTerminating )
-//      {
-//         m_isTerminating = false;
-//         break;
-//      }
+      m_isStarting = false;
+      m_isRunning = true;
+      m_isPaused = false;
 
-      // Allow thread to keep going...
-      if ( m_isStarting )
+      // Re-enable breakpoints that were previously enabled...
+      nesEnableBreakpoints(true);
+
+      // Trigger UI updates...
+      emit emulatorStarted();
+   }
+
+   // Properly coordinate NES reset with emulator...
+   if ( m_isResetting )
+   {
+      // Reset emulated I/O devices...
+      m_joy [ CONTROLLER1 ] = 0;
+      m_joy [ CONTROLLER2 ] = 0;
+
+      // Reset NES...
+      nesReset(m_isSoftReset);
+
+      // Re-enable breakpoints that were previously enabled...
+      nesEnableBreakpoints(true);
+
+      // Allow cartridge to be loaded...
+      if ( m_pCartridge )
       {
-         m_isStarting = false;
-         m_isRunning = true;
-         m_isPaused = false;
+         // Reload the cartridge image...
+         // This internally causes a NES reset.
+         loadCartridge();
+         m_pCartridge = NULL;
 
-         // Re-enable breakpoints that were previously enabled...
-         nesEnableBreakpoints(true);
-
-         // Trigger UI updates...
-         emit emulatorStarted();
-      }
-
-      // Properly coordinate NES reset with emulator...
-      if ( m_isResetting )
-      {
-         // Reset emulated I/O devices...
-         m_joy [ CONTROLLER1 ] = 0;
-         m_joy [ CONTROLLER2 ] = 0;
-
-         // Reset NES...
-         nesReset(m_isSoftReset);
-
-         // Re-enable breakpoints that were previously enabled...
-         nesEnableBreakpoints(true);
-
-         // Allow cartridge to be loaded...
-         if ( m_pCartridge )
-         {
-            // Reload the cartridge image...
-            // This internally causes a NES reset.
-            loadCartridge();
-            m_pCartridge = NULL;
-
-            // Trigger inspector updates...
-            nesDisassemble();
-            emit updateDebuggers();
-         }
-         // Trigger UI updates...
-         emit emulatorReset();
-
-         // Don't *keep* resetting...
-         m_isResetting = false;
-      }
-
-      // Pause?
-      if ( m_isPaused || (m_pauseAfterFrames == 0) )
-      {
          // Trigger inspector updates...
          nesDisassemble();
          emit updateDebuggers();
+      }
+      // Trigger UI updates...
+      emit emulatorReset();
 
-         // Trigger UI updates...
-         emit emulatorPaused(m_showOnPause);
+      // Don't *keep* resetting...
+      m_isResetting = false;
+   }
 
-         m_isPaused = false;
-         m_isRunning = false;
-         if ( m_pauseAfterFrames == 0 )
-         {
-            m_pauseAfterFrames = -1;
+   // Pause?
+   if ( m_isPaused || (m_pauseAfterFrames == 0) )
+   {
+      // Trigger inspector updates...
+      nesDisassemble();
+      emit updateDebuggers();
 
-            emit emulatorPausedAfter();
-         }
+      // Trigger UI updates...
+      emit emulatorPaused(m_showOnPause);
 
-         nesBreak();
+      m_isPaused = false;
+      m_isRunning = false;
+      if ( m_pauseAfterFrames == 0 )
+      {
+         m_pauseAfterFrames = -1;
+
+         emit emulatorPausedAfter();
       }
 
-      // Run the NES...
-      if ( m_isRunning )
+      nesBreak();
+   }
+
+   // Exit?
+   if ( m_isExiting )
+   {
+      emit emulatorExited();
+      return;
+   }
+
+   // Run the NES...
+   if ( m_isRunning )
+   {
+      // Re-enable breakpoints that were previously enabled...
+      nesEnableBreakpoints(true);
+
+      // Make sure breakpoint semaphore is on the precipice...
+      nesBreakpointSemaphore->tryAcquire(1,1);
+
+      // Run emulator for one frame...
+      if ( emulatorWidget )
       {
-         // Re-enable breakpoints that were previously enabled...
-         nesEnableBreakpoints(true);
+         // Figure out where in the window the actual emulator display is.
+         scaleX = emulatorWidget->geometry().width()/256;
+         scaleY = emulatorWidget->geometry().height()/240;
+         scale = (scaleX<scaleY)?scaleX:scaleY;
+         if ( scale == 0 ) scale = 1;
+         emuX = (emulatorWidget->geometry().x()+(emulatorWidget->geometry().width()/2))-(128*scale);
+         if ( emuX < 0 ) emuX = 0;
+         emuY = (emulatorWidget->geometry().y()+(emulatorWidget->geometry().height()/2))-(120*scale);
+         if ( emuY < 0 ) emuY = 0;
 
-         // Make sure breakpoint semaphore is on the precipice...
-         nesBreakpointSemaphore->tryAcquire(1,1);
-
-         // Run emulator for one frame...
-         if ( emulatorWidget )
+         // Note, only need to check CCW for Vaus since both CCW and CW rotation are mouse
+         // controlled if one of them is.
+         if ( (EmulatorPrefsDialog::getControllerType(CONTROLLER1) == IO_Zapper) ||
+              ((EmulatorPrefsDialog::getControllerType(CONTROLLER1) == IO_Vaus) &&
+              (EmulatorPrefsDialog::getControllerMouseMap(CONTROLLER1,IO_Vaus_CCW))) )
          {
-            // Figure out where in the window the actual emulator display is.
-            scaleX = emulatorWidget->geometry().width()/256;
-            scaleY = emulatorWidget->geometry().height()/240;
-            scale = (scaleX<scaleY)?scaleX:scaleY;
-            if ( scale == 0 ) scale = 1;
-            emuX = (emulatorWidget->geometry().x()+(emulatorWidget->geometry().width()/2))-(128*scale);
-            if ( emuX < 0 ) emuX = 0;
-            emuY = (emulatorWidget->geometry().y()+(emulatorWidget->geometry().height()/2))-(120*scale);
-            if ( emuY < 0 ) emuY = 0;
-
-            // Note, only need to check CCW for Vaus since both CCW and CW rotation are mouse
-            // controlled if one of them is.
-            if ( (EmulatorPrefsDialog::getControllerType(CONTROLLER1) == IO_Zapper) ||
-                 ((EmulatorPrefsDialog::getControllerType(CONTROLLER1) == IO_Vaus) &&
-                 (EmulatorPrefsDialog::getControllerMouseMap(CONTROLLER1,IO_Vaus_CCW))) )
-            {
-               nesSetControllerScreenPosition(CONTROLLER1,
-                                              QCursor::pos().x(),
-                                              QCursor::pos().y(),
-                                              emuX,
-                                              emuY,
-                                              emuX+(256*scale),
-                                              emuY+(240*scale));
-            }
-            if ( (EmulatorPrefsDialog::getControllerType(CONTROLLER2) == IO_Zapper) ||
-                 ((EmulatorPrefsDialog::getControllerType(CONTROLLER2) == IO_Vaus) &&
-                 (EmulatorPrefsDialog::getControllerMouseMap(CONTROLLER2,IO_Vaus_CCW))) )
-            {
-               nesSetControllerScreenPosition(CONTROLLER2,
-                                              QCursor::pos().x(),
-                                              QCursor::pos().y(),
-                                              emuX,
-                                              emuY,
-                                              emuX+(256*scale),
-                                              emuY+(240*scale));
-            }
+            nesSetControllerScreenPosition(CONTROLLER1,
+                                           QCursor::pos().x(),
+                                           QCursor::pos().y(),
+                                           emuX,
+                                           emuY,
+                                           emuX+(256*scale),
+                                           emuY+(240*scale));
          }
-         nesRun(m_joy);
-
-         if ( m_pauseAfterFrames != -1 )
+         if ( (EmulatorPrefsDialog::getControllerType(CONTROLLER2) == IO_Zapper) ||
+              ((EmulatorPrefsDialog::getControllerType(CONTROLLER2) == IO_Vaus) &&
+              (EmulatorPrefsDialog::getControllerMouseMap(CONTROLLER2,IO_Vaus_CCW))) )
          {
-            m_pauseAfterFrames--;
+            nesSetControllerScreenPosition(CONTROLLER2,
+                                           QCursor::pos().x(),
+                                           QCursor::pos().y(),
+                                           emuX,
+                                           emuY,
+                                           emuX+(256*scale),
+                                           emuY+(240*scale));
          }
+      }
+      nesRun(m_joy);
 
-         emit emulatedFrame();
+      if ( m_pauseAfterFrames != -1 )
+      {
+         m_pauseAfterFrames--;
+      }
 
-         if ( m_debugFrame )
+      emit emulatedFrame();
+
+      if ( m_debugFrame )
+      {
+         m_debugFrame--;
+      }
+      if ( (!m_debugFrame) && (debuggerUpdateRate) )
+      {
+         m_debugFrame = debuggerUpdateRate;
+         if ( nesIsDebuggable && (!DebuggerUpdateThread::isSilenced()) )
          {
-            m_debugFrame--;
-         }
-         if ( (!m_debugFrame) && (debuggerUpdateRate) )
-         {
-            m_debugFrame = debuggerUpdateRate;
-            if ( nesIsDebuggable )
-            {
-               emit updateDebuggers();
-            }
+            emit updateDebuggers();
          }
       }
    }

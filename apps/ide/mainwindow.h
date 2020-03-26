@@ -228,6 +228,7 @@ signals:
    void primeEmulator();
    void pauseEmulation(bool show);
    void resetEmulator();
+   void exitEmulator();
    void adjustAudio(int32_t length);
    void updateTargetMachine(QString target);
    void compile();

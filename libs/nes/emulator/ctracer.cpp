@@ -36,14 +36,14 @@ CTracer::CTracer()
 
 CTracer::~CTracer()
 {
-   delete m_pSamples;
+   delete [] m_pSamples;
 }
 
 bool CTracer::ReallocateTracerMemory(int32_t newDepth)
 {
    bool ok = true;
 
-   delete m_pSamples;
+   delete [] m_pSamples;
 
    m_pSamples = new TracerInfo [ newDepth ];
 

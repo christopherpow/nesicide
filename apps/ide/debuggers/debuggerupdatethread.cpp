@@ -4,9 +4,10 @@
 
 #include "main.h"
 
-QThread*               DebuggerUpdateThread::pThread = NULL;
-int                    DebuggerUpdateThread::resourceCount = -1;
-QMutex*                DebuggerUpdateThread::pMutex = NULL;
+QThread *DebuggerUpdateThread::pThread = NULL;
+int      DebuggerUpdateThread::resourceCount = -1;
+QMutex  *DebuggerUpdateThread::pMutex = NULL;
+bool     DebuggerUpdateThread::silenced = true;
 
 DebuggerUpdateWorker::DebuggerUpdateWorker(void (*func)(),QObject */*parent*/) :
     _func(func)
@@ -66,4 +67,12 @@ DebuggerUpdateThread::~DebuggerUpdateThread()
       delete pThread;
    }
    pMutex->unlock();
+}
+
+void DebuggerUpdateThread::updateDebuggers()
+{
+   if ( !silenced )
+   {
+      pWorker->updateDebuggers();
+   }
 }
