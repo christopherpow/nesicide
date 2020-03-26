@@ -1320,7 +1320,6 @@ uint16_t CROMMapper005::AMPLITUDE ( void )
    float famp;
    int16_t amp;
    int16_t delta;
-   int16_t out[100] = { 0, };
    static int16_t outLast = 0;
    uint8_t sample;
    uint8_t* sq1dacSamples = m_square[0].GETDACSAMPLES();
@@ -1362,9 +1361,9 @@ uint16_t CROMMapper005::AMPLITUDE ( void )
       }
       amp = (int16_t)(float)(65535.0*famp*0.50);
 
-      (*(out+sample)) = amp;
+      (*(m_out+sample)) = amp;
 
-      outDownsampled += (*(out+sample));
+      outDownsampled += (*(m_out+sample));
    }
 
    outDownsampled = (int32_t)((float)outDownsampled/((float)m_square[0].GETDACSAMPLECOUNT()));

@@ -707,7 +707,8 @@ protected:
    uint32_t   m_cycles;
 
    float m_sampleSpacer;
-   
+   int16_t m_out[1024];
+
    int32_t m_sampleBufferSize;
 };
 
