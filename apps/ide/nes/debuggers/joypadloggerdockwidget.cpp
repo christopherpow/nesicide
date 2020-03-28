@@ -47,8 +47,10 @@ JoypadLoggerDockWidget::~JoypadLoggerDockWidget()
 //   delete renderer;
 }
 
-void JoypadLoggerDockWidget::updateTargetMachine(QString /*target*/)
+void JoypadLoggerDockWidget::updateTargetMachine(QString target)
 {
+   if ( !target.compare("nes") )
+   {
 //   QObject* breakpointWatcher = CObjectRegistry::instance()->getObject("Breakpoint Watcher");
 //   QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
 
@@ -56,6 +58,7 @@ void JoypadLoggerDockWidget::updateTargetMachine(QString /*target*/)
 //   QObject::connect(emulator,SIGNAL(emulatorReset()),pThread,SLOT(updateDebuggers()));
 //   QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),pThread,SLOT(updateDebuggers()));
 //   QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),pThread,SLOT(updateDebuggers()));
+   }
 }
 
 void JoypadLoggerDockWidget::changeEvent(QEvent* e)

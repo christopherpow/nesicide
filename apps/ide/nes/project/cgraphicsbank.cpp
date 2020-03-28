@@ -14,6 +14,7 @@ CGraphicsBank::CGraphicsBank(IProjectTreeViewItem* parent)
 
    // Allocate attributes
    m_bankItems.clear();
+   m_bankSize = MEM_8KB;
 }
 
 CGraphicsBank::~CGraphicsBank()
@@ -25,11 +26,17 @@ QList<IChrRomBankItem*> CGraphicsBank::getGraphics()
    return m_bankItems;
 }
 
+uint32_t CGraphicsBank::getSize()
+{
+   return m_bankSize;
+}
+
 bool CGraphicsBank::serialize(QDomDocument& doc, QDomNode& node)
 {
    QDomElement element = addElement( doc, node, "graphicsbank" );
    element.setAttribute("name", m_name);
    element.setAttribute("uuid", uuid());
+   element.setAttribute("size", m_bankSize);
 
    if ( m_editor && m_editor->isModified() )
    {
@@ -90,6 +97,9 @@ bool CGraphicsBank::deserialize(QDomDocument& /*doc*/, QDomNode& node, QString& 
       errors.append("Missing required attribute 'uuid' of element <source name='"+element.attribute("name")+"'>\n");
       return false;
    }
+
+   // Default size is 8KB
+   m_bankSize = element.attribute("size","8192").toInt();
 
    m_name = element.attribute("name");
 
@@ -180,7 +190,7 @@ void CGraphicsBank::openItemEvent(CProjectTabWidget* tabWidget)
    }
    else
    {
-      m_editor = new GraphicsBankEditorForm(m_bankItems,this);
+      m_editor = new GraphicsBankEditorForm(m_bankSize,m_bankItems,this);
       tabWidget->addTab(m_editor, this->caption());
       tabWidget->setCurrentWidget(m_editor);
    }
@@ -189,6 +199,7 @@ void CGraphicsBank::openItemEvent(CProjectTabWidget* tabWidget)
 void CGraphicsBank::saveItemEvent()
 {
    m_bankItems = editor()->bankItems();
+   m_bankSize = editor()->bankSize();
 
    if ( m_editor )
    {

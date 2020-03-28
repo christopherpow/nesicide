@@ -35,12 +35,12 @@ SourceNavigator::~SourceNavigator()
 
 void SourceNavigator::updateTargetMachine(QString target)
 {
-   QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
-
    m_loadedTarget = target;
 
-   if ( emulator )
+   if ( target.compare("none") )
    {
+      QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
+
       QObject::connect(emulator,SIGNAL(machineReady()),this,SLOT(emulator_machineReady()));
       QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),this,SLOT(emulator_emulatorPaused(bool)));
       QObject::connect(emulator,SIGNAL(emulatorReset()),this,SLOT(emulator_emulatorPaused()));

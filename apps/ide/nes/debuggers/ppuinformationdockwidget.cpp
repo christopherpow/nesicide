@@ -19,15 +19,18 @@ PPUInformationDockWidget::~PPUInformationDockWidget()
    delete ui;
 }
 
-void PPUInformationDockWidget::updateTargetMachine(QString /*target*/)
+void PPUInformationDockWidget::updateTargetMachine(QString target)
 {
-   QObject* breakpointWatcher = CObjectRegistry::instance()->getObject("Breakpoint Watcher");
-   QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
+   if ( !target.compare("nes") )
+   {
+      QObject* breakpointWatcher = CObjectRegistry::instance()->getObject("Breakpoint Watcher");
+      QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
 
-   QObject::connect ( emulator, SIGNAL(machineReady()), this, SLOT(updateInformation()) );
-   QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateInformation()) );
-   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateInformation()) );
-   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateInformation()) );
+      QObject::connect ( emulator, SIGNAL(machineReady()), this, SLOT(updateInformation()) );
+      QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateInformation()) );
+      QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateInformation()) );
+      QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateInformation()) );
+   }
 }
 
 void PPUInformationDockWidget::changeEvent(QEvent* e)
@@ -69,6 +72,24 @@ void PPUInformationDockWidget::updateInformation()
 
    nesGetCurrentPixel(&x,&y);
 
+   // Check breakpoints for hits and highlight if necessary...
+   for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
+   {
+      BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(idx);
+
+      if ( pBreakpoint->hit )
+      {
+         if ( (pBreakpoint->type == eBreakOnPPUEvent) ||
+               (pBreakpoint->type == eBreakOnPPUPortalAccess) ||
+               (pBreakpoint->type == eBreakOnPPUPortalRead) ||
+               (pBreakpoint->type == eBreakOnPPUPortalWrite) )
+         {
+            // Update display...
+            show();
+         }
+      }
+   }
+
    // Only update the UI elements if the inspector is visible...
    if ( isVisible() )
    {
@@ -107,23 +128,5 @@ void PPUInformationDockWidget::updateInformation()
       ui->ppuAddrLatch->setText(buffer);
 
       ui->ppuFlipFlop->setText(ppuFlipFlopStr[nesGetPPUFlipFlop()]);
-   }
-
-   // Check breakpoints for hits and highlight if necessary...
-   for ( idx = 0; idx < pBreakpoints->GetNumBreakpoints(); idx++ )
-   {
-      BreakpointInfo* pBreakpoint = pBreakpoints->GetBreakpoint(idx);
-
-      if ( pBreakpoint->hit )
-      {
-         if ( (pBreakpoint->type == eBreakOnPPUEvent) ||
-               (pBreakpoint->type == eBreakOnPPUPortalAccess) ||
-               (pBreakpoint->type == eBreakOnPPUPortalRead) ||
-               (pBreakpoint->type == eBreakOnPPUPortalWrite) )
-         {
-            // Update display...
-            show();
-         }
-      }
    }
 }

@@ -19,14 +19,18 @@ APUInformationDockWidget::~APUInformationDockWidget()
     delete ui;
 }
 
-void APUInformationDockWidget::updateTargetMachine(QString /*target*/)
+void APUInformationDockWidget::updateTargetMachine(QString target)
 {
-   QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
-   QObject::connect ( emulator, SIGNAL(machineReady()), this, SLOT(updateInformation()) );
-   QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateInformation()) );
-   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateInformation()) );
-   QObject* breakpointWatcher = CObjectRegistry::instance()->getObject("Breakpoint Watcher");
-   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateInformation()) );
+   if ( !target.compare("nes") )
+   {
+      QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
+      QObject* breakpointWatcher = CObjectRegistry::instance()->getObject("Breakpoint Watcher");
+
+      QObject::connect ( emulator, SIGNAL(machineReady()), this, SLOT(updateInformation()) );
+      QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateInformation()) );
+      QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateInformation()) );
+      QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateInformation()) );
+   }
 }
 
 void APUInformationDockWidget::changeEvent(QEvent* e)

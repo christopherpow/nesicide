@@ -83,17 +83,20 @@ CHRROMDisplayDialog::~CHRROMDisplayDialog()
    delete renderer;
 }
 
-void CHRROMDisplayDialog::updateTargetMachine(QString /*target*/)
+void CHRROMDisplayDialog::updateTargetMachine(QString target)
 {
-   if ( m_usePPU )
+   if ( !target.compare("nes") )
    {
-      QObject* breakpointWatcher = CObjectRegistry::instance()->getObject("Breakpoint Watcher");
-      QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
+      if ( m_usePPU )
+      {
+         QObject* breakpointWatcher = CObjectRegistry::instance()->getObject("Breakpoint Watcher");
+         QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
 
-      QObject::connect(emulator,SIGNAL(machineReady()),pThread,SLOT(updateDebuggers()));
-      QObject::connect(emulator,SIGNAL(emulatorReset()),pThread,SLOT(updateDebuggers()));
-      QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),pThread,SLOT(updateDebuggers()));
-      QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),pThread,SLOT(updateDebuggers()));
+         QObject::connect(emulator,SIGNAL(machineReady()),pThread,SLOT(updateDebuggers()));
+         QObject::connect(emulator,SIGNAL(emulatorReset()),pThread,SLOT(updateDebuggers()));
+         QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),pThread,SLOT(updateDebuggers()));
+         QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),pThread,SLOT(updateDebuggers()));
+      }
    }
 }
 
@@ -317,4 +320,9 @@ void CHRROMDisplayDialog::on_exportPushButton_clicked()
 
 void CHRROMDisplayDialog::applyProjectPropertiesToTab()
 {
+}
+
+void CHRROMDisplayDialog::applyChangesToTab(QString /*uuid*/)
+{
+   repaintNeeded();
 }

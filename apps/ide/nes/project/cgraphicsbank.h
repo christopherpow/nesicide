@@ -16,6 +16,7 @@ public:
 
    // Member getters
    QList<IChrRomBankItem*> getGraphics();
+   uint32_t getSize();
 
    GraphicsBankEditorForm* editor() { return dynamic_cast<GraphicsBankEditorForm*>(m_editor); }
    void exportAsPNG();
@@ -37,6 +38,7 @@ public:
 private:
    // Attributes
    QList<IChrRomBankItem*> m_bankItems;
+   uint32_t m_bankSize;
 };
 
 #endif // CGRAPHICSBANK_H

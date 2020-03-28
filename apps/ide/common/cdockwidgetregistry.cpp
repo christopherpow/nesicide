@@ -6,7 +6,7 @@ CDockWidgetRegistry *CDockWidgetRegistry::_instance = NULL;
 
 CDockWidgetRegistry::CDockWidgetRegistry()
 {
-   mutex = new QMutex(QMutex::Recursive);
+   mutex = new QMutex(QMutex::NonRecursive);
 }
 
 QWidget* CDockWidgetRegistry::getWidget(const QString& name)

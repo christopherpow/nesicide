@@ -58,15 +58,18 @@ ExecutionVisualizerDockWidget::~ExecutionVisualizerDockWidget()
    delete model;
 }
 
-void ExecutionVisualizerDockWidget::updateTargetMachine(QString /*target*/)
+void ExecutionVisualizerDockWidget::updateTargetMachine(QString target)
 {
-   QObject* breakpointWatcher = CObjectRegistry::instance()->getObject("Breakpoint Watcher");
-   QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
+   if ( target.compare("none") )
+   {
+      QObject* breakpointWatcher = CObjectRegistry::instance()->getObject("Breakpoint Watcher");
+      QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
 
-   QObject::connect(emulator,SIGNAL(machineReady()),pThread,SLOT(updateDebuggers()));
-   QObject::connect(emulator,SIGNAL(emulatorReset()),pThread,SLOT(updateDebuggers()));
-   QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),pThread,SLOT(updateDebuggers()));
-   QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),pThread,SLOT(updateDebuggers()));
+      QObject::connect(emulator,SIGNAL(machineReady()),pThread,SLOT(updateDebuggers()));
+      QObject::connect(emulator,SIGNAL(emulatorReset()),pThread,SLOT(updateDebuggers()));
+      QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),pThread,SLOT(updateDebuggers()));
+      QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),pThread,SLOT(updateDebuggers()));
+   }
 }
 
 void ExecutionVisualizerDockWidget::changeEvent(QEvent* event)

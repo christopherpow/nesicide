@@ -63,8 +63,8 @@ bool CGraphicsAssembler::assemble()
             }
             else
             {
-               // 8KB of empty space
-               chrRomFile.write(emptyBank,MEM_8KB);
+               // 1,2,4, or 8KB of empty space
+               chrRomFile.write(emptyBank,curGfxBank->getSize());
             }
          }
 

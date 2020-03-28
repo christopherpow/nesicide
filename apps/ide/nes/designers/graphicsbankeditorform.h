@@ -22,12 +22,13 @@ class GraphicsBankEditorForm : public CDesignerEditorBase
 {
    Q_OBJECT
 public:
-   GraphicsBankEditorForm(QList<IChrRomBankItem*> bankItems,IProjectTreeViewItem* link = 0,QWidget* parent = 0);
+   GraphicsBankEditorForm(uint32_t size, QList<IChrRomBankItem*> bankItems,IProjectTreeViewItem* link = 0,QWidget* parent = 0);
    virtual ~GraphicsBankEditorForm();
    void updateChrRomBankItemList(QList<IChrRomBankItem*> bankItems);
 
    // Member getters.
    QList<IChrRomBankItem*> bankItems();
+   uint32_t bankSize();
 
 protected:
    void changeEvent(QEvent* event);
@@ -57,7 +58,13 @@ private slots:
    void snapTo(QString item);
    void applyChangesToTab(QString uuid);
    void applyProjectPropertiesToTab();
-   void updateTargetMachine(QString /*target*/) {}
+   void updateTargetMachine(QString target) {}
+
+   void on_moveUp_clicked();
+
+   void on_moveDown_clicked();
+
+   void on_bankSize_currentIndexChanged(int index);
 
 signals:
    void prepareToTilify();

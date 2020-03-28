@@ -4,7 +4,7 @@ CObjectRegistry *CObjectRegistry::_instance = NULL;
 
 CObjectRegistry::CObjectRegistry()
 {
-   mutex = new QMutex(QMutex::Recursive);
+   mutex = new QMutex(QMutex::NonRecursive);
 }
 
 QObject* CObjectRegistry::getObject(const QString& name)

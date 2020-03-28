@@ -1,14 +1,14 @@
-#include <QMessageBox>
-
 #include "graphicsbankeditorform.h"
 #include "ui_graphicsbankeditorform.h"
+
+#include <QMessageBox>
 
 #include "cdesignercommon.h"
 
 #include "nes_emulator_core.h"
 #include "cnessystempalette.h"
 
-GraphicsBankEditorForm::GraphicsBankEditorForm(QList<IChrRomBankItem*> bankItems,IProjectTreeViewItem* link,QWidget* parent) :
+GraphicsBankEditorForm::GraphicsBankEditorForm(uint32_t size, QList<IChrRomBankItem*> bankItems,IProjectTreeViewItem* link,QWidget* parent) :
    CDesignerEditorBase(link,parent),
    ui(new Ui::GraphicsBankEditorForm)
 {
@@ -50,12 +50,21 @@ GraphicsBankEditorForm::GraphicsBankEditorForm(QList<IChrRomBankItem*> bankItems
    ui->tableView->setItemDelegateForColumn(ChrRomBankItemCol_Name,delegate);
    ui->tableView->setColumnWidth(ChrRomBankItemCol_Name,400);
 
-   ui->gauge->setMaximum(MEM_8KB);
+   ui->gauge->setMaximum(size);
 
    updateChrRomBankItemList(bankItems);
 
    // Get mouse events from the renderer here!
    renderer->installEventFilter(this);
+
+   ui->bankSize->setItemData(0,MEM_8KB);
+   if ( size == MEM_8KB ) ui->bankSize->setCurrentIndex(0);
+   ui->bankSize->setItemData(1,MEM_4KB);
+   if ( size == MEM_4KB ) ui->bankSize->setCurrentIndex(1);
+   ui->bankSize->setItemData(2,MEM_2KB);
+   if ( size == MEM_2KB ) ui->bankSize->setCurrentIndex(2);
+   ui->bankSize->setItemData(3,MEM_1KB);
+   if ( size == MEM_1KB ) ui->bankSize->setCurrentIndex(3);
 
    QObject::connect(model,SIGNAL(rowsInserted(QModelIndex,int,int)),this,SLOT(updateUi()));
    QObject::connect(model,SIGNAL(layoutChanged()),this,SLOT(updateUi()));
@@ -78,6 +87,11 @@ GraphicsBankEditorForm::~GraphicsBankEditorForm()
 QList<IChrRomBankItem*> GraphicsBankEditorForm::bankItems()
 {
    return model->bankItems();
+}
+
+uint32_t GraphicsBankEditorForm::bankSize()
+{
+   return ui->bankSize->itemData(ui->bankSize->currentIndex()).toInt();
 }
 
 bool GraphicsBankEditorForm::eventFilter(QObject* obj,QEvent* event)
@@ -142,6 +156,8 @@ void GraphicsBankEditorForm::updateUi()
 
    ui->tableView->resizeRowsToContents();
 
+   ui->gauge->setMaximum(ui->bankSize->itemData(ui->bankSize->currentIndex()).toInt());
+
    emit prepareToTilify();
 
    for (idx = 0; idx < model->bankItems().count(); idx++ )
@@ -150,9 +166,6 @@ void GraphicsBankEditorForm::updateUi()
    }
 
    emit tilify();
-
-   setModified(true);
-   emit markProjectDirty(true);
 }
 
 void GraphicsBankEditorForm::changeEvent(QEvent* event)
@@ -173,7 +186,7 @@ void GraphicsBankEditorForm::keyPressEvent(QKeyEvent *event)
 {
    int idx;
 
-   if ( event->key() == Qt::Key_Delete )
+   if ( event->key() == Qt::Key_Delete || event->key() == Qt::Key_Backspace )
    {
       if ( ui->tableView->hasFocus() )
       {
@@ -209,6 +222,12 @@ void GraphicsBankEditorForm::updateChrRomBankItemList(QList<IChrRomBankItem*> ba
 {
    int idx;
 
+   if ( bankItems != model->bankItems() )
+   {
+      setModified(true);
+      emit markProjectDirty(true);
+   }
+
    model->setBankItems(bankItems);
    model->update();
    ui->tableView->resizeRowsToContents();
@@ -226,16 +245,30 @@ void GraphicsBankEditorForm::updateChrRomBankItemList(QList<IChrRomBankItem*> ba
 void GraphicsBankEditorForm::renderData(QByteArray output)
 {
    int idx;
+   int max = ui->bankSize->itemData(ui->bankSize->currentIndex()).toInt();
 
    ui->gauge->setValue(output.count());
+   QPalette p = ui->gauge->palette();
+   QString danger = "QProgressBar::chunk {background: QLinearGradient( x1: 0, y1: 0, x2: 1, y2: 0,stop: 0 #FF0350,stop: 0.4999 #FF0020,stop: 0.5 #FF0019,stop: 1 #FF0000 );border-bottom-right-radius: 5px;border-bottom-left-radius: 5px;border: .px solid black;}";
+   QString safe= "QProgressBar::chunk {background: QLinearGradient( x1: 0, y1: 0, x2: 1, y2: 0,stop: 0 #78d,stop: 0.4999 #46a,stop: 0.5 #45a,stop: 1 #238 );border-bottom-right-radius: 7px;border-bottom-left-radius: 7px;border: 1px solid black;}";
+   if ( output.count() > max )
+   {
+      ui->gauge->setValue(max);
+      ui->gauge->setStyleSheet("QProgressBar::chunk {background: #ff0000;}");
+   }
+   else
+   {
+      ui->gauge->setStyleSheet("QProgressBar::chunk {background: #00ff00;}");
+   }
+   ui->gauge->setPalette(p);
 
    // Pad to 8KB.
-   for ( idx = output.count(); idx < MEM_8KB; idx++ )
+   for ( idx = output.count(); idx < max; idx++ )
    {
       output.append((char)0);
    }
 
-   tilifiedData.replace(0,MEM_8KB,output);
+   tilifiedData.replace(0,max,output);
 
    renderData();
 }
@@ -371,4 +404,65 @@ void GraphicsBankEditorForm::applyChangesToTab(QString /*uuid*/)
 
 void GraphicsBankEditorForm::applyProjectPropertiesToTab()
 {
+}
+
+void GraphicsBankEditorForm::on_moveUp_clicked()
+{
+   QModelIndexList indexes = ui->tableView->selectionModel()->selectedIndexes();
+   QList<IChrRomBankItem*> items = model->bankItems();
+   if ( !indexes.isEmpty() )
+   {
+      foreach ( QModelIndex index, indexes )
+      {
+         if ( index.column() == 0 )
+         {
+            if ( index.row() > 0 )
+            {
+               items.swap(index.row()-1,index.row());
+            }
+            else
+            {
+               break;
+            }
+         }
+      }
+      model->setBankItems(items);
+      model->update();
+      setModified(true);
+      emit markProjectDirty(true);
+   }
+}
+
+void GraphicsBankEditorForm::on_moveDown_clicked()
+{
+   QModelIndexList indexes = ui->tableView->selectionModel()->selectedIndexes();
+   QList<IChrRomBankItem*> items = model->bankItems();
+   if ( !indexes.isEmpty() )
+   {
+      foreach ( QModelIndex index, indexes )
+      {
+         if ( index.column() == 0 )
+         {
+            if ( index.row() < (items.count()-1) )
+            {
+               items.swap(index.row()+1,index.row());
+            }
+            else
+            {
+               break;
+            }
+         }
+      }
+      model->setBankItems(items);
+      model->update();
+      setModified(true);
+      emit markProjectDirty(true);
+   }
+}
+
+void GraphicsBankEditorForm::on_bankSize_currentIndexChanged(int index)
+{
+   updateUi();
+   setModified(true);
+   emit markProjectDirty(true);
 }

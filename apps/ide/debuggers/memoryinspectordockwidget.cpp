@@ -43,14 +43,14 @@ MemoryInspectorDockWidget::~MemoryInspectorDockWidget()
    delete delegate;
 }
 
-void MemoryInspectorDockWidget::updateTargetMachine(QString /*target*/)
+void MemoryInspectorDockWidget::updateTargetMachine(QString target)
 {
-   QObject* breakpointWatcher = CObjectRegistry::instance()->getObject("Breakpoint Watcher");
-   QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
-
-   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateMemory()) );
-   if ( emulator )
+   if ( target.compare("none") )
    {
+      QObject* breakpointWatcher = CObjectRegistry::instance()->getObject("Breakpoint Watcher");
+      QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
+
+      QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateMemory()) );
       QObject::connect ( emulator, SIGNAL(machineReady()), this, SLOT(updateMemory()));
       QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateMemory()) );
       QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateMemory()) );

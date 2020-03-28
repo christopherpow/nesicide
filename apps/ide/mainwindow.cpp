@@ -1279,6 +1279,8 @@ void MainWindow::destroyNesUi()
       return;
    }
 
+   emit updateTargetMachine("none");
+
    // Silence all debuggers.
    DebuggerUpdateThread::silence(true);
 
@@ -1616,6 +1618,8 @@ void MainWindow::destroyC64Ui()
    {
       return;
    }
+
+   emit updateTargetMachine("none");
 
    // Silence all debuggers.
    DebuggerUpdateThread::silence(true);

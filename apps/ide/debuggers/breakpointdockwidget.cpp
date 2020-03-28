@@ -43,15 +43,15 @@ BreakpointDockWidget::~BreakpointDockWidget()
    delete model;
 }
 
-void BreakpointDockWidget::updateTargetMachine(QString /*target*/)
+void BreakpointDockWidget::updateTargetMachine(QString target)
 {
-   QObject* breakpointWatcher = CObjectRegistry::instance()->getObject("Breakpoint Watcher");
-   QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
-
-   QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),this,SLOT(updateData()) );
-   QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),model,SLOT(update()));
-   if ( emulator )
+   if ( target.compare("none") )
    {
+      QObject* breakpointWatcher = CObjectRegistry::instance()->getObject("Breakpoint Watcher");
+      QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
+
+      QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),this,SLOT(updateData()) );
+      QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),model,SLOT(update()));
       QObject::connect(emulator,SIGNAL(machineReady()),model,SLOT(update()));
       QObject::connect(emulator,SIGNAL(emulatorReset()),model,SLOT(update()));
       QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),model,SLOT(update()));

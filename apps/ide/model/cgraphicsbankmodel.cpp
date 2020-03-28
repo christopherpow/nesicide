@@ -69,7 +69,7 @@ CDesignerEditorBase *CGraphicsBankModel::createEditorWidget(const QUuid &uuid) c
    if (bank == NULL)
       return NULL;
    // Data item needs to know its editor.
-   bank->setEditor(new GraphicsBankEditorForm(bank->getGraphics(), bank));
+   bank->setEditor(new GraphicsBankEditorForm(bank->getSize(),bank->getGraphics(), bank));
    return bank->editor();
 }
 

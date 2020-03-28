@@ -54,6 +54,7 @@ private slots:
    void on_exportPushButton_clicked();
    void on_updateScanline_editingFinished();
    void applyProjectPropertiesToTab();
+   void applyChangesToTab(QString /*uuid*/);
 };
 
 #endif // CHRROMDISPLAYDIALOG_H

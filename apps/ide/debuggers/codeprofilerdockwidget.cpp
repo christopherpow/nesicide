@@ -39,14 +39,14 @@ CodeProfilerDockWidget::~CodeProfilerDockWidget()
     delete ui;
 }
 
-void CodeProfilerDockWidget::updateTargetMachine(QString /*target*/)
+void CodeProfilerDockWidget::updateTargetMachine(QString target)
 {
-   QObject* breakpointWatcher = CObjectRegistry::instance()->getObject("Breakpoint Watcher");
-   QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
-
-   QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),model,SLOT(update()));
-   if ( emulator )
+   if ( target.compare("none") )
    {
+      QObject* breakpointWatcher = CObjectRegistry::instance()->getObject("Breakpoint Watcher");
+      QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
+
+      QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),model,SLOT(update()));
       QObject::connect(emulator,SIGNAL(machineReady()),this,SLOT(on_clear_clicked()));
       QObject::connect(emulator,SIGNAL(emulatorReset()),model,SLOT(update()));
       QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),model,SLOT(update()));

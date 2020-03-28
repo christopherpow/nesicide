@@ -231,11 +231,11 @@ void SymbolWatchDockWidget::updateTargetMachine(QString target)
       createC64Ui();
    }
 
-   QObject::connect(compiler,SIGNAL(compileDone(bool)),this,SLOT(updateVariables()));
-   QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),watchModel,SLOT(update()));
-   QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),ramModel,SLOT(update()));
-   if ( emulator )
+   if ( target.compare("none") )
    {
+      QObject::connect(compiler,SIGNAL(compileDone(bool)),this,SLOT(updateVariables()));
+      QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),watchModel,SLOT(update()));
+      QObject::connect(breakpointWatcher,SIGNAL(breakpointHit()),ramModel,SLOT(update()));
       QObject::connect(emulator,SIGNAL(machineReady()),watchModel,SLOT(update()));
       QObject::connect(emulator,SIGNAL(emulatorReset()),watchModel,SLOT(update()));
       QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),watchModel,SLOT(update()));
@@ -244,7 +244,6 @@ void SymbolWatchDockWidget::updateTargetMachine(QString target)
       QObject::connect(emulator,SIGNAL(emulatorPaused(bool)),ramModel,SLOT(update()));
       QObject::connect(emulator,SIGNAL(machineReady()),this,SLOT(updateVariables()));
    }
-
 }
 
 void SymbolWatchDockWidget::updateUi()

@@ -84,15 +84,15 @@ void NESEmulatorDockWidget::setScalingFactor(float factor)
 
 void NESEmulatorDockWidget::updateTargetMachine(QString target)
 {
-   QObject* breakpointWatcher = CObjectRegistry::instance()->getObject("Breakpoint Watcher");
-   QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
-
    if ( !target.compare("nes") )
    {
+      QObject* breakpointWatcher = CObjectRegistry::instance()->getObject("Breakpoint Watcher");
+      QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
+
       QObject::connect(this,SIGNAL(controllerInput(uint32_t*)),emulator,SLOT(controllerInput(uint32_t*)));
+      QObject::connect(emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()));
+      QObject::connect(breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(renderData()));
    }
-   QObject::connect(emulator, SIGNAL(emulatedFrame()), this, SLOT(renderData()));
-   QObject::connect(breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(renderData()));
 }
 
 void NESEmulatorDockWidget::changeEvent(QEvent* e)

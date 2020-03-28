@@ -55,15 +55,18 @@ MapperInformationDockWidget::~MapperInformationDockWidget()
     delete ui;
 }
 
-void MapperInformationDockWidget::updateTargetMachine(QString /*target*/)
+void MapperInformationDockWidget::updateTargetMachine(QString target)
 {
-   QObject* breakpointWatcher = CObjectRegistry::instance()->getObject("Breakpoint Watcher");
-   QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
+   if ( !target.compare("nes") )
+   {
+      QObject* breakpointWatcher = CObjectRegistry::instance()->getObject("Breakpoint Watcher");
+      QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
 
-   QObject::connect ( emulator, SIGNAL(machineReady()), this, SLOT(machineReady()) );
-   QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateInformation()) );
-   QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateInformation()) );
-   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateInformation()) );
+      QObject::connect ( emulator, SIGNAL(machineReady()), this, SLOT(machineReady()) );
+      QObject::connect ( emulator, SIGNAL(emulatorReset()), this, SLOT(updateInformation()) );
+      QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateInformation()) );
+      QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateInformation()) );
+   }
 }
 
 void MapperInformationDockWidget::changeEvent(QEvent* e)

@@ -35,15 +35,15 @@ ExecutionInspectorDockWidget::~ExecutionInspectorDockWidget()
    delete model;
 }
 
-void ExecutionInspectorDockWidget::updateTargetMachine(QString /*target*/)
+void ExecutionInspectorDockWidget::updateTargetMachine(QString target)
 {
-   QObject* breakpointWatcher = CObjectRegistry::instance()->getObject("Breakpoint Watcher");
-   QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
-
-   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateTracer()) );
-   QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), model, SLOT(update()) );
-   if ( emulator )
+   if ( target.compare("none") )
    {
+      QObject* breakpointWatcher = CObjectRegistry::instance()->getObject("Breakpoint Watcher");
+      QObject* emulator = CObjectRegistry::instance()->getObject("Emulator");
+
+      QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), this, SLOT(updateTracer()) );
+      QObject::connect ( breakpointWatcher, SIGNAL(breakpointHit()), model, SLOT(update()) );
       QObject::connect ( emulator, SIGNAL(machineReady()), model, SLOT(update()));
       QObject::connect ( emulator, SIGNAL(emulatorReset()), model, SLOT(update()) );
       QObject::connect ( emulator, SIGNAL(emulatorPaused(bool)), this, SLOT(updateTracer()) );

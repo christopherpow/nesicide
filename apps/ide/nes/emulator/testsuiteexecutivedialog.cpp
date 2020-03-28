@@ -83,7 +83,7 @@ void TestSuiteExecutiveDialog::machineReady()
    doTestPhase();
 }
 
-void TestSuiteExecutiveDialog::updateTargetMachine(QString machine)
+void TestSuiteExecutiveDialog::updateTargetMachine(QString target)
 {
 }
 

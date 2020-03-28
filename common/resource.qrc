@@ -179,5 +179,7 @@
         <file>resources/NESICIDE.mk_in</file>
         <file>resources/icons8-pin.png</file>
         <file>resources/icons8-swiss_army_knife.png</file>
+        <file>resources/icons8-sort_down.png</file>
+        <file>resources/icons8-sort_up.png</file>
     </qresource>
 </RCC>
