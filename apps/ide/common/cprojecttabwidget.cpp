@@ -4,6 +4,7 @@
 #include "cdockwidgetregistry.h"
 #include "ccc65interface.h"
 
+#include "cprojecttreeopenaction.h"
 #include "model/projectsearcher.h"
 
 #include "main.h"
@@ -16,6 +17,11 @@ CProjectTabWidget::CProjectTabWidget(QWidget *parent) :
    tabBar()->installEventFilter(this);
    tabBar()->setMouseTracking(true);
    tabBar()->setVisible(EnvironmentSettingsDialog::useTabBarInEditorArea());
+}
+
+void CProjectTabWidget::setProjectModel(CProjectModel *model)
+{
+   m_pProjectModel = model;
 }
 
 bool CProjectTabWidget::eventFilter(QObject *object, QEvent *event)
@@ -243,6 +249,8 @@ void CProjectTabWidget::snapToTab(QString item)
    uint32_t addr;
    uint32_t absAddr;
    QList<CSourceItem*> sources = ProjectSearcher::findItemsOfType<CSourceItem>(nesicideProject);
+   QList<CGraphicsBank*> gfxBanks = ProjectSearcher::findItemsOfType<CGraphicsBank>(nesicideProject);
+   QList<CTileStamp*> tileStamps = ProjectSearcher::findItemsOfType<CTileStamp>(nesicideProject);
    bool found = false;
    bool open = false;
    QDir dir;
@@ -254,6 +262,7 @@ void CProjectTabWidget::snapToTab(QString item)
    QString symbol;
    CDesignerEditorBase* editor = NULL;
 
+   qDebug(item.toUtf8().data());
    // Make sure item is something we care about
    if ( item.startsWith("Address,") )
    {
@@ -318,12 +327,8 @@ void CProjectTabWidget::snapToTab(QString item)
       // File is not open, search the project.
       if ( !found )
       {
-         IProjectTreeViewItem* treeItem;
-         treeItem = findProjectItem(uuid);
-         if ( treeItem )
-         {
-            treeItem->openItemEvent(this);
-         }
+         CProjectTreeOpenAction action(this, m_pProjectModel);
+         m_pProjectModel->visitDataItem(uuid, action);
       }
    }
 
@@ -357,6 +362,32 @@ void CProjectTabWidget::snapToTab(QString item)
          foreach ( CSourceItem* source, sources )
          {
             if ( source->path() == file )
+            {
+               source->openItemEvent(this);
+               found = true;
+               open = true;
+               break;
+            }
+         }
+      }
+      if ( !found )
+      {
+         foreach ( CGraphicsBank* source, gfxBanks )
+         {
+            if ( source->caption() == file )
+            {
+               source->openItemEvent(this);
+               found = true;
+               open = true;
+               break;
+            }
+         }
+      }
+      if ( !found )
+      {
+         foreach ( CTileStamp* source, tileStamps )
+         {
+            if ( source->caption() == file )
             {
                source->openItemEvent(this);
                found = true;

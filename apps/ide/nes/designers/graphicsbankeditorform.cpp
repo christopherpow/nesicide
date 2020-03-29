@@ -66,8 +66,9 @@ GraphicsBankEditorForm::GraphicsBankEditorForm(uint32_t size, QList<IChrRomBankI
    ui->bankSize->setItemData(3,MEM_1KB);
    if ( size == MEM_1KB ) ui->bankSize->setCurrentIndex(3);
 
-   QObject::connect(model,SIGNAL(rowsInserted(QModelIndex,int,int)),this,SLOT(updateUi()));
-   QObject::connect(model,SIGNAL(layoutChanged()),this,SLOT(updateUi()));
+   QObject::connect(model,SIGNAL(rowsInserted(QModelIndex,int,int)),this,SLOT(updateList()));
+   QObject::connect(model,SIGNAL(layoutChanged()),this,SLOT(updateList()));
+   QObject::connect(ui->tableView,SIGNAL(doubleClicked(QModelIndex)),this,SLOT(tableView_doubleClicked(QModelIndex)));
 }
 
 GraphicsBankEditorForm::~GraphicsBankEditorForm()
@@ -117,6 +118,17 @@ bool GraphicsBankEditorForm::eventFilter(QObject* obj,QEvent* event)
    return false;
 }
 
+void GraphicsBankEditorForm::tableView_doubleClicked(QModelIndex index)
+{
+   if ( (index.row() >= 0) && (index.row() < bankItems().count()) )
+   {
+      IChrRomBankItem* pChrItem = bankItems().at(index.row());
+      IProjectTreeViewItem* pProjItem = dynamic_cast<IProjectTreeViewItem*>(pChrItem);
+
+      emit snapToTab("Tile,"+pProjItem->uuid());
+   }
+}
+
 void GraphicsBankEditorForm::renderer_enterEvent(QEvent */*event*/)
 {
    int pixx;
@@ -148,6 +160,13 @@ void GraphicsBankEditorForm::renderer_mouseMoveEvent(QMouseEvent */*event*/)
    {
       updateInfoText(pixx,pixy);
    }
+}
+
+void GraphicsBankEditorForm::updateList()
+{
+   updateUi();
+   setModified(true);
+   emit markProjectDirty(true);
 }
 
 void GraphicsBankEditorForm::updateUi()
@@ -224,22 +243,19 @@ void GraphicsBankEditorForm::updateChrRomBankItemList(QList<IChrRomBankItem*> ba
 
    if ( bankItems != model->bankItems() )
    {
-      setModified(true);
-      emit markProjectDirty(true);
+      model->setBankItems(bankItems);
+      model->update();
+      ui->tableView->resizeRowsToContents();
+
+      emit prepareToTilify();
+
+      for (idx = 0; idx < bankItems.count(); idx++ )
+      {
+         emit addToTilificator(bankItems.at(idx));
+      }
+
+      emit tilify();
    }
-
-   model->setBankItems(bankItems);
-   model->update();
-   ui->tableView->resizeRowsToContents();
-
-   emit prepareToTilify();
-
-   for (idx = 0; idx < bankItems.count(); idx++ )
-   {
-      emit addToTilificator(bankItems.at(idx));
-   }
-
-   emit tilify();
 }
 
 void GraphicsBankEditorForm::renderData(QByteArray output)
@@ -249,20 +265,18 @@ void GraphicsBankEditorForm::renderData(QByteArray output)
 
    ui->gauge->setValue(output.count());
    QPalette p = ui->gauge->palette();
-   QString danger = "QProgressBar::chunk {background: QLinearGradient( x1: 0, y1: 0, x2: 1, y2: 0,stop: 0 #FF0350,stop: 0.4999 #FF0020,stop: 0.5 #FF0019,stop: 1 #FF0000 );border-bottom-right-radius: 5px;border-bottom-left-radius: 5px;border: .px solid black;}";
-   QString safe= "QProgressBar::chunk {background: QLinearGradient( x1: 0, y1: 0, x2: 1, y2: 0,stop: 0 #78d,stop: 0.4999 #46a,stop: 0.5 #45a,stop: 1 #238 );border-bottom-right-radius: 7px;border-bottom-left-radius: 7px;border: 1px solid black;}";
    if ( output.count() > max )
    {
       ui->gauge->setValue(max);
-      ui->gauge->setStyleSheet("QProgressBar::chunk {background: #ff0000;}");
+      ui->gauge->setStyleSheet("QProgressBar::chunk {background: #ff0000;border-top-right-radius: 5px;border-top-left-radius: 5px;border-bottom-right-radius: 5px;border-bottom-left-radius: 5px;border: .px solid black;}");
    }
    else
    {
-      ui->gauge->setStyleSheet("QProgressBar::chunk {background: #00ff00;}");
+      ui->gauge->setStyleSheet("QProgressBar::chunk {background: #00ff00;border-top-right-radius: 5px;border-top-left-radius: 5px;border-bottom-right-radius: 5px;border-bottom-left-radius: 5px;border: .px solid black;}");
    }
    ui->gauge->setPalette(p);
 
-   // Pad to 8KB.
+   // Pad to boundary-KB.
    for ( idx = output.count(); idx < max; idx++ )
    {
       output.append((char)0);
@@ -282,16 +296,31 @@ void GraphicsBankEditorForm::renderData()
    unsigned char colorIdx;
    QColor color[4];
    IChrRomBankItem* item;
+   int x, y, maxx, maxy;
+   int max = ui->bankSize->itemData(ui->bankSize->currentIndex()).toInt();
 
    color[0] = renderer->getColor(0);
    color[1] = renderer->getColor(1);
    color[2] = renderer->getColor(2);
    color[3] = renderer->getColor(3);
 
-   for (int y = 0; y < 128; y++)
+   maxx = (max==MEM_8KB)?256:128;
+   maxy = (max>=MEM_4KB)?128:(max==MEM_2KB)?64:32;
+
+   for (y = 0; y < 128; y++)
    {
-      for (int x = 0; x < 256; x += 8)
+      for (x = 0; x < 256; x += 8)
       {
+         if ( (y >= maxy) || (x >= maxx) )
+         {
+            for ( int xf = 0; xf < 8; xf++ )
+            {
+               imgData[((y<<8)<<2) + (x<<2) + (xf<<2) + 0] = 0xaa;
+               imgData[((y<<8)<<2) + (x<<2) + (xf<<2) + 1] = 0xaa;
+               imgData[((y<<8)<<2) + (x<<2) + (xf<<2) + 2] = 0xaa;
+            }
+            continue;
+         }
          ppuAddr = ((y>>3)<<8)+((x&0x7F)<<1)+(y&0x7);
 
          if ( x >= 128 )

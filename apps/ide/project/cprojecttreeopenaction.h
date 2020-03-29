@@ -13,7 +13,7 @@ class CProjectTreeOpenAction : public QObject, public IUuidVisitor
 {
    Q_OBJECT
 public:
-   CProjectTreeOpenAction(CProjectTabWidget* tabWidget, QTreeWidget* openItems, CProjectModel* project);
+   CProjectTreeOpenAction(CProjectTabWidget* tabWidget, CProjectModel* project);
 
    virtual void visit(CUuid&);
    virtual void visit(CAttributeUuid&);
@@ -29,7 +29,6 @@ public:
 
 private:
    CProjectTabWidget*  m_tabWidget;
-   QTreeWidget*        m_openItems;
    CProjectModel*      m_project;
 
    void doVisit(CSubModel* model, const QUuid& uuid);

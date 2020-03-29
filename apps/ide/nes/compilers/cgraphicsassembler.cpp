@@ -20,6 +20,8 @@ bool CGraphicsAssembler::assemble()
    QDir outputDir(nesicideProject->getProjectCHRROMOutputBasePath());
    QString outputName;
    QFile chrRomFile;
+   int bankSize;
+   int currentSize;
 
    // Make sure directory exists...
    if ( !outputDir.exists() )
@@ -48,6 +50,9 @@ bool CGraphicsAssembler::assemble()
          {
             CGraphicsBank* curGfxBank = gfxBanks->getGraphicsBanks().at(gfxBankIdx);
 
+            bankSize = curGfxBank->getSize();
+            currentSize = 0;
+
             buildTextLogger->write("Constructing '" + curGfxBank->caption() + "':");
 
             if ( curGfxBank->getGraphics().count() )
@@ -58,7 +63,14 @@ bool CGraphicsAssembler::assemble()
                   IProjectTreeViewItem* ptvi = dynamic_cast<IProjectTreeViewItem*>(bankItem);
                   buildTextLogger->write("&nbsp;&nbsp;&nbsp;Adding: "+ptvi->caption()+"("+QString::number(bankItem->getChrRomBankItemSize())+" bytes)");
 
-                  chrRomFile.write(bankItem->getChrRomBankItemData().data(), bankItem->getChrRomBankItemSize());
+                  QByteArray bankItemData = bankItem->getChrRomBankItemData();
+                  currentSize += bankItemData.count();
+                  if ( currentSize > bankSize )
+                  {
+                     buildTextLogger->write("<font color='red'>"+curGfxBank->caption()+"("+QString::number(bankSize)+"): Warning: too much data for specified size</font>");
+                     bankItemData.truncate(bankSize);
+                  }
+                  chrRomFile.write(bankItemData.data(), bankItemData.count());
                }
             }
             else

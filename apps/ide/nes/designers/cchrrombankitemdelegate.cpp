@@ -18,7 +18,9 @@ QWidget* CChrRomBankItemDelegate::createEditor(QWidget* parent,
 {
    QComboBox* editor = new QComboBox(parent);
 
-   editor->setEditable(true);
+   //CP: I think originally I was going to let people type in objects but
+   //    that's just confusing as the drop-down disappears on double click.
+   //editor->setEditable(true);
 
    return editor;
 }

@@ -11,8 +11,8 @@
 #include "model/ctilestampmodel.h"
 #include "model/cmusicmodel.h"
 
-CProjectTreeOpenAction::CProjectTreeOpenAction(CProjectTabWidget *tabWidget, QTreeWidget *openItems, CProjectModel *project)
-   : m_tabWidget(tabWidget), m_openItems(openItems), m_project(project)
+CProjectTreeOpenAction::CProjectTreeOpenAction(CProjectTabWidget *tabWidget, CProjectModel *project)
+   : m_tabWidget(tabWidget), m_project(project)
 {
 }
 

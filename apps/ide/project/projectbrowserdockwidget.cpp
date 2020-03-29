@@ -304,7 +304,7 @@ void ProjectBrowserDockWidget::treeWidgetContextMenuRequested(QPoint pos)
 void ProjectBrowserDockWidget::openNewProjectItem(QUuid uuid)
 {
    int oldOpenItemCount = ui->openProjectItems->topLevelItemCount();
-   CProjectTreeOpenAction action(m_pTarget, ui->openProjectItems, m_pProjectModel);
+   CProjectTreeOpenAction action(m_pTarget, m_pProjectModel);
    m_pProjectModel->visitDataItem(uuid, action);
 
    // If a new item has been opened, select it.

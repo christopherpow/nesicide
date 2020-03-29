@@ -40,6 +40,7 @@ protected:
    void renderer_enterEvent(QEvent* event);
    void renderer_leaveEvent(QEvent* event);
    void renderer_mouseMoveEvent(QMouseEvent *event);
+   void updateUi();
 
 private:
    Ui::GraphicsBankEditorForm* ui;
@@ -54,7 +55,7 @@ private:
 private slots:
    void renderData();
    void renderData(QByteArray output);
-   void updateUi();
+   void updateList();
    void snapTo(QString item);
    void applyChangesToTab(QString uuid);
    void applyProjectPropertiesToTab();
@@ -65,6 +66,7 @@ private slots:
    void on_moveDown_clicked();
 
    void on_bankSize_currentIndexChanged(int index);
+   void tableView_doubleClicked(QModelIndex index);
 
 signals:
    void prepareToTilify();

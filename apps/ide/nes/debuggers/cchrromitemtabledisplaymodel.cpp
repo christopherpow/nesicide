@@ -4,7 +4,7 @@
 
 #include "main.h"
 
-static const char* CLICK_TO_ADD_OR_EDIT = "<click to add or edit>";
+static const char* CLICK_TO_ADD = "<click to add>";
 
 CChrRomItemTableDisplayModel::CChrRomItemTableDisplayModel(bool editable,QObject* /*parent*/)
 {
@@ -98,7 +98,7 @@ QVariant CChrRomItemTableDisplayModel::data(const QModelIndex& index, int role) 
 
       if ( index.column() == ChrRomBankItemCol_Name )
       {
-         return QVariant(CLICK_TO_ADD_OR_EDIT);
+         return QVariant(CLICK_TO_ADD);
       }
    }
    return QVariant();
@@ -182,7 +182,7 @@ bool CChrRomItemTableDisplayModel::setData ( const QModelIndex& index, const QVa
             else
             {
                if ( (!value.toString().isEmpty()) &&
-                    (value != CLICK_TO_ADD_OR_EDIT) )
+                    (value != CLICK_TO_ADD) )
                {
                   beginInsertRows(QModelIndex(),chrRomBankItems.count()+1,chrRomBankItems.count()+1);
                   chrRomBankItems.append(item);

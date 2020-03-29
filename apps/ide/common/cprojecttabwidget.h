@@ -6,6 +6,8 @@
 #include <QToolBar>
 #include <QDockWidget>
 
+#include "model/cprojectmodel.h"
+
 // The IDE uses a system of signals named "snapTo" and "snapToTab" to
 // communicate information between various debuggers, IDE elements, or
 // designer forms when things change in the IDE environment that the
@@ -36,7 +38,7 @@
 // As the snapTo usage is expanded I'll try to remember to document its usage
 // and formats here.
 //
-// snapTo formats:  emit snapTo(<string>) where <string is one of:
+// snapTo formats:  emit snapTo(<string>) where <string> is one of:
 // OutputPaneFile,<file>,<line>
 //    Sent from the output pane in response to the user clicking on a line of
 //    a search result or an error in a compile log.  This tells the other IDE
@@ -76,6 +78,8 @@ public:
    int addTab(QWidget *page, const QIcon &icon, const QString &label);
    void removeTab(int index);
 
+   void setProjectModel(CProjectModel* model);
+
 protected:
    void tabBar_contextMenuEvent(QContextMenuEvent *event);
    void tabBar_mouseMoveEvent(QMouseEvent* event);
@@ -113,7 +117,8 @@ public slots:
    void applyAppSettings();
 
 protected:
-   QMap<QString,QWidget*> tearOffs;
+   QMap<QString,QWidget*>  tearOffs;
+   CProjectModel          *m_pProjectModel;
 };
 
 #endif // CPROJECTTABWIDGET_H

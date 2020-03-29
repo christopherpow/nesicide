@@ -336,6 +336,8 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    m_pProjectBrowser->hide();
    CDockWidgetRegistry::instance()->addWidget ( "Project Browser", m_pProjectBrowser );
 
+   tabWidget->setProjectModel(m_pProjectModel);
+
 //   expandableStatusBar = new CExpandableStatusBar();
 //   appStatusBar->insertWidget(0, expandableStatusBar, 100); // Stretch is big to allow it to stretch across app pane.
 
