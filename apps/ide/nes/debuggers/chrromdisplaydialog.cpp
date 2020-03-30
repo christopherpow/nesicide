@@ -17,6 +17,7 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(bool usePPU,qint8* data,IProjectTreeVie
    info = new QLabel(this);
 
    m_usePPU = usePPU;
+   m_link = link;
 
    imgData = new int8_t[256*128*4];
    memset(imgData,0,sizeof(imgData));
@@ -50,6 +51,9 @@ CHRROMDisplayDialog::CHRROMDisplayDialog(bool usePPU,qint8* data,IProjectTreeVie
 
       renderer = new PanZoomRenderer(256,128,2000,imgData,true,ui->frame);
       renderData();
+
+      QObject* compiler = CObjectRegistry::instance()->getObject("Compiler");
+      QObject::connect(compiler,SIGNAL(compileDone(bool)),this,SLOT(compiler_compileDone(bool)));
 
       // No thread necessary.
       pThread = NULL;
@@ -325,4 +329,25 @@ void CHRROMDisplayDialog::applyProjectPropertiesToTab()
 void CHRROMDisplayDialog::applyChangesToTab(QString /*uuid*/)
 {
    repaintNeeded();
+}
+
+void CHRROMDisplayDialog::compiler_compileDone(bool bOk)
+{
+   // On compile, pull my new bank data.
+   if ( bOk )
+   {
+      if ( !m_usePPU )
+      {
+         if ( m_link )
+         {
+            IProjectTreeViewItem *ptvi = dynamic_cast<IProjectTreeViewItem*>(m_link);
+            CCHRROMBank *pcrb = dynamic_cast<CCHRROMBank*>(ptvi);
+            if ( pcrb )
+            {
+               memcpy(chrrom,pcrb->getBankData(),MEM_8KB);
+               repaintNeeded();
+            }
+         }
+      }
+   }
 }

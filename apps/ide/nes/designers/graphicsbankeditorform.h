@@ -58,6 +58,7 @@ private slots:
    void updateList();
    void snapTo(QString item);
    void applyChangesToTab(QString uuid);
+   void itemRemoved(QUuid uuid);
    void applyProjectPropertiesToTab();
    void updateTargetMachine(QString target) {}
 

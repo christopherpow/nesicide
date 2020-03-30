@@ -35,6 +35,8 @@ public slots:
    virtual void applyEnvironmentSettingsToTab() {}
    virtual void applyAppSettingsToTab() {}
    virtual void checkOpenFile(QDateTime /*lastActivationTime*/) {}
+   virtual void itemAdded(QUuid /*uuid*/) {}
+   virtual void itemRemoved(QUuid /*uuid*/) {}
 
 signals:
    void editor_modified(bool m);

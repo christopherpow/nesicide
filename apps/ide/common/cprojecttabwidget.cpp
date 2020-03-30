@@ -114,6 +114,8 @@ int CProjectTabWidget::addTab(QWidget *page, const QIcon &icon, const QString &l
       QObject::connect(editor,SIGNAL(markProjectDirty(bool)),this,SLOT(projectDirtied(bool)));
       QObject::connect(editor,SIGNAL(snapToTab(QString)),this,SLOT(snapToTab(QString)));
       QObject::connect(editor,SIGNAL(applyChanges(QString)),this,SLOT(applyChanges(QString)));
+      QObject::connect(m_pProjectModel,SIGNAL(itemRemoved(QUuid)),editor,SLOT(itemRemoved(QUuid)));
+      QObject::connect(m_pProjectModel,SIGNAL(itemAdded(QUuid)),editor,SLOT(itemAdded(QUuid)));
       QObject::connect(this,SIGNAL(snapTo(QString)),editor,SLOT(snapTo(QString)));
       QObject::connect(this,SIGNAL(applyChangesToTab(QString)),editor,SLOT(applyChangesToTab(QString)));
       QObject::connect(this,SIGNAL(applyProjectPropertiesToTab()),editor,SLOT(applyProjectPropertiesToTab()));
@@ -520,6 +522,7 @@ void CProjectTabWidget::snapToTab(QString item)
 
 void CProjectTabWidget::applyChanges(QString uuid)
 {
+   qDebug("applyChanges: %s",uuid.toUtf8().data());
    emit applyChangesToTab(uuid);
 }
 

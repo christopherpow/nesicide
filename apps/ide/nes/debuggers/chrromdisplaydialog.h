@@ -41,6 +41,7 @@ private:
    Ui::CHRROMDisplayDialog* ui;
    QLabel* info;
    int8_t* imgData;
+   IProjectTreeViewItem *m_link;
    bool m_usePPU;
    DebuggerUpdateThread* pThread;
    PanZoomRenderer* renderer;
@@ -49,12 +50,13 @@ public slots:
    void renderData();
    void repaintNeeded();
    void updateTargetMachine(QString target);
+   void applyProjectPropertiesToTab();
+   void applyChangesToTab(QString /*uuid*/);
+   void compiler_compileDone(bool bOk);
 
 private slots:
    void on_exportPushButton_clicked();
    void on_updateScanline_editingFinished();
-   void applyProjectPropertiesToTab();
-   void applyChangesToTab(QString /*uuid*/);
 };
 
 #endif // CHRROMDISPLAYDIALOG_H

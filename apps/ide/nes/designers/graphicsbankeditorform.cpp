@@ -4,6 +4,7 @@
 #include <QMessageBox>
 
 #include "cdesignercommon.h"
+#include "ichrrombankitem.h"
 
 #include "nes_emulator_core.h"
 #include "cnessystempalette.h"
@@ -356,6 +357,29 @@ void GraphicsBankEditorForm::renderData()
    }
 
    renderer->reloadData(imgData);
+}
+
+void GraphicsBankEditorForm::itemRemoved(QUuid uuid)
+{
+   QList<IChrRomBankItem*> newItems = bankItems();
+
+   foreach ( IChrRomBankItem* pChrItem, bankItems() )
+   {
+      IProjectTreeViewItem* pProjItem = dynamic_cast<IProjectTreeViewItem*>(pChrItem);
+
+      if ( pProjItem->uuid() == uuid.toString() )
+      {
+         newItems.removeAll(pChrItem);
+      }
+   }
+
+   if ( newItems != bankItems() )
+   {
+      model->setBankItems(newItems);
+      model->update();
+      setModified(true);
+      emit markProjectDirty(true);
+   }
 }
 
 void GraphicsBankEditorForm::snapTo(QString item)

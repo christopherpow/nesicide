@@ -17,11 +17,13 @@ void CGraphicsAssembler::clean()
 bool CGraphicsAssembler::assemble()
 {
    CGraphicsBanks* gfxBanks = nesicideProject->getProject()->getGraphicsBanks();
+   CCHRROMBanks* chrBanks = nesicideProject->getCartridge()->getChrRomBanks();
    QDir outputDir(nesicideProject->getProjectCHRROMOutputBasePath());
    QString outputName;
    QFile chrRomFile;
-   int bankSize;
-   int currentSize;
+   int gfxBankSize;
+   int currentChrSize;
+   int currentGfxSize;
 
    // Make sure directory exists...
    if ( !outputDir.exists() )
@@ -46,12 +48,16 @@ bool CGraphicsAssembler::assemble()
       chrRomFile.open(QIODevice::ReadWrite|QIODevice::Truncate);
       if ( chrRomFile.isOpen() )
       {
-         for (int gfxBankIdx = 0; gfxBankIdx < gfxBanks->getGraphicsBanks().count(); gfxBankIdx++)
-         {
-            CGraphicsBank* curGfxBank = gfxBanks->getGraphicsBanks().at(gfxBankIdx);
+         currentChrSize = 0;
 
-            bankSize = curGfxBank->getSize();
-            currentSize = 0;
+         for (int chrBankIdx = 0, gfxBankIdx = 0; gfxBankIdx < gfxBanks->getGraphicsBanks().count(); gfxBankIdx++)
+         {
+            CGraphicsBank *curGfxBank = gfxBanks->getGraphicsBanks().at(gfxBankIdx);
+            CCHRROMBank *curChrBank = chrBanks->getChrRomBanks().at(chrBankIdx);
+            uint8_t *pChrBankData = curChrBank->getBankData()+currentChrSize;
+
+            gfxBankSize = curGfxBank->getSize();
+            currentGfxSize = 0;
 
             buildTextLogger->write("Constructing '" + curGfxBank->caption() + "':");
 
@@ -64,19 +70,30 @@ bool CGraphicsAssembler::assemble()
                   buildTextLogger->write("&nbsp;&nbsp;&nbsp;Adding: "+ptvi->caption()+"("+QString::number(bankItem->getChrRomBankItemSize())+" bytes)");
 
                   QByteArray bankItemData = bankItem->getChrRomBankItemData();
-                  currentSize += bankItemData.count();
-                  if ( currentSize > bankSize )
+                  currentGfxSize += bankItemData.count();
+                  currentChrSize += bankItemData.count();
+                  if ( currentGfxSize > gfxBankSize )
                   {
-                     buildTextLogger->write("<font color='red'>"+curGfxBank->caption()+"("+QString::number(bankSize)+"): Warning: too much data for specified size</font>");
-                     bankItemData.truncate(bankSize);
+                     buildTextLogger->write("<font color='red'>"+curGfxBank->caption()+"("+QString::number(gfxBankSize)+"): Warning: too much data for specified size</font>");
+                     bankItemData.truncate(gfxBankSize);
                   }
                   chrRomFile.write(bankItemData.data(), bankItemData.count());
+                  memcpy(pChrBankData,bankItemData.data(),bankItemData.count());
+                  pChrBankData += bankItemData.count();
                }
             }
             else
             {
                // 1,2,4, or 8KB of empty space
                chrRomFile.write(emptyBank,curGfxBank->getSize());
+               memset(pChrBankData,0,curGfxBank->getSize());
+               pChrBankData += curGfxBank->getSize();
+            }
+
+            if ( currentChrSize >= MEM_8KB )
+            {
+               currentChrSize = 0;
+               chrBankIdx++;
             }
          }
 

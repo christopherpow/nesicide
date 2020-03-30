@@ -31,12 +31,8 @@ void CChrRomBankItemDelegate::setEditorData(QWidget* editor,
    QComboBox* edit = static_cast<QComboBox*>(editor);
    IProjectTreeViewItemIterator iter(nesicideProject->getProject());
    QStringList choices;
-   choices.append("<<4KB break>>");
-   edit->addItem("<<4KB break>>");
-   choices.append("<<2KB break>>");
-   edit->addItem("<<2KB break>>");
-   choices.append("<<1KB break>>");
-   edit->addItem("<<1KB break>>");
+   choices.append("<click to add>");
+   edit->addItem("<click to add>");
    do
    {
       IChrRomBankItem* item = dynamic_cast<IChrRomBankItem*>(iter.current());
@@ -52,7 +48,7 @@ void CChrRomBankItemDelegate::setEditorData(QWidget* editor,
    completer->setCompletionPrefix(index.data(Qt::DisplayRole).toString());
    edit->setCompleter(completer);
    edit->showPopup();
-   if ( index.data(Qt::DisplayRole).toString() == "<click to add or edit>" )
+   if ( index.data(Qt::DisplayRole).toString() == "<click to add>" )
    {
       edit->setEditText("");
    }

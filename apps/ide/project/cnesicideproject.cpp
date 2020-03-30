@@ -688,7 +688,7 @@ bool CNesicideProject::createProjectFromRom(QString fileName,bool silent)
          }
       }
 
-      // Load the PRG-ROM banks (16KB each)
+      // Load the PRG-ROM banks (8KB each)
       oldBanks = prgRomBanks->getPrgRomBanks().count();
       bankIdx = 0;
       for (int bank=0; bank<numPrgRomBanks; bank++)
