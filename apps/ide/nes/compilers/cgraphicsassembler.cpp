@@ -90,10 +90,21 @@ bool CGraphicsAssembler::assemble()
                pChrBankData += curGfxBank->getSize();
             }
 
-            if ( currentChrSize >= MEM_8KB )
+            if ( (gfxBankIdx < gfxBanks->getGraphicsBanks().count()-1) &&
+                 (currentChrSize >= MEM_8KB) )
             {
                currentChrSize = 0;
                chrBankIdx++;
+
+               CCHRROMBanks *chrRomBanks = nesicideProject->getCartridge()->getChrRomBanks();
+               if ( chrBankIdx >= chrRomBanks->getChrRomBanks().count() )
+               {
+                  CCHRROMBank *curBank = new CCHRROMBank(nesicideProject->getCartridge()->getChrRomBanks());
+                  // This is a new bank
+                  curBank->setBankIndex(chrRomBanks->getChrRomBanks().count());
+                  chrRomBanks->appendChild(curBank);
+                  chrRomBanks->getChrRomBanks().append(curBank);
+               }
             }
          }
 
