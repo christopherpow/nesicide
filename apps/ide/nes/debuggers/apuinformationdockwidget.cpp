@@ -5,8 +5,6 @@
 
 #include "cobjectregistry.h"
 
-#include "main.h"
-
 APUInformationDockWidget::APUInformationDockWidget(QWidget *parent) :
     CDebuggerBase(parent),
     ui(new Ui::APUInformationDockWidget)

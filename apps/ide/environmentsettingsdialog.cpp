@@ -1,9 +1,12 @@
 #include "environmentsettingsdialog.h"
 #include "ui_environmentsettingsdialog.h"
 
-#include "main.h"
+#include "cnesicideproject.h"
 
 #include "Qsci/qsciscintilla.h"
+#include "cgamedatabasehandler.h"
+
+#include "codeeditorform.h"
 
 #include <QSettings>
 
@@ -120,7 +123,7 @@ EnvironmentSettingsDialog::EnvironmentSettingsDialog(QWidget* parent) :
    ui->GameDatabasePathButton->setEnabled(!m_useInternalGameDatabase);
    ui->GameDatabasePathEdit->setEnabled(!m_useInternalGameDatabase);
 
-   ui->GameDatabase->setText(gameDatabase.getGameDBAuthor()+", "+gameDatabase.getGameDBTimestamp());
+   ui->GameDatabase->setText(CGameDatabaseHandler::instance()->getGameDBAuthor()+", "+CGameDatabaseHandler::instance()->getGameDBTimestamp());
 
    ui->ROMPath->setText(m_romPath);
    ui->runRom->setChecked(m_runRomOnLoad);
@@ -182,11 +185,11 @@ EnvironmentSettingsDialog::EnvironmentSettingsDialog(QWidget* parent) :
    pageMap.insert("C=64 Emulation",ui->c64emulator);
 
    ui->treeWidget->setCurrentItem(ui->treeWidget->findItems("General",Qt::MatchExactly).at(0));
-   if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+   if ( !CNesicideProject::instance()->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
    {
       ui->treeWidget->findItems("Commodore 64",Qt::MatchExactly).at(0)->setHidden(true);
    }
-   else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+   else if ( !CNesicideProject::instance()->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
    {
       ui->treeWidget->findItems("Nintendo Entertainment System",Qt::MatchExactly).at(0)->setHidden(true);
    }
@@ -520,21 +523,21 @@ void EnvironmentSettingsDialog::on_useInternalDB_toggled(bool checked)
 
    if ( (!checked) && (!ui->GameDatabasePathEdit->text().isEmpty()) )
    {
-      bool openedOk = gameDatabase.initialize(ui->GameDatabasePathEdit->text());
+      bool openedOk = CGameDatabaseHandler::instance()->initialize(ui->GameDatabasePathEdit->text());
 
       ui->GameDatabasePathButton->setEnabled(openedOk);
       ui->GameDatabasePathEdit->setEnabled(openedOk);
 
-      ui->GameDatabase->setText(gameDatabase.getGameDBAuthor()+", "+gameDatabase.getGameDBTimestamp());
+      ui->GameDatabase->setText(CGameDatabaseHandler::instance()->getGameDBAuthor()+", "+CGameDatabaseHandler::instance()->getGameDBTimestamp());
    }
    else if ( checked )
    {
-      bool openedOk = gameDatabase.initialize(":GameDatabase");
+      bool openedOk = CGameDatabaseHandler::instance()->initialize(":GameDatabase");
 
       ui->GameDatabasePathButton->setEnabled(openedOk);
       ui->GameDatabasePathEdit->setEnabled(openedOk);
 
-      ui->GameDatabase->setText(gameDatabase.getGameDBAuthor()+", "+gameDatabase.getGameDBTimestamp());
+      ui->GameDatabase->setText(CGameDatabaseHandler::instance()->getGameDBAuthor()+", "+CGameDatabaseHandler::instance()->getGameDBTimestamp());
    }
 }
 
@@ -546,13 +549,13 @@ void EnvironmentSettingsDialog::on_GameDatabasePathButton_clicked()
    {
       ui->GameDatabasePathEdit->setText(value);
 
-      bool openedOk = gameDatabase.initialize(ui->GameDatabasePathEdit->text());
+      bool openedOk = CGameDatabaseHandler::instance()->initialize(ui->GameDatabasePathEdit->text());
 
       ui->useInternalDB->setChecked(!openedOk);
       ui->GameDatabasePathButton->setEnabled(openedOk);
       ui->GameDatabasePathEdit->setEnabled(openedOk);
 
-      ui->GameDatabase->setText(gameDatabase.getGameDBAuthor()+", "+gameDatabase.getGameDBTimestamp());
+      ui->GameDatabase->setText(CGameDatabaseHandler::instance()->getGameDBAuthor()+", "+CGameDatabaseHandler::instance()->getGameDBTimestamp());
    }
 }
 

@@ -1,6 +1,5 @@
 #include <QApplication>
 
-#include "main.h"
 #include "mainwindow.h"
 #include "cpluginmanager.h"
 #include "startupsplashdialog.h"
@@ -9,18 +8,6 @@
 #include "appeventfilter.h"
 
 #include "model/cprojectmodel.h"
-
-// Application [transient] settings.
-AppSettings* appSettings = NULL;
-
-// Modeless dialog for Test Suite executive.
-TestSuiteExecutiveDialog* testSuiteExecutive = NULL;
-
-// Database of all known games.
-CGameDatabaseHandler gameDatabase;
-
-// The project container.
-CNesicideProject* nesicideProject = (CNesicideProject*)NULL;
 
 int main(int argc, char* argv[])
 {

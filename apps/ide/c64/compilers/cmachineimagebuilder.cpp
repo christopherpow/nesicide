@@ -2,7 +2,6 @@
 
 #include "ccc65interface.h"
 #include "cnesicideproject.h"
-#include "main.h"
 
 CMachineImageBuilder::CMachineImageBuilder()
 {
@@ -41,7 +40,7 @@ bool CMachineImageBuilder::build()
         (CCC65Interface::instance()->getAssemblerSourcesFromProject().count()) ||
         (CCC65Interface::instance()->getCustomSourcesFromProject().count()) )
    {
-      if ( !nesicideProject->getLinkerConfigFile().isEmpty() )
+      if ( !CNesicideProject::instance()->getLinkerConfigFile().isEmpty() )
       {
          ok = sourceAssembler.assemble();
          if ( !ok )

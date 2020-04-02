@@ -14,8 +14,6 @@
 
 #include "cmarker.h"
 
-#include "main.h"
-
 #include "nes_emulator_core.h"
 #include "c64_emulator_core.h"
 
@@ -47,7 +45,7 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex& index, int role) cons
    uint32_t operand2;
    uint32_t pc;
 
-   if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+   if ( !CNesicideProject::instance()->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
    {
       physAddr = nesGetPhysicalAddressFromAddress(addr);
       opcode = nesGetMemory(addr);
@@ -55,7 +53,7 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex& index, int role) cons
       operand2 = nesGetMemory(addr+2);
       pc = nesGetCPUProgramCounterOfLastSync();
    }
-   else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+   else if ( !CNesicideProject::instance()->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
    {
       physAddr = c64GetPhysicalAddressFromAddress(addr);
       opcode = c64GetMemory(addr);
@@ -72,11 +70,11 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex& index, int role) cons
          {
             if ( index.column() == CodeBrowserCol_Disassembly )
             {
-               if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+               if ( !CNesicideProject::instance()->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
                {
                   CNESDBG::CODEBROWSERTOOLTIP(TOOLTIP_INFO,addr,modelStringBuffer);
                }
-               else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+               else if ( !CNesicideProject::instance()->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
                {
                   CC64DBG::CODEBROWSERTOOLTIP(TOOLTIP_INFO,addr,modelStringBuffer);
                }
@@ -88,11 +86,11 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex& index, int role) cons
 
                if ( opSize > (index.column()-CodeBrowserCol_Opcode) )
                {
-                  if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+                  if ( !CNesicideProject::instance()->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
                   {
                      CNESDBG::CODEBROWSERTOOLTIP(TOOLTIP_BYTES,addr+(index.column()-CodeBrowserCol_Opcode),modelStringBuffer);
                   }
-                  else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+                  else if ( !CNesicideProject::instance()->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
                   {
                      CC64DBG::CODEBROWSERTOOLTIP(TOOLTIP_BYTES,addr+(index.column()-CodeBrowserCol_Opcode),modelStringBuffer);
                   }
@@ -180,11 +178,11 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex& index, int role) cons
    switch ( index.column() )
    {
       case CodeBrowserCol_Address:
-         if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+         if ( !CNesicideProject::instance()->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
          {
             nesGetPrintableAddress(modelStringBuffer,addr);
          }
-         else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+         else if ( !CNesicideProject::instance()->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
          {
             c64GetPrintableAddress(modelStringBuffer,addr);
          }
@@ -218,11 +216,11 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex& index, int role) cons
 
          break;
       case CodeBrowserCol_Disassembly:
-         if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+         if ( !CNesicideProject::instance()->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
          {
             return nesGetDisassemblyAtAddress(addr);
          }
-         else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+         else if ( !CNesicideProject::instance()->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
          {
             return c64GetDisassemblyAtAddress(addr);
          }
@@ -249,11 +247,11 @@ QVariant CCodeBrowserDisplayModel::headerData(int section, Qt::Orientation orien
       switch ( section )
       {
          case CodeBrowserCol_Address:
-            if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+            if ( !CNesicideProject::instance()->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
             {
                return "Address in 6502 memory space and (Mapper Bank:Offset)";
             }
-            else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+            else if ( !CNesicideProject::instance()->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
             {
                return "Address in 6502 memory space";
             }
@@ -314,11 +312,11 @@ QModelIndex CCodeBrowserDisplayModel::index(int row, int column, const QModelInd
 
    if ( (row >= 0) && (column >= 0) )
    {
-      if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+      if ( !CNesicideProject::instance()->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
       {
          physAddr = nesGetVirtualAddressFromSLOC(row);
       }
-      else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+      else if ( !CNesicideProject::instance()->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
       {
          physAddr = c64GetAddressFromSLOC(row);
       }
@@ -333,12 +331,12 @@ int CCodeBrowserDisplayModel::rowCount(const QModelIndex&) const
 {
    unsigned int rows = 0;
 
-   if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+   if ( !CNesicideProject::instance()->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
    {
       // Get the source-lines-of-code count from RAM/SRAM/EXRAM/PRG-ROM that is currently visible to the CPU...
       rows = nesGetSLOC(nesGetCPUProgramCounterOfLastSync());
    }
-   else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+   else if ( !CNesicideProject::instance()->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
    {
       // Get the source-lines-of-code count from RAM/SRAM/EXRAM/PRG-ROM that is currently visible to the CPU...
       rows = c64GetSLOC(c64GetCPURegister(CPU_PC));
@@ -360,11 +358,11 @@ int CCodeBrowserDisplayModel::columnCount(const QModelIndex& parent) const
 void CCodeBrowserDisplayModel::update()
 {
    // Update display...
-   if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+   if ( !CNesicideProject::instance()->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
    {
       nesDisassemble();
    }
-   else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+   else if ( !CNesicideProject::instance()->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
    {
       c64Disassemble();
    }

@@ -1,6 +1,7 @@
 #include "searcherthread.h"
 
-#include "main.h"
+#include "cbuildertextlogger.h"
+#include "cnesicideproject.h"
 
 SearcherWorker::SearcherWorker(QObject*)
 {
@@ -25,7 +26,7 @@ void SearcherWorker::search(QDir dir, QString searchText, QString pattern, bool 
    doSearch(m_dir,&m_found);
    if ( m_sourceSearchPaths )
    {
-      foreach ( QString searchPath, nesicideProject->getSourceSearchPaths() )
+      foreach ( QString searchPath, CNesicideProject::instance()->getSourceSearchPaths() )
       {
          m_dir = searchPath;
          doSearch(m_dir,&m_found);

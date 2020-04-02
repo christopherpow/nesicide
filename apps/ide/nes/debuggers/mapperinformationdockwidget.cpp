@@ -6,7 +6,6 @@
 #include "dbg_cnesmappers.h"
 
 #include "cobjectregistry.h"
-#include "main.h"
 
 enum
 {

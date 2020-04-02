@@ -7,7 +7,9 @@
 
 #include "model/projectsearcher.h"
 
-#include "main.h"
+#include "cbuildertextlogger.h"
+
+#include "environmentsettingsdialog.h"
 
 CCC65Interface *CCC65Interface::_instance = NULL;
 
@@ -62,7 +64,7 @@ QStringList CCC65Interface::getAssemblerSourcesFromProject()
 {
    QDir                baseDir(QDir::currentPath());
    QStringList         extensions = EnvironmentSettingsDialog::sourceExtensionsForAssembly().split(" ", QString::SkipEmptyParts);
-   QList<CSourceItem*> projectSources = ProjectSearcher::findItemsOfType<CSourceItem>(nesicideProject);
+   QList<CSourceItem*> projectSources = ProjectSearcher::findItemsOfType<CSourceItem>(CNesicideProject::instance());
    QStringList         includedSources;
 
    // For each source code object, compile it.
@@ -87,7 +89,7 @@ QStringList CCC65Interface::getCLanguageSourcesFromProject()
    QStringList         extensions = EnvironmentSettingsDialog::sourceExtensionsForC().split(" ", QString::SkipEmptyParts);
    QStringList         headerExtensions = EnvironmentSettingsDialog::headerExtensions().split(" ", QString::SkipEmptyParts);
    bool                add;
-   QList<CSourceItem*> projectSources = ProjectSearcher::findItemsOfType<CSourceItem>(nesicideProject);
+   QList<CSourceItem*> projectSources = ProjectSearcher::findItemsOfType<CSourceItem>(CNesicideProject::instance());
    QStringList         includedSources;
 
    // For each source code object, compile it.
@@ -125,7 +127,7 @@ QStringList CCC65Interface::getCustomSourcesFromProject()
    QStringList         extensions = EnvironmentSettingsDialog::customExtensions().split(" ", QString::SkipEmptyParts);
    QStringList         headerExtensions = EnvironmentSettingsDialog::headerExtensions().split(" ", QString::SkipEmptyParts);
    bool                add;
-   QList<CSourceItem*> projectSources = ProjectSearcher::findItemsOfType<CSourceItem>(nesicideProject);
+   QList<CSourceItem*> projectSources = ProjectSearcher::findItemsOfType<CSourceItem>(CNesicideProject::instance());
    QStringList         includedSources;
 
    // For each source code object, compile it.
@@ -199,29 +201,29 @@ bool CCC65Interface::createMakefile()
 
       // Replace stuff that needs to be replaced...
       makeFileContent.replace("<!target-machine!>",targetMachine);
-      makeFileContent.replace("<!project-name!>",nesicideProject->getProjectOutputName());
-      makeFileContent.replace("<!prg-rom-name!>",nesicideProject->getProjectLinkerOutputName());
-      makeFileContent.replace("<!linker-config!>",nesicideProject->getLinkerConfigFile());
-      makeFileContent.replace("<!compiler-flags!>",nesicideProject->getCompilerAdditionalOptions());
-      makeFileContent.replace("<!compiler-include-paths!>",nesicideProject->getCompilerIncludePaths());
-      makeFileContent.replace("<!compiler-defines!>",nesicideProject->getCompilerDefinedSymbols());
-      makeFileContent.replace("<!assembler-flags!>",nesicideProject->getAssemblerAdditionalOptions());
-      makeFileContent.replace("<!assembler-include-paths!>",nesicideProject->getAssemblerIncludePaths());
-      makeFileContent.replace("<!assembler-defines!>",nesicideProject->getAssemblerDefinedSymbols());
-      makeFileContent.replace("<!debug-file!>",nesicideProject->getProjectDebugInfoName());
-      makeFileContent.replace("<!linker-flags!>",nesicideProject->getLinkerAdditionalOptions());
+      makeFileContent.replace("<!project-name!>",CNesicideProject::instance()->getProjectOutputName());
+      makeFileContent.replace("<!prg-rom-name!>",CNesicideProject::instance()->getProjectLinkerOutputName());
+      makeFileContent.replace("<!linker-config!>",CNesicideProject::instance()->getLinkerConfigFile());
+      makeFileContent.replace("<!compiler-flags!>",CNesicideProject::instance()->getCompilerAdditionalOptions());
+      makeFileContent.replace("<!compiler-include-paths!>",CNesicideProject::instance()->getCompilerIncludePaths());
+      makeFileContent.replace("<!compiler-defines!>",CNesicideProject::instance()->getCompilerDefinedSymbols());
+      makeFileContent.replace("<!assembler-flags!>",CNesicideProject::instance()->getAssemblerAdditionalOptions());
+      makeFileContent.replace("<!assembler-include-paths!>",CNesicideProject::instance()->getAssemblerIncludePaths());
+      makeFileContent.replace("<!assembler-defines!>",CNesicideProject::instance()->getAssemblerDefinedSymbols());
+      makeFileContent.replace("<!debug-file!>",CNesicideProject::instance()->getProjectDebugInfoName());
+      makeFileContent.replace("<!linker-flags!>",CNesicideProject::instance()->getLinkerAdditionalOptions());
       makeFileContent.replace("<!source-dir!>",QDir::currentPath());
-      makeFileContent.replace("<!object-dir!>",nesicideProject->getProjectOutputBasePath());
-      makeFileContent.replace("<!prg-dir!>",nesicideProject->getProjectLinkerOutputBasePath());
-      makeFileContent.replace("<!chr-dir!>",nesicideProject->getProjectCHRROMOutputBasePath());
+      makeFileContent.replace("<!object-dir!>",CNesicideProject::instance()->getProjectOutputBasePath());
+      makeFileContent.replace("<!prg-dir!>",CNesicideProject::instance()->getProjectLinkerOutputBasePath());
+      makeFileContent.replace("<!chr-dir!>",CNesicideProject::instance()->getProjectCHRROMOutputBasePath());
       makeFileContent.replace("<!clang-sources!>",getCLanguageSourcesFromProject().join(" "));
       makeFileContent.replace("<!asm-sources!>",getAssemblerSourcesFromProject().join(" "));
       makeFileContent.replace("<!custom-sources!>",getCustomSourcesFromProject().join(" "));
       makeFileContent.replace("<!target-rules!>",targetRules);
-      makeFileContent.replace("<!linker-dependencies!>",nesicideProject->getLinkerAdditionalDependencies());
+      makeFileContent.replace("<!linker-dependencies!>",CNesicideProject::instance()->getLinkerAdditionalDependencies());
 
       QString customRulesFiles;
-      foreach ( QString customRuleFile,nesicideProject->getMakefileCustomRuleFiles() )
+      foreach ( QString customRuleFile,CNesicideProject::instance()->getMakefileCustomRuleFiles() )
       {
          customRulesFiles += "-include "+customRuleFile+"\r\n";
       }
@@ -371,7 +373,7 @@ bool CCC65Interface::assemble()
    QString                      invocationStr;
    QString                      stdioStr;
    QStringList                  stdioList;
-   QDir                         outputDir(nesicideProject->getProjectLinkerOutputBasePath());
+   QDir                         outputDir(CNesicideProject::instance()->getProjectLinkerOutputBasePath());
    QString                      outputName;
    int                          exitCode;
    bool                         ok = true;
@@ -379,13 +381,13 @@ bool CCC65Interface::assemble()
    // Prevent overbuild
    protect.lock();
 
-   if ( nesicideProject->getProjectLinkerOutputName().isEmpty() )
+   if ( CNesicideProject::instance()->getProjectLinkerOutputName().isEmpty() )
    {
-      outputName = outputDir.fromNativeSeparators(outputDir.filePath(nesicideProject->getProjectOutputName()+".prg"));
+      outputName = outputDir.fromNativeSeparators(outputDir.filePath(CNesicideProject::instance()->getProjectOutputName()+".prg"));
    }
    else
    {
-      outputName = outputDir.fromNativeSeparators(outputDir.filePath(nesicideProject->getProjectLinkerOutputName()));
+      outputName = outputDir.fromNativeSeparators(outputDir.filePath(CNesicideProject::instance()->getProjectLinkerOutputName()));
    }
    buildTextLogger->write("<b>Building: "+outputName+"</b>");
 
@@ -447,13 +449,13 @@ bool CCC65Interface::captureDebugInfo()
    QDir dir(QDir::currentPath());
    QString dbgInfoFile;
 
-   if ( nesicideProject->getProjectDebugInfoName().isEmpty() )
+   if ( CNesicideProject::instance()->getProjectDebugInfoName().isEmpty() )
    {
-      dbgInfoFile = dir.fromNativeSeparators(dir.relativeFilePath(nesicideProject->getProjectOutputName()+".dbg"));
+      dbgInfoFile = dir.fromNativeSeparators(dir.relativeFilePath(CNesicideProject::instance()->getProjectOutputName()+".dbg"));
    }
    else
    {
-      dbgInfoFile = dir.fromNativeSeparators(dir.relativeFilePath(nesicideProject->getProjectDebugInfoName()));
+      dbgInfoFile = dir.fromNativeSeparators(dir.relativeFilePath(CNesicideProject::instance()->getProjectDebugInfoName()));
    }
    buildTextLogger->write("<font color='black'><b>Reading debug information from: "+dbgInfoFile+"</b></font>");
 
@@ -537,18 +539,18 @@ bool CCC65Interface::captureINESImage()
    QDir dir(QDir::currentPath());
    QString nesName;
 
-   if ( nesicideProject->getProjectCartridgeOutputName().isEmpty() )
+   if ( CNesicideProject::instance()->getProjectCartridgeOutputName().isEmpty() )
    {
-      nesName = dir.fromNativeSeparators(dir.relativeFilePath(nesicideProject->getProjectOutputName()+".nes"));
+      nesName = dir.fromNativeSeparators(dir.relativeFilePath(CNesicideProject::instance()->getProjectOutputName()+".nes"));
    }
    else
    {
-      nesName = dir.fromNativeSeparators(dir.relativeFilePath(nesicideProject->getProjectCartridgeOutputName()));
+      nesName = dir.fromNativeSeparators(dir.relativeFilePath(CNesicideProject::instance()->getProjectCartridgeOutputName()));
    }
 
    buildTextLogger->write("<font color='black'><b>Reading NES executable from: "+nesName+"</b></font>");
 
-   return nesicideProject->createProjectFromRom(nesName,true);
+   return CNesicideProject::instance()->createProjectFromRom(nesName,true);
 }
 
 QStringList CCC65Interface::getSourceFiles()

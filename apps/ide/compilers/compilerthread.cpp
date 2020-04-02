@@ -3,7 +3,7 @@
 #include "ccartridgebuilder.h"
 #include "cmachineimagebuilder.h"
 
-#include "main.h"
+#include "cnesicideproject.h"
 
 CompilerWorker::CompilerWorker(QObject*)
 {
@@ -20,11 +20,11 @@ void CompilerWorker::compile()
    CMachineImageBuilder machineImageBuilder;
 
    emit compileStarted();
-   if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+   if ( !CNesicideProject::instance()->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
    {
       m_assembledOk = cartridgeBuilder.build();
    }
-   else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+   else if ( !CNesicideProject::instance()->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
    {
       m_assembledOk = machineImageBuilder.build();
    }
@@ -37,11 +37,11 @@ void CompilerWorker::clean()
    CMachineImageBuilder machineImageBuilder;
 
    emit cleanStarted();
-   if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+   if ( !CNesicideProject::instance()->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
    {
       cartridgeBuilder.clean();
    }
-   else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+   else if ( !CNesicideProject::instance()->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
    {
       machineImageBuilder.clean();
    }

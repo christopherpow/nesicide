@@ -1,8 +1,6 @@
 #include "cattributetable.h"
 #include "cnesicideproject.h"
 
-#include "main.h"
-
 CAttributeTable::CAttributeTable(IProjectTreeViewItem* parent)
 {
    // Add node to tree

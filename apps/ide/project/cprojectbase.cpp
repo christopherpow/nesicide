@@ -1,6 +1,6 @@
 #include "cprojectbase.h"
 
-#include "main.h"
+#include "cnesicideproject.h"
 
 CProjectBase::CProjectBase()
 {
@@ -21,7 +21,7 @@ CProjectBase::~CProjectBase()
 
 IProjectTreeViewItem* findProjectItem(QString uuid)
 {
-   IProjectTreeViewItemIterator iter(nesicideProject->getProject());
+   IProjectTreeViewItemIterator iter(CNesicideProject::instance()->getProject());
 
    while ( iter.current() != NULL )
    {

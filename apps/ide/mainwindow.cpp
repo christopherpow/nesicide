@@ -6,8 +6,8 @@
 #include "cpluginmanager.h"
 
 #include "testsuiteexecutivedialog.h"
-
-#include "main.h"
+#include "cgamedatabasehandler.h"
+#include "appsettings.h"
 
 #include "compilerthread.h"
 #include "ccc65interface.h"
@@ -244,9 +244,6 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
 
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
 
-   // Create application [transient] settings bucket.
-   appSettings = new AppSettings();
-
    // Initialize Environment settings.
    EnvironmentSettingsDialog::readSettings();
 
@@ -254,12 +251,12 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    if ( EnvironmentSettingsDialog::useInternalGameDatabase() )
    {
       // Use internal resource.
-      gameDatabase.initialize(":GameDatabase");
+      CGameDatabaseHandler::instance()->initialize(":GameDatabase");
    }
    else
    {
       // Use named file resource.  Default to internal if it's not set.
-      gameDatabase.initialize(EnvironmentSettingsDialog::getGameDatabase());
+      CGameDatabaseHandler::instance()->initialize(EnvironmentSettingsDialog::getGameDatabase());
    }
 
    // Initialize the plugin manager
@@ -297,8 +294,7 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
 
    setupUi(this);
 
-   nesicideProject = new CNesicideProject();
-   QObject::connect(nesicideProject,SIGNAL(createTarget(QString)),this,SLOT(createTarget(QString)));
+   QObject::connect(CNesicideProject::instance(),SIGNAL(createTarget(QString)),this,SLOT(createTarget(QString)));
 
    QObject::connect(tabWidget,SIGNAL(tabModified(int,bool)),this,SLOT(tabWidget_tabModified(int,bool)));
    QObject::connect(tabWidget,SIGNAL(tabAdded(int)),this,SLOT(tabWidget_tabAdded(int)));
@@ -307,7 +303,7 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    QObject::connect(this,SIGNAL(applyProjectProperties()),tabWidget,SLOT(applyProjectProperties()));
    QObject::connect(this,SIGNAL(applyEnvironmentSettings()),tabWidget,SLOT(applyEnvironmentSettings()));
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),tabWidget,SIGNAL(updateTargetMachine(QString)));
-   QObject::connect(appSettings,SIGNAL(appSettingsChanged()),tabWidget,SLOT(applyAppSettings()));
+   QObject::connect(AppSettings::instance(),SIGNAL(appSettingsChanged()),tabWidget,SLOT(applyAppSettings()));
 
    QObject::connect(menuEdit,SIGNAL(aboutToShow()),this,SLOT(menuEdit_aboutToShow()));
 
@@ -421,7 +417,7 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    MusicEditorForm::instance();
 
    // Set up UI in "Coding" mode.
-   appSettings->setAppMode(AppSettings::CodingMode);
+   AppSettings::instance()->setAppMode(AppSettings::CodingMode);
    actionCoding_Mode->setChecked(true);
    if ( EnvironmentSettingsDialog::rememberWindowSettings() )
    {
@@ -533,7 +529,6 @@ MainWindow::~MainWindow()
    delete debugTextLogger;
    delete searchTextLogger;
 
-   delete nesicideProject;
    delete pluginManager;
 
    delete m_pNESEmulatorThread;
@@ -611,13 +606,13 @@ void MainWindow::applicationActivationChanged(bool activated)
    if ( activated )
    {
       // Check whether the current open project file has changed.
-      if ( m_lastActivationChangeTime.isValid() && nesicideProject->isInitialized() )
+      if ( m_lastActivationChangeTime.isValid() && CNesicideProject::instance()->isInitialized() )
       {
-         fileInfo.setFile(nesicideProject->getProjectFileName());
+         fileInfo.setFile(CNesicideProject::instance()->getProjectFileName());
          if ( fileInfo.lastModified() > m_lastActivationChangeTime )
          {
             str = "The currently loaded project:\n\n";
-            str += nesicideProject->getProjectFileName();
+            str += CNesicideProject::instance()->getProjectFileName();
             str += "\n\nhas been modified outside of NESICIDE.\n\n";
             str += "Do you want to re-load the project?";
             result = QMessageBox::warning(this,"External interference detected!",str,QMessageBox::Yes,QMessageBox::No);
@@ -625,11 +620,11 @@ void MainWindow::applicationActivationChanged(bool activated)
             if ( result == QMessageBox::Yes )
             {
                closeProject();
-               if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+               if ( !CNesicideProject::instance()->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
                {
                   openNesProject(fileInfo.fileName());
                }
-               else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+               else if ( !CNesicideProject::instance()->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
                {
                   openC64Project(fileInfo.fileName());
                }
@@ -642,7 +637,7 @@ void MainWindow::applicationActivationChanged(bool activated)
    else
    {
       // Only embedded emulators pause when task switching...
-      if ( nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) &&
+      if ( CNesicideProject::instance()->getProjectTarget().compare("c64",Qt::CaseInsensitive) &&
            EmulatorPrefsDialog::getPauseOnTaskSwitch() )
       {
          emit pauseEmulation(false);
@@ -1703,7 +1698,7 @@ bool MainWindow::openAnyFile(QString fileName)
 
    if ( !fileInfo.suffix().compare("nesproject",Qt::CaseInsensitive) )
    {
-      if ( nesicideProject->isInitialized() )
+      if ( CNesicideProject::instance()->isInitialized() )
       {
          closeProject();
       }
@@ -1711,7 +1706,7 @@ bool MainWindow::openAnyFile(QString fileName)
    }
    else if ( !fileInfo.suffix().compare("nes",Qt::CaseInsensitive) )
    {
-      if ( nesicideProject->isInitialized() )
+      if ( CNesicideProject::instance()->isInitialized() )
       {
          closeProject();
       }
@@ -1719,7 +1714,7 @@ bool MainWindow::openAnyFile(QString fileName)
    }
    else if ( !fileInfo.suffix().compare("c64project",Qt::CaseInsensitive) )
    {
-      if ( nesicideProject->isInitialized() )
+      if ( CNesicideProject::instance()->isInitialized() )
       {
          closeProject();
       }
@@ -1729,7 +1724,7 @@ bool MainWindow::openAnyFile(QString fileName)
              !fileInfo.suffix().compare("prg",Qt::CaseInsensitive) ||
              !fileInfo.suffix().compare("d64",Qt::CaseInsensitive) )
    {
-      if ( nesicideProject->isInitialized() )
+      if ( CNesicideProject::instance()->isInitialized() )
       {
          closeProject();
       }
@@ -1794,21 +1789,21 @@ void MainWindow::showEvent(QShowEvent */*event*/)
 
 void MainWindow::projectDataChangesEvent()
 {
-   m_pProjectModel->setProject(nesicideProject);
+   m_pProjectModel->setProject(CNesicideProject::instance());
 
    m_pProjectBrowser->layoutChangedEvent();
-   m_pProjectBrowser->setVisible(nesicideProject->isInitialized());
+   m_pProjectBrowser->setVisible(CNesicideProject::instance()->isInitialized());
 
    // Enabled/Disable actions based on if we have a project loaded or not
-   actionProject_Properties->setEnabled(nesicideProject->isInitialized());
-   action_Project_Browser->setEnabled(nesicideProject->isInitialized());
-   action_Close_Project->setEnabled(nesicideProject->isInitialized());
-   actionCompile_Project->setEnabled(nesicideProject->isInitialized());
-   actionManage_Add_Ons->setEnabled(nesicideProject->isInitialized());
-   actionSave_Project->setEnabled(nesicideProject->isInitialized());
-   actionSave_Project_As->setEnabled(nesicideProject->isInitialized());
-   actionClean_Project->setEnabled(nesicideProject->isInitialized());
-   actionLoad_In_Emulator->setEnabled(nesicideProject->isInitialized());
+   actionProject_Properties->setEnabled(CNesicideProject::instance()->isInitialized());
+   action_Project_Browser->setEnabled(CNesicideProject::instance()->isInitialized());
+   action_Close_Project->setEnabled(CNesicideProject::instance()->isInitialized());
+   actionCompile_Project->setEnabled(CNesicideProject::instance()->isInitialized());
+   actionManage_Add_Ons->setEnabled(CNesicideProject::instance()->isInitialized());
+   actionSave_Project->setEnabled(CNesicideProject::instance()->isInitialized());
+   actionSave_Project_As->setEnabled(CNesicideProject::instance()->isInitialized());
+   actionClean_Project->setEnabled(CNesicideProject::instance()->isInitialized());
+   actionLoad_In_Emulator->setEnabled(CNesicideProject::instance()->isInitialized());
 
    if (tabWidget->currentIndex() >= 0)
    {
@@ -1824,12 +1819,12 @@ void MainWindow::projectDataChangesEvent()
       }
    }
 
-   setWindowTitle(nesicideProject->getProjectTitle().append("[*] - NESICIDE"));
+   setWindowTitle(CNesicideProject::instance()->getProjectTitle().append("[*] - NESICIDE"));
 }
 
 void MainWindow::markProjectDirty(bool dirty)
 {
-   nesicideProject->setDirty(dirty);
+   CNesicideProject::instance()->setDirty(dirty);
    setWindowModified(dirty);
 }
 
@@ -1883,17 +1878,17 @@ void MainWindow::on_actionSave_Project_triggered()
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
    QString   fileName;
 
-   fileName = nesicideProject->getProjectFileName();
+   fileName = CNesicideProject::instance()->getProjectFileName();
    if ( !fileName.compare("(unset)",Qt::CaseInsensitive) )
    {
-      if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+      if ( !CNesicideProject::instance()->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
       {
-         fileName = QFileDialog::getSaveFileName(this, "Save Project", QDir::currentPath()+QDir::separator()+nesicideProject->getProjectOutputName()+".nesproject",
+         fileName = QFileDialog::getSaveFileName(this, "Save Project", QDir::currentPath()+QDir::separator()+CNesicideProject::instance()->getProjectOutputName()+".nesproject",
                                                         "NES Project (*.nesproject)");
       }
-      else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+      else if ( !CNesicideProject::instance()->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
       {
-         fileName = QFileDialog::getSaveFileName(this, "Save Project", QDir::currentPath()+QDir::separator()+nesicideProject->getProjectOutputName()+".c64project",
+         fileName = QFileDialog::getSaveFileName(this, "Save Project", QDir::currentPath()+QDir::separator()+CNesicideProject::instance()->getProjectOutputName()+".c64project",
                                                         "C64 Project (*.c64project)");
       }
    }
@@ -1903,7 +1898,7 @@ void MainWindow::on_actionSave_Project_triggered()
       saveProject(fileName);
    }
 
-   nesicideProject->setDirty(false);
+   CNesicideProject::instance()->setDirty(false);
 
    settings.setValue("LastProject",fileName);
 }
@@ -1956,7 +1951,7 @@ void MainWindow::saveProject(QString fileName)
    QFile file(fileName);
 
    // Save the project file name in the project...
-   nesicideProject->setProjectFileName(fileName);
+   CNesicideProject::instance()->setProjectFileName(fileName);
 
    if ( !file.open( QFile::WriteOnly) )
    {
@@ -1968,7 +1963,7 @@ void MainWindow::saveProject(QString fileName)
    QDomProcessingInstruction instr = doc.createProcessingInstruction("xml", "version='1.0' encoding='UTF-8'");
    doc.appendChild(instr);
 
-   if (!nesicideProject->serialize(doc, doc))
+   if (!CNesicideProject::instance()->serialize(doc, doc))
    {
       QMessageBox::critical(this, "Error", "An error occured while trying to serialize the project data.");
       file.close();
@@ -1985,11 +1980,11 @@ void MainWindow::saveProject(QString fileName)
    file.close();
 
    // Now save the emulator state if a save state file is specified.
-   if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+   if ( !CNesicideProject::instance()->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
    {
-      if ( !nesicideProject->getProjectCartridgeSaveStateName().isEmpty() )
+      if ( !CNesicideProject::instance()->getProjectCartridgeSaveStateName().isEmpty() )
       {
-         saveEmulatorState(nesicideProject->getProjectCartridgeSaveStateName());
+         saveEmulatorState(CNesicideProject::instance()->getProjectCartridgeSaveStateName());
       }
    }
 
@@ -2003,12 +1998,12 @@ void MainWindow::on_actionSave_Project_As_triggered()
    // file dialog, while creating an instance of QFileDialog results in a non-native file dialog..
    QString fileName;
 
-   if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+   if ( !CNesicideProject::instance()->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
    {
       fileName = QFileDialog::getSaveFileName(this, "Save Project", QDir::currentPath(),
                                                      "NES Project (*.nesproject)");
    }
-   else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+   else if ( !CNesicideProject::instance()->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
    {
       fileName = QFileDialog::getSaveFileName(this, "Save Project", QDir::currentPath(),
                                                      "C64 Project (*.c64project)");
@@ -2026,7 +2021,7 @@ void MainWindow::on_actionProject_Properties_triggered()
 
    if (dlg.exec() == QDialog::Accepted)
    {
-      nesicideProject->setDirty(true);
+      CNesicideProject::instance()->setDirty(true);
    }
 
    emit applyProjectProperties();
@@ -2085,7 +2080,7 @@ void MainWindow::explodeAddOn(int level,QString projectName,QString addonDirName
 
                if ( fileInfo.filePath().contains("Source Code") )
                {
-                  CSourceItem *source = nesicideProject->getProject()->getSources()->addSourceFile(projectDirPath);
+                  CSourceItem *source = CNesicideProject::instance()->getProject()->getSources()->addSourceFile(projectDirPath);
                   if ( fileInfo.filePath().endsWith("_includeInBuild") )
                   {
                      source->setIncludeInBuild(false);
@@ -2093,10 +2088,10 @@ void MainWindow::explodeAddOn(int level,QString projectName,QString addonDirName
                }
                else if ( fileInfo.filePath().contains("Custom Rules") )
                {
-                  QStringList customRuleFiles = nesicideProject->getMakefileCustomRuleFiles();
+                  QStringList customRuleFiles = CNesicideProject::instance()->getMakefileCustomRuleFiles();
                   customRuleFiles += projectDirPath;
                   customRuleFiles.removeDuplicates();
-                  nesicideProject->setMakefileCustomRuleFiles(customRuleFiles);
+                  CNesicideProject::instance()->setMakefileCustomRuleFiles(customRuleFiles);
                }
                else
                {
@@ -2160,13 +2155,13 @@ void MainWindow::explodeTemplate(int level,QString templateName,QString projectN
             if ( !fileInfo.suffix().compare("nesproject_in",Qt::CaseInsensitive) )
             {
                templateFileContent.replace("<!project-title!>",projectName.toUtf8());
-               templateFileContent.replace("<!project-mapper!>",QString::number(nesicideProject->getCartridge()->getMapperNumber()).toUtf8());
+               templateFileContent.replace("<!project-mapper!>",QString::number(CNesicideProject::instance()->getCartridge()->getMapperNumber()).toUtf8());
                (*projectFileName) = localFile.fileName();
             }
             else if ( !fileInfo.suffix().compare("c64project_in",Qt::CaseInsensitive) )
             {
                templateFileContent.replace("<!project-title!>",projectName.toUtf8());
-               templateFileContent.replace("<!project-mapper!>",QString::number(nesicideProject->getCartridge()->getMapperNumber()).toUtf8());
+               templateFileContent.replace("<!project-mapper!>",QString::number(CNesicideProject::instance()->getCartridge()->getMapperNumber()).toUtf8());
                (*projectFileName) = localFile.fileName();
             }
 
@@ -2203,10 +2198,10 @@ void MainWindow::explodeINESHeaderTemplate(QString templateName,QString projectN
    {
       templateFileContent = templateFile.readAll();
 
-      templateFileContent.replace("<!prg-banks!>",QString::number(nesicideProject->getCartridge()->getPrgRomBanks()->childCount(),16));
-      templateFileContent.replace("<!chr-banks!>",QString::number(nesicideProject->getCartridge()->getChrRomBanks()->childCount(),16));
-      templateFileContent.replace("<!mapper-low!>",QString::number((nesicideProject->getCartridge()->getMapperNumber()&0x0F)<<4,16));
-      templateFileContent.replace("<!mapper-high!>",QString::number(nesicideProject->getCartridge()->getMapperNumber()&0xF0,16));
+      templateFileContent.replace("<!prg-banks!>",QString::number(CNesicideProject::instance()->getCartridge()->getPrgRomBanks()->childCount(),16));
+      templateFileContent.replace("<!chr-banks!>",QString::number(CNesicideProject::instance()->getCartridge()->getChrRomBanks()->childCount(),16));
+      templateFileContent.replace("<!mapper-low!>",QString::number((CNesicideProject::instance()->getCartridge()->getMapperNumber()&0x0F)<<4,16));
+      templateFileContent.replace("<!mapper-high!>",QString::number(CNesicideProject::instance()->getCartridge()->getMapperNumber()&0xF0,16));
 
       localFile.write(templateFileContent.toUtf8());
    }
@@ -2219,7 +2214,7 @@ void MainWindow::on_actionNew_Project_triggered()
 {
    on_action_Close_Project_triggered();
 
-   if ( nesicideProject->isInitialized() )
+   if ( CNesicideProject::instance()->isInitialized() )
    {
       return;
    }
@@ -2247,7 +2242,7 @@ void MainWindow::on_actionNew_Project_triggered()
       }
       else
       {
-         nesicideProject->terminateProject();
+         CNesicideProject::instance()->terminateProject();
 
          QString templateDirName = ":/templates/";
          QString projectFileName;
@@ -2293,7 +2288,7 @@ void MainWindow::openNesROM(QString fileName,bool runRom)
 
    // Remove any lingering project content
    m_pProjectBrowser->disableNavigation();
-   nesicideProject->terminateProject();
+   CNesicideProject::instance()->terminateProject();
 
    if ( !fi.exists() ) return;
 
@@ -2309,34 +2304,34 @@ void MainWindow::openNesROM(QString fileName,bool runRom)
 
    // Create new project from ROM
    // Set project target before initializing project.
-   nesicideProject->setProjectTarget("nes");
-   nesicideProject->initializeProject();
-   nesicideProject->createProjectFromRom(fileName);
+   CNesicideProject::instance()->setProjectTarget("nes");
+   CNesicideProject::instance()->initializeProject();
+   CNesicideProject::instance()->createProjectFromRom(fileName);
 
    // Set up some default stuff guessing from the path...
    QFileInfo fileInfo(fileName);
    QDir::setCurrent(fileInfo.path());
-   nesicideProject->setProjectTitle(fileInfo.completeBaseName());
-   nesicideProject->setProjectLinkerOutputName(fileInfo.completeBaseName()+".prg");
-   nesicideProject->setProjectCHRROMOutputName(fileInfo.completeBaseName()+".chr");
-   nesicideProject->setProjectCartridgeOutputName(fileInfo.fileName());
-   nesicideProject->setProjectCartridgeSaveStateName(fileInfo.completeBaseName()+".sav");
-   nesicideProject->setProjectDebugInfoName(fileInfo.completeBaseName()+".dbg");
+   CNesicideProject::instance()->setProjectTitle(fileInfo.completeBaseName());
+   CNesicideProject::instance()->setProjectLinkerOutputName(fileInfo.completeBaseName()+".prg");
+   CNesicideProject::instance()->setProjectCHRROMOutputName(fileInfo.completeBaseName()+".chr");
+   CNesicideProject::instance()->setProjectCartridgeOutputName(fileInfo.fileName());
+   CNesicideProject::instance()->setProjectCartridgeSaveStateName(fileInfo.completeBaseName()+".sav");
+   CNesicideProject::instance()->setProjectDebugInfoName(fileInfo.completeBaseName()+".dbg");
 
    // Load debugger info if we can find it.
    CCC65Interface::instance()->captureDebugInfo();
 
    m_pProjectBrowser->enableNavigation();
 
-   if ( !nesicideProject->getProjectCartridgeSaveStateName().isEmpty() )
+   if ( !CNesicideProject::instance()->getProjectCartridgeSaveStateName().isEmpty() )
    {
       QDomDocument saveDoc;
-      QFile saveFile( nesicideProject->getProjectCartridgeSaveStateName() );
+      QFile saveFile( CNesicideProject::instance()->getProjectCartridgeSaveStateName() );
 
       if (saveFile.open(QFile::ReadOnly))
       {
          saveDoc.setContent(saveFile.readAll());
-         nesicideProject->setSaveStateDoc(saveDoc);
+         CNesicideProject::instance()->setSaveStateDoc(saveDoc);
       }
       saveFile.close();
    }
@@ -2364,7 +2359,7 @@ void MainWindow::openC64File(QString fileName)
 
    // Remove any lingering project content
    m_pProjectBrowser->disableNavigation();
-   nesicideProject->terminateProject();
+   CNesicideProject::instance()->terminateProject();
 
    if ( !fi.exists() ) return;
 
@@ -2380,34 +2375,34 @@ void MainWindow::openC64File(QString fileName)
 
    // Create new project from ROM
    // Set project target before initializing project.
-   nesicideProject->setProjectTarget("c64");
-   nesicideProject->initializeProject();
-//   nesicideProject->createProjectFromRom(fileName);
+   CNesicideProject::instance()->setProjectTarget("c64");
+   CNesicideProject::instance()->initializeProject();
+//   CNesicideProject::instance()->createProjectFromRom(fileName);
 
    // Set up some default stuff guessing from the path...
    QFileInfo fileInfo(fileName);
    QDir::setCurrent(fileInfo.path());
-   nesicideProject->setProjectTitle(fileInfo.completeBaseName());
+   CNesicideProject::instance()->setProjectTitle(fileInfo.completeBaseName());
 
    if ( !fileInfo.suffix().compare("c64",Qt::CaseInsensitive) ||
         !fileInfo.suffix().compare("prg",Qt::CaseInsensitive) )
    {
-      nesicideProject->setProjectOutputName(fileInfo.completeBaseName()+".c64");
-      nesicideProject->setProjectLinkerOutputName(fileInfo.completeBaseName()+".c64");
-      nesicideProject->setProjectDebugInfoName(fileInfo.completeBaseName()+".dbg");
+      CNesicideProject::instance()->setProjectOutputName(fileInfo.completeBaseName()+".c64");
+      CNesicideProject::instance()->setProjectLinkerOutputName(fileInfo.completeBaseName()+".c64");
+      CNesicideProject::instance()->setProjectDebugInfoName(fileInfo.completeBaseName()+".dbg");
 
       // Load debugger info if we can find it.
       CCC65Interface::instance()->captureDebugInfo();
    }
    else if ( !fileInfo.suffix().compare("d64",Qt::CaseInsensitive) )
    {
-      nesicideProject->setProjectOutputName(fileInfo.completeBaseName()+".d64");
-      nesicideProject->setProjectLinkerOutputName(fileInfo.completeBaseName()+".d64");
+      CNesicideProject::instance()->setProjectOutputName(fileInfo.completeBaseName()+".d64");
+      CNesicideProject::instance()->setProjectLinkerOutputName(fileInfo.completeBaseName()+".d64");
    }
 
-   nesicideProject->setProjectCHRROMOutputName("");
-   nesicideProject->setProjectCartridgeOutputName("");
-   nesicideProject->setProjectCartridgeSaveStateName("");
+   CNesicideProject::instance()->setProjectCHRROMOutputName("");
+   CNesicideProject::instance()->setProjectCartridgeOutputName("");
+   CNesicideProject::instance()->setProjectCartridgeSaveStateName("");
 
    m_pProjectBrowser->enableNavigation();
 
@@ -2423,7 +2418,7 @@ void MainWindow::on_actionCreate_Project_from_File_triggered()
 {
    on_action_Close_Project_triggered();
 
-   if ( nesicideProject->isInitialized() )
+   if ( CNesicideProject::instance()->isInitialized() )
    {
       return;
    }
@@ -2576,7 +2571,7 @@ void MainWindow::closeEvent ( QCloseEvent* event )
    // can't synchronize to disk if we wait for that.
    settings.sync();
 
-   if (nesicideProject->isInitialized())
+   if (CNesicideProject::instance()->isInitialized())
    {
       cancel = closeProject();
 
@@ -2635,9 +2630,9 @@ void MainWindow::openNesProject(QString fileName,bool runRom)
       m_pProjectBrowser->disableNavigation();
 
       // Set project target before initializing project.
-      nesicideProject->setProjectTarget("nes");
-      nesicideProject->initializeProject();
-      nesicideProject->setProjectFileName(fileName);
+      CNesicideProject::instance()->setProjectTarget("nes");
+      CNesicideProject::instance()->initializeProject();
+      CNesicideProject::instance()->setProjectFileName(fileName);
 
       // Clear output
       output->clearAllPanes();
@@ -2647,35 +2642,35 @@ void MainWindow::openNesProject(QString fileName,bool runRom)
       QDir::setCurrent(fileInfo.path());
 
       // Load new project content
-      ok = nesicideProject->deserialize(doc,doc,errors);
+      ok = CNesicideProject::instance()->deserialize(doc,doc,errors);
       if ( !ok )
       {
          QMessageBox::warning(this,"Project Load Error", "The project failed to load.\n\n"+errors);
 
-         nesicideProject->terminateProject();
+         CNesicideProject::instance()->terminateProject();
       }
 
       // Load ROM if it exists.
-      if ( !nesicideProject->getProjectCartridgeOutputName().isEmpty() )
+      if ( !CNesicideProject::instance()->getProjectCartridgeOutputName().isEmpty() )
       {
          QDir dir(QDir::currentPath());
          QString romName;
-         romName = dir.fromNativeSeparators(dir.relativeFilePath(nesicideProject->getProjectCartridgeOutputName()));
+         romName = dir.fromNativeSeparators(dir.relativeFilePath(CNesicideProject::instance()->getProjectCartridgeOutputName()));
 
-         nesicideProject->createProjectFromRom(romName,true);
+         CNesicideProject::instance()->createProjectFromRom(romName,true);
 
          // Load debugger info if we can find it.
          CCC65Interface::instance()->captureDebugInfo();
 
-         if ( !nesicideProject->getProjectCartridgeSaveStateName().isEmpty() )
+         if ( !CNesicideProject::instance()->getProjectCartridgeSaveStateName().isEmpty() )
          {
             QDomDocument saveDoc;
-            QFile saveFile( nesicideProject->getProjectCartridgeSaveStateName() );
+            QFile saveFile( CNesicideProject::instance()->getProjectCartridgeSaveStateName() );
 
             if (saveFile.open(QFile::ReadOnly))
             {
                saveDoc.setContent(saveFile.readAll());
-               nesicideProject->setSaveStateDoc(saveDoc);
+               CNesicideProject::instance()->setSaveStateDoc(saveDoc);
             }
             saveFile.close();
          }
@@ -2697,7 +2692,7 @@ void MainWindow::openNesProject(QString fileName,bool runRom)
    }
    else
    {
-      nesicideProject->terminateProject();
+      CNesicideProject::instance()->terminateProject();
 
       projectDataChangesEvent();
    }
@@ -2735,9 +2730,9 @@ void MainWindow::openC64Project(QString fileName,bool run)
       m_pProjectBrowser->disableNavigation();
 
       // Set project target before initializing project.
-      nesicideProject->setProjectTarget("c64");
-      nesicideProject->initializeProject();
-      nesicideProject->setProjectFileName(fileName);
+      CNesicideProject::instance()->setProjectTarget("c64");
+      CNesicideProject::instance()->initializeProject();
+      CNesicideProject::instance()->setProjectFileName(fileName);
 
       // Clear output
       output->clearAllPanes();
@@ -2747,20 +2742,20 @@ void MainWindow::openC64Project(QString fileName,bool run)
       QDir::setCurrent(fileInfo.path());
 
       // Load new project content
-      ok = nesicideProject->deserialize(doc,doc,errors);
+      ok = CNesicideProject::instance()->deserialize(doc,doc,errors);
       if ( !ok )
       {
          QMessageBox::warning(this,"Project Load Error", "The project failed to load.\n\n"+errors);
 
-         nesicideProject->terminateProject();
+         CNesicideProject::instance()->terminateProject();
       }
 
       // Load C64 image if it exists.
-      if ( !nesicideProject->getProjectLinkerOutputName().isEmpty() )
+      if ( !CNesicideProject::instance()->getProjectLinkerOutputName().isEmpty() )
       {
          QDir dir(QDir::currentPath());
          QString c64Name;
-         c64Name = dir.fromNativeSeparators(dir.relativeFilePath(nesicideProject->getProjectLinkerOutputName()));
+         c64Name = dir.fromNativeSeparators(dir.relativeFilePath(CNesicideProject::instance()->getProjectLinkerOutputName()));
 
          // Load debugger info if we can find it.
          CCC65Interface::instance()->captureDebugInfo();
@@ -2776,7 +2771,7 @@ void MainWindow::openC64Project(QString fileName,bool run)
    }
    else
    {
-      nesicideProject->terminateProject();
+      CNesicideProject::instance()->terminateProject();
 
       projectDataChangesEvent();
    }
@@ -2786,7 +2781,7 @@ void MainWindow::on_actionOpen_Project_triggered()
 {
    on_action_Close_Project_triggered();
 
-   if ( nesicideProject->isInitialized() )
+   if ( CNesicideProject::instance()->isInitialized() )
    {
       return;
    }
@@ -3062,7 +3057,7 @@ bool MainWindow::closeProject()
       }
    }
 
-   if (nesicideProject->isDirty())
+   if (CNesicideProject::instance()->isDirty())
    {
       int result = QMessageBox::question(this,"Save Project?","Your project settings, project content, or debugger content has changed, would you like to save the project?",QMessageBox::Yes,QMessageBox::No,QMessageBox::Cancel);
       if ( result == QMessageBox::Yes )
@@ -3087,11 +3082,11 @@ bool MainWindow::closeProject()
       emit pauseEmulation(false);
 
       // Now save the emulator state if a save state file is specified.
-      if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+      if ( !CNesicideProject::instance()->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
       {
-         if ( !nesicideProject->getProjectCartridgeSaveStateName().isEmpty() )
+         if ( !CNesicideProject::instance()->getProjectCartridgeSaveStateName().isEmpty() )
          {
-            saveEmulatorState(nesicideProject->getProjectCartridgeSaveStateName());
+            saveEmulatorState(CNesicideProject::instance()->getProjectCartridgeSaveStateName());
          }
       }
 
@@ -3107,7 +3102,7 @@ bool MainWindow::closeProject()
 
       CCC65Interface::instance()->clear();
 
-      nesicideProject->terminateProject();
+      CNesicideProject::instance()->terminateProject();
 
       NESEmulatorThread* emulator = dynamic_cast<NESEmulatorThread*>(CObjectRegistry::instance()->getObject("Emulator"));
 
@@ -3737,11 +3732,11 @@ void MainWindow::updateFromEmulatorPrefs(bool initial)
 
 void MainWindow::actionConfigure_triggered()
 {
-   EmulatorPrefsDialog dlg(nesicideProject->getProjectTarget());
+   EmulatorPrefsDialog dlg(CNesicideProject::instance()->getProjectTarget());
 
    dlg.exec();
 
-   if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+   if ( !CNesicideProject::instance()->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
    {
       updateFromEmulatorPrefs(false);
    }
@@ -3762,7 +3757,7 @@ void MainWindow::on_actionLoad_In_Emulator_triggered()
    {
       actionLoad_In_Emulator->setEnabled(false);
 
-      if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+      if ( !CNesicideProject::instance()->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
       {
          buildTextLogger->write("<b>Loading ROM...</b>");
 
@@ -3782,7 +3777,7 @@ void MainWindow::on_actionLoad_In_Emulator_triggered()
 
          buildTextLogger->write("<b>Load complete.</b>");
       }
-      else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+      else if ( !CNesicideProject::instance()->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
       {
          buildTextLogger->write("<b>Loading C64...</b>");
 
@@ -4046,7 +4041,7 @@ void MainWindow::on_actionCoding_Mode_triggered()
 
    actionDebugging_Mode->setChecked(false);
    actionCoding_Mode->setChecked(true);
-   appSettings->setAppMode(AppSettings::CodingMode);
+   AppSettings::instance()->setAppMode(AppSettings::CodingMode);
 }
 
 void MainWindow::on_actionDebugging_Mode_triggered()
@@ -4077,7 +4072,7 @@ void MainWindow::on_actionDebugging_Mode_triggered()
 
    // Always show emulator
    CDockWidgetRegistry::instance()->getWidget("Emulator")->show();
-   appSettings->setAppMode(AppSettings::DebuggingMode);
+   AppSettings::instance()->setAppMode(AppSettings::DebuggingMode);
 }
 
 void MainWindow::on_actionExit_triggered()
@@ -4092,7 +4087,7 @@ void MainWindow::applyAddOns(QStringList addOns)
 
    foreach ( QString addon_uri, addOns )
    {
-      explodeAddOn(0,nesicideProject->getProjectTitle(),addon_uri,QDir::currentPath());
+      explodeAddOn(0,CNesicideProject::instance()->getProjectTitle(),addon_uri,QDir::currentPath());
    }
 
    emit applyProjectProperties();
@@ -4104,7 +4099,7 @@ void MainWindow::applyAddOns(QStringList addOns)
 void MainWindow::on_actionManage_Add_Ons_triggered()
 {
    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "CSPSoftware", "NESICIDE");
-   NewProjectDialog dlg("Add-Ons",nesicideProject->getProjectTitle(),settings.value("LastProjectBasePath").toString(),true);
+   NewProjectDialog dlg("Add-Ons",CNesicideProject::instance()->getProjectTitle(),settings.value("LastProjectBasePath").toString(),true);
 
    if (dlg.exec() == QDialog::Accepted)
    {

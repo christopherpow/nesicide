@@ -5,7 +5,7 @@
 
 #include "cqtmfc.h"
 
-#include "main.h"
+#include "cnesicideproject.h"
 
 #include "Source/FamiTrackerDoc.h"
 #include "Source/TextExporter.h"
@@ -111,7 +111,7 @@ bool MusicEditorForm::exportData()
 {
 //   AfxGetMainWnd()->SendMessage(ID_FILE_EXPORTTEXT);
    CFamiTrackerDoc	*pDoc = static_cast<CFamiTrackerDoc*>(AfxGetMainWnd()->GetActiveDocument());
-   QDir exportDir(nesicideProject->getProjectOutputBasePath());
+   QDir exportDir(CNesicideProject::instance()->getProjectOutputBasePath());
    QString fileName = QString(pDoc->GetFileTitle().GetBuffer());
    fileName += ".ftxt";
    CString FileName(exportDir.absoluteFilePath(fileName));

@@ -4,8 +4,6 @@
 #include "cbuildertextlogger.h"
 #include "cdockwidgetregistry.h"
 
-#include "main.h"
-
 #include <QMenu>
 #include <QFileDialog>
 

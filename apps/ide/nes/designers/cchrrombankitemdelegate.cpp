@@ -1,11 +1,12 @@
-#include "cchrrombankitemdelegate.h"
-
 #include <QComboBox>
 #include <QCompleter>
 
-#include "iprojecttreeviewitem.h"
+#include "cchrrombankitemdelegate.h"
 
-#include "main.h"
+#include "iprojecttreeviewitem.h"
+#include "ichrrombankitem.h"
+
+#include "cnesicideproject.h"
 
 CChrRomBankItemDelegate::CChrRomBankItemDelegate(QObject *parent) :
     QStyledItemDelegate(parent)
@@ -29,7 +30,7 @@ void CChrRomBankItemDelegate::setEditorData(QWidget* editor,
       const QModelIndex& index) const
 {
    QComboBox* edit = static_cast<QComboBox*>(editor);
-   IProjectTreeViewItemIterator iter(nesicideProject->getProject());
+   IProjectTreeViewItemIterator iter(CNesicideProject::instance()->getProject());
    QStringList choices;
    choices.append("<click to add>");
    edit->addItem("<click to add>");

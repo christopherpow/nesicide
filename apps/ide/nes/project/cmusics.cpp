@@ -2,8 +2,6 @@
 
 #include "cmusics.h"
 
-#include "main.h"
-
 CMusics::CMusics(IProjectTreeViewItem* parent)
 {
    // Add node to tree

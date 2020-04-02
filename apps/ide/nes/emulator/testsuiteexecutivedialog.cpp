@@ -1,11 +1,19 @@
+#include <QSettings>
+#include <QDomDocument>
+#include <QFile>
+#include <QDir>
+#include <QFileDialog>
+#include <QCryptographicHash>
+#include <QMessageBox>
+#include <QInputDialog>
+
 #include "testsuiteexecutivedialog.h"
 #include "ui_testsuiteexecutivedialog.h"
-
-#include "main.h"
 
 #include "nes_emulator_core.h"
 #include "cjoypadlogger.h"
 #include "cobjectregistry.h"
+#include "ixmlserializable.h"
 
 TestSuiteExecutiveDialog::TestSuiteExecutiveDialog(QWidget *parent) :
    QDialog(parent),

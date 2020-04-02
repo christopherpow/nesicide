@@ -17,8 +17,15 @@ class CNesicideProject : public CProjectBase
 {
    Q_OBJECT
 public:
+   static CNesicideProject *instance()
+   {
+      if ( !_instance )
+      {
+         _instance = new CNesicideProject();
+      }
+      return _instance;
+   }
    // Global Constructor / Destructors
-   CNesicideProject();
    virtual ~CNesicideProject();
 
    // Helper functions
@@ -138,6 +145,9 @@ public:
    // ICenterWidgetItem Interface Implementation
 
 private:
+   static CNesicideProject *_instance;
+   CNesicideProject();
+
    // Is the project initialized?
    bool m_isInitialized;
    bool m_isDirty;

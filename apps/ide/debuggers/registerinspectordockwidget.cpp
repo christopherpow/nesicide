@@ -6,7 +6,6 @@
 #include "dbg_cnesmappers.h"
 
 #include "cobjectregistry.h"
-#include "main.h"
 
 RegisterInspectorDockWidget::RegisterInspectorDockWidget(regDBFunc regDB,CBreakpointInfo* pBreakpoints,QWidget *parent) :
     CDebuggerBase(parent),

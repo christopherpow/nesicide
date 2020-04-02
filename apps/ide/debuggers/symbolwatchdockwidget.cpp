@@ -1,8 +1,10 @@
+#include <QMessageBox>
+#include <QMenu>
+
 #include "symbolwatchdockwidget.h"
 #include "ui_symbolwatchdockwidget.h"
 
 #include "cobjectregistry.h"
-#include "main.h"
 
 #include "ccc65interface.h"
 

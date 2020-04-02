@@ -6,11 +6,12 @@
 #include <QAction>
 #include <QPixmap>
 #include <QStringList>
+#include <QSettings>
+#include <QDir>
 
 #include "Qsci/qsciscintillabase.h"
 
 #include "cobjectregistry.h"
-#include "main.h"
 
 #include "ccc65interface.h"
 
@@ -20,6 +21,14 @@
 
 #include "cbreakpointinfo.h"
 #include "cmarker.h"
+
+#include "cnesicideproject.h"
+#include "csourceitem.h"
+
+#include "nes_emulator_core.h"
+#include "c64_emulator_core.h"
+
+#include "environmentsettingsdialog.h"
 
 static char toolTipText [ 2048 ];
 static char annotationBuffer [ 2048 ];
@@ -129,7 +138,7 @@ CodeEditorForm::CodeEditorForm(QString fileName,QString sourceCode,IProjectTreeV
    QObject::connect ( this, SIGNAL(breakpointsChanged()), breakpoints, SIGNAL(breakpointsChanged()) );
    QObject::connect ( breakpoints, SIGNAL(breakpointsChanged()), this, SLOT(external_breakpointsChanged()) );
 
-   if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+   if ( !CNesicideProject::instance()->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
    {
       QObject::connect ( executionVisualizer, SIGNAL(breakpointsChanged()), this, SLOT(external_breakpointsChanged()) );
    }
@@ -180,11 +189,11 @@ void CodeEditorForm::customContextMenuRequested(const QPoint &pos)
    QString symbol = m_scintilla->wordAtPoint(pos);
    QAction* action;
 
-   if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+   if ( !CNesicideProject::instance()->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
    {
       m_pBreakpoints = nesGetBreakpointDatabase();
    }
-   else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+   else if ( !CNesicideProject::instance()->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
    {
       m_pBreakpoints = c64GetBreakpointDatabase();
    }
@@ -429,11 +438,11 @@ void CodeEditorForm::external_breakpointsChanged()
    int asmcount;
    int asmline;
 
-   if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+   if ( !CNesicideProject::instance()->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
    {
       m_pBreakpoints = nesGetBreakpointDatabase();
    }
-   else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+   else if ( !CNesicideProject::instance()->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
    {
       m_pBreakpoints = c64GetBreakpointDatabase();
    }
@@ -579,11 +588,11 @@ void CodeEditorForm::editor_marginClicked(int margin,int line,Qt::KeyboardModifi
    int addr = 0;
    int absAddr = 0;
 
-   if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+   if ( !CNesicideProject::instance()->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
    {
       m_pBreakpoints = nesGetBreakpointDatabase();
    }
-   else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+   else if ( !CNesicideProject::instance()->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
    {
       m_pBreakpoints = c64GetBreakpointDatabase();
    }
@@ -710,11 +719,11 @@ void CodeEditorForm::updateToolTip(QString symbol)
          if ( addr != 0xFFFFFFFF )
          {
             absAddr = CCC65Interface::instance()->getSymbolPhysicalAddress(symbol);
-            if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+            if ( !CNesicideProject::instance()->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
             {
                nesGetPrintablePhysicalAddress(address,addr,absAddr);
             }
-            else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+            else if ( !CNesicideProject::instance()->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
             {
                c64GetPrintablePhysicalAddress(address,addr,absAddr);
             }
@@ -722,11 +731,11 @@ void CodeEditorForm::updateToolTip(QString symbol)
             file = CCC65Interface::instance()->getSourceFileFromSymbol(symbol);
             line = CCC65Interface::instance()->getSourceLineFromFileAndSymbol(file,symbol);
 
-            if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+            if ( !CNesicideProject::instance()->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
             {
                sprintf(toolTipText,TOOLTIP_LABEL,symbol.toLatin1().constData(),file.toLatin1().constData(),line,address,nesGetMemory(addr));
             }
-            else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+            else if ( !CNesicideProject::instance()->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
             {
                sprintf(toolTipText,TOOLTIP_LABEL,symbol.toLatin1().constData(),file.toLatin1().constData(),line,address,c64GetMemory(addr));
             }
@@ -747,11 +756,11 @@ void CodeEditorForm::setBreakpoint(int line, int addr, int absAddr)
 {
    int bpIdx;
 
-   if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+   if ( !CNesicideProject::instance()->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
    {
       m_pBreakpoints = nesGetBreakpointDatabase();
    }
-   else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+   else if ( !CNesicideProject::instance()->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
    {
       m_pBreakpoints = c64GetBreakpointDatabase();
    }
@@ -1023,12 +1032,12 @@ void CodeEditorForm::resolveLineAddress(int line, int *addr, int *absAddr)
          (*addr) = CCC65Interface::instance()->getAddressFromFileAndLine(m_fileName,line+1,asmline);
          (*absAddr) = CCC65Interface::instance()->getPhysicalAddressFromFileAndLine(m_fileName,line+1,asmline);
 
-         if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+         if ( !CNesicideProject::instance()->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
          {
             nesGetPrintablePhysicalAddress(resolutionBuffer,(*addr),(*absAddr));
             nesGetDisassemblyAtPhysicalAddress((*absAddr),resolutionBuffer);
          }
-         else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+         else if ( !CNesicideProject::instance()->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
          {
             c64GetPrintablePhysicalAddress(resolutionBuffer,(*addr),(*absAddr));
             c64GetDisassemblyAtPhysicalAddress((*absAddr),resolutionBuffer);
@@ -1111,11 +1120,11 @@ void CodeEditorForm::annotateText()
                {
                   if ( CCC65Interface::instance()->isPhysicalAddressAnOpcode(absAddr) )
                   {
-                     if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+                     if ( !CNesicideProject::instance()->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
                      {
                         nesGetDisassemblyAtPhysicalAddress(absAddr,disassembly);
                      }
-                     else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+                     else if ( !CNesicideProject::instance()->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
                      {
                         c64GetDisassemblyAtPhysicalAddress(absAddr,disassembly);
                      }
@@ -1127,11 +1136,11 @@ void CodeEditorForm::annotateText()
                         }
                         first = false;
 
-                        if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+                        if ( !CNesicideProject::instance()->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
                         {
                            nesGetPrintablePhysicalAddress(address,addr,absAddr);
                         }
-                        else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+                        else if ( !CNesicideProject::instance()->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
                         {
                            c64GetPrintablePhysicalAddress(address,addr,absAddr);
                         }

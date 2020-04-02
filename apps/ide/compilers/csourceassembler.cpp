@@ -4,8 +4,6 @@
 
 #include "ccc65interface.h"
 
-#include "main.h"
-
 CSourceAssembler::CSourceAssembler()
 {
 }
@@ -17,7 +15,7 @@ void CSourceAssembler::clean()
 
 bool CSourceAssembler::assemble()
 {
-   IProjectTreeViewItemIterator iter(nesicideProject);
+   IProjectTreeViewItemIterator iter(CNesicideProject::instance());
    IProjectTreeViewItem*        item;
    bool ok = true;
 

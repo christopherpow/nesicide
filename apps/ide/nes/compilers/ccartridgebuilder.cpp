@@ -2,7 +2,6 @@
 
 #include "ccc65interface.h"
 #include "cnesicideproject.h"
-#include "main.h"
 
 CCartridgeBuilder::CCartridgeBuilder()
 {
@@ -35,10 +34,10 @@ bool CCartridgeBuilder::build()
 {
    CSourceAssembler sourceAssembler;
    CGraphicsAssembler graphicsAssembler;
-   CGraphicsBanks* gfxBanks = nesicideProject->getProject()->getGraphicsBanks();
+   CGraphicsBanks* gfxBanks = CNesicideProject::instance()->getProject()->getGraphicsBanks();
    QDir baseDir(QDir::currentPath());
-   QDir outputPRGDir(nesicideProject->getProjectLinkerOutputBasePath());
-   QDir outputCHRDir(nesicideProject->getProjectCHRROMOutputBasePath());
+   QDir outputPRGDir(CNesicideProject::instance()->getProjectLinkerOutputBasePath());
+   QDir outputCHRDir(CNesicideProject::instance()->getProjectCHRROMOutputBasePath());
    QString prgName;
    QString chrName;
    QString nesName;
@@ -47,29 +46,29 @@ bool CCartridgeBuilder::build()
    QFile nesFile;
    bool ok;
 
-   if ( nesicideProject->getProjectLinkerOutputName().isEmpty() )
+   if ( CNesicideProject::instance()->getProjectLinkerOutputName().isEmpty() )
    {
-      prgName = outputPRGDir.fromNativeSeparators(outputPRGDir.filePath(nesicideProject->getProjectOutputName()+".prg"));
+      prgName = outputPRGDir.fromNativeSeparators(outputPRGDir.filePath(CNesicideProject::instance()->getProjectOutputName()+".prg"));
    }
    else
    {
-      prgName = outputPRGDir.fromNativeSeparators(outputPRGDir.filePath(nesicideProject->getProjectLinkerOutputName()));
+      prgName = outputPRGDir.fromNativeSeparators(outputPRGDir.filePath(CNesicideProject::instance()->getProjectLinkerOutputName()));
    }
-   if ( nesicideProject->getProjectCHRROMOutputName().isEmpty() )
+   if ( CNesicideProject::instance()->getProjectCHRROMOutputName().isEmpty() )
    {
-      chrName = outputCHRDir.fromNativeSeparators(outputCHRDir.filePath(nesicideProject->getProjectOutputName()+".chr"));
-   }
-   else
-   {
-      chrName = outputCHRDir.fromNativeSeparators(outputCHRDir.filePath(nesicideProject->getProjectCHRROMOutputName()));
-   }
-   if ( nesicideProject->getProjectCartridgeOutputName().isEmpty() )
-   {
-      nesName = baseDir.fromNativeSeparators(baseDir.relativeFilePath(nesicideProject->getProjectOutputName()+".nes"));
+      chrName = outputCHRDir.fromNativeSeparators(outputCHRDir.filePath(CNesicideProject::instance()->getProjectOutputName()+".chr"));
    }
    else
    {
-      nesName = baseDir.fromNativeSeparators(baseDir.relativeFilePath(nesicideProject->getProjectCartridgeOutputName()));
+      chrName = outputCHRDir.fromNativeSeparators(outputCHRDir.filePath(CNesicideProject::instance()->getProjectCHRROMOutputName()));
+   }
+   if ( CNesicideProject::instance()->getProjectCartridgeOutputName().isEmpty() )
+   {
+      nesName = baseDir.fromNativeSeparators(baseDir.relativeFilePath(CNesicideProject::instance()->getProjectOutputName()+".nes"));
+   }
+   else
+   {
+      nesName = baseDir.fromNativeSeparators(baseDir.relativeFilePath(CNesicideProject::instance()->getProjectCartridgeOutputName()));
    }
 
    prgFile.setFileName(prgName);
@@ -86,7 +85,7 @@ bool CCartridgeBuilder::build()
         (CCC65Interface::instance()->getAssemblerSourcesFromProject().count()) ||
         (CCC65Interface::instance()->getCustomSourcesFromProject().count()) )
    {
-      if ( !nesicideProject->getLinkerConfigFile().isEmpty() )
+      if ( !CNesicideProject::instance()->getLinkerConfigFile().isEmpty() )
       {
          ok = graphicsAssembler.assemble();
          if ( ok )
@@ -126,7 +125,7 @@ bool CCartridgeBuilder::build()
 
             nesFile.write(prgBytes);
 
-            if ( (nesicideProject->getProjectUsesCHRROM()) &&
+            if ( (CNesicideProject::instance()->getProjectUsesCHRROM()) &&
                  (gfxBanks->getGraphicsBanks().count()) )
             {
                nesFile.write(chrBytes);

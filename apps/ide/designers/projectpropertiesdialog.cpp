@@ -11,15 +11,13 @@
 
 #include <QStringListModel>
 
-#include "main.h"
-
 const char hexStr[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
 ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget* parent) :
    QDialog(parent),
    ui(new Ui::ProjectPropertiesDialog)
 {
-   QList<QColor> *pal = nesicideProject->getProjectPaletteEntries();
+   QList<QColor> *pal = CNesicideProject::instance()->getProjectPaletteEntries();
    int i = 0;
    char mapperTag [ 64 ];
 
@@ -30,26 +28,26 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget* parent) :
    ui->setupUi(this);
 
    // Common project properties.
-   ui->projectNameLineEdit->setText(nesicideProject->getProjectTitle());
+   ui->projectNameLineEdit->setText(CNesicideProject::instance()->getProjectTitle());
    ui->projectBasePath->setText(QDir::fromNativeSeparators(QDir::currentPath()));
-   ui->projectOutputBasePath->setText(nesicideProject->getProjectOutputBasePath());
-   ui->outputName->setText(nesicideProject->getProjectOutputName());
-   ui->compilerDefinedSymbols->setText(nesicideProject->getCompilerDefinedSymbols());
-   ui->compilerIncludePaths->setText(nesicideProject->getCompilerIncludePaths());
-   ui->compilerAdditionalOptions->setText(nesicideProject->getCompilerAdditionalOptions());
-   ui->assemblerDefinedSymbols->setText(nesicideProject->getAssemblerDefinedSymbols());
-   ui->assemblerIncludePaths->setText(nesicideProject->getAssemblerIncludePaths());
-   ui->assemblerAdditionalOptions->setText(nesicideProject->getAssemblerAdditionalOptions());
-   ui->linkerOutputName->setText(nesicideProject->getProjectLinkerOutputName());
-   ui->debugInfoName->setText(nesicideProject->getProjectDebugInfoName());
-   ui->linkerAdditionalOptions->setText(nesicideProject->getLinkerAdditionalOptions());
-   ui->linkerAdditionalDependencies->setText(nesicideProject->getLinkerAdditionalDependencies());
-   ui->linkerConfigFile->setText(nesicideProject->getLinkerConfigFile());
+   ui->projectOutputBasePath->setText(CNesicideProject::instance()->getProjectOutputBasePath());
+   ui->outputName->setText(CNesicideProject::instance()->getProjectOutputName());
+   ui->compilerDefinedSymbols->setText(CNesicideProject::instance()->getCompilerDefinedSymbols());
+   ui->compilerIncludePaths->setText(CNesicideProject::instance()->getCompilerIncludePaths());
+   ui->compilerAdditionalOptions->setText(CNesicideProject::instance()->getCompilerAdditionalOptions());
+   ui->assemblerDefinedSymbols->setText(CNesicideProject::instance()->getAssemblerDefinedSymbols());
+   ui->assemblerIncludePaths->setText(CNesicideProject::instance()->getAssemblerIncludePaths());
+   ui->assemblerAdditionalOptions->setText(CNesicideProject::instance()->getAssemblerAdditionalOptions());
+   ui->linkerOutputName->setText(CNesicideProject::instance()->getProjectLinkerOutputName());
+   ui->debugInfoName->setText(CNesicideProject::instance()->getProjectDebugInfoName());
+   ui->linkerAdditionalOptions->setText(CNesicideProject::instance()->getLinkerAdditionalOptions());
+   ui->linkerAdditionalDependencies->setText(CNesicideProject::instance()->getLinkerAdditionalDependencies());
+   ui->linkerConfigFile->setText(CNesicideProject::instance()->getLinkerConfigFile());
    deserializeLinkerConfig();
-   ui->customRuleFiles->addItems(nesicideProject->getMakefileCustomRuleFiles());
+   ui->customRuleFiles->addItems(CNesicideProject::instance()->getMakefileCustomRuleFiles());
    deserializeCustomRules();
 
-   ui->sourceSearchList->setModel(new QStringListModel(nesicideProject->getSourceSearchPaths()));
+   ui->sourceSearchList->setModel(new QStringListModel(CNesicideProject::instance()->getSourceSearchPaths()));
    ui->addSearchPath->setEnabled(false);
    ui->removeSearchPath->setEnabled(false);
 
@@ -65,18 +63,18 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget* parent) :
    }
 
    // NES-specific project properties.
-   ui->projectHeaderName->setText(nesicideProject->getProjectHeaderFileName());
-   ui->projectSourceName->setText(nesicideProject->getProjectSourceFileName());
-   ui->prgromOutputBasePath->setText(nesicideProject->getProjectLinkerOutputBasePath());
-   ui->chrromOutputBasePath->setText(nesicideProject->getProjectCHRROMOutputBasePath());
-   ui->chrromOutputName->setText(nesicideProject->getProjectCHRROMOutputName());
-   ui->chrRom->setChecked(nesicideProject->getProjectUsesCHRROM());
-   ui->chrRam->setChecked(!nesicideProject->getProjectUsesCHRROM());
-   ui->cartridgeOutputName->setText(nesicideProject->getProjectCartridgeOutputName());
-   ui->cartridgeSaveStateName->setText(nesicideProject->getProjectCartridgeSaveStateName());
+   ui->projectHeaderName->setText(CNesicideProject::instance()->getProjectHeaderFileName());
+   ui->projectSourceName->setText(CNesicideProject::instance()->getProjectSourceFileName());
+   ui->prgromOutputBasePath->setText(CNesicideProject::instance()->getProjectLinkerOutputBasePath());
+   ui->chrromOutputBasePath->setText(CNesicideProject::instance()->getProjectCHRROMOutputBasePath());
+   ui->chrromOutputName->setText(CNesicideProject::instance()->getProjectCHRROMOutputName());
+   ui->chrRom->setChecked(CNesicideProject::instance()->getProjectUsesCHRROM());
+   ui->chrRam->setChecked(!CNesicideProject::instance()->getProjectUsesCHRROM());
+   ui->cartridgeOutputName->setText(CNesicideProject::instance()->getProjectCartridgeOutputName());
+   ui->cartridgeSaveStateName->setText(CNesicideProject::instance()->getProjectCartridgeSaveStateName());
    ui->trainerPresent->setChecked(false);
-   ui->saveRAMPresent->setChecked(nesicideProject->getCartridge()->isBatteryBackedRam());
-   ui->extraVRAMPresent->setChecked(nesicideProject->getCartridge()->getFourScreen());
+   ui->saveRAMPresent->setChecked(CNesicideProject::instance()->getCartridge()->isBatteryBackedRam());
+   ui->extraVRAMPresent->setChecked(CNesicideProject::instance()->getCartridge()->getFourScreen());
 
    // C64-specific project properties.
 
@@ -113,13 +111,13 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget* parent) :
       i++;
    }
 
-   CCartridge* pCartridge = nesicideProject->getCartridge();
+   CCartridge* pCartridge = CNesicideProject::instance()->getCartridge();
    ui->mapperComboBox->setCurrentIndex(mapperIndexFromID(pCartridge->getMapperNumber()));
    ui->romTypeComboBox->setCurrentIndex(0);
    ui->mirroringComboBox->setCurrentIndex(pCartridge->getMirrorMode());
 
    tilePropertyListModel = new CPropertyListModel(false);
-   tilePropertyListModel->setItems(nesicideProject->getTileProperties());
+   tilePropertyListModel->setItems(CNesicideProject::instance()->getTileProperties());
    ui->propertyTableView->setModel(tilePropertyListModel);
    
    QObject::connect(ui->sourceSearchList->selectionModel(),SIGNAL(selectionChanged(QItemSelection,QItemSelection)),this,SLOT(sourceSearchList_selectionChanged(QItemSelection,QItemSelection)));
@@ -137,7 +135,7 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget* parent) :
    pageMap.insert("System Palette",ui->nessystempalette);
 
    ui->treeWidget->setCurrentItem(ui->treeWidget->findItems("Project",Qt::MatchExactly).at(0));
-   if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+   if ( !CNesicideProject::instance()->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
    {
       QList<QTreeWidgetItem*> items = ui->treeWidget->findItems("Commodore 64",Qt::MatchExactly);
       if ( items.count() )
@@ -145,7 +143,7 @@ ProjectPropertiesDialog::ProjectPropertiesDialog(QWidget* parent) :
          items.at(0)->setHidden(true);
       }
    }
-   else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+   else if ( !CNesicideProject::instance()->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
    {
       QList<QTreeWidgetItem*> items = ui->treeWidget->findItems("Nintendo Entertainment System",Qt::MatchExactly);
       if ( items.count() )
@@ -497,29 +495,29 @@ void ProjectPropertiesDialog::on_assemblerIncludePathBrowse_clicked()
 
 void ProjectPropertiesDialog::on_buttonBox_accepted()
 {
-   nesicideProject->setProjectTitle(ui->projectNameLineEdit->text());
-   nesicideProject->setProjectOutputBasePath(ui->projectOutputBasePath->text());
-   nesicideProject->setProjectOutputName(ui->outputName->text());
-   nesicideProject->setProjectHeaderFileName(ui->projectHeaderName->text());
-   nesicideProject->setProjectSourceFileName(ui->projectSourceName->text());
-   nesicideProject->setProjectLinkerOutputName(ui->linkerOutputName->text());
-   nesicideProject->setProjectDebugInfoName(ui->debugInfoName->text());
-   nesicideProject->setProjectCHRROMOutputBasePath(ui->chrromOutputBasePath->text());
-   nesicideProject->setProjectCHRROMOutputName(ui->chrromOutputName->text());
-   nesicideProject->setProjectUsesCHRROM(ui->chrRom->isChecked());
-   nesicideProject->setProjectCartridgeOutputName(ui->cartridgeOutputName->text());
-   nesicideProject->setProjectCartridgeSaveStateName(ui->cartridgeSaveStateName->text());
-   nesicideProject->setCompilerDefinedSymbols(ui->compilerDefinedSymbols->text());
-   nesicideProject->setCompilerIncludePaths(ui->compilerIncludePaths->text());
-   nesicideProject->setCompilerAdditionalOptions(ui->compilerAdditionalOptions->text());
-   nesicideProject->setAssemblerDefinedSymbols(ui->assemblerDefinedSymbols->text());
-   nesicideProject->setAssemblerIncludePaths(ui->assemblerIncludePaths->text());
-   nesicideProject->setAssemblerAdditionalOptions(ui->assemblerAdditionalOptions->text());
-   nesicideProject->setProjectLinkerOutputBasePath(ui->prgromOutputBasePath->text());
-   nesicideProject->setLinkerAdditionalOptions(ui->linkerAdditionalOptions->text());
-   nesicideProject->setLinkerAdditionalDependencies(ui->linkerAdditionalDependencies->text());
-   nesicideProject->setTileProperties(tilePropertyListModel->getItems());
-   nesicideProject->setLinkerConfigFile(ui->linkerConfigFile->text());
+   CNesicideProject::instance()->setProjectTitle(ui->projectNameLineEdit->text());
+   CNesicideProject::instance()->setProjectOutputBasePath(ui->projectOutputBasePath->text());
+   CNesicideProject::instance()->setProjectOutputName(ui->outputName->text());
+   CNesicideProject::instance()->setProjectHeaderFileName(ui->projectHeaderName->text());
+   CNesicideProject::instance()->setProjectSourceFileName(ui->projectSourceName->text());
+   CNesicideProject::instance()->setProjectLinkerOutputName(ui->linkerOutputName->text());
+   CNesicideProject::instance()->setProjectDebugInfoName(ui->debugInfoName->text());
+   CNesicideProject::instance()->setProjectCHRROMOutputBasePath(ui->chrromOutputBasePath->text());
+   CNesicideProject::instance()->setProjectCHRROMOutputName(ui->chrromOutputName->text());
+   CNesicideProject::instance()->setProjectUsesCHRROM(ui->chrRom->isChecked());
+   CNesicideProject::instance()->setProjectCartridgeOutputName(ui->cartridgeOutputName->text());
+   CNesicideProject::instance()->setProjectCartridgeSaveStateName(ui->cartridgeSaveStateName->text());
+   CNesicideProject::instance()->setCompilerDefinedSymbols(ui->compilerDefinedSymbols->text());
+   CNesicideProject::instance()->setCompilerIncludePaths(ui->compilerIncludePaths->text());
+   CNesicideProject::instance()->setCompilerAdditionalOptions(ui->compilerAdditionalOptions->text());
+   CNesicideProject::instance()->setAssemblerDefinedSymbols(ui->assemblerDefinedSymbols->text());
+   CNesicideProject::instance()->setAssemblerIncludePaths(ui->assemblerIncludePaths->text());
+   CNesicideProject::instance()->setAssemblerAdditionalOptions(ui->assemblerAdditionalOptions->text());
+   CNesicideProject::instance()->setProjectLinkerOutputBasePath(ui->prgromOutputBasePath->text());
+   CNesicideProject::instance()->setLinkerAdditionalOptions(ui->linkerAdditionalOptions->text());
+   CNesicideProject::instance()->setLinkerAdditionalDependencies(ui->linkerAdditionalDependencies->text());
+   CNesicideProject::instance()->setTileProperties(tilePropertyListModel->getItems());
+   CNesicideProject::instance()->setLinkerConfigFile(ui->linkerConfigFile->text());
    serializeLinkerConfig();
    QStringList customRuleFiles;
    int idx;
@@ -527,19 +525,19 @@ void ProjectPropertiesDialog::on_buttonBox_accepted()
    {
       customRuleFiles += ui->customRuleFiles->itemText(idx);
    }
-   nesicideProject->setMakefileCustomRuleFiles(customRuleFiles);
+   CNesicideProject::instance()->setMakefileCustomRuleFiles(customRuleFiles);
    serializeCustomRules();
 
-   nesicideProject->getProjectPaletteEntries()->clear();
+   CNesicideProject::instance()->getProjectPaletteEntries()->clear();
 
    for (int paletteItemIndex=0; paletteItemIndex<currentPalette.count(); paletteItemIndex++)
    {
-      nesicideProject->getProjectPaletteEntries()->append(currentPalette.at(paletteItemIndex));
+      CNesicideProject::instance()->getProjectPaletteEntries()->append(currentPalette.at(paletteItemIndex));
    }
 
-   nesicideProject->getCartridge()->setMapperNumber(mapperIDFromIndex(ui->mapperComboBox->currentIndex()));
-   nesicideProject->getCartridge()->setMirrorMode((eMirrorMode)ui->mirroringComboBox->currentIndex());
-   nesicideProject->getCartridge()->setFourScreen(ui->extraVRAMPresent->isChecked());
+   CNesicideProject::instance()->getCartridge()->setMapperNumber(mapperIDFromIndex(ui->mapperComboBox->currentIndex()));
+   CNesicideProject::instance()->getCartridge()->setMirrorMode((eMirrorMode)ui->mirroringComboBox->currentIndex());
+   CNesicideProject::instance()->getCartridge()->setFourScreen(ui->extraVRAMPresent->isChecked());
 }
 
 void ProjectPropertiesDialog::on_projectOutputBasePathBrowse_clicked()
@@ -847,8 +845,8 @@ void ProjectPropertiesDialog::sourceSearchList_selectionChanged(QItemSelection,Q
 
 void ProjectPropertiesDialog::on_addSearchPath_clicked()
 {
-   nesicideProject->addSourceSearchPath(ui->sourceSearchPath->text());    
-   ((QStringListModel*)ui->sourceSearchList->model())->setStringList(nesicideProject->getSourceSearchPaths());
+   CNesicideProject::instance()->addSourceSearchPath(ui->sourceSearchPath->text());    
+   ((QStringListModel*)ui->sourceSearchList->model())->setStringList(CNesicideProject::instance()->getSourceSearchPaths());
 }
 
 void ProjectPropertiesDialog::on_removeSearchPath_clicked()
@@ -856,9 +854,9 @@ void ProjectPropertiesDialog::on_removeSearchPath_clicked()
    QModelIndexList selections = ui->sourceSearchList->selectionModel()->selectedRows();
    foreach ( QModelIndex index, selections )
    {      
-      nesicideProject->removeSourceSearchPath(index.data().toString());
+      CNesicideProject::instance()->removeSourceSearchPath(index.data().toString());
    }
-   ((QStringListModel*)ui->sourceSearchList->model())->setStringList(nesicideProject->getSourceSearchPaths());
+   ((QStringListModel*)ui->sourceSearchList->model())->setStringList(CNesicideProject::instance()->getSourceSearchPaths());
 }
 
 void ProjectPropertiesDialog::on_sourceSearchPathBrowse_clicked()

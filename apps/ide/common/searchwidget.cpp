@@ -3,12 +3,15 @@
 
 #include <QFileDialog>
 #include <QCompleter>
+#include <QSettings>
+#include <QKeyEvent>
+#include <QLineEdit>
 
 #include "searcherthread.h"
 
 #include "cobjectregistry.h"
 
-#include "main.h"
+#include "cbuildertextlogger.h"
 
 SearchWidget::SearchWidget(QWidget *parent) :
     QWidget(parent),

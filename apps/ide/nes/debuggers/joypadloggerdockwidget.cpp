@@ -7,7 +7,6 @@
 #include "nes_emulator_core.h"
 
 #include "cobjectregistry.h"
-#include "main.h"
 
 JoypadLoggerDockWidget::JoypadLoggerDockWidget(QWidget *parent) :
     CDebuggerBase(parent),

@@ -1,7 +1,7 @@
 #include "csourceitem.h"
 #include "cnesicideproject.h"
 
-#include "main.h"
+#include "environmentsettingsdialog.h"
 
 CSourceItem::CSourceItem(IProjectTreeViewItem* parent)
 {

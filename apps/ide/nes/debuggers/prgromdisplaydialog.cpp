@@ -3,7 +3,10 @@
 
 #include "qscilexerbin.h"
 
-#include "main.h"
+#include "environmentsettingsdialog.h"
+
+#include "codeeditorform.h"
+#include "nes_emulator_core.h"
 
 PRGROMDisplayDialog::PRGROMDisplayDialog(uint8_t* bankData,IProjectTreeViewItem* link,QWidget* parent) :
    CDesignerEditorBase(link,parent),

@@ -1,4 +1,9 @@
 #include <QStandardItemModel>
+#include <QMenu>
+#include <QContextMenuEvent>
+#include <QDragEnterEvent>
+#include <QDragMoveEvent>
+#include <QDropEvent>
 
 #include "breakpointdockwidget.h"
 #include "ui_breakpointdockwidget.h"
@@ -15,7 +20,7 @@
 
 #include "ccc65interface.h"
 
-#include "main.h"
+#include "cnesicideproject.h"
 #include "cobjectregistry.h"
 
 #include "nes_emulator_core.h"
@@ -112,7 +117,7 @@ void BreakpointDockWidget::showEvent(QShowEvent*)
 
    memoryInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::instance()->getWidget("CPU RAM Inspector"));
    QObject::connect(memoryInspector,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
-   if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+   if ( !CNesicideProject::instance()->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
    {
       memoryInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::instance()->getWidget("Cartridge EXRAM Memory Inspector"));
       QObject::connect(memoryInspector,SIGNAL(breakpointsChanged()),model, SLOT(update()) );
@@ -129,7 +134,7 @@ void BreakpointDockWidget::showEvent(QShowEvent*)
 
       memoryInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::instance()->getWidget("CPU RAM Inspector"));
       QObject::connect(memoryInspector,SIGNAL(breakpointsChanged()),emulator, SLOT(breakpointsChanged()) );
-      if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+      if ( !CNesicideProject::instance()->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
       {
          memoryInspector = dynamic_cast<QDockWidget*>(CDockWidgetRegistry::instance()->getWidget("Cartridge EXRAM Memory Inspector"));
          QObject::connect(memoryInspector,SIGNAL(breakpointsChanged()),emulator, SLOT(breakpointsChanged()) );

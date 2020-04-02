@@ -1,3 +1,6 @@
+#include <QUndoView>
+#include <QClipboard>
+
 #include "tilestampeditorform.h"
 #include "ui_tilestampeditorform.h"
 
@@ -7,10 +10,7 @@
 #include "cdesignercommon.h"
 #include "cimageconverters.h"
 
-#include "main.h"
-
-#include <QUndoView>
-#include <QClipboard>
+#include "cnesicideproject.h"
 
 TileStampEditorForm::TileStampEditorForm(QByteArray data,QByteArray attr,QString attrTblUUID,QList<PropertyItem> tileProperties,int xSize,int ySize,bool grid,IProjectTreeViewItem* link,QWidget *parent) :
     CDesignerEditorBase(link,parent),
@@ -47,7 +47,7 @@ TileStampEditorForm::TileStampEditorForm(QByteArray data,QByteArray attr,QString
    ui->pal0col1->setChecked(true);
 
    QList<IChrRomBankItem*> tileListChrItem;
-   iter.reset(nesicideProject->getProject());
+   iter.reset(CNesicideProject::instance()->getProject());
    while ( iter.current() )
    {
       IChrRomBankItem* pChrItem = dynamic_cast<IChrRomBankItem*>(iter.current());
@@ -70,7 +70,7 @@ TileStampEditorForm::TileStampEditorForm(QByteArray data,QByteArray attr,QString
    ui->propertyTableView->setItemDelegateForColumn(PropertyCol_Value,tilePropertyValueDelegate);
 
    tilePropertyListModel = new CPropertyListModel(true);
-   m_tileProperties = nesicideProject->getTileProperties();
+   m_tileProperties = CNesicideProject::instance()->getTileProperties();
 
    // Update local tile properties from saved tile info.
    idx = 0;
@@ -322,7 +322,7 @@ TileStampEditorForm::TileStampEditorForm(QByteArray data,QByteArray attr,QString
    }
 
    // Set up the attribute table list.
-   iter.reset(nesicideProject->getProject()->getProjectPrimitives()->getAttributeTables());
+   iter.reset(CNesicideProject::instance()->getProject()->getProjectPrimitives()->getAttributeTables());
    idx = 0;
    int selIdx = -1;
    while ( iter.current() )
@@ -2252,7 +2252,7 @@ void TileStampEditorForm::applyChangesToTab(QString uuid)
    int idx;
 
    // Set up the attribute table list.
-   iter.reset(nesicideProject->getProject()->getProjectPrimitives()->getAttributeTables());
+   iter.reset(CNesicideProject::instance()->getProject()->getProjectPrimitives()->getAttributeTables());
    idx = 0;
    int selIdx = -1;
    ui->attributeTable->blockSignals(true);
@@ -2307,7 +2307,7 @@ void TileStampEditorForm::applyChangesToTab(QString uuid)
 
    // Update tile list.
    QList<IChrRomBankItem*> tileListChrItem;
-   iter.reset(nesicideProject->getProject());
+   iter.reset(CNesicideProject::instance()->getProject());
    while ( iter.current() )
    {
       IChrRomBankItem* pChrItem = dynamic_cast<IChrRomBankItem*>(iter.current());
@@ -2330,7 +2330,7 @@ void TileStampEditorForm::applyProjectPropertiesToTab()
    QList<PropertyItem> tileProperties = m_tileProperties;
    int idx = 0;
 
-   m_tileProperties = nesicideProject->getTileProperties();
+   m_tileProperties = CNesicideProject::instance()->getTileProperties();
 
    // Update local tile properties from saved tile info.
    foreach ( PropertyItem globalItem, m_tileProperties )

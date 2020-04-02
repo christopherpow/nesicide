@@ -3,7 +3,7 @@
 
 #include "cimageconverters.h"
 
-#include "main.h"
+#include "environmentsettingsdialog.h"
 
 CTileStamp::CTileStamp(IProjectTreeViewItem* parent)
 {
@@ -30,7 +30,7 @@ CTileStamp::CTileStamp(IProjectTreeViewItem* parent)
    }
 
    // Initialize property data.
-   m_tileProperties = nesicideProject->getTileProperties();
+   m_tileProperties = CNesicideProject::instance()->getTileProperties();
 
    m_grid = false;
 }
@@ -291,10 +291,10 @@ bool CTileStamp::deserializeContent()
 //            tabWidget->removeTab(tabWidget->indexOf(m_editor));
 //         }
 
-//         nesicideProject->getProject()->getProjectPrimitives()->getTileStamps()->removeChild(this);
+//         CNesicideProject::instance()->getProject()->getProjectPrimitives()->getTileStamps()->removeChild(this);
 //         //((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
 //         markForDeletion();
-//         nesicideProject->setDirty(true);
+//         CNesicideProject::instance()->setDirty(true);
 //      }
 //      else if (ret->text() == COPY_MENU_ACTION_TEXT)
 //      {
@@ -309,7 +309,7 @@ bool CTileStamp::deserializeContent()
 //            m_tileStamps.append(pTileStamp);
 //            appendChild(pTileStamp);
 //            ((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
-//            nesicideProject->setDirty(true);
+//            CNesicideProject::instance()->setDirty(true);
 //         }
 //#endif
 //      }

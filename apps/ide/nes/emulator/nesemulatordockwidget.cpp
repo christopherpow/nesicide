@@ -2,7 +2,6 @@
 #include "ui_nesemulatordockwidget.h"
 
 #include "cobjectregistry.h"
-#include "main.h"
 
 #include "emulatorprefsdialog.h"
 

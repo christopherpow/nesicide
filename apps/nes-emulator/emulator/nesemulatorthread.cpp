@@ -18,8 +18,6 @@
 
 #include "nes_emulator_core.h"
 
-#include "main.h"
-
 #undef main
 #include <SDL.h>
 

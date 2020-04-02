@@ -1,10 +1,12 @@
+#include <QMenu>
+#include <QContextMenuEvent>
+
 #include "executioninspectordockwidget.h"
 #include "ui_executioninspectordockwidget.h"
 
 #include "dbg_cnes.h"
 
 #include "cobjectregistry.h"
-#include "main.h"
 
 ExecutionInspectorDockWidget::ExecutionInspectorDockWidget(QWidget *parent) :
     CDebuggerBase(parent),

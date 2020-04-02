@@ -7,7 +7,7 @@
 #include "dbg_cnesppu.h"
 
 #include "cobjectregistry.h"
-#include "main.h"
+#include "cdesignercommon.h"
 
 NameTableVisualizerDockWidget::NameTableVisualizerDockWidget(QWidget *parent) :
     CDebuggerBase(parent),

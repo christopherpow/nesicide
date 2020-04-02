@@ -3,7 +3,9 @@
 #include "cchrrombank.h"
 #include "cimageconverters.h"
 #include "cobjectregistry.h"
-#include "main.h"
+#include "nesemulatorthread.h"
+#include "cchrrombanks.h"
+#include "cnesicideproject.h"
 
 CCHRROMBank::CCHRROMBank(IProjectTreeViewItem* parent)
 {
@@ -84,7 +86,7 @@ void CCHRROMBank::importFromPNG()
    QByteArray chrData;
    QByteArray imgData;
    QImage imgIn;
-   CCHRROMBanks* chrRomBanks = nesicideProject->getCartridge()->getChrRomBanks();
+   CCHRROMBanks* chrRomBanks = CNesicideProject::instance()->getCartridge()->getChrRomBanks();
 
    if ( !fileName.isEmpty() )
    {

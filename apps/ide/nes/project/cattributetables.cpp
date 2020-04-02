@@ -2,8 +2,6 @@
 
 #include "cattributetables.h"
 
-#include "main.h"
-
 CAttributeTables::CAttributeTables(IProjectTreeViewItem* parent)
 {
    // Add node to tree

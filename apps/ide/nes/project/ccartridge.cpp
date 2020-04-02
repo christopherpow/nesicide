@@ -1,5 +1,8 @@
+#include <QFileDialog>
+
+#include "cnesicideproject.h"
+
 #include "ccartridge.h"
-#include "main.h"
 
 CCartridge::CCartridge(IProjectTreeViewItem* parent)
 {
@@ -55,7 +58,7 @@ void CCartridge::exportROM()
 
     if ( !fileName.isEmpty() )
     {
-        nesicideProject->createRomFromProject(fileName);
+        CNesicideProject::instance()->createRomFromProject(fileName);
     }
 }
 

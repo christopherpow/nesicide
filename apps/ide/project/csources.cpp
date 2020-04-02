@@ -5,8 +5,6 @@
 
 #include "csources.h"
 
-#include "main.h"
-
 CSources::CSources(IProjectTreeViewItem* parent)
 {
    // Add node to tree

@@ -7,7 +7,6 @@
 #include "nes_emulator_core.h"
 
 #include "cobjectregistry.h"
-#include "main.h"
 
 OAMVisualizerDockWidget::OAMVisualizerDockWidget(QWidget *parent) :
     CDebuggerBase(parent),

@@ -29,7 +29,9 @@
 #include "emulatorprefsdialog.h"
 #include "cobjectregistry.h"
 #include "breakpointwatcherthread.h"
-#include "main.h"
+#include "cnesicideproject.h"
+
+#include "cbuildertextlogger.h"
 
 static void breakpointHook ( void )
 {
@@ -214,10 +216,10 @@ void C64EmulatorThread::resetEmulator()
    // Force hard-reset of the machine...
    c64EnableBreakpoints(false);
 
-   if ( nesicideProject->isInitialized() )
+   if ( CNesicideProject::instance()->isInitialized() )
    {
-      QDir dirProject(nesicideProject->getProjectOutputBasePath());
-      QString fileName = dirProject.toNativeSeparators(dirProject.absoluteFilePath(nesicideProject->getProjectLinkerOutputName()));
+      QDir dirProject(CNesicideProject::instance()->getProjectOutputBasePath());
+      QString fileName = dirProject.toNativeSeparators(dirProject.absoluteFilePath(CNesicideProject::instance()->getProjectLinkerOutputName()));
       QString request;
       int addr;
       qDebug("C64EmulatorThread::resetEmulator ...%s...\n",fileName.toLatin1().data());

@@ -1,7 +1,5 @@
 #include "cbinaryfiles.h"
 
-#include "main.h"
-
 CBinaryFiles::CBinaryFiles(IProjectTreeViewItem* parent)
 {
    // Add node to tree

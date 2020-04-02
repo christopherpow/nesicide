@@ -2,7 +2,7 @@
 
 #include "iprojecttreeviewitem.h"
 
-#include "main.h"
+#include "cnesicideproject.h"
 
 static const char* CLICK_TO_ADD = "<click to add>";
 
@@ -156,7 +156,7 @@ bool CChrRomItemTableDisplayModel::setData ( const QModelIndex& index, const QVa
    bool ok = false;
    IChrRomBankItem* item;
 
-   IProjectTreeViewItemIterator iter(nesicideProject->getProject());
+   IProjectTreeViewItemIterator iter(CNesicideProject::instance()->getProject());
    do
    {
       item = dynamic_cast<IChrRomBankItem*>(iter.current());

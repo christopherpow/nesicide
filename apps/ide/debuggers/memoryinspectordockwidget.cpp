@@ -1,13 +1,14 @@
+#include <QMessageBox>
+#include <QMenu>
+#include <QContextMenuEvent>
+
 #include "memoryinspectordockwidget.h"
 #include "ui_memoryinspectordockwidget.h"
 
 #include "cobjectregistry.h"
-#include "main.h"
 
 #include "nes_emulator_core.h"
 #include "c64_emulator_core.h"
-
-#include <QMessageBox>
 
 MemoryInspectorDockWidget::MemoryInspectorDockWidget(memDBFunc memDB,CBreakpointInfo* pBreakpoints,QWidget *parent) :
     CDebuggerBase(parent),

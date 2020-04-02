@@ -1,7 +1,5 @@
 #include "nesemulatorrenderer.h"
 
-#include "main.h"
-
 CNESEmulatorRenderer::CNESEmulatorRenderer(QWidget* parent, char* imgData)
    : QOpenGLWidget(parent),
      initialized(false)

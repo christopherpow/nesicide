@@ -1,3 +1,6 @@
+#include <QFileDialog>
+#include <QDir>
+
 #include "codedataloggerdockwidget.h"
 #include "ui_codedataloggerdockwidget.h"
 
@@ -5,7 +8,6 @@
 #include "dbg_cnesppu.h"
 
 #include "cobjectregistry.h"
-#include "main.h"
 
 CodeDataLoggerDockWidget::CodeDataLoggerDockWidget(QWidget *parent) :
     CDebuggerBase(parent),

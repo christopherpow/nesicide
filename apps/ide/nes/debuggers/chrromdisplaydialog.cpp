@@ -6,7 +6,8 @@
 #include "dbg_cnesppu.h"
 
 #include "cobjectregistry.h"
-#include "main.h"
+#include "cdesignercommon.h"
+#include "cchrrombank.h"
 
 CHRROMDisplayDialog::CHRROMDisplayDialog(bool usePPU,qint8* data,IProjectTreeViewItem* link,QWidget* parent) :
    CDesignerEditorBase(link,parent),

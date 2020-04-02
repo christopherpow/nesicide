@@ -6,7 +6,6 @@
 #include "ccodedatalogger.h"
 
 #include "cobjectregistry.h"
-#include "main.h"
 
 CodeProfilerDockWidget::CodeProfilerDockWidget(QWidget *parent) :
     CDebuggerBase(parent),

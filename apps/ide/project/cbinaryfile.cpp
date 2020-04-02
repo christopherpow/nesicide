@@ -1,8 +1,6 @@
 #include "cbinaryfile.h"
 #include "cnesicideproject.h"
 
-#include "main.h"
-
 #include "cimageconverters.h"
 
 CBinaryFile::CBinaryFile(IProjectTreeViewItem* parent)

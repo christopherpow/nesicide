@@ -1,9 +1,16 @@
 #include "breakpointwatcherthread.h"
 
 #include <QSemaphore>
-#include <stdio.h>
 
-#include "main.h"
+#include "cbreakpointinfo.h"
+#include "cnesicideproject.h"
+
+#include "nes_emulator_core.h"
+#include "c64_emulator_core.h"
+
+#include "cbuildertextlogger.h"
+
+#include "outputpanedockwidget.h"
 
 BreakpointWatcherWorker::BreakpointWatcherWorker(QObject*)
 {
@@ -19,11 +26,11 @@ void BreakpointWatcherWorker::breakpoint()
    int idx;
    char hitMsg [ 512 ];
 
-   if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+   if ( !CNesicideProject::instance()->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
    {
       pBreakpoints = nesGetBreakpointDatabase();
    }
-   else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+   else if ( !CNesicideProject::instance()->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
    {
       pBreakpoints = c64GetBreakpointDatabase();
    }

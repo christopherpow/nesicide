@@ -37,6 +37,7 @@
 #include "c64emulatorthread.h"
 #include "c64emulatorcontrol.h"
 #include "cexpandablestatusbar.h"
+#include "testsuiteexecutivedialog.h"
 
 #include "ui_mainwindow.h"
 
@@ -201,6 +202,9 @@ protected:
 
    // Project data wrappers
    CProjectModel* m_pProjectModel;
+
+   // Modeless dialog for Test Suite executive.
+   TestSuiteExecutiveDialog* testSuiteExecutive;
 
 private:
    bool openAnyFile(QString fileName);

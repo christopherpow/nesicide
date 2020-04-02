@@ -5,8 +5,6 @@
 
 #include "cimageconverters.h"
 
-#include "main.h"
-
 CGraphicsBank::CGraphicsBank(IProjectTreeViewItem* parent)
 {
    // Add node to tree
@@ -171,8 +169,8 @@ QString CGraphicsBank::caption() const
 //         }
 
 //         // TODO: Fix this logic so the memory doesn't get lost.
-//         nesicideProject->getProject()->getGraphicsBanks()->removeChild(this);
-//         nesicideProject->getProject()->getGraphicsBanks()->getGraphicsBanks().removeAll(this);
+//         CNesicideProject::instance()->getProject()->getGraphicsBanks()->removeChild(this);
+//         CNesicideProject::instance()->getProject()->getGraphicsBanks()->getGraphicsBanks().removeAll(this);
 //         //((CProjectTreeViewModel*)parent->model())->layoutChangedEvent();
 //      }
 //      else if (ret->text() == EXPORT_PNG_TEXT)

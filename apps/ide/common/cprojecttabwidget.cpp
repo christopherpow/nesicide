@@ -7,7 +7,7 @@
 #include "cprojecttreeopenaction.h"
 #include "model/projectsearcher.h"
 
-#include "main.h"
+#include "environmentsettingsdialog.h"
 
 #include <QToolButton>
 
@@ -57,11 +57,11 @@ void CProjectTabWidget::tabBar_contextMenuEvent(QContextMenuEvent *event)
    QMenu menu;
 
    QString addToProjectText = "Add to ";
-   addToProjectText += nesicideProject->getProjectTitle();
+   addToProjectText += CNesicideProject::instance()->getProjectTitle();
    addToProjectText += " project...";
 
    QString removeFromProjectText = "Remove from ";
-   removeFromProjectText += nesicideProject->getProjectTitle();
+   removeFromProjectText += CNesicideProject::instance()->getProjectTitle();
    removeFromProjectText += " project...";
 
    QStringList extensions;
@@ -90,7 +90,7 @@ void CProjectTabWidget::tabBar_contextMenuEvent(QContextMenuEvent *event)
       {
          if ( fileName.endsWith(ext,Qt::CaseInsensitive) )
          {
-            nesicideProject->getProject()->getSources()->addSourceFile(fileName);
+            CNesicideProject::instance()->getProject()->getSources()->addSourceFile(fileName);
             break;
          }
       }
@@ -250,9 +250,9 @@ void CProjectTabWidget::snapToTab(QString item)
    QStringList splits;
    uint32_t addr;
    uint32_t absAddr;
-   QList<CSourceItem*> sources = ProjectSearcher::findItemsOfType<CSourceItem>(nesicideProject);
-   QList<CGraphicsBank*> gfxBanks = ProjectSearcher::findItemsOfType<CGraphicsBank>(nesicideProject);
-   QList<CTileStamp*> tileStamps = ProjectSearcher::findItemsOfType<CTileStamp>(nesicideProject);
+   QList<CSourceItem*> sources = ProjectSearcher::findItemsOfType<CSourceItem>(CNesicideProject::instance());
+   QList<CGraphicsBank*> gfxBanks = ProjectSearcher::findItemsOfType<CGraphicsBank>(CNesicideProject::instance());
+   QList<CTileStamp*> tileStamps = ProjectSearcher::findItemsOfType<CTileStamp>(CNesicideProject::instance());
    bool found = false;
    bool open = false;
    QDir dir;
@@ -417,7 +417,7 @@ void CProjectTabWidget::snapToTab(QString item)
       // Search the source paths...
       if ( !found )
       {
-         QStringList sourcePaths = nesicideProject->getSourceSearchPaths();
+         QStringList sourcePaths = CNesicideProject::instance()->getSourceSearchPaths();
 
          foreach ( QString searchDir, sourcePaths )
          {
@@ -464,7 +464,7 @@ void CProjectTabWidget::snapToTab(QString item)
          {
             QFileInfo fileInfo(newDir);
             dir = projectDir.relativeFilePath(fileInfo.path());
-            nesicideProject->addSourceSearchPath(dir.path());
+            CNesicideProject::instance()->addSourceSearchPath(dir.path());
             filePath = dir.filePath(file);
             fileIn.setFileName(filePath);
 

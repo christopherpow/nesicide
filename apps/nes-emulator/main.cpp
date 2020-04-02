@@ -1,5 +1,5 @@
 #include <QApplication>
-#include "main.h"
+
 #include "mainwindow.h"
 
 #include "appeventfilter.h"

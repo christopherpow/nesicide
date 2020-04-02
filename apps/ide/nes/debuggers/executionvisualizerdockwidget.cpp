@@ -1,3 +1,5 @@
+#include <QMenu>
+
 #include "executionvisualizerdockwidget.h"
 #include "ui_executionvisualizerdockwidget.h"
 
@@ -10,7 +12,6 @@
 #include "nes_emulator_core.h"
 
 #include "cobjectregistry.h"
-#include "main.h"
 
 ExecutionVisualizerDockWidget::ExecutionVisualizerDockWidget(QWidget *parent) :
     CDebuggerBase(parent),

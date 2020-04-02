@@ -27,7 +27,9 @@
 
 #include "cobjectregistry.h"
 #include "breakpointwatcherthread.h"
-#include "main.h"
+
+#include "environmentsettingsdialog.h"
+#include "emulatorprefsdialog.h"
 
 #include "Source/DirectSound.h"
 
@@ -269,10 +271,10 @@ void NESEmulatorWorker::breakpointsChanged()
 
 void NESEmulatorWorker::primeEmulator()
 {
-   if ( (nesicideProject) &&
-        (nesicideProject->getCartridge()) )
+   if ( (CNesicideProject::instance()) &&
+        (CNesicideProject::instance()->getCartridge()) )
    {
-      m_pCartridge = nesicideProject->getCartridge();
+      m_pCartridge = CNesicideProject::instance()->getCartridge();
 
       nesClearOpcodeMasks();
    }
@@ -553,9 +555,9 @@ void NESEmulatorWorker::loadCartridge()
       // Initialize NES...
       nesResetInitial();
 
-      if ( !nesicideProject->getProjectCartridgeSaveStateName().isEmpty() )
+      if ( !CNesicideProject::instance()->getProjectCartridgeSaveStateName().isEmpty() )
       {
-         saveState.setFileName(nesicideProject->getProjectCartridgeSaveStateName());
+         saveState.setFileName(CNesicideProject::instance()->getProjectCartridgeSaveStateName());
          if ( saveState.open(QIODevice::ReadOnly) )
          {
             deserializeContent(saveState);

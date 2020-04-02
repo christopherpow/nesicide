@@ -1,3 +1,5 @@
+#include <QFileInfo>
+
 #include "breakpointdialog.h"
 #include "ui_breakpointdialog.h"
 
@@ -8,11 +10,12 @@
 #include "dbg_cnesapu.h"
 
 #include "compilerthread.h"
-#include "main.h"
 
 #include "ccc65interface.h"
 
 #include "cobjectregistry.h"
+
+#include "cnesicideproject.h"
 
 BreakpointDialog::BreakpointDialog(CBreakpointInfo* pBreakpoints,int bp, QWidget* parent) :
    QDialog(parent),
@@ -27,7 +30,7 @@ BreakpointDialog::BreakpointDialog(CBreakpointInfo* pBreakpoints,int bp, QWidget
    ui->type->addItem("CPU Memory Read");
    ui->type->addItem("CPU Memory Write");
 
-   if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+   if ( !CNesicideProject::instance()->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
    {
       ui->type->addItem("CPU State");
       ui->type->addItem("CPU Event");
@@ -54,14 +57,14 @@ BreakpointDialog::BreakpointDialog(CBreakpointInfo* pBreakpoints,int bp, QWidget
 
    ui->enabled->setChecked(true);
 
-   if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+   if ( !CNesicideProject::instance()->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
    {
       ui->resolverWidget->setCurrentIndex(nesGetMapper()>0);
       ui->resolve->setChecked(false);
       ui->resolutions->addItem("N/A");
       ui->resolutions->setEnabled(false);
    }
-   else if ( !nesicideProject->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
+   else if ( !CNesicideProject::instance()->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
    {
       ui->resolverWidget->setCurrentIndex(0);
       ui->resolve->setChecked(false);
@@ -528,7 +531,7 @@ void BreakpointDialog::DisplayBreakpoint ( int idx )
    // Turn resolver on so it populates if the absolute address is known.
    // Only do this for NES platform until it is known whether it is needed
    // for other platforms.
-   if ( (!nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive)) && 
+   if ( (!CNesicideProject::instance()->getProjectTarget().compare("nes",Qt::CaseInsensitive)) && 
         (pBreakpoint->item1Physical >= 0) )
    {
       ui->resolve->setChecked(true);
@@ -694,7 +697,7 @@ void BreakpointDialog::on_addBreakpoint_clicked()
    else
    {
       // NES
-      if ( !nesicideProject->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
+      if ( !CNesicideProject::instance()->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
       {
          // If the virtual address is in PRG-ROM space, convert it to physical for
          // the absolute address.  Otherwise, the virtual *is* the physical address.

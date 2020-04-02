@@ -1,8 +1,6 @@
 #include "cmusicitem.h"
 #include "cnesicideproject.h"
 
-#include "main.h"
-
 CMusicItem::CMusicItem(IProjectTreeViewItem* parent)
 {
    // Add node to tree

@@ -2,8 +2,6 @@
 
 #include "ctilestamps.h"
 
-#include "main.h"
-
 CTileStamps::CTileStamps(IProjectTreeViewItem* parent)
 {
    // Add node to tree

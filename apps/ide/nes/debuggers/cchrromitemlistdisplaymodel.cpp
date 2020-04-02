@@ -2,8 +2,6 @@
 
 #include "iprojecttreeviewitem.h"
 
-#include "main.h"
-
 CChrRomItemListDisplayModel::CChrRomItemListDisplayModel(QObject* parent)
 {
 }

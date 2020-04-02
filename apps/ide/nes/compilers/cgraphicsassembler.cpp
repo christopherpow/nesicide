@@ -1,8 +1,6 @@
 #include "cgraphicsassembler.h"
 #include "cnesicideproject.h"
 
-#include "main.h"
-
 static const char emptyBank[MEM_8KB] = { 0, };
 
 CGraphicsAssembler::CGraphicsAssembler()
@@ -16,9 +14,9 @@ void CGraphicsAssembler::clean()
 
 bool CGraphicsAssembler::assemble()
 {
-   CGraphicsBanks* gfxBanks = nesicideProject->getProject()->getGraphicsBanks();
-   CCHRROMBanks* chrBanks = nesicideProject->getCartridge()->getChrRomBanks();
-   QDir outputDir(nesicideProject->getProjectCHRROMOutputBasePath());
+   CGraphicsBanks* gfxBanks = CNesicideProject::instance()->getProject()->getGraphicsBanks();
+   CCHRROMBanks* chrBanks = CNesicideProject::instance()->getCartridge()->getChrRomBanks();
+   QDir outputDir(CNesicideProject::instance()->getProjectCHRROMOutputBasePath());
    QString outputName;
    QFile chrRomFile;
    int gfxBankSize;
@@ -31,13 +29,13 @@ bool CGraphicsAssembler::assemble()
       outputDir.mkpath(outputDir.path());
    }
 
-   if ( nesicideProject->getProjectCHRROMOutputName().isEmpty() )
+   if ( CNesicideProject::instance()->getProjectCHRROMOutputName().isEmpty() )
    {
-      outputName = outputDir.fromNativeSeparators(outputDir.filePath(nesicideProject->getProjectOutputName()+".chr"));
+      outputName = outputDir.fromNativeSeparators(outputDir.filePath(CNesicideProject::instance()->getProjectOutputName()+".chr"));
    }
    else
    {
-      outputName = outputDir.fromNativeSeparators(outputDir.filePath(nesicideProject->getProjectCHRROMOutputName()));
+      outputName = outputDir.fromNativeSeparators(outputDir.filePath(CNesicideProject::instance()->getProjectCHRROMOutputName()));
    }
 
    if ( gfxBanks->getGraphicsBanks().count() )
@@ -96,10 +94,10 @@ bool CGraphicsAssembler::assemble()
                currentChrSize = 0;
                chrBankIdx++;
 
-               CCHRROMBanks *chrRomBanks = nesicideProject->getCartridge()->getChrRomBanks();
+               CCHRROMBanks *chrRomBanks = CNesicideProject::instance()->getCartridge()->getChrRomBanks();
                if ( chrBankIdx >= chrRomBanks->getChrRomBanks().count() )
                {
-                  CCHRROMBank *curBank = new CCHRROMBank(nesicideProject->getCartridge()->getChrRomBanks());
+                  CCHRROMBank *curBank = new CCHRROMBank(CNesicideProject::instance()->getCartridge()->getChrRomBanks());
                   // This is a new bank
                   curBank->setBankIndex(chrRomBanks->getChrRomBanks().count());
                   chrRomBanks->appendChild(curBank);

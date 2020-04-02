@@ -3,8 +3,6 @@
 #include <QSettings>
 #include <QUrl>
 
-#include "main.h"
-
 #include "nes_emulator_core.h"
 
 #include "cobjectregistry.h"

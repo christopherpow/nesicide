@@ -13,7 +13,14 @@
 class CGameDatabaseHandler
 {
 public:
-   CGameDatabaseHandler();
+   static CGameDatabaseHandler *instance()
+   {
+      if ( !_instance )
+      {
+         _instance = new CGameDatabaseHandler();
+      }
+      return _instance;
+   }
    bool initialize(QString fileName);
 
    // Database information.
@@ -47,6 +54,9 @@ public:
    {
       CART_DATA("sha1").toUpper();
    }
+private:
+   static CGameDatabaseHandler *_instance;
+   CGameDatabaseHandler();
 
 protected:
    QDomDocument m_db;

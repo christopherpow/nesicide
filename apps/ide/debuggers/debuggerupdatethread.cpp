@@ -2,8 +2,6 @@
 
 #include "dbg_cnesppu.h"
 
-#include "main.h"
-
 QThread *DebuggerUpdateThread::pThread = NULL;
 int      DebuggerUpdateThread::resourceCount = -1;
 QMutex  *DebuggerUpdateThread::pMutex = NULL;

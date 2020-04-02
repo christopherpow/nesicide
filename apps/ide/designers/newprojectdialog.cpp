@@ -2,7 +2,6 @@
 #include "ui_newprojectdialog.h"
 
 #include "projectpropertiesdialog.h"
-#include "main.h"
 
 #include <QFileDialog>
 #include <QSettings>
@@ -43,7 +42,7 @@ NewProjectDialog::NewProjectDialog(QString windowTitle,QString defName,QString d
       QListWidgetItem *pItem = ui->addOnsList->item(idx);
       QString addon_uri = ":/addons/NES/"+pItem->text();
       pItem->setData(Qt::UserRole,addon_uri);
-      if ( nesicideProject->getProjectAddOns().contains(addon_uri) )
+      if ( CNesicideProject::instance()->getProjectAddOns().contains(addon_uri) )
       {
          pItem->setCheckState(Qt::Checked);
       }
@@ -197,14 +196,14 @@ bool NewProjectDialog::checkValidity()
 void NewProjectDialog::on_buttonBox_accepted()
 {
    // If they hit Project Properties button then we're all set except for the project name may have changed.
-   if ( !nesicideProject->isInitialized() )
+   if ( !CNesicideProject::instance()->isInitialized() )
    {
       setupProject();
    }
    else
    {
-      nesicideProject->setProjectTitle(getName());
-      nesicideProject->setDirty(true);
+      CNesicideProject::instance()->setProjectTitle(getName());
+      CNesicideProject::instance()->setDirty(true);
    }
 }
 
@@ -222,15 +221,15 @@ void NewProjectDialog::setupProject()
    // Set project target before initializing project...
    if ( getTarget() == "Commodore 64" )
    {
-      nesicideProject->setProjectTarget("c64");
+      CNesicideProject::instance()->setProjectTarget("c64");
    }
    else if ( getTarget() == "Nintendo Entertainment System" )
    {
-      nesicideProject->setProjectTarget("nes");
+      CNesicideProject::instance()->setProjectTarget("nes");
    }
-   nesicideProject->initializeProject();
-   nesicideProject->setDirty(true);
-   nesicideProject->setProjectTitle(getName());
+   CNesicideProject::instance()->initializeProject();
+   CNesicideProject::instance()->setDirty(true);
+   CNesicideProject::instance()->setProjectTitle(getName());
 }
 
 void NewProjectDialog::on_target_currentIndexChanged(QString target)
@@ -282,9 +281,9 @@ void NewProjectDialog::on_projectProperties_clicked()
 
    if (dlg->exec() == QDialog::Accepted)
    {
-      nesicideProject->setDirty(true);
+      CNesicideProject::instance()->setDirty(true);
       // They might have changed the project name...
-      ui->name->setText(nesicideProject->getProjectTitle());
+      ui->name->setText(CNesicideProject::instance()->getProjectTitle());
    }
 
    delete dlg;

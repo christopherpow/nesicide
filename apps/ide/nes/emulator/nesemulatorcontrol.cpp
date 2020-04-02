@@ -7,8 +7,6 @@
 
 #include "cobjectregistry.h"
 
-#include "main.h"
-
 NESEmulatorControl::NESEmulatorControl(QWidget *parent) :
    QWidget(parent),
    ui(new Ui::NESEmulatorControl),

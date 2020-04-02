@@ -5,7 +5,6 @@
 #include "dbg_cnesppu.h"
 
 #include "cobjectregistry.h"
-#include "main.h"
 
 PPUInformationDockWidget::PPUInformationDockWidget(QWidget *parent) :
     CDebuggerBase(parent),

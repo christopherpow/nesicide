@@ -3,11 +3,9 @@
 
 #include "ccc65interface.h"
 
-#include "nes_emulator_core.h"
+#include "c64_emulator_core.h"
 
 #include "cobjectregistry.h"
-
-#include "main.h"
 
 C64EmulatorControl::C64EmulatorControl(QWidget *parent) :
    QWidget(parent),
