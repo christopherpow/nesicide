@@ -9,7 +9,7 @@
 
 static int luabind_compiler_logger_print(lua_State* lua);
 
-CPluginManager* pluginManager = (CPluginManager*)NULL;
+CPluginManager *CPluginManager::_instance = NULL;
 
 QHash<QString,QDomDocument*> CPluginManager::plugins;
 
@@ -254,6 +254,6 @@ static int luabind_compiler_logger_print(lua_State* lua)
       return 0;
    }
 
-   pluginManager->lua_compiler_logger_print(QString(lua_tostring (lua, 1)));
+   CPluginManager::instance()->lua_compiler_logger_print(QString(lua_tostring (lua, 1)));
    return 0;
 }

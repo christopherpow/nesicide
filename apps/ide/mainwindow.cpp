@@ -259,9 +259,6 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
       CGameDatabaseHandler::instance()->initialize(EnvironmentSettingsDialog::getGameDatabase());
    }
 
-   // Initialize the plugin manager
-   pluginManager = new CPluginManager();
-
    // Create the search engine thread.
    SearcherThread* searcher = new SearcherThread();
    CObjectRegistry::instance()->addObject ( "Searcher", searcher );
@@ -362,7 +359,7 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    output->hide();
 
    generalTextLogger->write("<strong>NESICIDE</strong> Alpha Release");
-   generalTextLogger->write("<strong>Plugin Scripting Subsystem:</strong> " + pluginManager->getVersionInfo());
+   generalTextLogger->write("<strong>Plugin Scripting Subsystem:</strong> " + CPluginManager::instance()->getVersionInfo());
 
    m_pExecutionInspector = new ExecutionInspectorDockWidget();
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pExecutionInspector,SLOT(updateTargetMachine(QString)));
@@ -410,8 +407,8 @@ MainWindow::MainWindow(CProjectModel *projectModel, QWidget* parent) :
    }
 
    // Load all plugins.
-   pluginManager->doInitScript();
-   pluginManager->loadPlugins();
+   CPluginManager::instance()->doInitScript();
+   CPluginManager::instance()->loadPlugins();
 
    // Instantiate music editor form single instance...
    MusicEditorForm::instance();
@@ -528,8 +525,6 @@ MainWindow::~MainWindow()
    delete buildTextLogger;
    delete debugTextLogger;
    delete searchTextLogger;
-
-   delete pluginManager;
 
    delete m_pNESEmulatorThread;
    delete m_pC64EmulatorThread;
