@@ -138,7 +138,7 @@ extern CRegisterDatabase*  m_dbCartRegisters;
 #define NUM_ADDRESSING_MODES    13
 
 #define NUM_ROM_BANKS 128
-#define NUM_CHR_BANKS 256+32 // 32 extra banks for CHR-ROM+CHR-RAM mappers like N106.
+#define NUM_CHR_BANKS 1024+32 // 32 extra banks for CHR-ROM+CHR-RAM mappers like N106.
 #define NUM_SRAM_BANKS 8
 
 #define PATTERN_SIZE 8

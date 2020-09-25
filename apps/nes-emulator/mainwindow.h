@@ -28,7 +28,7 @@ protected:
    void dragEnterEvent ( QDragEnterEvent* event );
    void dragMoveEvent ( QDragMoveEvent* event );
    void dropEvent ( QDropEvent* event );
-   void loadCartridge ( QString fileName );
+   bool loadCartridge ( QString fileName );
    void saveEmulatorState(QString fileName);
 
 protected:
@@ -80,17 +80,20 @@ private slots:
    void on_actionNTSC_triggered();
    void on_actionOpen_triggered();
    void on_actionExit_triggered();
-   void on_actionSawtoothVRC6_toggled(bool arg1);
-   void on_actionPulse_2VRC6_toggled(bool arg1);
-   void on_actionPulse_1VRC6_toggled(bool arg1);
-   void on_actionWave_8N106_toggled(bool arg1);
-   void on_actionWave_7N106_toggled(bool arg1);
-   void on_actionWave_6N106_toggled(bool arg1);
-   void on_actionWave_5N106_toggled(bool arg1);
-   void on_actionWave_4N106_toggled(bool arg1);
-   void on_actionWave_3N106_toggled(bool arg1);
-   void on_actionWave_2N106_toggled(bool arg1);
-   void on_actionWave_1N106_toggled(bool arg1);
+   void on_actionSawtoothVRC6_toggled(bool );
+   void on_actionPulse_2VRC6_toggled(bool );
+   void on_actionPulse_1VRC6_toggled(bool );
+   void on_actionWave_8N106_toggled(bool );
+   void on_actionWave_7N106_toggled(bool );
+   void on_actionWave_6N106_toggled(bool );
+   void on_actionWave_5N106_toggled(bool );
+   void on_actionWave_4N106_toggled(bool );
+   void on_actionWave_3N106_toggled(bool );
+   void on_actionWave_2N106_toggled(bool );
+   void on_actionWave_1N106_toggled(bool );
+   void on_actionSquare_2MMC5_toggled(bool );
+   void on_actionSquare_1MMC5_toggled(bool );
+   void on_actionDMCMMC5_toggled(bool );
 };
 
 #endif // MAINWINDOW_H

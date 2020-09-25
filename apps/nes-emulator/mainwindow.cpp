@@ -7,6 +7,8 @@
 
 #include "cobjectregistry.h"
 
+#include "main.h"
+
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
@@ -72,13 +74,16 @@ MainWindow::MainWindow(QWidget* parent) :
    {
       emit pauseEmulation(false);
 
-      loadCartridge(sl_nes.at(0));
+      bool ok = loadCartridge(sl_nes.at(0));
 
-      // set up emulator if it needs to be...
-      emit primeEmulator ( cartridge );
+      if ( ok )
+      {
+         // set up emulator if it needs to be...
+         emit primeEmulator ( cartridge );
 
-      emit resetEmulator();
-      emit startEmulation();
+         emit resetEmulator();
+         emit startEmulation();
+      }
 
       if ( sl_nes.count() > 1 )
       {
@@ -121,14 +126,16 @@ void MainWindow::openRecentFile()
 
    emit pauseEmulation(false);
 
-   loadCartridge(fileName);
+   bool ok = loadCartridge(fileName);
 
-   // set up emulator if it needs to be...
-   emit primeEmulator ( cartridge );
+   if ( ok )
+   {
+      // set up emulator if it needs to be...
+      emit primeEmulator ( cartridge );
 
-   emit resetEmulator();
-   emit startEmulation();
-
+      emit resetEmulator();
+      emit startEmulation();
+   }
 }
 
 void MainWindow::updateRecentFiles()
@@ -244,7 +251,7 @@ void MainWindow::saveEmulatorState(QString fileName)
    }
 }
 
-void MainWindow::loadCartridge ( QString fileName )
+bool MainWindow::loadCartridge ( QString fileName )
 {
    QString str;
 
@@ -273,8 +280,11 @@ void MainWindow::loadCartridge ( QString fileName )
       {
          // Header check failed, quit
          fileIn.close();
-         QMessageBox::information(0, "Error", "Invalid ROM format.\nCannot create project.");
-         return;
+         QMessageBox::information(0, "Error", "Invalid ROM format.\nCannot open.");
+
+         delete cartridge;
+         cartridge = NULL;
+         return false;
       }
 
       // Number of 16 KB PRG-ROM banks
@@ -329,7 +339,11 @@ void MainWindow::loadCartridge ( QString fileName )
       if ( romCB2&0x0F )
       {
          romCB2 = 0x00;
-         QMessageBox::information(0, "Warning", "Invalid iNES header format.\nSave the project to fix.");
+         QMessageBox::information(0, "Warning", "Invalid iNES header format.\nCannot open.");
+
+         delete cartridge;
+         cartridge = NULL;
+         return false;
       }
 
       // Extract the upper four bits of the mapper number
@@ -386,6 +400,8 @@ void MainWindow::loadCartridge ( QString fileName )
 
       fileIn.close();
    }
+
+   return true;
 }
 
 void MainWindow::on_actionOpen_triggered()
@@ -405,13 +421,16 @@ void MainWindow::on_actionOpen_triggered()
 
    emit pauseEmulation(false);
 
-   loadCartridge(fileName);
+   bool ok = loadCartridge(fileName);
 
-   // set up emulator if it needs to be...
-   emit primeEmulator ( cartridge );
+   if ( ok )
+   {
+      // set up emulator if it needs to be...
+      emit primeEmulator ( cartridge );
 
-   emit resetEmulator();
-   emit startEmulation();
+      emit resetEmulator();
+      emit startEmulation();
+   }
 }
 
 void MainWindow::dragEnterEvent(QDragEnterEvent* event)
@@ -468,15 +487,22 @@ void MainWindow::dropEvent(QDropEvent* event)
 
          emit pauseEmulation(false);
 
-         loadCartridge(fileName);
+         bool ok = loadCartridge(fileName);
 
-         // set up emulator if it needs to be...
-         emit primeEmulator ( cartridge );
+         if ( ok )
+         {
+            // set up emulator if it needs to be...
+            emit primeEmulator ( cartridge );
 
-         emit resetEmulator();
-         emit startEmulation();
+            emit resetEmulator();
+            emit startEmulation();
 
-         event->acceptProposedAction();
+            event->acceptProposedAction();
+         }
+         else
+         {
+            event->ignore();
+         }
       }
    }
 }
@@ -652,6 +678,17 @@ void MainWindow::updateFromEmulatorPrefs(bool initial)
       ui->actionNoise->setChecked(noise);
       ui->actionDelta_Modulation->setChecked(dmc);
       nesSetAudioChannelMask(mask);
+
+      bool square1MMC5 = EmulatorPrefsDialog::getSquare1MMC5Enabled();
+      bool square2MMC5 = EmulatorPrefsDialog::getSquare2MMC5Enabled();
+      bool dmcMMC5 = EmulatorPrefsDialog::getDMCMMC5Enabled();
+      mask = ((square1MMC5<<0)|(square2MMC5<<1)|(dmcMMC5<<2));
+
+qDebug("%x",mask);
+      ui->actionSquare_1MMC5->setChecked(square1MMC5);
+      ui->actionSquare_2MMC5->setChecked(square2MMC5);
+      ui->actionDMCMMC5->setChecked(dmcMMC5);
+      nesSetMMC5AudioChannelMask(mask);
 
       bool pulse1VRC6 = EmulatorPrefsDialog::getPulse1VRC6Enabled();
       bool pulse2VRC6 = EmulatorPrefsDialog::getPulse2VRC6Enabled();
@@ -915,6 +952,54 @@ void MainWindow::on_action4_3_Aspect_toggled(bool )
    case 4:
       ui->action3x->trigger();
       break;
+   }
+}
+
+void MainWindow::on_actionSquare_2MMC5_toggled(bool value)
+{
+   EmulatorPrefsDialog::setSquare2MMC5Enabled(value);
+   if ( value )
+   {
+      nesSetMMC5AudioChannelMask((EmulatorPrefsDialog::getSquare1MMC5Enabled())|
+                                 0x02|
+                                 (EmulatorPrefsDialog::getDMCMMC5Enabled()<<2));
+   }
+   else
+   {
+      nesSetMMC5AudioChannelMask((EmulatorPrefsDialog::getSquare1MMC5Enabled())|
+                                 (EmulatorPrefsDialog::getDMCMMC5Enabled()<<2));
+   }
+}
+
+void MainWindow::on_actionSquare_1MMC5_toggled(bool value)
+{
+   EmulatorPrefsDialog::setSquare1MMC5Enabled(value);
+   if ( value )
+   {
+      nesSetMMC5AudioChannelMask(0x01|
+                                 (EmulatorPrefsDialog::getSquare2MMC5Enabled()<<1)|
+                                 (EmulatorPrefsDialog::getDMCMMC5Enabled()<<2));
+   }
+   else
+   {
+      nesSetMMC5AudioChannelMask((EmulatorPrefsDialog::getSquare2MMC5Enabled()<<1)|
+                                 (EmulatorPrefsDialog::getDMCMMC5Enabled()<<2));
+   }
+}
+
+void MainWindow::on_actionDMCMMC5_toggled(bool value)
+{
+   EmulatorPrefsDialog::setDMCMMC5Enabled(value);
+   if ( value )
+   {
+      nesSetMMC5AudioChannelMask((EmulatorPrefsDialog::getSquare2MMC5Enabled())|
+                                 (EmulatorPrefsDialog::getSquare2MMC5Enabled()<<1)|
+                                 0x04);
+   }
+   else
+   {
+      nesSetMMC5AudioChannelMask((EmulatorPrefsDialog::getSquare1MMC5Enabled())|
+                                 (EmulatorPrefsDialog::getSquare2MMC5Enabled()<<1));
    }
 }
 
