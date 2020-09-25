@@ -35,7 +35,6 @@ MemoryInspectorDockWidget::MemoryInspectorDockWidget(memDBFunc memDB,CBreakpoint
 #endif
 
    ui->tableView->resizeRowsToContents();
-   ui->tableView->hide();
 
    m_memDBFunc = memDB;
    m_memDB = memDB();
@@ -57,7 +56,7 @@ MemoryInspectorDockWidget::MemoryInspectorDockWidget(memDBFunc memDB,CBreakpoint
 #endif
    m_editor->setAddressOffset(m_memDB->GetBase());
 
-   ui->gridLayout->addWidget(m_editor);
+   //ui->gridLayout->addWidget(m_editor);
 }
 
 MemoryInspectorDockWidget::~MemoryInspectorDockWidget()
@@ -150,15 +149,15 @@ void MemoryInspectorDockWidget::updateMemory ()
 
    m_memDB = m_memDBFunc();
 
-   m_snapshot.clear();
-   for ( idx = 0; idx < m_memDB->GetSize(); idx++ )
-   {
-      m_snapshot += m_memDB->Get(idx);
-   }
-   qint64 cp = m_editor->cursorPosition();
-   m_editor->setData(m_snapshot);
-   m_editor->setCursorPosition(cp);
-   m_editor->ensureVisible();
+//   m_snapshot.clear();
+//   for ( idx = 0; idx < m_memDB->GetSize(); idx++ )
+//   {
+//      m_snapshot += m_memDB->Get(idx);
+//   }
+//   qint64 cp = m_editor->cursorPosition();
+//   m_editor->setData(m_snapshot);
+//   m_editor->setCursorPosition(cp);
+//   m_editor->ensureVisible();
 
    // Check breakpoints for hits and highlight if necessary...
    for ( idx = 0; idx < m_pBreakpoints->GetNumBreakpoints(); idx++ )
