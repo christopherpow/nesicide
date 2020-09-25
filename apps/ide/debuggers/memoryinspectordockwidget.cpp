@@ -6,6 +6,7 @@
 #include "ui_memoryinspectordockwidget.h"
 
 #include "cobjectregistry.h"
+#include "environmentsettingsdialog.h"
 
 #include "nes_emulator_core.h"
 #include "c64_emulator_core.h"
@@ -33,8 +34,30 @@ MemoryInspectorDockWidget::MemoryInspectorDockWidget(memDBFunc memDB,CBreakpoint
    ui->tableView->setFont(QFont("Consolas", 11));
 #endif
 
+   ui->tableView->resizeRowsToContents();
+   ui->tableView->hide();
+
    m_memDBFunc = memDB;
    m_memDB = memDB();
+
+   m_editor = new QHexEdit();
+
+   m_editor->setAddressAreaBackgroundColor(EnvironmentSettingsDialog::marginBackgroundColor());
+   m_editor->setAddressAreaForegroundColor(EnvironmentSettingsDialog::marginForegroundColor());
+   m_editor->setHexCaps(true);
+
+#if defined(Q_OS_MAC) || defined(Q_OS_MACX) || defined(Q_OS_MAC64)
+   m_editor->setFont(QFont("Monaco", 11));
+#endif
+#ifdef Q_OS_LINUX
+   m_editor->setFont(QFont("Monospace", 10));
+#endif
+#ifdef Q_OS_WIN
+   m_editor->setFont(QFont("Consolas", 11));
+#endif
+   m_editor->setAddressOffset(m_memDB->GetBase());
+
+   ui->gridLayout->addWidget(m_editor);
 }
 
 MemoryInspectorDockWidget::~MemoryInspectorDockWidget()
@@ -126,6 +149,16 @@ void MemoryInspectorDockWidget::updateMemory ()
    int itemActual;
 
    m_memDB = m_memDBFunc();
+
+   m_snapshot.clear();
+   for ( idx = 0; idx < m_memDB->GetSize(); idx++ )
+   {
+      m_snapshot += m_memDB->Get(idx);
+   }
+   qint64 cp = m_editor->cursorPosition();
+   m_editor->setData(m_snapshot);
+   m_editor->setCursorPosition(cp);
+   m_editor->ensureVisible();
 
    // Check breakpoints for hits and highlight if necessary...
    for ( idx = 0; idx < m_pBreakpoints->GetNumBreakpoints(); idx++ )
@@ -317,4 +350,11 @@ void MemoryInspectorDockWidget::snapToHandler(QString item)
          }
       }
    }
+}
+
+void MemoryInspectorDockWidget::applyEnvironmentSettings()
+{
+   m_editor->setAddressAreaBackgroundColor(EnvironmentSettingsDialog::marginBackgroundColor());
+   m_editor->setAddressAreaForegroundColor(EnvironmentSettingsDialog::marginForegroundColor());
+   m_editor->update();
 }

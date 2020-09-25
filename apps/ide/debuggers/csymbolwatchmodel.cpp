@@ -5,8 +5,6 @@
 #include "ccc65interface.h"
 #include "nes_emulator_core.h"
 
-static char modelStringBuffer [ 2048 ];
-
 static const char* CLICK_TO_ADD_OR_EDIT = "<click to add or edit>";
 
 CSymbolWatchModel::CSymbolWatchModel(bool editable,QObject *parent) :
@@ -16,10 +14,12 @@ CSymbolWatchModel::CSymbolWatchModel(bool editable,QObject *parent) :
    m_currentSortOrder = Qt::DescendingOrder;
    m_currentItemCount = 0;
    m_editable = editable;
+   m_modelStringBuffer = new char[126];
 }
 
 CSymbolWatchModel::~CSymbolWatchModel()
 {
+   delete [] m_modelStringBuffer;
 }
 
 Qt::ItemFlags CSymbolWatchModel::flags(const QModelIndex& index) const
@@ -69,8 +69,8 @@ QVariant CSymbolWatchModel::data(const QModelIndex& index, int role) const
             absAddr = CCC65Interface::instance()->getSymbolPhysicalAddress(m_items.at(index.row()).symbol,symbolIdx);
             if ( addr != -1 )
             {
-               nesGetPrintablePhysicalAddress(modelStringBuffer,addr,absAddr);
-               return QVariant(modelStringBuffer);
+               nesGetPrintablePhysicalAddress(m_modelStringBuffer,addr,absAddr);
+               return QVariant(m_modelStringBuffer);
             }
             else
             {
@@ -92,7 +92,7 @@ QVariant CSymbolWatchModel::data(const QModelIndex& index, int role) const
             addr = CCC65Interface::instance()->getSymbolAddress(m_items.at(index.row()).symbol,symbolIdx);
             if ( addr != -1 )
             {
-               char* bufferPtr = modelStringBuffer;
+               char* bufferPtr = m_modelStringBuffer;
                unsigned int symbolSize = CCC65Interface::instance()->getSymbolSize(m_items.at(index.row()).symbol,symbolIdx);
 
                // If symbol size <= 10 print values as an array, seperated by commas
@@ -122,7 +122,7 @@ QVariant CSymbolWatchModel::data(const QModelIndex& index, int role) const
                {
                   return QVariant("?");
                }
-               return QVariant(modelStringBuffer);
+               return QVariant(m_modelStringBuffer);
             }
             else
             {
@@ -331,8 +331,8 @@ int CSymbolWatchModel::resolveSymbol(QString text,int addr)
 
          symbol = text;
          symbol += " @";
-         nesGetPrintablePhysicalAddress(modelStringBuffer,checkAddr,absAddr);
-         symbol += modelStringBuffer;
+         nesGetPrintablePhysicalAddress(m_modelStringBuffer,checkAddr,absAddr);
+         symbol += m_modelStringBuffer;
          symbol += " in ";
          symbol += symbolFile;
          symbols.append(symbol);

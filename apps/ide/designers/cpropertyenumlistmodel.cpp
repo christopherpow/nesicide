@@ -3,8 +3,6 @@
 #include "cpropertyenumlistmodel.h"
 #include "cpropertyitem.h"
 
-static char modelStringBuffer [ 2048 ];
-
 static const char* CLICK_TO_ADD_OR_EDIT = "<click to add or edit>";
 
 CPropertyEnumListModel::CPropertyEnumListModel(bool editable,QObject *parent) :

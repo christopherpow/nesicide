@@ -7,17 +7,17 @@
 #include <QIcon>
 #include <QMimeData>
 
-static char modelStringBuffer [ 2048 ];
-
 static const char* CLICK_TO_ADD_OR_EDIT = "<click to add or edit>";
 
 CBreakpointDisplayModel::CBreakpointDisplayModel(CBreakpointInfo* pBreakpoints,QObject*)
 {
    m_pBreakpoints = pBreakpoints;
+   m_modelStringBuffer = new char[256];
 }
 
 CBreakpointDisplayModel::~CBreakpointDisplayModel()
 {
+   delete [] m_modelStringBuffer;
 }
 
 Qt::ItemFlags CBreakpointDisplayModel::flags(const QModelIndex& /*index*/) const
@@ -63,8 +63,8 @@ QVariant CBreakpointDisplayModel::data(const QModelIndex& index, int role) const
          return QVariant();
          break;
       case 1:
-         m_pBreakpoints->GetPrintable(index.row(),modelStringBuffer);
-         return QVariant(modelStringBuffer);
+         m_pBreakpoints->GetPrintable(index.row(),m_modelStringBuffer);
+         return QVariant(m_modelStringBuffer);
          break;
       }
    }

@@ -85,7 +85,10 @@ void CDockWidgetRegistry::restoreVisibility()
    {
       if ( settings.value(i.value()->widget->objectName()).toBool() )
       {
+         // Widget show routines may try to access dock widget registry, so let them.
+         mutex->unlock();
          i.value()->widget->show();
+         mutex->lock();
       }
    }
 

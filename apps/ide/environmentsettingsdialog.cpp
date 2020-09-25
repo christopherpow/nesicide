@@ -900,12 +900,20 @@ void EnvironmentSettingsDialog::on_language_currentIndexChanged(int index)
 
 void EnvironmentSettingsDialog::on_treeWidget_itemSelectionChanged()
 {
-   ui->treeWidget->expand(ui->treeWidget->currentIndex());
-   if ( ui->treeWidget->currentItem()->childCount() )
+   QModelIndexList indexes = ui->treeWidget->selectionModel()->selectedIndexes();
+   QList<QTreeWidgetItem*> items = ui->treeWidget->selectedItems();
+   if ( indexes.count() > 0 )
    {
-      ui->treeWidget->setCurrentItem(ui->treeWidget->itemBelow(ui->treeWidget->currentItem()));
+      // Single selection
+      QModelIndex index = indexes.at(0);
+      QTreeWidgetItem *pItem = items.at(0);
+      ui->treeWidget->expand(index);
+      if ( pItem->childCount() )
+      {
+         ui->treeWidget->setCurrentItem(ui->treeWidget->itemBelow(pItem));
+      }
+      ui->stackedWidget->setCurrentWidget(pageMap[pItem->text(0)]);
    }
-   ui->stackedWidget->setCurrentWidget(pageMap[ui->treeWidget->currentItem()->text(0)]);
 }
 
 void EnvironmentSettingsDialog::on_buttonBox_accepted()

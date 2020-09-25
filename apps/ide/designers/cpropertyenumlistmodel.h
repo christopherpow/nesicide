@@ -37,8 +37,8 @@ public slots:
    void update();
 
 private:
-   QList<PropertyEnumItem> m_items;
-   bool m_editable;
+   QList<PropertyEnumItem>  m_items;
+   bool                     m_editable;
 };
 
 #endif // CPROPERTYENUMLISTMODEL_H

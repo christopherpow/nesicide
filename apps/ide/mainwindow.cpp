@@ -984,6 +984,7 @@ void MainWindow::createNesUi()
 
    m_pBreakpointInspector = new BreakpointDockWidget(nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBreakpointInspector,SLOT(updateTargetMachine(QString)));
+   QObject::connect(this,SIGNAL(applyEnvironmentSettings()),m_pBreakpointInspector,SLOT(applyEnvironmentSettings()));
    addDockWidget(Qt::BottomDockWidgetArea, m_pBreakpointInspector );
    m_pBreakpointInspector->hide();
    QObject::connect(m_pBreakpointInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
@@ -991,6 +992,7 @@ void MainWindow::createNesUi()
 
    m_pAssemblyInspector = new CodeBrowserDockWidget(nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pAssemblyInspector,SLOT(updateTargetMachine(QString)));
+   QObject::connect(this,SIGNAL(applyEnvironmentSettings()),m_pAssemblyInspector,SLOT(applyEnvironmentSettings()));
    addDockWidget(Qt::RightDockWidgetArea, m_pAssemblyInspector );
    m_pAssemblyInspector->hide();
    QObject::connect(m_pAssemblyInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
@@ -1003,6 +1005,7 @@ void MainWindow::createNesUi()
    m_pGfxCHRMemoryInspector->setAllowedAreas(Qt::AllDockWidgetAreas);
    addDockWidget(Qt::BottomDockWidgetArea, m_pGfxCHRMemoryInspector );
    m_pGfxCHRMemoryInspector->hide();
+   QObject::connect(this,SIGNAL(applyEnvironmentSettings()),m_pGfxCHRMemoryInspector,SLOT(applyEnvironmentSettings()));
    QObject::connect(m_pGfxCHRMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    QObject::connect(m_pGfxCHRMemoryInspector,SIGNAL(setStatusBarMessage(QString)),this,SLOT(setStatusBarMessage(QString)));
    QObject::connect(m_pGfxCHRMemoryInspector,SIGNAL(addStatusBarWidget(QWidget*)),this,SLOT(addStatusBarWidget(QWidget*)));
@@ -1011,6 +1014,7 @@ void MainWindow::createNesUi()
 
    m_pGfxOAMMemoryInspector = new OAMVisualizerDockWidget ();
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pGfxOAMMemoryInspector,SLOT(updateTargetMachine(QString)));
+   QObject::connect(this,SIGNAL(applyEnvironmentSettings()),m_pGfxOAMMemoryInspector,SLOT(applyEnvironmentSettings()));
    addDockWidget(Qt::BottomDockWidgetArea, m_pGfxOAMMemoryInspector );
    m_pGfxOAMMemoryInspector->hide();
    QObject::connect(m_pGfxOAMMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
@@ -1018,6 +1022,7 @@ void MainWindow::createNesUi()
 
    m_pGfxNameTableMemoryInspector = new NameTableVisualizerDockWidget ();
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pGfxNameTableMemoryInspector,SLOT(updateTargetMachine(QString)));
+   QObject::connect(this,SIGNAL(applyEnvironmentSettings()),m_pGfxNameTableMemoryInspector,SLOT(applyEnvironmentSettings()));
    addDockWidget(Qt::RightDockWidgetArea, m_pGfxNameTableMemoryInspector );
    m_pGfxNameTableMemoryInspector->hide();
    QObject::connect(m_pGfxNameTableMemoryInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
@@ -1025,6 +1030,7 @@ void MainWindow::createNesUi()
 
    m_pJoypadLoggerInspector = new JoypadLoggerDockWidget ();
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pJoypadLoggerInspector,SLOT(updateTargetMachine(QString)));
+   QObject::connect(this,SIGNAL(applyEnvironmentSettings()),m_pJoypadLoggerInspector,SLOT(applyEnvironmentSettings()));
    addDockWidget(Qt::BottomDockWidgetArea, m_pJoypadLoggerInspector );
    m_pJoypadLoggerInspector->hide();
    QObject::connect(m_pJoypadLoggerInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
@@ -1032,6 +1038,7 @@ void MainWindow::createNesUi()
 
    m_pExecutionVisualizer = new ExecutionVisualizerDockWidget();
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pExecutionVisualizer,SLOT(updateTargetMachine(QString)));
+   QObject::connect(this,SIGNAL(applyEnvironmentSettings()),m_pExecutionVisualizer,SLOT(applyEnvironmentSettings()));
    addDockWidget(Qt::BottomDockWidgetArea, m_pExecutionVisualizer );
    m_pExecutionVisualizer->hide();
    QObject::connect(m_pExecutionVisualizer,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
@@ -1039,6 +1046,7 @@ void MainWindow::createNesUi()
 
    m_pCodeDataLoggerInspector = new CodeDataLoggerDockWidget();
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pCodeDataLoggerInspector,SLOT(updateTargetMachine(QString)));
+   QObject::connect(this,SIGNAL(applyEnvironmentSettings()),m_pCodeDataLoggerInspector,SLOT(applyEnvironmentSettings()));
    addDockWidget(Qt::RightDockWidgetArea, m_pCodeDataLoggerInspector );
    m_pCodeDataLoggerInspector->hide();
    QObject::connect(m_pCodeDataLoggerInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
@@ -1046,6 +1054,7 @@ void MainWindow::createNesUi()
 
    m_pBinCPURegisterInspector = new RegisterInspectorDockWidget(nesGetCpuRegisterDatabase,nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinCPURegisterInspector,SLOT(updateTargetMachine(QString)));
+   QObject::connect(this,SIGNAL(applyEnvironmentSettings()),m_pBinCPURegisterInspector,SLOT(applyEnvironmentSettings()));
    m_pBinCPURegisterInspector->setObjectName("cpuRegisterInspector");
    m_pBinCPURegisterInspector->setWindowTitle("CPU Register Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinCPURegisterInspector );
@@ -1055,6 +1064,7 @@ void MainWindow::createNesUi()
 
    m_pBinCPURAMInspector = new MemoryInspectorDockWidget(nesGetCpuMemoryDatabase,nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinCPURAMInspector,SLOT(updateTargetMachine(QString)));
+   QObject::connect(this,SIGNAL(applyEnvironmentSettings()),m_pBinCPURAMInspector,SLOT(applyEnvironmentSettings()));
    m_pBinCPURAMInspector->setObjectName("cpuMemoryInspector");
    m_pBinCPURAMInspector->setWindowTitle("CPU RAM Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinCPURAMInspector );
@@ -1064,6 +1074,7 @@ void MainWindow::createNesUi()
 
    m_pBinROMInspector = new MemoryInspectorDockWidget(nesGetCartridgePRGROMMemoryDatabase,nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinROMInspector,SLOT(updateTargetMachine(QString)));
+   QObject::connect(this,SIGNAL(applyEnvironmentSettings()),m_pBinROMInspector,SLOT(applyEnvironmentSettings()));
    m_pBinROMInspector->setObjectName("cartPRGROMMemoryInspector");
    m_pBinROMInspector->setWindowTitle("PRG-ROM Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinROMInspector );
@@ -1073,6 +1084,7 @@ void MainWindow::createNesUi()
 
    m_pBinCartVRAMMemoryInspector = new MemoryInspectorDockWidget(nesGetCartridgeVRAMMemoryDatabase,nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinCartVRAMMemoryInspector,SLOT(updateTargetMachine(QString)));
+   QObject::connect(this,SIGNAL(applyEnvironmentSettings()),m_pBinCartVRAMMemoryInspector,SLOT(applyEnvironmentSettings()));
    m_pBinCartVRAMMemoryInspector->setObjectName("cartVRAMMemoryInspector");
    m_pBinCartVRAMMemoryInspector->setWindowTitle("Cartridge VRAM Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinCartVRAMMemoryInspector );
@@ -1082,6 +1094,7 @@ void MainWindow::createNesUi()
 
    m_pBinNameTableMemoryInspector = new MemoryInspectorDockWidget(nesGetPpuNameTableMemoryDatabase,nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinNameTableMemoryInspector,SLOT(updateTargetMachine(QString)));
+   QObject::connect(this,SIGNAL(applyEnvironmentSettings()),m_pBinNameTableMemoryInspector,SLOT(applyEnvironmentSettings()));
    m_pBinNameTableMemoryInspector->setObjectName("ppuNameTableMemoryInspector");
    m_pBinNameTableMemoryInspector->setWindowTitle("NameTable Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinNameTableMemoryInspector );
@@ -1091,6 +1104,7 @@ void MainWindow::createNesUi()
 
    m_pBinPPURegisterInspector = new RegisterInspectorDockWidget(nesGetPpuRegisterDatabase,nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinPPURegisterInspector,SLOT(updateTargetMachine(QString)));
+   QObject::connect(this,SIGNAL(applyEnvironmentSettings()),m_pBinPPURegisterInspector,SLOT(applyEnvironmentSettings()));
    m_pBinPPURegisterInspector->setObjectName("ppuRegisterInspector");
    m_pBinPPURegisterInspector->setWindowTitle("PPU Register Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinPPURegisterInspector );
@@ -1100,6 +1114,7 @@ void MainWindow::createNesUi()
 
    m_pPPUInformationInspector = new PPUInformationDockWidget();
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pPPUInformationInspector,SLOT(updateTargetMachine(QString)));
+   QObject::connect(this,SIGNAL(applyEnvironmentSettings()),m_pPPUInformationInspector,SLOT(applyEnvironmentSettings()));
    addDockWidget(Qt::BottomDockWidgetArea, m_pPPUInformationInspector );
    m_pPPUInformationInspector->hide();
    QObject::connect(m_pPPUInformationInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
@@ -1107,6 +1122,7 @@ void MainWindow::createNesUi()
 
    m_pBinAPURegisterInspector = new RegisterInspectorDockWidget(nesGetApuRegisterDatabase,nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinAPURegisterInspector,SLOT(updateTargetMachine(QString)));
+   QObject::connect(this,SIGNAL(applyEnvironmentSettings()),m_pBinAPURegisterInspector,SLOT(applyEnvironmentSettings()));
    m_pBinAPURegisterInspector->setObjectName("apuRegisterInspector");
    m_pBinAPURegisterInspector->setWindowTitle("APU Register Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinAPURegisterInspector );
@@ -1119,10 +1135,12 @@ void MainWindow::createNesUi()
    m_pAPUInformationInspector->hide();
    QObject::connect(m_pAPUInformationInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pAPUInformationInspector,SLOT(updateTargetMachine(QString)));
+   QObject::connect(this,SIGNAL(applyEnvironmentSettings()),m_pAPUInformationInspector,SLOT(applyEnvironmentSettings()));
    CDockWidgetRegistry::instance()->addWidget ( "APU Information", m_pAPUInformationInspector );
 
    m_pBinCHRMemoryInspector = new MemoryInspectorDockWidget(nesGetCartridgeCHRMemoryDatabase,nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinCHRMemoryInspector,SLOT(updateTargetMachine(QString)));
+   QObject::connect(this,SIGNAL(applyEnvironmentSettings()),m_pBinCHRMemoryInspector,SLOT(applyEnvironmentSettings()));
    m_pBinCHRMemoryInspector->setObjectName("chrMemoryInspector");
    m_pBinCHRMemoryInspector->setWindowTitle("CHR Memory Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinCHRMemoryInspector );
@@ -1132,6 +1150,7 @@ void MainWindow::createNesUi()
 
    m_pBinOAMMemoryInspector = new RegisterInspectorDockWidget(nesGetPpuOamRegisterDatabase,nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinOAMMemoryInspector,SLOT(updateTargetMachine(QString)));
+   QObject::connect(this,SIGNAL(applyEnvironmentSettings()),m_pBinOAMMemoryInspector,SLOT(applyEnvironmentSettings()));
    m_pBinOAMMemoryInspector->setObjectName("oamMemoryInspector");
    m_pBinOAMMemoryInspector->setWindowTitle("OAM Memory Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinOAMMemoryInspector );
@@ -1141,6 +1160,7 @@ void MainWindow::createNesUi()
 
    m_pBinPaletteMemoryInspector = new MemoryInspectorDockWidget(nesGetPpuPaletteMemoryDatabase,nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinPaletteMemoryInspector,SLOT(updateTargetMachine(QString)));
+   QObject::connect(this,SIGNAL(applyEnvironmentSettings()),m_pBinPaletteMemoryInspector,SLOT(applyEnvironmentSettings()));
    m_pBinPaletteMemoryInspector->setObjectName("ppuPaletteMemoryInspector");
    m_pBinPaletteMemoryInspector->setWindowTitle("Palette Memory Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinPaletteMemoryInspector );
@@ -1150,6 +1170,7 @@ void MainWindow::createNesUi()
 
    m_pBinSRAMMemoryInspector = new MemoryInspectorDockWidget(nesGetCartridgeSRAMMemoryDatabase,nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinSRAMMemoryInspector,SLOT(updateTargetMachine(QString)));
+   QObject::connect(this,SIGNAL(applyEnvironmentSettings()),m_pBinSRAMMemoryInspector,SLOT(applyEnvironmentSettings()));
    m_pBinSRAMMemoryInspector->setObjectName("cartSRAMMemoryInspector");
    m_pBinSRAMMemoryInspector->setWindowTitle("Cartridge SRAM Memory Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinSRAMMemoryInspector );
@@ -1159,6 +1180,7 @@ void MainWindow::createNesUi()
 
    m_pBinEXRAMMemoryInspector = new MemoryInspectorDockWidget(nesGetCartridgeEXRAMMemoryDatabase,nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinEXRAMMemoryInspector,SLOT(updateTargetMachine(QString)));
+   QObject::connect(this,SIGNAL(applyEnvironmentSettings()),m_pBinEXRAMMemoryInspector,SLOT(applyEnvironmentSettings()));
    m_pBinEXRAMMemoryInspector->setObjectName("cartEXRAMMemoryInspector");
    m_pBinEXRAMMemoryInspector->setWindowTitle("Cartridge EXRAM Memory Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinEXRAMMemoryInspector );
@@ -1168,6 +1190,7 @@ void MainWindow::createNesUi()
 
    m_pMapperInformationInspector = new MapperInformationDockWidget();
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pMapperInformationInspector,SLOT(updateTargetMachine(QString)));
+   QObject::connect(this,SIGNAL(applyEnvironmentSettings()),m_pMapperInformationInspector,SLOT(applyEnvironmentSettings()));
    addDockWidget(Qt::BottomDockWidgetArea, m_pMapperInformationInspector );
    m_pMapperInformationInspector->hide();
    QObject::connect(m_pMapperInformationInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
@@ -1175,6 +1198,7 @@ void MainWindow::createNesUi()
 
    m_pBinMapperMemoryInspector = new RegisterInspectorDockWidget(nesGetCartridgeRegisterDatabase,nesGetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinMapperMemoryInspector,SLOT(updateTargetMachine(QString)));
+   QObject::connect(this,SIGNAL(applyEnvironmentSettings()),m_pBinMapperMemoryInspector,SLOT(applyEnvironmentSettings()));
    m_pBinMapperMemoryInspector->setObjectName("cartMapperRegisterInspector");
    m_pBinMapperMemoryInspector->setWindowTitle("Cartridge Mapper Register Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinMapperMemoryInspector );
@@ -1545,6 +1569,7 @@ void MainWindow::createC64Ui()
 
    m_pBreakpointInspector = new BreakpointDockWidget(c64GetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBreakpointInspector,SLOT(updateTargetMachine(QString)));
+   QObject::connect(this,SIGNAL(applyEnvironmentSettings()),m_pBreakpointInspector,SLOT(applyEnvironmentSettings()));
    addDockWidget(Qt::BottomDockWidgetArea, m_pBreakpointInspector );
    m_pBreakpointInspector->hide();
    QObject::connect(m_pBreakpointInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
@@ -1552,6 +1577,7 @@ void MainWindow::createC64Ui()
 
    m_pAssemblyInspector = new CodeBrowserDockWidget(c64GetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pAssemblyInspector,SLOT(updateTargetMachine(QString)));
+   QObject::connect(this,SIGNAL(applyEnvironmentSettings()),m_pAssemblyInspector,SLOT(applyEnvironmentSettings()));
    addDockWidget(Qt::RightDockWidgetArea, m_pAssemblyInspector );
    m_pAssemblyInspector->hide();
    QObject::connect(m_pAssemblyInspector,SIGNAL(markProjectDirty(bool)),this,SLOT(markProjectDirty(bool)));
@@ -1559,6 +1585,7 @@ void MainWindow::createC64Ui()
 
    m_pBinCPURegisterInspector = new RegisterInspectorDockWidget(c64GetCpuRegisterDatabase,c64GetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinCPURegisterInspector,SLOT(updateTargetMachine(QString)));
+   QObject::connect(this,SIGNAL(applyEnvironmentSettings()),m_pBinCPURegisterInspector,SLOT(applyEnvironmentSettings()));
    m_pBinCPURegisterInspector->setObjectName("cpuRegisterInspector");
    m_pBinCPURegisterInspector->setWindowTitle("CPU Register Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinCPURegisterInspector );
@@ -1568,6 +1595,7 @@ void MainWindow::createC64Ui()
 
    m_pBinCPURAMInspector = new MemoryInspectorDockWidget(c64GetCpuMemoryDatabase,c64GetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinCPURAMInspector,SLOT(updateTargetMachine(QString)));
+   QObject::connect(this,SIGNAL(applyEnvironmentSettings()),m_pBinCPURAMInspector,SLOT(applyEnvironmentSettings()));
    m_pBinCPURAMInspector->setObjectName("cpuMemoryInspector");
    m_pBinCPURAMInspector->setWindowTitle("CPU RAM Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinCPURAMInspector );
@@ -1577,6 +1605,7 @@ void MainWindow::createC64Ui()
 
    m_pBinSIDRegisterInspector = new RegisterInspectorDockWidget(c64GetSidRegisterDatabase,c64GetBreakpointDatabase());
    QObject::connect(this,SIGNAL(updateTargetMachine(QString)),m_pBinSIDRegisterInspector,SLOT(updateTargetMachine(QString)));
+   QObject::connect(this,SIGNAL(applyEnvironmentSettings()),m_pBinSIDRegisterInspector,SLOT(applyEnvironmentSettings()));
    m_pBinSIDRegisterInspector->setObjectName("sidRegisterInspector");
    m_pBinSIDRegisterInspector->setWindowTitle("SID Register Inspector");
    addDockWidget(Qt::BottomDockWidgetArea, m_pBinSIDRegisterInspector );

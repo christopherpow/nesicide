@@ -31,6 +31,7 @@ public slots:
    void update();
 
 private:
+   char *m_modelStringBuffer;
 };
 
 #endif // CEXECUTIONMARKERDISPLAYMODEL_H

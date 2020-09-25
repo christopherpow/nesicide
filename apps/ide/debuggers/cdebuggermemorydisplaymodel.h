@@ -30,7 +30,8 @@ public slots:
 
 private:
    memDBFunc        m_memDBFunc;
-   CMemoryDatabase* m_memDB;
+   CMemoryDatabase *m_memDB;
+   char            *m_modelStringBuffer;
 };
 
 #endif // CDEBUGGERMEMORYDISPLAYMODEL_H

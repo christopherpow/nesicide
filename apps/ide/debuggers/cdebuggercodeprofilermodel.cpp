@@ -7,18 +7,18 @@
 
 #include "ccodedatalogger.h"
 
-static char modelStringBuffer [ 2048 ];
-
 CDebuggerCodeProfilerModel::CDebuggerCodeProfilerModel(QObject *parent) :
     QAbstractTableModel(parent)
 {
    m_currentSortColumn = CodeProfilerCol_Symbol;
    m_currentSortOrder = Qt::DescendingOrder;
    m_currentItemCount = 0;
+   m_modelStringBuffer = new char[32];
 }
 
 CDebuggerCodeProfilerModel::~CDebuggerCodeProfilerModel()
 {
+   delete [] m_modelStringBuffer;
 }
 
 Qt::ItemFlags CDebuggerCodeProfilerModel::flags(const QModelIndex& index) const
@@ -174,8 +174,8 @@ void CDebuggerCodeProfilerModel::update()
                   item.file = CCC65Interface::instance()->getSourceFileFromSymbol(symbol);
                   fileInfo.setFile(item.file);
 
-                  nesGetPrintablePhysicalAddress(modelStringBuffer,addr,absAddr);
-                  item.address = modelStringBuffer;
+                  nesGetPrintablePhysicalAddress(m_modelStringBuffer,addr,absAddr);
+                  item.address = m_modelStringBuffer;
                   item.count = pLogger->GetCount(addr&mask);
                   if ( !m_items.contains(item) )
                   {

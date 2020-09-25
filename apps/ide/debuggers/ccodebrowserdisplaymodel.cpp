@@ -19,15 +19,15 @@
 
 #include <QIcon>
 
-static char modelStringBuffer [ 2048 ];
-
 CCodeBrowserDisplayModel::CCodeBrowserDisplayModel(CBreakpointInfo* pBreakpoints,QObject*)
 {
    m_pBreakpoints = pBreakpoints;
+   m_modelStringBuffer = new char[2048];
 }
 
 CCodeBrowserDisplayModel::~CCodeBrowserDisplayModel()
 {
+   delete [] m_modelStringBuffer;
 }
 
 QVariant CCodeBrowserDisplayModel::data(const QModelIndex& index, int role) const
@@ -72,13 +72,13 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex& index, int role) cons
             {
                if ( !CNesicideProject::instance()->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
                {
-                  CNESDBG::CODEBROWSERTOOLTIP(TOOLTIP_INFO,addr,modelStringBuffer);
+                  CNESDBG::CODEBROWSERTOOLTIP(TOOLTIP_INFO,addr,m_modelStringBuffer);
                }
                else if ( !CNesicideProject::instance()->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
                {
-                  CC64DBG::CODEBROWSERTOOLTIP(TOOLTIP_INFO,addr,modelStringBuffer);
+                  CC64DBG::CODEBROWSERTOOLTIP(TOOLTIP_INFO,addr,m_modelStringBuffer);
                }
-               return QVariant(modelStringBuffer);
+               return QVariant(m_modelStringBuffer);
             }
             else if ( index.column() > CodeBrowserCol_Address )
             {
@@ -88,13 +88,13 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex& index, int role) cons
                {
                   if ( !CNesicideProject::instance()->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
                   {
-                     CNESDBG::CODEBROWSERTOOLTIP(TOOLTIP_BYTES,addr+(index.column()-CodeBrowserCol_Opcode),modelStringBuffer);
+                     CNESDBG::CODEBROWSERTOOLTIP(TOOLTIP_BYTES,addr+(index.column()-CodeBrowserCol_Opcode),m_modelStringBuffer);
                   }
                   else if ( !CNesicideProject::instance()->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
                   {
-                     CC64DBG::CODEBROWSERTOOLTIP(TOOLTIP_BYTES,addr+(index.column()-CodeBrowserCol_Opcode),modelStringBuffer);
+                     CC64DBG::CODEBROWSERTOOLTIP(TOOLTIP_BYTES,addr+(index.column()-CodeBrowserCol_Opcode),m_modelStringBuffer);
                   }
-                  return QVariant(modelStringBuffer);
+                  return QVariant(m_modelStringBuffer);
                }
             }
          }
@@ -180,28 +180,28 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex& index, int role) cons
       case CodeBrowserCol_Address:
          if ( !CNesicideProject::instance()->getProjectTarget().compare("nes",Qt::CaseInsensitive) )
          {
-            nesGetPrintableAddress(modelStringBuffer,addr);
+            nesGetPrintableAddress(m_modelStringBuffer,addr);
          }
          else if ( !CNesicideProject::instance()->getProjectTarget().compare("c64",Qt::CaseInsensitive) )
          {
-            c64GetPrintableAddress(modelStringBuffer,addr);
+            c64GetPrintableAddress(m_modelStringBuffer,addr);
          }
-         return QVariant(modelStringBuffer);
+         return QVariant(m_modelStringBuffer);
          break;
       case CodeBrowserCol_Decoration:
          return QVariant();
          break;
       case CodeBrowserCol_Opcode:
-         sprintf ( modelStringBuffer, "%02X", opcode );
-         return QVariant(modelStringBuffer);
+         sprintf ( m_modelStringBuffer, "%02X", opcode );
+         return QVariant(m_modelStringBuffer);
          break;
       case CodeBrowserCol_Operand1:
          opSize = OPCODESIZE ( opcode );
 
          if ( 1 < opSize )
          {
-            sprintf ( modelStringBuffer, "%02X", operand1 );
-            return QVariant(modelStringBuffer);
+            sprintf ( m_modelStringBuffer, "%02X", operand1 );
+            return QVariant(m_modelStringBuffer);
          }
 
          break;
@@ -210,8 +210,8 @@ QVariant CCodeBrowserDisplayModel::data(const QModelIndex& index, int role) cons
 
          if ( 2 < opSize )
          {
-            sprintf ( modelStringBuffer, "%02X", operand2 );
-            return QVariant(modelStringBuffer);
+            sprintf ( m_modelStringBuffer, "%02X", operand2 );
+            return QVariant(m_modelStringBuffer);
          }
 
          break;

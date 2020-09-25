@@ -29,8 +29,9 @@ public slots:
    void update(void);
 
 private:
-   regDBFunc m_regDB;
-   int       m_register;
+   regDBFunc  m_regDB;
+   int        m_register;
+   char      *m_modelStringBuffer;
 };
 
 #endif // CDEBUGGERBITFIELDDISPLAYMODEL_H

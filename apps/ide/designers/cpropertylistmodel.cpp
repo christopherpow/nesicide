@@ -2,8 +2,6 @@
 
 #include "cpropertylistmodel.h"
 
-static char modelStringBuffer [ 2048 ];
-
 static const char* ADD_MESSAGE = "<add new Tile Properties in Project Properties>";
 
 CPropertyListModel::CPropertyListModel(bool editable,QObject *parent) :

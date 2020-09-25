@@ -6,7 +6,7 @@
 
 #include "stdint.h"
 
-#include <Qsci/qsciscintilla.h>
+#include <qhexedit.h>
 
 namespace Ui
 {
@@ -32,13 +32,11 @@ protected:
    unsigned char* m_data;
 
 private:
-   Ui::PRGROMDisplayDialog* ui;
-   QsciScintilla* m_scintilla;
-   QsciLexer* m_lexer;
+   Ui::PRGROMDisplayDialog *ui;
+   QHexEdit                *m_editor;
 
 private slots:
-   void linesChanged();
-   void applyProjectPropertiesToTab();
+   void applyEnvironmentSettingsToTab();
    void updateTargetMachine(QString /*target*/) {}
 };
 

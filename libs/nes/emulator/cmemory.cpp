@@ -239,14 +239,15 @@ uint16_t CMEMORY::ADDR2SLOC ( uint32_t virtAddr )
 
 void CMEMORY::PRINTABLEADDR(char* buffer, uint32_t virtAddr)
 {
-   if ( m_numPhysBanks == 1 )
-   {
-      sprintf ( buffer, "%04X", virtAddr );
-   }
-   else
-   {
-      sprintf ( buffer, "%02X:%04X(%04X)", physBankFromVirtAddr(virtAddr), offsetInBank(virtAddr), virtAddr );
-   }
+         sprintf ( buffer, "%04X", virtAddr );
+//   if ( m_numPhysBanks == 1 )
+//   {
+//      sprintf ( buffer, "%04X", virtAddr );
+//   }
+//   else
+//   {
+//      sprintf ( buffer, "%02X:%04X(%04X)", physBankFromVirtAddr(virtAddr), offsetInBank(virtAddr), virtAddr );
+//   }
 }
 
 void CMEMORY::PRINTABLEADDR(char* buffer, uint32_t virtAddr, uint32_t physAddr)

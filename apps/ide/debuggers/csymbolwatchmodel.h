@@ -48,11 +48,12 @@ public slots:
    void sort(int column, Qt::SortOrder order);
 
 private:
-   QList<WatchedItem> m_items;
-   int m_currentSortColumn;
-   Qt::SortOrder m_currentSortOrder;
-   int m_currentItemCount;
-   bool m_editable;
+   QList<WatchedItem>  m_items;
+   int                 m_currentSortColumn;
+   Qt::SortOrder       m_currentSortOrder;
+   int                 m_currentItemCount;
+   bool                m_editable;
+   char               *m_modelStringBuffer;
 };
 
 #endif // CSYMBOLWATCHMODEL_H

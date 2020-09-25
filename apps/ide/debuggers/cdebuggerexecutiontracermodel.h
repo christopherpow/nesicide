@@ -25,9 +25,10 @@ public slots:
    void update();
 
 private:
-   CTracer* m_pTracer;
-   bool    m_bShowCPU;
-   bool    m_bShowPPU;
+   CTracer *m_pTracer;
+   bool     m_bShowCPU;
+   bool     m_bShowPPU;
+   char    *m_modelStringBuffer;
 };
 
 #endif // CDEBUGGEREXECUTIONTRACERMODEL_H

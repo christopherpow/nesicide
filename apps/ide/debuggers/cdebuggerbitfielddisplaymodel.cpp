@@ -1,20 +1,20 @@
 #include "cdebuggerbitfielddisplaymodel.h"
 
-static char modelStringBuffer [ 2048 ];
-
 CDebuggerBitfieldDisplayModel::CDebuggerBitfieldDisplayModel(regDBFunc regDB,QObject*)
 {
    m_regDB = regDB;
    m_register = 0;
+   m_modelStringBuffer = new char[512];
 }
 
 CDebuggerBitfieldDisplayModel::~CDebuggerBitfieldDisplayModel()
 {
+   delete [] m_modelStringBuffer;
 }
 
 QVariant CDebuggerBitfieldDisplayModel::data(const QModelIndex& index, int role) const
 {
-   char* pValues = modelStringBuffer;
+   char* pValues = m_modelStringBuffer;
    int value;
 
    if (!index.isValid())
@@ -50,7 +50,7 @@ QVariant CDebuggerBitfieldDisplayModel::data(const QModelIndex& index, int role)
          }
 
          pValues += sprintf ( pValues, "</pre>" );
-         return QVariant(modelStringBuffer);
+         return QVariant(m_modelStringBuffer);
       }
    }
 
@@ -58,19 +58,19 @@ QVariant CDebuggerBitfieldDisplayModel::data(const QModelIndex& index, int role)
    {
       if ( pBitfield->GetNumValues() )
       {
-         sprintf ( modelStringBuffer, "%s", pBitfield->GetValue(regData) );
+         sprintf ( m_modelStringBuffer, "%s", pBitfield->GetValue(regData) );
       }
       else
       {
-         sprintf ( modelStringBuffer, pBitfield->GetDisplayFormat(), pBitfield->GetValueRaw(regData) );
+         sprintf ( m_modelStringBuffer, pBitfield->GetDisplayFormat(), pBitfield->GetValueRaw(regData) );
       }
 
-      return QVariant(modelStringBuffer);
+      return QVariant(m_modelStringBuffer);
    }
    else if ( role == Qt::EditRole )
    {
-      sprintf ( modelStringBuffer, pBitfield->GetDisplayFormat(), regData );
-      return QVariant(modelStringBuffer);
+      sprintf ( m_modelStringBuffer, pBitfield->GetDisplayFormat(), regData );
+      return QVariant(m_modelStringBuffer);
    }
 
    return QVariant();
@@ -91,7 +91,7 @@ QVariant CDebuggerBitfieldDisplayModel::headerData(int section, Qt::Orientation 
 
    if ( orientation == Qt::Horizontal )
    {
-      sprintf ( modelStringBuffer, "Value" );
+      sprintf ( m_modelStringBuffer, "Value" );
    }
    else
    {
@@ -101,16 +101,16 @@ QVariant CDebuggerBitfieldDisplayModel::headerData(int section, Qt::Orientation 
 
          if ( pBitfield->GetWidth() == 1 )
          {
-            sprintf ( modelStringBuffer, "[%d] %s", pBitfield->GetLsb(), pBitfield->GetName() );
+            sprintf ( m_modelStringBuffer, "[%d] %s", pBitfield->GetLsb(), pBitfield->GetName() );
          }
          else
          {
-            sprintf ( modelStringBuffer, "[%d:%d] %s", pBitfield->GetMsb(), pBitfield->GetLsb(), pBitfield->GetName() );
+            sprintf ( m_modelStringBuffer, "[%d:%d] %s", pBitfield->GetMsb(), pBitfield->GetLsb(), pBitfield->GetName() );
          }
       }
    }
 
-   return QVariant(modelStringBuffer);
+   return QVariant(m_modelStringBuffer);
 }
 
 bool CDebuggerBitfieldDisplayModel::setData ( const QModelIndex& index, const QVariant& value, int )

@@ -55,7 +55,9 @@ CONFIG -= exceptions
 
 CONFIG(release, debug|release) {
     QSCINTILLA_NAME=qscintilla2_qt5
+    QHEXEDIT_NAME=qhexedit
 } else {
+   QHEXEDIT_NAME=qhexeditd
    macx: QSCINTILLA_NAME=qscintilla2_qt5_debug
    else: QSCINTILLA_NAME=qscintilla2_qt5d
 
@@ -71,6 +73,10 @@ unix {
 else {
     SCINTILLA_LIBS = -L$$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5/$$DESTDIR -l$$QSCINTILLA_NAME
 }
+
+HEXEDIT_CXXFLAGS = -I$$DEPENDENCYROOTPATH/qhexedit2/src
+HEXEDIT_LIBS = -L$$DEPENDENCYROOTPATH/qhexedit2/src -l$$QHEXEDIT_NAME
+
 NES_CXXFLAGS = -I$$TOP/libs/nes -I$$TOP/libs/nes/emulator -I$$TOP/libs/nes/common
 NES_LIBS = -L$$TOP/libs/nes/$$DESTDIR -lnes-emulator
 
@@ -219,6 +225,7 @@ QMAKE_CXXFLAGS += -DIDE \
                   $$SDL_CXXFLAGS \
                   $$LUA_CXXFLAGS \
                   $$SCINTILLA_CXXFLAGS \
+                  $$HEXEDIT_CXXFLAGS \
                   $$RTMIDI_CXXFLAGS
 QMAKE_LFLAGS += $$FAMITRACKER_LFLAGS \
                 $$NES_LFLAGS \
@@ -230,6 +237,7 @@ LIBS += $$NES_LIBS \
         $$SDL_LIBS \
         $$LUA_LIBS \
         $$SCINTILLA_LIBS \
+        $$HEXEDIT_LIBS \
         $$RTMIDI_LIBS
 
 INCLUDEPATH += \

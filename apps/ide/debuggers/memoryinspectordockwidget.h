@@ -9,6 +9,8 @@
 
 #include "cbreakpointinfo.h"
 
+#include "qhexedit.h"
+
 namespace Ui {
     class MemoryInspectorDockWidget;
 }
@@ -31,6 +33,7 @@ public slots:
    void updateMemory();
    void updateTargetMachine(QString target);
    void snapToHandler(QString item);
+   void applyEnvironmentSettings();
 
 signals:
    void breakpointsChanged();
@@ -42,6 +45,8 @@ private:
    CBreakpointInfo* m_pBreakpoints;
    memDBFunc        m_memDBFunc;
    CMemoryDatabase* m_memDB;
+   QHexEdit        *m_editor;
+   QByteArray       m_snapshot;
 
 private slots:
    void on_actionBreak_on_CPU_write_here_triggered();

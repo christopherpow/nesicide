@@ -5,8 +5,6 @@
 #include "cmarker.h"
 #include "nes_emulator_core.h"
 
-static char modelStringBuffer [ 2048 ];
-
 static const char* MARKER_NOT_STARTED = "No start set";
 static const char* MARKER_NOT_COMPLETED = "No end set";
 static const char* MARKER_NO_DATA = "No data";
@@ -14,10 +12,12 @@ static const char* MARKER_NO_DATA = "No data";
 CExecutionMarkerDisplayModel::CExecutionMarkerDisplayModel(QObject *parent) :
     QAbstractTableModel(parent)
 {
+   m_modelStringBuffer = new char[32];
 }
 
 CExecutionMarkerDisplayModel::~CExecutionMarkerDisplayModel()
 {
+   delete [] m_modelStringBuffer;
 }
 
 Qt::ItemFlags CExecutionMarkerDisplayModel::flags(const QModelIndex& index) const
@@ -66,13 +66,13 @@ QVariant CExecutionMarkerDisplayModel::data(const QModelIndex& index, int role) 
          if ( (pMarker->startCpuCycle != MARKER_NOT_MARKED) &&
               (pMarker->endCpuCycle == MARKER_NOT_MARKED) )
          {
-            sprintf(modelStringBuffer,"%d",nesGetCPUCycle()-pMarker->startCpuCycle);
+            sprintf(m_modelStringBuffer,"%d",nesGetCPUCycle()-pMarker->startCpuCycle);
          }
          else
          {
-            sprintf(modelStringBuffer,"%d",pMarker->curCpuCycles);
+            sprintf(m_modelStringBuffer,"%d",pMarker->curCpuCycles);
          }
-         return QVariant(modelStringBuffer);
+         return QVariant(m_modelStringBuffer);
       }
       else
       {
@@ -84,13 +84,13 @@ QVariant CExecutionMarkerDisplayModel::data(const QModelIndex& index, int role) 
       {
          if ( pMarker->minCpuCycles == 0xFFFFFFFF )
          {
-            sprintf(modelStringBuffer,"N/A");
+            sprintf(m_modelStringBuffer,"N/A");
          }
          else
          {
-            sprintf(modelStringBuffer,"%d",pMarker->minCpuCycles);
+            sprintf(m_modelStringBuffer,"%d",pMarker->minCpuCycles);
          }
-         return QVariant(modelStringBuffer);
+         return QVariant(m_modelStringBuffer);
       }
       else
       {
@@ -102,13 +102,13 @@ QVariant CExecutionMarkerDisplayModel::data(const QModelIndex& index, int role) 
       {
          if ( pMarker->maxCpuCycles == 0 )
          {
-            sprintf(modelStringBuffer,"N/A");
+            sprintf(m_modelStringBuffer,"N/A");
          }
          else
          {
-            sprintf(modelStringBuffer,"%d",pMarker->maxCpuCycles);
+            sprintf(m_modelStringBuffer,"%d",pMarker->maxCpuCycles);
          }
-         return QVariant(modelStringBuffer);
+         return QVariant(m_modelStringBuffer);
       }
       else
       {
@@ -118,10 +118,10 @@ QVariant CExecutionMarkerDisplayModel::data(const QModelIndex& index, int role) 
    case ExecutionVisualizerCol_StartAddr:
       if ( pMarker->state >= eMarkerSet_Started )
       {
-         nesGetPrintablePhysicalAddress(modelStringBuffer,
+         nesGetPrintablePhysicalAddress(m_modelStringBuffer,
                                             pMarker->startAddr,
                                             pMarker->startAbsAddr);
-         return QVariant(modelStringBuffer);
+         return QVariant(m_modelStringBuffer);
       }
       else
       {
@@ -131,10 +131,10 @@ QVariant CExecutionMarkerDisplayModel::data(const QModelIndex& index, int role) 
    case ExecutionVisualizerCol_EndAddr:
       if ( pMarker->state >= eMarkerSet_Complete )
       {
-         nesGetPrintablePhysicalAddress(modelStringBuffer,
+         nesGetPrintablePhysicalAddress(m_modelStringBuffer,
                                             pMarker->endAddr,
                                             pMarker->endAbsAddr);
-         return QVariant(modelStringBuffer);
+         return QVariant(m_modelStringBuffer);
       }
       else
       {

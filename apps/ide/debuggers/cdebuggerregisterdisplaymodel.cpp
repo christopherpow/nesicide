@@ -1,15 +1,15 @@
 #include "cdebuggerregisterdisplaymodel.h"
 
-static char modelStringBuffer [ 2048 ];
-
 CDebuggerRegisterDisplayModel::CDebuggerRegisterDisplayModel(regDBFunc regDB,QObject*)
 {
    m_regDBFunc = regDB;
    m_regDB = regDB();
+   m_modelStringBuffer = new char[128];
 }
 
 CDebuggerRegisterDisplayModel::~CDebuggerRegisterDisplayModel()
 {
+   delete [] m_modelStringBuffer;
 }
 
 int CDebuggerRegisterDisplayModel::memoryType() const
@@ -54,10 +54,10 @@ QVariant CDebuggerRegisterDisplayModel::data(const QModelIndex& index, int role)
 
    if ( pRegister )
    {
-      sprintf ( modelStringBuffer, "%02X", (int)pRegister->Get() );
+      sprintf ( m_modelStringBuffer, "%02X", (int)pRegister->Get() );
    }
 
-   return QVariant(modelStringBuffer);
+   return QVariant(m_modelStringBuffer);
 }
 
 Qt::ItemFlags CDebuggerRegisterDisplayModel::flags(const QModelIndex& /*index*/) const
@@ -81,7 +81,7 @@ QVariant CDebuggerRegisterDisplayModel::headerData(int section, Qt::Orientation 
          if ( (section >= 0) &&
               (section <m_regDB->GetNumColumns()) )
          {
-           sprintf(modelStringBuffer,m_regDB->GetColumnHeading(section));
+           sprintf(m_modelStringBuffer,m_regDB->GetColumnHeading(section));
          }
       }
       else
@@ -89,12 +89,12 @@ QVariant CDebuggerRegisterDisplayModel::headerData(int section, Qt::Orientation 
          if ( (section >= 0) &&
               (section < m_regDB->GetNumRows()) )
          {
-            sprintf(modelStringBuffer,m_regDB->GetRowHeading(section));
+            sprintf(m_modelStringBuffer,m_regDB->GetRowHeading(section));
          }
       }
    }
 
-   return QVariant(modelStringBuffer);
+   return QVariant(m_modelStringBuffer);
 }
 
 bool CDebuggerRegisterDisplayModel::setData ( const QModelIndex& index, const QVariant& value, int )

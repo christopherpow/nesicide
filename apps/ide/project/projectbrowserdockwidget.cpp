@@ -270,8 +270,14 @@ void ProjectBrowserDockWidget::itemModified(int tabId, bool modified)
 
 void ProjectBrowserDockWidget::itemSelectionChanged()
 {
-   int tabIndex = ui->openProjectItems->currentIndex().row();
-   m_pTarget->setCurrentIndex(tabIndex);
+   QModelIndexList indexes = ui->openProjectItems->selectionModel()->selectedIndexes();
+   QList<QTreeWidgetItem*> items = ui->openProjectItems->selectedItems();
+   if ( indexes.count() > 0 )
+   {
+      // Single selection
+      QModelIndex index = indexes.at(0);
+      m_pTarget->setCurrentIndex(index.row());
+   }
 }
 
 void ProjectBrowserDockWidget::projectTreeChanged(QUuid /*uuid*/)

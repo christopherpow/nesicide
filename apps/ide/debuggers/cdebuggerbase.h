@@ -21,6 +21,7 @@ signals:
 
 public slots:
    void snapToHandler(QString item) {};
+   void applyEnvironmentSettings() {};
 
 protected:
    NesStateSnapshot m_nesState;

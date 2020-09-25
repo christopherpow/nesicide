@@ -82,7 +82,7 @@
         <bool>true</bool>
        </property>
        <property name="headerHidden">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="expandsOnDoubleClick">
         <bool>false</bool>
@@ -143,7 +143,7 @@
        </column>
        <column>
         <property name="text">
-         <string> </string>
+         <string/>
         </property>
        </column>
       </widget>

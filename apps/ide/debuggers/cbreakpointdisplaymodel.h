@@ -17,7 +17,8 @@ public:
    int rowCount(const QModelIndex& parent = QModelIndex()) const;
 
 private:
-   CBreakpointInfo* m_pBreakpoints;
+   CBreakpointInfo *m_pBreakpoints;
+   char            *m_modelStringBuffer;
 
 public slots:
    void update();

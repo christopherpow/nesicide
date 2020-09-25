@@ -30,7 +30,8 @@ public slots:
 
 private:
    regDBFunc          m_regDBFunc;
-   CRegisterDatabase* m_regDB;
+   CRegisterDatabase *m_regDB;
+   char              *m_modelStringBuffer;
 };
 
 #endif // CDEBUGGERREGISTERDISPLAYMODEL_H

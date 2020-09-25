@@ -3,16 +3,17 @@
 #include <QColor>
 #include <QBrush>
 
-static char modelStringBuffer [ 2048 ];
-
 CDebuggerMemoryDisplayModel::CDebuggerMemoryDisplayModel(memDBFunc memDB,QObject*)
 {
+   m_modelStringBuffer = new char[256];
+
    m_memDBFunc = memDB;
    m_memDB = memDB();
 }
 
 CDebuggerMemoryDisplayModel::~CDebuggerMemoryDisplayModel()
 {
+   delete [] m_modelStringBuffer;
 }
 
 int CDebuggerMemoryDisplayModel::memoryType() const
@@ -84,10 +85,10 @@ QVariant CDebuggerMemoryDisplayModel::data(const QModelIndex& index, int role) c
 
    if ( m_memDB )
    {
-      sprintf(modelStringBuffer,"%02X",m_memDB->Get((index.row()*m_memDB->GetNumColumns())+index.column()));
+      sprintf(m_modelStringBuffer,"%02X",m_memDB->Get((index.row()*m_memDB->GetNumColumns())+index.column()));
    }
 
-   return QVariant(modelStringBuffer);
+   return QVariant(m_modelStringBuffer);
 }
 
 Qt::ItemFlags CDebuggerMemoryDisplayModel::flags(const QModelIndex& /*index*/) const
@@ -118,17 +119,17 @@ QVariant CDebuggerMemoryDisplayModel::headerData(int section, Qt::Orientation or
 
    if ( orientation == Qt::Horizontal )
    {
-      sprintf ( modelStringBuffer, "x%1X", section );
+      sprintf ( m_modelStringBuffer, "x%1X", section );
    }
    else
    {
       if ( m_memDB )
       {
-         m_memDB->GetRowHeading(modelStringBuffer,m_memDB->GetBase()+(section*m_memDB->GetNumColumns()));
+         m_memDB->GetRowHeading(m_modelStringBuffer,m_memDB->GetBase()+(section*m_memDB->GetNumColumns()));
       }
    }
 
-   return QVariant(modelStringBuffer);
+   return QVariant(m_modelStringBuffer);
 }
 
 bool CDebuggerMemoryDisplayModel::setData ( const QModelIndex& index, const QVariant& value, int )

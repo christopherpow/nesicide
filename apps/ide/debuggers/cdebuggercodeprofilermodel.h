@@ -57,10 +57,11 @@ public slots:
    void sort(int column, Qt::SortOrder order);
 
 private:
-   QList<ProfiledItem> m_items;
-   int m_currentSortColumn;
-   Qt::SortOrder m_currentSortOrder;
-   int m_currentItemCount;
+   QList<ProfiledItem>  m_items;
+   int                  m_currentSortColumn;
+   Qt::SortOrder        m_currentSortOrder;
+   int                  m_currentItemCount;
+   char                *m_modelStringBuffer;
 };
 
 #endif // CDEBUGGERCODEPROFILERMODEL_H
