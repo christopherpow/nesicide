@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<nesicideprojectaddon target="nes" version="0.3">
+ <project>
+  <primitives>
+   <attributetables/>
+   <tiles/>
+  </primitives>
+  <sources>
+   <source path="famitone2.s" name="famitone2.s">
+    <properties includeinbuild="0"/>
+   </source>
+   <source path="famitone2.inc" name="famitone2.inc">
+    <properties includeinbuild="1"/>
+   </source>
+  </sources>
+  <binaryfiles/>
+  <graphicsbanks/>
+  <sounds>
+   <musics/>
+  </sounds>
+ </project>
+</nesicideprojectaddon>
