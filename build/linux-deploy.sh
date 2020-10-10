@@ -17,7 +17,7 @@ DEPLOYS="apps/ide/release/nesicide \
 
 TARGARGS="-verbose=0 -appimage"
 if [ "$TRAVIS_BUILD_DIR" != "" ]; then
-  TARGARGS+="-qmake=/opt/qt510/bin/qmake"
+  TARGARGS+=" -qmake=/opt/qt510/bin/qmake"
 fi
 
 unset QTDIR; unset QT_PLUGIN_PATH; unset LD_LIBRARY_PATH
