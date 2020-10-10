@@ -150,6 +150,12 @@ mac {
       @executable_path/../Frameworks/lib$${QSCINTILLA_NAME}.13.dylib \
       $$DESTDIR/$${TARGET}.app/Contents/MacOS/nesicide $$escape_expand(\n\t)
 
+   QMAKE_PRE_LINK += cp $$DEPENDENCYROOTPATH/qhexedit2/src/lib$${QHEXEDIT_NAME}.4.1.0.dylib \
+      $$DESTDIR/$${TARGET}.app/Contents/Frameworks/lib$${QHEXEDIT_NAME}.4.dylib $$escape_expand(\n\t)
+   QMAKE_POST_LINK += install_name_tool -change lib$${QHEXEDIT_NAME}.4.dylib \
+      @executable_path/../Frameworks/lib$${QSCINTILLA_NAME}.4.dylib \
+      $$DESTDIR/$${TARGET}.app/Contents/MacOS/nesicide $$escape_expand(\n\t)
+
    QMAKE_POST_LINK += install_name_tool -add_rpath @loader_path/../Frameworks $$DESTDIR/$${TARGET}.app/Contents/MacOS/nesicide $$escape_expand(\n\t)
 
    ICON = mac/resources/nesicide.icns

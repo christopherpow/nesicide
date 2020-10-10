@@ -251,7 +251,7 @@ NESEmulatorWorker::NESEmulatorWorker(QObject*)
 
    pTimer = new QTimer();
    QObject::connect(pTimer,SIGNAL(timeout()),this,SLOT(process()));
-   pTimer->start(10);
+   pTimer->start();
 }
 
 NESEmulatorWorker::~NESEmulatorWorker()
