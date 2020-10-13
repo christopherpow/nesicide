@@ -55,7 +55,8 @@ CONFIG -= exceptions
 
 CONFIG(release, debug|release) {
     QSCINTILLA_NAME=qscintilla2_qt5
-    QHEXEDIT_NAME=qhexedit
+    win32:QHEXEDIT_NAME=qhexedit4
+    else:QHEXEDIT_NAME=qhexedit
 } else {
    QHEXEDIT_NAME=qhexeditd
    macx: QSCINTILLA_NAME=qscintilla2_qt5_debug
