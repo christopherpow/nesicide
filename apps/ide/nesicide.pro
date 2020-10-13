@@ -75,7 +75,7 @@ else {
 }
 
 HEXEDIT_CXXFLAGS = -I$$DEPENDENCYROOTPATH/qhexedit2/src
-HEXEDIT_LIBS = -L$$DEPENDENCYROOTPATH/qhexedit2/src -l$$QHEXEDIT_NAME
+HEXEDIT_LIBS = -L$$DEPENDENCYROOTPATH/qhexedit2/lib -l$$QHEXEDIT_NAME
 
 NES_CXXFLAGS = -I$$TOP/libs/nes -I$$TOP/libs/nes/emulator -I$$TOP/libs/nes/common
 NES_LIBS = -L$$TOP/libs/nes/$$DESTDIR -lnes-emulator
