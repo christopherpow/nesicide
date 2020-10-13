@@ -14,7 +14,7 @@ REMOTEPATH+=.tar.bz2
 
 LIBDEPS="deps/rtmidi/release/rtmidi \
      deps/qscintilla2/Qt4Qt5/release/qscintilla2_qt5 \
-     deps/qhexedit2/src/libqhexedit \
+     deps/qhexedit2/lib/libqhexedit \
      deps/Windows/Lua/lua51.dll \
      libs/nes/release/nes-emulator \
      libs/c64/release/c64-emulator \

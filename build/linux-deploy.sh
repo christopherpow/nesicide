@@ -6,7 +6,7 @@
 DISTPATH=$PWD/nesicide-local
 LIBDEPS="deps/rtmidi/release/librtmidi \
      deps/qscintilla2/Qt4Qt5/libqscintilla2_qt5 \
-     deps/qhexedit2/src/libqhexedit \
+     deps/qhexedit2/lib/libqhexedit \
      libs/nes/release/libnes-emulator \
      libs/c64/release/libc64-emulator \
      libs/famitracker/release/libfamitracker"
