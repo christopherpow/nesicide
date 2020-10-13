@@ -1,12 +1,12 @@
 PATH=deps/Windows/GnuWin32/bin:$PATH
 
-DISTPATH=$PWD/nesicide-local
+DISTPATH=nesicide-local
 REMOTEPATH=nesicide-win-x86
 if [ "$APPVEYOR_REPO_COMMIT" != "" ]; then
      COMMIT_SHORT=${APPVEYOR_REPO_COMMIT:0:7}
 fi
 if [ "$COMMIT_SHORT" != "" ]; then
-     DISTPATH=$PWD/nesicide-$COMMIT_SHORT
+     DISTPATH=nesicide-$COMMIT_SHORT
      REMOTEPATH+=-$COMMIT_SHORT
 fi
 
