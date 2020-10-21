@@ -1,5 +1,10 @@
 #include <QMessageBox>
 #include <QMenu>
+#include <QKeyEvent>
+#include <QDragEnterEvent>
+#include <QDragMoveEvent>
+#include <QDropEvent>
+#include <QContextMenuEvent>
 
 #include "symbolwatchdockwidget.h"
 #include "ui_symbolwatchdockwidget.h"
