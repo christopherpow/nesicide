@@ -10583,10 +10583,10 @@ DWORD CWinThread::ResumeThread( )
       pTimer = new QTimer;
       pIdleTimer = new QTimer;
 
-      pTimer->start();
+      pTimer->start(1);
       pTimer->moveToThread(pThread);
 
-      pIdleTimer->start();
+      pIdleTimer->start(1);
       pIdleTimer->moveToThread(pThread);
 
       QObject::connect(pTimer,SIGNAL(timeout()),this,SLOT(runSlot()));
