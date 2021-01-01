@@ -13,9 +13,9 @@ greaterThan(QT_MAJOR_VERSION,4) {
 
 TOP = ../..
 
-macx {
-    QMAKE_MAC_SDK = macosx10.15
-}
+#macx {
+#    QMAKE_MAC_SDK = macosx10.16
+#}
 
 CONFIG(release, debug|release) {
    DESTDIR = release

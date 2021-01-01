@@ -15,9 +15,9 @@ TOP = ../..
 
 QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-parameter
 
-macx {
-    QMAKE_MAC_SDK = macosx10.15
-}
+#macx {
+#    QMAKE_MAC_SDK = macosx10.15
+#}
 
 CONFIG(release, debug|release) {
    DESTDIR = release

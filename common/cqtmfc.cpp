@@ -15337,8 +15337,8 @@ BOOL CEvent::SetEvent()
    foreach ( QSemaphore* waiter, _waiters )
    {
       waiter->release();
-      _waiters.removeAll(waiter);
    }
+   _waiters.clear();
    _access.unlock();
    return TRUE;
 }

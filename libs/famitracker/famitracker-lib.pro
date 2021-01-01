@@ -24,9 +24,9 @@ QMAKE_CXXFLAGS += -w
 
 TOP = ../..
 
-macx {
-    QMAKE_MAC_SDK = macosx10.15
-}
+#macx {
+#    QMAKE_MAC_SDK = macosx10.16
+#}
 
 CONFIG += warn_off
 
