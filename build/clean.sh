@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function really_clean() {
-  for f in apps/{ide,fami*,nes*} libs/{nes,c64,fami*} deps/{rtmidi,qscintilla2/Qt4Qt5}; do echo $f; ( rm -rfv $f/debug $f/release $f/Makefile* $f/.qmake* ); done
+  for f in apps/{ide,fami*,nes*} libs/{nes,c64,fami*} deps/{rtmidi,qhexedit2/src,qscintilla2/Qt4Qt5}; do echo $f; ( rm -rfv $f/debug $f/release $f/Makefile* $f/.qmake* ); done
 }
 
 echo Cleaning NESICIDE...

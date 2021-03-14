@@ -13,6 +13,7 @@
 #include <QPaintEngine>
 #include <QProcess>
 #include <QWaitCondition>
+#include <QPainterPath>
 
 #include "cqtmfc.h"
 #include "resource.h"
@@ -15196,6 +15197,7 @@ HGLOBAL COleDataObject::GetGlobalData(
    return (HGLOBAL)GetClipboardData(cfFormat);
 }
 
+QSemaphore* waitingSem = NULL;
 DWORD WINAPI WaitForSingleObject(
    HANDLE hHandle,
    DWORD dwMilliseconds
@@ -15205,7 +15207,6 @@ DWORD WINAPI WaitForSingleObject(
    CCmdTarget* pCmdTarget = dynamic_cast<CCmdTarget*>(pObject);
    CWinThread* pWinThread = dynamic_cast<CWinThread*>(pCmdTarget);
    CEvent* pEvent = dynamic_cast<CEvent*>(pObject);
-   static QSemaphore* waitingSem = NULL;
    bool timedOut;
 
    if ( pWinThread && pWinThread->IsKindOf(RUNTIME_CLASS(CWinThread)) )
@@ -15358,8 +15359,8 @@ BOOL CEvent::PulseEvent()
    foreach ( QSemaphore* waiter, _waiters )
    {
       waiter->release();
-      _waiters.removeAll(waiter);
    }
+   _waiters.clear();
    _access.unlock();
    _access.lock();
    m_bSignalled = false;
