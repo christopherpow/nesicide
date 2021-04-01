@@ -3026,7 +3026,7 @@ CBitmap::CBitmap(QPixmap pixmap)
 
 CBitmap::~CBitmap()
 {
-   if ( _owned )
+   if ( _owned && _qpixmap )
       delete _qpixmap;
    _qpixmap = 0;
    _owned = false;
@@ -3053,7 +3053,7 @@ BOOL CBitmap::CreateCompatibleBitmap(
    int nHeight
 )
 {
-   if ( _owned )
+   if ( _owned && _qpixmap )
       delete _qpixmap;
    _qpixmap = new QPixmap(nWidth,nHeight);
    _owned = true;
@@ -3068,7 +3068,7 @@ BOOL CBitmap::CreateBitmap(
    const void* lpBits
 )
 {
-   if ( _owned )
+   if ( _owned && _qpixmap )
       delete _qpixmap;
    _qpixmap = new QPixmap(nWidth,nHeight);
    _qpixmap->loadFromData((const uchar*)lpBits,nWidth*nHeight*sizeof(short int));
@@ -3083,7 +3083,7 @@ CSize CBitmap::SetBitmapDimension(
 {
    CSize origSize;
    origSize = _qpixmap->size();
-   if ( _owned )
+   if ( _owned && _qpixmap )
       delete _qpixmap;
    _qpixmap = new QPixmap(nWidth,nHeight);
    _owned = true;
@@ -3100,7 +3100,7 @@ BOOL CBitmap::LoadBitmap(
 )
 {
    BOOL result = FALSE;
-   if ( _owned )
+   if ( _owned && _qpixmap )
       delete _qpixmap;
    _qpixmap = qtMfcBitmapResource(nIDResource)->toQPixmap();
    _owned = false;
