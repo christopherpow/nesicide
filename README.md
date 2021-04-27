@@ -22,7 +22,7 @@ The following steps are required prior to building this project on any platform.
 At the time of writing this Mac OS Homewbrew contains Qt 5.14.1 and NESICIDE can also be built with that version of Qt. So, alternatively, you can install Qt using
 
    ```
-   brew intall qt5
+   brew install qt5
    ```
 
 ### Debian prerequisites
