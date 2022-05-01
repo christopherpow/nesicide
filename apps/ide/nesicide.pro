@@ -6,6 +6,10 @@ QT += network \
       xml \
       widgets
 
+greaterThan(QT_MAJOR_VERSION,5) {
+    QT += core5compat
+}
+
 win32: LIBS += -lopengl32
 macx {
   CONFIG += c++11
@@ -64,15 +68,15 @@ CONFIG(release, debug|release) {
 
 }
 
-SCINTILLA_CXXFLAGS = -I$$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5
+SCINTILLA_CXXFLAGS = -I$$DEPENDENCYROOTPATH/qscintilla2/src
 macx {
-    SCINTILLA_LIBS = -L$$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5 -l$$QSCINTILLA_NAME
+    SCINTILLA_LIBS = -L$$DEPENDENCYROOTPATH/qscintilla2/src -l$$QSCINTILLA_NAME
 }
 unix {
-    SCINTILLA_LIBS = -L$$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5 -l$$QSCINTILLA_NAME
+    SCINTILLA_LIBS = -L$$DEPENDENCYROOTPATH/qscintilla2/src -l$$QSCINTILLA_NAME
 }
 else {
-    SCINTILLA_LIBS = -L$$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5/$$DESTDIR -l$$QSCINTILLA_NAME
+    SCINTILLA_LIBS = -L$$DEPENDENCYROOTPATH/qscintilla2/src/$$DESTDIR -l$$QSCINTILLA_NAME
 }
 
 HEXEDIT_CXXFLAGS = -I$$DEPENDENCYROOTPATH/qhexedit2/src
@@ -145,7 +149,7 @@ mac {
    QMAKE_PRE_LINK += cp -r $$DEPENDENCYPATH/Lua.framework \
       $$DESTDIR/$${TARGET}.app/Contents/Frameworks/ $$escape_expand(\n\t)
 
-   QMAKE_PRE_LINK += cp $$DEPENDENCYROOTPATH/qscintilla2/Qt4Qt5/lib$${QSCINTILLA_NAME}.13.2.1.dylib \
+   QMAKE_PRE_LINK += cp $$DEPENDENCYROOTPATH/qscintilla2/src/lib$${QSCINTILLA_NAME}.13.2.1.dylib \
       $$DESTDIR/$${TARGET}.app/Contents/Frameworks/lib$${QSCINTILLA_NAME}.13.dylib $$escape_expand(\n\t)
    QMAKE_POST_LINK += install_name_tool -change lib$${QSCINTILLA_NAME}.13.dylib \
       @executable_path/../Frameworks/lib$${QSCINTILLA_NAME}.13.dylib \

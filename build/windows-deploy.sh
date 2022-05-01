@@ -63,5 +63,5 @@ if [ "$1" == "local" ]; then
   done
   tar cjvf $REMOTEPATH $DISTPATH
 elif [ "$1" == "remote" ]; then
-  echo "Nothing to do here. Plese disperse!"
+  rsync $REMOTEPATH cpow@162.243.126.83:/var/www/html/nesicide/media/downloads/
 fi

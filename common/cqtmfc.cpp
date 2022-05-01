@@ -14,6 +14,7 @@
 #include <QProcess>
 #include <QWaitCondition>
 #include <QPainterPath>
+#include <QRegExp>
 
 #include "cqtmfc.h"
 #include "resource.h"
@@ -1984,7 +1985,7 @@ CString CString::Tokenize(
    delim = QString::fromLatin1(pszTokens);
 #endif
 
-   QStringList tokens = temp.split(delim,QString::SkipEmptyParts);
+   QStringList tokens = temp.split(delim,Qt::SkipEmptyParts);
 
    if ( tokens.count() )
    {

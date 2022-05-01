@@ -11,6 +11,10 @@ greaterThan(QT_MAJOR_VERSION,4) {
     QT += widgets
 }
 
+greaterThan(QT_MAJOR_VERSION,5) {
+    QT += core5compat
+}
+
 TOP = ../..
 
 #macx {

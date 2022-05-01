@@ -19,6 +19,10 @@ greaterThan(QT_MAJOR_VERSION,4) {
    }
 }
 
+greaterThan(QT_MAJOR_VERSION,5) {
+    QT += core5compat
+}
+
 QMAKE_CFLAGS += -w
 QMAKE_CXXFLAGS += -w
 
